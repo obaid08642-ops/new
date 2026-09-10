@@ -22,7 +22,6 @@ export function PharmacyQRMenuScreen({ onBack }: { onBack: () => void }) {
             {AR ? 'رمز المطبوعات والشاشات الخارجية بالفرع' : 'Branch outdoor & printable catalog code'}
           </Text>
         </NCard>
-        <NBtn label={AR ? 'تحميل بطاقة الرمز المطبوعة PDF' : 'Download Printable PDF'} onPress={() => show(AR ? 'جاري التحميل...' : 'Downloading...', 'info')} style={{ width: '100%' }} />
       </NScroll>
     </View>
   );
@@ -193,24 +192,6 @@ export function MedicationRefillsScreen({ onBack }: { onBack: () => void }) {
 }
 
 // 5. DRUG PRICE COMPARISON SCREEN
-export function DrugPriceComparisonScreen({ onBack }: { onBack: () => void }) {
-  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
-  return (
-    <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'مقارنة أسعار الأدوية التنافسية' : 'Drug Price Comparison'} onBack={onBack} />
-      <NScroll pad>
-        <NCard style={{ marginBottom: SP.sm }}>
-          <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>
-            Panadol Extra (500mg)
-          </Text>
-          <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: 4, textAlign: AR ? 'right' : 'left' }}>
-            {AR ? 'سعر صيدليتك: 12 ر.س | متوسط السوق: 13.5 ر.س (SFDA Standard)' : 'Your Price: 12 SAR | Market Avg: 13.5 SAR'}
-          </Text>
-        </NCard>
-      </NScroll>
-    </View>
-  );
-}
 
 // 6. ADD PRODUCT SCREEN
 export function AddProductScreen({ onBack }: { onBack: () => void }) {

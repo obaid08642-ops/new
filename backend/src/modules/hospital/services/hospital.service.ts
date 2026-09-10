@@ -1,6 +1,8 @@
-import { Injectable, BadRequestException, UnauthorizedException, NotFoundException } from '@nestjs/common';
+import { Injectable, BadRequestException, UnauthorizedException, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import * as bcrypt from 'bcryptjs';
+import { randomUUID } from 'crypto';
 import { HospitalBranch } from '../schemas/hospital-branch.schema';
 import { HospitalDepartment } from '../schemas/hospital-department.schema';
 import { HospitalStaff } from '../schemas/hospital-staff.schema';
@@ -144,12 +146,74 @@ export class HospitalService {
   async addStaff(hospitalId: string, data: Partial<HospitalStaff>, actor?: any) {
     this.assertFacilityActor(actor, true);
     const hospitalObjectId = await this.objectIdForUser(hospitalId);
-    const userObjectId = data.user_id ? await this.objectIdForUser(String(data.user_id)) : null;
-    if (!userObjectId) throw new BadRequestException('user_id_required');
-    const staff: any = { ...data, user_id: userObjectId, hospital_id: hospitalObjectId };
+    // Sub-account with login: create the central User, plus a full provider
+    // account+profile for clinical roles (same dashboards as standalone).
+    // Admin roles (reception/insurance) get a staff record without app login
+    // because no dashboard exists for them yet.
+    const CLINICAL: Record<string, { staff: string; ptype: string }> = {
+      doctor: { staff: 'doctor', ptype: 'doctor' },
+      nurse: { staff: 'nurse', ptype: 'nursing' },
+      lab: { staff: 'lab_tech', ptype: 'laboratory' },
+      pharmacist: { staff: 'pharmacist', ptype: 'pharmacy' },
+      radiologist: { staff: 'radiologist', ptype: 'radiology' },
+    };
+    const ADMIN_STAFF: Record<string, string> = {
+      reception: 'receptionist', insurance: 'insurance_coordinator',
+    };
+    let userObjectId = data.user_id ? await this.objectIdForUser(String(data.user_id)) : null;
+    let accountId: string | null = null;
+    let loginAvailable = !!userObjectId;
+    if (!userObjectId) {
+      const email = String((data as any).email || '').toLowerCase().trim();
+      const password = String((data as any).password || '');
+      const fullName = String((data as any).full_name || '').trim();
+      if (!fullName) throw new BadRequestException('full_name required');
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new BadRequestException('valid email required');
+      if (password.length < 8 || !/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) throw new BadRequestException('password must be at least 8 characters with letters and numbers');
+      const roleKey = String((data as any).staff_role || '');
+      const clinical = CLINICAL[roleKey];
+      const adminRole = ADMIN_STAFF[roleKey];
+      if (!clinical && !adminRole) throw new BadRequestException('unknown staff_role');
+      const db = this.staffModel.db;
+      const dupUser = await this.userModel.findOne({ email }).select({ _id: 1 }).lean();
+      if (dupUser) throw new ConflictException('email already registered');
+      if (clinical && await db.collection('provider_accounts').findOne({ email })) throw new ConflictException('email already registered');
+      const password_hash = await bcrypt.hash(password, 10);
+      const createdUser = await this.userModel.create({
+        full_name: fullName, email, password_hash,
+        role: clinical ? clinical.ptype : adminRole, active: true,
+      });
+      userObjectId = createdUser._id;
+      if (clinical) {
+        const accId = randomUUID();
+        await db.collection('provider_accounts').insertOne({
+          id: accId, email, password_hash, provider_type: clinical.ptype,
+          status: 'email_verified', email_verified: true,
+          status_history: [{ from: '', to: 'email_verified', by_user_id: hospitalId, by_role: 'facility', at: new Date() }],
+          createdAt: new Date(), updatedAt: new Date(),
+        });
+        await db.collection('provider_profiles').insertOne({
+          account_id: accId, provider_type: clinical.ptype,
+          display_name_ar: (data as any).name_ar || fullName,
+          display_name_en: (data as any).name_en || fullName,
+          legal_name: (data as any).legal_name || fullName,
+          parent_facility_id: hospitalObjectId, staff_role: roleKey,
+          specialty: (data as any).department, scfhs_number: (data as any).scfhs,
+          createdAt: new Date(), updatedAt: new Date(),
+        });
+        accountId = accId;
+        loginAvailable = true;
+      }
+    }
+    const staff: any = {
+      hospital_id: hospitalObjectId, user_id: userObjectId,
+      role: (CLINICAL[String((data as any).staff_role || '')]?.staff) || (ADMIN_STAFF[String((data as any).staff_role || '')]) || 'receptionist',
+      is_active: true,
+    };
     if (data.branch_id) staff.branch_id = this.objectId(String(data.branch_id), 'branch_id');
     if (data.department_id) staff.department_id = this.objectId(String(data.department_id), 'department_id');
-    return this.staffModel.create(staff);
+    const created = await this.staffModel.create(staff);
+    return { staff: created, account_id: accountId, login_available: loginAvailable };
   }
 
   async getStaff(hospitalId: string, actor?: any) {

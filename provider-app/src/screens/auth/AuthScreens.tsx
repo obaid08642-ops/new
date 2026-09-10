@@ -264,6 +264,9 @@ export function WelcomeScreen({
  </TouchableOpacity>
  )}
  </View>
+ <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: 'center', marginBottom: SP.xl }}>
+ {AR ? 'التصفح كضيف — النشر والتقديم يتطلبان تسجيل الدخول' : 'Browse as guest — posting and applying require sign-in'}
+ </Text>
 
  {/* Global Login Link */}
  <TouchableOpacity onPress={onLogin} style={{ alignItems: 'center', paddingVertical: SP.sm, marginBottom: SP.lg }}>

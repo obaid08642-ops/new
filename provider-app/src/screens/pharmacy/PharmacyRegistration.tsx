@@ -412,6 +412,7 @@ function PStep2Legal({ data, update, onNext, onBack, step, total, bare = false, 
 // ══════════════════════════════════════════════════════════════════════════════
 function PStep3Location({ data, update, onNext, onBack, step, total, bare = false, submitRef }: any) {
   const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
+  const [showMap, setShowMap] = useState(false);
   const [errs, setErrs] = useState<Record<string,string>>({});
 
   const validate = () => {
@@ -449,6 +450,8 @@ function PStep3Location({ data, update, onNext, onBack, step, total, bare = fals
 
       <NInput label={AR?'الحي / المنطقة':'District / Area'} placeholder={AR?'حي الورود':'Al-Wurud District'} value={data.district} onChange={v=>update({district:v})} caps="words" />
       <NInput label={AR?'العنوان الكامل':'Full Address'} placeholder={AR?'شارع الأمير سلطان، حي الروضة':'Prince Sultan Road, Al-Rawdah'} value={data.address} onChange={v=>update({address:v})} required error={errs.address} multi lines={2} />
+      <NBtn label={data.location?.lat ? (AR ? 'تم تحديد الموقع ✓ — تغيير' : 'Location set ✓ — change') : (AR ? 'حدد الموقع على الخريطة' : 'Pick location on map')} variant="outline" onPress={() => setShowMap(true)} style={{ marginBottom: SP.xl }} />
+      <LocationPickerModal visible={showMap} onClose={() => setShowMap(false)} initialLocation={data.location?.lat ? data.location : undefined} onSelectLocation={(loc: any) => { update({ location: { lat: loc.lat, lng: loc.lng } }); setShowMap(false); }} />
 
       {/* Delivery Zone with Interactive Map Circle */}
       <NCard style={{ marginBottom:SP.xl, marginTop: SP.md }}>
@@ -635,7 +638,7 @@ function PStep4Hours({ data, update, onNext, onBack, step, total, bare = false, 
       <NDatePickerSheet
         visible={showVacationCal}
         value={data.vacationDate}
-        onChange={() => {}}
+        onChange={(v: string) => update({ vacationDate: v })}
         onClose={() => setShowVacationCal(false)}
         title={AR ? 'اختر تاريخ الإجازة' : 'Select Vacation Date'}
       />
@@ -902,8 +905,10 @@ function PStep7Submit({ data, update, onDone, onBack, step, total }: any) {
         express_fee: parseFloat(data.expressFee) || 0,
         express_minutes: parseInt(data.expressMinutes, 10) || 0,
         working_hours: workingHours,
+        vacation_date: data.vacationDate || undefined,
         accepts_insurance: !data.cashOnly,
         accepted_insurance: data.acceptedInsurance ? data.acceptedInsurance.map((ins: any) => ins.companyId) : [],
+        insurance_plans: Object.fromEntries((data.acceptedInsurance || []).filter((ins: any) => Array.isArray(ins.plans) && ins.plans.length).map((ins: any) => [ins.companyId, ins.plans])),
         accepts_cash: true,
         rx_dispensing: data.rxDispensing || false,
         otc_selling: data.otcSelling || false,
@@ -922,6 +927,7 @@ function PStep7Submit({ data, update, onDone, onBack, step, total }: any) {
         await ProviderApi.step2({
           name_ar: data.nameAr,
           name_en: data.nameEn,
+          pharmacist_name: data.pharmacistName,
           city: data.city,
           location: data.location,
           district: data.district,

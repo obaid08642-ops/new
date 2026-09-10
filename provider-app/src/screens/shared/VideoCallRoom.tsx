@@ -68,6 +68,36 @@ export function VideoCallRoom({ appointmentId, peerName, voiceOnly, onEnd }: Vid
   const roomRef = useRef<Room | null>(null);
   const sessionRef = useRef<string | null>(null);
   const attemptRef = useRef(0);
+  const endedRef = useRef(false);
+  const reconnectRef = useRef(0);
+  const metricsTimer = useRef<any>(null);
+
+  const stopMetrics = () => {
+    if (metricsTimer.current) { clearInterval(metricsTimer.current); metricsTimer.current = null; }
+  };
+
+  const startMetrics = () => {
+    stopMetrics();
+    metricsTimer.current = setInterval(async () => {
+      try {
+        const room = roomRef.current;
+        const sid = sessionRef.current;
+        if (!room || !sid) return;
+        const stats = await room.getStats();
+        const samples: Array<{ packet_loss: number; jitter: number; rtt: number; bitrate: number }> = [];
+        stats.forEach((s: any) => {
+          const r = s.remoteInboundRtp || s.inboundRtp || {};
+          samples.push({
+            packet_loss: Number(r.packetsLost || 0),
+            jitter: Number((r.jitter || 0) * 1000),
+            rtt: Number(s.rtt || 0),
+            bitrate: Number(s.bitrate || 0),
+          });
+        });
+        if (samples.length) await client.post(`/calls/${encodeURIComponent(sid)}/metrics`, { metrics: samples.slice(0, 8) });
+      } catch { /* quality telemetry is best-effort */ }
+    }, 15000);
+  };
 
   const connect = async () => {
     if (!LIVEKIT_NATIVE_OK) {
@@ -118,6 +148,18 @@ export function VideoCallRoom({ appointmentId, peerName, voiceOnly, onEnd }: Vid
       room.on(RoomEvent.Disconnected, () => {
         setRemoteTrack(null);
         setLocalTrack(null);
+        if (!(endedRef.current as boolean)) {
+          // Unexpected drop (network/server) — auto-reconnect with backoff.
+          const n = ((reconnectRef.current as number) || 0) + 1;
+          (reconnectRef as any).current = n;
+          if (n <= 3) {
+            setPhase('connecting');
+            setTimeout(() => { if (!(endedRef.current as boolean)) connect(); }, Math.min(2000 * n, 8000));
+            return;
+          }
+          setErrMsg(AR ? 'انقطع الاتصال — تحقق من الشبكة ثم أعد المحاولة' : 'Connection lost — check your network and retry');
+          setPhase('error');
+        }
       });
 
       await room.connect(serverUrl, token);
@@ -130,7 +172,9 @@ export function VideoCallRoom({ appointmentId, peerName, voiceOnly, onEnd }: Vid
 
       if (attemptRef.current !== attempt) { room.disconnect(); return; }
       roomRef.current = room;
+      reconnectRef.current = 0;
       setPhase('connected');
+      startMetrics();
     } catch (e: any) {
       if (attemptRef.current !== attempt) return;
       setErrMsg(e?.response?.data?.message || e?.message || 'connect_failed');
@@ -142,6 +186,8 @@ export function VideoCallRoom({ appointmentId, peerName, voiceOnly, onEnd }: Vid
     connect();
     return () => {
       attemptRef.current++;
+      endedRef.current = true;
+      stopMetrics();
       const room = roomRef.current;
       roomRef.current = null;
       if (room) room.disconnect();
@@ -156,6 +202,8 @@ export function VideoCallRoom({ appointmentId, peerName, voiceOnly, onEnd }: Vid
   const handleEnd = async () => {
     if (ending) return;
     setEnding(true);
+    endedRef.current = true;
+    stopMetrics();
     const room = roomRef.current;
     roomRef.current = null;
     if (room) room.disconnect();

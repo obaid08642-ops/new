@@ -936,7 +936,7 @@ class ProviderDrugIndexController {
       name_en: m.name_en || m.name_ar,
       active_ar: m.active_ingredient || null,
       active_en: m.active_ingredient || null,
-      cat: m.category === 'أدوية ومكملات' ? 'medications' : (m.category === 'العناية بالبشرة' ? 'skincare' : 'other'),
+      cat: m.category || 'other',
       category_ar: m.category,
       sub_category: m.sub_category || null,
       manufacturer: m.manufacturer || null,
@@ -968,13 +968,8 @@ class ProviderDrugIndexController {
       { manufacturer: { $regex: search, $options: 'i' } },
     ];
     if (category && category !== 'all') {
-      const map: Record<string, string> = { medications: 'أدوية ومكملات', skincare: 'العناية بالبشرة', vitamins: 'أدوية ومكملات' };
-      if (category === 'vitamins') {
-        q.sub_category = { $regex: 'فيتامين', $options: 'i' };
-      } else {
-        // Dynamic categories are matched directly against the catalog's Arabic names
-        q.category = map[category] || category;
-      }
+      // Match the catalog's real Arabic category names directly (no collapsing).
+      q.category = category;
     }
     const rows = await this.col.find(q, { projection: { _id: 0, translations: 0, more_info_ar: 0, more_info_en: 0 } })
       .sort({ usage_count: -1, name_ar: 1 }).limit(Math.min(parseInt(limit, 10) || 50, 100)).toArray();
@@ -1002,6 +997,12 @@ class ProviderDrugIndexController {
           { projection: { _id: 0, id: 1, name_ar: 1, name_en: 1, price: 1, manufacturer: 1, image: 1 } } as any,
         ).limit(8).toArray()
       : [];
+    const similar = m.category
+      ? await this.col.find(
+          { category: m.category, id: { $ne: id }, is_deleted: { $ne: true } },
+          { projection: { _id: 0, id: 1, name_ar: 1, name_en: 1, price: 1, manufacturer: 1, image: 1 } } as any,
+        ).limit(8).toArray()
+      : [];
     return {
       ...this.card(m),
       generic_name: m.generic_name || null,
@@ -1019,7 +1020,14 @@ class ProviderDrugIndexController {
       indications_ar: m.indications_ar || [],
       description_ar: m.description_ar || null,
       shortage_notes: m.shortage_notes || null,
+      pregnancy_info_ar: m.pregnancy_info_ar || null,
+      pregnancy_info_en: m.pregnancy_info_en || null,
+      breastfeeding_info_ar: m.breastfeeding_info_ar || null,
+      breastfeeding_info_en: m.breastfeeding_info_en || null,
+      more_info_ar: m.more_info_ar || null,
+      more_info_en: m.more_info_en || null,
       alternatives,
+      similar,
     };
   }
 }

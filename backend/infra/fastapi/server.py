@@ -1395,20 +1395,6 @@ async def ai_triage(req: TriageReq):
         return {"ok": True, "specialty_suggestions": ["باطنة عامة"], "reasoning": "خطأ في الذكاء الاصطناعي - يُنصح بمراجعة طبيب باطنة", "urgency": "routine", "ai_source": "error_fallback"}
 
 
-# ============================ AGORA TOKEN ============================
-@api.post("/agora/token")
-async def agora_token(data: Dict[str, Any], user=Depends(get_current_user)):
-    """Returns Agora APP_ID (no token mode for testing). For production, use Agora token server."""
-    if not user:
-        raise HTTPException(401, "Login required")
-    return {
-        "app_id": os.environ.get("AGORA_APP_ID", ""),
-        "channel": data.get("channel", f"nabd-{uuid.uuid4().hex[:8]}"),
-        "uid": user["id"],
-        "token": None,  # null = no token authentication (development mode)
-    }
-
-
 # ============================ HEALTH ============================
 @api.get("/")
 async def root():

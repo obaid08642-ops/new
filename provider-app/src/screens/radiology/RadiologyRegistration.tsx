@@ -1121,6 +1121,14 @@ function LStep4({ data, update, onNext, onBack, step, total, bare = false, submi
                 <NPriceInput label={AR ? 'السعر (ريال)' : 'Price (SAR)'}
                   value={data.scanPrices[scan.id] ?? ''}
                   onChange={v => setScanPrice(scan.id, v)} required />
+                {!data.cashOnly && (
+                  <NToggle
+                    label={AR ? 'يُغطى بالتأمين' : 'Covered by insurance'}
+                    value={data.scanInsuranceCov[scan.id] ?? false}
+                    onChange={v => setScanInsurance(scan.id, v)}
+                    style={{ marginTop: SP.sm }}
+                  />
+                )}
               </View>
             )}
           </NCard>
@@ -1763,17 +1771,22 @@ function LStep8Signature({ data, update, onDone, onBack, step, total }: {
         })) : [],
         radiation_safety_license: (data as any).radSafetyLicense || undefined,
         available_equipment_text: (data as any).radEquipment || undefined,
+        scan_insurance_map: (data as any).scanInsuranceCov || {},
+        vacation_date: data.vacationDate || undefined,
       });
 
       await ProviderApi.step2({
         name_ar: data.nameAr,
         name_en: data.nameEn,
+        tech_officer_name: data.techOfficerName || undefined,
+        tech_officer_scfhs: data.techOfficerScfhs || undefined,
         city: data.city,
         location: data.location,
         address: data.address,
         district: data.district,
         accepts_insurance: !data.cashOnly && data.acceptedInsurance.length > 0,
         accepted_insurance: data.acceptedInsurance ? data.acceptedInsurance.map((ins: any) => ins.companyId) : [],
+        insurance_plans: Object.fromEntries((data.acceptedInsurance || []).filter((ins: any) => Array.isArray(ins.plans) && ins.plans.length).map((ins: any) => [ins.companyId, ins.plans])),
         cr_number: data.crNumber,
         moh_license_number: data.mohLicense,
         tax_number: data.taxNumber,

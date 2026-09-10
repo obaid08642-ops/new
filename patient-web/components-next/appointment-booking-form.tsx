@@ -69,12 +69,19 @@ export function AppointmentBookingForm({
         setConfirmedBooking({ id: payload.id, slot: selected });
         return;
       }
-      // If unauthenticated or backend error, provide seamless client confirmation
-      const fallbackId = `APT-${Math.floor(100000 + Math.random() * 900000)}`;
-      setConfirmedBooking({ id: fallbackId, slot: selected });
+      if (response.status === 401) {
+        router.push(`/${locale}/login`);
+        return;
+      }
+      const serverMessage =
+        typeof payload?.message === "string" && payload.message
+          ? payload.message
+          : isAr
+            ? "تعذر إتمام الحجز — تحقق من الموعد وطريقة الدفع"
+            : "Booking failed — check the slot and payment method";
+      setMessage(serverMessage);
     } catch {
-      const fallbackId = `APT-${Math.floor(100000 + Math.random() * 900000)}`;
-      setConfirmedBooking({ id: fallbackId, slot: selected });
+      setMessage(isAr ? "تعذر الاتصال — حاول مجدداً" : "Connection unavailable — retry");
     } finally {
       setSubmitting(false);
     }

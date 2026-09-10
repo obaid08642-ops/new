@@ -297,14 +297,13 @@ function LabHome({ onNav, onTriggerAlarm }:{ onNav:(s:string,p?:any)=>void; onTr
  {[
  {ar:'المحفظة والإيرادات',en:'Wallet & Revenue',screen:'wallet',color:'#9C27B0'},
  {ar:'تتبع العينات',en:'Track Samples',screen:'sample_tracking',color:'#2196F3'},
- {ar:'إدخال نتائج',en:'Enter Results',screen:'result_entry',color:'#4CAF50'},
+ {ar:'إدخال نتائج',en:'Enter Results',screen:'sample_tracking',color:'#4CAF50'},
  {ar:'وقت النتائج',en:'TAT Tracker',screen:'tat_tracker',color:'#FF9800'},
  {ar:'سحب منزلي',en:'Home Collection',screen:'home_collection',color:'#E91E63'},
  {ar:'ملصق QR',en:'QR Label',screen:'qr_label',color:'#9C27B0'},
  {ar:'إدارة الحزم',en:'Bundles',screen:'bundles',color:'#009688'},
  {ar:'فحص مخصص',en:'Custom Test',screen:'add_test',color:'#FF5722'},
  {ar:'مطالبات تأمين',en:'Insurance',screen:'insurance',color:'#3F51B5'},
- {ar:'لوحة الأشعة',en:'Radiology',screen:'rad_home',color:'#009688'},
  ].map(qa=>(
  <TouchableOpacity key={qa.screen} onPress={()=>onNav(qa.screen)}
  style={[s.quickAction,{backgroundColor:theme.card,borderColor:theme.border}]}>
@@ -814,7 +813,7 @@ function BundleMgmt({ onBack }:{ onBack:()=>void }) {
  <NCard key={b.id} style={{marginBottom:SP.md}} accent={b.active?'#9C27B0':undefined}>
  <View style={{flexDirection:AR?'row-reverse':'row',justifyContent:'space-between',marginBottom:SP.md}}>
  <Text style={{fontSize:FS.md,fontWeight:FW.bold,color:theme.text}}>{AR?b.nameAr:b.nameEn}</Text>
- <Switch value={b.active} onValueChange={()=>show(AR?'تم التحديث':'Updated','success')} trackColor={{false:theme.border,true:'#9C27B0'}} thumbColor="#FFF" />
+ <NBadge label={b.active ? (AR ? 'نشطة' : 'Active') : (AR ? 'موقوفة' : 'Paused')} variant={b.active ? 'success' : 'default'} size="sm" />
  </View>
  <View style={{flexDirection:'row',flexWrap:'wrap',gap:SP.xs,marginBottom:SP.md}}>
  {b.tests.map(tid=>{const t=LAB_TESTS.find(x=>x.id===tid);return <View key={tid} style={{backgroundColor:theme.surface2,paddingHorizontal:SP.sm,paddingVertical:2,borderRadius:R.full,borderWidth:1,borderColor:theme.border}}><Text style={{fontSize:FS.xs,color:theme.text}}>{t?(AR?t.ar:t.en):tid}</Text></View>;})}
@@ -829,7 +828,7 @@ function BundleMgmt({ onBack }:{ onBack:()=>void }) {
  </View>
  </NCard>
  ))}
- <NBtn label={AR?'+ إنشاء حزمة جديدة':'+ Create Bundle'} variant="outline" onPress={()=>show(AR?'إنشاء حزمة':'Create bundle','info')} />
+ <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: 'center', marginTop: SP.md }}>{AR ? 'الحزم تُدار من الإدارة — تواصل مع الدعم لإضافة حزمة' : 'Bundles are managed by admin — contact support to add one'}</Text>
  </NScroll>
  );
 }
@@ -1034,7 +1033,7 @@ function QRSampleLabel({ sample, onBack }:{ sample:any; onBack:()=>void }) {
  </View>
  </NCard>
  <View style={{gap:SP.md}}>
- <NBtn label={AR?'طباعة الملصق':'Print Label'} onPress={()=>show(AR?'جاري الطباعة...':'Printing...','info')} />
+ <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{AR ? 'اطبع الملصق من جهاز الباركود المرتبط برقم العينة' : 'Print the label from the barcode device linked to the sample number'}</Text>
  <NBtn label={AR?'حفظ كصورة':'Save as Image'} variant="outline" onPress={()=>show(AR?'تم الحفظ':'Saved','success')} />
  </View>
  </NScroll>
@@ -1045,47 +1044,49 @@ function QRSampleLabel({ sample, onBack }:{ sample:any; onBack:()=>void }) {
 // TURNAROUND TIME TRACKER
 // ══════════════════════════════════════════════════════════════════
 function TATTracker({ onBack }:{ onBack:()=>void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const AR = lang==='ar';
- const DATA = [
- {test:'CBC',promised:0.5,actual:0.4,st:'ok'},{test:'Lipid Profile',promised:2,actual:1.8,st:'ok'},
- {test:'HbA1c',promised:1,actual:1.2,st:'late'},{test:'Vitamin D',promised:2,actual:2.5,st:'late'},
- {test:'Liver Function',promised:2,actual:1.5,st:'ok'},{test:'TSH',promised:2,actual:1.9,st:'ok'},
- {test:'Culture',promised:48,actual:50,st:'late'},
- ];
- const onTime=DATA.filter(d=>d.st==='ok').length; const delayed=DATA.filter(d=>d.st==='late').length;
- const pct=Math.round((onTime/DATA.length)*100);
-
+ const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+ const [samples, setSamples] = useState<any[]>([]);
+ const [loading, setLoading] = useState(true);
+ useEffect(() => {
+   client.get('/labs/samples').then(r => setSamples(Array.isArray(r.data) ? r.data : [])).catch(() => {
+     show(AR ? 'تعذر تحميل العينات' : 'Could not load samples', 'error');
+   }).finally(() => setLoading(false));
+ }, []);
+ const ageHours = (s: any) => {
+   const c = Date.parse(s.createdAt || s.created_at || '');
+   if (!Number.isFinite(c)) return null;
+   return (Date.now() - c) / 3600000;
+ };
+ const byStage = (st: string) => samples.filter(s => s.stage === st);
+ const sent = byStage('sent').length;
+ const pct = samples.length ? Math.round((sent / samples.length) * 100) : 0;
  return (
+ <View style={{ flex: 1, backgroundColor: theme.bg }}>
+ <NHeader title={AR ? 'تتبع زمن الإنجاز' : 'TAT Tracker'} onBack={onBack} />
  <NScroll>
- <NHeader title={AR?'مراقبة وقت النتائج TAT':'Turnaround Tracker'} onBack={onBack} />
- <View style={{flexDirection:'row',gap:SP.md,marginBottom:SP.xl}}>
- <NStatCard icon="" label={AR?'في الوقت':'On Time'} value={String(onTime)} color="#4CAF50" style={{flex:1}} />
- <NStatCard icon="!" label={AR?'متأخر':'Delayed'} value={String(delayed)} color="#F44336" style={{flex:1}} />
- <NStatCard icon="◔" label={AR?'الالتزام':'Compliance'} value={`${pct}%`} color="#9C27B0" style={{flex:1}} />
- </View>
- <NCard style={{marginBottom:SP.xl}}>
- <View style={{flexDirection:'row',backgroundColor:'#9C27B010',borderRadius:R.sm,padding:SP.sm,marginBottom:SP.sm}}>
- <Text style={{flex:3,fontSize:FS.xs,fontWeight:FW.bold,color:'#9C27B0'}}>{AR?'الفحص':'Test'}</Text>
- <Text style={{flex:2,fontSize:FS.xs,fontWeight:FW.bold,color:'#9C27B0'}}>{AR?'المحدد':'Target'}</Text>
- <Text style={{flex:2,fontSize:FS.xs,fontWeight:FW.bold,color:'#9C27B0'}}>{AR?'الفعلي':'Actual'}</Text>
- <View style={{flex:1,alignItems:'center'}}><I name="alert" size={12} color="#9C27B0" /></View>
- </View>
- {DATA.map((r,i)=>(
- <View key={i} style={{flexDirection:'row',paddingVertical:SP.sm,borderBottomWidth:StyleSheet.hairlineWidth,borderBottomColor:theme.border,alignItems:'center'}}>
- <Text style={{flex:3,fontSize:FS.sm,color:theme.text}}>{r.test}</Text>
- <Text style={{flex:2,fontSize:FS.sm,color:theme.textSub}}>{r.promised}h</Text>
- <Text style={{flex:2,fontSize:FS.sm,fontWeight:FW.bold,color:r.st==='ok'?'#4CAF50':'#F44336'}}>{r.actual}h</Text>
- <View style={{flex:1,alignItems:'center'}}><View style={{width:8,height:8,borderRadius:4,backgroundColor:r.st==='ok'?'#4CAF50':'#F44336'}} /></View>
- </View>
+ <View style={{ padding: SP.lg, gap: SP.md }}>
+ {loading ? <ActivityIndicator color={theme.primary} style={{ marginTop: 40 }} /> : samples.length === 0 ? (
+ <NEmpty title={AR ? 'لا توجد عينات بعد' : 'No samples yet'} icon="flask" />
+ ) : (<>
+ <NStatCard icon="◷" label={AR ? 'مكتملة الإرسال' : 'Sent'} value={`${pct}%`} color="#4CAF50" />
+ {[['received', AR ? 'مستلمة' : 'Received'], ['analyzing', AR ? 'قيد التحليل' : 'Analyzing'], ['result_ready', AR ? 'النتيجة جاهزة' : 'Result ready'], ['sent', AR ? 'مُرسلة' : 'Sent']].map(([st, label]) => (
+ <NCard key={st} style={{ marginBottom: SP.sm }}>
+ <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{label}: {byStage(st).length}</Text>
+ </NCard>
  ))}
- </NCard>
- <NCard style={{backgroundColor:pct>=80?theme.successBg:theme.warnBg}}>
- <Text style={{fontSize:FS.sm,color:pct>=80?theme.success:theme.warn,textAlign:AR?'right':'left',lineHeight:20}}>
- {pct>=80?(AR?'أداء ممتاز! نسبة الالتزام أعلى من 80%.':'Excellent! TAT compliance above 80%.')
- :(AR?'تحذير: نسبة التأخير مرتفعة — راجع سير العمل.':'Warning: High delay rate — review workflow.')}
- </Text>
- </NCard>
+ {samples.slice(0, 20).map((s: any) => {
+   const age = ageHours(s);
+   return (
+   <NCard key={String(s.id || s.barcode)} style={{ marginBottom: SP.sm }}>
+   <Text style={{ fontSize: FS.sm, color: theme.text }}>{s.barcode || s.id} — {s.stage}</Text>
+   {age !== null ? <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{AR ? 'العمر:' : 'Age:'} {age.toFixed(1)} {AR ? 'ساعة' : 'h'}</Text> : null}
+   </NCard>
+   );
+ })}
+ </>)}
+ </View>
  </NScroll>
+ </View>
  );
 }
 
@@ -1362,6 +1363,7 @@ function LabTestMenuScreen({ onBack }: { onBack: () => void }) {
   const [editingService, setEditingService] = useState<any | null>(null);
   const [editPrice, setEditPrice] = useState('');
   const [editHomeFee, setEditHomeFee] = useState('');
+  const [editCovered, setEditCovered] = useState(false);
 
   useEffect(() => { fetchServices(); }, []);
 
@@ -1384,7 +1386,8 @@ function LabTestMenuScreen({ onBack }: { onBack: () => void }) {
         entity_id: editingService.id,
         change_data: {
           price: parseFloat(editPrice) || 0,
-          home_drawing_fee: parseFloat(editHomeFee) || 0
+          home_drawing_fee: parseFloat(editHomeFee) || 0,
+          insurance_covered: !!editCovered,
         }
       });
       show(AR ? 'تم إرسال التعديلات للمراجعة' : 'Changes sent for review', 'success');
@@ -1446,6 +1449,7 @@ function LabTestMenuScreen({ onBack }: { onBack: () => void }) {
                   setEditingService(srv);
                   setEditPrice(String(srv.price || ''));
                   setEditHomeFee(String(srv.home_drawing_fee || ''));
+                  setEditCovered(srv.insurance_covered === true);
                 }} />
               </View>
             </NCard>
@@ -1457,6 +1461,10 @@ function LabTestMenuScreen({ onBack }: { onBack: () => void }) {
       <NSheet visible={!!editingService} onClose={() => setEditingService(null)} title={AR ? 'تعديل السعر' : 'Edit Price'}>
         <NPriceInput label={AR ? 'السعر داخل المختبر' : 'Lab Price'} value={editPrice} onChange={setEditPrice} />
         <NPriceInput label={AR ? 'رسوم السحب المنزلي (اختياري)' : 'Home Drawing Fee (Optional)'} value={editHomeFee} onChange={setEditHomeFee} />
+        <TouchableOpacity onPress={() => setEditCovered((v: boolean) => !v)} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: 8, marginTop: SP.md }}>
+          <View style={{ width: 18, height: 18, borderRadius: 4, borderWidth: 2, borderColor: editCovered ? theme.success : theme.border, backgroundColor: editCovered ? theme.success : 'transparent' }} />
+          <Text style={{ fontSize: FS.sm, color: theme.text }}>{AR ? 'يُغطى بالتأمين' : 'Covered by insurance'}</Text>
+        </TouchableOpacity>
         <NBtn label={AR ? 'إرسال التعديل للمراجعة' : 'Send for Review'} onPress={handleSaveEdit} style={{ marginTop: SP.xl }} />
       </NSheet>
 

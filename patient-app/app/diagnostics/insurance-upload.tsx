@@ -62,8 +62,27 @@ export default function InsuranceUpload() {
         setInsuranceCatalogUnavailable(true);
       }
     };
+    const autofillProfile = async () => {
+      try {
+        const me: any = await apiFetch('/users/me/profile');
+        const ins = me?.insurance || me?.data?.insurance || null;
+        if (ins && (ins.company_id || ins.provider)) {
+          if (ins.company_id) setSelCompany(String(ins.company_id));
+          else if (ins.provider) {
+            const res: any = await apiFetch('/insurance/companies').catch(() => null);
+            const list = Array.isArray(res) ? res : res?.data || [];
+            const match = list.find((c: any) => String(c.id || c.company_id || '').toLowerCase() === String(ins.provider).toLowerCase());
+            if (match) setSelCompany(String(match.id || match.company_id));
+          }
+          if (ins.class || ins.plan_class) setSelClass(String(ins.class || ins.plan_class));
+        }
+      } catch {
+        // manual picker remains as fallback
+      }
+    };
     fetchLabs();
     fetchCompanies();
+    autofillProfile();
   }, []);
 
   React.useEffect(() => {

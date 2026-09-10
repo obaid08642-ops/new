@@ -27,8 +27,8 @@ import { buildHeaders } from '../../security/Security';
 import client from '../../api/client';
 import { useServicesCatalog } from '../../api/catalogs';
 import { VideoCallRoom } from '../shared/VideoCallRoom';
-import { WithdrawalWorkflow, MedicalJobsScreen, MedicalDrugIndexScreen, StatisticsReports, GlobalSystemSettings, ChatSystem } from '../shared/SharedScreens';
-import { DoctorHeader } from './components/DoctorHeader';
+import { InsuranceRequestsScreen } from '../shared/InsuranceRequestsScreen';
+import { WithdrawalWorkflow, MedicalJobsScreen, MedicalDrugIndexScreen, StatisticsReports, GlobalSystemSettings, ChatSystem, MediaConfigScreen } from '../shared/SharedScreens';
 import { DoctorStatsRow } from './components/DoctorStatsRow';
 import { DoctorUrgentRequests } from './components/DoctorUrgentRequests';
 import { DoctorQueueList } from './components/DoctorQueueList';
@@ -104,10 +104,9 @@ export function DoctorDashboardNavigator({ onLogout }: { onLogout: () => void })
      <Stack.Screen name="referral">{({ navigation, route }: any) => <ReferralScreen apt={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="request_test">{({ navigation, route }: any) => <RequestTestScreen apt={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="patient_file">{({ navigation, route }: any) => <PatientFileScreen patient={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
-     <Stack.Screen name="no_show">{({ navigation }: any) => <NoShowManagementScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
-     <Stack.Screen name="withdrawal_workflow">{({ navigation }: any) => <WithdrawalWorkflow onBack={() => navigation.goBack()} />}</Stack.Screen>
+      <Stack.Screen name="withdrawal_workflow">{({ navigation }: any) => <WithdrawalWorkflow onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="revenue_insights">{({ navigation }: any) => <StatisticsReports onBack={() => navigation.goBack()} providerType="doctor" />}</Stack.Screen>
-     <Stack.Screen name="availability_engine">{({ navigation }: any) => <DoctorAvailabilityScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+     <Stack.Screen name="availability_engine">{({ navigation }: any) => <DoctorAvailabilityScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
      <Stack.Screen name="service_management">{({ navigation }: any) => <DoctorServiceManagementScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="promotions">{({ navigation }: any) => <PromotionsDashboard onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
      <Stack.Screen name="create_promo">{({ navigation }: any) => <CreateCampaignScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
@@ -122,6 +121,7 @@ export function DoctorDashboardNavigator({ onLogout }: { onLogout: () => void })
      <Stack.Screen name="gps_router">{({ navigation, route }: any) => <GpsRouterScreen patient={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="profile_edit">{({ navigation }: any) => <DoctorProfileEditScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="insurance_config">{({ navigation }: any) => <InsuranceConfigScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+    <Stack.Screen name="insurance_requests">{({ navigation }: any) => <InsuranceRequestsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="certificates_config">{({ navigation }: any) => <CertificatesConfigScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="media_config">{({ navigation }: any) => <MediaConfigScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="virtual_waiting_room">{({ navigation }: any) => <VirtualWaitingRoomScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
@@ -486,7 +486,7 @@ function DoctorScheduleTab({ onNavigate }: { onNavigate: (s: string, p?: any) =>
  <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.text }}>
  {AR ? ' المواعيد' : ' Schedule'}
  </Text>
- <TouchableOpacity onPress={() => onNavigate('no_show')}
+ <TouchableOpacity onPress={() => onNavigate('virtual_waiting_room')}
  style={[styles.iconBtn, { backgroundColor: theme.surface2 }]}>
  <I name="user-x" size={20} color={theme.text} />
  </TouchableOpacity>
@@ -569,6 +569,33 @@ function AppointmentDetailScreen({ apt, onBack, onNavigate }:
  const { lang } = useLang();
  const { show } = useToast();
  const AR = lang === 'ar';
+ const [acting, setActing] = useState(false);
+ const [showCancel, setShowCancel] = useState(false);
+ const [cancelReason, setCancelReason] = useState('');
+ const [showResched, setShowResched] = useState(false);
+ const [newDate, setNewDate] = useState('');
+ const [newTime, setNewTime] = useState('');
+ const apptId = String(apt?.id || apt?.appointment_id || '');
+
+ async function doPatch(action: string, body?: any) {
+   if (!apptId) { show(AR ? 'معرف الموعد مفقود' : 'Appointment identifier is missing', 'error'); return; }
+   setActing(true);
+   try {
+     await client.patch(`/care/appointments/${apptId}/${action}`, body || {});
+     show(action === 'confirm' ? (AR ? 'تم تأكيد الموعد' : 'Appointment confirmed') : action === 'cancel' ? (AR ? 'تم إلغاء الموعد' : 'Appointment cancelled') : (AR ? 'تمت إعادة الجدولة' : 'Appointment rescheduled'), 'success');
+     setShowCancel(false); setShowResched(false); setCancelReason('');
+   } catch (err: any) {
+     show(err?.response?.data?.message || (AR ? 'تعذر تنفيذ الإجراء — تحقق من الاتصال' : 'Action failed — check connection'), 'error');
+   } finally {
+     setActing(false);
+   }
+ }
+
+ function submitReschedule() {
+   const iso = Date.parse(`${newDate.trim()}T${newTime.trim()}:00`);
+   if (!Number.isFinite(iso)) { show(AR ? 'أدخل التاريخ (YYYY-MM-DD) والوقت (HH:mm)' : 'Enter date (YYYY-MM-DD) and time (HH:mm)', 'error'); return; }
+   doPatch('reschedule', { slot_start: new Date(iso).toISOString() });
+ }
 
  return (
  <NScroll>
@@ -607,6 +634,24 @@ function AppointmentDetailScreen({ apt, onBack, onNavigate }:
   ))}
   </NCard>
   <NBtn label={AR ? 'بدء الاستشارة يحتاج تأكيد الخادم' : 'Consultation start requires server confirmation'} onPress={() => show(AR ? 'لا يمكن فتح الاستشارة قبل تحقق الخادم من حالة الموعد والدفع وعلاقة الطبيب بالمريض.' : 'The consultation cannot open before the server verifies appointment state, payment, and doctor–patient relation.', 'info')} style={{ marginTop: SP.xl }} />
+ <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginTop: SP.md }}>
+ <View style={{ flex: 1 }}><NBtn label={AR ? 'تأكيد الموعد' : 'Confirm'} loading={acting} onPress={() => doPatch('confirm')} /></View>
+ <View style={{ flex: 1 }}><NBtn label={AR ? 'إلغاء' : 'Cancel'} variant="danger" onPress={() => setShowCancel((v) => !v)} /></View>
+ <View style={{ flex: 1 }}><NBtn label={AR ? 'جدولة' : 'Reschedule'} variant="outline" onPress={() => setShowResched((v) => !v)} /></View>
+ </View>
+ {showCancel && (
+ <NCard style={{ marginTop: SP.md }}>
+ <NInput placeholder={AR ? 'سبب الإلغاء' : 'Cancellation reason'} value={cancelReason} onChange={setCancelReason} />
+ <NBtn label={AR ? 'تأكيد الإلغاء' : 'Confirm cancellation'} variant="danger" loading={acting} onPress={() => doPatch('cancel', cancelReason.trim() ? { reason: cancelReason.trim() } : {})} style={{ marginTop: SP.md }} />
+ </NCard>
+ )}
+ {showResched && (
+ <NCard style={{ marginTop: SP.md }}>
+ <NInput placeholder="YYYY-MM-DD" value={newDate} onChange={setNewDate} />
+ <NInput placeholder="HH:mm" value={newTime} onChange={setNewTime} />
+ <NBtn label={AR ? 'تأكيد الموعد الجديد' : 'Confirm new slot'} loading={acting} onPress={submitReschedule} style={{ marginTop: SP.md }} />
+ </NCard>
+ )}
   </NScroll>
   );
 }
@@ -620,30 +665,68 @@ function AppointmentDetailScreen({ apt, onBack, onNavigate }:
 function LiveConsultationScreen({ apt, onBack }: { apt: any; onBack: () => void; onNavigate: (s: string, p?: any) => void }) {
  const { theme } = useTheme();
  const { lang } = useLang();
+ const { show } = useToast();
  const AR = lang === 'ar';
+ const [verified, setVerified] = useState<any | null>(null);
+ const [loading, setLoading] = useState(true);
+ const aptId = String(apt?.id || apt?.raw?.id || apt?.appointment_id || '');
+
+ useEffect(() => {
+   if (!aptId) { setLoading(false); return; }
+   let alive = true;
+   client.get(`/care/appointments/${encodeURIComponent(aptId)}`).then((res: any) => {
+     if (alive) setVerified(res?.data?.data || res?.data || null);
+   }).catch(() => {
+     if (alive) show(AR ? 'تعذر التحقق من الموعد' : 'Could not verify appointment', 'error');
+   }).finally(() => { if (alive) setLoading(false); });
+   return () => { alive = false; };
+ }, [aptId]);
+
+ const status = String(verified?.status || '').toUpperCase();
+ const okStates = ['CONFIRMED', 'CHECKED_IN', 'IN_PROGRESS'];
+ const ready = !!verified && okStates.includes(status);
+ const fullApt = { ...(typeof apt === 'object' ? apt : {}), id: aptId };
+
  return (
   <View style={{ flex: 1, backgroundColor: theme.bg }}>
    <NHeader title={AR ? 'الاستشارة' : 'Consultation'} onBack={onBack} />
    <NScroll>
-    <NCard style={{ borderColor: theme.warn, borderWidth: 1 }}>
-     <Text style={{ color: theme.text, fontWeight: FW.bold, fontSize: FS.lg, textAlign: AR ? 'right' : 'left' }}>
-      {AR ? 'جلسة الاستشارة غير متاحة حالياً' : 'Consultation session is currently unavailable'}
-     </Text>
-     <Text style={{ color: theme.textSub, marginTop: SP.md, lineHeight: 22, textAlign: AR ? 'right' : 'left' }}>
-      {AR
-       ? 'تم إيقاف الفيديو والمحادثة والسجل الطبي وبيانات SOAP التي كانت تعمل محلياً. يلزم قبل فتح جلسة خادمية: التحقق من الموعد وعلاقة الطبيب بالمريض وحالة الدفع أو التغطية وترخيص الطبيب، ثم رمز جلسة فيديو صالح ومراجعة تدقيق سريري.'
-       : 'Locally simulated video, chat, EHR, and SOAP data are disabled. Opening a server session requires verified appointment and doctor–patient relation, payment or coverage status, doctor licence, a valid video-session token, and clinical audit.'}
-     </Text>
-     <Text style={{ color: theme.textSub, marginTop: SP.md, textAlign: AR ? 'right' : 'left' }}>
-      {AR ? `رقم الموعد: ${apt?.id || apt?.raw?.id || '—'}` : `Appointment ID: ${apt?.id || apt?.raw?.id || '—'}`}
+   {loading ? <ActivityIndicator color={theme.primary} style={{ marginTop: 40 }} /> : !verified ? (
+    <NCard style={{ borderColor: theme.danger, borderWidth: 1 }}>
+     <Text style={{ color: theme.text, fontWeight: FW.bold, textAlign: AR ? 'right' : 'left' }}>
+      {AR ? 'تعذر فتح الجلسة — تحقق من الموعد' : 'Cannot open session — verify the appointment'}
      </Text>
     </NCard>
+   ) : !ready ? (
+    <NCard style={{ borderColor: theme.warn, borderWidth: 1 }}>
+     <Text style={{ color: theme.text, fontWeight: FW.bold, textAlign: AR ? 'right' : 'left' }}>
+      {AR ? `الجلسة غير جاهزة (الحالة: ${status || '—'})` : `Session not ready (status: ${status || '—'})`}
+     </Text>
+     <Text style={{ color: theme.textSub, marginTop: SP.md, textAlign: AR ? 'right' : 'left' }}>
+      {AR ? 'تُفتح الجلسة للمواعيد المؤكدة/الجاري تنفيذها فقط بعد تحقق الخادم.' : 'Sessions open only for confirmed/in-progress appointments after server verification.'}
+     </Text>
+    </NCard>
+   ) : (<>
+    <NCard style={{ borderColor: theme.success, borderWidth: 1, marginBottom: SP.md }}>
+     <Text style={{ color: theme.text, fontWeight: FW.bold, textAlign: AR ? 'right' : 'left' }}>
+      {AR ? 'جلسة موثقة خادمياً — يمكنك البدء' : 'Server-verified session — you may begin'}
+     </Text>
+     <Text style={{ color: theme.textSub, marginTop: 4 }}>{AR ? `الموعد: ${aptId}` : `Appointment: ${aptId}`} · {status}</Text>
+    </NCard>
+    <NBtn label={AR ? 'بدء مكالمة الفيديو' : 'Start video call'} onPress={() => onNavigate('video_call', fullApt)} style={{ marginBottom: SP.md }} />
+    <NBtn label={AR ? 'محادثة ما قبل الزيارة' : 'Pre-visit chat'} variant="outline" onPress={() => onNavigate('pre_visit_chat', fullApt)} style={{ marginBottom: SP.md }} />
+    <NBtn label={AR ? 'كتابة وصفة' : 'Write prescription'} variant="outline" onPress={() => onNavigate('prescription', fullApt)} style={{ marginBottom: SP.md }} />
+    <NBtn label={AR ? 'إجازة مرضية' : 'Sick leave'} variant="outline" onPress={() => onNavigate('sick_leave', fullApt)} style={{ marginBottom: SP.md }} />
+    <NBtn label={AR ? 'تقرير طبي' : 'Medical report'} variant="outline" onPress={() => onNavigate('medical_report', fullApt)} style={{ marginBottom: SP.md }} />
+    <NBtn label={AR ? 'تحويل طبي' : 'Referral'} variant="outline" onPress={() => onNavigate('referral', fullApt)} style={{ marginBottom: SP.md }} />
+    <NBtn label={AR ? 'طلب فحص' : 'Request test'} variant="outline" onPress={() => onNavigate('request_test', fullApt)} />
+   </>)}
    </NScroll>
   </View>
  );
 }
 
-function EPrescriptionScreen({ apt, onBack }:
+export function EPrescriptionScreen({ apt, onBack }:
  { apt: any; onBack: () => void }) {
  const { theme } = useTheme();
  const { lang } = useLang();
@@ -658,25 +741,27 @@ function EPrescriptionScreen({ apt, onBack }:
  const [loading, setLoading] = useState(false);
 
  const [showTemplates, setShowTemplates] = useState(false);
- const [templates, setTemplates] = useState<any[]>([
- {
- id: 'temp1',
- titleAr: 'علاج الزكام الحاد',
- titleEn: 'Severe Cold Pack',
- drugs: [
- { id: 't1', name: 'Paracetamol 500mg', dose: 'قرص واحد عند الحاجة', freq: 'عند الحاجة', duration: '5 أيام', notes: 'بعد الأكل' },
- { id: 't2', name: 'Cetirizine 10mg', dose: 'قرص واحد قبل النوم', freq: 'مرة/اليوم', duration: '7 أيام', notes: '' }
- ]
- },
- {
- id: 'temp2',
- titleAr: 'متابعة السكري النوع 2',
- titleEn: 'Type 2 Diabetes Routine',
- drugs: [
- { id: 't3', name: 'Metformin 500mg', dose: 'قرص مع وجبة العشاء', freq: 'مرة/اليوم', duration: 'مستمر', notes: '' }
- ]
+ const [templates, setTemplates] = useState<any[]>([]);
+ const [templatesLoading, setTemplatesLoading] = useState(false);
+
+ async function loadTemplates() {
+   setTemplatesLoading(true);
+   try {
+     const res = await client.get('/provider/ops/doctor/templates');
+     const list = Array.isArray(res?.data) ? res.data : [];
+     setTemplates(list.map((t: any) => ({
+       id: String(t.id),
+       titleAr: t.name, titleEn: t.name,
+       drugs: (Array.isArray(t.items) ? t.items : []).map((d: any, i: number) => typeof d === 'string'
+         ? { id: `t-${i}`, name: d, dose: '', freq: '', duration: '', notes: '' }
+         : { id: String(d.id || `t-${i}`), name: d.name || '', dose: d.dose || '', freq: d.freq || '', duration: d.duration || '', notes: d.notes || '' }),
+     })));
+   } catch {
+     show(AR ? 'تعذر تحميل النماذج' : 'Could not load templates', 'error');
+   } finally {
+     setTemplatesLoading(false);
+   }
  }
- ]);
  const [templateName, setTemplateName] = useState('');
  const [showSaveTemplateSheet, setShowSaveTemplateSheet] = useState(false);
 
@@ -766,7 +851,7 @@ function EPrescriptionScreen({ apt, onBack }:
 
  {/* Template Actions */}
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginBottom: SP.xl }}>
- <TouchableOpacity onPress={() => setShowTemplates(true)} style={{ flex: 1, backgroundColor: theme.surface2, padding: SP.md, borderRadius: R.md, alignItems: 'center', borderWidth: 1, borderColor: theme.border }}>
+ <TouchableOpacity onPress={() => { loadTemplates(); setShowTemplates(true); }} style={{ flex: 1, backgroundColor: theme.surface2, padding: SP.md, borderRadius: R.md, alignItems: 'center', borderWidth: 1, borderColor: theme.border }}>
  <Text style={{ color: theme.primary, fontWeight: FW.bold, fontSize: FS.sm }}> {AR ? 'نماذج الوصفات' : 'Prescription Templates'}</Text>
  </TouchableOpacity>
  <TouchableOpacity onPress={() => { if(drugs.length === 0) { show(AR ? 'أضف أدوية أولاً لحفظها كنموذج' : 'Add medications first to save as template', 'error'); return; } setShowSaveTemplateSheet(true); }} style={{ flex: 1, backgroundColor: theme.surface2, padding: SP.md, borderRadius: R.md, alignItems: 'center', borderWidth: 1, borderColor: theme.border }}>
@@ -774,12 +859,23 @@ function EPrescriptionScreen({ apt, onBack }:
  </TouchableOpacity>
  </View>
 
- {/* Drug interaction warning */}
+ {/* Drug interaction check — real rules engine */}
  {drugs.length >= 2 && (
  <NCard style={{ marginBottom: SP.xl, backgroundColor: theme.warnBg }}>
+ <TouchableOpacity onPress={async () => {
+   try {
+     const res = await client.post('/ai/drug-interactions', { drugs: drugs.map((d) => d.name) });
+     const hits = res?.data?.interactions || [];
+     if (!hits.length) { show(AR ? 'لا توجد تفاعلات معروفة بين هذه الأدوية' : 'No known interactions between these drugs', 'success'); return; }
+     show((AR ? 'تفاعلات مكتشفة: ' : 'Interactions found: ') + hits.map((h: any) => h.note_ar || h.note || h.severity).join('؛ '), 'warning');
+   } catch {
+     show(AR ? 'تعذر فحص التفاعلات' : 'Could not check interactions', 'error');
+   }
+ }}>
  <Text style={{ fontSize: FS.sm, color: theme.warn, textAlign: AR ? 'right' : 'left' }}>
- {AR ? 'تحقق من التفاعلات الدوائية قبل الحفظ' : 'Check drug interactions before saving'}
+ {AR ? 'افحص التفاعلات الدوائية قبل الحفظ' : 'Check drug interactions before saving'}
  </Text>
+ </TouchableOpacity>
  </NCard>
  )}
 
@@ -900,11 +996,24 @@ function EPrescriptionScreen({ apt, onBack }:
  {/* Load Template Sheet */}
  <NSheet visible={showTemplates} onClose={() => setShowTemplates(false)} title={AR ? ' اختر نموذج وصفة' : ' Load Prescription Template'} height={400}>
  <View style={{ padding: SP.md }}>
+ {templatesLoading ? <ActivityIndicator color={theme.primary} /> : null}
  {templates.map(t => (
- <TouchableOpacity key={t.id} onPress={() => { setDrugs(t.drugs); setShowTemplates(false); show(AR ? 'تم تحميل النموذج' : 'Template loaded successfully', 'success'); }} style={{ padding: SP.md, borderBottomWidth: 1, borderBottomColor: theme.border, flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between' }}>
+ <View key={t.id} style={{ padding: SP.md, borderBottomWidth: 1, borderBottomColor: theme.border, flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+ <TouchableOpacity style={{ flex: 1 }} onPress={() => { setDrugs(t.drugs); setShowTemplates(false); show(AR ? 'تم تحميل النموذج' : 'Template loaded successfully', 'success'); }}>
  <Text style={{ color: theme.text, fontSize: FS.md, fontWeight: FW.bold }}>{AR ? t.titleAr : t.titleEn}</Text>
  <Text style={{ color: theme.textSub, fontSize: FS.xs }}>{t.drugs.length} {AR ? 'أدوية' : 'drugs'}</Text>
  </TouchableOpacity>
+ <TouchableOpacity onPress={async () => {
+   try {
+     await client.delete(`/provider/ops/doctor/templates/${t.id}`);
+     setTemplates((prev) => prev.filter((x) => x.id !== t.id));
+   } catch {
+     show(AR ? 'تعذر حذف النموذج' : 'Could not delete template', 'error');
+   }
+ }} style={{ padding: SP.sm }}>
+ <Text style={{ color: theme.danger, fontSize: FS.sm }}>{AR ? 'حذف' : 'Delete'}</Text>
+ </TouchableOpacity>
+ </View>
  ))}
  </View>
  </NSheet>
@@ -913,18 +1022,17 @@ function EPrescriptionScreen({ apt, onBack }:
  <NSheet visible={showSaveTemplateSheet} onClose={() => setShowSaveTemplateSheet(false)} title={AR ? ' حفظ كنموذج جديد' : ' Save Custom Template'} height={300}>
  <View style={{ padding: SP.md }}>
  <NInput label={AR ? 'اسم النموذج' : 'Template Title'} value={templateName} onChange={setTemplateName} placeholder={AR ? 'مثال: نموذج علاج الربو' : 'e.g., Asthma Treatment'} />
- <NBtn label={AR ? ' حفظ' : ' Save'} onPress={() => {
+ <NBtn label={AR ? ' حفظ' : ' Save'} onPress={async () => {
  if (!templateName.trim()) { show(AR ? 'يرجى إدخال اسم النموذج' : 'Please enter template title', 'error'); return; }
- const newTemp = {
- id: String(Date.now()),
- titleAr: templateName,
- titleEn: templateName,
- drugs: [...drugs]
- };
- setTemplates(prev => [...prev, newTemp]);
- setShowSaveTemplateSheet(false);
- setTemplateName('');
- show(AR ? 'تم حفظ النموذج الجديد بنجاح' : 'Template saved successfully', 'success');
+ try {
+   await client.post('/provider/ops/doctor/templates', { name: templateName.trim(), items: drugs.map((d) => ({ name: d.name, dose: d.dose, freq: d.freq, duration: d.duration, notes: d.notes })) });
+   setShowSaveTemplateSheet(false);
+   setTemplateName('');
+   show(AR ? 'تم حفظ النموذج الجديد بنجاح' : 'Template saved successfully', 'success');
+   loadTemplates();
+ } catch (err: any) {
+   show(err?.response?.data?.message || (AR ? 'تعذر حفظ النموذج' : 'Could not save template'), 'error');
+ }
  }} />
  </View>
  </NSheet>
@@ -1287,19 +1395,30 @@ function PatientFileScreen({ patient, onBack }:
  const AR = lang === 'ar';
  const [activeSection, setActive] = useState('overview');
 
- // Client CRM States
+ // Client CRM States — persisted via provider CRM + blacklist endpoints
+ const patientId = String(patient?.patient_id || patient?.id || '');
  const [isVip, setIsVip] = useState(patient?.insurance?.includes('VIP') || false);
  const [isBlocked, setIsBlocked] = useState(false);
  const [isFavorite, setIsFavorite] = useState(false);
- const [customTags, setCustomTags] = useState<string[]>(
- AR ? ['مريض دائم', 'متابعة سكري'] : ['Regular Patient', 'Diabetes Follow-up']
- );
+ const [customTags, setCustomTags] = useState<string[]>([]);
  const [newTag, setNewTag] = useState('');
- const [crmNotes, setCrmNotes] = useState<Array<{ id: string; date: string; text: string }>>([
- { id: '1', date: '2026-06-10', text: AR ? 'يحتاج معاملة خاصة وتهيئة سريعة قبل الدخول' : 'Needs special care and fast checkout on entry' },
- { id: '2', date: '2026-06-15', text: AR ? 'يفضل الزيارات المنزلية الصباحية' : 'Prefers morning home visits' }
- ]);
+ const [crmNotes, setCrmNotes] = useState<Array<{ id: string; date: string; text: string }>>([]);
  const [newNote, setNewNote] = useState('');
+
+ useEffect(() => {
+   if (!patientId) return;
+   client.get(`/provider/ops/doctor/patient-crm/${encodeURIComponent(patientId)}`).then((res) => {
+     const d = res?.data?.data || res?.data || {};
+     if (Array.isArray(d.tags)) setCustomTags(d.tags.filter((t: any) => typeof t === 'string'));
+     if (Array.isArray(d.notes)) setCrmNotes(d.notes);
+     if (typeof d.vip === 'boolean') setIsVip(d.vip);
+     if (typeof d.favorite === 'boolean') setIsFavorite(d.favorite);
+   }).catch(() => {});
+   client.get('/provider/ops/doctor/blacklist').then((res) => {
+     const list = Array.isArray(res?.data) ? res.data : [];
+     if (list.some((b: any) => String(b.patient_id || b.patientId || b.id) === patientId)) setIsBlocked(true);
+   }).catch(() => {});
+ }, [patientId]);
 
  const sections = [
  { k:'overview', ar:'نظرة عامة', en:'Overview' },
@@ -1310,43 +1429,67 @@ function PatientFileScreen({ patient, onBack }:
  { k:'allergies',ar:'الحساسية', en:'Allergies' },
  ];
 
+ async function persistCrm(patch: any) {
+   if (!patientId) return;
+   try {
+     await client.put(`/provider/ops/doctor/patient-crm/${encodeURIComponent(patientId)}`, patch);
+   } catch {
+     show(AR ? 'تعذر حفظ بيانات العميل' : 'Could not save client data', 'error');
+   }
+ }
+
  const handleAddTag = () => {
  if (!newTag.trim()) return;
  if (customTags.includes(newTag.trim())) {
  show(AR ? 'الوسم مضاف بالفعل' : 'Tag already exists', 'warning');
  return;
  }
- setCustomTags([...customTags, newTag.trim()]);
+ const next = [...customTags, newTag.trim()];
+ setCustomTags(next);
  setNewTag('');
+ persistCrm({ tags: next });
  show(AR ? 'تم إضافة الوسم' : 'Tag added successfully', 'success');
  };
 
  const handleRemoveTag = (tag: string) => {
- setCustomTags(customTags.filter(t => t !== tag));
+ const next = customTags.filter(t => t !== tag);
+ setCustomTags(next);
+ persistCrm({ tags: next });
  show(AR ? 'تم حذف الوسم' : 'Tag removed', 'info');
  };
 
  const handleAddNote = () => {
  if (!newNote.trim()) return;
  const dateStr = new Date().toISOString().split('T')[0];
- setCrmNotes([{ id: Date.now().toString(), date: dateStr, text: newNote.trim() }, ...crmNotes]);
+ const next = [{ id: Date.now().toString(), date: dateStr, text: newNote.trim() }, ...crmNotes];
+ setCrmNotes(next);
  setNewNote('');
+ persistCrm({ notes: next });
  show(AR ? 'تم حفظ ملاحظة CRM' : 'CRM Note saved', 'success');
  };
 
  const handleToggleVip = (val: boolean) => {
  setIsVip(val);
+ persistCrm({ vip: val });
  show(val ? (AR ? 'تم ترقية المريض إلى VIP ' : 'Patient upgraded to VIP ') : (AR ? 'تم إلغاء حالة VIP' : 'VIP status removed'), 'success');
  };
 
  const handleToggleFavorite = (val: boolean) => {
  setIsFavorite(val);
+ persistCrm({ favorite: val });
  show(val ? (AR ? 'تم الإضافة للمفضلة ' : 'Added to favorites ') : (AR ? 'تم الإزالة من المفضلة' : 'Removed from favorites'), 'success');
  };
 
- const handleToggleBlocked = (val: boolean) => {
- setIsBlocked(val);
- show(val ? (AR ? 'تم إدراج المريض في الحظر ' : 'Patient added to blocklist ') : (AR ? 'تم إلغاء الحظر' : 'Patient unblocked'), 'warning');
+ const handleToggleBlocked = async (val: boolean) => {
+ if (!patientId) { show(AR ? 'معرف المريض مفقود' : 'Patient identifier is missing', 'error'); return; }
+ try {
+   if (val) await client.post(`/provider/ops/doctor/blacklist/${encodeURIComponent(patientId)}`, { reason: 'provider_blocked' });
+   else await client.delete(`/provider/ops/doctor/blacklist/${encodeURIComponent(patientId)}`);
+   setIsBlocked(val);
+   show(val ? (AR ? 'تم إدراج المريض في الحظر ' : 'Patient added to blocklist ') : (AR ? 'تم إلغاء الحظر' : 'Patient unblocked'), 'warning');
+ } catch {
+   show(AR ? 'تعذر تحديث الحظر' : 'Could not update block status', 'error');
+ }
  };
 
  return (
@@ -1361,15 +1504,15 @@ function PatientFileScreen({ patient, onBack }:
  <View style={{ flex: 1 }}>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.xs }}>
  <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.text,
- textAlign: AR ? 'right' : 'left' }}>{patient?.patient ?? 'أحمد محمد'}</Text>
+ textAlign: AR ? 'right' : 'left' }}>{patient?.patient ?? (AR ? 'مريض' : 'Patient')}</Text>
  {isFavorite && <Text style={{ fontSize: FS.xl }}></Text>}
  </View>
  <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
- {AR ? 'العمر: 34 سنة | ذكر | فصيلة الدم: A+' : 'Age: 34 | Male | Blood: A+'}
+ {[patient?.age ? `${patient.age} ${AR ? 'سنة' : 'yrs'}` : '', patient?.gender || '', patient?.blood_type ? `${AR ? 'فصيلة الدم: ' : 'Blood: '}${patient.blood_type}` : ''].filter(Boolean).join(' | ') || '—'}
  </Text>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: SP.sm, marginTop: SP.xs }}>
- <NBadge label="Bupa A" variant="primary" size="xs" />
- <NBadge label={AR ? 'مزمن: سكري' : 'Chronic: Diabetes'} variant="warning" size="xs" />
+ {patient?.insurance ? <NBadge label={patient.insurance} variant="primary" size="xs" /> : null}
+ {patient?.chronic ? <NBadge label={`${AR ? 'مزمن: ' : 'Chronic: '}${patient.chronic}`} variant="warning" size="xs" /> : null}
  {isVip && <NBadge label="VIP " variant="success" size="xs" />}
  {isBlocked && <NBadge label={AR ? 'محظور ' : 'Blocked '} variant="danger" size="xs" />}
  </View>
@@ -1585,67 +1728,6 @@ function PatientFileScreen({ patient, onBack }:
 // ══════════════════════════════════════════════════════════════════════════════
 // NO-SHOW MANAGEMENT SCREEN
 // ══════════════════════════════════════════════════════════════════════════════
-function NoShowManagementScreen({ onBack }: { onBack: () => void }) {
- const { theme } = useTheme();
- const { lang } = useLang();
- const { show } = useToast();
- const AR = lang === 'ar';
- const [cancelFee, setCancelFee] = useState('50');
- const [noShowFee, setNoShowFee] = useState('100');
- const [waitlist, setWaitlist] = useState(true);
- const [autoRemind, setAutoRemind] = useState(true);
-
- return (
- <NScroll>
- <NHeader title={AR ? ' إدارة الغياب والإلغاء' : ' No-Show Management'} onBack={onBack} />
-
- <NCard style={{ marginBottom: SP.xl }}>
- <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text,
- marginBottom: SP.lg, textAlign: AR ? 'right' : 'left' }}>
- {AR ? 'رسوم الإلغاء والغياب' : 'Cancellation & No-Show Fees'}
- </Text>
- <NPriceInput label={AR ? 'رسوم الإلغاء المتأخر (أقل من 2 ساعة)' : 'Late Cancel Fee (< 2hr)'}
- value={cancelFee} onChange={setCancelFee} />
- <NPriceInput label={AR ? 'رسوم الغياب التام (No-Show)' : 'No-Show Fee'}
- value={noShowFee} onChange={setNoShowFee} />
- <NCard style={{ backgroundColor: theme.infoBg, padding: SP.md }}>
- <Text style={{ fontSize: FS.xs, color: theme.info, lineHeight: 18 }}>
- {AR ? ' تساعد رسوم الإلغاء على تقليل الغياب بنسبة 40% وفق إحصاءات المنصة.'
- : ' Cancellation fees reduce no-shows by 40% per platform statistics.'}
- </Text>
- </NCard>
- </NCard>
-
- <NCard style={{ marginBottom: SP.xl }}>
- <NToggle label={AR ? ' قائمة الانتظار الذكية' : ' Smart Waitlist'}
- sub={AR ? 'ملء المواعيد الملغاة تلقائياً من قائمة الانتظار' : 'Auto-fill cancelled slots from waitlist'}
- value={waitlist} onChange={setWaitlist} />
- <NToggle label={AR ? ' تذكيرات متعددة المراحل' : ' Multi-Stage Reminders'}
- sub={AR ? 'قبل 24 ساعة، ساعتين، 30 دقيقة' : '24hr, 2hr, 30min before appointment'}
- value={autoRemind} onChange={setAutoRemind} />
- </NCard>
-
- {/* Recent no-shows */}
- <NSecHeader title={AR ? 'حالات الغياب الأخيرة' : 'Recent No-Shows'} />
- {['أحمد السالم', 'سارة المطيري', 'فيصل الحربي'].map((name, i) => (
- <NCard key={i} style={{ marginBottom: SP.sm, flexDirection: AR ? 'row-reverse' : 'row',
- alignItems: 'center', gap: SP.md, padding: SP.lg }}>
- <NAvatar name={name} size={36} />
- <View style={{ flex: 1 }}>
- <Text style={{ fontSize: FS.md, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{name}</Text>
- <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{AR ? 'غياب' : 'No-Show'} · 2025-0{i+2}-{10+i}</Text>
- </View>
- <NBadge label={`${noShowFee} ${AR?'ر':'SAR'}`} variant="danger" size="xs" />
- </NCard>
- ))}
-
- <View style={{ height: SP.xl }} />
- <NBtn label={AR ? ' حفظ الإعدادات' : ' Save Settings'}
- onPress={() => { show(AR?'تم حفظ إعدادات الغياب':'Settings saved', 'success'); onBack(); }} />
- </NScroll>
- );
-}
-
 // ══════════════════════════════════════════════════════════════════════════════
 // WALLET TAB
 // ══════════════════════════════════════════════════════════════════════════════
@@ -1665,12 +1747,8 @@ function DoctorWalletTab({ onNavigate }: { onNavigate: (s: string) => void }) {
         const txRes = await client.get('/provider/wallet/transactions');
         setTransactions(txRes.data || []);
       } catch (err) { 
-        setWallet({ available: 4200, escrow: 1500, dues: 800 });
-        setTransactions([
-          { id: '1', date: '2026-07-16', type: 'CREDIT', amount: 150, title: AR ? 'استشارة أونلاين' : 'Online Consultation' },
-          { id: '2', date: '2026-07-15', type: 'DEBIT', amount: -22.5, title: AR ? 'عمولة منصة' : 'Platform Fee' },
-          { id: '3', date: '2026-07-14', type: 'CREDIT', amount: 300, title: AR ? 'زيارة منزلية' : 'Home Visit' },
-        ]);
+        setWallet({ available: 0, escrow: 0, dues: 0 });
+        setTransactions([]);
       }
     };
     fetchWallet();
@@ -1725,183 +1803,6 @@ function DoctorWalletTab({ onNavigate }: { onNavigate: (s: string) => void }) {
 // ══════════════════════════════════════════════════════════════════════════════
 // CHAT TAB — server-backed threads and messages only
 // ══════════════════════════════════════════════════════════════════════════════
-
-function DoctorChatTab() {
-  const { theme } = useTheme();
-  const { lang } = useLang();
-  const { show } = useToast();
-  const AR = lang === 'ar';
-
-  const [chats, setChats] = useState<any[]>([]);
-  const [activeChat, setActiveChat] = useState<any | null>(null);
-  const [messages, setMessages] = useState<any[]>([]);
-  const [msg, setMsg] = useState('');
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchChats = async () => {
-      setLoading(true);
-      try {
-        const res = await client.get('/chats/provider');
-        setChats(res.data || []);
-      } catch (err: any) {
-        setChats([]);
-        show(err?.response?.data?.message || (AR ? 'تعذر تحميل المحادثات من الخادم' : 'Unable to load chats from the server'), 'error');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchChats();
-  }, []);
-
-  const openChat = async (chat: any) => {
-    setActiveChat(chat);
-    try {
-      const res = await client.get(`/chats/${chat.id}/messages`);
-      setMessages(res.data || []);
-    } catch {
-      setMessages([]);
-    }
-  };
-
-  const sendMessage = async () => {
-    if (!msg.trim() || !activeChat) return;
-    const sentText = msg.trim();
-    try {
-      const response = await client.post(`/chats/${activeChat.id}/messages`, { text: sentText });
-      const persisted = response.data?.message || response.data;
-      if (!persisted?.id) throw new Error('server_message_identifier_missing');
-      setMessages(prev => [...prev, persisted]);
-      setMsg('');
-    } catch (err: any) {
-      show(err?.response?.data?.message || (AR ? 'تعذر حفظ الرسالة؛ لم تُرسل.' : 'Message was not saved and was not sent.'), 'error');
-    }
-  };
-
-  // ── Active Chat View ──────────────────────────────────────────────────────
-  if (activeChat) {
-    const isClosed = activeChat.status === 'CLOSED';
-    return (
-      <KeyboardAvoidingView style={{ flex: 1, backgroundColor: theme.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={90}>
-        {/* Header */}
-        <View style={[styles.topBar, { backgroundColor: theme.surface, borderBottomColor: theme.border, flexDirection: AR ? 'row-reverse' : 'row' }]}>
-          <TouchableOpacity onPress={() => setActiveChat(null)} style={{ padding: SP.xs }}>
-            <I name={AR ? 'chevronRight' : 'chevronLeft'} size={24} color={theme.primary} />
-          </TouchableOpacity>
-          <View style={{ flex: 1, flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.md }}>
-            <NAvatar name={activeChat.patient_name} size={40} />
-            <View>
-              <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{activeChat.patient_name}</Text>
-              <Text style={{ fontSize: FS.xs, color: activeChat.status === 'OPEN' ? theme.success : theme.textSub }}>
-                {activeChat.status === 'OPEN' ? (AR ? 'محادثة نشطة' : 'Active') :
-                 activeChat.status === 'FOLLOW_UP' ? (AR ? 'متابعة' : 'Follow-up') : (AR ? 'مغلقة' : 'Closed')}
-              </Text>
-            </View>
-          </View>
-          {!isClosed && (
-            <TouchableOpacity onPress={() => show(AR ? 'بدء مكالمة فيديو' : 'Starting video call...', 'info')} style={{ padding: SP.xs }}>
-              <I name="video" size={22} color={theme.primary} />
-            </TouchableOpacity>
-          )}
-        </View>
-
-        {/* Messages */}
-        <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 20 }} showsVerticalScrollIndicator={false}>
-          {messages.map(m => {
-            const isMe = m.sender === 'provider';
-            return (
-              <View key={m.id} style={{ alignItems: isMe ? 'flex-end' : 'flex-start', marginBottom: SP.md }}>
-                <View style={{
-                  maxWidth: '80%', borderRadius: R.lg, padding: SP.md,
-                  backgroundColor: isMe ? theme.primary : theme.card,
-                  borderBottomRightRadius: isMe ? 4 : R.lg,
-                  borderBottomLeftRadius: isMe ? R.lg : 4,
-                }}>
-                  <Text style={{ color: isMe ? '#FFF' : theme.text, fontSize: FS.md, lineHeight: 22, textAlign: AR ? 'right' : 'left' }}>{m.text}</Text>
-                </View>
-                <Text style={{ fontSize: 10, color: theme.textSub, marginTop: 2 }}>{m.time}</Text>
-              </View>
-            );
-          })}
-        </ScrollView>
-
-        {/* Input */}
-        {!isClosed ? (
-          <View style={{ backgroundColor: theme.surface, borderTopColor: theme.border, borderTopWidth: 1, flexDirection: AR ? 'row-reverse' : 'row', paddingBottom: 24, padding: SP.md, gap: SP.sm }}>
-            <TextInput
-              style={{ flex: 1, backgroundColor: theme.surface2, borderRadius: R.xl, paddingHorizontal: SP.lg, paddingVertical: SP.sm, fontSize: FS.md, color: theme.text, textAlign: AR ? 'right' : 'left', maxHeight: 100 }}
-              placeholder={AR ? 'اكتب رسالة...' : 'Type a message...'}
-              placeholderTextColor={theme.textSub}
-              value={msg} onChangeText={setMsg} multiline
-            />
-            <TouchableOpacity onPress={sendMessage} disabled={!msg.trim()}
-              style={{ width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: msg.trim() ? theme.primary : theme.surface2 }}>
-              <I name="forward" size={20} color={msg.trim() ? '#FFF' : theme.textSub} />
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <View style={{ padding: SP.lg, backgroundColor: theme.surface2, alignItems: 'center' }}>
-            <Text style={{ color: theme.textSub, fontSize: FS.sm }}>{AR ? 'هذه المحادثة مغلقة (أرشيف طبي للقراءة فقط)' : 'Conversation closed (read-only medical archive)'}</Text>
-          </View>
-        )}
-      </KeyboardAvoidingView>
-    );
-  }
-
-  // ── Chat List View ────────────────────────────────────────────────────────
-  return (
-    <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <View style={[styles.topBar, { backgroundColor: theme.surface, borderBottomColor: theme.border }]}>
-        <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.text }}>
-          {AR ? ' الرسائل والمحادثات' : ' Messages & Chats'}
-        </Text>
-        <NBadge label={String(chats.reduce((a, c) => a + (c.unread || 0), 0))} variant="danger" size="xs" />
-      </View>
-
-      {loading ? (
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <Text style={{ color: theme.textSub }}>{AR ? 'جارٍ تحميل المحادثات...' : 'Loading chats...'}</Text>
-        </View>
-      ) : (
-        <ScrollView contentContainerStyle={{ padding: SP.lg, gap: SP.sm }}>
-          {chats.map(c => {
-            const isFollowUp = c.status === 'FOLLOW_UP';
-            const isClosed = c.status === 'CLOSED';
-            const isOpen = c.status === 'OPEN';
-            return (
-              <TouchableOpacity key={c.id} onPress={() => openChat(c)} activeOpacity={0.8}>
-                <NCard style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.md, padding: SP.lg, borderLeftWidth: isFollowUp ? 3 : 0, borderLeftColor: theme.primary, opacity: isClosed ? 0.7 : 1 }}>
-                  <View style={{ position: 'relative' }}>
-                    <NAvatar name={c.patient_name} size={50} />
-                    {isOpen && <View style={{ position: 'absolute', bottom: 0, right: 0, width: 12, height: 12, borderRadius: 6, backgroundColor: theme.success, borderWidth: 2, borderColor: theme.card }} />}
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <Text style={{ fontSize: FS.md, fontWeight: c.unread > 0 ? FW.bold : FW.reg, color: theme.text }}>{c.patient_name}</Text>
-                      <NBadge
-                        label={isOpen ? (AR ? 'نشط' : 'Open') : isFollowUp ? (AR ? 'متابعة' : 'Follow-up') : (AR ? 'مغلق' : 'Closed')}
-                        variant={isOpen ? 'success' : isFollowUp ? 'primary' : 'default'}
-                        size="xs"
-                      />
-                    </View>
-                    <Text style={{ fontSize: FS.sm, color: theme.textSub, marginTop: 4, textAlign: AR ? 'right' : 'left' }} numberOfLines={1}>
-                      {c.last_message || (AR ? 'اضغط للفتح' : 'Tap to open')}
-                    </Text>
-                  </View>
-                  {c.unread > 0 && (
-                    <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: theme.primary, alignItems: 'center', justifyContent: 'center' }}>
-                      <Text style={{ color: '#FFF', fontSize: 11, fontWeight: 'bold' }}>{c.unread}</Text>
-                    </View>
-                  )}
-                </NCard>
-              </TouchableOpacity>
-            );
-          })}
-        </ScrollView>
-      )}
-    </View>
-  );
-}
 
 // ══════════════════════════════════════════════════════════════════════════════
 // SETTINGS TAB
@@ -2091,6 +1992,7 @@ function DoctorSettingsTab({ onLogout, onNavigate }: { onLogout: () => void, onN
         <NSettingsRow icon="mapPin" label={AR ? 'الموقع ونطاق التغطية' : 'Location & Coverage'} onPress={() => onNavigate('location_config')} />
         <NSettingsRow icon="calendar" label={AR ? 'مواعيد العمل (Scheduler)' : 'Availability Engine'} onPress={() => onNavigate('availability_engine')} />
         <NSettingsRow icon="shield" label={AR ? 'شركات التأمين' : 'Insurance Config'} onPress={() => onNavigate('insurance_config')} />
+       <NSettingsRow icon="shield" label={AR ? 'طلبات التأمين الواردة' : 'Insurance Requests'} onPress={() => onNavigate('insurance_requests')} />
         <GlobalSystemSettings />
         
         <NBtn label={AR ? 'تسجيل الخروج' : 'Logout'} onPress={onLogout} variant="outline" style={{ borderColor: theme.danger, marginTop: SP.lg }} labelStyle={{ color: theme.danger }} />
@@ -2392,7 +2294,14 @@ export function NotificationsScreen({ onBack }: { onBack: () => void }) {
  <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.text, flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center' }}>
  <I name="bell" size={24} color={theme.text} /> {AR ? 'الإشعارات' : 'Notifications'}
  </Text>
- <TouchableOpacity>
+ <TouchableOpacity onPress={async () => {
+   try {
+     await client.post('/provider/notifications/read-all', {});
+     setNOTIFS((prev) => prev.map((n) => ({ ...n, unread: false })));
+   } catch {
+     show(AR ? 'تعذر مسح الإشعارات' : 'Could not clear notifications', 'error');
+   }
+ }}>
  <Text style={{ fontSize: FS.sm, color: theme.primary }}>{AR ? 'مسح الكل' : 'Clear All'}</Text>
  </TouchableOpacity>
  </View>
@@ -2460,105 +2369,6 @@ export function NotificationsScreen({ onBack }: { onBack: () => void }) {
 // ══════════════════════════════════════════════════════════════════════════════
 // CALENDAR SYNC SCREEN
 // ══════════════════════════════════════════════════════════════════════════════
-export function CalendarSyncScreen({ onBack }: { onBack: () => void }) {
- const { theme } = useTheme();
- const { lang } = useLang();
- const { show } = useToast();
- const AR = lang === 'ar';
- const [googleSync, setGoogle] = useState(false);
- const [appleSync, setApple] = useState(false);
- const [autoAdd, setAutoAdd] = useState(true);
- const [reminders, setReminders] = useState(true);
-
- return (
- <NScroll>
- <NHeader title={AR ? ' مزامنة التقويم' : ' Calendar Sync'} onBack={onBack} />
-
- <NCard style={{ backgroundColor: theme.infoBg, marginBottom: SP.xl }}>
- <Text style={{ fontSize: FS.sm, color: theme.info, lineHeight: 20, textAlign: AR ? 'right' : 'left' }}>
- {AR
- ? 'مزامنة مواعيدك تلقائياً مع Google Calendar أو Apple Calendar. جميع المواعيد الجديدة ستُضاف فوراً.'
- : 'Sync your appointments automatically with Google or Apple Calendar. New bookings added instantly.'}
- </Text>
- </NCard>
-
- <NCard style={{ marginBottom: SP.xl }}>
- {/* Google Calendar */}
- <View style={[styles.calRow, { flexDirection: AR ? 'row-reverse' : 'row' }]}>
- <View style={styles.calIcon}>
- <Text style={{ fontSize: 28 }}></Text>
- </View>
- <View style={{ flex: 1 }}>
- <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>
- Google Calendar
- </Text>
- <Text style={{ fontSize: FS.xs, color: googleSync ? theme.success : theme.textSub }}>
- {googleSync ? (AR ? 'مُتزامن ' : 'Synced ') : (AR ? 'غير مُتزامن' : 'Not synced')}
- </Text>
- </View>
- <NBtn
- label={googleSync ? (AR ? 'فصل' : 'Disconnect') : (AR ? 'ربط' : 'Connect')}
- variant={googleSync ? 'danger' : 'primary'}
- size="sm" full={false}
- style={{ paddingHorizontal: SP.xl }}
- onPress={() => {
- setGoogle(g => !g);
- show(googleSync ? (AR ? 'تم فصل Google Calendar' : 'Google disconnected') : (AR ? 'تم ربط Google Calendar ' : 'Google Calendar connected '), googleSync ? 'info' : 'success');
- }}
- />
- </View>
-
- <NDivider />
-
- {/* Apple Calendar */}
- <View style={[styles.calRow, { flexDirection: AR ? 'row-reverse' : 'row' }]}>
- <View style={styles.calIcon}>
- <Text style={{ fontSize: 28 }}></Text>
- </View>
- <View style={{ flex: 1 }}>
- <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>
- Apple Calendar
- </Text>
- <Text style={{ fontSize: FS.xs, color: appleSync ? theme.success : theme.textSub }}>
- {appleSync ? (AR ? 'مُتزامن ' : 'Synced ') : (AR ? 'غير مُتزامن' : 'Not synced')}
- </Text>
- </View>
- <NBtn
- label={appleSync ? (AR ? 'فصل' : 'Disconnect') : (AR ? 'ربط' : 'Connect')}
- variant={appleSync ? 'danger' : 'primary'}
- size="sm" full={false}
- style={{ paddingHorizontal: SP.xl }}
- onPress={() => {
- setApple(a => !a);
- show(appleSync ? (AR ? 'تم فصل Apple Calendar' : 'Apple disconnected') : (AR ? 'تم ربط Apple Calendar ' : 'Apple Calendar connected '), appleSync ? 'info' : 'success');
- }}
- />
- </View>
- </NCard>
-
- <NCard style={{ marginBottom: SP.xl }}>
- <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text,
- marginBottom: SP.md, textAlign: AR ? 'right' : 'left' }}>
- {AR ? '️ إعدادات المزامنة' : '️ Sync Settings'}
- </Text>
- <NToggle
- label={AR ? 'إضافة المواعيد الجديدة تلقائياً' : 'Auto-add new appointments'}
- sub={AR ? 'كل حجز جديد يُضاف فوراً للتقويم' : 'Each new booking auto-added to calendar'}
- value={autoAdd} onChange={setAutoAdd}
- />
- <NToggle
- label={AR ? 'تفعيل تذكيرات التقويم' : 'Enable calendar reminders'}
- sub={AR ? 'تذكير قبل الموعد بـ 15 دقيقة' : 'Reminder 15 minutes before appointment'}
- value={reminders} onChange={setReminders}
- />
- </NCard>
-
- <NBtn label={AR ? ' حفظ إعدادات المزامنة' : ' Save Sync Settings'}
- onPress={() => { show(AR ? 'تم حفظ إعدادات المزامنة' : 'Sync settings saved', 'success'); onBack(); }} />
- </NScroll>
- );
-}
-
 // ══════════════════════════════════════════════════════════════════════════════
 // AVAILABILITY PULSE SCREEN (ميزة تنافسية — غير موجودة عند المنافسين)
 // ══════════════════════════════════════════════════════════════════════════════
@@ -2674,66 +2484,6 @@ export function AvailabilityPulseScreen({ onBack }: { onBack: () => void }) {
 // ══════════════════════════════════════════════════════════════════════════════
 // PROFESSIONAL NETWORK (Doximity-style — ميزة تنافسية)
 // ══════════════════════════════════════════════════════════════════════════════
-export function ProfessionalNetworkScreen({ onBack }: { onBack: () => void }) {
- const { theme } = useTheme();
- const { lang } = useLang();
- const { show } = useToast();
- const AR = lang === 'ar';
- const [search, setSearch] = useState('');
-
- const DOCTORS = [
- { id: '1', name: AR ? 'د. خالد العنزي' : 'Dr. Khaled Al-Anazi', spec: AR ? 'أمراض القلب والشرايين' : 'Cardiology', hospital: AR ? 'مستشفى سليمان الحبيب' : 'Sulaiman Al-Habib Hospital', mutual: 3 },
- { id: '2', name: AR ? 'د. سارة الشريف' : 'Dr. Sarah Al-Sharif', spec: AR ? 'طب الأطفال حديثي الولادة' : 'Pediatrics & Neonatology', hospital: AR ? 'مدينة الملك سعود الطبية' : 'King Saud Medical City', mutual: 5 },
- { id: '3', name: AR ? 'د. عبد الرحمن الفوزان' : 'Dr. Abdulrahman Al-Fouzan', spec: AR ? 'جراحة العظام والمفاصل' : 'Orthopedic Surgery', hospital: AR ? 'مستشفى دلة' : 'Dallah Hospital', mutual: 0 }
- ];
-
- const filtered = DOCTORS.filter(d => 
- d.name.toLowerCase().includes(search.toLowerCase()) || 
- d.spec.toLowerCase().includes(search.toLowerCase()) ||
- d.hospital.toLowerCase().includes(search.toLowerCase())
- );
-
- return (
- <View style={{ flex: 1, backgroundColor: theme.bg }}>
- <NHeader title={AR ? ' الشبكة المهنية' : ' Professional Network'} onBack={onBack} />
- <ScrollView contentContainerStyle={{ padding: SP.xl, paddingBottom: 100 }}>
- <NInput 
- label={AR ? 'ابحث باسم الطبيب، التخصص، أو المستشفى' : 'Search by doctor name, specialty, or hospital'} 
- value={search} 
- onChange={setSearch} 
- />
- {filtered.map(doc => (
- <NCard key={doc.id} style={{ marginBottom: SP.lg }}>
- <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
- <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.md }}>
- <NAvatar name={doc.name} size={50} />
- <View style={{ alignItems: AR ? 'flex-end' : 'flex-start' }}>
- <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{doc.name}</Text>
- <Text style={{ fontSize: FS.sm, color: theme.primary }}>{doc.spec}</Text>
- <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{doc.hospital}</Text>
- {doc.mutual > 0 && (
- <Text style={{ fontSize: FS.xs, color: theme.textSub }}>
-  {doc.mutual} {AR ? 'مشترك' : 'mutual'}
- </Text>
- )}
- </View>
- </View>
- <View style={{ gap: SP.sm }}>
- <NBtn label={AR ? ' تواصل' : ' Call'} size="xs" full={false}
- style={{ paddingHorizontal: SP.md }}
- onPress={() => show(AR ? 'جاري الاتصال المشفّر...' : 'Encrypted call...', 'info')} />
- <NBtn label={AR ? '+ تواصل' : '+ Connect'} size="xs" variant="outline" full={false}
- style={{ paddingHorizontal: SP.md }}
- onPress={() => show(AR ? 'تم إرسال طلب التواصل' : 'Connection request sent', 'success')} />
- </View>
- </View>
- </NCard>
- ))}
- </ScrollView>
- </View>
- );
-}
-
 // ══════════════════════════════════════════════════════════════════════════════
 // DOCTOR SERVICE MANAGEMENT SCREEN (Real API version)
 // ══════════════════════════════════════════════════════════════════════════════
@@ -2812,7 +2562,8 @@ export function DoctorServiceManagementScreen({ onBack }: { onBack: () => void }
  descEn: modeInfo.descEn,
  price: item.price,
  duration: item.duration_minutes,
- active: item.available
+ active: item.available,
+ insurance_covered: item.insurance_covered === true,
  };
  });
  setServices(parsed);
@@ -2842,10 +2593,29 @@ export function DoctorServiceManagementScreen({ onBack }: { onBack: () => void }
  };
  
  await client.post('/provider/capabilities/doctor-sessions', payload);
- setServices(prev => prev.map(s => s.id === id ? { ...s, active: !currentActive } : s));
- show(AR ? 'تم تحديث حالة الخدمة' : 'Service status updated', 'success');
+ show(AR ? 'تم الإرسال — تُطبق بعد اعتماد الإدارة' : 'Sent — applied after admin approval', 'success');
+ fetchServices();
  } catch (e) {
  show(AR ? 'فشل تحديث حالة الخدمة' : 'Failed to update service status', 'error');
+ }
+ };
+
+ const toggleCoverage = async (id: string, current: boolean) => {
+ try {
+ const srv = services.find(s => s.id === id);
+ if (!srv) return;
+ await client.post('/provider/capabilities/doctor-sessions', {
+ consultation_type: srv.consultation_type,
+ specialty: srv.specialty || 'General Medicine',
+ price: srv.price,
+ duration_minutes: srv.duration,
+ available: srv.active,
+ insurance_covered: !current,
+ });
+ show(AR ? 'تم الإرسال — تُطبق بعد اعتماد الإدارة' : 'Sent — applied after admin approval', 'success');
+ fetchServices();
+ } catch (e) {
+ show(AR ? 'فشل تحديث التغطية' : 'Failed to update coverage', 'error');
  }
  };
 
@@ -2876,7 +2646,7 @@ export function DoctorServiceManagementScreen({ onBack }: { onBack: () => void }
  setNewTitleEn('');
  setNewPrice('');
  setNewDuration('30');
- show(AR ? 'تمت إضافة الخدمة بنجاح' : 'Service added successfully', 'success');
+ show(AR ? 'تم الإرسال — تُطبق بعد اعتماد الإدارة' : 'Sent — applied after admin approval', 'success');
  } catch (e) {
  show(AR ? 'فشل إضافة الخدمة' : 'Failed to add service', 'error');
  }
@@ -2885,8 +2655,8 @@ export function DoctorServiceManagementScreen({ onBack }: { onBack: () => void }
  const handleDeleteService = async (id: string) => {
  try {
  await client.delete(`/provider/capabilities/doctor-sessions/${id}`);
- setServices(prev => prev.filter(s => s.id !== id));
- show(AR ? 'تم حذف الخدمة' : 'Service deleted', 'success');
+ fetchServices();
+ show(AR ? 'تم الإرسال — يُطبق بعد اعتماد الإدارة' : 'Sent — applied after admin approval', 'success');
  } catch (e) {
  show(AR ? 'فشل حذف الخدمة' : 'Failed to delete service', 'error');
  }
@@ -2910,9 +2680,9 @@ export function DoctorServiceManagementScreen({ onBack }: { onBack: () => void }
  };
  
  await client.post('/provider/capabilities/doctor-sessions', payload);
- setServices(prev => prev.map(s => s.id === editingService.id ? { ...s, price: parseFloat(editPrice) || 0, duration: parseInt(editDuration) || 30 } : s));
+ fetchServices();
  setEditingService(null);
- show(AR ? 'تم حفظ التعديلات' : 'Changes saved successfully', 'success');
+ show(AR ? 'تم الإرسال — تُطبق بعد اعتماد الإدارة' : 'Sent — applied after admin approval', 'success');
  } catch (e) {
  show(AR ? 'فشل حفظ التعديلات' : 'Failed to save changes', 'error');
  }
@@ -2942,6 +2712,11 @@ export function DoctorServiceManagementScreen({ onBack }: { onBack: () => void }
  </Text>
  <Switch value={s.active} onValueChange={() => toggleService(s.id, s.active)} trackColor={{ true: theme.primary }} />
  </View>
+
+ <TouchableOpacity onPress={() => toggleCoverage(s.id, !!s.insurance_covered)} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.sm, marginBottom: SP.sm }}>
+ <View style={{ width: 18, height: 18, borderRadius: 4, borderWidth: 2, borderColor: s.insurance_covered ? theme.success : theme.border, backgroundColor: s.insurance_covered ? theme.success : 'transparent' }} />
+ <Text style={{ fontSize: FS.sm, color: theme.text }}>{AR ? 'تُغطى بالتأمين' : 'Covered by insurance'}</Text>
+ </TouchableOpacity>
  
  <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: AR ? 'right' : 'left', marginBottom: SP.md }}>
  {AR ? s.descAr : s.descEn}
@@ -2997,72 +2772,6 @@ export function DoctorServiceManagementScreen({ onBack }: { onBack: () => void }
 }
 
 
-
-export function SubscriptionPlansScreen({ onBack }: { onBack: () => void }) {
- const { theme } = useTheme();
- const { lang } = useLang();
- const { show } = useToast();
- const AR = lang === 'ar';
-
- interface Plan { id: string; nameAr: string; nameEn: string; price: string; period: string; sessions: string; discount: string; active: boolean; }
- const [plans, setPlans] = useState<Plan[]>([
- { id:'1', nameAr:'الباقة الشهرية', nameEn:'Monthly Plan', price:'500', period:'month', sessions:'3', discount:'16', active:true },
- { id:'2', nameAr:'الباقة الفصلية', nameEn:'Quarterly Plan',price:'1200',period:'quarter',sessions:'10','discount':'20',active:false},
- ]);
-
- const addPlan = () => {
- setPlans(prev => [...prev, { id: Date.now().toString(), nameAr: 'باقة جديدة', nameEn: 'New Plan', price: '0', period: 'month', sessions: '1', discount: '0', active: false }]);
- };
-
- return (
- <NScroll>
- <NHeader title={AR ? ' باقات الاشتراك' : ' Subscription Plans'} onBack={onBack} />
-
- <NCard style={{ backgroundColor: theme.infoBg, marginBottom: SP.xl }}>
- <Text style={{ fontSize: FS.sm, color: theme.info, lineHeight: 20, textAlign: AR ? 'right' : 'left' }}>
- {AR
- ? 'الباقات الاشتراكية تزيد الدخل الثابت وتبني ولاء المرضى. المرضى الذين يشتركون يزورون 3x أكثر.'
- : 'Subscription plans increase steady income and build patient loyalty. Subscribers visit 3x more.'}
- </Text>
- </NCard>
-
- {plans.map((plan, i) => (
- <NCard key={plan.id} style={{ marginBottom: SP.md }}>
- <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', marginBottom: SP.md }}>
- <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>
- {AR ? plan.nameAr : plan.nameEn}
- </Text>
- <Switch value={plan.active} onValueChange={v => setPlans(ps => ps.map(p => p.id===plan.id ? {...p,active:v} : p))}
- trackColor={{ false: theme.border, true: theme.primary }} thumbColor="#FFF" />
- </View>
- <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md }}>
- <View style={{ flex: 1 }}>
- <Text style={{ fontSize: FS.xs, color: theme.textSub, marginBottom: 2 }}>{AR ? 'السعر (ريال)' : 'Price (SAR)'}</Text>
- <Text style={{ fontSize: FS['2xl'], fontWeight: FW.xbold, color: theme.primary }}>{plan.price}</Text>
- </View>
- <View style={{ flex: 1 }}>
- <Text style={{ fontSize: FS.xs, color: theme.textSub, marginBottom: 2 }}>{AR ? 'الجلسات' : 'Sessions'}</Text>
- <Text style={{ fontSize: FS['2xl'], fontWeight: FW.xbold, color: theme.text }}>{plan.sessions}</Text>
- </View>
- <View style={{ flex: 1 }}>
- <Text style={{ fontSize: FS.xs, color: theme.textSub, marginBottom: 2 }}>{AR ? 'الخصم' : 'Discount'}</Text>
- <Text style={{ fontSize: FS['2xl'], fontWeight: FW.xbold, color: theme.success }}>{plan.discount}%</Text>
- </View>
- </View>
- {plan.active && (
- <NBadge label={AR ? ' مفعّلة' : ' Active'} variant="success" size="sm" style={{ marginTop: SP.md }} />
- )}
- </NCard>
- ))}
-
- <NBtn label={AR ? '+ إضافة باقة جديدة' : '+ Add New Plan'} variant="outline"
- onPress={addPlan} style={{ marginBottom: SP.lg }} />
-
- <NBtn label={AR ? ' حفظ الباقات' : ' Save Plans'}
- onPress={() => { show(AR ? 'تم حفظ باقات الاشتراك ' : 'Plans saved ', 'success'); onBack(); }} />
- </NScroll>
- );
-}
 
 // ══════════════════════════════════════════════════════════════════════════════
 // STATISTICS & REPORTS SCREEN
@@ -3205,8 +2914,87 @@ export function StatisticsScreen({ onBack }: { onBack: () => void }) {
 // ══════════════════════════════════════════════════════════════════════════════
 // DOCTOR AVAILABILITY SCREEN
 // ══════════════════════════════════════════════════════════════════════════════
-export function DoctorAvailabilityScreen({ onBack }: { onBack: () => void }) {
- const { theme } = useTheme();
+function DoctorServiceSlotsCard() {
+ const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+ const [serviceType, setServiceType] = useState('clinic');
+ const [slots, setSlots] = useState<any[]>([]);
+ const [loading, setLoading] = useState(true);
+ const [day, setDay] = useState('1');
+ const [start, setStart] = useState('09:00');
+ const [end, setEnd] = useState('17:00');
+ const [saving, setSaving] = useState(false);
+ const TYPES = ['clinic', 'video', 'voice', 'home'];
+ const DAYS = ['0', '1', '2', '3', '4', '5', '6'];
+
+ async function load() {
+   setLoading(true);
+   try {
+     const res = await client.get('/provider/schedule-slots');
+     setSlots(Array.isArray(res.data) ? res.data : []);
+   } catch {
+     show(AR ? 'تعذر تحميل المواعيد' : 'Could not load slots', 'error');
+   } finally {
+     setLoading(false);
+   }
+ }
+ useEffect(() => { load(); }, []);
+
+ async function add() {
+   const d = Number(day);
+   if (!Number.isInteger(d) || d < 0 || d > 6) { show(AR ? 'أدخل اليوم (0-6)' : 'Enter day (0-6)', 'error'); return; }
+   if (!/^\d{2}:\d{2}$/.test(start) || !/^\d{2}:\d{2}$/.test(end)) { show(AR ? 'أدخل الوقت بصيغة HH:MM' : 'Enter time as HH:MM', 'error'); return; }
+   setSaving(true);
+   try {
+     await client.post('/provider/schedule-slots', { day_of_week: d, start_time: start, end_time: end, service_type: serviceType });
+     show(AR ? 'تم الإرسال — تُطبق بعد اعتماد الإدارة' : 'Sent — applied after admin approval', 'success');
+     load();
+   } catch (err: any) {
+     show(err?.response?.data?.message || (AR ? 'تعذر الحفظ' : 'Could not save'), 'error');
+   } finally {
+     setSaving(false);
+   }
+ }
+
+ async function remove(id: string) {
+   try {
+     await client.delete(`/provider/schedule-slots/${id}`);
+     show(AR ? 'تم الإرسال — يُطبق بعد اعتماد الإدارة' : 'Sent — applied after admin approval', 'success');
+     load();
+   } catch {
+     show(AR ? 'تعذر الحذف' : 'Could not delete', 'error');
+   }
+ }
+
+ const visible = slots.filter((s) => (s.service_type || 'all') === serviceType || (s.service_type || 'all') === 'all');
+ return (
+ <NCard style={{ marginBottom: SP.xl }}>
+ <NSecHeader title={AR ? 'مواعيد كل خدمة على حدة' : 'Per-service slots'} />
+ <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: 6, flexWrap: 'wrap', marginBottom: SP.md }}>
+ {TYPES.map((t) => (
+ <TouchableOpacity key={t} onPress={() => setServiceType(t)} style={{ paddingHorizontal: SP.md, paddingVertical: 6, borderRadius: R.full, borderWidth: 1.5, borderColor: serviceType === t ? theme.primary : theme.border, backgroundColor: serviceType === t ? theme.primary : theme.surface2 }}>
+ <Text style={{ color: serviceType === t ? '#FFF' : theme.text, fontSize: FS.xs }}>{t}</Text>
+ </TouchableOpacity>
+ ))}
+ </View>
+ {loading ? <ActivityIndicator color={theme.primary} /> : visible.length === 0 ? (
+ <Text style={{ color: theme.textSub, fontSize: FS.sm }}>{AR ? 'لا توجد مواعيد لهذه الخدمة — تُطبق المواعيد العامة (all) إن وجدت' : 'No slots for this service — general (all) slots apply if present'}</Text>
+ ) : visible.map((s: any) => (
+ <View key={String(s.id)} style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 6 }}>
+ <Text style={{ color: theme.text, fontSize: FS.sm }}>{AR ? `يوم ${s.day_of_week}` : `Day ${s.day_of_week}`} · {s.start_time}–{s.end_time} · {s.service_type || 'all'}</Text>
+ <TouchableOpacity onPress={() => remove(String(s.id))}><Text style={{ color: theme.danger, fontSize: FS.sm }}>{AR ? 'حذف' : 'Delete'}</Text></TouchableOpacity>
+ </View>
+ ))}
+ <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm, marginTop: SP.md }}>
+ <View style={{ flex: 1 }}><NInput label={AR ? 'اليوم (0-6)' : 'Day (0-6)'} value={day} onChange={setDay} kbType="numeric" maxLen={1} /></View>
+ <View style={{ flex: 1 }}><NInput label={AR ? 'من (HH:MM)' : 'From (HH:MM)'} value={start} onChange={setStart} maxLen={5} /></View>
+ <View style={{ flex: 1 }}><NInput label={AR ? 'إلى (HH:MM)' : 'To (HH:MM)'} value={end} onChange={setEnd} maxLen={5} /></View>
+ </View>
+ <NBtn label={AR ? 'إضافة موعد' : 'Add slot'} loading={saving} onPress={add} style={{ marginTop: SP.md }} />
+ </NCard>
+ );
+}
+
+export function DoctorAvailabilityScreen({ onBack, onNavigate }: { onBack: () => void; onNavigate?: (s: string, p?: any) => void }) { const { theme } = useTheme();
  const { lang } = useLang();
  const { show } = useToast();
  const AR = lang === 'ar';
@@ -3351,59 +3139,10 @@ export function DoctorAvailabilityScreen({ onBack }: { onBack: () => void }) {
  </View>
  </NCard>
 
- {/* Insurance Config */}
- <NSecHeader title={AR ? 'شركات التأمين المقبولة' : 'Accepted Insurances'} />
- {insurances.map(item => (
-  <NCard key={item.id} style={{ marginBottom: SP.md }}>
-  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.md }}>
-  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>
-  {AR ? item.ar : item.en}
-  </Text>
-  <Switch value={item.active} onValueChange={() => toggleIns(item.id)} trackColor={{ true: theme.primary }} />
-  </View>
-
-  {item.active && (
-    <View style={{ marginTop: SP.md, gap: SP.sm, borderTopWidth: 1, borderTopColor: theme.border, paddingTop: SP.sm }}>
-      <Text style={{ fontSize: FS.sm, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{AR ? 'الخدمات المشمولة:' : 'Covered Services:'}</Text>
-      <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md }}>
-        <TouchableOpacity onPress={() => toggleService(item.id, 'clinic')} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: 4 }}>
-          <View style={{ width: 16, height: 16, borderRadius: 4, borderWidth: 2, borderColor: item.clinic ? theme.primary : theme.border, backgroundColor: item.clinic ? theme.primary : 'transparent' }} />
-          <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{AR ? 'كشف العيادة' : 'Clinic'}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => toggleService(item.id, 'online')} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: 4 }}>
-          <View style={{ width: 16, height: 16, borderRadius: 4, borderWidth: 2, borderColor: item.online ? theme.primary : theme.border, backgroundColor: item.online ? theme.primary : 'transparent' }} />
-          <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{AR ? 'أونلاين' : 'Online'}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => toggleService(item.id, 'home')} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: 4 }}>
-          <View style={{ width: 16, height: 16, borderRadius: 4, borderWidth: 2, borderColor: item.home ? theme.primary : theme.border, backgroundColor: item.home ? theme.primary : 'transparent' }} />
-          <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{AR ? 'زيارة منزلية' : 'Home Visit'}</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  )}
-  
-  {item.active && (
-    <View style={{ marginTop: SP.md, gap: SP.sm, borderTopWidth: 1, borderTopColor: theme.border, paddingTop: SP.sm }}>
-      <Text style={{ fontSize: FS.sm, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{AR ? 'الخدمات المشمولة:' : 'Covered Services:'}</Text>
-      <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md }}>
-        <TouchableOpacity onPress={() => toggleService(item.id, 'clinic')} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: 4 }}>
-          <View style={{ width: 16, height: 16, borderRadius: 4, borderWidth: 2, borderColor: item.clinic ? theme.primary : theme.border, backgroundColor: item.clinic ? theme.primary : 'transparent' }} />
-          <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{AR ? 'كشف العيادة' : 'Clinic'}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => toggleService(item.id, 'online')} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: 4 }}>
-          <View style={{ width: 16, height: 16, borderRadius: 4, borderWidth: 2, borderColor: item.online ? theme.primary : theme.border, backgroundColor: item.online ? theme.primary : 'transparent' }} />
-          <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{AR ? 'أونلاين' : 'Online'}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => toggleService(item.id, 'home')} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: 4 }}>
-          <View style={{ width: 16, height: 16, borderRadius: 4, borderWidth: 2, borderColor: item.home ? theme.primary : theme.border, backgroundColor: item.home ? theme.primary : 'transparent' }} />
-          <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{AR ? 'زيارة منزلية' : 'Home Visit'}</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  )}
-  </NCard>
-  ))}
-
+ {/* Insurance Config — managed on the dedicated screen (delta approval) */}
+ <NCard style={{ marginBottom: SP.xl }}>
+ <NSettingsRow icon="shield" label={AR ? 'شركات التأمين والفئات المقبولة' : 'Accepted Insurers & Tiers'} onPress={() => onNavigate && onNavigate('insurance_config')} />
+ </NCard>
  {/* Weekly Schedule */}
  <NSecHeader title={AR ? 'الجدول الأسبوعي للعيادة والتوفر' : 'Weekly Operations Calendar'} />
  {weeklySchedule.map(d => (
@@ -3490,6 +3229,7 @@ export function DoctorAvailabilityScreen({ onBack }: { onBack: () => void }) {
   )}
 
  <NBtn label={AR ? ' حفظ الجدول الأسبوعي' : ' Save Weekly Calendar'} disabled={vacationMode} loading={saving} onPress={handleSaveSchedule} style={{ marginVertical: SP.lg }} />
+ <DoctorServiceSlotsCard />
 
  {/* Exceptional Settings */}
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: SP.xl, marginBottom: SP.lg }}>
@@ -3578,6 +3318,8 @@ function DoctorProfileEditScreen({ onBack }: { onBack: () => void }) {
  const [specialty, setSpecialty] = useState('');
  const [degree, setDegree] = useState('');
  const [avatarUrl, setAvatarUrl] = useState('');
+ const [clinicImages, setClinicImages] = useState<string[]>([]);
+ const [uploadingClinic, setUploadingClinic] = useState(false);
 
  useEffect(() => {
  fetchProfile();
@@ -3595,6 +3337,7 @@ function DoctorProfileEditScreen({ onBack }: { onBack: () => void }) {
  setExp(String(res.data.years_of_experience || ''));
  setWeb(res.data.website || '');
  setAvatarUrl(res.data.profile_image_id || '');
+ setClinicImages(Array.isArray(res.data.clinic_images) ? res.data.clinic_images.filter((x: any) => typeof x === 'string') : []);
  } catch (err) {
  show(AR ? 'فشل تحميل الملف الشخصي' : 'Failed to load profile', 'error');
  } finally {
@@ -3614,8 +3357,10 @@ function DoctorProfileEditScreen({ onBack }: { onBack: () => void }) {
  website: web,
  specialty,
  degree,
+ ...(avatarUrl ? { profile_image_id: avatarUrl } : {}),
+ clinic_images: clinicImages,
  });
- show(AR ? 'تم حفظ التعديلات بنجاح' : 'Profile updated successfully', 'success');
+ show(AR ? 'تم الإرسال — تُطبق بعد اعتماد الإدارة' : 'Sent — applied after admin approval', 'success');
  onBack();
  } catch (err) {
  show(AR ? 'فشل حفظ الملف الشخصي' : 'Failed to save profile', 'error');
@@ -3657,12 +3402,38 @@ function DoctorProfileEditScreen({ onBack }: { onBack: () => void }) {
    <NSecHeader title={AR ? 'صور العيادة' : 'Clinic Images'} />
  </View>
  <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexDirection: AR ? 'row-reverse' : 'row' }}>
-   <TouchableOpacity style={{ width: 100, height: 100, borderRadius: R.md, backgroundColor: theme.surface2, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: theme.border, borderStyle: 'dashed', marginRight: SP.md }}>
+   <TouchableOpacity
+     onPress={async () => {
+       try {
+         const DocPicker: any = await import('expo-document-picker');
+         const picked = await DocPicker.getDocumentAsync({ type: 'image/*', copyToCacheDirectory: true });
+         const uri = picked?.assets?.[0]?.uri || picked?.uri;
+         if (!uri) return;
+         setUploadingClinic(true);
+         const { ProviderApi } = await import('../../api/provider');
+         const id = await ProviderApi.uploadFile(uri, picked?.assets?.[0]?.mimeType || 'image/jpeg', picked?.assets?.[0]?.name || 'clinic.jpg');
+         if (typeof id === 'string' && id) setClinicImages((prev) => [...prev, id]);
+         else show(AR ? 'تعذر رفع الصورة' : 'Could not upload image', 'error');
+       } catch {
+         show(AR ? 'تعذر رفع الصورة' : 'Could not upload image', 'error');
+       } finally {
+         setUploadingClinic(false);
+       }
+     }}
+     style={{ width: 100, height: 100, borderRadius: R.md, backgroundColor: theme.surface2, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: theme.border, borderStyle: 'dashed', marginRight: SP.md }}>
      <I name="plus" size={24} color={theme.primary} />
-     <Text style={{ fontSize: FS.xs, color: theme.primary, marginTop: SP.xs }}>{AR ? 'إضافة صورة' : 'Add Image'}</Text>
+     <Text style={{ fontSize: FS.xs, color: theme.primary, marginTop: SP.xs }}>{uploadingClinic ? (AR ? 'جارٍ الرفع…' : 'Uploading…') : (AR ? 'إضافة صورة' : 'Add Image')}</Text>
    </TouchableOpacity>
+   {clinicImages.map((id) => (
+     <View key={id} style={{ width: 100, height: 100, borderRadius: R.md, backgroundColor: theme.surface2, marginRight: SP.md, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' }}>
+       <TouchableOpacity onPress={() => setClinicImages((prev) => prev.filter((x) => x !== id))} style={{ position: 'absolute', top: 4, right: 4, zIndex: 10, width: 24, height: 24, borderRadius: 12, backgroundColor: 'rgba(244,67,54,0.9)', alignItems: 'center', justifyContent: 'center' }}>
+         <I name="close" size={12} color="#FFF" />
+       </TouchableOpacity>
+       <IBg name="image" size={32} color={theme.textSub} bg="transparent" />
+     </View>
+   ))}
    {[1, 2].map(i => (
-     <View key={i} style={{ width: 100, height: 100, borderRadius: R.md, backgroundColor: theme.surface2, marginRight: SP.md, overflow: 'hidden' }}>
+     <View key={`ph-${i}`} style={{ width: 100, height: 100, borderRadius: R.md, backgroundColor: theme.surface2, marginRight: SP.md, overflow: 'hidden', opacity: 0.4 }}>
        <IBg name="image" size={32} color={theme.textSub} bg="transparent" />
      </View>
    ))}
@@ -3683,21 +3454,77 @@ export function DoctorLocationScreen({ onBack }: { onBack: () => void }) {
   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const [radius, setRadius] = useState('10');
   const [transportFee, setTransportFee] = useState('50');
+  const [pin, setPin] = useState<{ lat: number; lng: number } | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [locating, setLocating] = useState(false);
 
-  const handleSave = () => {
-    show(AR ? 'تم حفظ الموقع ونطاق التغطية' : 'Location & Coverage Saved', 'success');
-    onBack();
-  };
+  useEffect(() => {
+    let active = true;
+    client.get('/provider/profile').then((res) => {
+      if (!active) return;
+      const p = res?.data?.data || res?.data || {};
+      if (p.geo?.lat && p.geo?.lng) setPin({ lat: Number(p.geo.lat), lng: Number(p.geo.lng) });
+      if (p.max_delivery_radius_km != null) setRadius(String(p.max_delivery_radius_km));
+    }).catch(() => {}).finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, []);
+
+  async function useMyLocation() {
+    setLocating(true);
+    try {
+      const { requestForegroundPermissionsAsync, getCurrentPositionAsync } = await import('expo-location');
+      const perm = await requestForegroundPermissionsAsync();
+      if (perm.status !== 'granted') { show(AR ? 'الصلاحية مطلوبة لتحديد الموقع' : 'Location permission is required', 'error'); return; }
+      const pos = await getCurrentPositionAsync({});
+      setPin({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+    } catch {
+      show(AR ? 'تعذر تحديد الموقع' : 'Could not determine location', 'error');
+    } finally {
+      setLocating(false);
+    }
+  }
+
+  async function handleSave() {
+    if (!pin) { show(AR ? 'حدد موقع العيادة على الخريطة أولاً' : 'Pin the clinic location on the map first', 'error'); return; }
+    const r = Number(radius);
+    if (!Number.isFinite(r) || r < 0) { show(AR ? 'أدخل نطاق تغطية صحيح' : 'Enter a valid coverage radius', 'error'); return; }
+    setSaving(true);
+    try {
+      await client.patch('/provider/profile', {
+        geo: { lat: pin.lat, lng: pin.lng },
+        max_delivery_radius_km: r,
+        delivery_fee: Number(transportFee) || 0,
+      });
+      show(AR ? 'تم الإرسال — تُطبق بعد اعتماد الإدارة' : 'Sent — applied after admin approval', 'success');
+      onBack();
+    } catch (err: any) {
+      show(err?.response?.data?.message || (AR ? 'تعذر الحفظ' : 'Could not save'), 'error');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  const MapView = require('react-native-maps').default;
+  const Marker = require('react-native-maps').Marker;
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
       <NHeader title={AR ? 'الموقع ونطاق التغطية' : 'Location & Coverage'} onBack={onBack} />
       <ScrollView contentContainerStyle={{ padding: SP.xl, gap: SP.md }}>
         <NSecHeader title={AR ? 'موقع العيادة' : 'Clinic Location'} />
-        <View style={{ height: 200, backgroundColor: theme.surface2, borderRadius: R.xl, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: theme.border, overflow: 'hidden' }}>
-          <IBg name="mapPin" size={32} color={theme.primary} bg={`${theme.primary}12`} />
-          <Text style={{ marginTop: SP.sm, color: theme.textSub, fontSize: FS.sm }}>{AR ? 'خريطة تفاعلية لاختيار الموقع' : 'Interactive Map for Location'}</Text>
+        <View style={{ height: 260, borderRadius: R.xl, overflow: 'hidden', borderWidth: 1, borderColor: theme.border }}>
+          {loading ? null : (
+            <MapView
+              style={{ flex: 1 }}
+              initialRegion={{ latitude: pin?.lat || 24.7136, longitude: pin?.lng || 46.6753, latitudeDelta: 0.02, longitudeDelta: 0.02 }}
+              onPress={(e: any) => setPin({ lat: e.nativeEvent.coordinate.latitude, lng: e.nativeEvent.coordinate.longitude })}
+            >
+              {pin && <Marker coordinate={{ latitude: pin.lat, longitude: pin.lng }} draggable onDragEnd={(e: any) => setPin({ lat: e.nativeEvent.coordinate.latitude, lng: e.nativeEvent.coordinate.longitude })} />}
+            </MapView>
+          )}
         </View>
+        <NBtn label={locating ? (AR ? 'جارٍ التحديد…' : 'Locating…') : (AR ? 'استخدم موقعي الحالي' : 'Use my current location')} variant="outline" onPress={useMyLocation} />
 
         <View style={{ marginTop: SP.lg }}>
           <NSecHeader title={AR ? 'الزيارات المنزلية' : 'Home Visits'} />
@@ -3713,7 +3540,7 @@ export function DoctorLocationScreen({ onBack }: { onBack: () => void }) {
           </View>
         </NCard>
 
-        <NBtn label={AR ? 'حفظ' : 'Save'} onPress={handleSave} style={{ marginTop: SP.lg }} />
+        <NBtn label={AR ? 'حفظ' : 'Save'} loading={saving} onPress={handleSave} style={{ marginTop: SP.lg }} />
       </ScrollView>
     </View>
   );
@@ -3722,176 +3549,77 @@ export function DoctorLocationScreen({ onBack }: { onBack: () => void }) {
 // ══════════════════════════════════════════════════════════════════════════════
 // INSURANCE CONFIG SCREEN
 // ══════════════════════════════════════════════════════════════════════════════
-export function InsuranceConfigScreen({ onBack }: { onBack: () => void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
- const [insurances, setInsurances] = useState([
- { id: 'bupa', ar: 'بوبا العربية', en: 'Bupa Arabia', active: true, copay: '10', tier: 'VIP' },
- { id: 'tawuniya', ar: 'التعاونية للتأمين', en: 'Tawuniya', active: true, copay: '20', tier: 'Class A' },
- { id: 'medgulf', ar: 'ميدغلف', en: 'Medgulf', active: false, copay: '20', tier: 'Class B' },
- { id: 'malath', ar: 'ملاذ للتأمين', en: 'Malath Insurance', active: false, copay: '25', tier: 'Class C' },
- ]);
-
- const toggleIns = (id: string) => {
- setInsurances(prev => prev.map(item => item.id === id ? { ...item, active: !item.active } : item));
- };
-
- const updateCopay = (id: string, val: string) => {
- setInsurances(prev => prev.map(item => item.id === id ? { ...item, copay: val.replace(/\D/g, '') } : item));
- };
-
- const handleSave = () => {
- show(AR ? 'تم حفظ إعدادات التأمين بنجاح' : 'Insurance settings saved successfully', 'success');
- onBack();
- };
-
- return (
- <View style={{ flex: 1, backgroundColor: theme.bg }}>
- <NHeader title={AR ? 'التأمين الصحي' : 'Health Insurance'} onBack={onBack} />
- <ScrollView contentContainerStyle={{ padding: SP.lg, gap: SP.md }}>
- <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm }}>
- {AR ? 'حدد شركات التأمين المقبولة لديك ونسب التحمل لكل شركة:' : 'Select which insurance providers you accept and specify copay percentages:'}
- </Text>
-
- {insurances.map(item => (
- <NCard key={item.id} style={{ marginBottom: SP.sm }}>
- <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
- <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.md }}>
- <IBg name="shield" size={16} color={item.active ? theme.primary : theme.textSub} bg={item.active ? `${theme.primary}12` : theme.surface2} />
- <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>
- {AR ? item.ar : item.en}
- </Text>
- </View>
- <Switch value={item.active} onValueChange={() => toggleIns(item.id)} trackColor={{ true: theme.primary }} />
- </View>
-
- {item.active && (
- <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginTop: SP.md, borderTopWidth: 1, borderTopColor: theme.border, paddingTop: SP.md }}>
- <View style={{ flex: 1 }}>
- <NInput
- label={AR ? 'نسبة التحمل %' : 'Copay %'}
- value={item.copay}
- onChange={(v) => updateCopay(item.id, v)}
- kbType="numeric"
- maxLen={3}
- />
- </View>
- <View style={{ flex: 1 }}>
- <NInput
- label={AR ? 'فئة التغطية' : 'Coverage Tier'}
- value={item.tier}
- onChange={(v) => {
- setInsurances(prev => prev.map(x => x.id === item.id ? { ...x, tier: v } : x));
- }}
- />
- </View>
- </View>
- )}
- </NCard>
- ))}
-
- <NBtn label={AR ? ' حفظ الإعدادات' : ' Save Settings'} onPress={handleSave} style={{ marginTop: SP.xl }} />
- </ScrollView>
- </View>
- );
-}
 
 // ══════════════════════════════════════════════════════════════════════════════
 // CERTIFICATES CONFIG SCREEN
 // ══════════════════════════════════════════════════════════════════════════════
 export function CertificatesConfigScreen({ onBack }: { onBack: () => void }) {
  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
- const [certs, setCerts] = useState([
- { id: '1', name_ar: 'ترخيص الهيئة السعودية للتخصصات الصحية', name_en: 'SCFHS License Document', status: 'verified', date: '2026-05-10', filename: 'scfhs_license_card.pdf' },
- { id: '2', name_ar: 'شهادة البورد السعودي في طب القلب', name_en: 'Saudi Board Certificate in Cardiology', status: 'verified', date: '2026-05-11', filename: 'saudi_board_cardio.pdf' },
- { id: '3', name_ar: 'شهادة البكالوريوس في الطب والجراحة', name_en: 'MBBS Medical Graduation Certificate', status: 'pending', date: '2026-07-04', filename: 'mbbs_graduation.pdf' },
- ]);
+ const [certs, setCerts] = useState<any[]>([]);
+ const [loading, setLoading] = useState(true);
  const [uploading, setUploading] = useState(false);
- const [progress, setProgress] = useState(0);
+ const [docType, setDocType] = useState('medical_license');
+ const DOC_TYPES = ['medical_license', 'professional_cv', 'national_id', 'commercial_registration', 'facility_license', 'iban_letter', 'vat_certificate', 'other'];
 
- const handleUpload = () => {
- setUploading(true);
- setProgress(0);
- const interval = setInterval(() => {
- setProgress(p => {
- if (p >= 100) {
- clearInterval(interval);
- setUploading(false);
- setCerts(prev => [
- ...prev,
- { id: Date.now().toString(), name_ar: 'شهادة زمالة أو تدريب إضافية', name_en: 'Additional Training Certificate', status: 'pending', date: '2026-07-06', filename: 'additional_training.pdf' }
- ]);
- show(AR ? 'تم رفع المستند بنجاح وهو قيد المراجعة' : 'Document uploaded successfully and is under review', 'success');
- return 100;
+ async function load() {
+   setLoading(true);
+   try {
+     const res = await client.get('/provider/kyc/documents');
+     const d = res?.data?.data || res?.data || {};
+     setCerts(Array.isArray(d.documents) ? d.documents : []);
+   } catch {
+     show(AR ? 'تعذر تحميل المستندات' : 'Could not load documents', 'error');
+   } finally {
+     setLoading(false);
+   }
  }
- return p + 20;
- });
- }, 300);
- };
+
+ useEffect(() => { load(); }, []);
+
+ async function handleUpload() {
+   try {
+     const DocPicker: any = await import('expo-document-picker');
+     const FS: any = await import('expo-file-system');
+     const picked = await DocPicker.getDocumentAsync({ type: '*/*', copyToCacheDirectory: true });
+     const uri = picked?.assets?.[0]?.uri || picked?.uri;
+     if (!uri) return;
+     const mime = picked?.assets?.[0]?.mimeType || 'application/pdf';
+     const name = picked?.assets?.[0]?.name || 'document';
+     setUploading(true);
+     const base64 = await FS.readAsStringAsync(uri, { encoding: 'base64' });
+     await client.post('/provider/kyc/documents', { doc_type: docType, file: { data_base64: base64, mime, original_name: name } });
+     show(AR ? 'تم رفع المستند وهو قيد المراجعة' : 'Document uploaded and under review', 'success');
+     load();
+   } catch (err: any) {
+     show(err?.response?.data?.message || (AR ? 'تعذر رفع المستند' : 'Upload failed'), 'error');
+   } finally {
+     setUploading(false);
+   }
+ }
 
  return (
  <View style={{ flex: 1, backgroundColor: theme.bg }}>
  <NHeader title={AR ? 'الشهادات والمؤهلات' : 'Qualifications'} onBack={onBack} />
- <ScrollView contentContainerStyle={{ padding: SP.lg, gap: SP.md }}>
- <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm }}>
- {AR ? 'الشهادات المعتمدة والأوراق الثبوتية الخاصة بملفك الطبي المهني:' : 'Verified certificates and licensing documents linked to your medical profile:'}
- </Text>
-
- {certs.map(item => (
- <NCard key={item.id} style={{ marginBottom: SP.sm }} accent={item.status === 'verified' ? '#4CAF50' : '#2196F3'}>
- <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.sm }}>
- <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, flex: 1, textAlign: AR ? 'right' : 'left' }}>
- {AR ? item.name_ar : item.name_en}
- </Text>
- <NBadge
- label={item.status === 'verified' ? (AR ? 'معتمد' : 'Verified') : (AR ? 'قيد المراجعة' : 'Pending')}
- variant={item.status === 'verified' ? 'success' : 'primary'}
- size="xs"
- />
- </View>
- <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', borderTopWidth: 1, borderTopColor: theme.border, paddingTop: SP.sm }}>
- <Text style={{ fontSize: FS.xs, color: theme.textSub }}>
-  {item.filename}
- </Text>
- <Text style={{ fontSize: FS.xs, color: theme.textSub }}>
- {item.date}
- </Text>
- </View>
+ <ScrollView contentContainerStyle={{ padding: SP.xl, gap: SP.md }}>
+ {loading ? <ActivityIndicator color={theme.primary} style={{ marginTop: 40 }} /> : certs.length === 0 ? (
+ <NCard><Text style={{ color: theme.textSub, textAlign: 'center' }}>{AR ? 'لا توجد مستندات بعد' : 'No documents yet'}</Text></NCard>
+ ) : certs.map((c: any) => (
+ <NCard key={String(c.id || c.doc_type)} style={{ marginBottom: SP.md }}>
+ <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{c.doc_type}</Text>
+ <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{c.review_status || c.status || ''}</Text>
  </NCard>
  ))}
-
- {uploading ? (
- <NCard style={{ padding: SP.xl, alignItems: 'center' }}>
- <Text style={{ fontSize: FS.sm, color: theme.text, marginBottom: SP.md }}>
- {AR ? `جاري الرفع والتحقق... ${progress}%` : `Uploading & verifying... ${progress}%`}
- </Text>
- <View style={{ width: '100%', height: 6, backgroundColor: theme.surface2, borderRadius: 3, overflow: 'hidden' }}>
- <View style={{ width: `${progress}%`, height: '100%', backgroundColor: theme.primary }} />
- </View>
- </NCard>
- ) : (
- <TouchableOpacity
- onPress={handleUpload}
- style={{
- padding: SP.xl,
- borderRadius: R.lg,
- borderWidth: 2,
- borderColor: theme.primary,
- borderStyle: 'dashed',
- alignItems: 'center',
- justifyContent: 'center',
- backgroundColor: `${theme.primary}05`,
- marginTop: SP.md,
- }}
- >
- <I name="upload" size={24} color={theme.primary} />
- <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.primary, marginTop: SP.md }}>
- {AR ? ' رفع وثيقة أو شهادة جديدة' : ' Upload New Certificate'}
- </Text>
- <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: SP.xs }}>
- {AR ? 'صيغ المقبولة: PDF, JPG, PNG (بحد أقصى 10 ميجا)' : 'Supported: PDF, JPG, PNG (Max 10MB)'}
- </Text>
+ <NSecHeader title={AR ? 'رفع مستند جديد' : 'Upload new document'} />
+ <NCard>
+ <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: 6, marginBottom: SP.md }}>
+ {DOC_TYPES.map((t) => (
+ <TouchableOpacity key={t} onPress={() => setDocType(t)} style={{ paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, borderWidth: 1.5, borderColor: docType === t ? theme.primary : theme.border, backgroundColor: docType === t ? theme.primary : theme.surface2 }}>
+ <Text style={{ color: docType === t ? '#FFF' : theme.text, fontSize: FS.xs }}>{t}</Text>
  </TouchableOpacity>
- )}
+ ))}
+ </View>
+ <NBtn label={AR ? 'اختيار ملف ورفع' : 'Pick file & upload'} loading={uploading} onPress={handleUpload} />
+ </NCard>
  </ScrollView>
  </View>
  );
@@ -3900,187 +3628,6 @@ export function CertificatesConfigScreen({ onBack }: { onBack: () => void }) {
 // ══════════════════════════════════════════════════════════════════════════════
 // PHOTOS & MEDIA SCREEN
 // ══════════════════════════════════════════════════════════════════════════════
-export function MediaConfigScreen({ onBack }: { onBack: () => void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
- const [images, setImages] = useState([
- { id: '1', url: 'https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=300&h=300&fit=crop', title: AR ? 'صورة العيادة' : 'Clinic Room' },
- { id: '2', url: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=300&h=300&fit=crop', title: AR ? 'الاستقبال' : 'Reception' },
- { id: '3', url: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=300&h=300&fit=crop', title: AR ? 'الأجهزة الطبية' : 'Equipment' },
- ]);
-
- const handleDelete = (id: string) => {
- setImages(prev => prev.filter(x => x.id !== id));
- show(AR ? 'تم حذف الصورة' : 'Photo deleted', 'info');
- };
-
- const handleAddPhoto = () => {
- const newImg = {
- id: Date.now().toString(),
- url: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=300&h=300&fit=crop',
- title: AR ? 'صورة مرفقة جديدة' : 'New Attached Photo'
- };
- setImages(prev => [...prev, newImg]);
- show(AR ? 'تم إضافة الصورة بنجاح' : 'Photo added successfully', 'success');
- };
-
- return (
- <View style={{ flex: 1, backgroundColor: theme.bg }}>
- <NHeader title={AR ? 'الصور والوسائط' : 'Photos & Media'} onBack={onBack} />
- <ScrollView contentContainerStyle={{ padding: SP.lg, gap: SP.md }}>
- <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm }}>
- {AR ? 'الصور المعروضة في صفحتك العامة للمرضى (العيادة، الأجهزة، الشهادات المعلقة):' : 'Photos displayed on your public profile for patients (clinic, instruments, facilities):'}
- </Text>
-
- <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: SP.md, justifyContent: 'space-between' }}>
- {images.map(img => (
- <View key={img.id} style={{ width: '47%', borderRadius: R.lg, overflow: 'hidden', borderWidth: 1, borderColor: theme.border, backgroundColor: theme.surface }}>
- <View style={{ height: 120, backgroundColor: theme.surface2, position: 'relative' }}>
- <View style={{ position: 'absolute', top: 5, right: 5, zIndex: 10 }}>
- <TouchableOpacity
- onPress={() => handleDelete(img.id)}
- style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: 'rgba(244,67,54,0.9)', alignItems: 'center', justifyContent: 'center' }}
- >
- <I name="close" size={14} color="#FFF" />
- </TouchableOpacity>
- </View>
- <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
- <I name="camera" size={30} color={theme.textSub} />
- </View>
- </View>
- <View style={{ padding: SP.sm }}>
- <Text style={{ fontSize: FS.xs, color: theme.text, fontWeight: FW.bold, textAlign: 'center' }} numberOfLines={1}>
- {img.title}
- </Text>
- </View>
- </View>
- ))}
-
- <TouchableOpacity
- onPress={handleAddPhoto}
- style={{
- width: '47%',
- height: 154,
- borderRadius: R.lg,
- borderWidth: 2,
- borderColor: theme.primary,
- borderStyle: 'dashed',
- alignItems: 'center',
- justifyContent: 'center',
- backgroundColor: `${theme.primary}05`,
- }}
- >
- <I name="plus" size={24} color={theme.primary} />
- <Text style={{ fontSize: FS.sm, color: theme.primary, fontWeight: FW.bold, marginTop: SP.sm }}>
- {AR ? 'إضافة صورة' : 'Add Photo'}
- </Text>
- </TouchableOpacity>
- </View>
- </ScrollView>
- </View>
- );
-}
-
-
-
-// ══════════════════════════════════════════════════════════════════════════════
-// VIRTUAL WAITING ROOM (PHASE 2)
-// ══════════════════════════════════════════════════════════════════════════════
-function VirtualWaitingRoomScreen({ onBack, onNavigate }: { onBack: () => void, onNavigate: (s: string, p?: any) => void }) {
-  const { theme } = useTheme();
-  const { lang } = useLang();
-  const { show } = useToast();
-  const AR = lang === 'ar';
-  
-  const [patients, setPatients] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchWaitingRoom();
-  }, []);
-
-  const fetchWaitingRoom = async () => {
-    setLoading(true);
-    try {
-      const headers = await buildHeaders(false);
-      const res = await fetch(`${API_BASE}/calls/provider/waiting-room`, { headers });
-      if (res.ok) {
-        const data = await res.json();
-        setPatients(data);
-      } else {
-        throw new Error('Failed to fetch waiting room');
-      }
-    } catch (e) {
-      show(AR ? 'حدث خطأ في تحميل الغرفة' : 'Error loading waiting room', 'error');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const pingPatient = async (patientId: string) => {
-    try {
-      const headers = await buildHeaders(false);
-      await fetch(`${API_BASE}/calls/provider/ping-patient`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ patient_id: patientId })
-      });
-      show(AR ? 'تم إرسال إشعار للمريض' : 'Ping sent', 'info');
-    } catch (e) {
-      show(AR ? 'فشل التنبيه' : 'Failed to ping', 'error');
-    }
-  };
-
-  const markNoShow = async (patient: any) => {
-    try {
-      const headers = await buildHeaders(false);
-      await fetch(`${API_BASE}/calls/provider/no-show`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ appointment_id: patient.id })
-      });
-      show(AR ? 'تم تسجيل الغياب' : 'Marked as no-show', 'success');
-      fetchWaitingRoom();
-    } catch (e) {
-      show(AR ? 'فشل تسجيل الغياب' : 'Failed to mark no-show', 'error');
-    }
-  };
-
-  return (
-    <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'غرفة الانتظار الافتراضية' : 'Virtual Waiting Room'} onBack={onBack} />
-      <ScrollView contentContainerStyle={{ padding: SP.lg }}>
-        <Text style={{ fontSize: FS.md, color: theme.textSub, marginBottom: SP.lg }}>
-          {AR ? 'المرضى الذين أجروا تسجيل دخول (Checked-in) وينتظرون بدء المكالمة:' : 'Patients who checked in and are waiting:'}
-        </Text>
-        {loading && <Text style={{ color: theme.text }}>{AR ? 'جاري التحميل...' : 'Loading...'}</Text>}
-        {!loading && patients.map(p => (
-          <NCard key={p.id} style={{ marginBottom: SP.sm, padding: SP.lg }}>
-            <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-              <View>
-                <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{p.name}</Text>
-                <Text style={{ color: p.checkedIn ? theme.success : theme.textSub, textAlign: AR ? 'right' : 'left' }}>
-                  {p.checkedIn ? (AR ? `متواجد (انتظار: ${p.waitTime})` : `Checked-in (Wait: ${p.waitTime})`) : (AR ? 'لم يحضر بعد' : 'Not arrived')}
-                </Text>
-              </View>
-              <View style={{ gap: SP.sm }}>
-                {p.checkedIn && (
-                  <>
-                    <NBtn label={AR ? 'تنبيه (Ping)' : 'Ping'} variant="outline" onPress={() => pingPatient(p.id)} />
-                    <NBtn label={AR ? 'بدء المكالمة' : 'Start Call'} onPress={() => onNavigate('video_call', p)} />
-                  </>
-                )}
-                {!p.checkedIn && (
-                  <NBtn label={AR ? 'غياب (No-Show)' : 'No-Show'} variant="outline" onPress={() => markNoShow(p)} />
-                )}
-              </View>
-            </View>
-          </NCard>
-        ))}
-      </ScrollView>
-    </View>
-  );
-}
-
 // ══════════════════════════════════════════════════════════════════════════════
 // PRE-VISIT CHAT (PHASE 2)
 // ══════════════════════════════════════════════════════════════════════════════
@@ -4093,7 +3640,6 @@ function PreVisitChatScreen({ apt, onBack, onNavigate }: { apt: any, onBack: () 
   const [msg, setMsg] = useState('');
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState([
-    { id: '1', text: AR ? 'مرحباً دكتور، هذه تحاليلي الأخيرة:' : 'Hello Doctor, here are my recent labs:', sender: 'patient', attachment: 'labs_2025.pdf' }
   ]);
   
   const handleSend = async () => {

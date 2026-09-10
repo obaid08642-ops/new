@@ -34,9 +34,17 @@ export class JobPosting {
   @Prop({ required: true }) title: string;
   @Prop({ required: true }) description: string;
   @Prop({ type: [String], default: [] }) requirements: string[];
-  @Prop({ required: true, index: true }) scfhs_role: string; // e.g. "GP", "Pharmacist", "Specialist Nurse"
+  @Prop({ required: true, index: true }) scfhs_role: string; // doctor | pharmacist | nurse | lab | radiology
   @Prop({ required: true }) location: string; // e.g. "Riyadh", "Jeddah"
   @Prop() salary_range?: string; // e.g. "15,000 - 20,000 SAR"
+  @Prop({ type: String, enum: ['offer', 'request'], default: 'offer', index: true }) post_type: 'offer' | 'request';
+  @Prop() company?: string;
+  @Prop() contact_phone?: string;
+  @Prop() contact_preference?: string;
+  @Prop() nationality?: string;
+  @Prop() experience_years?: number;
+  @Prop() contract_type?: string;
+  @Prop({ index: true }) guest_device_id?: string; // guest submissions: device-bound, no account
   @Prop({ required: true, index: true }) facility_id: string; // Owner organization
   @Prop({ type: String, enum: ['draft', 'published', 'closed'], default: 'draft', index: true })
   status: 'draft' | 'published' | 'closed';
@@ -56,6 +64,9 @@ export class JobApplication {
   @Prop({ default: () => new Date() }) applied_at: Date;
   @Prop() cover_letter?: string;
   @Prop({ default: false }) is_deleted: boolean;
+  @Prop({ index: true }) guest_device_id?: string;
+  @Prop() guest_name?: string;
+  @Prop() guest_phone?: string;
 }
 export type JobApplicationDocument = JobApplication & Document;
 export const JobApplicationSchema = SchemaFactory.createForClass(JobApplication);

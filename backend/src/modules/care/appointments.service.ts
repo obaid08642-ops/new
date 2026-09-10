@@ -6,6 +6,7 @@ import { Appointment, AppointmentDocument, APPT_STATES, APPT_TRANSITIONS, ApptSt
 import { ProviderProfile, ProviderProfileDocument } from '../../schemas/provider-profile.schema';
 import { UserRole, ProviderType, ProviderStatus } from '../../common/enums';
 import { WorkflowEngineService } from '../workflow-engine/workflow-engine.module';
+import { InsuranceFlowService } from '../insurance-engine/insurance-engine.module';
 import { AppointmentRepository } from "./repositories/appointment.repository";
 import { ProviderProfileRepository } from "./repositories/providerprofile.repository";
 
@@ -32,6 +33,7 @@ export class AppointmentsService {
     @InjectConnection() private connection: Connection,
     private events: EventEmitter2,
     private engine: WorkflowEngineService,
+    private insurance: InsuranceFlowService,
   ) {}
 
   /**
@@ -141,6 +143,15 @@ export class AppointmentsService {
     const total_price = price + service_fee + home_visit_fee + transportation_fee;
 
     // Insert — unique index will throw on double-booking
+    // Insurance bookings require a saved policy first (BR-2.2): fail before
+    // creating the appointment so no orphan booking remains.
+    if (pm === 'insurance') {
+      const prof: any = await this.connection.collection('patient_profiles').findOne({ user_id: patientId });
+      const ins = prof?.insurance || null;
+      if (!(ins && (ins.company_id || ins.provider || ins.policy_number))) {
+        throw new BadRequestException('NO_INSURANCE_POLICY');
+      }
+    }
     try {
       const appt = await this.apptModel.create({
         patient_id: patientId,
@@ -179,7 +190,19 @@ export class AppointmentsService {
 
       const refreshed = await this.apptModel.findOne({ id: appt.id }, { _id: 0, __v: 0 });
       this.events.emit('appointment.created', { id: appt.id, patient_id: patientId, doctor_id: doctor.id, total_price });
-      return refreshed?.toObject();
+      let insurance_request_id: string | null = null;
+      if (pm === 'insurance') {
+        // Raises NO_INSURANCE_POLICY when the patient has no saved policy,
+        // so the app redirects to add-policy before booking (BR-2.2).
+        const req = await this.insurance.createRequest(
+          { id: user.id, full_name: (user as any).full_name },
+          { booking_kind: 'consultation', booking_id: appt.id },
+        );
+        insurance_request_id = (req as any)?.id || null;
+      }
+      const out = refreshed?.toObject();
+      if (out && insurance_request_id) out.insurance_request_id = insurance_request_id;
+      return out;
     } catch (e: any) {
       if (e?.code === 11000) {
         throw new ConflictException('slot_already_booked');

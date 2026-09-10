@@ -24,6 +24,8 @@ type ProviderOfferInput = {
   /** Reserved for a server policy; client values are never accepted as authority. */
   delivery_option?: 'delivery' | 'pickup';
   eta_minutes?: number;
+  /** Optional pharmacy note to the patient (max 500 chars). */
+  provider_note?: string;
 };
 
 @Injectable()
@@ -178,6 +180,7 @@ export class PharmacyOfferService {
       version: Number(prior?.version || 0) + 1,
       items: quote.items,
       totals: quote.totals,
+      provider_note: typeof body?.provider_note === 'string' ? body.provider_note.slice(0, 500) : undefined,
       estimated_preparation_minutes: quote.estimated_preparation_minutes,
       fulfillment: quote.fulfillment,
       quote_expires_at: new Date(now.getTime() + OFFER_TTL_MS),
@@ -284,7 +287,18 @@ export class PharmacyOfferService {
         .digest('hex'),
       approx_distance_km: approx,
       approx_delivery: { eta_minutes: 60, label_ar: 'خلال ساعة تقريباً', label_en: 'Approximately within 1 hour' },
+      provider_note: typeof offer.provider_note === 'string' ? offer.provider_note : null,
     };
+  }
+
+  // Inventory tracking is OPTIONAL per provider (default off — no-balances model).
+  async tracksInventory(pharmacy_account_id: string): Promise<boolean> {
+    try {
+      const doc: any = await this.connection.collection('provider_settings').findOne({ provider_id: pharmacy_account_id });
+      return doc?.inventory_tracking === true;
+    } catch {
+      return false;
+    }
   }
 
   async selectByPatient(user: any, orderId: string, offerId: string, idempotencyKey: string, coverageMode?: string) {
@@ -317,6 +331,8 @@ export class PharmacyOfferService {
         if (!offer) throw new BadRequestException('offer_not_selectable');
 
         for (const item of offer.items.filter((item: any) => item.action !== 'unavailable')) {
+          const tracking = await this.tracksInventory(offer.pharmacy_account_id);
+          if (!tracking) continue;
           const reserved = await this.inventory.findOneAndUpdate(
             { id: item.inventory_item_id, provider_account_id: offer.pharmacy_account_id, available: true, stock: { $gte: item.qty_offered } },
             { $inc: { stock: -item.qty_offered } }, { new: true, session },

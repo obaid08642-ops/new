@@ -39,6 +39,7 @@ import { SP, R, FS, FW, SPECIALTIES, C } from '../../constants';
 import { Validate, Vault } from '../../security/Security';
 import client from '../../api/client';
 import { InsuranceRequestsScreen } from '../shared/InsuranceRequestsScreen';
+import { EPrescriptionScreen } from '../doctor/DoctorDashboard';
 import { FleetScreen } from '../shared/FleetScreen';
 import {
  PromotionsDashboard, CreateCampaignScreen, ProfileWebConfig,
@@ -57,7 +58,7 @@ import { FacilityAnnouncementsScreen } from './FacilityAnnouncementsScreen';
 import { FacilityPatientTrackerScreen } from './FacilityPatientTrackerScreen';
 import { DischargeSummaryScreen } from './DischargeSummaryScreen';
 import { MedicalJobsScreen, MedicalDrugIndexScreen, InsuranceConfigScreen, CertificatesConfigScreen, MediaConfigScreen, ProviderWalletScreen, ProviderHomeStats, GlobalSystemSettings, StatisticsReports } from '../shared/SharedScreens';
-import { NotificationsCenterScreen, TechnicalSupportTicketsScreen } from '../shared/RealScreens';
+import { NotificationsCenterScreen, TechnicalSupportTicketsScreen, SecurityManagementScreen } from '../shared/RealScreens';
 
 const { width: W } = Dimensions.get('window');
 
@@ -109,7 +110,17 @@ function FacilityOrdersTab({ onNavigate, onRefresh }: any) {
 
       {tab === 'active' && (
         <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 100 }}>
-          <NEmpty title={AR ? 'لا توجد مواعيد' : 'No Appointments'} icon="calendar" />
+          {orders.filter((o: any) => ['confirmed', 'active', 'in_progress', 'accepted'].includes(String(o.status || '').toLowerCase())).length === 0
+            ? <NEmpty title={AR ? 'لا توجد مواعيد' : 'No Appointments'} icon="calendar" />
+            : orders.filter((o: any) => ['confirmed', 'active', 'in_progress', 'accepted'].includes(String(o.status || '').toLowerCase())).map((order: any) => (
+              <NCard key={order.id} style={{ marginBottom: SP.md }} onPress={() => onNavigate('order_detail', order)}>
+                <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{order.patient_name || 'Patient'}</Text>
+                  <NBadge label={AR ? 'مؤكد' : 'Confirmed'} variant="success" size="xs" />
+                </View>
+                <Text style={{ color: theme.textSub, marginTop: SP.sm, textAlign: AR ? 'right' : 'left' }}>{order.svc} - {order.total} SAR</Text>
+              </NCard>
+            ))}
         </ScrollView>
       )}
     </View>
@@ -213,7 +224,8 @@ export function FacilityDashboardNavigator({ onLogout }: { onLogout: () => void 
       <Stack.Screen name="internal_chat">{({ navigation }: any) => <FacilityInternalChatScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="audit_logs">{({ navigation }: any) => <FacilityAuditLogScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="announcements">{({ navigation }: any) => <FacilityAnnouncementsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
-      <Stack.Screen name="patient_tracker">{({ navigation }: any) => <FacilityPatientTrackerScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+      <Stack.Screen name="patient_tracker">{({ navigation }: any) => <FacilityPatientTrackerScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+      <Stack.Screen name="prescription">{({ navigation, route }: any) => <EPrescriptionScreen apt={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="discharge_summary">{({ navigation }: any) => <DischargeSummaryScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="attendance">{({ navigation }: any) => <StaffAttendanceScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="surgery_sched">{({ navigation }: any) => <SurgeryScheduleScreen onBack={() => navigation.goBack()} surgeries={surgeries} onRefresh={fetchWardsAndSurgeries} />}</Stack.Screen>
@@ -223,6 +235,7 @@ export function FacilityDashboardNavigator({ onLogout }: { onLogout: () => void 
       <Stack.Screen name="auto_reports">{({ navigation }: any) => <StatisticsReports onBack={() => navigation.goBack()} providerType="facility" />}</Stack.Screen>
       <Stack.Screen name="notifications">{({ navigation }: any) => <NotificationsCenterScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="support">{({ navigation }: any) => <TechnicalSupportTicketsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+      <Stack.Screen name="security">{({ navigation }: any) => <SecurityManagementScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="order_detail">{({ navigation, route }: any) => <FacilityOrderDetail order={route.params?.param} onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
       <Stack.Screen name="wallet">{({ navigation }: any) => <ProviderWalletScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
       <Stack.Screen name="promotions">{({ navigation }: any) => <PromotionsDashboard onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
@@ -259,23 +272,27 @@ function FacilityHomeTab({ onNavigate, wards, onTriggerAlarm, branches, selected
  const [todayApts, setTodayApts] = useState<any[]>([]);
  const [subaccounts, setSubaccounts] = useState<any[]>([]);
  const [todayStats, setTodayStats] = useState<any>(null);
+ const [surgeriesLive, setSurgeriesLive] = useState<any[]>([]);
  useEffect(() => {
    client.get('/provider/jobs/queue?status=active&kind=appointment&today=true').then(r => setTodayApts(r.data || [])).catch(() => {});
    client.get('/hospital/staff').then(r => setSubaccounts(r.data || [])).catch(() => {});
    client.get('/provider/stats/today').then(r => setTodayStats(r.data || null)).catch(() => {});
+   client.get('/facility/surgeries/schedule').then(r => setSurgeriesLive(Array.isArray(r.data) ? r.data : [])).catch(() => {});
  }, []);
 
  const onRefresh = async () => {
  setRefreshing(true);
  try {
- const [q, s, st] = await Promise.all([
+ const [q, s, st, sg] = await Promise.all([
  client.get('/provider/jobs/queue?status=active&kind=appointment&today=true'),
  client.get('/hospital/staff'),
  client.get('/provider/stats/today'),
+ client.get('/facility/surgeries/schedule').catch(() => null),
  ]);
  setTodayApts(q.data || []);
  setSubaccounts(s.data || []);
  setTodayStats(st.data || null);
+ if (sg && Array.isArray(sg.data)) setSurgeriesLive(sg.data);
  } catch { /* keep existing data */ } finally { setRefreshing(false); }
  };
 
@@ -371,7 +388,7 @@ function FacilityHomeTab({ onNavigate, wards, onTriggerAlarm, branches, selected
           {AR ? 'طوارئ نشطة' : 'Active ER'}
         </Text>
         <Text style={{ fontSize: FS.xl, fontWeight: FW.xbold, color: theme.danger, textAlign: AR ? 'right' : 'left', marginTop: SP.xs }}>
-          3 <Text style={{ fontSize: FS.xs, color: theme.textSub, fontWeight: FW.med }}>{AR ? 'حالات' : 'cases'}</Text>
+          {todayApts.filter((a: any) => String(a.type || a.kind || '').toLowerCase().includes('emergency')).length} <Text style={{ fontSize: FS.xs, color: theme.textSub, fontWeight: FW.med }}>{AR ? 'حالات' : 'cases'}</Text>
         </Text>
       </NCard>
 
@@ -384,7 +401,7 @@ function FacilityHomeTab({ onNavigate, wards, onTriggerAlarm, branches, selected
           {AR ? 'غرف العمليات' : 'Active ORs'}
         </Text>
         <Text style={{ fontSize: FS.xl, fontWeight: FW.xbold, color: theme.warn, textAlign: AR ? 'right' : 'left', marginTop: SP.xs }}>
-          2 <Text style={{ fontSize: FS.xs, color: theme.textSub, fontWeight: FW.med }}>{AR ? 'قيد الإجراء' : 'in progress'}</Text>
+          {surgeriesLive.filter((s: any) => ['in_progress', 'in-progress', 'ongoing'].includes(String(s.status || '').toLowerCase())).length} <Text style={{ fontSize: FS.xs, color: theme.textSub, fontWeight: FW.med }}>{AR ? 'قيد الإجراء' : 'in progress'}</Text>
         </Text>
       </NCard>
 
@@ -397,7 +414,7 @@ function FacilityHomeTab({ onNavigate, wards, onTriggerAlarm, branches, selected
           {AR ? 'عيادات تعمل' : 'Running Clinics'}
         </Text>
         <Text style={{ fontSize: FS.xl, fontWeight: FW.xbold, color: theme.primary, textAlign: AR ? 'right' : 'left', marginTop: SP.xs }}>
-          14 <Text style={{ fontSize: FS.xs, color: theme.textSub, fontWeight: FW.med }}>{AR ? 'طبيب' : 'doctors'}</Text>
+          {subaccounts.filter((st: any) => String(st.staff_role || st.role || '').toLowerCase().includes('doctor')).length} <Text style={{ fontSize: FS.xs, color: theme.textSub, fontWeight: FW.med }}>{AR ? 'طبيب' : 'doctors'}</Text>
         </Text>
       </NCard>
     </View>
@@ -731,6 +748,9 @@ function AddSubAccountScreen({ onBack, preRole }: { onBack: () => void; preRole?
  const AR = lang === 'ar';
  const [role, setRole] = useState(preRole ?? 'doctor');
  const [name, setName] = useState('');
+ const [nameAr, setNameAr] = useState('');
+ const [nameEn, setNameEn] = useState('');
+ const [legalName, setLegalName] = useState('');
  const [email, setEmail] = useState('');
  const [phone, setPhone] = useState('');
  const [spec, setSpec] = useState('');
@@ -739,11 +759,13 @@ function AddSubAccountScreen({ onBack, preRole }: { onBack: () => void; preRole?
  const [createdCreds, setCreatedCreds] = useState<any | null>(null);
 
  const ROLES = [
- { id:'doctor', ar:'طبيب', en:'Doctor', icon:'', needsSpec:true, needsScfhs:true },
- { id:'insurance', ar:'منسق تأمين', en:'Insurance Coordinator',icon:'',needsSpec:false,needsScfhs:false},
+ { id:'doctor', ar:'طبيب', en:'Doctor', icon:'', needsSpec:true, needsScfhs:true, login:true },
+ { id:'insurance', ar:'منسق تأمين', en:'Insurance Coordinator',icon:'',needsSpec:false,needsScfhs:false, login:false},
  { id:'reception', ar:'استقبال', en:'Receptionist', icon:'', needsSpec:false, needsScfhs:false },
- { id:'nurse', ar:'ممرض/ممرضة', en:'Nurse', icon:'', needsSpec:false, needsScfhs:true },
- { id:'lab', ar:'محلل مختبر', en:'Lab Technician',icon:'', needsSpec:false, needsScfhs:true },
+ { id:'nurse', ar:'ممرض/ممرضة', en:'Nurse', icon:'', needsSpec:false, needsScfhs:true, login:true },
+ { id:'lab', ar:'محلل مختبر', en:'Lab Technician',icon:'', needsSpec:false, needsScfhs:true, login:true },
+ { id:'pharmacist', ar:'صيدلي', en:'Pharmacist', icon:'', needsSpec:false, needsScfhs:true, login:true },
+ { id:'radiologist', ar:'أخصائي أشعة', en:'Radiologist', icon:'', needsSpec:false, needsScfhs:true, login:true },
  ];
 
  const selectedRole = ROLES.find(r => r.id === role)!;
@@ -758,11 +780,15 @@ function AddSubAccountScreen({ onBack, preRole }: { onBack: () => void; preRole?
  try {
  const response = await client.post('/hospital/staff', {
  full_name: name,
+ name_ar: nameAr.trim() || undefined,
+ name_en: nameEn.trim() || undefined,
+ legal_name: legalName.trim() || undefined,
  phone: phone,
  email: email,
  password: tempPass,
  staff_role: role,
  department: spec || 'General',
+ scfhs: scfhs.trim() || undefined,
  permissions: ['read', 'write'],
  });
  const created = response?.data ?? response;
@@ -772,8 +798,9 @@ function AddSubAccountScreen({ onBack, preRole }: { onBack: () => void; preRole?
  phone,
  role: selectedRole.ar,
  roleEn: selectedRole.en,
- subId: created?.id,
- tempPass
+ subId: (created as any)?.staff?.id || (created as any)?.staff?._id || created?.id,
+ tempPass,
+ loginAvailable: (created as any)?.login_available !== false,
  });
  show(AR ? ` تم إنشاء الحساب الفرعي بنجاح` : ` Sub-account created successfully`, 'success');
  } catch (err: any) {
@@ -814,6 +841,10 @@ function AddSubAccountScreen({ onBack, preRole }: { onBack: () => void; preRole?
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between' }}>
  <Text style={{ fontSize: FS.sm, color: theme.textSub }}>{AR ? 'كلمة المرور المؤقتة:' : 'Temp Password:'}</Text>
  <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.danger }}>{createdCreds.tempPass}</Text>
+ </View>
+ <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between' }}>
+ <Text style={{ fontSize: FS.sm, color: theme.textSub }}>{AR ? 'الدخول للتطبيق:' : 'App login:'}</Text>
+ <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: createdCreds.loginAvailable ? theme.success : theme.warn }}>{createdCreds.loginAvailable ? (AR ? 'متاح — نفس الداشبورد الكامل' : 'Available — full dashboard') : (AR ? 'غير متاح لهذا الدور بعد' : 'Not available for this role yet')}</Text>
  </View>
  </View>
 
@@ -867,6 +898,17 @@ function AddSubAccountScreen({ onBack, preRole }: { onBack: () => void; preRole?
  label={AR ? 'الاسم الكامل' : 'Full Name'}
  placeholder={AR ? 'محمد أحمد السعودي' : 'Mohamed Ahmed'}
  value={name} onChange={setName} icon="" required caps="words"
+ /> <NInput
+ label={AR ? 'الاسم بالعربية (يظهر للمرضى)' : 'Name in Arabic (shown to patients)'}
+ value={nameAr} onChange={setNameAr} icon=""
+ />
+ <NInput
+ label={AR ? 'الاسم بالإنجليزية (يظهر للمرضى)' : 'Name in English (shown to patients)'}
+ value={nameEn} onChange={setNameEn} icon=""
+ />
+ <NInput
+ label={AR ? 'الاسم القانوني (كما في الهوية/السجل)' : 'Legal name (as in ID/registry)'}
+ value={legalName} onChange={setLegalName} icon=""
  />
  <NInput
  label={AR ? 'البريد الإلكتروني' : 'Email'}
@@ -1099,16 +1141,20 @@ function ShiftManagementScreen({ onBack }: { onBack: () => void }) {
  label={shift.status === 'substitute' ? (AR?' بديل':' Substitute') : (AR?' مؤكد':' Confirmed')}
  variant={shift.status === 'substitute' ? 'warning' : 'success'} size="xs"
  />
- <TouchableOpacity onPress={() => show(AR?'تعديل المناوبة':'Edit shift','info')}>
- <Text style={{ fontSize: FS.xs, color: theme.primary }}> {AR?'تعديل':'Edit'}</Text>
+ <TouchableOpacity onPress={async () => {
+   try {
+     await client.post(`/facility/shifts/${shift.id}/substitute`, {});
+     show(AR ? 'تم تسجيل طلب البديل' : 'Substitute request recorded', 'success');
+   } catch (e: any) { show(e?.message || (AR ? 'فشل الطلب' : 'Request failed'), 'error'); }
+ }}>
+ <Text style={{ fontSize: FS.xs, color: theme.primary }}> {AR?'طلب بديل':'Request substitute'}</Text>
  </TouchableOpacity>
  </View>
  </View>
  </NCard>
  ))}
 
- <NBtn label={AR ? '+ إضافة مناوبة' : '+ Add Shift'} variant="outline"
- onPress={() => show(AR?'إضافة مناوبة':'Add shift','info')} />
+ <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: 'center' }}>{AR ? 'تُدار الورديات من نظام الحضور — تواصل مع الإدارة لإضافة وردية' : 'Shifts are managed by rostering — contact admin to add one'}</Text>
  </NScroll>
  );
 }
@@ -1599,6 +1645,7 @@ function InsuranceClaimsHubScreen({ onBack }: { onBack: () => void }) {
  const { show } = useToast();
  const AR = lang === 'ar';
  const [statusFilter, setStatusFilter] = useState<'all'|'pending'|'approved'|'rejected'>('all');
+ const [expandedClaim, setExpandedClaim] = useState<string | null>(null);
 
  const [CLAIMS, setClaims] = useState<any[]>([]);
  useEffect(() => {
@@ -1671,17 +1718,20 @@ function InsuranceClaimsHubScreen({ onBack }: { onBack: () => void }) {
  )}
  {claim.status === 'pending' && (
  <View style={{ flexDirection: AR?'row-reverse':'row', gap: SP.sm, marginTop: SP.md }}>
- <NBtn label={AR?'↑ إعادة إرسال':'Resubmit'} size="xs" variant="outline" full={false}
- style={{ paddingHorizontal: SP.lg }} onPress={() => show(AR?'تم إعادة الإرسال':'Resubmitted','success')} />
- <NBtn label={AR?' التفاصيل':'Details'} size="xs" full={false}
- style={{ paddingHorizontal: SP.lg }} onPress={() => show(AR?'تفاصيل المطالبة':'Claim details','info')} />
+ <NBtn label={expandedClaim === claim.id ? (AR ? 'إخفاء التفاصيل' : 'Hide details') : (AR ? ' التفاصيل' : 'Details')} size="xs" full={false}
+ style={{ paddingHorizontal: SP.lg }} onPress={() => setExpandedClaim(expandedClaim === claim.id ? null : claim.id)} />
+ </View>
+ )}
+ {expandedClaim === claim.id && (
+ <View style={{ marginTop: SP.sm, paddingTop: SP.sm, borderTopWidth: 1, borderTopColor: theme.border }}>
+ <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{AR ? 'المريض:' : 'Patient:'} {claim.patient} · {AR ? 'الشركة:' : 'Company:'} {claim.company} · {AR ? 'الخطة:' : 'Plan:'} {claim.plan}</Text>
+ <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{AR ? 'المبلغ:' : 'Amount:'} {(claim.amount - claim.deductible).toLocaleString()} {AR ? 'ر' : 'SAR'}</Text>
  </View>
  )}
  </NCard>
  ))}
 
- <NBtn label={AR?' إرسال مطالبة جديدة':' Submit New Claim'} variant="outline" icon=""
- onPress={() => show(AR?'فتح نموذج المطالبة':'Claim form opening','info')} />
+ <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: 'center' }}>{AR ? 'المطالبات الجديدة تُنشأ من قرارات التأمين المعتمدة' : 'New claims originate from approved insurance decisions'}</Text>
  </NScroll>
  );
 }
@@ -1828,12 +1878,7 @@ function FacilityFinancialScreen({ onBack }: { onBack: () => void }) {
 
  <View style={{ flexDirection: AR?'row-reverse':'row', gap: SP.md }}>
  <View style={{ flex:1 }}>
- <NBtn label={AR?' تصدير PDF':'Export PDF'} variant="outline" icon=""
- onPress={() => show(AR?'جاري إنشاء التقرير...':'Generating report...','info')} />
- </View>
- <View style={{ flex:1 }}>
- <NBtn label={AR?' Excel':'Excel'} variant="secondary" icon=""
- onPress={() => show(AR?'جاري التصدير...':'Exporting...','info')} />
+ <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: 'center' }}>{AR ? 'التقارير المالية عبر التقارير التلقائية' : 'Financial reports via Auto Reports'}</Text>
  </View>
  </View>
  </NScroll>
@@ -1909,8 +1954,7 @@ function StaffAttendanceScreen({ onBack }: { onBack: () => void }) {
  </NCard>
  ))}
 
- <NBtn label={AR?' تقرير الحضور الشهري':'Monthly Attendance Report'} variant="outline"
- onPress={() => show(AR?'جاري إنشاء التقرير...':'Generating...','info')} />
+ <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: 'center' }}>{AR ? 'التقرير الشهري يُطلب من الإدارة عبر التقارير التلقائية' : 'Monthly reports are requested via Auto Reports'}</Text>
  </NScroll>
  );
 }
@@ -2274,13 +2318,13 @@ return (
  <NSecHeader title={AR?'الأمان':'Security'} />
  <NCard style={{ marginBottom: SP.xl }}>
  {[
- { icon:'lock', ar:'تغيير كلمة المرور', en:'Change Password' },
- { icon:'shield', ar:'التحقق الثنائي 2FA', en:'Two-Factor Auth' },
- { icon:'scan', ar:'الأجهزة المرتبطة', en:'Linked Devices' },
- { icon:'document', ar:'سجل العمليات', en:'Audit Log' },
+ { icon:'lock', ar:'تغيير كلمة المرور', en:'Change Password', action: () => onNavigate('security') },
+ { icon:'shield', ar:'التحقق الثنائي 2FA', en:'Two-Factor Auth', action: () => onNavigate('security') },
+ { icon:'scan', ar:'الأجهزة المرتبطة', en:'Linked Devices', action: () => onNavigate('security') },
+ { icon:'document', ar:'سجل العمليات', en:'Audit Log', action: () => onNavigate('audit_logs') },
  ].map((row, i) => (
  <NSettingsRow key={i} icon={row.icon} label={AR?row.ar:row.en}
- onPress={() => show(AR?'إعدادات الأمان والتراخيص مفعلة':'Security & licensing active','info')} />
+ onPress={row.action} />
  ))}
  </NCard>
 
@@ -2293,7 +2337,7 @@ return (
  { icon:'', ar:'حول التطبيق', en:'About App' },
  ].map((row, i) => (
  <NSettingsRow key={i} icon={row.icon} label={AR?row.ar:row.en}
- onPress={() => show(AR?'الدعم: support@nabdah.com':'Support: support@nabdah.com','info')} />
+ onPress={() => onNavigate('support')} />
  ))}
  </NCard>
 

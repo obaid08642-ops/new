@@ -1,6 +1,7 @@
 import { Injectable, BadRequestException, NotFoundException, ForbiddenException, Inject } from '@nestjs/common';
 import { Model, Connection } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { v4 as uuidv4 } from 'uuid';
 import { ProviderAccount, ProviderProfile, ProviderDocument, ProviderBankAccount, ProviderAuditLog, DocumentReviewStatus, BankReviewStatus, SAUDI_BANKS } from '../schemas';
 import { ProviderAccountStatus, ProviderDocumentType, PROVIDER_STATUS_TRANSITIONS, REQUIRED_DOCS_BY_PROVIDER_TYPE, HOSPITAL_SUB_MODULES, ProviderType } from '../provider.enums';
@@ -28,6 +29,7 @@ export class ProviderProfileService {
     @Inject('ProviderAuditLogRepository') private audit: ProviderAuditLogRepository,
     @InjectConnection() private readonly connection: Connection,
     private readonly storage: StorageService,
+    private readonly events: EventEmitter2,
   ) {}
 
   // ===================== PROFILE =====================
@@ -38,7 +40,7 @@ export class ProviderProfileService {
   }
 
   async updateProfile(user: any, patch: any) {
-    const allowed = ['display_name_ar', 'display_name_en', 'legal_name', 'description_ar', 'description_en', 'commercial_registration_number', 'tax_number', 'medical_license_number', 'facility_license_number', 'established_year', 'years_of_experience', 'website', 'social', 'address', 'geo', 'has_own_delivery', 'use_platform_delivery', 'delivery_fee', 'estimated_delivery_minutes', 'profile_image_id', 'cover_image_id', 'public_eligibility', 'enabled_modules', 'delivery_mode', 'max_delivery_radius_km', 'estimated_delivery_time', 'sub_specialties'];
+    const allowed = ['display_name_ar', 'display_name_en', 'legal_name', 'description_ar', 'description_en', 'commercial_registration_number', 'tax_number', 'medical_license_number', 'facility_license_number', 'established_year', 'years_of_experience', 'website', 'social', 'address', 'geo', 'has_own_delivery', 'use_platform_delivery', 'delivery_fee', 'estimated_delivery_minutes', 'profile_image_id', 'cover_image_id', 'clinic_images', 'public_eligibility', 'enabled_modules', 'delivery_mode', 'max_delivery_radius_km', 'estimated_delivery_time', 'sub_specialties'];
     const set: any = {};
     for (const k of allowed) if (patch[k] !== undefined) set[k] = patch[k];
     if (set.enabled_modules) {
@@ -46,13 +48,9 @@ export class ProviderProfileService {
       if (p && p.provider_type !== ProviderType.HOSPITAL && p.provider_type !== ProviderType.CLINIC) throw new BadRequestException('enabled_modules only allowed for hospitals/clinics');
       set.enabled_modules = (set.enabled_modules as string[]).filter((m) => (HOSPITAL_SUB_MODULES as readonly string[]).includes(m));
     }
-    // recompute completeness
-    const updated = await this.profiles.findOneAndUpdate({ account_id: user.id }, { $set: set }, { new: true });
-    if (!updated) throw new NotFoundException();
-    updated.profile_completeness = this.computeCompleteness(updated);
-    await updated.save();
-    await this.audit.create({ provider_account_id: user.id, actor_id: user.id, actor_role: 'provider', action: 'profile.update', after: set });
-    return updated;
+    if (!Object.keys(set).length) throw new BadRequestException('no profile changes provided');
+    // Governance: profile changes stay draft until admin approves; live values untouched.
+    return this.requestChange(user, 'profile', set);
   }
 
   private computeCompleteness(p: ProviderProfile): number {
@@ -98,6 +96,7 @@ export class ProviderProfileService {
     // delete previous PENDING/NEEDS_REPLACEMENT of same type? keep history but mark prior as superseded by leaving them.
     const existing = await this.docs.findOne({ account_id: user.id, doc_type: body.doc_type, review_status: { $in: [DocumentReviewStatus.PENDING, DocumentReviewStatus.NEEDS_REPLACEMENT, DocumentReviewStatus.UNDER_REVIEW] } });
     if (existing) {
+      const supersededId = (existing as any).storage_object_id;
       existing.storage_object_id = sto.id;
       existing.doc_number = body.doc_number;
       existing.issuer = body.issuer;
@@ -107,6 +106,14 @@ export class ProviderProfileService {
       existing.reviewer_id = undefined as any; existing.reviewer_note = undefined as any; existing.reviewed_at = undefined as any;
       await existing.save();
       await this.audit.create({ provider_account_id: user.id, actor_id: user.id, actor_role: 'provider', action: 'kyc.document_replaced', after: { doc_type: body.doc_type, id: existing.id } });
+      // Retire the superseded object so it does not leak in storage.
+      if (supersededId) {
+        try {
+          const old: any = await this.connection.collection('storage_objects').findOne({ id: supersededId });
+          const url = old?.external_url || old?.url || null;
+          if (url) this.events.emit('storage.delete_by_url', { url });
+        } catch { /* best-effort cleanup */ }
+      }
       return existing;
     }
     const doc = await this.docs.create({ account_id: user.id, doc_type: body.doc_type, storage_object_id: sto.id, doc_number: body.doc_number, issuer: body.issuer, issued_date: body.issued_date ? new Date(body.issued_date) : undefined, expiry_date: body.expiry_date ? new Date(body.expiry_date) : undefined });
@@ -178,6 +185,20 @@ export class ProviderProfileService {
   }
 
   // ===================== DELTA GUARD =====================
+  async requestChange(user: any, target: 'profile' | 'settings' | 'capability', payload: any) {
+    const delta = {
+      id: uuidv4(),
+      provider_id: user.id,
+      target,
+      requested_changes: payload,
+      status: 'pending',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    await this.connection.collection('provider_deltas').insertOne(delta);
+    await this.audit.create({ provider_account_id: user.id, actor_id: user.id, actor_role: 'provider', action: 'delta.submitted', after: { target } });
+    return { ok: true, message: 'delta_submitted', pending_review: true, data: { id: delta.id, status: 'pending', target } };
+  }
   async submitDelta(user: any, body: any) {
     // Some app screens wrap the payload as { changes: {...} } — unwrap so the
     // stored requested_changes is always the flat change-set.
