@@ -25,13 +25,19 @@ export default function PharmacyProcurementPage() {
   const [error, setError] = useState('');
   const [selected, setSelected] = useState<any | null>(null);
   const [itemPrices, setItemPrices] = useState<Record<number, string>>({});
+  const [itemQties, setItemQties] = useState<Record<number, string>>({});
+  const [itemDiscounts, setItemDiscounts] = useState<Record<number, string>>({});
   const [busy, setBusy] = useState(false);
 
   const itemsOf = (r: any) => (Array.isArray(r?.items) ? r.items : []);
-  const totalOf = (r: any) => itemsOf(r).reduce((sum: number, it: any, i: number) => {
+  const lineTotal = (it: any, i: number) => {
     const unit = parseFloat(itemPrices[i] || '0') || 0;
-    return sum + unit * (Number(it.requested_quantity || it.quantity) || 1);
-  }, 0);
+    const qty = parseInt(itemQties[i] || String(it.requested_quantity || it.quantity || 1), 10) || 1;
+    const disc = parseFloat(itemDiscounts[i] || '0') || 0;
+    const cappedDisc = Math.min(100, Math.max(0, disc));
+    return unit * qty * (1 - cappedDisc / 100);
+  };
+  const totalOf = (r: any) => itemsOf(r).reduce((sum: number, it: any, i: number) => sum + lineTotal(it, i), 0);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -55,11 +61,18 @@ export default function PharmacyProcurementPage() {
     if (!(total > 0)) { alert('أدخل سعر وحدة صحيح لكل صنف على الأقل'); return; }
     setBusy(true);
     try {
-      const pricingItems = items.map((it: any, i: number) => ({
-        ...it,
-        unit_price: parseFloat(itemPrices[i] || '0') || 0,
-        line_total: (parseFloat(itemPrices[i] || '0') || 0) * (Number(it.requested_quantity || it.quantity) || 1),
-      }));
+      const pricingItems = items.map((it: any, i: number) => {
+        const qty = parseInt(itemQties[i] || String(it.requested_quantity || it.quantity || 1), 10) || 1;
+        const disc = Math.min(100, Math.max(0, parseFloat(itemDiscounts[i] || '0') || 0));
+        return {
+          ...it,
+          requested_quantity: qty,
+          quantity: qty,
+          unit_price: parseFloat(itemPrices[i] || '0') || 0,
+          discount_percent: disc,
+          line_total: lineTotal(it, i),
+        };
+      });
       await apiFetch(`/admin/extended-operations/issue-quote/${selected._id || selected.id}`, {
         method: 'PATCH',
         body: JSON.stringify({ pricingItems, totalPrice: total }),
@@ -115,8 +128,8 @@ export default function PharmacyProcurementPage() {
                     {r.uploaded_file_url && (
                       <a href={r.uploaded_file_url} target="_blank" rel="noreferrer" className="text-teal-700 text-sm font-bold underline">الملف المرفق</a>
                     )}
-                    <button
-                      onClick={() => { setSelected(isOpen ? null : r); setItemPrices({}); }}
+                      <button
+                      onClick={() => { setSelected(isOpen ? null : r); setItemPrices({}); setItemQties({}); setItemDiscounts({}); }}
                       className="bg-teal-600 text-white text-sm font-bold px-4 py-1.5 rounded-lg"
                     >
                       {isOpen ? 'إغلاق' : 'مراجعة وإصدار عرض'}
@@ -132,7 +145,8 @@ export default function PharmacyProcurementPage() {
                             <th className="p-2">المجموعة</th>
                             <th className="p-2">الكمية</th>
                             <th className="p-2">سعر الوحدة (ر.س)</th>
-                            <th className="p-2">الإجمالي</th>
+                            <th className="p-2">الخصم %</th>
+                            <th className="p-2">الإجمالي بعد الخصم</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
@@ -140,7 +154,15 @@ export default function PharmacyProcurementPage() {
                             <tr key={i}>
                               <td className="p-2 font-bold">{it.raw_name_string || it.name}</td>
                               <td className="p-2">{it.category_group === 'non_medical' ? 'غير دوائية' : 'أدوية'}</td>
-                              <td className="p-2" dir="ltr">{it.requested_quantity || it.quantity || 1}</td>
+                              <td className="p-2">
+                                <input
+                                  value={itemQties[i] ?? String(it.requested_quantity || it.quantity || 1)}
+                                  onChange={e => setItemQties(prev => ({ ...prev, [i]: e.target.value.replace(/\D/g, '') }))}
+                                  className="border rounded px-2 py-1 w-20"
+                                  dir="ltr"
+                                  placeholder="1"
+                                />
+                              </td>
                               <td className="p-2">
                                 <input
                                   value={itemPrices[i] || ''}
@@ -150,8 +172,21 @@ export default function PharmacyProcurementPage() {
                                   placeholder="0.00"
                                 />
                               </td>
+                              <td className="p-2">
+                                <input
+                                  value={itemDiscounts[i] || ''}
+                                  onChange={e => {
+                                    const v = e.target.value.replace(/[^\d.]/g, '');
+                                    const num = Math.min(100, parseFloat(v || '0') || 0);
+                                    setItemDiscounts(prev => ({ ...prev, [i]: String(num) }));
+                                  }}
+                                  className="border rounded px-2 py-1 w-20"
+                                  dir="ltr"
+                                  placeholder="0"
+                                />
+                              </td>
                               <td className="p-2 font-bold" dir="ltr">
-                                {((parseFloat(itemPrices[i] || '0') || 0) * (Number(it.requested_quantity || it.quantity) || 1)).toFixed(2)}
+                                {lineTotal(it, i).toFixed(2)}
                               </td>
                             </tr>
                           ))}

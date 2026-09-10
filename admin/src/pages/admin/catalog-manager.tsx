@@ -1,21 +1,22 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { apiFetch } from '../../utils/api';
 
 /**
  * Catalog Manager — الأدمن يضيف/يعدل/يحذف أصناف كتالوج الخدمات:
  * التحاليل (+الباقات)، الأشعة، وخدمات التمريض المنزلي.
- * Labs:     GET /labs/services        POST|PUT|DELETE /labs/admin/catalog[/:id]
- * Radiology:GET /radiology/services   POST|PUT|DELETE /radiology/admin/catalog[/:id]
- * Nursing:  GET /nursing/catalog      POST|PUT|DELETE /nursing/admin/catalog[/:id]
+ * Labs:     GET /labs/services?search= (server-side)  POST|PUT|DELETE /labs/admin/catalog[/:id]
+ * Radiology:GET /radiology/services?search= (server-side) POST|PUT|DELETE /radiology/admin/catalog[/:id]
+ * Nursing:  GET /nursing/catalog — READ-ONLY: publication blocked server-side pending
+ *           clinical/operations/finance approval workflow (503), UI shows honest banner.
  */
 
 type TabKey = 'labs' | 'packages' | 'radiology' | 'nursing';
 
-const TABS: { key: TabKey; label: string; listUrl: string; adminBase: string }[] = [
-  { key: 'labs', label: 'التحاليل', listUrl: '/labs/services', adminBase: '/labs/admin/catalog' },
-  { key: 'packages', label: 'الباقات', listUrl: '/labs/packages', adminBase: '/labs/admin/catalog' },
-  { key: 'radiology', label: 'الأشعة', listUrl: '/radiology/services', adminBase: '/radiology/admin/catalog' },
-  { key: 'nursing', label: 'التمريض المنزلي', listUrl: '/nursing/catalog', adminBase: '/nursing/admin/catalog' },
+const TABS: { key: TabKey; label: string; listUrl: string; adminBase: string; serverSearch: boolean }[] = [
+  { key: 'labs', label: 'التحاليل', listUrl: '/labs/services', adminBase: '/labs/admin/catalog', serverSearch: true },
+  { key: 'packages', label: 'الباقات', listUrl: '/labs/packages', adminBase: '/labs/admin/catalog', serverSearch: false },
+  { key: 'radiology', label: 'الأشعة', listUrl: '/radiology/services', adminBase: '/radiology/admin/catalog', serverSearch: true },
+  { key: 'nursing', label: 'التمريض المنزلي', listUrl: '/nursing/catalog', adminBase: '/nursing/admin/catalog', serverSearch: false, },
 ];
 
 const EDITABLE_FIELDS: { key: string; label: string; type: 'text' | 'number' | 'textarea' | 'checkbox' }[] = [
@@ -45,10 +46,13 @@ export default function CatalogManagerPage() {
 
   const tabCfg = TABS.find((t) => t.key === tab)!;
 
-  const load = async () => {
+  const load = async (searchQ?: string) => {
     setLoading(true);
     try {
-      const rows = await apiFetch(tabCfg.listUrl);
+      const url = tabCfg.serverSearch && searchQ?.trim()
+        ? `${tabCfg.listUrl}?search=${encodeURIComponent(searchQ.trim())}`
+        : tabCfg.listUrl;
+      const rows = await apiFetch(url);
       setItems(Array.isArray(rows) ? rows : rows?.data || []);
     } catch (e: any) {
       setMsg(`فشل التحميل: ${e.message}`);
@@ -57,15 +61,26 @@ export default function CatalogManagerPage() {
     }
   };
 
-  useEffect(() => { setSearch(''); load(); }, [tab]);
+  // Debounced server-side search for labs/radiology tabs; instant local filter otherwise
+  const debouncedRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const onSearch = (v: string) => {
+    setSearch(v);
+    if (tabCfg.serverSearch) {
+      if (debouncedRef.current) clearTimeout(debouncedRef.current);
+      debouncedRef.current = setTimeout(() => load(v), 350);
+    }
+  };
+
+  useEffect(() => { setSearch(''); load(); return () => { if (debouncedRef.current) clearTimeout(debouncedRef.current); }; }, [tab]);
 
   const filtered = useMemo(() => {
+    if (tabCfg.serverSearch) return items; // already filtered server-side
     const q = search.trim().toLowerCase();
     if (!q) return items;
     return items.filter((i) =>
       [i.name_ar, i.name_en, i.short_code, i.category].filter(Boolean).some((v: string) => String(v).toLowerCase().includes(q)),
     );
-  }, [items, search]);
+  }, [items, search, tabCfg.serverSearch]);
 
   const save = async () => {
     if (!editing) return;
@@ -120,13 +135,21 @@ export default function CatalogManagerPage() {
           </button>
         ))}
         <div style={{ flex: 1 }} />
-        <button onClick={() => setEditing({ active: true })} style={{ padding: '8px 18px', borderRadius: 12, border: 'none', cursor: 'pointer', fontWeight: 700, background: '#0F172A', color: '#fff' }}>
-          + إضافة صنف جديد
-        </button>
+        {tab !== 'nursing' && (
+          <button onClick={() => setEditing({ active: true })} style={{ padding: '8px 18px', borderRadius: 12, border: 'none', cursor: 'pointer', fontWeight: 700, background: '#0F172A', color: '#fff' }}>
+            + إضافة صنف جديد
+          </button>
+        )}
       </div>
 
-      <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="بحث بالاسم أو الكود أو الفئة…"
+      <input value={search} onChange={(e) => onSearch(e.target.value)} placeholder={tabCfg.serverSearch ? 'بحث خادمي بالاسم أو الكود…' : 'بحث بالاسم أو الكود أو الفئة…'}
         style={{ width: '100%', padding: '10px 14px', borderRadius: 12, border: '1px solid #E2E8F0', marginBottom: 16, fontFamily: 'inherit' }} />
+
+      {tab === 'nursing' && (
+        <div style={{ padding: 14, borderRadius: 12, background: '#FFFBEB', border: '1px solid #FDE68A', color: '#92400E', marginBottom: 16, fontSize: 13, fontWeight: 600 }}>
+          كتالوج التمريض المنزلي للعرض فقط — النشر محجوب خادمياً بانتظار سير اعتماد إكليني/تشغيلي/مالي موثّق (HTTP 503 صريح من الباكند). لا تُوفَّر أزرار تعديل هنا لأنها ستفشل دائماً.
+        </div>
+      )}
 
       {msg && <div style={{ padding: 12, borderRadius: 12, background: '#F0FDF4', color: '#166534', marginBottom: 12, fontWeight: 600 }}>{msg}</div>}
       {loading && <p>جارٍ التحميل…</p>}
@@ -141,8 +164,12 @@ export default function CatalogManagerPage() {
               <div style={{ fontSize: 13, fontWeight: 700, color: '#23B5CE', marginTop: 4 }}>{item.price} ر.س</div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <button onClick={() => setEditing({ ...item })} style={{ padding: '6px 12px', borderRadius: 10, border: '1px solid #CBD5E1', background: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>تعديل</button>
-              <button onClick={() => remove(item)} style={{ padding: '6px 12px', borderRadius: 10, border: '1px solid #FECACA', background: '#FEF2F2', color: '#B91C1C', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>حذف</button>
+              {tab !== 'nursing' ? (<>
+                <button onClick={() => setEditing({ ...item })} style={{ padding: '6px 12px', borderRadius: 10, border: '1px solid #CBD5E1', background: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>تعديل</button>
+                <button onClick={() => remove(item)} style={{ padding: '6px 12px', borderRadius: 10, border: '1px solid #FECACA', background: '#FEF2F2', color: '#B91C1C', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>حذف</button>
+              </>) : (
+                <span style={{ fontSize: 11, color: '#94A3B8', fontWeight: 700, alignSelf: 'center' }}>قراءة فقط</span>
+              )}
             </div>
           </div>
         ))}

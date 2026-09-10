@@ -441,7 +441,7 @@ export function SupportCenter({ onBack }: { onBack: () => void }) {
  onPress={async () => {
    setLoading(true);
    try {
-     await client.post('/support/tickets', { subject, body });
+      await client.post('/support/tickets', { subject, message: body });
      show(AR ? 'تم إرسال التذكرة — سنرد خلال 24 ساعة' : 'Ticket submitted — reply within 24h', 'success');
      setSubject('');
      setBody('');

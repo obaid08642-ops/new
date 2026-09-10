@@ -71,6 +71,8 @@ const patientReadRoutes = [
   new RegExp("^/home/search\\?q=[^&]{1,120}$", "i"),
   new RegExp("^/support/faqs$", "i"),
   new RegExp("^/support/requests/mine$", "i"),
+  new RegExp(`^/support/requests/${orderId}$`, "i"),
+  new RegExp(`^/support/requests/${orderId}/reply$`, "i"),
   new RegExp("^/loyalty/account$", "i"),
   new RegExp("^/loyalty/transactions(\\?page=\\d+)?$", "i"),
   new RegExp("^/loyalty/rewards$", "i"),
@@ -91,6 +93,7 @@ const diagnosticsMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp
   { method: "POST", route: new RegExp("^/nutrition/profile$", "i") },
   { method: "POST", route: new RegExp("^/maternity/profile$", "i") },
   { method: "POST", route: new RegExp("^/support/chat$", "i") },
+  { method: "POST", route: new RegExp(`^/support/requests/[^/]+/reply$`, "i") },
   { method: "POST", route: new RegExp("^/medical/programs/complete-session$", "i") },
 ];
 

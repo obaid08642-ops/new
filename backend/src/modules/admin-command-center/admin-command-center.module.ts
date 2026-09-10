@@ -38,25 +38,50 @@ export class AdminCommandCenterService {
     const activeUniversals = [ServiceState.REQUESTED, ServiceState.MATCHING, ServiceState.ASSIGNED, ServiceState.CONFIRMED, ServiceState.IN_PROGRESS];
     const liveOf = (kind: any) => activeUniversals.flatMap(u => domainStatesFor(kind, u));
     const since = new Date(Date.now() - 7 * 86400000);
+    // ESCALATED_TO_ADMIN maps to MATCHING universal, so it's already included in active live feed
     const [pharm, labs, rads, home, appts] = await Promise.all([
       this.orders.find({ state: { $in: liveOf('pharmacy') }, createdAt: { $gte: since } }, { id: 1, state: 1, patient_id: 1, pharmacy_id: 1, total: 1, createdAt: 1, tracking_id: 1, _id: 0 }).sort({ createdAt: -1 }).limit(40).lean(),
-      this.labs.find({ state: { $in: liveOf('lab') }, createdAt: { $gte: since } }, { id: 1, state: 1, patient_id: 1, account_id: 1, total: 1, createdAt: 1, tracking_id: 1, _id: 0 }).sort({ createdAt: -1 }).limit(40).lean(),
-      this.rads.find({ state: { $in: liveOf('radiology') }, createdAt: { $gte: since } }, { id: 1, state: 1, patient_id: 1, account_id: 1, total: 1, createdAt: 1, tracking_id: 1, _id: 0 }).sort({ createdAt: -1 }).limit(40).lean(),
-      this.home.find({ state: { $in: liveOf('nursing') }, createdAt: { $gte: since } }, { id: 1, state: 1, patient_id: 1, account_id: 1, total: 1, createdAt: 1, tracking_id: 1, _id: 0 }).sort({ createdAt: -1 }).limit(40).lean(),
+      this.labs.find({ state: { $in: liveOf('lab') }, createdAt: { $gte: since } }, { id: 1, state: 1, patient_id: 1, provider_account_id: 1, account_id: 1, total: 1, createdAt: 1, tracking_id: 1, _id: 0 }).sort({ createdAt: -1 }).limit(40).lean(),
+      this.rads.find({ state: { $in: liveOf('radiology') }, createdAt: { $gte: since } }, { id: 1, state: 1, patient_id: 1, provider_account_id: 1, account_id: 1, total: 1, createdAt: 1, tracking_id: 1, _id: 0 }).sort({ createdAt: -1 }).limit(40).lean(),
+      this.home.find({ state: { $in: liveOf('nursing') }, createdAt: { $gte: since } }, { id: 1, state: 1, patient_id: 1, provider_account_id: 1, account_id: 1, total: 1, createdAt: 1, tracking_id: 1, _id: 0 }).sort({ createdAt: -1 }).limit(40).lean(),
       this.appts.find({ status: { $in: liveOf('consultation') }, createdAt: { $gte: since } }, { id: 1, status: 1, patient_id: 1, doctor_user_id: 1, price: 1, createdAt: 1, tracking_id: 1, _id: 0 }).sort({ createdAt: -1 }).limit(40).lean(),
     ]);
-    const norm = (kind: any, x: any, stateField = 'state') => ({
-      kind, id: x.id, tracking_id: x.tracking_id || x.id, universal_state: toUniversal(kind, x[stateField]),
-      domain_state: x[stateField], patient_id: x.patient_id, provider_id: x.pharmacy_id || x.provider_account_id || x.doctor_user_id || null,
-      total: x.total || x.price || 0, createdAt: x.createdAt,
-    });
-    return [
-      ...pharm.map(o => norm('pharmacy', o)),
-      ...labs.map(l => norm('lab', l)),
-      ...rads.map(r => norm('radiology', r)),
-      ...home.map(h => norm('nursing', h)),
-      ...appts.map((a: any) => norm('consultation', a, 'status')),
-    ].sort((a, b) => new Date(b.createdAt as any).getTime() - new Date(a.createdAt as any).getTime()).slice(0, 100);
+    const raw = [
+      ...pharm.map(o => ({ kind: 'pharmacy' as const, x: o, sf: 'state' as const })),
+      ...labs.map(l => ({ kind: 'lab' as const, x: l, sf: 'state' as const })),
+      ...rads.map(r => ({ kind: 'radiology' as const, x: r, sf: 'state' as const })),
+      ...home.map(h => ({ kind: 'nursing' as const, x: h, sf: 'state' as const })),
+      ...appts.map((a: any) => ({ kind: 'consultation' as const, x: a, sf: 'status' as const })),
+    ];
+    // Batch-enrich with patient/provider names + phones (best-effort, never block)
+    const patientIds = [...new Set(raw.map(r => r.x.patient_id).filter(Boolean))];
+    const providerIds = [...new Set(raw.map(r => (r.x as any).pharmacy_id || (r.x as any).provider_account_id || (r.x as any).doctor_user_id).filter(Boolean))];
+    const [patients, providers] = await Promise.all([
+      patientIds.length ? this.users.find({ id: { $in: patientIds } } as any, { id: 1, name: 1, full_name: 1, phone: 1, _id: 0 }).lean().catch(() => []) : Promise.resolve([]),
+      providerIds.length ? this.providers.find({ $or: [{ account_id: { $in: providerIds } }, { user_id: { $in: providerIds } }] } as any, { account_id: 1, user_id: 1, display_name_ar: 1, display_name_en: 1, phone: 1, _id: 0 }).lean().catch(() => []) : Promise.resolve([]),
+    ]);
+    const pmap = new Map((patients as any[]).map((u: any) => [u.id, u]));
+    const prmap = new Map<string, any>();
+    for (const p of providers as any[]) {
+      if (p.account_id) prmap.set(p.account_id, p);
+      if (p.user_id) prmap.set(p.user_id, p);
+    }
+    const norm = (kind: any, x: any, stateField = 'state') => {
+      const pid = (x as any).pharmacy_id || (x as any).provider_account_id || (x as any).account_id || (x as any).doctor_user_id || null;
+      const pu: any = pmap.get(x.patient_id);
+      const pr: any = pid ? prmap.get(pid) : null;
+      const uni = toUniversal(kind, x[stateField]);
+      const isDelayed = uni === ServiceState.MATCHING && x.createdAt && (Date.now() - new Date(x.createdAt).getTime()) > 3 * 60 * 1000;
+      return {
+        kind, id: x.id, tracking_id: x.tracking_id || x.id, universal_state: uni,
+        domain_state: x[stateField], patient_id: x.patient_id,
+        patient_name: pu?.full_name || pu?.name || null, patient_phone: pu?.phone || null,
+        provider_id: pid, provider_name: pr?.display_name_ar || pr?.display_name_en || null, provider_phone: pr?.phone || null,
+        total: x.total || x.price || 0, createdAt: x.createdAt, is_delayed: isDelayed,
+      };
+    };
+    return raw.map(r => norm(r.kind, r.x, r.sf))
+      .sort((a, b) => new Date(b.createdAt as any).getTime() - new Date(a.createdAt as any).getTime()).slice(0, 100);
   }
 
   private async failedTransactions() {

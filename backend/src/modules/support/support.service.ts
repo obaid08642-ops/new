@@ -72,7 +72,7 @@ export class SupportService {
 
   // SETTINGS
   async listTickets(user_id: string) {
-    return this.req.find({ patient_id: user_id }).sort({ createdAt: -1 });
+    return this.req.find({ user_id }).sort({ createdAt: -1 }).limit(80);
   }
 
   async getSettings(user: any) {
