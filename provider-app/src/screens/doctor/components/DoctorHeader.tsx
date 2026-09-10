@@ -22,10 +22,10 @@ export function DoctorHeader({ onNavigate }: DoctorHeaderProps) {
           <NAvatar name={user?.name || 'د. محمد'} size={44} />
           <View style={{ marginHorizontal: SP.sm, alignItems: AR ? 'flex-end' : 'flex-start' }}>
             <Text style={[styles.userName, { color: theme.text }]}>
-              {user?.name || (AR ? 'د. محمد الطبيب' : 'Dr. Mohamed')}
+              {user?.name || '—'}
             </Text>
             <Text style={[styles.userRole, { color: theme.textSub }]}>
-              {(user as any)?.specialty || (AR ? 'طبيب عام' : 'General Practitioner')}
+              {(user as any)?.specialty || '—'}
             </Text>
           </View>
         </View>

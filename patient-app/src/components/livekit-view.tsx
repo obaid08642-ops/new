@@ -10,7 +10,7 @@ import {
   VideoView,
   AudioSession,
 } from '@livekit/react-native';
-import { Room, Participant, Track } from 'livekit-client';
+import { Room, Participant, Track, VideoPresets, AudioPresets } from 'livekit-client';
 
 interface LiveKitCallViewProps {
   room: Room;
@@ -185,6 +185,21 @@ export default function LiveKitCallView({
       connect={true}
       audio={true}
       video={!isVoiceOnly}
+      options={{
+        adaptiveStream: true,
+        dynacast: true,
+        reconnectPolicy: {
+          nextRetryDelayInMs: (context: any) => Math.min((context.retryCount + 1) * 2000, 10000),
+        },
+        videoCaptureDefaults: { resolution: VideoPresets.h720.resolution },
+        publishDefaults: {
+          simulcast: true,
+          videoSimulcastLayers: [VideoPresets.h180, VideoPresets.h360],
+          videoEncoding: { maxBitrate: 1_700_000 },
+          audioPreset: AudioPresets.speech,
+          dtx: true,
+        },
+      }}
     >
       <ActiveCall
         isVoiceOnly={isVoiceOnly}

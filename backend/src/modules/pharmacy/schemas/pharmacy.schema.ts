@@ -385,6 +385,7 @@ export class PharmacyOffer extends Document {
     inventory_price_updated_at?: Date;
   }>;
   @Prop({ type: Object, required: true }) totals: { subtotal: number; delivery_fee: number; total: number; currency: string };
+  @Prop({ maxlength: 500 }) provider_note?: string;
   @Prop({ required: true, index: true }) quote_expires_at: Date;
   @Prop() expired_at?: Date;
   /** Short fencing lease used by a durable command when a quote becomes due. */

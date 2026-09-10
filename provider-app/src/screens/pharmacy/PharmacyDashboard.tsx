@@ -62,7 +62,7 @@ import {
 } from '../shared/RealScreens';
 import { 
   PharmacyQRMenuScreen, ChronicDiseaseProgramScreen, DeliveryTrackingScreen, 
-  MedicationRefillsScreen, DrugPriceComparisonScreen, AddProductScreen, 
+  MedicationRefillsScreen, AddProductScreen, 
   ExpiryTrackingScreen, ShortageReportScreen 
 } from '../shared/RealScreensExtended';
 
@@ -145,6 +145,7 @@ export function PharmacyDashboardNavigator({ onLogout }: { onLogout:()=>void }) 
      <Stack.Screen name="order_history">{({ navigation }: any) => <OrderHistoryScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
      <Stack.Screen name="returns_rma">{({ navigation }: any) => <ReturnsRMAScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="delivery_track">{({ navigation, route }: any) => <DeliveryTrackingScreen order={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
+    <Stack.Screen name="pharmacy_chat">{({ navigation, route }: any) => <PharmacyChatScreen onBack={() => navigation.goBack()} orderId={route.params?.param?.order_id || route.params?.param?.orderId} />}</Stack.Screen>
      <Stack.Screen name="qr_menu">{({ navigation }: any) => <PharmacyQRMenuScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="reviews">{({ navigation }: any) => <ReviewsAndRatingsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="chronic">{({ navigation }: any) => <ChronicDiseaseProgramScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
@@ -167,7 +168,6 @@ export function PharmacyDashboardNavigator({ onLogout }: { onLogout:()=>void }) 
      <Stack.Screen name="insurance_requests">{({ navigation }: any) => <InsuranceRequestsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="product_catalog">{({ navigation }: any) => <ActiveInventoryScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="working_hours">{({ navigation }: any) => <WorkingHoursEditorScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
-     <Stack.Screen name="pricing_fees">{({ navigation }: any) => <DrugPriceComparisonScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="notifications">{({ navigation }: any) => <NotificationsCenterScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="support">{({ navigation }: any) => <TechnicalSupportTicketsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
    </Stack.Navigator>
@@ -863,7 +863,7 @@ function ReturnsRMAScreen({ onBack }: any) {
 // ══════════════════════════════════════════════════════════════════════════════
 // DISPATCH & DELIVERY SCREEN (Screen 3 - Workflows)
 // ══════════════════════════════════════════════════════════════════════════════
-function DispatchWorkflowScreen({ onBack }: any) {
+function DispatchWorkflowScreen({ onBack, onNavigate }: any) {
   const { theme } = useTheme();
   const { lang } = useLang();
   const { show } = useToast();
@@ -1016,6 +1016,7 @@ function DispatchWorkflowScreen({ onBack }: any) {
             {['pending_review', 'partially_confirmed'].includes(String(a.status)) && (
               <NBtn label={AR ? 'تأكيد' : 'Confirm'} size="sm" loading={actionId === a.id} onPress={() => doAction(a.id, 'confirm')} />
             )}
+            <NBtn label={AR ? 'محادثة الطلب' : 'Order chat'} size="sm" variant="outline" onPress={() => onNavigate?.('pharmacy_chat', { order_id: a.order_id })} />
             {String(a.status) === 'confirmed' && (
               <NBtn label={AR ? 'بدء التجهيز' : 'Start preparing'} size="sm" loading={actionId === a.id} onPress={() => doAction(a.id, 'preparing')} />
             )}
@@ -1493,7 +1494,11 @@ function ActiveInventoryScreen({ onBack }: any) {
 
   const persistItem = async (item: any, patch: any) => {
     try {
-      await client.post('/provider/capabilities/pharmacy', { ...item, ...patch });
+      const res = await client.post('/provider/capabilities/pharmacy', { ...item, ...patch });
+      if ((res?.data as any)?.pending_review) {
+        show(AR ? 'تم الإرسال — تُطبق بعد اعتماد الإدارة' : 'Sent — applied after admin approval', 'success');
+        fetchInventory();
+      }
     } catch {
       show(AR ? 'تعذر حفظ التحديث على الخادم' : 'Could not save update to server', 'error');
       fetchInventory();
@@ -1511,8 +1516,13 @@ function ActiveInventoryScreen({ onBack }: any) {
     const item = inventory.find(x => x.id === id);
     if (!item) return;
     const available = !(item.available !== false);
-    setInventory(prev => prev.map(x => x.id === id ? { ...x, available } : x));
     persistItem(item, { available });
+  };
+
+  const toggleCoverage = (id: string) => {
+    const item = inventory.find(x => x.id === id);
+    if (!item) return;
+    persistItem(item, { insurance_covered: !(item.insurance_covered === true) });
   };
 
   const itemName = (x: any) => (AR ? (x.name_ar || x.name_en || x.sku) : (x.name_en || x.name_ar || x.sku)) || '';
@@ -1552,6 +1562,10 @@ function ActiveInventoryScreen({ onBack }: any) {
                 <View style={{ alignItems: 'center', gap: 4 }}>
                   <Text style={{ fontSize: 10, color: theme.textSub }}>{AR ? 'متوفر أونلاين' : 'Online'}</Text>
                   <Switch value={item.available !== false} onValueChange={() => toggleOnline(item.id)} trackColor={{ true: theme.success }} />
+                  <TouchableOpacity onPress={() => toggleCoverage(item.id)} style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 }}>
+                    <View style={{ width: 16, height: 16, borderRadius: 4, borderWidth: 2, borderColor: item.insurance_covered === true ? theme.success : theme.border, backgroundColor: item.insurance_covered === true ? theme.success : 'transparent' }} />
+                    <Text style={{ fontSize: 10, color: theme.textSub }}>{AR ? 'تأمين' : 'Ins.'}</Text>
+                  </TouchableOpacity>
                 </View>
               </View>
 
@@ -1580,8 +1594,72 @@ function ActiveInventoryScreen({ onBack }: any) {
 // ══════════════════════════════════════════════════════════════════════════════
 // PHARMACY CHAT SCREEN (Module 10)
 // ══════════════════════════════════════════════════════════════════════════════
-function PharmacyChatScreen({ onBack }: any) {
-  return <GovernanceUnavailableScreen onBack={onBack} titleAr="المحادثة" titleEn="Chat" bodyAr="المحادثات الصيدلانية ليست مفعلة قبل اعتماد عقد الخصوصية والملكية والتدقيق." bodyEn="Chat is unavailable until its privacy, ownership, and audit contract is approved." />;
+function PharmacyChatScreen({ onBack, orderId }: any) {
+  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+  const [threadId, setThreadId] = useState<string | null>(null);
+  const [messages, setMessages] = useState<any[]>([]);
+  const [msg, setMsg] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [sending, setSending] = useState(false);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const res = await client.get('/pharmacy/chat/threads', { params: orderId ? { order_id: orderId } : {} });
+        const list = Array.isArray(res.data) ? res.data : [];
+        const first = list[0];
+        if (alive && first?.id) {
+          setThreadId(first.id);
+          const m = await client.get(`/pharmacy/chat/threads/${first.id}/messages`).catch(() => null);
+          if (alive && m?.data) setMessages(Array.isArray(m.data.messages) ? m.data.messages : Array.isArray(m.data) ? m.data : []);
+        }
+      } catch {
+        if (alive) show(AR ? 'تعذر تحميل المحادثة' : 'Could not load chat', 'error');
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
+    return () => { alive = false; };
+  }, [orderId]);
+
+  async function send() {
+    const text = msg.trim();
+    if (!text || !threadId || sending) return;
+    setSending(true);
+    try {
+      await client.post(`/pharmacy/chat/threads/${threadId}/messages`, { text });
+      setMessages((prev) => [...prev, { id: `t-${Date.now()}`, body: text, text, sender: 'pharmacy', createdAt: new Date().toISOString() }]);
+      setMsg('');
+    } catch {
+      show(AR ? 'تعذر إرسال الرسالة' : 'Could not send message', 'error');
+    } finally {
+      setSending(false);
+    }
+  }
+
+  return (
+    <View style={{ flex: 1, backgroundColor: theme.bg }}>
+      <NHeader title={AR ? 'محادثة الطلب' : 'Order chat'} onBack={onBack} />
+      {loading ? <ActivityIndicator color={theme.primary} style={{ marginTop: 40 }} /> : !threadId ? (
+        <NEmpty icon="chat" title={AR ? 'لا توجد محادثة لهذا الطلب بعد' : 'No chat for this order yet'} sub={AR ? 'تُفتح المحادثة بعد قبول العرض' : 'Chat opens after offer acceptance'} />
+      ) : (
+        <View style={{ flex: 1 }}>
+          <ScrollView contentContainerStyle={{ padding: SP.lg, gap: SP.sm }}>
+            {messages.map((m: any, i: number) => (
+              <View key={String(m.id || i)} style={{ alignSelf: m.sender === 'pharmacy' ? 'flex-end' : 'flex-start', backgroundColor: m.sender === 'pharmacy' ? theme.primary : theme.surface2, borderRadius: R.md, padding: SP.md, maxWidth: '85%' }}>
+                <Text style={{ color: m.sender === 'pharmacy' ? '#FFF' : theme.text }}>{m.body || m.text || ''}</Text>
+              </View>
+            ))}
+          </ScrollView>
+          <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm, padding: SP.md }}>
+            <View style={{ flex: 1 }}><NInput placeholder={AR ? 'اكتب رسالة…' : 'Type a message…'} value={msg} onChange={setMsg} /></View>
+            <NBtn label={AR ? 'إرسال' : 'Send'} loading={sending} onPress={send} />
+          </View>
+        </View>
+      )}
+    </View>
+  );
 }
 function SettingsScreen({ onBack, onNavigate }: any) {
   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
@@ -1591,6 +1669,14 @@ function SettingsScreen({ onBack, onNavigate }: any) {
   const [deliveryFee, setDeliveryFee] = useState('15');
   const [acceptsInsurance, setAcceptsInsurance] = useState(true);
   const [acceptsInstallments, setAcceptsInstallments] = useState(false);
+  const [trackInventory, setTrackInventory] = useState(false);
+
+  useEffect(() => {
+    client.get('/provider/pharmacy/inventory-tracking').then((r: any) => {
+      const v = r?.data?.inventory_tracking;
+      if (typeof v === 'boolean') setTrackInventory(v);
+    }).catch(() => {});
+  }, []);
 
   const handleSave = async () => {
     setLoading(true);
@@ -1622,6 +1708,18 @@ function SettingsScreen({ onBack, onNavigate }: any) {
         <NCard style={{ gap: SP.md }}>
           <NToggle label={AR ? 'قبول شركات التأمين' : 'Accept Insurance'} value={acceptsInsurance} onChange={setAcceptsInsurance} />
           <NToggle label={AR ? 'قبول الدفع بالتقسيط (تابي/تمارا)' : 'Accept Installments (Tabby/Tamara)'} value={acceptsInstallments} onChange={setAcceptsInstallments} />
+          <NToggle label={AR ? 'تتبع أرصدة المخزون (اختياري)' : 'Track inventory balances (optional)'} value={trackInventory} onChange={async (v: boolean) => {
+            setTrackInventory(v);
+            try {
+              await client.put('/provider/pharmacy/inventory-tracking', { inventory_tracking: v });
+            } catch {
+              setTrackInventory(!v);
+              show(AR ? 'تعذر حفظ الإعداد' : 'Could not save setting', 'error');
+            }
+          }} />
+          {!trackInventory ? (
+            <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{AR ? 'بدون تتبع: تصرف من المتاح لديك وارفض أو اقترح بديلاً عند النفاد' : 'Untracked: dispense from what you have; reject or suggest a substitute when out'}</Text>
+          ) : null}
         </NCard>
 
         <GlobalSystemSettings />

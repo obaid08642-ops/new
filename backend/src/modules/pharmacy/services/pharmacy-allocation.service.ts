@@ -26,8 +26,32 @@ export class PharmacyAllocationService {
     private engine: WorkflowEngineService,
   ) {}
 
-  async listForProvider(user: any, status?: string) {
-    assertProvider(user);
+  // Inventory tracking is OPTIONAL per provider (default off — no-balances model).
+  // When off, stock checks/reservations are skipped entirely.
+  async tracksInventory(provider_account_id: string): Promise<boolean> {
+    try {
+      const doc: any = await (this.inv as any).model.db.collection('provider_settings').findOne({ provider_id: provider_account_id });
+      return doc?.inventory_tracking === true;
+    } catch {
+      return false;
+    }
+  }
+
+  async getInventoryTracking(user: any) {
+    return { inventory_tracking: await this.tracksInventory(user.id) };
+  }
+
+  async setInventoryTracking(user: any, body: any) {
+    const value = body?.inventory_tracking === true;
+    await (this.inv as any).model.db.collection('provider_settings').updateOne(
+      { provider_id: user.id },
+      { $set: { provider_id: user.id, inventory_tracking: value, updatedAt: new Date() } },
+      { upsert: true },
+    );
+    return { ok: true, inventory_tracking: value };
+  }
+
+  async listForProvider(user: any, status?: string) {    assertProvider(user);
     const q: any = { pharmacy_account_id: user.id };
     if (status) q.status = status;
     return this.allocs.find(q, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(100).lean();
@@ -80,18 +104,21 @@ export class PharmacyAllocationService {
       if (!body.substitute_sku) throw new BadRequestException('substitute_sku_required');
       const subInv = await this.inv.findOne({ provider_account_id: user.id, sku: body.substitute_sku, available: true });
       if (!subInv) throw new BadRequestException('substitute_not_in_inventory');
-      if (subInv.stock < (body.qty_offered || item.qty_requested)) throw new BadRequestException('substitute_insufficient_stock');
+      const tracking = await this.tracksInventory(user.id);
+      if (tracking && subInv.stock < (body.qty_offered || item.qty_requested)) throw new BadRequestException('substitute_insufficient_stock');
       // Release previous reservation if any
-      if (prevAction === AllocationItemAction.AVAILABLE && prevInvId && prevQty) {
+      if (tracking && prevAction === AllocationItemAction.AVAILABLE && prevInvId && prevQty) {
         await this.inv.updateOne({ id: prevInvId, provider_account_id: user.id }, { $inc: { stock: prevQty } });
       }
       // Reserve new substitute stock
       const qty = body.qty_offered || item.qty_requested;
-      const reserved = await this.inv.findOneAndUpdate(
-        { id: subInv.id, provider_account_id: user.id, stock: { $gte: qty } },
-        { $inc: { stock: -qty } },
-      );
-      if (!reserved) throw new BadRequestException('substitute_stock_race');
+      if (tracking) {
+        const reserved = await this.inv.findOneAndUpdate(
+          { id: subInv.id, provider_account_id: user.id, stock: { $gte: qty } },
+          { $inc: { stock: -qty } },
+        );
+        if (!reserved) throw new BadRequestException('substitute_stock_race');
+      }
       item.substitute_for_sku = item.sku;
       item.substitute_reason = body.substitute_reason;
       item.inventory_id = subInv.id;
@@ -101,7 +128,7 @@ export class PharmacyAllocationService {
       item.unit_price = subInv.price;
     } else if (body.action === AllocationItemAction.UNAVAILABLE) {
       // Release any reservation
-      if (prevAction === AllocationItemAction.AVAILABLE && prevInvId && prevQty) {
+      if (prevAction === AllocationItemAction.AVAILABLE && prevInvId && prevQty && await this.tracksInventory(user.id)) {
         await this.inv.updateOne({ id: prevInvId, provider_account_id: user.id }, { $inc: { stock: prevQty } });
       }
       item.qty_offered = 0;
@@ -111,14 +138,14 @@ export class PharmacyAllocationService {
       const newQty = body.qty_offered || item.qty_requested;
       if (newQty !== prevQty) {
         const delta = newQty - prevQty;
-        if (delta > 0) {
+        if (delta > 0 && await this.tracksInventory(user.id)) {
           // Need to reserve more
           const reserved = await this.inv.findOneAndUpdate(
             { id: item.inventory_id, provider_account_id: user.id, stock: { $gte: delta } },
             { $inc: { stock: -delta } },
           );
           if (!reserved) throw new BadRequestException('insufficient_stock_for_increase');
-        } else if (delta < 0 && item.inventory_id) {
+        } else if (delta < 0 && item.inventory_id && await this.tracksInventory(user.id)) {
           await this.inv.updateOne({ id: item.inventory_id, provider_account_id: user.id }, { $inc: { stock: -delta } });
         }
         item.qty_offered = newQty;
@@ -304,6 +331,13 @@ export class PharmacyAllocationService {
     await this.notif.notifyPatientAllocationProgress(a);
     await this.bus.emit({ type: 'allocation.updated', entity_type: 'allocation', entity_id: a.id, actor_account_id: user.id, actor_role: 'provider', pharmacy_account_id: user.id, reason_code: 'transition_to_delivered', before: { status: fromStatus }, after: { status: a.status }, meta: { order_id: a.order_id } });
     await this.settleDeliveredAllocation(a, isCod);
+    // Delivery is payment-gated upstream (assertFulfillmentAuthorized), so a
+    // delivered allocation completes its order: DELIVERED -> COMPLETED.
+    await this.refreshOrderAfterAllocationChange(a.order_id);
+    await this.orders.updateOne({ id: a.order_id, status: PharmacyOrderState.DELIVERED }, {
+      $set: { status: PharmacyOrderState.COMPLETED },
+      $push: { timeline: { ts: new Date(), event: 'order_completed', by: user.id } },
+    }).catch(() => null);
     return a.toObject();
   }
 

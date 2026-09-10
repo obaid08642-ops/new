@@ -19,6 +19,7 @@ import {
 import { SP, R, FS, FW } from '../../constants';
 import client from '../../api/client';
 import { FleetScreen } from '../shared/FleetScreen';
+import { InsuranceRequestsScreen } from '../shared/InsuranceRequestsScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -144,6 +145,21 @@ function AmbulanceHomeScreen({ onNavigate }: { onNavigate: (s: string, p?: any) 
         <TouchableOpacity onPress={() => onNavigate('fleet')}>
           <NCard style={{ marginTop: SP.md, alignItems: 'center' }}>
             <Text style={{ color: theme.primary, fontWeight: FW.bold }}>{AR ? ' أسطول الإسعاف' : ' Ambulance Fleet'}</Text>
+          </NCard>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => onNavigate('insurance_requests')}>
+          <NCard style={{ marginTop: SP.md, alignItems: 'center' }}>
+            <Text style={{ color: theme.primary, fontWeight: FW.bold }}>{AR ? 'طلبات التأمين الواردة' : 'Insurance Requests'}</Text>
+          </NCard>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => onNavigate('profile')}>
+          <NCard style={{ marginTop: SP.md, alignItems: 'center' }}>
+            <Text style={{ color: theme.primary, fontWeight: FW.bold }}>{AR ? 'الملف ونطاق التغطية' : 'Profile & Coverage'}</Text>
+          </NCard>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => onNavigate('availability')}>
+          <NCard style={{ marginTop: SP.md, alignItems: 'center' }}>
+            <Text style={{ color: theme.primary, fontWeight: FW.bold }}>{AR ? 'التوفر الفوري' : 'Instant Availability'}</Text>
           </NCard>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => onNavigate('history')}>
@@ -367,11 +383,13 @@ function AmbulanceHistoryScreen({ onBack }: { onBack: () => void }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    client.get('/provider/ops/wallet/ledger?limit=50')
-      .then(() => {})
-      .catch(() => {})
+    client.get('/emergency/driver/missions')
+      .then((res: any) => {
+        const all = [...(res.data?.mine || []), ...(res.data?.pool || [])];
+        setRows(all.filter((m: any) => ['completed', 'handed_over', 'closed'].includes(String(m.state || m.status || '').toLowerCase())));
+      })
+      .catch(() => setRows([]))
       .finally(() => setLoading(false));
-    setRows([]);
   }, []);
 
   return (
@@ -429,6 +447,118 @@ function ActiveMissionLoader({ route, navigation }: any) {
   );
 }
 
+function AmbulanceProfileScreen({ onBack }: { onBack: () => void }) {
+  const { theme } = useTheme();
+  const { lang } = useLang();
+  const { show } = useToast();
+  const AR = lang === 'ar';
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [phone, setPhone] = useState('');
+  const [coverage, setCoverage] = useState('');
+
+  useEffect(() => {
+    let active = true;
+    client.get('/provider/profile').then((res) => {
+      if (!active || !res?.data) return;
+      const p = res.data?.data || res.data;
+      if (typeof p.contact_phone === 'string') setPhone(p.contact_phone);
+      const cov = p.coverage_cities || p.coverage_area;
+      setCoverage(Array.isArray(cov) ? cov.join(', ') : typeof cov === 'string' ? cov : '');
+    }).catch(() => {}).finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, []);
+
+  async function save() {
+    setSaving(true);
+    try {
+      await client.patch('/provider/profile', {
+        contact_phone: phone.trim() || undefined,
+        coverage_cities: coverage.split(',').map((c) => c.trim()).filter(Boolean),
+      });
+      show(AR ? 'تم حفظ الملف' : 'Profile saved', 'success');
+    } catch (err: any) {
+      show(err?.response?.data?.message || (AR ? 'تعذر حفظ الملف' : 'Could not save profile'), 'error');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <View style={{ flex: 1, backgroundColor: theme.bg }}>
+      <NHeader title={AR ? 'الملف ونطاق التغطية' : 'Profile & Coverage'} onBack={onBack} />
+      <NScroll>
+        <View style={{ padding: 16 }}>
+          {loading ? (
+            <ActivityIndicator color={theme.primary} style={{ marginTop: 40 }} />
+          ) : (
+            <NCard>
+              <NInput label={AR ? 'هاتف التواصل' : 'Contact phone'} value={phone} onChange={setPhone} kbType="phone-pad" />
+              <NInput label={AR ? 'مدن التغطية (افصل بفاصلة)' : 'Coverage cities (comma separated)'} value={coverage} onChange={setCoverage} />
+              <NBtn label={AR ? 'حفظ الملف' : 'Save profile'} loading={saving} onPress={save} style={{ marginTop: 12 }} />
+            </NCard>
+          )}
+        </View>
+      </NScroll>
+    </View>
+  );
+}
+
+function AmbulanceAvailabilityScreen({ onBack }: { onBack: () => void }) {
+  const { theme } = useTheme();
+  const { lang } = useLang();
+  const { show } = useToast();
+  const AR = lang === 'ar';
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [pulseOn, setPulse] = useState(false);
+  const [minutes, setMinutes] = useState('5');
+
+  useEffect(() => {
+    let active = true;
+    client.get('/provider/profile/availability').then((res) => {
+      if (!active || !res?.data) return;
+      setPulse(Boolean(res.data.instant_available));
+      if (res.data.instant_available_minutes) setMinutes(String(res.data.instant_available_minutes));
+    }).catch(() => {}).finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, []);
+
+  async function save() {
+    setSaving(true);
+    try {
+      await client.patch('/provider/profile/availability', { instant_available: pulseOn, instant_available_minutes: Number(minutes) || 5 });
+      show(AR ? 'تم حفظ التوفر' : 'Availability saved', 'success');
+    } catch (err: any) {
+      show(err?.response?.data?.message || (AR ? 'تعذر حفظ التوفر' : 'Could not save availability'), 'error');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <View style={{ flex: 1, backgroundColor: theme.bg }}>
+      <NHeader title={AR ? 'التوفر الفوري' : 'Instant Availability'} onBack={onBack} />
+      <NScroll>
+        <View style={{ padding: 16 }}>
+          {loading ? (
+            <ActivityIndicator color={theme.primary} style={{ marginTop: 40 }} />
+          ) : (
+            <NCard>
+              <TouchableOpacity onPress={() => setPulse((v) => !v)} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: 8 }}>
+                <Text style={{ color: theme.text, fontWeight: 'bold' }}>{AR ? 'متاح فورياً للنداءات' : 'Instantly available for calls'}</Text>
+                <Text style={{ fontSize: 22 }}>{pulseOn ? '🟢' : '⚪'}</Text>
+              </TouchableOpacity>
+              <NInput label={AR ? 'مهلة الاستجابة (دقائق)' : 'Response window (minutes)'} value={minutes} onChange={setMinutes} kbType="numeric" />
+              <NBtn label={AR ? 'حفظ التوفر' : 'Save availability'} loading={saving} onPress={save} style={{ marginTop: 12 }} />
+            </NCard>
+          )}
+        </View>
+      </NScroll>
+    </View>
+  );
+}
+
 export function AmbulanceDashboardNavigator({ onLogout }: { onLogout: () => void }) {
   return (
     <Stack.Navigator id={undefined as any} screenOptions={{ headerShown: false }}>
@@ -458,6 +588,9 @@ export function AmbulanceDashboardNavigator({ onLogout }: { onLogout: () => void
       <Stack.Screen name="fleet">
         {({ navigation }: any) => <FleetScreen onBack={() => navigation.goBack()} />}
       </Stack.Screen>
+      <Stack.Screen name="insurance_requests">{({ navigation }: any) => <InsuranceRequestsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+      <Stack.Screen name="profile">{({ navigation }: any) => <AmbulanceProfileScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+      <Stack.Screen name="availability">{({ navigation }: any) => <AmbulanceAvailabilityScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
     </Stack.Navigator>
   );
 }

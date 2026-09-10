@@ -1,22 +1,39 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
-import { useTheme, useLang } from '../../context';
-import { NHeader, NCard, NScroll, NBadge } from '../../components/ui';
+import { useTheme, useLang, useToast } from '../../context';
+import { NHeader, NCard, NScroll, NBadge, NBtn } from '../../components/ui';
 import { SP, FS, FW, R } from '../../constants';
 import client from '../../api/client';
 
 export function FacilityUnifiedCalendarScreen({ onBack }: { onBack: () => void }) {
   const { theme } = useTheme();
   const { lang } = useLang();
+  const { show } = useToast();
   const AR = lang === 'ar';
 
   const [events, setEvents] = useState<any[]>([]);
+  const [actingId, setActingId] = useState<string | null>(null);
 
   React.useEffect(() => {
     client.get('/provider/facility/calendar')
       .then(res => setEvents(res.data || []))
       .catch(() => setEvents([]));
   }, []);
+
+  async function act(id: string, action: 'confirm' | 'cancel') {
+    if (!id) return;
+    setActingId(id);
+    try {
+      await client.patch(`/care/appointments/${id}/${action}`, {});
+      show(action === 'confirm' ? (AR ? 'تم تأكيد الموعد' : 'Appointment confirmed') : (AR ? 'تم إلغاء الموعد' : 'Appointment cancelled'), 'success');
+      const res = await client.get('/provider/facility/calendar').catch(() => null);
+      if (res?.data) setEvents(res.data);
+    } catch (err: any) {
+      show(err?.response?.data?.message || (AR ? 'تعذر تنفيذ الإجراء' : 'Action failed'), 'error');
+    } finally {
+      setActingId(null);
+    }
+  }
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
@@ -49,6 +66,12 @@ export function FacilityUnifiedCalendarScreen({ onBack }: { onBack: () => void }
                   variant={ev.type === 'emergency' ? 'danger' : ev.type === 'surgery' ? 'warning' : 'primary'} 
                 />
               </View>
+              {ev.type !== 'surgery' && ev.type !== 'emergency' && ev.id ? (
+                <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: 8, marginTop: 8 }}>
+                  <View style={{ flex: 1 }}><NBtn label={AR ? 'تأكيد' : 'Confirm'} size="sm" loading={actingId === ev.id} onPress={() => act(ev.id, 'confirm')} /></View>
+                  <View style={{ flex: 1 }}><NBtn label={AR ? 'إلغاء' : 'Cancel'} size="sm" variant="danger" loading={actingId === ev.id} onPress={() => act(ev.id, 'cancel')} /></View>
+                </View>
+              ) : null}
             </NCard>
           ))}
         </View>

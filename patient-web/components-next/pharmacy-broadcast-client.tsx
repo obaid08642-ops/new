@@ -4,9 +4,9 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { LoaderCircle } from "lucide-react";
 
-type OfferLine = { name: string; available: boolean };
+type OfferLine = { name: string; available: boolean; offeredQty?: number; unitPrice?: number; alternative?: string };
 type Offer = {
-  id: string; pharmacyName: string; total: number; currency: string;
+  id: string; pharmacyName: string; total: number; currency: string; providerNote?: string;
   status: string; insuranceReady: boolean; lines: OfferLine[];
 };
 
@@ -28,12 +28,18 @@ function parseOffers(payload: unknown): Offer[] {
       currency: typeof totals.currency === "string" ? totals.currency : "ر.س",
       status: typeof r.status === "string" ? r.status : "open",
       insuranceReady: r.insurance_ready === true,
+      providerNote: typeof r.provider_note === "string" ? r.provider_note : undefined,
       lines: linesRaw.flatMap((l) => {
         if (!l || typeof l !== "object") return [];
         const lr = l as Record<string, unknown>;
         const name = typeof lr.name === "string" ? lr.name : typeof lr.sku === "string" ? lr.sku : null;
         if (!name) return [];
-        return [{ name, available: lr.available !== false }];
+        const num = (v: unknown) => (typeof v === "number" ? v : null);
+        const alt = typeof lr.alternative === "string" ? lr.alternative : null;
+        return [{ name, available: lr.available !== false,
+          ...(num(lr.offered_qty) !== null ? { offeredQty: num(lr.offered_qty) as number } : {}),
+          ...(num(lr.unit_price) !== null ? { unitPrice: num(lr.unit_price) as number } : {}),
+          ...(alt ? { alternative: alt } : {}) }];
       }),
     }];
   });
@@ -100,7 +106,8 @@ export function PharmacyBroadcastClient({ orderId, locale }: { orderId: string; 
           <li key={offer.id}>
             <p><strong>{offer.pharmacyName}</strong></p>
             <p>{ar ? "العناصر المتاحة:" : "Available items:"} {offer.lines.filter((l) => l.available).length}</p>
-            <ul>{offer.lines.map((l, i) => <li key={i}>{l.name} — {l.available ? (ar ? "متوفر" : "Available") : (ar ? "غير متوفر" : "Unavailable")}</li>)}</ul>
+            <ul>{offer.lines.map((l, i) => <li key={i}>{l.name}{l.offeredQty !== undefined && l.offeredQty > 0 ? ` × ${l.offeredQty}` : ""}{l.unitPrice !== undefined ? ` — ${l.unitPrice} ${offer.currency}` : ""} — {l.available ? (ar ? "متوفر" : "Available") : (ar ? "غير متوفر" : "Unavailable")}{l.alternative ? (ar ? ` (بديل: ${l.alternative})` : ` (alt: ${l.alternative})`) : ""}</li>)}</ul>
+            {offer.providerNote ? <p>{ar ? "ملاحظة الصيدلية:" : "Pharmacy note:"} {offer.providerNote}</p> : null}
             <p>{ar ? "إجمالي العرض:" : "Offer total:"} {offer.total.toFixed(2)} {offer.currency}</p>
             {offer.status === "open" ? (
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>

@@ -119,6 +119,21 @@ export default function NursingMegaProfile() {
       showLocalizedAlert('العنوان مطلوب', 'يرجى تحديد عنوان تقديم الخدمة أولاً');
       return;
     }
+    if (flow === 'insurance') {
+      // Auto-fill from the saved insurance policy; redirect to add it when missing.
+      try {
+        const me: any = await apiFetch('/users/me/profile');
+        const ins = me?.insurance || me?.data?.insurance || null;
+        if (!(ins && (ins.company_id || ins.provider || ins.policy_number))) {
+          showLocalizedAlert('بيانات التأمين ناقصة', 'سجّل بيانات التأمين في ملفك أولاً');
+          router.push('/profile/insurance');
+          return;
+        }
+      } catch {
+        router.push('/profile/insurance');
+        return;
+      }
+    }
     setProcessing(true);
     try {
       // selectedDate = YYYY-MM-DD, selectedTime like "08:00 ص" — convert to a real ISO timestamp
@@ -144,6 +159,30 @@ export default function NursingMegaProfile() {
       if (flow === 'insurance') {
         setInsuranceSent(bookingId ? String(bookingId) : true);
       } else if (bookingId) {
+        try {
+          const { paymentIntentHeaders } = await import('../../src/utils/payment-idempotency');
+          const intent: any = await apiFetch(`/payments/intent/nursing/${bookingId}`, {
+            method: 'POST',
+            headers: paymentIntentHeaders('nursing', String(bookingId)),
+            body: JSON.stringify({}),
+          });
+          const txn = intent?.data || intent;
+          if (txn?.id) {
+            router.replace({
+              pathname: '/payments/result',
+              params: {
+                moyasarId: String(txn.id),
+                paymentUrl: txn.checkout_url || '',
+                bookingId: String(bookingId),
+                bookingKind: 'nursing',
+                amount: String(txn.amount ?? ''),
+              },
+            });
+            return;
+          }
+        } catch (payErr: any) {
+          showLocalizedAlert('تعذر بدء الدفع', payErr?.message || 'تابع الدفع من سجل الحجوزات');
+        }
         router.replace({ pathname: '/nursing/live-tracking', params: { type: transportMode, bookingId } });
       } else {
         showLocalizedAlert('تم إرسال الطلب', 'تم استلام طلبك وسيتواصل معك مقدم الخدمة قريباً', [

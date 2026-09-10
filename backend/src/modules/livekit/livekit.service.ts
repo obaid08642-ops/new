@@ -225,6 +225,30 @@ export class LiveKitService {
     return { success: true };
   }
 
+  /** Verified LiveKit server webhook (participant_joined/left, track published,
+   * room_finished...). Signature checked with LIVEKIT_API_SECRET; unverified
+   * payloads are rejected so call state cannot be faked. */
+  async handleWebhook(body: any, authorization?: string) {
+    try {
+      const { WebhookReceiver } = await import('livekit-server-sdk');
+      const secret = process.env.LIVEKIT_API_SECRET || '';
+      if (!secret) return { received: true, verified: false };
+      const receiver = new WebhookReceiver(secret, secret);
+      const event: any = await receiver.receive(JSON.stringify(body || {}), authorization || '');
+      const type = String(event?.event || '');
+      const room = String(event?.room?.name || '');
+      if (type === 'room_finished' && room) {
+        await this.callSessions.updateMany(
+          { room_name: room, status: { $in: ['INITIATED', 'ACTIVE'] } },
+          { $set: { status: 'ENDED', ended_at: new Date(), end_reason: 'room_finished', updatedAt: new Date() } },
+        );
+      }
+      return { received: true, verified: true, event: type };
+    } catch {
+      return { received: false, verified: false };
+    }
+  }
+
   async getCallHistory(userId: string, page = 1, limit = 20) {
     const safeLimit = Math.min(Math.max(limit || 20, 1), 100);
     const safePage = Math.max(page || 1, 1);

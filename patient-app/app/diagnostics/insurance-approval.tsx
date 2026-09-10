@@ -34,21 +34,33 @@ export default function InsuranceApproval() {
 
     const fetchOrder = async () => {
       try {
-        const res = await apiFetch(`/orders/${orderId}`);
+        const res = await apiFetch(`/labs/bookings/${orderId}`);
         const data = res?.data || res;
-        
-        if (data.status === 'APPROVED_FULL' || data.status === 'APPROVED_PARTIAL' || data.status === 'REJECTED') {
+
+        if (data.insurance_status === 'approved' || data.insurance_status === 'partial_approval' || data.insurance_status === 'rejected') {
           let newStatus = 'full';
-          if (data.status === 'APPROVED_PARTIAL') newStatus = 'partial';
-          if (data.status === 'REJECTED') newStatus = 'rejected';
-          
+          if (data.insurance_status === 'partial_approval') newStatus = 'partial';
+          if (data.insurance_status === 'rejected') newStatus = 'rejected';
+
+          const items = Array.isArray(data.items) ? data.items : [];
+          const totalAmount = items.reduce((s: number, it: any) => s + (Number(it.price) || 0), 0);
+          const copayAmount = Number(data.insurance_copay) || 0;
+          const coveredAmount = Math.max(0, totalAmount - copayAmount);
+          const coveragePercent = totalAmount > 0 ? Math.round((coveredAmount / totalAmount) * 100) : 0;
+
           setStatus(newStatus as ApprovalState);
           setApprovalDetails({
-            totalAmount: data.totalAmount || 0,
-            coveragePercent: data.coveragePercent || 0,
-            coveredAmount: data.coveredAmount || 0,
-            copayAmount: data.copayAmount || 0,
-            items: data.items || [] 
+            totalAmount,
+            coveragePercent,
+            coveredAmount,
+            copayAmount,
+            items: items.map((it: any) => ({
+              id: it.service_id || it.id,
+              name: it.name_ar || it.name_en || it.name,
+              price: it.cashPrice ?? it.price ?? 0,
+              status: it.isCovered ? 'مغطى' : 'مرفوض',
+              rejectReason: it.rejectReason,
+            })),
           });
           clearInterval(intervalId);
         }
@@ -75,9 +87,9 @@ export default function InsuranceApproval() {
 
     try {
       if (orderId && item.id) {
-        await apiFetch(`/orders/${orderId}/items/${item.id}/opt-in-cash`, {
+        await apiFetch(`/labs/bookings/${orderId}/items/${item.id}/opt-in-cash`, {
           method: 'PATCH',
-          body: JSON.stringify({ optIn: newOptIn })
+          body: JSON.stringify({ optInCash: newOptIn })
         });
       }
     } catch (e) {

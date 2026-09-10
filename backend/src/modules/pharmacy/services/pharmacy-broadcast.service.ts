@@ -73,7 +73,7 @@ export class PharmacyBroadcastService {
   }
 
   /** Minimal provider-purpose DTO: excludes patient phone, address, attachments and raw order. */
-  private providerBroadcastDto(broadcast: any, order: any, viewerProfile?: any) {
+  private async providerBroadcastDto(broadcast: any, order: any, viewerProfile?: any) {
     const method = String(order?.payment_method || order?.payment?.method || (order?.insurance_details ? 'insurance' : 'cash')).toLowerCase();
     const ins = order?.insurance_details || null;
     const orderGeo = order?.delivery_address?.geo;
@@ -95,7 +95,11 @@ export class PharmacyBroadcastService {
         company_name_ar: ins.company_name_ar || null,
         company_name_en: ins.company_name_en || null,
         category: ins.category || null,
+        tier: (ins as any).tier || (ins as any).network || null,
+        policy_number: (ins as any).policyNumber || null,
+        member_id: (ins as any).memberId || null,
       } : null,
+      ...(method === 'insurance' && ins ? await this.insurancePatientCard(order) : {}),
       approx_distance_km: approx,
       approx_area: order?.delivery_address?.district || order?.delivery_address?.city || null,
       attachments: (Array.isArray(order?.prescription_attachments) ? order.prescription_attachments : [])
@@ -109,6 +113,26 @@ export class PharmacyBroadcastService {
         matched_sku: item.matched_sku || null,
       })),
     };
+  }
+
+  /** Insurance orders carry the requester card (name + national ID + tier) so
+   * the pharmacy can verify tier eligibility before accepting. Phone/address
+   * stay hidden until offer selection. */
+  private async insurancePatientCard(order: any) {
+    try {
+      const p: any = await (this.profiles as any).db.collection('patient_profiles').findOne({ user_id: order?.patient_account_id });
+      if (!p) return {};
+      const pi = p.insurance || {};
+      return {
+        patient: {
+          name: p.full_name || null,
+          national_id: p.national_id || null,
+        },
+        insurance_tier: pi.class || pi.tier || pi.network || null,
+      };
+    } catch {
+      return {};
+    }
   }
 
   /** Viewer profile (geo) for approximate-distance projection; never leaks exact location. */
@@ -395,7 +419,7 @@ export class PharmacyBroadcastService {
     const orders = await this.orders.find({ id: { $in: bcs.map(b => b.order_id) } }).lean();
     const ordersMap = new Map(orders.map(o => [o.id, o]));
     const viewer = await this.viewerProfile(user.id);
-    return bcs.map((broadcast) => this.providerBroadcastDto(broadcast, ordersMap.get(broadcast.order_id), viewer));
+    return Promise.all(bcs.map((broadcast) => this.providerBroadcastDto(broadcast, ordersMap.get(broadcast.order_id), viewer)));
   }
 
   async detail(user: any, broadcast_id: string): Promise<any> {

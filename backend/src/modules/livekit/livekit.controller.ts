@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Param, Body, Query, UseGuards } from '@nestjs/common';
+import { Controller, Post, Get, Param, Body, Query, Req, UseGuards } from '@nestjs/common';
 import { Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { JwtAuthGuard, CurrentUser } from '../../common/auth.guard';
@@ -29,9 +29,8 @@ export class LiveKitController {
   
   
   @Post('webhook')
-  async webhook(@Body() body: any) {
-    // Implement LiveKit webhook verification here
-    return { received: true };
+  async webhook(@Body() body: any, @Req() req: any) {
+    return this.svc.handleWebhook(body, req?.headers?.authorization);
   }
 
   @Post('initiate')

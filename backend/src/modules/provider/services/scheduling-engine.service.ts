@@ -5,6 +5,7 @@ import { ProviderRequest, ProviderRequestStatus } from '../schemas/requests.sche
 import { ProviderScheduleSlotRepository } from "./repositories/providerscheduleslot.repository";
 import { ProviderRequestRepository } from "./repositories/providerrequest.repository";
 import { isProviderRole } from '../../../common/enums';
+import { ProviderProfileService } from './provider-profile.service';
 
 function assertProvider(user: any) {
   if (!user || !isProviderRole(user.role)) throw new ForbiddenException('provider scope required');
@@ -23,6 +24,7 @@ export class SchedulingEngineService {
   constructor(
     @Inject('ProviderScheduleSlotRepository') private slots: ProviderScheduleSlotRepository,
     @Inject('ProviderRequestRepository') private requests: ProviderRequestRepository,
+    private readonly profileService: ProviderProfileService,
   ) {}
 
   // ---------- CRUD ----------
@@ -38,20 +40,23 @@ export class SchedulingEngineService {
     const s = parseHHMM(body.start_time);
     const e = parseHHMM(body.end_time);
     if (s < 0 || e < 0 || e <= s) throw new BadRequestException('invalid start_time/end_time (HH:MM, end > start)');
+    const serviceType = typeof body?.service_type === 'string' && body.service_type ? body.service_type : 'all';
+    if (!['all', 'clinic', 'video', 'voice', 'home'].includes(serviceType)) throw new BadRequestException('invalid service_type (all|clinic|video|voice|home)');
+    const payload = { ...body, service_type: serviceType, provider_account_id: user.id };
+    // Governance: slot changes stay draft until admin approves; live matching untouched.
     if (body.id) {
-      const u = await this.slots.findOneAndUpdate({ id: body.id, provider_account_id: user.id }, { ...body, provider_account_id: user.id }, { new: true });
-      if (!u) throw new NotFoundException();
-      return u.toObject();
+      const existing = await this.slots.findOne({ id: body.id, provider_account_id: user.id }).lean();
+      if (!existing) throw new NotFoundException();
+      return this.profileService.requestChange(user, 'slots', { operation: 'update', filter: { id: body.id, provider_account_id: user.id }, payload });
     }
-    const r = await this.slots.create({ ...body, provider_account_id: user.id });
-    return r.toObject();
+    return this.profileService.requestChange(user, 'slots', { operation: 'create', filter: null, payload });
   }
 
   async deleteSlot(user: any, id: string) {
     assertProvider(user);
-    const r = await this.slots.findOneAndDelete({ id, provider_account_id: user.id });
+    const r = await this.slots.findOne({ id, provider_account_id: user.id }).lean();
     if (!r) throw new NotFoundException();
-    return { ok: true };
+    return this.profileService.requestChange(user, 'slots', { operation: 'delete', filter: { id, provider_account_id: user.id }, payload: null });
   }
 
   // ---------- CONFLICT / AVAILABILITY ----------
@@ -61,12 +66,15 @@ export class SchedulingEngineService {
    *  - There must be an active weekly slot covering the time range on that day_of_week.
    *  - Existing accepted/in_progress requests in the same window must not exceed `capacity_per_slot`.
    */
-  async checkAvailability(provider_account_id: string, desiredAt: Date, duration_minutes: number = 30) {
+  async checkAvailability(provider_account_id: string, desiredAt: Date, duration_minutes: number = 30, service_type: string = 'all') {
     const d = new Date(desiredAt);
     const dow = d.getDay();
     const startMin = d.getHours() * 60 + d.getMinutes();
     const endMin = startMin + duration_minutes;
-    const slot = await this.slots.findOne({ provider_account_id, day_of_week: dow, active: true }).lean();
+    const slot = await this.slots.findOne({
+      provider_account_id, day_of_week: dow, active: true,
+      $or: [{ service_type: 'all' }, { service_type }, { service_type: { $exists: false } }],
+    }).lean();
     if (!slot) return { available: false, reason: 'no_weekly_slot_for_day', day_of_week: dow };
     const sStart = parseHHMM((slot as any).start_time);
     const sEnd = parseHHMM((slot as any).end_time);
@@ -99,10 +107,13 @@ export class SchedulingEngineService {
   }
 
   /** Quick capacity flag: does provider have ANY active slot covering NOW? */
-  async isOnDuty(provider_account_id: string, at: Date = new Date()): Promise<boolean> {
+  async isOnDuty(provider_account_id: string, at: Date = new Date(), service_type: string = 'all') {
     const dow = at.getDay();
     const minutes = at.getHours() * 60 + at.getMinutes();
-    const slot = await this.slots.findOne({ provider_account_id, day_of_week: dow, active: true }).lean();
+    const slot = await this.slots.findOne({
+      provider_account_id, day_of_week: dow, active: true,
+      $or: [{ service_type: 'all' }, { service_type }, { service_type: { $exists: false } }],
+    }).lean();
     if (!slot) return false;
     const s = parseHHMM((slot as any).start_time);
     const e = parseHHMM((slot as any).end_time);

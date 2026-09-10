@@ -47,7 +47,7 @@ export function FacilityProfileConfigScreen({ onBack }: { onBack: () => void }) 
         social: { whatsapp: whatsapp || undefined },
         sub_specialties: selectedSpecs,
       });
-      show(AR ? 'تم حفظ ملف المنشأة بنجاح' : 'Facility profile saved successfully', 'success');
+      show(AR ? 'تم الإرسال — تُطبق بعد اعتماد الإدارة' : 'Sent — applied after admin approval', 'success');
       onBack();
     } catch (err: any) {
       show(err?.response?.data?.message || (AR ? 'فشل حفظ الملف' : 'Failed to save profile'), 'error');

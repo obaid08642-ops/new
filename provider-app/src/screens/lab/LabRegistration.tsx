@@ -1066,6 +1066,14 @@ function LStep4({ data, update, onNext, onBack, step, total, bare = false, submi
                     style={{ marginTop: SP.sm }}
                   />
                 )}
+                {!data.cashOnly && (
+                  <NToggle
+                    label={AR ? 'يُغطى بالتأمين' : 'Covered by insurance'}
+                    value={data.testInsuranceCov[test.id] ?? false}
+                    onChange={v => update({ testInsuranceCov: { ...data.testInsuranceCov, [test.id]: v } })}
+                    style={{ marginTop: SP.sm }}
+                  />
+                )}
               </View>
             )}
           </NCard>
@@ -1745,6 +1753,12 @@ function LStep8Signature({ data, update, onDone, onBack, step, total }: {
       await ProviderApi.step3({
         test_categories: data.enabledTests,
         test_prices: data.testPrices,
+        test_insurance_map: data.testInsuranceCov || {},
+        test_turnaround_map: data.testTurnaround || {},
+        test_home_map: data.testHomeAvail || {},
+        home_collector_count: parseInt(data.homeCollectorCount) || undefined,
+        home_collector_gender: data.homeCollectorGender || undefined,
+        vacation_date: data.vacationDate || undefined,
         equipment_list: data.enabledScans,
         scan_prices: data.scanPrices,
         consultation_modes: modes,
@@ -1768,12 +1782,17 @@ function LStep8Signature({ data, update, onDone, onBack, step, total }: {
       await ProviderApi.step2({
         name_ar: data.nameAr,
         name_en: data.nameEn,
+        tech_officer_name: data.techOfficerName || undefined,
+        tech_officer_scfhs: data.techOfficerScfhs || undefined,
+        lab_category: (data as any).labCategory || undefined,
+        lab_accreditation: (data as any).labAccreditation || undefined,
         city: data.city,
         location: data.location,
         address: data.address,
         district: data.district,
         accepts_insurance: !data.cashOnly && data.acceptedInsurance.length > 0,
         accepted_insurance: data.acceptedInsurance ? data.acceptedInsurance.map((ins: any) => ins.companyId) : [],
+        insurance_plans: Object.fromEntries((data.acceptedInsurance || []).filter((ins: any) => Array.isArray(ins.plans) && ins.plans.length).map((ins: any) => [ins.companyId, ins.plans])),
         cr_number: data.crNumber,
         moh_license_number: data.mohLicense,
         tax_number: data.taxNumber,

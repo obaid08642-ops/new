@@ -253,10 +253,11 @@ export class ProviderImageProcessorService {
       }
     );
 
-    // Step 6: Update profile image in Provider Profile model to processed large URL
+    // Step 6: Stage the processed image as PENDING — it goes live only when
+    // the matching profile delta (profile_image_id) is approved by admin.
     await this.profileModel.updateOne(
       { account_id: job.owner_id },
-      { $set: { profile_image_id: processedUrl } }
+      { $set: { pending_profile_image_id: processedUrl } }
     );
 
     job.status = 'completed';

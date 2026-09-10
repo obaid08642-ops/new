@@ -256,7 +256,53 @@ export class ProviderAdminService {
 
     const accountId = delta.account_id || delta.provider_account_id || delta.user_id || delta.provider_id;
     let applied = 0;
-    if (accountId && Object.keys(changes).length) {
+    const target = (delta as any).target || 'profile';
+    const db = this.accounts.model.db.collection.bind(this.accounts.model.db);
+    if (target === 'settings' && (changes as any).settings_key) {
+      const res = await db('provider_settings').updateOne(
+        { provider_id: accountId },
+        { $set: { provider_id: accountId, [(changes as any).settings_key]: (changes as any).value, updatedAt: new Date() } },
+        { upsert: true },
+      );
+      applied = (res.modifiedCount || 0) + ((res.upsertedCount || 0) as number);
+    } else if (target === 'capability' && (changes as any).catalog && (changes as any).operation) {
+      const catalogCollections: Record<string, string> = {
+        pharmacy: 'provider_capabilities_pharmacy',
+        lab: 'provider_capabilities_lab',
+        radiology: 'provider_capabilities_radiology',
+        doctor_sessions: 'provider_capabilities_doctor_sessions',
+        home_care: 'provider_capabilities_home_care',
+        zones: 'provider_delivery_zones',
+      };
+      const coll = catalogCollections[String((changes as any).catalog)];
+      if (!coll) throw new BadRequestException('unknown capability catalog');
+      const op = String((changes as any).operation);
+      if (op === 'delete') {
+        const res = await db(coll).deleteOne((changes as any).filter || {});
+        applied = res.deletedCount || 0;
+      } else {
+        const res = await db(coll).updateOne((changes as any).filter || {}, { $set: { ...((changes as any).payload || {}), updated_at: new Date() } }, { upsert: op === 'create' });
+        applied = (res.modifiedCount || 0) + ((res.upsertedCount || 0) as number);
+      }
+    } else if (target === 'insurance_matrix') {
+      await db('provider_insurance').updateOne(
+        { provider_id: accountId },
+        { $set: { provider_id: accountId, ...(changes as any), updatedAt: new Date() } },
+        { upsert: true },
+      );
+      applied = 1;
+    } else if (target === 'slots' && (changes as any).operation) {      const op = String((changes as any).operation);
+      if (op === 'delete') {
+        const res = await db('provider_schedule_slots').deleteOne((changes as any).filter || {});
+        applied = res.deletedCount || 0;
+      } else if (op === 'create') {
+        await db('provider_schedule_slots').insertOne({ ...((changes as any).payload || {}), createdAt: new Date(), updatedAt: new Date() });
+        applied = 1;
+      } else {
+        const res = await db('provider_schedule_slots').updateOne((changes as any).filter || {}, { $set: { ...((changes as any).payload || {}), updatedAt: new Date() } });
+        applied = res.modifiedCount || 0;
+      }
+    } else if (accountId && Object.keys(changes).length) {
       const res = await this.accounts.model.db.collection('provider_profiles').updateOne(
         { $or: [{ account_id: accountId }, { user_id: accountId }, { id: accountId }] } as any,
         { $set: { ...changes, updated_at: new Date() } },

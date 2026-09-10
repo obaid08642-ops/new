@@ -17,7 +17,7 @@ export class HospitalStaff {
   @Prop({ type: Types.ObjectId, ref: 'HospitalDepartment', index: true })
   department_id: Types.ObjectId;
 
-  @Prop({ required: true, enum: ['receptionist', 'branch_admin', 'finance', 'doctor', 'lab_tech'] })
+  @Prop({ required: true, enum: ['receptionist', 'branch_admin', 'finance', 'doctor', 'lab_tech', 'nurse', 'pharmacist', 'radiologist', 'insurance_coordinator'] })
   role: string;
 
   @Prop({ default: true })

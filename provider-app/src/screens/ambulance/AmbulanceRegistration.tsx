@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, Alert } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { ProviderApi, sanitizeWizardData } from '../../api/provider';
 import { useTheme, useLang, useToast } from '../../context';
 import {
@@ -9,6 +10,11 @@ import {
 import { I } from '../../components/icons';
 import { SP, FS, CITIES , LANGS } from '../../constants';
 import { RegistrationSuccess } from '../shared/SharedScreens';
+import { LocationPickerModal } from '../../components/LocationPickerModal';
+import { OtpModal } from '../../components/OtpModal';
+import { SignatureCanvasModal } from '../../components/SignatureCanvasModal';
+import { sendEmailOtp, verifyEmailOtp } from '../../api/otp';
+import { useInsuranceCatalog } from '../../api/catalogs';
 
 interface AmbRegData {
   managerName: string; managerPhone: string; managerEmail: string;
@@ -18,7 +24,9 @@ interface AmbRegData {
   mohLicense: string; crNumber: string;
   vehiclesCount: string; paramedicCount: string; hasIcu: boolean; is24x7: boolean;
   equipmentText: string; coverageRadius: string;
-  acceptsCash: boolean; acceptedInsurance: string[];
+  location: { lat: number; lng: number };
+  mohUri: string; crUri: string; signatureData: string;
+  acceptsCash: boolean; cashOnly: boolean; acceptedInsurance: { companyId: string; plans: string[] }[];
   iban: string; accountHolderName: string;
 }
 
@@ -28,7 +36,9 @@ const INITIAL: AmbRegData = {
   mohLicense: '', crNumber: '',
   vehiclesCount: '', paramedicCount: '', hasIcu: false, is24x7: true,
   equipmentText: '', coverageRadius: '',
-  acceptsCash: true, acceptedInsurance: [],
+  location: { lat: 0, lng: 0 },
+  mohUri: '', crUri: '', signatureData: '',
+  acceptsCash: true, cashOnly: false, acceptedInsurance: [],
   iban: '', accountHolderName: '',
 };
 
@@ -124,8 +134,24 @@ function AS1Account({ data, update, onNext, onBack, step, total }: any) {
 
 /* ─── Step 2: service info ─── */
 function AS2Service({ data, update, onNext, onBack, step, total }: any) {
-  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar'; const { show } = useToast();
   const [errs, setErrs] = useState<any>({});
+  const [showMap, setShowMap] = useState(false);
+
+  const pickDocument = async (field: string) => {
+    try {
+      const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!perm.granted) { show(AR ? 'صلاحية الصور مطلوبة' : 'Photo permission required', 'error'); return; }
+      const res = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.8 });
+      if (!res.canceled) update({ [field]: res.assets[0].uri } as any);
+    } catch { show(AR ? 'تعذر اختيار الملف' : 'Could not pick file', 'error'); }
+  };
+
+  const DocBtn = ({ label, field }: any) => (
+    <TouchableOpacity onPress={() => pickDocument(field)} style={{ padding: 12, borderWidth: 2, borderStyle: 'dashed', borderColor: data[field] ? theme.success : theme.border, borderRadius: 8, alignItems: 'center', marginTop: 8 }}>
+      <Text style={{ color: data[field] ? theme.success : theme.primary }}>{label}{data[field] ? ' ✓' : ''}</Text>
+    </TouchableOpacity>
+  );
 
   const handleNext = () => {
     const e: any = {};
@@ -133,6 +159,9 @@ function AS2Service({ data, update, onNext, onBack, step, total }: any) {
     if (!data.city) e.city = AR ? 'المدينة مطلوبة' : 'City required';
     if (!data.mohLicense.trim()) e.mohLicense = AR ? 'ترخيص وزارة الصحة مطلوب' : 'MOH license required';
     if (!data.crNumber.trim()) e.crNumber = AR ? 'السجل التجاري مطلوب' : 'CR required';
+    if (!data.mohUri) e.mohUri = AR ? 'أرفق ترخيص الوزارة' : 'Attach MOH license';
+    if (!data.crUri) e.crUri = AR ? 'أرفق السجل التجاري' : 'Attach CR';
+    if (!data.location?.lat) e.location = AR ? 'حدد الموقع على الخريطة' : 'Pick location on map';
     setErrs(e);
     if (Object.keys(e).length === 0) onNext();
   };
@@ -143,10 +172,16 @@ function AS2Service({ data, update, onNext, onBack, step, total }: any) {
       <NCard>
         <NInput label={AR ? 'اسم الخدمة (عربي)' : 'Service name (Arabic)'} value={data.nameAr} onChange={(v: string) => update({ nameAr: v })} error={errs.nameAr} />
         <NInput label={AR ? 'اسم الخدمة (إنجليزي)' : 'Service name (English)'} value={data.nameEn} onChange={(v: string) => update({ nameEn: v })} />
-        <NDropdown label={AR ? 'المدينة' : 'City'} value={data.city} onChange={(v: string) => update({ city: v })} options={CITIES.map((c: any) => ({ label: AR ? c.ar : c.en, val: c.ar }))} />
+        <NDropdown label={AR ? 'المدينة' : 'City'} value={data.city} onChange={(v: string) => update({ city: v })} options={CITIES.map((c: any) => ({ label: AR ? c.ar : c.en, val: c.id }))} />
         <NInput label={AR ? 'الحي' : 'District'} value={data.district} onChange={(v: string) => update({ district: v })} />
         <NInput label={AR ? 'العنوان' : 'Address'} value={data.address} onChange={(v: string) => update({ address: v })} />
+        <DocBtn label={AR ? 'ترخيص وزارة الصحة' : 'MOH license'} field="mohUri" />
+        <DocBtn label={AR ? 'السجل التجاري' : 'Commercial registration'} field="crUri" />
+        <TouchableOpacity onPress={() => setShowMap(true)} style={{ padding: 12, borderWidth: 1, borderColor: theme.border, borderRadius: 8, marginTop: 8 }}>
+          <Text style={{ color: theme.primary, textAlign: 'center' }}>{data.location?.lat ? (AR ? 'تم تحديد الموقع' : 'Location set') : (AR ? 'حدد الموقع على الخريطة' : 'Pick location on map')}</Text>
+        </TouchableOpacity>
       </NCard>
+      <LocationPickerModal visible={showMap} onClose={() => setShowMap(false)} initialLocation={data.location?.lat ? data.location : undefined} onSelectLocation={(loc: any) => { update({ location: { lat: loc.lat, lng: loc.lng } }); setShowMap(false); }} />
       <NCard>
         <NInput label={AR ? 'رقم ترخيص وزارة الصحة' : 'MOH license number'} value={data.mohLicense} onChange={(v: string) => update({ mohLicense: v })} error={errs.mohLicense} />
         <NInput label={AR ? 'رقم السجل التجاري' : 'Commercial registration'} value={data.crNumber} onChange={(v: string) => update({ crNumber: v })} error={errs.crNumber} />
@@ -160,6 +195,7 @@ function AS2Service({ data, update, onNext, onBack, step, total }: any) {
 function AS3Fleet({ data, update, onNext, onBack, step, total }: any) {
   const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
   const [errs, setErrs] = useState<any>({});
+  const insuranceCatalog = useInsuranceCatalog();
 
   const handleNext = () => {
     const e: any = {};
@@ -182,7 +218,25 @@ function AS3Fleet({ data, update, onNext, onBack, step, total }: any) {
         <NToggle label={AR ? 'وحدات عناية مركزة متنقلة (ICU)' : 'Mobile ICU units'} value={data.hasIcu} onChange={(v: boolean) => update({ hasIcu: v })} />
         <NToggle label={AR ? 'خدمة 24/7' : '24/7 service'} value={data.is24x7} onChange={(v: boolean) => update({ is24x7: v })} />
         <NToggle label={AR ? 'يقبل الدفع نقداً' : 'Accepts cash'} value={data.acceptsCash} onChange={(v: boolean) => update({ acceptsCash: v })} />
+        <NToggle label={AR ? 'الدفع نقداً فقط (بدون تأمين)' : 'Cash only (no insurance)'} value={data.cashOnly} onChange={(v: boolean) => update({ cashOnly: v })} />
       </NCard>
+      {!data.cashOnly && (
+      <NCard>
+        <Text style={{ fontWeight: '700', color: theme.text, marginBottom: 8 }}>{AR ? 'شركات التأمين المقبولة' : 'Accepted insurers'}</Text>
+        {insuranceCatalog.map((co: any) => {
+          const on = (data.acceptedInsurance || []).some((x: any) => x.companyId === co.id);
+          return (
+          <TouchableOpacity key={co.id} onPress={() => {
+            const cur = data.acceptedInsurance || [];
+            update({ acceptedInsurance: on ? cur.filter((x: any) => x.companyId !== co.id) : [...cur, { companyId: co.id, plans: [] }] });
+          }} style={{ paddingVertical: 8, flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: 8 }}>
+            <View style={{ width: 18, height: 18, borderRadius: 4, borderWidth: 2, borderColor: on ? theme.primary : theme.border, backgroundColor: on ? theme.primary : 'transparent' }} />
+            <Text style={{ color: theme.text }}>{AR ? co.ar : co.en}</Text>
+          </TouchableOpacity>
+          );
+        })}
+      </NCard>
+      )}
       <NBtn label={AR ? 'التالي' : 'Next'} onPress={handleNext} />
     </NScroll>
   );
@@ -193,6 +247,8 @@ function AS4BankSubmit({ data, update, onDone, onBack, step, total }: any) {
   const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar'; const { show } = useToast();
   const [errs, setErrs] = useState<any>({});
   const [loading, setLoading] = useState(false);
+  const [showSig, setShowSig] = useState(false);
+  const [showOtp, setShowOtp] = useState(false);
 
   const submit = async () => {
     const e: any = {};
@@ -201,8 +257,13 @@ function AS4BankSubmit({ data, update, onDone, onBack, step, total }: any) {
     setErrs(e);
     if (Object.keys(e).length) return;
 
+    if (!data.managerEmail?.trim()) { setErrs({ accountHolderName: AR ? 'البريد الإلكتروني مطلوب للتحقق' : 'Email required for verification' }); return; }
     setLoading(true);
     try {
+      const mohUrl = await ProviderApi.uploadFile(data.mohUri, 'image/jpeg', 'moh.jpg');
+      const crUrl = await ProviderApi.uploadFile(data.crUri, 'image/jpeg', 'cr.jpg');
+      let sigUrl = data.signatureData || undefined;
+      if (sigUrl && !sigUrl.startsWith('http')) sigUrl = await ProviderApi.uploadSignature(sigUrl);
       await ProviderApi.step2({
         name_ar: data.nameAr,
         name_en: data.nameEn,
@@ -211,6 +272,8 @@ function AS4BankSubmit({ data, update, onDone, onBack, step, total }: any) {
         address: data.address,
         cr_number: data.crNumber,
         moh_license_number: data.mohLicense,
+        license_number: data.crNumber,
+        license_documents: [crUrl, mohUrl],
         languages: data.languages,
         coverage_radius_km: parseFloat(data.coverageRadius) || 0,
         accepts_cash: data.acceptsCash,
@@ -219,6 +282,9 @@ function AS4BankSubmit({ data, update, onDone, onBack, step, total }: any) {
       });
       await ProviderApi.step3({
         vehicles_count: parseInt(data.vehiclesCount, 10) || 0,
+        accepts_insurance: !data.cashOnly && data.acceptedInsurance.length > 0,
+        accepted_insurance: data.acceptedInsurance ? data.acceptedInsurance.map((ins: any) => ins.companyId) : [],
+        insurance_plans: Object.fromEntries((data.acceptedInsurance || []).filter((ins: any) => Array.isArray(ins.plans) && ins.plans.length).map((ins: any) => [ins.companyId, ins.plans])),
         paramedic_count: parseInt(data.paramedicCount, 10) || 0,
         has_icu_units: data.hasIcu,
         equipment_list: data.equipmentText ? data.equipmentText.split(/[،,\n]/).map((x: string) => x.trim()).filter(Boolean) : [],
@@ -226,7 +292,24 @@ function AS4BankSubmit({ data, update, onDone, onBack, step, total }: any) {
         working_hours: data.is24x7 ? [{ day: 'ALL', open: '00:00', close: '23:59', closed: false }] : [],
         accepts_cash: data.acceptsCash,
       });
-      await ProviderApi.submit({ lat: data.location?.lat || 0, lng: data.location?.lng || 0, full_data: sanitizeWizardData(data) });
+      if (!data.location?.lat) { show(AR ? 'حدد الموقع على الخريطة (الخطوة 2)' : 'Pick location on map (step 2)', 'error'); return; }
+      try {
+        await sendEmailOtp(data.managerEmail);
+      } catch { show(AR ? 'تعذر إرسال رمز التحقق' : 'Could not send OTP', 'error'); return; }
+      setShowOtp(true);
+    } catch (err: any) {
+      show(err?.message || (AR ? 'حدث خطأ أثناء الإرسال' : 'Submit failed'), 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const finishSubmit = async () => {
+    setLoading(true);
+    try {
+      let sigUrl = data.signatureData || undefined;
+      if (sigUrl && !sigUrl.startsWith('http')) sigUrl = await ProviderApi.uploadSignature(sigUrl);
+      await ProviderApi.submit({ signer_name: data.managerName, signer_role: 'manager', signature_url: sigUrl, lat: data.location?.lat || 0, lng: data.location?.lng || 0, full_data: sanitizeWizardData(data) });
       show(AR ? 'تم إرسال الطلب بنجاح! سيظهر للمرضى بعد اعتماد الإدارة' : 'Submitted! Visible to patients after admin approval', 'success');
       onDone();
     } catch (err: any) {
@@ -251,7 +334,10 @@ function AS4BankSubmit({ data, update, onDone, onBack, step, total }: any) {
           </Text>
         </View>
       </NCard>
+      <NBtn label={data.signatureData ? (AR ? 'إعادة التوقيع' : 'Re-sign') : (AR ? 'التوقيع' : 'Sign')} variant="outline" onPress={() => setShowSig(true)} style={{ marginBottom: 8 }} />
       <NBtn label={AR ? 'إرسال طلب التسجيل' : 'Submit registration'} onPress={submit} loading={loading} />
+      <SignatureCanvasModal visible={showSig} onClose={() => setShowSig(false)} onOK={(sig: string) => { update({ signatureData: sig }); setShowSig(false); }} />
+      <OtpModal visible={showOtp} onClose={() => setShowOtp(false)} target={data.managerEmail} onVerify={async (code: string) => { try { await verifyEmailOtp(data.managerEmail, code); setShowOtp(false); await finishSubmit(); return true; } catch { return false; } }} onResend={() => sendEmailOtp(data.managerEmail).catch(() => show(AR ? 'تعذر الإرسال' : 'Could not resend', 'error'))} />
     </NScroll>
   );
 }

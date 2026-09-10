@@ -873,6 +873,17 @@ function Step4SubProviders({ data, update, onNext, onBack, step, total }: any) {
               </View>
             )}
 
+            {(modalType === 'pharmacy') && (
+              <View style={{ backgroundColor: theme.surface2, padding: SP.md, borderRadius: R.md, marginTop: SP.md }}>
+                <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>
+                  {AR ? 'خدمات الصيدلية' : 'Pharmacy services'}
+                </Text>
+                <NCheckbox label={AR ? 'توصيل للمنازل' : 'Home delivery'} value={!!tempSub.pharmDelivery} onChange={v => setTempSub({...tempSub, pharmDelivery: v})} />
+                <View style={{ height: SP.sm }} />
+                <NCheckbox label={AR ? 'مشمول في التأمين الطبي' : 'Accepts Medical Insurance'} value={tempSub.acceptsInsurance} onChange={v => setTempSub({...tempSub, acceptsInsurance: v})} />
+              </View>
+            )}
+
             <View style={{ marginTop: SP.lg, paddingHorizontal: SP.xs }}>
               <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>
                 {AR ? 'صور العيادة/المكان (لغاية 5 صور)' : 'Clinic/Location Images (up to 5)'}
@@ -995,13 +1006,26 @@ function Step5Insurance({ data, update, onNext, onBack, step, total, bare = fals
           clinic_images: uploadedImages,
       }));
 
+      const pharmSubs = await Promise.all(data.subProviders.filter((s:any)=>s.type==='pharmacy').map(processSubProvider));
+      const pharmacyRoster = pharmSubs.map(({sp, wh, uploadedImages}) => ({
+          name: sp.nameAr || 'Pharmacy',
+          email: sp.email?.toLowerCase(),
+          delivery: !!sp.pharmDelivery,
+          insurance: !!sp.acceptsInsurance,
+          working_hours: wh,
+          clinic_images: uploadedImages,
+      }));
+
       await ProviderApi.step3({
         doctors_roster: roster,
+        pharmacy_roster: pharmacyRoster,
         lab_roster: labRoster,
         radiology_roster: radRoster,
         nursing_roster: nursingRoster,
         accepts_cash: data.cashOnly,
         accepted_insurance: data.acceptedInsurance.map((i: any) => i.companyId),
+        insurance_plans: Object.fromEntries((data.acceptedInsurance || []).filter((i: any) => Array.isArray(i.plans) && i.plans.length).map((i: any) => [i.companyId, i.plans])),
+        has_insurance_coordinator: data.hasInsuranceCoordinator,
       });
       if (!bare) onNext();
       return true;
