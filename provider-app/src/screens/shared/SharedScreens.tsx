@@ -1,6 +1,7 @@
 import { API_BASE } from '../../constants';
 import { buildHeaders } from '../../security/Security';
 import * as Crypto from 'expo-crypto';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 /**
  * ╔══════════════════════════════════════════════════════════════════╗
  * ║ NABDAH PLUS – PHASE 6 · SHARED ADVANCED SCREENS ║
@@ -881,6 +882,22 @@ export function MedicalJobsScreen({ onBack, onOpenChat }: { onBack: () => void, 
   const [applyExp, setApplyExp] = useState('');
   const [applyReady, setApplyReady] = useState('');
   const [applyCV, setApplyCV] = useState<boolean>(false);
+  const [guestId, setGuestId] = useState<string | null>(null);
+  const [guestMine, setGuestMine] = useState<any | null>(null);
+  const isGuest = !user?.id;
+  useEffect(() => {
+    if (user?.id) return;
+    (async () => {
+      try {
+        let id = await AsyncStorage.getItem('guest_device_id');
+        if (!id) {
+          id = `g-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
+          await AsyncStorage.setItem('guest_device_id', id);
+        }
+        setGuestId(id);
+      } catch { /* guest mode unavailable */ }
+    })();
+  }, [user?.id]);
   const [applyCvUrl, setApplyCvUrl] = useState<string | null>(null);
   const [applyScfhs, setApplyScfhs] = useState('');
   const [applyScfhsExp, setApplyScfhsExp] = useState('');
@@ -927,7 +944,16 @@ export function MedicalJobsScreen({ onBack, onOpenChat }: { onBack: () => void, 
   const [inboxLoading, setInboxLoading] = useState(false);
 
   useEffect(() => {
-    if (tab !== 'inbox' || !user?.id) return;
+    if (tab !== 'inbox') return;
+    if (!user?.id && guestId) {
+      setInboxLoading(true);
+      client.get('/recruitment/guest/mine', { params: { device_id: guestId } }).then(r => {
+        const d = r?.data || {};
+        setGuestMine(d);
+      }).catch(() => setGuestMine(null)).finally(() => setInboxLoading(false));
+      return;
+    }
+    if (!user?.id) return;
     setInboxLoading(true);
     (async () => {
       try {
@@ -970,8 +996,33 @@ export function MedicalJobsScreen({ onBack, onOpenChat }: { onBack: () => void, 
       show(AR ? 'أدخل المسمى الوظيفي والمدينة' : 'Enter job title and city', 'warning');
       return;
     }
+    if (isGuest && !guestId) {
+      show(AR ? 'تعذر وضع الضيف — أعد فتح الشاشة' : 'Guest mode unavailable — reopen the screen', 'error');
+      return;
+    }
     setPosting(true);
     try {
+      if (isGuest) {
+        const roleMap: Record<string, string> = { doctor: 'doctor', nurse: 'nurse', pharmacist: 'pharmacist', lab: 'lab', radio: 'radiology' };
+        await client.post('/recruitment/jobs/guest', {
+          device_id: guestId,
+          title: postTitle.trim(),
+          description: postDesc.trim() || postTitle.trim(),
+          scfhs_role: roleMap[postProf] || 'doctor',
+          post_type: postType,
+          company: postCompany.trim() || undefined,
+          contact_phone: postPhone.trim() || undefined,
+          contact_preference: postContact,
+          nationality: postNat.trim() || undefined,
+          experience_years: postExp.trim() ? Number(postExp) : undefined,
+          contract_type: postContract,
+          location: postCity.trim(),
+          salary_range: postSalary.trim() || undefined,
+        });
+        show(AR ? 'تم إرسال طلبك — سيظهر بعد مراجعة الإدارة' : 'Submitted — visible after admin review', 'success');
+        setTab('browse');
+        return;
+      }
       const roleMap: Record<string, string> = { doctor: 'doctor', nurse: 'nurse', pharmacist: 'pharmacist', lab: 'lab', radio: 'radiology' };
       const res = await client.post('/recruitment/jobs', {
         title: postTitle.trim(),
@@ -1008,6 +1059,20 @@ export function MedicalJobsScreen({ onBack, onOpenChat }: { onBack: () => void, 
 
   const handleApply = async () => {
     setApplyVisible(false);
+    if (isGuest) {
+      if (!guestId) { show(AR ? 'تعذر وضع الضيف' : 'Guest mode unavailable', 'error'); return; }
+      try {
+        await client.post(`/recruitment/jobs/${selectedJob.id}/guest-apply`, {
+          device_id: guestId, name: applyName.trim(), phone: applyPhone.trim(),
+          cover_letter: [applyClass ? (AR ? `التصنيف: ${applyClass}` : `Classification: ${applyClass}`) : '', applyExp ? (AR ? `الخبرة: ${applyExp} سنوات` : `Experience: ${applyExp} years`) : '', applyReady || ''].filter(Boolean).join('\n'),
+        });
+        show(AR ? 'تم إرسال طلبك لصاحب العمل' : 'Application sent to employer', 'success');
+      } catch (e: any) {
+        show(typeof e?.response?.data?.message === 'string' ? e.response.data.message : (AR ? 'تعذر إرسال الطلب' : 'Could not apply'), 'error');
+      }
+      setTimeout(() => setSelectedJob(null), 1500);
+      return;
+    }
 
     if (selectedJob.contact === 'whatsapp') {
       show(AR ? 'جاري تحويلك للواتساب...' : 'Opening WhatsApp...', 'success');
@@ -1400,7 +1465,35 @@ export function MedicalJobsScreen({ onBack, onOpenChat }: { onBack: () => void, 
       )}
 
       {/* ─────────────────── ATS INBOX ─────────────────── */}
-      {tab === 'inbox' && (
+      {tab === 'inbox' && isGuest && (
+        <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 100 }}>
+          <Text style={{ fontSize: FS.md, color: theme.textSub, textAlign: 'center', marginBottom: SP.xl, lineHeight: 22 }}>
+            {AR ? 'طلباتك كضيف — مرتبطة بهذا الجهاز فقط وتختفي بحذف التطبيق' : 'Your guest submissions — bound to this device only, removed if the app is deleted'}
+          </Text>
+          {inboxLoading ? (
+            <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: 'center', marginVertical: SP.xl }}>{AR ? 'جارٍ التحميل...' : 'Loading...'}</Text>
+          ) : (
+            <>
+              <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{AR ? 'إعلاناتي' : 'My posts'}</Text>
+              {(guestMine?.jobs || []).length === 0 ? <Text style={{ color: theme.textSub }}>{AR ? 'لا توجد إعلانات' : 'No posts'}</Text> : null}
+              {(guestMine?.jobs || []).map((j: any) => (
+                <NCard key={j.id} style={{ marginBottom: SP.sm }}>
+                  <Text style={{ color: theme.text, fontWeight: FW.bold }}>{j.title}</Text>
+                  <Text style={{ color: theme.textSub, fontSize: FS.xs }}>{j.status === 'draft' ? (AR ? 'قيد مراجعة الإدارة' : 'Under admin review') : j.status}</Text>
+                </NCard>
+              ))}
+              <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginTop: SP.md }}>{AR ? 'تقديماتي' : 'My applications'}</Text>
+              {(guestMine?.applications || []).length === 0 ? <Text style={{ color: theme.textSub }}>{AR ? 'لا توجد تقديمات' : 'No applications'}</Text> : null}
+              {(guestMine?.applications || []).map((a: any) => (
+                <NCard key={a.id} style={{ marginBottom: SP.sm }}>
+                  <Text style={{ color: theme.text }}>{a.status || 'submitted'}</Text>
+                </NCard>
+              ))}
+            </>
+          )}
+        </ScrollView>
+      )}
+      {tab === 'inbox' && !isGuest && (
         <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 100 }}>
           <Text style={{ fontSize: FS.md, color: theme.textSub, textAlign: 'center', marginBottom: SP.xl, lineHeight: 22 }}>
             {AR ? 'هذا هو صندوق وارد التوظيف (ATS) الخاص بالمنشأة. جميع السير الذاتية المرسلة على إعلاناتك تظهر هنا.' : 'This is the facility ATS Inbox. All CVs applied to your offers will appear here.'}

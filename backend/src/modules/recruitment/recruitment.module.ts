@@ -1,4 +1,5 @@
 import { Module, Controller, Get, Post, Put, Patch, Param, Query, Body, UseGuards, Injectable, ForbiddenException, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JwtAuthGuard, Roles, CurrentUser, Public } from '../../common/auth.guard';
@@ -143,6 +144,63 @@ export class RecruitmentService {
     return { success: true };
   }
 
+  // --- Guest submissions (no account): device-bound drafts, admin publishes ---
+  async guestPostJob(deviceId: string, dto: any): Promise<any> {
+    if (!deviceId || deviceId.length < 8) throw new BadRequestException('device_id required');
+    if (!dto.title || !dto.description || !dto.location) {
+      throw new BadRequestException('title, description and location are required');
+    }
+    if (!RecruitmentService.MEDICAL_ROLES.includes(String(dto.scfhs_role))) {
+      throw new BadRequestException('scfhs_role must be a medical role (doctor|pharmacist|nurse|lab|radiology)');
+    }
+    const today = await this.jobModel.countDocuments({ guest_device_id: deviceId, createdAt: { $gte: new Date(Date.now() - 24 * 3600 * 1000) } });
+    if (today >= 3) throw new BadRequestException('guest posting limit reached (3/day)');
+    const job = await this.jobModel.create({
+      title: String(dto.title).slice(0, 200),
+      description: String(dto.description).slice(0, 5000),
+      scfhs_role: dto.scfhs_role,
+      location: String(dto.location).slice(0, 120),
+      salary_range: dto.salary_range,
+      facility_id: `guest:${deviceId}`,
+      status: 'draft',
+      post_type: dto.post_type === 'request' ? 'request' : 'offer',
+      company: dto.company,
+      contact_phone: dto.contact_phone,
+      contact_preference: dto.contact_preference,
+      nationality: dto.nationality,
+      experience_years: dto.experience_years != null ? Number(dto.experience_years) : undefined,
+      contract_type: dto.contract_type,
+      guest_device_id: deviceId,
+    });
+    return { id: job.id, status: 'draft', pending_review: true };
+  }
+
+  async guestApply(deviceId: string, jobId: string, dto: any): Promise<any> {
+    if (!deviceId || deviceId.length < 8) throw new BadRequestException('device_id required');
+    const job = await this.jobModel.findOne({ id: jobId, status: 'published', is_deleted: false }).lean();
+    if (!job) throw new NotFoundException('Job posting not found or not open for applications');
+    if (!dto.name || !dto.phone) throw new BadRequestException('name and phone are required');
+    const existing = await this.appModel.findOne({ job_id: jobId, guest_device_id: deviceId, is_deleted: false }).lean();
+    if (existing) throw new BadRequestException('You have already applied for this job');
+    const app = await this.appModel.create({
+      job_id: jobId,
+      candidate_id: `guest:${deviceId}`,
+      cover_letter: dto.cover_letter,
+      guest_device_id: deviceId,
+      guest_name: String(dto.name).slice(0, 120),
+      guest_phone: String(dto.phone).slice(0, 32),
+      applied_at: new Date(),
+    });
+    return app.toObject();
+  }
+
+  async guestMine(deviceId: string): Promise<any> {
+    if (!deviceId || deviceId.length < 8) throw new BadRequestException('device_id required');
+    const jobs = await this.jobModel.find({ guest_device_id: deviceId, is_deleted: false }).sort({ createdAt: -1 }).limit(50).lean();
+    const apps = await this.appModel.find({ guest_device_id: deviceId, is_deleted: false }).sort({ applied_at: -1 }).limit(50).lean();
+    return { jobs, applications: apps };
+  }
+
   // --- Job Application ---
   async applyForJob(userId: string, jobId: string, dto: any): Promise<any> {
     // 1. Verify candidate profile exists
@@ -272,6 +330,27 @@ export class RecruitmentController {
   @Get('jobs')
   listJobs(@CurrentUser() u: any, @Query() q: any) {
     return this.svc.listJobs(q, u);
+  }
+
+  // Guest submissions: device-bound, throttled, admin-reviewed before publishing
+  @Public()
+  @Throttle({ default: { limit: 3, ttl: 86400000 } })
+  @Post('jobs/guest')
+  guestPost(@Body() b: any) {
+    return this.svc.guestPostJob(String(b?.device_id || ''), b);
+  }
+
+  @Public()
+  @Throttle({ default: { limit: 5, ttl: 86400000 } })
+  @Post('jobs/:id/guest-apply')
+  guestApply(@Param('id') id: string, @Body() b: any) {
+    return this.svc.guestApply(String(b?.device_id || ''), id, b);
+  }
+
+  @Public()
+  @Get('guest/mine')
+  guestMine(@Query('device_id') deviceId: string) {
+    return this.svc.guestMine(String(deviceId || ''));
   }
 
   @Public()

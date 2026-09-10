@@ -665,24 +665,62 @@ function AppointmentDetailScreen({ apt, onBack, onNavigate }:
 function LiveConsultationScreen({ apt, onBack }: { apt: any; onBack: () => void; onNavigate: (s: string, p?: any) => void }) {
  const { theme } = useTheme();
  const { lang } = useLang();
+ const { show } = useToast();
  const AR = lang === 'ar';
+ const [verified, setVerified] = useState<any | null>(null);
+ const [loading, setLoading] = useState(true);
+ const aptId = String(apt?.id || apt?.raw?.id || apt?.appointment_id || '');
+
+ useEffect(() => {
+   if (!aptId) { setLoading(false); return; }
+   let alive = true;
+   client.get(`/care/appointments/${encodeURIComponent(aptId)}`).then((res: any) => {
+     if (alive) setVerified(res?.data?.data || res?.data || null);
+   }).catch(() => {
+     if (alive) show(AR ? 'تعذر التحقق من الموعد' : 'Could not verify appointment', 'error');
+   }).finally(() => { if (alive) setLoading(false); });
+   return () => { alive = false; };
+ }, [aptId]);
+
+ const status = String(verified?.status || '').toUpperCase();
+ const okStates = ['CONFIRMED', 'CHECKED_IN', 'IN_PROGRESS'];
+ const ready = !!verified && okStates.includes(status);
+ const fullApt = { ...(typeof apt === 'object' ? apt : {}), id: aptId };
+
  return (
   <View style={{ flex: 1, backgroundColor: theme.bg }}>
    <NHeader title={AR ? 'الاستشارة' : 'Consultation'} onBack={onBack} />
    <NScroll>
-    <NCard style={{ borderColor: theme.warn, borderWidth: 1 }}>
-     <Text style={{ color: theme.text, fontWeight: FW.bold, fontSize: FS.lg, textAlign: AR ? 'right' : 'left' }}>
-      {AR ? 'جلسة الاستشارة غير متاحة حالياً' : 'Consultation session is currently unavailable'}
-     </Text>
-     <Text style={{ color: theme.textSub, marginTop: SP.md, lineHeight: 22, textAlign: AR ? 'right' : 'left' }}>
-      {AR
-       ? 'تم إيقاف الفيديو والمحادثة والسجل الطبي وبيانات SOAP التي كانت تعمل محلياً. يلزم قبل فتح جلسة خادمية: التحقق من الموعد وعلاقة الطبيب بالمريض وحالة الدفع أو التغطية وترخيص الطبيب، ثم رمز جلسة فيديو صالح ومراجعة تدقيق سريري.'
-       : 'Locally simulated video, chat, EHR, and SOAP data are disabled. Opening a server session requires verified appointment and doctor–patient relation, payment or coverage status, doctor licence, a valid video-session token, and clinical audit.'}
-     </Text>
-     <Text style={{ color: theme.textSub, marginTop: SP.md, textAlign: AR ? 'right' : 'left' }}>
-      {AR ? `رقم الموعد: ${apt?.id || apt?.raw?.id || '—'}` : `Appointment ID: ${apt?.id || apt?.raw?.id || '—'}`}
+   {loading ? <ActivityIndicator color={theme.primary} style={{ marginTop: 40 }} /> : !verified ? (
+    <NCard style={{ borderColor: theme.danger, borderWidth: 1 }}>
+     <Text style={{ color: theme.text, fontWeight: FW.bold, textAlign: AR ? 'right' : 'left' }}>
+      {AR ? 'تعذر فتح الجلسة — تحقق من الموعد' : 'Cannot open session — verify the appointment'}
      </Text>
     </NCard>
+   ) : !ready ? (
+    <NCard style={{ borderColor: theme.warn, borderWidth: 1 }}>
+     <Text style={{ color: theme.text, fontWeight: FW.bold, textAlign: AR ? 'right' : 'left' }}>
+      {AR ? `الجلسة غير جاهزة (الحالة: ${status || '—'})` : `Session not ready (status: ${status || '—'})`}
+     </Text>
+     <Text style={{ color: theme.textSub, marginTop: SP.md, textAlign: AR ? 'right' : 'left' }}>
+      {AR ? 'تُفتح الجلسة للمواعيد المؤكدة/الجاري تنفيذها فقط بعد تحقق الخادم.' : 'Sessions open only for confirmed/in-progress appointments after server verification.'}
+     </Text>
+    </NCard>
+   ) : (<>
+    <NCard style={{ borderColor: theme.success, borderWidth: 1, marginBottom: SP.md }}>
+     <Text style={{ color: theme.text, fontWeight: FW.bold, textAlign: AR ? 'right' : 'left' }}>
+      {AR ? 'جلسة موثقة خادمياً — يمكنك البدء' : 'Server-verified session — you may begin'}
+     </Text>
+     <Text style={{ color: theme.textSub, marginTop: 4 }}>{AR ? `الموعد: ${aptId}` : `Appointment: ${aptId}`} · {status}</Text>
+    </NCard>
+    <NBtn label={AR ? 'بدء مكالمة الفيديو' : 'Start video call'} onPress={() => onNavigate('video_call', fullApt)} style={{ marginBottom: SP.md }} />
+    <NBtn label={AR ? 'محادثة ما قبل الزيارة' : 'Pre-visit chat'} variant="outline" onPress={() => onNavigate('pre_visit_chat', fullApt)} style={{ marginBottom: SP.md }} />
+    <NBtn label={AR ? 'كتابة وصفة' : 'Write prescription'} variant="outline" onPress={() => onNavigate('prescription', fullApt)} style={{ marginBottom: SP.md }} />
+    <NBtn label={AR ? 'إجازة مرضية' : 'Sick leave'} variant="outline" onPress={() => onNavigate('sick_leave', fullApt)} style={{ marginBottom: SP.md }} />
+    <NBtn label={AR ? 'تقرير طبي' : 'Medical report'} variant="outline" onPress={() => onNavigate('medical_report', fullApt)} style={{ marginBottom: SP.md }} />
+    <NBtn label={AR ? 'تحويل طبي' : 'Referral'} variant="outline" onPress={() => onNavigate('referral', fullApt)} style={{ marginBottom: SP.md }} />
+    <NBtn label={AR ? 'طلب فحص' : 'Request test'} variant="outline" onPress={() => onNavigate('request_test', fullApt)} />
+   </>)}
    </NScroll>
   </View>
  );
