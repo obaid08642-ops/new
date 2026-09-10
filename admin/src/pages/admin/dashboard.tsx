@@ -151,7 +151,7 @@ export default function MasterDashboard() {
         </div>
       </div>
 
-      {/* Live incoming orders feed */}
+      {/* Live incoming orders feed — enhanced with elapsed, SLA breach & provider contact */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="p-6 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
           <h2 className="text-xl font-bold text-slate-800">الطلبات الحية الواردة الآن (Live Orders)</h2>
@@ -165,27 +165,36 @@ export default function MasterDashboard() {
               <thead className="bg-slate-50 text-xs text-slate-500 sticky top-0">
                 <tr>
                   <th className="p-3">رقم التتبع</th>
+                  <th className="p-3">المريض / المزود</th>
                   <th className="p-3">النوع</th>
                   <th className="p-3">الحالة</th>
+                  <th className="p-3">المنقضي</th>
                   <th className="p-3">القيمة</th>
-                  <th className="p-3">الوقت</th>
+                  <th className="p-3">تواصل</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {liveOrders.slice(0, 50).map((o: any, i: number) => {
                   const KIND_AR: Record<string, string> = { pharmacy: 'صيدلية', lab: 'تحاليل', radiology: 'أشعة', nursing: 'تمريض', consultation: 'استشارة' };
-                  const STATE_AR: Record<string, string> = { REQUESTED: 'مطلوب', MATCHING: 'جاري المطابقة', ASSIGNED: 'تم الإسناد', CONFIRMED: 'مؤكد', IN_PROGRESS: 'قيد التنفيذ' };
+                  const STATE_AR: Record<string, string> = { REQUESTED: 'مطلوب', MATCHING: 'جاري المطابقة', ASSIGNED: 'تم الإسناد', CONFIRMED: 'مؤكد', IN_PROGRESS: 'قيد التنفيذ', ESCALATED_TO_ADMIN: 'متأخر — تصعيد' };
+                  const elapsedMin = o.createdAt ? Math.floor((Date.now() - new Date(o.createdAt).getTime()) / 60000) : 0;
+                  const isDelayed = elapsedMin > 3 && !['DELIVERED','CANCELLED','COMPLETED','RESOLVED'].includes(String(o.universal_state||o.domain_state||'').toUpperCase());
+                  const elapsedLabel = elapsedMin < 1 ? 'الآن' : elapsedMin < 60 ? `${elapsedMin} د` : `${Math.floor(elapsedMin/60)} س ${elapsedMin%60} د`;
                   return (
-                    <tr key={`${o.kind}-${o.id || i}`} className="hover:bg-teal-50 cursor-pointer" onClick={() => { if (o.kind && o.id) window.location.href = `/admin/order-detail?kind=${encodeURIComponent(o.kind)}&id=${encodeURIComponent(o.id)}`; }}>
+                    <tr key={`${o.kind}-${o.id || i}`} className={`hover:bg-teal-50 cursor-pointer ${isDelayed ? 'bg-red-50/40' : ''}`} onClick={() => { if (o.kind && o.id) window.location.href = `/admin/order-detail?kind=${encodeURIComponent(o.kind)}&id=${encodeURIComponent(o.id)}`; }}>
                       <td className="p-3 font-mono text-teal-700">{o.tracking_id || o.id}</td>
+                      <td className="p-3 text-xs"><div className="font-bold text-slate-800 truncate max-w-[140px]">{o.patient_name || o.patient_id?.slice(0,8) || '—'}</div><div className="text-slate-400 truncate max-w-[140px]">{o.provider_name || o.provider_id?.slice(0,8) || '—'}</div></td>
                       <td className="p-3 font-bold">{KIND_AR[o.kind] || o.kind}</td>
                       <td className="p-3">
-                        <span className="px-2 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-full text-xs font-bold">
-                          {STATE_AR[o.universal_state] || o.universal_state || o.domain_state}
+                        <span className={`px-2 py-1 border rounded-full text-xs font-bold ${isDelayed ? 'bg-red-100 text-red-700 border-red-200' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>
+                          {STATE_AR[o.universal_state] || o.universal_state || o.domain_state} {isDelayed ? '⚠️' : ''}
                         </span>
                       </td>
+                      <td className={`p-3 font-bold ${isDelayed ? 'text-red-600' : 'text-slate-500'}`}>{elapsedLabel}</td>
                       <td className="p-3 font-bold">{Math.round(Number(o.total) || 0)} ر.س</td>
-                      <td className="p-3 text-slate-500" dir="ltr">{o.createdAt ? new Date(o.createdAt).toLocaleString('ar-SA-u-ca-gregory-nu-latn', { hour12: false }) : '—'}</td>
+                      <td className="p-3" onClick={e=>e.stopPropagation()}>
+                        {o.provider_phone ? <a href={`tel:${o.provider_phone}`} className="text-xs bg-teal-600 text-white px-2 py-1 rounded-lg">اتصال</a> : <a href={o.kind && o.id ? `/admin/order-detail?kind=${encodeURIComponent(o.kind)}&id=${encodeURIComponent(o.id)}` : '#'} className="text-xs bg-slate-100 border px-2 py-1 rounded-lg">تفاصيل</a>}
+                      </td>
                     </tr>
                   );
                 })}
