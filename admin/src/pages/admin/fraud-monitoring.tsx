@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { fetchWithAdminGuard } from '@/utils/api';
 
 interface FraudAlert {
@@ -27,46 +27,48 @@ export default function FraudMonitoring() {
   const [isLoading, setIsLoading] = useState(true);
   const [query, setQuery] = useState('');
   const [severity, setSeverity] = useState('');
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState({ alerts: 0, logs: 0 });
+  const abortRef = useRef<AbortController | null>(null);
 
-  const q = query.trim().toLowerCase();
-  const visibleAlerts = alerts.filter((alert: any) => {
-    if (severity && (alert.severity || 'medium') !== severity) return false;
-    if (!q) return true;
-    return [alert.entityName, alert.entityId, alert.entity_id, alert.flagReason, alert.type]
-      .filter(Boolean).some((v) => String(v).toLowerCase().includes(q));
-  });
-  const visibleLogs = logs.filter((log: any) => {
-    if (!q) return true;
-    return [log.actorId, log.user_id, log.actorRole, log.role, log.action, log.endpoint, log.resource_kind, log.payloadHash, log.resource_id]
-      .filter(Boolean).some((v) => String(v).toLowerCase().includes(q));
-  });
-
+  // Server-side search: debounce query + severity, refetch from backend
   useEffect(() => {
-    const fetchGovernanceData = async () => {
-      try {
-        setIsLoading(true);
-                // Fetch Fraud Alerts
-        const alertsRes = await fetchWithAdminGuard(`/api/admin/governance/fraud-alerts`);
-        if (alertsRes.ok) {
-          const alertsData = await alertsRes.json();
-          setAlerts(alertsData.data || []);
+    const t = setTimeout(() => {
+      if (abortRef.current) abortRef.current.abort();
+      const ac = new AbortController();
+      abortRef.current = ac;
+      const fetchGovernanceData = async () => {
+        try {
+          setIsLoading(true);
+          const params = new URLSearchParams({ page: String(page), limit: '50' });
+          if (query.trim()) params.set('q', query.trim());
+          if (severity) params.set('severity', severity);
+          const alertsRes = await fetchWithAdminGuard(`/api/admin/governance/fraud-alerts?${params}`, { signal: ac.signal });
+          if (alertsRes.ok) {
+            const alertsData = await alertsRes.json();
+            setAlerts(alertsData.data || []);
+            setTotal(prev => ({ ...prev, alerts: alertsData.total || 0 }));
+          }
+          const logsParams = new URLSearchParams(params);
+          logsParams.delete('severity');
+          const logsRes = await fetchWithAdminGuard(`/api/admin/governance/audit-logs?${logsParams}`, { signal: ac.signal });
+          if (logsRes.ok) {
+            const logsData = await logsRes.json();
+            setLogs(logsData.data || []);
+            setTotal(prev => ({ ...prev, logs: logsData.total || 0 }));
+          }
+        } catch (error: any) {
+          if (error?.name !== 'AbortError') console.error('Governance fetch error:', error);
+        } finally {
+          if (!ac.signal.aborted) setIsLoading(false);
         }
+      };
+      fetchGovernanceData();
+    }, 350);
+    return () => clearTimeout(t);
+  }, [query, severity, page]);
 
-        // Fetch ABAC Audit Logs
-        const logsRes = await fetchWithAdminGuard(`/api/admin/governance/audit-logs`);
-        if (logsRes.ok) {
-          const logsData = await logsRes.json();
-          setLogs(logsData.data || []);
-        }
-      } catch (error) {
-        console.error('Governance fetch error:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchGovernanceData();
-  }, []);
+  const totalPages = Math.max(1, Math.ceil(Math.max(total.alerts, total.logs) / 50));
 
   return (
     <div className="p-8 h-full flex flex-col">
@@ -79,8 +81,8 @@ export default function FraudMonitoring() {
           <p className="text-gray-500 mt-1 font-medium">طبقة السجلات الثابتة (Strictly Immutable Data View Layer)</p>
         </div>
         <div className="mb-4 flex flex-wrap gap-2">
-          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="بحث في التنبيهات والسجلات" className="rounded-lg border border-gray-300 px-3 py-2 text-sm" />
-          <select value={severity} onChange={(e) => setSeverity(e.target.value)} className="rounded-lg border border-gray-300 px-3 py-2 text-sm">
+          <input value={query} onChange={(e) => { setQuery(e.target.value); setPage(1); }} placeholder="بحث في التنبيهات والسجلات" className="rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+          <select value={severity} onChange={(e) => { setSeverity(e.target.value); setPage(1); }} className="rounded-lg border border-gray-300 px-3 py-2 text-sm">
             <option value="">كل درجات الخطورة</option>
             <option value="high">high</option>
             <option value="medium">medium</option>
@@ -101,7 +103,7 @@ export default function FraudMonitoring() {
             <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full">{alerts.length}</span>
           </div>
           <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50">
-            {visibleAlerts.map((alert: any, idx: number) => {
+            {alerts.map((alert: any, idx: number) => {
               const alertId = alert.id || alert._id || `alert-${idx}`;
               const dateStr = alert.timestamp || alert.createdAt || alert.updatedAt;
               const formattedDate = dateStr ? new Date(dateStr).toLocaleString('ar-SA-u-ca-gregory') : '—';
@@ -124,7 +126,7 @@ export default function FraudMonitoring() {
                 </div>
               );
             })}
-            {visibleAlerts.length === 0 && <p className="text-center text-gray-500 mt-10">لا توجد مؤشرات مطابقة للبحث الحالي</p>}
+            {alerts.length === 0 && <p className="text-center text-gray-500 mt-10">لا توجد مؤشرات مطابقة للبحث الحالي</p>}
           </div>
         </div>
 
@@ -146,7 +148,7 @@ export default function FraudMonitoring() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {visibleLogs.map((log: any, idx: number) => {
+                {logs.map((log: any, idx: number) => {
                   const logId = log.id || log._id || `log-${idx}`;
                   const dateStr = log.timestamp || log.createdAt || log.updatedAt;
                   const formattedDate = dateStr ? new Date(dateStr).toLocaleString('en-US') : '—';
@@ -173,10 +175,25 @@ export default function FraudMonitoring() {
                 })}
               </tbody>
             </table>
-            {visibleLogs.length === 0 && <p className="text-center text-gray-500 mt-10">No logs match the current search</p>}
+            {logs.length === 0 && <p className="text-center text-gray-500 mt-10">No logs match the current search</p>}
           </div>
         </div>
       </div>
+
+      {/* Server-side pagination */}
+      <div className="mt-4 flex items-center justify-between border-t border-gray-200 pt-4">
+        <span className="text-sm text-slate-500">
+          تنبيهات: {total.alerts} · سجلات: {total.logs} (خادمي)
+        </span>
+        <div className="flex items-center gap-2">
+          <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page <= 1}
+            className="px-3 py-1.5 rounded-lg border border-gray-300 text-sm font-bold disabled:opacity-40">السابق</button>
+          <span className="text-sm font-bold text-slate-700">صفحة {page} / {totalPages}</span>
+          <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page >= totalPages}
+            className="px-3 py-1.5 rounded-lg border border-gray-300 text-sm font-bold disabled:opacity-40">التالي</button>
+        </div>
+      </div>
+      {isLoading && <div className="text-center text-sm text-slate-400 mt-2">جارٍ التحديث…</div>}
     </div>
   );
 }

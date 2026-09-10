@@ -1,4 +1,4 @@
-import { Controller, Put, Body, Get, ServiceUnavailableException } from '@nestjs/common';
+import { Controller, Put, Body, Get, Query, ServiceUnavailableException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { SystemConfigExtended } from '../schemas/system-config-extended.schema';
@@ -31,16 +31,50 @@ export class AdminGovernanceController {
   }
 
   @Get('fraud-alerts')
-  async getFraudAlerts() {
-    // Strictly Immutable Read-Only ABAC Log access
-    const alerts = await this.fraudAlertModel.find().sort({ createdAt: -1 }).limit(100).exec();
-    return { data: alerts };
+  async getFraudAlerts(
+    @Query('q') q?: string,
+    @Query('severity') severity?: string,
+    @Query('page') page = '1',
+    @Query('limit') limit = '50',
+  ) {
+    // Strictly Immutable Read-Only ABAC Log access — server-side search/pagination
+    const filter: any = {};
+    if (severity && ['high', 'medium', 'low'].includes(severity)) filter.severity = severity;
+    if (q && q.trim()) {
+      const rx = new RegExp(q.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+      filter.$or = [
+        { entityName: rx }, { entityId: rx }, { flagReason: rx }, { type: rx },
+      ];
+    }
+    const pageNum = Math.max(1, parseInt(page, 10) || 1);
+    const limitNum = Math.min(200, Math.max(1, parseInt(limit, 10) || 50));
+    const [alerts, total] = await Promise.all([
+      this.fraudAlertModel.find(filter).sort({ createdAt: -1 }).skip((pageNum - 1) * limitNum).limit(limitNum).exec(),
+      this.fraudAlertModel.countDocuments(filter).exec(),
+    ]);
+    return { data: alerts, total, page: pageNum, limit: limitNum };
   }
 
   @Get('audit-logs')
-  async getAuditLogs() {
-    // Strictly Immutable Read-Only ABAC Log access
-    const logs = await this.auditLogModel.find().sort({ createdAt: -1 }).limit(100).exec();
-    return { data: logs };
+  async getAuditLogs(
+    @Query('q') q?: string,
+    @Query('page') page = '1',
+    @Query('limit') limit = '50',
+  ) {
+    // Strictly Immutable Read-Only ABAC Log access — server-side search/pagination
+    const filter: any = {};
+    if (q && q.trim()) {
+      const rx = new RegExp(q.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+      filter.$or = [
+        { actorId: rx }, { user_id: rx }, { action: rx }, { endpoint: rx }, { resource_kind: rx }, { resource_id: rx },
+      ];
+    }
+    const pageNum = Math.max(1, parseInt(page, 10) || 1);
+    const limitNum = Math.min(200, Math.max(1, parseInt(limit, 10) || 50));
+    const [logs, total] = await Promise.all([
+      this.auditLogModel.find(filter).sort({ createdAt: -1 }).skip((pageNum - 1) * limitNum).limit(limitNum).exec(),
+      this.auditLogModel.countDocuments(filter).exec(),
+    ]);
+    return { data: logs, total, page: pageNum, limit: limitNum };
   }
 }
