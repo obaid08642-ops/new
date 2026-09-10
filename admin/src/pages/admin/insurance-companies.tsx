@@ -222,7 +222,7 @@ export default function InsuranceCompaniesPage() {
                       تعديل
                     </button>
                     <button
-                      onClick={toggleActive}
+                      onClick={() => toggleActive(c)}
                       disabled={busy === id}
                       className={`text-sm font-bold rounded-lg px-3 py-1.5 text-white disabled:opacity-50 ${c.is_active ? 'bg-amber-500 hover:bg-amber-600' : 'bg-green-600 hover:bg-green-700'}`}
                     >

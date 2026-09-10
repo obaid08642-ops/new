@@ -16,7 +16,7 @@ export default async function Page({ params }: Props) {
   setRequestLocale(locale);
   const t = await getTranslations("SupportTicket");
   const token = await requirePatientAccess(locale);
-  const res = await callPatientApi("/support/tickets", {}, token);
+  const res = await callPatientApi("/support/requests/mine", {}, token);
   if (res.status === 401) redirect(`/${locale}/login`);
   const payload = res.ok ? await res.json().catch(() => null) : null;
   const list: any[] = Array.isArray(payload?.data) ? payload.data : Array.isArray(payload) ? payload : [];
