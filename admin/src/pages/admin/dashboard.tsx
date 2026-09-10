@@ -178,7 +178,7 @@ export default function MasterDashboard() {
                   const KIND_AR: Record<string, string> = { pharmacy: 'صيدلية', lab: 'تحاليل', radiology: 'أشعة', nursing: 'تمريض', consultation: 'استشارة' };
                   const STATE_AR: Record<string, string> = { REQUESTED: 'مطلوب', MATCHING: 'جاري المطابقة', ASSIGNED: 'تم الإسناد', CONFIRMED: 'مؤكد', IN_PROGRESS: 'قيد التنفيذ', ESCALATED_TO_ADMIN: 'متأخر — تصعيد' };
                   const elapsedMin = o.createdAt ? Math.floor((Date.now() - new Date(o.createdAt).getTime()) / 60000) : 0;
-                  const isDelayed = elapsedMin > 3 && !['DELIVERED','CANCELLED','COMPLETED','RESOLVED'].includes(String(o.universal_state||o.domain_state||'').toUpperCase());
+                  const isDelayed = Boolean(o.is_delayed) || (elapsedMin > 3 && !['DELIVERED','CANCELLED','COMPLETED','RESOLVED','ESCALATED_TO_ADMIN'].includes(String(o.universal_state||o.domain_state||'').toUpperCase()));
                   const elapsedLabel = elapsedMin < 1 ? 'الآن' : elapsedMin < 60 ? `${elapsedMin} د` : `${Math.floor(elapsedMin/60)} س ${elapsedMin%60} د`;
                   return (
                     <tr key={`${o.kind}-${o.id || i}`} className={`hover:bg-teal-50 cursor-pointer ${isDelayed ? 'bg-red-50/40' : ''}`} onClick={() => { if (o.kind && o.id) window.location.href = `/admin/order-detail?kind=${encodeURIComponent(o.kind)}&id=${encodeURIComponent(o.id)}`; }}>
