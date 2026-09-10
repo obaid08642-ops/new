@@ -8,6 +8,7 @@ import { ProductCartActions } from "@/components-next/product-cart-actions";
 import { ProductGalleryModal } from "@/components-next/product-gallery-modal";
 import { isLocale, locales } from "@/lib/i18n";
 import { localizedUrl, siteOrigin } from "@/lib/seo";
+import { howToJsonLd, speakable } from "@/lib/seo/json-ld";
 import { ChevronLeft, ShieldCheck, FileText, AlertCircle, Info, Sparkles } from "lucide-react";
 import styles from "./product-page.module.css";
 
@@ -80,23 +81,37 @@ export default async function PublicProductPage({ params }: Props) {
 
   const availabilityLabel = product.available ? t("available") : t("limited");
 
+  const howTo = howToJsonLd(product);
   const jsonLd: Array<Record<string, unknown>> = [
     {
       "@context": "https://schema.org",
       "@type": "Product",
       name,
+      alternateName: product.official_name !== name ? product.official_name : undefined,
       description: product.description || name,
       image: images,
       url: canonical,
       sku: product.sku != null ? String(product.sku) : undefined,
       gtin13: product.barcode && /^\d{13}$/.test(product.barcode) ? product.barcode : undefined,
       brand: product.manufacturer ? { "@type": "Brand", name: product.manufacturer } : undefined,
+      manufacturer: product.manufacturer ? { "@type": "Organization", name: product.manufacturer } : undefined,
       category: [product.category, product.sub_category, product.sub_sub_category].filter(Boolean).join(" › ") || undefined,
+      additionalProperty: [
+        product.package_size ? { "@type": "PropertyValue", name: "package_size", value: product.package_size } : null,
+        product.package_content_details ? { "@type": "PropertyValue", name: "package_content", value: product.package_content_details } : null,
+        product.country_of_origin ? { "@type": "PropertyValue", name: "country_of_origin", value: product.country_of_origin } : null,
+        product.active_ingredient ? { "@type": "PropertyValue", name: "active_ingredient", value: product.active_ingredient } : null,
+        product.strength ? { "@type": "PropertyValue", name: "strength", value: product.strength } : null,
+        product.form ? { "@type": "PropertyValue", name: "form", value: product.form } : null,
+      ].filter(Boolean) as any,
       inLanguage: locale,
+      isAccessibleForFree: true,
+      isFamilyFriendly: true,
+      speakable: speakable,
       offers: {
         "@type": "Offer",
         price: product.price,
-        priceCurrency: "SAR",
+        priceCurrency: product.currency || "SAR",
         url: canonical,
         availability: product.available ? "https://schema.org/InStock" : "https://schema.org/LimitedAvailability",
         itemCondition: "https://schema.org/NewCondition",
@@ -137,8 +152,14 @@ export default async function PublicProductPage({ params }: Props) {
       dosageForm: product.form || undefined,
       strength: product.strength || undefined,
       prescriptionStatus: product.is_rx ? "https://schema.org/PrescriptionOnly" : "https://schema.org/OTC",
+      contraindication: product.warnings?.join(" ") || undefined,
+      adverseOutcome: product.side_effects?.join(" ") || undefined,
+      indication: product.indications?.join(" ") || undefined,
+      dosageInstructions: product.dosage_instructions || undefined,
+      storageConditions: product.storage_conditions || undefined,
       url: canonical,
       image: images[0],
+      speakable: speakable,
     },
     {
       "@context": "https://schema.org",
@@ -150,14 +171,18 @@ export default async function PublicProductPage({ params }: Props) {
         { "@type": "ListItem", position: product.category ? 4 : 3, name, item: canonical },
       ],
     },
-    ...((product.indications?.length || product.warnings?.length) ? [{
+    ...((product.indications?.length || product.warnings?.length || product.side_effects?.length || product.storage_conditions) ? [{
       "@context": "https://schema.org",
       "@type": "FAQPage",
       mainEntity: [
         ...(product.indications?.length ? [{ "@type": "Question", name: `${t("indications")} — ${name}`, acceptedAnswer: { "@type": "Answer", text: product.indications.join(" ") } }] : []),
         ...(product.warnings?.length ? [{ "@type": "Question", name: `${t("warnings")} — ${name}`, acceptedAnswer: { "@type": "Answer", text: product.warnings.join(" ") } }] : []),
+        ...(product.side_effects?.length ? [{ "@type": "Question", name: `الآثار الجانبية — ${name}`, acceptedAnswer: { "@type": "Answer", text: product.side_effects.join(" ") } }] : []),
+        ...(product.storage_conditions ? [{ "@type": "Question", name: `التخزين — ${name}`, acceptedAnswer: { "@type": "Answer", text: product.storage_conditions } }] : []),
+        ...(product.dosage_instructions ? [{ "@type": "Question", name: `الجرعة — ${name}`, acceptedAnswer: { "@type": "Answer", text: product.dosage_instructions } }] : []),
       ],
     }] : []),
+    ...(howTo ? [howTo] : []),
   ];
 
   return (
