@@ -158,22 +158,17 @@ export class ServiceCapabilityService {
     if (shape === 'circle' && (!body.center || !body.radius_km)) throw new BadRequestException('circle zone requires center and radius_km');
     if (shape === 'polygon' && (!Array.isArray(body.polygon) || body.polygon.length < 3)) throw new BadRequestException('polygon zone requires at least 3 points');
     if (body.id) {
-      const updated = await this.zones.findOneAndUpdate(
-        { id: body.id, provider_account_id: user.id },
-        { ...body, provider_account_id: user.id },
-        { new: true },
-      );
-      if (!updated) throw new NotFoundException();
-      return updated.toObject();
+      const existing = await this.zones.findOne({ id: body.id, provider_account_id: user.id }).lean();
+      if (!existing) throw new NotFoundException();
+      return this.gateCapabilityChange(user, 'zones', 'update', { id: body.id, provider_account_id: user.id }, { ...body, provider_account_id: user.id });
     }
-    const z = await this.zones.create({ ...body, provider_account_id: user.id });
-    return z.toObject();
+    return this.gateCapabilityChange(user, 'zones', 'create', null, { ...body, provider_account_id: user.id });
   }
   async deleteZone(user: any, id: string) {
     assertProvider(user);
-    const r = await this.zones.findOneAndDelete({ id, provider_account_id: user.id });
+    const r = await this.zones.findOne({ id, provider_account_id: user.id }).lean();
     if (!r) throw new NotFoundException();
-    return { ok: true };
+    return this.gateCapabilityChange(user, 'zones', 'delete', { id, provider_account_id: user.id }, null);
   }
 
   // ---------- INTERNAL HELPERS (used by Matching Engine) ----------

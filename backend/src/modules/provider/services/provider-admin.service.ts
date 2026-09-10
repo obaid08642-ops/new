@@ -272,6 +272,7 @@ export class ProviderAdminService {
         radiology: 'provider_capabilities_radiology',
         doctor_sessions: 'provider_capabilities_doctor_sessions',
         home_care: 'provider_capabilities_home_care',
+        zones: 'provider_delivery_zones',
       };
       const coll = catalogCollections[String((changes as any).catalog)];
       if (!coll) throw new BadRequestException('unknown capability catalog');
@@ -283,8 +284,14 @@ export class ProviderAdminService {
         const res = await db(coll).updateOne((changes as any).filter || {}, { $set: { ...((changes as any).payload || {}), updated_at: new Date() } }, { upsert: op === 'create' });
         applied = (res.modifiedCount || 0) + ((res.upsertedCount || 0) as number);
       }
-    } else if (target === 'slots' && (changes as any).operation) {
-      const op = String((changes as any).operation);
+    } else if (target === 'insurance_matrix') {
+      await db('provider_insurance').updateOne(
+        { provider_id: accountId },
+        { $set: { provider_id: accountId, ...(changes as any), updatedAt: new Date() } },
+        { upsert: true },
+      );
+      applied = 1;
+    } else if (target === 'slots' && (changes as any).operation) {      const op = String((changes as any).operation);
       if (op === 'delete') {
         const res = await db('provider_schedule_slots').deleteOne((changes as any).filter || {});
         applied = res.deletedCount || 0;

@@ -300,12 +300,17 @@ export class LegalEnterpriseService {
       return out;
     };
     const supported = clean(companies);
-    await this.providerInsurance.updateOne(
-      { provider_id: providerId },
-      { $set: { provider_id: providerId, supported_companies: supported, networks: cleanMap(networks), tiers: cleanMap(tiers), updated_at: new Date() } },
-      { upsert: true },
-    );
-    return { ok: true, provider_id: providerId, supported_companies: supported };
+    // Governance: matching config stays draft until admin approves.
+    await this.conn.collection('provider_deltas').insertOne({
+      id: crypto.randomUUID(),
+      provider_id: providerId,
+      target: 'insurance_matrix',
+      requested_changes: { supported_companies: supported, networks: cleanMap(networks), tiers: cleanMap(tiers) },
+      status: 'pending',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    return { ok: true, pending_review: true, provider_id: providerId, supported_companies: supported };
   }
 
   /** Used by the insurance workflow: does this provider accept this insurer/network/tier? */

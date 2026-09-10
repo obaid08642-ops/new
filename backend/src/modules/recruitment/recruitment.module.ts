@@ -50,10 +50,15 @@ export class RecruitmentService {
   }
 
   // --- Job Posting ---
+  static readonly MEDICAL_ROLES = ['doctor', 'pharmacist', 'nurse', 'lab', 'radiology'];
   async createJob(userId: string, dto: any): Promise<any> {
     if (!dto.title || !dto.description || !dto.scfhs_role || !dto.location) {
       throw new BadRequestException('title, description, scfhs_role and location are required');
     }
+    if (!RecruitmentService.MEDICAL_ROLES.includes(String(dto.scfhs_role))) {
+      throw new BadRequestException('scfhs_role must be a medical role (doctor|pharmacist|nurse|lab|radiology)');
+    }
+    const postType = dto.post_type === 'request' ? 'request' : 'offer';
     const newJob = await this.jobModel.create({
       title: dto.title,
       description: dto.description,
@@ -63,6 +68,13 @@ export class RecruitmentService {
       salary_range: dto.salary_range,
       facility_id: dto.facility_id || userId, // set facility_id to creator if not provided
       status: dto.status || 'draft',
+      post_type: postType,
+      company: dto.company,
+      contact_phone: dto.contact_phone,
+      contact_preference: dto.contact_preference,
+      nationality: dto.nationality,
+      experience_years: dto.experience_years != null ? Number(dto.experience_years) : undefined,
+      contract_type: dto.contract_type,
     });
     return newJob.toObject();
   }
@@ -87,10 +99,11 @@ export class RecruitmentService {
     return job.toObject();
   }
 
-  async listJobs(query: { location?: string; scfhs_role?: string; status?: string; facility_id?: string }, requester: any): Promise<any[]> {
+  async listJobs(query: { location?: string; scfhs_role?: string; status?: string; facility_id?: string; post_type?: string }, requester: any): Promise<any[]> {
     const filter: any = { is_deleted: false };
     if (query.location) filter.location = query.location;
     if (query.scfhs_role) filter.scfhs_role = query.scfhs_role;
+    if (query.post_type === 'offer' || query.post_type === 'request') filter.post_type = query.post_type;
     
     // Status logic: general users can only see 'published'
     if (requester && [UserRole.ADMIN, UserRole.SUPER_ADMIN].includes(requester.role as UserRole)) {
@@ -241,9 +254,9 @@ export class RecruitmentController {
   // --- Job Posting endpoints ---
   @Post('jobs')
   createJob(@CurrentUser() u: any, @Body() b: any) {
-    // Only hospital, clinic, admin can create jobs
-    if (![UserRole.HOSPITAL, UserRole.ADMIN, UserRole.SUPER_ADMIN].includes(u.role as UserRole)) {
-      throw new ForbiddenException('Only hospitals and admin accounts can post jobs');
+    // Facilities, clinics, doctors and admins can post medical jobs
+    if (![UserRole.HOSPITAL, UserRole.CLINIC, UserRole.DOCTOR, UserRole.ADMIN, UserRole.SUPER_ADMIN].includes(u.role as UserRole)) {
+      throw new ForbiddenException('Only healthcare facilities, clinics, doctors and admins can post jobs');
     }
     return this.svc.createJob(u.id, b);
   }

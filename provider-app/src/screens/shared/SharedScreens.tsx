@@ -859,7 +859,6 @@ export function MedicalJobsScreen({ onBack, onOpenChat }: { onBack: () => void, 
   // Filters State
   const [filterProf, setFilterProf] = useState<string | null>(null);
   const [filterCity, setFilterCity] = useState<string | null>(null);
-  const [filterSort, setFilterSort] = useState<'recent' | 'nearest'>('recent');
 
   // Forms
   const [postTitle, setPostTitle] = useState('');
@@ -882,6 +881,10 @@ export function MedicalJobsScreen({ onBack, onOpenChat }: { onBack: () => void, 
   const [applyExp, setApplyExp] = useState('');
   const [applyReady, setApplyReady] = useState('');
   const [applyCV, setApplyCV] = useState<boolean>(false);
+  const [applyCvUrl, setApplyCvUrl] = useState<string | null>(null);
+  const [applyScfhs, setApplyScfhs] = useState('');
+  const [applyScfhsExp, setApplyScfhsExp] = useState('');
+  const [uploadingCV, setUploadingCV] = useState(false);
 
   const [jobs, setJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -891,15 +894,17 @@ export function MedicalJobsScreen({ onBack, onOpenChat }: { onBack: () => void, 
 
   const mapJob = (j: any) => ({
     id: j.id,
-    type: 'offer',
+    type: j.post_type === 'request' ? 'request' : 'offer',
     title_ar: j.title || '', title_en: j.title || '',
-    facility: j.facility_name || '', city: j.location || '',
-    profession: j.scfhs_role || '', scfhs: j.scfhs_role || '', exp: '',
+    facility: j.company || j.facility_name || '', city: j.location || '',
+    profession: j.scfhs_role || '', scfhs: j.scfhs_role || '',
+    exp: j.experience_years != null ? String(j.experience_years) : '',
     type_ar: '', type_en: '',
     status: j.status || '', desc: j.description || '',
-    contact: 'inbox', phone: '',
+    contact: j.contact_preference || 'inbox', phone: j.contact_phone || '',
     date: j.createdAt ? new Date(j.createdAt).toISOString().split('T')[0] : '',
-    salary: j.salary_range || '', nat: '',
+    salary: j.salary_range || '', nat: j.nationality || '',
+    contract: j.contract_type || '',
     requirements: j.requirements || [],
   });
 
@@ -938,7 +943,7 @@ export function MedicalJobsScreen({ onBack, onOpenChat }: { onBack: () => void, 
               applicantName: a.candidate?.full_name || (AR ? 'متقدم' : 'Applicant'),
               phone: a.candidate?.phone || '',
               scfhs: a.candidate?.scfhs_license_status || a.candidate?.scfhs_license_number || '',
-              exp: Array.isArray(a.candidate?.experiences) ? String(a.candidate.experiences.length) : '0',
+              exp: typeof a.candidate?.experience_years === 'number' ? String(a.candidate.experience_years) : (Array.isArray(a.candidate?.experiences) && a.candidate.experiences.length ? `${a.candidate.experiences.length} entries` : '—'),
               ready: a.cover_letter || '',
               date: a.applied_at ? new Date(a.applied_at).toISOString().split('T')[0] : '',
               status: a.status || 'submitted',
@@ -967,10 +972,18 @@ export function MedicalJobsScreen({ onBack, onOpenChat }: { onBack: () => void, 
     }
     setPosting(true);
     try {
+      const roleMap: Record<string, string> = { doctor: 'doctor', nurse: 'nurse', pharmacist: 'pharmacist', lab: 'lab', radio: 'radiology' };
       const res = await client.post('/recruitment/jobs', {
         title: postTitle.trim(),
         description: postDesc.trim() || postTitle.trim(),
-        scfhs_role: postClass || postProf || 'غير مصنف',
+        scfhs_role: roleMap[postProf] || 'doctor',
+        post_type: postType,
+        company: postCompany.trim() || undefined,
+        contact_phone: postPhone.trim() || undefined,
+        contact_preference: postContact,
+        nationality: postNat.trim() || undefined,
+        experience_years: postExp.trim() ? Number(postExp) : undefined,
+        contract_type: postContract,
         location: postCity.trim(),
         salary_range: postSalary.trim() || undefined,
         requirements: [
@@ -1138,10 +1151,30 @@ export function MedicalJobsScreen({ onBack, onOpenChat }: { onBack: () => void, 
           <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginTop: SP.md }}>
             {AR ? 'السيرة الذاتية المرفقة (إلزامي)' : 'Attached CV (Required)'}
           </Text>
-          <TouchableOpacity onPress={() => setApplyCV(true)} style={{ backgroundColor: applyCV ? theme.successBg : theme.surface2, padding: SP.xl, borderRadius: R.lg, borderWidth: 2, borderColor: applyCV ? theme.success : theme.border, borderStyle: applyCV ? 'solid' : 'dashed', alignItems: 'center', gap: SP.sm }}>
+          <NInput label={AR ? 'رقم ترخيص الهيئة' : 'SCFHS license number'} value={applyScfhs} onChange={setApplyScfhs} />
+          <NInput label={AR ? 'انتهاء الترخيص (YYYY-MM-DD)' : 'License expiry (YYYY-MM-DD)'} value={applyScfhsExp} onChange={setApplyScfhsExp} placeholder="2027-01-01" />
+          <TouchableOpacity onPress={async () => {
+            try {
+              setUploadingCV(true);
+              const DocPicker: any = await import('expo-document-picker');
+              const FS: any = await import('expo-file-system/legacy');
+              const picked = await DocPicker.getDocumentAsync({ type: ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'image/*'], copyToCacheDirectory: true });
+              if (picked.canceled) return;
+              const asset = picked.assets[0];
+              const base64 = await FS.readAsStringAsync(asset.uri, { encoding: 'base64' });
+              const up = await client.post('/storage/upload', { data_base64: base64, mime: asset.mimeType || 'application/pdf', original_name: asset.name || 'cv.pdf' });
+              const url = up?.data?.url || up?.data?.id;
+              if (!url) { show(AR ? 'تعذر رفع الملف' : 'Could not upload file', 'error'); return; }
+              await client.post('/recruitment/candidate/profile', { cv_url: url, scfhs_license_number: applyScfhs.trim() || undefined, scfhs_license_expiry: applyScfhsExp.trim() || undefined });
+              setApplyCvUrl(url);
+              setApplyCV(true);
+              show(AR ? 'تم رفع السيرة الذاتية' : 'CV uploaded', 'success');
+            } catch { show(AR ? 'تعذر رفع الملف' : 'Could not upload file', 'error'); }
+            finally { setUploadingCV(false); }
+          }} style={{ backgroundColor: applyCV ? theme.successBg : theme.surface2, padding: SP.xl, borderRadius: R.lg, borderWidth: 2, borderColor: applyCV ? theme.success : theme.border, borderStyle: applyCV ? 'solid' : 'dashed', alignItems: 'center', gap: SP.sm }}>
             <I name={applyCV ? "check" : "upload"} size={28} color={applyCV ? theme.success : theme.textSub} />
             <Text style={{ fontSize: FS.sm, color: applyCV ? theme.success : theme.textSub }}>
-              {applyCV ? (AR ? 'تم رفع الملف بنجاح (cv_doc.pdf)' : 'File uploaded (cv_doc.pdf)') : (AR ? 'اضغط لرفع ملف (PDF, Word, Image)' : 'Tap to upload (PDF, Word, Image)')}
+              {uploadingCV ? (AR ? 'جارٍ الرفع…' : 'Uploading…') : applyCV ? (AR ? 'تم رفع الملف بنجاح' : 'File uploaded') : (AR ? 'اضغط لرفع ملف (PDF, Word, Image)' : 'Tap to upload (PDF, Word, Image)')}
             </Text>
           </TouchableOpacity>
 
@@ -1401,14 +1434,21 @@ export function MedicalJobsScreen({ onBack, onOpenChat }: { onBack: () => void, 
       {/* FILTERS SHEET */}
       <NSheet visible={showFilters} onClose={() => setShowFilters(false)} title={AR ? 'تصفية وبحث متقدم' : 'Advanced Filters'}>
         <ScrollView contentContainerStyle={{ padding: SP.xl, gap: SP.lg, paddingBottom: 60 }}>
-          <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{AR ? 'ترتيب حسب:' : 'Sort By:'}</Text>
-          <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm }}>
-            <TouchableOpacity onPress={() => setFilterSort('recent')} style={{ flex: 1, padding: SP.sm, borderRadius: R.md, borderWidth: 1, borderColor: filterSort === 'recent' ? theme.primary : theme.border, backgroundColor: filterSort === 'recent' ? theme.primaryLight : theme.bg, alignItems: 'center' }}>
-              <Text style={{ color: filterSort === 'recent' ? theme.primary : theme.textSub }}>{AR ? 'الأحدث' : 'Recent'}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => setFilterSort('nearest')} style={{ flex: 1, padding: SP.sm, borderRadius: R.md, borderWidth: 1, borderColor: filterSort === 'nearest' ? theme.primary : theme.border, backgroundColor: filterSort === 'nearest' ? theme.primaryLight : theme.bg, alignItems: 'center' }}>
-              <Text style={{ color: filterSort === 'nearest' ? theme.primary : theme.textSub }}>{AR ? 'الأقرب' : 'Nearest'}</Text>
-            </TouchableOpacity>
+          <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{AR ? 'المهنة:' : 'Profession:'}</Text>
+          <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: SP.sm }}>
+            {[{ id: 'doctor', ar: 'طبيب', en: 'Doctor' }, { id: 'pharmacist', ar: 'صيدلي', en: 'Pharmacist' }, { id: 'nurse', ar: 'تمريض', en: 'Nurse' }, { id: 'lab', ar: 'مختبر', en: 'Lab' }, { id: 'radiology', ar: 'أشعة', en: 'Radiology' }].map(p => (
+              <TouchableOpacity key={p.id} onPress={() => setFilterProf(filterProf === p.id ? null : p.id)} style={{ paddingHorizontal: SP.md, paddingVertical: SP.sm, borderRadius: R.full, borderWidth: 1, borderColor: filterProf === p.id ? theme.primary : theme.border, backgroundColor: filterProf === p.id ? theme.primaryLight : theme.bg }}>
+                <Text style={{ color: filterProf === p.id ? theme.primary : theme.textSub, fontSize: FS.xs }}>{AR ? p.ar : p.en}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+          <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{AR ? 'المدينة:' : 'City:'}</Text>
+          <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: SP.sm }}>
+            {['الرياض', 'جدة', 'الدمام', 'مكة المكرمة', 'المدينة المنورة'].map(c => (
+              <TouchableOpacity key={c} onPress={() => setFilterCity(filterCity === c ? null : c)} style={{ paddingHorizontal: SP.md, paddingVertical: SP.sm, borderRadius: R.full, borderWidth: 1, borderColor: filterCity === c ? theme.primary : theme.border, backgroundColor: filterCity === c ? theme.primaryLight : theme.bg }}>
+                <Text style={{ color: filterCity === c ? theme.primary : theme.textSub, fontSize: FS.xs }}>{c}</Text>
+              </TouchableOpacity>
+            ))}
           </View>
           <NBtn label={AR ? 'تطبيق الفرز' : 'Apply Filter'} onPress={() => setShowFilters(false)} style={{ marginTop: SP.md }} />
         </ScrollView>
@@ -1757,6 +1797,9 @@ export function MedicalDrugIndexScreen({ onBack }: { onBack: () => void }) {
        <DrugSection title={AR ? 'الأعراض الجانبية' : 'Side Effects'} content={pick(d.side_effects_ar, d.side_effects_en)} />
        <DrugSection title={AR ? 'التفاعلات الدوائية' : 'Drug Interactions'} content={d.interactions} warn />
        <DrugSection title={AR ? 'شروط التخزين' : 'Storage Conditions'} content={pick(d.storage_conditions_ar, d.storage_conditions_en)} />
+       <DrugSection title={AR ? 'الحمل' : 'Pregnancy'} content={pick(d.pregnancy_info_ar, d.pregnancy_info_en)} warn />
+       <DrugSection title={AR ? 'الرضاعة' : 'Breastfeeding'} content={pick(d.breastfeeding_info_ar, d.breastfeeding_info_en)} warn />
+       <DrugSection title={AR ? 'معلومات إضافية' : 'More Information'} content={pick(d.more_info_ar, d.more_info_en)} />
        {d.potentially_unavailable && d.shortage_notes ? (
          <DrugSection title={AR ? 'ملاحظات التوفر' : 'Availability Notes'} content={d.shortage_notes} warn defaultOpen />
        ) : null}
@@ -1768,6 +1811,22 @@ export function MedicalDrugIndexScreen({ onBack }: { onBack: () => void }) {
              {AR ? 'البدائل المتاحة (بنفس المادة الفعالة):' : 'Available Alternatives (Same Active Ingredient):'}
            </Text>
            {d.alternatives.map((alt: any) => (
+             <TouchableOpacity key={alt.id} onPress={() => setSelectedDrug(alt)} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.sm, padding: SP.md, borderRadius: R.md, borderWidth: 1, borderColor: theme.border, backgroundColor: theme.surface2 }}>
+               {resolveImageUri(alt.image) ? <Image source={{ uri: resolveImageUri(alt.image)! }} style={{ width: 36, height: 36, borderRadius: R.sm }} resizeMode="contain" /> : null}
+               <Text style={{ color: theme.text, fontSize: FS.sm, flex: 1, textAlign: AR ? 'right' : 'left' }} numberOfLines={1}>{AR ? alt.name_ar : alt.name_en}</Text>
+               <Text style={{ color: theme.primary, fontSize: FS.sm, fontWeight: FW.bold }}>{alt.price} {AR ? 'ريال' : 'SAR'}</Text>
+             </TouchableOpacity>
+           ))}
+         </View>
+       )}
+
+       {/* Similar (same category) — tappable, opens that profile */}
+       {(d.similar?.length > 0) && (
+         <View style={{ gap: SP.sm, marginTop: SP.md }}>
+           <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>
+             {AR ? 'أصناف مشابهة (نفس الفئة):' : 'Similar Items (Same Category):'}
+           </Text>
+           {d.similar.map((alt: any) => (
              <TouchableOpacity key={alt.id} onPress={() => setSelectedDrug(alt)} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.sm, padding: SP.md, borderRadius: R.md, borderWidth: 1, borderColor: theme.border, backgroundColor: theme.surface2 }}>
                {resolveImageUri(alt.image) ? <Image source={{ uri: resolveImageUri(alt.image)! }} style={{ width: 36, height: 36, borderRadius: R.sm }} resizeMode="contain" /> : null}
                <Text style={{ color: theme.text, fontSize: FS.sm, flex: 1, textAlign: AR ? 'right' : 'left' }} numberOfLines={1}>{AR ? alt.name_ar : alt.name_en}</Text>

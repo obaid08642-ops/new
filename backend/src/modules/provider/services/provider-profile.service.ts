@@ -1,6 +1,7 @@
 import { Injectable, BadRequestException, NotFoundException, ForbiddenException, Inject } from '@nestjs/common';
 import { Model, Connection } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { v4 as uuidv4 } from 'uuid';
 import { ProviderAccount, ProviderProfile, ProviderDocument, ProviderBankAccount, ProviderAuditLog, DocumentReviewStatus, BankReviewStatus, SAUDI_BANKS } from '../schemas';
 import { ProviderAccountStatus, ProviderDocumentType, PROVIDER_STATUS_TRANSITIONS, REQUIRED_DOCS_BY_PROVIDER_TYPE, HOSPITAL_SUB_MODULES, ProviderType } from '../provider.enums';
@@ -28,6 +29,7 @@ export class ProviderProfileService {
     @Inject('ProviderAuditLogRepository') private audit: ProviderAuditLogRepository,
     @InjectConnection() private readonly connection: Connection,
     private readonly storage: StorageService,
+    private readonly events: EventEmitter2,
   ) {}
 
   // ===================== PROFILE =====================
@@ -94,6 +96,7 @@ export class ProviderProfileService {
     // delete previous PENDING/NEEDS_REPLACEMENT of same type? keep history but mark prior as superseded by leaving them.
     const existing = await this.docs.findOne({ account_id: user.id, doc_type: body.doc_type, review_status: { $in: [DocumentReviewStatus.PENDING, DocumentReviewStatus.NEEDS_REPLACEMENT, DocumentReviewStatus.UNDER_REVIEW] } });
     if (existing) {
+      const supersededId = (existing as any).storage_object_id;
       existing.storage_object_id = sto.id;
       existing.doc_number = body.doc_number;
       existing.issuer = body.issuer;
@@ -103,6 +106,14 @@ export class ProviderProfileService {
       existing.reviewer_id = undefined as any; existing.reviewer_note = undefined as any; existing.reviewed_at = undefined as any;
       await existing.save();
       await this.audit.create({ provider_account_id: user.id, actor_id: user.id, actor_role: 'provider', action: 'kyc.document_replaced', after: { doc_type: body.doc_type, id: existing.id } });
+      // Retire the superseded object so it does not leak in storage.
+      if (supersededId) {
+        try {
+          const old: any = await this.connection.collection('storage_objects').findOne({ id: supersededId });
+          const url = old?.external_url || old?.url || null;
+          if (url) this.events.emit('storage.delete_by_url', { url });
+        } catch { /* best-effort cleanup */ }
+      }
       return existing;
     }
     const doc = await this.docs.create({ account_id: user.id, doc_type: body.doc_type, storage_object_id: sto.id, doc_number: body.doc_number, issuer: body.issuer, issued_date: body.issued_date ? new Date(body.issued_date) : undefined, expiry_date: body.expiry_date ? new Date(body.expiry_date) : undefined });
