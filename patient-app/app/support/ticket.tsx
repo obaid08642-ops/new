@@ -23,8 +23,8 @@ export default function TicketTrackingScreen() {
   const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
-    apiFetch<any[]>('/support/tickets')
-      .then(res => setTickets(res || []))
+    apiFetch<any[]>('/support/requests/mine')
+      .then(res => setTickets(Array.isArray(res) ? res : (res as any)?.data || []))
       .catch(() => setTickets([]))
       .finally(() => setLoading(false));
   }, []);

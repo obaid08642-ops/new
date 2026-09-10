@@ -21,8 +21,8 @@ import {
   Module,
   UseGuards,
 } from '@nestjs/common';
-import { InjectConnection } from '@nestjs/mongoose';
-import { Connection } from 'mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
+import { Connection, Model } from 'mongoose';
 import { v4 as uuid } from 'uuid';
 import { CurrentUser, Public, JwtAuthGuard, Roles } from '../../common/auth.guard';
 
@@ -367,52 +367,45 @@ class ReportsTimelineController {
   }
 }
 
-/* ── 10) Support chat (patient) ──────────────────────────────────────────── */
+/* ── 10) Support chat — canonical store (visible to admin) ──────────────── */
 @Controller('support/chat')
 class SupportChatController {
-  constructor(@InjectConnection() private conn: Connection) {}
+  constructor(
+    @InjectConnection() private conn: Connection,
+    @InjectModel('SupportRequest') private supportReq: Model<any>,
+  ) {}
 
-  // Bare aliases — the patient support screen calls /support/chat directly
   @Get()
-  bareList(@CurrentUser() user: any) { return this.list(user); }
+  async bareList(@CurrentUser() user: any) {
+    return this.supportReq.find({ user_id: user.id }, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(80).lean();
+  }
 
   @Post()
-  bareSend(@CurrentUser() user: any, @Body() body: { body?: string; message?: string }) {
-    return this.send(user, body);
+  async bareSend(@CurrentUser() user: any, @Body() body: { body?: string; message?: string }) {
+    const text = String(body?.body || body?.message || '').trim();
+    if (!text) throw new BadRequestException('نص الرسالة مطلوب');
+    const created = await this.supportReq.create({
+      id: uuid(),
+      tracking_id: `SUP-${Date.now().toString(36).toUpperCase()}`,
+      user_id: user.id, user_name: user.full_name, user_phone: user.phone,
+      category: 'GENERAL', subject: text.slice(0, 80), message: text,
+      source_role: user.role || 'patient', priority: 'medium',
+      thread: [{ by: user.id, role: user.role || 'patient', message: text, at: new Date() }],
+      status: 'OPEN',
+    });
+    return { ok: true, id: created.id, ticket_id: created.id };
   }
 
   @Get('messages')
   async list(@CurrentUser() user: any) {
-    const u = uid(user);
-    const rows = await this.conn.collection('supportchatmessages')
-      .find({ account_id: u } as any).sort({ createdAt: 1 }).limit(300).toArray();
-    return rows.map((r: any) => ({ id: String(r._id), body: r.body, from: r.from, created_at: r.createdAt }));
+    const rows: any[] = await this.supportReq.find({ user_id: user.id }, { _id: 0, thread: 1 }).sort({ createdAt: -1 }).limit(20).lean();
+    const flat = rows.flatMap((r: any) => (r.thread || []).map((m: any) => ({ body: m.message, from: m.by === user.id ? 'patient' : m.role, created_at: m.at })));
+    return flat.slice(-300);
   }
 
   @Post('messages')
   async send(@CurrentUser() user: any, @Body() body: { body?: string; message?: string }) {
-    const u = uid(user);
-    const text = String(body?.body || body?.message || '').trim();
-    if (!text) throw new BadRequestException('نص الرسالة مطلوب');
-    let ticket: any = await this.conn.collection('supporttickets')
-      .findOne({ account_id: u, status: { $in: ['open', 'pending'] } } as any);
-    if (!ticket) {
-      const doc = {
-        id: uuid(), account_id: u, subject: text.slice(0, 80),
-        status: 'open', priority: 'normal', createdAt: now(), updatedAt: now(),
-      };
-      await this.conn.collection('supporttickets').insertOne(doc as any);
-      ticket = doc;
-    }
-    const ins = await this.conn.collection('supportchatmessages').insertOne({
-      account_id: u, ticket_id: ticket.id || String(ticket._id),
-      from: 'patient', body: text, createdAt: now(),
-    } as any);
-    await this.conn.collection('supporttickets').updateOne(
-      byStringOrObjectId(ticket.id || String(ticket._id)) as any,
-      { $set: { updatedAt: now(), last_message: text.slice(0, 120) } },
-    );
-    return { ok: true, id: String(ins.insertedId), ticket_id: ticket.id || String(ticket._id) };
+    return this.bareSend(user, body);
   }
 }
 
