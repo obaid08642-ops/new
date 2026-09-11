@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { apiFetch } from '../../utils/api';
 import ProviderFullDetail from '../../components/ProviderFullDetail';
+import { GeoPicker } from "../../components/GeoPicker";
 
 const ROLE_LABELS: Record<string, string> = {
   patient: 'مريض',
@@ -39,6 +40,7 @@ export default function UsersManagementPage() {
   const [statusFilter, setStatusFilter] = useState('');
   const [actionBusy, setActionBusy] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
+  const [geo, setGeo] = useState<{ region?: string; city?: string; district?: string }>({});
 
   // ── Full user/provider file viewer ──────────────────────────────
   const [viewUser, setViewUser] = useState<any | null>(null);
@@ -83,6 +85,9 @@ export default function UsersManagementPage() {
       const params = new URLSearchParams({ limit: '200', sort: 'newest' });
       if (roleFilter) params.set('role', roleFilter);
       if (searchTerm.trim()) params.set('q', searchTerm.trim());
+      if (geo.region) params.set('region', geo.region);
+      if (geo.city) params.set('city', geo.city);
+      if (geo.district) params.set('district', geo.district);
       const res = await apiFetch(`/admin/users?${params.toString()}`);
       setUsers(Array.isArray(res) ? res : res?.data || []);
       setTotal(res?.total ?? (Array.isArray(res) ? res.length : res?.data?.length ?? 0));
@@ -98,7 +103,7 @@ export default function UsersManagementPage() {
     const t = setTimeout(fetchUsers, 300);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roleFilter, searchTerm]);
+  }, [roleFilter, searchTerm, geo.region, geo.city, geo.district]);
 
   /** Suspend (reversible) — sets active=false + suspended=true in the DB. */
   const handleSuspend = async (u: any) => {
@@ -223,6 +228,10 @@ export default function UsersManagementPage() {
             <option value="suspended">موقوف / معلّق</option>
           </select>
         </div>
+      </div>
+      <div className="mb-6 bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+        <label className="block text-sm font-bold text-slate-700 mb-2">التصفية الجغرافية الموحدة</label>
+        <GeoPicker value={geo} onChange={setGeo} />
       </div>
 
       {errorMsg && (

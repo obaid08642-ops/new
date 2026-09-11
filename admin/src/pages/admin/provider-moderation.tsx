@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { fetchWithAdminGuard } from '@/utils/api';
 import ProviderFullDetail from '@/components/ProviderFullDetail';
+import { GeoPicker } from "../../components/GeoPicker";
 
 
 interface Provider {
@@ -49,13 +50,19 @@ export default function ProviderModeration() {
   const [suspendReason, setSuspendReason] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [geo, setGeo] = useState<{ region?: string; city?: string; district?: string }>({});
 
   useEffect(() => {
     const fetchModerationData = async () => {
       try {
         setIsLoading(true);
-            // REAL pending provider accounts (provider_accounts, status=pending)
-        const providersRes = await fetchWithAdminGuard(`/api/admin/providers?status=pending&limit=100`);
+            // REAL pending provider accounts (provider_accounts, status=pending) with unified GeoPicker filter
+        const geoParams = new URLSearchParams();
+        if (geo.region) geoParams.set('region', geo.region);
+        if (geo.city) geoParams.set('city', geo.city);
+        if (geo.district) geoParams.set('district', geo.district);
+        const geoQuery = geoParams.toString() ? `&${geoParams.toString()}` : '';
+        const providersRes = await fetchWithAdminGuard(`/api/admin/providers?status=pending&limit=100${geoQuery}`);
         if (providersRes.ok) {
           const providersData = await providersRes.json();
           const items = providersData.items || [];
@@ -92,7 +99,7 @@ export default function ProviderModeration() {
     };
 
     fetchModerationData();
-  }, []);
+  }, [geo.region, geo.city, geo.district]);
 
   const handleApprove = async (id: string) => {
     const reason = window.prompt('سبب الاعتماد (يُحفظ في سجل التدقيق — 5 أحرف على الأقل):', '');
@@ -192,6 +199,11 @@ export default function ProviderModeration() {
             تعديلات الحسابات (Delta Mutations)
           </button>
         </div>
+      </div>
+
+      <div className="mb-4 bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+        <label className="block text-sm font-bold text-slate-700 mb-2">التصفية الجغرافية الموحدة</label>
+        <GeoPicker value={geo} onChange={setGeo} />
       </div>
 
       <div className="flex-1 flex gap-6 overflow-hidden">
