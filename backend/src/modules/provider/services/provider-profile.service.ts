@@ -184,8 +184,7 @@ export class ProviderProfileService {
     return { account: a.toObject() };
   }
 
-  // ===================== DELTA GUARD =====================
-  async requestChange(user: any, target: 'profile' | 'settings' | 'capability', payload: any) {
+  async requestChange(user: any, target: 'profile' | 'settings' | 'capability' | 'slots', payload: any) {
     const delta = {
       id: uuidv4(),
       provider_id: user.id,
