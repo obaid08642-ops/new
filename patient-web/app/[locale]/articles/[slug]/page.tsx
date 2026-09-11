@@ -10,6 +10,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getPublicArticle } from "@/lib/api/articles-server";
 import { articleSlug, parseArticle } from "@/lib/api/articles";
 import { RetryButton } from "@/components-next/retry-button";
+import { CiteThis } from "@/components-next/cite-this";
 import styles from "../articles.module.css";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
@@ -111,6 +112,14 @@ export default async function ArticlePage({ params }: Props) {
             : "General educational content — not a substitute for medical advice."}
         </p>
       </section>
+      <CiteThis
+        title={title}
+        uri={`https://www.nabd.plus/${locale}/articles/${encodeURIComponent(slug)}`}
+        author={authorName}
+        authorTitle={authorTitle}
+        publishedAt={publishedAt}
+        locale={locale}
+      />
       <section className={styles.notice}>
         <FileText size={20} aria-hidden="true" />
         <p>{t("bodyHidden")}</p>

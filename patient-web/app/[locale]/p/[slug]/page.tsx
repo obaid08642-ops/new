@@ -9,6 +9,7 @@ import { ProductGalleryModal } from "@/components-next/product-gallery-modal";
 import { isLocale, locales } from "@/lib/i18n";
 import { localizedUrl, siteOrigin } from "@/lib/seo";
 import { howToJsonLd, speakable } from "@/lib/seo/json-ld";
+import { CiteThis } from "@/components-next/cite-this";
 import { ChevronLeft, ShieldCheck, FileText, AlertCircle, Info, Sparkles } from "lucide-react";
 import styles from "./product-page.module.css";
 
@@ -323,6 +324,15 @@ export default async function PublicProductPage({ params }: Props) {
         <ShieldCheck size={20} color="#00876F" />
         <p>{t("disclaimer")}</p>
       </div>
+
+      <CiteThis
+        title={name}
+        uri={canonical}
+        author={null}
+        authorTitle={null}
+        publishedAt={null}
+        locale={locale}
+      />
 
       <Link className={styles.back} href={categoryPath || `/${locale}/c`}>
         <ChevronLeft size={18} aria-hidden="true" />

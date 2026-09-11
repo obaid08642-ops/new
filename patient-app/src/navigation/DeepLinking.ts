@@ -2,7 +2,10 @@ import * as Linking from 'expo-linking';
 import { Platform } from 'react-native';
 
 /**
- * Deep Linking Configuration for Expo Router
+ * THE single canonical deep-link configuration for the patient app.
+ * (A duplicate config previously lived in src/config/deepLinks.ts — removed.
+ * One architecture only: expo-router consumes scheme + associated domains
+ * from app.json; this module documents prefixes and screen mapping.)
  * Supports canonical universal links and custom URL schemes (nabdplus://),
  * while retaining the former nabdahplus:// scheme for existing installs.
  */

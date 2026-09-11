@@ -28,10 +28,11 @@ export default function MedicineLinkCatcher() {
     return () => { mounted = false; };
   }, [slug]);
 
-  if (err) {
-    router.replace({ pathname: '/search', params: { q: String(slug || '').replace(/-/g, ' ') } });
-    return null;
-  }
+  useEffect(() => {
+    if (err) {
+      router.replace({ pathname: '/search', params: { q: String(slug || '').replace(/-/g, ' ') } });
+    }
+  }, [err, slug]);
 
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F8FAFC' }}>
