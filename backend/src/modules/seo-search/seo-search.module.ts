@@ -138,7 +138,8 @@ import { Module, Injectable, Controller, Get, NotFoundException, Param, Query, R
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { Response } from 'express';
-import { Public } from '../../common/auth.guard';
+import { Public, Roles } from '../../common/auth.guard';
+import { UserRole } from '../../common/enums';
 import { resolveMedicinePublicDto, productLocaleToDb, PUBLIC_CATALOG_LOCALES } from '../medicines/med-i18n';
 
 const SITE = process.env.API_PUBLIC_URL?.replace('/api/v1', '') || 'https://api.nabd.plus';
@@ -365,6 +366,38 @@ export class SeoSearchService {
 
   async publicProductCount(): Promise<number> {
     return this.conn.collection('medicines_master').countDocuments(this.publicProductFilter());
+  }
+
+  /** DB-vs-sitemap reconciliation snapshot for admin (§52/§72). */
+  async indexingStatus() {
+    const [
+      products, doctors, facilities, labs, radiology, nursing, locations, articles,
+      doctorUrls, facilityUrls, locationUrls,
+    ] = await Promise.all([
+      this.publicProductCount().catch(() => 0),
+      this.conn.collection('provider_profiles').countDocuments({ provider_type: 'doctor', is_active: { $ne: false } }).catch(() => 0),
+      this.conn.collection('facilities').countDocuments({ is_active: { $ne: false } }).catch(() => 0),
+      this.conn.collection('labservices').countDocuments({ active: { $ne: false } }).catch(() => 0),
+      this.conn.collection('radiologyservices').countDocuments({ active: { $ne: false } }).catch(() => 0),
+      this.conn.collection('nursing_catalog').countDocuments({ is_active: { $ne: false } }).catch(() => 0),
+      this.conn.collection('locations').countDocuments({ is_active: { $ne: false } }).catch(() => 0),
+      this.conn.collection('articles').countDocuments({ status: 'PUBLISHED', is_deleted: { $ne: true } }).catch(() => 0),
+      this.publicDoctorSitemap().catch(() => []),
+      this.publicFacilitySitemap().catch(() => []),
+      this.publicLocationSitemap().catch(() => []),
+    ]);
+    const check = (db: number, sm: number) => ({ db, sitemap_urls: sm, in_sync: db === 0 ? sm === 0 : sm > 0 });
+    return {
+      generated_at: new Date(),
+      products: { db: products, note: 'paginated per-locale sitemaps' },
+      doctors: check(doctors, (doctorUrls as any[]).length),
+      facilities: check(facilities, (facilityUrls as any[]).length),
+      labs: { db: labs },
+      radiology: { db: radiology },
+      nursing: { db: nursing },
+      locations: check(locations, (locationUrls as any[]).length),
+      articles: { db: articles },
+    };
   }
 
   /** Doctor slugs for sitemaps. */
@@ -941,8 +974,24 @@ export class SeoSearchController {
   }
 }
 
+@Controller('admin/seo')
+@Roles(UserRole.ADMIN)
+export class SeoAdminController {
+  constructor(private readonly svc: SeoSearchService) {}
+
+  /**
+   * Indexing/db reconciliation status for the admin dashboard (§52/§72):
+   * live DB counts per entity vs sitemap URL counts, so stale downstream
+   * state is detectable without manual queries.
+   */
+  @Get('status')
+  async status() {
+    return this.svc.indexingStatus();
+  }
+}
+
 @Module({
-  controllers: [SeoSearchController],
+  controllers: [SeoSearchController, SeoAdminController],
   providers: [SeoSearchService],
 })
 export class SeoSearchModule {}
