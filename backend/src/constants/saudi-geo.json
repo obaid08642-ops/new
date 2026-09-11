@@ -583,6 +583,16 @@
             "id": "SA-RUH-115",
             "name_ar": "حي الخير",
             "name_en": "Al Khair District"
+          },
+          {
+            "id": "SA-RUH-ADD-116",
+            "name_ar": "حي الرياض 116",
+            "name_en": "Riyadh District 116"
+          },
+          {
+            "id": "SA-RUH-ADD-117",
+            "name_ar": "حي الرياض 117",
+            "name_en": "Riyadh District 117"
           }
         ]
       },
@@ -680,6 +690,16 @@
             "id": "SA-KHJ-18",
             "name_ar": "حي العيون",
             "name_en": "Al Uyun District"
+          },
+          {
+            "id": "SA-KHJ-ADD-019",
+            "name_ar": "حي الخرج 19",
+            "name_en": "Al-Kharj District 19"
+          },
+          {
+            "id": "SA-KHJ-ADD-020",
+            "name_ar": "حي الخرج 20",
+            "name_en": "Al-Kharj District 20"
           }
         ]
       },
@@ -787,6 +807,16 @@
             "id": "SA-BUR-20",
             "name_ar": "حي النقع",
             "name_en": "An Naq'a District"
+          },
+          {
+            "id": "SA-BUR-ADD-021",
+            "name_ar": "حي بريدة 21",
+            "name_en": "Buraidah District 21"
+          },
+          {
+            "id": "SA-BUR-ADD-022",
+            "name_ar": "حي بريدة 22",
+            "name_en": "Buraidah District 22"
           }
         ]
       },
@@ -859,6 +889,16 @@
             "id": "SA-ONZ-13",
             "name_ar": "حي الملك خالد",
             "name_en": "King Khalid District"
+          },
+          {
+            "id": "SA-ONZ-ADD-014",
+            "name_ar": "حي عنيزة 14",
+            "name_en": "Onaizah District 14"
+          },
+          {
+            "id": "SA-ONZ-ADD-015",
+            "name_ar": "حي عنيزة 15",
+            "name_en": "Onaizah District 15"
           }
         ]
       },
@@ -906,6 +946,16 @@
             "id": "SA-CENTRAL-DIR-008",
             "name_ar": "حي الدرعية 8",
             "name_en": "Diriyah District 8"
+          },
+          {
+            "id": "SA-DIR-ADD-009",
+            "name_ar": "حي الدرعية 9",
+            "name_en": "Diriyah District 9"
+          },
+          {
+            "id": "SA-DIR-ADD-010",
+            "name_ar": "حي الدرعية 10",
+            "name_en": "Diriyah District 10"
           }
         ]
       },
@@ -948,6 +998,16 @@
             "id": "SA-CENTRAL-AL -007",
             "name_ar": "حي المجمعة 7",
             "name_en": "Al Majmaah District 7"
+          },
+          {
+            "id": "SA-AL -ADD-008",
+            "name_ar": "حي المجمعة 8",
+            "name_en": "Al Majmaah District 8"
+          },
+          {
+            "id": "SA-AL -ADD-009",
+            "name_ar": "حي المجمعة 9",
+            "name_en": "Al Majmaah District 9"
           }
         ]
       },
@@ -985,6 +1045,16 @@
             "id": "SA-CENTRAL-AL -006",
             "name_ar": "حي الزلفي 6",
             "name_en": "Al Zulfi District 6"
+          },
+          {
+            "id": "SA-AL -ADD-007",
+            "name_ar": "حي الزلفي 7",
+            "name_en": "Al Zulfi District 7"
+          },
+          {
+            "id": "SA-AL -ADD-008",
+            "name_ar": "حي الزلفي 8",
+            "name_en": "Al Zulfi District 8"
           }
         ]
       },
@@ -1027,6 +1097,16 @@
             "id": "SA-CENTRAL-AL -007",
             "name_ar": "حي الدوادمي 7",
             "name_en": "Al Dawadmi District 7"
+          },
+          {
+            "id": "SA-AL -ADD-008",
+            "name_ar": "حي الدوادمي 8",
+            "name_en": "Al Dawadmi District 8"
+          },
+          {
+            "id": "SA-AL -ADD-009",
+            "name_ar": "حي الدوادمي 9",
+            "name_en": "Al Dawadmi District 9"
           }
         ]
       },
@@ -1064,6 +1144,16 @@
             "id": "SA-CENTRAL-WAD-006",
             "name_ar": "حي وادي الدواسر 6",
             "name_en": "Wadi Al Dawasir District 6"
+          },
+          {
+            "id": "SA-WAD-ADD-007",
+            "name_ar": "حي وادي الدواسر 7",
+            "name_en": "Wadi Al Dawasir District 7"
+          },
+          {
+            "id": "SA-WAD-ADD-008",
+            "name_ar": "حي وادي الدواسر 8",
+            "name_en": "Wadi Al Dawasir District 8"
           }
         ]
       },
@@ -1131,6 +1221,16 @@
             "id": "SA-CENTRAL-SHAQ-012",
             "name_ar": "حي شقراء 12",
             "name_en": "Shaqra District 12"
+          },
+          {
+            "id": "SA-SHAQ-NEW-ADD-013",
+            "name_ar": "حي شقراء 13",
+            "name_en": "Shaqra District 13"
+          },
+          {
+            "id": "SA-SHAQ-NEW-ADD-014",
+            "name_ar": "حي شقراء 14",
+            "name_en": "Shaqra District 14"
           }
         ]
       },
@@ -1183,6 +1283,16 @@
             "id": "SA-CENTRAL-AL M-009",
             "name_ar": "حي المزاحمية 9",
             "name_en": "Al Muzahimiyah District 9"
+          },
+          {
+            "id": "SA-AL M-NEW-ADD-010",
+            "name_ar": "حي المزاحمية 10",
+            "name_en": "Al Muzahimiyah District 10"
+          },
+          {
+            "id": "SA-AL M-NEW-ADD-011",
+            "name_ar": "حي المزاحمية 11",
+            "name_en": "Al Muzahimiyah District 11"
           }
         ]
       },
@@ -1250,6 +1360,16 @@
             "id": "SA-CENTRAL-RUMA-012",
             "name_ar": "حي رماح 12",
             "name_en": "Rumah District 12"
+          },
+          {
+            "id": "SA-RUMA-NEW-ADD-013",
+            "name_ar": "حي رماح 13",
+            "name_en": "Rumah District 13"
+          },
+          {
+            "id": "SA-RUMA-NEW-ADD-014",
+            "name_ar": "حي رماح 14",
+            "name_en": "Rumah District 14"
           }
         ]
       },
@@ -1302,6 +1422,16 @@
             "id": "SA-CENTRAL-THAD-009",
             "name_ar": "حي ثادق 9",
             "name_en": "Thadiq District 9"
+          },
+          {
+            "id": "SA-THAD-NEW-ADD-010",
+            "name_ar": "حي ثادق 10",
+            "name_en": "Thadiq District 10"
+          },
+          {
+            "id": "SA-THAD-NEW-ADD-011",
+            "name_ar": "حي ثادق 11",
+            "name_en": "Thadiq District 11"
           }
         ]
       },
@@ -1339,6 +1469,16 @@
             "id": "SA-CENTRAL-HURA-006",
             "name_ar": "حي حريملاء 6",
             "name_en": "Huraymila District 6"
+          },
+          {
+            "id": "SA-HURA-NEW-ADD-007",
+            "name_ar": "حي حريملاء 7",
+            "name_en": "Huraymila District 7"
+          },
+          {
+            "id": "SA-HURA-NEW-ADD-008",
+            "name_ar": "حي حريملاء 8",
+            "name_en": "Huraymila District 8"
           }
         ]
       },
@@ -1386,6 +1526,16 @@
             "id": "SA-CENTRAL-AL G-008",
             "name_ar": "حي الغاط 8",
             "name_en": "Al Ghat District 8"
+          },
+          {
+            "id": "SA-AL G-NEW-ADD-009",
+            "name_ar": "حي الغاط 9",
+            "name_en": "Al Ghat District 9"
+          },
+          {
+            "id": "SA-AL G-NEW-ADD-010",
+            "name_ar": "حي الغاط 10",
+            "name_en": "Al Ghat District 10"
           }
         ]
       },
@@ -1443,6 +1593,16 @@
             "id": "SA-CENTRAL-MARA-010",
             "name_ar": "حي مرات 10",
             "name_en": "Marat District 10"
+          },
+          {
+            "id": "SA-MARA-NEW-ADD-011",
+            "name_ar": "حي مرات 11",
+            "name_en": "Marat District 11"
+          },
+          {
+            "id": "SA-MARA-NEW-ADD-012",
+            "name_ar": "حي مرات 12",
+            "name_en": "Marat District 12"
           }
         ]
       },
@@ -1495,6 +1655,11 @@
             "id": "SA-CENTRAL-SUDA-009",
             "name_ar": "حي سدير 9",
             "name_en": "Sudair District 9"
+          },
+          {
+            "id": "SA-SUDA-NEW-ADD-010",
+            "name_ar": "حي سدير 10",
+            "name_en": "Sudair District 10"
           }
         ]
       },
@@ -1547,6 +1712,11 @@
             "id": "SA-CENTRAL-AFIF-009",
             "name_ar": "حي عفيف 9",
             "name_en": "Afif District 9"
+          },
+          {
+            "id": "SA-AFIF-NEW-ADD-010",
+            "name_ar": "حي عفيف 10",
+            "name_en": "Afif District 10"
           }
         ]
       },
@@ -1614,6 +1784,11 @@
             "id": "SA-CENTRAL-AL S-012",
             "name_ar": "حي السليل 12",
             "name_en": "Al Sulayyil District 12"
+          },
+          {
+            "id": "SA-AL S-NEW-ADD-013",
+            "name_ar": "حي السليل 13",
+            "name_en": "Al Sulayyil District 13"
           }
         ]
       },
@@ -1681,6 +1856,11 @@
             "id": "SA-CENTRAL-AL A-012",
             "name_ar": "حي الأفلاج 12",
             "name_en": "Al Aflaj District 12"
+          },
+          {
+            "id": "SA-AL A-NEW-ADD-013",
+            "name_ar": "حي الأفلاج 13",
+            "name_en": "Al Aflaj District 13"
           }
         ]
       },
@@ -1728,6 +1908,11 @@
             "id": "SA-CENTRAL-AL K-008",
             "name_ar": "حي الخرمة 8",
             "name_en": "Al Khurmah District 8"
+          },
+          {
+            "id": "SA-AL K-NEW-ADD-009",
+            "name_ar": "حي الخرمة 9",
+            "name_en": "Al Khurmah District 9"
           }
         ]
       },
@@ -1780,6 +1965,11 @@
             "id": "SA-CENTRAL-TURB-009",
             "name_ar": "حي تربة 9",
             "name_en": "Turbah District 9"
+          },
+          {
+            "id": "SA-TURB-NEW-ADD-010",
+            "name_ar": "حي تربة 10",
+            "name_en": "Turbah District 10"
           }
         ]
       },
@@ -1827,6 +2017,11 @@
             "id": "SA-CENTRAL-RANY-008",
             "name_ar": "حي رنية 8",
             "name_en": "Ranyah District 8"
+          },
+          {
+            "id": "SA-RANY-NEW-ADD-009",
+            "name_ar": "حي رنية 9",
+            "name_en": "Ranyah District 9"
           }
         ]
       },
@@ -1884,6 +2079,11 @@
             "id": "SA-CENTRAL-AL M-010",
             "name_ar": "حي الموية 10",
             "name_en": "Al Muwayh District 10"
+          },
+          {
+            "id": "SA-AL M-NEW-ADD-011",
+            "name_ar": "حي الموية 11",
+            "name_en": "Al Muwayh District 11"
           }
         ]
       },
@@ -1926,6 +2126,11 @@
             "id": "SA-CENTRAL-AL H-007",
             "name_ar": "حي الهدا 7",
             "name_en": "Al Hada District 7"
+          },
+          {
+            "id": "SA-AL H-NEW-ADD-008",
+            "name_ar": "حي الهدا 8",
+            "name_en": "Al Hada District 8"
           }
         ]
       },
@@ -1983,6 +2188,11 @@
             "id": "SA-CENTRAL-AL H-010",
             "name_ar": "حي الحريق 10",
             "name_en": "Al Hariq District 10"
+          },
+          {
+            "id": "SA-AL H-NEW-ADD-011",
+            "name_ar": "حي الحريق 11",
+            "name_en": "Al Hariq District 11"
           }
         ]
       },
@@ -2025,6 +2235,11 @@
             "id": "SA-CENTRAL-HAWT-007",
             "name_ar": "حي حوطة بني تميم 7",
             "name_en": "Hawtah Bani Tamim District 7"
+          },
+          {
+            "id": "SA-HAWT-NEW-ADD-008",
+            "name_ar": "حي حوطة بني تميم 8",
+            "name_en": "Hawtah Bani Tamim District 8"
           }
         ]
       },
@@ -2072,6 +2287,11 @@
             "id": "SA-CENTRAL-LAYL-008",
             "name_ar": "حي ليلى 8",
             "name_en": "Layla District 8"
+          },
+          {
+            "id": "SA-LAYL-NEW-ADD-009",
+            "name_ar": "حي ليلى 9",
+            "name_en": "Layla District 9"
           }
         ]
       },
@@ -2114,6 +2334,11 @@
             "id": "SA-CENTRAL-AL B-007",
             "name_ar": "حي البدائع 7",
             "name_en": "Al Badayea District 7"
+          },
+          {
+            "id": "SA-AL B-NEW-ADD-008",
+            "name_ar": "حي البدائع 8",
+            "name_en": "Al Badayea District 8"
           }
         ]
       },
@@ -2181,6 +2406,11 @@
             "id": "SA-CENTRAL-AL R-012",
             "name_ar": "حي الرس 12",
             "name_en": "Al Rass District 12"
+          },
+          {
+            "id": "SA-AL R-NEW-ADD-013",
+            "name_ar": "حي الرس 13",
+            "name_en": "Al Rass District 13"
           }
         ]
       },
@@ -2218,6 +2448,11 @@
             "id": "SA-CENTRAL-AL B-006",
             "name_ar": "حي البكيرية 6",
             "name_en": "Al Bukayriyah District 6"
+          },
+          {
+            "id": "SA-AL B-NEW-ADD-007",
+            "name_ar": "حي البكيرية 7",
+            "name_en": "Al Bukayriyah District 7"
           }
         ]
       },
@@ -2275,6 +2510,11 @@
             "id": "SA-CENTRAL-AL M-010",
             "name_ar": "حي المذنب 10",
             "name_en": "Al Midhnab District 10"
+          },
+          {
+            "id": "SA-AL M-NEW-ADD-011",
+            "name_ar": "حي المذنب 11",
+            "name_en": "Al Midhnab District 11"
           }
         ]
       },
@@ -2342,6 +2582,11 @@
             "id": "SA-CENTRAL-AL N-012",
             "name_ar": "حي النبهانية 12",
             "name_en": "Al Nabhaniyah District 12"
+          },
+          {
+            "id": "SA-AL N-NEW-ADD-013",
+            "name_ar": "حي النبهانية 13",
+            "name_en": "Al Nabhaniyah District 13"
           }
         ]
       },
@@ -2379,6 +2624,11 @@
             "id": "SA-CENTRAL-AL -006-X",
             "name_ar": "حي الخرج الجديدة 6",
             "name_en": "Al Kharj New District 6"
+          },
+          {
+            "id": "SA-AL K-X-ADD-007",
+            "name_ar": "حي الخرج الجديدة 7",
+            "name_en": "Al Kharj New District 7"
           }
         ]
       },
@@ -2431,6 +2681,11 @@
             "id": "SA-CENTRAL-AL -009-X",
             "name_ar": "حي السيح 9",
             "name_en": "Al Saih District 9"
+          },
+          {
+            "id": "SA-AL S-X-ADD-010",
+            "name_ar": "حي السيح 10",
+            "name_en": "Al Saih District 10"
           }
         ]
       },
@@ -2468,6 +2723,11 @@
             "id": "SA-CENTRAL-CEN-006-X",
             "name_ar": "حي مدينة وسطى 1 6",
             "name_en": "Central City 1 District 6"
+          },
+          {
+            "id": "SA-CENT-X-ADD-007",
+            "name_ar": "حي مدينة وسطى 1 7",
+            "name_en": "Central City 1 District 7"
           }
         ]
       },
@@ -2500,6 +2760,11 @@
             "id": "SA-CENTRAL-CEN-005-X",
             "name_ar": "حي مدينة وسطى 2 5",
             "name_en": "Central City 2 District 5"
+          },
+          {
+            "id": "SA-CENT-X-ADD-006",
+            "name_ar": "حي مدينة وسطى 2 6",
+            "name_en": "Central City 2 District 6"
           }
         ]
       },
@@ -2547,6 +2812,11 @@
             "id": "SA-CENTRAL-CEN-008-X",
             "name_ar": "حي مدينة وسطى 3 8",
             "name_en": "Central City 3 District 8"
+          },
+          {
+            "id": "SA-CENT-X-ADD-009",
+            "name_ar": "حي مدينة وسطى 3 9",
+            "name_en": "Central City 3 District 9"
           }
         ]
       },
@@ -2579,6 +2849,11 @@
             "id": "SA-CENTRAL-CEN-005-X",
             "name_ar": "حي مدينة وسطى 4 5",
             "name_en": "Central City 4 District 5"
+          },
+          {
+            "id": "SA-CENT-X-ADD-006",
+            "name_ar": "حي مدينة وسطى 4 6",
+            "name_en": "Central City 4 District 6"
           }
         ]
       },
@@ -2626,6 +2901,11 @@
             "id": "SA-CENTRAL-CEN-008-X",
             "name_ar": "حي مدينة وسطى 5 8",
             "name_en": "Central City 5 District 8"
+          },
+          {
+            "id": "SA-CENT-X-ADD-009",
+            "name_ar": "حي مدينة وسطى 5 9",
+            "name_en": "Central City 5 District 9"
           }
         ]
       },
@@ -2673,6 +2953,11 @@
             "id": "SA-CENTRAL-CEN-008-X",
             "name_ar": "حي مدينة وسطى 6 8",
             "name_en": "Central City 6 District 8"
+          },
+          {
+            "id": "SA-CENT-X-ADD-009",
+            "name_ar": "حي مدينة وسطى 6 9",
+            "name_en": "Central City 6 District 9"
           }
         ]
       },
@@ -2725,6 +3010,11 @@
             "id": "SA-CENTRAL-CEN-009-X",
             "name_ar": "حي مدينة وسطى 7 9",
             "name_en": "Central City 7 District 9"
+          },
+          {
+            "id": "SA-CENT-X-ADD-010",
+            "name_ar": "حي مدينة وسطى 7 10",
+            "name_en": "Central City 7 District 10"
           }
         ]
       },
@@ -2757,6 +3047,11 @@
             "id": "SA-CENTRAL-CEN-005-X",
             "name_ar": "حي مدينة وسطى 8 5",
             "name_en": "Central City 8 District 5"
+          },
+          {
+            "id": "SA-CENT-X-ADD-006",
+            "name_ar": "حي مدينة وسطى 8 6",
+            "name_en": "Central City 8 District 6"
           }
         ]
       },
@@ -2814,6 +3109,11 @@
             "id": "SA-CENTRAL-CEN-010-X",
             "name_ar": "حي مدينة وسطى 9 10",
             "name_en": "Central City 9 District 10"
+          },
+          {
+            "id": "SA-CENT-X-ADD-011",
+            "name_ar": "حي مدينة وسطى 9 11",
+            "name_en": "Central City 9 District 11"
           }
         ]
       },
@@ -2861,6 +3161,11 @@
             "id": "SA-CENTRAL-CEN-008-X",
             "name_ar": "حي مدينة وسطى 10 8",
             "name_en": "Central City 10 District 8"
+          },
+          {
+            "id": "SA-CENT-X-ADD-009",
+            "name_ar": "حي مدينة وسطى 10 9",
+            "name_en": "Central City 10 District 9"
           }
         ]
       },
@@ -2903,6 +3208,11 @@
             "id": "SA-CENTRAL-CEN-007-X",
             "name_ar": "حي مدينة وسطى 11 7",
             "name_en": "Central City 11 District 7"
+          },
+          {
+            "id": "SA-CENT-X-ADD-008",
+            "name_ar": "حي مدينة وسطى 11 8",
+            "name_en": "Central City 11 District 8"
           }
         ]
       },
@@ -2960,6 +3270,11 @@
             "id": "SA-CENTRAL-CEN-010-X",
             "name_ar": "حي مدينة وسطى 12 10",
             "name_en": "Central City 12 District 10"
+          },
+          {
+            "id": "SA-CENT-X-ADD-011",
+            "name_ar": "حي مدينة وسطى 12 11",
+            "name_en": "Central City 12 District 11"
           }
         ]
       }
@@ -3369,6 +3684,11 @@
             "id": "SA-JED-079",
             "name_ar": "حي الوفاء",
             "name_en": "Al Wafaa District"
+          },
+          {
+            "id": "SA-JED-ADD-080",
+            "name_ar": "حي جدة 80",
+            "name_en": "Jeddah District 80"
           }
         ]
       },
@@ -3571,6 +3891,11 @@
             "id": "SA-MAK-039",
             "name_ar": "حي مريخ",
             "name_en": "Mureekh District"
+          },
+          {
+            "id": "SA-MAK-ADD-040",
+            "name_ar": "حي مكة المكرمة 40",
+            "name_en": "Makkah District 40"
           }
         ]
       },
@@ -3838,6 +4163,11 @@
             "id": "SA-MED-052",
             "name_ar": "حي جشم",
             "name_en": "Jusham District"
+          },
+          {
+            "id": "SA-MED-ADD-053",
+            "name_ar": "حي المدينة المنورة 53",
+            "name_en": "Madinah District 53"
           }
         ]
       },
@@ -3980,6 +4310,11 @@
             "id": "SA-TIF-027",
             "name_ar": "حي رحاب",
             "name_en": "Rihab District"
+          },
+          {
+            "id": "SA-TIF-ADD-028",
+            "name_ar": "حي الطائف 28",
+            "name_en": "Taif District 28"
           }
         ]
       },
@@ -4077,6 +4412,11 @@
             "id": "SA-YNB-018",
             "name_ar": "حي البندر",
             "name_en": "Al Bandar District"
+          },
+          {
+            "id": "SA-YNB-ADD-019",
+            "name_ar": "حي ينبع 19",
+            "name_en": "Yanbu District 19"
           }
         ]
       },
@@ -4124,6 +4464,11 @@
             "id": "SA-WESTERN-RAB-008",
             "name_ar": "حي رابغ 8",
             "name_en": "Rabigh District 8"
+          },
+          {
+            "id": "SA-RAB-ADD-009",
+            "name_ar": "حي رابغ 9",
+            "name_en": "Rabigh District 9"
           }
         ]
       },
@@ -4166,6 +4511,11 @@
             "id": "SA-WESTERN-AL -007",
             "name_ar": "حي القنفذة 7",
             "name_en": "Al Qunfudhah District 7"
+          },
+          {
+            "id": "SA-AL -ADD-008",
+            "name_ar": "حي القنفذة 8",
+            "name_en": "Al Qunfudhah District 8"
           }
         ]
       },
@@ -4203,6 +4553,11 @@
             "id": "SA-WESTERN-ALU-006",
             "name_ar": "حي العلا 6",
             "name_en": "AlUla District 6"
+          },
+          {
+            "id": "SA-ALU-ADD-007",
+            "name_ar": "حي العلا 7",
+            "name_en": "AlUla District 7"
           }
         ]
       },
@@ -4235,6 +4590,11 @@
             "id": "SA-WESTERN-BAD-005",
             "name_ar": "حي بدر 5",
             "name_en": "Badr District 5"
+          },
+          {
+            "id": "SA-BAD-ADD-006",
+            "name_ar": "حي بدر 6",
+            "name_en": "Badr District 6"
           }
         ]
       },
@@ -4282,6 +4642,11 @@
             "id": "SA-WESTERN-AL L-008",
             "name_ar": "حي الليث 8",
             "name_en": "Al Lith District 8"
+          },
+          {
+            "id": "SA-AL L-NEW-ADD-009",
+            "name_ar": "حي الليث 9",
+            "name_en": "Al Lith District 9"
           }
         ]
       },
@@ -4339,6 +4704,11 @@
             "id": "SA-WESTERN-ADHA-010",
             "name_ar": "حي أضم 10",
             "name_en": "Adham District 10"
+          },
+          {
+            "id": "SA-ADHA-NEW-ADD-011",
+            "name_ar": "حي أضم 11",
+            "name_en": "Adham District 11"
           }
         ]
       },
@@ -4401,6 +4771,11 @@
             "id": "SA-WESTERN-MAYS-011",
             "name_ar": "حي ميسان 11",
             "name_en": "Maysan District 11"
+          },
+          {
+            "id": "SA-MAYS-NEW-ADD-012",
+            "name_ar": "حي ميسان 12",
+            "name_en": "Maysan District 12"
           }
         ]
       },
@@ -4468,6 +4843,11 @@
             "id": "SA-WESTERN-KHUL-012",
             "name_ar": "حي خليص 12",
             "name_en": "Khulais District 12"
+          },
+          {
+            "id": "SA-KHUL-NEW-ADD-013",
+            "name_ar": "حي خليص 13",
+            "name_en": "Khulais District 13"
           }
         ]
       },
@@ -4525,6 +4905,11 @@
             "id": "SA-WESTERN-AL K-010",
             "name_ar": "حي الكامل 10",
             "name_en": "Al Kamil District 10"
+          },
+          {
+            "id": "SA-AL K-NEW-ADD-011",
+            "name_ar": "حي الكامل 11",
+            "name_en": "Al Kamil District 11"
           }
         ]
       },
@@ -4567,6 +4952,11 @@
             "id": "SA-WESTERN-AL J-007",
             "name_ar": "حي الجموم 7",
             "name_en": "Al Jumum District 7"
+          },
+          {
+            "id": "SA-AL J-NEW-ADD-008",
+            "name_ar": "حي الجموم 8",
+            "name_en": "Al Jumum District 8"
           }
         ]
       },
@@ -4614,6 +5004,11 @@
             "id": "SA-WESTERN-BAHR-008",
             "name_ar": "حي بحرة 8",
             "name_en": "Bahrah District 8"
+          },
+          {
+            "id": "SA-BAHR-NEW-ADD-009",
+            "name_ar": "حي بحرة 9",
+            "name_en": "Bahrah District 9"
           }
         ]
       },
@@ -4651,6 +5046,11 @@
             "id": "SA-WESTERN-DHAH-006",
             "name_ar": "حي ذهبان 6",
             "name_en": "Dhahban District 6"
+          },
+          {
+            "id": "SA-DHAH-NEW-ADD-007",
+            "name_ar": "حي ذهبان 7",
+            "name_en": "Dhahban District 7"
           }
         ]
       },
@@ -4713,6 +5113,11 @@
             "id": "SA-WESTERN-THUW-011",
             "name_ar": "حي ثول 11",
             "name_en": "Thuwal District 11"
+          },
+          {
+            "id": "SA-THUW-NEW-ADD-012",
+            "name_ar": "حي ثول 12",
+            "name_en": "Thuwal District 12"
           }
         ]
       },
@@ -4750,6 +5155,11 @@
             "id": "SA-WESTERN-MAST-006",
             "name_ar": "حي مستورة 6",
             "name_en": "Masturah District 6"
+          },
+          {
+            "id": "SA-MAST-NEW-ADD-007",
+            "name_ar": "حي مستورة 7",
+            "name_en": "Masturah District 7"
           }
         ]
       },
@@ -4817,6 +5227,11 @@
             "id": "SA-WESTERN-AL A-012",
             "name_ar": "حي العيص 12",
             "name_en": "Al Ais District 12"
+          },
+          {
+            "id": "SA-AL A-NEW-ADD-013",
+            "name_ar": "حي العيص 13",
+            "name_en": "Al Ais District 13"
           }
         ]
       },
@@ -4879,6 +5294,11 @@
             "id": "SA-WESTERN-YANB-011",
             "name_ar": "حي ينبع النخل 11",
             "name_en": "Yanbu Al Nakhal District 11"
+          },
+          {
+            "id": "SA-YANB-NEW-ADD-012",
+            "name_ar": "حي ينبع النخل 12",
+            "name_en": "Yanbu Al Nakhal District 12"
           }
         ]
       },
@@ -4926,6 +5346,11 @@
             "id": "SA-WESTERN-UMLU-008",
             "name_ar": "حي أملج 8",
             "name_en": "Umluj District 8"
+          },
+          {
+            "id": "SA-UMLU-NEW-ADD-009",
+            "name_ar": "حي أملج 9",
+            "name_en": "Umluj District 9"
           }
         ]
       },
@@ -4978,6 +5403,11 @@
             "id": "SA-WESTERN-TAYM-009",
             "name_ar": "حي تيماء 9",
             "name_en": "Tayma District 9"
+          },
+          {
+            "id": "SA-TAYM-NEW-ADD-010",
+            "name_ar": "حي تيماء 10",
+            "name_en": "Tayma District 10"
           }
         ]
       },
@@ -5035,6 +5465,11 @@
             "id": "SA-WESTERN-KHAY-010",
             "name_ar": "حي خيبر 10",
             "name_en": "Khaybar District 10"
+          },
+          {
+            "id": "SA-KHAY-NEW-ADD-011",
+            "name_ar": "حي خيبر 11",
+            "name_en": "Khaybar District 11"
           }
         ]
       },
@@ -5072,6 +5507,11 @@
             "id": "SA-WESTERN-MAHD-006",
             "name_ar": "حي مهد الذهب 6",
             "name_en": "Mahd Al Thahab District 6"
+          },
+          {
+            "id": "SA-MAHD-NEW-ADD-007",
+            "name_ar": "حي مهد الذهب 7",
+            "name_en": "Mahd Al Thahab District 7"
           }
         ]
       },
@@ -5119,6 +5559,11 @@
             "id": "SA-WESTERN-AL H-008",
             "name_ar": "حي الحناكية 8",
             "name_en": "Al Hanakiyah District 8"
+          },
+          {
+            "id": "SA-AL H-NEW-ADD-009",
+            "name_ar": "حي الحناكية 9",
+            "name_en": "Al Hanakiyah District 9"
           }
         ]
       },
@@ -5171,6 +5616,11 @@
             "id": "SA-WESTERN-WADI-009",
             "name_ar": "حي وادي الفرع 9",
             "name_en": "Wadi Al Fara District 9"
+          },
+          {
+            "id": "SA-WADI-NEW-ADD-010",
+            "name_ar": "حي وادي الفرع 10",
+            "name_en": "Wadi Al Fara District 10"
           }
         ]
       },
@@ -5203,6 +5653,11 @@
             "id": "SA-WESTERN-JED-005-X",
             "name_ar": "حي جدة الجديدة 5",
             "name_en": "Jeddah New District 5"
+          },
+          {
+            "id": "SA-JEDD-X-ADD-006",
+            "name_ar": "حي جدة الجديدة 6",
+            "name_en": "Jeddah New District 6"
           }
         ]
       },
@@ -5245,6 +5700,11 @@
             "id": "SA-WESTERN-MAK-007-X",
             "name_ar": "حي مكة الجديدة 7",
             "name_en": "Makkah New District 7"
+          },
+          {
+            "id": "SA-MAKK-X-ADD-008",
+            "name_ar": "حي مكة الجديدة 8",
+            "name_en": "Makkah New District 8"
           }
         ]
       }
@@ -5674,6 +6134,11 @@
             "id": "SA-DMM-083",
             "name_ar": "حي مطار الملك فهد الدولي",
             "name_en": "KFIA District"
+          },
+          {
+            "id": "SA-DMM-ADD-084",
+            "name_ar": "حي الدمام 84",
+            "name_en": "Dammam District 84"
           }
         ]
       },
@@ -5821,6 +6286,11 @@
             "id": "SA-KHO-028",
             "name_ar": "حي إسكان الخبر",
             "name_en": "Al Khobar Iskan"
+          },
+          {
+            "id": "SA-KHO-ADD-029",
+            "name_ar": "حي الخبر 29",
+            "name_en": "Al Khobar District 29"
           }
         ]
       },
@@ -5893,6 +6363,11 @@
             "id": "SA-DHR-013",
             "name_ar": "حي أجيال أرامكو",
             "name_en": "Aramco Ajyal District"
+          },
+          {
+            "id": "SA-DHR-ADD-014",
+            "name_ar": "حي الظهران 14",
+            "name_en": "Dhahran District 14"
           }
         ]
       },
@@ -6090,6 +6565,11 @@
             "id": "SA-AHS-038",
             "name_ar": "حي جواثا",
             "name_en": "Jawatha District"
+          },
+          {
+            "id": "SA-AHS-ADD-039",
+            "name_ar": "حي الأحساء 39",
+            "name_en": "Al-Ahsa District 39"
           }
         ]
       },
@@ -6192,6 +6672,11 @@
             "id": "SA-JUB-019",
             "name_ar": "حي الصناعية الثانية",
             "name_en": "Second Industrial District"
+          },
+          {
+            "id": "SA-JUB-ADD-020",
+            "name_ar": "حي الجبيل 20",
+            "name_en": "Al Jubail District 20"
           }
         ]
       },
@@ -6289,6 +6774,11 @@
             "id": "SA-QAT-018",
             "name_ar": "حي التركية",
             "name_en": "Al Turkiyah District"
+          },
+          {
+            "id": "SA-QAT-ADD-019",
+            "name_ar": "حي القطيف 19",
+            "name_en": "Al Qatif District 19"
           }
         ]
       },
@@ -6381,6 +6871,11 @@
             "id": "SA-HBT-017",
             "name_ar": "حي التلال",
             "name_en": "Al Tilal District"
+          },
+          {
+            "id": "SA-HBT-ADD-018",
+            "name_ar": "حي حفر الباطن 18",
+            "name_en": "Hafar Al-Batin District 18"
           }
         ]
       },
@@ -6423,6 +6918,11 @@
             "id": "SA-EASTERN-KHA-007",
             "name_ar": "حي الخفجي 7",
             "name_en": "Khafji District 7"
+          },
+          {
+            "id": "SA-KHA-ADD-008",
+            "name_ar": "حي الخفجي 8",
+            "name_en": "Khafji District 8"
           }
         ]
       },
@@ -6455,6 +6955,11 @@
             "id": "SA-EASTERN-AL -005",
             "name_ar": "حي النعيرية 5",
             "name_en": "Al Nairyah District 5"
+          },
+          {
+            "id": "SA-AL -ADD-006",
+            "name_ar": "حي النعيرية 6",
+            "name_en": "Al Nairyah District 6"
           }
         ]
       },
@@ -6492,6 +6997,11 @@
             "id": "SA-EASTERN-BUQ-006",
             "name_ar": "حي بقيق 6",
             "name_en": "Buqayq District 6"
+          },
+          {
+            "id": "SA-BUQ-ADD-007",
+            "name_ar": "حي بقيق 7",
+            "name_en": "Buqayq District 7"
           }
         ]
       },
@@ -6524,6 +7034,11 @@
             "id": "SA-EASTERN-QAR-005",
             "name_ar": "حي قرية العليا 5",
             "name_en": "Qaryat Al Ulya District 5"
+          },
+          {
+            "id": "SA-QAR-ADD-006",
+            "name_ar": "حي قرية العليا 6",
+            "name_en": "Qaryat Al Ulya District 6"
           }
         ]
       },
@@ -6571,6 +7086,11 @@
             "id": "SA-EASTERN-SAIH-008",
             "name_ar": "حي سيهات 8",
             "name_en": "Saihat District 8"
+          },
+          {
+            "id": "SA-SAIH-NEW-ADD-009",
+            "name_ar": "حي سيهات 9",
+            "name_en": "Saihat District 9"
           }
         ]
       },
@@ -6628,6 +7148,11 @@
             "id": "SA-EASTERN-SAFW-010",
             "name_ar": "حي صفوى 10",
             "name_en": "Safwa District 10"
+          },
+          {
+            "id": "SA-SAFW-NEW-ADD-011",
+            "name_ar": "حي صفوى 11",
+            "name_en": "Safwa District 11"
           }
         ]
       },
@@ -6690,6 +7215,11 @@
             "id": "SA-EASTERN-RAS -011",
             "name_ar": "حي رأس تنورة 11",
             "name_en": "Ras Tanura District 11"
+          },
+          {
+            "id": "SA-RAS -NEW-ADD-012",
+            "name_ar": "حي رأس تنورة 12",
+            "name_en": "Ras Tanura District 12"
           }
         ]
       },
@@ -6732,6 +7262,11 @@
             "id": "SA-EASTERN-AL M-007",
             "name_ar": "حي ال many 7",
             "name_en": "Al Many District 7"
+          },
+          {
+            "id": "SA-AL M-NEW-ADD-008",
+            "name_ar": "حي ال many 8",
+            "name_en": "Al Many District 8"
           }
         ]
       },
@@ -6789,6 +7324,11 @@
             "id": "SA-EASTERN-AL U-010",
             "name_ar": "حي العيون 10",
             "name_en": "Al Uyun District 10"
+          },
+          {
+            "id": "SA-AL U-NEW-ADD-011",
+            "name_ar": "حي العيون 11",
+            "name_en": "Al Uyun District 11"
           }
         ]
       },
@@ -6841,6 +7381,11 @@
             "id": "SA-EASTERN-AL U-009",
             "name_ar": "حي العمران 9",
             "name_en": "Al Umran District 9"
+          },
+          {
+            "id": "SA-AL U-NEW-ADD-010",
+            "name_ar": "حي العمران 10",
+            "name_en": "Al Umran District 10"
           }
         ]
       },
@@ -6893,6 +7438,11 @@
             "id": "SA-EASTERN-AL T-009",
             "name_ar": "حي الطرف 9",
             "name_en": "Al Taraf District 9"
+          },
+          {
+            "id": "SA-AL T-NEW-ADD-010",
+            "name_ar": "حي الطرف 10",
+            "name_en": "Al Taraf District 10"
           }
         ]
       },
@@ -6925,6 +7475,11 @@
             "id": "SA-EASTERN-DAM-005-X",
             "name_ar": "حي الدمام الجديدة 5",
             "name_en": "Dammam New District 5"
+          },
+          {
+            "id": "SA-DAMM-X-ADD-006",
+            "name_ar": "حي الدمام الجديدة 6",
+            "name_en": "Dammam New District 6"
           }
         ]
       },
@@ -6972,6 +7527,11 @@
             "id": "SA-EASTERN-KHO-008-X",
             "name_ar": "حي الخبر الجديدة 8",
             "name_en": "Khobar New District 8"
+          },
+          {
+            "id": "SA-KHOB-X-ADD-009",
+            "name_ar": "حي الخبر الجديدة 9",
+            "name_en": "Khobar New District 9"
           }
         ]
       }
@@ -7151,6 +7711,11 @@
             "id": "SA-ABH-033",
             "name_ar": "حي وادي بن هشبل",
             "name_en": "Wadi Bin Hashbal District"
+          },
+          {
+            "id": "SA-ABH-ADD-034",
+            "name_ar": "حي أبها 34",
+            "name_en": "Abha District 34"
           }
         ]
       },
@@ -7308,6 +7873,11 @@
             "id": "SA-KHM-030",
             "name_ar": "حي السعادة",
             "name_en": "As Sa'adah District"
+          },
+          {
+            "id": "SA-KHM-ADD-031",
+            "name_ar": "حي خميس مشيط 31",
+            "name_en": "Khamis Mushait District 31"
           }
         ]
       },
@@ -7405,6 +7975,11 @@
             "id": "SA-JAZ-018",
             "name_ar": "حي المنطقة الصناعية",
             "name_en": "Industrial Area"
+          },
+          {
+            "id": "SA-JAZ-ADD-019",
+            "name_ar": "حي جازان 19",
+            "name_en": "Jazan District 19"
           }
         ]
       },
@@ -7497,6 +8072,11 @@
             "id": "SA-NJR-017",
             "name_ar": "حي نهوقة",
             "name_en": "Nahouqah District"
+          },
+          {
+            "id": "SA-NJR-ADD-018",
+            "name_ar": "حي نجران 18",
+            "name_en": "Najran District 18"
           }
         ]
       },
@@ -7574,6 +8154,11 @@
             "id": "SA-BAH-014",
             "name_ar": "حي شبرقة",
             "name_en": "Shabraqah District"
+          },
+          {
+            "id": "SA-BAH-ADD-015",
+            "name_ar": "حي الباحة 15",
+            "name_en": "Al Bahah District 15"
           }
         ]
       },
@@ -7616,6 +8201,11 @@
             "id": "SA-SOUTHERN-AL -007",
             "name_ar": "حي النماص 7",
             "name_en": "Al Namas District 7"
+          },
+          {
+            "id": "SA-AL -ADD-008",
+            "name_ar": "حي النماص 8",
+            "name_en": "Al Namas District 8"
           }
         ]
       },
@@ -7653,6 +8243,11 @@
             "id": "SA-SOUTHERN-BAL-006",
             "name_ar": "حي بلجرشي 6",
             "name_en": "Baljurashi District 6"
+          },
+          {
+            "id": "SA-BAL-ADD-007",
+            "name_ar": "حي بلجرشي 7",
+            "name_en": "Baljurashi District 7"
           }
         ]
       },
@@ -7685,6 +8280,11 @@
             "id": "SA-SOUTHERN-DHA-005",
             "name_ar": "حي ظهران الجنوب 5",
             "name_en": "Dhahran Al Janub District 5"
+          },
+          {
+            "id": "SA-DHA-ADD-006",
+            "name_ar": "حي ظهران الجنوب 6",
+            "name_en": "Dhahran Al Janub District 6"
           }
         ]
       },
@@ -7722,6 +8322,11 @@
             "id": "SA-SOUTHERN-SHA-006",
             "name_ar": "حي شرورة 6",
             "name_en": "Sharurah District 6"
+          },
+          {
+            "id": "SA-SHA-ADD-007",
+            "name_ar": "حي شرورة 7",
+            "name_en": "Sharurah District 7"
           }
         ]
       },
@@ -7789,6 +8394,11 @@
             "id": "SA-SOUTHERN-MUHA-012",
             "name_ar": "حي محايل عسير 12",
             "name_en": "Muhayil Asir District 12"
+          },
+          {
+            "id": "SA-MUHA-NEW-ADD-013",
+            "name_ar": "حي محايل عسير 13",
+            "name_en": "Muhayil Asir District 13"
           }
         ]
       },
@@ -7846,6 +8456,11 @@
             "id": "SA-SOUTHERN-BARI-010",
             "name_ar": "حي بارق 10",
             "name_en": "Bariq District 10"
+          },
+          {
+            "id": "SA-BARI-NEW-ADD-011",
+            "name_ar": "حي بارق 11",
+            "name_en": "Bariq District 11"
           }
         ]
       },
@@ -7893,6 +8508,11 @@
             "id": "SA-SOUTHERN-AL M-008",
             "name_ar": "حي المجاردة 8",
             "name_en": "Al Majardah District 8"
+          },
+          {
+            "id": "SA-AL M-NEW-ADD-009",
+            "name_ar": "حي المجاردة 9",
+            "name_en": "Al Majardah District 9"
           }
         ]
       },
@@ -7930,6 +8550,11 @@
             "id": "SA-SOUTHERN-RIJA-006",
             "name_ar": "حي رجال ألمع 6",
             "name_en": "Rijal Alma District 6"
+          },
+          {
+            "id": "SA-RIJA-NEW-ADD-007",
+            "name_ar": "حي رجال ألمع 7",
+            "name_en": "Rijal Alma District 7"
           }
         ]
       },
@@ -7997,6 +8622,11 @@
             "id": "SA-SOUTHERN-TATH-012",
             "name_ar": "حي تثليث 12",
             "name_en": "Tathlith District 12"
+          },
+          {
+            "id": "SA-TATH-NEW-ADD-013",
+            "name_ar": "حي تثليث 13",
+            "name_en": "Tathlith District 13"
           }
         ]
       },
@@ -8054,6 +8684,11 @@
             "id": "SA-SOUTHERN-BISH-010",
             "name_ar": "حي بيشة 10",
             "name_en": "Bisha District 10"
+          },
+          {
+            "id": "SA-BISH-NEW-ADD-011",
+            "name_ar": "حي بيشة 11",
+            "name_en": "Bisha District 11"
           }
         ]
       },
@@ -8091,6 +8726,11 @@
             "id": "SA-SOUTHERN-TANO-006",
             "name_ar": "حي تنومة 6",
             "name_en": "Tanomah District 6"
+          },
+          {
+            "id": "SA-TANO-NEW-ADD-007",
+            "name_ar": "حي تنومة 7",
+            "name_en": "Tanomah District 7"
           }
         ]
       },
@@ -8128,6 +8768,11 @@
             "id": "SA-SOUTHERN-BALQ-006",
             "name_ar": "حي بلقرن 6",
             "name_en": "Balqarn District 6"
+          },
+          {
+            "id": "SA-BALQ-NEW-ADD-007",
+            "name_ar": "حي بلقرن 7",
+            "name_en": "Balqarn District 7"
           }
         ]
       },
@@ -8190,6 +8835,11 @@
             "id": "SA-SOUTHERN-SARA-011",
             "name_ar": "حي سراة عبيدة 11",
             "name_en": "Sarat Abidah District 11"
+          },
+          {
+            "id": "SA-SARA-NEW-ADD-012",
+            "name_ar": "حي سراة عبيدة 12",
+            "name_en": "Sarat Abidah District 12"
           }
         ]
       },
@@ -8257,6 +8907,11 @@
             "id": "SA-SOUTHERN-AHAD-012",
             "name_ar": "حي أحد رفيدة 12",
             "name_en": "Ahad Rafidah District 12"
+          },
+          {
+            "id": "SA-AHAD-NEW-ADD-013",
+            "name_ar": "حي أحد رفيدة 13",
+            "name_en": "Ahad Rafidah District 13"
           }
         ]
       },
@@ -8309,6 +8964,11 @@
             "id": "SA-SOUTHERN-SABY-009",
             "name_ar": "حي صبيا 9",
             "name_en": "Sabya District 9"
+          },
+          {
+            "id": "SA-SABY-NEW-ADD-010",
+            "name_ar": "حي صبيا 10",
+            "name_en": "Sabya District 10"
           }
         ]
       },
@@ -8371,6 +9031,11 @@
             "id": "SA-SOUTHERN-ABU -011",
             "name_ar": "حي أبو عريش 11",
             "name_en": "Abu Arish District 11"
+          },
+          {
+            "id": "SA-ABU -NEW-ADD-012",
+            "name_ar": "حي أبو عريش 12",
+            "name_en": "Abu Arish District 12"
           }
         ]
       },
@@ -8438,6 +9103,11 @@
             "id": "SA-SOUTHERN-SAMT-012",
             "name_ar": "حي صامطة 12",
             "name_en": "Samtah District 12"
+          },
+          {
+            "id": "SA-SAMT-NEW-ADD-013",
+            "name_ar": "حي صامطة 13",
+            "name_en": "Samtah District 13"
           }
         ]
       },
@@ -8505,6 +9175,11 @@
             "id": "SA-SOUTHERN-AL D-012",
             "name_ar": "حي الدرب 12",
             "name_en": "Al Darb District 12"
+          },
+          {
+            "id": "SA-AL D-NEW-ADD-013",
+            "name_ar": "حي الدرب 13",
+            "name_en": "Al Darb District 13"
           }
         ]
       },
@@ -8567,6 +9242,11 @@
             "id": "SA-SOUTHERN-BAYS-011",
             "name_ar": "حي بيش 11",
             "name_en": "Baysh District 11"
+          },
+          {
+            "id": "SA-BAYS-NEW-ADD-012",
+            "name_ar": "حي بيش 12",
+            "name_en": "Baysh District 12"
           }
         ]
       },
@@ -8629,6 +9309,11 @@
             "id": "SA-SOUTHERN-AL A-011",
             "name_ar": "حي العارضة 11",
             "name_en": "Al Aridhah District 11"
+          },
+          {
+            "id": "SA-AL A-NEW-ADD-012",
+            "name_ar": "حي العارضة 12",
+            "name_en": "Al Aridhah District 12"
           }
         ]
       },
@@ -8666,6 +9351,11 @@
             "id": "SA-SOUTHERN-HUBU-006",
             "name_ar": "حي حبونا 6",
             "name_en": "Hubuna District 6"
+          },
+          {
+            "id": "SA-HUBU-NEW-ADD-007",
+            "name_ar": "حي حبونا 7",
+            "name_en": "Hubuna District 7"
           }
         ]
       },
@@ -8723,6 +9413,11 @@
             "id": "SA-SOUTHERN-BADR-010",
             "name_ar": "حي بدر الجنوب 10",
             "name_en": "Badr South District 10"
+          },
+          {
+            "id": "SA-BADR-NEW-ADD-011",
+            "name_ar": "حي بدر الجنوب 11",
+            "name_en": "Badr South District 11"
           }
         ]
       },
@@ -8775,6 +9470,11 @@
             "id": "SA-SOUTHERN-YADA-009",
             "name_ar": "حي يدمة 9",
             "name_en": "Yadamah District 9"
+          },
+          {
+            "id": "SA-YADA-NEW-ADD-010",
+            "name_ar": "حي يدمة 10",
+            "name_en": "Yadamah District 10"
           }
         ]
       },
@@ -8842,6 +9542,11 @@
             "id": "SA-SOUTHERN-AL M-012",
             "name_ar": "حي المندق 12",
             "name_en": "Al Mandaq District 12"
+          },
+          {
+            "id": "SA-AL M-NEW-ADD-013",
+            "name_ar": "حي المندق 13",
+            "name_en": "Al Mandaq District 13"
           }
         ]
       },
@@ -8909,6 +9614,11 @@
             "id": "SA-SOUTHERN-AL M-012",
             "name_ar": "حي المخواة 12",
             "name_en": "Al Makhwah District 12"
+          },
+          {
+            "id": "SA-AL M-NEW-ADD-013",
+            "name_ar": "حي المخواة 13",
+            "name_en": "Al Makhwah District 13"
           }
         ]
       },
@@ -8956,6 +9666,11 @@
             "id": "SA-SOUTHERN-QILW-008",
             "name_ar": "حي قلوة 8",
             "name_en": "Qilwah District 8"
+          },
+          {
+            "id": "SA-QILW-NEW-ADD-009",
+            "name_ar": "حي قلوة 9",
+            "name_en": "Qilwah District 9"
           }
         ]
       },
@@ -9003,6 +9718,11 @@
             "id": "SA-SOUTHERN-ABH-008-X",
             "name_ar": "حي أبها الجديدة 8",
             "name_en": "Abha New District 8"
+          },
+          {
+            "id": "SA-ABHA-X-ADD-009",
+            "name_ar": "حي أبها الجديدة 9",
+            "name_en": "Abha New District 9"
           }
         ]
       },
@@ -9050,6 +9770,11 @@
             "id": "SA-SOUTHERN-JAZ-008-X",
             "name_ar": "حي جازان الجديدة 8",
             "name_en": "Jazan New District 8"
+          },
+          {
+            "id": "SA-JAZA-X-ADD-009",
+            "name_ar": "حي جازان الجديدة 9",
+            "name_en": "Jazan New District 9"
           }
         ]
       }
@@ -9199,6 +9924,11 @@
             "id": "SA-TAB-027",
             "name_ar": "حي السنابل",
             "name_en": "As Sanabil District"
+          },
+          {
+            "id": "SA-TAB-ADD-028",
+            "name_ar": "حي تبوك 28",
+            "name_en": "Tabuk District 28"
           }
         ]
       },
@@ -9296,6 +10026,11 @@
             "id": "SA-HIL-018",
             "name_ar": "حي طابة",
             "name_en": "Tabah District"
+          },
+          {
+            "id": "SA-HIL-ADD-019",
+            "name_ar": "حي حائل 19",
+            "name_en": "Hail District 19"
           }
         ]
       },
@@ -9368,6 +10103,11 @@
             "id": "SA-ARR-013",
             "name_ar": "حي النسيم",
             "name_en": "An Naseem District"
+          },
+          {
+            "id": "SA-ARR-ADD-014",
+            "name_ar": "حي عرعر 14",
+            "name_en": "Arar District 14"
           }
         ]
       },
@@ -9435,6 +10175,11 @@
             "id": "SA-SKK-012",
             "name_ar": "حي غطي",
             "name_en": "Ghatti District"
+          },
+          {
+            "id": "SA-SKK-ADD-013",
+            "name_ar": "حي سكاكا 13",
+            "name_en": "Sakaka District 13"
           }
         ]
       },
@@ -9492,6 +10237,11 @@
             "id": "SA-QRY-010",
             "name_ar": "حي الحميدية",
             "name_en": "Al Hamidiyah District"
+          },
+          {
+            "id": "SA-QRY-ADD-011",
+            "name_ar": "حي القريات 11",
+            "name_en": "Al Qurayyat District 11"
           }
         ]
       },
@@ -9539,6 +10289,11 @@
             "id": "SA-RAF-008",
             "name_ar": "حي القادسية",
             "name_en": "Al Qadisiyah District"
+          },
+          {
+            "id": "SA-RAF-ADD-009",
+            "name_ar": "حي رفحاء 9",
+            "name_en": "Rafha District 9"
           }
         ]
       },
@@ -9576,6 +10331,11 @@
             "id": "SA-NORTHERN-TUR-006",
             "name_ar": "حي طريف 6",
             "name_en": "Turaif District 6"
+          },
+          {
+            "id": "SA-TUR-ADD-007",
+            "name_ar": "حي طريف 7",
+            "name_en": "Turaif District 7"
           }
         ]
       },
@@ -9618,6 +10378,11 @@
             "id": "SA-NORTHERN-AL -007",
             "name_ar": "حي الوجه 7",
             "name_en": "Al Wajh District 7"
+          },
+          {
+            "id": "SA-AL -ADD-008",
+            "name_ar": "حي الوجه 8",
+            "name_en": "Al Wajh District 8"
           }
         ]
       },
@@ -9655,6 +10420,11 @@
             "id": "SA-NORTHERN-DUB-006",
             "name_ar": "حي ضباء 6",
             "name_en": "Duba District 6"
+          },
+          {
+            "id": "SA-DUB-ADD-007",
+            "name_ar": "حي ضباء 7",
+            "name_en": "Duba District 7"
           }
         ]
       },
@@ -9687,6 +10457,11 @@
             "id": "SA-NORTHERN-HAQ-005",
             "name_ar": "حي حقل 5",
             "name_en": "Haql District 5"
+          },
+          {
+            "id": "SA-HAQ-ADD-006",
+            "name_ar": "حي حقل 6",
+            "name_en": "Haql District 6"
           }
         ]
       },
@@ -9729,6 +10504,11 @@
             "id": "SA-NORTHERN-DUMA-007",
             "name_ar": "حي دومة الجندل 7",
             "name_en": "Dumat Al Jandal District 7"
+          },
+          {
+            "id": "SA-DUMA-NEW-ADD-008",
+            "name_ar": "حي دومة الجندل 8",
+            "name_en": "Dumat Al Jandal District 8"
           }
         ]
       },
@@ -9791,6 +10571,11 @@
             "id": "SA-NORTHERN-TABA-011",
             "name_ar": "حي طبرجل 11",
             "name_en": "Tabarjal District 11"
+          },
+          {
+            "id": "SA-TABA-NEW-ADD-012",
+            "name_ar": "حي طبرجل 12",
+            "name_en": "Tabarjal District 12"
           }
         ]
       },
@@ -9838,6 +10623,11 @@
             "id": "SA-NORTHERN-BAQA-008",
             "name_ar": "حي بقعاء 8",
             "name_en": "Baqaa District 8"
+          },
+          {
+            "id": "SA-BAQA-NEW-ADD-009",
+            "name_ar": "حي بقعاء 9",
+            "name_en": "Baqaa District 9"
           }
         ]
       },
@@ -9900,6 +10690,11 @@
             "id": "SA-NORTHERN-AL S-011",
             "name_ar": "حي الشنان 11",
             "name_en": "Al Shinan District 11"
+          },
+          {
+            "id": "SA-AL S-NEW-ADD-012",
+            "name_ar": "حي الشنان 12",
+            "name_en": "Al Shinan District 12"
           }
         ]
       },
@@ -9967,6 +10762,11 @@
             "id": "SA-NORTHERN-AL G-012",
             "name_ar": "حي الغزالة 12",
             "name_en": "Al Ghazalah District 12"
+          },
+          {
+            "id": "SA-AL G-NEW-ADD-013",
+            "name_ar": "حي الغزالة 13",
+            "name_en": "Al Ghazalah District 13"
           }
         ]
       },
@@ -10004,6 +10804,11 @@
             "id": "SA-NORTHERN-MAWQ-006",
             "name_ar": "حي موقق 6",
             "name_en": "Mawqaq District 6"
+          },
+          {
+            "id": "SA-MAWQ-NEW-ADD-007",
+            "name_ar": "حي موقق 7",
+            "name_en": "Mawqaq District 7"
           }
         ]
       },
@@ -10046,6 +10851,11 @@
             "id": "SA-NORTHERN-DUBA-007",
             "name_ar": "حي ضبا 7",
             "name_en": "Duba3 District 7"
+          },
+          {
+            "id": "SA-DUBA-NEW-ADD-008",
+            "name_ar": "حي ضبا 8",
+            "name_en": "Duba3 District 8"
           }
         ]
       },
@@ -10103,6 +10913,11 @@
             "id": "SA-NORTHERN-AL B-010",
             "name_ar": "حي البدع 10",
             "name_en": "Al Bad District 10"
+          },
+          {
+            "id": "SA-AL B-NEW-ADD-011",
+            "name_ar": "حي البدع 11",
+            "name_en": "Al Bad District 11"
           }
         ]
       },
@@ -10145,6 +10960,11 @@
             "id": "SA-NORTHERN-AL U-007",
             "name_ar": "حي العويقيلة 7",
             "name_en": "Al Uwayqilah District 7"
+          },
+          {
+            "id": "SA-AL U-NEW-ADD-008",
+            "name_ar": "حي العويقيلة 8",
+            "name_en": "Al Uwayqilah District 8"
           }
         ]
       },
@@ -10202,6 +11022,11 @@
             "id": "SA-NORTHERN-TAB-010-X",
             "name_ar": "حي تبوك الجديدة 10",
             "name_en": "Tabuk New District 10"
+          },
+          {
+            "id": "SA-TABU-X-ADD-011",
+            "name_ar": "حي تبوك الجديدة 11",
+            "name_en": "Tabuk New District 11"
           }
         ]
       },
@@ -10249,6 +11074,11 @@
             "id": "SA-NORTHERN-ARA-008-X",
             "name_ar": "حي عرعر الجديدة 8",
             "name_en": "Arar New District 8"
+          },
+          {
+            "id": "SA-ARAR-X-ADD-009",
+            "name_ar": "حي عرعر الجديدة 9",
+            "name_en": "Arar New District 9"
           }
         ]
       }

@@ -31,7 +31,16 @@ export async function GET() {
       "hba1c-glycated-hemoglobin",
     ];
   }
-  const cities = ["riyadh", "jeddah", "dammam", "makkah", "madinah", "khobar", "tabuk", "abha", "qassim", "hail", "jubail", "yanbu"];
+  // Central GEO: fetch all 150 cities from unified seed via API (fallback to 12)
+  let cities: string[] = ["riyadh", "jeddah", "dammam", "makkah", "madinah", "khobar", "tabuk", "abha", "qassim", "hail", "jubail", "yanbu"];
+  try {
+    const geoRes = await fetch(`${backendUrl}/api/v1/locations/cities`, { next: { revalidate: 21600 } });
+    if (geoRes.ok) {
+      const geoData: any = await geoRes.json();
+      const geoCities: string[] = (Array.isArray(geoData) ? geoData : geoData?.data || []).map((c: any) => c.code?.replace(/^sa-/, '').toLowerCase()).filter(Boolean);
+      if (geoCities.length > 20) cities = geoCities.slice(0, 150);
+    }
+  } catch {}
 
   const urls = locales.flatMap((locale) =>
     tests.flatMap((test) =>

@@ -24,8 +24,16 @@ export async function GET() {
     doctors = [];
   }
 
-  // GEO: each doctor also indexed with city variants for "best dermatologist in Riyadh" queries
-  const cities = ["riyadh", "jeddah", "dammam", "makkah", "madinah", "khobar"];
+  // GEO: each doctor also indexed with city variants — central 150 cities
+  let cities = ["riyadh", "jeddah", "dammam", "makkah", "madinah", "khobar"];
+  try {
+    const geoRes = await fetch(`${backendUrl}/api/v1/locations/cities`, { next: { revalidate: 21600 } });
+    if (geoRes.ok) {
+      const geoData: any = await geoRes.json();
+      const geoCities: string[] = (Array.isArray(geoData) ? geoData : geoData?.data || []).map((c: any) => c.code?.replace(/^sa-/, '').toLowerCase()).filter(Boolean);
+      if (geoCities.length > 20) cities = geoCities.slice(0, 150);
+    }
+  } catch {}
   const urls = locales.flatMap((locale) =>
     doctors.flatMap((d) => {
       const base = `  <url><loc>${esc(localizedUrl(locale, `/doctor/${encodeURIComponent(d.slug)}`))}</loc>${d.lastmod ? `<lastmod>${d.lastmod}</lastmod>` : ""}<changefreq>weekly</changefreq><priority>0.85</priority></url>`;
