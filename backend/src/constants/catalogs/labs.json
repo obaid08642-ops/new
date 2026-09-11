@@ -3368,5 +3368,92 @@
   "medical_review_status": "approved",
   "public_eligibility": true,
   "is_active": true
+ },
+ {
+  "code": "HIV",
+  "name_ar": "تحليل فيروس نقص المناعة HIV",
+  "name_en": "HIV Test",
+  "category": "infection",
+  "sample_type": "blood",
+  "price": 120,
+  "turnaround_hours": 24,
+  "popularity": 70,
+  "description_ar": "كشف الأجسام المضادة لفيروس نقص المناعة البشرية بسرية تامة.",
+  "description_en": "Confidential HIV antibody screening.",
+  "preparation_ar": [
+   "لا يتطلب صيام"
+  ],
+  "image_url": "https://cdn.nabd.plus/labs/hiv.png",
+  "is_active": true
+ },
+ {
+  "code": "PAP",
+  "name_ar": "مسحة عنق الرحم",
+  "name_en": "Pap Smear",
+  "category": "women",
+  "sample_type": "swab",
+  "price": 180,
+  "turnaround_hours": 48,
+  "popularity": 65,
+  "description_ar": "فحص مبكر لسرطان عنق الرحم.",
+  "description_en": "Cervical cancer screening.",
+  "image_url": "https://cdn.nabd.plus/labs/pap.png",
+  "is_active": true
+ },
+ {
+  "code": "SEMEN",
+  "name_ar": "تحليل السائل المنوي",
+  "name_en": "Semen Analysis",
+  "category": "fertility",
+  "sample_type": "semen",
+  "price": 150,
+  "turnaround_hours": 24,
+  "popularity": 55,
+  "description_ar": "تقييم الخصوبة: العدد والحركة والشكل.",
+  "description_en": "Fertility assessment: count, motility, morphology.",
+  "image_url": "https://cdn.nabd.plus/labs/semen.png",
+  "is_active": true
+ },
+ {
+  "code": "QFT",
+  "name_ar": "اختبار الدرن Quantiferon",
+  "name_en": "Quantiferon-TB",
+  "category": "infection",
+  "sample_type": "blood",
+  "price": 280,
+  "turnaround_hours": 48,
+  "popularity": 45,
+  "description_ar": "كشف عدوى الدرن الكامنة بدقة أعلى من اختبار الجلد.",
+  "description_en": "Latent TB detection, more accurate than skin test.",
+  "image_url": "https://cdn.nabd.plus/labs/qft.png",
+  "is_active": true
+ },
+ {
+  "code": "PROG",
+  "name_ar": "هرمون البروجسترون",
+  "name_en": "Progesterone",
+  "category": "hormones",
+  "sample_type": "blood",
+  "price": 95,
+  "turnaround_hours": 24,
+  "popularity": 50,
+  "description_ar": "تقييم التبويض ومتابعة الحمل المبكر.",
+  "description_en": "Ovulation assessment and early pregnancy follow-up.",
+  "image_url": "https://cdn.nabd.plus/labs/prog.png",
+  "is_active": true
+ },
+ {
+  "code": "HBE",
+  "name_ar": "الفصل الكهربائي للهيموجلوبين",
+  "name_en": "Hb Electrophoresis",
+  "category": "blood",
+  "sample_type": "blood",
+  "price": 160,
+  "turnaround_hours": 48,
+  "popularity": 45,
+  "description_ar": "كشف فقر الدم المنجلي والثلاسيميا.",
+  "description_en": "Sickle cell and thalassemia screening.",
+  "image_url": "https://cdn.nabd.plus/labs/hbe.png",
+  "is_active": true
  }
 ]

@@ -1061,5 +1061,41 @@
   "medical_review_status": "approved",
   "public_eligibility": true,
   "is_active": true
+ },
+ {
+  "code": "dialysis_home",
+  "name_ar": "غسيل كلى منزلي",
+  "name_en": "Home Dialysis Session",
+  "category": "specialized_care",
+  "price": 450,
+  "popularity": 40,
+  "description_ar": "جلسة غسيل كلى منزلية بإشراف تمريضي متخصص.",
+  "description_en": "Supervised home hemodialysis session.",
+  "image_url": "https://cdn.nabd.plus/nursing/dialysis_home.png",
+  "is_active": true
+ },
+ {
+  "code": "speech_therapy",
+  "name_ar": "علاج النطق والتخاطب",
+  "name_en": "Speech Therapy",
+  "category": "specialized_care",
+  "price": 220,
+  "popularity": 45,
+  "description_ar": "جلسات تخاطب للأطفال ومرضى الجلطات.",
+  "description_en": "Speech sessions for children and stroke patients.",
+  "image_url": "https://cdn.nabd.plus/nursing/speech_therapy.png",
+  "is_active": true
+ },
+ {
+  "code": "lactation",
+  "name_ar": "استشارة الرضاعة الطبيعية",
+  "name_en": "Lactation Consultant",
+  "category": "baby",
+  "price": 180,
+  "popularity": 55,
+  "description_ar": "دعم الرضاعة للأمهات الجدد في المنزل.",
+  "description_en": "In-home breastfeeding support for new mothers.",
+  "image_url": "https://cdn.nabd.plus/nursing/lactation.png",
+  "is_active": true
  }
 ]

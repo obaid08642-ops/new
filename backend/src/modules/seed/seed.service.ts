@@ -312,11 +312,20 @@ export class SeedService implements OnModuleInit {
   }
 
   private async seedLabs() {
-    const existing = await this.labSvcModel.countDocuments();
-    if (existing >= LAB_SEED.length) return;
-    const docs = LAB_SEED.map((x: any) => ({ ...x, active: true }));
-    await this.labSvcModel.insertMany(docs, { ordered: false }).catch(() => {});
-    this.logger.log(`Seeded ${docs.length} lab services`);
+    // Per-item upsert (no count gate): market-gap additions deploy live automatically.
+    let ok = 0;
+    for (const x of LAB_SEED as any[]) {
+      if (!x.short_code) continue;
+      try {
+        const r = await this.labSvcModel.updateOne(
+          { short_code: x.short_code },
+          { $setOnInsert: { ...x, active: true } },
+          { upsert: true },
+        );
+        if ((r as any).upsertedCount || (r as any).upsertedId) ok++;
+      } catch { /* duplicate → already live */ }
+    }
+    if (ok) this.logger.log(`Seeded ${ok} new lab services`);
   }
 
   async seedSystemConfig() {
