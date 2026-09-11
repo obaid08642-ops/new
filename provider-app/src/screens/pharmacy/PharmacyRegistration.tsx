@@ -15,8 +15,9 @@ import {
   NCheckbox, NToggle, NBadge, NDivider,
   NHeader, NScroll, NSuccess, NPriceInput, NSearch, NDropdown, NDatePickerSheet, WizardSection
 } from '../../components/ui';
+import { GeoPicker } from '../../components/GeoPicker';
 import { Validate } from '../../security/Security';
-import { SP, R, FS, FW, PHARMA_CATS, CITIES, LIMITS, C, INSURANCE , LANGS } from '../../constants';
+import { SP, R, FS, FW, PHARMA_CATS, LIMITS, C, INSURANCE , LANGS } from '../../constants';
 import { RegistrationSuccess } from '../shared/SharedScreens';
 import { LocationPickerModal } from '../../components/LocationPickerModal';
 import { ContractModal } from '../../components/ContractModal';
@@ -417,7 +418,9 @@ function PStep3Location({ data, update, onNext, onBack, step, total, bare = fals
 
   const validate = () => {
     const e: Record<string,string> = {};
-    if (!data.city) e.city = AR?'اختر المدينة':'Choose city';
+    if (!data.region) e.city = AR?'اختر المنطقة':'Choose region';
+    else if (!data.city) e.city = AR?'اختر المدينة':'Choose city';
+    else if (!data.district) e.city = AR?'اختر الحي':'Choose district';
     if (!data.address.trim()) e.address = AR?'العنوان مطلوب':'Address required';
     setErrs(e); return Object.keys(e).length === 0;
   };
@@ -434,21 +437,9 @@ function PStep3Location({ data, update, onNext, onBack, step, total, bare = fals
 
   const body = (
     <>
-
-      <Text style={[s.label, { color:theme.text, textAlign:AR?'right':'left' }]}>{AR?'المدينة':'City'} *</Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom:SP.lg }}>
-        <View style={{ flexDirection:'row', gap:SP.sm }}>
-          {CITIES.map(c => (
-            <TouchableOpacity key={c.id} onPress={() => update({ city:c.id })} style={[s.cityChip, { backgroundColor: data.city===c.id ? theme.primary : theme.surface2, borderColor: data.city===c.id ? theme.primary : theme.border }]}>
-              <Text style={{ color:data.city===c.id?'#FFF':theme.text, fontSize:FS.sm, fontWeight:FW.med }}>{AR?c.ar:c.en}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </ScrollView>
-      
+      <Text style={[s.label, { color:theme.text, textAlign:AR?'right':'left' }]}>{AR?'المنطقة / المدينة / الحي':'Region / City / District'} *</Text>
+      <GeoPicker value={{ region: data.region, city: data.city, district: data.district }} onChange={v=>update({ region: v.region, city: v.city, district: v.district })} locale={lang} />
       {errs.city && <Text style={s.err}>{errs.city}</Text>}
-
-      <NInput label={AR?'الحي / المنطقة':'District / Area'} placeholder={AR?'حي الورود':'Al-Wurud District'} value={data.district} onChange={v=>update({district:v})} caps="words" />
       <NInput label={AR?'العنوان الكامل':'Full Address'} placeholder={AR?'شارع الأمير سلطان، حي الروضة':'Prince Sultan Road, Al-Rawdah'} value={data.address} onChange={v=>update({address:v})} required error={errs.address} multi lines={2} />
       <NBtn label={data.location?.lat ? (AR ? 'تم تحديد الموقع ✓ — تغيير' : 'Location set ✓ — change') : (AR ? 'حدد الموقع على الخريطة' : 'Pick location on map')} variant="outline" onPress={() => setShowMap(true)} style={{ marginBottom: SP.xl }} />
       <LocationPickerModal visible={showMap} onClose={() => setShowMap(false)} initialLocation={data.location?.lat ? data.location : undefined} onSelectLocation={(loc: any) => { update({ location: { lat: loc.lat, lng: loc.lng } }); setShowMap(false); }} />
