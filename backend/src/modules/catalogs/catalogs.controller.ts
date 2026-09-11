@@ -6,14 +6,22 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 /**
- * Unified catalogs — SINGLE SOURCE OF TRUTH:
+ * Unified catalogs — SINGLE READ PATH for every app and every call site:
  * - insurance: live DB (insurancecompanies + insurance_networks with tiers),
- *   managed via admin insurance-companies page. Static JSON is fallback only.
- * - labs/radiology/nursing: dynamic DB via their service endpoints
- *   (/labs/services, /radiology/services, /nursing/catalog) + admin
- *   catalog-manager — no static snapshot here to avoid fragmentation.
+ *   managed via admin insurance-companies page.
+ * - labs: live DB (labservices), managed via admin catalog-manager.
+ * - radiology: live DB (radiologyservices), managed via admin catalog-manager.
+ * - nursing: live DB (nursing_catalog), managed via admin catalog-manager.
+ * Static JSON files are fallback only (used when DB is empty, e.g. fresh dev).
+ * Admin add/remove in the dashboard writes to DB → visible everywhere instantly.
  */
-const CATALOGS = ['insurance'] as const;
+const DB_COLLECTIONS: Record<string, string> = {
+  labs: 'labservices',
+  radiology: 'radiologyservices',
+  nursing: 'nursing_catalog',
+};
+
+const CATALOGS = ['insurance', 'labs', 'radiology', 'nursing'] as const;
 
 @Controller('catalogs')
 export class CatalogsController {
@@ -24,7 +32,27 @@ export class CatalogsController {
   async getCatalog(@Param('type') type: string) {
     if (!CATALOGS.includes(type as any)) throw new NotFoundException('catalog_not_found');
     if (type === 'insurance') return this.insuranceCatalog();
-    throw new NotFoundException('catalog_not_found');
+    return this.dbCatalog(type, DB_COLLECTIONS[type]);
+  }
+
+  private async dbCatalog(type: string, collection: string) {
+    try {
+      const rows = await this.conn.collection(collection)
+        .find({ $or: [{ is_active: true }, { active: { $ne: false } }, { is_active: { $exists: false } }] } as any)
+        .limit(500).toArray().catch(() => []);
+      const live = (rows as any[]).filter((r: any) => r.is_active !== false && r.active !== false);
+      if (live.length) {
+        return live.map(({ _id, ...r }: any) => ({
+          code: r.short_code || r.code || r.id,
+          name_ar: r.name_ar || r.name,
+          name_en: r.name_en || r.name,
+          image_url: r.image_url || `https://cdn.nabd.plus/${type}/${r.short_code || r.code || r.id}.png`,
+          is_active: true,
+          ...r,
+        }));
+      }
+    } catch { /* fallback to static */ }
+    return this.staticFallback(type);
   }
 
   private async insuranceCatalog() {
@@ -50,8 +78,12 @@ export class CatalogsController {
         }));
       }
     } catch { /* fallback to static */ }
-    const file = path.join(__dirname, '../../constants/catalogs', 'insurance.json');
-    const alt = path.join(process.cwd(), 'src/constants/catalogs', 'insurance.json');
+    return this.staticFallback('insurance');
+  }
+
+  private staticFallback(type: string) {
+    const file = path.join(__dirname, '../../constants/catalogs', `${type}.json`);
+    const alt = path.join(process.cwd(), 'src/constants/catalogs', `${type}.json`);
     const p = fs.existsSync(file) ? file : alt;
     if (!fs.existsSync(p)) throw new NotFoundException('catalog_unavailable');
     return JSON.parse(fs.readFileSync(p, 'utf-8'));

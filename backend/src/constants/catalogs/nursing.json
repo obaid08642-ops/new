@@ -1,0 +1,122 @@
+[
+ {
+  "code": "wound",
+  "name_ar": "تغيير الجروح والتضميد",
+  "name_en": "Wound Dressing",
+  "duration_min": 30,
+  "image_url": "https://cdn.nabd.plus/nursing/wound.png",
+  "is_active": true
+ },
+ {
+  "code": "iv",
+  "name_ar": "تركيب مغذي ومحاليل IV",
+  "name_en": "IV Therapy & Infusion",
+  "duration_min": 90,
+  "image_url": "https://cdn.nabd.plus/nursing/iv.png",
+  "is_active": true
+ },
+ {
+  "code": "blood",
+  "name_ar": "سحب عينات دم",
+  "name_en": "Blood Sample Collection",
+  "duration_min": 20,
+  "image_url": "https://cdn.nabd.plus/nursing/blood.png",
+  "is_active": true
+ },
+ {
+  "code": "vitals",
+  "name_ar": "قياس العلامات الحيوية",
+  "name_en": "Vital Signs Monitoring",
+  "duration_min": 20,
+  "image_url": "https://cdn.nabd.plus/nursing/vitals.png",
+  "is_active": true
+ },
+ {
+  "code": "inject",
+  "name_ar": "إعطاء حقن طبية",
+  "name_en": "Injection Administration",
+  "duration_min": 15,
+  "image_url": "https://cdn.nabd.plus/nursing/inject.png",
+  "is_active": true
+ },
+ {
+  "code": "cath",
+  "name_ar": "تركيب قسطرة بولية",
+  "name_en": "Catheterization",
+  "duration_min": 30,
+  "image_url": "https://cdn.nabd.plus/nursing/cath.png",
+  "is_active": true
+ },
+ {
+  "code": "elderly",
+  "name_ar": "رعاية كبار السن",
+  "name_en": "Elderly Care",
+  "duration_min": 480,
+  "image_url": "https://cdn.nabd.plus/nursing/elderly.png",
+  "is_active": true
+ },
+ {
+  "code": "postpart",
+  "name_ar": "رعاية ما بعد الولادة",
+  "name_en": "Postpartum Care",
+  "duration_min": 240,
+  "image_url": "https://cdn.nabd.plus/nursing/postpart.png",
+  "is_active": true
+ },
+ {
+  "code": "diabetes",
+  "name_ar": "رعاية مرضى السكري",
+  "name_en": "Diabetes Management",
+  "duration_min": 45,
+  "image_url": "https://cdn.nabd.plus/nursing/diabetes.png",
+  "is_active": true
+ },
+ {
+  "code": "ostomy",
+  "name_ar": "عناية بالفغرة Ostomy",
+  "name_en": "Ostomy Care",
+  "duration_min": 45,
+  "image_url": "https://cdn.nabd.plus/nursing/ostomy.png",
+  "is_active": true
+ },
+ {
+  "code": "ng",
+  "name_ar": "أنبوب أنف معدي NG Tube",
+  "name_en": "NG Tube Management",
+  "duration_min": 30,
+  "image_url": "https://cdn.nabd.plus/nursing/ng.png",
+  "is_active": true
+ },
+ {
+  "code": "suction",
+  "name_ar": "شفط إفرازات تنفسية",
+  "name_en": "Airway Suctioning",
+  "duration_min": 30,
+  "image_url": "https://cdn.nabd.plus/nursing/suction.png",
+  "is_active": true
+ },
+ {
+  "code": "oxygen",
+  "name_ar": "إعطاء أكسجين",
+  "name_en": "Oxygen Therapy",
+  "duration_min": 60,
+  "image_url": "https://cdn.nabd.plus/nursing/oxygen.png",
+  "is_active": true
+ },
+ {
+  "code": "stroke",
+  "name_ar": "رعاية ما بعد الجلطة",
+  "name_en": "Post-Stroke Care",
+  "duration_min": 360,
+  "image_url": "https://cdn.nabd.plus/nursing/stroke.png",
+  "is_active": true
+ },
+ {
+  "code": "custom",
+  "name_ar": "خدمة مخصصة أخرى",
+  "name_en": "Custom Service",
+  "duration_min": 0,
+  "image_url": "https://cdn.nabd.plus/nursing/custom.png",
+  "is_active": true
+ }
+]
