@@ -17,7 +17,8 @@ import {
 import { I as Icon, IBg as IconBg, ProviderIcon } from '../../components/icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Validate } from '../../security/Security';
-import { SP, R, FS, FW, CITIES, INSURANCE, C, LAB_TESTS, RAD_SCANS, LIMITS , LANGS } from '../../constants';
+import { SP, R, FS, FW, INSURANCE, C, LAB_TESTS, RAD_SCANS, LIMITS , LANGS } from '../../constants';
+import { GeoPicker } from '../../components/GeoPicker';
 import { RegistrationSuccess } from '../shared/SharedScreens';
 import { LocationPickerModal } from '../../components/LocationPickerModal';
 import { ContractModal } from '../../components/ContractModal';
@@ -660,14 +661,17 @@ function LStep3({ data, update, onNext, onBack, step, total, bare = false, submi
   const body = (
     <>
 
-      {/* City */}
+      {/* Region/City/District — unified GeoPicker (150/2000) */}
       <View style={{ marginBottom: SP.lg }}>
         <Text style={[st.label, { color: theme.text, textAlign: AR ? 'right' : 'left' }]}>
-          {AR ? 'المدينة' : 'City'}<Text style={{ color: theme.danger }}> *</Text>
+          {AR ? 'المنطقة / المدينة / الحي' : 'Region / City / District'}<Text style={{ color: theme.danger }}> *</Text>
         </Text>
+        <GeoPicker value={{ region: (data as any).region, city: data.city, district: (data as any).district }} onChange={v=>update({ region: v.region, city: v.city, district: v.district } as any)} locale={lang} />
+      </View>
+      <View style={{ display: 'none' }}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <View style={{ flexDirection: 'row', gap: SP.sm }}>
-            {CITIES.map(c => (
+            {[].map((c: any) => (
               <TouchableOpacity key={c.id} onPress={() => update({ city: c.id })}
                 style={[st.chip, {
                   backgroundColor: data.city === c.id ? theme.primary : theme.surface2,

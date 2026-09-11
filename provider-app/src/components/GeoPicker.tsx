@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, Modal, ScrollView, StyleSheet } from 'react-native';
-import { apiFetch } from '../api/client';
+import { apiFetch } from '../utils/api';
 
 type Opt = { code: string; name_ar: string; name_en: string; parent_code?: string };
 
