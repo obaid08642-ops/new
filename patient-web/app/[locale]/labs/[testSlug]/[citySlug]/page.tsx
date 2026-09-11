@@ -34,9 +34,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, testSlug, citySlug } = await params;
   if (!isLocale(locale)) return {};
   const data = await fetchLabTestData(testSlug, citySlug);
+  const hasFacilities = Boolean(data && data.facilities.length > 0);
 
-  if (!data || data.facilities.length === 0) {
-    return { robots: { index: false, follow: false } };
+  if (!hasFacilities) {
+    const decTest = decodeURIComponent(testSlug);
+    const decCity = decodeURIComponent(citySlug);
+    const canonical = localizedUrl(locale as Locale, `/labs/${encodeURIComponent(testSlug)}/${encodeURIComponent(citySlug)}`);
+    return {
+      title: locale === "ar" ? `تحليل ${decTest} في ${decCity} — كن أول مزود | نبض` : `${decTest} in ${decCity} — Be first provider | Nabd`,
+      description: locale === "ar" ? `تحليل ${decTest} في ${decCity} — لا يوجد مزود حالياً. سجل كمختبر شريك وكن أول من يقدم الخدمة.` : `${decTest} in ${decCity} — no provider yet. Register as partner lab.`,
+      alternates: { canonical, languages: Object.fromEntries(locales.map((l) => [l, localizedUrl(l, `/labs/${encodeURIComponent(testSlug)}/${encodeURIComponent(citySlug)}`)])) },
+      robots: { index: true, follow: true },
+    };
   }
 
   const decTest = decodeURIComponent(testSlug);
@@ -79,9 +88,8 @@ export default async function LabTestCityPage({ params }: Props) {
   setRequestLocale(locale);
 
   const data = await fetchLabTestData(testSlug, citySlug);
-  if (!data || data.facilities.length === 0) {
-    notFound();
-  }
+  const hasFacilities = Boolean(data && data.facilities.length > 0);
+  if (!data) notFound();
 
   const decTest = decodeURIComponent(testSlug);
   const decCity = decodeURIComponent(citySlug);
@@ -136,59 +144,67 @@ export default async function LabTestCityPage({ params }: Props) {
         </div>
       </div>
 
-      <section>
-        <h2 style={{ fontSize: "1.25rem", fontWeight: 600, marginBottom: "1rem", color: "#1f2937" }}>
-          {locale === "ar" ? "المراكز والمختبرات الشريكة" : "Partner Laboratories"}
-        </h2>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1rem" }}>
-          {facilities.map((fac: any) => (
-            <article
-              key={fac.id}
-              style={{
-                border: "1px solid #e5e7eb",
-                borderRadius: "0.75rem",
-                padding: "1.25rem",
-                backgroundColor: "#fff",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-              }}
-            >
-              <div>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
-                  <Beaker size={18} color="#059669" />
-                  <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 600 }}>{fac.name_ar || fac.name_en}</h3>
-                </div>
-                <p style={{ margin: "0.25rem 0", color: "#6b7280", fontSize: "0.875rem", display: "flex", alignItems: "center", gap: "0.25rem" }}>
-                  <MapPin size={14} />
-                  <span>{fac.city}</span>
-                </p>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.25rem", color: "#059669", fontSize: "0.8rem", marginTop: "0.5rem" }}>
-                  <CheckCircle2 size={14} />
-                  <span>{locale === "ar" ? "معتمد ومرخص" : "Accredited Lab"}</span>
-                </div>
-              </div>
-              <Link
-                href={`/${locale}/diagnostics/labs`}
+      {!hasFacilities ? (
+        <section style={{ textAlign: "center", padding: "3rem 1rem", background: "#f8fafc", borderRadius: "12px", border: "1px dashed #cbd5e1" }}>
+          <p style={{ fontSize: "1.1rem", color: "#334155" }}>{locale === "ar" ? `لا يوجد مختبر شريك يقدم ${decTest} في ${decCity} حالياً.` : `No partner lab for ${decTest} in ${decCity} yet.`}</p>
+          <p style={{ color: "#64748b", marginTop: "0.5rem" }}>{locale === "ar" ? "كن أول مزود — سجل الآن وستظهر خدمتك هنا أوتوماتيك." : "Be the first provider — register and your service will appear automatically."}</p>
+          <Link href={`/${locale}/consultations/doctors`} style={{ display: "inline-block", marginTop: "1rem", background: "#059669", color: "#fff", padding: "0.75rem 1.5rem", borderRadius: "8px", textDecoration: "none", fontWeight: 600 }}>{locale === "ar" ? "سجل كمزوّد" : "Register as provider"}</Link>
+        </section>
+      ) : (
+        <section>
+          <h2 style={{ fontSize: "1.25rem", fontWeight: 600, marginBottom: "1rem", color: "#1f2937" }}>
+            {locale === "ar" ? "المراكز والمختبرات الشريكة" : "Partner Laboratories"}
+          </h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1rem" }}>
+            {facilities.map((fac: any) => (
+              <article
+                key={fac.id}
                 style={{
-                  display: "inline-block",
-                  textAlign: "center",
-                  backgroundColor: "#059669",
-                  color: "#fff",
-                  padding: "0.5rem 1rem",
-                  borderRadius: "0.5rem",
-                  textDecoration: "none",
-                  fontWeight: 500,
-                  marginTop: "1rem",
-                  fontSize: "0.875rem",
+                  border: "1px solid #e5e7eb",
+                  borderRadius: "0.75rem",
+                  padding: "1.25rem",
+                  backgroundColor: "#fff",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
                 }}
               >
-                {locale === "ar" ? "احجز الفحص الآن" : "Book Test"}
-              </Link>
-            </article>
-          ))}
-        </div>
-      </section>
+                <div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
+                    <Beaker size={18} color="#059669" />
+                    <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 600 }}>{fac.name_ar || fac.name_en}</h3>
+                  </div>
+                  <p style={{ margin: "0.25rem 0", color: "#6b7280", fontSize: "0.875rem", display: "flex", alignItems: "center", gap: "0.25rem" }}>
+                    <MapPin size={14} />
+                    <span>{fac.city}</span>
+                  </p>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.25rem", color: "#059669", fontSize: "0.8rem", marginTop: "0.5rem" }}>
+                    <CheckCircle2 size={14} />
+                    <span>{locale === "ar" ? "معتمد ومرخص" : "Accredited Lab"}</span>
+                  </div>
+                </div>
+                <Link
+                  href={`/${locale}/diagnostics/labs`}
+                  style={{
+                    display: "inline-block",
+                    textAlign: "center",
+                    backgroundColor: "#059669",
+                    color: "#fff",
+                    padding: "0.5rem 1rem",
+                    borderRadius: "0.5rem",
+                    textDecoration: "none",
+                    fontWeight: 500,
+                    marginTop: "1rem",
+                    fontSize: "0.875rem",
+                  }}
+                >
+                  {locale === "ar" ? "احجز الفحص الآن" : "Book Test"}
+                </Link>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
     </main>
   );
 }
