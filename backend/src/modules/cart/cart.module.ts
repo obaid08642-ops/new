@@ -191,6 +191,9 @@ export class CartService {
     if ((cart.lines || []).some((line: any) => line.kind !== 'pharmacy')) {
       throw new BadRequestException('checkout_contains_unsupported_items');
     }
+    // Genius SFDA enforcement: block any Rx medicine without doctor-verified prescription
+    const hasRx = lines.some((l: any) => l.meta?.requires_prescription === true);
+    if (hasRx) throw new BadRequestException('prescription_required_for_rx_medicines_use_doctor_prescription_flow');
 
     const profile: any = await this.users.getPatientProfile(user.id);
     const address = (profile?.addresses || []).find((entry: any) => String(entry?.id) === addressId);
