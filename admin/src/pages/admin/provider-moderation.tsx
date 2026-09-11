@@ -101,12 +101,20 @@ export default function ProviderModeration() {
     fetchModerationData();
   }, [geo.region, geo.city, geo.district]);
 
-  const handleApprove = async (id: string) => {
+  const handleApprove = async (id: string, fallbackType?: string) => {
     const reason = window.prompt('سبب الاعتماد (يُحفظ في سجل التدقيق — 5 أحرف على الأقل):', '');
     if (reason === null) return;
     if (reason.trim().length < 5) { alert('يرجى إدخال سبب اعتماد لا يقل عن 5 أحرف'); return; }
+    const defaults: Record<string, number> = { pharmacy: 5, lab: 8, radiology: 10, home_care: 15 };
+    const def = defaults[fallbackType || ''] ?? 10;
+    const cashRaw = window.prompt(`نسبة عمولة الكاش % لهذا المزود (الافتراضي ${def}%):`, String(def));
+    if (cashRaw === null) return;
+    const insRaw = window.prompt(`نسبة عمولة التأمين % لهذا المزود (الافتراضي ${def}%):`, String(def));
+    if (insRaw === null) return;
+    const commission_cash = Math.min(100, Math.max(0, parseFloat(cashRaw) || 0));
+    const commission_insurance = Math.min(100, Math.max(0, parseFloat(insRaw) || 0));
     try {
-        const res = await fetchWithAdminGuard(`/api/admin/providers/${id}/approve`, { method: 'POST', body: JSON.stringify({ reason: reason.trim() }) });
+        const res = await fetchWithAdminGuard(`/api/admin/providers/${id}/approve`, { method: 'POST', body: JSON.stringify({ reason: reason.trim(), commission_cash, commission_insurance }) });
       if (res.ok) {
         alert('تم اعتماد المزود — أصبح حسابه فعالاً ويظهر الآن في دليل المرضى.');
         setPendingProviders(prev => prev.filter(p => p.id !== id));
@@ -253,7 +261,7 @@ export default function ProviderModeration() {
               </div>
 
               <div className="p-6 border-t border-gray-200 bg-slate-50 flex gap-4">
-                <button onClick={() => handleApprove(selectedProvider.id)} className="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-lg shadow transition text-lg">
+                <button onClick={() => handleApprove(selectedProvider.id, selectedProvider.type)} className="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-lg shadow transition text-lg">
                   Approve Provider (اعتماد)
                 </button>
                 <button onClick={() => setIsModalOpen(true)} className="flex-1 bg-red-100 hover:bg-red-200 text-red-700 font-bold py-3 rounded-lg shadow-sm border border-red-200 transition text-lg">
