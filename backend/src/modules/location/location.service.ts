@@ -35,18 +35,19 @@ export class LocationService implements OnModuleInit {
           { upsert: true },
         );
       }
-      // Deactivate legacy pre-central codes (old 3 admin regions + 4 old cities + their districts)
-      // so the API exposes exactly the 5 macro regions / 150 cities / 2000 districts.
-      const legacyCodes = [
-        'sa-riyadh-region', 'sa-madinah-region', 'sa-makkah-region',
-        'sa-riyadh-city', 'sa-madinah-city', 'sa-jeddah-city', 'sa-makkah-city',
-      ];
+      // Deactivate anything Saudi not in the central seed (old duplicate IDs with
+      // spaces/-x/-new suffixes + 3 legacy admin regions) so the API exposes
+      // exactly the 5 macro regions / 150 cities / 2000 districts.
+      const seedCodes = new Set(SAUDI_LOCATIONS_SEED.map((l) => l.code));
+      const seedCityCodes = new Set(
+        SAUDI_LOCATIONS_SEED.filter((l) => l.type === 'city').map((l) => l.code),
+      );
       await this.locationModel.updateMany(
-        { code: { $in: legacyCodes } },
+        { code: { $regex: '^sa-', $nin: Array.from(seedCodes) } },
         { $set: { is_active: false } },
       ).catch(() => null);
       await this.locationModel.updateMany(
-        { type: 'district', parent_code: { $in: ['sa-riyadh-city', 'sa-madinah-city', 'sa-jeddah-city', 'sa-makkah-city'] } },
+        { type: 'district', parent_code: { $nin: Array.from(seedCityCodes) } },
         { $set: { is_active: false } },
       ).catch(() => null);
       this.logger.log('Saudi locations upserted successfully.');
