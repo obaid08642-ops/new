@@ -1,7 +1,0 @@
-[
-  { "code": "xray", "name_ar": "أشعة سينية", "name_en": "X-Ray", "image_url": "https://cdn.nabd.plus/radiology/xray.png", "category": "أشعة" },
-  { "code": "mri", "name_ar": "رنين مغناطيسي", "name_en": "MRI", "image_url": "https://cdn.nabd.plus/radiology/mri.png", "category": "رنين" },
-  { "code": "ct", "name_ar": "أشعة مقطعية", "name_en": "CT Scan", "image_url": "https://cdn.nabd.plus/radiology/ct.png", "category": "مقطعية" },
-  { "code": "us", "name_ar": "سونار", "name_en": "Ultrasound", "image_url": "https://cdn.nabd.plus/radiology/us.png", "category": "سونار" },
-  { "code": "mammo", "name_ar": "ماموجرام", "name_en": "Mammogram", "image_url": "https://cdn.nabd.plus/radiology/mammo.png", "category": "ثدي" }
-]
