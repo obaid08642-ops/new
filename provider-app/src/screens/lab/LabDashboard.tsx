@@ -20,6 +20,12 @@ import {
 } from '../../components/ui';
 import { I, IBg, RatingStars } from '../../components/icons';
 import { SP, R, FS, FW, LAB_TESTS, RAD_SCANS, C } from '../../constants';
+import { fetchCentralCatalog } from '../../api/central-catalog';
+// Central catalog lookup (labs + radiology live DB, admin-managed) with LAB_TESTS fallback.
+// Hydrated async once at module load; display-only, never blocks rendering.
+const centralTestMap: Record<string, any> = {};
+fetchCentralCatalog().then((m) => Object.assign(centralTestMap, m)).catch(() => {});
+const lookupTest = (tid: string) => centralTestMap[String(tid || '').toLowerCase()] || LAB_TESTS.find((x) => x.id === tid);
 import {
  PromotionsDashboard, CreateCampaignScreen, ProfileWebConfig,
  ReputationHub, LiveOrderAlarmModal, CrmHub, RevenueInsights,
@@ -451,7 +457,7 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
     }
   };
 
-  const anyRequiresFasting = (order?.tests || []).some((tid: string) => LAB_TESTS.find(x => x.id === tid)?.fasting);
+  const anyRequiresFasting = (order?.tests || []).some((tid: string) => lookupTest(tid)?.fasting);
 
  return (
  <NScroll>
@@ -477,7 +483,7 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
 
  <Text style={{fontSize:FS.md,fontWeight:FW.bold,color:theme.text,marginBottom:SP.md,textAlign:AR?'right':'left'}}>{AR?'التحاليل المطلوبة':'Requested Tests'}</Text>
  {(order?.tests??[]).map((tid:string)=>{
- const t=LAB_TESTS.find(x=>x.id===tid);
+ const t=lookupTest(tid);
  return t ? <View key={tid} style={{flexDirection:AR?'row-reverse':'row',alignItems:'center',gap:SP.md,paddingVertical:SP.sm,borderBottomWidth:StyleSheet.hairlineWidth,borderBottomColor:theme.border}}>
  <IBg name="testTube" size={12} color="#9C27B0" bg="#9C27B012" />
  <View style={{flex:1}}>
@@ -687,7 +693,7 @@ function SampleTracking({ onBack, onNav }:{ onBack:()=>void; onNav:(s:string,p?:
  ))}
  </View>
  <View style={{flexDirection:'row',flexWrap:'wrap',gap:SP.xs,marginBottom:SP.sm}}>
- {(sam.tests || []).map(tid=>{const t=LAB_TESTS.find(x=>x.id===tid);return <View key={tid} style={{backgroundColor:theme.surface2,paddingHorizontal:SP.sm,paddingVertical:2,borderRadius:R.full,borderWidth:1,borderColor:theme.border}}><Text style={{fontSize:FS.xs,color:theme.text}}>{t?(AR?t.ar:t.en):tid}</Text></View>;})}
+ {(sam.tests || []).map(tid=>{const t=lookupTest(tid);return <View key={tid} style={{backgroundColor:theme.surface2,paddingHorizontal:SP.sm,paddingVertical:2,borderRadius:R.full,borderWidth:1,borderColor:theme.border}}><Text style={{fontSize:FS.xs,color:theme.text}}>{t?(AR?t.ar:t.en):tid}</Text></View>;})}
  </View>
  <Text style={{fontSize:FS.xs,color:theme.textSub}}>{AR?`استلام: ${sam.createdAt ? new Date(sam.createdAt).toLocaleTimeString() : '—'} | الباركود: ${sam.barcode}`:`Received: ${sam.createdAt ? new Date(sam.createdAt).toLocaleTimeString() : '—'} | Barcode: ${sam.barcode}`}</Text>
  <View style={{flexDirection:AR?'row-reverse':'row',gap:SP.sm,marginTop:SP.md}}>
@@ -816,7 +822,7 @@ function BundleMgmt({ onBack }:{ onBack:()=>void }) {
  <NBadge label={b.active ? (AR ? 'نشطة' : 'Active') : (AR ? 'موقوفة' : 'Paused')} variant={b.active ? 'success' : 'default'} size="sm" />
  </View>
  <View style={{flexDirection:'row',flexWrap:'wrap',gap:SP.xs,marginBottom:SP.md}}>
- {b.tests.map(tid=>{const t=LAB_TESTS.find(x=>x.id===tid);return <View key={tid} style={{backgroundColor:theme.surface2,paddingHorizontal:SP.sm,paddingVertical:2,borderRadius:R.full,borderWidth:1,borderColor:theme.border}}><Text style={{fontSize:FS.xs,color:theme.text}}>{t?(AR?t.ar:t.en):tid}</Text></View>;})}
+ {b.tests.map(tid=>{const t=lookupTest(tid);return <View key={tid} style={{backgroundColor:theme.surface2,paddingHorizontal:SP.sm,paddingVertical:2,borderRadius:R.full,borderWidth:1,borderColor:theme.border}}><Text style={{fontSize:FS.xs,color:theme.text}}>{t?(AR?t.ar:t.en):tid}</Text></View>;})}
  </View>
  <View style={{flexDirection:AR?'row-reverse':'row',justifyContent:'space-between',alignItems:'center'}}>
  <View style={{flexDirection:'row',alignItems:'baseline',gap:SP.sm}}>
@@ -1029,7 +1035,7 @@ function QRSampleLabel({ sample, onBack }:{ sample:any; onBack:()=>void }) {
  <Text style={{fontSize:FS.lg,fontWeight:FW.bold,color:theme.text,marginTop:SP.xl}}>{sample?.barcode??'SMP-2025-XXX'}</Text>
  <Text style={{fontSize:FS.sm,color:theme.textSub,marginTop:SP.xs}}>{sample?.patient??'—'}</Text>
  <View style={{flexDirection:'row',flexWrap:'wrap',gap:SP.xs,justifyContent:'center',marginTop:SP.md}}>
- {(sample?.tests??['cbc']).map((tid:string)=>{const t=LAB_TESTS.find(x=>x.id===tid);return <View key={tid} style={{backgroundColor:'#9C27B010',paddingHorizontal:SP.sm,paddingVertical:2,borderRadius:R.full,borderWidth:1,borderColor:'#9C27B030'}}><Text style={{fontSize:FS.xs,color:'#9C27B0'}}>{t?(AR?t.ar:t.en):tid}</Text></View>;})}
+ {(sample?.tests??['cbc']).map((tid:string)=>{const t=lookupTest(tid);return <View key={tid} style={{backgroundColor:'#9C27B010',paddingHorizontal:SP.sm,paddingVertical:2,borderRadius:R.full,borderWidth:1,borderColor:'#9C27B030'}}><Text style={{fontSize:FS.xs,color:'#9C27B0'}}>{t?(AR?t.ar:t.en):tid}</Text></View>;})}
  </View>
  </NCard>
  <View style={{gap:SP.md}}>
