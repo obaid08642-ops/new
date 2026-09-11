@@ -17,6 +17,7 @@ import {
   FileCheck2
 } from "lucide-react";
 import { SAUDI_INSURANCE_COMPANIES } from "@/lib/data/insurance-companies";
+import { useCentralInsurance } from "@/lib/data/use-central-insurance";
 import styles from "./service-booking-modal.module.css";
 
 type Props = {
@@ -57,7 +58,8 @@ export function ServiceBookingModal({
   const [confirmedData, setConfirmedData] = useState<any | null>(null);
   const [error, setError] = useState("");
 
-  const selectedInsCompany = SAUDI_INSURANCE_COMPANIES.find(c => c.id === insuranceCompany) || SAUDI_INSURANCE_COMPANIES[0];
+  const INSURANCE_CATALOG = useCentralInsurance();
+  const selectedInsCompany = INSURANCE_CATALOG.find(c => c.id === insuranceCompany) || INSURANCE_CATALOG[0];
   const patientCoPay = Math.min(servicePrice * selectedInsCompany.defaultCoPay, selectedInsCompany.maxCoPaySar);
   const insuranceCovered = servicePrice - patientCoPay;
 
@@ -357,7 +359,7 @@ export function ServiceBookingModal({
                           onChange={(e) => setInsuranceCompany(e.target.value)}
                           style={{ width: "100%", padding: "8px", borderRadius: "8px", border: "1px solid #CBD5E1", fontSize: "0.85rem" }}
                         >
-                          {SAUDI_INSURANCE_COMPANIES.map((c) => (
+                          {INSURANCE_CATALOG.map((c) => (
                             <option key={c.id} value={c.id}>
                               {isAr ? c.nameAr : c.nameEn}
                             </option>

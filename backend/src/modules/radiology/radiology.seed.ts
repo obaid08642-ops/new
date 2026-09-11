@@ -26,4 +26,9 @@ export const RADIOLOGY_SEED = [
   { name_ar: 'ماموجرام - ثدي', name_en: 'Mammography', short_code: 'MAMMO', modality: 'mammography', body_part: 'breast', price: 320, turnaround_hours: 8, popularity: 55, requires_referral: false },
   // ----- DEXA -----
   { name_ar: 'قياس كثافة العظام DEXA', name_en: 'DEXA Bone Density', short_code: 'DEXA', modality: 'dexa', body_part: 'spine_hip', price: 380, turnaround_hours: 6, popularity: 40 },
+  // ----- MARKET-GAP ADDITIONS (competitor audit) -----
+  { name_ar: 'أشعة الصبغة للرحم HSG', name_en: 'HSG', short_code: 'HSG', modality: 'xray', body_part: 'pelvis', price: 550, turnaround_hours: 4, popularity: 50, requires_referral: true, description_ar: 'فحص قنوات فالوب لعيادات الخصوبة.', description_en: 'Fallopian tube imaging for fertility clinics.' },
+  { name_ar: 'بانوراما الأسنان', name_en: 'Dental Panoramic', short_code: 'PANOREX', modality: 'xray', body_part: 'dental', price: 150, turnaround_hours: 2, popularity: 60, description_ar: 'صورة شاملة للفك والأسنان.', description_en: 'Full jaw and teeth imaging.' },
+  { name_ar: 'أشعة الباريوم', name_en: 'Barium Study', short_code: 'BARIUM', modality: 'xray', body_part: 'abdomen', price: 400, turnaround_hours: 4, popularity: 35, fasting_required: true, fasting_hours: 8, requires_referral: true, description_ar: 'فحص الجهاز الهضمي بالصبغة.', description_en: 'GI tract contrast study.' },
+  { name_ar: 'مسح PET-CT', name_en: 'PET-CT Scan', short_code: 'PETCT', modality: 'pet', body_part: 'whole_body', price: 3500, turnaround_hours: 48, popularity: 30, fasting_required: true, fasting_hours: 6, requires_referral: true, description_ar: 'مسح شامل للأورام — متوفر في مراكز متخصصة فقط.', description_en: 'Whole-body oncology scan — specialized centers only.' },
 ];

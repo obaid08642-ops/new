@@ -24,8 +24,7 @@ export class RadiologySeed implements OnModuleInit {
   private readonly logger = new Logger('RadiologySeed');
   constructor(@InjectModel('RadiologyService') private readonly svcModel: Model<any>) {}
   async onModuleInit() {
-    const existing = await this.svcModel.countDocuments({ id: { $ne: null } });
-    if (existing >= RADIOLOGY_SEED.length) return;
+    // No count gate: per-item upsert deploys market-gap additions live automatically.
     let ok = 0;
     for (const x of RADIOLOGY_SEED as any[]) {
       try {

@@ -22,6 +22,7 @@ import {
   Sparkles
 } from "lucide-react";
 import { SAUDI_INSURANCE_COMPANIES } from "@/lib/data/insurance-companies";
+import { useCentralInsurance } from "@/lib/data/use-central-insurance";
 import styles from "./checkout-flow.module.css";
 
 type Props = {
@@ -50,7 +51,8 @@ export function CheckoutFlow({ locale }: Props) {
   const [orderConfirmed, setOrderConfirmed] = useState<any | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const selectedInsCompany = SAUDI_INSURANCE_COMPANIES.find(c => c.id === insuranceCompany) || SAUDI_INSURANCE_COMPANIES[0];
+  const INSURANCE_CATALOG = useCentralInsurance();
+  const selectedInsCompany = INSURANCE_CATALOG.find(c => c.id === insuranceCompany) || INSURANCE_CATALOG[0];
 
   // Pricing & Insurance Deductible Math
   const deliveryFee = subtotal > 100 ? 0 : 15;
@@ -430,7 +432,7 @@ export function CheckoutFlow({ locale }: Props) {
                     value={insuranceCompany} 
                     onChange={(e) => setInsuranceCompany(e.target.value)}
                   >
-                    {SAUDI_INSURANCE_COMPANIES.map((company) => (
+                    {INSURANCE_CATALOG.map((company) => (
                       <option key={company.id} value={company.id}>
                         {isAr ? company.nameAr : company.nameEn}
                       </option>
