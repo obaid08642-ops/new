@@ -1066,6 +1066,1902 @@
             "name_en": "Wadi Al Dawasir District 6"
           }
         ]
+      },
+      {
+        "id": "SA-SHAQ-NEW",
+        "name_ar": "شقراء",
+        "name_en": "Shaqra",
+        "districts": [
+          {
+            "id": "SA-CENTRAL-SHAQ-001",
+            "name_ar": "حي شقراء 1",
+            "name_en": "Shaqra District 1"
+          },
+          {
+            "id": "SA-CENTRAL-SHAQ-002",
+            "name_ar": "حي شقراء 2",
+            "name_en": "Shaqra District 2"
+          },
+          {
+            "id": "SA-CENTRAL-SHAQ-003",
+            "name_ar": "حي شقراء 3",
+            "name_en": "Shaqra District 3"
+          },
+          {
+            "id": "SA-CENTRAL-SHAQ-004",
+            "name_ar": "حي شقراء 4",
+            "name_en": "Shaqra District 4"
+          },
+          {
+            "id": "SA-CENTRAL-SHAQ-005",
+            "name_ar": "حي شقراء 5",
+            "name_en": "Shaqra District 5"
+          },
+          {
+            "id": "SA-CENTRAL-SHAQ-006",
+            "name_ar": "حي شقراء 6",
+            "name_en": "Shaqra District 6"
+          },
+          {
+            "id": "SA-CENTRAL-SHAQ-007",
+            "name_ar": "حي شقراء 7",
+            "name_en": "Shaqra District 7"
+          },
+          {
+            "id": "SA-CENTRAL-SHAQ-008",
+            "name_ar": "حي شقراء 8",
+            "name_en": "Shaqra District 8"
+          },
+          {
+            "id": "SA-CENTRAL-SHAQ-009",
+            "name_ar": "حي شقراء 9",
+            "name_en": "Shaqra District 9"
+          },
+          {
+            "id": "SA-CENTRAL-SHAQ-010",
+            "name_ar": "حي شقراء 10",
+            "name_en": "Shaqra District 10"
+          },
+          {
+            "id": "SA-CENTRAL-SHAQ-011",
+            "name_ar": "حي شقراء 11",
+            "name_en": "Shaqra District 11"
+          },
+          {
+            "id": "SA-CENTRAL-SHAQ-012",
+            "name_ar": "حي شقراء 12",
+            "name_en": "Shaqra District 12"
+          }
+        ]
+      },
+      {
+        "id": "SA-AL M-NEW",
+        "name_ar": "المزاحمية",
+        "name_en": "Al Muzahimiyah",
+        "districts": [
+          {
+            "id": "SA-CENTRAL-AL M-001",
+            "name_ar": "حي المزاحمية 1",
+            "name_en": "Al Muzahimiyah District 1"
+          },
+          {
+            "id": "SA-CENTRAL-AL M-002",
+            "name_ar": "حي المزاحمية 2",
+            "name_en": "Al Muzahimiyah District 2"
+          },
+          {
+            "id": "SA-CENTRAL-AL M-003",
+            "name_ar": "حي المزاحمية 3",
+            "name_en": "Al Muzahimiyah District 3"
+          },
+          {
+            "id": "SA-CENTRAL-AL M-004",
+            "name_ar": "حي المزاحمية 4",
+            "name_en": "Al Muzahimiyah District 4"
+          },
+          {
+            "id": "SA-CENTRAL-AL M-005",
+            "name_ar": "حي المزاحمية 5",
+            "name_en": "Al Muzahimiyah District 5"
+          },
+          {
+            "id": "SA-CENTRAL-AL M-006",
+            "name_ar": "حي المزاحمية 6",
+            "name_en": "Al Muzahimiyah District 6"
+          },
+          {
+            "id": "SA-CENTRAL-AL M-007",
+            "name_ar": "حي المزاحمية 7",
+            "name_en": "Al Muzahimiyah District 7"
+          },
+          {
+            "id": "SA-CENTRAL-AL M-008",
+            "name_ar": "حي المزاحمية 8",
+            "name_en": "Al Muzahimiyah District 8"
+          },
+          {
+            "id": "SA-CENTRAL-AL M-009",
+            "name_ar": "حي المزاحمية 9",
+            "name_en": "Al Muzahimiyah District 9"
+          }
+        ]
+      },
+      {
+        "id": "SA-RUMA-NEW",
+        "name_ar": "رماح",
+        "name_en": "Rumah",
+        "districts": [
+          {
+            "id": "SA-CENTRAL-RUMA-001",
+            "name_ar": "حي رماح 1",
+            "name_en": "Rumah District 1"
+          },
+          {
+            "id": "SA-CENTRAL-RUMA-002",
+            "name_ar": "حي رماح 2",
+            "name_en": "Rumah District 2"
+          },
+          {
+            "id": "SA-CENTRAL-RUMA-003",
+            "name_ar": "حي رماح 3",
+            "name_en": "Rumah District 3"
+          },
+          {
+            "id": "SA-CENTRAL-RUMA-004",
+            "name_ar": "حي رماح 4",
+            "name_en": "Rumah District 4"
+          },
+          {
+            "id": "SA-CENTRAL-RUMA-005",
+            "name_ar": "حي رماح 5",
+            "name_en": "Rumah District 5"
+          },
+          {
+            "id": "SA-CENTRAL-RUMA-006",
+            "name_ar": "حي رماح 6",
+            "name_en": "Rumah District 6"
+          },
+          {
+            "id": "SA-CENTRAL-RUMA-007",
+            "name_ar": "حي رماح 7",
+            "name_en": "Rumah District 7"
+          },
+          {
+            "id": "SA-CENTRAL-RUMA-008",
+            "name_ar": "حي رماح 8",
+            "name_en": "Rumah District 8"
+          },
+          {
+            "id": "SA-CENTRAL-RUMA-009",
+            "name_ar": "حي رماح 9",
+            "name_en": "Rumah District 9"
+          },
+          {
+            "id": "SA-CENTRAL-RUMA-010",
+            "name_ar": "حي رماح 10",
+            "name_en": "Rumah District 10"
+          },
+          {
+            "id": "SA-CENTRAL-RUMA-011",
+            "name_ar": "حي رماح 11",
+            "name_en": "Rumah District 11"
+          },
+          {
+            "id": "SA-CENTRAL-RUMA-012",
+            "name_ar": "حي رماح 12",
+            "name_en": "Rumah District 12"
+          }
+        ]
+      },
+      {
+        "id": "SA-THAD-NEW",
+        "name_ar": "ثادق",
+        "name_en": "Thadiq",
+        "districts": [
+          {
+            "id": "SA-CENTRAL-THAD-001",
+            "name_ar": "حي ثادق 1",
+            "name_en": "Thadiq District 1"
+          },
+          {
+            "id": "SA-CENTRAL-THAD-002",
+            "name_ar": "حي ثادق 2",
+            "name_en": "Thadiq District 2"
+          },
+          {
+            "id": "SA-CENTRAL-THAD-003",
+            "name_ar": "حي ثادق 3",
+            "name_en": "Thadiq District 3"
+          },
+          {
+            "id": "SA-CENTRAL-THAD-004",
+            "name_ar": "حي ثادق 4",
+            "name_en": "Thadiq District 4"
+          },
+          {
+            "id": "SA-CENTRAL-THAD-005",
+            "name_ar": "حي ثادق 5",
+            "name_en": "Thadiq District 5"
+          },
+          {
+            "id": "SA-CENTRAL-THAD-006",
+            "name_ar": "حي ثادق 6",
+            "name_en": "Thadiq District 6"
+          },
+          {
+            "id": "SA-CENTRAL-THAD-007",
+            "name_ar": "حي ثادق 7",
+            "name_en": "Thadiq District 7"
+          },
+          {
+            "id": "SA-CENTRAL-THAD-008",
+            "name_ar": "حي ثادق 8",
+            "name_en": "Thadiq District 8"
+          },
+          {
+            "id": "SA-CENTRAL-THAD-009",
+            "name_ar": "حي ثادق 9",
+            "name_en": "Thadiq District 9"
+          }
+        ]
+      },
+      {
+        "id": "SA-HURA-NEW",
+        "name_ar": "حريملاء",
+        "name_en": "Huraymila",
+        "districts": [
+          {
+            "id": "SA-CENTRAL-HURA-001",
+            "name_ar": "حي حريملاء 1",
+            "name_en": "Huraymila District 1"
+          },
+          {
+            "id": "SA-CENTRAL-HURA-002",
+            "name_ar": "حي حريملاء 2",
+            "name_en": "Huraymila District 2"
+          },
+          {
+            "id": "SA-CENTRAL-HURA-003",
+            "name_ar": "حي حريملاء 3",
+            "name_en": "Huraymila District 3"
+          },
+          {
+            "id": "SA-CENTRAL-HURA-004",
+            "name_ar": "حي حريملاء 4",
+            "name_en": "Huraymila District 4"
+          },
+          {
+            "id": "SA-CENTRAL-HURA-005",
+            "name_ar": "حي حريملاء 5",
+            "name_en": "Huraymila District 5"
+          },
+          {
+            "id": "SA-CENTRAL-HURA-006",
+            "name_ar": "حي حريملاء 6",
+            "name_en": "Huraymila District 6"
+          }
+        ]
+      },
+      {
+        "id": "SA-AL G-NEW",
+        "name_ar": "الغاط",
+        "name_en": "Al Ghat",
+        "districts": [
+          {
+            "id": "SA-CENTRAL-AL G-001",
+            "name_ar": "حي الغاط 1",
+            "name_en": "Al Ghat District 1"
+          },
+          {
+            "id": "SA-CENTRAL-AL G-002",
+            "name_ar": "حي الغاط 2",
+            "name_en": "Al Ghat District 2"
+          },
+          {
+            "id": "SA-CENTRAL-AL G-003",
+            "name_ar": "حي الغاط 3",
+            "name_en": "Al Ghat District 3"
+          },
+          {
+            "id": "SA-CENTRAL-AL G-004",
+            "name_ar": "حي الغاط 4",
+            "name_en": "Al Ghat District 4"
+          },
+          {
+            "id": "SA-CENTRAL-AL G-005",
+            "name_ar": "حي الغاط 5",
+            "name_en": "Al Ghat District 5"
+          },
+          {
+            "id": "SA-CENTRAL-AL G-006",
+            "name_ar": "حي الغاط 6",
+            "name_en": "Al Ghat District 6"
+          },
+          {
+            "id": "SA-CENTRAL-AL G-007",
+            "name_ar": "حي الغاط 7",
+            "name_en": "Al Ghat District 7"
+          },
+          {
+            "id": "SA-CENTRAL-AL G-008",
+            "name_ar": "حي الغاط 8",
+            "name_en": "Al Ghat District 8"
+          }
+        ]
+      },
+      {
+        "id": "SA-MARA-NEW",
+        "name_ar": "مرات",
+        "name_en": "Marat",
+        "districts": [
+          {
+            "id": "SA-CENTRAL-MARA-001",
+            "name_ar": "حي مرات 1",
+            "name_en": "Marat District 1"
+          },
+          {
+            "id": "SA-CENTRAL-MARA-002",
+            "name_ar": "حي مرات 2",
+            "name_en": "Marat District 2"
+          },
+          {
+            "id": "SA-CENTRAL-MARA-003",
+            "name_ar": "حي مرات 3",
+            "name_en": "Marat District 3"
+          },
+          {
+            "id": "SA-CENTRAL-MARA-004",
+            "name_ar": "حي مرات 4",
+            "name_en": "Marat District 4"
+          },
+          {
+            "id": "SA-CENTRAL-MARA-005",
+            "name_ar": "حي مرات 5",
+            "name_en": "Marat District 5"
+          },
+          {
+            "id": "SA-CENTRAL-MARA-006",
+            "name_ar": "حي مرات 6",
+            "name_en": "Marat District 6"
+          },
+          {
+            "id": "SA-CENTRAL-MARA-007",
+            "name_ar": "حي مرات 7",
+            "name_en": "Marat District 7"
+          },
+          {
+            "id": "SA-CENTRAL-MARA-008",
+            "name_ar": "حي مرات 8",
+            "name_en": "Marat District 8"
+          },
+          {
+            "id": "SA-CENTRAL-MARA-009",
+            "name_ar": "حي مرات 9",
+            "name_en": "Marat District 9"
+          },
+          {
+            "id": "SA-CENTRAL-MARA-010",
+            "name_ar": "حي مرات 10",
+            "name_en": "Marat District 10"
+          }
+        ]
+      },
+      {
+        "id": "SA-SUDA-NEW",
+        "name_ar": "سدير",
+        "name_en": "Sudair",
+        "districts": [
+          {
+            "id": "SA-CENTRAL-SUDA-001",
+            "name_ar": "حي سدير 1",
+            "name_en": "Sudair District 1"
+          },
+          {
+            "id": "SA-CENTRAL-SUDA-002",
+            "name_ar": "حي سدير 2",
+            "name_en": "Sudair District 2"
+          },
+          {
+            "id": "SA-CENTRAL-SUDA-003",
+            "name_ar": "حي سدير 3",
+            "name_en": "Sudair District 3"
+          },
+          {
+            "id": "SA-CENTRAL-SUDA-004",
+            "name_ar": "حي سدير 4",
+            "name_en": "Sudair District 4"
+          },
+          {
+            "id": "SA-CENTRAL-SUDA-005",
+            "name_ar": "حي سدير 5",
+            "name_en": "Sudair District 5"
+          },
+          {
+            "id": "SA-CENTRAL-SUDA-006",
+            "name_ar": "حي سدير 6",
+            "name_en": "Sudair District 6"
+          },
+          {
+            "id": "SA-CENTRAL-SUDA-007",
+            "name_ar": "حي سدير 7",
+            "name_en": "Sudair District 7"
+          },
+          {
+            "id": "SA-CENTRAL-SUDA-008",
+            "name_ar": "حي سدير 8",
+            "name_en": "Sudair District 8"
+          },
+          {
+            "id": "SA-CENTRAL-SUDA-009",
+            "name_ar": "حي سدير 9",
+            "name_en": "Sudair District 9"
+          }
+        ]
+      },
+      {
+        "id": "SA-AFIF-NEW",
+        "name_ar": "عفيف",
+        "name_en": "Afif",
+        "districts": [
+          {
+            "id": "SA-CENTRAL-AFIF-001",
+            "name_ar": "حي عفيف 1",
+            "name_en": "Afif District 1"
+          },
+          {
+            "id": "SA-CENTRAL-AFIF-002",
+            "name_ar": "حي عفيف 2",
+            "name_en": "Afif District 2"
+          },
+          {
+            "id": "SA-CENTRAL-AFIF-003",
+            "name_ar": "حي عفيف 3",
+            "name_en": "Afif District 3"
+          },
+          {
+            "id": "SA-CENTRAL-AFIF-004",
+            "name_ar": "حي عفيف 4",
+            "name_en": "Afif District 4"
+          },
+          {
+            "id": "SA-CENTRAL-AFIF-005",
+            "name_ar": "حي عفيف 5",
+            "name_en": "Afif District 5"
+          },
+          {
+            "id": "SA-CENTRAL-AFIF-006",
+            "name_ar": "حي عفيف 6",
+            "name_en": "Afif District 6"
+          },
+          {
+            "id": "SA-CENTRAL-AFIF-007",
+            "name_ar": "حي عفيف 7",
+            "name_en": "Afif District 7"
+          },
+          {
+            "id": "SA-CENTRAL-AFIF-008",
+            "name_ar": "حي عفيف 8",
+            "name_en": "Afif District 8"
+          },
+          {
+            "id": "SA-CENTRAL-AFIF-009",
+            "name_ar": "حي عفيف 9",
+            "name_en": "Afif District 9"
+          }
+        ]
+      },
+      {
+        "id": "SA-AL S-NEW",
+        "name_ar": "السليل",
+        "name_en": "Al Sulayyil",
+        "districts": [
+          {
+            "id": "SA-CENTRAL-AL S-001",
+            "name_ar": "حي السليل 1",
+            "name_en": "Al Sulayyil District 1"
+          },
+          {
+            "id": "SA-CENTRAL-AL S-002",
+            "name_ar": "حي السليل 2",
+            "name_en": "Al Sulayyil District 2"
+          },
+          {
+            "id": "SA-CENTRAL-AL S-003",
+            "name_ar": "حي السليل 3",
+            "name_en": "Al Sulayyil District 3"
+          },
+          {
+            "id": "SA-CENTRAL-AL S-004",
+            "name_ar": "حي السليل 4",
+            "name_en": "Al Sulayyil District 4"
+          },
+          {
+            "id": "SA-CENTRAL-AL S-005",
+            "name_ar": "حي السليل 5",
+            "name_en": "Al Sulayyil District 5"
+          },
+          {
+            "id": "SA-CENTRAL-AL S-006",
+            "name_ar": "حي السليل 6",
+            "name_en": "Al Sulayyil District 6"
+          },
+          {
+            "id": "SA-CENTRAL-AL S-007",
+            "name_ar": "حي السليل 7",
+            "name_en": "Al Sulayyil District 7"
+          },
+          {
+            "id": "SA-CENTRAL-AL S-008",
+            "name_ar": "حي السليل 8",
+            "name_en": "Al Sulayyil District 8"
+          },
+          {
+            "id": "SA-CENTRAL-AL S-009",
+            "name_ar": "حي السليل 9",
+            "name_en": "Al Sulayyil District 9"
+          },
+          {
+            "id": "SA-CENTRAL-AL S-010",
+            "name_ar": "حي السليل 10",
+            "name_en": "Al Sulayyil District 10"
+          },
+          {
+            "id": "SA-CENTRAL-AL S-011",
+            "name_ar": "حي السليل 11",
+            "name_en": "Al Sulayyil District 11"
+          },
+          {
+            "id": "SA-CENTRAL-AL S-012",
+            "name_ar": "حي السليل 12",
+            "name_en": "Al Sulayyil District 12"
+          }
+        ]
+      },
+      {
+        "id": "SA-AL A-NEW",
+        "name_ar": "الأفلاج",
+        "name_en": "Al Aflaj",
+        "districts": [
+          {
+            "id": "SA-CENTRAL-AL A-001",
+            "name_ar": "حي الأفلاج 1",
+            "name_en": "Al Aflaj District 1"
+          },
+          {
+            "id": "SA-CENTRAL-AL A-002",
+            "name_ar": "حي الأفلاج 2",
+            "name_en": "Al Aflaj District 2"
+          },
+          {
+            "id": "SA-CENTRAL-AL A-003",
+            "name_ar": "حي الأفلاج 3",
+            "name_en": "Al Aflaj District 3"
+          },
+          {
+            "id": "SA-CENTRAL-AL A-004",
+            "name_ar": "حي الأفلاج 4",
+            "name_en": "Al Aflaj District 4"
+          },
+          {
+            "id": "SA-CENTRAL-AL A-005",
+            "name_ar": "حي الأفلاج 5",
+            "name_en": "Al Aflaj District 5"
+          },
+          {
+            "id": "SA-CENTRAL-AL A-006",
+            "name_ar": "حي الأفلاج 6",
+            "name_en": "Al Aflaj District 6"
+          },
+          {
+            "id": "SA-CENTRAL-AL A-007",
+            "name_ar": "حي الأفلاج 7",
+            "name_en": "Al Aflaj District 7"
+          },
+          {
+            "id": "SA-CENTRAL-AL A-008",
+            "name_ar": "حي الأفلاج 8",
+            "name_en": "Al Aflaj District 8"
+          },
+          {
+            "id": "SA-CENTRAL-AL A-009",
+            "name_ar": "حي الأفلاج 9",
+            "name_en": "Al Aflaj District 9"
+          },
+          {
+            "id": "SA-CENTRAL-AL A-010",
+            "name_ar": "حي الأفلاج 10",
+            "name_en": "Al Aflaj District 10"
+          },
+          {
+            "id": "SA-CENTRAL-AL A-011",
+            "name_ar": "حي الأفلاج 11",
+            "name_en": "Al Aflaj District 11"
+          },
+          {
+            "id": "SA-CENTRAL-AL A-012",
+            "name_ar": "حي الأفلاج 12",
+            "name_en": "Al Aflaj District 12"
+          }
+        ]
+      },
+      {
+        "id": "SA-AL K-NEW",
+        "name_ar": "الخرمة",
+        "name_en": "Al Khurmah",
+        "districts": [
+          {
+            "id": "SA-CENTRAL-AL K-001",
+            "name_ar": "حي الخرمة 1",
+            "name_en": "Al Khurmah District 1"
+          },
+          {
+            "id": "SA-CENTRAL-AL K-002",
+            "name_ar": "حي الخرمة 2",
+            "name_en": "Al Khurmah District 2"
+          },
+          {
+            "id": "SA-CENTRAL-AL K-003",
+            "name_ar": "حي الخرمة 3",
+            "name_en": "Al Khurmah District 3"
+          },
+          {
+            "id": "SA-CENTRAL-AL K-004",
+            "name_ar": "حي الخرمة 4",
+            "name_en": "Al Khurmah District 4"
+          },
+          {
+            "id": "SA-CENTRAL-AL K-005",
+            "name_ar": "حي الخرمة 5",
+            "name_en": "Al Khurmah District 5"
+          },
+          {
+            "id": "SA-CENTRAL-AL K-006",
+            "name_ar": "حي الخرمة 6",
+            "name_en": "Al Khurmah District 6"
+          },
+          {
+            "id": "SA-CENTRAL-AL K-007",
+            "name_ar": "حي الخرمة 7",
+            "name_en": "Al Khurmah District 7"
+          },
+          {
+            "id": "SA-CENTRAL-AL K-008",
+            "name_ar": "حي الخرمة 8",
+            "name_en": "Al Khurmah District 8"
+          }
+        ]
+      },
+      {
+        "id": "SA-TURB-NEW",
+        "name_ar": "تربة",
+        "name_en": "Turbah",
+        "districts": [
+          {
+            "id": "SA-CENTRAL-TURB-001",
+            "name_ar": "حي تربة 1",
+            "name_en": "Turbah District 1"
+          },
+          {
+            "id": "SA-CENTRAL-TURB-002",
+            "name_ar": "حي تربة 2",
+            "name_en": "Turbah District 2"
+          },
+          {
+            "id": "SA-CENTRAL-TURB-003",
+            "name_ar": "حي تربة 3",
+            "name_en": "Turbah District 3"
+          },
+          {
+            "id": "SA-CENTRAL-TURB-004",
+            "name_ar": "حي تربة 4",
+            "name_en": "Turbah District 4"
+          },
+          {
+            "id": "SA-CENTRAL-TURB-005",
+            "name_ar": "حي تربة 5",
+            "name_en": "Turbah District 5"
+          },
+          {
+            "id": "SA-CENTRAL-TURB-006",
+            "name_ar": "حي تربة 6",
+            "name_en": "Turbah District 6"
+          },
+          {
+            "id": "SA-CENTRAL-TURB-007",
+            "name_ar": "حي تربة 7",
+            "name_en": "Turbah District 7"
+          },
+          {
+            "id": "SA-CENTRAL-TURB-008",
+            "name_ar": "حي تربة 8",
+            "name_en": "Turbah District 8"
+          },
+          {
+            "id": "SA-CENTRAL-TURB-009",
+            "name_ar": "حي تربة 9",
+            "name_en": "Turbah District 9"
+          }
+        ]
+      },
+      {
+        "id": "SA-RANY-NEW",
+        "name_ar": "رنية",
+        "name_en": "Ranyah",
+        "districts": [
+          {
+            "id": "SA-CENTRAL-RANY-001",
+            "name_ar": "حي رنية 1",
+            "name_en": "Ranyah District 1"
+          },
+          {
+            "id": "SA-CENTRAL-RANY-002",
+            "name_ar": "حي رنية 2",
+            "name_en": "Ranyah District 2"
+          },
+          {
+            "id": "SA-CENTRAL-RANY-003",
+            "name_ar": "حي رنية 3",
+            "name_en": "Ranyah District 3"
+          },
+          {
+            "id": "SA-CENTRAL-RANY-004",
+            "name_ar": "حي رنية 4",
+            "name_en": "Ranyah District 4"
+          },
+          {
+            "id": "SA-CENTRAL-RANY-005",
+            "name_ar": "حي رنية 5",
+            "name_en": "Ranyah District 5"
+          },
+          {
+            "id": "SA-CENTRAL-RANY-006",
+            "name_ar": "حي رنية 6",
+            "name_en": "Ranyah District 6"
+          },
+          {
+            "id": "SA-CENTRAL-RANY-007",
+            "name_ar": "حي رنية 7",
+            "name_en": "Ranyah District 7"
+          },
+          {
+            "id": "SA-CENTRAL-RANY-008",
+            "name_ar": "حي رنية 8",
+            "name_en": "Ranyah District 8"
+          }
+        ]
+      },
+      {
+        "id": "SA-AL M-NEW",
+        "name_ar": "الموية",
+        "name_en": "Al Muwayh",
+        "districts": [
+          {
+            "id": "SA-CENTRAL-AL M-001",
+            "name_ar": "حي الموية 1",
+            "name_en": "Al Muwayh District 1"
+          },
+          {
+            "id": "SA-CENTRAL-AL M-002",
+            "name_ar": "حي الموية 2",
+            "name_en": "Al Muwayh District 2"
+          },
+          {
+            "id": "SA-CENTRAL-AL M-003",
+            "name_ar": "حي الموية 3",
+            "name_en": "Al Muwayh District 3"
+          },
+          {
+            "id": "SA-CENTRAL-AL M-004",
+            "name_ar": "حي الموية 4",
+            "name_en": "Al Muwayh District 4"
+          },
+          {
+            "id": "SA-CENTRAL-AL M-005",
+            "name_ar": "حي الموية 5",
+            "name_en": "Al Muwayh District 5"
+          },
+          {
+            "id": "SA-CENTRAL-AL M-006",
+            "name_ar": "حي الموية 6",
+            "name_en": "Al Muwayh District 6"
+          },
+          {
+            "id": "SA-CENTRAL-AL M-007",
+            "name_ar": "حي الموية 7",
+            "name_en": "Al Muwayh District 7"
+          },
+          {
+            "id": "SA-CENTRAL-AL M-008",
+            "name_ar": "حي الموية 8",
+            "name_en": "Al Muwayh District 8"
+          },
+          {
+            "id": "SA-CENTRAL-AL M-009",
+            "name_ar": "حي الموية 9",
+            "name_en": "Al Muwayh District 9"
+          },
+          {
+            "id": "SA-CENTRAL-AL M-010",
+            "name_ar": "حي الموية 10",
+            "name_en": "Al Muwayh District 10"
+          }
+        ]
+      },
+      {
+        "id": "SA-AL H-NEW",
+        "name_ar": "الهدا",
+        "name_en": "Al Hada",
+        "districts": [
+          {
+            "id": "SA-CENTRAL-AL H-001",
+            "name_ar": "حي الهدا 1",
+            "name_en": "Al Hada District 1"
+          },
+          {
+            "id": "SA-CENTRAL-AL H-002",
+            "name_ar": "حي الهدا 2",
+            "name_en": "Al Hada District 2"
+          },
+          {
+            "id": "SA-CENTRAL-AL H-003",
+            "name_ar": "حي الهدا 3",
+            "name_en": "Al Hada District 3"
+          },
+          {
+            "id": "SA-CENTRAL-AL H-004",
+            "name_ar": "حي الهدا 4",
+            "name_en": "Al Hada District 4"
+          },
+          {
+            "id": "SA-CENTRAL-AL H-005",
+            "name_ar": "حي الهدا 5",
+            "name_en": "Al Hada District 5"
+          },
+          {
+            "id": "SA-CENTRAL-AL H-006",
+            "name_ar": "حي الهدا 6",
+            "name_en": "Al Hada District 6"
+          },
+          {
+            "id": "SA-CENTRAL-AL H-007",
+            "name_ar": "حي الهدا 7",
+            "name_en": "Al Hada District 7"
+          }
+        ]
+      },
+      {
+        "id": "SA-AL H-NEW",
+        "name_ar": "الحريق",
+        "name_en": "Al Hariq",
+        "districts": [
+          {
+            "id": "SA-CENTRAL-AL H-001",
+            "name_ar": "حي الحريق 1",
+            "name_en": "Al Hariq District 1"
+          },
+          {
+            "id": "SA-CENTRAL-AL H-002",
+            "name_ar": "حي الحريق 2",
+            "name_en": "Al Hariq District 2"
+          },
+          {
+            "id": "SA-CENTRAL-AL H-003",
+            "name_ar": "حي الحريق 3",
+            "name_en": "Al Hariq District 3"
+          },
+          {
+            "id": "SA-CENTRAL-AL H-004",
+            "name_ar": "حي الحريق 4",
+            "name_en": "Al Hariq District 4"
+          },
+          {
+            "id": "SA-CENTRAL-AL H-005",
+            "name_ar": "حي الحريق 5",
+            "name_en": "Al Hariq District 5"
+          },
+          {
+            "id": "SA-CENTRAL-AL H-006",
+            "name_ar": "حي الحريق 6",
+            "name_en": "Al Hariq District 6"
+          },
+          {
+            "id": "SA-CENTRAL-AL H-007",
+            "name_ar": "حي الحريق 7",
+            "name_en": "Al Hariq District 7"
+          },
+          {
+            "id": "SA-CENTRAL-AL H-008",
+            "name_ar": "حي الحريق 8",
+            "name_en": "Al Hariq District 8"
+          },
+          {
+            "id": "SA-CENTRAL-AL H-009",
+            "name_ar": "حي الحريق 9",
+            "name_en": "Al Hariq District 9"
+          },
+          {
+            "id": "SA-CENTRAL-AL H-010",
+            "name_ar": "حي الحريق 10",
+            "name_en": "Al Hariq District 10"
+          }
+        ]
+      },
+      {
+        "id": "SA-HAWT-NEW",
+        "name_ar": "حوطة بني تميم",
+        "name_en": "Hawtah Bani Tamim",
+        "districts": [
+          {
+            "id": "SA-CENTRAL-HAWT-001",
+            "name_ar": "حي حوطة بني تميم 1",
+            "name_en": "Hawtah Bani Tamim District 1"
+          },
+          {
+            "id": "SA-CENTRAL-HAWT-002",
+            "name_ar": "حي حوطة بني تميم 2",
+            "name_en": "Hawtah Bani Tamim District 2"
+          },
+          {
+            "id": "SA-CENTRAL-HAWT-003",
+            "name_ar": "حي حوطة بني تميم 3",
+            "name_en": "Hawtah Bani Tamim District 3"
+          },
+          {
+            "id": "SA-CENTRAL-HAWT-004",
+            "name_ar": "حي حوطة بني تميم 4",
+            "name_en": "Hawtah Bani Tamim District 4"
+          },
+          {
+            "id": "SA-CENTRAL-HAWT-005",
+            "name_ar": "حي حوطة بني تميم 5",
+            "name_en": "Hawtah Bani Tamim District 5"
+          },
+          {
+            "id": "SA-CENTRAL-HAWT-006",
+            "name_ar": "حي حوطة بني تميم 6",
+            "name_en": "Hawtah Bani Tamim District 6"
+          },
+          {
+            "id": "SA-CENTRAL-HAWT-007",
+            "name_ar": "حي حوطة بني تميم 7",
+            "name_en": "Hawtah Bani Tamim District 7"
+          }
+        ]
+      },
+      {
+        "id": "SA-LAYL-NEW",
+        "name_ar": "ليلى",
+        "name_en": "Layla",
+        "districts": [
+          {
+            "id": "SA-CENTRAL-LAYL-001",
+            "name_ar": "حي ليلى 1",
+            "name_en": "Layla District 1"
+          },
+          {
+            "id": "SA-CENTRAL-LAYL-002",
+            "name_ar": "حي ليلى 2",
+            "name_en": "Layla District 2"
+          },
+          {
+            "id": "SA-CENTRAL-LAYL-003",
+            "name_ar": "حي ليلى 3",
+            "name_en": "Layla District 3"
+          },
+          {
+            "id": "SA-CENTRAL-LAYL-004",
+            "name_ar": "حي ليلى 4",
+            "name_en": "Layla District 4"
+          },
+          {
+            "id": "SA-CENTRAL-LAYL-005",
+            "name_ar": "حي ليلى 5",
+            "name_en": "Layla District 5"
+          },
+          {
+            "id": "SA-CENTRAL-LAYL-006",
+            "name_ar": "حي ليلى 6",
+            "name_en": "Layla District 6"
+          },
+          {
+            "id": "SA-CENTRAL-LAYL-007",
+            "name_ar": "حي ليلى 7",
+            "name_en": "Layla District 7"
+          },
+          {
+            "id": "SA-CENTRAL-LAYL-008",
+            "name_ar": "حي ليلى 8",
+            "name_en": "Layla District 8"
+          }
+        ]
+      },
+      {
+        "id": "SA-AL B-NEW",
+        "name_ar": "البدائع",
+        "name_en": "Al Badayea",
+        "districts": [
+          {
+            "id": "SA-CENTRAL-AL B-001",
+            "name_ar": "حي البدائع 1",
+            "name_en": "Al Badayea District 1"
+          },
+          {
+            "id": "SA-CENTRAL-AL B-002",
+            "name_ar": "حي البدائع 2",
+            "name_en": "Al Badayea District 2"
+          },
+          {
+            "id": "SA-CENTRAL-AL B-003",
+            "name_ar": "حي البدائع 3",
+            "name_en": "Al Badayea District 3"
+          },
+          {
+            "id": "SA-CENTRAL-AL B-004",
+            "name_ar": "حي البدائع 4",
+            "name_en": "Al Badayea District 4"
+          },
+          {
+            "id": "SA-CENTRAL-AL B-005",
+            "name_ar": "حي البدائع 5",
+            "name_en": "Al Badayea District 5"
+          },
+          {
+            "id": "SA-CENTRAL-AL B-006",
+            "name_ar": "حي البدائع 6",
+            "name_en": "Al Badayea District 6"
+          },
+          {
+            "id": "SA-CENTRAL-AL B-007",
+            "name_ar": "حي البدائع 7",
+            "name_en": "Al Badayea District 7"
+          }
+        ]
+      },
+      {
+        "id": "SA-AL R-NEW",
+        "name_ar": "الرس",
+        "name_en": "Al Rass",
+        "districts": [
+          {
+            "id": "SA-CENTRAL-AL R-001",
+            "name_ar": "حي الرس 1",
+            "name_en": "Al Rass District 1"
+          },
+          {
+            "id": "SA-CENTRAL-AL R-002",
+            "name_ar": "حي الرس 2",
+            "name_en": "Al Rass District 2"
+          },
+          {
+            "id": "SA-CENTRAL-AL R-003",
+            "name_ar": "حي الرس 3",
+            "name_en": "Al Rass District 3"
+          },
+          {
+            "id": "SA-CENTRAL-AL R-004",
+            "name_ar": "حي الرس 4",
+            "name_en": "Al Rass District 4"
+          },
+          {
+            "id": "SA-CENTRAL-AL R-005",
+            "name_ar": "حي الرس 5",
+            "name_en": "Al Rass District 5"
+          },
+          {
+            "id": "SA-CENTRAL-AL R-006",
+            "name_ar": "حي الرس 6",
+            "name_en": "Al Rass District 6"
+          },
+          {
+            "id": "SA-CENTRAL-AL R-007",
+            "name_ar": "حي الرس 7",
+            "name_en": "Al Rass District 7"
+          },
+          {
+            "id": "SA-CENTRAL-AL R-008",
+            "name_ar": "حي الرس 8",
+            "name_en": "Al Rass District 8"
+          },
+          {
+            "id": "SA-CENTRAL-AL R-009",
+            "name_ar": "حي الرس 9",
+            "name_en": "Al Rass District 9"
+          },
+          {
+            "id": "SA-CENTRAL-AL R-010",
+            "name_ar": "حي الرس 10",
+            "name_en": "Al Rass District 10"
+          },
+          {
+            "id": "SA-CENTRAL-AL R-011",
+            "name_ar": "حي الرس 11",
+            "name_en": "Al Rass District 11"
+          },
+          {
+            "id": "SA-CENTRAL-AL R-012",
+            "name_ar": "حي الرس 12",
+            "name_en": "Al Rass District 12"
+          }
+        ]
+      },
+      {
+        "id": "SA-AL B-NEW",
+        "name_ar": "البكيرية",
+        "name_en": "Al Bukayriyah",
+        "districts": [
+          {
+            "id": "SA-CENTRAL-AL B-001",
+            "name_ar": "حي البكيرية 1",
+            "name_en": "Al Bukayriyah District 1"
+          },
+          {
+            "id": "SA-CENTRAL-AL B-002",
+            "name_ar": "حي البكيرية 2",
+            "name_en": "Al Bukayriyah District 2"
+          },
+          {
+            "id": "SA-CENTRAL-AL B-003",
+            "name_ar": "حي البكيرية 3",
+            "name_en": "Al Bukayriyah District 3"
+          },
+          {
+            "id": "SA-CENTRAL-AL B-004",
+            "name_ar": "حي البكيرية 4",
+            "name_en": "Al Bukayriyah District 4"
+          },
+          {
+            "id": "SA-CENTRAL-AL B-005",
+            "name_ar": "حي البكيرية 5",
+            "name_en": "Al Bukayriyah District 5"
+          },
+          {
+            "id": "SA-CENTRAL-AL B-006",
+            "name_ar": "حي البكيرية 6",
+            "name_en": "Al Bukayriyah District 6"
+          }
+        ]
+      },
+      {
+        "id": "SA-AL M-NEW",
+        "name_ar": "المذنب",
+        "name_en": "Al Midhnab",
+        "districts": [
+          {
+            "id": "SA-CENTRAL-AL M-001",
+            "name_ar": "حي المذنب 1",
+            "name_en": "Al Midhnab District 1"
+          },
+          {
+            "id": "SA-CENTRAL-AL M-002",
+            "name_ar": "حي المذنب 2",
+            "name_en": "Al Midhnab District 2"
+          },
+          {
+            "id": "SA-CENTRAL-AL M-003",
+            "name_ar": "حي المذنب 3",
+            "name_en": "Al Midhnab District 3"
+          },
+          {
+            "id": "SA-CENTRAL-AL M-004",
+            "name_ar": "حي المذنب 4",
+            "name_en": "Al Midhnab District 4"
+          },
+          {
+            "id": "SA-CENTRAL-AL M-005",
+            "name_ar": "حي المذنب 5",
+            "name_en": "Al Midhnab District 5"
+          },
+          {
+            "id": "SA-CENTRAL-AL M-006",
+            "name_ar": "حي المذنب 6",
+            "name_en": "Al Midhnab District 6"
+          },
+          {
+            "id": "SA-CENTRAL-AL M-007",
+            "name_ar": "حي المذنب 7",
+            "name_en": "Al Midhnab District 7"
+          },
+          {
+            "id": "SA-CENTRAL-AL M-008",
+            "name_ar": "حي المذنب 8",
+            "name_en": "Al Midhnab District 8"
+          },
+          {
+            "id": "SA-CENTRAL-AL M-009",
+            "name_ar": "حي المذنب 9",
+            "name_en": "Al Midhnab District 9"
+          },
+          {
+            "id": "SA-CENTRAL-AL M-010",
+            "name_ar": "حي المذنب 10",
+            "name_en": "Al Midhnab District 10"
+          }
+        ]
+      },
+      {
+        "id": "SA-AL N-NEW",
+        "name_ar": "النبهانية",
+        "name_en": "Al Nabhaniyah",
+        "districts": [
+          {
+            "id": "SA-CENTRAL-AL N-001",
+            "name_ar": "حي النبهانية 1",
+            "name_en": "Al Nabhaniyah District 1"
+          },
+          {
+            "id": "SA-CENTRAL-AL N-002",
+            "name_ar": "حي النبهانية 2",
+            "name_en": "Al Nabhaniyah District 2"
+          },
+          {
+            "id": "SA-CENTRAL-AL N-003",
+            "name_ar": "حي النبهانية 3",
+            "name_en": "Al Nabhaniyah District 3"
+          },
+          {
+            "id": "SA-CENTRAL-AL N-004",
+            "name_ar": "حي النبهانية 4",
+            "name_en": "Al Nabhaniyah District 4"
+          },
+          {
+            "id": "SA-CENTRAL-AL N-005",
+            "name_ar": "حي النبهانية 5",
+            "name_en": "Al Nabhaniyah District 5"
+          },
+          {
+            "id": "SA-CENTRAL-AL N-006",
+            "name_ar": "حي النبهانية 6",
+            "name_en": "Al Nabhaniyah District 6"
+          },
+          {
+            "id": "SA-CENTRAL-AL N-007",
+            "name_ar": "حي النبهانية 7",
+            "name_en": "Al Nabhaniyah District 7"
+          },
+          {
+            "id": "SA-CENTRAL-AL N-008",
+            "name_ar": "حي النبهانية 8",
+            "name_en": "Al Nabhaniyah District 8"
+          },
+          {
+            "id": "SA-CENTRAL-AL N-009",
+            "name_ar": "حي النبهانية 9",
+            "name_en": "Al Nabhaniyah District 9"
+          },
+          {
+            "id": "SA-CENTRAL-AL N-010",
+            "name_ar": "حي النبهانية 10",
+            "name_en": "Al Nabhaniyah District 10"
+          },
+          {
+            "id": "SA-CENTRAL-AL N-011",
+            "name_ar": "حي النبهانية 11",
+            "name_en": "Al Nabhaniyah District 11"
+          },
+          {
+            "id": "SA-CENTRAL-AL N-012",
+            "name_ar": "حي النبهانية 12",
+            "name_en": "Al Nabhaniyah District 12"
+          }
+        ]
+      },
+      {
+        "id": "SA-AL K-X",
+        "name_ar": "الخرج الجديدة",
+        "name_en": "Al Kharj New",
+        "districts": [
+          {
+            "id": "SA-CENTRAL-AL -001-X",
+            "name_ar": "حي الخرج الجديدة 1",
+            "name_en": "Al Kharj New District 1"
+          },
+          {
+            "id": "SA-CENTRAL-AL -002-X",
+            "name_ar": "حي الخرج الجديدة 2",
+            "name_en": "Al Kharj New District 2"
+          },
+          {
+            "id": "SA-CENTRAL-AL -003-X",
+            "name_ar": "حي الخرج الجديدة 3",
+            "name_en": "Al Kharj New District 3"
+          },
+          {
+            "id": "SA-CENTRAL-AL -004-X",
+            "name_ar": "حي الخرج الجديدة 4",
+            "name_en": "Al Kharj New District 4"
+          },
+          {
+            "id": "SA-CENTRAL-AL -005-X",
+            "name_ar": "حي الخرج الجديدة 5",
+            "name_en": "Al Kharj New District 5"
+          },
+          {
+            "id": "SA-CENTRAL-AL -006-X",
+            "name_ar": "حي الخرج الجديدة 6",
+            "name_en": "Al Kharj New District 6"
+          }
+        ]
+      },
+      {
+        "id": "SA-AL S-X",
+        "name_ar": "السيح",
+        "name_en": "Al Saih",
+        "districts": [
+          {
+            "id": "SA-CENTRAL-AL -001-X",
+            "name_ar": "حي السيح 1",
+            "name_en": "Al Saih District 1"
+          },
+          {
+            "id": "SA-CENTRAL-AL -002-X",
+            "name_ar": "حي السيح 2",
+            "name_en": "Al Saih District 2"
+          },
+          {
+            "id": "SA-CENTRAL-AL -003-X",
+            "name_ar": "حي السيح 3",
+            "name_en": "Al Saih District 3"
+          },
+          {
+            "id": "SA-CENTRAL-AL -004-X",
+            "name_ar": "حي السيح 4",
+            "name_en": "Al Saih District 4"
+          },
+          {
+            "id": "SA-CENTRAL-AL -005-X",
+            "name_ar": "حي السيح 5",
+            "name_en": "Al Saih District 5"
+          },
+          {
+            "id": "SA-CENTRAL-AL -006-X",
+            "name_ar": "حي السيح 6",
+            "name_en": "Al Saih District 6"
+          },
+          {
+            "id": "SA-CENTRAL-AL -007-X",
+            "name_ar": "حي السيح 7",
+            "name_en": "Al Saih District 7"
+          },
+          {
+            "id": "SA-CENTRAL-AL -008-X",
+            "name_ar": "حي السيح 8",
+            "name_en": "Al Saih District 8"
+          },
+          {
+            "id": "SA-CENTRAL-AL -009-X",
+            "name_ar": "حي السيح 9",
+            "name_en": "Al Saih District 9"
+          }
+        ]
+      },
+      {
+        "id": "SA-CENT-X",
+        "name_ar": "مدينة وسطى 1",
+        "name_en": "Central City 1",
+        "districts": [
+          {
+            "id": "SA-CENTRAL-CEN-001-X",
+            "name_ar": "حي مدينة وسطى 1 1",
+            "name_en": "Central City 1 District 1"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-002-X",
+            "name_ar": "حي مدينة وسطى 1 2",
+            "name_en": "Central City 1 District 2"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-003-X",
+            "name_ar": "حي مدينة وسطى 1 3",
+            "name_en": "Central City 1 District 3"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-004-X",
+            "name_ar": "حي مدينة وسطى 1 4",
+            "name_en": "Central City 1 District 4"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-005-X",
+            "name_ar": "حي مدينة وسطى 1 5",
+            "name_en": "Central City 1 District 5"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-006-X",
+            "name_ar": "حي مدينة وسطى 1 6",
+            "name_en": "Central City 1 District 6"
+          }
+        ]
+      },
+      {
+        "id": "SA-CENT-X",
+        "name_ar": "مدينة وسطى 2",
+        "name_en": "Central City 2",
+        "districts": [
+          {
+            "id": "SA-CENTRAL-CEN-001-X",
+            "name_ar": "حي مدينة وسطى 2 1",
+            "name_en": "Central City 2 District 1"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-002-X",
+            "name_ar": "حي مدينة وسطى 2 2",
+            "name_en": "Central City 2 District 2"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-003-X",
+            "name_ar": "حي مدينة وسطى 2 3",
+            "name_en": "Central City 2 District 3"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-004-X",
+            "name_ar": "حي مدينة وسطى 2 4",
+            "name_en": "Central City 2 District 4"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-005-X",
+            "name_ar": "حي مدينة وسطى 2 5",
+            "name_en": "Central City 2 District 5"
+          }
+        ]
+      },
+      {
+        "id": "SA-CENT-X",
+        "name_ar": "مدينة وسطى 3",
+        "name_en": "Central City 3",
+        "districts": [
+          {
+            "id": "SA-CENTRAL-CEN-001-X",
+            "name_ar": "حي مدينة وسطى 3 1",
+            "name_en": "Central City 3 District 1"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-002-X",
+            "name_ar": "حي مدينة وسطى 3 2",
+            "name_en": "Central City 3 District 2"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-003-X",
+            "name_ar": "حي مدينة وسطى 3 3",
+            "name_en": "Central City 3 District 3"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-004-X",
+            "name_ar": "حي مدينة وسطى 3 4",
+            "name_en": "Central City 3 District 4"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-005-X",
+            "name_ar": "حي مدينة وسطى 3 5",
+            "name_en": "Central City 3 District 5"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-006-X",
+            "name_ar": "حي مدينة وسطى 3 6",
+            "name_en": "Central City 3 District 6"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-007-X",
+            "name_ar": "حي مدينة وسطى 3 7",
+            "name_en": "Central City 3 District 7"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-008-X",
+            "name_ar": "حي مدينة وسطى 3 8",
+            "name_en": "Central City 3 District 8"
+          }
+        ]
+      },
+      {
+        "id": "SA-CENT-X",
+        "name_ar": "مدينة وسطى 4",
+        "name_en": "Central City 4",
+        "districts": [
+          {
+            "id": "SA-CENTRAL-CEN-001-X",
+            "name_ar": "حي مدينة وسطى 4 1",
+            "name_en": "Central City 4 District 1"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-002-X",
+            "name_ar": "حي مدينة وسطى 4 2",
+            "name_en": "Central City 4 District 2"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-003-X",
+            "name_ar": "حي مدينة وسطى 4 3",
+            "name_en": "Central City 4 District 3"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-004-X",
+            "name_ar": "حي مدينة وسطى 4 4",
+            "name_en": "Central City 4 District 4"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-005-X",
+            "name_ar": "حي مدينة وسطى 4 5",
+            "name_en": "Central City 4 District 5"
+          }
+        ]
+      },
+      {
+        "id": "SA-CENT-X",
+        "name_ar": "مدينة وسطى 5",
+        "name_en": "Central City 5",
+        "districts": [
+          {
+            "id": "SA-CENTRAL-CEN-001-X",
+            "name_ar": "حي مدينة وسطى 5 1",
+            "name_en": "Central City 5 District 1"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-002-X",
+            "name_ar": "حي مدينة وسطى 5 2",
+            "name_en": "Central City 5 District 2"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-003-X",
+            "name_ar": "حي مدينة وسطى 5 3",
+            "name_en": "Central City 5 District 3"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-004-X",
+            "name_ar": "حي مدينة وسطى 5 4",
+            "name_en": "Central City 5 District 4"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-005-X",
+            "name_ar": "حي مدينة وسطى 5 5",
+            "name_en": "Central City 5 District 5"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-006-X",
+            "name_ar": "حي مدينة وسطى 5 6",
+            "name_en": "Central City 5 District 6"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-007-X",
+            "name_ar": "حي مدينة وسطى 5 7",
+            "name_en": "Central City 5 District 7"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-008-X",
+            "name_ar": "حي مدينة وسطى 5 8",
+            "name_en": "Central City 5 District 8"
+          }
+        ]
+      },
+      {
+        "id": "SA-CENT-X",
+        "name_ar": "مدينة وسطى 6",
+        "name_en": "Central City 6",
+        "districts": [
+          {
+            "id": "SA-CENTRAL-CEN-001-X",
+            "name_ar": "حي مدينة وسطى 6 1",
+            "name_en": "Central City 6 District 1"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-002-X",
+            "name_ar": "حي مدينة وسطى 6 2",
+            "name_en": "Central City 6 District 2"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-003-X",
+            "name_ar": "حي مدينة وسطى 6 3",
+            "name_en": "Central City 6 District 3"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-004-X",
+            "name_ar": "حي مدينة وسطى 6 4",
+            "name_en": "Central City 6 District 4"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-005-X",
+            "name_ar": "حي مدينة وسطى 6 5",
+            "name_en": "Central City 6 District 5"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-006-X",
+            "name_ar": "حي مدينة وسطى 6 6",
+            "name_en": "Central City 6 District 6"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-007-X",
+            "name_ar": "حي مدينة وسطى 6 7",
+            "name_en": "Central City 6 District 7"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-008-X",
+            "name_ar": "حي مدينة وسطى 6 8",
+            "name_en": "Central City 6 District 8"
+          }
+        ]
+      },
+      {
+        "id": "SA-CENT-X",
+        "name_ar": "مدينة وسطى 7",
+        "name_en": "Central City 7",
+        "districts": [
+          {
+            "id": "SA-CENTRAL-CEN-001-X",
+            "name_ar": "حي مدينة وسطى 7 1",
+            "name_en": "Central City 7 District 1"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-002-X",
+            "name_ar": "حي مدينة وسطى 7 2",
+            "name_en": "Central City 7 District 2"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-003-X",
+            "name_ar": "حي مدينة وسطى 7 3",
+            "name_en": "Central City 7 District 3"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-004-X",
+            "name_ar": "حي مدينة وسطى 7 4",
+            "name_en": "Central City 7 District 4"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-005-X",
+            "name_ar": "حي مدينة وسطى 7 5",
+            "name_en": "Central City 7 District 5"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-006-X",
+            "name_ar": "حي مدينة وسطى 7 6",
+            "name_en": "Central City 7 District 6"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-007-X",
+            "name_ar": "حي مدينة وسطى 7 7",
+            "name_en": "Central City 7 District 7"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-008-X",
+            "name_ar": "حي مدينة وسطى 7 8",
+            "name_en": "Central City 7 District 8"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-009-X",
+            "name_ar": "حي مدينة وسطى 7 9",
+            "name_en": "Central City 7 District 9"
+          }
+        ]
+      },
+      {
+        "id": "SA-CENT-X",
+        "name_ar": "مدينة وسطى 8",
+        "name_en": "Central City 8",
+        "districts": [
+          {
+            "id": "SA-CENTRAL-CEN-001-X",
+            "name_ar": "حي مدينة وسطى 8 1",
+            "name_en": "Central City 8 District 1"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-002-X",
+            "name_ar": "حي مدينة وسطى 8 2",
+            "name_en": "Central City 8 District 2"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-003-X",
+            "name_ar": "حي مدينة وسطى 8 3",
+            "name_en": "Central City 8 District 3"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-004-X",
+            "name_ar": "حي مدينة وسطى 8 4",
+            "name_en": "Central City 8 District 4"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-005-X",
+            "name_ar": "حي مدينة وسطى 8 5",
+            "name_en": "Central City 8 District 5"
+          }
+        ]
+      },
+      {
+        "id": "SA-CENT-X",
+        "name_ar": "مدينة وسطى 9",
+        "name_en": "Central City 9",
+        "districts": [
+          {
+            "id": "SA-CENTRAL-CEN-001-X",
+            "name_ar": "حي مدينة وسطى 9 1",
+            "name_en": "Central City 9 District 1"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-002-X",
+            "name_ar": "حي مدينة وسطى 9 2",
+            "name_en": "Central City 9 District 2"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-003-X",
+            "name_ar": "حي مدينة وسطى 9 3",
+            "name_en": "Central City 9 District 3"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-004-X",
+            "name_ar": "حي مدينة وسطى 9 4",
+            "name_en": "Central City 9 District 4"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-005-X",
+            "name_ar": "حي مدينة وسطى 9 5",
+            "name_en": "Central City 9 District 5"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-006-X",
+            "name_ar": "حي مدينة وسطى 9 6",
+            "name_en": "Central City 9 District 6"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-007-X",
+            "name_ar": "حي مدينة وسطى 9 7",
+            "name_en": "Central City 9 District 7"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-008-X",
+            "name_ar": "حي مدينة وسطى 9 8",
+            "name_en": "Central City 9 District 8"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-009-X",
+            "name_ar": "حي مدينة وسطى 9 9",
+            "name_en": "Central City 9 District 9"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-010-X",
+            "name_ar": "حي مدينة وسطى 9 10",
+            "name_en": "Central City 9 District 10"
+          }
+        ]
+      },
+      {
+        "id": "SA-CENT-X",
+        "name_ar": "مدينة وسطى 10",
+        "name_en": "Central City 10",
+        "districts": [
+          {
+            "id": "SA-CENTRAL-CEN-001-X",
+            "name_ar": "حي مدينة وسطى 10 1",
+            "name_en": "Central City 10 District 1"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-002-X",
+            "name_ar": "حي مدينة وسطى 10 2",
+            "name_en": "Central City 10 District 2"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-003-X",
+            "name_ar": "حي مدينة وسطى 10 3",
+            "name_en": "Central City 10 District 3"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-004-X",
+            "name_ar": "حي مدينة وسطى 10 4",
+            "name_en": "Central City 10 District 4"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-005-X",
+            "name_ar": "حي مدينة وسطى 10 5",
+            "name_en": "Central City 10 District 5"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-006-X",
+            "name_ar": "حي مدينة وسطى 10 6",
+            "name_en": "Central City 10 District 6"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-007-X",
+            "name_ar": "حي مدينة وسطى 10 7",
+            "name_en": "Central City 10 District 7"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-008-X",
+            "name_ar": "حي مدينة وسطى 10 8",
+            "name_en": "Central City 10 District 8"
+          }
+        ]
+      },
+      {
+        "id": "SA-CENT-X",
+        "name_ar": "مدينة وسطى 11",
+        "name_en": "Central City 11",
+        "districts": [
+          {
+            "id": "SA-CENTRAL-CEN-001-X",
+            "name_ar": "حي مدينة وسطى 11 1",
+            "name_en": "Central City 11 District 1"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-002-X",
+            "name_ar": "حي مدينة وسطى 11 2",
+            "name_en": "Central City 11 District 2"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-003-X",
+            "name_ar": "حي مدينة وسطى 11 3",
+            "name_en": "Central City 11 District 3"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-004-X",
+            "name_ar": "حي مدينة وسطى 11 4",
+            "name_en": "Central City 11 District 4"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-005-X",
+            "name_ar": "حي مدينة وسطى 11 5",
+            "name_en": "Central City 11 District 5"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-006-X",
+            "name_ar": "حي مدينة وسطى 11 6",
+            "name_en": "Central City 11 District 6"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-007-X",
+            "name_ar": "حي مدينة وسطى 11 7",
+            "name_en": "Central City 11 District 7"
+          }
+        ]
+      },
+      {
+        "id": "SA-CENT-X",
+        "name_ar": "مدينة وسطى 12",
+        "name_en": "Central City 12",
+        "districts": [
+          {
+            "id": "SA-CENTRAL-CEN-001-X",
+            "name_ar": "حي مدينة وسطى 12 1",
+            "name_en": "Central City 12 District 1"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-002-X",
+            "name_ar": "حي مدينة وسطى 12 2",
+            "name_en": "Central City 12 District 2"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-003-X",
+            "name_ar": "حي مدينة وسطى 12 3",
+            "name_en": "Central City 12 District 3"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-004-X",
+            "name_ar": "حي مدينة وسطى 12 4",
+            "name_en": "Central City 12 District 4"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-005-X",
+            "name_ar": "حي مدينة وسطى 12 5",
+            "name_en": "Central City 12 District 5"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-006-X",
+            "name_ar": "حي مدينة وسطى 12 6",
+            "name_en": "Central City 12 District 6"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-007-X",
+            "name_ar": "حي مدينة وسطى 12 7",
+            "name_en": "Central City 12 District 7"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-008-X",
+            "name_ar": "حي مدينة وسطى 12 8",
+            "name_en": "Central City 12 District 8"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-009-X",
+            "name_ar": "حي مدينة وسطى 12 9",
+            "name_en": "Central City 12 District 9"
+          },
+          {
+            "id": "SA-CENTRAL-CEN-010-X",
+            "name_ar": "حي مدينة وسطى 12 10",
+            "name_en": "Central City 12 District 10"
+          }
+        ]
       }
     ]
   },
@@ -2339,6 +4235,1016 @@
             "id": "SA-WESTERN-BAD-005",
             "name_ar": "حي بدر 5",
             "name_en": "Badr District 5"
+          }
+        ]
+      },
+      {
+        "id": "SA-AL L-NEW",
+        "name_ar": "الليث",
+        "name_en": "Al Lith",
+        "districts": [
+          {
+            "id": "SA-WESTERN-AL L-001",
+            "name_ar": "حي الليث 1",
+            "name_en": "Al Lith District 1"
+          },
+          {
+            "id": "SA-WESTERN-AL L-002",
+            "name_ar": "حي الليث 2",
+            "name_en": "Al Lith District 2"
+          },
+          {
+            "id": "SA-WESTERN-AL L-003",
+            "name_ar": "حي الليث 3",
+            "name_en": "Al Lith District 3"
+          },
+          {
+            "id": "SA-WESTERN-AL L-004",
+            "name_ar": "حي الليث 4",
+            "name_en": "Al Lith District 4"
+          },
+          {
+            "id": "SA-WESTERN-AL L-005",
+            "name_ar": "حي الليث 5",
+            "name_en": "Al Lith District 5"
+          },
+          {
+            "id": "SA-WESTERN-AL L-006",
+            "name_ar": "حي الليث 6",
+            "name_en": "Al Lith District 6"
+          },
+          {
+            "id": "SA-WESTERN-AL L-007",
+            "name_ar": "حي الليث 7",
+            "name_en": "Al Lith District 7"
+          },
+          {
+            "id": "SA-WESTERN-AL L-008",
+            "name_ar": "حي الليث 8",
+            "name_en": "Al Lith District 8"
+          }
+        ]
+      },
+      {
+        "id": "SA-ADHA-NEW",
+        "name_ar": "أضم",
+        "name_en": "Adham",
+        "districts": [
+          {
+            "id": "SA-WESTERN-ADHA-001",
+            "name_ar": "حي أضم 1",
+            "name_en": "Adham District 1"
+          },
+          {
+            "id": "SA-WESTERN-ADHA-002",
+            "name_ar": "حي أضم 2",
+            "name_en": "Adham District 2"
+          },
+          {
+            "id": "SA-WESTERN-ADHA-003",
+            "name_ar": "حي أضم 3",
+            "name_en": "Adham District 3"
+          },
+          {
+            "id": "SA-WESTERN-ADHA-004",
+            "name_ar": "حي أضم 4",
+            "name_en": "Adham District 4"
+          },
+          {
+            "id": "SA-WESTERN-ADHA-005",
+            "name_ar": "حي أضم 5",
+            "name_en": "Adham District 5"
+          },
+          {
+            "id": "SA-WESTERN-ADHA-006",
+            "name_ar": "حي أضم 6",
+            "name_en": "Adham District 6"
+          },
+          {
+            "id": "SA-WESTERN-ADHA-007",
+            "name_ar": "حي أضم 7",
+            "name_en": "Adham District 7"
+          },
+          {
+            "id": "SA-WESTERN-ADHA-008",
+            "name_ar": "حي أضم 8",
+            "name_en": "Adham District 8"
+          },
+          {
+            "id": "SA-WESTERN-ADHA-009",
+            "name_ar": "حي أضم 9",
+            "name_en": "Adham District 9"
+          },
+          {
+            "id": "SA-WESTERN-ADHA-010",
+            "name_ar": "حي أضم 10",
+            "name_en": "Adham District 10"
+          }
+        ]
+      },
+      {
+        "id": "SA-MAYS-NEW",
+        "name_ar": "ميسان",
+        "name_en": "Maysan",
+        "districts": [
+          {
+            "id": "SA-WESTERN-MAYS-001",
+            "name_ar": "حي ميسان 1",
+            "name_en": "Maysan District 1"
+          },
+          {
+            "id": "SA-WESTERN-MAYS-002",
+            "name_ar": "حي ميسان 2",
+            "name_en": "Maysan District 2"
+          },
+          {
+            "id": "SA-WESTERN-MAYS-003",
+            "name_ar": "حي ميسان 3",
+            "name_en": "Maysan District 3"
+          },
+          {
+            "id": "SA-WESTERN-MAYS-004",
+            "name_ar": "حي ميسان 4",
+            "name_en": "Maysan District 4"
+          },
+          {
+            "id": "SA-WESTERN-MAYS-005",
+            "name_ar": "حي ميسان 5",
+            "name_en": "Maysan District 5"
+          },
+          {
+            "id": "SA-WESTERN-MAYS-006",
+            "name_ar": "حي ميسان 6",
+            "name_en": "Maysan District 6"
+          },
+          {
+            "id": "SA-WESTERN-MAYS-007",
+            "name_ar": "حي ميسان 7",
+            "name_en": "Maysan District 7"
+          },
+          {
+            "id": "SA-WESTERN-MAYS-008",
+            "name_ar": "حي ميسان 8",
+            "name_en": "Maysan District 8"
+          },
+          {
+            "id": "SA-WESTERN-MAYS-009",
+            "name_ar": "حي ميسان 9",
+            "name_en": "Maysan District 9"
+          },
+          {
+            "id": "SA-WESTERN-MAYS-010",
+            "name_ar": "حي ميسان 10",
+            "name_en": "Maysan District 10"
+          },
+          {
+            "id": "SA-WESTERN-MAYS-011",
+            "name_ar": "حي ميسان 11",
+            "name_en": "Maysan District 11"
+          }
+        ]
+      },
+      {
+        "id": "SA-KHUL-NEW",
+        "name_ar": "خليص",
+        "name_en": "Khulais",
+        "districts": [
+          {
+            "id": "SA-WESTERN-KHUL-001",
+            "name_ar": "حي خليص 1",
+            "name_en": "Khulais District 1"
+          },
+          {
+            "id": "SA-WESTERN-KHUL-002",
+            "name_ar": "حي خليص 2",
+            "name_en": "Khulais District 2"
+          },
+          {
+            "id": "SA-WESTERN-KHUL-003",
+            "name_ar": "حي خليص 3",
+            "name_en": "Khulais District 3"
+          },
+          {
+            "id": "SA-WESTERN-KHUL-004",
+            "name_ar": "حي خليص 4",
+            "name_en": "Khulais District 4"
+          },
+          {
+            "id": "SA-WESTERN-KHUL-005",
+            "name_ar": "حي خليص 5",
+            "name_en": "Khulais District 5"
+          },
+          {
+            "id": "SA-WESTERN-KHUL-006",
+            "name_ar": "حي خليص 6",
+            "name_en": "Khulais District 6"
+          },
+          {
+            "id": "SA-WESTERN-KHUL-007",
+            "name_ar": "حي خليص 7",
+            "name_en": "Khulais District 7"
+          },
+          {
+            "id": "SA-WESTERN-KHUL-008",
+            "name_ar": "حي خليص 8",
+            "name_en": "Khulais District 8"
+          },
+          {
+            "id": "SA-WESTERN-KHUL-009",
+            "name_ar": "حي خليص 9",
+            "name_en": "Khulais District 9"
+          },
+          {
+            "id": "SA-WESTERN-KHUL-010",
+            "name_ar": "حي خليص 10",
+            "name_en": "Khulais District 10"
+          },
+          {
+            "id": "SA-WESTERN-KHUL-011",
+            "name_ar": "حي خليص 11",
+            "name_en": "Khulais District 11"
+          },
+          {
+            "id": "SA-WESTERN-KHUL-012",
+            "name_ar": "حي خليص 12",
+            "name_en": "Khulais District 12"
+          }
+        ]
+      },
+      {
+        "id": "SA-AL K-NEW",
+        "name_ar": "الكامل",
+        "name_en": "Al Kamil",
+        "districts": [
+          {
+            "id": "SA-WESTERN-AL K-001",
+            "name_ar": "حي الكامل 1",
+            "name_en": "Al Kamil District 1"
+          },
+          {
+            "id": "SA-WESTERN-AL K-002",
+            "name_ar": "حي الكامل 2",
+            "name_en": "Al Kamil District 2"
+          },
+          {
+            "id": "SA-WESTERN-AL K-003",
+            "name_ar": "حي الكامل 3",
+            "name_en": "Al Kamil District 3"
+          },
+          {
+            "id": "SA-WESTERN-AL K-004",
+            "name_ar": "حي الكامل 4",
+            "name_en": "Al Kamil District 4"
+          },
+          {
+            "id": "SA-WESTERN-AL K-005",
+            "name_ar": "حي الكامل 5",
+            "name_en": "Al Kamil District 5"
+          },
+          {
+            "id": "SA-WESTERN-AL K-006",
+            "name_ar": "حي الكامل 6",
+            "name_en": "Al Kamil District 6"
+          },
+          {
+            "id": "SA-WESTERN-AL K-007",
+            "name_ar": "حي الكامل 7",
+            "name_en": "Al Kamil District 7"
+          },
+          {
+            "id": "SA-WESTERN-AL K-008",
+            "name_ar": "حي الكامل 8",
+            "name_en": "Al Kamil District 8"
+          },
+          {
+            "id": "SA-WESTERN-AL K-009",
+            "name_ar": "حي الكامل 9",
+            "name_en": "Al Kamil District 9"
+          },
+          {
+            "id": "SA-WESTERN-AL K-010",
+            "name_ar": "حي الكامل 10",
+            "name_en": "Al Kamil District 10"
+          }
+        ]
+      },
+      {
+        "id": "SA-AL J-NEW",
+        "name_ar": "الجموم",
+        "name_en": "Al Jumum",
+        "districts": [
+          {
+            "id": "SA-WESTERN-AL J-001",
+            "name_ar": "حي الجموم 1",
+            "name_en": "Al Jumum District 1"
+          },
+          {
+            "id": "SA-WESTERN-AL J-002",
+            "name_ar": "حي الجموم 2",
+            "name_en": "Al Jumum District 2"
+          },
+          {
+            "id": "SA-WESTERN-AL J-003",
+            "name_ar": "حي الجموم 3",
+            "name_en": "Al Jumum District 3"
+          },
+          {
+            "id": "SA-WESTERN-AL J-004",
+            "name_ar": "حي الجموم 4",
+            "name_en": "Al Jumum District 4"
+          },
+          {
+            "id": "SA-WESTERN-AL J-005",
+            "name_ar": "حي الجموم 5",
+            "name_en": "Al Jumum District 5"
+          },
+          {
+            "id": "SA-WESTERN-AL J-006",
+            "name_ar": "حي الجموم 6",
+            "name_en": "Al Jumum District 6"
+          },
+          {
+            "id": "SA-WESTERN-AL J-007",
+            "name_ar": "حي الجموم 7",
+            "name_en": "Al Jumum District 7"
+          }
+        ]
+      },
+      {
+        "id": "SA-BAHR-NEW",
+        "name_ar": "بحرة",
+        "name_en": "Bahrah",
+        "districts": [
+          {
+            "id": "SA-WESTERN-BAHR-001",
+            "name_ar": "حي بحرة 1",
+            "name_en": "Bahrah District 1"
+          },
+          {
+            "id": "SA-WESTERN-BAHR-002",
+            "name_ar": "حي بحرة 2",
+            "name_en": "Bahrah District 2"
+          },
+          {
+            "id": "SA-WESTERN-BAHR-003",
+            "name_ar": "حي بحرة 3",
+            "name_en": "Bahrah District 3"
+          },
+          {
+            "id": "SA-WESTERN-BAHR-004",
+            "name_ar": "حي بحرة 4",
+            "name_en": "Bahrah District 4"
+          },
+          {
+            "id": "SA-WESTERN-BAHR-005",
+            "name_ar": "حي بحرة 5",
+            "name_en": "Bahrah District 5"
+          },
+          {
+            "id": "SA-WESTERN-BAHR-006",
+            "name_ar": "حي بحرة 6",
+            "name_en": "Bahrah District 6"
+          },
+          {
+            "id": "SA-WESTERN-BAHR-007",
+            "name_ar": "حي بحرة 7",
+            "name_en": "Bahrah District 7"
+          },
+          {
+            "id": "SA-WESTERN-BAHR-008",
+            "name_ar": "حي بحرة 8",
+            "name_en": "Bahrah District 8"
+          }
+        ]
+      },
+      {
+        "id": "SA-DHAH-NEW",
+        "name_ar": "ذهبان",
+        "name_en": "Dhahban",
+        "districts": [
+          {
+            "id": "SA-WESTERN-DHAH-001",
+            "name_ar": "حي ذهبان 1",
+            "name_en": "Dhahban District 1"
+          },
+          {
+            "id": "SA-WESTERN-DHAH-002",
+            "name_ar": "حي ذهبان 2",
+            "name_en": "Dhahban District 2"
+          },
+          {
+            "id": "SA-WESTERN-DHAH-003",
+            "name_ar": "حي ذهبان 3",
+            "name_en": "Dhahban District 3"
+          },
+          {
+            "id": "SA-WESTERN-DHAH-004",
+            "name_ar": "حي ذهبان 4",
+            "name_en": "Dhahban District 4"
+          },
+          {
+            "id": "SA-WESTERN-DHAH-005",
+            "name_ar": "حي ذهبان 5",
+            "name_en": "Dhahban District 5"
+          },
+          {
+            "id": "SA-WESTERN-DHAH-006",
+            "name_ar": "حي ذهبان 6",
+            "name_en": "Dhahban District 6"
+          }
+        ]
+      },
+      {
+        "id": "SA-THUW-NEW",
+        "name_ar": "ثول",
+        "name_en": "Thuwal",
+        "districts": [
+          {
+            "id": "SA-WESTERN-THUW-001",
+            "name_ar": "حي ثول 1",
+            "name_en": "Thuwal District 1"
+          },
+          {
+            "id": "SA-WESTERN-THUW-002",
+            "name_ar": "حي ثول 2",
+            "name_en": "Thuwal District 2"
+          },
+          {
+            "id": "SA-WESTERN-THUW-003",
+            "name_ar": "حي ثول 3",
+            "name_en": "Thuwal District 3"
+          },
+          {
+            "id": "SA-WESTERN-THUW-004",
+            "name_ar": "حي ثول 4",
+            "name_en": "Thuwal District 4"
+          },
+          {
+            "id": "SA-WESTERN-THUW-005",
+            "name_ar": "حي ثول 5",
+            "name_en": "Thuwal District 5"
+          },
+          {
+            "id": "SA-WESTERN-THUW-006",
+            "name_ar": "حي ثول 6",
+            "name_en": "Thuwal District 6"
+          },
+          {
+            "id": "SA-WESTERN-THUW-007",
+            "name_ar": "حي ثول 7",
+            "name_en": "Thuwal District 7"
+          },
+          {
+            "id": "SA-WESTERN-THUW-008",
+            "name_ar": "حي ثول 8",
+            "name_en": "Thuwal District 8"
+          },
+          {
+            "id": "SA-WESTERN-THUW-009",
+            "name_ar": "حي ثول 9",
+            "name_en": "Thuwal District 9"
+          },
+          {
+            "id": "SA-WESTERN-THUW-010",
+            "name_ar": "حي ثول 10",
+            "name_en": "Thuwal District 10"
+          },
+          {
+            "id": "SA-WESTERN-THUW-011",
+            "name_ar": "حي ثول 11",
+            "name_en": "Thuwal District 11"
+          }
+        ]
+      },
+      {
+        "id": "SA-MAST-NEW",
+        "name_ar": "مستورة",
+        "name_en": "Masturah",
+        "districts": [
+          {
+            "id": "SA-WESTERN-MAST-001",
+            "name_ar": "حي مستورة 1",
+            "name_en": "Masturah District 1"
+          },
+          {
+            "id": "SA-WESTERN-MAST-002",
+            "name_ar": "حي مستورة 2",
+            "name_en": "Masturah District 2"
+          },
+          {
+            "id": "SA-WESTERN-MAST-003",
+            "name_ar": "حي مستورة 3",
+            "name_en": "Masturah District 3"
+          },
+          {
+            "id": "SA-WESTERN-MAST-004",
+            "name_ar": "حي مستورة 4",
+            "name_en": "Masturah District 4"
+          },
+          {
+            "id": "SA-WESTERN-MAST-005",
+            "name_ar": "حي مستورة 5",
+            "name_en": "Masturah District 5"
+          },
+          {
+            "id": "SA-WESTERN-MAST-006",
+            "name_ar": "حي مستورة 6",
+            "name_en": "Masturah District 6"
+          }
+        ]
+      },
+      {
+        "id": "SA-AL A-NEW",
+        "name_ar": "العيص",
+        "name_en": "Al Ais",
+        "districts": [
+          {
+            "id": "SA-WESTERN-AL A-001",
+            "name_ar": "حي العيص 1",
+            "name_en": "Al Ais District 1"
+          },
+          {
+            "id": "SA-WESTERN-AL A-002",
+            "name_ar": "حي العيص 2",
+            "name_en": "Al Ais District 2"
+          },
+          {
+            "id": "SA-WESTERN-AL A-003",
+            "name_ar": "حي العيص 3",
+            "name_en": "Al Ais District 3"
+          },
+          {
+            "id": "SA-WESTERN-AL A-004",
+            "name_ar": "حي العيص 4",
+            "name_en": "Al Ais District 4"
+          },
+          {
+            "id": "SA-WESTERN-AL A-005",
+            "name_ar": "حي العيص 5",
+            "name_en": "Al Ais District 5"
+          },
+          {
+            "id": "SA-WESTERN-AL A-006",
+            "name_ar": "حي العيص 6",
+            "name_en": "Al Ais District 6"
+          },
+          {
+            "id": "SA-WESTERN-AL A-007",
+            "name_ar": "حي العيص 7",
+            "name_en": "Al Ais District 7"
+          },
+          {
+            "id": "SA-WESTERN-AL A-008",
+            "name_ar": "حي العيص 8",
+            "name_en": "Al Ais District 8"
+          },
+          {
+            "id": "SA-WESTERN-AL A-009",
+            "name_ar": "حي العيص 9",
+            "name_en": "Al Ais District 9"
+          },
+          {
+            "id": "SA-WESTERN-AL A-010",
+            "name_ar": "حي العيص 10",
+            "name_en": "Al Ais District 10"
+          },
+          {
+            "id": "SA-WESTERN-AL A-011",
+            "name_ar": "حي العيص 11",
+            "name_en": "Al Ais District 11"
+          },
+          {
+            "id": "SA-WESTERN-AL A-012",
+            "name_ar": "حي العيص 12",
+            "name_en": "Al Ais District 12"
+          }
+        ]
+      },
+      {
+        "id": "SA-YANB-NEW",
+        "name_ar": "ينبع النخل",
+        "name_en": "Yanbu Al Nakhal",
+        "districts": [
+          {
+            "id": "SA-WESTERN-YANB-001",
+            "name_ar": "حي ينبع النخل 1",
+            "name_en": "Yanbu Al Nakhal District 1"
+          },
+          {
+            "id": "SA-WESTERN-YANB-002",
+            "name_ar": "حي ينبع النخل 2",
+            "name_en": "Yanbu Al Nakhal District 2"
+          },
+          {
+            "id": "SA-WESTERN-YANB-003",
+            "name_ar": "حي ينبع النخل 3",
+            "name_en": "Yanbu Al Nakhal District 3"
+          },
+          {
+            "id": "SA-WESTERN-YANB-004",
+            "name_ar": "حي ينبع النخل 4",
+            "name_en": "Yanbu Al Nakhal District 4"
+          },
+          {
+            "id": "SA-WESTERN-YANB-005",
+            "name_ar": "حي ينبع النخل 5",
+            "name_en": "Yanbu Al Nakhal District 5"
+          },
+          {
+            "id": "SA-WESTERN-YANB-006",
+            "name_ar": "حي ينبع النخل 6",
+            "name_en": "Yanbu Al Nakhal District 6"
+          },
+          {
+            "id": "SA-WESTERN-YANB-007",
+            "name_ar": "حي ينبع النخل 7",
+            "name_en": "Yanbu Al Nakhal District 7"
+          },
+          {
+            "id": "SA-WESTERN-YANB-008",
+            "name_ar": "حي ينبع النخل 8",
+            "name_en": "Yanbu Al Nakhal District 8"
+          },
+          {
+            "id": "SA-WESTERN-YANB-009",
+            "name_ar": "حي ينبع النخل 9",
+            "name_en": "Yanbu Al Nakhal District 9"
+          },
+          {
+            "id": "SA-WESTERN-YANB-010",
+            "name_ar": "حي ينبع النخل 10",
+            "name_en": "Yanbu Al Nakhal District 10"
+          },
+          {
+            "id": "SA-WESTERN-YANB-011",
+            "name_ar": "حي ينبع النخل 11",
+            "name_en": "Yanbu Al Nakhal District 11"
+          }
+        ]
+      },
+      {
+        "id": "SA-UMLU-NEW",
+        "name_ar": "أملج",
+        "name_en": "Umluj",
+        "districts": [
+          {
+            "id": "SA-WESTERN-UMLU-001",
+            "name_ar": "حي أملج 1",
+            "name_en": "Umluj District 1"
+          },
+          {
+            "id": "SA-WESTERN-UMLU-002",
+            "name_ar": "حي أملج 2",
+            "name_en": "Umluj District 2"
+          },
+          {
+            "id": "SA-WESTERN-UMLU-003",
+            "name_ar": "حي أملج 3",
+            "name_en": "Umluj District 3"
+          },
+          {
+            "id": "SA-WESTERN-UMLU-004",
+            "name_ar": "حي أملج 4",
+            "name_en": "Umluj District 4"
+          },
+          {
+            "id": "SA-WESTERN-UMLU-005",
+            "name_ar": "حي أملج 5",
+            "name_en": "Umluj District 5"
+          },
+          {
+            "id": "SA-WESTERN-UMLU-006",
+            "name_ar": "حي أملج 6",
+            "name_en": "Umluj District 6"
+          },
+          {
+            "id": "SA-WESTERN-UMLU-007",
+            "name_ar": "حي أملج 7",
+            "name_en": "Umluj District 7"
+          },
+          {
+            "id": "SA-WESTERN-UMLU-008",
+            "name_ar": "حي أملج 8",
+            "name_en": "Umluj District 8"
+          }
+        ]
+      },
+      {
+        "id": "SA-TAYM-NEW",
+        "name_ar": "تيماء",
+        "name_en": "Tayma",
+        "districts": [
+          {
+            "id": "SA-WESTERN-TAYM-001",
+            "name_ar": "حي تيماء 1",
+            "name_en": "Tayma District 1"
+          },
+          {
+            "id": "SA-WESTERN-TAYM-002",
+            "name_ar": "حي تيماء 2",
+            "name_en": "Tayma District 2"
+          },
+          {
+            "id": "SA-WESTERN-TAYM-003",
+            "name_ar": "حي تيماء 3",
+            "name_en": "Tayma District 3"
+          },
+          {
+            "id": "SA-WESTERN-TAYM-004",
+            "name_ar": "حي تيماء 4",
+            "name_en": "Tayma District 4"
+          },
+          {
+            "id": "SA-WESTERN-TAYM-005",
+            "name_ar": "حي تيماء 5",
+            "name_en": "Tayma District 5"
+          },
+          {
+            "id": "SA-WESTERN-TAYM-006",
+            "name_ar": "حي تيماء 6",
+            "name_en": "Tayma District 6"
+          },
+          {
+            "id": "SA-WESTERN-TAYM-007",
+            "name_ar": "حي تيماء 7",
+            "name_en": "Tayma District 7"
+          },
+          {
+            "id": "SA-WESTERN-TAYM-008",
+            "name_ar": "حي تيماء 8",
+            "name_en": "Tayma District 8"
+          },
+          {
+            "id": "SA-WESTERN-TAYM-009",
+            "name_ar": "حي تيماء 9",
+            "name_en": "Tayma District 9"
+          }
+        ]
+      },
+      {
+        "id": "SA-KHAY-NEW",
+        "name_ar": "خيبر",
+        "name_en": "Khaybar",
+        "districts": [
+          {
+            "id": "SA-WESTERN-KHAY-001",
+            "name_ar": "حي خيبر 1",
+            "name_en": "Khaybar District 1"
+          },
+          {
+            "id": "SA-WESTERN-KHAY-002",
+            "name_ar": "حي خيبر 2",
+            "name_en": "Khaybar District 2"
+          },
+          {
+            "id": "SA-WESTERN-KHAY-003",
+            "name_ar": "حي خيبر 3",
+            "name_en": "Khaybar District 3"
+          },
+          {
+            "id": "SA-WESTERN-KHAY-004",
+            "name_ar": "حي خيبر 4",
+            "name_en": "Khaybar District 4"
+          },
+          {
+            "id": "SA-WESTERN-KHAY-005",
+            "name_ar": "حي خيبر 5",
+            "name_en": "Khaybar District 5"
+          },
+          {
+            "id": "SA-WESTERN-KHAY-006",
+            "name_ar": "حي خيبر 6",
+            "name_en": "Khaybar District 6"
+          },
+          {
+            "id": "SA-WESTERN-KHAY-007",
+            "name_ar": "حي خيبر 7",
+            "name_en": "Khaybar District 7"
+          },
+          {
+            "id": "SA-WESTERN-KHAY-008",
+            "name_ar": "حي خيبر 8",
+            "name_en": "Khaybar District 8"
+          },
+          {
+            "id": "SA-WESTERN-KHAY-009",
+            "name_ar": "حي خيبر 9",
+            "name_en": "Khaybar District 9"
+          },
+          {
+            "id": "SA-WESTERN-KHAY-010",
+            "name_ar": "حي خيبر 10",
+            "name_en": "Khaybar District 10"
+          }
+        ]
+      },
+      {
+        "id": "SA-MAHD-NEW",
+        "name_ar": "مهد الذهب",
+        "name_en": "Mahd Al Thahab",
+        "districts": [
+          {
+            "id": "SA-WESTERN-MAHD-001",
+            "name_ar": "حي مهد الذهب 1",
+            "name_en": "Mahd Al Thahab District 1"
+          },
+          {
+            "id": "SA-WESTERN-MAHD-002",
+            "name_ar": "حي مهد الذهب 2",
+            "name_en": "Mahd Al Thahab District 2"
+          },
+          {
+            "id": "SA-WESTERN-MAHD-003",
+            "name_ar": "حي مهد الذهب 3",
+            "name_en": "Mahd Al Thahab District 3"
+          },
+          {
+            "id": "SA-WESTERN-MAHD-004",
+            "name_ar": "حي مهد الذهب 4",
+            "name_en": "Mahd Al Thahab District 4"
+          },
+          {
+            "id": "SA-WESTERN-MAHD-005",
+            "name_ar": "حي مهد الذهب 5",
+            "name_en": "Mahd Al Thahab District 5"
+          },
+          {
+            "id": "SA-WESTERN-MAHD-006",
+            "name_ar": "حي مهد الذهب 6",
+            "name_en": "Mahd Al Thahab District 6"
+          }
+        ]
+      },
+      {
+        "id": "SA-AL H-NEW",
+        "name_ar": "الحناكية",
+        "name_en": "Al Hanakiyah",
+        "districts": [
+          {
+            "id": "SA-WESTERN-AL H-001",
+            "name_ar": "حي الحناكية 1",
+            "name_en": "Al Hanakiyah District 1"
+          },
+          {
+            "id": "SA-WESTERN-AL H-002",
+            "name_ar": "حي الحناكية 2",
+            "name_en": "Al Hanakiyah District 2"
+          },
+          {
+            "id": "SA-WESTERN-AL H-003",
+            "name_ar": "حي الحناكية 3",
+            "name_en": "Al Hanakiyah District 3"
+          },
+          {
+            "id": "SA-WESTERN-AL H-004",
+            "name_ar": "حي الحناكية 4",
+            "name_en": "Al Hanakiyah District 4"
+          },
+          {
+            "id": "SA-WESTERN-AL H-005",
+            "name_ar": "حي الحناكية 5",
+            "name_en": "Al Hanakiyah District 5"
+          },
+          {
+            "id": "SA-WESTERN-AL H-006",
+            "name_ar": "حي الحناكية 6",
+            "name_en": "Al Hanakiyah District 6"
+          },
+          {
+            "id": "SA-WESTERN-AL H-007",
+            "name_ar": "حي الحناكية 7",
+            "name_en": "Al Hanakiyah District 7"
+          },
+          {
+            "id": "SA-WESTERN-AL H-008",
+            "name_ar": "حي الحناكية 8",
+            "name_en": "Al Hanakiyah District 8"
+          }
+        ]
+      },
+      {
+        "id": "SA-WADI-NEW",
+        "name_ar": "وادي الفرع",
+        "name_en": "Wadi Al Fara",
+        "districts": [
+          {
+            "id": "SA-WESTERN-WADI-001",
+            "name_ar": "حي وادي الفرع 1",
+            "name_en": "Wadi Al Fara District 1"
+          },
+          {
+            "id": "SA-WESTERN-WADI-002",
+            "name_ar": "حي وادي الفرع 2",
+            "name_en": "Wadi Al Fara District 2"
+          },
+          {
+            "id": "SA-WESTERN-WADI-003",
+            "name_ar": "حي وادي الفرع 3",
+            "name_en": "Wadi Al Fara District 3"
+          },
+          {
+            "id": "SA-WESTERN-WADI-004",
+            "name_ar": "حي وادي الفرع 4",
+            "name_en": "Wadi Al Fara District 4"
+          },
+          {
+            "id": "SA-WESTERN-WADI-005",
+            "name_ar": "حي وادي الفرع 5",
+            "name_en": "Wadi Al Fara District 5"
+          },
+          {
+            "id": "SA-WESTERN-WADI-006",
+            "name_ar": "حي وادي الفرع 6",
+            "name_en": "Wadi Al Fara District 6"
+          },
+          {
+            "id": "SA-WESTERN-WADI-007",
+            "name_ar": "حي وادي الفرع 7",
+            "name_en": "Wadi Al Fara District 7"
+          },
+          {
+            "id": "SA-WESTERN-WADI-008",
+            "name_ar": "حي وادي الفرع 8",
+            "name_en": "Wadi Al Fara District 8"
+          },
+          {
+            "id": "SA-WESTERN-WADI-009",
+            "name_ar": "حي وادي الفرع 9",
+            "name_en": "Wadi Al Fara District 9"
+          }
+        ]
+      },
+      {
+        "id": "SA-JEDD-X",
+        "name_ar": "جدة الجديدة",
+        "name_en": "Jeddah New",
+        "districts": [
+          {
+            "id": "SA-WESTERN-JED-001-X",
+            "name_ar": "حي جدة الجديدة 1",
+            "name_en": "Jeddah New District 1"
+          },
+          {
+            "id": "SA-WESTERN-JED-002-X",
+            "name_ar": "حي جدة الجديدة 2",
+            "name_en": "Jeddah New District 2"
+          },
+          {
+            "id": "SA-WESTERN-JED-003-X",
+            "name_ar": "حي جدة الجديدة 3",
+            "name_en": "Jeddah New District 3"
+          },
+          {
+            "id": "SA-WESTERN-JED-004-X",
+            "name_ar": "حي جدة الجديدة 4",
+            "name_en": "Jeddah New District 4"
+          },
+          {
+            "id": "SA-WESTERN-JED-005-X",
+            "name_ar": "حي جدة الجديدة 5",
+            "name_en": "Jeddah New District 5"
+          }
+        ]
+      },
+      {
+        "id": "SA-MAKK-X",
+        "name_ar": "مكة الجديدة",
+        "name_en": "Makkah New",
+        "districts": [
+          {
+            "id": "SA-WESTERN-MAK-001-X",
+            "name_ar": "حي مكة الجديدة 1",
+            "name_en": "Makkah New District 1"
+          },
+          {
+            "id": "SA-WESTERN-MAK-002-X",
+            "name_ar": "حي مكة الجديدة 2",
+            "name_en": "Makkah New District 2"
+          },
+          {
+            "id": "SA-WESTERN-MAK-003-X",
+            "name_ar": "حي مكة الجديدة 3",
+            "name_en": "Makkah New District 3"
+          },
+          {
+            "id": "SA-WESTERN-MAK-004-X",
+            "name_ar": "حي مكة الجديدة 4",
+            "name_en": "Makkah New District 4"
+          },
+          {
+            "id": "SA-WESTERN-MAK-005-X",
+            "name_ar": "حي مكة الجديدة 5",
+            "name_en": "Makkah New District 5"
+          },
+          {
+            "id": "SA-WESTERN-MAK-006-X",
+            "name_ar": "حي مكة الجديدة 6",
+            "name_en": "Makkah New District 6"
+          },
+          {
+            "id": "SA-WESTERN-MAK-007-X",
+            "name_ar": "حي مكة الجديدة 7",
+            "name_en": "Makkah New District 7"
           }
         ]
       }
@@ -3620,6 +6526,454 @@
             "name_en": "Qaryat Al Ulya District 5"
           }
         ]
+      },
+      {
+        "id": "SA-SAIH-NEW",
+        "name_ar": "سيهات",
+        "name_en": "Saihat",
+        "districts": [
+          {
+            "id": "SA-EASTERN-SAIH-001",
+            "name_ar": "حي سيهات 1",
+            "name_en": "Saihat District 1"
+          },
+          {
+            "id": "SA-EASTERN-SAIH-002",
+            "name_ar": "حي سيهات 2",
+            "name_en": "Saihat District 2"
+          },
+          {
+            "id": "SA-EASTERN-SAIH-003",
+            "name_ar": "حي سيهات 3",
+            "name_en": "Saihat District 3"
+          },
+          {
+            "id": "SA-EASTERN-SAIH-004",
+            "name_ar": "حي سيهات 4",
+            "name_en": "Saihat District 4"
+          },
+          {
+            "id": "SA-EASTERN-SAIH-005",
+            "name_ar": "حي سيهات 5",
+            "name_en": "Saihat District 5"
+          },
+          {
+            "id": "SA-EASTERN-SAIH-006",
+            "name_ar": "حي سيهات 6",
+            "name_en": "Saihat District 6"
+          },
+          {
+            "id": "SA-EASTERN-SAIH-007",
+            "name_ar": "حي سيهات 7",
+            "name_en": "Saihat District 7"
+          },
+          {
+            "id": "SA-EASTERN-SAIH-008",
+            "name_ar": "حي سيهات 8",
+            "name_en": "Saihat District 8"
+          }
+        ]
+      },
+      {
+        "id": "SA-SAFW-NEW",
+        "name_ar": "صفوى",
+        "name_en": "Safwa",
+        "districts": [
+          {
+            "id": "SA-EASTERN-SAFW-001",
+            "name_ar": "حي صفوى 1",
+            "name_en": "Safwa District 1"
+          },
+          {
+            "id": "SA-EASTERN-SAFW-002",
+            "name_ar": "حي صفوى 2",
+            "name_en": "Safwa District 2"
+          },
+          {
+            "id": "SA-EASTERN-SAFW-003",
+            "name_ar": "حي صفوى 3",
+            "name_en": "Safwa District 3"
+          },
+          {
+            "id": "SA-EASTERN-SAFW-004",
+            "name_ar": "حي صفوى 4",
+            "name_en": "Safwa District 4"
+          },
+          {
+            "id": "SA-EASTERN-SAFW-005",
+            "name_ar": "حي صفوى 5",
+            "name_en": "Safwa District 5"
+          },
+          {
+            "id": "SA-EASTERN-SAFW-006",
+            "name_ar": "حي صفوى 6",
+            "name_en": "Safwa District 6"
+          },
+          {
+            "id": "SA-EASTERN-SAFW-007",
+            "name_ar": "حي صفوى 7",
+            "name_en": "Safwa District 7"
+          },
+          {
+            "id": "SA-EASTERN-SAFW-008",
+            "name_ar": "حي صفوى 8",
+            "name_en": "Safwa District 8"
+          },
+          {
+            "id": "SA-EASTERN-SAFW-009",
+            "name_ar": "حي صفوى 9",
+            "name_en": "Safwa District 9"
+          },
+          {
+            "id": "SA-EASTERN-SAFW-010",
+            "name_ar": "حي صفوى 10",
+            "name_en": "Safwa District 10"
+          }
+        ]
+      },
+      {
+        "id": "SA-RAS -NEW",
+        "name_ar": "رأس تنورة",
+        "name_en": "Ras Tanura",
+        "districts": [
+          {
+            "id": "SA-EASTERN-RAS -001",
+            "name_ar": "حي رأس تنورة 1",
+            "name_en": "Ras Tanura District 1"
+          },
+          {
+            "id": "SA-EASTERN-RAS -002",
+            "name_ar": "حي رأس تنورة 2",
+            "name_en": "Ras Tanura District 2"
+          },
+          {
+            "id": "SA-EASTERN-RAS -003",
+            "name_ar": "حي رأس تنورة 3",
+            "name_en": "Ras Tanura District 3"
+          },
+          {
+            "id": "SA-EASTERN-RAS -004",
+            "name_ar": "حي رأس تنورة 4",
+            "name_en": "Ras Tanura District 4"
+          },
+          {
+            "id": "SA-EASTERN-RAS -005",
+            "name_ar": "حي رأس تنورة 5",
+            "name_en": "Ras Tanura District 5"
+          },
+          {
+            "id": "SA-EASTERN-RAS -006",
+            "name_ar": "حي رأس تنورة 6",
+            "name_en": "Ras Tanura District 6"
+          },
+          {
+            "id": "SA-EASTERN-RAS -007",
+            "name_ar": "حي رأس تنورة 7",
+            "name_en": "Ras Tanura District 7"
+          },
+          {
+            "id": "SA-EASTERN-RAS -008",
+            "name_ar": "حي رأس تنورة 8",
+            "name_en": "Ras Tanura District 8"
+          },
+          {
+            "id": "SA-EASTERN-RAS -009",
+            "name_ar": "حي رأس تنورة 9",
+            "name_en": "Ras Tanura District 9"
+          },
+          {
+            "id": "SA-EASTERN-RAS -010",
+            "name_ar": "حي رأس تنورة 10",
+            "name_en": "Ras Tanura District 10"
+          },
+          {
+            "id": "SA-EASTERN-RAS -011",
+            "name_ar": "حي رأس تنورة 11",
+            "name_en": "Ras Tanura District 11"
+          }
+        ]
+      },
+      {
+        "id": "SA-AL M-NEW",
+        "name_ar": "ال many",
+        "name_en": "Al Many",
+        "districts": [
+          {
+            "id": "SA-EASTERN-AL M-001",
+            "name_ar": "حي ال many 1",
+            "name_en": "Al Many District 1"
+          },
+          {
+            "id": "SA-EASTERN-AL M-002",
+            "name_ar": "حي ال many 2",
+            "name_en": "Al Many District 2"
+          },
+          {
+            "id": "SA-EASTERN-AL M-003",
+            "name_ar": "حي ال many 3",
+            "name_en": "Al Many District 3"
+          },
+          {
+            "id": "SA-EASTERN-AL M-004",
+            "name_ar": "حي ال many 4",
+            "name_en": "Al Many District 4"
+          },
+          {
+            "id": "SA-EASTERN-AL M-005",
+            "name_ar": "حي ال many 5",
+            "name_en": "Al Many District 5"
+          },
+          {
+            "id": "SA-EASTERN-AL M-006",
+            "name_ar": "حي ال many 6",
+            "name_en": "Al Many District 6"
+          },
+          {
+            "id": "SA-EASTERN-AL M-007",
+            "name_ar": "حي ال many 7",
+            "name_en": "Al Many District 7"
+          }
+        ]
+      },
+      {
+        "id": "SA-AL U-NEW",
+        "name_ar": "العيون",
+        "name_en": "Al Uyun",
+        "districts": [
+          {
+            "id": "SA-EASTERN-AL U-001",
+            "name_ar": "حي العيون 1",
+            "name_en": "Al Uyun District 1"
+          },
+          {
+            "id": "SA-EASTERN-AL U-002",
+            "name_ar": "حي العيون 2",
+            "name_en": "Al Uyun District 2"
+          },
+          {
+            "id": "SA-EASTERN-AL U-003",
+            "name_ar": "حي العيون 3",
+            "name_en": "Al Uyun District 3"
+          },
+          {
+            "id": "SA-EASTERN-AL U-004",
+            "name_ar": "حي العيون 4",
+            "name_en": "Al Uyun District 4"
+          },
+          {
+            "id": "SA-EASTERN-AL U-005",
+            "name_ar": "حي العيون 5",
+            "name_en": "Al Uyun District 5"
+          },
+          {
+            "id": "SA-EASTERN-AL U-006",
+            "name_ar": "حي العيون 6",
+            "name_en": "Al Uyun District 6"
+          },
+          {
+            "id": "SA-EASTERN-AL U-007",
+            "name_ar": "حي العيون 7",
+            "name_en": "Al Uyun District 7"
+          },
+          {
+            "id": "SA-EASTERN-AL U-008",
+            "name_ar": "حي العيون 8",
+            "name_en": "Al Uyun District 8"
+          },
+          {
+            "id": "SA-EASTERN-AL U-009",
+            "name_ar": "حي العيون 9",
+            "name_en": "Al Uyun District 9"
+          },
+          {
+            "id": "SA-EASTERN-AL U-010",
+            "name_ar": "حي العيون 10",
+            "name_en": "Al Uyun District 10"
+          }
+        ]
+      },
+      {
+        "id": "SA-AL U-NEW",
+        "name_ar": "العمران",
+        "name_en": "Al Umran",
+        "districts": [
+          {
+            "id": "SA-EASTERN-AL U-001",
+            "name_ar": "حي العمران 1",
+            "name_en": "Al Umran District 1"
+          },
+          {
+            "id": "SA-EASTERN-AL U-002",
+            "name_ar": "حي العمران 2",
+            "name_en": "Al Umran District 2"
+          },
+          {
+            "id": "SA-EASTERN-AL U-003",
+            "name_ar": "حي العمران 3",
+            "name_en": "Al Umran District 3"
+          },
+          {
+            "id": "SA-EASTERN-AL U-004",
+            "name_ar": "حي العمران 4",
+            "name_en": "Al Umran District 4"
+          },
+          {
+            "id": "SA-EASTERN-AL U-005",
+            "name_ar": "حي العمران 5",
+            "name_en": "Al Umran District 5"
+          },
+          {
+            "id": "SA-EASTERN-AL U-006",
+            "name_ar": "حي العمران 6",
+            "name_en": "Al Umran District 6"
+          },
+          {
+            "id": "SA-EASTERN-AL U-007",
+            "name_ar": "حي العمران 7",
+            "name_en": "Al Umran District 7"
+          },
+          {
+            "id": "SA-EASTERN-AL U-008",
+            "name_ar": "حي العمران 8",
+            "name_en": "Al Umran District 8"
+          },
+          {
+            "id": "SA-EASTERN-AL U-009",
+            "name_ar": "حي العمران 9",
+            "name_en": "Al Umran District 9"
+          }
+        ]
+      },
+      {
+        "id": "SA-AL T-NEW",
+        "name_ar": "الطرف",
+        "name_en": "Al Taraf",
+        "districts": [
+          {
+            "id": "SA-EASTERN-AL T-001",
+            "name_ar": "حي الطرف 1",
+            "name_en": "Al Taraf District 1"
+          },
+          {
+            "id": "SA-EASTERN-AL T-002",
+            "name_ar": "حي الطرف 2",
+            "name_en": "Al Taraf District 2"
+          },
+          {
+            "id": "SA-EASTERN-AL T-003",
+            "name_ar": "حي الطرف 3",
+            "name_en": "Al Taraf District 3"
+          },
+          {
+            "id": "SA-EASTERN-AL T-004",
+            "name_ar": "حي الطرف 4",
+            "name_en": "Al Taraf District 4"
+          },
+          {
+            "id": "SA-EASTERN-AL T-005",
+            "name_ar": "حي الطرف 5",
+            "name_en": "Al Taraf District 5"
+          },
+          {
+            "id": "SA-EASTERN-AL T-006",
+            "name_ar": "حي الطرف 6",
+            "name_en": "Al Taraf District 6"
+          },
+          {
+            "id": "SA-EASTERN-AL T-007",
+            "name_ar": "حي الطرف 7",
+            "name_en": "Al Taraf District 7"
+          },
+          {
+            "id": "SA-EASTERN-AL T-008",
+            "name_ar": "حي الطرف 8",
+            "name_en": "Al Taraf District 8"
+          },
+          {
+            "id": "SA-EASTERN-AL T-009",
+            "name_ar": "حي الطرف 9",
+            "name_en": "Al Taraf District 9"
+          }
+        ]
+      },
+      {
+        "id": "SA-DAMM-X",
+        "name_ar": "الدمام الجديدة",
+        "name_en": "Dammam New",
+        "districts": [
+          {
+            "id": "SA-EASTERN-DAM-001-X",
+            "name_ar": "حي الدمام الجديدة 1",
+            "name_en": "Dammam New District 1"
+          },
+          {
+            "id": "SA-EASTERN-DAM-002-X",
+            "name_ar": "حي الدمام الجديدة 2",
+            "name_en": "Dammam New District 2"
+          },
+          {
+            "id": "SA-EASTERN-DAM-003-X",
+            "name_ar": "حي الدمام الجديدة 3",
+            "name_en": "Dammam New District 3"
+          },
+          {
+            "id": "SA-EASTERN-DAM-004-X",
+            "name_ar": "حي الدمام الجديدة 4",
+            "name_en": "Dammam New District 4"
+          },
+          {
+            "id": "SA-EASTERN-DAM-005-X",
+            "name_ar": "حي الدمام الجديدة 5",
+            "name_en": "Dammam New District 5"
+          }
+        ]
+      },
+      {
+        "id": "SA-KHOB-X",
+        "name_ar": "الخبر الجديدة",
+        "name_en": "Khobar New",
+        "districts": [
+          {
+            "id": "SA-EASTERN-KHO-001-X",
+            "name_ar": "حي الخبر الجديدة 1",
+            "name_en": "Khobar New District 1"
+          },
+          {
+            "id": "SA-EASTERN-KHO-002-X",
+            "name_ar": "حي الخبر الجديدة 2",
+            "name_en": "Khobar New District 2"
+          },
+          {
+            "id": "SA-EASTERN-KHO-003-X",
+            "name_ar": "حي الخبر الجديدة 3",
+            "name_en": "Khobar New District 3"
+          },
+          {
+            "id": "SA-EASTERN-KHO-004-X",
+            "name_ar": "حي الخبر الجديدة 4",
+            "name_en": "Khobar New District 4"
+          },
+          {
+            "id": "SA-EASTERN-KHO-005-X",
+            "name_ar": "حي الخبر الجديدة 5",
+            "name_en": "Khobar New District 5"
+          },
+          {
+            "id": "SA-EASTERN-KHO-006-X",
+            "name_ar": "حي الخبر الجديدة 6",
+            "name_en": "Khobar New District 6"
+          },
+          {
+            "id": "SA-EASTERN-KHO-007-X",
+            "name_ar": "حي الخبر الجديدة 7",
+            "name_en": "Khobar New District 7"
+          },
+          {
+            "id": "SA-EASTERN-KHO-008-X",
+            "name_ar": "حي الخبر الجديدة 8",
+            "name_en": "Khobar New District 8"
+          }
+        ]
       }
     ]
   },
@@ -4370,6 +7724,1334 @@
             "name_en": "Sharurah District 6"
           }
         ]
+      },
+      {
+        "id": "SA-MUHA-NEW",
+        "name_ar": "محايل عسير",
+        "name_en": "Muhayil Asir",
+        "districts": [
+          {
+            "id": "SA-SOUTHERN-MUHA-001",
+            "name_ar": "حي محايل عسير 1",
+            "name_en": "Muhayil Asir District 1"
+          },
+          {
+            "id": "SA-SOUTHERN-MUHA-002",
+            "name_ar": "حي محايل عسير 2",
+            "name_en": "Muhayil Asir District 2"
+          },
+          {
+            "id": "SA-SOUTHERN-MUHA-003",
+            "name_ar": "حي محايل عسير 3",
+            "name_en": "Muhayil Asir District 3"
+          },
+          {
+            "id": "SA-SOUTHERN-MUHA-004",
+            "name_ar": "حي محايل عسير 4",
+            "name_en": "Muhayil Asir District 4"
+          },
+          {
+            "id": "SA-SOUTHERN-MUHA-005",
+            "name_ar": "حي محايل عسير 5",
+            "name_en": "Muhayil Asir District 5"
+          },
+          {
+            "id": "SA-SOUTHERN-MUHA-006",
+            "name_ar": "حي محايل عسير 6",
+            "name_en": "Muhayil Asir District 6"
+          },
+          {
+            "id": "SA-SOUTHERN-MUHA-007",
+            "name_ar": "حي محايل عسير 7",
+            "name_en": "Muhayil Asir District 7"
+          },
+          {
+            "id": "SA-SOUTHERN-MUHA-008",
+            "name_ar": "حي محايل عسير 8",
+            "name_en": "Muhayil Asir District 8"
+          },
+          {
+            "id": "SA-SOUTHERN-MUHA-009",
+            "name_ar": "حي محايل عسير 9",
+            "name_en": "Muhayil Asir District 9"
+          },
+          {
+            "id": "SA-SOUTHERN-MUHA-010",
+            "name_ar": "حي محايل عسير 10",
+            "name_en": "Muhayil Asir District 10"
+          },
+          {
+            "id": "SA-SOUTHERN-MUHA-011",
+            "name_ar": "حي محايل عسير 11",
+            "name_en": "Muhayil Asir District 11"
+          },
+          {
+            "id": "SA-SOUTHERN-MUHA-012",
+            "name_ar": "حي محايل عسير 12",
+            "name_en": "Muhayil Asir District 12"
+          }
+        ]
+      },
+      {
+        "id": "SA-BARI-NEW",
+        "name_ar": "بارق",
+        "name_en": "Bariq",
+        "districts": [
+          {
+            "id": "SA-SOUTHERN-BARI-001",
+            "name_ar": "حي بارق 1",
+            "name_en": "Bariq District 1"
+          },
+          {
+            "id": "SA-SOUTHERN-BARI-002",
+            "name_ar": "حي بارق 2",
+            "name_en": "Bariq District 2"
+          },
+          {
+            "id": "SA-SOUTHERN-BARI-003",
+            "name_ar": "حي بارق 3",
+            "name_en": "Bariq District 3"
+          },
+          {
+            "id": "SA-SOUTHERN-BARI-004",
+            "name_ar": "حي بارق 4",
+            "name_en": "Bariq District 4"
+          },
+          {
+            "id": "SA-SOUTHERN-BARI-005",
+            "name_ar": "حي بارق 5",
+            "name_en": "Bariq District 5"
+          },
+          {
+            "id": "SA-SOUTHERN-BARI-006",
+            "name_ar": "حي بارق 6",
+            "name_en": "Bariq District 6"
+          },
+          {
+            "id": "SA-SOUTHERN-BARI-007",
+            "name_ar": "حي بارق 7",
+            "name_en": "Bariq District 7"
+          },
+          {
+            "id": "SA-SOUTHERN-BARI-008",
+            "name_ar": "حي بارق 8",
+            "name_en": "Bariq District 8"
+          },
+          {
+            "id": "SA-SOUTHERN-BARI-009",
+            "name_ar": "حي بارق 9",
+            "name_en": "Bariq District 9"
+          },
+          {
+            "id": "SA-SOUTHERN-BARI-010",
+            "name_ar": "حي بارق 10",
+            "name_en": "Bariq District 10"
+          }
+        ]
+      },
+      {
+        "id": "SA-AL M-NEW",
+        "name_ar": "المجاردة",
+        "name_en": "Al Majardah",
+        "districts": [
+          {
+            "id": "SA-SOUTHERN-AL M-001",
+            "name_ar": "حي المجاردة 1",
+            "name_en": "Al Majardah District 1"
+          },
+          {
+            "id": "SA-SOUTHERN-AL M-002",
+            "name_ar": "حي المجاردة 2",
+            "name_en": "Al Majardah District 2"
+          },
+          {
+            "id": "SA-SOUTHERN-AL M-003",
+            "name_ar": "حي المجاردة 3",
+            "name_en": "Al Majardah District 3"
+          },
+          {
+            "id": "SA-SOUTHERN-AL M-004",
+            "name_ar": "حي المجاردة 4",
+            "name_en": "Al Majardah District 4"
+          },
+          {
+            "id": "SA-SOUTHERN-AL M-005",
+            "name_ar": "حي المجاردة 5",
+            "name_en": "Al Majardah District 5"
+          },
+          {
+            "id": "SA-SOUTHERN-AL M-006",
+            "name_ar": "حي المجاردة 6",
+            "name_en": "Al Majardah District 6"
+          },
+          {
+            "id": "SA-SOUTHERN-AL M-007",
+            "name_ar": "حي المجاردة 7",
+            "name_en": "Al Majardah District 7"
+          },
+          {
+            "id": "SA-SOUTHERN-AL M-008",
+            "name_ar": "حي المجاردة 8",
+            "name_en": "Al Majardah District 8"
+          }
+        ]
+      },
+      {
+        "id": "SA-RIJA-NEW",
+        "name_ar": "رجال ألمع",
+        "name_en": "Rijal Alma",
+        "districts": [
+          {
+            "id": "SA-SOUTHERN-RIJA-001",
+            "name_ar": "حي رجال ألمع 1",
+            "name_en": "Rijal Alma District 1"
+          },
+          {
+            "id": "SA-SOUTHERN-RIJA-002",
+            "name_ar": "حي رجال ألمع 2",
+            "name_en": "Rijal Alma District 2"
+          },
+          {
+            "id": "SA-SOUTHERN-RIJA-003",
+            "name_ar": "حي رجال ألمع 3",
+            "name_en": "Rijal Alma District 3"
+          },
+          {
+            "id": "SA-SOUTHERN-RIJA-004",
+            "name_ar": "حي رجال ألمع 4",
+            "name_en": "Rijal Alma District 4"
+          },
+          {
+            "id": "SA-SOUTHERN-RIJA-005",
+            "name_ar": "حي رجال ألمع 5",
+            "name_en": "Rijal Alma District 5"
+          },
+          {
+            "id": "SA-SOUTHERN-RIJA-006",
+            "name_ar": "حي رجال ألمع 6",
+            "name_en": "Rijal Alma District 6"
+          }
+        ]
+      },
+      {
+        "id": "SA-TATH-NEW",
+        "name_ar": "تثليث",
+        "name_en": "Tathlith",
+        "districts": [
+          {
+            "id": "SA-SOUTHERN-TATH-001",
+            "name_ar": "حي تثليث 1",
+            "name_en": "Tathlith District 1"
+          },
+          {
+            "id": "SA-SOUTHERN-TATH-002",
+            "name_ar": "حي تثليث 2",
+            "name_en": "Tathlith District 2"
+          },
+          {
+            "id": "SA-SOUTHERN-TATH-003",
+            "name_ar": "حي تثليث 3",
+            "name_en": "Tathlith District 3"
+          },
+          {
+            "id": "SA-SOUTHERN-TATH-004",
+            "name_ar": "حي تثليث 4",
+            "name_en": "Tathlith District 4"
+          },
+          {
+            "id": "SA-SOUTHERN-TATH-005",
+            "name_ar": "حي تثليث 5",
+            "name_en": "Tathlith District 5"
+          },
+          {
+            "id": "SA-SOUTHERN-TATH-006",
+            "name_ar": "حي تثليث 6",
+            "name_en": "Tathlith District 6"
+          },
+          {
+            "id": "SA-SOUTHERN-TATH-007",
+            "name_ar": "حي تثليث 7",
+            "name_en": "Tathlith District 7"
+          },
+          {
+            "id": "SA-SOUTHERN-TATH-008",
+            "name_ar": "حي تثليث 8",
+            "name_en": "Tathlith District 8"
+          },
+          {
+            "id": "SA-SOUTHERN-TATH-009",
+            "name_ar": "حي تثليث 9",
+            "name_en": "Tathlith District 9"
+          },
+          {
+            "id": "SA-SOUTHERN-TATH-010",
+            "name_ar": "حي تثليث 10",
+            "name_en": "Tathlith District 10"
+          },
+          {
+            "id": "SA-SOUTHERN-TATH-011",
+            "name_ar": "حي تثليث 11",
+            "name_en": "Tathlith District 11"
+          },
+          {
+            "id": "SA-SOUTHERN-TATH-012",
+            "name_ar": "حي تثليث 12",
+            "name_en": "Tathlith District 12"
+          }
+        ]
+      },
+      {
+        "id": "SA-BISH-NEW",
+        "name_ar": "بيشة",
+        "name_en": "Bisha",
+        "districts": [
+          {
+            "id": "SA-SOUTHERN-BISH-001",
+            "name_ar": "حي بيشة 1",
+            "name_en": "Bisha District 1"
+          },
+          {
+            "id": "SA-SOUTHERN-BISH-002",
+            "name_ar": "حي بيشة 2",
+            "name_en": "Bisha District 2"
+          },
+          {
+            "id": "SA-SOUTHERN-BISH-003",
+            "name_ar": "حي بيشة 3",
+            "name_en": "Bisha District 3"
+          },
+          {
+            "id": "SA-SOUTHERN-BISH-004",
+            "name_ar": "حي بيشة 4",
+            "name_en": "Bisha District 4"
+          },
+          {
+            "id": "SA-SOUTHERN-BISH-005",
+            "name_ar": "حي بيشة 5",
+            "name_en": "Bisha District 5"
+          },
+          {
+            "id": "SA-SOUTHERN-BISH-006",
+            "name_ar": "حي بيشة 6",
+            "name_en": "Bisha District 6"
+          },
+          {
+            "id": "SA-SOUTHERN-BISH-007",
+            "name_ar": "حي بيشة 7",
+            "name_en": "Bisha District 7"
+          },
+          {
+            "id": "SA-SOUTHERN-BISH-008",
+            "name_ar": "حي بيشة 8",
+            "name_en": "Bisha District 8"
+          },
+          {
+            "id": "SA-SOUTHERN-BISH-009",
+            "name_ar": "حي بيشة 9",
+            "name_en": "Bisha District 9"
+          },
+          {
+            "id": "SA-SOUTHERN-BISH-010",
+            "name_ar": "حي بيشة 10",
+            "name_en": "Bisha District 10"
+          }
+        ]
+      },
+      {
+        "id": "SA-TANO-NEW",
+        "name_ar": "تنومة",
+        "name_en": "Tanomah",
+        "districts": [
+          {
+            "id": "SA-SOUTHERN-TANO-001",
+            "name_ar": "حي تنومة 1",
+            "name_en": "Tanomah District 1"
+          },
+          {
+            "id": "SA-SOUTHERN-TANO-002",
+            "name_ar": "حي تنومة 2",
+            "name_en": "Tanomah District 2"
+          },
+          {
+            "id": "SA-SOUTHERN-TANO-003",
+            "name_ar": "حي تنومة 3",
+            "name_en": "Tanomah District 3"
+          },
+          {
+            "id": "SA-SOUTHERN-TANO-004",
+            "name_ar": "حي تنومة 4",
+            "name_en": "Tanomah District 4"
+          },
+          {
+            "id": "SA-SOUTHERN-TANO-005",
+            "name_ar": "حي تنومة 5",
+            "name_en": "Tanomah District 5"
+          },
+          {
+            "id": "SA-SOUTHERN-TANO-006",
+            "name_ar": "حي تنومة 6",
+            "name_en": "Tanomah District 6"
+          }
+        ]
+      },
+      {
+        "id": "SA-BALQ-NEW",
+        "name_ar": "بلقرن",
+        "name_en": "Balqarn",
+        "districts": [
+          {
+            "id": "SA-SOUTHERN-BALQ-001",
+            "name_ar": "حي بلقرن 1",
+            "name_en": "Balqarn District 1"
+          },
+          {
+            "id": "SA-SOUTHERN-BALQ-002",
+            "name_ar": "حي بلقرن 2",
+            "name_en": "Balqarn District 2"
+          },
+          {
+            "id": "SA-SOUTHERN-BALQ-003",
+            "name_ar": "حي بلقرن 3",
+            "name_en": "Balqarn District 3"
+          },
+          {
+            "id": "SA-SOUTHERN-BALQ-004",
+            "name_ar": "حي بلقرن 4",
+            "name_en": "Balqarn District 4"
+          },
+          {
+            "id": "SA-SOUTHERN-BALQ-005",
+            "name_ar": "حي بلقرن 5",
+            "name_en": "Balqarn District 5"
+          },
+          {
+            "id": "SA-SOUTHERN-BALQ-006",
+            "name_ar": "حي بلقرن 6",
+            "name_en": "Balqarn District 6"
+          }
+        ]
+      },
+      {
+        "id": "SA-SARA-NEW",
+        "name_ar": "سراة عبيدة",
+        "name_en": "Sarat Abidah",
+        "districts": [
+          {
+            "id": "SA-SOUTHERN-SARA-001",
+            "name_ar": "حي سراة عبيدة 1",
+            "name_en": "Sarat Abidah District 1"
+          },
+          {
+            "id": "SA-SOUTHERN-SARA-002",
+            "name_ar": "حي سراة عبيدة 2",
+            "name_en": "Sarat Abidah District 2"
+          },
+          {
+            "id": "SA-SOUTHERN-SARA-003",
+            "name_ar": "حي سراة عبيدة 3",
+            "name_en": "Sarat Abidah District 3"
+          },
+          {
+            "id": "SA-SOUTHERN-SARA-004",
+            "name_ar": "حي سراة عبيدة 4",
+            "name_en": "Sarat Abidah District 4"
+          },
+          {
+            "id": "SA-SOUTHERN-SARA-005",
+            "name_ar": "حي سراة عبيدة 5",
+            "name_en": "Sarat Abidah District 5"
+          },
+          {
+            "id": "SA-SOUTHERN-SARA-006",
+            "name_ar": "حي سراة عبيدة 6",
+            "name_en": "Sarat Abidah District 6"
+          },
+          {
+            "id": "SA-SOUTHERN-SARA-007",
+            "name_ar": "حي سراة عبيدة 7",
+            "name_en": "Sarat Abidah District 7"
+          },
+          {
+            "id": "SA-SOUTHERN-SARA-008",
+            "name_ar": "حي سراة عبيدة 8",
+            "name_en": "Sarat Abidah District 8"
+          },
+          {
+            "id": "SA-SOUTHERN-SARA-009",
+            "name_ar": "حي سراة عبيدة 9",
+            "name_en": "Sarat Abidah District 9"
+          },
+          {
+            "id": "SA-SOUTHERN-SARA-010",
+            "name_ar": "حي سراة عبيدة 10",
+            "name_en": "Sarat Abidah District 10"
+          },
+          {
+            "id": "SA-SOUTHERN-SARA-011",
+            "name_ar": "حي سراة عبيدة 11",
+            "name_en": "Sarat Abidah District 11"
+          }
+        ]
+      },
+      {
+        "id": "SA-AHAD-NEW",
+        "name_ar": "أحد رفيدة",
+        "name_en": "Ahad Rafidah",
+        "districts": [
+          {
+            "id": "SA-SOUTHERN-AHAD-001",
+            "name_ar": "حي أحد رفيدة 1",
+            "name_en": "Ahad Rafidah District 1"
+          },
+          {
+            "id": "SA-SOUTHERN-AHAD-002",
+            "name_ar": "حي أحد رفيدة 2",
+            "name_en": "Ahad Rafidah District 2"
+          },
+          {
+            "id": "SA-SOUTHERN-AHAD-003",
+            "name_ar": "حي أحد رفيدة 3",
+            "name_en": "Ahad Rafidah District 3"
+          },
+          {
+            "id": "SA-SOUTHERN-AHAD-004",
+            "name_ar": "حي أحد رفيدة 4",
+            "name_en": "Ahad Rafidah District 4"
+          },
+          {
+            "id": "SA-SOUTHERN-AHAD-005",
+            "name_ar": "حي أحد رفيدة 5",
+            "name_en": "Ahad Rafidah District 5"
+          },
+          {
+            "id": "SA-SOUTHERN-AHAD-006",
+            "name_ar": "حي أحد رفيدة 6",
+            "name_en": "Ahad Rafidah District 6"
+          },
+          {
+            "id": "SA-SOUTHERN-AHAD-007",
+            "name_ar": "حي أحد رفيدة 7",
+            "name_en": "Ahad Rafidah District 7"
+          },
+          {
+            "id": "SA-SOUTHERN-AHAD-008",
+            "name_ar": "حي أحد رفيدة 8",
+            "name_en": "Ahad Rafidah District 8"
+          },
+          {
+            "id": "SA-SOUTHERN-AHAD-009",
+            "name_ar": "حي أحد رفيدة 9",
+            "name_en": "Ahad Rafidah District 9"
+          },
+          {
+            "id": "SA-SOUTHERN-AHAD-010",
+            "name_ar": "حي أحد رفيدة 10",
+            "name_en": "Ahad Rafidah District 10"
+          },
+          {
+            "id": "SA-SOUTHERN-AHAD-011",
+            "name_ar": "حي أحد رفيدة 11",
+            "name_en": "Ahad Rafidah District 11"
+          },
+          {
+            "id": "SA-SOUTHERN-AHAD-012",
+            "name_ar": "حي أحد رفيدة 12",
+            "name_en": "Ahad Rafidah District 12"
+          }
+        ]
+      },
+      {
+        "id": "SA-SABY-NEW",
+        "name_ar": "صبيا",
+        "name_en": "Sabya",
+        "districts": [
+          {
+            "id": "SA-SOUTHERN-SABY-001",
+            "name_ar": "حي صبيا 1",
+            "name_en": "Sabya District 1"
+          },
+          {
+            "id": "SA-SOUTHERN-SABY-002",
+            "name_ar": "حي صبيا 2",
+            "name_en": "Sabya District 2"
+          },
+          {
+            "id": "SA-SOUTHERN-SABY-003",
+            "name_ar": "حي صبيا 3",
+            "name_en": "Sabya District 3"
+          },
+          {
+            "id": "SA-SOUTHERN-SABY-004",
+            "name_ar": "حي صبيا 4",
+            "name_en": "Sabya District 4"
+          },
+          {
+            "id": "SA-SOUTHERN-SABY-005",
+            "name_ar": "حي صبيا 5",
+            "name_en": "Sabya District 5"
+          },
+          {
+            "id": "SA-SOUTHERN-SABY-006",
+            "name_ar": "حي صبيا 6",
+            "name_en": "Sabya District 6"
+          },
+          {
+            "id": "SA-SOUTHERN-SABY-007",
+            "name_ar": "حي صبيا 7",
+            "name_en": "Sabya District 7"
+          },
+          {
+            "id": "SA-SOUTHERN-SABY-008",
+            "name_ar": "حي صبيا 8",
+            "name_en": "Sabya District 8"
+          },
+          {
+            "id": "SA-SOUTHERN-SABY-009",
+            "name_ar": "حي صبيا 9",
+            "name_en": "Sabya District 9"
+          }
+        ]
+      },
+      {
+        "id": "SA-ABU -NEW",
+        "name_ar": "أبو عريش",
+        "name_en": "Abu Arish",
+        "districts": [
+          {
+            "id": "SA-SOUTHERN-ABU -001",
+            "name_ar": "حي أبو عريش 1",
+            "name_en": "Abu Arish District 1"
+          },
+          {
+            "id": "SA-SOUTHERN-ABU -002",
+            "name_ar": "حي أبو عريش 2",
+            "name_en": "Abu Arish District 2"
+          },
+          {
+            "id": "SA-SOUTHERN-ABU -003",
+            "name_ar": "حي أبو عريش 3",
+            "name_en": "Abu Arish District 3"
+          },
+          {
+            "id": "SA-SOUTHERN-ABU -004",
+            "name_ar": "حي أبو عريش 4",
+            "name_en": "Abu Arish District 4"
+          },
+          {
+            "id": "SA-SOUTHERN-ABU -005",
+            "name_ar": "حي أبو عريش 5",
+            "name_en": "Abu Arish District 5"
+          },
+          {
+            "id": "SA-SOUTHERN-ABU -006",
+            "name_ar": "حي أبو عريش 6",
+            "name_en": "Abu Arish District 6"
+          },
+          {
+            "id": "SA-SOUTHERN-ABU -007",
+            "name_ar": "حي أبو عريش 7",
+            "name_en": "Abu Arish District 7"
+          },
+          {
+            "id": "SA-SOUTHERN-ABU -008",
+            "name_ar": "حي أبو عريش 8",
+            "name_en": "Abu Arish District 8"
+          },
+          {
+            "id": "SA-SOUTHERN-ABU -009",
+            "name_ar": "حي أبو عريش 9",
+            "name_en": "Abu Arish District 9"
+          },
+          {
+            "id": "SA-SOUTHERN-ABU -010",
+            "name_ar": "حي أبو عريش 10",
+            "name_en": "Abu Arish District 10"
+          },
+          {
+            "id": "SA-SOUTHERN-ABU -011",
+            "name_ar": "حي أبو عريش 11",
+            "name_en": "Abu Arish District 11"
+          }
+        ]
+      },
+      {
+        "id": "SA-SAMT-NEW",
+        "name_ar": "صامطة",
+        "name_en": "Samtah",
+        "districts": [
+          {
+            "id": "SA-SOUTHERN-SAMT-001",
+            "name_ar": "حي صامطة 1",
+            "name_en": "Samtah District 1"
+          },
+          {
+            "id": "SA-SOUTHERN-SAMT-002",
+            "name_ar": "حي صامطة 2",
+            "name_en": "Samtah District 2"
+          },
+          {
+            "id": "SA-SOUTHERN-SAMT-003",
+            "name_ar": "حي صامطة 3",
+            "name_en": "Samtah District 3"
+          },
+          {
+            "id": "SA-SOUTHERN-SAMT-004",
+            "name_ar": "حي صامطة 4",
+            "name_en": "Samtah District 4"
+          },
+          {
+            "id": "SA-SOUTHERN-SAMT-005",
+            "name_ar": "حي صامطة 5",
+            "name_en": "Samtah District 5"
+          },
+          {
+            "id": "SA-SOUTHERN-SAMT-006",
+            "name_ar": "حي صامطة 6",
+            "name_en": "Samtah District 6"
+          },
+          {
+            "id": "SA-SOUTHERN-SAMT-007",
+            "name_ar": "حي صامطة 7",
+            "name_en": "Samtah District 7"
+          },
+          {
+            "id": "SA-SOUTHERN-SAMT-008",
+            "name_ar": "حي صامطة 8",
+            "name_en": "Samtah District 8"
+          },
+          {
+            "id": "SA-SOUTHERN-SAMT-009",
+            "name_ar": "حي صامطة 9",
+            "name_en": "Samtah District 9"
+          },
+          {
+            "id": "SA-SOUTHERN-SAMT-010",
+            "name_ar": "حي صامطة 10",
+            "name_en": "Samtah District 10"
+          },
+          {
+            "id": "SA-SOUTHERN-SAMT-011",
+            "name_ar": "حي صامطة 11",
+            "name_en": "Samtah District 11"
+          },
+          {
+            "id": "SA-SOUTHERN-SAMT-012",
+            "name_ar": "حي صامطة 12",
+            "name_en": "Samtah District 12"
+          }
+        ]
+      },
+      {
+        "id": "SA-AL D-NEW",
+        "name_ar": "الدرب",
+        "name_en": "Al Darb",
+        "districts": [
+          {
+            "id": "SA-SOUTHERN-AL D-001",
+            "name_ar": "حي الدرب 1",
+            "name_en": "Al Darb District 1"
+          },
+          {
+            "id": "SA-SOUTHERN-AL D-002",
+            "name_ar": "حي الدرب 2",
+            "name_en": "Al Darb District 2"
+          },
+          {
+            "id": "SA-SOUTHERN-AL D-003",
+            "name_ar": "حي الدرب 3",
+            "name_en": "Al Darb District 3"
+          },
+          {
+            "id": "SA-SOUTHERN-AL D-004",
+            "name_ar": "حي الدرب 4",
+            "name_en": "Al Darb District 4"
+          },
+          {
+            "id": "SA-SOUTHERN-AL D-005",
+            "name_ar": "حي الدرب 5",
+            "name_en": "Al Darb District 5"
+          },
+          {
+            "id": "SA-SOUTHERN-AL D-006",
+            "name_ar": "حي الدرب 6",
+            "name_en": "Al Darb District 6"
+          },
+          {
+            "id": "SA-SOUTHERN-AL D-007",
+            "name_ar": "حي الدرب 7",
+            "name_en": "Al Darb District 7"
+          },
+          {
+            "id": "SA-SOUTHERN-AL D-008",
+            "name_ar": "حي الدرب 8",
+            "name_en": "Al Darb District 8"
+          },
+          {
+            "id": "SA-SOUTHERN-AL D-009",
+            "name_ar": "حي الدرب 9",
+            "name_en": "Al Darb District 9"
+          },
+          {
+            "id": "SA-SOUTHERN-AL D-010",
+            "name_ar": "حي الدرب 10",
+            "name_en": "Al Darb District 10"
+          },
+          {
+            "id": "SA-SOUTHERN-AL D-011",
+            "name_ar": "حي الدرب 11",
+            "name_en": "Al Darb District 11"
+          },
+          {
+            "id": "SA-SOUTHERN-AL D-012",
+            "name_ar": "حي الدرب 12",
+            "name_en": "Al Darb District 12"
+          }
+        ]
+      },
+      {
+        "id": "SA-BAYS-NEW",
+        "name_ar": "بيش",
+        "name_en": "Baysh",
+        "districts": [
+          {
+            "id": "SA-SOUTHERN-BAYS-001",
+            "name_ar": "حي بيش 1",
+            "name_en": "Baysh District 1"
+          },
+          {
+            "id": "SA-SOUTHERN-BAYS-002",
+            "name_ar": "حي بيش 2",
+            "name_en": "Baysh District 2"
+          },
+          {
+            "id": "SA-SOUTHERN-BAYS-003",
+            "name_ar": "حي بيش 3",
+            "name_en": "Baysh District 3"
+          },
+          {
+            "id": "SA-SOUTHERN-BAYS-004",
+            "name_ar": "حي بيش 4",
+            "name_en": "Baysh District 4"
+          },
+          {
+            "id": "SA-SOUTHERN-BAYS-005",
+            "name_ar": "حي بيش 5",
+            "name_en": "Baysh District 5"
+          },
+          {
+            "id": "SA-SOUTHERN-BAYS-006",
+            "name_ar": "حي بيش 6",
+            "name_en": "Baysh District 6"
+          },
+          {
+            "id": "SA-SOUTHERN-BAYS-007",
+            "name_ar": "حي بيش 7",
+            "name_en": "Baysh District 7"
+          },
+          {
+            "id": "SA-SOUTHERN-BAYS-008",
+            "name_ar": "حي بيش 8",
+            "name_en": "Baysh District 8"
+          },
+          {
+            "id": "SA-SOUTHERN-BAYS-009",
+            "name_ar": "حي بيش 9",
+            "name_en": "Baysh District 9"
+          },
+          {
+            "id": "SA-SOUTHERN-BAYS-010",
+            "name_ar": "حي بيش 10",
+            "name_en": "Baysh District 10"
+          },
+          {
+            "id": "SA-SOUTHERN-BAYS-011",
+            "name_ar": "حي بيش 11",
+            "name_en": "Baysh District 11"
+          }
+        ]
+      },
+      {
+        "id": "SA-AL A-NEW",
+        "name_ar": "العارضة",
+        "name_en": "Al Aridhah",
+        "districts": [
+          {
+            "id": "SA-SOUTHERN-AL A-001",
+            "name_ar": "حي العارضة 1",
+            "name_en": "Al Aridhah District 1"
+          },
+          {
+            "id": "SA-SOUTHERN-AL A-002",
+            "name_ar": "حي العارضة 2",
+            "name_en": "Al Aridhah District 2"
+          },
+          {
+            "id": "SA-SOUTHERN-AL A-003",
+            "name_ar": "حي العارضة 3",
+            "name_en": "Al Aridhah District 3"
+          },
+          {
+            "id": "SA-SOUTHERN-AL A-004",
+            "name_ar": "حي العارضة 4",
+            "name_en": "Al Aridhah District 4"
+          },
+          {
+            "id": "SA-SOUTHERN-AL A-005",
+            "name_ar": "حي العارضة 5",
+            "name_en": "Al Aridhah District 5"
+          },
+          {
+            "id": "SA-SOUTHERN-AL A-006",
+            "name_ar": "حي العارضة 6",
+            "name_en": "Al Aridhah District 6"
+          },
+          {
+            "id": "SA-SOUTHERN-AL A-007",
+            "name_ar": "حي العارضة 7",
+            "name_en": "Al Aridhah District 7"
+          },
+          {
+            "id": "SA-SOUTHERN-AL A-008",
+            "name_ar": "حي العارضة 8",
+            "name_en": "Al Aridhah District 8"
+          },
+          {
+            "id": "SA-SOUTHERN-AL A-009",
+            "name_ar": "حي العارضة 9",
+            "name_en": "Al Aridhah District 9"
+          },
+          {
+            "id": "SA-SOUTHERN-AL A-010",
+            "name_ar": "حي العارضة 10",
+            "name_en": "Al Aridhah District 10"
+          },
+          {
+            "id": "SA-SOUTHERN-AL A-011",
+            "name_ar": "حي العارضة 11",
+            "name_en": "Al Aridhah District 11"
+          }
+        ]
+      },
+      {
+        "id": "SA-HUBU-NEW",
+        "name_ar": "حبونا",
+        "name_en": "Hubuna",
+        "districts": [
+          {
+            "id": "SA-SOUTHERN-HUBU-001",
+            "name_ar": "حي حبونا 1",
+            "name_en": "Hubuna District 1"
+          },
+          {
+            "id": "SA-SOUTHERN-HUBU-002",
+            "name_ar": "حي حبونا 2",
+            "name_en": "Hubuna District 2"
+          },
+          {
+            "id": "SA-SOUTHERN-HUBU-003",
+            "name_ar": "حي حبونا 3",
+            "name_en": "Hubuna District 3"
+          },
+          {
+            "id": "SA-SOUTHERN-HUBU-004",
+            "name_ar": "حي حبونا 4",
+            "name_en": "Hubuna District 4"
+          },
+          {
+            "id": "SA-SOUTHERN-HUBU-005",
+            "name_ar": "حي حبونا 5",
+            "name_en": "Hubuna District 5"
+          },
+          {
+            "id": "SA-SOUTHERN-HUBU-006",
+            "name_ar": "حي حبونا 6",
+            "name_en": "Hubuna District 6"
+          }
+        ]
+      },
+      {
+        "id": "SA-BADR-NEW",
+        "name_ar": "بدر الجنوب",
+        "name_en": "Badr South",
+        "districts": [
+          {
+            "id": "SA-SOUTHERN-BADR-001",
+            "name_ar": "حي بدر الجنوب 1",
+            "name_en": "Badr South District 1"
+          },
+          {
+            "id": "SA-SOUTHERN-BADR-002",
+            "name_ar": "حي بدر الجنوب 2",
+            "name_en": "Badr South District 2"
+          },
+          {
+            "id": "SA-SOUTHERN-BADR-003",
+            "name_ar": "حي بدر الجنوب 3",
+            "name_en": "Badr South District 3"
+          },
+          {
+            "id": "SA-SOUTHERN-BADR-004",
+            "name_ar": "حي بدر الجنوب 4",
+            "name_en": "Badr South District 4"
+          },
+          {
+            "id": "SA-SOUTHERN-BADR-005",
+            "name_ar": "حي بدر الجنوب 5",
+            "name_en": "Badr South District 5"
+          },
+          {
+            "id": "SA-SOUTHERN-BADR-006",
+            "name_ar": "حي بدر الجنوب 6",
+            "name_en": "Badr South District 6"
+          },
+          {
+            "id": "SA-SOUTHERN-BADR-007",
+            "name_ar": "حي بدر الجنوب 7",
+            "name_en": "Badr South District 7"
+          },
+          {
+            "id": "SA-SOUTHERN-BADR-008",
+            "name_ar": "حي بدر الجنوب 8",
+            "name_en": "Badr South District 8"
+          },
+          {
+            "id": "SA-SOUTHERN-BADR-009",
+            "name_ar": "حي بدر الجنوب 9",
+            "name_en": "Badr South District 9"
+          },
+          {
+            "id": "SA-SOUTHERN-BADR-010",
+            "name_ar": "حي بدر الجنوب 10",
+            "name_en": "Badr South District 10"
+          }
+        ]
+      },
+      {
+        "id": "SA-YADA-NEW",
+        "name_ar": "يدمة",
+        "name_en": "Yadamah",
+        "districts": [
+          {
+            "id": "SA-SOUTHERN-YADA-001",
+            "name_ar": "حي يدمة 1",
+            "name_en": "Yadamah District 1"
+          },
+          {
+            "id": "SA-SOUTHERN-YADA-002",
+            "name_ar": "حي يدمة 2",
+            "name_en": "Yadamah District 2"
+          },
+          {
+            "id": "SA-SOUTHERN-YADA-003",
+            "name_ar": "حي يدمة 3",
+            "name_en": "Yadamah District 3"
+          },
+          {
+            "id": "SA-SOUTHERN-YADA-004",
+            "name_ar": "حي يدمة 4",
+            "name_en": "Yadamah District 4"
+          },
+          {
+            "id": "SA-SOUTHERN-YADA-005",
+            "name_ar": "حي يدمة 5",
+            "name_en": "Yadamah District 5"
+          },
+          {
+            "id": "SA-SOUTHERN-YADA-006",
+            "name_ar": "حي يدمة 6",
+            "name_en": "Yadamah District 6"
+          },
+          {
+            "id": "SA-SOUTHERN-YADA-007",
+            "name_ar": "حي يدمة 7",
+            "name_en": "Yadamah District 7"
+          },
+          {
+            "id": "SA-SOUTHERN-YADA-008",
+            "name_ar": "حي يدمة 8",
+            "name_en": "Yadamah District 8"
+          },
+          {
+            "id": "SA-SOUTHERN-YADA-009",
+            "name_ar": "حي يدمة 9",
+            "name_en": "Yadamah District 9"
+          }
+        ]
+      },
+      {
+        "id": "SA-AL M-NEW",
+        "name_ar": "المندق",
+        "name_en": "Al Mandaq",
+        "districts": [
+          {
+            "id": "SA-SOUTHERN-AL M-001",
+            "name_ar": "حي المندق 1",
+            "name_en": "Al Mandaq District 1"
+          },
+          {
+            "id": "SA-SOUTHERN-AL M-002",
+            "name_ar": "حي المندق 2",
+            "name_en": "Al Mandaq District 2"
+          },
+          {
+            "id": "SA-SOUTHERN-AL M-003",
+            "name_ar": "حي المندق 3",
+            "name_en": "Al Mandaq District 3"
+          },
+          {
+            "id": "SA-SOUTHERN-AL M-004",
+            "name_ar": "حي المندق 4",
+            "name_en": "Al Mandaq District 4"
+          },
+          {
+            "id": "SA-SOUTHERN-AL M-005",
+            "name_ar": "حي المندق 5",
+            "name_en": "Al Mandaq District 5"
+          },
+          {
+            "id": "SA-SOUTHERN-AL M-006",
+            "name_ar": "حي المندق 6",
+            "name_en": "Al Mandaq District 6"
+          },
+          {
+            "id": "SA-SOUTHERN-AL M-007",
+            "name_ar": "حي المندق 7",
+            "name_en": "Al Mandaq District 7"
+          },
+          {
+            "id": "SA-SOUTHERN-AL M-008",
+            "name_ar": "حي المندق 8",
+            "name_en": "Al Mandaq District 8"
+          },
+          {
+            "id": "SA-SOUTHERN-AL M-009",
+            "name_ar": "حي المندق 9",
+            "name_en": "Al Mandaq District 9"
+          },
+          {
+            "id": "SA-SOUTHERN-AL M-010",
+            "name_ar": "حي المندق 10",
+            "name_en": "Al Mandaq District 10"
+          },
+          {
+            "id": "SA-SOUTHERN-AL M-011",
+            "name_ar": "حي المندق 11",
+            "name_en": "Al Mandaq District 11"
+          },
+          {
+            "id": "SA-SOUTHERN-AL M-012",
+            "name_ar": "حي المندق 12",
+            "name_en": "Al Mandaq District 12"
+          }
+        ]
+      },
+      {
+        "id": "SA-AL M-NEW",
+        "name_ar": "المخواة",
+        "name_en": "Al Makhwah",
+        "districts": [
+          {
+            "id": "SA-SOUTHERN-AL M-001",
+            "name_ar": "حي المخواة 1",
+            "name_en": "Al Makhwah District 1"
+          },
+          {
+            "id": "SA-SOUTHERN-AL M-002",
+            "name_ar": "حي المخواة 2",
+            "name_en": "Al Makhwah District 2"
+          },
+          {
+            "id": "SA-SOUTHERN-AL M-003",
+            "name_ar": "حي المخواة 3",
+            "name_en": "Al Makhwah District 3"
+          },
+          {
+            "id": "SA-SOUTHERN-AL M-004",
+            "name_ar": "حي المخواة 4",
+            "name_en": "Al Makhwah District 4"
+          },
+          {
+            "id": "SA-SOUTHERN-AL M-005",
+            "name_ar": "حي المخواة 5",
+            "name_en": "Al Makhwah District 5"
+          },
+          {
+            "id": "SA-SOUTHERN-AL M-006",
+            "name_ar": "حي المخواة 6",
+            "name_en": "Al Makhwah District 6"
+          },
+          {
+            "id": "SA-SOUTHERN-AL M-007",
+            "name_ar": "حي المخواة 7",
+            "name_en": "Al Makhwah District 7"
+          },
+          {
+            "id": "SA-SOUTHERN-AL M-008",
+            "name_ar": "حي المخواة 8",
+            "name_en": "Al Makhwah District 8"
+          },
+          {
+            "id": "SA-SOUTHERN-AL M-009",
+            "name_ar": "حي المخواة 9",
+            "name_en": "Al Makhwah District 9"
+          },
+          {
+            "id": "SA-SOUTHERN-AL M-010",
+            "name_ar": "حي المخواة 10",
+            "name_en": "Al Makhwah District 10"
+          },
+          {
+            "id": "SA-SOUTHERN-AL M-011",
+            "name_ar": "حي المخواة 11",
+            "name_en": "Al Makhwah District 11"
+          },
+          {
+            "id": "SA-SOUTHERN-AL M-012",
+            "name_ar": "حي المخواة 12",
+            "name_en": "Al Makhwah District 12"
+          }
+        ]
+      },
+      {
+        "id": "SA-QILW-NEW",
+        "name_ar": "قلوة",
+        "name_en": "Qilwah",
+        "districts": [
+          {
+            "id": "SA-SOUTHERN-QILW-001",
+            "name_ar": "حي قلوة 1",
+            "name_en": "Qilwah District 1"
+          },
+          {
+            "id": "SA-SOUTHERN-QILW-002",
+            "name_ar": "حي قلوة 2",
+            "name_en": "Qilwah District 2"
+          },
+          {
+            "id": "SA-SOUTHERN-QILW-003",
+            "name_ar": "حي قلوة 3",
+            "name_en": "Qilwah District 3"
+          },
+          {
+            "id": "SA-SOUTHERN-QILW-004",
+            "name_ar": "حي قلوة 4",
+            "name_en": "Qilwah District 4"
+          },
+          {
+            "id": "SA-SOUTHERN-QILW-005",
+            "name_ar": "حي قلوة 5",
+            "name_en": "Qilwah District 5"
+          },
+          {
+            "id": "SA-SOUTHERN-QILW-006",
+            "name_ar": "حي قلوة 6",
+            "name_en": "Qilwah District 6"
+          },
+          {
+            "id": "SA-SOUTHERN-QILW-007",
+            "name_ar": "حي قلوة 7",
+            "name_en": "Qilwah District 7"
+          },
+          {
+            "id": "SA-SOUTHERN-QILW-008",
+            "name_ar": "حي قلوة 8",
+            "name_en": "Qilwah District 8"
+          }
+        ]
+      },
+      {
+        "id": "SA-ABHA-X",
+        "name_ar": "أبها الجديدة",
+        "name_en": "Abha New",
+        "districts": [
+          {
+            "id": "SA-SOUTHERN-ABH-001-X",
+            "name_ar": "حي أبها الجديدة 1",
+            "name_en": "Abha New District 1"
+          },
+          {
+            "id": "SA-SOUTHERN-ABH-002-X",
+            "name_ar": "حي أبها الجديدة 2",
+            "name_en": "Abha New District 2"
+          },
+          {
+            "id": "SA-SOUTHERN-ABH-003-X",
+            "name_ar": "حي أبها الجديدة 3",
+            "name_en": "Abha New District 3"
+          },
+          {
+            "id": "SA-SOUTHERN-ABH-004-X",
+            "name_ar": "حي أبها الجديدة 4",
+            "name_en": "Abha New District 4"
+          },
+          {
+            "id": "SA-SOUTHERN-ABH-005-X",
+            "name_ar": "حي أبها الجديدة 5",
+            "name_en": "Abha New District 5"
+          },
+          {
+            "id": "SA-SOUTHERN-ABH-006-X",
+            "name_ar": "حي أبها الجديدة 6",
+            "name_en": "Abha New District 6"
+          },
+          {
+            "id": "SA-SOUTHERN-ABH-007-X",
+            "name_ar": "حي أبها الجديدة 7",
+            "name_en": "Abha New District 7"
+          },
+          {
+            "id": "SA-SOUTHERN-ABH-008-X",
+            "name_ar": "حي أبها الجديدة 8",
+            "name_en": "Abha New District 8"
+          }
+        ]
+      },
+      {
+        "id": "SA-JAZA-X",
+        "name_ar": "جازان الجديدة",
+        "name_en": "Jazan New",
+        "districts": [
+          {
+            "id": "SA-SOUTHERN-JAZ-001-X",
+            "name_ar": "حي جازان الجديدة 1",
+            "name_en": "Jazan New District 1"
+          },
+          {
+            "id": "SA-SOUTHERN-JAZ-002-X",
+            "name_ar": "حي جازان الجديدة 2",
+            "name_en": "Jazan New District 2"
+          },
+          {
+            "id": "SA-SOUTHERN-JAZ-003-X",
+            "name_ar": "حي جازان الجديدة 3",
+            "name_en": "Jazan New District 3"
+          },
+          {
+            "id": "SA-SOUTHERN-JAZ-004-X",
+            "name_ar": "حي جازان الجديدة 4",
+            "name_en": "Jazan New District 4"
+          },
+          {
+            "id": "SA-SOUTHERN-JAZ-005-X",
+            "name_ar": "حي جازان الجديدة 5",
+            "name_en": "Jazan New District 5"
+          },
+          {
+            "id": "SA-SOUTHERN-JAZ-006-X",
+            "name_ar": "حي جازان الجديدة 6",
+            "name_en": "Jazan New District 6"
+          },
+          {
+            "id": "SA-SOUTHERN-JAZ-007-X",
+            "name_ar": "حي جازان الجديدة 7",
+            "name_en": "Jazan New District 7"
+          },
+          {
+            "id": "SA-SOUTHERN-JAZ-008-X",
+            "name_ar": "حي جازان الجديدة 8",
+            "name_en": "Jazan New District 8"
+          }
+        ]
       }
     ]
   },
@@ -5005,6 +9687,568 @@
             "id": "SA-NORTHERN-HAQ-005",
             "name_ar": "حي حقل 5",
             "name_en": "Haql District 5"
+          }
+        ]
+      },
+      {
+        "id": "SA-DUMA-NEW",
+        "name_ar": "دومة الجندل",
+        "name_en": "Dumat Al Jandal",
+        "districts": [
+          {
+            "id": "SA-NORTHERN-DUMA-001",
+            "name_ar": "حي دومة الجندل 1",
+            "name_en": "Dumat Al Jandal District 1"
+          },
+          {
+            "id": "SA-NORTHERN-DUMA-002",
+            "name_ar": "حي دومة الجندل 2",
+            "name_en": "Dumat Al Jandal District 2"
+          },
+          {
+            "id": "SA-NORTHERN-DUMA-003",
+            "name_ar": "حي دومة الجندل 3",
+            "name_en": "Dumat Al Jandal District 3"
+          },
+          {
+            "id": "SA-NORTHERN-DUMA-004",
+            "name_ar": "حي دومة الجندل 4",
+            "name_en": "Dumat Al Jandal District 4"
+          },
+          {
+            "id": "SA-NORTHERN-DUMA-005",
+            "name_ar": "حي دومة الجندل 5",
+            "name_en": "Dumat Al Jandal District 5"
+          },
+          {
+            "id": "SA-NORTHERN-DUMA-006",
+            "name_ar": "حي دومة الجندل 6",
+            "name_en": "Dumat Al Jandal District 6"
+          },
+          {
+            "id": "SA-NORTHERN-DUMA-007",
+            "name_ar": "حي دومة الجندل 7",
+            "name_en": "Dumat Al Jandal District 7"
+          }
+        ]
+      },
+      {
+        "id": "SA-TABA-NEW",
+        "name_ar": "طبرجل",
+        "name_en": "Tabarjal",
+        "districts": [
+          {
+            "id": "SA-NORTHERN-TABA-001",
+            "name_ar": "حي طبرجل 1",
+            "name_en": "Tabarjal District 1"
+          },
+          {
+            "id": "SA-NORTHERN-TABA-002",
+            "name_ar": "حي طبرجل 2",
+            "name_en": "Tabarjal District 2"
+          },
+          {
+            "id": "SA-NORTHERN-TABA-003",
+            "name_ar": "حي طبرجل 3",
+            "name_en": "Tabarjal District 3"
+          },
+          {
+            "id": "SA-NORTHERN-TABA-004",
+            "name_ar": "حي طبرجل 4",
+            "name_en": "Tabarjal District 4"
+          },
+          {
+            "id": "SA-NORTHERN-TABA-005",
+            "name_ar": "حي طبرجل 5",
+            "name_en": "Tabarjal District 5"
+          },
+          {
+            "id": "SA-NORTHERN-TABA-006",
+            "name_ar": "حي طبرجل 6",
+            "name_en": "Tabarjal District 6"
+          },
+          {
+            "id": "SA-NORTHERN-TABA-007",
+            "name_ar": "حي طبرجل 7",
+            "name_en": "Tabarjal District 7"
+          },
+          {
+            "id": "SA-NORTHERN-TABA-008",
+            "name_ar": "حي طبرجل 8",
+            "name_en": "Tabarjal District 8"
+          },
+          {
+            "id": "SA-NORTHERN-TABA-009",
+            "name_ar": "حي طبرجل 9",
+            "name_en": "Tabarjal District 9"
+          },
+          {
+            "id": "SA-NORTHERN-TABA-010",
+            "name_ar": "حي طبرجل 10",
+            "name_en": "Tabarjal District 10"
+          },
+          {
+            "id": "SA-NORTHERN-TABA-011",
+            "name_ar": "حي طبرجل 11",
+            "name_en": "Tabarjal District 11"
+          }
+        ]
+      },
+      {
+        "id": "SA-BAQA-NEW",
+        "name_ar": "بقعاء",
+        "name_en": "Baqaa",
+        "districts": [
+          {
+            "id": "SA-NORTHERN-BAQA-001",
+            "name_ar": "حي بقعاء 1",
+            "name_en": "Baqaa District 1"
+          },
+          {
+            "id": "SA-NORTHERN-BAQA-002",
+            "name_ar": "حي بقعاء 2",
+            "name_en": "Baqaa District 2"
+          },
+          {
+            "id": "SA-NORTHERN-BAQA-003",
+            "name_ar": "حي بقعاء 3",
+            "name_en": "Baqaa District 3"
+          },
+          {
+            "id": "SA-NORTHERN-BAQA-004",
+            "name_ar": "حي بقعاء 4",
+            "name_en": "Baqaa District 4"
+          },
+          {
+            "id": "SA-NORTHERN-BAQA-005",
+            "name_ar": "حي بقعاء 5",
+            "name_en": "Baqaa District 5"
+          },
+          {
+            "id": "SA-NORTHERN-BAQA-006",
+            "name_ar": "حي بقعاء 6",
+            "name_en": "Baqaa District 6"
+          },
+          {
+            "id": "SA-NORTHERN-BAQA-007",
+            "name_ar": "حي بقعاء 7",
+            "name_en": "Baqaa District 7"
+          },
+          {
+            "id": "SA-NORTHERN-BAQA-008",
+            "name_ar": "حي بقعاء 8",
+            "name_en": "Baqaa District 8"
+          }
+        ]
+      },
+      {
+        "id": "SA-AL S-NEW",
+        "name_ar": "الشنان",
+        "name_en": "Al Shinan",
+        "districts": [
+          {
+            "id": "SA-NORTHERN-AL S-001",
+            "name_ar": "حي الشنان 1",
+            "name_en": "Al Shinan District 1"
+          },
+          {
+            "id": "SA-NORTHERN-AL S-002",
+            "name_ar": "حي الشنان 2",
+            "name_en": "Al Shinan District 2"
+          },
+          {
+            "id": "SA-NORTHERN-AL S-003",
+            "name_ar": "حي الشنان 3",
+            "name_en": "Al Shinan District 3"
+          },
+          {
+            "id": "SA-NORTHERN-AL S-004",
+            "name_ar": "حي الشنان 4",
+            "name_en": "Al Shinan District 4"
+          },
+          {
+            "id": "SA-NORTHERN-AL S-005",
+            "name_ar": "حي الشنان 5",
+            "name_en": "Al Shinan District 5"
+          },
+          {
+            "id": "SA-NORTHERN-AL S-006",
+            "name_ar": "حي الشنان 6",
+            "name_en": "Al Shinan District 6"
+          },
+          {
+            "id": "SA-NORTHERN-AL S-007",
+            "name_ar": "حي الشنان 7",
+            "name_en": "Al Shinan District 7"
+          },
+          {
+            "id": "SA-NORTHERN-AL S-008",
+            "name_ar": "حي الشنان 8",
+            "name_en": "Al Shinan District 8"
+          },
+          {
+            "id": "SA-NORTHERN-AL S-009",
+            "name_ar": "حي الشنان 9",
+            "name_en": "Al Shinan District 9"
+          },
+          {
+            "id": "SA-NORTHERN-AL S-010",
+            "name_ar": "حي الشنان 10",
+            "name_en": "Al Shinan District 10"
+          },
+          {
+            "id": "SA-NORTHERN-AL S-011",
+            "name_ar": "حي الشنان 11",
+            "name_en": "Al Shinan District 11"
+          }
+        ]
+      },
+      {
+        "id": "SA-AL G-NEW",
+        "name_ar": "الغزالة",
+        "name_en": "Al Ghazalah",
+        "districts": [
+          {
+            "id": "SA-NORTHERN-AL G-001",
+            "name_ar": "حي الغزالة 1",
+            "name_en": "Al Ghazalah District 1"
+          },
+          {
+            "id": "SA-NORTHERN-AL G-002",
+            "name_ar": "حي الغزالة 2",
+            "name_en": "Al Ghazalah District 2"
+          },
+          {
+            "id": "SA-NORTHERN-AL G-003",
+            "name_ar": "حي الغزالة 3",
+            "name_en": "Al Ghazalah District 3"
+          },
+          {
+            "id": "SA-NORTHERN-AL G-004",
+            "name_ar": "حي الغزالة 4",
+            "name_en": "Al Ghazalah District 4"
+          },
+          {
+            "id": "SA-NORTHERN-AL G-005",
+            "name_ar": "حي الغزالة 5",
+            "name_en": "Al Ghazalah District 5"
+          },
+          {
+            "id": "SA-NORTHERN-AL G-006",
+            "name_ar": "حي الغزالة 6",
+            "name_en": "Al Ghazalah District 6"
+          },
+          {
+            "id": "SA-NORTHERN-AL G-007",
+            "name_ar": "حي الغزالة 7",
+            "name_en": "Al Ghazalah District 7"
+          },
+          {
+            "id": "SA-NORTHERN-AL G-008",
+            "name_ar": "حي الغزالة 8",
+            "name_en": "Al Ghazalah District 8"
+          },
+          {
+            "id": "SA-NORTHERN-AL G-009",
+            "name_ar": "حي الغزالة 9",
+            "name_en": "Al Ghazalah District 9"
+          },
+          {
+            "id": "SA-NORTHERN-AL G-010",
+            "name_ar": "حي الغزالة 10",
+            "name_en": "Al Ghazalah District 10"
+          },
+          {
+            "id": "SA-NORTHERN-AL G-011",
+            "name_ar": "حي الغزالة 11",
+            "name_en": "Al Ghazalah District 11"
+          },
+          {
+            "id": "SA-NORTHERN-AL G-012",
+            "name_ar": "حي الغزالة 12",
+            "name_en": "Al Ghazalah District 12"
+          }
+        ]
+      },
+      {
+        "id": "SA-MAWQ-NEW",
+        "name_ar": "موقق",
+        "name_en": "Mawqaq",
+        "districts": [
+          {
+            "id": "SA-NORTHERN-MAWQ-001",
+            "name_ar": "حي موقق 1",
+            "name_en": "Mawqaq District 1"
+          },
+          {
+            "id": "SA-NORTHERN-MAWQ-002",
+            "name_ar": "حي موقق 2",
+            "name_en": "Mawqaq District 2"
+          },
+          {
+            "id": "SA-NORTHERN-MAWQ-003",
+            "name_ar": "حي موقق 3",
+            "name_en": "Mawqaq District 3"
+          },
+          {
+            "id": "SA-NORTHERN-MAWQ-004",
+            "name_ar": "حي موقق 4",
+            "name_en": "Mawqaq District 4"
+          },
+          {
+            "id": "SA-NORTHERN-MAWQ-005",
+            "name_ar": "حي موقق 5",
+            "name_en": "Mawqaq District 5"
+          },
+          {
+            "id": "SA-NORTHERN-MAWQ-006",
+            "name_ar": "حي موقق 6",
+            "name_en": "Mawqaq District 6"
+          }
+        ]
+      },
+      {
+        "id": "SA-DUBA-NEW",
+        "name_ar": "ضبا",
+        "name_en": "Duba3",
+        "districts": [
+          {
+            "id": "SA-NORTHERN-DUBA-001",
+            "name_ar": "حي ضبا 1",
+            "name_en": "Duba3 District 1"
+          },
+          {
+            "id": "SA-NORTHERN-DUBA-002",
+            "name_ar": "حي ضبا 2",
+            "name_en": "Duba3 District 2"
+          },
+          {
+            "id": "SA-NORTHERN-DUBA-003",
+            "name_ar": "حي ضبا 3",
+            "name_en": "Duba3 District 3"
+          },
+          {
+            "id": "SA-NORTHERN-DUBA-004",
+            "name_ar": "حي ضبا 4",
+            "name_en": "Duba3 District 4"
+          },
+          {
+            "id": "SA-NORTHERN-DUBA-005",
+            "name_ar": "حي ضبا 5",
+            "name_en": "Duba3 District 5"
+          },
+          {
+            "id": "SA-NORTHERN-DUBA-006",
+            "name_ar": "حي ضبا 6",
+            "name_en": "Duba3 District 6"
+          },
+          {
+            "id": "SA-NORTHERN-DUBA-007",
+            "name_ar": "حي ضبا 7",
+            "name_en": "Duba3 District 7"
+          }
+        ]
+      },
+      {
+        "id": "SA-AL B-NEW",
+        "name_ar": "البدع",
+        "name_en": "Al Bad",
+        "districts": [
+          {
+            "id": "SA-NORTHERN-AL B-001",
+            "name_ar": "حي البدع 1",
+            "name_en": "Al Bad District 1"
+          },
+          {
+            "id": "SA-NORTHERN-AL B-002",
+            "name_ar": "حي البدع 2",
+            "name_en": "Al Bad District 2"
+          },
+          {
+            "id": "SA-NORTHERN-AL B-003",
+            "name_ar": "حي البدع 3",
+            "name_en": "Al Bad District 3"
+          },
+          {
+            "id": "SA-NORTHERN-AL B-004",
+            "name_ar": "حي البدع 4",
+            "name_en": "Al Bad District 4"
+          },
+          {
+            "id": "SA-NORTHERN-AL B-005",
+            "name_ar": "حي البدع 5",
+            "name_en": "Al Bad District 5"
+          },
+          {
+            "id": "SA-NORTHERN-AL B-006",
+            "name_ar": "حي البدع 6",
+            "name_en": "Al Bad District 6"
+          },
+          {
+            "id": "SA-NORTHERN-AL B-007",
+            "name_ar": "حي البدع 7",
+            "name_en": "Al Bad District 7"
+          },
+          {
+            "id": "SA-NORTHERN-AL B-008",
+            "name_ar": "حي البدع 8",
+            "name_en": "Al Bad District 8"
+          },
+          {
+            "id": "SA-NORTHERN-AL B-009",
+            "name_ar": "حي البدع 9",
+            "name_en": "Al Bad District 9"
+          },
+          {
+            "id": "SA-NORTHERN-AL B-010",
+            "name_ar": "حي البدع 10",
+            "name_en": "Al Bad District 10"
+          }
+        ]
+      },
+      {
+        "id": "SA-AL U-NEW",
+        "name_ar": "العويقيلة",
+        "name_en": "Al Uwayqilah",
+        "districts": [
+          {
+            "id": "SA-NORTHERN-AL U-001",
+            "name_ar": "حي العويقيلة 1",
+            "name_en": "Al Uwayqilah District 1"
+          },
+          {
+            "id": "SA-NORTHERN-AL U-002",
+            "name_ar": "حي العويقيلة 2",
+            "name_en": "Al Uwayqilah District 2"
+          },
+          {
+            "id": "SA-NORTHERN-AL U-003",
+            "name_ar": "حي العويقيلة 3",
+            "name_en": "Al Uwayqilah District 3"
+          },
+          {
+            "id": "SA-NORTHERN-AL U-004",
+            "name_ar": "حي العويقيلة 4",
+            "name_en": "Al Uwayqilah District 4"
+          },
+          {
+            "id": "SA-NORTHERN-AL U-005",
+            "name_ar": "حي العويقيلة 5",
+            "name_en": "Al Uwayqilah District 5"
+          },
+          {
+            "id": "SA-NORTHERN-AL U-006",
+            "name_ar": "حي العويقيلة 6",
+            "name_en": "Al Uwayqilah District 6"
+          },
+          {
+            "id": "SA-NORTHERN-AL U-007",
+            "name_ar": "حي العويقيلة 7",
+            "name_en": "Al Uwayqilah District 7"
+          }
+        ]
+      },
+      {
+        "id": "SA-TABU-X",
+        "name_ar": "تبوك الجديدة",
+        "name_en": "Tabuk New",
+        "districts": [
+          {
+            "id": "SA-NORTHERN-TAB-001-X",
+            "name_ar": "حي تبوك الجديدة 1",
+            "name_en": "Tabuk New District 1"
+          },
+          {
+            "id": "SA-NORTHERN-TAB-002-X",
+            "name_ar": "حي تبوك الجديدة 2",
+            "name_en": "Tabuk New District 2"
+          },
+          {
+            "id": "SA-NORTHERN-TAB-003-X",
+            "name_ar": "حي تبوك الجديدة 3",
+            "name_en": "Tabuk New District 3"
+          },
+          {
+            "id": "SA-NORTHERN-TAB-004-X",
+            "name_ar": "حي تبوك الجديدة 4",
+            "name_en": "Tabuk New District 4"
+          },
+          {
+            "id": "SA-NORTHERN-TAB-005-X",
+            "name_ar": "حي تبوك الجديدة 5",
+            "name_en": "Tabuk New District 5"
+          },
+          {
+            "id": "SA-NORTHERN-TAB-006-X",
+            "name_ar": "حي تبوك الجديدة 6",
+            "name_en": "Tabuk New District 6"
+          },
+          {
+            "id": "SA-NORTHERN-TAB-007-X",
+            "name_ar": "حي تبوك الجديدة 7",
+            "name_en": "Tabuk New District 7"
+          },
+          {
+            "id": "SA-NORTHERN-TAB-008-X",
+            "name_ar": "حي تبوك الجديدة 8",
+            "name_en": "Tabuk New District 8"
+          },
+          {
+            "id": "SA-NORTHERN-TAB-009-X",
+            "name_ar": "حي تبوك الجديدة 9",
+            "name_en": "Tabuk New District 9"
+          },
+          {
+            "id": "SA-NORTHERN-TAB-010-X",
+            "name_ar": "حي تبوك الجديدة 10",
+            "name_en": "Tabuk New District 10"
+          }
+        ]
+      },
+      {
+        "id": "SA-ARAR-X",
+        "name_ar": "عرعر الجديدة",
+        "name_en": "Arar New",
+        "districts": [
+          {
+            "id": "SA-NORTHERN-ARA-001-X",
+            "name_ar": "حي عرعر الجديدة 1",
+            "name_en": "Arar New District 1"
+          },
+          {
+            "id": "SA-NORTHERN-ARA-002-X",
+            "name_ar": "حي عرعر الجديدة 2",
+            "name_en": "Arar New District 2"
+          },
+          {
+            "id": "SA-NORTHERN-ARA-003-X",
+            "name_ar": "حي عرعر الجديدة 3",
+            "name_en": "Arar New District 3"
+          },
+          {
+            "id": "SA-NORTHERN-ARA-004-X",
+            "name_ar": "حي عرعر الجديدة 4",
+            "name_en": "Arar New District 4"
+          },
+          {
+            "id": "SA-NORTHERN-ARA-005-X",
+            "name_ar": "حي عرعر الجديدة 5",
+            "name_en": "Arar New District 5"
+          },
+          {
+            "id": "SA-NORTHERN-ARA-006-X",
+            "name_ar": "حي عرعر الجديدة 6",
+            "name_en": "Arar New District 6"
+          },
+          {
+            "id": "SA-NORTHERN-ARA-007-X",
+            "name_ar": "حي عرعر الجديدة 7",
+            "name_en": "Arar New District 7"
+          },
+          {
+            "id": "SA-NORTHERN-ARA-008-X",
+            "name_ar": "حي عرعر الجديدة 8",
+            "name_en": "Arar New District 8"
           }
         ]
       }
