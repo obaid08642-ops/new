@@ -18,6 +18,13 @@ export function GET() {
     { path: "/diagnostics/labs", changefreq: "daily", priority: "0.8" },
     { path: "/diagnostics/radiology", changefreq: "daily", priority: "0.8" },
     { path: "/nursing/catalog", changefreq: "daily", priority: "0.7" },
+    { path: "/nutrition", changefreq: "weekly", priority: "0.7" },
+    { path: "/maternity/tracker", changefreq: "weekly", priority: "0.6" },
+    { path: "/reminders", changefreq: "weekly", priority: "0.6" },
+    { path: "/mental-health", changefreq: "weekly", priority: "0.6" },
+    { path: "/family", changefreq: "weekly", priority: "0.6" },
+    { path: "/health", changefreq: "weekly", priority: "0.7" },
+    { path: "/community", changefreq: "daily", priority: "0.6" },
   ];
   const urls = locales.flatMap((locale) =>
     rows.map(

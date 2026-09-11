@@ -24,10 +24,13 @@ export async function GET() {
     doctors = [];
   }
 
+  // GEO: each doctor also indexed with city variants for "best dermatologist in Riyadh" queries
+  const cities = ["riyadh", "jeddah", "dammam", "makkah", "madinah", "khobar"];
   const urls = locales.flatMap((locale) =>
-    doctors.map((d) => {
-      const loc = localizedUrl(locale, `/doctor/${encodeURIComponent(d.slug)}`);
-      return `  <url><loc>${esc(loc)}</loc>${d.lastmod ? `<lastmod>${d.lastmod}</lastmod>` : ""}<changefreq>weekly</changefreq><priority>0.85</priority></url>`;
+    doctors.flatMap((d) => {
+      const base = `  <url><loc>${esc(localizedUrl(locale, `/doctor/${encodeURIComponent(d.slug)}`))}</loc>${d.lastmod ? `<lastmod>${d.lastmod}</lastmod>` : ""}<changefreq>weekly</changefreq><priority>0.85</priority></url>`;
+      const geo = cities.map((city) => `  <url><loc>${esc(localizedUrl(locale, `/doctor/${encodeURIComponent(d.slug)}/${city}`))}</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>`);
+      return [base, ...geo];
     }),
   );
 

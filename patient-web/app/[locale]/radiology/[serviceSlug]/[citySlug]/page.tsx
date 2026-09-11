@@ -34,9 +34,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, serviceSlug, citySlug } = await params;
   if (!isLocale(locale)) return {};
   const data = await fetchRadiologyData(serviceSlug, citySlug);
-
-  if (!data || data.facilities.length === 0) {
-    return { robots: { index: false, follow: false } };
+  const hasFacilities = Boolean(data && data.facilities.length > 0);
+  if (!hasFacilities) {
+    const decService = decodeURIComponent(serviceSlug);
+    const decCity = decodeURIComponent(citySlug);
+    const canonical = localizedUrl(locale as Locale, `/radiology/${encodeURIComponent(serviceSlug)}/${encodeURIComponent(citySlug)}`);
+    return {
+      title: locale === "ar" ? `أشعة ${decService} في ${decCity} — كن أول مركز | نبض` : `${decService} in ${decCity} — Be first center | Nabd`,
+      description: locale === "ar" ? `أشعة ${decService} في ${decCity} — لا يوجد مركز حالياً. سجل كمركز أشعة وكن أول من يقدم الخدمة.` : `${decService} in ${decCity} — no center yet. Register.`,
+      alternates: { canonical, languages: Object.fromEntries(locales.map((l) => [l, localizedUrl(l, `/radiology/${encodeURIComponent(serviceSlug)}/${encodeURIComponent(citySlug)}`)])) },
+      robots: { index: true, follow: true },
+    };
   }
 
   const decService = decodeURIComponent(serviceSlug);
@@ -79,9 +87,8 @@ export default async function RadiologyCityPage({ params }: Props) {
   setRequestLocale(locale);
 
   const data = await fetchRadiologyData(serviceSlug, citySlug);
-  if (!data || data.facilities.length === 0) {
-    notFound();
-  }
+  const hasFacilities = Boolean(data && data.facilities.length > 0);
+  if (!data) notFound();
 
   const decService = decodeURIComponent(serviceSlug);
   const decCity = decodeURIComponent(citySlug);
@@ -124,55 +131,63 @@ export default async function RadiologyCityPage({ params }: Props) {
         </p>
       </header>
 
-      <section>
-        <h2 style={{ fontSize: "1.25rem", fontWeight: 600, marginBottom: "1rem", color: "#1f2937" }}>
-          {locale === "ar" ? "مراكز الأشعة والمستشفيات المتاحة" : "Available Imaging Centers"}
-        </h2>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1rem" }}>
-          {facilities.map((fac: any) => (
-            <article
-              key={fac.id}
-              style={{
-                border: "1px solid #e5e7eb",
-                borderRadius: "0.75rem",
-                padding: "1.25rem",
-                backgroundColor: "#fff",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-              }}
-            >
-              <div>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
-                  <Scan size={18} color="#2563eb" />
-                  <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 600 }}>{fac.name_ar || fac.name_en}</h3>
-                </div>
-                <p style={{ margin: "0.25rem 0", color: "#6b7280", fontSize: "0.875rem", display: "flex", alignItems: "center", gap: "0.25rem" }}>
-                  <MapPin size={14} />
-                  <span>{fac.city}</span>
-                </p>
-              </div>
-              <Link
-                href={`/${locale}/diagnostics/radiology`}
+      {!hasFacilities ? (
+        <section style={{ textAlign: "center", padding: "3rem 1rem", background: "#f8fafc", borderRadius: "12px", border: "1px dashed #cbd5e1" }}>
+          <p style={{ fontSize: "1.1rem", color: "#334155" }}>{locale === "ar" ? `لا يوجد مركز أشعة يقدم ${decService} في ${decCity} حالياً.` : `No imaging center for ${decService} in ${decCity} yet.`}</p>
+          <p style={{ color: "#64748b", marginTop: "0.5rem" }}>{locale === "ar" ? "كن أول مركز — سجل الآن وستظهر خدمتك أوتوماتيك." : "Be the first — register and appear automatically."}</p>
+          <Link href={`/${locale}/consultations/doctors`} style={{ display: "inline-block", marginTop: "1rem", background: "#2563eb", color: "#fff", padding: "0.75rem 1.5rem", borderRadius: "8px", textDecoration: "none", fontWeight: 600 }}>{locale === "ar" ? "سجل كمركز" : "Register"}</Link>
+        </section>
+      ) : (
+        <section>
+          <h2 style={{ fontSize: "1.25rem", fontWeight: 600, marginBottom: "1rem", color: "#1f2937" }}>
+            {locale === "ar" ? "مراكز الأشعة والمستشفيات المتاحة" : "Available Imaging Centers"}
+          </h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1rem" }}>
+            {facilities.map((fac: any) => (
+              <article
+                key={fac.id}
                 style={{
-                  display: "inline-block",
-                  textAlign: "center",
-                  backgroundColor: "#2563eb",
-                  color: "#fff",
-                  padding: "0.5rem 1rem",
-                  borderRadius: "0.5rem",
-                  textDecoration: "none",
-                  fontWeight: 500,
-                  marginTop: "1rem",
-                  fontSize: "0.875rem",
+                  border: "1px solid #e5e7eb",
+                  borderRadius: "0.75rem",
+                  padding: "1.25rem",
+                  backgroundColor: "#fff",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
                 }}
               >
-                {locale === "ar" ? "حجز موعد فحص" : "Book Imaging"}
-              </Link>
-            </article>
-          ))}
-        </div>
-      </section>
+                <div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
+                    <Scan size={18} color="#2563eb" />
+                    <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 600 }}>{fac.name_ar || fac.name_en}</h3>
+                  </div>
+                  <p style={{ margin: "0.25rem 0", color: "#6b7280", fontSize: "0.875rem", display: "flex", alignItems: "center", gap: "0.25rem" }}>
+                    <MapPin size={14} />
+                    <span>{fac.city}</span>
+                  </p>
+                </div>
+                <Link
+                  href={`/${locale}/diagnostics/radiology`}
+                  style={{
+                    display: "inline-block",
+                    textAlign: "center",
+                    backgroundColor: "#2563eb",
+                    color: "#fff",
+                    padding: "0.5rem 1rem",
+                    borderRadius: "0.5rem",
+                    textDecoration: "none",
+                    fontWeight: 500,
+                    marginTop: "1rem",
+                    fontSize: "0.875rem",
+                  }}
+                >
+                  {locale === "ar" ? "حجز موعد فحص" : "Book Imaging"}
+                </Link>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
     </main>
   );
 }
