@@ -7,7 +7,7 @@ import {
   StatusBar,
   TouchableOpacity,
 } from "react-native";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApp } from "../../src/context/AppContext";
 import { Icon } from "../../src/components/Icon";
@@ -34,20 +34,42 @@ export default function PrescriptionFromDoctorScreen() {
     fetchPrescription();
   }, []);
 
+  const { appointmentId } = useLocalSearchParams<{ appointmentId?: string }>();
+
   const fetchPrescription = async () => {
     try {
-      // In production: apiFetch('/prescriptions/active')
-      setPrescription(null);
+      // Real backend prescriptions; prefer the one issued for this appointment.
+      const response: any = await apiFetch('/prescriptions/active');
+      const list = Array.isArray(response) ? response : response?.data || [];
+      const match = (Array.isArray(list) ? list : []).find((p: any) =>
+        appointmentId ? String(p.appointment_id || p.appointmentId || '') === String(appointmentId) : true,
+      ) || null;
+      setPrescription(match);
     } catch (e) {
       console.log('Error fetching prescription', e);
+      setPrescription(null);
     } finally {
       setLoading(false);
     }
   };
 
-  const addToReminder = (id: string) => {
-    setAddedToReminders((p) => [...p, id]);
-    // In production: auto-create medication reminder with freq/duration/instruction
+  const addToReminder = async (id: string) => {
+    const med = prescription?.medications?.find((m: any) => String(m.id) === String(id));
+    try {
+      await apiFetch('/health/reminders', {
+        method: 'POST',
+        body: JSON.stringify({
+          medication_name: med?.name || med?.name_ar || 'دواء',
+          dosage: med?.dosage || '',
+          frequency: med?.frequency || 'daily',
+          prescription_id: prescription?.id,
+        }),
+      });
+    } catch (e) {
+      console.log('Reminder create failed', e);
+    } finally {
+      setAddedToReminders((p) => (p.includes(id) ? p : [...p, id]));
+    }
   };
 
   const addAllToReminders = () => {
@@ -57,11 +79,13 @@ export default function PrescriptionFromDoctorScreen() {
   };
 
   const orderFromPharmacy = () => {
+    if (!prescription?.id) return;
     setOrdering(true);
-    setTimeout(() => {
+    try {
+      router.push({ pathname: "/pharmacy/rx-order", params: { prescriptionId: String(prescription.id) } });
+    } finally {
       setOrdering(false);
-      router.push("/pharmacy/rx-order");
-    }, 600);
+    }
   };
 
   return (
@@ -77,12 +101,7 @@ export default function PrescriptionFromDoctorScreen() {
           },
         ]}
       >
-        <IconButton
-          icon="download"
-          onPress={() => {
-            /* Requires backend API integration */
-          }}
-        />
+        <View style={{ width: 40 }} />
         <AppText variant="h4">وصفة طبية</AppText>
         <IconButton icon="back" onPress={() => router.back()} />
       </View>

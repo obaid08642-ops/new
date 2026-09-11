@@ -1,4 +1,4 @@
-import { Module, Controller, Get, Post, Put, Param, Query, Body, UseGuards, Injectable } from '@nestjs/common';
+import { Module, Controller, Get, Post, Put, Param, Query, Body, UseGuards, Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JwtAuthGuard, Roles } from '../../common/auth.guard';
@@ -300,44 +300,69 @@ export class CommissionsController {
 
   @Get()
   async list() {
-    const list = await this.profiles.find({}, { account_id: 1, name_ar: 1, type: 1, commission_rate: 1 }).lean();
+    const list = await this.profiles.find({}, { account_id: 1, name_ar: 1, type: 1, commission_rate: 1, commission_cash_pct: 1, commission_insurance_pct: 1 }).lean();
     const since = new Date(Date.now() - 30 * 86400000);
     const out = [];
     for (const p of list) {
-      const commission = p.commission_rate !== undefined ? p.commission_rate : (p.type === 'pharmacy' ? 5 : p.type === 'lab' ? 8 : p.type === 'radiology' ? 10 : p.type === 'home_care' ? 15 : 10);
-      let revenue = 0;
+      const fallback = p.commission_rate !== undefined ? p.commission_rate : (p.type === 'pharmacy' ? 5 : p.type === 'lab' ? 8 : p.type === 'radiology' ? 10 : p.type === 'home_care' ? 15 : 10);
+      const cashPct = p.commission_cash_pct !== undefined && p.commission_cash_pct !== null ? Number(p.commission_cash_pct) : fallback;
+      const insPct = p.commission_insurance_pct !== undefined && p.commission_insurance_pct !== null ? Number(p.commission_insurance_pct) : fallback;
+      const split = (rows: any[], amt: (r: any) => number) => {
+        let cash = 0, ins = 0;
+        for (const r of rows) {
+          const a = Number(amt(r)) || 0;
+          if (String(r.payment_method || '').toLowerCase() === 'insurance') ins += a; else cash += a;
+        }
+        return { cash, ins };
+      };
+      let revenue_cash = 0, revenue_insurance = 0;
       if (p.type === 'pharmacy') {
-        const ords = await this.orders.find({ pharmacy_id: p.account_id, state: 'completed', createdAt: { $gte: since } }, { total: 1 }).lean();
-        revenue = ords.reduce((sum, o) => sum + (o.total || 0), 0);
+        const ords = await this.orders.find({ pharmacy_id: p.account_id, state: 'completed', createdAt: { $gte: since } }, { total: 1, payment_method: 1 }).lean();
+        ({ cash: revenue_cash, ins: revenue_insurance } = split(ords, (o) => o.total));
       } else if (p.type === 'lab') {
-        const lbs = await this.labs.find({ account_id: p.account_id, state: 'completed', createdAt: { $gte: since } }, { total: 1 }).lean();
-        revenue = lbs.reduce((sum, b) => sum + (b.total || 0), 0);
+        const lbs = await this.labs.find({ account_id: p.account_id, state: 'completed', createdAt: { $gte: since } }, { total: 1, payment_method: 1 }).lean();
+        ({ cash: revenue_cash, ins: revenue_insurance } = split(lbs, (b) => b.total));
       } else if (p.type === 'radiology') {
-        const rds = await this.rads.find({ account_id: p.account_id, state: 'completed', createdAt: { $gte: since } }, { total: 1 }).lean();
-        revenue = rds.reduce((sum, b) => sum + (b.total || 0), 0);
+        const rds = await this.rads.find({ account_id: p.account_id, state: 'completed', createdAt: { $gte: since } }, { total: 1, payment_method: 1 }).lean();
+        ({ cash: revenue_cash, ins: revenue_insurance } = split(rds, (b) => b.total));
       } else if (p.type === 'home_care') {
-        const hc = await this.home.find({ account_id: p.account_id, state: 'completed', createdAt: { $gte: since } }, { total: 1 }).lean();
-        revenue = hc.reduce((sum, b) => sum + (b.total || 0), 0);
+        const hc = await this.home.find({ account_id: p.account_id, state: 'completed', createdAt: { $gte: since } }, { total: 1, payment_method: 1 }).lean();
+        ({ cash: revenue_cash, ins: revenue_insurance } = split(hc, (b) => b.total));
       } else if (['doctor', 'clinic', 'hospital'].includes(p.type)) {
-        const apts = await this.appts.find({ $or: [{ doctor_user_id: p.account_id }, { account_id: p.account_id }], status: 'completed', createdAt: { $gte: since } }, { price: 1 }).lean();
-        revenue = apts.reduce((sum, a) => sum + (a.price || 0), 0);
+        const apts = await this.appts.find({ $or: [{ doctor_user_id: p.account_id }, { account_id: p.account_id }], status: 'completed', createdAt: { $gte: since } }, { price: 1, payment_method: 1 }).lean();
+        ({ cash: revenue_cash, ins: revenue_insurance } = split(apts, (a) => a.price));
       }
-      const earnings = Math.round((revenue * commission) / 100);
+      const revenue = revenue_cash + revenue_insurance;
+      const earnings_cash = Math.round((revenue_cash * cashPct) / 100);
+      const earnings_insurance = Math.round((revenue_insurance * insPct) / 100);
+      const earnings = earnings_cash + earnings_insurance;
       out.push({
         id: p.account_id,
         name: p.name_ar || p.account_id,
         type: p.type,
-        commission,
+        commission: fallback,
+        commission_cash_pct: cashPct,
+        commission_insurance_pct: insPct,
         revenue,
+        revenue_cash,
+        revenue_insurance,
         earnings,
+        earnings_cash,
+        earnings_insurance,
+        provider_net: revenue - earnings,
       });
     }
     return out;
   }
 
   @Put(':id')
-  async update(@Param('id') id: string, @Body() body: { commission: number }) {
-    await this.profiles.updateOne({ account_id: id }, { $set: { commission_rate: Number(body.commission) } });
+  async update(@Param('id') id: string, @Body() body: { commission?: number; commission_cash?: number; commission_insurance?: number }) {
+    const set: any = {};
+    if (body?.commission !== undefined) set.commission_rate = Number(body.commission);
+    if (body?.commission_cash !== undefined) { set.commission_cash_pct = Math.min(100, Math.max(0, Number(body.commission_cash))); set.commission_rate = set.commission_cash_pct; }
+    if (body?.commission_insurance !== undefined) set.commission_insurance_pct = Math.min(100, Math.max(0, Number(body.commission_insurance)));
+    if (!Object.keys(set).length) throw new NotFoundException('nothing_to_update');
+    await this.profiles.updateOne({ account_id: id }, { $set: set });
     return { success: true };
   }
 }

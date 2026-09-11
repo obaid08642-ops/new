@@ -24,7 +24,20 @@ export async function GET() {
     items = [];
   }
 
-  const cities = ["riyadh", "jeddah", "dammam", "makkah", "madinah", "khobar"];
+  // Central GEO: live 150 cities, fallback 6
+  let cities = ["riyadh", "jeddah", "dammam", "makkah", "madinah", "khobar"];
+  try {
+    const geoRes = await fetch(`${backendUrl}/api/v1/locations/cities`, {
+      next: { revalidate: 21600 },
+      headers: { "User-Agent": "NabdPlus-Sitemap-Renderer/1.0" },
+    });
+    if (geoRes.ok) {
+      const geoData: any = await geoRes.json();
+      const geoList: any[] = Array.isArray(geoData) ? geoData : geoData?.data || [];
+      const live = geoList.map((c: any) => String(c.code || "").replace(/^sa-/, "").toLowerCase()).filter(Boolean).slice(0, 150);
+      if (live.length > 20) cities = live;
+    }
+  } catch { /* keep fallback */ }
 
   const urls = locales.flatMap((locale) =>
     items.flatMap((item) =>

@@ -71,6 +71,8 @@ export class ProviderProfile extends Document {
   @Prop() estimated_delivery_minutes?: number;
   @Prop({ default: [], type: [String] }) enabled_modules: string[];
   @Prop({ default: 10 }) commission_rate?: number;
+  @Prop() commission_cash_pct?: number;
+  @Prop() commission_insurance_pct?: number;
   @Prop({ default: 0 }) profile_completeness: number;
 }
 export const ProviderProfileSchema = SchemaFactory.createForClass(ProviderProfile);

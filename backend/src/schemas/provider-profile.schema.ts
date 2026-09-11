@@ -198,6 +198,9 @@ export class ProviderProfile {
   })
   working_hours: { day: string; open: string; close: string; open_evening?: string; close_evening?: string; closed?: boolean }[];
   @Prop({ default: 10 }) commission_rate?: number;
+  // Per-payment-method commission (set by admin at approval; falls back to commission_rate)
+  @Prop() commission_cash_pct?: number;
+  @Prop() commission_insurance_pct?: number;
   // ── Registration completeness (fields the wizard collects — declared so
   // Mongoose strict mode stops stripping them) ──
   @Prop() national_id?: string;            // National ID / Iqama number

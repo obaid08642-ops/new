@@ -30,9 +30,12 @@ type Props = {
 };
 
 export function CheckoutFlow({ locale }: Props) {
-  const { items, subtotal, clearCart } = useCart();
+  const { items, subtotal, clearCart, hasRxItems } = useCart();
   const isAr = locale === "ar";
   const Direction = isAr ? ArrowLeft : ArrowRight;
+  const [savedAddresses, setSavedAddresses] = useState<any[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState("");
+  const [addressesLoading, setAddressesLoading] = useState(false);
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -67,7 +70,24 @@ export function CheckoutFlow({ locale }: Props) {
   const vat = (effectiveSubtotal + deliveryFee) * 0.15;
   const grandTotal = effectiveSubtotal + deliveryFee + vat;
 
-  const handlePlaceOrder = (e: React.FormEvent) => {
+  const loadSavedAddresses = async (): Promise<any[]> => {
+    if (savedAddresses.length) return savedAddresses;
+    setAddressesLoading(true);
+    try {
+      const res = await fetch("/api/patient/users/me/addresses", { credentials: "same-origin" });
+      if (res.status === 401) throw new Error("authentication_required");
+      const data = await res.json().catch(() => null);
+      const list = Array.isArray(data) ? data : data?.data || data?.addresses || [];
+      setSavedAddresses(list);
+      const def = list.find((a: any) => a.is_default) || list[0];
+      if (def && !selectedAddressId) setSelectedAddressId(String(def.id || def._id || ""));
+      return list;
+    } finally {
+      setAddressesLoading(false);
+    }
+  };
+
+  const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
       setErrorMessage(isAr ? "يرجى كتابة الاسم الكامل" : "Please enter your full name");
@@ -93,26 +113,98 @@ export function CheckoutFlow({ locale }: Props) {
       }
     }
 
+    // Online card payment is not supported for web pharmacy checkout on the backend
+    // (server accepts cash-on-delivery / broadcast settlement only). Never fabricate a charge.
+    if (paymentMethod === "mada" || paymentMethod === "apple_pay" || paymentMethod === "visa") {
+      setErrorMessage(isAr
+        ? "الدفع الإلكتروني المباشر غير متاح لطلبات الصيدلية على الويب حالياً — اختر الدفع عند الاستلام أو التأمين، وستتم التسوية الحقيقية عبر الصيدلية بعد قبول طلبك."
+        : "Online card payment is not available for web pharmacy orders yet — choose cash on delivery or insurance; real settlement happens via the pharmacy after acceptance.");
+      return;
+    }
+
     setIsSubmitting(true);
     setErrorMessage("");
+    try {
+      // 1. Saved delivery address with real coordinates (backend requirement)
+      const addresses = await loadSavedAddresses();
+      const chosen = addresses.find((a: any) => String(a.id || a._id || "") === String(selectedAddressId)) || addresses.find((a: any) => a.is_default) || addresses[0];
+      if (!chosen || !Number.isFinite(Number(chosen.lat)) || !Number.isFinite(Number(chosen.lng))) {
+        throw new Error(isAr
+          ? "يلزم عنوان محفوظ بموقع حقيقي — أضف عنوانك من صفحة العناوين ثم أعد المحاولة."
+          : "A saved address with a real location is required — add one from the addresses page and retry.");
+      }
 
-    setTimeout(() => {
-      const orderRef = `NBD-${Math.floor(100000 + Math.random() * 900000)}`;
-      const confirmedData = {
-        orderId: orderRef,
+      // 2. Prescription gate: Rx items require a saved/active prescription (server enforces too)
+      let prescriptionRef: string | null = null;
+      if (hasRxItems) {
+        const rxRes = await fetch("/api/patient/prescriptions/active", { credentials: "same-origin" });
+        if (rxRes.status === 401) throw new Error("authentication_required");
+        const rxData = await rxRes.json().catch(() => null);
+        const rxList = Array.isArray(rxData) ? rxData : rxData?.data || [];
+        const valid = rxList.find((p: any) => p?.id || p?._id);
+        if (!valid) {
+          throw new Error(isAr
+            ? "سلتك تحتوي أدوية بوصفة — ارفع وصفتك أولاً من صفحة مسح الوصفة قبل إتمام الطلب."
+            : "Your cart contains prescription medicines — upload your prescription from the scan page first.");
+        }
+        prescriptionRef = String(valid.id || valid._id);
+      }
+
+      // 3. Real broadcast order (same flow as the mobile app): create + submit, idempotent
+      const draftItems = items.map((it: any) => ({
+        raw_name: String(it.name_ar || it.name || "").trim(),
+        name_ar: it.name_ar || it.name,
+        name_en: it.name,
+        qty: Math.max(1, Number(it.qty) || 1),
+        sku: it.sku || it.id,
+        intake_source: "cart",
+      })).filter((it: any) => it.raw_name);
+      if (!draftItems.length) throw new Error(isAr ? "السلة فارغة" : "Cart is empty");
+      const key = (globalThis.crypto?.randomUUID && globalThis.crypto.randomUUID()) || `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      const createRes = await fetch("/api/patient/patient/pharmacy/orders", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "content-type": "application/json", "idempotency-key": key },
+        body: JSON.stringify({
+          items: draftItems,
+          delivery_address: {
+            label: chosen.label || "المنزل",
+            street: street || chosen.street || "",
+            city: chosen.city || city,
+            district: district || chosen.district || "",
+            lat: Number(chosen.lat),
+            lng: Number(chosen.lng),
+            phone,
+          },
+          patient_notes: paymentMethod === "insurance"
+            ? `insurance:${selectedInsCompany.code || insuranceCompany}|policy:${policyNumber}|nid:${nationalId}|tier:${planTier}`
+            : `cash:${paymentMethod}|name:${name}`,
+          prescription_attachments: prescriptionRef ? [prescriptionRef] : [],
+        }),
+      });
+      if (createRes.status === 401) throw new Error("authentication_required");
+      const created = await createRes.json().catch(() => null);
+      if (!createRes.ok) throw new Error(created?.message || "order_create_failed");
+      const orderId = created?.data?.id || created?.id;
+      if (!orderId) throw new Error("governed_pharmacy_order_id_missing");
+
+      const submitRes = await fetch(`/api/patient/patient/pharmacy/orders/${encodeURIComponent(orderId)}/submit`, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "content-type": "application/json", "idempotency-key": `${key}-submit` },
+        body: JSON.stringify({}),
+      });
+      const submitted = await submitRes.json().catch(() => null);
+      if (!submitRes.ok) throw new Error(submitted?.message || "order_submit_failed");
+
+      setOrderConfirmed({
+        orderId,
         customerName: name,
         customerPhone: phone,
-        address: `${city} - ${district} ${street ? ` - ${street}` : ""}`,
+        address: `${chosen.city || city} - ${district} ${street ? ` - ${street}` : ""}`,
         paymentMethod,
-        insuranceDetails: paymentMethod === "insurance" ? {
-          companyName: isAr ? selectedInsCompany.nameAr : selectedInsCompany.nameEn,
-          policyNumber,
-          nationalId,
-          planTier: planTier === "vip" ? "VIP" : planTier === "class_a" ? "Class A (فئة أ)" : planTier === "class_b" ? "Class B (فئة ب)" : "Class C (فئة ج)",
-          contribution: insuranceContribution,
-          copay: patientCoPayMedication,
-          approved: true,
-        } : null,
+        insurancePending: paymentMethod === "insurance",
+        insuranceCompanyName: isAr ? selectedInsCompany.nameAr : selectedInsCompany.nameEn,
         items: [...items],
         total: grandTotal,
         originalTotal: originalGrandTotal,
@@ -122,11 +214,18 @@ export function CheckoutFlow({ locale }: Props) {
           month: "long",
           day: "numeric",
         }),
-      };
-      setOrderConfirmed(confirmedData);
+      });
       clearCart();
+    } catch (err: any) {
+      const msg = String(err?.message || "checkout_failed");
+      if (msg === "authentication_required") {
+        setErrorMessage(isAr ? "سجل الدخول أولاً لإتمام طلبك." : "Please sign in to place your order.");
+      } else {
+        setErrorMessage(isAr ? `تعذر إنشاء الطلب: ${msg}` : `Order failed: ${msg}`);
+      }
+    } finally {
       setIsSubmitting(false);
-    }, 1000);
+    }
   };
 
   if (orderConfirmed) {
@@ -166,24 +265,25 @@ export function CheckoutFlow({ locale }: Props) {
               {orderConfirmed.paymentMethod === "apple_pay" && "Apple Pay"}
               {orderConfirmed.paymentMethod === "visa" && (isAr ? "بطاقة ائتمانية" : "Credit Card")}
               {orderConfirmed.paymentMethod === "cod" && (isAr ? "الدفع عند الاستلام" : "Cash on Delivery")}
-              {orderConfirmed.paymentMethod === "insurance" && (isAr ? `تأمين طبي (${orderConfirmed.insuranceDetails.companyName})` : `Health Insurance (${orderConfirmed.insuranceDetails.companyName})`)}
+              {orderConfirmed.paymentMethod === "insurance" && (isAr ? `تأمين طبي (${orderConfirmed.insuranceCompanyName})` : `Health Insurance (${orderConfirmed.insuranceCompanyName})`)}
             </span>
           </div>
 
-          {orderConfirmed.insuranceDetails && (
+          {orderConfirmed.insurancePending && (
             <div style={{ background: "rgba(0, 135, 111, 0.05)", padding: "12px", borderRadius: "10px", margin: "8px 0", border: "1px solid rgba(0, 135, 111, 0.15)" }}>
               <div className={styles.orderRow} style={{ color: "#00876F", fontWeight: "bold" }}>
                 <span>{isAr ? "حالة التغطية التأمينية" : "Insurance Status"}</span>
-                <span>{isAr ? "موافقة فورية معتمدة ✓" : "Instant Approval Verified ✓"}</span>
+                <span>{isAr ? "بانتظار مراجعة الصيدلية لبيانات التأمين" : "Pending pharmacy insurance review"}</span>
               </div>
               <div className={styles.orderRow} style={{ fontSize: "0.85rem", marginTop: "4px" }}>
-                <span>{isAr ? "مساهمة شركة التأمين" : "Insurance Covered"}</span>
-                <span style={{ color: "#00876F", fontWeight: "bold" }}>-{orderConfirmed.insuranceDetails.contribution.toFixed(2)} {isAr ? "ر.س" : "SAR"}</span>
+                <span>{isAr ? "الشركة" : "Company"}</span>
+                <span style={{ color: "#00876F", fontWeight: "bold" }}>{orderConfirmed.insuranceCompanyName}</span>
               </div>
-              <div className={styles.orderRow} style={{ fontSize: "0.85rem" }}>
-                <span>{isAr ? "رقم الوثيقة / الفئة" : "Policy / Tier"}</span>
-                <span>{orderConfirmed.insuranceDetails.policyNumber} ({orderConfirmed.insuranceDetails.planTier})</span>
-              </div>
+              <p style={{ fontSize: "0.8rem", color: "#64748B" }}>
+                {isAr
+                  ? "الصيدلية تحصل على الموافقة عبر نظامها التأميني كما لو كنت حاضراً — ستصلك النتيجة (قبول/رفض/تحمل) هنا."
+                  : "The pharmacy obtains authorization through its own insurance system — you will be notified here of the result."}
+              </p>
             </div>
           )}
 
@@ -194,8 +294,8 @@ export function CheckoutFlow({ locale }: Props) {
         </div>
 
         <div className={styles.actionButtons}>
-          <Link href={`/${locale}`} className={styles.primaryBtn}>
-            <span>{isAr ? "العودة للرئيسية" : "Back to Home"}</span>
+          <Link href={`/${locale}/pharmacy/broadcast-status?orderId=${encodeURIComponent(orderConfirmed.orderId)}`} className={styles.primaryBtn}>
+            <span>{isAr ? "تتبع طلبك وعروض الصيدليات" : "Track your order & pharmacy offers"}</span>
           </Link>
           <Link href={`/${locale}/c`} className={styles.secondaryBtn}>
             <span>{isAr ? "متابعة التسوق" : "Continue Shopping"}</span>
@@ -304,6 +404,39 @@ export function CheckoutFlow({ locale }: Props) {
                 onChange={(e) => setStreet(e.target.value)}
               />
             </div>
+
+            <div className={`${styles.formField} ${styles.fullWidth}`}>
+              <label htmlFor="saved-address">
+                <span>{isAr ? "عنوان التوصيل المحفوظ (بموقع حقيقي) *" : "Saved delivery address (real location) *"}</span>
+              </label>
+              <select
+                id="saved-address"
+                value={selectedAddressId}
+                onChange={(e) => setSelectedAddressId(e.target.value)}
+                onFocus={() => { loadSavedAddresses().catch(() => {}); }}
+              >
+                <option value="">{addressesLoading ? (isAr ? "جارٍ التحميل…" : "Loading…") : (isAr ? "اختر عنواناً محفوظاً" : "Choose a saved address")}</option>
+                {savedAddresses.map((a: any) => (
+                  <option key={String(a.id || a._id)} value={String(a.id || a._id)}>
+                    {(a.label || "") + " — " + (a.city || "") + " " + (a.district || "")}
+                  </option>
+                ))}
+              </select>
+              <p style={{ fontSize: "0.8rem", color: "#64748B" }}>
+                <Link href={`/${locale}/profile/addresses`}>{isAr ? "إضافة/تعديل العناوين من هنا" : "Manage addresses here"}</Link>
+              </p>
+            </div>
+
+            {hasRxItems && (
+              <div className={`${styles.formField} ${styles.fullWidth}`} style={{ background: "#FEF3C7", padding: "10px", borderRadius: "10px" }}>
+                <span style={{ fontSize: "0.85rem", fontWeight: "bold" }}>
+                  {isAr
+                    ? "تنبيه: سلتك تحتوي أدوية بوصفة — يلزم وصفة محفوظة وفعّالة، وسيتحقق الخادم منها قبل إنشاء الطلب."
+                    : "Notice: your cart has prescription medicines — an active saved prescription is required and verified server-side."}{" "}
+                  <Link href={`/${locale}/pharmacy/scan-prescription`}>{isAr ? "رفع وصفة" : "Upload prescription"}</Link>
+                </span>
+              </div>
+            )}
           </div>
 
           <div className={styles.expressBadge}>

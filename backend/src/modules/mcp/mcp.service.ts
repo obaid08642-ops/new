@@ -187,22 +187,33 @@ export class McpService {
           },
         };
 
-      case 'tools/call':
+      case 'tools/call': {
         const toolName = params?.name;
         const toolArgs = params?.arguments || {};
-        const toolResult = await this.executeTool(toolName, toolArgs);
-        return {
-          jsonrpc: '2.0',
-          id,
-          result: {
-            content: [
-              {
-                type: 'text',
-                text: typeof toolResult === 'string' ? toolResult : JSON.stringify(toolResult, null, 2),
-              },
-            ],
-          },
-        };
+        // Request ID + idempotency echo (writes must be retried safely by AI callers)
+        const requestId = `mcp_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+        const idemKey = typeof toolArgs?.idempotency_key === 'string' ? toolArgs.idempotency_key : null;
+        try {
+          const toolResult = await this.executeTool(toolName, toolArgs);
+          const payload = (toolResult && typeof toolResult === 'object' && !Array.isArray(toolResult))
+            ? { request_id: requestId, ...(idemKey ? { idempotency_key: idemKey } : {}), ...toolResult }
+            : toolResult;
+          this.auditToolCall(toolName, requestId, true, null).catch(() => null);
+          return {
+            jsonrpc: '2.0',
+            id,
+            result: { content: [{ type: 'text', text: typeof payload === 'string' ? payload : JSON.stringify(payload, null, 2) }] },
+          };
+        } catch (e: any) {
+          const mapped = this.toPlatformError(e);
+          this.auditToolCall(toolName, requestId, false, mapped.error_code).catch(() => null);
+          return {
+            jsonrpc: '2.0',
+            id,
+            error: { code: -32000, message: mapped.message, data: { ...mapped, request_id: requestId } },
+          };
+        }
+      }
 
       case 'ping':
         return { jsonrpc: '2.0', id, result: {} };
@@ -217,6 +228,34 @@ export class McpService {
           },
         };
     }
+  }
+
+  /**
+   * Best-effort audit log for every MCP tool call (never blocks the response).
+   * Logs tool name + outcome only — never raw arguments (may contain PII).
+   */
+  private async auditToolCall(tool: string, requestId: string, ok: boolean, errorCode: string | null) {
+    try {
+      await this.connection.collection('mcp_audit_log').insertOne({
+        id: requestId, tool, ok, error_code: errorCode, at: new Date(),
+      });
+    } catch { /* audit must never break tool execution */ }
+  }
+
+  /**
+   * Map backend exceptions to the central platform error catalog
+   * (backend/src/common/errors.ts) so AI clients get structured codes.
+   */
+  private toPlatformError(e: any): { error_code: string; message: string } {
+    const status = e?.status || e?.statusCode;
+    const msg = String(e?.message || 'tool_failed');
+    if (/prescription/i.test(msg)) return { error_code: 'PRESCRIPTION_REQUIRED', message: msg };
+    if (/not found/i.test(msg)) return { error_code: 'NO_AVAILABILITY', message: msg };
+    if (status === 401) return { error_code: 'AUTHENTICATION_REQUIRED', message: msg };
+    if (status === 403) return { error_code: 'INSUFFICIENT_PERMISSION', message: msg };
+    if (status === 429) return { error_code: 'RATE_LIMITED', message: msg };
+    if (/duplicate|already exists/i.test(msg)) return { error_code: 'DUPLICATE_TRANSACTION', message: msg };
+    return { error_code: 'SERVICE_UNAVAILABLE', message: msg };
   }
 
   /**

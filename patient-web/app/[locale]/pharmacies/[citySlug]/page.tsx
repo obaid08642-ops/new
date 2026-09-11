@@ -33,9 +33,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, citySlug } = await params;
   if (!isLocale(locale)) return {};
   const data = await fetchPharmaciesData(citySlug);
+  const hasFacilities = Boolean(data && data.facilities.length > 0);
 
-  if (!data || data.facilities.length === 0) {
-    return { robots: { index: false, follow: false } };
+  if (!hasFacilities) {
+    const decCity = decodeURIComponent(citySlug);
+    const canonical = localizedUrl(locale as Locale, `/pharmacies/${encodeURIComponent(citySlug)}`);
+    return {
+      title: locale === "ar" ? `صيدليات ${decCity} — كن أول شريك | نبض` : `Pharmacies in ${decCity} — Be first partner | Nabd`,
+      description: locale === "ar" ? `لا توجد صيدلية شريكة في ${decCity} بعد — سجل صيدليتك وكن أول من يخدم المنطقة.` : `No partner pharmacy in ${decCity} yet. Register yours.`,
+      alternates: { canonical, languages: Object.fromEntries(locales.map((l) => [l, localizedUrl(l, `/pharmacies/${encodeURIComponent(citySlug)}`)])) },
+      robots: { index: true, follow: true },
+    };
   }
 
   const decCity = decodeURIComponent(citySlug);
@@ -77,9 +85,8 @@ export default async function PharmaciesCityPage({ params }: Props) {
   setRequestLocale(locale);
 
   const data = await fetchPharmaciesData(citySlug);
-  if (!data || data.facilities.length === 0) {
-    notFound();
-  }
+  const hasFacilities = Boolean(data && data.facilities.length > 0);
+  if (!data) notFound();
 
   const decCity = decodeURIComponent(citySlug);
   const facilities = data.facilities;
@@ -134,6 +141,13 @@ export default async function PharmaciesCityPage({ params }: Props) {
         </div>
       </div>
 
+      {!hasFacilities ? (
+        <section style={{ textAlign: "center", padding: "3rem 1rem", background: "#f8fafc", borderRadius: "12px", border: "1px dashed #cbd5e1" }}>
+          <p style={{ fontSize: "1.1rem", color: "#334155" }}>{locale === "ar" ? `لا توجد صيدلية شريكة في ${decCity} حالياً.` : `No partner pharmacy in ${decCity} yet.`}</p>
+          <p style={{ color: "#64748b", marginTop: "0.5rem" }}>{locale === "ar" ? "كن أول صيدلية — سجل الآن وستظهر خدمتك أوتوماتيك." : "Be the first — register and appear automatically."}</p>
+          <Link href={`/${locale}/consultations/doctors`} style={{ display: "inline-block", marginTop: "1rem", background: "#059669", color: "#fff", padding: "0.75rem 1.5rem", borderRadius: "8px", textDecoration: "none", fontWeight: 600 }}>{locale === "ar" ? "سجل كمزود" : "Register"}</Link>
+        </section>
+      ) : (
       <section>
         <h2 style={{ fontSize: "1.25rem", fontWeight: 600, marginBottom: "1rem", color: "#1f2937" }}>
           {locale === "ar" ? "الصيدليات والمراكز الطبية في المدينة" : "Pharmacies & Medical Centers"}
@@ -187,6 +201,7 @@ export default async function PharmaciesCityPage({ params }: Props) {
           ))}
         </div>
       </section>
+      )}
     </main>
   );
 }
