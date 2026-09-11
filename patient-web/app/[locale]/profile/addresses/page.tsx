@@ -74,7 +74,7 @@ export default async function AddressesPage({ params }: Props) {
 
       <div style={{ display: "grid", gap: "1.5rem" }}>
         <AddressList addresses={addresses} locale={locale} />
-        <AddAddressForm />
+        <AddAddressForm locale={locale} />
       </div>
     </main>
   );

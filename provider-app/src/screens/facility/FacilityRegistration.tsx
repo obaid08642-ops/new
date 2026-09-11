@@ -11,7 +11,7 @@ import {
 } from '../../components/ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Validate } from '../../security/Security';
-import { SP, R, FS, FW, INSURANCE, CITIES, SPECIALTIES, DEGREES, LAB_TESTS, RAD_SCANS, NURSING_SVCS , LANGS } from '../../constants';
+import { SP, R, FS, FW, INSURANCE, SPECIALTIES, DEGREES, LAB_TESTS, RAD_SCANS, NURSING_SVCS , LANGS } from '../../constants';
 import { I } from '../../components/icons';
 import { RegistrationSuccess } from '../shared/SharedScreens';
 import { ContractModal } from '../../components/ContractModal';
@@ -20,6 +20,7 @@ import { sendEmailOtp, verifyEmailOtp } from '../../api/otp';
 import { SuccessScreen } from '../../components/SuccessScreen';
 import { SignatureCanvasModal } from '../../components/SignatureCanvasModal';
 import { LocationPickerModal } from '../../components/LocationPickerModal';
+import { GeoPicker } from '../../components/GeoPicker';
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
 import { ProviderApi, sanitizeWizardData } from '../../api/provider';
@@ -56,7 +57,7 @@ interface FacilityRegData {
   managerName: string; managerPhone: string; managerEmail: string; password: string; confirmPass: string;
   languages: string[];
   crNumber: string; mohLicense: string; crDocUri: string; mohDocUri: string; facilityLogoUri: string; facilityImagesUris: string[];
-  city: string; fullAddress: string;
+  region: string; city: string; district: string; fullAddress: string;
   location: {lat: number; lng: number};
   // Sub-accounts
   subProviders: any[]; // { type: 'doctor'|'lab'|'pharmacy', nameAr: string, nameEn: string, license: string, hasInsuranceEmp: boolean, ... }
@@ -72,7 +73,7 @@ const INIT: FacilityRegData = {
   facilityNameAr: '', facilityNameEn: '', facilityType: '',
   managerName: '', managerPhone: '', managerEmail: '', password: '', confirmPass: '',
   languages: [], crNumber: '', mohLicense: '', crDocUri: '', mohDocUri: '', facilityLogoUri: '', facilityImagesUris: [],
-  city: '', fullAddress: '', location: {lat: 0, lng: 0}, subProviders: [], cashOnly: false, acceptedInsurance: [], hasInsuranceCoordinator: false, signatureData: '', signerName: '', signerRole: '', termsAgreed: false, loading: false
+  region: '', city: '', district: '', fullAddress: '', location: {lat: 0, lng: 0}, subProviders: [], cashOnly: false, acceptedInsurance: [], hasInsuranceCoordinator: false, signatureData: '', signerName: '', signerRole: '', termsAgreed: false, loading: false
 };
 
 export function FacilityRegistration({ onBack, onDone }: { onBack: () => void; onDone: () => void }) {
@@ -383,7 +384,9 @@ function Step3Location({ data, update, onNext, onBack, step, total, bare = false
 
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!data.city) e.city = AR ? 'اختر المدينة' : 'Choose city';
+    if (!data.region) e.city = AR ? 'اختر المنطقة' : 'Choose region';
+    else if (!data.city) e.city = AR ? 'اختر المدينة' : 'Choose city';
+    else if (!data.district) e.city = AR ? 'اختر الحي' : 'Choose district';
     if (!data.fullAddress.trim()) e.addr = AR ? 'العنوان مطلوب' : 'Address required';
     if (!data.location || !data.location.lat) e.loc = AR ? 'تحديد الموقع مطلوب' : 'Location required';
     setErrs(e); return Object.keys(e).length === 0;
@@ -447,12 +450,8 @@ function Step3Location({ data, update, onNext, onBack, step, total, bare = false
   const body = (
     <>
       
-      <Text style={{ fontSize: FS.sm, fontWeight: FW.semi, marginBottom: SP.xs, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{AR ? 'المدينة' : 'City'}</Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: SP.lg }}>
-        <View style={{ flexDirection: 'row', gap: SP.sm }}>
-          {CITIES.map(c => <TouchableOpacity key={c.id} onPress={() => update({ city: c.id })} style={{ paddingHorizontal: SP.lg, paddingVertical: SP.sm, borderRadius: R.full, borderWidth: 1.5, borderColor: data.city === c.id ? theme.primary : theme.border, backgroundColor: data.city === c.id ? theme.primary : theme.surface2 }}><Text style={{ color: data.city === c.id ? '#FFF' : theme.text, fontSize: FS.sm, fontWeight: FW.med }}>{AR ? c.ar : c.en}</Text></TouchableOpacity>)}
-        </View>
-      </ScrollView>
+      <Text style={{ fontSize: FS.sm, fontWeight: FW.semi, marginBottom: SP.xs, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{AR ? 'المنطقة / المدينة / الحي' : 'Region / City / District'}<Text style={{ color: theme.danger }}> *</Text></Text>
+      <GeoPicker value={{ region: (data as any).region, city: data.city, district: (data as any).district }} onChange={v=>update({ region: v.region, city: v.city, district: v.district } as any)} locale={lang} />
       {errs.city && <Text style={{ fontSize: FS.xs, color: theme.danger, marginBottom: SP.sm }}>{errs.city}</Text>}
 
       <NInput label={AR ? 'العنوان الكامل' : 'Full Address'} value={data.fullAddress} onChange={v => update({ fullAddress: v })} required error={errs.addr} multi lines={2} />

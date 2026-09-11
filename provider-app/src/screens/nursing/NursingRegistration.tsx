@@ -16,7 +16,7 @@ import {
 } from '../../components/ui';
 import { I, IBg } from '../../components/icons';
 import { Validate } from '../../security/Security';
-import { SP, R, FS, FW, NURSING_SVCS, CITIES, INSURANCE, C , LANGS } from '../../constants';
+import { SP, R, FS, FW, NURSING_SVCS, INSURANCE, C , LANGS } from '../../constants';
 import { RegistrationSuccess } from '../shared/SharedScreens';
 import { ContractModal } from '../../components/ContractModal';
 import { OtpModal } from '../../components/OtpModal';
@@ -24,6 +24,7 @@ import { sendEmailOtp, verifyEmailOtp } from '../../api/otp';
 import { SuccessScreen } from '../../components/SuccessScreen';
 import { SignatureCanvasModal } from '../../components/SignatureCanvasModal';
 import { LocationPickerModal } from '../../components/LocationPickerModal';
+import { GeoPicker } from '../../components/GeoPicker';
 
 const { width: W } = Dimensions.get('window');
 
@@ -624,15 +625,13 @@ function NS5({ data, update, onNext, onBack, step, total, bare = false, submitRe
   const body = (
     <>
 
-      <Text style={[st.label, { color: theme.text, textAlign: AR ? 'right' : 'left' }]}>{AR ? 'المدينة' : 'City'}<Text style={{ color: theme.danger }}> *</Text></Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: SP.lg }}>
-        <View style={{ flexDirection: 'row', gap: SP.sm }}>
-          {CITIES.map(c => <TouchableOpacity key={c.id} onPress={() => update({ city: c.id })} style={[st.chip, { backgroundColor: data.city === c.id ? theme.primary : theme.surface2, borderColor: data.city === c.id ? theme.primary : theme.border }]}><Text style={{ color: data.city === c.id ? '#FFF' : theme.text, fontSize: FS.sm, fontWeight: FW.med }}>{AR ? c.ar : c.en}</Text></TouchableOpacity>)}
-        </View>
-      </ScrollView>
-      {errs.city && <Text style={{ fontSize: FS.xs, color: theme.danger, marginBottom: SP.sm }}>{errs.city}</Text>}
-
-      <NInput label={AR ? 'الحي' : 'District'} placeholder={AR ? 'حي الورود' : 'Al-Wurud'} value={data.district} onChange={v => update({ district: v })} caps="words" />
+      <View style={{ marginBottom: SP.lg }}>
+        <Text style={[st.label, { color: theme.text, textAlign: AR ? 'right' : 'left' }]}>
+          {AR ? 'المنطقة / المدينة / الحي' : 'Region / City / District'}<Text style={{ color: theme.danger }}> *</Text>
+        </Text>
+        <GeoPicker value={{ region: (data as any).region, city: data.city, district: (data as any).district }} onChange={v=>update({ region: v.region, city: v.city, district: v.district } as any)} locale={lang} />
+        {errs.city && <Text style={{ fontSize: FS.xs, color: theme.danger, marginTop: SP.xs }}>{errs.city}</Text>}
+      </View>
       <NInput label={AR ? 'العنوان' : 'Address'} value={data.address} onChange={v => update({ address: v })} required error={errs.addr} multi lines={2} />
 
       <NCard style={{ marginBottom: SP.xl }}>
@@ -1055,7 +1054,7 @@ function NS8Signature({ data, update, onDone, onBack, step, total }: any) {
   const rows = [
     { ar: 'الاسم', en: 'Name', val: data.nameAr || '—' },
     { ar: 'النوع', en: 'Type', val: pm ? (AR ? pm.ar : pm.en) : '—' },
-    { ar: 'المدينة', en: 'City', val: CITIES.find(c => c.id === data.city)?.[AR ? 'ar' : 'en'] ?? '—' },
+    { ar: 'المدينة', en: 'City', val: [(data as any).region, data.city, data.district].filter(Boolean).join(' / ') || '—' },
     { ar: 'الخدمات', en: 'Services', val: `${data.enabledServices.length}` },
     { ar: 'نموذج التسعير', en: 'Pricing', val: prc ? (AR ? prc.ar : prc.en) : '—' },
     { ar: 'نطاق التغطية', en: 'Coverage', val: `${data.coverageRadius} km` },

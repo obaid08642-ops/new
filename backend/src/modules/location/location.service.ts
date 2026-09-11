@@ -26,21 +26,23 @@ export class LocationService implements OnModuleInit {
 
   async seedInitialLocations(): Promise<void> {
     try {
-      const count = await this.locationModel.countDocuments();
-      if (count === 0) {
-        this.logger.log(`Seeding initial ${SAUDI_LOCATIONS_SEED.length} verified Saudi locations...`);
-        for (const loc of SAUDI_LOCATIONS_SEED) {
-          await this.locationModel.updateOne(
-            { code: loc.code },
-            { $set: loc },
-            { upsert: true },
-          );
-        }
-        this.logger.log('Saudi locations seeded successfully.');
+      // Always upsert — ensures new cities/districts (150/2000) are added on every deploy
+      this.logger.log(`Upserting ${SAUDI_LOCATIONS_SEED.length} Saudi locations (central geo)...`);
+      for (const loc of SAUDI_LOCATIONS_SEED) {
+        await this.locationModel.updateOne(
+          { code: loc.code },
+          { $set: loc },
+          { upsert: true },
+        );
       }
+      this.logger.log('Saudi locations upserted successfully.');
     } catch (err: any) {
       this.logger.warn(`Failed to seed locations: ${err?.message}`);
     }
+  }
+
+  async getRegions(): Promise<Location[]> {
+    return this.locationModel.find({ type: 'region', is_active: true }).sort({ name_ar: 1 }).lean();
   }
 
   /**

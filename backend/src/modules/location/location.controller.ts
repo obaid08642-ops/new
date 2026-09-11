@@ -7,6 +7,12 @@ export class LocationController {
   constructor(private readonly locationService: LocationService) {}
 
   @Public()
+  @Get('regions')
+  async getRegions() {
+    return this.locationService.getRegions();
+  }
+
+  @Public()
   @Get('cities')
   async getCities() {
     return this.locationService.getCities();

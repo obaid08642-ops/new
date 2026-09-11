@@ -1,0 +1,10 @@
+[
+  { "code": "cbc", "name_ar": "تحليل دم شامل", "name_en": "Complete Blood Count", "image_url": "https://cdn.nabd.plus/labs/cbc.png", "category": "دم" },
+  { "code": "lipid", "name_ar": "تحليل دهون", "name_en": "Lipid Profile", "image_url": "https://cdn.nabd.plus/labs/lipid.png", "category": "دهون" },
+  { "code": "hba1c", "name_ar": "السكر التراكمي", "name_en": "HbA1c", "image_url": "https://cdn.nabd.plus/labs/hba1c.png", "category": "سكري" },
+  { "code": "vitd", "name_ar": "فيتامين د", "name_en": "Vitamin D", "image_url": "https://cdn.nabd.plus/labs/vitd.png", "category": "فيتامينات" },
+  { "code": "tsh", "name_ar": "الغدة الدرقية", "name_en": "TSH", "image_url": "https://cdn.nabd.plus/labs/tsh.png", "category": "غدد" },
+  { "code": "lft", "name_ar": "وظائف كبد", "name_en": "Liver Function", "image_url": "https://cdn.nabd.plus/labs/lft.png", "category": "كبد" },
+  { "code": "kft", "name_ar": "وظائف كلى", "name_en": "Kidney Function", "image_url": "https://cdn.nabd.plus/labs/kft.png", "category": "كلى" },
+  { "code": "covid", "name_ar": "كوفيد 19", "name_en": "COVID-19", "image_url": "https://cdn.nabd.plus/labs/covid.png", "category": "فيروسات" }
+]

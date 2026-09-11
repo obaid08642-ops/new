@@ -1,0 +1,12 @@
+[
+  { "code": "bupa", "name_ar": "بوبا العربية", "name_en": "Bupa Arabia", "image_url": "https://cdn.nabd.plus/insurance/bupa.png", "category": "تأمين صحي" },
+  { "code": "tawuniya", "name_ar": "التعاونية للتأمين", "name_en": "Tawuniya", "image_url": "https://cdn.nabd.plus/insurance/tawuniya.png", "category": "تأمين صحي" },
+  { "code": "medgulf", "name_ar": "ميدغلف", "name_en": "MedGulf", "image_url": "https://cdn.nabd.plus/insurance/medgulf.png", "category": "تأمين صحي" },
+  { "code": "saico", "name_ar": "سايكو للتأمين", "name_en": "SAICO", "image_url": "https://cdn.nabd.plus/insurance/saico.png", "category": "تأمين صحي" },
+  { "code": "takaful_rajhi", "name_ar": "تكافل الراجحي", "name_en": "Al Rajhi Takaful", "image_url": "https://cdn.nabd.plus/insurance/rajhi.png", "category": "تأمين صحي" },
+  { "code": "walaa", "name_ar": "ولاء للتأمين", "name_en": "Walaa", "image_url": "https://cdn.nabd.plus/insurance/walaa.png", "category": "تأمين صحي" },
+  { "code": "allianz", "name_ar": "أليانز السعودية", "name_en": "Allianz Saudi", "image_url": "https://cdn.nabd.plus/insurance/allianz.png", "category": "تأمين صحي" },
+  { "code": "axa", "name_ar": "أكسا الخليج", "name_en": "AXA Gulf", "image_url": "https://cdn.nabd.plus/insurance/axa.png", "category": "تأمين صحي" },
+  { "code": "malath", "name_ar": "ملاذ للتأمين", "name_en": "Malath", "image_url": "https://cdn.nabd.plus/insurance/malath.png", "category": "تأمين صحي" },
+  { "code": "cig", "name_ar": "الخليجية العامة للتأمين", "name_en": "CIG", "image_url": "https://cdn.nabd.plus/insurance/cig.png", "category": "تأمين صحي" }
+]
