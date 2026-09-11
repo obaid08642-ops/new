@@ -5,10 +5,11 @@ import { ProviderApi, sanitizeWizardData } from '../../api/provider';
 import { useTheme, useLang, useToast } from '../../context';
 import {
   NBtn, NCard, NInput, NPhoneInput,
-  NHeader, NScroll, NToggle, NDropdown
+  NHeader, NScroll, NToggle
 } from '../../components/ui';
 import { I } from '../../components/icons';
-import { SP, FS, CITIES , LANGS } from '../../constants';
+import { SP, FS, LANGS } from '../../constants';
+import { GeoPicker } from '../../components/GeoPicker';
 import { RegistrationSuccess } from '../shared/SharedScreens';
 import { LocationPickerModal } from '../../components/LocationPickerModal';
 import { OtpModal } from '../../components/OtpModal';
@@ -172,8 +173,9 @@ function AS2Service({ data, update, onNext, onBack, step, total }: any) {
       <NCard>
         <NInput label={AR ? 'اسم الخدمة (عربي)' : 'Service name (Arabic)'} value={data.nameAr} onChange={(v: string) => update({ nameAr: v })} error={errs.nameAr} />
         <NInput label={AR ? 'اسم الخدمة (إنجليزي)' : 'Service name (English)'} value={data.nameEn} onChange={(v: string) => update({ nameEn: v })} />
-        <NDropdown label={AR ? 'المدينة' : 'City'} value={data.city} onChange={(v: string) => update({ city: v })} options={CITIES.map((c: any) => ({ label: AR ? c.ar : c.en, val: c.id }))} />
-        <NInput label={AR ? 'الحي' : 'District'} value={data.district} onChange={(v: string) => update({ district: v })} />
+        <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text, marginTop: 8, marginBottom: 6, textAlign: AR ? 'right' : 'left' }}>{AR ? 'المنطقة / المدينة / الحي' : 'Region / City / District'} *</Text>
+        <GeoPicker value={{ region: (data as any).region, city: data.city, district: (data as any).district }} onChange={v=>update({ region: v.region, city: v.city, district: v.district } as any)} locale={lang} />
+        {errs.city ? <Text style={{ color: theme.danger, fontSize: 12 }}>{errs.city}</Text> : null}
         <NInput label={AR ? 'العنوان' : 'Address'} value={data.address} onChange={(v: string) => update({ address: v })} />
         <DocBtn label={AR ? 'ترخيص وزارة الصحة' : 'MOH license'} field="mohUri" />
         <DocBtn label={AR ? 'السجل التجاري' : 'Commercial registration'} field="crUri" />

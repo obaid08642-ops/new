@@ -1834,7 +1834,7 @@ function LStep8Signature({ data, update, onDone, onBack, step, total }: {
   const rows = [
     { label_ar: 'اسم المركز', label_en: 'Center Name', val: data.nameAr || '—' },
     { label_ar: 'النوع', label_en: 'Type', val: AR ? (ct?.label_ar ?? '—') : (ct?.label_en ?? '—') },
-    { label_ar: 'المدينة', label_en: 'City', val: CITIES.find(c => c.id === data.city)?.[AR ? 'ar' : 'en'] ?? '—' },
+    { label_ar: 'المنطقة / المدينة / الحي', label_en: 'Region / City / District', val: [(data as any).region, data.city, (data as any).district].filter(Boolean).join(' / ') || '—' },
     { label_ar: 'التحاليل', label_en: 'Lab Tests', val: `${data.enabledTests.length}` },
     { label_ar: 'الأشعة', label_en: 'Scans', val: `${data.enabledScans.length}` },
     { label_ar: 'الحزم', label_en: 'Bundles', val: `${data.bundles.length}` },
