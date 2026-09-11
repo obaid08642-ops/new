@@ -63,10 +63,23 @@ export default async function ArticlePage({ params }: Props) {
       ? article.excerptAr || article.excerptEn
       : article.excerptEn || article.excerptAr;
   const path = `/articles/${encodeURIComponent(slug)}`;
+  const publishedAt = article.publishedAt || null;
+  const authorName = article.authorName || null;
+  const authorTitle = article.authorTitle || null;
   return (
     <main className={`main ${styles.page}`}>
       <JsonLd
         data={[
+          {
+            "@context": "https://schema.org",
+            "@type": "Article",
+            headline: title,
+            ...(excerpt ? { description: excerpt } : {}),
+            url: `${path}`,
+            inLanguage: locale,
+            ...(publishedAt ? { datePublished: publishedAt } : {}),
+            ...(authorName ? { author: { "@type": "Person", name: authorName, ...(authorTitle ? { jobTitle: authorTitle } : {}) } } : {}),
+          },
           medicalWebPage({ title, description: excerpt ?? null, locale, path }),
           breadcrumbList([
             { name: t("title"), locale, path: "/articles" },
@@ -84,7 +97,19 @@ export default async function ArticlePage({ params }: Props) {
           {t("eyebrow")}
         </p>
         <h1>{title}</h1>
+        {(authorName || publishedAt) && (
+          <p style={{ fontSize: "0.85rem", color: "#64748B" }}>
+            {authorName && <span>{authorTitle ? `${authorName} — ${authorTitle}` : authorName}</span>}
+            {authorName && publishedAt && <span> · </span>}
+            {publishedAt && <time dateTime={publishedAt}>{new Date(publishedAt).toLocaleDateString(locale === "ar" ? "ar-SA" : "en-US")}</time>}
+          </p>
+        )}
         <p>{excerpt || t("excerptUnavailable")}</p>
+        <p style={{ fontSize: "0.8rem", color: "#64748B" }}>
+          {locale === "ar"
+            ? "محتوى تثقيفي عام — لا يغني عن استشارة الطبيب."
+            : "General educational content — not a substitute for medical advice."}
+        </p>
       </section>
       <section className={styles.notice}>
         <FileText size={20} aria-hidden="true" />
