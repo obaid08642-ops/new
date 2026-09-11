@@ -28,13 +28,14 @@ export function breadcrumbList(items: Array<{ name: string; locale: Locale; path
   };
 }
 
-export function physician(input: { name: string; path: string; locale: Locale; specialty?: string | null; image?: string | null }): Record<string, unknown> {
+export function physician(input: { name: string; path: string; locale: Locale; specialty?: string | null; image?: string | null; city?: string | null }): Record<string, unknown> {
   return {
     "@context": "https://schema.org", "@type": "Physician",
     name: input.name,
     url: `${siteOrigin()}/${input.locale}${input.path}`,
     ...(input.specialty ? { medicalSpecialty: input.specialty } : {}),
     ...(input.image ? { image: input.image } : {}),
+    ...(input.city ? { address: { "@type": "PostalAddress", addressLocality: input.city, addressCountry: "SA" } } : {}),
   };
 }
 

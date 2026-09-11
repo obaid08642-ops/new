@@ -8,7 +8,7 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ArrowLeft, ArrowRight, BadgeCheck, Building2, Clock3, Star, Stethoscope } from "lucide-react";
 
-type Props = { params: Promise<{ locale: string; slug: string }> };
+type Props = { params: Promise<{ locale: string; slug: string; city?: string }> };
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://api.nabd.plus";
 
@@ -25,24 +25,28 @@ async function fetchDoctor(slug: string) {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { locale, slug } = await params;
+  const { locale, slug, city } = await params;
   if (!isLocale(locale)) return {};
   const data = await fetchDoctor(slug);
   if (!data?.entity) return { robots: { index: false, follow: false } };
 
   const name = locale === "ar" ? (data.entity.name_ar || data.entity.name_en) : (data.entity.name_en || data.entity.name_ar);
-  const canonical = localizedUrl(locale as Locale, `/doctor/${encodeURIComponent(slug)}`);
+  const citySuffix = city ? `/${encodeURIComponent(city)}` : "";
+  const canonical = localizedUrl(locale as Locale, `/doctor/${encodeURIComponent(slug)}${citySuffix}`);
   const specialty = data.entity.specialty || "Doctor";
-  const desc = `${name} - ${specialty} in Nabd Plus Saudi Healthcare. Book appointment online or clinic consultation.`;
+  const cityName = city ? decodeURIComponent(city) : "";
+  const desc = cityName
+    ? `${name} - ${specialty} in ${cityName}. Book appointment online or clinic consultation via Nabd Plus.`
+    : `${name} - ${specialty} in Nabd Plus Saudi Healthcare. Book appointment online or clinic consultation.`;
 
   return {
-    title: `${name} | ${specialty}`,
+    title: city ? `${name} | ${specialty} | ${decodeURIComponent(city)}` : `${name} | ${specialty}`,
     description: desc,
     alternates: {
       canonical,
       languages: {
-        ...Object.fromEntries(locales.map((l) => [l, localizedUrl(l, `/doctor/${encodeURIComponent(slug)}`)])),
-        "x-default": localizedUrl("ar", `/doctor/${encodeURIComponent(slug)}`),
+        ...Object.fromEntries(locales.map((l) => [l, localizedUrl(l, `/doctor/${encodeURIComponent(slug)}${citySuffix}`)])),
+        "x-default": localizedUrl("ar", `/doctor/${encodeURIComponent(slug)}${citySuffix}`),
       },
     },
     openGraph: { title: name, description: desc, url: canonical, type: "profile" },
@@ -51,7 +55,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function DoctorCanonicalPage({ params }: Props) {
-  const { locale, slug } = await params;
+  const { locale, slug, city } = await params;
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
 
@@ -66,6 +70,8 @@ export default async function DoctorCanonicalPage({ params }: Props) {
 
   const doctorName = locale === "ar" ? (doctor.name_ar || doctor.name_en) : (doctor.name_en || doctor.name_ar);
   const facilityName = facility ? (locale === "ar" ? (facility.name_ar || facility.name_en) : (facility.name_en || facility.name_ar)) : null;
+  const cityName = city ? decodeURIComponent(city) : null;
+  const doctorPath = `/doctor/${slug}${city ? `/${encodeURIComponent(city)}` : ""}`;
 
   return (
     <main className="main" style={{ maxWidth: "860px", margin: "0 auto", padding: "2rem 1rem" }}>
@@ -73,14 +79,15 @@ export default async function DoctorCanonicalPage({ params }: Props) {
         data={[
           physician({
             name: doctorName,
-            path: `/doctor/${slug}`,
+            path: doctorPath,
             locale: locale as Locale,
             specialty: doctor.specialty || null,
+            city: cityName,
           }),
           breadcrumbList([
             { name: "Nabd Plus", locale: locale as Locale, path: "/" },
             { name: doctor.specialty || "Doctors", locale: locale as Locale, path: "/consultations/doctors" },
-            { name: doctorName, locale: locale as Locale, path: `/doctor/${slug}` },
+            { name: doctorName, locale: locale as Locale, path: doctorPath },
           ]),
         ]}
       />
