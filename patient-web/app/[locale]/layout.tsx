@@ -41,6 +41,14 @@ export async function generateMetadata({ params }: Omit<Props, "children">): Pro
       "ai-catalog": "/.well-known/ai-catalog.json",
       "a2a-agent-card": "/.well-known/agent-card.json",
       "mcp-server-card": "/.well-known/mcp/server-card.json",
+      // Smart App Banners render only when store IDs are configured via env.
+      // No placeholder IDs are invented: absent env = no banner (never a dead banner).
+      ...(process.env.NEXT_PUBLIC_IOS_APP_ID
+        ? { "apple-itunes-app": `app-id=${process.env.NEXT_PUBLIC_IOS_APP_ID}, app-argument=${process.env.NEXT_PUBLIC_SITE_ORIGIN || "https://nabd.plus"}` }
+        : {}),
+      ...(process.env.NEXT_PUBLIC_ANDROID_PACKAGE
+        ? { "google-play-app": `app-id=${process.env.NEXT_PUBLIC_ANDROID_PACKAGE}` }
+        : {}),
     },
   };
 }
