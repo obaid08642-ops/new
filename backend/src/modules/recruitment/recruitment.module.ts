@@ -312,8 +312,7 @@ export class RecruitmentController {
   // --- Job Posting endpoints ---
   @Post('jobs')
   createJob(@CurrentUser() u: any, @Body() b: any) {
-    // Facilities, clinics, doctors and admins can post medical jobs
-    if (![UserRole.HOSPITAL, UserRole.CLINIC, UserRole.DOCTOR, UserRole.ADMIN, UserRole.SUPER_ADMIN].includes(u.role as UserRole)) {
+    if (![UserRole.HOSPITAL, UserRole.HOSPITAL_ADMIN, UserRole.DOCTOR, UserRole.ADMIN, UserRole.SUPER_ADMIN].includes(u.role as UserRole)) {
       throw new ForbiddenException('Only healthcare facilities, clinics, doctors and admins can post jobs');
     }
     return this.svc.createJob(u.id, b);
