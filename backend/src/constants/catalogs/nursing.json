@@ -1,0 +1,6 @@
+[
+  { "code": "home_visit", "name_ar": "زيارة منزلية", "name_en": "Home Visit", "image_url": "https://cdn.nabd.plus/nursing/home.png", "category": "تمريض" },
+  { "code": "injection", "name_ar": "حقن", "name_en": "Injection", "image_url": "https://cdn.nabd.plus/nursing/injection.png", "category": "حقن" },
+  { "code": "wound", "name_ar": "غيار جروح", "name_en": "Wound Care", "image_url": "https://cdn.nabd.plus/nursing/wound.png", "category": "جروح" },
+  { "code": "elderly", "name_ar": "رعاية مسنين", "name_en": "Elderly Care", "image_url": "https://cdn.nabd.plus/nursing/elderly.png", "category": "مسنين" }
+]
