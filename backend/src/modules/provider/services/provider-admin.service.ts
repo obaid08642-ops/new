@@ -133,8 +133,16 @@ export class ProviderAdminService {
     await this.transition(a, ProviderAccountStatus.APPROVED, user, body?.note);
     a.approved_at = new Date(); a.approved_by = user.id;
     await a.save();
-    if (body?.commission !== undefined) {
-      await this.profiles.updateOne({ account_id: id }, { $set: { commission_rate: Number(body.commission) } });
+    // Per-provider commission set by admin at approval: cash % + insurance % (else type defaults)
+    const cashPct = body?.commission_cash !== undefined ? Number(body.commission_cash)
+      : body?.commission !== undefined ? Number(body.commission) : undefined;
+    const insPct = body?.commission_insurance !== undefined ? Number(body.commission_insurance)
+      : body?.commission !== undefined ? Number(body.commission) : undefined;
+    if (cashPct !== undefined || insPct !== undefined) {
+      const set: any = {};
+      if (cashPct !== undefined && Number.isFinite(cashPct)) { set.commission_cash_pct = Math.min(100, Math.max(0, cashPct)); set.commission_rate = set.commission_cash_pct; }
+      if (insPct !== undefined && Number.isFinite(insPct)) set.commission_insurance_pct = Math.min(100, Math.max(0, insPct));
+      await this.profiles.updateOne({ account_id: id }, { $set: set });
     }
     await this.docs.updateMany({ account_id: id, review_status: { $in: [DocumentReviewStatus.PENDING, DocumentReviewStatus.UNDER_REVIEW] } }, { $set: { review_status: DocumentReviewStatus.APPROVED, reviewer_id: user.id, reviewed_at: new Date() } });
     await this.banks.updateMany({ account_id: id, review_status: { $in: [BankReviewStatus.PENDING, BankReviewStatus.UNDER_REVIEW] } }, { $set: { review_status: BankReviewStatus.APPROVED, reviewer_id: user.id } });
@@ -153,7 +161,7 @@ export class ProviderAdminService {
         },
       },
     );
-    await this.audit.create({ provider_account_id: id, actor_id: user.id, actor_role: 'admin', action: 'admin.provider_approved', after: { note: body?.note, commission: body?.commission } });
+    await this.audit.create({ provider_account_id: id, actor_id: user.id, actor_role: 'admin', action: 'admin.provider_approved', after: { note: body?.note, commission: body?.commission, commission_cash: body?.commission_cash, commission_insurance: body?.commission_insurance } });
 
     // Trigger Automatic SEO / Content / Discovery Pipeline
     const prof: any = await this.accounts.model.db.collection('provider_profiles').findOne({ account_id: id });

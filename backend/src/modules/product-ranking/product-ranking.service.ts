@@ -24,19 +24,20 @@ export interface CandidateRelevance {
 export class ProductRankingService {
   private readonly logger = new Logger('ProductRankingService');
 
-  // Multi-dimensional signal weights
-  private readonly WEIGHT_PURCHASE = 5.0;
-  private readonly WEIGHT_CART_ADD = 3.0;
-  private readonly WEIGHT_WISHLIST = 2.0;
-  private readonly WEIGHT_SEARCH = 1.5;
-  private readonly WEIGHT_VIEW = 1.0;
-  private readonly CONVERSION_SCALE = 10.0;
+  // Multi-dimensional signal weights — overridable via env (RANK_W_*), defaults = legacy values.
+  // Admin merchandising stays separate: manual boosts live in a different layer, never here.
+  private readonly WEIGHT_PURCHASE = Number(process.env.RANK_W_PURCHASE || 5.0);
+  private readonly WEIGHT_CART_ADD = Number(process.env.RANK_W_CART_ADD || 3.0);
+  private readonly WEIGHT_WISHLIST = Number(process.env.RANK_W_WISHLIST || 2.0);
+  private readonly WEIGHT_SEARCH = Number(process.env.RANK_W_SEARCH || 1.5);
+  private readonly WEIGHT_VIEW = Number(process.env.RANK_W_VIEW || 1.0);
+  private readonly CONVERSION_SCALE = Number(process.env.RANK_CONVERSION_SCALE || 10.0);
 
-  // Recency half-life parameters in days
-  private readonly POPULARITY_HALF_LIFE_DAYS = 30;
-  private readonly TRENDING_HALF_LIFE_DAYS = 7;
-  private readonly COLD_START_BOOST_DAYS = 7;
-  private readonly COLD_START_INITIAL_SCORE = 15.0;
+  // Recency half-life parameters in days (env-overridable, same defaults)
+  private readonly POPULARITY_HALF_LIFE_DAYS = Number(process.env.RANK_POPULARITY_HALF_LIFE_DAYS || 30);
+  private readonly TRENDING_HALF_LIFE_DAYS = Number(process.env.RANK_TRENDING_HALF_LIFE_DAYS || 7);
+  private readonly COLD_START_BOOST_DAYS = Number(process.env.RANK_COLD_START_BOOST_DAYS || 7);
+  private readonly COLD_START_INITIAL_SCORE = Number(process.env.RANK_COLD_START_INITIAL_SCORE || 15.0);
 
   constructor(
     @InjectModel(ProductRankingMetrics.name)

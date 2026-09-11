@@ -120,7 +120,7 @@ const RENDERED_ONBOARDING_KEYS = new Set([
   'rx_dispensing', 'otc_selling', 'has_own_delivery', 'has_own_drivers', 'delivery_mode',
   'max_delivery_radius_km', 'express_delivery',
   'doctors_roster', 'lab_roster', 'radiology_roster', 'nursing_roster',
-  'license_status', 'license_verified', 'commission_rate', 'onboarding_step', 'onboarding_completed',
+  'license_status', 'license_verified', 'commission_rate', 'commission_cash_pct', 'commission_insurance_pct', 'onboarding_step', 'onboarding_completed',
   'createdAt', 'updatedAt',
   'display_name_ar', 'display_name_en', 'gender', 'national_id', 'profile_photo', 'logo', 'legal_name',
   'schedule_clinic', 'schedule_video', 'schedule_home', 'home_visit_radius_km',
@@ -224,7 +224,8 @@ export default function ProviderFullDetail({ detail, accountId }: { detail: any;
             <Field label="سنة التأسيس" value={prof.established_year} />
             <Field label="سنوات الخبرة" value={prof.years_of_experience} />
             <Field label="الموقع الإلكتروني" value={prof.website} mono />
-            <Field label="نسبة العمولة %" value={prof.commission_rate} />
+            <Field label="عمولة الكاش %" value={prof.commission_cash_pct ?? prof.commission_rate} />
+            <Field label="عمولة التأمين %" value={prof.commission_insurance_pct ?? prof.commission_rate} />
             <Field label="اكتمال الملف %" value={prof.profile_completeness} />
             <Field label="الوحدات المفعّلة" value={prof.enabled_modules} span />
             {prof.description_ar && <Field label="الوصف (عربي)" value={prof.description_ar} span />}
@@ -321,7 +322,8 @@ export default function ProviderFullDetail({ detail, accountId }: { detail: any;
               {ob.vacation_date && <Field label="إجازة حتى" value={ob.vacation_date} />}
               <Field label="نطاق التغطية (كم)" value={ob.coverage_radius_km} />
               <Field label="يقبل الدفع النقدي" value={ob.accepts_cash} bool />
-              <Field label="نسبة العمولة %" value={ob.commission_rate} />
+              <Field label="عمولة الكاش %" value={ob.commission_cash_pct ?? ob.commission_rate} />
+              <Field label="عمولة التأمين %" value={ob.commission_insurance_pct ?? ob.commission_rate} />
             </div>
           </Section>
 

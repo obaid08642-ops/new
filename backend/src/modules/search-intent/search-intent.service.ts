@@ -37,26 +37,35 @@ const SPECIALTIES: Array<{ code: string; patterns: string[] }> = [
 
 const SERVICES: Array<{ code: string; entity: EntityType; mode: ServiceMode; patterns: string[] }> = [
   // Nursing
-  { code: 'home_nursing', entity: 'nursing', mode: 'home', patterns: ['تمريض منزلي', 'ممرض منزلي', 'ممرضة منزلية', 'home nurse', 'home nursing', 'نرس منزلي', 'گھر پر نرسنگ'] },
-  { code: 'wound_dressing', entity: 'nursing', mode: 'home', patterns: ['غيار جرح', 'تغيير جرح', 'تضميد جرح', 'wound dressing', 'قرح فراش', 'زخم بندی', 'घाव की पट्टी'] },
-  
+  { code: 'home_nursing', entity: 'nursing', mode: 'home', patterns: ['تمريض منزلي', 'ممرض منزلي', 'ممرضة منزلية', 'home nurse', 'home nursing', 'نرس منزلي', 'گھر پر نرسنگ', 'होम नर्सिंग', 'হোম নার্সিং', 'home care nurse'] },
+  { code: 'wound_dressing', entity: 'nursing', mode: 'home', patterns: ['غيار جرح', 'تغيير جرح', 'تضميد جرح', 'wound dressing', 'قرح فراش', 'زخم بندی', 'घाव की पट्टी', 'ক্ষত ড্রেসিং'] },
+
   // Labs
-  { code: 'blood_test', entity: 'lab', mode: 'home', patterns: ['سحب دم', 'عينة دم', 'تحليل دم', 'blood test', 'blood sample', 'بلڈ ٹیسٹ', 'रक्त परीक्षण'] },
-  { code: 'cbc', entity: 'lab', mode: 'home', patterns: ['تحليل cbc', 'فحص cbc', 'cbc', 'complete blood count'] },
-  
+  { code: 'blood_test', entity: 'lab', mode: 'home', patterns: ['سحب دم', 'عينة دم', 'تحليل دم', 'blood test', 'blood sample', 'بلڈ ٹیسٹ', 'रक्त परीक्षण', 'রক্ত পরীক্ষা', 'blood extraction'] },
+  { code: 'cbc', entity: 'lab', mode: 'home', patterns: ['تحليل cbc', 'فحص cbc', 'cbc', 'complete blood count', 'سی بی سی', 'सीबीसी'] },
+
   // Radiology
-  { code: 'x_ray', entity: 'radiology', mode: 'clinic', patterns: ['اشعة x', 'اشعة سينية', 'x-ray', 'xray', 'ایکسرے'] },
-  { code: 'ultrasound', entity: 'radiology', mode: 'clinic', patterns: ['سونار', 'اشعة صوتية', 'ultrasound', 'الٹراساؤنڈ', 'अल्ट्रासाउंड'] },
-  { code: 'home_radiology', entity: 'radiology', mode: 'home', patterns: ['اشعة منزلية', 'تصوير منزلي', 'home radiology', 'home x-ray'] },
+  { code: 'x_ray', entity: 'radiology', mode: 'clinic', patterns: ['اشعة x', 'اشعة سينية', 'x-ray', 'xray', 'ایکسرے', 'एक्स-रे', 'এক্স-রে'] },
+  { code: 'ultrasound', entity: 'radiology', mode: 'clinic', patterns: ['سونار', 'اشعة صوتية', 'ultrasound', 'الٹراساؤنڈ', 'अल्ट्रासाउंड', 'আলট্রাসাউন্ড'] },
+  { code: 'home_radiology', entity: 'radiology', mode: 'home', patterns: ['اشعة منزلية', 'تصوير منزلي', 'home radiology', 'home x-ray', 'گھر پر ایکسرے'] },
 ];
 
 const INSURANCES: Array<{ code: string; patterns: string[] }> = [
-  { code: 'bupa', patterns: ['بوبا', 'بوبة', 'bupa'] },
-  { code: 'tawuniya', patterns: ['التعاونية', 'التعاونيه', 'tawuniya'] },
-  { code: 'medgulf', patterns: ['ميدغلف', 'ميد غلف', 'medgulf'] },
-  { code: 'rajhi_takaful', patterns: ['تكافل الراجحي', 'الراجحي', 'rajhi takaful'] },
-  { code: 'walaa', patterns: ['ولاء', 'walaa'] },
-  { code: 'malath', patterns: ['ملاذ', 'malath'] },
+  { code: 'bupa', patterns: ['بوبا', 'بوبة', 'bupa', 'بوپا', 'बूपा', 'বুপা', 'bupa arabia'] },
+  { code: 'tawuniya', patterns: ['التعاونية', 'التعاونيه', 'tawuniya', 'تعاونیہ', 'तावुनिया', 'তাউনিয়া'] },
+  { code: 'medgulf', patterns: ['ميدغلف', 'ميد غلف', 'medgulf', 'میڈگلف', 'मेडगल्फ', 'মেডগালফ'] },
+  { code: 'rajhi_takaful', patterns: ['تكافل الراجحي', 'الراجحي', 'rajhi takaful', 'الراجحی', 'रajhi', 'রাজি'] },
+  { code: 'walaa', patterns: ['ولاء', 'walaa', 'ولاء للتأمين', 'वाला', 'ওয়ালা'] },
+  { code: 'malath', patterns: ['ملاذ', 'malath', 'ملاذ للتأمين', 'मलाथ', 'মালাথ'] },
+  { code: 'saico', patterns: ['سايكو', 'saico', 'سایکو', 'साइको', 'সাইকো'] },
+  { code: 'allianz', patterns: ['أليانز', 'allianz', 'الیانز', 'एलियांज', 'অ্যালিয়ানজ'] },
+  { code: 'axa', patterns: ['أكسا', 'axa', 'gig', 'جيج', 'एक्सा', 'অ্যাক্সা'] },
+  { code: 'arabian_shield', patterns: ['الدرع العربي', 'الدرع', 'arabian shield', 'عربین شیلڈ', 'अरेबियन शील्ड'] },
+  { code: 'salama', patterns: ['سلامة', 'salama', 'سلامہ', 'सलामा'] },
+  { code: 'gulf_union', patterns: ['اتحاد الخليج', 'الخليج للتأمين', 'gulf union', 'گلف یونین'] },
+  { code: 'nextcare', patterns: ['نيكست كير', 'nextcare', 'نیکسٹ کیئر', 'नेक्स्टकेयर'] },
+  { code: 'globemed', patterns: ['جلوب ميد', 'globemed', 'گلوب میڈ', 'ग्लोबमेड'] },
+  { code: 'mednet', patterns: ['ميدنت', 'mednet', 'میڈ نیٹ', 'मेडनेट'] },
 ];
 
 @Injectable()

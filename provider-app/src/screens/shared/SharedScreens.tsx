@@ -2696,6 +2696,8 @@ export function ProviderWalletScreen({ onBack, onNavigate }: { onBack: () => voi
   const [pendingEscrow, setPendingEscrow] = useState(0);
   const [transactions, setTransactions] = useState<any[]>([]);
   const [commission, setCommission] = useState<number | null>(null);
+  const [commissionCash, setCommissionCash] = useState<number | null>(null);
+  const [commissionIns, setCommissionIns] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -2705,10 +2707,14 @@ export function ProviderWalletScreen({ onBack, onNavigate }: { onBack: () => voi
           client.get('/provider/wallet'),
           client.get('/provider/wallet/transactions').catch(() => ({ data: [] })),
         ]);
-        // Real per-provider commission rate set by the admin
+        // Real per-provider commission rates set by the admin (cash % + insurance %)
         client.get('/provider/me').then((meRes: any) => {
-          const rate = meRes.data?.profile?.commission_rate;
-          if (rate !== undefined && rate !== null) setCommission(Number(rate));
+          const prof = meRes.data?.profile || {};
+          const fallback = prof.commission_rate;
+          const cash = prof.commission_cash_pct !== undefined && prof.commission_cash_pct !== null ? Number(prof.commission_cash_pct) : fallback;
+          const ins = prof.commission_insurance_pct !== undefined && prof.commission_insurance_pct !== null ? Number(prof.commission_insurance_pct) : fallback;
+          if (cash !== undefined && cash !== null) { setCommissionCash(Number(cash)); setCommission(Number(cash)); }
+          if (ins !== undefined && ins !== null) setCommissionIns(Number(ins));
         }).catch(() => {});
         setBalance(wRes.data?.available || 0);
         setPendingEscrow(wRes.data?.escrow || 0);
@@ -2752,8 +2758,13 @@ export function ProviderWalletScreen({ onBack, onNavigate }: { onBack: () => voi
           <View style={{ flex: 1, alignItems: AR ? 'flex-end' : 'flex-start' }}>
             <Text style={{ fontSize: FS.sm, color: theme.textSub }}>{AR ? 'نسبة عمولة المنصة المحددة لك' : 'Your platform commission rate'}</Text>
             <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: theme.text }}>
-              {commission !== null ? `${commission}%` : (AR ? 'يحددها الأدمن عند الاعتماد' : 'Set by admin at approval')}
+              {commissionCash !== null ? (AR ? `كاش ${commissionCash}% • تأمين ${commissionIns !== null ? commissionIns : commissionCash}%` : `Cash ${commissionCash}% • Insurance ${commissionIns !== null ? commissionIns : commissionCash}%`) : (AR ? 'يحددها الأدمن عند الاعتماد' : 'Set by admin at approval')}
             </Text>
+            {(totalRevenue > 0 && commissionCash !== null) && (
+              <Text style={{ fontSize: FS.xs, color: theme.textSub }}>
+                {AR ? `صافيك التقريبي: ${Math.round(totalRevenue * (1 - commissionCash / 100))} ر.س` : `Your approx. net: ${Math.round(totalRevenue * (1 - commissionCash / 100))} SAR`}
+              </Text>
+            )}
           </View>
         </NCard>
 
