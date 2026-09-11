@@ -133,6 +133,7 @@ import { SystemHealthModule } from './modules/system-health/system-health.module
 import { HomeCareCompatModule } from './modules/home-care-compat/home-care-compat.module';
 import { CompatModule } from './modules/compat/compat.module';
 import { AdminSpaModule } from './modules/compat/admin-spa.module';
+import { CatalogsModule } from './modules/catalogs/catalogs.module';
 import { InsuranceEngineModule } from './modules/insurance-engine/insurance-engine.module';
 import { BillingModule } from './modules/billing/billing.module';
 import { ArticlesModule } from './modules/articles/articles.module';
@@ -272,6 +273,7 @@ import { ProductRankingModule } from './modules/product-ranking/product-ranking.
     AdminWebCoreModule,
     CompatModule, // gap-fill endpoints from the screen↔API wiring audit — registered last
     AdminSpaModule, // admin console SPA REST surface (top-level paths, admin-role guarded)
+    CatalogsModule, // unified central catalogs (insurance/labs/radiology/nursing) — single source
   ],
   controllers: [HealthController, HealthDashboardController, ProviderPayoutsController],
   providers: [

@@ -10,11 +10,12 @@ import {
   NCheckbox, NHeader, NScroll, NDropdown, NDatePickerSheet, NDivider, WizardSection
 } from '../../components/ui';
 import { Validate } from '../../security/Security';
-import { SP, R, FS, FW, SPECIALTIES, DEGREES, INSURANCE, CITIES } from '../../constants';
+import { SP, R, FS, FW, SPECIALTIES, DEGREES, INSURANCE } from '../../constants';
 import { I, I as NIcon } from '../../components/icons';
 import { RegistrationSuccess } from '../shared/SharedScreens';
 import { ContractModal } from '../../components/ContractModal';
 import { LocationPickerModal } from '../../components/LocationPickerModal';
+import { GeoPicker } from '../../components/GeoPicker';
 import { OtpModal } from '../../components/OtpModal';
 import { sendEmailOtp, verifyEmailOtp } from '../../api/otp';
 import { SuccessScreen } from '../../components/SuccessScreen';
@@ -57,7 +58,7 @@ interface DoctorRegData {
   // Step 6 - Insurance & Location
   cashOnly: boolean;
   acceptedInsurance: { companyId: string; plans: string[] }[];
-  city: string; location: {lat: number; lng: number}; address: string; clinicName: string;
+  region: string; city: string; district: string; location: {lat: number; lng: number}; address: string; clinicName: string;
   // Step 8 - Signature
   signatureData: string; signerName: string; signerRole: string;
 }
@@ -76,7 +77,7 @@ const INITIAL: DoctorRegData = {
   videoDays:[], videoStart:'', videoEnd:'', videoShift:'both',
   homeDays:[], homeStart:'', homeEnd:'', homeShift:'both',
   vacationDate:'',
-  cashOnly:false, acceptedInsurance:[], city:'', location: {lat: 0, lng: 0}, address:'', clinicName:'', signatureData:'', signerName:'', signerRole:''
+  cashOnly:false, acceptedInsurance:[], region:'', city:'', district:'', location: {lat: 0, lng: 0}, address:'', clinicName:'', signatureData:'', signerName:'', signerRole:''
 };
 
 const WORK_DAYS = [
@@ -942,14 +943,9 @@ function Step6Insurance({ data, update, onNext, onBack, step, total, bare = fals
 
       <NDivider label={AR ? 'العنوان والعيادة' : 'Clinic Location'} />
       <View style={{ height: SP.sm }} />
-      <NDropdown
-        label={AR ? 'المدينة' : 'City'}
-        value={data.city}
-        options={CITIES.map(c => ({ val: c.id, label: AR ? c.ar : c.en }))}
-        onChange={v => update({ city: v })}
-      />
+      <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, marginBottom: SP.xs, textAlign: AR ? 'right' : 'left' }}>{AR ? 'المنطقة / المدينة / الحي' : 'Region / City / District'}</Text>
+      <GeoPicker value={{ region: (data as any).region, city: data.city, district: (data as any).district }} onChange={v => update(v as any)} locale={lang} />
       <View style={{ height: SP.sm }} />
-      <NInput label={AR ? 'الحي' : 'District'} value={data.district} onChange={v=>update({district:v})} required />
       <NInput label={AR ? 'الشارع / العنوان التفصيلي' : 'Street / Detailed Address'} value={data.address} onChange={v=>update({address:v})} required />
       <NInput label={AR ? 'اسم العيادة (اختياري)' : 'Clinic Name (Optional)'} value={data.clinicName} onChange={v=>update({clinicName:v})} />
       
@@ -1101,8 +1097,9 @@ function Step7Signature({ data, update, onDone, onBack, step, total }: any) {
         name_en: data.legalName,
         display_name_ar: data.nameAr,
         display_name_en: data.nameEn,
+        region: (data as any).region,
         city: data.city,
-        district: data.district,
+        district: (data as any).district,
         location: data.location,
         address: data.address,
         accepts_cash: data.cashOnly,

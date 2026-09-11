@@ -17,7 +17,8 @@ import {
 import { I as Icon, IBg as IconBg, ProviderIcon } from '../../components/icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Validate } from '../../security/Security';
-import { SP, R, FS, FW, CITIES, INSURANCE, C, LAB_TESTS, RAD_SCANS, LIMITS , LANGS } from '../../constants';
+import { SP, R, FS, FW, INSURANCE, C, LAB_TESTS, RAD_SCANS, LIMITS , LANGS } from '../../constants';
+import { GeoPicker } from '../../components/GeoPicker';
 import { RegistrationSuccess } from '../shared/SharedScreens';
 import { LocationPickerModal } from '../../components/LocationPickerModal';
 import { ContractModal } from '../../components/ContractModal';
@@ -641,7 +642,9 @@ function LStep3({ data, update, onNext, onBack, step, total, bare = false, submi
 
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!data.city) e.city = AR ? 'اختر المدينة' : 'Choose city';
+    if (!(data as any).region) e.city = AR ? 'اختر المنطقة' : 'Choose region';
+    else if (!data.city) e.city = AR ? 'اختر المدينة' : 'Choose city';
+    else if (!(data as any).district) e.city = AR ? 'اختر الحي' : 'Choose district';
     if (!data.address.trim()) e.address = AR ? 'العنوان مطلوب' : 'Address required';
     setErrs(e);
     return Object.keys(e).length === 0;
@@ -660,36 +663,13 @@ function LStep3({ data, update, onNext, onBack, step, total, bare = false, submi
   const body = (
     <>
 
-      {/* City */}
-      <View style={{ marginBottom: SP.lg }}>
-        <Text style={[st.label, { color: theme.text, textAlign: AR ? 'right' : 'left' }]}>
-          {AR ? 'المدينة' : 'City'}<Text style={{ color: theme.danger }}> *</Text>
-        </Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <View style={{ flexDirection: 'row', gap: SP.sm }}>
-            {CITIES.map(c => (
-              <TouchableOpacity key={c.id} onPress={() => update({ city: c.id })}
-                style={[st.chip, {
-                  backgroundColor: data.city === c.id ? theme.primary : theme.surface2,
-                  borderColor: data.city === c.id ? theme.primary : theme.border,
-                }]}>
-                <Text style={{
-                  color: data.city === c.id ? '#FFF' : theme.text,
-                  fontSize: FS.sm, fontWeight: FW.med,
-                }}>
-                  {AR ? c.ar : c.en}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </ScrollView>
-      
-        {errs.city && <Text style={[st.err, { color: theme.danger }]}>{errs.city}</Text>}
-      </View>
-
-      <NInput label={AR ? 'الحي / المنطقة' : 'District / Area'}
-        placeholder={AR ? 'حي الورود' : 'Al-Wurud'}
-        value={data.district} onChange={v => update({ district: v })} caps="words" />
+<View style={{ marginBottom: SP.lg }}>
+  <Text style={[st.label, { color: theme.text, textAlign: AR ? 'right' : 'left' }]}>
+    {AR ? 'المنطقة / المدينة / الحي' : 'Region / City / District'}<Text style={{ color: theme.danger }}> *</Text>
+  </Text>
+  <GeoPicker value={{ region: (data as any).region, city: data.city, district: (data as any).district }} onChange={v=>update({ region: v.region, city: v.city, district: v.district } as any)} locale={lang} />
+  {errs.city && <Text style={[st.err, { color: theme.danger }]}>{errs.city}</Text>}
+</View>
 
       <NInput label={AR ? 'العنوان الكامل' : 'Full Address'}
         placeholder={AR ? 'شارع الأمير سلطان، الرياض' : 'Prince Sultan Road, Riyadh'}
@@ -1824,7 +1804,7 @@ function LStep8Signature({ data, update, onDone, onBack, step, total }: {
   const rows = [
     { label_ar: 'اسم المركز', label_en: 'Center Name', val: data.nameAr || '—' },
     { label_ar: 'النوع', label_en: 'Type', val: AR ? (ct?.label_ar ?? '—') : (ct?.label_en ?? '—') },
-    { label_ar: 'المدينة', label_en: 'City', val: CITIES.find(c => c.id === data.city)?.[AR ? 'ar' : 'en'] ?? '—' },
+    { label_ar: 'المدينة', label_en: 'City', val: data.city || '—' },
     { label_ar: 'التحاليل', label_en: 'Radiology Tests', val: `${data.enabledTests.length}` },
     { label_ar: 'الأشعة', label_en: 'Scans', val: `${data.enabledScans.length}` },
     { label_ar: 'الحزم', label_en: 'Bundles', val: `${data.bundles.length}` },

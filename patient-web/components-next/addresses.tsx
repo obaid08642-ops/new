@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { GeoPicker } from "@/components/geo-picker";
 
 export type PatientAddress = {
   id: string;
@@ -71,12 +72,12 @@ export function AddressList({
   );
 }
 
-export function AddAddressForm() {
+export function AddAddressForm({ locale = "ar" }: { locale?: string } = {}) {
   const t = useTranslations("Addresses");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [ok, setOk] = useState(false);
-  const [form, setForm] = useState({ label: "", line1: "", line2: "", city: "", district: "", notes: "" });
+  const [form, setForm] = useState({ label: "", line1: "", line2: "", city: "", district: "", region: "", notes: "" });
 
   useMemo(() => setOk(false), [form]);
 
@@ -125,16 +126,11 @@ export function AddAddressForm() {
         {t("line2")}
         <input value={form.line2} onChange={(e) => update("line2", e.target.value)} maxLength={160} />
       </label>
-      <div className="addresses-row">
-        <label>
-          {t("city")}
-          <input value={form.city} onChange={(e) => update("city", e.target.value)} required maxLength={80} />
-        </label>
-        <label>
-          {t("district")}
-          <input value={form.district} onChange={(e) => update("district", e.target.value)} maxLength={80} />
-        </label>
-      </div>
+      <GeoPicker
+        value={{ region: form.region, city: form.city, district: form.district }}
+        onChange={(v) => setForm((prev) => ({ ...prev, region: v.region, city: v.city, district: v.district }))}
+        locale={locale}
+      />
       <label>
         {t("notes")}
         <textarea value={form.notes} onChange={(e) => update("notes", e.target.value)} maxLength={300} rows={2} />
