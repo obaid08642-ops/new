@@ -35,6 +35,20 @@ export class LocationService implements OnModuleInit {
           { upsert: true },
         );
       }
+      // Deactivate legacy pre-central codes (old 3 admin regions + 4 old cities + their districts)
+      // so the API exposes exactly the 5 macro regions / 150 cities / 2000 districts.
+      const legacyCodes = [
+        'sa-riyadh-region', 'sa-madinah-region', 'sa-makkah-region',
+        'sa-riyadh-city', 'sa-madinah-city', 'sa-jeddah-city', 'sa-makkah-city',
+      ];
+      await this.locationModel.updateMany(
+        { code: { $in: legacyCodes } },
+        { $set: { is_active: false } },
+      ).catch(() => null);
+      await this.locationModel.updateMany(
+        { type: 'district', parent_code: { $in: ['sa-riyadh-city', 'sa-madinah-city', 'sa-jeddah-city', 'sa-makkah-city'] } },
+        { $set: { is_active: false } },
+      ).catch(() => null);
       this.logger.log('Saudi locations upserted successfully.');
     } catch (err: any) {
       this.logger.warn(`Failed to seed locations: ${err?.message}`);
