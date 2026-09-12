@@ -78,3 +78,11 @@
 - الويب **ليس ناقصاً جداً**: 272 مساراً مقابل 254 شاشة، وMATCH في معظم المناطق، ومتفوق في (diagnostics/nursing/doctors/labs).
 - الفجوة الحقيقية: **~5 مؤكدة** (3,5,6 + 4/11 بعد التحقق) + **~8 تحتاج تحققاً سلوكياً** (مقابل-محتمل مقابل نقص فعلي).
 - الخطوة التالية (4): بناء المؤكد + حسم المشكوك بفحص سلوكي (DIVERGED أم GAP) قبل البناء.
+
+### ما بُني في الخطوة 4 (2026-09-12)
+- ✅ `family/emergency-contacts` صفحة جديدة (GET /family/emergency-contacts + tel: + دعوة + SOS) — كانت فجوة مؤكدة #6
+- ✅ `settings/privacy` صفحة جديدة + BFF `app/api/settings/privacy` (GET/PATCH) + `PrivacyToggles` — كانت فجوة مؤكدة #5
+- ✅ `reports/timeline` صفحة جديدة (GET /medical-reports/timeline + فلتر بالنوع) — كانت مرشحة، تبينت فجوة حقيقية
+- ✅ توسيع `appointments/[id]/summary`: التوصيات + بطاقة المتابعة (follow_up + نافذة الخصم) + رابط التقييم — كان PARTIAL
+- ✅ حُسمت كمغطاة (لا بناء): `member-health` ← `[memberRef]` (member-records كاملة) · `shared-calendar`/`product-search` (تحويلات في الموبايل نفسه) · `nutrition/mental-health/family` hubs ← صفحات الفهرس الويب (لوحات حقيقية) · `sleep-score/tracker` ← `health/sleep` · `reminders/add` ← يغطي تذكير الأدوية · `therapist-match` موجودة · `appointment-detail` ← صفحة التفاصيل الويب (إلغاء/تأجيل/دفع/تأمين/ملخص)
+- ⬜ DIVERGED موثق (لا بناء): `notifications-settings` — الويب عرض فقط عمداً (قرار P6: التغيير من الموبايل)؛ `incoming-call` — محدودية منصة
