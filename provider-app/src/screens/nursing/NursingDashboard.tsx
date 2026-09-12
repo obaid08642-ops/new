@@ -10,7 +10,7 @@
  * 07. ProgressNotes — daily nursing notes per patient
  * 08. VisitReport — generate post-visit report
  * 09. MedicalSupplies — request/track medical supplies
- * 10. NursingWallet — earnings + cash-only payments
+ * 10. Wallet via shared ProviderWalletScreen (governed withdrawals)
  * 11. NursingSettings — profile + schedule + services
  */
 import React, { useState, useRef, useEffect, useCallback } from 'react';
@@ -1031,98 +1031,6 @@ function MedicalSupplies({ onBack }:{ onBack:()=>void }) {
  );
 }
 
-// ══════════════════════════════════════════════════════════════════
-// NURSING WALLET — Cash Only
-// ══════════════════════════════════════════════════════════════════
-function NursingWallet({ onBack }:{ onBack?:()=>void }) {
- const insets = useSafeAreaInsets();
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
- const [showW, setShowW] = useState(false); const [amt, setAmt] = useState('');
- const [balance, setBalance] = useState(0);
- const [earned, setEarned] = useState(0);
- const [txs, setTxs] = useState<any[]>([]);
- const [loading, setLoading] = useState(true);
- const [withdrawing, setWithdrawing] = useState(false);
-
- const fetchWallet = useCallback(async () => {
- try {
- const [w, t] = await Promise.all([
- client.get('/provider/wallet'),
- client.get('/provider/wallet/transactions'),
- ]);
- setBalance(w.data?.available ?? 0);
- setEarned(w.data?.earned ?? 0);
- setTxs(Array.isArray(t.data) ? t.data : (t.data?.items || []));
- } catch { setTxs([]); } finally { setLoading(false); }
- }, []);
-
- useEffect(() => { fetchWallet(); }, [fetchWallet]);
-
- const handleWithdraw = async () => {
- const amount = parseInt(amt);
- if (!amount) return;
- setWithdrawing(true);
- try {
- await client.post('/provider/payouts/request', { amount });
- show(AR ? 'تم إرسال طلب السحب للمراجعة' : 'Withdrawal request submitted for review', 'success');
- setShowW(false); setAmt('');
- fetchWallet();
- } catch (err: any) {
- show(err?.response?.data?.message || (AR ? 'فشل طلب السحب' : 'Withdrawal failed'), 'error');
- } finally { setWithdrawing(false); }
- };
-
- return (
- <View style={{flex:1,backgroundColor:theme.bg}}>
- 		<View style={[st.topBar,{backgroundColor:theme.surface,borderBottomColor:theme.border,flexDirection:AR?'row-reverse':'row',alignItems:'center', paddingTop: Math.max(insets.top, 16) }]}>
-			{onBack && (
-				<TouchableOpacity onPress={onBack} style={{[AR?'marginLeft':'marginRight']:SP.md}}>
-					<I name="back" size={24} color={theme.text} />
-				</TouchableOpacity>
-			)}
-			<Text style={{fontSize:FS.xl,fontWeight:FW.bold,color:theme.text,flex:1,textAlign:AR?'right':'left'}}>{AR?'المحفظة':'Wallet'}</Text>
-		</View>
- <ScrollView contentContainerStyle={{padding:SP.xl,paddingBottom:100}}>
- <View style={{borderRadius:R.xxl,padding:SP.xxl,alignItems:'center',marginBottom:SP.xl,backgroundColor:'#E91E63',shadowColor:'#000',shadowOffset:{width:0,height:8},shadowOpacity:0.2,shadowRadius:16,elevation:8}}>
- <Text style={{color:'rgba(255,255,255,0.8)',fontSize:FS.sm}}>{AR?'الرصيد المتاح':'Available Balance'}</Text>
- <Text style={{color:'#FFF',fontSize:FS['5xl'],fontWeight:FW.xbold,marginVertical:SP.sm}}>{loading ? '…' : balance.toLocaleString()}</Text>
- <Text style={{color:'rgba(255,255,255,0.8)'}}>{AR?'ريال سعودي — نقدي فقط':'SAR — Cash Only'}</Text>
- {!loading && earned > 0 && <Text style={{color:'rgba(255,255,255,0.7)',fontSize:FS.xs,marginTop:SP.xs}}>{AR?`إجمالي المكتسب: ${earned.toLocaleString()} ر`:`Total earned: ${earned.toLocaleString()} SAR`}</Text>}
- <TouchableOpacity onPress={()=>setShowW(true)} style={{marginTop:SP.xl,backgroundColor:'rgba(255,255,255,0.2)',paddingVertical:SP.md,paddingHorizontal:SP.xxl,borderRadius:R.lg}}>
- <Text style={{color:'#FFF',fontWeight:FW.semi}}>{AR?'سحب الأموال':'Withdraw'}</Text>
- </TouchableOpacity>
- </View>
- <NCard style={{backgroundColor:theme.warnBg,marginBottom:SP.xl}}>
- <Text style={{fontSize:FS.sm,color:theme.warn,textAlign:AR?'right':'left'}}>
- {AR?'خدمات التمريض المنزلي تعمل بنظام الدفع النقدي فقط — لا يوجد تأمين صحي.'
- :'Home nursing services operate on cash-only basis — no health insurance.'}
- </Text>
- </NCard>
- <NSecHeader title={AR?'آخر المعاملات':'Recent Transactions'} />
- {loading ? <ActivityIndicator color={theme.primary} style={{marginVertical:SP.xl}} /> :
- txs.length === 0 ? <NEmpty title={AR?'لا توجد معاملات بعد':'No transactions yet'} /> :
- txs.map((t:any,i:number)=>{
- const isCredit = t.type === 'CREDIT' || t.type === 'EARNING' || t.type === 'provider_earning';
- const amt = Math.abs(Number(t.amount) || 0);
- const dateStr = (t.createdAt || t.date || '').toString().slice(0, 10);
- return (
- <NCard key={t.id || i} style={{marginBottom:SP.sm,padding:SP.lg}}>
- <View style={{flexDirection:AR?'row-reverse':'row',justifyContent:'space-between'}}>
- <Text style={{fontSize:FS.md,color:theme.text,flex:1,textAlign:AR?'right':'left'}} numberOfLines={1}>{t.description || t.desc || (isCredit ? (AR?'إيداع':'Credit') : (AR?'خصم':'Debit'))}</Text>
- <Text style={{fontSize:FS.md,fontWeight:FW.bold,color:isCredit?'#4CAF50':'#F44336'}}>{isCredit?'+':'-'}{amt.toLocaleString()} {AR?'ر':'SAR'}</Text>
- </View>
- {!!dateStr && <Text style={{fontSize:FS.xs,color:theme.textSub,textAlign:AR?'right':'left'}}>{dateStr}</Text>}
- </NCard>
- );
- })}
- </ScrollView>
- <NSheet visible={showW} onClose={()=>setShowW(false)} title={AR?'سحب':'Withdraw'} height={320}>
- <NPriceInput label={AR?'المبلغ':'Amount'} value={amt} onChange={setAmt} required />
- <NBtn label={AR?'تأكيد':'Confirm'} disabled={!amt||parseInt(amt)<=0} loading={withdrawing} onPress={handleWithdraw} />
- </NSheet>
- </View>
- );
-}
 // ══════════════════════════════════════════════════════════════════
 // NURSING SETTINGS
 // ══════════════════════════════════════════════════════════════════
