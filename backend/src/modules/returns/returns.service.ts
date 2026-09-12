@@ -42,8 +42,17 @@ export class ReturnsService {
    * at creation, because clients can lie).
    */
   async eligibility(userId: string, orderId: string) {
-    const order: any = await this.conn.collection('orders').findOne({ id: orderId } as any);
+    const legacy: any = await this.conn.collection('orders').findOne({ id: orderId } as any);
+    if (legacy) return this.legacyEligibility(userId, legacy);
+    // Governed broadcast orders (P0-06): same Saudi ruleset, sourced from the
+    // selected offer snapshot + medicine master flags.
+    const order: any = await this.conn.collection('pharmacy_orders').findOne({ id: orderId } as any);
     if (!order) throw new NotFoundException('order_not_found');
+    if (order.patient_account_id !== userId) throw new ForbiddenException('not_your_order');
+    return this.pharmacyEligibility(order);
+  }
+
+  private async legacyEligibility(userId: string, order: any) {
     if (order.patient_id !== userId) throw new ForbiddenException('not_your_order');
     const pol = await this.policy();
 
@@ -61,7 +70,59 @@ export class ReturnsService {
     }));
 
     return {
-      order_id: orderId,
+      order_id: order.id,
+      delivered,
+      within_window: withinWindow,
+      window_days: pol.window_days,
+      eligible: withinWindow && items.some((i: any) => i.returnable),
+      items,
+    };
+  }
+
+  /** Pharmacy broadcast orders: items come from the patient-selected offer
+   *  snapshot; safety flags come from the medicine master. Unknown (custom)
+   *  items are excluded from self-service with an explicit reason. */
+  private async pharmacyEligibility(order: any) {
+    const pol = await this.policy();
+    const delivered = ['DELIVERED', 'COMPLETED'].includes(String(order.status || '').toUpperCase());
+    const deliveredAt = order.delivered_at || order.updatedAt || order.createdAt;
+    const ageDays = deliveredAt ? (Date.now() - new Date(deliveredAt).getTime()) / (24 * 3600 * 1000) : Infinity;
+    const withinWindow = delivered && ageDays <= pol.window_days;
+
+    let offerItems: any[] = [];
+    if (order.selected_offer_id) {
+      const offer: any = await this.conn.collection('pharmacy_offers').findOne({
+        id: order.selected_offer_id,
+        order_id: order.id,
+        ...(order.selected_offer_version ? { version: order.selected_offer_version } : {}),
+      } as any);
+      if (offer && Array.isArray(offer.items)) offerItems = offer.items;
+    }
+    const skus = [...new Set(offerItems.map((o: any) => String(o.sku || '')).filter(Boolean))];
+    const master: any = {};
+    if (skus.length) {
+      const docs: any[] = await this.conn.collection('medicines_master')
+        .find({ $or: [{ sku: { $in: skus } }, { id: { $in: skus } }] } as any).toArray().catch(() => []);
+      for (const d of docs) {
+        if (d.sku) master[String(d.sku)] = d;
+        if (d.id) master[String(d.id)] = d;
+      }
+    }
+    const items = offerItems.map((o: any) => {
+      const m: any = master[String(o.sku || '')] || master[String(o.order_item_id || '')] || null;
+      if (!m) {
+        return { medicine_id: String(o.sku || o.order_item_id), name_ar: o.name_ar, name_en: o.name_en,
+          qty: o.qty_offered, price: o.unit_price, returnable: false, reason: 'unmatched_catalog_item' };
+      }
+      const cats: string[] = [...(Array.isArray(m.categories) ? m.categories : []), m.category].filter(Boolean);
+      const blocked = !!m.cold_chain || !!m.controlled || cats.some((c: string) => pol.non_returnable_categories.includes(c));
+      return { medicine_id: String(o.sku || o.order_item_id), name_ar: o.name_ar || m.name_ar, name_en: o.name_en || m.name_en,
+        qty: o.qty_offered, price: o.unit_price, returnable: !blocked,
+        reason: blocked ? 'category_non_returnable' : null };
+    });
+
+    return {
+      order_id: order.id,
       delivered,
       within_window: withinWindow,
       window_days: pol.window_days,
@@ -124,11 +185,16 @@ export class ReturnsService {
     return this.returnModel.find({ patient_id: userId }).sort({ createdAt: -1 }).lean();
   }
 
-  /** Returns filed against this provider's orders (pharmacy RMA view). */
+  /** Returns filed against this provider's orders: legacy `orders` plus
+   *  governed broadcast orders (via the provider's allocations) — P0-06. */
   async providerReturns(providerId: string): Promise<any[]> {
-    const orders = await (this.returnModel.db as any).collection('orders')
-      .find({ pharmacy_id: providerId }, { projection: { id: 1 } }).toArray();
-    const ids = orders.map((o: any) => o.id);
+    const [legacy, allocs] = await Promise.all([
+      (this.returnModel.db as any).collection('orders')
+        .find({ pharmacy_id: providerId }, { projection: { id: 1 } }).toArray(),
+      (this.returnModel.db as any).collection('pharmacy_allocations')
+        .find({ pharmacy_account_id: providerId }, { projection: { order_id: 1 } }).toArray(),
+    ]);
+    const ids = [...legacy.map((o: any) => o.id), ...allocs.map((a: any) => a.order_id)].filter(Boolean);
     if (!ids.length) return [];
     return this.returnModel.find({ order_id: { $in: ids } } as any).sort({ createdAt: -1 }).lean() as any;
   }
