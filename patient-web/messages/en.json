@@ -1110,6 +1110,7 @@
     "notice": "Only secure in-portal links are shared — never send raw medical data in text."
   },
   "BookConsultation": {
+    "slotTaken": "This slot is no longer available. Choose another time.",
     "title": "Book Consultation",
     "subtitle": "Pick visit type, day and slot — real server slots",
     "back": "Back to doctor",

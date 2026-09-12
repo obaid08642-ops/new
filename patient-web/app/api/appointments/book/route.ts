@@ -11,6 +11,7 @@ const bodySchema = z.object({
   slot_start: z.string().datetime({ offset: true }),
   payment_method: z.enum(["cash", "card", "insurance"]),
   patient_notes: z.string().trim().max(2000).optional(),
+  slot_lock_id: z.string().uuid().optional(),
 }).strict();
 const resultSchema = z.object({ id: z.string().uuid(), status: z.string().min(1), insurance_request_id: z.string().uuid().optional() });
 

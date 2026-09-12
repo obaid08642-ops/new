@@ -69,6 +69,24 @@ export function BookingFlow({ doctorId, locale, doctor }: { doctorId: string; lo
     setSubmitting(true);
     setError(null);
     try {
+      // Hold the slot first (10-min TTL): the server consumes the lock on
+      // booking success and releases it on failure, so double-submits and a
+      // second device can never double-book (P3-e, web adoption).
+      let slotLockId: string | undefined;
+      try {
+        const lockRes = await fetch("/api/slot-locks/reserve", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ provider_id: doctorId, slot_start: selectedSlot }),
+        });
+        const lockData = await lockRes.json().catch(() => null);
+        if (!lockRes.ok) throw new Error(typeof lockData?.message === "string" ? lockData.message : "slot_hold_failed");
+        slotLockId = lockData?.id;
+      } catch (lockErr: any) {
+        const code = String(lockErr?.message || "");
+        setError(code.includes("slot_taken") ? t("slotTaken") : "booking_failed");
+        return;
+      }
       const res = await fetch("/api/appointments/book", {
         method: "POST",
         headers: { "content-type": "application/json", "idempotency-key": newIdempotencyKey() },
@@ -78,6 +96,7 @@ export function BookingFlow({ doctorId, locale, doctor }: { doctorId: string; lo
           slot_start: selectedSlot,
           payment_method: paymentMethod,
           patient_notes: notes.trim() || undefined,
+          slot_lock_id: slotLockId,
         }),
       });
       if (res.ok) {

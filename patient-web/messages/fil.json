@@ -1110,6 +1110,7 @@
     "notice": "Tanging ligtas na in-portal na mga link ang ibinabahagi"
   },
   "BookConsultation": {
+    "slotTaken": "Hindi na available ang slot na ito. Pumili ng iba.",
     "title": "Mag-book ng Konsultasyon",
     "subtitle": "Pumili ng uri, araw at slot — totoong server slots",
     "back": "Bumalik sa doktor",
