@@ -28,7 +28,7 @@ import client from '../../api/client';
 import { useServicesCatalog, getInsuranceCatalog } from '../../api/catalogs';
 import { VideoCallRoom } from '../shared/VideoCallRoom';
 import { InsuranceRequestsScreen } from '../shared/InsuranceRequestsScreen';
-import { WithdrawalWorkflow, MedicalJobsScreen, MedicalDrugIndexScreen, StatisticsReports, GlobalSystemSettings, ChatSystem, MediaConfigScreen } from '../shared/SharedScreens';
+import { WithdrawalWorkflow, MedicalJobsScreen, MedicalDrugIndexScreen, InsuranceConfigScreen, GlobalSystemSettings, ChatSystem, MediaConfigScreen } from '../shared/SharedScreens';
 import { DoctorStatsRow } from './components/DoctorStatsRow';
 import { DoctorUrgentRequests } from './components/DoctorUrgentRequests';
 import { DoctorQueueList } from './components/DoctorQueueList';
@@ -43,6 +43,54 @@ import {
 const { width: W } = Dimensions.get('window');
 
 // Connected to backend APIs for doctor requests and today appointments
+
+// ─── Provider virtual waiting room (today's video visits, live backend) ───
+function VirtualWaitingRoomScreen({ onBack, onNavigate }: { onBack: () => void; onNavigate: (s: string, p?: any) => void }) {
+  const { theme } = useTheme();
+  const { lang } = useLang();
+  const { show } = useToast();
+  const AR = lang === 'ar';
+  const [rows, setRows] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await client.get('/calls/provider/waiting-room');
+      setRows(Array.isArray(res.data) ? res.data : []);
+    } catch {
+      show(AR ? 'تعذر تحميل غرفة الانتظار' : 'Could not load waiting room', 'error');
+    } finally {
+      setLoading(false);
+    }
+  }, [AR, show]);
+  useEffect(() => { void load(); }, [load]);
+  return (
+    <View style={{ flex: 1, backgroundColor: theme.bg }}>
+      <NHeader title={AR ? 'غرفة الانتظار الافتراضية' : 'Virtual Waiting Room'} onBack={onBack} />
+      <ScrollView contentContainerStyle={{ padding: SP.xl, gap: SP.md }}>
+        {loading ? (
+          <ActivityIndicator color={theme.primary} style={{ marginTop: SP.xl }} />
+        ) : rows.length === 0 ? (
+          <NEmpty title={AR ? 'لا يوجد مرضى بانتظار مكالمة فيديو اليوم' : 'No patients waiting for a video call today'} icon="video" />
+        ) : rows.map((r: any) => (
+          <NCard key={String(r.id)}>
+            <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{r.name}</Text>
+                <Text style={{ fontSize: FS.sm, color: theme.textSub }}>
+                  {r.time ? new Date(r.time).toLocaleTimeString(AR ? 'ar-SA' : 'en-US', { hour: '2-digit', minute: '2-digit' }) : ''} · {r.status}
+                  {r.checkedIn ? (AR ? ' · وصل' : ' · checked in') : ''}
+                </Text>
+              </View>
+              <NBtn label={AR ? 'انضمام' : 'Join'} full={false} onPress={() => onNavigate('video_call', { id: r.id, patient: r.name, service_type: 'video' })} />
+            </View>
+          </NCard>
+        ))}
+        <NBtn label={AR ? 'تحديث' : 'Refresh'} variant="outline" onPress={() => void load()} />
+      </ScrollView>
+    </View>
+  );
+}
 
 // ══════════════════════════════════════════════════════════════════════════════
 // DOCTOR DASHBOARD NAVIGATOR
@@ -105,7 +153,7 @@ export function DoctorDashboardNavigator({ onLogout }: { onLogout: () => void })
      <Stack.Screen name="request_test">{({ navigation, route }: any) => <RequestTestScreen apt={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="patient_file">{({ navigation, route }: any) => <PatientFileScreen patient={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="withdrawal_workflow">{({ navigation }: any) => <WithdrawalWorkflow onBack={() => navigation.goBack()} />}</Stack.Screen>
-     <Stack.Screen name="revenue_insights">{({ navigation }: any) => <StatisticsReports onBack={() => navigation.goBack()} providerType="doctor" />}</Stack.Screen>
+     <Stack.Screen name="revenue_insights">{({ navigation }: any) => <RevenueInsights onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="availability_engine">{({ navigation }: any) => <DoctorAvailabilityScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
      <Stack.Screen name="service_management">{({ navigation }: any) => <DoctorServiceManagementScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="promotions">{({ navigation }: any) => <PromotionsDashboard onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
@@ -662,7 +710,7 @@ function AppointmentDetailScreen({ apt, onBack, onNavigate }:
 // ══════════════════════════════════════════════════════════════════════════════
 // ACTIVE CONSULTATION (WAITING ROOM & EXAM)
 // ══════════════════════════════════════════════════════════════════════════════
-function LiveConsultationScreen({ apt, onBack }: { apt: any; onBack: () => void; onNavigate: (s: string, p?: any) => void }) {
+function LiveConsultationScreen({ apt, onBack, onNavigate }: { apt: any; onBack: () => void; onNavigate: (s: string, p?: any) => void }) {
  const { theme } = useTheme();
  const { lang } = useLang();
  const { show } = useToast();
@@ -2246,6 +2294,7 @@ export function MedicalReportScreen({ apt, onBack }: { apt: any; onBack: () => v
 export function NotificationsScreen({ onBack }: { onBack: () => void }) {
  const { theme } = useTheme();
  const { lang } = useLang();
+ const { show } = useToast();
  const AR = lang === 'ar';
  const [filter, setFilter] = useState<'all'|'unread'|'requests'|'payments'|'radiology_results'>('all');
 

@@ -57,7 +57,7 @@ import { FacilityAuditLogScreen } from './FacilityAuditLogScreen';
 import { FacilityAnnouncementsScreen } from './FacilityAnnouncementsScreen';
 import { FacilityPatientTrackerScreen } from './FacilityPatientTrackerScreen';
 import { DischargeSummaryScreen } from './DischargeSummaryScreen';
-import { MedicalJobsScreen, MedicalDrugIndexScreen, InsuranceConfigScreen, CertificatesConfigScreen, MediaConfigScreen, ProviderWalletScreen, ProviderHomeStats, GlobalSystemSettings, StatisticsReports } from '../shared/SharedScreens';
+import { MedicalJobsScreen, MedicalDrugIndexScreen, InsuranceConfigScreen, CertificatesConfigScreen, MediaConfigScreen, ProviderWalletScreen, ProviderHomeStats, GlobalSystemSettings } from '../shared/SharedScreens';
 import { NotificationsCenterScreen, TechnicalSupportTicketsScreen, SecurityManagementScreen } from '../shared/RealScreens';
 
 const { width: W } = Dimensions.get('window');
@@ -232,7 +232,7 @@ export function FacilityDashboardNavigator({ onLogout }: { onLogout: () => void 
       <Stack.Screen name="credentialing">{({ navigation }: any) => <CredentialingScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="hospital_dispatch">{({ navigation }: any) => <HospitalDispatchScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="facility_info">{({ navigation }: any) => <FacilityProfileConfigScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
-      <Stack.Screen name="auto_reports">{({ navigation }: any) => <StatisticsReports onBack={() => navigation.goBack()} providerType="facility" />}</Stack.Screen>
+      <Stack.Screen name="auto_reports">{({ navigation }: any) => <RevenueInsights onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="notifications">{({ navigation }: any) => <NotificationsCenterScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="support">{({ navigation }: any) => <TechnicalSupportTicketsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="security">{({ navigation }: any) => <SecurityManagementScreen onBack={() => navigation.goBack()} />}</Stack.Screen>

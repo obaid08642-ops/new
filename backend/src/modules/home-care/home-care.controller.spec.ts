@@ -14,7 +14,8 @@ describe('NursingController ownership', () => {
     const conn: any = { db: { collection: jest.fn() } };
     const events: any = { emit: jest.fn() };
     const engine: any = { apply: jest.fn(async (opts: any) => opts.mutate()) };
-    return { controller: new NursingController(model, serviceModel, nurseModel, conn, events, engine), model, engine };
+    const homeSvc: any = { book: jest.fn(), mineFor: jest.fn(), cancel: jest.fn() };
+    return { controller: new NursingController(model, serviceModel, nurseModel, conn, events, engine, homeSvc), model, engine };
   }
 
   it('rejects a patient from reading another patient visit', async () => {

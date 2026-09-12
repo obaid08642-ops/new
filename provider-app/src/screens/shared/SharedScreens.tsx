@@ -848,6 +848,7 @@ export function WithdrawalWorkflow({ onBack }: { onBack: () => void }) {
 // ══════════════════════════════════════════════════════════════════
 export function MedicalJobsScreen({ onBack, onOpenChat }: { onBack: () => void, onOpenChat?: () => void }) {
   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+  const { user } = useAuth();
   const insets = useSafeAreaInsets();
   
   const [tab, setTab] = useState<'browse' | 'post' | 'inbox'>('browse');
@@ -905,7 +906,6 @@ export function MedicalJobsScreen({ onBack, onOpenChat }: { onBack: () => void, 
 
   const [jobs, setJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const { user } = useAuth();
   const [posting, setPosting] = useState(false);
   const [postCity, setPostCity] = useState('');
 
