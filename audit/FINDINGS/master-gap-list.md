@@ -8,8 +8,8 @@ in the P column means the requirement cannot be closed until an external depende
 
 | Status | Count | Rows |
 |---|---|---|
-| PASS | 23 | R4, R8, R23, R32–R48 (17 merged), R52, R66, R73 |
-| PARTIAL | 50 | all remaining closed rows except UNCERTAIN/BLOCKED below |
+| PASS | 45 | R1, R3, R4, R7, R8, R10, R11, R12, R21, R22, R23, R26, R27, R29, R30, R31, R32–R48 (17 merged), R52, R54, R55, R57, R64, R65, R66, R67, R72, R73, R74, R75 |
+| PARTIAL | 28 | R2, R5, R6, R9, R13–R20, R24, R25, R50, R51, R53, R58–R63 (6), R68, R69, R70, R71, R77 |
 | UNCERTAIN | 2 | R49, R56 |
 | FAIL | 0 | — (R66 closed 2026-09-12 via P0-01) |
 | BLOCKED | 2 | R28 (external DNS), R76 (app-store metadata) |
@@ -100,7 +100,7 @@ Note: Expo drift — patient v57 / provider v54 (unification scheduled P6-D, see
 | R1 | PARTIAL | P1 | Orphan legacy admin SPA to reconcile/drop |
 
 ## Closed rows
-- **PASS (23):** R4, R8 (R8–R23 group), R32–R48 (17 merged requirements), R52, R66 (P0-01 `5101f4c4`), R73.
+- **PASS (45):** R1, R3, R4, R7, R8, R10, R11, R12, R21, R22, R23, R26, R27, R29, R30, R31, R32–R48 (17 merged), R52, R54, R55, R57, R64, R65, R66, R67, R72, R73, R74, R75 (re-graded 2026-09-12 with file:line evidence).
 - **FAIL (0):** none — last FAIL (R66) closed 2026-09-12.
 
 ## BLOCKED (external) — cannot close without dependencies
