@@ -221,6 +221,18 @@ export class SearchIntentService {
     };
   }
 
+  /** R75: top queries with zero/low results — input for P9 synonym and ranking work. */
+  async topQueries(limit: number, days: number) {
+    const since = new Date(Date.now() - days * 86400000);
+    return this.analyticsModel.aggregate([
+      { $match: { created_at: { $gte: since } } },
+      { $group: { _id: { q: '$normalized_query', locale: '$locale' }, hits: { $sum: 1 }, zero: { $sum: { $cond: [{ $eq: ['$results_count', 0] }, 1, 0] } } } },
+      { $sort: { zero: -1, hits: -1 } },
+      { $limit: limit },
+      { $project: { _id: 0, query: '$_id.q', locale: '$_id.locale', hits: 1, zero_result_hits: '$zero' } },
+    ]);
+  }
+
   private async recordAnalytics(
     rawQuery: string,
     normalized: string,
