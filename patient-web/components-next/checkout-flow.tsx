@@ -16,7 +16,6 @@ import {
   ArrowLeft,
   ArrowRight,
   Banknote,
-  Smartphone,
   ChevronLeft,
   FileCheck2,
   Sparkles
@@ -44,7 +43,10 @@ export function CheckoutFlow({ locale }: Props) {
   const [street, setStreet] = useState("");
   
   // Payment and Insurance State
-  const [paymentMethod, setPaymentMethod] = useState<"mada" | "apple_pay" | "visa" | "cod" | "insurance">("mada");
+  // Checkout-time choice is intentionally limited: card-online payment happens
+  // AFTER the final quote via the secure payment page (P6). Offering mada/
+  // apple_pay/visa here previously hit a dead-end error after full form fill.
+  const [paymentMethod, setPaymentMethod] = useState<"cod" | "insurance">("cod");
   const [insuranceCompany, setInsuranceCompany] = useState("bupa");
   const [policyNumber, setPolicyNumber] = useState("");
   const [nationalId, setNationalId] = useState("");
@@ -105,14 +107,8 @@ export function CheckoutFlow({ locale }: Props) {
       }
     }
 
-    // Online card payment is not supported for web pharmacy checkout on the backend
-    // (server accepts cash-on-delivery / broadcast settlement only). Never fabricate a charge.
-    if (paymentMethod === "mada" || paymentMethod === "apple_pay" || paymentMethod === "visa") {
-      setErrorMessage(isAr
-        ? "الدفع الإلكتروني المباشر غير متاح لطلبات الصيدلية على الويب حالياً — اختر الدفع عند الاستلام أو التأمين، وستتم التسوية الحقيقية عبر الصيدلية بعد قبول طلبك."
-        : "Online card payment is not available for web pharmacy orders yet — choose cash on delivery or insurance; real settlement happens via the pharmacy after acceptance.");
-      return;
-    }
+    // Online card payment is handled after the final quote via the secure
+    // payment page — never blocked, never fabricated here.
 
     setIsSubmitting(true);
     setErrorMessage("");
@@ -251,9 +247,6 @@ export function CheckoutFlow({ locale }: Props) {
           <div className={styles.orderRow}>
             <span>{isAr ? "طريقة الدفع" : "Payment Method"}</span>
             <span>
-              {orderConfirmed.paymentMethod === "mada" && "مدى (Mada)"}
-              {orderConfirmed.paymentMethod === "apple_pay" && "Apple Pay"}
-              {orderConfirmed.paymentMethod === "visa" && (isAr ? "بطاقة ائتمانية" : "Credit Card")}
               {orderConfirmed.paymentMethod === "cod" && (isAr ? "الدفع عند الاستلام" : "Cash on Delivery")}
               {orderConfirmed.paymentMethod === "insurance" && (isAr ? `تأمين طبي (${orderConfirmed.insuranceCompanyName})` : `Health Insurance (${orderConfirmed.insuranceCompanyName})`)}
             </span>
@@ -449,39 +442,15 @@ export function CheckoutFlow({ locale }: Props) {
           </div>
 
           <div className={styles.paymentMethodsGrid}>
-            <label className={`${styles.paymentOption} ${paymentMethod === "mada" ? styles.paymentActive : ""}`}>
-              <input
-                type="radio"
-                name="paymentMethod"
-                value="mada"
-                checked={paymentMethod === "mada"}
-                onChange={() => setPaymentMethod("mada")}
-              />
+            <div className={styles.paymentOption} style={{ cursor: "default", opacity: 0.85 }}>
               <div className={styles.paymentContent}>
                 <div className={styles.paymentTitleRow}>
                   <CreditCard size={20} />
-                  <strong>{isAr ? "بطاقة مدى" : "Mada Card"}</strong>
+                  <strong>{isAr ? "بطاقة إلكترونية" : "Online Card"}</strong>
                 </div>
-                <span>{isAr ? "دفع فوري عبر شبكة مدى السعودية" : "Direct Saudi debit payment"}</span>
+                <span>{isAr ? "مدى / Apple Pay / Visa — تُدفع بأمان بعد اختيار عرض الصيدلية النهائي" : "Mada / Apple Pay / Visa — paid securely after you accept the final pharmacy offer"}</span>
               </div>
-            </label>
-
-            <label className={`${styles.paymentOption} ${paymentMethod === "apple_pay" ? styles.paymentActive : ""}`}>
-              <input
-                type="radio"
-                name="paymentMethod"
-                value="apple_pay"
-                checked={paymentMethod === "apple_pay"}
-                onChange={() => setPaymentMethod("apple_pay")}
-              />
-              <div className={styles.paymentContent}>
-                <div className={styles.paymentTitleRow}>
-                  <Smartphone size={20} />
-                  <strong>Apple Pay</strong>
-                </div>
-                <span>{isAr ? "الدفع بلمسة واحدة عبر جهازك" : "One-tap secure payment"}</span>
-              </div>
-            </label>
+            </div>
 
             <label className={`${styles.paymentOption} ${paymentMethod === "insurance" ? styles.paymentActive : ""}`}>
               <input
@@ -497,23 +466,6 @@ export function CheckoutFlow({ locale }: Props) {
                   <strong style={{ color: "#00876F" }}>{isAr ? "التأمين الصحي التعاوني" : "Cooperative Health Insurance"}</strong>
                 </div>
                 <span>{isAr ? "بوبا، التعاونية، ميدغلف والشركات المرخصة" : "Bupa, Tawuniya, MedGulf & licensed insurers"}</span>
-              </div>
-            </label>
-
-            <label className={`${styles.paymentOption} ${paymentMethod === "visa" ? styles.paymentActive : ""}`}>
-              <input
-                type="radio"
-                name="paymentMethod"
-                value="visa"
-                checked={paymentMethod === "visa"}
-                onChange={() => setPaymentMethod("visa")}
-              />
-              <div className={styles.paymentContent}>
-                <div className={styles.paymentTitleRow}>
-                  <CreditCard size={20} />
-                  <strong>{isAr ? "بطاقة ائتمانية" : "Visa / Mastercard"}</strong>
-                </div>
-                <span>{isAr ? "البطاقات الائتمانية المحلية والدولية" : "Credit cards"}</span>
               </div>
             </label>
 
