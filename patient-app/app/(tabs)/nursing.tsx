@@ -133,7 +133,7 @@ export default function NursingDirectoryHub() {
           style={[styles.toggleBtnWrap, { marginBottom: 12 }]}
         >
           <View style={[styles.toggleBtn, { borderColor: colors.surface }]}>
-            <Icons.Nurse />
+            <Icons.IV />
             <LocalizedText style={styles.toggleText}>زياراتي وتتبع الممرض</LocalizedText>
           </View>
         </TouchableOpacity>
