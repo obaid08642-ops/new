@@ -195,7 +195,7 @@ export function BookingFlow({ doctorId, locale, doctor }: { doctorId: string; lo
           ))}
         </div>
         {visitType !== "clinic" && (
-          <p className={styles.hint}>{t("cashClinicOnly")}</p>
+          <p className={styles.empty}>{t("cashClinicOnly")}</p>
         )}
       </fieldset>
       {visitType === "home" && (
