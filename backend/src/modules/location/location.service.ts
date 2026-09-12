@@ -91,14 +91,33 @@ export class LocationService implements OnModuleInit {
     let matchedRegion: Location | undefined;
     let matchedAlias: string | undefined;
 
-    // Check districts first (most specific)
+    // Check districts first (most specific). Matches against normalized
+    // names AND aliases: seed aliases are often empty, so names must match
+    // too — otherwise no real query ever resolves (P11-CI fix). District
+    // names also match without the leading 'حي ' (users write 'الزهراء').
+    // First match in seed order wins; city pairing stays consistent via parent.
+    const candidatesOf = (loc: any): string[] => {
+      const out = new Set<string>();
+      const raws: string[] = [loc.name_ar, loc.name_en, ...(loc.aliases || [])];
+      if (loc.type === 'district') {
+        for (const r of [loc.name_ar, loc.name_en]) {
+          const s = String(r || '').trim();
+          const m = s.match(/^(حي|حارة|district)\s+(.*)$/i);
+          if (m && m[2]) raws.push(m[2]);
+        }
+      }
+      for (const raw of raws) {
+        const n = normalizeSearchText(String(raw || ''));
+        if (n && n.length >= 2) out.add(n);
+      }
+      return [...out];
+    };
     for (const loc of allLocations) {
       if (loc.type === 'district') {
-        for (const alias of loc.aliases || []) {
-          const normAlias = normalizeSearchText(alias);
+        for (const normAlias of candidatesOf(loc)) {
           if (normalized.includes(normAlias)) {
             matchedDistrict = loc as Location;
-            matchedAlias = alias;
+            matchedAlias = normAlias;
             break;
           }
         }
@@ -106,14 +125,13 @@ export class LocationService implements OnModuleInit {
       }
     }
 
-    // Check cities
+    // Check cities (names + aliases, same rule).
     for (const loc of allLocations) {
       if (loc.type === 'city') {
-        for (const alias of loc.aliases || []) {
-          const normAlias = normalizeSearchText(alias);
+        for (const normAlias of candidatesOf(loc)) {
           if (normalized.includes(normAlias)) {
             matchedCity = loc as Location;
-            if (!matchedAlias) matchedAlias = alias;
+            if (!matchedAlias) matchedAlias = normAlias;
             break;
           }
         }

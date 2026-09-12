@@ -83,7 +83,11 @@ export function VideoCallRoom({ appointmentId, peerName, voiceOnly, onEnd }: Vid
         const room = roomRef.current;
         const sid = sessionRef.current;
         if (!room || !sid) return;
-        const stats = await room.getStats();
+        // livekit-client v2 Room has no getStats(): feature-detect and degrade
+        // to empty samples instead of breaking call metrics (pre-existing tsc).
+        const stats: Map<string, any> = typeof (room as any).getStats === 'function'
+          ? await (room as any).getStats()
+          : new Map();
         const samples: Array<{ packet_loss: number; jitter: number; rtt: number; bitrate: number }> = [];
         stats.forEach((s: any) => {
           const r = s.remoteInboundRtp || s.inboundRtp || {};

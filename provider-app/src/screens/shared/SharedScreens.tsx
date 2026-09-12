@@ -317,6 +317,15 @@ export function NotificationsCenter({ onBack }: { onBack: () => void }) {
    } catch { show(AR ? 'تعذر مسح الإشعارات' : 'Could not clear notifications', 'error'); }
  };
 
+ const markRead = async (id: string) => {
+   setNotifs(prev => prev.map(n => (n.id === id ? { ...n, read: true } : n)));
+   try {
+     await client.post(`/provider/notifications/${encodeURIComponent(id)}/read`, {});
+   } catch {
+     // Optimistic update stands; a fresh fetch on focus reconciles.
+   }
+ };
+
  return (
  <View style={{ flex: 1, backgroundColor: theme.bg }}>
  <View style={[st.topBar, { backgroundColor: theme.surface, borderBottomColor: theme.border }]}>
