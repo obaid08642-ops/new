@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { locales } from "@/lib/i18n";
-import { localizedUrl } from "@/lib/seo";
+import { SITEMAP_NS, hreflangLinks, localizedUrl } from "@/lib/seo";
 
 export const revalidate = 21600;
 
@@ -36,12 +36,13 @@ export async function GET() {
   } catch {}
   const urls = locales.flatMap((locale) =>
     doctors.flatMap((d) => {
-      const base = `  <url><loc>${esc(localizedUrl(locale, `/doctor/${encodeURIComponent(d.slug)}`))}</loc>${d.lastmod ? `<lastmod>${d.lastmod}</lastmod>` : ""}<changefreq>weekly</changefreq><priority>0.85</priority></url>`;
-      const geo = cities.map((city) => `  <url><loc>${esc(localizedUrl(locale, `/doctor/${encodeURIComponent(d.slug)}/${city}`))}</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>`);
+      const path = `/doctor/${encodeURIComponent(d.slug)}`;
+      const base = `  <url><loc>${esc(localizedUrl(locale, path))}</loc>${hreflangLinks(path)}${d.lastmod ? `<lastmod>${d.lastmod}</lastmod>` : ""}<changefreq>weekly</changefreq><priority>0.85</priority></url>`;
+      const geo = cities.map((city) => `  <url><loc>${esc(localizedUrl(locale, `${path}/${city}`))}</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>`);
       return [base, ...geo];
     }),
   );
 
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join("\n")}\n</urlset>`;
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset ${SITEMAP_NS}>\n${urls.join("\n")}\n</urlset>`;
   return new NextResponse(xml, { headers: { "Content-Type": "application/xml; charset=utf-8" } });
 }
