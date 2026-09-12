@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Animated } from 'react-native';
+import React, { useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { Icon, IconName } from './Icon';
 import { AppText } from './ui';
@@ -41,14 +42,7 @@ export function ScreenState({
   const { colors } = useApp() as any;
 
   if (loading) {
-    return (
-      <View style={[styles.center, { backgroundColor: colors.bg }]}>
-        <ActivityIndicator size="large" color={colors.p} />
-        <AppText variant="bodySM" color={colors.t2} style={styles.hint}>
-          جاري التحميل...
-        </AppText>
-      </View>
-    );
+    return <LoadingSkeleton />;
   }
 
   if (error) {
@@ -98,6 +92,27 @@ export function ScreenState({
   }
 
   return <>{children}</>;
+}
+
+/** P6-D wave-4: shimmer skeleton replaces the bare spinner on every loading state. */
+function LoadingSkeleton() {
+  const { colors } = useApp() as any;
+  const pulse = useRef(new Animated.Value(0.35)).current;
+  useEffect(() => {
+    const loop = Animated.loop(Animated.sequence([Animated.timing(pulse, { toValue: 1, duration: 700, useNativeDriver: true }), Animated.timing(pulse, { toValue: 0.35, duration: 700, useNativeDriver: true })]));
+    loop.start();
+    return () => loop.stop();
+  }, [pulse]);
+  return (
+    <View style={[styles.center, { backgroundColor: colors.bg, justifyContent: 'flex-start', paddingTop: 32 }]}>
+      {[0.9, 0.7, 1, 0.55].map((w, i) => (
+        <Animated.View key={i} style={{ width: `${Math.round(w * 100)}%`, height: i === 0 ? 22 : 14, borderRadius: 8, backgroundColor: colors.bd, opacity: pulse, marginBottom: 12 }} />
+      ))}
+      <AppText variant="bodySM" color={colors.t2} style={styles.hint}>
+        جاري التحميل...
+      </AppText>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
