@@ -50,6 +50,11 @@ export class MedicalReport extends Document {
   @Prop() issued_at?: Date;
   @Prop({ default: false }) viewed_by_patient: boolean;
   @Prop() patient_viewed_at?: Date;
+
+  // Patient-controlled sharing with specific doctors. Stores provider profile
+  // ids (public identifiers); resolved to the doctor's account at read time.
+  @Prop({ type: [String], default: [] }) shared_with_doctor_ids: string[];
+  @Prop({ type: [Object], default: [] }) share_history: Array<{ doctor_id: string; doctor_name?: string; shared_at: Date; revoked_at?: Date }>;
 }
 export const MedicalReportSchema = SchemaFactory.createForClass(MedicalReport);
 MedicalReportSchema.index({ patient_id: 1, createdAt: -1 });

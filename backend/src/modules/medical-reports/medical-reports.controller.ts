@@ -1,6 +1,6 @@
 import { JwtAuthGuard } from '../../common/auth.guard';
 import { UseGuards } from '@nestjs/common';
-import { Controller, Get, Post, Body, Param, Query } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Body, Param, Query } from '@nestjs/common';
 import { MedicalReportsService } from './medical-reports.service';
 import { CurrentUser } from '../../common/auth.guard';
 import { InjectConnection } from '@nestjs/mongoose';
@@ -41,6 +41,19 @@ export class MedicalReportsController {
   @Get('track/:trackingId')
   track(@CurrentUser() user: any, @Param('trackingId') tracking: string) {
     return this.svc.byTracking(tracking, user);
+  }
+
+  @Get('shared-with-me')
+  sharedWithMe(@CurrentUser() user: any) { return this.svc.sharedWithMe(user); }
+
+  @Post(':id/share')
+  share(@CurrentUser() user: any, @Param('id') id: string, @Body() body: any) {
+    return this.svc.share(user, id, body);
+  }
+
+  @Delete(':id/share/:doctorId')
+  unshare(@CurrentUser() user: any, @Param('id') id: string, @Param('doctorId') doctorId: string) {
+    return this.svc.unshare(user, id, doctorId);
   }
 
   @Get(':id')
