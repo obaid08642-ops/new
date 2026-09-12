@@ -1110,6 +1110,13 @@
     "notice": "Only secure in-portal links are shared — never send raw medical data in text."
   },
   "BookConsultation": {
+    "homeAddressRequired": "Enter your home location (address and coordinates) first",
+    "cashClinicOnly": "Cash is available for clinic visits only",
+    "homeLocation": "Home location",
+    "homeAddress": "Address",
+    "homeAddressPlaceholder": "District, street, building",
+    "homeLat": "Latitude",
+    "homeLng": "Longitude",
     "slotTaken": "This slot is no longer available. Choose another time.",
     "title": "Book Consultation",
     "subtitle": "Pick visit type, day and slot — real server slots",

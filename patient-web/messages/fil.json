@@ -1110,6 +1110,13 @@
     "notice": "Tanging ligtas na in-portal na mga link ang ibinabahagi"
   },
   "BookConsultation": {
+    "homeAddressRequired": "Ilagay muna ang lokasyon ng bahay (address at coordinates)",
+    "cashClinicOnly": "Ang cash ay available lang para sa clinic visits",
+    "homeLocation": "Lokasyon ng bahay",
+    "homeAddress": "Address",
+    "homeAddressPlaceholder": "District, street, building",
+    "homeLat": "Latitude",
+    "homeLng": "Longitude",
     "slotTaken": "Hindi na available ang slot na ito. Pumili ng iba.",
     "title": "Mag-book ng Konsultasyon",
     "subtitle": "Pumili ng uri, araw at slot — totoong server slots",

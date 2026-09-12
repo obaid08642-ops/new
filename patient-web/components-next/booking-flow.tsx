@@ -43,8 +43,20 @@ export function BookingFlow({ doctorId, locale, doctor }: { doctorId: string; lo
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [notes, setNotes] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<"cash" | "card" | "insurance">("card");
+  const [homeLat, setHomeLat] = useState("");
+  const [homeLng, setHomeLng] = useState("");
+  const [homeAddress, setHomeAddress] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const allowedMethods = visitType === "clinic" ? (["cash", "card", "insurance"] as const) : (["card", "insurance"] as const);
+
+  function pickVisitType(v: VisitType) {
+    setVisitType(v);
+    // Server policy (mirrors mobile): cash is clinic-only. Never offer a
+    // combination the backend rejects with payment_method_not_allowed.
+    if (v !== "clinic" && paymentMethod === "cash") setPaymentMethod("card");
+    setSelectedSlot(null);
+  }
 
   useEffect(() => {
     setLoading(true);
@@ -69,6 +81,17 @@ export function BookingFlow({ doctorId, locale, doctor }: { doctorId: string; lo
     setSubmitting(true);
     setError(null);
     try {
+      // Home visits require a location for the doctor to travel to.
+      let visitLocation: { lat: number; lng: number; address: string } | undefined;
+      if (visitType === "home") {
+        const lat = Number(homeLat);
+        const lng = Number(homeLng);
+        if (!Number.isFinite(lat) || !Number.isFinite(lng) || !homeAddress.trim()) {
+          setError(t("homeAddressRequired"));
+          return;
+        }
+        visitLocation = { lat, lng, address: homeAddress.trim() };
+      }
       // Hold the slot first (10-min TTL): the server consumes the lock on
       // booking success and releases it on failure, so double-submits and a
       // second device can never double-book (P3-e, web adoption).
@@ -96,11 +119,18 @@ export function BookingFlow({ doctorId, locale, doctor }: { doctorId: string; lo
           slot_start: selectedSlot,
           payment_method: paymentMethod,
           patient_notes: notes.trim() || undefined,
+          visit_location: visitLocation,
           slot_lock_id: slotLockId,
         }),
       });
       if (res.ok) {
         const data = await res.json().catch(() => null);
+        // Insurance continues to the payment-split flow with the server-issued
+        // request id (mirrors mobile); card/cash land on the appointment page.
+        if (paymentMethod === "insurance" && data?.insurance_request_id) {
+          router.push(`/${locale}/insurance/payment-split?request_id=${encodeURIComponent(data.insurance_request_id)}`);
+          return;
+        }
         router.push(`/${locale}/appointments/${data?.id || ""}`);
         return;
       }
@@ -122,7 +152,7 @@ export function BookingFlow({ doctorId, locale, doctor }: { doctorId: string; lo
         <legend>{t("visitType")}</legend>
         <div className={styles.types}>
           {VISIT_TYPES.map((type) => (
-            <button key={type} type="button" className={type === visitType ? `${styles.typeBtn} ${styles.active}` : styles.typeBtn} onClick={() => setVisitType(type)}>
+            <button key={type} type="button" className={type === visitType ? `${styles.typeBtn} ${styles.active}` : styles.typeBtn} onClick={() => pickVisitType(type)}>
               {t(`types.${type}`)}
             </button>
           ))}
@@ -158,13 +188,35 @@ export function BookingFlow({ doctorId, locale, doctor }: { doctorId: string; lo
       <fieldset className={styles.group}>
         <legend>{t("payment")}</legend>
         <div className={styles.types}>
-          {(["cash", "card", "insurance"] as const).map((method) => (
+          {allowedMethods.map((method) => (
             <button key={method} type="button" className={paymentMethod === method ? `${styles.typeBtn} ${styles.active}` : styles.typeBtn} onClick={() => setPaymentMethod(method)}>
               {t(`pay.${method}`)}
             </button>
           ))}
         </div>
+        {visitType !== "clinic" && (
+          <p className={styles.hint}>{t("cashClinicOnly")}</p>
+        )}
       </fieldset>
+      {visitType === "home" && (
+        <fieldset className={styles.group}>
+          <legend>{t("homeLocation")}</legend>
+          <label className={styles.notes}>
+            {t("homeAddress")}
+            <textarea value={homeAddress} onChange={(e) => setHomeAddress(e.target.value)} maxLength={500} rows={2} placeholder={t("homeAddressPlaceholder")} />
+          </label>
+          <div className={styles.types}>
+            <label className={styles.notes}>
+              {t("homeLat")}
+              <input value={homeLat} onChange={(e) => setHomeLat(e.target.value)} inputMode="decimal" placeholder="24.7136" />
+            </label>
+            <label className={styles.notes}>
+              {t("homeLng")}
+              <input value={homeLng} onChange={(e) => setHomeLng(e.target.value)} inputMode="decimal" placeholder="46.6753" />
+            </label>
+          </div>
+        </fieldset>
+      )}
       <label className={styles.notes}>
         {t("notes")}
         <textarea value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={2000} rows={3} placeholder={t("notesPlaceholder")} />
