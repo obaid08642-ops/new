@@ -16,6 +16,7 @@ import { ArticleRepository } from "./repositories/article.repository";
 import { ArticleSchema } from "../../schemas/article.schema";
 
 import { IndexNowService } from './indexnow.service';
+import { SeoIndexingListener } from './seo-indexing.listener';
 
 @Module({
   imports: [MongooseModule.forFeature([
@@ -30,6 +31,7 @@ import { IndexNowService } from './indexnow.service';
   providers: [
     SeoService,
     IndexNowService,
+    SeoIndexingListener,
     { provide: 'FacilityRepository', useClass: FacilityRepository },
     { provide: 'ArticleRepository', useClass: ArticleRepository },
     { provide: 'HomeCareServiceRepository', useClass: HomeCareServiceRepository },
