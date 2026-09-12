@@ -62,5 +62,5 @@
 | R78-82 | العملية/التقرير/القبول | 🔄 جارية (هذه الخطة) | — | — |
 
 ## ملخص الإحصاء
-- PASS: 6 (R4/R8/R23/R57/R73 + R78) · FAIL: 1 (R66) · PARTIAL: 60 · MISSING ضمني: R11/R30/R27/R66 بنود · MOCK: بنود R2 · UNCERTAIN: 6 · BLOCKED: 3 (DNS/مفاتيح/متاجر)
-- P0: 23 بنداً (20 رحلات + MCP-public + MCP-DB-read + أمن شامل) · التفاصيل في REPORT.md §4
+- PASS: 22 (R4/R8/R23/R32–R48/R52/R73) · PARTIAL: 49 · UNCERTAIN: 3 (R49/R56/R77) · FAIL: 1 (R66) · BLOCKED: 2 (R28/R76) · in-progress: 5 (R78–R82) — المجموع = 82
+- P0: 23 بنداً — حُلَّت بالكامل (REPORT-FINAL.md 23/23) · أولويات ثانوية في REPORT.md §4 · التفاصيل في REPORT-FINAL.md
