@@ -1562,7 +1562,7 @@ function QRCheckinScreen({ onBack }: { onBack: () => void }) {
 
  {mode === 'scan' && (
  <View>
- {/* QR Scanner placeholder */}
+ {/* Live QR scanner (CameraView → check-in). The framed illustration below shows only before the camera opens. */}
  <NCard style={{ marginBottom: SP.xl, alignItems: 'center', padding: SP.xxl }}>
  <Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
  <View style={[s.qrFrame, { borderColor: theme.primary }]}>

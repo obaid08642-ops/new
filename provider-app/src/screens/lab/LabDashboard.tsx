@@ -65,11 +65,14 @@ function LabOrdersTab({ onNav }: { onNav: (s: string, p?: any) => void }) {
       .finally(() => setLoading(false));
   }, []);
 
+  // Backend LabBookingState lives in `state` (not `status`): NEW_REQUEST,
+  // PENDING_INSURANCE, WAITING_COPAY, CONFIRMED, IN_TRANSIT, IN_LAB,
+  // SAMPLE_COLLECTED, PROCESSING, RESULT_UPLOADED, REPORTED, SAMPLE_REJECTED, CANCELLED.
   const getFilteredOrders = () => {
-    if (subTab === 'incoming') return orders.filter(o => ['NEW_REQUEST', 'PENDING_INSURANCE', 'WAITING_COPAY'].includes(o.status));
-    if (subTab === 'scheduled') return orders.filter(o => ['CONFIRMED', 'ASSIGNED', 'IN_TRANSIT'].includes(o.status));
-    if (subTab === 'processing') return orders.filter(o => ['SAMPLE_COLLECTED', 'PROCESSING', 'SAMPLE_REJECTED'].includes(o.status));
-    if (subTab === 'results') return orders.filter(o => ['RESULT_UPLOADED'].includes(o.status));
+    if (subTab === 'incoming') return orders.filter(o => ['NEW_REQUEST', 'PENDING_INSURANCE', 'WAITING_COPAY'].includes(o.state));
+    if (subTab === 'scheduled') return orders.filter(o => ['CONFIRMED', 'IN_TRANSIT'].includes(o.state));
+    if (subTab === 'processing') return orders.filter(o => ['IN_LAB', 'SAMPLE_COLLECTED', 'PROCESSING', 'SAMPLE_REJECTED'].includes(o.state));
+    if (subTab === 'results') return orders.filter(o => ['RESULT_UPLOADED', 'REPORTED'].includes(o.state));
     return [];
   };
 

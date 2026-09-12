@@ -177,6 +177,10 @@ export class ProviderOpsService {
     if (!allowed.includes(action)) throw new BadRequestException(`action must be one of ${allowed.join(',')}`);
     const b: any = await this.conn.collection('labbookings').findOne({ id: bookingId });
     if (!b) throw new NotFoundException('booking not found');
+    // Ownership (P0 IDOR fix): only the serving lab/hospital or an admin may QC a booking.
+    if (user?.role !== 'admin' && b.provider_account_id && b.provider_account_id !== user.id) {
+      throw new ForbiddenException('booking_not_owned_by_lab');
+    }
 
     const patch: any = { updatedAt: new Date() };
     const hist = { action, at: new Date(), by: user.id, role: user.role, note: body?.note || null };
