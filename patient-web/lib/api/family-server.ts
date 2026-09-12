@@ -13,3 +13,6 @@ export function getPatientFamilyMemberRecords(accessToken: string, memberId: str
 export function getPatientFamilyCalendar(accessToken: string) {
   return callPatientApi("/family/calendar", {}, accessToken);
 }
+export function getPatientFamilyEmergencyContacts(accessToken: string) {
+  return callPatientApi("/family/emergency-contacts", {}, accessToken);
+}

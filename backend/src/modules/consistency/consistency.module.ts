@@ -4,7 +4,8 @@
  * ║   Detect + reconcile + auto-fix orphans across all bookings.   ║
  * ╚════════════════════════════════════════════════════════════════╝
  */
-import { Module, Controller, Get, Post, Body, Query, UseGuards, Injectable } from '@nestjs/common';
+import { Module, Controller, Get, Post, Body, Query, UseGuards, Injectable, Logger } from '@nestjs/common';
+import { Cron } from '@nestjs/schedule';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JwtAuthGuard, Roles } from '../../common/auth.guard';
@@ -32,6 +33,23 @@ export class ConsistencyService {
   ) {}
 
   /** Cross-collection audit — surface inconsistencies without modifying data. */
+  private readonly logger = new Logger(ConsistencyService.name);
+  private reconcileRunning = false;
+
+  /** R72: nightly scheduled settlement — birth-event backfill for the last 30d window. */
+  @Cron('17 3 * * *')
+  async scheduledReconcile() {
+    if (this.reconcileRunning || process.env.CONSISTENCY_CRON_DISABLED === '1') return;
+    this.reconcileRunning = true;
+    try {
+      const out: any = await this.reconcile();
+      this.logger.log(`scheduled reconcile: ${JSON.stringify(out).slice(0, 200)}`);
+    } catch (e: any) {
+      this.logger.error(`scheduled reconcile failed: ${String(e?.message || e).slice(0, 200)}`);
+    } finally {
+      this.reconcileRunning = false;
+    }
+  }
   async audit() {
     const since = new Date(Date.now() - 30 * 86400000);
     const audit: any = { since, issues: { duplicates: [], orphans: [], mismatched: [], missing_birth_event: [], stuck: [] } };

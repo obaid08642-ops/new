@@ -4,6 +4,7 @@ import MapView, { Marker } from './PlatformMap';
 import { SP, FS, R } from '../constants';
 import { useTheme, useLang } from '../context';
 import * as Location from 'expo-location';
+import { tokens } from '../theme/tokens';
 
 interface LocationPickerModalProps {
   visible: boolean;
@@ -105,7 +106,7 @@ export const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
           </View>
 
           {locError && (
-            <Text style={{ color: '#dc2626', fontSize: FS.sm, marginBottom: SP.sm, textAlign: 'center' }}>{locError}</Text>
+            <Text style={{ color: 'tokens.error', fontSize: FS.sm, marginBottom: SP.sm, textAlign: 'center' }}>{locError}</Text>
           )}
           <Text style={{ color: theme.textSub, fontSize: FS.xs, marginBottom: SP.sm, textAlign: 'center' }}>
             {AR ? 'اضغط على الخريطة أو اسحب الدبوس لتحديد الموقع بدقة' : 'Tap the map or drag the pin to fine-tune the location'}

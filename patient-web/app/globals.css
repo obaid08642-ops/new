@@ -287,13 +287,13 @@ html.dark,
   --ink: #f0f6fc;
   --muted: #94a3b8;
   --line: #22374e;
-  --brand: #22c0d4;
-  --brand-deep: #1497aa;
-  --brand-soft: rgba(34, 192, 212, 0.15);
-  --mint: rgba(34, 192, 212, 0.12);
-  --color-primary: #22c0d4;
-  --color-primary-dark: #1497aa;
-  --color-primary-surface: rgba(34, 192, 212, 0.15);
+  --brand: #B8E030;
+  --brand-deep: #7CB518;
+  --brand-soft: rgba(184, 224, 48, 0.15);
+  --mint: rgba(95, 217, 179, 0.14);
+  --color-primary: #B8E030;
+  --color-primary-dark: #7CB518;
+  --color-primary-surface: rgba(184, 224, 48, 0.15);
   --color-canvas: #0b131f;
   --color-surface: #132235;
   --color-line: #22374e;
@@ -304,7 +304,7 @@ html.dark,
 }
 
 html.dark body {
-  background: radial-gradient(circle at 85% -15%, rgba(34, 192, 212, 0.12), transparent 31rem), radial-gradient(circle at 4% 80%, rgba(122, 107, 234, 0.08), transparent 25rem), var(--canvas);
+  background: radial-gradient(circle at 85% -15%, rgba(184, 224, 48, 0.12), transparent 31rem), radial-gradient(circle at 4% 80%, rgba(122, 107, 234, 0.08), transparent 25rem), var(--canvas);
 }
 
 html.dark .topbar {

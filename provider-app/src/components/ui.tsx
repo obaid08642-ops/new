@@ -10,6 +10,7 @@ import {
  TouchableWithoutFeedback, Vibration, Pressable
 } from 'react-native';
 import { useTheme, useLang, useToast } from '../context';
+import { tokens } from '../theme/tokens';
 import { SP, R, FS, FW, SH_MD, C } from '../constants';
 import { I, hasIcon } from './icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -769,7 +770,7 @@ const s = StyleSheet.create({
  confirmCenter: { ...StyleSheet.absoluteFillObject as object, justifyContent:'center', alignItems:'center', padding:SP.xxl },
  confirmTitle: { fontSize:FS.xl, fontWeight:FW.bold, textAlign:'center', marginBottom:SP.md },
  confirmMsg: { fontSize:FS.md, textAlign:'center', lineHeight:22, marginBottom:SP.xxl },
- successIcon: { width:100, height:100, borderRadius:50, alignItems:'center', justifyContent:'center', marginBottom:SP.xxl, shadowColor:'#4CAF50', shadowOffset:{width:0,height:0}, shadowOpacity:0.3, shadowRadius:20, elevation:10 },
+ successIcon: { width:100, height:100, borderRadius:50, alignItems:'center', justifyContent:'center', marginBottom:SP.xxl, shadowColor:'tokens.success', shadowOffset:{width:0,height:0}, shadowOpacity:0.3, shadowRadius:20, elevation:10 },
  otpBox: { width:52, height:60, borderRadius:R.lg, borderWidth:2, textAlign:'center', fontSize:FS.xl, fontWeight:FW.bold },
  onlineTrack: { width:52, height:28, borderRadius:14, borderWidth:1.5, justifyContent:'center', paddingHorizontal:3, alignItems:'flex-start' },
  onlineDot: { width:20, height:20, borderRadius:10 },

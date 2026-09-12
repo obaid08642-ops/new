@@ -47,7 +47,7 @@
 | R58-63 | الاختبارات | PARTIAL | 117 spec + e2e + عقود ✅؛ اختبارات R59-63 المحددة تُبنى/تُشغل P11 | P1 |
 | R64 | الاتساق | PARTIAL | `consistency` (تدقيق + تسوية) ✅؛ اتساق العملاء يُختبر P11 | P2 |
 | R65 | الأخطاء | PARTIAL | أخطاء مهيكلة (slot_taken/prescription_required...) ✅؛ التوحيد P7 | P2 |
-| R66 | Idempotency | FAIL | BFF يشترط المفتاح والباكند يتجاهله في إنشاء/تقديم الصيدلية (+عقود مزدوجة) | P0 |
+| R66 | Idempotency | PASS | أُصلح بـ P0-01 (`5101f4c4`): @RequireIdempotency على إنشاء/تقديم/تحديث/إلغاء الصيدلية + interceptor عالمي (dedupe 24h + lock + body-hash) — 2026-09-12 | P0 |
 | R67 | سلامة تجارة AI | PARTIAL | فرض server-side في التدفقات ✅؛ تجاوز خاص بـ AI يُراجع P10 | P1 |
 | R68 | خط SEO | PARTIAL | مغطى R22-24 | P1 |
 | R69 | Slugs | PARTIAL | نظام موجود؛ تصادم/تحويلات P11 | P2 |
@@ -58,9 +58,9 @@
 | R74 | صفحات موقع+خدمة | PARTIAL | صفحات SEO مواقع موجودة؛ دعمها ببيانات حقيقية P9 | P2 |
 | R75 | تحليلات بحث | PARTIAL | `query-analytics` ✅؛ الاستخدام P9 | P3 |
 | R76 | ASO | UNCERTAIN | `app.json` موجود؛ metadata المتاجر خارجي | BLOCKED |
-| R77 | أدمن/أتمتة | UNCERTAIN | الفصل يُتحقق P7 | P2 |
+| R77 | أدمن/أتمتة | PARTIAL | محرك الرانكنج حي ومعزول عن اليدوي (`product-ranking.service.ts:28` — manual boosts live elsewhere, never here)؛ واجهة merchandising يدوية محكومة غائبة (backlog أدمن) — 2026-09-12 | P2 |
 | R78-82 | العملية/التقرير/القبول | 🔄 جارية (هذه الخطة) | — | — |
 
 ## ملخص الإحصاء
-- PASS: 6 (R4/R8/R23/R57/R73 + R78) · FAIL: 1 (R66) · PARTIAL: 60 · MISSING ضمني: R11/R30/R27/R66 بنود · MOCK: بنود R2 · UNCERTAIN: 6 · BLOCKED: 3 (DNS/مفاتيح/متاجر)
-- P0: 23 بنداً (20 رحلات + MCP-public + MCP-DB-read + أمن شامل) · التفاصيل في REPORT.md §4
+- PASS: 23 (R4/R8/R23/R32–R48/R52/R66/R73) · PARTIAL: 50 · UNCERTAIN: 2 (R49/R56) · FAIL: 0 · BLOCKED: 2 (R28/R76) · in-progress: 5 (R78–R82) — المجموع = 82
+- P0: 23 بنداً — حُلَّت بالكامل (REPORT-FINAL.md 23/23) · أولويات ثانوية في REPORT.md §4 · التفاصيل في REPORT-FINAL.md

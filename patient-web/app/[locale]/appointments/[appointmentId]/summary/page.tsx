@@ -30,7 +30,11 @@ export default async function AppointmentSummaryPage({ params }: Props) {
   const summary = ((raw as { data?: unknown })?.data ?? raw) as Record<string, unknown> | null;
   const diagnosis = typeof summary?.diagnosis === "string" ? summary.diagnosis : undefined;
   const notes = typeof summary?.notes === "string" ? summary.notes : undefined;
+  const recommendations = typeof summary?.recommendations === "string" ? summary.recommendations : undefined;
   const prescription = Array.isArray(summary?.prescription) ? (summary.prescription as unknown[]) : [];
+  const followUpRecommended = summary?.follow_up_recommended === true;
+  const windowDays = typeof summary?.follow_up_window_days === "number" ? summary.follow_up_window_days : 7;
+  const doctorId = typeof summary?.doctor_id === "string" ? summary.doctor_id : undefined;
 
   return (
     <main className="main">
@@ -63,12 +67,30 @@ export default async function AppointmentSummaryPage({ params }: Props) {
       {!diagnosis && !notes && !prescription.length ? (
         <p role="status">{ar ? "الملخص غير متاح بعد." : "Summary not available yet."}</p>
       ) : (
-        <nav aria-label={ar ? "أوامر قابلة للتنفيذ" : "Actionable orders"} style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          {prescription.length > 0 ? (
-            <Link href={`/${locale}/pharmacy`}>{ar ? "اطلب الأدوية من الصيدلية" : "Order medicines from pharmacy"}</Link>
+        <>
+          {recommendations ? (
+            <section>
+              <h2>{ar ? "التوصيات" : "Recommendations"}</h2>
+              <p style={{ whiteSpace: "pre-wrap" }}>{recommendations}</p>
+            </section>
           ) : null}
-          <Link href={`/${locale}/diagnostics/labs`}>{ar ? "احجز التحاليل" : "Book tests"}</Link>
-        </nav>
+          {followUpRecommended ? (
+            <section aria-label={ar ? "موعد المتابعة" : "Follow-up"}>
+              <h2>{ar ? `يُنصح بمتابعة خلال ${windowDays} أيام` : `Follow-up recommended within ${windowDays} days`}</h2>
+              <p>{ar ? "احجز موعد المتابعة الآن بسعر مخفّض ضمن النافذة." : "Book the follow-up now at a discounted rate inside the window."}</p>
+              <Link href={`/${locale}/consultations/booking-status?appointmentId=${appointmentId}&followUp=true&windowDays=${windowDays}${doctorId ? `&doctorId=${encodeURIComponent(doctorId)}` : ""}`}>
+                {ar ? "احجز موعد المتابعة" : "Book follow-up"}
+              </Link>
+            </section>
+          ) : null}
+          <nav aria-label={ar ? "أوامر قابلة للتنفيذ" : "Actionable orders"} style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            {prescription.length > 0 ? (
+              <Link href={`/${locale}/pharmacy`}>{ar ? "اطلب الأدوية من الصيدلية" : "Order medicines from pharmacy"}</Link>
+            ) : null}
+            <Link href={`/${locale}/diagnostics/labs`}>{ar ? "احجز التحاليل" : "Book tests"}</Link>
+            <Link href={`/${locale}/consultations/post-call-rating?appointmentId=${appointmentId}`}>{ar ? "قيّم الاستشارة" : "Rate the consultation"}</Link>
+          </nav>
+        </>
       )}
     </main>
   );

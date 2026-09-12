@@ -207,7 +207,7 @@ function ChatRoom({ conv, onBack }: { conv: any; onBack: () => void }) {
  <NAvatar name={conv?.name ?? '—'} size={40} online={conv?.online} />
  <View>
  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{conv?.name ?? '—'}</Text>
- <Text style={{ fontSize: FS.xs, color: conv?.online ? '#4CAF50' : theme.textSub }}>
+ <Text style={{ fontSize: FS.xs, color: conv?.online ? 'tokens.success' : theme.textSub }}>
  {conv?.online ? (AR ? 'متصل الآن' : 'Online') : (AR ? 'غير متصل' : 'Offline')}
  </Text>
  </View>
@@ -287,12 +287,12 @@ function ChatRoom({ conv, onBack }: { conv: any; onBack: () => void }) {
 // Connected to backend Notification APIs
 
 const NOTIF_TYPES: Record<string, { icon: string; color: string }> = {
- order: { icon: 'document', color: '#2196F3' },
- result: { icon: 'testTube', color: '#9C27B0' },
- insurance: { icon: 'shield', color: '#4CAF50' },
- system: { icon: 'settings', color: '#607D8B' },
- payment: { icon: 'wallet', color: '#FF9800' },
- reminder: { icon: 'clock', color: '#E91E63' },
+ order: { icon: 'document', color: 'tokens.info' },
+ result: { icon: 'testTube', color: 'tokens.purple' },
+ insurance: { icon: 'shield', color: 'tokens.success' },
+ system: { icon: 'settings', color: 'tokens.textSecondary' },
+ payment: { icon: 'wallet', color: 'tokens.warning' },
+ reminder: { icon: 'clock', color: 'tokens.pink' },
 };
 
 export function NotificationsCenter({ onBack }: { onBack: () => void }) {
@@ -418,7 +418,7 @@ export function SupportCenter({ onBack }: { onBack: () => void }) {
 
  {tab === 'tickets' && TICKETS.map(ticket => (
  <NCard key={ticket.id} style={{ marginBottom: SP.md }}
- accent={ticket.status === 'open' ? '#FF9800' : ticket.status === AppointmentStatus.IN_PROGRESS ? '#2196F3' : '#4CAF50'}>
+ accent={ticket.status === 'open' ? 'tokens.warning' : ticket.status === AppointmentStatus.IN_PROGRESS ? 'tokens.info' : 'tokens.success'}>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', marginBottom: SP.sm }}>
  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{AR ? ticket.subject_ar : ticket.subject_en}</Text>
  <NBadge label={ticket.status === 'open' ? (AR ? 'مفتوحة' : 'Open') : ticket.status === AppointmentStatus.IN_PROGRESS ? (AR ? 'قيد المعالجة' : 'In Progress') : (AR ? 'محلولة' : 'Resolved')}
@@ -1174,7 +1174,7 @@ export function MedicalJobsScreen({ onBack, onOpenChat }: { onBack: () => void, 
         </ScrollView>
 
         <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: SP.xl, backgroundColor: theme.surface, borderTopWidth: 1, borderTopColor: theme.border, shadowColor: '#000', shadowOffset:{width:0,height:-4}, shadowOpacity:0.05, elevation: 10 }}>
-          <TouchableOpacity onPress={() => setApplyVisible(true)} style={{ backgroundColor: selectedJob.contact === 'whatsapp' ? '#4CAF50' : theme.primary, padding: SP.lg, borderRadius: R.full, alignItems: 'center', flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'center', gap: SP.md }}>
+          <TouchableOpacity onPress={() => setApplyVisible(true)} style={{ backgroundColor: selectedJob.contact === 'whatsapp' ? 'tokens.success' : theme.primary, padding: SP.lg, borderRadius: R.full, alignItems: 'center', flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'center', gap: SP.md }}>
             <I name={selectedJob.contact === 'whatsapp' ? "phone" : "send"} size={24} color="#FFF" />
             <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: '#FFF' }}>
               {selectedJob.contact === 'whatsapp' ? (AR ? 'تواصل واتساب مباشرة' : 'Direct WhatsApp') : (AR ? 'تقديم عبر صندوق التوظيف (CV)' : 'Submit CV via ATS Inbox')}
@@ -1198,8 +1198,8 @@ export function MedicalJobsScreen({ onBack, onOpenChat }: { onBack: () => void, 
         </View>
         
         <ScrollView contentContainerStyle={{ padding: SP.xl, gap: SP.md }}>
-          <View style={{ backgroundColor: selectedJob.contact === 'whatsapp' ? '#4CAF5015' : theme.primaryLight, padding: SP.lg, borderRadius: R.lg, marginBottom: SP.md }}>
-            <Text style={{ fontSize: FS.sm, color: selectedJob.contact === 'whatsapp' ? '#4CAF50' : theme.primary, textAlign: AR ? 'right' : 'left', lineHeight: 22, fontWeight: FW.bold }}>
+          <View style={{ backgroundColor: selectedJob.contact === 'whatsapp' ? 'tokens.success15' : theme.primaryLight, padding: SP.lg, borderRadius: R.lg, marginBottom: SP.md }}>
+            <Text style={{ fontSize: FS.sm, color: selectedJob.contact === 'whatsapp' ? 'tokens.success' : theme.primary, textAlign: AR ? 'right' : 'left', lineHeight: 22, fontWeight: FW.bold }}>
               {selectedJob.contact === 'whatsapp' 
                 ? (AR ? 'سيتم تجهيز رسالة واتساب تحتوي على بياناتك لإرسالها مباشرة إلى ' : 'A WhatsApp message will be prepared to send to ')
                 : (AR ? 'سيتم إرسال سيرتك الذاتية بأمان إلى صندوق وارد التوظيف (ATS Inbox) الخاص بـ ' : 'Your CV will be securely sent to the ATS Inbox of ')}
@@ -1252,7 +1252,7 @@ export function MedicalJobsScreen({ onBack, onOpenChat }: { onBack: () => void, 
             </Text>
           </TouchableOpacity>
 
-          <NBtn label={AR ? 'إرسال الطلب (Submit)' : 'Submit Application'} onPress={handleApply} disabled={!applyName || !applyPhone || !applyCV} style={{ marginTop: SP.xl, backgroundColor: selectedJob.contact === 'whatsapp' ? '#4CAF50' : theme.primary }} />
+          <NBtn label={AR ? 'إرسال الطلب (Submit)' : 'Submit Application'} onPress={handleApply} disabled={!applyName || !applyPhone || !applyCV} style={{ marginTop: SP.xl, backgroundColor: selectedJob.contact === 'whatsapp' ? 'tokens.success' : theme.primary }} />
         </ScrollView>
       </View>
     );
@@ -1281,7 +1281,7 @@ export function MedicalJobsScreen({ onBack, onOpenChat }: { onBack: () => void, 
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between' }}><Text style={{ color: theme.textSub }}>{AR ? 'رقم التواصل' : 'Phone'}</Text><Text style={{ fontWeight: FW.bold, color: theme.text }}>{selectedApp.phone}</Text></View>
           </View>
 
-          <NBtn label={AR ? 'تواصل مع المتقدم عبر واتساب' : 'Contact via WhatsApp'} variant="outline" onPress={() => Linking.openURL(`whatsapp://send?phone=${selectedApp.phone}`)} style={{ borderColor: '#4CAF50' }} />
+          <NBtn label={AR ? 'تواصل مع المتقدم عبر واتساب' : 'Contact via WhatsApp'} variant="outline" onPress={() => Linking.openURL(`whatsapp://send?phone=${selectedApp.phone}`)} style={{ borderColor: 'tokens.success' }} />
         </ScrollView>
       </View>
     );
@@ -1446,8 +1446,8 @@ export function MedicalJobsScreen({ onBack, onOpenChat }: { onBack: () => void, 
                   <I name="inbox" size={24} color={postContact === 'inbox' ? theme.primary : theme.textSub} />
                   <Text style={{ color: theme.text, fontSize: FS.xs, marginTop: 4, textAlign: 'center', fontWeight: FW.bold }}>{AR ? 'صندوق الوارد (ATS)' : 'ATS Inbox'}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => setPostContact('whatsapp')} style={{ flex: 1, padding: SP.md, borderRadius: R.md, borderWidth: 1, borderColor: postContact === 'whatsapp' ? '#4CAF50' : theme.border, alignItems: 'center', backgroundColor: postContact === 'whatsapp' ? '#4CAF5015' : theme.surface }}>
-                  <I name="phone" size={24} color={postContact === 'whatsapp' ? '#4CAF50' : theme.textSub} />
+                <TouchableOpacity onPress={() => setPostContact('whatsapp')} style={{ flex: 1, padding: SP.md, borderRadius: R.md, borderWidth: 1, borderColor: postContact === 'whatsapp' ? 'tokens.success' : theme.border, alignItems: 'center', backgroundColor: postContact === 'whatsapp' ? 'tokens.success15' : theme.surface }}>
+                  <I name="phone" size={24} color={postContact === 'whatsapp' ? 'tokens.success' : theme.textSub} />
                   <Text style={{ color: theme.text, fontSize: FS.xs, marginTop: 4, textAlign: 'center', fontWeight: FW.bold }}>{AR ? 'واتساب' : 'WhatsApp'}</Text>
                 </TouchableOpacity>
               </View>
@@ -1456,7 +1456,7 @@ export function MedicalJobsScreen({ onBack, onOpenChat }: { onBack: () => void, 
           
           {/* Guest Forced WhatsApp constraint info */}
           {postType === 'request' && (
-            <View style={{ backgroundColor: '#FF980015', padding: SP.md, borderRadius: R.md, borderWidth: 1, borderColor: '#FF9800', marginTop: SP.sm }}>
+            <View style={{ backgroundColor: 'tokens.warning15', padding: SP.md, borderRadius: R.md, borderWidth: 1, borderColor: 'tokens.warning', marginTop: SP.sm }}>
               <Text style={{ color: '#F57C00', fontSize: FS.xs, textAlign: AR ? 'right' : 'left', lineHeight: 18 }}>
                 {AR ? 'بما أنك لا تملك حساب مستشفى (زائر)، التواصل سيكون حصراً عبر الواتساب، لذلك إدخال رقم الجوال الزامي للشركات للوصول إليك.' : 'As a guest job seeker, communication is strictly via WhatsApp. Phone number is required.'}
               </Text>
@@ -1575,7 +1575,7 @@ function DrugSection({ title, content, warn, defaultOpen }: { title: string; con
  return (
  <View style={{ borderWidth: 1, borderColor: theme.border, borderRadius: R.md, backgroundColor: theme.surface, overflow: 'hidden', marginBottom: SP.sm }}>
    <TouchableOpacity onPress={() => setOpen(!open)} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', padding: SP.md, gap: SP.sm }}>
-     <Text style={{ flex: 1, fontSize: FS.sm, fontWeight: FW.bold, color: warn ? '#dc2626' : theme.text, textAlign: AR ? 'right' : 'left' }}>{title}</Text>
+     <Text style={{ flex: 1, fontSize: FS.sm, fontWeight: FW.bold, color: warn ? 'tokens.error' : theme.text, textAlign: AR ? 'right' : 'left' }}>{title}</Text>
      <Text style={{ color: theme.textSub, fontSize: FS.md }}>{open ? '−' : '+'}</Text>
    </TouchableOpacity>
    {open && (
@@ -2160,7 +2160,7 @@ export function MedicalDrugIndexScreen({ onBack }: { onBack: () => void }) {
 
  {(drugDetail?.warnings_ar?.length > 0) && (
  <View style={{ gap: 4 }}>
- <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: '#dc2626', textAlign: AR ? 'right' : 'left' }}>
+ <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: 'tokens.error', textAlign: AR ? 'right' : 'left' }}>
   {AR ? 'تحذيرات:' : 'Warnings:'}
  </Text>
  <Text style={{ fontSize: FS.sm, color: theme.textSub, lineHeight: 22, textAlign: AR ? 'right' : 'left' }}>
@@ -2467,7 +2467,7 @@ export function CertificatesConfigScreen({ onBack }: { onBack: () => void }) {
  const meta = statusMeta(item.review_status || item.status);
  const dateStr = (item.createdAt || item.issued_date || '').slice(0, 10);
  return (
- <NCard key={item.id} style={{ marginBottom: SP.sm }} accent={meta.variant === 'success' ? '#4CAF50' : meta.variant === 'danger' ? '#F44336' : '#2196F3'}>
+ <NCard key={item.id} style={{ marginBottom: SP.sm }} accent={meta.variant === 'success' ? 'tokens.success' : meta.variant === 'danger' ? 'tokens.error' : 'tokens.info'}>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.sm }}>
  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, flex: 1, textAlign: AR ? 'right' : 'left' }}>
  {docLabel(item.doc_type)}
@@ -2809,10 +2809,10 @@ export function ProviderHomeStats({ onNavigate, stats }: { onNavigate: (s: strin
   return (
     <View style={{ marginBottom: SP.xl }}>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: SP.md, marginBottom: SP.xl }}>
-        <NStatCard icon="" label={AR ? 'طلبات اليوم' : "Today's Orders"} value={String(stats.todayCount || 0)} color="#2196F3" style={{ width: '47%' }} />
-        <NStatCard icon="" label={AR ? 'طلبات الأسبوع' : "Week's Orders"} value={String(stats.weekCount || 0)} color="#9C27B0" style={{ width: '47%' }} />
-        <NStatCard icon="" label={AR ? 'الإيرادات' : "Revenue"} value={String(stats.revenue || 0)} unit={AR ? 'ر' : 'SAR'} color="#4CAF50" style={{ width: '47%' }} />
-        <NStatCard icon="" label={AR ? 'طلبات جديدة' : 'New Requests'} value={String(stats.pendingCount || 0)} color="#FF9800" style={{ width: '47%' }} />
+        <NStatCard icon="" label={AR ? 'طلبات اليوم' : "Today's Orders"} value={String(stats.todayCount || 0)} color="tokens.info" style={{ width: '47%' }} />
+        <NStatCard icon="" label={AR ? 'طلبات الأسبوع' : "Week's Orders"} value={String(stats.weekCount || 0)} color="tokens.purple" style={{ width: '47%' }} />
+        <NStatCard icon="" label={AR ? 'الإيرادات' : "Revenue"} value={String(stats.revenue || 0)} unit={AR ? 'ر' : 'SAR'} color="tokens.success" style={{ width: '47%' }} />
+        <NStatCard icon="" label={AR ? 'طلبات جديدة' : 'New Requests'} value={String(stats.pendingCount || 0)} color="tokens.warning" style={{ width: '47%' }} />
       </View>
 
       <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginBottom: SP.md, flexWrap: 'wrap' }}>
@@ -2827,6 +2827,7 @@ export function ProviderHomeStats({ onNavigate, stats }: { onNavigate: (s: strin
 // GLOBAL SYSTEM SETTINGS (Theme, Lang, Face ID)
 // ══════════════════════════════════════════════════════════════════════════════
 import { SK, Vault } from '../../security/Security';
+import { tokens } from '../../theme/tokens';
 
 export function GlobalSystemSettings() {
   const { theme, toggle: toggleTheme, mode } = useTheme();

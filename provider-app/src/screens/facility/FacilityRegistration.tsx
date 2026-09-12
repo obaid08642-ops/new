@@ -27,6 +27,7 @@ import { ProviderApi, sanitizeWizardData } from '../../api/provider';
 import { useInsuranceCatalog, useServicesCatalog } from '../../api/catalogs';
 
 import SignatureCanvas from 'react-native-signature-canvas';
+import { tokens } from '../../theme/tokens';
 
 const { width: W } = Dimensions.get('window');
 
@@ -509,11 +510,11 @@ function Step4SubProviders({ data, update, onNext, onBack, step, total }: any) {
   });
 
   const TYPES: any = {
-    doctor: { ar: 'طبيب', en: 'Doctor', color: '#4CAF50' },
-    lab: { ar: 'مختبر', en: 'Laboratory', color: '#9C27B0' },
-    pharmacy: { ar: 'صيدلية', en: 'Pharmacy', color: '#FF9800' },
+    doctor: { ar: 'طبيب', en: 'Doctor', color: 'tokens.success' },
+    lab: { ar: 'مختبر', en: 'Laboratory', color: 'tokens.purple' },
+    pharmacy: { ar: 'صيدلية', en: 'Pharmacy', color: 'tokens.warning' },
     radiology: { ar: 'أشعة', en: 'Radiology', color: '#03A9F4' },
-    nursing: { ar: 'تمريض', en: 'Nursing', color: '#E91E63' }
+    nursing: { ar: 'تمريض', en: 'Nursing', color: 'tokens.pink' }
   };
 
   const saveSub = () => {

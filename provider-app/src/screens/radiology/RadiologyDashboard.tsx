@@ -14,17 +14,17 @@ import { GpsRouterScreen } from '../shared/BlueprintScreens';
 
 // ══════ PILLAR 1: STATE MACHINE LABELS ══════
 const STATE_LABELS: Record<string, { ar: string; en: string; color: string }> = {
-  NEW_REQUEST:       { ar: 'طلب جديد',             en: 'New Request',       color: '#2196F3' },
-  PENDING_INSURANCE: { ar: 'انتظار التأمين',         en: 'Pending Insurance', color: '#FF9800' },
-  WAITING_COPAY:     { ar: 'بانتظار دفع المريض',     en: 'Waiting Co-Pay',    color: '#9C27B0' },
-  CONFIRMED:         { ar: 'مجدول',                  en: 'Confirmed',         color: '#009688' },
+  NEW_REQUEST:       { ar: 'طلب جديد',             en: 'New Request',       color: 'tokens.info' },
+  PENDING_INSURANCE: { ar: 'انتظار التأمين',         en: 'Pending Insurance', color: 'tokens.warning' },
+  WAITING_COPAY:     { ar: 'بانتظار دفع المريض',     en: 'Waiting Co-Pay',    color: 'tokens.purple' },
+  CONFIRMED:         { ar: 'مجدول',                  en: 'Confirmed',         color: 'tokens.mintDeep' },
   ARRIVED_CHECKIN:   { ar: 'المريض بالانتظار',       en: 'Patient Waiting',   color: '#00BCD4' },
-  IN_SCANNING:       { ar: 'داخل غرفة الأشعة',      en: 'In Scanning',       color: '#FF5722' },
+  IN_SCANNING:       { ar: 'داخل غرفة الأشعة',      en: 'In Scanning',       color: 'tokens.coral' },
   REPORT_DRAFT:      { ar: 'مسودة التقرير',          en: 'Report Draft',      color: '#795548' },
-  UNDER_REVIEW:      { ar: 'قيد المراجعة',           en: 'Under Review',      color: '#607D8B' },
-  REPORT_READY:      { ar: 'مكتمل',                  en: 'Complete',          color: '#4CAF50' },
-  SCAN_ABORTED:      { ar: 'فحص ملغى (طارئ)',        en: 'Scan Aborted',      color: '#F44336' },
-  CANCELLED:         { ar: 'ملغى',                   en: 'Cancelled',         color: '#9E9E9E' },
+  UNDER_REVIEW:      { ar: 'قيد المراجعة',           en: 'Under Review',      color: 'tokens.textSecondary' },
+  REPORT_READY:      { ar: 'مكتمل',                  en: 'Complete',          color: 'tokens.success' },
+  SCAN_ABORTED:      { ar: 'فحص ملغى (طارئ)',        en: 'Scan Aborted',      color: 'tokens.error' },
+  CANCELLED:         { ar: 'ملغى',                   en: 'Cancelled',         color: 'tokens.textTertiary' },
 };
 
 const ABORT_REASONS = [
@@ -39,6 +39,7 @@ const ABORT_REASONS = [
 
 // ══════ NAVIGATOR ══════
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { tokens } from '../../theme/tokens';
 const Stack = createNativeStackNavigator();
 
 export function RadiologyDashboardNavigator({ onLogout }: { onLogout: () => void }) {
@@ -100,13 +101,13 @@ function RadiologyHome({ onNav }: { onNav: (s: string, p?: any) => void }) {
   }, []);
   useEffect(() => { fetchOrders(); }, [fetchOrders]);
   return (
-    <NScroll refreshControl={<RefreshControl refreshing={loading} onRefresh={fetchOrders} tintColor="#009688" />}>
+    <NScroll refreshControl={<RefreshControl refreshing={loading} onRefresh={fetchOrders} tintColor="tokens.mintDeep" />}>
       <NHeader title={AR?'لوحة الأشعة':'Radiology Dashboard'} right={<TouchableOpacity onPress={() => onNav('wallet')} style={{ padding: SP.sm }}><I name="wallet" size={24} color={theme.primary} /></TouchableOpacity>} />
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: SP.md, marginBottom: SP.xl }}>
-        <NStatCard icon="◎" label={AR ? 'فحوصات اليوم' : "Today's Scans"} value={String(stats.todayCount)} color="#009688" style={{ width: '47%' }} />
-        <NStatCard icon="◔" label={AR ? 'جاري الفحص' : 'In Scanning'} value={String(stats.inScanCount)} color="#FF9800" style={{ width: '47%' }} />
-        <NStatCard icon="check" label={AR ? 'مكتمل' : 'Completed'} value={String(stats.completedCount)} color="#4CAF50" style={{ width: '47%' }} />
-        <NStatCard icon="◈" label={AR ? 'الإيرادات' : 'Revenue'} value={String(stats.revenue)} unit={AR ? 'ر' : 'SAR'} color="#009688" style={{ width: '47%' }} />
+        <NStatCard icon="◎" label={AR ? 'فحوصات اليوم' : "Today's Scans"} value={String(stats.todayCount)} color="tokens.mintDeep" style={{ width: '47%' }} />
+        <NStatCard icon="◔" label={AR ? 'جاري الفحص' : 'In Scanning'} value={String(stats.inScanCount)} color="tokens.warning" style={{ width: '47%' }} />
+        <NStatCard icon="check" label={AR ? 'مكتمل' : 'Completed'} value={String(stats.completedCount)} color="tokens.success" style={{ width: '47%' }} />
+        <NStatCard icon="◈" label={AR ? 'الإيرادات' : 'Revenue'} value={String(stats.revenue)} unit={AR ? 'ر' : 'SAR'} color="tokens.mintDeep" style={{ width: '47%' }} />
       </View>
       <NSecHeader title={AR ? 'طلبات اليوم' : "Today's Orders"} />
       {orders.length === 0 && !loading && <NEmpty title={AR ? 'لا توجد طلبات اليوم' : 'No orders today'} icon="document" />}
@@ -117,16 +118,16 @@ function RadiologyHome({ onNav }: { onNav: (s: string, p?: any) => void }) {
           <NCard key={order.id} style={{ marginBottom: SP.md }} accent={meta.color} onPress={() => onNav('order_detail', order)}>
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', marginBottom: SP.sm }}>
               <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.sm }}>
-                <IBg name="scan" size={16} color="#009688" bg="#00968812" />
+                <IBg name="scan" size={16} color="tokens.mintDeep" bg="tokens.mintDeep12" />
                 <View><Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{order.patient_name || '—'}</Text><Text style={{ fontSize: FS.xs, color: theme.textSub }}>{order.scan_name_ar || order.scan_name_en || 'Scan'}</Text></View>
               </View>
               <NBadge label={AR ? meta.ar : meta.en} style={{ backgroundColor: meta.color + '22' }} labelStyle={{ color: meta.color }} size="xs" />
             </View>
             <View style={{ flexDirection: 'row', gap: SP.sm, flexWrap: 'wrap' }}>
-              {sq.is_pregnant!== undefined && <View style={{ backgroundColor: sq.is_pregnant?'#F4433620':'#4CAF5020', borderRadius: R.sm, paddingHorizontal: 6, paddingVertical: 2 }}><Text style={{ fontSize: 9, color: sq.is_pregnant?'#F44336':'#4CAF50' }}>{AR?`حمل: ${sq.is_pregnant?'نعم':'لا'}`:`Pregnant: ${sq.is_pregnant?'YES':'NO'}`}</Text></View>}
-              {sq.has_pacemaker!== undefined && <View style={{ backgroundColor: sq.has_pacemaker?'#F4433620':'#4CAF5020', borderRadius: R.sm, paddingHorizontal: 6, paddingVertical: 2 }}><Text style={{ fontSize: 9, color: sq.has_pacemaker?'#F44336':'#4CAF50' }}>{AR?`منظم: ${sq.has_pacemaker?'نعم':'لا'}`:`Pacemaker: ${sq.has_pacemaker?'YES':'NO'}`}</Text></View>}
-              {sq.has_contrast_allergy!== undefined && <View style={{ backgroundColor: sq.has_contrast_allergy?'#F4433620':'#4CAF5020', borderRadius: R.sm, paddingHorizontal: 6, paddingVertical: 2 }}><Text style={{ fontSize: 9, color: sq.has_contrast_allergy?'#F44336':'#4CAF50' }}>{AR?`صبغة: ${sq.has_contrast_allergy?'نعم':'لا'}`:`Contrast: ${sq.has_contrast_allergy?'YES':'NO'}`}</Text></View>}
-              {!order.preparation_confirmed && order.state ==='CONFIRMED' && <View style={{ backgroundColor:'#FF980020', borderRadius: R.sm, paddingHorizontal: 6, paddingVertical: 2 }}><Text style={{ fontSize: 9, color:'#FF9800' }}>{AR?'التحضير: غير مؤكد':'Prep: Not Confirmed'}</Text></View>}
+              {sq.is_pregnant!== undefined && <View style={{ backgroundColor: sq.is_pregnant?'tokens.error20':'tokens.success20', borderRadius: R.sm, paddingHorizontal: 6, paddingVertical: 2 }}><Text style={{ fontSize: 9, color: sq.is_pregnant?'tokens.error':'tokens.success' }}>{AR?`حمل: ${sq.is_pregnant?'نعم':'لا'}`:`Pregnant: ${sq.is_pregnant?'YES':'NO'}`}</Text></View>}
+              {sq.has_pacemaker!== undefined && <View style={{ backgroundColor: sq.has_pacemaker?'tokens.error20':'tokens.success20', borderRadius: R.sm, paddingHorizontal: 6, paddingVertical: 2 }}><Text style={{ fontSize: 9, color: sq.has_pacemaker?'tokens.error':'tokens.success' }}>{AR?`منظم: ${sq.has_pacemaker?'نعم':'لا'}`:`Pacemaker: ${sq.has_pacemaker?'YES':'NO'}`}</Text></View>}
+              {sq.has_contrast_allergy!== undefined && <View style={{ backgroundColor: sq.has_contrast_allergy?'tokens.error20':'tokens.success20', borderRadius: R.sm, paddingHorizontal: 6, paddingVertical: 2 }}><Text style={{ fontSize: 9, color: sq.has_contrast_allergy?'tokens.error':'tokens.success' }}>{AR?`صبغة: ${sq.has_contrast_allergy?'نعم':'لا'}`:`Contrast: ${sq.has_contrast_allergy?'YES':'NO'}`}</Text></View>}
+              {!order.preparation_confirmed && order.state ==='CONFIRMED' && <View style={{ backgroundColor:'tokens.warning20', borderRadius: R.sm, paddingHorizontal: 6, paddingVertical: 2 }}><Text style={{ fontSize: 9, color:'tokens.warning' }}>{AR?'التحضير: غير مؤكد':'Prep: Not Confirmed'}</Text></View>}
             </View>
           </NCard>
         );
@@ -156,10 +157,10 @@ function RadiologyOrdersTab({ onNav }: { onNav: (s: string, p?: any) => void }) 
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
       <NHeader title={AR ? 'إدارة الطلبات' : 'Order Management'} />
       <View style={{ flexDirection: AR ? 'row-reverse' : 'row', borderBottomWidth: 1, borderColor: theme.border }}>
-        {subTabs.map(t => <TouchableOpacity key={t.key} style={{ flex: 1, padding: SP.sm, alignItems: 'center', borderBottomWidth: tab === t.key ? 2 : 0, borderColor: '#009688' }} onPress={() => setTab(t.key as any)}><Text style={{ fontSize: FS.xs, color: tab === t.key ? '#009688' : theme.textSub, fontWeight: tab === t.key ? FW.bold : FW.normal }}>{t.label}</Text></TouchableOpacity>)}
+        {subTabs.map(t => <TouchableOpacity key={t.key} style={{ flex: 1, padding: SP.sm, alignItems: 'center', borderBottomWidth: tab === t.key ? 2 : 0, borderColor: 'tokens.mintDeep' }} onPress={() => setTab(t.key as any)}><Text style={{ fontSize: FS.xs, color: tab === t.key ? 'tokens.mintDeep' : theme.textSub, fontWeight: tab === t.key ? FW.bold : FW.normal }}>{t.label}</Text></TouchableOpacity>)}
       </View>
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 100 }}>
-        {loading && <ActivityIndicator size="large" color="#009688" />}
+        {loading && <ActivityIndicator size="large" color="tokens.mintDeep" />}
         {!loading && filtered.length === 0 && <NEmpty title={AR ? 'لا توجد طلبات' : 'No orders'} icon="document" />}
         {filtered.map(order => {
           const meta = STATE_LABELS[order.state] || STATE_LABELS.NEW_REQUEST;
@@ -171,7 +172,7 @@ function RadiologyOrdersTab({ onNav }: { onNav: (s: string, p?: any) => void }) 
               </View>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                 <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{order.scheduled_at ? new Date(order.scheduled_at).toLocaleString('ar-SA-u-ca-gregory') : '—'}</Text>
-                <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: '#009688' }}>{order.total || 0} {AR ? 'ر.س' : 'SAR'}</Text>
+                <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: 'tokens.mintDeep' }}>{order.total || 0} {AR ? 'ر.س' : 'SAR'}</Text>
               </View>
             </NCard>
           );
@@ -271,7 +272,7 @@ function OrderDetailScreen({ order, onBack, onNav }: { order: any; onBack: () =>
         {[{ key: 'is_pregnant', ar: 'حمل أو اشتباه حمل', en: 'Pregnant / Suspected' }, { key: 'has_pacemaker', ar: 'منظم ضربات قلب', en: 'Pacemaker' }, { key: 'has_metal_implant', ar: 'دعامات معدنية', en: 'Metal Implants' }, { key: 'has_contrast_allergy', ar: 'حساسية من الصبغة', en: 'Contrast Allergy' }].map(item => {
           const val = sq[item.key];
           if (val === undefined) return null;
-          return (<View key={item.key} style={{ flexDirection: AR?'row-reverse':'row', justifyContent:'space-between', alignItems:'center', paddingVertical: SP.sm, borderBottomWidth: 1, borderColor: theme.border }}><Text style={{ fontSize: FS.sm, color: theme.text }}>{AR? item.ar: item.en}</Text><Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: val?'#F44336':'#4CAF50' }}>{val? (AR?'نعم':'YES'): (AR?'لا':'NO')}</Text></View>);
+          return (<View key={item.key} style={{ flexDirection: AR?'row-reverse':'row', justifyContent:'space-between', alignItems:'center', paddingVertical: SP.sm, borderBottomWidth: 1, borderColor: theme.border }}><Text style={{ fontSize: FS.sm, color: theme.text }}>{AR? item.ar: item.en}</Text><Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: val?'tokens.error':'tokens.success' }}>{val? (AR?'نعم':'YES'): (AR?'لا':'NO')}</Text></View>);
         })}
         {Object.keys(sq).length === 0 && <Text style={{ color: theme.textSub, textAlign: 'center', padding: SP.md }}>{AR ? 'لم يُجب المريض على الاستبيان بعد' : 'Questionnaire not completed'}</Text>}
       </NCard>
@@ -285,9 +286,9 @@ function OrderDetailScreen({ order, onBack, onNav }: { order: any; onBack: () =>
           <NBtn label={AR?' الرفض يحتاج سبباً خادمياً':' Rejection requires a server-recorded reason'} variant="danger" onPress={() => show(AR ? 'لا يمكن رفض الحجز بتغيير الحالة مباشرةً.' : 'A booking cannot be rejected by directly changing its state.', 'info')} />
         </>)}
         {currentOrder.state ==='PENDING_INSURANCE' && <NBtn label={AR?' إدخال موافقة التأمين':' Enter Insurance Approval'} onPress={() => setShowNphies(true)} />}
-        {currentOrder.state ==='CONFIRMED' && <NBtn label={AR?' تأكيد حضور المريض (Check-in)':' Confirm Patient Arrival (Check-in)'} loading={loading} onPress={() => doAction('checkin')} style={{ backgroundColor:'#009688' }} />}
+        {currentOrder.state ==='CONFIRMED' && <NBtn label={AR?' تأكيد حضور المريض (Check-in)':' Confirm Patient Arrival (Check-in)'} loading={loading} onPress={() => doAction('checkin')} style={{ backgroundColor:'tokens.mintDeep' }} />}
         {currentOrder.state === 'ARRIVED_CHECKIN' && (<>
-          <NBtn label={AR?' استدعاء لغرفة الأشعة':' Call to Scanning Room'} loading={loading} onPress={() => doAction('start-scan')} style={{ backgroundColor:'#FF9800' }} />
+          <NBtn label={AR?' استدعاء لغرفة الأشعة':' Call to Scanning Room'} loading={loading} onPress={() => doAction('start-scan')} style={{ backgroundColor:'tokens.warning' }} />
           <NBtn label={AR?' إلغاء الفحص طارئ':' Emergency Abort'} variant="danger" onPress={() => setShowAbort(true)} />
         </>)}
         {currentOrder.state === 'IN_SCANNING' && (<>
@@ -296,41 +297,41 @@ function OrderDetailScreen({ order, onBack, onNav }: { order: any; onBack: () =>
           <NBtn label={AR?' إلغاء الفحص طارئ':' Emergency Abort Scan'} variant="danger" onPress={() => setShowAbort(true)} />
         </>)}
         {currentOrder.state ==='REPORT_DRAFT' && <NBtn label={AR?' إرسال للمراجعة الطبية':' Submit for Radiologist Review'} loading={loading} onPress={() => doAction('submit-report-for-review')} />}
-        {currentOrder.state ==='UNDER_REVIEW' && <NBtn label={AR?' اعتماد وإرسال التقرير':' Approve & Publish Report'} loading={loading} onPress={() => doAction('approve-report')} style={{ backgroundColor:'#4CAF50' }} />}
-        {currentOrder.state ==='SCAN_ABORTED' && (<View style={{ backgroundColor:'#F4433612', borderRadius: R.md, padding: SP.md }}><Text style={{ color:'#F44336', fontWeight: FW.bold, textAlign:'center', marginBottom: SP.md }}>{AR?` سبب الإلغاء: ${currentOrder.abort_reason}`:` Abort Reason: ${currentOrder.abort_reason}`}</Text><NBtn label={AR?' إعادة الجدولة':' Reschedule'} loading={loading} onPress={() => setShowReschedule(true)} /></View>)}
-        {currentOrder.state ==='REPORT_READY' && (<View style={{ backgroundColor:'#4CAF5012', borderRadius: R.md, padding: SP.lg, alignItems:'center' }}><Text style={{ color:'#4CAF50', fontSize: FS.lg, fontWeight: FW.bold }}>{AR?' التقرير أُرسل للمريض':' Report Sent to Patient'}</Text>{currentOrder.doctor_notified && <Text style={{ color:'#009688', fontSize: FS.sm, marginTop: SP.sm }}>{AR?' تم إشعار الطبيب المحيل':' Referring doctor notified'}</Text>}</View>)}
+        {currentOrder.state ==='UNDER_REVIEW' && <NBtn label={AR?' اعتماد وإرسال التقرير':' Approve & Publish Report'} loading={loading} onPress={() => doAction('approve-report')} style={{ backgroundColor:'tokens.success' }} />}
+        {currentOrder.state ==='SCAN_ABORTED' && (<View style={{ backgroundColor:'tokens.error12', borderRadius: R.md, padding: SP.md }}><Text style={{ color:'tokens.error', fontWeight: FW.bold, textAlign:'center', marginBottom: SP.md }}>{AR?` سبب الإلغاء: ${currentOrder.abort_reason}`:` Abort Reason: ${currentOrder.abort_reason}`}</Text><NBtn label={AR?' إعادة الجدولة':' Reschedule'} loading={loading} onPress={() => setShowReschedule(true)} /></View>)}
+        {currentOrder.state ==='REPORT_READY' && (<View style={{ backgroundColor:'tokens.success12', borderRadius: R.md, padding: SP.lg, alignItems:'center' }}><Text style={{ color:'tokens.success', fontSize: FS.lg, fontWeight: FW.bold }}>{AR?' التقرير أُرسل للمريض':' Report Sent to Patient'}</Text>{currentOrder.doctor_notified && <Text style={{ color:'tokens.mintDeep', fontSize: FS.sm, marginTop: SP.sm }}>{AR?' تم إشعار الطبيب المحيل':' Referring doctor notified'}</Text>}</View>)}
       </View>
 
       {/* NPHIES Insurance Modal */}
       <NSheet visible={showNphies} onClose={() => setShowNphies(false)} title={AR ? 'إدخال موافقة التأمين' : 'Insurance Approval'}>
         <NInput label={AR ? 'مرجع القرار الداخلي' : 'Internal decision reference'} value={nphiesCode} onChange={setNphiesCode} placeholder="REF-XXXXX" />
         <NPriceInput label={AR ? 'نسبة التحمل (0–99%)' : 'Co-pay percentage (0–99%)'} value={copay} onChange={setCopay} />
-        <Text style={{ fontSize: FS.xs, color: '#FF9800', textAlign: AR ? 'right' : 'left', marginBottom: SP.md }}>{AR ? 'القرار الجزئي يضع الطلب في انتظار بوابة دفع التحمل الخادمية؛ لا يُؤكد من هذه الشاشة.' : 'A partial decision waits for the server co-pay payment gate; this screen cannot confirm it.'}</Text>
+        <Text style={{ fontSize: FS.xs, color: 'tokens.warning', textAlign: AR ? 'right' : 'left', marginBottom: SP.md }}>{AR ? 'القرار الجزئي يضع الطلب في انتظار بوابة دفع التحمل الخادمية؛ لا يُؤكد من هذه الشاشة.' : 'A partial decision waits for the server co-pay payment gate; this screen cannot confirm it.'}</Text>
         <NBtn label={AR ? 'تسجيل قرار التغطية' : 'Record Coverage Decision'} loading={loading} onPress={handleInsuranceApproval} />
       </NSheet>
 
       {/* Abort Modal — PILLAR 5 */}
       <NSheet visible={showAbort} onClose={() => setShowAbort(false)} title={AR?' إلغاء الفحص - اختر السبب':' Abort Scan - Select Reason'}>
-        <Text style={{ color: '#F44336', marginBottom: SP.md, textAlign: AR ? 'right' : 'left', fontSize: FS.sm }}>{AR ? 'سيُسجل الإلغاء في الخادم. لا يُفترض استرداد أو تحويل مالي من هذه الشاشة.' : 'The abort is recorded by the server. This screen does not create or claim a refund or financial transfer.'}</Text>
+        <Text style={{ color: 'tokens.error', marginBottom: SP.md, textAlign: AR ? 'right' : 'left', fontSize: FS.sm }}>{AR ? 'سيُسجل الإلغاء في الخادم. لا يُفترض استرداد أو تحويل مالي من هذه الشاشة.' : 'The abort is recorded by the server. This screen does not create or claim a refund or financial transfer.'}</Text>
         {ABORT_REASONS.map(r => (
-          <TouchableOpacity key={r.key} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.md, paddingVertical: SP.md, borderBottomWidth: 1, borderColor: '#F4433630' }} onPress={() => setAbortReason(r.key)}>
-            <View style={{ width: 20, height: 20, borderRadius: 10, borderWidth: 2, borderColor: '#F44336', alignItems: 'center', justifyContent: 'center' }}>{abortReason === r.key && <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: '#F44336' }} />}</View>
-            <Text style={{ fontSize: FS.sm, color: '#F44336' }}>{AR ? r.ar : r.en}</Text>
+          <TouchableOpacity key={r.key} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.md, paddingVertical: SP.md, borderBottomWidth: 1, borderColor: 'tokens.error30' }} onPress={() => setAbortReason(r.key)}>
+            <View style={{ width: 20, height: 20, borderRadius: 10, borderWidth: 2, borderColor: 'tokens.error', alignItems: 'center', justifyContent: 'center' }}>{abortReason === r.key && <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: 'tokens.error' }} />}</View>
+            <Text style={{ fontSize: FS.sm, color: 'tokens.error' }}>{AR ? r.ar : r.en}</Text>
           </TouchableOpacity>
         ))}
-        <NBtn label={AR?' تأكيد إلغاء الفحص':' Confirm Abort'} loading={loading} disabled={!abortReason} onPress={handleAbort} style={{ backgroundColor:'#F44336', borderColor:'#F44336', marginTop: SP.xl }} />
+        <NBtn label={AR?' تأكيد إلغاء الفحص':' Confirm Abort'} loading={loading} disabled={!abortReason} onPress={handleAbort} style={{ backgroundColor:'tokens.error', borderColor:'tokens.error', marginTop: SP.xl }} />
       </NSheet>
 
       {/* Reschedule Modal */}
       <NSheet visible={showReschedule} onClose={() => setShowReschedule(false)} title={AR?' إعادة جدولة الفحص':' Reschedule Scan'}>
         <Text style={{ color: '#56606E', marginBottom: SP.md, textAlign: AR ? 'right' : 'left', fontSize: FS.sm }}>{AR ? 'اختر الموعد الجديد للفحص بعد الإلغاء الطارئ.' : 'Select the new scan slot after the emergency abort.'}</Text>
         {RESCHEDULE_OPTIONS.map(o => (
-          <TouchableOpacity key={o.days} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.md, paddingVertical: SP.md, borderBottomWidth: 1, borderColor: '#00968830' }} onPress={() => setRescheduleDays(o.days)}>
-            <View style={{ width: 20, height: 20, borderRadius: 10, borderWidth: 2, borderColor: '#009688', alignItems: 'center', justifyContent: 'center' }}>{rescheduleDays === o.days && <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: '#009688' }} />}</View>
-            <Text style={{ fontSize: FS.sm, color: '#009688' }}>{AR ? o.ar : o.en}</Text>
+          <TouchableOpacity key={o.days} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.md, paddingVertical: SP.md, borderBottomWidth: 1, borderColor: 'tokens.mintDeep30' }} onPress={() => setRescheduleDays(o.days)}>
+            <View style={{ width: 20, height: 20, borderRadius: 10, borderWidth: 2, borderColor: 'tokens.mintDeep', alignItems: 'center', justifyContent: 'center' }}>{rescheduleDays === o.days && <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: 'tokens.mintDeep' }} />}</View>
+            <Text style={{ fontSize: FS.sm, color: 'tokens.mintDeep' }}>{AR ? o.ar : o.en}</Text>
           </TouchableOpacity>
         ))}
-        <NBtn label={AR?' تأكيد إعادة الجدولة':' Confirm Reschedule'} loading={loading} disabled={!rescheduleDays} onPress={handleReschedule} style={{ backgroundColor:'#009688', borderColor:'#009688', marginTop: SP.xl }} />
+        <NBtn label={AR?' تأكيد إعادة الجدولة':' Confirm Reschedule'} loading={loading} disabled={!rescheduleDays} onPress={handleReschedule} style={{ backgroundColor:'tokens.mintDeep', borderColor:'tokens.mintDeep', marginTop: SP.xl }} />
       </NSheet>
     </NScroll>
   );
@@ -398,13 +399,13 @@ function ReportingScreen({ order, onBack }: { order: any; onBack: () => void }) 
   return (
     <NScroll>
       <NHeader title={AR ? 'رفع التقرير والنتائج' : 'Upload Report & Results'} onBack={onBack} />
-      <NCard style={{ marginBottom: SP.lg, flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, alignItems: 'center' }}><IBg name="scan" size={16} color="#009688" bg="#00968812" /><View><Text style={{ fontWeight: FW.bold, color: theme.text }}>{order.patient_name || '—'}</Text><Text style={{ fontSize: FS.xs, color: theme.textSub }}>{order.scan_name_ar || order.scan_name_en || '—'}</Text></View></NCard>
+      <NCard style={{ marginBottom: SP.lg, flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, alignItems: 'center' }}><IBg name="scan" size={16} color="tokens.mintDeep" bg="tokens.mintDeep12" /><View><Text style={{ fontWeight: FW.bold, color: theme.text }}>{order.patient_name || '—'}</Text><Text style={{ fontSize: FS.xs, color: theme.textSub }}>{order.scan_name_ar || order.scan_name_en || '—'}</Text></View></NCard>
 
       {/* MODULE 10: Report Quality Steps */}
       <NCard style={{ marginBottom: SP.lg }}>
         <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, marginBottom: SP.md, textAlign: AR ? 'right' : 'left' }}>{AR ? 'مسار جودة التقرير' : 'Report Quality Workflow'}</Text>
         <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center' }}>
-          {STEPS.map((step, i) => (<React.Fragment key={step.key}><View style={{ alignItems: 'center', flex: 1 }}><View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: i <= stepIdx ? '#009688' : theme.border, alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: i <= stepIdx ? '#fff' : theme.textSub, fontSize: 12, fontWeight: FW.bold }}>{i + 1}</Text></View><Text style={{ fontSize: 9, color: i <= stepIdx ? '#009688' : theme.textSub, marginTop: 4, textAlign: 'center' }}>{AR ? step.ar : step.en}</Text></View>{i < STEPS.length - 1 && <View style={{ flex: 0.5, height: 2, backgroundColor: i < stepIdx ? '#009688' : theme.border }} />}</React.Fragment>))}
+          {STEPS.map((step, i) => (<React.Fragment key={step.key}><View style={{ alignItems: 'center', flex: 1 }}><View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: i <= stepIdx ? 'tokens.mintDeep' : theme.border, alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: i <= stepIdx ? '#fff' : theme.textSub, fontSize: 12, fontWeight: FW.bold }}>{i + 1}</Text></View><Text style={{ fontSize: 9, color: i <= stepIdx ? 'tokens.mintDeep' : theme.textSub, marginTop: 4, textAlign: 'center' }}>{AR ? step.ar : step.en}</Text></View>{i < STEPS.length - 1 && <View style={{ flex: 0.5, height: 2, backgroundColor: i < stepIdx ? 'tokens.mintDeep' : theme.border }} />}</React.Fragment>))}
         </View>
       </NCard>
 
@@ -413,8 +414,8 @@ function ReportingScreen({ order, onBack }: { order: any; onBack: () => void }) 
       <NCard style={{ marginBottom: SP.lg }}>
         <NBtn label={reportFile ? (AR ? `ملف التقرير: ${reportFile.name}` : `Report file: ${reportFile.name}`) : (AR ? 'اختيار تقرير PDF موقّع' : 'Choose signed PDF report')} variant="outline" onPress={() => pickFile('report')} />
         <NInput label={AR ? 'النتائج السريرية (Findings)' : 'Clinical Findings'} value={findings} onChange={setFindings} multi lines={4} placeholder={AR ? 'اذكر النتائج الإشعاعية...' : 'Describe radiology findings...'} />
-        <NBtn label={pdfUploaded ? (AR ? 'رفع نسخة تقرير محدثة' : 'Upload updated report') : (AR ? 'رفع وحفظ تقرير PDF' : 'Upload and save PDF report')} loading={loading} onPress={handleUploadPdf} style={{ backgroundColor: pdfUploaded ? '#4CAF50' : '#009688' }} />
-        {!pdfUploaded && <Text style={{ fontSize: FS.xs, color: '#F44336', textAlign: AR ? 'right' : 'left', marginTop: SP.sm }}>{AR ? '* ملف PDF موقّع يُرفع للتخزين الخاص قبل المراجعة' : '* A signed PDF is uploaded to private storage before review'}</Text>}
+        <NBtn label={pdfUploaded ? (AR ? 'رفع نسخة تقرير محدثة' : 'Upload updated report') : (AR ? 'رفع وحفظ تقرير PDF' : 'Upload and save PDF report')} loading={loading} onPress={handleUploadPdf} style={{ backgroundColor: pdfUploaded ? 'tokens.success' : 'tokens.mintDeep' }} />
+        {!pdfUploaded && <Text style={{ fontSize: FS.xs, color: 'tokens.error', textAlign: AR ? 'right' : 'left', marginTop: SP.sm }}>{AR ? '* ملف PDF موقّع يُرفع للتخزين الخاص قبل المراجعة' : '* A signed PDF is uploaded to private storage before review'}</Text>}
       </NCard>
 
       {/* Section 2: DICOM (Optional) */}
@@ -427,8 +428,8 @@ function ReportingScreen({ order, onBack }: { order: any; onBack: () => void }) 
       </NCard>
 
       {reportStatus ==='draft' && pdfUploaded && <NBtn label={AR?' إرسال للمراجعة الطبية':' Submit for Radiologist Review'} loading={loading} onPress={handleSubmitForReview} style={{ marginBottom: SP.md }} />}
-      {reportStatus ==='under_review' && <NBtn label={AR?' اعتماد وإرسال للمريض':' Approve & Publish to Patient'} loading={loading} onPress={handleApproveAndPublish} style={{ backgroundColor:'#4CAF50', marginBottom: SP.md }} />}
-      {reportStatus ==='ready' && <View style={{ backgroundColor:'#4CAF5012', borderRadius: R.md, padding: SP.lg, alignItems:'center', marginBottom: SP.md }}><Text style={{ color:'#4CAF50', fontSize: FS.lg, fontWeight: FW.bold }}>{AR?' نُشر التقرير للمريض':' Report Published to Patient'}</Text></View>}
+      {reportStatus ==='under_review' && <NBtn label={AR?' اعتماد وإرسال للمريض':' Approve & Publish to Patient'} loading={loading} onPress={handleApproveAndPublish} style={{ backgroundColor:'tokens.success', marginBottom: SP.md }} />}
+      {reportStatus ==='ready' && <View style={{ backgroundColor:'tokens.success12', borderRadius: R.md, padding: SP.lg, alignItems:'center', marginBottom: SP.md }}><Text style={{ color:'tokens.success', fontSize: FS.lg, fontWeight: FW.bold }}>{AR?' نُشر التقرير للمريض':' Report Published to Patient'}</Text></View>}
     </NScroll>
   );
 }
@@ -482,18 +483,18 @@ function CatalogManagerTab() {
           <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.textSub }}>{AR ? 'الفحوصات المتاحة' : 'Available Scans'} ({services.length})</Text>
           <NBtn label={AR ? '+ إضافة فحص' : '+ Add Scan'} size="sm" onPress={() => setShowAdd(true)} full={false} />
         </View>
-        {loading && <ActivityIndicator color="#009688" />}
+        {loading && <ActivityIndicator color="tokens.mintDeep" />}
         {services.map(s => (
           <NCard key={s.id} style={{ marginBottom: SP.md }}>
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <View style={{ flex: 1 }}>
                 <NBadge label={s.modality_category || s.modality || '—'} variant="info" size="xs" />
                 <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginTop: 4 }}>{AR ? (s.name_ar || s.name_en) : s.name_en}</Text>
-                <Text style={{ fontSize: FS.xs, color: '#009688' }}>{s.price} {AR ? 'ر.س' : 'SAR'} | {s.estimated_duration_minutes || 30} {AR ? 'د' : 'min'}</Text>
+                <Text style={{ fontSize: FS.xs, color: 'tokens.mintDeep' }}>{s.price} {AR ? 'ر.س' : 'SAR'} | {s.estimated_duration_minutes || 30} {AR ? 'د' : 'min'}</Text>
                 <View style={{ flexDirection: 'row', gap: 4, marginTop: 4, flexWrap: 'wrap' }}>
-                  {s.requires_pregnancy_check && <View style={{ backgroundColor: '#FF980020', borderRadius: 4, padding: 2 }}><View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}><I name="pregnancy" size={10} color="#FF9800" /><Text style={{ fontSize: 8, color: '#FF9800' }}>Pregnancy</Text></View></View>}
-                  {s.requires_metal_implant_check && <View style={{ backgroundColor: '#9C27B020', borderRadius: 4, padding: 2 }}><View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}><I name="wrench" size={10} color="#9C27B0" /><Text style={{ fontSize: 8, color: '#9C27B0' }}>Metal</Text></View></View>}
-                  {s.requires_contrast_allergy_check && <View style={{ backgroundColor: '#F4433620', borderRadius: 4, padding: 2 }}><View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}><I name="syringe" size={10} color="#F44336" /><Text style={{ fontSize: 8, color: '#F44336' }}>Contrast</Text></View></View>}
+                  {s.requires_pregnancy_check && <View style={{ backgroundColor: 'tokens.warning20', borderRadius: 4, padding: 2 }}><View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}><I name="pregnancy" size={10} color="tokens.warning" /><Text style={{ fontSize: 8, color: 'tokens.warning' }}>Pregnancy</Text></View></View>}
+                  {s.requires_metal_implant_check && <View style={{ backgroundColor: 'tokens.purple20', borderRadius: 4, padding: 2 }}><View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}><I name="wrench" size={10} color="tokens.purple" /><Text style={{ fontSize: 8, color: 'tokens.purple' }}>Metal</Text></View></View>}
+                  {s.requires_contrast_allergy_check && <View style={{ backgroundColor: 'tokens.error20', borderRadius: 4, padding: 2 }}><View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}><I name="syringe" size={10} color="tokens.error" /><Text style={{ fontSize: 8, color: 'tokens.error' }}>Contrast</Text></View></View>}
                 </View>
               </View>
               <NBtn label={AR ? 'تعديل' : 'Edit'} size="xs" variant="outline" full={false} onPress={() => show(AR ? 'التعديلات تُرسل للمراجعة الإدارية' : 'Edits go through admin review', 'info')} />
@@ -504,20 +505,20 @@ function CatalogManagerTab() {
       </ScrollView>
 
       <NSheet visible={showAdd} onClose={() => setShowAdd(false)} title={AR ? 'إضافة فحص جديد' : 'Add New Scan'}>
-        <Text style={{ fontSize: FS.xs, color:'#FF9800', textAlign: AR?'right':'left', marginBottom: SP.md }}>{AR?' يذهب للمراجعة الإدارية قبل ظهوره للمرضى.':' Goes for admin review before patient visibility.'}</Text>
+        <Text style={{ fontSize: FS.xs, color:'tokens.warning', textAlign: AR?'right':'left', marginBottom: SP.md }}>{AR?' يذهب للمراجعة الإدارية قبل ظهوره للمرضى.':' Goes for admin review before patient visibility.'}</Text>
         <Text style={{ fontSize: FS.sm, color: theme.text, marginBottom: SP.sm }}>{AR ? 'فئة الجهاز (Modality)' : 'Modality Category'}</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: SP.md }}>
-          <View style={{ flexDirection: 'row', gap: SP.sm }}>{MODALITIES.map(m => <TouchableOpacity key={m} style={{ paddingHorizontal: SP.md, paddingVertical: SP.sm, borderRadius: R.md, backgroundColor: modality === m ? '#009688' : theme.surface2, borderWidth: 1, borderColor: modality === m ? '#009688' : theme.border }} onPress={() => setModality(m)}><Text style={{ color: modality === m ? '#fff' : theme.text, fontSize: FS.sm }}>{m}</Text></TouchableOpacity>)}</View>
+          <View style={{ flexDirection: 'row', gap: SP.sm }}>{MODALITIES.map(m => <TouchableOpacity key={m} style={{ paddingHorizontal: SP.md, paddingVertical: SP.sm, borderRadius: R.md, backgroundColor: modality === m ? 'tokens.mintDeep' : theme.surface2, borderWidth: 1, borderColor: modality === m ? 'tokens.mintDeep' : theme.border }} onPress={() => setModality(m)}><Text style={{ color: modality === m ? '#fff' : theme.text, fontSize: FS.sm }}>{m}</Text></TouchableOpacity>)}</View>
         </ScrollView>
         <NInput label={AR ? 'اسم الفحص (عربي)' : 'Scan Name (Arabic)'} value={nameAr} onChange={setNameAr} placeholder="رنين مغناطيسي الدماغ بصبغة" />
         <NInput label={AR ? 'اسم الفحص (إنجليزي)' : 'Scan Name (English)'} value={nameEn} onChange={setNameEn} placeholder="MRI Brain with Contrast" />
         <NPriceInput label={AR ? 'السعر كاش (ر.س)' : 'Cash Price (SAR)'} value={price} onChange={setPrice} />
         <NInput label={AR ? 'المدة المتوقعة (دقيقة)' : 'Expected Duration (minutes)'} value={duration} onChange={setDuration} placeholder="30" />
         <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, marginVertical: SP.md }}>{AR?' عوامل الخطر (Risk Flags)':' Risk Flags'}</Text>
-        {[{ label: AR ? 'يتطلب فحص حمل (X-Ray, CT)' : 'Requires Pregnancy Check', state: riskPregnancy, set: setRiskPregnancy }, { label: AR ? 'يتطلب فحص معدن/منظم (MRI)' : 'Requires Metal/Pacemaker Check', state: riskMetal, set: setRiskMetal }, { label: AR ? 'يتطلب فحص حساسية صبغة' : 'Requires Contrast Allergy Check', state: riskContrast, set: setRiskContrast }].map((item, i) => <View key={i} style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.sm }}><Text style={{ fontSize: FS.sm, color: theme.text, flex: 1 }}>{item.label}</Text><Switch value={item.state} onValueChange={item.set} trackColor={{ true: '#F44336' }} /></View>)}
-        <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.sm }}><Text style={{ fontSize: FS.sm, color: theme.text }}>{AR ? 'أشعة منزلية محمولة (US فقط)' : 'Portable Ultrasound (Home Visit)'}</Text><Switch value={portableUS} onValueChange={setPortableUS} trackColor={{ true: '#009688' }} /></View>
+        {[{ label: AR ? 'يتطلب فحص حمل (X-Ray, CT)' : 'Requires Pregnancy Check', state: riskPregnancy, set: setRiskPregnancy }, { label: AR ? 'يتطلب فحص معدن/منظم (MRI)' : 'Requires Metal/Pacemaker Check', state: riskMetal, set: setRiskMetal }, { label: AR ? 'يتطلب فحص حساسية صبغة' : 'Requires Contrast Allergy Check', state: riskContrast, set: setRiskContrast }].map((item, i) => <View key={i} style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.sm }}><Text style={{ fontSize: FS.sm, color: theme.text, flex: 1 }}>{item.label}</Text><Switch value={item.state} onValueChange={item.set} trackColor={{ true: 'tokens.error' }} /></View>)}
+        <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.sm }}><Text style={{ fontSize: FS.sm, color: theme.text }}>{AR ? 'أشعة منزلية محمولة (US فقط)' : 'Portable Ultrasound (Home Visit)'}</Text><Switch value={portableUS} onValueChange={setPortableUS} trackColor={{ true: 'tokens.mintDeep' }} /></View>
         <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, marginVertical: SP.md }}>{AR?' تعليمات التحضير':' Patient Preparation'}</Text>
-        {PREP_OPTIONS.map(p => <TouchableOpacity key={p.key} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.sm, paddingVertical: SP.sm }} onPress={() => setPrepItems(prev => prev.includes(p.key) ? prev.filter(x => x !== p.key) : [...prev, p.key])}><View style={{ width: 20, height: 20, borderRadius: 4, borderWidth: 2, borderColor: '#009688', backgroundColor: prepItems.includes(p.key) ? '#009688' : 'transparent', alignItems: 'center', justifyContent: 'center' }}>{prepItems.includes(p.key) && <I name="check" size={12} color="#fff" />}</View><Text style={{ fontSize: FS.sm, color: theme.text }}>{AR ? p.ar : p.en}</Text></TouchableOpacity>)}
+        {PREP_OPTIONS.map(p => <TouchableOpacity key={p.key} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.sm, paddingVertical: SP.sm }} onPress={() => setPrepItems(prev => prev.includes(p.key) ? prev.filter(x => x !== p.key) : [...prev, p.key])}><View style={{ width: 20, height: 20, borderRadius: 4, borderWidth: 2, borderColor: 'tokens.mintDeep', backgroundColor: prepItems.includes(p.key) ? 'tokens.mintDeep' : 'transparent', alignItems: 'center', justifyContent: 'center' }}>{prepItems.includes(p.key) && <I name="check" size={12} color="#fff" />}</View><Text style={{ fontSize: FS.sm, color: theme.text }}>{AR ? p.ar : p.en}</Text></TouchableOpacity>)}
         <NBtn label={AR ? 'إرسال للمراجعة الإدارية' : 'Submit for Admin Review'} onPress={handleSubmitDelta} style={{ marginTop: SP.xl }} />
       </NSheet>
     </View>
@@ -549,7 +550,7 @@ function AvailabilityScheduleTab() {
       <NHeader title={AR ? 'جدول المواعيد والتوفر' : 'Availability Schedule'} />
       <NSecHeader title={AR?' أيام العمل':' Working Days'} />
       <NCard style={{ marginBottom: SP.lg }}>
-        {DAYS_AR.map((day, i) => <TouchableOpacity key={i} style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: SP.md, borderBottomWidth: i < 6 ? 1 : 0, borderColor: theme.border }} onPress={() => setWorkingDays(prev => { const n = [...prev]; n[i] = !n[i]; return n; })}><Text style={{ fontSize: FS.sm, color: theme.text }}>{AR ? day : DAYS_EN[i]}</Text><View style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: workingDays[i] ? '#009688' : theme.surface2, borderWidth: 2, borderColor: workingDays[i] ? '#009688' : theme.border, alignItems: 'center', justifyContent: 'center' }}>{workingDays[i] && <I name="check" size={12} color="#fff" />}</View></TouchableOpacity>)}
+        {DAYS_AR.map((day, i) => <TouchableOpacity key={i} style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: SP.md, borderBottomWidth: i < 6 ? 1 : 0, borderColor: theme.border }} onPress={() => setWorkingDays(prev => { const n = [...prev]; n[i] = !n[i]; return n; })}><Text style={{ fontSize: FS.sm, color: theme.text }}>{AR ? day : DAYS_EN[i]}</Text><View style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: workingDays[i] ? 'tokens.mintDeep' : theme.surface2, borderWidth: 2, borderColor: workingDays[i] ? 'tokens.mintDeep' : theme.border, alignItems: 'center', justifyContent: 'center' }}>{workingDays[i] && <I name="check" size={12} color="#fff" />}</View></TouchableOpacity>)}
       </NCard>
       <NSecHeader title={AR?' الفترة الصباحية':' Morning Shift'} />
       <NCard style={{ marginBottom: SP.lg, flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md }}>
@@ -564,7 +565,7 @@ function AvailabilityScheduleTab() {
       <NCard style={{ marginBottom: SP.xl }}>
         <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <View><Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{AR?' متاح للطوارئ':' Emergency Availability'}</Text><Text style={{ fontSize: FS.xs, color: theme.textSub }}>{AR?'يسمح بالحجز خارج أوقات العمل':'Allow bookings outside working hours'}</Text></View>
-          <Switch value={emergencyAvailable} onValueChange={setEmergencyAvailable} trackColor={{ true: '#F44336' }} />
+          <Switch value={emergencyAvailable} onValueChange={setEmergencyAvailable} trackColor={{ true: 'tokens.error' }} />
         </View>
       </NCard>
       <NBtn label={AR ? 'حفظ وإرسال للمراجعة' : 'Save & Send for Review'} loading={saving} onPress={handleSave} />
@@ -588,7 +589,7 @@ function RadiologySettingsScreen({ onLogout, onNav }: { onLogout: () => void; on
         <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.md }}>{AR ? 'الأدوية' : 'Drugs'}</Text>
         <NBtn label={AR ? 'دليل الأدوية الطبي' : 'Medical Drug Index'} variant="outline" onPress={() => onNav && onNav('drug_index')} />
       </NCard>
-      <NCard style={{ marginTop: SP.xl }}><NBtn label={AR ? 'تسجيل الخروج' : 'Logout'} onPress={onLogout} style={{ backgroundColor: '#F44336', borderColor: '#F44336' }} /></NCard>
+      <NCard style={{ marginTop: SP.xl }}><NBtn label={AR ? 'تسجيل الخروج' : 'Logout'} onPress={onLogout} style={{ backgroundColor: 'tokens.error', borderColor: 'tokens.error' }} /></NCard>
     </ScrollView>
   );
 }

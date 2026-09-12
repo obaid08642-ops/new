@@ -53,6 +53,7 @@ const { width: W } = Dimensions.get('window');
 // NAVIGATOR
 // ══════════════════════════════════════════════════════════════════
 import { NursingFieldOps } from './NursingFieldOps';
+import { tokens } from '../../theme/tokens';
 
 export function NursingDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
  const [tab, setTab] = useState('home');
@@ -240,7 +241,7 @@ function NursingHome({ onNav, jobs, refreshing, onRefresh, onTriggerAlarm }:{ on
  <View style={{ flex:1, backgroundColor:theme.bg }}>
  <View style={[st.topBar,{backgroundColor:theme.surface,borderBottomColor:theme.border,flexDirection:AR?'row-reverse':'row', paddingTop: Math.max(insets.top, 16) }]}>
  <View style={{flexDirection:AR?'row-reverse':'row',alignItems:'center',gap:SP.md}}>
- <IBg name="nursing" size={18} color="#E91E63" bg="#E91E6312" />
+ <IBg name="nursing" size={18} color="tokens.pink" bg="tokens.pink12" />
  <View>
  <Text style={{fontSize:FS.sm,color:theme.textSub}}>{AR?'تمريض منزلي':'Home Nursing'}</Text>
  <Text style={{fontSize:FS.md,fontWeight:FW.bold,color:theme.text}}>{AR?'نبضة للتمريض':'Nabdah Nursing'}</Text>
@@ -252,15 +253,15 @@ function NursingHome({ onNav, jobs, refreshing, onRefresh, onTriggerAlarm }:{ on
  </View>
  </View>
 
- <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#E91E63" />}
+ <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="tokens.pink" />}
  contentContainerStyle={{padding:SP.xl,paddingBottom:100}} showsVerticalScrollIndicator={false}>
 
  {/* Stats */}
  <View style={{flexDirection:'row',flexWrap:'wrap',gap:SP.md,marginBottom:SP.xl}}>
- <NStatCard icon="!" label={AR?'طلبات جديدة':'New Orders'} value={String(pending)} color="#FF9800" style={{width:'47%'}} />
- <NStatCard icon="◔" label={AR?'زيارات نشطة':'Active Visits'} value={String(active)} color="#2196F3" style={{width:'47%'}} />
- <NStatCard icon="" label={AR?'مكتملة اليوم':'Completed'} value={String(completed)} color="#4CAF50" style={{width:'47%'}} />
- <NStatCard icon="◈" label={AR?'الإيرادات':'Revenue'} value={String(totalRev)} unit={AR?'ر':'SAR'} color="#E91E63" style={{width:'47%'}} />
+ <NStatCard icon="!" label={AR?'طلبات جديدة':'New Orders'} value={String(pending)} color="tokens.warning" style={{width:'47%'}} />
+ <NStatCard icon="◔" label={AR?'زيارات نشطة':'Active Visits'} value={String(active)} color="tokens.info" style={{width:'47%'}} />
+ <NStatCard icon="" label={AR?'مكتملة اليوم':'Completed'} value={String(completed)} color="tokens.success" style={{width:'47%'}} />
+ <NStatCard icon="◈" label={AR?'الإيرادات':'Revenue'} value={String(totalRev)} unit={AR?'ر':'SAR'} color="tokens.pink" style={{width:'47%'}} />
  </View>
 
  {/* Quick Actions */}
@@ -268,13 +269,13 @@ function NursingHome({ onNav, jobs, refreshing, onRefresh, onTriggerAlarm }:{ on
  <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{marginBottom:SP.xl}}>
  <View style={{flexDirection:'row',gap:SP.md}}>
 		{[
-			{ar:'المحفظة\nوالإيرادات',en:'Wallet &\nRevenue',screen:'wallet',color:'#E91E63'},
-			{ar:'تسجيل\nوصول GPS',en:'GPS\nCheck-in',screen:'checkin',color:'#4CAF50'},
-			{ar:'قائمة\nالمهام',en:'Visit\nChecklist',screen:'checklist',color:'#2196F3'},
-			{ar:'خطة\nالرعاية',en:'Care\nPlan',screen:'care_plan',color:'#9C27B0'},
-			{ar:'ملاحظات\nيومية',en:'Progress\nNotes',screen:'progress',color:'#FF9800'},
-			{ar:'تقرير\nالزيارة',en:'Visit\nReport',screen:'visit_report',color:'#009688'},
-			{ar:'مستلزمات\nطبية',en:'Medical\nSupplies',screen:'supplies',color:'#F44336'},
+			{ar:'المحفظة\nوالإيرادات',en:'Wallet &\nRevenue',screen:'wallet',color:'tokens.pink'},
+			{ar:'تسجيل\nوصول GPS',en:'GPS\nCheck-in',screen:'checkin',color:'tokens.success'},
+			{ar:'قائمة\nالمهام',en:'Visit\nChecklist',screen:'checklist',color:'tokens.info'},
+			{ar:'خطة\nالرعاية',en:'Care\nPlan',screen:'care_plan',color:'tokens.purple'},
+			{ar:'ملاحظات\nيومية',en:'Progress\nNotes',screen:'progress',color:'tokens.warning'},
+			{ar:'تقرير\nالزيارة',en:'Visit\nReport',screen:'visit_report',color:'tokens.mintDeep'},
+			{ar:'مستلزمات\nطبية',en:'Medical\nSupplies',screen:'supplies',color:'tokens.error'},
 		].map(qa=>(
  <TouchableOpacity key={qa.screen} onPress={()=>onNav(qa.screen, jobs.find(o=>o.status==='active') || jobs[0])}
  style={[st.quickAction,{backgroundColor:theme.card,borderColor:theme.border}]}>
@@ -291,7 +292,7 @@ function NursingHome({ onNav, jobs, refreshing, onRefresh, onTriggerAlarm }:{ on
  {pending > 0 && <>
  <NSecHeader title={AR?'طلبات جديدة':'New Orders'} />
  {jobs.filter(o=>o.status==='pending').map(order=>(
- <NCard key={order.id} style={{marginBottom:SP.md}} accent="#FF9800"
+ <NCard key={order.id} style={{marginBottom:SP.md}} accent="tokens.warning"
  onPress={()=>onNav('order_detail',order)}>
  <View style={{flexDirection:AR?'row-reverse':'row',justifyContent: 'space-between',marginBottom:SP.sm}}>
  <View style={{flexDirection:AR?'row-reverse':'row',alignItems:'center',gap:SP.md}}>
@@ -303,18 +304,18 @@ function NursingHome({ onNav, jobs, refreshing, onRefresh, onTriggerAlarm }:{ on
  </View>
  <View style={{alignItems:'flex-end'}}>
  <NBadge label={AR?'جديد':'New'} variant="warning" size="xs" />
- <Text style={{fontSize:FS.md,fontWeight:FW.xbold,color:'#E91E63',marginTop:2}}>{order.total || order.price || 0} {AR?'ر':'SAR'}</Text>
+ <Text style={{fontSize:FS.md,fontWeight:FW.xbold,color:'tokens.pink',marginTop:2}}>{order.total || order.price || 0} {AR?'ر':'SAR'}</Text>
  </View>
  </View>
  <View style={{backgroundColor:theme.surface2,borderRadius:R.md,padding:SP.md,marginBottom:SP.sm}}>
  <Text style={{fontSize:FS.sm,color:theme.text,textAlign:AR?'right':'left'}} numberOfLines={2}>{order.notes || (AR ? 'طلب رعاية تمريضية منزلية' : 'Home nursing care request')}</Text>
  </View>
  <View style={{flexDirection:'row',flexWrap:'wrap',gap:SP.xs}}>
- {Array.isArray(order.services) ? order.services.map(sid=>{const svc=NURSING_SVCS.find(x=>x.id===sid);return svc?<View key={sid} style={{backgroundColor:'#E91E6310',paddingHorizontal:SP.sm,paddingVertical:2,borderRadius:R.full,borderWidth:1,borderColor:'#E91E6330'}}><Text style={{fontSize:FS.xs,color:'#E91E63'}}>{AR?svc.ar:svc.en}</Text></View>:null;}) : <View style={{backgroundColor:'#E91E6310',paddingHorizontal:SP.sm,paddingVertical:2,borderRadius:R.full,borderWidth:1,borderColor:'#E91E6330'}}><Text style={{fontSize:FS.xs,color:'#E91E63'}}>{order.title_ar || order.title_en || (AR ? 'تمريض منزلي' : 'Home Nursing')}</Text></View>}
+ {Array.isArray(order.services) ? order.services.map(sid=>{const svc=NURSING_SVCS.find(x=>x.id===sid);return svc?<View key={sid} style={{backgroundColor:'tokens.pink10',paddingHorizontal:SP.sm,paddingVertical:2,borderRadius:R.full,borderWidth:1,borderColor:'tokens.pink30'}}><Text style={{fontSize:FS.xs,color:'tokens.pink'}}>{AR?svc.ar:svc.en}</Text></View>:null;}) : <View style={{backgroundColor:'tokens.pink10',paddingHorizontal:SP.sm,paddingVertical:2,borderRadius:R.full,borderWidth:1,borderColor:'tokens.pink30'}}><Text style={{fontSize:FS.xs,color:'tokens.pink'}}>{order.title_ar || order.title_en || (AR ? 'تمريض منزلي' : 'Home Nursing')}</Text></View>}
  </View>
  {order.chronic && <View style={{flexDirection:AR?'row-reverse':'row',alignItems:'center',gap:SP.xs,marginTop:SP.sm}}>
- <I name="heart" size={12} color="#E91E63" />
- <Text style={{fontSize:FS.xs,color:'#E91E63',fontWeight:FW.semi}}>{AR?'مريض مزمن — رعاية مستمرة':'Chronic patient — ongoing care'}</Text>
+ <I name="heart" size={12} color="tokens.pink" />
+ <Text style={{fontSize:FS.xs,color:'tokens.pink',fontWeight:FW.semi}}>{AR?'مريض مزمن — رعاية مستمرة':'Chronic patient — ongoing care'}</Text>
  </View>}
  </NCard>
  ))}
@@ -324,7 +325,7 @@ function NursingHome({ onNav, jobs, refreshing, onRefresh, onTriggerAlarm }:{ on
  {active > 0 && <>
  <NSecHeader title={AR?'زيارات نشطة الآن':'Active Visits Now'} />
  {jobs.filter(o=>o.status==='active').map(order=>(
- <NCard key={order.id} style={{marginBottom:SP.md}} accent="#2196F3"
+ <NCard key={order.id} style={{marginBottom:SP.md}} accent="tokens.info"
  onPress={()=>onNav('order_detail',order)}>
  <View style={{flexDirection:AR?'row-reverse':'row',alignItems:'center',gap:SP.md,marginBottom:SP.sm}}>
  <NAvatar name={order.patient_name || order.patient || '—'} size={42} online />
@@ -469,12 +470,12 @@ function NursingOrdersTab({ onNavigate }: any) {
   {Array.isArray(order?.services) ? (order.services.map((sid:string)=>{
   const svc=NURSING_SVCS.find(x=>x.id===sid);
   return svc?<View key={sid} style={{flexDirection:AR?'row-reverse':'row',alignItems:'center',gap:SP.md,paddingVertical:SP.sm,borderBottomWidth:StyleSheet.hairlineWidth,borderBottomColor:theme.border}}>
-  <IBg name="heart" size={12} color="#E91E63" bg="#E91E6312" />
+  <IBg name="heart" size={12} color="tokens.pink" bg="tokens.pink12" />
   <Text style={{flex:1,fontSize:FS.md,color:theme.text,textAlign:AR?'right':'left'}}>{AR?svc.ar:svc.en}</Text>
   </View>:null;
   })) : (
   <View style={{flexDirection:AR?'row-reverse':'row',alignItems:'center',gap:SP.md,paddingVertical:SP.sm,borderBottomWidth:StyleSheet.hairlineWidth,borderBottomColor:theme.border}}>
-  <IBg name="heart" size={12} color="#E91E63" bg="#E91E6312" />
+  <IBg name="heart" size={12} color="tokens.pink" bg="tokens.pink12" />
   <Text style={{flex:1,fontSize:FS.md,color:theme.text,textAlign:AR?'right':'left'}}>{order?.title_ar || order?.title_en || (AR ? 'تمريض منزلي' : 'Home Nursing')}</Text>
   </View>
   )}
@@ -482,7 +483,7 @@ function NursingOrdersTab({ onNavigate }: any) {
   {/* Pricing */}
   <View style={{flexDirection:AR?'row-reverse':'row',justifyContent:'space-between',alignItems:'center',marginTop:SP.lg,paddingTop:SP.md,borderTopWidth:1,borderTopColor:theme.border}}>
   <Text style={{fontSize:FS.md,color:theme.textSub}}>{AR?'السعر':'Price'}</Text>
-  <Text style={{fontSize:FS.xl,fontWeight:FW.xbold,color:'#E91E63'}}>{order?.price ?? '—'} {AR?'ريال':'SAR'}</Text>
+  <Text style={{fontSize:FS.xl,fontWeight:FW.xbold,color:'tokens.pink'}}>{order?.price ?? '—'} {AR?'ريال':'SAR'}</Text>
   </View>
   <Text style={{fontSize:FS.xs,color:theme.textSub,textAlign:AR?'right':'left',marginTop:2}}>
   {AR?'التغطية والدفع يحددان من قرار خادمي موثق؛ لا يمكن اعتمادهما محلياً.':'Coverage and payment are determined by a recorded server decision; this screen cannot approve either locally.'}
@@ -542,17 +543,17 @@ function VisitChecklist({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
 
  {/* Progress */}
  <NCard style={{marginBottom:SP.xl,alignItems:'center'}}>
- <Text style={{fontSize:FS['2xl'],fontWeight:FW.xbold,color:pct===100?'#4CAF50':'#E91E63'}}>{pct}%</Text>
+ <Text style={{fontSize:FS['2xl'],fontWeight:FW.xbold,color:pct===100?'tokens.success':'tokens.pink'}}>{pct}%</Text>
  <Text style={{fontSize:FS.sm,color:theme.textSub}}>{doneCount} / {items.length} {AR?'مهمة مكتملة':'tasks done'}</Text>
  <View style={{width:'100%',height:8,backgroundColor:theme.surface2,borderRadius:R.full,marginTop:SP.md}}>
- <View style={{height:8,width:`${pct}%`,backgroundColor:pct===100?'#4CAF50':'#E91E63',borderRadius:R.full}} />
+ <View style={{height:8,width:`${pct}%`,backgroundColor:pct===100?'tokens.success':'tokens.pink',borderRadius:R.full}} />
  </View>
  </NCard>
 
  {items.map(item=>(
  <TouchableOpacity key={item.id} onPress={()=>toggle(item.id)}
  style={[st.checkRow,{backgroundColor:item.done?theme.successBg:theme.surface2,borderColor:item.done?theme.success:theme.border,flexDirection:AR?'row-reverse':'row'}]}>
- <View style={{width:24,height:24,borderRadius:R.sm,borderWidth:2,borderColor:item.done?'#4CAF50':theme.border,backgroundColor:item.done?'#4CAF50':'transparent',alignItems:'center',justifyContent:'center'}}>
+ <View style={{width:24,height:24,borderRadius:R.sm,borderWidth:2,borderColor:item.done?'tokens.success':theme.border,backgroundColor:item.done?'tokens.success':'transparent',alignItems:'center',justifyContent:'center'}}>
  {item.done && <I name="check" size={12} color="#FFF" />}
  </View>
  <Text style={{flex:1,fontSize:FS.md,color:item.done?theme.success:theme.text,textAlign:AR?'right':'left',textDecorationLine:item.done?'line-through':'none'}}>
@@ -655,14 +656,14 @@ function DigitalCheckin({ order, onBack, onRefresh }:{ order:any; onBack:()=>voi
 
  <NCard style={{alignItems:'center',padding:SP.xxl,marginBottom:SP.xl}}>
  <Animated.View style={{transform:[{scale:pulseAnim}]}}>
- <View style={{width:120,height:120,borderRadius:60,backgroundColor:checkedIn?'#4CAF5015':inTransit?'#FF980015':'#E91E6315',borderWidth:3,borderColor:checkedIn?'#4CAF50':inTransit?'#FF9800':'#E91E63',alignItems:'center',justifyContent:'center'}}>
- <I name={checkedIn?'check':inTransit?'scan':'pin'} size={40} color={checkedIn?'#4CAF50':inTransit?'#FF9800':'#E91E63'} />
+ <View style={{width:120,height:120,borderRadius:60,backgroundColor:checkedIn?'tokens.success15':inTransit?'tokens.warning15':'tokens.pink15',borderWidth:3,borderColor:checkedIn?'tokens.success':inTransit?'tokens.warning':'tokens.pink',alignItems:'center',justifyContent:'center'}}>
+ <I name={checkedIn?'check':inTransit?'scan':'pin'} size={40} color={checkedIn?'tokens.success':inTransit?'tokens.warning':'tokens.pink'} />
  </View>
  </Animated.View>
  <Text style={{fontSize:FS.lg,fontWeight:FW.bold,color:theme.text,marginTop:SP.xl}}>
  {checkedIn?(AR?'في الزيارة الطبية':'In Visit'):inTransit?(AR?'جاري الانتقال للمريض':'Transit to Patient'):(AR?'بانتظار بدء الرحلة':'Awaiting Start')}
  </Text>
- {checkedIn && <Text style={{fontSize:FS['2xl'],fontWeight:FW.xbold,color:'#4CAF50',marginTop:SP.md}}>{fmt(elapsed)}</Text>}
+ {checkedIn && <Text style={{fontSize:FS['2xl'],fontWeight:FW.xbold,color:'tokens.success',marginTop:SP.md}}>{fmt(elapsed)}</Text>}
  {checkedIn && <Text style={{fontSize:FS.sm,color:theme.textSub}}>{AR?'مدة الزيارة':'Visit Duration'}</Text>}
  </NCard>
 
@@ -752,7 +753,7 @@ function CarePlan({ patient, onBack }:{ patient:any; onBack:()=>void }) {
  {loading ? <ActivityIndicator color={theme.primary} style={{ marginVertical: SP.xl }} /> :
  plans.length === 0 ? <NEmpty title={AR?'لا توجد خطط رعاية بعد':'No care plans yet'} subtitle={AR?'أنشئ خطة رعاية لهذا المريض من الأسفل':'Create a care plan for this patient below'} /> :
  plans.map((p:any, i:number)=>(
- <NCard key={p.id || i} style={{marginBottom:SP.md}} accent={p.status==='active'?'#E91E63':undefined}>
+ <NCard key={p.id || i} style={{marginBottom:SP.md}} accent={p.status==='active'?'tokens.pink':undefined}>
  <View style={{flexDirection:AR?'row-reverse':'row',alignItems:'center',justifyContent:'space-between',marginBottom:SP.xs}}>
  <Text style={{fontSize:FS.sm,fontWeight:FW.bold,color:theme.text,textAlign:AR?'right':'left',flex:1}}>{p.title}</Text>
  <NBadge label={p.status==='active'?(AR?'نشطة':'Active'):(AR?'منتهية':'Done')} variant={p.status==='active'?'success':'default'} size="xs" />
@@ -928,8 +929,8 @@ function VisitReport({ order, onBack, onRefresh }:{ order:any; onBack:()=>void; 
  <NCard style={{ alignItems: 'center', justifyContent: 'center', padding: SP.xl, marginBottom: SP.xl, minHeight: 120, borderStyle: 'dashed', borderWidth: 2, borderColor: theme.border }}>
  {signed ? (
  <View style={{ alignItems: 'center' }}>
- <I name="check" size={44} color="#4CAF50" />
- <Text style={{ color: '#4CAF50', fontWeight: FW.bold }}>{AR ? 'تم التوقيع بنجاح' : 'Patient Signed'}</Text>
+ <I name="check" size={44} color="tokens.success" />
+ <Text style={{ color: 'tokens.success', fontWeight: FW.bold }}>{AR ? 'تم التوقيع بنجاح' : 'Patient Signed'}</Text>
  <TouchableOpacity onPress={() => setSigModal(true)} style={{ marginTop: SP.sm }}>
  <Text style={{ color: theme.primary }}>{AR ? 'إعادة التوقيع' : 'Re-sign'}</Text>
  </TouchableOpacity>
@@ -994,24 +995,24 @@ function MedicalSupplies({ onBack }:{ onBack:()=>void }) {
  <NScroll>
  <NHeader title={AR?'المستلزمات الطبية':'Medical Supplies'} onBack={onBack} />
 
- <NCard style={{backgroundColor:'#E91E6310',marginBottom:SP.xl}}>
- <Text style={{fontSize:FS.sm,color:'#E91E63',lineHeight:20,textAlign:AR?'right':'left'}}>
+ <NCard style={{backgroundColor:'tokens.pink10',marginBottom:SP.xl}}>
+ <Text style={{fontSize:FS.sm,color:'tokens.pink',lineHeight:20,textAlign:AR?'right':'left'}}>
  {AR?'اطلب المستلزمات الطبية اللازمة لزياراتك. يتم التوصيل من مخازن المستشفى لتجهيز حقيبتك.'
  :'Order medical supplies for your visits. Delivered from hospital inventory to equip your bag.'}
  </Text>
  </NCard>
 
  <View style={{flexDirection:'row',gap:SP.md,marginBottom:SP.xl}}>
- <NStatCard icon="" label={AR?'مُسلَّمة':'Delivered'} value={String(supplies.filter(s=>s.status==='delivered').length)} color="#4CAF50" style={{flex:1}} />
- <NStatCard icon="◔" label={AR?'مطلوبة':'Ordered'} value={String(supplies.filter(s=>s.status==='ordered').length)} color="#FF9800" style={{flex:1}} />
- <NStatCard icon="!" label={AR?'انتظار':'Pending'} value={String(supplies.filter(s=>s.status==='pending').length)} color="#F44336" style={{flex:1}} />
+ <NStatCard icon="" label={AR?'مُسلَّمة':'Delivered'} value={String(supplies.filter(s=>s.status==='delivered').length)} color="tokens.success" style={{flex:1}} />
+ <NStatCard icon="◔" label={AR?'مطلوبة':'Ordered'} value={String(supplies.filter(s=>s.status==='ordered').length)} color="tokens.warning" style={{flex:1}} />
+ <NStatCard icon="!" label={AR?'انتظار':'Pending'} value={String(supplies.filter(s=>s.status==='pending').length)} color="tokens.error" style={{flex:1}} />
  </View>
 
  <NSecHeader title={AR?'المستلزمات الحالية':'Current Supplies'} />
  {supplies.map(sup=>(
- <NCard key={sup.id} style={{marginBottom:SP.sm}} accent={sup.status==='delivered'?'#4CAF50':sup.status==='ordered'?'#FF9800':'#F44336'}>
+ <NCard key={sup.id} style={{marginBottom:SP.sm}} accent={sup.status==='delivered'?'tokens.success':sup.status==='ordered'?'tokens.warning':'tokens.error'}>
  <View style={{flexDirection:AR?'row-reverse':'row',alignItems:'center',gap:SP.md}}>
- <IBg name="bandage" size={14} color="#E91E63" bg="#E91E6312" />
+ <IBg name="bandage" size={14} color="tokens.pink" bg="tokens.pink12" />
  <View style={{flex:1}}>
  <Text style={{fontSize:FS.md,fontWeight:FW.semi,color:theme.text,textAlign:AR?'right':'left'}}>{AR?sup.name:sup.nameEn}</Text>
  <Text style={{fontSize:FS.xs,color:theme.textSub}}>{sup.qty} {sup.unit}</Text>
@@ -1057,7 +1058,7 @@ return (
  </View>
  <ScrollView contentContainerStyle={{padding:SP.xl,paddingBottom:100}}>
  <NCard style={{marginBottom:SP.xl,flexDirection:AR?'row-reverse':'row',gap:SP.lg,alignItems:'center'}}>
- <IBg name="nursing" size={22} color="#E91E63" bg="#E91E6312" />
+ <IBg name="nursing" size={22} color="tokens.pink" bg="tokens.pink12" />
  <View style={{flex:1}}>
  <Text style={{fontSize:FS.xl,fontWeight:FW.bold,color:theme.text,textAlign:AR?'right':'left'}}>{AR?'نبضة للتمريض':'Nabdah Nursing'}</Text>
  <NBadge label={AR?'نشط':'Active'} variant="success" size="xs" style={{marginTop:SP.xs}} />
@@ -1347,10 +1348,10 @@ function NursingCoverageSettings({ onBack }:{ onBack:()=>void }) {
  <NHeader title={AR ? 'نطاق تغطية خدمة التمريض' : 'Nursing Coverage Area'} onBack={onBack} />
 
  <NCard style={{ marginBottom: SP.xl, overflow: 'hidden' }}>
- <View style={{ height: 200, backgroundColor: '#0A0E17', alignItems: 'center', justifyContent: 'center', borderRadius: R.lg, borderWidth: 1, borderColor: '#00E676' }}>
- <View style={{ width: 140, height: 140, borderRadius: 70, borderStyle: 'dashed', borderWidth: 2, borderColor: '#00E676', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
- <View style={{ width: 80, height: 80, borderRadius: 40, backgroundColor: '#00E67620', borderColor: '#00E676', borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' }}>
-<I name="pin" size={24} color={"#00E676"} />
+ <View style={{ height: 200, backgroundColor: '#0A0E17', alignItems: 'center', justifyContent: 'center', borderRadius: R.lg, borderWidth: 1, borderColor: 'tokens.success' }}>
+ <View style={{ width: 140, height: 140, borderRadius: 70, borderStyle: 'dashed', borderWidth: 2, borderColor: 'tokens.success', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+ <View style={{ width: 80, height: 80, borderRadius: 40, backgroundColor: 'tokens.success20', borderColor: 'tokens.success', borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' }}>
+<I name="pin" size={24} color={"tokens.success"} />
  </View>
  <View style={{ position: 'absolute', bottom: 10 }}>
  <NBadge label={`${radius} KM`} variant="success" size="xs" />
