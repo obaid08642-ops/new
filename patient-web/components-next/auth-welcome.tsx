@@ -18,7 +18,29 @@ const copy: Record<Locale, { brand:string; tagline:string; title:string; body:st
 function Logo() { return <span className={styles.logo}><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M18 52H38l5-22 9 44 6-30 5 8H82" /></svg></span>; }
 export function AuthWelcome({ locale }: { locale: Locale }) {
   const t=copy[locale]; const router=useRouter(); const [light,setLight]=useState(false);
+  const [guestBusy, setGuestBusy]=useState(false);
+  // Device-bound guest session (parity with mobile): the same browser keeps
+  // the same guest account via a stored device id; convert on register.
+  async function doGuest() {
+    if (guestBusy) return;
+    setGuestBusy(true);
+    try {
+      let deviceId: string | null = null;
+      try { deviceId = window.localStorage.getItem("nabd_device_id"); } catch {}
+      if (!deviceId) {
+        deviceId = typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        try { window.localStorage.setItem("nabd_device_id", deviceId); } catch {}
+      }
+      const res = await fetch("/api/auth/guest", { method: "POST", headers: { "content-type": "application/json", "x-nabd-device-id": deviceId } });
+      if (!res.ok) throw new Error("guest_failed");
+      router.push(`/${locale}`);
+    } catch {
+      router.push(`/${locale}/login?guest=blocked`);
+    } finally {
+      setGuestBusy(false);
+    }
+  }
   const locales: Locale[] = ["ar","en","fil","hi","ur","bn"];
   const nextLocale = locales[(locales.indexOf(locale)+1)%locales.length];
-  return <main className={`${styles.page} ${light ? styles.light : ""}`} dir={locale === "ar" || locale === "ur" ? "rtl" : "ltr"}><header className={styles.topbar}><button className={styles.iconButton} type="button" aria-label="Toggle theme" aria-pressed={light} onClick={()=>setLight(v=>!v)}>{light ? <Sun size={17}/> : <Moon size={17}/>}</button><button className={styles.language} type="button" onClick={()=>router.replace(`/${nextLocale}/welcome`)}><Globe2 size={16}/>{t.language}: {locale.toUpperCase()}</button></header><section className={styles.content}><div className={styles.brand}><Logo/><div><strong>{t.brand}</strong><span>{t.tagline}</span></div></div><h1 className={styles.title}>{t.title}</h1><p className={styles.body}>{t.body}</p><div className={styles.actions}><button type="button" className={styles.guest} onClick={()=>router.push(`/${locale}/login?guest=blocked`)}>{t.guest}</button><button type="button" className={styles.primary} onClick={()=>router.push(`/${locale}/register`)}>{t.register}</button><button type="button" className={styles.secondary} onClick={()=>router.push(`/${locale}/login`)}>{t.login}</button></div><div className={styles.divider}><span>{t.social}</span></div><div className={styles.socials}>{["G","A","S","X"].map((label)=><button type="button" key={label} className={styles.social} onClick={()=>undefined} aria-label={label}>{label}</button>)}</div><p className={styles.blocked}>{t.blocked}</p></section></main>;
+  return <main className={`${styles.page} ${light ? styles.light : ""}`} dir={locale === "ar" || locale === "ur" ? "rtl" : "ltr"}><header className={styles.topbar}><button className={styles.iconButton} type="button" aria-label="Toggle theme" aria-pressed={light} onClick={()=>setLight(v=>!v)}>{light ? <Sun size={17}/> : <Moon size={17}/>}</button><button className={styles.language} type="button" onClick={()=>router.replace(`/${nextLocale}/welcome`)}><Globe2 size={16}/>{t.language}: {locale.toUpperCase()}</button></header><section className={styles.content}><div className={styles.brand}><Logo/><div><strong>{t.brand}</strong><span>{t.tagline}</span></div></div><h1 className={styles.title}>{t.title}</h1><p className={styles.body}>{t.body}</p><div className={styles.actions}><button type="button" className={styles.guest} disabled={guestBusy} onClick={()=>void doGuest()}>{t.guest}</button><button type="button" className={styles.primary} onClick={()=>router.push(`/${locale}/register`)}>{t.register}</button><button type="button" className={styles.secondary} onClick={()=>router.push(`/${locale}/login`)}>{t.login}</button></div><div className={styles.divider}><span>{t.social}</span></div><div className={styles.socials}>{["G","A","S","X"].map((label)=><button type="button" key={label} className={styles.social} onClick={()=>undefined} aria-label={label}>{label}</button>)}</div><p className={styles.blocked}>{t.blocked}</p></section></main>;
 }
