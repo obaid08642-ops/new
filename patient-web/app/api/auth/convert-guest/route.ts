@@ -35,6 +35,6 @@ export async function POST(request: Request) {
   const tokens = tokenPair(data);
   if (!tokens) return NextResponse.json({ message: "unexpected_auth_response" }, { status: 502 });
   const response = NextResponse.json({ authenticated: true, guest: false });
-  setSessionCookies(response, tokens, deviceId);
+  setSessionCookies(response, tokens, deviceId || crypto.randomUUID());
   return response;
 }

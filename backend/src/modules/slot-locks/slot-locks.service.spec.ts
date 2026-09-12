@@ -95,7 +95,9 @@ describe('SlotLocksService', () => {
         provider_id: 'doc1', slot_start: slot, booking_kind: 'consultation',
       })).rejects.toThrow('lock_not_found');
 
-      locksModel.findOne.mockResolvedValue({ ...held, patient_id: 'u2' });
+      // A foreign lock is invisible: the query itself filters by patient_id,
+      // so the mock returns null exactly as the collection would.
+      locksModel.findOne.mockResolvedValue(null);
       await expect(service.validateForBooking({ id: 'u1' }, 'lock1', {
         provider_id: 'doc1', slot_start: slot, booking_kind: 'consultation',
       })).rejects.toThrow('lock_not_found');

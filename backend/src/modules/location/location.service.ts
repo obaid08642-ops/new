@@ -91,11 +91,10 @@ export class LocationService implements OnModuleInit {
     let matchedRegion: Location | undefined;
     let matchedAlias: string | undefined;
 
-    // Check districts first (most specific). Matches against normalized
-    // names AND aliases: seed aliases are often empty, so names must match
-    // too — otherwise no real query ever resolves (P11-CI fix). District
-    // names also match without the leading 'حي ' (users write 'الزهراء').
-    // First match in seed order wins; city pairing stays consistent via parent.
+    // Check districts first (most specific). Collect ALL district matches,
+    // then prefer the one under an explicitly named city (e.g. 'الزهراء'
+    // exists in Riyadh and Jeddah — 'بجدة' disambiguates). First in seed
+    // order wins only when no city context exists.
     const candidatesOf = (loc: any): string[] => {
       const out = new Set<string>();
       const raws: string[] = [loc.name_ar, loc.name_en, ...(loc.aliases || [])];
@@ -112,16 +111,15 @@ export class LocationService implements OnModuleInit {
       }
       return [...out];
     };
+    const districtMatches: Array<{ loc: any; alias: string }> = [];
     for (const loc of allLocations) {
       if (loc.type === 'district') {
         for (const normAlias of candidatesOf(loc)) {
           if (normalized.includes(normAlias)) {
-            matchedDistrict = loc as Location;
-            matchedAlias = normAlias;
+            districtMatches.push({ loc, alias: normAlias });
             break;
           }
         }
-        if (matchedDistrict) break;
       }
     }
 
@@ -137,6 +135,16 @@ export class LocationService implements OnModuleInit {
         }
         if (matchedCity) break;
       }
+    }
+
+    // Prefer a district under the explicitly named city; otherwise first match.
+    if (districtMatches.length) {
+      const underCity = matchedCity
+        ? districtMatches.find((m) => m.loc.parent_code === (matchedCity as Location).code)
+        : undefined;
+      const pick = underCity || districtMatches[0];
+      matchedDistrict = pick.loc as Location;
+      matchedAlias = pick.alias;
     }
 
     // If district matched, deduce parent city if city not explicitly named
