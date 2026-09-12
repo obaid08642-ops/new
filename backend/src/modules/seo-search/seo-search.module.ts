@@ -134,12 +134,13 @@ export function expandMultilingualSearchTerms(input: string): string[] {
  * Auto metadata per entity (slug/canonical/OG/Twitter/JSON-LD/breadcrumbs),
  * sitemap.xml + robots.txt, universal home search, recommendation engine.
  */
-import { Module, Injectable, Controller, Get, NotFoundException, Param, Query, Res } from '@nestjs/common';
+import { Module, Injectable, Controller, Get, Post, Body, NotFoundException, Param, Query, Res, Optional } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { Response } from 'express';
 import { Public, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
+import { AutoEntitySeoPipelineService, PipelineEntityType } from '../events/auto-entity-seo-pipeline.service';
 import { resolveMedicinePublicDto, productLocaleToDb, PUBLIC_CATALOG_LOCALES } from '../medicines/med-i18n';
 
 const SITE = process.env.API_PUBLIC_URL?.replace('/api/v1', '') || 'https://api.nabd.plus';
@@ -977,7 +978,10 @@ export class SeoSearchController {
 @Controller('admin/seo')
 @Roles(UserRole.ADMIN)
 export class SeoAdminController {
-  constructor(private readonly svc: SeoSearchService) {}
+  constructor(
+    private readonly svc: SeoSearchService,
+    @Optional() private readonly pipeline?: AutoEntitySeoPipelineService,
+  ) {}
 
   /**
    * Indexing/db reconciliation status for the admin dashboard (§52/§72):
@@ -987,6 +991,22 @@ export class SeoAdminController {
   @Get('status')
   async status() {
     return this.svc.indexingStatus();
+  }
+
+  /**
+   * R16: backfill canonical slugs for public entities missing them
+   * (live sitemap showed raw UUIDs). Bounded batches; each entity goes
+   * through the governed pipeline (collision check + history).
+   */
+  @Post('backfill-slugs')
+  async backfillSlugs(@Body() dto: { type?: string; limit?: number }) {
+    if (!this.pipeline) return { ok: false, error: 'pipeline_unavailable' };
+    const allowed: PipelineEntityType[] = ['doctor', 'pharmacy', 'hospital', 'clinic', 'lab', 'radiology', 'nursing'];
+    const type = (dto?.type || 'doctor') as PipelineEntityType;
+    if (!allowed.includes(type)) return { ok: false, error: 'unsupported_type' };
+    const limit = Math.min(Math.max(Number(dto?.limit) || 100, 1), 500);
+    const out = await (this.pipeline as any).backfillMissingSlugs(type, limit);
+    return { ok: true, type, ...out };
   }
 }
 
