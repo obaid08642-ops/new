@@ -85,28 +85,12 @@ export default async function DiagnosticsPage({ params }: Props) {
     labPackages = Array.isArray(data) ? data : (Array.isArray(data?.data) ? data.data : []);
   }
 
-  // Fallback items if database had network glitch
-  const finalLabServices = labServices.length > 0 ? labServices : [
-    { id: "cbc-test", name_ar: "تحليل دم شامل (CBC)", name_en: "Complete Blood Count (CBC)", price: 120, fasting_required: false, home_visit_supported: true, turnaround_hours: 12 },
-    { id: "vitamin-d", name_ar: "تحليل فيتامين د (25-OH)", name_en: "Vitamin D (25-OH) Test", price: 180, fasting_required: false, home_visit_supported: true, turnaround_hours: 24 },
-    { id: "hba1c-test", name_ar: "تحليل سكر تراكمي (HbA1c)", name_en: "HbA1c Blood Glucose", price: 140, fasting_required: false, home_visit_supported: true, turnaround_hours: 12 },
-    { id: "thyroid-tsh", name_ar: "تحليل هرمون الغدة الدرقية (TSH)", name_en: "Thyroid Stimulating Hormone (TSH)", price: 150, fasting_required: true, home_visit_supported: true, turnaround_hours: 24 },
-    { id: "lipid-profile", name_ar: "تحليل دهنيات الدم والكوليسترول", name_en: "Comprehensive Lipid Profile", price: 160, fasting_required: true, home_visit_supported: true, turnaround_hours: 24 },
-    { id: "liver-kidney", name_ar: "وظائف الكبد والكلى الشاملة", name_en: "Liver & Kidney Function Panel", price: 220, fasting_required: true, home_visit_supported: true, turnaround_hours: 24 }
-  ];
-
-  const finalRadiologyServices = radiologyServices.length > 0 ? radiologyServices : [
-    { id: "chest-xray", name_ar: "أشعة سينية على الصدر (Chest X-Ray)", name_en: "Chest X-Ray Digital", modality: "xray", price: 180, home_visit_supported: false },
-    { id: "abdominal-ultrasound", name_ar: "سونار البطن والحوض (Ultrasound)", name_en: "Abdomen & Pelvis Ultrasound", modality: "ultrasound", price: 260, home_visit_supported: true },
-    { id: "echo-cardiogram", name_ar: "فحص إيكو القلب (Echocardiogram)", name_en: "Echocardiogram Doppler", modality: "ultrasound", price: 420, home_visit_supported: false },
-    { id: "brain-mri", name_ar: "رنين مغناطيسي على المخ (Brain MRI)", name_en: "Brain MRI Scan", modality: "mri", price: 750, home_visit_supported: false }
-  ];
-
-  const finalPackages = labPackages.length > 0 ? labPackages : [
-    { id: "pkg-comprehensive", name_ar: "باقة الفحص الطبي الشامل (32 فحص)", name_en: "Comprehensive 32-Test Health Panel", price: 480, description_ar: "تشمل صورة الدم، السكر التراكمي، الكبد، الكلى، الدهون، وفيتامين د." },
-    { id: "pkg-vitamins", name_ar: "باقة الفيتامينات والمعادن الأساسية", name_en: "Essential Vitamins & Minerals", price: 390, description_ar: "فيتامين د، فيتامين ب12، مخزون الحديد، الزنك، والكالسيوم." },
-    { id: "pkg-hair-fall", name_ar: "باقة صحة الشعر وتساقطه", name_en: "Hair Loss Diagnostic Check", price: 340, description_ar: "تحاليل الغدة الدرقية، مخزون الحديد، الزنك، وصورة الدم." }
-  ];
+  // No fabricated fallback: on backend/network failure the live arrays stay
+  // empty and the hub renders honest empty states (P0-19). Fake prices must
+  // never be presented as a real catalog.
+  const finalLabServices = labServices;
+  const finalRadiologyServices = radiologyServices;
+  const finalPackages = labPackages;
 
   return (
     <main className={`main ${styles.page}`}>
