@@ -2680,8 +2680,7 @@ export function MediaConfigScreen({ onBack }: { onBack: () => void }) {
  );
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// FEATURE UNDER DEVELOPMENT SCREEN (PREMIUM PLACEHOLDER)
+// ─── REGISTRATION SUCCESS ───
 // ══════════════════════════════════════════════════════════════════════════════
 export * from './RegistrationSuccess';
 
