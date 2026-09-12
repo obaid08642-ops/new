@@ -27,11 +27,21 @@ type TrackingStep = {
 const buildSteps = (state: string, updatedAt?: string, pharmacyName?: string, deliveryMode = 'DELIVERY'): TrackingStep[] => {
   const time = (s: string) => s ? new Date(s).toLocaleTimeString(dateLocale(), { hour: '2-digit', minute: '2-digit' }) : '';
 
+  // Governed backend states (pharmacy-order.service governed_state +
+  // effective_status + fulfillment states). Legacy keys kept at level 0 so
+  // old payloads never break the timeline. CANCELLED/REJECTED map to -1 so
+  // no step renders as done for a dead order (P0-09).
   const stateMap: Record<string, number> = {
     'CREATED': 0, 'VALIDATED': 0, 'PHARMACY_RECEIVED': 0,
-    'ACCEPTED': 1, 'PREPARING': 1,
+    'DRAFT': 0, 'READY_FOR_SPLIT': 0, 'BROADCASTING': 0,
+    'INSURANCE_PROCESSING': 0, 'INSURANCE_DECISION_PENDING': 0,
+    'OFFER_SELECTED': 1, 'FINAL_QUOTE_READY': 1, 'FINAL_QUOTE_ACCEPTED': 1,
+    'COD_REGISTERED': 1, 'INSURANCE_DECISION_READY': 1, 'WAITING_COPAY': 1,
+    'CONFIRMED': 1, 'PARTIALLY_CONFIRMED': 1, 'MANUAL_REVIEW': 1,
+    'ACCEPTED': 1, 'PREPARING': 1, 'IN_FULFILLMENT': 2,
     'READY_FOR_DISPATCH': 2, 'ASSIGNED_TO_DELIVERY': 2, 'OUT_FOR_DELIVERY': 2,
-    'DELIVERED': 3,
+    'DELIVERED': 3, 'COMPLETED': 3,
+    'CANCELLED': -1, 'REJECTED': -1,
   };
   const currentLevel = stateMap[state] ?? 0;
 
@@ -40,7 +50,7 @@ const buildSteps = (state: string, updatedAt?: string, pharmacyName?: string, de
     { id: 's2', title: 'الصيدلية تجهّز طلبك', desc: `${pharmacyName || 'الصيدلية'} تراجع وتجهّز الأدوية المطلوبة.`, time: currentLevel >= 1 ? time(updatedAt || '') : '', done: currentLevel > 1, active: currentLevel === 1 },
   ];
   if (deliveryMode === 'PICKUP') {
-    const ready = ['READY', 'READY_FOR_DISPATCH', 'ASSIGNED_TO_DELIVERY', 'OUT_FOR_DELIVERY', 'DELIVERED', 'COMPLETED'].includes(state);
+    const ready = ['READY', 'READY_FOR_DISPATCH', 'ASSIGNED_TO_DELIVERY', 'OUT_FOR_DELIVERY', 'DELIVERED', 'COMPLETED', 'CONFIRMED', 'PARTIALLY_CONFIRMED'].includes(state);
     return [...initial, { id: 's3', title: 'جاهز للاستلام', desc: 'أصبح الطلب جاهزاً للاستلام من الصيدلية.', time: ready ? time(updatedAt || '') : '', done: ['DELIVERED', 'COMPLETED'].includes(state), active: ready && !['DELIVERED', 'COMPLETED'].includes(state) }];
   }
   return [...initial,
@@ -204,8 +214,8 @@ export default function OrderTrackingScreen() {
           ))}
         </View>
 
-        {/* Rate the experience — only after delivery */}
-        {orderData?.state === 'DELIVERED' && (
+        {/* Rate the experience — only after delivery (governed state, not legacy key) */}
+        {(governedState === 'DELIVERED' || governedState === 'COMPLETED') && (
           <TouchableOpacity
             onPress={() => router.push({ pathname: '/reviews', params: { booking_kind: 'pharmacy', booking_id: orderIdStr, providerName: orderData?.pharmacy_name || '' } })}
             activeOpacity={0.85}

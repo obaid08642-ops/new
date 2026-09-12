@@ -317,6 +317,15 @@ export function NotificationsCenter({ onBack }: { onBack: () => void }) {
    } catch { show(AR ? 'تعذر مسح الإشعارات' : 'Could not clear notifications', 'error'); }
  };
 
+ const markRead = async (id: string) => {
+   setNotifs(prev => prev.map(n => (n.id === id ? { ...n, read: true } : n)));
+   try {
+     await client.post(`/provider/notifications/${encodeURIComponent(id)}/read`, {});
+   } catch {
+     // Optimistic update stands; a fresh fetch on focus reconciles.
+   }
+ };
+
  return (
  <View style={{ flex: 1, backgroundColor: theme.bg }}>
  <View style={[st.topBar, { backgroundColor: theme.surface, borderBottomColor: theme.border }]}>
@@ -848,6 +857,7 @@ export function WithdrawalWorkflow({ onBack }: { onBack: () => void }) {
 // ══════════════════════════════════════════════════════════════════
 export function MedicalJobsScreen({ onBack, onOpenChat }: { onBack: () => void, onOpenChat?: () => void }) {
   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+  const { user } = useAuth();
   const insets = useSafeAreaInsets();
   
   const [tab, setTab] = useState<'browse' | 'post' | 'inbox'>('browse');
@@ -905,7 +915,6 @@ export function MedicalJobsScreen({ onBack, onOpenChat }: { onBack: () => void, 
 
   const [jobs, setJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const { user } = useAuth();
   const [posting, setPosting] = useState(false);
   const [postCity, setPostCity] = useState('');
 
@@ -2680,8 +2689,7 @@ export function MediaConfigScreen({ onBack }: { onBack: () => void }) {
  );
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// FEATURE UNDER DEVELOPMENT SCREEN (PREMIUM PLACEHOLDER)
+// ─── REGISTRATION SUCCESS ───
 // ══════════════════════════════════════════════════════════════════════════════
 export * from './RegistrationSuccess';
 

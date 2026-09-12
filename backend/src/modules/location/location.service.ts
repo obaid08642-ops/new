@@ -91,34 +91,60 @@ export class LocationService implements OnModuleInit {
     let matchedRegion: Location | undefined;
     let matchedAlias: string | undefined;
 
-    // Check districts first (most specific)
+    // Check districts first (most specific). Collect ALL district matches,
+    // then prefer the one under an explicitly named city (e.g. 'الزهراء'
+    // exists in Riyadh and Jeddah — 'بجدة' disambiguates). First in seed
+    // order wins only when no city context exists.
+    const candidatesOf = (loc: any): string[] => {
+      const out = new Set<string>();
+      const raws: string[] = [loc.name_ar, loc.name_en, ...(loc.aliases || [])];
+      if (loc.type === 'district') {
+        for (const r of [loc.name_ar, loc.name_en]) {
+          const s = String(r || '').trim();
+          const m = s.match(/^(حي|حارة|district)\s+(.*)$/i);
+          if (m && m[2]) raws.push(m[2]);
+        }
+      }
+      for (const raw of raws) {
+        const n = normalizeSearchText(String(raw || ''));
+        if (n && n.length >= 2) out.add(n);
+      }
+      return [...out];
+    };
+    const districtMatches: Array<{ loc: any; alias: string }> = [];
     for (const loc of allLocations) {
       if (loc.type === 'district') {
-        for (const alias of loc.aliases || []) {
-          const normAlias = normalizeSearchText(alias);
+        for (const normAlias of candidatesOf(loc)) {
           if (normalized.includes(normAlias)) {
-            matchedDistrict = loc as Location;
-            matchedAlias = alias;
+            districtMatches.push({ loc, alias: normAlias });
             break;
           }
         }
-        if (matchedDistrict) break;
       }
     }
 
-    // Check cities
+    // Check cities (names + aliases, same rule).
     for (const loc of allLocations) {
       if (loc.type === 'city') {
-        for (const alias of loc.aliases || []) {
-          const normAlias = normalizeSearchText(alias);
+        for (const normAlias of candidatesOf(loc)) {
           if (normalized.includes(normAlias)) {
             matchedCity = loc as Location;
-            if (!matchedAlias) matchedAlias = alias;
+            if (!matchedAlias) matchedAlias = normAlias;
             break;
           }
         }
         if (matchedCity) break;
       }
+    }
+
+    // Prefer a district under the explicitly named city; otherwise first match.
+    if (districtMatches.length) {
+      const underCity = matchedCity
+        ? districtMatches.find((m) => m.loc.parent_code === (matchedCity as Location).code)
+        : undefined;
+      const pick = underCity || districtMatches[0];
+      matchedDistrict = pick.loc as Location;
+      matchedAlias = pick.alias;
     }
 
     // If district matched, deduce parent city if city not explicitly named

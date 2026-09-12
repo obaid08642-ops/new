@@ -25,10 +25,10 @@ import { I, IBg } from '../../components/icons';
 import { SP, R, FS, FW, SPECIALTIES, API_BASE } from '../../constants';
 import { buildHeaders } from '../../security/Security';
 import client from '../../api/client';
-import { useServicesCatalog } from '../../api/catalogs';
+import { useServicesCatalog, getInsuranceCatalog } from '../../api/catalogs';
 import { VideoCallRoom } from '../shared/VideoCallRoom';
 import { InsuranceRequestsScreen } from '../shared/InsuranceRequestsScreen';
-import { WithdrawalWorkflow, MedicalJobsScreen, MedicalDrugIndexScreen, StatisticsReports, GlobalSystemSettings, ChatSystem, MediaConfigScreen } from '../shared/SharedScreens';
+import { WithdrawalWorkflow, MedicalJobsScreen, MedicalDrugIndexScreen, InsuranceConfigScreen, GlobalSystemSettings, ChatSystem, MediaConfigScreen } from '../shared/SharedScreens';
 import { DoctorStatsRow } from './components/DoctorStatsRow';
 import { DoctorUrgentRequests } from './components/DoctorUrgentRequests';
 import { DoctorQueueList } from './components/DoctorQueueList';
@@ -43,6 +43,54 @@ import {
 const { width: W } = Dimensions.get('window');
 
 // Connected to backend APIs for doctor requests and today appointments
+
+// ─── Provider virtual waiting room (today's video visits, live backend) ───
+function VirtualWaitingRoomScreen({ onBack, onNavigate }: { onBack: () => void; onNavigate: (s: string, p?: any) => void }) {
+  const { theme } = useTheme();
+  const { lang } = useLang();
+  const { show } = useToast();
+  const AR = lang === 'ar';
+  const [rows, setRows] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await client.get('/calls/provider/waiting-room');
+      setRows(Array.isArray(res.data) ? res.data : []);
+    } catch {
+      show(AR ? 'تعذر تحميل غرفة الانتظار' : 'Could not load waiting room', 'error');
+    } finally {
+      setLoading(false);
+    }
+  }, [AR, show]);
+  useEffect(() => { void load(); }, [load]);
+  return (
+    <View style={{ flex: 1, backgroundColor: theme.bg }}>
+      <NHeader title={AR ? 'غرفة الانتظار الافتراضية' : 'Virtual Waiting Room'} onBack={onBack} />
+      <ScrollView contentContainerStyle={{ padding: SP.xl, gap: SP.md }}>
+        {loading ? (
+          <ActivityIndicator color={theme.primary} style={{ marginTop: SP.xl }} />
+        ) : rows.length === 0 ? (
+          <NEmpty title={AR ? 'لا يوجد مرضى بانتظار مكالمة فيديو اليوم' : 'No patients waiting for a video call today'} icon="video" />
+        ) : rows.map((r: any) => (
+          <NCard key={String(r.id)}>
+            <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{r.name}</Text>
+                <Text style={{ fontSize: FS.sm, color: theme.textSub }}>
+                  {r.time ? new Date(r.time).toLocaleTimeString(AR ? 'ar-SA' : 'en-US', { hour: '2-digit', minute: '2-digit' }) : ''} · {r.status}
+                  {r.checkedIn ? (AR ? ' · وصل' : ' · checked in') : ''}
+                </Text>
+              </View>
+              <NBtn label={AR ? 'انضمام' : 'Join'} full={false} onPress={() => onNavigate('video_call', { id: r.id, patient: r.name, service_type: 'video' })} />
+            </View>
+          </NCard>
+        ))}
+        <NBtn label={AR ? 'تحديث' : 'Refresh'} variant="outline" onPress={() => void load()} />
+      </ScrollView>
+    </View>
+  );
+}
 
 // ══════════════════════════════════════════════════════════════════════════════
 // DOCTOR DASHBOARD NAVIGATOR
@@ -105,7 +153,7 @@ export function DoctorDashboardNavigator({ onLogout }: { onLogout: () => void })
      <Stack.Screen name="request_test">{({ navigation, route }: any) => <RequestTestScreen apt={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="patient_file">{({ navigation, route }: any) => <PatientFileScreen patient={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="withdrawal_workflow">{({ navigation }: any) => <WithdrawalWorkflow onBack={() => navigation.goBack()} />}</Stack.Screen>
-     <Stack.Screen name="revenue_insights">{({ navigation }: any) => <StatisticsReports onBack={() => navigation.goBack()} providerType="doctor" />}</Stack.Screen>
+     <Stack.Screen name="revenue_insights">{({ navigation }: any) => <RevenueInsights onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="availability_engine">{({ navigation }: any) => <DoctorAvailabilityScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
      <Stack.Screen name="service_management">{({ navigation }: any) => <DoctorServiceManagementScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="promotions">{({ navigation }: any) => <PromotionsDashboard onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
@@ -662,7 +710,7 @@ function AppointmentDetailScreen({ apt, onBack, onNavigate }:
 // ══════════════════════════════════════════════════════════════════════════════
 // ACTIVE CONSULTATION (WAITING ROOM & EXAM)
 // ══════════════════════════════════════════════════════════════════════════════
-function LiveConsultationScreen({ apt, onBack }: { apt: any; onBack: () => void; onNavigate: (s: string, p?: any) => void }) {
+function LiveConsultationScreen({ apt, onBack, onNavigate }: { apt: any; onBack: () => void; onNavigate: (s: string, p?: any) => void }) {
  const { theme } = useTheme();
  const { lang } = useLang();
  const { show } = useToast();
@@ -2246,6 +2294,7 @@ export function MedicalReportScreen({ apt, onBack }: { apt: any; onBack: () => v
 export function NotificationsScreen({ onBack }: { onBack: () => void }) {
  const { theme } = useTheme();
  const { lang } = useLang();
+ const { show } = useToast();
  const AR = lang === 'ar';
  const [filter, setFilter] = useState<'all'|'unread'|'requests'|'payments'|'radiology_results'>('all');
 
@@ -3005,13 +3054,44 @@ export function DoctorAvailabilityScreen({ onBack, onNavigate }: { onBack: () =>
  const [exceptions, setExceptions] = useState<any[]>([]);
  useEffect(() => {
    let active = true;
-   client.get('/provider/profile/availability').then((response) => {
+   client.get('/provider/profile/availability').then(async (response) => {
      if (!active || !response.data) return;
      setVacationMode(Boolean(response.data.vacation_mode));
      setWeeklySchedule(Array.isArray(response.data.weekly_schedule) ? response.data.weekly_schedule : []);
      setExceptions(Array.isArray(response.data.availability_exceptions) ? response.data.availability_exceptions : []);
+     try {
+       const catalog = await getInsuranceCatalog();
+       if (!active) return;
+       const saved: any[] = Array.isArray((response.data as any).accepted_insurance) ? (response.data as any).accepted_insurance : [];
+       const byId = new Map(saved.map((s: any) => [String(s.company_id), s]));
+       const merged = catalog.map((c: any) => {
+         const s: any = byId.get(String(c.id)) || {};
+         return {
+           id: String(c.id), ar: c.ar, en: c.en,
+           active: s.active === true,
+           copay: s.copay_pct ?? '',
+           tier: s.tier || '',
+           clinic: s.services ? !!s.services.clinic : true,
+           online: s.services ? !!s.services.online : false,
+           home: s.services ? !!s.services.home : false,
+         };
+       });
+       for (const s of saved) {
+         if (!merged.some((m: any) => m.id === String(s.company_id))) {
+           merged.push({ id: String(s.company_id), ar: String(s.company_id), en: String(s.company_id),
+             active: !!s.active, copay: s.copay_pct ?? '', tier: s.tier || '',
+             clinic: !!s.services?.clinic, online: !!s.services?.online, home: !!s.services?.home });
+         }
+       }
+       setInsurances(merged);
+     } catch {
+       if (active) show(AR ? 'تعذر تحميل شركات التأمين' : 'Unable to load insurance companies', 'error');
+     } finally {
+       if (active) setInsLoading(false);
+     }
    }).catch((error: any) => {
      if (active) show(error?.response?.data?.message || (AR ? 'تعذر تحميل إعدادات التوفر' : 'Unable to load availability settings'), 'error');
+     if (active) setInsLoading(false);
    }).finally(() => { if (active) setLoadingAvailability(false); });
    return () => { active = false; };
  }, [AR, show]);
@@ -3022,12 +3102,12 @@ export function DoctorAvailabilityScreen({ onBack, onNavigate }: { onBack: () =>
  const [exStart, setExStart] = useState('12:00');
  const [exEnd, setExEnd] = useState('14:00');
 
- const [insurances, setInsurances] = useState([
-  { id: 'bupa', ar: 'بوبا العربية', en: 'Bupa Arabia', active: true, copay: '10', tier: 'VIP', clinic: true, online: false, home: false },
-  { id: 'tawuniya', ar: 'التعاونية للتأمين', en: 'Tawuniya', active: true, copay: '20', tier: 'Class A', clinic: true, online: true, home: false },
-  { id: 'medgulf', ar: 'ميدغلف', en: 'Medgulf', active: false, copay: '20', tier: 'Class B', clinic: true, online: false, home: false },
-  { id: 'malath', ar: 'ملاذ للتأمين', en: 'Malath Insurance', active: false, copay: '25', tier: 'Class C', clinic: false, online: false, home: false },
-  ]);
+ // Insurance matrix: driven by the admin-managed catalog (/insurance/companies)
+ // merged with the saved availability.accepted_insurance. Nothing is
+ // hardcoded — an empty catalog renders an honest empty state (P5-c).
+ const [insurances, setInsurances] = useState<any[]>([]);
+ const [insLoading, setInsLoading] = useState(true);
+ const [savingIns, setSavingIns] = useState(false);
 
   const toggleIns = (id: string) => {
   setInsurances(prev => prev.map(item => item.id === id ? { ...item, active: !item.active } : item));
@@ -3083,6 +3163,26 @@ export function DoctorAvailabilityScreen({ onBack, onNavigate }: { onBack: () =>
       show(AR ? 'فشل حفظ الجدول' : 'Failed to save schedule', 'error');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleSaveInsurance = async () => {
+    setSavingIns(true);
+    try {
+      const accepted_insurance = insurances.map((c: any) => ({
+        company_id: c.id,
+        active: !!c.active,
+        ...(c.copay !== '' && c.copay !== null && c.copay !== undefined && Number.isFinite(Number(c.copay))
+          ? { copay_pct: Math.min(100, Math.max(0, Number(c.copay))) } : {}),
+        ...(c.tier && String(c.tier).trim() ? { tier: String(c.tier).trim().slice(0, 40) } : {}),
+        services: { clinic: !!c.clinic, online: !!c.online, home: !!c.home },
+      }));
+      await client.patch('/provider/profile/availability', { accepted_insurance });
+      show(AR ? 'تم حفظ إعدادات التأمين في الخادم' : 'Insurance settings saved to the server', 'success');
+    } catch (e: any) {
+      show(e?.response?.data?.message || (AR ? 'فشل حفظ التأمين' : 'Failed to save insurance'), 'error');
+    } finally {
+      setSavingIns(false);
     }
   };
 
@@ -3229,6 +3329,50 @@ export function DoctorAvailabilityScreen({ onBack, onNavigate }: { onBack: () =>
   )}
 
  <NBtn label={AR ? ' حفظ الجدول الأسبوعي' : ' Save Weekly Calendar'} disabled={vacationMode} loading={saving} onPress={handleSaveSchedule} style={{ marginVertical: SP.lg }} />
+ <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: SP.xl, marginBottom: SP.lg }}>
+ <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>
+ {AR ? ' شركات التأمين المقبولة' : ' Accepted Insurance'}
+ </Text>
+ </View>
+ {insLoading ? (
+ <ActivityIndicator size="small" color={theme.primary} />
+ ) : insurances.length === 0 ? (
+ <NCard><Text style={{ color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
+ {AR ? 'تعذر تحميل شركات التأمين — تحقق من الاتصال ثم أعد الفتح. لن يُحفظ أي قبول وهمي.' : 'Could not load insurance companies — check connection and reopen. Nothing is assumed accepted.'}
+ </Text></NCard>
+ ) : insurances.map((c: any) => (
+ <NCard key={c.id} style={{ marginBottom: SP.sm }}>
+ <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+ <View style={{ flex: 1 }}>
+ <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{AR ? c.ar : c.en}</Text>
+ </View>
+ <Switch value={!!c.active} onValueChange={() => toggleIns(c.id)} trackColor={{ true: theme.primary }} />
+ </View>
+ {c.active ? (
+ <View style={{ marginTop: SP.md, gap: SP.sm }}>
+ <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm }}>
+ <View style={{ flex: 1 }}>
+ <NInput label={AR ? 'التحمل %' : 'Copay %'} value={String(c.copay ?? '')} onChange={(v: string) => setInsurances(prev => prev.map(x => x.id === c.id ? { ...x, copay: v } : x))} kbType="numeric" />
+ </View>
+ <View style={{ flex: 1 }}>
+ <NInput label={AR ? 'الفئة' : 'Tier'} value={c.tier || ''} onChange={(v: string) => setInsurances(prev => prev.map(x => x.id === c.id ? { ...x, tier: v } : x))} />
+ </View>
+ </View>
+ <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md }}>
+ {(['clinic', 'online', 'home'] as const).map(svc => (
+ <TouchableOpacity key={svc} onPress={() => toggleService(c.id, svc)} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: 6, paddingVertical: 6 }}>
+ <View style={{ width: 20, height: 20, borderRadius: 6, borderWidth: 1.5, borderColor: c[svc] ? theme.primary : theme.border, backgroundColor: c[svc] ? theme.primary : 'transparent', alignItems: 'center', justifyContent: 'center' }}>
+ {c[svc] ? <Text style={{ color: '#fff', fontSize: 12 }}>✓</Text> : null}
+ </View>
+ <Text style={{ color: theme.text, fontSize: FS.sm }}>{svc === 'clinic' ? (AR ? 'عيادة' : 'Clinic') : svc === 'online' ? (AR ? 'عن بعد' : 'Online') : (AR ? 'منزلي' : 'Home')}</Text>
+ </TouchableOpacity>
+ ))}
+ </View>
+ </View>
+ ) : null}
+ </NCard>
+ )) }
+ <NBtn label={AR ? 'حفظ إعدادات التأمين' : 'Save Insurance Settings'} loading={savingIns} onPress={handleSaveInsurance} style={{ marginTop: SP.md }} />
  <DoctorServiceSlotsCard />
 
  {/* Exceptional Settings */}

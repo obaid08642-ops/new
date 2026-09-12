@@ -24,10 +24,12 @@ describe('AppointmentsService state machine', () => {
     providerModel = { findOne: jest.fn().mockResolvedValue({ id: 'doc-1', user_id: 'doc-user-1', account_id: 'doc-account-1', type: 'doctor' }) };
     events = { emit: jest.fn() };
     engine = { apply: jest.fn(async (opts: any) => opts.mutate()) };
-    // Constructor: (apptModel, providerModel, connection, events, engine) —
-    // connection was added for family on-behalf booking checks; these tests
-    // exercise the state machine only, so a stub connection suffices.
-    service = new AppointmentsService(apptModel, providerModel, { db: { collection: jest.fn() } } as any, events, engine);
+    // Constructor: (apptModel, providerModel, connection, events, engine, insurance, locks?) —
+    // connection was added for family on-behalf booking checks; insurance mock
+    // covers cancel paths that never invoke it; locks stay undefined (no lock
+    // paths in these tests). These tests exercise the state machine only.
+    const insurance = { createRequest: jest.fn() };
+    service = new AppointmentsService(apptModel, providerModel, { db: { collection: jest.fn() } } as any, events, engine, insurance as any);
     jest.clearAllMocks();
   });
 

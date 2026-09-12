@@ -58,20 +58,8 @@ export default async function DoctorDetailPage({ params, searchParams }: Props) 
     }
   } catch {}
 
-  if (!slots || slots.slots.length === 0) {
-    slots = {
-      date,
-      serviceType,
-      slots: [
-        { start: "09:30 AM", end: "10:00 AM", label: "09:30 ص", available: true },
-        { start: "11:00 AM", end: "11:30 AM", label: "11:00 ص", available: true },
-        { start: "01:30 PM", end: "02:00 PM", label: "01:30 م", available: true },
-        { start: "04:30 PM", end: "05:00 PM", label: "04:30 م", available: true },
-        { start: "06:00 PM", end: "06:30 PM", label: "06:00 م", available: true },
-        { start: "08:30 PM", end: "09:00 PM", label: "08:30 م", available: true },
-      ],
-    };
-  }
+  // No fabricated fallback: an empty/failed slot response renders the honest
+  // closed/empty states below (P0-04). Never mask backend availability.
 
   const rtl = locale === "ar" || locale === "ur"; const Arrow = rtl ? ArrowLeft : ArrowRight;
   return (

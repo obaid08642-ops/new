@@ -42,6 +42,7 @@ import {
 } from '../../components/ui';
 import { SP, R, FS, FW, PHARMA_CATS, LIMITS, C, API_BASE } from '../../constants';
 import { InsuranceRequestsScreen } from '../shared/InsuranceRequestsScreen';
+import { PharmacyInsuranceQueueScreen } from './PharmacyInsuranceDecision';
 import { buildHeaders, Biometric, SK, Vault } from '../../security/Security';
 import client from '../../api/client';
 import { WithdrawalWorkflow, MedicalJobsScreen, MedicalDrugIndexScreen, InsuranceConfigScreen, CertificatesConfigScreen, MediaConfigScreen, ProviderWalletScreen, ProviderHomeStats, GlobalSystemSettings } from '../shared/SharedScreens';
@@ -166,6 +167,7 @@ export function PharmacyDashboardNavigator({ onLogout }: { onLogout:()=>void }) 
      <Stack.Screen name="media_config">{({ navigation }: any) => <MediaConfigScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="pharmacy_info">{({ navigation }: any) => <PharmacyQRMenuScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="insurance_requests">{({ navigation }: any) => <InsuranceRequestsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+    <Stack.Screen name="insurance_decisions">{({ navigation }: any) => <PharmacyInsuranceQueueScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="product_catalog">{({ navigation }: any) => <ActiveInventoryScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="working_hours">{({ navigation }: any) => <WorkingHoursEditorScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="notifications">{({ navigation }: any) => <NotificationsCenterScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
@@ -1704,7 +1706,7 @@ function SettingsScreen({ onBack, onNavigate }: any) {
         </NCard>
 
         <NSecHeader title={AR ? 'طرق الدفع' : 'Payment Methods'} />
-        <NBtn label={AR ? 'طلبات التأمين الواردة (قرار يدوي)' : 'Inbound Insurance Requests'} variant="outline" icon="shield" onPress={() => onNavigate && onNavigate('insurance_requests')} />
+        <NBtn label={AR ? 'طلبات التأمين الواردة (قرار يدوي)' : 'Inbound Insurance Requests'} variant="outline" icon="shield" onPress={() => onNavigate && onNavigate('insurance_decisions')} />
         <NCard style={{ gap: SP.md }}>
           <NToggle label={AR ? 'قبول شركات التأمين' : 'Accept Insurance'} value={acceptsInsurance} onChange={setAcceptsInsurance} />
           <NToggle label={AR ? 'قبول الدفع بالتقسيط (تابي/تمارا)' : 'Accept Installments (Tabby/Tamara)'} value={acceptsInstallments} onChange={setAcceptsInstallments} />

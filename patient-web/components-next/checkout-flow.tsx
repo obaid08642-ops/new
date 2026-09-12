@@ -16,7 +16,6 @@ import {
   ArrowLeft,
   ArrowRight,
   Banknote,
-  Smartphone,
   ChevronLeft,
   FileCheck2,
   Sparkles
@@ -44,7 +43,10 @@ export function CheckoutFlow({ locale }: Props) {
   const [street, setStreet] = useState("");
   
   // Payment and Insurance State
-  const [paymentMethod, setPaymentMethod] = useState<"mada" | "apple_pay" | "visa" | "cod" | "insurance">("mada");
+  // Checkout-time choice is intentionally limited: card-online payment happens
+  // AFTER the final quote via the secure payment page (P6). Offering mada/
+  // apple_pay/visa here previously hit a dead-end error after full form fill.
+  const [paymentMethod, setPaymentMethod] = useState<"cod" | "insurance">("cod");
   const [insuranceCompany, setInsuranceCompany] = useState("bupa");
   const [policyNumber, setPolicyNumber] = useState("");
   const [nationalId, setNationalId] = useState("");
@@ -57,18 +59,10 @@ export function CheckoutFlow({ locale }: Props) {
   const INSURANCE_CATALOG = useCentralInsurance();
   const selectedInsCompany = INSURANCE_CATALOG.find(c => c.id === insuranceCompany) || INSURANCE_CATALOG[0];
 
-  // Pricing & Insurance Deductible Math
-  const deliveryFee = subtotal > 100 ? 0 : 15;
-  const originalVat = (subtotal + deliveryFee) * 0.15;
-  const originalGrandTotal = subtotal + deliveryFee + originalVat;
-
-  const coPayRate = planTier === "vip" ? 0 : selectedInsCompany.defaultCoPay;
-  const uncappedCoPay = subtotal * coPayRate;
-  const patientCoPayMedication = Math.min(uncappedCoPay, selectedInsCompany.maxCoPaySar);
-  const insuranceContribution = paymentMethod === "insurance" ? (subtotal - patientCoPayMedication) : 0;
-  const effectiveSubtotal = paymentMethod === "insurance" ? patientCoPayMedication : subtotal;
-  const vat = (effectiveSubtotal + deliveryFee) * 0.15;
-  const grandTotal = effectiveSubtotal + deliveryFee + vat;
+  // HONEST PRICING (P0-03): cart subtotal is a catalog-price estimate only.
+  // Delivery fee, VAT, insurance split and the grand total are computed by the
+  // pharmacy offer + insurance decision on the server — never in this client.
+  // Nothing below is presented as a payable amount.
 
   const loadSavedAddresses = async (): Promise<any[]> => {
     if (savedAddresses.length) return savedAddresses;
@@ -113,14 +107,8 @@ export function CheckoutFlow({ locale }: Props) {
       }
     }
 
-    // Online card payment is not supported for web pharmacy checkout on the backend
-    // (server accepts cash-on-delivery / broadcast settlement only). Never fabricate a charge.
-    if (paymentMethod === "mada" || paymentMethod === "apple_pay" || paymentMethod === "visa") {
-      setErrorMessage(isAr
-        ? "الدفع الإلكتروني المباشر غير متاح لطلبات الصيدلية على الويب حالياً — اختر الدفع عند الاستلام أو التأمين، وستتم التسوية الحقيقية عبر الصيدلية بعد قبول طلبك."
-        : "Online card payment is not available for web pharmacy orders yet — choose cash on delivery or insurance; real settlement happens via the pharmacy after acceptance.");
-      return;
-    }
+    // Online card payment is handled after the final quote via the secure
+    // payment page — never blocked, never fabricated here.
 
     setIsSubmitting(true);
     setErrorMessage("");
@@ -206,8 +194,6 @@ export function CheckoutFlow({ locale }: Props) {
         insurancePending: paymentMethod === "insurance",
         insuranceCompanyName: isAr ? selectedInsCompany.nameAr : selectedInsCompany.nameEn,
         items: [...items],
-        total: grandTotal,
-        originalTotal: originalGrandTotal,
         date: new Date().toLocaleDateString(isAr ? "ar-SA" : "en-US", {
           weekday: "long",
           year: "numeric",
@@ -261,9 +247,6 @@ export function CheckoutFlow({ locale }: Props) {
           <div className={styles.orderRow}>
             <span>{isAr ? "طريقة الدفع" : "Payment Method"}</span>
             <span>
-              {orderConfirmed.paymentMethod === "mada" && "مدى (Mada)"}
-              {orderConfirmed.paymentMethod === "apple_pay" && "Apple Pay"}
-              {orderConfirmed.paymentMethod === "visa" && (isAr ? "بطاقة ائتمانية" : "Credit Card")}
               {orderConfirmed.paymentMethod === "cod" && (isAr ? "الدفع عند الاستلام" : "Cash on Delivery")}
               {orderConfirmed.paymentMethod === "insurance" && (isAr ? `تأمين طبي (${orderConfirmed.insuranceCompanyName})` : `Health Insurance (${orderConfirmed.insuranceCompanyName})`)}
             </span>
@@ -288,8 +271,8 @@ export function CheckoutFlow({ locale }: Props) {
           )}
 
           <div className={styles.orderRowTotal}>
-            <span>{isAr ? "المبلغ الإجمالي المدفوع" : "Total Paid"}</span>
-            <strong>{orderConfirmed.total.toFixed(2)} {isAr ? "ر.س" : "SAR"}</strong>
+            <span>{isAr ? "السعر النهائي" : "Final Price"}</span>
+            <strong>{isAr ? "يحدده عرض الصيدلية المختار" : "Set by chosen pharmacy offer"}</strong>
           </div>
         </div>
 
@@ -459,39 +442,15 @@ export function CheckoutFlow({ locale }: Props) {
           </div>
 
           <div className={styles.paymentMethodsGrid}>
-            <label className={`${styles.paymentOption} ${paymentMethod === "mada" ? styles.paymentActive : ""}`}>
-              <input
-                type="radio"
-                name="paymentMethod"
-                value="mada"
-                checked={paymentMethod === "mada"}
-                onChange={() => setPaymentMethod("mada")}
-              />
+            <div className={styles.paymentOption} style={{ cursor: "default", opacity: 0.85 }}>
               <div className={styles.paymentContent}>
                 <div className={styles.paymentTitleRow}>
                   <CreditCard size={20} />
-                  <strong>{isAr ? "بطاقة مدى" : "Mada Card"}</strong>
+                  <strong>{isAr ? "بطاقة إلكترونية" : "Online Card"}</strong>
                 </div>
-                <span>{isAr ? "دفع فوري عبر شبكة مدى السعودية" : "Direct Saudi debit payment"}</span>
+                <span>{isAr ? "مدى / Apple Pay / Visa — تُدفع بأمان بعد اختيار عرض الصيدلية النهائي" : "Mada / Apple Pay / Visa — paid securely after you accept the final pharmacy offer"}</span>
               </div>
-            </label>
-
-            <label className={`${styles.paymentOption} ${paymentMethod === "apple_pay" ? styles.paymentActive : ""}`}>
-              <input
-                type="radio"
-                name="paymentMethod"
-                value="apple_pay"
-                checked={paymentMethod === "apple_pay"}
-                onChange={() => setPaymentMethod("apple_pay")}
-              />
-              <div className={styles.paymentContent}>
-                <div className={styles.paymentTitleRow}>
-                  <Smartphone size={20} />
-                  <strong>Apple Pay</strong>
-                </div>
-                <span>{isAr ? "الدفع بلمسة واحدة عبر جهازك" : "One-tap secure payment"}</span>
-              </div>
-            </label>
+            </div>
 
             <label className={`${styles.paymentOption} ${paymentMethod === "insurance" ? styles.paymentActive : ""}`}>
               <input
@@ -507,23 +466,6 @@ export function CheckoutFlow({ locale }: Props) {
                   <strong style={{ color: "#00876F" }}>{isAr ? "التأمين الصحي التعاوني" : "Cooperative Health Insurance"}</strong>
                 </div>
                 <span>{isAr ? "بوبا، التعاونية، ميدغلف والشركات المرخصة" : "Bupa, Tawuniya, MedGulf & licensed insurers"}</span>
-              </div>
-            </label>
-
-            <label className={`${styles.paymentOption} ${paymentMethod === "visa" ? styles.paymentActive : ""}`}>
-              <input
-                type="radio"
-                name="paymentMethod"
-                value="visa"
-                checked={paymentMethod === "visa"}
-                onChange={() => setPaymentMethod("visa")}
-              />
-              <div className={styles.paymentContent}>
-                <div className={styles.paymentTitleRow}>
-                  <CreditCard size={20} />
-                  <strong>{isAr ? "بطاقة ائتمانية" : "Visa / Mastercard"}</strong>
-                </div>
-                <span>{isAr ? "البطاقات الائتمانية المحلية والدولية" : "Credit cards"}</span>
               </div>
             </label>
 
@@ -619,21 +561,18 @@ export function CheckoutFlow({ locale }: Props) {
                 </div>
               </div>
 
-              {/* Instant Approval Preview Box */}
+              {/* Coverage is decided by the pharmacy + insurer on the server after review — never computed here. */}
               <div style={{ marginTop: "1rem", padding: "0.85rem 1rem", borderRadius: "12px", background: "#FFFFFF", border: "1px solid rgba(0, 135, 111, 0.15)", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "8px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                   <Sparkles size={18} color="#00876F" />
                   <span style={{ fontSize: "0.88rem", fontWeight: "700", color: "#16213A" }}>
-                    {isAr ? `تغطية ${selectedInsCompany.nameAr}:` : `Coverage by ${selectedInsCompany.nameEn}:`}
+                    {isAr ? `التغطية عبر ${selectedInsCompany.nameAr}:` : `Coverage via ${selectedInsCompany.nameEn}:`}
                   </span>
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "12px", fontSize: "0.88rem" }}>
-                  <span style={{ color: "#00876F", fontWeight: "800" }}>
-                    {isAr ? `يغطي التأمين: ${insuranceContribution.toFixed(2)} ر.س` : `Insurance pays: ${insuranceContribution.toFixed(2)} SAR`}
-                  </span>
-                  <span style={{ color: "#B45309", fontWeight: "800" }}>
-                    {isAr ? `تحملك: ${patientCoPayMedication.toFixed(2)} ر.س` : `Your co-pay: ${patientCoPayMedication.toFixed(2)} SAR`}
-                  </span>
+                <div style={{ fontSize: "0.85rem", color: "#64748B" }}>
+                  {isAr
+                    ? "التحمل والتغطية يحددهما قرار الصيدلية بعد مراجعة التأمين — لا مبالغ مسبقة هنا."
+                    : "Co-pay and coverage are set by the pharmacy decision after review — no amounts upfront."}
                 </div>
               </div>
             </div>
@@ -652,9 +591,9 @@ export function CheckoutFlow({ locale }: Props) {
           ) : (
             <>
               <span>
-                {paymentMethod === "insurance" 
-                  ? (isAr ? `تأكيد الطلب بموافقة التأمين (${grandTotal.toFixed(2)} ر.س)` : `Confirm with Insurance (${grandTotal.toFixed(2)} SAR)`)
-                  : (isAr ? `تأكيد الطلب والدفع (${grandTotal.toFixed(2)} ر.س)` : `Confirm & Pay (${grandTotal.toFixed(2)} SAR)`)}
+                {paymentMethod === "insurance"
+                  ? (isAr ? `تأكيد الطلب وطلب مراجعة التأمين` : `Confirm Order & Request Insurance Review`)
+                  : (isAr ? `تأكيد الطلب` : `Confirm Order`)}
               </span>
               <Direction size={18} />
             </>
@@ -681,31 +620,21 @@ export function CheckoutFlow({ locale }: Props) {
 
           <div className={styles.summaryTotals}>
             <div className={styles.summaryRow}>
-              <span>{isAr ? "إجمالي المنتجات" : "Items Subtotal"}</span>
+              <span>{isAr ? "إجمالي المنتجات (تقديري بأسعار الكتالوج)" : "Items Subtotal (catalog estimate)"}</span>
               <span>{subtotal.toFixed(2)} {isAr ? "ر.س" : "SAR"}</span>
             </div>
 
-            {paymentMethod === "insurance" && insuranceContribution > 0 && (
-              <div className={styles.summaryRow} style={{ color: "#00876F", fontWeight: "bold" }}>
-                <span>{isAr ? "خصم تغطية التأمين" : "Insurance Coverage"}</span>
-                <span>-{insuranceContribution.toFixed(2)} {isAr ? "ر.س" : "SAR"}</span>
+            <div className={styles.summaryRow} style={{ color: "#64748B", fontSize: "0.85rem" }}>
+              <span>{isAr ? "السعر النهائي والتوصيل والضريبة" : "Final price, delivery & VAT"}</span>
+              <span>{isAr ? "يحددها عرض الصيدلية" : "Set by pharmacy offer"}</span>
+            </div>
+
+            {paymentMethod === "insurance" && (
+              <div className={styles.summaryRow} style={{ color: "#00876F", fontWeight: "bold", fontSize: "0.85rem" }}>
+                <span>{isAr ? "التحمل" : "Co-pay"}</span>
+                <span>{isAr ? "بعد قرار الصيدلية" : "After pharmacy decision"}</span>
               </div>
             )}
-
-            <div className={styles.summaryRow}>
-              <span>{isAr ? "رسوم التوصيل السريع" : "Delivery Fee"}</span>
-              <span>{deliveryFee === 0 ? (isAr ? "مجاني" : "Free") : `${deliveryFee} ${isAr ? "ر.س" : "SAR"}`}</span>
-            </div>
-
-            <div className={styles.summaryRow}>
-              <span>{isAr ? "ضريبة القيمة المضافة (15%)" : "VAT (15%)"}</span>
-              <span>{vat.toFixed(2)} {isAr ? "ر.س" : "SAR"}</span>
-            </div>
-
-            <div className={`${styles.summaryRow} ${styles.grandTotalRow}`}>
-              <span>{isAr ? "المبلغ المطلوب سداده" : "Total to Pay"}</span>
-              <strong>{grandTotal.toFixed(2)} {isAr ? "ر.س" : "SAR"}</strong>
-            </div>
           </div>
         </div>
       </aside>

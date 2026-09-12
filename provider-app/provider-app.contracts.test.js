@@ -73,9 +73,9 @@ describe('Provider App release contracts', () => {
     expect(pharmacyDashboard).not.toContain('/pharmacy/reports/eod');
     expect(pharmacyDashboard).not.toContain('/provider/wallet');
     expect(pharmacyDashboard).not.toContain('/provider/pharmacy/allocations/${alloc.id}/delivered');
-    expect(pharmacyDashboard).toContain('This function is currently unavailable');
-    expect(pharmacyDashboard).toContain('المحادثات الصيدلانية ليست مفعلة');
-    expect(pharmacyDashboard).toContain('No mutation or settlement was performed');
+    // Pharmacy chat is server-backed (governed threads), not a disabled stub:
+    // negotiation goes through /pharmacy/chat/threads with server decisions.
+    expect(pharmacyDashboard).toContain("client.get('/pharmacy/chat/threads'");
     expect(pharmacyDashboard).toContain("client.get('/provider/pharmacy/allocations', { params: { status: 'completed' } })");
   });
 
@@ -124,14 +124,20 @@ describe('Provider App release contracts', () => {
     expect(dashboard).not.toContain('تم قفل حالة الدفع وبدء الاستشارة');
     expect(dashboard).not.toContain('Video Call Connected...');
     expect(dashboard).not.toContain("sender: 'patient', time: '10:00'");
-    expect(dashboard).toContain('Consultation session is currently unavailable');
+    // Consultations open only after server verification of appointment state,
+    // payment and doctor-patient relation (fail-closed gate, current copy).
+    expect(dashboard).toContain('Consultation start requires server confirmation');
     expect(dashboard).toContain('setError(true);');
   });
 
   it('fails closed for ungoverned nursing field operations and unavailable ambulance missions', () => {
     expect(nursingDashboard).not.toContain('/home-care/bookings/${order.id}/respond');
     expect(nursingDashboard).not.toContain('Cash only — no insurance');
-    expect(nursingFieldOps).toContain('Field operations are currently unavailable');
+    // Field ops run only through verified server commands (no local
+    // simulation): visit lifecycle via POST /nursing/visits/:id/* with real
+    // device GPS and captured signature.
+    expect(nursingFieldOps).toContain('/nursing/visits/${visitId}');
+    expect(nursingFieldOps).toContain("import('expo-location')");
     expect(nursingFieldOps).not.toContain("lat: 24.71, lng: 46.67");
     expect(ambulanceDashboard).not.toContain('setMission({ id })');
     expect(ambulanceDashboard).toContain('hospital_provider_account_id');

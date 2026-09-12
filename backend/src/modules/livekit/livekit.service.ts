@@ -72,18 +72,20 @@ export class LiveKitService {
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
 
+    // Fixed field names (P0-15): the Appointment schema carries doctor_user_id
+    // (account) and slot_start (Date) — provider_id/scheduled_time do not exist.
     const appointments = await this.appointments.find({
-      provider_id: providerId,
-      status: { $in: ['SCHEDULED', 'IN_PROGRESS', 'CHECKED_IN'] },
-      scheduled_time: { $gte: today, $lt: tomorrow }
+      doctor_user_id: providerId,
+      status: { $in: ['PENDING', 'CONFIRMED', 'CHECKED_IN', 'IN_PROGRESS'] },
+      slot_start: { $gte: today, $lt: tomorrow },
     }).lean();
 
     return appointments.map((a: any) => ({
       id: a.id || a._id?.toString(),
       name: a.patient_name || 'مريض',
-      time: a.scheduled_time,
+      time: a.slot_start,
       checkedIn: a.status === 'CHECKED_IN',
-      waitTime: a.status === 'CHECKED_IN' ? 'جاهز' : 'ينتظر'
+      status: a.status,
     }));
   }
 
@@ -120,21 +122,31 @@ export class LiveKitService {
   }
 
   async markNoShow(providerId: string, appointmentId: string) {
-    const appointmentFilter: any = { id: appointmentId, provider_id: providerId };
+    // Fixed identity + transition (P0-15): match the doctor's account id and
+    // only from live states; record history like the canonical transition.
+    const appointmentFilter: any = { id: appointmentId, doctor_user_id: providerId };
     if (Types.ObjectId.isValid(appointmentId)) {
       appointmentFilter.$or = [
-        { id: appointmentId, provider_id: providerId },
-        { _id: new Types.ObjectId(appointmentId), provider_id: providerId },
+        { id: appointmentId, doctor_user_id: providerId },
+        { _id: new Types.ObjectId(appointmentId), doctor_user_id: providerId },
       ];
       delete appointmentFilter.id;
-      delete appointmentFilter.provider_id;
+      delete appointmentFilter.doctor_user_id;
     }
     const appt = await this.appointments.findOne(appointmentFilter);
     if (!appt) throw new NotFoundException('Appointment not found');
+    if (['COMPLETED', 'CANCELLED', 'NO_SHOW', 'RESCHEDULED'].includes(String(appt.status))) {
+      throw new BadRequestException('appointment_not_no_show_eligible');
+    }
 
+    const from = appt.status;
     appt.status = 'NO_SHOW';
+    appt.cancellation_reason = appt.cancellation_reason || 'provider_marked_no_show';
+    appt.refund_percentage = 0;
+    appt.refund_destination = 'none';
+    appt.state_history = [...(appt.state_history || []), { state: 'NO_SHOW', at: new Date(), by_user_id: providerId, by_role: 'doctor', note: 'no_show' }];
     await appt.save();
-    return { success: true, message: 'Marked as no-show' };
+    return { success: true, message: 'Marked as no-show', previous_status: from };
   }
 
   private async findOwnedSession(sessionId: string, userId: string): Promise<any> {
@@ -162,8 +174,15 @@ export class LiveKitService {
     if (Types.ObjectId.isValid(bookingId)) appointmentFilter.$or = [{ id: bookingId }, { _id: new Types.ObjectId(bookingId) }];
     const appt: any = await this.appointments.findOne(appointmentFilter).lean();
     if (!appt) throw new NotFoundException('Appointment not found');
+    // Dead appointments can never start a call (P0-14): unify both video
+    // contracts on live states. The narrow token path already rejects these.
+    if (['CANCELLED', 'COMPLETED', 'RESCHEDULED', 'NO_SHOW'].includes(String(appt.status))) {
+      throw new BadRequestException('appointment_not_active');
+    }
     const patientId = String(appt.patient_id || appt.user_id || '');
-    const providerId = String(appt.provider_id || appt.doctor_id || appt.provider_account_id || '');
+    // doctor_user_id is the account id doctors authenticate with; profile ids
+    // (doctor_id) never match a caller id — it must come after account ids.
+    const providerId = String(appt.provider_id || appt.doctor_user_id || appt.provider_account_id || appt.doctor_id || '');
     if (!patientId || !providerId || ![patientId, providerId].includes(String(callerId))) {
       throw new ForbiddenException('Caller is not an appointment participant');
     }
@@ -187,6 +206,18 @@ export class LiveKitService {
 
   async joinCall(sessionId: string, userId: string, userName: string) {
     const session = await this.findOwnedSession(sessionId, userId);
+    // A session outlives its purpose when the appointment died meanwhile —
+    // fail it loudly instead of connecting a dead call (P0-14).
+    if (session.appointment_id) {
+      const appt: any = await this.appointments.findOne({ id: session.appointment_id }).lean().catch(() => null);
+      if (appt && ['CANCELLED', 'COMPLETED', 'RESCHEDULED', 'NO_SHOW'].includes(String(appt.status))) {
+        await this.callSessions.updateOne(
+          { id: session.id },
+          { $set: { status: 'FAILED', end_reason: 'appointment_not_active', ended_at: new Date(), updatedAt: new Date() } },
+        );
+        throw new BadRequestException('appointment_not_active');
+      }
+    }
     const token = await this.createToken(session.room_name, userName);
     await this.callSessions.updateOne(
       { id: session.id, status: 'INITIATED' },

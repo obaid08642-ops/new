@@ -57,6 +57,10 @@ export class CreateAppointmentDto {
   @IsString()
   @IsOptional()
   insurance_member_id?: string;
+
+  @IsString()
+  @IsOptional()
+  slot_lock_id?: string; // optional 10-min hold id from POST /slot-locks/reserve
 }
 
 export class CancelAppointmentDto {

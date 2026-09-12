@@ -294,7 +294,13 @@ export class McpService {
         { slug: medicine_slug_or_id },
         { sku: Number(medicine_slug_or_id) || -1 },
       ],
+      // Same public-eligibility gate as the governed catalog: unapproved or
+      // deleted medicines must never surface through AI discovery (R2/R27).
       is_deleted: { $ne: true },
+      active: { $ne: false },
+      public_eligibility: true,
+      indexing_eligibility: true,
+      medical_review_status: 'approved',
     });
     if (!med) throw new NotFoundException(`Medicine '${medicine_slug_or_id}' not found`);
     return {
@@ -314,6 +320,9 @@ export class McpService {
       $or: [{ name_ar: regex }, { name_en: regex }, { active_ingredient: regex }],
       is_deleted: { $ne: true },
       active: { $ne: false },
+      public_eligibility: true,
+      indexing_eligibility: true,
+      medical_review_status: 'approved',
     }).limit(limit).toArray();
 
     return {
@@ -502,17 +511,31 @@ export class McpService {
 
     if (entity_type === 'doctor') {
       const docCol = this.connection.collection('provider_profiles');
-      const doctor = await docCol.findOne({ $or: [{ id: entity_id }, { slug: entity_id }] });
+      const doctor = await docCol.findOne({
+        $and: [
+          { $or: [{ id: entity_id }, { slug: entity_id }] },
+          { $or: [{ type: 'doctor' }, { provider_type: 'doctor' }] },
+        ],
+        status: { $in: ['active', 'verified'] },
+        is_active: { $ne: false },
+        is_deleted: { $ne: true },
+      });
       if (!doctor) throw new NotFoundException(`Doctor '${entity_id}' not found`);
-
-      // Real appointment windows
+      // Honest availability: verified status + mode support only. Specific
+      // times are NEVER invented here — callers must query live slots per date.
+      const modeOk = Array.isArray(doctor.consultation_modes)
+        ? doctor.consultation_modes.includes(service_mode)
+        : true;
       return {
         entity_type: 'doctor',
         entity_id,
         service_mode,
         date: date || new Date().toISOString().split('T')[0],
-        available: true,
-        available_slots: ['09:00 AM', '10:30 AM', '02:00 PM', '04:30 PM', '07:00 PM'],
+        available: modeOk,
+        available_slots: [],
+        slots_note: modeOk
+          ? 'Live times must be fetched per date from the booking flow; no specific time is guaranteed by this response.'
+          : `Doctor does not offer ${service_mode} consultations.`,
         booking_url: `https://nabd.plus/ar/consultations/doctors/${doctor.id}`,
         deep_link: `nabdplus://consultations/doctor-profile?id=${doctor.id}`,
       };
@@ -520,15 +543,23 @@ export class McpService {
 
     if (entity_type === 'medicine') {
       const medCol = this.connection.collection('medicines_master');
-      const med = await medCol.findOne({ $or: [{ slug: entity_id }, { id: entity_id }, { sku: Number(entity_id) || -1 }] });
+      const med = await medCol.findOne({
+        $or: [{ slug: entity_id }, { id: entity_id }, { sku: Number(entity_id) || -1 }],
+        is_deleted: { $ne: true },
+        active: { $ne: false },
+        public_eligibility: true,
+        indexing_eligibility: true,
+        medical_review_status: 'approved',
+      });
       if (!med) throw new NotFoundException(`Medicine '${entity_id}' not found`);
 
+      // Honest stock: there is no global stock — availability, branch and
+      // delivery are set per pharmacy at offer time. Never invent branches.
       return {
         entity_type: 'medicine',
         entity_id,
-        in_stock: true,
-        available_branches: ['Riyadh Al Olaya Branch', 'Riyadh Al Nakheel Branch', 'Jeddah Al Rawdah Branch'],
-        delivery_estimate: 'Within 60 minutes',
+        in_stock: null,
+        stock_note: 'Stock, branch and delivery time are confirmed per pharmacy when offers arrive — no global claim is made here.',
         requires_prescription: Boolean(med.requires_prescription),
       };
     }
@@ -536,7 +567,8 @@ export class McpService {
     return {
       entity_type,
       entity_id,
-      available: true,
+      available: false,
+      reason: 'unsupported_entity_type_for_availability',
     };
   }
 
@@ -545,7 +577,14 @@ export class McpService {
 
     if (transaction_type === 'medicine_order') {
       const medCol = this.connection.collection('medicines_master');
-      const med = await medCol.findOne({ $or: [{ slug: entity_id }, { id: entity_id }, { sku: Number(entity_id) || -1 }] });
+      const med = await medCol.findOne({
+        $or: [{ slug: entity_id }, { id: entity_id }, { sku: Number(entity_id) || -1 }],
+        is_deleted: { $ne: true },
+        active: { $ne: false },
+        public_eligibility: true,
+        indexing_eligibility: true,
+        medical_review_status: 'approved',
+      });
       if (!med) throw new NotFoundException(`Medicine '${entity_id}' not found`);
 
       const price = Number(med.price) || 20.0;
@@ -570,10 +609,10 @@ export class McpService {
         };
       }
 
-      // OTC Medicine checkout readiness
-      const subtotal = price * quantity;
-      const vat = Number((subtotal * 0.15).toFixed(2));
-      const total = Number((subtotal + vat).toFixed(2));
+      // OTC Medicine checkout readiness — catalog unit price ONLY. VAT, totals
+      // and delivery are set by the pharmacy offer + insurance decision on the
+      // server; this tool never fabricates them (no defaults, no 15% math).
+      const unitPrice = Number.isFinite(price) && price > 0 ? Math.round(price * 100) / 100 : null;
 
       return {
         transaction_type: 'medicine_order',
@@ -584,10 +623,10 @@ export class McpService {
         quantity,
         pricing: {
           currency: 'SAR',
-          unit_price: price,
-          subtotal,
-          vat_15_percent: vat,
-          total_sar: total,
+          catalog_unit_price: unitPrice,
+          pricing_note: unitPrice === null
+            ? 'No catalog price on file — the pharmacy offer sets the binding price.'
+            : 'Catalog unit price for reference — VAT, delivery and the binding total are set by the pharmacy offer.',
         },
         checkout_url: `https://nabd.plus/ar/cart/checkout?sku=${med.sku || entity_id}&qty=${quantity}`,
         deep_link: `nabdplus://cart/checkout?sku=${med.sku || entity_id}&qty=${quantity}`,
@@ -596,26 +635,38 @@ export class McpService {
 
     if (transaction_type === 'consultation_booking') {
       const docCol = this.connection.collection('provider_profiles');
-      const doc = await docCol.findOne({ $or: [{ id: entity_id }, { slug: entity_id }] });
+      const doc = await docCol.findOne({
+        $and: [
+          { $or: [{ id: entity_id }, { slug: entity_id }] },
+          { $or: [{ type: 'doctor' }, { provider_type: 'doctor' }] },
+        ],
+        status: { $in: ['active', 'verified'] },
+        is_active: { $ne: false },
+        is_deleted: { $ne: true },
+      });
       if (!doc) throw new NotFoundException(`Doctor '${entity_id}' not found`);
 
-      const consultationFee = 150.0;
-      const vat = Number((consultationFee * 0.15).toFixed(2));
-      const total = Number((consultationFee + vat).toFixed(2));
-
+      // Real per-mode prices from the doctor profile — never a hardcoded fee.
+      // Service fee, VAT and the binding total are computed server-side at
+      // booking; this tool only prepares, it never quotes a payable total.
+      const num = (v: any) => (Number.isFinite(Number(v)) && Number(v) > 0 ? Math.round(Number(v) * 100) / 100 : null);
       return {
         transaction_type: 'consultation_booking',
         entity_id: doc.id,
         doctor_name: doc.name_ar || doc.name_en,
         specialty: doc.specialty,
-        slot: slot || 'Next Available Slot',
+        slot: slot || null,
+        slot_note: slot
+          ? 'Requested slot — availability must be confirmed in the booking flow.'
+          : 'No slot requested — live availability must be checked in the booking flow.',
         insurance_policy_id: insurance_policy_id || null,
         can_checkout: true,
         pricing: {
           currency: 'SAR',
-          consultation_fee: consultationFee,
-          vat_15_percent: vat,
-          total_sar: total,
+          price_clinic: num(doc.price_clinic),
+          price_online: num(doc.price_online),
+          price_home: num(doc.price_home),
+          pricing_note: 'Profile prices for reference — service fee, VAT and the binding total are set server-side at booking.',
           insurance_covered: Boolean(insurance_policy_id),
         },
         booking_checkout_url: `https://nabd.plus/ar/consultations/book?doctorId=${doc.id}`,

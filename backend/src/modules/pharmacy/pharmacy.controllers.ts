@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Param, Post, Patch, Put, UseGuards, Query, Headers, ForbiddenException, ServiceUnavailableException } from '@nestjs/common';
 import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
+import { RequireIdempotency } from '../../common/idempotency.interceptor';
 import { PharmacyOrderService } from './services/pharmacy-order.service';
 import { PharmacyAllocationService } from './services/pharmacy-allocation.service';
 import { PharmacyInventoryExtService } from './services/pharmacy-inventory-ext.service';
@@ -24,12 +25,15 @@ import { isProviderRole } from '../../common/enums';
 @Roles(UserRole.PATIENT)
 export class PatientPharmacyController {
   constructor(private orders: PharmacyOrderService, private offers: PharmacyOfferService, private insurance: PharmacyInsuranceDecisionService, private payments: PharmacyPaymentEvidenceService) {}
-  @Post('orders') create(@CurrentUser() u: any, @Body() b: any) { return this.orders.create(u, b); }
+  // Order roots are state-changing: keys are mandatory (P0-01). The global
+  // IdempotencyInterceptor then guarantees replay-safety (24h cache +
+  // in-progress lock + body-hash mismatch guard). Mobile + web BFF already send keys.
+  @Post('orders') @RequireIdempotency() create(@CurrentUser() u: any, @Body() b: any) { return this.orders.create(u, b); }
   @Get('orders') list(@CurrentUser() u: any, @Query('status') status?: string) { return this.orders.list(u, status); }
   @Get('orders/:id') detail(@CurrentUser() u: any, @Param('id') id: string) { return this.orders.detail(u, id); }
-  @Patch('orders/:id') update(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.orders.update(u, id, b); }
-  @Post('orders/:id/submit') submit(@CurrentUser() u: any, @Param('id') id: string) { return this.orders.submit(u, id); }
-  @Post('orders/:id/cancel') cancel(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.orders.cancel(u, id, b?.reason || ''); }
+  @Patch('orders/:id') @RequireIdempotency() update(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.orders.update(u, id, b); }
+  @Post('orders/:id/submit') @RequireIdempotency() submit(@CurrentUser() u: any, @Param('id') id: string) { return this.orders.submit(u, id); }
+  @Post('orders/:id/cancel') @RequireIdempotency() cancel(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.orders.cancel(u, id, b?.reason || ''); }
   @Post('orders/:id/payment-intent') paymentIntent(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.payments.createPaymentIntent(u, id, b?.idempotency_key); }
   @Post('orders/:id/insurance-rejection/cancel') cancelRejectedInsurance(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.insurance.cancelRejectedByPatient(u, id, b?.idempotency_key); }
   @Get('orders/:id/offers') listOffers(@CurrentUser() u: any, @Param('id') id: string) { return this.offers.listForPatient(u, id); }

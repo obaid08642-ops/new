@@ -21,6 +21,7 @@ export default function DiagSearchScreen() {
   const [q, setQ] = useState("");
   const [tests, setTests] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -38,7 +39,8 @@ export default function DiagSearchScreen() {
           );
         }
       } catch {
-        // keep static fallback
+        // No static fallback: an empty list with an honest error banner.
+        setLoadError(true);
       } finally {
         setLoading(false);
       }
@@ -86,8 +88,13 @@ export default function DiagSearchScreen() {
             <View style={{ alignItems: "center", paddingTop: 40 }}>
               <Icon name="science" size={48} color={colors.textTertiary} />
               <AppText variant="h5" style={{ marginTop: 12 }}>
-                لا توجد نتائج
+                {loadError ? "تعذر تحميل التحاليل" : "لا توجد نتائج"}
               </AppText>
+              {loadError ? (
+                <AppText variant="bodySM" color={colors.textSecondary} style={{ marginTop: 6 }}>
+                  تحقق من الاتصال واسحب للتحديث بالرجوع وإعادة الفتح
+                </AppText>
+              ) : null}
             </View>
           ) : (
             filtered.map((t) => (

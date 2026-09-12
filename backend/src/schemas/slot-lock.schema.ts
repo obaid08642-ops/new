@@ -18,3 +18,10 @@ export class SlotLock {
 }
 export const SlotLockSchema = SchemaFactory.createForClass(SlotLock);
 SlotLockSchema.index({ provider_id: 1, slot_start: 1, status: 1 });
+// Exact-duplicate guard: concurrent reserves for the same provider+slot can
+// never both create a held/confirmed lock (storage-level, no topology dep).
+// Range overlaps remain best-effort via the service check + appointment index.
+SlotLockSchema.index(
+  { provider_id: 1, slot_start: 1 },
+  { unique: true, partialFilterExpression: { status: { $in: ['held', 'confirmed'] } } },
+);

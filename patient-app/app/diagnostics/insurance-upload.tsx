@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppText } from '../../src/components/ui';
 import { useApp } from '../../src/context/AppContext';
 import Icon from '@expo/vector-icons/MaterialCommunityIcons';
-import { useRouter, Stack } from 'expo-router';
+import { useRouter, Stack, useLocalSearchParams } from 'expo-router';
 import Animated, { FadeInDown, SlideInUp, ZoomIn, FadeIn } from 'react-native-reanimated';
 import { useDiagnosticsCart } from '../../src/context/DiagnosticsCartContext';
 import * as ImagePicker from 'expo-image-picker';
@@ -20,20 +20,30 @@ const { width } = Dimensions.get('window');
 export default function InsuranceUpload() {
   const router = useRouter();
   const { colors } = useApp();
-  const { items, setPrescriptionUrl, setPaymentType } = useDiagnosticsCart();
+  const { items, setPrescriptionUrl, setPaymentType, clearCart } = useDiagnosticsCart() as any;
+  // Scheduling context forwarded from checkout (day/time/lab). The dead
+  // /orders/create call was replaced with real /labs|radiology/bookings (P0-05).
+  const bookingParams = useLocalSearchParams<{ labId?: string; labName?: string; serviceType?: string; dayIso?: string; time?: string }>();
+  const paramLabId = Array.isArray(bookingParams.labId) ? bookingParams.labId[0] : bookingParams.labId;
+  const paramLabName = Array.isArray(bookingParams.labName) ? bookingParams.labName[0] : bookingParams.labName;
+  const paramDayIso = Array.isArray(bookingParams.dayIso) ? bookingParams.dayIso[0] : bookingParams.dayIso;
+  const paramTime = Array.isArray(bookingParams.time) ? bookingParams.time[0] : bookingParams.time;
+  const paramServiceType = Array.isArray(bookingParams.serviceType) ? bookingParams.serviceType[0] : bookingParams.serviceType;
   
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [showBottomSheet, setShowBottomSheet] = useState(false);
   const [showInsPicker, setShowInsPicker] = useState(false);
   
   const [uploadedImg, setUploadedImg] = useState<string | null>(null);
+  const [uploadedB64, setUploadedB64] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
   
   // Auto-fill from Auth Profile
   const [selCompany, setSelCompany] = useState<string>('');
   const [selClass, setSelClass] = useState<string>('');
   
-  const [visitType, setVisitType] = useState<'clinic' | 'home'>('clinic');
-  const [selLab, setSelLab] = useState<string | null>(null);
+  const [visitType, setVisitType] = useState<'clinic' | 'home'>(paramServiceType === 'home' ? 'home' : 'clinic');
+  const [selLab, setSelLab] = useState<string | null>(paramLabId || null);
   const [nearbyLabs, setNearbyLabs] = useState<any[]>([]);
   const [ocrItems, setOcrItems] = useState<string[] | null>(null);
   const [ocrFailed, setOcrFailed] = useState(false);
@@ -133,6 +143,7 @@ export default function InsuranceUpload() {
     if (!result.canceled && result.assets && result.assets.length > 0) {
       const asset = result.assets[0];
       setUploadedImg(asset.uri);
+      setUploadedB64(asset.base64 || null);
       setStep(2);
 
       // EPIC4/S21: REAL OCR via the AI gateway — the old code faked a 3s
@@ -359,33 +370,88 @@ export default function InsuranceUpload() {
       {step === 3 && selLab && (
         <Animated.View entering={SlideInUp.duration(400)} style={[styles.floatingBottom, { backgroundColor: colors.surface, borderTopColor: colors.border } ]}>
           <TouchableOpacity 
-            style={[styles.confirmBtn, { backgroundColor: colors.primary }]} 
+            style={[styles.confirmBtn, { backgroundColor: submitting ? colors.border : colors.primary }]} 
+            disabled={submitting}
             onPress={async () => {
-              setPaymentType('insurance');
-              if (uploadedImg) setPrescriptionUrl(uploadedImg);
-              
-              const selectedLabData = nearbyLabs.find(l => l.id === selLab);
-              
+              if (submitting) return;
+              const labItems = items.filter((it: any) => it.kind !== 'radiology');
+              const radioItems = items.filter((it: any) => it.kind === 'radiology');
+              if (!labItems.length && !radioItems.length) {
+                showLocalizedAlert('السلة فارغة', 'أضف تحليلاً أولاً');
+                return;
+              }
+              if (!selLab) {
+                showLocalizedAlert('اختر المختبر', 'اختر المختبر من القائمة أولاً');
+                return;
+              }
+              if (!paramDayIso || !paramTime) {
+                showLocalizedAlert('الموعد ناقص', 'ارجع لشاشة التأكيد واختر اليوم والوقت ثم تابع.');
+                return;
+              }
+              const [h, m] = String(paramTime).split(':').map(Number);
+              const scheduled = new Date(`${paramDayIso}T00:00:00`);
+              scheduled.setHours(h || 0, m || 0, 0, 0);
+              if (scheduled.getTime() < Date.now()) {
+                showLocalizedAlert('الموعد في الماضي', 'اختر وقتاً لاحقاً من شاشة التأكيد.');
+                return;
+              }
+              setSubmitting(true);
               try {
-                const orderData = {
-                  status: 'PENDING_INSURANCE_APPROVAL',
-                  visitType,
-                  providerId: selLab,
-                  cartItems: items,
-                  totalAmount: 0
-                };
-                const res = await apiFetch('/orders/create', {
-                  method: 'POST',
-                  body: JSON.stringify(orderData)
-                });
-                
+                setPaymentType('insurance');
+                if (uploadedImg) setPrescriptionUrl(uploadedImg);
+
+                const selectedLabData = nearbyLabs.find(l => l.id === selLab);
+                const locationType = visitType === 'home' ? 'home' : 'facility';
+                let bookingId: string | null = null;
+                if (labItems.length) {
+                  const created: any = await apiFetch('/labs/bookings', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                      items: labItems.map((it: any) => ({ service_id: it.id })),
+                      scheduled_at: scheduled.toISOString(),
+                      location_type: locationType,
+                      payment_method: 'insurance',
+                      provider_account_id: String(selLab),
+                    }),
+                  });
+                  bookingId = created?.id || created?.booking_id || created?.data?.id || null;
+                }
+                for (const it of radioItems) {
+                  const created: any = await apiFetch('/radiology/bookings', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                      service_id: it.id,
+                      scheduled_at: scheduled.toISOString(),
+                      location_type: locationType,
+                      payment_method: 'insurance',
+                      provider_account_id: String(selLab),
+                    }),
+                  });
+                  if (!bookingId) bookingId = created?.id || created?.booking_id || created?.data?.id || null;
+                }
+                if (!bookingId) throw new Error('تعذر إنشاء الحجز');
+                // Attach the insurance/doctor-request image (best-effort: the
+                // booking stands for clinic without it; home requires it server-side).
+                if (uploadedB64) {
+                  try {
+                    await apiFetch(`/labs/bookings/${bookingId}/documents`, {
+                      method: 'POST',
+                      body: JSON.stringify({ kind: 'doctor_request', url_or_b64: `data:image/jpeg;base64,${uploadedB64}` }),
+                    });
+                  } catch (docErr) {
+                    console.error(docErr);
+                  }
+                }
+                await clearCart().catch(() => null);
                 (router.push as any)({ 
                   pathname: '/diagnostics/insurance-approval',
-                  params: { labName: selectedLabData?.name, visitType, orderId: res?.data?.id || res?.id }
+                  params: { labName: paramLabName || selectedLabData?.name, visitType, orderId: bookingId }
                 });
-              } catch (e) {
+              } catch (e: any) {
                 console.error(e);
-                showLocalizedAlert('خطأ', 'حدث خطأ أثناء رفع الطلب');
+                showLocalizedAlert('خطأ', e?.message || 'حدث خطأ أثناء إنشاء الحجز');
+              } finally {
+                setSubmitting(false);
               }
             }}
           >

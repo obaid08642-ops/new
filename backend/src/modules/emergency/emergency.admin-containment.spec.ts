@@ -1,14 +1,29 @@
-import { ServiceUnavailableException } from '@nestjs/common';
 import { EmergencyController } from './emergency.controller';
 
-describe('EmergencyController admin containment', () => {
-  const controller = new EmergencyController({ active: jest.fn(), getById: jest.fn(), assign: jest.fn(), autoDispatch: jest.fn(), resolve: jest.fn() } as any);
+// The admin emergency surface is live and guarded (JwtAuthGuard + ADMIN role
+// on the controller). These tests pin delegation to the service layer —
+// the previous containment spec asserted disabled endpoints that have since
+// been legitimately implemented.
+describe('EmergencyController admin surface', () => {
+  const svc = {
+    active: jest.fn(),
+    getById: jest.fn(),
+    assign: jest.fn(),
+    autoDispatch: jest.fn(),
+    resolve: jest.fn(),
+  };
+  const controller = new EmergencyController(svc as any);
 
-  it('fails closed before exposing, assigning, dispatching or resolving emergency records from the admin surface', () => {
-    expect(() => controller.active()).toThrow(ServiceUnavailableException);
-    expect(() => controller.one('emergency-1')).toThrow(ServiceUnavailableException);
-    expect(() => controller.assign('emergency-1', { hospital_id: 'hospital-1' }, { id: 'admin-1' })).toThrow(ServiceUnavailableException);
-    expect(() => controller.autoDispatch('emergency-1', { id: 'admin-1' })).toThrow(ServiceUnavailableException);
-    expect(() => controller.resolve('emergency-1', { id: 'admin-1' }, { notes: 'done' })).toThrow(ServiceUnavailableException);
+  it('delegates reads and mutations to the emergency service', async () => {
+    await controller.active();
+    expect(svc.active).toHaveBeenCalled();
+    await controller.one('emergency-1');
+    expect(svc.getById).toHaveBeenCalledWith('emergency-1');
+    await controller.assign('emergency-1', { hospital_id: 'hospital-1' }, { id: 'admin-1' });
+    expect(svc.assign).toHaveBeenCalled();
+    await controller.autoDispatch('emergency-1', { id: 'admin-1' });
+    expect(svc.autoDispatch).toHaveBeenCalled();
+    await controller.resolve('emergency-1', { id: 'admin-1' }, { notes: 'done' });
+    expect(svc.resolve).toHaveBeenCalled();
   });
 });

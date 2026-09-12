@@ -23,7 +23,7 @@ import {
 } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
-import { EventEmitter2 } from '@nestjs/event-emitter';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { v4 as uuid } from 'uuid';
 import { JwtAuthGuard, CurrentUser, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
@@ -708,6 +708,71 @@ export class CancellationPolicy {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
+// AppointmentRefundListener — consumes appointment.refund.calculated (P0-07).
+// Executes the policy-computed refund via RefundExecutor (idempotent per
+// refund_id: gateway when a card payment exists, else patient wallet credit,
+// plus ledger + provider clawback), and records the 50 SAR doctor penalty as
+// a provider_debit when the doctor cancelled. Never throws: a failed consumer
+// must not break the cancellation that already persisted.
+// ═══════════════════════════════════════════════════════════════════════════
+@Injectable()
+export class AppointmentRefundListener {
+  private readonly logger = new Logger('AppointmentRefundListener');
+  constructor(
+    @InjectConnection() private readonly conn: Connection,
+    private readonly refundExec: RefundExecutor,
+    private readonly ledger: LedgerService,
+  ) {}
+
+  @OnEvent('appointment.refund.calculated')
+  async onRefundCalculated(e: any) {
+    try {
+      const pct = Number(e?.refund_percentage || 0);
+      const total = Number(e?.total_price || 0);
+      const amount = Math.round(total * (pct / 100) * 100) / 100;
+      if (amount > 0 && e?.appointment_id && e?.patient_id) {
+        await this.refundExec.execute({
+          refund_id: `appt-refund-${e.appointment_id}`,
+          booking_kind: 'consultation',
+          booking_id: e.appointment_id,
+          patient_id: e.patient_id,
+          amount,
+          reason: `appointment_cancel_policy_${pct}pct`,
+          actor_id: 'system',
+        });
+      } else {
+        this.logger.log(`refund skipped (0% policy): appointment ${e?.appointment_id}`);
+      }
+      const penalty = Number(e?.penalty_amount || 0);
+      if (penalty > 0 && e?.doctor_id) {
+        const pref = `appt-penalty-${e.appointment_id}`;
+        const dup = await this.ledger.exists('provider_debit', 'refund', pref).catch(() => false);
+        if (!dup) {
+          const prof: any = await this.conn.collection('provider_profiles').findOne(
+            { $or: [{ id: e.doctor_id }, { account_id: e.doctor_id }] },
+            { projection: { _id: 0, user_id: 1, account_id: 1 } },
+          ).catch(() => null);
+          const accountId = prof?.account_id || prof?.user_id;
+          if (accountId) {
+            await this.ledger.append({
+              type: 'provider_debit', amount: penalty,
+              provider_account_id: accountId,
+              ref_type: 'refund', ref_id: pref, order_id: e.appointment_id,
+              description: `Doctor cancellation penalty (${pct}% policy)`,
+              actor_id: 'system',
+            });
+          } else {
+            this.logger.warn(`penalty skipped (no provider account): appointment ${e?.appointment_id}`);
+          }
+        }
+      }
+    } catch (err: any) {
+      this.logger.error(`appointment refund consumer failed: ${err?.message} (appointment ${e?.appointment_id})`);
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
 // ReportsService — daily/weekly/monthly financial aggregation (EPIC S16)
 // ═══════════════════════════════════════════════════════════════════════════
 @Injectable()
@@ -1017,7 +1082,7 @@ export class AdminFinanceEngineController {
 @Global()
 @Module({
   controllers: [FinanceEngineController, AdminFinanceEngineController],
-  providers: [LedgerService, CommissionResolver, CouponService, LoyaltyRedeemService, FraudService, RefundExecutor, CancellationPolicy, ReportsService, ApprovalService],
+  providers: [LedgerService, CommissionResolver, CouponService, LoyaltyRedeemService, FraudService, RefundExecutor, CancellationPolicy, ReportsService, ApprovalService, AppointmentRefundListener],
   exports: [LedgerService, CommissionResolver, CouponService, LoyaltyRedeemService, FraudService, RefundExecutor, CancellationPolicy, ReportsService, ApprovalService],
 })
 export class FinanceEngineModule {}

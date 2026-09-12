@@ -39,7 +39,8 @@ export class SeedService implements OnModuleInit {
 
   async onModuleInit() {
     try {
-      // Reference/master data — safe in every environment.
+      // Reference/master data — INSERT-ONLY (safe in every environment:
+      // existing records are never overwritten, see each seeder).
       await this.seedSystemConfig();
       await this.seedMedicines();
       await this.seedLabs();
@@ -51,7 +52,6 @@ export class SeedService implements OnModuleInit {
       if (testSeedEnabled) {
         await this.seedPatient();
         await this.seedPharmacies();
-        await this.seedFacilities();
         await this.seedDoctors();
         await this.seedExtraProviders();
         await this.seedDelivery();
@@ -65,12 +65,15 @@ export class SeedService implements OnModuleInit {
     }
   }
 
-  /** Seed facilities (hospitals/clinics) with stable IDs by slug. */
+  /** Seed facilities (hospitals/clinics) with stable IDs by slug.
+   * INSERT-ONLY ($setOnInsert): existing records — including admin
+   * deactivation (is_active:false) or edits — are NEVER overwritten.
+   * Previously $set re-activated suspended facilities on every restart (P0-17). */
   async seedFacilities() {
     for (const f of SEED_FACILITIES) {
       await this.facilityModel.updateOne(
         { slug: f.slug },
-        { $set: { ...f, id: f.slug, slug: f.slug, is_active: true } },
+        { $setOnInsert: { ...f, id: f.slug, slug: f.slug, is_active: true } },
         { upsert: true },
       );
     }

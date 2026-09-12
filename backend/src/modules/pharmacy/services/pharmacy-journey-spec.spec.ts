@@ -37,10 +37,12 @@ describe('Pharmacy journey — master spec', () => {
     items: [{ id: 'i1', name_ar: 'بانادول', qty: 2 }],
   };
 
-  it('broadcast DTO shows insurance company/category, image+pdf attachments, approx distance (0.5km rounding) and area', () => {
+  it('broadcast DTO shows insurance company/category, image+pdf attachments, approx distance (0.5km rounding) and area', async () => {
     const s = svc([]);
-    const dto = s.providerBroadcastDto({ id: 'b1', order_id: 'o1', current_round: 1, current_radius_km: 3, lock_state: 'open' }, order, { geo: { lat: 3.2, lng: 0 } });
-    expect(dto.insurance).toEqual({ company_name_ar: 'التأمين', company_name_en: 'InsCo', category: 'A' });
+    const dto = await s.providerBroadcastDto({ id: 'b1', order_id: 'o1', current_round: 1, current_radius_km: 3, lock_state: 'open' }, order, { geo: { lat: 3.2, lng: 0 } });
+    // The DTO carries tier/policy/member fields (null when absent) alongside
+    // company + category — the pharmacy needs them for tier verification.
+    expect(dto.insurance).toEqual({ company_name_ar: 'التأمين', company_name_en: 'InsCo', category: 'A', tier: null, policy_number: null, member_id: null });
     expect(dto.attachments).toEqual([
       { type: 'image', uri: 'https://cdn/rx1.jpg' },
       { type: 'pdf', uri: 'https://cdn/rx2.pdf' },
@@ -50,9 +52,9 @@ describe('Pharmacy journey — master spec', () => {
     expect(dto.items[0].name_ar).toBe('بانادول');
   });
 
-  it('broadcast DTO never exposes patient phone or exact street address', () => {
+  it('broadcast DTO never exposes patient phone or exact street address', async () => {
     const s = svc([]);
-    const dto = s.providerBroadcastDto({ id: 'b1', order_id: 'o1', current_round: 1, lock_state: 'open' }, order, { geo: { lat: 1, lng: 0 } });
+    const dto = await s.providerBroadcastDto({ id: 'b1', order_id: 'o1', current_round: 1, lock_state: 'open' }, order, { geo: { lat: 1, lng: 0 } });
     const json = JSON.stringify(dto);
     expect(json).not.toContain('+966500000000');
     expect(json).not.toContain('Secret St');

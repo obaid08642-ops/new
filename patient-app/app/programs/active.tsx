@@ -113,7 +113,7 @@ export default function ActiveProgramsScreen() {
             <Badge label={`المدة: ${selectedProg.duration}`} color={colors.primary} />
           </View>
 
-          {/* Simulated progress bar */}
+          {/* Real progress from enrolled program sessions */}
           <View style={st.progressContainer}>
             <View style={{ flexDirection: 'row-reverse', justifyContent: 'space-between', marginBottom: 6 }}>
               <AppText variant="bodySM" color={colors.textSecondary}>نسبة الإنجاز</AppText>

@@ -180,29 +180,50 @@ export class UnifiedBookingsService {
   }
 
   /**
-   * Contract bridge for patient-web consultation booking. This is intentionally
-   * cash-only: the payment-intent/10-minute hold workflow is not implemented
-   * here and unsupported payment methods fail closed rather than simulating a
-   * pending-payment success.
+   * Unified consultation contract — the single canonical booking path for
+   * ALL payment methods (cash | card | insurance).
+   * Delegates to AppointmentsService.create (the exact code path used by
+   * POST /care/appointments): mode policies, fees, insurance-request
+   * creation and state transitions are enforced there and never duplicated
+   * here. Card stays PENDING until the payment webhook confirms; cash and
+   * insurance auto-confirm. Callers continue via payment-intent (card) or
+   * the insurance payment-split (insurance_request_id, when present).
    */
   async createConsultationContract(user: any, body: {
     doctor_id?: string;
     slot_id?: string;
     type?: 'clinic' | 'video' | 'home';
     notes?: string;
+    symptoms?: string[];
+    visit_location?: { lat: number; lng: number; address: string };
     payment_method_id?: string;
+    insurance_provider?: string;
+    insurance_member_id?: string;
+    for_member_id?: string;
   }) {
     const paymentMethod = body?.payment_method_id || 'cash';
-    if (paymentMethod !== 'cash') throw new BadRequestException('payment_method_not_supported');
+    if (!['cash', 'card', 'insurance'].includes(paymentMethod)) {
+      throw new BadRequestException('payment_method_not_supported');
+    }
     const slotStart = await this.resolveConsultationSlot(body?.doctor_id || '', body?.type as any, body?.slot_id || '');
     const booking: any = await this.apptSvc.create(user, {
       doctor_id: body!.doctor_id!,
       service_type: body!.type!,
       slot_start: slotStart,
       patient_notes: body?.notes,
-      payment_method: 'cash',
+      symptoms: body?.symptoms,
+      visit_location: body?.visit_location,
+      payment_method: paymentMethod as any,
+      insurance_provider: body?.insurance_provider,
+      insurance_member_id: body?.insurance_member_id,
+      for_member_id: body?.for_member_id,
     });
-    return { booking_id: booking.id, status: String(booking.status || '').toLowerCase() };
+    return {
+      booking_id: booking.id,
+      status: String(booking.status || '').toLowerCase(),
+      payment_status: booking.payment_status || null,
+      insurance_request_id: booking.insurance_request_id || null,
+    };
   }
 
   /** Owner-scoped root cancellation; foreign IDs resolve as 404 via getOne. */

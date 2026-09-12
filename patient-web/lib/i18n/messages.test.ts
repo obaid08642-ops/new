@@ -64,8 +64,9 @@ describe("patient web messages", () => {
   });
 
   it("uses a deliberate Arabic-safe default for global 404 and honors the English locale header", () => {
-    expect(getGlobalNotFoundCopy("en")).toEqual({ locale: "en", copy: en.NotFound });
-    expect(getGlobalNotFoundCopy("ar")).toEqual({ locale: "ar", copy: ar.NotFound });
-    expect(getGlobalNotFoundCopy(null)).toEqual({ locale: "ar", copy: ar.NotFound });
+    expect(getGlobalNotFoundCopy("en")).toEqual({ locale: "en", copy: en.NotFound, dir: "ltr" });
+    expect(getGlobalNotFoundCopy("ar")).toEqual({ locale: "ar", copy: ar.NotFound, dir: "rtl" });
+    expect(getGlobalNotFoundCopy("ur")).toEqual({ locale: "ur", copy: ur.NotFound, dir: "rtl" });
+    expect(getGlobalNotFoundCopy(null)).toEqual({ locale: "ar", copy: ar.NotFound, dir: "rtl" });
   });
 });

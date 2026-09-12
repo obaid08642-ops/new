@@ -39,27 +39,27 @@ describe('SearchIntentService & LocationService', () => {
     it('resolves city from Arabic text "الرياض"', async () => {
       const res = await locationService.resolveFromText('عيادات في الرياض');
       expect(res).toBeDefined();
-      expect(res?.city?.code).toBe('sa-riyadh-city');
+      expect(res?.city?.code).toBe('sa-riyadh');
     });
 
     it('resolves district "العليا" and deduces parent city Riyadh', async () => {
       const res = await locationService.resolveFromText('طبيب في حي العليا');
       expect(res).toBeDefined();
-      expect(res?.district?.code).toBe('sa-riyadh-olaya');
-      expect(res?.city?.code).toBe('sa-riyadh-city');
+      expect(res?.district?.code).toBe('sa-riyadh-016');
+      expect(res?.city?.code).toBe('sa-riyadh');
     });
 
-    it('resolves Jeddah district "حي الزهراء"', async () => {
-      const res = await locationService.resolveFromText('مستشفى في الزهراء');
+    it('resolves Jeddah district "حي الزهراء" with city context', async () => {
+      const res = await locationService.resolveFromText('مستشفى في حي الزهراء بجدة');
       expect(res).toBeDefined();
-      expect(res?.district?.code).toBe('sa-jeddah-zahra');
-      expect(res?.city?.code).toBe('sa-jeddah-city');
+      expect(res?.district?.code).toBe('sa-jeddah-011');
+      expect(res?.city?.code).toBe('sa-jeddah');
     });
 
     it('resolves English city "Jeddah"', async () => {
       const res = await locationService.resolveFromText('pediatrician in Jeddah');
       expect(res).toBeDefined();
-      expect(res?.city?.code).toBe('sa-jeddah-city');
+      expect(res?.city?.code).toBe('sa-jeddah');
     });
   });
 
@@ -83,7 +83,7 @@ describe('SearchIntentService & LocationService', () => {
       const intent = await searchIntentService.extractIntent('تمريض منزلي حي الوادي', 'ar');
       expect(intent.entity_type).toBe('nursing');
       expect(intent.service_mode).toBe('home');
-      expect(intent.location?.district?.code).toBe('sa-riyadh-wadi');
+      expect(intent.location?.district?.code).toBe('sa-riyadh-011');
       expect(intent.canonical_path).toContain('/ar/home-nursing/riyadh');
     });
 

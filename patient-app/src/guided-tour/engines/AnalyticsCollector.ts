@@ -20,9 +20,9 @@ export class AnalyticsCollector {
     if (this.queue.length === 0) return;
     const eventsToSend = [...this.queue];
     this.queue = [];
-    
-    // Simulate sending to backend
-    console.log(`Sending ${eventsToSend.length} tour events to backend...`);
-    // POST /api/v1/tours/analytics/events
+    // No tour-analytics endpoint exists yet (a future POST
+    // /api/v1/tours/analytics/events would receive these). Events are
+    // dropped — never faked as sent. Dev builds log the drop count.
+    if (__DEV__) console.log(`Dropping ${eventsToSend.length} tour events (no backend endpoint yet)...`);
   }
 }

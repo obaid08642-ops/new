@@ -588,7 +588,7 @@ export class ProviderProductionService {
   }
   async patchAvailability(user: any, body: any): Promise<any> {
     assertProviderRole(user);
-    const allowedKeys = ['is_accepting_requests', 'instant_available', 'instant_available_minutes', 'vacation_mode', 'vacation_from', 'vacation_to', 'weekly_schedule', 'availability_exceptions'];
+    const allowedKeys = ['is_accepting_requests', 'instant_available', 'instant_available_minutes', 'vacation_mode', 'vacation_from', 'vacation_to', 'weekly_schedule', 'availability_exceptions', 'accepted_insurance'];
     const patch: any = {};
     for (const key of allowedKeys) if (body?.[key] !== undefined) patch[key] = body[key];
     if (!Object.keys(patch).length) throw new BadRequestException('no_mutable_availability_fields');
@@ -600,6 +600,29 @@ export class ProviderProductionService {
     }
     if (patch.instant_available_minutes !== undefined && (!Number.isInteger(patch.instant_available_minutes) || patch.instant_available_minutes < 1 || patch.instant_available_minutes > 120)) {
       throw new BadRequestException('instant_available_minutes_must_be_integer_between_1_and_120');
+    }
+    // Accepted-insurance matrix (P5-c): validated shape, stored under
+    // availability. Active company ids are synced to the provider profile so
+    // discovery filters (ProviderProfile.accepted_insurance) stay consistent
+    // with this single source of truth.
+    if (patch.accepted_insurance !== undefined) {
+      if (!Array.isArray(patch.accepted_insurance)) throw new BadRequestException('accepted_insurance_must_be_array');
+      const clean: any[] = [];
+      for (const e of patch.accepted_insurance) {
+        const company_id = String(e?.company_id || '').trim();
+        if (!company_id) throw new BadRequestException('accepted_insurance_company_id_required');
+        const entry: any = { company_id, active: e?.active !== false };
+        if (e?.copay_pct !== undefined && e?.copay_pct !== null && e?.copay_pct !== '') {
+          const cp = Number(e.copay_pct);
+          if (!Number.isFinite(cp) || cp < 0 || cp > 100) throw new BadRequestException('accepted_insurance_copay_pct_must_be_0_100');
+          entry.copay_pct = cp;
+        }
+        if (e?.tier !== undefined && String(e.tier).trim()) entry.tier = String(e.tier).trim().slice(0, 40);
+        const sv = e?.services || {};
+        entry.services = { clinic: !!sv.clinic, online: !!sv.online, home: !!sv.home };
+        clean.push(entry);
+      }
+      patch.accepted_insurance = clean;
     }
     const account: any = await this.conn.collection('provider_accounts').findOne(
       { id: user.id },
@@ -617,6 +640,13 @@ export class ProviderProductionService {
     );
     if (!back || JSON.stringify(back.availability) !== JSON.stringify(availability)) {
       throw new BadRequestException('availability_roundtrip_failed');
+    }
+    if (patch.accepted_insurance !== undefined) {
+      const activeIds = [...new Set(patch.accepted_insurance.filter((e: any) => e.active).map((e: any) => e.company_id))];
+      await this.conn.collection('provider_profiles').updateOne(
+        { $or: [{ user_id: user.id }, { account_id: user.id }] },
+        { $set: { accepted_insurance: activeIds, updatedAt: new Date() } },
+      );
     }
     return { ok: true, availability: back.availability };
   }

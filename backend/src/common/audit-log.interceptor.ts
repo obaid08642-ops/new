@@ -32,9 +32,16 @@ export function redactAuditValue(value: any, depth = 0): any {
   if (value && typeof value === 'object') {
     const out: Record<string, any> = {};
     for (const key of Object.keys(value)) {
-      out[key] = SENSITIVE_KEY_PATTERN.test(key)
-        ? REDACTED
-        : redactAuditValue(value[key], depth + 1);
+      if (SENSITIVE_KEY_PATTERN.test(key)) {
+        // Preserve {old,new} diff-pair shape with redacted values so audits
+        // keep change evidence without leaking secrets (spec contract).
+        const v = (value as any)[key];
+        out[key] = (v && typeof v === 'object' && !Array.isArray(v) && 'old' in v && 'new' in v)
+          ? { old: REDACTED, new: REDACTED }
+          : REDACTED;
+      } else {
+        out[key] = redactAuditValue(value[key], depth + 1);
+      }
     }
     return out;
   }
