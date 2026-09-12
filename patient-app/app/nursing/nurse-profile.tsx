@@ -153,7 +153,9 @@ export default function NursingMegaProfile() {
         address: formatAddressLine(addressObj),
         payment_method: flow === 'insurance' ? 'insurance' : 'card',
       };
-      const res = await apiFetch('/home-care/bookings', { method: 'POST', body: JSON.stringify(payload) });
+      // POST /nursing/bookings is the patient booking contract (P6-D): the
+      // legacy /home-care/bookings path never existed server-side.
+      const res = await apiFetch('/nursing/bookings', { method: 'POST', body: JSON.stringify(payload) });
       const bookingId = res?.id || res?.booking_id;
 
       if (flow === 'insurance') {

@@ -126,6 +126,18 @@ export default function NursingDirectoryHub() {
           </View>
         </View>
 
+        {/* MY VISITS */}
+        <TouchableOpacity
+          activeOpacity={0.85}
+          onPress={() => router.push('/nursing/visits')}
+          style={[styles.toggleBtnWrap, { marginBottom: 12 }]}
+        >
+          <View style={[styles.toggleBtn, { borderColor: colors.surface }]}>
+            <Icons.Nurse />
+            <LocalizedText style={styles.toggleText}>زياراتي وتتبع الممرض</LocalizedText>
+          </View>
+        </TouchableOpacity>
+
         {/* PAYMENT TOGGLES */}
         <View style={styles.toggleRow}>
           <TouchableOpacity activeOpacity={0.8} style={styles.toggleBtnWrap} onPress={() => setPaymentFlow('insurance')}>

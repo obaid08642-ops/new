@@ -7,6 +7,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { v4 as uuid } from 'uuid';
 import { HomeCareBooking, NursingBookingState, HomeCareService, NurseProvider } from '../../schemas/home-care.schema';
 import { WorkflowEngineService } from '../workflow-engine/workflow-engine.module';
+import { HomeCareSvc } from './home-care.service';
 
 @UseGuards(JwtAuthGuard)
 @Controller('nursing')
@@ -18,6 +19,7 @@ export class NursingController {
     @InjectConnection() private readonly conn: Connection,
     private readonly events: EventEmitter2,
     private readonly engine: WorkflowEngineService,
+    private readonly homeSvc: HomeCareSvc,
   ) {}
 
   private isAdmin(user: any): boolean {
@@ -112,6 +114,17 @@ export class NursingController {
   async deleteCatalog(@CurrentUser() u: any, @Param('id') id: string) {
     throw new ServiceUnavailableException('admin service catalog retirement is unavailable pending dependency-aware approval and rollback workflow');
   }
+
+  // 1b. PATIENT BOOKINGS (parity with labs/radiology direct booking; the
+  // service enforces required fields + 3-minute idempotent replay).
+  @Post('bookings')
+  async createBooking(@CurrentUser() u: any, @Body() b: any) { return this.homeSvc.book(u, b); }
+
+  @Get('bookings/mine')
+  async myBookings(@CurrentUser() u: any) { return this.homeSvc.mineFor(u); }
+
+  @Post('bookings/:id/cancel')
+  async cancelBooking(@CurrentUser() u: any, @Param('id') id: string) { return this.homeSvc.cancel(id, u); }
 
   // 2. FETCH ACTIVE VISITS (Pillar 3)
   @Get('visits')
