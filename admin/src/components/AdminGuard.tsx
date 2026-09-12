@@ -10,7 +10,7 @@ const NAV_SECTIONS: NavSection[] = [
   {
     title: 'القيادة والمراقبة',
     items: [
-      { href: '/admin/command-center', label: 'مركز القيادة الحي', permission: 'command_center.view' },
+      { href: '/admin/command-center', label: 'مركز القيادة الحي', permission: 'command.center.view' },
       { href: '/admin/orders', label: 'دورة الطلبات', permission: 'order.read' },
       { href: '/admin/analytics-suite', label: 'التحليلات', permission: 'analytics.read' },
       { href: '/admin/sos-monitor', label: 'مراقبة الطوارئ SOS' },
@@ -65,7 +65,7 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { href: '/admin/rbac', label: 'الأدوار والصلاحيات', permission: 'rbac.manage' },
       { href: '/admin/system-ops', label: 'تشغيل النظام', permission: 'ops.queues.manage' },
-      { href: '/admin/scheduled-reports', label: 'التقارير المجدولة', permission: 'scheduled_reports.manage' },
+      { href: '/admin/scheduled-reports', label: 'التقارير المجدولة', permission: 'reports.schedule.manage' },
       { href: '/admin/audit-logs', label: 'سجل التدقيق' },
       { href: '/admin/security', label: 'الأمان ومفاتيح الدخول' },
     ],
@@ -73,27 +73,80 @@ const NAV_SECTIONS: NavSection[] = [
 ];
 
 function permitted(item: NavItem, permissions: Set<string>) {
-  return !item.permission || permissions.has(item.permission);
+  // Single source of truth: nav visibility derives from the same route map,
+  // so a link is never shown when its page would render a 403 panel.
+  const required = item.permission ?? requiredPermissionFor(item.href);
+  return !required || permissions.has(required);
 }
 
 // Per-page permission enforcement for direct-URL access (nav hiding alone is not enough).
-// Pages without an entry fall back to backend 403 but remain visible to any authenticated admin.
+// Vocabulary MUST match backend/src/common/permissions.ts exactly (dotted form).
+// Underscore variants (command_center.view, scheduled_reports.manage) are never
+// granted by the backend and previously locked those pages for every admin.
 const ROUTE_PERMISSIONS: Record<string, string> = {
-  '/admin/command-center': 'command_center.view',
+  '/admin/command-center': 'command.center.view',
+  '/admin/sos-monitor': 'command.center.view',
+  '/admin/fraud-monitoring': 'command.center.view',
+  '/admin/health-dashboard': 'command.center.view',
   '/admin/orders': 'order.read',
+  '/admin/order-detail': 'order.read',
+  '/admin/broadcast-monitor': 'order.read',
+  '/admin/appointments-oversight': 'appointment.read',
   '/admin/analytics-suite': 'analytics.read',
+  '/admin/analytics': 'analytics.read',
+  '/admin/search-intelligence': 'analytics.read',
   '/admin/finance-suite': 'finance.read',
+  '/admin/financial-ledger': 'finance.read',
+  '/admin/commissions': 'finance.read',
+  '/admin/payouts': 'finance.payout.approve',
   '/admin/disputes': 'disputes.resolve',
+  '/admin/provider-moderation': 'doctor.read',
+  '/admin/provider-audits': 'doctor.read',
+  '/admin/insurance-queue': 'order.read',
+  '/admin/insurance-companies': 'order.read',
+  '/admin/ambulance-fleet': 'facility.read',
+  '/admin/nursing-portal': 'appointment.read',
+  '/admin/pharmacy-procurement': 'pharmacy.inventory.read',
+  '/admin/medicines-catalog': 'catalog.read',
+  '/admin/catalog-manager': 'catalog.read',
+  '/admin/catalog-governance': 'catalog.read',
+  '/admin/price-override-audit': 'catalog.read',
+  '/admin/shortage-reports': 'catalog.read',
   '/admin/crm': 'crm.read',
   '/admin/segments': 'crm.read',
+  '/admin/support-tickets': 'crm.read',
+  '/admin/live-chat-console': 'crm.read',
+  '/admin/users-management': 'user.read',
   '/admin/gdpr': 'gdpr.manage',
+  '/admin/legal-policies': 'gdpr.manage',
   '/admin/content-growth': 'cms.edit',
   '/admin/home-curation': 'cms.edit',
-  '/admin/rbac': 'rbac.manage',
+  '/admin/community-moderation': 'cms.edit',
+  '/admin/loyalty-config': 'coupons.manage',
+  '/admin/notification-center': 'ops.queues.manage',
   '/admin/system-ops': 'ops.queues.manage',
-  '/admin/scheduled-reports': 'scheduled_reports.manage',
+  '/admin/config-portal': 'ops.queues.manage',
+  '/admin/ai-control': 'ops.queues.manage',
+  '/admin/audit-logs': 'data.export',
+  '/admin/rbac': 'rbac.manage',
+  '/admin/scheduled-reports': 'reports.schedule.manage',
   '/admin/impersonation': 'user.impersonate',
+  // NOTE: /admin/security manages the admin's OWN passkeys — intentionally
+  // unlisted so every authenticated admin keeps access to personal security.
 };
+
+// Exact match first, then longest-prefix (covers dynamic routes such as
+// /admin/orders/[kind]/[id], which inherit their section permission).
+function requiredPermissionFor(pathname: string): string | undefined {
+  if (ROUTE_PERMISSIONS[pathname]) return ROUTE_PERMISSIONS[pathname];
+  let best: string | undefined;
+  for (const prefix of Object.keys(ROUTE_PERMISSIONS)) {
+    if (pathname === prefix || pathname.startsWith(`${prefix}/`)) {
+      if (!best || prefix.length > best.length) best = prefix;
+    }
+  }
+  return best ? ROUTE_PERMISSIONS[best] : undefined;
+}
 
 export const AdminGuard = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<AdminSession | null>(null);
@@ -141,7 +194,7 @@ export const AdminGuard = ({ children }: { children: React.ReactNode }) => {
   }
   if (!session) return null;
 
-  const requiredPermission = ROUTE_PERMISSIONS[router.pathname];
+  const requiredPermission = requiredPermissionFor(router.pathname);
   if (requiredPermission && !permissionSet.has(requiredPermission)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50" dir="rtl">
