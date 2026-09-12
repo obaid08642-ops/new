@@ -12,6 +12,7 @@ import { CatalogPublicationService } from '../events/catalog-publication.service
 import { AutoEntitySeoPipelineService } from '../events/auto-entity-seo-pipeline.service';
 import { localizeMedicineStructured, DbLang, missingPublicMedicineTranslations, PUBLIC_CATALOG_LOCALES } from './med-i18n';
 import { ProductRankingService } from '../product-ranking/product-ranking.service';
+import { ManualBoostsService } from '../product-ranking/manual-boosts.service';
 
 @Injectable()
 export class MedicinesService {
@@ -28,7 +29,18 @@ export class MedicinesService {
     private readonly publication: CatalogPublicationService,
     @Optional() private readonly seoPipeline?: AutoEntitySeoPipelineService,
     @Optional() private readonly rankingService?: ProductRankingService,
-  ) {}
+    @Optional() private readonly manualBoosts?: ManualBoostsService,
+  ) }
+
+  /** R77: labeled sponsored flags from the governed manual layer (order untouched). */
+  private async applySponsored<T extends { id?: string }>(items: T[]): Promise<(T & { sponsored?: boolean })[]> {
+    if (!this.manualBoosts || items.length === 0) return items;
+    try {
+      const ids = await this.manualBoosts.activeIds();
+      if (ids.size === 0) return items;
+      return items.map((m: any) => (m && ids.has(String(m.id)) ? { ...m, sponsored: true } : m));
+    } catch { return items; }
+  }
 
   private get shortageReports() { return this.conn.collection('pharmacy_shortage_reports'); }
   private get notifications() { return this.conn.collection('notifications'); }
@@ -506,7 +518,7 @@ export class MedicinesService {
         const map = new Map(rows.map((m: any) => [m.id, m]));
         const ordered = drugIds.map((id) => map.get(id)).filter(Boolean);
         const result = {
-          data: ordered.map((m: any) => this.withBadges(m?.toObject ? m.toObject() : m)),
+          data: await this.applySponsored(ordered.map((m: any) => this.withBadges(m?.toObject ? m.toObject() : m))),
           total,
           page: safePage,
           limit: safeLimit,
@@ -525,7 +537,7 @@ export class MedicinesService {
       (this.model as any).countDocuments ? (this.model as any).countDocuments(q) : Promise.resolve(0),
     ]);
     const result = {
-      data: (data as any[]).map((m: any) => this.withBadges(m?.toObject ? m.toObject() : m)),
+      data: await this.applySponsored((data as any[]).map((m: any) => this.withBadges(m?.toObject ? m.toObject() : m))),
       total, page: safePage, limit: safeLimit, total_pages: Math.ceil(total / safeLimit),
     };
     await this.redis.setJson(cacheKey, result, MedicinesService.LIST_CACHE_TTL);
