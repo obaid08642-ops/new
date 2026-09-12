@@ -92,6 +92,15 @@ export class SeoService {
     const exact = await model.findOne({ ...this.publicQuery(type), slug }, { _id: 0, __v: 0 }).lean();
     if (exact) return exact;
 
+    // R69: renamed slugs resolve via history (caller issues the 301).
+    try {
+      const hist: any = await this.conn.collection('slug_history').findOne({ entity_type: type, old_slug: slug });
+      if (hist?.new_slug) {
+        const moved: any = await model.findOne({ ...this.publicQuery(type), slug: hist.new_slug }, { _id: 0, __v: 0 }).lean();
+        if (moved) return { ...moved, _moved_from: slug };
+      }
+    } catch { /* history is best-effort */ }
+
     const sfx = parseSlugSuffix(slug);
     if (!sfx) {
       // No id suffix — try fuzzy by name

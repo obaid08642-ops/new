@@ -18,12 +18,18 @@ export class SeoController {
     private readonly indexNowSvc: IndexNowService,
   ) {}
 
-  /** Resolve a slug to its entity. */
+  /** Resolve a slug to its entity (R69: renamed slugs 301 to canonical). */
   @Public()
   @Get('resolve/:type/:slug')
-  async resolve(@Param('type') type: string, @Param('slug') slug: string) {
-    const entity = await this.svc.resolve(type, slug);
+  async resolve(@Param('type') type: string, @Param('slug') slug: string, @Res({ passthrough: true }) res: Response) {
+    const entity: any = await this.svc.resolve(type, slug);
     if (!entity) throw new NotFoundException('Entity not found');
+    if (entity._moved_from) {
+      const { _moved_from, ...rest } = entity;
+      const path = type === 'doctor' ? `/doctor/${entity.slug || ''}` : type === 'pharmacy' ? `/pharmacy/${entity.slug || ''}` : type === 'facility' ? `/facility/${entity.slug || ''}` : `/s/${type}/${entity.slug || ''}`;
+      res.status(301).setHeader('Location', `https://nabd.plus/ar${path}`);
+      return { ...rest, moved_from: _moved_from, canonical_path: `/ar${path}` };
+    }
     return entity;
   }
 

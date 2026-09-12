@@ -177,6 +177,15 @@ export class AutoEntitySeoPipelineService {
       { $set: { slug: candidate, updatedAt: new Date() } },
     );
 
+    // R69: record rename history so old slugs 301 to the canonical one.
+    if (existingSlug && typeof existingSlug === 'string' && existingSlug.trim() && existingSlug !== candidate) {
+      await this.conn.collection('slug_history').updateOne(
+        { entity_type: entityType, old_slug: existingSlug.trim() },
+        { $set: { entity_type: entityType, entity_id: id, old_slug: existingSlug.trim(), new_slug: candidate, at: new Date() } },
+        { upsert: true },
+      ).catch(() => null);
+    }
+
     return candidate;
   }
 
