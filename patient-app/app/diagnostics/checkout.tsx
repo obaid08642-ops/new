@@ -53,7 +53,20 @@ export default function DiagnosticsCheckoutScreen() {
       return;
     }
     if (method === 'insurance') {
-      router.push({ pathname: '/diagnostics/insurance-upload', params: { labId: String(params.labId) } });
+      if (!time) {
+        setError('اختر اليوم والوقت');
+        return;
+      }
+      router.push({
+        pathname: '/diagnostics/insurance-upload',
+        params: {
+          labId: String(params.labId),
+          labName: params.labName || '',
+          serviceType: location,
+          dayIso: days[dayOffset].iso,
+          time,
+        },
+      });
       return;
     }
     const [h, m] = time.split(':').map(Number);
