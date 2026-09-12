@@ -63,28 +63,30 @@ describe('McpService', () => {
 
   const mockLocationService = {} as any;
 
+  const mockMedicinesFindOne = jest.fn().mockImplementation(({ $or }) => {
+    const term = $or[0]?.slug || $or[1]?.id;
+    if (term === 'antibiotic-amoxil') {
+      return Promise.resolve({
+        slug: 'antibiotic-amoxil',
+        name_ar: 'أموكسيل مضاد حيوي',
+        price: 45.0,
+        requires_prescription: true,
+      });
+    }
+    return Promise.resolve({
+      slug: 'panadol-extra',
+      sku: 12345,
+      name_ar: 'بانادول اكسترا',
+      price: 15.5,
+      requires_prescription: false,
+    });
+  });
+
   const mockConnection = {
     collection: jest.fn().mockImplementation((colName) => {
       if (colName === 'medicines_master') {
         return {
-          findOne: jest.fn().mockImplementation(({ $or }) => {
-            const term = $or[0]?.slug || $or[1]?.id;
-            if (term === 'antibiotic-amoxil') {
-              return Promise.resolve({
-                slug: 'antibiotic-amoxil',
-                name_ar: 'أموكسيل مضاد حيوي',
-                price: 45.0,
-                requires_prescription: true,
-              });
-            }
-            return Promise.resolve({
-              slug: 'panadol-extra',
-              sku: 12345,
-              name_ar: 'بانادول اكسترا',
-              price: 15.5,
-              requires_prescription: false,
-            });
-          }),
+          findOne: mockMedicinesFindOne,
         };
       }
       if (colName === 'provider_profiles') {
@@ -160,7 +162,7 @@ describe('McpService', () => {
       expect(res.alternatives[0].canonical_url).toContain('/p/fevadol-500');
     });
 
-    it('prepares transaction for OTC medicine with VAT breakdown', async () => {
+    it('prepares transaction for OTC medicine with honest catalog pricing (no fabricated VAT/total)', async () => {
       const res: any = await service.executeTool('prepare_transaction', {
         transaction_type: 'medicine_order',
         entity_id: 'panadol-extra',
@@ -168,9 +170,33 @@ describe('McpService', () => {
       });
       expect(res.can_checkout).toBe(true);
       expect(res.requires_prescription).toBe(false);
-      expect(res.pricing.subtotal).toBe(31.0);
-      expect(res.pricing.total_sar).toBe(35.65);
+      expect(res.pricing.catalog_unit_price).toBe(15.5);
+      expect(res.pricing).not.toHaveProperty('total_sar');
+      expect(res.pricing).not.toHaveProperty('vat_15_percent');
       expect(res.checkout_url).toContain('https://nabd.plus/ar/cart/checkout');
+    });
+
+    it('gates AI medicine reads on public eligibility (approved catalog only)', async () => {
+      mockMedicinesFindOne.mockClear();
+      await service.executeTool('check_prescription_required', { medicine_slug_or_id: 'panadol-extra' });
+      expect(mockMedicinesFindOne).toHaveBeenCalledWith(expect.objectContaining({
+        public_eligibility: true,
+        indexing_eligibility: true,
+        medical_review_status: 'approved',
+      }));
+    });
+
+    it('never fabricates consultation fees (real profile prices or null)', async () => {
+      const res: any = await service.executeTool('prepare_transaction', {
+        transaction_type: 'consultation_booking',
+        entity_id: 'doc-1',
+      });
+      expect(res.can_checkout).toBe(true);
+      expect(res.pricing).not.toHaveProperty('total_sar');
+      expect(res.pricing).not.toHaveProperty('consultation_fee');
+      // Mock doctor has no prices → nulls, never a hardcoded 150.
+      expect(res.pricing.price_online).toBeNull();
+      expect(res.slot).toBeNull();
     });
 
     it('strictly ENFORCES prescription rules: blocks AI checkout for Rx medicine', async () => {
