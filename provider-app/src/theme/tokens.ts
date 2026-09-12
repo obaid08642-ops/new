@@ -26,6 +26,11 @@ export const tokens = {
   errorSurface: '#FEEFED',
   info: '#4889D4',
   infoSurface: '#E8F1FB',
+  purple: '#7A6BEA',
+  purpleSurface: '#EDEBFD',
+  pink: '#E8568E',
+  pinkSurface: '#FCE8F1',
+  mintDeep: '#00876F',
   radius: { sm: 8, md: 14, lg: 22, xl: 28 },
 } as const;
 export type Tokens = typeof tokens;

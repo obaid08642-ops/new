@@ -7,13 +7,14 @@
  *
  * Usage:
  * import { I } from '../components/icons';
- * <I name="lab" size={24} color="#4CAF50" />
- * <IBg name="heart" size={20} color="#F44336" />
+ * <I name="lab" size={24} color="tokens.success" />
+ * <IBg name="heart" size={20} color="tokens.error" />
  */
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import Svg, { Path, Circle, Rect, Line, Polyline, G } from 'react-native-svg';
 import { useTheme } from '../context';
+import { tokens } from '../theme/tokens';
 
 interface IconProps {
  name: string;
@@ -222,8 +223,8 @@ export function IBg({
 
 // ─── Provider Type Icon ───────────────────────────────────────────────────────
 const PROV_COLORS: Record<string, string> = {
- doctor: '#4CAF50', facility: '#2196F3', pharmacy: '#FF9800',
- lab: '#9C27B0', radiology: '#009688', nursing: '#E91E63',
+ doctor: 'tokens.success', facility: 'tokens.info', pharmacy: 'tokens.warning',
+ lab: 'tokens.purple', radiology: 'tokens.mintDeep', nursing: 'tokens.pink',
 };
 
 export function ProviderIcon({ type, size = 24, style }: { type: string; size?: number; style?: object }) {
@@ -243,20 +244,20 @@ export function ProviderIcon({ type, size = 24, style }: { type: string; size?: 
 
 // ─── Nav Tab Icon ─────────────────────────────────────────────────────────────
 export function NavIcon({
- name, active, activeColor = '#4CAF50', inactiveColor = '#A0A0A0', size = 22,
+ name, active, activeColor = 'tokens.success', inactiveColor = '#A0A0A0', size = 22,
 }: { name: string; active: boolean; activeColor?: string; inactiveColor?: string; size?: number }) {
  return <I name={name} size={size} color={active ? activeColor : inactiveColor} strokeWidth={active ? 2.2 : 1.6} />;
 }
 
 // ─── Status Dot ───────────────────────────────────────────────────────────────
 export function StatusDot({ status, size = 10 }: { status: 'online'|'offline'|'busy'|'away'; size?: number }) {
- const colors: Record<string, string> = { online:'#4CAF50', offline:'#9E9E9E', busy:'#F44336', away:'#FF9800' };
- return <View style={{ width:size, height:size, borderRadius:size/2, backgroundColor:colors[status]??'#9E9E9E' }} />;
+ const colors: Record<string, string> = { online:'tokens.success', offline:'tokens.textTertiary', busy:'tokens.error', away:'tokens.warning' };
+ return <View style={{ width:size, height:size, borderRadius:size/2, backgroundColor:colors[status]??'tokens.textTertiary' }} />;
 }
 
 // ─── Rating Stars (SVG) ──────────────────────────────────────────────────────
 export function RatingStars({
- rating, max = 5, size = 16, color = '#FFC107', emptyColor = '#E0E0E0',
+ rating, max = 5, size = 16, color = 'tokens.warning', emptyColor = '#E0E0E0',
 }: { rating: number; max?: number; size?: number; color?: string; emptyColor?: string }) {
  return (
  <View style={{ flexDirection: 'row', gap: 2 }}>

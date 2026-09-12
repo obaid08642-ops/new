@@ -96,6 +96,7 @@ function VirtualWaitingRoomScreen({ onBack, onNavigate }: { onBack: () => void; 
 // DOCTOR DASHBOARD NAVIGATOR
 // ══════════════════════════════════════════════════════════════════════════════
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { tokens } from '../../theme/tokens';
 const Stack = createNativeStackNavigator();
 
 export function DoctorDashboardNavigator({ onLogout }: { onLogout: () => void }) {
@@ -335,7 +336,7 @@ function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: string,
  
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: SP.md, marginBottom: SP.lg }}>
  <NStatCard icon="" label={AR ? 'مواعيد اليوم' : "Today's Apts"} value={String(stats.todayCount)} color={theme.primary} style={{ width: '47%' }} />
- <NStatCard icon="" label={AR ? 'طلبات جديدة' : 'New Requests'} value={String(stats.pendingCount)} color="#FF9800" style={{ width: '47%' }} />
+ <NStatCard icon="" label={AR ? 'طلبات جديدة' : 'New Requests'} value={String(stats.pendingCount)} color="tokens.warning" style={{ width: '47%' }} />
  </View>
 
  {error && (
@@ -362,7 +363,7 @@ function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: string,
    const paymentBadge = isCashOnline ? '[💳 كاش - مدفوع أونلاين]' : isCashClinic ? '[💵 كاش - الدفع بالعيادة]' : `[🛡️ تأمين طبي: ${req.insurance}]`;
 
    return (
- <NCard key={req.id} style={{ marginBottom: SP.md }} accent={req.urgent ? '#F44336' : undefined}>
+ <NCard key={req.id} style={{ marginBottom: SP.md }} accent={req.urgent ? 'tokens.error' : undefined}>
  {req.urgent && <NBadge label={AR ? ' عاجل' : ' Urgent'} variant="danger" style={{ marginBottom: SP.sm }} />}
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginBottom: SP.md }}>
  <NAvatar name={req.patient} size={48} />
@@ -661,9 +662,9 @@ function AppointmentDetailScreen({ apt, onBack, onNavigate }:
  </View>
  </View>
 
- <NCard style={{ marginTop: SP.md, marginBottom: SP.md, backgroundColor: '#E3F2FD', borderColor: '#2196F3' }}>
- <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: '#1565C0', textAlign: AR ? 'right' : 'left' }}>{AR ? 'ملخص الذكاء الاصطناعي' : 'AI Triage Summary'}</Text>
- <Text style={{ fontSize: FS.sm, color: '#1976D2', textAlign: AR ? 'right' : 'left', marginTop: SP.xs }}>{AR ? 'لا توجد نتيجة ذكاء اصطناعي موثقة من الخادم لهذا الموعد.' : 'No server-recorded AI result is available for this appointment.'}</Text>
+ <NCard style={{ marginTop: SP.md, marginBottom: SP.md, backgroundColor: 'tokens.infoSurface', borderColor: 'tokens.info' }}>
+ <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: 'tokens.info', textAlign: AR ? 'right' : 'left' }}>{AR ? 'ملخص الذكاء الاصطناعي' : 'AI Triage Summary'}</Text>
+ <Text style={{ fontSize: FS.sm, color: 'tokens.info', textAlign: AR ? 'right' : 'left', marginTop: SP.xs }}>{AR ? 'لا توجد نتيجة ذكاء اصطناعي موثقة من الخادم لهذا الموعد.' : 'No server-recorded AI result is available for this appointment.'}</Text>
  </NCard>
 
 
@@ -2871,7 +2872,7 @@ export function StatisticsScreen({ onBack }: { onBack: () => void }) {
    home_care: { ar: 'رعاية منزلية', en: 'Home Care' },
    radiology: { ar: 'أشعة', en: 'Radiology' },
  };
- const BREAKDOWN_COLORS = ['#2196F3', '#4CAF50', '#FF9800', '#9C27B0', '#F44336'];
+ const BREAKDOWN_COLORS = ['tokens.info', 'tokens.success', 'tokens.warning', 'tokens.purple', 'tokens.error'];
  const BREAKDOWN: Array<{ label: string; pct: number; color: string }> = (Array.isArray(stats?.service_breakdown) ? stats.service_breakdown : [])
    .map((b: any, i: number) => ({ label: SERVICE_LABELS[b.label] ? (AR ? SERVICE_LABELS[b.label].ar : SERVICE_LABELS[b.label].en) : b.label, pct: b.pct, color: BREAKDOWN_COLORS[i % BREAKDOWN_COLORS.length] }));
 
@@ -2896,10 +2897,10 @@ export function StatisticsScreen({ onBack }: { onBack: () => void }) {
 
  {/* KPI Cards */}
  <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: SP.md, marginBottom: SP.xl }}>
- <NStatCard icon="" label={AR?'الإيرادات':'Revenue'} value={STATS.revenue} unit={AR?'ر':'SAR'} color="#4CAF50" style={{ width:'47%' }} />
- <NStatCard icon="" label={AR?'المواعيد':'Appointments'} value={String(STATS.apts)} color="#2196F3" style={{ width:'47%' }} />
- <NStatCard icon="" label={AR?'التقييم':'Rating'} value={String(STATS.rating)} color="#FFC107" style={{ width:'47%' }} />
- <NStatCard icon="" label={AR?'مرضى جدد':'New Patients'} value={String(STATS.newPts)} color="#9C27B0" style={{ width:'47%' }} />
+ <NStatCard icon="" label={AR?'الإيرادات':'Revenue'} value={STATS.revenue} unit={AR?'ر':'SAR'} color="tokens.success" style={{ width:'47%' }} />
+ <NStatCard icon="" label={AR?'المواعيد':'Appointments'} value={String(STATS.apts)} color="tokens.info" style={{ width:'47%' }} />
+ <NStatCard icon="" label={AR?'التقييم':'Rating'} value={String(STATS.rating)} color="tokens.warning" style={{ width:'47%' }} />
+ <NStatCard icon="" label={AR?'مرضى جدد':'New Patients'} value={String(STATS.newPts)} color="tokens.purple" style={{ width:'47%' }} />
  </View>
 
  {/* Bar Chart */}

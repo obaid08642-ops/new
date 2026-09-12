@@ -25,12 +25,13 @@ import { SuccessScreen } from '../../components/SuccessScreen';
 import { SignatureCanvasModal } from '../../components/SignatureCanvasModal';
 import { LocationPickerModal } from '../../components/LocationPickerModal';
 import { GeoPicker } from '../../components/GeoPicker';
+import { tokens } from '../../theme/tokens';
 
 const { width: W } = Dimensions.get('window');
 
 const PROVIDER_MODES = [
-  { id:'individual', ar:'ممرض/ممرضة مستقل', en:'Independent Nurse', color:'#E91E63' },
-  { id:'company', ar:'شركة تمريض منزلي', en:'Nursing Company', color:'#9C27B0' },
+  { id:'individual', ar:'ممرض/ممرضة مستقل', en:'Independent Nurse', color:'tokens.pink' },
+  { id:'company', ar:'شركة تمريض منزلي', en:'Nursing Company', color:'tokens.purple' },
 ] as const;
 
 const PRICING_MODELS = [
@@ -494,8 +495,8 @@ function NS3({ data, update, onNext, onBack, step, total, bare = false, submitRe
 const body = (
     <>
 
-      <NCard style={{ backgroundColor: '#E91E6310', marginBottom: SP.xl }}>
-        <Text style={{ fontSize: FS.sm, color: '#E91E63', lineHeight: 20, textAlign: AR ? 'right' : 'left' }}>
+      <NCard style={{ backgroundColor: 'tokens.pink10', marginBottom: SP.xl }}>
+        <Text style={{ fontSize: FS.sm, color: 'tokens.pink', lineHeight: 20, textAlign: AR ? 'right' : 'left' }}>
           {AR ? 'حدد جميع الخدمات التمريضية المنزلية التي يمكنك تقديمها. لا يشمل العلاج الطبيعي (مزود منفصل).' : 'Select all home nursing services you can provide. Does not include physiotherapy (separate provider).'}
         </Text>
       </NCard>
@@ -515,12 +516,12 @@ const body = (
         const active = data.enabledServices.includes(svc.id);
         return (
           <TouchableOpacity key={svc.id} onPress={() => toggle(svc.id)}
-            style={[st.svcRow, { backgroundColor: active ? '#E91E6308' : theme.surface2, borderColor: active ? '#E91E63' : theme.border, flexDirection: AR ? 'row-reverse' : 'row' }]}>
-            <View style={{ width: 22, height: 22, borderRadius: R.sm, borderWidth: 2, borderColor: active ? '#E91E63' : theme.border, backgroundColor: active ? '#E91E63' : 'transparent', alignItems: 'center', justifyContent: 'center' }}>
+            style={[st.svcRow, { backgroundColor: active ? 'tokens.pink08' : theme.surface2, borderColor: active ? 'tokens.pink' : theme.border, flexDirection: AR ? 'row-reverse' : 'row' }]}>
+            <View style={{ width: 22, height: 22, borderRadius: R.sm, borderWidth: 2, borderColor: active ? 'tokens.pink' : theme.border, backgroundColor: active ? 'tokens.pink' : 'transparent', alignItems: 'center', justifyContent: 'center' }}>
               {active && <I name="check" size={10} color="#FFF" />}
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: FS.md, color: active ? '#E91E63' : theme.text, fontWeight: active ? FW.bold : FW.reg, textAlign: AR ? 'right' : 'left' }}>{AR ? svc.ar : svc.en}</Text>
+              <Text style={{ fontSize: FS.md, color: active ? 'tokens.pink' : theme.text, fontWeight: active ? FW.bold : FW.reg, textAlign: AR ? 'right' : 'left' }}>{AR ? svc.ar : svc.en}</Text>
             </View>
           </TouchableOpacity>
         );
@@ -568,7 +569,7 @@ const body = (
           <TouchableOpacity onPress={togglePricing} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.md, marginBottom: isActive ? SP.lg : 0 }}>
             <NCheckbox value={isActive} onChange={togglePricing} />
             <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: FS.md, fontWeight: isActive ? FW.bold : FW.reg, color: isActive ? '#E91E63' : theme.text, textAlign: AR ? 'right' : 'left' }}>{AR ? pm.ar : pm.en}</Text>
+              <Text style={{ fontSize: FS.md, fontWeight: isActive ? FW.bold : FW.reg, color: isActive ? 'tokens.pink' : theme.text, textAlign: AR ? 'right' : 'left' }}>{AR ? pm.ar : pm.en}</Text>
               <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{AR ? pm.hint_ar : pm.hint_en}</Text>
             </View>
           </TouchableOpacity>
@@ -665,7 +666,7 @@ function NS5({ data, update, onNext, onBack, step, total, bare = false, submitRe
 
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: SP.sm }}>
           {[5, 10, 15, 20, 30, 50].map(r => (
-            <TouchableOpacity key={r} onPress={() => update({ coverageRadius: r })} style={[st.chip, { backgroundColor: data.coverageRadius === r ? '#E91E63' : theme.surface2, borderColor: data.coverageRadius === r ? '#E91E63' : theme.border }]}>
+            <TouchableOpacity key={r} onPress={() => update({ coverageRadius: r })} style={[st.chip, { backgroundColor: data.coverageRadius === r ? 'tokens.pink' : theme.surface2, borderColor: data.coverageRadius === r ? 'tokens.pink' : theme.border }]}>
               <Text style={{ color: data.coverageRadius === r ? '#FFF' : theme.text, fontWeight: FW.semi }}>{r} {AR ? 'كم' : 'km'}</Text>
             </TouchableOpacity>
           ))}
@@ -758,7 +759,7 @@ const body = (
             {WORK_DAYS.map(d => {
               const a = data.workDays.includes(d.k);
               return (
-                <TouchableOpacity key={d.k} onPress={() => toggleDay(d.k)} style={[st.chip, { backgroundColor: a ? '#E91E63' : theme.surface2, borderColor: a ? '#E91E63' : theme.border }]}>
+                <TouchableOpacity key={d.k} onPress={() => toggleDay(d.k)} style={[st.chip, { backgroundColor: a ? 'tokens.pink' : theme.surface2, borderColor: a ? 'tokens.pink' : theme.border }]}>
                   <Text style={{ color: a ? '#FFF' : theme.text, fontSize: FS.sm, fontWeight: FW.semi }}>{AR ? d.ar : d.k}</Text>
                 </TouchableOpacity>
               );
@@ -772,8 +773,8 @@ const body = (
                 <TouchableOpacity
                   key={type}
                   onPress={() => update({ shiftType: type as any })}
-                  style={{ flex: 1, padding: SP.sm, borderRadius: R.md, borderWidth: 1.5, borderColor: data.shiftType === type ? '#E91E63' : theme.border, backgroundColor: data.shiftType === type ? '#E91E6311' : theme.surface2, alignItems: 'center' }}>
-                  <Text style={{ color: data.shiftType === type ? '#E91E63' : theme.textSub, fontWeight: FW.bold, fontSize: FS.sm }}>
+                  style={{ flex: 1, padding: SP.sm, borderRadius: R.md, borderWidth: 1.5, borderColor: data.shiftType === type ? 'tokens.pink' : theme.border, backgroundColor: data.shiftType === type ? 'tokens.pink11' : theme.surface2, alignItems: 'center' }}>
+                  <Text style={{ color: data.shiftType === type ? 'tokens.pink' : theme.textSub, fontWeight: FW.bold, fontSize: FS.sm }}>
                     {AR ? (type === 'morning' ? 'صباحية' : type === 'evening' ? 'مسائية' : 'كليهما') : (type === 'morning' ? 'Morning' : type === 'evening' ? 'Evening' : 'Both')}
                   </Text>
                 </TouchableOpacity>

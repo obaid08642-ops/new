@@ -39,12 +39,12 @@ const { width: W } = Dimensions.get('window');
 
 // Connected to backend APIs for lab orders and samples
 const STAGES = [
-  { key: 'PENDING', ar: 'قيد الانتظار', en: 'Pending', color: '#FF9800' },
-  { key: 'SAMPLE_COLLECTED', ar: 'تم سحب العينة', en: 'Sample Collected', color: '#2196F3' },
-  { key: 'PROCESSING', ar: 'قيد التحليل', en: 'Processing', color: '#9C27B0' },
-  { key: 'RESULTS_READY', ar: 'النتائج جاهزة', en: 'Results Ready', color: '#4CAF50' },
-  { key: 'COMPLETED', ar: 'مكتمل', en: 'Completed', color: '#4CAF50' },
-  { key: 'SAMPLE_REJECTED', ar: 'عينة مرفوضة', en: 'Sample Rejected', color: '#F44336' },
+  { key: 'PENDING', ar: 'قيد الانتظار', en: 'Pending', color: 'tokens.warning' },
+  { key: 'SAMPLE_COLLECTED', ar: 'تم سحب العينة', en: 'Sample Collected', color: 'tokens.info' },
+  { key: 'PROCESSING', ar: 'قيد التحليل', en: 'Processing', color: 'tokens.purple' },
+  { key: 'RESULTS_READY', ar: 'النتائج جاهزة', en: 'Results Ready', color: 'tokens.success' },
+  { key: 'COMPLETED', ar: 'مكتمل', en: 'Completed', color: 'tokens.success' },
+  { key: 'SAMPLE_REJECTED', ar: 'عينة مرفوضة', en: 'Sample Rejected', color: 'tokens.error' },
 ];
 
 
@@ -140,6 +140,7 @@ function LabOrdersTab({ onNav }: { onNav: (s: string, p?: any) => void }) {
 // NAVIGATOR
 // ══════════════════════════════════════════════════════════════════
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { tokens } from '../../theme/tokens';
 const Stack = createNativeStackNavigator();
 
 export function LabDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
@@ -277,7 +278,7 @@ function LabHome({ onNav, onTriggerAlarm }:{ onNav:(s:string,p?:any)=>void; onTr
  <View style={{ flex:1, backgroundColor:theme.bg }}>
  <View style={[s.topBar,{backgroundColor:theme.surface, borderBottomColor:theme.border, flexDirection:AR?'row-reverse':'row', paddingTop: Math.max(insets.top, 16) }]}>
  <View style={{flexDirection:AR?'row-reverse':'row',alignItems:'center',gap:SP.md}}>
- <IBg name="lab" size={18} color="#9C27B0" bg="#9C27B012" />
+ <IBg name="lab" size={18} color="tokens.purple" bg="tokens.purple12" />
  <View>
  <Text style={{fontSize:FS.sm,color:theme.textSub}}>{AR?'معمل تحاليل':'Laboratory'}</Text>
  <Text style={{fontSize:FS.md,fontWeight:FW.bold,color:theme.text}}>{AR?'معمل نبضة الطبي':'Nabdah Medical Lab'}</Text>
@@ -289,14 +290,14 @@ function LabHome({ onNav, onTriggerAlarm }:{ onNav:(s:string,p?:any)=>void; onTr
  </View>
  </View>
 
- <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#9C27B0" />}
+ <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="tokens.purple" />}
  contentContainerStyle={{padding:SP.xl,paddingBottom:100}} showsVerticalScrollIndicator={false}>
  {/* Stats */}
  <View style={{flexDirection:'row',flexWrap:'wrap',gap:SP.md,marginBottom:SP.xl}}>
- <NStatCard icon="⊥" label={AR?'طلبات اليوم':"Today's Orders"} value={String(stats.todayCount)} color="#2196F3" style={{width:'47%'}} />
- <NStatCard icon="◔" label={AR?'تحت التحليل':'Analyzing'} value={String(stats.analyzingCount)} color="#FF9800" style={{width:'47%'}} />
- <NStatCard icon="◈" label={AR?'إيرادات اليوم':'Revenue'} value={String(stats.revenue)} unit={AR?'ر':'SAR'} color="#4CAF50" style={{width:'47%'}} />
- <NStatCard icon="" label={AR?'نتائج جاهزة':'Ready'} value={String(stats.readyCount)} color="#9C27B0" style={{width:'47%'}} />
+ <NStatCard icon="⊥" label={AR?'طلبات اليوم':"Today's Orders"} value={String(stats.todayCount)} color="tokens.info" style={{width:'47%'}} />
+ <NStatCard icon="◔" label={AR?'تحت التحليل':'Analyzing'} value={String(stats.analyzingCount)} color="tokens.warning" style={{width:'47%'}} />
+ <NStatCard icon="◈" label={AR?'إيرادات اليوم':'Revenue'} value={String(stats.revenue)} unit={AR?'ر':'SAR'} color="tokens.success" style={{width:'47%'}} />
+ <NStatCard icon="" label={AR?'نتائج جاهزة':'Ready'} value={String(stats.readyCount)} color="tokens.purple" style={{width:'47%'}} />
  </View>
 
  {/* Quick Actions */}
@@ -304,15 +305,15 @@ function LabHome({ onNav, onTriggerAlarm }:{ onNav:(s:string,p?:any)=>void; onTr
  <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{marginBottom:SP.xl}}>
  <View style={{flexDirection:'row',gap:SP.md}}>
  {[
- {ar:'المحفظة والإيرادات',en:'Wallet & Revenue',screen:'wallet',color:'#9C27B0'},
- {ar:'تتبع العينات',en:'Track Samples',screen:'sample_tracking',color:'#2196F3'},
- {ar:'إدخال نتائج',en:'Enter Results',screen:'sample_tracking',color:'#4CAF50'},
- {ar:'وقت النتائج',en:'TAT Tracker',screen:'tat_tracker',color:'#FF9800'},
- {ar:'سحب منزلي',en:'Home Collection',screen:'home_collection',color:'#E91E63'},
- {ar:'ملصق QR',en:'QR Label',screen:'qr_label',color:'#9C27B0'},
- {ar:'إدارة الحزم',en:'Bundles',screen:'bundles',color:'#009688'},
- {ar:'فحص مخصص',en:'Custom Test',screen:'add_test',color:'#FF5722'},
- {ar:'مطالبات تأمين',en:'Insurance',screen:'insurance',color:'#3F51B5'},
+ {ar:'المحفظة والإيرادات',en:'Wallet & Revenue',screen:'wallet',color:'tokens.purple'},
+ {ar:'تتبع العينات',en:'Track Samples',screen:'sample_tracking',color:'tokens.info'},
+ {ar:'إدخال نتائج',en:'Enter Results',screen:'sample_tracking',color:'tokens.success'},
+ {ar:'وقت النتائج',en:'TAT Tracker',screen:'tat_tracker',color:'tokens.warning'},
+ {ar:'سحب منزلي',en:'Home Collection',screen:'home_collection',color:'tokens.pink'},
+ {ar:'ملصق QR',en:'QR Label',screen:'qr_label',color:'tokens.purple'},
+ {ar:'إدارة الحزم',en:'Bundles',screen:'bundles',color:'tokens.mintDeep'},
+ {ar:'فحص مخصص',en:'Custom Test',screen:'add_test',color:'tokens.coral'},
+ {ar:'مطالبات تأمين',en:'Insurance',screen:'insurance',color:'tokens.navy'},
  ].map(qa=>(
  <TouchableOpacity key={qa.screen} onPress={()=>onNav(qa.screen)}
  style={[s.quickAction,{backgroundColor:theme.card,borderColor:theme.border}]}>
@@ -488,7 +489,7 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
  {(order?.tests??[]).map((tid:string)=>{
  const t=lookupTest(tid);
  return t ? <View key={tid} style={{flexDirection:AR?'row-reverse':'row',alignItems:'center',gap:SP.md,paddingVertical:SP.sm,borderBottomWidth:StyleSheet.hairlineWidth,borderBottomColor:theme.border}}>
- <IBg name="testTube" size={12} color="#9C27B0" bg="#9C27B012" />
+ <IBg name="testTube" size={12} color="tokens.purple" bg="tokens.purple12" />
  <View style={{flex:1}}>
  <Text style={{fontSize:FS.md,color:theme.text,textAlign:AR?'right':'left'}}>{AR?t.ar:t.en}</Text>
  <Text style={{fontSize:FS.xs,color:theme.textSub}}>{t.hours<1?`${t.hours*60}min`:`${t.hours}h`}{t.fasting?` | ${AR?'صيام':'Fasting'}`:''}</Text>
@@ -498,7 +499,7 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
  <NDivider style={{marginVertical:SP.lg}} />
         <View style={{flexDirection:AR?'row-reverse':'row',justifyContent:'space-between'}}>
           <Text style={{fontSize:FS.md,color:theme.textSub}}>{AR?'الإجمالي':'Total'}</Text>
-          <Text style={{fontSize:FS.xl,fontWeight:FW.xbold,color:'#9C27B0'}}>{order?.total??0} {AR?'ريال':'SAR'}</Text>
+          <Text style={{fontSize:FS.xl,fontWeight:FW.xbold,color:'tokens.purple'}}>{order?.total??0} {AR?'ريال':'SAR'}</Text>
         </View>
       </NCard>
 
@@ -657,7 +658,7 @@ function SampleTracking({ onBack, onNav }:{ onBack:()=>void; onNav:(s:string,p?:
  </View>
  {/* Stage filter */}
  <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{paddingHorizontal:SP.lg,paddingVertical:SP.md,gap:SP.sm}}>
- <TouchableOpacity onPress={()=>setFilter('all')} style={[s.chip,{backgroundColor:filter==='all'?'#9C27B0':theme.surface2,borderColor:filter==='all'?'#9C27B0':theme.border}]}>
+ <TouchableOpacity onPress={()=>setFilter('all')} style={[s.chip,{backgroundColor:filter==='all'?'tokens.purple':theme.surface2,borderColor:filter==='all'?'tokens.purple':theme.border}]}>
  <Text style={{color:filter==='all'?'#FFF':theme.text,fontSize:FS.xs,fontWeight:FW.semi}}>{AR?'الكل':'All'} ({samples.length})</Text>
  </TouchableOpacity>
  {STAGES.map(st=>{
@@ -769,18 +770,18 @@ function ResultReview({ sample, onBack }:{ sample:any; onBack:()=>void }) {
  <NBtn label={AR ? 'إضافة النتيجة' : 'Add result'} variant="outline" onPress={addResultRow} style={{ marginTop: SP.sm }} />
  </NCard>
  {/* Table header */}
- <View style={{flexDirection:'row',backgroundColor:'#9C27B010',borderRadius:R.sm,padding:SP.sm,marginBottom:SP.sm}}>
- <Text style={{flex:3,fontSize:FS.xs,fontWeight:FW.bold,color:'#9C27B0'}}>{AR?'الفحص':'Test'}</Text>
- <Text style={{flex:2,fontSize:FS.xs,fontWeight:FW.bold,color:'#9C27B0'}}>{AR?'النتيجة':'Result'}</Text>
- <Text style={{flex:2,fontSize:FS.xs,fontWeight:FW.bold,color:'#9C27B0'}}>{AR?'الطبيعي':'Ref'}</Text>
- <View style={{flex:1,alignItems:'center'}}><I name="alert" size={12} color="#9C27B0" /></View>
+ <View style={{flexDirection:'row',backgroundColor:'tokens.purple10',borderRadius:R.sm,padding:SP.sm,marginBottom:SP.sm}}>
+ <Text style={{flex:3,fontSize:FS.xs,fontWeight:FW.bold,color:'tokens.purple'}}>{AR?'الفحص':'Test'}</Text>
+ <Text style={{flex:2,fontSize:FS.xs,fontWeight:FW.bold,color:'tokens.purple'}}>{AR?'النتيجة':'Result'}</Text>
+ <Text style={{flex:2,fontSize:FS.xs,fontWeight:FW.bold,color:'tokens.purple'}}>{AR?'الطبيعي':'Ref'}</Text>
+ <View style={{flex:1,alignItems:'center'}}><I name="alert" size={12} color="tokens.purple" /></View>
  </View>
  {resultRows.length === 0 ? <NEmpty title={AR ? 'لا توجد نتائج مدخلة' : 'No results entered'} sub={AR ? 'أضف نتائج العينة أعلاه قبل إصدار التقرير.' : 'Add sample results above before issuing the report.'} icon="flask" /> : resultRows.map((r,i)=>(
  <View key={`${r.analyte}-${i}`} style={{flexDirection:'row',paddingVertical:SP.sm,borderBottomWidth:StyleSheet.hairlineWidth,borderBottomColor:theme.border,alignItems:'center'}}>
  <Text style={{flex:3,fontSize:FS.sm,color:theme.text}}>{r.analyte}</Text>
- <Text style={{flex:2,fontSize:FS.sm,fontWeight:FW.bold,color:r.isCritical?'#F44336':theme.text}}>{r.value}{r.unit ? ` ${r.unit}` : ''}</Text>
+ <Text style={{flex:2,fontSize:FS.sm,fontWeight:FW.bold,color:r.isCritical?'tokens.error':theme.text}}>{r.value}{r.unit ? ` ${r.unit}` : ''}</Text>
  <Text style={{flex:2,fontSize:FS.xs,color:theme.textSub}}>{r.range}</Text>
- <View style={{flex:1,alignItems:'center'}}><View style={{width:8,height:8,borderRadius:4,backgroundColor:r.isCritical?'#F44336':'#4CAF50'}} /></View>
+ <View style={{flex:1,alignItems:'center'}}><View style={{width:8,height:8,borderRadius:4,backgroundColor:r.isCritical?'tokens.error':'tokens.success'}} /></View>
  </View>
  ))}
  </NCard>
@@ -790,11 +791,11 @@ function ResultReview({ sample, onBack }:{ sample:any; onBack:()=>void }) {
  {([{v:'patient' as const,ar:'المريض فقط',en:'Patient Only'},{v:'both' as const,ar:'المريض + الطبيب',en:'Patient + Doctor'}]).map(opt=>(
  <TouchableOpacity key={opt.v} onPress={()=>setSendTo(opt.v)}
  style={{flexDirection:AR?'row-reverse':'row',alignItems:'center',gap:SP.md,paddingVertical:SP.md,paddingHorizontal:SP.lg,borderRadius:R.lg,borderWidth:1.5,
- backgroundColor:sendTo===opt.v?'#9C27B010':theme.surface2,borderColor:sendTo===opt.v?'#9C27B0':theme.border,marginBottom:SP.sm}}>
- <View style={{width:20,height:20,borderRadius:10,borderWidth:2,borderColor:sendTo===opt.v?'#9C27B0':theme.border,alignItems:'center',justifyContent:'center'}}>
- {sendTo===opt.v && <View style={{width:10,height:10,borderRadius:5,backgroundColor:'#9C27B0'}} />}
+ backgroundColor:sendTo===opt.v?'tokens.purple10':theme.surface2,borderColor:sendTo===opt.v?'tokens.purple':theme.border,marginBottom:SP.sm}}>
+ <View style={{width:20,height:20,borderRadius:10,borderWidth:2,borderColor:sendTo===opt.v?'tokens.purple':theme.border,alignItems:'center',justifyContent:'center'}}>
+ {sendTo===opt.v && <View style={{width:10,height:10,borderRadius:5,backgroundColor:'tokens.purple'}} />}
  </View>
- <Text style={{fontSize:FS.md,color:sendTo===opt.v?'#9C27B0':theme.text,fontWeight:sendTo===opt.v?FW.bold:FW.reg}}>{AR?opt.ar:opt.en}</Text>
+ <Text style={{fontSize:FS.md,color:sendTo===opt.v?'tokens.purple':theme.text,fontWeight:sendTo===opt.v?FW.bold:FW.reg}}>{AR?opt.ar:opt.en}</Text>
  </TouchableOpacity>
  ))}
  </NCard>
@@ -815,11 +816,11 @@ function BundleMgmt({ onBack }:{ onBack:()=>void }) {
  <NScroll>
  <NHeader title={AR?'إدارة الحزم المخفّضة':'Bundle Management'} onBack={onBack} />
  <View style={{flexDirection:'row',gap:SP.md,marginBottom:SP.xl}}>
- <NStatCard icon="◈" label={AR?'إجمالي':'Total'} value={String(bundlesList.length)} color="#9C27B0" style={{flex:1}} />
- <NStatCard icon="" label={AR?'نشطة':'Active'} value={String(bundlesList.filter(b=>b.active).length)} color="#4CAF50" style={{flex:1}} />
+ <NStatCard icon="◈" label={AR?'إجمالي':'Total'} value={String(bundlesList.length)} color="tokens.purple" style={{flex:1}} />
+ <NStatCard icon="" label={AR?'نشطة':'Active'} value={String(bundlesList.filter(b=>b.active).length)} color="tokens.success" style={{flex:1}} />
  </View>
  {bundlesList.map(b=>(
- <NCard key={b.id} style={{marginBottom:SP.md}} accent={b.active?'#9C27B0':undefined}>
+ <NCard key={b.id} style={{marginBottom:SP.md}} accent={b.active?'tokens.purple':undefined}>
  <View style={{flexDirection:AR?'row-reverse':'row',justifyContent:'space-between',marginBottom:SP.md}}>
  <Text style={{fontSize:FS.md,fontWeight:FW.bold,color:theme.text}}>{AR?b.nameAr:b.nameEn}</Text>
  <NBadge label={b.active ? (AR ? 'نشطة' : 'Active') : (AR ? 'موقوفة' : 'Paused')} variant={b.active ? 'success' : 'default'} size="sm" />
@@ -829,7 +830,7 @@ function BundleMgmt({ onBack }:{ onBack:()=>void }) {
  </View>
  <View style={{flexDirection:AR?'row-reverse':'row',justifyContent:'space-between',alignItems:'center'}}>
  <View style={{flexDirection:'row',alignItems:'baseline',gap:SP.sm}}>
- <Text style={{fontSize:FS.xl,fontWeight:FW.xbold,color:'#9C27B0'}}>{b.price}</Text>
+ <Text style={{fontSize:FS.xl,fontWeight:FW.xbold,color:'tokens.purple'}}>{b.price}</Text>
  <Text style={{fontSize:FS.sm,color:theme.textSub,textDecorationLine:'line-through'}}>{b.orig}</Text>
  <Text style={{fontSize:FS.sm,color:theme.textSub}}>{AR?'ريال':'SAR'}</Text>
  </View>
@@ -927,9 +928,9 @@ function HomeCollection({ order, onBack }:{ order:any; onBack:()=>void }) {
         <NHeader title={AR ? 'تتبع مسار الفني' : 'Track Technician'} onBack={onBack} />
         
         {/* Map View */}
-        <View style={{ height: 250, backgroundColor: '#E3F2FD', borderRadius: R.xl, marginBottom: SP.lg, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', borderColor: theme.border, borderWidth: 1 }}>
-          <Text style={{ fontSize: FS.xl, color:'#1976D2', fontWeight: FW.bold }}> GPS TRACKING ACTIVE</Text>
-          <Text style={{ fontSize: FS.md, color: '#1565C0', marginTop: SP.md }}>{AR ? 'الرجاء الانتظار، يتم إرسال الموقع...' : 'Sending location...'}</Text>
+        <View style={{ height: 250, backgroundColor: 'tokens.infoSurface', borderRadius: R.xl, marginBottom: SP.lg, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', borderColor: theme.border, borderWidth: 1 }}>
+          <Text style={{ fontSize: FS.xl, color:'tokens.info', fontWeight: FW.bold }}> GPS TRACKING ACTIVE</Text>
+          <Text style={{ fontSize: FS.md, color: 'tokens.info', marginTop: SP.md }}>{AR ? 'الرجاء الانتظار، يتم إرسال الموقع...' : 'Sending location...'}</Text>
         </View>
 
         <NCard style={{ marginBottom: SP.md }}>
@@ -1032,13 +1033,13 @@ function QRSampleLabel({ sample, onBack }:{ sample:any; onBack:()=>void }) {
  <NScroll>
  <NHeader title={AR?'ملصق QR للعينة':'QR Sample Label'} onBack={onBack} />
  <NCard style={{alignItems:'center',padding:SP.xxl,marginBottom:SP.xl}}>
- <View style={{width:160,height:160,borderRadius:R.xl,borderWidth:3,borderColor:'#9C27B0',alignItems:'center',justifyContent:'center'}}>
- <I name="qr" size={60} color="#9C27B0" />
+ <View style={{width:160,height:160,borderRadius:R.xl,borderWidth:3,borderColor:'tokens.purple',alignItems:'center',justifyContent:'center'}}>
+ <I name="qr" size={60} color="tokens.purple" />
  </View>
  <Text style={{fontSize:FS.lg,fontWeight:FW.bold,color:theme.text,marginTop:SP.xl}}>{sample?.barcode??'SMP-2025-XXX'}</Text>
  <Text style={{fontSize:FS.sm,color:theme.textSub,marginTop:SP.xs}}>{sample?.patient??'—'}</Text>
  <View style={{flexDirection:'row',flexWrap:'wrap',gap:SP.xs,justifyContent:'center',marginTop:SP.md}}>
- {(sample?.tests??['cbc']).map((tid:string)=>{const t=lookupTest(tid);return <View key={tid} style={{backgroundColor:'#9C27B010',paddingHorizontal:SP.sm,paddingVertical:2,borderRadius:R.full,borderWidth:1,borderColor:'#9C27B030'}}><Text style={{fontSize:FS.xs,color:'#9C27B0'}}>{t?(AR?t.ar:t.en):tid}</Text></View>;})}
+ {(sample?.tests??['cbc']).map((tid:string)=>{const t=lookupTest(tid);return <View key={tid} style={{backgroundColor:'tokens.purple10',paddingHorizontal:SP.sm,paddingVertical:2,borderRadius:R.full,borderWidth:1,borderColor:'tokens.purple30'}}><Text style={{fontSize:FS.xs,color:'tokens.purple'}}>{t?(AR?t.ar:t.en):tid}</Text></View>;})}
  </View>
  </NCard>
  <View style={{gap:SP.md}}>
@@ -1077,7 +1078,7 @@ function TATTracker({ onBack }:{ onBack:()=>void }) {
  {loading ? <ActivityIndicator color={theme.primary} style={{ marginTop: 40 }} /> : samples.length === 0 ? (
  <NEmpty title={AR ? 'لا توجد عينات بعد' : 'No samples yet'} icon="flask" />
  ) : (<>
- <NStatCard icon="◷" label={AR ? 'مكتملة الإرسال' : 'Sent'} value={`${pct}%`} color="#4CAF50" />
+ <NStatCard icon="◷" label={AR ? 'مكتملة الإرسال' : 'Sent'} value={`${pct}%`} color="tokens.success" />
  {[['received', AR ? 'مستلمة' : 'Received'], ['analyzing', AR ? 'قيد التحليل' : 'Analyzing'], ['result_ready', AR ? 'النتيجة جاهزة' : 'Result ready'], ['sent', AR ? 'مُرسلة' : 'Sent']].map(([st, label]) => (
  <NCard key={st} style={{ marginBottom: SP.sm }}>
  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{label}: {byStage(st).length}</Text>
@@ -1208,12 +1209,12 @@ function LabInsurance({ onBack }:{ onBack:()=>void }) {
  {loading ? <Text style={{textAlign: 'center', color: theme.textSub, marginTop: 50}}>{AR ? 'جاري التحميل...' : 'Loading...'}</Text> : (
  <>
  <View style={{flexDirection:'row',gap:SP.md,marginBottom:SP.xl}}>
- <NStatCard icon="◔" label={AR?'انتظار':'Pending'} value={String(orders.filter(c=>c.insurance_status==='pending').length)} color="#FF9800" style={{flex:1}} />
- <NStatCard icon="" label={AR?'معالجة':'Processed'} value={String(orders.filter(c=>c.insurance_status!=='pending'&&c.insurance_status!=='none').length)} color="#4CAF50" style={{flex:1}} />
+ <NStatCard icon="◔" label={AR?'انتظار':'Pending'} value={String(orders.filter(c=>c.insurance_status==='pending').length)} color="tokens.warning" style={{flex:1}} />
+ <NStatCard icon="" label={AR?'معالجة':'Processed'} value={String(orders.filter(c=>c.insurance_status!=='pending'&&c.insurance_status!=='none').length)} color="tokens.success" style={{flex:1}} />
  </View>
  {orders.map(cl=>(
  <TouchableOpacity key={cl.id} onPress={() => setSelectedOrder(cl)}>
- <NCard style={{marginBottom:SP.md}} accent={cl.insurance_status==='approved'||cl.insurance_status==='partial_approval'?'#4CAF50':cl.insurance_status==='rejected'?'#F44336':'#FF9800'}>
+ <NCard style={{marginBottom:SP.md}} accent={cl.insurance_status==='approved'||cl.insurance_status==='partial_approval'?'tokens.success':cl.insurance_status==='rejected'?'tokens.error':'tokens.warning'}>
  <View style={{flexDirection:AR?'row-reverse':'row',justifyContent:'space-between',marginBottom:SP.sm}}>
  <Text style={{fontSize:FS.md,fontWeight:FW.bold,color:theme.text}}>{cl.patient_name}</Text>
  <NBadge label={cl.insurance_status==='approved'||cl.insurance_status==='partial_approval'?(AR?'مقبولة':'Approved'):cl.insurance_status==='rejected'?(AR?'مرفوضة':'Rejected'):(AR?'انتظار':'Pending')} variant={cl.insurance_status==='approved'||cl.insurance_status==='partial_approval'?'success':cl.insurance_status==='rejected'?'danger':'warning'} size="xs" />
@@ -1247,7 +1248,7 @@ function LabSettings({ onLogout, onNavigate }:{ onLogout:()=>void; onNavigate:(s
  </View>
  <ScrollView contentContainerStyle={{padding:SP.xl,paddingBottom:100}}>
  <NCard style={{marginBottom:SP.xl,flexDirection:AR?'row-reverse':'row',gap:SP.lg,alignItems:'center'}}>
- <IBg name="lab" size={22} color="#9C27B0" bg="#9C27B012" />
+ <IBg name="lab" size={22} color="tokens.purple" bg="tokens.purple12" />
  <View style={{flex:1}}>
  <Text style={{fontSize:FS.xl,fontWeight:FW.bold,color:theme.text,textAlign:AR?'right':'left'}}>{AR?'معمل نبضة الطبي':'Nabdah Medical Lab'}</Text>
  <NBadge label={AR?'نشط':'Active'} variant="success" size="xs" style={{marginTop:SP.xs}} />
@@ -1346,7 +1347,7 @@ const s = StyleSheet.create({
  bottomNavWrap:{flexDirection:'row',borderTopWidth:StyleSheet.hairlineWidth,paddingBottom:28,paddingTop:SP.sm},
  navTab:{flex:1,alignItems:'center',gap:2},
  navIconWrap:{width:40,height:40,borderRadius:20,alignItems:'center',justifyContent:'center',position:'relative'},
- navBadge:{position:'absolute',top:-2,right:-2,backgroundColor:'#F44336',width:16,height:16,borderRadius:8,alignItems:'center',justifyContent:'center'},
+ navBadge:{position:'absolute',top:-2,right:-2,backgroundColor:'tokens.error',width:16,height:16,borderRadius:8,alignItems:'center',justifyContent:'center'},
  navBadgeText:{color:'#FFF',fontSize:9,fontWeight:'700'},
  navLabel:{fontSize:10},
 });

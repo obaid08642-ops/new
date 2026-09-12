@@ -19,6 +19,7 @@ import { I } from '../../components/icons';
 import { Biometric, Validate, RateLimiter, buildHeaders, Vault, SK, Tokens } from '../../security/Security';
 import { SP, R, FS, FW, PROVIDER_TYPES, LIMITS, API_BASE } from '../../constants';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { tokens } from '../../theme/tokens';
 
 const { width: W, height: H } = Dimensions.get('window');
 
@@ -282,8 +283,8 @@ export function WelcomeScreen({
  <View style={{ flexDirection: 'row', justifyContent: 'center', gap: SP.xl, marginTop: SP.lg }}>
  {[
  { icon: 'lock', color: theme.primary, ar: 'تشفير آمن', en: 'Secure Encryption' },
- { icon: 'shield', color: '#4CAF50', ar: 'معتمد MOH', en: 'MOH Certified' },
- { icon: 'check', color: '#009688', ar: 'سعودي 100%', en: '100% Saudi' },
+ { icon: 'shield', color: 'tokens.success', ar: 'معتمد MOH', en: 'MOH Certified' },
+ { icon: 'check', color: 'tokens.mintDeep', ar: 'سعودي 100%', en: '100% Saudi' },
  ].map((b, i) => (
  <View key={i} style={{ alignItems: 'center', gap: 4 }}>
  <I name={b.icon as any} size={20} color={b.color} />

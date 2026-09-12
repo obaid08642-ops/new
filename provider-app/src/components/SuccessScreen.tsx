@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, SafeAreaView, Dimensions } from 'react-na
 import { I as NIcon } from './icons';
 import { useTheme, useLang } from '../context';
 import { FS, FW, R, SP } from '../constants';
+import { tokens } from '../theme/tokens';
 
 interface SuccessScreenProps {
   onDone: () => void;
@@ -27,8 +28,8 @@ export const SuccessScreen = ({ onDone, title, message }: SuccessScreenProps) =>
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: SP.xl }}>
         
         <View style={{ marginBottom: SP.xxl, alignItems: 'center' }}>
-          <View style={{ width: 120, height: 120, borderRadius: 60, backgroundColor: '#4CAF50' + '20', alignItems: 'center', justifyContent: 'center', marginBottom: SP.lg }}>
-            <NIcon name="check-circle" size={64} color="#4CAF50" />
+          <View style={{ width: 120, height: 120, borderRadius: 60, backgroundColor: 'tokens.success' + '20', alignItems: 'center', justifyContent: 'center', marginBottom: SP.lg }}>
+            <NIcon name="check-circle" size={64} color="tokens.success" />
           </View>
           
           <Text style={{ fontSize: 28, fontWeight: FW.bold, color: theme.text, marginBottom: SP.md, textAlign: 'center' }}>
