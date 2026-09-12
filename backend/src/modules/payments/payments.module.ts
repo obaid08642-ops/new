@@ -210,6 +210,31 @@ export class PaymentsService {
     };
   }
 
+  /** Public payment capabilities for a consultation appointment (card path).
+   *  Mirrors getPharmacyCapabilities: server-computed amount, gateway-driven
+   *  methods, owner-checked. P0-02: this endpoint was referenced by mobile +
+   *  web but had no handler (404 blocked all card checkouts). */
+  async getConsultationCapabilities(user: any, appointmentId: string) {
+    const appt: any = await this.appts.findOne({ id: appointmentId }).lean();
+    if (!appt) throw new NotFoundException('booking_not_found');
+    if (appt.patient_id !== user?.id && user?.role !== 'admin') throw new BadRequestException('not_authorized');
+    if (appt.payment_status === 'paid') throw new BadRequestException('booking_already_paid');
+    if (appt.payment_method && appt.payment_method !== 'card') throw new BadRequestException('card_payment_not_applicable');
+    const amount = Math.round(Number(appt.total_price ?? 0) * 100) / 100;
+    if (!Number.isFinite(amount) || amount <= 0) throw new BadRequestException('invalid_booking_amount');
+    const configured = !!(process.env.MOYASAR_API_KEY || process.env.STRIPE_SECRET_KEY || process.env.TAP_API_KEY);
+    const methods = configured
+      ? [{ id: 'card', kind: 'online' }, { id: 'apple-pay', kind: 'online' }, { id: 'google-pay', kind: 'online' }]
+      : [];
+    return {
+      booking_id: appt.id,
+      amount,
+      currency: 'SAR',
+      purpose: 'consultation_card_payment',
+      methods,
+    };
+  }
+
   /**
    * After a pharmacy transaction is verified paid: mark the governed order and
    * emit the gateway-paid event that PharmacyPaymentEvidenceService turns into
@@ -497,6 +522,7 @@ export class PaymentsController {
   @Post('refund/:txn') refund(@CurrentUser() u: any, @Param('txn') txn: string, @Body() b: { amount?: number; reason?: string }) { return this.svc.refundPayment(u, txn, b.amount, b.reason); }
   @Post('capture/:txn') capture(@CurrentUser() u: any, @Param('txn') txn: string) { return this.svc.capturePayment(u, txn); }
   @Get('pharmacy/:orderId/capabilities') pharmacyCapabilities(@CurrentUser() u: any, @Param('orderId') orderId: string) { return this.svc.getPharmacyCapabilities(u, orderId); }
+  @Get('consultation/:id/capabilities') consultationCapabilities(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.getConsultationCapabilities(u, id); }
   @Get('booking/:type/:id') list(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string) { return this.svc.listForBooking(u, t, id); }
 }
 
