@@ -8,8 +8,8 @@ in the P column means the requirement cannot be closed until an external depende
 
 | Status | Count | Rows |
 |---|---|---|
-| PASS | 52 | R1–R4 (ex R8 group), R7–R12, R20–R23, R24, R26, R27, R29–R31, R32–R48 (17 merged), R52, R54, R55, R57, R64–R67, R69, R70, R72–R75, R77 |
-| PARTIAL | 21 | R5, R6, R13–R19, R25, R50, R51, R53, R58–R63 (6), R68, R71 |
+| PASS | 54 | R1–R4, R7–R12, R20–R24, R26, R27, R29–R31, R32–R48 (17 merged), R52–R55, R57, R64–R70, R72–R75, R77 |
+| PARTIAL | 19 | R5, R6, R13–R19, R25, R50, R51, R58–R63 (6), R71 (R28→BLOCKED) |
 | UNCERTAIN | 2 | R49, R56 |
 | FAIL | 0 | — (R66 closed 2026-09-12 via P0-01) |
 | BLOCKED | 2 | R28 (external DNS), R76 (app-store metadata) |
@@ -100,7 +100,7 @@ Note: Expo drift — patient v57 / provider v54 (unification scheduled P6-D, see
 | R1 | PARTIAL | P1 | Orphan legacy admin SPA to reconcile/drop |
 
 ## Closed rows
-- **PASS (52):** + R2, R9, R20, R24, R69, R70, R77 (second re-grade 2026-09-12: slug-history/301, IndexNow push, DLQ visibility, merchandising layer, geo seeds, mock sweep).
+- **PASS (54):** + R53 (medical-content-methodology.md), R68 (administrative — covered by R22–R24).
 - **FAIL (0):** none — last FAIL (R66) closed 2026-09-12.
 
 ## BLOCKED (external) — cannot close without dependencies
