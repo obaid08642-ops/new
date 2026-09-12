@@ -2,7 +2,7 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 
 const root = process.cwd();
-const sourceRoots = ["app", "client/src", "components-next", "lib", "server", "shared"];
+const sourceRoots = ["app", "components-next", "lib"];
 const files = [];
 function collect(dir) {
   for (const entry of readdirSync(dir)) {
