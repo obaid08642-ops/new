@@ -1,4 +1,5 @@
 import { Controller, Post, Get, Body, HttpCode } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { McpService, MCP_TOOLS } from './mcp.service';
 import { Public } from '../../common/auth.guard';
 
@@ -9,6 +10,7 @@ export class McpController {
   @Public()
   @Post()
   @HttpCode(200)
+  @Throttle({ default: { limit: 30, ttl: 60000 } })
   async handleRpc(@Body() body: any) {
     return this.mcpService.handleRpcRequest(body);
   }

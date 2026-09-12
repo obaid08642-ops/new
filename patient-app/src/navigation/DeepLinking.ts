@@ -49,6 +49,21 @@ export const deepLinkingConfig = {
       // Feature screens
       'pharmacy/[id]': 'product/:id',
       'consultations/doctor/[id]': 'doctor/:id',
+      // Journey screens (R26 expansion — every screen is addressable; explicit map for shared links)
+      'consultations/appointments': 'appointments',
+      'consultations/appointment-detail': 'appointments/:id',
+      'consultations/summary': 'appointments/:id/summary',
+      'consultations/booking-status': 'booking/:id',
+      'pharmacy/order-tracking': 'orders/:id/tracking',
+      'pharmacy/order-confirm': 'orders/:id',
+      'diagnostics/my-results': 'results',
+      'nursing/visits': 'nursing/visits',
+      'nursing/live-tracking': 'nursing/visits/:id/tracking',
+      'reports/timeline': 'reports/timeline',
+      'reports/passport': 'reports/passport',
+      'family/emergency-contacts': 'family/emergency',
+      'wallet': 'wallet',
+      'search': 'search',
       // Modals & Overlays
       'guided-tour': 'tour',
       // Catch-all
