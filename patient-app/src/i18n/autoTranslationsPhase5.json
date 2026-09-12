@@ -22043,6 +22043,18 @@
       "hi": "— नब्ज़ ऐप द्वारा",
       "bn": "— নবদ অ্যাপের মাধ্যমে",
       "fil": "— sa pamamagitan ng Nabd app"
+    },
+    "ضغط الدم الانقباطي": {
+      "ar": "ضغط الدم الانقباطي",
+      "en": "Systolic blood pressure"
+    },
+    "يجب أن يكون عمر المستخدم 18 عاماً على الأقل لإنشاء حساب. يلتزم المستخدم بتقديم معلومات صحيحة ودقيقة عند التسجيل وعدم مشاركة بيانات الدخول مع أي طرف آخر. يُحظر استخدام التطبيق لأي أغراض غير مشروعة أو مخالفة للأنظمة المعمول بها في المملكة العربية السعودية. تحتفظ نبض بلس بالحق في تعليق أو إلغاء أي حساب يُخالف هذه الشروط دون إشعار مسبق.": {
+      "ar": "يجب أن يكون عمر المستخدم 18 عاماً على الأقل لإنشاء حساب. يلتزم المستخدم بتقديم معلومات صحيحة ودقيقة عند التسجيل وعدم مشاركة بيانات الدخول مع أي طرف آخر. يُحظر استخدام التطبيق لأي أغراض غير مشروعة أو مخالفة للأنظمة المعمول بها في المملكة العربية السعودية. تحتفظ نبض بلس بالحق في تعليق أو إلغاء أي حساب يُخالف هذه الشروط دون إشعار مسبق.",
+      "en": "Users must be at least 18 years old to create an account. Users must provide accurate information at registration and must not share login credentials with any third party. Using the app for any unlawful purpose or in violation of the regulations of Saudi Arabia is prohibited. Nabd Plus reserves the right to suspend or terminate any violating account without prior notice."
+    },
+    "٠٢:٣٠": {
+      "ar": "٠٢:٣٠",
+      "en": "02:30"
     }
   }
 }
