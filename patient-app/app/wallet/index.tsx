@@ -97,7 +97,7 @@ export default function WalletHubScreen() {
                   {t.createdAt ? new Date(t.createdAt).toLocaleDateString(dateLocale(), { year: 'numeric', month: 'short', day: 'numeric' }) : ''}
                 </AppText>
               </View>
-              <AppText variant="h6" color={credit ? colors.success : colors.danger}>
+              <AppText variant="h6" color={credit ? colors.success : colors.error}>
                 {credit ? '+' : ''}{Number.isFinite(amt) ? amt.toFixed(2) : '—'} ر.س
               </AppText>
             </Card>
