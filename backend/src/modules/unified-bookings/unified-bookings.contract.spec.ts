@@ -34,7 +34,7 @@ describe('UnifiedBookingsService patient-web contract bridge', () => {
 
     await expect(service.createConsultationContract(USER, {
       doctor_id: 'doctor-1', slot_id: SLOT, type: 'clinic', notes: 'follow-up', payment_method_id: 'cash',
-    })).resolves.toEqual({ booking_id: 'booking-1', status: 'confirmed' });
+    })).resolves.toEqual({ booking_id: 'booking-1', status: 'confirmed', payment_status: null, insurance_request_id: null });
 
     expect(service.slots.slotsForDate).toHaveBeenCalledWith(
       { id: 'doctor-1' },
@@ -46,11 +46,33 @@ describe('UnifiedBookingsService patient-web contract bridge', () => {
       service_type: 'clinic',
       slot_start: SLOT,
       patient_notes: 'follow-up',
+      symptoms: undefined,
+      visit_location: undefined,
       payment_method: 'cash',
+      insurance_provider: undefined,
+      insurance_member_id: undefined,
+      for_member_id: undefined,
     });
   });
 
-  it('rejects non-cash payment identifiers without invoking appointment creation', async () => {
+  it('passes card and insurance through to the shared appointment service (unified contract)', async () => {
+    const service = serviceFor({
+      booking: { id: 'booking-2', status: 'PENDING', payment_status: 'pending', insurance_request_id: 'ins-9' },
+    });
+
+    await expect(service.createConsultationContract(USER, {
+      doctor_id: 'doctor-1', slot_id: SLOT, type: 'video',
+      payment_method_id: 'insurance', insurance_provider: 'bupa', insurance_member_id: 'M1',
+    })).resolves.toEqual({ booking_id: 'booking-2', status: 'pending', payment_status: 'pending', insurance_request_id: 'ins-9' });
+
+    expect(service.apptSvc.create).toHaveBeenCalledWith(USER, expect.objectContaining({
+      payment_method: 'insurance',
+      insurance_provider: 'bupa',
+      insurance_member_id: 'M1',
+    }));
+  });
+
+  it('rejects unknown payment identifiers without invoking appointment creation', async () => {
     const service = serviceFor();
 
     await expect(service.createConsultationContract(USER, {
