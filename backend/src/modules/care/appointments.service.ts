@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, NotFoundException, ForbiddenException, ConflictException, Logger, Inject } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException, ForbiddenException, ConflictException, Logger, Inject, Optional } from '@nestjs/common';
 import { Model, Connection } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
@@ -7,6 +7,7 @@ import { ProviderProfile, ProviderProfileDocument } from '../../schemas/provider
 import { UserRole, ProviderType, ProviderStatus } from '../../common/enums';
 import { WorkflowEngineService } from '../workflow-engine/workflow-engine.module';
 import { InsuranceFlowService } from '../insurance-engine/insurance-engine.module';
+import { SlotLocksService } from '../slot-locks/slot-locks.module';
 import { AppointmentRepository } from "./repositories/appointment.repository";
 import { ProviderProfileRepository } from "./repositories/providerprofile.repository";
 
@@ -34,6 +35,7 @@ export class AppointmentsService {
     private events: EventEmitter2,
     private engine: WorkflowEngineService,
     private insurance: InsuranceFlowService,
+    @Optional() private locks?: SlotLocksService,
   ) {}
 
   /**
@@ -66,6 +68,7 @@ export class AppointmentsService {
     insurance_provider?: string;
     insurance_member_id?: string;
     for_member_id?: string; // family booking on behalf of a member
+    slot_lock_id?: string; // optional 10-min hold from POST /slot-locks/reserve (consumed on success, released on failure)
   }) {
     if (!body?.doctor_id || !body?.service_type || !body?.slot_start) {
       throw new BadRequestException('doctor_id, service_type, slot_start required');
@@ -117,6 +120,18 @@ export class AppointmentsService {
     });
     if (overlapping) {
       throw new ConflictException('slot_already_booked_or_conflicts_with_buffer');
+    }
+
+    // Optional slot hold (POST /slot-locks/reserve): validated before any
+    // write so a mismatched/expired lock fails fast without side effects.
+    const lockId: string | undefined = (body as any)?.slot_lock_id;
+    if (lockId) {
+      if (!this.locks) throw new BadRequestException('slot_lock_not_supported');
+      await this.locks.validateForBooking(user, lockId, {
+        provider_id: doctor.id,
+        slot_start: slotStart,
+        booking_kind: 'consultation',
+      });
     }
 
     // Home visits don't require an inline location — patient can refine later from /tracking
@@ -179,6 +194,13 @@ export class AppointmentsService {
         ],
       });
 
+      // Bind the validated hold to this booking. Best-effort: the booking is
+      // already persisted, so a confirm failure must not fail the booking —
+      // the 10-minute TTL reaps the dangling hold automatically.
+      if (lockId && this.locks) {
+        await this.locks.confirm(user, lockId, appt.id).catch(() => null);
+      }
+
       await this.engine.announceCreated({ kind: 'consultation', entity_id: appt.id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: patientId, meta: { doctor_id: doctor.id, service_type: body.service_type, slot_start: slotStart, price, total_price } });
 
       // Card payments stay PENDING until payment.completed webhook confirms.
@@ -204,6 +226,9 @@ export class AppointmentsService {
       if (out && insurance_request_id) out.insurance_request_id = insurance_request_id;
       return out;
     } catch (e: any) {
+      // Release the validated hold so the user can retry immediately instead
+      // of waiting out the 10-minute TTL. Never masks the original error.
+      if (lockId && this.locks) await this.locks.releaseQuietly(user, lockId);
       if (e?.code === 11000) {
         throw new ConflictException('slot_already_booked');
       }

@@ -18,11 +18,13 @@ import { AppointmentRepository } from "./repositories/appointment.repository";
 import { FacilityRepository } from "./repositories/facility.repository";
 import { ProviderProfileRepository } from "./repositories/providerprofile.repository";
 import { UserRepository } from "./repositories/user.repository";
+import { SlotLocksModule } from "../slot-locks/slot-locks.module";
 
 @Module({
   imports: [
     WorkflowEngineModule,
     InsuranceEngineModule,
+    SlotLocksModule,
     MongooseModule.forFeature([
       { name: ProviderProfile.name, schema: ProviderProfileSchema },
       { name: User.name, schema: UserSchema },
