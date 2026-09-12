@@ -15,6 +15,16 @@ describe('JwtAuthGuard', () => {
   let mockModel: any;
   let impersonationSessions: jest.Mocked<ImpersonationSessionService>;
 
+  // The guard reads process.env.JWT_SECRET at call time; unit tests must not
+  // depend on ambient CI env (missing secret collapses every failure mode
+  // into 'Invalid token', masking the real assertions).
+  const OLD_SECRET = process.env.JWT_SECRET;
+  beforeAll(() => { process.env.JWT_SECRET = 'unit-test-secret-min-32-chars-0123456789abcdef'; });
+  afterAll(() => {
+    if (OLD_SECRET === undefined) delete process.env.JWT_SECRET;
+    else process.env.JWT_SECRET = OLD_SECRET;
+  });
+
   beforeEach(() => {
     jwtService = {
       verifyAsync: jest.fn(),
