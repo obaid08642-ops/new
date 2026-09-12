@@ -17,6 +17,7 @@ export default function BroadcastStatusScreen() {
   const [offers, setOffers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [acceptingBid, setAcceptingBid] = useState<string | null>(null);
+  const [cancelling, setCancelling] = useState(false);
 
   const load = useCallback(async () => {
     if (!orderId) {
@@ -104,6 +105,32 @@ export default function BroadcastStatusScreen() {
             </Card>
           ))}
         {orderId && !loading && offers.length > 0 && <Button label="تحديث العروض يدوياً" variant="secondary" size="md" onPress={() => void load()} />}
+        {orderId && !loading && (
+          <Button
+            label="إلغاء الطلب"
+            variant="outline"
+            size="md"
+            loading={cancelling}
+            disabled={cancelling}
+            onPress={() => {
+              if (cancelling) return;
+              showLocalizedAlert('إلغاء الطلب', 'سيُرسل طلب الإلغاء إلى الخادم. لا يغيّر التطبيق الحالة محلياً قبل قبول الاستجابة.', [
+                { text: 'تراجع', style: 'cancel' },
+                { text: 'تأكيد الإلغاء', style: 'destructive', onPress: () => void (async () => {
+                  setCancelling(true);
+                  try {
+                    await apiFetch(`/patient/pharmacy/orders/${orderId}/cancel`, { method: 'POST', headers: { 'Idempotency-Key': `mobile-pharmacy-cancel-${Date.now()}-${Math.random().toString(36).slice(2)}` }, body: JSON.stringify({ reason: 'patient_requested' }) });
+                    router.replace('/(tabs)/pharmacy');
+                  } catch (error: any) {
+                    showLocalizedAlert('تعذر إلغاء الطلب', error?.message || 'حاول مرة أخرى');
+                  } finally {
+                    setCancelling(false);
+                  }
+                })() },
+              ]);
+            }}
+          />
+        )}
       </ScrollView>
     </View>
   );
