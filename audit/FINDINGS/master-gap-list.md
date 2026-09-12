@@ -8,10 +8,10 @@ in the P column means the requirement cannot be closed until an external depende
 
 | Status | Count | Rows |
 |---|---|---|
-| PASS | 22 | R4, R8, R23, R32–R48 (17 merged), R52, R73 |
-| PARTIAL | 49 | all remaining closed rows except FAIL/UNCERTAIN/BLOCKED below |
-| UNCERTAIN | 3 | R49, R56, R77 |
-| FAIL | 1 | R66 |
+| PASS | 23 | R4, R8, R23, R32–R48 (17 merged), R52, R66, R73 |
+| PARTIAL | 50 | all remaining closed rows except UNCERTAIN/BLOCKED below |
+| UNCERTAIN | 2 | R49, R56 |
+| FAIL | 0 | — (R66 closed 2026-09-12 via P0-01) |
 | BLOCKED | 2 | R28 (external DNS), R76 (app-store metadata) |
 | in-progress | 5 | R78–R82 (this plan/audit) |
 
@@ -74,7 +74,7 @@ CI (red, `nabdah-plus/full-completion`): `src/common/auth.guard.spec.ts` (impers
 | R71 | PARTIAL | P2 | L55 |
 | R74 | PARTIAL | P2 | L58 |
 | R75 | PARTIAL | P3 | L59 |
-| R77 | UNCERTAIN | P2 | L61 |
+| R77 | PARTIAL | P2 | ranking engine live + isolated from manual (`product-ranking.service.ts:28`); governed manual-merchandising UI absent |
 
 CI (red): `app/api/auth/convert-guest/route.ts:38-39` — `string | undefined` not assignable to
 `string`.
@@ -100,8 +100,8 @@ Note: Expo drift — patient v57 / provider v54 (unification scheduled P6-D, see
 | R1 | PARTIAL | P1 | Orphan legacy admin SPA to reconcile/drop |
 
 ## Closed rows
-- **PASS (22):** R4, R8 (R8–R23 group), R32–R48 (17 merged requirements), R52, R73.
-- **FAIL (1):** R66 — P0, L50.  Remaining FAIL requirement (highest-visibility).
+- **PASS (23):** R4, R8 (R8–R23 group), R32–R48 (17 merged requirements), R52, R66 (P0-01 `5101f4c4`), R73.
+- **FAIL (0):** none — last FAIL (R66) closed 2026-09-12.
 
 ## BLOCKED (external) — cannot close without dependencies
 - **R28** — MCP public DNS `mcp.nabd.plus` must resolve.

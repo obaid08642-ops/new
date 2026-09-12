@@ -1,5 +1,6 @@
 import http from 'k6/http';
-import { check, sleep, group } from 'k6';
+import { check, sleep, group, Trend } from 'k6';
+const entityTtfb = new Trend('entity_ttfb', true);
 export const options = {
   stages: [
     { duration: '30s', target: 100 },
@@ -9,6 +10,7 @@ export const options = {
   thresholds: {
     http_req_failed: ['rate<0.005'],
     http_req_duration: ['p(95)<600', 'p(99)<1200'],
+    entity_ttfb: ['p(95)<150'],
   },
 };
 const BASE = __ENV.BASE || 'https://www.nabd.plus';
@@ -32,6 +34,13 @@ export default function () {
     const idemp = `k6-${__VU}-${__ITER}`;
     const r = http.post(`${API}/support/requests`, JSON.stringify({ subject: 'k6', message: 'load' }), { headers: { 'Content-Type': 'application/json', Cookie: ck, 'idempotency-key': idemp } });
     check(r, { 'support 201': (r) => r.status === 201 });
+  });
+  group('R49 entity TTFB + catalog', () => {
+    const e = http.get(`${BASE}/ar/c`, { tags: { kind: 'entity' } });
+    check(e, { 'entity 200': (r) => r.status === 200 });
+    entityTtfb.add(e.timings.waiting);
+    const c = http.get(`${BASE}/sitemaps/products/ar/1.xml`, { tags: { kind: 'catalog' } });
+    check(c, { 'catalog sitemap 200': (r) => r.status === 200 });
   });
   sleep(1);
 }
