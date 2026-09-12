@@ -16,20 +16,57 @@ describe('LiveKit follow-up ownership fixes', () => {
     expect(events.emit).not.toHaveBeenCalled();
   });
 
-  it('uses the UUID business id for markNoShow', async () => {
+  it('uses the doctor account id for markNoShow and records history', async () => {
     const save = jest.fn().mockResolvedValue(undefined);
-    const findOne = jest.fn().mockResolvedValue({ id: 'appt-uuid-1', status: 'CHECKED_IN', save });
+    const findOne = jest.fn().mockResolvedValue({ id: 'appt-uuid-1', status: 'CHECKED_IN', state_history: [], save });
     const service = new LiveKitService({ findOne } as any, conn, events as any);
 
-    await expect(service.markNoShow('provider-1', 'appt-uuid-1')).resolves.toEqual({ success: true, message: 'Marked as no-show' });
-    expect(findOne).toHaveBeenCalledWith({ id: 'appt-uuid-1', provider_id: 'provider-1' });
+    await expect(service.markNoShow('doctor-user-1', 'appt-uuid-1')).resolves.toEqual({ success: true, message: 'Marked as no-show', previous_status: 'CHECKED_IN' });
+    expect(findOne).toHaveBeenCalledWith({ id: 'appt-uuid-1', doctor_user_id: 'doctor-user-1' });
     expect(save).toHaveBeenCalled();
+  });
+
+  it('rejects markNoShow for terminal appointments', async () => {
+    const findOne = jest.fn().mockResolvedValue({ id: 'appt-uuid-1', status: 'COMPLETED', save: jest.fn() });
+    const service = new LiveKitService({ findOne } as any, conn, events as any);
+    await expect(service.markNoShow('doctor-user-1', 'appt-uuid-1')).rejects.toThrow(BadRequestException);
   });
 
     it('rejects markNoShow when the UUID is not owned by the provider', async () => {
     const findOne = jest.fn().mockResolvedValue(null);
     const service = new LiveKitService({ findOne } as any, conn, events as any);
-    await expect(service.markNoShow('provider-1', 'unknown-appointment')).rejects.toThrow(NotFoundException);
+    await expect(service.markNoShow('doctor-user-1', 'unknown-appointment')).rejects.toThrow(NotFoundException);
+  });
+
+  it('rejects initiateCall for dead appointments (unified video contract)', async () => {
+    const findOne = jest.fn().mockReturnValue({
+      lean: jest.fn().mockResolvedValue({
+        id: 'appt-1', patient_id: 'patient-1', doctor_user_id: 'doctor-1',
+        service_type: 'video', status: 'CANCELLED',
+      }),
+    });
+    const service = new LiveKitService({ findOne } as any, conn, events as any);
+    await expect(service.initiateCall('patient-1', 'Patient', 'doctor-1', 'video', 'appt-1'))
+      .rejects.toThrow('appointment_not_active');
+  });
+
+  it('fails joinCall when the appointment died after session creation', async () => {
+    const sessions = {
+      findOne: jest.fn().mockResolvedValue({ id: 'call_1', appointment_id: 'appt-1', patient_id: 'patient-1', provider_id: 'doctor-1', room_name: 'room-1', status: 'INITIATED' }),
+      updateOne: jest.fn().mockResolvedValue({}),
+    };
+    const appointments = {
+      findOne: jest.fn().mockReturnValue({
+        lean: jest.fn().mockResolvedValue({ id: 'appt-1', status: 'COMPLETED' }),
+      }),
+    };
+    const conn2: any = { collection: jest.fn().mockImplementation((name: string) => name === 'callsessions' ? sessions : { findOne: jest.fn() }) };
+    const service = new LiveKitService(appointments as any, conn2, events as any);
+    await expect(service.joinCall('call_1', 'patient-1', 'Patient')).rejects.toThrow('appointment_not_active');
+    expect(sessions.updateOne).toHaveBeenCalledWith(
+      { id: 'call_1' },
+      expect.objectContaining({ $set: expect.objectContaining({ status: 'FAILED' }) }),
+    );
   });
 
   it('creates a booking-room token with a ten-minute expiry', async () => {
