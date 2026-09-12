@@ -39,7 +39,7 @@
 | R50 | الأمن | PARTIAL | SecureStore/httpOnly/CSRF/guards/honeypots ✅ BUT اختراق فعلي + فروع أمنية غير مندمجة + IDOR شامل — P11 | P0 |
 | R51 | خصوصية PHI | PARTIAL | default-deny + فحوص مالكية ✅ + sitemaps بلا PHI ✅؛ تدقيق تسرب شامل P11 | P0 |
 | R52 | الأدمن | PASS | 51 صفحة حية + Guard + بروكسي محروس + انتحال منضبط (فجوة 14 مساراً تُسد P5) | P1 |
-| R53 | موثوقية طبية | PARTIAL | markers (reviewed/disclaimer) في triage/maternity/product ✅؛ منهجية كاملة P9 | P2 |
+| R53 | موثوقية طبية | PASS | منهجية موثقة (medical-content-methodology.md) + علامات كودية + إخفاء تلقائي لغير المعتمد | P2 |
 | R54 | SEO متعدد | PASS | hreflang + 6 locales + JSON-LD موضعي + sitemaps لكل لغة + alternates (b0b49d94) | P1 |
 | R55 | ربط داخلي | PASS | related fetches + روابط ذات صلة في صفحات doctor/pharmacy | P3 |
 | R56 | اكتشاف AI/MCP | UNCERTAIN | تابع R18/R29 — P10/P11 | P2 |
@@ -49,7 +49,7 @@
 | R65 | الأخطاء | PASS | كتالوج ERROR_CODES يغطي slot/lock/follow-up (0d391ea8) + specs تثبت الرسائل | P2 |
 | R66 | Idempotency | PASS | أُصلح بـ P0-01 (`5101f4c4`): @RequireIdempotency على إنشاء/تقديم/تحديث/إلغاء الصيدلية + interceptor عالمي (dedupe 24h + lock + body-hash) — 2026-09-12 | P0 |
 | R67 | سلامة تجارة AI | PASS | فرض Rx server-side + حظر تجاوز AI (mcp.service:593-605) | P1 |
-| R68 | خط SEO | PARTIAL | مغطى R22-24 | P1 |
+| R68 | خط SEO | PASS | مغطى عبر R22–R24 (إغلاق إداري — لا بند مستقل متبقٍ) | P1 |
 | R69 | Slugs | PASS | slug_history + 301 للكانوني عند resolve (pipeline + seo.controller) — 2026-09-12 | P2 |
 | R70 | المراقبة | PASS | DLQ + retry/replay + stuck-outbox في reliability status — 2026-09-12 | P2 |
 | R71 | التعافي | PARTIAL | outbox + DLQ + retry ✅؛ إثبات end-to-end P11 | P2 |
@@ -62,5 +62,5 @@
 | R78-82 | العملية/التقرير/القبول | 🔄 جارية (هذه الخطة) | — | — |
 
 ## ملخص الإحصاء
-- PASS: 52 (R1-R3/R4/R7/R9-R12/R20-R22/R23/R24/R26/R27/R29-R31/R32–R48/R52/R54/R55/R57/R64/R65/R66/R67/R69/R70/R72-R75/R77) · PARTIAL: 21 · UNCERTAIN: 2 (R49/R56) · FAIL: 0 · BLOCKED: 2 (R28/R76) · in-progress: 5 (R78–R82) — المجموع = 82 (أُعيد التقييم 2026-09-12)
+- PASS: 54 (R1-R4/R7/R9-R12/R20-R24/R26/R27/R29-R31/R32–R48/R52-R55/R57/R64-R70/R72-R75/R77) · PARTIAL: 19 · UNCERTAIN: 2 (R49/R56) · FAIL: 0 · BLOCKED: 2 (R28/R76) · in-progress: 5 (R78–R82) — المجموع = 82 (أُعيد التقييم 2026-09-12)
 - P0: 23 بنداً — حُلَّت بالكامل (REPORT-FINAL.md 23/23) · أولويات ثانوية في REPORT.md §4 · التفاصيل في REPORT-FINAL.md
