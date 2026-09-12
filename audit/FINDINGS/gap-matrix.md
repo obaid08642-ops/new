@@ -29,12 +29,12 @@
 | R24 | خرائط حيوية | PARTIAL | Sitemaps حية من الباكند ✅؛ التحديث التلقائي عند التغيير يُختبر P11 | P1 |
 | R25 | نشر لحظي | PARTIAL | EventEmitter + outbox + DLQ ✅؛ الموثوقية end-to-end تُختبر P11 | P2 |
 | R26 | ديب لينك | PARTIAL | universal configured + شاشات ✅ BUT خريطة التطبيق محدودة + deferred غير مثبت | P1 |
-| R27 | معمارية AI | PARTIAL | AI/MCP موديولات باكند ✅ BUT قراءة `medicines_master` مباشرة في `mcp.service.ts:291` تتجاوز طبقة الخدمة — تُراجع P7 | P1 |
+| R27 | معمارية AI | PARTIAL→قوي | قراءات MCP مفلترة بالبوابة الحاكمة ✅؛ لا أدوات كتابة (اكتشاف+تحضير فقط) ✅؛ `b40136bb` | P2 |
 | R28 | MCP endpoint | PARTIAL | controller + tools + audit ✅؛ DNS `mcp.nabd.plus` خارجي | BLOCKED |
 | R29 | أدوات MCP | PARTIAL | MCP_TOOLS موجودة؛ التغطية مقابل الفئات المطلوبة تُراجع P10 | P2 |
-| R30 | أمن MCP | PARTIAL | `mcp_audit_log` ✅ BUT `@Public()` على 3 handlers (`mcp.controller.ts:9,16,24`) — يُحسم: قراءة عامة مشروعة أم كتابة مكشوفة | P0 |
+| R30 | أمن MCP | PARTIAL | RPC عام يعرض قراءات فقط (لا أدوات كتابة أصلاً) ✅ + تدقيق ✅؛ حد المعدل العام يُتحقق P11 | P1 |
 | R31 | تجارة AI | PARTIAL | `ai-commerce` موجود؛ بيانات مهيكلة + روابط كانونية تُبنى P10 | P2 |
-| R32-48 | الرانكنج | PARTIAL | `product-ranking` + أحداث ✅؛ السلوك الحي (تجاوز B لـ A/الأوضاع/النوافذ/مكافحة التلاعب/صيدلية-عالمي) غير مثبت — يُبنى/يُختبر P7/P11 | P1 |
+| R32-48 | الرانكنج | PASS (بملاحظات) | محرك حي مربوط end-to-end: أوزان env، نطاقات، اضمحلال، cold-start صادق، مزج relevance 0.7/0.3، أحداث مُتحقق منها، إبطال كاش — `b40136bb` للصدق؛ polish: أوضاع مخصصة تسقط على composite | P2 |
 | R49 | الأداء | UNCERTAIN | بلا قياسات بعد — P11 (TTFB/p95/حمل) | P1 |
 | R50 | الأمن | PARTIAL | SecureStore/httpOnly/CSRF/guards/honeypots ✅ BUT اختراق فعلي + فروع أمنية غير مندمجة + IDOR شامل — P11 | P0 |
 | R51 | خصوصية PHI | PARTIAL | default-deny + فحوص مالكية ✅ + sitemaps بلا PHI ✅؛ تدقيق تسرب شامل P11 | P0 |
