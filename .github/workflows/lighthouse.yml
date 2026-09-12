@@ -1,0 +1,42 @@
+name: Lighthouse Web Perf
+
+on:
+  pull_request:
+    paths:
+      - 'patient-web/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: patient-web/package-lock.json
+      - name: Install
+        working-directory: patient-web
+        run: npm ci
+      - name: Build
+        working-directory: patient-web
+        run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+      - name: Start production server
+        working-directory: patient-web
+        run: (npm run start -- -p 3000 &> /tmp/next.log & echo $! > /tmp/next.pid) && sleep 12
+      - name: Audit key routes
+        uses: treosh/lighthouse-ci-action@v12
+        with:
+          urls: |
+            http://localhost:3000/ar
+            http://localhost:3000/ar/pharmacy
+            http://localhost:3000/ar/consultations/doctors
+          budgetPath: ./patient-web/.github/lighthouse-budget.json
+          uploadArtifacts: true
+          temporaryPublicStorage: true
