@@ -163,198 +163,216 @@ export default function ShareReportScreen() {
     }
   };
 
-  return (
-    <View style={[st.c, { backgroundColor: colors.background }]}>
-      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
-      <View
-        style={[
-          st.hdr,
-          {
-            paddingTop: insets.top + 8,
-            backgroundColor: colors.surface,
-            borderBottomColor: colors.borderLight,
-          },
-        ]}
-      >
-        <View style={{ width: 40 }} />
-        <AppText variant="h4">مشاركة تقارير مع الطبيب</AppText>
-        <IconButton icon="back" onPress={() => router.back()} />
-      </View>
 
-      {shareTarget ? (
-        <ScrollView contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 120 }}>
-          <TouchableOpacity onPress={() => setShareTarget(null)} style={{ flexDirection: "row-reverse", alignItems: "center", gap: 6 }}>
-            <Icon name="back" size={18} color={colors.primary} />
-            <AppText color={colors.primary}>رجوع للتقارير</AppText>
-          </TouchableOpacity>
-          <Card>
-            <AppText variant="h6">{pickLocalized(shareTarget.title_ar, shareTarget.title_en) || "تقرير طبي"}</AppText>
-            <AppText variant="caption" color={colors.textTertiary}>مشاركة عبر المنصة — يراها الطبيب المختار فقط ويمكنك إلغاؤها في أي وقت</AppText>
-          </Card>
-          <SectionHeader title="ابحث عن الطبيب" />
-          <View style={{ flexDirection: "row-reverse", gap: 8 }}>
-            <TextInput
-              value={docQuery}
-              onChangeText={setDocQuery}
-              placeholder="اسم الطبيب أو التخصص"
-              placeholderTextColor={colors.textTertiary}
-              style={{ flex: 1, borderWidth: 1, borderColor: colors.border, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, color: colors.textPrimary, backgroundColor: colors.surface, textAlign: "right" }}
-              onSubmitEditing={() => void searchDoctors()}
-              returnKeyType="search"
-            />
-            <Button label="بحث" size="sm" full={false} loading={docSearching} onPress={() => void searchDoctors()} />
-          </View>
-          {docResults.map((d: any) => (
-            <Card key={d.id} style={{ flexDirection: "row-reverse", alignItems: "center", gap: 10 }}>
-              <View style={{ flex: 1 }}>
-                <AppText variant="h6">{pickLocalized(d.name_ar, d.name_en) || "طبيب"}</AppText>
-                <AppText variant="caption" color={colors.textTertiary}>{[d.specialty, d.city].filter(Boolean).join(" · ")}</AppText>
-              </View>
-              <Button label="مشاركة" size="sm" full={false} loading={sharing} onPress={() => void doShare(d)} />
-            </Card>
-          ))}
-          <SectionHeader title="مشارك حالياً مع" />
-          {sharesLoading ? (
-            <ActivityIndicator size="small" color={colors.primary} />
-          ) : shares.length === 0 ? (
-            <AppText variant="caption" color={colors.textTertiary}>لم تتم المشاركة مع أي طبيب بعد</AppText>
-          ) : shares.map((h: any) => (
-            <Card key={h.doctor_id} style={{ flexDirection: "row-reverse", alignItems: "center", gap: 10 }}>
-              <View style={{ flex: 1 }}>
-                <AppText variant="h6">{h.doctor_name || "طبيب"}</AppText>
-                <AppText variant="caption" color={colors.textTertiary}>{fmtDate(h.shared_at)}</AppText>
-              </View>
-              <Button label="إلغاء" size="sm" full={false} onPress={() => void doRevoke(h.doctor_id)} />
-            </Card>
-          ))}
-        </ScrollView>
-      ) : (
-      <ScrollView
-        contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 120 }}
-      >
-        <Card style={{ backgroundColor: colors.infoSurface }}>
-          <View
-            style={{
-              flexDirection: "row-reverse",
-              gap: 10,
-              alignItems: "center",
-            }}
-          >
-            <Icon name="shield" size={20} color={colors.info} />
-            <AppText
-              variant="bodySM"
-              color={colors.textSecondary}
-              style={{ flex: 1 }}
-            >
-              شارك تقاريرك مع طبيبك عبر أي تطبيق — أنت من يختار المستلم
-            </AppText>
-          </View>
-        </Card>
-
-        <SectionHeader title="اختر التقارير للمشاركة" />
-        {loading ? (
-          <View style={{ alignItems: "center", paddingVertical: 32 }}>
-            <ActivityIndicator size="large" color={colors.primary} />
-          </View>
-        ) : reports.length === 0 ? (
-          <Card style={{ alignItems: "center", gap: 10, paddingVertical: 28 }}>
-            <Icon name="document" size={36} color={colors.textTertiary} />
-            <AppText variant="body" color={colors.textSecondary}>
-              لا توجد تقارير لمشاركتها بعد
-            </AppText>
-            <Button
-              label="العودة للتقارير"
-              size="sm"
-              full={false}
-              onPress={() => router.push("/reports/hub")}
-            />
-          </Card>
-        ) : (
-          reports.map((r) => {
-            const sel = selected.includes(r.id);
-            const isLab = !!r.lab_booking_id;
-            return (
-              <Card
-                key={r.id}
-                onPress={() => toggle(r.id)}
-                style={[
-                  st.reportCard,
-                  sel && { borderColor: colors.primary, borderWidth: 2 },
-                ]}
-              >
-                <View
-                  style={{
-                    flexDirection: "row-reverse",
-                    gap: 12,
-                    alignItems: "center",
-                  }}
-                >
-                  <View
-                    style={[
-                      st.check,
-                      {
-                        borderColor: sel ? colors.primary : colors.border,
-                        backgroundColor: sel ? colors.primary : "transparent",
-                      },
-                    ]}
-                  >
-                    {sel && <Icon name="check" size={14} color="#fff" />}
-                  </View>
-                  <View
-                    style={[
-                      st.rIcon,
-                      { backgroundColor: isLab ? "#7A6BEA18" : "#23B5CE18" },
-                    ]}
-                  >
-                    <Icon
-                      name={isLab ? "testTube" : r.radiology_booking_id ? "scan" : "document"}
-                      size={22}
-                      color={isLab ? "#7A6BEA" : "#23B5CE"}
-                    />
-                  </View>
-                  <View style={{ flex: 1, alignItems: "flex-end", gap: 2 }}>
-                    <AppText variant="h6">{pickLocalized(r.title_ar, r.title_en) || "تقرير طبي"}</AppText>
-                    <AppText variant="caption" color={colors.textTertiary}>
-                      {[r.facility_name || r.doctor_name, fmtDate(r.issued_at || r.createdAt)].filter(Boolean).join(" · ")}
-                    </AppText>
-                  </View>
-                </View>
-              </Card>
-            );
-          })
-        )}
-      </ScrollView>
-
-      {selected.length > 0 && (
+  if (shareTarget) {
+    return (
+      <View style={[st.c, { backgroundColor: colors.background }]}>
+        <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
         <View
           style={[
-            st.bottom,
+            st.hdr,
             {
-              paddingBottom: insets.bottom + 8,
+              paddingTop: insets.top + 8,
               backgroundColor: colors.surface,
-              borderTopColor: colors.borderLight,
+              borderBottomColor: colors.borderLight,
             },
           ]}
         >
-          {selected.length === 1 && (
-            <TouchableOpacity
-              onPress={() => { const r = reports.find((x) => x.id === selected[0]); if (r) openServerShare(r); }}
-              style={{ borderWidth: 1, borderColor: colors.primary, borderRadius: 14, paddingVertical: 12, alignItems: "center", marginBottom: 8 }}
-            >
-              <AppText style={{ color: colors.primary, fontWeight: "bold" }}>مشاركة عبر نبض مع طبيب محدد</AppText>
-            </TouchableOpacity>
-          )}
-          <Button
-            label={`مشاركة ${selected.length} تقرير مع الطبيب`}
-            variant="gradient"
-            size="lg"
-            icon="send"
-            loading={sending}
-            onPress={handleShare}
-          />
+          <View style={{ width: 40 }} />
+          <AppText variant="h4">مشاركة تقارير مع الطبيب</AppText>
+          <IconButton icon="back" onPress={() => router.back()} />
         </View>
-      )}
-      )}
+          <ScrollView contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 120 }}>
+            <TouchableOpacity onPress={() => setShareTarget(null)} style={{ flexDirection: "row-reverse", alignItems: "center", gap: 6 }}>
+              <Icon name="back" size={18} color={colors.primary} />
+              <AppText color={colors.primary}>رجوع للتقارير</AppText>
+            </TouchableOpacity>
+            <Card>
+              <AppText variant="h6">{pickLocalized(shareTarget.title_ar, shareTarget.title_en) || "تقرير طبي"}</AppText>
+              <AppText variant="caption" color={colors.textTertiary}>مشاركة عبر المنصة — يراها الطبيب المختار فقط ويمكنك إلغاؤها في أي وقت</AppText>
+            </Card>
+            <SectionHeader title="ابحث عن الطبيب" />
+            <View style={{ flexDirection: "row-reverse", gap: 8 }}>
+              <TextInput
+                value={docQuery}
+                onChangeText={setDocQuery}
+                placeholder="اسم الطبيب أو التخصص"
+                placeholderTextColor={colors.textTertiary}
+                style={{ flex: 1, borderWidth: 1, borderColor: colors.border, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, color: colors.textPrimary, backgroundColor: colors.surface, textAlign: "right" }}
+                onSubmitEditing={() => void searchDoctors()}
+                returnKeyType="search"
+              />
+              <Button label="بحث" size="sm" full={false} loading={docSearching} onPress={() => void searchDoctors()} />
+            </View>
+            {docResults.map((d: any) => (
+              <Card key={d.id} style={{ flexDirection: "row-reverse", alignItems: "center", gap: 10 }}>
+                <View style={{ flex: 1 }}>
+                  <AppText variant="h6">{pickLocalized(d.name_ar, d.name_en) || "طبيب"}</AppText>
+                  <AppText variant="caption" color={colors.textTertiary}>{[d.specialty, d.city].filter(Boolean).join(" · ")}</AppText>
+                </View>
+                <Button label="مشاركة" size="sm" full={false} loading={sharing} onPress={() => void doShare(d)} />
+              </Card>
+            ))}
+            <SectionHeader title="مشارك حالياً مع" />
+            {sharesLoading ? (
+              <ActivityIndicator size="small" color={colors.primary} />
+            ) : shares.length === 0 ? (
+              <AppText variant="caption" color={colors.textTertiary}>لم تتم المشاركة مع أي طبيب بعد</AppText>
+            ) : shares.map((h: any) => (
+              <Card key={h.doctor_id} style={{ flexDirection: "row-reverse", alignItems: "center", gap: 10 }}>
+                <View style={{ flex: 1 }}>
+                  <AppText variant="h6">{h.doctor_name || "طبيب"}</AppText>
+                  <AppText variant="caption" color={colors.textTertiary}>{fmtDate(h.shared_at)}</AppText>
+                </View>
+                <Button label="إلغاء" size="sm" full={false} onPress={() => void doRevoke(h.doctor_id)} />
+              </Card>
+            ))}
+          </ScrollView>
+      </View>
+    );
+  }
+
+  return (
+    <View style={[st.c, { backgroundColor: colors.background }]}>
+        <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
+        <View
+          style={[
+            st.hdr,
+            {
+              paddingTop: insets.top + 8,
+              backgroundColor: colors.surface,
+              borderBottomColor: colors.borderLight,
+            },
+          ]}
+        >
+          <View style={{ width: 40 }} />
+          <AppText variant="h4">مشاركة تقارير مع الطبيب</AppText>
+          <IconButton icon="back" onPress={() => router.back()} />
+        </View>
+        <ScrollView
+          contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 120 }}
+        >
+          <Card style={{ backgroundColor: colors.infoSurface }}>
+            <View
+              style={{
+                flexDirection: "row-reverse",
+                gap: 10,
+                alignItems: "center",
+              }}
+            >
+              <Icon name="shield" size={20} color={colors.info} />
+              <AppText
+                variant="bodySM"
+                color={colors.textSecondary}
+                style={{ flex: 1 }}
+              >
+                شارك تقاريرك مع طبيبك عبر أي تطبيق — أنت من يختار المستلم
+              </AppText>
+            </View>
+          </Card>
+
+          <SectionHeader title="اختر التقارير للمشاركة" />
+          {loading ? (
+            <View style={{ alignItems: "center", paddingVertical: 32 }}>
+              <ActivityIndicator size="large" color={colors.primary} />
+            </View>
+          ) : reports.length === 0 ? (
+            <Card style={{ alignItems: "center", gap: 10, paddingVertical: 28 }}>
+              <Icon name="document" size={36} color={colors.textTertiary} />
+              <AppText variant="body" color={colors.textSecondary}>
+                لا توجد تقارير لمشاركتها بعد
+              </AppText>
+              <Button
+                label="العودة للتقارير"
+                size="sm"
+                full={false}
+                onPress={() => router.push("/reports/hub")}
+              />
+            </Card>
+          ) : (
+            reports.map((r) => {
+              const sel = selected.includes(r.id);
+              const isLab = !!r.lab_booking_id;
+              return (
+                <Card
+                  key={r.id}
+                  onPress={() => toggle(r.id)}
+                  style={[
+                    st.reportCard,
+                    sel && { borderColor: colors.primary, borderWidth: 2 },
+                  ]}
+                >
+                  <View
+                    style={{
+                      flexDirection: "row-reverse",
+                      gap: 12,
+                      alignItems: "center",
+                    }}
+                  >
+                    <View
+                      style={[
+                        st.check,
+                        {
+                          borderColor: sel ? colors.primary : colors.border,
+                          backgroundColor: sel ? colors.primary : "transparent",
+                        },
+                      ]}
+                    >
+                      {sel && <Icon name="check" size={14} color="#fff" />}
+                    </View>
+                    <View
+                      style={[
+                        st.rIcon,
+                        { backgroundColor: isLab ? "#7A6BEA18" : "#23B5CE18" },
+                      ]}
+                    >
+                      <Icon
+                        name={isLab ? "testTube" : r.radiology_booking_id ? "scan" : "document"}
+                        size={22}
+                        color={isLab ? "#7A6BEA" : "#23B5CE"}
+                      />
+                    </View>
+                    <View style={{ flex: 1, alignItems: "flex-end", gap: 2 }}>
+                      <AppText variant="h6">{pickLocalized(r.title_ar, r.title_en) || "تقرير طبي"}</AppText>
+                      <AppText variant="caption" color={colors.textTertiary}>
+                        {[r.facility_name || r.doctor_name, fmtDate(r.issued_at || r.createdAt)].filter(Boolean).join(" · ")}
+                      </AppText>
+                    </View>
+                  </View>
+                </Card>
+              );
+            })
+          )}
+        </ScrollView>
+        {selected.length > 0 && (
+          <View
+            style={[
+              st.bottom,
+              {
+                paddingBottom: insets.bottom + 8,
+                backgroundColor: colors.surface,
+                borderTopColor: colors.borderLight,
+              },
+            ]}
+          >
+            {selected.length === 1 && (
+              <TouchableOpacity
+                onPress={() => { const r = reports.find((x) => x.id === selected[0]); if (r) openServerShare(r); }}
+                style={{ borderWidth: 1, borderColor: colors.primary, borderRadius: 14, paddingVertical: 12, alignItems: "center", marginBottom: 8 }}
+              >
+                <AppText style={{ color: colors.primary, fontWeight: "bold" }}>مشاركة عبر نبض مع طبيب محدد</AppText>
+              </TouchableOpacity>
+            )}
+            <Button
+              label={`مشاركة ${selected.length} تقرير مع الطبيب`}
+              variant="gradient"
+              size="lg"
+              icon="send"
+              loading={sending}
+              onPress={handleShare}
+            />
+          </View>
+        )}
     </View>
   );
 }
