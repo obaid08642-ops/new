@@ -10,6 +10,7 @@ import { DoctorProfileExtended, DoctorProfileExtendedSchema } from './schemas/do
 import { SlotService } from './slot.service';
 import { ProviderProfile, ProviderProfileSchema } from '../../schemas/provider-profile.schema';
 import { User, UserSchema } from '../../schemas/user.schema';
+import { LeaveRequest, LeaveRequestSchema } from '../../schemas/leave-request.schema';
 import { Appointment, AppointmentSchema } from '../../schemas/appointment.schema';
 import { Facility, FacilitySchema } from '../../schemas/facility.schema';
 import { WorkflowEngineModule } from '../workflow-engine/workflow-engine.module';
@@ -32,6 +33,7 @@ import { SlotLocksModule } from "../slot-locks/slot-locks.module";
       { name: Facility.name, schema: FacilitySchema },
       { name: EncounterReferral.name, schema: EncounterReferralSchema },
       { name: DoctorProfileExtended.name, schema: DoctorProfileExtendedSchema },
+      { name: LeaveRequest.name, schema: LeaveRequestSchema },
     ]),
   ],
   controllers: [CareController, PublicSpecialtiesController, AppointmentsController, DoctorReferralsController],

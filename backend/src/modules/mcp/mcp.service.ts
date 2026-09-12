@@ -24,7 +24,7 @@ export const MCP_TOOLS: McpToolDefinition[] = [
       type: 'object',
       properties: {
         query: { type: 'string', description: 'Natural language search query (Arabic, English, Urdu, Hindi, etc.)' },
-        entity_type: { type: 'string', enum: ['doctor', 'medicine', 'facility', 'condition', 'all'], description: 'Type of entity to filter' },
+        entity_type: { type: 'string', enum: ['doctor', 'medicine', 'facility', 'condition', 'lab', 'nursing', 'radiology', 'all'], description: 'Type of entity to filter' },
         location: { type: 'string', description: 'City or district (e.g. Riyadh, Jeddah, Al Olaya)' },
         insurance: { type: 'string', description: 'Insurance provider name (e.g. Bupa, Tawuniya, Medgulf)' },
         service_mode: { type: 'string', enum: ['clinic', 'home', 'video', 'delivery'], description: 'Service mode' },
@@ -39,7 +39,7 @@ export const MCP_TOOLS: McpToolDefinition[] = [
     inputSchema: {
       type: 'object',
       properties: {
-        entity_type: { type: 'string', enum: ['medicine', 'doctor', 'facility', 'condition'], description: 'Entity type' },
+        entity_type: { type: 'string', enum: ['medicine', 'doctor', 'facility', 'condition', 'lab', 'nursing', 'radiology'], description: 'Entity type' },
         slug_or_id: { type: 'string', description: 'Slug or unique identifier of the entity' },
         locale: { type: 'string', enum: ['ar', 'en'], default: 'ar' },
       },
@@ -65,7 +65,7 @@ export const MCP_TOOLS: McpToolDefinition[] = [
     inputSchema: {
       type: 'object',
       properties: {
-        entity_type: { type: 'string', enum: ['doctor', 'medicine', 'facility'], description: 'Entity type' },
+        entity_type: { type: 'string', enum: ['doctor', 'medicine', 'facility', 'lab', 'nursing'], description: 'Entity type' },
         entity_id: { type: 'string', description: 'Unique identifier or slug' },
         date: { type: 'string', description: 'Target date (YYYY-MM-DD)' },
         service_mode: { type: 'string', enum: ['clinic', 'video', 'home', 'delivery'], default: 'clinic' },

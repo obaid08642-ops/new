@@ -1,6 +1,8 @@
 import { Injectable, Inject } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Appointment, AppointmentDocument } from '../../schemas/appointment.schema';
+import { LeaveRequest, LeaveRequestDocument } from '../../schemas/leave-request.schema';
 import { ProviderProfileDocument } from '../../schemas/provider-profile.schema';
 import { AppointmentRepository } from "./repositories/appointment.repository";
 
@@ -15,6 +17,7 @@ import { AppointmentRepository } from "./repositories/appointment.repository";
 export class SlotService {
   constructor(
     @Inject('AppointmentRepository') private apptModel: AppointmentRepository,
+    @InjectModel(LeaveRequest.name) private leaves: Model<LeaveRequestDocument>,
   ) {}
 
   // Day-of-week mapping used in seed data
@@ -36,6 +39,20 @@ export class SlotService {
     const wh = (doctor.working_hours || []).find((w: any) => w.day === dayKey || w.day === 'all');
     if (!wh || wh.closed) {
       return { date: dateStr, service_type, slots: [], reason: 'closed' };
+    }
+
+    // 2b. R12: approved leave blocks the whole day (account link, user fallback).
+    const dayStart = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+    const dayEnd = new Date(dayStart.getTime() + 24 * 3600_000);
+    const ids = [doctor.account_id, doctor.user_id].filter(Boolean);
+    if (ids.length > 0) {
+      const leave = await this.leaves.findOne({
+        provider_account_id: { $in: ids },
+        status: 'approved',
+        start_date: { $lt: dayEnd },
+        end_date: { $gte: dayStart },
+      }).select({ _id: 0, id: 1 }).lean().catch(() => null);
+      if (leave) return { date: dateStr, service_type, slots: [], reason: 'on_leave' };
     }
 
     // 3. Generate raw slot starts every {duration} minutes between open & close.

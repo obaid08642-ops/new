@@ -76,12 +76,15 @@ export class EventReliabilityService {
   /** Status overview. */
   async status() {
     const since24 = new Date(Date.now() - 86400000);
-    const [delivered24, failed24, dlqPending, dlqDead, totalEvents] = await Promise.all([
+    const stuckSince = new Date(Date.now() - 30 * 60_000);
+    const [delivered24, failed24, dlqPending, dlqDead, totalEvents, stuckOutbox] = await Promise.all([
       this.delivery.countDocuments({ status: 'delivered', createdAt: { $gte: since24 } }),
       this.delivery.countDocuments({ status: 'failed', createdAt: { $gte: since24 } }),
       this.dlq.countDocuments({ status: 'pending' }),
       this.dlq.countDocuments({ status: 'dead' }),
       this.events.estimatedDocumentCount(),
+      // R70: stuck domain outbox (pending > 30min) — propagation failures outside the DLQ.
+      this.events.db.collection('domain_outbox').countDocuments({ state: 'pending', created_at: { $lt: stuckSince } }).catch(() => -1),
     ]);
     const recentDlq = await this.dlq.find({ status: 'pending' }, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(20).lean();
     return {
@@ -90,6 +93,7 @@ export class EventReliabilityService {
       failed: failed24,
       dlq_pending: dlqPending,
       dlq_dead: dlqDead,
+      stuck_outbox: stuckOutbox,
       events_total: totalEvents,
       recent_dlq: recentDlq,
       generated_at: new Date(),

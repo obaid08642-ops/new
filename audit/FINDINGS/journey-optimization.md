@@ -39,3 +39,11 @@
 | J4/J5 | — | بلا تغيير |
 
 **التوصية التنفيذية:** اعتماد J1+J3 أولاً (أقل خطراً — لا تمس الدفع)، ثم J2. التنفيذ لاحقاً برزم صغيرة مع regression لكل رحلة (إضافة 20).
+
+---
+
+## سجل التنفيذ (2026-09-12 — فرع `feat/journey-merge-j1j3`، كومت `1e919661`، ‎-251 سطراً)
+- **J1**: `waiting-for-pharmacy` → redirect إلى `broadcast-status` (مع نقل زر الإلغاء + idempotency إليها — بلا فقدان منطق)؛ `manual-order`→`request` كان مدمجاً مسبقاً؛ `order-confirm` بقي كموجه حاكم (لا واجهة فيه لدمجها).
+- **J2**: مدمج مسبقاً بالكامل (`booking-confirm`/`pending`→`booking-status`، `doctor-search`→`search?view=doctors`) — تحقق فقط؛ `specialty-select` بقي (إعادة تصميم واجهة — خطر غير مبرر).
+- **J3**: `booking-confirm` كان redirect مسبقاً؛ `booking-success`→`orders` (ميتة — صفر إحالات)؛ `results-history`→`my-results` (superset)؛ `technician-tracking` بقي (محتوى فني فريد + غير مُحال — يحتاج دمج تبويبات لاحقاً).
+- فحص المراجع: صفر إحالات مكسورة. J4/J5: بلا تغيير (نحيفة/مواصفة).
