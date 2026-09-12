@@ -77,6 +77,22 @@ export default function BookingConfirmScreen() {
 
     setLoading(true);
     try {
+      // Hold the slot first (10-min TTL, POST /slot-locks/reserve): the server
+      // consumes the lock on booking success and releases it on failure, so a
+      // double-tap or a second device can never double-book the same slot (P3-e).
+      let slotLockId: string | undefined;
+      try {
+        const lock: any = await apiFetch('/slot-locks/reserve', {
+          method: 'POST',
+          body: JSON.stringify({ provider_id: params.doctorId, booking_kind: 'consultation', slot_start: slotStartIso }),
+        });
+        slotLockId = lock?.id || lock?.data?.id;
+      } catch (lockErr: any) {
+        const code = String(lockErr?.message || '');
+        if (code.includes('slot_taken')) throw new Error('الموعد محجوز حالياً — اختر وقتاً آخر');
+        if (code.includes('lock_')) throw new Error('تعذر تثبيت الموعد مؤقتاً — حاول مجدداً');
+        throw lockErr;
+      }
       const appointment = await apiFetch<any>('/care/appointments', {
         method: 'POST',
         headers: appointmentMutationHeaders(params.doctorId, slotStartIso),
@@ -91,6 +107,7 @@ export default function BookingConfirmScreen() {
           visit_location: visitType === 'home' && params.visit_lat && params.visit_lng
             ? { lat: Number(params.visit_lat), lng: Number(params.visit_lng), address: String(params.visit_address || '') }
             : undefined,
+          slot_lock_id: slotLockId,
         }),
       });
       if (!appointment?.id) throw new Error('تعذر إنشاء موعد الاستشارة');

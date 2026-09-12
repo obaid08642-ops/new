@@ -46,6 +46,14 @@ export default function ShareReportScreen() {
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<string[]>([]);
   const [sending, setSending] = useState(false);
+  // Server-side sharing with a specific doctor (POST /medical-reports/:id/share).
+  const [shareTarget, setShareTarget] = useState<any | null>(null);
+  const [docQuery, setDocQuery] = useState("");
+  const [docResults, setDocResults] = useState<any[]>([]);
+  const [docSearching, setDocSearching] = useState(false);
+  const [sharing, setSharing] = useState(false);
+  const [shares, setShares] = useState<any[]>([]);
+  const [sharesLoading, setSharesLoading] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -93,6 +101,68 @@ export default function ShareReportScreen() {
     }
   };
 
+  const loadShares = async (reportId: string) => {
+    setSharesLoading(true);
+    try {
+      const res: any = await apiFetch(`/medical-reports/${reportId}`);
+      const d = res?.data || res || {};
+      const ids: string[] = Array.isArray(d.shared_with_doctor_ids) ? d.shared_with_doctor_ids : [];
+      const hist = Array.isArray(d.share_history) ? d.share_history : [];
+      setShares(hist.filter((h: any) => ids.includes(h.doctor_id)));
+    } catch {
+      setShares([]);
+    } finally {
+      setSharesLoading(false);
+    }
+  };
+
+  const openServerShare = (report: any) => {
+    setShareTarget(report);
+    setDocQuery("");
+    setDocResults([]);
+    void loadShares(report.id);
+  };
+
+  const searchDoctors = async () => {
+    if (!docQuery.trim() || docSearching) return;
+    setDocSearching(true);
+    try {
+      const res: any = await apiFetch(`/care/doctors?q=${encodeURIComponent(docQuery.trim())}&limit=10`);
+      setDocResults(Array.isArray(res) ? res : res?.data || res?.items || []);
+    } catch {
+      setDocResults([]);
+    } finally {
+      setDocSearching(false);
+    }
+  };
+
+  const doShare = async (doc: any) => {
+    if (!shareTarget || sharing) return;
+    setSharing(true);
+    try {
+      await apiFetch(`/medical-reports/${shareTarget.id}/share`, {
+        method: "POST",
+        body: JSON.stringify({ doctor_profile_id: doc.id, doctor_name: pickLocalized(doc.name_ar, doc.name_en) }),
+      });
+      await loadShares(shareTarget.id);
+      showLocalizedAlert("تمت المشاركة", "أصبح التقرير متاحاً للطبيب عبر المنصة");
+    } catch (e: any) {
+      showLocalizedAlert("تعذرت المشاركة", e?.message || "حاول لاحقاً");
+    } finally {
+      setSharing(false);
+    }
+  };
+
+  const doRevoke = async (doctorId: string) => {
+    if (!shareTarget) return;
+    try {
+      await apiFetch(`/medical-reports/${shareTarget.id}/share/${encodeURIComponent(doctorId)}`, { method: "DELETE" });
+      await loadShares(shareTarget.id);
+    } catch (e: any) {
+      showLocalizedAlert("تعذر الإلغاء", e?.message || "حاول لاحقاً");
+    }
+  };
+
   return (
     <View style={[st.c, { backgroundColor: colors.background }]}>
       <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
@@ -111,6 +181,54 @@ export default function ShareReportScreen() {
         <IconButton icon="back" onPress={() => router.back()} />
       </View>
 
+      {shareTarget ? (
+        <ScrollView contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 120 }}>
+          <TouchableOpacity onPress={() => setShareTarget(null)} style={{ flexDirection: "row-reverse", alignItems: "center", gap: 6 }}>
+            <Icon name="back" size={18} color={colors.primary} />
+            <AppText color={colors.primary}>رجوع للتقارير</AppText>
+          </TouchableOpacity>
+          <Card>
+            <AppText variant="h6">{pickLocalized(shareTarget.title_ar, shareTarget.title_en) || "تقرير طبي"}</AppText>
+            <AppText variant="caption" color={colors.textTertiary}>مشاركة عبر المنصة — يراها الطبيب المختار فقط ويمكنك إلغاؤها في أي وقت</AppText>
+          </Card>
+          <SectionHeader title="ابحث عن الطبيب" />
+          <View style={{ flexDirection: "row-reverse", gap: 8 }}>
+            <TextInput
+              value={docQuery}
+              onChangeText={setDocQuery}
+              placeholder="اسم الطبيب أو التخصص"
+              placeholderTextColor={colors.textTertiary}
+              style={{ flex: 1, borderWidth: 1, borderColor: colors.border, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, color: colors.textPrimary, backgroundColor: colors.surface, textAlign: "right" }}
+              onSubmitEditing={() => void searchDoctors()}
+              returnKeyType="search"
+            />
+            <Button label="بحث" size="sm" full={false} loading={docSearching} onPress={() => void searchDoctors()} />
+          </View>
+          {docResults.map((d: any) => (
+            <Card key={d.id} style={{ flexDirection: "row-reverse", alignItems: "center", gap: 10 }}>
+              <View style={{ flex: 1 }}>
+                <AppText variant="h6">{pickLocalized(d.name_ar, d.name_en) || "طبيب"}</AppText>
+                <AppText variant="caption" color={colors.textTertiary}>{[d.specialty, d.city].filter(Boolean).join(" · ")}</AppText>
+              </View>
+              <Button label="مشاركة" size="sm" full={false} loading={sharing} onPress={() => void doShare(d)} />
+            </Card>
+          ))}
+          <SectionHeader title="مشارك حالياً مع" />
+          {sharesLoading ? (
+            <ActivityIndicator size="small" color={colors.primary} />
+          ) : shares.length === 0 ? (
+            <AppText variant="caption" color={colors.textTertiary}>لم تتم المشاركة مع أي طبيب بعد</AppText>
+          ) : shares.map((h: any) => (
+            <Card key={h.doctor_id} style={{ flexDirection: "row-reverse", alignItems: "center", gap: 10 }}>
+              <View style={{ flex: 1 }}>
+                <AppText variant="h6">{h.doctor_name || "طبيب"}</AppText>
+                <AppText variant="caption" color={colors.textTertiary}>{fmtDate(h.shared_at)}</AppText>
+              </View>
+              <Button label="إلغاء" size="sm" full={false} onPress={() => void doRevoke(h.doctor_id)} />
+            </Card>
+          ))}
+        </ScrollView>
+      ) : (
       <ScrollView
         contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 120 }}
       >
@@ -218,6 +336,14 @@ export default function ShareReportScreen() {
             },
           ]}
         >
+          {selected.length === 1 && (
+            <TouchableOpacity
+              onPress={() => { const r = reports.find((x) => x.id === selected[0]); if (r) openServerShare(r); }}
+              style={{ borderWidth: 1, borderColor: colors.primary, borderRadius: 14, paddingVertical: 12, alignItems: "center", marginBottom: 8 }}
+            >
+              <AppText style={{ color: colors.primary, fontWeight: "bold" }}>مشاركة عبر نبض مع طبيب محدد</AppText>
+            </TouchableOpacity>
+          )}
           <Button
             label={`مشاركة ${selected.length} تقرير مع الطبيب`}
             variant="gradient"
@@ -227,6 +353,7 @@ export default function ShareReportScreen() {
             onPress={handleShare}
           />
         </View>
+      )}
       )}
     </View>
   );
