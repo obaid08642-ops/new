@@ -485,6 +485,21 @@ export class AutoEntitySeoPipelineService {
    * Core orchestrator method: processes an entity, resolves slug, builds SEO,
    * handles sitemap, updates projections, and emits publication events.
    */
+  async backfillMissingSlugs(entityType: PipelineEntityType, limit = 100): Promise<{ processed: number; assigned: number; skipped: number }> {
+    const collection = COLLECTION_MAP[entityType];
+    if (!collection) return { processed: 0, assigned: 0, skipped: 0 };
+    const docs = await this.conn.collection(collection)
+      .find({ $or: [{ slug: null }, { slug: '' }, { slug: { $exists: false } }], is_deleted: { $ne: true } }, { projection: { _id: 0, id: 1 } })
+      .limit(Math.min(Math.max(limit, 1), 500)).toArray().catch(() => []);
+    let assigned = 0, skipped = 0;
+    for (const d of docs as any[]) {
+      try {
+        const out = await this.processEntity({ entityType, entityId: String(d.id), actorRole: 'system', reason: 'slug_backfill', action: 'update' });
+        if (out?.slug) assigned++; else skipped++;
+      } catch { skipped++; }
+    }
+    return { processed: (docs as any[]).length, assigned, skipped };
+  }
   async processEntity(input: PipelineEntityInput): Promise<any> {
     const sourceResult = await this.findSourceDocument(input.entityType, input.entityId);
     if (!sourceResult) {
