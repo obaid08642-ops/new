@@ -1,5 +1,6 @@
 
 import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
+import { SentryModule } from '@sentry/nestjs/setup';
 import { LiveKitModule } from './modules/livekit/livekit.module';
 import { CoturnModule } from './modules/coturn/coturn.module';
 import { RedisModule } from './modules/redis/redis.module';
@@ -145,6 +146,7 @@ import { ProductRankingModule } from './modules/product-ranking/product-ranking.
 
 @Module({
   imports: [
+    SentryModule.forRoot(),
     HomeModule,
     HospitalModule,
     LiveKitModule,
