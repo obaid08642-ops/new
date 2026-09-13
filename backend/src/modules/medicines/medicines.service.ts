@@ -30,7 +30,7 @@ export class MedicinesService {
     @Optional() private readonly seoPipeline?: AutoEntitySeoPipelineService,
     @Optional() private readonly rankingService?: ProductRankingService,
     @Optional() private readonly manualBoosts?: ManualBoostsService,
-  ) }
+  ) {}
 
   /** R77: labeled sponsored flags from the governed manual layer (order untouched). */
   private async applySponsored<T extends { id?: string }>(items: T[]): Promise<(T & { sponsored?: boolean })[]> {
