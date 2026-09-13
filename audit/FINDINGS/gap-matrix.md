@@ -30,7 +30,7 @@
 | R25 | نشر لحظي | PARTIAL | EventEmitter + outbox + DLQ ✅؛ الموثوقية end-to-end تُختبر P11 | P2 |
 | R26 | ديب لينك | PASS | universal + 14 مسار رحلات في DeepLinking (631f8eec) — deferred محدودية منصة موثقة | P1 |
 | R27 | معمارية AI | PASS | قراءات MCP مفلترة بالبوابة + بلا أدوات كتابة (تصميم مقصود) + صدق b40136bb | P2 |
-| R28 | MCP endpoint | PARTIAL | controller + tools + audit ✅؛ DNS `mcp.nabd.plus` خارجي | BLOCKED |
+| R28 | MCP endpoint | PASS | mcp.nabd.plus حي: /mcp/tools 200 (9 أدوات) + server-card صالح — DNS + توجيه + throttle + كاش — 2026-09-13 | BLOCKED |
 | R29 | أدوات MCP | PASS | 9 أدوات + enums تغطي lab/nursing/radiology (1e72a8b8) | P2 |
 | R30 | أمن MCP | PASS | قراءات فقط + throttle عام + 30/min على RPC (631f8eec) | P1 |
 | R31 | تجارة AI | PASS | ai-catalog products/services + checkout-session بروابط كانونية | P2 |
@@ -62,5 +62,5 @@
 | R78-82 | العملية/التقرير/القبول | 🔄 جارية (هذه الخطة) | — | — |
 
 ## ملخص الإحصاء
-- PASS: 54 (R1-R4/R7/R8/R9-R12/R20-R24/R26/R27/R29-R31/R32–R48/R52-R55/R57/R64-R70/R72-R75/R77) · PARTIAL: 20 · UNCERTAIN: 1 (R56) · FAIL: 0 · BLOCKED: 2 (R28/R76) · in-progress: 5 (R78–R82) — المجموع = 82 (أُعيد التقييم 2026-09-12)
+- PASS: 55 (+R28 mcp حي) · PARTIAL: 20 · UNCERTAIN: 1 (R56) · FAIL: 0 · BLOCKED: 1 (R76 متاجر) · in-progress: 5 (R78–R82) — المجموع = 82 (أُعيد التقييم 2026-09-12)
 - P0: 23 بنداً — حُلَّت بالكامل (REPORT-FINAL.md 23/23) · أولويات ثانوية في REPORT.md §4 · التفاصيل في REPORT-FINAL.md
