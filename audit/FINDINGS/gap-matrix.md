@@ -35,7 +35,7 @@
 | R30 | أمن MCP | PASS | قراءات فقط + throttle عام + 30/min على RPC (631f8eec) | P1 |
 | R31 | تجارة AI | PASS | ai-catalog products/services + checkout-session بروابط كانونية | P2 |
 | R32-48 | الرانكنج | PASS (بملاحظات) | محرك حي مربوط end-to-end: أوزان env، نطاقات، اضمحلال، cold-start صادق، مزج relevance 0.7/0.3، أحداث مُتحقق منها، إبطال كاش — `b40136bb` للصدق؛ polish: أوضاع مخصصة تسقط على composite | P2 |
-| R49 | الأداء | UNCERTAIN | بلا قياسات بعد — P11 (TTFB/p95/حمل) | P1 |
+| R49 | الأداء | PARTIAL | قياسات إنتاج حية 2026-09-13: API liveness 371ms; mcp/tools 427ms; sitemap 4.5s (أول ضربة، مخزن بعدها); ويب 400-480ms — هدف 150ms لم يتحقق بعد (كاش/keep-alive/Fشل بارد) | P1 |
 | R50 | الأمن | PARTIAL | SecureStore/httpOnly/CSRF/guards/honeypots ✅ BUT اختراق فعلي + فروع أمنية غير مندمجة + IDOR شامل — P11 | P0 |
 | R51 | خصوصية PHI | PARTIAL | default-deny + فحوص مالكية ✅ + sitemaps بلا PHI ✅؛ تدقيق تسرب شامل P11 | P0 |
 | R52 | الأدمن | PASS | 51 صفحة حية + Guard + بروكسي محروس + انتحال منضبط (فجوة 14 مساراً تُسد P5) | P1 |
@@ -62,5 +62,5 @@
 | R78-82 | العملية/التقرير/القبول | 🔄 جارية (هذه الخطة) | — | — |
 
 ## ملخص الإحصاء
-- PASS: 54 (R1-R4/R7/R8/R9-R12/R20-R24/R26/R27/R29-R31/R32–R48/R52-R55/R57/R64-R70/R72-R75/R77) · PARTIAL: 19 · UNCERTAIN: 2 (R49/R56) · FAIL: 0 · BLOCKED: 2 (R28/R76) · in-progress: 5 (R78–R82) — المجموع = 82 (أُعيد التقييم 2026-09-12)
+- PASS: 54 (R1-R4/R7/R8/R9-R12/R20-R24/R26/R27/R29-R31/R32–R48/R52-R55/R57/R64-R70/R72-R75/R77) · PARTIAL: 20 · UNCERTAIN: 1 (R56) · FAIL: 0 · BLOCKED: 2 (R28/R76) · in-progress: 5 (R78–R82) — المجموع = 82 (أُعيد التقييم 2026-09-12)
 - P0: 23 بنداً — حُلَّت بالكامل (REPORT-FINAL.md 23/23) · أولويات ثانوية في REPORT.md §4 · التفاصيل في REPORT-FINAL.md
