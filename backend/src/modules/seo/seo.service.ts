@@ -3,7 +3,7 @@ import { Model } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { controlsMap, isTypeIndexable, robotsDisallowLines } from './seo-controls.util';
-import { buildSlug, parseSlugSuffix, slugify } from '../../common/slug.util';
+import { buildSlug, parseSlugSuffix, slugify, escapeRegex } from '../../common/slug.util';
 import { MedicineRepository } from "./repositories/medicine.repository";
 import { LabServiceRepository } from "./repositories/labservice.repository";
 import { HomeCareServiceRepository } from "./repositories/homecareservice.repository";
@@ -103,8 +103,8 @@ export class SeoService {
 
     const sfx = parseSlugSuffix(slug);
     if (!sfx) {
-      // No id suffix — try fuzzy by name
-      const re = new RegExp(slug.replace(/-/g, ' '), 'i');
+      // No id suffix — try fuzzy by name (input escaped: NABD-BACKEND-1/2 class).
+      const re = new RegExp(escapeRegex(slug.replace(/-/g, ' ')), 'i');
       return model.findOne(
         { ...this.publicQuery(type), $or: [{ name_en: re }, { name_ar: re }, { full_name: re }] },
         { _id: 0, __v: 0 },
