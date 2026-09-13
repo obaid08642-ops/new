@@ -247,7 +247,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   }
 
   async zadd(key: string, score: number, member: string): Promise<void> {
-    if (this.ready) { try { await this.client.zadd(key, score, member); return; } catch { /* fall through */ } }
+    if (this.ready) { try { await this.client.zadd(key, String(score), member); return; } catch { /* fall through */ } }
     let z = this.memZsetOf(key);
     if (!z) { z = { items: [] }; this.memZset.set(key, z); }
     z.items = z.items.filter((i) => i.member !== member);
@@ -261,7 +261,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   }
 
   async zrange(key: string, start: number, stop: number): Promise<string[]> {
-    if (this.ready) { try { return await this.client.zrange(key, start, stop); } catch { /* fall through */ } }
+    if (this.ready) { try { return await this.client.zrange(key, String(start), String(stop)); } catch { /* fall through */ } }
     const z = this.memZsetOf(key);
     if (!z) return [];
     const sorted = [...z.items].sort((a, b) => a.score - b.score).map((i) => i.member);
