@@ -33,7 +33,7 @@ export function SupportClient({ faqs, tickets, labels }: { faqs: SupportFaq[]; t
       const response = await fetch("/api/patient/support/requests", {
         method: "POST",
         headers: { "content-type": "application/json", "idempotency-key": crypto.randomUUID() },
-        body: JSON.stringify({ subject: subject.trim(), message: message.trim(), category: "general" }),
+        body: JSON.stringify({ subject: subject.trim(), message: message.trim(), category: "GENERAL" }),
       });
       if (!response.ok) throw new Error("support_request_failed");
       setSubject("");

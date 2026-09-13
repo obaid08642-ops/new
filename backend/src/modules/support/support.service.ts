@@ -17,11 +17,14 @@ export class SupportService {
   // SUPPORT
   async create(user: any, body: any) {
     if (!body.subject || !body.message) throw new BadRequestException('subject and message required');
+    // PATIENT-APP-2: clients send lowercase ('general'); normalize to the enum, fallback GENERAL.
+    const raw = String(body.category || 'GENERAL').trim().toUpperCase();
+    const allowed = ['GENERAL', 'ORDER_ISSUE', 'PAYMENT', 'TECHNICAL', 'COMPLAINT', 'SUGGESTION'];
     const r = await this.req.create({
       user_id: user.id,
       user_name: user.full_name,
       user_phone: user.phone,
-      category: body.category || 'GENERAL',
+      category: allowed.includes(raw) ? raw : 'GENERAL',
       subject: body.subject.trim(),
       message: body.message.trim(),
       attachments: body.attachments || [],
