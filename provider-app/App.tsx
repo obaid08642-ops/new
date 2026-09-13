@@ -123,6 +123,9 @@ function AppNavigator() {
 import { ProviderHome } from "./src/screens/shared/ProviderHome";
 import { LiveKitRoomProvider } from "./src/screens/shared/LiveKitRoomProvider";
 import { PharmacyChatResponder } from "./src/screens/shared/PharmacyChatResponder";
+import { initProviderSentry } from "./src/utils/sentry";
+
+initProviderSentry();
 
 export default function App() {
   React.useEffect(() => {
