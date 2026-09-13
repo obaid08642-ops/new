@@ -197,7 +197,7 @@ export class EntityGraphService implements OnModuleInit {
     const medCol = this.connection.collection('medicines_master');
     let medicines: any[] = [];
     if (condition.relevant_ingredients?.length) {
-      const ingRegexes = condition.relevant_ingredients.map(ing => new RegExp(ing, 'i'));
+      const ingRegexes = condition.relevant_ingredients.map(ing => new RegExp(escapeRegex(String(ing)), 'i'));
       medicines = await medCol
         .find({ active_ingredient: { $in: ingRegexes } })
         .project({ id: 1, sku: 1, slug: 1, name_ar: 1, name_en: 1, price: 1, form: 1, strength: 1, active_ingredient: 1 })
