@@ -1,6 +1,7 @@
 import { JwtAuthGuard } from '../../common/auth.guard';
 import { UseGuards } from '@nestjs/common';
-import { Controller, Get, Post, Body, Param, NotFoundException, Header, Res } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, NotFoundException, Header, Res, UseInterceptors } from '@nestjs/common';
+import { RedisCacheInterceptor } from '../../common/redis-cache.interceptor';
 import { Response } from 'express';
 import { SeoService } from './seo.service';
 import { IndexNowService } from './indexnow.service';
@@ -12,6 +13,7 @@ import { Public } from '../../common/auth.guard';
  */
 @UseGuards(JwtAuthGuard)
 @Controller('seo')
+@UseInterceptors(RedisCacheInterceptor)
 export class SeoController {
   constructor(
     private readonly svc: SeoService,

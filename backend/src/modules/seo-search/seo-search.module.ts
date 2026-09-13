@@ -1008,6 +1008,36 @@ export class SeoAdminController {
     const out = await (this.pipeline as any).backfillMissingSlugs(type, limit);
     return { ok: true, type, ...out };
   }
+
+  /**
+   * R49 warmup: prime Redis + edge cache for the hottest public URLs
+   * after each deploy (sitemap, catalogs, MCP). Call once post-deploy.
+   */
+  @Post('warm-cache')
+  async warmCache() {
+    const base = (process.env.NABD_PUBLIC_URL || 'https://api.nabd.plus').replace(/\/$/, '');
+    const paths = [
+      '/api/v1/seo/sitemap.xml',
+      '/api/v1/catalogs/insurance',
+      '/api/v1/catalogs/labs',
+      '/api/v1/catalogs/radiology',
+      '/api/v1/catalogs/nursing',
+      '/api/v1/mcp/tools',
+      '/api/v1/mcp/server-card',
+    ];
+    const out: Array<{ path: string; status: number; ms: number }> = [];
+    for (const p of paths) {
+      const t0 = Date.now();
+      try {
+        const r = await fetch(base + p, { headers: { 'User-Agent': 'NabdPlus-CacheWarmer/1.0' } });
+        out.push({ path: p, status: r.status, ms: Date.now() - t0 });
+        await r.arrayBuffer().catch(() => null);
+      } catch {
+        out.push({ path: p, status: 0, ms: Date.now() - t0 });
+      }
+    }
+    return { ok: true, warmed: out };
+  }
 }
 
 @Module({
