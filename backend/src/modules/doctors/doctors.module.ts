@@ -6,6 +6,7 @@ import { JwtAuthGuard, CurrentUser, Roles, Public } from '../../common/auth.guar
 import { UserRole } from '../../common/enums';
 import { Doctor, DoctorSchema, DoctorAppointment, DoctorAppointmentSchema, DoctorChatMessage, DoctorChatMessageSchema, ConsultationNote, ConsultationNoteSchema, NotificationItem, NotificationItemSchema, AppointmentState } from './doctors.schemas';
 import { EventBusService } from '../events/event-bus.service';
+import { escapeRegex } from '../../common/slug.util';
 
 const SEED_DOCTORS = [
   { name_ar: 'د. أحمد السالم', name_en: 'Dr. Ahmed Al-Salem', specialty: 'general_medicine', specialty_ar: 'طب عام', gender: 'male', languages: ['ar', 'en'], consultation_fee: 80, home_visit_fee: 180, video_consultation_fee: 60, home_visit_enabled: true, video_enabled: true, voice_enabled: true, rating: 4.7, reviews_count: 128, insurance_supported: ['بوبا', 'التعاونية'], biography: 'استشاري طب أسرة بخبرة 15 سنة في الأمراض الشائعة والمزمنة.', tags: ['family', 'general'], clinic_location: { city: 'الرياض', name: 'مجمع نبض الطبي', lat: 24.7136, lng: 46.6753 } },
@@ -60,8 +61,11 @@ export class DoctorsService implements OnModuleInit {
     if (filter.home === '1') q.home_visit_enabled = true;
     if (filter.video === '1') q.video_enabled = true;
     if (filter.insurance) q.insurance_supported = filter.insurance;
-    if (filter.insurance_company) q.insurance_supported = { $regex: new RegExp(filter.insurance_company, 'i') };
-    if (filter.search) q.$or = [{ name_ar: { $regex: filter.search, $options: 'i' } }, { name_en: { $regex: filter.search, $options: 'i' } }, { specialty_ar: { $regex: filter.search, $options: 'i' } }];
+    if (filter.insurance_company) q.insurance_supported = { $regex: new RegExp(escapeRegex(String(filter.insurance_company)), 'i') };
+    if (filter.search) {
+      const s = escapeRegex(String(filter.search));
+      q.$or = [{ name_ar: { $regex: s, $options: 'i' } }, { name_en: { $regex: s, $options: 'i' } }, { specialty_ar: { $regex: s, $options: 'i' } }];
+    }
     return this.doctors.find(q, { _id: 0, __v: 0 }).sort({ rating: -1, reviews_count: -1 }).limit(100).lean();
   }
 

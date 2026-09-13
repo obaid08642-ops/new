@@ -13,6 +13,7 @@ import { AutoEntitySeoPipelineService } from '../events/auto-entity-seo-pipeline
 import { localizeMedicineStructured, DbLang, missingPublicMedicineTranslations, PUBLIC_CATALOG_LOCALES } from './med-i18n';
 import { ProductRankingService } from '../product-ranking/product-ranking.service';
 import { ManualBoostsService } from '../product-ranking/manual-boosts.service';
+import { escapeRegex } from '../../common/slug.util';
 
 @Injectable()
 export class MedicinesService {
@@ -708,7 +709,7 @@ export class MedicinesService {
     const cacheKey = `med:autocomplete:governed-v1:${q.toLowerCase()}`;
     const cached = await this.redis.getJson<any[]>(cacheKey);
     if (cached) return cached;
-    const re = new RegExp(q, 'i');
+    const re = new RegExp(escapeRegex(q), 'i');
     const rows = await this.model.find(
       { $or: [{ name_ar: re }, { name_en: re }, { active_ingredient: re }], ...this.publicCatalogFilter() },
       { _id: 0, id: 1, name_ar: 1, name_en: 1, active_ingredient: 1, image: 1, price: 1, requires_prescription: 1, category: 1 }

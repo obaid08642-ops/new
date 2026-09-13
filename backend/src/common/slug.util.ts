@@ -45,3 +45,9 @@ export function parseSlugSuffix(slug: string): string | null {
   const m = slug.match(/-([a-f0-9]{6})$/i);
   return m ? m[1].toLowerCase() : null;
 }
+
+/** Escapes special regular expression characters to prevent ReDoS / injection. */
+export function escapeRegex(input: string): string {
+  if (!input) return '';
+  return String(input).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}

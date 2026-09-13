@@ -5,6 +5,7 @@ import { Condition, ConditionDocument } from './schemas/condition.schema';
 import { EntityRelation, EntityRelationDocument } from './schemas/entity-relation.schema';
 import { SEED_CONDITIONS } from './seeds/conditions.data';
 import { LocationService } from '../location/location.service';
+import { escapeRegex } from '../../common/slug.util';
 
 export interface RelatedGraphResponse {
   entity_type: string;
@@ -94,7 +95,8 @@ export class EntityGraphService implements OnModuleInit {
     // Find conditions related to this active ingredient
     let relatedConditions: any[] = [];
     if (activeIng) {
-      const ingRegex = new RegExp(activeIng.split(' ')[0], 'i');
+      const token = activeIng.split(' ')[0];
+      const ingRegex = new RegExp(escapeRegex(token), 'i');
       relatedConditions = await this.conditionModel
         .find({ relevant_ingredients: { $in: [ingRegex] }, is_active: true })
         .select({ code: 1, name_ar: 1, name_en: 1, symptoms: 1 })
@@ -269,17 +271,18 @@ export class EntityGraphService implements OnModuleInit {
     const query: any = { is_deleted: { $ne: true } };
 
     if (filters.specialty) {
-      query.specialty = new RegExp(`^${filters.specialty}$`, 'i');
+      query.specialty = new RegExp(`^${escapeRegex(String(filters.specialty))}$`, 'i');
     }
 
     if (filters.city) {
-      query.city = new RegExp(filters.city, 'i');
+      query.city = new RegExp(escapeRegex(String(filters.city)), 'i');
     }
 
     if (filters.insurance) {
+      const insRe = new RegExp(escapeRegex(String(filters.insurance)), 'i');
       query.$or = [
-        { accepted_insurance: new RegExp(filters.insurance, 'i') },
-        { accepted_insurances: new RegExp(filters.insurance, 'i') },
+        { accepted_insurance: insRe },
+        { accepted_insurances: insRe },
       ];
     }
 
@@ -292,10 +295,10 @@ export class EntityGraphService implements OnModuleInit {
     // Fetch related facilities
     const facCol = this.connection.collection('facilities');
     const facQuery: any = {};
-    if (filters.city) facQuery.city = new RegExp(filters.city, 'i');
-    if (filters.district) facQuery.district = new RegExp(filters.district, 'i');
-    if (filters.insurance) facQuery.accepted_insurance = new RegExp(filters.insurance, 'i');
-    if (filters.specialty) facQuery.departments = new RegExp(filters.specialty, 'i');
+    if (filters.city) facQuery.city = new RegExp(escapeRegex(String(filters.city)), 'i');
+    if (filters.district) facQuery.district = new RegExp(escapeRegex(String(filters.district)), 'i');
+    if (filters.insurance) facQuery.accepted_insurance = new RegExp(escapeRegex(String(filters.insurance)), 'i');
+    if (filters.specialty) facQuery.departments = new RegExp(escapeRegex(String(filters.specialty)), 'i');
 
     const facilities = await facCol
       .find(facQuery)

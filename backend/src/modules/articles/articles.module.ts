@@ -14,7 +14,7 @@ import { JwtAuthGuard, Public, Roles, CurrentUser } from '../../common/auth.guar
 import { RequireIdempotency } from '../../common/idempotency.interceptor';
 import { UserRole } from '../../common/enums';
 import { Article, ArticleSchema } from '../../schemas/article.schema';
-import { buildSlug, slugify } from '../../common/slug.util';
+import { buildSlug, slugify, escapeRegex } from '../../common/slug.util';
 
 @Injectable()
 export class ArticlesService {
@@ -24,7 +24,10 @@ export class ArticlesService {
     const { category, q, limit = '20', page = '1' } = query;
     const filter: any = { status: 'PUBLISHED', is_deleted: { $ne: true } };
     if (category) filter.category = category;
-    if (q) filter.$or = [{ title_ar: new RegExp(q, 'i') }, { title_en: new RegExp(q, 'i') }, { tags: q }];
+    if (q) {
+      const re = new RegExp(escapeRegex(String(q)), 'i');
+      filter.$or = [{ title_ar: re }, { title_en: re }, { tags: q }];
+    }
     const lim = Math.min(Number(limit) || 20, 50);
     const skip = (Math.max(Number(page) || 1, 1) - 1) * lim;
     return this.model
