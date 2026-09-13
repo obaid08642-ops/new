@@ -216,6 +216,7 @@ export class AuthService {
       if (normalized.includes('@')) {
         await this.mail?.sendOtp(normalized, code);
       } else if (user.email) {
+        // SMS retired: phone identifiers receive the OTP by email (Resend→SES).
         await this.mail?.sendOtp(user.email, code);
       }
     } catch { /* email failure must not block push */ }

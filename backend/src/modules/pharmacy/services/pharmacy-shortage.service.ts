@@ -14,6 +14,7 @@ import { DrugRejectionLogRepository } from "./repositories/drugrejectionlog.repo
 import { MedicineRepository } from "./repositories/medicine.repository";
 import { PharmacyOrderRepository } from "./repositories/pharmacyorder.repository";
 import { isProviderRole } from '../../../common/enums';
+import { escapeRegex } from '../../../common/slug.util';
 
 @Injectable()
 export class PharmacyShortageService {
@@ -106,7 +107,7 @@ export class PharmacyShortageService {
   async lookupForPatient(sku?: string, generic_name?: string): Promise<any> {
     const q: any = {};
     if (sku) q.barcode = sku;
-    else if (generic_name) q.active_ingredient = { $regex: new RegExp(generic_name, 'i') };
+    else if (generic_name) q.active_ingredient = { $regex: new RegExp(escapeRegex(String(generic_name)), 'i') };
     else return null;
     
     const med = await this.medicines.findOne(q).lean();
