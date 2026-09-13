@@ -35,6 +35,6 @@
 
 @media (max-width: 860px) { .grid, .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 700px) { .quickGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 520px) { .page { gap: 1.15rem; padding-top: 1rem; } .grid, .cards { grid-template-columns: minmax(0, 1fr); } .heroVector { display: none; } }
+@media (max-width: 520px) { .page { gap: 1.15rem; padding-top: 1rem; } .grid, .cards { grid-template-columns: minmax(0, 1fr); } .quickGrid { grid-template-columns: minmax(0, 1fr); } .heroVector { display: none; } }
 @media (prefers-reduced-motion: reduce) { .quickAction, .card, .back { transition: none; } .quickAction:hover, .card:hover { transform: none; } }
 
