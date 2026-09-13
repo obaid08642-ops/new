@@ -182,7 +182,7 @@ export default function SecuritySettingsScreen() {
                 <Icon name="security" size={16} color={colors.primary} />
                 <AppText variant="bodySM">التحقق الثنائي (2FA)</AppText>
               </View>
-              <AppText variant="bodySM">كود SMS عند كل تسجيل دخول</AppText>
+              <AppText variant="bodySM">كود تحقق عبر البريد عند كل تسجيل دخول</AppText>
             </View>
           </View>
         </View>

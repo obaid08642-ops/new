@@ -178,7 +178,7 @@ export class AuthService {
   private opaqueOtpResponse(identifier: string) {
     return {
       otp_sent: true,
-      channel: this.normalizeOtpIdentifier(identifier).includes('@') ? 'email' : 'sms',
+      channel: 'email',
       expires_in: this.PATIENT_OTP_TTL_SECONDS,
     } as const;
   }
@@ -213,8 +213,9 @@ export class AuthService {
     try {
       if (normalized.includes('@')) {
         await this.mail?.sendOtp(normalized, code);
-      } else if (await this.sms?.isEnabled()) {
-        await this.sms?.sendOtp(normalized, code);
+      } else if (user.email) {
+        // SMS retired: phone identifiers receive the OTP by email (Resend→SES).
+        await this.mail?.sendOtp(user.email, code);
       } else {
         await this.push?.sendToUser(user.id, 'رمز التحقق — نَبْض', `رمز التحقق الخاص بك: ${code}`, { kind: 'patient_web_otp' });
       }
@@ -315,8 +316,9 @@ export class AuthService {
     try {
       if (normalized.includes('@')) {
         await this.mail?.send(normalized, 'Password reset', `Your Nabdah Plus password-reset token is ${resetToken}. It expires in 60 seconds.`);
-      } else if (await this.sms?.isEnabled()) {
-        await this.sms?.sendOtp(normalized, resetToken);
+      } else if (user.email) {
+        // SMS retired: reset link goes by email (Resend→SES).
+        await this.mail?.send(user.email, 'Password reset', `Your Nabdah Plus password-reset token is ${resetToken}. It expires in 60 seconds.`);
       }
     } catch {
       // Do not disclose account state or the raw token in the HTTP response.
@@ -806,25 +808,9 @@ export class AuthService {
         // Unified mail pipeline: Resend primary → Amazon SES automatic fallback.
         await this.mail?.sendOtp(normalized, code);
       } else {
-        // SMS is DISABLED by default (SMS_ENABLED=false / feature flag sms_enabled).
-        // The OTP above already reached the user via push notification; when the
-        // identifier is a phone we additionally check the flag before any SMS.
-        const smsOn = await this.sms?.isEnabled();
-        if (smsOn && process.env.INFOBIP_API_KEY) {
-          await fetch(`https://${process.env.INFOBIP_BASE_URL}/sms/2/text/advanced`, {
-            method: 'POST',
-            headers: {
-              'Authorization': `App ${process.env.INFOBIP_API_KEY}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              messages: [{
-                destinations: [{ to: normalized }],
-                from: 'NabdahPlus',
-                text: `Your Nabdah Plus OTP is ${code}. Expires in 10 mins.`,
-              }]
-            }),
-          });
+        // SMS retired: login-2FA codes go by email (Resend→SES); push already sent above.
+        if (u.email) {
+          await this.mail?.sendOtp(u.email, code);
         }
       }
       if (

@@ -96,8 +96,11 @@ export class NotificationsService {
       try {
         const user = (await this.model.db.model('User').findOne({ id: n.user_id }).lean()) as any;
         if (user?.phone) {
-          try { await this.sendSms(n, user.phone); delivery.sms = bump('sms', true); }
-          catch (e: any) { delivery.sms = bump('sms', false, e.message); }
+          // SMS retired: phone users are served by email (if on file) + push + WhatsApp.
+          if (user?.email) {
+            try { await this.sendEmail(n, user.email); delivery.email = bump('email', true); }
+            catch (e: any) { delivery.email = bump('email', false, e.message); }
+          }
           try { await this.sendWhatsApp(n, user.phone); delivery.whatsapp = bump('whatsapp', true); }
           catch (e: any) { delivery.whatsapp = bump('whatsapp', false, e.message); }
         }
@@ -136,7 +139,7 @@ export class NotificationsService {
         const user = (await this.model.db.model('User').findOne({ id: n.user_id }).lean()) as any;
         if (user) {
           if (user.phone) {
-            await this.sendSms(n, user.phone);
+            // SMS retired (see dispatch above).
             await this.sendWhatsApp(n, user.phone);
           }
           if (user.email) {
@@ -239,8 +242,10 @@ export class NotificationsService {
     }
   }
 
-  async sendSms(n: any, phone: string) {
-    await this.smsService.sendOtp(phone, n.title_key + ' - ' + n.body_key);
+  /** SMS retired: kept as a logged no-op so historic delivery records keep their shape. */
+  async sendSms(_n: any, _phone: string) {
+    this.logger.warn('SMS channel retired — use email instead.');
+    return false;
   }
 
   async sendEmail(n: any, email: string) {
