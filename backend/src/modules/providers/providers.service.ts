@@ -11,6 +11,7 @@ import { UserRepository } from "./repositories/user.repository";
 import { ProviderProfileRepository } from "./repositories/providerprofile.repository";
 import { InjectModel } from '@nestjs/mongoose';
 import { CatalogPublicationService } from '../events/catalog-publication.service';
+import { escapeRegex } from '../../common/slug.util';
 
 /**
  * Provider Onboarding Service
@@ -268,17 +269,19 @@ export class ProvidersService {
     if (insurance_company || insurance_network || insurance_class) {
       const elemMatch: any = {};
       if (insurance_company) {
+        const compRe = new RegExp(escapeRegex(String(insurance_company)), 'i');
         elemMatch.$or = [
           { company_id: insurance_company },
-          { company_name_en: { $regex: new RegExp(insurance_company, 'i') } },
-          { company_name_ar: { $regex: new RegExp(insurance_company, 'i') } }
+          { company_name_en: { $regex: compRe } },
+          { company_name_ar: { $regex: compRe } }
         ];
       }
       if (insurance_network) {
+        const netRe = new RegExp(escapeRegex(String(insurance_network)), 'i');
         const netOr = [
           { network_id: insurance_network },
-          { network_name_en: { $regex: new RegExp(insurance_network, 'i') } },
-          { network_name_ar: { $regex: new RegExp(insurance_network, 'i') } }
+          { network_name_en: { $regex: netRe } },
+          { network_name_ar: { $regex: netRe } }
         ];
         if (elemMatch.$or) {
           elemMatch.$and = [

@@ -9,6 +9,7 @@ import { EventBusService } from '../events/event-bus.service';
 import { ContractPdfService } from './contract-pdf.service';
 import * as bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
+import { escapeRegex } from '../../common/slug.util';
 
 /**
  * Unified Provider Onboarding Wizard.
@@ -414,7 +415,7 @@ export class ProviderOnboardingService {
     if (q.home_visit === true) filter.home_visit_supported = true;
     if (q.insurance) filter.accepted_insurance = q.insurance;
     if (q.service) {
-      const re = new RegExp(q.service, 'i');
+      const re = new RegExp(escapeRegex(String(q.service)), 'i');
       filter.$or = [
         { name_ar: re },
         { name_en: re },
