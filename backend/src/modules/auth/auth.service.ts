@@ -210,15 +210,17 @@ export class AuthService {
       this.PATIENT_OTP_TTL_SECONDS,
     );
 
+    // Dual delivery (SMS retired): email + push together. Each channel is
+    // best-effort and isolated — one failing never blocks the other.
     try {
       if (normalized.includes('@')) {
         await this.mail?.sendOtp(normalized, code);
       } else if (user.email) {
-        // SMS retired: phone identifiers receive the OTP by email (Resend→SES).
         await this.mail?.sendOtp(user.email, code);
-      } else {
-        await this.push?.sendToUser(user.id, 'رمز التحقق — نَبْض', `رمز التحقق الخاص بك: ${code}`, { kind: 'patient_web_otp' });
       }
+    } catch { /* email failure must not block push */ }
+    try {
+      await this.push?.sendToUser(user.id, 'رمز التحقق — نَبْض', `رمز التحقق الخاص بك: ${code}`, { kind: 'patient_web_otp' });
     } catch {
       // Keep the response opaque and leave delivery observability to providers.
       // The raw OTP is never returned or logged by this path.
