@@ -2,7 +2,7 @@ import { Injectable, NotFoundException, BadRequestException, Inject } from '@nes
 import { Model } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
-import { SupportRequest, SupportStatus, PatientSettings } from '../../schemas/support.schema';
+import { SupportRequest, SupportStatus, SupportCategory, PatientSettings } from '../../schemas/support.schema';
 import { SupportRequestRepository } from "./repositories/supportrequest.repository";
 import { PatientSettingsRepository } from "./repositories/patientsettings.repository";
 
@@ -19,12 +19,12 @@ export class SupportService {
     if (!body.subject || !body.message) throw new BadRequestException('subject and message required');
     // PATIENT-APP-2: clients send lowercase ('general'); normalize to the enum, fallback GENERAL.
     const raw = String(body.category || 'GENERAL').trim().toUpperCase();
-    const allowed = ['GENERAL', 'ORDER_ISSUE', 'PAYMENT', 'TECHNICAL', 'COMPLAINT', 'SUGGESTION'];
+    const category = (Object.values(SupportCategory).includes(raw as SupportCategory) ? raw : SupportCategory.GENERAL) as SupportCategory;
     const r = await this.req.create({
       user_id: user.id,
       user_name: user.full_name,
       user_phone: user.phone,
-      category: allowed.includes(raw) ? raw : 'GENERAL',
+      category,
       subject: body.subject.trim(),
       message: body.message.trim(),
       attachments: body.attachments || [],
