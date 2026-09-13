@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { SeoController } from './seo.controller';
 import { SeoService } from './seo.service';
+import { RedisCacheInterceptor } from '../../common/redis-cache.interceptor';
 import { MedicineSchema } from '../../schemas/medicine.schema';
 import { LabServiceSchema } from '../../schemas/lab.schema';
 import { HomeCareServiceSchema } from '../../schemas/home-care.schema';
@@ -32,6 +33,7 @@ import { SeoIndexingListener } from './seo-indexing.listener';
     SeoService,
     IndexNowService,
     SeoIndexingListener,
+    RedisCacheInterceptor,
     { provide: 'FacilityRepository', useClass: FacilityRepository },
     { provide: 'ArticleRepository', useClass: ArticleRepository },
     { provide: 'HomeCareServiceRepository', useClass: HomeCareServiceRepository },

@@ -1,9 +1,11 @@
-import { Controller, Post, Get, Body, HttpCode } from '@nestjs/common';
+import { Controller, Post, Get, Body, HttpCode, UseInterceptors } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { McpService, MCP_TOOLS } from './mcp.service';
 import { Public } from '../../common/auth.guard';
+import { RedisCacheInterceptor } from '../../common/redis-cache.interceptor';
 
 @Controller('mcp')
+@UseInterceptors(RedisCacheInterceptor)
 export class McpController {
   constructor(private readonly mcpService: McpService) {}
 

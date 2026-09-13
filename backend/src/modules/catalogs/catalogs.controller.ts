@@ -1,7 +1,8 @@
-import { Controller, Get, Param, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Param, NotFoundException, UseInterceptors } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { Public } from '../../common/auth.guard';
+import { RedisCacheInterceptor } from '../../common/redis-cache.interceptor';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -24,6 +25,7 @@ const DB_COLLECTIONS: Record<string, string> = {
 const CATALOGS = ['insurance', 'labs', 'radiology', 'nursing'] as const;
 
 @Controller('catalogs')
+@UseInterceptors(RedisCacheInterceptor)
 export class CatalogsController {
   constructor(@InjectConnection() private readonly conn: Connection) {}
 

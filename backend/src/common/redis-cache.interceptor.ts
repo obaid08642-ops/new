@@ -9,7 +9,11 @@ export class RedisCacheInterceptor implements NestInterceptor {
 
   async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<any>> {
     const request = context.switchToHttp().getRequest();
-    
+    const response = context.switchToHttp().getResponse();
+    const setEdgeHeaders = () => {
+      try { response?.setHeader?.('Cache-Control', 'public, max-age=60, s-maxage=300'); } catch { /* non-HTTP */ }
+    };
+
     // Only cache GET requests
     if (request.method !== 'GET') {
       return next.handle();
@@ -24,14 +28,16 @@ export class RedisCacheInterceptor implements NestInterceptor {
     const cachedResponse = await this.redis.getClient().get(cacheKey);
 
     if (cachedResponse) {
+      setEdgeHeaders();
       return of(JSON.parse(cachedResponse));
     }
 
     return next.handle().pipe(
-      tap(async (response) => {
+      tap(async (data) => {
         // Cache successful public GET responses for 5 minutes
-        if (response) {
-          await this.redis.getClient().set(cacheKey, JSON.stringify(response), 'EX', 300);
+        if (data) {
+          setEdgeHeaders();
+          await this.redis.getClient().set(cacheKey, JSON.stringify(data), 'EX', 300);
         }
       }),
     );
