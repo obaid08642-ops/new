@@ -15,8 +15,6 @@ import { Facility, FacilityDocument, FacilitySchema } from '../../schemas/facili
 import { PatientProfile, PatientProfileSchema } from '../../schemas/patient-profile.schema';
 import { AiModule } from '../ai/ai.module';
 import { AiGatewayService } from '../ai/ai-gateway.service';
-import { NphiesModule } from '../nphies/nphies.module';
-import { NphiesService } from '../nphies/nphies.service';
 
 @Injectable()
 export class InsuranceService {
@@ -30,7 +28,6 @@ export class InsuranceService {
     @InjectModel('PatientProfile') private patientModel: Model<any>,
     @InjectModel('InsuranceClaim') private claimModel: Model<InsuranceClaimDocument>,
     private readonly ai: AiGatewayService,
-    private readonly nphies: NphiesService,
   ) {}
 
   private cleanJson(text: string): string {
@@ -158,80 +155,82 @@ export class InsuranceService {
 
     const patientIns = patient.insurance; // { provider: 'bupa', network: 'gold', policy_number: '...', class: 'A' }
     
-    // REAL NPHIES integration — calls sandbox for live eligibility
-    try {
-      const nphiesResult = await this.nphies.checkEligibility({
-        national_id: patientIns.national_id || '',
-        member_id: patientIns.policy_number,
-        provider_code: patientIns.provider,
-        service_type: query.service_type,
-        service_code: query.service_key,
-      });
+    // LOCAL eligibility check — provider enters approval result manually in their system
+    // No direct NPHIES integration. Insurance data collected from patient and sent with booking request.
+    // Provider performs approval on their clinic/hospital system and enters result in provider app.
 
-      if (!nphiesResult.eligible) {
-        return {
-          covered: false,
-          reason: nphiesResult.error || 'NPHIES: not eligible',
-          copay_percent: 100,
-          copay_flat: 0,
-          requires_preauth: false,
-          nphies_live: true,
-        };
+    // Find provider or facility contracts for copay details
+    let contracts: InsuranceNetworkContract[] = [];
+    let name = '';
+
+    if (query.provider_id) {
+      const provider = await this.providerModel.findOne({ id: query.provider_id }).lean();
+      if (provider) {
+        contracts = provider.insurance_contracts || [];
+        name = provider.name_ar;
       }
-
-      // Find provider or facility contracts for copay details
-      let contracts: InsuranceNetworkContract[] = [];
-      let name = '';
-
-      if (query.provider_id) {
-        const provider = await this.providerModel.findOne({ id: query.provider_id }).lean();
-        if (provider) {
-          contracts = provider.insurance_contracts || [];
-          name = provider.name_ar;
-        }
-      } else if (query.facility_id) {
-        const facility = await this.facilityModel.findOne({ id: query.facility_id }).lean();
-        if (facility) {
-          contracts = facility.insurance_contracts || [];
-          name = facility.name_ar;
-        }
+    } else if (query.facility_id) {
+      const facility = await this.facilityModel.findOne({ id: query.facility_id }).lean();
+      if (facility) {
+        contracts = facility.insurance_contracts || [];
+        name = facility.name_ar;
       }
+    }
 
-      // Match patient insurance company & network code
-      const matchingContract = contracts.find(c => 
-        c.company_id.toLowerCase() === patientIns.provider.toLowerCase() &&
-        c.network_id.toLowerCase() === patientIns.network.toLowerCase() &&
-        (c.covered_classes.length === 0 || c.covered_classes.includes(patientIns.class))
-      );
+    // Match patient insurance company & network code
+    const matchingContract = contracts.find(c => 
+      c.company_id.toLowerCase() === patientIns.provider.toLowerCase() &&
+      c.network_id.toLowerCase() === patientIns.network.toLowerCase() &&
+      (c.covered_classes.length === 0 || c.covered_classes.includes(patientIns.class))
+    );
 
-      return {
-        covered: true,
-        provider_name: name,
-        company_id: matchingContract?.company_id || patientIns.provider,
-        company_name_ar: matchingContract?.company_name_ar || patientIns.provider,
-        network_id: matchingContract?.network_id || patientIns.network,
-        network_name_ar: matchingContract?.network_name_ar || patientIns.network,
-        class: patientIns.class,
-        copay_percent: nphiesResult.copay_percent ?? matchingContract?.copay_percent ?? 0,
-        copay_flat: nphiesResult.copay_flat ?? matchingContract?.copay_flat ?? 0,
-        requires_preauth: nphiesResult.requires_preauth ?? false,
-        patient_policy: patientIns,
-        nphies_live: true,
-        approval_code: nphiesResult.approval_code,
-      };
-    } catch (e: any) {
-      // Fail closed on NPHIES error — don't fake eligibility
-      this.logger?.warn?.(`NPHIES eligibility check failed: ${e.message}`);
+    if (!matchingContract) {
       return {
         covered: false,
-        reason: 'NPHIES service unavailable — cannot verify eligibility',
+        reason: `Provider/Facility does not accept patient's insurance network (${patientIns.provider} - ${patientIns.network})`,
         copay_percent: 100,
         copay_flat: 0,
         requires_preauth: false,
+        patient_policy: patientIns,
         nphies_live: false,
-        error: e.message,
+        manual_approval_required: true,
       };
     }
+
+    // Now check if there is a coverage rule for this service
+    // Find network
+    const network = await this.networkModel.findOne({ 
+      company_id: matchingContract.company_id, 
+      code: matchingContract.network_id 
+    }).lean();
+
+    let rule: CoverageRule | null = null;
+    if (network) {
+      // Find rules matching network
+      const rules = await this.ruleModel.find({ network_id: network.id, service_type: query.service_type }).lean();
+      // Look for specific key first, then fallback to general service_type
+      rule = rules.find(r => r.service_key === query.service_key) || rules.find(r => !r.service_key) || null;
+    }
+
+    const copayPercent = rule ? rule.copay_percent : matchingContract.copay_percent;
+    const copayFlat = rule ? Math.min(rule.copay_flat_limit, matchingContract.copay_flat) : matchingContract.copay_flat;
+    const requiresPreauth = rule ? rule.requires_preauth : false;
+
+    return {
+      covered: true,
+      provider_name: name,
+      company_id: matchingContract.company_id,
+      company_name_ar: matchingContract.company_name_ar,
+      network_id: matchingContract.network_id,
+      network_name_ar: matchingContract.network_name_ar,
+      class: patientIns.class,
+      copay_percent: copayPercent,
+      copay_flat: copayFlat,
+      requires_preauth: requiresPreauth,
+      patient_policy: patientIns,
+      nphies_live: false,
+      manual_approval_required: true,
+    };
   }
 
   /** Real insurance-card OCR through the AI vision gateway. Never invents fields. */
@@ -309,26 +308,25 @@ Use null for any field not clearly visible. Do not guess.`;
       String(ins.company_id || '').toLowerCase().includes(code)
     );
     if (!matches) {
-      return { eligible: false, reason: 'no_matching_policy_on_file', nphies_live: false };
+      return { eligible: false, reason: 'no_matching_policy_on_file', nphies_live: false, manual_approval_required: true };
     }
     
-    // REAL NPHIES call
-    const result = await this.nphies.checkEligibility({
-      national_id: nationalId,
-      member_id: memberId || ins.policy_number,
-      provider_code: ins.provider,
-      service_type: 'consultation',
-    });
-    
+    // LOCAL eligibility check — provider enters approval result manually
+    // No direct NPHIES integration. Returns stored policy info for provider to verify.
     return {
-      eligible: result.eligible,
-      source: 'nphies_sandbox',
-      nphies_live: true,
-      approval_code: result.approval_code,
-      copay_percent: result.copay_percent,
-      copay_flat: result.copay_flat,
-      requires_preauth: result.requires_preauth,
-      policy_details: result.policy_details,
+      eligible: true,
+      source: 'stored_policy',
+      nphies_live: false,
+      verified: !!ins.verified,
+      network: ins.network || null,
+      network_class: ins.class || null,
+      expiry_date: ins.expiry_date || null,
+      manual_approval_required: true,
+      policy_details: {
+        provider: ins.provider,
+        policy_number: ins.policy_number,
+        national_id: ins.national_id,
+      },
     };
   }
 
@@ -527,8 +525,7 @@ export class InsuranceController {
       { name: 'PatientProfile', schema: PatientProfileSchema },
       { name: 'InsuranceClaim', schema: InsuranceClaimSchema },
     ]),
-    AiModule,
-    NphiesModule
+    AiModule
   ],
   controllers: [InsuranceController],
   providers: [InsuranceService],
