@@ -38,6 +38,12 @@ export async function generateMetadata({ params }: Omit<Props, "children">): Pro
       },
     },
     robots: { index: false, follow: false },
+    openGraph: {
+      type: "website",
+      siteName: t("siteTitle"),
+      images: [{ url: "/images/og-default.jpg", width: 1200, height: 630, alt: t("siteTitle") }],
+    },
+    twitter: { card: "summary_large_image", images: ["/images/og-default.jpg"] },
     other: {
       "ai-catalog": "/.well-known/ai-catalog.json",
       "a2a-agent-card": "/.well-known/agent-card.json",

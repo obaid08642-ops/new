@@ -9,7 +9,7 @@ export function RouteSkeleton({ rows = 4 }: { rows?: number }) {
     <main className="main auth-wrap" aria-busy="true">
       <section className="auth-card" role="status" aria-live="polite">
         <div className="eyebrow">{t("loadingCode")}</div>
-        <h1>{t("loadingTitle")}</h1>
+        <p className="loading-title">{t("loadingTitle")}</p>
         <p>{t("loadingBody")}</p>
         <div className="skeleton" aria-hidden="true">
           {Array.from({ length: rows }).map((_, i) => <i key={i} />)}

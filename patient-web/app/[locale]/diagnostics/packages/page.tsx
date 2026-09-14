@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -5,9 +6,19 @@ import { ArrowLeft, ArrowRight, FlaskConical, Search, ShieldCheck } from "lucide
 import { extractLabServices } from "@/lib/api/labs";
 import { getPublicLabServices } from "@/lib/api/labs-server";
 import { isLocale } from "@/lib/i18n";
+import { hubMetadata } from "@/lib/seo";
+
 import styles from "../labs/labs.module.css";
 
 type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<{ q?: string; category?: string }> };
+
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  if (!isLocale(locale)) return {};
+  const t = await getTranslations({ locale, namespace: "HubSeo" });
+  return hubMetadata(locale, "/diagnostics/packages", t("diagnostics/packages.title"), t("diagnostics/packages.description"));
+}
 
 export default async function LabsPackagesPage({ params, searchParams }: Props) {
   const { locale } = await params; const query = (await searchParams) ?? {};

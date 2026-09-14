@@ -1354,5 +1354,35 @@
     "saving": "Ini-save ang reseta...",
     "success": "Matagumpay na nakuha ang mga gamot!",
     "error": "Hindi maiproseso ang reseta. Subukan muli."
+  },
+  "HubSeo": {
+    "privacy": {
+      "title": "Patakaran sa Privacy",
+      "description": "Kung paano pinoprotektahan ng Nabd Plus ang iyong data."
+    },
+    "terms": {
+      "title": "Mga Tuntunin ng Paggamit",
+      "description": "Mga tuntunin sa paggamit ng Nabd Plus platform."
+    },
+    "home-care/services": {
+      "title": "Mga Serbisyo sa Home Care",
+      "description": "Mag-book ng lisensyadong home nursing."
+    },
+    "consultations/specialties": {
+      "title": "Mga Espesyalidad",
+      "description": "Mag-browse ng mga espesyalidad at mag-book."
+    },
+    "diagnostics/packages": {
+      "title": "Mga Lab Package",
+      "description": "Mga lab test package na may malinaw na presyo."
+    },
+    "provider-info": {
+      "title": "Para sa Providers",
+      "description": "Sumali sa Nabd Plus bilang provider."
+    },
+    "medicines/compare": {
+      "title": "Paghambingin ang Gamot",
+      "description": "Ihambing ang mga gamot, presyo at alternatibo."
+    }
   }
 }

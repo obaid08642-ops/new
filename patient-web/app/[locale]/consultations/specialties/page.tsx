@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -5,9 +6,19 @@ import { ArrowLeft, ArrowRight, RefreshCw, Search, Stethoscope } from "lucide-re
 import { extractSpecialties } from "@/lib/api/specialties";
 import { getPublicSpecialties } from "@/lib/api/specialties-server";
 import { isLocale } from "@/lib/i18n";
+import { hubMetadata } from "@/lib/seo";
+
 import styles from "./specialties.module.css";
 
 type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<{ q?: string }> };
+
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  if (!isLocale(locale)) return {};
+  const t = await getTranslations({ locale, namespace: "HubSeo" });
+  return hubMetadata(locale, "/consultations/specialties", t("consultations/specialties.title"), t("consultations/specialties.description"));
+}
 
 export default async function SpecialtySelectPage({ params, searchParams }: Props) {
   const { locale } = await params;

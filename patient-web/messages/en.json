@@ -1354,5 +1354,35 @@
     "saving": "Saving prescription and preparing order...",
     "success": "Medicines extracted successfully! Redirecting to request offers...",
     "error": "Unable to process prescription. Please ensure image is clear and try again."
+  },
+  "HubSeo": {
+    "privacy": {
+      "title": "Privacy Policy",
+      "description": "How Nabd Plus protects your health data."
+    },
+    "terms": {
+      "title": "Terms of Service",
+      "description": "Terms of using the Nabd Plus platform."
+    },
+    "home-care/services": {
+      "title": "Home Care Services",
+      "description": "Book licensed home nursing and care services."
+    },
+    "consultations/specialties": {
+      "title": "Medical Specialties",
+      "description": "Browse specialties and book your consultation."
+    },
+    "diagnostics/packages": {
+      "title": "Lab Packages",
+      "description": "Lab test packages with transparent pricing."
+    },
+    "provider-info": {
+      "title": "For Providers",
+      "description": "Join Nabd Plus as a healthcare provider."
+    },
+    "medicines/compare": {
+      "title": "Compare Medicines",
+      "description": "Compare medicines, prices and alternatives."
+    }
   }
 }

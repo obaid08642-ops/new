@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -7,10 +8,20 @@ import { getPatientHomeCareServices, getPublicHomeCareServices } from "@/lib/api
 import { getPublicNursingCatalog } from "@/lib/api/nursing-catalog-server";
 import { getOptionalPatientAccessToken } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
+import { hubMetadata } from "@/lib/seo";
+
 import { VectorNursing } from "@/components-next/vector-illustrations";
 import styles from "./services.module.css";
 
 type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<{ q?: string }> };
+
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  if (!isLocale(locale)) return {};
+  const t = await getTranslations({ locale, namespace: "HubSeo" });
+  return hubMetadata(locale, "/home-care/services", t("home-care/services.title"), t("home-care/services.description"));
+}
 
 export default async function HomeCareServicesPage({ params, searchParams }: Props) {
   const { locale } = await params; const { q = "" } = (await searchParams) ?? {};
