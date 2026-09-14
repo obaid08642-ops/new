@@ -3,6 +3,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { GetServerSideProps } from 'next';
 import EmptyIcon from '../../../components/EmptyIcon';
+import { dateLocale } from '../../../utils/dates';
 
 /**
  * M6-SEO1 / ER-2+ER-3: public entity page — /s/:type/:slug
@@ -219,7 +220,7 @@ export default function EntityPage({ meta, type }: Props) {
                 {(e.author_name || e.published_at) && (
                   <div className="mt-6 pt-4 border-t border-slate-100 text-xs text-slate-400">
                     {e.author_name && <span> {e.author_name}{e.author_title?` — ${e.author_title}`:''}</span>}
-                    {e.published_at && <span className="mr-4">{new Date(e.published_at).toLocaleDateString('ar-SA-u-ca-gregory')}</span>}
+                    {e.published_at && <span className="mr-4">{new Date(e.published_at).toLocaleDateString(dateLocale())}</span>}
                   </div>
                 )}
               </section>

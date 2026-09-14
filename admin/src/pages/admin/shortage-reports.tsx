@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { apiFetch } from '../../utils/api';
+import { dateLocale } from '../../utils/dates';
 
 const TABS = [
   { key: 'pending', label: 'قيد الانتظار' },
@@ -110,7 +111,7 @@ export default function ShortageReportsPage() {
                     <div className="text-gray-400" dir="ltr">{r.reporter_id || r.pharmacy_id || ''}</div>
                   </td>
                   <td className="p-3 text-xs max-w-[200px] truncate">{r.note || '—'}</td>
-                  <td className="p-3 text-xs">{r.createdAt ? new Date(r.createdAt).toLocaleString('ar-SA-u-ca-gregory') : '—'}</td>
+                  <td className="p-3 text-xs">{r.createdAt ? new Date(r.createdAt).toLocaleString(dateLocale()) : '—'}</td>
                   <td className="p-3">{badge(r.status)}</td>
                   <td className="p-3">
                     <div className="flex gap-2 flex-wrap">

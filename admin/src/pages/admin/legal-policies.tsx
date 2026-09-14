@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { apiFetch } from '../../utils/api';
+import { dateLocale } from '../../utils/dates';
 
 export default function LegalPoliciesPage() {
   const [policies, setPolicies] = useState<any[]>([]);
@@ -95,7 +96,7 @@ export default function LegalPoliciesPage() {
             <div className="flex justify-between items-start">
               <div>
                 <div className="font-bold">{p.title_ar}</div>
-                <div className="text-xs text-gray-400" dir="ltr">{p.title_en} · v{p.version} · {new Date(p.last_updated).toLocaleDateString('ar-SA-u-ca-gregory')}</div>
+                <div className="text-xs text-gray-400" dir="ltr">{p.title_en} · v{p.version} · {new Date(p.last_updated).toLocaleDateString(dateLocale())}</div>
               </div>
               <span className="px-2 py-1 bg-teal-100 text-teal-700 rounded text-xs font-bold">v{p.version}</span>
             </div>

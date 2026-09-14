@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import Head from 'next/head';
 import { apiFetch } from '../../utils/api';
+import { dateLocale } from '../../utils/dates';
 
 /**
  * Pharmacy → warehouse procurement (B2B):
@@ -121,7 +122,7 @@ export default function PharmacyProcurementPage() {
                       <div className="font-bold text-slate-800">طلب #{String(r._id || r.id).slice(-8)}</div>
                       <div className="text-xs text-slate-400 mt-0.5">
                         {items.length} صنف · صيدلية: <span dir="ltr">{String(r.pharmacy_id || '').slice(-8)}</span>
-                        {r.createdAt && <> · {new Date(r.createdAt).toLocaleString('ar-SA-u-ca-gregory-nu-latn', { hour12: false })}</>}
+                        {r.createdAt && <> · {new Date(r.createdAt).toLocaleString(dateLocale(), { hour12: false, numberingSystem: 'latn' })}</>}
                       </div>
                     </div>
                     <span className={`px-2 py-1 text-xs font-bold rounded-full ${st.cls}`}>{st.ar}</span>

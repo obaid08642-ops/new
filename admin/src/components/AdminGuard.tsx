@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { AdminApiError, adminFetch, adminMutation, type AdminSession } from '@/lib/admin-client';
+import { getAdminCalendar, setAdminCalendar, type AdminCalendar } from '../utils/dates';
 
 type NavItem = { href: string; label: string; permission?: string };
 type NavSection = { title: string; items: NavItem[] };
@@ -151,7 +152,12 @@ function requiredPermissionFor(pathname: string): string | undefined {
 export const AdminGuard = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<AdminSession | null>(null);
   const [loading, setLoading] = useState(true);
+  const [calendar, setCalendar] = useState<AdminCalendar>('gregory');
   const router = useRouter();
+
+  useEffect(() => {
+    setCalendar(getAdminCalendar());
+  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -234,7 +240,22 @@ export const AdminGuard = ({ children }: { children: React.ReactNode }) => {
             </section>
           ))}
         </nav>
-        <div className="border-t border-slate-800 p-4">
+        <div className="border-t border-slate-800 p-4 space-y-2">
+          <div className="flex items-center justify-between px-1">
+            <span className="text-xs text-slate-400">التقويم</span>
+            <div className="flex gap-1 text-xs" role="group" aria-label="التقويم">
+              {(['gregory', 'islamic-umalqura'] as AdminCalendar[]).map((cal) => (
+                <button
+                  key={cal}
+                  onClick={() => { setAdminCalendar(cal); setCalendar(cal); router.reload(); }}
+                  aria-pressed={calendar === cal}
+                  className={`rounded px-2 py-1 ${calendar === cal ? 'bg-teal-600 text-white font-bold' : 'text-slate-400 hover:text-white'}`}
+                >
+                  {cal === 'gregory' ? 'ميلادي' : 'هجري'}
+                </button>
+              ))}
+            </div>
+          </div>
           <button onClick={logout} className="w-full rounded-lg px-3 py-2 text-right text-sm text-red-200 hover:bg-slate-900">
             تسجيل الخروج
           </button>
