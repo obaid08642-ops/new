@@ -14,6 +14,7 @@ import { getMessages, getTranslations, setRequestLocale } from "next-intl/server
 import { cookies } from "next/headers";
 import { LocaleSelector } from "@/components-next/locale-selector";
 import { SessionActions } from "@/components-next/session-actions";
+import { PresenceBeacon } from "@/components-next/presence-beacon";
 import { PulseShieldMark } from "@/components-next/pulse-shield-mark";
 import { ShieldCheck } from "lucide-react";
 import { authCookieNames } from "@/lib/auth/cookies";
@@ -89,6 +90,7 @@ export default async function LocaleLayout({ children, params }: Props) {
             )}
           </div>
         </header>
+        {hasAccessToken ? <PresenceBeacon /> : null}
         {children}
         <footer style={{ borderTop: "1px solid var(--border, #e2e8f0)", marginTop: 48, padding: "24px 16px" }}>
           <nav aria-label={t("brand")} style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>

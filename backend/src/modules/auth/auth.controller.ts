@@ -1,4 +1,5 @@
-import { Body, Controller, Delete, Get, Headers, Param, Post, UseGuards, Req, Res, BadRequestException } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Headers, Optional, Param, Post, UseGuards, Req, Res, BadRequestException } from '@nestjs/common';
+import { PresenceService } from '../presence/presence.service';
 import { Throttle } from '@nestjs/throttler';
 import { Request, Response } from 'express';
 
@@ -81,7 +82,7 @@ class ConvertGuestDto {
 @Controller('auth')
 @UseGuards(JwtAuthGuard)
 export class AuthController {
-  constructor(private auth: AuthService) {}
+  constructor(private auth: AuthService, @Optional() private presence?: PresenceService) {}
 
   /** Patient-web bridge: opaque request response prevents account enumeration. */
   @Public()
@@ -223,13 +224,19 @@ export class AuthController {
 
   /** Dashboard heartbeat — keeps this device marked as online. */
   @Post('heartbeat')
-  heartbeat(@CurrentUser() user: any, @Req() req: Request) {
-    return this.auth.deviceHeartbeat(
+  heartbeat(@CurrentUser() user: any, @Req() req: Request, @Body() body?: { client?: string }) {
+    const out = this.auth.deviceHeartbeat(
       user.id,
       (req as any).cookies?.[DEVICE_COOKIE],
       req.headers['user-agent'],
       clientIp(req),
     );
+    // Cross-platform online aggregate (admin/analytics/online).
+    try {
+      const socketId = `http:${(req as any).cookies?.[DEVICE_COOKIE] || 'unknown'}`.slice(0, 48);
+      void this.presence?.setOnline?.(user.id, socketId, { platform: body?.client, role: user.role });
+    } catch { /* observability only */ }
+    return out;
   }
 
   /** Devices with a live session right now (heartbeat within 5 minutes). */

@@ -2,6 +2,7 @@ import { Module, Global } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import type { StringValue } from 'ms';
 import { PushModule } from '../push/push.module';
+import { PresenceModule } from '../presence/presence.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
@@ -33,6 +34,7 @@ import { UserRepository } from "./repositories/user.repository";
       },
     }),
     PushModule,
+    PresenceModule,
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: PatientProfile.name, schema: PatientProfileSchema },

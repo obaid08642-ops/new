@@ -47,8 +47,8 @@ export class RealtimeService {
     this.em.emit('realtime.booking', { kind, id, event, payload: data });
   }
 
-  async setUserOnline(userId: string, socketId: string): Promise<void> {
-    if (this.presenceService) await this.presenceService.setOnline(userId, socketId);
+  async setUserOnline(userId: string, socketId: string, opts?: { platform?: unknown; role?: unknown }): Promise<void> {
+    if (this.presenceService) await this.presenceService.setOnline(userId, socketId, opts);
   }
 
   async setUserOffline(userId: string, socketId: string): Promise<void> {

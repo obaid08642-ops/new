@@ -123,6 +123,7 @@ const pharmacyMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp }>
   { method: "POST", route: new RegExp("^/loyalty/challenges/[A-Za-z0-9-]{1,64}/join$", "i") },
   { method: "POST", route: new RegExp("^/referrals/apply$", "i") },
   { method: "POST", route: new RegExp("^/loyalty/rewards/[A-Za-z0-9-]{1,64}/claim$", "i") },
+  { method: "POST", route: new RegExp("^/auth/heartbeat$", "i") },
 ];
 
 export function isAllowedPatientApiPath(path: string) {

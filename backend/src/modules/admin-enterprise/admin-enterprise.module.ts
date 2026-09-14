@@ -3,6 +3,7 @@ import { BullModule } from '@nestjs/bullmq';
 import { MailModule } from '../mail/mail.module';
 import { SeoModule } from '../seo/seo.module';
 import { WalletModule } from '../wallet/wallet.module';
+import { PresenceModule } from '../presence/presence.module';
 import { AdminAuditService } from './audit.service';
 import { AdminSecurityController } from './admin-security.controller';
 import { AdminDisputesController } from './admin-disputes.controller';
@@ -33,6 +34,7 @@ import { ImpersonationSecurityModule } from '../../common/impersonation-security
     WalletModule,
     MailModule,
     SeoModule,
+    PresenceModule,
     BullModule.registerQueue({ name: 'notifications-delivery' }),
   ],
   controllers: [
