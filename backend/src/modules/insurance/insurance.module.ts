@@ -1,4 +1,4 @@
-import { Module, Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards, Injectable, BadRequestException, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
+import { Module, Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards, Injectable, BadRequestException, NotFoundException, ServiceUnavailableException, Logger } from '@nestjs/common';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JwtAuthGuard, Roles, CurrentUser, Public } from '../../common/auth.guard';
@@ -20,6 +20,7 @@ import { NphiesService } from '../nphies/nphies.service';
 
 @Injectable()
 export class InsuranceService {
+  private readonly logger = new Logger(InsuranceService.name);
   constructor(
     @InjectModel('InsuranceCompany') private companyModel: Model<InsuranceCompanyDocument>,
     @InjectModel('InsuranceNetwork') private networkModel: Model<InsuranceNetworkDocument>,
