@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { apiFetch } from '@/utils/api';
+import { dateLocale } from '../../utils/dates';
 
 const KIND_AR: Record<string, string> = { pharmacy: 'صيدلية', lab: 'تحاليل مخبرية', radiology: 'أشعة', nursing: 'تمريض منزلي', consultation: 'استشارة طبية' };
 
@@ -21,7 +22,7 @@ export default function OrderDetailPage() {
       .finally(() => setLoading(false));
   }, [kind, id]);
 
-  const fmt = (d: any) => (d ? new Date(d).toLocaleString('ar-SA-u-ca-gregory-nu-latn', { hour12: false }) : '—');
+  const fmt = (d: any) => (d ? new Date(d).toLocaleString(dateLocale(), { hour12: false, numberingSystem: 'latn' }) : '—');
 
   return (
     <div className="p-8 max-w-5xl mx-auto space-y-6">

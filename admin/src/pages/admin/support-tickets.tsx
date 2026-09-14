@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import Head from 'next/head';
 import { apiFetch } from '../../utils/api';
 import EmptyIcon from '../../components/EmptyIcon';
+import { dateLocale } from '../../utils/dates';
 
 /**
  * M5: support tickets admin — list (GET /support/admin/requests),
@@ -97,7 +98,7 @@ export default function SupportTicketsPage() {
                           {t.priority === 'high' && <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-red-50 text-red-600">أولوية عالية</span>}
                         </div>
                         <div className="text-xs text-slate-500 mt-1">
-                          {t.user_name || t.user_phone || t.user_id} · {t.source_role === 'provider' ? 'مزود' : 'مريض'} · {t.category} · {t.createdAt ? new Date(t.createdAt).toLocaleString('ar-SA-u-ca-gregory') : '—'}
+                          {t.user_name || t.user_phone || t.user_id} · {t.source_role === 'provider' ? 'مزود' : 'مريض'} · {t.category} · {t.createdAt ? new Date(t.createdAt).toLocaleString(dateLocale()) : '—'}
                         </div>
                       </div>
                       <div className="flex gap-2">
@@ -121,7 +122,7 @@ export default function SupportTicketsPage() {
                         <div className="max-h-56 overflow-y-auto space-y-2">
                           {(t.thread || []).map((m: any, i: number) => (
                             <div key={i} className={`rounded-xl p-3 text-sm max-w-[80%] ${m.role === 'admin' ? 'bg-teal-50 mr-auto' : 'bg-slate-100'}`}>
-                              <div className="text-[10px] text-slate-400 mb-1">{m.role === 'admin' ? 'الدعم' : 'المستخدم'} · {new Date(m.at).toLocaleString('ar-SA-u-ca-gregory')}</div>
+                              <div className="text-[10px] text-slate-400 mb-1">{m.role === 'admin' ? 'الدعم' : 'المستخدم'} · {new Date(m.at).toLocaleString(dateLocale())}</div>
                               {m.message}
                             </div>
                           ))}

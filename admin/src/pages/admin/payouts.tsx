@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { apiFetch } from '../../utils/api';
 import EmptyIcon from '../../components/EmptyIcon';
+import { dateLocale } from '../../utils/dates';
 
 /**
  * M5: payouts execution — reads the unified queue (legacy WithdrawalRequest
@@ -122,7 +123,7 @@ export default function PayoutApprovalPage() {
                             {item.source === 'provider_ops' ? 'تطبيق المزود' : 'قديم'}
                           </span>
                         </td>
-                        <td className="p-4 text-xs text-slate-500">{new Date(item.createdAt || Date.now()).toLocaleDateString('ar-SA-u-ca-gregory')}</td>
+                        <td className="p-4 text-xs text-slate-500">{new Date(item.createdAt || Date.now()).toLocaleDateString(dateLocale())}</td>
                         <td className="p-4">
                           <div className="flex gap-2">
                             <button

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { apiFetch } from '../../utils/api';
+import { dateLocale } from '../../utils/dates';
 
 export default function HealthDashboardPage() {
   const [d, setD] = useState<any>(null);
@@ -112,7 +113,7 @@ export default function HealthDashboardPage() {
               {d.recent_errors.map((e: any, i: number) => (
                 <tr key={i} className="border-t">
                   <td className="p-3 text-red-600" dir="ltr">{e.type}</td>
-                  <td className="p-3 text-gray-400 text-xs">{e.createdAt ? new Date(e.createdAt).toLocaleString('ar-SA-u-ca-gregory') : ''}</td>
+                  <td className="p-3 text-gray-400 text-xs">{e.createdAt ? new Date(e.createdAt).toLocaleString(dateLocale()) : ''}</td>
                 </tr>
               ))}
             </tbody>

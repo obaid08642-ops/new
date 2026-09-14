@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { apiFetch } from '../../utils/api';
+import { dateLocale } from '../../utils/dates';
 
 const SEGMENTS = [
   { value: 'all', label: 'جميع المستخدمين' },
@@ -220,7 +221,7 @@ export default function NotificationCenterPage() {
                   <td className="p-3">{statusBadge(c.status)}</td>
                   <td className="p-3">{c.stats?.targeted ?? '—'}</td>
                   <td className="p-3">{c.stats?.sent ?? '—'}</td>
-                  <td className="p-3 text-xs">{c.scheduled_at ? new Date(c.scheduled_at).toLocaleString('ar-SA-u-ca-gregory') : '—'}</td>
+                  <td className="p-3 text-xs">{c.scheduled_at ? new Date(c.scheduled_at).toLocaleString(dateLocale()) : '—'}</td>
                   <td className="p-3">
                     <div className="flex gap-2">
                       {(c.status === 'draft' || c.status === 'scheduled') && (

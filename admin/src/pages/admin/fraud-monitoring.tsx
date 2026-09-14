@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { fetchWithAdminGuard } from '@/utils/api';
+import { dateLocale } from '../../utils/dates';
 
 interface FraudAlert {
   id: string;
@@ -106,7 +107,7 @@ export default function FraudMonitoring() {
             {alerts.map((alert: any, idx: number) => {
               const alertId = alert.id || alert._id || `alert-${idx}`;
               const dateStr = alert.timestamp || alert.createdAt || alert.updatedAt;
-              const formattedDate = dateStr ? new Date(dateStr).toLocaleString('ar-SA-u-ca-gregory') : '—';
+              const formattedDate = dateStr ? new Date(dateStr).toLocaleString(dateLocale()) : '—';
               const severity = alert.severity || 'medium';
               return (
                 <div key={alertId} className="bg-white border-l-4 border-l-red-500 border-y border-r border-gray-200 rounded p-4 shadow-sm">

@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import Head from 'next/head';
 import { apiFetch } from '../../utils/api';
+import { dateLocale } from '../../utils/dates';
 
 /**
  * Unified medicines catalog manager:
@@ -411,7 +412,7 @@ export default function MedicinesCatalogPage() {
                         <div className="font-bold text-slate-800">
                           {r.type === 'new_item' ? 'اقتراح صنف جديد' : r.type === 'image_remove' ? 'طلب إزالة صورة' : r.type === 'shortage_badge' ? 'طلب شعار نقص' : 'اقتراح تعديل'} — {r.medicine_name || r.payload?.name_ar || r.medicine_id}
                         </div>
-                        <div className="text-xs text-slate-400 mt-0.5">من: {(r.reporter_role || r.suggested_by_role) === 'guest' ? 'زائر (غير مسجل)' : (r.reporter_role || r.suggested_by_role || 'مزود')} {r.createdAt && `· ${new Date(r.createdAt).toLocaleString('ar-SA-u-ca-gregory-nu-latn', { hour12: false })}`}</div>
+                        <div className="text-xs text-slate-400 mt-0.5">من: {(r.reporter_role || r.suggested_by_role) === 'guest' ? 'زائر (غير مسجل)' : (r.reporter_role || r.suggested_by_role || 'مزود')} {r.createdAt && `· ${new Date(r.createdAt).toLocaleString(dateLocale(), { hour12: false, numberingSystem: 'latn' })}`}</div>
                         {(r.changes || r.payload) && r.current_values && Object.keys(r.changes || r.payload).length > 0 ? (
                           /* old → new diff table (snapshot captured at suggestion time);
                              pending field edits get per-field checkboxes (partial approval)

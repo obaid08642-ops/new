@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { apiFetch } from '../../utils/api';
 import { StorageImage } from '../../components/ProviderFullDetail';
+import { dateLocale } from '../../utils/dates';
 
 const TABS = [
   { key: 'pending', label: 'قيد الانتظار' },
@@ -99,7 +100,7 @@ export default function ImageSuggestionsPage() {
                 </div>
               </div>
               <div className="text-xs text-gray-500 mb-1">المقترح: {s.suggested_by_role === 'guest' ? 'زائر (غير مسجل)' : s.suggested_by_role} · {s.note || 'بدون ملاحظة'}</div>
-              <div className="text-xs text-gray-400 mb-3">{s.createdAt ? new Date(s.createdAt).toLocaleString('ar-SA-u-ca-gregory') : ''}</div>
+              <div className="text-xs text-gray-400 mb-3">{s.createdAt ? new Date(s.createdAt).toLocaleString(dateLocale()) : ''}</div>
               <div className="flex items-center justify-between">
                 {badge(s.status)}
                 {s.status === 'pending' && (

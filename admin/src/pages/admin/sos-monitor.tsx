@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import Head from 'next/head';
 import { apiFetch } from '../../utils/api';
 import EmptyIcon from '../../components/EmptyIcon';
+import { dateLocale } from '../../utils/dates';
 
 /**
  * M5: live SOS monitoring — polls GET /emergency/active every 10s,
@@ -85,7 +86,7 @@ export default function SosMonitorPage() {
               <span className={`px-4 py-2 rounded-lg font-bold text-sm ${activeCount > 0 ? 'bg-red-100 text-red-700 animate-pulse' : 'bg-green-100 text-green-700'}`}>
                 {activeCount > 0 ? `${activeCount} حالة نشطة الآن` : 'لا حالات نشطة — الوضع آمن'}
               </span>
-              {lastRefresh && <span className="text-xs text-slate-400">آخر تحديث: {lastRefresh.toLocaleTimeString('ar-SA-u-ca-gregory')} (تحديث تلقائي كل 10 ثوانٍ)</span>}
+              {lastRefresh && <span className="text-xs text-slate-400">آخر تحديث: {lastRefresh.toLocaleTimeString(dateLocale())} (تحديث تلقائي كل 10 ثوانٍ)</span>}
             </div>
             <button onClick={() => load(true)} className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm font-medium">تحديث الآن </button>
           </div>
@@ -129,7 +130,7 @@ export default function SosMonitorPage() {
                       </div>
                       <div className="bg-slate-50 rounded-lg p-3">
                         <div className="text-xs text-slate-500 mb-1">الوقت</div>
-                        <div className="font-bold text-slate-800">{new Date(c.created_at || c.createdAt || Date.now()).toLocaleString('ar-SA-u-ca-gregory')}</div>
+                        <div className="font-bold text-slate-800">{new Date(c.created_at || c.createdAt || Date.now()).toLocaleString(dateLocale())}</div>
                       </div>
                     </div>
 

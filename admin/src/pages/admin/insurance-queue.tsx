@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import Head from 'next/head';
 import { apiFetch } from '../../utils/api';
 import EmptyIcon from '../../components/EmptyIcon';
+import { dateLocale } from '../../utils/dates';
 
 /**
  * M5: insurance supervision (BR-2) + refunds queue (BR: الاسترداد).
@@ -130,7 +131,7 @@ export default function InsuranceQueuePage() {
                           <td className="p-3 font-bold">{r.price} ر.س</td>
                           <td className="p-3 text-xs">{r.copay_amount ? `${r.copay_amount} ر.س (${r.copay_percent}%)` : '—'}</td>
                           <td className="p-3"><span className={`px-2 py-1 rounded-full text-xs font-bold ${meta.cls}`}>{meta.ar}</span></td>
-                          <td className="p-3 text-xs text-slate-500">{new Date(r.createdAt).toLocaleDateString('ar-SA-u-ca-gregory')}</td>
+                          <td className="p-3 text-xs text-slate-500">{new Date(r.createdAt).toLocaleDateString(dateLocale())}</td>
                         </tr>
                       );
                     })}
@@ -154,7 +155,7 @@ export default function InsuranceQueuePage() {
                         <div className="font-bold text-slate-900">حجز {f.booking_kind || ''} · {String(f.booking_id).slice(0, 12)}</div>
                         <div className="text-sm text-slate-600">{f.policy_note_ar}</div>
                         {f.reason && <div className="text-xs text-slate-500">سبب المريض: {f.reason}</div>}
-                        <div className="text-xs text-slate-400">{new Date(f.createdAt).toLocaleString('ar-SA-u-ca-gregory')}</div>
+                        <div className="text-xs text-slate-400">{new Date(f.createdAt).toLocaleString(dateLocale())}</div>
                       </div>
                       <div className="text-left">
                         <div className="text-sm text-slate-500">دفع {f.amount_paid} ر.س</div>
@@ -198,7 +199,7 @@ export default function InsuranceQueuePage() {
                 ['نسبة التحمل', selectedReq.copay_amount ? `${selectedReq.copay_amount} ر.س (${selectedReq.copay_percent ?? '—'}%)` : '—'],
                 ['الحالة', (STATE_AR[selectedReq.state] || {}).ar || selectedReq.state],
                 ['كود NPHIES', selectedReq.nphies_code || '—'],
-                ['التاريخ', selectedReq.createdAt ? new Date(selectedReq.createdAt).toLocaleString('ar-SA-u-ca-gregory-nu-latn', { hour12: false }) : '—'],
+                ['التاريخ', selectedReq.createdAt ? new Date(selectedReq.createdAt).toLocaleString(dateLocale(), { hour12: false, numberingSystem: 'latn' }) : '—'],
                 ['ملاحظات', selectedReq.note || selectedReq.notes || '—'],
               ].map(([k, v]) => (
                 <div key={String(k)} className="flex justify-between gap-4 border-b border-slate-50 pb-1.5">
