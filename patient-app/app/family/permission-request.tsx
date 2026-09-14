@@ -55,7 +55,7 @@ export default function PermissionRequestScreen() {
         });
       }
     } catch (e) {
-      console.error(e);
+      logError('family:permission-request', e);
       showLocalizedAlert('خطأ', 'تعذر إرسال الرد. حاول مرة أخرى.');
       return;
     }

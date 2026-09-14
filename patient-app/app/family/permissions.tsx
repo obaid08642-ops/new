@@ -122,7 +122,7 @@ export default function FamilyPermissionsScreen() {
         setPerms((p) => p.map((perm) => ({ ...perm, enabled: granted.includes(perm.key) })));
       } catch (err) {
         // No group / network — keep defaults, save will surface any error
-        console.error("Could not load current permissions:", err);
+        logError('family:permissions:load', err);
       } finally {
         setLoading(false);
       }
@@ -164,7 +164,7 @@ export default function FamilyPermissionsScreen() {
         router.back();
       }, 1500);
     } catch (err) {
-      console.error(err);
+      logError('family:permissions', err);
       showLocalizedAlert('خطأ', 'تعذر حفظ الصلاحيات');
     } finally {
       setSaving(false);
@@ -188,7 +188,7 @@ export default function FamilyPermissionsScreen() {
               });
               router.back();
             } catch (err) {
-              console.error(err);
+              logError('family:permissions', err);
               router.back();
             } finally {
               setLoading(false);

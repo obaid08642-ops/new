@@ -9,6 +9,7 @@ import { Icon } from '../../src/components/Icon';
 import { AppText, IconButton } from '../../src/components/ui';
 
 import { apiFetch } from '../../src/utils/api';
+import { logError } from '../../src/utils/logger';
 import { dateLocale } from '@/utils/dates';
 
 interface Message { id: string; text: string; sender: string; time: string; isMe: boolean }
@@ -48,7 +49,7 @@ export default function FamilyChatScreen() {
       setMessages(mapRows(rows, me));
       setLoadError(false);
     } catch (err: any) {
-      console.error(err);
+      logError('family:chat', err);
       if (!silent) setLoadError(true);
     } finally {
       setLoading(false);

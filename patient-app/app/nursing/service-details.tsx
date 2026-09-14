@@ -7,6 +7,7 @@ import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path, Circle, Defs, Stop, Line, LinearGradient as SvgGradient } from 'react-native-svg';
 import { apiFetch } from '../../src/utils/api';
+import { logError } from '../../src/utils/logger';
 import { LocalizedText } from '../../src/components/LocalizedText';
 
 const { width } = Dimensions.get('window');
@@ -35,7 +36,7 @@ export default function NursingServiceDetails() {
       const res = await apiFetch(`/home-care/providers?type=${serviceId}&sort=${sortType}&gender=${gender || "any"}&availability=${availability || "any"}&nationality=${nationality || "any"}&search=${search || ""}`);
       setNurses(res || []);
     } catch (err) {
-      console.error(err);
+      logError('nursing:service-details', err);
     } finally {
       setLoading(false);
     }

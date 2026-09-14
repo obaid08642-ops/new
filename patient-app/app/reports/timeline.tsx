@@ -43,7 +43,7 @@ export default function MedicalTimelineScreen() {
         const res = await apiFetch('/medical-reports/timeline');
         setEvents(Array.isArray(res) ? res : res?.data || []);
       } catch (err) {
-        console.error(err);
+        logError('reports:timeline', err);
       } finally {
         setLoading(false);
       }

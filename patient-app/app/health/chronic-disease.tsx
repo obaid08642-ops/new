@@ -9,6 +9,7 @@ import { Icon } from '../../src/components/Icon';
 import { AppText, Card, Badge, IconButton } from '../../src/components/ui';
 
 import { apiFetch } from '../../src/utils/api';
+import { logError } from '../../src/utils/logger';
 
 export default function ChronicDiseaseScreen() {
   const insets = useSafeAreaInsets();
@@ -29,7 +30,7 @@ export default function ChronicDiseaseScreen() {
         setConditions(Array.isArray(condRes) ? condRes : condRes?.data || []);
         setReadings(Array.isArray(readRes) ? readRes : readRes?.data || []);
       } catch (err) {
-        console.error(err);
+        logError('health:chronic-disease', err);
       } finally {
         setLoading(false);
       }

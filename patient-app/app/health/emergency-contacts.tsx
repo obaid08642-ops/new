@@ -38,7 +38,7 @@ export default function EmergencyContactsScreen() {
       const res = await apiFetch('/health/emergency-contacts');
       setContacts(Array.isArray(res) ? res : res?.data || []);
     } catch (err) {
-      console.error(err);
+      logError('health:emergency-contacts', err);
     } finally {
       setLoading(false);
     }

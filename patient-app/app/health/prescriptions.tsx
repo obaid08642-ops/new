@@ -10,6 +10,7 @@ import { Icon } from '../../src/components/Icon';
 import { useGuestGuard } from '../../src/hooks/useGuestGuard';
 import { AppText, Card, Badge, Button, IconButton } from '../../src/components/ui';
 import { apiFetch } from '../../src/utils/api';
+import { logError } from '../../src/utils/logger';
 
 // Prescriptions fetched from API
 
@@ -26,7 +27,7 @@ export default function PrescriptionsScreen() {
         const res = await apiFetch('/health/prescriptions');
         setPrescriptions(Array.isArray(res) ? res : res?.data || []);
       } catch (err) {
-        console.error(err);
+        logError('health:prescriptions', err);
       } finally {
         setLoading(false);
       }

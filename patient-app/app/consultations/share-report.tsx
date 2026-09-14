@@ -61,7 +61,7 @@ export default function ShareReportScreen() {
         const res = await apiFetch("/medical-reports/mine?limit=100");
         setReports(Array.isArray(res) ? res : res?.data || []);
       } catch (e) {
-        console.error(e);
+        logError('consultations:share-report', e);
         setReports([]);
       } finally {
         setLoading(false);

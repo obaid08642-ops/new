@@ -12,6 +12,7 @@ import { useApp } from '../../src/context/AppContext';
 import Icon from '@expo/vector-icons/MaterialCommunityIcons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { apiFetch } from '../../src/utils/api';
+import { logError } from '../../src/utils/logger';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 export default function SampleTrackingScreen() {
@@ -38,7 +39,7 @@ export default function SampleTrackingScreen() {
         if (bookingRes?.data || bookingRes) setBooking(bookingRes?.data || bookingRes);
         if (trackRes?.data || trackRes) setTracking(trackRes?.data || trackRes);
       } catch (err) {
-        console.log('Error fetching sample tracking:', err);
+        logError('diagnostics:sample-tracking', err);
       } finally {
         if (!stopped) setLoading(false);
       }

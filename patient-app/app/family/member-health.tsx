@@ -103,7 +103,7 @@ export default function MemberHealthScreen() {
       });
     } catch (err) {
       // Honest failure: no permission or network — show empty state, not dummy data
-      console.error("Could not fetch family member health details:", err);
+      logError('family:member-health', err);
       setMember({
         name: memberName,
         relation: memberRelation,

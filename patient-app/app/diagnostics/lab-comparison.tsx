@@ -39,7 +39,7 @@ export default function LabComparison() {
       setLabs(labsRes?.data || labsRes || []);
       setLoading(false);
     }).catch((err) => {
-      console.error(err);
+      logError('diagnostics:lab-comparison', err);
       setLoading(false);
     });
   }, [id]);

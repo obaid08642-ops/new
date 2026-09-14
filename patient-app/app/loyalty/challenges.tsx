@@ -8,6 +8,7 @@ import { useApp } from '../../src/context/AppContext';
 import { Icon } from '../../src/components/Icon';
 import { AppText, Card, Badge, Button, IconButton } from '../../src/components/ui';
 import { apiFetch } from '../../src/utils/api';
+import { logError } from '../../src/utils/logger';
 import { dateLocale } from '@/utils/dates';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
@@ -40,7 +41,7 @@ export default function LoyaltyChallengesScreen() {
       });
       setJoinedList(joined);
     } catch (err) {
-      console.error(err);
+      logError('loyalty:challenges', err);
       setChallenges([]);
     } finally {
       setLoading(false);
@@ -52,7 +53,7 @@ export default function LoyaltyChallengesScreen() {
       await apiFetch(`/loyalty/challenges/${id}/join`, { method: 'POST' });
       setJoinedList(prev => ({ ...prev, [id]: true }));
     } catch (err) {
-      console.error(err);
+      logError('loyalty:challenges', err);
       showLocalizedAlert('خطأ', 'تعذر الانضمام إلى التحدي، حاول لاحقاً');
     }
   };

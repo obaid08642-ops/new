@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useApp } from '../../src/context/AppContext';
 import { lightColors, darkColors, resolveColor } from '../../src/theme/colors';
 import { apiFetch } from '../../src/utils/api';
+import { logError } from '../../src/utils/logger';
 import { router } from 'expo-router';
 import { LocalizedText } from '../../src/components/LocalizedText';
 import { useLocalSearchParams as __useRouteParams } from "expo-router";
@@ -59,7 +60,7 @@ function SearchInner() {
           setSearchData(Array.isArray(res) ? res : res?.data || []);
           saveRecent(query);
         })
-        .catch(console.error);
+        .catch((e) => logError('search', e));
     }, 500);
 
     return () => clearTimeout(delayDebounceFn);

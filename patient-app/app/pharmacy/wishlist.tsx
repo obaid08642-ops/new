@@ -20,6 +20,7 @@ import {
 } from "../../src/components/ui";
 
 import { apiFetch } from '../../src/utils/api';
+import { logError } from '../../src/utils/logger';
 import { useCart } from '../../src/context/CartContext';
 import { pickLocalized } from '../../src/utils/localize';
 
@@ -61,7 +62,7 @@ export default function WishlistScreen() {
         image: item.image,
       });
     } catch (err) {
-      console.error(err);
+      logError('pharmacy:wishlist', err);
     } finally {
       setAddingId(null);
     }

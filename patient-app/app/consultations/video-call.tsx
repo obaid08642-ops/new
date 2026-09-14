@@ -123,7 +123,7 @@ export default function VideoCallScreen() {
         setLoading(false);
         activeRoom = newRoom;
       } catch (error) {
-        console.log("Failed to connect to LiveKit", error);
+        logError('consultations:video-call:livekit', error);
         setLoading(false);
       }
     };

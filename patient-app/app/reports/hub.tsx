@@ -72,7 +72,7 @@ export default function ReportsHubScreen() {
       const list = Array.isArray(res) ? res : res?.data || [];
       setReports(list);
     } catch (e) {
-      console.error(e);
+      logError('reports:hub', e);
       setError(true);
       setReports([]);
     } finally {

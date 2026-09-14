@@ -10,6 +10,7 @@ import { useDiagnosticsCart } from '../../src/context/DiagnosticsCartContext';
 import Animated, { FadeInDown, SlideInUp } from 'react-native-reanimated';
 
 import { apiFetch } from '../../src/utils/api';
+import { logError } from '../../src/utils/logger';
 
 const { width } = Dimensions.get('window');
 
@@ -29,7 +30,7 @@ export default function GlobalCart() {
       const ids = items.map(i => i.id).join(',');
       apiFetch(`/labs/compatible-providers?testIds=${ids}`)
         .then((res: any) => setCompatibleLabs(res?.data || res || []))
-        .catch(console.error)
+        .catch((e) => logError('diagnostics:cart', e))
         .finally(() => setLoadingLabs(false));
     } else {
       setCompatibleLabs([]);

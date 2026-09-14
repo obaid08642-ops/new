@@ -72,7 +72,7 @@ export default function EmergencySOSScreen() {
                 Linking.openURL(`tel:${EMERGENCY_NUMBERS.ambulance}`);
               }
             } catch (err) {
-              console.log("Error triggering SOS:", err);
+              logError('emergency:sos', err);
               Linking.openURL(`tel:${EMERGENCY_NUMBERS.ambulance}`);
             } finally {
               setIsSending(false);

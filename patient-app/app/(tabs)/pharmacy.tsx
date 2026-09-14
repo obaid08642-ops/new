@@ -110,7 +110,7 @@ export default function PharmacyTab() {
         setMedicines(rows);
         AsyncStorage.setItem(ck, JSON.stringify({ data: rows, ts: Date.now() })).catch(() => {});
       } catch (err) {
-        console.log('Medicines fetch error:', err);
+        logError('pharmacy:tab', err);
       } finally {
         setLoading(false);
       }

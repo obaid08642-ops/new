@@ -7,6 +7,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { apiFetch } from '../../src/utils/api';
+import { logError } from '../../src/utils/logger';
 import { resolveEffectiveAddress, formatAddressLine } from '../../src/utils/selectedAddress';
 import { useFocusEffect } from 'expo-router';
 import Svg, { Path, Circle, Rect, Line, Polyline } from 'react-native-svg';
@@ -102,7 +103,7 @@ export default function NursingMegaProfile() {
           setInsuranceData(insData);
         }
       } catch (err) {
-        console.error(err);
+        logError('nursing:nurse-profile', err);
       }
     };
     fetchData();

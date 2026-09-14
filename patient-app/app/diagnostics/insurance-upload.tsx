@@ -10,6 +10,7 @@ import Animated, { FadeInDown, SlideInUp, ZoomIn, FadeIn } from 'react-native-re
 import { useDiagnosticsCart } from '../../src/context/DiagnosticsCartContext';
 import * as ImagePicker from 'expo-image-picker';
 import { apiFetch } from '../../src/utils/api';
+import { logError } from '../../src/utils/logger';
 import { pickLocalized } from '../../src/utils/localize';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
@@ -57,7 +58,7 @@ export default function InsuranceUpload() {
         const res = await apiFetch('/providers?type=lab');
         setNearbyLabs(Array.isArray(res) ? res : res?.data || []);
       } catch (e) {
-        console.log('Error fetching labs', e);
+        logError('diagnostics:insurance-upload:labs', e);
       }
     };
     const fetchCompanies = async () => {
@@ -67,7 +68,7 @@ export default function InsuranceUpload() {
         setCompanies(list);
         setInsuranceCatalogUnavailable(list.length === 0);
       } catch (e) {
-        console.log('Error fetching insurance companies', e);
+        logError('diagnostics:insurance-upload:insurance', e);
         setCompanies([]);
         setInsuranceCatalogUnavailable(true);
       }
@@ -165,7 +166,7 @@ export default function InsuranceUpload() {
           setOcrFailed(true);
         }
       } catch (e) {
-        console.error(e);
+        logError('diagnostics:insurance-upload', e);
         setOcrFailed(true);
       } finally {
         setStep(3);
@@ -439,7 +440,7 @@ export default function InsuranceUpload() {
                       body: JSON.stringify({ kind: 'doctor_request', url_or_b64: `data:image/jpeg;base64,${uploadedB64}` }),
                     });
                   } catch (docErr) {
-                    console.error(docErr);
+                    logError('diagnostics:insurance-upload:doc', docErr);
                   }
                 }
                 await clearCart().catch(() => null);
@@ -448,7 +449,7 @@ export default function InsuranceUpload() {
                   params: { labName: paramLabName || selectedLabData?.name, visitType, orderId: bookingId }
                 });
               } catch (e: any) {
-                console.error(e);
+                logError('diagnostics:insurance-upload', e);
                 showLocalizedAlert('خطأ', e?.message || 'حدث خطأ أثناء إنشاء الحجز');
               } finally {
                 setSubmitting(false);

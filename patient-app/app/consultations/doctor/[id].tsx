@@ -60,7 +60,7 @@ export default function DoctorProfile() {
           }
         }
       } catch (err) {
-        console.log('Error fetching doctor details:', err);
+        logError('consultations:doctor:details', err);
       } finally {
         setLoading(false);
       }
@@ -113,7 +113,7 @@ export default function DoctorProfile() {
         url: url,
       });
     } catch (error) {
-      console.log(error);
+      logError('consultations:doctor', error);
     }
   };
 

@@ -102,7 +102,7 @@ export default function FamilyHubScreen() {
       });
       await loadFamilyData();
     } catch (err) {
-      console.error(err);
+      logError('health:family-hub', err);
     } finally {
       setCreating(false);
     }

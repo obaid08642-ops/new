@@ -31,7 +31,7 @@ export default function LabProfile() {
         setLab(labRes.data || labRes);
         setTests(testsRes.data || testsRes || []);
       } catch (err) {
-        console.error(err);
+        logError('diagnostics:lab:detail', err);
         // Fallback or handle error
       } finally {
         setLoading(false);

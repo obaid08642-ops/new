@@ -8,6 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';
 import Icon from '@expo/vector-icons/MaterialCommunityIcons';
 import { apiFetch } from '../../src/utils/api';
+import { logError } from '../../src/utils/logger';
 import { pickDbField, pickLocalized } from '../../src/utils/localize';
 import { LocalizedText } from '../../src/components/LocalizedText';
 
@@ -26,7 +27,7 @@ export default function NursingServiceInfo() {
   useEffect(() => {
     apiFetch(`/home-care/services/${serviceId}`)
       .then((res: any) => setSvc(res?.data || res))
-      .catch(console.error)
+      .catch((e) => logError('nursing:service-info', e))
       .finally(() => setLoading(false));
   }, [serviceId]);
 

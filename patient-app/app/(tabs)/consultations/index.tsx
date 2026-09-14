@@ -88,7 +88,7 @@ export default function Consultations() {
         }));
         setDoctors(normalized);
       } catch (err) {
-        console.log('Error fetching doctors:', err);
+        logError('consultations:fetch-doctors', err);
         setDoctors([]);
       } finally {
         setLoading(false);

@@ -8,6 +8,7 @@ import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path, Circle, Rect, Line, Defs, Stop, LinearGradient as SvgGradient } from 'react-native-svg';
 import { apiFetch } from '../../src/utils/api';
+import { logError } from '../../src/utils/logger';
 import { pickLocalized, pickDbField } from '../../src/utils/localize';
 import { LocalizedText } from '../../src/components/LocalizedText';
 
@@ -48,8 +49,8 @@ export default function NursingDirectoryHub() {
         title: pickDbField(s, 'name') || s.name_ar || s.name_en || s.title,
         image: s.image_url || s.image || null,
       }))))
-      .catch(console.error);
-    apiFetch('/home-care/packages').then((r: any) => setDbPackages(Array.isArray(r) ? r : (r?.data || []))).catch(console.error);
+      .catch((e) => logError('nursing:tab', e));
+    apiFetch('/home-care/packages').then((r: any) => setDbPackages(Array.isArray(r) ? r : (r?.data || []))).catch((e) => logError('nursing:tab', e));
   }, []);
 
   const getIcon = (id: string) => {

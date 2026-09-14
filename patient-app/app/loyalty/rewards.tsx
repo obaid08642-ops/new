@@ -8,6 +8,7 @@ import { useApp } from '../../src/context/AppContext';
 import { Icon } from '../../src/components/Icon';
 import { AppText, Card, Button, IconButton, SectionHeader } from '../../src/components/ui';
 import { apiFetch } from '../../src/utils/api';
+import { logError } from '../../src/utils/logger';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
 // Rewards fetched from API
@@ -33,7 +34,7 @@ export default function LoyaltyRewardsScreen() {
       const catalog = await apiFetch('/loyalty/rewards');
       setRewards(Array.isArray(catalog) ? catalog : catalog?.data || []);
     } catch (err) {
-      console.error(err);
+      logError('loyalty:rewards', err);
       setRewards([]);
     } finally {
       setLoading(false);
@@ -67,7 +68,7 @@ export default function LoyaltyRewardsScreen() {
                 [{ text: 'حسناً' }]
               );
             } catch (err) {
-              console.error(err);
+              logError('loyalty:rewards', err);
               showLocalizedAlert('خطأ', 'حدث خطأ أثناء استبدال المكافأة. يرجى المحاولة لاحقاً.');
             } finally {
               setClaimingId(null);

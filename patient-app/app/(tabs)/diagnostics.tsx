@@ -13,6 +13,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 const { width } = Dimensions.get('window');
 
 import { apiFetch } from '../../src/utils/api';
+import { logError } from '../../src/utils/logger';
 import { normalizeLabList, normalizeLabService } from '../../src/utils/labMappers';
 import { resolveEffectiveAddress, formatAddressLine } from '../../src/utils/selectedAddress';
 
@@ -75,7 +76,7 @@ export default function DiagnosticsHub() {
           setLabs(labsData);
         }
       } catch (err) {
-        console.error(err);
+        logError('diagnostics:tab', err);
       } finally {
         setLoading(false);
       }

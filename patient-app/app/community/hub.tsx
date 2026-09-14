@@ -60,7 +60,7 @@ export default function Screen() {
       const fetchedPosts = Array.isArray(res) ? res : res.posts || [];
       setPosts(fetchedPosts);
     } catch (err) {
-      console.error(err);
+      logError('community:hub', err);
     } finally {
       setLoading(false);
     }

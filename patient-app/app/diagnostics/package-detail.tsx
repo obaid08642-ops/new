@@ -9,6 +9,7 @@ import { useRouter, useLocalSearchParams, Stack } from 'expo-router';
 import Animated, { FadeInUp, SlideInDown } from 'react-native-reanimated';
 import { useDiagnosticsCart } from '../../src/context/DiagnosticsCartContext';
 import { apiFetch } from '../../src/utils/api';
+import { logError } from '../../src/utils/logger';
 import { normalizeLabService } from '../../src/utils/labMappers';
 
 const { width } = Dimensions.get('window');
@@ -26,7 +27,7 @@ export default function PackageDetail() {
   useEffect(() => {
     apiFetch(`/labs/packages/${id}`)
       .then(res => setPkg(normalizeLabService(res?.data || res)))
-      .catch(console.error)
+      .catch((e) => logError('diagnostics:package-detail', e))
       .finally(() => setLoading(false));
   }, [id]);
 

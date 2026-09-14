@@ -9,6 +9,7 @@ import { useRouter, useLocalSearchParams, Stack } from 'expo-router';
 import Animated, { FadeInUp, SlideInDown } from 'react-native-reanimated';
 import { useDiagnosticsCart } from '../../src/context/DiagnosticsCartContext';
 import { apiFetch } from '../../src/utils/api';
+import { logError } from '../../src/utils/logger';
 import { normalizeLabService } from '../../src/utils/labMappers';
 import { pickLocalized } from '../../src/utils/localize';
 
@@ -38,7 +39,7 @@ export default function TestDetail() {
     const endpoint = isRadiology ? `/radiology/services/${id}` : `/labs/services/${id}`;
     apiFetch(endpoint)
       .then(res => setTestData(normalizeLabService(res?.data || res)))
-      .catch(console.error)
+      .catch((e) => logError('diagnostics:test-detail', e))
       .finally(() => setLoading(false));
   }, [id, isRadiology]);
 
