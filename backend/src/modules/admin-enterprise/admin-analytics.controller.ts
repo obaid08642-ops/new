@@ -7,6 +7,8 @@ import { UserRole } from '../../common/enums';
 import { validateReason, ReasonError } from '../../common/rbac';
 import { AnalyticsSuiteService } from './analytics-suite.service';
 import { ScheduledReportsRunner } from './scheduled-reports.runner';
+import { Optional } from '@nestjs/common';
+import { PresenceService } from '../presence/presence.service';
 
 /**
  * A3 — Analytics Suite endpoints (all real Mongo aggregations, no mocks).
@@ -18,7 +20,16 @@ export class AdminAnalyticsSuiteController {
   constructor(
     private readonly svc: AnalyticsSuiteService,
     @InjectConnection() private readonly conn: Connection,
+    @Optional() private readonly presence?: PresenceService,
   ) {}
+
+  /** Live online visitors by platform (patient-web / patient-app / provider-app). */
+  @Get('online')
+  @RequirePermissions(Permission.ANALYTICS_READ)
+  async online() {
+    if (!this.presence) return { total: 0, by_platform: {}, by_role: {}, sample: [] };
+    return this.presence.countOnline();
+  }
 
   @Get('funnels')
   @RequirePermissions(Permission.ANALYTICS_READ)

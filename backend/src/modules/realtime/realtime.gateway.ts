@@ -55,8 +55,10 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
       this.userSockets.get(payload.id)!.add(client.id);
       this.connectedUsers.set(client.id, payload);
 
-      // Mark online via presence (fire-and-forget)
-      this.realtime.setUserOnline(payload.id, client.id).catch(() => null);
+      // Mark online via presence (fire-and-forget) with declared client platform.
+      const platform = (client.handshake.auth as any)?.client || (client.handshake.query as any)?.client;
+      client.data.platform = platform;
+      this.realtime.setUserOnline(payload.id, client.id, { platform, role: payload.role }).catch(() => null);
 
       // Notify contacts this user is now online
       client.broadcast.emit('user:online', { user_id: payload.id, timestamp: Date.now() });

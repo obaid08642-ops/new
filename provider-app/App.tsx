@@ -131,6 +131,17 @@ export default function App() {
   React.useEffect(() => {
     setupPushNotifications();
   }, []);
+  // Cross-platform online presence (admin/analytics/online): heartbeat every 60s while logged in.
+  React.useEffect(() => {
+    let timer: any = null;
+    try {
+      const api = require('./src/api/client').default;
+      const post = () => api.post('/auth/heartbeat', { client: 'provider-app' }).catch(() => null);
+      post();
+      timer = setInterval(post, 60000);
+    } catch { /* observability only */ }
+    return () => { if (timer) clearInterval(timer); };
+  }, []);
   return (
     <SafeAreaProvider>
       <RootProvider>

@@ -92,7 +92,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
       }
 
       socketInstance = io(SOCKET_URL, {
-        auth: { token },
+        auth: { token, client: 'patient-app' },
         transports: ['websocket'],
         reconnectionAttempts: 10,
         reconnectionDelay: 1000,
