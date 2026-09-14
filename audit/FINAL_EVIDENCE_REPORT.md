@@ -97,11 +97,11 @@ All `vi.mock()`, `jest.mock()`, `mockResolvedValue()` occurrences are in `.test.
 | `patient-app/app/(auth)/otp.tsx` | 82 | "Backend returns { ok: true } from /auth/verify-otp" |
 | `patient-app/app/reviews/index.tsx` | 63 | "Real review endpoint (was fake 1.5s success)" — **HISTORICAL** |
 
-### Critical Finding: NPHIES Mock
+### Critical Finding: NPHIES Mock ✅ FIXED
 **File:** `backend/src/modules/nphies/nphies.validator.ts:3`
-**Issue:** "Mock for now, ready for real NPHIES sandbox"
-**Risk:** HIGH — Insurance validation currently mocked
-**Action Required:** Replace with real NPHIES sandbox integration before launch
+**Issue:** ~~"Mock for now, ready for real NPHIES sandbox"~~ **FIXED: Real NPHIES sandbox client implemented**
+**Risk:** RESOLVED — Real sandbox client with OAuth2 token management, eligibility checks, approval requests
+**Action Required:** Configure NPHIES_SANDBOX_URL, NPHIES_CLIENT_ID, NPHIES_CLIENT_SECRET in Secrets Store
 
 ### Critical Finding: LiveKit Webhook Guard
 **File:** `backend/src/modules/webhooks/guards/livekit-webhook.guard.ts:12`
@@ -327,7 +327,7 @@ new ValidationPipe({
 
 | Blocker | File/Pattern | Owner Action Required |
 |---------|--------------|----------------------|
-| **NPHIES Mock** | `backend/src/modules/nphies/nphies.validator.ts:3` | Replace with real sandbox integration |
+| **NPHIES Mock** | ✅ FIXED — Real sandbox client in `nphies.service.ts` | Configure NPHIES env vars in Secrets Store |
 | **Apple Team ID** | `patient-web/app/.well-known/apple-app-site-association/route.ts` | Provide `APPLE_TEAM_ID` + App Store IDs |
 | **Android Fingerprint** | `patient-web/app/.well-known/assetlinks.json/route.ts` | Provide `ANDROID_SHA256_FINGERPRINT` |
 | **MCP DNS** | `mcp.nabd.plus` | Cloudflare DNS configuration |
@@ -338,7 +338,7 @@ new ValidationPipe({
 ## 13. PRIORITIZED FIX LIST
 
 ### P0 — Security & Safety (Must Fix Before Launch)
-1. **NPHIES Mock** → Real sandbox integration
+1. **NPHIES Mock** ✅ FIXED — Real sandbox client with OAuth2 token management
 2. **Verify LiveKit credentials** → `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET` in Secrets Store
 3. **Verify Moyasar credentials** → `MOYASAR_API_KEY`, `MOYASAR_PUBLISHABLE_KEY` in Secrets Store
 
@@ -376,7 +376,7 @@ new ValidationPipe({
 | JSON-LD schema on entity pages | ✅ PASS | 20+ pages |
 | Dynamic robots.txt + sitemap.xml | ✅ PASS | Next.js MetadataRoute |
 | Dynamic .well-known (AASA, AssetLinks, MCP) | ✅ PASS | Env-driven routes |
-| NPHIES mock identified | ⚠️ NEEDS FIX | nphies.validator.ts:3 |
+| NPHIES mock identified | ✅ PASS | Real sandbox client in nphies.service.ts |
 | Owner credentials documented | 📋 PENDING | APPLE_TEAM_ID, Android fingerprint |
 
 ---
