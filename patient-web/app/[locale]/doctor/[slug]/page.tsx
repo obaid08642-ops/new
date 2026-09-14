@@ -83,6 +83,8 @@ export default async function DoctorCanonicalPage({ params }: Props) {
             locale: locale as Locale,
             specialty: doctor.specialty || null,
             city: cityName,
+            ratingValue: doctor.rating_avg ?? doctor.rating ?? null,
+            reviewCount: doctor.reviews_count ?? null,
           }),
           breadcrumbList([
             { name: "Nabd Plus", locale: locale as Locale, path: "/" },

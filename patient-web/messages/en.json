@@ -754,7 +754,26 @@
     "emptyTitle": "No specialties",
     "emptyBody": "No specialties are currently available from the authorized service.",
     "noMatch": "No specialties match your search.",
-    "doctorCount": "{count} doctors available"
+    "doctorCount": "{count} doctors available",
+    "faq": [
+      {
+        "q": "How do I book a consultation?",
+        "a": "Choose a specialty, then a doctor, then a slot, and confirm from the doctor page."
+      },
+      {
+        "q": "What consultation modes exist?",
+        "a": "In-clinic visit, video call, and home visit depending on the doctor."
+      },
+      {
+        "q": "Can I use insurance?",
+        "a": "Yes — the insurance decision is recorded before payment; you pay only the copay."
+      },
+      {
+        "q": "Can I cancel or reschedule?",
+        "a": "Yes, from My appointments under the policy shown at booking."
+      }
+    ],
+    "faqTitle": "FAQs"
   },
   "HomeCareServices": {
     "eyebrow": "Home care",

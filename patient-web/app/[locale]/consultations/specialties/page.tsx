@@ -6,6 +6,7 @@ import { ArrowLeft, ArrowRight, RefreshCw, Search, Stethoscope } from "lucide-re
 import { extractSpecialties } from "@/lib/api/specialties";
 import { getPublicSpecialties } from "@/lib/api/specialties-server";
 import { isLocale } from "@/lib/i18n";
+import { JsonLd } from "@/components-next/json-ld";
 import { hubMetadata } from "@/lib/seo";
 
 import styles from "./specialties.module.css";
@@ -37,9 +38,12 @@ export default async function SpecialtySelectPage({ params, searchParams }: Prop
   const specialties = extractSpecialties(await response.json().catch(() => null));
   const query = q.trim().toLocaleLowerCase(locale);
   const filtered = specialties.filter((specialty) => [specialty.nameAr, specialty.nameEn, specialty.slug].filter(Boolean).some((value) => value!.toLocaleLowerCase(locale).includes(query)));
+  const faqs: Array<{ q: string; a: string }> = t.raw("faq") as any;
   return <main className={`main ${styles.page}`}>
+    <JsonLd data={[{ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: faqs.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) }]} />
     <section className={styles.hero}><div><p className={styles.eyebrow}>{t("eyebrow")}</p><h1>{t("title")}</h1><p className={styles.subtitle}>{t("subtitle")}</p></div><span className={styles.heroIcon}><Stethoscope size={28} aria-hidden="true" /></span></section>
     <form className={styles.search} method="get" role="search"><Search size={18} aria-hidden="true" /><label className="sr-only" htmlFor="specialty-search">{t("searchLabel")}</label><input id="specialty-search" name="q" defaultValue={q} placeholder={t("searchPlaceholder")} /></form>
     {filtered.length === 0 ? <section className={styles.state}><span className={styles.stateIcon}><Search size={26} aria-hidden="true" /></span><h2>{t("emptyTitle")}</h2><p>{specialties.length === 0 ? t("emptyBody") : t("noMatch")}</p></section> : <section className={styles.grid} aria-label={t("title")}>{filtered.map((specialty, index) => { const name = locale === "ar" || locale === "ur" ? specialty.nameAr ?? specialty.nameEn : specialty.nameEn ?? specialty.nameAr; const color = ["#1f9fb7", "#695bd4", "#d06b45", "#199b79", "#b87318", "#c25079"][index % 6]; return <Link className={styles.card} key={specialty.slug ?? `${name}-${index}`} href={`/${locale}/appointments?specialty=${encodeURIComponent(specialty.nameAr ?? specialty.nameEn ?? "")}`}><span className={styles.cardIcon} style={{ color, backgroundColor: `${color}18` }}><Stethoscope size={23} aria-hidden="true" /></span><span className={styles.cardCopy}><strong>{name}</strong>{specialty.count !== undefined ? <small>{t("doctorCount", { count: specialty.count })}</small> : null}</span><Arrow size={18} aria-hidden="true" /></Link>; })}</section>}
+    <section aria-label={t("faqTitle")}><h2>{t("faqTitle")}</h2>{faqs.map((f, i) => <details key={i}><summary>{f.q}</summary><p>{f.a}</p></details>)}</section>
   </main>;
 }

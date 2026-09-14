@@ -10,7 +10,7 @@ function esc(s: string) {
 
 export async function GET() {
   const backendUrl = process.env.NEXT_PUBLIC_API_URL || "https://api.nabd.plus";
-  let items: Array<{ service_id: string; lastmod?: string }> = [];
+  let items: Array<{ service_id?: string; id?: string; slug?: string; lastmod?: string }> = [];
   try {
     const res = await fetch(`${backendUrl}/api/v1/public/ai-catalog/services`, {
       next: { revalidate: 21600 },
@@ -40,12 +40,15 @@ export async function GET() {
   } catch { /* keep fallback */ }
 
   const urls = locales.flatMap((locale) =>
-    items.flatMap((item) =>
-      cities.map((city) => {
-        const loc = localizedUrl(locale, `/services/${encodeURIComponent(item.service_id)}/${city}`);
+    items.flatMap((item) => {
+      // Feed uses `id` (+optional slug); skip unidentifiable rows instead of emitting /undefined/.
+      const sid = item.service_id || item.slug || item.id;
+      if (!sid) return [];
+      return cities.map((city) => {
+        const loc = localizedUrl(locale, `/services/${encodeURIComponent(sid)}/${city}`);
         return `  <url><loc>${esc(loc)}</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>`;
-      }),
-    ),
+      });
+    }),
   );
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join("\n")}\n</urlset>`;
