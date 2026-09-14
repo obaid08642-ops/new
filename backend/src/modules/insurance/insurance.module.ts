@@ -1,4 +1,4 @@
-import { Module, Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards, Injectable, BadRequestException, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
+import { Module, Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards, Injectable, BadRequestException, NotFoundException, ServiceUnavailableException, Logger } from '@nestjs/common';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JwtAuthGuard, Roles, CurrentUser, Public } from '../../common/auth.guard';
@@ -18,6 +18,7 @@ import { AiGatewayService } from '../ai/ai-gateway.service';
 
 @Injectable()
 export class InsuranceService {
+  private readonly logger = new Logger(InsuranceService.name);
   constructor(
     @InjectModel('InsuranceCompany') private companyModel: Model<InsuranceCompanyDocument>,
     @InjectModel('InsuranceNetwork') private networkModel: Model<InsuranceNetworkDocument>,
@@ -154,7 +155,11 @@ export class InsuranceService {
 
     const patientIns = patient.insurance; // { provider: 'bupa', network: 'gold', policy_number: '...', class: 'A' }
     
-    // Find provider or facility contracts
+    // LOCAL eligibility check — provider enters approval result manually in their system
+    // No direct NPHIES integration. Insurance data collected from patient and sent with booking request.
+    // Provider performs approval on their clinic/hospital system and enters result in provider app.
+
+    // Find provider or facility contracts for copay details
     let contracts: InsuranceNetworkContract[] = [];
     let name = '';
 
@@ -187,6 +192,8 @@ export class InsuranceService {
         copay_flat: 0,
         requires_preauth: false,
         patient_policy: patientIns,
+        nphies_live: false,
+        manual_approval_required: true,
       };
     }
 
@@ -221,6 +228,8 @@ export class InsuranceService {
       copay_flat: copayFlat,
       requires_preauth: requiresPreauth,
       patient_policy: patientIns,
+      nphies_live: false,
+      manual_approval_required: true,
     };
   }
 
@@ -299,8 +308,11 @@ Use null for any field not clearly visible. Do not guess.`;
       String(ins.company_id || '').toLowerCase().includes(code)
     );
     if (!matches) {
-      return { eligible: false, reason: 'no_matching_policy_on_file', nphies_live: false };
+      return { eligible: false, reason: 'no_matching_policy_on_file', nphies_live: false, manual_approval_required: true };
     }
+    
+    // LOCAL eligibility check — provider enters approval result manually
+    // No direct NPHIES integration. Returns stored policy info for provider to verify.
     return {
       eligible: true,
       source: 'stored_policy',
@@ -309,6 +321,12 @@ Use null for any field not clearly visible. Do not guess.`;
       network: ins.network || null,
       network_class: ins.class || null,
       expiry_date: ins.expiry_date || null,
+      manual_approval_required: true,
+      policy_details: {
+        provider: ins.provider,
+        policy_number: ins.policy_number,
+        national_id: ins.national_id,
+      },
     };
   }
 
