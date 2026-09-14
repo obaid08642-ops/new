@@ -639,7 +639,7 @@ export default function MapScreen() {
                   else if (selectedProvider.type === 'pharmacy')
                     router.push('/(tabs)/pharmacy');
                   else if (selectedProvider.type === 'lab')
-                    router.push('/diagnostics/booking-confirm');
+                    router.push('/diagnostics/book-sample');
                   else if (selectedProvider.type === 'hospital')
                     router.push('/(tabs)/consultations');
                   else if (selectedProvider.type === 'nursing')
