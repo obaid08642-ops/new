@@ -6,6 +6,7 @@ import { ProfileImageMetadata, ProfileImageMetadataDocument } from '../../../sch
 import { ImageProcessingJob, ImageProcessingJobDocument } from '../../../schemas/image-processing-job.schema';
 import { ProviderProfile, ProviderProfileDocument } from '../../../schemas/provider-profile.schema';
 import { ProfileImageAuditLog, ProfileImageAuditLogDocument } from '../../../schemas/profile-image-audit-log.schema';
+import { isDbOutageError } from '../../../common/db-outage';
 import { StorageService } from '../../storage/storage.module';
 import { ProfileImageMetadataRepository } from "./repositories/profileimagemetadata.repository";
 import { ImageProcessingJobRepository } from "./repositories/imageprocessingjob.repository";
@@ -99,7 +100,18 @@ export class ProviderImageProcessorService {
   /** Run background image processor every 10 seconds */
   @Cron('*/10 * * * * *')
   async processPendingJobs() {
-    const jobs = await this.jobModel.find({ status: 'pending' }).limit(3);
+    let jobs: any[];
+    try {
+      jobs = await this.jobModel.find({ status: 'pending' }).limit(3);
+    } catch (err: any) {
+      // DB outage (ENOTFOUND / NotConnected): skip quietly instead of spamming
+      // Sentry every 10s. Jobs stay pending and resume when the DB is back.
+      if (isDbOutageError(err)) {
+        this.logger.warn(`image-processor skipped (db unavailable): ${String(err?.message || err).slice(0, 120)}`);
+        return;
+      }
+      throw err;
+    }
     for (const job of jobs) {
       try {
         job.status = 'processing';
