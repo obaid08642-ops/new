@@ -12,11 +12,17 @@ export function GeoPicker({ value, onChange }: { value?: { region?: string; city
   const [region,setRegion]=useState(value?.region||"");
   const [city,setCity]=useState(value?.city||"");
   const [district,setDistrict]=useState(value?.district||"");
-  useEffect(()=>{ apiFetch('/locations/regions').then((d:any)=>setRegions(Array.isArray(d)?d:[])).catch(()=>{}); apiFetch('/locations/cities').then((d:any)=>setAllCities(Array.isArray(d)?d:[])).catch(()=>{}); },[]);
+  const [loadError, setLoadError] = useState('');
+  const pick = (d: any) => Array.isArray(d) ? d : (Array.isArray(d?.data) ? d.data : []);
+  useEffect(()=>{ setLoadError(''); Promise.all([
+    apiFetch('/locations/regions').then((d:any)=>setRegions(pick(d))),
+    apiFetch('/locations/cities').then((d:any)=>setAllCities(pick(d))),
+  ]).catch(()=>setLoadError('تعذر تحميل المناطق والمدن')); },[]);
   useEffect(()=>{ if(!region){setCities([]);return;} setCities(allCities.filter((c:any)=>c.parent_code===region)); },[region, allCities]);
-  useEffect(()=>{ if(!city){setDistricts([]);return;} apiFetch(`/locations/districts?city=${encodeURIComponent(city)}`).then((d:any)=>setDistricts(Array.isArray(d)?d:[])).catch(()=>{}); },[city]);
+  useEffect(()=>{ if(!city){setDistricts([]);return;} apiFetch(`/locations/districts?city=${encodeURIComponent(city)}`).then((d:any)=>setDistricts(pick(d))).catch(()=>setLoadError('تعذر تحميل الأحياء')); },[city]);
   return (
     <div className="grid grid-cols-3 gap-2">
+      {loadError ? <p role="alert" className="col-span-3 text-xs text-rose-600">{loadError}</p> : null}
       <select value={region} onChange={e=>{setRegion(e.target.value); setCity(""); setDistrict(""); onChange({region:e.target.value, city:"", district:""});}} className="border rounded-lg px-3 py-2">
         <option value="">المنطقة</option>{regions.map(r=><option key={r.code} value={r.code}>{r.name_ar}</option>)}
       </select>

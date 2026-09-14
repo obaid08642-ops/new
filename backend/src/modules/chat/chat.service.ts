@@ -90,11 +90,19 @@ export class ChatService {
     return thread.toObject();
   }
 
-  async myThreads(userId: string, page = 1, limit = 30): Promise<{ threads: ChatThread[]; total: number }> {
-    const filter = { participant_ids: userId, is_active: true };
+  async myThreads(userId: string, page = 1, limit = 30): Promise<{ threads: ChatThread[]; total: number }> {    const filter = { participant_ids: userId, is_active: true };
     const total = await this.threads.countDocuments(filter);
     const threads = await this.threads.find(filter, { _id: 0, __v: 0 }).sort({ last_message_at: -1, updatedAt: -1 }).skip((page - 1) * limit).limit(limit).lean();
     return { threads, total };
+  }
+
+  /** Admin console: every thread + message counts + optional id search. */
+  async adminThreads(page = 1, limit = 30, q?: string) {
+    const filter: any = {};
+    if (q) filter.$or = [{ id: q }, { participant_ids: q }];
+    const total = await this.threads.countDocuments(filter);
+    const threads = await this.threads.find(filter, { _id: 0, __v: 0 }).sort({ last_message_at: -1, updatedAt: -1 }).skip((page - 1) * limit).limit(limit).lean();
+    return { threads, total, page, limit };
   }
 
   private assertParticipant(thread: any, userId: string): void {

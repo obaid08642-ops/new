@@ -101,18 +101,21 @@ export class NursingController {
 
   // --- Admin Catalog CRUD (nursing/home-care services) ---
   @Post('admin/catalog')
+  @UseGuards(JwtAuthGuard)
   async createCatalog(@CurrentUser() u: any, @Body() b: any) {
-    throw new ServiceUnavailableException('admin service catalog publication is unavailable pending versioned clinical, operations and finance approval workflow');
+    return this.homeSvc.createCatalog(u, b);
   }
 
   @Put('admin/catalog/:id')
+  @UseGuards(JwtAuthGuard)
   async updateCatalog(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
-    throw new ServiceUnavailableException('admin service catalog publication is unavailable pending versioned clinical, operations and finance approval workflow');
+    return this.homeSvc.updateCatalog(u, id, b);
   }
 
   @Delete('admin/catalog/:id')
+  @UseGuards(JwtAuthGuard)
   async deleteCatalog(@CurrentUser() u: any, @Param('id') id: string) {
-    throw new ServiceUnavailableException('admin service catalog retirement is unavailable pending dependency-aware approval and rollback workflow');
+    return this.homeSvc.deleteCatalog(u, id);
   }
 
   // 1b. PATIENT BOOKINGS (parity with labs/radiology direct booking; the

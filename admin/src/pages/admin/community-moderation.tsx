@@ -18,7 +18,7 @@ export default function CommunityModerationPage() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res: any = await apiFetch('/community/posts?status=pending_review&page=1&limit=50');
+      const res: any = await apiFetch('/community/admin/pending?page=1&limit=50');
       setPosts(Array.isArray(res) ? res : res?.posts || res?.data || []);
       setError('');
     } catch (e: any) { setError(e?.message || 'تعذر تحميل المنشورات'); }

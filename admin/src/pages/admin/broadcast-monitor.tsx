@@ -21,7 +21,7 @@ export default function BroadcastMonitorPage() {
       <div key={b.id} className={`bg-white rounded-xl border p-4 ${b.status==='expired'?'border-amber-300 bg-amber-50/20':''}`}>
        <div className="flex justify-between items-start"><div><div className="font-bold">بث #{b.id?.slice(0,8)} — {b.status||'open'}</div><div className="text-xs text-slate-400">منذ {elapsed(b.createdAt||b.created_at)} · {b.recipient_count||b.notified_pharmacies?.length||0} صيدلية · {b.response_count||0} رد</div></div>
        <span className={`px-2 py-1 text-xs rounded-full ${b.status==='open'?'bg-green-100 text-green-700':'bg-slate-100 text-slate-600'}`}>{b.status}</span></div>
-       {b.expires_at && <div className="text-xs text-amber-600 mt-2">ينتهي: {new Date(b.expires_at).toLocaleString('ar-SA')}</div>}
+       {b.expires_at && <div className="text-xs text-amber-600 mt-2">ينتهي: {new Date(b.expires_at).toLocaleString('ar-SA-u-ca-gregory')}</div>}
       </div>
     ))}</div>
    )}

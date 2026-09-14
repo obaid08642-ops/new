@@ -130,8 +130,28 @@ export class HomeCareSvc {
     });
   }
 
-  async checkIn(user: any, bookingId: string, lat?: number, lng?: number) {
-    if (!['admin', 'nurse', 'hospital'].includes(user.role)) throw new ForbiddenException();
+  // --- Admin Catalog CRUD (nursing/home-care services) ---
+  async createCatalog(user: any, body: any) {
+    if (user.role !== 'admin') throw new ForbiddenException();
+    return this.svcModel.create({ ...body, id: require('uuid').v4() });
+  }
+
+  async updateCatalog(user: any, id: string, body: any) {
+    if (user.role !== 'admin') throw new ForbiddenException();
+    const updated = await this.svcModel.findOneAndUpdate({ id }, { $set: body }, { new: true });
+    if (!updated) throw new NotFoundException();
+    return updated;
+  }
+
+  async deleteCatalog(user: any, id: string) {
+    if (user.role !== 'admin') throw new ForbiddenException();
+    const existing = await this.svcModel.findOne({ id });
+    if (!existing) throw new NotFoundException();
+    await this.svcModel.updateOne({ id }, { $set: { active: false, is_deleted: true } });
+    return { ok: true };
+  }
+
+  async checkIn(user: any, bookingId: string, lat?: number, lng?: number) {    if (!['admin', 'nurse', 'hospital'].includes(user.role)) throw new ForbiddenException();
     const b = await this.bkgModel.findOne({ id: bookingId });
     if (!b) throw new NotFoundException('booking_not_found');
 
