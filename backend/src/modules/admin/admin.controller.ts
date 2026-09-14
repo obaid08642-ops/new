@@ -500,6 +500,21 @@ export class AdminController {
     }
     const uid = user.id;
     const db = this.userModel.db;
+    // Media purge FIRST (while we still know the urls): provider profile photos,
+    // logos, clinic images + every storage object owned by the account — each
+    // emitted to the storage deleter (Cloudinary destroy / R2 DeleteObject).
+    try {
+      const urls = new Set<string>();
+      const profile: any = await db.collection('provider_profiles').findOne({ user_id: uid }, { projection: { profile_photo: 1, logo: 1, clinic_images: 1 } }).catch(() => null);
+      for (const u of [profile?.profile_photo, profile?.logo, ...(profile?.clinic_images || [])]) {
+        if (typeof u === 'string' && u.startsWith('http')) urls.add(u);
+      }
+      const objs: any[] = await db.collection('storage_objects').find({ owner_account_id: uid }, { projection: { external_url: 1 } }).toArray().catch(() => []);
+      for (const o of objs) if (typeof o?.external_url === 'string' && o.external_url.startsWith('http')) urls.add(o.external_url);
+      for (const url of urls) {
+        try { this.events?.emit('storage.delete_by_url', { url }); } catch {}
+      }
+    } catch { /* media purge is best-effort; record purge below still runs */ }
     // Purge directly-owned, user-scoped records. Shared clinical/financial
     // records (orders, appointments, ledger) are kept for audit integrity.
     const ownedCollections: Array<{ name: string; fields: string[] }> = [
@@ -515,6 +530,7 @@ export class AdminController {
       { name: 'wearabledevices', fields: ['user_id'] },
       { name: 'medicationreminders', fields: ['user_id'] },
       { name: 'provider_contracts', fields: ['user_id'] },
+      { name: 'storage_objects', fields: ['owner_account_id'] },
     ];
     for (const c of ownedCollections) {
       try {
