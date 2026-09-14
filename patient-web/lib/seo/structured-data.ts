@@ -28,7 +28,9 @@ export function breadcrumbList(items: Array<{ name: string; locale: Locale; path
   };
 }
 
-export function physician(input: { name: string; path: string; locale: Locale; specialty?: string | null; image?: string | null; city?: string | null }): Record<string, unknown> {
+export function physician(input: { name: string; path: string; locale: Locale; specialty?: string | null; image?: string | null; city?: string | null; ratingValue?: number | null; reviewCount?: number | null }): Record<string, unknown> {
+  const rating = Number(input.ratingValue);
+  const count = Number(input.reviewCount);
   return {
     "@context": "https://schema.org", "@type": "Physician",
     name: input.name,
@@ -36,6 +38,8 @@ export function physician(input: { name: string; path: string; locale: Locale; s
     ...(input.specialty ? { medicalSpecialty: input.specialty } : {}),
     ...(input.image ? { image: input.image } : {}),
     ...(input.city ? { address: { "@type": "PostalAddress", addressLocality: input.city, addressCountry: "SA" } } : {}),
+    // AggregateRating ONLY from live approved-review aggregates; omitted when count is 0.
+    ...(rating > 0 && count > 0 ? { aggregateRating: { "@type": "AggregateRating", ratingValue: Math.min(5, Math.max(1, Math.round(rating * 10) / 10)), reviewCount: Math.floor(count) } } : {}),
   };
 }
 

@@ -754,7 +754,26 @@
     "emptyTitle": "Walang espesyalisasyon",
     "emptyBody": "Walang kasalukuyang available mula sa awtorisadong serbisyo.",
     "noMatch": "Walang tumugmang espesyalisasyon sa paghahanap.",
-    "doctorCount": "{count} doktor ang available"
+    "doctorCount": "{count} doktor ang available",
+    "faq": [
+      {
+        "q": "Paano mag-book ng konsultasyon?",
+        "a": "Pumili ng specialty, doktor, at slot, pagkatapos kumpirmahin."
+      },
+      {
+        "q": "Anong mga mode?",
+        "a": "Clinic visit, video call, at home visit."
+      },
+      {
+        "q": "Puwede ba ang insurance?",
+        "a": "Oo — naitatala ang desisyon bago magbayad."
+      },
+      {
+        "q": "Puwede bang kanselahin?",
+        "a": "Oo, mula sa My appointments ayon sa patakaran।"
+      }
+    ],
+    "faqTitle": "Mga FAQ"
   },
   "HomeCareServices": {
     "eyebrow": "Home care",
