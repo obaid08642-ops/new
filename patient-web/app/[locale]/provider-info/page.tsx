@@ -1,9 +1,20 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { isLocale } from "@/lib/i18n";
+import { hubMetadata } from "@/lib/seo";
+
 
 type Props = { params: Promise<{ locale: string }> };
+
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  if (!isLocale(locale)) return {};
+  const t = await getTranslations({ locale, namespace: "HubSeo" });
+  return hubMetadata(locale, "/provider-info", t("provider-info.title"), t("provider-info.description"));
+}
 
 export default async function ProviderInfoPage({ params }: Props) {
   const { locale } = await params;

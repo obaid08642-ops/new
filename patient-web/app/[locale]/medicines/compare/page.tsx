@@ -1,12 +1,23 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { callPatientApi } from "@/lib/api/upstream";
 import { isLocale } from "@/lib/i18n";
+import { hubMetadata } from "@/lib/seo";
+
 import { GitCompareArrows, ChevronLeft } from "lucide-react";
 import styles from "./compare.module.css";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ ids?: string }> };
+
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  if (!isLocale(locale)) return {};
+  const t = await getTranslations({ locale, namespace: "HubSeo" });
+  return hubMetadata(locale, "/medicines/compare", t("medicines/compare.title"), t("medicines/compare.description"));
+}
 
 export default async function MedicineComparePage({ params, searchParams }: Props) {
   const { locale } = await params;
