@@ -174,8 +174,10 @@ export class UsersService {
   }
   private async setSetting(id: string, key: string, body: any) {
     const clean = (body && typeof body === 'object') ? body : {};
-    await this.patientRepository.updateOne({ user_id: id }, { $set: { [key]: clean } }, { upsert: true });
-    return clean;
+    const prev: any = await this.patientRepository.findOne({ user_id: id }, { [key]: 1 });
+    const merged = { ...((prev?.[key] && typeof prev[key] === 'object') ? prev[key] : {}), ...clean };
+    await this.patientRepository.updateOne({ user_id: id }, { $set: { [key]: merged } }, { upsert: true });
+    return merged;
   }
 
   private static readonly NOTIFICATION_CHANNELS = ['push', 'email', 'sms'] as const;

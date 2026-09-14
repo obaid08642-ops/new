@@ -137,7 +137,7 @@ export default function PriceOverrideAuditPage() {
                 data.data.map((row) => (
                   <tr key={row.id} className="border-t hover:bg-slate-50">
                     <td className="p-4 text-xs text-slate-500">
-                      {row.created_at ? new Date(row.created_at).toLocaleString('ar-SA') : '—'}
+                      {row.created_at ? new Date(row.created_at).toLocaleString('ar-SA-u-ca-gregory') : '—'}
                     </td>
                     <td className="p-4 font-medium text-slate-900">{row.pharmacy_name || row.pharmacy_id}</td>
                     <td className="p-4">

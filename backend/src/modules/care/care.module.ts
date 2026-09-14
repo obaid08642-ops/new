@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CareController, PublicSpecialtiesController } from './care.controller';
-import { AppointmentsController } from './appointments.controller';
+import { AppointmentsController, AdminAppointmentsController } from './appointments.controller';
 import { CareService } from './care.service';
 import { AppointmentsService } from './appointments.service';
 import { DoctorReferralsController } from './doctor-referrals.controller';
@@ -36,7 +36,7 @@ import { SlotLocksModule } from "../slot-locks/slot-locks.module";
       { name: LeaveRequest.name, schema: LeaveRequestSchema },
     ]),
   ],
-  controllers: [CareController, PublicSpecialtiesController, AppointmentsController, DoctorReferralsController],
+  controllers: [CareController, PublicSpecialtiesController, AppointmentsController, AdminAppointmentsController, DoctorReferralsController],
   providers: [CareService, AppointmentsService, SlotService, { provide: 'AppointmentRepository', useClass: AppointmentRepository }, { provide: 'FacilityRepository', useClass: FacilityRepository }, { provide: 'ProviderProfileRepository', useClass: ProviderProfileRepository }, { provide: 'UserRepository', useClass: UserRepository }],
   exports: [CareService, AppointmentsService, SlotService],
 })

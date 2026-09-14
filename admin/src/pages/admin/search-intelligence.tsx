@@ -16,8 +16,8 @@ type QueryStat = {
 
 type SearchAnalyticsResponse = {
   total_queries: number;
-  zero_result_queries_count: number;
-  conversion_rate: number;
+  no_results_queries: number;
+  zero_result_rate: number;
   top_queries: QueryStat[];
   zero_result_queries: Array<{ raw_query: string; locale: string; count: number }>;
   top_specialties: Array<{ specialty: string; count: number }>;
@@ -57,16 +57,11 @@ export default function SearchIntelligencePage() {
     if (!testQuery.trim()) return;
     setTesting(true);
     try {
-      const res = await fetch('https://api.nabd.plus/api/v1/search-intent/analyze', {
+      const result = await adminFetch('/search/intent', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: testQuery }),
       });
-      if (res.ok) {
-        setTestResult(await res.json());
-      } else {
-        setTestResult({ error: 'Failed to analyze query' });
-      }
+      setTestResult(result);
     } catch (err: any) {
       setTestResult({ error: err.message || 'Error executing search intent' });
     } finally {
@@ -120,13 +115,13 @@ export default function SearchIntelligencePage() {
           </div>
           <div className="rounded-2xl border bg-white p-5 shadow-sm">
             <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">استعلامات بلا نتائج (Zero-Result)</p>
-            <h2 className="mt-2 text-3xl font-bold text-amber-600">{data?.zero_result_queries_count ?? (loading ? '…' : 0)}</h2>
+            <h2 className="mt-2 text-3xl font-bold text-amber-600">{data?.no_results_queries ?? (loading ? '…' : 0)}</h2>
             <p className="mt-1 text-xs text-slate-500">فرص لتحسين التغذية والكتالوج</p>
           </div>
           <div className="rounded-2xl border bg-white p-5 shadow-sm">
             <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">معدل التحويل للطلب/الحجز</p>
             <h2 className="mt-2 text-3xl font-bold text-emerald-600">
-              {data?.conversion_rate ? `${(data.conversion_rate * 100).toFixed(1)}%` : '18.4%'}
+              {data ? `${(100 - (data.zero_result_rate ?? 0)).toFixed(1)}%` : '—'}
             </h2>
             <p className="mt-1 text-xs text-emerald-600">بحث تحول لحجز موعد أو شراء</p>
           </div>

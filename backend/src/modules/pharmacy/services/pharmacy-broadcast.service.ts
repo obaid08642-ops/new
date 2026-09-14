@@ -413,6 +413,12 @@ export class PharmacyBroadcastService {
     return out;
   }
 
+  /** Admin monitor: latest broadcasts with order state (no pharmacy scoping). */
+  async adminList(limit = 50): Promise<any[]> {
+    const bcs = await this.broadcasts.find({}, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(limit).lean().catch(() => []);
+    return bcs;
+  }
+
   async listForPharmacy(user: any): Promise<any> {
     await this.assertActiveNotifiedPharmacy(user);
     const bcs = await this.broadcasts.find({ notified_pharmacies: user.id, lock_state: { $in: ['open'] } }).sort({ createdAt: -1 }).lean();

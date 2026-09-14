@@ -47,8 +47,12 @@ function apiPath(req: NextApiRequest) {
   let upstreamPath = `/api/v1/admin/${encoded}`;
   // These legacy module prefixes are still real backend controllers, but their
   // browser transport is now forced through this BFF route.
-  // 'providers' intentionally excluded from modulePrefixes — handled separately below
-  const modulePrefixes = new Set(['support', 'medicines', 'storage', 'insurance', 'emergency', 'legal', 'ai', 'users', 'pharmacy', 'labs', 'radiology', 'nursing']);
+  // 'providers' intentionally excluded from modulePrefixes — handled separately below.
+  // 'users' intentionally excluded — admin user actions (ban/unban/delete) live on
+  // AdminController at /api/v1/admin/users/* (stripping to /api/v1/users/* 404s).
+  // 'pharmacy' intentionally excluded — the only admin consumer (broadcast-monitor)
+  // targets AdminBroadcastController at /api/v1/admin/pharmacy/*.
+  const modulePrefixes = new Set(['support', 'medicines', 'storage', 'insurance', 'emergency', 'legal', 'ai', 'labs', 'radiology', 'nursing']);
   if (decoded[0] === 'orders') {
     // Admin orders console lives at /api/v1/admin/orders
     upstreamPath = `/api/v1/admin/${encoded}`;
@@ -63,9 +67,27 @@ function apiPath(req: NextApiRequest) {
       upstreamPath = `/api/v1/admin/providers${tail ? `/${tail}` : ''}`;
     }
   } else if (modulePrefixes.has(decoded[0])) {
-    upstreamPath = `/api/v1/${encoded}`;
+    // Second-segment exceptions: admin consoles that share a first segment
+    // with a public controller. These MUST stay under /api/v1/admin/*:
+    // - insurance stats|requests → AdminInsurance (/api/v1/admin/insurance/*)
+    //   while insurance companies* → public (/api/v1/insurance/*)
+    // - nursing requests → AdminNursing (/api/v1/admin/nursing/*)
+    //   while nursing catalog → public (/api/v1/nursing/*)
+    const stayAdmin = (decoded[0] === 'insurance' && (decoded[1] === 'stats' || decoded[1] === 'requests'))
+      || (decoded[0] === 'nursing' && decoded[1] === 'requests');
+    upstreamPath = stayAdmin ? `/api/v1/admin/${encoded}` : `/api/v1/${encoded}`;
   }
   if (decoded[0] === 'ambulance' && decoded[1] === 'fleet') upstreamPath = `/api/v1/admin/ambulance/fleet${decoded.slice(2).length ? `/${decoded.slice(2).map(encodeURIComponent).join('/')}` : ''}`;
+  // Public read controllers the admin UI consumes directly (GeoPicker, moderation,
+  // loyalty, chat, passkey enrollment). Backend paths are /api/v1/<module>/* —
+  // the default /api/v1/admin/* prefix 404s there. Backend guards still apply.
+  if (decoded[0] === 'locations') upstreamPath = `/api/v1/locations/${decoded.slice(1).map(encodeURIComponent).join('/')}`;
+  if (decoded[0] === 'community') upstreamPath = `/api/v1/community/${decoded.slice(1).map(encodeURIComponent).join('/')}`;
+  if (decoded[0] === 'loyalty') upstreamPath = `/api/v1/loyalty/${decoded.slice(1).map(encodeURIComponent).join('/')}`;
+  if (decoded[0] === 'chat' || decoded[0] === 'chats') upstreamPath = `/api/v1/${decoded[0]}/${decoded.slice(1).map(encodeURIComponent).join('/')}`;
+  if (decoded[0] === 'auth' && decoded[1] === 'passkey') upstreamPath = `/api/v1/auth/passkey/${decoded.slice(2).map(encodeURIComponent).join('/')}`;
+  if (decoded[0] === 'support-session') upstreamPath = `/api/v1/support-session/${decoded.slice(1).map(encodeURIComponent).join('/')}`;
+  if (decoded[0] === 'search' && decoded[1] === 'intent') upstreamPath = `/api/v1/search/intent`;
   if (decoded[0] === 'provider-onboarding' && decoded[1] === 'admin') upstreamPath = `/api/v1/provider-onboarding/admin/${decoded.slice(2).map(encodeURIComponent).join('/')}`;
   if (decoded[0] === 'system-health') upstreamPath = `/api/v1/system-health/${decoded.slice(1).map(encodeURIComponent).join('/')}`;
   if (decoded[0] === 'nabd-extensions' && decoded[1] === 'admin') upstreamPath = `/api/v1/nabd-extensions/admin/${decoded.slice(2).map(encodeURIComponent).join('/')}`;

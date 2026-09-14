@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
@@ -108,11 +108,11 @@ export class AdminGovernanceControlsController {
   @RequirePermissions(Permission.ANALYTICS_READ)
   async searchIntentAnalytics() {
     const col = this.conn.collection('query_analytics');
-    const [total, noResults, topQueries, topSpecialties] = await Promise.all([
+    const [total, noResults, topQueries, topSpecialties, zeroList] = await Promise.all([
       col.countDocuments({}),
       col.countDocuments({ results_count: 0 }),
       col.aggregate([
-        { $group: { _id: '$query', count: { $sum: 1 }, avgResults: { $avg: '$results_count' } } },
+        { $group: { _id: { q: '$normalized_query', locale: '$locale', intent: '$detected_intent' }, count: { $sum: 1 }, avgResults: { $avg: '$results_count' } } },
         { $sort: { count: -1 } },
         { $limit: 10 },
       ]).toArray(),
@@ -122,13 +122,20 @@ export class AdminGovernanceControlsController {
         { $sort: { count: -1 } },
         { $limit: 5 },
       ]).toArray(),
+      col.aggregate([
+        { $match: { results_count: 0 } },
+        { $group: { _id: { q: '$normalized_query', locale: '$locale' }, count: { $sum: 1 } } },
+        { $sort: { count: -1 } },
+        { $limit: 20 },
+      ]).toArray(),
     ]);
 
     return {
       total_queries: total,
       no_results_queries: noResults,
       zero_result_rate: total > 0 ? Number(((noResults / total) * 100).toFixed(2)) : 0,
-      top_queries: topQueries.map((q) => ({ query: q._id, count: q.count, avg_results: Math.round(q.avgResults || 0) })),
+      top_queries: topQueries.map((q) => ({ raw_query: q._id?.q, locale: q._id?.locale, intent_type: q._id?.intent, count: q.count, avg_results: Math.round(q.avgResults || 0) })),
+      zero_result_queries: zeroList.map((z) => ({ raw_query: z._id?.q, locale: z._id?.locale, count: z.count })),
       top_specialties: topSpecialties.map((s) => ({ specialty: s._id, count: s.count })),
     };
   }
@@ -138,18 +145,31 @@ export class AdminGovernanceControlsController {
    */
   @Get('medicine-price-history')
   @RequirePermissions(Permission.CATALOG_READ)
-  async medicinePriceHistory() {
+  async medicinePriceHistory(@Query('page') page?: string, @Query('limit') limit?: string, @Query('search') search?: string) {
     const col = this.conn.collection('medicine_price_history');
-    const history = await col
-      .find({})
-      .sort({ createdAt: -1 })
-      .limit(50)
-      .project({ _id: 0 })
-      .toArray();
+    const filter: any = {};
+    if (search) {
+      const safe = String(search).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      filter.$or = [{ medicine_name: new RegExp(safe, 'i') }, { medicine_id: safe }];
+    }
+    const safeLimit = Math.min(Math.max(Number(limit) || 25, 1), 100);
+    const safePage = Math.max(Number(page) || 1, 1);
+    const [total, history, summary] = await Promise.all([
+      col.countDocuments(filter),
+      col.find(filter).sort({ createdAt: -1 }).skip((safePage - 1) * safeLimit).limit(safeLimit).project({ _id: 0 }).toArray(),
+      col.aggregate([
+        { $match: filter },
+        { $group: { _id: null, total_overrides: { $sum: 1 }, flagged_overpriced: { $sum: { $cond: [{ $eq: ['$flagged', true] }, 1, 0] } }, avg_variance_pct: { $avg: '$variance_pct' } } },
+      ]).toArray(),
+    ]);
+    const s = summary[0] || { total_overrides: 0, flagged_overpriced: 0, avg_variance_pct: 0 };
 
     return {
-      total: history.length,
-      history,
+      data: history,
+      total,
+      page: safePage,
+      pages: Math.max(Math.ceil(total / safeLimit), 1),
+      summary: { total_overrides: s.total_overrides, flagged_overpriced: s.flagged_overpriced, avg_variance_pct: Number(Number(s.avg_variance_pct || 0).toFixed(2)) },
     };
   }
 

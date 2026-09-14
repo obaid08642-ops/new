@@ -148,8 +148,8 @@ export default function AdminSecurity() {
                   <div>
                     <div style={{ fontWeight: 700, fontSize: 14 }}>{d.device_name || 'جهاز'}</div>
                     <div style={{ color: '#6B7C8A', fontSize: 12, marginTop: 4 }}>
-                      سُجّل: {d.created_at ? new Date(d.created_at).toLocaleString('ar') : '—'}
-                      {' · '}آخر استخدام: {d.last_used_at ? new Date(d.last_used_at).toLocaleString('ar') : '—'}
+                      سُجّل: {d.created_at ? new Date(d.created_at).toLocaleString('ar-u-ca-gregory') : '—'}
+                      {' · '}آخر استخدام: {d.last_used_at ? new Date(d.last_used_at).toLocaleString('ar-u-ca-gregory') : '—'}
                     </div>
                   </div>
                   <button

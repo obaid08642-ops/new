@@ -191,12 +191,13 @@ export default function ConfigPortal() {
                   </div>
 
                   <button
-                    disabled={!killSwitchChecked1 || !killSwitchChecked2 || isSubmitting}
-                    onClick={() => handleTriggerEmergencyKillSwitch(true)}
-                    className="w-full mt-4 bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-lg shadow-lg disabled:opacity-50 transition uppercase tracking-widest text-lg"
+                    disabled
+                    title="مفتاح الصيانة غير مفعّل خادمياً: يتطلب Redis dispatch + اعتماد ثنائي + تحقق استرداد"
+                    className="w-full mt-4 bg-slate-300 text-slate-500 font-bold py-4 rounded-lg uppercase tracking-widest text-lg cursor-not-allowed"
                   >
-                    {isSubmitting ? 'جاري الإقفال...' : 'Trigger System Kill-Switch'}
+                    Trigger System Kill-Switch (معطّل — يتطلب إعداد الخادم)
                   </button>
+                  <p className="text-xs text-slate-500">زر الصيانة الطارئة معطّل عمداً: الخادم يرفض أي حالة صيانة شاملة بلا Redis dispatch وتدقيق غير قابل للتغيير. لا يُفعَّل إلا بعد تنفيذ ذلك خادمياً.</p>
                 </div>
               ) : (
                 <div className="bg-white p-6 rounded border border-green-200 text-center">

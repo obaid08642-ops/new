@@ -203,7 +203,7 @@ export default function CatalogGovernancePage() {
                         <td className="p-3 font-bold text-rose-700">{row.override_price ?? 0} ر.س</td>
                         <td className="p-3 text-xs bg-slate-50 rounded p-1.5">{row.reason || 'بدون سبب'}</td>
                         <td className="p-3 text-xs text-slate-400">
-                          {row.changed_at ? new Date(row.changed_at).toLocaleString('ar-SA') : '—'}
+                          {row.changed_at ? new Date(row.changed_at).toLocaleString('ar-SA-u-ca-gregory') : '—'}
                         </td>
                       </tr>
                     ))}
@@ -362,7 +362,7 @@ export default function CatalogGovernancePage() {
                         {history.map((row) => (
                           <li key={row.id} className="py-2 text-slate-600">
                             {row.before_price ?? 'جديد'} ← {row.after_price} ر.س · {row.reason} ·{' '}
-                            {new Date(row.createdAt).toLocaleString('ar-SA')}
+                            {new Date(row.createdAt).toLocaleString('ar-SA-u-ca-gregory')}
                           </li>
                         ))}
                       </ul>

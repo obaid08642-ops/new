@@ -3,7 +3,8 @@ import {
   NotFoundException,
   BadRequestException,
   Optional, Inject } from '@nestjs/common';
-import { Model } from 'mongoose';
+import { Model, Connection } from 'mongoose';
+import { InjectConnection } from '@nestjs/mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { OnEvent, EventEmitter2 } from '@nestjs/event-emitter';
 import { LoyaltyAccountRepository } from "./repositories/loyaltyaccount.repository";
@@ -57,10 +58,26 @@ export class LoyaltyService {
     @Inject('RewardRepository') private rewardM: RewardRepository,
     @Inject('RewardClaimRepository') private claimM: RewardClaimRepository,
     @Optional() private events?: EventEmitter2,
+    @Optional() @InjectConnection() private conn?: Connection,
   ) {}
 
   getTiers() {
     return TIERS;
+  }
+
+  /** Admin overrides from loyalty_config.global (PUT /loyalty/config) merged over defaults. */
+  async getConfig() {
+    let overrides: any = {};
+    try {
+      const doc: any = await (this as any).conn?.collection('loyalty_config')?.findOne({ key: 'global' });
+      if (doc?.value && typeof doc.value === 'object') overrides = doc.value;
+    } catch { /* defaults win */ }
+    return {
+      tiers: this.getTiers(),
+      earn_ways: this.getEarnWays(),
+      points_per_order: Number(overrides.points_per_order ?? 10),
+      referral_points: Number(overrides.referral_points ?? 50),
+    };
   }
 
   getEarnWays() {

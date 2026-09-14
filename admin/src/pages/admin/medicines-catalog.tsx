@@ -313,6 +313,12 @@ export default function MedicinesCatalogPage() {
                   {F('warnings_en', 'التحذيرات (إنجليزي)', { area: true, ltr: true })}
                   {F('side_effects_ar', 'الأعراض الجانبية (عربي)', { area: true })}
                   {F('side_effects_en', 'الأعراض الجانبية (إنجليزي)', { area: true, ltr: true })}
+                  {F('dosage_ar', 'الجرعة (عربي)', { area: true })}
+                  {F('dosage_en', 'الجرعة (إنجليزي)', { area: true, ltr: true })}
+                  {F('interactions', 'التداخلات الدوائية', { area: true, ltr: true })}
+                  {F('storage_conditions', 'شروط التخزين', { area: true })}
+                  {F('precautions_ar', 'الاحتياطات (عربي)', { area: true })}
+                  {F('precautions_en', 'الاحتياطات (إنجليزي)', { area: true, ltr: true })}
                 </div>
                 <div className="flex gap-3">
                   <button onClick={saveForm} disabled={busy === 'form'} className="bg-teal-600 text-white font-bold px-8 py-2 rounded-lg disabled:opacity-50">

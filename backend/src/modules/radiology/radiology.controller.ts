@@ -159,19 +159,19 @@ export class RadiologyController {
   @Post('admin/catalog')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
   createCatalog(@CurrentUser() u: any, @Body() b: any) {
-    throw new ServiceUnavailableException('admin service catalog publication is unavailable pending versioned clinical, operations and finance approval workflow');
+    return this.svc.createCatalog(u, b);
   }
 
   @Put('admin/catalog/:id')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
   updateCatalog(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
-    throw new ServiceUnavailableException('admin service catalog publication is unavailable pending versioned clinical, operations and finance approval workflow');
+    return this.svc.updateCatalog(u, id, b);
   }
 
   @Delete('admin/catalog/:id')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
   deleteCatalog(@CurrentUser() u: any, @Param('id') id: string) {
-    throw new ServiceUnavailableException('admin service catalog retirement is unavailable pending dependency-aware approval and rollback workflow');
+    return this.svc.deleteCatalog(u, id);
   }
 
   // --- Admin Quality Control & Dispute Intervention ---

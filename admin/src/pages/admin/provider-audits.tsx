@@ -91,7 +91,7 @@ export default function ProviderAuditsPage() {
                       </span>
                     </div>
                     <span className="text-xs text-slate-400">
-                      تاريخ الطلب: {d.createdAt ? new Date(d.createdAt).toLocaleString('ar-SA') : '—'}
+                      تاريخ الطلب: {d.createdAt ? new Date(d.createdAt).toLocaleString('ar-SA-u-ca-gregory') : '—'}
                     </span>
                   </div>
 

@@ -1,8 +1,7 @@
 import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { AppointmentsService } from './appointments.service';
 import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
-import { UserRole } from '../../common/enums';
-import { ApptState } from '../../schemas/appointment.schema';
+import { UserRole } from '../../common/enums';import { ApptState } from '../../schemas/appointment.schema';
 import { CreateAppointmentDto, CancelAppointmentDto, RescheduleAppointmentDto } from './appointments.dto';
 
 @Controller('care/appointments')
@@ -77,4 +76,25 @@ export class AppointmentsController {
     return this.svc.getSummary(id, user);
   }
 
+}
+
+/**
+ * Admin appointments oversight (appointments-oversight.tsx):
+ * list all + cancel any. listMine already returns everything for admins.
+ */
+@Controller('admin/appointments')
+@UseGuards(JwtAuthGuard)
+@Roles(UserRole.ADMIN)
+export class AdminAppointmentsController {
+  constructor(private svc: AppointmentsService) {}
+
+  @Get()
+  list(@Query('limit') limit?: string, @Query('status') status?: ApptState) {
+    return this.svc.adminList(Math.min(Math.max(Number(limit) || 50, 1), 200), status);
+  }
+
+  @Post(':id/cancel')
+  cancel(@Param('id') id: string, @Body() body: any, @CurrentUser() user: any) {
+    return this.svc.cancel(id, { ...user, role: UserRole.ADMIN }, body?.reason);
+  }
 }

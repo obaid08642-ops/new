@@ -466,6 +466,8 @@ export class AdminController {
     (user as any).active = false;
     (user as any).suspended = true;
     await user.save();
+    // Sync provider visibility: banned/suspended owners must vanish from public lists immediately.
+    try { await this.userModel.db.collection('provider_profiles').updateMany({ user_id: user.id }, { $set: { status: 'SUSPENDED', public_eligibility: false } }); } catch {}
     try { this.events?.emit('admin.user_updated', { admin_id: by?.id, target_user_id: user.id || userId, action: 'ban' }); } catch {}
     return { ok: true, message: 'user_banned' };
   }
@@ -479,6 +481,7 @@ export class AdminController {
     (user as any).active = true;
     (user as any).suspended = false;
     await user.save();
+    try { await this.userModel.db.collection('provider_profiles').updateMany({ user_id: user.id }, { $set: { status: 'ACTIVE', public_eligibility: true } }); } catch {}
     try { this.events?.emit('admin.user_updated', { admin_id: by?.id, target_user_id: user.id || userId, action: 'unban' }); } catch {}
     return { ok: true, message: 'user_unbanned' };
   }
@@ -497,6 +500,21 @@ export class AdminController {
     }
     const uid = user.id;
     const db = this.userModel.db;
+    // Media purge FIRST (while we still know the urls): provider profile photos,
+    // logos, clinic images + every storage object owned by the account — each
+    // emitted to the storage deleter (Cloudinary destroy / R2 DeleteObject).
+    try {
+      const urls = new Set<string>();
+      const profile: any = await db.collection('provider_profiles').findOne({ user_id: uid }, { projection: { profile_photo: 1, logo: 1, clinic_images: 1 } }).catch(() => null);
+      for (const u of [profile?.profile_photo, profile?.logo, ...(profile?.clinic_images || [])]) {
+        if (typeof u === 'string' && u.startsWith('http')) urls.add(u);
+      }
+      const objs: any[] = await db.collection('storage_objects').find({ owner_account_id: uid }, { projection: { external_url: 1 } }).toArray().catch(() => []);
+      for (const o of objs) if (typeof o?.external_url === 'string' && o.external_url.startsWith('http')) urls.add(o.external_url);
+      for (const url of urls) {
+        try { this.events?.emit('storage.delete_by_url', { url }); } catch {}
+      }
+    } catch { /* media purge is best-effort; record purge below still runs */ }
     // Purge directly-owned, user-scoped records. Shared clinical/financial
     // records (orders, appointments, ledger) are kept for audit integrity.
     const ownedCollections: Array<{ name: string; fields: string[] }> = [
@@ -512,6 +530,7 @@ export class AdminController {
       { name: 'wearabledevices', fields: ['user_id'] },
       { name: 'medicationreminders', fields: ['user_id'] },
       { name: 'provider_contracts', fields: ['user_id'] },
+      { name: 'storage_objects', fields: ['owner_account_id'] },
     ];
     for (const c of ownedCollections) {
       try {
@@ -521,6 +540,33 @@ export class AdminController {
     await this.userModel.deleteOne({ _id: user._id });
     try { this.events?.emit('admin.user_updated', { admin_id: by?.id, target_user_id: uid, action: 'permanent_delete' }); } catch {}
     return { ok: true, message: 'user_deleted_permanently' };
+  }
+
+  /**
+   * One-shot cleanup for ghost providers: provider_profiles whose owner user
+   * is deleted/suspended/inactive (legacy of the pre-fix BFF misroute), plus
+   * suspended owners still publicly visible. Dry-run by default.
+   */
+  @Post('users/cleanup-orphans')
+  async cleanupOrphans(@Body() body: any) {
+    const dryRun = body?.dry_run !== false;
+    const db = this.userModel.db;
+    const profiles: any[] = await db.collection('provider_profiles').find({}, { projection: { user_id: 1, status: 1, public_eligibility: 1 } }).toArray().catch(() => []);
+    let fixed = 0;
+    const sample: any[] = [];
+    for (const p of profiles) {
+      const owner: any = await db.collection('users').findOne({ id: p.user_id }, { projection: { active: 1, suspended: 1 } }).catch(() => null);
+      const bad = !owner || owner.active === false || owner.suspended === true;
+      const visible = p.status === 'ACTIVE' && p.public_eligibility !== false;
+      if (bad && visible) {
+        if (!dryRun) {
+          await db.collection('provider_profiles').updateOne({ user_id: p.user_id }, { $set: { status: 'SUSPENDED', public_eligibility: false } }).catch(() => null);
+        }
+        fixed++;
+        if (sample.length < 20) sample.push({ user_id: p.user_id, had_status: p.status });
+      }
+    }
+    return { ok: true, dry_run: dryRun, ghost_fixed: fixed, scanned: profiles.length, sample };
   }
 
   /**

@@ -10,7 +10,8 @@ import {
   UseGuards, ForbiddenException, BadRequestException, NotFoundException,
 } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { JwtAuthGuard, CurrentUser } from '../../common/auth.guard';
+import { JwtAuthGuard, CurrentUser, Roles } from '../../common/auth.guard';
+import { UserRole } from '../../common/enums';
 import { RequireIdempotency } from '../../common/idempotency.interceptor';
 import { EventsModule } from '../events/events.module';
 
@@ -137,6 +138,13 @@ export class ChatController {
   @Get('threads')
   myThreads(@CurrentUser() u: any, @Query('page') page = 1, @Query('limit') limit = 30) {
     return this.svc.myThreads(u.id, +page, +limit);
+  }
+
+  /** Admin console: all threads with message counts (role-gated). */
+  @Get('admin/threads')
+  @Roles(UserRole.ADMIN)
+  async adminThreads(@Query('page') page = 1, @Query('limit') limit = 30, @Query('q') q?: string) {
+    return this.svc.adminThreads(+page, +limit, q);
   }
 
   @Post('threads/direct')

@@ -12,10 +12,7 @@ export class LoyaltyController {
 
   @Get('config')
   getConfig() {
-    return {
-      tiers: this.loyaltyService.getTiers(),
-      earn_ways: this.loyaltyService.getEarnWays()
-    };
+    return this.loyaltyService.getConfig();
   }
 
   /** GET /api/v1/loyalty/account — Current user's points + tier */
