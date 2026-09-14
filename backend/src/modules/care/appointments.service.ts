@@ -252,6 +252,12 @@ export class AppointmentsService {
   }
 
   /** ===== Read ===== */
+  /** Admin oversight list (any status, newest first). */
+  async adminList(limit = 50, status?: ApptState) {
+    const q: any = {};
+    if (status) q.status = status;
+    return this.apptModel.find(q, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(limit).lean().catch(() => []);
+  }
   async listMine(user: any, status?: ApptState) {
     const q: any = {};
     // Admins can view all appointments

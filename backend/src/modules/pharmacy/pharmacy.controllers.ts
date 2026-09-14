@@ -201,6 +201,11 @@ export class ProviderBroadcastController {
 @Roles(UserRole.ADMIN)
 export class AdminBroadcastController {
   constructor(private bc: PharmacyBroadcastService, private readonly expiry: PharmacyExpiryCommandService) {}
+  /** Admin monitor list (broadcast-monitor.tsx). */
+  @Get()
+  async list(@Query('limit') limit?: string) {
+    return this.bc.adminList(Math.min(Math.max(Number(limit) || 50, 1), 200));
+  }
   @Post(':orderId/advance') advance() { throw new ServiceUnavailableException('manual_broadcast_advance_disabled_use_expiry_command'); }
   @Post(':orderId/fallback-split') fallback(@Param('orderId') id: string) { return this.bc.fallbackSplit(id); }
   /** Explicit privileged command; no timer, cron, queue worker, or caller-supplied clock. */

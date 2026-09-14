@@ -65,14 +65,15 @@ export default function MasterDashboard() {
           // Saudi Arabia bounding box → project real [lng,lat] onto the panel (5%..95%)
           const LNG_MIN = 34.5, LNG_MAX = 55.7, LAT_MIN = 16.3, LAT_MAX = 32.2;
           const mapped: HeatmapData[] = raw.slice(0, 40).map((r: any, i: number) => {
-            const coords = Array.isArray(r?.coordinates) && r.coordinates.length >= 2 ? r.coordinates : null;
+            const coords = Array.isArray(r?.coordinates) && r.coordinates.length >= 2 ? r.coordinates
+              : (r?.longitude !== undefined && r?.latitude !== undefined ? [r.longitude, r.latitude] : null);
             const lng = coords ? Number(coords[0]) : null;
             const lat = coords ? Number(coords[1]) : null;
             const valid = lng !== null && lat !== null && isFinite(lng) && isFinite(lat) && lng >= LNG_MIN && lng <= LNG_MAX && lat >= LAT_MIN && lat <= LAT_MAX;
             return {
-              region: String(r?.city || r?.region || 'غير محدد'),
-              demandType: String(r?.category || r?.demandType || 'general') as any,
-              count: Number(r?.count) || 0,
+              region: String(r?.city || r?.region || r?.clusterId || 'غير محدد'),
+              demandType: String(r?.category || r?.demandType || r?.type || 'general') as any,
+              count: Number(r?.count ?? r?.intensity) || 0,
               density: Math.min(100, Math.max(10, Math.round(((Number(r?.count) || 0) / maxCount) * 100))) as any,
               coordinates: valid
                 ? [5 + ((lng - LNG_MIN) / (LNG_MAX - LNG_MIN)) * 90, 95 - ((lat - LAT_MIN) / (LAT_MAX - LAT_MIN)) * 90]

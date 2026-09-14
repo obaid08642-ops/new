@@ -17,15 +17,17 @@ describe('AdminGovernanceControlsController', () => {
           }),
           aggregate: jest.fn().mockReturnValue({
             toArray: jest.fn().mockResolvedValue([
-              { _id: 'طبيب جلدية في الرياض', count: 5, avgResults: 3 },
+              { _id: { q: 'طبيب جلدية في الرياض', locale: 'ar', intent: 'discovery' }, count: 5, avgResults: 3 },
             ]),
           }),
         };
       }
       if (name === 'medicine_price_history') {
         return {
+          countDocuments: jest.fn().mockResolvedValue(1),
           find: jest.fn().mockReturnValue({
             sort: jest.fn().mockReturnValue({
+              skip: jest.fn().mockReturnValue({
               limit: jest.fn().mockReturnValue({
                 project: jest.fn().mockReturnValue({
                   toArray: jest.fn().mockResolvedValue([
@@ -39,7 +41,13 @@ describe('AdminGovernanceControlsController', () => {
                   ]),
                 }),
               }),
+              }),
             }),
+          }),
+          aggregate: jest.fn().mockReturnValue({
+            toArray: jest.fn().mockResolvedValue([
+              { total_overrides: 1, flagged_overpriced: 0, avg_variance_pct: 23.3 },
+            ]),
           }),
         };
       }
@@ -85,14 +93,16 @@ describe('AdminGovernanceControlsController', () => {
     expect(res.no_results_queries).toBe(2);
     expect(res.zero_result_rate).toBe(20);
     expect(res.top_queries).toHaveLength(1);
-    expect(res.top_queries[0].query).toBe('طبيب جلدية في الرياض');
+    expect(res.top_queries[0].raw_query).toBe('طبيب جلدية في الرياض');
+    expect(res.zero_result_queries).toHaveLength(1);
   });
 
   it('medicinePriceHistory returns audit records of price changes', async () => {
     const res = await controller.medicinePriceHistory();
     expect(res.total).toBe(1);
-    expect(res.history[0].old_price).toBe(15.0);
-    expect(res.history[0].new_price).toBe(18.5);
+    expect(res.data[0].old_price).toBe(15.0);
+    expect(res.data[0].new_price).toBe(18.5);
+    expect(res.summary.total_overrides).toBe(1);
   });
 
   it('mcpAuditLogs returns AI agent checkout sessions', async () => {

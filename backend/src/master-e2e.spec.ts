@@ -151,7 +151,7 @@ describe('MASTER ADDENDUM — Full End-to-End Architectural Verification', () =>
             insertOne: jest.fn().mockResolvedValue({}),
             countDocuments: jest.fn().mockResolvedValue(10),
             aggregate: jest.fn().mockReturnValue({
-              toArray: jest.fn().mockResolvedValue([{ _id: 'بنادول', count: 5, avgResults: 2 }]),
+              toArray: jest.fn().mockResolvedValue([{ _id: { q: 'بنادول', locale: 'ar', intent: 'discovery' }, count: 5, avgResults: 2 }]),
             }),
           };
         case 'medicine_price_history':
@@ -369,7 +369,7 @@ describe('MASTER ADDENDUM — Full End-to-End Architectural Verification', () =>
     it('retrieves search intent analytics including zero-result metrics', async () => {
       const stats = await adminController.searchIntentAnalytics();
       expect(stats.total_queries).toBe(10);
-      expect(stats.top_queries[0].query).toBe('بنادول');
+      expect(stats.top_queries[0].raw_query).toBe('بنادول');
     });
 
     it('retrieves MCP AI agent audit logs', async () => {
