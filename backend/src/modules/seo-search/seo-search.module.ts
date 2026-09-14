@@ -946,6 +946,14 @@ export class SeoSearchController {
     return { locale, page: p, per_page: 5000, total, pages: Math.max(Math.ceil(total / 5000), 1), urls };
   }
 
+  /** Lightweight page-count for the sitemap index (countDocuments only — no 5MB bodies). */
+  @Public()
+  @Get('public/sitemaps/products-count')
+  async publicProductSitemapCount() {
+    const total = await this.svc.publicProductCount().catch(() => 0);
+    return { total, per_page: 5000, pages: Math.max(Math.ceil(total / 5000), 1) };
+  }
+
   @Public()
   @Get('public/sitemaps/doctors/:locale')
   async publicDoctorSitemap(@Param('locale') locale: string) {
