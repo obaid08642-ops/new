@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { locales } from "@/lib/i18n";
 import { siteOrigin } from "@/lib/seo";
 import { getProductSitemap } from "@/lib/api/public-products-server";
+import { patientApiUrl } from "@/lib/api/upstream";
 
 export const revalidate = 3600;
 
@@ -19,8 +20,20 @@ export async function GET() {
     `${siteOrigin()}/sitemaps/radiology.xml`,
   ];
   for (const locale of locales) {
-    const first = await getProductSitemap(locale, 1);
-    const pages = first?.pages || 0;
+    // Light count endpoint (bytes, not megabytes): total → pages.
+    let pages = 0;
+    try {
+      const res = await fetch(patientApiUrl(`/public/sitemaps/products-count`), {
+        headers: { Accept: "application/json" },
+        next: { revalidate: 3600 },
+      } as RequestInit);
+      if (res.ok) pages = (await res.json().catch(() => null))?.pages || 0;
+    } catch { pages = 0; }
+    // Fallback: full page-1 (also repairs a count outage).
+    if (!pages) {
+      const first = await getProductSitemap(locale, 1);
+      pages = first?.pages || 0;
+    }
     for (let p = 1; p <= pages; p++) {
       entries.push(`${siteOrigin()}/sitemaps/products/${locale}/${p}.xml`);
     }
