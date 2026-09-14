@@ -12,6 +12,7 @@ import { useApp } from '../../src/context/AppContext';
 import { Icon } from '../../src/components/Icon';
 import { AppText, Card, Badge, Button, IconButton } from '../../src/components/ui';
 import { apiFetch } from '../../src/utils/api';
+import { logError } from '../../src/utils/logger';
 import { dateLocale } from '@/utils/dates';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
@@ -83,7 +84,7 @@ export default function LoyaltyHubScreen() {
         useNativeDriver: false,
       }).start();
     } catch (err) {
-      console.error(err);
+      logError('loyalty:hub', err);
     } finally {
       setLoading(false);
     }

@@ -8,6 +8,7 @@ import { useApp } from '../../src/context/AppContext';
 import { Icon } from '../../src/components/Icon';
 import { AppText, Card, Badge, Button, IconButton } from '../../src/components/ui';
 import { apiFetch } from '../../src/utils/api';
+import { logError } from '../../src/utils/logger';
 import MapView, { Marker, PROVIDER_DEFAULT } from '../../src/components/MapPrimitives';
 import * as Location from 'expo-location';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
@@ -51,7 +52,7 @@ export default function SosActiveScreen() {
           setVehicleLabel(veh ? `سيارة الإسعاف ${veh}` : (data.assigned ? 'تم تخصيص سيارة إسعاف' : ''));
         }
       } catch (e) {
-        console.log('Error fetching SOS status', e);
+        logError('emergency:sos-active', e);
       }
     };
     fetchStatus();

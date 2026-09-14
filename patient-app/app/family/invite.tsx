@@ -7,6 +7,7 @@ import { useApp } from '../../src/context/AppContext';
 import { Icon } from '../../src/components/Icon';
 import { AppText, Card, Badge, Button, IconButton, Input, SegmentedControl, SectionHeader } from '../../src/components/ui';
 import { apiFetch } from '../../src/utils/api';
+import { logError } from '../../src/utils/logger';
 import QRCode from 'react-native-qrcode-svg';
 
 export default function FamilyInviteScreen() {
@@ -31,7 +32,7 @@ export default function FamilyInviteScreen() {
       const res = await apiFetch('/family/invite', { method: 'POST' });
       setInviteCode(res.invite_code);
     } catch (err: any) {
-      console.error(err);
+      logError('family:invite', err);
       setInviteCode('');
       setLoadError(true);
     } finally {

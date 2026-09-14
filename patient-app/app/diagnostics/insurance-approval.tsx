@@ -9,6 +9,7 @@ import { useRouter, useLocalSearchParams, Stack } from 'expo-router';
 import Animated, { FadeIn, ZoomIn, SlideInUp } from 'react-native-reanimated';
 import { useDiagnosticsCart } from '../../src/context/DiagnosticsCartContext';
 import { apiFetch } from '../../src/utils/api';
+import { logError } from '../../src/utils/logger';
 
 const { width } = Dimensions.get('window');
 
@@ -65,7 +66,7 @@ export default function InsuranceApproval() {
           clearInterval(intervalId);
         }
       } catch (err) {
-        console.error(err);
+        logError('diagnostics:insurance-approval', err);
       }
     };
 
@@ -93,7 +94,7 @@ export default function InsuranceApproval() {
         });
       }
     } catch (e) {
-      console.error(e);
+      logError('diagnostics:insurance-approval:opt-in', e);
       setOptedInCashItems(prev => 
         !newOptIn ? [...prev, identifier] : prev.filter(i => i !== identifier)
       );

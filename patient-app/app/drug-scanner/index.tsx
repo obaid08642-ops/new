@@ -13,6 +13,7 @@ import { Icon } from '../../src/components/Icon';
 import { AppText, Card, Badge, Button, IconButton } from '../../src/components/ui';
 
 import { apiFetch } from '../../src/utils/api';
+import { logError } from '../../src/utils/logger';
 
 type ScanState = 'idle' | 'scanning' | 'results';
 
@@ -38,7 +39,7 @@ export default function DrugScannerScreen() {
         setMyMedicines(meds);
         setSelectedMeds(meds.map((m: any) => m.id));
       })
-      .catch(console.error);
+      .catch((e) => logError('drug-scanner:load-meds', e));
   }, []);
 
   const handleScan = async () => {

@@ -13,6 +13,7 @@ import { useApp } from '../../src/context/AppContext';
 import Icon from '@expo/vector-icons/MaterialCommunityIcons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { apiFetch } from '../../src/utils/api';
+import { logError } from '../../src/utils/logger';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 export default function TechnicianTrackingScreen() {
@@ -39,7 +40,7 @@ export default function TechnicianTrackingScreen() {
         if (bookingRes?.data || bookingRes) setBooking(bookingRes?.data || bookingRes);
         if (trackRes?.data || trackRes) setTracking(trackRes?.data || trackRes);
       } catch (err) {
-        console.log('Error fetching technician tracking:', err);
+        logError('diagnostics:technician-tracking', err);
       } finally {
         if (!stopped) setLoading(false);
       }

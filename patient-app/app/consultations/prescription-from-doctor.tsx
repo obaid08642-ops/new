@@ -21,6 +21,7 @@ import {
 } from "../../src/components/ui";
 
 import { apiFetch } from '../../src/utils/api';
+import { logError } from '../../src/utils/logger';
 
 export default function PrescriptionFromDoctorScreen() {
   const insets = useSafeAreaInsets();
@@ -46,7 +47,7 @@ export default function PrescriptionFromDoctorScreen() {
       ) || null;
       setPrescription(match);
     } catch (e) {
-      console.log('Error fetching prescription', e);
+      logError('consultations:prescription-from-doctor', e);
       setPrescription(null);
     } finally {
       setLoading(false);
@@ -66,7 +67,7 @@ export default function PrescriptionFromDoctorScreen() {
         }),
       });
     } catch (e) {
-      console.log('Reminder create failed', e);
+      logError('consultations:prescription:reminder', e);
     } finally {
       setAddedToReminders((p) => (p.includes(id) ? p : [...p, id]));
     }

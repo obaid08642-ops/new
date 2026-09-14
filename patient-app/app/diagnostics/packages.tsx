@@ -33,7 +33,7 @@ export default function DiagnosticsPackages() {
       setCategories(["الكل", ...cats]);
       setLoading(false);
     }).catch((err) => {
-      console.error(err);
+      logError('diagnostics:packages', err);
       setLoading(false);
     });
   }, []);

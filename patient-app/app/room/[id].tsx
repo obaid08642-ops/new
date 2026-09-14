@@ -160,7 +160,7 @@ export default function RoomScreen() {
         const response = await HttpClient.post<{ token: string }>(`/calls/${id}/join`, {});
         setToken(response.data.token);
       } catch (err) {
-        console.error('Failed to get token', err);
+        logError('room:get-token', err);
         setError('تعذر الانضمام للغرفة. يرجى التأكد من الموعد.');
       }
     };

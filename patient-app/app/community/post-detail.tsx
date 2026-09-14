@@ -55,7 +55,7 @@ export default function PostDetailScreen() {
       setComments(res.comments || []);
       setVoteCount(res.post?.upvotes || 0);
     } catch (err) {
-      console.error(err);
+      logError('community:post-detail', err);
     } finally {
       setLoading(false);
     }

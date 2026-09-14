@@ -70,7 +70,7 @@ export default function ViewReportScreen() {
         const res = await apiFetch(`/reports/${params.id}`);
         setReport(res?.data || res);
       } catch (err) {
-        console.error(err);
+        logError('reports:view-report', err);
         setError(true);
       } finally {
         setLoading(false);

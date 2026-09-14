@@ -59,7 +59,7 @@ export default function AIAssistantScreen() {
 
       setMessages(prev => [...prev, aiMessage]);
     } catch (error) {
-      console.error(error);
+      logError('ai-assistant', error);
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',

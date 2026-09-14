@@ -9,6 +9,7 @@ import { Icon } from '../../src/components/Icon';
 import { AppText, Card, IconButton } from '../../src/components/ui';
 
 import { apiFetch } from '../../src/utils/api';
+import { logError } from '../../src/utils/logger';
 import { dateLocale } from '@/utils/dates';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
@@ -48,7 +49,7 @@ export default function WearablesScreen() {
       setDevices(Array.isArray(devRes) ? devRes : devRes?.data || []);
       setSamples(Array.isArray(dataRes) ? dataRes : dataRes?.data || []);
     } catch (e) {
-      console.error(e);
+      logError('health:wearables', e);
     } finally {
       setLoading(false);
     }

@@ -31,7 +31,7 @@ export default function MyResultsScreen() {
       const radItems = (radReports || []).map((r: any) => ({ ...r, __isRadiology: true }));
       setBookings([...(labs || []), ...radItems]);
     } catch (err) {
-      console.log("Error loading results", err);
+      logError('diagnostics:my-results', err);
     } finally {
       setLoading(false);
     }

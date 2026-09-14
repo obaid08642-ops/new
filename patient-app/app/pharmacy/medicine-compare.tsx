@@ -8,6 +8,7 @@ import { Icon } from '../../src/components/Icon';
 import { AppText, Card, Badge, Button, IconButton } from '../../src/components/ui';
 
 import { apiFetch } from '../../src/utils/api';
+import { logError } from '../../src/utils/logger';
 import { useLocalSearchParams } from 'expo-router';
 import { pickLocalized } from '../../src/utils/localize';
 
@@ -37,7 +38,7 @@ export default function MedicineCompareScreen() {
         const data = await apiFetch('/medicines/compare', 'POST', { ids });
         if (data && Array.isArray(data)) setMedicines(data);
       } catch (err) {
-        console.error(err);
+        logError('pharmacy:medicine-compare', err);
       } finally {
         setLoading(false);
       }

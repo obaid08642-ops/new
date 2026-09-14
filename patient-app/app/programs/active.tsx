@@ -8,6 +8,7 @@ import { useApp } from '../../src/context/AppContext';
 import { Icon, IconName } from '../../src/components/Icon';
 import { AppText, Card, Badge, Button, IconButton, SectionHeader } from '../../src/components/ui';
 import { apiFetch } from '../../src/utils/api';
+import { logError } from '../../src/utils/logger';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
 export default function ActiveProgramsScreen() {
@@ -65,7 +66,7 @@ export default function ActiveProgramsScreen() {
                 }
               }
             } catch (err) {
-              console.error(err);
+              logError('programs:active', err);
               showLocalizedAlert('خطأ', 'تعذر تحديث الجلسة، حاول مرة أخرى');
             }
           }

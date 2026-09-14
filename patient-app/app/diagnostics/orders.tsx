@@ -49,7 +49,7 @@ export default function DiagnosticsOrders() {
         }));
         setOrders([...labs, ...rads].sort((a, b) => (a.date < b.date ? 1 : -1)));
       } catch (e) {
-        console.log(e);
+        logError('diagnostics:orders', e);
         setOrders([]);
       } finally {
         setLoading(false);

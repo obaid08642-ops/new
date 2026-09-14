@@ -9,6 +9,7 @@ import { Icon } from '../../src/components/Icon';
 import { AppText, Card, Badge, Button, IconButton, SectionHeader } from '../../src/components/ui';
 import * as ImagePicker from 'expo-image-picker';
 import { apiFetch } from '../../src/utils/api';
+import { logError } from '../../src/utils/logger';
 import { pickLocalized } from '../../src/utils/localize';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
@@ -63,7 +64,7 @@ export default function PrescriptionTranslatorScreen() {
         }
       }
     } catch (e) {
-      console.log('Error picking image', e);
+      logError('ai:prescription-translator:pick-image', e);
       showLocalizedAlert('خطأ', 'حدث خطأ أثناء اختيار الصورة.');
     }
   };
@@ -119,7 +120,7 @@ export default function PrescriptionTranslatorScreen() {
         throw new Error(res?.error || 'Failed translation');
       }
     } catch (err: any) {
-      console.log('Prescription translation error:', err);
+      logError('ai:prescription-translator', err);
       showLocalizedAlert('خطأ في الترجمة', 'لم نتمكن من معالجة صورة الوصفة الطبية. يرجى التأكد من وضوح الصورة والمحاولة مرة أخرى.');
     } finally {
       setTranslating(false);

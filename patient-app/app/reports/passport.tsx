@@ -50,7 +50,7 @@ export default function HealthPassportScreen() {
         message: `الملف الطبي السريع للمريض: ${name}\nفصيلة الدم: ${bloodType}\nالحساسية: ${allergies}`,
       });
     } catch (error) {
-      console.error(error);
+      logError('reports:passport', error);
     }
   };
 

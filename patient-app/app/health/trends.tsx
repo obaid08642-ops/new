@@ -28,6 +28,7 @@ const { width } = Dimensions.get("window");
 const CHART_W = width - 32;
 
 import { apiFetch } from '../../src/utils/api';
+import { logError } from '../../src/utils/logger';
 import { dateLocale } from '@/utils/dates';
 
 const TIME_FILTERS = [
@@ -141,7 +142,7 @@ export default function HealthTrendsScreen() {
         const res = await apiFetch('/health/trends');
         setVitalTrends(Array.isArray(res) ? res : res?.data || []);
       } catch (err) {
-        console.error(err);
+        logError('health:trends', err);
       } finally {
         setLoading(false);
       }

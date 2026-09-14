@@ -62,7 +62,7 @@ export default function FamilyCalendarScreen() {
       setEvents(parseFamilyCalendarEvents(calendar));
       setMembers(Array.isArray(groupMembers) ? groupMembers : []);
     } catch (err) {
-      console.error(err);
+      logError('family:calendar', err);
       setEvents([]);
       setMembers([]);
       setLoadError(true);
@@ -107,7 +107,7 @@ export default function FamilyCalendarScreen() {
               });
               await loadCalendarEvents();
             } catch (err) {
-              console.error(err);
+              logError('family:calendar', err);
               setLoading(false);
               showLocalizedAlert("خطأ", "تعذر حذف الحدث. حاول مرة أخرى.");
             }

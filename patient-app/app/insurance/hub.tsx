@@ -14,6 +14,7 @@ import { Icon } from '../../src/components/Icon';
 import { useGuestGuard } from '../../src/hooks/useGuestGuard';
 import { AppText, Card, Badge, Button, IconButton } from '../../src/components/ui';
 import { apiFetch } from '../../src/utils/api';
+import { logError } from '../../src/utils/logger';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
 const { width } = Dimensions.get('window');
@@ -112,7 +113,7 @@ export default function InsuranceHubScreen() {
           }]);
         }
       } catch (err) {
-        console.error(err);
+        logError('insurance:hub', err);
       } finally {
         setLoadingPolicies(false);
       }
@@ -122,7 +123,7 @@ export default function InsuranceHubScreen() {
         const res = await apiFetch('/insurance/claims');
         setClaims(res || []);
       } catch (err) {
-        console.error('Error fetching claims', err);
+        logError('insurance:hub:claims', err);
       }
     }
     loadInsurance();

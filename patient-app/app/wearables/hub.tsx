@@ -146,7 +146,7 @@ export default function WearablesHubScreen() {
       setSavedMsg(true);
       setValues({});
     } catch (err) {
-      console.error(err);
+      logError('wearables:hub', err);
       showLocalizedAlert("خطأ", "تعذر حفظ القراءات. تحقق من الاتصال وحاول مجددًا.");
     } finally {
       setSaving(false);
