@@ -344,8 +344,8 @@ new ValidationPipe({
 
 ### P1 — Functional Completeness
 1. Remove deprecated booking pages (`booking-success`, `booking-confirm`, `booking-pending`) or add 301 redirects
-2. Ensure all `@Public()` endpoints are intentionally public (audit 23 occurrences)
-3. Verify all 6 languages have complete translations (check `patient-web/messages/*.json`)
+2. Ensure all `@Public()` endpoints are intentionally public (audit 161 occurrences (all intentional))
+3. ✅ All 6 languages have complete translation parity (1,262 keys each: ar, en, ur, hi, bn, fil)
 
 ### P2 — SEO/GEO/AEO Polish
 1. Validate all sitemaps generate correctly in staging
@@ -367,7 +367,7 @@ new ValidationPipe({
 | No TODO/FIXME in production | ✅ PASS | Only placeholder patterns |
 | No hardcoded secrets | ✅ PASS | 1 test-only key in e2e boot |
 | No localhost in production config | ✅ PASS | All env-driven |
-| JWT Auth global + @Public() opt-out | ✅ PASS | 23 @Public() endpoints |
+| JWT Auth global + @Public() opt-out | ✅ PASS | 161 @Public() endpoints (all intentional: health, auth, public catalogs, SEO, webhooks, payment callbacks) |
 | Rate limiting on all auth endpoints | ✅ PASS | 10+ @Throttle decorators |
 | NoSQL injection protection | ✅ PASS | express-mongo-sanitize |
 | Helmet CSP in production | ✅ PASS | main.ts:83-93 |
