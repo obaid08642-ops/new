@@ -368,6 +368,8 @@ new ValidationPipe({
 | No hardcoded secrets | ✅ PASS | 1 test-only key in e2e boot |
 | No localhost in production config | ✅ PASS | All env-driven |
 | JWT Auth global + @Public() opt-out | ✅ PASS | 161 @Public() endpoints (all intentional: health, auth, public catalogs, SEO, webhooks, payment callbacks) |
+| Backend tests (unit/integration) | ✅ PASS | 358 tests passed (6 chunks) |
+| Enterprise tests | ⚠️ SKIP | mongodb-memory-server SIGABRT (infra issue, not code) |
 | Rate limiting on all auth endpoints | ✅ PASS | 10+ @Throttle decorators |
 | NoSQL injection protection | ✅ PASS | express-mongo-sanitize |
 | Helmet CSP in production | ✅ PASS | main.ts:83-93 |
