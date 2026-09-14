@@ -7,7 +7,6 @@ import { hubMetadata } from "@/lib/seo";
 
 
 type Props={params:Promise<{locale:string}>};
-export const metadata: Metadata={title:"شروط الاستخدام | نبض بلس",robots:{index:false,follow:false}};
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
