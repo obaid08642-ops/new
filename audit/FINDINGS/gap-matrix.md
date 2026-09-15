@@ -35,7 +35,7 @@
 | R30 | أمن MCP | PASS | قراءات فقط + throttle عام + 30/min على RPC (631f8eec) | P1 |
 | R31 | تجارة AI | PASS | ai-catalog products/services + checkout-session بروابط كانونية | P2 |
 | R32-48 | الرانكنج | PASS (بملاحظات) | محرك حي مربوط end-to-end: أوزان env، نطاقات، اضمحلال، cold-start صادق، مزج relevance 0.7/0.3، أحداث مُتحقق منها، إبطال كاش — `b40136bb` للصدق؛ polish: أوضاع مخصصة تسقط على composite | P2 |
-| R49 | الأداء | PARTIAL | قياسات إنتاج حية 2026-09-13: API liveness 371ms; mcp/tools 427ms; sitemap 4.5s (أول ضربة، مخزن بعدها); ويب 400-480ms — هدف 150ms لم يتحقق بعد (كاش/keep-alive/Fشل بارد) | P1 |
+| R49 | الأداء | PARTIAL | قياسات حية 2026-09-15 بعد النشر: sitemap بارد 6.9s → دافئ 0.8s (كاش 6h يعمل)؛ ترتيب الشعبية حي (أدول يتصدر)؛ liveness up — هدف 150ms للضربة الباردة لم يتحقق بعد | P1 |
 | R50 | الأمن | PARTIAL | SecureStore/httpOnly/CSRF/guards/honeypots ✅ BUT اختراق فعلي + فروع أمنية غير مندمجة + IDOR شامل — P11 | P0 |
 | R51 | خصوصية PHI | PARTIAL | default-deny + فحوص مالكية ✅ + sitemaps بلا PHI ✅؛ تدقيق تسرب شامل P11 | P0 |
 | R52 | الأدمن | PASS | 51 صفحة حية + Guard + بروكسي محروس + انتحال منضبط (فجوة 14 مساراً تُسد P5) | P1 |
