@@ -160,6 +160,17 @@ export const AdminGuard = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     setCalendar(getAdminCalendar());
+    // Online presence: heartbeat every 60s so command-center counts admins.
+    let timer: ReturnType<typeof setInterval> | null = null;
+    const beat = () => {
+      if (document.visibilityState !== 'visible') return;
+      adminFetch('/auth/heartbeat', { method: 'POST', body: JSON.stringify({ client: 'admin' }) }).catch(() => null);
+    };
+    beat();
+    timer = setInterval(beat, 60000);
+    const onVis = () => beat();
+    document.addEventListener('visibilitychange', onVis);
+    return () => { if (timer) clearInterval(timer); document.removeEventListener('visibilitychange', onVis); };
   }, []);
 
   useEffect(() => {
