@@ -593,26 +593,105 @@ export class SeoSearchService {
         is_rx: dto.is_rx, available: dto.available, image: dto.image,
       };
     });
-    // Page-1 popularity boost: top drugs by live behavior (views + cart adds +
-    // purchases via composite_score) pinned to front when absent. Later pages
-    // keep pure usage order, so pagination stays stable and duplicate-free
-    // within the page.
+    // Page-1 popularity boost, SCOPED to the requested category by construction:
+    // top composite_score drugs (views + cart adds + purchases) are intersected
+    // with the SAME page filter, so a specific category only ever pins its own
+    // items; 'all' pins the global top. Ranked items move to front in rank
+    // order (not only when absent). Later pages keep pure usage order.
+    // ALL-page diversity: after pins, round-robin across canonical categories
+    // so ALL shows medicines + beauty + hair + baby + vitamins instead of
+    // 24× paracetamol. Max 2 per active ingredient. 60s in-process cache.
+    // Known trade-off: a promoted item whose natural rank is beyond page 1 may
+    // reappear on its natural page (stateless endpoint). Harmless; page-1 wins.
     if (Math.max(page, 1) === 1 && !q?.trim()) {
       try {
-        const top: any[] = await this.conn.collection('product_ranking_metrics')
-          .find({ pharmacy_id: 'global' }).sort({ composite_score: -1 }).limit(8)
-          .project({ _id: 0, drug_id: 1 }).toArray().catch(() => []);
-        const have = new Set(items.map((i: any) => i.id));
-        const missing = top.map((t: any) => t.drug_id).filter((id: string) => id && !have.has(id));
-        if (missing.length) {
-          const extra: any[] = await this.conn.collection('medicines_master')
-            .find({ ...this.publicProductFilter(), id: { $in: missing } }, { projection: { _id: 0 } }).toArray().catch(() => []);
-          const byId = new Map(extra.map((m: any) => [m.id, m]));
-          const pinned = missing.map((id: string) => byId.get(id)).filter(Boolean).map((m: any) => {
-            const dto = resolveMedicinePublicDto(m, locale);
-            return { sku: dto.sku, id: dto.id, slug: dto.slug, name: dto.name, form: dto.form, strength: dto.strength, package_size: dto.package_size, price: dto.price, old_price: dto.old_price, currency: dto.currency, is_rx: dto.is_rx, available: dto.available, image: dto.image };
-          });
-          if (pinned.length) items = [...pinned, ...items].slice(0, perPage);
+        const toDto = (m: any) => {
+          const dto = resolveMedicinePublicDto(m, locale);
+          return { sku: dto.sku, id: dto.id, slug: dto.slug, name: dto.name, form: dto.form, strength: dto.strength, package_size: dto.package_size, price: dto.price, old_price: dto.old_price, currency: dto.currency, is_rx: dto.is_rx, available: dto.available, image: dto.image };
+        };
+        const isAll = !resolvedCat || resolvedCat === 'all' || resolvedCat === 'الكل';
+        if (isAll) {
+          const cacheKey = `alldiv:${locale}:${perPage}`;
+          const cached = this.sitemapCache.get(cacheKey);
+          if (cached && cached.exp > Date.now()) {
+            items = cached.val;
+          } else {
+            const top: any[] = await this.conn.collection('product_ranking_metrics')
+              .find({ pharmacy_id: 'global' }).sort({ composite_score: -1 }).limit(20)
+              .project({ _id: 0, drug_id: 1 }).toArray().catch(() => []);
+            const ranked = top.map((t: any) => t.drug_id).filter(Boolean);
+            const rankPos = new Map(ranked.map((id: string, i: number) => [id, i]));
+            const pins = items.filter((i: any) => rankPos.has(i.id))
+              .sort((a: any, b: any) => rankPos.get(a.id)! - rankPos.get(b.id)!).slice(0, 8);
+            const pinIds = new Set(pins.map((i: any) => i.id));
+            const ingCount = new Map<string, number>();
+            const canonicals = [...new Set(Object.values(CANONICAL_CATEGORY_MAP))];
+            const perCat: any[][] = await Promise.all(canonicals.map((cat) =>
+              this.conn.collection('medicines_master').find(
+                { ...this.publicProductFilter(), $or: [{ category: cat }, { [key('category')]: cat }] },
+                { projection: { _id: 0 } },
+              ).sort({ usage_count: -1, rating: -1 }).limit(6).toArray().catch(() => []),
+            ));
+            // Seed dedupe + ingredient budget from the usage-ordered base page
+            // (DTOs carry no ingredient, so resolve via the per-category raws).
+            // onPage = every base id (fill must be genuinely new); pins stay a
+            // subset that keeps front position via `rest` below.
+            const onPage = new Set(items.map((i: any) => i.id));
+            const ingOf = new Map<string, string>();
+            for (const docs of perCat) for (const m of docs) {
+              const ing = String(m?.active_ingredient || '').trim();
+              if (m?.id && ing && !ingOf.has(m.id)) ingOf.set(m.id, ing);
+            }
+            const fill: any[] = [];
+            for (let round = 0; round < 6; round++) {
+              for (const docs of perCat) {
+                const m = (docs[round] || null) as any;
+                if (!m?.id || onPage.has(m.id) || fill.some((f: any) => f.id === m.id)) continue;
+                fill.push(toDto(m)); onPage.add(m.id);
+              }
+            }
+            // Final walk in priority order (pins → diverse pool → rest),
+            // enforcing max 2 per active ingredient across the whole page so
+            // one ingredient (e.g. paracetamol) cannot flood ALL page-1.
+            const keep = (dto: any): boolean => {
+              const ing = ingOf.get(dto.id);
+              if (!ing) return true;
+              if ((ingCount.get(ing) || 0) >= 2) return false;
+              ingCount.set(ing, (ingCount.get(ing) || 0) + 1);
+              return true;
+            };
+            // Reset budget: base seeding above only measured; rebuild strictly.
+            ingCount.clear();
+            const rest = items.filter((i: any) => !pinIds.has(i.id));
+            const rebuilt: any[] = [];
+            for (const dto of [...pins, ...fill, ...rest]) {
+              if (rebuilt.length >= perPage) break;
+              if (keep(dto)) rebuilt.push(dto);
+            }
+            if (rebuilt.length) {
+              items = rebuilt;
+              this.sitemapCache.set(cacheKey, { exp: Date.now() + 60 * 1000, val: items });
+            }
+          }
+        } else {
+          const top: any[] = await this.conn.collection('product_ranking_metrics')
+            .find({ pharmacy_id: 'global' }).sort({ composite_score: -1 }).limit(20)
+            .project({ _id: 0, drug_id: 1 }).toArray().catch(() => []);
+          const ranked = top.map((t: any) => t.drug_id).filter(Boolean);
+          const have = new Set(items.map((i: any) => i.id));
+          const missing = ranked.filter((id: string) => !have.has(id));
+          if (missing.length) {
+            const extra: any[] = await this.conn.collection('medicines_master')
+              .find({ ...filter, id: { $in: missing } }, { projection: { _id: 0 } }).toArray().catch(() => []);
+            for (const m of extra) {
+              if (m?.id && !have.has(m.id)) { items.push(toDto(m)); have.add(m.id); }
+            }
+          }
+          const rankPos = new Map(ranked.map((id: string, i: number) => [id, i]));
+          items = [
+            ...items.filter((i: any) => rankPos.has(i.id)).sort((a: any, b: any) => rankPos.get(a.id)! - rankPos.get(b.id)!).slice(0, 8),
+            ...items.filter((i: any) => !rankPos.has(i.id)),
+          ].slice(0, perPage);
         }
       } catch { /* boost is best-effort; base order stands */ }
     }
