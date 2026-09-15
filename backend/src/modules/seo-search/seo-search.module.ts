@@ -557,9 +557,9 @@ export class SeoSearchService {
     }
 
     const perPage = Math.min(Math.max(limit, 1), 48);
+    // Popularity-first ordering (views → rating → stable id). Deliberately NOT
+    // image-first: imageless medicines were buried under cosmetics on "All".
     const sortClause: any = {
-      image_1: -1,
-      image: -1,
       usage_count: -1,
       rating: -1,
       _id: 1,
@@ -571,17 +571,41 @@ export class SeoSearchService {
       .skip((Math.max(page, 1) - 1) * perPage)
       .limit(perPage);
     const [rows, total] = await Promise.all([cursor.toArray(), this.conn.collection('medicines_master').countDocuments(filter)]);
+    let items = rows.map((m: any) => {
+      const dto = resolveMedicinePublicDto(m, locale);
+      return {
+        sku: dto.sku, id: dto.id, slug: dto.slug, name: dto.name, form: dto.form, strength: dto.strength,
+        package_size: dto.package_size, price: dto.price, old_price: dto.old_price, currency: dto.currency,
+        is_rx: dto.is_rx, available: dto.available, image: dto.image,
+      };
+    });
+    // Page-1 popularity boost: top drugs by live behavior (views + cart adds +
+    // purchases via composite_score) pinned to front when absent. Later pages
+    // keep pure usage order, so pagination stays stable and duplicate-free
+    // within the page.
+    if (Math.max(page, 1) === 1 && !q?.trim()) {
+      try {
+        const top: any[] = await this.conn.collection('product_ranking_metrics')
+          .find({ pharmacy_id: 'global' }).sort({ composite_score: -1 }).limit(8)
+          .project({ _id: 0, drug_id: 1 }).toArray().catch(() => []);
+        const have = new Set(items.map((i: any) => i.id));
+        const missing = top.map((t: any) => t.drug_id).filter((id: string) => id && !have.has(id));
+        if (missing.length) {
+          const extra: any[] = await this.conn.collection('medicines_master')
+            .find({ ...this.publicProductFilter(), id: { $in: missing } }, { projection: { _id: 0 } }).toArray().catch(() => []);
+          const byId = new Map(extra.map((m: any) => [m.id, m]));
+          const pinned = missing.map((id: string) => byId.get(id)).filter(Boolean).map((m: any) => {
+            const dto = resolveMedicinePublicDto(m, locale);
+            return { sku: dto.sku, id: dto.id, slug: dto.slug, name: dto.name, form: dto.form, strength: dto.strength, package_size: dto.package_size, price: dto.price, old_price: dto.old_price, currency: dto.currency, is_rx: dto.is_rx, available: dto.available, image: dto.image };
+          });
+          if (pinned.length) items = [...pinned, ...items].slice(0, perPage);
+        }
+      } catch { /* boost is best-effort; base order stands */ }
+    }
     return {
       locale, category: decodedCat, sub_category: sub ? decodeURIComponent(sub) : null,
       page: Math.max(page, 1), limit: perPage, total,
-      items: rows.map((m: any) => {
-        const dto = resolveMedicinePublicDto(m, locale);
-        return {
-          sku: dto.sku, id: dto.id, slug: dto.slug, name: dto.name, form: dto.form, strength: dto.strength,
-          package_size: dto.package_size, price: dto.price, old_price: dto.old_price, currency: dto.currency,
-          is_rx: dto.is_rx, available: dto.available, image: dto.image,
-        };
-      }),
+      items,
     };
   }
 
