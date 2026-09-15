@@ -136,7 +136,9 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
   @SubscribeMessage('presence:heartbeat')
   async heartbeat(@ConnectedSocket() client: Socket) {
     const user = client.data?.user;
-    if (user) await this.realtime.heartbeat(user.id, client.id).catch(() => null);
+    // Upsert (not TTL-refresh): a bare expire is a no-op when the key already
+    // died, which left app users permanently uncounted ("zeros" bug).
+    if (user) await this.realtime.setUserOnline(user.id, client.id, { platform: client.data?.platform, role: user.role }).catch(() => null);
     return { ok: true };
   }
 

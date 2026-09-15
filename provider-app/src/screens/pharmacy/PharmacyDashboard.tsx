@@ -262,7 +262,7 @@ function PharmacyHomeTab({ onNavigate, onSwitchTab }: any) {
       if (disposed || !token) return;
       socket = io(process.env.EXPO_PUBLIC_BACKEND_URL || API_BASE.replace(/\/api\/v1$/, ''), {
         transports: ['websocket'],
-        auth: { token },
+        auth: { token, client: 'provider-app' },
       });
       socket.on('connect', fetchBroadcasts);
       socket.on('pharmacy:broadcast:available', fetchBroadcasts);
@@ -273,9 +273,12 @@ function PharmacyHomeTab({ onNavigate, onSwitchTab }: any) {
     fetchBroadcasts();
     connectRealtime();
     const interval = setInterval(fetchBroadcasts, 5000);
+    // Presence heartbeat (20s < 180s server TTL) so admin "online now" counts providers.
+    const presence = setInterval(() => { try { socket?.connected && socket.emit('presence:heartbeat'); } catch {} }, 20000);
     return () => {
       disposed = true;
       clearInterval(interval);
+      clearInterval(presence);
       socket?.disconnect();
     };
   }, [isOnline, user?.id]);
