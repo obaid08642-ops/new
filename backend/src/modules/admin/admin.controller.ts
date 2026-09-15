@@ -235,14 +235,10 @@ export class AdminController {
   }
 
   /**
-   * Dispute center: open complaint/refund support tickets mapped to the
-   * disputes page shape. Resolution happens via the existing force-cancel /
-   * refund flows; here we only expose the queue.
+   * Dispute center: served by AdminDisputesController (same path, registered
+   * first via AdminEnterpriseModule). This stub is intentionally absent so the
+   * real queue is never shadowed by a 503.
    */
-  @Get('disputes')
-  async listDisputes(@Query('status') status = 'open') {
-    throw new ServiceUnavailableException('admin dispute queue is unavailable pending approved case, evidence, financial-reconciliation and maker-checker workflow');
-  }
 
   /**
    * User directory for the admin dashboard (users-management page):
