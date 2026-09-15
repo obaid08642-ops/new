@@ -14,7 +14,7 @@ interface WithdrawalRow {
   amount: number;
   bankName: string;
   iban: string;
-  status: 'pending' | 'completed';
+  status: 'pending' | 'completed' | 'pending_second_approval';
 }
 
 interface WarehouseOrder {
@@ -101,16 +101,20 @@ export default function FinancialLedger() {
   const calculateNet = (base: number, type: string) => {
     const rate = getCommissionRate(type);
     const systemCommission = base * rate;
-    const vatOnCommission = systemCommission * 0.15; // VAT 15% applied strictly to Platform Commission
-    const providerEarning = (base - systemCommission) + vatOnCommission;
+    const vatOnCommission = systemCommission * 0.15; // VAT 15% on platform commission — remitted to tax, NOT paid to provider
+    const providerEarning = base - systemCommission;
     return { systemCommission, vatOnCommission, providerEarning };
   };
 
   const handleExecutePayout = async (id: string) => {
     try {
-            await fetchWithAdminGuard(`/api/admin/finance/withdrawals/${id}/execute`, { method: 'POST' });
-      alert('تم إرسال أمر الدفع إلى شبكة Moyasar وتحويل الحالة إلى completed وإرسال الإشعار.');
-      setWithdrawals(prev => prev.map(w => w.id === id ? { ...w, status: 'completed' } : w));
+      const res: any = await fetchWithAdminGuard(`/api/admin/finance/withdrawals/${id}/execute`, { method: 'POST' });
+      if (res?.routed_to_approval) {
+        alert('أُرسل للاعتماد الثاني (maker-checker) — بانتظار مدير آخر.');
+      } else {
+        alert('تم إرسال أمر الدفع إلى شبكة Moyasar وتحويل الحالة إلى completed وإشعار المزود.');
+      }
+      setWithdrawals(prev => prev.map(w => w.id === id ? { ...w, status: res?.routed_to_approval ? 'pending_second_approval' : 'completed' } : w));
     } catch (e) {
       alert('خطأ في التنفيذ');
     }

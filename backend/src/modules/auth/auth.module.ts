@@ -11,6 +11,8 @@ import { PasskeyController } from './passkey.controller';
 import { PasskeyCredential, PasskeyCredentialSchema } from './schemas/passkey-credential.schema';
 import { TrustedDevice, TrustedDeviceSchema } from './schemas/trusted-device.schema';
 import { DeviceTrustService } from './device-trust.service';
+import { AdminDeviceService } from './admin-device.service';
+import { AdminDevicesController } from './admin-devices.controller';
 import { User, UserSchema } from '../../schemas/user.schema';
 import { PatientProfile, PatientProfileSchema } from '../../schemas/patient-profile.schema';
 import { ProviderProfile, ProviderProfileSchema } from '../../schemas/provider-profile.schema';
@@ -43,8 +45,8 @@ import { UserRepository } from "./repositories/user.repository";
       { name: TrustedDevice.name, schema: TrustedDeviceSchema },
     ]),
   ],
-  controllers: [AuthController, PasskeyController],
-  providers: [AuthService, PasskeyService, DeviceTrustService, JwtAuthGuard, { provide: 'PatientProfileRepository', useClass: PatientProfileRepository }, { provide: 'UserRepository', useClass: UserRepository }],
+  controllers: [AuthController, PasskeyController, AdminDevicesController],
+  providers: [AuthService, PasskeyService, DeviceTrustService, AdminDeviceService, JwtAuthGuard, { provide: 'PatientProfileRepository', useClass: PatientProfileRepository }, { provide: 'UserRepository', useClass: UserRepository }],
   exports: [AuthService, JwtModule, JwtAuthGuard, MongooseModule, DeviceTrustService],
 })
 export class AuthModule {}
