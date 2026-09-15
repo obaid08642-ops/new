@@ -10,7 +10,7 @@ in the P column means the requirement cannot be closed until an external depende
 |---|---|---|
 | PASS | 54 | R1–R4, R7–R12, R20–R24, R26, R27, R29–R31, R32–R48 (17 merged), R52–R55, R57, R64–R70, R72–R75, R77 |
 | PARTIAL | 19 | R5, R6, R13–R19, R25, R50, R51, R58–R63 (6), R71 (R28→BLOCKED) |
-| UNCERTAIN | 2 | R49, R56 |
+| UNCERTAIN | 1 | R49 |
 | FAIL | 0 | — (R66 closed 2026-09-12 via P0-01) |
 | BLOCKED | 2 | R28 (external DNS), R76 (app-store metadata) |
 | in-progress | 5 | R78–R82 (this plan/audit) |
@@ -67,7 +67,7 @@ CI (red, `nabdah-plus/full-completion`): `src/common/auth.guard.spec.ts` (impers
 | R53 | PARTIAL | P2 | Pending per `gap-matrix.md` |
 | R54 | PARTIAL | P1 | hreflang + 6 locales ✅ (`b40136bb`); JSON-LD + per-language sitemaps (21) open → P9 |
 | R55 | PARTIAL | P3 | Pending per `gap-matrix.md` |
-| R56 | UNCERTAIN | P2 | Pending per `gap-matrix.md` |
+| R56 | PASS | P2 | Closed 2026-09-15: robots.ts AI-crawler rule + public/llms.txt + seo.test.ts green — see `gap-matrix.md` |
 | R57 | PARTIAL | — | L46 |
 | R69 | PARTIAL | P2 | Pending per `gap-matrix.md` |
 | R70 | PARTIAL | P2 | Pending per `gap-matrix.md` |

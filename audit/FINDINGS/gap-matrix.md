@@ -42,7 +42,7 @@
 | R53 | موثوقية طبية | PASS | منهجية موثقة (medical-content-methodology.md) + علامات كودية + إخفاء تلقائي لغير المعتمد | P2 |
 | R54 | SEO متعدد | PASS | hreflang + 6 locales + JSON-LD موضعي + sitemaps لكل لغة + alternates (b0b49d94) | P1 |
 | R55 | ربط داخلي | PASS | related fetches + روابط ذات صلة في صفحات doctor/pharmacy | P3 |
-| R56 | اكتشاف AI/MCP | UNCERTAIN | تابع R18/R29 — P10/P11 | P2 |
+| R56 | اكتشاف AI/MCP | PASS | robots.ts قاعدة AI-crawlers صريحة (GPTBot/ClaudeBot/PerplexityBot…) + public/llms.txt + seo.test.ts (3 خضراء) — 2026-09-15 | P2 |
 | R57 | حدثية | PASS | EventEmitter + outbox + processors — بلا BUT مفتوح | — |
 | R58-63 | الاختبارات | PARTIAL | 117 spec + e2e + عقود ✅؛ اختبارات R59-63 المحددة تُبنى/تُشغل P11 | P1 |
 | R64 | الاتساق | PASS | consistency تدقيق + reconcile + cron ليلي (0d391ea8) | P2 |
@@ -62,5 +62,5 @@
 | R78-82 | العملية/التقرير/القبول | 🔄 جارية (هذه الخطة) | — | — |
 
 ## ملخص الإحصاء
-- PASS: 55 (+R28 mcp حي) · PARTIAL: 20 · UNCERTAIN: 1 (R56) · FAIL: 0 · BLOCKED: 1 (R76 متاجر) · in-progress: 5 (R78–R82) — المجموع = 82 (أُعيد التقييم 2026-09-12)
+- PASS: 56 (+R28 mcp حي +R56 اكتشاف AI) · PARTIAL: 20 · UNCERTAIN: 0 · FAIL: 0 · BLOCKED: 1 (R76 متاجر) · in-progress: 5 (R78–R82) — المجموع = 82 (أُعيد التقييم 2026-09-15)
 - P0: 23 بنداً — حُلَّت بالكامل (REPORT-FINAL.md 23/23) · أولويات ثانوية في REPORT.md §4 · التفاصيل في REPORT-FINAL.md
