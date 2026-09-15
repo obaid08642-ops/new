@@ -26,6 +26,16 @@ describe("public discovery policy", () => {
     expect(policy.sitemap).toBe("https://nabd.plus/sitemap.xml");
   });
 
+  it("grants AI crawlers the same public surface (R56) without opening private trees", () => {
+    const policy = robots();
+    const rules = Array.isArray(policy.rules) ? policy.rules : [policy.rules];
+    expect(rules.length).toBeGreaterThan(1);
+    const ai = rules[1] as any;
+    expect(ai.userAgent).toEqual(expect.arrayContaining(["GPTBot", "ClaudeBot", "PerplexityBot"]));
+    expect(ai.allow).toEqual(expect.arrayContaining(["/", "/llms.txt", "/ar/diagnostics/labs"]));
+    expect(ai.disallow).toEqual(expect.arrayContaining(["/api/", "/ar/dashboard", "/ar/cart"]));
+  });
+
   it("publishes static indexable entries (home, articles, category clusters, public service listings) per locale", async () => {
     const res = await staticSitemap();
     const xml = await res.text();

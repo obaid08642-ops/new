@@ -25,17 +25,33 @@ export default function robots(): MetadataRoute.Robots {
   );
 
   return {
-    rules: {
-      userAgent: "*",
-      allow: ["/", ...publicExplicitAllows],
-      disallow: [
-        "/api/",
-        ...locales.flatMap((locale) => [
-          ...privateTreeFamilies.map((route) => `/${locale}/${route}`),
-          ...privateLeafSuffixes.map((suffix) => `/${locale}${suffix}`),
-        ]),
-      ],
-    },
+    rules: [
+      {
+        userAgent: "*",
+        allow: ["/", ...publicExplicitAllows],
+        disallow: [
+          "/api/",
+          ...locales.flatMap((locale) => [
+            ...privateTreeFamilies.map((route) => `/${locale}/${route}`),
+            ...privateLeafSuffixes.map((suffix) => `/${locale}${suffix}`),
+          ]),
+        ],
+      },
+      // R56 AI discovery: known AI assistants/crawlers get the SAME public
+      // surface (never the private trees). Explicit entry so AI bots do not
+      // have to infer permissions from the wildcard rule.
+      {
+        userAgent: ["GPTBot", "ChatGPT-User", "ClaudeBot", "PerplexityBot", "Google-Extended", "Amazonbot", "Applebot-Extended"],
+        allow: ["/", "/llms.txt", ...publicExplicitAllows],
+        disallow: [
+          "/api/",
+          ...locales.flatMap((locale) => [
+            ...privateTreeFamilies.map((route) => `/${locale}/${route}`),
+            ...privateLeafSuffixes.map((suffix) => `/${locale}${suffix}`),
+          ]),
+        ],
+      },
+    ],
     sitemap: `${siteOrigin()}/sitemap.xml`,
   };
 }

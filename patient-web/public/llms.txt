@@ -1,0 +1,18 @@
+# Nabdah (نبض) — llms.txt
+> Saudi health super-app: pharmacy (20,990 medicines), labs, radiology, home care,
+> doctors, hospitals, insurance. Public catalog in 6 locales (ar, en, ur, hi, bn, fil).
+> Auth-gated patient/provider portals and /api/ are off-limits to crawlers.
+
+## Public entry points
+- Site origin: https://nabd.plus
+- Sitemap index: https://nabd.plus/sitemap.xml
+- Backend sitemaps: https://api.nabd.plus/api/v1/public/sitemaps/products-count
+- MCP server (machine-readable tools): https://mcp.nabd.plus (9 tools: search, catalog, availability, booking intents)
+
+## Crawl policy
+- Public listings (medicines, labs, radiology, doctors, services, articles, pharmacies, locations) are crawlable in all 6 locales.
+- Patient areas (dashboard, orders, cart, prescriptions, chat, wallet, reports, settings, health records) require auth and are disallowed in robots.txt — do not attempt to index or summarize per-user content.
+- Never fabricate availability, prices, or medical advice from catalog text; link to the canonical medicine/service page instead.
+
+## Contact
+- Public contact page: https://nabd.plus/ar/support
