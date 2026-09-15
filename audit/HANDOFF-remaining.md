@@ -14,18 +14,12 @@
   `radiology-reminder.cron.ts` + `db-outage.spec.ts` (2 passed).
 - Effect: DB outages no longer spam Sentry every 10s; real bugs still throw.
 
-## 2. Mongo outage 2026-09-14 12:14–12:27 UTC (~260 Sentry events) — ROOT CAUSE OPEN
-- Evidence: `ENOTFOUND mongodb` + `MongoNotConnectedError`, all from
-  `ProviderImageProcessorService.processPendingJobs` (10s cron, unguarded fetch).
-- Ruled out: NOT a deploy (no pushes/workflows at that time), NOT code (services retry correctly).
-- Diagnosis = the `mongodb` container itself was down ~13 min. On the server run:
-  ```
-  docker ps -a --filter "name=mongo" --format "{{.Names}} {{.Status}}"
-  docker logs --since 2026-09-14T12:00 --until 2026-09-14T12:35 <mongo-container> 2>&1 | tail -30
-  dmesg | grep -i "oom\|killed process" | tail -5
-  ```
-- OOM killed → raise container memory limit. Restart loop → send logs back for analysis.
-- Sentry issues NABD-BACKEND-3..9,A,B,C intentionally LEFT OPEN as recurrence signal. Resolve them only after the cause is fixed.
+## 2. Mongo outage 2026-09-14 12:14–12:27 UTC — ROOT CAUSE FOUND + FIXED (2026-09-15)
+- Reviewer diagnosis (verified server-side): disk 100% full from stale docker build cache
+  starved the DB journal; NOT OOM (dmesg/journalctl: no entries), NOT a deploy, NOT code.
+- Fixed: build cache pruned, disk now 72% (11GB free); prod DB 548MB; `nabd_staging` DB exists (223MB).
+- Sentry issues NABD-BACKEND-3..9,A,B,C may now be RESOLVED (tripwire no longer needed).
+  Prevention: add a disk-space alert (>85%) + monthly `docker builder prune` cron.
 
 ## 3. N+1 Query (NABD-BACKEND-D) — benign, no code needed
 - `getMore` batches on `medicines_master` from ONE legitimate 5000-doc sitemap read
