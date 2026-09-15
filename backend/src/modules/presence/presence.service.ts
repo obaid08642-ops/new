@@ -19,7 +19,9 @@ export function normalizePlatform(input: unknown): PresencePlatform {
 @Injectable()
 export class PresenceService {
   private readonly logger = new Logger('PresenceService');
-  private readonly ONLINE_TTL = 30; // seconds
+  // 180s ≥ 3× the slowest client heartbeat (60s HTTP). The previous 30s TTL
+  // expired between beats and the admin "online now" tile read mostly zeros.
+  private readonly ONLINE_TTL = 180; // seconds
   private readonly PREFIX = 'presence:';
 
   constructor(private readonly redis: RedisService) {}

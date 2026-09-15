@@ -234,20 +234,23 @@ function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: string,
 
   useEffect(() => {
     let socketInstance: any = null;
+    let presence: any = null;
     if (user?.id) {
       const cleanUrl = API_BASE.replace('/api', '').replace('/v1', '');
       socketInstance = io(cleanUrl, { 
         transports: ['websocket'],
-        auth: { token: (user as any)?.token || '' }
+        auth: { token: (user as any)?.token || '', client: 'provider-app' }
       });
       socketInstance.on('connect', () => socketInstance?.emit('joinProviderRoom', user.id));
+      // Presence heartbeat (20s < 180s server TTL) so admin "online now" counts doctors.
+      presence = setInterval(() => { try { socketInstance?.connected && socketInstance.emit('presence:heartbeat'); } catch {} }, 20000);
       socketInstance.on('incoming_urgent_request', (payload: any) => {
         setRequests(prev => [payload, ...prev]);
         playRingtone();
         onTriggerAlarm();
       });
     }
-    return () => { if (socketInstance) socketInstance.disconnect(); };
+    return () => { if (presence) clearInterval(presence); if (socketInstance) socketInstance.disconnect(); };
   }, [user?.id]);
 
  const fetchQueue = useCallback(async () => {
