@@ -120,7 +120,10 @@ describe('AuthService', () => {
         phone: 'guest-phone',
         toObject: function() { return { ...this }; },
       };
-      const hash = await bcrypt.hash('password123', 8);
+      // Cost 4 (not 8): CI runs chunks in parallel on shared runners and cost-8
+      // hashing flaked past the 5s default timeout. Behavior assertions are
+      // cost-independent; production cost lives in auth.service, not here.
+      const hash = await bcrypt.hash('password123', 4);
       const mockExisting = {
         id: 'existing1',
         is_guest: false,
@@ -158,7 +161,7 @@ describe('AuthService', () => {
       };
       const mockExisting = {
         id: 'existing1',
-        password_hash: await bcrypt.hash('correct_password', 8),
+        password_hash: await bcrypt.hash('correct_password', 4),
       };
       userModel.findOne
         .mockResolvedValueOnce(mockGuest)
