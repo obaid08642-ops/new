@@ -481,7 +481,21 @@ export class AdminController {
     (user as any).active = true;
     (user as any).suspended = false;
     await user.save();
-    try { await this.userModel.db.collection('provider_profiles').updateMany({ user_id: user.id }, { $set: { status: 'ACTIVE', public_eligibility: true } }); } catch {}
+    // Full visibility restore: suspension also flips review/indexing flags,
+    // without which the provider stays hidden after reactivate.
+    try {
+      await this.userModel.db.collection('provider_profiles').updateMany(
+        { user_id: user.id },
+        [
+          { $set: {
+            status: 'ACTIVE',
+            public_eligibility: true,
+            medical_review_status: { $cond: [{ $eq: ['$medical_review_status', 'suspended'] }, 'approved', '$medical_review_status'] },
+            indexing_eligibility: { $cond: [{ $eq: ['$medical_review_status', 'suspended'] }, true, '$indexing_eligibility'] },
+          } },
+        ],
+      );
+    } catch {}
     try { this.events?.emit('admin.user_updated', { admin_id: by?.id, target_user_id: user.id || userId, action: 'unban' }); } catch {}
     return { ok: true, message: 'user_unbanned' };
   }

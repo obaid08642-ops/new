@@ -85,7 +85,7 @@ function apiPath(req: NextApiRequest) {
   if (decoded[0] === 'community') upstreamPath = `/api/v1/community/${decoded.slice(1).map(encodeURIComponent).join('/')}`;
   if (decoded[0] === 'loyalty') upstreamPath = `/api/v1/loyalty/${decoded.slice(1).map(encodeURIComponent).join('/')}`;
   if (decoded[0] === 'chat' || decoded[0] === 'chats') upstreamPath = `/api/v1/${decoded[0]}/${decoded.slice(1).map(encodeURIComponent).join('/')}`;
-  if (decoded[0] === 'auth' && decoded[1] === 'passkey') upstreamPath = `/api/v1/auth/passkey/${decoded.slice(2).map(encodeURIComponent).join('/')}`;
+  if (decoded[0] === 'auth') upstreamPath = `/api/v1/auth/${decoded.slice(1).map(encodeURIComponent).join('/')}`;
   if (decoded[0] === 'support-session') upstreamPath = `/api/v1/support-session/${decoded.slice(1).map(encodeURIComponent).join('/')}`;
   if (decoded[0] === 'search' && decoded[1] === 'intent') upstreamPath = `/api/v1/search/intent`;
   if (decoded[0] === 'provider-onboarding' && decoded[1] === 'admin') upstreamPath = `/api/v1/provider-onboarding/admin/${decoded.slice(2).map(encodeURIComponent).join('/')}`;
