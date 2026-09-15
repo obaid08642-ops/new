@@ -593,27 +593,39 @@ export class SeoSearchService {
         is_rx: dto.is_rx, available: dto.available, image: dto.image,
       };
     });
-    // Page-1 popularity boost: top drugs by live behavior (views + cart adds +
-    // purchases via composite_score) pinned to front when absent. Later pages
-    // keep pure usage order, so pagination stays stable and duplicate-free
-    // within the page.
+    // Page-1 popularity boost, SCOPED to the requested category by construction:
+    // top composite_score drugs (views + cart adds + purchases) are intersected
+    // with the SAME page filter, so a specific category only ever pins its own
+    // items; 'all' pins the global top. Later pages keep pure usage order.
     if (Math.max(page, 1) === 1 && !q?.trim()) {
       try {
         const top: any[] = await this.conn.collection('product_ranking_metrics')
-          .find({ pharmacy_id: 'global' }).sort({ composite_score: -1 }).limit(8)
+          .find({ pharmacy_id: 'global' }).sort({ composite_score: -1 }).limit(20)
           .project({ _id: 0, drug_id: 1 }).toArray().catch(() => []);
+        const ranked = top.map((t: any) => t.drug_id).filter(Boolean);
         const have = new Set(items.map((i: any) => i.id));
-        const missing = top.map((t: any) => t.drug_id).filter((id: string) => id && !have.has(id));
+        const missing = ranked.filter((id: string) => !have.has(id));
+        const toDto = (m: any) => {
+          const dto = resolveMedicinePublicDto(m, locale);
+          return { sku: dto.sku, id: dto.id, slug: dto.slug, name: dto.name, form: dto.form, strength: dto.strength, package_size: dto.package_size, price: dto.price, old_price: dto.old_price, currency: dto.currency, is_rx: dto.is_rx, available: dto.available, image: dto.image };
+        };
         if (missing.length) {
           const extra: any[] = await this.conn.collection('medicines_master')
-            .find({ ...this.publicProductFilter(), id: { $in: missing } }, { projection: { _id: 0 } }).toArray().catch(() => []);
-          const byId = new Map(extra.map((m: any) => [m.id, m]));
-          const pinned = missing.map((id: string) => byId.get(id)).filter(Boolean).map((m: any) => {
-            const dto = resolveMedicinePublicDto(m, locale);
-            return { sku: dto.sku, id: dto.id, slug: dto.slug, name: dto.name, form: dto.form, strength: dto.strength, package_size: dto.package_size, price: dto.price, old_price: dto.old_price, currency: dto.currency, is_rx: dto.is_rx, available: dto.available, image: dto.image };
-          });
-          if (pinned.length) items = [...pinned, ...items].slice(0, perPage);
+            .find({ ...filter, id: { $in: missing } }, { projection: { _id: 0 } }).toArray().catch(() => []);
+          for (const m of extra) {
+            if (m?.id && !have.has(m.id)) { items.push(toDto(m)); have.add(m.id); }
+          }
         }
+        // Reorder page-1 by composite rank: ranked items (present or fetched)
+        // first in rank order, then the remaining usage-ordered items.
+        // Known trade-off: a promoted item whose natural rank is beyond page 1
+        // may reappear on its natural page (stateless endpoint, no exclusion
+        // passing). Harmless for SEO/users; page-1 relevance wins.
+        const rankPos = new Map(ranked.map((id: string, i: number) => [id, i]));
+        items = [
+          ...items.filter((i: any) => rankPos.has(i.id)).sort((a: any, b: any) => rankPos.get(a.id)! - rankPos.get(b.id)!).slice(0, 8),
+          ...items.filter((i: any) => !rankPos.has(i.id)),
+        ].slice(0, perPage);
       } catch { /* boost is best-effort; base order stands */ }
     }
     return {
