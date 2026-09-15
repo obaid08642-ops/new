@@ -153,6 +153,10 @@ function slugify(s: string): string {
 @Injectable()
 export class SeoSearchService {
   constructor(@InjectConnection() private readonly conn: Connection) {}
+  // R49: sitemap pages are 5000-doc reads (~10-12s live). Slugs change only via
+  // backfill/indexing, so a 6h in-process cache is safe. Zero new deps by design.
+  private readonly sitemapCache = new Map<string, { exp: number; val: any }>();
+  private static readonly SITEMAP_TTL_MS = 6 * 60 * 60 * 1000;
 
   async metadata(type: string, id: string): Promise<any> {
     const entity = await this.loadEntity(type, id);
@@ -352,6 +356,9 @@ export class SeoSearchService {
 
   /** Slug batches for the web sitemap index (paginated XML sitemaps). */
   async publicProductSitemapPage(locale: string, page: number, perPage = 5000) {
+    const key = `${locale}:${page}:${perPage}`;
+    const hit = this.sitemapCache.get(key);
+    if (hit && hit.exp > Date.now()) return hit.val;
     const db = productLocaleToDb(locale);
     const rows = await this.conn.collection('medicines_master')
       .find(this.publicProductFilter(), { projection: { _id: 0, slug: 1, updatedAt: 1, [`translations.${db}.slug`]: 1 } } as any)
@@ -359,10 +366,17 @@ export class SeoSearchService {
       .skip((page - 1) * perPage)
       .limit(perPage)
       .toArray();
-    return rows.map((m: any) => ({
+    const val = rows.map((m: any) => ({
       slug: m?.translations?.[db]?.slug || m.slug,
       lastmod: m.updatedAt ? new Date(m.updatedAt).toISOString().slice(0, 10) : undefined,
     })).filter((r: any) => r.slug);
+    this.sitemapCache.set(key, { exp: Date.now() + SeoSearchService.SITEMAP_TTL_MS, val });
+    // Bound memory: 6 locales × 5 pages max; evict expired entries on write.
+    if (this.sitemapCache.size > 40) {
+      const now = Date.now();
+      for (const [k, v] of this.sitemapCache) if (v.exp <= now) this.sitemapCache.delete(k);
+    }
+    return val;
   }
 
   async publicProductCount(): Promise<number> {
