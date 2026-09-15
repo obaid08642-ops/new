@@ -94,8 +94,38 @@ export class JwtAuthGuard implements CanActivate {
     }
 
     // Attach original user payload to request. Support tokens are validated against
-    // the durable session on every request, so revoke/expiry takes effect immediately.
+    // durable session on every request, so revoke/expiry takes effect immediately.
     req.user = payload;
+    // Admin device lock (device-bound, never IP-bound — mobile IPs rotate).
+    // Applies to admin-role JWTs except the device-management endpoints themselves
+    // (otherwise enabling the lock would lock out enrollment).
+    try {
+      const path = String((req as any).path || (req as any).originalUrl || (req as any).url || '').split('?')[0];
+      const isAdminRole = payload?.role === 'admin' || payload?.role === 'super_admin'
+        || (Array.isArray(payload?.roles) && payload.roles.some((r: string) => /admin/i.test(r)));
+      const isDeviceEndpoint = /\/admin\/devices(\/|$)/.test(path) || /\/auth\/(login|heartbeat)/.test(path);
+      if (isAdminRole && !isDeviceEndpoint && !isPublic) {
+        const uid = payload?.id || payload?.sub;
+        if (uid) {
+          const u: any = await this.connection.collection('users').findOne(
+            { id: uid }, { projection: { device_lock_enabled: 1 } },
+          ).catch(() => null);
+          if (u?.device_lock_enabled === true) {
+            const devId = String((req.headers as any)?.['x-admin-device'] || '');
+            const { createHash } = require('crypto');
+            const ok = devId.length >= 16 && await this.connection.collection('admin_devices').findOne(
+              { user_id: uid, device_hash: createHash('sha256').update(devId).digest('hex'), revoked: { $ne: true } },
+            ).catch(() => null);
+            if (!ok) throw new ForbiddenException('device_not_enrolled');
+          }
+        }
+      }
+    } catch (e: any) {
+      if (e?.message === 'device_not_enrolled' || e?.status === 403) throw e;
+      // Observability must never break auth on DB hiccups (fail-open here would
+      // defeat the lock; fail-closed would lock everyone on a blip) — fail OPEN
+      // but only when the lookup itself errored, never on a negative result.
+    }
     if (payload?.scope === 'impersonation') {
       const context = await this.impersonationSessions.validate(payload);
       req.impersonator = context.impersonator;

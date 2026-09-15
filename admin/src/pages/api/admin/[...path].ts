@@ -123,6 +123,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     headers.set('authorization', `Bearer ${accessToken}`);
     headers.set('x-forwarded-for', req.socket.remoteAddress || '');
     headers.set('x-admin-bff', 'next-pages-router');
+    // Device binding (NOT IP binding — mobile IPs rotate): stable per-browser id.
+    let deviceId = cookieValue(req, 'admin_device');
+    let setDeviceCookie: string | null = null;
+    if (!deviceId || deviceId.length < 16) {
+      deviceId = [...crypto.getRandomValues(new Uint8Array(32))].map((b) => b.toString(16).padStart(2, '0')).join('');
+      setDeviceCookie = `admin_device=${deviceId}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${60 * 60 * 24 * 365}`;
+    }
+    headers.set('x-admin-device', deviceId);
 
     const response = await fetch(`${upstreamBase()}${apiPath(req)}`, {
       method: req.method,
@@ -132,6 +140,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     copyResponseHeaders(response, res);
+    if (setDeviceCookie) res.appendHeader('set-cookie', setDeviceCookie);
     if (response.status === 401) {
       res.setHeader('set-cookie', [
         `${ACCESS_COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0`,

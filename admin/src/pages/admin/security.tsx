@@ -19,6 +19,8 @@ interface PasskeyDevice {
  */
 export default function AdminSecurity() {
   const [devices, setDevices] = useState<PasskeyDevice[]>([]);
+  const [boundDevices, setBoundDevices] = useState<any[]>([]);
+  const [deviceLock, setDeviceLock] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [deviceName, setDeviceName] = useState('');
@@ -31,8 +33,30 @@ export default function AdminSecurity() {
       setDevices(Array.isArray(list) ? list : []);
     } catch (e: any) {
       setMessage({ type: 'err', text: 'تعذر تحميل الأجهزة المسجلة' });
-    } finally {
+    }
+    try {
+      const bound: any = await apiFetch('/admin/devices');
+      setBoundDevices(Array.isArray(bound) ? bound : []);
+      const me: any = await apiFetch('/auth/me').catch(() => null);
+      setDeviceLock(me?.device_lock_enabled === true);
+    } catch { /* device binding optional */ }
+    finally {
       setLoading(false);
+    }
+  };
+
+  const toggleLock = async (enabled: boolean) => {
+    if (enabled && !window.confirm('سيُقفل الدخول للإدارة على هذا المتصفح فقط (مربوط بالجهاز لا بالإنترنت — تغيير الـ IP لا يؤثر). متابعة؟')) return;
+    setBusy(true);
+    try {
+      const r: any = await apiFetch('/admin/devices/lock', { method: 'POST', body: JSON.stringify({ enabled }) });
+      setDeviceLock(r?.device_lock_enabled === enabled ? enabled : null);
+      setMessage({ type: 'ok', text: enabled ? 'تم تفعيل القفل — هذا المتصفح مسجل تلقائياً.' : 'تم إيقاف القفل.' });
+      await load();
+    } catch (e: any) {
+      setMessage({ type: 'err', text: 'تعذر تغيير القفل' });
+    } finally {
+      setBusy(false);
     }
   };
 
@@ -162,6 +186,39 @@ export default function AdminSecurity() {
                   >
                     حذف
                   </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        <div style={{
+          borderRadius: 16, padding: 20, marginBottom: 24,
+          background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)',
+        }}>
+          <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>القفل على هذا الجهاز فقط 🔒</h2>
+          <p style={{ color: '#93A5B3', fontSize: 13, lineHeight: 1.9, marginBottom: 12 }}>
+            مربوط بالمتصفح (بصمة جهاز) لا بعنوان الإنترنت — تغيير الـ IP أو الشبكة لا يؤثر.
+            عند التفعيل يُسجَّل هذا المتصفح تلقائياً وأي جهاز آخر يُرفض حتى لو امتلك كلمة المرور.
+          </p>
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 13, color: deviceLock ? '#2ECC71' : '#93A5B3', fontWeight: 700 }}>
+              الحالة: {deviceLock === null ? '…' : deviceLock ? 'مفعّل' : 'معطّل'}
+            </span>
+            <button
+              onClick={() => void toggleLock(!deviceLock)} disabled={busy || deviceLock === null}
+              style={{ padding: '8px 18px', borderRadius: 8, cursor: 'pointer', fontSize: 13, fontWeight: 700,
+                background: deviceLock ? 'rgba(240,86,122,0.12)' : 'rgba(46,204,113,0.14)',
+                color: deviceLock ? '#F0567A' : '#2ECC71', border: '1px solid currentColor' }}
+            >
+              {deviceLock ? 'إيقاف القفل' : 'تفعيل القفل على هذا المتصفح'}
+            </button>
+          </div>
+          {boundDevices.length > 0 && (
+            <div style={{ marginTop: 12, display: 'grid', gap: 8 }}>
+              {boundDevices.map((d: any, i: number) => (
+                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: '#93A5B3' }}>
+                  <span>{d.name || 'متصفح'} · {d.ua || ''}</span>
+                  <span>آخر ظهور: {d.last_seen_at ? new Date(d.last_seen_at).toLocaleString('ar-u-ca-gregory') : '—'}</span>
                 </div>
               ))}
             </div>
