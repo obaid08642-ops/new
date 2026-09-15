@@ -761,7 +761,7 @@ export class AuthService {
   }
 
   publicUser(u: any) {
-    return {
+    const base: any = {
       id: u.id,
       full_name: u.full_name,
       phone: u.phone,
@@ -770,6 +770,10 @@ export class AuthService {
       avatar_url: u.avatar_url,
       is_guest: u.is_guest,
     };
+    if (u.role === 'admin' || u.role === 'super_admin') {
+      base.device_lock_enabled = (u as any).device_lock_enabled === true;
+    }
+    return base;
   }
 
   async sendOtp(identifier: string) {

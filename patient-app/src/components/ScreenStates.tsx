@@ -1,6 +1,5 @@
-import React from 'react';
-import { View, TouchableOpacity, StyleSheet, Animated } from 'react-native';
 import React, { useEffect, useRef } from 'react';
+import { View, TouchableOpacity, StyleSheet, Animated } from 'react-native';
 import { useApp } from '../context/AppContext';
 import { Icon, IconName } from './Icon';
 import { AppText } from './ui';
