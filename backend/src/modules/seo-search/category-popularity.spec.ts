@@ -23,7 +23,11 @@ describe('publicCategoryProducts popularity ordering', () => {
           if (filter?.category && typeof filter.category === 'string') rows = rows.filter((m: any) => m.category === filter.category);
           if (Array.isArray(filter?.$or)) rows = rows.filter((m: any) => filter.$or.some((c: any) => matchClause(m, c)));
           rows = rows.sort((a, b) => (b.usage_count || 0) - (a.usage_count || 0));
-          return { sort: jest.fn().mockReturnValue({ skip: jest.fn().mockReturnValue({ limit: jest.fn().mockReturnValue({ toArray: jest.fn().mockResolvedValue(rows) }) }) }) };
+          const toArray = jest.fn().mockResolvedValue(rows);
+          // Support both chains: base sort().skip().limit() and per-cat sort().limit().
+          const limitObj = { toArray };
+          const skipObj = { limit: jest.fn().mockReturnValue(limitObj) };
+          return { sort: jest.fn().mockReturnValue({ skip: jest.fn().mockReturnValue(skipObj), limit: jest.fn().mockReturnValue(limitObj) }) };
         }),
         countDocuments: jest.fn().mockResolvedValue(medicines.length),
       },
@@ -101,5 +105,26 @@ describe('publicCategoryProducts popularity ordering', () => {
     ]);
     const out: any = await service.publicCategoryProducts('ar', 'all', undefined, 1, 24);
     expect(out.items[0].id).toBe('cosmo-star');
+  });
+
+  it('diversifies ALL page-1 across categories (max 2 per active ingredient)', async () => {
+    const meds = [
+      doc('para-1', { usage_count: 100, category: 'الأدوية والعلاج', active_ingredient: 'باراسيتامول' }),
+      doc('para-2', { usage_count: 90, category: 'الأدوية والعلاج', active_ingredient: 'باراسيتامول' }),
+      doc('para-3', { usage_count: 80, category: 'الأدوية والعلاج', active_ingredient: 'باراسيتامول' }),
+      doc('ibu-1', { usage_count: 70, category: 'الأدوية والعلاج', active_ingredient: 'ايبوبروفين' }),
+      doc('cream-1', { usage_count: 5, category: 'العناية بالبشرة', active_ingredient: 'زنك' }),
+      doc('shampoo-1', { usage_count: 4, category: 'العناية بالشعر', active_ingredient: 'كيراتين' }),
+      doc('vit-1', { usage_count: 3, category: 'الفيتامينات والتغذية الصحية', active_ingredient: 'فيتامين د' }),
+    ];
+    const { service } = svc(meds, []);
+    const out: any = await service.publicCategoryProducts('ar', 'all', undefined, 1, 8);
+    const ids = out.items.map((i: any) => i.id);
+    // No more than 2 paracetamol despite 3 dominating by usage.
+    expect(ids.filter((id: string) => id.startsWith('para-')).length).toBeLessThanOrEqual(2);
+    // Minority categories surface on page 1.
+    expect(ids).toContain('cream-1');
+    expect(ids).toContain('shampoo-1');
+    expect(ids).toContain('vit-1');
   });
 });
