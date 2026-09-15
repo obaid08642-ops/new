@@ -68,7 +68,7 @@ export interface AiGenerateResult {
 export class AiGatewayService {
   private readonly logger = new Logger('AiGateway');
   private genAI: GoogleGenerativeAI | null = null;
-  private registryCache: { providers: ProviderConfig[]; mode: 'auto' | 'manual'; pinned: AiProviderName | null; at: number } | null = null;
+  private registryCache: { providers: ProviderConfig[]; mode: 'auto' | 'manual'; pinned: AiProviderName | null; purposeOverrides: Record<string, string>; at: number } | null = null;
 
   constructor(@InjectConnection() private readonly conn: Connection) {
     if (process.env.GEMINI_API_KEY) {
@@ -109,17 +109,18 @@ export class AiGatewayService {
   }
 
   /** Load registry + mode with a 20s cache. */
-  private async loadRegistry(): Promise<{ providers: ProviderConfig[]; mode: 'auto' | 'manual'; pinned: AiProviderName | null }> {
+  private async loadRegistry(): Promise<{ providers: ProviderConfig[]; mode: 'auto' | 'manual'; pinned: AiProviderName | null; purposeOverrides: Record<string, string> }> {
     if (this.registryCache && Date.now() - this.registryCache.at < 20_000) {
-      return { providers: this.registryCache.providers, mode: this.registryCache.mode, pinned: this.registryCache.pinned };
+      return { providers: this.registryCache.providers, mode: this.registryCache.mode, pinned: this.registryCache.pinned, purposeOverrides: this.registryCache.purposeOverrides };
     }
     await this.ensureRegistry();
     const providers = (await this.providers.find({}).sort({ priority: 1 }).toArray()) as any[];
     const modeDoc: any = await this.settings.findOne({ key: 'ai_mode' });
     const mode = (modeDoc?.value === 'manual' ? 'manual' : 'auto') as 'auto' | 'manual';
     const pinned = modeDoc?.pinned_provider || null;
-    this.registryCache = { providers, mode, pinned, at: Date.now() };
-    return { providers, mode, pinned };
+    const purposeOverrides = (modeDoc?.purpose_overrides && typeof modeDoc.purpose_overrides === 'object') ? modeDoc.purpose_overrides : {};
+    this.registryCache = { providers, mode, pinned, purposeOverrides, at: Date.now() };
+    return { providers, mode, pinned, purposeOverrides };
   }
 
   private today(): string {
@@ -127,8 +128,8 @@ export class AiGatewayService {
   }
 
   /** Eligible providers in attempt order (auto: priority asc, quota-aware). */
-  private async attemptChain(): Promise<ProviderConfig[]> {
-    const { providers, mode, pinned } = await this.loadRegistry();
+  private async attemptChain(feature?: string): Promise<ProviderConfig[]> {
+    const { providers, mode, pinned, purposeOverrides } = await this.loadRegistry();
     const today = this.today();
     const usable = (p: ProviderConfig) =>
       p.enabled && p.api_key && (p.daily_quota === 0 || p.usage_date !== today || p.used_today < p.daily_quota);
@@ -137,12 +138,20 @@ export class AiGatewayService {
       const p = providers.find((x: any) => x.key === pinned);
       return p && usable(p) ? [p] : providers.filter(usable);
     }
-    return providers.filter(usable);
+    const chain = providers.filter(usable);
+    // Per-feature override: pinned provider for this feature goes first,
+    // full chain behind it preserves automatic fallback.
+    const override = feature && purposeOverrides?.[feature];
+    if (override) {
+      const first = chain.find((x: any) => x.key === override);
+      if (first) return [first, ...chain.filter((x: any) => x.key !== override)];
+    }
+    return chain;
   }
 
   /** Unified generation with automatic fallback across the chain. */
   async generate(opts: AiGenerateOptions): Promise<AiGenerateResult> {
-    const chain = await this.attemptChain();
+    const chain = await this.attemptChain(opts.feature);
     if (chain.length === 0) throw new Error('NO_AI_PROVIDER_AVAILABLE');
 
     let lastErr: any = null;
@@ -241,6 +250,7 @@ export class AiGatewayService {
     return {
       mode: modeDoc?.value || 'auto',
       pinned_provider: modeDoc?.pinned_provider || null,
+      purpose_overrides: modeDoc?.purpose_overrides || {},
       providers: providers.map((p: any) => ({
         key: p.key, enabled: p.enabled, model: p.model, vision_model: p.vision_model,
         priority: p.priority, daily_quota: p.daily_quota, used_today: p.used_today,
@@ -256,8 +266,24 @@ export class AiGatewayService {
     return { ok: true, key, patch };
   }
 
-  async setMode(mode: 'auto' | 'manual', pinned?: AiProviderName | null) {
+  /** Per-feature provider pin (null clears). Fallback chain stays intact behind it. */
+  async setPurposeOverride(feature: string, provider: AiProviderName | null) {
+    const clean = String(feature || '').trim().slice(0, 64);
+    if (!clean) throw new Error('feature_required');
+    if (provider) {
+      const exists = await this.providers.findOne({ key: provider });
+      if (!exists) throw new Error('unknown_provider');
+    }
     await this.settings.updateOne(
+      { key: 'ai_mode' },
+      provider ? { $set: { [`purpose_overrides.${clean}`]: provider } } : { $unset: { [`purpose_overrides.${clean}`]: 1 } },
+      { upsert: true },
+    );
+    this.registryCache = null;
+    return { ok: true, feature: clean, provider: provider || null };
+  }
+
+  async setMode(mode: 'auto' | 'manual', pinned?: AiProviderName | null) {    await this.settings.updateOne(
       { key: 'ai_mode' },
       { $set: { key: 'ai_mode', value: mode, pinned_provider: mode === 'manual' ? (pinned || null) : null, enabled: true, updatedAt: new Date() } },
       { upsert: true },

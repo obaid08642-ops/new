@@ -81,7 +81,8 @@ function apiPath(req: NextApiRequest) {
   // Public read controllers the admin UI consumes directly (GeoPicker, moderation,
   // loyalty, chat, passkey enrollment). Backend paths are /api/v1/<module>/* —
   // the default /api/v1/admin/* prefix 404s there. Backend guards still apply.
-  if (decoded[0] === 'locations') upstreamPath = `/api/v1/locations/${decoded.slice(1).map(encodeURIComponent).join('/')}`;
+  if (decoded[0] === 'locations' && decoded.length > 1) upstreamPath = `/api/v1/locations/${decoded.slice(1).map(encodeURIComponent).join('/')}`;
+  // Bare /admin/locations (admin list/create UI) stays on /api/v1/admin/locations/*.
   if (decoded[0] === 'community') upstreamPath = `/api/v1/community/${decoded.slice(1).map(encodeURIComponent).join('/')}`;
   if (decoded[0] === 'loyalty') upstreamPath = `/api/v1/loyalty/${decoded.slice(1).map(encodeURIComponent).join('/')}`;
   if (decoded[0] === 'chat' || decoded[0] === 'chats') upstreamPath = `/api/v1/${decoded[0]}/${decoded.slice(1).map(encodeURIComponent).join('/')}`;

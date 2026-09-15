@@ -31,6 +31,40 @@ export class AdminAnalyticsSuiteController {
     return this.presence.countOnline();
   }
 
+  /** Email delivery stats: today + last 30d by provider, vs configured plan limits. */
+  @Get('email-usage')
+  @RequirePermissions(Permission.ANALYTICS_READ)
+  async emailUsage() {
+    const startDay = new Date(); startDay.setHours(0, 0, 0, 0);
+    const startMonth = new Date(startDay.getFullYear(), startDay.getMonth(), 1);
+    const [today, month] = await Promise.all([
+      this.conn.collection('mail_log').aggregate([
+        { $match: { createdAt: { $gte: startDay } } },
+        { $group: { _id: { provider: '$provider', ok: '$ok' }, n: { $sum: 1 } } },
+      ]).toArray().catch(() => []),
+      this.conn.collection('mail_log').aggregate([
+        { $match: { createdAt: { $gte: startMonth } } },
+        { $group: { _id: { provider: '$provider', ok: '$ok' }, n: { $sum: 1 } } },
+      ]).toArray().catch(() => []),
+    ]);
+    const shape = (rows: any[]) => {
+      const out: any = { sent: 0, failed: 0, by_provider: {} };
+      for (const r of rows) {
+        if (r._id?.ok) { out.sent += r.n; out.by_provider[r._id.provider] = (out.by_provider[r._id.provider] || 0) + r.n; }
+        else out.failed += r.n;
+      }
+      return out;
+    };
+    return {
+      today: shape(today),
+      month: shape(month),
+      plan_limits: {
+        daily: Number(process.env.MAIL_DAILY_LIMIT || 0),
+        monthly: Number(process.env.MAIL_MONTHLY_LIMIT || 0),
+      },
+    };
+  }
+
   @Get('funnels')
   @RequirePermissions(Permission.ANALYTICS_READ)
   funnels(@Query('from') from: string, @Query('to') to: string) {

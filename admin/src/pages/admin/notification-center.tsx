@@ -14,6 +14,7 @@ const SEGMENTS = [
 
 export default function NotificationCenterPage() {
   const [stats, setStats] = useState<any>(null);
+  const [emailUsage, setEmailUsage] = useState<any>(null);
   const [segmentCounts, setSegmentCounts] = useState<any>(null);
   const [campaigns, setCampaigns] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
@@ -33,12 +34,14 @@ export default function NotificationCenterPage() {
   const load = async () => {
     setLoading(true);
     try {
-      const [s, seg, c] = await Promise.all([
+      const [s, seg, c, eu] = await Promise.all([
         apiFetch('/admin/notification-center/stats/overview').catch(() => null),
         apiFetch('/admin/notification-center/segments').catch(() => null),
         apiFetch(`/admin/notification-center/campaigns?page=${page}&limit=15`).catch(() => ({ data: [] })),
+        apiFetch('/analytics-suite/email-usage').catch(() => null),
       ]);
       setStats(s);
+      setEmailUsage(eu);
       setSegmentCounts(seg);
       setCampaigns(c?.data || []);
       setTotal(c?.total || 0);
@@ -130,6 +133,18 @@ export default function NotificationCenterPage() {
           <div className="text-2xl font-bold">{segmentCounts?.all ?? '—'}</div>
           <div className="text-xs text-gray-400">مرضى: {segmentCounts?.patients ?? 0} · مزودون: {segmentCounts?.providers ?? 0}</div>
         </div>
+      </div>
+
+      {/* ── Email usage (Resend → SES) ────────── */}
+      <div className="bg-white p-4 rounded-lg shadow border mb-8">
+        <div className="text-sm font-bold mb-2">استهلاك البريد (اليوم / الشهر)</div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+          <div>مرسل اليوم: <b>{emailUsage?.today?.sent ?? '—'}</b>{emailUsage?.plan_limits?.daily ? ` / ${emailUsage.plan_limits.daily}` : ''}</div>
+          <div>فاشل اليوم: <b className="text-rose-600">{emailUsage?.today?.failed ?? '—'}</b></div>
+          <div>مرسل الشهر: <b>{emailUsage?.month?.sent ?? '—'}</b>{emailUsage?.plan_limits?.monthly ? ` / ${emailUsage.plan_limits.monthly}` : ''}</div>
+          <div>فاشل الشهر: <b className="text-rose-600">{emailUsage?.month?.failed ?? '—'}</b></div>
+        </div>
+        <div className="text-xs text-gray-400 mt-2">حسب المزود (الشهر): {emailUsage ? Object.entries(emailUsage.month?.by_provider || {}).map(([k, v]) => `${k}: ${v}`).join(' · ') : '—'}</div>
       </div>
 
       {/* ── Composer ──────────────────────────── */}

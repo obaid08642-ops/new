@@ -27,28 +27,35 @@ export class AiController {
   @Get('admin/gateway')
   @Roles(UserRole.ADMIN)
   gatewayStatus() {
-    throw new ServiceUnavailableException('admin AI gateway control is unavailable pending approved health-data governance and change-audit controls');
+    return this.gateway.listProviders();
   }
 
   /** Admin: enable/disable/rekey/re-model/re-priority a provider. */
   @Post('admin/gateway/provider/:key')
   @Roles(UserRole.ADMIN)
   updateProvider(@Param('key') key: any, @Body() body: any) {
-    throw new ServiceUnavailableException('admin AI provider mutation is unavailable pending approved health-data governance and change-audit controls');
+    return this.gateway.updateProvider(key, body || {});
   }
 
   /** Admin: auto fallback & round-robin OR manual pinned provider. */
   @Post('admin/gateway/mode')
   @Roles(UserRole.ADMIN)
   setMode(@Body() body: { mode: 'auto' | 'manual'; pinned?: any }) {
-    throw new ServiceUnavailableException('admin AI routing mutation is unavailable pending approved health-data governance and change-audit controls');
+    return this.gateway.setMode(body?.mode === 'manual' ? 'manual' : 'auto', body?.pinned || null);
+  }
+
+  /** Admin: pin one provider for a single feature (null clears; fallback preserved). */
+  @Post('admin/gateway/purpose')
+  @Roles(UserRole.ADMIN)
+  setPurpose(@Body() body: { feature?: string; provider?: string | null }) {
+    return this.gateway.setPurposeOverride(body?.feature || '', (body?.provider || null) as any);
   }
 
   /** Admin: usage/token report per provider+model+feature (with fallback counts). */
   @Get('admin/usage')
   @Roles(UserRole.ADMIN)
   usage(@Query('days') days?: string) {
-    throw new ServiceUnavailableException('admin AI usage access is unavailable pending approved health-data governance and change-audit controls');
+    return this.gateway.usageReport(Math.min(Math.max(Number(days) || 7, 1), 90));
   }
 
   @Throttle({ default: { limit: 10, ttl: 60000 } })

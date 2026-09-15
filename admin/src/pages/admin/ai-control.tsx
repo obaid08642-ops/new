@@ -40,6 +40,14 @@ export default function AiControlPage() {
     await load();
   };
 
+  const FEATURES = ['triage', 'insuranceCardOcr', 'ocrTranslate', 'copilotSuggest', 'voiceToOrder', 'medicineImageSearch', 'barcodeLookup', 'analyzeMeal', 'generateDietPlan', 'generateExercisePlan', 'procurement_analyze'];
+  const setPurpose = async (feature: string, provider: string) => {
+    setBusy(`purpose:${feature}`);
+    await apiFetch('/ai/admin/gateway/purpose', { method: 'POST', body: JSON.stringify({ feature, provider: provider || null }) }).catch(() => null);
+    await load();
+    setBusy(null);
+  };
+
   if (!data) return <div className="p-8 text-center text-gray-500" dir="rtl">جاري التحميل...</div>;
 
   return (
@@ -66,6 +74,29 @@ export default function AiControlPage() {
           ))}
         </select>
         {data.mode === 'manual' && <span className="text-purple-600 text-sm font-bold">مثبت على: {data.pinned_provider}</span>}
+      </div>
+
+      <div className="bg-white p-4 rounded-lg shadow border mb-6">
+        <h2 className="font-bold mb-1">تثبيت مزود لكل ميزة (مع بقاء الـ fallback التلقائي)</h2>
+        <p className="text-xs text-gray-500 mb-3">اتركه فارغاً للوضع التلقائي. عند نفاد حصة المزود المثبت ينتقل تلقائياً للتالي.</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          {FEATURES.map((f) => (
+            <label key={f} className="flex items-center gap-2 text-sm border rounded-lg px-3 py-2">
+              <span className="font-bold" dir="ltr">{f}</span>
+              <select
+                value={data.purpose_overrides?.[f] || ''}
+                onChange={(e) => void setPurpose(f, e.target.value)}
+                disabled={busy === `purpose:${f}`}
+                className="border rounded px-2 py-1 text-sm flex-1"
+              >
+                <option value="">تلقائي</option>
+                {data.providers.filter((p: any) => p.has_key).map((p: any) => (
+                  <option key={p.key} value={p.key}>{PROVIDER_META[p.key]?.label || p.key}</option>
+                ))}
+              </select>
+            </label>
+          ))}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">

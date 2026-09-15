@@ -9,7 +9,9 @@
  * Every send returns { ok, provider, fallback_used } and logs a
  * 'mail.sent' / 'mail.failed' event so admin analytics can watch it.
  */
-import { Global, Injectable, Logger, Module } from '@nestjs/common';
+import { Global, Injectable, Logger, Module, Optional } from '@nestjs/common';
+import { InjectConnection } from '@nestjs/mongoose';
+import { Connection } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Resend } from 'resend';
 import * as nodemailer from 'nodemailer';
@@ -26,10 +28,17 @@ export class MailService {
   private readonly logger = new Logger('MailService');
   private resend: Resend | null = null;
 
-  constructor(private readonly events: EventEmitter2) {
+  constructor(private readonly events: EventEmitter2, @Optional() @InjectConnection() private conn?: Connection) {
     if (process.env.RESEND_API_KEY) {
       this.resend = new Resend(process.env.RESEND_API_KEY);
     }
+  }
+
+  /** Persist send outcome for admin email-usage reports (best-effort). */
+  private async logMail(to: string, subject: string, ok: boolean, provider: string, fallback: boolean) {
+    try {
+      await this.conn?.collection('mail_log').insertOne({ to, subject: String(subject).slice(0, 120), ok, provider, fallback_used: fallback, createdAt: new Date() });
+    } catch { /* observability never breaks delivery */ }
   }
 
   get fromAddress(): string {
@@ -95,11 +104,13 @@ export class MailService {
       });
       if (error) throw new Error(error.message || 'resend_error');
       this.events.emit('mail.sent', { to: opts.to, subject: opts.subject, provider: 'resend', fallback_used: false });
+      await this.logMail(opts.to, opts.subject, true, 'resend', false);
       return { ok: true, provider: 'resend', fallback_used: false };
     } catch (e: any) {
       if (!this.sesConfigured()) {
         this.logger.error(`No mail provider delivered to ${opts.to}: ${e.message}`);
         this.events.emit('mail.failed', { to: opts.to, subject: opts.subject, error: e.message });
+        await this.logMail(opts.to, opts.subject, false, 'none', false);
         return { ok: false, provider: 'none', fallback_used: false, error: e.message };
       }
       this.logger.warn(`Resend failed for ${opts.to}: ${e.message} — attempting SES fallback`);
@@ -109,10 +120,12 @@ export class MailService {
       await this.sendViaSesWithAttachment(opts, attachment);
       this.logger.log(`SES fallback delivered mail to ${opts.to}`);
       this.events.emit('mail.sent', { to: opts.to, subject: opts.subject, provider: 'ses', fallback_used: true });
+      await this.logMail(opts.to, opts.subject, true, 'ses', true);
       return { ok: true, provider: 'ses', fallback_used: true };
     } catch (e2: any) {
       this.logger.error(`Both mail providers failed for ${opts.to}: ${e2.message}`);
       this.events.emit('mail.failed', { to: opts.to, subject: opts.subject, error: e2.message });
+      await this.logMail(opts.to, opts.subject, false, 'none', true);
       return { ok: false, provider: 'none', fallback_used: true, error: e2.message };
     }
   }
