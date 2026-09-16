@@ -159,4 +159,31 @@ async function bootstrap() {
   await app.listen(port, '0.0.0.0');
   logger.log(`Nabd NestJS Backend [worker ${workerId}] listening on http://0.0.0.0:${port}`);
   if (swaggerEnabled) logger.log(`Swagger UI available at http://0.0.0.0:${port}/api/docs`);
+
+  // Cache Warming (non-blocking) — fills Redis so first requests are cache hits
+  if (process.env.NODE_ENV === 'production' && !(cluster as any).isPrimary) {
+    setImmediate(async () => {
+      try {
+        const warmLogger = new Logger('CacheWarming');
+        warmLogger.log('Starting cache warming...');
+        // Dynamic imports to avoid circular deps at startup
+        try {
+          const { MedicinesService } = await import('./modules/medicines/medicines.service');
+          const medSvc = app.get(MedicinesService, { strict: false });
+          await Promise.allSettled([
+            medSvc?.publicList?.({ page: 1, limit: 50 }),
+            medSvc?.publicList?.({ page: 1, limit: 50, category: 'pharma' }),
+          ]);
+        } catch { /* medicines warming optional */ }
+        try {
+          const { LabsService } = await import('./modules/labs/labs.service');
+          const labSvc = app.get(LabsService, { strict: false });
+          await labSvc?.['list']?.({}).catch(() => {});
+        } catch { /* labs warming optional */ }
+        warmLogger.log('Cache warming complete');
+      } catch (e) {
+        new Logger('CacheWarming').warn(`Cache warming failed (non-critical): ${String((e as Error)?.message || e)}`);
+      }
+    });
+  }
 }

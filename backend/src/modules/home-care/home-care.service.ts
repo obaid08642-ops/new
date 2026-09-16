@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException, ForbiddenException, Inject } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ForbiddenException, Inject, Optional } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { HomeCareService, HomeCareBooking, NursingBookingState, HomeCareBookingState, NursingVisitReport, CarePlan, MedicalSupplyRequest } from '../../schemas/home-care.schema';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -8,6 +8,7 @@ import { HomeCareBookingRepository } from "./repositories/homecarebooking.reposi
 import { NursingVisitReportRepository } from "./repositories/nursingvisitreport.repository";
 import { CarePlanRepository } from "./repositories/careplan.repository";
 import { MedicalSupplyRequestRepository } from "./repositories/medicalsupplyrequest.repository";
+import { RedisService } from '../redis/redis.service';
 
 @Injectable()
 export class HomeCareSvc {
@@ -19,6 +20,7 @@ export class HomeCareSvc {
     @Inject('MedicalSupplyRequestRepository') private readonly supplyModel: MedicalSupplyRequestRepository,
     private readonly events: EventEmitter2,
     private readonly engine: WorkflowEngineService,
+    @Optional() private readonly redis?: RedisService,
   ) {}
 
   async list(opts: { category?: string; search?: string; duration?: string }) {
@@ -29,7 +31,9 @@ export class HomeCareSvc {
       const re = new RegExp(opts.search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
       q.$or = [{ name_ar: re }, { name_en: re }, { tags: re }];
     }
-    return this.svcModel.find(q, { _id: 0, __v: 0 }).sort({ popularity: -1, name_ar: 1 }).limit(120);
+    if (!this.redis?.getWithSWR) return this.svcModel.find(q, { _id: 0, __v: 0 }).sort({ popularity: -1, name_ar: 1 }).limit(120);
+    const cacheKey = `cache:home-care-services:public:v1:${JSON.stringify(opts)}`;
+    return this.redis.getWithSWR(cacheKey, 900, async () => this.svcModel.find(q, { _id: 0, __v: 0 }).sort({ popularity: -1, name_ar: 1 }).limit(120));
   }
 
   async categoryCounts() {

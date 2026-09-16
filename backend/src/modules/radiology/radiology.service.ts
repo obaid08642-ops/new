@@ -1,10 +1,11 @@
-import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, BadRequestException, Optional } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { RadiologyService, RadiologyBookingState, RADIOLOGY_BOOKING_TRANSITIONS } from '../../schemas/radiology.schema';
 import { RadiologyBooking } from './schemas/radiology-booking.schema';
 import { WorkflowEngineService } from '../workflow-engine/workflow-engine.module';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { RedisService } from '../redis/redis.service';
 
 const ALLOWED_ROLES_PROVIDER = ['radiology', 'admin', 'hospital'];
 
@@ -19,6 +20,7 @@ export class RadiologyOpsService {
     @InjectModel('StorageObject') private storageObjects: Model<any>,
     private engine: WorkflowEngineService,
     private events: EventEmitter2,
+    @Optional() private readonly redis?: RedisService,
   ) {}
 
   // ──────────────────────────────────────────────
@@ -320,7 +322,9 @@ export class RadiologyOpsService {
     if (opts.body_part) q.body_part = opts.body_part;
     if (opts.search) q.$text = { $search: opts.search };
     if (opts.home_only) q.home_visit_supported = true;
-    return this.svcModel.find(q).sort({ popularity: -1 }).lean();
+    if (!this.redis?.getWithSWR) return this.svcModel.find(q).sort({ popularity: -1 }).lean();
+    const cacheKey = `cache:radiology-services:public:v1:${JSON.stringify(opts)}`;
+    return this.redis.getWithSWR(cacheKey, 900, async () => this.svcModel.find(q).sort({ popularity: -1 }).lean());
   }
 
   async modalities() {

@@ -113,12 +113,15 @@ import { ReferralModule } from './modules/referral/referral.module';
 import { FacilityOpsModule } from './modules/facility-ops/facility-ops.module';
 import { ProviderProductionModule } from './modules/provider-production/provider-production.module';
 import { ImpersonationSessionService } from './common/impersonation-session.service';
+import { CommonModule } from './common/common.module';
 import { AdminEnterpriseModule } from './modules/admin-enterprise/admin-enterprise.module';
 import { HealthController } from './health.controller';
 import { HealthDashboardController } from './modules/health/health-dashboard.controller';
 import { JwtAuthGuard } from './common/auth.guard';
 import { AuditLogInterceptor } from './common/audit-log.interceptor';
 import { IdempotencyInterceptor } from './common/idempotency.interceptor';
+import { AdaptiveConcurrencyInterceptor } from './common/adaptive-concurrency.interceptor';
+import { CacheControlInterceptor } from './common/cache-control.interceptor';
 
 import { MaternityModule } from './modules/maternity/maternity.module';
 import { NabdExtensionsModule } from './modules/nabd-extensions/nabd-extensions.module';
@@ -146,6 +149,7 @@ import { ProductRankingModule } from './modules/product-ranking/product-ranking.
 
 @Module({
   imports: [
+    CommonModule,
     SentryModule.forRoot(),
     HomeModule,
     HospitalModule,
@@ -293,6 +297,8 @@ import { ProductRankingModule } from './modules/product-ranking/product-ranking.
     { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_INTERCEPTOR, useClass: AuditLogInterceptor },
     { provide: APP_INTERCEPTOR, useClass: IdempotencyInterceptor },
+    { provide: APP_INTERCEPTOR, useClass: AdaptiveConcurrencyInterceptor },
+    { provide: APP_INTERCEPTOR, useClass: CacheControlInterceptor },
   ],
 })
 export class AppModule implements NestModule {

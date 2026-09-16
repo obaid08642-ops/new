@@ -40,11 +40,15 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
 
   onModuleInit() {
     const redisUrl = redisUrlFromEnv();
-    const options = {
+    const options: any = {
       retryStrategy: (times: number) => Math.min(times * 100, 3000),
       maxRetriesPerRequest: 3,
       enableOfflineQueue: false,
       lazyConnect: false,
+      enableAutoPipelining: true,
+      keepAlive: 30000,
+      connectTimeout: 5000,
+      commandTimeout: 3000,
     };
     this.client = new Redis(redisUrl, options);
     this.subscriber = new Redis(redisUrl, options);
@@ -412,6 +416,50 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     const current = await this.incr(`ratelimit:${key}`);
     if (current === 1) await this.expire(`ratelimit:${key}`, windowSeconds);
     return { allowed: current <= limit, remaining: Math.max(0, limit - current) };
+  }
+
+  /**
+   * Stale-While-Revalidate: returns stale data immediately + refreshes in background.
+   * No user ever waits for cache refresh. Handles both SWR-wrapped and plain values.
+   */
+  async getWithSWR<T>(
+    key: string,
+    ttlSeconds: number,
+    fetchFn: () => Promise<T>,
+    swrThreshold = 0.8,
+  ): Promise<T> {
+    try {
+      const raw = await this.client.get(key);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        const isWrapped = parsed && typeof parsed === 'object' && 'data' in parsed && 'setAt' in parsed;
+        const data = isWrapped ? parsed.data : parsed;
+        const setAt = isWrapped ? parsed.setAt : 0;
+        const age = Date.now() - (setAt || 0);
+        if (!isWrapped || age > ttlSeconds * 1000 * swrThreshold) {
+          setImmediate(() =>
+            fetchFn()
+              .then(fresh =>
+                this.client.set(
+                  key,
+                  JSON.stringify({ data: fresh, setAt: Date.now() }),
+                  'EX',
+                  ttlSeconds,
+                ),
+              )
+              .catch(err => this.logger.warn(`SWR refresh failed for ${key}: ${String((err as Error)?.message || err)}`)),
+          );
+        }
+        return data as T;
+      }
+    } catch {
+      // Cache miss or parse error — fall through to DB
+    }
+    const fresh = await fetchFn();
+    await this.client
+      .set(key, JSON.stringify({ data: fresh, setAt: Date.now() }), 'EX', ttlSeconds)
+      .catch(() => {});
+    return fresh;
   }
 
   /**

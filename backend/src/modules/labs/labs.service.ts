@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException, ForbiddenException, Inject } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ForbiddenException, Inject, Optional } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { LabService, LabBooking, LabBookingState, LAB_BOOKING_TRANSITIONS, LabSample } from '../../schemas/lab.schema';
@@ -11,6 +11,7 @@ import { LabBookingRepository } from "./repositories/labbooking.repository";
 import { LabSampleRepository } from "./repositories/labsample.repository";
 import { ProviderProfile, ProviderProfileDocument } from '../../schemas/provider-profile.schema';
 import { getEffectiveRoles } from '../../common/auth.guard';
+import { RedisService } from '../redis/redis.service';
 
 @Injectable()
 export class LabsService {
@@ -23,6 +24,7 @@ export class LabsService {
     private readonly bus: EventBusService,
     private readonly engine: WorkflowEngineService,
     private readonly pdfService: LabPdfService,
+    @Optional() private readonly redis?: RedisService,
   ) {}
 
   async list(opts: { category?: string; search?: string; home_only?: boolean; packages_only?: boolean; highest_rated?: boolean; nearest?: boolean; lowest_price?: boolean }) {
@@ -41,7 +43,9 @@ export class LabsService {
     if (opts.highest_rated) sortObj = { rating: -1, popularity: -1 };
     else if (opts.lowest_price) sortObj = { price: 1, popularity: -1 };
 
-    return this.svcModel.find(q, { _id: 0, __v: 0 }).sort(sortObj).limit(120);
+    if (!this.redis?.getWithSWR) return this.svcModel.find(q, { _id: 0, __v: 0 }).sort(sortObj).limit(120);
+    const cacheKey = `cache:lab-services:public:v1:${JSON.stringify(opts)}`;
+    return this.redis.getWithSWR(cacheKey, 900, async () => this.svcModel.find(q, { _id: 0, __v: 0 }).sort(sortObj).limit(120));
   }
 
   async categoryCounts() {
