@@ -183,8 +183,6 @@ import { ProductRankingModule } from './modules/product-ranking/product-ranking.
         socketTimeoutMS: 45_000,
         heartbeatFrequencyMS: 10_000,
         connectTimeoutMS: 10_000,
-        // ── WiredTiger journal compression ──
-        compressors: ['zstd', 'snappy', 'zlib'],
         connectionFactory: (connection) => {
           connection.plugin(require('./common/database/audit.plugin').AuditPlugin);
           return connection;

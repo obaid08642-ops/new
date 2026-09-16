@@ -8,8 +8,10 @@ import { createNabdahOpenApiDocument } from './config/openapi.config';
 import { ConfiguredIoAdapter } from './config/configured-io.adapter';
 import { json, urlencoded } from 'express';
 import helmet from 'helmet';
-import * as cluster from 'cluster';
-import * as os from 'os';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const cluster = require('node:cluster');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const os = require('node:os');
 // Phase 5.3: NoSQL injection guard — strips $-operators/dots from req payloads
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const mongoSanitize = require('express-mongo-sanitize');
