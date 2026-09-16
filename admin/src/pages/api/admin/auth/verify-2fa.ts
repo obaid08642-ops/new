@@ -9,7 +9,8 @@ function backendBase() {
 
 function cookie(name: string, value: string, httpOnly = true) {
   const secure = process.env.NODE_ENV === 'production' ? '; Secure' : '';
-  return `${name}=${encodeURIComponent(value)}; Path=/; SameSite=Lax; Max-Age=${60 * 60}${httpOnly ? '; HttpOnly' : ''}${secure}`;
+  const maxAge = name === 'admin_csrf' ? 60 * 60 * 24 : 60 * 60;
+  return `${name}=${encodeURIComponent(value)}; Path=/; SameSite=Lax; Max-Age=${maxAge}${httpOnly ? '; HttpOnly' : ''}${secure}`;
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

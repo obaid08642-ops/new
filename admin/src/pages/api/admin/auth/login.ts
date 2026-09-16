@@ -46,7 +46,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const csrf = randomBytes(32).toString('base64url');
     const cookies = [
       cookie(ACCESS_COOKIE, token, { maxAge: 60 * 60 }),
-      cookie(CSRF_COOKIE, csrf, { httpOnly: false, maxAge: 60 * 60 }),
+      cookie(CSRF_COOKIE, csrf, { httpOnly: false, maxAge: 60 * 60 * 24 }),
     ];
     if (refresh) cookies.push(cookie(REFRESH_COOKIE, refresh, { maxAge: 60 * 60 * 24 * 14 }));
     res.setHeader('set-cookie', cookies);
