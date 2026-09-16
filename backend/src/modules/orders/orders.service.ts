@@ -359,12 +359,12 @@ export class OrdersService {
   }
 
   async getById(id: string, user?: any) {
-    const o = await this.orderModel.findOne({ id }, { _id: 0, __v: 0 });
+    const o = await this.orderModel.findOne({ id }, { _id: 0, __v: 0 }).lean();
     if (!o) throw new NotFoundException();
     this.assertOrderAccess(o, user);
     // Hydrate sub-orders
-    if (o.is_split && o.sub_order_ids?.length) {
-      const subs = await this.orderModel.find({ id: { $in: o.sub_order_ids } }, { _id: 0, __v: 0 });
+    if ((o as any).is_split && (o as any).sub_order_ids?.length) {
+      const subs = await this.orderModel.find({ id: { $in: (o as any).sub_order_ids } }, { _id: 0, __v: 0 }).lean();
       (o as any).sub_orders = subs;
     }
     return o;
@@ -374,21 +374,21 @@ export class OrdersService {
     if (type) {
       q.type = type;
     }
-    return this.orderModel.find(q, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(100);
+    return this.orderModel.find(q, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(100).lean();
   }
   async listForPharmacy(pharmacy_id: string, state?: OrderState) {
     const q: any = { pharmacy_id };
     if (state) q.state = state;
-    return this.orderModel.find(q, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(200);
+    return this.orderModel.find(q, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(200).lean();
   }
   async listAll(state?: OrderState, search?: string) {
     const q: any = {};
     if (state) q.state = state;
     if (search) q.$or = [{ id: search }, { patient_phone: { $regex: search, $options: 'i' } }];
-    return this.orderModel.find(q, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(500);
+    return this.orderModel.find(q, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(500).lean();
   }
   async listEscalated() {
-    return this.orderModel.find({ escalated: true, state: { $ne: OrderState.DELIVERED } }, { _id: 0, __v: 0 });
+    return this.orderModel.find({ escalated: true, state: { $ne: OrderState.DELIVERED } }, { _id: 0, __v: 0 }).lean();
   }
 
   // ============ PHARMACY ACTIONS ============

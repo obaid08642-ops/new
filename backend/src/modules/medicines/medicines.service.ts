@@ -729,6 +729,41 @@ export class MedicinesService {
     } catch { /* cache invalidation is best-effort */ }
   }
 
+  // ── Pre-computed Aggregations Cron Jobs (Task 2.5) ─────────────────
+  // Every 5 min: warm homepage catalog (200 items sorted by usage_count)
+  @Cron('*/5 * * * *')
+  async warmHomepageCatalog(): Promise<void> {
+    try {
+      const data = await this.model
+        .find({ is_deleted: { $ne: true } } as any, MedicinesService.CARD_PROJECTION as any)
+        .sort({ usage_count: -1 })
+        .limit(200)
+        .lean()
+        .exec();
+      await this.redis.setJson('precomputed:homepage:catalog', data, 300);
+      this.logger.log(`[cache-warm] homepage catalog warmed: ${data.length} items`);
+    } catch (e) {
+      this.logger.warn(`[cache-warm] warmHomepageCatalog failed: ${String((e as Error)?.message || e)}`);
+    }
+  }
+
+  // Every 10 min: warm trending (20 items)
+  @Cron('*/10 * * * *')
+  async warmTrendingCatalog(): Promise<void> {
+    try {
+      const data = await this.model
+        .find({ is_deleted: { $ne: true } } as any, MedicinesService.CARD_PROJECTION as any)
+        .sort({ usage_count: -1 })
+        .limit(20)
+        .lean()
+        .exec();
+      await this.redis.setJson('precomputed:trending', data, 600);
+      this.logger.log(`[cache-warm] trending warmed: ${data.length} items`);
+    } catch (e) {
+      this.logger.warn(`[cache-warm] warmTrendingCatalog failed: ${String((e as Error)?.message || e)}`);
+    }
+  }
+
   /**
    * Parse a raw barcode string. Handles plain GTINs as well as GS1 DataMatrix
    * payloads that interleave Application Identifiers (AIs) like:

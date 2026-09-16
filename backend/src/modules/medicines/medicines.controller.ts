@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Headers, Param, Patch, Post, Query, UseGuards, Delete, Put, GoneException } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Param, Patch, Post, Query, UseGuards, Delete, Put, GoneException, Res, Header } from '@nestjs/common';
 import { MedicinesService } from './medicines.service';
 import { CurrentUser, JwtAuthGuard, Public, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
@@ -282,6 +282,67 @@ export class MedicinesController {
   @Roles(UserRole.ADMIN)
   adminReports() {
     return this.svc.adminCatalogReports();
+  }
+
+  // ── Response Streaming for large catalog (Task 2.4) ──────────────────
+  // NEW streaming endpoint — does NOT modify existing @Get() list endpoint.
+  // Uses cursor streaming with batchSize 100 to avoid buffering the full catalog.
+  @Public()
+  @Get('stream')
+  @Header('Content-Type', 'application/json; charset=utf-8')
+  @Header('Transfer-Encoding', 'chunked')
+  async streamCatalog(
+    @Query('search') search?: string,
+    @Query('category') category?: string,
+    @Query('sort') sort?: string,
+    @Res() res?: any,
+  ): Promise<void> {
+    const raw = res?.raw || res;
+    // Build filter using service's buildQuery if available, else minimal query directly
+    let filter: any;
+    const svcAny: any = this.svc as any;
+    if (typeof svcAny.buildQuery === 'function') {
+      filter = svcAny.buildQuery(search, category && category !== 'all' ? category : undefined, true);
+    } else if (typeof svcAny.buildFilter === 'function') {
+      filter = svcAny.buildFilter({ search, category, sort });
+    } else {
+      filter = { is_deleted: { $ne: true } };
+      if (search) filter.$or = [{ name_ar: { $regex: search, $options: 'i' } }, { name_en: { $regex: search, $options: 'i' } }];
+      if (category && category !== 'all') filter.category = category;
+    }
+    try {
+      raw.write('{"items":[');
+      let first = true;
+      // Use repository model cursor with batchSize 100
+      const modelAny: any = svcAny.model;
+      // model may be MedicineRepository wrapping Mongoose Model via .model
+      const mongooseModel: any = modelAny?.model || modelAny;
+      // Prefer repository find that returns a Mongoose Query with lean/batchSize/cursor
+      let cursor: any;
+      if (modelAny && typeof modelAny.find === 'function') {
+        // Try repository path first (returns Query)
+        const q: any = modelAny.find(filter);
+        // q may already be a Query; apply lean/batchSize
+        if (q && typeof q.lean === 'function') {
+          cursor = q.lean().batchSize(100).cursor();
+        } else {
+          cursor = mongooseModel.find(filter).lean().batchSize(100).cursor();
+        }
+      } else {
+        cursor = mongooseModel.find(filter).lean().batchSize(100).cursor();
+      }
+      for await (const doc of cursor) {
+        if (!first) raw.write(',');
+        raw.write(JSON.stringify(doc));
+        first = false;
+      }
+      raw.write(']}');
+      raw.end();
+    } catch (e) {
+      if (!raw.headersSent) raw.writeHead?.(500, { 'Content-Type': 'application/json' });
+      try { raw.write(JSON.stringify({ error: (e as Error).message })); } catch {}
+      raw.end();
+    }
   }
 
   /** Recently viewed products — "أكمل من حيث توقفت" */

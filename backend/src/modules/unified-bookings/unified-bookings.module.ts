@@ -9,6 +9,8 @@ import { RadiologyBooking, RadiologyBookingSchema, RadiologyBookingState } from 
 import { HomeCareBooking, HomeCareBookingSchema, HomeCareBookingState } from '../../schemas/home-care.schema';
 import { Appointment, AppointmentSchema, APPT_STATES } from '../../schemas/appointment.schema';
 import { OrderState, ServiceState, ServiceDomain } from '../../common/enums';
+import { randomUUID } from 'crypto';
+import type { Queue as BullMQQueue } from 'bullmq';
 import { ProviderProfile, ProviderProfileSchema } from '../../schemas/provider-profile.schema';
 import { PharmacyOrderSchema } from '../pharmacy/schemas/pharmacy.schema';
 import { EventBusService } from '../events/event-bus.service';
@@ -414,6 +416,71 @@ export class UnifiedBookingsService {
     // All groups succeeded — clear those cart lines.
     for (const r of results) if (r.ok) await this.cart.clear(user, r.kind);
     return { results, remaining_cart: await this.cart.get(user), rolled_back: false };
+  }
+
+  // ── Write-Behind Caching helper (additive, non-breaking) ─────────
+  // In-memory fallback lock for this orchestrator instance. The canonical
+  // Redis lock lives in unified-bookings.service.ts (acquireBookingLock);
+  // this mirror keeps the module's service usable without adding a Redis dep.
+  private writeBehindLocks = new Map<string, number>();
+  private writeBehindQueue?: BullMQQueue;
+
+  private acquireWriteBehindLock(providerId: string, slotTs: number): void {
+    const key = `wb:lock:${providerId}:${slotTs}`;
+    const now = Date.now();
+    const exp = this.writeBehindLocks.get(key);
+    if (exp && exp > now) {
+      throw new ConflictException({
+        code: 'CONCURRENT_SLOT_CONFLICT',
+        message: 'هذا الوقت محجوز حالياً ومقفل لعملية دفع أخرى، يرجى المحاولة بعد 5 دقائق أو اختيار موعد آخر.',
+      });
+    }
+    this.writeBehindLocks.set(key, now + 300_000);
+  }
+
+  private releaseWriteBehindLock(providerId: string, slotTs: number): void {
+    this.writeBehindLocks.delete(`wb:lock:${providerId}:${slotTs}`);
+  }
+
+  /**
+   * Write-Behind slot reservation (module orchestrator mirror).
+   * 1) Redis/in-memory slot check, 2) immediate bookingId, 3) background persist.
+   */
+  async reserveWithWriteBehind(
+    providerId: string,
+    slotTs: number,
+    patientId: string,
+    persistFn: () => Promise<any>,
+  ): Promise<{ bookingId: string; queued: boolean }> {
+    this.acquireWriteBehindLock(providerId, slotTs);
+    const bookingId = randomUUID();
+    const bg = async () => {
+      try {
+        await persistFn();
+      } catch (err) {
+        this.releaseWriteBehindLock(providerId, slotTs);
+        console.warn(`[write-behind] persist failed for ${bookingId}:`, (err as Error)?.message || err);
+      }
+    };
+    if (this.writeBehindQueue?.add) {
+      try {
+        await this.writeBehindQueue.add('persist-booking', { bookingId, providerId, slotTs, patientId }, { attempts: 3, backoff: { type: 'exponential', delay: 1000 } });
+      } catch {
+        setImmediate(() => void bg());
+      }
+    } else {
+      setImmediate(() => void bg());
+    }
+    return { bookingId, queued: true };
+  }
+
+  async reserveSlotWriteBehind(
+    providerId: string,
+    slotTs: number,
+    patientId: string,
+    persistFn: () => Promise<any>,
+  ): Promise<{ bookingId: string; queued: boolean }> {
+    return this.reserveWithWriteBehind(providerId, slotTs, patientId, persistFn);
   }
 }
 
