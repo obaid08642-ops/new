@@ -171,14 +171,14 @@ async function bootstrap() {
           const { MedicinesService } = await import('./modules/medicines/medicines.service');
           const medSvc = app.get(MedicinesService, { strict: false });
           await Promise.allSettled([
-            medSvc?.publicList?.({ page: 1, limit: 50 }),
-            medSvc?.publicList?.({ page: 1, limit: 50, category: 'pharma' }),
+            medSvc?.list?.('', 'all'),
+            medSvc?.list?.('', 'pharma'),
           ]);
         } catch { /* medicines warming optional */ }
         try {
           const { LabsService } = await import('./modules/labs/labs.service');
           const labSvc = app.get(LabsService, { strict: false });
-          await labSvc?.['list']?.({}).catch(() => {});
+          await labSvc?.list?.({});
         } catch { /* labs warming optional */ }
         warmLogger.log('Cache warming complete');
       } catch (e) {

@@ -238,14 +238,14 @@ export class ProvidersService {
 
   // ============ Listing ============
   async listPending() {
-    return this.providerModel.find({ status: ProviderStatus.PENDING }, { _id: 0, __v: 0 }).sort({ createdAt: -1 });
+    return this.providerModel.find({ status: ProviderStatus.PENDING }, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).lean();
   }
   async listAll(type?: ProviderType, status?: ProviderStatus, search?: string) {
     const q: any = {};
     if (type) q.type = type;
     if (status) q.status = status;
     if (search) q.$or = [{ name_ar: { $regex: search, $options: 'i' } }, { name_en: { $regex: search, $options: 'i' } }];
-    return this.providerModel.find(q, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(500);
+    return this.providerModel.find(q, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(500).lean();
   }
   private publicDiscoveryFilter() {
     return {
@@ -309,13 +309,13 @@ export class ProvidersService {
       q.insurance_contracts = { $elemMatch: elemMatch };
     }
 
-    return this.providerModel.find(q, { _id: 0, __v: 0 }).sort({ rating: -1, createdAt: -1 }).limit(200);
+    return this.providerModel.find(q, { _id: 0, __v: 0 }).sort({ rating: -1, createdAt: -1 }).limit(200).lean();
   }
   /** Map providers: ACTIVE only, must have real stored coordinates. */
   async mapProviders(type?: string, lat?: number, lng?: number, radiusKm?: number) {
     const q: any = { ...this.publicDiscoveryFilter(), 'location.lat': { $exists: true, $ne: null }, 'location.lng': { $exists: true, $ne: null } };
     if (type) q.type = type;
-    const rows = await this.providerModel.find(q, { _id: 0, __v: 0, password_hash: 0 }).limit(300);
+    const rows = await this.providerModel.find(q, { _id: 0, __v: 0, password_hash: 0 }).limit(300).lean();
     const hav = (la1: number, ln1: number, la2: number, ln2: number) => {
       const R = 6371, dLa = (la2 - la1) * Math.PI / 180, dLn = (ln2 - ln1) * Math.PI / 180;
       const a = Math.sin(dLa / 2) ** 2 + Math.cos(la1 * Math.PI / 180) * Math.cos(la2 * Math.PI / 180) * Math.sin(dLn / 2) ** 2;

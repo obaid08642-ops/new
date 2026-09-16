@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import * as CircuitBreaker from 'opossum';
+import CircuitBreaker from 'opossum';
 
 export interface BreakerOptions {
   timeout?: number;
