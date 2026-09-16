@@ -175,10 +175,20 @@ import { ProductRankingModule } from './modules/product-ranking/product-ranking.
       useFactory: () => ({
         uri: process.env.MONGO_URL || 'mongodb://localhost:27017',
         dbName: process.env.DB_NAME || 'nabd_nestjs',
+        // ── High-concurrency connection pool (default Mongoose pool = 5, insufficient) ──
+        maxPoolSize: parseInt(process.env.MONGO_MAX_POOL_SIZE || '200', 10),
+        minPoolSize: parseInt(process.env.MONGO_MIN_POOL_SIZE || '20', 10),
+        maxIdleTimeMS: 60_000,
+        serverSelectionTimeoutMS: 5_000,
+        socketTimeoutMS: 45_000,
+        heartbeatFrequencyMS: 10_000,
+        connectTimeoutMS: 10_000,
+        // ── WiredTiger journal compression ──
+        compressors: ['zstd', 'snappy', 'zlib'],
         connectionFactory: (connection) => {
           connection.plugin(require('./common/database/audit.plugin').AuditPlugin);
           return connection;
-        }
+        },
       }),
     }),
     BullModule.forRoot({
