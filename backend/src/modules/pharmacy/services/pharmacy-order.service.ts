@@ -41,12 +41,15 @@ export class PharmacyOrderService {
       notes: it.notes,
     }));
     if (!items.length) throw new BadRequestException('items_required');
+    const addr = body.delivery_address || {};
+    const geo = addr.geo || (addr.lat && addr.lng ? { lat: Number(addr.lat), lng: Number(addr.lng) } : null);
+    const normalizedAddress = { ...addr, ...(geo ? { geo } : {}) };
     const order = await this.orders.create({
       id: uuidv4(),
       patient_account_id: user.id,
       status: PharmacyOrderState.DRAFT,
       items,
-      delivery_address: body.delivery_address,
+      delivery_address: normalizedAddress,
       patient_notes: body.patient_notes,
       prescription_attachments: body.prescription_attachments || [],
       totals: { subtotal: 0, delivery_fee: 0, total: 0, currency: 'SAR' },
