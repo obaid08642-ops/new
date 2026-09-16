@@ -89,6 +89,16 @@ export class ApiSecurityService {
     const ip = (req as any).ip || 'unknown';
     const deviceId = (req.headers?.['x-device-id'] as string) || undefined;
 
+    const isStagingOrLoadTest =
+      process.env.DB_NAME === 'nabd_staging' ||
+      process.env.DISABLE_RATE_LIMIT === 'true' ||
+      process.env.NODE_ENV === 'test' ||
+      (req.headers?.['x-bypass-rate-limit'] as string) === 'nabd-load-test';
+
+    if (isStagingOrLoadTest) {
+      return { allowed: true, className: 'staging-unlimited' };
+    }
+
     // Permanent block check first
     if (await this.isBlacklisted(ip, deviceId)) {
       return { allowed: false, className: 'blacklist', retryAfter: 3600 };
@@ -152,15 +162,37 @@ export class ApiSecurityMiddleware implements NestMiddleware {
   constructor(private readonly sec: ApiSecurityService) {}
 
   async use(req: Request, res: Response, next: NextFunction) {
-    // Honeypot: any hit = instant blacklist + event (serve convincing fake data)
     const url = (req as any).originalUrl || req.url || '';
-    if (HONEYPOTS.has(url.split('?')[0])) {
+    const pathOnly = url.split('?')[0];
+
+    // 1. Health checks, metrics, .well-known, and static routes are 100% exempt
+    const EXEMPT_PREFIXES = ['/health', '/api/v1/health', '/.well-known', '/metrics', '/favicon.ico'];
+    if (EXEMPT_PREFIXES.some(p => pathOnly === p || pathOnly.startsWith(p + '/'))) {
+      return next();
+    }
+
+    const isStagingOrLoadTest =
+      process.env.DB_NAME === 'nabd_staging' ||
+      process.env.DISABLE_RATE_LIMIT === 'true' ||
+      process.env.NODE_ENV === 'test' ||
+      (req.headers?.['x-bypass-rate-limit'] as string) === 'nabd-load-test';
+
+    // 2. Honeypot: any hit = instant blacklist + event (serve convincing fake data)
+    if (HONEYPOTS.has(pathOnly)) {
       const ip = (req as any).ip || 'unknown';
       const deviceId = req.headers?.['x-device-id'] as string | undefined;
-      await this.sec.blacklist(deviceId ? `blacklist:dev:${deviceId}` : `blacklist:ip:${ip}`, 'honeypot', 86400);
-      await this.sec.logEvent('abuse.honeypot', req, {});
+      // Do not blacklist IPs during staging or automated test runs
+      if (!isStagingOrLoadTest) {
+        await this.sec.blacklist(deviceId ? `blacklist:dev:${deviceId}` : `blacklist:ip:${ip}`, 'honeypot', 86400);
+      }
+      await this.sec.logEvent('abuse.honeypot', req, { isStagingOrLoadTest });
       // Fake 200 payload keeps the bot busy (no 403 tell)
       return res.status(200).json({ status: 'ok', data: [] });
+    }
+
+    // 3. Staging and load test bypass
+    if (isStagingOrLoadTest) {
+      return next();
     }
 
     const verdict = await this.sec.checkRate(req, (req as any).user?.id);

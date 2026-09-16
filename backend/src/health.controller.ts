@@ -1,9 +1,11 @@
 import { Controller, Get } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import { Public } from './common/auth.guard';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { RedisService } from './modules/redis/redis.service';
 
+@SkipThrottle()
 @Controller()
 export class HealthController {
   constructor(
