@@ -1,16 +1,93 @@
 {
   "applinks": {
+    "apps": [],
     "details": [
       {
-        "appIDs": ["TEAMID_PLACEHOLDER.com.nabd.patient", "TEAMID_PLACEHOLDER.com.nabd.provider"],
+        "appID": "6AT2W85DBC.com.nabd.patient",
+        "paths": [
+          "NOT /api/*",
+          "NOT /.well-known/*",
+          "NOT /admin/*",
+          "/p/*", "/medicine/*", "/doctor/*", "/condition/*", "/facility/*",
+          "/doctors/*", "/home-nursing/*", "/s/*", "/pharmacy/*", "/pharmacies/*",
+          "/consultations/*", "/labs/*", "/radiology/*", "/nursing/*",
+          "/c/*", "/articles/*", "/services/*", "/orders/*", "/chat/*",
+          "/ar/p/*", "/ar/medicine/*", "/ar/doctor/*", "/ar/condition/*", "/ar/facility/*",
+          "/ar/doctors/*", "/ar/home-nursing/*", "/ar/s/*", "/ar/pharmacy/*", "/ar/pharmacies/*",
+          "/ar/consultations/*", "/ar/labs/*", "/ar/radiology/*", "/ar/nursing/*",
+          "/ar/c/*", "/ar/articles/*", "/ar/services/*", "/ar/orders/*",
+          "/en/p/*", "/en/medicine/*", "/en/doctor/*", "/en/condition/*", "/en/facility/*",
+          "/en/doctors/*", "/en/home-nursing/*", "/en/s/*", "/en/pharmacy/*", "/en/pharmacies/*",
+          "/en/consultations/*", "/en/labs/*", "/en/radiology/*", "/en/nursing/*",
+          "/en/c/*", "/en/articles/*", "/en/services/*", "/en/orders/*",
+          "/ur/p/*", "/ur/medicine/*", "/ur/doctor/*", "/ur/condition/*", "/ur/facility/*",
+          "/ur/doctors/*", "/ur/home-nursing/*", "/ur/s/*", "/ur/pharmacy/*", "/ur/pharmacies/*",
+          "/ur/consultations/*", "/ur/labs/*", "/ur/radiology/*", "/ur/nursing/*",
+          "/ur/c/*", "/ur/articles/*", "/ur/services/*",
+          "/hi/p/*", "/hi/medicine/*", "/hi/doctor/*", "/hi/condition/*", "/hi/facility/*",
+          "/hi/doctors/*", "/hi/home-nursing/*", "/hi/s/*", "/hi/pharmacy/*", "/hi/pharmacies/*",
+          "/hi/consultations/*", "/hi/labs/*", "/hi/radiology/*", "/hi/nursing/*",
+          "/hi/c/*", "/hi/articles/*", "/hi/services/*",
+          "/bn/p/*", "/bn/medicine/*", "/bn/doctor/*", "/bn/condition/*", "/bn/facility/*",
+          "/bn/doctors/*", "/bn/home-nursing/*", "/bn/s/*", "/bn/pharmacy/*", "/bn/pharmacies/*",
+          "/bn/consultations/*", "/bn/labs/*", "/bn/radiology/*", "/bn/nursing/*",
+          "/bn/c/*", "/bn/articles/*", "/bn/services/*",
+          "/fil/p/*", "/fil/medicine/*", "/fil/doctor/*", "/fil/condition/*", "/fil/facility/*",
+          "/fil/doctors/*", "/fil/home-nursing/*", "/fil/s/*", "/fil/pharmacy/*", "/fil/pharmacies/*",
+          "/fil/consultations/*", "/fil/labs/*", "/fil/radiology/*", "/fil/nursing/*",
+          "/fil/c/*", "/fil/articles/*", "/fil/services/*"
+        ],
         "components": [
-          { "/": "/pharmacy/*", "comment": "pharmacy flows" },
-          { "/": "/orders/*", "comment": "order tracking" },
-          { "/": "/consultations/*", "comment": "consultations" },
-          { "/": "/chat/*", "comment": "chat threads" }
+          { "/": "/p/*", "comment": "Medicine detail screen" },
+          { "/": "/ar/p/*" }, { "/": "/en/p/*" }, { "/": "/ur/p/*" },
+          { "/": "/hi/p/*" }, { "/": "/bn/p/*" }, { "/": "/fil/p/*" },
+          { "/": "/medicine/*", "comment": "Medicine detail alias" },
+          { "/": "/ar/medicine/*" }, { "/": "/en/medicine/*" },
+          { "/": "/doctor/*", "comment": "Doctor profile" },
+          { "/": "/ar/doctor/*" }, { "/": "/en/doctor/*" },
+          { "/": "/condition/*", "comment": "Health condition guide" },
+          { "/": "/facility/*", "comment": "Facility detail" },
+          { "/": "/doctors/*", "comment": "Doctor search" },
+          { "/": "/home-nursing/*", "comment": "Home nursing" },
+          { "/": "/s/*", "comment": "SEO link catcher" },
+          { "/": "/pharmacy/*", "comment": "Pharmacy screens" },
+          { "/": "/pharmacies/*", "comment": "Pharmacies by city" },
+          { "/": "/consultations/*", "comment": "Consultation flows" },
+          { "/": "/labs/*", "comment": "Lab tests" },
+          { "/": "/radiology/*", "comment": "Radiology services" },
+          { "/": "/nursing/*", "comment": "Nursing services" },
+          { "/": "/c/*", "comment": "Catalog categories" },
+          { "/": "/articles/*", "comment": "Health articles" },
+          { "/": "/services/*", "comment": "Service pages" },
+          { "/": "/orders/*", "comment": "Order tracking" },
+          { "/": "/chat/*", "comment": "Chat threads" },
+          { "/": "/api/*", "exclude": true },
+          { "/": "/.well-known/*", "exclude": true },
+          { "/": "/admin/*", "exclude": true }
+        ]
+      },
+      {
+        "appID": "6AT2W85DBC.com.nabd.provider",
+        "paths": [
+          "NOT /api/*",
+          "NOT /.well-known/*",
+          "NOT /admin/*",
+          "/provider/*",
+          "/ar/provider/*",
+          "/en/provider/*"
+        ],
+        "components": [
+          { "/": "/provider/*", "comment": "Provider app deep links" },
+          { "/": "/ar/provider/*" },
+          { "/": "/en/provider/*" },
+          { "/": "/api/*", "exclude": true },
+          { "/": "/.well-known/*", "exclude": true },
+          { "/": "/admin/*", "exclude": true }
         ]
       }
     ]
   },
-  "webcredentials": { "apps": ["TEAMID_PLACEHOLDER.com.nabd.patient"] }
+  "webcredentials": {
+    "apps": ["6AT2W85DBC.com.nabd.patient", "6AT2W85DBC.com.nabd.provider"]
+  }
 }
