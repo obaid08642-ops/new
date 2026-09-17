@@ -77,18 +77,18 @@
   background: #00c985;
 }
 
-/* Luxury Branded Pharmacy Hero Banner */
+/* Ultra-Premium Pharmacy Hero — Warm Cream + Forest Ink (not dark navy) */
 .pharmacyHero {
-  background: linear-gradient(135deg, #0B1527 0%, #11223E 50%, #063931 100%);
-  border: 1px solid rgba(0, 229, 153, 0.25);
+  background: linear-gradient(135deg, #FDFDFC 0%, #F0FDF9 60%, #E7FFF6 100%);
+  border: 1px solid #E8EDEE;
   border-radius: 24px;
   padding: 28px 24px;
-  color: #FFFFFF;
+  color: #1E332E;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  box-shadow: 0 12px 32px rgba(11, 21, 39, 0.25);
+  box-shadow: 0 12px 32px rgba(30, 51, 46, 0.07);
   position: relative;
   overflow: hidden;
 }
