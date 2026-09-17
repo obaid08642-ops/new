@@ -27,7 +27,7 @@
 }
 
 :global(.dark) .cardSection {
-  background: #16213A;
+  background: #1E332E;
   border-color: #243552;
 }
 
@@ -47,7 +47,7 @@
 .sectionHeader h2 {
   font-size: 17px;
   font-weight: 800;
-  color: #16213A;
+  color: #1E332E;
   margin: 0 0 3px;
 }
 
@@ -89,7 +89,7 @@
   gap: 6px;
   font-size: 13px;
   font-weight: 700;
-  color: #16213A;
+  color: #1E332E;
 }
 
 :global(.dark) .formField label {
@@ -103,7 +103,7 @@
   border: 1px solid #CBD5E1;
   padding: 0 14px;
   font-size: 14px;
-  color: #16213A;
+  color: #1E332E;
   background: #F8FAFC;
   outline: none;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
@@ -137,7 +137,7 @@
 .expressBadge strong {
   display: block;
   font-size: 13.5px;
-  color: #16213A;
+  color: #1E332E;
   font-weight: 800;
 }
 
@@ -195,7 +195,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #16213A;
+  color: #1E332E;
 }
 
 :global(.dark) .paymentTitleRow {
@@ -229,7 +229,7 @@
   height: 52px;
   border-radius: 14px;
   background: #B8E030;
-  color: #16213A;
+  color: #1E332E;
   font-size: 16px;
   font-weight: 900;
   border: none;
@@ -254,14 +254,14 @@
 }
 
 :global(.dark) .summaryCard {
-  background: #16213A;
+  background: #1E332E;
   border-color: #243552;
 }
 
 .summaryCard h3 {
   font-size: 17px;
   font-weight: 800;
-  color: #16213A;
+  color: #1E332E;
   margin: 0 0 16px;
   padding-bottom: 12px;
   border-bottom: 1px solid #F1F5F9;
@@ -302,7 +302,7 @@
 
 .summaryItemTitle strong {
   font-size: 13.5px;
-  color: #16213A;
+  color: #1E332E;
 }
 
 :global(.dark) .summaryItemTitle strong {
@@ -317,7 +317,7 @@
 .summaryItemPrice {
   font-size: 13.5px;
   font-weight: 800;
-  color: #16213A;
+  color: #1E332E;
   white-space: nowrap;
 }
 
@@ -343,7 +343,7 @@
   padding-top: 10px;
   border-top: 1px dashed #E2E8F0;
   font-size: 16px;
-  color: #16213A;
+  color: #1E332E;
 }
 
 :global(.dark) .grandTotalRow {
@@ -388,7 +388,7 @@
 }
 
 :global(.dark) .successCard {
-  background: #16213A;
+  background: #1E332E;
   border-color: #243552;
 }
 
@@ -414,7 +414,7 @@
 .successCard h1 {
   font-size: 26px;
   font-weight: 900;
-  color: #16213A;
+  color: #1E332E;
   margin: 0 0 10px;
 }
 
@@ -453,7 +453,7 @@
 }
 
 .orderRow strong {
-  color: #16213A;
+  color: #1E332E;
 }
 
 :global(.dark) .orderRow strong {
@@ -466,7 +466,7 @@
   font-size: 16px;
   padding-top: 10px;
   border-top: 1px dashed #CBD5E1;
-  color: #16213A;
+  color: #1E332E;
 }
 
 :global(.dark) .orderRowTotal {
@@ -491,7 +491,7 @@
   justify-content: center;
   gap: 8px;
   background: #B8E030;
-  color: #16213A;
+  color: #1E332E;
   font-weight: 800;
   padding: 12px 26px;
   border-radius: 14px;
@@ -505,7 +505,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: #16213A;
+  background: #1E332E;
   color: #FFFFFF;
   font-weight: 800;
   padding: 12px 26px;
@@ -529,14 +529,14 @@
 }
 
 :global(.dark) .emptyCartCard {
-  background: #16213A;
+  background: #1E332E;
   border-color: #243552;
 }
 
 .emptyCartCard h2 {
   font-size: 20px;
   font-weight: 800;
-  color: #16213A;
+  color: #1E332E;
   margin: 0;
 }
 

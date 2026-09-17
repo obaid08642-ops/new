@@ -4,7 +4,7 @@
   justify-content: center;
   gap: 8px;
   background: #B8E030;
-  color: #16213A;
+  color: #1E332E;
   font-weight: 800;
   padding: 12px 24px;
   border-radius: 14px;
@@ -46,7 +46,7 @@
 }
 
 :global(.dark) .modalCard {
-  background: #16213A;
+  background: #1E332E;
   border-color: #243552;
 }
 
@@ -92,7 +92,7 @@
 .header h2 {
   font-size: 20px;
   font-weight: 900;
-  color: #16213A;
+  color: #1E332E;
   margin: 0 0 6px;
 }
 
@@ -129,7 +129,7 @@
   background: #F8FAFC;
   font-size: 13.5px;
   font-weight: 700;
-  color: #16213A;
+  color: #1E332E;
   cursor: pointer;
   transition: border-color 0.15s ease, background 0.15s ease;
 }
@@ -175,7 +175,7 @@
   gap: 6px;
   font-size: 12.5px;
   font-weight: 700;
-  color: #16213A;
+  color: #1E332E;
 }
 
 :global(.dark) .field label {
@@ -213,7 +213,7 @@
   gap: 6px;
   font-size: 12.5px;
   font-weight: 700;
-  color: #16213A;
+  color: #1E332E;
 }
 
 :global(.dark) .paymentLabel {
@@ -233,7 +233,7 @@
   background: #F8FAFC;
   font-size: 12px;
   font-weight: 700;
-  color: #16213A;
+  color: #1E332E;
   cursor: pointer;
 }
 
@@ -254,7 +254,7 @@
   height: 48px;
   border-radius: 14px;
   background: #B8E030;
-  color: #16213A;
+  color: #1E332E;
   font-size: 15px;
   font-weight: 900;
   border: none;
@@ -297,7 +297,7 @@
 .successState h2 {
   font-size: 22px;
   font-weight: 900;
-  color: #16213A;
+  color: #1E332E;
   margin: 0 0 8px;
 }
 
@@ -336,7 +336,7 @@
 }
 
 .receiptRow strong {
-  color: #16213A;
+  color: #1E332E;
 }
 
 :global(.dark) .receiptRow strong {
@@ -349,7 +349,7 @@
   font-size: 15px;
   padding-top: 8px;
   border-top: 1px dashed #CBD5E1;
-  color: #16213A;
+  color: #1E332E;
 }
 
 :global(.dark) .receiptRowTotal {
@@ -366,7 +366,7 @@
   width: 100%;
   height: 46px;
   border-radius: 12px;
-  background: #16213A;
+  background: #1E332E;
   color: #FFFFFF;
   font-size: 14.5px;
   font-weight: 800;
