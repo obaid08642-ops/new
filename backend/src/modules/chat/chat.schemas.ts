@@ -8,7 +8,7 @@ import { v4 as uuid } from 'uuid';
 export class ChatThread {
   @Prop({ default: () => uuid() }) id: string;
   @Prop({ required: true, index: true, enum: ['direct', 'group', 'booking'] }) type: string;
-  @Prop({ type: [String], required: true, index: true }) participant_ids: string[];
+  @Prop({ type: [String], required: true }) participant_ids: string[];
   @Prop() name?: string;
   @Prop() avatar_url?: string;
   @Prop() booking_kind?: string;

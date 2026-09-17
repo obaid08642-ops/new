@@ -23,7 +23,7 @@ import {
 } from '../../components/ui';
 import { I, IBg } from '../../components/icons';
 import { SP, R, FS, FW, SPECIALTIES, API_BASE } from '../../constants';
-import { buildHeaders } from '../../security/Security';
+import { buildHeaders, Vault, SK } from '../../security/Security';
 import client from '../../api/client';
 import { useServicesCatalog, getInsuranceCatalog } from '../../api/catalogs';
 import { VideoCallRoom } from '../shared/VideoCallRoom';
@@ -235,22 +235,28 @@ function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: string,
   useEffect(() => {
     let socketInstance: any = null;
     let presence: any = null;
+    let disposed = false;
     if (user?.id) {
       const cleanUrl = API_BASE.replace('/api', '').replace('/v1', '');
-      socketInstance = io(cleanUrl, { 
-        transports: ['websocket'],
-        auth: { token: (user as any)?.token || '', client: 'provider-app' }
-      });
-      socketInstance.on('connect', () => socketInstance?.emit('joinProviderRoom', user.id));
-      // Presence heartbeat (20s < 180s server TTL) so admin "online now" counts doctors.
-      presence = setInterval(() => { try { socketInstance?.connected && socketInstance.emit('presence:heartbeat'); } catch {} }, 20000);
-      socketInstance.on('incoming_urgent_request', (payload: any) => {
-        setRequests(prev => [payload, ...prev]);
-        playRingtone();
-        onTriggerAlarm();
-      });
+      (async () => {
+        if (disposed) return;
+        const token = await Vault.get(SK.ACCESS);
+        if (disposed || !token) return;
+        socketInstance = io(cleanUrl, {
+          transports: ['websocket'],
+          auth: { token, client: 'provider-app' },
+        });
+        socketInstance.on('connect', () => socketInstance?.emit('joinProviderRoom', user.id));
+        presence = setInterval(() => { try { socketInstance?.connected && socketInstance.emit('presence:heartbeat'); } catch {} }, 20000);
+        socketInstance.on('incoming_urgent_request', (payload: any) => {
+          setRequests(prev => [payload, ...prev]);
+          playRingtone();
+          onTriggerAlarm();
+        });
+      })();
+      return () => { disposed = true; if (presence) clearInterval(presence); if (socketInstance) socketInstance.disconnect(); };
     }
-    return () => { if (presence) clearInterval(presence); if (socketInstance) socketInstance.disconnect(); };
+    return () => { disposed = true; if (presence) clearInterval(presence); if (socketInstance) socketInstance.disconnect(); };
   }, [user?.id]);
 
  const fetchQueue = useCallback(async () => {

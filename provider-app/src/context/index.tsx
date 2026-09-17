@@ -377,14 +377,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
  });
  };
 
- const toggleOnline = async () => {
- const next = !user?.isOnline;
- // Optimistic update
- updateUser({ isOnline: next });
- Audit.log('toggle_online', next);
- try {
- const headers = await buildHeaders(false);
- const res = await fetch(`${API_BASE}/provider/ops/availability/toggle-instant`, {
+  const toggleOnline = async () => {
+  const next = !user?.isOnline;
+  // Optimistic update
+  updateUser({ isOnline: next });
+  Audit.log('toggle_online', next);
+  try {
+  const headers = await buildHeaders(true);
+  const res = await fetch(`${API_BASE}/provider/ops/availability/toggle-instant`, {
  method: 'POST',
  headers
  });
