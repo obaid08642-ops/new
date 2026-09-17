@@ -21,16 +21,16 @@
   }
 }
 
-/* 1. Hero Section with Soft 3D Aesthetics & Modern Clarity */
+/* 1. Hero — Warm Cream, Forest Ink, Glass — Ultra-Premium */
 .hero {
-  background: linear-gradient(135deg, #0A2B24 0%, #064E3B 55%, #00876F 100%);
+  background: linear-gradient(135deg, #FDFDFC 0%, #F0FDF9 100%);
   border-radius: 28px;
   padding: 40px 36px;
-  color: #ffffff;
+  color: #1E332E;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 16px 40px rgba(6, 78, 59, 0.18);
-  border: 1px solid rgba(95, 217, 179, 0.22);
+  box-shadow: 0 16px 40px rgba(30, 51, 46, 0.07);
+  border: 1px solid #E8EDEE;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -45,9 +45,9 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: rgba(184, 224, 48, 0.18);
-  color: #B8E030;
-  border: 1px solid rgba(184, 224, 48, 0.35);
+  background: rgba(95, 217, 179, 0.12);
+  color: #1E332E;
+  border: 1px solid rgba(95, 217, 179, 0.22);
   backdrop-filter: blur(8px);
   padding: 6px 14px;
   border-radius: 999px;
@@ -62,14 +62,17 @@
   margin: 0 0 14px;
   line-height: 1.25;
   letter-spacing: -0.02em;
+  color: #1E332E;
+  overflow-wrap: anywhere;
 }
 
 .hero p {
   font-size: 16px;
-  opacity: 0.92;
-  line-height: 1.65;
+  opacity: 1;
+  line-height: 1.7;
   margin: 0 0 24px;
-  color: #E2E8F0;
+  color: #6B7C6E;
+  overflow-wrap: anywhere;
 }
 
 .heroVisualWrap {
@@ -105,20 +108,21 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: #B8E030;
+  background: #5FD9B3;
   color: #1E332E;
   font-weight: 800;
   padding: 12px 24px;
   border-radius: 14px;
   text-decoration: none;
   font-size: 15px;
-  box-shadow: 0 6px 20px rgba(184, 224, 48, 0.3);
+  box-shadow: 0 6px 20px rgba(95, 217, 179, 0.22);
   transition: transform 0.15s ease, background-color 0.15s ease;
 }
 
 .heroPrimaryBtn:hover {
   transform: translateY(-2px);
-  background: #cbf046;
+  background: #3DBB9A;
+  color: #FFFFFF;
 }
 
 .heroSecondaryBtn {
