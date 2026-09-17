@@ -6,8 +6,21 @@ import { SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { createNabdahOpenApiDocument } from './config/openapi.config';
 import { ConfiguredIoAdapter } from './config/configured-io.adapter';
-import { json, urlencoded } from 'express';
 import helmet from 'helmet';
+
+// Fastify adapter — activated only when USE_FASTIFY=true (staging test, opt-in)
+const useFastify = process.env.USE_FASTIFY === 'true';
+let FastifyAdapter: any = null;
+let fastifyCookie: any = null;
+let fastifyMultipart: any = null;
+if (useFastify) {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  FastifyAdapter = require('@nestjs/platform-fastify').FastifyAdapter;
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  fastifyCookie = require('@fastify/cookie');
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  fastifyMultipart = require('@fastify/multipart');
+}
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const cluster = require('node:cluster');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -79,35 +92,45 @@ async function bootstrap() {
   }
   const allowedOrigins = configuredOrigins?.length ? configuredOrigins : true;
 
-  const app = await NestFactory.create(AppModule, { 
-    cors: typeof allowedOrigins === 'boolean' ? allowedOrigins : {
-      origin: allowedOrigins,
-      credentials: true,
-      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    },
-    logger: WinstonModule.createLogger({
-      transports: [
-        new winston.transports.Console({ format: loggerConfig }),
-      ],
-    }),
-  });
+  const app = useFastify
+    ? await NestFactory.create(AppModule, new FastifyAdapter({
+        logger: false, trustProxy: true, connectionTimeout: 30000, keepAliveTimeout: 65000, bodyLimit: 10 * 1024 * 1024,
+      }), {
+        cors: typeof allowedOrigins === 'boolean' ? allowedOrigins : {
+          origin: allowedOrigins, credentials: true,
+          methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+        },
+        logger: WinstonModule.createLogger({ transports: [new winston.transports.Console({ format: loggerConfig })] }),
+      })
+    : await NestFactory.create(AppModule, {
+        cors: typeof allowedOrigins === 'boolean' ? allowedOrigins : {
+          origin: allowedOrigins, credentials: true,
+          methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+        },
+        logger: WinstonModule.createLogger({ transports: [new winston.transports.Console({ format: loggerConfig })] }),
+      });
   const logger = new Logger('Bootstrap');
 
-  const trustProxyHops = Number.parseInt(process.env.TRUST_PROXY_HOPS || '2', 10);
-  app.getHttpAdapter().getInstance().set('trust proxy', Number.isFinite(trustProxyHops) ? trustProxyHops : 2);
-
-  app.use((req: any, _res: any, next: any) => {
-    if (req.body && typeof req.body === 'object') {
-      mongoSanitize.sanitize(req.body, { replaceWith: '_' });
-    }
-    if (req.params && typeof req.params === 'object') {
-      mongoSanitize.sanitize(req.params, { replaceWith: '_' });
-    }
-    if (req.query && typeof req.query === 'object') {
-      mongoSanitize.sanitize(req.query, { replaceWith: '_' });
-    }
-    next();
-  });
+  if (useFastify) {
+    await (app as any).register(fastifyCookie);
+    await (app as any).register(fastifyMultipart, { limits: { fileSize: 10 * 1024 * 1024 } });
+    logger.log('Fastify adapter enabled (USE_FASTIFY=true)');
+  } else {
+    const trustProxyHops = Number.parseInt(process.env.TRUST_PROXY_HOPS || '2', 10);
+    app.getHttpAdapter().getInstance().set('trust proxy', Number.isFinite(trustProxyHops) ? trustProxyHops : 2);
+    app.use((req: any, _res: any, next: any) => {
+      if (req.body && typeof req.body === 'object') {
+        mongoSanitize.sanitize(req.body, { replaceWith: '_' });
+      }
+      if (req.params && typeof req.params === 'object') {
+        mongoSanitize.sanitize(req.params, { replaceWith: '_' });
+      }
+      if (req.query && typeof req.query === 'object') {
+        mongoSanitize.sanitize(req.query, { replaceWith: '_' });
+      }
+      next();
+    });
+  }
   app.use(helmet({
     contentSecurityPolicy: process.env.NODE_ENV === 'production' ? {
       directives: {
