@@ -1,0 +1,22 @@
+# Backend production image.
+# Dependencies and dist/ are built OUTSIDE this Dockerfile (see deploy notes):
+# npm in this datacenter crashes ("Exit handler never called", exit 0) when the
+# container DNS resolver throttles lookup bursts under buildkit. The deploy
+# pipeline builds node_modules + dist in plain containers with a persistent
+# npm cache, then this file only copies the verified artifacts.
+FROM node:20-bookworm-slim AS production
+WORKDIR /usr/src/app
+ENV NODE_ENV=production
+# wget for docker healthcheck
+RUN apt-get update && apt-get install -y --no-install-recommends wget \
+  && rm -rf /var/lib/apt/lists/*
+COPY node_modules ./node_modules
+COPY dist ./dist
+COPY src/constants ./src/constants
+RUN groupadd -r nestjs && useradd -r -g nestjs nestjs \
+  && chown -R nestjs:nestjs /usr/src/app
+USER nestjs
+EXPOSE 8002
+HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=5 \
+  CMD wget -qO- http://127.0.0.1:8002/api/v1/health/liveness || exit 1
+CMD ["node", "dist/main"]

@@ -1,0 +1,245 @@
+# ═══════════════════════════════════════════════════════════════════
+# Nabdah Plus — PRODUCTION stack (nabd.plus)
+# Services: backend(NestJS) fastapi admin-web(Next.js) mongodb redis
+#           livekit coturn nginx certbot
+# All stateful data in named volumes. All services auto-restart.
+# ═══════════════════════════════════════════════════════════════════
+name: nabdah-prod
+
+# Shared logging defaults (json-file with rotation — logrotate covers the rest)
+x-logging: &logopts
+  driver: json-file
+  options:
+    max-size: "50m"
+    max-file: "5"
+
+services:
+  # ── MongoDB ──────────────────────────────────────────────────────
+  mongodb:
+    image: mongo:7.0
+    container_name: nabdah-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${DB_NAME:-nabd_nestjs}
+    volumes:
+      - mongo_data:/data/db
+      - ./mongo/mongod.conf:/etc/mongod.conf:ro
+      - ./mongo/mongo-keyfile:/etc/mongo-keyfile:ro
+    command: ["mongod", "--config", "/etc/mongod.conf"]
+    networks: [internal]
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "-u", "${MONGO_ROOT_USER}", "-p", "${MONGO_ROOT_PASSWORD}", "--authenticationDatabase", "admin", "--eval", "db.adminCommand('ping').ok"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    logging: *logopts
+
+  # ── Redis ────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: nabdah-redis
+    restart: unless-stopped
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf", "--requirepass", "${REDIS_PASSWORD}"]
+    volumes:
+      - redis_data:/data
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    networks: [internal]
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+    logging: *logopts
+
+  # ── NestJS Backend (API + Socket.IO + BullMQ workers + crons in-process) ──
+  backend:
+    build:
+      context: ../nabdah-backend
+      dockerfile: ../deploy/docker/Dockerfile.backend
+      network: host
+    container_name: nabdah-backend
+    restart: unless-stopped
+    env_file: .env.production
+    environment:
+      NODE_ENV: production
+      PORT: "8002"
+      MONGO_URL: mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@mongodb:27017/?authSource=admin
+      DB_NAME: ${DB_NAME:-nabd_nestjs}
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    depends_on:
+      mongodb: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    networks: [internal, web]
+    healthcheck:
+      test:
+      - CMD
+      - node
+      - -e
+      - 'fetch("http://127.0.0.1:8002/api/v1/health/liveness").then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))'
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+    logging: *logopts
+
+  # ── FastAPI auxiliary service (AI/ETL) ────────────────────────────
+  fastapi:
+    build:
+      context: ../nabdah-backend/infra/fastapi
+      dockerfile: ../../../deploy/docker/Dockerfile.fastapi
+    container_name: nabdah-fastapi
+    restart: unless-stopped
+    env_file: .env.production
+    environment:
+      MONGO_URL: mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@mongodb:27017/?authSource=admin
+      DB_NAME: ${DB_NAME:-nabd_nestjs}
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      NESTJS_URL: http://backend:8002
+    depends_on:
+      mongodb: { condition: service_healthy }
+    networks: [internal]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8001/docs"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    logging: *logopts
+
+  # ── Admin dashboard (Next.js web-admin) ───────────────────────────
+  admin-web:
+    build:
+      context: ../Napd-admin/web-admin
+      dockerfile: ../../deploy/docker/Dockerfile.admin-web
+    container_name: nabdah-admin-web
+    restart: unless-stopped
+    environment:
+      NEXT_PUBLIC_API_URL: https://api.nabd.plus
+      NEXT_PUBLIC_WS_URL: https://api.nabd.plus
+      NEXT_PUBLIC_SITE_URL: https://admin.nabd.plus
+      NEXT_PUBLIC_APP_NAME: "Nabdah Plus Admin"
+      ADMIN_BACKEND_URL: http://backend:8002
+    depends_on: [backend]
+    networks: [web]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    logging: *logopts
+
+  # ── LiveKit (self-hosted SFU) ─────────────────────────────────────
+  livekit:
+    image: livekit/livekit-server:v1.8.3
+    container_name: nabdah-livekit
+    restart: unless-stopped
+    command: ["--config", "/etc/livekit.yaml"]
+    volumes:
+      - ./livekit/livekit.yaml:/etc/livekit.yaml:ro
+    ports:
+      - "127.0.0.1:7880:7880"  # websocket — localhost only; public access via nginx wss://live.nabd.plus
+      - "7881:7881"            # RTC over TCP
+      - "7882:7882/udp"        # RTC over UDP
+      - "50000-50100:50000-50100/udp"  # RTC UDP port range
+    networks: [web]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:7880/"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    logging: *logopts
+
+  # ── Coturn (STUN/TURN, self-hosted) ───────────────────────────────
+  coturn:
+    image: coturn/coturn:4.6.2
+    container_name: nabdah-coturn
+    restart: unless-stopped
+    command: ["-c", "/etc/coturn/turnserver.conf"]
+    volumes:
+      - ./coturn/turnserver.conf:/etc/coturn/turnserver.conf:ro
+      - ./certs/turn:/etc/coturn/certs:ro
+    network_mode: host  # TURN requires host networking (relay ports + source IPs)
+    depends_on: []
+    healthcheck:
+      test: ["CMD-SHELL", "turnadmin -l -N turnserver.conf 2>/dev/null || nc -z 127.0.0.1 3478"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    logging: *logopts
+
+  # ── Nginx reverse proxy (TLS termination + routing + caching) ─────
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: nabdah-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./certs/live:/etc/letsencrypt:ro
+      - ./certs/webroot:/var/www/certbot
+      - ./docker/provider-landing:/usr/share/nginx/provider:ro
+      - ./nginx/well-known:/usr/share/nginx/well-known:ro
+      - nginx_cache:/var/cache/nginx
+    depends_on: [backend, admin-web, livekit]
+    networks: [web]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    logging: *logopts
+
+  # ── Certbot (issue + renew loop) ──────────────────────────────────
+  patient-web:
+    image: nabdah-patient-web:v50
+    container_name: nabdah-patient-web
+    restart: unless-stopped
+    environment:
+      NABD_API_BASE_URL: http://backend:8002/api/v1
+      NEXT_PUBLIC_SITE_ORIGIN: https://nabd.plus
+      RUN_SANDBOX_TESTS: "false"
+      RUN_SANDBOX_CREDENTIAL_TEST: "false"
+      NODE_ENV: production
+      NEXT_PUBLIC_SENTRY_DSN: "https://b85367ac6782629e65b311de92c0e3bc@o4511819998429184.ingest.de.sentry.io/4512078080245840"
+      SENTRY_DSN: "https://b85367ac6782629e65b311de92c0e3bc@o4511819998429184.ingest.de.sentry.io/4512078080245840"
+    depends_on: [backend]
+    networks: [web]
+    logging: *logopts
+
+  certbot:
+    image: certbot/certbot:v2.11.0
+    container_name: nabdah-certbot
+    volumes:
+      - ./certs/live:/etc/letsencrypt
+      - ./certs/webroot:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot --quiet; sleep 12h & wait $${!}; done;'"
+    networks: [web]
+    logging: *logopts
+
+volumes:
+  mongo_data:
+  redis_data:
+  nginx_cache:
+
+networks:
+  internal:   # no public exposure — mongo/redis/fastapi live here
+    driver: bridge
+  web:        # nginx-facing services
+    driver: bridge

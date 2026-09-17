@@ -1,0 +1,174 @@
+# ═══════════════════════════════════════════════════════════════════
+# nabd.plus — production vhosts
+# api. admin. provider. live. (+ turn./cdn. documented in DNS-RECORDS.md)
+# ═══════════════════════════════════════════════════════════════════
+
+# ── HTTP → HTTPS redirect + ACME challenge for certbot ─────────────
+server {
+  listen 80;
+  server_name api.nabd.plus admin.nabd.plus provider.nabd.plus live.nabd.plus turn.nabd.plus;
+
+  location /.well-known/acme-challenge/ {
+    root /var/www/certbot;
+  }
+  location /healthz { return 200 'ok'; add_header Content-Type text/plain; }
+  location / {
+    return 301 https://$host$request_uri;
+  }
+}
+
+# ── api.nabd.plus → NestJS backend ─────────────────────────────────
+server {
+  listen 443 ssl http2;
+  server_name api.nabd.plus;
+
+  ssl_certificate     /etc/letsencrypt/live/api.nabd.plus/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/api.nabd.plus/privkey.pem;
+  ssl_protocols TLSv1.2 TLSv1.3;
+  ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384;
+  ssl_prefer_server_ciphers off;
+  ssl_session_cache shared:SSL:10m;
+  ssl_session_timeout 1d;
+
+  add_header X-Frame-Options DENY always;
+  add_header X-Content-Type-Options nosniff always;
+  add_header Referrer-Policy strict-origin-when-cross-origin always;
+
+  # Deep links: Android App Links + Apple Universal Links
+  location = /.well-known/assetlinks.json {
+    default_type application/json;
+    alias /usr/share/nginx/well-known/assetlinks.json;
+    add_header Cache-Control "public, max-age=3600";
+  }
+  location = /.well-known/apple-app-site-association {
+    default_type application/json;
+    alias /usr/share/nginx/well-known/apple-app-site-association;
+    add_header Cache-Control "public, max-age=3600";
+  }
+
+  # Socket.IO — websocket upgrade, long timeouts
+  location /socket.io/ {
+    limit_req zone=api burst=40 nodelay;
+    proxy_pass http://backend:8002;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection $connection_upgrade;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_read_timeout 3600s;
+    proxy_send_timeout 3600s;
+  }
+
+  # Public medicine catalog GET — cached 5m at the edge
+  location ~ ^/api/v1/medicines/?(\?.*)?$ {
+    limit_req zone=api burst=40 nodelay;
+    proxy_pass http://backend:8002;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_cache api_cache;
+    proxy_cache_methods GET;
+    proxy_cache_valid 200 5m;
+    proxy_cache_key $uri$is_args$args;
+    add_header X-Cache-Status $upstream_cache_status;
+  }
+
+  # Auth endpoints — strict rate limit
+  location ~ ^/api/v1/auth/(login|register|send-otp|verify-otp|social-login) {
+    limit_req zone=auth burst=10 nodelay;
+    proxy_pass http://backend:8002;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+  }
+
+  # Everything else
+  location / {
+    limit_req zone=api burst=40 nodelay;
+    limit_conn conn 50;
+    proxy_pass http://backend:8002;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection $connection_upgrade;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_read_timeout 120s;
+  }
+}
+
+# ── admin.nabd.plus → Next.js admin dashboard ──────────────────────
+server {
+  listen 443 ssl http2;
+  server_name admin.nabd.plus;
+
+  ssl_certificate     /etc/letsencrypt/live/admin.nabd.plus/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/admin.nabd.plus/privkey.pem;
+  ssl_protocols TLSv1.2 TLSv1.3;
+  ssl_session_cache shared:SSL:10m;
+
+  add_header X-Frame-Options DENY always;
+  add_header X-Content-Type-Options nosniff always;
+
+  location / {
+    limit_req zone=api burst=40 nodelay;
+    proxy_pass http://admin-web:3000;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection $connection_upgrade;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+  }
+}
+
+# ── provider.nabd.plus → static landing (provider app is mobile) ───
+server {
+  listen 443 ssl http2;
+  server_name provider.nabd.plus;
+
+  ssl_certificate     /etc/letsencrypt/live/provider.nabd.plus/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/provider.nabd.plus/privkey.pem;
+  ssl_protocols TLSv1.2 TLSv1.3;
+
+  root /usr/share/nginx/provider;
+  index index.html;
+
+  location / {
+    try_files $uri $uri/ /index.html;
+    expires 1h;
+    add_header Cache-Control "public";
+  }
+}
+
+# ── live.nabd.plus → LiveKit websocket ─────────────────────────────
+server {
+  listen 443 ssl http2;
+  server_name live.nabd.plus;
+
+  ssl_certificate     /etc/letsencrypt/live/live.nabd.plus/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/live.nabd.plus/privkey.pem;
+  ssl_protocols TLSv1.2 TLSv1.3;
+
+  location / {
+    proxy_pass http://livekit:7880;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection $connection_upgrade;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_read_timeout 3600s;
+    proxy_send_timeout 3600s;
+    proxy_buffering off;
+  }
+}

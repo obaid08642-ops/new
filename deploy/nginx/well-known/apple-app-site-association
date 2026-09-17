@@ -1,0 +1,16 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["TEAMID_PLACEHOLDER.com.nabd.patient", "TEAMID_PLACEHOLDER.com.nabd.provider"],
+        "components": [
+          { "/": "/pharmacy/*", "comment": "pharmacy flows" },
+          { "/": "/orders/*", "comment": "order tracking" },
+          { "/": "/consultations/*", "comment": "consultations" },
+          { "/": "/chat/*", "comment": "chat threads" }
+        ]
+      }
+    ]
+  },
+  "webcredentials": { "apps": ["TEAMID_PLACEHOLDER.com.nabd.patient"] }
+}

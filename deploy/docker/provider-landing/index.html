@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>نبض — انضم إلينا</title>
+<meta name="description" content="انضم إلى شبكة نبض لمزودي الرعاية الصحية — أطباء، صيدليات، مختبرات، تمريض، وسائقون.">
+<style>
+  :root {
+    --ink: #0A0E1A;
+    --teal: #19C3D6;
+    --teal-deep: #0E8FA3;
+    --violet: #6D5DF6;
+    --rose: #F0567A;
+    --gold: #F5A623;
+    --text: #EAF2F6;
+    --muted: #93A5B3;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Segoe UI', Tahoma, 'Cairo', sans-serif;
+    background: var(--ink);
+    color: var(--text);
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  /* ── Vector pulse background ─────────────────────────── */
+  .pulse-bg {
+    position: fixed; inset: 0; z-index: 0; opacity: 0.5;
+    background:
+      radial-gradient(60% 45% at 85% 10%, rgba(25,195,214,0.16), transparent 60%),
+      radial-gradient(50% 40% at 10% 85%, rgba(109,93,246,0.14), transparent 60%),
+      radial-gradient(35% 30% at 60% 60%, rgba(240,86,122,0.08), transparent 60%);
+  }
+  .ekg {
+    position: fixed; top: 38%; left: 0; width: 200%; height: 120px; z-index: 0; opacity: 0.35;
+    animation: ekgSlide 14s linear infinite;
+  }
+  @keyframes ekgSlide { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* ── Layout ─────────────────────────── */
+  .wrap { position: relative; z-index: 1; max-width: 1180px; margin: 0 auto; padding: 0 28px; }
+  nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 28px 0;
+  }
+  .brand { display: flex; align-items: center; gap: 12px; font-size: 26px; font-weight: 800; letter-spacing: 0.5px; }
+  .brand svg { display: block; }
+  .nav-cta {
+    background: linear-gradient(135deg, var(--teal), var(--teal-deep));
+    color: #04121a; font-weight: 700; padding: 12px 26px; border-radius: 999px;
+    text-decoration: none; font-size: 15px; transition: transform .2s, box-shadow .2s;
+    box-shadow: 0 6px 24px rgba(25,195,214,0.25);
+  }
+  .nav-cta:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(25,195,214,0.4); }
+
+  /* ── Hero ─────────────────────────── */
+  .hero { padding: 60px 0 90px; display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 60px; align-items: center; }
+  @media (max-width: 900px) { .hero { grid-template-columns: 1fr; text-align: center; } }
+  .kicker {
+    display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600;
+    color: var(--teal); background: rgba(25,195,214,0.08); border: 1px solid rgba(25,195,214,0.25);
+    padding: 8px 16px; border-radius: 999px; margin-bottom: 26px;
+  }
+  .kicker::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--teal); animation: blink 1.6s infinite; }
+  @keyframes blink { 50% { opacity: 0.3; } }
+  h1 {
+    font-size: clamp(38px, 5.4vw, 62px); font-weight: 900; line-height: 1.18; margin-bottom: 22px;
+    background: linear-gradient(120deg, #fff 40%, var(--teal) 90%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .lead { font-size: 19px; color: var(--muted); line-height: 1.85; max-width: 560px; margin-bottom: 40px; }
+  @media (max-width: 900px) { .lead { margin-inline: auto; } }
+  .actions { display: flex; gap: 16px; flex-wrap: wrap; }
+  @media (max-width: 900px) { .actions { justify-content: center; } }
+  .btn-main {
+    background: linear-gradient(135deg, var(--teal), var(--teal-deep));
+    color: #04121a; font-weight: 800; font-size: 17px; padding: 17px 38px; border-radius: 16px;
+    text-decoration: none; transition: transform .2s, box-shadow .2s;
+    box-shadow: 0 10px 34px rgba(25,195,214,0.35);
+  }
+  .btn-main:hover { transform: translateY(-3px); box-shadow: 0 16px 44px rgba(25,195,214,0.5); }
+  .btn-ghost {
+    border: 1.5px solid rgba(234,242,246,0.2); color: var(--text); font-weight: 700; font-size: 16px;
+    padding: 16px 32px; border-radius: 16px; text-decoration: none; transition: border-color .2s, background .2s;
+  }
+  .btn-ghost:hover { border-color: var(--teal); background: rgba(25,195,214,0.06); }
+
+  /* ── Hero vector card ─────────────────────────── */
+  .hero-card {
+    position: relative; border-radius: 28px; padding: 38px;
+    background: linear-gradient(160deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+    border: 1px solid rgba(255,255,255,0.1);
+    backdrop-filter: blur(18px);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.45);
+    animation: floatY 6s ease-in-out infinite;
+  }
+  @keyframes floatY { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+  .hero-card svg { width: 100%; height: auto; display: block; }
+  .stat-row { display: flex; gap: 14px; margin-top: 26px; }
+  .stat { flex: 1; text-align: center; padding: 14px 6px; border-radius: 16px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); }
+  .stat b { display: block; font-size: 22px; color: var(--teal); }
+  .stat span { font-size: 12px; color: var(--muted); }
+
+  /* ── Roles ─────────────────────────── */
+  .roles { padding: 20px 0 80px; }
+  .roles h2 { font-size: 30px; font-weight: 800; margin-bottom: 8px; }
+  .roles p.sub { color: var(--muted); margin-bottom: 40px; font-size: 16px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px; }
+  .role {
+    border-radius: 22px; padding: 28px 22px;
+    background: linear-gradient(165deg, rgba(255,255,255,0.05), rgba(255,255,255,0.015));
+    border: 1px solid rgba(255,255,255,0.08);
+    transition: transform .25s, border-color .25s, box-shadow .25s;
+  }
+  .role:hover { transform: translateY(-6px); border-color: rgba(25,195,214,0.5); box-shadow: 0 18px 44px rgba(0,0,0,0.4); }
+  .role .ic { width: 52px; height: 52px; margin-bottom: 16px; }
+  .role h3 { font-size: 17px; font-weight: 800; margin-bottom: 8px; }
+  .role p { font-size: 13.5px; color: var(--muted); line-height: 1.7; }
+  .role .tag { display: inline-block; margin-top: 14px; font-size: 11px; font-weight: 700; color: var(--teal); border: 1px solid rgba(25,195,214,0.3); padding: 4px 10px; border-radius: 999px; }
+
+  /* ── Join strip ─────────────────────────── */
+  .join {
+    margin: 10px 0 90px; border-radius: 30px; padding: 60px 40px; text-align: center;
+    background: linear-gradient(135deg, rgba(25,195,214,0.12), rgba(109,93,246,0.12));
+    border: 1px solid rgba(25,195,214,0.25);
+    position: relative; overflow: hidden;
+  }
+  .join::before {
+    content: ''; position: absolute; inset: -60%; z-index: -1;
+    background: conic-gradient(from 0deg, transparent, rgba(25,195,214,0.12), transparent 30%);
+    animation: spin 9s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .join h2 { font-size: clamp(26px, 4vw, 38px); font-weight: 900; margin-bottom: 14px; }
+  .join p { color: var(--muted); max-width: 520px; margin: 0 auto 34px; line-height: 1.8; }
+  .stores { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .store-btn {
+    display: inline-flex; align-items: center; gap: 12px; padding: 14px 26px; border-radius: 14px;
+    background: #fff; color: #0A0E1A; text-decoration: none; font-weight: 800; font-size: 15px;
+    transition: transform .2s, box-shadow .2s;
+  }
+  .store-btn:hover { transform: translateY(-3px); box-shadow: 0 14px 34px rgba(255,255,255,0.18); }
+  .store-btn svg { width: 22px; height: 22px; }
+  .store-btn small { display: block; font-size: 10px; font-weight: 500; opacity: 0.7; }
+
+  footer { border-top: 1px solid rgba(255,255,255,0.07); padding: 30px 0 40px; text-align: center; color: var(--muted); font-size: 13px; }
+  footer b { color: var(--teal); }
+</style>
+</head>
+<body>
+<div class="pulse-bg"></div>
+
+<!-- Animated EKG vector line -->
+<svg class="ekg" viewBox="0 0 1200 120" preserveAspectRatio="none" fill="none">
+  <path d="M0 60 H180 L210 20 L240 95 L270 60 H460 L490 38 L520 78 L545 60 H740 L770 10 L805 105 L835 60 H1030 L1060 42 L1090 74 L1115 60 H1200"
+        stroke="url(#ekgg)" stroke-width="2.5" stroke-linejoin="round"/>
+  <defs><linearGradient id="ekgg" x1="0" x2="1200"><stop stop-color="#19C3D6" stop-opacity="0"/><stop offset=".5" stop-color="#19C3D6"/><stop offset="1" stop-color="#6D5DF6" stop-opacity="0"/></linearGradient></defs>
+</svg>
+
+<div class="wrap">
+  <nav>
+    <div class="brand">
+      <svg width="38" height="38" viewBox="0 0 40 40" fill="none">
+        <circle cx="20" cy="20" r="18" stroke="#19C3D6" stroke-width="2.5" opacity="0.35"/>
+        <path d="M8 20 h6 l3 -7 4 13 3 -6 h8" stroke="#19C3D6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      نبض
+    </div>
+    <a class="nav-cta" href="#join">الانضمام إلينا</a>
+  </nav>
+
+  <section class="hero">
+    <div>
+      <div class="kicker">شبكة مزودي الرعاية الصحية</div>
+      <h1>انضم إلينا.<br>وسّع عيادتك الرقمية مع نبض.</h1>
+      <p class="lead">
+        منصة واحدة تجمعك بآلاف المرضى: استشارات مرئية وصوتية عالية الجودة، إدارة مواعيد ذكية،
+        طلبات فورية، تقارير وأرباح لحظية — كل ذلك من تطبيق واحد مصمم لك.
+      </p>
+      <div class="actions">
+        <a class="btn-main" href="#join">حمل التطبيق وابدأ الآن</a>
+        <a class="btn-ghost" href="#roles">اكتشف المزايا</a>
+      </div>
+    </div>
+    <div class="hero-card">
+      <svg viewBox="0 0 400 300" fill="none">
+        <defs>
+          <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#19C3D6"/><stop offset="1" stop-color="#6D5DF6"/></linearGradient>
+        </defs>
+        <rect x="130" y="20" width="140" height="260" rx="24" stroke="url(#g1)" stroke-width="2.5" opacity="0.9"/>
+        <rect x="146" y="44" width="108" height="14" rx="7" fill="#19C3D6" opacity="0.85"/>
+        <rect x="146" y="70" width="76" height="10" rx="5" fill="#fff" opacity="0.25"/>
+        <rect x="146" y="96" width="108" height="46" rx="12" fill="#6D5DF6" opacity="0.28"/>
+        <rect x="146" y="152" width="108" height="46" rx="12" fill="#19C3D6" opacity="0.22"/>
+        <rect x="146" y="208" width="68" height="12" rx="6" fill="#F0567A" opacity="0.6"/>
+        <circle cx="330" cy="80" r="34" stroke="#19C3D6" stroke-width="2" opacity="0.4"/>
+        <path d="M316 80 h8 l4 -10 5 18 4 -8 h9" stroke="#19C3D6" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="70" cy="210" r="26" stroke="#F0567A" stroke-width="2" opacity="0.35"/>
+        <path d="M60 210 h6 l3 -7 4 13 3 -6 h6" stroke="#F0567A" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+      <div class="stat-row">
+        <div class="stat"><b>+21K</b><span>منتج طبي</span></div>
+        <div class="stat"><b>24/7</b><span>استشارات</span></div>
+        <div class="stat"><b>فوري</b><span>تحويل الأرباح</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="roles" id="roles">
+    <h2>من تنضم إلينا؟</h2>
+    <p class="sub">كل مزودي الرعاية — بأدوات مصممة لدورك تحديداً.</p>
+    <div class="grid">
+      <div class="role">
+        <svg class="ic" viewBox="0 0 52 52" fill="none"><circle cx="26" cy="26" r="24" stroke="#19C3D6" stroke-width="2" opacity="0.3"/><path d="M14 26 h7 l3 -8 4 15 3 -7 h7" stroke="#19C3D6" stroke-width="3" stroke-linecap="round"/></svg>
+        <h3>الأطباء</h3><p>استشارات فيديو وصوت نقية، ملاحظات سريرية، وصفات إلكترونية، وجدولة مرنة.</p>
+        <span class="tag">استشارات مرئية</span>
+      </div>
+      <div class="role">
+        <svg class="ic" viewBox="0 0 52 52" fill="none"><circle cx="26" cy="26" r="24" stroke="#6D5DF6" stroke-width="2" opacity="0.3"/><rect x="16" y="20" width="20" height="14" rx="7" stroke="#6D5DF6" stroke-width="2.5"/><path d="M26 22 v10 M21 27 h10" stroke="#6D5DF6" stroke-width="2.5" stroke-linecap="round"/></svg>
+        <h3>الصيدليات</h3><p>إدارة مخزون وطلبات، دليل أدوية كامل (+21 ألف صنف)، بلاغات نقص فورية.</p>
+        <span class="tag">دليل الأدوية</span>
+      </div>
+      <div class="role">
+        <svg class="ic" viewBox="0 0 52 52" fill="none"><circle cx="26" cy="26" r="24" stroke="#F0567A" stroke-width="2" opacity="0.3"/><path d="M18 32 l6 -12 4 8 6 -10" stroke="#F0567A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <h3>المختبرات والأشعة</h3><p>استقبال الحجوزات، رفع النتائج والتقارير، متابعة العينات لحظياً.</p>
+        <span class="tag">نتائج فورية</span>
+      </div>
+      <div class="role">
+        <svg class="ic" viewBox="0 0 52 52" fill="none"><circle cx="26" cy="26" r="24" stroke="#F5A623" stroke-width="2" opacity="0.3"/><path d="M16 30 c0 -8 6 -14 10 -14 s10 6 10 14" stroke="#F5A623" stroke-width="2.5" stroke-linecap="round"/><path d="M22 34 h8" stroke="#F5A623" stroke-width="2.5" stroke-linecap="round"/></svg>
+        <h3>التمريض المنزلي</h3><p>زيارات منزلية مجدولة، تتبع المهام، تقارير رعاية مباشرة.</p>
+        <span class="tag">رعاية منزلية</span>
+      </div>
+      <div class="role">
+        <svg class="ic" viewBox="0 0 52 52" fill="none"><circle cx="26" cy="26" r="24" stroke="#19C3D6" stroke-width="2" opacity="0.3"/><path d="M14 30 h24 M18 30 v-6 h16 v6" stroke="#19C3D6" stroke-width="2.5" stroke-linecap="round"/><circle cx="20" cy="36" r="3" stroke="#19C3D6" stroke-width="2"/><circle cx="32" cy="36" r="3" stroke="#19C3D6" stroke-width="2"/></svg>
+        <h3>السائقون</h3><p>مهام توصيل ذكية، خرائط وتتبع مباشر، أرباح واضحة لحظياً.</p>
+        <span class="tag">توصيل طبي</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="join" id="join">
+    <h2>جاهز للانضمام إلينا؟</h2>
+    <p>حمّل تطبيق مزودي نبض الآن، أنشئ حسابك في دقائق، وابدأ باستقبال المرضى اليوم.</p>
+    <div class="stores">
+      <a class="store-btn" href="#">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 4.5v15l13-7.5-13-7.5zm14.5 3.5l3.5 2-3.5 2 3.5 2-3.5 2 3.5 2c1.5-1 1.5-4 0-5l-3.5-2 3.5-2c1.5 1 1.5 4 0 5z"/></svg>
+        <span><small>حمّله من</small>Google Play</span>
+      </a>
+      <a class="store-btn" href="#">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 12.5c0-2.5 2-3.7 2.1-3.8-1.1-1.7-2.9-1.9-3.5-1.9-1.5-.2-2.9.9-3.7.9-.8 0-2-.9-3.2-.9-1.7 0-3.2 1-4.1 2.4-1.7 3-.4 7.4 1.3 9.8.8 1.2 1.8 2.5 3.1 2.4 1.2-.1 1.7-.8 3.2-.8s1.9.8 3.2.8c1.3 0 2.2-1.2 3-2.5.9-1.4 1.3-2.7 1.3-2.8 0 0-2.6-1-2.6-3.7zM15 5.1c.7-.8 1.1-1.9 1-3.1-1 0-2.3.7-3 1.6-.6.7-1.2 1.9-1 3 1.1.1 2.3-.6 3-1.5z"/></svg>
+        <span><small>حمّله من</small>App Store</span>
+      </a>
+    </div>
+  </section>
+
+  <footer>
+    <b>نبض</b> — منصة الرعاية الصحية الرقمية · جميع الحقوق محفوظة © 2026
+  </footer>
+</div>
+</body>
+</html>

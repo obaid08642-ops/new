@@ -1,0 +1,26 @@
+# ═══ LiveKit — self-hosted SFU for nabd.plus calls ═══
+port: 7880
+
+rtc:
+  tcp_port: 7881
+  udp_port: 7882
+  port_range_start: 50000
+  port_range_end: 50100
+  # Public IP — replaced by deploy script with the real server IP
+  node_ip: 2001:41d0:701:1100::cbb3
+  use_external_ip: true
+
+keys:
+  nabd_8b99567485c4: 1569325068a1d2c71bcabe6489f93ed2ae3a4beed045a346d0d46b3cee5dc18c21db6d22f49f41b40227a56bcbd25486
+  ${LIVEKIT_API_KEY}: ${LIVEKIT_API_SECRET}
+
+# Embedded TURN disabled — our dedicated coturn container handles STUN/TURN
+turn:
+  enabled: false
+
+room:
+  empty_timeout: 300
+  departure_timeout: 20
+
+logging:
+  level: info
