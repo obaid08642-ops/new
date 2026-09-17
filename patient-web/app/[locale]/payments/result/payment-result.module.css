@@ -3,5 +3,5 @@
 .ok { color: #B8E030; } .fail { color: #FF4D5A; } .pending { color: #4FA8E0; }
 .ref { font-size: 13px; opacity: .6; direction: ltr; }
 .actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 8px; }
-.primary { background: #B8E030; color: #16213A; font-weight: 800; padding: 12px 22px; border-radius: 14px; text-decoration: none; }
-.secondary { border: 1.5px solid rgba(22,33,58,.15); color: #16213A; padding: 12px 22px; border-radius: 14px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+.primary { background: #B8E030; color: #1E332E; font-weight: 800; padding: 12px 22px; border-radius: 14px; text-decoration: none; }
+.secondary { border: 1.5px solid rgba(22,33,58,.15); color: #1E332E; padding: 12px 22px; border-radius: 14px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
