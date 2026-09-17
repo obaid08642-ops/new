@@ -180,6 +180,7 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
       useFactory: () => ({
         uri: process.env.MONGO_URL || 'mongodb://localhost:27017',
         dbName: process.env.DB_NAME || 'nabd_nestjs',
+        directConnection: true,
         // ── High-concurrency connection pool (default Mongoose pool = 5, insufficient) ──
         maxPoolSize: parseInt(process.env.MONGO_MAX_POOL_SIZE || '200', 10),
         minPoolSize: parseInt(process.env.MONGO_MIN_POOL_SIZE || '20', 10),
