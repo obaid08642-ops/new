@@ -359,12 +359,14 @@ export class OrdersService {
   }
 
   async getById(id: string, user?: any) {
-    const o = await this.orderModel.findOne({ id }, { _id: 0, __v: 0 }).lean();
+    const q = this.orderModel.findOne({ id }, { _id: 0, __v: 0 });
+    const o = typeof (q as any)?.lean === 'function' ? await (q as any).lean() : await q;
     if (!o) throw new NotFoundException();
     this.assertOrderAccess(o, user);
     // Hydrate sub-orders
     if ((o as any).is_split && (o as any).sub_order_ids?.length) {
-      const subs = await this.orderModel.find({ id: { $in: (o as any).sub_order_ids } }, { _id: 0, __v: 0 }).lean();
+      const qSubs = this.orderModel.find({ id: { $in: (o as any).sub_order_ids } }, { _id: 0, __v: 0 });
+      const subs = typeof (qSubs as any)?.lean === 'function' ? await (qSubs as any).lean() : await qSubs;
       (o as any).sub_orders = subs;
     }
     return o;
@@ -374,21 +376,25 @@ export class OrdersService {
     if (type) {
       q.type = type;
     }
-    return this.orderModel.find(q, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(100).lean();
+    const query = this.orderModel.find(q, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(100);
+    return typeof (query as any)?.lean === 'function' ? (query as any).lean() : query;
   }
   async listForPharmacy(pharmacy_id: string, state?: OrderState) {
     const q: any = { pharmacy_id };
     if (state) q.state = state;
-    return this.orderModel.find(q, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(200).lean();
+    const query = this.orderModel.find(q, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(200);
+    return typeof (query as any)?.lean === 'function' ? (query as any).lean() : query;
   }
   async listAll(state?: OrderState, search?: string) {
     const q: any = {};
     if (state) q.state = state;
     if (search) q.$or = [{ id: search }, { patient_phone: { $regex: search, $options: 'i' } }];
-    return this.orderModel.find(q, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(500).lean();
+    const query = this.orderModel.find(q, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(500);
+    return typeof (query as any)?.lean === 'function' ? (query as any).lean() : query;
   }
   async listEscalated() {
-    return this.orderModel.find({ escalated: true, state: { $ne: OrderState.DELIVERED } }, { _id: 0, __v: 0 }).lean();
+    const query = this.orderModel.find({ escalated: true, state: { $ne: OrderState.DELIVERED } }, { _id: 0, __v: 0 });
+    return typeof (query as any)?.lean === 'function' ? (query as any).lean() : query;
   }
 
   // ============ PHARMACY ACTIONS ============
@@ -769,7 +775,8 @@ export class OrdersService {
   }
 
   async getTracking(id: string, user: any) {
-    const order = await this.orderModel.findOne({ id }).lean();
+    const qOrder = this.orderModel.findOne({ id });
+    const order = typeof (qOrder as any)?.lean === 'function' ? await (qOrder as any).lean() : await qOrder;
     if (!order) throw new NotFoundException();
     const isOwner = order.patient_id === user?.id || order.pharmacy_id === user?.id;
     if (!isOwner && !['admin', 'super_admin'].includes(user?.role)) {
@@ -778,7 +785,8 @@ export class OrdersService {
 
     let delivery = null;
     if (order.delivery_id) {
-      const del = await this.delModel.findOne({ id: order.delivery_id }).lean();
+      const qDel = this.delModel.findOne({ id: order.delivery_id });
+      const del = typeof (qDel as any)?.lean === 'function' ? await (qDel as any).lean() : await qDel;
       if (del) {
         delivery = {
           state: del.state,
