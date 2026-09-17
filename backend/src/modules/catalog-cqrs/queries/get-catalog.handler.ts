@@ -1,27 +1,35 @@
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { GetCatalogQuery } from './get-catalog.query';
+import { Injectable, Optional } from '@nestjs/common';
+import { ModuleRef } from '@nestjs/core';
 
 @QueryHandler(GetCatalogQuery)
 export class GetCatalogHandler implements IQueryHandler<GetCatalogQuery> {
   constructor(
-    // Use any for dependencies to avoid circular imports
-    private readonly medicinesService: any,
-    private readonly redisService?: any,
-    private readonly lruCache?: any,
+    @Optional() private readonly moduleRef?: ModuleRef,
   ) {}
+
   async execute(query: GetCatalogQuery) {
-    // Try LRU → Redis SWR → DB
     const key = `cqrs:catalog:${JSON.stringify(query.filters)}`;
-    if (this.lruCache?.get) {
-      const hit = this.lruCache.get(key);
+    let lruCache: any;
+    let redisService: any;
+    let medicinesService: any;
+
+    if (this.moduleRef) {
+      try { lruCache = this.moduleRef.get('LruCacheService', { strict: false }); } catch (_) {}
+      try { redisService = this.moduleRef.get('RedisService', { strict: false }); } catch (_) {}
+      try { medicinesService = this.moduleRef.get('MedicinesService', { strict: false }); } catch (_) {}
+    }
+
+    if (lruCache?.get) {
+      const hit = lruCache.get(key);
       if (hit) return hit;
     }
-    if (this.redisService?.getWithSWR) {
-      return this.redisService.getWithSWR(key, 300, async () => {
-        // Fallback to medicines service
-        return this.medicinesService.publicList?.(query.filters) || [];
+    if (redisService?.getWithSWR) {
+      return redisService.getWithSWR(key, 300, async () => {
+        return medicinesService?.publicList?.(query.filters) || [];
       });
     }
-    return this.medicinesService.publicList?.(query.filters) || [];
+    return medicinesService?.publicList?.(query.filters) || [];
   }
 }
