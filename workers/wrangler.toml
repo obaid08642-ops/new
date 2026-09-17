@@ -1,0 +1,6 @@
+name = "nabd-api-cache"
+main = "api-cache-worker.js"
+compatibility_date = "2025-01-01"
+[routes]
+patterns = ["api.nabd.plus/*"]
+zone_name = "nabd.plus"

@@ -146,6 +146,7 @@ import { CorrelationMiddleware } from './common/correlation.middleware';
 import { DoctorsModule } from './modules/doctors/doctors.module';
 import { RolesGuard } from './modules/admin-web-core/guards/roles.guard';
 import { ProductRankingModule } from './modules/product-ranking/product-ranking.module';
+import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
 
 @Module({
   imports: [
@@ -288,6 +289,7 @@ import { ProductRankingModule } from './modules/product-ranking/product-ranking.
     CompatModule, // gap-fill endpoints from the screen↔API wiring audit — registered last
     AdminSpaModule, // admin console SPA REST surface (top-level paths, admin-role guarded)
     CatalogsModule, // unified central catalogs (insurance/labs/radiology/nursing) — single source
+    CatalogCqrsModule,
   ],
   controllers: [HealthController, HealthDashboardController, ProviderPayoutsController],
   providers: [
