@@ -73,10 +73,6 @@ export default async function LocaleLayout({ children, params }: Props) {
     <NextIntlClientProvider messages={messages}>
       <WebMcpProvider locale={typedLocale} />
       <div className={`shell ${tajawal.variable}`} lang={typedLocale} dir={getDirection(typedLocale)}>
-        <div className="dev-notice" role="alert">
-          <span className="dev-notice-badge">BETA</span>
-          <span>{t("devNotice")}</span>
-        </div>
         <header className="topbar">
           <Link className="brand" href={`/${typedLocale}`}>
             <span className="brand-mark">
