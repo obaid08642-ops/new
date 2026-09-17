@@ -50,6 +50,7 @@ export default function InsuranceScreen() {
     loadInsurance();
   }, []);
 
+  const pick = (d:any)=> Array.isArray(d) ? d : (Array.isArray(d?.data) ? d.data : []);
   const openForm = async () => {
     // Insurance requires a registered account (guests are blocked by policy)
     if (isGuest) {
@@ -59,7 +60,7 @@ export default function InsuranceScreen() {
     setShowForm(true);
     try {
       const list = await apiFetch("/insurance/companies");
-      setCompanies(Array.isArray(list) ? list : []);
+      setCompanies(pick(list));
     } catch {
       setCompanies([]);
     }
@@ -71,7 +72,7 @@ export default function InsuranceScreen() {
     setNetworks([]);
     try {
       const nets = await apiFetch(`/insurance/companies/${c.id || c.code}/networks`);
-      setNetworks(Array.isArray(nets) ? nets : []);
+      setNetworks(pick(nets));
     } catch {
       setNetworks([]);
     }

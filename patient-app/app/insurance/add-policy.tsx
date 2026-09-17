@@ -25,9 +25,10 @@ export default function AddPolicyScreen() {
   const [isScanning, setIsScanning] = useState(false);
   const [companies, setCompanies] = useState<any[]>([]);
 
+  const pick = (d:any)=> Array.isArray(d) ? d : (Array.isArray(d?.data) ? d.data : []);
   React.useEffect(() => {
     apiFetch('/insurance/companies')
-      .then(res => setCompanies(Array.isArray(res) ? res : []))
+      .then(res => setCompanies(pick(res)))
       .catch(() => setCompanies([]));
   }, []);
 

@@ -20,13 +20,14 @@ export function GeoPicker({ value, onChange, locale = 'ar' }: {
   const isAr = locale === 'ar';
   const t = (ar:string,en:string)=> isAr?ar:en;
 
+  const pick = (d:any)=> Array.isArray(d) ? d : (Array.isArray(d?.data) ? d.data : []);
   useEffect(() => {
-    apiFetch('/locations/regions').then((d:any)=> setRegions(Array.isArray(d)?d:[])).catch(()=>{});
-    apiFetch('/locations/cities').then((d:any)=> setCities(Array.isArray(d)?d:[])).catch(()=>{});
+    apiFetch('/locations/regions').then((d:any)=> setRegions(pick(d))).catch(()=>{});
+    apiFetch('/locations/cities').then((d:any)=> setCities(pick(d))).catch(()=>{});
   }, []);
   useEffect(() => {
     if(!city) { setDistricts([]); return; }
-    apiFetch(`/locations/districts?city=${encodeURIComponent(city)}`).then((d:any)=> setDistricts(Array.isArray(d)?d:[])).catch(()=>{});
+    apiFetch(`/locations/districts?city=${encodeURIComponent(city)}`).then((d:any)=> setDistricts(pick(d))).catch(()=>{});
   }, [city]);
 
   const filteredCities = region ? cities.filter((c:any)=>c.parent_code===region) : cities;

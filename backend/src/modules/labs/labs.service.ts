@@ -11,6 +11,7 @@ import { LabBookingRepository } from "./repositories/labbooking.repository";
 import { LabSampleRepository } from "./repositories/labsample.repository";
 import { ProviderProfile, ProviderProfileDocument } from '../../schemas/provider-profile.schema';
 import { getEffectiveRoles } from '../../common/auth.guard';
+import { UserRole } from '../../common/enums';
 import { RedisService } from '../redis/redis.service';
 
 @Injectable()
@@ -362,7 +363,11 @@ export class LabsService {
   }
 
   /** Admin list ALL bookings (any provider). */
-  async adminListAll(filter: { status?: string; insurance_status?: string; location_type?: string; delayed_only?: string; disputed_only?: string; limit?: number }) {
+  async adminListAll(filter: { status?: string; insurance_status?: string; location_type?: string; delayed_only?: string; disputed_only?: string; limit?: number }, caller?: any) {
+    // Defense-in-depth: service enforces admin even if controller guard is bypassed
+    if (caller && !getEffectiveRoles(caller).includes(UserRole.ADMIN) && caller.role !== UserRole.ADMIN) {
+      throw new ForbiddenException('admin_only');
+    }
     const q: any = {};
     if (filter.status) q.state = filter.status;
     if (filter.insurance_status) q.insurance_status = filter.insurance_status;

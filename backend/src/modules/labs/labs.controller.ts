@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Patch, Put, Delete, Body, Param, Query, UseGuards, ServiceUnavailableException } from '@nestjs/common';
 import { LabsService } from './labs.service';
-import { Public, CurrentUser } from '../../common/auth.guard';
+import { Public, CurrentUser, Roles } from '../../common/auth.guard';
+import { UserRole } from '../../common/enums';
 
 @Controller('labs')
 export class LabsController {
@@ -110,7 +111,8 @@ export class LabsController {
 
   @Get('admin/all')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
-  adminAll(@Query() q: any) {
+  @Roles(UserRole.ADMIN)
+  adminAll(@Query() q: any, @CurrentUser() u: any) {
     return this.svc.adminListAll({ 
       status: q.status, 
       insurance_status: q.insurance_status, 
@@ -118,7 +120,7 @@ export class LabsController {
       delayed_only: q.delayed_only,
       disputed_only: q.disputed_only,
       limit: q.limit ? parseInt(q.limit, 10) : undefined 
-    });
+    }, u);
   }
 
   @Post('samples/register')
@@ -142,18 +144,21 @@ export class LabsController {
   // --- Admin Catalog CRUD ---
   @Post('admin/catalog')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
+  @Roles(UserRole.ADMIN)
   createCatalog(@CurrentUser() u: any, @Body() b: any) {
     return this.svc.createCatalog(u, b);
   }
 
   @Put('admin/catalog/:id')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
+  @Roles(UserRole.ADMIN)
   updateCatalog(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
     return this.svc.updateCatalog(u, id, b);
   }
 
   @Delete('admin/catalog/:id')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
+  @Roles(UserRole.ADMIN)
   deleteCatalog(@CurrentUser() u: any, @Param('id') id: string) {
     return this.svc.deleteCatalog(u, id);
   }
@@ -161,6 +166,7 @@ export class LabsController {
   // --- Admin Quality Control & Dispute Intervention ---
   @Patch('admin/bookings/:id/force-state')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
+  @Roles(UserRole.ADMIN)
   forceState(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
     return this.svc.adminForceState(u, id, b.state, b.note);
   }

@@ -6,8 +6,9 @@ import { apiFetch } from '../../utils/api';
  * التحاليل (+الباقات)، الأشعة، وخدمات التمريض المنزلي.
  * Labs:     GET /labs/services?search= (server-side)  POST|PUT|DELETE /labs/admin/catalog[/:id]
  * Radiology:GET /radiology/services?search= (server-side) POST|PUT|DELETE /radiology/admin/catalog[/:id]
- * Nursing:  GET /nursing/catalog — READ-ONLY: publication blocked server-side pending
- *           clinical/operations/finance approval workflow (503), UI shows honest banner.
+ * Nursing:  GET /nursing/catalog  POST|PUT|DELETE /nursing/admin/catalog[/:id]
+ *           DTO: HomeCareService requires { name_ar, name_en, category, price, duration }
+ *           Radiology DTO requires { name_ar, name_en, modality, price } — category alias handled below.
  */
 
 type TabKey = 'labs' | 'packages' | 'radiology' | 'nursing';
@@ -16,7 +17,7 @@ const TABS: { key: TabKey; label: string; listUrl: string; adminBase: string; se
   { key: 'labs', label: 'التحاليل', listUrl: '/labs/services', adminBase: '/labs/admin/catalog', serverSearch: true },
   { key: 'packages', label: 'الباقات', listUrl: '/labs/packages', adminBase: '/labs/admin/catalog', serverSearch: false },
   { key: 'radiology', label: 'الأشعة', listUrl: '/radiology/services', adminBase: '/radiology/admin/catalog', serverSearch: true },
-  { key: 'nursing', label: 'التمريض المنزلي', listUrl: '/nursing/catalog', adminBase: '/nursing/admin/catalog', serverSearch: false, },
+  { key: 'nursing', label: 'التمريض المنزلي', listUrl: '/nursing/catalog', adminBase: '/nursing/admin/catalog', serverSearch: false },
 ];
 
 const EDITABLE_FIELDS: { key: string; label: string; type: 'text' | 'number' | 'textarea' | 'checkbox' }[] = [
@@ -32,6 +33,9 @@ const EDITABLE_FIELDS: { key: string; label: string; type: 'text' | 'number' | '
   { key: 'icon', label: 'الأيقونة', type: 'text' },
   { key: 'popularity', label: 'الشعبية (0-100)', type: 'number' },
   { key: 'turnaround_hours', label: 'مدة النتيجة (ساعة)', type: 'number' },
+  { key: 'duration', label: 'المدة (hour/shift - للتمريض)', type: 'text' },
+  { key: 'modality', label: 'نوع الأشعة (xray/ct/mri/ultrasound - للأشعة)', type: 'text' },
+  { key: 'body_part', label: 'العضو المستهدف (للأشعة)', type: 'text' },
   { key: 'active', label: 'مفعّل', type: 'checkbox' },
 ];
 
@@ -90,9 +94,23 @@ export default function CatalogManagerPage() {
       const isNew = !editing.id;
       const body: any = {};
       for (const f of EDITABLE_FIELDS) {
-        if (f.key in editing) {
+        if (f.key in editing && editing[f.key] !== '' && editing[f.key] !== undefined) {
           body[f.key] = f.type === 'number' ? Number(editing[f.key] || 0) : editing[f.key];
         }
+      }
+      // --- DTO mappings per catalog ---
+      // Radiology: schema requires `modality`, UI has both `category` and `modality` fields.
+      // Alias category -> modality for backwards compat if modality not filled.
+      if (tab === 'radiology') {
+        if (!body.modality && body.category) body.modality = body.category;
+        if (!body.modality && editing.category) body.modality = editing.category;
+        // Radiology requires modality; fallback to category value for validation
+        if (body.modality && !body.category) body.category = body.modality;
+      }
+      // Nursing: HomeCareService requires `duration` (hour|shift). Default to 'hour'.
+      if (tab === 'nursing') {
+        if (!body.duration) body.duration = (editing.duration || 'hour').toString().trim() || 'hour';
+        if (!body.category) body.category = editing.category || 'nursing';
       }
       if (tab === 'packages') body.is_package = true;
       if (isNew) {
@@ -135,19 +153,22 @@ export default function CatalogManagerPage() {
           </button>
         ))}
         <div style={{ flex: 1 }} />
-        {tab !== 'nursing' && (
-          <button onClick={() => setEditing({ active: true })} style={{ padding: '8px 18px', borderRadius: 12, border: 'none', cursor: 'pointer', fontWeight: 700, background: '#0F172A', color: '#fff' }}>
-            + إضافة صنف جديد
-          </button>
-        )}
+        <button onClick={() => setEditing({ active: true, ...(tab === 'nursing' ? { duration: 'hour', category: 'nursing' } : {}), ...(tab === 'radiology' ? { modality: '', body_part: '' } : {}) })} style={{ padding: '8px 18px', borderRadius: 12, border: 'none', cursor: 'pointer', fontWeight: 700, background: '#0F172A', color: '#fff' }}>
+          + إضافة صنف جديد
+        </button>
       </div>
 
       <input value={search} onChange={(e) => onSearch(e.target.value)} placeholder={tabCfg.serverSearch ? 'بحث خادمي بالاسم أو الكود…' : 'بحث بالاسم أو الكود أو الفئة…'}
         style={{ width: '100%', padding: '10px 14px', borderRadius: 12, border: '1px solid #E2E8F0', marginBottom: 16, fontFamily: 'inherit' }} />
 
       {tab === 'nursing' && (
-        <div style={{ padding: 14, borderRadius: 12, background: '#FFFBEB', border: '1px solid #FDE68A', color: '#92400E', marginBottom: 16, fontSize: 13, fontWeight: 600 }}>
-          كتالوج التمريض المنزلي للعرض فقط — النشر محجوب خادمياً بانتظار سير اعتماد إكليني/تشغيلي/مالي موثّق (HTTP 503 صريح من الباكند). لا تُوفَّر أزرار تعديل هنا لأنها ستفشل دائماً.
+        <div style={{ padding: 14, borderRadius: 12, background: '#F0FDF4', border: '1px solid #BBF7D0', color: '#166534', marginBottom: 16, fontSize: 13, fontWeight: 600 }}>
+          كتالوج التمريض المنزلي — يدعم الإضافة والتعديل والحذف عبر <code>/nursing/admin/catalog</code>. الحقل الإلزامي: المدة (hour/shift) — يُملأ تلقائياً بـ hour إن تُرك فارغاً.
+        </div>
+      )}
+      {tab === 'radiology' && (
+        <div style={{ padding: 14, borderRadius: 12, background: '#EFF6FF', border: '1px solid #BFDBFE', color: '#1E40AF', marginBottom: 16, fontSize: 13, fontWeight: 600 }}>
+          كتالوج الأشعة — الحقل الإلزامي: نوع الأشعة (modality: xray/ct/mri/ultrasound...). يتم إرسال حقل الفئة تلقائياً كـ modality إن لم يُملأ حقل modality.
         </div>
       )}
 
@@ -160,16 +181,12 @@ export default function CatalogManagerPage() {
             {item.image_url && <img src={item.image_url} alt="" style={{ width: 56, height: 56, borderRadius: 12, objectFit: 'cover', flexShrink: 0 }} />}
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontWeight: 800, fontSize: 14 }}>{item.name_ar}</div>
-              <div style={{ fontSize: 12, color: '#64748B' }}>{item.name_en} · {item.short_code || item.category || ''}</div>
+              <div style={{ fontSize: 12, color: '#64748B' }}>{item.name_en} · {item.short_code || item.category || item.modality || item.body_part || ''}{tab === 'nursing' && item.duration ? ` · ${item.duration}` : ''}{tab === 'radiology' && item.modality ? ` · ${item.modality}${item.body_part ? `/${item.body_part}` : ''}` : ''}</div>
               <div style={{ fontSize: 13, fontWeight: 700, color: '#23B5CE', marginTop: 4 }}>{item.price} ر.س</div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {tab !== 'nursing' ? (<>
-                <button onClick={() => setEditing({ ...item })} style={{ padding: '6px 12px', borderRadius: 10, border: '1px solid #CBD5E1', background: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>تعديل</button>
-                <button onClick={() => remove(item)} style={{ padding: '6px 12px', borderRadius: 10, border: '1px solid #FECACA', background: '#FEF2F2', color: '#B91C1C', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>حذف</button>
-              </>) : (
-                <span style={{ fontSize: 11, color: '#94A3B8', fontWeight: 700, alignSelf: 'center' }}>قراءة فقط</span>
-              )}
+              <button onClick={() => setEditing({ ...item })} style={{ padding: '6px 12px', borderRadius: 10, border: '1px solid #CBD5E1', background: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>تعديل</button>
+              <button onClick={() => remove(item)} style={{ padding: '6px 12px', borderRadius: 10, border: '1px solid #FECACA', background: '#FEF2F2', color: '#B91C1C', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>حذف</button>
             </div>
           </div>
         ))}

@@ -28,7 +28,8 @@ export async function getInsuranceCatalog(force = false): Promise<CatalogCompany
   if (!force && insuranceCache && Date.now() - insuranceCacheAt < 5 * 60 * 1000) return insuranceCache;
   try {
     const res = await client.get('/insurance/companies');
-    const list: CatalogCompany[] = (res.data || []).map((c: any) => ({
+    const raw = Array.isArray(res.data) ? res.data : (Array.isArray(res.data?.data) ? res.data.data : []);
+    const list: CatalogCompany[] = (raw || []).map((c: any) => ({
       id: c.code || c.id,
       ar: c.name_ar || c.name_en || c.code,
       en: c.name_en || c.name_ar || c.code,
@@ -114,7 +115,7 @@ export async function getServicesCatalog(type: SvcType, force = false): Promise<
   if (!force && hit && Date.now() - hit.at < 5 * 60 * 1000) return hit.list;
   try {
     const res = await client.get(SVC_ENDPOINT[type]);
-    const raw = Array.isArray(res.data) ? res.data : (res.data?.services || res.data?.items || []);
+    const raw = Array.isArray(res.data) ? res.data : (Array.isArray(res.data?.data) ? res.data.data : (res.data?.services || res.data?.items || []));
     const list: CatalogService[] = raw.filter((s: any) => s && s.active !== false).map(mapSvc).filter((s) => s.id);
     if (list.length) {
       svcCache[type] = { at: Date.now(), list };

@@ -30,6 +30,7 @@ const EMPTY_FORM: any = {
   warnings_ar: '', warnings_en: '',
   side_effects_ar: '', side_effects_en: '',
   precautions_ar: '', precautions_en: '',
+  reason: '',
 };
 
 const MAX_IMAGES = 3;
@@ -133,6 +134,7 @@ export default function MedicinesCatalogPage() {
       side_effects_ar: fromArr(m.side_effects_ar), side_effects_en: fromArr(m.side_effects_en),
       precautions_ar: fromArr(m.precautions_ar), precautions_en: fromArr(m.precautions_en),
       price: m.price ?? '',
+      reason: '',
     });
     setImageUrls(Array.isArray(m.images) && m.images.length ? m.images.slice(0, MAX_IMAGES) : (m.image ? [m.image] : []));
     setEditId(m.id);
@@ -147,11 +149,22 @@ export default function MedicinesCatalogPage() {
     payload.images = imageUrls;
     payload.image = imageUrls[0] || '';
     payload.price = parseFloat(form.price) || 0;
+    // Backend requires `reason` (>=5 chars) when price changes on PATCH; for POST it logs price history.
+    if (form.reason && String(form.reason).trim()) payload.reason = String(form.reason).trim();
+    else if (formMode === 'create') payload.reason = 'إنشاء صنف جديد عبر واجهة الإدارة';
     setBusy('form');
     try {
       if (formMode === 'create') {
         await apiFetch('/medicines/admin/catalog', { method: 'POST', body: JSON.stringify(payload) });
       } else if (editId) {
+        // Enforce reason when price differs to avoid 400 price_change_reason_required
+        const original = items.find((x: any) => x.id === editId);
+        const priceChanged = original && Number(original.price || 0) !== Number(payload.price || 0);
+        if (priceChanged && (!payload.reason || String(payload.reason).trim().length < 5)) {
+          alert('سبب تغيير السعر مطلوب (5 أحرف على الأقل) — يلزم لتدقيق حوكمة الأسعار.');
+          setBusy(null);
+          return;
+        }
         await apiFetch(`/medicines/admin/catalog/${editId}`, { method: 'PATCH', body: JSON.stringify(payload) });
       }
       setFormMode('closed');
@@ -320,6 +333,10 @@ export default function MedicinesCatalogPage() {
                   {F('storage_conditions', 'شروط التخزين', { area: true })}
                   {F('precautions_ar', 'الاحتياطات (عربي)', { area: true })}
                   {F('precautions_en', 'الاحتياطات (إنجليزي)', { area: true, ltr: true })}
+                  <div className="col-span-2">
+                    <label className="block text-xs font-bold text-amber-700 mb-1">سبب التغيير (مطلوب عند تعديل السعر — 5 أحرف على الأقل، يُحفظ في سجل التدقيق)</label>
+                    <input value={form.reason || ''} onChange={e => setForm({ ...form, reason: e.target.value })} placeholder="مثال: تحديث تسعيرة المورد / عرض ترويجي" className="border border-amber-200 rounded px-2 py-1.5 w-full text-sm bg-amber-50/50" />
+                  </div>
                 </div>
                 <div className="flex gap-3">
                   <button onClick={saveForm} disabled={busy === 'form'} className="bg-teal-600 text-white font-bold px-8 py-2 rounded-lg disabled:opacity-50">

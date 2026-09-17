@@ -17,7 +17,7 @@ export function useCentralInsurance(): InsuranceCompanyOption[] {
         const res = await fetch(`${base}/api/v1/catalogs/insurance`, { next: { revalidate: 21600 } } as any);
         if (!res.ok) return;
         const data = await res.json();
-        const arr: any[] = Array.isArray(data) ? data : [];
+        const arr: any[] = Array.isArray(data) ? data : (Array.isArray((data as any)?.data) ? (data as any).data : []);
         if (!arr.length) return;
         const mapped: InsuranceCompanyOption[] = arr.map((c: any) => ({
           id: String(c.code || c.id),
