@@ -222,21 +222,21 @@ body { background: radial-gradient(circle at 85% -15%, rgba(95,217,179,.16), tra
 
 
 /* Legacy tokens: --canvas: #f6f7f9; --surface: #ffffff; --ink: #101828; --brand: #087f8c; */
-/* Phase 5: cross-platform semantic layer sourced from mobile design tokens. */
+/* V3 Ultra-Premium — Fair Mint #5FD9B3 is MAIN, Forest Ink #1E332E replaces Navy */
 :root {
   color-scheme: light;
-  --canvas: #F5F5F7;
+  --canvas: #FDFDFC;
   --surface: #FFFFFF;
-  --ink: #16213A;
-  --muted: #64748B;
-  --line: #E2E8F0;
-  --brand: #B8E030;
-  --brand-deep: #7CB518;
-  --brand-soft: rgba(184, 224, 48, 0.16);
+  --ink: #1E332E;
+  --muted: #6B7C6E;
+  --line: #E8EDEE;
+  --brand: #5FD9B3;
+  --brand-deep: #3DBB9A;
+  --brand-soft: rgba(95, 217, 179, 0.14);
   --mint: #5FD9B3;
-  --mint-deep: #00876F;
-  --navy: #16213A;
-  --danger: #FF4D5A;
+  --mint-deep: #3DBB9A;
+  --navy: #1E332E;
+  --danger: #EF4444;
   --color-primary: #B8E030;
   --color-primary-dark: #7CB518;
   --color-primary-surface: rgba(184, 224, 48, 0.16);
