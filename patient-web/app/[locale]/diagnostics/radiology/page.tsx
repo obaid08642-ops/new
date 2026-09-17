@@ -39,7 +39,7 @@ export default async function RadiologyServicesPage({ params, searchParams }: Pr
   const servicesResponse = getPublicRadiologyServices({ modality, bodyPart, search, homeVisit: on(query.home_visit) ? "true" : undefined, homeOnly: on(query.home_only) ? "true" : undefined, highestRated: on(query.highest_rated) ? "true" : undefined, nearest: on(query.nearest) ? "true" : undefined, lowestPrice: on(query.lowest_price) ? "true" : undefined });
   const modalitiesResponse = getPublicRadiologyModalities(); const [servicesResult, modalitiesResult] = await Promise.all([servicesResponse, modalitiesResponse]);
   const t = await getTranslations("RadiologyServices"); const rtl = locale === "ar" || locale === "ur"; const Arrow = rtl ? ArrowLeft : ArrowRight;
-  if (!servicesResult?.ok) return <main className={`main ${styles.page}`}><section className={styles.state} role="alert"><VectorRadiology size={54} aria-hidden="true" /><h1>{t("unavailableTitle")}</h1><p>{t("unavailableBody")}</p><Link className={styles.action} href={`/${locale}/diagnostics/radiology`}>{t("retry")}</Link></section></main>;
+  if (!servicesResult?.ok) return <main className={`main ${styles.page}`}><section className={styles.state} role="alert"><VectorRadiology size={48} aria-hidden="true" /><h1>{t("unavailableTitle")}</h1><p>{t("unavailableBody")}</p><Link className={styles.action} href={`/${locale}/diagnostics/radiology`}>{t("retry")}</Link></section></main>;
   const services = extractRadiologyServices(await servicesResult.json().catch(() => null)); const modalityValues = modalitiesResult?.ok ? (await modalitiesResult.json().catch(() => null) as unknown) : []; const modalityList = Array.isArray(modalityValues) ? modalityValues.filter((x): x is string => typeof x === "string") : [];
   return (
     <main className={`main ${styles.page}`}>
@@ -50,7 +50,7 @@ export default async function RadiologyServicesPage({ params, searchParams }: Pr
           <p className={styles.subtitle}>{t("subtitle")}</p>
         </div>
         <span className={styles.heroIcon}>
-          <VectorRadiology size={52} aria-hidden="true" />
+          <VectorRadiology size={48} aria-hidden="true" />
         </span>
       </section>
 
@@ -88,7 +88,7 @@ export default async function RadiologyServicesPage({ params, searchParams }: Pr
                   {service.imageUrl ? (
                     <NextImage src={service.imageUrl} alt={name || ""} fill sizes="(max-width: 720px) 50vw, 25vw" style={{ objectFit: "cover", borderRadius: "inherit" }} />
                   ) : (
-                    <VectorRadiology size={36} aria-hidden="true" />
+                    <VectorRadiology size={48} aria-hidden="true" />
                   )}
                 </span>
                 <div className={styles.copy}>

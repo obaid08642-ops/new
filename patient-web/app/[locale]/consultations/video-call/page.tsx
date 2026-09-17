@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { redirect, notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Video, ShieldCheck, ChevronLeft, Clock3 } from "lucide-react";
+import { ShieldCheck, ChevronLeft, Clock3 } from "lucide-react";
+import { VectorDoctor } from "@/components-next/vector-illustrations";
 import { isLocale } from "@/lib/i18n";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { callPatientApi } from "@/lib/api/upstream";
@@ -22,9 +23,9 @@ export default async function VideoCallPage({ params, searchParams }: Props) {
     if (r.status === 409) reason = "not_ready"; else if (!r.ok) reason = "unavailable";
     else { const d = await r.json().catch(() => null); if (d?.provider === "livekit" && d.token && d.room) credential = { token: d.token, room: d.room }; else reason = "unavailable"; }
   } catch { reason = "unavailable"; }
-  return <main className="main"><Link href={`/${locale}/appointments/${appointmentId}`}><ChevronLeft size={16} aria-hidden="true" />{AR ? "تفاصيل الموعد" : "Appointment details"}</Link>
-    <section className="hero premium-hero"><div className="premium-hero-copy"><div className="eyebrow"><ShieldCheck size={14} aria-hidden="true" />{AR ? "استشارة مرئية" : "Video consultation"}</div><h1>{AR ? "غرفة الاستشارة المرئية" : "Video consultation room"}</h1><p>{AR ? "اتصال مباشر عبر LiveKit ببيانات اعتماد مؤقتة من الخادم." : "Direct LiveKit connection with ephemeral server credentials."}</p></div></section>
+  return <main className="main" style={{ background: "#FDFDFC" }}><Link href={`/${locale}/appointments/${appointmentId}`} style={{ color: "#1E332E" } as any}><ChevronLeft size={16} aria-hidden="true" />{AR ? "تفاصيل الموعد" : "Appointment details"}</Link>
+    <section className="hero premium-hero" style={{ background: "rgba(253,253,252,0.92)", border: "1px solid #E8EDEE", borderRadius: 20, backdropFilter: "blur(16px)" } as any}><div className="premium-hero-copy"><div className="eyebrow" style={{ color: "#1E332E" } as any}><VectorDoctor size={48} aria-hidden="true" />{AR ? "استشارة مرئية" : "Video consultation"}</div><h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{AR ? "غرفة الاستشارة المرئية" : "Video consultation room"}</h1><p style={{ overflowWrap: "anywhere" } as any}>{AR ? "اتصال مباشر عبر LiveKit ببيانات اعتماد مؤقتة من الخادم." : "Direct LiveKit connection with ephemeral server credentials."}</p></div></section>
     {credential ? <VideoRoomClient token={credential.token} room={credential.room} labels={{ connecting: AR ? "جارٍ الاتصال…" : "Connecting…", ended: AR ? "انتهت المكالمة" : "Call ended", leave: AR ? "مغادرة" : "Leave", mute: AR ? "كتم" : "Mute", camera: AR ? "الكاميرا" : "Camera" }} />
-      : <section className="state" role="alert"><Clock3 size={26} aria-hidden="true" /><h2>{reason === "not_ready" ? (AR ? "المكالمة غير جاهزة بعد" : "Call not ready yet") : (AR ? "تعذر الاتصال" : "Connection unavailable")}</h2><p>{AR ? "يُنشأ الاتصال من الخادم عند جاهزية الموعد؛ لا يُنشأ محلياً." : "The session is created server-side when the appointment is ready."}</p></section>}
+      : <section className="state" role="alert" style={{ background: "rgba(253,253,252,0.92)", border: "1px solid #E8EDEE", borderRadius: 20, backdropFilter: "blur(16px)" } as any}><VectorDoctor size={48} aria-hidden="true" /><Clock3 size={26} aria-hidden="true" style={{ display: "none" } as any} /><h2>{reason === "not_ready" ? (AR ? "المكالمة غير جاهزة بعد" : "Call not ready yet") : (AR ? "تعذر الاتصال" : "Connection unavailable")}</h2><p>{AR ? "يُنشأ الاتصال من الخادم عند جاهزية الموعد؛ لا يُنشأ محلياً." : "The session is created server-side when the appointment is ready."}</p></section>}
   </main>;
 }

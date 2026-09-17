@@ -2,8 +2,10 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
+import { VectorAI } from "@/components-next/vector-illustrations";
 import { getMyMedicalReports, type MedicalReportSummary } from "@/lib/api/reports-server";
 import { AiReportClient } from "@/components-next/ai-report-client";
+import styles from "../triage.module.css";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -30,10 +32,18 @@ export default async function AiHealthReportPage({ params }: Props) {
     }
   } catch { reports = []; }
   return (
-    <main className="main" style={{ padding: "24px 16px", maxWidth: 760, margin: "0 auto" }}>
-      <h1>{t("title")}</h1>
-      <p style={{ opacity: 0.75 }}>{t("disclaimer")}</p>
-      <AiReportClient reports={reports} locale={locale} />
+    <main className={`main ${styles.page}`}>
+      <section className={styles.hero}>
+        <div>
+          <p className={styles.eyebrow}>AI</p>
+          <h1 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t("title")}</h1>
+          <p className={styles.subtitle} style={{ opacity: 0.85, overflowWrap: "anywhere" }}>{t("disclaimer")}</p>
+        </div>
+        <span className={styles.heroIcon}><VectorAI size={48} aria-hidden="true" /></span>
+      </section>
+      <div className={styles.card} style={{ backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" }}>
+        <AiReportClient reports={reports} locale={locale} />
+      </div>
     </main>
   );
 }

@@ -106,7 +106,7 @@ export default async function DiagnosticsPage({ params }: Props) {
             <Link href={`/${locale}/diagnostics/cart`}>{locale === "ar" ? "السلة" : "Cart"}</Link>
           </nav>
         </div>
-        <span className={styles.introIcon}><VectorLabs size={36} aria-hidden="true" /></span>
+        <span className={styles.introIcon}><VectorLabs size={48} aria-hidden="true" /></span>
       </section>
 
       {/* Bookings Server Boundary List (Preserved for existing test assertions) */}

@@ -4,6 +4,8 @@ import { setRequestLocale } from "next-intl/server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { callPatientApi } from "@/lib/api/upstream";
+import { VectorPharmacy } from "@/components-next/vector-illustrations";
+import { ShieldCheck, FileText } from "lucide-react";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ prescriptionId?: string; id?: string }> };
 
@@ -43,19 +45,27 @@ export default async function PharmacyRxOrderPage({ params, searchParams }: Prop
     if (!rx) notFound();
     const lines = linesOf(rx);
     return (
-      <main className="main">
-        <Link href={`/${locale}/pharmacy`}>{ar ? "الصيدلية" : "Pharmacy"}</Link>
-        <h1>{ar ? "طلب أدوية الوصفة" : "Order prescription medicines"}</h1>
-        <p>{ar ? "تُرسل هذه الوصفة للصيدلية لصرف أصنافها." : "This prescription is sent to the pharmacy to dispense its items."}</p>
+      <main className="main" style={{ display: "grid", gap: 12, padding: "24px 0 64px" }}>
+        <section style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: 24, border: "1px solid #E8EDEE", borderRadius: 20, background: "linear-gradient(135deg, #FDFDFC 0%, #F0FDF9 60%, #E7FFF6 100%)", boxShadow: "0 12px 32px rgba(30,51,46,.07)" }}>
+          <div style={{ display: "grid", gap: 6 }}>
+            <p style={{ display: "inline-flex", alignItems: "center", gap: 6, margin: 0, color: "#1E332E", fontSize: 12, fontWeight: 800 }}><ShieldCheck size={14} />{ar ? "صيدلية نبض — وصفات" : "Nabd Pharmacy — Prescriptions"}</p>
+            <h1 style={{ margin: 0, color: "#1E332E", fontSize: 20, fontWeight: 900, overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{ar ? "طلب أدوية الوصفة" : "Order prescription medicines"}</h1>
+            <Link href={`/${locale}/pharmacy`} style={{ color: "#00876F", fontWeight: 700, fontSize: 13, textDecoration: "none" }}>{ar ? "← الصيدلية" : "← Pharmacy"}</Link>
+          </div>
+          <span style={{ display: "grid", placeItems: "center", width: 48, height: 48, borderRadius: 16, background: "rgba(255,255,255,.82)", border: "1px solid #E8EDEE" }}><VectorPharmacy size={48} /></span>
+        </section>
+        <section style={{ padding: 16, border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", boxShadow: "0 8px 24px rgba(30,51,46,.07)", display: "grid", gap: 12 }}>
+        <p style={{ margin: 0, color: "#5A6B62", overflowWrap: "anywhere", lineHeight: 1.6 }}>{ar ? "تُرسل هذه الوصفة للصيدلية لصرف أصنافها." : "This prescription is sent to the pharmacy to dispense its items."}</p>
         {lines.length === 0 ? (
           <p role="status">{ar ? "لا توجد أصناف في هذه الوصفة" : "No items in this prescription"}</p>
         ) : (
           <>
-            <ul>{lines.map((l, i) => <li key={i}>{l.name} — {ar ? "الكمية:" : "Qty:"} {l.qty}</li>)}</ul>
+            <ul style={{ display: "grid", gap: 8, listStyle: "none", padding: 0, margin: 0 }}>{lines.map((l, i) => <li key={i} style={{ padding: "10px 12px", border: "1px solid #E8EDEE", borderRadius: 16, background: "#FDFDFC", color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{l.name} — {ar ? "الكمية:" : "Qty:"} {l.qty}</li>)}</ul>
             <Link href={`/${locale}/cart/checkout?prescriptionId=${encodeURIComponent(requestedId)}`}>{ar ? "مراجعة العنوان وطلب عروض" : "Review address & request offers"}</Link>
           </>
         )}
-      </main>
+      </section>
+    </main>
     );
   }
 
@@ -71,10 +81,17 @@ export default async function PharmacyRxOrderPage({ params, searchParams }: Prop
     return [{ id: o.id, count: linesOf(o).length }];
   });
   return (
-    <main className="main">
-      <Link href={`/${locale}/pharmacy`}>{ar ? "الصيدلية" : "Pharmacy"}</Link>
-      <h1>{ar ? "طلب أدوية الوصفة" : "Order prescription medicines"}</h1>
-      <p>{ar ? "اختر وصفة نشطة لصرف أدويتها." : "Choose an active prescription to dispense."}</p>
+    <main className="main" style={{ display: "grid", gap: 12, padding: "24px 0 64px" }}>
+      <section style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: 24, border: "1px solid #E8EDEE", borderRadius: 20, background: "linear-gradient(135deg, #FDFDFC 0%, #F0FDF9 60%, #E7FFF6 100%)", boxShadow: "0 12px 32px rgba(30,51,46,.07)" }}>
+        <div style={{ display: "grid", gap: 6 }}>
+          <p style={{ display: "inline-flex", alignItems: "center", gap: 6, margin: 0, color: "#1E332E", fontSize: 12, fontWeight: 800 }}><ShieldCheck size={14} />{ar ? "صيدلية نبض — وصفات" : "Nabd Pharmacy — Prescriptions"}</p>
+          <h1 style={{ margin: 0, color: "#1E332E", fontSize: 20, fontWeight: 900, overflowWrap: "anywhere" }}>{ar ? "طلب أدوية الوصفة" : "Order prescription medicines"}</h1>
+          <Link href={`/${locale}/pharmacy`} style={{ color: "#00876F", fontWeight: 700, fontSize: 13, textDecoration: "none" }}>{ar ? "← الصيدلية" : "← Pharmacy"}</Link>
+        </div>
+        <span style={{ display: "grid", placeItems: "center", width: 48, height: 48, borderRadius: 16, background: "rgba(255,255,255,.82)", border: "1px solid #E8EDEE" }}><VectorPharmacy size={48} /></span>
+      </section>
+      <section style={{ padding: 16, border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", boxShadow: "0 8px 24px rgba(30,51,46,.07)", display: "grid", gap: 12 }}>
+      <p style={{ margin: 0, color: "#5A6B62", overflowWrap: "anywhere" }}>{ar ? "اختر وصفة نشطة لصرف أدويتها." : "Choose an active prescription to dispense."}</p>
       {active.length === 0 ? (
         <p role="status">{ar ? "لا توجد وصفات نشطة" : "No active prescriptions"}</p>
       ) : (
@@ -88,6 +105,7 @@ export default async function PharmacyRxOrderPage({ params, searchParams }: Prop
           ))}
         </ul>
       )}
+      </section>
     </main>
   );
 }

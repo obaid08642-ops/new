@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { VectorDoctor } from "@/components-next/vector-illustrations";
 import { notFound, redirect } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { requirePatientAccess } from "@/lib/auth/session";
@@ -35,9 +36,9 @@ export default async function ConsultationCancelReschedulePage({ params, searchP
     : null;
 
   return (
-    <main className="main">
+    <main className="main" style={{ background: "#FDFDFC" }}>
       <Link href={`/${locale}/appointments/${appointmentId}`}>{ar ? "الموعد" : "Appointment"}</Link>
-      <h1>{ar ? "إلغاء / إعادة جدولة الموعد" : "Cancel / reschedule appointment"}</h1>
+      <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}><VectorDoctor size={48} aria-hidden="true" style={{ verticalAlign: "middle", marginInlineEnd: 8 } as any} />{ar ? "إلغاء / إعادة جدولة الموعد" : "Cancel / reschedule appointment"}</h1>
       <section aria-label={ar ? "ملخص الموعد" : "Appointment summary"}>
         {appointment.doctorName ? <p><strong>{appointment.doctorName}</strong></p> : null}
         {when ? <p>{when}</p> : null}

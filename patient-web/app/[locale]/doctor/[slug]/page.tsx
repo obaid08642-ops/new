@@ -6,7 +6,8 @@ import { isLocale, locales, type Locale } from "@/lib/i18n";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { ArrowLeft, ArrowRight, BadgeCheck, Building2, Clock3, Star, Stethoscope } from "lucide-react";
+import { ArrowLeft, ArrowRight, BadgeCheck, Building2, Clock3, Star } from "lucide-react";
+import { VectorDoctor } from "@/components-next/vector-illustrations";
 
 type Props = { params: Promise<{ locale: string; slug: string; city?: string }> };
 
@@ -74,7 +75,7 @@ export default async function DoctorCanonicalPage({ params }: Props) {
   const doctorPath = `/doctor/${slug}${city ? `/${encodeURIComponent(city)}` : ""}`;
 
   return (
-    <main className="main" style={{ maxWidth: "860px", margin: "0 auto", padding: "2rem 1rem" }}>
+    <main className="main" style={{ maxWidth: "860px", margin: "0 auto", padding: "2rem 1rem", background: "#FDFDFC" }}>
       <JsonLd
         data={[
           physician({
@@ -95,23 +96,23 @@ export default async function DoctorCanonicalPage({ params }: Props) {
       />
 
       <nav aria-label="Back">
-        <Link href={`/${locale}/consultations/doctors`} style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", marginBottom: "1.5rem", color: "#0066CC", textDecoration: "none", fontWeight: 500 }}>
+        <Link href={`/${locale}/consultations/doctors`} style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", marginBottom: "1.5rem", color: "#1E332E", textDecoration: "none", fontWeight: 500 }}>
           <Arrow size={16} />
           {locale === "ar" ? "العودة لقائمة الأطباء" : "Back to Doctors"}
         </Link>
       </nav>
 
-      <article style={{ background: "#ffffff", border: "1px solid #e5e7eb", borderRadius: "12px", padding: "2rem", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+      <article style={{ background: "rgba(253,253,252,0.92)", border: "1px solid #E8EDEE", borderRadius: "20px", padding: "2rem", boxShadow: "0 8px 24px rgba(30,51,46,.06)", backdropFilter: "blur(16px)" }}>
         <header style={{ display: "flex", gap: "1.5rem", alignItems: "flex-start", marginBottom: "1.5rem" }}>
-          <div style={{ width: "72px", height: "72px", borderRadius: "50%", background: "#e0f2fe", color: "#0284c7", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-            <Stethoscope size={36} />
+          <div style={{ width: "72px", height: "72px", borderRadius: "20px", background: "rgba(95,217,179,0.12)", border: "1px solid #E8EDEE", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <VectorDoctor size={48} aria-hidden="true" />
           </div>
-          <div>
+          <div style={{ minWidth: 0 }}>
             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-              <h1 style={{ fontSize: "1.75rem", fontWeight: 700, margin: 0, color: "#111827" }}>{doctorName}</h1>
-              <BadgeCheck size={20} color="#0284c7" />
+              <h1 style={{ fontSize: "1.75rem", fontWeight: 700, margin: 0, color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{doctorName}</h1>
+              <BadgeCheck size={20} color="#00876F" />
             </div>
-            <p style={{ color: "#4b5563", margin: "0.25rem 0 0.5rem 0", fontSize: "1.1rem" }}>{doctor.specialty}</p>
+            <p style={{ color: "#1E332E", margin: "0.25rem 0 0.5rem 0", fontSize: "1.1rem", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{doctor.specialty}</p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem", color: "#6b7280", fontSize: "0.9rem" }}>
               {doctor.rating ? (
                 <span style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
@@ -128,7 +129,7 @@ export default async function DoctorCanonicalPage({ params }: Props) {
               {facilityName ? (
                 <span style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
                   <Building2 size={16} />
-                  <span>{facilityName}</span>
+                  <span style={{overflowWrap:"anywhere", display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical", overflow:"hidden"}}>{facilityName}</span>
                 </span>
               ) : null}
             </div>
@@ -136,13 +137,13 @@ export default async function DoctorCanonicalPage({ params }: Props) {
         </header>
 
         {relationships.accepted_insurance?.length ? (
-          <section style={{ margin: "1.5rem 0", padding: "1rem", background: "#f8fafc", borderRadius: "8px" }}>
-            <h2 style={{ fontSize: "1rem", fontWeight: 600, margin: "0 0 0.75rem 0", color: "#1e293b" }}>
+          <section style={{ margin: "1.5rem 0", padding: "1rem", background: "rgba(253,253,252,0.92)", border: "1px solid #E8EDEE", borderRadius: "20px", backdropFilter: "blur(16px)" }}>
+            <h2 style={{ fontSize: "1rem", fontWeight: 600, margin: "0 0 0.75rem 0", color: "#1E332E", overflowWrap: "anywhere" }}>
               {locale === "ar" ? "شركات التأمين المقبولة" : "Accepted Insurance Companies"}
             </h2>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
               {relationships.accepted_insurance.map((ins: string) => (
-                <span key={ins} style={{ background: "#e2e8f0", color: "#334155", padding: "0.25rem 0.75rem", borderRadius: "9999px", fontSize: "0.85rem", fontWeight: 500, textTransform: "uppercase" }}>
+                <span key={ins} style={{ background: "#E8EDEE", color: "#1E332E", padding: "0.25rem 0.75rem", borderRadius: "9999px", fontSize: "0.85rem", fontWeight: 500, textTransform: "uppercase", overflowWrap: "anywhere" }}>
                   {ins}
                 </span>
               ))}
@@ -153,7 +154,7 @@ export default async function DoctorCanonicalPage({ params }: Props) {
         <div style={{ marginTop: "2rem", display: "flex", gap: "1rem" }}>
           <Link
             href={`/${locale}/consultations/doctors/${doctor.id || slug}`}
-            style={{ display: "inline-block", background: "#0066CC", color: "#ffffff", padding: "0.75rem 2rem", borderRadius: "8px", fontWeight: 600, textDecoration: "none" }}
+            style={{ display: "inline-block", background: "#5FD9B3", color: "#1E332E", padding: "0.75rem 2rem", borderRadius: "20px", fontWeight: 700, textDecoration: "none", border: "1px solid #E8EDEE" }}
           >
             {locale === "ar" ? "حجز استشارة فورية" : "Book Consultation"}
           </Link>

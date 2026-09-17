@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { VectorDoctor } from "@/components-next/vector-illustrations";
 import { notFound, redirect } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { requirePatientAccess } from "@/lib/auth/session";
@@ -69,17 +70,17 @@ export default async function ConsultationClinicConfirmPage({ params, searchPara
   const doctorUserId = doctorId && doctor ? text(doctor, ["doctor_user_id", "user_id", "account_id"]) || doctorId : doctorId;
 
   return (
-    <main className="main">
+    <main className="main" style={{ background: "#FDFDFC" }}>
       <Link href={`/${locale}/appointments/${appointmentId}`}>{ar ? "الموعد" : "Appointment"}</Link>
-      <h1>{locationView ? (ar ? "موقع العيادة" : "Clinic location") : (ar ? "تأكيد موعد العيادة" : "Clinic booking confirmed")}</h1>
+      <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{locationView ? (ar ? "موقع العيادة" : "Clinic location") : (ar ? "تأكيد موعد العيادة" : "Clinic booking confirmed")}</h1>
       {!locationView ? (
-        <section aria-label={ar ? "رمز الحجز" : "Booking code"}>
+        <section aria-label={ar ? "رمز الحجز" : "Booking code"} style={{ background: "rgba(253,253,252,0.92)", border: "1px solid #E8EDEE", borderRadius: 20, backdropFilter: "blur(16px)", padding: 16 } as any}>
           <h2>{ar ? "أظهر هذا الرمز عند الاستقبال" : "Show this code at reception"}</h2>
-          <p><strong>NABDAH:APPT:{bookingCode.slice(0, 8)}</strong></p>
+          <p style={{ overflowWrap: "anywhere" } as any}><strong>NABDAH:APPT:{bookingCode.slice(0, 8)}</strong></p>
           {when ? <p>{when}</p> : null}
         </section>
       ) : null}
-      <section aria-label={ar ? "بيانات العيادة" : "Clinic details"}>
+      <section aria-label={ar ? "بيانات العيادة" : "Clinic details"} style={{ background: "rgba(253,253,252,0.92)", border: "1px solid #E8EDEE", borderRadius: 20, backdropFilter: "blur(16px)", padding: 16, marginTop: 12 } as any}>
         <h2>{ar ? "بيانات العيادة" : "Clinic details"}</h2>
         <p><strong>{clinicName}</strong></p>
         {address ? <p>{address}</p> : null}
@@ -91,7 +92,7 @@ export default async function ConsultationClinicConfirmPage({ params, searchPara
       </section>
       {!locationView ? (
         <>
-          <section aria-label={ar ? "قبل موعدك" : "Before your visit"}>
+          <section aria-label={ar ? "قبل موعدك" : "Before your visit"} style={{ background: "rgba(253,253,252,0.92)", border: "1px solid #E8EDEE", borderRadius: 20, backdropFilter: "blur(16px)", padding: 16, marginTop: 12 } as any}>
             <h2>{ar ? "قبل موعدك" : "Before your visit"}</h2>
             <ul>
               <li>{ar ? "احضر قبل الموعد بـ 15 دقيقة" : "Arrive 15 minutes early"}</li>
@@ -100,7 +101,7 @@ export default async function ConsultationClinicConfirmPage({ params, searchPara
               <li>{ar ? "أظهر رمز الحجز عند الاستقبال" : "Show the booking code at reception"}</li>
             </ul>
           </section>
-          <section aria-label={ar ? "سياسة الإلغاء والاسترداد" : "Cancellation & refund policy"}>
+          <section aria-label={ar ? "سياسة الإلغاء والاسترداد" : "Cancellation & refund policy"} style={{ background: "rgba(253,253,252,0.92)", border: "1px solid #E8EDEE", borderRadius: 20, backdropFilter: "blur(16px)", padding: 16, marginTop: 12 } as any}>
             <h2>{ar ? "سياسة الإلغاء والاسترداد" : "Cancellation & refund policy"}</h2>
             <ul>
               <li>{ar ? "قبل الموعد بأكثر من 24 ساعة: استرداد 100%" : "More than 24h before: 100% refund"}</li>

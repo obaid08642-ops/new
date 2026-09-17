@@ -36,8 +36,8 @@ export default async function NursingVisitTrackingPage({ params }: Props) {
   return <main className={`main ${styles.page}`}>
     <Link className={styles.back} href={`/${locale}/nursing/visits`}><ChevronLeft size={17} aria-hidden="true" />{t("back")}</Link>
     <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 12 }}>
-      <VectorNursing size={42} aria-hidden="true" />
-      <h1 className={styles.title} style={{ margin: 0 }}>{t("title")}</h1>
+      <VectorNursing size={48} aria-hidden="true" />
+      <h1 className={styles.title} style={{ margin: 0, overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t("title")}</h1>
     </div>
     {nurseName ? <p className={styles.nurse}>{t("nurse")}: {String(nurseName)}</p> : null}
     {eta != null && Number.isFinite(Number(eta)) ? <p className={styles.eta}>{t("eta")}: {String(eta)} {t("minutes")}</p> : null}

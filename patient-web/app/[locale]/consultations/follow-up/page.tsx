@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { VectorDoctor } from "@/components-next/vector-illustrations";
 import { notFound, redirect } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { requirePatientAccess } from "@/lib/auth/session";
@@ -63,7 +64,7 @@ export default async function ConsultationFollowUpPage({ params, searchParams }:
   }).reverse();
 
   return (
-    <main className="main">
+    <main className="main" style={{ background: "#FDFDFC" }}>
       <Link href={`/${locale}/appointments/${appointmentId}`}>{ar ? "الموعد" : "Appointment"}</Link>
       <h1>{ar ? "متابعة الاستشارة" : "Consultation follow-up"}</h1>
       <section aria-label={ar ? "ملخص" : "Summary"}>

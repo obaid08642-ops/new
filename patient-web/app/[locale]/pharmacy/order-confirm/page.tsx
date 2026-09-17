@@ -4,6 +4,8 @@ import { setRequestLocale } from "next-intl/server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { callPatientApi } from "@/lib/api/upstream";
+import { VectorPharmacy } from "@/components-next/vector-illustrations";
+import { ShieldCheck } from "lucide-react";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ orderId?: string; id?: string }> };
 const idPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -26,10 +28,18 @@ export default async function PharmacyOrderConfirmPage({ params, searchParams }:
   const ar = locale === "ar";
   if (!idPattern.test(orderId)) {
     return (
-      <main className="main">
-        <Link href={`/${locale}/pharmacy`}>{ar ? "الصيدلية" : "Pharmacy"}</Link>
-        <h1>{ar ? "تأكيد الطلب" : "Confirm order"}</h1>
-        <p role="alert">{ar ? "يلزم رقم طلب الصيدلية — لا يمكن اعتماد سلة غير مكتملة." : "A pharmacy order id is required — cannot confirm an incomplete cart."}</p>
+      <main className="main" style={{ display: "grid", gap: 12, padding: "24px 0 64px" }}>
+        <section style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: 24, border: "1px solid #E8EDEE", borderRadius: 20, background: "linear-gradient(135deg, #FDFDFC 0%, #F0FDF9 60%, #E7FFF6 100%)" }}>
+          <div style={{ display: "grid", gap: 6 }}>
+            <p style={{ display: "inline-flex", alignItems: "center", gap: 6, margin: 0, color: "#1E332E", fontSize: 12, fontWeight: 800 }}><ShieldCheck size={14} />{ar ? "صيدلية نبض" : "Nabd Pharmacy"}</p>
+            <h1 style={{ margin: 0, color: "#1E332E", fontWeight: 900, overflowWrap: "anywhere" }}>{ar ? "تأكيد الطلب" : "Confirm order"}</h1>
+            <Link href={`/${locale}/pharmacy`} style={{ color: "#00876F", fontWeight: 700, fontSize: 13, textDecoration: "none" }}>{ar ? "← الصيدلية" : "← Pharmacy"}</Link>
+          </div>
+          <span style={{ display: "grid", placeItems: "center", width: 48, height: 48, borderRadius: 16, background: "rgba(255,255,255,.82)", border: "1px solid #E8EDEE" }}><VectorPharmacy size={48} /></span>
+        </section>
+        <section style={{ padding: 16, border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", boxShadow: "0 8px 24px rgba(30,51,46,.07)", display: "grid", gap: 12 }}>
+          <p role="alert" style={{ margin: 0, color: "#5A6B62", overflowWrap: "anywhere", background: "#FEF3C7", border: "1px solid #FDE68A", borderRadius: 16, padding: 12 }}>{ar ? "يلزم رقم طلب الصيدلية — لا يمكن اعتماد سلة غير مكتملة." : "A pharmacy order id is required — cannot confirm an incomplete cart."}</p>
+        </section>
       </main>
     );
   }
@@ -38,11 +48,19 @@ export default async function PharmacyOrderConfirmPage({ params, searchParams }:
   if (response.status === 401) redirect(`/${locale}/login`);
   if (!response.ok) {
     return (
-      <main className="main">
-        <Link href={`/${locale}/pharmacy`}>{ar ? "الصيدلية" : "Pharmacy"}</Link>
-        <h1>{ar ? "تأكيد الطلب" : "Confirm order"}</h1>
-        <p role="alert">{ar ? "تعذر فتح خطوة الطلب" : "Could not open the order step"}</p>
-        <Link href={`/${locale}/orders/${orderId}`}>{ar ? "حالة الطلب" : "Order status"}</Link>
+      <main className="main" style={{ display: "grid", gap: 12, padding: "24px 0 64px" }}>
+        <section style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: 24, border: "1px solid #E8EDEE", borderRadius: 20, background: "linear-gradient(135deg, #FDFDFC 0%, #F0FDF9 60%, #E7FFF6 100%)" }}>
+          <div style={{ display: "grid", gap: 6 }}>
+            <p style={{ display: "inline-flex", alignItems: "center", gap: 6, margin: 0, color: "#1E332E", fontSize: 12, fontWeight: 800 }}><ShieldCheck size={14} />{ar ? "صيدلية نبض" : "Nabd Pharmacy"}</p>
+            <h1 style={{ margin: 0, color: "#1E332E", fontWeight: 900, overflowWrap: "anywhere" }}>{ar ? "تأكيد الطلب" : "Confirm order"}</h1>
+            <Link href={`/${locale}/pharmacy`} style={{ color: "#00876F", fontWeight: 700, fontSize: 13, textDecoration: "none" }}>{ar ? "← الصيدلية" : "← Pharmacy"}</Link>
+          </div>
+          <span style={{ display: "grid", placeItems: "center", width: 48, height: 48, borderRadius: 16, background: "rgba(255,255,255,.82)", border: "1px solid #E8EDEE" }}><VectorPharmacy size={48} /></span>
+        </section>
+        <section style={{ padding: 16, border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", boxShadow: "0 8px 24px rgba(30,51,46,.07)", display: "grid", gap: 12 }}>
+          <p role="alert" style={{ margin: 0, color: "#991B1B", overflowWrap: "anywhere", background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: 16, padding: 12 }}>{ar ? "تعذر فتح خطوة الطلب" : "Could not open the order step"}</p>
+          <Link href={`/${locale}/orders/${orderId}`} style={{ display: "inline-flex", padding: "10px 16px", borderRadius: 16, background: "#1E332E", color: "#FDFDFC", fontWeight: 800, textDecoration: "none", width: "fit-content" }}>{ar ? "حالة الطلب" : "Order status"}</Link>
+        </section>
       </main>
     );
   }

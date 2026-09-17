@@ -4,9 +4,10 @@ import type { Metadata } from "next";
 import { localizedUrl } from "@/lib/seo";
 import { isLocale, locales, type Locale } from "@/lib/i18n";
 import Link from "next/link";
+import { VectorDoctor } from "@/components-next/vector-illustrations";
 import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
-import { Building2, MapPin, ShieldCheck, Star, Stethoscope } from "lucide-react";
+import { Building2, MapPin, ShieldCheck, Star } from "lucide-react";
 
 type Props = { params: Promise<{ locale: string; specialty: string; city: string; neighborhood: string }> };
 
@@ -107,7 +108,7 @@ export default async function DoctorsSpecialtyCityNeighborhoodPage({ params }: P
     : `${decSpec} Doctors in ${decNeigh}, ${decCity}`;
 
   return (
-    <main className="main" style={{ maxWidth: "960px", margin: "0 auto", padding: "2rem 1rem" }}>
+    <main className="main" style={{ maxWidth: "960px", margin: "0 auto", padding: "2rem 1rem", background: "#FDFDFC" }}>
       <JsonLd
         data={[
           medicalWebPage({
@@ -125,7 +126,7 @@ export default async function DoctorsSpecialtyCityNeighborhoodPage({ params }: P
       />
 
       <header style={{ marginBottom: "2rem" }}>
-        <h1 style={{ fontSize: "1.875rem", fontWeight: 700, margin: "0 0 0.5rem 0", color: "#111827" }}>{pageTitle}</h1>
+        <h1 style={{ fontSize: "1.875rem", fontWeight: 700, margin: "0 0 0.5rem 0", color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{pageTitle}</h1>
         <p style={{ color: "#4b5563", fontSize: "1rem", margin: 0 }}>
           {locale === "ar"
             ? `استعرض الأطباء والعيادات المعتمدة في حي ${decNeigh} بمدينة ${decCity} مع مواعيد فورية وتغطية تأمينية.`
@@ -135,7 +136,7 @@ export default async function DoctorsSpecialtyCityNeighborhoodPage({ params }: P
 
       {doctors.length > 0 && (
         <section style={{ marginBottom: "2.5rem" }}>
-          <h2 style={{ fontSize: "1.25rem", fontWeight: 600, marginBottom: "1rem", color: "#1f2937" }}>
+          <h2 style={{ fontSize: "1.25rem", fontWeight: 600, marginBottom: "1rem", color: "#1E332E" }}>
             {locale === "ar" ? "الأطباء المعتمدون" : "Verified Doctors"}
           </h2>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1rem" }}>
@@ -143,10 +144,10 @@ export default async function DoctorsSpecialtyCityNeighborhoodPage({ params }: P
               <article
                 key={doc.id}
                 style={{
-                  border: "1px solid #e5e7eb",
-                  borderRadius: "0.75rem",
+                  border: "1px solid #E8EDEE",
+                  borderRadius: "20px",
                   padding: "1.25rem",
-                  backgroundColor: "#fff",
+                  background: "rgba(253,253,252,0.92)", backdropFilter: "blur(16px)" as any,
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "space-between",
@@ -154,8 +155,8 @@ export default async function DoctorsSpecialtyCityNeighborhoodPage({ params }: P
               >
                 <div>
                   <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
-                    <Stethoscope size={18} color="#059669" />
-                    <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 600 }}>{doc.name_ar || doc.name_en || doc.name}</h3>
+                    <VectorDoctor size={48} aria-hidden="true" />
+                    <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 600, overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{doc.name_ar || doc.name_en || doc.name}</h3>
                   </div>
                   <p style={{ margin: "0.25rem 0", color: "#6b7280", fontSize: "0.9rem" }}>{doc.specialty}</p>
                   <div style={{ display: "flex", alignItems: "center", gap: "0.25rem", color: "#d97706", fontSize: "0.875rem", margin: "0.5rem 0" }}>
@@ -168,10 +169,10 @@ export default async function DoctorsSpecialtyCityNeighborhoodPage({ params }: P
                   style={{
                     display: "inline-block",
                     textAlign: "center",
-                    backgroundColor: "#059669",
-                    color: "#fff",
+                    background: "#5FD9B3",
+                    color: "#1E332E",
                     padding: "0.5rem 1rem",
-                    borderRadius: "0.5rem",
+                    borderRadius: "20px",
                     textDecoration: "none",
                     fontWeight: 500,
                     marginTop: "1rem",
@@ -188,7 +189,7 @@ export default async function DoctorsSpecialtyCityNeighborhoodPage({ params }: P
 
       {facilities.length > 0 && (
         <section>
-          <h2 style={{ fontSize: "1.25rem", fontWeight: 600, marginBottom: "1rem", color: "#1f2937" }}>
+          <h2 style={{ fontSize: "1.25rem", fontWeight: 600, marginBottom: "1rem", color: "#1E332E" }}>
             {locale === "ar" ? "المراكز والمستشفيات في الحي والمنطقة" : "Clinics & Hospitals in Neighborhood"}
           </h2>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1rem" }}>
@@ -196,10 +197,10 @@ export default async function DoctorsSpecialtyCityNeighborhoodPage({ params }: P
               <article
                 key={fac.id}
                 style={{
-                  border: "1px solid #e5e7eb",
-                  borderRadius: "0.75rem",
+                  border: "1px solid #E8EDEE",
+                  borderRadius: "20px",
                   padding: "1.25rem",
-                  backgroundColor: "#fff",
+                  background: "rgba(253,253,252,0.92)", backdropFilter: "blur(16px)" as any,
                 }}
               >
                 <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>

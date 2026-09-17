@@ -94,7 +94,7 @@ export function TriageForm({ labels, locale }: { labels: Labels; locale?: string
         <section className={styles.resultCard}>
           <div className={styles.resultHeader}>
             <h2 className={styles.resultTitle}>
-              <Bot size={20} color="#7c3aed" aria-hidden="true" />
+              <Bot size={20} color="#1E332E" aria-hidden="true" />
               {labels.resultTitle}
             </h2>
           </div>
