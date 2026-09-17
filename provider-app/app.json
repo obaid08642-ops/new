@@ -41,6 +41,12 @@
     ],
     "extra": {
       "apiBaseUrl": "https://api.nabd.plus/api/v1"
-    }
+    },
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0066CC"
+    },
+    "icon": "./assets/icon.png"
   }
 }
