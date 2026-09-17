@@ -9,7 +9,7 @@
     "scheme": "nabdplus-provider",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.nabd.plus.provider",
+      "bundleIdentifier": "com.nabd.provider",
       "infoPlist": {
         "NSCameraUsageDescription": "نحتاج الكاميرا لرفع مستندات المزوّد والتحقق من الهوية.",
         "NSMicrophoneUsageDescription": "نحتاج الميكروفون للمكالمات الصوتية والمرئية.",
@@ -19,7 +19,7 @@
       }
     },
     "android": {
-      "package": "com.nabd.plus.provider",
+      "package": "com.nabd.provider",
       "permissions": [
         "CAMERA",
         "RECORD_AUDIO",

@@ -104,4 +104,38 @@ export class UnifiedBookingsService {
   ): Promise<{ bookingId: string; queued: boolean }> {
     return this.reserveWithWriteBehind(providerId, slotTs, patientId, persistFn);
   }
+
+  /**
+   * Smart Collision & Auto-Reschedule Fallback (Optimistic Booking).
+   *
+   * When the requested slot is already locked (409), the system gracefully
+   * falls back in order:
+   *   1. Next available slot (slotTs + slotDurationMs)
+   *   2. Previous available slot (slotTs - slotDurationMs)
+   *   3. If no slots available — caller should trigger auto-refund
+   *
+   * This is called AFTER acquireBookingLock throws CONCURRENT_SLOT_CONFLICT.
+   * The caller (booking service) is responsible for refund if all fallbacks fail.
+   */
+  async findAlternativeSlot(
+    providerId: string,
+    originalSlotTs: number,
+    patientId: string,
+    slotDurationMs = 30 * 60 * 1000, // default 30 min per slot
+  ): Promise<{ slotTs: number; bookingId: string; fallback: 'next' | 'prev' | null } | null> {
+    const candidates: Array<{ ts: number; label: 'next' | 'prev' }> = [
+      { ts: originalSlotTs + slotDurationMs, label: 'next' },
+      { ts: originalSlotTs - slotDurationMs, label: 'prev' },
+    ];
+    for (const { ts, label } of candidates) {
+      try {
+        await this.acquireBookingLock(providerId, ts, patientId);
+        return { slotTs: ts, bookingId: randomUUID(), fallback: label };
+      } catch {
+        // Slot taken — try next candidate
+        continue;
+      }
+    }
+    return null; // No alternative — caller triggers auto-refund
+  }
 }
