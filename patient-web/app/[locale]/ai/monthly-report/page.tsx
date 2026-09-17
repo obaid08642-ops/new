@@ -3,7 +3,9 @@ import { notFound, redirect } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
+import { VectorAI } from "@/components-next/vector-illustrations";
 import { callPatientApi } from "@/lib/api/upstream";
+import styles from "../triage.module.css";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -42,11 +44,18 @@ export default async function AiMonthlyReportPage({ params }: Props) {
   const allFailed = [apptsRes, vitalsRes, medsRes, trendsRes].every((r) => !r.ok);
   if (allFailed) {
     return (
-      <main className="main">
-        <Link href={`/${locale}/ai`}>{ar ? "المساعد الذكي" : "AI assistant"}</Link>
-        <h1>{ar ? "تقريرك الشهري" : "Your monthly report"}</h1>
-        <p role="alert">{ar ? "تعذر تحميل التقرير الشهري" : "Could not load the monthly report"}</p>
-        <Link href={`/${locale}/ai/monthly-report`}>{ar ? "إعادة المحاولة" : "Retry"}</Link>
+      <main className={`main ${styles.page}`}>
+        <section className={styles.hero}>
+          <div>
+            <p className={styles.eyebrow}>{ar ? "تقريرك الشهري" : "Monthly Report"}</p>
+            <h1 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{ar ? "تقريرك الشهري" : "Your monthly report"}</h1>
+            <p role="alert" className={styles.subtitle} style={{ overflowWrap: "anywhere" }}>{ar ? "تعذر تحميل التقرير الشهري" : "Could not load the monthly report"}</p>
+          </div>
+          <span className={styles.heroIcon}><VectorAI size={48} aria-hidden="true" /></span>
+        </section>
+        <div className={styles.card} style={{ textAlign: "center" }}>
+          <Link href={`/${locale}/ai/monthly-report`} style={{ display: "inline-flex", padding: "10px 20px", background: "#5FD9B3", color: "#1E332E", borderRadius: 20, border: "1px solid #E8EDEE", fontWeight: 700, textDecoration: "none" }}>{ar ? "إعادة المحاولة" : "Retry"}</Link>
+        </div>
       </main>
     );
   }
@@ -74,9 +83,15 @@ export default async function AiMonthlyReportPage({ params }: Props) {
   const monthLabel = new Intl.DateTimeFormat(locale, { month: "long", year: "numeric" }).format(now);
 
   return (
-    <main className="main">
-      <Link href={`/${locale}/ai`}>{ar ? "المساعد الذكي" : "AI assistant"}</Link>
-      <h1>{ar ? "تقريرك الشهري" : "Your monthly report"} — {monthLabel}</h1>
+    <main className={`main ${styles.page}`}>
+      <section className={styles.hero}>
+        <div>
+          <p className={styles.eyebrow}>{ar ? "المساعد الذكي" : "AI assistant"}</p>
+          <h1 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{ar ? "تقريرك الشهري" : "Your monthly report"} — {monthLabel}</h1>
+        </div>
+        <span className={styles.heroIcon}><VectorAI size={48} aria-hidden="true" /></span>
+      </section>
+      <div className={styles.card} style={{ backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", display: "grid", gap: 16 }}>
       {!hasAny ? (
         <section aria-label={ar ? "لا بيانات" : "No data"}>
           <p role="status">{ar ? "لا توجد بيانات كافية بعد" : "Not enough data yet"}</p>
@@ -145,10 +160,11 @@ export default async function AiMonthlyReportPage({ params }: Props) {
           </ul>
         </section>
       ) : null}
-      <nav style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-        <Link href={`/${locale}/health/trends`}>{ar ? "عرض المؤشرات التاريخية" : "View historical trends"}</Link>
-        <Link href={`/${locale}/consultations`}>{ar ? "احجز متابعة مع الطبيب" : "Book a follow-up"}</Link>
+      <nav style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 8 }}>
+        <Link href={`/${locale}/health/trends`} style={{ color: "#1E332E", fontWeight: 700, overflowWrap: "anywhere" }}>{ar ? "عرض المؤشرات التاريخية" : "View historical trends"}</Link>
+        <Link href={`/${locale}/consultations`} style={{ display: "inline-flex", padding: "10px 16px", background: "#5FD9B3", color: "#1E332E", borderRadius: 20, border: "1px solid #E8EDEE", fontWeight: 700, textDecoration: "none", overflowWrap: "anywhere" }}>{ar ? "احجز متابعة مع الطبيب" : "Book a follow-up"}</Link>
       </nav>
+      </div>
     </main>
   );
 }

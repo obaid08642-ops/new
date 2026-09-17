@@ -29,7 +29,7 @@ export default async function AiTriagePage({ params }: Props) {
           <p className={styles.subtitle}>{t("subtitle")}</p>
         </div>
         <span className={styles.heroIcon}>
-          <VectorAI size={52} aria-hidden="true" />
+          <VectorAI size={48} aria-hidden="true" />
         </span>
       </section>
 

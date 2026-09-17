@@ -38,7 +38,7 @@ export default async function LabsServicesPage({ params, searchParams }: Props) 
   const search = (query.q ?? "").trim(); const homeOnly = query.home === "1";
   const response = await getPublicLabServices({ search, homeOnly });
   const rtl = locale === "ar" || locale === "ur"; const Arrow = rtl ? ArrowLeft : ArrowRight;
-  if (!response || !response.ok) return <main className={`main ${styles.page}`}><section className={styles.state} role="alert"><VectorLabs size={54} aria-hidden="true" /><h1>{t("unavailableTitle")}</h1><p>{t("unavailableBody")}</p><Link className={styles.action} href={`/${locale}/diagnostics/labs`}>{t("retry")}</Link></section></main>;
+  if (!response || !response.ok) return <main className={`main ${styles.page}`}><section className={styles.state} role="alert"><VectorLabs size={48} aria-hidden="true" /><h1>{t("unavailableTitle")}</h1><p>{t("unavailableBody")}</p><Link className={styles.action} href={`/${locale}/diagnostics/labs`}>{t("retry")}</Link></section></main>;
   const services = extractLabServices(await response.json().catch(() => null));
   return (
     <main className={`main ${styles.page}`}>
@@ -49,7 +49,7 @@ export default async function LabsServicesPage({ params, searchParams }: Props) 
           <p className={styles.subtitle}>{t("subtitle")}</p>
         </div>
         <span className={styles.heroIcon}>
-          <VectorLabs size={52} aria-hidden="true" />
+          <VectorLabs size={48} aria-hidden="true" />
         </span>
       </section>
 
@@ -84,7 +84,7 @@ export default async function LabsServicesPage({ params, searchParams }: Props) 
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={service.imageUrl} alt={name || ""} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "inherit" }} />
                   ) : (
-                    <VectorLabs size={36} aria-hidden="true" />
+                    <VectorLabs size={48} aria-hidden="true" />
                   )}
                 </span>
                 <div className={styles.copy}>

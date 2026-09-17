@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nabd Plus — Ultra-Premium Vision Board (2 Screens)</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FDFDFC; --surface:#FFFFFF; --line:#E8EDEE;
+    --deep:#0A4A4A; --teal:#14B8A6; --teal-50:#F0FDFA; --teal-100:#CCFBF1;
+    --amber:#FACC15; --slate-900:#0F172A; --slate-600:#475569; --slate-400:#94A3B8;
+    --radius:20px; --radius-sm:12px; --radius-full:999px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'IBM Plex Sans Arabic','Inter',system-ui;background:var(--bg);color:var(--slate-900);line-height:1.6}
+  .topbar{max-width:1280px;margin:0 auto;padding:24px 24px 8px;display:flex;justify-content:space-between;align-items:center}
+  .topbar h1{font-size:13px;letter-spacing:.14em;color:var(--slate-400);font-weight:600}
+  .badge{font-size:11px;background:var(--deep);color:#fff;padding:6px 12px;border-radius:999px}
+  .subtitle{max-width:1280px;margin:0 auto;padding:0 24px 24px;color:var(--slate-600);font-size:14px}
+  .board{max-width:1280px;margin:0 auto;padding:0 24px 48px;display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  @media(max-width:900px){.board{grid-template-columns:1fr}}
+  .phone{border:1px solid var(--line);border-radius:28px;overflow:hidden;background:var(--surface);box-shadow:0 20px 60px rgba(10,74,74,.08)}
+  .phone-head{padding:14px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);background:var(--surface)}
+  .brand{display:flex;gap:10px;align-items:center;font-weight:700;color:var(--deep)}
+  .logo{width:32px;height:32px;border-radius:10px;background:var(--deep);display:grid;place-items:center;color:#fff}
+  .lang{font-size:12px;border:1px solid var(--line);padding:6px 12px;border-radius:999px;color:var(--slate-600)}
+  .screen{padding:20px;background:var(--bg)}
+  /* Hero */
+  .hero{background:linear-gradient(135deg,#FFFFFF 0%, #F0FDFA 100%);border:1px solid var(--line);border-radius:var(--radius);padding:24px;display:grid;grid-template-columns:1.1fr .9fr;gap:20px;overflow:hidden}
+  .hero h2{font-size:28px;line-height:1.2;color:var(--deep);margin:8px 0 8px}
+  .hero p{font-size:13px;color:var(--slate-600)}
+  .eyebrow{font-size:11px;letter-spacing:.12em;color:var(--teal);font-weight:700}
+  .cta-row{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+  .btn-primary{background:var(--teal);color:#fff;padding:12px 18px;border-radius:999px;border:none;font-weight:700;font-size:13px}
+  .btn-ghost{background:#fff;border:1px solid var(--line);padding:12px 18px;border-radius:999px;font-weight:600;font-size:13px;color:var(--deep)}
+  .hero-img{border-radius:16px;background:linear-gradient(180deg,#E0F2F1,#FFFFFF);border:1px solid var(--line);display:grid;place-items:center;min-height:180px;color:var(--slate-400);font-size:12px}
+  .trust{display:flex;gap:12px;margin-top:14px;flex-wrap:wrap}
+  .trust span{font-size:11px;background:#fff;border:1px solid var(--line);padding:6px 10px;border-radius:999px;color:var(--slate-600)}
+  /* Services */
+  .section-title{font-size:16px;font-weight:700;color:var(--deep);margin:18px 0 10px}
+  .section-sub{font-size:12px;color:var(--slate-600);margin-bottom:12px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;gap:12px;align-items:flex-start}
+  .icon{width:40px;height:40px;border-radius:12px;background:var(--teal-50);display:grid;place-items:center;flex:0 0 40px;color:var(--teal)}
+  .card h3{font-size:13px;font-weight:700;color:var(--deep)}
+  .card p{font-size:11px;color:var(--slate-600);margin-top:4px}
+  .pill{font-size:10px;background:var(--teal-50);color:var(--teal);padding:4px 8px;border-radius:999px;display:inline-block;margin-bottom:6px}
+  /* Catalog */
+  .toolbar{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .search{flex:1;display:flex;gap:8px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:10px 14px}
+  .search input{border:none;outline:none;flex:1;font-size:13px;background:transparent}
+  .filter{font-size:12px;border:1px solid var(--line);background:#fff;padding:8px 12px;border-radius:999px;color:var(--slate-600)}
+  .chips{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+  .chip{font-size:12px;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--slate-600)}
+  .chip.active{background:var(--deep);color:#fff;border-color:var(--deep)}
+  .catalog{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .prod{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+  .prod-img{aspect-ratio:1;background:linear-gradient(180deg,#FFFFFF,#F8FAFC);display:grid;place-items:center;color:var(--slate-400);font-size:11px;border-bottom:1px solid var(--line)}
+  .prod-body{padding:12px}
+  .prod-name{font-size:13px;font-weight:700;color:var(--deep);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:36px}
+  .prod-meta{font-size:11px;color:var(--slate-600);margin-top:4px}
+  .prod-price{font-size:16px;font-weight:700;color:var(--deep);margin-top:8px}
+  .prod-foot{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+  .badge-in{font-size:10px;background:#ECFDF5;color:#047857;padding:4px 8px;border-radius:999px;border:1px solid #A7F3D0}
+  .btn-plus{width:36px;height:36px;border-radius:999px;background:var(--deep);color:#fff;border:none;display:grid;place-items:center}
+  .note{max-width:1280px;margin:0 auto;padding:0 24px 24px;color:var(--slate-600);font-size:12px}
+  .note b{color:var(--deep)}
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <h1>NABD PLUS — ULTRA-PREMIUM VISION BOARD</h1>
+    <span class="badge">OFF-WHITE • DEEP TEAL • VECTOR • 8PT</span>
+  </div>
+  <p class="subtitle">شاشتان فقط للاعتماد — بعد الموافقة نعمم النظام على <b>271 شاشة</b> عبر <code>tokens.json</code> واحد. لا أسود، لا إيموجي، لا نص مقطوع، لا أكواد ظاهرة.</p>
+
+  <div class="board">
+    <!-- Screen 1: Homepage Hero + Services -->
+    <div class="phone">
+      <div class="phone-head">
+        <div class="brand"><span class="logo">◈</span> نبض بلس</div>
+        <span class="lang">العربية ▾</span>
+      </div>
+      <div class="screen">
+        <div class="hero">
+          <div>
+            <div class="eyebrow">رعايتك الصحية المتكاملة</div>
+            <h2>منصة نبض بلس<br>الطبية الشاملة</h2>
+            <p>تصفح واطلب كافة الخدمات الطبية: صيدلية، استشارات فورية، تحاليل منزلية، وأشعة — بكل يسر وأمان.</p>
+            <div class="cta-row">
+              <button class="btn-primary">احجز استشارة <span style="margin-inline-start:6px">›</span></button>
+              <button class="btn-ghost">تسوق الصيدلية</button>
+            </div>
+            <div class="trust">
+              <span>★ 4.9 (10K مريض)</span><span>مرخص ومعتمد</span><span>24/7</span>
+            </div>
+          </div>
+          <div class="hero-img">صورة طبيبة حقيقية — 4:3 — إضاءة ناعمة</div>
+        </div>
+
+        <div class="section-title">الخدمات الطبية الأساسية</div>
+        <div class="section-sub">وصول فوري ومباشر لكافة الرعاية الطبية بأعلى معايير الجودة</div>
+        <div class="grid2">
+          <div class="card"><div class="icon">✣</div><div><span class="pill">توصيل 30 دقيقة</span><h3>صيدلية نبض بلس</h3><p>أدوية ومستلزمات طبية أصلية وتوصيل فوري لباب منزلك</p></div></div>
+          <div class="card"><div class="icon">◈</div><div><span class="pill">أطباء معتمدون</span><h3>الاستشارات الطبية</h3><p>استشارات فورية ومواعيد عيادات مع نخبة الأطباء</p></div></div>
+          <div class="card"><div class="icon">◎</div><div><span class="pill">سحب منزلي</span><h3>المختبر والأشعة</h3><p>باقات فحص مخبري شاملة وحجز رنين وماموغرافي</p></div></div>
+          <div class="card"><div class="icon">♡</div><div><span class="pill">زيارة فورية</span><h3>التمريض المنزلي</h3><p>رعاية تمريضية منزلية: غيار، حقن، قسطرة</p></div></div>
+        </div>
+
+        <div class="section-title">الرعاية المتخصصة</div>
+        <div class="grid2">
+          <div class="card"><div class="icon">◆</div><div><h3>متابعة الحمل</h3><p>تتبع نمو الجنين وجدول الفحوصات</p></div></div>
+          <div class="card"><div class="icon">⬡</div><div><h3>التغذية والحمية</h3><p>خطط غذائية وتتبع السعرات يومياً</p></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 2: Catalog Grid -->
+    <div class="phone">
+      <div class="phone-head">
+        <div class="brand"><span class="logo">◈</span> نبض بلس</div>
+        <span class="lang">العربية ▾</span>
+      </div>
+      <div class="screen">
+        <div class="toolbar">
+          <div class="search"><span style="color:var(--slate-400)">⌕</span><input placeholder="ابحث عن دواء، فيتامين، عناية..."><span class="filter">فلترة</span></div>
+        </div>
+        <div class="chips">
+          <span class="chip active">الكل</span><span class="chip">الأدوية</span><span class="chip">العناية</span><span class="chip">الفيتامينات</span><span class="chip">الأم والطفل</span>
+        </div>
+        <div class="catalog">
+          <div class="prod"><div class="prod-img">صورة 1:1 — خلفية بيضاء</div><div class="prod-body"><div class="prod-name">بنادول نايت — 20 قرص</div><div class="prod-meta">باراسيتامول 500 مجم + ديفينهيدرامين</div><div class="prod-price">SAR 11.60</div><div class="prod-foot"><span class="badge-in">متوفر</span><button class="btn-plus">＋</button></div></div></div>
+          <div class="prod"><div class="prod-img">صورة 1:1</div><div class="prod-body"><div class="prod-name">نيتروجينا غسول يومي — 150 مل</div><div class="prod-meta">جريب فروت — للبشرة الدهنية</div><div class="prod-price">SAR 22.00</div><div class="prod-foot"><span class="badge-in">متوفر</span><button class="btn-plus">＋</button></div></div></div>
+          <div class="prod"><div class="prod-img">صورة 1:1</div><div class="prod-body"><div class="prod-name">فيتامين د 1000 IU — 60 كبسولة</div><div class="prod-meta">مكمل غذائي</div><div class="prod-price">SAR 45.00</div><div class="prod-foot"><span class="badge-in">متوفر</span><button class="btn-plus">＋</button></div></div></div>
+          <div class="prod"><div class="prod-img">صورة 1:1</div><div class="prod-body"><div class="prod-name">صانسيلك بلسم — 350 مل</div><div class="prod-meta">3% جلايكول & فيتامين سي</div><div class="prod-price">SAR 18.50</div><div class="prod-foot"><span class="badge-in">متوفر</span><button class="btn-plus">＋</button></div></div></div>
+        </div>
+        <div style="margin-top:12px;background:var(--teal-50);border:1px solid var(--teal-100);border-radius:12px;padding:12px;display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:12px;color:var(--deep);font-weight:700">السلة — 2 منتجات</span><span style="font-size:12px;background:var(--deep);color:#fff;padding:8px 14px;border-radius:999px">عرض السلة — SAR 33.60</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="note">✓ <b>Off-White #FDFDFC</b> دافئ (خلية آيفون) — لا أسود. ✓ <b>Deep Teal #0A4A4A</b> رئيسي + <b>Teal #14B8A6</b> لحجز + <b>Amber</b> لعروض. ✓ <b>Vector</b> (دوائر 40px Teal-50) — لا إيموجي. ✓ <b>8pt</b> موحد — gap 12, padding 16/24. ✓ <b>لا نص مقطوع</b> — clamp 2 سطور. ✓ <b>لا أكواد</b> ظاهرة. <b>التعداد الدقيق: 271 شاشة</b> (298 ملف tsx في app/).</p>
+</body>
+</html>

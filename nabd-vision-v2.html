@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nabd Plus — Vision V2: Ultra-Premium (Inspired, Not Copied)</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sage:#4A5D4E; --sage-light:#E8EDE9; --lime:#D4E157; --lime-deep:#AFB42B;
+    --peach:#FF8A65; --peach-light:#FFF3E0; --cream:#F5F3EF; --cream-2:#FEFCF8;
+    --teal-soft:#7ED8C6; --ink:#1A2421; --slate:#6B7C6E; --line:rgba(74,93,78,.12);
+    --glass:rgba(255,255,255,.72); --glass-border:rgba(255,255,255,.8);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'IBM Plex Sans Arabic','Inter',system-ui;background:var(--cream);color:var(--ink);overflow-x:hidden}
+  /* Animated mesh gradient background */
+  .mesh{position:fixed;inset:0;z-index:-1;overflow:hidden;background:var(--cream)}
+  .mesh::before{content:"";position:absolute;width:800px;height:800px;background:radial-gradient(circle, rgba(212,225,87,.18) 0%, transparent 70%);top:-200px;left:-200px;animation:drift 20s ease-in-out infinite}
+  .mesh::after{content:"";position:absolute;width:600px;height:600px;background:radial-gradient(circle, rgba(126,216,198,.15) 0%, transparent 70%);bottom:-100px;right:-100px;animation:drift2 25s ease-in-out infinite}
+  @keyframes drift{0%,100%{transform:translate(0,0)}50%{transform:translate(80px,40px)}}
+  @keyframes drift2{0%,100%{transform:translate(0,0)}50%{transform:translate(-60px,-30px)}}
+
+  .nav{max-width:1200px;margin:0 auto;padding:28px 24px 12px;display:flex;justify-content:space-between;align-items:center}
+  .nav b{font-family:'Instrument Serif',serif;font-size:18px;letter-spacing:.04em;color:var(--sage)}
+  .nav small{font-size:11px;letter-spacing:.14em;color:var(--slate);text-transform:uppercase}
+  .hero{max-width:1200px;margin:0 auto;padding:12px 24px 32px;display:grid;grid-template-columns:1.15fr .85fr;gap:32px;align-items:center}
+  @media(max-width:900px){.hero{grid-template-columns:1fr}}
+  .eyebrow{font-size:11px;letter-spacing:.16em;color:var(--sage);font-weight:700;display:flex;gap:8px;align-items:center}
+  .eyebrow::before{content:"";width:24px;height:1px;background:var(--sage)}
+  .hero h1{font-family:'Instrument Serif',serif;font-size:52px;line-height:.95;font-weight:400;color:var(--ink);margin:16px 0 12px}
+  .hero h1 i{font-style:italic;color:var(--sage);font-weight:400}
+  .hero p{font-size:15px;color:var(--slate);line-height:1.7;max-width:480px}
+  .chips{display:flex;gap:8px;margin-top:20px;flex-wrap:wrap}
+  .chip{font-size:11px;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--glass);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+  .chip.active{background:var(--sage);color:#fff;border-color:var(--sage)}
+  /* Glass phone mock */
+  .phone-wrap{position:relative;perspective:1200px}
+  .phone{width:340px;max-width:100%;height:680px;margin:0 auto;background:var(--glass);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid var(--glass-border);border-radius:40px;overflow:hidden;box-shadow:0 32px 80px rgba(74,93,78,.15), 0 1px 0 rgba(255,255,255,.8) inset;transform:rotateY(-6deg) rotateX(2deg);transition:transform .6s ease}
+  .phone:hover{transform:rotateY(-2deg) rotateX(1deg) translateY(-4px)}
+  .phone-head{padding:16px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);background:rgba(255,255,255,.5)}
+  .phone-screen{padding:16px;background:linear-gradient(180deg, var(--cream-2) 0%, var(--cream) 100%);height:calc(100% - 56px);overflow:auto}
+  .search{margin-bottom:14px}
+  .search-bar{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 16px;box-shadow:0 4px 20px rgba(74,93,78,.06)}
+  .search-bar input{flex:1;border:none;outline:none;font-size:13px;background:transparent}
+  .search-bar span{background:var(--sage);color:#fff;width:36px;height:36px;border-radius:12px;display:grid;place-items:center;font-size:14px}
+  /* Category pills with illustration */
+  .cat-row{display:flex;gap:10px;overflow:auto;padding-bottom:8px;margin-bottom:14px;scrollbar-width:none}
+  .cat-pill{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:6px}
+  .cat-ill{width:64px;height:64px;border-radius:18px;display:grid;place-items:center;font-size:24px;position:relative;overflow:hidden}
+  .cat-ill::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.4), transparent 60%)}
+  .cat-pill b{font-size:11px;color:var(--sage);font-weight:600}
+  /* Product card with carousel */
+  .prod-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .prod{background:#fff;border:1px solid var(--line);border-radius:20px;overflow:hidden;position:relative}
+  .prod-img{aspect-ratio:1;position:relative;overflow:hidden;background:linear-gradient(135deg, #F5F3EF 0%, #E8EDE9 100%)}
+  .prod-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .5s ease, transform .5s ease}
+  .prod-img .img2{opacity:0}
+  .prod:hover .img1{opacity:0;transform:scale(1.05)}
+  .prod:hover .img2{opacity:1;transform:scale(1)}
+  .prod-dots{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:4px}
+  .dot{width:4px;height:4px;border-radius:999px;background:rgba(0,0,0,.2)}
+  .dot.on{background:var(--sage);width:12px}
+  .prod-body{padding:12px}
+  .prod-name{font-size:12px;font-weight:700;color:var(--ink);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:34px}
+  .prod-price{font-size:14px;font-weight:700;color:var(--sage);margin-top:6px}
+  .prod-foot{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+  .stock{font-size:10px;background:#E8F5E9;color:#2E7D32;padding:4px 8px;border-radius:999px}
+  .btn-add{width:32px;height:32px;border-radius:999px;background:var(--sage);color:#fff;border:none;display:grid;place-items:center;font-size:16px;cursor:pointer;transition:transform .2s}
+  .btn-add:active{transform:scale(.92)}
+  /* Stats row like wellness */
+  .stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:14px 0}
+  .stat{background:var(--glass);backdrop-filter:blur(12px);border:1px solid var(--glass-border);border-radius:16px;padding:12px;text-align:center}
+  .stat b{font-size:18px;color:var(--sage);display:block}
+  .stat small{font-size:10px;color:var(--slate);letter-spacing:.08em;text-transform:uppercase}
+  /* Section */
+  .section{max-width:1200px;margin:0 auto;padding:24px 24px 16px}
+  .section h2{font-family:'Instrument Serif',serif;font-size:28px;color:var(--ink);margin-bottom:6px}
+  .section h2 i{font-style:italic;color:var(--sage)}
+  .section p{font-size:13px;color:var(--slate)}
+  .features{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:20px}
+  @media(max-width:900px){.features{grid-template-columns:1fr 1fr}}
+  .feat{background:var(--glass);backdrop-filter:blur(16px);border:1px solid var(--glass-border);border-radius:20px;padding:20px;transition:transform .3s, box-shadow .3s}
+  .feat:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(74,93,78,.1)}
+  .feat-icon{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font-size:22px;margin-bottom:12px}
+  .feat h3{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:4px}
+  .feat p{font-size:11px;color:var(--slate);line-height:1.5}
+  .palette{max-width:1200px;margin:0 auto;padding:16px 24px 48px;display:flex;gap:12px;flex-wrap:wrap}
+  .swatch{flex:1;min-width:140px;border-radius:16px;padding:16px;color:#fff;position:relative;overflow:hidden;min-height:90px}
+  .swatch b{font-size:11px;letter-spacing:.08em;display:block;opacity:.9}
+  .swatch small{font-size:11px;opacity:.7}
+  .footer{max-width:1200px;margin:0 auto;padding:0 24px 32px;font-size:11px;color:var(--slate);line-height:1.6}
+  .footer a{color:var(--sage);text-decoration:none;border-bottom:1px solid var(--line)}
+</style>
+</head>
+<body>
+<div class="mesh"></div>
+<nav class="nav">
+  <b>NABD PLUS — VISION V2</b>
+  <small>OFF-WHITE • SAGE • GLASS • VECTOR • MOTION</small>
+</nav>
+
+<div class="hero">
+  <div>
+    <div class="eyebrow">لمسة آبل — دفء مستشفى خاص في دبي</div>
+    <h1>رعاية تُشعرك<br><i>بالهدوء،</i> لا بالقلق.</h1>
+    <p>لا أسود، لا إيموجي، لا نص مقطوع. خلفية دافئة كالورق، ألوان مستوحاة من منتجعات العافية، فيكتور ناعم، وحركة هادئة — كأنك تقلب مجلة طبية فاخرة.</p>
+    <div class="chips">
+      <span class="chip active">صيدلية</span><span class="chip">استشارات</span><span class="chip">مختبر</span><span class="chip">تمريض</span><span class="chip">حمل</span>
+    </div>
+  </div>
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="phone-head">
+        <b style="color:var(--sage)">نبض بلس</b><span style="font-size:11px;border:1px solid var(--line);padding:6px 10px;border-radius:999px">العربية ▾</span>
+      </div>
+      <div class="phone-screen">
+        <div class="search">
+          <div class="search-bar"><span>⌕</span><input placeholder="ابحث عن دواء، طبيب، تحليل..."><span style="background:var(--lime);color:var(--sage)">›</span></div>
+        </div>
+        <div class="cat-row">
+          <div class="cat-pill"><div class="cat-ill" style="background:#E8F5E9">◈</div><b>أدوية</b></div>
+          <div class="cat-pill"><div class="cat-ill" style="background:#FFF3E0">⬡</div><b>عناية</b></div>
+          <div class="cat-pill"><div class="cat-ill" style="background:#FCE4EC">⬢</div><b>أم وطفل</b></div>
+          <div class="cat-pill"><div class="cat-ill" style="background:#E3F2FD">⬣</div><b>فيتامينات</b></div>
+          <div class="cat-pill"><div class="cat-ill" style="background:#F3E5F5">⬔</div><b>مختبر</b></div>
+        </div>
+        <div class="stats">
+          <div class="stat"><b>4.9★</b><small>رضا المرضى</small></div>
+          <div class="stat"><b>10K+</b><small>طلب يومي</small></div>
+          <div class="stat"><b>24/7</b><small>متابعة</small></div>
+        </div>
+        <div class="prod-grid">
+          <div class="prod">
+            <div class="prod-img">
+              <img class="img1" src="https://picsum.photos/seed/panadol/300/300" alt="">
+              <img class="img2" src="https://picsum.photos/seed/panadol2/300/300" alt="">
+              <div class="prod-dots"><span class="dot on"></span><span class="dot"></span><span class="dot"></span></div>
+            </div>
+            <div class="prod-body"><div class="prod-name">بنادول نايت — 20 قرص</div><div class="prod-price">SAR 11.60</div><div class="prod-foot"><span class="stock">متوفر</span><button class="btn-add">＋</button></div></div>
+          </div>
+          <div class="prod">
+            <div class="prod-img">
+              <img class="img1" src="https://picsum.photos/seed/neutrogena/300/300" alt="">
+              <img class="img2" src="https://picsum.photos/seed/neutrogena2/300/300" alt="">
+              <div class="prod-dots"><span class="dot on"></span><span class="dot"></span></div>
+            </div>
+            <div class="prod-body"><div class="prod-name">نيتروجينا غسول — 150 مل</div><div class="prod-price">SAR 22.00</div><div class="prod-foot"><span class="stock">متوفر</span><button class="btn-add">＋</button></div></div>
+          </div>
+        </div>
+        <p style="font-size:10px;color:var(--slate);text-align:center;margin-top:12px">مرر على الكارد — الصورة تتبدل تلقائياً كل 0.8 ثانية</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h2>تصميم <i>يتنفس</i> — ليس مجرد ألوان</h2>
+  <p>استلهمنا من منتجعات العافية (warm cream + sage) ومن التطبيقات الحائزة على جوائز (clay + glass)، لكننا صنعنا هوية نبض الخاصة — هادئة، طبية، فاخرة.</p>
+  <div class="features">
+    <div class="feat"><div class="feat-icon" style="background:#E8F5E9">◈</div><h3>Vector خالص</h3><p>أيقونات مرسومة بيد مصمم، 24px، stroke 1.5 — لا إيموجي، لا PNG</p></div>
+    <div class="feat"><div class="feat-icon" style="background:#FFF3E0">◎</div><h3>Glass ناعم</h3><p>كروت زجاجية ضبابية كآبل — blur 16px، حدود بيضاء شفافة</p></div>
+    <div class="feat"><div class="feat-icon" style="background:#FCE4EC">⬢</div><h3>حركة هادئة</h3><p>carousel تلقائي 0.8s، تحميل shimmer، انتقال 300ms ease</p></div>
+    <div class="feat"><div class="feat-icon" style="background:#E3F2FD">⬣</div><h3>Three.js جاهز</h3><p>مساحة لعرض 3D للمنتج — دوران 360° عند الطلب</p></div>
+  </div>
+</div>
+
+<div class="palette">
+  <div class="swatch" style="background:var(--sage)"><b>DEEP SAGE #4A5D4E</b><small>رئيسي — هيدر، عناوين</small></div>
+  <div class="swatch" style="background:var(--lime);color:var(--sage)"><b>LIME #D4E157</b><small>حجز — CTA مميز</small></div>
+  <div class="swatch" style="background:var(--peach);color:var(--sage)"><b>PEACH #FF8A65</b><small>عروض — دفء</small></div>
+  <div class="swatch" style="background:var(--cream);color:var(--sage);border:1px solid var(--line)"><b>CREAM #F5F3EF</b><small>خلفية — دفء الورق</small></div>
+  <div class="swatch" style="background:#fff;color:var(--sage);border:1px solid var(--line)"><b>GLASS 72%</b><small>زجاج — blur 16px</small></div>
+</div>
+
+<p class="footer">
+  <b>271 شاشة</b> ستُبنى بهذا النظام — <code>tokens.json</code> واحد يغير كل شيء. اللون القديم <b>Teal الداكن</b> أُلغي تماماً. الأنيميشن: <b>carousel</b> لكل منتج (صورتان تتبدلان عند المرور)، <b>shimmer</b> عند التحميل، <b> tilt 3D</b> عند تحريك الهاتف. <b>لا نص مقطوع</b> (clamp سطرين)، <b>لا أكواد</b>، <b>لا إيموجي</b>. افتح الملف وقل <b>"اعتمد"</b> أو ما تريد تغييره.
+</p>
+</body>
+</html>

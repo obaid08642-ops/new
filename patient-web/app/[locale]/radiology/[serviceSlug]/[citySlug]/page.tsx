@@ -6,7 +6,8 @@ import { isLocale, locales, type Locale } from "@/lib/i18n";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
-import { Building2, Calendar, MapPin, Scan } from "lucide-react";
+import { MapPin } from "lucide-react";
+import { VectorRadiology } from "@/components-next/vector-illustrations";
 
 type Props = { params: Promise<{ locale: string; serviceSlug: string; citySlug: string }> };
 
@@ -99,7 +100,7 @@ export default async function RadiologyCityPage({ params }: Props) {
     : `${decService} Imaging in ${decCity}`;
 
   return (
-    <main className="main" style={{ maxWidth: "960px", margin: "0 auto", padding: "2rem 1rem" }}>
+    <main className="main" style={{ maxWidth: "960px", margin: "0 auto", padding: "2rem 1rem", background: "#FDFDFC" }}>
       <JsonLd
         data={[
           medicalWebPage({
@@ -122,24 +123,30 @@ export default async function RadiologyCityPage({ params }: Props) {
         ]}
       />
 
-      <header style={{ marginBottom: "2rem" }}>
-        <h1 style={{ fontSize: "1.875rem", fontWeight: 700, margin: "0 0 0.5rem 0", color: "#111827" }}>{pageTitle}</h1>
-        <p style={{ color: "#4b5563", fontSize: "1rem", margin: 0 }}>
-          {locale === "ar"
-            ? `مراكز أشعة وتصوير طبي مجهزة بأحدث التقنيات في ${decCity} مع تقارير فورية معتمدة.`
-            : `State-of-the-art diagnostic imaging centers in ${decCity} with instant reporting.`}
-        </p>
+      <header style={{ marginBottom: "2rem", display: "flex", alignItems: "flex-start", gap: "1rem" }}>
+        <span style={{ display: "grid", placeItems: "center", width: 56, height: 56, borderRadius: 16, background: "rgba(95,217,179,0.12)", border: "1px solid #E8EDEE", flexShrink: 0 }}>
+          <VectorRadiology size={48} aria-hidden="true" />
+        </span>
+        <div style={{ minWidth: 0 }}>
+          <h1 style={{ fontSize: "1.875rem", fontWeight: 700, margin: "0 0 0.5rem 0", color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{pageTitle}</h1>
+          <p style={{ color: "#6B7C6E", fontSize: "1rem", margin: 0, overflowWrap: "anywhere" }}>
+            {locale === "ar"
+              ? `مراكز أشعة وتصوير طبي مجهزة بأحدث التقنيات في ${decCity} مع تقارير فورية معتمدة.`
+              : `State-of-the-art diagnostic imaging centers in ${decCity} with instant reporting.`}
+          </p>
+        </div>
       </header>
 
       {!hasFacilities ? (
-        <section style={{ textAlign: "center", padding: "3rem 1rem", background: "#f8fafc", borderRadius: "12px", border: "1px dashed #cbd5e1" }}>
-          <p style={{ fontSize: "1.1rem", color: "#334155" }}>{locale === "ar" ? `لا يوجد مركز أشعة يقدم ${decService} في ${decCity} حالياً.` : `No imaging center for ${decService} in ${decCity} yet.`}</p>
-          <p style={{ color: "#64748b", marginTop: "0.5rem" }}>{locale === "ar" ? "كن أول مركز — سجل الآن وستظهر خدمتك أوتوماتيك." : "Be the first — register and appear automatically."}</p>
-          <Link href={`/${locale}/consultations/doctors`} style={{ display: "inline-block", marginTop: "1rem", background: "#2563eb", color: "#fff", padding: "0.75rem 1.5rem", borderRadius: "8px", textDecoration: "none", fontWeight: 600 }}>{locale === "ar" ? "سجل كمركز" : "Register"}</Link>
+        <section style={{ textAlign: "center", padding: "3rem 1rem", background: "rgba(255,255,255,0.76)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderRadius: 20, border: "1px dashed #E8EDEE" }}>
+          <VectorRadiology size={48} aria-hidden="true" />
+          <p style={{ fontSize: "1.1rem", color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{locale === "ar" ? `لا يوجد مركز أشعة يقدم ${decService} في ${decCity} حالياً.` : `No imaging center for ${decService} in ${decCity} yet.`}</p>
+          <p style={{ color: "#6B7C6E", marginTop: "0.5rem", overflowWrap: "anywhere" }}>{locale === "ar" ? "كن أول مركز — سجل الآن وستظهر خدمتك أوتوماتيك." : "Be the first — register and appear automatically."}</p>
+          <Link href={`/${locale}/consultations/doctors`} style={{ display: "inline-block", marginTop: "1rem", background: "#5FD9B3", color: "#1E332E", padding: "0.75rem 1.5rem", borderRadius: 20, textDecoration: "none", fontWeight: 700, border: "1px solid #E8EDEE" }}>{locale === "ar" ? "سجل كمركز" : "Register"}</Link>
         </section>
       ) : (
         <section>
-          <h2 style={{ fontSize: "1.25rem", fontWeight: 600, marginBottom: "1rem", color: "#1f2937" }}>
+          <h2 style={{ fontSize: "1.25rem", fontWeight: 600, marginBottom: "1rem", color: "#1E332E", overflowWrap: "anywhere" }}>
             {locale === "ar" ? "مراكز الأشعة والمستشفيات المتاحة" : "Available Imaging Centers"}
           </h2>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1rem" }}>
@@ -147,10 +154,12 @@ export default async function RadiologyCityPage({ params }: Props) {
               <article
                 key={fac.id}
                 style={{
-                  border: "1px solid #e5e7eb",
-                  borderRadius: "0.75rem",
+                  border: "1px solid #E8EDEE",
+                  borderRadius: 20,
                   padding: "1.25rem",
-                  backgroundColor: "#fff",
+                  background: "rgba(255,255,255,0.76)",
+                  backdropFilter: "blur(16px)",
+                  WebkitBackdropFilter: "blur(16px)",
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "space-between",
@@ -158,12 +167,12 @@ export default async function RadiologyCityPage({ params }: Props) {
               >
                 <div>
                   <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
-                    <Scan size={18} color="#2563eb" />
-                    <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 600 }}>{fac.name_ar || fac.name_en}</h3>
+                    <VectorRadiology size={24} aria-hidden="true" />
+                    <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 600, color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{fac.name_ar || fac.name_en}</h3>
                   </div>
-                  <p style={{ margin: "0.25rem 0", color: "#6b7280", fontSize: "0.875rem", display: "flex", alignItems: "center", gap: "0.25rem" }}>
+                  <p style={{ margin: "0.25rem 0", color: "#6B7C6E", fontSize: "0.875rem", display: "flex", alignItems: "center", gap: "0.25rem", overflowWrap: "anywhere" }}>
                     <MapPin size={14} />
-                    <span>{fac.city}</span>
+                    <span style={{ overflowWrap: "anywhere" }}>{fac.city}</span>
                   </p>
                 </div>
                 <Link
@@ -171,14 +180,15 @@ export default async function RadiologyCityPage({ params }: Props) {
                   style={{
                     display: "inline-block",
                     textAlign: "center",
-                    backgroundColor: "#2563eb",
-                    color: "#fff",
+                    backgroundColor: "#5FD9B3",
+                    color: "#1E332E",
                     padding: "0.5rem 1rem",
-                    borderRadius: "0.5rem",
+                    borderRadius: 20,
                     textDecoration: "none",
-                    fontWeight: 500,
+                    fontWeight: 700,
                     marginTop: "1rem",
                     fontSize: "0.875rem",
+                    border: "1px solid #E8EDEE",
                   }}
                 >
                   {locale === "ar" ? "حجز موعد فحص" : "Book Imaging"}

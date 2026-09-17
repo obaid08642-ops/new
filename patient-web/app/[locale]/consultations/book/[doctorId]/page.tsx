@@ -10,7 +10,8 @@ import { JsonLd } from "@/components-next/json-ld";
 import { physician } from "@/lib/seo/structured-data";
 import { BookingFlow } from "@/components-next/booking-flow";
 import type { Metadata } from "next";
-import { ChevronLeft, Stethoscope } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
+import { VectorDoctor } from "@/components-next/vector-illustrations";
 
 type Props = { params: Promise<{ locale: string; doctorId: string }> };
 
@@ -38,13 +39,13 @@ export default async function BookConsultationPage({ params }: Props) {
   const name = doctor?.name || t("doctorUnavailable");
   const canonical = localizedUrl(locale, `/consultations/book/${encodeURIComponent(doctorId)}`);
   return (
-    <main className="main">
-      <Link href={`/${locale}/consultations/doctors/${encodeURIComponent(doctorId)}`}><ChevronLeft size={16} aria-hidden="true" />{t("back")}</Link>
+    <main className="main" style={{ background: "#FDFDFC" }}>
+      <Link href={`/${locale}/consultations/doctors/${encodeURIComponent(doctorId)}`} style={{ color: "#1E332E", display: "inline-flex", alignItems: "center", gap: 6, overflowWrap: "anywhere" } as any}><ChevronLeft size={16} aria-hidden="true" />{t("back")}</Link>
       <JsonLd data={physician({ name, locale, path: `/consultations/doctors/${encodeURIComponent(doctorId)}`, specialty: doctor?.specialty })} />
-      <section className="premium-hero"><div className="premium-hero-copy">
-        <div className="eyebrow"><Stethoscope size={14} aria-hidden="true" />{t("title")}</div>
-        <h1>{name}</h1>
-        <p>{t("subtitle")}</p>
+      <section className="premium-hero" style={{ background: "rgba(253,253,252,0.92)", border: "1px solid #E8EDEE", borderRadius: 20, backdropFilter: "blur(16px)" } as any}><div className="premium-hero-copy">
+        <div className="eyebrow" style={{ color: "#1E332E" } as any}><VectorDoctor size={48} aria-hidden="true" />{t("title")}</div>
+        <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{name}</h1>
+        <p style={{ overflowWrap: "anywhere" } as any}>{t("subtitle")}</p>
       </div></section>
       <BookingFlow doctorId={doctorId} locale={locale} doctor={doctor} />
     </main>

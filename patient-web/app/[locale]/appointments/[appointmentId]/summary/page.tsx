@@ -4,6 +4,7 @@ import { setRequestLocale } from "next-intl/server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { callPatientApi } from "@/lib/api/upstream";
+import { VectorDoctor } from "@/components-next/vector-illustrations";
 
 type Props = { params: Promise<{ locale: string; appointmentId: string }> };
 const idPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -19,8 +20,8 @@ export default async function AppointmentSummaryPage({ params }: Props) {
   if (response.status === 403 || response.status === 404) {
     return (
       <main className="main">
-        <Link href={`/${locale}/appointments/${appointmentId}`}>{ar ? "الموعد" : "Appointment"}</Link>
-        <h1>{ar ? "ملخص الاستشارة" : "Consultation summary"}</h1>
+        <Link href={`/${locale}/appointments/${appointmentId}`} style={{ color: "#1E332E" } as any}>{ar ? "الموعد" : "Appointment"}</Link>
+        <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}><VectorDoctor size={48} aria-hidden="true" style={{ verticalAlign: "middle", marginInlineEnd: 8 } as any} />{ar ? "ملخص الاستشارة" : "Consultation summary"}</h1>
         <p role="status">{ar ? "الملخص غير متاح بعد — يكتبه الطبيب بعد انتهاء الموعد." : "Summary not ready yet — the doctor writes it after the visit."}</p>
       </main>
     );
@@ -37,19 +38,19 @@ export default async function AppointmentSummaryPage({ params }: Props) {
   const doctorId = typeof summary?.doctor_id === "string" ? summary.doctor_id : undefined;
 
   return (
-    <main className="main">
-      <Link href={`/${locale}/appointments/${appointmentId}`}>{ar ? "الموعد" : "Appointment"}</Link>
-      <h1>{ar ? "ملخص الاستشارة" : "Consultation summary"}</h1>
+    <main className="main" style={{ background: "#FDFDFC" }}>
+      <Link href={`/${locale}/appointments/${appointmentId}`} style={{ color: "#1E332E" } as any}>{ar ? "الموعد" : "Appointment"}</Link>
+      <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}><VectorDoctor size={48} aria-hidden="true" style={{ verticalAlign: "middle", marginInlineEnd: 8 } as any} />{ar ? "ملخص الاستشارة" : "Consultation summary"}</h1>
       {diagnosis ? (
-        <section>
+        <section style={{ background: "rgba(253,253,252,0.92)", border: "1px solid #E8EDEE", borderRadius: 20, backdropFilter: "blur(16px)", padding: 16, marginTop: 12 } as any}>
           <h2>{ar ? "التشخيص" : "Diagnosis"}</h2>
-          <p>{diagnosis}</p>
+          <p style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{diagnosis}</p>
         </section>
       ) : null}
       {notes ? (
-        <section>
+        <section style={{ background: "rgba(253,253,252,0.92)", border: "1px solid #E8EDEE", borderRadius: 20, backdropFilter: "blur(16px)", padding: 16, marginTop: 12 } as any}>
           <h2>{ar ? "ملاحظات الطبيب" : "Doctor notes"}</h2>
-          <p style={{ whiteSpace: "pre-wrap" }}>{notes}</p>
+          <p style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" } as any}>{notes}</p>
         </section>
       ) : null}
       {prescription.length > 0 ? (
@@ -61,7 +62,7 @@ export default async function AppointmentSummaryPage({ params }: Props) {
               return <li key={i}>{String(r.name ?? r.medication ?? r.drug ?? "")} {typeof r.dose === "string" ? `— ${r.dose}` : ""}</li>;
             })}
           </ul>
-          <Link href={`/${locale}/prescriptions`}>{ar ? "وصفاتي" : "My prescriptions"}</Link>
+          <Link href={`/${locale}/prescriptions`} style={{ background: "#5FD9B3", color: "#1E332E", padding: "8px 14px", borderRadius: 20, border: "1px solid #E8EDEE", fontWeight: 700, textDecoration: "none" } as any}>{ar ? "وصفاتي" : "My prescriptions"}</Link>
         </section>
       ) : null}
       {!diagnosis && !notes && !prescription.length ? (

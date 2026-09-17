@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { VectorDoctor } from "@/components-next/vector-illustrations";
 import { notFound, redirect } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { requirePatientAccess } from "@/lib/auth/session";
@@ -28,7 +29,7 @@ export default async function VirtualWaitingRoomPage({ params, searchParams }: P
   const joinable = ["confirmed", "scheduled", "in_progress", "checked_in"].includes(status);
 
   return (
-    <main className="main">
+    <main className="main" style={{ background: "#FDFDFC" }}>
       <Link href={`/${locale}/appointments/${appointmentId}`}>{ar ? "الموعد" : "Appointment"}</Link>
       <h1>{ar ? "غرفة الانتظار الافتراضية" : "Virtual waiting room"}</h1>
       <p role="status">

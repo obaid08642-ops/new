@@ -71,7 +71,7 @@ export function VectorDoctor({ size = 48, className, ...props }: IllustrationPro
         strokeWidth="4"
         strokeLinecap="round"
       />
-      <path d="M16 12H24M40 12H48" stroke="#16213A" strokeWidth="4" strokeLinecap="round" />
+      <path d="M16 12H24M40 12H48" stroke="#1E332E" strokeWidth="4" strokeLinecap="round" />
       <path
         d="M32 38V44C32 47.3137 34.6863 50 38 50H44"
         stroke="url(#stethoscope_grad)"
@@ -108,11 +108,11 @@ export function VectorLabs({ size = 48, className, ...props }: IllustrationProps
           <stop offset="1" stopColor="#5FD9B3" stopOpacity="0.3" />
         </linearGradient>
       </defs>
-      <rect x="22" y="10" width="20" height="4" rx="2" fill="#16213A" />
+      <rect x="22" y="10" width="20" height="4" rx="2" fill="#1E332E" />
       <path
         d="M24 14V44C24 48.4183 27.5817 52 32 52C36.4183 52 40 48.4183 40 44V14H24Z"
         fill="url(#tube_glass)"
-        stroke="#16213A"
+        stroke="#1E332E"
         strokeWidth="2.5"
       />
       <path
@@ -239,7 +239,7 @@ export function VectorMap({ size = 48, className, ...props }: IllustrationProps)
           <stop offset="1" stopColor="#0284C7" />
         </linearGradient>
       </defs>
-      <circle cx="32" cy="52" r="12" fill="#16213A" fillOpacity="0.1" />
+      <circle cx="32" cy="52" r="12" fill="#1E332E" fillOpacity="0.1" />
       <path
         d="M32 12C23.1634 12 16 19.1634 16 28C16 39 32 52 32 52C32 52 48 39 48 28C48 19.1634 40.8366 12 32 12Z"
         fill="url(#pin_grad)"
@@ -335,7 +335,7 @@ export function VectorHealthShield({ size = 48, className, ...props }: Illustrat
         <linearGradient id="shield_main" x1="14" y1="10" x2="50" y2="54" gradientUnits="userSpaceOnUse">
           <stop stopColor="#5FD9B3" />
           <stop offset="0.6" stopColor="#00876F" />
-          <stop offset="1" stopColor="#16213A" />
+          <stop offset="1" stopColor="#1E332E" />
         </linearGradient>
         <linearGradient id="shield_accent" x1="24" y1="20" x2="40" y2="36" gradientUnits="userSpaceOnUse">
           <stop stopColor="#B8E030" />
@@ -455,7 +455,7 @@ export function VectorNutrition({ size = 48, className, ...props }: Illustration
         fill="url(#nutr_bowl)"
       />
       <circle cx="32" cy="24" r="12" fill="url(#nutr_avocado)" />
-      <circle cx="32" cy="25" r="5" fill="#16213A" fillOpacity="0.8" />
+      <circle cx="32" cy="25" r="5" fill="#1E332E" fillOpacity="0.8" />
       <path d="M24 20C24 16 28 12 32 12C36 12 40 16 40 20" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" />
       <path d="M46 16L40 26" stroke="#5FD9B3" strokeWidth="3" strokeLinecap="round" />
     </svg>
@@ -478,7 +478,7 @@ export function VectorInsurance({ size = 48, className, ...props }: Illustration
     >
       <defs>
         <linearGradient id="ins_card" x1="10" y1="14" x2="54" y2="50" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#16213A" />
+          <stop stopColor="#1E332E" />
           <stop offset="0.6" stopColor="#1E293B" />
           <stop offset="1" stopColor="#0F172A" />
         </linearGradient>
@@ -495,7 +495,7 @@ export function VectorInsurance({ size = 48, className, ...props }: Illustration
       <rect x="16" y="24" width="12" height="10" rx="3" fill="url(#ins_chip)" />
       <path d="M16 28H28M22 24V34" stroke="#B45309" strokeWidth="1" />
       <circle cx="44" cy="38" r="9" fill="url(#ins_check)" />
-      <path d="M40 38L43 41L49 35" stroke="#16213A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M40 38L43 41L49 35" stroke="#1E332E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
       <rect x="16" y="40" width="16" height="3" rx="1.5" fill="#FFFFFF" fillOpacity="0.4" />
     </svg>
   );
@@ -688,7 +688,7 @@ export function VectorCatAll({ size = 48, className, ...props }: IllustrationPro
       <defs>
         <linearGradient id="cat_all_bg" x1="10" y1="10" x2="54" y2="54" gradientUnits="userSpaceOnUse">
           <stop stopColor="#00E599" />
-          <stop offset="1" stopColor="#0B1527" />
+          <stop offset="1" stopColor="#1E332E" />
         </linearGradient>
       </defs>
       <rect x="8" y="8" width="48" height="48" rx="16" fill="url(#cat_all_bg)" />
@@ -855,7 +855,7 @@ export function VectorChronicCare({ size = 48, className, ...props }: Illustrati
       />
       {/* Clock / Reminder badge in corner */}
       <circle cx="46" cy="18" r="7" fill="#B8E030" />
-      <path d="M46 15V18L48 20" stroke="#16213A" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M46 15V18L48 20" stroke="#1E332E" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
       {/* Dose indicator */}
       <circle cx="18" cy="46" r="3" fill="#38BDF8" />
     </svg>

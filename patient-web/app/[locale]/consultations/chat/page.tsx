@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { VectorDoctor } from "@/components-next/vector-illustrations";
 import { notFound, redirect } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { requirePatientAccess } from "@/lib/auth/session";
@@ -26,7 +27,7 @@ export default async function ConsultationChatPage({ params, searchParams }: Pro
   if (profile.status === 401) redirect(`/${locale}/login`);
   if (!profile.ok) {
     return (
-      <main className="main">
+      <main className="main" style={{ background: "#FDFDFC" }}>
         <Link href={`/${locale}/consultations`}>{ar ? "الاستشارات" : "Consultations"}</Link>
         <h1>{ar ? "محادثة الطبيب" : "Chat with doctor"}</h1>
         <p role="alert">{ar ? "تعذر فتح المحادثة — تحقق من الطبيب وحاول مجدداً" : "Could not open the chat — check the doctor and retry"}</p>

@@ -41,15 +41,15 @@ export default async function NursingVisitsPage({ params }: Props) {
           <p className={styles.subtitle}>{t("subtitle")}</p>
         </div>
         <span className={styles.heroIcon}>
-          <VectorNursing size={52} aria-hidden="true" />
+          <VectorNursing size={48} aria-hidden="true" />
         </span>
       </section>
 
       {visits.length === 0 ? (
         <section className={styles.state}>
-          <CalendarDays size={32} color="#E11D48" aria-hidden="true" />
-          <h2>{t("empty")}</h2>
-          <Link href={`/${locale}/nursing/catalog`} className={styles.status} style={{ marginTop: 12, padding: "8px 16px", textDecoration: "none" }}>
+          <CalendarDays size={32} color="#1E332E" aria-hidden="true" />
+          <h2 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t("empty")}</h2>
+          <Link href={`/${locale}/nursing/catalog`} className={styles.status} style={{ marginTop: 12, padding: "8px 16px", textDecoration: "none", background: "#5FD9B3", color: "#1E332E", border: "1px solid #E8EDEE", borderRadius: 20 }}>
             {locale === "ar" ? "استعرض خدمات التمريض" : "Browse Nursing Services"}
           </Link>
         </section>
@@ -62,11 +62,11 @@ export default async function NursingVisitsPage({ params }: Props) {
               key={visit.id}
             >
               <span className={styles.icon}>
-                <VectorNursing size={32} aria-hidden="true" />
+                <VectorNursing size={48} aria-hidden="true" />
               </span>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <h2>{visit.serviceName || t("visit")}</h2>
-                {visit.providerName ? <p>{visit.providerName}</p> : null}
+                <h2 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{visit.serviceName || t("visit")}</h2>
+                {visit.providerName ? <p style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{visit.providerName}</p> : null}
                 {visit.scheduledAt ? (
                   <p className={styles.meta}>
                     <CalendarDays size={14} aria-hidden="true" />

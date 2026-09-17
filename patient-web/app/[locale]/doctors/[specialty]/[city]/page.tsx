@@ -4,9 +4,10 @@ import type { Metadata } from "next";
 import { localizedUrl } from "@/lib/seo";
 import { isLocale, locales, type Locale } from "@/lib/i18n";
 import Link from "next/link";
+import { VectorDoctor } from "@/components-next/vector-illustrations";
 import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
-import { Building2, MapPin, ShieldCheck, Star, Stethoscope } from "lucide-react";
+import { Building2, MapPin, ShieldCheck, Star } from "lucide-react";
 
 type Props = { params: Promise<{ locale: string; specialty: string; city: string }> };
 
@@ -77,7 +78,7 @@ export default async function DoctorsSpecialtyCityPage({ params }: Props) {
     : `${specialty} Doctors in ${city}`;
 
   return (
-    <main className="main" style={{ maxWidth: "960px", margin: "0 auto", padding: "2rem 1rem" }}>
+    <main className="main" style={{ maxWidth: "960px", margin: "0 auto", padding: "2rem 1rem", background: "#FDFDFC" }}>
       <JsonLd
         data={[
           medicalWebPage({
@@ -94,7 +95,7 @@ export default async function DoctorsSpecialtyCityPage({ params }: Props) {
       />
 
       <header style={{ marginBottom: "2rem" }}>
-        <h1 style={{ fontSize: "2rem", fontWeight: 700, margin: "0 0 0.5rem 0", color: "#111827" }}>{pageTitle}</h1>
+        <h1 style={{ fontSize: "2rem", fontWeight: 700, margin: "0 0 0.5rem 0", color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{pageTitle}</h1>
         <p style={{ color: "#4b5563", fontSize: "1.05rem", margin: 0 }}>
           {locale === "ar"
             ? `استعرض الأطباء والمراكز الطبية المعتمدة في ${city} مع تقييمات موثقة وأسعار شفافة.`
@@ -104,15 +105,15 @@ export default async function DoctorsSpecialtyCityPage({ params }: Props) {
 
       {doctors.length ? (
         <section style={{ marginBottom: "2.5rem" }}>
-          <h2 style={{ fontSize: "1.3rem", fontWeight: 600, margin: "0 0 1rem 0", color: "#1e293b", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <Stethoscope size={20} color="#0066CC" />
+          <h2 style={{ fontSize: "1.3rem", fontWeight: 600, margin: "0 0 1rem 0", color: "#1E332E", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <VectorDoctor size={48} aria-hidden="true" />
             {locale === "ar" ? "الأطباء المتاحون" : "Available Doctors"}
           </h2>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1.25rem" }}>
             {doctors.map((doc: any) => (
-              <div key={doc.id} style={{ background: "#ffffff", border: "1px solid #e5e7eb", borderRadius: "10px", padding: "1.25rem", boxShadow: "0 1px 2px rgba(0,0,0,0.04)" }}>
+              <div key={doc.id} style={{ background: "rgba(253,253,252,0.92)", border: "1px solid #E8EDEE", borderRadius: "20px", backdropFilter: "blur(16px)" as any, padding: "1.25rem", boxShadow: "0 1px 2px rgba(0,0,0,0.04)" }}>
                 <h3 style={{ margin: "0 0 0.25rem 0", fontSize: "1.1rem" }}>
-                  <Link href={`/${locale}/doctor/${doc.slug || doc.id}`} style={{ color: "#0066CC", textDecoration: "none" }}>
+                  <Link href={`/${locale}/doctor/${doc.slug || doc.id}`} style={{ color: "#1E332E", textDecoration: "none" }}>
                     {locale === "ar" ? (doc.name_ar || doc.name_en) : (doc.name_en || doc.name_ar)}
                   </Link>
                 </h3>
@@ -125,7 +126,7 @@ export default async function DoctorsSpecialtyCityPage({ params }: Props) {
                 ) : null}
                 <Link
                   href={`/${locale}/consultations/doctors/${doc.id || doc.slug}`}
-                  style={{ display: "inline-block", background: "#0066CC", color: "#ffffff", padding: "0.5rem 1rem", borderRadius: "6px", fontSize: "0.85rem", fontWeight: 600, textDecoration: "none" }}
+                  style={{ display: "inline-block", background: "#5FD9B3", color: "#1E332E", padding: "0.5rem 1rem", borderRadius: "20px", fontSize: "0.85rem", fontWeight: 600, textDecoration: "none" }}
                 >
                   {locale === "ar" ? "حجز موعد" : "Book Appointment"}
                 </Link>
@@ -137,13 +138,13 @@ export default async function DoctorsSpecialtyCityPage({ params }: Props) {
 
       {facilities.length ? (
         <section>
-          <h2 style={{ fontSize: "1.3rem", fontWeight: 600, margin: "0 0 1rem 0", color: "#1e293b", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <h2 style={{ fontSize: "1.3rem", fontWeight: 600, margin: "0 0 1rem 0", color: "#1E332E", display: "flex", alignItems: "center", gap: "0.5rem" }}>
             <Building2 size={20} color="#16a34a" />
             {locale === "ar" ? "المستشفيات والمراكز التابعة" : "Associated Hospitals & Clinics"}
           </h2>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1.25rem" }}>
             {facilities.map((fac: any) => (
-              <div key={fac.id} style={{ background: "#ffffff", border: "1px solid #e5e7eb", borderRadius: "10px", padding: "1.25rem", boxShadow: "0 1px 2px rgba(0,0,0,0.04)" }}>
+              <div key={fac.id} style={{ background: "rgba(253,253,252,0.92)", border: "1px solid #E8EDEE", borderRadius: "20px", backdropFilter: "blur(16px)" as any, padding: "1.25rem", boxShadow: "0 1px 2px rgba(0,0,0,0.04)" }}>
                 <h3 style={{ margin: "0 0 0.25rem 0", fontSize: "1.1rem" }}>
                   <Link href={`/${locale}/facility/${fac.slug || fac.id}`} style={{ color: "#16a34a", textDecoration: "none" }}>
                     {locale === "ar" ? (fac.name_ar || fac.name_en) : (fac.name_en || fac.name_ar)}

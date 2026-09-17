@@ -5,6 +5,8 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { cdnImage, getPublicCategories, getPublicCategoryProducts, type PublicProductCard } from "@/lib/api/public-products-server";
 import { JsonLd } from "@/components-next/json-ld";
 import { QuickAddCartBtn } from "@/components-next/quick-add-cart-btn";
+import { PremiumProductCard } from "@/components-next/premium-product-card";
+import { resolveProductGallery } from "@/lib/api/public-products-server";
 import { isLocale, locales, type Locale } from "@/lib/i18n";
 import { localizedUrl } from "@/lib/seo";
 import {
@@ -97,43 +99,21 @@ function renderProductMedia(item: PublicProductCard) {
 }
 
 function Card({ locale, item }: { locale: string; item: PublicProductCard }) {
+  const gallery = resolveProductGallery(item as any);
+  const img = cdnImage(item.image);
+  const images = gallery.length ? gallery : img ? [img] : [];
+  // Ultra-Premium V3: use shared PremiumProductCard with glass + Forest Ink + overflow-wrap + line-clamp 2
   return (
-    <div className={styles.card}>
-      <Link href={`/${locale}/p/${encodeURIComponent(item.slug)}`} className={styles.cardMediaWrap}>
-        <span className={styles.cardMedia}>
-          {renderProductMedia(item)}
-        </span>
-      </Link>
-      <div className={styles.cardBody}>
-        <Link href={`/${locale}/p/${encodeURIComponent(item.slug)}`} className={styles.cardName}>
-          {item.name}
-        </Link>
-        <span className={styles.cardMeta}>
-          {[item.form, item.strength, item.package_size].filter(Boolean).join(" · ")}
-        </span>
-        <div className={styles.cardPriceRow}>
-          <span className={styles.cardPrice}>
-            {item.price.toFixed(2)} {item.currency}
-            {item.old_price && item.old_price > item.price ? <s>{item.old_price.toFixed(2)}</s> : null}
-          </span>
-        </div>
-        <QuickAddCartBtn
-          item={{
-            id: item.id,
-            name: item.name || "",
-            price: item.price,
-            image: cdnImage(item.image) ?? undefined,
-            form: item.form,
-            strength: item.strength,
-            slug: item.slug,
-          }}
-          labels={{
-            add: locale === "ar" ? "أضف للسلة" : "Add to cart",
-            added: locale === "ar" ? "تمت الإضافة" : "Added",
-          }}
-        />
-      </div>
-    </div>
+    <PremiumProductCard
+      id={item.id}
+      slug={item.slug}
+      name={item.name || ""}
+      price={item.price}
+      oldPrice={item.old_price ?? null}
+      image={images[0] ?? null}
+      images={images}
+      locale={locale}
+    />
   );
 }
 

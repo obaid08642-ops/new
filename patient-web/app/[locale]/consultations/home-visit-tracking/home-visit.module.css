@@ -1,9 +1,9 @@
-.page { padding: 24px 16px; max-width: 640px; margin: 0 auto; background: #F5F5F7; min-height: 60vh; }
+.page { padding: 24px 16px; max-width: 640px; margin: 0 auto; background: #FDFDFC; min-height: 60vh; }
 .back { display: inline-flex; align-items: center; gap: 4px; color: #1E332E; text-decoration: none; margin-bottom: 12px; }
-.title { display: flex; align-items: center; gap: 8px; color: #1E332E; }
+.title { overflow-wrap: anywhere; display: flex; align-items: center; gap: 8px; color: #1E332E; }
 .timeline { list-style: none; padding: 0; margin: 20px 0; display: grid; gap: 0; }
 .step { display: flex; align-items: center; gap: 12px; padding: 12px 0; opacity: .45; }
 .step.done { opacity: 1; font-weight: 700; color: #1E332E; }
-.dot { width: 14px; height: 14px; border-radius: 50%; background: rgba(22,33,58,.2); flex: none; }
-.step.done .dot { background: #B8E030; box-shadow: 0 0 0 4px rgba(184,224,48,.25); }
-.note { background: #fff; border-radius: 14px; padding: 14px; color: #FF4D5A; }
+.dot { width: 14px; height: 14px; border-radius: 50%; background: #E8EDEE; flex: none; }
+.step.done .dot { background: #5FD9B3; box-shadow: 0 0 0 4px rgba(95,217,179,.25); }
+.note { background: rgba(253,253,252,0.92); backdrop-filter: blur(16px); border: 1px solid #E8EDEE; border-radius: 20px; padding: 14px; color: #FF4D5A; }

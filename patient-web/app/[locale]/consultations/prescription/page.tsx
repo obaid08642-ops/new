@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { VectorDoctor } from "@/components-next/vector-illustrations";
 import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { requirePatientAccess } from "@/lib/auth/session";
@@ -17,7 +18,7 @@ export default async function PrescriptionPage({ params, searchParams }: Props) 
   const ar = locale === "ar";
   await requirePatientAccess(locale);
   return (
-    <main className="main">
+    <main className="main" style={{ background: "#FDFDFC" }}>
       <Link href={`/${locale}/consultations/appointments`}>{ar ? "مواعيدي" : "My appointments"}</Link>
       <h1>{ar ? "وصفة طبية" : "Prescription"}</h1>
       <PrescriptionClient locale={locale} appointmentId={appointmentId || undefined} />
