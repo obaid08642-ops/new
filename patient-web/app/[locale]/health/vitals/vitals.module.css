@@ -1,0 +1,5 @@
+@import "../health.module.css";
+.cta{ display:inline-flex; align-items:center; gap:8px; padding:8px 16px; border-radius:999px; background:#5FD9B3; color:#1E332E; font-weight:760; border:1px solid rgba(95,217,179,.16); text-decoration:none; transition:transform 160ms var(--ease-premium,ease),filter 160ms var(--ease-premium,ease) }
+.cta:hover{ filter:brightness(1.02); transform:translateY(-1px) }
+.cta:focus-visible{ outline:3px solid #1E332E; outline-offset:3px }
+.context{ margin:0; color:var(--muted); font-size:.88rem; line-height:1.6; overflow-wrap:anywhere; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden }

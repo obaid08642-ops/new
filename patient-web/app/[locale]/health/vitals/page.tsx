@@ -8,7 +8,9 @@ import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { RetryButton } from "@/components-next/retry-button";
 import { VectorVitals } from "@/components-next/vector-illustrations";
-import styles from "../health.module.css";
+import baseStyles from "../health.module.css";
+import styles from "./vitals.module.css";
+const s = { ...baseStyles, ...styles } as typeof baseStyles & typeof styles;
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -23,8 +25,8 @@ export default async function VitalsPage({ params }: Props) {
   if (response.status === 403 || response.status === 404) notFound();
   if (!response.ok)
     return (
-      <main className={`main ${styles.page}`}>
-        <section className={styles.state} role="alert">
+      <main className={`main ${s.page}`}>
+        <section className={s.state} role="alert">
           <h1>{t("unavailableTitle")}</h1>
           <p>{t("unavailable")}</p>
           <RetryButton />
@@ -35,46 +37,46 @@ export default async function VitalsPage({ params }: Props) {
   const readings = extractVitalHistory(await response.json().catch(() => null));
 
   return (
-    <main className={`main ${styles.page}`}>
-      <Link href={`/${locale}/health`} className={styles.back}>
+    <main className={`main ${s.page}`}>
+      <Link href={`/${locale}/health`} className={s.back}>
         <ChevronLeft size={17} aria-hidden="true" />
         {t("backToHealth")}
       </Link>
-      <section className={styles.hero}>
+      <section className={s.hero}>
         <div>
-          <p className={styles.eyebrow}>
+          <p className={s.eyebrow}>
             <ShieldCheck size={15} aria-hidden="true" />
             {t("vitalsHistoryEyebrow")}
           </p>
           <h1>{t("vitalsHistoryTitle")}</h1>
           <p>{t("vitalsHistoryNotice")}</p>
           <p>
-            <Link href={`/${locale}/health/vitals/log`}>
-              {locale === "ar" ? "تسجيل قراءة" : "Log reading"}
-            </Link>
+              <Link href={`/${locale}/health/vitals/log`} className={s.cta}>
+                {locale === "ar" ? "تسجيل قراءة" : "Log reading"}
+              </Link>
           </p>
         </div>
-        <span className={styles.heroVector}>
+        <span className={s.heroVector}>
           <VectorVitals size={48} aria-hidden="true" />
         </span>
       </section>
       {readings.length ? (
-        <section className={styles.grid} aria-label={t("vitalsHistoryTitle")}>
+        <section className={s.grid} aria-label={t("vitalsHistoryTitle")}>
           {readings.map((reading) => (
-            <article className={styles.card} key={reading.id}>
-              <div className={styles.cardTop}>
+            <article className={s.card} key={reading.id}>
+              <div className={s.cardTop}>
                 <span>{t(`vitals.${reading.key}`)}</span>
-                <span className={styles.glyph}>
+                <span className={s.glyph}>
                   <Activity size={18} aria-hidden="true" />
                 </span>
               </div>
-              <p className={styles.value}>
+              <p className={s.value}>
                 {reading.value}
                 {reading.unit ? ` ${reading.unit}` : ""}
               </p>
-              {reading.context ? <p>{reading.context}</p> : null}
+              {reading.context ? <p className={s.context}>{reading.context}</p> : null}
               {reading.measuredAt ? (
-                <p className={styles.date}>
+                <p className={s.date}>
                   <CalendarDays size={14} aria-hidden="true" />
                   {new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(reading.measuredAt))}
                 </p>
@@ -83,13 +85,13 @@ export default async function VitalsPage({ params }: Props) {
           ))}
         </section>
       ) : (
-        <section className={styles.state}>
+        <section className={s.state}>
           <VectorVitals size={48} aria-hidden="true" />
           <p>{t("vitalsHistoryEmpty")}</p>
           <p>{t("vitalsHistoryNoDefaults")}</p>
         </section>
       )}
-      <p className={styles.notice}>{t("vitalsHistoryReadOnly")}</p>
+      <p className={s.notice}>{t("vitalsHistoryReadOnly")}</p>
     </main>
   );
 }
