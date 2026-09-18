@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { Activity, Brain, HeartHandshake, HeartPulse, ShieldCheck, Sparkles } from "lucide-react";
+import { Activity, Brain, HeartHandshake, HeartPulse, ShieldCheck } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { getPatientWellbeingDashboard } from "@/lib/api/mental-health-server";
+import { callPatientApi } from "@/lib/api/upstream";
 import { parseWellbeingDashboard } from "@/lib/api/mental-health";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
@@ -17,7 +17,7 @@ export default async function MentalHealthPage({ params }: Props) {
   setRequestLocale(locale);
   const t = await getTranslations("MentalHealth");
   const token = await requirePatientAccess(locale);
-  const response = await getPatientWellbeingDashboard(token);
+  const response = await callPatientApi("/mental-health/dashboard", {}, token);
   if (response.status === 401) redirect(`/${locale}/login`);
   if (response.status === 403 || response.status === 404) notFound();
   if (!response.ok)
