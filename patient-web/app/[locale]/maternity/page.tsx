@@ -68,7 +68,7 @@ export default async function MaternityPage({ params }: Props) {
 
       {!response.ok ? (
         <section className={styles.state} role="alert">
-          <VectorMaternity size={42} aria-hidden="true" />
+          <VectorMaternity size={48} aria-hidden="true" />
           <p>{t("error")}</p>
         </section>
       ) : !hasProfile ? (
