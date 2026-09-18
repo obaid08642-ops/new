@@ -6,7 +6,7 @@ import { isLocale, locales } from "@/lib/i18n";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { ArrowLeft, ArrowRight, BadgeCheck, Building2, Clock3, Star, Stethoscope } from "lucide-react";
+import { ArrowLeft, ArrowRight, BadgeCheck, Building2, Clock3, Star } from "lucide-react";
 import { extractDoctor, extractDoctorSlots, type DoctorSlots } from "@/lib/api/doctors";
 import { getPublicDoctor, getPublicDoctorSlots } from "@/lib/api/doctors-server";
 import { AppointmentBookingForm } from "@/components-next/appointment-booking-form";
@@ -71,21 +71,21 @@ export default async function DoctorDetailPage({ params, searchParams }: Props) 
       </Link>
       <article className={styles.detail}>
         <div className={styles.detailHeader}>
-          <div className={styles.detailIcon} style={{ width: 84, height: 84, borderRadius: "var(--radius-xl)", border: "2px solid #5FD9B3", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "#F0FDF4" }}>
-            <VectorDoctor size={54} />
+          <div className={styles.detailIcon} style={{ width: 84, height: 84, borderRadius: 20, border: "1px solid #E8EDEE", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(253,253,252,0.92)", backdropFilter: "blur(16px)" } as any}>
+            <VectorDoctor size={48} aria-hidden="true" />
           </div>
           <div className={styles.detailInfo}>
             <p className={styles.eyebrow}>{t("eyebrow")}</p>
-            <h1>{doctor.name ?? t("nameUnavailable")}</h1>
+            <h1 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{doctor.name ?? t("nameUnavailable")}</h1>
             {doctor.degree ? (
-              <p className={styles.detailLine}>
+              <p className={styles.detailLine} style={{ overflowWrap: "anywhere" } as any}>
                 <BadgeCheck size={17} color="#00876F" aria-hidden="true" />
                 {doctor.degree}
               </p>
             ) : null}
             {doctor.specialty ? (
-              <p className={styles.detailLine}>
-                <Stethoscope size={17} color="#0B98AE" aria-hidden="true" />
+              <p className={styles.detailLine} style={{ overflowWrap: "anywhere" } as any}>
+                <BadgeCheck size={17} color="#00876F" aria-hidden="true" />
                 {doctor.specialty}
               </p>
             ) : null}

@@ -10,7 +10,7 @@ import { isLocale, locales } from "@/lib/i18n";
 import { localizedUrl, siteOrigin } from "@/lib/seo";
 import { howToJsonLd, speakable } from "@/lib/seo/json-ld";
 import { CiteThis } from "@/components-next/cite-this";
-import { ChevronLeft, ShieldCheck, FileText, AlertCircle, Info, Sparkles } from "lucide-react";
+import { ChevronLeft, ShieldCheck, FileText, AlertCircle, Info, Sparkles, Pill, Factory, Package, Beaker, Layers, Barcode, Tag } from "lucide-react";
 import styles from "./product-page.module.css";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
@@ -47,6 +47,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     twitter: { card: "summary_large_image", title: name, description, images: image ? [image] : undefined },
   };
+}
+
+function factIcon(label: string) {
+  const l = label.toLowerCase();
+  if (l.includes("active") || l.includes("مادة") || l.includes("ingredient")) return <Beaker size={14} color="#1E332E" aria-hidden="true" />;
+  if (l.includes("form") || l.includes("شكل")) return <Pill size={14} color="#1E332E" aria-hidden="true" />;
+  if (l.includes("strength") || l.includes("تركيز") || l.includes("قوة")) return <Layers size={14} color="#1E332E" aria-hidden="true" />;
+  if (l.includes("package") || l.includes("عبوة") || l.includes("حجم")) return <Package size={14} color="#1E332E" aria-hidden="true" />;
+  if (l.includes("category") || l.includes("فئة")) return <Tag size={14} color="#1E332E" aria-hidden="true" />;
+  if (l.includes("manufacturer") || l.includes("شركة") || l.includes("مصنع")) return <Factory size={14} color="#1E332E" aria-hidden="true" />;
+  if (l.includes("origin") || l.includes("منشأ") || l.includes("بلد")) return <Factory size={14} color="#1E332E" aria-hidden="true" />;
+  if (l.includes("barcode") || l.includes("باركود")) return <Barcode size={14} color="#1E332E" aria-hidden="true" />;
+  return <Info size={14} color="#1E332E" aria-hidden="true" />;
 }
 
 function facts(product: PublicProduct, t: (k: string) => string): Array<[string, string]> {
@@ -264,8 +277,11 @@ export default async function PublicProductPage({ params }: Props) {
         <dl className={styles.grid}>
           {facts(product, t).map(([label, value]) => (
             <div className={styles.item} key={label}>
-              <dt>{label}</dt>
-              <dd>{value}</dd>
+              <dt style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "#1E332E" }}>
+                {factIcon(label)}
+                <span style={{ overflowWrap: "anywhere" }}>{label}</span>
+              </dt>
+              <dd style={{ overflowWrap: "anywhere" }}>{value}</dd>
             </div>
           ))}
         </dl>

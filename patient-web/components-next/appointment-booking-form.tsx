@@ -97,7 +97,7 @@ export function AppointmentBookingForm({
           <ShieldCheck size={15} />
           <span>{isAr ? "تم تأكيد حجز الموعد بنجاح" : "Appointment Confirmed Successfully"}</span>
         </div>
-        <h2 style={{ fontSize: "1.4rem", fontWeight: 900, color: "#16213A", margin: "0 0 0.5rem" }}>
+        <h2 style={{ fontSize: "clamp(1.2rem,2.5vw,1.4rem)", fontWeight: 900, color: "#1E332E", margin: "0 0 0.5rem", overflowWrap: "anywhere" }}>
           {isAr ? "موعدك محجوز ومؤكد" : "Your Appointment is Confirmed"}
         </h2>
         <p style={{ color: "#64748B", fontSize: "0.92rem", margin: "0 0 1.5rem" }}>

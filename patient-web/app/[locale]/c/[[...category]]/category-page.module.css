@@ -49,7 +49,7 @@
   background: transparent;
   font-size: 15px;
   font-family: inherit;
-  color: #0F172A;
+  color: var(--ink, #1E332E);
 }
 
 :global(.dark) .searchInput {
@@ -191,7 +191,7 @@
 .railTitle {
   font-size: 17px;
   font-weight: 900;
-  color: #0F172A;
+  color: var(--ink, #1E332E);
   margin: 0;
 }
 
@@ -221,7 +221,7 @@
 .categoryCard {
   flex: 0 0 135px;
   min-height: 135px;
-  border-radius: 18px;
+  border-radius: 20px;
   padding: 14px 10px;
   display: flex;
   flex-direction: column;
@@ -230,9 +230,11 @@
   text-align: center;
   gap: 8px;
   text-decoration: none;
-  border: 1.5px solid #E2E8F0;
-  background: #FFFFFF;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.03);
+  border: 1.5px solid var(--line, #E8EDEE);
+  background: rgba(255,255,255,0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 3px 10px rgba(30, 51, 46, 0.06);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
 }
@@ -270,8 +272,9 @@
 .catCardTitle {
   font-size: 13px;
   font-weight: 800;
-  color: #0F172A;
+  color: var(--ink, #1E332E);
   line-height: 1.3;
+  overflow-wrap: anywhere;
 }
 
 :global(.dark) .catCardTitle {
@@ -314,8 +317,9 @@
 .sectionTitle {
   font-size: 19px;
   font-weight: 900;
-  color: #0F172A;
+  color: var(--ink, #1E332E);
   margin: 0;
+  overflow-wrap: anywhere;
 }
 
 :global(.dark) .sectionTitle {
@@ -504,7 +508,7 @@
 .gridCards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 16px;
+  gap: 12px;
 }
 
 .card {

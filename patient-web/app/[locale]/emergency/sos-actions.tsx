@@ -98,7 +98,7 @@ export function SosActions({ active, labels }: { active: ActiveSos | null; label
         </div>
       ) : (
         <div className={styles.activeAlert} style={{ background: "#fff" }}>
-          <p style={{ margin: 0, fontWeight: 800, fontSize: 18, color: "#16213a" }}>
+          <p style={{ margin: 0, fontWeight: 800, fontSize: "clamp(1rem,2.5vw,1.15rem)", color: "#1E332E", overflowWrap: "anywhere" }}>
             {labels.trigger}؟
           </p>
           <p style={{ margin: 0, fontSize: 14, color: "#526473" }}>

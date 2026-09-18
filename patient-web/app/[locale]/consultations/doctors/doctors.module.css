@@ -38,19 +38,19 @@
 .detailHeader { display: flex; align-items: flex-start; gap: 20px; margin-bottom: 24px; }
 .detailIcon { display: grid; place-items: center; width: 76px; height: 76px; flex-shrink: 0; border-radius: 20px; background: linear-gradient(135deg, #e7f9f5, #daf4f8); border: 1px solid rgba(95, 217, 179, 0.35); box-shadow: 0 10px 24px rgba(0, 135, 111, 0.08); }
 .detailInfo { flex: 1; }
-.detail h1 { margin: 0; color: #1E332E; font-size: clamp(26px, 4vw, 36px); font-weight: 850; letter-spacing: -0.035em; }
+.detail h1 { margin: 0; color: #1E332E; font-size: clamp(26px, 4vw, 36px); font-weight: 850; letter-spacing: -0.035em; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .detailLine { display: flex; align-items: center; gap: 8px; margin: 8px 0 0; color: #526473; font-size: 14px; }
 .facts { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
 .facts span { display: inline-flex; align-items: center; gap: 7px; padding: 8px 14px; color: #1E332E; border: 1px solid #E8EDEE; border-radius: 999px; background: rgba(253,253,252,0.92); backdrop-filter: blur(16px); font-size: 13px; font-weight: 700; }
 .notice { margin: 24px 0 0; padding: 14px 18px; color: #00876f; line-height: 1.6; border-radius: 16px; background: rgba(95, 217, 179, 0.15); border: 1px solid rgba(95, 217, 179, 0.3); font-size: 14px; }
-.slotPanel { margin-top: 30px; padding-top: 26px; border-top: 1px solid #e5e8ee; }
+.slotPanel { margin-top: 30px; padding-top: 26px; border-top: 1px solid #E8EDEE; }
 .slotPanel h2 { margin: 0 0 14px; color: #1E332E; font-size: 20px; font-weight: 800; }
 .slotTabs { display: flex; flex-wrap: wrap; gap: 8px; }
 .slotDate { margin: 16px 0 12px; color: #526473; font-size: 14px; font-weight: 700; }
 .slotGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 10px; }
 .slotAvailable, .slotUnavailable { display: grid; place-items: center; min-height: 44px; border-radius: 12px; font-size: 13px; font-weight: 750; }
 .slotAvailable { color: #1E332E; border: 1px solid #5FD9B3; background: rgba(95, 217, 179, 0.16); }
-.slotUnavailable { color: #94a3b8; border: 1px solid #e2e8f0; background: #f8fafc; text-decoration: line-through; }
+.slotUnavailable { color: #94a3b8; border: 1px solid #E8EDEE; background: #f8fafc; text-decoration: line-through; }
 @media (max-width: 768px) {
   .page { padding: 20px 14px 60px; }
   .hero { flex-direction: column; align-items: flex-start; padding: 22px; }

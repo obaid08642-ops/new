@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { ArrowLeft, ArrowRight, BadgeCheck, Calendar, Search, Star, Stethoscope } from "lucide-react";
+import { ArrowLeft, ArrowRight, BadgeCheck, Calendar, Search, Star } from "lucide-react";
 import { extractDoctors } from "@/lib/api/doctors";
 import { getPublicDoctors } from "@/lib/api/doctors-server";
 import { isLocale, locales } from "@/lib/i18n";
@@ -51,7 +51,7 @@ export default async function DoctorsPage({ params, searchParams }: Props) {
           <p className={styles.subtitle}>{t("subtitle")}</p>
         </div>
         <span className={styles.heroIcon}>
-          <VectorDoctor size={52} aria-hidden="true" />
+          <VectorDoctor size={48} aria-hidden="true" />
         </span>
       </section>
 
@@ -95,8 +95,7 @@ export default async function DoctorsPage({ params, searchParams }: Props) {
                   </span>
                   {doctor.degree ? <small className={styles.doctorDegree}>{doctor.degree}</small> : null}
                   {doctor.specialty ? (
-                    <span className={styles.specialtyBadge}>
-                      <Stethoscope size={12} aria-hidden="true" />
+                    <span className={styles.specialtyBadge} style={{ overflowWrap: "anywhere" } as any}>
                       {doctor.specialty}
                     </span>
                   ) : null}

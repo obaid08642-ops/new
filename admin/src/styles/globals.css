@@ -1,8 +1,20 @@
 @import "tailwindcss";
 
+/* V3 Ultra-Premium — Forest Ink #1E332E, Cream #FDFDFC, line #E8EDEE, Fair Mint #5FD9B3 */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #FDFDFC;
+  --foreground: #1E332E;
+  --line: #E8EDEE;
+  --brand: #5FD9B3;
+  --brand-deep: #3DBB9A;
+  --canvas: #FDFDFC;
+  --surface: #FFFFFF;
+  --ink: #1E332E;
+  --muted: #64748B;
+  --radius-lg: 20px;
+  --space-2: 8px;
+  --space-4: 16px;
+  color-scheme: light;
 }
 
 @theme inline {
@@ -14,8 +26,8 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #0b131f;
+    --foreground: #f0f6fc;
   }
 }
 
@@ -23,4 +35,8 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  overflow-wrap: anywhere;
 }
+/* 8pt grid, glass 16px, radius 20 enforced via utilities + cards */
+:where(.rounded-xl) { border-radius: 20px; }
+:where(.backdrop-blur) { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }

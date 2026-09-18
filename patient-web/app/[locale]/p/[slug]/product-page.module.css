@@ -36,7 +36,7 @@
   color: #F0F6FC;
 }
 
-/* 1. Hero Layout */
+/* 1. Hero Layout — Ultra-Premium V3: Glass + Cream #FDFDFC */
 .hero {
   position: relative;
   display: grid;
@@ -44,10 +44,12 @@
   gap: 2.5rem;
   align-items: start;
   padding: 2.2rem;
-  border: 1px solid #E2E8F0;
-  border-radius: 28px;
-  background: #FFFFFF;
-  box-shadow: 0 10px 30px rgba(22, 33, 58, 0.05);
+  border: 1px solid var(--line, #E8EDEE);
+  border-radius: 20px;
+  background: rgba(255,255,255,0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 12px 32px rgba(30, 51, 46, 0.07);
 }
 
 :global(.dark) .hero {
@@ -103,11 +105,13 @@
 
 .hero h1 {
   margin: 0;
-  color: #1E332E;
+  color: var(--ink, #1E332E);
   font-size: clamp(1.6rem, 3.2vw, 2.3rem);
   letter-spacing: -0.02em;
   line-height: 1.25;
   font-weight: 900;
+  overflow-wrap: anywhere;
+  min-width: 0;
 }
 
 :global(.dark) .hero h1 {
@@ -115,9 +119,9 @@
 }
 
 .priceCard {
-  background: #F8FAFC;
-  border: 1px solid #E2E8F0;
-  border-radius: 18px;
+  background: rgba(253, 253, 252, 0.9);
+  border: 1px solid var(--line, #E8EDEE);
+  border-radius: 20px;
   padding: 16px 20px;
   display: flex;
   flex-direction: column;
@@ -137,9 +141,10 @@
 }
 
 .price {
-  color: #00876F;
+  color: var(--ink, #1E332E);
   font-size: 1.8rem;
   font-weight: 900;
+  overflow-wrap: anywhere;
 }
 
 :global(.dark) .price {
@@ -166,15 +171,17 @@
   margin-top: 0.5rem;
 }
 
-/* 2. Facts / Specifications */
+/* 2. Facts / Specifications — 2×2 Glass */
 .detail {
   display: grid;
-  gap: 1.2rem;
+  gap: 12px;
   padding: 1.6rem 2rem;
-  border: 1px solid #E2E8F0;
-  border-radius: 24px;
-  background: #FFFFFF;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+  border: 1px solid var(--line, #E8EDEE);
+  border-radius: 20px;
+  background: rgba(255,255,255,0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 8px 24px rgba(30, 51, 46, 0.07);
 }
 
 :global(.dark) .detail {
@@ -202,7 +209,7 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
   margin: 0;
 }
@@ -212,9 +219,10 @@
   flex-direction: column;
   gap: 4px;
   padding: 12px 16px;
-  border: 1px solid #F1F5F9;
+  border: 1px solid var(--line, #E8EDEE);
   border-radius: 14px;
-  background: #F8FAFC;
+  background: rgba(253, 253, 252, 0.85);
+  min-width: 0;
 }
 
 :global(.dark) .item {
