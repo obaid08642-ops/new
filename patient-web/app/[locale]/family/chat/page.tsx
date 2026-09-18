@@ -18,18 +18,18 @@ export default async function FamilyChatPage({ params }: Props) {
   const ar = locale === "ar";
   await requirePatientAccess(locale);
   return (
-    <main className={`main ${styles.page}`}>
+    <main className={`main ${styles.page}`} style={{ background: "#FDFDFC" }}>
       <Link className={styles.back} href={`/${locale}/family`}><ChevronLeft size={16} aria-hidden="true" />{ar ? "العائلة" : "Family"}</Link>
-      <section className={styles.intro}>
+      <section className={styles.intro} style={{ backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderColor: "#E8EDEE", borderRadius: 20, background: "linear-gradient(135deg, #FDFDFC 0%, #F0FDF9 60%, #E7FFF6 100%)" }}>
         <div className={styles.introText}>
-          <p className={styles.eyebrow}><ShieldCheck size={15} aria-hidden="true" />{ar ? "تواصل العائلة" : "Family chat"}</p>
-          <h1 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" as any }}>{ar ? "محادثة العائلة" : "Family chat"}</h1>
+          <p className={styles.eyebrow} style={{ color: "#1E332E", overflowWrap: "anywhere" }}><ShieldCheck size={15} aria-hidden="true" />{ar ? "تواصل العائلة" : "Family chat"}</p>
+          <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as React.CSSProperties}>{ar ? "محادثة العائلة" : "Family chat"}</h1>
           <p style={{ overflowWrap: "anywhere" }}>{ar ? "رسائل فورية بين أفراد المجموعة العائلية — يتم التحديث كل 5 ثوانٍ من الخادم." : "Instant family thread — polled from the server every 5s."}</p>
         </div>
-        <div className={styles.introVector}><VectorFamily size={48} /></div>
+        <div className={styles.introVector}><VectorFamily size={48} aria-hidden="true" /></div>
       </section>
-      <section className={styles.detail} style={{ padding: 16 }}>
-        <h2 style={{ display: "flex", alignItems: "center", gap: 8, margin: "0 0 8px", overflowWrap: "anywhere" as any }}><MessagesSquare size={17} aria-hidden="true" />{ar ? "المحادثة" : "Conversation"}</h2>
+      <section className={styles.detail} style={{ padding: 16, backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderColor: "#E8EDEE", borderRadius: 20, background: "#FFFFFF" }}>
+        <h2 style={{ display: "flex", alignItems: "center", gap: 8, margin: "0 0 8px", overflowWrap: "anywhere", color: "#1E332E" } as React.CSSProperties}><MessagesSquare size={17} aria-hidden="true" />{ar ? "المحادثة" : "Conversation"}</h2>
         <FamilyChatClient locale={locale} />
       </section>
     </main>
