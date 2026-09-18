@@ -24,9 +24,7 @@ export default async function PrescriptionsPage({ params }: Props) {
     return (
       <main className={`main ${styles.page}`}>
         <section className={styles.state} role="alert">
-          <span className={styles.stateIcon}>
-            <FileText size={25} aria-hidden="true" />
-          </span>
+          <VectorPharmacy size={48} aria-hidden="true" />
           <h1>{t("unavailableTitle")}</h1>
           <p>{t("unavailable")}</p>
           <RetryButton />
@@ -50,9 +48,7 @@ export default async function PrescriptionsPage({ params }: Props) {
       </section>
       {prescriptions.length === 0 ? (
         <section className={styles.state}>
-          <span className={styles.stateIcon}>
-            <FileText size={25} aria-hidden="true" />
-          </span>
+          <VectorPharmacy size={48} aria-hidden="true" />
           <p>{t("empty")}</p>
         </section>
       ) : (
