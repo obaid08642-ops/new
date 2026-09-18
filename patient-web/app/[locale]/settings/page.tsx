@@ -34,13 +34,14 @@ export default async function SettingsPage({ params }: Props) {
   const visibleSessions = sessions.slice(0, 8);
   const hiddenSessions = Math.max(0, sessions.length - visibleSessions.length);
   return <main className={`main ${styles.page}`}>
-    <section className={styles.hero}><p className={styles.eyebrow}><ShieldCheck size={15} aria-hidden="true" />{t("eyebrow")}</p><h1>{t("title")}</h1><p>{t("notice")}</p>
-      <nav aria-label={t("title")} style={{ display: "flex", gap: 8, marginTop: 12 }}>
-        <Link href={`/${locale}/settings/language`}>{locale === "ar" ? "اللغة" : "Language"}</Link>
-        <Link href={`/${locale}/settings/notifications`}>{locale === "ar" ? "الإشعارات" : "Notifications"}</Link>
-        <Link href={`/${locale}/settings/about`}>{locale === "ar" ? "عن التطبيق" : "About"}</Link>
-        <Link href={`/${locale}/settings/help`}>{locale === "ar" ? "المساعدة" : "Help"}</Link>
-        <Link href={`/${locale}/settings/feedback`}>{locale === "ar" ? "رأيك" : "Feedback"}</Link>
+    <section className={styles.hero}><p className={styles.eyebrow}><ShieldCheck size={15} aria-hidden="true" />{t("eyebrow")}</p><h1 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{t("title")}</h1><p style={{ overflowWrap: "anywhere" } as any}>{t("notice")}</p>
+      <nav aria-label={t("title")} style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" as const }}>
+        <Link href={`/${locale}/settings/language`} style={{ padding: "8px 14px", borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", color: "#1E332E", fontWeight: 700, fontSize: ".84rem", textDecoration: "none" } as any}>{locale === "ar" ? "اللغة" : "Language"}</Link>
+        <Link href={`/${locale}/settings/notifications`} style={{ padding: "8px 14px", borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", color: "#1E332E", fontWeight: 700, fontSize: ".84rem", textDecoration: "none" } as any}>{locale === "ar" ? "الإشعارات" : "Notifications"}</Link>
+        <Link href={`/${locale}/settings/privacy`} style={{ padding: "8px 14px", borderRadius: 20, border: "1px solid #E8EDEE", background: "#5FD9B3", color: "#1E332E", fontWeight: 800, fontSize: ".84rem", textDecoration: "none" } as any}>{locale === "ar" ? "الخصوصية" : "Privacy"}</Link>
+        <Link href={`/${locale}/settings/about`} style={{ padding: "8px 14px", borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", color: "#1E332E", fontWeight: 700, fontSize: ".84rem", textDecoration: "none" } as any}>{locale === "ar" ? "عن التطبيق" : "About"}</Link>
+        <Link href={`/${locale}/settings/help`} style={{ padding: "8px 14px", borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", color: "#1E332E", fontWeight: 700, fontSize: ".84rem", textDecoration: "none" } as any}>{locale === "ar" ? "المساعدة" : "Help"}</Link>
+        <Link href={`/${locale}/settings/feedback`} style={{ padding: "8px 14px", borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", color: "#1E332E", fontWeight: 700, fontSize: ".84rem", textDecoration: "none" } as any}>{locale === "ar" ? "رأيك" : "Feedback"}</Link>
       </nav>
     </section>
     <section className={styles.grid}>
