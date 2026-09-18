@@ -37,9 +37,15 @@ export default async function MedicineComparePage({ params, searchParams }: Prop
 
   return <main className={`main ${styles.page}`}>
     <Link className={styles.back} href={`/${locale}/medicines`}><ChevronLeft size={17} aria-hidden="true" />{t("back")}</Link>
-    <h1 className={styles.title}><GitCompareArrows size={22} aria-hidden="true" />{t("title")}</h1>
+    <section className={styles.hero}>
+      <div className={styles.heroText}>
+        <h1><GitCompareArrows size={20} aria-hidden="true" /><span>{t("title")}</span></h1>
+        <p>{t("emptyBody")}</p>
+      </div>
+      <span className={styles.heroIcon} aria-hidden="true"><GitCompareArrows size={22} /></span>
+    </section>
     {items.length < 2 ? (
-      <section className={styles.empty}><p>{t("emptyBody")}</p><Link className={styles.primary} href={`/${locale}/medicines`}>{t("browse")}</Link></section>
+      <section className={styles.empty}><span className={styles.emptyIcon} aria-hidden="true"><GitCompareArrows size={22} /></span><p>{t("emptyBody")}</p><Link className={styles.primary} href={`/${locale}/medicines`}>{t("browse")}</Link></section>
     ) : (
       <div className={styles.tableWrap}><table className={styles.table}>
         <thead><tr><th>{t("attribute")}</th>{items.map((m, i) => <th key={i}>{String(m.name ?? m.title ?? `#${i + 1}`)}</th>)}</tr></thead>
