@@ -1,11 +1,12 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
+import { MapPin } from "lucide-react";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { getPatientAddresses } from "@/lib/api/addresses-server";
 import { DeliveryAddressSelectClient } from "@/components-next/delivery-address-select-client";
 import type { PatientAddress } from "@/components-next/addresses";
+import styles from "./address-select.module.css";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -26,9 +27,14 @@ export default async function DeliveryAddressSelectPage({ params }: Props) {
     return [a as PatientAddress];
   });
   return (
-    <main className="main">
-      <Link href={`/${locale}/cart`}>{ar ? "السلة" : "Cart"}</Link>
-      <h1>{ar ? "عنوان التوصيل" : "Delivery address"}</h1>
+    <main className={`main ${styles.page}`}>
+      <section className={styles.header}>
+        <div>
+          <p className={styles.eyebrow}>{ar ? "التوصيل" : "Delivery"}</p>
+          <h1>{ar ? "عنوان التوصيل" : "Delivery address"}</h1>
+        </div>
+        <span className={styles.vectorWrap}><MapPin size={48} aria-hidden="true" /></span>
+      </section>
       <DeliveryAddressSelectClient addresses={addresses} locale={locale} />
     </main>
   );
