@@ -17,8 +17,8 @@ export default async function PrescriptionTranslatorPage({ params }: Props) {
   const ar = locale === "ar";
 
   return (
-    <main className={`main ${styles.page}`}>
-      <section className={styles.hero}>
+    <main className={`main ${styles.page}`} style={{ background: "#FDFDFC" }}>
+      <section className={styles.hero} style={{ borderColor: "#E8EDEE", borderRadius: 20 }}>
         <div>
           <p className={styles.eyebrow}>{ar ? "الذكاء الاصطناعي" : "AI"}</p>
           <h1 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{ar ? "مترجم الوصفات" : "Prescription translator"}</h1>

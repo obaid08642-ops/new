@@ -44,8 +44,8 @@ export default async function AiMonthlyReportPage({ params }: Props) {
   const allFailed = [apptsRes, vitalsRes, medsRes, trendsRes].every((r) => !r.ok);
   if (allFailed) {
     return (
-      <main className={`main ${styles.page}`}>
-        <section className={styles.hero}>
+      <main className={`main ${styles.page}`} style={{ background: "#FDFDFC" }}>
+        <section className={styles.hero} style={{ borderColor: "#E8EDEE", borderRadius: 20 }}>
           <div>
             <p className={styles.eyebrow}>{ar ? "تقريرك الشهري" : "Monthly Report"}</p>
             <h1 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{ar ? "تقريرك الشهري" : "Your monthly report"}</h1>
@@ -53,7 +53,7 @@ export default async function AiMonthlyReportPage({ params }: Props) {
           </div>
           <span className={styles.heroIcon}><VectorAI size={48} aria-hidden="true" /></span>
         </section>
-        <div className={styles.card} style={{ textAlign: "center" }}>
+        <div className={styles.card} style={{ backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", textAlign: "center" }}>
           <Link href={`/${locale}/ai/monthly-report`} style={{ display: "inline-flex", padding: "10px 20px", background: "#5FD9B3", color: "#1E332E", borderRadius: 20, border: "1px solid #E8EDEE", fontWeight: 700, textDecoration: "none" }}>{ar ? "إعادة المحاولة" : "Retry"}</Link>
         </div>
       </main>
@@ -83,8 +83,8 @@ export default async function AiMonthlyReportPage({ params }: Props) {
   const monthLabel = new Intl.DateTimeFormat(locale, { month: "long", year: "numeric" }).format(now);
 
   return (
-    <main className={`main ${styles.page}`}>
-      <section className={styles.hero}>
+    <main className={`main ${styles.page}`} style={{ background: "#FDFDFC" }}>
+      <section className={styles.hero} style={{ borderColor: "#E8EDEE", borderRadius: 20 }}>
         <div>
           <p className={styles.eyebrow}>{ar ? "المساعد الذكي" : "AI assistant"}</p>
           <h1 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{ar ? "تقريرك الشهري" : "Your monthly report"} — {monthLabel}</h1>
