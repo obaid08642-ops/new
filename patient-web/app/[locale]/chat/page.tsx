@@ -6,6 +6,7 @@ import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { RetryButton } from "@/components-next/retry-button";
 import { CalendarDays, MessageCircle, ShieldCheck } from "lucide-react";
+import { VectorSupport } from "@/components-next/vector-illustrations";
 import styles from "./chat.module.css";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -27,7 +28,7 @@ export default async function ChatPage({ params }: Props) {
         <p className={styles.eyebrow}><ShieldCheck size={15} aria-hidden="true" />{t("eyebrow")}</p>
         <h1>{t("title")}</h1>
       </div>
-      <span className={styles.introIcon}><MessageCircle size={27} aria-hidden="true" /></span>
+      <span className={styles.introIcon}><VectorSupport size={48} aria-hidden="true" /></span>
     </section>
     {threads.length === 0 ? <section className={styles.state}><MessageCircle size={25} aria-hidden="true" /><p>{t("empty")}</p></section> : <section className={styles.grid} aria-label={t("title")}>{threads.map((thread) => <article className={styles.card} key={thread.id}>
       <span className={styles.cardIcon}><MessageCircle size={19} aria-hidden="true" /></span>
