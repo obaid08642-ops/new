@@ -1,7 +1,6 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { ArrowLeft, ArrowRight, Clock, HeartHandshake, ShieldCheck } from "lucide-react";
+import { Clock, ShieldCheck } from "lucide-react";
 import { extractNursingCatalog } from "@/lib/api/nursing-catalog";
 import { getPublicNursingCatalog } from "@/lib/api/nursing-catalog-server";
 import { isLocale, locales } from "@/lib/i18n";
@@ -95,18 +94,18 @@ export default async function NursingCatalogPage({ params }: Props) {
           const description = rtl ? item.descriptionAr ?? item.descriptionEn : item.descriptionEn ?? item.descriptionAr;
           const duration = [item.durationValue, item.duration].filter(Boolean).join(" ");
           return (
-            <div key={item.id} className={styles.card}>
-              <div className={styles.cardTop}>
-                <span className={styles.icon} style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(95,217,179,0.12)", border: "1px solid #E8EDEE", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  {getNursingVector(item)}
-                </span>
+              <div key={item.id} className={styles.card}>
+               <div className={styles.cardTop}>
+                 <span className={styles.icon}>
+                   {getNursingVector(item)}
+                 </span>
                 <div className={styles.copy}>
                   <h2 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{name}</h2>
                   {description ? <p style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{description}</p> : null}
                 </div>
               </div>
 
-              <div className={styles.cardBottom} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "1rem" }}>
+               <div className={styles.cardBottom}>
                 <div className={styles.meta}>
                   {item.price !== undefined ? (
                     <span className={styles.priceBadge}>
