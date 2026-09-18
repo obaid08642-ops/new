@@ -27,36 +27,38 @@ export default async function DiagnosticsResultsPage({ params }: Props) {
 
   return (
     <main className={`main ${styles.page}`}>
-      <Link href={`/${locale}/diagnostics`}>{t("back")}</Link>
+      <Link href={`/${locale}/diagnostics`} style={{ color: "#1E332E", fontWeight: 760, textDecoration: "none", overflowWrap: "anywhere" as any }}>{t("back")}</Link>
       <section className={styles.intro}>
         <div className={styles.introText}>
           <p className={styles.eyebrow}><FlaskConical size={15} aria-hidden="true" />{t("eyebrow")}</p>
-          <h1>{locale === "ar" ? "نتائجي وتقاريري" : "My results & reports"}</h1>
-          <p>{locale === "ar" ? "نتائج المختبر وتقارير الأشعة من الخادم فقط." : "Lab results and radiology reports from the server only."}</p>
+          <h1 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" as any }}>{locale === "ar" ? "نتائجي وتقاريري" : "My results & reports"}</h1>
+          <p style={{ overflowWrap: "anywhere" }}>{locale === "ar" ? "نتائج المختبر وتقارير الأشعة من الخادم فقط." : "Lab results and radiology reports from the server only."}</p>
         </div>
       </section>
-      <section>
-        <h2>{locale === "ar" ? "حجوزات المختبر" : "Lab bookings"}</h2>
+      <section className={styles.domain} style={{ display: "grid", gap: 16 }}>
+        <h2 style={{ margin: 0, color: "#1E332E", fontSize: "1.05rem", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" as any }}>{locale === "ar" ? "حجوزات المختبر" : "Lab bookings"}</h2>
         {Array.isArray(labList) && labList.length > 0 ? (
-          <ul style={{ display: "grid", gap: 8 }}>
+          <div style={{ display: "grid", gap: 16 }}>
             {labList.map((b: unknown, i: number) => {
               const r = b as Record<string, unknown>;
               const id = String(r.id ?? r.bookingId ?? r._id ?? i);
-              return <li key={id}><Link href={`/${locale}/diagnostics/labs/${encodeURIComponent(id)}`}>{String(r.service_name ?? r.name ?? id)}</Link></li>;
+              const label = String(r.service_name ?? r.name ?? id);
+              return <Link key={id} href={`/${locale}/diagnostics/labs/${encodeURIComponent(id)}`} style={{ display: "flex", alignItems: "center", gap: 16, padding: 16, border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", color: "#1E332E", fontWeight: 700, textDecoration: "none", overflowWrap: "anywhere", boxShadow: "0 8px 24px rgba(30,51,46,.07)" }}><span style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" as any }}>{label}</span></Link>;
             })}
-          </ul>
-        ) : <p>{t("unavailable")}</p>}
+          </div>
+        ) : <p className={styles.empty} style={{ overflowWrap: "anywhere" }}>{t("unavailable")}</p>}
       </section>
-      <section>
-        <h2>{locale === "ar" ? "تقارير الأشعة" : "Radiology reports"}</h2>
+      <section className={styles.domain} style={{ display: "grid", gap: 16 }}>
+        <h2 style={{ margin: 0, color: "#1E332E", fontSize: "1.05rem", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" as any }}>{locale === "ar" ? "تقارير الأشعة" : "Radiology reports"}</h2>
         {Array.isArray(radioList) && radioList.length > 0 ? (
-          <ul style={{ display: "grid", gap: 8 }}>
+          <div style={{ display: "grid", gap: 16 }}>
             {radioList.map((b: unknown, i: number) => {
               const r = b as Record<string, unknown>;
-              return <li key={String(r.id ?? i)}>{String(r.title ?? r.service_name ?? r.id ?? i)}</li>;
+              const label = String(r.title ?? r.service_name ?? r.id ?? i);
+              return <div key={String(r.id ?? i)} style={{ padding: 16, border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", color: "#1E332E", fontWeight: 700, overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" as any, boxShadow: "0 8px 24px rgba(30,51,46,.07)" }}>{label}</div>;
             })}
-          </ul>
-        ) : <p>{t("unavailable")}</p>}
+          </div>
+        ) : <p className={styles.empty} style={{ overflowWrap: "anywhere" }}>{t("unavailable")}</p>}
       </section>
     </main>
   );
