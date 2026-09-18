@@ -1,5 +1,5 @@
 .page { display: grid; gap: 16px; padding: 24px 0 64px; background: #FDFDFC; }
-.hero { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 16px; overflow: hidden; padding: clamp(1.5rem, 3.5vw, 2.4rem); border: 1px solid #E8EDEE; border-radius: 20px; background: linear-gradient(135deg, #FDFDFC 0%, #FDFDFC 60%, #F0FDF9 100%); box-shadow: 0 8px 32px rgba(30, 51, 46, 0.07); }
+.hero { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 16px; overflow: hidden; padding: clamp(1.5rem, 3.5vw, 2.4rem); border: 1px solid #E8EDEE; border-radius: 20px; background: linear-gradient(135deg, #FDFDFC 0%, #FDFDFC 60%, #F0FDF9 100%); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); box-shadow: 0 8px 32px rgba(30, 51, 46, 0.07); }
 .hero::after { position: absolute; inset-inline-end: -3.75rem; inset-block-end: -5.25rem; inline-size: 13rem; block-size: 13rem; border: 1.5rem solid #E8EDEE; border-radius: 50%; content: ""; pointer-events: none; }
 .hero > * { position: relative; z-index: 1; }
 .eyebrow { display: inline-flex; align-items: center; gap: 8px; margin: 0; color: #1E332E; font-size: .82rem; font-weight: 760; letter-spacing: .02em; overflow-wrap: anywhere; }
