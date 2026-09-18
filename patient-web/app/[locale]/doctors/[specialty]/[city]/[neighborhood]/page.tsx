@@ -156,7 +156,7 @@ export default async function DoctorsSpecialtyCityNeighborhoodPage({ params }: P
                 <div>
                   <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
                     <VectorDoctor size={48} aria-hidden="true" />
-                    <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 600, overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{doc.name_ar || doc.name_en || doc.name}</h3>
+                    <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 600, color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{doc.name_ar || doc.name_en || doc.name}</h3>
                   </div>
                   <p style={{ margin: "0.25rem 0", color: "#6b7280", fontSize: "0.9rem" }}>{doc.specialty}</p>
                   <div style={{ display: "flex", alignItems: "center", gap: "0.25rem", color: "#d97706", fontSize: "0.875rem", margin: "0.5rem 0" }}>
@@ -205,7 +205,7 @@ export default async function DoctorsSpecialtyCityNeighborhoodPage({ params }: P
               >
                 <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
                   <Building2 size={18} color="#2563eb" />
-                  <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 600 }}>{fac.name_ar || fac.name_en}</h3>
+                  <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 600, color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{fac.name_ar || fac.name_en}</h3>
                 </div>
                 <p style={{ margin: "0.25rem 0", color: "#6b7280", fontSize: "0.875rem", display: "flex", alignItems: "center", gap: "0.25rem" }}>
                   <MapPin size={14} />

@@ -139,14 +139,14 @@ export default async function DoctorsSpecialtyCityPage({ params }: Props) {
       {facilities.length ? (
         <section>
           <h2 style={{ fontSize: "1.3rem", fontWeight: 600, margin: "0 0 1rem 0", color: "#1E332E", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <Building2 size={20} color="#16a34a" />
+            <Building2 size={20} color="#1E332E" />
             {locale === "ar" ? "المستشفيات والمراكز التابعة" : "Associated Hospitals & Clinics"}
           </h2>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1.25rem" }}>
             {facilities.map((fac: any) => (
               <div key={fac.id} style={{ background: "rgba(253,253,252,0.92)", border: "1px solid #E8EDEE", borderRadius: "20px", backdropFilter: "blur(16px)" as any, padding: "1.25rem", boxShadow: "0 1px 2px rgba(0,0,0,0.04)" }}>
                 <h3 style={{ margin: "0 0 0.25rem 0", fontSize: "1.1rem" }}>
-                  <Link href={`/${locale}/facility/${fac.slug || fac.id}`} style={{ color: "#16a34a", textDecoration: "none" }}>
+                  <Link href={`/${locale}/facility/${fac.slug || fac.id}`} style={{ color: "#1E332E", textDecoration: "none", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>
                     {locale === "ar" ? (fac.name_ar || fac.name_en) : (fac.name_en || fac.name_ar)}
                   </Link>
                 </h3>
