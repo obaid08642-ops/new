@@ -3,7 +3,8 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { VectorAI } from "@/components-next/vector-illustrations";
-import { getMyMedicalReports, type MedicalReportSummary } from "@/lib/api/reports-server";
+import { type MedicalReportSummary } from "@/lib/api/reports-server";
+import { callPatientApi } from "@/lib/api/upstream";
 import { AiReportClient } from "@/components-next/ai-report-client";
 import styles from "../triage.module.css";
 
@@ -17,7 +18,7 @@ export default async function AiHealthReportPage({ params }: Props) {
   const t = await getTranslations("AiHealthReport");
   let reports: MedicalReportSummary[] = [];
   try {
-    const response = await getMyMedicalReports(token);
+    const response = await callPatientApi("/medical-reports/mine?limit=100", {}, token);
     if (response.ok) {
       const payload: unknown = await response.json().catch(() => null);
       const list = Array.isArray(payload)
