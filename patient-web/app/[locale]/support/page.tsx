@@ -76,7 +76,7 @@ export default async function SupportPage({ params }: Props) {
           </p>
         </div>
         <div className={styles.heroIllustration}>
-          <VectorSupport size={80} />
+          <VectorSupport size={48} />
         </div>
       </section>
 
