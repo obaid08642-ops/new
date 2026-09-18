@@ -26,7 +26,7 @@ export default async function FamilyScanPage({ params }: Props) {
           <h1 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" as any }}>{ar ? "مسح دعوة العائلة" : "Scan family invite"}</h1>
           <p style={{ overflowWrap: "anywhere" }}>{ar ? "الصق كود الدعوة أو رابط QR للانضمام الفوري — يتم التحقق عبر الخادم." : "Paste an invite code or QR link — verified server-side."}</p>
         </div>
-        <div className={styles.introVector}><VectorFamily size={80} /></div>
+        <div className={styles.introVector}><VectorFamily size={48} /></div>
       </section>
       <section className={styles.detail}>
         <h2 style={{ display: "flex", alignItems: "center", gap: 8, margin: "0 0 8px", overflowWrap: "anywhere" as any }}><QrCode size={17} aria-hidden="true" />{ar ? "المسح" : "Scan"}</h2>
