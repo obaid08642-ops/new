@@ -6,13 +6,15 @@
 .trigger {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 8px;
   height: 2.2rem;
-  padding: 0 0.65rem;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: var(--surface);
-  color: var(--ink);
+  padding: 0 14px;
+  border: 1px solid #E8EDEE;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: #1E332E;
   font-size: 0.78rem;
   font-weight: 750;
   cursor: pointer;
@@ -23,8 +25,8 @@
 
 .trigger:hover,
 .trigger:focus-visible {
-  border-color: var(--brand);
-  background: var(--brand-soft);
+  border-color: #5FD9B3;
+  background: rgba(95, 217, 179, 0.14);
   outline: none;
 }
 
@@ -48,14 +50,16 @@
   top: calc(100% + 6px);
   inset-inline-end: 0;
   min-width: 11rem;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 1rem;
-  padding: 0.4rem;
-  box-shadow: 0 16px 36px rgba(20, 26, 42, 0.16);
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid #E8EDEE;
+  border-radius: 20px;
+  padding: 8px;
+  box-shadow: 0 8px 32px rgba(30, 51, 46, 0.08);
   z-index: 100;
   display: grid;
-  gap: 0.2rem;
+  gap: 8px;
 }
 
 .hidden {
@@ -66,28 +70,30 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.65rem;
-  color: var(--ink);
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 16px;
+  color: #1E332E;
   text-decoration: none;
   font-size: 0.82rem;
   font-weight: 700;
+  overflow-wrap: anywhere;
   transition: background 0.12s ease;
 }
 
 .option:hover {
-  background: var(--brand-soft);
-  color: var(--brand-deep);
+  background: rgba(95, 217, 179, 0.14);
+  color: #1E332E;
 }
 
 .activeOption {
-  background: var(--brand-soft);
-  color: var(--brand-deep);
+  background: #5FD9B3;
+  color: #1E332E;
   font-weight: 850;
 }
 
 .checkIcon {
-  color: var(--brand-deep);
+  color: #1E332E;
   font-weight: 900;
   font-size: 0.9rem;
 }
