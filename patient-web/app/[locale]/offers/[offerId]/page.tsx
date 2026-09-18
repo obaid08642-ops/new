@@ -4,7 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
-import { callPatientApi } from "@/lib/api/upstream";
+import { getOffer, getOfferProviders } from "@/lib/api/offers-server";
 import s from "./offer-detail.module.css";
 
 type Props = { params: Promise<{ locale: string; offerId: string }> };
@@ -28,10 +28,7 @@ export default async function OfferDetailPage({ params }: Props) {
   setRequestLocale(locale);
   const ar = locale === "ar";
   const token = await requirePatientAccess(locale);
-  const [offerRes, providersRes] = await Promise.all([
-    callPatientApi(`/offers/${encodeURIComponent(offerId)}`, {}, token),
-    callPatientApi(`/promotions/offers/${encodeURIComponent(offerId)}/providers`, {}, token),
-  ]);
+  const [offerRes, providersRes] = await Promise.all([getOffer(token, offerId), getOfferProviders(token, offerId)]);
   if (offerRes.status === 401) redirect(`/${locale}/login`);
   if (!offerRes.ok) notFound();
   const oraw = asRecord(await offerRes.json().catch(() => null));
@@ -65,40 +62,39 @@ export default async function OfferDetailPage({ params }: Props) {
   });
 
   return (
-    <main className="main" style={{ background: "#FDFDFC", display: "grid", gap: 16, padding: 16 }}>
-      <Link href={`/${locale}/offers`} style={{ color: "#1E332E", overflowWrap: "anywhere" }}>{ar ? "العروض" : "Offers"}</Link>
-      <div className={s.hero}><div><h1>{title}</h1>{providerName ? <p style={{ color: "#6B7C6E", overflowWrap: "anywhere" }}>{providerName}</p> : null}{sponsored ? <p style={{ color: "#1E332E", fontSize: 12, fontWeight: 800 }}>{ar ? "ممول" : "Sponsored"}</p> : null}</div><span className={s.heroIcon}><Gift size={48} /></span></div>
-      {providerName ? <p>{providerName}</p> : null}
+    <main className="main" style={{ background: "#FDFDFC", display: "grid", gap: 16, padding: "24px 16px", maxWidth: 760, margin: "0 auto" }}>
+      <Link href={`/${locale}/offers`} className={s.backLink} style={{ color: "#1E332E", overflowWrap: "anywhere" }}>{ar ? "العروض" : "Offers"}</Link>
+      <div className={s.hero}><div><h1>{title}</h1>{providerName ? <p style={{ color: "#6B7C6E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{providerName}</p> : null}{sponsored ? <p style={{ color: "#1E332E", fontSize: 12, fontWeight: 800 }}>{ar ? "ممول" : "Sponsored"}</p> : null}</div><span className={s.heroIcon} aria-hidden="true"><Gift size={48} /></span></div>
       {original > discounted && discounted > 0 ? (
-        <p>{ar ? `وفّر ${original - discounted} ر.س` : `Save ${original - discounted} SAR`} — <strong>{discounted} {ar ? "ر.س" : "SAR"}</strong> <s>{original}</s></p>
+        <div className={s.card}><p style={{ margin: 0, overflowWrap: "anywhere" }}>{ar ? `وفّر ${original - discounted} ر.س` : `Save ${original - discounted} SAR`} — <strong className={s.price}>{discounted} {ar ? "ر.س" : "SAR"}</strong> <s style={{ color: "#6B7C6E" }}>{original}</s></p></div>
       ) : discounted > 0 ? (
-        <p><strong>{discounted} {ar ? "ر.س" : "SAR"}</strong></p>
+        <div className={s.card}><p style={{ margin: 0 }}><strong className={s.price}>{discounted} {ar ? "ر.س" : "SAR"}</strong></p></div>
       ) : null}
       {startDate || endDate ? (
-        <p>{endDate ? (ar ? `العرض ساري حتى ${endDate}` : `Valid until ${endDate}`) : (ar ? `يبدأ العرض في ${startDate}` : `Starts ${startDate}`)}</p>
+        <div className={s.card}><p style={{ margin: 0, color: "#6B7C6E", overflowWrap: "anywhere" }}>{endDate ? (ar ? `العرض ساري حتى ${endDate}` : `Valid until ${endDate}`) : (ar ? `يبدأ العرض في ${startDate}` : `Starts ${startDate}`)}</p></div>
       ) : null}
       {inclusions.length > 0 ? (
-        <section aria-label={ar ? "مشتملات الباقة" : "Package inclusions"}>
+        <section className={s.card} aria-label={ar ? "مشتملات الباقة" : "Package inclusions"}>
           <h2>{ar ? "مشتملات الباقة" : "Package inclusions"}</h2>
           <ul>{inclusions.map((item, i) => <li key={i}>✓ {item}</li>)}</ul>
         </section>
       ) : null}
       {terms.length > 0 ? (
-        <section aria-label={ar ? "الشروط والأحكام" : "Terms & conditions"}>
+        <section className={s.card} aria-label={ar ? "الشروط والأحكام" : "Terms & conditions"}>
           <h2>{ar ? "الشروط والأحكام" : "Terms & conditions"}</h2>
           <ul>{terms.map((item, i) => <li key={i}>• {item}</li>)}</ul>
         </section>
       ) : null}
-      <section aria-label={ar ? "احجز العرض لدى" : "Book this offer with"}>
+      <section className={s.card} aria-label={ar ? "احجز العرض لدى" : "Book this offer with"}>
         <h2>{ar ? "احجز العرض لدى" : "Book this offer with"}</h2>
         {providers.length === 0 ? (
           <p>{providerName ? (ar ? `سيتم الحجز لدى ${providerName}` : `Booking will be with ${providerName}`) : (ar ? "لا يوجد مقدمو خدمة بعد" : "No providers yet")}</p>
         ) : (
           <ul>
             {providers.map((p) => (
-              <li key={p.id}>
-                <Link href={`/${locale}/consultations/book/${encodeURIComponent(p.id)}`}>
-                  <strong>{p.name}</strong>
+              <li key={p.id} style={{ overflowWrap: "anywhere" }}>
+                <Link href={`/${locale}/consultations/book/${encodeURIComponent(p.id)}`} className={s.cta} style={{ gap: 8 }}>
+                  <strong style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{p.name}</strong>
                   {[p.specialty, p.city].filter(Boolean).join(" — ")}
                   {p.rating !== null && p.rating > 0 ? ` ★ ${p.rating}${p.ratingCount !== null ? ` (${p.ratingCount})` : ""}` : ""}
                 </Link>

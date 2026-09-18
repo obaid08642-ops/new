@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
-import { callPatientApi } from "@/lib/api/upstream";
+import { getOffers } from "@/lib/api/offers-server";
 import s from "./offers.module.css";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -32,7 +32,7 @@ export default async function OffersPage({ params }: Props) {
   setRequestLocale(locale);
   const token = await requirePatientAccess(locale);
   const t = await getTranslations("Offers");
-  const response = await callPatientApi("/home/offers", {}, token);
+  const response = await getOffers(token);
   const offers = response.ok ? extractOffers(await response.json().catch(() => null), locale) : [];
   return <main className="main" style={{ background: "#FDFDFC", padding: "24px 16px", maxWidth: 760, margin: "0 auto", display: "grid", gap: 16 }}>
     <div className={s.hero}><div><p className={s.eyebrow}>{t("title")}</p><h1>{t("title")}</h1><p>{t.has("subtitle") ? t("subtitle") : ""}</p></div><span className={s.heroIcon} aria-hidden="true"><Gift size={48} /></span></div>
