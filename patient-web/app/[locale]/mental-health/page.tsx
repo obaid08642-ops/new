@@ -79,22 +79,22 @@ export default async function MentalHealthPage({ params }: Props) {
 
       <section className={styles.grid} aria-label={t("title")}>
         <Link className={styles.card} href={`/${locale}/mental-health/breathing`}>
-          <Activity size={24} aria-hidden="true" />
+          <span className={styles.cardIcon}><Activity size={22} aria-hidden="true" /></span>
           <strong>{t("breathingTitle")}</strong>
           <span>{t("breathingNotice")}</span>
         </Link>
         <Link className={styles.card} href={`/${locale}/mental-health/mood`}>
-          <HeartPulse size={24} aria-hidden="true" />
+          <span className={styles.cardIcon}><HeartPulse size={22} aria-hidden="true" /></span>
           <strong>{t("moodHistoryTitle") || "سجل المزاج"}</strong>
           <span>{t("moodHistoryNotice") || "متابعة الحالة النفسية ومستوى الطاقة"}</span>
         </Link>
         <Link className={styles.card} href={`/${locale}/mental-health/meditation`}>
-          <Brain size={24} aria-hidden="true" />
+          <span className={styles.cardIcon}><Brain size={22} aria-hidden="true" /></span>
           <strong>{t("meditationHistoryTitle")}</strong>
           <span>{t("meditationHistoryNotice")}</span>
         </Link>
         <Link className={styles.card} href={`/${locale}/mental-health/crisis-contacts`}>
-          <HeartHandshake size={24} aria-hidden="true" />
+          <span className={styles.cardIcon}><HeartHandshake size={22} aria-hidden="true" /></span>
           <strong>{t("crisisTitle")}</strong>
           <span>{t("crisisNotice")}</span>
         </Link>

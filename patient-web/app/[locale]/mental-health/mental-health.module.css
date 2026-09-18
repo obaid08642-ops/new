@@ -13,10 +13,11 @@
 .card strong { color: #1E332E; font-size: clamp(1.15rem, 2vw, 1.45rem); font-weight: 800; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 a.card { color: inherit; text-decoration: none; }
 a.card svg { color: #1E332E; }
+.cardIcon { display: grid; place-items: center; inline-size: 48px; block-size: 48px; border-radius: 16px; background: rgba(95,217,179,.12); border: 1px solid #E8EDEE; color: #1E332E; flex: 0 0 auto; }
 a.card:focus-visible { outline: 3px solid #1E332E; outline-offset: 3px; }
 @media (hover: hover) and (pointer: fine) { a.card:hover { border-color: #E8EDEE; box-shadow: var(--shadow-md); transform: translateY(-2px); } }
 
-.back { display: inline-flex; align-items: center; gap: 8px; inline-size: fit-content; color: #1E332E; font-weight: 760; padding: 8px 12px; border-radius: 10px; text-decoration: none; transition: background-color var(--motion-fast) var(--ease-premium); }
+.back { display: inline-flex; align-items: center; gap: 8px; inline-size: fit-content; color: #1E332E; font-weight: 760; padding: 8px 12px; border-radius: 20px; text-decoration: none; transition: background-color var(--motion-fast) var(--ease-premium); }
 .back:hover { background: #E8EDEE; }
 .back:focus-visible { outline: 3px solid #1E332E; outline-offset: 3px; }
 
