@@ -30,6 +30,7 @@ export default async function DiagnosticsBookingsPage({ params }: Props) {
           <h1 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" as any }}>{locale === "ar" ? "حجوزاتي التشخيصية" : "My diagnostic bookings"}</h1>
           <p style={{ overflowWrap: "anywhere" }}>{locale === "ar" ? "حجوزات المختبر والأشعة — بيانات حية من الخادم فقط." : "Lab & radiology bookings — live server data only."}</p>
         </div>
+        <div className={styles.introIcon} aria-hidden="true"><FlaskConical size={24} /></div>
       </section>
       {Array.isArray(list) && list.length > 0 ? (
         <div style={{ display: "grid", gap: 16 }}>
