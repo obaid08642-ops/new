@@ -75,8 +75,8 @@ export default async function MaternityPage({ params }: Props) {
         <section className={styles.state}>
           <VectorMaternity size={48} aria-hidden="true" />
           <p>{t("empty")}</p>
-          <div className={styles.quickNav} style={{ marginTop: "1rem" }}>
-            <Link href={`/${locale}/consultations/doctors`} className={styles.quickBtn}>
+          <div className={styles.quickNav} style={{ marginTop: "16px" }}>
+            <Link href={`/${locale}/consultations/doctors`} className={styles.quickBtnPrimary}>
               <Stethoscope size={18} aria-hidden="true" />
               {locale === "ar" ? "استشارة طبيبة نساء وولادة" : "Consult Obstetrician"}
             </Link>
@@ -162,7 +162,7 @@ export default async function MaternityPage({ params }: Props) {
           </section>
 
           <nav className={styles.quickNav} aria-label={locale === "ar" ? "خدمات الأمومة" : "Maternity Services"}>
-            <Link href={`/${locale}/maternity/tracker`} className={styles.quickBtn}>
+            <Link href={`/${locale}/maternity/tracker`} className={styles.quickBtnPrimary}>
               <Activity size={18} aria-hidden="true" />
               {locale === "ar" ? "سجل متابعة الأعراض والحركة" : "Movement & Symptom Log"}
             </Link>
