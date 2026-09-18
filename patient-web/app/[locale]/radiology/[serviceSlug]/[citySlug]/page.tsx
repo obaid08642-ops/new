@@ -8,21 +8,26 @@ import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { MapPin } from "lucide-react";
 import { VectorRadiology } from "@/components-next/vector-illustrations";
+import { getPublicRadiologyServices } from "@/lib/api/radiology-server";
+import { extractRadiologyServices } from "@/lib/api/radiology";
 
 type Props = { params: Promise<{ locale: string; serviceSlug: string; citySlug: string }> };
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://api.nabd.plus";
-
 async function fetchRadiologyData(serviceSlug: string, citySlug: string) {
   try {
-    const res = await fetch(
-      `${API_BASE}/api/v1/entity-graph/explore?city=${encodeURIComponent(citySlug)}`,
-      { next: { revalidate: 3600 } },
-    );
-    if (!res.ok) return null;
-    const json = await res.json();
+    const res = await getPublicRadiologyServices({ search: decodeURIComponent(serviceSlug).slice(0, 120) });
+    if (!res || !("ok" in res) || !res.ok) return null;
+    const json = await (res as Response).json().catch(() => null);
+    const services = extractRadiologyServices(json);
     return {
-      facilities: json.facilities || [],
+      facilities: services.map((s) => ({
+        id: s.id,
+        name_ar: s.nameAr,
+        name_en: s.nameEn,
+        city: decodeURIComponent(citySlug),
+        price: s.price,
+        modality: s.modality,
+      })),
       city: decodeURIComponent(citySlug),
       service: decodeURIComponent(serviceSlug),
     };
@@ -142,7 +147,7 @@ export default async function RadiologyCityPage({ params }: Props) {
           <VectorRadiology size={48} aria-hidden="true" />
           <p style={{ fontSize: "1.1rem", color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{locale === "ar" ? `لا يوجد مركز أشعة يقدم ${decService} في ${decCity} حالياً.` : `No imaging center for ${decService} in ${decCity} yet.`}</p>
           <p style={{ color: "#6B7C6E", marginTop: "0.5rem", overflowWrap: "anywhere" }}>{locale === "ar" ? "كن أول مركز — سجل الآن وستظهر خدمتك أوتوماتيك." : "Be the first — register and appear automatically."}</p>
-          <Link href={`/${locale}/consultations/doctors`} style={{ display: "inline-block", marginTop: "1rem", background: "#5FD9B3", color: "#1E332E", padding: "0.75rem 1.5rem", borderRadius: 20, textDecoration: "none", fontWeight: 700, border: "1px solid #E8EDEE" }}>{locale === "ar" ? "سجل كمركز" : "Register"}</Link>
+          <Link href={`/${locale}/consultations/doctors`} style={{ display: "inline-block", marginTop: "16px", background: "#5FD9B3", color: "#1E332E", padding: "16px 24px", borderRadius: 20, textDecoration: "none", fontWeight: 700, border: "1px solid #E8EDEE" }}>{locale === "ar" ? "سجل كمركز" : "Register"}</Link>
         </section>
       ) : (
         <section>
@@ -156,17 +161,18 @@ export default async function RadiologyCityPage({ params }: Props) {
                 style={{
                   border: "1px solid #E8EDEE",
                   borderRadius: 20,
-                  padding: "1.25rem",
+                  padding: "24px",
                   background: "rgba(255,255,255,0.76)",
                   backdropFilter: "blur(16px)",
                   WebkitBackdropFilter: "blur(16px)",
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "space-between",
+                  gap: "16px",
                 }}
               >
                 <div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
                     <VectorRadiology size={24} aria-hidden="true" />
                     <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 600, color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{fac.name_ar || fac.name_en}</h3>
                   </div>
