@@ -84,7 +84,7 @@ export default async function VitalsPage({ params }: Props) {
         </section>
       ) : (
         <section className={styles.state}>
-          <VectorVitals size={42} aria-hidden="true" />
+          <VectorVitals size={48} aria-hidden="true" />
           <p>{t("vitalsHistoryEmpty")}</p>
           <p>{t("vitalsHistoryNoDefaults")}</p>
         </section>
