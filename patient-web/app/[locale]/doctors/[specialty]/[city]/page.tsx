@@ -7,7 +7,8 @@ import Link from "next/link";
 import { VectorDoctor } from "@/components-next/vector-illustrations";
 import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
-import { Building2, MapPin, ShieldCheck, Star } from "lucide-react";
+import { Building2, MapPin, Star } from "lucide-react";
+import styles from "./doctors-city.module.css";
 
 type Props = { params: Promise<{ locale: string; specialty: string; city: string }> };
 
@@ -78,7 +79,7 @@ export default async function DoctorsSpecialtyCityPage({ params }: Props) {
     : `${specialty} Doctors in ${city}`;
 
   return (
-    <main className="main" style={{ maxWidth: "960px", margin: "0 auto", padding: "2rem 1rem", background: "#FDFDFC" }}>
+    <main className={`main ${styles.page}`}>
       <JsonLd
         data={[
           medicalWebPage({
@@ -94,40 +95,43 @@ export default async function DoctorsSpecialtyCityPage({ params }: Props) {
         ]}
       />
 
-      <header style={{ marginBottom: "2rem" }}>
-        <h1 style={{ fontSize: "2rem", fontWeight: 700, margin: "0 0 0.5rem 0", color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{pageTitle}</h1>
-        <p style={{ color: "#4b5563", fontSize: "1.05rem", margin: 0 }}>
-          {locale === "ar"
-            ? `استعرض الأطباء والمراكز الطبية المعتمدة في ${city} مع تقييمات موثقة وأسعار شفافة.`
-            : `Browse verified doctors and clinics in ${city} with verified reviews and transparent pricing.`}
-        </p>
-      </header>
+      <section className={styles.header}>
+        <div>
+          <p className={styles.eyebrow}>{specialty}</p>
+          <h1>{pageTitle}</h1>
+          <p className={styles.subtitle}>
+            {locale === "ar"
+              ? `استعرض الأطباء والمراكز الطبية المعتمدة في ${city} مع تقييمات موثقة وأسعار شفافة.`
+              : `Browse verified doctors and clinics in ${city} with verified reviews and transparent pricing.`}
+          </p>
+        </div>
+        <span className={styles.vectorWrap} aria-hidden="true">
+          <VectorDoctor size={48} />
+        </span>
+      </section>
 
       {doctors.length ? (
-        <section style={{ marginBottom: "2.5rem" }}>
-          <h2 style={{ fontSize: "1.3rem", fontWeight: 600, margin: "0 0 1rem 0", color: "#1E332E", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <VectorDoctor size={48} aria-hidden="true" />
+        <section className={styles.section} aria-label={locale === "ar" ? "الأطباء المتاحون" : "Available Doctors"}>
+          <h2 className={styles.sectionHead}>
+            <VectorDoctor size={20} aria-hidden="true" />
             {locale === "ar" ? "الأطباء المتاحون" : "Available Doctors"}
           </h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1.25rem" }}>
+          <div className={styles.grid}>
             {doctors.map((doc: any) => (
-              <div key={doc.id} style={{ background: "rgba(253,253,252,0.92)", border: "1px solid #E8EDEE", borderRadius: "20px", backdropFilter: "blur(16px)" as any, padding: "1.25rem", boxShadow: "0 1px 2px rgba(0,0,0,0.04)" }}>
-                <h3 style={{ margin: "0 0 0.25rem 0", fontSize: "1.1rem" }}>
-                  <Link href={`/${locale}/doctor/${doc.slug || doc.id}`} style={{ color: "#1E332E", textDecoration: "none" }}>
+              <div key={doc.id} className={styles.card}>
+                <h3 className={styles.cardTitle}>
+                  <Link href={`/${locale}/doctor/${doc.slug || doc.id}`}>
                     {locale === "ar" ? (doc.name_ar || doc.name_en) : (doc.name_en || doc.name_ar)}
                   </Link>
                 </h3>
-                <p style={{ color: "#6b7280", fontSize: "0.9rem", margin: "0 0 0.75rem 0" }}>{doc.specialty}</p>
+                <p className={styles.meta}>{doc.specialty}</p>
                 {doc.rating ? (
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.25rem", color: "#eab308", fontSize: "0.85rem", marginBottom: "1rem" }}>
-                    <Star size={14} fill="#eab308" />
-                    <strong style={{ color: "#374151" }}>{doc.rating}</strong>
-                  </div>
+                  <span className={styles.rating}>
+                    <Star size={14} fill="#eab308" color="#b45309" aria-hidden="true" />
+                    {doc.rating}
+                  </span>
                 ) : null}
-                <Link
-                  href={`/${locale}/consultations/doctors/${doc.id || doc.slug}`}
-                  style={{ display: "inline-block", background: "#5FD9B3", color: "#1E332E", padding: "0.5rem 1rem", borderRadius: "20px", fontSize: "0.85rem", fontWeight: 600, textDecoration: "none" }}
-                >
+                <Link href={`/${locale}/consultations/doctors/${doc.id || doc.slug}`} className={styles.primaryBtn}>
                   {locale === "ar" ? "حجز موعد" : "Book Appointment"}
                 </Link>
               </div>
@@ -137,22 +141,24 @@ export default async function DoctorsSpecialtyCityPage({ params }: Props) {
       ) : null}
 
       {facilities.length ? (
-        <section>
-          <h2 style={{ fontSize: "1.3rem", fontWeight: 600, margin: "0 0 1rem 0", color: "#1E332E", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <Building2 size={20} color="#1E332E" />
+        <section className={styles.section} aria-label={locale === "ar" ? "المستشفيات والمراكز التابعة" : "Associated Hospitals & Clinics"}>
+          <h2 className={styles.sectionHead}>
+            <Building2 size={18} aria-hidden="true" />
             {locale === "ar" ? "المستشفيات والمراكز التابعة" : "Associated Hospitals & Clinics"}
           </h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1.25rem" }}>
+          <div className={styles.grid}>
             {facilities.map((fac: any) => (
-              <div key={fac.id} style={{ background: "rgba(253,253,252,0.92)", border: "1px solid #E8EDEE", borderRadius: "20px", backdropFilter: "blur(16px)" as any, padding: "1.25rem", boxShadow: "0 1px 2px rgba(0,0,0,0.04)" }}>
-                <h3 style={{ margin: "0 0 0.25rem 0", fontSize: "1.1rem" }}>
-                  <Link href={`/${locale}/facility/${fac.slug || fac.id}`} style={{ color: "#1E332E", textDecoration: "none", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>
+              <div key={fac.id} className={styles.card}>
+                <h3 className={styles.cardTitle}>
+                  <Link href={`/${locale}/facility/${fac.slug || fac.id}`}>
                     {locale === "ar" ? (fac.name_ar || fac.name_en) : (fac.name_en || fac.name_ar)}
                   </Link>
                 </h3>
-                <p style={{ color: "#6b7280", fontSize: "0.85rem", margin: "0 0 0.5rem 0", display: "flex", alignItems: "center", gap: "0.25rem" }}>
-                  <MapPin size={14} />
-                  <span>{fac.city} {fac.district ? `- ${fac.district}` : ""}</span>
+                <p className={styles.facilityMeta}>
+                  <MapPin size={14} aria-hidden="true" />
+                  <span>
+                    {fac.city} {fac.district ? `- ${fac.district}` : ""}
+                  </span>
                 </p>
               </div>
             ))}
