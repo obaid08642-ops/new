@@ -157,12 +157,12 @@ export function MapExplorerClient({
         <div className={styles.list}>
           {loading ? (
             <div className={styles.emptyState}>
-              <Compass size={28} className={styles.spin} />
+              <Compass size={48} className={styles.spin} />
               <p>جارٍ البحث عن المنشآت القريبة...</p>
             </div>
           ) : filtered.length === 0 ? (
             <div className={styles.emptyState}>
-              <MapPin size={32} />
+              <MapPin size={48} />
               <p>{labels.noProviders}</p>
             </div>
           ) : (
@@ -233,7 +233,7 @@ export function MapExplorerClient({
         ) : (
           <div className={styles.mapCanvas}>
             <div className={styles.mapOverlayNotice}>
-              <Compass size={28} color="#00876f" />
+              <Compass size={48} color="#1E332E" />
               <h3>خريطة المنشآت التفاعلية</h3>
               <p>تصفح المراكز الطبية والعيادات المعتمدة من القائمة لعرض موقعها المباشر على الخريطة والاتجاهات.</p>
               <small style={{ color: "#94a3b8", display: "block", marginTop: "8px" }}>خرائط مفتوحة المصدر ومحمية الخصوصية</small>
