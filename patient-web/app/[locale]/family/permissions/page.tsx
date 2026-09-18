@@ -36,21 +36,21 @@ export default async function FamilyPermissionsPage({ params }: Props) {
   }).filter((m): m is { id: string; name: string; permissions: string[] } => m !== null);
 
   return (
-    <main className={`main ${styles.page}`}>
+    <main className={`main ${styles.page}`} style={{ background: "#FDFDFC" }}>
       <Link className={styles.back} href={`/${locale}/family`}><ChevronLeft size={16} aria-hidden="true" />{ar ? "العائلة" : "Family"}</Link>
-      <section className={styles.intro}>
+      <section className={styles.intro} style={{ backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderColor: "#E8EDEE", borderRadius: 20, background: "linear-gradient(135deg, #FDFDFC 0%, #F0FDF9 60%, #E7FFF6 100%)" }}>
         <div className={styles.introText}>
-          <p className={styles.eyebrow}><ShieldCheck size={15} aria-hidden="true" />{ar ? "الخصوصية والموافقات" : "Permissions"}</p>
-          <h1 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" as any }}>{ar ? "أذونات الأعضاء" : "Member permissions"}</h1>
+          <p className={styles.eyebrow} style={{ color: "#1E332E", overflowWrap: "anywhere" }}><ShieldCheck size={15} aria-hidden="true" />{ar ? "الخصوصية والموافقات" : "Permissions"}</p>
+          <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as React.CSSProperties}>{ar ? "أذونات الأعضاء" : "Member permissions"}</h1>
           <p style={{ overflowWrap: "anywhere" }}>{ar ? "تحكّم بمن يرى السجل الصحي والوصفات — تُحفظ الأذونات عبر الخادم فقط." : "Control who sees health records — persisted server-side only."}</p>
         </div>
         <div className={styles.introVector}><VectorFamily size={48} aria-hidden="true" /></div>
       </section>
-      <section className={styles.detail}>
-        <h2 style={{ display: "flex", alignItems: "center", gap: 8, margin: "0 0 8px", overflowWrap: "anywhere" as any }}><UsersRound size={17} aria-hidden="true" />{ar ? "الأعضاء" : "Members"}</h2>
+      <section className={styles.detail} style={{ backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderColor: "#E8EDEE", borderRadius: 20, background: "#FFFFFF" }}>
+        <h2 style={{ display: "flex", alignItems: "center", gap: 8, margin: "0 0 8px", overflowWrap: "anywhere", color: "#1E332E" } as React.CSSProperties}><UsersRound size={17} aria-hidden="true" />{ar ? "الأعضاء" : "Members"}</h2>
         <FamilyPermissionsClient locale={locale} members={members} />
       </section>
-      <Link className={styles.notice} href={`/${locale}/family/permission-requests`} style={{ overflowWrap: "anywhere" as any }}>{ar ? "طلبات الأذونات المعلقة ←" : "Pending permission requests →"}</Link>
+      <Link className={styles.notice} href={`/${locale}/family/permission-requests`} style={{ overflowWrap: "anywhere", borderColor: "#E8EDEE", borderRadius: 20 } as React.CSSProperties}>{ar ? "طلبات الأذونات المعلقة ←" : "Pending permission requests →"}</Link>
     </main>
   );
 }
