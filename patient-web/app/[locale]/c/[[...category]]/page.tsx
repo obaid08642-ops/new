@@ -73,6 +73,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
 }
 
 function renderProductMedia(item: PublicProductCard) {
+  // Deprecated: kept for fallback only — premium rendering uses PremiumProductCard.
   const cdn = cdnImage(item.image);
   if (cdn) {
     return (
@@ -89,20 +90,20 @@ function renderProductMedia(item: PublicProductCard) {
     );
   }
   const n = ((item.name || "") + " " + (item.slug || "")).toLowerCase();
-  if (n.includes("شعر") || n.includes("hair") || n.includes("شامبو")) return <VectorCatHairCare size={64} />;
-  if (n.includes("مكياج") || n.includes("تجميل") || n.includes("cosmetic") || n.includes("روج")) return <VectorCatCosmetics size={64} />;
-  if (n.includes("بشرة") || n.includes("skin") || n.includes("سيروم") || n.includes("كريم")) return <VectorCatSkinCare size={64} />;
-  if (n.includes("طفل") || n.includes("baby") || n.includes("حليب") || n.includes("حفاض")) return <VectorCatBabyCare size={64} />;
-  if (n.includes("فيتامين") || n.includes("vitamin") || n.includes("أوميغا") || n.includes("زنك")) return <VectorCatVitamins size={64} />;
-  if (n.includes("معجون") || n.includes("نظافة") || n.includes("شخصية") || n.includes("غسول")) return <VectorCatPersonalCare size={64} />;
-  return <VectorPharmacy size={64} />;
+  if (n.includes("شعر") || n.includes("hair") || n.includes("شامبو")) return <VectorCatHairCare size={48} />;
+  if (n.includes("مكياج") || n.includes("تجميل") || n.includes("cosmetic") || n.includes("روج")) return <VectorCatCosmetics size={48} />;
+  if (n.includes("بشرة") || n.includes("skin") || n.includes("سيروم") || n.includes("كريم")) return <VectorCatSkinCare size={48} />;
+  if (n.includes("طفل") || n.includes("baby") || n.includes("حليب") || n.includes("حفاض")) return <VectorCatBabyCare size={48} />;
+  if (n.includes("فيتامين") || n.includes("vitamin") || n.includes("أوميغا") || n.includes("زنك")) return <VectorCatVitamins size={48} />;
+  if (n.includes("معجون") || n.includes("نظافة") || n.includes("شخصية") || n.includes("غسول")) return <VectorCatPersonalCare size={48} />;
+  return <VectorPharmacy size={48} />;
 }
 
 function Card({ locale, item }: { locale: string; item: PublicProductCard }) {
   const gallery = resolveProductGallery(item as any);
   const img = cdnImage(item.image);
   const images = gallery.length ? gallery : img ? [img] : [];
-  // Ultra-Premium V3: use shared PremiumProductCard with glass + Forest Ink + overflow-wrap + line-clamp 2
+  // Ultra-Premium V3: use shared PremiumProductCard with glass + Forest Ink + overflow-wrap + line-clamp 2 — 48px vectors, backend-bound
   return (
     <PremiumProductCard
       id={item.id}
@@ -149,14 +150,14 @@ export default async function CategoryPage({ params, searchParams }: Props) {
     : `/${locale}/c/${encodeURIComponent(main)}${sub ? `/${encodeURIComponent(sub)}` : ""}`;
 
   const CANONICAL_CATEGORIES = [
-    { id: "all", name: locale === "ar" ? "الكل" : "All", dbName: "all", icon: <VectorCatAll size={44} />, matchKey: "all" },
-    { id: "medications", name: locale === "ar" ? "أدوية وعلاجات" : "Medicines", dbName: "الأدوية والعلاج", icon: <VectorPharmacy size={44} />, matchKey: "أدوية" },
-    { id: "hair-care", name: locale === "ar" ? "عناية بالشعر" : "Hair Care", dbName: "العناية بالشعر", icon: <VectorCatHairCare size={44} />, matchKey: "شعر" },
-    { id: "cosmetics", name: locale === "ar" ? "مكياج وإكسسوارات" : "Makeup & Beauty", dbName: "المكياج والإكسسوارات", icon: <VectorCatCosmetics size={44} />, matchKey: "مكياج" },
-    { id: "skincare", name: locale === "ar" ? "العناية بالبشرة" : "Skin Care", dbName: "العناية بالبشرة", icon: <VectorCatSkinCare size={44} />, matchKey: "بشرة" },
-    { id: "baby", name: locale === "ar" ? "الأم والطفل" : "Mother & Baby", dbName: "الأم والطفل", icon: <VectorCatBabyCare size={44} />, matchKey: "طفل" },
-    { id: "vitamins", name: locale === "ar" ? "فيتامينات ومكملات" : "Vitamins", dbName: "الفيتامينات والتغذية الصحية", icon: <VectorCatVitamins size={44} />, matchKey: "فيتامين" },
-    { id: "personal-care", name: locale === "ar" ? "عناية شخصية" : "Personal Care", dbName: "العناية الشخصية", icon: <VectorCatPersonalCare size={44} />, matchKey: "شخصية" },
+    { id: "all", name: locale === "ar" ? "الكل" : "All", dbName: "all", icon: <VectorCatAll size={48} />, matchKey: "all" },
+    { id: "medications", name: locale === "ar" ? "أدوية وعلاجات" : "Medicines", dbName: "الأدوية والعلاج", icon: <VectorPharmacy size={48} />, matchKey: "أدوية" },
+    { id: "hair-care", name: locale === "ar" ? "عناية بالشعر" : "Hair Care", dbName: "العناية بالشعر", icon: <VectorCatHairCare size={48} />, matchKey: "شعر" },
+    { id: "cosmetics", name: locale === "ar" ? "مكياج وإكسسوارات" : "Makeup & Beauty", dbName: "المكياج والإكسسوارات", icon: <VectorCatCosmetics size={48} />, matchKey: "مكياج" },
+    { id: "skincare", name: locale === "ar" ? "العناية بالبشرة" : "Skin Care", dbName: "العناية بالبشرة", icon: <VectorCatSkinCare size={48} />, matchKey: "بشرة" },
+    { id: "baby", name: locale === "ar" ? "الأم والطفل" : "Mother & Baby", dbName: "الأم والطفل", icon: <VectorCatBabyCare size={48} />, matchKey: "طفل" },
+    { id: "vitamins", name: locale === "ar" ? "فيتامينات ومكملات" : "Vitamins", dbName: "الفيتامينات والتغذية الصحية", icon: <VectorCatVitamins size={48} />, matchKey: "فيتامين" },
+    { id: "personal-care", name: locale === "ar" ? "عناية شخصية" : "Personal Care", dbName: "العناية الشخصية", icon: <VectorCatPersonalCare size={48} />, matchKey: "شخصية" },
   ];
 
   const categoriesList = CANONICAL_CATEGORIES.map((c) => {
@@ -243,21 +244,21 @@ export default async function CategoryPage({ params, searchParams }: Props) {
           </p>
           <div className={styles.heroPills}>
             <span className={styles.heroPill}>
-              <ShieldCheck size={14} color="#00E599" aria-hidden="true" />
+              <ShieldCheck size={14} color="#5FD9B3" aria-hidden="true" />
               {locale === "ar" ? "أدوية مرخصة 100%" : "100% Genuine & Licensed"}
             </span>
             <span className={styles.heroPill}>
-              <Truck size={14} color="#00E599" aria-hidden="true" />
+              <Truck size={14} color="#5FD9B3" aria-hidden="true" />
               {locale === "ar" ? "توصيل فوري مبرد" : "Cold-Chain Fast Delivery"}
             </span>
             <span className={styles.heroPill}>
-              <RotateCcw size={14} color="#00E599" aria-hidden="true" />
+              <RotateCcw size={14} color="#5FD9B3" aria-hidden="true" />
               {locale === "ar" ? "إرجاع واستبدال مرن" : "Flexible Returns"}
             </span>
           </div>
         </div>
-        <div className={styles.heroVectorWrap}>
-          <VectorPharmacy size={80} />
+          <div className={styles.heroVectorWrap}>
+          <VectorPharmacy size={48} />
         </div>
       </section>
 
@@ -324,7 +325,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
                 <Link
                   href={`/${locale}/c`}
                   className={styles.searchButton}
-                  style={{ display: "inline-block", marginTop: 12, textDecoration: "none" }}
+                  style={{ display: "inline-block", marginTop: 16, textDecoration: "none" }}
                 >
                   {locale === "ar" ? "استعراض جميع الأدوية" : "Browse All Medicines"}
                 </Link>

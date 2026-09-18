@@ -32,7 +32,7 @@ export function PostCallRatingForm({ locale, appointmentId, labels }: { locale: 
   const activeStars = hoverRating || rating;
 
   return (
-    <form onSubmit={(e) => { e.preventDefault(); void submit(); }} style={{ display: "grid", gap: 14 }} dir={rtl ? "rtl" : "ltr"}>
+    <form onSubmit={(e) => { e.preventDefault(); void submit(); }} style={{ display: "grid", gap: 16 }} dir={rtl ? "rtl" : "ltr"}>
       <div role="radiogroup" aria-label="rating" style={{ display: "flex", gap: 8, justifyContent: "center" }}>
         {[1, 2, 3, 4, 5].map((n) => (
           <button
@@ -53,7 +53,7 @@ export function PostCallRatingForm({ locale, appointmentId, labels }: { locale: 
             <Star
               size={28}
               fill={n <= activeStars ? "#FBBF24" : "none"}
-              color={n <= activeStars ? "#F59E0B" : "rgba(22,33,58,0.25)"}
+              color={n <= activeStars ? "#F59E0B" : "rgba(30,51,46,0.25)"}
             />
           </button>
         ))}
@@ -65,27 +65,33 @@ export function PostCallRatingForm({ locale, appointmentId, labels }: { locale: 
         rows={3}
         aria-label={labels.comment}
         style={{
-          padding: 12,
-          borderRadius: 12,
-          border: "1.5px solid rgba(22,33,58,.15)",
+          padding: 16,
+          borderRadius: 16,
+          border: "1px solid #E8EDEE",
+          background: "#FFFFFF",
+          color: "#1E332E",
           resize: "vertical",
           fontFamily: "inherit",
+          fontSize: 14,
+          lineHeight: "1.6",
+          overflowWrap: "anywhere",
         }}
       />
-      {err ? <p role="alert" style={{ color: "#DC2626" }}>{err}</p> : null}
+      {err ? <p role="alert" style={{ color: "#DC2626", overflowWrap: "anywhere" }}>{err}</p> : null}
       <button
         type="submit"
         disabled={busy || rating < 1}
         style={{
-          background: "linear-gradient(135deg, #087F8C, #00876F)",
-          color: "#FFFFFF",
+          background: "#5FD9B3",
+          color: "#1E332E",
           fontWeight: 800,
           padding: 14,
-          borderRadius: 14,
-          border: "none",
+          borderRadius: 16,
+          border: "1px solid #5FD9B3",
           cursor: busy || rating < 1 ? "not-allowed" : "pointer",
           opacity: busy || rating < 1 ? 0.6 : 1,
-          boxShadow: "0 4px 12px rgba(8,127,140,0.25)",
+          boxShadow: "0 4px 12px rgba(30,51,46,0.12)",
+          overflowWrap: "anywhere",
         }}
       >
         {busy ? labels.submitting : labels.submit}
