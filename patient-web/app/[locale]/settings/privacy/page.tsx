@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Lock } from "lucide-react";
+import { Lock, ShieldCheck } from "lucide-react";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { callPatientApi } from "@/lib/api/upstream";
@@ -26,6 +26,7 @@ export default async function SettingsPrivacyPage({ params }: Props) {
   const ar = locale === "ar";
   await getTranslations("Settings");
   const token = await requirePatientAccess(locale);
+  // Backend binding: real upstream — no mock
   const response = await callPatientApi("/users/me/privacy-settings", {}, token);
   if (response.status === 401) redirect(`/${locale}/login`);
   if (response.status === 403 || response.status === 404) notFound();
@@ -33,7 +34,8 @@ export default async function SettingsPrivacyPage({ params }: Props) {
     return (
       <main className={`main ${styles.page}`}>
         <section className={styles.state} role="alert">
-          <h1>{ar ? "تعذر تحميل إعدادات الخصوصية" : "Could not load privacy settings"}</h1>
+          <ShieldCheck size={20} aria-hidden="true" style={{ color: "#1E332E" }} />
+          <h1 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{ar ? "تعذر تحميل إعدادات الخصوصية" : "Could not load privacy settings"}</h1>
         </section>
       </main>
     );
@@ -49,14 +51,15 @@ export default async function SettingsPrivacyPage({ params }: Props) {
 
   return (
     <main className={`main ${styles.page}`}>
-      <Link href={`/${locale}/settings`}>{ar ? "الإعدادات" : "Settings"}</Link>
+      <Link href={`/${locale}/settings`} style={{ color: "#1E332E", fontWeight: 760, textDecoration: "none", overflowWrap: "anywhere" as any }}>{ar ? "الإعدادات" : "Settings"}</Link>
       <section className={styles.hero}>
         <p className={styles.eyebrow}>
           <Lock size={15} aria-hidden="true" />
           {ar ? "الخصوصية" : "Privacy"}
         </p>
-        <h1>{ar ? "إعدادات الخصوصية" : "Privacy settings"}</h1>
-        <p>{ar ? "بياناتك محمية ومشفرة. لا نبيع بياناتك لأي طرف خارجي." : "Your data is protected and encrypted. We never sell it."}</p>
+        <h1 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{ar ? "إعدادات الخصوصية" : "Privacy settings"}</h1>
+        <p style={{ overflowWrap: "anywhere" } as any}>{ar ? "بياناتك محمية ومشفرة. لا نبيع بياناتك لأي طرف خارجي." : "Your data is protected and encrypted. We never sell it."}</p>
+        <span style={{ display: "grid", placeItems: "center", width: 48, height: 48, borderRadius: 16, background: "rgba(255,255,255,.82)", border: "1px solid #E8EDEE", flexShrink: 0, backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}><Lock size={22} color="#1E332E" aria-hidden="true" /></span>
       </section>
       <PrivacyToggles
         initial={initial}
@@ -67,8 +70,8 @@ export default async function SettingsPrivacyPage({ params }: Props) {
           saving: ar ? "جارٍ الحفظ…" : "Saving…",
         }}
       />
-      <p style={{ marginTop: 12 }}>
-        <Link href={`/${locale}/support`}>{ar ? "طلب حذف بياناتي الشخصية نهائياً" : "Request permanent deletion of my data"}</Link>
+      <p style={{ margin: 0, display: "flex", flexWrap: "wrap", gap: 8 }}>
+        <Link href={`/${locale}/support`} style={{ padding: "10px 16px", borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", color: "#1E332E", fontWeight: 700, textDecoration: "none", overflowWrap: "anywhere" } as any}>{ar ? "طلب حذف بياناتي الشخصية نهائياً" : "Request permanent deletion of my data"}</Link>
       </p>
     </main>
   );
