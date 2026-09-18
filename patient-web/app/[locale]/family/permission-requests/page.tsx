@@ -45,7 +45,7 @@ export default async function FamilyPermissionRequestsPage({ params }: Props) {
         </div>
         <div className={styles.introVector}><VectorFamily size={48} aria-hidden="true" /></div>
       </section>
-      <section className={styles.detail} style={{ backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderColor: "#E8EDEE", borderRadius: 20, background: "#FFFFFF" }}>
+      <section className={styles.detail} style={{ backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderColor: "#E8EDEE", borderRadius: 20, background: "rgba(255,255,255,0.82)" }}>
         <h2 style={{ display: "flex", alignItems: "center", gap: 8, margin: "0 0 8px", overflowWrap: "anywhere", color: "#1E332E" } as React.CSSProperties}><Bell size={17} aria-hidden="true" />{ar ? "الطلبات" : "Requests"} {requests.length ? `(${requests.length})` : ""}</h2>
         <FamilyPermissionRequestsClient locale={locale} requests={requests} />
       </section>
