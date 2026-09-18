@@ -94,19 +94,20 @@ export function PremiumProductCard({ slug, name, price, oldPrice, image, images,
               WebkitLineClamp: 2,
               WebkitBoxOrient: 'vertical',
               overflow: 'hidden',
+              overflowWrap: 'anywhere',
               minHeight: 36,
             }}
           >
             {name}
           </div>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 8 }}>
-            <span style={{ fontSize: 15, fontWeight: 800, color: '#1E332E' }}>SAR {price.toFixed(2)}</span>
-            {oldPrice && oldPrice > price && <s style={{ fontSize: 11, color: '#94A3B8' }}>SAR {oldPrice.toFixed(2)}</s>}
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 10 }}>
-            <span style={{ fontSize: 11, color: '#6B7C6E' }}>التوصيل مجاني</span>
-            <span style={{ width: 32, height: 32, borderRadius: 999, background: '#1E332E', color: '#fff', display: 'grid', placeItems: 'center', fontSize: 14 }}>＋</span>
-          </div>
+           <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 8 }}>
+             <span style={{ fontSize: 15, fontWeight: 800, color: '#1E332E', overflowWrap: 'anywhere' }}>SAR {price.toFixed(2)}</span>
+             {oldPrice && oldPrice > price && <s style={{ fontSize: 11, color: '#94A3B8' }}>SAR {oldPrice.toFixed(2)}</s>}
+           </div>
+           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
+             <span style={{ fontSize: 11, color: '#6B7C6E', overflowWrap: 'anywhere' }}>التوصيل مجاني</span>
+             <span style={{ width: 32, height: 32, borderRadius: 999, background: '#5FD9B3', color: '#1E332E', display: 'grid', placeItems: 'center', fontSize: 14, fontWeight: 800, border: '1px solid #E8EDEE' }}>＋</span>
+           </div>
         </div>
       </div>
     </Link>
