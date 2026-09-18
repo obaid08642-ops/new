@@ -32,8 +32,8 @@ export default async function LocaleNotFound(props: Props) {
 
   return (
     <main className="main auth-wrap" style={{ background: "#FDFDFC", padding: "32px 16px" }}>
-      <section className="auth-card" role="status" style={{ background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: "1px solid #E8EDEE", borderRadius: 20, padding: 32, maxWidth: 480, margin: "0 auto", display: "grid", gap: 16 }}>
-        <span aria-hidden style={{ width: 48, height: 48, borderRadius: 14, display: "grid", placeItems: "center", background: "rgba(95,217,179,.18)", color: "#1E332E" }}>
+      <section className="auth-card" role="status" style={{ background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: "1px solid #E8EDEE", borderRadius: 20, padding: 32, maxWidth: 480, margin: "0 auto", display: "grid", gap: 16, boxShadow: "0 8px 24px rgba(30,51,46,.07)" }}>
+        <span aria-hidden style={{ width: 48, height: 48, borderRadius: 16, display: "grid", placeItems: "center", background: "rgba(95,217,179,.18)", color: "#1E332E" }}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="11" cy="11" r="6" /><path d="M15.5 15.5 19 19" /><path d="M8.5 11h5" /></svg>
         </span>
         <div className="eyebrow" style={{ color: "#1E332E" }}>404</div>
