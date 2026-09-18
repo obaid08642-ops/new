@@ -20,28 +20,112 @@ export default async function SettingsAboutPage({ params }: Props) {
   setRequestLocale(locale);
   const ar = locale === "ar";
 
+  // Static about — no backend binding, no mock
   return (
     <main className={`main ${styles.page}`}>
-      <Link href={`/${locale}/settings`} style={{ color: "#1E332E", fontWeight: 760, textDecoration: "none" }}>
+      <Link
+        href={`/${locale}/settings`}
+        style={{ color: "#1E332E", fontWeight: 760, textDecoration: "none", overflowWrap: "anywhere" } as any}
+      >
         {ar ? "الإعدادات" : "Settings"}
       </Link>
+
       <section className={styles.hero}>
-        <p className={styles.eyebrow}><ShieldCheck size={15} aria-hidden="true" />{ar ? "نبض بلس" : "Nabd Plus"}</p>
-        <h1 style={{ overflowWrap: "anywhere" }}>{ar ? "عن نبض بلس" : "About Nabd Plus"}</h1>
-        <p style={{ overflowWrap: "anywhere" }}>{ar ? "منصة الرعاية الصحية المتكاملة — مبنية بمعايير طبية وتنظيمية عالمية." : "Integrated health platform — built to clinical and regulatory standards."}</p>
-        <span style={{ display: "grid", placeItems: "center", width: 48, height: 48, borderRadius: 16, background: "rgba(255,255,255,.82)", border: "1px solid #E8EDEE", flexShrink: 0 }}><ShieldCheck size={22} color="#1E332E" /></span>
+        <p className={styles.eyebrow}>
+          <ShieldCheck size={15} aria-hidden="true" />
+          {ar ? "نبض بلس" : "Nabd Plus"}
+        </p>
+        <h1
+          style={
+            {
+              overflowWrap: "anywhere",
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
+            } as any
+          }
+        >
+          {ar ? "عن نبض بلس" : "About Nabd Plus"}
+        </h1>
+        <p style={{ overflowWrap: "anywhere" } as any}>
+          {ar
+            ? "منصة الرعاية الصحية المتكاملة — مبنية بمعايير طبية وتنظيمية عالمية."
+            : "Integrated health platform — built to clinical and regulatory standards."}
+        </p>
+        <span
+          className={styles.icon}
+          style={{ backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}
+          aria-hidden="true"
+        >
+          <ShieldCheck size={22} color="#1E332E" />
+        </span>
       </section>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(16rem, 1fr))", gap: 16 }}>
+
+      <div className={styles.grid}>
         {TEAMS.map((t) => (
-          <section key={t.en} className={styles.card} style={{ display: "grid", gap: 8 }}>
-            <h2 style={{ margin: 0, color: "#1E332E", fontSize: "1.05rem", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" as any }}>{ar ? t.ar : t.en}</h2>
-            <p style={{ margin: 0, color: "#64748B", overflowWrap: "anywhere" }}>{ar ? t.subAr : t.subEn}</p>
+          <section key={t.en} className={styles.card}>
+            <span className={styles.icon} aria-hidden="true">
+              <ShieldCheck size={20} />
+            </span>
+            <div style={{ minInlineSize: 0, display: "grid", gap: 8 }}>
+              <h2
+                style={
+                  {
+                    margin: 0,
+                    overflowWrap: "anywhere",
+                    display: "-webkit-box",
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: "vertical",
+                    overflow: "hidden",
+                  } as any
+                }
+              >
+                {ar ? t.ar : t.en}
+              </h2>
+              <p style={{ margin: 0, overflowWrap: "anywhere" } as any}>{ar ? t.subAr : t.subEn}</p>
+            </div>
           </section>
         ))}
       </div>
-      <nav style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-        <Link href={`/${locale}/terms`} style={{ padding: "12px 16px", borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", color: "#1E332E", fontWeight: 700, textDecoration: "none" }}>{ar ? "الشروط" : "Terms"}</Link>
-        <Link href={`/${locale}/privacy`} style={{ padding: "12px 16px", borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", color: "#1E332E", fontWeight: 700, textDecoration: "none" }}>{ar ? "الخصوصية" : "Privacy"}</Link>
+
+      <nav style={{ display: "flex", gap: 8, flexWrap: "wrap" } as any}>
+        <Link
+          href={`/${locale}/terms`}
+          style={
+            {
+              padding: "12px 16px",
+              borderRadius: 20,
+              border: "1px solid #E8EDEE",
+              background: "rgba(255,255,255,.82)",
+              backdropFilter: "blur(16px)",
+              WebkitBackdropFilter: "blur(16px)",
+              color: "#1E332E",
+              fontWeight: 700,
+              textDecoration: "none",
+              overflowWrap: "anywhere",
+            } as any
+          }
+        >
+          {ar ? "الشروط" : "Terms"}
+        </Link>
+        <Link
+          href={`/${locale}/privacy`}
+          style={
+            {
+              padding: "12px 16px",
+              borderRadius: 20,
+              border: "1px solid #E8EDEE",
+              background: "#5FD9B3",
+              color: "#1E332E",
+              fontWeight: 800,
+              textDecoration: "none",
+              overflowWrap: "anywhere",
+            } as any
+          }
+        >
+          {ar ? "الخصوصية" : "Privacy"}
+        </Link>
       </nav>
     </main>
   );
