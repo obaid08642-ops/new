@@ -82,7 +82,7 @@
   inline-size: 48px;
   block-size: 48px;
   border: 1px solid #E8EDEE;
-  border-radius: 16px;
+  border-radius: 20px;
   background: rgba(255, 255, 255, 0.82);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -142,7 +142,7 @@
   place-items: center;
   inline-size: 48px;
   block-size: 48px;
-  border-radius: 16px;
+  border-radius: 20px;
   color: #1E332E;
   background: rgba(95, 217, 179, 0.12);
   border: 1px solid #E8EDEE;
@@ -228,7 +228,7 @@
   place-items: center;
   inline-size: 48px;
   block-size: 48px;
-  border-radius: 16px;
+  border-radius: 20px;
   color: #1E332E;
   background: rgba(95, 217, 179, 0.12);
   border: 1px solid #E8EDEE;
