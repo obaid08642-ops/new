@@ -25,7 +25,7 @@ export default async function MoodHistoryPage({ params }: Props) {
     return (
       <main className={`main ${styles.page}`}>
         <section className={styles.state} role="alert">
-          <VectorMentalHealth size={42} aria-hidden="true" />
+          <VectorMentalHealth size={48} aria-hidden="true" />
           <h1>{t("moodHistoryUnavailableTitle")}</h1>
           <p>{t("unavailable")}</p>
           <RetryButton />
@@ -59,7 +59,9 @@ export default async function MoodHistoryPage({ params }: Props) {
         <section className={styles.grid} aria-label={t("moodHistoryTitle")}>
           {entries.map((entry) => (
             <article className={styles.card} key={entry.id}>
-              <HeartPulse size={24} aria-hidden="true" />
+              <span className={styles.cardIcon} aria-hidden="true">
+                <HeartPulse size={20} />
+              </span>
               <strong>{entry.mood || t("moodUnavailable")}</strong>
               {entry.energy !== undefined ? <span>{t("energy")}: {entry.energy}</span> : null}
               {entry.stress !== undefined ? <span>{t("stress")}: {entry.stress}</span> : null}
@@ -74,7 +76,7 @@ export default async function MoodHistoryPage({ params }: Props) {
         </section>
       ) : (
         <section className={styles.state}>
-          <VectorMentalHealth size={42} aria-hidden="true" />
+          <VectorMentalHealth size={48} aria-hidden="true" />
           <p>{t("moodHistoryEmpty")}</p>
         </section>
       )}
