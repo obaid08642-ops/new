@@ -29,14 +29,14 @@ export function VideoRoomClient({ token, room, labels }: { token: string; room: 
   function toggleMic() { const p = roomRef.current?.localParticipant; if (p) { p.setMicrophoneEnabled(!micOn); setMicOn(!micOn); } }
   function toggleCam() { const p = roomRef.current?.localParticipant; if (p) { p.setCameraEnabled(!camOn); setCamOn(!camOn); } }
   function leave() { roomRef.current?.disconnect(); setState("ended"); }
-  return <div>
-    {state === "connecting" ? <p role="status"><LoaderCircle className="spinner" size={18} aria-hidden="true" /> {labels.connecting}</p> : null}
-    {state === "ended" ? <p role="status">{labels.ended}</p> : null}
-    <div ref={container} style={{ display: "grid", gap: 8, gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", minHeight: 320 }} />
-    {state === "live" ? <div style={{ display: "flex", gap: 8 }}>
-      <button type="button" onClick={toggleMic}>{micOn ? <Mic size={16} /> : <MicOff size={16} />} {labels.mute}</button>
-      <button type="button" onClick={toggleCam}>{camOn ? <Video size={16} /> : <VideoOff size={16} />} {labels.camera}</button>
-      <button type="button" onClick={leave}><PhoneOff size={16} /> {labels.leave}</button>
+  return <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+    {state === "connecting" ? <p role="status" style={{ overflowWrap: "anywhere" } as any}><LoaderCircle className="spinner" size={18} aria-hidden="true" /> {labels.connecting}</p> : null}
+    {state === "ended" ? <p role="status" style={{ overflowWrap: "anywhere" } as any}>{labels.ended}</p> : null}
+    <div ref={container} style={{ display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", minHeight: 320, background: "rgba(253,253,252,0.92)", border: "1px solid #E8EDEE", borderRadius: 20, backdropFilter: "blur(16px)", padding: 16, overflow: "hidden" } as any} />
+    {state === "live" ? <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+      <button type="button" onClick={toggleMic} style={{ background: "#5FD9B3", color: "#1E332E", border: "1px solid #E8EDEE", borderRadius: 20, padding: "8px 16px", backdropFilter: "blur(16px)" } as any}>{micOn ? <Mic size={16} /> : <MicOff size={16} />} {labels.mute}</button>
+      <button type="button" onClick={toggleCam} style={{ background: "#5FD9B3", color: "#1E332E", border: "1px solid #E8EDEE", borderRadius: 20, padding: "8px 16px", backdropFilter: "blur(16px)" } as any}>{camOn ? <Video size={16} /> : <VideoOff size={16} />} {labels.camera}</button>
+      <button type="button" onClick={leave} style={{ background: "#5FD9B3", color: "#1E332E", border: "1px solid #E8EDEE", borderRadius: 20, padding: "8px 16px", backdropFilter: "blur(16px)" } as any}><PhoneOff size={16} /> {labels.leave}</button>
     </div> : null}
   </div>;
 }
