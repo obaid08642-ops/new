@@ -40,7 +40,7 @@ export default async function BookConsultationPage({ params }: Props) {
   const canonical = localizedUrl(locale, `/consultations/book/${encodeURIComponent(doctorId)}`);
   return (
     <main className="main" style={{ background: "#FDFDFC" }}>
-      <Link href={`/${locale}/consultations/doctors/${encodeURIComponent(doctorId)}`} style={{ color: "#1E332E", display: "inline-flex", alignItems: "center", gap: 6, overflowWrap: "anywhere" } as any}><ChevronLeft size={16} aria-hidden="true" />{t("back")}</Link>
+      <Link href={`/${locale}/consultations/doctors/${encodeURIComponent(doctorId)}`} style={{ color: "#1E332E", display: "inline-flex", alignItems: "center", gap: 8, overflowWrap: "anywhere" } as any}><ChevronLeft size={16} aria-hidden="true" />{t("back")}</Link>
       <JsonLd data={physician({ name, locale, path: `/consultations/doctors/${encodeURIComponent(doctorId)}`, specialty: doctor?.specialty })} />
       <section className="premium-hero" style={{ background: "rgba(253,253,252,0.92)", border: "1px solid #E8EDEE", borderRadius: 20, backdropFilter: "blur(16px)" } as any}><div className="premium-hero-copy">
         <div className="eyebrow" style={{ color: "#1E332E" } as any}><VectorDoctor size={48} aria-hidden="true" />{t("title")}</div>
