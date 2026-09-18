@@ -6,8 +6,8 @@
 .settingsLink { display: inline-flex; align-items: center; justify-content: center; min-block-size: 2.5rem; padding: .5rem 1rem; border: 1px solid #E8EDEE; border-radius: 999px; color: #1E332E; background: #5FD9B3; box-shadow: 0 6px 14px rgba(95,217,179,.22); font-size: .82rem; font-weight: 800; overflow-wrap: anywhere; transition: transform 160ms var(--ease-premium, ease), filter 160ms var(--ease-premium, ease), box-shadow 160ms var(--ease-premium, ease); }
 .settingsLink:focus-visible { outline: 3px solid rgba(95,217,179,.45); outline-offset: 3px; }
 @media (hover: hover) and (pointer: fine) { .settingsLink:hover { filter: brightness(1.04); transform: translateY(-1px); box-shadow: 0 8px 18px rgba(95,217,179,.28); } }
-.headerIcon { display: grid; place-items: center; flex: 0 0 auto; inline-size: 3rem; block-size: 3rem; border: 1px solid #E8EDEE; border-radius: 16px; color: #1E332E; background: #FDFDFC; box-shadow: 0 4px 16px rgba(30,51,46,.06); }
-.headerIcon :global(svg) { width: 48px; height: 48px; }
+.headerIcon { display: grid; place-items: center; flex: 0 0 auto; inline-size: 48px; block-size: 48px; border: 1px solid #E8EDEE; border-radius: 16px; color: #1E332E; background: #FDFDFC; box-shadow: 0 4px 16px rgba(30,51,46,.06); }
+.headerIcon :global(svg) { width: 22px; height: 22px; }
 
 .list { display: grid; gap: 1rem; }
 .card { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: start; gap: 1rem; padding: 1rem; border: 1px solid #E8EDEE; border-radius: 20px; background: #FDFDFC; box-shadow: 0 8px 22px rgba(30,51,46,.06); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); transition: transform 160ms var(--ease-premium, ease), box-shadow 160ms var(--ease-premium, ease), border-color 160ms var(--ease-premium, ease); }
@@ -28,8 +28,8 @@
 .state { display: grid; justify-items: center; gap: 1rem; padding: 2rem 1.5rem; border: 1px dashed #E8EDEE; border-radius: 20px; background: #FDFDFC; color: #6B7C6E; text-align: center; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
 .state h1, .state h2 { margin: 0; color: #1E332E; font-size: 1.1rem; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .state p { max-inline-size: 38rem; margin: 0; line-height: 1.7; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.stateIcon { display: grid; place-items: center; inline-size: 3rem; block-size: 3rem; border: 1px solid #E8EDEE; border-radius: 16px; color: #1E332E; background: rgba(95,217,179,.14); }
-.stateIcon :global(svg) { width: 48px; height: 48px; }
+.stateIcon { display: grid; place-items: center; inline-size: 48px; block-size: 48px; border: 1px solid #E8EDEE; border-radius: 16px; color: #1E332E; background: rgba(95,217,179,.14); }
+.stateIcon :global(svg) { width: 22px; height: 22px; }
 .notice { margin: 0; padding: 1rem 1.1rem; border: 1px solid rgba(95,217,179,.16); border-inline-start: 3px solid #5FD9B3; border-radius: 20px; color: #6B7C6E; background: rgba(95,217,179,.08); font-size: .9rem; line-height: 1.7; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
 @media (max-width: 540px) { .page { gap: 1rem; padding-top: 1rem; } .header { gap: .75rem; } .headerActions { gap: .5rem; } .settingsLink { padding-inline: .75rem; font-size: .78rem; min-block-size: 2.25rem; } .headerIcon { inline-size: 3rem; block-size: 3rem; } .list { gap: .5rem; } }

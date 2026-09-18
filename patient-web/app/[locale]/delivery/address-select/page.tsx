@@ -33,7 +33,7 @@ export default async function DeliveryAddressSelectPage({ params }: Props) {
           <p className={styles.eyebrow}>{ar ? "التوصيل" : "Delivery"}</p>
           <h1>{ar ? "عنوان التوصيل" : "Delivery address"}</h1>
         </div>
-        <span className={styles.vectorWrap}><MapPin size={48} aria-hidden="true" /></span>
+        <span className={styles.vectorWrap}><MapPin size={22} aria-hidden="true" /></span>
       </section>
       <DeliveryAddressSelectClient addresses={addresses} locale={locale} />
     </main>
