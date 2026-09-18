@@ -33,7 +33,7 @@ export default async function NursingVisitsPage({ params }: Props) {
   } catch {}
 
   return (
-    <main className={`main ${styles.page}`} dir={rtl ? "rtl" : "ltr"}>
+    <main className={`main ${styles.page}`} dir={rtl ? "rtl" : "ltr"} style={{ background: "#FDFDFC" }}>
       <section className={styles.hero}>
         <div>
           <p className={styles.eyebrow}><ShieldCheck size={15} aria-hidden="true" />{t("eyebrow")}</p>
