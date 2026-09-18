@@ -7,6 +7,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { ArrowLeft, ArrowRight, Building2, MapPin, Pill, ShieldCheck, Truck, Clock } from "lucide-react";
+import { VectorPharmacy } from "@/components-next/vector-illustrations";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -89,86 +90,66 @@ export default async function PharmacyCanonicalPage({ params }: Props) {
   return (
     <>
       <JsonLd data={jsonLd} />
-      <main className="min-h-screen bg-slate-50 dark:bg-slate-950 py-8 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto space-y-6">
-          {/* Breadcrumbs */}
-          <nav className="flex items-center gap-2 text-xs text-slate-500">
-            <Link href={`/${locale}`} className="hover:text-emerald-600 transition-colors">
-              {isRtl ? "الرئيسية" : "Home"}
-            </Link>
-            <span>/</span>
-            <Link href={`/${locale}/pharmacies`} className="hover:text-emerald-600 transition-colors">
-              {isRtl ? "الصيدليات" : "Pharmacies"}
-            </Link>
-            <span>/</span>
-            <span className="text-slate-900 dark:text-slate-200 font-medium truncate">{name}</span>
-          </nav>
+      <main className="main" style={{ display: "grid", gap: 16, padding: "24px 0 64px", background: "#FDFDFC" }}>
+        {/* Breadcrumbs */}
+        <nav style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "#5A6B62", flexWrap: "wrap", overflowWrap: "anywhere" }}>
+          <Link href={`/${locale}`} style={{ color: "#00876F", fontWeight: 700, textDecoration: "none" }}>{isRtl ? "الرئيسية" : "Home"}</Link>
+          <span>/</span>
+          <Link href={`/${locale}/pharmacies`} style={{ color: "#00876F", fontWeight: 700, textDecoration: "none" }}>{isRtl ? "الصيدليات" : "Pharmacies"}</Link>
+          <span>/</span>
+          <span style={{ color: "#1E332E", fontWeight: 800, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", overflowWrap: "anywhere" }}>{name}</span>
+        </nav>
 
-          {/* Hero Card */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
-                  <Pill className="w-8 h-8" />
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    {name}
-                    <ShieldCheck className="w-5 h-5 text-emerald-500" />
-                  </h1>
-                  <div className="flex items-center gap-2 text-sm text-slate-500 mt-1">
-                    <MapPin className="w-4 h-4" />
-                    <span>{ph.city || "المملكة العربية السعودية"}</span>
-                    {ph.district && <span>• {ph.district}</span>}
-                  </div>
-                </div>
-              </div>
-
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300">
-                <ShieldCheck className="w-3.5 h-3.5" />
-                {isRtl ? "صيدلية مرخصة SFDA" : "SFDA Licensed Pharmacy"}
-              </span>
-            </div>
-
-            {/* Quick Specs */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-slate-100 dark:border-slate-800 text-sm">
-              <div className="flex items-center gap-3 text-slate-600 dark:text-slate-300">
-                <Truck className="w-5 h-5 text-emerald-500" />
-                <div>
-                  <p className="text-xs text-slate-400">{isRtl ? "توصيل سريع" : "Express Delivery"}</p>
-                  <p className="font-semibold">{ph.estimated_delivery_time || (isRtl ? "خلال 60 دقيقة" : "Within 60 mins")}</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3 text-slate-600 dark:text-slate-300">
-                <Clock className="w-5 h-5 text-emerald-500" />
-                <div>
-                  <p className="text-xs text-slate-400">{isRtl ? "ساعات العمل" : "Working Hours"}</p>
-                  <p className="font-semibold">{isRtl ? "24/7 على مدار الساعة" : "24/7 Open"}</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3 text-slate-600 dark:text-slate-300">
-                <Building2 className="w-5 h-5 text-emerald-500" />
-                <div>
-                  <p className="text-xs text-slate-400">{isRtl ? "ترخيص الهيئة" : "SFDA License"}</p>
-                  <p className="font-semibold">{ph.sfda_license_number || ph.license_number || "SFDA-VERIFIED"}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Action CTA */}
-            <div className="pt-2">
-              <Link
-                href={`/${locale}/pharmacy/scan-prescription?pharmacyId=${ph.id}`}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-sm transition-colors shadow-sm"
-              >
-                <span>{isRtl ? "ارفع وصفتك الطبية للصرف" : "Upload Prescription"}</span>
-                <ArrowIcon className="w-4 h-4" />
-              </Link>
+        {/* Hero — Ultra-Premium V3: Forest Ink #1E332E, Warm Cream #FDFDFC, border #E8EDEE, radius 20, vector 48 */}
+        <section style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, padding: 24, border: "1px solid #E8EDEE", borderRadius: 20, background: "linear-gradient(135deg, #FDFDFC 0%, #F0FDF9 60%, #E7FFF6 100%)", boxShadow: "0 12px 32px rgba(30,51,46,.07)", position: "relative", overflow: "hidden" }}>
+          <div style={{ display: "grid", gap: 8, minWidth: 0, flex: 1 }}>
+            <p style={{ display: "inline-flex", alignItems: "center", gap: 6, margin: 0, color: "#1E332E", fontSize: 12, fontWeight: 800, overflowWrap: "anywhere" }}><ShieldCheck size={14} aria-hidden="true" />{isRtl ? "صيدلية نبض — مرخصة SFDA" : "Nabd Pharmacy — SFDA Licensed"}</p>
+            <h1 style={{ margin: 0, color: "#1E332E", fontSize: 22, fontWeight: 900, lineHeight: 1.25, overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{name} <ShieldCheck size={18} style={{ display: "inline", verticalAlign: "middle", color: "#00876F" }} aria-hidden="true" /></h1>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#5A6B62", flexWrap: "wrap", overflowWrap: "anywhere" }}>
+              <MapPin size={14} aria-hidden="true" style={{ flexShrink: 0 }} />
+              <span style={{ overflowWrap: "anywhere" }}>{ph.city || "المملكة العربية السعودية"}</span>
+              {ph.district && <span style={{ overflowWrap: "anywhere" }}>• {ph.district}</span>}
             </div>
           </div>
-        </div>
+          <span style={{ display: "grid", placeItems: "center", width: 48, height: 48, borderRadius: 16, background: "rgba(255,255,255,.82)", border: "1px solid #E8EDEE", flexShrink: 0, boxShadow: "0 4px 14px rgba(30,51,46,.06)" }}><VectorPharmacy size={48} /></span>
+        </section>
+
+        {/* Details Card — glass + Forest Ink */}
+        <section style={{ display: "grid", gap: 16, padding: 20, border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", boxShadow: "0 8px 24px rgba(30,51,46,.07)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+            <span style={{ display: "grid", placeItems: "center", width: 48, height: 48, borderRadius: 16, background: "rgba(95,217,179,.15)", border: "1px solid #E8EDEE", color: "#1E332E", flexShrink: 0 }}><Pill size={22} aria-hidden="true" /></span>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 12px", borderRadius: 999, fontSize: 12, fontWeight: 800, background: "rgba(95,217,179,.12)", color: "#1E332E", border: "1px solid #E8EDEE", overflowWrap: "anywhere" }}><ShieldCheck size={14} aria-hidden="true" />{isRtl ? "صيدلية مرخصة SFDA" : "SFDA Licensed Pharmacy"}</span>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12, paddingTop: 16, borderTop: "1px solid #E8EDEE" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, padding: 12, border: "1px solid #E8EDEE", borderRadius: 16, background: "#FDFDFC", overflowWrap: "anywhere" }}>
+              <span style={{ display: "grid", placeItems: "center", width: 40, height: 40, borderRadius: 12, background: "rgba(95,217,179,.14)", color: "#1E332E", flexShrink: 0 }}><Truck size={18} aria-hidden="true" /></span>
+              <div style={{ display: "grid", gap: 2, minWidth: 0 }}>
+                <span style={{ fontSize: 11, color: "#5A6B62", fontWeight: 700, overflowWrap: "anywhere" }}>{isRtl ? "توصيل سريع" : "Express Delivery"}</span>
+                <span style={{ fontSize: 13, fontWeight: 800, color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{ph.estimated_delivery_time || (isRtl ? "خلال 60 دقيقة" : "Within 60 mins")}</span>
+              </div>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, padding: 12, border: "1px solid #E8EDEE", borderRadius: 16, background: "#FDFDFC", overflowWrap: "anywhere" }}>
+              <span style={{ display: "grid", placeItems: "center", width: 40, height: 40, borderRadius: 12, background: "rgba(95,217,179,.14)", color: "#1E332E", flexShrink: 0 }}><Clock size={18} aria-hidden="true" /></span>
+              <div style={{ display: "grid", gap: 2, minWidth: 0 }}>
+                <span style={{ fontSize: 11, color: "#5A6B62", fontWeight: 700, overflowWrap: "anywhere" }}>{isRtl ? "ساعات العمل" : "Working Hours"}</span>
+                <span style={{ fontSize: 13, fontWeight: 800, color: "#1E332E", overflowWrap: "anywhere" }}>{isRtl ? "24/7 على مدار الساعة" : "24/7 Open"}</span>
+              </div>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, padding: 12, border: "1px solid #E8EDEE", borderRadius: 16, background: "#FDFDFC", overflowWrap: "anywhere" }}>
+              <span style={{ display: "grid", placeItems: "center", width: 40, height: 40, borderRadius: 12, background: "rgba(95,217,179,.14)", color: "#1E332E", flexShrink: 0 }}><Building2 size={18} aria-hidden="true" /></span>
+              <div style={{ display: "grid", gap: 2, minWidth: 0 }}>
+                <span style={{ fontSize: 11, color: "#5A6B62", fontWeight: 700, overflowWrap: "anywhere" }}>{isRtl ? "ترخيص الهيئة" : "SFDA License"}</span>
+                <span style={{ fontSize: 13, fontWeight: 800, color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{ph.sfda_license_number || ph.license_number || "SFDA-VERIFIED"}</span>
+              </div>
+            </div>
+          </div>
+
+          <Link href={`/${locale}/pharmacy/scan-prescription?pharmacyId=${ph.id}`} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "12px 20px", borderRadius: 16, background: "#1E332E", color: "#FDFDFC", fontWeight: 800, fontSize: 14, textDecoration: "none", width: "fit-content", overflowWrap: "anywhere" }}>
+            <span style={{ overflowWrap: "anywhere" }}>{isRtl ? "ارفع وصفتك الطبية للصرف" : "Upload Prescription"}</span>
+            <ArrowIcon size={16} aria-hidden="true" />
+          </Link>
+        </section>
       </main>
     </>
   );

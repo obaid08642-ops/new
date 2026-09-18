@@ -46,7 +46,7 @@ export default async function SettingsNotificationsPage({ params }: Props) {
 
   return (
     <main className={`main ${styles.page}`}>
-      <Link href={`/${locale}/settings`}>
+      <Link href={`/${locale}/settings`} style={{ color: "#1E332E", fontWeight: 760, textDecoration: "none", overflowWrap: "anywhere" as any }}>
         {ar ? "الإعدادات" : "Settings"}
       </Link>
       <section className={styles.hero}>
@@ -54,17 +54,20 @@ export default async function SettingsNotificationsPage({ params }: Props) {
           <Bell size={15} aria-hidden="true" />
           {ar ? "الإشعارات" : "Notifications"}
         </p>
-        <h1>{ar ? "إعدادات الإشعارات" : "Notification settings"}</h1>
-        <p>{ar ? "عرض فقط — غيّرها من تطبيق الجوال." : "Read-only — change them in the mobile app."}</p>
+        <h1 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" as any }}>{ar ? "إعدادات الإشعارات" : "Notification settings"}</h1>
+        <p style={{ overflowWrap: "anywhere" }}>{ar ? "عرض فقط — غيّرها من تطبيق الجوال." : "Read-only — change them in the mobile app."}</p>
       </section>
-      <ul style={{ listStyle: "none", padding: 0, display: "grid", gap: 8 }}>
+      <section className={styles.grid}>
         {entries.map(([key, label]) => (
-          <li key={key} style={{ display: "flex", justifyContent: "space-between" }}>
-            <span>{ar ? label.ar : label.en}</span>
-            <strong>{settings[key as keyof typeof settings] === undefined ? "—" : settings[key as keyof typeof settings] ? (ar ? "مفعّلة" : "On") : (ar ? "معطّلة" : "Off")}</strong>
-          </li>
+          <article key={key} className={styles.card} style={{ alignItems: "center" }}>
+            <span className={styles.icon}><Bell size={18} aria-hidden="true" /></span>
+            <div style={{ minInlineSize: 0 }}>
+              <h2 style={{ margin: 0, fontSize: "0.95rem", color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" as any }}>{ar ? label.ar : label.en}</h2>
+            </div>
+            <strong style={{ marginInlineStart: "auto", padding: "6px 12px", borderRadius: 20, border: "1px solid #E8EDEE", background: settings[key as keyof typeof settings] ? "#5FD9B3" : "rgba(255,255,255,.82)", color: "#1E332E", fontSize: ".82rem", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" as any }}>{settings[key as keyof typeof settings] === undefined ? "—" : settings[key as keyof typeof settings] ? (ar ? "مفعّلة" : "On") : (ar ? "معطّلة" : "Off")}</strong>
+          </article>
         ))}
-      </ul>
+      </section>
     </main>
   );
 }

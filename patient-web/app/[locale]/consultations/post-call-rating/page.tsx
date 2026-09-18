@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { Star } from "lucide-react";
+import { VectorDoctor } from "@/components-next/vector-illustrations";
 import { PostCallRatingForm } from "@/components-next/post-call-rating-form";
 import styles from "./rating.module.css";
 
@@ -17,7 +18,7 @@ export default async function PostCallRatingPage({ params, searchParams }: Props
   const t = await getTranslations("PostCallRating");
   return <main className={`main ${styles.page}`}>
     <section className={styles.card}>
-      <h1><Star size={22} aria-hidden="true" />{t("title")}</h1>
+      <h1><VectorDoctor size={48} aria-hidden="true" /><Star size={22} aria-hidden="true" />{t("title")}</h1>
       <p className={styles.sub}>{t("subtitle")}</p>
       <PostCallRatingForm locale={locale} appointmentId={appointmentId} labels={{
         comment: t("comment"), commentPh: t("commentPh"), submit: t("submit"),

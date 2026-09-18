@@ -34,7 +34,7 @@
 .state p { max-width: 480px; margin: 0; color: #526473; line-height: 1.7; font-size: 14px; }
 .back { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 20px; color: #1E332E; font-weight: 750; font-size: 14px; text-decoration: none; transition: transform 0.16s ease; }
 .back:hover { transform: translateX(-3px); }
-.detail { padding: clamp(24px, 4vw, 40px); border: 1px solid #E8EDEE; border-radius: 20px; background: rgba(253,253,252,0.88); backdrop-filter: blur(16px); box-shadow: 0 22px 64px rgba(22, 71, 84, 0.08); backdrop-filter: blur(16px); }
+.detail { padding: clamp(24px, 4vw, 40px); border: 1px solid #E8EDEE; border-radius: 20px; background: rgba(253,253,252,0.88); backdrop-filter: blur(16px); box-shadow: 0 22px 64px rgba(22, 71, 84, 0.08); }
 .detailHeader { display: flex; align-items: flex-start; gap: 20px; margin-bottom: 24px; }
 .detailIcon { display: grid; place-items: center; width: 76px; height: 76px; flex-shrink: 0; border-radius: 20px; background: linear-gradient(135deg, #e7f9f5, #daf4f8); border: 1px solid rgba(95, 217, 179, 0.35); box-shadow: 0 10px 24px rgba(0, 135, 111, 0.08); }
 .detailInfo { flex: 1; }

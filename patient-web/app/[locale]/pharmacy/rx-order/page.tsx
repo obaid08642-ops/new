@@ -61,7 +61,7 @@ export default async function PharmacyRxOrderPage({ params, searchParams }: Prop
         ) : (
           <>
             <ul style={{ display: "grid", gap: 8, listStyle: "none", padding: 0, margin: 0 }}>{lines.map((l, i) => <li key={i} style={{ padding: "10px 12px", border: "1px solid #E8EDEE", borderRadius: 16, background: "#FDFDFC", color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{l.name} — {ar ? "الكمية:" : "Qty:"} {l.qty}</li>)}</ul>
-            <Link href={`/${locale}/cart/checkout?prescriptionId=${encodeURIComponent(requestedId)}`}>{ar ? "مراجعة العنوان وطلب عروض" : "Review address & request offers"}</Link>
+            <Link href={`/${locale}/cart/checkout?prescriptionId=${encodeURIComponent(requestedId)}`} style={{ display: "inline-flex", padding: "10px 16px", borderRadius: 16, background: "#1E332E", color: "#FDFDFC", fontWeight: 800, textDecoration: "none", width: "fit-content", overflowWrap: "anywhere" }}>{ar ? "مراجعة العنوان وطلب عروض" : "Review address & request offers"}</Link>
           </>
         )}
       </section>
@@ -93,12 +93,12 @@ export default async function PharmacyRxOrderPage({ params, searchParams }: Prop
       <section style={{ padding: 16, border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", boxShadow: "0 8px 24px rgba(30,51,46,.07)", display: "grid", gap: 12 }}>
       <p style={{ margin: 0, color: "#5A6B62", overflowWrap: "anywhere" }}>{ar ? "اختر وصفة نشطة لصرف أدويتها." : "Choose an active prescription to dispense."}</p>
       {active.length === 0 ? (
-        <p role="status">{ar ? "لا توجد وصفات نشطة" : "No active prescriptions"}</p>
+        <p role="status" style={{ margin: 0, color: "#5A6B62", overflowWrap: "anywhere" }}>{ar ? "لا توجد وصفات نشطة" : "No active prescriptions"}</p>
       ) : (
-        <ul>
+        <ul style={{ display: "grid", gap: 8, listStyle: "none", padding: 0, margin: 0 }}>
           {active.map((rx) => (
-            <li key={rx.id}>
-              <Link href={`/${locale}/pharmacy/rx-order?prescriptionId=${encodeURIComponent(rx.id)}`}>
+            <li key={rx.id} style={{ padding: "10px 12px", border: "1px solid #E8EDEE", borderRadius: 16, background: "#FDFDFC", overflowWrap: "anywhere" }}>
+              <Link href={`/${locale}/pharmacy/rx-order?prescriptionId=${encodeURIComponent(rx.id)}`} style={{ color: "#1E332E", fontWeight: 800, textDecoration: "none", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
                 {ar ? `وصفة #${rx.id.slice(-6)}` : `Prescription #${rx.id.slice(-6)}`} — {rx.count} {ar ? "أصناف" : "items"}
               </Link>
             </li>

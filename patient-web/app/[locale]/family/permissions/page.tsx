@@ -5,6 +5,9 @@ import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { callPatientApi } from "@/lib/api/upstream";
 import { FamilyPermissionsClient } from "@/components-next/family-permissions-client";
+import { ChevronLeft, ShieldCheck, UsersRound } from "lucide-react";
+import { VectorFamily } from "@/components-next/vector-illustrations";
+import styles from "../family.module.css";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -33,11 +36,21 @@ export default async function FamilyPermissionsPage({ params }: Props) {
   }).filter((m): m is { id: string; name: string; permissions: string[] } => m !== null);
 
   return (
-    <main className="main">
-      <Link href={`/${locale}/family`}>{ar ? "العائلة" : "Family"}</Link>
-      <h1>{ar ? "أذونات الأعضاء" : "Member permissions"}</h1>
-      <FamilyPermissionsClient locale={locale} members={members} />
-      <Link href={`/${locale}/family/permission-requests`}>{ar ? "طلبات الأذونات" : "Permission requests"}</Link>
+    <main className={`main ${styles.page}`}>
+      <Link className={styles.back} href={`/${locale}/family`}><ChevronLeft size={16} aria-hidden="true" />{ar ? "العائلة" : "Family"}</Link>
+      <section className={styles.intro}>
+        <div className={styles.introText}>
+          <p className={styles.eyebrow}><ShieldCheck size={15} aria-hidden="true" />{ar ? "الخصوصية والموافقات" : "Permissions"}</p>
+          <h1 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" as any }}>{ar ? "أذونات الأعضاء" : "Member permissions"}</h1>
+          <p style={{ overflowWrap: "anywhere" }}>{ar ? "تحكّم بمن يرى السجل الصحي والوصفات — تُحفظ الأذونات عبر الخادم فقط." : "Control who sees health records — persisted server-side only."}</p>
+        </div>
+        <div className={styles.introVector}><VectorFamily size={80} /></div>
+      </section>
+      <section className={styles.detail}>
+        <h2 style={{ display: "flex", alignItems: "center", gap: 8, margin: "0 0 8px", overflowWrap: "anywhere" as any }}><UsersRound size={17} aria-hidden="true" />{ar ? "الأعضاء" : "Members"}</h2>
+        <FamilyPermissionsClient locale={locale} members={members} />
+      </section>
+      <Link className={styles.notice} href={`/${locale}/family/permission-requests`} style={{ overflowWrap: "anywhere" as any }}>{ar ? "طلبات الأذونات المعلقة ←" : "Pending permission requests →"}</Link>
     </main>
   );
 }
