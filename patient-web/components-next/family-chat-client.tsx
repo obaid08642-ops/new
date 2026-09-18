@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { LoaderCircle } from "lucide-react";
+import { LoaderCircle, Send } from "lucide-react";
 
 type Msg = { id: string; text: string; sender: string; time: string; isMe: boolean; pending?: boolean };
 
@@ -49,6 +49,7 @@ export function FamilyChatClient({ locale }: { locale: string }) {
           else if (typeof prec.id === "string") myId.current = prec.id;
         }
       }
+      // Backend binding via BFF → callPatientApi("/family/chat/messages") — no mock
       const res = await fetch("/api/patient/family/chat/messages", { cache: "no-store", credentials: "same-origin" });
       if (!res.ok) { if (!silent) setFailed(true); return; }
       const parsed = parseMessages(await res.json().catch(() => null), myId.current);
@@ -93,38 +94,86 @@ export function FamilyChatClient({ locale }: { locale: string }) {
     finally { setSending(false); }
   }
 
-  if (messages === null && !failed) return <p role="status"><LoaderCircle size={18} aria-hidden="true" /> {ar ? "جارٍ التحميل…" : "Loading…"}</p>;
+  if (messages === null && !failed) return (
+    <p role="status" style={{ display: "flex", alignItems: "center", gap: 8, color: "#64748B", overflowWrap: "anywhere" as any }}>
+      <LoaderCircle size={18} aria-hidden="true" style={{ animation: "spin 1s linear infinite" }} /> {ar ? "جارٍ التحميل…" : "Loading…"}
+    </p>
+  );
   if (failed && messages === null) {
     return (
-      <div>
-        <p role="alert">{ar ? "تعذر تحميل المحادثة" : "Could not load conversation"}</p>
-        <button type="button" onClick={() => load(false)}>{ar ? "إعادة المحاولة" : "Retry"}</button>
+      <div style={{ display: "grid", gap: 16 }}>
+        <p role="alert" style={{ margin: 0, color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" as any }}>{ar ? "تعذر تحميل المحادثة" : "Could not load conversation"}</p>
+        <button type="button" onClick={() => load(false)} style={{ minHeight: 44, padding: "0 16px", borderRadius: 20, border: "1px solid #E8EDEE", background: "#5FD9B3", color: "#1E332E", fontWeight: 800 }}>{ar ? "إعادة المحاولة" : "Retry"}</button>
       </div>
     );
   }
   return (
-    <div>
-      <p>{ar ? "محادثة العائلة" : "Family conversation"}{members > 0 ? ` — ${members} ${ar ? "أفراد" : "members"}` : ""}</p>
+    <div style={{ display: "grid", gap: 16 }}>
+      <p style={{ margin: 0, color: "#64748B", fontSize: ".9rem", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" as any }}>{ar ? "محادثة العائلة" : "Family conversation"}{members > 0 ? ` — ${members} ${ar ? "أفراد" : "members"}` : ""}</p>
       {(messages ?? []).length === 0 ? (
-        <p role="status">{ar ? "لا توجد رسائل بعد — ابدأ التحية!" : "No messages yet — say hello!"}</p>
+        <div style={{ display: "grid", placeItems: "center", gap: 8, padding: 16, borderRadius: 20, border: "1px dashed #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" }}>
+          <p role="status" style={{ margin: 0, color: "#64748B", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" as any }}>{ar ? "لا توجد رسائل بعد — ابدأ التحية!" : "No messages yet — say hello!"}</p>
+        </div>
       ) : (
-        <ul>
+        <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: 8, maxHeight: 360, overflowY: "auto" }}>
           {(messages ?? []).map((m) => (
-            <li key={m.id} style={{ opacity: m.pending ? 0.6 : 1 }}>
-              {!m.isMe && m.sender ? <strong>{m.sender}: </strong> : null}
-              {m.text}
-              {m.time ? <span> — {m.time}</span> : null}
+            <li key={m.id} style={{
+              opacity: m.pending ? 0.6 : 1,
+              padding: 16,
+              borderRadius: 20,
+              border: "1px solid #E8EDEE",
+              background: m.isMe ? "rgba(95,217,179,.14)" : "#FDFDFC",
+              color: "#1E332E",
+              fontSize: ".92rem",
+              lineHeight: 1.6,
+              overflowWrap: "anywhere",
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden" as any,
+              maxWidth: m.isMe ? "80%" : "85%",
+              marginInlineStart: m.isMe ? "auto" : 0,
+            }}>
+              {!m.isMe && m.sender ? <strong style={{ color: "#1E332E" }}>{m.sender}: </strong> : null}
+              <span style={{ overflowWrap: "anywhere" as any }}>{m.text}</span>
+              {m.time ? <span style={{ color: "#64748B", fontSize: ".78rem" }}> — {m.time}</span> : null}
             </li>
           ))}
         </ul>
       )}
       {!failed ? (
-        <form onSubmit={(e) => { e.preventDefault(); send(); }}>
-          <label>
-            <span>{ar ? "اكتب رسالة…" : "Type a message…"}</span>
-            <input value={draft} onChange={(e) => setDraft(e.target.value)} maxLength={2000} />
+        <form onSubmit={(e) => { e.preventDefault(); send(); }} style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <label style={{ flex: 1, minWidth: 0, display: "grid", gap: 0 }}>
+            <span style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)", clipPath: "inset(50%)" }}>{ar ? "اكتب رسالة…" : "Type a message…"}</span>
+            <input
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              maxLength={2000}
+              placeholder={ar ? "اكتب رسالة…" : "Type a message…"}
+              style={{
+                inlineSize: "100%", minHeight: 44, padding: "0 16px",
+                borderRadius: 20, border: "1px solid #E8EDEE",
+                background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
+                color: "#1E332E", outline: "none",
+              }}
+            />
           </label>
-          <button type="submit" disabled={sending || !draft.trim()}>{ar ? "إرسال" : "Send"}</button>
+          <button
+            type="submit"
+            disabled={sending || !draft.trim()}
+            aria-label={ar ? "إرسال" : "Send"}
+            style={{
+              display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8,
+              minHeight: 44, minWidth: 44, padding: "0 16px",
+              borderRadius: 20, border: "1px solid #E8EDEE",
+              background: sending || !draft.trim() ? "#E8EDEE" : "#5FD9B3",
+              color: "#1E332E", fontWeight: 800,
+              opacity: sending || !draft.trim() ? .6 : 1,
+              flex: "0 0 auto",
+            }}
+          >
+            <Send size={16} aria-hidden="true" />{ar ? "إرسال" : "Send"}
+          </button>
         </form>
       ) : null}
     </div>
