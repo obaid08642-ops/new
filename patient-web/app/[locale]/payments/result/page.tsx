@@ -5,6 +5,7 @@ import { callPatientApi } from "@/lib/api/upstream";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { CheckCircle2, XCircle, Loader2, Wallet } from "lucide-react";
+import { VectorInsurance } from "@/components-next/vector-illustrations";
 import styles from "./payment-result.module.css";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ status?: string; ref?: string }> };
@@ -17,7 +18,6 @@ export default async function PaymentResultPage({ params, searchParams }: Props)
   const t = await getTranslations("Payments");
   const token = await requirePatientAccess(locale);
 
-  // حالة حقيقية من الباكند إن وُجد مرجع — لا نثق بمعامل URL وحده
   let verified: string | null = null;
   if (ref && /^[A-Za-z0-9_-]{1,128}$/.test(ref)) {
     const res = await callPatientApi(`/payments/status/${encodeURIComponent(ref)}`, {}, token);
@@ -34,9 +34,10 @@ export default async function PaymentResultPage({ params, searchParams }: Props)
 
   return <main className={`main ${styles.page}`}>
     <section className={styles.card}>
-      {ok ? <CheckCircle2 size={56} className={styles.ok} aria-hidden="true" />
-        : failed ? <XCircle size={56} className={styles.fail} aria-hidden="true" />
-        : <Loader2 size={56} className={styles.pending} aria-hidden="true" />}
+      <VectorInsurance size={48} aria-hidden="true" />
+      {ok ? <CheckCircle2 size={48} className={styles.ok} aria-hidden="true" />
+        : failed ? <XCircle size={48} className={styles.fail} aria-hidden="true" />
+        : <Loader2 size={48} className={styles.pending} aria-hidden="true" />}
       <h1>{ok ? t("successTitle") : failed ? t("failedTitle") : t("processingTitle")}</h1>
       <p>{ok ? t("successBody") : failed ? t("failedBody") : t("processingBody")}</p>
       {ref ? <p className={styles.ref}>{t("reference")}: {ref}</p> : null}

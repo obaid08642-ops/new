@@ -35,9 +35,9 @@ export default async function NursingVisitTrackingPage({ params }: Props) {
 
   return <main className={`main ${styles.page}`}>
     <Link className={styles.back} href={`/${locale}/nursing/visits`}><ChevronLeft size={17} aria-hidden="true" />{t("back")}</Link>
-    <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 12 }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16 }}>
       <VectorNursing size={48} aria-hidden="true" />
-      <h1 className={styles.title} style={{ margin: 0, overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t("title")}</h1>
+      <h1 className={styles.title} style={{ margin: 0 }}>{t("title")}</h1>
     </div>
     {nurseName ? <p className={styles.nurse}>{t("nurse")}: {String(nurseName)}</p> : null}
     {eta != null && Number.isFinite(Number(eta)) ? <p className={styles.eta}>{t("eta")}: {String(eta)} {t("minutes")}</p> : null}
@@ -52,27 +52,27 @@ export default async function NursingVisitTrackingPage({ params }: Props) {
     {idx < 0 ? <p className={styles.note}>{t("unknownStatus")}: {status}</p> : null}
 
     {(track?.vitals || track?.notes || visit?.vitals || visit?.notes) ? (
-      <section style={{ background: "rgba(255,255,255,0.76)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderRadius: 20, padding: 20, marginTop: 20, border: "1px solid #E8EDEE" }}>
-        <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 14, color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+      <section style={{ background: "rgba(255,255,255,0.76)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderRadius: 20, padding: 24, marginTop: 24, border: "1px solid #E8EDEE" }}>
+        <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
           {locale === "ar" ? "التقرير السريري للزيارة" : "Clinical Visit Report"}
         </h2>
-        <div style={{ display: "grid", gap: 10, fontSize: 14 }}>
+        <div style={{ display: "grid", gap: 8, fontSize: 14 }}>
           {(track?.vitals?.pulse || visit?.vitals?.pulse) && (
             <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
-              <span style={{ color: "#6B7C6E", overflowWrap: "anywhere" }}>{locale === "ar" ? "النبض (BPM):" : "Pulse:"}</span>
-              <strong style={{ color: "#1E332E", overflowWrap: "anywhere" }}>{track?.vitals?.pulse ?? visit?.vitals?.pulse}</strong>
+              <span style={{ color: "#6B7C6E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{locale === "ar" ? "النبض (BPM):" : "Pulse:"}</span>
+              <strong style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{track?.vitals?.pulse ?? visit?.vitals?.pulse}</strong>
             </div>
           )}
           {(track?.vitals?.bp || visit?.vitals?.bp) && (
             <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
-              <span style={{ color: "#6B7C6E", overflowWrap: "anywhere" }}>{locale === "ar" ? "ضغط الدم:" : "Blood Pressure:"}</span>
-              <strong style={{ color: "#1E332E", overflowWrap: "anywhere" }}>{track?.vitals?.bp ?? visit?.vitals?.bp}</strong>
+              <span style={{ color: "#6B7C6E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{locale === "ar" ? "ضغط الدم:" : "Blood Pressure:"}</span>
+              <strong style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{track?.vitals?.bp ?? visit?.vitals?.bp}</strong>
             </div>
           )}
           {(track?.notes || visit?.notes) && (
-            <div style={{ marginTop: 6 }}>
-              <span style={{ color: "#6B7C6E", display: "block", marginBottom: 4, overflowWrap: "anywhere" }}>{locale === "ar" ? "ملاحظات الممرض:" : "Nurse Notes:"}</span>
-              <p style={{ margin: 0, padding: 10, background: "#FDFDFC", borderRadius: 20, color: "#1E332E", border: "1px solid #E8EDEE", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+            <div style={{ marginTop: 8 }}>
+              <span style={{ color: "#6B7C6E", display: "block", marginBottom: 8, overflowWrap: "anywhere" }}>{locale === "ar" ? "ملاحظات الممرض:" : "Nurse Notes:"}</span>
+              <p style={{ margin: 0, padding: 16, background: "#FDFDFC", borderRadius: 20, color: "#1E332E", border: "1px solid #E8EDEE", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
                 {track?.notes ?? visit?.notes}
               </p>
             </div>

@@ -1,7 +1,9 @@
-.page { display: flex; justify-content: center; padding: 48px 16px; background: #F5F5F7; min-height: 60vh; }
-.card { background: #fff; border-radius: 28px; padding: 40px 28px; max-width: 520px; width: 100%; text-align: center; box-shadow: 0 8px 24px rgba(22,33,58,.08); display: grid; gap: 14px; justify-items: center; }
-.ok { color: #B8E030; } .fail { color: #FF4D5A; } .pending { color: #4FA8E0; }
-.ref { font-size: 13px; opacity: .6; direction: ltr; }
-.actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 8px; }
-.primary { background: #B8E030; color: #1E332E; font-weight: 800; padding: 12px 22px; border-radius: 14px; text-decoration: none; }
-.secondary { border: 1.5px solid rgba(22,33,58,.15); color: #1E332E; padding: 12px 22px; border-radius: 14px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+.page { min-height: 60vh; display: flex; justify-content: center; padding: 48px 16px; background: #FDFDFC; color: #1E332E; }
+.card { display: grid; gap: 16px; justify-items: center; max-width: 520px; width: 100%; padding: 32px 24px; text-align: center; border: 1px solid #E8EDEE; border-radius: 20px; background: rgba(255,255,255,0.76); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); box-shadow: 0 10px 28px rgba(30,51,46,.07); }
+.card h1 { margin: 0; color: #1E332E; font-size: clamp(20px, 3vw, 26px); letter-spacing: -0.02em; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.card p { margin: 0; color: #5A6B62; line-height: 1.7; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.ok { color: #00876F; } .fail { color: #E11D48; } .pending { color: #0284C7; }
+.ref { font-size: 13px; color: #6B7C6E; direction: ltr; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 8px; }
+.primary { background: #5FD9B3; color: #1E332E; font-weight: 800; padding: 12px 20px; border-radius: 20px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid #5FD9B3; }
+.secondary { background: rgba(255,255,255,0.76); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid #E8EDEE; color: #1E332E; font-weight: 700; padding: 12px 20px; border-radius: 20px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
