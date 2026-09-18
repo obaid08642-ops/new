@@ -99,14 +99,14 @@ export default async function ArticlePage({ params }: Props) {
         </p>
         <h1>{title}</h1>
         {(authorName || publishedAt) && (
-          <p style={{ fontSize: "0.85rem", color: "#64748B" }}>
-            {authorName && <span>{authorTitle ? `${authorName} — ${authorTitle}` : authorName}</span>}
+          <p className={styles.meta}>
+            {authorName && <span dir="auto">{authorTitle ? `${authorName} — ${authorTitle}` : authorName}</span>}
             {authorName && publishedAt && <span> · </span>}
             {publishedAt && <time dateTime={publishedAt}>{new Date(publishedAt).toLocaleDateString(locale === "ar" ? "ar-SA" : "en-US")}</time>}
           </p>
         )}
         <p>{excerpt || t("excerptUnavailable")}</p>
-        <p style={{ fontSize: "0.8rem", color: "#64748B" }}>
+        <p className={styles.disclaimer}>
           {locale === "ar"
             ? "محتوى تثقيفي عام — لا يغني عن استشارة الطبيب."
             : "General educational content — not a substitute for medical advice."}
