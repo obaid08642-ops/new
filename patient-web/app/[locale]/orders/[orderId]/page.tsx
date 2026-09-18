@@ -22,9 +22,9 @@ export default async function OrderDetailPage({ params }: Props) {
   const response = await callPatientApi(`/patient/pharmacy/orders/${orderId}`, {}, token);
   if (response.status === 401) redirect(`/${locale}/login`);
   if (response.status === 403 || response.status === 404) notFound();
-  if (!response.ok) return <main className={`main ${styles.page}`}><section className={styles.state} role="alert"><PackageCheck size={25} aria-hidden="true" /><h1>{t("unavailableTitle")}</h1><p>{t("unavailableBody")}</p><RetryButton /></section></main>;
+  if (!response.ok) return <main className={`main ${styles.page}`}><section className={styles.state} role="alert"><span className={styles.stateIcon}><PackageCheck size={25} aria-hidden="true" /></span><h1>{t("unavailableTitle")}</h1><p>{t("unavailableBody")}</p><RetryButton /></section></main>;
   const detail = extractOrderDetail(await response.json().catch(() => null));
-  if (!detail) return <main className={`main ${styles.page}`}><section className={styles.state} role="alert"><PackageCheck size={25} aria-hidden="true" /><h1>{t("unavailableTitle")}</h1><p>{t("unavailableBody")}</p><RetryButton /></section></main>;
+  if (!detail) return <main className={`main ${styles.page}`}><section className={styles.state} role="alert"><span className={styles.stateIcon}><PackageCheck size={25} aria-hidden="true" /></span><h1>{t("unavailableTitle")}</h1><p>{t("unavailableBody")}</p><RetryButton /></section></main>;
   const status = typeof detail.status === "string" ? detail.status : t("statusUnavailable");
   const reference = typeof detail.orderNumber === "string" ? detail.orderNumber : typeof detail.reference === "string" ? detail.reference : orderId;
   const governedState = typeof detail.governed_state === "string" ? detail.governed_state : "";
@@ -34,7 +34,7 @@ export default async function OrderDetailPage({ params }: Props) {
     <Link className={styles.back} href={`/${locale}/orders`}><ChevronLeft size={17} aria-hidden="true" />{t("back")}</Link>
     <section className={styles.hero}>
       <div className={styles.heroText}><p className={styles.eyebrow}><ShieldCheck size={15} aria-hidden="true" />{t("eyebrow")}</p><h1>{reference}</h1><span className={styles.status}>{status}</span></div>
-      <div className={styles.heroVector}><VectorOrders size={75} /></div>
+      <div className={styles.heroVector}><VectorOrders size={48} /></div>
     </section>
     <section className={styles.detail} aria-label={t("title")}>
       <dl className={styles.grid}>
@@ -43,8 +43,8 @@ export default async function OrderDetailPage({ params }: Props) {
       </dl>
       <p className={styles.notice}>{t("detailNotice")}</p>
       <nav className={styles.actions} aria-label={t("title")}>
-        {canOpenOffers && <Link className={styles.back} href={`/${locale}/orders/${orderId}/offers`}>{offersLabel}</Link>}
-        <Link className={styles.back} href={`/${locale}/orders/${orderId}/tracking`}>{t("open")}</Link>
+        {canOpenOffers && <Link className={styles.primary} href={`/${locale}/orders/${orderId}/offers`}>{offersLabel}</Link>}
+        <Link className={styles.primary} href={`/${locale}/orders/${orderId}/tracking`}>{t("open")}</Link>
         <OrderReorderButton orderId={orderId} locale={locale} />
       </nav>
     </section>
