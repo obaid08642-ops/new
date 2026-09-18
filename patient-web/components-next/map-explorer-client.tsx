@@ -71,13 +71,13 @@ export function MapExplorerClient({
             setProviders(
               list.map((p: any) => ({
                 id: String(p.id ?? p._id ?? ""),
-                name: String(p.name_ar ?? p.name ?? p.clinic_name ?? "مزود خدمة"),
+                name: String(p.name_ar ?? p.name ?? p.clinic_name ?? ""),
                 type: p.type || p.provider_type || "doctor",
-                rating: typeof p.rating === "number" ? p.rating : 4.9,
-                distance_km: typeof p.distance_km === "number" ? p.distance_km : 2.5,
+                rating: typeof p.rating === "number" ? p.rating : undefined,
+                distance_km: typeof p.distance_km === "number" ? p.distance_km : undefined,
                 lat: p.lat ?? p.location?.lat,
                 lng: p.lng ?? p.location?.lng,
-                address: p.address || p.city || "الرياض، المملكة العربية السعودية",
+                address: p.address || p.city || undefined,
                 specialty: p.specialty || p.specialties?.[0],
               }))
             );
