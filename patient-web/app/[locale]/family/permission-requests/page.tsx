@@ -43,7 +43,7 @@ export default async function FamilyPermissionRequestsPage({ params }: Props) {
           <h1 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" as any }}>{ar ? "طلبات الأذونات المعلقة" : "Pending permission requests"}</h1>
           <p style={{ overflowWrap: "anywhere" }}>{ar ? "وافق أو ارفض من الخادم — لا تخزين محلي." : "Approve or deny server-side — no local persistence."}</p>
         </div>
-        <div className={styles.introVector}><VectorFamily size={80} /></div>
+        <div className={styles.introVector}><VectorFamily size={48} aria-hidden="true" /></div>
       </section>
       <section className={styles.detail}>
         <h2 style={{ display: "flex", alignItems: "center", gap: 8, margin: "0 0 8px", overflowWrap: "anywhere" as any }}><Bell size={17} aria-hidden="true" />{ar ? "الطلبات" : "Requests"} {requests.length ? `(${requests.length})` : ""}</h2>
