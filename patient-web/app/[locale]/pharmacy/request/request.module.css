@@ -1,4 +1,19 @@
-.page { display: flex; justify-content: center; padding: 24px 16px; background: #FDFDFC; min-height: 60vh; gap: 12px; }
-.card { background: rgba(255,255,255,.82); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid #E8EDEE; border-radius: 20px; padding: 24px; max-width: 560px; width: 100%; box-shadow: 0 12px 32px rgba(30,51,46,.07); display: grid; gap: 12px; }
-.card h1 { display: flex; align-items: center; gap: 8px; color: #1E332E; margin: 0 0 6px; font-size: 20px; font-weight: 900; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.sub { color: #5A6B62; margin-bottom: 12px; overflow-wrap: anywhere; line-height: 1.6; }
+.page { display: flex; justify-content: center; padding: 24px 16px 64px; background: #FDFDFC; min-height: 60vh; }
+.card { background: rgba(255,255,255,.82); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid #E8EDEE; border-radius: 20px; padding: 24px; max-width: 560px; width: 100%; height: fit-content; box-shadow: 0 12px 32px rgba(30,51,46,.07); display: grid; gap: 16px; }
+.cardHead { display: flex; align-items: center; gap: 16px; }
+.iconWrap { display: grid; place-items: center; flex: 0 0 auto; inline-size: 48px; block-size: 48px; border-radius: 16px; background: rgba(95,217,179,.14); border: 1px solid #E8EDEE; color: #1E332E; }
+.headText { min-width: 0; display: grid; gap: 4px; }
+.cardHead h1 { margin: 0; color: #1E332E; font-size: clamp(18px, 2.5vw, 20px); font-weight: 900; line-height: 1.25; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.sub { color: #5A6B62; margin: 0; font-size: 14px; line-height: 1.6; overflow-wrap: anywhere; }
+.form { display: grid; gap: 16px; }
+.label { display: grid; gap: 8px; font-weight: 700; font-size: 13px; color: #1E332E; overflow-wrap: anywhere; }
+.input, .textarea { width: 100%; padding: 12px 14px; border-radius: 16px; border: 1.5px solid #E8EDEE; background: #FDFDFC; font: inherit; font-size: 14px; color: #1E332E; outline: none; transition: border-color .15s, box-shadow .15s; }
+.input:focus, .textarea:focus { border-color: rgba(95,217,179,.6); box-shadow: 0 0 0 3px rgba(95,217,179,.18); }
+.textarea { resize: vertical; min-height: 88px; line-height: 1.6; }
+.error { margin: 0; color: #FF4D5A; font-size: 13px; overflow-wrap: anywhere; }
+.submitMint { background: #5FD9B3; color: #1E332E; font-weight: 800; padding: 14px 20px; border-radius: 20px; border: 1px solid rgba(30,51,46,.08); cursor: pointer; font: inherit; font-size: 14px; transition: opacity .15s, transform .15s; }
+.submitMint:disabled { opacity: .55; cursor: not-allowed; }
+.submitMint:not(:disabled):hover { transform: translateY(-1px); }
+.submitMint:focus-visible { outline: 3px solid rgba(95,217,179,.5); outline-offset: 3px; }
+.submitInk { background: #1E332E; color: #FDFDFC; font-weight: 800; padding: 14px 20px; border-radius: 20px; border: 1px solid #1E332E; cursor: pointer; font: inherit; font-size: 14px; }
+@media (max-width: 540px) { .card { padding: 16px; } }

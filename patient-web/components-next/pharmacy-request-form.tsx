@@ -32,20 +32,20 @@ export function PharmacyRequestForm({ locale, labels }: { locale: string; labels
 
   const rtl = locale !== "en";
   return (
-    <form onSubmit={(e) => { e.preventDefault(); void submit(); }} style={{ display: "grid", gap: 12 }} dir={rtl ? "rtl" : "ltr"}>
-      <label style={{ display: "grid", gap: 6, fontWeight: 700 }}>
-        {labels.name}
+    <form onSubmit={(e) => { e.preventDefault(); void submit(); }} style={{ display: "grid", gap: 16 }} dir={rtl ? "rtl" : "ltr"}>
+      <label style={{ display: "grid", gap: 8, fontWeight: 700, fontSize: 13, color: "#1E332E", overflowWrap: "anywhere" }}>
+        <span style={{ overflowWrap: "anywhere" }}>{labels.name}</span>
         <input value={name} onChange={(e) => setName(e.target.value)} placeholder={labels.namePh} required minLength={3}
-          style={{ padding: 12, borderRadius: 12, border: "1.5px solid rgba(22,33,58,.15)" }} />
+          style={{ padding: "12px 14px", borderRadius: 16, border: "1.5px solid #E8EDEE", background: "#FDFDFC", fontSize: 14, outline: "none" }} />
       </label>
-      <label style={{ display: "grid", gap: 6, fontWeight: 700 }}>
-        {labels.details}
+      <label style={{ display: "grid", gap: 8, fontWeight: 700, fontSize: 13, color: "#1E332E", overflowWrap: "anywhere" }}>
+        <span style={{ overflowWrap: "anywhere" }}>{labels.details}</span>
         <textarea value={details} onChange={(e) => setDetails(e.target.value)} placeholder={labels.detailsPh} rows={3}
-          style={{ padding: 12, borderRadius: 12, border: "1.5px solid rgba(22,33,58,.15)", resize: "vertical" }} />
+          style={{ padding: "12px 14px", borderRadius: 16, border: "1.5px solid #E8EDEE", background: "#FDFDFC", fontSize: 14, resize: "vertical", lineHeight: 1.6, outline: "none" }} />
       </label>
-      {err ? <p role="alert" style={{ color: "#FF4D5A" }}>{err}</p> : null}
+      {err ? <p role="alert" style={{ color: "#FF4D5A", fontSize: 13, overflowWrap: "anywhere", margin: 0 }}>{err}</p> : null}
       <button type="submit" disabled={busy || name.trim().length < 3}
-        style={{ background: "#5FD9B3", color: "#1E332E", fontWeight: 800, padding: 14, borderRadius: 20, border: "1px solid #E8EDEE", cursor: "pointer", opacity: busy ? .6 : 1 }}>
+        style={{ background: "#5FD9B3", color: "#1E332E", fontWeight: 800, padding: 14, borderRadius: 20, border: "1px solid rgba(30,51,46,.08)", cursor: "pointer", opacity: busy ? .55 : 1, fontSize: 14 }}>
         {busy ? labels.submitting : labels.submit}
       </button>
     </form>
