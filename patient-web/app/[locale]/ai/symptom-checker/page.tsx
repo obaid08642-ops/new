@@ -19,8 +19,8 @@ export default async function AiSymptomCheckerPage({ params }: Props) {
   const ar = locale === "ar";
 
   return (
-    <main className={`main ${styles.page}`}>
-      <section className={styles.hero}>
+    <main className={`main ${styles.page}`} style={{ background: "#FDFDFC" }}>
+      <section className={styles.hero} style={{ borderColor: "#E8EDEE", borderRadius: 20 }}>
         <div>
           <p className={styles.eyebrow}>
             <Sparkles size={14} aria-hidden="true" />
