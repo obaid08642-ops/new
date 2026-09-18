@@ -8,7 +8,7 @@
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,20rem),1fr));gap:1rem;max-width:78rem;margin:auto}
 .card{display:flex;gap:1rem;align-items:flex-start;min-height:9rem;padding:1.25rem;border:1px solid #E8EDEE;border-radius:20px;background:rgba(255,255,255,0.76);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 10px 30px rgba(16,32,51,.05);transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}
 .card:hover{transform:translateY(-3px);box-shadow:0 18px 40px rgba(30,51,46,.08);border-color:rgba(95,217,179,.35)}
-.icon{width:48px;height:48px}
+.icon{width:56px;height:56px;border-radius:16px}
 .card h2{margin:0;font-size:1.05rem;color:#1E332E;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .card p{margin:.45rem 0;color:#6B7C6E;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .meta{display:flex;align-items:center;gap:.35rem;color:#6B7C6E;font-size:.78rem;overflow-wrap:anywhere}

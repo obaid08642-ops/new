@@ -49,7 +49,8 @@ export function SkinAnalysisForm({ locale }: { locale: string }) {
     }
     setSaving(true);
     try {
-      const res = await fetch("/api/ai/skin-analysis", {
+      // backend binding: /api/patient/ai/skin-analysis → callPatientApi("/ai/skin-analysis") — no mock
+      const res = await fetch("/api/patient/ai/skin-analysis", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
