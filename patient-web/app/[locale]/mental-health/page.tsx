@@ -24,7 +24,7 @@ export default async function MentalHealthPage({ params }: Props) {
     return (
       <main className={`main ${styles.page}`}>
         <section className={styles.state} role="alert">
-          <VectorMentalHealth size={42} aria-hidden="true" />
+          <VectorMentalHealth size={48} aria-hidden="true" />
           <h1>{t("unavailableTitle")}</h1>
           <p>{t("unavailable")}</p>
         </section>
@@ -36,7 +36,7 @@ export default async function MentalHealthPage({ params }: Props) {
     return (
       <main className={`main ${styles.page}`}>
         <section className={styles.state} role="alert">
-          <VectorMentalHealth size={42} aria-hidden="true" />
+          <VectorMentalHealth size={48} aria-hidden="true" />
           <h1>{t("unavailableTitle")}</h1>
           <p>{t("unavailable")}</p>
         </section>
