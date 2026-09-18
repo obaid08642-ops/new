@@ -52,7 +52,7 @@ export function SkinAnalysisForm({ locale }: { locale: string }) {
       // backend binding: /api/patient/ai/skin-analysis → callPatientApi("/ai/skin-analysis") — no mock
       const res = await fetch("/api/patient/ai/skin-analysis", {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: { "content-type": "application/json", "idempotency-key": crypto.randomUUID() },
         body: JSON.stringify({
           acknowledge_limitations: true,
           areas,
