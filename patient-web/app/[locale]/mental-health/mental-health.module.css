@@ -5,7 +5,7 @@
 .eyebrow { display: inline-flex; align-items: center; gap: 8px; margin: 0; color: #1E332E; font-size: .82rem; font-weight: 760; letter-spacing: .02em; overflow-wrap: anywhere; }
 .hero h1 { margin: 8px 0 0; color: #1E332E; font-size: clamp(1.8rem, 3.2vw, 2.5rem); letter-spacing: -.035em; line-height: 1.18; text-wrap: balance; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .hero p { max-inline-size: 47rem; margin: 8px 0 0; color: var(--muted); font-size: .94rem; line-height: 1.6; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.heroVector { display: grid; place-items: center; flex: 0 0 auto; inline-size: 48px; block-size: 48px; border: 1px solid #E8EDEE; border-radius: 16px; background: rgba(255,255,255,.82); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); box-shadow: 0 4px 14px rgba(30, 51, 46, 0.06); }
+.heroVector { display: grid; place-items: center; flex: 0 0 auto; inline-size: 48px; block-size: 48px; border: 1px solid #E8EDEE; border-radius: 20px; background: rgba(255,255,255,.82); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); box-shadow: 0 4px 14px rgba(30, 51, 46, 0.06); }
 
 .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
 .card { display: grid; align-content: start; gap: 8px; min-inline-size: 0; padding: 16px; border: 1px solid #E8EDEE; border-radius: 20px; background: rgba(255,255,255,.82); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); box-shadow: 0 8px 24px rgba(30, 51, 46, 0.07); transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
@@ -13,11 +13,11 @@
 .card strong { color: #1E332E; font-size: clamp(1.15rem, 2vw, 1.45rem); font-weight: 800; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 a.card { color: inherit; text-decoration: none; }
 a.card svg { color: #1E332E; }
-.cardIcon { display: grid; place-items: center; inline-size: 48px; block-size: 48px; border-radius: 16px; background: rgba(95,217,179,.12); border: 1px solid #E8EDEE; color: #1E332E; flex: 0 0 auto; }
+.cardIcon { display: grid; place-items: center; inline-size: 48px; block-size: 48px; border-radius: 20px; background: rgba(95,217,179,.12); border: 1px solid #E8EDEE; color: #1E332E; flex: 0 0 auto; }
 a.card:focus-visible { outline: 3px solid #1E332E; outline-offset: 3px; }
-@media (hover: hover) and (pointer: fine) { a.card:hover { border-color: #E8EDEE; box-shadow: var(--shadow-md); transform: translateY(-2px); } }
+@media (hover: hover) and (pointer: fine) { a.card:hover { border-color: #E8EDEE; box-shadow: 0 12px 32px rgba(30, 51, 46, 0.08); transform: translateY(-2px); } }
 
-.back { display: inline-flex; align-items: center; gap: 8px; inline-size: fit-content; color: #1E332E; font-weight: 760; padding: 8px 12px; border-radius: 20px; text-decoration: none; transition: background-color var(--motion-fast) var(--ease-premium); }
+.back { display: inline-flex; align-items: center; gap: 8px; inline-size: fit-content; color: #1E332E; font-weight: 760; padding: 8px 16px; border-radius: 20px; text-decoration: none; border: 1px solid transparent; transition: background-color 0.18s ease; }
 .back:hover { background: #E8EDEE; }
 .back:focus-visible { outline: 3px solid #1E332E; outline-offset: 3px; }
 
