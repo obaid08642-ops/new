@@ -35,7 +35,7 @@ export default async function MapExplorerPage({ params }: Props) {
   const t = await getTranslations("MapExplorer");
 
   return (
-    <main style={{ minHeight: "calc(100vh - 80px)", position: "relative" }}>
+    <main style={{ minHeight: "calc(100vh - 80px)", position: "relative", background: "#FDFDFC" }}>
       <MapExplorerClient
         locale={locale}
         labels={{
