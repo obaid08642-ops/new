@@ -30,6 +30,7 @@ import {
   VectorRadiology,
   VectorEmergency,
 } from "@/components-next/vector-illustrations";
+import { PremiumProductCard } from "@/components-next/premium-product-card";
 import styles from "./category-page.module.css";
 
 type Props = {
@@ -334,7 +335,16 @@ export default async function CategoryPage({ params, searchParams }: Props) {
           return (
             <div className={styles.gridCards} style={{ marginTop: 16 }}>
               {productsList.map((it) => (
-                <Card key={it.id} locale={locale} item={it} />
+                <PremiumProductCard
+                  key={it.id}
+                  slug={it.slug}
+                  name={it.name || it.slug}
+                  price={it.price || 0}
+                  oldPrice={it.old_price}
+                  image={it.image}
+                  images={it.images as any}
+                  locale={locale}
+                />
               ))}
             </div>
           );
