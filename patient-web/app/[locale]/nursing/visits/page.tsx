@@ -1,10 +1,9 @@
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ArrowLeft, ArrowRight, CalendarDays, ShieldCheck } from "lucide-react";
 import { extractNursingVisits } from "@/lib/api/nursing-visits";
 import { getPatientNursingVisits } from "@/lib/api/nursing-visits-server";
-import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { VectorNursing } from "@/components-next/vector-illustrations";
 import styles from "./visits.module.css";
@@ -37,8 +36,8 @@ export default async function NursingVisitsPage({ params }: Props) {
       <section className={styles.hero}>
         <div>
           <p className={styles.eyebrow}><ShieldCheck size={15} aria-hidden="true" />{t("eyebrow")}</p>
-          <h1>{t("title")}</h1>
-          <p className={styles.subtitle}>{t("subtitle")}</p>
+           <h1 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t("title")}</h1>
+           <p className={styles.subtitle} style={{ overflowWrap: "anywhere" }}>{t("subtitle")}</p>
         </div>
         <span className={styles.heroIcon}>
           <VectorNursing size={48} aria-hidden="true" />
@@ -46,9 +45,9 @@ export default async function NursingVisitsPage({ params }: Props) {
       </section>
 
       {visits.length === 0 ? (
-        <section className={styles.state}>
-          <CalendarDays size={32} color="#1E332E" aria-hidden="true" />
-          <h2 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t("empty")}</h2>
+         <section className={styles.state}>
+           <VectorNursing size={48} aria-hidden="true" />
+           <h2 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t("empty")}</h2>
           <Link href={`/${locale}/nursing/catalog`} className={styles.status} style={{ marginTop: 12, padding: "8px 16px", textDecoration: "none", background: "#5FD9B3", color: "#1E332E", border: "1px solid #E8EDEE", borderRadius: 20 }}>
             {locale === "ar" ? "استعرض خدمات التمريض" : "Browse Nursing Services"}
           </Link>
