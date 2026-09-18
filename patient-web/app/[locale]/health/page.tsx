@@ -72,7 +72,7 @@ export default async function HealthPage({ params }: Props) {
       </nav>
       {vitals.length === 0 ? (
         <section className={styles.state}>
-          <VectorHealthShield size={42} aria-hidden="true" />
+          <VectorHealthShield size={48} aria-hidden="true" />
           <p>{t("empty")}</p>
         </section>
       ) : (
