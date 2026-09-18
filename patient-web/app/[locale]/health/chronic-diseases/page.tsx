@@ -84,7 +84,7 @@ export default async function ChronicDiseasesPage({ params }: Props) {
         </section>
       ) : (
         <section className={styles.state}>
-          <VectorHealthShield size={42} aria-hidden="true" />
+          <VectorHealthShield size={48} aria-hidden="true" />
           <p>{t("empty")}</p>
         </section>
       )}
