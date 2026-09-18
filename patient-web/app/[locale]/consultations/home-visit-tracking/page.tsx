@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { callPatientApi } from "@/lib/api/upstream";
+import { getPatientAppointment } from "@/lib/api/appointments-server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { ChevronLeft } from "lucide-react";
@@ -18,26 +18,34 @@ export default async function HomeVisitTrackingPage({ params, searchParams }: Pr
   if (!/^[A-Za-z0-9_-]{1,128}$/.test(appointmentId)) notFound();
   const t = await getTranslations("HomeVisitTracking");
   const token = await requirePatientAccess(locale);
-  const res = await callPatientApi(`/care/appointments/${encodeURIComponent(appointmentId)}`, {}, token);
+  const res = await getPatientAppointment(token, appointmentId);
   if (res.status === 401) redirect(`/${locale}/login`);
   if (res.status === 403 || res.status === 404) notFound();
   const payload = res.ok ? await res.json().catch(() => null) : null;
   const appt = payload?.data ?? payload;
   const status = String(appt?.status ?? "PENDING");
-  const steps = ["PENDING", "CONFIRMED", "PROVIDER_EN_ROUTE", "PROVIDER_ARRIVED", "IN_PROGRESS", "COMPLETED"];
+  const steps = ["PENDING", "CONFIRMED", "PROVIDER_EN_ROUTE", "PROVIDER_ARRIVED", "IN_PROGRESS", "COMPLETED"] as const;
   const idx = steps.findIndex((s) => s === status);
 
-  return <main className={`main ${styles.page}`}>
-    <Link className={styles.back} href={`/${locale}/appointments/${encodeURIComponent(appointmentId)}`}><ChevronLeft size={17} aria-hidden="true" />{t("back")}</Link>
-    <h1 className={styles.title}><VectorDoctor size={48} aria-hidden="true" />{t("title")}</h1>
-    <ol className={styles.timeline}>
-      {steps.map((s, i) => (
-        <li key={s} className={`${styles.step} ${i <= idx && idx >= 0 ? styles.done : ""}`}>
-          <span className={styles.dot} aria-hidden="true" />
-          <span>{t(`step_${s}` as any)}</span>
-        </li>
-      ))}
-    </ol>
-    {idx < 0 ? <p className={styles.note}>{t("unknownStatus")}: {status}</p> : null}
-  </main>;
+  return (
+    <main className={`main ${styles.page}`}>
+      <Link className={styles.back} href={`/${locale}/appointments/${encodeURIComponent(appointmentId)}`}>
+        <ChevronLeft size={17} aria-hidden="true" />
+        {t("back")}
+      </Link>
+      <h1 className={styles.title}>
+        <VectorDoctor size={48} aria-hidden="true" />
+        <span className={styles.titleText}>{t("title")}</span>
+      </h1>
+      <ol className={styles.timeline}>
+        {steps.map((s, i) => (
+          <li key={s} className={`${styles.step} ${i <= idx && idx >= 0 ? styles.done : ""}`}>
+            <span className={styles.dot} aria-hidden="true" />
+            <span className={styles.stepLabel}>{t(`step_${s}` as any)}</span>
+          </li>
+        ))}
+      </ol>
+      {idx < 0 ? <p className={styles.note}>{t("unknownStatus")}: {status}</p> : null}
+    </main>
+  );
 }
