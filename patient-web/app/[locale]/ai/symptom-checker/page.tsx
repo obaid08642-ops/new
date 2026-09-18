@@ -20,14 +20,15 @@ export default async function AiSymptomCheckerPage({ params }: Props) {
 
   return (
     <main className={`main ${styles.page}`} style={{ background: "#FDFDFC" }}>
-      <section className={styles.hero} style={{ borderColor: "#E8EDEE", borderRadius: 20 }}>
-        <div>
-          <p className={styles.eyebrow}>
+      <section className={styles.hero} style={{ backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderColor: "#E8EDEE", borderRadius: 20 }}>
+        <div style={{ minWidth: 0 }}>
+          <p className={styles.eyebrow} style={{ color: "#1E332E", overflowWrap: "anywhere" }}>
             <Sparkles size={14} aria-hidden="true" />
             {ar ? "فاحص الأعراض الذكي" : "Smart Symptom Checker"}
           </p>
           <h1
             style={{
+              color: "#1E332E",
               overflowWrap: "anywhere",
               display: "-webkit-box",
               WebkitLineClamp: 2,
@@ -37,16 +38,16 @@ export default async function AiSymptomCheckerPage({ params }: Props) {
           >
             {ar ? "صف أعراضك — تحليل فوري" : "Describe your symptoms — instant analysis"}
           </h1>
-          <p className={styles.subtitle} style={{ overflowWrap: "anywhere" }}>
+          <p className={styles.subtitle} style={{ color: "#6B7C6E", overflowWrap: "anywhere" }}>
             {t("subtitle")}
           </p>
         </div>
-        <span className={styles.heroIcon}>
+        <span className={styles.heroIcon} style={{ borderColor: "#E8EDEE", borderRadius: 20 }}>
           <VectorAI size={48} aria-hidden="true" />
         </span>
       </section>
 
-      <div className={styles.card} style={{ backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" }}>
+      <div className={styles.card} style={{ backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderColor: "#E8EDEE", borderRadius: 20, background: "rgba(255,255,255,0.76)" }}>
         <TriageForm
           locale={locale}
           labels={{
