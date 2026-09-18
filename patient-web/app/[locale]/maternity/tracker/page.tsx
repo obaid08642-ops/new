@@ -48,7 +48,7 @@ export default async function MaternityTrackerPage({ params }: Props) {
 
       {list.length === 0 ? (
         <section className={styles.state}>
-          <VectorMaternity size={42} aria-hidden="true" />
+          <VectorMaternity size={48} aria-hidden="true" />
           <p>{t("empty")}</p>
         </section>
       ) : (
