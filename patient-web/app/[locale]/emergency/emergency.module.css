@@ -10,12 +10,14 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
-  padding: clamp(28px, 4vw, 40px);
-  border: 1px solid rgba(220, 38, 38, 0.2);
-  border-radius: 28px;
-  background: linear-gradient(135deg, rgba(254, 242, 242, 0.95), rgba(255, 255, 255, 0.98));
-  box-shadow: 0 20px 50px rgba(220, 38, 38, 0.08);
+  gap: 16px;
+  padding: 32px;
+  border: 1px solid #E8EDEE;
+  border-radius: 20px;
+  background: rgba(253, 253, 252, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 20px 50px rgba(30, 51, 46, 0.06);
   margin-bottom: 32px;
 }
 
@@ -37,6 +39,10 @@
   margin: 0;
   color: #1E332E;
   overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
   font-size: clamp(28px, 5vw, 40px);
   font-weight: 850;
   letter-spacing: -0.04em;
@@ -49,6 +55,11 @@
   color: #526473;
   font-size: 15px;
   line-height: 1.7;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .sosButtonWrap {
@@ -182,15 +193,15 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 18px 20px;
-  border-radius: 18px;
-  border: 1px solid #e2e8f0;
-  background: rgba(255,255,255,.82);
+  padding: 16px 24px;
+  border-radius: 20px;
+  border: 1px solid #E8EDEE;
+  background: rgba(253, 253, 252, 0.9);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   color: #1E332E;
   text-decoration: none;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 6px 18px rgba(30, 51, 46, 0.04);
   overflow-wrap: anywhere;
   transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
 }

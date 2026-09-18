@@ -33,7 +33,7 @@ export default async function EmergencyPage({ params }: Props) {
   return (
     <main className={`main ${styles.page}`}>
       <section className={styles.hero}>
-        <VectorEmergency size={64} aria-hidden="true" />
+        <VectorEmergency size={48} aria-hidden="true" />
         <span className={styles.eyebrow}>
           <ShieldAlert size={15} aria-hidden="true" />
           {locale === "ar" ? "طوارئ نبض الفورية" : "Nabd Instant SOS"}
