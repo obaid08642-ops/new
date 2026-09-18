@@ -62,7 +62,7 @@ export default async function ConditionCanonicalPage({ params }: Props) {
           </div>
           <h1 style={{ fontSize: "2rem", fontWeight: 700, margin: 0, color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{title}</h1>
         </header>
-        <section style={{ fontSize: "1.05rem", lineHeight: 1.7, color: "#1E332E", marginBottom: 32, overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}><p style={{ margin: 0 }}>{overview}</p></section>
+        <section style={{ fontSize: "1.05rem", lineHeight: 1.7, color: "#1E332E", marginBottom: 32, overflowWrap: "anywhere" }}><p style={{ margin: 0, overflowWrap: "anywhere" }}>{overview}</p></section>
 
         {cond.symptoms?.length ? (
           <section style={{ margin: "32px 0", padding: 24, background: "rgba(255,255,255,0.7)", borderRadius: 20, border: "1px solid #E8EDEE", backdropFilter: "blur(16px)" }}>
