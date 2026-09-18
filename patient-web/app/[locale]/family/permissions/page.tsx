@@ -44,7 +44,7 @@ export default async function FamilyPermissionsPage({ params }: Props) {
           <h1 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" as any }}>{ar ? "أذونات الأعضاء" : "Member permissions"}</h1>
           <p style={{ overflowWrap: "anywhere" }}>{ar ? "تحكّم بمن يرى السجل الصحي والوصفات — تُحفظ الأذونات عبر الخادم فقط." : "Control who sees health records — persisted server-side only."}</p>
         </div>
-        <div className={styles.introVector}><VectorFamily size={80} /></div>
+        <div className={styles.introVector}><VectorFamily size={48} aria-hidden="true" /></div>
       </section>
       <section className={styles.detail}>
         <h2 style={{ display: "flex", alignItems: "center", gap: 8, margin: "0 0 8px", overflowWrap: "anywhere" as any }}><UsersRound size={17} aria-hidden="true" />{ar ? "الأعضاء" : "Members"}</h2>
