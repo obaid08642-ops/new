@@ -22,10 +22,15 @@
 
 .header h1 {
   margin: .28rem 0 0;
-  color: var(--ink);
+  color: #1E332E;
   font-size: clamp(1.75rem, 3vw, 2.35rem);
   letter-spacing: -.035em;
   line-height: 1.15;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
   text-wrap: balance;
 }
 
@@ -75,7 +80,7 @@
 }
 
 .tab:focus-visible { outline: 3px solid rgba(37,99,235,.56); outline-offset: 2px; }
-.tabActive { color: #fff; background: linear-gradient(135deg, #0a8896, #05616b); box-shadow: 0 6px 14px rgba(5,95,105,.18); }
+.tabActive { color: #1E332E; background: #5FD9B3; border: 1px solid #5FD9B3; box-shadow: 0 4px 12px rgba(95,217,179,.30); }
 
 @media (hover: hover) and (pointer: fine) {
   .tab:hover { color: var(--brand-deep); background: rgba(231,247,247,.72); transform: translateY(-1px); }

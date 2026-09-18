@@ -45,7 +45,7 @@ export function PharmacyRequestForm({ locale, labels }: { locale: string; labels
       </label>
       {err ? <p role="alert" style={{ color: "#FF4D5A" }}>{err}</p> : null}
       <button type="submit" disabled={busy || name.trim().length < 3}
-        style={{ background: "#B8E030", color: "#16213A", fontWeight: 800, padding: 14, borderRadius: 14, border: "none", cursor: "pointer", opacity: busy ? .6 : 1 }}>
+        style={{ background: "#5FD9B3", color: "#1E332E", fontWeight: 800, padding: 14, borderRadius: 20, border: "1px solid #E8EDEE", cursor: "pointer", opacity: busy ? .6 : 1 }}>
         {busy ? labels.submitting : labels.submit}
       </button>
     </form>

@@ -4,7 +4,8 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { callPatientApi } from "@/lib/api/upstream";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
-import { PhoneCall, ChevronLeft } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
+import { VectorDoctor } from "@/components-next/vector-illustrations";
 import styles from "./call-history.module.css";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -23,9 +24,9 @@ export default async function CallHistoryPage({ params }: Props) {
 
   return <main className={`main ${styles.page}`}>
     <Link className={styles.back} href={`/${locale}/appointments`}><ChevronLeft size={17} aria-hidden="true" />{t("back")}</Link>
-    <h1 className={styles.title}><PhoneCall size={22} aria-hidden="true" />{t("title")}</h1>
+    <h1 className={styles.title} style={{ overflowWrap: "anywhere" } as any}><VectorDoctor size={48} aria-hidden="true" style={{ width: 28, height: 28 } as any} />{t("title")}</h1>
     {done.length === 0 ? (
-      <section className={styles.empty}><p>{t("emptyBody")}</p><Link className={styles.primary} href={`/${locale}/consultations/doctors`}>{t("findDoctor")}</Link></section>
+      <section className={styles.empty}><VectorDoctor size={48} aria-hidden="true" /><p style={{ overflowWrap: "anywhere" } as any}>{t("emptyBody")}</p><Link className={styles.primary} href={`/${locale}/consultations/doctors`}>{t("findDoctor")}</Link></section>
     ) : (
       <ul className={styles.list}>
         {done.map((a: any, i: number) => (

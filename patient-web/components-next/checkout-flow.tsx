@@ -423,7 +423,7 @@ export function CheckoutFlow({ locale }: Props) {
           </div>
 
           <div className={styles.expressBadge}>
-            <Clock size={18} color="#16213A" />
+            <Clock size={18} color="#1E332E" />
             <div>
               <strong>{isAr ? "توصيل فوري نبض بلس" : "Nabd Plus Instant Delivery"}</strong>
               <span>{isAr ? "يصلك خلال 30 دقيقة من أقرب صيدلية معتمدة" : "Delivered within 30 minutes"}</span>
@@ -565,7 +565,7 @@ export function CheckoutFlow({ locale }: Props) {
               <div style={{ marginTop: "1rem", padding: "0.85rem 1rem", borderRadius: "12px", background: "#FFFFFF", border: "1px solid rgba(0, 135, 111, 0.15)", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "8px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                   <Sparkles size={18} color="#00876F" />
-                  <span style={{ fontSize: "0.88rem", fontWeight: "700", color: "#16213A" }}>
+                  <span style={{ fontSize: "0.88rem", fontWeight: "700", color: "#1E332E", overflowWrap: "anywhere" }}>
                     {isAr ? `التغطية عبر ${selectedInsCompany.nameAr}:` : `Coverage via ${selectedInsCompany.nameEn}:`}
                   </span>
                 </div>
