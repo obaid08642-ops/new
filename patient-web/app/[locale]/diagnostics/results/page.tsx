@@ -5,6 +5,7 @@ import { FlaskConical } from "lucide-react";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { callPatientApi } from "@/lib/api/upstream";
+import { VectorLabs } from "@/components-next/vector-illustrations";
 import styles from "../diagnostics.module.css";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -34,7 +35,7 @@ export default async function DiagnosticsResultsPage({ params }: Props) {
           <h1 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" as any }}>{locale === "ar" ? "نتائجي وتقاريري" : "My results & reports"}</h1>
           <p style={{ overflowWrap: "anywhere" }}>{locale === "ar" ? "نتائج المختبر وتقارير الأشعة من الخادم فقط." : "Lab results and radiology reports from the server only."}</p>
         </div>
-        <div className={styles.introIcon} aria-hidden="true"><FlaskConical size={24} /></div>
+        <span className={styles.introIcon} aria-hidden="true"><VectorLabs size={48} aria-hidden="true" /></span>
       </section>
       <section className={styles.domain} style={{ display: "grid", gap: 16 }}>
         <h2 style={{ margin: 0, color: "#1E332E", fontSize: "1.05rem", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" as any }}>{locale === "ar" ? "حجوزات المختبر" : "Lab bookings"}</h2>
