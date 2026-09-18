@@ -35,18 +35,18 @@ export default async function FamilyPermissionRequestsPage({ params }: Props) {
   }).filter((r): r is NonNullable<typeof r> => r !== null);
 
   return (
-    <main className={`main ${styles.page}`}>
+    <main className={`main ${styles.page}`} style={{ background: "#FDFDFC" }}>
       <Link className={styles.back} href={`/${locale}/family/permissions`}><ChevronLeft size={16} aria-hidden="true" />{ar ? "الأذونات" : "Permissions"}</Link>
-      <section className={styles.intro}>
+      <section className={styles.intro} style={{ backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderColor: "#E8EDEE", borderRadius: 20, background: "linear-gradient(135deg, #FDFDFC 0%, #F0FDF9 60%, #E7FFF6 100%)" }}>
         <div className={styles.introText}>
-          <p className={styles.eyebrow}><ShieldCheck size={15} aria-hidden="true" />{ar ? "طلبات وصول" : "Access requests"}</p>
-          <h1 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" as any }}>{ar ? "طلبات الأذونات المعلقة" : "Pending permission requests"}</h1>
+          <p className={styles.eyebrow} style={{ color: "#1E332E", overflowWrap: "anywhere" }}><ShieldCheck size={15} aria-hidden="true" />{ar ? "طلبات وصول" : "Access requests"}</p>
+          <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as React.CSSProperties}>{ar ? "طلبات الأذونات المعلقة" : "Pending permission requests"}</h1>
           <p style={{ overflowWrap: "anywhere" }}>{ar ? "وافق أو ارفض من الخادم — لا تخزين محلي." : "Approve or deny server-side — no local persistence."}</p>
         </div>
         <div className={styles.introVector}><VectorFamily size={48} aria-hidden="true" /></div>
       </section>
-      <section className={styles.detail}>
-        <h2 style={{ display: "flex", alignItems: "center", gap: 8, margin: "0 0 8px", overflowWrap: "anywhere" as any }}><Bell size={17} aria-hidden="true" />{ar ? "الطلبات" : "Requests"} {requests.length ? `(${requests.length})` : ""}</h2>
+      <section className={styles.detail} style={{ backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderColor: "#E8EDEE", borderRadius: 20, background: "#FFFFFF" }}>
+        <h2 style={{ display: "flex", alignItems: "center", gap: 8, margin: "0 0 8px", overflowWrap: "anywhere", color: "#1E332E" } as React.CSSProperties}><Bell size={17} aria-hidden="true" />{ar ? "الطلبات" : "Requests"} {requests.length ? `(${requests.length})` : ""}</h2>
         <FamilyPermissionRequestsClient locale={locale} requests={requests} />
       </section>
     </main>
