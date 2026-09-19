@@ -4,8 +4,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { ArrowLeft, ArrowRight, Building2, MapPin, Phone, Star, Stethoscope } from "lucide-react";
+import { ArrowLeft, ArrowRight, MapPin, Phone, Star, Stethoscope } from "lucide-react";
 import { getPublicClinic, extractClinic } from "@/lib/api/clinics-server";
+import { VectorMap } from "@/components-next/vector-illustrations";
 import styles from "./clinic.module.css";
 
 type Props = { params: Promise<{ locale: string; clinicId: string }> };
@@ -43,9 +44,9 @@ export default async function ClinicDetailPage({ params }: Props) {
     return (
       <main className={`main ${styles.page}`}>
         <section className={styles.state} role="alert">
-          <Building2 size={28} aria-hidden="true" />
-          <h1>{t("unavailableTitle")}</h1>
-          <p>{t("unavailableBody")}</p>
+          <VectorMap size={48} aria-hidden="true" />
+          <h1 style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const, overflow: "hidden", overflowWrap: "anywhere" }}>{t("unavailableTitle")}</h1>
+          <p style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const, overflow: "hidden", overflowWrap: "anywhere" }}>{t("unavailableBody")}</p>
           <Link href={`/${locale}/consultations/doctors`} className={styles.action}>
             {t("retry")}
           </Link>
@@ -73,7 +74,7 @@ export default async function ClinicDetailPage({ params }: Props) {
             <img src={clinic.image} alt={clinic.name} className={styles.coverImage} />
           ) : (
             <div className={styles.placeholderBanner}>
-              <Building2 size={48} aria-hidden="true" />
+              <VectorMap size={48} aria-hidden="true" />
             </div>
           )}
         </div>
