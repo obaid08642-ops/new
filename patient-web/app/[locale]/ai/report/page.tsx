@@ -33,16 +33,18 @@ export default async function AiHealthReportPage({ params }: Props) {
     }
   } catch { reports = []; }
   return (
-    <main className={`main ${styles.page}`} style={{ background: "#FDFDFC" }}>
-      <section className={styles.hero} style={{ borderColor: "#E8EDEE", borderRadius: 20 }}>
-        <div>
-          <p className={styles.eyebrow}>AI</p>
-          <h1 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t("title")}</h1>
-          <p className={styles.subtitle} style={{ opacity: 0.85, overflowWrap: "anywhere" }}>{t("disclaimer")}</p>
+    <main className={`main ${styles.page}`} style={{ background: "#FDFDFC", display: "grid", gap: 16 }}>
+      <section className={styles.hero} style={{ background: "rgba(255,255,255,.76)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: "1px solid #E8EDEE", borderRadius: 20, padding: 16, display: "flex", justifyContent: "space-between", gap: 16, alignItems: "center" }}>
+        <div style={{ display: "grid", gap: 8, minWidth: 0 }}>
+          <p className={styles.eyebrow} style={{ color: "#1E332E", display: "flex", alignItems: "center", gap: 8 }}>AI</p>
+          <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t("title")}</h1>
+          <p className={styles.subtitle} style={{ color: "#6B7C6E", lineHeight: 1.7, overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t("disclaimer")}</p>
         </div>
-        <span className={styles.heroIcon}><VectorAI size={48} aria-hidden="true" /></span>
+        <span className={styles.heroIcon} style={{ inlineSize: 48, blockSize: 48, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.9)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }} aria-hidden="true">
+          <VectorAI size={48} aria-hidden="true" />
+        </span>
       </section>
-      <div className={styles.card} style={{ backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" }}>
+      <div className={styles.card} style={{ backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderColor: "#E8EDEE", borderRadius: 20, background: "rgba(255,255,255,0.82)" }}>
         <AiReportClient reports={reports} locale={locale} />
       </div>
     </main>
