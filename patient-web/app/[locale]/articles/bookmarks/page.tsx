@@ -52,7 +52,7 @@ export default async function ArticleBookmarksPage({ params }: Props) {
     <main className={`main ${styles.page}`}>
       <section className={styles.hero}>
         <p className={styles.eyebrow}>
-          <Bookmark size={15} aria-hidden="true" />
+          <Bookmark size={48} aria-hidden="true" style={{ width: 16, height: 16 }} />
           {t("eyebrow")}
         </p>
         <h1>{t("bookmarksTitle")}</h1>
@@ -64,19 +64,19 @@ export default async function ArticleBookmarksPage({ params }: Props) {
           {articles.map((article) => (
             <Link className={styles.card} key={article.slug} href={`/${locale}/articles/${article.slug}`}>
               <span className={styles.icon}>
-                <FileText size={20} aria-hidden="true" />
+                <FileText size={48} aria-hidden="true" style={{ width: 20, height: 20 }} />
               </span>
               <span className={styles.copy}>
                 <strong>{locale === "ar" ? article.titleAr || article.titleEn : article.titleEn || article.titleAr || t("untitled")}</strong>
                 <span>{article.category || t("categoryUnavailable")}</span>
               </span>
-              <ChevronLeft className={styles.arrow} size={18} aria-hidden="true" />
+              <ChevronLeft className={styles.arrow} size={48} aria-hidden="true" style={{ width: 18, height: 18 }} />
             </Link>
           ))}
         </section>
       ) : (
         <section className={styles.empty}>
-          <Bookmark size={34} aria-hidden="true" />
+          <Bookmark size={48} aria-hidden="true" style={{ width: 34, height: 34 }} />
           <h2>{t("emptyTitle")}</h2>
           <p>{t("empty")}</p>
           <Link className={styles.primary} href={`/${locale}/articles`}>
