@@ -52,7 +52,7 @@ export default async function ConditionCanonicalPage({ params }: Props) {
       <JsonLd data={[medicalCondition({ name: title, path: `/condition/${slug}`, locale: locale as Locale, symptoms: cond.symptoms, overview }), breadcrumbList([{ name: "Nabd Plus", locale: locale as Locale, path: "/" }, { name: locale === "ar" ? "دليل الحالات الصحية" : "Health Guide", locale: locale as Locale, path: "/health" }, { name: title, locale: locale as Locale, path: `/condition/${slug}` }])]} />
       <nav aria-label="Back">
         <Link href={`/${locale}`} style={{ display: "inline-flex", alignItems: "center", gap: 8, marginBottom: 24, color: "#1E332E", textDecoration: "none", fontWeight: 600, overflowWrap: "anywhere" }}>
-          <Arrow size={16} />{locale === "ar" ? "الرئيسية" : "Home"}
+          <Arrow size={48} style={{ width: 16, height: 16 }} />{locale === "ar" ? "الرئيسية" : "Home"}
         </Link>
       </nav>
       <article style={{ background: "rgba(255,255,255,0.85)", border: "1px solid #E8EDEE", borderRadius: 20, padding: 32, backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" }}>
