@@ -6,6 +6,7 @@ import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { callPatientApi } from "@/lib/api/upstream";
 import { CommunityCommentForm } from "@/components-next/community-comment-form";
+import { VectorFamily } from "@/components-next/vector-illustrations";
 
 type Props = { params: Promise<{ locale: string; postId: string }> };
 
@@ -51,37 +52,51 @@ export default async function CommunityPostPage({ params }: Props) {
   const comments = extractComments((data as Record<string, unknown>).comments ?? data);
 
   return (
-    <main className="main">
-      <Link href={`/${locale}/community`}>{ar ? "المجتمع" : "Community"}</Link>
-      <article>
-        {title ? <h1>{title}</h1> : null}
-        <p style={{ whiteSpace: "pre-wrap" }}>{body}</p>
-        {author ? (
-          <p style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-            <User size={14} aria-hidden="true" />
-            {author}
-          </p>
-        ) : null}
+    <main className="main" style={{ padding: "32px 16px 80px", maxWidth: 860, margin: "0 auto", background: "#FDFDFC", display: "grid", gap: 24 }}>
+      <Link href={`/${locale}/community`} style={{ color: "#1E332E", fontWeight: 700, textDecoration: "none", overflowWrap: "anywhere", display: "inline-flex", alignItems: "center", gap: 8 }}>
+        {ar ? "المجتمع" : "Community"}
+      </Link>
+
+      <section style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, padding: "clamp(28px, 4vw, 36px)", border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,0.76)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", boxShadow: "0 10px 28px rgba(16,24,40,.07)" }}>
+        <div style={{ minWidth: 0 }}>
+          <p style={{ display: "inline-flex", alignItems: "center", gap: 8, margin: 0, color: "#1E332E", fontSize: 12, fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase", background: "rgba(95,217,179,0.14)", padding: "5px 12px", borderRadius: 999, overflowWrap: "anywhere" }}>{ar ? "منشور المجتمع" : "Community post"}</p>
+          {title ? <h1 style={{ margin: "8px 0 0", color: "#1E332E", fontSize: "clamp(22px, 3.2vw, 28px)", fontWeight: 850, letterSpacing: "-0.03em", lineHeight: 1.2, overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{title}</h1> : null}
+          {author ? (
+            <p style={{ display: "inline-flex", alignItems: "center", gap: 8, margin: "8px 0 0", color: "#6B7C6E", fontSize: 13, overflowWrap: "anywhere" }}>
+              <User size={14} aria-hidden="true" />
+              {author}
+            </p>
+          ) : null}
+        </div>
+        <span style={{ display: "grid", placeItems: "center", flex: "0 0 auto", width: 76, height: 76, border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(95,217,179,0.12)", boxShadow: "0 10px 24px rgba(30,51,46,0.06)" }}><VectorFamily size={48} aria-hidden="true" /></span>
+      </section>
+
+      <article style={{ padding: 24, border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,0.76)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", boxShadow: "0 8px 22px rgba(30,51,46,.06)", display: "grid", gap: 16 }}>
+        <p style={{ margin: 0, whiteSpace: "pre-wrap", color: "#1E332E", lineHeight: 1.7, fontSize: "0.95rem", overflowWrap: "anywhere" }}>{body}</p>
       </article>
-      <section aria-label={ar ? "التعليقات" : "Comments"}>
-        <h2>
+
+      <section aria-label={ar ? "التعليقات" : "Comments"} style={{ padding: 24, border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,0.76)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", boxShadow: "0 8px 22px rgba(30,51,46,.06)", display: "grid", gap: 16 }}>
+        <h2 style={{ margin: 0, color: "#1E332E", fontSize: 16, fontWeight: 800, display: "inline-flex", alignItems: "center", gap: 8, overflowWrap: "anywhere" }}>
           <MessageCircle size={15} aria-hidden="true" /> {ar ? "التعليقات" : "Comments"}
         </h2>
         {comments.length === 0 ? (
-          <p>{ar ? "لا توجد تعليقات بعد." : "No comments yet."}</p>
+          <p style={{ margin: 0, color: "#6B7C6E", padding: 16, border: "1px dashed #E8EDEE", borderRadius: 16, textAlign: "center", overflowWrap: "anywhere" }}>{ar ? "لا توجد تعليقات بعد." : "No comments yet."}</p>
         ) : (
-          <ul style={{ listStyle: "none", padding: 0, display: "grid", gap: 12 }}>
+          <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: 16 }}>
             {comments.map((c) => (
-              <li key={c.id} style={{ border: "1px solid var(--line)", borderRadius: 12, padding: "12px 16px" }}>
-                <p style={{ margin: 0, whiteSpace: "pre-wrap" }}>{c.body}</p>
-                {c.author ? <small>{c.author}</small> : null}
+              <li key={c.id} style={{ border: "1px solid #E8EDEE", borderRadius: 16, padding: 16, background: "rgba(255,255,255,0.9)", display: "grid", gap: 8 }}>
+                <p style={{ margin: 0, whiteSpace: "pre-wrap", color: "#1E332E", lineHeight: 1.65, overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{c.body}</p>
+                {c.author ? <small style={{ color: "#6B7C6E", overflowWrap: "anywhere" }}>{c.author}</small> : null}
               </li>
             ))}
           </ul>
         )}
-        <CommunityCommentForm postId={postId} locale={locale} />
+        <div style={{ paddingTop: 16, borderTop: "1px solid #E8EDEE" }}>
+          <CommunityCommentForm postId={postId} locale={locale} />
+        </div>
       </section>
-      <p style={{ display: "inline-flex", alignItems: "center", gap: 5, color: "#E11D48" }}>
+
+      <p style={{ display: "inline-flex", alignItems: "center", gap: 8, color: "#E11D48", margin: 0, padding: "8px 16px", border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,0.76)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", width: "fit-content", overflowWrap: "anywhere" }}>
         <Heart size={14} fill="#E11D48" aria-hidden="true" />
         {ar ? "الإعجابات" : "Likes"}
       </p>
