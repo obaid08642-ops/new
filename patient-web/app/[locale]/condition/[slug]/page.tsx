@@ -65,7 +65,7 @@ export default async function ConditionCanonicalPage({ params }: Props) {
         <section style={{ fontSize: "1.05rem", lineHeight: 1.7, color: "#1E332E", marginBottom: 32, overflowWrap: "anywhere" }}><p style={{ margin: 0, overflowWrap: "anywhere" }}>{overview}</p></section>
 
         {cond.symptoms?.length ? (
-          <section style={{ margin: "32px 0", padding: 24, background: "rgba(255,255,255,0.7)", borderRadius: 20, border: "1px solid #E8EDEE", backdropFilter: "blur(16px)" }}>
+          <section style={{ margin: "32px 0", padding: 24, background: "rgba(255,255,255,0.7)", borderRadius: 20, border: "1px solid #E8EDEE", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" }}>
             <h2 style={{ fontSize: "1.1rem", fontWeight: 600, margin: "0 0 16px 0", color: "#1E332E", display: "flex", alignItems: "center", gap: 8, overflowWrap: "anywhere" }}><AlertCircle size={48} style={{ width: 20, height: 20, color: "#1E332E", flexShrink: 0 }} />{locale === "ar" ? "الأعراض والعلامات الشائعة" : "Common Symptoms"}</h2>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
               {cond.symptoms.map((sym: string) => (<span key={sym} style={{ background: "#FDFDFC", border: "1px solid #E8EDEE", color: "#1E332E", padding: "6px 14px", borderRadius: 20, fontSize: 14, overflowWrap: "anywhere" }}>{sym}</span>))}

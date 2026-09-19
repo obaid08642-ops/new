@@ -46,7 +46,7 @@ export default async function FacilityCanonicalPage({ params }: Props) {
     <main style={{ maxWidth: 896, margin: "0 auto", padding: "32px 16px", background: "#FDFDFC" }}>
       <JsonLd data={[schemaBuilder({ name, path: `/facility/${slug}`, locale: locale as Locale, city: fac.city, district: fac.district } as any), breadcrumbList([{ name: "Nabd Plus", locale: locale as Locale, path: "/" }, { name: locale === "ar" ? "المراكز والمستشفيات" : "Hospitals & Clinics", locale: locale as Locale, path: "/consultations/clinics" }, { name, locale: locale as Locale, path: `/facility/${slug}` }])]} />
       <nav aria-label="Back">
-        <Link href={`/${locale}/consultations/clinics`} style={{ display: "inline-flex", alignItems: "center", gap: 8, marginBottom: 24, color: "#1E332E", textDecoration: "none", fontWeight: 600, overflowWrap: "anywhere" }}><Arrow size={16} />{locale === "ar" ? "قائمة المراكز والمستشفيات" : "Back to Facilities"}</Link>
+        <Link href={`/${locale}/consultations/clinics`} style={{ display: "inline-flex", alignItems: "center", gap: 8, marginBottom: 24, color: "#1E332E", textDecoration: "none", fontWeight: 600, overflowWrap: "anywhere" }}><Arrow size={48} style={{ width: 16, height: 16 }} />{locale === "ar" ? "قائمة المراكز والمستشفيات" : "Back to Facilities"}</Link>
       </nav>
       <article style={{ background: "rgba(253,253,252,0.88)", border: "1px solid #E8EDEE", borderRadius: 20, padding: 32, backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" }}>
         <header style={{ display: "flex", gap: 24, alignItems: "flex-start", marginBottom: 24 }}>
@@ -54,8 +54,8 @@ export default async function FacilityCanonicalPage({ params }: Props) {
           <div style={{ minWidth: 0 }}>
             <h1 style={{ fontSize: "1.75rem", fontWeight: 700, margin: 0, color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{name}</h1>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 16, color: "#1E332E", opacity: 0.7, fontSize: 14, marginTop: 8 }}>
-              {fac.city ? <span style={{ display: "flex", alignItems: "center", gap: 4, overflowWrap: "anywhere" }}><MapPin size={16} />{fac.city} {fac.district ? `- ${fac.district}` : ""}</span> : null}
-              {fac.phone ? <span style={{ display: "flex", alignItems: "center", gap: 4 }}><Phone size={16} /><span dir="ltr">{fac.phone}</span></span> : null}
+              {fac.city ? <span style={{ display: "flex", alignItems: "center", gap: 4, overflowWrap: "anywhere" }}><MapPin size={48} style={{ width: 16, height: 16 }} />{fac.city} {fac.district ? `- ${fac.district}` : ""}</span> : null}
+              {fac.phone ? <span style={{ display: "flex", alignItems: "center", gap: 4 }}><Phone size={48} style={{ width: 16, height: 16 }} /><span dir="ltr">{fac.phone}</span></span> : null}
             </div>
           </div>
         </header>
