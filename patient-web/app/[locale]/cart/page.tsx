@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { ArrowLeft, ArrowRight, ShoppingCart, ShieldCheck } from "lucide-react";
+import { ArrowLeft, ArrowRight, ShieldCheck } from "lucide-react";
+import { VectorOrders } from "@/components-next/vector-illustrations";
 import { callPatientApi } from "@/lib/api/upstream";
 import { extractCartSummary } from "@/lib/api/cart";
 import { requirePatientAccess } from "@/lib/auth/session";
@@ -39,7 +40,7 @@ export default async function CartPage({ params }: Props) {
           <p>{t("notice")}</p>
         </div>
         <span className={styles.heroIcon}>
-          <ShoppingCart size={27} aria-hidden="true" />
+          <VectorOrders size={48} aria-hidden="true" />
         </span>
       </section>
 
@@ -63,7 +64,7 @@ export default async function CartPage({ params }: Props) {
 
       {hasServerItems && serverCart && (
         <section className={styles.groups} style={{ marginTop: "2rem" }}>
-          <h2 style={{ fontSize: "1.1rem", fontWeight: 800, marginBottom: "0.75rem" }}>
+          <h2 style={{ fontSize: "1.1rem", fontWeight: 800, marginBottom: "0.75rem", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as React.CSSProperties}>
             {locale === "ar" ? "العناصر المتزامنة مع حسابك" : "Items Synced with Account"}
           </h2>
           {serverCart.groups
@@ -71,7 +72,7 @@ export default async function CartPage({ params }: Props) {
             .map((group) => (
               <article className={styles.group} key={group.kind}>
                 <div className={styles.groupHead}>
-                  <h3>{group.kind}</h3>
+                  <h3 style={{ overflowWrap: "anywhere" } as React.CSSProperties}>{group.kind}</h3>
                   <span>
                     {group.count ?? group.items.length} {t("itemCount")}
                   </span>
