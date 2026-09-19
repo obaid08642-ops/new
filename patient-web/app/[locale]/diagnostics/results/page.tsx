@@ -45,7 +45,7 @@ export default async function DiagnosticsResultsPage({ params }: Props) {
               const r = b as Record<string, unknown>;
               const id = String(r.id ?? r.bookingId ?? r._id ?? i);
               const label = String(r.service_name ?? r.name ?? id);
-              return <Link key={id} href={`/${locale}/diagnostics/labs/${encodeURIComponent(id)}`} style={{ display: "flex", alignItems: "center", gap: 16, padding: 16, border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", color: "#1E332E", fontWeight: 700, textDecoration: "none", overflowWrap: "anywhere", boxShadow: "0 8px 24px rgba(30,51,46,.07)" }}><span style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" as any }}>{label}</span></Link>;
+              return <Link key={id} href={`/${locale}/diagnostics/labs/${encodeURIComponent(id)}`} style={{ display: "flex", alignItems: "center", gap: 16, padding: 16, border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,.76)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", color: "#1E332E", fontWeight: 700, textDecoration: "none", overflowWrap: "anywhere", boxShadow: "0 8px 24px rgba(30,51,46,.07)" }}><span style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" as any }}>{label}</span></Link>;
             })}
           </div>
         ) : <p className={styles.empty} style={{ overflowWrap: "anywhere" }}>{t("unavailable")}</p>}
@@ -57,7 +57,7 @@ export default async function DiagnosticsResultsPage({ params }: Props) {
             {radioList.map((b: unknown, i: number) => {
               const r = b as Record<string, unknown>;
               const label = String(r.title ?? r.service_name ?? r.id ?? i);
-              return <div key={String(r.id ?? i)} style={{ padding: 16, border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", color: "#1E332E", fontWeight: 700, overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" as any, boxShadow: "0 8px 24px rgba(30,51,46,.07)" }}>{label}</div>;
+              return <div key={String(r.id ?? i)} style={{ padding: 16, border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,.76)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", color: "#1E332E", fontWeight: 700, overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" as any, boxShadow: "0 8px 24px rgba(30,51,46,.07)" }}>{label}</div>;
             })}
           </div>
         ) : <p className={styles.empty} style={{ overflowWrap: "anywhere" }}>{t("unavailable")}</p>}
