@@ -12,6 +12,7 @@ import { BookingFlow } from "@/components-next/booking-flow";
 import type { Metadata } from "next";
 import { ChevronLeft } from "lucide-react";
 import { VectorDoctor } from "@/components-next/vector-illustrations";
+import styles from "./book.module.css";
 
 type Props = { params: Promise<{ locale: string; doctorId: string }> };
 
@@ -39,14 +40,19 @@ export default async function BookConsultationPage({ params }: Props) {
   const name = doctor?.name || t("doctorUnavailable");
   const canonical = localizedUrl(locale, `/consultations/book/${encodeURIComponent(doctorId)}`);
   return (
-    <main className="main" style={{ background: "#FDFDFC" }}>
-      <Link href={`/${locale}/consultations/doctors/${encodeURIComponent(doctorId)}`} style={{ color: "#1E332E", display: "inline-flex", alignItems: "center", gap: 8, overflowWrap: "anywhere" } as any}><ChevronLeft size={16} aria-hidden="true" />{t("back")}</Link>
+    <main className={`main ${styles.page}`}>
+      <Link href={`/${locale}/consultations/doctors/${encodeURIComponent(doctorId)}`} className={styles.backLink}><ChevronLeft size={16} aria-hidden="true" />{t("back")}</Link>
       <JsonLd data={physician({ name, locale, path: `/consultations/doctors/${encodeURIComponent(doctorId)}`, specialty: doctor?.specialty })} />
-      <section className="premium-hero" style={{ background: "rgba(253,253,252,0.92)", border: "1px solid #E8EDEE", borderRadius: 20, backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", boxShadow: "0 20px 50px rgba(22,71,84,.07)" } as any}><div className="premium-hero-copy">
-        <div className="eyebrow" style={{ color: "#1E332E" } as any}><VectorDoctor size={48} aria-hidden="true" />{t("title")}</div>
-        <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{name}</h1>
-        <p style={{ overflowWrap: "anywhere" } as any}>{t("subtitle")}</p>
-      </div></section>
+      <section className={styles.header}>
+        <div>
+          <p className={styles.eyebrow}>{t("title")}</p>
+          <h1>{name}</h1>
+          <p className={styles.subtitle}>{t("subtitle")}</p>
+        </div>
+        <span className={styles.vectorWrap} aria-hidden="true">
+          <VectorDoctor size={48} />
+        </span>
+      </section>
       <BookingFlow doctorId={doctorId} locale={locale} doctor={doctor} />
     </main>
   );
