@@ -47,7 +47,7 @@ export function TriageForm({ labels, locale }: { labels: Labels; locale?: string
   }
 
   return (
-    <div className={styles.card}>
+    <div>
       <p className={styles.promptTitle}>
         {locale === "ar" ? "أمثلة شائعة يمكنك اختيارها:" : "Common examples to get started:"}
       </p>
