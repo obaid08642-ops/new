@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
+import { VectorLabs } from "@/components-next/vector-illustrations";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { DiagnosticsCheckoutForm } from "@/components-next/diagnostics-checkout-form";
+import styles from "../diagnostics.module.css";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ items?: string; labId?: string; location?: string }> };
 
@@ -13,27 +15,45 @@ export default async function DiagnosticsCheckoutPage({ params, searchParams }: 
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
   await requirePatientAccess(locale);
+  const t = await getTranslations("Diagnostics");
   const ar = locale === "ar";
   const items = (sp.items || "").split(",").map((s) => s.trim()).filter(Boolean).slice(0, 20);
   const labId = (sp.labId || "").trim();
   const location = sp.location === "facility" ? "facility" : "home";
   if (!items.length || !labId) {
     return (
-      <main className="main">
-        <Link href={`/${locale}/diagnostics/cart`}>{ar ? "السلة" : "Cart"}</Link>
-        <h1>{ar ? "إتمام الحجز" : "Checkout"}</h1>
-        <p role="alert">{ar ? "السلة فارغة أو المختبر غير محدد — ابدأ من السلة." : "Cart is empty or no lab selected — start from the cart."}</p>
-        <Link href={`/${locale}/diagnostics/labs`}>{ar ? "تصفح التحاليل" : "Browse tests"}</Link>
+      <main className={`main ${styles.page}`} style={{ background: "#FDFDFC" }}>
+        <section className={styles.intro} style={{ background: "rgba(255,255,255,.76)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: "1px solid #E8EDEE", borderRadius: 20 }}>
+          <div className={styles.introText} style={{ display: "grid", gap: 8 }}>
+            <p className={styles.eyebrow} style={{ color: "#1E332E" }}>{ar ? "الدفع" : "Checkout"}</p>
+            <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{ar ? "إتمام الحجز" : "Checkout"}</h1>
+            <p role="alert" style={{ color: "#6B7C6E", lineHeight: 1.7, overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{ar ? "السلة فارغة أو المختبر غير محدد — ابدأ من السلة." : "Cart is empty or no lab selected — start from the cart."}</p>
+            <Link href={`/${locale}/diagnostics/cart`} style={{ color: "#1E332E", fontWeight: 760, textDecoration: "none", width: "fit-content", padding: "8px 16px", borderRadius: 20, border: "1px solid #5FD9B3", background: "#5FD9B3" }}>{ar ? "السلة" : "Cart"}</Link>
+          </div>
+          <span className={styles.introIcon} style={{ inlineSize: 48, blockSize: 48, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.9)", backdropFilter: "blur(16px)" }} aria-hidden="true"><VectorLabs size={48} aria-hidden="true" /></span>
+        </section>
+        <section style={{ display: "grid", gap: 8, padding: 16, border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", boxShadow: "0 8px 24px rgba(30,51,46,.07)" }}>
+          <Link href={`/${locale}/diagnostics/labs`} style={{ color: "#1E332E", fontWeight: 760, textDecoration: "none", width: "fit-content", padding: "8px 12px", borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.9)" }}>{ar ? "تصفح التحاليل" : "Browse tests"}</Link>
+        </section>
       </main>
     );
   }
 
   return (
-    <main className="main">
-      <Link href={`/${locale}/diagnostics/cart`}>{ar ? "السلة" : "Cart"}</Link>
-      <h1>{ar ? "إتمام حجز التحاليل" : "Complete test booking"}</h1>
-      <p>{ar ? `${items.length} تحاليل — ${location === "home" ? "سحب منزلي" : "في المختبر"}` : `${items.length} tests — ${location}`}</p>
-      <DiagnosticsCheckoutForm locale={locale} items={items} labId={labId} initialLocation={location} />
+    <main className={`main ${styles.page}`} style={{ background: "#FDFDFC" }}>
+      <section className={styles.intro} style={{ background: "rgba(255,255,255,.76)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: "1px solid #E8EDEE", borderRadius: 20 }}>
+        <div className={styles.introText} style={{ display: "grid", gap: 8 }}>
+          <p className={styles.eyebrow} style={{ color: "#1E332E" }}>{t("eyebrow")}</p>
+          <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{ar ? "إتمام حجز التحاليل" : "Complete test booking"}</h1>
+          <p style={{ color: "#6B7C6E", lineHeight: 1.7, overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{ar ? `${items.length} تحاليل — ${location === "home" ? "سحب منزلي" : "في المختبر"}` : `${items.length} tests — ${location}`}</p>
+          <Link href={`/${locale}/diagnostics/cart`} style={{ color: "#1E332E", fontWeight: 700, textDecoration: "none", width: "fit-content", padding: "8px 12px", borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)" }}>{ar ? "السلة" : "Cart"}</Link>
+        </div>
+        <span className={styles.introIcon} style={{ inlineSize: 48, blockSize: 48, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.9)", backdropFilter: "blur(16px)" }} aria-hidden="true"><VectorLabs size={48} aria-hidden="true" /></span>
+      </section>
+
+      <section style={{ display: "grid", gap: 16, padding: 16, border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", boxShadow: "0 8px 24px rgba(30,51,46,.07)" }}>
+        <DiagnosticsCheckoutForm locale={locale} items={items} labId={labId} initialLocation={location} />
+      </section>
     </main>
   );
 }
