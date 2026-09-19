@@ -93,7 +93,7 @@ export default async function AiMonthlyReportPage({ params }: Props) {
       </section>
       <div className={styles.card} style={{ backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderColor: "#E8EDEE", borderRadius: 20, background: "rgba(255,255,255,0.76)", display: "grid", gap: 16 }}>
       {!hasAny ? (
-        <section aria-label={ar ? "لا بيانات" : "No data"} style={{ padding: 16, border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,0.9)" }}>
+        <section aria-label={ar ? "لا بيانات" : "No data"} style={{ padding: 16, border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,0.9)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" }}>
           <p role="status" style={{ color: "#1E332E", fontWeight: 700, margin: "0 0 8px", overflowWrap: "anywhere" }}>{ar ? "لا توجد بيانات كافية بعد" : "Not enough data yet"}</p>
           <Link href={`/${locale}/health/vitals/log`} style={{ color: "#1E332E", fontWeight: 700, overflowWrap: "anywhere" }}>{ar ? "تسجيل قياس الآن" : "Log a reading now"}</Link>
         </section>
@@ -101,10 +101,10 @@ export default async function AiMonthlyReportPage({ params }: Props) {
       <section aria-label={ar ? "هذا الشهر بنظرة" : "This month at a glance"} style={{ display: "grid", gap: 8 }}>
         <h2 style={{ color: "#1E332E", fontWeight: 800, fontSize: 16, margin: "0 0 8px", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{ar ? "هذا الشهر بنظرة" : "This month at a glance"}</h2>
         <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: 8 }}>
-          <li style={{ padding: "8px 12px", border: "1px solid #E8EDEE", borderRadius: 12, background: "rgba(255,255,255,0.9)", color: "#1E332E", overflowWrap: "anywhere" }}>{ar ? "موعد:" : "Appointments:"} {appts.length}</li>
-          <li style={{ padding: "8px 12px", border: "1px solid #E8EDEE", borderRadius: 12, background: "rgba(255,255,255,0.9)", color: "#1E332E", overflowWrap: "anywhere" }}>{ar ? "مكتمل:" : "Completed:"} {completed.length}</li>
-          <li style={{ padding: "8px 12px", border: "1px solid #E8EDEE", borderRadius: 12, background: "rgba(255,255,255,0.9)", color: "#1E332E", overflowWrap: "anywhere" }}>{ar ? "قادم:" : "Upcoming:"} {upcoming.length}</li>
-          <li style={{ padding: "8px 12px", border: "1px solid #E8EDEE", borderRadius: 12, background: "rgba(255,255,255,0.9)", color: "#1E332E", overflowWrap: "anywhere" }}>{ar ? "دواء مزمن:" : "Chronic meds:"} {meds.length}</li>
+          <li style={{ padding: "8px 12px", border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,0.9)", color: "#1E332E", overflowWrap: "anywhere" }}>{ar ? "موعد:" : "Appointments:"} {appts.length}</li>
+           <li style={{ padding: "8px 12px", border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,0.9)", color: "#1E332E", overflowWrap: "anywhere" }}>{ar ? "مكتمل:" : "Completed:"} {completed.length}</li>
+           <li style={{ padding: "8px 12px", border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,0.9)", color: "#1E332E", overflowWrap: "anywhere" }}>{ar ? "قادم:" : "Upcoming:"} {upcoming.length}</li>
+           <li style={{ padding: "8px 12px", border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,0.9)", color: "#1E332E", overflowWrap: "anywhere" }}>{ar ? "دواء مزمن:" : "Chronic meds:"} {meds.length}</li>
         </ul>
       </section>
       {vitals.length > 0 ? (
@@ -112,8 +112,8 @@ export default async function AiMonthlyReportPage({ params }: Props) {
           <h2 style={{ color: "#1E332E", fontWeight: 800, fontSize: 16, margin: "0 0 8px", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{ar ? "آخر قياساتك الحيوية" : "Your latest vitals"}</h2>
           <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: 8 }}>
             {vitals.slice(0, 8).map((v, i) => (
-              <li key={i} style={{ padding: "8px 12px", border: "1px solid #E8EDEE", borderRadius: 12, background: "rgba(255,255,255,0.9)", color: "#1E332E", overflowWrap: "anywhere" }}>{pickName(v, locale)}: {String(v.value ?? v.latest ?? "—")}{typeof v.unit === "string" ? ` ${v.unit}` : ""}</li>
-            ))}
+               <li key={i} style={{ padding: "8px 12px", border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,0.9)", color: "#1E332E", overflowWrap: "anywhere" }}>{pickName(v, locale)}: {String(v.value ?? v.latest ?? "—")}{typeof v.unit === "string" ? ` ${v.unit}` : ""}</li>
+             ))}
           </ul>
         </section>
       ) : null}
@@ -129,7 +129,7 @@ export default async function AiMonthlyReportPage({ params }: Props) {
             const dirLabel = dir === "↑" ? (ar ? "ارتفاع" : "Rising") : dir === "↓" ? (ar ? "انخفاض" : "Falling") : (ar ? "مستقر" : "Stable");
             const unit = typeof t.unit === "string" ? t.unit : "";
             return (
-              <details key={i} style={{ padding: "8px 12px", border: "1px solid #E8EDEE", borderRadius: 12, background: "rgba(255,255,255,0.9)" }}>
+              <details key={i} style={{ padding: "8px 12px", border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,0.9)" }}>
                 <summary style={{ color: "#1E332E", fontWeight: 700, cursor: "pointer", overflowWrap: "anywhere" }}>{pickName(t, locale)} {dir} {dirLabel}</summary>
                 <p style={{ color: "#6B7C6E", margin: "8px 0 0", overflowWrap: "anywhere" }}>{ar ? `${pts.length} قراءة — أول ${Number.isFinite(first) ? first : "—"} وآخر ${Number.isFinite(last) ? last : "—"} ${unit}` : `${pts.length} readings — first ${Number.isFinite(first) ? first : "—"}, last ${Number.isFinite(last) ? last : "—"} ${unit}`}</p>
                 <Link href={`/${locale}/health/trends`} style={{ color: "#1E332E", fontWeight: 700, overflowWrap: "anywhere" }}>{ar ? "عرض الرسم البياني الكامل" : "View full chart"}</Link>
@@ -146,7 +146,7 @@ export default async function AiMonthlyReportPage({ params }: Props) {
               const done = ["COMPLETED", "completed"].includes(String(a.state ?? a.status ?? ""));
               const t = apptStart(a);
               return (
-                <li key={typeof a.id === "string" ? a.id : i} style={{ padding: "8px 12px", border: "1px solid #E8EDEE", borderRadius: 12, background: "rgba(255,255,255,0.9)", color: "#1E332E", overflowWrap: "anywhere" }}>
+                <li key={typeof a.id === "string" ? a.id : i} style={{ padding: "8px 12px", border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,0.9)", color: "#1E332E", overflowWrap: "anywhere" }}>
                   [{done ? (ar ? "مكتمل" : "Done") : (ar ? "قادم" : "Upcoming")}]{" "}
                   {typeof a.doctor_name === "string" && a.doctor_name
                     ? a.doctor_name
