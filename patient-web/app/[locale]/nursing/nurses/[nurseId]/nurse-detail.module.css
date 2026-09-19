@@ -1,25 +1,29 @@
 .page {
   max-width: 900px;
   margin: 0 auto;
-  padding: 24px 16px 64px;
+  padding: 32px 16px 80px;
+  background: #FDFDFC;
 }
 
 .back {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: #00876f;
-  font-weight: 600;
+  color: #1E332E;
+  font-weight: 700;
   text-decoration: none;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .detail {
-  background: #ffffff;
-  border-radius: 24px;
-  border: 1px solid #e2e8f0;
+  background: rgba(253,253,252,0.92);
+  border-radius: 20px;
+  border: 1px solid #E8EDEE;
   overflow: hidden;
   padding: 32px 24px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 8px 24px rgba(30,51,46,0.06);
 }
 
 .profileHeader {
@@ -32,14 +36,15 @@
 .avatar {
   width: 96px;
   height: 96px;
-  border-radius: 48px;
-  background: rgba(0, 135, 111, 0.1);
-  color: #00876f;
+  border-radius: 20px;
+  background: rgba(95,217,179,0.12);
+  color: #1E332E;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   overflow: hidden;
+  border: 1px solid #E8EDEE;
 }
 
 .avatarImg {
@@ -64,10 +69,10 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  background: rgba(0, 135, 111, 0.1);
-  color: #00876f;
+  background: rgba(95,217,179,0.14);
+  color: #1E332E;
   padding: 4px 10px;
-  border-radius: 10px;
+  border-radius: 999px;
   font-size: 12px;
   font-weight: 700;
 }
@@ -77,28 +82,38 @@
   align-items: center;
   gap: 4px;
   font-size: 13px;
-  color: #1e293b;
+  color: #1E332E;
 }
 
 .mainInfo h1 {
   font-size: 24px;
   font-weight: 900;
-  color: #0f172a;
+  color: #1E332E;
   margin: 0 0 4px;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .specialty {
-  color: #00876f;
+  color: #1E332E;
   font-weight: 600;
   font-size: 15px;
-  margin: 0 0 6px;
+  margin: 0 0 8px;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .location {
   display: flex;
   align-items: center;
-  gap: 6px;
-  color: #64748b;
+  gap: 8px;
+  color: #6B7C6E;
   font-size: 13px;
   margin: 0;
 }
@@ -111,44 +126,56 @@
 }
 
 .statCard {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
+  background: rgba(253,253,252,0.92);
+  border: 1px solid #E8EDEE;
+  border-radius: 20px;
   padding: 16px;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 4px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
 .statCard strong {
   font-size: 16px;
-  color: #0f172a;
+  color: #1E332E;
 }
 
 .statCard small {
   font-size: 12px;
-  color: #64748b;
+  color: #6B7C6E;
 }
 
 .section {
-  padding: 20px 0;
-  border-top: 1px solid #f1f5f9;
+  padding: 24px 0;
+  border-top: 1px solid #E8EDEE;
 }
 
 .section h2 {
   font-size: 18px;
   font-weight: 800;
-  color: #0f172a;
+  color: #1E332E;
   margin: 0 0 12px;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .aboutText {
-  color: #475569;
+  color: #6B7C6E;
   font-size: 15px;
   line-height: 1.6;
   margin: 0;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .serviceList {
@@ -161,27 +188,35 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 14px 18px;
-  background: #f8fafc;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
+  padding: 16px;
+  background: rgba(253,253,252,0.92);
+  border-radius: 20px;
+  border: 1px solid #E8EDEE;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
 .serviceItem strong {
   font-size: 14px;
-  color: #0f172a;
+  color: #1E332E;
   display: block;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .serviceItem small {
   font-size: 12px;
-  color: #64748b;
+  color: #6B7C6E;
 }
 
 .price {
   font-size: 14px;
   font-weight: 700;
-  color: #00876f;
+  color: #1E332E;
+  margin-top: 4px;
 }
 
 .actionRow {
@@ -191,30 +226,35 @@
 
 .bookButton {
   display: inline-block;
-  background: #00876f;
-  color: #ffffff;
+  background: #5FD9B3;
+  color: #1E332E;
   padding: 14px 36px;
-  border-radius: 16px;
+  border-radius: 20px;
   font-weight: 700;
   font-size: 16px;
   text-decoration: none;
-  box-shadow: 0 4px 12px rgba(0, 135, 111, 0.2);
+  border: 1px solid #E8EDEE;
+  box-shadow: 0 4px 12px rgba(95,217,179,0.25);
 }
 
 .state {
   text-align: center;
   padding: 48px 24px;
-  background: #fff;
+  background: rgba(253,253,252,0.92);
   border-radius: 20px;
+  border: 1px solid #E8EDEE;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
 .action {
   display: inline-block;
   margin-top: 16px;
-  background: #00876f;
-  color: #fff;
-  padding: 10px 20px;
-  border-radius: 12px;
-  font-weight: 600;
+  background: #5FD9B3;
+  color: #1E332E;
+  padding: 10px 24px;
+  border-radius: 20px;
+  font-weight: 700;
   text-decoration: none;
+  border: 1px solid #E8EDEE;
 }
