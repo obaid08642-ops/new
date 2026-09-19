@@ -43,66 +43,70 @@ export default async function CommunityPage({ params }: Props) {
   const isAr = locale === "ar";
 
   return (
-    <main className="main" style={{ padding: "24px 16px", maxWidth: 800, margin: "0 auto" }}>
+    <main className="main" style={{ padding: "32px 16px 80px", maxWidth: 860, margin: "0 auto", background: "#FDFDFC" }}>
       <section
         style={{
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          gap: "1.5rem",
-          padding: "clamp(1.5rem, 3.5vw, 2.2rem)",
-          border: "1px solid rgba(8,127,140,.22)",
-          borderRadius: "var(--radius-xl)",
-          background: "linear-gradient(135deg, rgba(231,247,247,.95), #FFFFFF 65%, rgba(95,217,179,.1))",
-          boxShadow: "var(--shadow-md)",
-          marginBottom: "1.5rem",
+          gap: 16,
+          padding: "clamp(28px, 4vw, 36px)",
+          border: "1px solid #E8EDEE",
+          borderRadius: 20,
+          background: "rgba(255,255,255,0.76)",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          boxShadow: "0 10px 28px rgba(16,24,40,.07)",
+          marginBottom: 24,
         }}
       >
-        <div>
-          <p style={{ display: "inline-flex", alignItems: "center", gap: "0.45rem", margin: 0, color: "#087F8C", fontSize: "0.82rem", fontWeight: 760 }}>
+        <div style={{ minWidth: 0 }}>
+          <p style={{ display: "inline-flex", alignItems: "center", gap: 8, margin: 0, color: "#1E332E", fontSize: 12, fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase", background: "rgba(95,217,179,0.14)", padding: "5px 12px", borderRadius: 999, overflowWrap: "anywhere" }}>
             <UsersRound size={15} aria-hidden="true" />
             {isAr ? "مجتمع نبض بلس الطبي" : "Nabd Plus Health Community"}
           </p>
-          <h1 style={{ margin: "0.4rem 0 0", color: "var(--ink)", fontSize: "clamp(1.8rem, 3.2vw, 2.4rem)", letterSpacing: "-0.035em" }}>
+          <h1 style={{ margin: "0.4rem 0 0", color: "#1E332E", fontSize: "clamp(1.8rem, 3.2vw, 2.4rem)", letterSpacing: "-0.035em", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
             {t("title")}
           </h1>
-          <p style={{ margin: "0.5rem 0 0", color: "var(--muted)", fontSize: "0.94rem", lineHeight: 1.6 }}>
+          <p style={{ margin: "0.5rem 0 0", color: "#6B7C6E", fontSize: "0.94rem", lineHeight: 1.6, overflowWrap: "anywhere" }}>
             {isAr
               ? "مساحة آمنة لمشاركة التجارب الصحية، الاستفسارات، وقصص التعافي مع مجتمع المرضى والأطباء."
               : "A safe space to share patient journeys, health questions, and recovery stories."}
           </p>
         </div>
-        <div style={{ display: "grid", placeItems: "center", flex: "0 0 auto", width: "5rem", height: "5rem", border: "1px solid rgba(8,127,140,.22)", borderRadius: "var(--radius-xl)", background: "#FFFFFF", boxShadow: "var(--shadow-md)" }}>
-          <VectorFamily size={80} />
+        <div style={{ display: "grid", placeItems: "center", flex: "0 0 auto", width: 76, height: 76, border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(95,217,179,0.12)", boxShadow: "0 10px 24px rgba(30,51,46,0.06)" }}>
+          <VectorFamily size={48} aria-hidden="true" />
         </div>
       </section>
 
       {!response.ok ? (
-        <p role="alert" style={{ color: "#DC2626", textAlign: "center", padding: "2rem" }}>{t("error")}</p>
+        <p role="alert" style={{ color: "#DC2626", textAlign: "center", padding: 32, border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,0.76)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", overflowWrap: "anywhere" }}>{t("error")}</p>
       ) : posts.length === 0 ? (
-        <div style={{ border: "1px dashed var(--line)", borderRadius: "var(--radius-xl)", padding: "3rem 1.5rem", textAlign: "center", color: "var(--muted)" }}>
-          <UsersRound size={36} color="var(--muted)" style={{ margin: "0 auto 12px" }} />
-          <p style={{ margin: 0 }}>{t("empty")}</p>
+        <div style={{ border: "1px dashed #E8EDEE", borderRadius: 20, padding: "48px 24px", textAlign: "center", color: "#6B7C6E", background: "rgba(255,255,255,0.76)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" }}>
+          <UsersRound size={36} color="#6B7C6E" style={{ margin: "0 auto 12px" }} />
+          <p style={{ margin: 0, overflowWrap: "anywhere" }}>{t("empty")}</p>
         </div>
       ) : (
-        <ul style={{ listStyle: "none", padding: 0, display: "grid", gap: 14 }}>
+        <ul style={{ listStyle: "none", padding: 0, display: "grid", gap: 16 }}>
           {posts.map((post) => (
             <li
               key={post.id}
               style={{
-                border: "1px solid var(--line)",
-                borderRadius: "var(--radius-xl)",
-                padding: "18px 22px",
-                background: "#FFFFFF",
-                boxShadow: "var(--shadow-sm)",
+                border: "1px solid #E8EDEE",
+                borderRadius: 20,
+                padding: 16,
+                background: "rgba(255,255,255,0.76)",
+                backdropFilter: "blur(16px)",
+                WebkitBackdropFilter: "blur(16px)",
+                boxShadow: "0 8px 22px rgba(30,51,46,.06)",
               }}
             >
               {post.title ? (
-                <strong style={{ display: "block", color: "var(--ink)", fontSize: "1.1rem", marginBottom: 6 }}>
-                  <Link href={`/${locale}/community/${encodeURIComponent(post.id)}`}>{post.title}</Link>
+                <strong style={{ display: "-webkit-box", color: "#1E332E", fontSize: "1.1rem", marginBottom: 8, overflowWrap: "anywhere", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as React.CSSProperties}>
+                  <Link href={`/${locale}/community/${encodeURIComponent(post.id)}`} style={{ color: "#1E332E", textDecoration: "none" }}>{post.title}</Link>
                 </strong>
               ) : null}
-              <p style={{ margin: 0, whiteSpace: "pre-wrap", color: "var(--ink)", lineHeight: 1.65, fontSize: "0.95rem" }}>
+              <p style={{ margin: 0, whiteSpace: "pre-wrap", color: "#1E332E", lineHeight: 1.65, fontSize: "0.95rem", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
                 {post.body.length > 220 ? `${post.body.slice(0, 220)}…` : post.body}
               </p>
               <div
@@ -112,32 +116,32 @@ export default async function CommunityPage({ params }: Props) {
                   flexWrap: "wrap",
                   gap: 16,
                   fontSize: 13,
-                  color: "var(--muted)",
-                  marginTop: 14,
-                  paddingTop: 12,
-                  borderTop: "1px solid rgba(229,232,238,0.7)",
+                  color: "#6B7C6E",
+                  marginTop: 16,
+                  paddingTop: 16,
+                  borderTop: "1px solid #E8EDEE",
                 }}
               >
                 {post.author ? (
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 8, overflowWrap: "anywhere" }}>
                     <User size={14} aria-hidden="true" />
                     {post.author}
                   </span>
                 ) : null}
                 {post.likes !== undefined ? (
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: 5, color: "#E11D48" }}>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 8, color: "#E11D48" }}>
                     <Heart size={14} fill="#E11D48" aria-hidden="true" />
                     {post.likes}
                   </span>
                 ) : null}
                 {post.comments !== undefined ? (
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: 5, color: "var(--brand-deep)" }}>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 8, color: "#1E332E" }}>
                     <MessageCircle size={14} aria-hidden="true" />
                     {post.comments}
                   </span>
                 ) : null}
                 {post.createdAt ? (
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
                     <Calendar size={13} aria-hidden="true" />
                     {new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(post.createdAt))}
                   </span>
