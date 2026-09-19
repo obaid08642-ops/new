@@ -124,14 +124,14 @@ export default async function DoctorsSpecialtyCityPage({ params }: Props) {
                     {locale === "ar" ? (doc.name_ar || doc.name_en) : (doc.name_en || doc.name_ar)}
                   </Link>
                 </h3>
-                <p className={styles.meta}>{doc.specialty}</p>
+                <p className={styles.meta} style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{doc.specialty}</p>
                 {doc.rating ? (
                   <span className={styles.rating}>
                     <Star size={14} fill="#eab308" color="#b45309" aria-hidden="true" />
                     {doc.rating}
                   </span>
                 ) : null}
-                <Link href={`/${locale}/consultations/doctors/${doc.id || doc.slug}`} className={styles.primaryBtn}>
+                <Link href={`/${locale}/consultations/doctors/${doc.id || doc.slug}`} className={styles.primaryBtn} style={{ background: "#5FD9B3", color: "#1E332E", borderRadius: "20px", border: "1px solid #E8EDEE" } as any}>
                   {locale === "ar" ? "حجز موعد" : "Book Appointment"}
                 </Link>
               </div>
