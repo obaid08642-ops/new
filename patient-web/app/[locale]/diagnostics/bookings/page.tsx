@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { FlaskConical } from "lucide-react";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { callPatientApi } from "@/lib/api/upstream";
@@ -27,7 +26,7 @@ export default async function DiagnosticsBookingsPage({ params }: Props) {
       <Link href={`/${locale}/diagnostics`} style={{ color: "#1E332E", fontWeight: 760, textDecoration: "none", overflowWrap: "anywhere" as any }}>{t("back")}</Link>
       <section className={styles.intro}>
         <div className={styles.introText}>
-          <p className={styles.eyebrow}><FlaskConical size={15} aria-hidden="true" />{t("eyebrow")}</p>
+          <p className={styles.eyebrow} style={{ color: "#1E332E" } as any}>{t("eyebrow")}</p>
           <h1 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" as any }}>{locale === "ar" ? "حجوزاتي التشخيصية" : "My diagnostic bookings"}</h1>
           <p style={{ overflowWrap: "anywhere" }}>{locale === "ar" ? "حجوزات المختبر والأشعة — بيانات حية من الخادم فقط." : "Lab & radiology bookings — live server data only."}</p>
         </div>
