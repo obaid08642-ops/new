@@ -15,6 +15,7 @@ export default async function NursingVisitTrackingPage({ params }: Props) {
   if (!isLocale(locale) || !/^[A-Za-z0-9_-]{1,128}$/.test(visitId)) notFound();
   setRequestLocale(locale);
   const t = await getTranslations("NursingTracking");
+  const rtl = locale === "ar" || locale === "ur";
   const token = await requirePatientAccess(locale);
 
   const [visitRes, trackRes] = await Promise.all([
@@ -33,7 +34,7 @@ export default async function NursingVisitTrackingPage({ params }: Props) {
   const eta = track?.eta_minutes ?? track?.eta ?? null;
   const nurseName = visit?.nurse_name ?? visit?.nurse?.name ?? track?.nurse_name ?? null;
 
-  return <main className={`main ${styles.page}`}>
+  return <main className={`main ${styles.page}`} dir={rtl ? "rtl" : "ltr"} style={{ background: "#FDFDFC" }}>
     <Link className={styles.back} href={`/${locale}/nursing/visits`}><ChevronLeft size={17} aria-hidden="true" />{t("back")}</Link>
     <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16 }}>
       <VectorNursing size={48} aria-hidden="true" />
