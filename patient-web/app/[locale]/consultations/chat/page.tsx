@@ -27,10 +27,15 @@ export default async function ConsultationChatPage({ params, searchParams }: Pro
   if (profile.status === 401) redirect(`/${locale}/login`);
   if (!profile.ok) {
     return (
-      <main className="main" style={{ background: "#FDFDFC" }}>
-        <Link href={`/${locale}/consultations`}>{ar ? "الاستشارات" : "Consultations"}</Link>
-        <h1>{ar ? "محادثة الطبيب" : "Chat with doctor"}</h1>
-        <p role="alert">{ar ? "تعذر فتح المحادثة — تحقق من الطبيب وحاول مجدداً" : "Could not open the chat — check the doctor and retry"}</p>
+      <main className="main" style={{ background: "#FDFDFC", display: "grid", gap: 16 }}>
+        <Link href={`/${locale}/consultations`} style={{ color: "#1E332E", display: "inline-flex", alignItems: "center", gap: 8, border: "1px solid #E8EDEE", borderRadius: 20, padding: "8px 16px", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", fontWeight: 700, textDecoration: "none", width: "fit-content" }}>{ar ? "الاستشارات" : "Consultations"}</Link>
+        <section style={{ background: "rgba(255,255,255,.76)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: "1px solid #E8EDEE", borderRadius: 20, padding: 16, display: "flex", justifyContent: "space-between", gap: 16, alignItems: "center" }}>
+          <div style={{ display: "grid", gap: 8, minWidth: 0 }}>
+            <h1 style={{ color: "#1E332E", margin: 0, overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{ar ? "محادثة الطبيب" : "Chat with doctor"}</h1>
+            <p role="alert" style={{ color: "#6B7C6E", margin: 0, overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{ar ? "تعذر فتح المحادثة — تحقق من الطبيب وحاول مجدداً" : "Could not open the chat — check the doctor and retry"}</p>
+          </div>
+          <span style={{ inlineSize: 48, blockSize: 48, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.9)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }} aria-hidden="true"><VectorDoctor size={48} aria-hidden="true" /></span>
+        </section>
       </main>
     );
   }

@@ -29,17 +29,17 @@ export default async function CartPage({ params }: Props) {
   const amount = (value?: number) => (value === undefined ? "—" : `${value} ${currency}`);
 
   return (
-    <main className={`main ${styles.page}`}>
-      <section className={styles.hero}>
-        <div>
-          <p className={styles.eyebrow}>
-            <ShieldCheck size={15} aria-hidden="true" />
+    <main className={`main ${styles.page}`} style={{ background: "#FDFDFC", display: "grid", gap: 16 }}>
+      <section className={styles.hero} style={{ background: "rgba(255,255,255,.76)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: "1px solid #E8EDEE", borderRadius: 20, padding: 16, display: "flex", justifyContent: "space-between", gap: 16, alignItems: "center" }}>
+        <div style={{ display: "grid", gap: 8, minWidth: 0 }}>
+          <p className={styles.eyebrow} style={{ color: "#1E332E", display: "inline-flex", alignItems: "center", gap: 8, overflowWrap: "anywhere" } as any}>
+            <ShieldCheck size={15} aria-hidden="true" color="#1E332E" />
             {t("eyebrow")}
           </p>
-          <h1>{t("title")}</h1>
-          <p>{t("notice")}</p>
+          <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{t("title")}</h1>
+          <p style={{ color: "#6B7C6E", overflowWrap: "anywhere" } as any}>{t("notice")}</p>
         </div>
-        <span className={styles.heroIcon}>
+        <span className={styles.heroIcon} style={{ inlineSize: 48, blockSize: 48, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.9)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 } as any}>
           <VectorOrders size={48} aria-hidden="true" />
         </span>
       </section>
@@ -63,8 +63,8 @@ export default async function CartPage({ params }: Props) {
       />
 
       {hasServerItems && serverCart && (
-        <section className={styles.groups} style={{ marginTop: "2rem" }}>
-          <h2 style={{ fontSize: "1.1rem", fontWeight: 800, marginBottom: "0.75rem", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as React.CSSProperties}>
+        <section className={styles.groups} style={{ marginTop: 16, display: "grid", gap: 16, padding: 16, border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>
+          <h2 style={{ fontSize: "1.1rem", fontWeight: 800, color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as React.CSSProperties}>
             {locale === "ar" ? "العناصر المتزامنة مع حسابك" : "Items Synced with Account"}
           </h2>
           {serverCart.groups

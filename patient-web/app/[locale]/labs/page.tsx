@@ -38,32 +38,32 @@ export default async function LabsIndexPage({ params, searchParams }: Props) {
   const search = (query.q ?? "").trim(); const homeOnly = query.home === "1";
   const response = await getPublicLabServices({ search, homeOnly });
   const rtl = locale === "ar" || locale === "ur"; const Arrow = rtl ? ArrowLeft : ArrowRight;
-  if (!response || !response.ok) return <main className={`main ${styles.page}`}><section className={styles.state} role="alert"><VectorLabs size={48} aria-hidden="true" /><h1>{t("unavailableTitle")}</h1><p>{t("unavailableBody")}</p><Link className={styles.action} href={`/${locale}/labs`}>{t("retry")}</Link></section></main>;
+  if (!response || !response.ok) return <main className={`main ${styles.page}`} style={{ background: "#FDFDFC", display: "grid", gap: 16 } as any}><section className={styles.state} role="alert" style={{ borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", padding: 16, gap: 16, display: "grid", placeItems: "center" } as any}><span style={{ inlineSize: 48, blockSize: 48, borderRadius: 16, border: "1px solid #E8EDEE", background: "rgba(95,217,179,.12)", display: "inline-flex", alignItems: "center", justifyContent: "center" } as any}><VectorLabs size={48} aria-hidden="true" /></span><h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{t("unavailableTitle")}</h1><p style={{ color: "#6B7C6E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{t("unavailableBody")}</p><Link className={styles.action} href={`/${locale}/labs`} style={{ background: "#5FD9B3", color: "#1E332E", borderRadius: 20, border: "1px solid #E8EDEE", fontWeight: 760, padding: "10px 16px", textDecoration: "none" } as any}>{t("retry")}</Link></section></main>;
   const services = extractLabServices(await response.json().catch(() => null));
   return (
-    <main className={`main ${styles.page}`}>
-      <section className={styles.hero}>
-        <div>
-          <p className={styles.eyebrow}><ShieldCheck size={15} aria-hidden="true" />{t("eyebrow")}</p>
-          <h1>{t("title")}</h1>
-          <p className={styles.subtitle}>{t("subtitle")}</p>
+    <main className={`main ${styles.page}`} style={{ background: "#FDFDFC", display: "grid", gap: 16 } as any}>
+      <section className={styles.hero} style={{ background: "rgba(255,255,255,.76)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: "1px solid #E8EDEE", borderRadius: 20, padding: 16, display: "flex", justifyContent: "space-between", gap: 16, alignItems: "center" } as any}>
+        <div style={{ display: "grid", gap: 8, minWidth: 0 } as any}>
+          <p className={styles.eyebrow} style={{ color: "#1E332E", display: "inline-flex", alignItems: "center", gap: 8, overflowWrap: "anywhere" } as any}><ShieldCheck size={15} aria-hidden="true" color="#1E332E" />{t("eyebrow")}</p>
+          <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{t("title")}</h1>
+          <p className={styles.subtitle} style={{ color: "#6B7C6E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{t("subtitle")}</p>
         </div>
-        <span className={styles.heroIcon}>
+        <span className={styles.heroIcon} style={{ inlineSize: 48, blockSize: 48, borderRadius: 16, border: "1px solid #E8EDEE", background: "rgba(95,217,179,.12)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 } as any}>
           <VectorLabs size={48} aria-hidden="true" />
         </span>
       </section>
 
-      <form className={styles.filters} method="get" role="search">
-        <label className={styles.search}>
-          <Search size={18} aria-hidden="true" />
+      <form className={styles.filters} method="get" role="search" style={{ borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", padding: 16, display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" } as any}>
+        <label className={styles.search} style={{ display: "inline-flex", alignItems: "center", gap: 8, flex: "1 1 220px", border: "1px solid #E8EDEE", borderRadius: 20, padding: "8px 12px", background: "#fff" } as any}>
+          <Search size={18} aria-hidden="true" color="#1E332E" />
           <span className="sr-only">{t("searchLabel")}</span>
-          <input name="q" defaultValue={search} placeholder={t("searchPlaceholder")} />
+          <input name="q" defaultValue={search} placeholder={t("searchPlaceholder")} style={{ border: "none", outline: "none", flex: 1, color: "#1E332E" } as any} />
         </label>
-        <label className={styles.toggle}>
+        <label className={styles.toggle} style={{ display: "inline-flex", alignItems: "center", gap: 8, color: "#1E332E", fontWeight: 700 } as any}>
           <input type="checkbox" name="home" value="1" defaultChecked={homeOnly} />
           {t("homeOnly")}
         </label>
-        <button className={styles.submit} type="submit">{t("apply")}</button>
+        <button className={styles.submit} type="submit" style={{ background: "#5FD9B3", color: "#1E332E", borderRadius: 20, border: "1px solid #E8EDEE", fontWeight: 760, padding: "10px 16px" } as any}>{t("apply")}</button>
       </form>
 
       {services.length === 0 ? (

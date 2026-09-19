@@ -52,7 +52,7 @@ export default async function SpecialtySelectPage({ params, searchParams }: Prop
   return (
     <main className="main" style={{ maxWidth: 980, margin: "0 auto", padding: "32px 16px 80px", background: "#FDFDFC" }}>
       <JsonLd data={[{ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: faqs.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) }]} />
-      <section style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, padding: "clamp(28px, 4vw, 36px)", border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,0.76)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", boxShadow: "0 10px 28px rgba(16,24,40,.07)", marginBottom: 24 }}>
+      <section style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, padding: "clamp(32px, 4vw, 40px)", border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(253,253,252,0.92)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", boxShadow: "0 10px 28px rgba(16,24,40,.07)", marginBottom: 24 }}>
         <div style={{ minWidth: 0 }}>
           <p style={{ display: "inline-flex", alignItems: "center", gap: 8, margin: 0, color: "#1E332E", fontSize: 12, fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase", background: "rgba(95,217,179,0.14)", padding: "5px 12px", borderRadius: 999, overflowWrap: "anywhere" }}>
             <Stethoscope size={15} aria-hidden="true" />{t("eyebrow")}

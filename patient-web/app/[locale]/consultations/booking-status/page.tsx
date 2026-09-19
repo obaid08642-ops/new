@@ -29,26 +29,32 @@ export default async function ConsultationBookingStatusPage({ params, searchPara
   const active = ["confirmed", "scheduled", "in_progress", "checked_in"].includes(status);
 
   return (
-    <main className="main" style={{ background: "#FDFDFC" }}>
-      <Link href={`/${locale}/appointments/${appointmentId}`}>{ar ? "الموعد" : "Appointment"}</Link>
-      <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}><VectorDoctor size={48} aria-hidden="true" style={{ verticalAlign: "middle", marginInlineEnd: 8 } as any} />{ar ? "حالة الحجز" : "Booking status"}</h1>
-      <p role="status">
-        {ar ? "الحالة:" : "Status:"} {appointment.status || (ar ? "غير متاحة" : "Unavailable")}
-        {appointment.doctorName ? ` — ${appointment.doctorName}` : ""}
-      </p>
+    <main className="main" style={{ background: "#FDFDFC", display: "grid", gap: 16 }}>
+      <Link href={`/${locale}/appointments/${appointmentId}`} style={{ color: "#1E332E", display: "inline-flex", alignItems: "center", gap: 8, border: "1px solid #E8EDEE", borderRadius: 20, padding: "8px 16px", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", fontWeight: 700, textDecoration: "none", width: "fit-content" }}>{ar ? "الموعد" : "Appointment"}</Link>
+      <section style={{ background: "rgba(255,255,255,.76)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: "1px solid #E8EDEE", borderRadius: 20, padding: 16, display: "flex", justifyContent: "space-between", gap: 16, alignItems: "center" }}>
+        <div style={{ display: "grid", gap: 8, minWidth: 0 }}>
+          <p style={{ color: "#1E332E", fontSize: ".78rem", fontWeight: 760, margin: 0, overflowWrap: "anywhere" } as any}>{ar ? "حالة الحجز" : "Booking status"}</p>
+          <h1 style={{ color: "#1E332E", margin: 0, overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{ar ? "حالة الحجز" : "Booking status"}</h1>
+          <p role="status" style={{ color: "#6B7C6E", margin: 0, overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>
+            {ar ? "الحالة:" : "Status:"} {appointment.status || (ar ? "غير متاحة" : "Unavailable")}
+            {appointment.doctorName ? ` — ${appointment.doctorName}` : ""}
+          </p>
+        </div>
+        <span style={{ inlineSize: 48, blockSize: 48, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.9)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }} aria-hidden="true"><VectorDoctor size={48} aria-hidden="true" /></span>
+      </section>
       <nav style={{ display: "flex", gap: 8, flexWrap: "wrap" }} aria-label={ar ? "الخطوة التالية" : "Next step"}>
         {active && isVideo ? (
-          <Link href={`/${locale}/consultations/virtual-waiting-room?appointmentId=${encodeURIComponent(appointmentId)}`}>
+          <Link href={`/${locale}/consultations/virtual-waiting-room?appointmentId=${encodeURIComponent(appointmentId)}`} style={{ background: "#5FD9B3", color: "#1E332E", borderRadius: 20, border: "1px solid #E8EDEE", padding: "10px 16px", fontWeight: 700, textDecoration: "none", overflowWrap: "anywhere" } as any}>
             {ar ? "دخول غرفة الانتظار" : "Enter waiting room"}
           </Link>
         ) : null}
         {active && !isVideo ? (
-          <Link href={`/${locale}/appointments/${appointmentId}`}>{ar ? "تفاصيل الموعد" : "Appointment details"}</Link>
+          <Link href={`/${locale}/appointments/${appointmentId}`} style={{ background: "#5FD9B3", color: "#1E332E", borderRadius: 20, border: "1px solid #E8EDEE", padding: "10px 16px", fontWeight: 700, textDecoration: "none", overflowWrap: "anywhere" } as any}>{ar ? "تفاصيل الموعد" : "Appointment details"}</Link>
         ) : null}
         {["completed", "complete", "finished", "done"].includes(status) ? (
-          <Link href={`/${locale}/appointments/${appointmentId}/summary`}>{ar ? "ملخص الاستشارة" : "Visit summary"}</Link>
+          <Link href={`/${locale}/appointments/${appointmentId}/summary`} style={{ background: "#5FD9B3", color: "#1E332E", borderRadius: 20, border: "1px solid #E8EDEE", padding: "10px 16px", fontWeight: 700, textDecoration: "none", overflowWrap: "anywhere" } as any}>{ar ? "ملخص الاستشارة" : "Visit summary"}</Link>
         ) : null}
-        <Link href={`/${locale}/appointments`}>{ar ? "مواعيدي" : "My appointments"}</Link>
+        <Link href={`/${locale}/appointments`} style={{ background: "rgba(255,255,255,.82)", color: "#1E332E", borderRadius: 20, border: "1px solid #E8EDEE", padding: "10px 16px", fontWeight: 700, textDecoration: "none", overflowWrap: "anywhere", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>{ar ? "مواعيدي" : "My appointments"}</Link>
       </nav>
     </main>
   );

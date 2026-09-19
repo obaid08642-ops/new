@@ -51,10 +51,10 @@ export default async function AiMonthlyReportPage({ params }: Props) {
             <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{ar ? "تقريرك الشهري" : "Your monthly report"}</h1>
             <p role="alert" className={styles.subtitle} style={{ color: "#6B7C6E", overflowWrap: "anywhere" }}>{ar ? "تعذر تحميل التقرير الشهري" : "Could not load the monthly report"}</p>
           </div>
-          <span className={styles.heroIcon} style={{ borderColor: "#E8EDEE", borderRadius: 20 }}><VectorAI size={48} aria-hidden="true" /></span>
+          <span className={styles.heroIcon} style={{ width: 48, height: 48, minWidth: 48, minHeight: 48, border: "1px solid #E8EDEE", borderRadius: 16, background: "rgba(95,217,179,.12)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><VectorAI size={48} aria-hidden="true" /></span>
         </section>
         <div className={styles.card} style={{ backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderColor: "#E8EDEE", borderRadius: 20, background: "rgba(255,255,255,0.76)", textAlign: "center", padding: 24 }}>
-          <Link href={`/${locale}/ai/monthly-report`} style={{ display: "inline-flex", padding: "10px 20px", background: "#5FD9B3", color: "#1E332E", borderRadius: 20, border: "1px solid #E8EDEE", fontWeight: 700, textDecoration: "none" }}>{ar ? "إعادة المحاولة" : "Retry"}</Link>
+          <Link href={`/${locale}/ai/monthly-report`} style={{ display: "inline-flex", gap: 8, padding: "10px 20px", background: "#5FD9B3", color: "#1E332E", borderRadius: 20, border: "1px solid #E8EDEE", fontWeight: 700, textDecoration: "none" }}>{ar ? "إعادة المحاولة" : "Retry"}</Link>
         </div>
       </main>
     );
@@ -84,12 +84,12 @@ export default async function AiMonthlyReportPage({ params }: Props) {
 
   return (
     <main className={`main ${styles.page}`} style={{ background: "#FDFDFC" }}>
-      <section className={styles.hero} style={{ background: "rgba(255,255,255,0.76)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderColor: "#E8EDEE", borderRadius: 20 }}>
+      <section className={styles.hero} style={{ background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderColor: "#E8EDEE", borderRadius: 20 }}>
         <div style={{ minWidth: 0 }}>
           <p className={styles.eyebrow} style={{ color: "#1E332E", overflowWrap: "anywhere" }}>{ar ? "المساعد الذكي" : "AI assistant"}</p>
-          <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{ar ? "تقريرك الشهري" : "Your monthly report"} — {monthLabel}</h1>
+          <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{ar ? "تقريرك الشهري" : "Your monthly report"} — {monthLabel}</h1>
         </div>
-        <span className={styles.heroIcon} style={{ borderColor: "#E8EDEE", borderRadius: 20 }}><VectorAI size={48} aria-hidden="true" /></span>
+        <span className={styles.heroIcon} style={{ width: 48, height: 48, minWidth: 48, minHeight: 48, border: "1px solid #E8EDEE", borderRadius: 16, background: "rgba(95,217,179,.12)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><VectorAI size={48} aria-hidden="true" /></span>
       </section>
       <div className={styles.card} style={{ backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderColor: "#E8EDEE", borderRadius: 20, background: "rgba(255,255,255,0.76)", display: "grid", gap: 16 }}>
       {!hasAny ? (

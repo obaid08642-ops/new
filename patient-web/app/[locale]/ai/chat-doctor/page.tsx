@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { MessageCircle } from "lucide-react";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { callPatientApi } from "@/lib/api/upstream";
@@ -52,10 +51,9 @@ export default async function AiChatDoctorPage({ params }: Props) {
 
   return (
     <main className={`main ${styles.page}`} style={{ background: "#FDFDFC" }}>
-      <section className={styles.hero} style={{ backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderColor: "#E8EDEE", borderRadius: 20 }}>
+      <section className={styles.hero} style={{ background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderColor: "#E8EDEE", borderRadius: 20 }}>
         <div style={{ minWidth: 0 }}>
           <p className={styles.eyebrow} style={{ color: "#1E332E", overflowWrap: "anywhere" }}>
-            <MessageCircle size={14} aria-hidden="true" />
             {locale === "ar" ? "الطبيب الذكي" : "AI Doctor"}
           </p>
           <h1
@@ -74,7 +72,7 @@ export default async function AiChatDoctorPage({ params }: Props) {
             {t("subtitle")}
           </p>
         </div>
-        <span className={styles.heroIcon} style={{ borderColor: "#E8EDEE", borderRadius: 20 }}>
+        <span className={styles.heroIcon} style={{ width: 48, height: 48, minWidth: 48, minHeight: 48, border: "1px solid #E8EDEE", borderRadius: 16, background: "rgba(95,217,179,.12)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
           <VectorAI size={48} aria-hidden="true" />
         </span>
       </section>
