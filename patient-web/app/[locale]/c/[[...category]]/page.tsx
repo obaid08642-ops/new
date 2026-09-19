@@ -200,7 +200,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   ];
 
   return (
-    <main className={`main ${styles.page}`} style={{ background: "#FDFDFC", display: "grid", gap: 16 }}>
+    <main className={`main ${styles.page}`}>
       <JsonLd data={jsonLd} />
 
       {/* Top Search Bar */}
@@ -225,19 +225,19 @@ export default async function CategoryPage({ params, searchParams }: Props) {
         </form>
       </section>
 
-      {/* Branded Luxury Pharmacy Hero Banner — Ultra-Premium V3: Forest Ink + Cream + glass blur 16px + radius 20 */}
-      <section className={styles.pharmacyHero} style={{ background: "rgba(255,255,255,.76)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: "1px solid #E8EDEE", borderRadius: 20, padding: 16, display: "flex", justifyContent: "space-between", gap: 16, alignItems: "center" }}>
-        <div className={styles.heroContent} style={{ display: "grid", gap: 8, minWidth: 0 }}>
-          <div className={styles.heroBadge} style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(95,217,179,0.14)", border: "1px solid #E8EDEE", borderRadius: 999, padding: "5px 12px" }}>
-            <Sparkles size={14} aria-hidden="true" color="#1E332E" />
-            <span style={{ color: "#1E332E", fontWeight: 800, fontSize: 12, letterSpacing: "0.06em", overflowWrap: "anywhere" } as any}>{locale === "ar" ? "صيدلية نبض المعتمدة" : "Nabd Verified Pharmacy"}</span>
+      {/* Branded Luxury Pharmacy Hero Banner */}
+      <section className={styles.pharmacyHero}>
+        <div className={styles.heroContent}>
+          <div className={styles.heroBadge}>
+            <Sparkles size={14} aria-hidden="true" />
+            <span>{locale === "ar" ? "صيدلية نبض المعتمدة" : "Nabd Verified Pharmacy"}</span>
           </div>
-          <h1 className={styles.heroTitle} style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>
+          <h1 className={styles.heroTitle}>
             {locale === "ar"
               ? "صيدلية رقمية متكاملة برعاية طبية فائقة"
               : "Integrated Digital Pharmacy with Clinical Care"}
           </h1>
-          <p className={styles.heroSubtext} style={{ color: "#6B7C6E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>
+          <p className={styles.heroSubtext}>
             {locale === "ar"
               ? "تسوق آلاف الأدوية والمستلزمات الطبية الأصلية 100% بأسعار رسمية معتمدة مع خدمة التوصيل الفوري واستشارات صيدلانية متخصصة على مدار الساعة."
               : "Order 100% genuine licensed medications with instant delivery and 24/7 pharmacist guidance."}
@@ -257,8 +257,8 @@ export default async function CategoryPage({ params, searchParams }: Props) {
             </span>
           </div>
         </div>
-          <div className={styles.heroVectorWrap} style={{ inlineSize: 48, blockSize: 48, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.9)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 } as any}>
-          <VectorPharmacy size={48} aria-hidden="true" />
+          <div className={styles.heroVectorWrap}>
+          <VectorPharmacy size={48} />
         </div>
       </section>
 
