@@ -19,15 +19,25 @@ export default async function TriagePage({ params }: Props) {
   const ar = locale === "ar";
 
   return (
-    <main className={`main ${styles.page}`}>
-      <section className={styles.hero}>
-        <div>
-          <p className={styles.eyebrow}>
+    <main className={`main ${styles.page}`} style={{ background: "#FDFDFC" }}>
+      <section
+        className={styles.hero}
+        style={{
+          background: "rgba(255,255,255,0.76)",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          borderColor: "#E8EDEE",
+          borderRadius: 20,
+        }}
+      >
+        <div style={{ minWidth: 0 }}>
+          <p className={styles.eyebrow} style={{ color: "#1E332E", overflowWrap: "anywhere" }}>
             <Sparkles size={14} aria-hidden="true" />
             {ar ? "الفرز الطبي الذكي" : "Smart Medical Triage"}
           </p>
           <h1
             style={{
+              color: "#1E332E",
               overflowWrap: "anywhere",
               display: "-webkit-box",
               WebkitLineClamp: 2,
@@ -37,16 +47,25 @@ export default async function TriagePage({ params }: Props) {
           >
             {t("title")}
           </h1>
-          <p className={styles.subtitle} style={{ overflowWrap: "anywhere" }}>
+          <p className={styles.subtitle} style={{ color: "#6B7C6E", overflowWrap: "anywhere" }}>
             {t("subtitle")}
           </p>
         </div>
-        <span className={styles.heroIcon}>
+        <span className={styles.heroIcon} style={{ borderColor: "#E8EDEE", borderRadius: 20 }}>
           <VectorAI size={48} aria-hidden="true" />
         </span>
       </section>
 
-      <div className={styles.card} style={{ backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" }}>
+      <div
+        className={styles.card}
+        style={{
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          borderColor: "#E8EDEE",
+          borderRadius: 20,
+          background: "rgba(255,255,255,0.76)",
+        }}
+      >
         <TriageForm
           locale={locale}
           labels={{
