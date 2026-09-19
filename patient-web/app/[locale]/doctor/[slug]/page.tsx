@@ -95,15 +95,15 @@ export default async function DoctorCanonicalPage({ params }: Props) {
         ]}
       />
 
-      <nav aria-label="Back">
-        <Link href={`/${locale}/consultations/doctors`} style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", marginBottom: "1.5rem", color: "#1E332E", textDecoration: "none", fontWeight: 500 }}>
+        <nav aria-label="Back">
+        <Link href={`/${locale}/consultations/doctors`} style={{ display: "inline-flex", alignItems: "center", gap: "8px", marginBottom: "24px", color: "#1E332E", textDecoration: "none", fontWeight: 500 }}>
           <Arrow size={16} />
           {locale === "ar" ? "العودة لقائمة الأطباء" : "Back to Doctors"}
         </Link>
       </nav>
 
-      <article style={{ background: "rgba(253,253,252,0.92)", border: "1px solid #E8EDEE", borderRadius: "20px", padding: "2rem", boxShadow: "0 8px 24px rgba(30,51,46,.06)", backdropFilter: "blur(16px)" }}>
-        <header style={{ display: "flex", gap: "1.5rem", alignItems: "flex-start", marginBottom: "1.5rem" }}>
+      <article style={{ background: "rgba(253,253,252,0.92)", border: "1px solid #E8EDEE", borderRadius: "20px", padding: "2rem", boxShadow: "0 8px 24px rgba(30,51,46,.06)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>
+        <header style={{ display: "flex", gap: "24px", alignItems: "flex-start", marginBottom: "24px" }}>
           <div style={{ width: "72px", height: "72px", borderRadius: "20px", background: "rgba(95,217,179,0.12)", border: "1px solid #E8EDEE", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
             <VectorDoctor size={48} aria-hidden="true" />
           </div>
@@ -137,13 +137,13 @@ export default async function DoctorCanonicalPage({ params }: Props) {
         </header>
 
         {relationships.accepted_insurance?.length ? (
-          <section style={{ margin: "1.5rem 0", padding: "1rem", background: "rgba(253,253,252,0.92)", border: "1px solid #E8EDEE", borderRadius: "20px", backdropFilter: "blur(16px)" }}>
-            <h2 style={{ fontSize: "1rem", fontWeight: 600, margin: "0 0 0.75rem 0", color: "#1E332E", overflowWrap: "anywhere" }}>
+          <section style={{ margin: "24px 0", padding: "16px", background: "rgba(253,253,252,0.92)", border: "1px solid #E8EDEE", borderRadius: "20px", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>
+            <h2 style={{ fontSize: "1rem", fontWeight: 600, margin: "0 0 12px 0", color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>
               {locale === "ar" ? "شركات التأمين المقبولة" : "Accepted Insurance Companies"}
             </h2>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
               {relationships.accepted_insurance.map((ins: string) => (
-                <span key={ins} style={{ background: "#E8EDEE", color: "#1E332E", padding: "0.25rem 0.75rem", borderRadius: "9999px", fontSize: "0.85rem", fontWeight: 500, textTransform: "uppercase", overflowWrap: "anywhere" }}>
+                <span key={ins} style={{ background: "#E8EDEE", color: "#1E332E", padding: "4px 12px", borderRadius: "9999px", fontSize: "0.85rem", fontWeight: 500, textTransform: "uppercase", overflowWrap: "anywhere" }}>
                   {ins}
                 </span>
               ))}
@@ -151,10 +151,10 @@ export default async function DoctorCanonicalPage({ params }: Props) {
           </section>
         ) : null}
 
-        <div style={{ marginTop: "2rem", display: "flex", gap: "1rem" }}>
+        <div style={{ marginTop: "32px", display: "flex", gap: "16px" }}>
           <Link
             href={`/${locale}/consultations/doctors/${doctor.id || slug}`}
-            style={{ display: "inline-block", background: "#5FD9B3", color: "#1E332E", padding: "0.75rem 2rem", borderRadius: "20px", fontWeight: 700, textDecoration: "none", border: "1px solid #E8EDEE" }}
+            style={{ display: "inline-block", background: "#5FD9B3", color: "#1E332E", padding: "12px 32px", borderRadius: "20px", fontWeight: 700, textDecoration: "none", border: "1px solid #E8EDEE" }}
           >
             {locale === "ar" ? "حجز استشارة فورية" : "Book Consultation"}
           </Link>
