@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ArrowLeft, ArrowRight, FlaskConical, Home, MapPin, Phone, Star } from "lucide-react";
 import { getPublicLab, extractLab } from "@/lib/api/labs-server";
+import { VectorLabs } from "@/components-next/vector-illustrations";
 import styles from "./lab-detail.module.css";
 
 type Props = { params: Promise<{ locale: string; labId: string }> };
@@ -73,7 +74,7 @@ export default async function LabDetailPage({ params }: Props) {
             <img src={lab.image} alt={lab.name} className={styles.coverImage} />
           ) : (
             <div className={styles.placeholderBanner}>
-              <FlaskConical size={48} aria-hidden="true" />
+              <VectorLabs size={48} aria-hidden="true" />
             </div>
           )}
         </div>
