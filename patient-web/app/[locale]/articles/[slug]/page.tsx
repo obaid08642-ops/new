@@ -89,12 +89,12 @@ export default async function ArticlePage({ params }: Props) {
         ]}
       />
       <Link className={styles.back} href={`/${locale}/articles`}>
-        <ChevronLeft size={17} aria-hidden="true" />
+        <ChevronLeft size={48} aria-hidden="true" style={{ width: 17, height: 17 }} />
         {t("back")}
       </Link>
       <section className={styles.hero}>
         <p className={styles.eyebrow}>
-          <ShieldCheck size={15} aria-hidden="true" />
+          <ShieldCheck size={48} aria-hidden="true" style={{ width: 16, height: 16 }} />
           {t("eyebrow")}
         </p>
         <h1>{title}</h1>
@@ -121,7 +121,7 @@ export default async function ArticlePage({ params }: Props) {
         locale={locale}
       />
       <section className={styles.notice}>
-        <FileText size={20} aria-hidden="true" />
+        <FileText size={48} aria-hidden="true" style={{ width: 20, height: 20, flexShrink: 0, color: "#1E332E" }} />
         <p>{t("bodyHidden")}</p>
       </section>
     </main>

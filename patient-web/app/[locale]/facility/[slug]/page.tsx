@@ -48,7 +48,7 @@ export default async function FacilityCanonicalPage({ params }: Props) {
       <nav aria-label="Back">
         <Link href={`/${locale}/consultations/clinics`} style={{ display: "inline-flex", alignItems: "center", gap: 8, marginBottom: 24, color: "#1E332E", textDecoration: "none", fontWeight: 600, overflowWrap: "anywhere" }}><Arrow size={16} />{locale === "ar" ? "قائمة المراكز والمستشفيات" : "Back to Facilities"}</Link>
       </nav>
-      <article style={{ background: "rgba(255,255,255,0.85)", border: "1px solid #E8EDEE", borderRadius: 20, padding: 32, backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" }}>
+      <article style={{ background: "rgba(253,253,252,0.88)", border: "1px solid #E8EDEE", borderRadius: 20, padding: 32, backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" }}>
         <header style={{ display: "flex", gap: 24, alignItems: "flex-start", marginBottom: 24 }}>
           <div style={{ width: 48, height: 48, borderRadius: 20, background: "rgba(95,217,179,0.2)", color: "#1E332E", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, border: "1px solid #E8EDEE" }}><Building2 size={48} style={{ width: 24, height: 24 }} /></div>
           <div style={{ minWidth: 0 }}>
@@ -66,7 +66,7 @@ export default async function FacilityCanonicalPage({ params }: Props) {
           </section>
         ) : null}
         {fac.accepted_insurance?.length ? (
-          <section style={{ margin: "32px 0", padding: 24, background: "rgba(255,255,255,0.7)", borderRadius: 20, border: "1px solid #E8EDEE", backdropFilter: "blur(16px)" }}>
+          <section style={{ margin: "32px 0", padding: 24, background: "rgba(253,253,252,0.92)", borderRadius: 20, border: "1px solid #E8EDEE", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" }}>
             <h2 style={{ fontSize: 17, fontWeight: 600, margin: "0 0 16px 0", color: "#1E332E", display: "flex", alignItems: "center", gap: 8 }}><ShieldCheck size={48} style={{ width: 18, height: 18, color: "#1E332E", flexShrink: 0 }} />{locale === "ar" ? "التأمين الطبي المقبول" : "Accepted Medical Insurance"}</h2>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>{fac.accepted_insurance.map((ins: string) => (<span key={ins} style={{ background: "rgba(95,217,179,0.15)", color: "#1E332E", padding: "4px 12px", borderRadius: 9999, fontSize: 13, fontWeight: 500, border: "1px solid #E8EDEE", overflowWrap: "anywhere" }}>{ins}</span>))}</div>
           </section>
