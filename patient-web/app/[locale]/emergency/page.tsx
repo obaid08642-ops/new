@@ -31,17 +31,18 @@ export default async function EmergencyPage({ params }: Props) {
   const active = response.ok ? extractActiveSos(await response.json().catch(() => null)) : null;
 
   return (
-    <main className={`main ${styles.page}`}>
-      <section className={styles.hero}>
-        <VectorEmergency size={48} aria-hidden="true" />
-        <span className={styles.eyebrow}>
+    <main className={`main ${styles.page}`} style={{ background: "#FDFDFC", gap: 16 } as any}>
+      <section className={styles.hero} style={{ gap: 16, padding: 24, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>
+        <span style={{ display: "grid", placeItems: "center", width: 48, height: 48, borderRadius: 16, background: "rgba(95,217,179,.12)", border: "1px solid #E8EDEE", flex: "0 0 auto" } as any}><VectorEmergency size={48} aria-hidden="true" /></span>
+        <span className={styles.eyebrow} style={{ color: "#1E332E", gap: 8, overflowWrap: "anywhere" } as any}>
           <ShieldAlert size={15} aria-hidden="true" />
-          {locale === "ar" ? "طوارئ نبض الفورية" : "Nabd Instant SOS"}
+          <span style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{locale === "ar" ? "طوارئ نبض الفورية" : "Nabd Instant SOS"}</span>
         </span>
-        <h1>{t("title")}</h1>
-        <p className={styles.subtitle}>{t("subtitle")}</p>
+        <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{t("title")}</h1>
+        <p className={styles.subtitle} style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{t("subtitle")}</p>
       </section>
 
+      <section style={{ display: "grid", gap: 16, padding: 24, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>
       <SosActions
         active={active}
         labels={{
@@ -54,6 +55,7 @@ export default async function EmergencyPage({ params }: Props) {
           state: t("state"),
         }}
       />
+      </section>
     </main>
   );
 }

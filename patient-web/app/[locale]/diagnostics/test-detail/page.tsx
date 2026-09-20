@@ -4,6 +4,7 @@ import { setRequestLocale } from "next-intl/server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { callPatientApi } from "@/lib/api/upstream";
+import { VectorLabs } from "@/components-next/vector-illustrations";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ testId?: string; id?: string }> };
 
@@ -36,14 +37,19 @@ export default async function DiagnosticsTestDetailPage({ params, searchParams }
   const category = typeof (rtl ? match.category_ar : match.category) === "string"
     ? (rtl ? match.category_ar : match.category) as string : undefined;
   return (
-    <main className="main">
-      <Link href={`/${locale}/diagnostics/search`}>{ar ? "البحث" : "Search"}</Link>
-      <h1>{name}</h1>
-      {category ? <p>{category}</p> : null}
-      <p>{ar ? "السعر:" : "Price:"} {price} {ar ? "ر.س" : "SAR"}</p>
-      <nav style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-        <Link href={`/${locale}/diagnostics/cart`}>{ar ? "أضف للسلة واحجز" : "Add to cart & book"}</Link>
-        <Link href={`/${locale}/diagnostics/labs`}>{ar ? "تصفح المختبرات" : "Browse labs"}</Link>
+    <main className="main" style={{ background: "#FDFDFC", gap: 16, padding: "16px 0" } as any}>
+      <Link href={`/${locale}/diagnostics/search`} style={{ color: "#1E332E", overflowWrap: "anywhere" } as any}>{ar ? "البحث" : "Search"}</Link>
+      <section style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16, padding: 24, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>
+        <div style={{ display: "grid", gap: 8, minWidth: 0, flex: 1 } as any}>
+          <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{name}</h1>
+          {category ? <p style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{category}</p> : null}
+          <p style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{ar ? "السعر:" : "Price:"} {price} {ar ? "ر.س" : "SAR"}</p>
+        </div>
+        <span style={{ display: "grid", placeItems: "center", width: 48, height: 48, borderRadius: 16, background: "rgba(95,217,179,.12)", border: "1px solid #E8EDEE", flex: "0 0 auto" } as any}><VectorLabs size={48} aria-hidden="true" /></span>
+      </section>
+      <nav style={{ display: "flex", gap: 8, flexWrap: "wrap" } as any}>
+        <Link href={`/${locale}/diagnostics/cart`} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "10px 16px", borderRadius: 20, border: "1px solid #E8EDEE", background: "#5FD9B3", color: "#1E332E", fontWeight: 760, overflowWrap: "anywhere" } as any}>{ar ? "أضف للسلة واحجز" : "Add to cart & book"}</Link>
+        <Link href={`/${locale}/diagnostics/labs`} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "10px 16px", borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", color: "#1E332E", fontWeight: 700, overflowWrap: "anywhere" } as any}>{ar ? "تصفح المختبرات" : "Browse labs"}</Link>
       </nav>
     </main>
   );

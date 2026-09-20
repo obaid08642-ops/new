@@ -93,20 +93,20 @@ export default async function DiagnosticsPage({ params }: Props) {
   const finalPackages = labPackages;
 
   return (
-    <main className={`main ${styles.page}`}>
+    <main className={`main ${styles.page}`} style={{ background: "#FDFDFC", gap: 16 } as any}>
       {/* Intro Header */}
-      <section className={styles.intro}>
-        <div className={styles.introText}>
-          <p className={styles.eyebrow}><ShieldCheck size={15} aria-hidden="true" />{t("eyebrow")}</p>
-          <h1>{t("title")}</h1>
-          <nav aria-label={locale === "ar" ? "خدمات التشخيص" : "Diagnostics"} style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 12 }}>
-            <Link href={`/${locale}/diagnostics/bookings`}>{locale === "ar" ? "حجوزاتي" : "My bookings"}</Link>
-            <Link href={`/${locale}/diagnostics/results`}>{locale === "ar" ? "نتائجي وتقاريري" : "My results"}</Link>
-            <Link href={`/${locale}/diagnostics/packages`}>{locale === "ar" ? "الباقات" : "Packages"}</Link>
-            <Link href={`/${locale}/diagnostics/cart`}>{locale === "ar" ? "السلة" : "Cart"}</Link>
+      <section className={styles.intro} style={{ gap: 16, padding: 24, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>
+        <div className={styles.introText} style={{ display: "grid", gap: 8, minWidth: 0, flex: 1 } as any}>
+          <p className={styles.eyebrow} style={{ color: "#1E332E", gap: 8, overflowWrap: "anywhere" } as any}><ShieldCheck size={15} aria-hidden="true" />{t("eyebrow")}</p>
+          <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{t("title")}</h1>
+          <nav aria-label={locale === "ar" ? "خدمات التشخيص" : "Diagnostics"} style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 8 } as any}>
+            <Link href={`/${locale}/diagnostics/bookings`} style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "8px 12px", borderRadius: 20, border: "1px solid #E8EDEE", background: "#5FD9B3", color: "#1E332E", fontWeight: 760, overflowWrap: "anywhere" } as any}>{locale === "ar" ? "حجوزاتي" : "My bookings"}</Link>
+            <Link href={`/${locale}/diagnostics/results`} style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "8px 12px", borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", color: "#1E332E", overflowWrap: "anywhere" } as any}>{locale === "ar" ? "نتائجي وتقاريري" : "My results"}</Link>
+            <Link href={`/${locale}/diagnostics/packages`} style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "8px 12px", borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", color: "#1E332E", overflowWrap: "anywhere" } as any}>{locale === "ar" ? "الباقات" : "Packages"}</Link>
+            <Link href={`/${locale}/diagnostics/cart`} style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "8px 12px", borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", color: "#1E332E", overflowWrap: "anywhere" } as any}>{locale === "ar" ? "السلة" : "Cart"}</Link>
           </nav>
         </div>
-        <span className={styles.introIcon}><VectorLabs size={48} aria-hidden="true" /></span>
+        <span className={styles.introIcon} style={{ display: "grid", placeItems: "center", width: 48, height: 48, borderRadius: 16, background: "rgba(95,217,179,.12)", border: "1px solid #E8EDEE", flex: "0 0 auto" } as any}><VectorLabs size={48} aria-hidden="true" /></span>
       </section>
 
       {/* Bookings Server Boundary List (Preserved for existing test assertions) */}

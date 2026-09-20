@@ -42,12 +42,12 @@ export default async function LabDetailPage({ params }: Props) {
 
   if (!response.ok) {
     return (
-      <main className={`main ${styles.page}`}>
-        <section className={styles.state} role="alert">
-          <FlaskConical size={28} aria-hidden="true" />
-          <h1>{t("unavailableTitle")}</h1>
-          <p>{t("unavailableBody")}</p>
-          <Link href={`/${locale}/diagnostics/labs`} className={styles.action}>
+      <main className={`main ${styles.page}`} style={{ background: "#FDFDFC", gap: 16 } as any}>
+        <section className={styles.state} role="alert" style={{ gap: 16, padding: 24, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>
+          <span style={{ display: "grid", placeItems: "center", width: 48, height: 48, borderRadius: 16, background: "rgba(95,217,179,.12)", border: "1px solid #E8EDEE" } as any}><VectorLabs size={48} aria-hidden="true" /></span>
+          <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{t("unavailableTitle")}</h1>
+          <p style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{t("unavailableBody")}</p>
+          <Link href={`/${locale}/diagnostics/labs`} className={styles.action} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "10px 16px", borderRadius: 20, border: "1px solid #E8EDEE", background: "#5FD9B3", color: "#1E332E", fontWeight: 760, overflowWrap: "anywhere" } as any}>
             {t("retry")}
           </Link>
         </section>
@@ -62,13 +62,13 @@ export default async function LabDetailPage({ params }: Props) {
   const Arrow = rtl ? ArrowLeft : ArrowRight;
 
   return (
-    <main className={`main ${styles.page}`}>
-      <Link href={`/${locale}/diagnostics/labs`} className={styles.back}>
+    <main className={`main ${styles.page}`} style={{ background: "#FDFDFC", gap: 16 } as any}>
+      <Link href={`/${locale}/diagnostics/labs`} className={styles.back} style={{ color: "#1E332E", gap: 8, borderRadius: 20, border: "1px solid #E8EDEE", padding: "8px 12px", background: "rgba(255,255,255,.82)", overflowWrap: "anywhere" } as any}>
         <Arrow size={17} aria-hidden="true" />
-        {t("back")}
+        <span style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{t("back")}</span>
       </Link>
 
-      <article className={styles.detail}>
+      <article className={styles.detail} style={{ gap: 16, padding: 24, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>
         <div className={styles.heroBanner}>
           {lab.image ? (
             <img src={lab.image} alt={lab.name} className={styles.coverImage} />
@@ -87,7 +87,7 @@ export default async function LabDetailPage({ params }: Props) {
           </div>
         </div>
 
-        <h1>{locale === "ar" ? lab.name_ar || lab.name : lab.name_en || lab.name}</h1>
+        <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{locale === "ar" ? lab.name_ar || lab.name : lab.name_en || lab.name}</h1>
 
         {lab.city || lab.address ? (
           <p className={styles.location}>
@@ -110,29 +110,28 @@ export default async function LabDetailPage({ params }: Props) {
           </p>
         ) : null}
 
-        <section className={styles.section}>
-          <h2>{t("aboutTitle")}</h2>
-          <p className={styles.aboutText}>{lab.description || t("defaultAbout")}</p>
+        <section className={styles.section} style={{ gap: 8 } as any}>
+          <h2 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{t("aboutTitle")}</h2>
+          <p className={styles.aboutText} style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{lab.description || t("defaultAbout")}</p>
         </section>
 
         {lab.services && lab.services.length > 0 ? (
-          <section className={styles.section}>
-            <h2>{t("servicesTitle")}</h2>
-            <div className={styles.serviceGrid}>
+          <section className={styles.section} style={{ gap: 16 } as any}>
+            <h2 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{t("servicesTitle")}</h2>
+            <div className={styles.serviceGrid} style={{ gap: 16 } as any}>
               {lab.services.map((svc) => (
                 <Link
                   key={svc.id}
                   href={`/${locale}/diagnostics/labs/book?serviceId=${encodeURIComponent(svc.id)}&labId=${encodeURIComponent(lab.id)}`}
                   className={styles.serviceCard}
+                  style={{ borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.72)", gap: 8, padding: 16 } as any}
                 >
-                  <div className={styles.serviceIcon}>
-                    <FlaskConical size={20} aria-hidden="true" />
-                  </div>
-                  <div className={styles.serviceInfo}>
-                    <strong>{locale === "ar" ? svc.name_ar || svc.name : svc.name_en || svc.name}</strong>
-                    {svc.sample_type ? <small>{svc.sample_type}</small> : null}
+                  <span style={{ display: "grid", placeItems: "center", width: 48, height: 48, borderRadius: 16, background: "rgba(95,217,179,.12)", border: "1px solid #E8EDEE", flex: "0 0 auto" } as any}><VectorLabs size={48} aria-hidden="true" /></span>
+                  <div className={styles.serviceInfo} style={{ gap: 8 } as any}>
+                    <strong style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{locale === "ar" ? svc.name_ar || svc.name : svc.name_en || svc.name}</strong>
+                    {svc.sample_type ? <small style={{ overflowWrap: "anywhere" } as any}>{svc.sample_type}</small> : null}
                     {svc.price !== undefined ? (
-                      <span className={styles.price}>{t("price", { value: svc.price })}</span>
+                      <span className={styles.price} style={{ overflowWrap: "anywhere" } as any}>{t("price", { value: svc.price })}</span>
                     ) : null}
                   </div>
                 </Link>

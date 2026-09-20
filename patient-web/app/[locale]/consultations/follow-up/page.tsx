@@ -64,54 +64,55 @@ export default async function ConsultationFollowUpPage({ params, searchParams }:
   }).reverse();
 
   return (
-    <main className="main" style={{ background: "#FDFDFC" }}>
-      <Link href={`/${locale}/appointments/${appointmentId}`}>{ar ? "الموعد" : "Appointment"}</Link>
-      <h1>{ar ? "متابعة الاستشارة" : "Consultation follow-up"}</h1>
-      <section aria-label={ar ? "ملخص" : "Summary"}>
-        <p><strong>{doctorName}</strong></p>
-        {when ? <p>{when}</p> : null}
-        <p>{ar ? "الحالة:" : "Status:"} {status || (ar ? "غير متاحة" : "Unavailable")}</p>
+    <main className="main" style={{ background: "#FDFDFC", gap: 16, padding: "16px 0" } as any}>
+      <Link href={`/${locale}/appointments/${appointmentId}`} style={{ color: "#1E332E", overflowWrap: "anywhere" } as any}>{ar ? "الموعد" : "Appointment"}</Link>
+      <section style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16, padding: 24, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>
+        <div style={{ display: "grid", gap: 8, minWidth: 0, flex: 1 } as any}>
+          <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{ar ? "متابعة الاستشارة" : "Consultation follow-up"}</h1>
+          <p style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", color: "#1E332E" } as any}><strong style={{ overflowWrap: "anywhere" } as any}>{doctorName}</strong>{when ? ` — ${when}` : ""}</p>
+          <p style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{ar ? "الحالة:" : "Status:"} {status || (ar ? "غير متاحة" : "Unavailable")}</p>
+        </div>
+        <span style={{ display: "grid", placeItems: "center", width: 48, height: 48, borderRadius: 16, background: "rgba(95,217,179,.12)", border: "1px solid #E8EDEE", flex: "0 0 auto" } as any}><VectorDoctor size={48} aria-hidden="true" /></span>
       </section>
-      <section aria-label={ar ? "نوع الزيارة" : "Visit type"}>
-        <h2>{ar ? "نوع الزيارة" : "Visit type"}</h2>
-        <p>{visitLabel}</p>
+      <section aria-label={ar ? "نوع الزيارة" : "Visit type"} style={{ display: "grid", gap: 8, padding: 24, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>
+        <h2 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{ar ? "نوع الزيارة" : "Visit type"}</h2>
+        <p style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{visitLabel}</p>
       </section>
       {patientNotes ? (
-        <section aria-label={ar ? "ملاحظاتك للطبيب" : "Your notes for the doctor"}>
-          <h2>{ar ? "ملاحظاتك للطبيب" : "Your notes for the doctor"}</h2>
-          <p>{patientNotes}</p>
+        <section aria-label={ar ? "ملاحظاتك للطبيب" : "Your notes for the doctor"} style={{ display: "grid", gap: 8, padding: 24, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>
+          <h2 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{ar ? "ملاحظاتك للطبيب" : "Your notes for the doctor"}</h2>
+          <p style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{patientNotes}</p>
         </section>
       ) : null}
-      <section aria-label={ar ? "الأدوية الموصوفة" : "Prescribed medications"}>
-        <h2>{ar ? "الأدوية الموصوفة" : "Prescribed medications"}</h2>
+      <section aria-label={ar ? "الأدوية الموصوفة" : "Prescribed medications"} style={{ display: "grid", gap: 16, padding: 24, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>
+        <h2 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{ar ? "الأدوية الموصوفة" : "Prescribed medications"}</h2>
         {prescriptions.length === 0 ? (
-          <p>{isCompleted ? (ar ? "لم يصف الطبيب أدوية في هذه الاستشارة" : "No medications prescribed in this visit") : (ar ? "تظهر الأدوية هنا بعد اكتمال الاستشارة" : "Medications appear here after the visit completes")}</p>
+          <p style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{isCompleted ? (ar ? "لم يصف الطبيب أدوية في هذه الاستشارة" : "No medications prescribed in this visit") : (ar ? "تظهر الأدوية هنا بعد اكتمال الاستشارة" : "Medications appear here after the visit completes")}</p>
         ) : (
-          <ul>{prescriptions.map((name) => <li key={name}>{name}</li>)}</ul>
+          <ul style={{ display: "grid", gap: 8, margin: 0, padding: 0, listStyle: "none" } as any}>{prescriptions.map((name) => <li key={name} style={{ padding: "8px 12px", borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.72)", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{name}</li>)}</ul>
         )}
         {prescriptions.length > 0 ? (
-          <Link href={`/${locale}/pharmacy`}>{ar ? "طلب صرف من الصيدلية" : "Order from pharmacy"}</Link>
+          <Link href={`/${locale}/pharmacy`} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "10px 16px", borderRadius: 20, border: "1px solid #E8EDEE", background: "#5FD9B3", color: "#1E332E", fontWeight: 760, overflowWrap: "anywhere" } as any}>{ar ? "طلب صرف من الصيدلية" : "Order from pharmacy"}</Link>
         ) : null}
       </section>
-      <section aria-label={ar ? "سجل الحالة" : "Status history"}>
-        <h2>{ar ? "سجل الحالة" : "Status history"}</h2>
+      <section aria-label={ar ? "سجل الحالة" : "Status history"} style={{ display: "grid", gap: 16, padding: 24, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>
+        <h2 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{ar ? "سجل الحالة" : "Status history"}</h2>
         {history.length === 0 ? (
-          <p>{ar ? "لا يوجد سجل بعد" : "No history yet"}</p>
+          <p style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{ar ? "لا يوجد سجل بعد" : "No history yet"}</p>
         ) : (
-          <ul>
+          <ul style={{ display: "grid", gap: 8, margin: 0, padding: 0, listStyle: "none" } as any}>
             {history.map((h, i) => (
-              <li key={`${h.state}-${i}`}>
-                <strong>{h.state}</strong>
-                {h.at ? ` — ${h.at}` : ""}
-                {h.note ? ` — ${h.note}` : ""}
+              <li key={`${h.state}-${i}`} style={{ display: "flex", flexWrap: "wrap", gap: 8, padding: "8px 12px", borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.72)", overflowWrap: "anywhere" } as any}>
+                <strong style={{ color: "#1E332E", overflowWrap: "anywhere" } as any}>{h.state}</strong>
+                <span style={{ overflowWrap: "anywhere" } as any}>{h.at ? ` — ${h.at}` : ""}{h.note ? ` — ${h.note}` : ""}</span>
               </li>
             ))}
           </ul>
         )}
       </section>
-      <nav style={{ display: "flex", gap: 8, flexWrap: "wrap" }} aria-label={ar ? "إجراءات" : "Actions"}>
-        {doctorId ? <Link href={`/${locale}/consultations/chat?doctorId=${encodeURIComponent(doctorId)}`}>{ar ? "محادثة الطبيب" : "Chat with doctor"}</Link> : null}
-        {doctorId ? <Link href={`/${locale}/consultations/book/${encodeURIComponent(doctorId)}`}>{ar ? "حجز موعد متابعة" : "Book follow-up"}</Link> : null}
+      <nav style={{ display: "flex", gap: 8, flexWrap: "wrap" } as any} aria-label={ar ? "إجراءات" : "Actions"}>
+        {doctorId ? <Link href={`/${locale}/consultations/chat?doctorId=${encodeURIComponent(doctorId)}`} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "10px 16px", borderRadius: 20, border: "1px solid #E8EDEE", background: "#5FD9B3", color: "#1E332E", fontWeight: 760, overflowWrap: "anywhere" } as any}>{ar ? "محادثة الطبيب" : "Chat with doctor"}</Link> : null}
+        {doctorId ? <Link href={`/${locale}/consultations/book/${encodeURIComponent(doctorId)}`} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "10px 16px", borderRadius: 20, border: "1px solid #E8EDEE", background: "#5FD9B3", color: "#1E332E", fontWeight: 760, overflowWrap: "anywhere" } as any}>{ar ? "حجز موعد متابعة" : "Book follow-up"}</Link> : null}
       </nav>
     </main>
   );

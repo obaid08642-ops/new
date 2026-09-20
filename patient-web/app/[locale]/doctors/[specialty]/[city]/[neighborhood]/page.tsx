@@ -109,7 +109,7 @@ export default async function DoctorsSpecialtyCityNeighborhoodPage({ params }: P
     : `${decSpec} Doctors in ${decNeigh}, ${decCity}`;
 
   return (
-    <main className={`main ${styles.page}`}>
+    <main className={`main ${styles.page}`} style={{ background: "#FDFDFC", gap: 16 } as any}>
       <JsonLd
         data={[
           medicalWebPage({
@@ -126,37 +126,37 @@ export default async function DoctorsSpecialtyCityNeighborhoodPage({ params }: P
         ]}
       />
 
-      <section className={styles.header}>
-        <div>
-          <p className={styles.eyebrow}>{decSpec}</p>
-          <h1>{pageTitle}</h1>
-          <p className={styles.subtitle}>
+      <section className={styles.header} style={{ gap: 16, padding: 24, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>
+        <div style={{ display: "grid", gap: 8, minWidth: 0, flex: 1 } as any}>
+          <p className={styles.eyebrow} style={{ color: "#1E332E", gap: 8, overflowWrap: "anywhere" } as any}>{decSpec}</p>
+          <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{pageTitle}</h1>
+          <p className={styles.subtitle} style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>
             {locale === "ar"
               ? `استعرض الأطباء والعيادات المعتمدة في حي ${decNeigh} بمدينة ${decCity} مع مواعيد فورية وتغطية تأمينية.`
               : `Verified healthcare professionals and clinics in ${decNeigh}, ${decCity} with instant booking.`}
           </p>
         </div>
-        <span className={styles.vectorWrap} aria-hidden="true">
+        <span className={styles.vectorWrap} aria-hidden="true" style={{ display: "grid", placeItems: "center", width: 48, height: 48, borderRadius: 16, background: "rgba(95,217,179,.12)", border: "1px solid #E8EDEE", flex: "0 0 auto" } as any}>
           <VectorDoctor size={48} />
         </span>
       </section>
 
       {doctors.length > 0 && (
-        <section className={styles.section} aria-label={locale === "ar" ? "الأطباء المعتمدون" : "Verified Doctors"}>
-          <h2 className={styles.sectionHead}>
-            <VectorDoctor size={20} aria-hidden="true" />
-            {locale === "ar" ? "الأطباء المعتمدون" : "Verified Doctors"}
+        <section className={styles.section} aria-label={locale === "ar" ? "الأطباء المعتمدون" : "Verified Doctors"} style={{ gap: 16, padding: 24, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>
+          <h2 className={styles.sectionHead} style={{ color: "#1E332E", gap: 8, overflowWrap: "anywhere" } as any}>
+            <span style={{ display: "grid", placeItems: "center", width: 48, height: 48, borderRadius: 16, background: "rgba(95,217,179,.12)", border: "1px solid #E8EDEE", flex: "0 0 auto" } as any}><VectorDoctor size={48} aria-hidden="true" /></span>
+            <span style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{locale === "ar" ? "الأطباء المعتمدون" : "Verified Doctors"}</span>
           </h2>
-          <div className={styles.grid}>
+          <div className={styles.grid} style={{ gap: 16 } as any}>
             {doctors.map((doc: any) => (
-              <article key={doc.id} className={styles.card}>
-                <h3 className={styles.cardTitle}>{doc.name_ar || doc.name_en || doc.name}</h3>
-                <p className={styles.facilityMeta}>{doc.specialty}</p>
-                <span className={styles.rating}>
+              <article key={doc.id} className={styles.card} style={{ gap: 8, padding: 16, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.72)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>
+                <h3 className={styles.cardTitle} style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{doc.name_ar || doc.name_en || doc.name}</h3>
+                <p className={styles.facilityMeta} style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{doc.specialty}</p>
+                <span className={styles.rating} style={{ overflowWrap: "anywhere" } as any}>
                   <Star size={14} fill="#d97706" color="#b45309" aria-hidden="true" />
                   {doc.rating || 4.9}
                 </span>
-                <Link href={`/${locale}/consultations/book/${doc.id}`} className={styles.primaryBtn}>
+                <Link href={`/${locale}/consultations/book/${doc.id}`} className={styles.primaryBtn} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "10px 16px", borderRadius: 20, border: "1px solid #E8EDEE", background: "#5FD9B3", color: "#1E332E", fontWeight: 760, overflowWrap: "anywhere" } as any}>
                   {locale === "ar" ? "احجز استشارة" : "Book Consultation"}
                 </Link>
               </article>

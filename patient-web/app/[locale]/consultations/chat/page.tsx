@@ -27,10 +27,13 @@ export default async function ConsultationChatPage({ params, searchParams }: Pro
   if (profile.status === 401) redirect(`/${locale}/login`);
   if (!profile.ok) {
     return (
-      <main className="main" style={{ background: "#FDFDFC" }}>
-        <Link href={`/${locale}/consultations`}>{ar ? "الاستشارات" : "Consultations"}</Link>
-        <h1>{ar ? "محادثة الطبيب" : "Chat with doctor"}</h1>
-        <p role="alert">{ar ? "تعذر فتح المحادثة — تحقق من الطبيب وحاول مجدداً" : "Could not open the chat — check the doctor and retry"}</p>
+      <main className="main" style={{ background: "#FDFDFC", gap: 16 } as any}>
+        <Link href={`/${locale}/consultations`} style={{ color: "#1E332E", overflowWrap: "anywhere" } as any}>{ar ? "الاستشارات" : "Consultations"}</Link>
+        <section style={{ display: "grid", gap: 16, padding: 24, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>
+          <span style={{ display: "grid", placeItems: "center", width: 48, height: 48, borderRadius: 16, background: "rgba(95,217,179,.12)", border: "1px solid #E8EDEE", flex: "0 0 auto" } as any}><VectorDoctor size={48} aria-hidden="true" /></span>
+          <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{ar ? "محادثة الطبيب" : "Chat with doctor"}</h1>
+          <p role="alert" style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{ar ? "تعذر فتح المحادثة — تحقق من الطبيب وحاول مجدداً" : "Could not open the chat — check the doctor and retry"}</p>
+        </section>
       </main>
     );
   }

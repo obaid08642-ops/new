@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
-import { MapPin } from "lucide-react";
+import { VectorMap } from "@/components-next/vector-illustrations";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { getPatientAddresses } from "@/lib/api/addresses-server";
@@ -27,13 +27,13 @@ export default async function DeliveryAddressSelectPage({ params }: Props) {
     return [a as PatientAddress];
   });
   return (
-    <main className={`main ${styles.page}`}>
-      <section className={styles.header}>
-        <div>
-          <p className={styles.eyebrow}>{ar ? "التوصيل" : "Delivery"}</p>
-          <h1>{ar ? "عنوان التوصيل" : "Delivery address"}</h1>
+    <main className={`main ${styles.page}`} style={{ background: "#FDFDFC", gap: 16 } as any}>
+      <section className={styles.header} style={{ gap: 16, padding: 24, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>
+        <div style={{ display: "grid", gap: 8, minWidth: 0, flex: 1 } as any}>
+          <p className={styles.eyebrow} style={{ color: "#1E332E", gap: 8, overflowWrap: "anywhere" } as any}>{ar ? "التوصيل" : "Delivery"}</p>
+          <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{ar ? "عنوان التوصيل" : "Delivery address"}</h1>
         </div>
-        <span className={styles.vectorWrap}><MapPin size={22} aria-hidden="true" /></span>
+        <span style={{ display: "grid", placeItems: "center", width: 48, height: 48, borderRadius: 16, background: "rgba(95,217,179,.12)", border: "1px solid #E8EDEE", flex: "0 0 auto" } as any}><VectorMap size={48} aria-hidden="true" /></span>
       </section>
       <DeliveryAddressSelectClient addresses={addresses} locale={locale} />
     </main>

@@ -29,13 +29,19 @@ export default async function VirtualWaitingRoomPage({ params, searchParams }: P
   const joinable = ["confirmed", "scheduled", "in_progress", "checked_in"].includes(status);
 
   return (
-    <main className="main" style={{ background: "#FDFDFC" }}>
-      <Link href={`/${locale}/appointments/${appointmentId}`}>{ar ? "الموعد" : "Appointment"}</Link>
-      <h1>{ar ? "غرفة الانتظار الافتراضية" : "Virtual waiting room"}</h1>
-      <p role="status">
-        {ar ? "الحالة:" : "Status:"} {appointment.status || (ar ? "غير متاحة" : "Unavailable")}
-        {appointment.doctorName ? ` — ${appointment.doctorName}` : ""}
-      </p>
+    <main className="main" style={{ background: "#FDFDFC", gap: 16, padding: "16px 0" } as any}>
+      <Link href={`/${locale}/appointments/${appointmentId}`} style={{ color: "#1E332E", overflowWrap: "anywhere" } as any}>{ar ? "الموعد" : "Appointment"}</Link>
+      <section style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16, padding: 24, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>
+        <div style={{ display: "grid", gap: 8, minWidth: 0, flex: 1 } as any}>
+          <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{ar ? "غرفة الانتظار الافتراضية" : "Virtual waiting room"}</h1>
+          <p role="status" style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>
+            {ar ? "الحالة:" : "Status:"} {appointment.status || (ar ? "غير متاحة" : "Unavailable")}
+            {appointment.doctorName ? ` — ${appointment.doctorName}` : ""}
+          </p>
+        </div>
+        <span style={{ display: "grid", placeItems: "center", width: 48, height: 48, borderRadius: 16, background: "rgba(95,217,179,.12)", border: "1px solid #E8EDEE", flex: "0 0 auto" } as any}><VectorDoctor size={48} aria-hidden="true" /></span>
+      </section>
+      <section style={{ display: "grid", gap: 16, padding: 24, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>
       {joinable ? (
         <CallTokenLauncher
           appointmentId={appointmentId}
@@ -49,8 +55,9 @@ export default async function VirtualWaitingRoomPage({ params, searchParams }: P
           }}
         />
       ) : (
-        <p>{ar ? "ستُفتح المكالمة عند تأكيد الموعد واقتراب موعده." : "The call opens once the appointment is confirmed and due."}</p>
+        <p style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{ar ? "ستُفتح المكالمة عند تأكيد الموعد واقتراب موعده." : "The call opens once the appointment is confirmed and due."}</p>
       )}
+      </section>
     </main>
   );
 }

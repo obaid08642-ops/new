@@ -6,13 +6,13 @@ import { isLocale, locales } from "@/lib/i18n";
 import Link from "next/link";
 import NextImage from "next/image";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowRight, CircleAlert, Image, ShieldCheck } from "lucide-react";
+import { ArrowLeft, ArrowRight, ShieldCheck } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { parseRadiologyService, parseRadiologyServiceId } from "@/lib/api/radiology";
+import { parseRadiologyService } from "@/lib/api/radiology";
 import { getPublicRadiologyServiceDetail } from "@/lib/api/radiology-server";
 import styles from "../../labs/labs.module.css";
-
 import { ServiceBookingModal } from "@/components-next/service-booking-modal";
+import { VectorRadiology } from "@/components-next/vector-illustrations";
 
 type Props = { params: Promise<{ locale: string; serviceId: string }> };
 
@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: { params: Promise<{ serviceId
     description: t("subtitle"),
     alternates: {
       canonical,
-      languages: { ...Object.fromEntries(locales.map((l) => [l, localizedUrl(l, canonical.replace(`/${locale}`, "") )])), "x-default": localizedUrl("ar", canonical.replace(`/${locale}`, "")) },
+      languages: { ...Object.fromEntries(locales.map((l) => [l, localizedUrl(l, canonical.replace(`/${locale}`, ""))])), "x-default": localizedUrl("ar", canonical.replace(`/${locale}`, "")) },
     },
     openGraph: { type: "website", url: canonical },
     robots: { index: true, follow: true },
@@ -41,77 +41,6 @@ export default async function RadiologyServiceDetailPage({ params }: Props) {
   const rtl = locale === "ar" || locale === "ur";
   const Arrow = rtl ? ArrowLeft : ArrowRight;
 
-  const fallbackMap: Record<string, any> = {
-    "rad-mri": {
-      nameAr: "أشعة الرنين المغناطيسي المتقدم (MRI)",
-      nameEn: "Advanced Magnetic Resonance Imaging (MRI)",
-      descriptionAr: "تصوير بالرنين المغناطيسي عالي الدقة (3 تسلا) للمخ والعمود الفقري والمفاصل والأنسجة الرخوة.",
-      descriptionEn: "High-resolution 3 Tesla MRI scanning for brain, spine, joints, and soft tissue.",
-      modality: "MRI",
-      bodyPart: "شامل / متعدد المناطق",
-      price: 850,
-      durationMinutes: 30,
-      turnaroundHours: 12,
-      homeVisitSupported: false,
-      facilityVisitSupported: true,
-      contrastRequired: false,
-      fastingRequired: false,
-      image: "/images/radiology/mri.jpg",
-      preparationAr: ["إزالة جميع المعادن والمجوهرات وبطاقات الصراف", "إبلاغ الفني في حال وجود منظم ضربات قلب أو دعامات معدنية"],
-    },
-    "rad-ct": {
-      nameAr: "الأشعة المقطعية المبرمجة (CT Scan)",
-      nameEn: "Computed Tomography (CT Scan)",
-      descriptionAr: "تصوير مقطعي سريع فائق الدقة ثلاثي الأبعاد لفحص الصدر والبطن والحوض والأوعية الدموية.",
-      descriptionEn: "Multi-slice high-speed 3D CT scan for chest, abdomen, pelvis, and angiography.",
-      modality: "CT",
-      bodyPart: "الصدر والبطن",
-      price: 650,
-      durationMinutes: 15,
-      turnaroundHours: 8,
-      homeVisitSupported: false,
-      facilityVisitSupported: true,
-      contrastRequired: true,
-      fastingRequired: true,
-      image: "/images/radiology/ct-scan.jpg",
-      preparationAr: ["الصيام لمدة 4 ساعات قبل الفحص في حال استخدام الصبغة", "شرب كميات كافية من الماء بعد الفحص"],
-    },
-    "rad-ultrasound": {
-      nameAr: "الموجات فوق الصوتية والسونار (Ultrasound 4D)",
-      nameEn: "Ultrasound & 4D Sonogram",
-      descriptionAr: "فحص آمن غير إشعاعي للبطن والحوض، متابعة الجنين والحمل، والغدة الدرقية والشرايين بالدوبلر.",
-      descriptionEn: "Safe radiation-free ultrasound for abdomen, pregnancy 4D, thyroid, and Doppler.",
-      modality: "Ultrasound",
-      bodyPart: "البطن والحمل",
-      price: 280,
-      durationMinutes: 20,
-      turnaroundHours: 4,
-      homeVisitSupported: true,
-      facilityVisitSupported: true,
-      contrastRequired: false,
-      fastingRequired: true,
-      image: "/images/radiology/ultrasound.jpg",
-      preparationAr: ["الصيام لمدة 6 ساعات لفحوصات البطن العلوية والمرارة", "شرب لتر من الماء قبل فحص الحوض والمثانة بنصف ساعة"],
-    },
-    "rad-xray": {
-      nameAr: "الأشعة السينية الرقمية (Digital X-Ray)",
-      nameEn: "Digital Diagnostic X-Ray",
-      descriptionAr: "تصوير إشعاعي رقمي فوري ومنخفض الجرعة للعظام والمفاصل وفحص الصدر والرئتين.",
-      descriptionEn: "Instant low-dose digital radiography for bones, joints, and chest screening.",
-      modality: "X-Ray",
-      bodyPart: "الصدر والعظام",
-      price: 150,
-      durationMinutes: 10,
-      turnaroundHours: 2,
-      homeVisitSupported: true,
-      facilityVisitSupported: true,
-      contrastRequired: false,
-      fastingRequired: false,
-      image: "/images/radiology/xray.jpg",
-      preparationAr: ["لا يشترط الصيام", "نزع الإكسسوارات والمجوهرات حول المنطقة المراد تصويرها"],
-    },
-  };
-
   let service = null;
   let response;
   try {
@@ -125,50 +54,28 @@ export default async function RadiologyServiceDetailPage({ params }: Props) {
   }
 
   if (response?.status === 404) notFound();
-
-  const fallback = fallbackMap[serviceId];
-  if (!service && fallback) {
-    service = {
-      id: serviceId,
-      nameAr: fallback.nameAr,
-      nameEn: fallback.nameEn,
-      descriptionAr: fallback.descriptionAr,
-      descriptionEn: fallback.descriptionEn,
-      modality: fallback.modality,
-      bodyPart: fallback.bodyPart,
-      price: fallback.price,
-      durationMinutes: fallback.durationMinutes,
-      turnaroundHours: fallback.turnaroundHours,
-      homeVisitSupported: fallback.homeVisitSupported,
-      facilityVisitSupported: fallback.facilityVisitSupported,
-      contrastRequired: fallback.contrastRequired,
-      fastingRequired: fallback.fastingRequired,
-      preparationAr: fallback.preparationAr,
-      image: fallback.image,
-    };
-  }
   if (!service) notFound();
 
   const name = rtl ? service.nameAr ?? service.nameEn : service.nameEn ?? service.nameAr;
   const description = rtl ? service.descriptionAr ?? service.descriptionEn : service.descriptionEn ?? service.descriptionAr;
   const preparation = rtl ? service.preparationAr ?? service.preparationEn : service.preparationEn ?? service.preparationAr;
-  const servicePhoto = (service as any)?.image || fallback?.image || "/images/radiology/mri.jpg";
+  const servicePhoto = (service as any)?.image || "/images/radiology/mri.jpg";
 
   return (
-    <main className={`main ${styles.page}`}>
+    <main className={`main ${styles.page}`} style={{ background: "#FDFDFC", gap: 16 } as any}>
       <JsonLd data={[serviceLd({ name: name ?? t("title"), path: `/diagnostics/radiology/${serviceId}`, locale, description: description ?? null }), breadcrumbList([{ name: t("title"), locale, path: "/diagnostics/radiology" }, { name: name ?? t("title"), locale, path: `/diagnostics/radiology/${serviceId}` }])]} />
-      <Link className={styles.back} href={`/${locale}/diagnostics/radiology`}><Arrow size={17} aria-hidden="true" />{t("backToRadiology")}</Link>
-      
-      <section className={styles.hero} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 20 }}>
-        <div>
-          <p className={styles.eyebrow}><ShieldCheck size={15} aria-hidden="true" />{t("eyebrow")}</p>
-          <h1>{name}</h1>
-          <p className={styles.subtitle}>{description ?? t("detailDescriptionUnavailable")}</p>
-          <div style={{ marginTop: "1.25rem" }}>
+      <Link className={styles.back} href={`/${locale}/diagnostics/radiology`} style={{ color: "#1E332E", gap: 8, borderRadius: 20, border: "1px solid #E8EDEE", padding: "8px 12px", background: "rgba(255,255,255,.82)", overflowWrap: "anywhere" } as any}><Arrow size={17} aria-hidden="true" /><span style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{t("backToRadiology")}</span></Link>
+
+      <section className={styles.hero} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, padding: 24, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>
+        <div style={{ display: "grid", gap: 8, minWidth: 0, flex: 1 } as any}>
+          <p className={styles.eyebrow} style={{ color: "#1E332E", gap: 8, overflowWrap: "anywhere" } as any}><ShieldCheck size={15} aria-hidden="true" />{t("eyebrow")}</p>
+          <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{name}</h1>
+          <p className={styles.subtitle} style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{description ?? t("detailDescriptionUnavailable")}</p>
+          <div style={{ marginTop: 8 } as any}>
             <ServiceBookingModal
               locale={locale}
               serviceId={serviceId}
-              serviceName={name}
+              serviceName={name ?? t("title")}
               servicePrice={service.price || 450}
               serviceType="radiology"
               homeVisitSupported={Boolean(service.homeVisitSupported)}
@@ -176,29 +83,27 @@ export default async function RadiologyServiceDetailPage({ params }: Props) {
             />
           </div>
         </div>
-        <div style={{ width: 140, height: 140, borderRadius: "24px", overflow: "hidden", border: "3px solid #5FD9B3", flexShrink: 0, boxShadow: "0 8px 24px rgba(22, 33, 58, 0.12)" }}>
-          <NextImage src={servicePhoto} alt={name} width={140} height={140} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-        </div>
+        <span style={{ display: "grid", placeItems: "center", width: 48, height: 48, borderRadius: 16, background: "rgba(95,217,179,.12)", border: "1px solid #E8EDEE", flex: "0 0 auto", overflow: "hidden" } as any}><VectorRadiology size={48} aria-hidden="true" /></span>
       </section>
 
-      <section className={styles.detailCard} aria-label={t("detailTitle")}>
-        <div className={styles.meta}>
-          {service.modality ? <span>{service.modality}</span> : null}
-          {service.bodyPart ? <span>{service.bodyPart}</span> : null}
-          {service.price !== undefined ? <span>{t("price", { value: service.price })}</span> : null}
-          {service.durationMinutes !== undefined ? <span>{t("duration", { value: service.durationMinutes })}</span> : null}
-          {service.turnaroundHours !== undefined ? <span>{t("turnaround", { value: service.turnaroundHours })}</span> : null}
+      <section className={styles.detailCard} aria-label={t("detailTitle")} style={{ gap: 16, padding: 24, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>
+        <div className={styles.meta} style={{ gap: 8, overflowWrap: "anywhere" } as any}>
+          {service.modality ? <span style={{ overflowWrap: "anywhere" } as any}>{service.modality}</span> : null}
+          {service.bodyPart ? <span style={{ overflowWrap: "anywhere" } as any}>{service.bodyPart}</span> : null}
+          {service.price !== undefined ? <span style={{ overflowWrap: "anywhere" } as any}>{t("price", { value: service.price })}</span> : null}
+          {service.durationMinutes !== undefined ? <span style={{ overflowWrap: "anywhere" } as any}>{t("duration", { value: service.durationMinutes })}</span> : null}
+          {service.turnaroundHours !== undefined ? <span style={{ overflowWrap: "anywhere" } as any}>{t("turnaround", { value: service.turnaroundHours })}</span> : null}
         </div>
-        <div className={styles.badges}>
-          {service.homeVisitSupported ? <span>{t("homeVisit")}</span> : null}
-          {service.facilityVisitSupported ? <span>{t("facilityVisit")}</span> : null}
-          {service.contrastRequired ? <span>{t("contrast")}</span> : null}
-          {service.fastingRequired ? <span>{t("fasting")}</span> : null}
+        <div className={styles.badges} style={{ gap: 8 } as any}>
+          {service.homeVisitSupported ? <span style={{ overflowWrap: "anywhere" } as any}>{t("homeVisit")}</span> : null}
+          {service.facilityVisitSupported ? <span style={{ overflowWrap: "anywhere" } as any}>{t("facilityVisit")}</span> : null}
+          {service.contrastRequired ? <span style={{ overflowWrap: "anywhere" } as any}>{t("contrast")}</span> : null}
+          {service.fastingRequired ? <span style={{ overflowWrap: "anywhere" } as any}>{t("fasting")}</span> : null}
         </div>
         {preparation?.length ? (
-          <div className={styles.section}>
-            <h2>{t("preparationTitle")}</h2>
-            <ul>{Array.isArray(preparation) ? preparation.map((item: string) => <li key={item}>{item}</li>) : <li>{preparation}</li>}</ul>
+          <div className={styles.section} style={{ gap: 8 } as any}>
+            <h2 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{t("preparationTitle")}</h2>
+            <ul style={{ display: "grid", gap: 8, margin: 0, paddingInlineStart: "1.4rem" } as any}>{Array.isArray(preparation) ? preparation.map((item: string) => <li key={item} style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{item}</li>) : <li style={{ overflowWrap: "anywhere" } as any}>{preparation}</li>}</ul>
           </div>
         ) : null}
       </section>

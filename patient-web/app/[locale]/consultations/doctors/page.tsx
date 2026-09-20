@@ -43,79 +43,80 @@ export default async function DoctorsPage({ params, searchParams }: Props) {
 
   const rtl = locale === "ar" || locale === "ur"; const Arrow = rtl ? ArrowLeft : ArrowRight;
   return (
-    <main className={`main ${styles.page}`}>
-      <section className={styles.hero}>
-        <div>
-          <p className={styles.eyebrow}><BadgeCheck size={14} aria-hidden="true" />{t("eyebrow")}</p>
-          <h1>{t("title")}</h1>
-          <p className={styles.subtitle}>{t("subtitle")}</p>
+    <main className={`main ${styles.page}`} style={{ background: "#FDFDFC", gap: 16 } as any}>
+      <section className={styles.hero} style={{ gap: 16, padding: 24, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>
+        <div style={{ display: "grid", gap: 8, minWidth: 0, flex: 1 } as any}>
+          <p className={styles.eyebrow} style={{ color: "#1E332E", gap: 8, overflowWrap: "anywhere" } as any}><BadgeCheck size={14} aria-hidden="true" />{t("eyebrow")}</p>
+          <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{t("title")}</h1>
+          <p className={styles.subtitle} style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{t("subtitle")}</p>
         </div>
-        <span className={styles.heroIcon}>
+        <span style={{ display: "grid", placeItems: "center", width: 48, height: 48, borderRadius: 16, background: "rgba(95,217,179,.12)", border: "1px solid #E8EDEE", flex: "0 0 auto" } as any}>
           <VectorDoctor size={48} aria-hidden="true" />
         </span>
       </section>
 
-      <form className={styles.search} method="get" role="search">
-        <Search size={18} className={styles.searchIcon} aria-hidden="true" />
+      <form className={styles.search} method="get" role="search" style={{ borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", gap: 8, padding: 16 } as any}>
+        <Search size={18} className={styles.searchIcon} aria-hidden="true" style={{ color: "#1E332E" } as any} />
         <label className="sr-only" htmlFor="doctor-search">{t("searchLabel")}</label>
-        <input id="doctor-search" name="q" defaultValue={sp.q ?? sp.specialty ?? ""} placeholder={t("searchPlaceholder")} />
-        <button type="submit">{t("search")}</button>
+        <input id="doctor-search" name="q" defaultValue={sp.q ?? sp.specialty ?? ""} placeholder={t("searchPlaceholder")} style={{ color: "#1E332E" } as any} />
+        <button type="submit" style={{ background: "#5FD9B3", color: "#1E332E", borderRadius: 20, border: "1px solid #E8EDEE", fontWeight: 760, gap: 8 } as any}>{t("search")}</button>
       </form>
 
-      <nav className={styles.sorts} aria-label={t("sortLabel")}>
+      <nav className={styles.sorts} aria-label={t("sortLabel")} style={{ gap: 8 } as any}>
         {([["rating", "sortRating"], ["price", "sortPrice"], ["wait", "sortWait"]] as const).map(([sort, key]) => (
           <Link
             key={sort}
             href={`/${locale}/consultations/doctors?${new URLSearchParams({ ...(sp.q ? { q: sp.q } : sp.specialty ? { specialty: sp.specialty } : {}), sort }).toString()}`}
             className={sp.sort === sort ? styles.sortActive : styles.sort}
+            style={sp.sort === sort ? ({ background: "#5FD9B3", color: "#1E332E", borderRadius: 20, border: "1px solid #E8EDEE" } as any) : ({ borderRadius: 20, border: "1px solid #E8EDEE", gap: 8 } as any)}
           >
-            {t(key)}
+            <span style={{ overflowWrap: "anywhere" } as any}>{t(key)}</span>
           </Link>
         ))}
       </nav>
 
       {doctors.length === 0 ? (
-        <section className={styles.state}>
-          <VectorDoctor size={48} aria-hidden="true" />
-          <h2>{t("emptyTitle")}</h2>
-          <p>{t("emptyBody")}</p>
+        <section className={styles.state} style={{ borderRadius: 20, border: "1px dashed #E8EDEE", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", gap: 16, padding: 24 } as any}>
+          <span style={{ display: "grid", placeItems: "center", width: 48, height: 48, borderRadius: 16, background: "rgba(95,217,179,.12)", border: "1px solid #E8EDEE" } as any}><VectorDoctor size={48} aria-hidden="true" /></span>
+          <h2 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{t("emptyTitle")}</h2>
+          <p style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{t("emptyBody")}</p>
         </section>
       ) : (
-        <section className={styles.grid} aria-label={t("title")}>
+        <section className={styles.grid} aria-label={t("title")} style={{ gap: 16 } as any}>
           {doctors.map((doctor) => (
-            <Link key={doctor.id} href={`/${locale}/consultations/doctors/${doctor.id}`} className={styles.card}>
-              <div className={styles.cardTop}>
-                <span className={styles.avatar} style={{ width: 54, height: 54, borderRadius: "50%", overflow: "hidden", border: "2px solid #5FD9B3", flexShrink: 0, display: "grid", placeItems: "center", position: "relative" }}>
-                  <Image src={(doctor as any).image || `/images/doctors/${doctor.id}.jpg`} alt={doctor.name || ""} fill sizes="54px" style={{ objectFit: "cover" }} />
+            <Link key={doctor.id} href={`/${locale}/consultations/doctors/${doctor.id}`} className={styles.card} style={{ borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", gap: 16, padding: 16 } as any}>
+              <div className={styles.cardTop} style={{ gap: 16 } as any}>
+                <span className={styles.avatar} style={{ width: 48, height: 48, borderRadius: 16, overflow: "hidden", border: "1px solid #E8EDEE", flexShrink: 0, display: "grid", placeItems: "center", position: "relative", background: "rgba(95,217,179,.12)" }}>
+                  <Image src={(doctor as any).image || `/images/doctors/${doctor.id}.jpg`} alt={doctor.name || ""} fill sizes="48px" style={{ objectFit: "cover" }} />
                 </span>
-                <div className={styles.copy}>
-                  <span className={styles.doctorName}>
-                    <strong>{doctor.name ?? t("nameUnavailable")}</strong>
-                    <BadgeCheck size={16} color="#00876F" aria-hidden="true" />
+                <div className={styles.copy} style={{ gap: 8 } as any}>
+                  <span className={styles.doctorName} style={{ overflowWrap: "anywhere" } as any}>
+                    <strong style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{doctor.name ?? t("nameUnavailable")}</strong>
+                    <BadgeCheck size={16} color="#5FD9B3" aria-hidden="true" />
                   </span>
-                  {doctor.degree ? <small className={styles.doctorDegree}>{doctor.degree}</small> : null}
+                  {doctor.degree ? <small className={styles.doctorDegree} style={{ overflowWrap: "anywhere" } as any}>{doctor.degree}</small> : null}
                   {doctor.specialty ? (
-                    <span className={styles.specialtyBadge} style={{ overflowWrap: "anywhere" } as any}>
+                    <span className={styles.specialtyBadge} style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>
                       {doctor.specialty}
                     </span>
                   ) : null}
                 </div>
               </div>
-              <div className={styles.cardBottom}>
-                <div className={styles.meta}>
+              <div className={styles.cardBottom} style={{ gap: 8 } as any}>
+                <div className={styles.meta} style={{ gap: 8 } as any}>
                   {doctor.rating !== undefined ? (
-                    <span className={styles.ratingTag}>
+                    <span className={styles.ratingTag} style={{ overflowWrap: "anywhere" } as any}>
                       <Star size={13} fill="#F59E0B" stroke="#F59E0B" aria-hidden="true" />
                       {t("rating", { value: doctor.rating })}
                     </span>
                   ) : null}
                   {doctor.price !== undefined ? (
-                    <span className={styles.priceTag}>
+                    <span className={styles.priceTag} style={{ overflowWrap: "anywhere" } as any}>
                       {t("price", { value: doctor.price })}
                     </span>
                   ) : null}
                 </div>
-                <span className={styles.bookButton}>
+                <span className={styles.bookButton} style={{ background: "#5FD9B3", color: "#1E332E", borderRadius: 20, border: "1px solid #E8EDEE", gap: 8 } as any}>
                   <Calendar size={14} aria-hidden="true" />
                   <Arrow size={14} aria-hidden="true" />
                 </span>
