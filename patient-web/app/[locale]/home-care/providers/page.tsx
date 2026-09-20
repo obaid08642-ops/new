@@ -22,11 +22,19 @@ export default async function HomeCareProvidersPage({ params }: Props) {
 
   if (!response.ok) {
     return (
-      <main className={`main ${styles.page}`}>
-        <section className={styles.state} role="alert">
-          <VectorNursing size={54} aria-hidden="true" />
-          <h1>{t("unavailable")}</h1>
-          <p>{t("unavailableBody")}</p>
+      <main className={`main ${styles.page}`} style={{ background: "#FDFDFC", gap: 16 } as any}>
+        <section
+          className={styles.state}
+          role="alert"
+          style={{ border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", padding: 24, gap: 16, display: "grid", placeItems: "center" } as any}
+        >
+          <span style={{ display: "grid", placeItems: "center", width: 48, height: 48, borderRadius: 16, background: "rgba(95,217,179,.12)", border: "1px solid #E8EDEE" } as any}>
+            <VectorNursing size={48} aria-hidden="true" />
+          </span>
+          <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2 as any, WebkitBoxOrient: "vertical" as any, overflow: "hidden" } as any}>
+            {t("unavailable")}
+          </h1>
+          <p style={{ color: "#6B7C6E", overflowWrap: "anywhere" } as any}>{t("unavailableBody")}</p>
         </section>
       </main>
     );
@@ -35,39 +43,137 @@ export default async function HomeCareProvidersPage({ params }: Props) {
   const providers = extractHomeCareProviders(await response.json().catch(() => null));
 
   return (
-    <main className={`main ${styles.page}`} dir={locale === "ar" || locale === "ur" ? "rtl" : "ltr"}>
-      <header className={styles.hero}>
-        <div>
-          <p className={styles.eyebrow}><ShieldCheck size={15} aria-hidden="true" />{t("eyebrow")}</p>
-          <h1>{t("title")}</h1>
-          <p>{t("subtitle")}</p>
+    <main className={`main ${styles.page}`} dir={locale === "ar" || locale === "ur" ? "rtl" : "ltr"} style={{ background: "#FDFDFC", gap: 16 } as any}>
+      <header
+        className={styles.hero}
+        style={{
+          gap: 16,
+          padding: 24,
+          border: "1px solid #E8EDEE",
+          borderRadius: 20,
+          background: "rgba(255,255,255,.82)",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        } as any}
+      >
+        <div style={{ display: "grid", gap: 8, minWidth: 0 }}>
+          <p className={styles.eyebrow} style={{ color: "#1E332E", display: "flex", alignItems: "center", gap: 8, overflowWrap: "anywhere" } as any}>
+            <ShieldCheck size={15} aria-hidden="true" />
+            <span style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2 as any, WebkitBoxOrient: "vertical" as any, overflow: "hidden" } as any}>
+              {t("eyebrow")}
+            </span>
+          </p>
+          <h1
+            style={{
+              color: "#1E332E",
+              overflowWrap: "anywhere",
+              display: "-webkit-box",
+              WebkitLineClamp: 2 as any,
+              WebkitBoxOrient: "vertical" as any,
+              overflow: "hidden",
+            } as any}
+          >
+            {t("title")}
+          </h1>
+          <p style={{ color: "#6B7C6E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2 as any, WebkitBoxOrient: "vertical" as any, overflow: "hidden" } as any}>
+            {t("subtitle")}
+          </p>
         </div>
-        <span className={styles.heroIcon} style={{ display: "grid", placeItems: "center" }}>
+        <span
+          style={{
+            display: "grid",
+            placeItems: "center",
+            width: 48,
+            height: 48,
+            borderRadius: 16,
+            background: "rgba(95,217,179,.12)",
+            border: "1px solid #E8EDEE",
+            flex: "0 0 auto",
+          } as any}
+        >
           <VectorNursing size={48} aria-hidden="true" />
         </span>
       </header>
 
       {providers.length === 0 ? (
-        <section className={styles.state}>
-          <VectorNursing size={48} aria-hidden="true" />
-          <h2>{t("empty")}</h2>
+        <section
+          className={styles.state}
+          style={{ border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", padding: 24, gap: 16, display: "grid", placeItems: "center" } as any}
+        >
+          <span style={{ display: "grid", placeItems: "center", width: 48, height: 48, borderRadius: 16, background: "rgba(95,217,179,.12)", border: "1px solid #E8EDEE" } as any}>
+            <VectorNursing size={48} aria-hidden="true" />
+          </span>
+          <h2 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2 as any, WebkitBoxOrient: "vertical" as any, overflow: "hidden" } as any}>{t("empty")}</h2>
         </section>
       ) : (
-        <section className={styles.grid} aria-label={t("title")}>
+        <section className={styles.grid} aria-label={t("title")} style={{ gap: 16 } as any}>
           {providers.map((provider) => (
-            <article className={styles.card} key={provider.id}>
-              <span className={styles.icon}>
-                <VectorNursing size={28} aria-hidden="true" />
+            <article
+              className={styles.card}
+              key={provider.id}
+              style={{
+                border: "1px solid #E8EDEE",
+                borderRadius: 20,
+                background: "rgba(255,255,255,.82)",
+                backdropFilter: "blur(16px)",
+                WebkitBackdropFilter: "blur(16px)",
+                padding: 16,
+                gap: 16,
+              } as any}
+            >
+              <span
+                style={{
+                  display: "grid",
+                  placeItems: "center",
+                  width: 48,
+                  height: 48,
+                  borderRadius: 16,
+                  background: "rgba(95,217,179,.12)",
+                  border: "1px solid #E8EDEE",
+                  flex: "0 0 auto",
+                } as any}
+              >
+                <VectorNursing size={48} aria-hidden="true" />
               </span>
-              <div>
-                <h2>{locale === "ar" ? provider.nameAr || provider.nameEn : provider.nameEn || provider.nameAr}</h2>
+              <div style={{ display: "grid", gap: 8, minWidth: 0 }}>
+                <h2
+                  style={{
+                    color: "#1E332E",
+                    overflowWrap: "anywhere",
+                    display: "-webkit-box",
+                    WebkitLineClamp: 2 as any,
+                    WebkitBoxOrient: "vertical" as any,
+                    overflow: "hidden",
+                  } as any}
+                >
+                  {locale === "ar" ? provider.nameAr || provider.nameEn : provider.nameEn || provider.nameAr}
+                </h2>
                 {provider.city ? (
-                  <p className={styles.location}>
+                  <p className={styles.location} style={{ color: "#6B7C6E", overflowWrap: "anywhere", display: "flex", alignItems: "center", gap: 8 } as any}>
                     <MapPin size={14} aria-hidden="true" />
-                    {provider.city}
+                    <span style={{ overflowWrap: "anywhere" } as any}>{provider.city}</span>
                   </p>
                 ) : null}
-                <span className={styles.status}>{t("verified")}</span>
+                <span
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 8,
+                    padding: "6px 12px",
+                    borderRadius: 20,
+                    border: "1px solid #E8EDEE",
+                    background: "#5FD9B3",
+                    color: "#1E332E",
+                    fontWeight: 700,
+                    width: "fit-content",
+                    overflowWrap: "anywhere",
+                  } as any}
+                >
+                  {t("verified")}
+                </span>
               </div>
             </article>
           ))}
