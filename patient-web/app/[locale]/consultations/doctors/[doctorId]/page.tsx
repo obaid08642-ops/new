@@ -63,20 +63,20 @@ export default async function DoctorDetailPage({ params, searchParams }: Props) 
 
   const rtl = locale === "ar" || locale === "ur"; const Arrow = rtl ? ArrowLeft : ArrowRight;
   return (
-    <main className={`main ${styles.page}`}>
+    <main className={`main ${styles.page}`} style={{ background: "#FDFDFC" }}>
       <JsonLd data={[physician({ name: doctor.name ?? t("nameUnavailable"), path: `/consultations/doctors/${doctor.id}`, locale, specialty: doctor.specialty ?? null }), breadcrumbList([{ name: t("title"), locale, path: "/consultations/doctors" }, { name: doctor.name ?? t("nameUnavailable"), locale, path: `/consultations/doctors/${doctor.id}` }])]} />
-      <Link href={`/${locale}/consultations/doctors`} className={styles.back}>
+      <Link href={`/${locale}/consultations/doctors`} className={styles.back} style={{ borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", color: "#1E332E", gap: 8 } as any}>
         <Arrow size={17} aria-hidden="true" />
         {t("back")}
       </Link>
-      <article className={styles.detail}>
-        <div className={styles.detailHeader}>
-          <div className={styles.detailIcon} style={{ width: 84, height: 84, borderRadius: 20, border: "1px solid #E8EDEE", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(253,253,252,0.92)", backdropFilter: "blur(16px)" } as any}>
+      <article className={styles.detail} style={{ gap: 16, borderRadius: 20, border: "1px solid #E8EDEE", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", padding: 16 } as any}>
+        <div className={styles.detailHeader} style={{ gap: 16 } as any}>
+          <div className={styles.detailIcon} style={{ width: 48, height: 48, borderRadius: 16, border: "1px solid #E8EDEE", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>
             <VectorDoctor size={48} aria-hidden="true" />
           </div>
-          <div className={styles.detailInfo}>
-            <p className={styles.eyebrow}>{t("eyebrow")}</p>
-            <h1 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{doctor.name ?? t("nameUnavailable")}</h1>
+          <div className={styles.detailInfo} style={{ gap: 8 } as any}>
+            <p className={styles.eyebrow} style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{t("eyebrow")}</p>
+            <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{doctor.name ?? t("nameUnavailable")}</h1>
             {doctor.degree ? (
               <p className={styles.detailLine} style={{ overflowWrap: "anywhere" } as any}>
                 <BadgeCheck size={17} color="#00876F" aria-hidden="true" />
@@ -111,37 +111,39 @@ export default async function DoctorDetailPage({ params, searchParams }: Props) 
             </span>
           ) : null}
         </div>
-        <section className={styles.slotPanel} aria-labelledby="slots-title">
-          <h2 id="slots-title">{t("slotsTitle")}</h2>
-          <nav className={styles.slotTabs} aria-label={t("serviceTypeLabel")}>
+        <section className={styles.slotPanel} aria-labelledby="slots-title" style={{ gap: 16, borderRadius: 20, border: "1px solid #E8EDEE", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", padding: 16 } as any}>
+          <h2 id="slots-title" style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{t("slotsTitle")}</h2>
+          <nav className={styles.slotTabs} aria-label={t("serviceTypeLabel")} style={{ gap: 8 } as any}>
             {serviceTypes.map((type) => (
               <Link
                 key={type}
                 className={type === serviceType ? styles.sortActive : styles.sort}
                 href={`/${locale}/consultations/doctors/${doctor.id}?date=${date}&service_type=${type}`}
+                style={type === serviceType ? ({ background: "#5FD9B3", color: "#1E332E", borderRadius: 20, border: "1px solid #E8EDEE", fontWeight: 760 } as any) : ({ borderRadius: 20, border: "1px solid #E8EDEE", color: "#1E332E" } as any)}
               >
                 {t(`service_${type}`)}
               </Link>
             ))}
           </nav>
-          <p className={styles.slotDate}>{t("slotsForDate", { date })}</p>
+          <p className={styles.slotDate} style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{t("slotsForDate", { date })}</p>
           {slots?.slots.length ? (
-            <div className={styles.slotGrid}>
+            <div className={styles.slotGrid} style={{ gap: 8 } as any}>
               {slots.slots.map((slot) => (
                 <span
                   key={slot.start}
                   className={slot.available ? styles.slotAvailable : styles.slotUnavailable}
                   aria-label={slot.available ? t("available") : t("unavailable")}
+                  style={{ borderRadius: 20, border: "1px solid #E8EDEE" } as any}
                 >
                   {slot.label}
                 </span>
               ))}
             </div>
           ) : (
-            <p className={styles.notice}>{t(slots?.reason === "closed" ? "slotsClosed" : "slotsEmpty")}</p>
+            <p className={styles.notice} style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{t(slots?.reason === "closed" ? "slotsClosed" : "slotsEmpty")}</p>
           )}
         </section>
-        <p className={styles.notice}>{t("detailNotice")}</p>
+        <p className={styles.notice} style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{t("detailNotice")}</p>
         {slots?.slots.length ? (
           <AppointmentBookingForm locale={locale} doctorId={doctor.id} serviceType={serviceType} slots={slots.slots} />
         ) : null}

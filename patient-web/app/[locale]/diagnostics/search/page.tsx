@@ -5,6 +5,7 @@ import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { callPatientApi } from "@/lib/api/upstream";
 import { DiagnosticsSearchClient } from "@/components-next/diagnostics-search-client";
+import { VectorLabs } from "@/components-next/vector-illustrations";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ q?: string }> };
 
@@ -42,20 +43,33 @@ export default async function DiagnosticsSearchPage({ params, searchParams }: Pr
   if (response.status === 401) redirect(`/${locale}/login`);
   if (!response.ok) {
     return (
-      <main className="main">
-        <Link href={`/${locale}/diagnostics`}>{ar ? "التحاليل" : "Diagnostics"}</Link>
-        <h1>{ar ? "البحث عن تحليل" : "Search tests"}</h1>
-        <p role="alert">{ar ? "تعذر تحميل التحاليل" : "Could not load tests"}</p>
+      <main className="main" style={{ background: "#FDFDFC" }}>
+        <section style={{ borderRadius: 20, border: "1px solid #E8EDEE", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", display: "grid", gap: 16, placeItems: "center", padding: 24, textAlign: "center" } as any}>
+          <VectorLabs size={48} aria-hidden="true" />
+          <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{ar ? "البحث عن تحليل" : "Search tests"}</h1>
+          <p role="alert" style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{ar ? "تعذر تحميل التحاليل" : "Could not load tests"}</p>
+          <Link href={`/${locale}/diagnostics`} style={{ background: "#5FD9B3", color: "#1E332E", borderRadius: 20, border: "1px solid #E8EDEE", fontWeight: 760, padding: "10px 18px", textDecoration: "none" } as any}>{ar ? "التحاليل" : "Diagnostics"}</Link>
+        </section>
       </main>
     );
   }
   const sp = await searchParams;
   const services = extractServices(await response.json().catch(() => null), locale);
   return (
-    <main className="main">
-      <Link href={`/${locale}/diagnostics`}>{ar ? "التحاليل" : "Diagnostics"}</Link>
-      <h1>{ar ? "البحث عن تحليل" : "Search tests"}</h1>
-      <DiagnosticsSearchClient services={services} initialQuery={(sp.q || "").trim()} locale={locale} />
+    <main className="main" style={{ background: "#FDFDFC" }}>
+      <section style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16, flexWrap: "wrap", padding: 16, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>
+        <div style={{ display: "grid", gap: 8, minWidth: 0, flex: "1 1 240px" }}>
+          <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{ar ? "البحث عن تحليل" : "Search tests"}</h1>
+          <p style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", color: "#5A6B6B" } as any}>{ar ? "ابحث بالاسم أو الفئة." : "Search by name or category."}</p>
+        </div>
+        <span style={{ display: "grid", placeItems: "center", width: 48, height: 48, borderRadius: 16, background: "rgba(255,255,255,.82)", border: "1px solid #E8EDEE", flex: "0 0 auto", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}><VectorLabs size={48} aria-hidden="true" /></span>
+      </section>
+      <Link href={`/${locale}/diagnostics`} style={{ borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", color: "#1E332E", gap: 8, padding: "8px 14px", display: "inline-flex", alignItems: "center", textDecoration: "none", fontWeight: 600, marginTop: 16 } as any}>
+        {ar ? "التحاليل" : "Diagnostics"}
+      </Link>
+      <div style={{ marginTop: 16, borderRadius: 20, border: "1px solid #E8EDEE", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", padding: 16, display: "grid", gap: 8 } as any}>
+        <DiagnosticsSearchClient services={services} initialQuery={(sp.q || "").trim()} locale={locale} />
+      </div>
     </main>
   );
 }
