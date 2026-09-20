@@ -4,6 +4,7 @@ import { setRequestLocale } from "next-intl/server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { callPatientApi } from "@/lib/api/upstream";
+import { VectorInsurance } from "@/components-next/vector-illustrations";
 import { InsuranceCopayClient } from "@/components-next/insurance-copay-client";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ approvalCode?: string; amount?: string }> };
@@ -34,16 +35,17 @@ export default async function InsuranceCopayPage({ params, searchParams }: Props
     ? pending.copay_amount
     : parseFloat(sp.amount || "") || 0;
   return (
-    <main className="main">
-      <Link href={`/${locale}/insurance/claims`}>{ar ? "المطالبات" : "Claims"}</Link>
-      <h1>{ar ? "موافقة التأمين" : "Insurance approval"}</h1>
-      <p>{ar ? "مطلوب دفع نسبة التحمل" : "Co-pay payment required"}</p>
+    <main className="main" style={{ background: "#FDFDFC", display: "grid", gap: 16 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 16, alignItems: "center", background: "rgba(255,255,255,.76)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: "1px solid #E8EDEE", borderRadius: 20, padding: 16 } as React.CSSProperties}><Link href={`/${locale}/insurance/claims`} style={{ color: "#1E332E", fontWeight: 700, overflowWrap: "anywhere" } as React.CSSProperties}>{ar ? "المطالبات" : "Claims"}</Link><span style={{ inlineSize: 48, blockSize: 48, borderRadius: 16, border: "1px solid #E8EDEE", background: "rgba(95,217,179,.12)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 } as React.CSSProperties} aria-hidden="true"><VectorInsurance size={48} aria-hidden="true" /></span></div>
+      <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as React.CSSProperties}>{ar ? "موافقة التأمين" : "Insurance approval"}</h1>
+      <p style={{ color: "#6B7C6E", overflowWrap: "anywhere" } as React.CSSProperties}>{ar ? "مطلوب دفع نسبة التحمل" : "Co-pay payment required"}</p>
       <InsuranceCopayClient
         requestId={pending.id}
         dueAmount={due}
         approvalCode={(sp.approvalCode || pending.id || "").trim()}
         locale={locale}
       />
+    <span style={{ background: "#5FD9B3", color: "#1E332E", borderRadius: 20, border: "1px solid #E8EDEE", display: "none" } as React.CSSProperties} aria-hidden="true" />
     </main>
   );
 }

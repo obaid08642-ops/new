@@ -54,23 +54,24 @@ export default async function LoyaltyPage({ params }: Props) {
   const labels = { claim: t("claim"), claiming: t("claiming"), claimed: t("claimed"), error: t("error") };
 
   return (
-    <main className={`main ${styles.page}`}>
-      <section className={styles.hero}>
+    <main className={`main ${styles.page}`} style={{ background: "#FDFDFC", display: "grid", gap: 16 }}>
+      <section className={styles.hero} style={{ background: "rgba(255,255,255,.76)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: "1px solid #E8EDEE", borderRadius: 20, padding: 16, display: "flex", justifyContent: "space-between", gap: 16, alignItems: "center" }}>
         <div className={styles.heroCopy}>
           <p className={styles.eyebrow}>
             <Sparkles size={15} aria-hidden="true" />
             {isAr ? "برنامج مكافآت نبض بلس" : "Nabd Plus Rewards"}
           </p>
-          <h1>{t("title")}</h1>
+          <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as React.CSSProperties}>{t("title")}</h1>
           <p>
             {isAr
               ? "اجمع النقاط مع كل استشارة، فحص، أو طلب دواء واستبدلها بخصومات وجلسات مجانية."
               : "Earn points with every consultation, test, or prescription and redeem for exclusive perks."}
           </p>
         </div>
-        <div className={styles.heroIllustration}>
-          <VectorLoyalty size={80} />
-        </div>
+        <span style={{ inlineSize: 48, blockSize: 48, borderRadius: 16, border: "1px solid #E8EDEE", background: "rgba(95,217,179,.12)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 } as React.CSSProperties} aria-hidden="true">
+          <VectorLoyalty size={48} />
+        </span>
+      <span style={{ background: "#5FD9B3", color: "#1E332E", borderRadius: 20, border: "1px solid #E8EDEE", padding: "8px 12px", display: "inline-flex", gap: 8, alignItems: "center" } as React.CSSProperties} aria-hidden="true" />
       </section>
 
       <section className={styles.pointsCard}>
