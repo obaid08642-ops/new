@@ -1,3 +1,4 @@
+import { VectorInsurance } from "@/components-next/vector-illustrations";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -21,15 +22,15 @@ export default async function InsuranceClaimsPage({ params }: Props) {
   if (res.status === 403 || res.status === 404) notFound();
   if (!res.ok) {
     return (
-      <main className={`main ${styles.page}`}>
-        <section className={styles.state} role="alert"><h1>{t("unavailableTitle")}</h1><p>{t("unavailable")}</p></section>
+      <main className={`main ${styles.page}`} style={{ background: "#FDFDFC", display: "grid", gap: 16 }}>
+        <section className={styles.state} role="alert"><span style={{ inlineSize: 48, blockSize: 48, borderRadius: 16, border: "1px solid #E8EDEE", background: "rgba(95,217,179,.12)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 } as React.CSSProperties} aria-hidden="true"><VectorInsurance size={48} aria-hidden="true" /></span><h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as React.CSSProperties}>{t("unavailableTitle")}</h1><p>{t("unavailable")}</p></section>
       </main>
     );
   }
   const claims = parseClaims(await res.json().catch(() => null));
 
   return (
-    <main className={`main ${styles.page}`}>
+    <main className={`main ${styles.page}`} style={{ background: "#FDFDFC", display: "grid", gap: 16 }}>
       <Link href={`/${locale}/insurance`} className={styles.back}>{locale === "ar" ? "التأمين" : "Insurance"}</Link>
       <section className={styles.claimsSection} aria-labelledby="claims-title">
         <div className={styles.claimsHeading}>
@@ -37,7 +38,7 @@ export default async function InsuranceClaimsPage({ params }: Props) {
             <p className={styles.eyebrow}><FileCheck2 size={15} aria-hidden="true" />{t("claimsEyebrow")}</p>
             <h2 id="claims-title">{t("claimsTitle")}</h2>
           </div>
-          <Link href={`/${locale}/insurance/submit-claim`}>{locale === "ar" ? "مطالبة جديدة" : "New claim"}</Link>
+          <Link href={`/${locale}/insurance/submit-claim`} style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 16px", background: "#5FD9B3", color: "#1E332E", borderRadius: 20, border: "1px solid #E8EDEE", fontWeight: 700, textDecoration: "none", overflowWrap: "anywhere" } as React.CSSProperties}>{locale === "ar" ? "مطالبة جديدة" : "New claim"}</Link>
         </div>
         {claims.length === 0 ? (
           <div className={styles.state}><p>{t("claimsEmpty")}</p></div>

@@ -7,6 +7,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { CheckCircle2, HeartHandshake, Home, MapPin, ShieldCheck } from "lucide-react";
+import { VectorNursing } from "@/components-next/vector-illustrations";
 
 type Props = { params: Promise<{ locale: string; citySlug: string }> };
 
@@ -96,7 +97,7 @@ export default async function HomeNursingCityPage({ params }: Props) {
     : `Home Nursing Services in ${decCity}`;
 
   return (
-    <main className="main" style={{ maxWidth: "960px", margin: "0 auto", padding: "2rem 1rem" }}>
+    <main className="main" style={{ background: "#FDFDFC", display: "grid", gap: 16, padding: 16 }}>
       <JsonLd
         data={[
           medicalWebPage({
@@ -118,36 +119,36 @@ export default async function HomeNursingCityPage({ params }: Props) {
         ]}
       />
 
-      <header style={{ marginBottom: "2rem" }}>
-        <h1 style={{ fontSize: "1.875rem", fontWeight: 700, margin: "0 0 0.5rem 0", color: "#111827" }}>{pageTitle}</h1>
-        <p style={{ color: "#4b5563", fontSize: "1rem", margin: 0 }}>
+      <section style={{ background: "rgba(255,255,255,.76)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: "1px solid #E8EDEE", borderRadius: 20, padding: 16, display: "flex", justifyContent: "space-between", gap: 16, alignItems: "center" }}><div style={{ minWidth: 0 }}><p style={{ color: "#1E332E", fontWeight: 800, fontSize: 12, letterSpacing: "0.06em", overflowWrap: "anywhere", display: "inline-flex", alignItems: "center", gap: 8 } as React.CSSProperties}><MapPin size={14} aria-hidden="true" />{locale === "ar" ? "التمريض المنزلي" : "Home Nursing"}</p><h1 style={{ fontSize: "1.875rem", fontWeight: 700, margin: "0 0 0.5rem 0", color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as React.CSSProperties}>{pageTitle}</h1><p style={{ color: "#6B7C6E", fontSize: "1rem", margin: 0, overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as React.CSSProperties}>{locale === "ar" ? `طواقم تمريضية مرخصة من وزارة الصحة لتقديم الرعاية الطبية في منزلك في ${decCity}.` : `Licensed medical nurses delivering professional healthcare at your home in ${decCity}.`}</p></div><span style={{ inlineSize: 48, blockSize: 48, borderRadius: 16, border: "1px solid #E8EDEE", background: "rgba(95,217,179,.12)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 } as React.CSSProperties} aria-hidden="true"><VectorNursing size={48} aria-hidden="true" /></span></section><header style={{ display: "none" }}>
+        <h1 style={{ fontSize: "1.875rem", fontWeight: 700, margin: "0 0 0.5rem 0", color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as React.CSSProperties}>{pageTitle}</h1>
+        <p style={{ color: "#6B7C6E", fontSize: "1rem", margin: 0 }}>
           {locale === "ar"
             ? `طواقم تمريضية مرخصة من وزارة الصحة لتقديم الرعاية الطبية في منزلك في ${decCity}.`
             : `Licensed medical nurses delivering professional healthcare at your home in ${decCity}.`}
         </p>
       </header>
 
-      <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1rem" }}>
+      <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16 }}>
         {services.map((svc: any, idx: number) => (
           <article
             key={svc.service_id || idx}
             style={{
-              border: "1px solid #e5e7eb",
-              borderRadius: "0.75rem",
+              border: "1px solid #E8EDEE",
+              borderRadius: 20,
               padding: "1.25rem",
-              backgroundColor: "#fff",
+              background: "rgba(255,255,255,.82)",
               display: "flex",
               flexDirection: "column",
-              justifyContent: "space-between",
+              justifyContent: "space-between", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
             }}
           >
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
-                <HeartHandshake size={18} color="#059669" />
+                <HeartHandshake size={18} color="#5FD9B3" />
                 <h2 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 600 }}>{svc.name}</h2>
               </div>
-              <p style={{ margin: "0.25rem 0", color: "#6b7280", fontSize: "0.875rem" }}>{svc.description}</p>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.25rem", color: "#059669", fontSize: "0.8rem", marginTop: "0.5rem" }}>
+              <p style={{ margin: "0.25rem 0", color: "#6B7C6E", fontSize: "0.875rem" }}>{svc.description}</p>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.25rem", color: "#5FD9B3", fontSize: "0.8rem", marginTop: "0.5rem" }}>
                 <CheckCircle2 size={14} />
                 <span>{locale === "ar" ? "مرخص ومعتمد" : "Licensed Staff"}</span>
               </div>
@@ -157,11 +158,11 @@ export default async function HomeNursingCityPage({ params }: Props) {
               style={{
                 display: "inline-block",
                 textAlign: "center",
-                backgroundColor: "#059669",
-                color: "#fff",
+                background: "#5FD9B3",
+                color: "#1E332E",
                 padding: "0.5rem 1rem",
-                borderRadius: "0.5rem",
-                textDecoration: "none",
+                borderRadius: 20,
+                textDecoration: "none", border: "1px solid #E8EDEE",
                 fontWeight: 500,
                 marginTop: "1rem",
                 fontSize: "0.875rem",

@@ -1,3 +1,4 @@
+import { VectorInsurance } from "@/components-next/vector-illustrations";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
@@ -61,11 +62,12 @@ export default async function InsurancePaymentSplitPage({ params, searchParams }
   };
 
   return (
-    <main className="main">
+    <main className="main" style={{ background: "#FDFDFC", display: "grid", gap: 16 }}>
       <Link href={`/${locale}/insurance/claims`}>{ar ? "المطالبات" : "Claims"}</Link>
-      <h1>{ar ? "قرار التأمين" : "Insurance decision"}</h1>
+      <span style={{ inlineSize: 48, blockSize: 48, borderRadius: 16, border: "1px solid #E8EDEE", background: "rgba(95,217,179,.12)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 } as React.CSSProperties} aria-hidden="true"><VectorInsurance size={48} aria-hidden="true" /></span><h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as React.CSSProperties}>{ar ? "قرار التأمين" : "Insurance decision"}</h1>
       <section aria-label={ar ? "الحالة" : "Status"}>
         <p role="status">{actionLabel[action]}</p>
+      <span style={{ background: "#5FD9B3", color: "#1E332E", borderRadius: 20, border: "1px solid #E8EDEE", padding: "8px 12px", display: "inline-flex", gap: 8, alignItems: "center" } as React.CSSProperties} aria-hidden="true" />
       </section>
       <section aria-label={ar ? "المبالغ المعتمدة" : "Approved amounts"}>
         <p>{ar ? "إجمالي الخدمة" : "Service total"}: {price} {ar ? "ر.س" : "SAR"}</p>

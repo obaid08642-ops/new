@@ -1,3 +1,4 @@
+import { VectorInsurance } from "@/components-next/vector-illustrations";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
@@ -20,28 +21,29 @@ export default async function InsurancePolicyDetailPage({ params }: Props) {
   if (response.status === 403 || response.status === 404) notFound();
   if (!response.ok) {
     return (
-      <main className={`main ${styles.page}`}>
+      <main className={`main ${styles.page}`} style={{ background: "#FDFDFC", display: "grid", gap: 16 }}>
         <section className={styles.state} role="alert">
-          <h1>{ar ? "تعذر تحميل الوثيقة" : "Could not load policy"}</h1>
-        </section>
+          <span style={{ inlineSize: 48, blockSize: 48, borderRadius: 16, border: "1px solid #E8EDEE", background: "rgba(95,217,179,.12)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 } as React.CSSProperties} aria-hidden="true"><VectorInsurance size={48} aria-hidden="true" /></span><h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as React.CSSProperties}>{ar ? "تعذر تحميل الوثيقة" : "Could not load policy"}</h1>
+        <span style={{ background: "#5FD9B3", color: "#1E332E", borderRadius: 20, border: "1px solid #E8EDEE", padding: "8px 12px", display: "inline-flex", gap: 8, alignItems: "center" } as React.CSSProperties} aria-hidden="true" />
+      </section>
       </main>
     );
   }
   const summary = parseInsuranceSummary(await response.json().catch(() => null));
   if (!summary || !summary.hasPolicy) {
     return (
-      <main className={`main ${styles.page}`}>
+      <main className={`main ${styles.page}`} style={{ background: "#FDFDFC", display: "grid", gap: 16 }}>
         <Link href={`/${locale}/insurance`} className={styles.back}>{ar ? "التأمين" : "Insurance"}</Link>
-        <h1>{ar ? "لا توجد وثيقة" : "No policy"}</h1>
+        <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as React.CSSProperties}>{ar ? "لا توجد وثيقة" : "No policy"}</h1>
         <Link href={`/${locale}/insurance/add-policy`}>{ar ? "إضافة وثيقة" : "Add policy"}</Link>
       </main>
     );
   }
 
   return (
-    <main className={`main ${styles.page}`}>
+    <main className={`main ${styles.page}`} style={{ background: "#FDFDFC", display: "grid", gap: 16 }}>
       <Link href={`/${locale}/insurance`} className={styles.back}>{ar ? "التأمين" : "Insurance"}</Link>
-      <h1>{ar ? "تفاصيل الوثيقة" : "Policy details"}</h1>
+      <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as React.CSSProperties}>{ar ? "تفاصيل الوثيقة" : "Policy details"}</h1>
       <dl>
         {summary.companyName ? <div><dt>{ar ? "الشركة" : "Company"}</dt><dd>{summary.companyName}</dd></div> : null}
         {summary.planClass ? <div><dt>{ar ? "الفئة" : "Class"}</dt><dd>{summary.planClass}</dd></div> : null}

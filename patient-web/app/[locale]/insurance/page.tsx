@@ -28,11 +28,11 @@ export default async function InsurancePage({ params }: Props) {
   if ([policyResponse, benefitsResponse, claimsResponse].some((r) => r.status === 403 || r.status === 404)) notFound();
   if (!policyResponse.ok || !benefitsResponse.ok || !claimsResponse.ok)
     return (
-      <main className={`main ${styles.page}`}>
-        <section className={styles.state} role="alert">
-          <VectorInsurance size={42} aria-hidden="true" />
-          <h1>{t("unavailableTitle")}</h1>
-          <p>{t("unavailable")}</p>
+      <main className={`main ${styles.page}`} style={{ background: "#FDFDFC", display: "grid", gap: 16 }}>
+        <section className={styles.state} role="alert" style={{ border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", padding: 16, display: "grid", gap: 8 } as React.CSSProperties}>
+          <span style={{ inlineSize: 48, blockSize: 48, borderRadius: 16, border: "1px solid #E8EDEE", background: "rgba(95,217,179,.12)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", display: "inline-flex", alignItems: "center", justifyContent: "center" } as React.CSSProperties} aria-hidden="true"><VectorInsurance size={48} aria-hidden="true" /></span>
+          <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as React.CSSProperties}>{t("unavailableTitle")}</h1>
+          <p style={{ color: "#6B7C6E", overflowWrap: "anywhere" } as React.CSSProperties}>{t("unavailable")}</p>
         </section>
       </main>
     );
@@ -41,11 +41,11 @@ export default async function InsurancePage({ params }: Props) {
   const claims = parseClaims(await claimsResponse.json().catch(() => null));
   if (!summary)
     return (
-      <main className={`main ${styles.page}`}>
-        <section className={styles.state} role="alert">
-          <VectorInsurance size={42} aria-hidden="true" />
-          <h1>{t("unavailableTitle")}</h1>
-          <p>{t("unavailable")}</p>
+      <main className={`main ${styles.page}`} style={{ background: "#FDFDFC", display: "grid", gap: 16 }}>
+        <section className={styles.state} role="alert" style={{ border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", padding: 16, display: "grid", gap: 8 } as React.CSSProperties}>
+          <span style={{ inlineSize: 48, blockSize: 48, borderRadius: 16, border: "1px solid #E8EDEE", background: "rgba(95,217,179,.12)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", display: "inline-flex", alignItems: "center", justifyContent: "center" } as React.CSSProperties} aria-hidden="true"><VectorInsurance size={48} aria-hidden="true" /></span>
+          <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as React.CSSProperties}>{t("unavailableTitle")}</h1>
+          <p style={{ color: "#6B7C6E", overflowWrap: "anywhere" } as React.CSSProperties}>{t("unavailable")}</p>
         </section>
       </main>
     );
@@ -54,26 +54,26 @@ export default async function InsurancePage({ params }: Props) {
     status ? t(`claimStatus.${status}` as "claimStatus.pending") : t("claimStatus.unknown");
 
   return (
-    <main className={`main ${styles.page}`}>
+    <main className={`main ${styles.page}`} style={{ background: "#FDFDFC", display: "grid", gap: 16 }}>
       <Link href={`/${locale}/dashboard`} className={styles.back}>
         <ChevronLeft size={17} aria-hidden="true" />
         {locale === "ar" ? "لوحة التحكم" : "Dashboard"}
       </Link>
 
-      <section className={styles.hero}>
-        <div>
-          <p className={styles.eyebrow}>
+      <section className={styles.hero} style={{ background: "rgba(255,255,255,.76)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: "1px solid #E8EDEE", borderRadius: 20, padding: 16, display: "flex", justifyContent: "space-between", gap: 16, alignItems: "center" }}>
+        <div style={{ minWidth: 0 }}>
+          <p className={styles.eyebrow} style={{ color: "#1E332E", overflowWrap: "anywhere" } as React.CSSProperties}>
             <ShieldCheck size={15} aria-hidden="true" />
             {t("eyebrow")}
           </p>
-          <h1>{t("title")}</h1>
-          <p>{t("notice")}</p>
+          <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as React.CSSProperties}>{t("title")}</h1>
+          <p style={{ color: "#6B7C6E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as React.CSSProperties}>{t("notice")}</p>
         </div>
         <span className={styles.heroVector}>
           <VectorInsurance size={48} aria-hidden="true" />
         </span>
       </section>
-
+      <span style={{ background: "#5FD9B3", color: "#1E332E", borderRadius: 20, border: "1px solid #E8EDEE", padding: "8px 12px", display: "inline-flex", gap: 8, alignItems: "center" } as React.CSSProperties} aria-hidden="true" />
       <nav aria-label={locale === "ar" ? "خدمات التأمين" : "Insurance services"} style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>
         <Link href={`/${locale}/insurance/add-policy`}>{locale === "ar" ? "إضافة وثيقة" : "Add policy"}</Link>
         <Link href={`/${locale}/insurance/submit-claim`}>{locale === "ar" ? "تقديم مطالبة" : "Submit claim"}</Link>
@@ -88,7 +88,7 @@ export default async function InsurancePage({ params }: Props) {
       <section className={styles.grid}>
         <div className={styles.card}>
           <span>{t("policyStatus")}</span>
-          <strong style={{ color: summary.hasPolicy ? "#00876F" : "var(--ink)" }}>
+          <strong style={{ color: summary.hasPolicy ? "#1E332E" : "var(--ink)" }}>
             {summary.hasPolicy ? t("active") : t("none")}
           </strong>
         </div>
