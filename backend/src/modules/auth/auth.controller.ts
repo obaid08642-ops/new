@@ -39,6 +39,8 @@ class RegisterDto {
   @IsString() @MinLength(6) password: string;
   @IsOptional() @IsString() email?: string;
   @IsOptional() @IsString() role?: UserRole;
+  /** F63: OTP code proving ownership of the phone/email (else a prior verified marker is required). */
+  @IsOptional() @IsString() otp?: string;
 
   // Patient Contract V1 payload.
   @IsOptional() @IsString() name?: string;
