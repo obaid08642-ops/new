@@ -6,6 +6,7 @@ import { Request } from 'express';
 import { UserRole } from './enums';
 import { Permission, PERMISSIONS_KEY, CHECK_OWNERSHIP_KEY, OwnershipOptions } from './permissions';
 import { roleSatisfies } from './rbac';
+export { roleSatisfies } from './rbac';
 import { ImpersonationSessionService } from './impersonation-session.service';
 import { resolveEffectivePermissions } from './effective-permissions';
 import { InjectConnection } from '@nestjs/mongoose';

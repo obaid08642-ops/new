@@ -1,10 +1,10 @@
 import { Controller, Get, Put, Body, UseGuards } from '@nestjs/common';
-import { RolesGuard } from '../guards/roles.guard';
+import { JwtAuthGuard } from '../../../common/auth.guard';
 import { Roles } from '../../../common/auth.guard';
 import { UserRole } from '../../../common/enums';
 
 @Controller('admin/config')
-@UseGuards(RolesGuard)
+@UseGuards(JwtAuthGuard)
 export class AdminConfigController {
 
   @Get('sla')

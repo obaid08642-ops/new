@@ -55,6 +55,7 @@ export class CommunityController {
 
   // ── Admin Moderation ───────────────────────────────────────────────────────
 
+  @Roles(UserRole.ADMIN)
   @Get('admin/pending')
   pendingPosts(@Query('page') page: string) {
     return this.communityService.getPendingPosts(+page || 1);

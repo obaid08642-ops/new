@@ -160,6 +160,7 @@ export class RadiologyController {
     return this.svc.confirmPreparation(id, user);
   }
 
+  @Roles(UserRole.ADMIN)
   @Get('admin/all')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
   adminAll(@Query() q: any) {

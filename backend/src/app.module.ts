@@ -144,7 +144,6 @@ import { ArticlesModule } from './modules/articles/articles.module';
 
 import { CorrelationMiddleware } from './common/correlation.middleware';
 import { DoctorsModule } from './modules/doctors/doctors.module';
-import { RolesGuard } from './modules/admin-web-core/guards/roles.guard';
 import { WriteGuard } from './common/write-guard';
 import { ProductRankingModule } from './modules/product-ranking/product-ranking.module';
 import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
@@ -297,7 +296,6 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
   providers: [
     ImpersonationSessionService,
     { provide: APP_GUARD, useClass: JwtAuthGuard },
-    { provide: APP_GUARD, useClass: RolesGuard },
     { provide: APP_GUARD, useClass: WriteGuard },
     { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_INTERCEPTOR, useClass: AuditLogInterceptor },
