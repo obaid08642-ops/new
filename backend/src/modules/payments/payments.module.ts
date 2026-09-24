@@ -300,6 +300,8 @@ export class PaymentsService {
   async createPaymentIntent(user: any, type: string, id: string, idempotencyKey: string) {
     const requestKey = String(idempotencyKey || '').trim();
     if (!requestKey || requestKey.length > 128) throw new BadRequestException('idempotency_key_required');
+    // Fail fast when no gateway is configured: never create a transaction record.
+    if (this.adapter.name === 'disabled') throw new ServiceUnavailableException('payment_gateway_not_configured');
     const kind = normalizeKind(type);
     // Governed pharmacy orders live in pharmacy_orders — resolve them first.
     let booking: any;
