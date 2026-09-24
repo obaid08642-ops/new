@@ -153,6 +153,7 @@ export class ProviderAdminController {
   }
   @Post(':id/request-changes') needsChanges(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) { return this.svc.requestChanges(u, id, body); }
   @Post(':id/suspend') suspend(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) { return this.svc.suspend(u, id, body); }
+  @Post(':id/reactivate') reactivate(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) { return this.svc.reactivate(u, id, body); }
 }
 
 // ============================================================================

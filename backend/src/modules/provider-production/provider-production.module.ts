@@ -20,7 +20,7 @@ import {
 } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
-import { JwtAuthGuard, CurrentUser, Roles } from '../../common/auth.guard';
+import { JwtAuthGuard, CurrentUser, Roles, getEffectiveRoles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { randomUUID } from 'crypto';
 
@@ -35,9 +35,13 @@ const ROLE_ALIASES: Record<string, string> = {
   pharmacist: 'pharmacy', hospital: 'hospital', facility: 'hospital',
 };
 function assertProviderRole(user: any) {
-  const raw = String(user?.role || '').toLowerCase();
-  const normalized = ROLE_ALIASES[raw] || raw;
-  if (!normalized || !PROVIDER_ROLES.includes(normalized as UserRole)) {
+  // P2.2: provider JWTs carry role='provider' + provider_type. Evaluate the
+  // same effective roles as JwtAuthGuard (role, provider_type, aliases) so a
+  // logged-in provider is not locked out of their own operational surface.
+  // Account ownership is still enforced per-endpoint via conn lookups.
+  const roles = getEffectiveRoles(user);
+  const ok = roles.some((r) => PROVIDER_ROLES.includes(r as UserRole) || r === 'provider');
+  if (!ok) {
     throw new ForbiddenException('provider_scope_required');
   }
 }
