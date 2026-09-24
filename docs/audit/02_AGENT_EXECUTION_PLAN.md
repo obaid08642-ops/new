@@ -289,6 +289,7 @@ Pharmacy {cash, insurance} × {delivery, pickup} × {Rx, no-Rx}; Consultation {o
 
 - **Payments:** single `PaymentGateway` interface; adapters: Tap, Moyasar, (HyperPay). Choose via `PAYMENT_PROVIDER` env. Sandbox first. Webhook signature REQUIRED in all envs (F60). Callback → redirect to `patient-web /payments/result?status=` + deep link, after syncing status server-side.
 - **Compliance:** PDPL consent + data export + account deletion (app + web, Apple requirement); ZATCA e-invoice + VAT 15%; forced-update check endpoint.
+- **Performance (F82):** Lighthouse CI shows LCP /ar 3.6s, /ar/c 5.1s, /ar/consultations/doctors 3.1s (budget ≤3.0s). Do: SSR the above-the-fold content (no client-only fetch for hero/first list), `next/image` with `priority` + correct `sizes` for LCP image, preconnect to API/CDN, cut client JS on these routes (dynamic import heavy widgets), cache catalog API responses (ISR/`revalidate`). Verify: Lighthouse CI green on all three URLs.
 - **Platform:** daily Mongo backup + weekly restore drill script; disk usage alert at 80%; CSP fix (nonce for style or move inline styles to CSS modules) (F68).
 - **Medical safety:** 997 escalation in triage; disclaimers; AI content review queue (Phase 6).
 
