@@ -1,6 +1,14 @@
 import { Injectable, NotFoundException, BadRequestException, ForbiddenException, Inject, Optional } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { HomeCareService, HomeCareBooking, NursingBookingState, HomeCareBookingState, NursingVisitReport, CarePlan, MedicalSupplyRequest } from '../../schemas/home-care.schema';
+import { pick } from '../../common/sanitize';
+
+/** P3.3 (F15): writable catalog fields — id/_id/active/governance flags excluded. */
+export const HOMECARE_CATALOG_FIELDS = [
+  'name_ar', 'name_en', 'description_ar', 'description_en', 'category', 'icon',
+  'price', 'duration', 'duration_value', 'requires_patient_medication', 'requires_companion',
+  'cash_availability', 'insurance_availability', 'image_url', 'popularity',
+] as const;
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { WorkflowEngineService } from '../workflow-engine/workflow-engine.module';
 import { HomeCareServiceRepository } from "./repositories/homecareservice.repository";
@@ -137,12 +145,12 @@ export class HomeCareSvc {
   // --- Admin Catalog CRUD (nursing/home-care services) ---
   async createCatalog(user: any, body: any) {
     if (user.role !== 'admin') throw new ForbiddenException();
-    return this.svcModel.create({ ...body, id: require('uuid').v4() });
+    return this.svcModel.create({ ...pick(body, HOMECARE_CATALOG_FIELDS), id: require('uuid').v4() });
   }
 
   async updateCatalog(user: any, id: string, body: any) {
     if (user.role !== 'admin') throw new ForbiddenException();
-    const updated = await this.svcModel.findOneAndUpdate({ id }, { $set: body }, { new: true });
+    const updated = await this.svcModel.findOneAndUpdate({ id }, { $set: pick(body, HOMECARE_CATALOG_FIELDS) }, { new: true });
     if (!updated) throw new NotFoundException();
     return updated;
   }

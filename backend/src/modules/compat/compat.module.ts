@@ -27,6 +27,7 @@ import { Connection, Model } from 'mongoose';
 import { v4 as uuid } from 'uuid';
 import { CurrentUser, Public, JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
+import { MarkDto, OneDto } from './compat.generated.dto';
 
 const now = () => new Date();
 const uid = (u: any) => u?.id || u?._id || u?.user_id;
@@ -230,7 +231,7 @@ class MaternityVaccinesController {
   }
 
   @Post()
-  async mark(@CurrentUser() u: any, @Body() body: any) {
+  async mark(@CurrentUser() u: any, @Body() body: MarkDto) {
     if (!body?.code) throw new BadRequestException('code_required');
     if (!SA_VACCINE_SCHEDULE.some((v) => v.code === body.code)) throw new BadRequestException('unknown_vaccine_code');
     const rec = { id: uuid(), user_id: uid(u), baby_id: body.baby_id || null, code: body.code, taken_at: body.taken_at ? new Date(body.taken_at) : now(), created_at: now() };
@@ -430,7 +431,7 @@ class AuditIngestController {
   constructor(@InjectConnection() private conn: Connection) {}
 
   @Post()
-  async one(@CurrentUser() user: any, @Body() body: any) {
+  async one(@CurrentUser() user: any, @Body() body: OneDto) {
     await this.conn.collection('clientevents').insertOne({
       account_id: uid(user), kind: String(body?.kind || body?.event || 'generic'),
       screen: body?.screen || null, meta: body?.meta || body?.data || {}, createdAt: now(),

@@ -30,6 +30,7 @@ import { RadiologyBooking, RadiologyBookingSchema } from '../../schemas/radiolog
 import { ProviderProfile, ProviderProfileSchema } from '../../schemas/provider-profile.schema';
 import { Facility, FacilitySchema, FacilityDocument } from '../../schemas/facility.schema';
 import { EventBusService } from '../events/event-bus.service';
+import { MatchDto } from './workflow-engine.dto';
 
 /* ──────────────────────────────────────────────────────────────────────
  *   DOMAIN-STATE → UNIVERSAL-STATE MAP (the ONLY place mapping exists)
@@ -560,7 +561,7 @@ export class WorkflowController {
   /** Provider matching endpoint — frontends call this for smart match. */
   @UseGuards(JwtAuthGuard) @Post('match')
   @SelfService()
-  match(@Body() b: any) {
+  match(@Body() b: MatchDto) {
     return this.engine.rankProviders({
       kind: b.kind,
       service_keys: b.service_keys,

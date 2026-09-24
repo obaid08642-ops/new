@@ -53,3 +53,75 @@ export class TriggerEmergencyDto {
   @IsString()
   reason: string;
 }
+
+export class CreateHomeCareCatalogDto {
+  @IsDefined()
+  @IsString()
+  name_ar: string;
+
+  @IsDefined()
+  @IsString()
+  name_en: string;
+
+  @IsDefined()
+  @IsString()
+  category: string;
+
+  @IsDefined()
+  @IsNumber()
+  price: number;
+
+  @IsDefined()
+  @IsString()
+  duration: string;
+
+  @IsOptional()
+  @IsString()
+  description_ar?: string;
+
+  @IsOptional()
+  @IsString()
+  description_en?: string;
+
+  @IsOptional()
+  @IsString()
+  icon?: string;
+
+  @IsOptional()
+  @IsNumber()
+  duration_value?: number;
+
+  @IsOptional()
+  @IsString()
+  image_url?: string;
+}
+
+export class UpdateHomeCareCatalogDto {
+  @IsOptional()
+  @IsString()
+  name_ar?: string;
+
+  @IsOptional()
+  @IsString()
+  name_en?: string;
+
+  @IsOptional()
+  @IsString()
+  category?: string;
+
+  @IsOptional()
+  @IsNumber()
+  price?: number;
+
+  @IsOptional()
+  @IsString()
+  duration?: string;
+
+  @IsOptional()
+  @IsString()
+  description_ar?: string;
+
+  @IsOptional()
+  @IsString()
+  description_en?: string;
+}

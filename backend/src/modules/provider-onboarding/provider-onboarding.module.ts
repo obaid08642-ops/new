@@ -10,6 +10,7 @@ import { ContractPdfService } from './contract-pdf.service';
 import * as bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import { escapeRegex } from '../../common/slug.util';
+import { StartDto, SubmitDto, AdminContractVisibilityDto } from './provider-onboarding.dto';
 
 /**
  * Unified Provider Onboarding Wizard.
@@ -459,7 +460,7 @@ export class ProviderOnboardingController {
   constructor(private svc: ProviderOnboardingService) {}
 
   @Public() @Post('start')
-  start(@Body() b: any) { return this.svc.start(b); }
+  start(@Body() b: StartDto) { return this.svc.start(b); }
 
   @UseGuards(JwtAuthGuard) @Get('my-profile')
   myProfile(@CurrentUser() u: any) { return this.svc.getMyProfile(u); }
@@ -474,7 +475,7 @@ export class ProviderOnboardingController {
 
   @UseGuards(JwtAuthGuard) @Post('submit')
   @SelfService()
-  submit(@CurrentUser() u: any, @Body() b: any) { return this.svc.submit(u, b); }
+  submit(@CurrentUser() u: any, @Body() b: SubmitDto) { return this.svc.submit(u, b); }
 
   @UseGuards(JwtAuthGuard) @Get('progress')
   progress(@CurrentUser() u: any) { return this.svc.getProgress(u); }
@@ -497,7 +498,7 @@ export class ProviderOnboardingController {
   /** Admin: grant/revoke the provider's ability to view their signed contract. */
   @UseGuards(JwtAuthGuard) @Post('admin/contracts/:id/visibility')
   @Roles(UserRole.ADMIN)
-  async adminContractVisibility(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
+  async adminContractVisibility(@CurrentUser() u: any, @Param('id') id: string, @Body() b: AdminContractVisibilityDto) {
     if (u.role !== 'admin' && u.role !== 'super_admin') throw new ForbiddenException('admin only');
     return this.svc.setContractVisibility(id, !!b?.visible);
   }

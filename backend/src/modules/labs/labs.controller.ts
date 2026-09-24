@@ -3,6 +3,7 @@ import { LabsService } from './labs.service';
 import { Public, CurrentUser, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { BookDto, TransitionDto, UploadDocDto, UpdateInsDto, OptInCashDto, AssignTechDto, UploadReportDto, RescheduleDto, UpdateGpsDto, DeclareEmergencyDto, RegisterSampleDto, ForceStateDto, UpdateStageDto} from './labs.dto';
+import { CreateLabCatalogDto, UpdateLabCatalogDto } from './labs.dto';
 
 @Controller('labs')
 export class LabsController {
@@ -161,7 +162,7 @@ export class LabsController {
   @Post('admin/catalog')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
   @Roles(UserRole.ADMIN)
-  createCatalog(@CurrentUser() u: any, @Body() b: any) {
+  createCatalog(@CurrentUser() u: any, @Body() b: CreateLabCatalogDto) {
     return this.svc.createCatalog(u, b);
   }
 
@@ -169,7 +170,7 @@ export class LabsController {
   @Put('admin/catalog/:id')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
   @Roles(UserRole.ADMIN)
-  updateCatalog(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
+  updateCatalog(@CurrentUser() u: any, @Param('id') id: string, @Body() b: UpdateLabCatalogDto) {
     return this.svc.updateCatalog(u, id, b);
   }
 
