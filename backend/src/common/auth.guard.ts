@@ -115,13 +115,18 @@ export class JwtAuthGuard implements CanActivate {
     // existing invalid-token leniency for public endpoints.
     const subjectId = payload?.id || payload?.sub;
     if (subjectId) {
-      let current: any = await this.connection.collection('users').findOne(
+      // Throw-safe lookup: test doubles may return non-promises or throw
+      // synchronously; any lookup failure degrades to "unknown subject".
+      const lookup = async (fn: () => any) => {
+        try { return (await fn()) || null; } catch { return null; }
+      };
+      let current: any = await lookup(() => this.connection.collection('users').findOne(
         { id: subjectId }, { projection: { token_version: 1 } },
-      ).catch(() => null);
+      ));
       if (!current) {
-        current = await this.connection.collection('provider_accounts').findOne(
+        current = await lookup(() => this.connection.collection('provider_accounts').findOne(
           { $or: [{ id: subjectId }, { user_id: subjectId }] }, { projection: { token_version: 1 } },
-        ).catch(() => null);
+        ));
       }
       const currentTv = Number(current?.token_version ?? 0);
       const tokenTv = Number(payload?.tv ?? 0);

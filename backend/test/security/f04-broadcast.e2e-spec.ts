@@ -28,18 +28,18 @@ describe('F04 pharmacy broadcast respond access control', () => {
   afterAll(async () => { await app?.close(); });
 
   it('patient token → 403', async () => {
-    await post(app, '/api/v1/nabd-extensions/pharmacy/broadcast/respond', patientToken(), { order_id: 'o1', items: [] }).expect(403);
+    await post(app, '/api/v1/pharmacy/broadcast/respond', patientToken(), { order_id: 'o1', items: [] }).expect(403);
     expect(offers.upsertDraft).not.toHaveBeenCalled();
   });
 
   it('notified pharmacy → 2xx with a real draft (no fake success)', async () => {
-    const res = await post(app, '/api/v1/nabd-extensions/pharmacy/broadcast/respond', tokenFor('pharmacy-1', 'pharmacy'), { order_id: 'o1', items: [] });
+    const res = await post(app, '/api/v1/pharmacy/broadcast/respond', tokenFor('pharmacy-1', 'pharmacy'), { order_id: 'o1', items: [] });
     expect([200, 201]).toContain(res.status);
     expect(res.body.status).toBe('draft');
     expect(res.body.pharmacy_account_id).toBe('pharmacy-1');
   });
 
   it('pharmacy NOT notified for the broadcast → 403', async () => {
-    await post(app, '/api/v1/nabd-extensions/pharmacy/broadcast/respond', tokenFor('pharmacy-2', 'pharmacy'), { order_id: 'o1', items: [] }).expect(403);
+    await post(app, '/api/v1/pharmacy/broadcast/respond', tokenFor('pharmacy-2', 'pharmacy'), { order_id: 'o1', items: [] }).expect(403);
   });
 });

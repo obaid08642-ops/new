@@ -26,12 +26,19 @@ describe('patient web auth contract', () => {
       })),
     };
     const jwt = { sign: jest.fn().mockReturnValueOnce('access-token').mockReturnValueOnce('refresh-token') };
+    // F34: OTP delivery needs a working channel; the mail channel stands in
+    // so contract assertions stay delivery-agnostic (8th/9th ctor slots).
+    const mail = { sendOtp: jest.fn(async () => ({ ok: true, provider: 'resend', fallback_used: false })) };
     const service = new AuthService(
       userModel as any,
       patientModel as any,
       jwt as any,
       { emit: jest.fn() } as any,
       redis as any,
+      undefined,
+      undefined,
+      undefined,
+      mail as any,
     );
     return { data, userModel, patientModel, redis, jwt, service };
   };

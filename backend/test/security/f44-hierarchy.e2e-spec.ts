@@ -19,7 +19,7 @@ describe('F44 super_admin hierarchy on admin surfaces', () => {
     app = await buildSecurityApp(
       [MedicinesController, ChatController, AiController, AdminFinanceSuiteController],
       [
-        { provide: MedicinesService, useValue: { adminCatalog: async () => [] } },
+        { provide: MedicinesService, useValue: { adminListCatalog: async () => [] } },
         { provide: ChatService, useValue: { adminThreads: async () => [] } },
         { provide: AiService, useValue: {} },
         { provide: AiGatewayService, useValue: { listProviders: async () => [] } },

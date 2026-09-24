@@ -4,6 +4,7 @@ import { AuthService } from './auth.service';
 import { JwtService } from '@nestjs/jwt';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { RedisService } from '../redis/redis.service';
+import { MailService } from '../mail/mail.module';
 import { BadRequestException, UnauthorizedException, ConflictException } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 
@@ -51,6 +52,9 @@ describe('AuthService', () => {
         { provide: JwtService, useValue: jwtService },
         { provide: EventEmitter2, useValue: eventEmitter },
         { provide: RedisService, useValue: redisService },
+        // F34: OTP delivery needs at least one working channel; the mail
+        // channel stands in here so storage assertions stay delivery-agnostic.
+        { provide: MailService, useValue: { sendOtp: jest.fn(async () => ({ ok: true, provider: 'resend', fallback_used: false })) } },
       ],
     }).compile();
 

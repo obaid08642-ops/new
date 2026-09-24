@@ -27,13 +27,13 @@ describe('F01 wallet credit/debit access control', () => {
 
   it('patient token → 403 on credit and debit', async () => {
     const t = patientToken();
-    await post(app, '/api/v1/nabd-extensions/wallet/credit', t, { amount: 5000 }).expect(403);
-    await post(app, '/api/v1/nabd-extensions/wallet/debit', t, { amount: 5000 }).expect(403);
+    await post(app, '/api/v1/wallet/credit', t, { amount: 5000 }).expect(403);
+    await post(app, '/api/v1/wallet/debit', t, { amount: 5000 }).expect(403);
   });
 
   it('admin → 2xx and writes an audit entry', async () => {
     const t = tokenFor('admin-1', 'admin');
-    await post(app, '/api/v1/nabd-extensions/wallet/credit', t, { amount: 5000 }).expect(201);
+    await post(app, '/api/v1/wallet/credit', t, { amount: 5000 }).expect(201);
     expect(svc.processWalletTransaction).toHaveBeenCalled();
     expect(svc.auditAdminWalletAdjustment).toHaveBeenCalledWith(
       expect.objectContaining({ id: 'admin-1' }),
@@ -43,6 +43,6 @@ describe('F01 wallet credit/debit access control', () => {
   });
 
   it('super_admin also passes via hierarchy', async () => {
-    await post(app, '/api/v1/nabd-extensions/wallet/debit', tokenFor('root-1', 'super_admin'), { amount: 10 }).expect(201);
+    await post(app, '/api/v1/wallet/debit', tokenFor('root-1', 'super_admin'), { amount: 10 }).expect(201);
   });
 });

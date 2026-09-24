@@ -29,17 +29,17 @@ describe('F05 lab barcode bind access control', () => {
   afterAll(async () => { await app?.close(); });
 
   it('patient token → 403', async () => {
-    await post(app, '/api/v1/nabd-extensions/labs/samples/barcode-verify', patientToken(), { sampleId: 's1', barcodeId: 'b1' }).expect(403);
+    await post(app, '/api/v1/labs/samples/barcode-verify', patientToken(), { sampleId: 's1', barcodeId: 'b1' }).expect(403);
     expect(svc.bindSampleBarcode).not.toHaveBeenCalled();
   });
 
   it('owning lab → 2xx with the bound barcode (no fake success)', async () => {
-    const res = await post(app, '/api/v1/nabd-extensions/labs/samples/barcode-verify', tokenFor('lab-1', 'lab'), { sampleId: 's1', barcodeId: 'b1' });
+    const res = await post(app, '/api/v1/labs/samples/barcode-verify', tokenFor('lab-1', 'lab'), { sampleId: 's1', barcodeId: 'b1' });
     expect([200, 201]).toContain(res.status);
     expect(res.body.barcode).toBe('b1');
   });
 
   it("other lab (not serving the booking) → 403", async () => {
-    await post(app, '/api/v1/nabd-extensions/labs/samples/barcode-verify', tokenFor('lab-2', 'lab'), { sampleId: 's1', barcodeId: 'b1' }).expect(403);
+    await post(app, '/api/v1/labs/samples/barcode-verify', tokenFor('lab-2', 'lab'), { sampleId: 's1', barcodeId: 'b1' }).expect(403);
   });
 });

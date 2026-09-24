@@ -21,9 +21,12 @@ describe('IdempotencyInterceptor', () => {
 
   beforeEach(() => {
     redisClient = { get: jest.fn(), set: jest.fn(), del: jest.fn().mockResolvedValue(undefined) };
+    // Production routes under test carry @RequireIdempotency() (or an explicit
+    // @UseInterceptors); the reflector mock mirrors that so lock/replay
+    // semantics are exercised. Unannotated routes pass through (see test below).
     interceptor = new IdempotencyInterceptor(
       { getClient: () => redisClient } as any,
-      { get: jest.fn().mockReturnValue(false) } as any,
+      { get: jest.fn().mockReturnValue(true) } as any,
     );
   });
 
@@ -36,6 +39,17 @@ describe('IdempotencyInterceptor', () => {
 
     await expect(requiredInterceptor.intercept(handler({ quantity: 1 }, 'patient-a', '/cart/items', null), next)).rejects.toThrow(BadRequestException);
     expect(next.handle).not.toHaveBeenCalled();
+  });
+
+  it('global instance ignores routes without REQUIRE_IDEMPOTENCY (no double-lock with handler-level instances)', async () => {
+    const globalInterceptor = new IdempotencyInterceptor(
+      { getClient: () => redisClient } as any,
+      { get: jest.fn().mockReturnValue(false) } as any,
+    );
+    const next = { handle: jest.fn(() => of({ payment_id: 'p-9' })) };
+    await expect(lastValueFrom(await globalInterceptor.intercept(handler({ amount: 50 }), next))).resolves.toEqual({ payment_id: 'p-9' });
+    expect(redisClient.set).not.toHaveBeenCalled();
+    expect(redisClient.get).not.toHaveBeenCalled();
   });
 
   it('persists a successful response under a user-and-route-scoped key after acquiring a lock', async () => {

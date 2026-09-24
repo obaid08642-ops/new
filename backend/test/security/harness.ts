@@ -20,8 +20,13 @@ import { JwtService } from '@nestjs/jwt';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { JwtAuthGuard } from '../../src/common/auth.guard';
 import { WriteGuard } from '../../src/common/write-guard';
+import { RedisCacheInterceptor } from '../../src/common/redis-cache.interceptor';
 import { ImpersonationSessionService } from '../../src/common/impersonation-session.service';
 import request from 'supertest';
+
+// Nest app boots (module compile + DI graph) routinely take 20–40s on CI;
+// the default 5s hook timeout flakes full-directory runs. Set per-file.
+jest.setTimeout(120_000);
 
 export const TEST_JWT_SECRET = 'p1-security-test-secret';
 
@@ -53,7 +58,11 @@ export async function buildSecurityApp(
       { provide: APP_GUARD, useClass: JwtAuthGuard },
       { provide: APP_GUARD, useClass: WriteGuard },
     ],
-  }).compile();
+  })
+    // Cache interceptors are transport concerns, not access control: pass through.
+    .overrideInterceptor(RedisCacheInterceptor)
+    .useValue({ intercept: (_ctx: any, next: any) => next.handle() })
+    .compile();
   const app = moduleRef.createNestApplication();
   app.setGlobalPrefix('api');
   app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });

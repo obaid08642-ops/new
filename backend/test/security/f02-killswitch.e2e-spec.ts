@@ -9,7 +9,11 @@ describe('F02 kill-switches access control', () => {
   let app: INestApplication;
 
   beforeAll(async () => {
-    const store: any = { value: [{ key: 'chat', value: true }] };
+    const store: any = {
+      value: [{ key: 'chat', value: true }],
+      markModified() {},
+      save: async () => ({}),
+    };
     const configModel = {
       findOne: async () => store,
       create: async (doc: any) => ({ ...doc, markModified() {}, save: async () => ({}) }),
