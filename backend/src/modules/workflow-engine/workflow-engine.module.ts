@@ -19,7 +19,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { JwtAuthGuard, Roles, Public } from '../../common/auth.guard';
+import { JwtAuthGuard, Roles, Public, SelfService } from '../../common/auth.guard';
 import {
   UserRole, ProviderStatus,
   ServiceState, ServiceDomain, UNIFIED_TRANSITIONS,
@@ -559,6 +559,7 @@ export class WorkflowController {
 
   /** Provider matching endpoint — frontends call this for smart match. */
   @UseGuards(JwtAuthGuard) @Post('match')
+  @SelfService()
   match(@Body() b: any) {
     return this.engine.rankProviders({
       kind: b.kind,
