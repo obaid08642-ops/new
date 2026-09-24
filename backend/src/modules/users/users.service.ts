@@ -306,7 +306,8 @@ export class UsersService {
       if (!ok) throw new UnauthorizedException('كلمة المرور الحالية غير صحيحة');
     }
     const hash = await bcrypt.hash(next, 12);
-    await this.userRepository.updateOne({ id }, { $set: { password_hash: hash } });
+    // F09: password change revokes all other sessions immediately.
+    await this.userRepository.updateOne({ id }, { $set: { password_hash: hash }, $inc: { token_version: 1 } });
     return { success: true };
   }
 

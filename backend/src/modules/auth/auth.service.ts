@@ -45,7 +45,7 @@ export class AuthService {
 
   signToken(user: any, deviceId?: string) {
     const accessToken = this.jwt.sign(
-      { sub: user.id, id: user.id, role: user.role, phone: user.phone, is_guest: !!user.is_guest, ...(deviceId ? { dev: deviceId.slice(0, 32) } : {}) },
+      { sub: user.id, id: user.id, role: user.role, phone: user.phone, is_guest: !!user.is_guest, tv: Number(user.token_version ?? 0), ...(deviceId ? { dev: deviceId.slice(0, 32) } : {}) },
       { expiresIn: '1h' } // Short-lived access token
     );
     // Refresh token carries a unique session id (jti) — tracked in Redis so

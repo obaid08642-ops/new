@@ -106,6 +106,32 @@ export class JwtAuthGuard implements CanActivate {
     // Attach original user payload to request. Support tokens are validated against
     // durable session on every request, so revoke/expiry takes effect immediately.
     req.user = payload;
+    // F09 session revocation: every access token carries `tv` (token_version).
+    // Ban, suspend, password change and role change bump the stored version,
+    // so stale tokens 401 on their next request. Unknown subject ids (service
+    // tokens with no tracked account) fail open — there is nothing to revoke.
+    // On public routes a stale token degrades to anonymous, matching the
+    // existing invalid-token leniency for public endpoints.
+    const subjectId = payload?.id || payload?.sub;
+    if (subjectId) {
+      let current: any = await this.connection.collection('users').findOne(
+        { id: subjectId }, { projection: { token_version: 1 } },
+      ).catch(() => null);
+      if (!current) {
+        current = await this.connection.collection('provider_accounts').findOne(
+          { $or: [{ id: subjectId }, { user_id: subjectId }] }, { projection: { token_version: 1 } },
+        ).catch(() => null);
+      }
+      const currentTv = Number(current?.token_version ?? 0);
+      const tokenTv = Number(payload?.tv ?? 0);
+      if (tokenTv !== currentTv) {
+        if (isPublic) {
+          req.user = undefined;
+          return true;
+        }
+        throw new UnauthorizedException('session_revoked');
+      }
+    }
     // Admin device lock (device-bound, never IP-bound — mobile IPs rotate).
     // Applies to admin-role JWTs except the device-management endpoints themselves
     // (otherwise enabling the lock would lock out enrollment).

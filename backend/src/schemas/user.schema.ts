@@ -38,6 +38,12 @@ export class User {
   @Prop({ type: Object }) schedule?: any;
   @Prop({ default: false }) suspended?: boolean;
   @Prop({ default: false }) verified?: boolean;
+  /**
+   * Session version for instant revocation (F09). The JWT carries `tv`; the
+   * guard rejects tokens whose tv differs from this value. Bumped on ban,
+   * suspend, password change and role change — old tokens 401 immediately.
+   */
+  @Prop({ default: 0, index: true }) token_version: number;
   // Doctor-specific (when role=DOCTOR under a hospital/clinic)
   @Prop() specialty?: string;
   @Prop() degree?: string;

@@ -22,6 +22,12 @@ export class ProviderAccount extends Document {
   @Prop() rejection_reason?: string;
   @Prop({ default: [] }) status_history: any[];
   @Prop({ type: Object, default: {} }) onboarding_progress: any;
+  /**
+   * Session version for instant revocation (F09). Mirrors users.token_version:
+   * the provider JWT carries `tv` and the guard rejects stale versions.
+   * Bumped on suspend, password change and status transitions.
+   */
+  @Prop({ default: 0, index: true }) token_version: number;
 }
 export const ProviderAccountSchema = SchemaFactory.createForClass(ProviderAccount);
 ProviderAccountSchema.index({ status: 1, createdAt: -1 });

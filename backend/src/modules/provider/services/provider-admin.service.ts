@@ -225,6 +225,8 @@ export class ProviderAdminService {
     this.assertAdmin(user);
     const a = await this.accounts.findOne({ id }); if (!a) throw new NotFoundException();
     await this.transition(a, ProviderAccountStatus.SUSPENDED, user, body?.reason);
+    // F09: instant session revocation for the suspended provider account.
+    (a as any).token_version = Number((a as any).token_version || 0) + 1;
     await a.save();
     await this.accounts.model.db.collection('provider_profiles').updateMany(
       { account_id: id, user_id: { $exists: true } },
