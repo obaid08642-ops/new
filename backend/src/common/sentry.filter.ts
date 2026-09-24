@@ -53,6 +53,10 @@ export function translateMongoError(exception: unknown): HttpException | null {
   if (err.name === 'CastError') {
     return new HttpException('Not Found', HttpStatus.NOT_FOUND);
   }
+  // Direct `new ObjectId(badInput)` throws BSONError (not CastError) — same semantics.
+  if (err.name === 'BSONError') {
+    return new HttpException('Not Found', HttpStatus.NOT_FOUND);
+  }
   if (err.name === 'ValidationError') {
     return new HttpException('Bad Request', HttpStatus.BAD_REQUEST);
   }

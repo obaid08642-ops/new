@@ -7,6 +7,10 @@ describe('P3.2 id-consistency helpers', () => {
     const out = translateMongoError({ name: 'CastError' });
     expect(out?.getStatus()).toBe(HttpStatus.NOT_FOUND);
   });
+  it('BSONError -> 404', () => {
+    const out = translateMongoError({ name: 'BSONError' });
+    expect(out?.getStatus()).toBe(HttpStatus.NOT_FOUND);
+  });
   it('ValidationError -> 400', () => {
     const out = translateMongoError({ name: 'ValidationError' });
     expect(out?.getStatus()).toBe(HttpStatus.BAD_REQUEST);
