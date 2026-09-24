@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Body, Req, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard, NoGuestsGuard } from '../../common/auth.guard';
+import { JwtAuthGuard, NoGuestsGuard, SelfService } from '../../common/auth.guard';
 import { ReferralService } from './referral.service';
 
 /**
@@ -9,6 +9,7 @@ import { ReferralService } from './referral.service';
  */
 @UseGuards(JwtAuthGuard, NoGuestsGuard)
 @Controller('referrals')
+@SelfService()
 export class ReferralController {
   constructor(private readonly svc: ReferralService) {}
 

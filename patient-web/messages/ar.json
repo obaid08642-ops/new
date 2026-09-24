@@ -389,7 +389,15 @@
     "durationDays": "المدة بالأيام",
     "instructions": "التعليمات",
     "detailNotice": "تُعرض فقط تفاصيل الأدوية التي أعادها الخادم المصرح به. التشخيص والرفع والتجديد والصرف وإجراءات الطلب غير متاحة.",
-    "contractPending": "محجوب بانتظار عقد تفاصيل الوصفة المصرح به."
+    "contractPending": "محجوب بانتظار عقد تفاصيل الوصفة المصرح به.",
+    "stateCreatedByDoctor": "وصفة الطبيب",
+    "stateUploadedByPatient": "مرفوعة من المريض",
+    "stateSentToPharmacy": "أُرسلت إلى الصيدلية",
+    "statePartiallyEdited": "معدّلة جزئيًا",
+    "stateVerifiedByPharmacist": "تحققت منها الصيدلية",
+    "stateApproved": "معتمدة",
+    "stateDispensed": "مصروفة",
+    "stateArchived": "مؤرشفة"
   },
   "Chat": {
     "eyebrow": "محادثات خاصة",

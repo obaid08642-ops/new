@@ -126,6 +126,17 @@ export default function UsersManagementPage() {
     setActionBusy(id);
     try {
       await apiFetch(`/admin/users/${id}/unban`, { method: 'POST' });
+      // F80: a provider user's live state lives in provider_accounts — the
+      // users unban alone leaves the account suspended. Resolve the account
+      // by user id and reactivate it through the provider endpoint too.
+      const PROVIDER_ROLES = ['doctor', 'pharmacy', 'lab', 'radiology', 'nurse', 'nursing', 'home_care', 'hospital', 'ambulance', 'pharmacist'];
+      if (PROVIDER_ROLES.includes(String(u.role || '').toLowerCase())) {
+        try {
+          const file = await apiFetch(`/admin/providers/by-user/${id}`);
+          const accountId = file?.account?.id;
+          if (accountId) await apiFetch(`/admin/providers/${accountId}/reactivate`, { method: 'POST', body: JSON.stringify({}) });
+        } catch { /* no provider account — users unban sufficed */ }
+      }
       await fetchUsers();
     } catch (err: any) {
       alert(`فشل إعادة التفعيل: ${err?.message || ''}`);
@@ -134,8 +145,8 @@ export default function UsersManagementPage() {
     }
   };
 
-  /** Provider moderation from the full-file view (approve / reject / suspend). */
-  const handleProviderAction = async (action: 'approve' | 'reject' | 'suspend') => {
+  /** Provider moderation from the full-file view (approve / reject / suspend / reactivate). */
+  const handleProviderAction = async (action: 'approve' | 'reject' | 'suspend' | 'reactivate') => {
     const accountId = providerFile?.account?.id || providerFile?.onboarding?.account_id;
     if (!accountId) return;
     let body: any = {};
@@ -147,6 +158,8 @@ export default function UsersManagementPage() {
       const reason = prompt('سبب الإيقاف:');
       if (reason === null) return;
       body = { reason };
+    } else if (action === 'reactivate') {
+      if (!confirm('إعادة تفعيل هذا المزود وإرجاعه للعمل؟')) return;
     } else if (!confirm('اعتماد هذا المزود وتفعيل حسابه؟')) return;
     setActionBusy(accountId);
     try {
@@ -466,6 +479,10 @@ export default function UsersManagementPage() {
                       className="bg-red-600 hover:bg-red-700 text-white text-sm font-bold px-5 py-2 rounded-lg disabled:opacity-50">✕ رفض</button>
                     <button onClick={() => handleProviderAction('suspend')} disabled={!!actionBusy}
                       className="bg-amber-600 hover:bg-amber-700 text-white text-sm font-bold px-5 py-2 rounded-lg disabled:opacity-50">⏸ إيقاف / تعليق</button>
+                    {String(providerFile?.account?.status || '').toLowerCase() === 'suspended' && (
+                      <button onClick={() => handleProviderAction('reactivate')} disabled={!!actionBusy}
+                        className="bg-teal-600 hover:bg-teal-700 text-white text-sm font-bold px-5 py-2 rounded-lg disabled:opacity-50">↩ إعادة تفعيل</button>
+                    )}
                   </div>
                   <ProviderFullDetail detail={providerFile} accountId={providerFile.account?.id || providerFile.onboarding?.account_id} />
                 </>

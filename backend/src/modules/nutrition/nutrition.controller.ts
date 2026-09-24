@@ -1,11 +1,12 @@
 import { Body, Controller, Get, Post, Query, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../common/auth.guard';
+import { JwtAuthGuard, SelfService } from '../../common/auth.guard';
 import { NutritionService } from './nutrition.service';
 
 @ApiTags('Nutrition | التغذية')
 @UseGuards(JwtAuthGuard)
 @Controller('nutrition')
+@SelfService()
 export class NutritionController {
   constructor(private readonly nutritionService: NutritionService) {}
 

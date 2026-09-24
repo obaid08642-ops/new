@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, Post, Patch, Put, UseGuards, Query, Headers, ForbiddenException, ServiceUnavailableException } from '@nestjs/common';
 import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
-import { UserRole } from '../../common/enums';
+import { UserRole, isProviderRole } from '../../common/enums';
 import { RequireIdempotency } from '../../common/idempotency.interceptor';
 import { PharmacyOrderService } from './services/pharmacy-order.service';
 import { PharmacyAllocationService } from './services/pharmacy-allocation.service';
@@ -15,7 +15,6 @@ import { PharmacyOfferService } from './services/pharmacy-offer.service';
 import { PharmacyInsuranceDecisionService } from './services/pharmacy-insurance-decision.service';
 import { PharmacyExpiryCommandService } from './services/pharmacy-expiry-command.service';
 import { PharmacyPaymentEvidenceService } from './services/pharmacy-payment-evidence.service';
-import { isProviderRole } from '../../common/enums';
 
 // =========================================================================
 //  PATIENT ENDPOINTS (/api/v2/patient/pharmacy/*)
@@ -58,6 +57,7 @@ export class PatientPharmacyController {
 //  PROVIDER PHARMACY ENDPOINTS (/api/v2/provider/pharmacy/*)
 // =========================================================================
 @Controller('provider/pharmacy')
+@Roles(UserRole.PHARMACY, UserRole.ADMIN)
 @UseGuards(JwtAuthGuard)
 export class ProviderPharmacyController {
   constructor(
@@ -119,6 +119,7 @@ export class ProviderPharmacyController {
 //  PROVIDER INVENTORY EXTENDED (/api/v2/provider/inventory/*)
 // =========================================================================
 @Controller('provider/inventory')
+@Roles(UserRole.PHARMACY, UserRole.ADMIN)
 @UseGuards(JwtAuthGuard)
 export class ProviderInventoryExtController {
   constructor(private svc: PharmacyInventoryExtService) {}
@@ -141,14 +142,6 @@ export class AdminPharmacyController {
     private allocs: PharmacyAllocationService,
     private broadcast: PharmacyBroadcastService,
   ) {}
-  private assertTestSeedAllowed() {
-    if (process.env.NODE_ENV !== 'test' || process.env.ALLOW_TEST_SEED !== 'true') {
-      throw new ServiceUnavailableException('test_seed_disabled');
-    }
-  }
-
-  @Post('seed') seed(@CurrentUser() u: any) { this.assertTestSeedAllowed(); return this.seedSvc.seed(u); }
-  @Post('seed/sample-order') sampleOrder(@CurrentUser() u: any, @Body() b: any) { this.assertTestSeedAllowed(); return this.seedSvc.seedSampleOrder(b?.patient_account_id || u.id); }
   @Post('split/:orderId') async manualSplit(@Param('orderId') id: string) {
     // Backward-compat: if order is in broadcasting state, route to broadcast fallback.
     try { return await this.split.runForOrder(id); }
@@ -178,10 +171,32 @@ export class AdminPharmacyController {
   @Post('expire-stale-allocations') expireStale() { return this.allocs.expireStale(); }
 }
 
+/**
+ * F17: demo seeders live ONLY in explicit test mode. This controller is
+ * registered solely when NODE_ENV==='test' && ALLOW_TEST_SEED==='true', so
+ * in every other environment the routes do not exist (404). The runtime
+ * assert stays as defense-in-depth.
+ */
+@Controller('admin/pharmacy')
+@UseGuards(JwtAuthGuard)
+@Roles(UserRole.ADMIN)
+export class AdminPharmacySeedController {
+  constructor(private seedSvc: PharmacySeedService) {}
+  private assertTestSeedAllowed() {
+    if (process.env.NODE_ENV !== 'test' || process.env.ALLOW_TEST_SEED !== 'true') {
+      throw new ServiceUnavailableException('test_seed_disabled');
+    }
+  }
+
+  @Post('seed') seed(@CurrentUser() u: any) { this.assertTestSeedAllowed(); return this.seedSvc.seed(u); }
+  @Post('seed/sample-order') sampleOrder(@CurrentUser() u: any, @Body() b: any) { this.assertTestSeedAllowed(); return this.seedSvc.seedSampleOrder(b?.patient_account_id || u.id); }
+}
+
 // =========================================================================
 //  Phase 2A-rework: BROADCAST + CHAT + SHORTAGE controllers
 // =========================================================================
 @Controller('provider/pharmacy/broadcasts')
+@Roles(UserRole.PHARMACY, UserRole.ADMIN)
 @UseGuards(JwtAuthGuard)
 export class ProviderBroadcastController {
   constructor(private bc: PharmacyBroadcastService, private offers: PharmacyOfferService) {}
@@ -229,9 +244,13 @@ export class PharmacyChatController {
   constructor(private chat: PharmacyChatService) {}
   @Get('threads') list(@CurrentUser() u: any, @Query('order_id') oid?: string) { return this.chat.listThreads(u, oid); }
   @Get('threads/:id/messages') msgs(@CurrentUser() u: any, @Param('id') id: string) { return this.chat.listMessages(u, id); }
+  @Roles(UserRole.PHARMACY, UserRole.ADMIN)
   @Post('threads/:id/messages') post(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.chat.postMessage(u, id, b); }
+  @Roles(UserRole.PHARMACY, UserRole.ADMIN)
   @Post('threads/:id/accept-substitute/:msgId') accept(@CurrentUser() u: any, @Param('id') id: string, @Param('msgId') mid: string) { return this.chat.acceptSubstitute(u, id, mid); }
+  @Roles(UserRole.PHARMACY, UserRole.ADMIN)
   @Post('threads/:id/reject') reject(@CurrentUser() u: any, @Param('id') id: string) { return this.chat.rejectOrRemove(u, id, 'rejected'); }
+  @Roles(UserRole.PHARMACY, UserRole.ADMIN)
   @Post('threads/:id/remove-item') remove(@CurrentUser() u: any, @Param('id') id: string) { return this.chat.rejectOrRemove(u, id, 'removed'); }
 }
 
@@ -247,6 +266,7 @@ export class AdminPharmacyChatController {
 @UseGuards(JwtAuthGuard)
 export class ProviderShortageController {
   constructor(private svc: PharmacyShortageService) {}
+  @Roles(UserRole.PHARMACY, UserRole.ADMIN)
   @Post() report(@CurrentUser() u: any, @Body() b: any) { return this.svc.reportByPharmacy(u, b); }
   @Get() list(@CurrentUser() u: any, @Query('status') st?: string) { return this.svc.list(u, st); }
 }

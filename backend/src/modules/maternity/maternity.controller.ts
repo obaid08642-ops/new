@@ -1,9 +1,10 @@
-import { JwtAuthGuard } from '../../common/auth.guard';
+import { JwtAuthGuard, SelfService } from '../../common/auth.guard';
 import { Body, Controller, Get, Param, Post, Put, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { MaternityService } from './maternity.service';
 
 @UseGuards(JwtAuthGuard)
 @Controller('maternity')
+@SelfService()
 export class MaternityController {
   constructor(private readonly maternityService: MaternityService) {}
 

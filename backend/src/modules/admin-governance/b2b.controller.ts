@@ -1,11 +1,13 @@
 import { Controller, Get, Post, Param, Body, UseGuards, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { JwtAuthGuard } from '../../common/auth.guard';
+import { JwtAuthGuard, Roles } from '../../common/auth.guard';
 import { B2BRequestDocument } from '../../schemas/b2b-request.schema';
+import { UserRole } from '../../common/enums';
 
 
 @Controller('b2b')
+@Roles(UserRole.ADMIN)
 @UseGuards(JwtAuthGuard)
 export class B2BController {
   constructor(

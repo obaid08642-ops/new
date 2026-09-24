@@ -124,7 +124,9 @@ export class ProviderProfileService {
   async listDocuments(user: any) {
     const docs = await this.docs.find({ account_id: user.id }, { _id: 0, __v: 0 }).sort({ createdAt: -1 });
     const a = await this.accounts.findOne({ id: user.id });
-    const required = REQUIRED_DOCS_BY_PROVIDER_TYPE[a!.provider_type];
+    // P2.4: missing account is a 404 (never a 500 from dereferencing null).
+    if (!a) throw new NotFoundException('provider_account_not_found');
+    const required = REQUIRED_DOCS_BY_PROVIDER_TYPE[a.provider_type];
     const presentTypes = new Set(docs.map((d) => d.doc_type));
     const missing = required.filter((r) => !presentTypes.has(r));
     return { documents: docs, required, missing };

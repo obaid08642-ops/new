@@ -4,7 +4,8 @@ import { Connection, Model } from 'mongoose';
 import { CommissionLedger } from '../schemas/commission-ledger.schema';
 import { WithdrawalRequest } from '../schemas/withdrawal-request.schema';
 import { LedgerService, ApprovalService } from '../../finance-engine/finance-engine.module';
-import { CurrentUser } from '../../../common/auth.guard';
+import { CurrentUser, Roles } from '../../../common/auth.guard';
+import { UserRole } from '../../../common/enums';
 
 /**
  * M5 fix: provider withdrawals written by provider-ops (`ProviderWithdrawal`,
@@ -19,6 +20,7 @@ import { CurrentUser } from '../../../common/auth.guard';
  * maker-checker approval.
  */
 @Controller('admin/finance')
+@Roles(UserRole.ADMIN)
 export class FinanceController {
   constructor(
     @InjectModel(CommissionLedger.name) private commissionModel: Model<CommissionLedger>,

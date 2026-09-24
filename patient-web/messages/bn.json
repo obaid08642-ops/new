@@ -434,7 +434,15 @@
     "durationDays": "দিনে সময়কাল",
     "instructions": "নির্দেশনা",
     "detailNotice": "শুধু authorized backend থেকে ফেরত আসা medication details দেখানো হয়। Diagnosis, upload, renewal, dispensing ও order action অনুপলব্ধ।",
-    "contractPending": "অনুমোদিত prescription-detail চুক্তি না হওয়া পর্যন্ত অবরুদ্ধ।"
+    "contractPending": "অনুমোদিত prescription-detail চুক্তি না হওয়া পর্যন্ত অবরুদ্ধ।",
+    "stateCreatedByDoctor": "ডাক্তারের প্রেসক্রিপশন",
+    "stateUploadedByPatient": "রোগীর আপলোড করা",
+    "stateSentToPharmacy": "ফার্মেসিতে পাঠানো",
+    "statePartiallyEdited": "আংশিক সম্পাদিত",
+    "stateVerifiedByPharmacist": "ফার্মাসিস্ট যাচাইকৃত",
+    "stateApproved": "অনুমোদিত",
+    "stateDispensed": "বিতরণকৃত",
+    "stateArchived": "সংরক্ষিত"
   },
   "Chat": {
     "eyebrow": "ব্যক্তিগত চ্যাট",

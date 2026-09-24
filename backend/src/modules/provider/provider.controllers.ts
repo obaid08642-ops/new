@@ -15,7 +15,7 @@ import { ProviderScoringService } from './services/provider-scoring.service';
 import { ProviderMatchingService } from './services/provider-matching.service';
 import { AssignmentStrategyService } from './services/assignment-strategy.service';
 import { ProviderImageProcessorService } from './services/provider-image-processor.service';
-import { Public, CurrentUser, Roles } from '../../common/auth.guard';
+import { Public, CurrentUser, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { OtpPurpose } from './schemas';
 
@@ -30,6 +30,7 @@ export class ProviderAuthController {
   login(@Body() body: any, @Req() req: any) { return this.svc.login({ ...body, meta: meta(req) }); }
   @Public() @Post('refresh')
   refresh(@Body() body: any, @Req() req: any) { return this.svc.refresh({ ...body, meta: meta(req) }); }
+  @SelfService()
   @Post('logout')
   logout(@Body() body: any, @Req() req: any) { return this.svc.logout({ ...body, meta: meta(req) }); }
   @Public() @Post('send-otp')
@@ -56,15 +57,20 @@ export class ProviderProfileController {
     private readonly processor: ProviderImageProcessorService
   ) {}
   @Get('profile') get(@CurrentUser() u: any) { return this.svc.getProfile(u); }
+  @SelfService()
   @Patch('profile') update(@CurrentUser() u: any, @Body() body: any) { return this.svc.updateProfile(u, body); }
+  @SelfService()
   @Post('profile/phones') addPhone(@CurrentUser() u: any, @Body() body: any) { return this.svc.addPhone(u, body); }
+  @SelfService()
   @Delete('profile/phones/:phone_id') removePhone(@CurrentUser() u: any, @Param('phone_id') pid: string) { return this.svc.removePhone(u, pid); }
 
+  @SelfService()
   @Post('kyc/documents') uploadDoc(@CurrentUser() u: any, @Body() body: any) { return this.svc.uploadDocument(u, body); }
   @Get('kyc/documents') listDocs(@CurrentUser() u: any) { return this.svc.listDocuments(u); }
 
   @Get('directory') directory() { return this.svc.directory(); }
 
+  @SelfService()
   @Post('bank-account') upsertBank(@CurrentUser() u: any, @Body() body: any) { return this.svc.upsertBank(u, body); }
   @Get('bank-account') getBank(@CurrentUser() u: any) { return this.svc.getBank(u); }
   @Public() @Get('banks') banks() { return this.svc.banks_list(); }
@@ -85,8 +91,10 @@ export class ProviderProfileController {
     return this.processor.getStatus(user.id);
   }
 
+  @SelfService()
   @Post('onboarding/submit') submit(@CurrentUser() u: any) { return this.svc.submitForApproval(u); }
 
+  @SelfService()
   @Post('settings/delta')
   async submitDelta(@CurrentUser() u: any, @Body() body: any) {
     return this.svc.submitDelta(u, body);
@@ -94,6 +102,7 @@ export class ProviderProfileController {
 }
 
 @Controller('provider/operators')
+@Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
 export class ProviderOperatorsController {
   constructor(private readonly svc: ProviderOperatorsService) {}
   @Get() list(@CurrentUser() u: any) { return this.svc.list(u); }
@@ -106,6 +115,7 @@ export class ProviderOperatorsController {
 }
 
 @Controller('admin/providers')
+@Roles(UserRole.ADMIN)
 export class ProviderAdminController {
   constructor(
     private readonly svc: ProviderAdminService,
@@ -143,6 +153,7 @@ export class ProviderAdminController {
   }
   @Post(':id/request-changes') needsChanges(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) { return this.svc.requestChanges(u, id, body); }
   @Post(':id/suspend') suspend(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) { return this.svc.suspend(u, id, body); }
+  @Post(':id/reactivate') reactivate(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) { return this.svc.reactivate(u, id, body); }
 }
 
 // ============================================================================
@@ -157,6 +168,7 @@ import { trackingId, TRACK_PREFIX } from '../../common/tracking';
 import { NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 
 @Controller('provider/requests')
+@Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
 export class ProviderRequestsController {
   constructor(
     private readonly svc: ProviderRequestEngineService,
@@ -382,6 +394,7 @@ export class ProviderRequestsController {
 }
 
 @Controller('provider/wallet')
+@Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
 export class ProviderWalletController {
   constructor(
     @InjectConnection() private readonly conn: Connection,
@@ -402,6 +415,7 @@ export class ProviderWalletController {
 }
 
 @Controller('provider/notifications')
+@Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
 export class ProviderNotificationsController {
   constructor(private readonly svc: ProviderNotificationsService) {}
   @Get() list(@CurrentUser() u: any, @Query() q: any) { return this.svc.list(u, q); }
@@ -427,8 +441,11 @@ export class ProviderDashboardController {
     return this.dash.recentRequests(u, parseInt(limit || '3', 10) || 3);
   }
   @Get('availability') getAvail(@CurrentUser() u: any) { return this.dash.getAvailability(u); }
+  @SelfService()
   @Post('availability') setAvail(@CurrentUser() u: any, @Body() body: any) { return this.dash.setAvailability(u, body); }
+  @SelfService()
   @Post('seed') seed(@CurrentUser() u: any) { return this.seedSvc.seed(u); }
+  @SelfService()
   @Post('seed/reset') seedReset(@CurrentUser() u: any) { return this.seedSvc.resetSeed(u); }
 }
 
@@ -438,6 +455,7 @@ export class ProviderDashboardController {
 // ============================================================================
 
 @Controller('provider/capabilities')
+@Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
 export class ProviderCapabilitiesController {
   constructor(private readonly svc: ServiceCapabilityService) {}
   // Pharmacy inventory
@@ -463,6 +481,7 @@ export class ProviderCapabilitiesController {
 }
 
 @Controller('provider/zones')
+@Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
 export class ProviderZonesController {
   constructor(private readonly svc: ServiceCapabilityService) {}
   @Get() list(@CurrentUser() u: any) { return this.svc.listZones(u); }
@@ -471,6 +490,7 @@ export class ProviderZonesController {
 }
 
 @Controller('provider/schedule-slots')
+@Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
 export class ProviderScheduleSlotsController {
   constructor(private readonly svc: SchedulingEngineService) {}
   @Get() list(@CurrentUser() u: any) { return this.svc.listSlots(u); }
@@ -479,6 +499,7 @@ export class ProviderScheduleSlotsController {
 }
 
 @Controller('provider/score')
+@SelfService()
 export class ProviderScoreController {
   constructor(private readonly svc: ProviderScoringService) {}
   @Get() me(@CurrentUser() u: any) { return this.svc.getMy(u); }

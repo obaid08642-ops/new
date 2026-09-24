@@ -17,9 +17,8 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { randomUUID } from 'crypto';
 import * as PDFDocument from 'pdfkit';
-import { JwtAuthGuard, Roles } from '../../common/auth.guard';
+import { JwtAuthGuard, Roles, SelfService, CurrentUser } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
-import { CurrentUser } from '../../common/auth.guard';
 import { MailModule, MailService } from '../mail/mail.module';
 
 const VAT_RATE = 0.15;
@@ -207,6 +206,7 @@ export class BillingService {
 
 // ── Controller ─────────────────────────────────────────────────────────────
 @Controller('billing')
+@SelfService()
 @UseGuards(JwtAuthGuard)
 export class BillingController {
   constructor(private svc: BillingService, private mail: MailService) {}

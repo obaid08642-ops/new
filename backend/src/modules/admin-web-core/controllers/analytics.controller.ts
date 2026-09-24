@@ -2,6 +2,8 @@ import { Controller, Get } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { HeatmapData } from '../schemas/heatmap-data.schema';
+import { Roles } from '../../../common/auth.guard';
+import { UserRole } from '../../../common/enums';
 
 const GRID = 0.05; // ~5 km grid cells
 
@@ -33,6 +35,7 @@ export class AnalyticsController {
     cells.set(key, cell);
   }
 
+  @Roles(UserRole.ADMIN)
   @Get('heatmaps')
   async getHeatmaps() {
     const cells = new Map<string, any>();

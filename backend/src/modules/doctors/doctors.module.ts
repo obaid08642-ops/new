@@ -2,7 +2,7 @@ import { Body, Controller, Delete, ForbiddenException, Get, Injectable, Module, 
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
-import { JwtAuthGuard, CurrentUser, Roles, Public } from '../../common/auth.guard';
+import { JwtAuthGuard, CurrentUser, Roles, Public, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { Doctor, DoctorSchema, DoctorAppointment, DoctorAppointmentSchema, DoctorChatMessage, DoctorChatMessageSchema, ConsultationNote, ConsultationNoteSchema, NotificationItem, NotificationItemSchema, AppointmentState } from './doctors.schemas';
 import { EventBusService } from '../events/event-bus.service';
@@ -285,6 +285,7 @@ export class DoctorsController {
 }
 
 @Controller('notifications')
+@SelfService()
 @UseGuards(JwtAuthGuard)
 export class NotificationsController {
   constructor(private svc: DoctorsService) {}

@@ -1,8 +1,9 @@
 import { Body, Controller, Get, Post, UseGuards, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { JwtAuthGuard, CurrentUser } from '../../common/auth.guard';
+import { JwtAuthGuard, CurrentUser, SelfService, Roles } from '../../common/auth.guard';
 import { LeaveRequestDocument } from '../../schemas/leave-request.schema';
+import { UserRole } from '../../common/enums';
 
 @Controller('provider/leave-requests')
 @UseGuards(JwtAuthGuard)
@@ -20,6 +21,7 @@ export class LeaveRequestsController {
       .lean();
   }
 
+  @SelfService()
   @Post()
   async createLeaveRequest(
     @CurrentUser() user: any,
@@ -45,6 +47,7 @@ export class LeaveRequestsController {
     return doc.toObject();
   }
 
+  @Roles(UserRole.HOSPITAL, UserRole.HOSPITAL_ADMIN, UserRole.ADMIN)
   @Post('action')
   async updateLeaveRequest(
     @CurrentUser() facility: any,

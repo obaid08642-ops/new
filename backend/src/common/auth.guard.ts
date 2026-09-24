@@ -6,6 +6,7 @@ import { Request } from 'express';
 import { UserRole } from './enums';
 import { Permission, PERMISSIONS_KEY, CHECK_OWNERSHIP_KEY, OwnershipOptions } from './permissions';
 import { roleSatisfies } from './rbac';
+export { roleSatisfies } from './rbac';
 import { ImpersonationSessionService } from './impersonation-session.service';
 import { resolveEffectivePermissions } from './effective-permissions';
 import { InjectConnection } from '@nestjs/mongoose';
@@ -21,6 +22,16 @@ export const PUBLIC_KEY = 'isPublic';
 export const Public = () => SetMetadata(PUBLIC_KEY, true);
 export const ROLES_KEY = 'roles';
 export const Roles = (...roles: Array<UserRole | string>) => SetMetadata(ROLES_KEY, roles);
+/**
+ * Marks an endpoint as self-service: the authenticated actor operates only on
+ * their own resources (patient creating their own order, provider updating
+ * their own profile, etc.). Unlike @Public(), it still requires a valid JWT;
+ * unlike @Roles(), it does not restrict to a fixed role set. Ownership itself
+ * is enforced at the service layer (owner checks) — this decorator is the
+ * explicit declaration that satisfies the deny-by-default write guard.
+ */
+export const SELF_SERVICE_KEY = 'isSelfService';
+export const SelfService = () => SetMetadata(SELF_SERVICE_KEY, true);
 
 const PENDING_PROVIDER_ONBOARDING_PATH = /^\/api\/v1\/provider-onboarding\/(my-profile|step2|step3|submit|progress|contract)$/;
 
@@ -96,6 +107,37 @@ export class JwtAuthGuard implements CanActivate {
     // Attach original user payload to request. Support tokens are validated against
     // durable session on every request, so revoke/expiry takes effect immediately.
     req.user = payload;
+    // F09 session revocation: every access token carries `tv` (token_version).
+    // Ban, suspend, password change and role change bump the stored version,
+    // so stale tokens 401 on their next request. Unknown subject ids (service
+    // tokens with no tracked account) fail open — there is nothing to revoke.
+    // On public routes a stale token degrades to anonymous, matching the
+    // existing invalid-token leniency for public endpoints.
+    const subjectId = payload?.id || payload?.sub;
+    if (subjectId) {
+      // Throw-safe lookup: test doubles may return non-promises or throw
+      // synchronously; any lookup failure degrades to "unknown subject".
+      const lookup = async (fn: () => any) => {
+        try { return (await fn()) || null; } catch { return null; }
+      };
+      let current: any = await lookup(() => this.connection.collection('users').findOne(
+        { id: subjectId }, { projection: { token_version: 1 } },
+      ));
+      if (!current) {
+        current = await lookup(() => this.connection.collection('provider_accounts').findOne(
+          { $or: [{ id: subjectId }, { user_id: subjectId }] }, { projection: { token_version: 1 } },
+        ));
+      }
+      const currentTv = Number(current?.token_version ?? 0);
+      const tokenTv = Number(payload?.tv ?? 0);
+      if (tokenTv !== currentTv) {
+        if (isPublic) {
+          req.user = undefined;
+          return true;
+        }
+        throw new UnauthorizedException('session_revoked');
+      }
+    }
     // Admin device lock (device-bound, never IP-bound — mobile IPs rotate).
     // Applies to admin-role JWTs except the device-management endpoints themselves
     // (otherwise enabling the lock would lock out enrollment).

@@ -203,12 +203,12 @@ function PStep1Basic({ data, update, onNext, onBack, step, total, bare = false, 
         email: data.managerEmail,
         type: 'pharmacy',
       });
-      await ProviderApi.login(data.managerPhone, data.password);
+      await ProviderApi.login(data.managerEmail, data.password);
       if (!bare) onNext();
       return true;
     } catch (e: any) {
       try {
-        await ProviderApi.login(data.managerPhone, data.password);
+        await ProviderApi.login(data.managerEmail, data.password);
         if (!bare) onNext();
         return true;
       } catch (loginErr: any) {

@@ -15,7 +15,7 @@ import { Module, Injectable, Controller, Post, Get, Body, UseGuards, Logger, Bad
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import * as crypto from 'crypto';
-import { JwtAuthGuard, CurrentUser, Public } from '../../common/auth.guard';
+import { JwtAuthGuard, CurrentUser, Public, SelfService } from '../../common/auth.guard';
 import { RedisService } from '../redis/redis.service';
 
 @Injectable()
@@ -125,6 +125,7 @@ export class DeviceTrustService {
 }
 
 @Controller('device-trust')
+@SelfService()
 export class DeviceTrustController {
   constructor(private readonly svc: DeviceTrustService) {}
 

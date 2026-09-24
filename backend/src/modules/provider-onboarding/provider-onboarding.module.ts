@@ -1,7 +1,7 @@
 import { Module, Controller, Post, Get, Body, Query, Param, UseGuards, Injectable, BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { JwtAuthGuard, Roles, CurrentUser, Public } from '../../common/auth.guard';
+import { JwtAuthGuard, Roles, CurrentUser, Public, SelfService } from '../../common/auth.guard';
 import { UserRole, ProviderType, ProviderStatus } from '../../common/enums';
 import { ProviderProfile, ProviderProfileDocument, ProviderProfileSchema } from '../../schemas/provider-profile.schema';
 import { User, UserDocument, UserSchema } from '../../schemas/user.schema';
@@ -354,9 +354,15 @@ export class ProviderOnboardingService {
       full_data: (profile as any).steps_snapshot?.full_data || null,
     };
     if (!existing) {
-      const accountId = uuidv4();
+      // P2.1 single provider identity: the business record shares the login
+      // identity id (provider_accounts.id = users.id) and ALWAYS stores
+      // user_id, so findOne({user_id}) can never miss. The real password hash
+      // is mirrored too — otherwise post-approval /provider/auth/login could
+      // never verify credentials.
+      const accountId = user.id;
       await accounts.insertOne({
         id: accountId,
+        user_id: user.id,
         email,
         phone_e164: fullUser?.phone,
         password_hash: fullUser?.password_hash || 'onboarding',
@@ -379,6 +385,9 @@ export class ProviderOnboardingService {
       if (current !== 'approved' && current !== 'suspended') {
         await accounts.updateOne({ id: existing.id }, {
           $set: {
+            // Backfill the 1:1 link + credential for pre-P2.1 mirrored rows.
+            user_id: user.id,
+            password_hash: fullUser?.password_hash || existing.password_hash || 'onboarding',
             provider_type: ptype,
             display_name_ar: displayNameAr || existing.display_name_ar,
             display_name_en: displayNameEn || existing.display_name_en,
@@ -459,12 +468,15 @@ export class ProviderOnboardingController {
   myProfile(@CurrentUser() u: any) { return this.svc.getMyProfile(u); }
 
   @UseGuards(JwtAuthGuard) @Post('step2')
+  @SelfService()
   step2(@CurrentUser() u: any, @Body() b: any) { return this.svc.step2(u, b); }
 
   @UseGuards(JwtAuthGuard) @Post('step3')
+  @SelfService()
   step3(@CurrentUser() u: any, @Body() b: any) { return this.svc.step3(u, b); }
 
   @UseGuards(JwtAuthGuard) @Post('submit')
+  @SelfService()
   submit(@CurrentUser() u: any, @Body() b: any) { return this.svc.submit(u, b); }
 
   @UseGuards(JwtAuthGuard) @Get('progress')
@@ -487,6 +499,7 @@ export class ProviderOnboardingController {
 
   /** Admin: grant/revoke the provider's ability to view their signed contract. */
   @UseGuards(JwtAuthGuard) @Post('admin/contracts/:id/visibility')
+  @Roles(UserRole.ADMIN)
   async adminContractVisibility(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
     if (u.role !== 'admin' && u.role !== 'super_admin') throw new ForbiddenException('admin only');
     return this.svc.setContractVisibility(id, !!b?.visible);

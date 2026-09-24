@@ -1,8 +1,10 @@
 import { Controller, Post, Get, Put, Body, Param, Query, UseGuards, Req } from '@nestjs/common';
 import { HospitalService } from '../services/hospital.service';
-import { JwtAuthGuard, CurrentUser } from '../../../common/auth.guard';
+import { JwtAuthGuard, CurrentUser, Roles } from '../../../common/auth.guard';
+import { UserRole } from '../../../common/enums';
 
 @Controller('hospital')
+@Roles(UserRole.HOSPITAL, UserRole.HOSPITAL_ADMIN, UserRole.ADMIN)
 @UseGuards(JwtAuthGuard)
 export class HospitalController {
   constructor(private readonly hospitalService: HospitalService) {}

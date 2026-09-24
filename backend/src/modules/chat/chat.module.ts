@@ -10,7 +10,7 @@ import {
   UseGuards, ForbiddenException, BadRequestException, NotFoundException,
 } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { JwtAuthGuard, CurrentUser, Roles } from '../../common/auth.guard';
+import { JwtAuthGuard, CurrentUser, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { RequireIdempotency } from '../../common/idempotency.interceptor';
 import { EventsModule } from '../events/events.module';
@@ -18,6 +18,7 @@ import { EventsModule } from '../events/events.module';
 // ─── Controller ────────────────────────────────────────────────────────────
 
 @Controller(['chat', 'chats'])
+@SelfService()
 @UseGuards(JwtAuthGuard)
 export class ChatController {
   constructor(private readonly svc: ChatService) {}

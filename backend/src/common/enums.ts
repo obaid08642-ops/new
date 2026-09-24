@@ -112,8 +112,12 @@ export enum OrderRejectionReason {
 
 export enum PrescriptionState {
   CREATED_BY_DOCTOR = 'CREATED_BY_DOCTOR',
+  /** Patient-uploaded scan — provenance is the patient, never the doctor. */
+  UPLOADED_BY_PATIENT = 'UPLOADED_BY_PATIENT',
   SENT_TO_PHARMACY = 'SENT_TO_PHARMACY',
   PARTIALLY_EDITED = 'PARTIALLY_EDITED',
+  /** A pharmacist reviewed the Rx lines — required before APPROVED for Rx items. */
+  VERIFIED_BY_PHARMACIST = 'VERIFIED_BY_PHARMACIST',
   APPROVED = 'APPROVED',
   DISPENSED = 'DISPENSED',
   ARCHIVED = 'ARCHIVED',
@@ -322,12 +326,23 @@ export type ServiceDomain = 'pharmacy' | 'lab' | 'radiology' | 'nursing' | 'cons
 
 export const PRESCRIPTION_TRANSITIONS: Record<PrescriptionState, PrescriptionState[]> = {
   [PrescriptionState.CREATED_BY_DOCTOR]: [PrescriptionState.SENT_TO_PHARMACY, PrescriptionState.ARCHIVED],
+  [PrescriptionState.UPLOADED_BY_PATIENT]: [
+    PrescriptionState.SENT_TO_PHARMACY,
+    PrescriptionState.VERIFIED_BY_PHARMACIST,
+    PrescriptionState.ARCHIVED,
+  ],
   [PrescriptionState.SENT_TO_PHARMACY]: [
     PrescriptionState.PARTIALLY_EDITED,
+    PrescriptionState.VERIFIED_BY_PHARMACIST,
     PrescriptionState.APPROVED,
     PrescriptionState.ARCHIVED,
   ],
-  [PrescriptionState.PARTIALLY_EDITED]: [PrescriptionState.APPROVED, PrescriptionState.ARCHIVED],
+  [PrescriptionState.PARTIALLY_EDITED]: [
+    PrescriptionState.VERIFIED_BY_PHARMACIST,
+    PrescriptionState.APPROVED,
+    PrescriptionState.ARCHIVED,
+  ],
+  [PrescriptionState.VERIFIED_BY_PHARMACIST]: [PrescriptionState.APPROVED, PrescriptionState.ARCHIVED],
   [PrescriptionState.APPROVED]: [PrescriptionState.DISPENSED, PrescriptionState.ARCHIVED],
   [PrescriptionState.DISPENSED]: [PrescriptionState.ARCHIVED],
   [PrescriptionState.ARCHIVED]: [],

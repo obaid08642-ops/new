@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Patch, Put, Delete, Body, Param, Query, UseGuards, ServiceUnavailableException } from '@nestjs/common';
 import { LabsService } from './labs.service';
-import { Public, CurrentUser, Roles } from '../../common/auth.guard';
+import { Public, CurrentUser, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 
 @Controller('labs')
@@ -36,6 +36,7 @@ export class LabsController {
   @Public() @Get('services/:id')
   one(@Param('id') id: string) { return this.svc.getById(id); }
 
+  @SelfService()
   @Post('bookings')
   book(@Body() body: any, @CurrentUser() user: any) { return this.svc.book(user, body); }
 
@@ -45,24 +46,29 @@ export class LabsController {
   @Get('bookings/:id')
   oneBooking(@Param('id') id: string, @CurrentUser() user: any) { return this.svc.getBooking(id, user); }
 
+  @SelfService()
   @Post('bookings/:id/cancel')
   cancel(@Param('id') id: string, @CurrentUser() user: any) { return this.svc.cancel(id, user); }
 
+  @Roles(UserRole.LAB, UserRole.HOSPITAL, UserRole.ADMIN)
   @Patch('bookings/:id/state')
   transition(@Param('id') id: string, @Body() body: any, @CurrentUser() user: any) {
     return this.svc.transition(id, body.state, user, body.note);
   }
 
+  @SelfService()
   @Post('bookings/:id/documents')
   uploadDoc(@Param('id') id: string, @Body() body: any, @CurrentUser() user: any) {
     return this.svc.addDocument(id, user, body);
   }
 
+  @Roles(UserRole.LAB, UserRole.HOSPITAL, UserRole.ADMIN)
   @Patch('bookings/:id/insurance')
   updateIns(@Param('id') id: string, @Body() body: any, @CurrentUser() user: any) {
     return this.svc.updateInsuranceApproval(id, body, user);
   }
 
+  @SelfService()
   @Patch('bookings/:id/items/:serviceId/opt-in-cash')
   optInCash(@Param('id') id: string, @Param('serviceId') serviceId: string, @Body() body: any, @CurrentUser() user: any) {
     return this.svc.optInCash(id, serviceId, body, user);
@@ -73,22 +79,26 @@ export class LabsController {
     return this.svc.listForProvider(user, st);
   }
 
+  @Roles(UserRole.LAB, UserRole.HOSPITAL, UserRole.ADMIN)
   @Post('bookings/:id/assign-technician')
   assignTech(@Param('id') id: string, @Body() body: any, @CurrentUser() user: any) {
     return this.svc.assignTechnician(id, user, body || {});
   }
 
+  @Roles(UserRole.LAB, UserRole.HOSPITAL, UserRole.ADMIN)
   @Post('bookings/:id/upload-report')
   uploadReport(@Param('id') id: string, @Body() body: any, @CurrentUser() user: any) {
     return this.svc.uploadReport(id, user, body || {});
   }
 
   // --- Addendum Endpoints ---
+  @Roles(UserRole.PATIENT, UserRole.LAB, UserRole.HOSPITAL, UserRole.ADMIN)
   @Patch('bookings/:id/reschedule')
   reschedule(@Param('id') id: string, @Body() body: any, @CurrentUser() user: any) {
     return this.svc.rescheduleBooking(id, user, body);
   }
 
+  @Roles(UserRole.LAB, UserRole.HOSPITAL, UserRole.ADMIN)
   @Post('bookings/:id/gps')
   updateGps(@Param('id') id: string, @Body() body: any, @CurrentUser() user: any) {
     return this.svc.updateGps(id, user, body);
@@ -99,11 +109,13 @@ export class LabsController {
     return this.svc.getTracking(id, user);
   }
 
+  @Roles(UserRole.PATIENT, UserRole.LAB, UserRole.HOSPITAL, UserRole.ADMIN)
   @Post('bookings/:id/emergency')
   declareEmergency(@Param('id') id: string, @Body() body: any, @CurrentUser() user: any) {
     return this.svc.declareEmergency(id, user, body);
   }
 
+  @Roles(UserRole.LAB, UserRole.HOSPITAL, UserRole.ADMIN)
   @Post('bookings/:id/reassign')
   reassign(@Param('id') id: string, @CurrentUser() user: any) {
     return this.svc.reassign(id, user);
@@ -123,12 +135,14 @@ export class LabsController {
     }, u);
   }
 
+  @Roles(UserRole.LAB, UserRole.HOSPITAL, UserRole.ADMIN)
   @Post('samples/register')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
   registerSample(@CurrentUser() u: any, @Body() b: any) {
     return this.svc.registerSample(u, b);
   }
 
+  @Roles(UserRole.LAB, UserRole.HOSPITAL, UserRole.ADMIN)
   @Patch('samples/:id/stage')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
   updateStage(@CurrentUser() u: any, @Param('id') id: string, @Body() b: { stage: any; notes?: string }) {
@@ -142,6 +156,7 @@ export class LabsController {
   }
 
   // --- Admin Catalog CRUD ---
+  @Roles(UserRole.ADMIN)
   @Post('admin/catalog')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
   @Roles(UserRole.ADMIN)
@@ -149,6 +164,7 @@ export class LabsController {
     return this.svc.createCatalog(u, b);
   }
 
+  @Roles(UserRole.ADMIN)
   @Put('admin/catalog/:id')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
   @Roles(UserRole.ADMIN)
@@ -156,6 +172,7 @@ export class LabsController {
     return this.svc.updateCatalog(u, id, b);
   }
 
+  @Roles(UserRole.ADMIN)
   @Delete('admin/catalog/:id')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
   @Roles(UserRole.ADMIN)
@@ -164,6 +181,7 @@ export class LabsController {
   }
 
   // --- Admin Quality Control & Dispute Intervention ---
+  @Roles(UserRole.ADMIN)
   @Patch('admin/bookings/:id/force-state')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
   @Roles(UserRole.ADMIN)

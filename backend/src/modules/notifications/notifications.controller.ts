@@ -1,6 +1,6 @@
 import { BadRequestException, Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
-import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
+import { CurrentUser, JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { PushService } from '../push/push.module';
 
@@ -19,6 +19,7 @@ export class NotificationsController {
    * their push token. Accepts { token, device|platform, provider }.
    * provider: expo | fcm | apns (auto-detected when omitted).
    */
+  @SelfService()
   @Post('register-token')
   registerToken(@CurrentUser() user: any, @Body() body: { token: string; device?: string; platform?: string; provider?: string; device_id?: string; device_name?: string }) {
     if (!body?.token) throw new BadRequestException('token is required');
@@ -33,16 +34,19 @@ export class NotificationsController {
     });
   }
 
+  @SelfService()
   @Post(':id/read')
   read(@Param('id') id: string, @CurrentUser() user: any) {
     return this.svc.markRead(id, user);
   }
 
+  @SelfService()
   @Post('read-all')
   readAll(@CurrentUser() user: any) {
     return this.svc.markAllRead(user);
   }
 
+  @Roles(UserRole.ADMIN)
   @Post('admin/send')
   @Roles(UserRole.ADMIN)
   send(@Body() body: any) {
@@ -50,6 +54,7 @@ export class NotificationsController {
   }
 
   // M6/ER-8: admin — schedule a notification for future delivery
+  @Roles(UserRole.ADMIN)
   @Post('admin/schedule')
   @Roles(UserRole.ADMIN)
   schedule(@Body() body: any) {

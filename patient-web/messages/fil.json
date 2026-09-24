@@ -434,7 +434,15 @@
     "durationDays": "Tagal sa araw",
     "instructions": "Instructions",
     "detailNotice": "Tanging medication details mula sa authorized backend ang ipinapakita. Hindi available ang diagnosis, upload, renewal, dispensing, at order actions.",
-    "contractPending": "Naka-block habang hinihintay ang awtorisadong kontrata para sa detalye ng reseta."
+    "contractPending": "Naka-block habang hinihintay ang awtorisadong kontrata para sa detalye ng reseta.",
+    "stateCreatedByDoctor": "Reseta ng doktor",
+    "stateUploadedByPatient": "Na-upload ng pasyente",
+    "stateSentToPharmacy": "Ipinadala sa parmasya",
+    "statePartiallyEdited": "Bahagyang na-edit",
+    "stateVerifiedByPharmacist": "Na-verify ng parmasyutiko",
+    "stateApproved": "Naaprubahan",
+    "stateDispensed": "Naibigay",
+    "stateArchived": "Naka-archive"
   },
   "Chat": {
     "eyebrow": "Pribadong chat",

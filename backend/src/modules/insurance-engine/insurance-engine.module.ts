@@ -15,7 +15,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { v4 as uuid } from 'uuid';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
-import { JwtAuthGuard, CurrentUser } from '../../common/auth.guard';
+import { JwtAuthGuard, CurrentUser, SelfService, Roles } from '../../common/auth.guard';
 import { InsuranceCompanySchema, InsuranceCompanyDocument } from '../../schemas/insurance.schema';
 import { PatientProfileSchema } from '../../schemas/patient-profile.schema';
 import { FraudService } from '../finance-engine/finance-engine.module';
@@ -25,6 +25,7 @@ import { LabBookingSchema } from '../../schemas/lab.schema';
 import { RadiologyBookingSchema } from '../../schemas/radiology.schema';
 import { HomeCareBookingSchema } from '../../schemas/home-care.schema';
 import { Appointment, AppointmentSchema } from '../../schemas/appointment.schema';
+import { UserRole } from '../../common/enums';
 
 // ============================================================================
 // Schemas
@@ -547,6 +548,7 @@ export class InsuranceFlowController {
 
   // ---- patient ----
   @Get('companies') companies() { return this.svc.companiesList(); }
+  @SelfService()
   @Post('save-policy') savePolicy(@CurrentUser() u: any, @Body() b: any) { return this.svc.savePolicy(u, b); }
   @Get('my-policy') myPolicy(@CurrentUser() u: any) { return this.svc.myPolicy(u); }
 
@@ -567,23 +569,32 @@ export class InsuranceFlowController {
     return { has_policy, policy, benefits: has_policy ? [{ key: 'manual_review', note_ar: 'تخضع الموافقة لمراجعة مزود الخدمة لوثيقتك' }] : [] };
   }
 
+  @SelfService()
   @Post('requests') createRequest(@CurrentUser() u: any, @Body() b: any) { return this.svc.createRequest(u, b); }
   @Get('requests/my') myRequests(@CurrentUser() u: any) { return this.svc.myRequests(u); }
   @Get('requests/:id') one(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.getOne(id, u); }
+  @SelfService()
   @Post('requests/:id/pay-copay') payCopay(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.payCopay(u, id, b); }
+  @SelfService()
   @Post('requests/:id/accept-self-pay') acceptSelfPay(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.acceptSelfPay(u, id); }
   @Get('requests/:id/capabilities') capabilities(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.capabilities(u, id); }
   @Get('requests/:id/self-pay-capabilities') selfPayCapabilities(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.capabilities(u, id); }
+  @SelfService()
   @Post('requests/:id/cancel') cancel(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.cancel(u, id); }
+  @SelfService()
   @Post('requests/:id/resubmit') resubmit(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.resubmit(u, id, b); }
+  @SelfService()
   @Post('requests/:id/appeal') appeal(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.appeal(u, id, b); }
 
   // ---- provider ----
   @Get('requests/provider/queue') providerQueue(@CurrentUser() u: any, @Query('state') state?: string) { return this.svc.providerQueue(u, state); }
+  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
   @Post('requests/:id/decide') decide(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.decide(u, id, b); }
+  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
   @Post('provider/jobs/consultation/:id/insurance') gatekeeper(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.gatekeeperDecision(u, id, b); }
 
   // ---- legacy aliases the patient app already calls ----
+  @SelfService()
   @Post('payment-confirm') paymentConfirm(@CurrentUser() u: any, @Body() b: any) {
     return this.svc.payCopay(u, b?.request_id || b?.id, b);
   }
@@ -598,10 +609,12 @@ export class InsuranceFlowController {
 export class InsuranceAliasController {
   constructor(private readonly svc: InsuranceFlowService) {}
 
+  @SelfService()
   @Post('patient/pay-copay') payCopay(@CurrentUser() u: any, @Body() b: any) {
     return this.svc.payCopay(u, b?.request_id || b?.id, b);
   }
 
+  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
   @Post('home-care/insurance/verify') verify(@CurrentUser() u: any) {
     return this.svc.myPolicy(u);
   }
@@ -675,6 +688,7 @@ export class RefundService {
 }
 
 @Controller('refunds')
+@SelfService()
 @UseGuards(JwtAuthGuard)
 export class RefundController {
   constructor(private readonly svc: RefundService) {}
@@ -687,6 +701,7 @@ export class RefundController {
 }
 
 @Controller('admin/finance')
+@Roles(UserRole.ADMIN)
 @UseGuards(JwtAuthGuard)
 export class AdminFinanceCoreController {
   constructor(
@@ -709,6 +724,7 @@ export class AdminInsuranceController {
 }
 
 @Controller('finance')
+@Roles(UserRole.ADMIN)
 @UseGuards(JwtAuthGuard)
 export class FinanceCoreController {
   constructor(private readonly finance: FinanceCoreService) {}

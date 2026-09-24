@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, UnauthorizedException, ConflictException, GoneException, Inject, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, BadRequestException, UnauthorizedException, ConflictException, GoneException, Inject, HttpException, HttpStatus, ServiceUnavailableException } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
@@ -45,7 +45,7 @@ export class AuthService {
 
   signToken(user: any, deviceId?: string) {
     const accessToken = this.jwt.sign(
-      { sub: user.id, id: user.id, role: user.role, phone: user.phone, is_guest: !!user.is_guest, ...(deviceId ? { dev: deviceId.slice(0, 32) } : {}) },
+      { sub: user.id, id: user.id, role: user.role, phone: user.phone, is_guest: !!user.is_guest, tv: Number(user.token_version ?? 0), ...(deviceId ? { dev: deviceId.slice(0, 32) } : {}) },
       { expiresIn: '1h' } // Short-lived access token
     );
     // Refresh token carries a unique session id (jti) — tracked in Redis so
@@ -151,6 +151,44 @@ export class AuthService {
     return `auth:otp:verify:${this.normalizeOtpIdentifier(identifier)}`;
   }
 
+  /**
+   * F34 channel policy. Delivers the OTP on every working channel, most
+   * direct first: SMS for phone identifiers (Taqnyat via SmsService, only
+   * when SMS_ENABLED), then push (best-effort), then email (the identifier
+   * itself, or the account email for phone identifiers). Returns the list of
+   * channels that accepted the message. Never throws — callers decide.
+   */
+  private async deliverOtp(user: any, identifier: string, code: string, isEmailIdentifier: boolean): Promise<string[]> {
+    const delivered: string[] = [];
+    if (!isEmailIdentifier && user?.phone) {
+      try {
+        if (await this.sms?.sendOtp(user.phone, code)) delivered.push('sms');
+      } catch { /* fall through to push/email */ }
+    }
+    try {
+      const r: any = await this.push?.sendToUser(
+        user.id,
+        'رمز التحقق — نَبْض',
+        `رمز التحقق الخاص بك: ${code} — صالح لمدة 10 دقائق. لا تشاركه مع أحد.`,
+        { kind: 'otp' },
+      );
+      if (r && Number(r.sent) > 0) delivered.push('push');
+    } catch { /* push must never break OTP delivery */ }
+    const emailTarget = isEmailIdentifier ? identifier : user?.email;
+    if (emailTarget) {
+      try {
+        const r = await this.mail?.sendOtp(emailTarget, code);
+        if (r?.ok) delivered.push('email');
+      } catch { /* isolated per channel */ }
+    }
+    return delivered;
+  }
+
+  /** Redis marker left by a successful OTP verification (10 min, single-use by register). */
+  private otpVerifiedKey(identifier: string) {
+    return `auth:otp:verified:${this.normalizeOtpIdentifier(identifier)}`;
+  }
+
   private patientOtpKey(identifier: string) {
     return `auth:otp:patient:${this.normalizeOtpIdentifier(identifier)}`;
   }
@@ -210,21 +248,12 @@ export class AuthService {
       this.PATIENT_OTP_TTL_SECONDS,
     );
 
-    // Dual delivery (SMS retired): email + push together. Each channel is
-    // best-effort and isolated — one failing never blocks the other.
-    try {
-      if (normalized.includes('@')) {
-        await this.mail?.sendOtp(normalized, code);
-      } else if (user.email) {
-        // SMS retired: phone identifiers receive the OTP by email (Resend→SES).
-        await this.mail?.sendOtp(user.email, code);
-      }
-    } catch { /* email failure must not block push */ }
-    try {
-      await this.push?.sendToUser(user.id, 'رمز التحقق — نَبْض', `رمز التحقق الخاص بك: ${code}`, { kind: 'patient_web_otp' });
-    } catch {
-      // Keep the response opaque and leave delivery observability to providers.
-      // The raw OTP is never returned or logged by this path.
+    // F34: SMS first for phone identifiers (when enabled), then push, then
+    // email. A phone-only user with SMS disabled and no email is no longer
+    // told "sent" for a code that went nowhere.
+    const delivered = await this.deliverOtp(user, normalized, code, normalized.includes('@'));
+    if (!delivered.length) {
+      throw new ServiceUnavailableException({ message: 'otp_channel_unavailable', code: 'otp_channel_unavailable' });
     }
     return this.opaqueOtpResponse(normalized);
   }
@@ -421,6 +450,35 @@ export class AuthService {
     if (data.email) {
       const exists = await this.userModel.findOne({ email: data.email });
       if (exists) throw new ConflictException('Email already registered');
+    }
+    // F63: no account — and no tokens — without proven ownership of the phone
+    // or email: either an OTP code verified inline, or a single-use marker
+    // left by a prior /auth/verify-otp call. Otherwise 400 otp_required.
+    const otpContacts = [
+      ...(data.phone ? [this.normalizeOtpIdentifier(data.phone)] : []),
+      ...(data.email ? [this.normalizeOtpIdentifier(data.email)] : []),
+    ];
+    let ownershipProven = false;
+    const inlineCode = String((data as any).otp || '').trim();
+    if (inlineCode && otpContacts.length) {
+      let lastErr: any = null;
+      for (const contact of otpContacts) {
+        try { await this.verifyOtp(contact, inlineCode); ownershipProven = true; break; }
+        catch (e) { lastErr = e; }
+      }
+      if (!ownershipProven) throw lastErr;
+    } else {
+      for (const contact of otpContacts) {
+        const mark = await this.redisService.getJson(this.otpVerifiedKey(contact)).catch(() => null);
+        if (mark) {
+          await this.redisService.del(this.otpVerifiedKey(contact)).catch(() => {});
+          ownershipProven = true;
+          break;
+        }
+      }
+    }
+    if (!ownershipProven) {
+      throw new BadRequestException({ message: 'otp_required', code: 'otp_required', statusCode: HttpStatus.BAD_REQUEST });
     }
     const hash = await bcrypt.hash(data.password, 12);
     // S6 privilege-escalation fix: public registration may ONLY create patient or
@@ -801,25 +859,9 @@ export class AuthService {
     );
 
     try {
-      // CI-8: the OTP reaches the user on ALL channels together — email/SMS below
-      // plus an in-app push notification, so app-only users still receive it.
-      try {
-        await this.push?.sendToUser(
-          u.id,
-          'رمز التحقق — نَبْض',
-          `رمز التحقق الخاص بك: ${code} — صالح لمدة 10 دقائق. لا تشاركه مع أحد.`,
-          { kind: 'otp' },
-        );
-      } catch { /* push must never break OTP delivery */ }
-      if (isEmail) {
-        // Unified mail pipeline: Resend primary → Amazon SES automatic fallback.
-        await this.mail?.sendOtp(normalized, code);
-      } else {
-        // SMS retired: login-2FA codes go by email (Resend→SES); push already sent above.
-        if (u.email) {
-          await this.mail?.sendOtp(u.email, code);
-        }
-      }
+      // F34 channel policy: SMS (phone identifiers, when enabled) → push →
+      // email. Every channel is isolated; at least one must accept.
+      const delivered = await this.deliverOtp(u, normalized, code, isEmail);
       if (
         process.env.NODE_ENV !== 'production' &&
         !process.env.SMTP_HOST &&
@@ -827,8 +869,12 @@ export class AuthService {
       ) {
         console.warn('No OTP delivery channel configured; OTP was not logged.');
       }
-      return { ok: true };
+      if (!delivered.length) {
+        throw new ServiceUnavailableException({ message: 'otp_channel_unavailable', code: 'otp_channel_unavailable' });
+      }
+      return { ok: true, channel: delivered[0] };
     } catch (err: any) {
+      if (err instanceof ServiceUnavailableException) throw err;
       console.error('Failed to send verification code:', err);
       return { ok: false, error: err.message };
     }
@@ -868,6 +914,9 @@ export class AuthService {
     // valid — consume the code
     await this.redisService.del(key);
     await this.redisService.del(`ratelimit:${this.otpVerifyRateKey(normalized)}`);
+    // F63: leave a short-lived verified marker so a subsequent registration
+    // can prove identifier ownership without asking for the code twice.
+    await this.redisService.setJson(this.otpVerifiedKey(normalized), { at: Date.now() }, 600).catch(() => {});
     const isEmail = identifier.includes('@');
     await this.userModel.findOneAndUpdate(
       isEmail ? { email: normalized } : { phone: normalized },

@@ -31,7 +31,8 @@ export function PendingDashboard({ onExplore, onLogout, providerType }: { onExpl
     if (!user?.email) return;
     setLoading(true);
     try {
-      await client.post('/auth/send-otp', { identifier: user.email });
+      // F11: provider OTP endpoints (email verification for the provider account).
+      await client.post('/provider/auth/send-otp', { email: user.email });
       setOtpSent(true);
     } catch (e) {
       show(AR ? 'فشل إرسال رمز التحقق' : 'Failed to send OTP', 'error');
@@ -44,7 +45,7 @@ export function PendingDashboard({ onExplore, onLogout, providerType }: { onExpl
     if (!otp || !user?.email) return;
     setLoading(true);
     try {
-      await client.post('/auth/verify-otp', { identifier: user.email, code: otp });
+      await client.post('/provider/auth/verify-email', { email: user.email, code: otp });
       setEmailVerified(true);
        // refresh global state
     } catch (e) {

@@ -7,7 +7,7 @@ import { Model } from 'mongoose';
 import * as crypto from 'crypto';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Logger } from '@nestjs/common';
-import { CurrentUser, Public, JwtAuthGuard } from '../../common/auth.guard';
+import { CurrentUser, Public, JwtAuthGuard, SelfService } from '../../common/auth.guard';
 
 export enum StorageBackend { BASE64 = 'base64', S3 = 's3', CLOUDINARY = 'cloudinary', SUPABASE = 'supabase' }
 
@@ -344,6 +344,7 @@ export class StorageService {
 }
 
 @Controller('storage')
+@SelfService()
 @UseGuards(JwtAuthGuard)
 export class StorageController {
   constructor(private readonly svc: StorageService) {}

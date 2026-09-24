@@ -1,4 +1,4 @@
-import { JwtAuthGuard, NoGuestsGuard } from '../../common/auth.guard';
+import { JwtAuthGuard, NoGuestsGuard, SelfService } from '../../common/auth.guard';
 import {
   Body, Controller, Delete, Get, Param, Patch, Post, Put, Req, UnauthorizedException, UseGuards,
 } from '@nestjs/common';
@@ -6,6 +6,7 @@ import { FamilyService } from './family.service';
 
 @UseGuards(JwtAuthGuard, NoGuestsGuard)
 @Controller('family')
+@SelfService()
 export class FamilyController {
   constructor(private readonly familyService: FamilyService) {}
 

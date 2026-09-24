@@ -32,6 +32,18 @@ export default async function PrescriptionsPage({ params }: Props) {
       </main>
     );
   const prescriptions = extractPrescriptionSummaries(await response.json().catch(() => null));
+  // F32: never render raw prescription state enums — every known state has a
+  // translated label; anything unknown falls back to "unavailable", never raw.
+  const stateLabels: Record<string, string> = {
+    CREATED_BY_DOCTOR: t("stateCreatedByDoctor"),
+    UPLOADED_BY_PATIENT: t("stateUploadedByPatient"),
+    SENT_TO_PHARMACY: t("stateSentToPharmacy"),
+    PARTIALLY_EDITED: t("statePartiallyEdited"),
+    VERIFIED_BY_PHARMACIST: t("stateVerifiedByPharmacist"),
+    APPROVED: t("stateApproved"),
+    DISPENSED: t("stateDispensed"),
+    ARCHIVED: t("stateArchived"),
+  };
   return (
     <main className={`main ${styles.page}`}>
       <section className={styles.intro}>
@@ -59,7 +71,7 @@ export default async function PrescriptionsPage({ params }: Props) {
                 <FileText size={19} aria-hidden="true" />
               </span>
               <div className={styles.cardBody}>
-                <strong className={styles.status}>{prescription.state || t("stateUnavailable")}</strong>
+                <strong className={styles.status}>{stateLabels[prescription.state ?? ""] ?? t("stateUnavailable")}</strong>
                 {prescription.doctorName ? <span className={styles.doctor}>{prescription.doctorName}</span> : null}
                 <span className={styles.items}>{t("items", { count: prescription.itemCount })}</span>
                 {prescription.medicationNames.length ? (

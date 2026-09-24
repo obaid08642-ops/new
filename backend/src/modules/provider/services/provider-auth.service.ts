@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, ConflictException, NotFoundException, UnauthorizedException, Logger, Inject } from '@nestjs/common';
+import { Injectable, BadRequestException, ConflictException, ForbiddenException, NotFoundException, UnauthorizedException, Logger, Inject } from '@nestjs/common';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
@@ -25,7 +25,7 @@ export class ProviderAuthService {
   ) {}
 
   private signToken(a: ProviderAccount) {
-    return this.jwt.sign({ sub: a.id, id: a.id, role: 'provider', provider_type: a.provider_type, scope: 'provider' });
+    return this.jwt.sign({ sub: a.id, id: a.id, role: 'provider', provider_type: a.provider_type, scope: 'provider', tv: Number((a as any).token_version ?? 0) });
   }
   private publicAccount(a: ProviderAccount) {
     return { id: a.id, email: a.email, provider_type: a.provider_type, status: a.status, email_verified: a.email_verified, onboarding_progress: a.onboarding_progress };
@@ -58,6 +58,10 @@ export class ProviderAuthService {
     const email = (input.email || '').toLowerCase().trim();
     const a = await this.accounts.findOne({ email });
     if (!a) throw new UnauthorizedException('invalid credentials');
+    // F09: suspended providers cannot start new sessions at all.
+    if (a.status === ProviderAccountStatus.SUSPENDED) {
+      throw new ForbiddenException('account_suspended');
+    }
     if (a.locked_until && a.locked_until.getTime() > Date.now()) throw new UnauthorizedException('account temporarily locked — too many failed attempts');
     const ok = await bcrypt.compare(input.password, a.password_hash);
     if (!ok) {
@@ -207,6 +211,8 @@ export class ProviderAuthService {
     await this.otp.verify(input.email, OtpPurpose.PASSWORD_RESET, input.code, { ip: input.meta?.ip, ua: input.meta?.ua, account_id: a.id });
     a.password_hash = await bcrypt.hash(input.new_password, 10);
     a.failed_login_attempts = 0; a.locked_until = undefined as any;
+    // F09: password reset revokes all other sessions immediately.
+    (a as any).token_version = Number((a as any).token_version || 0) + 1;
     await a.save();
     await this.audit.create({ provider_account_id: a.id, actor_id: a.id, actor_role: 'provider', action: 'auth.password_reset' });
     return { account: this.publicAccount(a), token: this.signToken(a) };

@@ -1,12 +1,12 @@
 import { ServiceUnavailableException } from '@nestjs/common';
-import { AdminPharmacyController } from './pharmacy.controllers';
+import { AdminPharmacySeedController } from './pharmacy.controllers';
 
-describe('AdminPharmacyController test seed guard', () => {
+describe('AdminPharmacySeedController test seed guard (F17)', () => {
   const seedSvc = {
     seed: jest.fn(),
     seedSampleOrder: jest.fn(),
   };
-  const controller = new AdminPharmacyController(seedSvc as any, {} as any, {} as any, {} as any);
+  const controller = new AdminPharmacySeedController(seedSvc as any);
   const originalNodeEnv = process.env.NODE_ENV;
   const originalAllowSeed = process.env.ALLOW_TEST_SEED;
 

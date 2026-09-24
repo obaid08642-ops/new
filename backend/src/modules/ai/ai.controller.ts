@@ -3,10 +3,11 @@ import { Throttle } from '@nestjs/throttler';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AiService } from './ai.service';
 import { AiGatewayService } from './ai-gateway.service';
-import { JwtAuthGuard, Roles } from '../../common/auth.guard';
+import { JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 
 @Controller('ai')
+@SelfService()
 @UseGuards(JwtAuthGuard)
 export class AiController {
   constructor(private svc: AiService, private gateway: AiGatewayService) {}

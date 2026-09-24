@@ -217,7 +217,8 @@ export class AdminSecurityController {
     if (unknown.length) throw new BadRequestException(`unknown_role_keys:${unknown.join(',')}`);
 
     const nextKeys = [...new Set(requestedKeys)].sort();
-    await this.conn.collection('users').updateOne({ id: userId }, { $set: { custom_role_keys: nextKeys } });
+    // F09: role change revokes the staffer's sessions — they re-login with new permissions.
+    await this.conn.collection('users').updateOne({ id: userId }, { $set: { custom_role_keys: nextKeys }, $inc: { token_version: 1 } });
     invalidateDynamicRoleCache();
     await this.audit.write({
       action: 'rbac_user_roles_assign', actor: me, target_type: 'user', target_id: userId,

@@ -13,7 +13,7 @@ import { Module, Controller, Get, Post, Param, Body, UseGuards, Injectable, BadR
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Model } from 'mongoose';
-import { JwtAuthGuard, CurrentUser } from '../../common/auth.guard';
+import { JwtAuthGuard, CurrentUser, SelfService } from '../../common/auth.guard';
 import { ForbiddenException } from '@nestjs/common';
 import { OrderSchema, OrderDocument } from '../../schemas/order.schema';
 import { LabBookingSchema, LabBooking } from '../../schemas/lab.schema';
@@ -178,6 +178,7 @@ export class BookingOpsService {
 }
 
 @Controller('booking/flow')
+@SelfService()
 @UseGuards(JwtAuthGuard)
 export class BookingOpsController {
   constructor(private svc: BookingOpsService) {}

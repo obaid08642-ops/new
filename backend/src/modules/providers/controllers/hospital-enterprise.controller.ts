@@ -6,8 +6,10 @@ import { User } from '../../../schemas/user.schema';
 import { Appointment } from '../../../schemas/appointment.schema';
 import { ProviderProfile } from '../../../schemas/provider-profile.schema';
 import { UserRole } from '../../../common/enums';
+import { Roles } from '../../../common/auth.guard';
 
 @Controller('providers/enterprise')
+@Roles(UserRole.HOSPITAL, UserRole.HOSPITAL_ADMIN, UserRole.ADMIN)
 export class HospitalEnterpriseController {
   constructor(
     @InjectModel(HospitalSubEntity.name) private subEntityModel: Model<HospitalSubEntity>,

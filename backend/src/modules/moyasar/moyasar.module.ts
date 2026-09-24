@@ -18,7 +18,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel, InjectConnection, MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Model, Document, Connection } from 'mongoose';
-import { JwtAuthGuard, CurrentUser, Public, Roles } from '../../common/auth.guard';
+import { JwtAuthGuard, CurrentUser, Public, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { IdempotencyInterceptor } from '../../common/idempotency.interceptor';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -372,6 +372,7 @@ export class MoyasarService {
 // ── Controller ────────────────────────────────────────────────────────────────
 
 @Controller('moyasar')
+@SelfService()
 export class MoyasarController {
   constructor(private readonly svc: MoyasarService) {}
 

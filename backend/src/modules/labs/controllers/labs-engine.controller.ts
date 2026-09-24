@@ -3,8 +3,11 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { LabBooking } from '../schemas/lab-booking.schema';
 import { LabCatalog } from '../schemas/lab-catalog.schema';
+import { Roles } from '../../../common/auth.guard';
+import { UserRole } from '../../../common/enums';
 
 @Controller('labs/bookings')
+@Roles(UserRole.LAB, UserRole.HOSPITAL, UserRole.ADMIN)
 export class LabsEngineController {
   constructor(
     @InjectModel('LabCenterBooking') private labBookingModel: Model<LabBooking>,

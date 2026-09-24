@@ -1,4 +1,4 @@
-import { JwtAuthGuard } from '../../common/auth.guard';
+import { JwtAuthGuard, SelfService } from '../../common/auth.guard';
 import { Body, Controller, Delete, Get, Param, Post, Query, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { MentalHealthService } from './mental-health.service';
@@ -6,6 +6,7 @@ import { MentalHealthService } from './mental-health.service';
 @ApiTags('Mental Health – الصحة النفسية')
 @UseGuards(JwtAuthGuard)
 @Controller('mental-health')
+@SelfService()
 export class MentalHealthController {
   constructor(private readonly mentalHealthService: MentalHealthService) {}
 

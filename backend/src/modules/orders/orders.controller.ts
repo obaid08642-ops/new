@@ -1,11 +1,12 @@
 import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards, Res } from '@nestjs/common';
 import { OrdersService } from './orders.service';
-import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
+import { CurrentUser, JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
 import { RequireIdempotency } from '../../common/idempotency.interceptor';
 import { OrderState, UserRole, DeliveryState } from '../../common/enums';
 import { CreateOrderDto } from './dto/create-order.dto';
 
 @Controller('orders')
+@SelfService()
 @UseGuards(JwtAuthGuard)
 export class OrdersController {
   constructor(private svc: OrdersService) {}

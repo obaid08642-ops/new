@@ -1,7 +1,7 @@
 import { BadRequestException, ConflictException, Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
-import { JwtAuthGuard, Roles, CurrentUser } from '../../common/auth.guard';
+import { JwtAuthGuard, Roles, CurrentUser, SelfService } from '../../common/auth.guard';
 import { Permission, RequirePermissions } from '../../common/permissions';
 import { UserRole } from '../../common/enums';
 import { validateReason, ReasonError } from '../../common/rbac';
@@ -127,6 +127,7 @@ export class AdminCouponsController {
     return clean;
   }
 
+  @Roles(UserRole.ADMIN)
   @Patch(':id')
   async update(@Param('id') id: string, @Body() b: any, @CurrentUser() me: any): Promise<any> {
     let reason: string;
@@ -152,6 +153,7 @@ export class AdminCouponsController {
   }
 
   /** Dry-run the deterministic engine against a hypothetical basket. */
+  @SelfService()
   @Post('validate')
   async validate(@Body() b: any) {
     const code = String(b?.code || '').trim().toUpperCase();
@@ -169,6 +171,7 @@ export class AdminCouponsController {
   }
 
   /** Real redemption record (checkout calls this after order confirmation). */
+  @SelfService()
   @Post('redeem')
   async redeem(@Body() b: any) {
     const code = String(b?.code || '').trim().toUpperCase();
@@ -185,6 +188,7 @@ export class AdminCouponsController {
     return { ok: true, code, used_count: (res as any).used_count };
   }
 
+  @Roles(UserRole.ADMIN)
   @Delete(':id')
   async remove(@Param('id') id: string, @Body() b: any, @CurrentUser() me: any) {
     let reason: string;

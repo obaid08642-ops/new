@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { NabdExtensionsService } from './nabd-extensions.service';
 import { NabdExtensionsController } from './nabd-extensions.controller';
 import { NotificationsModule } from '../notifications/notifications.module';
+import { PharmacyModule } from '../pharmacy/pharmacy.module';
 
 // New schemas
 import { UniversalActivity, UniversalActivitySchema } from '../../schemas/universal-activity.schema';
@@ -45,6 +46,7 @@ import { WalletTransactionRepository } from "./repositories/wallettransaction.re
 @Module({
   imports: [
     NotificationsModule,
+    PharmacyModule,
     MongooseModule.forFeature([
       { name: UniversalActivity.name, schema: UniversalActivitySchema },
       { name: Wallet.name, schema: WalletSchema },

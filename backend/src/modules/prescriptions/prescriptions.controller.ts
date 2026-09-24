@@ -1,9 +1,10 @@
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { PrescriptionsService } from './prescriptions.service';
-import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
+import { CurrentUser, JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
 import { PrescriptionState, UserRole } from '../../common/enums';
 
 @Controller('prescriptions')
+@SelfService()
 @UseGuards(JwtAuthGuard)
 export class PrescriptionsController {
   constructor(private svc: PrescriptionsService) {}
@@ -34,6 +35,12 @@ export class PrescriptionsController {
   @Post(':id/transition')
   transition(@Param('id') id: string, @Body() body: { to: PrescriptionState }, @CurrentUser() user: any) {
     return this.svc.transition(id, body.to, user);
+  }
+
+  @Post(':id/verify')
+  @Roles(UserRole.PHARMACY, UserRole.ADMIN)
+  verify(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.svc.verifyByPharmacist(id, user);
   }
 
   @Post(':id/substitute')

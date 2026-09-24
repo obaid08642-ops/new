@@ -3,6 +3,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Model } from 'mongoose';
 import { ProviderAccount, ProviderProfile, ProviderDocument, ProviderBankAccount, ProviderAuditLog, DocumentReviewStatus, BankReviewStatus } from '../schemas';
 import { ProviderAccountStatus, PROVIDER_STATUS_TRANSITIONS } from '../provider.enums';
+import { UserRole } from '../../../common/enums';
 import { ProviderAccountRepository } from "./repositories/provideraccount.repository";
 import { ProviderAccountProfileRepository } from "./repositories/provideraccountprofile.repository";
 import { ProviderDocumentRepository } from "./repositories/providerdocument.repository";
@@ -132,7 +133,18 @@ export class ProviderAdminService {
     const a = await this.accounts.findOne({ id }); if (!a) throw new NotFoundException();
     await this.transition(a, ProviderAccountStatus.APPROVED, user, body?.note);
     a.approved_at = new Date(); a.approved_by = user.id;
+    // P2.2 role flip: the login identity becomes the provider type, and every
+    // live session is revoked (both stores) so the new role takes effect now.
+    (a as any).token_version = Number((a as any).token_version || 0) + 1;
     await a.save();
+    const usersCol = this.accounts.model.db.collection('users');
+    const roleMap: Record<string, string> = { laboratory: UserRole.LAB };
+    const candidate = roleMap[(a as any).provider_type] || (a as any).provider_type;
+    const loginId = (a as any).user_id
+      || (await usersCol.findOne({ email: String((a as any).email || '').toLowerCase().trim() }).catch(() => null))?.id;
+    if (loginId && Object.values(UserRole).includes(candidate)) {
+      await usersCol.updateOne({ id: loginId }, { $set: { role: candidate }, $inc: { token_version: 1 } });
+    }
     // Per-provider commission set by admin at approval: cash % + insurance % (else type defaults)
     const cashPct = body?.commission_cash !== undefined ? Number(body.commission_cash)
       : body?.commission !== undefined ? Number(body.commission) : undefined;
@@ -225,6 +237,8 @@ export class ProviderAdminService {
     this.assertAdmin(user);
     const a = await this.accounts.findOne({ id }); if (!a) throw new NotFoundException();
     await this.transition(a, ProviderAccountStatus.SUSPENDED, user, body?.reason);
+    // F09: instant session revocation for the suspended provider account.
+    (a as any).token_version = Number((a as any).token_version || 0) + 1;
     await a.save();
     await this.accounts.model.db.collection('provider_profiles').updateMany(
       { account_id: id, user_id: { $exists: true } },
@@ -243,6 +257,31 @@ export class ProviderAdminService {
       }).catch(() => {});
     }
 
+    return a.toObject();
+  }
+
+  /**
+   * P2.2/F80 reactivate: restore a suspended provider to approved. Bumps both
+   * token versions (fresh login required) and restores provider_profiles
+   * visibility flags (same shape as the users unban path).
+   */
+  async reactivate(user: any, id: string, body: any) {
+    this.assertAdmin(user);
+    const a = await this.accounts.findOne({ id }); if (!a) throw new NotFoundException();
+    await this.transition(a, ProviderAccountStatus.APPROVED, user, body?.reason || 'reactivated');
+    (a as any).token_version = Number((a as any).token_version || 0) + 1;
+    await a.save();
+    const usersCol = this.accounts.model.db.collection('users');
+    const loginId = (a as any).user_id
+      || (await usersCol.findOne({ email: String((a as any).email || '').toLowerCase().trim() }).catch(() => null))?.id;
+    if (loginId) {
+      await usersCol.updateOne({ id: loginId }, { $set: { active: true, suspended: false }, $inc: { token_version: 1 } });
+    }
+    await this.accounts.model.db.collection('provider_profiles').updateMany(
+      { account_id: id, user_id: { $exists: true } },
+      { $set: { status: 'active', public_eligibility: true, indexing_eligibility: true, medical_review_status: 'approved' } },
+    );
+    await this.audit.create({ provider_account_id: id, actor_id: user.id, actor_role: 'admin', action: 'admin.provider_reactivated', after: { reason: body?.reason } });
     return a.toObject();
   }
 

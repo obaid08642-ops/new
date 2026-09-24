@@ -24,7 +24,8 @@ import {
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
 import { v4 as uuid } from 'uuid';
-import { CurrentUser, Public, JwtAuthGuard, Roles } from '../../common/auth.guard';
+import { CurrentUser, Public, JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
+import { UserRole } from '../../common/enums';
 
 const now = () => new Date();
 const uid = (u: any) => u?.id || u?._id || u?.user_id;
@@ -39,6 +40,7 @@ async function mustOwnBooking(conn: Connection, collection: string, id: string, 
 
 // ─── 1) Family group chat ────────────────────────────────────────────────────
 @Controller('family/chat')
+@SelfService()
 @UseGuards(JwtAuthGuard)
 export class FamilyChatController {
   constructor(@InjectConnection() private conn: Connection) {}
@@ -87,6 +89,7 @@ export class FamilyChatController {
 
 // ─── 2) Health medications (drug-scanner adds scanned meds here) ─────────────
 @Controller('health/medications')
+@SelfService()
 class HealthMedsController {
   constructor(@InjectConnection() private conn: Connection) {}
 
@@ -121,6 +124,7 @@ class HealthMedsController {
 
 // ─── 3) Wearables (device registry + health-data ingest) ─────────────────────
 @Controller('wearables')
+@SelfService()
 class WearablesController {
   constructor(@InjectConnection() private conn: Connection) {}
 
@@ -207,6 +211,7 @@ const SA_VACCINE_SCHEDULE = [
 ];
 
 @Controller('maternity/vaccines')
+@SelfService()
 class MaternityVaccinesController {
   constructor(@InjectConnection() private conn: Connection) {}
 
@@ -369,6 +374,7 @@ class ReportsTimelineController {
 
 /* ── 10) Support chat — canonical store (visible to admin) ──────────────── */
 @Controller('support/chat')
+@SelfService()
 class SupportChatController {
   constructor(
     @InjectConnection() private conn: Connection,
@@ -418,6 +424,7 @@ class SupportChatController {
 
 /* ── 11) Client audit-ingest ─────────────────────────────────────────────── */
 @Controller('audit')
+@SelfService()
 class AuditIngestController {
   constructor(@InjectConnection() private conn: Connection) {}
 
@@ -453,6 +460,7 @@ const INTERACTION_RULES: Array<{ a: string[]; b: string[]; severity: string; not
 ];
 
 @Controller('ai')
+@SelfService()
 class AiInteractionsController {
   constructor(@InjectConnection() private conn: Connection) {}
 
@@ -476,6 +484,7 @@ class AiInteractionsController {
 
 /* ── 13) Consultation detail/messages aliases ────────────────────────────── */
 @Controller('consultations')
+@SelfService()
 class ConsultationsCompatController {
   constructor(@InjectConnection() private conn: Connection) {}
 
@@ -539,6 +548,7 @@ async function facilityIdOf(conn: Connection, u: string): Promise<string> {
 }
 
 @Controller('facility')
+@Roles(UserRole.HOSPITAL, UserRole.HOSPITAL_ADMIN, UserRole.ADMIN)
 class FacilityInboxController {
   constructor(@InjectConnection() private conn: Connection) {}
 
@@ -565,6 +575,7 @@ class FacilityInboxController {
 const NURSING_ACTIVE_STATES = ['ASSIGNED', 'ACCEPTED', 'EN_ROUTE', 'ARRIVED', 'IN_PROGRESS', 'assigned', 'accepted', 'en_route', 'arrived', 'in_progress'];
 
 @Controller('nursing')
+@Roles(UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.ADMIN)
 class NursingCompatController {
   constructor(@InjectConnection() private conn: Connection) {}
 
@@ -649,6 +660,7 @@ class NursingCompatController {
 
 /* ── 16) Pharmacy products + shortage reports (provider) ─────────────────── */
 @Controller('pharmacy')
+@Roles(UserRole.PHARMACY, UserRole.ADMIN)
 class PharmacyCompatController {
   constructor(@InjectConnection() private conn: Connection) {}
 
@@ -839,6 +851,7 @@ class ProviderFacilityController {
 
 /* ── 20) Pharmacy B2B voice-to-order ─────────────────────────────────────── */
 @Controller('provider/pharmacy/b2b')
+@Roles(UserRole.PHARMACY, UserRole.ADMIN)
 class B2BVoiceController {
   constructor(@InjectConnection() private conn: Connection) {}
 
@@ -1118,6 +1131,7 @@ class ProviderDashboardController {
 
 // ─── Patient pharmacy orders (patient-facing; pharmacy_ops is provider-side) ─
 @Controller('patient/pharmacy')
+@SelfService()
 @UseGuards(JwtAuthGuard)
 export class PatientPharmacyOrdersController {
   constructor(@InjectConnection() private conn: Connection) {}
@@ -1174,6 +1188,7 @@ export class PatientPharmacyOrdersController {
 
 // ─── Patient home-care (services/packages catalog + bookings) ────────────────
 @Controller('home-care')
+@SelfService()
 @UseGuards(JwtAuthGuard)
 export class PatientHomeCareController {
   constructor(@InjectConnection() private conn: Connection) {}

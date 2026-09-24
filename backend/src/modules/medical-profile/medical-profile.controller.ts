@@ -1,12 +1,12 @@
-import { JwtAuthGuard } from '../../common/auth.guard';
+import { JwtAuthGuard, SelfService, CurrentUser } from '../../common/auth.guard';
 import { UseGuards } from '@nestjs/common';
 import { Controller, Get, Patch, Post, Delete, Body, Param } from '@nestjs/common';
 import { MedicalProfileService } from './medical-profile.service';
-import { CurrentUser } from '../../common/auth.guard';
 import { JwtService } from '@nestjs/jwt';
 
 @UseGuards(JwtAuthGuard)
 @Controller('medical-profile')
+@SelfService()
 export class MedicalProfileController {
   constructor(private readonly svc: MedicalProfileService, private readonly jwt: JwtService) {}
 

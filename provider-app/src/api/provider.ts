@@ -25,22 +25,23 @@ export const ProviderApi = {
     return res.data;
   },
 
-  /** Step 1.5: Login to obtain JWT token for subsequent steps */
-  async login(phone: string, password?: string) {
-    const res = await client.post('/auth/login', { phone, password });
-    // Backend returns { token: { accessToken, refreshToken } } — saving the
-    // whole object as the bearer token made EVERY later call 401 ("Invalid
-    // token"), which is what broke document uploads during onboarding.
-    const t = res.data?.token;
-    const accessToken = typeof t === 'string' ? t : (t?.accessToken || res.data?.access_token || '');
-    const refreshToken = typeof t === 'object' && t ? (t.refreshToken || '') : (res.data?.refresh_token || '');
+  /** Step 1.5: Login to obtain JWT token for subsequent steps.
+   * F11: provider onboarding uses the PROVIDER login (role-scoped token),
+   * never the patient /auth/login (which yields a guest-role token that can
+   * never reach provider operations). The provider endpoint answers a flat
+   * { access_token, refresh_token, session_id, provider_id, provider_type }.
+   */
+  async login(email: string, password?: string) {
+    const res = await client.post('/provider/auth/login', { email, password });
+    const accessToken = res.data?.access_token || '';
+    const refreshToken = res.data?.refresh_token || '';
     if (accessToken) {
       await Tokens.save(
         accessToken,
         refreshToken,
         res.data.session_id || '',
-        res.data.provider_id || res.data.user?.id || '',
-        res.data.provider_type || res.data.user?.role || 'doctor'
+        res.data.provider_id || '',
+        res.data.provider_type || 'doctor'
       );
     }
     return res.data;

@@ -63,8 +63,10 @@ export enum OrderState {
 
 export enum PrescriptionState {
   CREATED_BY_DOCTOR = 'CREATED_BY_DOCTOR',
+  UPLOADED_BY_PATIENT = 'UPLOADED_BY_PATIENT',
   SENT_TO_PHARMACY = 'SENT_TO_PHARMACY',
   PARTIALLY_EDITED = 'PARTIALLY_EDITED',
+  VERIFIED_BY_PHARMACIST = 'VERIFIED_BY_PHARMACIST',
   APPROVED = 'APPROVED',
   DISPENSED = 'DISPENSED',
   ARCHIVED = 'ARCHIVED',
@@ -204,12 +206,23 @@ export const UNIFIED_TRANSITIONS: Record<ServiceState, ServiceState[]> = {
 
 export const PRESCRIPTION_TRANSITIONS: Record<PrescriptionState, PrescriptionState[]> = {
   [PrescriptionState.CREATED_BY_DOCTOR]: [PrescriptionState.SENT_TO_PHARMACY, PrescriptionState.ARCHIVED],
+  [PrescriptionState.UPLOADED_BY_PATIENT]: [
+    PrescriptionState.SENT_TO_PHARMACY,
+    PrescriptionState.VERIFIED_BY_PHARMACIST,
+    PrescriptionState.ARCHIVED,
+  ],
   [PrescriptionState.SENT_TO_PHARMACY]: [
     PrescriptionState.PARTIALLY_EDITED,
+    PrescriptionState.VERIFIED_BY_PHARMACIST,
     PrescriptionState.APPROVED,
     PrescriptionState.ARCHIVED,
   ],
-  [PrescriptionState.PARTIALLY_EDITED]: [PrescriptionState.APPROVED, PrescriptionState.ARCHIVED],
+  [PrescriptionState.PARTIALLY_EDITED]: [
+    PrescriptionState.VERIFIED_BY_PHARMACIST,
+    PrescriptionState.APPROVED,
+    PrescriptionState.ARCHIVED,
+  ],
+  [PrescriptionState.VERIFIED_BY_PHARMACIST]: [PrescriptionState.APPROVED, PrescriptionState.ARCHIVED],
   [PrescriptionState.APPROVED]: [PrescriptionState.DISPENSED, PrescriptionState.ARCHIVED],
   [PrescriptionState.DISPENSED]: [PrescriptionState.ARCHIVED],
   [PrescriptionState.ARCHIVED]: [],

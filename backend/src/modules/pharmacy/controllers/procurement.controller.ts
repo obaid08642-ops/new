@@ -16,6 +16,7 @@ import { Medicine } from '../../../schemas/medicine.schema';
  * (أدوية / غير دوائية) before the request goes to the admin for a quotation.
  */
 @Controller('pharmacy/procurement')
+@Roles(UserRole.PHARMACY, UserRole.ADMIN)
 @UseGuards(JwtAuthGuard)
 export class ProcurementController {
   constructor(

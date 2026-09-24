@@ -1,13 +1,13 @@
-import { JwtAuthGuard } from '../../common/auth.guard';
+import { JwtAuthGuard, SelfService, CurrentUser } from '../../common/auth.guard';
 import { UseGuards, UseInterceptors, NotImplementedException } from '@nestjs/common';
 import { Controller, Get, Post, Patch, Delete, Body, Param, Query } from '@nestjs/common';
 import { HealthService } from './health.service';
-import { CurrentUser } from '../../common/auth.guard';
 import { IdempotencyInterceptor, RequireIdempotency } from '../../common/idempotency.interceptor';
 
 @UseGuards(JwtAuthGuard)
 @UseInterceptors(IdempotencyInterceptor)
 @Controller('health')
+@SelfService()
 export class HealthModuleController {
   constructor(private readonly svc: HealthService) {}
 

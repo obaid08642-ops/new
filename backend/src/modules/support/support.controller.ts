@@ -1,11 +1,11 @@
-import { JwtAuthGuard, Roles } from '../../common/auth.guard';
+import { JwtAuthGuard, Roles, SelfService, CurrentUser } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { Controller, Get, Post, Patch, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { SupportService } from './support.service';
-import { CurrentUser } from '../../common/auth.guard';
 
 @UseGuards(JwtAuthGuard)
 @Controller('support')
+@SelfService()
 export class SupportController {
   constructor(private readonly svc: SupportService) {}
   @Post('requests') create(@CurrentUser() u: any, @Body() b: any) { return this.svc.create(u, b); }
