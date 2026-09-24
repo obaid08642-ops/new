@@ -1,13 +1,23 @@
-import { ServiceUnavailableException } from '@nestjs/common';
+import { ROLES_KEY } from '../../common/auth.guard';
+import { UserRole } from '../../common/enums';
 import { AiController } from './ai.controller';
 
-describe('AiController admin containment', () => {
-  const controller = new AiController({} as any, { listProviders: jest.fn(), updateProvider: jest.fn(), setMode: jest.fn(), usageReport: jest.fn() } as any);
+/**
+ * Administrative AI routing is an owner-requested admin feature (AI control page).
+ * It must stay restricted to ADMIN and delegate to the gateway — never open to other roles.
+ */
+describe('AiController admin gateway access control', () => {
+  const gateway = { listProviders: jest.fn(() => []), updateProvider: jest.fn(), setMode: jest.fn(), usageReport: jest.fn() };
+  const controller = new AiController({} as any, gateway as any);
+  const handlers: Array<keyof AiController> = ['gatewayStatus', 'updateProvider', 'setMode', 'usage'];
 
-  it('fails closed before exposing or mutating administrative AI routing state', () => {
-    expect(() => controller.gatewayStatus()).toThrow(ServiceUnavailableException);
-    expect(() => controller.updateProvider('openai', { enabled: false })).toThrow(ServiceUnavailableException);
-    expect(() => controller.setMode({ mode: 'manual', pinned: 'openai' })).toThrow(ServiceUnavailableException);
-    expect(() => controller.usage('7')).toThrow(ServiceUnavailableException);
+  it.each(handlers)('%s requires the ADMIN role', (name) => {
+    const roles = Reflect.getMetadata(ROLES_KEY, (AiController.prototype as any)[name]);
+    expect(roles).toEqual(expect.arrayContaining([UserRole.ADMIN]));
+  });
+
+  it('delegates to the AI gateway instead of fabricating state', () => {
+    controller.gatewayStatus();
+    expect(gateway.listProviders).toHaveBeenCalledTimes(1);
   });
 });

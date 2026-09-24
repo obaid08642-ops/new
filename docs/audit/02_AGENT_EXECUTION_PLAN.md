@@ -27,7 +27,8 @@
 **P0.1 Rotate secrets** — BLOCKED for agent; owner does it. Agent only: add `gitleaks` step to CI (`.github/workflows/security.yml`) scanning full history; fail on findings.
 
 **P0.2 Backend deps (F61)**
-- Do: in `backend/package.json` align ALL `@nestjs/*` to the same major (12.x) incl. `common`, `core`, `platform-*`, `cqrs`, `terminus`, `testing`, `mongoose`, `config`, `schedule`, `throttler`, `swagger`. Regenerate lockfile.
+- Do: in `backend/package.json` align ALL `@nestjs/*` on **NestJS 11** (NestJS 12 is ESM-only and breaks Jest). Regenerate the lockfile **with npm 10** (the npm bundled with Node 20/22 used by Docker/CI).
+- (Done by reviewer in REVIEW_P0: cqrs 11.0.3, terminus 11.1.1, platform-fastify 11.2.1.)
 - Verify: `cd backend && rm -rf node_modules && npm ci && npx tsc --noEmit && npx nest build` → exit 0 without `--legacy-peer-deps`.
 
 **P0.3 Web lockfile (F61)**
@@ -48,7 +49,7 @@
 
 **P0.7 Fix seed chain abort**
 - Do: `seed.service.ts` — wrap EACH seed step in its own try/catch so one failure doesn't abort the rest. Fix `seedFacilities` "slug not in schema" by adding `slug` to the facility schema OR removing it from the filter.
-- Verify: fresh boot logs zero `Seed failed`; `GET /labs/services` returns >0 items.
+- Verify: fresh boot logs zero `Seed failed`; DB has lab (≥26) and radiology (≥21) catalog docs. Note: public `/labs/services` stays empty until an admin approves items (`medical_review_status='approved'`, `public_eligibility=true`) — by design; Phase 6 must provide that approval UI.
 
 **Gate P0:** CI green on all 5 projects; `sweep.py - anon` runs without backend crash.
 
@@ -202,7 +203,9 @@
 | BFF | `admin/src/pages/api/admin/[...path].ts`: replace hand-written rewrite rules with 1:1 mapping `/api/admin/<x>` → `${ADMIN_BACKEND_URL}/api/v1/<x>`; update all admin callers to real backend paths. Add refresh flow: on 401 use `admin_refresh` cookie → `/auth/refresh` → retry once. | session survives > 1h; `admin.py` 0 mismatches |
 | Online | Implement `POST /api/auth/heartbeat` in patient-web (F30) proxying to backend presence. | admin "online" count > 0 during test |
 
-**P6.x Admin additions (owner request — build all):**
+**P6.0 Catalog medical-review approval UI:** admin can approve/reject catalog items (labs, radiology, nursing, packages, medicines) setting `medical_review_status` + `public_eligibility`, with bulk approve and audit log. Verify: approve → item appears in public `/labs/services`.
+
+**P6.x Admin additions (owner request — APPROVED, build all):**
 1. `/admin/reports`: revenue, orders, bookings by service/city/provider/day; charts (recharts); CSV/XLSX export. Backend: `GET /admin/reports/{revenue,orders,bookings,providers,patients}?from&to&group_by`.
 2. Unified catalog manager (one page, tabs: medicines, labs, packages, radiology, nursing, insurance+networks+classes, specialties) with image upload, price history, bulk CSV import, activate/deactivate.
 3. Unified audit log viewer (filter by actor/entity/action/date).
@@ -211,6 +214,13 @@
 6. AI medical content review queue (approve/reject before publish).
 7. Notification templates (6 languages, preview, test send).
 8. Provider lifecycle page: pending → approved → suspended → reactivated, with reasons and history.
+9. Admin KPIs dashboard (home): today/7d/30d cards + charts for GMV, orders, bookings, new patients, new providers, cancellations, refunds, avg response time of providers, SLA breaches — all from live aggregates, no constants.
+10. Reports per module: pharmacy (orders by status, fill rate, partial fills, avg quote time), consultations (by specialty/type, no-shows), labs/radiology (turnaround time), nursing (visits, cancellations), insurance (decisions full/partial/reject, copay collected), finance (commissions, payouts, refunds), users (growth, retention cohorts). Each: filters (date, city, provider, service) + chart + table + CSV/XLSX export.
+11. Global search in admin (users, providers, orders, bookings by id/phone/name).
+12. Role & permission manager for admin staff (RBAC editor) with per-screen permissions and audit.
+13. Content control: banners/home sections, articles, FAQs, legal pages, app force-update version, maintenance mode per app.
+14. Pricing controls: delivery fees, service fees, surge rules (admin-only), coupons/offers with usage caps.
+15. Complaints & disputes center: patient ↔ provider disputes, refund decisions, SLA timers.
 - Verify each: Playwright test clicks every button on the page and asserts backend state changed (see Phase 10 harness).
 
 **Gate P6:** `adminshot.py` over all admin pages → 0 console errors, 0 4xx/5xx (except intended 403 for lower roles).
@@ -279,6 +289,7 @@ Pharmacy {cash, insurance} × {delivery, pickup} × {Rx, no-Rx}; Consultation {o
 
 - **Payments:** single `PaymentGateway` interface; adapters: Tap, Moyasar, (HyperPay). Choose via `PAYMENT_PROVIDER` env. Sandbox first. Webhook signature REQUIRED in all envs (F60). Callback → redirect to `patient-web /payments/result?status=` + deep link, after syncing status server-side.
 - **Compliance:** PDPL consent + data export + account deletion (app + web, Apple requirement); ZATCA e-invoice + VAT 15%; forced-update check endpoint.
+- **Performance (F82):** Lighthouse CI shows LCP /ar 3.6s, /ar/c 5.1s, /ar/consultations/doctors 3.1s (budget ≤3.0s). Do: SSR the above-the-fold content (no client-only fetch for hero/first list), `next/image` with `priority` + correct `sizes` for LCP image, preconnect to API/CDN, cut client JS on these routes (dynamic import heavy widgets), cache catalog API responses (ISR/`revalidate`). Verify: Lighthouse CI green on all three URLs.
 - **Platform:** daily Mongo backup + weekly restore drill script; disk usage alert at 80%; CSP fix (nonce for style or move inline styles to CSS modules) (F68).
 - **Medical safety:** 997 escalation in triage; disclaimers; AI content review queue (Phase 6).
 
