@@ -54,6 +54,16 @@ export class ProviderAuthService {
     return { account: this.publicAccount(acc), otp: otpRes, required_documents: REQUIRED_DOCS_BY_PROVIDER_TYPE[input.provider_type] };
   }
 
+  /** True when the users row linked to this provider account is banned (active=false). Lookup failures fail open to the account's own status checks. */
+  private async isLinkedUserBanned(a: any): Promise<boolean> {
+    const linkedUserId = a?.user_id || a?.id;
+    if (!linkedUserId) return false;
+    const u: any = await Promise.resolve()
+      .then(() => (this.accounts as any).model?.db?.collection('users')?.findOne({ id: linkedUserId }, { projection: { active: 1 } }))
+      .catch(() => null);
+    return !!u && u.active === false;
+  }
+
   async login(input: { email: string; password: string; meta?: any }) {
     const email = (input.email || '').toLowerCase().trim();
     const a = await this.accounts.findOne({ email });
@@ -62,6 +72,9 @@ export class ProviderAuthService {
     if (a.status === ProviderAccountStatus.SUSPENDED) {
       throw new ForbiddenException('account_suspended');
     }
+    // A banned linked user (admin ban sets users.active=false) must not start
+    // provider sessions either.
+    if (await this.isLinkedUserBanned(a)) throw new ForbiddenException('account_suspended');
     if (a.locked_until && a.locked_until.getTime() > Date.now()) throw new UnauthorizedException('account temporarily locked — too many failed attempts');
     const ok = await bcrypt.compare(input.password, a.password_hash);
     if (!ok) {
@@ -132,6 +145,7 @@ export class ProviderAuthService {
     if (a.locked_until && a.locked_until.getTime() > Date.now()) throw new UnauthorizedException('account locked');
     const invalidStatuses = [ProviderAccountStatus.SUSPENDED, ProviderAccountStatus.REJECTED];
     if (invalidStatuses.includes(a.status)) throw new UnauthorizedException(`account ${a.status.toLowerCase()}`);
+    if (await this.isLinkedUserBanned(a)) throw new UnauthorizedException('account suspended');
 
     // Refresh Token Rotation
     const new_refresh_token = crypto.randomBytes(40).toString('hex');

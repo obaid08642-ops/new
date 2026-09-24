@@ -18,14 +18,17 @@ export class IdempotencyInterceptor implements NestInterceptor {
     const isMutation = ['POST', 'PATCH', 'DELETE'].includes(request.method);
     const required = this.reflector.get<boolean>(REQUIRE_IDEMPOTENCY, context.getHandler()) === true;
     // This interceptor is registered BOTH globally and explicitly via
-    // @UseInterceptors on some controllers (payments, moyasar, health). The
-    // global instance must ignore routes without REQUIRE_IDEMPOTENCY —
-    // otherwise it acquires the Redis lock first and the handler-level
-    // instance self-conflicts (409 on every keyed call). Handler-level
-    // instances cover their own routes.
-    if (!required) return next.handle();
+    // @UseInterceptors on some controllers (payments, moyasar, health,
+    // medical-programs). Only the FIRST instance that sees a request may
+    // process it; a second instance would find the first one's Redis lock
+    // and self-conflict (409 on every keyed call). The per-request marker
+    // keeps exactly-once processing while preserving replay protection for
+    // every keyed mutation — including payment intent/retry, which rely on
+    // the client-supplied key without carrying @RequireIdempotency().
+    if (request.__idempotencyHandled) return next.handle();
+    request.__idempotencyHandled = true;
     if (!idempotencyKey) {
-      if (isMutation) throw new BadRequestException('idempotency_key_required');
+      if (required && isMutation) throw new BadRequestException('idempotency_key_required');
       return next.handle();
     }
     if (!isMutation) return next.handle();

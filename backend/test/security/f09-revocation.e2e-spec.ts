@@ -21,9 +21,16 @@ describe('F09 session revocation via token_version', () => {
   const users: Record<string, any> = {
     'patient-1': { token_version: 1 },
     'fresh-1': { token_version: 2 },
+    // P2.1 linked identity: provider account shares the user's id.
+    'linked-1': { token_version: 1 },
+    'linked-2': { token_version: 1 },
   };
   const accounts: Record<string, any> = {
     'prov-1': { token_version: 5, status: 'approved' },
+    // Suspended after linking: provider counter bumped 1 → 2, users stays 1.
+    'linked-1': { token_version: 2, status: 'suspended' },
+    // Provider password reset bumped provider counter 1 → 3; users stays 1.
+    'linked-2': { token_version: 3, status: 'approved' },
   };
   const conn = {
     collection: (name: string) => ({
@@ -94,5 +101,23 @@ describe('F09 session revocation via token_version', () => {
     await srv().get('/api/v1/revprobe/private')
       .set('Authorization', `Bearer ${signToken({ id: 'prov-1', role: 'provider', scope: 'provider', tv: 4 })}`)
       .expect(401);
+  });
+
+  it('linked provider: suspend bumps provider_accounts only → old provider token 401 (not checked against users)', async () => {
+    await srv().get('/api/v1/revprobe/private')
+      .set('Authorization', `Bearer ${signToken({ id: 'linked-1', role: 'provider', scope: 'provider', tv: 1 })}`)
+      .expect(401);
+  });
+
+  it('linked provider after password reset: token signed from provider_accounts.tv → 200 though users.tv differs', async () => {
+    await srv().get('/api/v1/revprobe/private')
+      .set('Authorization', `Bearer ${signToken({ id: 'linked-2', role: 'provider', scope: 'provider', tv: 3 })}`)
+      .expect(200);
+  });
+
+  it('linked user: patient-scope token is checked against users.tv', async () => {
+    await srv().get('/api/v1/revprobe/private')
+      .set('Authorization', `Bearer ${signToken({ id: 'linked-1', role: 'patient', tv: 1 })}`)
+      .expect(200);
   });
 });

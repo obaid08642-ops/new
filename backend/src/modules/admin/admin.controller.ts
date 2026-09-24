@@ -464,6 +464,8 @@ export class AdminController {
     // F09: instant session revocation — all previously issued tokens 401.
     (user as any).token_version = Number((user as any).token_version || 0) + 1;
     await user.save();
+    // Provider-scope tokens are versioned on provider_accounts — revoke those too.
+    try { await this.userModel.db.collection('provider_accounts').updateMany({ $or: [{ user_id: user.id }, { id: user.id }] }, { $inc: { token_version: 1 } }); } catch {}
     // Sync provider visibility: banned/suspended owners must vanish from public lists immediately.
     try { await this.userModel.db.collection('provider_profiles').updateMany({ user_id: user.id }, { $set: { status: 'SUSPENDED', public_eligibility: false } }); } catch {}
     try { this.events?.emit('admin.user_updated', { admin_id: by?.id, target_user_id: user.id || userId, action: 'ban' }); } catch {}
