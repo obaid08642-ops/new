@@ -1,13 +1,13 @@
-import { JwtAuthGuard } from '../../common/auth.guard';
+import { JwtAuthGuard, SelfService, CurrentUser } from '../../common/auth.guard';
 import { UseGuards } from '@nestjs/common';
 import { Controller, Get, Post, Delete, Body, Param, Query } from '@nestjs/common';
 import { MedicalReportsService } from './medical-reports.service';
-import { CurrentUser } from '../../common/auth.guard';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 
 @UseGuards(JwtAuthGuard)
 @Controller('medical-reports')
+@SelfService()
 export class MedicalReportsController {
   constructor(private readonly svc: MedicalReportsService, @InjectConnection() private readonly conn: Connection) {}
 

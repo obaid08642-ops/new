@@ -1,7 +1,6 @@
 import { Controller, Post, Get, Param, Body, Query, Req, UseGuards } from '@nestjs/common';
-import { Roles } from '../../common/auth.guard';
+import { Roles, SelfService, Public, JwtAuthGuard, CurrentUser } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
-import { JwtAuthGuard, CurrentUser } from '../../common/auth.guard';
 import { LiveKitService } from './livekit.service';
 
 @Controller('calls')
@@ -15,11 +14,13 @@ export class LiveKitController {
     return this.svc.getProviderWaitingRoom(u.id);
   }
 
+  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
   @Post('provider/ping-patient')
   pingPatient(@CurrentUser() u: any, @Body() body: { patient_id: string }) {
     return this.svc.pingPatient(u.id, body.patient_id);
   }
 
+  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
   @Post('provider/no-show')
   markNoShow(@CurrentUser() u: any, @Body() body: { appointment_id: string }) {
     return this.svc.markNoShow(u.id, body.appointment_id);
@@ -28,11 +29,13 @@ export class LiveKitController {
   constructor(private readonly svc: LiveKitService) {}
   
   
+  @Public()
   @Post('webhook')
   async webhook(@Body() body: any, @Req() req: any) {
     return this.svc.handleWebhook(body, req?.headers?.authorization);
   }
 
+  @SelfService()
   @Post('initiate')
   initiateCall(
     @CurrentUser() u: any,
@@ -42,21 +45,25 @@ export class LiveKitController {
     return this.svc.initiateCall(u.id, u.name || u.id, body.callee_id || '', body.call_type || 'video', bookingId);
   }
 
+  @SelfService()
   @Post(':sessionId/join')
   joinCall(@CurrentUser() u: any, @Param('sessionId') sessionId: string) {
     return this.svc.joinCall(sessionId, u.id, u.name || u.id);
   }
 
+  @SelfService()
   @Post(':sessionId/end')
   endCall(@CurrentUser() u: any, @Param('sessionId') sessionId: string) {
     return this.svc.endCall(sessionId, u.id);
   }
 
+  @SelfService()
   @Post(':sessionId/reject')
   rejectCall(@CurrentUser() u: any, @Param('sessionId') sessionId: string) {
     return this.svc.rejectCall(sessionId, u.id);
   }
 
+  @SelfService()
   @Post(':sessionId/metrics')
   saveMetrics(
     @CurrentUser() u: any,

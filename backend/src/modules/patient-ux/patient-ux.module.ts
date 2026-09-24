@@ -9,7 +9,7 @@ import { LabBookingSchema } from '../../schemas/lab.schema';
 import { RadiologyBookingSchema } from '../../schemas/radiology.schema';
 import { HomeCareBookingSchema } from '../../schemas/home-care.schema';
 import { Appointment, AppointmentSchema } from '../../schemas/appointment.schema';
-import { JwtAuthGuard, CurrentUser, Roles } from '../../common/auth.guard';
+import { JwtAuthGuard, CurrentUser, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { EventsModule } from '../events/events.module';
 import { EventBusService } from '../events/event-bus.service';
@@ -142,6 +142,7 @@ export class PatientUxService {
 }
 
 @Controller('patient-ux')
+@SelfService()
 @UseGuards(JwtAuthGuard)
 export class PatientUxController {
   constructor(private svc: PatientUxService) {}

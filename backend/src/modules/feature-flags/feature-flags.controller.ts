@@ -1,11 +1,11 @@
 import { Controller, Get, Post, Body, UseGuards, Param } from '@nestjs/common';
 import { FeatureFlagsService } from './feature-flags.service';
-import { JwtAuthGuard, Roles } from '../../common/auth.guard';
+import { JwtAuthGuard, Roles, Public } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 
-import { Public } from '../../common/auth.guard';
 
 @Controller('feature-flags')
+@Roles(UserRole.ADMIN)
 export class PublicFeatureFlagsController {
   constructor(private svc: FeatureFlagsService) {}
 

@@ -1,13 +1,14 @@
 import { Controller, Get, Param, Post, Put, Delete, Query, UseGuards, Body, NotFoundException, BadRequestException, ServiceUnavailableException } from '@nestjs/common';
 import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { Model, Connection } from 'mongoose';
-import { JwtAuthGuard, Public, CurrentUser } from '../../common/auth.guard';
+import { JwtAuthGuard, Public, CurrentUser, SelfService, Roles } from '../../common/auth.guard';
 import { ForbiddenException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { v4 as uuid } from 'uuid';
 import { HomeCareBooking, NursingBookingState, HomeCareService, NurseProvider } from '../../schemas/home-care.schema';
 import { WorkflowEngineService } from '../workflow-engine/workflow-engine.module';
 import { HomeCareSvc } from './home-care.service';
+import { UserRole } from '../../common/enums';
 
 @UseGuards(JwtAuthGuard)
 @Controller('nursing')
@@ -53,6 +54,7 @@ export class NursingController {
   }
 
   // ---- Nursing progress notes (vitals + clinical note per patient) ----
+  @Roles(UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.ADMIN)
   @Post('notes')
   async createNote(@CurrentUser() u: any, @Body() body: any) {
     const patientId = String(body?.patient_id || '').trim();
@@ -100,18 +102,21 @@ export class NursingController {
   }
 
   // --- Admin Catalog CRUD (nursing/home-care services) ---
+  @Roles(UserRole.ADMIN)
   @Post('admin/catalog')
   @UseGuards(JwtAuthGuard)
   async createCatalog(@CurrentUser() u: any, @Body() b: any) {
     return this.homeSvc.createCatalog(u, b);
   }
 
+  @Roles(UserRole.ADMIN)
   @Put('admin/catalog/:id')
   @UseGuards(JwtAuthGuard)
   async updateCatalog(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
     return this.homeSvc.updateCatalog(u, id, b);
   }
 
+  @Roles(UserRole.ADMIN)
   @Delete('admin/catalog/:id')
   @UseGuards(JwtAuthGuard)
   async deleteCatalog(@CurrentUser() u: any, @Param('id') id: string) {
@@ -120,12 +125,14 @@ export class NursingController {
 
   // 1b. PATIENT BOOKINGS (parity with labs/radiology direct booking; the
   // service enforces required fields + 3-minute idempotent replay).
+  @SelfService()
   @Post('bookings')
   async createBooking(@CurrentUser() u: any, @Body() b: any) { return this.homeSvc.book(u, b); }
 
   @Get('bookings/mine')
   async myBookings(@CurrentUser() u: any) { return this.homeSvc.mineFor(u); }
 
+  @SelfService()
   @Post('bookings/:id/cancel')
   async cancelBooking(@CurrentUser() u: any, @Param('id') id: string) { return this.homeSvc.cancel(id, u); }
 
@@ -194,11 +201,13 @@ export class NursingController {
    * It remains explicitly unavailable until the governed nursing offer command
    * is introduced with these dependencies.
    */
+  @Roles(UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.ADMIN)
   @Post('visits/:id/respond')
   respondToVisit() {
     throw new ServiceUnavailableException('legacy_nursing_visit_response_disabled_pending_governed_payment_coverage_capacity_command');
   }
 
+  @Roles(UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.ADMIN)
   @Post('visits/:id/transit')
   async startTransit(@Param('id') id: string, @CurrentUser() user: any) {
     const b: any = await this.findVisit(id);
@@ -217,6 +226,7 @@ export class NursingController {
     return { success: true, state: b.state };
   }
 
+  @Roles(UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.ADMIN)
   @Post('visits/:id/arrive')
   async arriveAtPatient(@Param('id') id: string, @Body() body: { lat: number, lng: number }, @CurrentUser() user: any) {
     const b: any = await this.findVisit(id);
@@ -252,6 +262,7 @@ export class NursingController {
     return { success: true, state: b.state };
   }
 
+  @Roles(UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.ADMIN)
   @Post('visits/:id/start-care')
   async startCare(@Param('id') id: string, @CurrentUser() user: any) {
     const b: any = await this.findVisit(id);
@@ -268,6 +279,7 @@ export class NursingController {
     return { success: true, state: b.state };
   }
 
+  @Roles(UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.ADMIN)
   @Post('visits/:id/no-show')
   async triggerNoShow(@Param('id') id: string, @CurrentUser() user: any) {
     const b: any = await this.findVisit(id);
@@ -288,6 +300,7 @@ export class NursingController {
     return { success: true, state: b.state };
   }
 
+  @Roles(UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.ADMIN)
   @Post('visits/:id/emergency-abort')
   async triggerEmergency(@Param('id') id: string, @Body() body: { reason: string }, @CurrentUser() user: any) {
     const b: any = await this.findVisit(id);
@@ -305,6 +318,7 @@ export class NursingController {
     return { success: true, state: b.state };
   }
 
+  @Roles(UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.ADMIN)
   @Post('visits/:id/complete')
   async completeVisit(@Param('id') id: string, @Body() body: any, @CurrentUser() user: any) {
     const b: any = await this.findVisit(id);

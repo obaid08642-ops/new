@@ -13,6 +13,7 @@ import { SystemConfig, SystemConfigDocument } from '../../schemas/system-config.
 @UseGuards(JwtAuthGuard)
 @Roles(UserRole.ADMIN)
 @Controller('admin/governance/system-config')
+@Roles(UserRole.ADMIN)
 export class SystemConfigController {
   constructor(@InjectModel(SystemConfig.name) private readonly configModel: Model<SystemConfigDocument>) {}
 

@@ -1,4 +1,4 @@
-import { JwtAuthGuard } from '../../common/auth.guard';
+import { JwtAuthGuard, SelfService } from '../../common/auth.guard';
 import { UseGuards } from '@nestjs/common';
 import {
   Controller, Get, Post, Query, Param, Req,
@@ -7,6 +7,7 @@ import { LoyaltyService } from './loyalty.service';
 
 @UseGuards(JwtAuthGuard)
 @Controller('loyalty')
+@SelfService()
 export class LoyaltyController {
   constructor(private readonly loyaltyService: LoyaltyService) {}
 

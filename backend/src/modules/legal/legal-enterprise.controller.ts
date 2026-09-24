@@ -3,7 +3,7 @@ import { Controller, Get, Post, Put, Body, Param, Query, Req, Res, UseGuards } f
 import { Request, Response } from 'express';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
-import { JwtAuthGuard, CurrentUser, Public, Roles } from '../../common/auth.guard';
+import { JwtAuthGuard, CurrentUser, Public, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { LegalEnterpriseService } from './legal-enterprise.service';
 
@@ -98,6 +98,7 @@ export class LegalEnterpriseController {
   }
 
   // ── License monitoring (manual trigger for admin) ──────────────────────
+  @Roles(UserRole.ADMIN)
   @Post('admin/providers/license-monitor/run')
   @UseGuards(JwtAuthGuard)
   @Roles(UserRole.ADMIN)
@@ -108,6 +109,7 @@ export class LegalEnterpriseController {
   @UseGuards(JwtAuthGuard)
   getMatrix(@CurrentUser() user: any) { return this.svc.getProviderInsurance(user.id); }
 
+  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
   @Put('provider/insurance-matrix')
   @UseGuards(JwtAuthGuard)
   setMatrix(@CurrentUser() user: any, @Body() body: { companies: string[]; networks?: Record<string, string[]>; tiers?: Record<string, string[]> }) {
@@ -127,6 +129,7 @@ export class LegalEnterpriseController {
   @UseGuards(JwtAuthGuard)
   getConsents(@CurrentUser() user: any) { return this.svc.getConsents(user.id); }
 
+  @SelfService()
   @Put('consents/:type')
   @UseGuards(JwtAuthGuard)
   setConsent(@CurrentUser() user: any, @Param('type') type: string, @Body() body: { value: boolean }, @Req() req: Request) {

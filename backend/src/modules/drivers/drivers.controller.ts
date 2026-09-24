@@ -4,6 +4,7 @@ import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 
 @Controller('drivers')
+@Roles(UserRole.DELIVERY, UserRole.ADMIN)
 @UseGuards(JwtAuthGuard)
 export class DriversController {
   constructor(private svc: DriversService) {}

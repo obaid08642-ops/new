@@ -3,7 +3,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { RadiologyBooking } from '../schemas/radiology-booking.schema';
-import { CurrentUser } from '../../../common/auth.guard';
+import { CurrentUser, SelfService, Roles } from '../../../common/auth.guard';
+import { UserRole } from '../../../common/enums';
 
 @Controller('radiology/bookings')
 export class RadiologyController {
@@ -18,6 +19,7 @@ export class RadiologyController {
    * with no route, leaving patient-side radiology booking unreachable).
    * Accepts either a catalog `service_id` (names auto-filled) or explicit scan fields.
    */
+  @SelfService()
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async book(@CurrentUser() user: any, @Body() body: any) {
@@ -79,6 +81,7 @@ export class RadiologyController {
   }
 
 
+  @Roles(UserRole.RADIOLOGY, UserRole.HOSPITAL, UserRole.ADMIN)
   @Post('allocate-machine/:id')
   @HttpCode(HttpStatus.OK)
   async allocateMachine(
@@ -109,6 +112,7 @@ export class RadiologyController {
     return { success: true, data: booking, message: 'تم تخصيص وحجز جهاز الفحص بنجاح للطلب.' };
   }
 
+  @Roles(UserRole.RADIOLOGY, UserRole.HOSPITAL, UserRole.ADMIN)
   @Post('finalize-scan/:id')
   async finalizeScan(
     @Param('id') bookingId: string,

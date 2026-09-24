@@ -1,10 +1,11 @@
-import { JwtAuthGuard } from '../../common/auth.guard';
+import { JwtAuthGuard, SelfService, Roles } from '../../common/auth.guard';
 import { UseGuards } from '@nestjs/common';
 import {
   Controller, Get, Post, Put, Delete,
   Body, Param, Query, Req,
 } from '@nestjs/common';
 import { CommunityService } from './community.service';
+import { UserRole } from '../../common/enums';
 
 @UseGuards(JwtAuthGuard)
 @Controller('community')
@@ -23,6 +24,7 @@ export class CommunityController {
     return this.communityService.listPosts(+page || 1, +limit || 20, tag, category);
   }
 
+  @SelfService()
   @Post('posts')
   createPost(@Req() req: any, @Body() body: any) {
     return this.communityService.createPost(req.user?.id ?? 'guest', body);
@@ -33,16 +35,19 @@ export class CommunityController {
     return this.communityService.getPostDetail(id);
   }
 
+  @SelfService()
   @Post('posts/:id/comment')
   addComment(@Req() req: any, @Param('id') postId: string, @Body() body: { body: string; is_anonymous?: boolean }) {
     return this.communityService.addComment(req.user?.id ?? 'guest', postId, body.body, body.is_anonymous);
   }
 
+  @SelfService()
   @Put('posts/:id/vote')
   votePost(@Req() req: any, @Param('id') postId: string, @Body() body: { vote: 'up' | 'down' }) {
     return this.communityService.votePost(req.user?.id ?? 'guest', postId, body.vote);
   }
 
+  @SelfService()
   @Delete('posts/:id')
   deletePost(@Req() req: any, @Param('id') postId: string) {
     return this.communityService.deletePost(req.user?.id ?? 'guest', postId);
@@ -55,6 +60,7 @@ export class CommunityController {
     return this.communityService.getPendingPosts(+page || 1);
   }
 
+  @Roles(UserRole.ADMIN)
   @Put('admin/:id/moderate')
   moderatePost(@Param('id') postId: string, @Body() body: { decision: 'published' | 'removed' }) {
     return this.communityService.moderatePost(postId, body.decision);
@@ -67,16 +73,19 @@ export class CommunityController {
     return this.communityService.listSessions(status);
   }
 
+  @SelfService()
   @Post('live-sessions')
   createSession(@Req() req: any, @Body() body: any) {
     return this.communityService.createSession(req.user?.id ?? 'guest', body);
   }
 
+  @Roles(UserRole.ADMIN)
   @Put('live-sessions/:id/join')
   joinSession(@Req() req: any, @Param('id') sessionId: string) {
     return this.communityService.joinSession(req.user?.id ?? 'guest', sessionId);
   }
 
+  @Roles(UserRole.ADMIN)
   @Put('live-sessions/:id/status')
   updateSessionStatus(
     @Param('id') sessionId: string,

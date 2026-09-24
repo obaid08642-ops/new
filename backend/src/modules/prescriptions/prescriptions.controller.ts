@@ -1,9 +1,10 @@
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { PrescriptionsService } from './prescriptions.service';
-import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
+import { CurrentUser, JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
 import { PrescriptionState, UserRole } from '../../common/enums';
 
 @Controller('prescriptions')
+@SelfService()
 @UseGuards(JwtAuthGuard)
 export class PrescriptionsController {
   constructor(private svc: PrescriptionsService) {}

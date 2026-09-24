@@ -2,12 +2,13 @@ import { Controller, Get, Post, Delete, Body, Param, UseGuards, UseInterceptors,
 import { FileInterceptor } from '@nestjs/platform-express';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
-import { JwtAuthGuard, Roles, CurrentUser } from '../../common/auth.guard';
+import { JwtAuthGuard, Roles, CurrentUser, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { MediaService } from './media.service';
 import { MediaAsset, MediaAssetDocument, MEDIA_PURPOSES, MediaPurpose } from './media.schema';
 
 @Controller('media')
+@SelfService()
 @UseGuards(JwtAuthGuard)
 export class MediaController {
   constructor(

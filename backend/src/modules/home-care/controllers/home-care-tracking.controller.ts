@@ -13,11 +13,13 @@ import {
 } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model, Types } from 'mongoose';
-import { JwtAuthGuard, CurrentUser } from '../../../common/auth.guard';
+import { JwtAuthGuard, CurrentUser, Roles } from '../../../common/auth.guard';
 import { HomeCareBooking, NursingBookingState } from '../../../schemas/home-care.schema';
 import { MedicalSupplyRequest } from '../schemas/medical-supply-request.schema';
+import { UserRole } from '../../../common/enums';
 
 @Controller('home-care/tracking')
+@Roles(UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.ADMIN)
 @UseGuards(JwtAuthGuard)
 export class HomeCareTrackingController {
   constructor(

@@ -7,7 +7,7 @@
 import { Module, Controller, Get, Post, Patch, Delete, Param, Body, UseGuards, ForbiddenException, BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { JwtAuthGuard, CurrentUser } from '../../common/auth.guard';
+import { JwtAuthGuard, CurrentUser, Roles } from '../../common/auth.guard';
 import { User, UserSchema, UserDocument } from '../../schemas/user.schema';
 import { ProviderAccount, ProviderAccountSchema } from '../provider/schemas';
 import { UserRole } from '../../common/enums';
@@ -111,6 +111,7 @@ export class HospitalStaffService {
 }
 
 @Controller('hospital/staff')
+@Roles(UserRole.HOSPITAL, UserRole.HOSPITAL_ADMIN, UserRole.ADMIN)
 @UseGuards(JwtAuthGuard)
 export class HospitalStaffController {
   constructor(private svc: HospitalStaffService) {}

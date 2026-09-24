@@ -1,7 +1,7 @@
 import { BadRequestException, Body, Controller, Get, NotFoundException, Post, UseGuards } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
-import { JwtAuthGuard, CurrentUser } from '../../common/auth.guard';
+import { JwtAuthGuard, CurrentUser, SelfService } from '../../common/auth.guard';
 
 /**
  * A4 — patient-facing GDPR endpoints. These are what the mobile/web privacy
@@ -9,6 +9,7 @@ import { JwtAuthGuard, CurrentUser } from '../../common/auth.guard';
  * (Admin console drives the same gdpr_requests rows from the other side.)
  */
 @Controller('privacy')
+@SelfService()
 @UseGuards(JwtAuthGuard)
 export class PatientGdprController {
   constructor(@InjectConnection() private readonly conn: Connection) {}

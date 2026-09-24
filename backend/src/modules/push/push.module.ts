@@ -14,7 +14,7 @@ import {
 import { InjectModel, MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Model, Document } from 'mongoose';
 import { OnEvent } from '@nestjs/event-emitter';
-import { JwtAuthGuard, CurrentUser, Public, Roles } from '../../common/auth.guard';
+import { JwtAuthGuard, CurrentUser, Public, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { Queue, Worker, QueueEvents } from 'bullmq';
 import * as crypto from 'crypto';
@@ -694,19 +694,23 @@ export class PushService implements OnModuleInit {
 export class PushController {
   constructor(private readonly svc: PushService) {}
 
+  @SelfService()
   @Post('register')
   register(@CurrentUser() u: any, @Body() b: any) { return this.svc.register(u, b); }
 
+  @SelfService()
   @Post('unregister')
   unregister(@CurrentUser() u: any, @Body() b: { token: string }) { return this.svc.unregister(u.id, b.token); }
 
   @Get('devices')
   devices(@CurrentUser() u: any) { return this.svc.getUserDevices(u.id); }
 
+  @SelfService()
   @Post('test')
   test(@CurrentUser() u: any) { return this.svc.sendToUser(u.id, 'اختبار', 'إشعار تجريبي من نبض - يعمل بشكل صحيح!'); }
 
   /** Web Push (PWA) — register a browser subscription */
+  @SelfService()
   @Post('web/subscribe')
   async webSubscribe(@CurrentUser() u: any, @Body() b: { endpoint: string; keys: { p256dh: string; auth: string }; user_agent?: string }) {
     if (!b?.endpoint || !b?.keys?.p256dh || !b?.keys?.auth) return { ok: false, reason: 'invalid_subscription' };
@@ -719,6 +723,7 @@ export class PushController {
   }
 
   /** Web Push (PWA) — remove a browser subscription */
+  @SelfService()
   @Post('web/unsubscribe')
   async webUnsubscribe(@CurrentUser() u: any, @Body() b: { endpoint: string }) {
     await (this.svc as any).webSubs.updateOne({ endpoint: b?.endpoint, user_id: u.id }, { $set: { active: false } });
@@ -730,9 +735,11 @@ export class PushController {
   vapidKey() { return { ok: true, public_key: process.env.WEB_PUSH_VAPID_PUBLIC_KEY || null }; }
 
   /** Client reports engagement: received/opened/clicked — powers CTR analytics */
+  @SelfService()
   @Post('events')
   track(@CurrentUser() u: any, @Body() b: any) { return this.svc.trackEngagement(u.id, b); }
 
+  @Roles(UserRole.ADMIN)
   @Post('admin/campaign')
   @Roles(UserRole.ADMIN)
   async sendCampaign(@Body() b: { title: string; body: string; target: string }) {

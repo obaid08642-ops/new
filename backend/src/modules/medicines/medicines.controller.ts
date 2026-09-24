@@ -5,6 +5,7 @@ import { UserRole } from '../../common/enums';
 import { Permission, RequirePermissions } from '../../common/permissions';
 
 @Controller('medicines')
+@Roles(UserRole.ADMIN)
 @UseGuards(JwtAuthGuard)
 export class MedicinesController {
   constructor(private svc: MedicinesService) {}

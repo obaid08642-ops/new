@@ -1,10 +1,11 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
+import { CurrentUser, JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
 import { RequireIdempotency } from '../../common/idempotency.interceptor';
 import { UserRole } from '../../common/enums';
 
 @Controller('users')
+@SelfService()
 @UseGuards(JwtAuthGuard)
 export class UsersController {
   constructor(private users: UsersService) {}

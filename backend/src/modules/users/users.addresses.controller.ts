@@ -1,9 +1,10 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CurrentUser, JwtAuthGuard } from '../../common/auth.guard';
+import { CurrentUser, JwtAuthGuard, SelfService } from '../../common/auth.guard';
 import { v4 as uuid } from 'uuid';
 
 @Controller('users/me/addresses')
+@SelfService()
 @UseGuards(JwtAuthGuard)
 export class UsersAddressesController {
   constructor(private users: UsersService) {}

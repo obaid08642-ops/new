@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { EmergencyService } from './emergency.service';
-import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
+import { CurrentUser, JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { ServiceUnavailableException } from '@nestjs/common';
 
@@ -9,6 +9,7 @@ import { ServiceUnavailableException } from '@nestjs/common';
 export class EmergencyController {
   constructor(private svc: EmergencyService) {}
 
+  @SelfService()
   @Post('trigger')
   trigger(@Body() body: any, @CurrentUser() user: any) {
     return this.svc.trigger(user, body);
@@ -21,6 +22,7 @@ export class EmergencyController {
   }
 
   /** Patient cancels their own active SOS */
+  @SelfService()
   @Post(':id/cancel')
   cancel(@Param('id') id: string, @CurrentUser() user: any) {
     return this.svc.cancelOwn(id, user.id);
@@ -33,6 +35,7 @@ export class EmergencyController {
   }
 
   /** Driver/ambulance: self-assign an open SOS (first-come-first-served) */
+  @Roles(UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
   @Post(':id/claim')
   claim(@Param('id') id: string, @Body() body: { vehicle_id?: string }, @CurrentUser() user: any) {
     return this.svc.claim(id, user.id, body?.vehicle_id);
@@ -45,6 +48,7 @@ export class EmergencyController {
   }
 
   /** Driver who claimed: push unit GPS position (ownership enforced) */
+  @Roles(UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
   @Post(':id/track')
   track(@Param('id') id: string, @Body() body: any, @CurrentUser() user: any) {
     return this.svc.updateUnitLocation(id, user.id, body);
@@ -62,6 +66,7 @@ export class EmergencyController {
     return this.svc.getById(id);
   }
 
+  @Roles(UserRole.ADMIN)
   @Post(':id/assign')
   @Roles(UserRole.ADMIN)
   assign(@Param('id') id: string, @Body() body: { hospital_id: string }, @CurrentUser() user: any) {
@@ -69,12 +74,14 @@ export class EmergencyController {
   }
 
   /** Admin/dispatcher: (re)run the internal smart-dispatch engine for an open SOS */
+  @Roles(UserRole.ADMIN)
   @Post(':id/auto-dispatch')
   @Roles(UserRole.ADMIN)
   autoDispatch(@Param('id') id: string, @CurrentUser() user: any) {
     return this.svc.autoDispatch(id, user);
   }
 
+  @Roles(UserRole.ADMIN)
   @Post(':id/resolve')
   @Roles(UserRole.ADMIN)
   resolve(@Param('id') id: string, @CurrentUser() user: any, @Body() body: any) {

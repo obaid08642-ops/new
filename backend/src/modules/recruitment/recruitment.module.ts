@@ -2,7 +2,7 @@ import { Module, Controller, Get, Post, Put, Patch, Param, Query, Body, UseGuard
 import { Throttle } from '@nestjs/throttler';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { JwtAuthGuard, Roles, CurrentUser, Public } from '../../common/auth.guard';
+import { JwtAuthGuard, Roles, CurrentUser, Public, SelfService } from '../../common/auth.guard';
 import { Audited } from '../../common/audit-log.interceptor';
 import { UserRole } from '../../common/enums';
 import { CandidateProfile, CandidateProfileSchema, JobPosting, JobPostingSchema, JobApplication, JobApplicationSchema } from '../../schemas/job-board.schema';
@@ -299,6 +299,7 @@ export class RecruitmentController {
     return this.svc.getOrCreateCandidateProfile(u.id);
   }
 
+  @SelfService()
   @Post('candidate/profile')
   upsertCandidateProfile(@CurrentUser() u: any, @Body() b: any) {
     return this.svc.upsertCandidateProfile(u.id, b);
@@ -310,6 +311,7 @@ export class RecruitmentController {
   }
 
   // --- Job Posting endpoints ---
+  @Roles(UserRole.HOSPITAL, UserRole.HOSPITAL_ADMIN, UserRole.ADMIN)
   @Post('jobs')
   createJob(@CurrentUser() u: any, @Body() b: any) {
     if (![UserRole.HOSPITAL, UserRole.HOSPITAL_ADMIN, UserRole.DOCTOR, UserRole.ADMIN, UserRole.SUPER_ADMIN].includes(u.role as UserRole)) {
@@ -318,6 +320,7 @@ export class RecruitmentController {
     return this.svc.createJob(u.id, b);
   }
 
+  @Roles(UserRole.HOSPITAL, UserRole.HOSPITAL_ADMIN, UserRole.ADMIN)
   @Put('jobs/:id')
   @Audited({ model: 'JobPosting', idParam: 'id', action: 'job_posting_update' })
   updateJob(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
@@ -358,6 +361,7 @@ export class RecruitmentController {
     return this.svc.getJob(id);
   }
 
+  @SelfService()
   @Post('jobs/:id/apply')
   applyForJob(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
     return this.svc.applyForJob(u.id, id, b);
@@ -368,6 +372,7 @@ export class RecruitmentController {
     return this.svc.listJobApplications(id, u.id, u.role);
   }
 
+  @Roles(UserRole.HOSPITAL, UserRole.HOSPITAL_ADMIN, UserRole.ADMIN)
   @Patch('applications/:id/status')
   @Audited({ model: 'JobApplication', idParam: 'id', action: 'job_application_status_update' })
   updateApplicationStatus(@CurrentUser() u: any, @Param('id') id: string, @Body() b: { status: string }) {

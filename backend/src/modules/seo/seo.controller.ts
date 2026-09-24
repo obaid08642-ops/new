@@ -1,11 +1,11 @@
-import { JwtAuthGuard } from '../../common/auth.guard';
+import { JwtAuthGuard, Roles, Public } from '../../common/auth.guard';
 import { UseGuards } from '@nestjs/common';
 import { Controller, Get, Post, Body, Param, NotFoundException, Header, Res, UseInterceptors } from '@nestjs/common';
 import { RedisCacheInterceptor } from '../../common/redis-cache.interceptor';
 import { Response } from 'express';
 import { SeoService } from './seo.service';
 import { IndexNowService } from './indexnow.service';
-import { Public } from '../../common/auth.guard';
+import { UserRole } from '../../common/enums';
 
 /**
  * Public SEO endpoints — slug resolution, meta tag generation,
@@ -102,6 +102,7 @@ export class SeoController {
   /**
    * Trigger on-demand or batch IndexNow submission for updated URLs.
    */
+  @Roles(UserRole.ADMIN)
   @Post('indexnow/submit')
   async submitIndexNow(@Body('urls') urls: string[]) {
     return this.indexNowSvc.submitUrls(urls);

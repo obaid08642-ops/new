@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Body, Param, Query, Patch, Put, Delete, UseGuards, ServiceUnavailableException } from '@nestjs/common';
 import { RadiologyOpsService } from './radiology.service';
-import { Public, CurrentUser } from '../../common/auth.guard';
+import { Public, CurrentUser, SelfService, Roles } from '../../common/auth.guard';
+import { UserRole } from '../../common/enums';
 
 @Controller('radiology')
 export class RadiologyController {
@@ -34,6 +35,7 @@ export class RadiologyController {
   @Public() @Get('services/:id')
   one(@Param('id') id: string) { return this.svc.getById(id); }
 
+  @SelfService()
   @Post('bookings')
   book(@Body() body: any, @CurrentUser() user: any) { return this.svc.book(user, body); }
 
@@ -43,14 +45,17 @@ export class RadiologyController {
   @Get('bookings/:id')
   oneBooking(@Param('id') id: string, @CurrentUser() user: any) { return this.svc.getBooking(id, user); }
 
+  @SelfService()
   @Post('bookings/:id/cancel')
   cancel(@Param('id') id: string, @CurrentUser() user: any) { return this.svc.cancel(id, user); }
 
+  @Roles(UserRole.PATIENT, UserRole.RADIOLOGY, UserRole.HOSPITAL, UserRole.ADMIN)
   @Patch('bookings/:id/state')
   transition(@Param('id') id: string, @Body() body: any, @CurrentUser() user: any) {
     return this.svc.transition(id, body.state, user, body.note);
   }
 
+  @Roles(UserRole.RADIOLOGY, UserRole.HOSPITAL, UserRole.ADMIN)
   @Post('bookings/:id/publish-report')
   publish(@Param('id') id: string, @Body() body: any, @CurrentUser() user: any) {
     return this.svc.publishReport(id, body, user);
@@ -59,11 +64,13 @@ export class RadiologyController {
   @Get('reports/mine')
   myReports(@CurrentUser() user: any) { return this.svc.myReports(user); }
 
+  @SelfService()
   @Post('bookings/:id/documents')
   uploadDoc(@Param('id') id: string, @Body() body: any, @CurrentUser() user: any) {
     return this.svc.addDocument(id, user, body);
   }
 
+  @Roles(UserRole.RADIOLOGY, UserRole.HOSPITAL, UserRole.ADMIN)
   @Patch('bookings/:id/insurance')
   updateIns(@Param('id') id: string, @Body() body: any, @CurrentUser() user: any) {
     return this.svc.updateInsuranceStatus(id, user, body.status, body.reason);
@@ -74,51 +81,60 @@ export class RadiologyController {
     return this.svc.listForProvider(user, st);
   }
 
+  @Roles(UserRole.RADIOLOGY, UserRole.HOSPITAL, UserRole.ADMIN)
   @Post('bookings/:id/assign-technician')
   assignTech(@Param('id') id: string, @Body() body: any, @CurrentUser() user: any) {
     return this.svc.assignTechnician(id, user, body || {});
   }
 
+  @Roles(UserRole.RADIOLOGY, UserRole.HOSPITAL, UserRole.ADMIN)
   @Post('bookings/:id/upload-report')
   uploadReport(@Param('id') id: string, @Body() body: any, @CurrentUser() user: any) {
     return this.svc.uploadReport(id, user, body || {});
   }
 
   // --- PILLAR 5: Check-In & Scanning Workflow ---
+  @SelfService()
   @Post('bookings/:id/checkin')
   checkin(@Param('id') id: string, @CurrentUser() user: any) {
     return this.svc.checkin(id, user);
   }
 
+  @Roles(UserRole.RADIOLOGY, UserRole.HOSPITAL, UserRole.ADMIN)
   @Post('bookings/:id/start-scan')
   startScan(@Param('id') id: string, @CurrentUser() user: any) {
     return this.svc.startScan(id, user);
   }
 
   // PILLAR 5: Abort Scan — Emergency edge case
+  @SelfService()
   @Post('bookings/:id/abort')
   abortScan(@Param('id') id: string, @Body() body: { reason: string }, @CurrentUser() user: any) {
     return this.svc.abortScan(id, user, body.reason);
   }
 
   // MODULE 10: Report Quality Workflow
+  @Roles(UserRole.RADIOLOGY, UserRole.HOSPITAL, UserRole.ADMIN)
   @Post('bookings/:id/submit-report-for-review')
   submitForReview(@Param('id') id: string, @Body() body: any, @CurrentUser() user: any) {
     return this.svc.submitReportForReview(id, user, body);
   }
 
+  @Roles(UserRole.RADIOLOGY, UserRole.HOSPITAL, UserRole.ADMIN)
   @Post('bookings/:id/approve-report')
   approveReport(@Param('id') id: string, @CurrentUser() user: any) {
     return this.svc.approveReport(id, user);
   }
 
   // PILLAR 4: Insurance NPHIES Gatekeeper
+  @Roles(UserRole.RADIOLOGY, UserRole.HOSPITAL, UserRole.ADMIN)
   @Post('bookings/:id/insurance-approval')
   insuranceApproval(@Param('id') id: string, @Body() body: { approval_code: string; copay: number }, @CurrentUser() user: any) {
     return this.svc.processInsuranceApproval(id, user, body);
   }
 
   // MODULE 14: Rebooking after abort/cancel
+  @Roles(UserRole.PATIENT, UserRole.RADIOLOGY, UserRole.HOSPITAL, UserRole.ADMIN)
   @Patch('bookings/:id/reschedule')
   reschedule(@Param('id') id: string, @Body() body: { new_date: string; reason: string }, @CurrentUser() user: any) {
     return this.svc.rescheduleBooking(id, user, body);
@@ -131,12 +147,14 @@ export class RadiologyController {
   }
 
   // MODULE 15: Catalog Delta Request (goes to admin for approval)
+  @Roles(UserRole.RADIOLOGY, UserRole.HOSPITAL, UserRole.ADMIN)
   @Post('catalog/delta-request')
   catalogDeltaRequest(@Body() body: any, @CurrentUser() user: any) {
     return this.svc.catalogDeltaRequest(user, body);
   }
 
   // MODULE 12: Preparation confirmed by patient
+  @SelfService()
   @Post('bookings/:id/confirm-preparation')
   confirmPrep(@Param('id') id: string, @CurrentUser() user: any) {
     return this.svc.confirmPreparation(id, user);
@@ -156,18 +174,21 @@ export class RadiologyController {
   }
 
   // --- Admin Catalog CRUD ---
+  @Roles(UserRole.ADMIN)
   @Post('admin/catalog')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
   createCatalog(@CurrentUser() u: any, @Body() b: any) {
     return this.svc.createCatalog(u, b);
   }
 
+  @Roles(UserRole.ADMIN)
   @Put('admin/catalog/:id')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
   updateCatalog(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
     return this.svc.updateCatalog(u, id, b);
   }
 
+  @Roles(UserRole.ADMIN)
   @Delete('admin/catalog/:id')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
   deleteCatalog(@CurrentUser() u: any, @Param('id') id: string) {
@@ -175,6 +196,7 @@ export class RadiologyController {
   }
 
   // --- Admin Quality Control & Dispute Intervention ---
+  @Roles(UserRole.ADMIN)
   @Patch('admin/bookings/:id/force-state')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
   forceState(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {

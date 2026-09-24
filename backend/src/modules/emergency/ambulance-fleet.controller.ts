@@ -82,6 +82,7 @@ export class AmbulanceFleetService {
 }
 
 @Controller('provider/ambulance/fleet')
+@Roles(UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
 @UseGuards(JwtAuthGuard)
 export class ProviderAmbulanceFleetController {
   constructor(private svc: AmbulanceFleetService) {}

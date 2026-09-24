@@ -3,10 +3,12 @@ import { Controller, Post, Get, Body, UseGuards, BadRequestException } from '@ne
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection, ClientSession } from 'mongoose';
 import { v4 as uuid } from 'uuid';
-import { JwtAuthGuard, CurrentUser } from '../../common/auth.guard';
+import { JwtAuthGuard, CurrentUser, Roles } from '../../common/auth.guard';
 import { LedgerService } from '../finance-engine/finance-engine.module';
+import { UserRole } from '../../common/enums';
 
 @Controller('provider/payouts')
+@Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
 @UseGuards(JwtAuthGuard)
 export class ProviderPayoutsController {
   constructor(

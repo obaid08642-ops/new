@@ -1,7 +1,7 @@
 import { Module, Controller, Get, Post, Patch, Body, Query, Param, UseGuards, Injectable, BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { JwtAuthGuard, CurrentUser } from '../../common/auth.guard';
+import { JwtAuthGuard, CurrentUser, SelfService } from '../../common/auth.guard';
 import { RequireIdempotency } from '../../common/idempotency.interceptor';
 import { Order, OrderDocument, OrderSchema } from '../../schemas/order.schema';
 import { LabBooking, LabBookingSchema, LabBookingState } from '../../schemas/lab.schema';
@@ -485,6 +485,7 @@ export class UnifiedBookingsService {
 }
 
 @Controller('unified-bookings')
+@SelfService()
 @UseGuards(JwtAuthGuard)
 export class UnifiedBookingsController {
   constructor(private svc: UnifiedBookingsService) {}

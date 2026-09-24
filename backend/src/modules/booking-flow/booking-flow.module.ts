@@ -7,7 +7,7 @@
 import { Module, Controller, Get, Post, Param, Body, UseGuards, Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { JwtAuthGuard, CurrentUser } from '../../common/auth.guard';
+import { JwtAuthGuard, CurrentUser, SelfService } from '../../common/auth.guard';
 import { OrderSchema, OrderDocument } from '../../schemas/order.schema';
 import { LabBookingSchema, LabBooking } from '../../schemas/lab.schema';
 import { RadiologyBookingSchema, RadiologyBooking } from '../../schemas/radiology.schema';
@@ -230,6 +230,7 @@ export class BookingFlowService {
 }
 
 @Controller('booking/flow')
+@SelfService()
 @UseGuards(JwtAuthGuard)
 export class BookingFlowController {
   constructor(private svc: BookingFlowService) {}

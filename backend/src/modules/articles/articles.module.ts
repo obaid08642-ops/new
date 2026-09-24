@@ -10,7 +10,7 @@ import {
 import { InjectConnection, InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
-import { JwtAuthGuard, Public, Roles, CurrentUser } from '../../common/auth.guard';
+import { JwtAuthGuard, Public, Roles, CurrentUser, SelfService } from '../../common/auth.guard';
 import { RequireIdempotency } from '../../common/idempotency.interceptor';
 import { UserRole } from '../../common/enums';
 import { Article, ArticleSchema } from '../../schemas/article.schema';
@@ -122,6 +122,7 @@ export class ArticlesAdminController {
 
 // ── Contract bookmarks (authenticated, owner-scoped and idempotent) ────────
 @Controller('articles')
+@SelfService()
 @UseGuards(JwtAuthGuard)
 export class ArticleBookmarkContractController {
   constructor(@InjectConnection() private conn: Connection, private svc: ArticlesService) {}
@@ -150,6 +151,7 @@ export class ArticleBookmarkContractController {
 
 // ── Patient bookmarks (authenticated) ─────────────────────────────────────
 @Controller('articles/bookmarks')
+@SelfService()
 @UseGuards(JwtAuthGuard)
 export class ArticleBookmarksController {
   constructor(@InjectConnection() private conn: Connection, private svc: ArticlesService) {}

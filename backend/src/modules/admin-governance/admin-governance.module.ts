@@ -242,6 +242,7 @@ export class AdminGovernanceController {
 }
 
 @Controller('kill-switches')
+@Roles(UserRole.ADMIN)
 @UseGuards(JwtAuthGuard)
 export class KillSwitchesController {
   constructor(@InjectModel(SystemConfig.name) private configModel: Model<any>) {}

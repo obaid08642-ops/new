@@ -5,7 +5,7 @@
 import { Module, Injectable, Controller, Post, Get, Body, Param, Query, UseGuards, BadRequestException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
-import { JwtAuthGuard, CurrentUser, Public } from '../../common/auth.guard';
+import { JwtAuthGuard, CurrentUser, Public, SelfService } from '../../common/auth.guard';
 
 @Injectable()
 export class RatingsService {
@@ -83,6 +83,7 @@ export class RatingsService {
 }
 
 @Controller('ratings')
+@SelfService()
 export class RatingsController {
   constructor(private readonly svc: RatingsService) {}
 

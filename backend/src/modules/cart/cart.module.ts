@@ -5,7 +5,7 @@ import { Model } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
-import { JwtAuthGuard, CurrentUser } from '../../common/auth.guard';
+import { JwtAuthGuard, CurrentUser, SelfService } from '../../common/auth.guard';
 import { Prescription, PrescriptionSchema } from '../../schemas/prescription.schema';
 import { Medicine, MedicineSchema } from '../../schemas/medicine.schema';
 import { PrescriptionState } from '../../common/enums';
@@ -219,6 +219,7 @@ export class CartService {
 }
 
 @Controller('cart')
+@SelfService()
 @UseGuards(JwtAuthGuard)
 export class CartController {
   constructor(

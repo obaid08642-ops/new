@@ -2,7 +2,7 @@ import { Module, Injectable, Controller, Post, Body, Get, Param, BadRequestExcep
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { SlotLock, SlotLockSchema } from '../../schemas/slot-lock.schema';
-import { JwtAuthGuard, CurrentUser } from '../../common/auth.guard';
+import { JwtAuthGuard, CurrentUser, SelfService } from '../../common/auth.guard';
 
 /** Contract-pack 10-minute slot-lock TTL with optimistic anti-collision. */
 const LOCK_TTL_MS = 10 * 60 * 1000;
@@ -92,6 +92,7 @@ export class SlotLocksService {
 }
 
 @Controller('slot-locks')
+@SelfService()
 @UseGuards(JwtAuthGuard)
 export class SlotLocksController {
   constructor(private svc: SlotLocksService) {}

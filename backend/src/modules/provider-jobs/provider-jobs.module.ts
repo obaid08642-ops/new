@@ -8,7 +8,7 @@
 import { Module, Controller, Get, Post, Param, Query, Body, UseGuards, Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { JwtAuthGuard, CurrentUser } from '../../common/auth.guard';
+import { JwtAuthGuard, CurrentUser, Roles } from '../../common/auth.guard';
 import { OrderSchema, OrderDocument } from '../../schemas/order.schema';
 import { LabBookingSchema, LabBooking } from '../../schemas/lab.schema';
 import { RadiologyBookingSchema, RadiologyBooking } from '../../schemas/radiology.schema';
@@ -17,7 +17,7 @@ import { Appointment, AppointmentSchema } from '../../schemas/appointment.schema
 import { ProviderProfile, ProviderProfileSchema } from '../../schemas/provider-profile.schema';
 import { User, UserSchema } from '../../schemas/user.schema';
 import { BookingAttachmentSchema } from '../booking-ops/booking-ops.module';
-import { ServiceState, ServiceDomain } from '../../common/enums';
+import { ServiceState, ServiceDomain, UserRole } from '../../common/enums';
 import { toUniversal, domainStatesFor, WorkflowEngineService, WorkflowEngineModule } from '../workflow-engine/workflow-engine.module';
 
 type JobStatus = 'incoming' | 'active' | 'completed';
@@ -252,6 +252,7 @@ export class ProviderJobsService {
 }
 
 @Controller('provider/jobs')
+@Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
 @UseGuards(JwtAuthGuard)
 export class ProviderJobsController {
   constructor(private svc: ProviderJobsService) {}

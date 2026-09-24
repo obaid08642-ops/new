@@ -4,6 +4,7 @@ import { CurrentUser, JwtAuthGuard, Public, Roles } from '../../common/auth.guar
 import { ProviderType, ProviderStatus, UserRole } from '../../common/enums';
 
 @Controller('providers')
+@Roles(UserRole.ADMIN)
 @UseGuards(JwtAuthGuard)
 export class ProvidersController {
   constructor(private svc: ProvidersService) {}

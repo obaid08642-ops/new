@@ -3,7 +3,7 @@ import { Throttle } from '@nestjs/throttler';
 import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { PasskeyService } from './passkey.service';
-import { JwtAuthGuard, Public, CurrentUser } from '../../common/auth.guard';
+import { JwtAuthGuard, Public, CurrentUser, SelfService } from '../../common/auth.guard';
 
 /**
  * Passkey management (enrollment) + passkey login verification.
@@ -12,6 +12,7 @@ import { JwtAuthGuard, Public, CurrentUser } from '../../common/auth.guard';
  * password has been verified (strict two-step ordering, no bypass).
  */
 @Controller('auth/passkey')
+@SelfService()
 @UseGuards(JwtAuthGuard)
 export class PasskeyController {
   constructor(private auth: AuthService, private passkeys: PasskeyService) {}

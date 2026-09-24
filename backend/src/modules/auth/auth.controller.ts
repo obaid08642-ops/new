@@ -28,7 +28,7 @@ function clientIp(req: Request): string | undefined {
   return (xff.split(',')[0] || req.ip || '').trim() || undefined;
 }
 import { AuthService } from './auth.service';
-import { JwtAuthGuard, Public, CurrentUser } from '../../common/auth.guard';
+import { JwtAuthGuard, Public, CurrentUser, SelfService } from '../../common/auth.guard';
 import { IsString, IsOptional, MinLength } from 'class-validator';
 import { UserRole } from '../../common/enums';
 
@@ -80,6 +80,7 @@ class ConvertGuestDto {
 }
 
 @Controller('auth')
+@SelfService()
 @UseGuards(JwtAuthGuard)
 export class AuthController {
   constructor(private auth: AuthService, @Optional() private presence?: PresenceService) {}

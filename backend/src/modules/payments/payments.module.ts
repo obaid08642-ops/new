@@ -9,7 +9,7 @@ import { RadiologyBookingSchema } from '../../schemas/radiology.schema';
 import { HomeCareBookingSchema } from '../../schemas/home-care.schema';
 import { Appointment, AppointmentSchema } from '../../schemas/appointment.schema';
 import { InsuranceServiceRequestSchema } from '../insurance-engine/insurance-engine.module';
-import { JwtAuthGuard, CurrentUser, Public } from '../../common/auth.guard';
+import { JwtAuthGuard, CurrentUser, Public, SelfService, Roles } from '../../common/auth.guard';
 import { WorkflowEngineModule, WorkflowEngineService } from '../workflow-engine/workflow-engine.module';
 import { RealtimeService } from '../realtime/realtime.service';
 import { RealtimeModule } from '../realtime/realtime.module';
@@ -17,6 +17,7 @@ import { FraudService } from '../finance-engine/finance-engine.module';
 import { IdempotencyInterceptor } from '../../common/idempotency.interceptor';
 import * as crypto from 'crypto';
 import { Request } from 'express';
+import { UserRole } from '../../common/enums';
 
 /**
  * PAYMENT GATEWAY ADAPTERS — additive layer, never bypasses WorkflowEngine.
@@ -544,14 +545,19 @@ export class PaymentsService {
 @UseGuards(JwtAuthGuard)
 export class PaymentsController {
   constructor(private svc: PaymentsService) {}
+  @SelfService()
   @Post('intent/:type/:id')
   @UseInterceptors(IdempotencyInterceptor)
   intent(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Headers('idempotency-key') key: string) { return this.svc.createPaymentIntent(u, t, id, key); }
+  @SelfService()
   @Post('verify/:txn') verify(@CurrentUser() u: any, @Param('txn') txn: string) { return this.svc.verifyPayment(u, txn); }
+  @SelfService()
   @Post('retry/:type/:id')
   @UseInterceptors(IdempotencyInterceptor)
   retry(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Headers('idempotency-key') key: string) { return this.svc.retryPayment(u, t, id, key); }
+  @Roles(UserRole.ADMIN)
   @Post('refund/:txn') refund(@CurrentUser() u: any, @Param('txn') txn: string, @Body() b: { amount?: number; reason?: string }) { return this.svc.refundPayment(u, txn, b.amount, b.reason); }
+  @Roles(UserRole.ADMIN)
   @Post('capture/:txn') capture(@CurrentUser() u: any, @Param('txn') txn: string) { return this.svc.capturePayment(u, txn); }
   @Get('pharmacy/:orderId/capabilities') pharmacyCapabilities(@CurrentUser() u: any, @Param('orderId') orderId: string) { return this.svc.getPharmacyCapabilities(u, orderId); }
   @Get('consultation/:id/capabilities') consultationCapabilities(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.getConsultationCapabilities(u, id); }

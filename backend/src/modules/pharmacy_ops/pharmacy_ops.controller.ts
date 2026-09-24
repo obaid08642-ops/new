@@ -62,6 +62,7 @@ export class PharmacyOpsController {
  * no logic duplication.
  */
 @Controller('provider/pharmacy')
+@Roles(UserRole.PHARMACY, UserRole.ADMIN)
 @UseGuards(JwtAuthGuard)
 export class ProviderPharmacyAliasController {
   constructor(private svc: PharmacyOpsService, private ordersSvc: OrdersService) {}

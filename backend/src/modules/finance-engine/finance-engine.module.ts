@@ -25,7 +25,7 @@ import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { v4 as uuid } from 'uuid';
-import { JwtAuthGuard, CurrentUser, Roles } from '../../common/auth.guard';
+import { JwtAuthGuard, CurrentUser, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 
 export const LEDGER_TYPES = [
@@ -922,6 +922,7 @@ export class ApprovalService {
 
 /** Patient/provider-facing financial engine endpoints. */
 @Controller('finance-engine')
+@SelfService()
 @UseGuards(JwtAuthGuard)
 export class FinanceEngineController {
   constructor(

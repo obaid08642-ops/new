@@ -1,7 +1,7 @@
 import { Module, Injectable, Controller, Get, Post, Put, Patch, Delete, Param, Body, UseGuards, BadRequestException, NotFoundException } from '@nestjs/common';
 import { InjectModel, InjectConnection, MongooseModule } from '@nestjs/mongoose';
 import { Model, Connection } from 'mongoose';
-import { JwtAuthGuard, CurrentUser } from '../../common/auth.guard';
+import { JwtAuthGuard, CurrentUser, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { v4 as uuid } from 'uuid';
 import {
@@ -265,6 +265,7 @@ export class SurgeriesService {
 // ══════════════════════════════════════════════════════════════════════════════
 
 @Controller('facility/beds')
+@Roles(UserRole.HOSPITAL, UserRole.HOSPITAL_ADMIN, UserRole.ADMIN)
 @UseGuards(JwtAuthGuard)
 export class FacilityBedsController {
   constructor(private svc: BedsService) {}
@@ -301,6 +302,7 @@ export class FacilityBedsController {
 }
 
 @Controller('facility/shifts')
+@Roles(UserRole.HOSPITAL, UserRole.HOSPITAL_ADMIN, UserRole.ADMIN)
 @UseGuards(JwtAuthGuard)
 export class FacilityShiftsController {
   constructor(private svc: ShiftsService) {}
@@ -344,6 +346,7 @@ export class FacilityShiftsController {
 }
 
 @Controller('facility/surgeries')
+@Roles(UserRole.HOSPITAL, UserRole.HOSPITAL_ADMIN, UserRole.ADMIN)
 @UseGuards(JwtAuthGuard)
 export class FacilitySurgeriesController {
   constructor(private svc: SurgeriesService) {}
@@ -364,6 +367,7 @@ export class FacilitySurgeriesController {
 // ══════════════════════════════════════════════════════════════════════════════
 
 @Controller('facility')
+@Roles(UserRole.HOSPITAL, UserRole.HOSPITAL_ADMIN, UserRole.ADMIN)
 @UseGuards(JwtAuthGuard)
 export class FacilityCommsController {
   constructor(@InjectConnection() private readonly conn: Connection) {}

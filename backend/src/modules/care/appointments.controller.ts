@@ -1,10 +1,11 @@
 import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { AppointmentsService } from './appointments.service';
-import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
+import { CurrentUser, JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';import { ApptState } from '../../schemas/appointment.schema';
 import { CreateAppointmentDto, CancelAppointmentDto, RescheduleAppointmentDto } from './appointments.dto';
 
 @Controller('care/appointments')
+@SelfService()
 @UseGuards(JwtAuthGuard)
 export class AppointmentsController {
   constructor(private svc: AppointmentsService) {}

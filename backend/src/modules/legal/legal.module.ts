@@ -154,6 +154,7 @@ export class LegalService {
 }
 
 @Controller()
+@Roles(UserRole.ADMIN)
 export class LegalController {
   constructor(private readonly svc: LegalService) {}
 

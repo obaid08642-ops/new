@@ -2,8 +2,11 @@ import { Controller, Get, Patch, Param, Body, BadRequestException } from '@nestj
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { ProcurementRequest } from '../schemas/procurement-request.schema';
+import { Roles } from '../../../common/auth.guard';
+import { UserRole } from '../../../common/enums';
 
 @Controller('admin/extended-operations')
+@Roles(UserRole.ADMIN)
 export class AdminExtendedOperationsController {
   constructor(
     @InjectModel(ProcurementRequest.name) private procurementModel: Model<ProcurementRequest>

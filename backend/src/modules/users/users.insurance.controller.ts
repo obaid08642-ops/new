@@ -10,7 +10,7 @@ import {
 } from '@nestjs/swagger';
 import { NABDAH_ACCESS_TOKEN_SECURITY_SCHEME } from '../../config/openapi.config';
 import { UsersService } from './users.service';
-import { CurrentUser, JwtAuthGuard } from '../../common/auth.guard';
+import { CurrentUser, JwtAuthGuard, SelfService } from '../../common/auth.guard';
 
 const canonicalInsuranceSchema = {
   type: 'object',
@@ -33,6 +33,7 @@ const canonicalInsuranceSchema = {
 
 @ApiTags('Insurance')
 @Controller('users/me/insurance')
+@SelfService()
 @UseGuards(JwtAuthGuard)
 export class UsersInsuranceController {
   constructor(private users: UsersService) {}

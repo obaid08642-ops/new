@@ -5,7 +5,7 @@ import { Injectable } from '@nestjs/common';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
-import { JwtAuthGuard, CurrentUser } from '../../common/auth.guard';
+import { JwtAuthGuard, CurrentUser, SelfService } from '../../common/auth.guard';
 import { IdempotencyInterceptor, RequireIdempotency } from '../../common/idempotency.interceptor';
 import { UseInterceptors } from '@nestjs/common';
 
@@ -73,6 +73,7 @@ export class MedicalProgramsService {
 @UseGuards(JwtAuthGuard)
 @UseInterceptors(IdempotencyInterceptor)
 @Controller('medical/programs')
+@SelfService()
 export class MedicalProgramsController {
   constructor(private readonly svc: MedicalProgramsService) {}
 

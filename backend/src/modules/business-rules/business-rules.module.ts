@@ -9,10 +9,9 @@
 import { Module, Controller, Post, Get, Body, UseGuards, Injectable } from '@nestjs/common';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { JwtAuthGuard, Roles } from '../../common/auth.guard';
-import { UserRole } from '../../common/enums';
+import { JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
+import { UserRole, ServiceDomain } from '../../common/enums';
 import { ProviderProfile, ProviderProfileSchema } from '../../schemas/provider-profile.schema';
-import { ServiceDomain } from '../../common/enums';
 
 export type RuleContext = {
   kind: ServiceDomain;
@@ -172,9 +171,11 @@ export class BusinessRulesController {
   @Get('config/surge')
   getSurge() { return this.svc.getSurgeConfig(); }
 
+  @Roles(UserRole.ADMIN)
   @Post('config/surge')
   updateSurge(@Body() body: any) { return this.svc.updateSurgeConfig(body); }
 
+  @SelfService()
   @Post('validate') validate(@Body() ctx: RuleContext) { return this.svc.validate(ctx); }
 }
 

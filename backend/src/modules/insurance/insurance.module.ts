@@ -1,7 +1,7 @@
 import { Module, Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards, Injectable, BadRequestException, NotFoundException, ServiceUnavailableException, Logger } from '@nestjs/common';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { JwtAuthGuard, Roles, CurrentUser, Public } from '../../common/auth.guard';
+import { JwtAuthGuard, Roles, CurrentUser, Public, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import {
   InsuranceCompany, InsuranceCompanyDocument, InsuranceCompanySchema,
@@ -404,6 +404,7 @@ export class InsuranceController {
     return this.svc.listAllCompaniesWithNetworks();
   }
 
+  @Roles(UserRole.ADMIN)
   @Post('companies')
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
   createCompany(@Body() b: any) {
@@ -411,6 +412,7 @@ export class InsuranceController {
   }
 
   /** Admin edit (whitelist): rename, logo, enable/disable. */
+  @Roles(UserRole.ADMIN)
   @Patch('companies/:id')
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
   updateCompany(@Param('id') id: string, @Body() b: any) {
@@ -436,6 +438,7 @@ export class InsuranceController {
   }
 
   /** Admin: delete a tier (network) from a company. */
+  @Roles(UserRole.ADMIN)
   @Delete('companies/:companyId/networks/:networkId')
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
   deleteNetwork(@Param('companyId') companyId: string, @Param('networkId') networkId: string) {
@@ -448,6 +451,7 @@ export class InsuranceController {
     return this.svc.listNetworks(companyId);
   }
 
+  @Roles(UserRole.ADMIN)
   @Post('companies/:companyId/networks')
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
   createNetwork(@Param('companyId') companyId: string, @Body() b: any) {
@@ -460,6 +464,7 @@ export class InsuranceController {
     return this.svc.listRules(networkId);
   }
 
+  @Roles(UserRole.ADMIN)
   @Post('networks/:networkId/rules')
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
   createRule(@Param('networkId') networkId: string, @Body() b: any) {
@@ -483,26 +488,31 @@ export class InsuranceController {
     });
   }
 
+  @SelfService()
   @Post('ocr-extract')
   ocrExtract(@Body() body: any) {
     return this.svc.ocrExtract(body);
   }
 
+  @SelfService()
   @Post('upload-policy')
   uploadPolicy(@CurrentUser() u: any, @Body() body: any) {
     return this.svc.uploadPolicy(body, u?.id);
   }
 
+  @SelfService()
   @Post('nphies/eligibility')
   nphiesEligibility(@Body() body: any) {
     return this.svc.nphiesEligibility(body.national_id, body.insurance_company_code, body.member_id);
   }
 
+  @SelfService()
   @Post('save-policy')
   savePolicy(@CurrentUser() u: any, @Body() body: any) {
     return this.svc.savePolicy(u.id, body);
   }
 
+  @SelfService()
   @Post('claims/submit')
   submitClaim(@CurrentUser() u: any, @Body() body: any) {
     return this.svc.submitClaim(u.id, body);

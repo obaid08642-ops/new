@@ -1,11 +1,12 @@
-import { JwtAuthGuard } from '../../common/auth.guard';
+import { JwtAuthGuard, Roles, CurrentUser } from '../../common/auth.guard';
 import { UseGuards } from '@nestjs/common';
 import { Controller, Get, Post, Body, Param } from '@nestjs/common';
 import { LabResultsService } from './lab-results.service';
-import { CurrentUser } from '../../common/auth.guard';
+import { UserRole } from '../../common/enums';
 
 @UseGuards(JwtAuthGuard)
 @Controller('lab-results')
+@Roles(UserRole.LAB, UserRole.HOSPITAL, UserRole.ADMIN)
 export class LabResultsController {
   constructor(private readonly svc: LabResultsService) {}
   @Post() create(@CurrentUser() u: any, @Body() b: any) { return this.svc.create(u, b); }

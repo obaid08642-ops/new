@@ -1,9 +1,10 @@
 import { Controller, Get, Post, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { ReturnsService } from './returns.service';
-import { JwtAuthGuard, CurrentUser, Roles } from '../../common/auth.guard';
+import { JwtAuthGuard, CurrentUser, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 
 @Controller('pharmacy/returns')
+@SelfService()
 @UseGuards(JwtAuthGuard)
 export class ReturnsController {
   constructor(private readonly returnsService: ReturnsService) {}

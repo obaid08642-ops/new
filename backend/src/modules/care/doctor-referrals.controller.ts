@@ -1,13 +1,15 @@
 import { Controller, Post, Body, Patch, Param, Get, BadRequestException, UseGuards, Req, ForbiddenException } from '@nestjs/common';
-import { JwtAuthGuard, NoGuestsGuard } from '../../common/auth.guard';
+import { JwtAuthGuard, NoGuestsGuard, Roles } from '../../common/auth.guard';
 import { InjectModel } from '@nestjs/mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Model, Types, Connection } from 'mongoose';
 import { EncounterReferral } from './schemas/encounter-referrals.schema';
 import { DoctorProfileExtended } from './schemas/doctor-profile-extended.schema';
+import { UserRole } from '../../common/enums';
 
 @UseGuards(JwtAuthGuard, NoGuestsGuard)
 @Controller('provider/doctor-referrals')
+@Roles(UserRole.DOCTOR, UserRole.ADMIN)
 export class DoctorReferralsController {
   constructor(
     @InjectModel(EncounterReferral.name) private referralModel: Model<EncounterReferral>,
