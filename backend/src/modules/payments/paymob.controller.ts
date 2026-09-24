@@ -4,6 +4,7 @@ import { UseGuards } from '@nestjs/common';
 import { Controller, Post, Body, Get } from '@nestjs/common';
 import { Public } from '../../common/auth.guard';
 import { PaymobService } from './paymob.service';
+import { InitiatePaymentDto, VerifyPaymentDto } from './paymob.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('payments/paymob')
@@ -17,13 +18,13 @@ export class PaymobController {
   }
 
   @Post('initiate')
-  async initiatePayment(@Body() payload: any) {
+  async initiatePayment(@Body() payload: InitiatePaymentDto) {
     
     return this.paymobService.initiate(payload);
   }
 
   @Post('verify')
-  async verifyPayment(@Body() payload: any) {
+  async verifyPayment(@Body() payload: VerifyPaymentDto) {
     
     return this.paymobService.verify(payload);
   }

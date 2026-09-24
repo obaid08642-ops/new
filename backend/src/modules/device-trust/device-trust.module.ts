@@ -17,6 +17,7 @@ import { Connection } from 'mongoose';
 import * as crypto from 'crypto';
 import { JwtAuthGuard, CurrentUser, Public, SelfService } from '../../common/auth.guard';
 import { RedisService } from '../redis/redis.service';
+import { VerifyDto, ChallengeDto, GuestChallengeDto} from './device-trust.dto';
 
 @Injectable()
 export class DeviceTrustService {
@@ -131,19 +132,19 @@ export class DeviceTrustController {
 
   @Post('challenge')
   @UseGuards(JwtAuthGuard)
-  challenge(@CurrentUser() u: any, @Body() body: { platform: 'android' | 'ios' }) {
+  challenge(@CurrentUser() u: any, @Body() body: ChallengeDto) {
     return this.svc.challenge(u?.id, body?.platform || 'android');
   }
 
   @Public()
   @Post('challenge-guest')
-  guestChallenge(@Body() body: { platform: 'android' | 'ios' }) {
+  guestChallenge(@Body() body: GuestChallengeDto) {
     return this.svc.challenge('guest', body?.platform || 'android');
   }
 
   @Post('verify')
   @UseGuards(JwtAuthGuard)
-  verify(@CurrentUser() u: any, @Body() body: any) {
+  verify(@CurrentUser() u: any, @Body() body: VerifyDto) {
     return this.svc.verify(u?.id, body);
   }
 

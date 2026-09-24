@@ -1,4 +1,5 @@
 import { Module, Injectable, Controller, Get, Post, Put, Patch, Delete, Param, Body, UseGuards, BadRequestException, NotFoundException } from '@nestjs/common';
+import { CreateShiftDto, CreateAnnouncementDto, CreateResourceDto, UpdateResourceDto, CreateWardDto, AdmitDto, CheckInDto} from './facility-ops.dto';
 import { InjectModel, InjectConnection, MongooseModule } from '@nestjs/mongoose';
 import { Model, Connection } from 'mongoose';
 import { JwtAuthGuard, CurrentUser, Roles } from '../../common/auth.guard';
@@ -281,12 +282,12 @@ export class FacilityBedsController {
   }
 
   @Post('wards')
-  createWard(@CurrentUser() u: any, @Body() b: { name: string; total_beds: number }) {
+  createWard(@CurrentUser() u: any, @Body() b: CreateWardDto) {
     return this.svc.createWard(u.parent_provider_account_id || u.id, b.name, b.total_beds);
   }
 
   @Post('admission')
-  admit(@CurrentUser() u: any, @Body() b: { patient_id: string; bed_id: string }) {
+  admit(@CurrentUser() u: any, @Body() b: AdmitDto) {
     return this.svc.admitPatient(u.parent_provider_account_id || u.id, b.patient_id, b.bed_id);
   }
 
@@ -313,7 +314,7 @@ export class FacilityShiftsController {
   }
 
   @Post()
-  createShift(@CurrentUser() u: any, @Body() b: any) {
+  createShift(@CurrentUser() u: any, @Body() b: CreateShiftDto) {
     return this.svc.createShift(u.parent_provider_account_id || u.id, b);
   }
 
@@ -330,7 +331,7 @@ export class FacilityShiftsController {
     return this.svc.deleteShift(u.parent_provider_account_id || u.id, id);
   }
   @Post('attendance/check-in')
-  checkIn(@CurrentUser() u: any, @Body() b: { lat?: number; lng?: number }) {
+  checkIn(@CurrentUser() u: any, @Body() b: CheckInDto) {
     return this.svc.checkIn(u.parent_provider_account_id || u.id, u.id, b?.lat, b?.lng);
   }
 
@@ -382,7 +383,7 @@ export class FacilityCommsController {
   }
 
   @Post('announcements')
-  async createAnnouncement(@CurrentUser() u: any, @Body() b: any) {
+  async createAnnouncement(@CurrentUser() u: any, @Body() b: CreateAnnouncementDto) {
     const text = String(b?.text || '').trim().slice(0, 2000);
     if (!text) throw new BadRequestException('text is required');
     const doc = {
@@ -406,7 +407,7 @@ export class FacilityCommsController {
   }
 
   @Post('resources')
-  async createResource(@CurrentUser() u: any, @Body() b: any) {
+  async createResource(@CurrentUser() u: any, @Body() b: CreateResourceDto) {
     const nameAr = String(b?.name_ar || '').trim().slice(0, 200);
     const nameEn = String(b?.name_en || '').trim().slice(0, 200);
     if (!nameAr && !nameEn) throw new BadRequestException('name is required');
@@ -428,7 +429,7 @@ export class FacilityCommsController {
   }
 
   @Put('resources/:id')
-  async updateResource(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
+  async updateResource(@CurrentUser() u: any, @Param('id') id: string, @Body() b: UpdateResourceDto) {
     const set: any = {};
     if (b?.name_ar !== undefined) set.name_ar = String(b.name_ar).slice(0, 200);
     if (b?.name_en !== undefined) set.name_en = String(b.name_en).slice(0, 200);

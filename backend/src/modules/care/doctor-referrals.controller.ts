@@ -6,6 +6,7 @@ import { Model, Types, Connection } from 'mongoose';
 import { EncounterReferral } from './schemas/encounter-referrals.schema';
 import { DoctorProfileExtended } from './schemas/doctor-profile-extended.schema';
 import { UserRole } from '../../common/enums';
+import { DiagnosticCallbackDto } from './doctor-referrals.dto';
 
 @UseGuards(JwtAuthGuard, NoGuestsGuard)
 @Controller('provider/doctor-referrals')
@@ -94,7 +95,7 @@ export class DoctorReferralsController {
   }
 
   @Patch('diagnostic-callback/:appointmentId')
-  async diagnosticCallback(@Param('appointmentId') appointmentId: string, @Body() body: { fileUrls: string[] }) {
+  async diagnosticCallback(@Param('appointmentId') appointmentId: string, @Body() body: DiagnosticCallbackDto) {
     // Intercepted from Lab/Radiology Upload webhook to alert the parent Doctor automatically
     const referral = await this.referralModel.findOneAndUpdate(
       { appointment_id: new Types.ObjectId(appointmentId) },

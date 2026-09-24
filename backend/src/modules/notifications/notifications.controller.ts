@@ -3,6 +3,7 @@ import { NotificationsService } from './notifications.service';
 import { CurrentUser, JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { PushService } from '../push/push.module';
+import { SendDto, ScheduleDto, RegisterTokenDto} from './notifications.dto';
 
 @Controller('notifications')
 @UseGuards(JwtAuthGuard)
@@ -21,7 +22,7 @@ export class NotificationsController {
    */
   @SelfService()
   @Post('register-token')
-  registerToken(@CurrentUser() user: any, @Body() body: { token: string; device?: string; platform?: string; provider?: string; device_id?: string; device_name?: string }) {
+  registerToken(@CurrentUser() user: any, @Body() body: RegisterTokenDto) {
     if (!body?.token) throw new BadRequestException('token is required');
     const provider = body.provider
       || (body.token.startsWith('ExponentPushToken') ? 'expo' : (body.platform === 'ios' || body.device === 'ios' ? 'apns' : 'fcm'));
@@ -49,7 +50,7 @@ export class NotificationsController {
   @Roles(UserRole.ADMIN)
   @Post('admin/send')
   @Roles(UserRole.ADMIN)
-  send(@Body() body: any) {
+  send(@Body() body: SendDto) {
     return this.svc.create(body);
   }
 
@@ -57,7 +58,7 @@ export class NotificationsController {
   @Roles(UserRole.ADMIN)
   @Post('admin/schedule')
   @Roles(UserRole.ADMIN)
-  schedule(@Body() body: any) {
+  schedule(@Body() body: ScheduleDto) {
     if (!body?.scheduled_at) throw new BadRequestException('scheduled_at is required');
     return this.svc.create(body);
   }

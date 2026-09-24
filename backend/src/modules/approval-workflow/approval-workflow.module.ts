@@ -12,6 +12,7 @@ import { LabService, LabServiceSchema } from '../../schemas/lab.schema';
 import { RadiologyService, RadiologyServiceSchema } from '../../schemas/radiology.schema';
 import { HomeCareService, HomeCareServiceSchema } from '../../schemas/home-care.schema';
 import { CatalogPublicationService, CatalogEntityType } from '../events/catalog-publication.service';
+import { CreateDto, DecideDto } from './approval-workflow.dto';
 
 @Injectable()
 export class ApprovalWorkflowService {
@@ -173,7 +174,7 @@ export class ApprovalWorkflowController {
   constructor(private svc: ApprovalWorkflowService) {}
 
   @Post('requests')
-  create(@CurrentUser() u: any, @Body() b: any) {
+  create(@CurrentUser() u: any, @Body() b: CreateDto) {
     return this.svc.createRequest(u.id, b);
   }
 
@@ -196,7 +197,7 @@ export class ApprovalWorkflowController {
   @Post('requests/:id/decide')
   @Roles(UserRole.ADMIN)
   @Audited({ model: 'ApprovalRequest', idParam: 'id', action: 'approval_request_decide' })
-  decide(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
+  decide(@CurrentUser() u: any, @Param('id') id: string, @Body() b: DecideDto) {
     return this.svc.decide(u.id, id, b);
   }
 }

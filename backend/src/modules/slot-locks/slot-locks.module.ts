@@ -3,6 +3,7 @@ import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { SlotLock, SlotLockSchema } from '../../schemas/slot-lock.schema';
 import { JwtAuthGuard, CurrentUser, SelfService } from '../../common/auth.guard';
+import { ReserveDto } from './slot-locks.dto';
 
 /** Contract-pack 10-minute slot-lock TTL with optimistic anti-collision. */
 const LOCK_TTL_MS = 10 * 60 * 1000;
@@ -96,7 +97,7 @@ export class SlotLocksService {
 @UseGuards(JwtAuthGuard)
 export class SlotLocksController {
   constructor(private svc: SlotLocksService) {}
-  @Post('reserve') reserve(@CurrentUser() u: any, @Body() b: any) { return this.svc.reserve(u, b); }
+  @Post('reserve') reserve(@CurrentUser() u: any, @Body() b: ReserveDto) { return this.svc.reserve(u, b); }
   @Post(':id/confirm') confirm(@CurrentUser() u: any, @Param('id') id: string, @Body() b: { booking_id: string }) { return this.svc.confirm(u, id, b.booking_id); }
   @Post(':id/release') release(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.release(u, id); }
   @Get('mine') mine(@CurrentUser() u: any) { return this.svc.mine(u); }

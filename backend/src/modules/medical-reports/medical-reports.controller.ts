@@ -4,6 +4,7 @@ import { Controller, Get, Post, Delete, Body, Param, Query } from '@nestjs/commo
 import { MedicalReportsService } from './medical-reports.service';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
+import { ShareDto, CreateDto } from './medical-reports.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('medical-reports')
@@ -47,7 +48,7 @@ export class MedicalReportsController {
   sharedWithMe(@CurrentUser() user: any) { return this.svc.sharedWithMe(user); }
 
   @Post(':id/share')
-  share(@CurrentUser() user: any, @Param('id') id: string, @Body() body: any) {
+  share(@CurrentUser() user: any, @Param('id') id: string, @Body() body: ShareDto) {
     return this.svc.share(user, id, body);
   }
 
@@ -60,5 +61,5 @@ export class MedicalReportsController {
   one(@CurrentUser() user: any, @Param('id') id: string) { return this.svc.one(user, id); }
 
   @Post()
-  create(@CurrentUser() user: any, @Body() body: any) { return this.svc.create(user, body); }
+  create(@CurrentUser() user: any, @Body() body: CreateDto) { return this.svc.create(user, body); }
 }

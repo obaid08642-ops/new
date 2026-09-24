@@ -2,6 +2,7 @@ import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { PrescriptionsService } from './prescriptions.service';
 import { CurrentUser, JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
 import { PrescriptionState, UserRole } from '../../common/enums';
+import { CreateDto, UploadDto, ManualEntryDto, SendDto, TransitionDto, SubDto} from './prescriptions.dto';
 
 @Controller('prescriptions')
 @SelfService()
@@ -11,29 +12,29 @@ export class PrescriptionsController {
 
   @Post('create')
   @Roles(UserRole.DOCTOR)
-  create(@Body() body: any, @CurrentUser() user: any) {
+  create(@Body() body: CreateDto, @CurrentUser() user: any) {
     return this.svc.create(user, body);
   }
 
   @Post('upload')
-  upload(@Body() body: any, @CurrentUser() user: any) {
+  upload(@Body() body: UploadDto, @CurrentUser() user: any) {
     return this.svc.uploadByPatient(user, body);
   }
 
   @Post('manual-entry')
   @Roles(UserRole.DOCTOR)
-  manualEntry(@Body() body: any, @CurrentUser() user: any) {
+  manualEntry(@Body() body: ManualEntryDto, @CurrentUser() user: any) {
     return this.svc.create(user, body);
   }
 
   @Post(':id/send')
   @Roles(UserRole.DOCTOR, UserRole.ADMIN)
-  send(@Param('id') id: string, @Body() body: any, @CurrentUser() user: any) {
+  send(@Param('id') id: string, @Body() body: SendDto, @CurrentUser() user: any) {
     return this.svc.sendToPharmacy(id, body.pharmacy_id, user);
   }
 
   @Post(':id/transition')
-  transition(@Param('id') id: string, @Body() body: { to: PrescriptionState }, @CurrentUser() user: any) {
+  transition(@Param('id') id: string, @Body() body: TransitionDto, @CurrentUser() user: any) {
     return this.svc.transition(id, body.to, user);
   }
 
@@ -45,7 +46,7 @@ export class PrescriptionsController {
 
   @Post(':id/substitute')
   @Roles(UserRole.PHARMACY, UserRole.ADMIN)
-  sub(@Param('id') id: string, @Body() body: { item_index: number; new_medicine_id: string }, @CurrentUser() user: any) {
+  sub(@Param('id') id: string, @Body() body: SubDto, @CurrentUser() user: any) {
     return this.svc.substitute(id, body.item_index, body.new_medicine_id, user);
   }
 

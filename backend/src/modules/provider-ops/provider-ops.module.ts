@@ -17,6 +17,7 @@ import { Connection, Schema } from 'mongoose';
 import { randomUUID } from 'crypto';
 import { JwtAuthGuard, CurrentUser, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
+import { AddLeaveDto, SaveTemplateDto, SaveDxDto, BlockDto, PutCrmDto, QcDto, ChecklistDto, SignDto, TrackDto, EscalateDto, HandoverDto, CompleteDto, PutPricingDto, ReplyReviewDto, PutHoursDto, EndConsultationDto } from './provider-ops.dto';
 
 /** Provider withdrawal requests (consumed by admin-web-core finance controller). */
 export const ProviderWithdrawalSchema = new Schema(
@@ -651,49 +652,49 @@ export class ProviderOpsController {
 
   // Doctor: leave/vacation
   @Roles(UserRole.DOCTOR, UserRole.ADMIN)
-  @Post('doctor/leave') addLeave(@CurrentUser() u: any, @Body() b: any) { return this.svc.addLeave(u.id, b); }
+  @Post('doctor/leave') addLeave(@CurrentUser() u: any, @Body() b: AddLeaveDto) { return this.svc.addLeave(u.id, b); }
   @Get('doctor/leave') leaves(@CurrentUser() u: any): Promise<any[]> { return this.svc.myLeaves(u.id); }
   @Roles(UserRole.DOCTOR, UserRole.ADMIN)
   @Delete('doctor/leave/:id') cancelLeave(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.cancelLeave(u.id, id); }
 
   // Doctor: templates/diagnoses/blacklist
   @Roles(UserRole.DOCTOR, UserRole.ADMIN)
-  @Post('doctor/templates') saveTemplate(@CurrentUser() u: any, @Body() b: any) { return this.svc.saveTemplate(u.id, b); }
+  @Post('doctor/templates') saveTemplate(@CurrentUser() u: any, @Body() b: SaveTemplateDto) { return this.svc.saveTemplate(u.id, b); }
   @Get('doctor/templates') templates(@CurrentUser() u: any): Promise<any[]> { return this.svc.myTemplates(u.id); }
   @Roles(UserRole.DOCTOR, UserRole.ADMIN)
   @Delete('doctor/templates/:id') delTemplate(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.deleteTemplate(u.id, id); }
   @Roles(UserRole.DOCTOR, UserRole.ADMIN)
-  @Post('doctor/diagnoses') saveDx(@CurrentUser() u: any, @Body() b: any) { return this.svc.saveDiagnosis(u.id, b); }
+  @Post('doctor/diagnoses') saveDx(@CurrentUser() u: any, @Body() b: SaveDxDto) { return this.svc.saveDiagnosis(u.id, b); }
   @Get('doctor/diagnoses') diagnoses(@CurrentUser() u: any, @Query('search') s?: string): Promise<any[]> { return this.svc.myDiagnoses(u.id, s); }
   @Roles(UserRole.DOCTOR, UserRole.ADMIN)
-  @Post('doctor/blacklist/:patientId') block(@CurrentUser() u: any, @Param('patientId') p: string, @Body() b: any) { return this.svc.blacklistPatient(u.id, p, b?.reason); }
+  @Post('doctor/blacklist/:patientId') block(@CurrentUser() u: any, @Param('patientId') p: string, @Body() b: BlockDto) { return this.svc.blacklistPatient(u.id, p, b?.reason); }
   @Roles(UserRole.DOCTOR, UserRole.ADMIN)
   @Delete('doctor/blacklist/:patientId') unblock(@CurrentUser() u: any, @Param('patientId') p: string) { return this.svc.unblacklistPatient(u.id, p); }
   @Get('doctor/blacklist') blacklist(@CurrentUser() u: any): Promise<any[]> { return this.svc.myBlacklist(u.id); }
   @Get('doctor/patient-crm/:patientId') getCrm(@CurrentUser() u: any, @Param('patientId') p: string) { return this.svc.getPatientCrm(u.id, p); }
   @Roles(UserRole.DOCTOR, UserRole.ADMIN)
-  @Put('doctor/patient-crm/:patientId') putCrm(@CurrentUser() u: any, @Param('patientId') p: string, @Body() b: any) { return this.svc.putPatientCrm(u.id, p, b || {}); }
+  @Put('doctor/patient-crm/:patientId') putCrm(@CurrentUser() u: any, @Param('patientId') p: string, @Body() b: PutCrmDto) { return this.svc.putPatientCrm(u.id, p, b || {}); }
 
   // Lab QC
   @Roles(UserRole.LAB, UserRole.HOSPITAL, UserRole.ADMIN)
-  @Post('lab/bookings/:id/qc/:action') qc(@CurrentUser() u: any, @Param('id') id: string, @Param('action') action: string, @Body() b: any) { return this.svc.labQc(u, id, action, b); }
+  @Post('lab/bookings/:id/qc/:action') qc(@CurrentUser() u: any, @Param('id') id: string, @Param('action') action: string, @Body() b: QcDto) { return this.svc.labQc(u, id, action, b); }
 
   // Nursing
   @Roles(UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.ADMIN)
-  @Post('nursing/bookings/:id/checklist/:phase') checklist(@CurrentUser() u: any, @Param('id') id: string, @Param('phase') phase: string, @Body() b: any) { return this.svc.nursingChecklist(u, id, phase as any, b?.items || {}); }
+  @Post('nursing/bookings/:id/checklist/:phase') checklist(@CurrentUser() u: any, @Param('id') id: string, @Param('phase') phase: string, @Body() b: ChecklistDto) { return this.svc.nursingChecklist(u, id, phase as any, b?.items || {}); }
   @Roles(UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.ADMIN)
-  @Post('nursing/bookings/:id/sign') sign(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.nursingSign(u, id, b?.signature, b?.signer_name); }
+  @Post('nursing/bookings/:id/sign') sign(@CurrentUser() u: any, @Param('id') id: string, @Body() b: SignDto) { return this.svc.nursingSign(u, id, b?.signature, b?.signer_name); }
   @Roles(UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.ADMIN)
-  @Post('nursing/bookings/:id/track') track(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.nursingTrack(u, id, b?.lat, b?.lng); }
+  @Post('nursing/bookings/:id/track') track(@CurrentUser() u: any, @Param('id') id: string, @Body() b: TrackDto) { return this.svc.nursingTrack(u, id, b?.lat, b?.lng); }
   @Roles(UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.ADMIN)
-  @Post('nursing/bookings/:id/escalate') escalate(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.nursingEscalate(u, id, b?.reason); }
+  @Post('nursing/bookings/:id/escalate') escalate(@CurrentUser() u: any, @Param('id') id: string, @Body() b: EscalateDto) { return this.svc.nursingEscalate(u, id, b?.reason); }
 
   // Ambulance
   @Get('ambulance/:id/eta') eta(@CurrentUser() u: any, @Param('id') id: string, @Query('lat') lat: string, @Query('lng') lng: string) { return this.svc.ambulanceEta(u, id, parseFloat(lat), parseFloat(lng)); }
   @Roles(UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
-  @Post('ambulance/:id/handover') handover(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.ambulanceHandover(u, id, b); }
+  @Post('ambulance/:id/handover') handover(@CurrentUser() u: any, @Param('id') id: string, @Body() b: HandoverDto) { return this.svc.ambulanceHandover(u, id, b); }
   @Roles(UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
-  @Post('ambulance/:id/complete') complete(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.ambulanceComplete(u, id, b); }
+  @Post('ambulance/:id/complete') complete(@CurrentUser() u: any, @Param('id') id: string, @Body() b: CompleteDto) { return this.svc.ambulanceComplete(u, id, b); }
 
   // Finance
   @Get('invoice/:orderId/pdf') async invoice(@CurrentUser() u: any, @Param('orderId') id: string, @Res({ passthrough: true }) res: any) {
@@ -752,7 +753,7 @@ export class ProviderCompatController {
     return { pricing: await this.svc.getProviderSetting(u.id, 'pricing', null) };
   }
   @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
-  @Put('settings/pricing') async putPricing(@CurrentUser() u: any, @Body() b: any) {
+  @Put('settings/pricing') async putPricing(@CurrentUser() u: any, @Body() b: PutPricingDto) {
     return this.svc.requestSettingChange(u.id, 'pricing', b?.pricing ?? b);
   }
 
@@ -762,7 +763,7 @@ export class ProviderCompatController {
   }
 
   @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
-  @Post('reviews/:id/reply') replyReview(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
+  @Post('reviews/:id/reply') replyReview(@CurrentUser() u: any, @Param('id') id: string, @Body() b: ReplyReviewDto) {
     return this.svc.replyReview(u.id, id, b?.reply);
   }
 
@@ -771,7 +772,7 @@ export class ProviderCompatController {
     return this.svc.getProviderSetting(u.id, 'working_hours', null);
   }
   @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
-  @Put('working-hours') async putHours(@CurrentUser() u: any, @Body() b: any) {
+  @Put('working-hours') async putHours(@CurrentUser() u: any, @Body() b: PutHoursDto) {
     return this.svc.requestSettingChange(u.id, 'working_hours', b?.hours ?? b);
   }
 
@@ -786,7 +787,7 @@ export class ProviderCompatController {
 
   /** End a consultation: complete appointment + store notes/prescription */
   @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
-  @Post('consultation/end') endConsultation(@CurrentUser() u: any, @Body() b: any) {
+  @Post('consultation/end') endConsultation(@CurrentUser() u: any, @Body() b: EndConsultationDto) {
     return this.svc.endConsultation(u, b || {});
   }
 }

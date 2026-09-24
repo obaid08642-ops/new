@@ -2,6 +2,7 @@ import { Controller, Post, Get, Put, Body, Param, Query, UseGuards, Req } from '
 import { HospitalService } from '../services/hospital.service';
 import { JwtAuthGuard, CurrentUser, Roles } from '../../../common/auth.guard';
 import { UserRole } from '../../../common/enums';
+import { AddStaffDto, OnboardDoctorDto, UpdateAppointmentStatusDto, CreateInvitationDto, RespondInvitationDto} from './hospital.dto';
 
 @Controller('hospital')
 @Roles(UserRole.HOSPITAL, UserRole.HOSPITAL_ADMIN, UserRole.ADMIN)
@@ -30,7 +31,7 @@ export class HospitalController {
   }
 
   @Post('staff')
-  async addStaff(@CurrentUser() user: any, @Body() body: any) {
+  async addStaff(@CurrentUser() user: any, @Body() body: AddStaffDto) {
     return this.hospitalService.addStaff(user.id, body, user);
   }
 
@@ -40,7 +41,7 @@ export class HospitalController {
   }
 
   @Post('doctors/onboard')
-  async onboardDoctor(@CurrentUser() user: any, @Body() body: { doctor_id: string }) {
+  async onboardDoctor(@CurrentUser() user: any, @Body() body: OnboardDoctorDto) {
     return this.hospitalService.onboardDoctor(user.id, body.doctor_id, user);
   }
 
@@ -53,7 +54,7 @@ export class HospitalController {
   }
 
   @Put('appointments/:id/status')
-  async updateAppointmentStatus(@CurrentUser() user: any, @Param('id') id: string, @Body() body: { status: string }) {
+  async updateAppointmentStatus(@CurrentUser() user: any, @Param('id') id: string, @Body() body: UpdateAppointmentStatusDto) {
     return this.hospitalService.updateAppointmentStatus(user.id, id, body.status, user);
   }
 
@@ -66,7 +67,7 @@ export class HospitalController {
   // ── Facility → provider invitations ───────────────────────────────────────
 
   @Post('invitations')
-  async createInvitation(@CurrentUser() user: any, @Body() body: { identifier?: string; role?: string; permissions?: Record<string, boolean> }) {
+  async createInvitation(@CurrentUser() user: any, @Body() body: CreateInvitationDto) {
     return this.hospitalService.createInvitation(user.id, body);
   }
 
@@ -81,7 +82,7 @@ export class HospitalController {
   }
 
   @Post('invitations/:id/respond')
-  async respondInvitation(@CurrentUser() user: any, @Param('id') id: string, @Body() body: { accept?: boolean }) {
+  async respondInvitation(@CurrentUser() user: any, @Param('id') id: string, @Body() body: RespondInvitationDto) {
     return this.hospitalService.respondInvitation(user.id, id, !!body?.accept);
   }
 

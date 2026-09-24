@@ -12,6 +12,7 @@ import { Model } from 'mongoose';
 import { JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole, ServiceDomain } from '../../common/enums';
 import { ProviderProfile, ProviderProfileSchema } from '../../schemas/provider-profile.schema';
+import { UpdateSurgeDto } from './business-rules.dto';
 
 export type RuleContext = {
   kind: ServiceDomain;
@@ -173,7 +174,7 @@ export class BusinessRulesController {
 
   @Roles(UserRole.ADMIN)
   @Post('config/surge')
-  updateSurge(@Body() body: any) { return this.svc.updateSurgeConfig(body); }
+  updateSurge(@Body() body: UpdateSurgeDto) { return this.svc.updateSurgeConfig(body); }
 
   @SelfService()
   @Post('validate') validate(@Body() ctx: RuleContext) { return this.svc.validate(ctx); }

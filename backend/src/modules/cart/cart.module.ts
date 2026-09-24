@@ -14,6 +14,7 @@ import { OrdersService } from '../orders/orders.service';
 import { UsersModule } from '../users/users.module';
 import { UsersService } from '../users/users.service';
 import { ProductRankingEventService } from '../product-ranking/product-ranking-event.service';
+import { AddContractItemDto, UpdateContractItemDto, AddDto, UpdDto, ClrDto, CheckoutDto } from './cart.dto';
 
 export type CartLineKind = 'lab' | 'radiology' | 'pharmacy' | 'doctor' | 'home_care';
 
@@ -228,17 +229,17 @@ export class CartController {
   ) {}
   @Get('') get(@CurrentUser() u: any) { return this.svc.get(u); }
   @Post('items') @RequireIdempotency()
-  addContractItem(@Body() b: any, @CurrentUser() u: any) { return this.svc.addContractItem(u, b); }
+  addContractItem(@Body() b: AddContractItemDto, @CurrentUser() u: any) { return this.svc.addContractItem(u, b); }
   @Patch('items/:lineId') @RequireIdempotency()
-  updateContractItem(@Param('lineId') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.updateLine(u, id, { qty: b?.quantity }); }
+  updateContractItem(@Param('lineId') id: string, @Body() b: UpdateContractItemDto, @CurrentUser() u: any) { return this.svc.updateLine(u, id, { qty: b?.quantity }); }
   @Delete('items/:lineId') @RequireIdempotency()
   removeContractItem(@Param('lineId') id: string, @CurrentUser() u: any) { return this.svc.removeLine(u, id); }
-  @Post('lines') add(@Body() b: any, @CurrentUser() u: any) { return this.svc.addLine(u, b); }
-  @Patch('lines/:lineId') upd(@Param('lineId') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.updateLine(u, id, b); }
+  @Post('lines') add(@Body() b: AddDto, @CurrentUser() u: any) { return this.svc.addLine(u, b); }
+  @Patch('lines/:lineId') upd(@Param('lineId') id: string, @Body() b: UpdDto, @CurrentUser() u: any) { return this.svc.updateLine(u, id, b); }
   @Delete('lines/:lineId') rm(@Param('lineId') id: string, @CurrentUser() u: any) { return this.svc.removeLine(u, id); }
-  @Post('clear') clr(@Body() b: any, @CurrentUser() u: any) { return this.svc.clear(u, b?.kind); }
+  @Post('clear') clr(@Body() b: ClrDto, @CurrentUser() u: any) { return this.svc.clear(u, b?.kind); }
   @Post('checkout') @RequireIdempotency()
-  checkout(@Body() b: any, @CurrentUser() u: any) { return this.svc.checkoutContract(u, b); }
+  checkout(@Body() b: CheckoutDto, @CurrentUser() u: any) { return this.svc.checkoutContract(u, b); }
   @Get('checkout') chk(@CurrentUser() u: any) { return this.svc.prepareCheckout(u); }
   @Get('prescription')
   async prescription(@CurrentUser() u: any) {

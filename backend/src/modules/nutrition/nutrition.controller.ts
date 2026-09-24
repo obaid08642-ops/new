@@ -2,6 +2,7 @@ import { Body, Controller, Get, Post, Query, Req, UnauthorizedException, UseGuar
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard, SelfService } from '../../common/auth.guard';
 import { NutritionService } from './nutrition.service';
+import { UpdateProfileDto, LogMealDto, LogExerciseDto, LogWaterDto} from './nutrition.dto';
 
 @ApiTags('Nutrition | التغذية')
 @UseGuards(JwtAuthGuard)
@@ -27,14 +28,14 @@ export class NutritionController {
 
   @ApiOperation({ summary: 'Update nutrition profile | تحديث الملف الغذائي' })
   @Post('profile')
-  updateProfile(@Req() req: any, @Body() body: any) {
+  updateProfile(@Req() req: any, @Body() body: UpdateProfileDto) {
     return this.nutritionService.updateProfile(this.authenticatedPatientId(req), body);
   }
 
   /* ───────── Meals ───────── */
   @ApiOperation({ summary: 'Log a meal | تسجيل وجبة' })
   @Post('meals')
-  logMeal(@Req() req: any, @Body() body: any) {
+  logMeal(@Req() req: any, @Body() body: LogMealDto) {
     return this.nutritionService.logMeal(this.authenticatedPatientId(req), body);
   }
 
@@ -54,7 +55,7 @@ export class NutritionController {
   /* ───────── Water ───────── */
   @ApiOperation({ summary: 'Log water intake | تسجيل شرب الماء' })
   @Post('water')
-  logWater(@Req() req: any, @Body() body: { amount_ml: number }) {
+  logWater(@Req() req: any, @Body() body: LogWaterDto) {
     return this.nutritionService.logWater(this.authenticatedPatientId(req), body.amount_ml);
   }
 
@@ -67,7 +68,7 @@ export class NutritionController {
   /* ───────── Exercise ───────── */
   @ApiOperation({ summary: 'Log exercise | تسجيل تمرين' })
   @Post('exercise')
-  logExercise(@Req() req: any, @Body() body: any) {
+  logExercise(@Req() req: any, @Body() body: LogExerciseDto) {
     return this.nutritionService.logExercise(this.authenticatedPatientId(req), body);
   }
 

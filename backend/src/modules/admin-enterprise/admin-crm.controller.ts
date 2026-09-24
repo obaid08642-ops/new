@@ -7,6 +7,7 @@ import { UserRole } from '../../common/enums';
 import { AdminAuditService } from './audit.service';
 import { ORDER_KINDS } from './orders-console.service';
 import { validateReason, ReasonError } from '../../common/rbac';
+import { CreateRequestDto } from './admin-crm.dto';
 
 /**
  * A4 — CRM 360: one drill-down per patient (bookings across all verticals,
@@ -149,7 +150,7 @@ export class AdminGdprController {
 
   @Post('requests')
   @RequirePermissions(Permission.GDPR_MANAGE)
-  async createRequest(@Body() b: any, @CurrentUser() me: any) {
+  async createRequest(@Body() b: CreateRequestDto, @CurrentUser() me: any) {
     const userId = String(b?.user_id || '').trim();
     const type = String(b?.type || '');
     if (!userId) throw new BadRequestException('user_id_required');

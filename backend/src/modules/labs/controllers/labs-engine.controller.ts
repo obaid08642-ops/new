@@ -5,6 +5,7 @@ import { LabBooking } from '../schemas/lab-booking.schema';
 import { LabCatalog } from '../schemas/lab-catalog.schema';
 import { Roles } from '../../../common/auth.guard';
 import { UserRole } from '../../../common/enums';
+import { RespondToBookingDto, CollectSampleDto, FinalizeTestDto, UpdateCatalogDto } from './labs-engine.dto';
 
 @Controller('labs/bookings')
 @Roles(UserRole.LAB, UserRole.HOSPITAL, UserRole.ADMIN)
@@ -26,7 +27,7 @@ export class LabsEngineController {
   @Post(':id/respond')
   async respondToBooking(
     @Param('id') bookingId: string,
-    @Body() body: { accept: boolean; lab_id: string }
+    @Body() body: RespondToBookingDto
   ) {
     const { accept, lab_id } = body;
     const newStatus = accept ? 'ACCEPTED' : 'CANCELLED';
@@ -46,7 +47,7 @@ export class LabsEngineController {
   @HttpCode(HttpStatus.OK)
   async collectSample(
     @Param('id') bookingId: string,
-    @Body() body: { barcodeToken: string }
+    @Body() body: CollectSampleDto
   ) {
     const { barcodeToken } = body;
 
@@ -73,7 +74,7 @@ export class LabsEngineController {
   @Post('finalize-test/:id')
   async finalizeTest(
     @Param('id') bookingId: string,
-    @Body() body: { metricResults: any[]; pdfUrl: string }
+    @Body() body: FinalizeTestDto
   ) {
     const { metricResults, pdfUrl } = body;
 
@@ -108,7 +109,7 @@ export class LabsEngineController {
 
   @Post('catalog')
   async updateCatalog(
-    @Body() body: { lab_id: string; test_code: string; test_name_ar: string; test_name_en: string; in_lab_price: number; home_collection_price: number; accepts_insurance: boolean; reference_ranges: any[] }
+    @Body() body: UpdateCatalogDto
   ) {
     const { lab_id, test_code, ...updateData } = body;
     if (!lab_id || !test_code) throw new BadRequestException('lab_id and test_code are required');

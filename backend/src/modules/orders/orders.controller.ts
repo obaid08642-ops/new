@@ -4,6 +4,7 @@ import { CurrentUser, JwtAuthGuard, Roles, SelfService } from '../../common/auth
 import { RequireIdempotency } from '../../common/idempotency.interceptor';
 import { OrderState, UserRole, DeliveryState } from '../../common/enums';
 import { CreateOrderDto } from './dto/create-order.dto';
+import { ReorderPartialDto, CancelDto, RejectBasketDto, OptInCashDto, UpdateInsuranceApprovalDto, RejectDto, PartialDto, PlaceBidDto, AssignDto, DeliveryUpdateDto, AdminTransitionDto} from './orders.dto';
 
 @Controller('orders')
 @SelfService()
@@ -32,13 +33,13 @@ export class OrdersController {
 
   @Post(':id/reorder-partial')
   @RequireIdempotency()
-  reorderPartial(@Param('id') id: string, @CurrentUser() user: any, @Body() body: any) {
+  reorderPartial(@Param('id') id: string, @CurrentUser() user: any, @Body() body: ReorderPartialDto) {
     return this.svc.reorderPartial(id, user, body);
   }
 
   @Post(':id/cancel')
   @RequireIdempotency()
-  cancel(@Param('id') id: string, @CurrentUser() user: any, @Body() body: any) {
+  cancel(@Param('id') id: string, @CurrentUser() user: any, @Body() body: CancelDto) {
     return this.svc.cancel(id, user, body?.reason || 'patient-cancel');
   }
 
@@ -48,7 +49,7 @@ export class OrdersController {
     return this.svc.patientApproveBasket(user, id);
   }
   @Post(':id/reject-basket')
-  rejectBasket(@Param('id') id: string, @CurrentUser() user: any, @Body() body: any) {
+  rejectBasket(@Param('id') id: string, @CurrentUser() user: any, @Body() body: RejectBasketDto) {
     return this.svc.patientRejectBasket(user, id, body?.reason);
   }
 
@@ -78,7 +79,7 @@ export class OrdersController {
   }
 
   @Patch(':id/items/:itemId/opt-in-cash')
-  optInCash(@Param('id') id: string, @Param('itemId') itemId: string, @Body() body: any, @CurrentUser() user: any) {
+  optInCash(@Param('id') id: string, @Param('itemId') itemId: string, @Body() body: OptInCashDto, @CurrentUser() user: any) {
     return this.svc.optInCash(id, itemId, body, user);
   }
 
@@ -86,7 +87,7 @@ export class OrdersController {
 
   @Patch(':id/insurance-approval')
   @Roles(UserRole.LAB, UserRole.PHARMACY, UserRole.HOSPITAL, UserRole.RADIOLOGY, UserRole.ADMIN)
-  updateInsuranceApproval(@Param('id') id: string, @Body() body: any, @CurrentUser() user: any) {
+  updateInsuranceApproval(@Param('id') id: string, @Body() body: UpdateInsuranceApprovalDto, @CurrentUser() user: any) {
     return this.svc.updateInsuranceApproval(id, body, user);
   }
 
@@ -98,7 +99,7 @@ export class OrdersController {
 
   @Post(':id/reject')
   @Roles(UserRole.PHARMACY, UserRole.ADMIN)
-  reject(@Param('id') id: string, @CurrentUser() user: any, @Body() body: any) {
+  reject(@Param('id') id: string, @CurrentUser() user: any, @Body() body: RejectDto) {
     return this.svc.reject(id, user, body?.reason || 'no-reason');
   }
 
@@ -116,20 +117,20 @@ export class OrdersController {
 
   @Post(':id/partial')
   @Roles(UserRole.PHARMACY, UserRole.ADMIN)
-  partial(@Param('id') id: string, @CurrentUser() user: any, @Body() body: any) {
+  partial(@Param('id') id: string, @CurrentUser() user: any, @Body() body: PartialDto) {
     return this.svc.markPartial(id, user, body.unavailable_medicine_ids || []);
   }
 
   // Delivery / Admin
   @Post(':id/assign-delivery')
   @Roles(UserRole.PHARMACY, UserRole.ADMIN, UserRole.DELIVERY)
-  assign(@Param('id') id: string, @CurrentUser() user: any, @Body() body: { driver_id: string }) {
+  assign(@Param('id') id: string, @CurrentUser() user: any, @Body() body: AssignDto) {
     return this.svc.assignDelivery(id, body.driver_id, user);
   }
 
   @Post(':id/delivery/update')
   @Roles(UserRole.DELIVERY, UserRole.ADMIN)
-  deliveryUpdate(@Param('id') id: string, @Body() body: { state: DeliveryState; location?: any }) {
+  deliveryUpdate(@Param('id') id: string, @Body() body: DeliveryUpdateDto) {
     return this.svc.updateDelivery(id, body.state, body.location);
   }
 
@@ -160,13 +161,13 @@ export class OrdersController {
 
   @Post(':id/admin/transition')
   @Roles(UserRole.ADMIN)
-  adminTransition(@Param('id') id: string, @CurrentUser() user: any, @Body() body: { to: OrderState; reason?: string }) {
+  adminTransition(@Param('id') id: string, @CurrentUser() user: any, @Body() body: AdminTransitionDto) {
     return this.svc.transition(id, body.to, user, body.reason);
   }
 
   @Post('bids/place')
   @Roles(UserRole.PHARMACY, UserRole.ADMIN)
-  placeBid(@CurrentUser() user: any, @Body() b: any) {
+  placeBid(@CurrentUser() user: any, @Body() b: PlaceBidDto) {
     return this.svc.placeBid(user, b);
   }
 

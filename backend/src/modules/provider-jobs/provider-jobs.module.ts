@@ -19,6 +19,7 @@ import { User, UserSchema } from '../../schemas/user.schema';
 import { BookingAttachmentSchema } from '../booking-ops/booking-ops.module';
 import { ServiceState, ServiceDomain, UserRole } from '../../common/enums';
 import { toUniversal, domainStatesFor, WorkflowEngineService, WorkflowEngineModule } from '../workflow-engine/workflow-engine.module';
+import { AcceptDto, RejectDto, StartDto, CompleteDto, InsuranceDto } from './provider-jobs.dto';
 
 type JobStatus = 'incoming' | 'active' | 'completed';
 
@@ -261,11 +262,11 @@ export class ProviderJobsController {
     const set = await (this.svc as any).allowedKindsFor(u);
     return { role: u.role, capabilities: Array.from(set) };
   }
-  @Post(':type/:id/accept') accept(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Body() b: any) { return this.svc.accept(u, t, id, b?.reason); }
-  @Post(':type/:id/reject') reject(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Body() b: any) { return this.svc.reject(u, t, id, b?.reason); }
-  @Post(':type/:id/start') start(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Body() b: any) { return this.svc.start(u, t, id, b?.reason); }
-  @Post(':type/:id/complete') complete(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Body() b: any) { return this.svc.complete(u, t, id, b?.reason); }
-  @Post(':type/:id/insurance') insurance(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Body() b: any) { return this.svc.updateInsurance(u, t, id, b); }
+  @Post(':type/:id/accept') accept(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Body() b: AcceptDto) { return this.svc.accept(u, t, id, b?.reason); }
+  @Post(':type/:id/reject') reject(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Body() b: RejectDto) { return this.svc.reject(u, t, id, b?.reason); }
+  @Post(':type/:id/start') start(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Body() b: StartDto) { return this.svc.start(u, t, id, b?.reason); }
+  @Post(':type/:id/complete') complete(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Body() b: CompleteDto) { return this.svc.complete(u, t, id, b?.reason); }
+  @Post(':type/:id/insurance') insurance(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Body() b: InsuranceDto) { return this.svc.updateInsurance(u, t, id, b); }
 }
 
 @Module({

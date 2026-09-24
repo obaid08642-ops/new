@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { JwtAuthGuard, CurrentUser, SelfService } from '../../common/auth.guard';
 import { IdempotencyInterceptor, RequireIdempotency } from '../../common/idempotency.interceptor';
 import { UseInterceptors } from '@nestjs/common';
+import { CompleteDto } from './medical-programs.dto';
 
 @Schema({ timestamps: true, collection: 'medical_program_enrollments' })
 export class MedicalProgramEnrollment {
@@ -82,7 +83,7 @@ export class MedicalProgramsController {
 
   @RequireIdempotency()
   @Post('complete-session')
-  complete(@CurrentUser() user: any, @Body() body: any) { return this.svc.completeSession(user, body); }
+  complete(@CurrentUser() user: any, @Body() body: CompleteDto) { return this.svc.completeSession(user, body); }
 }
 
 @Module({

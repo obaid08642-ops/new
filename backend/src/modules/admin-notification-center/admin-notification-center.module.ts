@@ -16,6 +16,7 @@ import {
   Module, Injectable, Controller, Post, Get, Delete, Body, Param, Query,
   UseGuards, Logger, NotFoundException, BadRequestException,
 } from '@nestjs/common';
+import { BroadcastDto, CreateCampaignDto } from './admin-notification-center.dto';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
@@ -403,11 +404,11 @@ export class AdminNotificationCenterController {
 
   /** Immediate broadcast to a segment */
   @Post('broadcasts')
-  broadcast(@CurrentUser() admin: any, @Body() body: any) { return this.svc.broadcast(String(admin?.id), body); }
+  broadcast(@CurrentUser() admin: any, @Body() body: BroadcastDto) { return this.svc.broadcast(String(admin?.id), body); }
 
   /** Create campaign (draft or scheduled when scheduled_at provided) */
   @Post('campaigns')
-  createCampaign(@CurrentUser() admin: any, @Body() body: any) { return this.svc.createCampaign(String(admin?.id), body); }
+  createCampaign(@CurrentUser() admin: any, @Body() body: CreateCampaignDto) { return this.svc.createCampaign(String(admin?.id), body); }
 
   /** List campaigns (paginated) */
   @Get('campaigns')

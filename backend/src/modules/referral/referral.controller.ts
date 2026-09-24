@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Body, Req, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard, NoGuestsGuard, SelfService } from '../../common/auth.guard';
 import { ReferralService } from './referral.service';
+import { ApplyDto } from './referral.dto';
 
 /**
  * Patient referral program endpoints.
@@ -21,7 +22,7 @@ export class ReferralController {
 
   /** POST /api/v1/referrals/apply — apply someone's referral code (new users) */
   @Post('apply')
-  apply(@Req() req: any, @Body() body: { code: string }) {
+  apply(@Req() req: any, @Body() body: ApplyDto) {
     return this.svc.apply(req.user?.id, body?.code);
   }
 }

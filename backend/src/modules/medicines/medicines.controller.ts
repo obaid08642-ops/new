@@ -3,6 +3,7 @@ import { MedicinesService } from './medicines.service';
 import { CurrentUser, JwtAuthGuard, Public, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { Permission, RequirePermissions } from '../../common/permissions';
+import { SuggestChangeDto, SuggestNewItemDto, AdminUpdateCatalogDto, AdminCreateDto, LookupBarcodeDto, CompareDto, ReportShortageDto, RejectShortageDto, SetAvailabilityDto, SuggestImageDto, RejectImageDto, RejectChangeDto, AdminDeleteDto, ImportJsonDto, ImportCsvDto} from './medicines.dto';
 
 @Controller('medicines')
 @Roles(UserRole.ADMIN)
@@ -53,7 +54,7 @@ export class MedicinesController {
 
   @Public()
   @Post('lookup-barcode')
-  lookupBarcode(@Body() body: { code: string }) {
+  lookupBarcode(@Body() body: LookupBarcodeDto) {
     return this.svc.byBarcode(body?.code || '');
   }
 
@@ -77,7 +78,7 @@ export class MedicinesController {
 
   @Public()
   @Post('compare')
-  compare(@Body() body: { ids: string[] }) {
+  compare(@Body() body: CompareDto) {
     return this.svc.compare(body?.ids || []);
   }
 
@@ -120,7 +121,7 @@ export class MedicinesController {
 
   /** Provider reports a shortage — badge stays hidden until admin approval */
   @Post(':id/report-shortage')
-  reportShortage(@Param('id') id: string, @CurrentUser() user: any, @Body() body: { note?: string; quantity_available?: number }) {
+  reportShortage(@Param('id') id: string, @CurrentUser() user: any, @Body() body: ReportShortageDto) {
     return this.svc.reportShortage(id, user, body || {});
   }
 
@@ -144,7 +145,7 @@ export class MedicinesController {
   @Post('admin/shortage-reports/:reportId/reject')
   @Roles(UserRole.ADMIN)
   @RequirePermissions(Permission.CATALOG_SHORTAGE_DECIDE)
-  rejectShortage(@Param('reportId') reportId: string, @CurrentUser('id') by: string, @Body() body: { reason?: string }) {
+  rejectShortage(@Param('reportId') reportId: string, @CurrentUser('id') by: string, @Body() body: RejectShortageDto) {
     return this.svc.rejectShortageReport(reportId, by, body?.reason);
   }
 
@@ -160,7 +161,7 @@ export class MedicinesController {
   @Post('admin/catalog/:id/availability')
   @Roles(UserRole.ADMIN)
   @RequirePermissions(Permission.CATALOG_SHORTAGE_DECIDE)
-  setAvailability(@Param('id') id: string, @CurrentUser('id') by: string, @Body() body: { status: string }) {
+  setAvailability(@Param('id') id: string, @CurrentUser('id') by: string, @Body() body: SetAvailabilityDto) {
     return this.svc.setAvailability(id, by, body?.status);
   }
 
@@ -168,7 +169,7 @@ export class MedicinesController {
   // @Public(): unregistered visitors may suggest images too (guest reporter).
   @Public()
   @Post(':id/suggest-image')
-  suggestImage(@Param('id') id: string, @CurrentUser() user: any, @Body() body: { storage_id?: string; image_url?: string; note?: string }) {
+  suggestImage(@Param('id') id: string, @CurrentUser() user: any, @Body() body: SuggestImageDto) {
     return this.svc.suggestImage(id, user || { id: 'guest', role: 'guest' }, body || {});
   }
 
@@ -189,21 +190,21 @@ export class MedicinesController {
   /** Admin: reject image suggestion */
   @Post('admin/image-suggestions/:suggestionId/reject')
   @Roles(UserRole.ADMIN)
-  rejectImage(@Param('suggestionId') suggestionId: string, @CurrentUser('id') by: string, @Body() body: { reason?: string }) {
+  rejectImage(@Param('suggestionId') suggestionId: string, @CurrentUser('id') by: string, @Body() body: RejectImageDto) {
     return this.svc.rejectImageSuggestion(suggestionId, by, body?.reason);
   }
 
   /** Anyone (incl. unregistered visitors): propose a change to a catalog item ("اقتراح تعديل") */
   @Public()
   @Post(':id/suggest-change')
-  suggestChange(@Param('id') id: string, @CurrentUser() user: any, @Body() body: any) {
+  suggestChange(@Param('id') id: string, @CurrentUser() user: any, @Body() body: SuggestChangeDto) {
     return this.svc.suggestChange(id, user || { id: 'guest', role: 'guest' }, body || {});
   }
 
   /** Anyone (incl. guests): propose a new catalog item that doesn't exist */
   @Public()
   @Post('suggest-new-item')
-  suggestNewItem(@CurrentUser() user: any, @Body() body: any) {
+  suggestNewItem(@CurrentUser() user: any, @Body() body: SuggestNewItemDto) {
     return this.svc.suggestNewItem(user || { id: 'guest', role: 'guest' }, body || {});
   }
 
@@ -224,7 +225,7 @@ export class MedicinesController {
   /** Admin: reject with reason */
   @Post('admin/change-requests/:requestId/reject')
   @Roles(UserRole.ADMIN)
-  rejectChange(@Param('requestId') requestId: string, @CurrentUser('id') by: string, @Body() body: { reason?: string }) {
+  rejectChange(@Param('requestId') requestId: string, @CurrentUser('id') by: string, @Body() body: RejectChangeDto) {
     return this.svc.rejectChangeRequest(requestId, by, body?.reason);
   }
 
@@ -232,7 +233,7 @@ export class MedicinesController {
   @Patch('admin/catalog/:id')
   @Roles(UserRole.ADMIN)
   @RequirePermissions(Permission.CATALOG_UPDATE, Permission.CATALOG_PRICE_WRITE)
-  adminUpdateCatalog(@Param('id') id: string, @Body() body: any, @CurrentUser('id') by: string) {
+  adminUpdateCatalog(@Param('id') id: string, @Body() body: AdminUpdateCatalogDto, @CurrentUser('id') by: string) {
     return this.svc.adminUpdateCatalog(id, body || {}, by);
   }
 
@@ -258,7 +259,7 @@ export class MedicinesController {
   @Post('admin/catalog')
   @Roles(UserRole.ADMIN)
   @RequirePermissions(Permission.CATALOG_CREATE)
-  adminCreate(@Body() body: any, @CurrentUser('id') by: string) {
+  adminCreate(@Body() body: AdminCreateDto, @CurrentUser('id') by: string) {
     return this.svc.adminCreateCatalog(body || {}, by);
   }
 
@@ -266,7 +267,7 @@ export class MedicinesController {
   @Post('admin/catalog/:id/delete')
   @Roles(UserRole.ADMIN)
   @RequirePermissions(Permission.CATALOG_DELETE_RESTORE)
-  adminDelete(@Param('id') id: string, @Body() body: { restore?: boolean }, @CurrentUser('id') by: string) {
+  adminDelete(@Param('id') id: string, @Body() body: AdminDeleteDto, @CurrentUser('id') by: string) {
     return this.svc.adminSetDeleted(id, !body?.restore, by);
   }
 
@@ -419,14 +420,14 @@ export class MedicinesController {
   @Post('admin/import-json')
   @Roles(UserRole.ADMIN)
   @RequirePermissions(Permission.CATALOG_IMPORT)
-  importJson(@Body() body: { rows: any[]; auto_approve?: boolean }, @CurrentUser('id') by: string) {
+  importJson(@Body() body: ImportJsonDto, @CurrentUser('id') by: string) {
     return this.svc.bulkImport(body.rows || [], by, 'admin', !!body.auto_approve);
   }
 
   @Post('admin/import-csv')
   @Roles(UserRole.ADMIN)
   @RequirePermissions(Permission.CATALOG_IMPORT)
-  importCsv(@Body() body: { csv: string; auto_approve?: boolean }, @CurrentUser('id') by: string) {
+  importCsv(@Body() body: ImportCsvDto, @CurrentUser('id') by: string) {
     const rows = this.svc.parseCsv(body.csv || '');
     return this.svc.bulkImport(rows, by, 'admin', !!body.auto_approve);
   }
