@@ -4,6 +4,7 @@ import { useTheme, useLang, useToast } from '../../context';
 import { NHeader, NCard, NBtn, NInput, NBadge, NScroll, NEmpty } from '../../components/ui';
 import { SP, FS, FW, R } from '../../constants';
 import client from '../../api/client';
+import { ProviderApi } from '../../api/provider';
 
 // 1. REVIEWS AND RATINGS SCREEN
 export function ReviewsAndRatingsScreen({ onBack }: { onBack: () => void }) {
@@ -243,7 +244,7 @@ export function SecurityManagementScreen({ onBack }: { onBack: () => void }) {
       return;
     }
     try {
-      await client.post('/users/me/change-password', { oldPassword, newPassword });
+      await ProviderApi.changePassword(oldPassword, newPassword);
       show(AR ? 'تم تغيير كلمة المرور بنجاح' : 'Password changed successfully', 'success');
       setOldPassword(''); setNewPassword('');
     } catch (e) {

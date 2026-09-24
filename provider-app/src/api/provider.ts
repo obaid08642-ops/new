@@ -47,6 +47,26 @@ export const ProviderApi = {
     return res.data;
   },
 
+  /** P3.0b: change password (verified and stored on the linked users row).
+   * The server ends every other session and returns a fresh provider session
+   * for this device — store it, or the next request 401s. */
+  async changePassword(currentPassword: string, newPassword: string) {
+    const res = await client.post('/provider/auth/change-password', {
+      current_password: currentPassword,
+      new_password: newPassword,
+    });
+    if (res.data?.access_token) {
+      await Tokens.save(
+        res.data.access_token,
+        res.data.refresh_token || '',
+        res.data.session_id || '',
+        res.data.provider_id || '',
+        res.data.provider_type || 'doctor'
+      );
+    }
+    return res.data;
+  },
+
   /** Utility: Convert local URI to base64 and upload to Storage service */
   async uploadFile(uri: string, mimeType: string, originalName: string = 'file') {
     try {

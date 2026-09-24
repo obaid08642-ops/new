@@ -186,8 +186,9 @@ export class HospitalService {
       userObjectId = createdUser._id;
       if (clinical) {
         const accId = randomUUID();
+        // P3.0b: link to the login identity; the credential stays on users.
         await db.collection('provider_accounts').insertOne({
-          id: accId, email, password_hash, provider_type: clinical.ptype,
+          id: accId, user_id: createdUser.id, email, provider_type: clinical.ptype,
           status: 'email_verified', email_verified: true,
           status_history: [{ from: '', to: 'email_verified', by_user_id: hospitalId, by_role: 'facility', at: new Date() }],
           createdAt: new Date(), updatedAt: new Date(),
