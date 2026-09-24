@@ -1,4 +1,4 @@
-import { Module, Injectable, Controller, Post, Get, Body, Param, Logger, BadRequestException, BadGatewayException, NotFoundException, UseGuards, UseInterceptors, Req, HttpCode, Headers } from '@nestjs/common';
+import { Module, Injectable, Controller, Post, Get, Body, Param, Logger, BadRequestException, BadGatewayException, NotFoundException, ServiceUnavailableException, UseGuards, UseInterceptors, Req, HttpCode, Headers } from '@nestjs/common';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -21,11 +21,12 @@ import { Request } from 'express';
 /**
  * PAYMENT GATEWAY ADAPTERS — additive layer, never bypasses WorkflowEngine.
  * Real API calls require STRIPE_SECRET_KEY / TAP_API_KEY / MOYASAR_API_KEY.
- * When no key is provided, it will throw an error immediately.
- * exercises the full state lifecycle so the rest of the app behaves correctly.
+ * When no key is provided, selectAdapter() returns a DisabledGatewayAdapter
+ * whose every method throws 503 payment_gateway_not_configured, so the app
+ * boots normally and payment endpoints fail closed with a clear code.
  */
 interface GatewayAdapter {
-  name: 'stripe' | 'tap' | 'moyasar';
+  name: 'stripe' | 'tap' | 'moyasar' | 'disabled';
   createIntent(opts: { amount: number; currency: string; description: string; metadata: any }): Promise<{ intent_id: string; client_secret?: string; checkout_url?: string }>;
   verify(intentId: string): Promise<{ status: 'paid' | 'pending' | 'failed' | 'cancelled'; charge_id?: string; raw?: any }>;
   refund(chargeId: string, amount?: number): Promise<{ refunded: boolean; raw?: any }>;
@@ -35,7 +36,25 @@ function selectAdapter(): GatewayAdapter {
   if (process.env.STRIPE_SECRET_KEY) return new StripeAdapter();
   if (process.env.TAP_API_KEY) return new TapAdapter();
   if (process.env.MOYASAR_API_KEY) return new MoyasarAdapter();
-  throw new Error('NO_PAYMENT_GATEWAY_CONFIGURED');
+  return new DisabledGatewayAdapter();
+}
+
+/**
+ * Fail-closed adapter used when no payment gateway key is configured.
+ * Lets the application boot; every gateway operation throws 503 with the
+ * payment_gateway_not_configured code instead of crashing the process.
+ */
+class DisabledGatewayAdapter implements GatewayAdapter {
+  name = 'disabled' as const;
+  async createIntent(_opts: { amount: number; currency: string; description: string; metadata: any }): Promise<{ intent_id: string; client_secret?: string; checkout_url?: string }> {
+    throw new ServiceUnavailableException('payment_gateway_not_configured');
+  }
+  async verify(_intentId: string): Promise<{ status: 'paid' | 'pending' | 'failed' | 'cancelled'; charge_id?: string; raw?: any }> {
+    throw new ServiceUnavailableException('payment_gateway_not_configured');
+  }
+  async refund(_chargeId: string, _amount?: number): Promise<{ refunded: boolean; raw?: any }> {
+    throw new ServiceUnavailableException('payment_gateway_not_configured');
+  }
 }
 
 
@@ -136,7 +155,14 @@ export class PaymentsService {
     private events: EventEmitter2,
     private realtime: RealtimeService,
     private readonly fraud: FraudService,
-  ) { this.adapter = selectAdapter(); this.logger.log(`Payment adapter: ${this.adapter.name}`); }
+  ) {
+    this.adapter = selectAdapter();
+    if (this.adapter.name === 'disabled') {
+      this.logger.warn('No payment gateway configured (STRIPE_SECRET_KEY/TAP_API_KEY/MOYASAR_API_KEY all unset) — payment endpoints will return 503 payment_gateway_not_configured');
+    } else {
+      this.logger.log(`Payment adapter: ${this.adapter.name}`);
+    }
+  }
 
   private modelFor(k: string): Model<any> {
     const kind = normalizeKind(k);
@@ -333,6 +359,12 @@ export class PaymentsService {
     try {
       intent = await this.adapter.createIntent({ amount, currency: 'SAR', description: `Nabd ${kind} #${id.slice(0, 8)}`, metadata: { booking_id: id, kind } });
     } catch (error: any) {
+      // Fail-closed gateway (no keys configured) must surface as 503, not 502:
+      // mark the reservation failed and rethrow the original 503.
+      if (error instanceof ServiceUnavailableException) {
+        await this.txns.updateOne({ id: txn.id }, { $set: { status: 'failed', failure_reason: 'payment_gateway_not_configured' } });
+        throw error;
+      }
       // Never expose raw PSP responses or credentials to clients. Keep the detail in server logs for operations.
       const reason = error instanceof Error ? error.message : String(error);
       this.logger.error(`Payment gateway intent failed adapter=${this.adapter.name} booking=${id} reason=${reason}`);
