@@ -21,6 +21,16 @@ export const PUBLIC_KEY = 'isPublic';
 export const Public = () => SetMetadata(PUBLIC_KEY, true);
 export const ROLES_KEY = 'roles';
 export const Roles = (...roles: Array<UserRole | string>) => SetMetadata(ROLES_KEY, roles);
+/**
+ * Marks an endpoint as self-service: the authenticated actor operates only on
+ * their own resources (patient creating their own order, provider updating
+ * their own profile, etc.). Unlike @Public(), it still requires a valid JWT;
+ * unlike @Roles(), it does not restrict to a fixed role set. Ownership itself
+ * is enforced at the service layer (owner checks) — this decorator is the
+ * explicit declaration that satisfies the deny-by-default write guard.
+ */
+export const SELF_SERVICE_KEY = 'isSelfService';
+export const SelfService = () => SetMetadata(SELF_SERVICE_KEY, true);
 
 const PENDING_PROVIDER_ONBOARDING_PATH = /^\/api\/v1\/provider-onboarding\/(my-profile|step2|step3|submit|progress|contract)$/;
 
