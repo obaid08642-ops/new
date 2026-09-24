@@ -31,29 +31,45 @@ export class NabdExtensionsController {
   @Roles(UserRole.ADMIN)
   @Post('wallet/credit')
   async creditWallet(@CurrentUser() user: any, @Body() body: any) {
-    return this.svc.processWalletTransaction({
+    const ownerType = user.role !== UserRole.PATIENT ? 'provider' : 'patient';
+    const res = await this.svc.processWalletTransaction({
       ownerId: user.id,
-      ownerType: user.role !== UserRole.PATIENT ? 'provider' : 'patient',
+      ownerType,
       amount: body.amount,
       type: 'credit',
       referenceType: body.referenceType || 'booking',
       referenceId: body.referenceId || 'manual',
       description: body.description || 'Manual Wallet Credit',
     });
+    await this.svc.auditAdminWalletAdjustment(user, {
+      ownerId: user.id, ownerType,
+      amount: body.amount, type: 'credit',
+      referenceType: body.referenceType, referenceId: body.referenceId,
+      description: body.description,
+    });
+    return res;
   }
 
   @Roles(UserRole.ADMIN)
   @Post('wallet/debit')
   async debitWallet(@CurrentUser() user: any, @Body() body: any) {
-    return this.svc.processWalletTransaction({
+    const ownerType = user.role !== UserRole.PATIENT ? 'provider' : 'patient';
+    const res = await this.svc.processWalletTransaction({
       ownerId: user.id,
-      ownerType: user.role !== UserRole.PATIENT ? 'provider' : 'patient',
+      ownerType,
       amount: body.amount,
       type: 'debit',
       referenceType: body.referenceType || 'booking',
       referenceId: body.referenceId || 'manual',
       description: body.description || 'Manual Wallet Debit',
     });
+    await this.svc.auditAdminWalletAdjustment(user, {
+      ownerId: user.id, ownerType,
+      amount: body.amount, type: 'debit',
+      referenceType: body.referenceType, referenceId: body.referenceId,
+      description: body.description,
+    });
+    return res;
   }
 
   @SelfService()

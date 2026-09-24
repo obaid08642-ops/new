@@ -1,5 +1,6 @@
 import { Injectable, Logger, NotFoundException, BadRequestException, Inject } from '@nestjs/common';
-import { Model } from 'mongoose';
+import { InjectConnection } from '@nestjs/mongoose';
+import { Model, Connection } from 'mongoose';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Cron } from '@nestjs/schedule';
 import { JwtService } from '@nestjs/jwt';
@@ -67,11 +68,38 @@ export class NabdExtensionsService {
 
     private readonly notificationsService: NotificationsService,
     private readonly jwtService: JwtService,
+    @InjectConnection() private readonly conn: Connection,
   ) {}
 
   // ==========================================
   // MODULE 1: EVENT BUS, OPERATIONS & CORE
   // ==========================================
+
+  /**
+   * F01: every manual wallet credit/debit by an admin writes an audit entry
+   * (actor, target, amount, direction, reference) to the unified audit log.
+   */
+  async auditAdminWalletAdjustment(actor: any, entry: {
+    ownerId: string; ownerType: string; amount: number; type: 'credit' | 'debit';
+    referenceType?: string; referenceId?: string; description?: string;
+  }): Promise<void> {
+    const now = new Date();
+    await this.conn.collection('audit_logs').insertOne({
+      id: `wallet_${entry.type}_${Date.now()}_${Math.floor(Math.random() * 1e6)}`,
+      action: `wallet_${entry.type}`,
+      resource_kind: 'wallet',
+      resource_id: `${entry.ownerType}:${entry.ownerId}`,
+      actor_account_id: actor?.id,
+      actor_role: actor?.role,
+      purpose: 'manual_wallet_adjustment',
+      metadata: {
+        owner_id: entry.ownerId, owner_type: entry.ownerType, amount: entry.amount,
+        reference_type: entry.referenceType, reference_id: entry.referenceId,
+        description: entry.description,
+      },
+      createdAt: now,
+    }).catch((e: any) => this.logger.warn(`wallet audit write failed: ${e?.message}`));
+  }
 
   async logActivity(eventType: string, userId?: string, providerId?: string, metadata: Record<string, any> = {}) {
     return this.activityModel.create({
