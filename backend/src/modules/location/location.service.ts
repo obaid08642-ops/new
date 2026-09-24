@@ -21,17 +21,21 @@ export class LocationService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    await this.seedInitialLocations();
+    setImmediate(() =>
+      this.seedInitialLocations().catch((e: any) =>
+        this.logger.warn(`Background location seed failed: ${e?.message}`),
+      ),
+    );
   }
 
   async seedInitialLocations(): Promise<void> {
     try {
-      // Always upsert — ensures new cities/districts (150/2000) are added on every deploy
+      // Insert-only: never overwrite admin edits
       this.logger.log(`Upserting ${SAUDI_LOCATIONS_SEED.length} Saudi locations (central geo)...`);
       for (const loc of SAUDI_LOCATIONS_SEED) {
         await this.locationModel.updateOne(
           { code: loc.code },
-          { $set: loc },
+          { $setOnInsert: loc },
           { upsert: true },
         );
       }
@@ -68,7 +72,7 @@ export class LocationService implements OnModuleInit {
     for (const loc of locations) {
       await this.locationModel.updateOne(
         { code: loc.code },
-        { $set: loc },
+        { $setOnInsert: loc },
         { upsert: true },
       );
       count++;

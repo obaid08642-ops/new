@@ -11,6 +11,7 @@ import { InsuranceNetworkContract, InsuranceNetworkContractSchema } from './insu
 @Schema({ timestamps: true, collection: 'facilities' })
 export class Facility {
   @Prop({ default: () => uuid() }) id: string;
+  @Prop({ unique: true, sparse: true, index: true }) slug?: string;
   @Prop({ index: true }) parent_facility_id?: string; // Multi-tenant parent hospital/clinic mapping
   @Prop({ required: true }) name_ar: string;
   @Prop() name_en?: string;

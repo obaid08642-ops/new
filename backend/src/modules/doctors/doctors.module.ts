@@ -41,12 +41,26 @@ export class DoctorsService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    // Demo doctors are seeded ONLY when explicitly enabled — never in production,
-    // where they would appear to patients without any admin review.
+    // Demo doctors are seeded ONLY when explicitly enabled — never in production.
+    // Run in background so boot is never blocked; use $setOnInsert to honor admin edits.
     if (process.env.SEED_DEMO_DATA !== 'true') return;
+    setImmediate(() =>
+      this.seedDemoDoctors().catch(() => null),
+    );
+  }
+
+  private async seedDemoDoctors() {
     const count = await this.doctors.countDocuments();
     if (count === 0) {
-      for (const d of SEED_DOCTORS) await this.doctors.create({ ...d, weekly_schedule: DEFAULT_SCHEDULE });
+      for (const d of SEED_DOCTORS) {
+        await this.doctors
+          .updateOne(
+            { name_en: (d as any).name_en, specialty: (d as any).specialty },
+            { $setOnInsert: { ...d, weekly_schedule: DEFAULT_SCHEDULE } },
+            { upsert: true },
+          )
+          .catch(() => null);
+      }
     }
   }
 

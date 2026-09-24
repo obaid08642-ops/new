@@ -38,30 +38,39 @@ export class SeedService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    try {
-      // Reference/master data — INSERT-ONLY (safe in every environment:
-      // existing records are never overwritten, see each seeder).
-      await this.seedSystemConfig();
-      await this.seedMedicines();
-      await this.seedLabs();
-      await this.seedFacilities();
-
-      // Demo identities and operational fixtures require a disposable test
-      // environment. A feature flag alone is not sufficient protection.
-      const testSeedEnabled = process.env.NODE_ENV === 'test' && process.env.ALLOW_TEST_SEED === 'true';
-      if (testSeedEnabled) {
-        await this.seedPatient();
-        await this.seedPharmacies();
-        await this.seedDoctors();
-        await this.seedExtraProviders();
-        await this.seedDelivery();
-        await this.seedInventory();
-        this.logger.log('Seed complete — idempotent test data enabled explicitly');
-      } else {
-        this.logger.log('Seed complete — reference data only (demo identities skipped outside explicit test mode)');
+    // Each reference-data seeder is isolated: one failure never aborts the rest.
+    for (const step of [
+      () => this.seedSystemConfig(),
+      () => this.seedMedicines(),
+      () => this.seedLabs(),
+      () => this.seedFacilities(),
+    ]) {
+      try {
+        await step();
+      } catch (e: any) {
+        this.logger.error(`Seed step failed: ${e?.message}`);
       }
-    } catch (e: any) {
-      this.logger.error(`Seed failed: ${e.message}`);
+    }
+
+    const testSeedEnabled = process.env.NODE_ENV === 'test' && process.env.ALLOW_TEST_SEED === 'true';
+    if (testSeedEnabled) {
+      for (const step of [
+        () => this.seedPatient(),
+        () => this.seedPharmacies(),
+        () => this.seedDoctors(),
+        () => this.seedExtraProviders(),
+        () => this.seedDelivery(),
+        () => this.seedInventory(),
+      ]) {
+        try {
+          await step();
+        } catch (e: any) {
+          this.logger.error(`Seed step failed: ${e?.message}`);
+        }
+      }
+      this.logger.log('Seed complete — idempotent test data enabled explicitly');
+    } else {
+      this.logger.log('Seed complete — reference data only (demo identities skipped outside explicit test mode)');
     }
   }
 
