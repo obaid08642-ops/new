@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Param, Patch, Post, Put, Query, UseGuards, BadRequestException, UseInterceptors } from '@nestjs/common';
 import { NabdExtensionsService } from './nabd-extensions.service';
+import { PharmacyOfferService } from '../pharmacy/services/pharmacy-offer.service';
 import { JwtAuthGuard, CurrentUser, Public, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { RedisCacheInterceptor } from '../../common/redis-cache.interceptor';
@@ -7,7 +8,10 @@ import { RedisCacheInterceptor } from '../../common/redis-cache.interceptor';
 @Controller()
 @UseGuards(JwtAuthGuard)
 export class NabdExtensionsController {
-  constructor(private readonly svc: NabdExtensionsService) {}
+  constructor(
+    private readonly svc: NabdExtensionsService,
+    private readonly offers: PharmacyOfferService,
+  ) {}
 
   // ==========================================
   // MODULE 1: EVENT BUS, OPERATIONS & CORE
@@ -179,8 +183,17 @@ export class NabdExtensionsController {
   @Roles(UserRole.PHARMACY, UserRole.ADMIN)
   @Post('pharmacy/broadcast/respond')
   async respondToBroadcast(@CurrentUser() provider: any, @Body() body: any) {
-    await this.svc.logActivity('pharmacy.broadcast.response', undefined, provider.id, body);
-    return { success: true, message: 'Response submitted successfully' };
+    // F04: no more fake log-and-success. Delegate to the canonical offer
+    // service, which verifies the caller is an approved pharmacy AND a
+    // notified target of this broadcast before persisting a real offer draft.
+    const orderId = String(body?.order_id || body?.orderId || body?.broadcast_order_id || '');
+    if (!orderId) throw new BadRequestException('order_id_required');
+    await this.svc.logActivity('pharmacy.broadcast.response', undefined, provider.id, { order_id: orderId });
+    return this.offers.upsertDraft(provider, orderId, {
+      items: Array.isArray(body?.items) ? body.items : [],
+      provider_note: body?.provider_note,
+      eta_minutes: body?.eta_minutes,
+    });
   }
 
   @Get('pharmacy/inventory/expiry')
@@ -191,8 +204,15 @@ export class NabdExtensionsController {
   @Roles(UserRole.LAB, UserRole.HOSPITAL, UserRole.ADMIN)
   @Post('labs/samples/barcode-verify')
   async verifyBarcode(@CurrentUser() staff: any, @Body() body: { sampleId: string; barcodeId: string }) {
-    await this.svc.logActivity('lab.sample.barcode_bound', undefined, staff.id, body);
-    return { success: true, message: 'Barcode bound successfully to sample ID' };
+    // F05: no more fake log-and-success. Real bind with booking ownership:
+    // the sample's lab booking must be served by the caller's lab account
+    // (admins bypass), and the physical barcode must be unique across samples.
+    const sampleId = String(body?.sampleId || '').trim();
+    const barcodeId = String(body?.barcodeId || '').trim();
+    if (!sampleId || !barcodeId) throw new BadRequestException('sampleId_and_barcodeId_required');
+    const bound = await this.svc.bindSampleBarcode(staff, sampleId, barcodeId);
+    await this.svc.logActivity('lab.sample.barcode_bound', undefined, staff.id, { sampleId, barcodeId });
+    return { success: true, sample_id: bound.id, barcode: bound.barcode, stage: bound.stage };
   }
 
   @Roles(UserRole.LAB, UserRole.HOSPITAL, UserRole.ADMIN)

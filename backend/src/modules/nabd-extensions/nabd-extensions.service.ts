@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException, BadRequestException, Inject } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, BadRequestException, ForbiddenException, Inject } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Model, Connection } from 'mongoose';
 import { OnEvent } from '@nestjs/event-emitter';
@@ -659,6 +659,40 @@ export class NabdExtensionsService {
   }
 
   // Laboratory checks and alerts
+  /**
+   * F05: bind a physical barcode to a lab sample for real. The sample's lab
+   * booking must be served by the caller's lab account (admins bypass this
+   * ownership check), and the barcode must not already belong to another
+   * sample (unique physical label). Returns the bound sample document.
+   */
+  async bindSampleBarcode(staff: any, sampleId: string, barcodeId: string): Promise<any> {
+    const samples = this.userModel.db.model('LabSample');
+    const bookings = this.userModel.db.model('LabBooking');
+    const sample: any = await samples.findOne({ id: sampleId });
+    if (!sample) throw new NotFoundException('sample_not_found');
+    if (staff?.role !== 'admin') {
+      const booking: any = await bookings.findOne({ id: sample.lab_order_id }).lean();
+      if (!booking) throw new NotFoundException('booking_not_found');
+      if (booking.provider_account_id && booking.provider_account_id !== staff.id) {
+        throw new ForbiddenException('sample_booking_not_owned');
+      }
+      if (!booking.provider_account_id) {
+        throw new ForbiddenException('sample_booking_unassigned');
+      }
+    }
+    if (sample.barcode && sample.barcode !== barcodeId) {
+      throw new BadRequestException('sample_already_bound_to_another_barcode');
+    }
+    const clash: any = await samples.findOne({ barcode: barcodeId }).lean();
+    if (clash && clash.id !== sample.id) {
+      throw new BadRequestException('barcode_already_in_use');
+    }
+    sample.barcode = barcodeId;
+    sample.assigned_to = staff?.id || sample.assigned_to;
+    await sample.save();
+    return sample.toObject ? sample.toObject() : sample;
+  }
+
   async verifyLabResultRanges(sampleId: string, actualValue: number) {
     const sample = await this.userModel.db.model('LabSample').findOne({ sampleId });
     if (!sample) throw new NotFoundException('Lab sample not found');
