@@ -29,7 +29,7 @@ import { PharmacyChatService } from './services/pharmacy-chat.service';
 import { PharmacyShortageService } from './services/pharmacy-shortage.service';
 import {
   PatientPharmacyController, ProviderPharmacyController,
-  ProviderInventoryExtController, AdminPharmacyController,
+  ProviderInventoryExtController, AdminPharmacyController, AdminPharmacySeedController,
     ProviderBroadcastController, AdminBroadcastController, AdminPharmacyInsuranceController,
     PharmacyChatController, AdminPharmacyChatController,
   ProviderShortageController, AdminShortageController, PatientShortageController,
@@ -135,6 +135,8 @@ import { SystemConfigRepository } from "./services/repositories/systemconfig.rep
     ProviderPharmacyController,
     ProviderInventoryExtController,
     AdminPharmacyController,
+    // F17: demo seeders exist ONLY in explicit test mode (404 elsewhere).
+    ...(process.env.NODE_ENV === 'test' && process.env.ALLOW_TEST_SEED === 'true' ? [AdminPharmacySeedController] : []),
       ProviderBroadcastController, AdminBroadcastController, AdminPharmacyInsuranceController,
   PharmacyChatController, AdminPharmacyChatController,
     ProviderShortageController,

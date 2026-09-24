@@ -91,6 +91,17 @@ export class ProvidersController {
   suspend(@Param('id') id: string, @CurrentUser() admin: any, @Body() body: { reason?: string }) {
     return this.svc.suspend(id, admin, body?.reason || '');
   }
+}
+
+/**
+ * F17: demo seeders live ONLY in explicit test mode. Registered solely when
+ * NODE_ENV==='test' && ALLOW_TEST_SEED==='true' (404 elsewhere).
+ */
+@Controller('providers')
+@Roles(UserRole.ADMIN)
+@UseGuards(JwtAuthGuard)
+export class ProvidersSeedController {
+  constructor(private svc: ProvidersService) {}
 
   /** Admin: seed sample lab/radiology/home_care/hospital providers (idempotent — skips existing). */
   @Post('admin/seed-demo')

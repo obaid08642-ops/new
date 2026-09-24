@@ -142,14 +142,6 @@ export class AdminPharmacyController {
     private allocs: PharmacyAllocationService,
     private broadcast: PharmacyBroadcastService,
   ) {}
-  private assertTestSeedAllowed() {
-    if (process.env.NODE_ENV !== 'test' || process.env.ALLOW_TEST_SEED !== 'true') {
-      throw new ServiceUnavailableException('test_seed_disabled');
-    }
-  }
-
-  @Post('seed') seed(@CurrentUser() u: any) { this.assertTestSeedAllowed(); return this.seedSvc.seed(u); }
-  @Post('seed/sample-order') sampleOrder(@CurrentUser() u: any, @Body() b: any) { this.assertTestSeedAllowed(); return this.seedSvc.seedSampleOrder(b?.patient_account_id || u.id); }
   @Post('split/:orderId') async manualSplit(@Param('orderId') id: string) {
     // Backward-compat: if order is in broadcasting state, route to broadcast fallback.
     try { return await this.split.runForOrder(id); }
@@ -177,6 +169,27 @@ export class AdminPharmacyController {
     return { items, total, page, limit };
   }
   @Post('expire-stale-allocations') expireStale() { return this.allocs.expireStale(); }
+}
+
+/**
+ * F17: demo seeders live ONLY in explicit test mode. This controller is
+ * registered solely when NODE_ENV==='test' && ALLOW_TEST_SEED==='true', so
+ * in every other environment the routes do not exist (404). The runtime
+ * assert stays as defense-in-depth.
+ */
+@Controller('admin/pharmacy')
+@UseGuards(JwtAuthGuard)
+@Roles(UserRole.ADMIN)
+export class AdminPharmacySeedController {
+  constructor(private seedSvc: PharmacySeedService) {}
+  private assertTestSeedAllowed() {
+    if (process.env.NODE_ENV !== 'test' || process.env.ALLOW_TEST_SEED !== 'true') {
+      throw new ServiceUnavailableException('test_seed_disabled');
+    }
+  }
+
+  @Post('seed') seed(@CurrentUser() u: any) { this.assertTestSeedAllowed(); return this.seedSvc.seed(u); }
+  @Post('seed/sample-order') sampleOrder(@CurrentUser() u: any, @Body() b: any) { this.assertTestSeedAllowed(); return this.seedSvc.seedSampleOrder(b?.patient_account_id || u.id); }
 }
 
 // =========================================================================

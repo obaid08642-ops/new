@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ProvidersController } from './providers.controller';
+import { ProvidersController, ProvidersSeedController } from './providers.controller';
 import { ProvidersService } from './providers.service';
 import { User, UserSchema } from '../../schemas/user.schema';
 import { ProviderProfile, ProviderProfileSchema } from '../../schemas/provider-profile.schema';
@@ -22,7 +22,12 @@ import { Appointment, AppointmentSchema } from '../../schemas/appointment.schema
       { name: Appointment.name, schema: AppointmentSchema },
     ]),
   ],
-  controllers: [ProvidersController, HospitalEnterpriseController],
+  controllers: [
+    ProvidersController,
+    HospitalEnterpriseController,
+    // F17: demo seeders exist ONLY in explicit test mode (404 elsewhere).
+    ...(process.env.NODE_ENV === 'test' && process.env.ALLOW_TEST_SEED === 'true' ? [ProvidersSeedController] : []),
+  ],
   providers: [ProvidersService, { provide: 'ProviderProfileRepository', useClass: ProviderProfileRepository }, { provide: 'UserRepository', useClass: UserRepository }],
   exports: [ProvidersService],
 })
