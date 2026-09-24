@@ -33,6 +33,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { v4 as uuid } from 'uuid';
 import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
+import { CreateDtoGen2, CreateDto2Gen2, CreateDto3, CreateDto4, CreateDto5, UploadDto } from './admin-spa.generated.dto';
 
 const now = () => new Date();
 const uid = (u: any) => u?.id || u?._id || u?.user_id;
@@ -381,7 +382,7 @@ class AdminTasksController extends AdminController {
   }
 
   @Post()
-  async create(@CurrentUser() user: any, @Body() body: any) {
+  async create(@CurrentUser() user: any, @Body() body: CreateDtoGen2) {
     if (!body?.title) throw new BadRequestException('عنوان المهمة مطلوب');
     const doc = {
       id: uuid(), title: String(body.title), description: body.description || null,
@@ -422,7 +423,7 @@ class AdminSpecialtiesController extends AdminController {
   }
 
   @Post()
-  async create(@Body() body: any) {
+  async create(@Body() body: CreateDto2Gen2) {
     if (!body?.name_ar || !body?.code) throw new BadRequestException('الرمز والاسم مطلوبان');
     const doc = { id: `spec-${body.code}`, code: String(body.code), name_ar: String(body.name_ar), name_en: body.name_en || String(body.code), sort: Number(body.sort) || 100, active: true, createdAt: now(), updatedAt: now() };
     await this.conn.collection('specialties').updateOne({ code: doc.code } as any, { $set: doc }, { upsert: true });
@@ -482,7 +483,7 @@ class AdminBannersController extends AdminController {
   }
 
   @Post()
-  async create(@CurrentUser() user: any, @Body() body: any) {
+  async create(@CurrentUser() user: any, @Body() body: CreateDto3) {
     if (!body?.title_ar) throw new BadRequestException('عنوان البانر مطلوب');
     const doc = {
       id: uuid(), title_ar: String(body.title_ar), title_en: body.title_en || null,
@@ -616,7 +617,7 @@ class AdminCouponsController extends AdminController {
   }
 
   @Post()
-  async create(@CurrentUser() user: any, @Body() body: any) {
+  async create(@CurrentUser() user: any, @Body() body: CreateDto4) {
     if (!body?.code) throw new BadRequestException('رمز القسيمة مطلوب');
     const doc = {
       id: uuid(), code: String(body.code).toUpperCase(),
@@ -845,7 +846,7 @@ class AdminPromotionsController extends AdminController {
   }
 
   @Post()
-  async create(@CurrentUser() user: any, @Body() body: any) {
+  async create(@CurrentUser() user: any, @Body() body: CreateDto5) {
     if (!body?.title_ar) throw new BadRequestException('عنوان العرض مطلوب');
     const doc = {
       id: uuid(), provider_id: body.provider_id || null,
@@ -1100,7 +1101,7 @@ class AdminMedicinesController extends AdminController {
 class AdminBulkUploadController extends AdminController {
   @Post()
   @UseInterceptors(FileInterceptor('file'))
-  async upload(@CurrentUser() user: any, @UploadedFile() file: any, @Body() body: any) {
+  async upload(@CurrentUser() user: any, @UploadedFile() file: any, @Body() body: UploadDto) {
     let rows: any[] = [];
     if (file?.buffer) {
       const text = file.buffer.toString('utf8');

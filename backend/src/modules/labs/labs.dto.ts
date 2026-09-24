@@ -182,3 +182,65 @@ export class UpdateStageDto {
   @IsString()
   notes?: string;
 }
+
+export class CreateLabCatalogDto {
+  @IsDefined()
+  @IsString()
+  lab_id: string;
+
+  @IsDefined()
+  @IsString()
+  test_code: string;
+
+  @IsDefined()
+  @IsString()
+  test_name_ar: string;
+
+  @IsDefined()
+  @IsString()
+  test_name_en: string;
+
+  @IsOptional()
+  in_lab_price?: number;
+
+  @IsOptional()
+  home_collection_price?: number;
+
+  @IsOptional()
+  accepts_insurance?: boolean;
+
+  @IsOptional()
+  @IsArray()
+  reference_ranges?: any[];
+}
+
+export class UpdateLabCatalogDto {
+  @IsOptional()
+  @IsString()
+  lab_id?: string;
+
+  @IsOptional()
+  @IsString()
+  test_code?: string;
+
+  @IsOptional()
+  @IsString()
+  test_name_ar?: string;
+
+  @IsOptional()
+  @IsString()
+  test_name_en?: string;
+
+  @IsOptional()
+  in_lab_price?: number;
+
+  @IsOptional()
+  home_collection_price?: number;
+
+  @IsOptional()
+  accepts_insurance?: boolean;
+
+  @IsOptional()
+  @IsArray()
+  reference_ranges?: any[];
+}

@@ -3,6 +3,7 @@ import { RadiologyOpsService } from './radiology.service';
 import { Public, CurrentUser, SelfService, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { BookDto, TransitionDto, UpdateInsDto, AssignTechDto, UploadReportDto, ForceStateDto, AbortScanDto, InsuranceApprovalDto, RescheduleDto} from './radiology.dto';
+import { CreateRadiologyCatalogDto, UpdateRadiologyCatalogDto } from './radiology.dto';
 
 @Controller('radiology')
 export class RadiologyController {
@@ -179,14 +180,14 @@ export class RadiologyController {
   @Roles(UserRole.ADMIN)
   @Post('admin/catalog')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
-  createCatalog(@CurrentUser() u: any, @Body() b: any) {
+  createCatalog(@CurrentUser() u: any, @Body() b: CreateRadiologyCatalogDto) {
     return this.svc.createCatalog(u, b);
   }
 
   @Roles(UserRole.ADMIN)
   @Put('admin/catalog/:id')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
-  updateCatalog(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
+  updateCatalog(@CurrentUser() u: any, @Param('id') id: string, @Body() b: UpdateRadiologyCatalogDto) {
     return this.svc.updateCatalog(u, id, b);
   }
 

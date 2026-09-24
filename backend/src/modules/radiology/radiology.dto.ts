@@ -103,3 +103,107 @@ export class RescheduleDto {
   @IsString()
   reason: string;
 }
+
+export class CreateRadiologyCatalogDto {
+  @IsDefined()
+  @IsString()
+  name_ar: string;
+
+  @IsDefined()
+  @IsString()
+  name_en: string;
+
+  @IsDefined()
+  @IsString()
+  modality: string;
+
+  @IsDefined()
+  @IsNumber()
+  price: number;
+
+  @IsOptional()
+  @IsString()
+  short_code?: string;
+
+  @IsOptional()
+  @IsString()
+  description_ar?: string;
+
+  @IsOptional()
+  @IsString()
+  description_en?: string;
+
+  @IsOptional()
+  @IsString()
+  body_part?: string;
+
+  @IsOptional()
+  @IsNumber()
+  old_price?: number;
+
+  @IsOptional()
+  contrast_required?: boolean;
+
+  @IsOptional()
+  fasting_required?: boolean;
+
+  @IsOptional()
+  @IsNumber()
+  fasting_hours?: number;
+
+  @IsOptional()
+  home_visit_supported?: boolean;
+
+  @IsOptional()
+  facility_visit_supported?: boolean;
+
+  @IsOptional()
+  @IsNumber()
+  turnaround_hours?: number;
+
+  @IsOptional()
+  @IsArray()
+  preparation_ar?: string[];
+
+  @IsOptional()
+  @IsArray()
+  preparation_en?: string[];
+}
+
+export class UpdateRadiologyCatalogDto {
+  @IsOptional()
+  @IsString()
+  name_ar?: string;
+
+  @IsOptional()
+  @IsString()
+  name_en?: string;
+
+  @IsOptional()
+  @IsString()
+  modality?: string;
+
+  @IsOptional()
+  @IsNumber()
+  price?: number;
+
+  @IsOptional()
+  @IsString()
+  short_code?: string;
+
+  @IsOptional()
+  @IsString()
+  body_part?: string;
+
+  @IsOptional()
+  @IsNumber()
+  old_price?: number;
+
+  @IsOptional()
+  @IsArray()
+  preparation_ar?: string[];
+
+  @IsOptional()
+  @IsArray()
+  preparation_en?: string[];
+}

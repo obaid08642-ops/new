@@ -10,6 +10,7 @@ import { WorkflowEngineService } from '../workflow-engine/workflow-engine.module
 import { HomeCareSvc } from './home-care.service';
 import { UserRole } from '../../common/enums';
 import { CreateNoteDto, CreateBookingDto, ArriveAtPatientDto, TriggerEmergencyDto} from './home-care.dto';
+import { CreateHomeCareCatalogDto, UpdateHomeCareCatalogDto } from './home-care.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('nursing')
@@ -106,14 +107,14 @@ export class NursingController {
   @Roles(UserRole.ADMIN)
   @Post('admin/catalog')
   @UseGuards(JwtAuthGuard)
-  async createCatalog(@CurrentUser() u: any, @Body() b: any) {
+  async createCatalog(@CurrentUser() u: any, @Body() b: CreateHomeCareCatalogDto) {
     return this.homeSvc.createCatalog(u, b);
   }
 
   @Roles(UserRole.ADMIN)
   @Put('admin/catalog/:id')
   @UseGuards(JwtAuthGuard)
-  async updateCatalog(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
+  async updateCatalog(@CurrentUser() u: any, @Param('id') id: string, @Body() b: UpdateHomeCareCatalogDto) {
     return this.homeSvc.updateCatalog(u, id, b);
   }
 
