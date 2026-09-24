@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, ConflictException, ForbiddenException, NotFoundException, UnauthorizedException, Logger, Inject } from '@nestjs/common';
+import { Injectable, BadRequestException, ConflictException, ForbiddenException, NotFoundException, UnauthorizedException, Logger, Inject, Optional } from '@nestjs/common';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
@@ -11,6 +11,8 @@ import { ProviderAccountProfileRepository } from "./repositories/provideraccount
 import { ProviderAuditLogRepository } from "./repositories/providerauditlog.repository";
 import { ProviderSessionRepository } from "./repositories/providersession.repository";
 import * as crypto from 'crypto';
+import { revokeAllCredentialSessions } from '../../../common/credential-revocation';
+import { RedisService } from '../../redis/redis.service';
 
 @Injectable()
 export class ProviderAuthService {
@@ -22,6 +24,7 @@ export class ProviderAuthService {
     @Inject('ProviderSessionRepository') private sessions: ProviderSessionRepository,
     private readonly otp: ProviderOtpService,
     private readonly jwt: JwtService,
+    @Optional() private readonly redis?: RedisService,
   ) {}
 
   private signToken(a: ProviderAccount) {
@@ -62,6 +65,13 @@ export class ProviderAuthService {
       .then(() => (this.accounts as any).model?.db?.collection('users')?.findOne({ id: linkedUserId }, { projection: { active: 1 } }))
       .catch(() => null);
     return !!u && u.active === false;
+  }
+
+  /** P3.0a: end every session derived from this account's credential (all stores). */
+  private async revokeCredentialSessions(a: any) {
+    const db = (this.accounts as any).model?.db;
+    if (!db) throw new Error('provider_accounts_db_unavailable');
+    return revokeAllCredentialSessions(db, this.redis?.getClient?.() ?? null, a.user_id || a.id);
   }
 
   async login(input: { email: string; password: string; meta?: any }) {
@@ -225,11 +235,14 @@ export class ProviderAuthService {
     await this.otp.verify(input.email, OtpPurpose.PASSWORD_RESET, input.code, { ip: input.meta?.ip, ua: input.meta?.ua, account_id: a.id });
     a.password_hash = await bcrypt.hash(input.new_password, 10);
     a.failed_login_attempts = 0; a.locked_until = undefined as any;
-    // F09: password reset revokes all other sessions immediately.
-    (a as any).token_version = Number((a as any).token_version || 0) + 1;
     await a.save();
+    // F09 + P3.0a: reset ends every session of this credential — provider
+    // access (token_version) AND provider refresh sessions, plus the linked
+    // user's patient sessions — then signs a fresh token for this device.
+    await this.revokeCredentialSessions(a);
+    const fresh = (await this.accounts.findOne({ id: a.id })) || a;
     await this.audit.create({ provider_account_id: a.id, actor_id: a.id, actor_role: 'provider', action: 'auth.password_reset' });
-    return { account: this.publicAccount(a), token: this.signToken(a) };
+    return { account: this.publicAccount(fresh), token: this.signToken(fresh) };
   }
 
   async me(user: any) {

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Headers, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CurrentUser, JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
 import { RequireIdempotency } from '../../common/idempotency.interceptor';
@@ -85,8 +85,8 @@ export class UsersController {
   }
 
   @Post('me/change-password')
-  changePassword(@CurrentUser('id') id: string, @Body() body: any) {
-    return this.users.changePassword(id, body);
+  changePassword(@CurrentUser('id') id: string, @Body() body: any, @Headers('x-device-id') deviceId?: string) {
+    return this.users.changePassword(id, body, deviceId);
   }
 
   @Get('me/sessions')

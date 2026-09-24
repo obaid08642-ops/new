@@ -17,6 +17,7 @@ import { PatientProfileRepository } from "./repositories/patientprofile.reposito
 import { RedisService } from '../redis/redis.service';
 import { PasskeyService } from './passkey.service';
 import { DeviceTrustService } from './device-trust.service';
+import { revokeAllCredentialSessions, revokeRedisRefreshSessions, RevocationResult } from '../../common/credential-revocation';
 
 @Injectable()
 export class AuthService {
@@ -109,10 +110,44 @@ export class AuthService {
   async revokeAllUserSessions(userId: string) {
     const client = (this.redisService as any).getClient?.();
     if (!client) return { ok: true };
-    const jtis = await client.smembers(`refresh_user:${userId}`);
-    if (jtis?.length) await client.del(...jtis.map((j: string) => `refresh:${j}`));
-    await client.del(`refresh_user:${userId}`);
-    return { ok: true, revoked: jtis?.length || 0 };
+    const revoked = await revokeRedisRefreshSessions(client, userId);
+    return { ok: true, revoked };
+  }
+
+  /**
+   * P3.0a: after users.<userId>'s password changed, end EVERY session derived
+   * from it (access + refresh, patient + linked provider). `bumpUser: false`
+   * when the caller already $inc'ed users.token_version with the new hash.
+   */
+  async revokeAfterCredentialChange(userId: string, opts: { bumpUser?: boolean } = {}): Promise<RevocationResult> {
+    const db = (this.userModel as any).model?.db;
+    const client = (this.redisService as any).getClient?.();
+    if (!db) {
+      const refresh = await revokeRedisRefreshSessions(client, userId);
+      return { refresh_sessions_revoked: refresh, provider_accounts: [], provider_sessions_revoked: 0 };
+    }
+    return revokeAllCredentialSessions(db, client, userId, opts);
+  }
+
+  /**
+   * P3.0a: revoke everything, then mint a fresh pair for the device that made
+   * the change so the user stays signed in there (and only there).
+   */
+  async rotateSessionsAfterPasswordChange(userId: string, deviceId?: string) {
+    await this.revokeAfterCredentialChange(userId, { bumpUser: false });
+    const u = await this.userModel.findOne({ id: userId });
+    if (!u) throw new UnauthorizedException('User not found or disabled');
+    const tokens = this.signToken(u, deviceId);
+    await this.storeRefreshSessionFromToken(tokens.refreshToken, u.id, deviceId);
+    return tokens;
+  }
+
+  /** signToken stores its refresh session fire-and-forget; await it when the caller must be able to refresh right away. */
+  private async storeRefreshSessionFromToken(refreshToken: string, userId: string, deviceId?: string) {
+    try {
+      const jti = (this.jwt.decode(refreshToken) as any)?.jti;
+      if (jti) await this.storeRefreshSession(userId, jti, deviceId);
+    } catch { /* same contract as signToken: store failure never breaks the response */ }
   }
 
   async logoutAllDevices(userId: string) {
@@ -376,7 +411,8 @@ export class AuthService {
     if (!user || user.active === false) throw new UnauthorizedException({ message: 'reset_token_invalid', code: 'reset_token_invalid', statusCode: HttpStatus.UNAUTHORIZED });
     user.password_hash = await bcrypt.hash(newPassword, 12);
     await user.save();
-    await this.revokeAllUserSessions(user.id);
+    // P3.0a: reset ends every session (access + refresh, patient + provider).
+    await this.revokeAfterCredentialChange(user.id);
     return { reset: true };
   }
 
@@ -942,6 +978,8 @@ export class AuthService {
     const hash = await bcrypt.hash(newPassword, 12);
     u.password_hash = hash;
     await u.save();
+    // P3.0a: a reset must not leave stolen access/refresh tokens alive.
+    await this.revokeAfterCredentialChange(u.id);
     return { ok: true };
   }
 
