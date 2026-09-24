@@ -6,6 +6,7 @@ import { Connection } from 'mongoose';
 import { JwtAuthGuard, CurrentUser, Public, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { LegalEnterpriseService } from './legal-enterprise.service';
+import { SetMatrixDto, SetConsentDto } from './legal-enterprise.dto';
 
 @Controller()
 export class LegalEnterpriseController {
@@ -112,7 +113,7 @@ export class LegalEnterpriseController {
   @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
   @Put('provider/insurance-matrix')
   @UseGuards(JwtAuthGuard)
-  setMatrix(@CurrentUser() user: any, @Body() body: { companies: string[]; networks?: Record<string, string[]>; tiers?: Record<string, string[]> }) {
+  setMatrix(@CurrentUser() user: any, @Body() body: SetMatrixDto) {
     if (!Array.isArray(body?.companies)) return { ok: false, error: 'companies array required' };
     return this.svc.setProviderInsurance(user.id, body.companies, body.networks, body.tiers);
   }
@@ -132,7 +133,7 @@ export class LegalEnterpriseController {
   @SelfService()
   @Put('consents/:type')
   @UseGuards(JwtAuthGuard)
-  setConsent(@CurrentUser() user: any, @Param('type') type: string, @Body() body: { value: boolean }, @Req() req: Request) {
+  setConsent(@CurrentUser() user: any, @Param('type') type: string, @Body() body: SetConsentDto, @Req() req: Request) {
     try {
       return this.svc.setConsent(user.id, type, !!body?.value, this.meta(req));
     } catch (e: any) {

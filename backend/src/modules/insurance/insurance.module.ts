@@ -1,4 +1,5 @@
 import { Module, Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards, Injectable, BadRequestException, NotFoundException, ServiceUnavailableException, Logger } from '@nestjs/common';
+import { CreateCompanyDto, UpdateCompanyDto, OcrExtractDto, UploadPolicyDto, NphiesEligibilityDto, SavePolicyDto, SubmitClaimDto } from './insurance.dto';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JwtAuthGuard, Roles, CurrentUser, Public, SelfService } from '../../common/auth.guard';
@@ -407,7 +408,7 @@ export class InsuranceController {
   @Roles(UserRole.ADMIN)
   @Post('companies')
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
-  createCompany(@Body() b: any) {
+  createCompany(@Body() b: CreateCompanyDto) {
     return this.svc.createCompany(b);
   }
 
@@ -415,7 +416,7 @@ export class InsuranceController {
   @Roles(UserRole.ADMIN)
   @Patch('companies/:id')
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
-  updateCompany(@Param('id') id: string, @Body() b: any) {
+  updateCompany(@Param('id') id: string, @Body() b: UpdateCompanyDto) {
     const allowed: any = {};
     for (const k of [
       'name_ar', 'name_en', 'logo_url', 'logo_source_url', 'logo_sha256',
@@ -490,31 +491,31 @@ export class InsuranceController {
 
   @SelfService()
   @Post('ocr-extract')
-  ocrExtract(@Body() body: any) {
+  ocrExtract(@Body() body: OcrExtractDto) {
     return this.svc.ocrExtract(body);
   }
 
   @SelfService()
   @Post('upload-policy')
-  uploadPolicy(@CurrentUser() u: any, @Body() body: any) {
+  uploadPolicy(@CurrentUser() u: any, @Body() body: UploadPolicyDto) {
     return this.svc.uploadPolicy(body, u?.id);
   }
 
   @SelfService()
   @Post('nphies/eligibility')
-  nphiesEligibility(@Body() body: any) {
+  nphiesEligibility(@Body() body: NphiesEligibilityDto) {
     return this.svc.nphiesEligibility(body.national_id, body.insurance_company_code, body.member_id);
   }
 
   @SelfService()
   @Post('save-policy')
-  savePolicy(@CurrentUser() u: any, @Body() body: any) {
+  savePolicy(@CurrentUser() u: any, @Body() body: SavePolicyDto) {
     return this.svc.savePolicy(u.id, body);
   }
 
   @SelfService()
   @Post('claims/submit')
-  submitClaim(@CurrentUser() u: any, @Body() body: any) {
+  submitClaim(@CurrentUser() u: any, @Body() body: SubmitClaimDto) {
     return this.svc.submitClaim(u.id, body);
   }
 

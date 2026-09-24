@@ -6,6 +6,7 @@ import { Permission, RequirePermissions } from '../../common/permissions';
 import { UserRole } from '../../common/enums';
 import { validateReason, ReasonError } from '../../common/rbac';
 import { AdminAuditService } from './audit.service';
+import { SaveHomeCurationDto, SaveFeatureFlagDto } from './admin-governance-controls.dto';
 
 /**
  * Missing A5/A6 administrative controls. The stored documents are the source
@@ -29,7 +30,7 @@ export class AdminGovernanceControlsController {
 
   @Post('home-curation')
   @RequirePermissions(Permission.CMS_EDIT)
-  async saveHomeCuration(@Body() body: any, @CurrentUser() me: any) {
+  async saveHomeCuration(@Body() body: SaveHomeCurationDto, @CurrentUser() me: any) {
     let reason: string;
     try { reason = validateReason(body?.reason); } catch (error) {
       if (error instanceof ReasonError) throw new BadRequestException(error.code);
@@ -79,7 +80,7 @@ export class AdminGovernanceControlsController {
 
   @Post('feature-flags')
   @RequirePermissions(Permission.OPS_QUEUES_MANAGE)
-  async saveFeatureFlag(@Body() body: any, @CurrentUser() me: any) {
+  async saveFeatureFlag(@Body() body: SaveFeatureFlagDto, @CurrentUser() me: any) {
     let reason: string;
     try { reason = validateReason(body?.reason); } catch (error) {
       if (error instanceof ReasonError) throw new BadRequestException(error.code);

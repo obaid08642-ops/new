@@ -21,6 +21,7 @@ import * as crypto from 'crypto';
 import * as http2 from 'http2';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { redisUrlFromEnv } from '../redis/redis.service';
+import { RegisterDto, TrackDto } from './push.dto';
 
 
 // ── Schema ────────────────────────────────────────────────────────────
@@ -696,7 +697,7 @@ export class PushController {
 
   @SelfService()
   @Post('register')
-  register(@CurrentUser() u: any, @Body() b: any) { return this.svc.register(u, b); }
+  register(@CurrentUser() u: any, @Body() b: RegisterDto) { return this.svc.register(u, b); }
 
   @SelfService()
   @Post('unregister')
@@ -737,7 +738,7 @@ export class PushController {
   /** Client reports engagement: received/opened/clicked — powers CTR analytics */
   @SelfService()
   @Post('events')
-  track(@CurrentUser() u: any, @Body() b: any) { return this.svc.trackEngagement(u.id, b); }
+  track(@CurrentUser() u: any, @Body() b: TrackDto) { return this.svc.trackEngagement(u.id, b); }
 
   @Roles(UserRole.ADMIN)
   @Post('admin/campaign')

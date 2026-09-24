@@ -26,6 +26,7 @@ import { RadiologyBookingSchema } from '../../schemas/radiology.schema';
 import { HomeCareBookingSchema } from '../../schemas/home-care.schema';
 import { Appointment, AppointmentSchema } from '../../schemas/appointment.schema';
 import { UserRole } from '../../common/enums';
+import { SavePolicyDto, CreateRequestDto, PayCopayDto, ResubmitDto, AppealDto, DecideDto, GatekeeperDto, PaymentConfirmDto, PayCopayDto2, RequestDto, DecideRefundDto, AccrueDto } from './insurance-engine.dto';
 
 // ============================================================================
 // Schemas
@@ -549,7 +550,7 @@ export class InsuranceFlowController {
   // ---- patient ----
   @Get('companies') companies() { return this.svc.companiesList(); }
   @SelfService()
-  @Post('save-policy') savePolicy(@CurrentUser() u: any, @Body() b: any) { return this.svc.savePolicy(u, b); }
+  @Post('save-policy') savePolicy(@CurrentUser() u: any, @Body() b: SavePolicyDto) { return this.svc.savePolicy(u, b); }
   @Get('my-policy') myPolicy(@CurrentUser() u: any) { return this.svc.myPolicy(u); }
 
   @Get('coverage-check') async coverageCheck(@CurrentUser() u: any, @Query() q: any) {
@@ -570,11 +571,11 @@ export class InsuranceFlowController {
   }
 
   @SelfService()
-  @Post('requests') createRequest(@CurrentUser() u: any, @Body() b: any) { return this.svc.createRequest(u, b); }
+  @Post('requests') createRequest(@CurrentUser() u: any, @Body() b: CreateRequestDto) { return this.svc.createRequest(u, b); }
   @Get('requests/my') myRequests(@CurrentUser() u: any) { return this.svc.myRequests(u); }
   @Get('requests/:id') one(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.getOne(id, u); }
   @SelfService()
-  @Post('requests/:id/pay-copay') payCopay(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.payCopay(u, id, b); }
+  @Post('requests/:id/pay-copay') payCopay(@CurrentUser() u: any, @Param('id') id: string, @Body() b: PayCopayDto) { return this.svc.payCopay(u, id, b); }
   @SelfService()
   @Post('requests/:id/accept-self-pay') acceptSelfPay(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.acceptSelfPay(u, id); }
   @Get('requests/:id/capabilities') capabilities(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.capabilities(u, id); }
@@ -582,20 +583,20 @@ export class InsuranceFlowController {
   @SelfService()
   @Post('requests/:id/cancel') cancel(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.cancel(u, id); }
   @SelfService()
-  @Post('requests/:id/resubmit') resubmit(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.resubmit(u, id, b); }
+  @Post('requests/:id/resubmit') resubmit(@CurrentUser() u: any, @Param('id') id: string, @Body() b: ResubmitDto) { return this.svc.resubmit(u, id, b); }
   @SelfService()
-  @Post('requests/:id/appeal') appeal(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.appeal(u, id, b); }
+  @Post('requests/:id/appeal') appeal(@CurrentUser() u: any, @Param('id') id: string, @Body() b: AppealDto) { return this.svc.appeal(u, id, b); }
 
   // ---- provider ----
   @Get('requests/provider/queue') providerQueue(@CurrentUser() u: any, @Query('state') state?: string) { return this.svc.providerQueue(u, state); }
   @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
-  @Post('requests/:id/decide') decide(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.decide(u, id, b); }
+  @Post('requests/:id/decide') decide(@CurrentUser() u: any, @Param('id') id: string, @Body() b: DecideDto) { return this.svc.decide(u, id, b); }
   @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
-  @Post('provider/jobs/consultation/:id/insurance') gatekeeper(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.gatekeeperDecision(u, id, b); }
+  @Post('provider/jobs/consultation/:id/insurance') gatekeeper(@CurrentUser() u: any, @Param('id') id: string, @Body() b: GatekeeperDto) { return this.svc.gatekeeperDecision(u, id, b); }
 
   // ---- legacy aliases the patient app already calls ----
   @SelfService()
-  @Post('payment-confirm') paymentConfirm(@CurrentUser() u: any, @Body() b: any) {
+  @Post('payment-confirm') paymentConfirm(@CurrentUser() u: any, @Body() b: PaymentConfirmDto) {
     return this.svc.payCopay(u, b?.request_id || b?.id, b);
   }
 
@@ -610,7 +611,7 @@ export class InsuranceAliasController {
   constructor(private readonly svc: InsuranceFlowService) {}
 
   @SelfService()
-  @Post('patient/pay-copay') payCopay(@CurrentUser() u: any, @Body() b: any) {
+  @Post('patient/pay-copay') payCopay(@CurrentUser() u: any, @Body() b: PayCopayDto2) {
     return this.svc.payCopay(u, b?.request_id || b?.id, b);
   }
 
@@ -692,7 +693,7 @@ export class RefundService {
 @UseGuards(JwtAuthGuard)
 export class RefundController {
   constructor(private readonly svc: RefundService) {}
-  @Post('request') request(@CurrentUser() u: any, @Body() b: any) { return this.svc.request(u, b); }
+  @Post('request') request(@CurrentUser() u: any, @Body() b: RequestDto) { return this.svc.request(u, b); }
   @Get('my') my(@CurrentUser() u: any) { return this.svc.myRefunds(u); }
   @Get('policy-preview') preview(@Query('scheduled_at') s?: string) {
     const w = this.svc.policyFor(s ? new Date(s) : undefined);
@@ -710,7 +711,7 @@ export class AdminFinanceCoreController {
   ) {}
   @Get('ledger/summary') summary() { return this.finance.platformSummary(); }
   @Get('refunds/queue') refundsQueue() { return this.refunds.adminQueue(); }
-  @Post('refunds/:id/decide') decideRefund(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
+  @Post('refunds/:id/decide') decideRefund(@CurrentUser() u: any, @Param('id') id: string, @Body() b: DecideRefundDto) {
     return this.refunds.decide(u, id, b?.approve === true, b?.note);
   }
 }
@@ -729,7 +730,7 @@ export class AdminInsuranceController {
 export class FinanceCoreController {
   constructor(private readonly finance: FinanceCoreService) {}
   /** Internal hook: record commission when an order/booking is paid. */
-  @Post('ledger/accrue') accrue(@Body() b: any) { return this.finance.accrue(b); }
+  @Post('ledger/accrue') accrue(@Body() b: AccrueDto) { return this.finance.accrue(b); }
   @Get('ledger/provider/summary') providerSummary(@CurrentUser() u: any) { return this.finance.providerSummary(u.id); }
 }
 

@@ -7,6 +7,7 @@ import { AuditLog } from '../schemas/audit-log.schema';
 import Redis from 'ioredis';
 import { CurrentUser, Roles } from '../../../common/auth.guard';
 import { UserRole } from '../../../common/enums';
+import { TriggerEmergencyMaintenanceDto } from './admin-governance.dto';
 
 @Controller('admin/governance')
 @Roles(UserRole.ADMIN)
@@ -23,7 +24,7 @@ export class AdminGovernanceController {
   }
 
   @Put('trigger-emergency-maintenance')
-  async triggerEmergencyMaintenance(@CurrentUser() _admin: any, @Body() _payload: { forceMaintenanceState: boolean }) {
+  async triggerEmergencyMaintenance(@CurrentUser() _admin: any, @Body() _payload: TriggerEmergencyMaintenanceDto) {
     // Redis dispatch, immutable audit attribution, two-person approval, and
     // recovery verification are not implemented in this source tree. Never
     // persist or claim a system-wide maintenance state without them.

@@ -1,4 +1,5 @@
 
+import { BackfillSlugsDto } from './seo-search.dto';
 /** Arabic/English search normalization: strip Arabic diacritics & tatweel, unify alef/hamza/yeh/teh-marbuta variants, NFKD + lowercase + collapse spaces. Pure, locale-safe. */
 export function normalizeSearchText(input: string): string {
   return (input ?? "")
@@ -1124,7 +1125,7 @@ export class SeoAdminController {
    * through the governed pipeline (collision check + history).
    */
   @Post('backfill-slugs')
-  async backfillSlugs(@Body() dto: { type?: string; limit?: number }) {
+  async backfillSlugs(@Body() dto: BackfillSlugsDto) {
     if (!this.pipeline) return { ok: false, error: 'pipeline_unavailable' };
     const allowed: PipelineEntityType[] = ['doctor', 'pharmacy', 'hospital', 'clinic', 'lab', 'radiology', 'nursing'];
     const type = (dto?.type || 'doctor') as PipelineEntityType;

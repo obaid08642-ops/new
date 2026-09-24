@@ -16,6 +16,7 @@ import {
   Req,
   UseInterceptors,
 } from '@nestjs/common';
+import { WebhookDto, RefundDto} from './moyasar.dto';
 import { InjectModel, InjectConnection, MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Model, Document, Connection } from 'mongoose';
 import { JwtAuthGuard, CurrentUser, Public, Roles, SelfService } from '../../common/auth.guard';
@@ -436,7 +437,7 @@ export class MoyasarController {
   @Roles(UserRole.ADMIN)
   refund(
     @Param('moyasarId') id: string,
-    @Body() body: { amount?: number },
+    @Body() body: RefundDto,
   ) {
     return this.svc.refundPayment(id, body.amount);
   }
@@ -445,7 +446,7 @@ export class MoyasarController {
   @Public()
   @Post('webhook')
   @HttpCode(200)
-  webhook(@Body() body: any, @Headers('x-moyasar-signature') signature: string, @Req() req: any) {
+  webhook(@Body() body: WebhookDto, @Headers('x-moyasar-signature') signature: string, @Req() req: any) {
     const rawBody = req?.rawBody || JSON.stringify(body);
     if (!this.svc.verifyWebhookSignature(rawBody, signature)) {
       throw new BadRequestException('invalid_signature');

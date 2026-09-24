@@ -3,6 +3,7 @@ import { JwtAuthGuard, Roles, CurrentUser } from '../../common/auth.guard';
 import { Permission, RequirePermissions } from '../../common/permissions';
 import { UserRole } from '../../common/enums';
 import { FinanceSuiteService, Granularity } from './finance-suite.service';
+import { UpdateConfigDto, ApprovePayoutDto, RejectPayoutDto } from './admin-finance.dto';
 
 /**
  * A2 — Finance Suite: revenue dashboards, server-computed commissions/VAT,
@@ -33,8 +34,8 @@ export class AdminFinanceSuiteController {
 
   @Post('commissions/config')
   @RequirePermissions(Permission.FINANCE_CONFIG_EDIT)
-  updateConfig(@Body() b: any, @CurrentUser() me: any) {
-    return this.svc.upsertCommissionConfig(b || {}, me, b?.reason);
+  updateConfig(@Body() b: UpdateConfigDto, @CurrentUser() me: any) {
+    return this.svc.upsertCommissionConfig({ ...b }, me, b?.reason);
   }
 
   @Get('reconciliation')
@@ -51,13 +52,13 @@ export class AdminFinanceSuiteController {
 
   @Post('payouts/:id/approve')
   @RequirePermissions(Permission.FINANCE_PAYOUT_APPROVE)
-  approvePayout(@Param('id') id: string, @Body() b: any, @CurrentUser() me: any) {
+  approvePayout(@Param('id') id: string, @Body() b: ApprovePayoutDto, @CurrentUser() me: any) {
     return this.svc.approvePayout(id, me, b?.reason, 'approve');
   }
 
   @Post('payouts/:id/reject')
   @RequirePermissions(Permission.FINANCE_PAYOUT_APPROVE)
-  rejectPayout(@Param('id') id: string, @Body() b: any, @CurrentUser() me: any) {
+  rejectPayout(@Param('id') id: string, @Body() b: RejectPayoutDto, @CurrentUser() me: any) {
     return this.svc.approvePayout(id, me, b?.reason, 'reject');
   }
 

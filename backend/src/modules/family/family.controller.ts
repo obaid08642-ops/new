@@ -1,4 +1,5 @@
 import { JwtAuthGuard, NoGuestsGuard, SelfService } from '../../common/auth.guard';
+import { AddEventDto, CreateDto, InviteDto, JoinDto, SetRelationDto, SetContractPermissionsDto, SetPermissionsDto, RequestPermissionsDto, RespondPermissionDto} from './family.dto';
 import {
   Body, Controller, Delete, Get, Param, Patch, Post, Put, Req, UnauthorizedException, UseGuards,
 } from '@nestjs/common';
@@ -20,7 +21,7 @@ export class FamilyController {
 
   // ── Group Management ───────────────────────────────────────────────────────
   @Post('create')
-  create(@Req() req: any, @Body() body: { name: string }) {
+  create(@Req() req: any, @Body() body: CreateDto) {
     return this.familyService.createGroup(this.authenticatedUserId(req), body.name);
   }
 
@@ -31,12 +32,12 @@ export class FamilyController {
 
   /** Contract invitation never exposes invite_code in the HTTP response. */
   @Post('invite')
-  invite(@Req() req: any, @Body() body: { channel: 'sms' | 'email'; target: string }) {
+  invite(@Req() req: any, @Body() body: InviteDto) {
     return this.familyService.sendInvite(this.authenticatedUserId(req), body?.channel, body?.target);
   }
 
   @Post('join')
-  join(@Req() req: any, @Body() body: { invite_code: string; display_name?: string; relation?: string }) {
+  join(@Req() req: any, @Body() body: JoinDto) {
     return this.familyService.joinGroup(this.authenticatedUserId(req), body.invite_code, body.display_name, body.relation);
   }
 
@@ -46,17 +47,17 @@ export class FamilyController {
   }
 
   @Patch('member/:userId/relation')
-  setRelation(@Req() req: any, @Param('userId') targetUserId: string, @Body() body: { relation: string }) {
+  setRelation(@Req() req: any, @Param('userId') targetUserId: string, @Body() body: SetRelationDto) {
     return this.familyService.updateMemberRelation(this.authenticatedUserId(req), targetUserId, body.relation);
   }
 
   @Patch('members/:memberId/permissions')
-  setContractPermissions(@Req() req: any, @Param('memberId') targetUserId: string, @Body() body: { scopes: string[] }) {
+  setContractPermissions(@Req() req: any, @Param('memberId') targetUserId: string, @Body() body: SetContractPermissionsDto) {
     return this.familyService.setMemberPermissions(this.authenticatedUserId(req), targetUserId, body?.scopes || []);
   }
 
   @Patch('member/:userId/permissions')
-  setPermissions(@Req() req: any, @Param('userId') targetUserId: string, @Body() body: { permissions: string[] }) {
+  setPermissions(@Req() req: any, @Param('userId') targetUserId: string, @Body() body: SetPermissionsDto) {
     return this.familyService.setMemberPermissions(this.authenticatedUserId(req), targetUserId, body.permissions);
   }
 
@@ -97,7 +98,7 @@ export class FamilyController {
 
   // ── Shared Calendar ────────────────────────────────────────────────────────
   @Post('calendar/event')
-  addEvent(@Req() req: any, @Body() body: any) {
+  addEvent(@Req() req: any, @Body() body: AddEventDto) {
     return this.familyService.addCalendarEvent(this.authenticatedUserId(req), body);
   }
 
@@ -113,7 +114,7 @@ export class FamilyController {
 
   // ── Permissions ────────────────────────────────────────────────────────────
   @Post('permissions/request')
-  requestPermissions(@Req() req: any, @Body() body: { target_member_id: string; permissions: string[] }) {
+  requestPermissions(@Req() req: any, @Body() body: RequestPermissionsDto) {
     return this.familyService.requestPermissions(this.authenticatedUserId(req), body.target_member_id, body.permissions);
   }
 
@@ -126,7 +127,7 @@ export class FamilyController {
   respondPermission(
     @Req() req: any,
     @Param('requestId') requestId: string,
-    @Body() body: { decision: 'approved' | 'rejected'; note?: string; permissions?: string[] },
+    @Body() body: RespondPermissionDto,
   ) {
     return this.familyService.respondPermission(
       this.authenticatedUserId(req), requestId, body.decision, body.note, body.permissions,

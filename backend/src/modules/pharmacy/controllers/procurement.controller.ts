@@ -7,6 +7,7 @@ import { JwtAuthGuard, Roles, CurrentUser } from '../../../common/auth.guard';
 import { UserRole } from '../../../common/enums';
 import { AiGatewayService } from '../../ai/ai-gateway.service';
 import { Medicine } from '../../../schemas/medicine.schema';
+import { CreateProcurementRequestDto, FeedbackDto, AnalyzeFileDto} from './procurement.dto';
 
 /**
  * Pharmacy → warehouse procurement ("طلب عرض سعر من المستودع").
@@ -29,7 +30,7 @@ export class ProcurementController {
   /** Submit a B2B warehouse price-quote request — admin reviews it and issues a quotation. */
   @Post('submit-request')
   @Roles(UserRole.PHARMACY, UserRole.ADMIN, UserRole.SUPER_ADMIN)
-  async createProcurementRequest(@CurrentUser() user: any, @Body() dto: any) {
+  async createProcurementRequest(@CurrentUser() user: any, @Body() dto: CreateProcurementRequestDto) {
     // Identity always comes from the verified token — never from the body (IDOR-safe).
     const items = (Array.isArray(dto.items) ? dto.items : []).slice(0, 500).map((it: any) => ({
       medicine_id: it.medicine_id && Types.ObjectId.isValid(it.medicine_id) ? new Types.ObjectId(it.medicine_id) : null,
@@ -61,7 +62,7 @@ export class ProcurementController {
   /** Pharmacy approves / cancels a quotation the admin issued. */
   @Post(':id/feedback')
   @Roles(UserRole.PHARMACY)
-  async feedback(@CurrentUser() user: any, @Param('id') id: string, @Body() dto: any) {
+  async feedback(@CurrentUser() user: any, @Param('id') id: string, @Body() dto: FeedbackDto) {
     return this.procurementService.submitPharmacyFeedback(user.id, id, {
       status: dto?.status,
       pharmacyFeedback: dto?.pharmacyFeedback,
@@ -75,7 +76,7 @@ export class ProcurementController {
    */
   @Post('analyze-file')
   @Roles(UserRole.PHARMACY, UserRole.ADMIN, UserRole.SUPER_ADMIN)
-  async analyzeFile(@CurrentUser() user: any, @Body() body: { file_base64?: string; mime_type?: string; text?: string }) {
+  async analyzeFile(@CurrentUser() user: any, @Body() body: AnalyzeFileDto) {
     if (!body?.file_base64 && !body?.text) throw new BadRequestException('file_base64 or text is required');
     if (body.file_base64 && body.file_base64.length > 8_000_000) throw new BadRequestException('file too large (max ~6MB)');
 

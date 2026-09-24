@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Param, Query, UseGuards } from '@nestjs/co
 import { ReturnsService } from './returns.service';
 import { JwtAuthGuard, CurrentUser, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
+import { CreateDto, DecideDto} from './returns.dto';
 
 @Controller('pharmacy/returns')
 @SelfService()
@@ -10,7 +11,7 @@ export class ReturnsController {
   constructor(private readonly returnsService: ReturnsService) {}
 
   @Post()
-  async create(@CurrentUser() user: any, @Body() body: any) {
+  async create(@CurrentUser() user: any, @Body() body: CreateDto) {
     return this.returnsService.createRequest(user.id, body);
   }
 
@@ -39,7 +40,7 @@ export class ReturnsController {
   @Roles(UserRole.ADMIN)
   async decide(
     @Param('id') id: string,
-    @Body() body: { decision: 'approved' | 'rejected'; note?: string },
+    @Body() body: DecideDto,
     @CurrentUser() adminUser: any,
   ) {
     return this.returnsService.adminDecide(id, body.decision, body.note || '', adminUser);

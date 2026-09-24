@@ -6,6 +6,7 @@ import { v4 as uuid } from 'uuid';
 import { JwtAuthGuard, CurrentUser, Roles } from '../../common/auth.guard';
 import { LedgerService } from '../finance-engine/finance-engine.module';
 import { UserRole } from '../../common/enums';
+import { RequestDto } from './provider-payouts.dto';
 
 @Controller('provider/payouts')
 @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
@@ -45,7 +46,7 @@ export class ProviderPayoutsController {
   }
 
   @Post('request')
-  async request(@CurrentUser() user: any, @Body() body: { amount?: number; idempotency_key?: string }) {
+  async request(@CurrentUser() user: any, @Body() body: RequestDto) {
     const amount = Math.round(Number(body?.amount) * 100) / 100;
     const idempotencyKey = String(body?.idempotency_key || '').trim();
     if (!Number.isFinite(amount) || amount <= 0) throw new BadRequestException('valid_amount_required');

@@ -11,6 +11,7 @@ import {
   HttpStatus,
   UseGuards,
 } from '@nestjs/common';
+import { AddMachineDto, RespondBookingDto, AllocateMachineDto, FinalizeScanDto} from './radiology-provider.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { RadiologyBooking } from '../schemas/radiology-booking.schema';
@@ -74,7 +75,7 @@ export class RadiologyProviderController {
   @HttpCode(HttpStatus.OK)
   async respondBooking(
     @Param('id') bookingId: string,
-    @Body() body: { accept: boolean },
+    @Body() body: RespondBookingDto,
     @CurrentUser() user: any,
   ) {
     const booking = await this.radBookingModel.findOne(bookingQuery(bookingId));
@@ -99,7 +100,7 @@ export class RadiologyProviderController {
   @HttpCode(HttpStatus.OK)
   async allocateMachine(
     @Param('id') bookingId: string,
-    @Body() body: { machineId: string },
+    @Body() body: AllocateMachineDto,
     @CurrentUser() user: any,
   ) {
     const { machineId } = body || ({} as any);
@@ -130,7 +131,7 @@ export class RadiologyProviderController {
   @Post('finalize-scan/:id')
   async finalizeScan(
     @Param('id') bookingId: string,
-    @Body() body: { reportText: string; files: string[]; pdfUrl: string },
+    @Body() body: FinalizeScanDto,
     @CurrentUser() user: any,
   ) {
     const existing = await this.radBookingModel.findOne(bookingQuery(bookingId));
@@ -212,7 +213,7 @@ export class RadiologyProviderController {
   }
 
   @Post('inventory')
-  async addMachine(@Body() body: any, @CurrentUser() user: any) {
+  async addMachine(@Body() body: AddMachineDto, @CurrentUser() user: any) {
     if (this.isAdmin(user)) throw new ForbiddenException('Admin must not create provider inventory');
     if (!body?.name || !body?.type) throw new BadRequestException('name and type are required');
     const machine = new this.radMachineModel({ provider_id: user.id, name: body.name, type: body.type, is_active: true });

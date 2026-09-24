@@ -6,6 +6,7 @@ import { JwtAuthGuard, Roles, CurrentUser, Public, SelfService } from '../../com
 import { Audited } from '../../common/audit-log.interceptor';
 import { UserRole } from '../../common/enums';
 import { CandidateProfile, CandidateProfileSchema, JobPosting, JobPostingSchema, JobApplication, JobApplicationSchema } from '../../schemas/job-board.schema';
+import { UpsertCandidateProfileDto, CreateJobDto, UpdateJobDto, GuestPostDto, GuestApplyDto, ApplyForJobDto, UpdateApplicationStatusDto} from './recruitment.dto';
 
 @Injectable()
 export class RecruitmentService {
@@ -301,7 +302,7 @@ export class RecruitmentController {
 
   @SelfService()
   @Post('candidate/profile')
-  upsertCandidateProfile(@CurrentUser() u: any, @Body() b: any) {
+  upsertCandidateProfile(@CurrentUser() u: any, @Body() b: UpsertCandidateProfileDto) {
     return this.svc.upsertCandidateProfile(u.id, b);
   }
 
@@ -313,7 +314,7 @@ export class RecruitmentController {
   // --- Job Posting endpoints ---
   @Roles(UserRole.HOSPITAL, UserRole.HOSPITAL_ADMIN, UserRole.ADMIN)
   @Post('jobs')
-  createJob(@CurrentUser() u: any, @Body() b: any) {
+  createJob(@CurrentUser() u: any, @Body() b: CreateJobDto) {
     if (![UserRole.HOSPITAL, UserRole.HOSPITAL_ADMIN, UserRole.DOCTOR, UserRole.ADMIN, UserRole.SUPER_ADMIN].includes(u.role as UserRole)) {
       throw new ForbiddenException('Only healthcare facilities, clinics, doctors and admins can post jobs');
     }
@@ -323,7 +324,7 @@ export class RecruitmentController {
   @Roles(UserRole.HOSPITAL, UserRole.HOSPITAL_ADMIN, UserRole.ADMIN)
   @Put('jobs/:id')
   @Audited({ model: 'JobPosting', idParam: 'id', action: 'job_posting_update' })
-  updateJob(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
+  updateJob(@CurrentUser() u: any, @Param('id') id: string, @Body() b: UpdateJobDto) {
     return this.svc.updateJob(id, u.id, u.role, b);
   }
 
@@ -338,14 +339,14 @@ export class RecruitmentController {
   @Public()
   @Throttle({ default: { limit: 3, ttl: 86400000 } })
   @Post('jobs/guest')
-  guestPost(@Body() b: any) {
+  guestPost(@Body() b: GuestPostDto) {
     return this.svc.guestPostJob(String(b?.device_id || ''), b);
   }
 
   @Public()
   @Throttle({ default: { limit: 5, ttl: 86400000 } })
   @Post('jobs/:id/guest-apply')
-  guestApply(@Param('id') id: string, @Body() b: any) {
+  guestApply(@Param('id') id: string, @Body() b: GuestApplyDto) {
     return this.svc.guestApply(String(b?.device_id || ''), id, b);
   }
 
@@ -363,7 +364,7 @@ export class RecruitmentController {
 
   @SelfService()
   @Post('jobs/:id/apply')
-  applyForJob(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
+  applyForJob(@CurrentUser() u: any, @Param('id') id: string, @Body() b: ApplyForJobDto) {
     return this.svc.applyForJob(u.id, id, b);
   }
 
@@ -375,7 +376,7 @@ export class RecruitmentController {
   @Roles(UserRole.HOSPITAL, UserRole.HOSPITAL_ADMIN, UserRole.ADMIN)
   @Patch('applications/:id/status')
   @Audited({ model: 'JobApplication', idParam: 'id', action: 'job_application_status_update' })
-  updateApplicationStatus(@CurrentUser() u: any, @Param('id') id: string, @Body() b: { status: string }) {
+  updateApplicationStatus(@CurrentUser() u: any, @Param('id') id: string, @Body() b: UpdateApplicationStatusDto) {
     return this.svc.updateApplicationStatus(id, u.id, u.role, b.status);
   }
 }

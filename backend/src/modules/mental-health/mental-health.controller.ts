@@ -2,6 +2,7 @@ import { JwtAuthGuard, SelfService } from '../../common/auth.guard';
 import { Body, Controller, Delete, Get, Param, Post, Query, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { MentalHealthService } from './mental-health.service';
+import { LogMeditationDto, LogBreathingDto, AddCrisisContactDto } from './mental-health.dto';
 
 @ApiTags('Mental Health – الصحة النفسية')
 @UseGuards(JwtAuthGuard)
@@ -40,7 +41,7 @@ export class MentalHealthController {
 
   @Post('meditation')
   @ApiOperation({ summary: 'Log an optional mindfulness practice / تسجيل ممارسة يقظة ذهنية اختيارية' })
-  logMeditation(@Req() req: any, @Body() body: any) {
+  logMeditation(@Req() req: any, @Body() body: LogMeditationDto) {
     return this.mentalHealthService.logMeditation(this.patientId(req), body);
   }
 
@@ -58,7 +59,7 @@ export class MentalHealthController {
 
   @Post('breathing')
   @ApiOperation({ summary: 'Log a breathing practice / تسجيل ممارسة تنفّس' })
-  logBreathing(@Req() req: any, @Body() body: any) {
+  logBreathing(@Req() req: any, @Body() body: LogBreathingDto) {
     return this.mentalHealthService.logBreathing(this.patientId(req), body);
   }
 
@@ -78,7 +79,7 @@ export class MentalHealthController {
 
   @Post('crisis-contacts')
   @ApiOperation({ summary: 'Add a personal crisis contact / إضافة جهة مساعدة شخصية' })
-  addCrisisContact(@Req() req: any, @Body() body: any) {
+  addCrisisContact(@Req() req: any, @Body() body: AddCrisisContactDto) {
     return this.mentalHealthService.addCrisisContact(this.patientId(req), body);
   }
 

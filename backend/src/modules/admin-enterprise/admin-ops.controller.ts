@@ -8,6 +8,7 @@ import { DICTIONARY } from '../i18n/i18n.service';
 import { AdminAuditService } from './audit.service';
 import { SeoService } from '../seo/seo.service';
 import { Queue } from 'bullmq';
+import { RetryJobDto, RetryFailedDto, UpsertTranslationDto, SetSeoControlDto } from './admin-ops.dto';
 
 /**
  * A6 — System Ops:
@@ -64,7 +65,7 @@ export class AdminOpsController {
 
   /** Real retry of a single failed job. */
   @Post('queues/:name/jobs/:jobId/retry')
-  async retryJob(@Param('name') name: string, @Param('jobId') jobId: string, @Body() b: any, @CurrentUser() me: any) {
+  async retryJob(@Param('name') name: string, @Param('jobId') jobId: string, @Body() b: RetryJobDto, @CurrentUser() me: any) {
     const job = await this.notificationsQueue.getJob(String(jobId));
     if (!job) throw new NotFoundException('job_not_found');
     await job.retry();
@@ -78,7 +79,7 @@ export class AdminOpsController {
 
   /** Retry ALL failed jobs up to a cap — audited, reason mandatory. */
   @Post('queues/:name/retry-failed')
-  async retryFailed(@Param('name') name: string, @Body() b: any, @CurrentUser() me: any) {
+  async retryFailed(@Param('name') name: string, @Body() b: RetryFailedDto, @CurrentUser() me: any) {
     let reason = '';
     try { reason = String(b?.reason || '').trim(); } catch { /* handled below */ }
     if (reason.length < 5) throw new BadRequestException('reason_required');
@@ -117,7 +118,7 @@ export class AdminOpsController {
   }
 
   @Post('translations')
-  async upsertTranslation(@Body() b: any, @CurrentUser() me: any) {
+  async upsertTranslation(@Body() b: UpsertTranslationDto, @CurrentUser() me: any) {
     const key = String(b?.key || '').trim();
     const value = String(b?.value ?? '').trim();
     if (!key || !(key in DICTIONARY)) throw new BadRequestException('unknown_key');
@@ -150,7 +151,7 @@ export class AdminOpsController {
   }
 
   @Post('seo/controls')
-  async setSeoControl(@Body() b: any, @CurrentUser() me: any) {
+  async setSeoControl(@Body() b: SetSeoControlDto, @CurrentUser() me: any) {
     const routeKey = String(b?.route_key || '').trim().toLowerCase(); // e.g. medicine-catalog | articles | doctors
     if (!routeKey) throw new BadRequestException('route_key_required');
     if (typeof b?.indexable !== 'boolean') throw new BadRequestException('indexable_boolean_required');

@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Body, Query, UseGuards, BadRequestException, Delete, Param } from '@nestjs/common';
 import { WalletService } from './wallet.service';
 import { JwtAuthGuard, CurrentUser, SelfService } from '../../common/auth.guard';
+import { AddCardDto, TopupDto, ConfirmTopupDto, TransferDto} from './wallet.dto';
 
 @Controller('wallet')
 @SelfService()
@@ -33,7 +34,7 @@ export class WalletController {
    * (Previously this credited any amount with no payment — a critical money-printing hole.)
    */
   @Post('topup')
-  async topup(@CurrentUser() user: any, @Body() body: { amount: number; paymentMethod?: string }) {
+  async topup(@CurrentUser() user: any, @Body() body: TopupDto) {
     if (!body.amount) throw new BadRequestException('amount_required');
     const ownerType = user.role === 'patient' ? 'patient' : 'provider';
     const intent = await this.walletService.createTopupIntent(user.id, ownerType, body.amount);
@@ -41,7 +42,7 @@ export class WalletController {
   }
 
   @Post('topup/confirm')
-  async confirmTopup(@CurrentUser() user: any, @Body() body: { topup_id: string }) {
+  async confirmTopup(@CurrentUser() user: any, @Body() body: ConfirmTopupDto) {
     if (!body?.topup_id) throw new BadRequestException('topup_id_required');
     return this.walletService.confirmTopup(user.id, body.topup_id);
   }
@@ -52,7 +53,7 @@ export class WalletController {
   }
 
   @Post('transfer')
-  async transfer(@CurrentUser() user: any, @Body() body: { recipient: string; amount: number }) {
+  async transfer(@CurrentUser() user: any, @Body() body: TransferDto) {
     if (!body.recipient || !body.amount) throw new BadRequestException('recipient_and_amount_required');
     const ownerType = user.role === 'patient' ? 'patient' : 'provider';
     const wallet = await this.walletService.transfer(user.id, ownerType, body.recipient, body.amount);
@@ -67,7 +68,7 @@ export class WalletController {
   }
 
   @Post('cards')
-  async addCard(@CurrentUser() user: any, @Body() body: any) {
+  async addCard(@CurrentUser() user: any, @Body() body: AddCardDto) {
     const ownerType = user.role === 'patient' ? 'patient' : 'provider';
     const cards = await this.walletService.addCard(user.id, ownerType, body);
     return { success: true, cards };

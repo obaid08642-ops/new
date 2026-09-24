@@ -2,6 +2,7 @@ import {
   BadRequestException, Body, Controller, Delete, ForbiddenException, Get,
   Injectable, NotFoundException, Param, Patch, Post, Query, UseGuards,
 } from '@nestjs/common';
+import { CreateDto, UpdateDto, RejectDto } from './ambulance-fleet.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { AmbulanceVehicle, AmbulanceVehicleDocument } from '../../schemas/ambulance-vehicle.schema';
@@ -100,13 +101,13 @@ export class ProviderAmbulanceFleetController {
   }
 
   @Post()
-  create(@CurrentUser() user: any, @Body() body: any) {
+  create(@CurrentUser() user: any, @Body() body: CreateDto) {
     this.assertFleetRole(user);
     return this.svc.create(user.id, body);
   }
 
   @Patch(':id')
-  update(@CurrentUser() user: any, @Param('id') id: string, @Body() body: any) {
+  update(@CurrentUser() user: any, @Param('id') id: string, @Body() body: UpdateDto) {
     this.assertFleetRole(user);
     return this.svc.update(user.id, id, body);
   }
@@ -137,7 +138,7 @@ export class AdminAmbulanceFleetController {
 
   @Post(':id/reject')
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
-  reject(@Param('id') id: string, @CurrentUser() admin: any, @Body() body: any) {
+  reject(@Param('id') id: string, @CurrentUser() admin: any, @Body() body: RejectDto) {
     return this.svc.review(id, admin.id, false, body?.reason);
   }
 }

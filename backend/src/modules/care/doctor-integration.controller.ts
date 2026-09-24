@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { DoctorProfileExtended } from './schemas/doctor-profile-extended.schema';
 import { EncounterRecord } from './schemas/encounter-record.schema';
+import { FinalizeEncounterDto } from './doctor-integration.dto';
 
 @Controller('provider/doctor-engine')
 export class DoctorIntegrationController {
@@ -34,7 +35,7 @@ export class DoctorIntegrationController {
   }
 
   @Post('finalize-encounter')
-  async finalizeEncounter(@Body() encounterDto: any) {
+  async finalizeEncounter(@Body() encounterDto: FinalizeEncounterDto) {
     // Fix 2: Immutability Guard on Manual Insurance Entries
     // Ensure the encounter is not already finalized to prevent tampering with committed insurance parameters
     const existingRecord = await this.encounterModel.findOne({ appointment_id: new Types.ObjectId(encounterDto.appointmentId) });

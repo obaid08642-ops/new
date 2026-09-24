@@ -1,6 +1,4 @@
-import {
-  IsArray, IsNotEmpty, IsOptional, IsString, IsNumber, ValidateNested, Min,
-} from 'class-validator';
+import { IsArray, IsDefined, IsNotEmpty, IsNumber, IsOptional, IsString, Min, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class ProcurementItemDto {
@@ -19,6 +17,7 @@ export class ProcurementItemDto {
 }
 
 export class CreateProcurementRequestDto {
+  @IsDefined()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => ProcurementItemDto)

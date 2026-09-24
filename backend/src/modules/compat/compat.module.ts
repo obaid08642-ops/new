@@ -21,6 +21,7 @@ import {
   Module,
   UseGuards,
 } from '@nestjs/common';
+import { SendDto, AddDto, RegisterDto, IngestDto, CreateDto, BookDto, BareSendDto, SendDto2, BatchDto, CheckDto, SendMessageDto, AddNoteToActiveDto, AddNoteDto, VerifyGpsDto, ReportShortageDto, VoiceToOrderDto} from './compat.dto';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
 import { v4 as uuid } from 'uuid';
@@ -71,7 +72,7 @@ export class FamilyChatController {
   }
 
   @Post('messages')
-  async send(@CurrentUser() u: any, @Body() body: any) {
+  async send(@CurrentUser() u: any, @Body() body: SendDto) {
     if (!body?.text?.trim()) throw new BadRequestException('text_required');
     const owner = await this.familyOf(uid(u));
     const msg = {
@@ -104,7 +105,7 @@ class HealthMedsController {
   }
 
   @Post()
-  async add(@CurrentUser() u: any, @Body() body: any) {
+  async add(@CurrentUser() u: any, @Body() body: AddDto) {
     if (!body?.name) throw new BadRequestException('name_required');
     const med = {
       id: uuid(),
@@ -135,7 +136,7 @@ class WearablesController {
   }
 
   @Post('devices')
-  async register(@CurrentUser() u: any, @Body() body: any) {
+  async register(@CurrentUser() u: any, @Body() body: RegisterDto) {
     if (!body?.kind) throw new BadRequestException('kind_required');
     const dev = {
       id: uuid(),
@@ -158,7 +159,7 @@ class WearablesController {
   }
 
   @Post('data')
-  async ingest(@CurrentUser() u: any, @Body() body: any) {
+  async ingest(@CurrentUser() u: any, @Body() body: IngestDto) {
     const rows = (Array.isArray(body?.samples) ? body.samples : [body]).filter((s: any) => s?.metric && s?.value != null);
     if (!rows.length) throw new BadRequestException('samples_required');
     const docs = rows.slice(0, 500).map((s: any) => ({
@@ -391,7 +392,7 @@ class SupportChatController {
   }
 
   @Post()
-  async bareSend(@CurrentUser() user: any, @Body() body: { body?: string; message?: string }) {
+  async bareSend(@CurrentUser() user: any, @Body() body: BareSendDto) {
     const text = String(body?.body || body?.message || '').trim();
     if (!text) throw new BadRequestException('نص الرسالة مطلوب');
     const doc = {
@@ -417,7 +418,7 @@ class SupportChatController {
   }
 
   @Post('messages')
-  async send(@CurrentUser() user: any, @Body() body: { body?: string; message?: string }) {
+  async send(@CurrentUser() user: any, @Body() body: SendDto2) {
     return this.bareSend(user, body);
   }
 }
@@ -438,7 +439,7 @@ class AuditIngestController {
   }
 
   @Post('batch')
-  async batch(@CurrentUser() user: any, @Body() body: { events?: any[] }) {
+  async batch(@CurrentUser() user: any, @Body() body: BatchDto) {
     const list = Array.isArray(body?.events) ? body.events.slice(0, 100) : [];
     if (list.length) {
       await this.conn.collection('clientevents').insertMany(list.map((e: any) => ({
@@ -465,7 +466,7 @@ class AiInteractionsController {
   constructor(@InjectConnection() private conn: Connection) {}
 
   @Post('drug-interactions')
-  async check(@CurrentUser() user: any, @Body() body: { drugs?: string[]; drug?: string }) {
+  async check(@CurrentUser() user: any, @Body() body: CheckDto) {
     const u = uid(user);
     const meds = await this.conn.collection('healthmedications')
       .find({ account_id: u, active: { $ne: false } } as any).toArray();
@@ -528,7 +529,7 @@ class ConsultationsCompatController {
   }
 
   @Post(':id/messages')
-  async sendMessage(@Param('id') id: string, @CurrentUser() user: any, @Body() body: { body?: string }) {
+  async sendMessage(@Param('id') id: string, @CurrentUser() user: any, @Body() body: SendMessageDto) {
     const u = uid(user);
     const b = await this.ownedAppointment(id, u);
     const text = String(body?.body || '').trim();
@@ -600,7 +601,7 @@ class NursingCompatController {
    * the nurse's CURRENT visit (latest ARRIVED/IN_PROGRESS booking).
    */
   @Post('notes')
-  async addNoteToActive(@CurrentUser() user: any, @Body() body: { vitals?: any; note?: string }) {
+  async addNoteToActive(@CurrentUser() user: any, @Body() body: AddNoteToActiveDto) {
     const u = uid(user);
     const b: any = await this.conn.collection('homecarebookings')
       .find({
@@ -623,7 +624,7 @@ class NursingCompatController {
   }
 
   @Post('jobs/:id/notes')
-  async addNote(@Param('id') id: string, @CurrentUser() user: any, @Body() body: { note?: string; body?: string }) {
+  async addNote(@Param('id') id: string, @CurrentUser() user: any, @Body() body: AddNoteDto) {
     const u = uid(user);
     const text = String(body?.note || body?.body || '').trim();
     if (!text) throw new BadRequestException('نص الملاحظة مطلوب');
@@ -642,7 +643,7 @@ class NursingCompatController {
   }
 
   @Post('coverage/verify-gps')
-  async verifyGps(@CurrentUser() user: any, @Body() body: { lat?: number; lng?: number }) {
+  async verifyGps(@CurrentUser() user: any, @Body() body: VerifyGpsDto) {
     const u = uid(user);
     const lat = Number(body?.lat), lng = Number(body?.lng);
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) throw new BadRequestException('إحداثيات غير صالحة');
@@ -692,7 +693,7 @@ class PharmacyCompatController {
   }
 
   @Post('shortages/report')
-  async reportShortage(@CurrentUser() user: any, @Body() body: { product_name?: string; medicine_id?: string; note?: string }) {
+  async reportShortage(@CurrentUser() user: any, @Body() body: ReportShortageDto) {
     const u = uid(user);
     const name = String(body?.product_name || '').trim();
     if (!name && !body?.medicine_id) throw new BadRequestException('اسم الصنف مطلوب');
@@ -856,7 +857,7 @@ class B2BVoiceController {
   constructor(@InjectConnection() private conn: Connection) {}
 
   @Post('voice-to-order')
-  async voiceToOrder(@CurrentUser() user: any, @Body() body: { text?: string }) {
+  async voiceToOrder(@CurrentUser() user: any, @Body() body: VoiceToOrderDto) {
     const text = String(body?.text || '').trim();
     if (!text) throw new BadRequestException('نص الطلب الصوتي مطلوب');
     const segments = text.split(/[,،;\n]|\s+و\s+/).map((s) => s.trim()).filter(Boolean);
@@ -1138,7 +1139,7 @@ export class PatientPharmacyOrdersController {
   private get col() { return this.conn.db.collection('pharmacy_orders'); }
 
   @Post('orders')
-  async create(@CurrentUser() u: any, @Body() body: any) {
+  async create(@CurrentUser() u: any, @Body() body: CreateDto) {
     const userId = uid(u);
     if (!userId) throw new ForbiddenException('authenticated_user_required');
     const items = Array.isArray(body?.items) ? body.items : [];
@@ -1216,7 +1217,7 @@ export class PatientHomeCareController {
   }
 
   @Post('bookings')
-  async book(@CurrentUser() u: any, @Body() body: any) {
+  async book(@CurrentUser() u: any, @Body() body: BookDto) {
     const userId = uid(u);
     if (!userId) throw new ForbiddenException('authenticated_user_required');
     if (!body?.service_id && !body?.package_id) throw new BadRequestException('service_or_package_required');

@@ -15,6 +15,7 @@ import { PharmacyOfferService } from './services/pharmacy-offer.service';
 import { PharmacyInsuranceDecisionService } from './services/pharmacy-insurance-decision.service';
 import { PharmacyExpiryCommandService } from './services/pharmacy-expiry-command.service';
 import { PharmacyPaymentEvidenceService } from './services/pharmacy-payment-evidence.service';
+import { CreateDto, UpdateDto, CancelDto, PaymentIntentDto, CancelRejectedInsuranceDto, SelectOfferDto, AcceptFinalQuoteDto, RegisterCodDto, AcceptInsuranceDto, ItemActionDto, OutDto, DeliveredDto, InsuranceDecisionDto, CancelDto3, SetTrackingDto, RestockDto, SampleOrderDto, PreviewOfferDto, DraftOfferDto, RejectDto, PostDto, ReportDto, CreateDto2, MarkShortageDto, RejectDto5 } from './pharmacy.controllers.dto';
 
 // =========================================================================
 //  PATIENT ENDPOINTS (/api/v2/patient/pharmacy/*)
@@ -27,28 +28,28 @@ export class PatientPharmacyController {
   // Order roots are state-changing: keys are mandatory (P0-01). The global
   // IdempotencyInterceptor then guarantees replay-safety (24h cache +
   // in-progress lock + body-hash mismatch guard). Mobile + web BFF already send keys.
-  @Post('orders') @RequireIdempotency() create(@CurrentUser() u: any, @Body() b: any) { return this.orders.create(u, b); }
+  @Post('orders') @RequireIdempotency() create(@CurrentUser() u: any, @Body() b: CreateDto) { return this.orders.create(u, b); }
   @Get('orders') list(@CurrentUser() u: any, @Query('status') status?: string) { return this.orders.list(u, status); }
   @Get('orders/:id') detail(@CurrentUser() u: any, @Param('id') id: string) { return this.orders.detail(u, id); }
-  @Patch('orders/:id') @RequireIdempotency() update(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.orders.update(u, id, b); }
+  @Patch('orders/:id') @RequireIdempotency() update(@CurrentUser() u: any, @Param('id') id: string, @Body() b: UpdateDto) { return this.orders.update(u, id, b); }
   @Post('orders/:id/submit') @RequireIdempotency() submit(@CurrentUser() u: any, @Param('id') id: string) { return this.orders.submit(u, id); }
-  @Post('orders/:id/cancel') @RequireIdempotency() cancel(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.orders.cancel(u, id, b?.reason || ''); }
-  @Post('orders/:id/payment-intent') paymentIntent(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.payments.createPaymentIntent(u, id, b?.idempotency_key); }
-  @Post('orders/:id/insurance-rejection/cancel') cancelRejectedInsurance(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.insurance.cancelRejectedByPatient(u, id, b?.idempotency_key); }
+  @Post('orders/:id/cancel') @RequireIdempotency() cancel(@CurrentUser() u: any, @Param('id') id: string, @Body() b: CancelDto) { return this.orders.cancel(u, id, b?.reason || ''); }
+  @Post('orders/:id/payment-intent') paymentIntent(@CurrentUser() u: any, @Param('id') id: string, @Body() b: PaymentIntentDto) { return this.payments.createPaymentIntent(u, id, b?.idempotency_key); }
+  @Post('orders/:id/insurance-rejection/cancel') cancelRejectedInsurance(@CurrentUser() u: any, @Param('id') id: string, @Body() b: CancelRejectedInsuranceDto) { return this.insurance.cancelRejectedByPatient(u, id, b?.idempotency_key); }
   @Get('orders/:id/offers') listOffers(@CurrentUser() u: any, @Param('id') id: string) { return this.offers.listForPatient(u, id); }
-  @Post('orders/:id/offers/:offerId/select') selectOffer(@CurrentUser() u: any, @Param('id') id: string, @Param('offerId') offerId: string, @Body() b: any, @Headers('idempotency-key') idemHeader?: string) {
+  @Post('orders/:id/offers/:offerId/select') selectOffer(@CurrentUser() u: any, @Param('id') id: string, @Param('offerId') offerId: string, @Body() b: SelectOfferDto, @Headers('idempotency-key') idemHeader?: string) {
     return this.offers.selectByPatient(u, id, offerId, b?.idempotency_key || idemHeader, b?.coverage_mode);
   }
 
-  @Post('orders/:id/final-quote/accept') acceptFinalQuote(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any, @Headers('idempotency-key') idemHeader?: string) {
+  @Post('orders/:id/final-quote/accept') acceptFinalQuote(@CurrentUser() u: any, @Param('id') id: string, @Body() b: AcceptFinalQuoteDto, @Headers('idempotency-key') idemHeader?: string) {
     return this.orders.acceptFinalQuote(u, id, b?.quote_hash, b?.quote_revision, b?.idempotency_key || idemHeader);
   }
 
-  @Post('orders/:id/cod/register') registerCod(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any, @Headers('idempotency-key') idemHeader?: string) {
+  @Post('orders/:id/cod/register') registerCod(@CurrentUser() u: any, @Param('id') id: string, @Body() b: RegisterCodDto, @Headers('idempotency-key') idemHeader?: string) {
     return this.orders.registerCod(u, id, b?.idempotency_key || idemHeader);
   }
 
-  @Post('orders/:id/insurance/:kind/accept') acceptInsurance(@CurrentUser() u: any, @Param('id') id: string, @Param('kind') kind: string, @Body() b: any, @Headers('idempotency-key') idemHeader?: string) {
+  @Post('orders/:id/insurance/:kind/accept') acceptInsurance(@CurrentUser() u: any, @Param('id') id: string, @Param('kind') kind: string, @Body() b: AcceptInsuranceDto, @Headers('idempotency-key') idemHeader?: string) {
     return this.insurance.acceptByPatient(u, id, kind, b?.payment_method, b?.idempotency_key || idemHeader);
   }
 }
@@ -75,21 +76,21 @@ export class ProviderPharmacyController {
     if (!isProviderRole(u?.role)) throw new ForbiddenException();
     return this.allocs.detail(u, id);
   }
-  @Post('allocations/:id/items/:itemId') itemAction(@CurrentUser() u: any, @Param('id') id: string, @Param('itemId') itemId: string, @Body() b: any) {
+  @Post('allocations/:id/items/:itemId') itemAction(@CurrentUser() u: any, @Param('id') id: string, @Param('itemId') itemId: string, @Body() b: ItemActionDto) {
     return this.allocs.itemAction(u, id, itemId, b);
   }
   @Post('allocations/:id/confirm') confirm(@CurrentUser() u: any, @Param('id') id: string) { return this.allocs.confirm(u, id); }
   @Post('allocations/:id/preparing') preparing(@CurrentUser() u: any, @Param('id') id: string) { return this.allocs.preparing(u, id); }
   @Post('allocations/:id/ready') ready(@CurrentUser() u: any, @Param('id') id: string) { return this.allocs.ready(u, id); }
-  @Post('allocations/:id/out-for-delivery') out(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.allocs.outForDelivery(u, id, b); }
-  @Post('allocations/:id/delivered') delivered(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.allocs.delivered(u, id, b); }
+  @Post('allocations/:id/out-for-delivery') out(@CurrentUser() u: any, @Param('id') id: string, @Body() b: OutDto) { return this.allocs.outForDelivery(u, id, b); }
+  @Post('allocations/:id/delivered') delivered(@CurrentUser() u: any, @Param('id') id: string, @Body() b: DeliveredDto) { return this.allocs.delivered(u, id, b); }
   @Post('allocations/:id/insurance') updateInsurance() { return this.allocs.updateInsurance(); }
-  @Post('orders/:id/insurance-decision') insuranceDecision(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.insurance.decide(u, id, b); }
-  @Post('allocations/:id/cancel') cancel(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.allocs.cancel(u, id, b?.reason || ''); }
+  @Post('orders/:id/insurance-decision') insuranceDecision(@CurrentUser() u: any, @Param('id') id: string, @Body() b: InsuranceDecisionDto) { return this.insurance.decide(u, id, b); }
+  @Post('allocations/:id/cancel') cancel(@CurrentUser() u: any, @Param('id') id: string, @Body() b: CancelDto3) { return this.allocs.cancel(u, id, b?.reason || ''); }
 
   // Operational preference (immediate): optional inventory-balance tracking.
   @Get('inventory-tracking') tracking(@CurrentUser() u: any) { return this.allocs.getInventoryTracking(u); }
-  @Put('inventory-tracking') setTracking(@CurrentUser() u: any, @Body() b: any) { return this.allocs.setInventoryTracking(u, b); }
+  @Put('inventory-tracking') setTracking(@CurrentUser() u: any, @Body() b: SetTrackingDto) { return this.allocs.setInventoryTracking(u, b); }
 
   // =========================================================================
   //  BLUEPRINT V1.2 ENDPOINTS (ORDERS)
@@ -124,7 +125,7 @@ export class ProviderPharmacyController {
 export class ProviderInventoryExtController {
   constructor(private svc: PharmacyInventoryExtService) {}
   @Get('search') search(@CurrentUser() u: any, @Query('q') q?: string, @Query('barcode') bc?: string) { return this.svc.search(u, q, bc); }
-  @Post(':id/restock') restock(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.restock(u, id, Number(b?.qty) || 0); }
+  @Post(':id/restock') restock(@CurrentUser() u: any, @Param('id') id: string, @Body() b: RestockDto) { return this.svc.restock(u, id, Number(b?.qty) || 0); }
   @Get('low-stock-alerts') alerts(@CurrentUser() u: any) { return this.svc.listLowStockAlerts(u); }
   @Post('low-stock-alerts/:id/ack') ack(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.acknowledgeAlert(u, id); }
 }
@@ -189,7 +190,7 @@ export class AdminPharmacySeedController {
   }
 
   @Post('seed') seed(@CurrentUser() u: any) { this.assertTestSeedAllowed(); return this.seedSvc.seed(u); }
-  @Post('seed/sample-order') sampleOrder(@CurrentUser() u: any, @Body() b: any) { this.assertTestSeedAllowed(); return this.seedSvc.seedSampleOrder(b?.patient_account_id || u.id); }
+  @Post('seed/sample-order') sampleOrder(@CurrentUser() u: any, @Body() b: SampleOrderDto) { this.assertTestSeedAllowed(); return this.seedSvc.seedSampleOrder(b?.patient_account_id || u.id); }
 }
 
 // =========================================================================
@@ -202,13 +203,13 @@ export class ProviderBroadcastController {
   constructor(private bc: PharmacyBroadcastService, private offers: PharmacyOfferService) {}
   @Get() list(@CurrentUser() u: any) { return this.bc.listForPharmacy(u); }
   @Get(':id') detail(@CurrentUser() u: any, @Param('id') id: string) { return this.bc.detail(u, id); }
-  @Post(':orderId/offers/preview') previewOffer(@CurrentUser() u: any, @Param('orderId') orderId: string, @Body() b: any) { return this.offers.previewQuote(u, orderId, b); }
-  @Post(':orderId/offers/draft') draftOffer(@CurrentUser() u: any, @Param('orderId') orderId: string, @Body() b: any) { return this.offers.upsertDraft(u, orderId, b); }
+  @Post(':orderId/offers/preview') previewOffer(@CurrentUser() u: any, @Param('orderId') orderId: string, @Body() b: PreviewOfferDto) { return this.offers.previewQuote(u, orderId, b); }
+  @Post(':orderId/offers/draft') draftOffer(@CurrentUser() u: any, @Param('orderId') orderId: string, @Body() b: DraftOfferDto) { return this.offers.upsertDraft(u, orderId, b); }
   @Post(':orderId/offers/:offerId/submit') submitOffer(@CurrentUser() u: any, @Param('orderId') orderId: string, @Param('offerId') offerId: string) { return this.offers.submitDraft(u, orderId, offerId); }
   // Kept only as explicit fail-closed compatibility routes. They may never reserve stock or allocate before patient selection.
   @Post(':orderId/i-have-all') haveAll() { throw new ServiceUnavailableException('legacy_broadcast_acceptance_disabled_use_offer_draft'); }
   @Post(':orderId/i-have-partial') havePartial() { throw new ServiceUnavailableException('legacy_broadcast_acceptance_disabled_use_offer_draft'); }
-  @Post(':orderId/reject') reject(@CurrentUser() u: any, @Param('orderId') oid: string, @Body() b: any) { return this.bc.respondReject(u, oid, b); }
+  @Post(':orderId/reject') reject(@CurrentUser() u: any, @Param('orderId') oid: string, @Body() b: RejectDto) { return this.bc.respondReject(u, oid, b); }
 }
 
 @Controller('admin/pharmacy/broadcasts')
@@ -245,7 +246,7 @@ export class PharmacyChatController {
   @Get('threads') list(@CurrentUser() u: any, @Query('order_id') oid?: string) { return this.chat.listThreads(u, oid); }
   @Get('threads/:id/messages') msgs(@CurrentUser() u: any, @Param('id') id: string) { return this.chat.listMessages(u, id); }
   @Roles(UserRole.PHARMACY, UserRole.ADMIN)
-  @Post('threads/:id/messages') post(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.chat.postMessage(u, id, b); }
+  @Post('threads/:id/messages') post(@CurrentUser() u: any, @Param('id') id: string, @Body() b: PostDto) { return this.chat.postMessage(u, id, b); }
   @Roles(UserRole.PHARMACY, UserRole.ADMIN)
   @Post('threads/:id/accept-substitute/:msgId') accept(@CurrentUser() u: any, @Param('id') id: string, @Param('msgId') mid: string) { return this.chat.acceptSubstitute(u, id, mid); }
   @Roles(UserRole.PHARMACY, UserRole.ADMIN)
@@ -267,7 +268,7 @@ export class AdminPharmacyChatController {
 export class ProviderShortageController {
   constructor(private svc: PharmacyShortageService) {}
   @Roles(UserRole.PHARMACY, UserRole.ADMIN)
-  @Post() report(@CurrentUser() u: any, @Body() b: any) { return this.svc.reportByPharmacy(u, b); }
+  @Post() report(@CurrentUser() u: any, @Body() b: ReportDto) { return this.svc.reportByPharmacy(u, b); }
   @Get() list(@CurrentUser() u: any, @Query('status') st?: string) { return this.svc.list(u, st); }
 }
 
@@ -276,12 +277,12 @@ export class ProviderShortageController {
 @Roles(UserRole.ADMIN)
 export class AdminShortageController {
   constructor(private svc: PharmacyShortageService) {}
-  @Post() create(@CurrentUser() u: any, @Body() b: any) { return this.svc.createByAdmin(u, b); }
+  @Post() create(@CurrentUser() u: any, @Body() b: CreateDto2) { return this.svc.createByAdmin(u, b); }
   @Get() list(@CurrentUser() u: any, @Query('status') st?: string) { return this.svc.list(u, st); }
   @Get('dashboard') getDashboard(@CurrentUser() u: any) { return this.svc.getShortageDashboard(u); }
-  @Post(':id/mark') markShortage(@CurrentUser() u: any, @Param('id') medicineId: string, @Body() b: any) { return this.svc.adminMarkShortage(u, medicineId, b); }
+  @Post(':id/mark') markShortage(@CurrentUser() u: any, @Param('id') medicineId: string, @Body() b: MarkShortageDto) { return this.svc.adminMarkShortage(u, medicineId, b); }
   @Post(':id/approve') approve(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.approve(u, id); }
-  @Post(':id/reject') reject(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.reject(u, id, b?.reason); }
+  @Post(':id/reject') reject(@CurrentUser() u: any, @Param('id') id: string, @Body() b: RejectDto5) { return this.svc.reject(u, id, b?.reason); }
   @Post(':id/resolve') resolve(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.resolve(u, id); }
 }
 

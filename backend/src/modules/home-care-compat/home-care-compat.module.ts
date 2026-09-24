@@ -16,6 +16,7 @@ import { ChatService } from '../chat/chat.service';
 import { HomeCareBookingSchema, HomeCareServiceSchema, CarePlanSchema } from '../../schemas/home-care.schema';
 import { ProviderProfileSchema } from '../../schemas/provider-profile.schema';
 import { UserRole } from '../../common/enums';
+import { CreateBookingDto, RespondDto, AssignDto, CheckInDto, GpsDto, VisitReportDto, CreateCarePlanDto, SetAvailabilityDto, InventoryRequestDto, PostMessageDto, PostLegacyDto, ProviderSendDto } from './home-care-compat.dto';
 
 const ACTIVE_STATES = ['NEW_REQUEST', 'PROVIDER_ASSIGNED', 'ACCEPTED', 'EN_ROUTE', 'ARRIVED', 'CARE_STARTED'];
 
@@ -82,7 +83,7 @@ export class HomeCareCompatController {
   }
 
   @SelfService()
-  @Post('bookings') async createBooking(@CurrentUser() u: any, @Body() body: any) {
+  @Post('bookings') async createBooking(@CurrentUser() u: any, @Body() body: CreateBookingDto) {
     if (u?.role !== 'patient') throw new ForbiddenException('patient_only');
     if (!body?.service_id) throw new BadRequestException('service_id is required');
     if (!body?.scheduled_at) throw new BadRequestException('scheduled_at is required');
@@ -150,7 +151,7 @@ export class HomeCareCompatController {
   }
 
   @SelfService()
-  @Post('bookings/:id/respond') respond(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) {
+  @Post('bookings/:id/respond') respond(@CurrentUser() u: any, @Param('id') id: string, @Body() body: RespondDto) {
     const accept = body?.accept === true || body?.action === 'accept';
     // NursingBookingState has no ACCEPTED/REJECTED — accepting nurse takes the
     // job (PROVIDER_ASSIGNED + provider_id), declining cancels the request.
@@ -161,7 +162,7 @@ export class HomeCareCompatController {
   }
 
   @SelfService()
-  @Post('bookings/:id/assign') async assign(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) {
+  @Post('bookings/:id/assign') async assign(@CurrentUser() u: any, @Param('id') id: string, @Body() body: AssignDto) {
     if (!this.isAdmin(u)) throw new ForbiddenException('admin_only');
     if (!body?.provider_id) throw new BadRequestException('provider_id is required');
     await this.getBookingForAccess(u, id);
@@ -169,12 +170,12 @@ export class HomeCareCompatController {
   }
 
   @SelfService()
-  @Post('bookings/:id/check-in') checkIn(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) {
+  @Post('bookings/:id/check-in') checkIn(@CurrentUser() u: any, @Param('id') id: string, @Body() body: CheckInDto) {
     return this.transition(u, id, 'ARRIVED', { fields: { 'timers.arrived_at': new Date(), checklist: body?.checklist } });
   }
 
   @SelfService()
-  @Post('bookings/:id/gps') async gps(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) {
+  @Post('bookings/:id/gps') async gps(@CurrentUser() u: any, @Param('id') id: string, @Body() body: GpsDto) {
     if (typeof body?.lat !== 'number' || typeof body?.lng !== 'number') throw new BadRequestException('lat/lng required');
     const b = await this.getBookingForAccess(u, id);
     if (!this.isAdmin(u) && (u?.role === 'patient' || !this.isNursingProvider(u) || b.provider_id !== u.id)) throw new ForbiddenException('assigned_provider_required');
@@ -183,7 +184,7 @@ export class HomeCareCompatController {
   }
 
   @SelfService()
-  @Post('bookings/:id/visit-report') visitReport(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) {
+  @Post('bookings/:id/visit-report') visitReport(@CurrentUser() u: any, @Param('id') id: string, @Body() body: VisitReportDto) {
     return this.transition(u, id, body?.complete ? 'COMPLETED' : 'CARE_IN_PROGRESS', {
       fields: {
         vitals: body?.vitals, clinical_notes: body?.clinical_notes,
@@ -203,7 +204,7 @@ export class HomeCareCompatController {
   }
 
   @Roles(UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.DOCTOR, UserRole.ADMIN)
-  @Post('care-plans/:patientId') async createCarePlan(@CurrentUser() u: any, @Param('patientId') patientId: string, @Body() body: any) {
+  @Post('care-plans/:patientId') async createCarePlan(@CurrentUser() u: any, @Param('patientId') patientId: string, @Body() body: CreateCarePlanDto) {
     if (!this.isAdmin(u) && !this.isNursingProvider(u) && !['doctor', 'hospital'].includes(String(u?.role || '').toLowerCase())) throw new ForbiddenException('role_not_allowed');
     if (!this.isAdmin(u) && !['doctor', 'hospital'].includes(String(u?.role || '').toLowerCase())) {
       const assigned = await this.bookings.findOne({ patient_id: patientId, provider_id: u.id });
@@ -224,14 +225,14 @@ export class HomeCareCompatController {
   }
 
   @SelfService()
-  @Post('provider/availability') async setAvailability(@CurrentUser() u: any, @Body() body: any) {
+  @Post('provider/availability') async setAvailability(@CurrentUser() u: any, @Body() body: SetAvailabilityDto) {
     if (!this.isAdmin(u) && !this.isNursingProvider(u)) throw new ForbiddenException('provider_role_required');
     await this.profiles.updateOne({ id: u.id, ...(this.isAdmin(u) ? {} : { provider_type: { $in: ['nursing', 'nurse'] } }) }, { $set: { 'availability.online': !!body?.online, 'availability.available_now': !!body?.available_now, 'availability.updated_at': new Date() } });
     return { ok: true };
   }
 
   @Roles(UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.ADMIN)
-  @Post('inventory/request') async inventoryRequest(@CurrentUser() u: any, @Body() body: any) {
+  @Post('inventory/request') async inventoryRequest(@CurrentUser() u: any, @Body() body: InventoryRequestDto) {
     if (!Array.isArray(body?.items) || !body.items.length) throw new BadRequestException('items required');
     if (!body?.booking_id) throw new BadRequestException('booking_id is required');
     const b = await this.getBookingForAccess(u, body.booking_id);
@@ -310,17 +311,17 @@ export class ChatAliasController {
     return this.chat.getMessages(id, u.id, { before: q?.before, limit: parseInt(q?.limit || '50', 10) || 50 });
   }
 
-  @Post('chats/:id/messages') postMessage(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) {
+  @Post('chats/:id/messages') postMessage(@CurrentUser() u: any, @Param('id') id: string, @Body() body: PostMessageDto) {
     return this.chat.sendMessage(id, u.id, u.role || 'user', { type: 'text', body: body?.content || body?.text || body?.body });
   }
 
   // legacy shape: POST /chat/messages/:threadId {text}
-  @Post('chat/messages/:threadId') postLegacy(@CurrentUser() u: any, @Param('threadId') threadId: string, @Body() body: any) {
+  @Post('chat/messages/:threadId') postLegacy(@CurrentUser() u: any, @Param('threadId') threadId: string, @Body() body: PostLegacyDto) {
     return this.chat.sendMessage(threadId, u.id, u.role || 'user', { type: 'text', body: body?.text || body?.content });
   }
 
   // provider quick-send: POST /provider/chat/send {thread_id, text}
-  @Post('provider/chat/send') providerSend(@CurrentUser() u: any, @Body() body: any) {
+  @Post('provider/chat/send') providerSend(@CurrentUser() u: any, @Body() body: ProviderSendDto) {
     const threadId = body?.thread_id || body?.threadId;
     if (!threadId) throw new BadRequestException('thread_id is required');
     return this.chat.sendMessage(threadId, u.id, u.role || 'provider', { type: 'text', body: body?.text || body?.content });

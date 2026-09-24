@@ -6,6 +6,7 @@ import { Module, Injectable, Controller, Post, Get, Body, Param, Query, UseGuard
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { JwtAuthGuard, CurrentUser, Public, SelfService } from '../../common/auth.guard';
+import { SubmitDto } from './ratings.dto';
 
 @Injectable()
 export class RatingsService {
@@ -89,7 +90,7 @@ export class RatingsController {
 
   @Post()
   @UseGuards(JwtAuthGuard)
-  submit(@CurrentUser() user: any, @Body() body: any) {
+  submit(@CurrentUser() user: any, @Body() body: SubmitDto) {
     return this.svc.submit(user, body);
   }
 

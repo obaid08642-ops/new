@@ -5,6 +5,7 @@ import { AiService } from './ai.service';
 import { AiGatewayService } from './ai-gateway.service';
 import { JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
+import { TriageDto, SkinAnalysisDto, SetModeDto, SetPurposeDto, VoiceDto, OcrDto, CopilotSuggestDto, OcrTranslateDto, MedicineImageSearchDto, BarcodeLookupDto, AnalyzeMealDto, GenerateExercisePlanDto, GenerateDietPlanDto} from './ai.dto';
 
 @Controller('ai')
 @SelfService()
@@ -41,14 +42,14 @@ export class AiController {
   /** Admin: auto fallback & round-robin OR manual pinned provider. */
   @Post('admin/gateway/mode')
   @Roles(UserRole.ADMIN)
-  setMode(@Body() body: { mode: 'auto' | 'manual'; pinned?: any }) {
+  setMode(@Body() body: SetModeDto) {
     return this.gateway.setMode(body?.mode === 'manual' ? 'manual' : 'auto', body?.pinned || null);
   }
 
   /** Admin: pin one provider for a single feature (null clears; fallback preserved). */
   @Post('admin/gateway/purpose')
   @Roles(UserRole.ADMIN)
-  setPurpose(@Body() body: { feature?: string; provider?: string | null }) {
+  setPurpose(@Body() body: SetPurposeDto) {
     return this.gateway.setPurposeOverride(body?.feature || '', (body?.provider || null) as any);
   }
 
@@ -61,7 +62,7 @@ export class AiController {
 
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Post('triage')
-  triage(@Req() req: any, @Body() body: any) {
+  triage(@Req() req: any, @Body() body: TriageDto) {
     return this.svc.triage(body, req.user?.id);
   }
 
@@ -81,7 +82,7 @@ export class AiController {
       cb(null, true);
     },
   }))
-  voice(@UploadedFile() file: any, @Body() body: { transcript?: string }) {
+  voice(@UploadedFile() file: any, @Body() body: VoiceDto) {
     if (file) {
       return this.svc.voiceToOrderFile(file.buffer);
     }
@@ -90,7 +91,7 @@ export class AiController {
 
   @Throttle({ default: { limit: 15, ttl: 60000 } }) // E5-F4 paid AI quota
   @Post('prescription-ocr')
-  ocr(@Body() body: { image_base64?: string; imageBase64?: string }) {
+  ocr(@Body() body: OcrDto) {
     const base64 = body.image_base64 || body.imageBase64 || '';
     return this.svc.prescriptionOcr(base64);
   }
@@ -112,35 +113,35 @@ export class AiController {
 
   @Throttle({ default: { limit: 15, ttl: 60000 } }) // E5-F4 paid AI quota
   @Post('copilot/suggest')
-  copilotSuggest(@Body() body: { notes: string }) {
+  copilotSuggest(@Body() body: CopilotSuggestDto) {
     return this.svc.copilotSuggest(body.notes || '');
   }
 
   /** OCR + bilingual translation of a prescription image — uses GEMINI_KEY_OCR */
   @Throttle({ default: { limit: 15, ttl: 60000 } }) // E5-F4 paid AI quota
   @Post('ocr-translate')
-  ocrTranslate(@Body() body: { image_base64: string; target_lang?: string }) {
+  ocrTranslate(@Body() body: OcrTranslateDto) {
     return this.svc.ocrTranslate(body.image_base64 || '', body.target_lang || 'ar');
   }
 
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Post('skin-analysis')
-  skinAnalysis(@Req() req: any, @Body() body: any) {
+  skinAnalysis(@Req() req: any, @Body() body: SkinAnalysisDto) {
     return this.svc.skinAnalysis(body, req.user?.id);
   }
 
   @Post('medicine-image-search')
-  medicineImageSearch(@Body() body: { image_base64: string }) {
+  medicineImageSearch(@Body() body: MedicineImageSearchDto) {
     return this.svc.medicineImageSearch(body.image_base64);
   }
 
   @Post('barcode-lookup')
-  barcodeLookup(@Body() body: { code: string }) {
+  barcodeLookup(@Body() body: BarcodeLookupDto) {
     return this.svc.barcodeLookup(body.code);
   }
 
   @Post('analyze-meal')
-  analyzeMeal(@Body() body: { query: string; image_base64?: string }) {
+  analyzeMeal(@Body() body: AnalyzeMealDto) {
     return this.svc.analyzeMeal(body.query || '', body.image_base64);
   }
 
@@ -155,22 +156,12 @@ export class AiController {
 
   /** EPIC4/S21: AI weekly exercise plan (goal/level/days/location). */
   @Post('generate-exercise-plan')
-  generateExercisePlan(@Body() body: { goal?: string; level?: string; days_per_week?: number; location?: string; notes?: string }) {
+  generateExercisePlan(@Body() body: GenerateExercisePlanDto) {
     return this.svc.generateExercisePlan(body || {});
   }
 
   @Post('generate-diet-plan')
-  generateDietPlan(@Body() body: {
-    goal: string;
-    gender: string;
-    weight: number;
-    height: number;
-    age: number;
-    targetWeight: number;
-    activity: string;
-    diet: string;
-    allergies: string;
-  }) {
+  generateDietPlan(@Body() body: GenerateDietPlanDto) {
     return this.svc.generateDietPlan(body);
   }
 }

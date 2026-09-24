@@ -1,4 +1,5 @@
 import { Controller, Post, Get, Patch, Delete, Body, Param, Query, Req, Inject } from '@nestjs/common';
+import { DisableDto, EndConsultationDto, IssueSickLeaveDto, IssueMedicalReportDto, SetAvailDto, PreviewAdHocDto, DispatchDto } from './provider.controllers.dto';
 import { LedgerService } from '../finance-engine/finance-engine.module';
 import { ProviderAuthService } from './services/provider-auth.service';
 import { ProviderProfileService } from './services/provider-profile.service';
@@ -109,7 +110,7 @@ export class ProviderOperatorsController {
   @Post('invite') invite(@CurrentUser() u: any, @Body() body: any) { return this.svc.invite(u, body); }
   @Public() @Post('accept-invite') accept(@Body() body: any) { return this.svc.acceptInvite(body); }
   @Patch(':id') update(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) { return this.svc.update(u, id, body); }
-  @Post(':id/disable') disable(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) { return this.svc.disable(u, id, body?.reason); }
+  @Post(':id/disable') disable(@CurrentUser() u: any, @Param('id') id: string, @Body() body: DisableDto) { return this.svc.disable(u, id, body?.reason); }
   @Post(':id/enable') enable(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.enable(u, id); }
   @Delete(':id') revoke(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.revoke(u, id); }
 }
@@ -196,7 +197,7 @@ export class ProviderRequestsController {
 
   // --- V3.0 DOCTOR PLATFORM ENDPOINTS ---
   @Post(':id/end')
-  async endConsultation(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) {
+  async endConsultation(@CurrentUser() u: any, @Param('id') id: string, @Body() body: EndConsultationDto) {
     const request = await this.svc.detail(u, id);
     if (!['in_progress', 'IN_PROGRESS'].includes(String(request.status))) {
       throw new BadRequestException('consultation must be in progress before it can end');
@@ -305,7 +306,7 @@ export class ProviderRequestsController {
   }
 
   @Post(':id/sick-leave')
-  async issueSickLeave(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) {
+  async issueSickLeave(@CurrentUser() u: any, @Param('id') id: string, @Body() body: IssueSickLeaveDto) {
     if (!body?.patient_id) throw new BadRequestException('patient_id required');
     if (!body?.diagnosis?.trim()) throw new BadRequestException('diagnosis required');
     const days = Math.max(1, Math.min(30, parseInt(body?.duration_days) || 1));
@@ -355,7 +356,7 @@ export class ProviderRequestsController {
   }
 
   @Post(':id/medical-report')
-  async issueMedicalReport(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) {
+  async issueMedicalReport(@CurrentUser() u: any, @Param('id') id: string, @Body() body: IssueMedicalReportDto) {
     if (!body?.findings?.trim() && !body?.summary?.trim()) throw new BadRequestException('findings required');
     const request: any = await this.svc.detail(u, id);
     const patientId = request.patient?.id || request.patient_id || request.patient_user_id || request.user_id;
@@ -442,7 +443,7 @@ export class ProviderDashboardController {
   }
   @Get('availability') getAvail(@CurrentUser() u: any) { return this.dash.getAvailability(u); }
   @SelfService()
-  @Post('availability') setAvail(@CurrentUser() u: any, @Body() body: any) { return this.dash.setAvailability(u, body); }
+  @Post('availability') setAvail(@CurrentUser() u: any, @Body() body: SetAvailDto) { return this.dash.setAvailability(u, body); }
   @SelfService()
   @Post('seed') seed(@CurrentUser() u: any) { return this.seedSvc.seed(u); }
   @SelfService()
@@ -518,11 +519,11 @@ export class AdminMatchingController {
     return this.matching.matchForRequest(id, parseInt(limit || '10', 10) || 10);
   }
   // Run matching ad-hoc with a custom payload (no DB record created)
-  @Post('preview') previewAdHoc(@CurrentUser() u: any, @Body() body: any) {
-    return this.matching.match(body || {});
+  @Post('preview') previewAdHoc(@CurrentUser() u: any, @Body() body: PreviewAdHocDto) {
+    return this.matching.match({ ...body });
   }
   // Dispatch (run strategy) for an existing unassigned request
-  @Post('dispatch/:requestId') dispatch(@CurrentUser() u: any, @Param('requestId') id: string, @Body() body: any) {
+  @Post('dispatch/:requestId') dispatch(@CurrentUser() u: any, @Param('requestId') id: string, @Body() body: DispatchDto) {
     return this.assignment.dispatch(id, body?.timeout_seconds || 120);
   }
   // Manual assign

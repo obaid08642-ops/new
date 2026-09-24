@@ -6,6 +6,7 @@ import { WithdrawalRequest } from '../schemas/withdrawal-request.schema';
 import { LedgerService, ApprovalService } from '../../finance-engine/finance-engine.module';
 import { CurrentUser, Roles } from '../../../common/auth.guard';
 import { UserRole } from '../../../common/enums';
+import { RejectPayoutDto } from './finance.dto';
 
 /**
  * M5 fix: provider withdrawals written by provider-ops (`ProviderWithdrawal`,
@@ -131,7 +132,7 @@ export class FinanceController {
   }
 
   @Post('withdrawals/:id/reject')
-  async rejectPayout(@Param('id') id: string, @Body() body: any) {
+  async rejectPayout(@Param('id') id: string, @Body() body: RejectPayoutDto) {
     const legacy = await this.withdrawalModel.findByIdAndUpdate(id, { status: 'rejected' }, { new: true }).catch(() => null);
     if (legacy) {
       return { success: true, withdrawal: legacy, source: 'legacy' };

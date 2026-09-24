@@ -20,6 +20,7 @@ import { Request, Response, NextFunction } from 'express';
 import { RedisService } from '../redis/redis.service';
 import { JwtAuthGuard, Roles, Public } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
+import { ClearDto } from './api-security.dto';
 
 // ── Rate limit budgets per route class ──────────────────────────────
 const LIMITS: Array<{ pattern: RegExp; name: string; perMinute: number; perHour: number }> = [
@@ -239,7 +240,7 @@ export class ApiSecurityController {
   }
 
   @Post('blacklist/clear')
-  async clear(@Body() body: { key: string }) {
+  async clear(@Body() body: ClearDto) {
     const c = (this.sec as any).client?.();
     if (c && body?.key) await c.del(`blacklist:ip:${body.key}`, `blacklist:dev:${body.key}`);
     return { ok: true };

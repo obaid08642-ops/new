@@ -3,6 +3,7 @@ import { UsersService } from './users.service';
 import { CurrentUser, JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
 import { RequireIdempotency } from '../../common/idempotency.interceptor';
 import { UserRole } from '../../common/enums';
+import { UpdateDisplayDto, ChangePasswordDto } from './users.dto';
 
 @Controller('users')
 @SelfService()
@@ -18,7 +19,7 @@ export class UsersController {
 
   /** Contract-pack allowlisted patient profile mutation. */
   @Patch('me')
-  updateDisplay(@CurrentUser('id') id: string, @Body() body: any) {
+  updateDisplay(@CurrentUser('id') id: string, @Body() body: UpdateDisplayDto) {
     return this.users.updatePatientWebProfile(id, body);
   }
 
@@ -85,7 +86,7 @@ export class UsersController {
   }
 
   @Post('me/change-password')
-  changePassword(@CurrentUser('id') id: string, @Body() body: any) {
+  changePassword(@CurrentUser('id') id: string, @Body() body: ChangePasswordDto) {
     return this.users.changePassword(id, body);
   }
 

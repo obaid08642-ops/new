@@ -13,6 +13,7 @@ import { JwtAuthGuard, CurrentUser, Roles, SelfService } from '../../common/auth
 import { UserRole } from '../../common/enums';
 import { EventsModule } from '../events/events.module';
 import { EventBusService } from '../events/event-bus.service';
+import { RateDto, RefundDto, RebookDto, DecideDto, CancelDto, TransitionDto, MarkPaymentDto} from './patient-ux.dto';
 
 /** Reviews + Refund Requests + Rebook */
 @Injectable()
@@ -146,10 +147,10 @@ export class PatientUxService {
 @UseGuards(JwtAuthGuard)
 export class PatientUxController {
   constructor(private svc: PatientUxService) {}
-  @Post('review') rate(@CurrentUser() u: any, @Body() b: any) { return this.svc.rate(u, b); }
-  @Post('refund') refund(@CurrentUser() u: any, @Body() b: any) { return this.svc.requestRefund(u, b); }
+  @Post('review') rate(@CurrentUser() u: any, @Body() b: RateDto) { return this.svc.rate(u, b); }
+  @Post('refund') refund(@CurrentUser() u: any, @Body() b: RefundDto) { return this.svc.requestRefund(u, b); }
   @Get('refund/mine') refunds(@CurrentUser() u: any) { return this.svc.myRefunds(u); }
-  @Post('rebook') rebook(@CurrentUser() u: any, @Body() b: any) { return this.svc.rebook(u, b); }
+  @Post('rebook') rebook(@CurrentUser() u: any, @Body() b: RebookDto) { return this.svc.rebook(u, b); }
 }
 
 /** Admin queue for refund requests (approve / reject). */
@@ -160,7 +161,7 @@ export class AdminRefundsController {
   constructor(private svc: PatientUxService) {}
   @Get() list() { return this.svc.adminListRefunds(); }
   @Get('pending') pending() { return this.svc.adminListRefunds('requested'); }
-  @Post(':id/decide') decide(@CurrentUser() u: any, @Param('id') id: string, @Body() body: { decision: 'approved' | 'rejected'; note?: string; amount?: number }) {
+  @Post(':id/decide') decide(@CurrentUser() u: any, @Param('id') id: string, @Body() body: DecideDto) {
     return this.svc.adminDecideRefund(u, id, body.decision, body.note, body.amount);
   }
 }
@@ -275,17 +276,17 @@ export class AdminOverrideService {
 export class AdminOverrideController {
   constructor(private svc: AdminOverrideService) {}
   /** Force-cancel any order/booking. */
-  @Post('cancel') cancel(@CurrentUser() u: any, @Body() body: { kind: string; id: string; reason: string }) {
+  @Post('cancel') cancel(@CurrentUser() u: any, @Body() body: CancelDto) {
     if (!body?.reason) throw new BadRequestException('reason_required');
     return this.svc.forceCancel(u, body.kind, body.id, body.reason);
   }
   /** Force any order/booking to a specific state (e.g., COMPLETED, DELIVERED). */
-  @Post('transition') transition(@CurrentUser() u: any, @Body() body: { kind: string; id: string; state: string; reason: string }) {
+  @Post('transition') transition(@CurrentUser() u: any, @Body() body: TransitionDto) {
     if (!body?.reason || !body?.state) throw new BadRequestException('reason_and_state_required');
     return this.svc.forceTransition(u, body.kind, body.id, body.state, body.reason);
   }
   /** Manually mark a payment as paid / refunded / failed. */
-  @Post('payment') markPayment(@CurrentUser() u: any, @Body() body: { kind: string; id: string; payment_status: 'paid' | 'refunded' | 'failed'; amount?: number; reason: string }) {
+  @Post('payment') markPayment(@CurrentUser() u: any, @Body() body: MarkPaymentDto) {
     if (!body?.reason || !body?.payment_status) throw new BadRequestException('reason_and_status_required');
     return this.svc.markPayment(u, body.kind, body.id, body.payment_status, body.reason, body.amount);
   }

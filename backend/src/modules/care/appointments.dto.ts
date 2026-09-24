@@ -1,11 +1,13 @@
-import { IsString, IsNotEmpty, IsOptional, IsNumber, IsArray, ValidateNested, IsIn } from 'class-validator';
+import { IsArray, IsDefined, IsIn, IsNotEmpty, IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ServiceType } from '../../schemas/appointment.schema';
 
 export class VisitLocationDto {
+  @IsDefined()
   @IsNumber()
   lat: number;
 
+  @IsDefined()
   @IsNumber()
   lng: number;
 
@@ -19,6 +21,7 @@ export class CreateAppointmentDto {
   @IsNotEmpty()
   doctor_id: string;
 
+  @IsDefined()
   @IsString()
   @IsIn(['clinic', 'video', 'home'])
   service_type: ServiceType;
@@ -73,4 +76,14 @@ export class RescheduleAppointmentDto {
   @IsString()
   @IsNotEmpty()
   slot_start: string;
+}
+
+export class JoinWaitlistDto {
+  @IsDefined()
+  @IsString()
+  doctorId: string;
+
+  @IsDefined()
+  @IsString()
+  date: string;
 }

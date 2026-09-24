@@ -11,6 +11,7 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
+import { RequestSuppliesDto, VerifyAttendanceDto} from './home-care-tracking.dto';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model, Types } from 'mongoose';
 import { JwtAuthGuard, CurrentUser, Roles } from '../../../common/auth.guard';
@@ -55,7 +56,7 @@ export class HomeCareTrackingController {
   @HttpCode(HttpStatus.OK)
   async verifyAttendance(
     @Param('bookingId') bookingId: string,
-    @Body() body: { nurseLat: number; nurseLng: number },
+    @Body() body: VerifyAttendanceDto,
     @CurrentUser() user: any,
   ) {
     const booking: any = await this.assignedBooking(bookingId, user);
@@ -92,7 +93,7 @@ export class HomeCareTrackingController {
 
   @Post('submit-supplies-request')
   @HttpCode(HttpStatus.CREATED)
-  async requestSupplies(@Body() dto: any, @CurrentUser() user: any) {
+  async requestSupplies(@Body() dto: RequestSuppliesDto, @CurrentUser() user: any) {
     const booking: any = await this.assignedBooking(String(dto?.bookingId || ''), user);
     const items = Array.isArray(dto?.items) ? dto.items : [];
     if (!items.length) throw new BadRequestException('items are required');

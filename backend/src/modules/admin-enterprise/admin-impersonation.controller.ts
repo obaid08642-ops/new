@@ -8,6 +8,7 @@ import { Permission, RequirePermissions } from '../../common/permissions';
 import { UserRole } from '../../common/enums';
 import { validateReason } from '../../common/rbac';
 import { AdminAuditService } from './audit.service';
+import { StartDto, RevokeDto } from './admin-impersonation.dto';
 
 @Controller('admin/impersonation')
 @UseGuards(JwtAuthGuard)
@@ -21,7 +22,7 @@ export class AdminImpersonationController {
 
   @Post('start')
   @RequirePermissions(Permission.USER_IMPERSONATE)
-  async start(@Body() body: any, @CurrentUser() me: any, @Req() req: any) {
+  async start(@Body() body: StartDto, @CurrentUser() me: any, @Req() req: any) {
     const reason = validateReason(body?.reason);
     const targetId = String(body?.user_id || '').trim();
     const requestedMinutes = Number(body?.minutes || 15);
@@ -42,7 +43,7 @@ export class AdminImpersonationController {
 
   @Post(':id/revoke')
   @RequirePermissions(Permission.USER_IMPERSONATE)
-  async revoke(@Param('id') id: string, @CurrentUser() me: any, @Body() body: any) {
+  async revoke(@Param('id') id: string, @CurrentUser() me: any, @Body() body: RevokeDto) {
     const reason = validateReason(body?.reason);
     const existing: any = await this.conn.collection('impersonation_sessions').findOne({ id });
     if (!existing) throw new BadRequestException('impersonation_session_not_found');
