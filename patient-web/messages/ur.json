@@ -434,7 +434,15 @@
     "durationDays": "مدت دنوں میں",
     "instructions": "ہدایات",
     "detailNotice": "صرف authorized backend کی واپس کردہ medication details دکھائی جاتی ہیں۔ diagnosis، upload، renewal، dispensing اور order actions دستیاب نہیں۔",
-    "contractPending": "مجاز prescription-detail معاہدے کے انتظار میں مسدود ہے۔"
+    "contractPending": "مجاز prescription-detail معاہدے کے انتظار میں مسدود ہے۔",
+    "stateCreatedByDoctor": "ڈاکٹر کی تجویز",
+    "stateUploadedByPatient": "مریض کی اپ لوڈ کردہ",
+    "stateSentToPharmacy": "فارمیسی کو بھیجی گئی",
+    "statePartiallyEdited": "جزوی ترمیم شدہ",
+    "stateVerifiedByPharmacist": "فارماسسٹ سے تصدیق شدہ",
+    "stateApproved": "منظور شدہ",
+    "stateDispensed": "فراہم کردہ",
+    "stateArchived": "محفوظ شدہ"
   },
   "Chat": {
     "eyebrow": "نجی گفتگو",

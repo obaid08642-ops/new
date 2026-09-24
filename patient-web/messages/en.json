@@ -389,7 +389,15 @@
     "durationDays": "Duration in days",
     "instructions": "Instructions",
     "detailNotice": "Only medication details returned by the authorized backend are shown. Diagnosis, upload, renewal, dispensing, and order actions are not available.",
-    "contractPending": "Blocked pending an authorized prescription-detail contract."
+    "contractPending": "Blocked pending an authorized prescription-detail contract.",
+    "stateCreatedByDoctor": "From your doctor",
+    "stateUploadedByPatient": "Uploaded by you",
+    "stateSentToPharmacy": "Sent to pharmacy",
+    "statePartiallyEdited": "Partially edited",
+    "stateVerifiedByPharmacist": "Verified by pharmacist",
+    "stateApproved": "Approved",
+    "stateDispensed": "Dispensed",
+    "stateArchived": "Archived"
   },
   "Chat": {
     "eyebrow": "Private chats",

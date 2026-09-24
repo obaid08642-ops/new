@@ -37,6 +37,12 @@ export class PrescriptionsController {
     return this.svc.transition(id, body.to, user);
   }
 
+  @Post(':id/verify')
+  @Roles(UserRole.PHARMACY, UserRole.ADMIN)
+  verify(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.svc.verifyByPharmacist(id, user);
+  }
+
   @Post(':id/substitute')
   @Roles(UserRole.PHARMACY, UserRole.ADMIN)
   sub(@Param('id') id: string, @Body() body: { item_index: number; new_medicine_id: string }, @CurrentUser() user: any) {

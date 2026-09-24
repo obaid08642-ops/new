@@ -28,7 +28,9 @@ describe("prescriptions SSR boundary", () => {
     const html = renderToStaticMarkup(await PrescriptionsPage({ params: Promise.resolve({ locale: "en" }) }));
 
     expect(state.getPatientPrescriptions).toHaveBeenCalledWith(serverToken);
-    expect(html).toContain("CREATED_BY_DOCTOR");
+    // F32: the raw state enum must never reach the user — only its translation key.
+    expect(html).toContain("stateCreatedByDoctor");
+    expect(html).not.toContain("CREATED_BY_DOCTOR");
     expect(html).toContain("private-medicine");
     for (const secret of [serverToken, prescriptionId, "private-dose", "private-instructions", "private-patient", "private-diagnosis", "private-notes", fileUrl]) expect(html).not.toContain(secret);
     expect(html).not.toMatch(/href="[^"]*private-prescription/i);

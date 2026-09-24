@@ -194,7 +194,8 @@ export class PrescriptionsService {
       patient_id: patient.id,
       upload_image: data.upload_image,
       notes: data.notes,
-      state: PrescriptionState.CREATED_BY_DOCTOR, // patient-uploaded but starts here for pharmacy review
+      // F19: a patient upload is NEVER a doctor-created prescription.
+      state: PrescriptionState.UPLOADED_BY_PATIENT,
       items,
       has_manual_entries: hasManual,
     });
@@ -220,6 +221,13 @@ export class PrescriptionsService {
     )) {
       throw new BadRequestException('manual prescription items require an approved substitute before dispensing');
     }
+    // F19: Rx-required catalog items cannot be approved until a pharmacist
+    // verified the prescription (VERIFIED_BY_PHARMACIST). OTC-only scripts
+    // keep the direct path.
+    if (to === PrescriptionState.APPROVED && !rx.verified_by) {
+      const needsRx = await this.hasRxRequiredItem(rx.items || []);
+      if (needsRx) throw new BadRequestException('pharmacist_verification_required');
+    }
     rx.state = to;
     if (to === PrescriptionState.SENT_TO_PHARMACY) this.events.emit(EVENTS.PRESCRIPTION_SENT, { prescription_id: id });
     if (to === PrescriptionState.DISPENSED) this.events.emit(EVENTS.PRESCRIPTION_DISPENSED, { prescription_id: id });
@@ -227,8 +235,43 @@ export class PrescriptionsService {
     return rx.toObject();
   }
 
-  async sendToPharmacy(id: string, pharmacy_id: string, by: any) {
+  /** True when any line references a catalog medicine flagged Rx-required. */
+  private async hasRxRequiredItem(items: any[]): Promise<boolean> {
+    for (const item of items) {
+      if (!item?.medicine_id) continue;
+      try {
+        const med: any = await this.medicines.getById(item.medicine_id);
+        if (med?.requires_prescription) return true;
+      } catch {
+        // Fail closed: an unresolvable catalog reference still needs review.
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * F19 pharmacist verification step. The caller must be the assigned pharmacy
+   * (or admin); an unassigned patient upload is claimed by the verifying
+   * pharmacy. Records verified_by/at, then moves to VERIFIED_BY_PHARMACIST.
+   */
+  async verifyByPharmacist(id: string, by: any) {
     const rx: any = await this.model.findOne({ id });
+    if (!rx) throw new NotFoundException();
+    const isAdmin = this.isPrivilegedAdmin(by);
+    const isPharmacy = getEffectiveRoles(by).includes(UserRole.PHARMACY);
+    if (!isAdmin && !isPharmacy) throw new NotFoundException();
+    const assigned = rx.pharmacy_id && String(rx.pharmacy_id) === String(by?.id);
+    const claimable = !rx.pharmacy_id && [PrescriptionState.UPLOADED_BY_PATIENT, PrescriptionState.SENT_TO_PHARMACY].includes(rx.state);
+    if (!isAdmin && !assigned && !claimable) throw new NotFoundException();
+    if (!rx.pharmacy_id) rx.pharmacy_id = String(by.id);
+    rx.verified_by = String(by.id);
+    rx.verified_at = new Date();
+    await rx.save();
+    return this.transition(id, PrescriptionState.VERIFIED_BY_PHARMACIST, by);
+  }
+
+  async sendToPharmacy(id: string, pharmacy_id: string, by: any) {    const rx: any = await this.model.findOne({ id });
     if (!rx || (!this.isPrivilegedAdmin(by) && !this.isOwningDoctor(rx, by))) throw new NotFoundException();
     if (rx.state !== PrescriptionState.CREATED_BY_DOCTOR) {
       throw new BadRequestException(`Invalid transition ${rx.state} → ${PrescriptionState.SENT_TO_PHARMACY}`);

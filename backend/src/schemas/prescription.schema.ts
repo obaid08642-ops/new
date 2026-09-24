@@ -48,6 +48,9 @@ export class Prescription {
   @Prop() pharmacy_id?: string;
   @Prop() order_id?: string;
   @Prop({ default: false }) has_manual_entries: boolean;
+  /** Pharmacist verification (F19): set when a pharmacist reviews the Rx lines. */
+  @Prop() verified_by?: string;
+  @Prop() verified_at?: Date;
 }
 export type PrescriptionDocument = Prescription & Document;
 export const PrescriptionSchema = SchemaFactory.createForClass(Prescription);
