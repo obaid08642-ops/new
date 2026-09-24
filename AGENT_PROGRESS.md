@@ -17,7 +17,18 @@ Format: task | commit sha | verify result | notes
 | P1.6 | 6f0fd3b | backend tsc + web check + web tests green; live journey deferred to staging | UPLOADED_BY_PATIENT (upload uses it) + VERIFIED_BY_PHARMACIST states + transitions; APPROVED blocked for Rx items until verified (fail-closed); verifyByPharmacist (assigned/claim/admin) + POST :id/verify (PHARMACY,ADMIN); web state labels ×6 locales, no raw enum (SSR test updated); contracts mirrors extended |
 | P1.7 | 0d105c9 | tsc exit 0; unit-run deferred to CI (jest ESM gap) | deliverOtp: SMS-first for phones (Taqnyat, SMS_ENABLED) → push → email-if-present; zero channels → 503 otp_channel_unavailable (both OTP paths; anti-enumeration opaque shape kept); verified-marker (10min, single-use) on OTP success; legacy register() requires inline OTP or marker → else 400 otp_required (contract flow already tokenless); RegisterDto.otp added; 7 channel/gate unit tests |
 | P1.8 | d6ab7cd | npm audit --omit=dev: 0 critical 0 high; tsc clean; next build exit 0 | Admin next 16.2.10→16.3.6 (+eslint-config-next aligned); npm audit fix applied; next-env.d.ts regenerated; tsbuildinfo left untracked-noise (restored) |
-| Gate P1 | — | wsweep zero-2xx + security e2e green need staging Mongo | DEFERRED to staging/CI (no Docker here); code-level: 874 writes declared, F01–F09/F44/F17/F19/F34/F54 implemented, 13 security specs written |
+| Gate P1 | — | PROVEN LIVE 2026-09-24 (local mongo 7.0.24 replset + redis): see below | Real evidence, no PASS-by-assertion (REVIEW_P0 lesson 1) |
+
+## Gate P1 — real evidence 2026-09-24 (local: mongo 7.0.24 replicaSet=testset, redis 8, backend :8002)
+- Backend unit: `npm test -- --runInBand` → **6/6 chunks, 717/717 passed** (132 suites).
+- Security e2e (`test:boot`): **12/12 suites, 37/37 passed** — per-finding matrix patient→403 / owner→2xx / other→403 executes green.
+- Web: `pnpm test` → 156 files / 336 tests passed, 0 failed; `pnpm check` clean.
+- Live boot (no payment keys): liveness 200; single warning `payment_gateway_not_configured`; cold 27s / warm 7–14s.
+- Live F01–F08 patient matrix: **8/8 → 403** (wallet×2, kill-switch, surge, broadcast, barcode, blacklist, insurance-matrix PUT, catalog approve).
+- Live `POST /payments/intent` (no keys) → **503 payment_gateway_not_configured** (fixed idempotency double-lock 409 found during verification).
+- Live wsweep patient token (~1400 write evaluations, 3 passes for throttle): **zero 2xx on any admin/provider/finance/catalog/seed path**; all 2xx confined to patient-own resources + AI F21 items (Phase 4 scope: empty-result 201s, 3×500 on analyze-meal/copilot/parse-excel).
+- Live P0.6: location edit survived restart ($setOnInsert); P0.7: zero `Seed failed`, counts locations 2156 / labservices 26 / radiologyservices 21 / homecare 12 / facilities 6.
+- CI (PR #193) re-run: triggered by push; results to be pasted here after green (gitleaks/push+PR, backend, web, admin, mobile jobs).
 
 ## Gate P0 — 2026-09-24
 - Branch: fix/audit-2026-09 (from plan/audit-2026-09)
