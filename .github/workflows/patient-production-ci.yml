@@ -112,7 +112,7 @@ jobs:
           cache: pnpm
           cache-dependency-path: patient-web/pnpm-lock.yaml
       - name: Install frozen dependencies
-        run: pnpm install --frozen-lockfile
+        run: corepack enable && pnpm install --frozen-lockfile
       - name: Type check
         run: pnpm check
       - name: Run tests

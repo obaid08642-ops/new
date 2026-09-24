@@ -7,15 +7,15 @@ const pageCss = readFileSync(resolve(process.cwd(), "app/[locale]/login/login.mo
 
 describe("patient login design", () => {
   it("keeps an accessible, high-clarity input and submit treatment", () => {
-    expect(formCss).toContain("min-block-size: 3.25rem");
+    expect(formCss).toContain("min-block-size: 48px");
     expect(formCss).toContain(".field input:focus");
     expect(formCss).toContain(".submit:focus-visible");
     expect(formCss).toContain("var(--color-danger-surface)");
   });
 
   it("uses the shared visual tokens and reduced-motion treatment", () => {
-    expect(pageCss).toContain("var(--radius-2xl)");
-    expect(pageCss).toContain("var(--shadow-lg)");
+    expect(pageCss).toContain("var(--radius-xl)");
+    expect(pageCss).toContain("var(--shadow-sm)");
     expect(formCss).toContain("prefers-reduced-motion: reduce");
   });
 });

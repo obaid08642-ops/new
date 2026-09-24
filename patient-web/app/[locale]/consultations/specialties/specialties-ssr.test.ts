@@ -3,7 +3,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const state = vi.hoisted(() => ({ getPublicSpecialties: vi.fn() }));
 vi.mock("next/navigation", () => ({ notFound: vi.fn() }));
-vi.mock("next-intl/server", () => ({ getTranslations: async () => (key: string) => key, setRequestLocale: vi.fn() }));
+vi.mock("next-intl/server", () => ({
+  getTranslations: async () =>
+    Object.assign((key: string) => key, { raw: (_key: string) => [] as Array<{ q: string; a: string }> }),
+  setRequestLocale: vi.fn(),
+}));
 vi.mock("@/lib/i18n", () => ({ isLocale: () => true }));
 vi.mock("@/lib/api/specialties-server", () => ({ getPublicSpecialties: state.getPublicSpecialties }));
 

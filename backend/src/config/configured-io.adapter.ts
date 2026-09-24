@@ -12,6 +12,12 @@ export class ConfiguredIoAdapter extends IoAdapter {
     const cors = this.allowedOrigins === true
       ? { origin: true, credentials: true }
       : { origin: this.allowedOrigins, credentials: true, methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'] };
-    return super.createIOServer(port, { ...(options || {}), cors });
+    // socket.io's Server constructor accepts Partial<ServerOptions> and applies
+    // its own defaults for omitted fields, but the adapter base class declares
+    // the parameter as the full ServerOptions interface. Forward exactly what
+    // we received plus the CORS policy and bridge the over-strict parameter
+    // type with an explicit assertion instead of duplicating socket.io defaults.
+    const merged: Partial<ServerOptions> = { ...(options || {}), cors };
+    return super.createIOServer(port, merged as ServerOptions);
   }
 }

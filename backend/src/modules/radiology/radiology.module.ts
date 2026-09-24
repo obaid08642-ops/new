@@ -24,7 +24,12 @@ export class RadiologySeed implements OnModuleInit {
   private readonly logger = new Logger('RadiologySeed');
   constructor(@InjectModel('RadiologyService') private readonly svcModel: Model<any>) {}
   async onModuleInit() {
-    // No count gate: per-item upsert deploys market-gap additions live automatically.
+    setImmediate(() =>
+      this.seed().catch((e: any) => this.logger.warn(`Background radiology seed failed: ${e?.message}`)),
+    );
+  }
+
+  private async seed() {
     let ok = 0;
     for (const x of RADIOLOGY_SEED as any[]) {
       try {

@@ -18,6 +18,12 @@ export class CatalogsSeedService implements OnModuleInit {
   constructor(@InjectConnection() private readonly conn: Connection) {}
 
   async onModuleInit() {
+    setImmediate(() =>
+      this.seed().catch((e: any) => this.logger.warn(`Background catalogs seed failed: ${e?.message}`)),
+    );
+  }
+
+  private async seed() {
     let ok = 0;
     for (const x of NURSING_ADDITIONS) {
       try {

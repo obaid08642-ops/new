@@ -34,14 +34,18 @@ export class HomeCareModule implements OnModuleInit {
   private readonly logger = new Logger('HomeCareSeed');
   constructor(@InjectModel('HomeCareService') private readonly svcModel: Model<any>) {}
   async onModuleInit() {
+    setImmediate(() =>
+      this.seed().catch((e: any) => this.logger.warn(`Background home-care seed failed: ${e?.message}`)),
+    );
+  }
+
+  private async seed() {
     const existing = await this.svcModel.countDocuments({ id: { $ne: null } });
     if (existing >= HOME_CARE_SEED.length) return;
-    // Idempotent per-doc upsert — insertMany previously produced id:null zombie
-    // docs (unique index allows only one null) and silently failed the whole seed.
+    // Idempotent per-doc upsert — $setOnInsert never overwrites admin edits
     let ok = 0;
     for (const x of HOME_CARE_SEED as any[]) {
       try {
-        // Map seed shape (title/basePrice) onto the actual schema (name_ar/name_en/price/duration)
         const doc = {
           id: x.id || require('uuid').v4(),
           name_ar: x.title?.ar,

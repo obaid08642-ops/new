@@ -28,8 +28,8 @@ describe('Provider App release contracts', () => {
 
   it('has explicit production API and native platform identifiers', () => {
     expect(config.extra.apiBaseUrl).toBe('https://api.nabd.plus/api/v1');
-    expect(config.android.package).toBe('com.nabd.plus.provider');
-    expect(config.ios.bundleIdentifier).toBe('com.nabd.plus.provider');
+    expect(config.android.package).toBe('com.nabd.provider');
+    expect(config.ios.bundleIdentifier).toBe('com.nabd.provider');
     expect(config.userInterfaceStyle).toBe('automatic');
   });
 
