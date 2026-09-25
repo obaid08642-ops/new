@@ -5,7 +5,7 @@
  * with a different shape (and @Public — a security hole this module fixes by
  * requiring JWT on every compat endpoint). All writes persist state_history.
  */
-import { Module, Controller, Get, Post, Body, Param, Query, UseGuards, NotFoundException, ForbiddenException, BadRequestException, Optional } from '@nestjs/common';
+import { Module, Controller, Get, Post, Body, Param, Query, UseGuards, Header, NotFoundException, ForbiddenException, BadRequestException, Optional } from '@nestjs/common';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -83,6 +83,8 @@ export class HomeCareCompatController {
   }
 
   @SelfService()
+  @Header('Deprecation', 'true')
+  @Header('Sunset', 'Sat, 01 Aug 2026 00:00:00 GMT')
   @Post('bookings') async createBooking(@CurrentUser() u: any, @Body() body: CreateBookingDto) {
     if (u?.role !== 'patient') throw new ForbiddenException('patient_only');
     if (!body?.service_id) throw new BadRequestException('service_id is required');
@@ -107,6 +109,8 @@ export class HomeCareCompatController {
     return doc.toObject();
   }
 
+  @Header('Deprecation', 'true')
+  @Header('Sunset', 'Sat, 01 Aug 2026 00:00:00 GMT')
   @Get('bookings/my') myBookings(@CurrentUser() u: any, @Query() q: any) {
     const filter: any = u.role === 'patient' ? { patient_id: u.id } : { provider_id: u.id };
     return this.bookings.find(filter, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(50).lean();

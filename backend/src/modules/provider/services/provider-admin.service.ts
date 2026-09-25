@@ -350,6 +350,25 @@ export class ProviderAdminService {
         applied = res.modifiedCount || 0;
       }
     } else if (accountId && Object.keys(changes).length) {
+      // F49 (ported from provider-moderation duplicate): purge replaced profile
+      // images so storage never fills with orphans.
+      try {
+        const oldProf: any = await this.accounts.model.db.collection('provider_profiles').findOne(
+          { $or: [{ account_id: accountId }, { user_id: accountId }, { id: accountId }] } as any,
+        ).catch(() => null);
+        const IMAGE_KEYS = ['profile_photo', 'logo', 'clinic_images', 'license_documents', 'images'];
+        for (const k of IMAGE_KEYS) {
+          if (changes[k] === undefined) continue;
+          const oldVals: any[] = Array.isArray(oldProf?.[k]) ? oldProf[k] : (oldProf?.[k] ? [oldProf[k]] : []);
+          const newVals = new Set((Array.isArray(changes[k]) ? changes[k] : [changes[k]]).map(String));
+          for (const ov of oldVals) {
+            if (newVals.has(String(ov))) continue;
+            const s2 = String(ov);
+            const url = s2.startsWith('http') ? s2 : (await this.accounts.model.db.collection('storage_objects').findOne({ id: s2 }).catch(() => null))?.external_url || null;
+            if (url) this.events.emit('storage.delete_by_url', { url });
+          }
+        }
+      } catch { /* orphan purge is best-effort */ }
       const res = await this.accounts.model.db.collection('provider_profiles').updateOne(
         { $or: [{ account_id: accountId }, { user_id: accountId }, { id: accountId }] } as any,
         { $set: { ...changes, updated_at: new Date() } },
@@ -398,6 +417,30 @@ export class ProviderAdminService {
     const delta: any = await this.accounts.model.db.collection('provider_deltas').findOne({ id });
     if (!delta) throw new NotFoundException('التغييرات المطلوبة غير موجودة');
     if (delta.status !== 'pending') throw new BadRequestException(`التغييرات تمت معالجتها مسبقاً (${delta.status})`);
+
+    // F49 (ported from provider-moderation duplicate): rejected uploads must not
+    // linger — delete proposed images NOT already referenced by the live profile.
+    try {
+      let changes = delta.requested_changes || delta.changes || {};
+      if (changes && typeof changes === 'object' && typeof changes.changes === 'object' && changes.changes) changes = changes.changes;
+      else if (changes && typeof changes === 'object' && typeof changes.newData === 'object' && changes.newData) changes = changes.newData;
+      const accountId = delta.account_id || delta.provider_account_id || delta.user_id || delta.provider_id;
+      const prof: any = accountId ? await this.accounts.model.db.collection('provider_profiles').findOne(
+        { $or: [{ account_id: accountId }, { user_id: accountId }, { id: accountId }] } as any,
+      ).catch(() => null) : null;
+      const IMAGE_KEYS = ['profile_photo', 'logo', 'clinic_images', 'license_documents', 'images'];
+      for (const k of IMAGE_KEYS) {
+        if (!changes || changes[k] === undefined) continue;
+        const newVals: any[] = Array.isArray(changes[k]) ? changes[k] : [changes[k]];
+        const liveVals = new Set((Array.isArray(prof?.[k]) ? prof[k] : (prof?.[k] ? [prof[k]] : [])).map(String));
+        for (const nv of newVals) {
+          if (liveVals.has(String(nv))) continue;
+          const s2 = String(nv);
+          const url = s2.startsWith('http') ? s2 : (await this.accounts.model.db.collection('storage_objects').findOne({ id: s2 }).catch(() => null))?.external_url || null;
+          if (url) this.events.emit('storage.delete_by_url', { url });
+        }
+      }
+    } catch { /* cleanup is best-effort — the rejection itself must not fail */ }
 
     await this.accounts.model.db.collection('provider_deltas').updateOne(
       { id },

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Headers, Optional, Param, Post, UseGuards, Req, Res, BadRequestException } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Header, Headers, Optional, Param, Post, UseGuards, Req, Res, BadRequestException } from '@nestjs/common';
 import { AuthLoginDto, AuthVerify2faDto, RefreshDto, RecordConsentDto, SendOtpDto, VerifyOtpDto, ResetPasswordDto, SocialLoginDto} from './auth.dto';
 import { PresenceService } from '../presence/presence.service';
 import { Throttle } from '@nestjs/throttler';
@@ -284,7 +284,10 @@ export class AuthController {
     return { success: true };
   }
 
+  // P5.4: legacy names — distinct generic-OTP flow (not aliases of otp/*);
+  // kept with deprecation headers. Canonical: otp/request, otp/verify, password/reset.
   @Public()
+  @Header('Deprecation', 'true')
   @Throttle({ default: { limit: 5, ttl: 60000 } }) // E5-F4 SMS-bombing guard
   @Post('send-otp')
   sendOtp(@Body() body: SendOtpDto) {
@@ -293,6 +296,7 @@ export class AuthController {
   }
 
   @Public()
+  @Header('Deprecation', 'true')
   @Throttle({ default: { limit: 10, ttl: 60000 } }) // E5-F4 OTP guessing guard
   @Post('verify-otp')
   verifyOtp(@Body() body: VerifyOtpDto) {
@@ -301,6 +305,7 @@ export class AuthController {
   }
 
   @Public()
+  @Header('Deprecation', 'true')
   @Throttle({ default: { limit: 5, ttl: 60000 } }) // E5-F4
   @Post('reset-password')
   resetPassword(@Body() body: ResetPasswordDto) {
