@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import client from './client';
-import { LAB_TESTS, RAD_SCANS } from '../constants';
+import { RAD_SCANS } from '../constants';
 
 export type CatalogEntry = { id: string; ar: string; en: string; fasting?: boolean; hours?: number };
 
 /**
  * Central catalog (labs + radiology) from backend /catalogs/* — the same live
- * DB the admin manages. Falls back to the baked-in constants when offline.
+ * DB the admin manages. Labs come from the backend only (F22); radiology keeps
+ * its baked-in fallback until its backend migration lands.
  */
 let cache: Record<string, CatalogEntry> | null = null;
 
@@ -29,8 +30,8 @@ export async function fetchCentralCatalog(): Promise<Record<string, CatalogEntry
         hours: Number(x.turnaround_hours || 0),
       };
     }
-  } catch { /* fallback below */ }
-  for (const t of [...LAB_TESTS, ...RAD_SCANS] as any[]) {
+  } catch { /* backend-only below (F22) */ }
+  for (const t of [...RAD_SCANS] as any[]) {
     const id = String(t.id || '').toLowerCase();
     if (id && !map[id]) map[id] = { id, ar: t.ar, en: t.en, fasting: t.fasting, hours: t.hours };
   }

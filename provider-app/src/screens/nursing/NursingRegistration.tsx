@@ -16,7 +16,7 @@ import {
 } from '../../components/ui';
 import { I, IBg } from '../../components/icons';
 import { Validate } from '../../security/Security';
-import { SP, R, FS, FW, NURSING_SVCS, INSURANCE, C , LANGS } from '../../constants';
+import { SP, R, FS, FW, C , LANGS } from '../../constants';
 import { RegistrationSuccess } from '../shared/SharedScreens';
 import { ContractModal } from '../../components/ContractModal';
 import { OtpModal } from '../../components/OtpModal';

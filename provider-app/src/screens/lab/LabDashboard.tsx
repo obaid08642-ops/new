@@ -19,13 +19,13 @@ import {
  NDivider, NPriceInput
 } from '../../components/ui';
 import { I, IBg, RatingStars } from '../../components/icons';
-import { SP, R, FS, FW, LAB_TESTS, RAD_SCANS, C } from '../../constants';
+import { SP, R, FS, FW, RAD_SCANS, C } from '../../constants';
 import { fetchCentralCatalog } from '../../api/central-catalog';
-// Central catalog lookup (labs + radiology live DB, admin-managed) with LAB_TESTS fallback.
+// Central catalog lookup (labs + radiology live DB, admin-managed).
 // Hydrated async once at module load; display-only, never blocks rendering.
 const centralTestMap: Record<string, any> = {};
 fetchCentralCatalog().then((m) => Object.assign(centralTestMap, m)).catch(() => {});
-const lookupTest = (tid: string) => centralTestMap[String(tid || '').toLowerCase()] || LAB_TESTS.find((x) => x.id === tid);
+const lookupTest = (tid: string) => centralTestMap[String(tid || '').toLowerCase()];
 import {
  PromotionsDashboard, CreateCampaignScreen, ProfileWebConfig,
  ReputationHub, LiveOrderAlarmModal, CrmHub, RevenueInsights,

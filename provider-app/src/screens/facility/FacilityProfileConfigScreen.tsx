@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { useTheme, useLang, useToast } from '../../context';
 import { NHeader, NCard, NInput, NBtn, NSecHeader, NBadge, NScroll } from '../../components/ui';
-import { SP, FS, FW, R, SPECIALTIES } from '../../constants';
+import { SP, FS, FW, R } from '../../constants';
+import { useSpecialtiesCatalog } from '../../api/catalogs';
+
 import client from '../../api/client';
 
 export function FacilityProfileConfigScreen({ onBack }: { onBack: () => void }) {
@@ -10,6 +12,7 @@ export function FacilityProfileConfigScreen({ onBack }: { onBack: () => void }) 
   const { lang } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
+  const specialties = useSpecialtiesCatalog();
 
   const [facilityName, setFacilityName] = useState('');
   const [descAr, setDescAr] = useState('');
@@ -91,7 +94,7 @@ export function FacilityProfileConfigScreen({ onBack }: { onBack: () => void }) 
       <NSecHeader title={AR ? 'التخصصات المتاحة' : 'Available Specialties'} />
       <NCard style={{ marginBottom: SP.xl }}>
         <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: SP.sm }}>
-          {SPECIALTIES.map(sp => {
+          {specialties.map(sp => {
             const isSelected = selectedSpecs.includes(sp.id);
             return (
               <TouchableOpacity

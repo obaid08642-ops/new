@@ -32,7 +32,9 @@ import {
  NDivider, NPriceInput, NCheckbox, NProfileImageUploader
 } from '../../components/ui';
 import { I, IBg } from '../../components/icons';
-import { SP, R, FS, FW, NURSING_SVCS, C } from '../../constants';
+import { SP, R, FS, FW, C } from '../../constants';
+import { useServicesCatalog } from '../../api/catalogs';
+
 import {
  PromotionsDashboard, CreateCampaignScreen, ProfileWebConfig,
  SubscriptionsAdsScreen, AffiliatePortal, ReputationHub,
@@ -102,7 +104,6 @@ export function NursingDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
  useEffect(() => {
  fetchJobs();
  }, []);
-
 
   const tabs = [
  { key: 'home', icon: 'home', label: AR ? 'الرئيسية' : 'Home' },
@@ -222,6 +223,7 @@ export function NursingDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
 function NursingHome({ onNav, jobs, refreshing, onRefresh, onTriggerAlarm }:{ onNav:(s:string,p?:any)=>void; jobs:any[]; refreshing:boolean; onRefresh:()=>void; onTriggerAlarm?:()=>void }) {
  const insets = useSafeAreaInsets();
  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang==='ar';
+ const nursingSvcs = useServicesCatalog('nursing');
  const { user, toggleOnline } = useAuth();
 
  const handleToggleOnline = async () => {
@@ -311,7 +313,7 @@ function NursingHome({ onNav, jobs, refreshing, onRefresh, onTriggerAlarm }:{ on
  <Text style={{fontSize:FS.sm,color:theme.text,textAlign:AR?'right':'left'}} numberOfLines={2}>{order.notes || (AR ? 'طلب رعاية تمريضية منزلية' : 'Home nursing care request')}</Text>
  </View>
  <View style={{flexDirection:'row',flexWrap:'wrap',gap:SP.xs}}>
- {Array.isArray(order.services) ? order.services.map(sid=>{const svc=NURSING_SVCS.find(x=>x.id===sid);return svc?<View key={sid} style={{backgroundColor:'tokens.pink10',paddingHorizontal:SP.sm,paddingVertical:2,borderRadius:R.full,borderWidth:1,borderColor:'tokens.pink30'}}><Text style={{fontSize:FS.xs,color:'tokens.pink'}}>{AR?svc.ar:svc.en}</Text></View>:null;}) : <View style={{backgroundColor:'tokens.pink10',paddingHorizontal:SP.sm,paddingVertical:2,borderRadius:R.full,borderWidth:1,borderColor:'tokens.pink30'}}><Text style={{fontSize:FS.xs,color:'tokens.pink'}}>{order.title_ar || order.title_en || (AR ? 'تمريض منزلي' : 'Home Nursing')}</Text></View>}
+ {Array.isArray(order.services) ? order.services.map(sid=>{const svc=nursingSvcs.find(x=>x.id===sid);return svc?<View key={sid} style={{backgroundColor:'tokens.pink10',paddingHorizontal:SP.sm,paddingVertical:2,borderRadius:R.full,borderWidth:1,borderColor:'tokens.pink30'}}><Text style={{fontSize:FS.xs,color:'tokens.pink'}}>{AR?svc.ar:svc.en}</Text></View>:null;}) : <View style={{backgroundColor:'tokens.pink10',paddingHorizontal:SP.sm,paddingVertical:2,borderRadius:R.full,borderWidth:1,borderColor:'tokens.pink30'}}><Text style={{fontSize:FS.xs,color:'tokens.pink'}}>{order.title_ar || order.title_en || (AR ? 'تمريض منزلي' : 'Home Nursing')}</Text></View>}
  </View>
  {order.chronic && <View style={{flexDirection:AR?'row-reverse':'row',alignItems:'center',gap:SP.xs,marginTop:SP.sm}}>
  <I name="heart" size={12} color="tokens.pink" />
@@ -419,6 +421,7 @@ function NursingOrdersTab({ onNavigate }: any) {
 // ══════════════════════════════════════════════════════════════════
  function NursingOrderDetail({ order, onBack, onNav, onRefresh }:{ order:any; onBack:()=>void; onNav:(s:string,p?:any)=>void; onRefresh:()=>void }) {
   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
+  const nursingSvcs = useServicesCatalog('nursing');
   const [acting, setActing] = useState(false);
 
   const handleAccept = async () => {
@@ -468,7 +471,7 @@ function NursingOrdersTab({ onNavigate }: any) {
   {/* Services */}
   <Text style={{fontSize:FS.md,fontWeight:FW.bold,color:theme.text,marginBottom:SP.md,textAlign:AR?'right':'left'}}>{AR?'الخدمات المطلوبة':'Requested Services'}</Text>
   {Array.isArray(order?.services) ? (order.services.map((sid:string)=>{
-  const svc=NURSING_SVCS.find(x=>x.id===sid);
+  const svc=nursingSvcs.find(x=>x.id===sid);
   return svc?<View key={sid} style={{flexDirection:AR?'row-reverse':'row',alignItems:'center',gap:SP.md,paddingVertical:SP.sm,borderBottomWidth:StyleSheet.hairlineWidth,borderBottomColor:theme.border}}>
   <IBg name="heart" size={12} color="tokens.pink" bg="tokens.pink12" />
   <Text style={{flex:1,fontSize:FS.md,color:theme.text,textAlign:AR?'right':'left'}}>{AR?svc.ar:svc.en}</Text>

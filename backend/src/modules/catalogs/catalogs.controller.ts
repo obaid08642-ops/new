@@ -13,6 +13,7 @@ import * as path from 'path';
  * - labs: live DB (labservices), managed via admin catalog-manager.
  * - radiology: live DB (radiologyservices), managed via admin catalog-manager.
  * - nursing: live DB (nursing_catalog), managed via admin catalog-manager.
+ * - specialties: live DB (specialties collection).
  * Static JSON files are fallback only (used when DB is empty, e.g. fresh dev).
  * Admin add/remove in the dashboard writes to DB → visible everywhere instantly.
  */
@@ -20,9 +21,10 @@ const DB_COLLECTIONS: Record<string, string> = {
   labs: 'labservices',
   radiology: 'radiologyservices',
   nursing: 'nursing_catalog',
+  specialties: 'specialties',
 };
 
-const CATALOGS = ['insurance', 'labs', 'radiology', 'nursing'] as const;
+const CATALOGS = ['insurance', 'labs', 'radiology', 'nursing', 'specialties'] as const;
 
 @Controller('catalogs')
 @UseInterceptors(RedisCacheInterceptor)
