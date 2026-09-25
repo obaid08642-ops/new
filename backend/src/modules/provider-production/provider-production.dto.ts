@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsDefined, IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsDefined, IsIn, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 
 export class OrderInsuranceDto {
   @IsDefined()
@@ -190,25 +190,32 @@ export class CreateReferralDto {
 
 export class CreatePromotionDto {
   @IsOptional()
-  title_ar?: any;
+  @IsString()
+  title_ar?: string;
 
   @IsOptional()
-  title_en?: any;
+  @IsString()
+  title_en?: string;
 
   @IsOptional()
-  original_price?: any;
+  @IsNumber()
+  original_price?: number;
 
   @IsOptional()
-  discounted_price?: any;
+  @IsNumber()
+  discounted_price?: number;
 
   @IsOptional()
-  start_date?: any;
+  @IsDateString()
+  start_date?: string;
 
   @IsOptional()
-  end_date?: any;
+  @IsDateString()
+  end_date?: string;
 
   @IsOptional()
-  target_parameters?: any;
+  @IsObject()
+  target_parameters?: Record<string, unknown>;
 
 }
 
@@ -233,39 +240,55 @@ export class CreateTechDto {
 
 export class UpdateTechDto {
   @IsOptional()
-  suspended?: any;
+  @IsBoolean()
+  suspended?: boolean;
 
+}
+
+export class PatchAvailabilityDto {
+  @IsOptional() @IsBoolean() is_accepting_requests?: boolean;
+  @IsOptional() @IsBoolean() instant_available?: boolean;
+  @IsOptional() @IsNumber() instant_available_minutes?: number;
+  @IsOptional() @IsBoolean() vacation_mode?: boolean;
+  @IsOptional() @IsDateString() vacation_from?: string;
+  @IsOptional() @IsDateString() vacation_to?: string;
+  @IsOptional() @IsArray() @IsObject({ each: true }) weekly_schedule?: Record<string, unknown>[];
+  @IsOptional() @IsArray() @IsObject({ each: true }) availability_exceptions?: Record<string, unknown>[];
+  @IsOptional() @IsArray() @IsObject({ each: true }) accepted_insurance?: Record<string, unknown>[];
 }
 
 export class ClaimResubmitDto {
   @IsOptional()
-  @IsIn(["reject"])
-  reason: string;
+  @IsString()
+  reason?: string;
 
   @IsOptional()
-  @IsIn(["resubmit"])
-  updated_documents: string;
+  @IsArray()
+  @IsString({ each: true })
+  updated_documents?: string[];
 
 }
 
 export class ClaimApproveDto {
   @IsOptional()
-  @IsIn(["reject"])
-  reason: string;
+  @IsString()
+  reason?: string;
 
   @IsOptional()
-  @IsIn(["resubmit"])
-  updated_documents: string;
+  @IsArray()
+  @IsString({ each: true })
+  updated_documents?: string[];
 
 }
 
 export class ClaimRejectDto {
   @IsOptional()
-  @IsIn(["reject"])
-  reason: string;
+  @IsString()
+  reason?: string;
 
   @IsOptional()
-  @IsIn(["resubmit"])
-  updated_documents: string;
+  @IsArray()
+  @IsString({ each: true })
+  updated_documents?: string[];
 
 }

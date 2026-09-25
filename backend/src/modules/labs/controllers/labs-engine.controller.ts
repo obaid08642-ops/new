@@ -6,6 +6,7 @@ import { LabCatalog } from '../schemas/lab-catalog.schema';
 import { Roles } from '../../../common/auth.guard';
 import { UserRole } from '../../../common/enums';
 import { RespondToBookingDto, CollectSampleDto, FinalizeTestDto, UpdateCatalogDto } from './labs-engine.dto';
+import { idFilter } from '../../../common/id.utils';
 
 @Controller('labs/bookings')
 @Roles(UserRole.LAB, UserRole.HOSPITAL, UserRole.ADMIN)
@@ -32,8 +33,10 @@ export class LabsEngineController {
     const { accept, lab_id } = body;
     const newStatus = accept ? 'ACCEPTED' : 'CANCELLED';
     
+    // Lab bookings carry no public `id` field — the route id is the Mongo `_id`
+    // (idFilter keeps that behavior and never throws on malformed input).
     const booking = await this.labBookingModel.findOneAndUpdate(
-      { _id: bookingId, lab_id },
+      { ...idFilter(bookingId), lab_id },
       { $set: { status: newStatus } },
       { new: true }
     );
@@ -60,8 +63,8 @@ export class LabsEngineController {
       });
     }
 
-    const booking = await this.labBookingModel.findByIdAndUpdate(
-      bookingId,
+    const booking = await this.labBookingModel.findOneAndUpdate(
+      idFilter(bookingId),
       { $set: { sample_barcode_token: barcodeToken, status: 'SAMPLE_COLLECTED' } },
       { new: true }
     );
@@ -78,8 +81,8 @@ export class LabsEngineController {
   ) {
     const { metricResults, pdfUrl } = body;
 
-    const booking = await this.labBookingModel.findByIdAndUpdate(
-      bookingId,
+    const booking = await this.labBookingModel.findOneAndUpdate(
+      idFilter(bookingId),
       {
         $set: {
           entered_metric_results: metricResults || [],

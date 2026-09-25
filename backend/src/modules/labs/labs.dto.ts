@@ -1,4 +1,5 @@
-import { IsArray, IsBoolean, IsDateString, IsDefined, IsIn, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import { LabBookingState } from '../../schemas/lab.schema';
 
 export class BookDto {
   @IsDefined()
@@ -51,12 +52,13 @@ export class BookDto {
 }
 
 export class TransitionDto {
-  @IsOptional()
-  state?: any;
+  @IsDefined()
+  @IsEnum(LabBookingState)
+  state: LabBookingState;
 
   @IsOptional()
-  note?: any;
-
+  @IsString()
+  note?: string;
 }
 
 export class UploadDocDto {
@@ -97,7 +99,8 @@ export class UpdateInsDto {
 
 
   @IsOptional()
-  items?: any;
+  @IsArray()
+  items?: unknown[];
 
 }
 
@@ -218,11 +221,13 @@ export class RegisterSampleDto {
 }
 
 export class ForceStateDto {
-  @IsOptional()
-  state?: any;
+  @IsDefined()
+  @IsEnum(LabBookingState)
+  state: LabBookingState;
 
   @IsOptional()
-  note?: any;
+  @IsString()
+  note?: string;
 
 }
 

@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsDefined, IsOptional } from 'class-validator';
+import { IsArray, IsBoolean, IsDefined, IsObject, IsOptional } from 'class-validator';
 
 export class SetMatrixDto {
   @IsDefined()
@@ -6,10 +6,12 @@ export class SetMatrixDto {
   companies: string[];
 
   @IsOptional()
-  networks?: any;
+  @IsObject()
+  networks?: Record<string, string[]>;
 
   @IsOptional()
-  tiers?: any;
+  @IsObject()
+  tiers?: Record<string, string[]>;
 }
 
 export class SetConsentDto {

@@ -1,7 +1,8 @@
-import { IsOptional } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class RejectPayoutDto {
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
 
 }

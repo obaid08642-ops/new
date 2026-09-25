@@ -28,21 +28,24 @@ export class UpsertCandidateProfileDto {
 }
 
 export class CreateJobDto {
-  @IsOptional()
-  title?: any;
-
-  @IsOptional()
-  description?: any;
-
-  @IsOptional()
+  @IsDefined()
   @IsString()
+  title: string;
+
+  @IsDefined()
+  @IsString()
+  description: string;
+
+  @IsDefined()
+  @IsIn(['doctor', 'pharmacist', 'nurse', 'lab', 'radiology'])
   scfhs_role: string;
 
-  @IsOptional()
-  location?: any;
+  @IsDefined()
+  @IsString()
+  location: string;
 
   @IsOptional()
-  @IsIn(["request"])
+  @IsIn(['request', 'offer'])
   post_type: string;
 
   @IsOptional()
@@ -51,10 +54,12 @@ export class CreateJobDto {
 
 
   @IsOptional()
-  salary_range?: any;
+  @IsString()
+  salary_range?: string;
 
   @IsOptional()
-  facility_id?: any;
+  @IsString()
+  facility_id?: string;
 
   @IsOptional()
   @IsString()
@@ -62,16 +67,20 @@ export class CreateJobDto {
 
 
   @IsOptional()
-  company?: any;
+  @IsString()
+  company?: string;
 
   @IsOptional()
-  contact_phone?: any;
+  @IsString()
+  contact_phone?: string;
 
   @IsOptional()
-  contact_preference?: any;
+  @IsString()
+  contact_preference?: string;
 
   @IsOptional()
-  nationality?: any;
+  @IsString()
+  nationality?: string;
 
   @IsOptional()
   @IsNumber()
@@ -79,30 +88,46 @@ export class CreateJobDto {
 
 
   @IsOptional()
-  contract_type?: any;
+  @IsString()
+  contract_type?: string;
 
 }
 
 export class UpdateJobDto {
-  title?: any;
+  @IsOptional()
+  @IsString()
+  title?: string;
 
-  description?: any;
+  @IsOptional()
+  @IsString()
+  description?: string;
 
-  requirements?: any;
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  requirements?: string[];
 
-  scfhs_role?: any;
+  @IsOptional()
+  @IsIn(['doctor', 'pharmacist', 'nurse', 'lab', 'radiology'])
+  scfhs_role?: string;
 
-  location?: any;
+  @IsOptional()
+  @IsString()
+  location?: string;
 
-  salary_range?: any;
+  @IsOptional()
+  @IsString()
+  salary_range?: string;
 
-  status?: any;
-
+  @IsOptional()
+  @IsString()
+  status?: string;
 }
 
 export class GuestPostDto {
   @IsOptional()
-  device_id?: any;
+  @IsString()
+  device_id?: string;
 
   @IsOptional()
   @IsString()
@@ -121,37 +146,42 @@ export class GuestPostDto {
   scfhs_role: string;
 
   @IsOptional()
-  salary_range?: any;
+  @IsString()
+  salary_range?: string;
 
   @IsOptional()
-  @IsIn(["request"])
-  post_type: string;
+  @IsIn(['request', 'offer'])
+  post_type?: string;
 
   @IsOptional()
-  company?: any;
+  @IsString()
+  company?: string;
 
   @IsOptional()
-  contact_phone?: any;
+  @IsString()
+  contact_phone?: string;
 
   @IsOptional()
-  contact_preference?: any;
+  @IsString()
+  contact_preference?: string;
 
   @IsOptional()
-  nationality?: any;
+  @IsString()
+  nationality?: string;
 
   @IsOptional()
   @IsNumber()
   experience_years?: number;
 
-
   @IsOptional()
-  contract_type?: any;
-
+  @IsString()
+  contract_type?: string;
 }
 
 export class GuestApplyDto {
   @IsOptional()
-  device_id?: any;
+  @IsString()
+  device_id?: string;
 
   @IsOptional()
   @IsString()
@@ -162,14 +192,14 @@ export class GuestApplyDto {
   phone: string;
 
   @IsOptional()
-  cover_letter?: any;
-
+  @IsString()
+  cover_letter?: string;
 }
 
 export class ApplyForJobDto {
   @IsOptional()
-  cover_letter?: any;
-
+  @IsString()
+  cover_letter?: string;
 }
 
 export class UpdateApplicationStatusDto {

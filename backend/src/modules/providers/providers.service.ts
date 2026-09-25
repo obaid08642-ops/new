@@ -49,6 +49,8 @@ export class ProvidersService {
       throw new ForbiddenException('صلاحية مرفوضة. فقط إدارة المستشفى تملك حق تعيين الموظفين الفرعيين.');
     }
 
+    // ProviderBranch._id is a UUID string (see provider-branch.schema), so
+    // findById matches the branch uuid directly — never a client ObjectId.
     const branch = await this.branchModel.findById(branchId);
     if (!branch) throw new NotFoundException('الفرع المحدد غير موجود بالمنظومة.');
 

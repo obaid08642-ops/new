@@ -14,6 +14,10 @@ import { QuotationRepository } from "./repositories/quotation.repository";
 
 @Injectable()
 export class ProcurementService {
+  // ID CONTRACT: pharmacy procurement requests have no public uuid `id` — the
+  // request id clients send is always the Mongo `_id` (the create endpoint
+  // returns `request._id` as `procurement_id`). All lookups below therefore
+  // target `_id` directly and 404 on anything else instead of misrouting.
   constructor(
     
     @Inject('ProcurementRequestRepository') private readonly procurementModel: ProcurementRequestRepository,
@@ -45,6 +49,7 @@ export class ProcurementService {
 
   // ─── PHARMACY: Get single request ─────────────────────────────────────────
   async getPharmacyRequest(pharmacyId: string, requestId: string): Promise<any> {
+    // requestId is always the Mongo `_id` (see ID CONTRACT above).
     const req = await this.procurementModel
       .findOne({ _id: new Types.ObjectId(requestId), pharmacy_id: String(pharmacyId) })
       .lean() as any;
@@ -58,6 +63,7 @@ export class ProcurementService {
     requestId: string,
     dto: PharmacyQuotationFeedbackDto,
   ): Promise<any> {
+    // requestId is always the Mongo `_id` (see ID CONTRACT above).
     const req = await this.procurementModel.findOne({ _id: new Types.ObjectId(requestId), pharmacy_id: String(pharmacyId) });
     if (!req) throw new NotFoundException('Procurement request not found');
 
@@ -96,6 +102,7 @@ export class ProcurementService {
 
   // ─── ADMIN: Get single request ────────────────────────────────────────────
   async adminGetRequest(requestId: string): Promise<any> {
+    // requestId is always the Mongo `_id` (see ID CONTRACT above).
     const req = await this.procurementModel.findById(requestId).lean() as any;
     if (!req) throw new NotFoundException('Procurement request not found');
     return req;
@@ -130,6 +137,7 @@ export class ProcurementService {
 
   // ─── ADMIN: Move request to UNDER_ADMIN_REVIEW ───────────────────────────
   async adminStartReview(requestId: string): Promise<any> {
+    // requestId is always the Mongo `_id` (see ID CONTRACT above).
     const req = await this.procurementModel.findById(requestId);
     if (!req) throw new NotFoundException('Procurement request not found');
 
@@ -150,6 +158,7 @@ export class ProcurementService {
     requestId: string,
     dto: AdminCreateQuotationDto,
   ): Promise<any> {
+    // requestId is always the Mongo `_id` (see ID CONTRACT above).
     const req = await this.procurementModel.findById(requestId);
     if (!req) throw new NotFoundException('Procurement request not found');
 
@@ -192,6 +201,7 @@ export class ProcurementService {
 
   // ─── ADMIN: Cancel a request ──────────────────────────────────────────────
   async adminCancelRequest(requestId: string): Promise<any> {
+    // requestId is always the Mongo `_id` (see ID CONTRACT above).
     const req = await this.procurementModel.findById(requestId);
     if (!req) throw new NotFoundException('Procurement request not found');
 
@@ -212,6 +222,7 @@ export class ProcurementService {
 
   // ─── ADMIN: Mark as COMPLETED (after delivery) ───────────────────────────
   async adminCompleteRequest(requestId: string): Promise<any> {
+    // requestId is always the Mongo `_id` (see ID CONTRACT above).
     const req = await this.procurementModel.findById(requestId);
     if (!req) throw new NotFoundException('Procurement request not found');
 

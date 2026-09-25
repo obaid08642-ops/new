@@ -1,4 +1,5 @@
-import { IsArray, IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDefined, IsEnum, IsIn, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import { RadiologyBookingState } from '../../schemas/radiology.schema';
 
 export class BookDto {
   @IsOptional()
@@ -88,13 +89,48 @@ export class UploadReportDto {
   findings?: string;
 }
 
+export class RadiologyDocumentDto {
+  @IsDefined() @IsIn(['doctor_request', 'preauth', 'report', 'scan', 'other']) kind: string;
+  @IsDefined() @IsString() url_or_b64: string;
+  @IsOptional() @IsString() filename?: string;
+}
+
+export class ShiftWindowDto {
+  @IsOptional() @IsString() from?: string;
+  @IsOptional() @IsString() to?: string;
+}
+
+// Catalog delta proposals go to the admin approval workflow (Module 15) —
+// they describe a *proposed* catalog entry or schedule change, not an
+// existing catalog row, so every proposal field is accepted here and
+// validated again at approval time.
+export class CatalogDeltaRequestDto {
+  @IsOptional() @IsString() name_ar?: string;
+  @IsOptional() @IsString() name_en?: string;
+  @IsOptional() @IsString() modality_category?: string;
+  @IsOptional() @IsNumber() price?: number;
+  @IsOptional() @IsNumber() estimated_duration_minutes?: number;
+  @IsOptional() @IsBoolean() insurance_availability?: boolean;
+  @IsOptional() @IsBoolean() portable_ultrasound?: boolean;
+  @IsOptional() @IsBoolean() requires_pregnancy_check?: boolean;
+  @IsOptional() @IsBoolean() requires_metal_implant_check?: boolean;
+  @IsOptional() @IsBoolean() requires_contrast_allergy_check?: boolean;
+  @IsOptional() @IsArray() @IsString({ each: true }) preparation_keys?: string[];
+  @IsOptional() @IsString() type?: string;
+  @IsOptional() @IsArray() @IsBoolean({ each: true }) working_days?: boolean[];
+  @IsOptional() @IsObject() morning_shift?: Record<string, unknown>;
+  @IsOptional() @IsObject() evening_shift?: Record<string, unknown>;
+  @IsOptional() @IsBoolean() emergency_available?: boolean;
+}
+
 export class ForceStateDto {
-  @IsOptional()
-  state?: any;
+  @IsDefined()
+  @IsEnum(RadiologyBookingState)
+  state: RadiologyBookingState;
 
   @IsOptional()
-  note?: any;
-
+  @IsString()
+  note?: string;
 }
 
 export class AbortScanDto {

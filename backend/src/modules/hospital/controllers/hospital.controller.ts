@@ -2,7 +2,7 @@ import { Controller, Post, Get, Put, Body, Param, Query, UseGuards, Req } from '
 import { HospitalService } from '../services/hospital.service';
 import { JwtAuthGuard, CurrentUser, Roles } from '../../../common/auth.guard';
 import { UserRole } from '../../../common/enums';
-import { AddStaffDto, OnboardDoctorDto, UpdateAppointmentStatusDto, CreateInvitationDto, RespondInvitationDto} from './hospital.dto';
+import { AddStaffDto, OnboardDoctorDto, UpdateAppointmentStatusDto, CreateInvitationDto, RespondInvitationDto, CreateBranchDto, CreateDepartmentDto } from './hospital.dto';
 
 @Controller('hospital')
 @Roles(UserRole.HOSPITAL, UserRole.HOSPITAL_ADMIN, UserRole.ADMIN)
@@ -11,7 +11,7 @@ export class HospitalController {
   constructor(private readonly hospitalService: HospitalService) {}
 
   @Post('branches')
-  async createBranch(@CurrentUser() user: any, @Body() body: any) {
+  async createBranch(@CurrentUser() user: any, @Body() body: CreateBranchDto) {
     return this.hospitalService.createBranch(user.id, body, user);
   }
 
@@ -21,7 +21,7 @@ export class HospitalController {
   }
 
   @Post('departments')
-  async createDepartment(@CurrentUser() user: any, @Body() body: any) {
+  async createDepartment(@CurrentUser() user: any, @Body() body: CreateDepartmentDto) {
     return this.hospitalService.createDepartment(user.id, body, user);
   }
 

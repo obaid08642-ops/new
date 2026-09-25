@@ -222,7 +222,7 @@ export class RadiologyOpsService {
   }
 
   // Also expose combined publish (for backward compat)
-  async publishReport(id: string, body: any, user: any) {
+  async publishReport(id: string, user: any) {
     return this.approveReport(id, user);
   }
 

@@ -7,7 +7,7 @@ import { Appointment } from '../../../schemas/appointment.schema';
 import { ProviderProfile } from '../../../schemas/provider-profile.schema';
 import { UserRole } from '../../../common/enums';
 import { Roles } from '../../../common/auth.guard';
-import { GetBranchFinancialsDto } from './hospital-enterprise.dto';
+import { GetBranchFinancialsDto, ProvisionSubProviderDto } from './hospital-enterprise.dto';
 
 @Controller('providers/enterprise')
 @Roles(UserRole.HOSPITAL, UserRole.HOSPITAL_ADMIN, UserRole.ADMIN)
@@ -20,9 +20,11 @@ export class HospitalEnterpriseController {
   ) {}
 
   @Post('provision-sub-provider')
-  async provisionSubProvider(@Body() payload: any) {
+  async provisionSubProvider(@Body() payload: ProvisionSubProviderDto) {
     const { hospitalId, branchId, staffUserId, entityType, permissions } = payload;
 
+    // hospitalId/branchId/staffUserId are always Mongo ObjectIds —
+    // enforced by @IsMongoId() on ProvisionSubProviderDto.
     // Create the transactional binding mapping the provider sub-account underneath the hospital
     const binding = await this.subEntityModel.create({
       parent_hospital_id: new Types.ObjectId(hospitalId),
@@ -54,6 +56,8 @@ export class HospitalEnterpriseController {
     @Param('hospitalId') hospitalId: string,
     @Param('branchId') branchId: string
   ) {
+    // Route ids are Mongo ObjectIds here: both come from the provisioned
+    // sub-entity binding created above (never client uuids).
     const staffMappings = await this.subEntityModel.find({
       parent_hospital_id: new Types.ObjectId(hospitalId),
       assigned_branch_id: new Types.ObjectId(branchId),
@@ -81,6 +85,8 @@ export class HospitalEnterpriseController {
       throw new ForbiddenException('حجبت الصلاحية. السياق الأمني غير مكتمل.');
     }
 
+    // requestorId is always a Mongo ObjectId (enforced by @IsMongoId());
+    // branchId is the provisioned binding id from above, never a client uuid.
     const requestor = await this.userModel.findById(securityContext.requestorId);
     if (!requestor || requestor.role === UserRole.RECEPTIONIST) {
       throw new ForbiddenException('حجبت الصلاحية. موظفو الاستقبال لا يملكون إذن الوصول للتقارير والبيانات المالية للمنشأة.');

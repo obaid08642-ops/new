@@ -1,8 +1,10 @@
-import { IsArray, IsBoolean, IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDefined, IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
+import { DeliveryState, OrderState } from '../../common/enums';
 
 export class ReorderPartialDto {
   @IsOptional()
-  delivery_address?: any;
+  @IsString()
+  delivery_address?: string;
 
   @IsOptional()
   @IsString()
@@ -10,7 +12,8 @@ export class ReorderPartialDto {
 
 
   @IsOptional()
-  id?: any;
+  @IsString()
+  id?: string;
 
   @IsDefined()
   @IsArray()
@@ -20,16 +23,19 @@ export class ReorderPartialDto {
 
 export class CancelDto {
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
 
 }
 
 export class RejectBasketDto {
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
 
   @IsOptional()
-  id?: any;
+  @IsString()
+  id?: string;
 
 }
 
@@ -53,13 +59,15 @@ export class UpdateInsuranceApprovalDto {
 
 
   @IsOptional()
-  items?: any;
+  @IsArray()
+  items?: unknown[];
 
 }
 
 export class RejectDto {
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
 
 }
 
@@ -95,13 +103,17 @@ export class AssignDto {
   driver_id: string;
 }
 export class DeliveryUpdateDto {
-  state: any;
+  @IsDefined()
+  @IsEnum(DeliveryState)
+  state: DeliveryState;
 
   @IsOptional()
-  location?: any;
+  location?: unknown;
 }
 export class AdminTransitionDto {
-  to: any;
+  @IsDefined()
+  @IsEnum(OrderState)
+  to: OrderState;
 
   @IsOptional()
   @IsString()

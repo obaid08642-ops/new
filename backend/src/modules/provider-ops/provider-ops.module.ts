@@ -17,7 +17,7 @@ import { Connection, Schema } from 'mongoose';
 import { randomUUID } from 'crypto';
 import { JwtAuthGuard, CurrentUser, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
-import { AddLeaveDto, SaveTemplateDto, SaveDxDto, BlockDto, PutCrmDto, QcDto, ChecklistDto, SignDto, TrackDto, EscalateDto, HandoverDto, CompleteDto, PutPricingDto, ReplyReviewDto, PutHoursDto, EndConsultationDto } from './provider-ops.dto';
+import { AddLeaveDto, SaveTemplateDto, SaveDxDto, BlockDto, PutCrmDto, QcDto, ChecklistDto, SignDto, TrackDto, EscalateDto, HandoverDto, CompleteDto, PutPricingDto, ReplyReviewDto, PutHoursDto, EndConsultationDto, ScheduleSettingsDto } from './provider-ops.dto';
 
 /** Provider withdrawal requests (consumed by admin-web-core finance controller). */
 export const ProviderWithdrawalSchema = new Schema(
@@ -781,7 +781,7 @@ export class ProviderCompatController {
     return this.svc.getProviderSetting(u.id, 'schedule_settings', null);
   }
   @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
-  @Post('schedule/settings') async postSched(@CurrentUser() u: any, @Body() b: any) {
+  @Post('schedule/settings') async postSched(@CurrentUser() u: any, @Body() b: ScheduleSettingsDto) {
     return this.svc.requestSettingChange(u.id, 'schedule_settings', b || {});
   }
 

@@ -18,7 +18,6 @@ import { IdempotencyInterceptor } from '../../common/idempotency.interceptor';
 import * as crypto from 'crypto';
 import { Request } from 'express';
 import { UserRole } from '../../common/enums';
-import { ConstructorDto } from './payments.dto';
 
 /**
  * PAYMENT GATEWAY ADAPTERS — additive layer, never bypasses WorkflowEngine.
@@ -573,7 +572,7 @@ export class PaymentsWebhookController {
   @Public()
   @Post(':provider') @HttpCode(200) async webhook(
     @Param('provider') p: string,
-    @Body() b: ConstructorDto,
+    @Body() b: Record<string, unknown>,
     @Headers('moyasar-signature') signature: string,
     @Req() req: Request,
   ) {

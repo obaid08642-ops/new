@@ -1,21 +1,25 @@
-import { IsArray, IsOptional } from 'class-validator';
+import { IsArray, IsOptional, IsString } from 'class-validator';
 
 export class CreateDto {
   @IsOptional()
-  booking_id?: any;
+  @IsString()
+  booking_id?: string;
 
   @IsOptional()
-  type?: any;
+  @IsString()
+  type?: string;
 
   @IsOptional()
   @IsArray()
   entries: any[];
 
   @IsOptional()
-  service_name_ar?: any;
+  @IsString()
+  service_name_ar?: string;
 
   @IsOptional()
-  service_name_en?: any;
+  @IsString()
+  service_name_en?: string;
 
   @IsOptional()
   @IsArray()
@@ -23,15 +27,19 @@ export class CreateDto {
 
 
   @IsOptional()
-  findings?: any;
+  @IsString()
+  findings?: string;
 
   @IsOptional()
-  impression?: any;
+  @IsString()
+  impression?: string;
 
   @IsOptional()
-  recommendations?: any;
+  @IsString()
+  recommendations?: string;
 
   @IsOptional()
-  notes?: any;
+  @IsString()
+  notes?: string;
 
 }

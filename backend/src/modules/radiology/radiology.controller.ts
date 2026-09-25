@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Param, Query, Patch, Put, Delete, UseGuard
 import { RadiologyOpsService } from './radiology.service';
 import { Public, CurrentUser, SelfService, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
-import { BookDto, TransitionDto, UpdateInsDto, AssignTechDto, UploadReportDto, ForceStateDto, AbortScanDto, InsuranceApprovalDto, RescheduleDto, SubmitReportForReviewDto} from './radiology.dto';
+import { BookDto, TransitionDto, UpdateInsDto, AssignTechDto, UploadReportDto, ForceStateDto, AbortScanDto, InsuranceApprovalDto, RescheduleDto, SubmitReportForReviewDto, RadiologyDocumentDto, CatalogDeltaRequestDto} from './radiology.dto';
 import { CreateRadiologyCatalogDto, UpdateRadiologyCatalogDto } from './radiology.dto';
 
 @Controller('radiology')
@@ -59,8 +59,8 @@ export class RadiologyController {
 
   @Roles(UserRole.RADIOLOGY, UserRole.HOSPITAL, UserRole.ADMIN)
   @Post('bookings/:id/publish-report')
-  publish(@Param('id') id: string, @Body() body: any, @CurrentUser() user: any) {
-    return this.svc.publishReport(id, body, user);
+  publish(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.svc.publishReport(id, user);
   }
 
   @Get('reports/mine')
@@ -68,7 +68,7 @@ export class RadiologyController {
 
   @SelfService()
   @Post('bookings/:id/documents')
-  uploadDoc(@Param('id') id: string, @Body() body: any, @CurrentUser() user: any) {
+  uploadDoc(@Param('id') id: string, @Body() body: RadiologyDocumentDto, @CurrentUser() user: any) {
     return this.svc.addDocument(id, user, body);
   }
 
@@ -151,7 +151,7 @@ export class RadiologyController {
   // MODULE 15: Catalog Delta Request (goes to admin for approval)
   @Roles(UserRole.RADIOLOGY, UserRole.HOSPITAL, UserRole.ADMIN)
   @Post('catalog/delta-request')
-  catalogDeltaRequest(@Body() body: any, @CurrentUser() user: any) {
+  catalogDeltaRequest(@Body() body: CatalogDeltaRequestDto, @CurrentUser() user: any) {
     return this.svc.catalogDeltaRequest(user, body);
   }
 

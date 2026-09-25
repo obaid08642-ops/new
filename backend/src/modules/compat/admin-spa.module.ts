@@ -16,7 +16,9 @@ import {
   Get,
   NotFoundException,
   Param,
+  ParseArrayPipe,
   Patch,
+  PipeTransform,
   Post,
   Put,
   Query,
@@ -26,7 +28,7 @@ import {
   UseInterceptors,
   UploadedFile,
 } from '@nestjs/common';
-import { CreateDto, CreateRuleDto, CreateAutoRuleDto, ExpandDto, DispatchDto, ReassignDto, UpdateDto, CreateDto2, ManualAdjustDto, RedeemDto, ToggleSystemDto, SendDto, RejectDto, ShortageDto, CustomReportDto, AssignDto} from './admin-spa.dto';
+import { CreateDto, CreateRuleDto, CreateAutoRuleDto, ExpandDto, DispatchDto, ReassignDto, UpdateDto, CreateDto2, ManualAdjustDto, RedeemDto, ToggleSystemDto, SendDto, RejectDto, ShortageDto, CustomReportDto, AssignDto, CouponUpdateDto, LoyaltyEarnRuleUpdateDto, DeliveryRuleUpdateDto, PromotionUpdateDto, ClaimApprovalDto, PermissionEntryDto, WorkflowEntryDto, AlertRuleDto, ThemeConfigDto, AiConfigDto, AutoRuleUpdateDto } from './admin-spa.dto';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -34,6 +36,16 @@ import { v4 as uuid } from 'uuid';
 import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { CreateDtoGen2, CreateDto2Gen2, CreateDto3, CreateDto4, CreateDto5, UploadDto } from './admin-spa.generated.dto';
+
+// These config endpoints intentionally store admin-owned, free-form JSON values.
+class FreeformConfigObjectPipe implements PipeTransform<unknown, Record<string, unknown>> {
+  transform(value: unknown): Record<string, unknown> {
+    if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+      throw new BadRequestException('configuration_body_must_be_object');
+    }
+    return value as Record<string, unknown>;
+  }
+}
 
 const now = () => new Date();
 const uid = (u: any) => u?.id || u?._id || u?.user_id;
@@ -130,7 +142,7 @@ class AdminBroadcastController extends AdminController {
   }
 
   @Put('config')
-  async putConfig(@CurrentUser() user: any, @Body() body: any) {
+  async putConfig(@CurrentUser() user: any, @Body(new FreeformConfigObjectPipe()) body: Record<string, unknown>) {
     await this.conn.collection('admin_config').updateOne(
       { key: 'broadcast' } as any,
       { $set: { key: 'broadcast', value: body || {}, updated_by: uid(user), updatedAt: now() } },
@@ -640,7 +652,7 @@ class AdminCouponsController extends AdminController {
   }
 
   @Patch(':code')
-  async update(@CurrentUser() user: any, @Param('code') code: string, @Body() body: any) {
+  async update(@CurrentUser() user: any, @Param('code') code: string, @Body() body: CouponUpdateDto) {
     const allowed = ['discount_percent', 'discount_amount', 'max_uses', 'valid_from', 'valid_until',
       'min_order', 'max_discount', 'usage_limit_per_user', 'provider_id', 'categories',
       'first_order_only', 'campaign_id', 'active'];
@@ -658,7 +670,7 @@ class AdminCouponsController extends AdminController {
 @Roles(UserRole.ADMIN)
 class AdminLoyaltyController extends AdminController {
   @Put('config')
-  async putConfig(@CurrentUser() user: any, @Body() body: any) {
+  async putConfig(@CurrentUser() user: any, @Body(new FreeformConfigObjectPipe()) body: Record<string, unknown>) {
     await this.conn.collection('loyalty_config').updateOne(
       { key: 'global' } as any,
       { $set: { key: 'global', value: body || {}, updated_by: uid(user), updatedAt: now() } },
@@ -668,7 +680,7 @@ class AdminLoyaltyController extends AdminController {
   }
 
   @Put('earn-rules/:id')
-  async updateEarnRule(@Param('id') id: string, @CurrentUser() user: any, @Body() body: any) {
+  async updateEarnRule(@Param('id') id: string, @CurrentUser() user: any, @Body() body: LoyaltyEarnRuleUpdateDto) {
     const allowed = ['name_ar', 'name_en', 'event', 'points', 'multiplier', 'active', 'conditions'];
     const $set: any = { updated_by: uid(user), updatedAt: now() };
     for (const k of allowed) if (k in (body || {})) $set[k] = body[k];
@@ -758,7 +770,7 @@ class AdminDeliveryController extends AdminController {
   }
 
   @Put('rules/:id')
-  async updateRule(@Param('id') id: string, @CurrentUser() user: any, @Body() body: any) {
+  async updateRule(@Param('id') id: string, @CurrentUser() user: any, @Body() body: DeliveryRuleUpdateDto) {
     const allowed = ['name_ar', 'min_order_sar', 'service_type', 'city', 'user_segment', 'free', 'fee_sar', 'active'];
     const $set: any = { updated_by: uid(user), updatedAt: now() };
     for (const k of allowed) if (k in (body || {})) $set[k] = body[k];
@@ -783,7 +795,7 @@ class AdminDeliveryController extends AdminController {
   }
 
   @Put('base-fees')
-  async baseFees(@CurrentUser() user: any, @Body() body: any) {
+  async baseFees(@CurrentUser() user: any, @Body(new FreeformConfigObjectPipe()) body: Record<string, unknown>) {
     await this.conn.collection('delivery_config').updateOne(
       { key: 'base-fees' } as any,
       { $set: { key: 'base-fees', value: body || {}, updated_by: uid(user), updatedAt: now() } },
@@ -862,7 +874,7 @@ class AdminPromotionsController extends AdminController {
   }
 
   @Put(':id')
-  async update(@Param('id') id: string, @CurrentUser() user: any, @Body() body: any) {
+  async update(@Param('id') id: string, @CurrentUser() user: any, @Body() body: PromotionUpdateDto) {
     const allowed = ['title_ar', 'title_en', 'original_price', 'discounted_price', 'start_date', 'end_date', 'image_url', 'target_parameters', 'status'];
     const $set: any = { updated_by: uid(user), updatedAt: now() };
     for (const k of allowed) if (k in (body || {})) $set[k] = body[k];
@@ -973,7 +985,7 @@ class AdminNotificationsController extends AdminController {
   }
 
   @Put('auto-rules/:id')
-  async updateAutoRule(@Param('id') id: string, @Body() body: any) {
+  async updateAutoRule(@Param('id') id: string, @Body() body: AutoRuleUpdateDto) {
     const allowed = ['name', 'trigger', 'template', 'channels', 'active'];
     const $set: any = { updatedAt: now() };
     for (const k of allowed) if (k in (body || {})) $set[k] = body[k];
@@ -1042,7 +1054,7 @@ class AdminInsuranceClaimsController extends AdminController {
   }
 
   @Post('claims/:id/approve')
-  approve(@Param('id') id: string, @CurrentUser() user: any, @Body() body: any) {
+  approve(@Param('id') id: string, @CurrentUser() user: any, @Body() body: ClaimApprovalDto) {
     return this.decide(id, user, true, body);
   }
 
@@ -1199,19 +1211,19 @@ class AdminSystemController extends AdminController {
   }
 
   @Get('theme') theme() { return this.getConfig('theme', DEFAULT_THEME); }
-  @Put('theme') putTheme(@CurrentUser() u: any, @Body() b: any) { return this.putConfig('theme', b || {}, u); }
+  @Put('theme') putTheme(@CurrentUser() u: any, @Body() b: ThemeConfigDto) { return this.putConfig('theme', b, u); }
 
   @Get('permissions') permissions() { return this.getConfig('permissions', DEFAULT_PERMISSIONS); }
-  @Put('permissions') putPermissions(@CurrentUser() u: any, @Body() b: any) { return this.putConfig('permissions', b || [], u); }
+  @Put('permissions') putPermissions(@CurrentUser() u: any, @Body(new ParseArrayPipe({ items: PermissionEntryDto })) b: PermissionEntryDto[]) { return this.putConfig('permissions', b, u); }
 
   @Get('workflows') workflows() { return this.getConfig('workflows', DEFAULT_WORKFLOWS); }
-  @Put('workflows') putWorkflows(@CurrentUser() u: any, @Body() b: any) { return this.putConfig('workflows', b || [], u); }
+  @Put('workflows') putWorkflows(@CurrentUser() u: any, @Body(new ParseArrayPipe({ items: WorkflowEntryDto })) b: WorkflowEntryDto[]) { return this.putConfig('workflows', b, u); }
 
   @Get('ai-config') aiConfig() { return this.getConfig('ai-config', DEFAULT_AI_CONFIG); }
-  @Put('ai-config') putAiConfig(@CurrentUser() u: any, @Body() b: any) { return this.putConfig('ai-config', b || {}, u); }
+  @Put('ai-config') putAiConfig(@CurrentUser() u: any, @Body() b: AiConfigDto) { return this.putConfig('ai-config', b, u); }
 
   @Get('alert-rules') alertRules() { return this.getConfig('alert-rules', []); }
-  @Put('alert-rules') putAlertRules(@CurrentUser() u: any, @Body() b: any) { return this.putConfig('alert-rules', b || [], u); }
+  @Put('alert-rules') putAlertRules(@CurrentUser() u: any, @Body(new ParseArrayPipe({ items: AlertRuleDto })) b: AlertRuleDto[]) { return this.putConfig('alert-rules', b, u); }
 }
 
 /* ── analytics ───────────────────────────────────────────────────────────── */

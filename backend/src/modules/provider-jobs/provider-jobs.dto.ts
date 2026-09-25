@@ -2,46 +2,26 @@ import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class AcceptDto {
   @IsOptional()
-  reason?: any;
-
-  act?: any;
-
-  @IsOptional()
-  CONFIRMED?: any;
-
+  @IsString()
+  reason?: string;
 }
 
 export class RejectDto {
   @IsOptional()
-  reason?: any;
-
-  act?: any;
-
-  @IsOptional()
-  CANCELLED?: any;
-
+  @IsString()
+  reason?: string;
 }
 
 export class StartDto {
   @IsOptional()
-  reason?: any;
-
-  act?: any;
-
-  @IsOptional()
-  IN_PROGRESS?: any;
-
+  @IsString()
+  reason?: string;
 }
 
 export class CompleteDto {
   @IsOptional()
-  reason?: any;
-
-  act?: any;
-
-  @IsOptional()
-  COMPLETED?: any;
-
+  @IsString()
+  reason?: string;
 }
 
 export class InsuranceDto {

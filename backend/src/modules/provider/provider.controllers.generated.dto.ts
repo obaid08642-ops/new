@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsDefined, IsEnum, IsIn, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 import { OtpPurpose } from './schemas';
 
 export class RegisterDto {
@@ -20,7 +20,8 @@ export class RegisterDto {
   provider_type: any;
 
   @IsOptional()
-  meta?: any;
+  @IsObject()
+  meta?: Record<string, unknown>;
 
 }
 
@@ -30,12 +31,13 @@ export class LoginDto {
   email: string;
 
   @IsDefined()
-  @IsIn(["string"])
+  @IsString()
   password: string;
 
 
   @IsOptional()
-  meta?: any;
+  @IsObject()
+  meta?: Record<string, unknown>;
 
 }
 
@@ -56,7 +58,8 @@ export class RefreshDto {
 
 
   @IsOptional()
-  meta?: any;
+  @IsObject()
+  meta?: Record<string, unknown>;
 
 }
 
@@ -67,7 +70,8 @@ export class LogoutDto {
 
 
   @IsOptional()
-  meta?: any;
+  @IsObject()
+  meta?: Record<string, unknown>;
 
 }
 
@@ -95,7 +99,8 @@ export class VerifyEmailDto {
 
 
   @IsOptional()
-  meta?: any;
+  @IsObject()
+  meta?: Record<string, unknown>;
 
 }
 
@@ -105,7 +110,8 @@ export class ForgotDto {
   email: string;
 
   @IsOptional()
-  meta?: any;
+  @IsObject()
+  meta?: Record<string, unknown>;
 
 }
 
@@ -120,7 +126,8 @@ export class VerifyResetCodeDto {
 
 
   @IsOptional()
-  meta?: any;
+  @IsObject()
+  meta?: Record<string, unknown>;
 
 }
 
@@ -140,7 +147,8 @@ export class ResetDto {
 
 
   @IsOptional()
-  meta?: any;
+  @IsObject()
+  meta?: Record<string, unknown>;
 
 }
 
@@ -150,7 +158,8 @@ export class AddPhoneDto {
   number?: any[];
 
   @IsOptional()
-  type?: any;
+  @IsString()
+  type?: string;
 
   @IsOptional()
   @IsArray()
@@ -190,16 +199,19 @@ export class UploadDocDto {
 
 export class UploadDocDto2 {
   @IsOptional()
-  doc_type?: any;
+  @IsString()
+  doc_type?: string;
 
   @IsDefined()
   file: any;
 
   @IsOptional()
-  doc_number?: any;
+  @IsNumber()
+  doc_number?: number;
 
   @IsOptional()
-  issuer?: any;
+  @IsString()
+  issuer?: string;
 
   @IsDefined()
   issued_date: any;
@@ -211,38 +223,42 @@ export class UploadDocDto2 {
 
 export class UpsertBankDto {
   @IsOptional()
-  bank_code?: any;
+  @IsString()
+  bank_code?: string;
 
   @IsOptional()
-  holder_name?: any;
+  @IsString()
+  holder_name?: string;
 
   @IsOptional()
-  iban?: any;
+  @IsString()
+  iban?: string;
 
   @IsOptional()
-  vat_number?: any;
+  @IsNumber()
+  vat_number?: number;
 
 }
 
 export class SubmitDeltaDto {
   @IsOptional()
-  @IsIn(["object"])
-  changes?: string;
+  @IsObject()
+  changes?: Record<string, unknown>;
 
   @IsOptional()
-  @IsIn(["object"])
-  newData?: string;
+  @IsObject()
+  newData?: Record<string, unknown>;
 
 }
 
 export class SubmitDeltaDto2 {
   @IsOptional()
-  @IsIn(["object"])
-  changes?: string;
+  @IsObject()
+  changes?: Record<string, unknown>;
 
   @IsOptional()
-  @IsIn(["object"])
-  newData?: string;
+  @IsObject()
+  newData?: Record<string, unknown>;
 
 }
 
@@ -252,17 +268,20 @@ export class InviteDto {
   email?: string;
 
   @IsOptional()
-  role?: any;
+  @IsString()
+  role?: string;
 
   @IsDefined()
   @IsArray()
   permissions: any[];
 
   @IsOptional()
-  full_name?: any;
+  @IsString()
+  full_name?: string;
 
   @IsOptional()
-  phone?: any;
+  @IsString()
+  phone?: string;
 
 }
 
@@ -293,29 +312,34 @@ export class AcceptDto {
 
 export class UpdateDto2 {
   @IsOptional()
-  role?: any;
+  @IsString()
+  role?: string;
 
   @IsDefined()
   @IsArray()
   permissions: any[];
 
   @IsOptional()
-  full_name?: any;
+  @IsString()
+  full_name?: string;
 
   @IsOptional()
-  phone?: any;
+  @IsString()
+  phone?: string;
 
 }
 
 export class RejectDeltaDto {
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
 
 }
 
 export class RejectDeltaDto2 {
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
 
 }
 
@@ -343,28 +367,34 @@ export class ApproveDto {
 
 export class RejectDto {
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
 
 }
 
 export class NeedsChangesDto {
   @IsOptional()
-  note?: any;
+  @IsString()
+  note?: string;
 
   @IsOptional()
-  docs_needing_replacement?: any;
+  @IsArray()
+  @IsString({ each: true })
+  docs_needing_replacement?: string[];
 
 }
 
 export class SuspendDto {
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
 
 }
 
 export class ReactivateDto {
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
 
 }
 
@@ -425,55 +455,68 @@ export class CancelDto {
 
 export class UpsertPharmaDto {
   @IsOptional()
-  sku?: any;
+  @IsString()
+  sku?: string;
 
   @IsOptional()
-  name_ar?: any;
+  @IsString()
+  name_ar?: string;
 
   @IsOptional()
-  stock?: any;
+  @IsNumber()
+  stock?: number;
 
   @IsOptional()
-  min_stock_alert?: any;
+  @IsNumber()
+  min_stock_alert?: number;
 
   @IsOptional()
-  last_restocked_at?: any;
+  @IsDateString()
+  last_restocked_at?: string;
 
 }
 
 export class UpsertLabDto {
   @IsOptional()
-  code?: any;
+  @IsString()
+  code?: string;
 
   @IsOptional()
-  name_ar?: any;
+  @IsString()
+  name_ar?: string;
 
 }
 
 export class UpsertLabDto2 {
   @IsOptional()
-  code?: any;
+  @IsString()
+  code?: string;
 
   @IsOptional()
-  name_ar?: any;
+  @IsString()
+  name_ar?: string;
 
 }
 
 export class UpsertRadDto {
   @IsOptional()
-  scan_type?: any;
+  @IsString()
+  scan_type?: string;
 
   @IsOptional()
-  body_part?: any;
+  @IsString()
+  body_part?: string;
 
 }
 
 export class UpsertRadDto2 {
   @IsOptional()
-  scan_type?: any;
+  @IsString()
+  scan_type?: string;
 
   @IsOptional()
-  body_part?: any;
+  @IsString()
+  body_part?: string;
 
 }
 
@@ -505,66 +548,76 @@ export class UpsertDocDto {
 
 export class UpsertDocDto2 {
   @IsOptional()
-  consultation_type?: any;
+  @IsString()
+  consultation_type?: string;
 
   @IsOptional()
-  specialty?: any;
+  @IsString()
+  specialty?: string;
 
 }
 
 export class UpsertHcDto {
   @IsOptional()
-  service_type?: any;
+  @IsString()
+  service_type?: string;
 
 }
 
 export class UpsertHcDto2 {
   @IsOptional()
-  service_type?: any;
+  @IsString()
+  service_type?: string;
 
 }
 
 export class UpsertDto {
   @IsOptional()
-  name?: any;
+  @IsString()
+  name?: string;
 
   @IsOptional()
-  @IsString()
+  @IsIn(['circle', 'polygon'])
   shape?: string;
 
 
   @IsOptional()
-  @IsIn(["circle"])
-  center?: string;
+  @IsObject()
+  center?: Record<string, unknown>;
 
   @IsOptional()
-  @IsIn(["circle"])
-  radius_km?: string;
-
-  @IsDefined()
-  @IsIn(["polygon"])
-  polygon: string;
+  @IsNumber()
+  radius_km?: number;
 
   @IsOptional()
-  id?: any;
+  @IsArray()
+  polygon?: Array<Record<string, unknown>>;
+
+  @IsOptional()
+  @IsString()
+  id?: string;
 
 }
 
 export class UpsertDto2 {
   @IsOptional()
-  day_of_week?: any;
+  @IsNumber()
+  day_of_week?: number;
 
   @IsOptional()
-  start_time?: any;
+  @IsDateString()
+  start_time?: string;
 
   @IsOptional()
-  end_time?: any;
+  @IsDateString()
+  end_time?: string;
 
   @IsDefined()
-  @IsIn(["string"])
+  @IsString()
   service_type: string;
 
   @IsOptional()
-  id?: any;
+  @IsString()
+  id?: string;
 
 }

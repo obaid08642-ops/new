@@ -1,5 +1,5 @@
 import { Module, Injectable, Controller, Get, Post, Put, Patch, Delete, Param, Body, UseGuards, BadRequestException, NotFoundException } from '@nestjs/common';
-import { CreateShiftDto, CreateAnnouncementDto, CreateResourceDto, UpdateResourceDto, CreateWardDto, AdmitDto, CheckInDto} from './facility-ops.dto';
+import { CreateShiftDto, CreateAnnouncementDto, CreateResourceDto, UpdateResourceDto, CreateWardDto, AdmitDto, CheckInDto, BookSurgeryDto} from './facility-ops.dto';
 import { InjectModel, InjectConnection, MongooseModule } from '@nestjs/mongoose';
 import { Model, Connection } from 'mongoose';
 import { JwtAuthGuard, CurrentUser, Roles } from '../../common/auth.guard';
@@ -353,8 +353,8 @@ export class FacilitySurgeriesController {
   constructor(private svc: SurgeriesService) {}
 
   @Post('book')
-  book(@CurrentUser() u: any, @Body() b: any) {
-    return this.svc. bookSurgery(u.parent_provider_account_id || u.id, b);
+  book(@CurrentUser() u: any, @Body() b: BookSurgeryDto) {
+    return this.svc.bookSurgery(u.parent_provider_account_id || u.id, { ...b, scheduled_at: new Date(b.scheduled_at) });
   }
 
   @Get('schedule')

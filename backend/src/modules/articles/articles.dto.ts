@@ -2,7 +2,8 @@ import { IsArray, IsOptional, IsString } from 'class-validator';
 
 export class CreateDto {
   @IsOptional()
-  title_ar?: any;
+  @IsString()
+  title_ar?: string;
 
   @IsOptional()
   @IsString()
@@ -10,38 +11,51 @@ export class CreateDto {
 
 
   @IsOptional()
-  excerpt_ar?: any;
+  @IsString()
+  excerpt_ar?: string;
 
   @IsOptional()
-  excerpt_en?: any;
+  @IsString()
+  excerpt_en?: string;
 
   @IsOptional()
-  body_ar?: any;
+  @IsString()
+  body_ar?: string;
 
   @IsOptional()
-  body_en?: any;
+  @IsString()
+  body_en?: string;
 
   @IsOptional()
+  @IsString()
   category?: any;
 
   @IsOptional()
   @IsArray()
+  @IsString({ each: true })
   tags?: unknown[];
 
 
   @IsOptional()
+  @IsString()
   cover_image?: any;
 
   @IsOptional()
-  author_name?: any;
+  @IsString()
+  author_name?: string;
 
   @IsOptional()
-  author_title?: any;
+  @IsString()
+  author_title?: string;
 
   @IsOptional()
-  seo_description_ar?: any;
+  @IsString()
+  seo_description_ar?: string;
 
   @IsOptional()
-  seo_description_en?: any;
+  @IsString()
+  seo_description_en?: string;
 
 }
+
+export class UpdateDto extends CreateDto {}

@@ -1,4 +1,4 @@
-import { IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsDateString, IsDefined, IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateShiftDto {
   @IsOptional()
@@ -24,53 +24,49 @@ export class CreateShiftDto {
 }
 
 export class CreateAnnouncementDto {
-  @IsOptional()
-  text?: any;
-
-  collection?: any;
-
+  @IsDefined()
+  @IsString()
+  text: string;
 }
 
 export class CreateResourceDto {
   @IsOptional()
-  name_ar?: any;
-
-  @IsOptional()
-  name_en?: any;
-
-  @IsOptional()
-  type?: any;
+  @IsString()
+  name_ar?: string;
 
   @IsOptional()
   @IsString()
-  branch_id: string;
+  name_en?: string;
 
   @IsOptional()
-  capacity?: any;
+  @IsString()
+  type?: string;
 
-  collection?: any;
+  @IsOptional()
+  @IsString()
+  branch_id?: string;
 
+  @IsOptional()
+  @IsNumber()
+  capacity?: number;
 }
 
 export class UpdateResourceDto {
   @IsOptional()
   @IsString()
-  name_ar: string;
+  name_ar?: string;
 
   @IsOptional()
   @IsString()
-  name_en: string;
+  name_en?: string;
 
   @IsOptional()
-  status?: any;
+  @IsIn(['active', 'maintenance', 'inactive'])
+  status?: 'active' | 'maintenance' | 'inactive';
 
   @IsOptional()
   @IsNumber()
   capacity?: number;
-
-
-  collection?: any;
-
 }
 
 export class CreateWardDto {
@@ -99,4 +95,13 @@ export class CheckInDto {
   @IsOptional()
   @IsNumber()
   lng?: number;
+}
+
+export class BookSurgeryDto {
+  @IsDefined() @IsString() patient_id: string;
+  @IsDefined() @IsString() primary_surgeon_id: string;
+  @IsOptional() @IsArray() @IsString({ each: true }) assistants?: string[];
+  @IsDefined() @IsString() ot_room_number: string;
+  @IsDefined() @IsDateString() scheduled_at: string;
+  @IsDefined() @IsNumber() duration_mins: number;
 }

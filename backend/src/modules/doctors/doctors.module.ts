@@ -7,7 +7,7 @@ import { UserRole } from '../../common/enums';
 import { Doctor, DoctorSchema, DoctorAppointment, DoctorAppointmentSchema, DoctorChatMessage, DoctorChatMessageSchema, ConsultationNote, ConsultationNoteSchema, NotificationItem, NotificationItemSchema, AppointmentState } from './doctors.schemas';
 import { EventBusService } from '../events/event-bus.service';
 import { escapeRegex } from '../../common/slug.util';
-import { BookDto, TrDto, PostMsgDto, AvailDto } from './doctors.dto';
+import { BookDto, TrDto, PostMsgDto, AvailDto, ConsultationNoteDto } from './doctors.dto';
 
 const SEED_DOCTORS = [
   { name_ar: 'د. أحمد السالم', name_en: 'Dr. Ahmed Al-Salem', specialty: 'general_medicine', specialty_ar: 'طب عام', gender: 'male', languages: ['ar', 'en'], consultation_fee: 80, home_visit_fee: 180, video_consultation_fee: 60, home_visit_enabled: true, video_enabled: true, voice_enabled: true, rating: 4.7, reviews_count: 128, insurance_supported: ['بوبا', 'التعاونية'], biography: 'استشاري طب أسرة بخبرة 15 سنة في الأمراض الشائعة والمزمنة.', tags: ['family', 'general'], clinic_location: { city: 'الرياض', name: 'مجمع نبض الطبي', lat: 24.7136, lng: 46.6753 } },
@@ -280,7 +280,7 @@ export class DoctorsController {
 
   @Get('appointments/:id/messages') msgs(@Param('id') id: string, @CurrentUser() user: any) { return this.svc.listMessages(user, id); }
   @Post('appointments/:id/messages') postMsg(@Param('id') id: string, @Body() body: PostMsgDto, @CurrentUser() user: any) { return this.svc.postMessage(user, id, body.text); }
-  @Post('appointments/:id/note') note(@Param('id') id: string, @Body() body: any, @CurrentUser() user: any) { return this.svc.upsertNote(user, id, body); }
+  @Post('appointments/:id/note') note(@Param('id') id: string, @Body() body: ConsultationNoteDto, @CurrentUser() user: any) { return this.svc.upsertNote(user, id, body); }
 
   @Patch('availability') avail(@Body() body: AvailDto, @CurrentUser() user: any) { return this.svc.setAvailability(user, body); }
 }

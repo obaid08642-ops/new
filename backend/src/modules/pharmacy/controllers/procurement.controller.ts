@@ -33,6 +33,7 @@ export class ProcurementController {
   async createProcurementRequest(@CurrentUser() user: any, @Body() dto: CreateProcurementRequestDto) {
     // Identity always comes from the verified token — never from the body (IDOR-safe).
     const items = (Array.isArray(dto.items) ? dto.items : []).slice(0, 500).map((it: any) => ({
+      // medicine_id references the Medicine Mongo `_id`; anything else links by name (null here).
       medicine_id: it.medicine_id && Types.ObjectId.isValid(it.medicine_id) ? new Types.ObjectId(it.medicine_id) : null,
       raw_name_string: String(it.raw_name_string || it.name || '').slice(0, 300),
       requested_quantity: Math.max(1, Math.min(Number(it.requested_quantity || it.quantity) || 1, 100000)),

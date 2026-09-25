@@ -1,4 +1,4 @@
-import { IsArray, IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDefined, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 
 export class AddLeaveDto {
   @IsDefined()
@@ -52,7 +52,8 @@ export class SaveDxDto {
 
 export class BlockDto {
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
 
 }
 
@@ -66,49 +67,58 @@ export class PutCrmDto {
   notes: any[];
 
   @IsOptional()
-  vip?: any;
+  @IsBoolean()
+  vip?: boolean;
 
   @IsOptional()
-  favorite?: any;
+  @IsBoolean()
+  favorite?: boolean;
 
 }
 
 export class QcDto {
   @IsOptional()
-  note?: any;
+  @IsString()
+  note?: string;
 
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
 
 }
 
 export class ChecklistDto {
   @IsOptional()
-  items?: any;
-
+  @IsObject()
+  items?: Record<string, boolean>;
 }
 
 export class SignDto {
   @IsOptional()
-  signature?: any;
+  @IsString()
+  signature?: string;
 
   @IsOptional()
-  signer_name?: any;
+  @IsString()
+  signer_name?: string;
 
 }
 
 export class TrackDto {
   @IsOptional()
-  lat?: any;
+  @IsNumber()
+  lat?: number;
 
   @IsOptional()
-  lng?: any;
+  @IsNumber()
+  lng?: number;
 
 }
 
 export class EscalateDto {
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
 
 }
 
@@ -139,41 +149,55 @@ export class CompleteDto {
 
 export class PutPricingDto {
   @IsOptional()
-  pricing?: any;
+  @IsObject()
+  pricing?: Record<string, unknown>;
 
 }
 
 export class ReplyReviewDto {
   @IsOptional()
-  reply?: any;
+  @IsString()
+  reply?: string;
 
 }
 
 export class PutHoursDto {
   @IsOptional()
-  hours?: any;
+  @IsNumber()
+  hours?: number;
 
+}
+
+export class ScheduleSettingsDto {
+  @IsOptional() @IsArray() @IsObject({ each: true }) shifts?: Record<string, unknown>[];
+  @IsOptional() @IsNumber() maxVisits?: number;
+  @IsOptional() @IsBoolean() emergencyReady?: boolean;
 }
 
 export class EndConsultationDto {
   @IsOptional()
-  appointment_id?: any;
+  @IsString()
+  appointment_id?: string;
 
   @IsOptional()
-  id?: any;
+  @IsString()
+  id?: string;
 
   @IsOptional()
-  notes?: any;
+  @IsString()
+  notes?: string;
 
   @IsOptional()
-  diagnosis?: any;
+  @IsString()
+  diagnosis?: string;
 
   @IsDefined()
   @IsArray()
   prescription: any[];
 
   @IsOptional()
-  patient_id?: any;
+  @IsString()
+  patient_id?: string;
 
   @IsOptional()
   @IsNumber()

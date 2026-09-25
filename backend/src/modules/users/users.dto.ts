@@ -1,4 +1,4 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsDateString, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class UpdateDisplayDto {
   @IsOptional()
@@ -14,27 +14,50 @@ export class UpdateDisplayDto {
   avatar_media_id: string;
 
   @IsOptional()
-  gender?: any;
+  @IsString()
+  gender?: string;
 
   @IsOptional()
-  birth_date?: any;
+  @IsDateString()
+  birth_date?: string;
 
   @IsOptional()
-  height_cm?: any;
+  @IsNumber()
+  height_cm?: number;
 
   @IsOptional()
-  weight_kg?: any;
+  @IsNumber()
+  weight_kg?: number;
 
   @IsOptional()
-  blood_type?: any;
+  @IsString()
+  blood_type?: string;
 
+}
+
+export class UpdatePatientInsuranceDto {
+  @IsOptional() @IsString() provider?: string;
+  @IsOptional() @IsString() provider_name?: string;
+  @IsOptional() @IsString() policy_number?: string;
+  @IsOptional() @IsString() member_id?: string;
+  @IsOptional() @IsString() network?: string;
+  @IsOptional() @IsString() class?: string;
+  @IsOptional() @IsDateString() expiry_date?: string;
+  @IsOptional() @IsString() member_name?: string;
+  @IsOptional() @IsString() national_id?: string;
+  @IsOptional() @IsBoolean() verified?: boolean;
+  @IsOptional() @IsString() pdf_url?: string;
+  @IsOptional() @IsBoolean() ocr_extracted?: boolean;
+  @IsOptional() @IsBoolean() nphies_eligible?: boolean;
 }
 
 export class ChangePasswordDto {
   @IsOptional()
-  current_password?: any;
+  @IsString()
+  current_password?: string;
 
   @IsOptional()
-  new_password?: any;
+  @IsString()
+  new_password?: string;
 
 }

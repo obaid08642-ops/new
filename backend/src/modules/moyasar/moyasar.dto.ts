@@ -1,11 +1,13 @@
-import { IsNumber, IsOptional } from 'class-validator';
+import { IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 
 export class WebhookDto {
   @IsOptional()
-  id?: any;
+  @IsString()
+  id?: string;
 
   @IsOptional()
-  data?: any;
+  @IsObject()
+  data?: Record<string, unknown>;
 
 }
 

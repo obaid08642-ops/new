@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsDefined, IsIn, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsDefined, IsIn, IsOptional, IsString } from 'class-validator';
 
 export class CreatePostDto {
   @IsDefined()
@@ -31,7 +31,9 @@ export class CreateSessionDto {
   @IsString()
   description?: string;
 
-  scheduled_at: any;
+  @IsDefined()
+  @IsDateString()
+  scheduled_at: string;
 
   @IsOptional()
   @IsArray()

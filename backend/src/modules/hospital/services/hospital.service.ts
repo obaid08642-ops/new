@@ -133,7 +133,7 @@ export class HospitalService {
     return this.branchModel.find({ hospital_id: await this.objectIdForUser(hospitalId) });
   }
 
-  async createDepartment(hospitalId: string, data: Partial<HospitalDepartment>, actor?: any) {
+  async createDepartment(hospitalId: string, data: Omit<Partial<HospitalDepartment>, 'branch_id'> & { branch_id: string }, actor?: any) {
     this.assertFacilityActor(actor, true);
     return this.departmentModel.create({ ...data, hospital_id: await this.objectIdForUser(hospitalId) });
   }
@@ -231,6 +231,8 @@ export class HospitalService {
       { $set: { affiliated_hospital_id: hospitalObjectId } },
       { new: true, upsert: true },
     );
+    // doctorObjId is an ObjectId resolved by objectIdForUser above (uuid `id`
+    // mapped to `_id`, or a validated ObjectId string) — never raw user input.
     await this.userModel.findByIdAndUpdate(doctorObjId, { $set: { verified: true, active: true } });
     return doctorProfile;
   }
@@ -273,4 +275,3 @@ export class HospitalService {
     return { success: true, total_revenue: totalRevenue, transactions_count: completed.length };
   }
 }
-

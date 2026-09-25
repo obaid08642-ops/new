@@ -1,10 +1,12 @@
-import { IsOptional } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class CreateRequestDto {
   @IsOptional()
-  user_id?: any;
+  @IsString()
+  user_id?: string;
 
   @IsOptional()
-  type?: any;
+  @IsString()
+  type?: string;
 
 }

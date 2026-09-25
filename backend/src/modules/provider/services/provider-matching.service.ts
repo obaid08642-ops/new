@@ -37,7 +37,7 @@ export interface MatchInput {
   patient_location?: LatLng;
   payload?: any;
   priority?: ProviderRequestPriority;
-  scheduled_at?: Date;
+  scheduled_at?: Date | string;
   duration_minutes?: number;
   exclude_provider_ids?: string[];
   max_results?: number;
@@ -157,7 +157,7 @@ export class ProviderMatchingService {
       let capacity_ok = true;
       let onDuty = false;
       if (input.scheduled_at) {
-        const avail2 = await this.scheduling.checkAvailability(a.id, input.scheduled_at, input.duration_minutes || 30);
+        const avail2 = await this.scheduling.checkAvailability(a.id, new Date(input.scheduled_at), input.duration_minutes || 30);
         capacity_ok = !!avail2.available;
         breakdown.scheduling = capacity_ok ? 50 : 0;
       } else {

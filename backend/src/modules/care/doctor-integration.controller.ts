@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { DoctorProfileExtended } from './schemas/doctor-profile-extended.schema';
 import { EncounterRecord } from './schemas/encounter-record.schema';
-import { FinalizeEncounterDto } from './doctor-integration.dto';
+import { FinalizeEncounterDto, SynchronizeDoctorSettingsDto } from './doctor-integration.dto';
 
 @Controller('provider/doctor-engine')
 export class DoctorIntegrationController {
@@ -13,9 +13,11 @@ export class DoctorIntegrationController {
   ) {}
 
   @Put('synchronize-settings')
-  async synchronizeSettings(@Body() payload: any) {
+  async synchronizeSettings(@Body() payload: SynchronizeDoctorSettingsDto) {
     const { doctorId, priceClinic, priceOnline, priceHome, maxRadius, networks, images } = payload;
-    
+
+    // doctorId is always a Mongo ObjectId (enforced by @IsMongoId());
+    // doctor profiles key doctors by Mongo _id, not the uuid id.
     // Perform upsert database transactions removing mockup values dynamically
     const profile = await this.doctorProfileModel.findOneAndUpdate(
       { doctor_id: new Types.ObjectId(doctorId) },
@@ -36,6 +38,8 @@ export class DoctorIntegrationController {
 
   @Post('finalize-encounter')
   async finalizeEncounter(@Body() encounterDto: FinalizeEncounterDto) {
+    // appointmentId/patientId/doctorId are always Mongo ObjectIds (enforced by
+    // @IsMongoId()); encounter/appointment/doctor rows key by Mongo _id.
     // Fix 2: Immutability Guard on Manual Insurance Entries
     // Ensure the encounter is not already finalized to prevent tampering with committed insurance parameters
     const existingRecord = await this.encounterModel.findOne({ appointment_id: new Types.ObjectId(encounterDto.appointmentId) });

@@ -18,7 +18,7 @@ import {
   Module, Controller, Get, Post, Patch, Put, Delete, Param, Body, Query, UseGuards,
   ForbiddenException, BadRequestException, NotFoundException, Injectable,
 } from '@nestjs/common';
-import { OrderInsuranceDto, LabCoverageDto, RadCoverageDto, NursingCoverageDto, PostCrmDto, PutCrmDto, CreateReferralDto, CreatePromotionDto, CreateTechDto, UpdateTechDto, ClaimResubmitDto, ClaimApproveDto, ClaimRejectDto } from './provider-production.dto';
+import { OrderInsuranceDto, LabCoverageDto, RadCoverageDto, NursingCoverageDto, PostCrmDto, PutCrmDto, CreateReferralDto, CreatePromotionDto, CreateTechDto, UpdateTechDto, ClaimResubmitDto, ClaimApproveDto, ClaimRejectDto, PatchAvailabilityDto } from './provider-production.dto';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { JwtAuthGuard, CurrentUser, Roles, getEffectiveRoles } from '../../common/auth.guard';
@@ -725,7 +725,7 @@ export class ProviderProductionController {
   @Get('provider/profile/availability')
   getAvailability(@CurrentUser() u: any) { return this.svc.getAvailability(u); }
   @Patch('provider/profile/availability')
-  patchAvailability(@CurrentUser() u: any, @Body() b: any) { return this.svc.patchAvailability(u, b); }
+  patchAvailability(@CurrentUser() u: any, @Body() b: PatchAvailabilityDto) { return this.svc.patchAvailability(u, b); }
 }
 
 @Module({

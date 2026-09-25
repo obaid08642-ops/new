@@ -1,11 +1,13 @@
-import { IsArray, IsBoolean, IsDefined, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class AddMachineDto {
   @IsOptional()
-  name?: any;
+  @IsString()
+  name?: string;
 
   @IsOptional()
-  type?: any;
+  @IsString()
+  type?: string;
 
 }
 
@@ -31,4 +33,12 @@ export class FinalizeScanDto {
   @IsDefined()
   @IsString()
   pdfUrl: string;
+}
+
+export class UpdateRadiologyCatalogItemDto {
+  @IsOptional() @IsBoolean() active?: boolean;
+  @IsOptional() @IsBoolean() cash_availability?: boolean;
+  @IsOptional() @IsBoolean() home_visit_supported?: boolean;
+  @IsOptional() @IsNumber() estimated_duration_minutes?: number;
+  @IsOptional() @IsNumber() price?: number;
 }

@@ -1,15 +1,17 @@
-import { IsArray, IsDefined, IsNumber, IsOptional } from 'class-validator';
+import { IsArray, IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class RequestSuppliesDto {
   @IsOptional()
-  bookingId?: any;
+  @IsString()
+  bookingId?: string;
 
   @IsOptional()
   @IsArray()
   items: any[];
 
   @IsOptional()
-  priority?: any;
+  @IsString()
+  priority?: string;
 
 }
 

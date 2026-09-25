@@ -2,8 +2,8 @@ import { IsArray, IsDateString, IsDefined, IsIn, IsNumber, IsOptional, IsString 
 
 export class EscalateDto {
   @IsOptional()
-  @IsIn(["pharmacy"])
-  kind: string;
+  @IsIn(['pharmacy', 'lab', 'radiology', 'nursing', 'consultation'])
+  kind?: string;
 
   @IsOptional()
   @IsNumber()
@@ -41,7 +41,9 @@ export class AssessDto {
 }
 
 export class FallbackDto {
-  kind: any;
+  @IsDefined()
+  @IsIn(['pharmacy', 'lab', 'radiology', 'nursing', 'consultation'])
+  kind: 'pharmacy' | 'lab' | 'radiology' | 'nursing' | 'consultation';
 
   @IsOptional()
   @IsString()

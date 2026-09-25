@@ -9,7 +9,7 @@ import { HomeCareBooking, NursingBookingState, HomeCareService, NurseProvider } 
 import { WorkflowEngineService } from '../workflow-engine/workflow-engine.module';
 import { HomeCareSvc } from './home-care.service';
 import { UserRole } from '../../common/enums';
-import { CreateNoteDto, CreateBookingDto, ArriveAtPatientDto, TriggerEmergencyDto} from './home-care.dto';
+import { CreateNoteDto, CreateBookingDto, ArriveAtPatientDto, TriggerEmergencyDto, CompleteVisitDto} from './home-care.dto';
 import { CreateHomeCareCatalogDto, UpdateHomeCareCatalogDto } from './home-care.dto';
 
 @UseGuards(JwtAuthGuard)
@@ -322,7 +322,7 @@ export class NursingController {
 
   @Roles(UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.ADMIN)
   @Post('visits/:id/complete')
-  async completeVisit(@Param('id') id: string, @Body() body: any, @CurrentUser() user: any) {
+  async completeVisit(@Param('id') id: string, @Body() body: CompleteVisitDto, @CurrentUser() user: any) {
     const b: any = await this.findVisit(id);
     this.assertProviderMutation(b, user);
     if (b.state !== NursingBookingState.CARE_IN_PROGRESS) throw new BadRequestException('Invalid state transition');

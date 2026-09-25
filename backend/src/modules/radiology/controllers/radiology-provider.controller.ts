@@ -11,7 +11,7 @@ import {
   HttpStatus,
   UseGuards,
 } from '@nestjs/common';
-import { AddMachineDto, RespondBookingDto, AllocateMachineDto, FinalizeScanDto} from './radiology-provider.dto';
+import { AddMachineDto, RespondBookingDto, AllocateMachineDto, FinalizeScanDto, UpdateRadiologyCatalogItemDto} from './radiology-provider.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { RadiologyBooking } from '../schemas/radiology-booking.schema';
@@ -197,7 +197,7 @@ export class RadiologyProviderController {
   }
 
   @Post('catalog/:id')
-  async updateCatalogItem(@Param('id') serviceId: string, @Body() body: any, @CurrentUser() user: any) {
+  async updateCatalogItem(@Param('id') serviceId: string, @Body() body: UpdateRadiologyCatalogItemDto, @CurrentUser() user: any) {
     if (!this.isAdmin(user)) throw new ForbiddenException('Only administrators may modify the global radiology catalog');
     const allowed = ['active', 'cash_availability', 'home_visit_supported', 'estimated_duration_minutes', 'price'];
     const patch = Object.fromEntries(Object.entries(body || {}).filter(([key]) => allowed.includes(key)));

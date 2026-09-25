@@ -1,11 +1,13 @@
-import { IsObject, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 
 export class CreateSubAdminDto {
   @IsOptional()
-  email?: any;
+  @IsString()
+  email?: string;
 
   @IsOptional()
-  full_name?: any;
+  @IsString()
+  full_name?: string;
 
   @IsOptional()
   @IsString()
@@ -17,7 +19,8 @@ export class CreateSubAdminDto {
 
 
   @IsOptional()
-  phone?: any;
+  @IsString()
+  phone?: string;
 
 }
 
@@ -28,40 +31,49 @@ export class UpdateSubAdminDto {
 
 
   @IsOptional()
-  active?: any;
+  @IsBoolean()
+  active?: boolean;
 
 }
 
 export class CreateProviderDto {
   @IsOptional()
-  role?: any;
+  @IsString()
+  role?: string;
 
   @IsOptional()
-  full_name?: any;
+  @IsString()
+  full_name?: string;
 
   @IsOptional()
-  email?: any;
+  @IsString()
+  email?: string;
 
   @IsOptional()
-  phone?: any;
+  @IsString()
+  phone?: string;
 
   @IsOptional()
   @IsString()
   password: string;
 
   @IsOptional()
-  specialty?: any;
+  @IsString()
+  specialty?: string;
 
   @IsOptional()
-  license_number?: any;
+  @IsNumber()
+  license_number?: number;
 
   @IsOptional()
-  city?: any;
+  @IsString()
+  city?: string;
 
 }
 
 export class CleanupOrphansDto {
   @IsOptional()
-  dry_run?: any;
+  @IsBoolean()
+  dry_run?: boolean;
 
 }

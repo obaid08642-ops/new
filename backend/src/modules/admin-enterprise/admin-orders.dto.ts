@@ -1,8 +1,9 @@
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CancelDto {
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
 
 }
 
@@ -13,10 +14,12 @@ export class RefundDto {
 
 
   @IsOptional()
-  mode?: any;
+  @IsIn(['partial', 'full'])
+  mode?: 'partial' | 'full';
 
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
 
 }
 
@@ -27,7 +30,8 @@ export class CompensateDto {
 
 
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
 
 }
 
@@ -38,13 +42,15 @@ export class ReassignDto {
 
 
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
 
 }
 
 export class AddInternalNoteDto {
   @IsOptional()
-  note?: any;
+  @IsString()
+  note?: string;
 
 }
 
@@ -55,6 +61,7 @@ export class SlaExtendDto {
 
 
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
 
 }

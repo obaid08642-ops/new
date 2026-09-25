@@ -2,7 +2,8 @@ import { IsArray, IsBoolean, IsDateString, IsDefined, IsNumber, IsObject, IsOpti
 
 export class CreateBookingDto {
   @IsOptional()
-  service_id?: any;
+  @IsString()
+  service_id?: string;
 
   @IsOptional()
   @IsDateString()
@@ -10,25 +11,31 @@ export class CreateBookingDto {
 
 
   @IsOptional()
-  service_name_ar?: any;
+  @IsString()
+  service_name_ar?: string;
 
   @IsOptional()
-  address?: any;
+  @IsObject()
+  address?: Record<string, unknown>;
 
   @IsOptional()
-  payment_method?: any;
+  @IsString()
+  payment_method?: string;
 
 }
 
 export class RespondDto {
   @IsOptional()
-  accept?: any;
+  @IsBoolean()
+  accept?: boolean;
 
   @IsOptional()
-  action?: any;
+  @IsString()
+  action?: string;
 
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
 
 }
 
@@ -56,16 +63,19 @@ export class AssignDto {
 
 export class CheckInDto {
   @IsOptional()
-  checklist?: any;
-
+  @IsArray()
+  @IsString({ each: true })
+  checklist?: string[];
 }
 
 export class GpsDto {
   @IsOptional()
-  lat?: any;
+  @IsNumber()
+  lat?: number;
 
   @IsOptional()
-  lng?: any;
+  @IsNumber()
+  lng?: number;
 
 }
 
@@ -154,16 +164,19 @@ export class InventoryRequestDto {
   items: any[];
 
   @IsOptional()
-  booking_id?: any;
+  @IsString()
+  booking_id?: string;
 
 }
 
 export class PostMessageDto {
   @IsOptional()
-  content?: any;
+  @IsString()
+  content?: string;
 
   @IsOptional()
-  text?: any;
+  @IsString()
+  text?: string;
 
   @IsOptional()
   @IsString()
@@ -171,7 +184,8 @@ export class PostMessageDto {
 
   @IsOptional()
   @IsArray()
-  type: any[];
+  @IsString({ each: true })
+  type?: string[];
 
   @IsOptional()
   @IsString()
@@ -217,18 +231,17 @@ export class PostMessageDto {
   @IsString()
   media_ids?: string;
 
-
-  @IsOptional()
-  trim?: any;
 
 }
 
 export class PostLegacyDto {
   @IsOptional()
-  text?: any;
+  @IsString()
+  text?: string;
 
   @IsOptional()
-  content?: any;
+  @IsString()
+  content?: string;
 
   @IsOptional()
   @IsString()
@@ -236,7 +249,8 @@ export class PostLegacyDto {
 
   @IsOptional()
   @IsArray()
-  type: any[];
+  @IsString({ each: true })
+  type?: string[];
 
   @IsOptional()
   @IsString()
@@ -282,9 +296,6 @@ export class PostLegacyDto {
   @IsString()
   media_ids?: string;
 
-
-  @IsOptional()
-  trim?: any;
 
 }
 
@@ -319,36 +330,43 @@ export class ProviderSendDto {
 
   @IsOptional()
   @IsArray()
-  type: any[];
+  @IsString({ each: true })
+  type?: string[];
 
   @IsOptional()
-  attachment_url?: any;
+  @IsString()
+  attachment_url?: string;
 
   @IsOptional()
-  attachment_mime?: any;
+  @IsString()
+  attachment_mime?: string;
 
   @IsOptional()
-  attachment_name?: any;
+  @IsString()
+  attachment_name?: string;
 
   @IsOptional()
-  attachment_size?: any;
+  @IsNumber()
+  attachment_size?: number;
 
   @IsOptional()
-  duration_seconds?: any;
+  @IsNumber()
+  duration_seconds?: number;
 
   @IsOptional()
-  reply_to_id?: any;
+  @IsString()
+  reply_to_id?: string;
 
   @IsOptional()
-  forwarded_from_id?: any;
+  @IsString()
+  forwarded_from_id?: string;
 
   @IsOptional()
-  client_message_id?: any;
+  @IsString()
+  client_message_id?: string;
 
   @IsOptional()
-  media_ids?: any;
-
-  @IsOptional()
-  trim?: any;
+  @IsArray()
+  media_ids?: unknown[];
 
 }

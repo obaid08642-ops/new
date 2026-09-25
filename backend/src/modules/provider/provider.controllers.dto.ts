@@ -1,24 +1,29 @@
-import { IsArray, IsDateString, IsDefined, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
-import { ProviderAvailabilityStatus } from './schemas/requests.schema';
+import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import { ProviderAvailabilityStatus, ProviderRequestPriority } from './schemas/requests.schema';
 
 export class DisableDto {
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
 
 }
 
 export class EndConsultationDto {
   @IsOptional()
-  soap_subjective?: any;
+  @IsString()
+  soap_subjective?: string;
 
   @IsOptional()
-  soap_objective?: any;
+  @IsString()
+  soap_objective?: string;
 
   @IsOptional()
-  soap_assessment?: any;
+  @IsString()
+  soap_assessment?: string;
 
   @IsOptional()
-  soap_plan?: any;
+  @IsString()
+  soap_plan?: string;
 
   @IsOptional()
   @IsArray()
@@ -62,10 +67,12 @@ export class IssueSickLeaveDto {
 
 export class IssueMedicalReportDto {
   @IsOptional()
+  @IsString()
   findings?: string;
 
 
   @IsOptional()
+  @IsString()
   summary?: string;
 
 
@@ -75,7 +82,8 @@ export class IssueMedicalReportDto {
 
 
   @IsOptional()
-  type?: any;
+  @IsString()
+  type?: string;
 
   @IsOptional()
   @IsString()
@@ -88,16 +96,20 @@ export class IssueMedicalReportDto {
 
 
   @IsOptional()
-  conclusion?: any;
+  @IsString()
+  conclusion?: string;
 
   @IsOptional()
-  diagnosis?: any;
+  @IsString()
+  diagnosis?: string;
 
   @IsOptional()
-  recommendations?: any;
+  @IsString()
+  recommendations?: string;
 
   @IsOptional()
-  critical?: any;
+  @IsBoolean()
+  critical?: boolean;
 
   @IsOptional()
   @IsArray()
@@ -107,34 +119,44 @@ export class IssueMedicalReportDto {
 }
 
 export class SetAvailDto {
+  @IsDefined()
+  @IsEnum(ProviderAvailabilityStatus)
   status: ProviderAvailabilityStatus;
 
   @IsOptional()
   @IsString()
   note?: string;
-
-
 }
 
 export class PreviewAdHocDto {
+  @IsDefined()
+  @IsString()
   type: string;
-
-  required_provider_type?: any;
-
-  @IsArray()
-  exclude_provider_ids?: any;
 
   @IsOptional()
   @IsString()
-  payload?: any;
-
-  patient_location?: any;
+  required_provider_type?: string;
 
   @IsOptional()
-  priority?: any;
+  @IsArray()
+  @IsString({ each: true })
+  exclude_provider_ids?: string[];
 
   @IsOptional()
-  scheduled_at?: any;
+  @IsString()
+  payload?: string;
+
+  @IsOptional()
+  @IsObject()
+  patient_location?: { lat: number; lng: number };
+
+  @IsOptional()
+  @IsEnum(ProviderRequestPriority)
+  priority?: ProviderRequestPriority;
+
+  @IsOptional()
+  @IsDateString()
+  scheduled_at?: string;
 
   @IsOptional()
   @IsNumber()
@@ -150,6 +172,7 @@ export class PreviewAdHocDto {
 
 export class DispatchDto {
   @IsOptional()
-  timeout_seconds?: any;
+  @IsNumber()
+  timeout_seconds?: number;
 
 }

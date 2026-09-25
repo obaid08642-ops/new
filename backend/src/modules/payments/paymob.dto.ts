@@ -1,4 +1,4 @@
-import { IsNumber, IsOptional } from 'class-validator';
+import { IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 
 export class InitiatePaymentDto {
   @IsOptional()
@@ -7,15 +7,18 @@ export class InitiatePaymentDto {
 
 
   @IsOptional()
-  billing_data?: any;
+  @IsObject()
+  billing_data?: Record<string, unknown>;
 
 }
 
 export class VerifyPaymentDto {
   @IsOptional()
-  obj?: any;
+  @IsObject()
+  obj?: Record<string, unknown>;
 
   @IsOptional()
-  hmac?: any;
+  @IsString()
+  hmac?: string;
 
 }

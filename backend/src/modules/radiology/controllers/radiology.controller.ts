@@ -6,6 +6,7 @@ import { RadiologyBooking } from '../schemas/radiology-booking.schema';
 import { CurrentUser, SelfService, Roles } from '../../../common/auth.guard';
 import { UserRole } from '../../../common/enums';
 import { BookDto, AllocateMachineDto, FinalizeScanDto} from './radiology.dto';
+import { idFilter } from '../../../common/id.utils';
 
 @Controller('radiology/bookings')
 export class RadiologyController {
@@ -104,8 +105,10 @@ export class RadiologyController {
       });
     }
 
-    const booking = await this.radBookingModel.findByIdAndUpdate(
-      bookingId,
+    // Radiology bookings are addressed by public uuid `id` (idFilter also
+    // accepts a legacy Mongo `_id`) — never throws on malformed input.
+    const booking = await this.radBookingModel.findOneAndUpdate(
+      idFilter(bookingId),
       { $set: { allocated_machine_id: machineId, status: 'ACCEPTED' } },
       { new: true }
     );
@@ -121,8 +124,8 @@ export class RadiologyController {
   ) {
     const { reportText, files, pdfUrl } = body;
 
-    const booking = await this.radBookingModel.findByIdAndUpdate(
-      bookingId,
+    const booking = await this.radBookingModel.findOneAndUpdate(
+      idFilter(bookingId),
       {
         $set: {
           clinical_impression_report: reportText,

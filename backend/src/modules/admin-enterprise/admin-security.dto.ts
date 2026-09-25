@@ -29,94 +29,37 @@ export class CreateRoleDto {
 }
 
 export class UpdateRoleDto {
-  reason?: any;
+  @IsDefined()
+  @IsString()
+  reason: string;
 
   @IsOptional()
   @IsString()
-  name_ar: string;
+  name_ar?: string;
 
   @IsOptional()
   @IsString()
-  description_ar: string;
+  description_ar?: string;
 
   @IsOptional()
-  permissions?: any;
-
-  @IsOptional()
-  action?: any;
-
-  actor?: any;
-
-  @IsOptional()
-  target_type?: any;
-
-  @IsOptional()
-  target_id?: any;
-
-  before?: any;
-
-  after?: any;
-
-  meta?: any;
-
-  ip?: any;
-
-  user_agent?: any;
-
+  @IsArray()
+  @IsString({ each: true })
+  permissions?: string[];
 }
 
 export class DeleteRoleDto {
-  reason?: any;
-
-  @IsOptional()
-  action?: any;
-
-  actor?: any;
-
-  @IsOptional()
-  target_type?: any;
-
-  @IsOptional()
-  target_id?: any;
-
-  before?: any;
-
-  after?: any;
-
-  meta?: any;
-
-  ip?: any;
-
-  user_agent?: any;
-
+  @IsDefined()
+  @IsString()
+  reason: string;
 }
 
 export class AssignUserRolesDto {
   @IsDefined()
   @IsArray()
-  custom_role_keys: any[];
+  @IsString({ each: true })
+  custom_role_keys: string[];
 
-  reason?: any;
-
-  @IsOptional()
-  action?: any;
-
-  actor?: any;
-
-  @IsOptional()
-  target_type?: any;
-
-  @IsOptional()
-  target_id?: any;
-
-  before?: any;
-
-  after?: any;
-
-  meta?: any;
-
-  ip?: any;
-
-  user_agent?: any;
-
+  @IsDefined()
+  @IsString()
+  reason: string;
 }

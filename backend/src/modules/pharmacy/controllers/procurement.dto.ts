@@ -12,10 +12,12 @@ export class CreateProcurementRequestDto {
 
 export class FeedbackDto {
   @IsOptional()
-  status?: any;
+  @IsString()
+  status?: string;
 
   @IsOptional()
-  pharmacyFeedback?: any;
+  @IsString()
+  pharmacyFeedback?: string;
 
 }
 

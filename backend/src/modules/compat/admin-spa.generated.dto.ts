@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsDateString, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsDefined, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 
 export class CreateDtoGen2 {
   @IsOptional()
@@ -11,7 +11,8 @@ export class CreateDtoGen2 {
   description?: any;
 
   @IsOptional()
-  assignee?: any;
+  @IsString()
+  assignee?: string;
 
   @IsOptional()
   @IsDateString()
@@ -54,10 +55,12 @@ export class CreateDto3 {
   title_en?: any;
 
   @IsOptional()
-  image_url?: any;
+  @IsString()
+  image_url?: string;
 
   @IsOptional()
-  link?: any;
+  @IsString()
+  link?: string;
 
   @IsOptional()
   @IsNumber()
@@ -72,84 +75,95 @@ export class CreateDto3 {
 }
 
 export class CreateDto4 {
-  @IsOptional()
+  @IsDefined()
   @IsString()
-  code?: string;
+  code: string;
 
+  @IsOptional()
+  @IsNumber()
+  discount_percent?: number;
 
-  discount_percent?: any;
+  @IsOptional()
+  @IsNumber()
+  discount_amount?: number;
 
-  discount_amount?: any;
-
-  max_uses?: any;
+  @IsOptional()
+  @IsNumber()
+  max_uses?: number;
 
   @IsOptional()
   @IsDateString()
   valid_from?: string;
 
-
   @IsOptional()
   @IsDateString()
   valid_until?: string;
 
+  @IsOptional()
+  @IsNumber()
+  min_order?: number;
 
-  min_order?: any;
-
-  max_discount?: any;
+  @IsOptional()
+  @IsNumber()
+  max_discount?: number;
 
   @IsOptional()
   @IsNumber()
   usage_limit_per_user?: number;
 
-
-  provider_id?: any;
+  @IsOptional()
+  @IsString()
+  provider_id?: string;
 
   @IsOptional()
   @IsArray()
   categories?: unknown[];
 
-
   @IsOptional()
   @IsBoolean()
   first_order_only?: boolean;
 
-
-  campaign_id?: any;
-
+  @IsOptional()
+  @IsString()
+  campaign_id?: string;
 }
 
 export class CreateDto5 {
-  @IsOptional()
+  @IsDefined()
   @IsString()
-  title_ar?: string;
-
-
-  @IsOptional()
-  provider_id?: any;
+  title_ar: string;
 
   @IsOptional()
   @IsString()
-  title_en?: any;
+  provider_id?: string;
 
-  original_price?: any;
+  @IsOptional()
+  @IsString()
+  title_en?: string;
 
-  discounted_price?: any;
+  @IsOptional()
+  @IsNumber()
+  original_price?: number;
+
+  @IsOptional()
+  @IsNumber()
+  discounted_price?: number;
 
   @IsOptional()
   @IsDateString()
   start_date?: string;
 
-
   @IsOptional()
   @IsDateString()
   end_date?: string;
 
+  @IsOptional()
+  @IsString()
+  image_url?: string;
 
   @IsOptional()
-  image_url?: any;
-
-  @IsOptional()
-  target_parameters?: any;
+  @IsObject()
+  target_parameters?: Record<string, unknown>;
 
   @IsOptional()
   @IsString()

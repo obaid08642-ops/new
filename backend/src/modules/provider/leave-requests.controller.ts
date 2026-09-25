@@ -14,7 +14,7 @@ export class LeaveRequestsController {
   ) {}
 
   @Get()
-  async getLeaveRequests(@CurrentUser() facility: any, @Body() _: any) {
+  async getLeaveRequests(@CurrentUser() facility: any) {
     return this.leaveModel
       .find({ facility_id: facility.id })
       .sort({ createdAt: -1 })

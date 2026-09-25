@@ -11,6 +11,7 @@ import {
 import { NABDAH_ACCESS_TOKEN_SECURITY_SCHEME } from '../../config/openapi.config';
 import { UsersService } from './users.service';
 import { CurrentUser, JwtAuthGuard, SelfService } from '../../common/auth.guard';
+import { UpdatePatientInsuranceDto } from './users.dto';
 
 const canonicalInsuranceSchema = {
   type: 'object',
@@ -69,7 +70,7 @@ export class UsersInsuranceController {
     schema: canonicalInsuranceSchema,
   })
   @ApiUnauthorizedResponse({ description: 'Missing, malformed, or expired bearer token.' })
-  async updateInsurance(@CurrentUser('id') id: string, @Body() body: any) {
+  async updateInsurance(@CurrentUser('id') id: string, @Body() body: UpdatePatientInsuranceDto) {
     const profile = await this.users.getPatientProfile(id);
     const updatedInsurance = {
       ...profile.insurance,

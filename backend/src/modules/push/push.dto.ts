@@ -1,4 +1,4 @@
-import { IsDefined, IsOptional, IsString } from 'class-validator';
+import { IsDefined, IsObject, IsOptional, IsString } from 'class-validator';
 
 export class RegisterDto {
   @IsDefined()
@@ -43,6 +43,7 @@ export class TrackDto {
 
 
   @IsOptional()
-  data?: any;
+  @IsObject()
+  data?: Record<string, unknown>;
 
 }

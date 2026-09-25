@@ -53,6 +53,8 @@ export class ChatService {
     if (!modelName) return {};
     try {
       const m = this.getModel(modelName);
+      // Booking rows are addressed by public uuid `id` first; the `_id`
+      // fallback covers legacy callers holding a Mongo id (never throws).
       let doc: any = await m.findOne({ id: bookingId }).lean();
       if (!doc && /^[a-f0-9]{24}$/i.test(bookingId)) doc = await m.findById(bookingId).lean();
       if (!doc) return {};

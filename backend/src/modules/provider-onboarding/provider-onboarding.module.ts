@@ -2,6 +2,7 @@ import { Module, Controller, Post, Get, Body, Query, Param, UseGuards, Injectabl
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JwtAuthGuard, Roles, CurrentUser, Public, SelfService } from '../../common/auth.guard';
+import { Step2Dto, Step3Dto } from './provider-onboarding.dto';
 import { UserRole, ProviderType, ProviderStatus } from '../../common/enums';
 import { ProviderProfile, ProviderProfileDocument, ProviderProfileSchema } from '../../schemas/provider-profile.schema';
 import { User, UserDocument, UserSchema } from '../../schemas/user.schema';
@@ -467,11 +468,11 @@ export class ProviderOnboardingController {
 
   @UseGuards(JwtAuthGuard) @Post('step2')
   @SelfService()
-  step2(@CurrentUser() u: any, @Body() b: any) { return this.svc.step2(u, b); }
+  step2(@CurrentUser() u: any, @Body() b: Step2Dto) { return this.svc.step2(u, b); }
 
   @UseGuards(JwtAuthGuard) @Post('step3')
   @SelfService()
-  step3(@CurrentUser() u: any, @Body() b: any) { return this.svc.step3(u, b); }
+  step3(@CurrentUser() u: any, @Body() b: Step3Dto) { return this.svc.step3(u, b); }
 
   @UseGuards(JwtAuthGuard) @Post('submit')
   @SelfService()

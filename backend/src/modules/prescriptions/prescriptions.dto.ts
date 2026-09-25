@@ -64,10 +64,12 @@ export class UploadDto {
   notes?: string;
 
   @IsOptional()
-  id?: any;
+  @IsString()
+  id?: string;
 
   @IsOptional()
-  role?: any;
+  @IsString()
+  role?: string;
 }
 
 export class ManualEntryDto {
@@ -92,16 +94,20 @@ export class ManualEntryDto {
   notes?: string;
 
   @IsOptional()
-  id?: any;
+  @IsString()
+  id?: string;
 
   @IsOptional()
-  account_id?: any;
+  @IsString()
+  account_id?: string;
 
   @IsOptional()
-  provider_id?: any;
+  @IsString()
+  provider_id?: string;
 
   @IsOptional()
-  provider_profile_id?: any;
+  @IsString()
+  provider_profile_id?: string;
 }
 
 export class SendDto {

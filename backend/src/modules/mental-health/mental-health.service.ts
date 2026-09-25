@@ -177,7 +177,7 @@ export class MentalHealthService {
     return { total_sessions: sessions.length, completed_sessions: completed.length, total_minutes: totalMinutes };
   }
 
-  async logBreathing(userId: string, data: Partial<BreathingSession>) {
+  async logBreathing(userId: string, data: Omit<Partial<BreathingSession>, 'logged_at'> & { logged_at?: string | Date }) {
     this.requirePatientId(userId);
     if (!data || !Object.values(BreathingTechnique).includes(data.technique as BreathingTechnique)) {
       throw new BadRequestException('تقنية التنفس مطلوبة وغير صالحة / A valid breathing technique is required');

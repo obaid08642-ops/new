@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsDefined, IsIn, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsDefined, IsIn, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 
 export class CreateDto {
   @IsOptional()
@@ -54,13 +54,15 @@ export class CreateDto {
 
 export class CancelRootDto {
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
 
 }
 
 export class RescheduleRootDto {
   @IsOptional()
-  new_slot_id?: any;
+  @IsString()
+  new_slot_id?: string;
 
 }
 
@@ -74,15 +76,19 @@ export class CancelDto {
 
 export class ReschedDto {
   @IsOptional()
-  scheduled_at?: any;
+  @IsDateString()
+  scheduled_at?: string;
 
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
 
 }
 
 export class MatchDto {
-  kind: any;
+  @IsDefined()
+  @IsIn(['lab', 'radiology', 'nursing', 'consultation', 'pharmacy'])
+  kind: 'lab' | 'radiology' | 'nursing' | 'consultation' | 'pharmacy';
 
   @IsOptional()
   @IsArray()
@@ -109,7 +115,8 @@ export class MatchDto {
   city?: string;
 
   @IsOptional()
-  location?: any;
+  @IsObject()
+  location?: { lat: number; lng: number };
 
   @IsOptional()
   @IsNumber()
@@ -130,7 +137,8 @@ export class NursingDto {
   scheduled_at?: string;
 
   @IsOptional()
-  address?: any;
+  @IsObject()
+  address?: Record<string, unknown>;
 
   @IsOptional()
   @IsString()
@@ -141,7 +149,8 @@ export class NursingDto {
   insurance?: string;
 
   @IsOptional()
-  location?: any;
+  @IsObject()
+  location?: { lat: number; lng: number };
 
   @IsOptional()
   @IsBoolean()
@@ -155,7 +164,8 @@ export class CheckoutDto {
 
 
   @IsOptional()
-  address?: any;
+  @IsObject()
+  address?: Record<string, unknown>;
 
   @IsOptional()
   @IsString()

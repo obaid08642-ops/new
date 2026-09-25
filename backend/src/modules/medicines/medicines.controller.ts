@@ -3,7 +3,7 @@ import { MedicinesService } from './medicines.service';
 import { CurrentUser, JwtAuthGuard, Public, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { Permission, RequirePermissions } from '../../common/permissions';
-import { SuggestChangeDto, SuggestNewItemDto, AdminUpdateCatalogDto, AdminCreateDto, LookupBarcodeDto, CompareDto, ReportShortageDto, RejectShortageDto, SetAvailabilityDto, SuggestImageDto, RejectImageDto, RejectChangeDto, AdminDeleteDto, ImportJsonDto, ImportCsvDto} from './medicines.dto';
+import { SuggestChangeDto, SuggestNewItemDto, AdminUpdateCatalogDto, AdminCreateDto, LookupBarcodeDto, CompareDto, ReportShortageDto, RejectShortageDto, SetAvailabilityDto, SuggestImageDto, RejectImageDto, RejectChangeDto, AdminDeleteDto, ImportJsonDto, ImportCsvDto, ManualEntryDto} from './medicines.dto';
 
 @Controller('medicines')
 @Roles(UserRole.ADMIN)
@@ -375,7 +375,7 @@ export class MedicinesController {
   }
 
   @Post('manual-entry')
-  createManual(@Body() body: any, @CurrentUser() user: any) {
+  createManual(@Body() body: ManualEntryDto, @CurrentUser() user: any) {
     return this.svc.createManualEntry(body, user.id, user.role);
   }
 
