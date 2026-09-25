@@ -1,127 +1,49 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class RetryJobDto {
-  retry?: any;
-
-  reason?: any;
-
   @IsOptional()
-  action?: any;
-
-  actor?: any;
-
-  @IsOptional()
-  target_type?: any;
-
-  @IsOptional()
-  target_id?: any;
-
-  before?: any;
-
-  after?: any;
-
-  meta?: any;
-
-  ip?: any;
-
-  user_agent?: any;
-
+  @IsString()
+  reason?: string;
 }
 
 export class RetryFailedDto {
-  reason?: any;
+  @IsDefined()
+  @IsString()
+  reason: string;
 
   @IsOptional()
-  limit?: any;
-
-  @IsOptional()
-  action?: any;
-
-  actor?: any;
-
-  @IsOptional()
-  target_type?: any;
-
-  @IsOptional()
-  target_id?: any;
-
-  before?: any;
-
-  after?: any;
-
-  meta?: any;
-
-  ip?: any;
-
-  user_agent?: any;
-
+  @IsNumber()
+  limit?: number;
 }
 
 export class UpsertTranslationDto {
-  @IsOptional()
-  key?: any;
+  @IsDefined()
+  @IsString()
+  key: string;
 
-  @IsOptional()
-  value?: any;
-
-  @IsOptional()
+  @IsDefined()
   @IsString()
   lang: string;
 
-  reason?: any;
-
-  @IsOptional()
-  action?: any;
-
-  actor?: any;
-
-  @IsOptional()
-  target_type?: any;
-
-  @IsOptional()
-  target_id?: any;
-
-  before?: any;
-
-  after?: any;
-
-  meta?: any;
-
-  ip?: any;
-
-  user_agent?: any;
-
-}
-
-export class SetSeoControlDto {
-  @IsOptional()
-  route_key?: any;
+  @IsDefined()
+  @IsString()
+  value: string;
 
   @IsOptional()
   @IsString()
-  indexable: string;
+  reason?: string;
+}
 
-  reason?: any;
+export class SetSeoControlDto {
+  @IsDefined()
+  @IsString()
+  route_key: string;
+
+  @IsDefined()
+  @IsBoolean()
+  indexable: boolean;
 
   @IsOptional()
-  action?: any;
-
-  actor?: any;
-
-  @IsOptional()
-  target_type?: any;
-
-  @IsOptional()
-  target_id?: any;
-
-  before?: any;
-
-  after?: any;
-
-  meta?: any;
-
-  ip?: any;
-
-  user_agent?: any;
-
+  @IsString()
+  reason?: string;
 }

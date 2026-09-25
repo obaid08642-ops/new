@@ -1,4 +1,4 @@
-import { IsDefined, IsNumber, IsOptional } from 'class-validator';
+import { IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class UpdateProfileDto {
   @IsOptional()
@@ -19,7 +19,9 @@ export class UpdateProfileDto {
   prev_period_date?: any;
 
   @IsOptional()
-  is_regular?: any;
+  @IsString()
+  is_regular?: string;
+
 
 }
 

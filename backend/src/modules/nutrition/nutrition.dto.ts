@@ -1,4 +1,4 @@
-import { IsDefined, IsNumber, IsOptional } from 'class-validator';
+import { IsDefined, IsNumber, IsObject, IsOptional } from 'class-validator';
 
 export class UpdateProfileDto {
   @IsOptional()
@@ -35,7 +35,9 @@ export class UpdateProfileDto {
 
 export class LogMealDto {
   @IsOptional()
-  name?: any;
+  @IsObject()
+  name?: Record<string, unknown>;
+
 
   @IsOptional()
   meal_type?: any;
@@ -56,7 +58,9 @@ export class LogMealDto {
   fiber_g?: any;
 
   @IsOptional()
-  image_url?: any;
+  @IsObject()
+  image_url?: Record<string, unknown>;
+
 
   @IsOptional()
   logged_at?: any;
@@ -65,7 +69,9 @@ export class LogMealDto {
 
 export class LogExerciseDto {
   @IsOptional()
-  name?: any;
+  @IsObject()
+  name?: Record<string, unknown>;
+
 
   @IsOptional()
   duration_minutes?: any;
@@ -74,7 +80,9 @@ export class LogExerciseDto {
   calories_burned?: any;
 
   @IsOptional()
-  exercise_type?: any;
+  @IsObject()
+  exercise_type?: Record<string, unknown>;
+
 
   @IsOptional()
   logged_at?: any;

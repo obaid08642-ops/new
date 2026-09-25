@@ -1,4 +1,4 @@
-import { IsArray, IsDefined, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateDto {
   @IsDefined()
@@ -6,44 +6,75 @@ export class CreateDto {
   plate_number: string;
 
   @IsOptional()
-  model?: any;
+  @IsString()
+  model?: string;
 
   @IsOptional()
-  year?: any;
-
-  @IsOptional()
-  @IsArray()
-  equipment: any[];
-
-  @IsOptional()
-  paramedic_count?: any;
-
-  has_icu?: any;
-
-  @IsOptional()
-  vehicle_type?: any;
-
-  @IsOptional()
-  base_city?: any;
+  @IsNumber()
+  year?: number;
 
   @IsOptional()
   @IsArray()
-  documents: any[];
+  @IsString({ each: true })
+  equipment?: string[];
 
+  @IsOptional()
+  @IsNumber()
+  paramedic_count?: number;
+
+  @IsOptional()
+  @IsBoolean()
+  has_icu?: boolean;
+
+  @IsOptional()
+  @IsString()
+  vehicle_type?: string;
+
+  @IsOptional()
+  @IsString()
+  base_city?: string;
+
+  @IsOptional()
+  @IsArray()
+  documents?: unknown[];
 }
 
 export class UpdateDto {
   @IsOptional()
-  vehicle_type?: any;
+  @IsString()
+  vehicle_type?: string;
 
   @IsOptional()
   @IsString()
-  plate_number: string;
+  plate_number?: string;
 
+  @IsOptional()
+  @IsBoolean()
+  is_available?: boolean;
+
+  @IsOptional()
+  @IsString()
+  model?: string;
+
+  @IsOptional()
+  @IsNumber()
+  year?: number;
+
+  @IsOptional()
+  @IsNumber()
+  paramedic_count?: number;
+
+  @IsOptional()
+  @IsBoolean()
+  has_icu?: boolean;
+
+  @IsOptional()
+  @IsString()
+  base_city?: string;
 }
 
 export class RejectDto {
   @IsOptional()
-  reason?: any;
-
+  @IsString()
+  reason?: string;
 }

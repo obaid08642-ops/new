@@ -313,7 +313,7 @@ export class FamilyService {
 
   async addCalendarEvent(userId: string, body: {
     title: string; description?: string; type?: string;
-    ref_id?: string; event_date?: Date; member_user_id?: string;
+    ref_id?: string; event_date?: string | Date; member_user_id?: string;
     member?: string; time?: string; color?: string;
   }) {
     if (!body?.title?.trim()) throw new BadRequestException('title is required');

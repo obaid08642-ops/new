@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 
 export class CreateOrderDto {
   @IsOptional()
@@ -14,7 +14,9 @@ export class CreateOrderDto {
   prescription_id?: string;
 
   @IsOptional()
-  delivery_address?: any;
+  @IsObject()
+  delivery_address?: Record<string, unknown>;
+
 
   @IsOptional()
   @IsString()

@@ -1,4 +1,4 @@
-import { IsArray, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsDateString, IsDefined, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 import { ProviderAvailabilityStatus } from './schemas/requests.schema';
 
 export class DisableDto {
@@ -33,47 +33,59 @@ export class EndConsultationDto {
 export class IssueSickLeaveDto {
   @IsOptional()
   @IsString()
-  patient_id?: any;
+  patient_id?: string;
 
+  @IsDefined()
   @IsString()
-  diagnosis?: any;
+  diagnosis: string;
 
   @IsOptional()
-  duration_days?: any;
+  @IsNumber()
+  duration_days?: number;
 
   @IsOptional()
-  start_date?: any;
+  @IsDateString()
+  start_date?: string;
 
   @IsOptional()
-  patient_name?: any;
+  @IsString()
+  patient_name?: string;
 
   @IsOptional()
-  recommendations?: any;
+  @IsString()
+  recommendations?: string;
 
   @IsOptional()
-  appointment_id?: any;
-
+  @IsString()
+  appointment_id?: string;
 }
 
 export class IssueMedicalReportDto {
-  @IsString()
-  findings?: any;
+  @IsOptional()
+  findings?: string;
 
-  @IsString()
-  summary?: any;
+
+  @IsOptional()
+  summary?: string;
+
 
   @IsOptional()
   @IsString()
-  patient_id?: any;
+  patient_id?: string;
+
 
   @IsOptional()
   type?: any;
 
   @IsOptional()
-  title_ar?: any;
+  @IsString()
+  title_ar?: string;
+
 
   @IsOptional()
-  title_en?: any;
+  @IsString()
+  title_en?: string;
+
 
   @IsOptional()
   conclusion?: any;
@@ -89,7 +101,8 @@ export class IssueMedicalReportDto {
 
   @IsOptional()
   @IsArray()
-  attachments?: any;
+  attachments?: unknown[];
+
 
 }
 
@@ -97,7 +110,9 @@ export class SetAvailDto {
   status: ProviderAvailabilityStatus;
 
   @IsOptional()
-  note?: any;
+  @IsString()
+  note?: string;
+
 
 }
 
@@ -122,10 +137,14 @@ export class PreviewAdHocDto {
   scheduled_at?: any;
 
   @IsOptional()
-  duration_minutes?: any;
+  @IsNumber()
+  duration_minutes?: number;
+
 
   @IsOptional()
-  max_results?: any;
+  @IsNumber()
+  max_results?: number;
+
 
 }
 

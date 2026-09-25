@@ -1,4 +1,4 @@
-import { IsArray, IsDefined, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class AddLeaveDto {
   @IsDefined()
@@ -175,6 +175,9 @@ export class EndConsultationDto {
   @IsOptional()
   patient_id?: any;
 
-  amount?: any;
+  @IsOptional()
+  @IsNumber()
+  amount?: number;
+
 
 }

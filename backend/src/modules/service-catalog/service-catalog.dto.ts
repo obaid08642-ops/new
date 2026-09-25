@@ -1,4 +1,4 @@
-import { IsOptional } from 'class-validator';
+import { IsBoolean, IsNumber, IsOptional } from 'class-validator';
 
 export class CreateDto {
   @IsOptional()
@@ -8,10 +8,14 @@ export class CreateDto {
   name_en?: any;
 
   @IsOptional()
-  price?: any;
+  @IsNumber()
+  price?: number;
+
 
   @IsOptional()
-  active?: any;
+  @IsBoolean()
+  active?: boolean;
+
 
   @IsOptional()
   unavailable?: any;
@@ -26,6 +30,20 @@ export class ToggleDto {
 
 export class ApproveDto {
   @IsOptional()
-  approve?: any;
+  @IsBoolean()
+  approve?: boolean;
+
+
+}
+
+export class OfferingDto {
+  @IsOptional()
+  @IsNumber()
+  price?: number;
+
+
+  @IsOptional()
+  @IsBoolean()
+  available?: boolean;
 
 }

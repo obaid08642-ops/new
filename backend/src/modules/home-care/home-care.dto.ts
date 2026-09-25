@@ -1,4 +1,4 @@
-import { IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsDefined, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 
 export class CreateNoteDto {
   @IsOptional()
@@ -18,25 +18,39 @@ export class CreateNoteDto {
 
 export class CreateBookingDto {
   @IsOptional()
-  service_id?: any;
+  @IsString()
+  service_id?: string;
 
   @IsOptional()
-  scheduled_at?: any;
+  @IsString()
+  scheduled_at?: string;
 
   @IsOptional()
-  sessions_count?: any;
-
-  contact?: any;
-
-  @IsOptional()
-  address?: any;
+  @IsNumber()
+  sessions_count?: number;
 
   @IsOptional()
-  notes?: any;
+  @IsObject()
+  contact?: Record<string, unknown>;
 
   @IsOptional()
-  payment_method?: any;
+  address?: unknown;
 
+  @IsOptional()
+  @IsString()
+  notes?: string;
+
+  @IsOptional()
+  @IsString()
+  payment_method?: string;
+
+  @IsOptional()
+  @IsString()
+  provider_id?: string;
+
+  @IsOptional()
+  @IsString()
+  service_name_ar?: string;
 }
 
 export class ArriveAtPatientDto {

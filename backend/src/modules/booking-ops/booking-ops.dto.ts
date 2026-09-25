@@ -1,4 +1,4 @@
-import { IsDefined, IsOptional, IsString } from 'class-validator';
+import { IsDefined, IsIn, IsOptional, IsString } from 'class-validator';
 
 export class MarkDto {
   @IsOptional()
@@ -10,7 +10,9 @@ export class MarkDto {
   transaction_id?: string;
 
   @IsOptional()
-  insurance_status?: any;
+  @IsIn(['pending', 'verified', 'approved', 'rejected'])
+  insurance_status?: 'pending' | 'verified' | 'approved' | 'rejected';
+
 }
 
 export class AddAttDto {

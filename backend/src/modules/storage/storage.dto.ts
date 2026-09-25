@@ -2,58 +2,78 @@ import { IsDefined, IsIn, IsOptional, IsString } from 'class-validator';
 
 export class UploadDto {
   @IsOptional()
-  mime?: any;
+  @IsString()
+  mime?: string;
+
 
   @IsDefined()
   @IsString()
   data_base64: string;
 
   @IsOptional()
-  original_name?: any;
+  @IsString()
+  original_name?: string;
+
 
   @IsOptional()
-  owner_kind?: any;
+  @IsString()
+  owner_kind?: string;
+
 
   @IsOptional()
   visibility?: any;
 
   @IsOptional()
-  customKey?: any;
+  @IsString()
+  customKey?: string;
+
 
   @IsOptional()
   @IsIn(["cloudinary"])
   target: string;
 
   @IsOptional()
-  owner_account_id?: any;
+  @IsString()
+  owner_account_id?: string;
+
 
 }
 
 export class UploadSuggestionImageDto {
   @IsOptional()
-  mime?: any;
+  @IsString()
+  mime?: string;
+
 
   @IsDefined()
   @IsString()
   data_base64: string;
 
   @IsOptional()
-  original_name?: any;
+  @IsString()
+  original_name?: string;
+
 
   @IsOptional()
-  owner_kind?: any;
+  @IsString()
+  owner_kind?: string;
+
 
   @IsOptional()
   visibility?: any;
 
   @IsOptional()
-  customKey?: any;
+  @IsString()
+  customKey?: string;
+
 
   @IsOptional()
   @IsIn(["cloudinary"])
   target: string;
 
   @IsOptional()
-  owner_account_id?: any;
+  @IsString()
+  owner_account_id?: string;
+
 
 }

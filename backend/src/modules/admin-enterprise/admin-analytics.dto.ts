@@ -1,4 +1,4 @@
-import { IsArray, IsDefined, IsOptional } from 'class-validator';
+import { IsArray, IsBoolean, IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateDto {
   @IsOptional()
@@ -24,15 +24,17 @@ export class CreateDto {
 
 export class UpdateDto {
   @IsOptional()
-  enabled?: any;
-
-  @IsDefined()
-  @IsArray()
-  recipients: any[];
+  @IsBoolean()
+  enabled?: boolean;
 
   @IsOptional()
-  hour_utc?: any;
+  @IsArray()
+  @IsString({ each: true })
+  recipients?: string[];
 
+  @IsOptional()
+  @IsNumber()
+  hour_utc?: number;
 }
 
 export class RemoveDto {

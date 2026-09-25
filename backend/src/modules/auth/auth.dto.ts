@@ -56,6 +56,10 @@ export class SendOtpDto {
   @IsOptional()
   @IsString()
   identifier?: string;
+
+  @IsOptional()
+  @IsString()
+  purpose?: string;
 }
 export class VerifyOtpDto {
   @IsOptional()

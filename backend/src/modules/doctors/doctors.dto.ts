@@ -1,11 +1,13 @@
-import { IsArray, IsBoolean, IsIn, IsOptional } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsIn, IsOptional } from 'class-validator';
 
 export class BookDto {
   @IsOptional()
   doctor_id?: any;
 
   @IsOptional()
-  scheduled_at?: any;
+  @IsDateString()
+  scheduled_at?: string;
+
 
   @IsOptional()
   type?: any;

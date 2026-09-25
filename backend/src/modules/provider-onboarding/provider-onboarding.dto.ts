@@ -1,4 +1,4 @@
-import { IsDefined, IsEnum, IsIn, IsOptional, IsString } from 'class-validator';
+import { IsDefined, IsEnum, IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
 import { ProviderType } from '../../common/enums';
 
 export class StartDto {
@@ -7,7 +7,9 @@ export class StartDto {
   phone: string;
 
   @IsOptional()
-  password?: any;
+  @IsString()
+  password?: string;
+
 
   @IsOptional()
   @IsString()
@@ -34,10 +36,14 @@ export class SubmitDto {
   signature_url?: any;
 
   @IsOptional()
-  lat?: any;
+  @IsNumber()
+  lat?: number;
+
 
   @IsOptional()
-  lng?: any;
+  @IsNumber()
+  lng?: number;
+
 
   @IsOptional()
   @IsIn(["object"])

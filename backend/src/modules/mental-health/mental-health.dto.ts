@@ -1,18 +1,22 @@
-import { IsOptional } from 'class-validator';
+import { IsArray, IsBoolean, IsDefined, IsIn, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import { MeditationType } from '../../schemas/mental-health.schema';
 
 export class LogMeditationDto {
-  @IsOptional()
-  type?: any;
+  @IsDefined()
+  @IsIn(['guided', 'breathing', 'body_scan', 'sleep', 'mindfulness'])
+  type: MeditationType;
+
+  @IsDefined()
+  @IsNumber()
+  duration_minutes: number;
 
   @IsOptional()
-  duration_minutes?: any;
+  @IsBoolean()
+  completed?: boolean;
 
   @IsOptional()
-  completed?: any;
-
-  @IsOptional()
-  logged_at?: any;
-
+  @IsString()
+  logged_at?: string;
 }
 
 export class LogBreathingDto {
@@ -20,10 +24,14 @@ export class LogBreathingDto {
   technique?: any;
 
   @IsOptional()
-  rounds?: any;
+  @IsNumber()
+  rounds?: number;
+
 
   @IsOptional()
-  duration_seconds?: any;
+  @IsNumber()
+  duration_seconds?: number;
+
 
   @IsOptional()
   logged_at?: any;
@@ -31,16 +39,19 @@ export class LogBreathingDto {
 }
 
 export class AddCrisisContactDto {
-  @IsOptional()
-  contact_name?: any;
+  @IsDefined()
+  @IsString()
+  contact_name: string;
+
+  @IsDefined()
+  @IsString()
+  phone: string;
 
   @IsOptional()
-  phone?: any;
+  @IsString()
+  relationship?: string;
 
   @IsOptional()
-  relationship?: any;
-
-  @IsOptional()
-  is_professional?: any;
-
+  @IsBoolean()
+  is_professional?: boolean;
 }

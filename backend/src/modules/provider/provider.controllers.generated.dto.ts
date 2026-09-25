@@ -1,4 +1,5 @@
-import { IsArray, IsDefined, IsIn, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDefined, IsEnum, IsIn, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import { OtpPurpose } from './schemas';
 
 export class RegisterDto {
   @IsDefined()
@@ -6,10 +7,14 @@ export class RegisterDto {
   email: string;
 
   @IsDefined()
-  password: any;
+  @IsString()
+  password: string;
+
 
   @IsDefined()
-  confirm_password: any;
+  @IsString()
+  confirm_password: string;
+
 
   @IsDefined()
   provider_type: any;
@@ -25,7 +30,9 @@ export class LoginDto {
   email: string;
 
   @IsDefined()
-  password: any;
+  @IsIn(["string"])
+  password: string;
+
 
   @IsOptional()
   meta?: any;
@@ -34,13 +41,19 @@ export class LoginDto {
 
 export class RefreshDto {
   @IsDefined()
-  refresh_token: any;
+  @IsString()
+  refresh_token: string;
+
 
   @IsDefined()
-  device_identifier: any;
+  @IsString()
+  device_identifier: string;
+
 
   @IsDefined()
-  session_id: any;
+  @IsString()
+  session_id: string;
+
 
   @IsOptional()
   meta?: any;
@@ -49,7 +62,9 @@ export class RefreshDto {
 
 export class LogoutDto {
   @IsDefined()
-  session_id: any;
+  @IsString()
+  session_id: string;
+
 
   @IsOptional()
   meta?: any;
@@ -57,15 +72,16 @@ export class LogoutDto {
 }
 
 export class SendOtpDto {
-  @IsDefined()
-  purpose: any;
+  @IsOptional()
+  @IsEnum(OtpPurpose)
+  purpose?: OtpPurpose;
 
   @IsDefined()
-  email: any;
+  @IsString()
+  email: string;
 
   @IsOptional()
-  meta?: any;
-
+  meta?: unknown;
 }
 
 export class VerifyEmailDto {
@@ -74,7 +90,9 @@ export class VerifyEmailDto {
   email: string;
 
   @IsDefined()
-  code: any;
+  @IsString()
+  code: string;
+
 
   @IsOptional()
   meta?: any;
@@ -97,7 +115,9 @@ export class VerifyResetCodeDto {
   email: string;
 
   @IsDefined()
-  code: any;
+  @IsString()
+  code: string;
+
 
   @IsOptional()
   meta?: any;
@@ -110,10 +130,14 @@ export class ResetDto {
   email: string;
 
   @IsDefined()
-  code: any;
+  @IsString()
+  code: string;
+
 
   @IsDefined()
-  new_password: any;
+  @IsString()
+  new_password: string;
+
 
   @IsOptional()
   meta?: any;
@@ -139,24 +163,29 @@ export class AddPhoneDto {
 }
 
 export class UploadDocDto {
-  @IsOptional()
-  doc_type?: any;
+  @IsDefined()
+  @IsString()
+  doc_type: string;
 
   @IsDefined()
-  file: any;
+  @IsObject()
+  file: Record<string, unknown>;
 
   @IsOptional()
-  doc_number?: any;
+  @IsString()
+  doc_number?: string;
 
   @IsOptional()
-  issuer?: any;
+  @IsString()
+  issuer?: string;
 
-  @IsDefined()
-  issued_date: any;
+  @IsOptional()
+  @IsString()
+  issued_date?: string;
 
-  @IsDefined()
-  expiry_date: any;
-
+  @IsOptional()
+  @IsString()
+  expiry_date?: string;
 }
 
 export class UploadDocDto2 {
@@ -247,10 +276,14 @@ export class AcceptDto {
   email: string;
 
   @IsOptional()
-  full_name?: any;
+  @IsString()
+  full_name?: string;
+
 
   @IsOptional()
-  phone?: any;
+  @IsString()
+  phone?: string;
+
 
   @IsDefined()
   @IsString()
@@ -288,17 +321,24 @@ export class RejectDeltaDto2 {
 
 export class ApproveDto {
   @IsOptional()
-  note?: any;
+  @IsString()
+  note?: string;
 
   @IsOptional()
-  commission_cash?: any;
+  @IsString()
+  reason?: string;
 
   @IsOptional()
-  commission?: any;
+  @IsNumber()
+  commission_cash?: number;
 
   @IsOptional()
-  commission_insurance?: any;
+  @IsNumber()
+  commission?: number;
 
+  @IsOptional()
+  @IsNumber()
+  commission_insurance?: number;
 }
 
 export class RejectDto {
@@ -330,40 +370,56 @@ export class ReactivateDto {
 
 export class AcceptDto2 {
   @IsOptional()
-  note?: any;
+  @IsString()
+  note?: string;
+
 
   @IsOptional()
-  scheduled_at?: any;
+  @IsString()
+  scheduled_at?: string;
+
 
 }
 
 export class RejectDto2 {
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
+
 
   @IsOptional()
-  note?: any;
+  @IsString()
+  note?: string;
+
 
 }
 
 export class StartDto {
   @IsOptional()
-  note?: any;
+  @IsString()
+  note?: string;
+
 
 }
 
 export class CompleteDto {
   @IsOptional()
-  note?: any;
+  @IsString()
+  note?: string;
+
 
 }
 
 export class CancelDto {
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
+
 
   @IsOptional()
-  note?: any;
+  @IsString()
+  note?: string;
+
 
 }
 
@@ -422,12 +478,29 @@ export class UpsertRadDto2 {
 }
 
 export class UpsertDocDto {
-  @IsOptional()
-  consultation_type?: any;
+  @IsDefined()
+  @IsString()
+  consultation_type: string;
+
+  @IsDefined()
+  @IsString()
+  specialty: string;
 
   @IsOptional()
-  specialty?: any;
+  @IsNumber()
+  price?: number;
 
+  @IsOptional()
+  @IsNumber()
+  duration_minutes?: number;
+
+  @IsOptional()
+  @IsBoolean()
+  available?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  insurance_covered?: boolean;
 }
 
 export class UpsertDocDto2 {
@@ -456,7 +529,9 @@ export class UpsertDto {
   name?: any;
 
   @IsOptional()
-  shape?: any;
+  @IsString()
+  shape?: string;
+
 
   @IsOptional()
   @IsIn(["circle"])

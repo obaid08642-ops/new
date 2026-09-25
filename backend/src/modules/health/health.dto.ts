@@ -1,36 +1,59 @@
-import { IsOptional } from 'class-validator';
+import { IsBoolean, IsDateString, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 
 export class RcDto {
   @IsOptional()
-  dose?: any;
+  @IsString()
+  dose?: string;
 
   @IsOptional()
-  refill_date?: any;
+  @IsString()
+  dosage?: string;
 
   @IsOptional()
-  medicine_name_en?: any;
+  @IsString()
+  refill_date?: string;
 
   @IsOptional()
-  medicine_id?: any;
+  @IsString()
+  medicine_name_en?: string;
 
   @IsOptional()
-  order_id?: any;
+  @IsString()
+  medicine_name_ar?: string;
 
   @IsOptional()
-  prescription_id?: any;
+  @IsString()
+  medication_name?: string;
 
   @IsOptional()
-  dosage_form?: any;
+  @IsString()
+  medicine_id?: string;
 
   @IsOptional()
-  instructions_ar?: any;
+  @IsString()
+  order_id?: string;
 
   @IsOptional()
-  source?: any;
+  @IsString()
+  prescription_id?: string;
 
   @IsOptional()
-  chronic?: any;
+  @IsString()
+  dosage_form?: string;
 
+  @IsOptional()
+  @IsString()
+  instructions_ar?: string;
+
+  @IsOptional()
+  @IsString()
+  frequency?: string;
+
+  @IsOptional()
+  source?: unknown;
+
+  @IsOptional()
+  chronic?: unknown;
 }
 
 export class RlgDto {
@@ -38,7 +61,9 @@ export class RlgDto {
   status?: any;
 
   @IsOptional()
-  time_key?: any;
+  @IsString()
+  time_key?: string;
+
 
   @IsOptional()
   occurred_at?: any;
@@ -58,10 +83,15 @@ export class AddSleepDto {
   @IsOptional()
   duration_hours?: any;
 
-  measured_at?: any;
+  @IsOptional()
+  @IsDateString()
+  measured_at?: string;
+
 
   @IsOptional()
-  source?: any;
+  @IsString()
+  source?: string;
+
 
 }
 

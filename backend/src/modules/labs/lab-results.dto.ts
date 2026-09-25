@@ -18,7 +18,9 @@ export class CreateDto {
   service_name_en?: any;
 
   @IsOptional()
-  attachments?: any;
+  @IsArray()
+  attachments?: unknown[];
+
 
   @IsOptional()
   findings?: any;

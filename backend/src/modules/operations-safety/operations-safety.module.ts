@@ -101,7 +101,7 @@ export class OperationsSafetyService {
   }
 
   /** Assess cancellation penalty (called by domains on cancel). */
-  async assessPenalty(args: { booking_id: string; kind: string; patient_id: string; provider_id?: string; scheduled_at?: Date; cancelled_at?: Date }) {
+  async assessPenalty(args: { booking_id: string; kind: string; patient_id: string; provider_id?: string; scheduled_at?: Date | string; cancelled_at?: Date | string }) {
     if (!args.scheduled_at) return null;
     const minutesBefore = (new Date(args.scheduled_at).getTime() - new Date(args.cancelled_at || new Date()).getTime()) / 60000;
     let amount = 0; let reason = 'no_penalty';

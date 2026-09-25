@@ -143,7 +143,7 @@ export class HospitalService {
     return this.departmentModel.find({ hospital_id: await this.objectIdForUser(hospitalId) });
   }
 
-  async addStaff(hospitalId: string, data: Partial<HospitalStaff>, actor?: any) {
+  async addStaff(hospitalId: string, data: { user_id?: string; full_name: string; name_ar?: string; name_en?: string; legal_name?: string; phone?: string; email?: string; password?: string; staff_role?: string; department?: string; scfhs?: string; permissions?: string[]; branch_id?: string; department_id?: string }, actor?: any) {
     this.assertFacilityActor(actor, true);
     const hospitalObjectId = await this.objectIdForUser(hospitalId);
     // Sub-account with login: create the central User, plus a full provider

@@ -1,14 +1,18 @@
-import { IsOptional } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class HandleRpcDto {
   @IsOptional()
-  jsonrpc?: any;
+  @IsString()
+  jsonrpc?: string;
+
 
   @IsOptional()
   id?: any;
 
   @IsOptional()
-  method?: any;
+  @IsString()
+  method?: string;
+
 
   @IsOptional()
   params?: any;

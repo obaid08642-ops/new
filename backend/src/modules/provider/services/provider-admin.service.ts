@@ -131,7 +131,7 @@ export class ProviderAdminService {
   async approve(user: any, id: string, body: any) {
     this.assertAdmin(user);
     const a = await this.accounts.findOne({ id }); if (!a) throw new NotFoundException();
-    await this.transition(a, ProviderAccountStatus.APPROVED, user, body?.note);
+    await this.transition(a, ProviderAccountStatus.APPROVED, user, body?.note || body?.reason);
     a.approved_at = new Date(); a.approved_by = user.id;
     // P2.2 role flip: the login identity becomes the provider type, and every
     // live session is revoked (both stores) so the new role takes effect now.
@@ -173,7 +173,7 @@ export class ProviderAdminService {
         },
       },
     );
-    await this.audit.create({ provider_account_id: id, actor_id: user.id, actor_role: 'admin', action: 'admin.provider_approved', after: { note: body?.note, commission: body?.commission, commission_cash: body?.commission_cash, commission_insurance: body?.commission_insurance } });
+    await this.audit.create({ provider_account_id: id, actor_id: user.id, actor_role: 'admin', action: 'admin.provider_approved', after: { note: body?.note || body?.reason, commission: body?.commission, commission_cash: body?.commission_cash, commission_insurance: body?.commission_insurance } });
 
     // Trigger Automatic SEO / Content / Discovery Pipeline
     const prof: any = await this.accounts.model.db.collection('provider_profiles').findOne({ account_id: id });

@@ -1,42 +1,52 @@
-import { IsArray, IsDefined, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsDefined, IsIn, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 
 export class BookDto {
   @IsDefined()
   @IsArray()
-  items: any[];
-
-  @IsOptional()
-  scheduled_at?: any;
-
-  @IsOptional()
-  payment_method?: any;
-
-  @IsOptional()
-  location_type?: any;
-
-  @IsOptional()
-  provider_account_id?: any;
+  items: unknown[];
 
   @IsDefined()
+  @IsString()
+  scheduled_at: string;
+
+  @IsOptional()
+  @IsString()
+  payment_method?: string;
+
+  @IsOptional()
+  @IsString()
+  location_type?: string;
+
+  @IsOptional()
+  @IsString()
+  provider_account_id?: string;
+
+  @IsOptional()
   @IsArray()
-  documents: any[];
-
-  contact?: any;
+  documents?: unknown[];
 
   @IsOptional()
-  facility_id?: any;
+  @IsObject()
+  contact?: Record<string, unknown>;
 
   @IsOptional()
-  address?: any;
+  @IsString()
+  facility_id?: string;
 
   @IsOptional()
-  notes?: any;
+  address?: unknown;
 
   @IsOptional()
-  insurance_provider?: any;
+  @IsString()
+  notes?: string;
 
   @IsOptional()
-  insurance_member_id?: any;
+  @IsString()
+  insurance_provider?: string;
+
+  @IsOptional()
+  @IsString()
+  insurance_member_id?: string;
 
 }
 
@@ -50,25 +60,41 @@ export class TransitionDto {
 }
 
 export class UploadDocDto {
-  @IsDefined()
+  @IsOptional()
   @IsString()
-  kind: string;
+  kind?: string;
 
-  @IsDefined()
+  @IsOptional()
   @IsString()
-  url_or_b64: string;
+  url_or_b64?: string;
+
+  @IsOptional()
+  @IsString()
+  data_url?: string;
+
+  @IsOptional()
+  @IsString()
+  note?: string;
 
   @IsOptional()
   @IsString()
   filename?: string;
+
+  @IsOptional()
+  @IsString()
+  uploaded_at?: string;
 }
 
 export class UpdateInsDto {
   @IsOptional()
-  status?: any;
+  @IsString()
+  status?: string;
+
 
   @IsOptional()
-  totalCopay?: any;
+  @IsNumber()
+  totalCopay?: number;
+
 
   @IsOptional()
   items?: any;
@@ -77,19 +103,27 @@ export class UpdateInsDto {
 
 export class OptInCashDto {
   @IsOptional()
-  optInCash?: any;
+  @IsBoolean()
+  optInCash?: boolean;
+
 
 }
 
 export class AssignTechDto {
   @IsOptional()
-  technician_id?: any;
+  @IsString()
+  technician_id?: string;
+
 
   @IsOptional()
-  technician_name?: any;
+  @IsString()
+  technician_name?: string;
+
 
   @IsOptional()
-  notes?: any;
+  @IsString()
+  notes?: string;
+
 
 }
 
@@ -99,26 +133,35 @@ export class UploadReportDto {
   name: string;
 
   @IsOptional()
-  mime?: any;
+  @IsString()
+  mime?: string;
 
   @IsOptional()
-  base64?: any;
+  @IsString()
+  base64?: string;
 
   @IsOptional()
-  url?: any;
+  @IsString()
+  url?: string;
 
   @IsOptional()
-  notes?: any;
+  @IsString()
+  notes?: string;
+
+  @IsOptional()
+  @IsString()
+  send_to?: string;
 
   @IsOptional()
   @IsArray()
-  structuredData: any[];
-
+  structuredData: unknown[];
 }
 
 export class RescheduleDto {
   @IsOptional()
-  new_date?: any;
+  @IsDateString()
+  new_date?: string;
+
 
   @IsOptional()
   @IsArray()
@@ -128,16 +171,24 @@ export class RescheduleDto {
 
 export class UpdateGpsDto {
   @IsOptional()
-  lat?: any;
+  @IsNumber()
+  lat?: number;
+
 
   @IsOptional()
-  lng?: any;
+  @IsNumber()
+  lng?: number;
+
 
   @IsOptional()
-  eta?: any;
+  @IsNumber()
+  eta?: number;
+
 
   @IsOptional()
-  distance?: any;
+  @IsNumber()
+  distance?: number;
+
 
 }
 
@@ -176,7 +227,9 @@ export class ForceStateDto {
 }
 
 export class UpdateStageDto {
-  stage: any;
+  @IsDefined()
+  @IsIn(['received', 'analyzing', 'result_ready', 'sent'])
+  stage: string;
 
   @IsOptional()
   @IsString()

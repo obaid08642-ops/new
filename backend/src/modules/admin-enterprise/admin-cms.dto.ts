@@ -1,102 +1,90 @@
-import { IsArray, IsDefined, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsDateString, IsDefined, IsOptional, IsString } from 'class-validator';
 
 export class UpsertDto {
-  reason?: any;
-
   @IsOptional()
-  title_ar?: any;
+  @IsString()
+  reason?: string;
 
   @IsDefined()
-  @IsArray()
-  tags: any[];
+  @IsString()
+  title_ar: string;
 
   @IsOptional()
   @IsString()
-  slug: string;
+  title_en?: string;
 
   @IsOptional()
-  id?: any;
+  @IsString()
+  excerpt_ar?: string;
 
   @IsOptional()
-  action?: any;
-
-  actor?: any;
-
-  @IsOptional()
-  target_type?: any;
+  @IsString()
+  excerpt_en?: string;
 
   @IsOptional()
-  target_id?: any;
+  @IsString()
+  body_ar?: string;
 
-  before?: any;
+  @IsOptional()
+  @IsString()
+  body_en?: string;
 
-  after?: any;
+  @IsOptional()
+  @IsString()
+  category?: string;
 
-  meta?: any;
+  @IsOptional()
+  @IsString()
+  cover_image?: string;
 
-  ip?: any;
+  @IsOptional()
+  @IsString()
+  author_name?: string;
 
-  user_agent?: any;
+  @IsOptional()
+  @IsString()
+  author_title?: string;
 
+  @IsOptional()
+  @IsString()
+  seo_description_ar?: string;
+
+  @IsOptional()
+  @IsString()
+  seo_description_en?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  tags?: string[];
+
+  @IsOptional()
+  @IsString()
+  slug?: string;
+
+  @IsOptional()
+  @IsString()
+  id?: string;
 }
 
 export class PublishDto {
-  reason?: any;
-
   @IsOptional()
-  action?: any;
-
-  actor?: any;
-
-  @IsOptional()
-  target_type?: any;
-
-  @IsOptional()
-  target_id?: any;
-
-  before?: any;
-
-  after?: any;
-
-  meta?: any;
-
-  ip?: any;
-
-  user_agent?: any;
-
+  @IsString()
+  reason?: string;
 }
 
 export class ScheduleDto {
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
 
   @IsOptional()
-  scheduled_at?: any;
-
+  @IsDateString()
+  scheduled_at?: string;
 }
 
 export class UnpublishDto {
-  reason?: any;
-
   @IsOptional()
-  action?: any;
-
-  actor?: any;
-
-  @IsOptional()
-  target_type?: any;
-
-  @IsOptional()
-  target_id?: any;
-
-  before?: any;
-
-  after?: any;
-
-  meta?: any;
-
-  ip?: any;
-
-  user_agent?: any;
-
+  @IsString()
+  reason?: string;
 }

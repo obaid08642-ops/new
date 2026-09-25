@@ -2,6 +2,7 @@ import { Controller, Get, Put, Body, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../../../common/auth.guard';
 import { Roles } from '../../../common/auth.guard';
 import { UserRole } from '../../../common/enums';
+import { SlaDto } from './admin-config.dto';
 
 @Controller('admin/config')
 @UseGuards(JwtAuthGuard)
@@ -21,7 +22,7 @@ export class AdminConfigController {
   @Roles(UserRole.ADMIN)
   @Put('sla')
   @Roles(UserRole.ADMIN)
-  async updateSLA(@Body() body: any) {
+  async updateSLA(@Body() body: SlaDto) {
     // In reality this updates SystemConfigExtended in DB
     return {
       status: 'success',

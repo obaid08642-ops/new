@@ -1,4 +1,23 @@
-import { IsArray, IsBoolean, IsDefined, IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDefined, IsIn, IsNumber, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
+
+export class BroadcastOfferItemDto {
+  @IsDefined()
+  @IsString()
+  order_item_id: string;
+
+  @IsDefined()
+  @IsIn(['available', 'unavailable', 'substitute'])
+  availability: 'available' | 'unavailable' | 'substitute';
+
+  @IsOptional()
+  @IsNumber()
+  qty_offered?: number;
+
+  @IsOptional()
+  @IsNumber()
+  unit_price_override?: number;
+}
 
 export class CreditWalletDto {
   @IsDefined()
@@ -6,19 +25,29 @@ export class CreditWalletDto {
   amount: number;
 
   @IsOptional()
-  referenceType?: any;
+  @IsIn(['booking', 'refund', 'referral'])
+  referenceType?: 'booking' | 'refund' | 'referral';
+
 
   @IsOptional()
-  referenceId?: any;
+  @IsString()
+  referenceId?: string;
+
 
   @IsOptional()
-  description?: any;
+  @IsString()
+  description?: string;
+
 
   @IsOptional()
-  ownerId?: any;
+  @IsString()
+  ownerId?: string;
+
 
   @IsOptional()
-  ownerType?: any;
+  @IsString()
+  ownerType?: string;
+
 
   @IsOptional()
   @IsIn(["credit", "debit"])
@@ -32,19 +61,29 @@ export class DebitWalletDto {
   amount: number;
 
   @IsOptional()
-  referenceType?: any;
+  @IsIn(['booking', 'refund', 'referral'])
+  referenceType?: 'booking' | 'refund' | 'referral';
+
 
   @IsOptional()
-  referenceId?: any;
+  @IsString()
+  referenceId?: string;
+
 
   @IsOptional()
-  description?: any;
+  @IsString()
+  description?: string;
+
 
   @IsOptional()
-  ownerId?: any;
+  @IsString()
+  ownerId?: string;
+
 
   @IsOptional()
-  ownerType?: any;
+  @IsString()
+  ownerType?: string;
+
 
   @IsOptional()
   @IsIn(["credit", "debit"])
@@ -54,24 +93,30 @@ export class DebitWalletDto {
 
 export class RespondToBroadcastDto {
   @IsOptional()
-  order_id?: any;
+  @IsString()
+  order_id?: string;
 
   @IsOptional()
-  orderId?: any;
+  @IsString()
+  orderId?: string;
 
   @IsOptional()
-  broadcast_order_id?: any;
+  @IsString()
+  broadcast_order_id?: string;
 
   @IsOptional()
   @IsArray()
-  items: any[];
+  @ValidateNested({ each: true })
+  @Type(() => BroadcastOfferItemDto)
+  items?: BroadcastOfferItemDto[];
 
   @IsOptional()
-  provider_note?: any;
+  @IsString()
+  provider_note?: string;
 
   @IsOptional()
-  eta_minutes?: any;
-
+  @IsNumber()
+  eta_minutes?: number;
 }
 
 export class ClaimReferralDto {

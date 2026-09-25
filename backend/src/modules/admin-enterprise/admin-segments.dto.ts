@@ -1,4 +1,4 @@
-import { IsOptional } from 'class-validator';
+import { IsDefined, IsOptional, IsString } from 'class-validator';
 
 export class PreviewDto {
   @IsOptional()
@@ -22,27 +22,7 @@ export class CreateDto {
 }
 
 export class RemoveDto {
-  reason?: any;
-
-  @IsOptional()
-  action?: any;
-
-  actor?: any;
-
-  @IsOptional()
-  target_type?: any;
-
-  @IsOptional()
-  target_id?: any;
-
-  before?: any;
-
-  after?: any;
-
-  meta?: any;
-
-  ip?: any;
-
-  user_agent?: any;
-
+  @IsDefined()
+  @IsString()
+  reason: string;
 }

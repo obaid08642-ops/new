@@ -1,11 +1,13 @@
-import { IsArray, IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class ReorderPartialDto {
   @IsOptional()
   delivery_address?: any;
 
   @IsOptional()
-  notes?: any;
+  @IsString()
+  notes?: string;
+
 
   @IsOptional()
   id?: any;
@@ -33,16 +35,22 @@ export class RejectBasketDto {
 
 export class OptInCashDto {
   @IsOptional()
-  optInCash?: any;
+  @IsBoolean()
+  optInCash?: boolean;
+
 
 }
 
 export class UpdateInsuranceApprovalDto {
   @IsOptional()
-  status?: any;
+  @IsString()
+  status?: string;
+
 
   @IsOptional()
-  totalCopay?: any;
+  @IsNumber()
+  totalCopay?: number;
+
 
   @IsOptional()
   items?: any;
@@ -57,13 +65,16 @@ export class RejectDto {
 
 export class PartialDto {
   @IsOptional()
-  unavailable_medicine_ids?: any;
-
+  @IsArray()
+  @IsString({ each: true })
+  unavailable_medicine_ids?: string[];
 }
 
 export class PlaceBidDto {
   @IsOptional()
-  expires_in_mins?: any;
+  @IsNumber()
+  expires_in_mins?: number;
+
   @IsDefined()
   @IsString()
   prescription_request_id: string;

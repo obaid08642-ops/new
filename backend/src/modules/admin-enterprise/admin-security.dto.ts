@@ -1,44 +1,31 @@
 import { IsArray, IsDefined, IsOptional, IsString } from 'class-validator';
 
 export class CreateRoleDto {
-  reason?: any;
+  @IsDefined()
+  @IsString()
+  reason: string;
+
+  @IsDefined()
+  @IsString()
+  key: string;
+
+  @IsDefined()
+  @IsString()
+  name_ar: string;
 
   @IsOptional()
-  key?: any;
+  @IsArray()
+  @IsString({ each: true })
+  system_protected_keys?: string[];
 
   @IsOptional()
-  name_ar?: any;
+  @IsArray()
+  @IsString({ each: true })
+  permissions?: string[];
 
   @IsOptional()
-  system_protected_keys?: any;
-
-  @IsOptional()
-  permissions?: any;
-
-  @IsOptional()
-  description_ar?: any;
-
-  @IsOptional()
-  action?: any;
-
-  actor?: any;
-
-  @IsOptional()
-  target_type?: any;
-
-  @IsOptional()
-  target_id?: any;
-
-  before?: any;
-
-  after?: any;
-
-  meta?: any;
-
-  ip?: any;
-
-  user_agent?: any;
-
+  @IsString()
+  description_ar?: string;
 }
 
 export class UpdateRoleDto {

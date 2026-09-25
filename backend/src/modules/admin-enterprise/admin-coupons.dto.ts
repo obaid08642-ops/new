@@ -1,108 +1,133 @@
-import { IsArray, IsDefined, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsDefined, IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateDto {
   @IsOptional()
-  reason?: any;
-
-  @IsOptional()
-  code?: any;
-
-  @IsOptional()
-  discount_type?: any;
-
-  @IsOptional()
-  value?: any;
-
-  @IsOptional()
-  title_ar?: any;
-
-  @IsOptional()
-  description_ar?: any;
-
-  @IsOptional()
-  min_basket?: any;
-
-  @IsOptional()
-  max_discount_cap?: any;
+  @IsString()
+  reason?: string;
 
   @IsDefined()
+  @IsString()
+  code: string;
+
+  @IsDefined()
+  @IsIn(['percent', 'amount'])
+  discount_type: string;
+
+  @IsDefined()
+  @IsNumber()
+  value: number;
+
+  @IsOptional()
+  @IsString()
+  title_ar?: string;
+
+  @IsOptional()
+  @IsString()
+  description_ar?: string;
+
+  @IsOptional()
+  @IsNumber()
+  min_basket?: number;
+
+  @IsOptional()
+  @IsNumber()
+  max_discount_cap?: number;
+
+  @IsOptional()
   @IsArray()
-  segments: any[];
+  @IsString({ each: true })
+  segments?: string[];
 
   @IsOptional()
-  starts_at?: any;
+  @IsDateString()
+  starts_at?: string;
 
   @IsOptional()
-  expires_at?: any;
+  @IsDateString()
+  expires_at?: string;
 
   @IsOptional()
-  usage_limit_total?: any;
+  @IsNumber()
+  usage_limit_total?: number;
 
   @IsOptional()
-  usage_limit_per_user?: any;
+  @IsNumber()
+  usage_limit_per_user?: number;
 
   @IsOptional()
-  active?: any;
-
+  @IsBoolean()
+  active?: boolean;
 }
 
 export class UpdateDto {
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
 
   @IsOptional()
-  active?: any;
+  @IsBoolean()
+  active?: boolean;
 
   @IsOptional()
-  min_basket?: any;
+  @IsNumber()
+  min_basket?: number;
 
   @IsOptional()
-  max_discount_cap?: any;
+  @IsNumber()
+  max_discount_cap?: number;
 
   @IsOptional()
-  usage_limit_total?: any;
+  @IsNumber()
+  usage_limit_total?: number;
 
   @IsOptional()
-  usage_limit_per_user?: any;
+  @IsNumber()
+  usage_limit_per_user?: number;
 
-  expires_at?: any;
+  @IsOptional()
+  @IsDateString()
+  expires_at?: string;
 
-  @IsDefined()
+  @IsOptional()
   @IsArray()
-  segments: any[];
+  @IsString({ each: true })
+  segments?: string[];
 
   @IsOptional()
-  value?: any;
-
+  @IsNumber()
+  value?: number;
 }
 
 export class ValidateDto {
   @IsOptional()
-  code?: any;
+  @IsString()
+  code?: string;
 
   @IsOptional()
-  basket_total?: any;
+  @IsNumber()
+  basket_total?: number;
 
   @IsOptional()
   @IsString()
-  user_id: string;
-
+  user_id?: string;
 }
 
 export class RedeemDto {
   @IsOptional()
-  code?: any;
+  @IsString()
+  code?: string;
 
   @IsOptional()
-  user_id?: any;
+  @IsString()
+  user_id?: string;
 
   @IsOptional()
-  order_id?: any;
-
+  @IsString()
+  order_id?: string;
 }
 
 export class RemoveDto {
   @IsOptional()
-  reason?: any;
-
+  @IsString()
+  reason?: string;
 }

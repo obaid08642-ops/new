@@ -1,20 +1,61 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsDefined, IsObject, IsOptional, IsString } from 'class-validator';
 
 export class BroadcastDto {
   @IsOptional()
-  name?: any;
+  @IsString()
+  name?: string;
+
+  @IsDefined()
+  @IsString()
+  title: string;
+
+  @IsDefined()
+  @IsString()
+  body: string;
+
+  @IsDefined()
+  @IsString()
+  segment: string;
+
   @IsOptional()
-  title?: any;
+  @IsObject()
+  deep_link?: Record<string, unknown>;
+
+  @IsOptional()
+  @IsDateString()
+  scheduled_at?: string;
 }
 
 export class CreateCampaignDto {
-  scheduled_at?: any;
+  @IsOptional()
+  @IsDateString()
+  scheduled_at?: string;
 
   @IsOptional()
   @IsString()
   name: string;
 
-  @IsOptional()
-  deep_link?: any;
+  @IsDefined()
+  @IsString()
+  title: string;
 
+  @IsDefined()
+  @IsString()
+  body: string;
+
+  @IsDefined()
+  @IsString()
+  segment: string;
+
+  @IsOptional()
+  @IsObject()
+  deep_link?: Record<string, unknown>;
+
+  @IsOptional()
+  @IsBoolean()
+  audience_confirmed?: boolean;
+
+  @IsOptional()
+  @IsArray()
+  variants?: Array<Record<string, unknown>>;
 }

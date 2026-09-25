@@ -1,7 +1,10 @@
-import { IsDefined, IsIn, IsString } from 'class-validator';
+import { IsDefined, IsIn, IsOptional, IsString } from 'class-validator';
 
 export class VerifyDto {
-  platform: any;
+  @IsDefined()
+  @IsIn(['android', 'ios'])
+  platform: 'android' | 'ios';
+
 
   @IsDefined()
   @IsString()

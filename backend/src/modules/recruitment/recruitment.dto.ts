@@ -1,19 +1,30 @@
-import { IsDefined, IsIn, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsDefined, IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class UpsertCandidateProfileDto {
   @IsOptional()
-  cv_url?: any;
+  @IsString()
+  cv_url?: string;
 
-  experiences?: any;
+  @IsOptional()
+  @IsArray()
+  experiences?: unknown[];
 
-  scfhs_license_number?: any;
+  @IsOptional()
+  @IsString()
+  scfhs_license_number?: string;
 
-  scfhs_license_status?: any;
+  @IsOptional()
+  @IsString()
+  scfhs_license_status?: string;
 
-  scfhs_license_expiry?: any;
+  @IsOptional()
+  @IsString()
+  scfhs_license_expiry?: string;
 
-  skills?: any;
-
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  skills?: string[];
 }
 
 export class CreateJobDto {
@@ -35,7 +46,9 @@ export class CreateJobDto {
   post_type: string;
 
   @IsOptional()
-  requirements?: any;
+  @IsArray()
+  requirements?: unknown[];
+
 
   @IsOptional()
   salary_range?: any;
@@ -44,7 +57,9 @@ export class CreateJobDto {
   facility_id?: any;
 
   @IsOptional()
-  status?: any;
+  @IsString()
+  status?: string;
+
 
   @IsOptional()
   company?: any;
@@ -59,7 +74,9 @@ export class CreateJobDto {
   nationality?: any;
 
   @IsOptional()
-  experience_years?: any;
+  @IsNumber()
+  experience_years?: number;
+
 
   @IsOptional()
   contract_type?: any;
@@ -123,7 +140,9 @@ export class GuestPostDto {
   nationality?: any;
 
   @IsOptional()
-  experience_years?: any;
+  @IsNumber()
+  experience_years?: number;
+
 
   @IsOptional()
   contract_type?: any;

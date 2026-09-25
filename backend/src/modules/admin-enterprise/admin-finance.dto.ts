@@ -1,15 +1,17 @@
-import { IsOptional } from 'class-validator';
+import { IsIn, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 
 export class UpdateConfigDto {
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
 
   @IsOptional()
-  rates?: any;
+  @IsObject()
+  rates?: Record<string, number>;
 
   @IsOptional()
-  vat_rate?: any;
-
+  @IsNumber()
+  vat_rate?: number;
 }
 
 export class ApprovePayoutDto {

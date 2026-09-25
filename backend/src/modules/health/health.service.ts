@@ -300,6 +300,9 @@ export class HealthService {
 
   private normalizeReminderInput(data: any, current?: any) {
     const source = { ...(current || {}), ...(data || {}) };
+    // Patient-app prescription flow uses medication_name/dosage vocabulary.
+    if (!source.medicine_name_ar && source.medication_name) source.medicine_name_ar = source.medication_name;
+    if (!source.dose && source.dosage) source.dose = source.dosage;
     const medicine_name_ar = String(source.medicine_name_ar || '').trim();
     if (!medicine_name_ar || medicine_name_ar.length > 160) throw new BadRequestException('valid medicine_name_ar required');
     const timezone = this.validateReminderTimezone(source.time_zone);
@@ -323,7 +326,7 @@ export class HealthService {
 
   async createReminder(user: any, data: any) {
     const normalized = this.normalizeReminderInput(data);
-    const dose = String(data?.dose || '').trim();
+    const dose = String(data?.dose || (data as any)?.dosage || '').trim();
     if (!dose || dose.length > 120) throw new BadRequestException('valid dose required');
     const refill_date = data?.refill_date ? new Date(data.refill_date) : undefined;
     if (refill_date && Number.isNaN(refill_date.getTime())) throw new BadRequestException('valid refill_date required');

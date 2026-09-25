@@ -1,7 +1,10 @@
-import { IsOptional } from 'class-validator';
+import { IsNumber, IsOptional } from 'class-validator';
 
 export class InitiatePaymentDto {
-  amount?: any;
+  @IsOptional()
+  @IsNumber()
+  amount?: number;
+
 
   @IsOptional()
   billing_data?: any;

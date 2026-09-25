@@ -1,9 +1,10 @@
-import { IsArray, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 
 export class CreateDtoGen2 {
   @IsOptional()
   @IsString()
-  title?: any;
+  title?: string;
+
 
   @IsOptional()
   @IsString()
@@ -12,18 +13,23 @@ export class CreateDtoGen2 {
   @IsOptional()
   assignee?: any;
 
-  due_date?: any;
+  @IsOptional()
+  @IsDateString()
+  due_date?: string;
+
 
 }
 
 export class CreateDto2Gen2 {
   @IsOptional()
   @IsString()
-  name_ar?: any;
+  name_ar?: string;
+
 
   @IsOptional()
   @IsString()
-  code?: any;
+  code?: string;
+
 
   @IsOptional()
   @IsString()
@@ -31,14 +37,17 @@ export class CreateDto2Gen2 {
 
   @IsOptional()
   @IsString()
-  sort?: any;
+  @IsNumber()
+  sort?: number;
+
 
 }
 
 export class CreateDto3 {
   @IsOptional()
   @IsString()
-  title_ar?: any;
+  title_ar?: string;
+
 
   @IsOptional()
   @IsString()
@@ -51,17 +60,22 @@ export class CreateDto3 {
   link?: any;
 
   @IsOptional()
-  sort?: any;
+  @IsNumber()
+  sort?: number;
+
 
   @IsOptional()
-  active?: any;
+  @IsBoolean()
+  active?: boolean;
+
 
 }
 
 export class CreateDto4 {
   @IsOptional()
   @IsString()
-  code?: any;
+  code?: string;
+
 
   discount_percent?: any;
 
@@ -69,24 +83,36 @@ export class CreateDto4 {
 
   max_uses?: any;
 
-  valid_from?: any;
+  @IsOptional()
+  @IsDateString()
+  valid_from?: string;
 
-  valid_until?: any;
+
+  @IsOptional()
+  @IsDateString()
+  valid_until?: string;
+
 
   min_order?: any;
 
   max_discount?: any;
 
-  usage_limit_per_user?: any;
+  @IsOptional()
+  @IsNumber()
+  usage_limit_per_user?: number;
+
 
   provider_id?: any;
 
   @IsOptional()
   @IsArray()
-  categories?: any;
+  categories?: unknown[];
+
 
   @IsOptional()
-  first_order_only?: any;
+  @IsBoolean()
+  first_order_only?: boolean;
+
 
   campaign_id?: any;
 
@@ -95,7 +121,8 @@ export class CreateDto4 {
 export class CreateDto5 {
   @IsOptional()
   @IsString()
-  title_ar?: any;
+  title_ar?: string;
+
 
   @IsOptional()
   provider_id?: any;
@@ -108,9 +135,15 @@ export class CreateDto5 {
 
   discounted_price?: any;
 
-  start_date?: any;
+  @IsOptional()
+  @IsDateString()
+  start_date?: string;
 
-  end_date?: any;
+
+  @IsOptional()
+  @IsDateString()
+  end_date?: string;
+
 
   @IsOptional()
   image_url?: any;
@@ -119,11 +152,16 @@ export class CreateDto5 {
   target_parameters?: any;
 
   @IsOptional()
-  status?: any;
+  @IsString()
+  status?: string;
+
 
 }
 
 export class UploadDto {
-  rows?: any;
+  @IsOptional()
+  @IsObject()
+  rows?: Record<string, unknown>;
+
 
 }

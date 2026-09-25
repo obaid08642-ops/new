@@ -2,7 +2,9 @@ import { IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateShiftDto {
   @IsOptional()
-  department_id?: any;
+  @IsString()
+  department_id?: string;
+
   @IsDefined()
   @IsString()
   user_id: string;
@@ -63,7 +65,9 @@ export class UpdateResourceDto {
   status?: any;
 
   @IsOptional()
-  capacity?: any;
+  @IsNumber()
+  capacity?: number;
+
 
   collection?: any;
 
