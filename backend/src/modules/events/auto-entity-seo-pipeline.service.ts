@@ -285,17 +285,17 @@ export class AutoEntitySeoPipelineService {
         return {
           ...base,
           '@type': 'Physician',
-          medicalSpecialty: doc.specialty || 'General Medicine',
+          medicalSpecialty: doc.specialty || undefined,
           address: {
             '@type': 'PostalAddress',
-            addressLocality: doc.city || 'Riyadh',
+            addressLocality: doc.city || undefined,
             addressCountry: 'SA',
           },
           priceRange: doc.price_clinic ? `SAR ${doc.price_clinic}` : undefined,
-          aggregateRating: doc.rating_avg ? {
+          aggregateRating: doc.rating_avg && (doc.rating_count || doc.reviews_count) ? {
             '@type': 'AggregateRating',
             ratingValue: doc.rating_avg,
-            reviewCount: doc.rating_count || doc.reviews_count || 1,
+            reviewCount: doc.rating_count || doc.reviews_count,
           } : undefined,
         };
 
@@ -305,7 +305,7 @@ export class AutoEntitySeoPipelineService {
           '@type': 'Pharmacy',
           address: {
             '@type': 'PostalAddress',
-            addressLocality: doc.city || 'Riyadh',
+            addressLocality: doc.city || undefined,
             addressCountry: 'SA',
             streetAddress: doc.address || doc.district,
           },
@@ -320,20 +320,20 @@ export class AutoEntitySeoPipelineService {
           '@type': 'Hospital',
           address: {
             '@type': 'PostalAddress',
-            addressLocality: doc.city || 'Riyadh',
+            addressLocality: doc.city || undefined,
             addressCountry: 'SA',
           },
-          availableService: doc.services || ['Emergency', 'Inpatient', 'Consultations'],
+          availableService: doc.services || undefined,
         };
 
       case 'clinic':
         return {
           ...base,
           '@type': 'MedicalClinic',
-          medicalSpecialty: doc.specialties || doc.specialty || 'Multispecialty',
+          medicalSpecialty: doc.specialties || doc.specialty || undefined,
           address: {
             '@type': 'PostalAddress',
-            addressLocality: doc.city || 'Riyadh',
+            addressLocality: doc.city || undefined,
             addressCountry: 'SA',
           },
         };
@@ -345,7 +345,7 @@ export class AutoEntitySeoPipelineService {
           name: `${name} - Medical Laboratory`,
           address: {
             '@type': 'PostalAddress',
-            addressLocality: doc.city || 'Riyadh',
+            addressLocality: doc.city || undefined,
             addressCountry: 'SA',
           },
         };
@@ -357,7 +357,7 @@ export class AutoEntitySeoPipelineService {
           name: `${name} - Diagnostic Imaging`,
           address: {
             '@type': 'PostalAddress',
-            addressLocality: doc.city || 'Riyadh',
+            addressLocality: doc.city || undefined,
             addressCountry: 'SA',
           },
         };
@@ -369,7 +369,7 @@ export class AutoEntitySeoPipelineService {
           name: `${name} - Home Nursing & Care`,
           address: {
             '@type': 'PostalAddress',
-            addressLocality: doc.city || 'Riyadh',
+            addressLocality: doc.city || undefined,
             addressCountry: 'SA',
           },
         };
@@ -378,7 +378,7 @@ export class AutoEntitySeoPipelineService {
         return {
           ...base,
           '@type': 'MedicalProcedure',
-          procedureType: doc.category || 'Nursing',
+          procedureType: doc.category || undefined,
           offers: doc.price ? {
             '@type': 'Offer',
             price: doc.price,
@@ -391,7 +391,7 @@ export class AutoEntitySeoPipelineService {
         return {
           ...base,
           '@type': 'MedicalTest',
-          sampleType: doc.sample_type || 'Blood',
+          sampleType: doc.sample_type || undefined,
           offers: doc.price ? {
             '@type': 'Offer',
             price: doc.price,

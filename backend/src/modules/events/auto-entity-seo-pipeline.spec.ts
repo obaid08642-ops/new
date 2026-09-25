@@ -541,3 +541,25 @@ describe('Fully Automatic Entity / Content / SEO / AEO / GEO Pipeline (20 Test S
     expect(sitemap).toContain('https://nabd.plus/ar/pharmacy/nabd-care-pharmacy-1');
   });
 });
+
+describe('F18 no fabricated JSON-LD', () => {
+  const svc = () => new AutoEntitySeoPipelineService({} as any, {} as any, {} as any);
+
+  it('omits aggregateRating when count is 0/missing (no reviewCount:1)', () => {
+    const out = svc().buildStructuredData('doctor', { name_en: 'Dr X' }, 'https://x');
+    expect(JSON.stringify(out)).not.toContain('reviewCount');
+    expect(out.aggregateRating).toBeUndefined();
+  });
+
+  it('keeps aggregateRating with a real count', () => {
+    const out = svc().buildStructuredData('doctor', { name_en: 'Dr X', rating_avg: 4.5, rating_count: 12 }, 'https://x');
+    expect(out.aggregateRating.reviewCount).toBe(12);
+  });
+
+  it('omits specialty/city fallbacks when unknown', () => {
+    const doc: any = { name_en: 'Dr X' };
+    const out = svc().buildStructuredData('doctor', doc, 'https://x');
+    expect(JSON.stringify(out)).not.toContain('General Medicine');
+    expect(JSON.stringify(out)).not.toContain('Riyadh');
+  });
+});
