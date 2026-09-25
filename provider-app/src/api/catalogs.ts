@@ -137,3 +137,38 @@ export function useServicesCatalog(type: SvcType): CatalogService[] {
   }, [type]);
   return list;
 }
+
+// ─── Specialties (F22) ───────────────────────────────────────────────────────
+// Canonical `specialties` collection via /catalogs/specialties (admin-managed).
+export interface SpecialtyEntry { id: string; ar: string; en: string }
+
+let specialtiesCache: { at: number; list: SpecialtyEntry[] } | null = null;
+
+export async function getSpecialtiesCatalog(force = false): Promise<SpecialtyEntry[]> {
+  if (!force && specialtiesCache && Date.now() - specialtiesCache.at < 5 * 60 * 1000) return specialtiesCache.list;
+  try {
+    const res = await client.get('/catalogs/specialties');
+    const raw = Array.isArray(res.data) ? res.data : [];
+    const list: SpecialtyEntry[] = raw
+      .map((x: any) => ({ id: String(x.code || x.id || ''), ar: x.name_ar || x.name_en || '', en: x.name_en || x.name_ar || '' }))
+      .filter((s) => s.id && s.ar);
+    if (list.length) {
+      specialtiesCache = { at: Date.now(), list };
+      return list;
+    }
+  } catch {
+    return [];
+  }
+  return [];
+}
+
+/** React hook: specialties from the backend catalog. */
+export function useSpecialtiesCatalog(): SpecialtyEntry[] {
+  const [list, setList] = useState<SpecialtyEntry[]>([]);
+  useEffect(() => {
+    let alive = true;
+    getSpecialtiesCatalog().then((l) => { if (alive) setList(l); });
+    return () => { alive = false; };
+  }, []);
+  return list;
+}

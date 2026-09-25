@@ -22,10 +22,11 @@ import {
  NBottomNav, NDivider, NPriceInput, NProfileImageUploader
 } from '../../components/ui';
 import { I, IBg } from '../../components/icons';
-import { SP, R, FS, FW, SPECIALTIES, API_BASE } from '../../constants';
+import { SP, R, FS, FW, API_BASE } from '../../constants';
+
 import { buildHeaders, Vault, SK } from '../../security/Security';
 import client from '../../api/client';
-import { useServicesCatalog, getInsuranceCatalog } from '../../api/catalogs';
+import { useServicesCatalog, getInsuranceCatalog, useSpecialtiesCatalog } from '../../api/catalogs';
 import { VideoCallRoom } from '../shared/VideoCallRoom';
 import { InsuranceRequestsScreen } from '../shared/InsuranceRequestsScreen';
 import { WithdrawalWorkflow, MedicalJobsScreen, MedicalDrugIndexScreen, InsuranceConfigScreen, GlobalSystemSettings, ChatSystem, MediaConfigScreen } from '../shared/SharedScreens';
@@ -676,7 +677,6 @@ function AppointmentDetailScreen({ apt, onBack, onNavigate }:
  <Text style={{ fontSize: FS.sm, color: 'tokens.info', textAlign: AR ? 'right' : 'left', marginTop: SP.xs }}>{AR ? 'لا توجد نتيجة ذكاء اصطناعي موثقة من الخادم لهذا الموعد.' : 'No server-recorded AI result is available for this appointment.'}</Text>
  </NCard>
 
-
  {[
  { icon:'clock', ar:'وقت الموعد', en:'Time', val:apt?.time || '—' },
  { icon:'video', ar:'نوع الخدمة', en:'Type', val:apt?.type === 'video' ? (AR?'استشارة فيديو':'Video Consult') : apt?.type === 'clinic' ? (AR?'كشف عيادة':'Clinic') : apt?.type ? (AR?'زيارة منزلية':'Home Visit') : '—' },
@@ -1212,6 +1212,7 @@ export function ReferralScreen({ apt, onBack }:
  { apt: any; onBack: () => void }) {
   const { theme } = useTheme();
   const { lang } = useLang();
+  const specialties = useSpecialtiesCatalog();
   const { show } = useToast();
   const AR = lang === 'ar';
   const [spec, setSpec] = useState('');
@@ -1286,7 +1287,7 @@ export function ReferralScreen({ apt, onBack }:
   {AR ? 'تحويل إلى تخصص' : 'Refer to Specialty'}<Text style={{ color: theme.danger }}> *</Text>
   </Text>
   <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: SP.sm }}>
-  {SPECIALTIES.slice(0, 12).map(s => (
+  {specialties.slice(0, 12).map(s => (
   <TouchableOpacity key={s.id} onPress={() => setSpec(s.id)}
   style={[styles.specChip, {
   backgroundColor: spec === s.id ? theme.primaryLight : theme.surface2,
@@ -1301,7 +1302,6 @@ export function ReferralScreen({ apt, onBack }:
   ))}
   </View>
   </View>
-
 
   <NInput label={AR ? 'سبب التحويل' : 'Reason for Referral'}
   placeholder={AR ? 'اشرح سبب التحويل ومعلومات ذات صلة...' : 'Explain the reason and relevant information...'}
@@ -1342,8 +1342,6 @@ export function ReferralScreen({ apt, onBack }:
   </NScroll>
   );
 }
-
-
 
 // ══════════════════════════════════════════════════════════════════════════════
 // REQUEST TEST SCREEN
@@ -2830,8 +2828,6 @@ export function DoctorServiceManagementScreen({ onBack }: { onBack: () => void }
  );
 }
 
-
-
 // ══════════════════════════════════════════════════════════════════════════════
 // STATISTICS & REPORTS SCREEN
 // ══════════════════════════════════════════════════════════════════════════════
@@ -3701,7 +3697,7 @@ export function DoctorLocationScreen({ onBack }: { onBack: () => void }) {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-// INSURANCE CONFIG SCREEN
+// insuranceCos CONFIG SCREEN
 // ══════════════════════════════════════════════════════════════════════════════
 
 // ══════════════════════════════════════════════════════════════════════════════
