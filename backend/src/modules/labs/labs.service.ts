@@ -12,10 +12,15 @@ import { LabSampleRepository } from "./repositories/labsample.repository";
 import { ProviderProfile, ProviderProfileDocument } from '../../schemas/provider-profile.schema';
 import { pick } from '../../common/sanitize';
 
-/** P3.3 (F15): writable catalog fields — id/_id/governance flags excluded. */
+/** P3.3 (F15): writable catalog fields — LabService model vocabulary (lab.schema).
+ * id/_id/is_deleted/governance flags excluded. */
 export const LAB_CATALOG_FIELDS = [
-  'lab_id', 'test_code', 'test_name_ar', 'test_name_en',
-  'in_lab_price', 'home_collection_price', 'accepts_insurance', 'reference_ranges',
+  'name_ar', 'name_en', 'short_code', 'description_ar', 'description_en',
+  'category', 'sample_type', 'price', 'old_price',
+  'fasting_required', 'fasting_hours', 'home_visit_supported', 'facility_visit_supported',
+  'turnaround_hours', 'preparation_ar', 'preparation_en',
+  'is_package', 'included_services', 'popularity', 'active', 'unavailable',
+  'medical_referral_required',
 ] as const;
 import { getEffectiveRoles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';

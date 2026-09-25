@@ -1,4 +1,4 @@
-import { IsArray, IsDefined, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class BookDto {
   @IsDefined()
@@ -186,61 +186,59 @@ export class UpdateStageDto {
 export class CreateLabCatalogDto {
   @IsDefined()
   @IsString()
-  lab_id: string;
+  name_ar: string;
 
   @IsDefined()
   @IsString()
-  test_code: string;
+  name_en: string;
 
   @IsDefined()
   @IsString()
-  test_name_ar: string;
+  category: string;
 
   @IsDefined()
+  price: number;
+
+  @IsOptional()
   @IsString()
-  test_name_en: string;
+  short_code?: string;
 
   @IsOptional()
-  in_lab_price?: number;
+  @IsString()
+  description_ar?: string;
 
   @IsOptional()
-  home_collection_price?: number;
+  @IsString()
+  description_en?: string;
 
   @IsOptional()
-  accepts_insurance?: boolean;
+  fasting_required?: boolean;
 
   @IsOptional()
-  @IsArray()
-  reference_ranges?: any[];
+  @IsNumber()
+  turnaround_hours?: number;
 }
 
 export class UpdateLabCatalogDto {
   @IsOptional()
   @IsString()
-  lab_id?: string;
+  name_ar?: string;
 
   @IsOptional()
   @IsString()
-  test_code?: string;
+  name_en?: string;
 
   @IsOptional()
   @IsString()
-  test_name_ar?: string;
+  category?: string;
 
   @IsOptional()
-  @IsString()
-  test_name_en?: string;
+  price?: number;
 
   @IsOptional()
-  in_lab_price?: number;
+  fasting_required?: boolean;
 
   @IsOptional()
-  home_collection_price?: number;
-
-  @IsOptional()
-  accepts_insurance?: boolean;
-
-  @IsOptional()
-  @IsArray()
-  reference_ranges?: any[];
+  @IsNumber()
+  turnaround_hours?: number;
 }

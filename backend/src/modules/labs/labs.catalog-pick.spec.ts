@@ -43,21 +43,21 @@ describe('P3.3 catalog mass-assignment guard', () => {
     it('strips id/_id/governance fields from $set, keeps price', async () => {
       mockSvc.findOneAndUpdate.mockResolvedValueOnce({ id: 'lab-1' });
       await service.updateCatalog({ role: 'admin' }, 'lab-1', {
-        id: 'x', _id: 'y', in_lab_price: 99, public_eligibility: true, medical_review_status: 'approved',
+        id: 'x', _id: 'y', price: 99, public_eligibility: true, medical_review_status: 'approved',
       } as any);
       expect(mockSvc.findOneAndUpdate).toHaveBeenCalledWith(
         { id: 'lab-1' },
-        { $set: { in_lab_price: 99 } },
+        { $set: { price: 99 } },
         { new: true },
       );
     });
 
     it('createCatalog never takes caller id', async () => {
       mockSvc.create.mockResolvedValueOnce({ id: 'generated' });
-      await service.createCatalog({ role: 'admin' }, { id: 'x', test_code: 'T1' } as any);
+      await service.createCatalog({ role: 'admin' }, { id: 'x', name_en: 'CBC', category: 'blood', price: 50 } as any);
       const arg = mockSvc.create.mock.calls[0][0];
       expect(arg.id).not.toBe('x');
-      expect(arg.test_code).toBe('T1');
+      expect(arg.name_en).toBe('CBC');
     });
   });
 });

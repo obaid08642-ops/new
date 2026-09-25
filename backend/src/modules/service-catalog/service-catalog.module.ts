@@ -1,4 +1,4 @@
-import { Module, Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards, ForbiddenException, NotFoundException, BadRequestException, Injectable } from '@nestjs/common';
+import { Module, Controller, Get, Post, Put, Patch, Delete, Body, Param, Query, UseGuards, ForbiddenException, NotFoundException, BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JwtAuthGuard, Roles, CurrentUser } from '../../common/auth.guard';
@@ -9,7 +9,7 @@ import { EventBusService } from '../events/event-bus.service';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
-import { CreateDto, ToggleDto, ApproveDto } from './service-catalog.dto';
+import { CreateDto, ToggleDto, ApproveDto, OfferingDto } from './service-catalog.dto';
 
 /** Provider catalog ownership map: tracks which lab/radiology service belongs to which provider account (extends existing catalog non-destructively via separate ownership doc). */
 @Schema({ timestamps: true, collection: 'service_ownership' })
@@ -22,6 +22,23 @@ export class ServiceOwnership extends Document {
 }
 export const ServiceOwnershipSchema = SchemaFactory.createForClass(ServiceOwnership);
 ServiceOwnershipSchema.index({ account_id: 1, entity_type: 1 });
+
+/**
+ * P5.1: provider-specific price/availability overlay on CANONICAL catalog items.
+ * Providers never copy catalog items to tweak price — they upsert an offering
+ * {provider_id, catalog_type, catalog_id, price?, available?} merged at read.
+ */
+@Schema({ timestamps: true, collection: 'provider_offerings' })
+export class ProviderOffering extends Document {
+  @Prop({ required: true, unique: true, default: () => uuidv4() }) id: string;
+  @Prop({ required: true, index: true }) provider_id: string;
+  @Prop({ required: true, index: true }) catalog_type: string; // 'lab' | 'radiology' | 'nursing'
+  @Prop({ required: true, index: true }) catalog_id: string;
+  @Prop({ type: Number }) price?: number;
+  @Prop({ type: Boolean }) available?: boolean;
+}
+export const ProviderOfferingSchema = SchemaFactory.createForClass(ProviderOffering);
+ProviderOfferingSchema.index({ provider_id: 1, catalog_type: 1, catalog_id: 1 }, { unique: true });
 
 /** Provider weekly schedule + blocked dates for labs/radiology/home services. */
 @Schema({ timestamps: true, collection: 'provider_schedules' })
@@ -57,6 +74,7 @@ export class ServiceCatalogService {
     @InjectModel('LabService') private labs: Model<LabService>,
     @InjectModel('RadiologyService') private rads: Model<RadiologyService>,
     @InjectModel('ServiceOwnership') private own: Model<ServiceOwnership>,
+    @InjectModel('ProviderOffering') private offers: Model<ProviderOffering>,
     @InjectModel('ProviderSchedule') private sched: Model<ProviderSchedule>,
     private bus: EventBusService,
   ) {}
@@ -72,7 +90,31 @@ export class ServiceCatalogService {
     const ids = ownerships.map(o => o.entity_id);
     const Model: any = entity_type === 'lab' ? this.labs : this.rads;
     const services = ids.length ? await Model.find({ id: { $in: ids } }, { _id: 0, __v: 0 }).lean() : [];
-    return services.map((s: any) => ({ ...s, owned: true, approved: ownerships.find(o => o.entity_id === s.id)?.approved !== false }));
+    // P5.1: merge this provider's price/availability overlay (no catalog copies).
+    const overlays = await this.offers.find({ provider_id: user.id, catalog_type: entity_type }).lean();
+    const byId = new Map(overlays.map(o => [o.catalog_id, o]));
+    return services.map((s: any) => {
+      const o: any = byId.get(s.id);
+      return {
+        ...s,
+        owned: true,
+        approved: ownerships.find(ow => ow.entity_id === s.id)?.approved !== false,
+        ...(o ? { my_price: o.price ?? s.price, my_available: o.available ?? true } : {}),
+      };
+    });
+  }
+
+  /** P5.1: upsert provider price/availability overlay on a canonical item. */
+  async upsertOffering(user: any, catalog_type: string, catalog_id: string, patch: { price?: number; available?: boolean }) {
+    this.assertProvider(user);
+    if (!['lab', 'radiology', 'nursing'].includes(catalog_type)) throw new BadRequestException('bad_catalog_type');
+    if (patch.price !== undefined && !(Number(patch.price) >= 0)) throw new BadRequestException('bad_price');
+    const r = await this.offers.findOneAndUpdate(
+      { provider_id: user.id, catalog_type, catalog_id },
+      { $set: { ...(patch.price !== undefined ? { price: Number(patch.price) } : {}), ...(patch.available !== undefined ? { available: !!patch.available } : {}) } },
+      { new: true, upsert: true },
+    ).lean();
+    return { id: (r as any).id, provider_id: user.id, catalog_type, catalog_id, price: (r as any).price ?? null, available: (r as any).available ?? true };
   }
 
   async createService(user: any, entity_type: 'lab' | 'radiology', data: any) {
@@ -198,6 +240,9 @@ export class ServiceCatalogController {
   @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
   @Delete('mine/:type/:id') del(@Param('type') t: 'lab' | 'radiology', @Param('id') id: string, @CurrentUser() u: any) { return this.svc.deleteService(u, t, id); }
 
+  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
+  @Put('mine/:type/offers/:catalogId') offer(@Param('type') t: string, @Param('catalogId') catalogId: string, @Body() b: OfferingDto, @CurrentUser() u: any) { return this.svc.upsertOffering(u, t, catalogId, b); }
+
   @Get('schedule/:entity') sched(@Param('entity') e: string, @CurrentUser() u: any) { return this.svc.getSchedule(u, e); }
   @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
   @Patch('schedule/:entity') setSched(@Param('entity') e: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.upsertSchedule(u, e, b); }
@@ -213,6 +258,7 @@ export class ServiceCatalogController {
     { name: 'RadiologyService', schema: RadiologyServiceSchema },
     { name: 'ServiceOwnership', schema: ServiceOwnershipSchema },
     { name: 'ProviderSchedule', schema: ProviderScheduleSchema },
+    { name: 'ProviderOffering', schema: ProviderOfferingSchema },
   ])],
   controllers: [ServiceCatalogController],
   providers: [ServiceCatalogService],

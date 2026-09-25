@@ -1,6 +1,8 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
+import * as fs from 'fs';
+import * as path from 'path';
 
 /**
  * Market-gap nursing additions (competitor audit).
@@ -36,5 +38,71 @@ export class CatalogsSeedService implements OnModuleInit {
       } catch { /* already live */ }
     }
     if (ok) this.logger.log(`Seeded ${ok} new nursing services`);
+    // P5.1: seed-data JSONs are the insert-only bootstrap source (never a read
+    // fallback). Same keys as the one-shot migration script.
+    ok = 0;
+    try {
+      const dir = path.join(__dirname, 'seed-data');
+      const slug = (s: string) => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '').slice(0, 60) || 'item';
+      const read = (f: string): any[] => {
+        try { return JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8')); } catch { return []; }
+      };
+      for (const x of read('labs.json')) {
+        const code = x.short_code || slug(x.name_en);
+        try {
+          const r: any = await this.conn.collection('labservices').updateOne(
+            { test_code: code }, { $setOnInsert: { ...x, test_code: code, id: x.id || code } }, { upsert: true });
+          if (r.upsertedCount || r.upsertedId) ok++;
+        } catch { /* already live */ }
+      }
+      for (const x of read('radiology.json')) {
+        const code = x.short_code || slug(x.name_en);
+        try {
+          const r: any = await this.conn.collection('radiologyservices').updateOne(
+            { short_code: code }, { $setOnInsert: { ...x, id: x.id || code } }, { upsert: true });
+          if (r.upsertedCount || r.upsertedId) ok++;
+        } catch { /* already live */ }
+      }
+      for (const x of read('nursing.json')) {        const id = x.id || slug(x.name_en);
+        try {
+          const r: any = await this.conn.collection('nursing_catalog').updateOne(
+            { id }, { $setOnInsert: { ...x, id, code: x.code || id } }, { upsert: true });
+          if (r.upsertedCount || r.upsertedId) ok++;
+        } catch { /* already live */ }
+      }
+      for (const x of read('specialties.json')) {
+        const code = x.code || slug(x.name_en);
+        try {
+          const r: any = await this.conn.collection('specialties').updateOne(
+            { code }, { $setOnInsert: { ...x, code } }, { upsert: true });
+          if (r.upsertedCount || r.upsertedId) ok++;
+        } catch { /* already live */ }
+      }
+      for (const x of read('insurance.json')) {
+        try {
+          const co: any = await this.conn.collection('insurancecompanies').findOne({ code: x.code });
+          let companyId = co?.id;
+          if (!co) {
+            companyId = require('uuid').v4();
+            await this.conn.collection('insurancecompanies').updateOne({ code: x.code },
+              { $setOnInsert: { id: companyId, code: x.code, name_ar: x.name_ar, name_en: x.name_en, logo_url: x.image_url, is_active: x.is_active !== false, catalog_status: 'pending_review', provenance: 'seed-data' } },
+              { upsert: true });
+            ok++;
+          }
+          for (const t of x.plans || []) {
+            try {
+              const r: any = await this.conn.collection('insurance_networks').updateOne(
+                { company_id: companyId, code: `tier-${t.tier_level}` },
+                { $setOnInsert: { id: require('uuid').v4(), company_id: companyId, code: `tier-${t.tier_level}`, name_ar: t.name_ar, name_en: t.name_en, tier_level: t.tier_level, catalog_status: 'pending_review', provenance: 'seed-data' } },
+                { upsert: true });
+              if (r.upsertedCount || r.upsertedId) ok++;
+            } catch { /* already live */ }
+          }
+        } catch { /* already live */ }
+      }
+    } catch (e: any) {
+      this.logger.warn(`Catalog seed-data bootstrap failed: ${e?.message}`);
+    }
+    if (ok) this.logger.log(`Seeded ${ok} catalog docs from seed-data`);
   }
 }

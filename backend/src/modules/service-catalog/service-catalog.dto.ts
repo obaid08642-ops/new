@@ -29,3 +29,11 @@ export class ApproveDto {
   approve?: any;
 
 }
+
+export class OfferingDto {
+  @IsOptional()
+  price?: any;
+
+  @IsOptional()
+  available?: any;
+}
