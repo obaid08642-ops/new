@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
 import * as crypto from 'crypto';
 
 export interface TurnCredentials {
@@ -44,12 +44,18 @@ export class CoturnService {
     ];
   }
 
+  /** True only when a real TURN host is configured (never the placeholder). */
+  isConfigured(): boolean {
+    return !!process.env.COTURN_HOST || !!process.env.TURN_URLS;
+  }
+
   /**
    * Generate time-limited TURN credentials using HMAC-SHA1.
    * Compatible with Coturn's REST API auth (--use-auth-secret flag).
    * The username format `<expiry-timestamp>:<userId>` is the Coturn REST API standard.
    */
   generateCredentials(userId: string, ttlSeconds = 86400): TurnCredentials {
+    if (!this.isConfigured()) throw new ServiceUnavailableException('coturn_not_configured');
     const timestamp = Math.floor(Date.now() / 1000) + ttlSeconds;
     const username = `${timestamp}:${userId}`;
     const credential = crypto
