@@ -107,7 +107,7 @@ export class AiController {
     },
   }))
   parseExcel(@UploadedFile() file: any) {
-    if (!file) throw new Error('No file uploaded');
+    if (!file) throw new BadRequestException('No file uploaded');
     return this.svc.parseExcel(file.buffer);
   }
 

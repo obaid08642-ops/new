@@ -3,7 +3,7 @@
  * full admin audit log, license monitoring, insurance matrix, SLA dashboard,
  * consent management, version diff, country-ready targeting.
  */
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { Cron, CronExpression } from '@nestjs/schedule';
@@ -393,7 +393,7 @@ export class LegalEnterpriseService {
 
   async setConsent(userId: string, type: string, value: boolean, meta: { ip?: string; device?: string }) {
     if (!LegalEnterpriseService.CONSENT_TYPES.includes(type)) {
-      throw new Error(`unknown consent type: ${type}`);
+      throw new BadRequestException(`unknown consent type: ${type}`);
     }
     await this.consents.updateOne(
       { user_id: userId },

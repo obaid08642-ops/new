@@ -1,3 +1,4 @@
+import { BadRequestException, ForbiddenException } from '@nestjs/common';
 /**
  * A4-extension — Dynamic segments builder.
  *
@@ -70,7 +71,7 @@ export function compileRule(rule: SegmentRule): Record<string, any> {
       return { [field]: { $gte: lo, $lte: hi } };
     }
     default:
-      throw new Error(`unsupported_op:${op}`);
+      throw new BadRequestException(`unsupported_op:${op}`);
   }
 }
 
@@ -89,10 +90,10 @@ function normalize(field: string, v: any) {
  */
 export function compileSegment(def: SegmentDefinition): Record<string, any> {
   if (!def || !Array.isArray(def.rules) || def.rules.length === 0) {
-    throw new Error('segment_rules_required');
+    throw new BadRequestException('segment_rules_required');
   }
   for (const r of def.rules) {
-    if (!isAllowedField(r?.field)) throw new Error(`forbidden_field:${r?.field}`);
+    if (!isAllowedField(r?.field)) throw new ForbiddenException(`forbidden_field:${r?.field}`);
   }
   const conditions = def.rules.map(compileRule);
   if (conditions.length === 1) return { role: 'patient', ...conditions[0] };
