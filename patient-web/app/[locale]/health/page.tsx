@@ -27,6 +27,7 @@ const quickActions = [
   { key: "refills", href: "health/refills", icon: Bell, color: "#059669" },
   { key: "conditions", href: "health/conditions-allergies", icon: FileText, color: "#DC2626" },
   { key: "wearables", href: "health/wearables", icon: Activity, color: "#8B5CF6" },
+  // F20: filtered below unless NEXT_PUBLIC_WEARABLES_ENABLED=true
 ] as const;
 const quickLabels: Record<string, Record<string, string>> = {
   ar: { prescriptions: "وصفاتي", family: "العائلة", reminders: "تذكيراتي", chat: "محادثة", sleep: "النوم", chronicDiseases: "الحالات المزمنة", chronicMedications: "الأدوية المزمنة", trends: "الاتجاهات", vitalsHistory: "سجل المؤشرات", medications: "أدويتي", refills: "إعادة الصرف", conditions: "الحالات والحساسية" , wearables: "الأجهزة القابلة للارتداء"},
@@ -63,7 +64,9 @@ export default async function HealthPage({ params }: Props) {
         </span>
       </section>
       <nav className={styles.quickGrid} aria-label={t("title")}>
-        {quickActions.map(({ key, href, icon: Icon, color }) => (
+        {quickActions
+          .filter((a) => a.key !== 'wearables' || process.env.NEXT_PUBLIC_WEARABLES_ENABLED === 'true')
+          .map(({ key, href, icon: Icon, color }) => (
           <Link className={styles.quickAction} key={key} href={`/${locale}/${href}`} style={{ "--quick-color": color } as CSSProperties}>
             <span><Icon size={21} aria-hidden="true" /></span>
             <strong>{labels[key]}</strong>

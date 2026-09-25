@@ -21,6 +21,7 @@ import {
   SectionHeader,
 } from "../../src/components/ui";
 import { apiFetch } from "../../src/utils/api";
+import { featureFlags } from "../../src/services/FeatureFlags";
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
 const FIELDS = [
@@ -103,6 +104,16 @@ const FIELDS = [
 export default function WearablesHubScreen() {
   const insets = useSafeAreaInsets();
   const { colors, isDark } = useApp();
+
+  // F20: hidden until real HealthKit/Health Connect integration.
+  if (!featureFlags.isEnabled('wearables_enabled')) {
+    return (
+      <View style={[st.c, { backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center' }]}>
+        <StatusBar barStyle="light-content" />
+        <AppText style={{ fontSize: 17, textAlign: 'center', padding: 24 }}>تسجيل القراءات من الأجهزة غير متاح حاليًا — قريبًا.</AppText>
+      </View>
+    );
+  }
 
   const [values, setValues] = useState({});
   const [saving, setSaving] = useState(false);
