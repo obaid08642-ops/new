@@ -152,7 +152,7 @@ export class AiGatewayService {
   /** Unified generation with automatic fallback across the chain. */
   async generate(opts: AiGenerateOptions): Promise<AiGenerateResult> {
     const chain = await this.attemptChain(opts.feature);
-    if (chain.length === 0) throw new ServiceUnavailableException('NO_AI_PROVIDER_AVAILABLE');
+    if (chain.length === 0) throw new ServiceUnavailableException('ai_provider_unavailable');
 
     let lastErr: any = null;
     let fellBack = false;
@@ -181,7 +181,8 @@ export class AiGatewayService {
         lastErr = e;
       }
     }
-    throw lastErr || new Error('ALL_AI_PROVIDERS_FAILED');
+    if (lastErr instanceof BadGatewayException || lastErr instanceof ServiceUnavailableException) throw lastErr;
+    throw new BadGatewayException('ai_upstream_error');
   }
 
   private modelFor(p: ProviderConfig, vision = false): string {
