@@ -5,7 +5,7 @@ import { v4 as uuid } from 'uuid';
 
 @Schema({ timestamps: true, collection: 'users' })
 export class User {
-  @Prop({ default: () => uuid() }) id: string;
+  @Prop({ default: () => uuid(), index: true }) id: string; // indexed: JwtAuthGuard reads token_version by id on every request (F09)
   @Prop() full_name: string;
   @Prop({ unique: true, sparse: true }) phone: string;
   @Prop({ unique: true, sparse: true }) email?: string;

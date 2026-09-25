@@ -12,6 +12,7 @@ import { PatientProfile } from '../../schemas/patient-profile.schema';
 import { RedisService } from '../redis/redis.service';
 import { randomUUID } from 'crypto';
 import { ProductRankingEventService } from '../product-ranking/product-ranking-event.service';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class UsersService {
@@ -23,6 +24,7 @@ export class UsersService {
     private readonly redisService: RedisService,
     @Optional() private readonly events?: EventEmitter2,
     @Optional() private readonly rankingEvents?: ProductRankingEventService,
+    @Optional() private readonly auth?: AuthService,
   ) {}
 
   async getWishlist(userId: string) {
@@ -294,8 +296,12 @@ export class UsersService {
     return this.setSetting(id, 'security_settings', body);
   }
 
-  /** Real password change: verify current hash, then rotate. */
-  async changePassword(id: string, body: any) {
+  /**
+   * Real password change: verify current hash, then rotate.
+   * P3.0a: ends every other session (access AND refresh, patient AND linked
+   * provider) and returns a fresh pair for the device that made the change.
+   */
+  async changePassword(id: string, body: any, deviceId?: string) {
     const current = String(body?.current_password || '');
     const next = String(body?.new_password || '');
     if (next.length < 8) throw new BadRequestException('كلمة المرور الجديدة يجب أن تكون 8 أحرف على الأقل');
@@ -306,9 +312,11 @@ export class UsersService {
       if (!ok) throw new UnauthorizedException('كلمة المرور الحالية غير صحيحة');
     }
     const hash = await bcrypt.hash(next, 12);
-    // F09: password change revokes all other sessions immediately.
+    // F09: bump token_version in the same write as the new hash.
     await this.userRepository.updateOne({ id }, { $set: { password_hash: hash }, $inc: { token_version: 1 } });
-    return { success: true };
+    if (!this.auth) return { success: true };
+    const tokens = await this.auth.rotateSessionsAfterPasswordChange(id, deviceId);
+    return { success: true, access_token: tokens.accessToken, refresh_token: tokens.refreshToken };
   }
 
   /** Active sessions = live refresh tokens tracked in Redis (device-bound, 7d TTL). */

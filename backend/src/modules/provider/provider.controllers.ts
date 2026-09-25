@@ -48,6 +48,16 @@ export class ProviderAuthController {
   verifyResetCode(@Body() body: VerifyResetCodeDto, @Req() req: any) { return this.svc.verifyResetCode({ email: body.email, code: body.code, meta: meta(req) }); }
   @Public() @Post('reset-password')
   reset(@Body() body: ResetDto, @Req() req: any) { return this.svc.resetPassword({ email: body.email, code: body.code, new_password: body.new_password, meta: meta(req) }); }
+  @SelfService()
+  @Post('change-password')
+  changePassword(@CurrentUser() user: any, @Body() body: any, @Req() req: any) {
+    return this.svc.changePassword(user, {
+      current_password: body?.current_password,
+      new_password: body?.new_password,
+      device_identifier: body?.device_identifier || req?.headers?.['x-device-id'],
+      meta: meta(req),
+    });
+  }
   @Get('me')
   me(@CurrentUser() user: any) { return this.svc.me(user); }
 }

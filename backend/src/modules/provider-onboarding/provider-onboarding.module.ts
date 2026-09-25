@@ -357,16 +357,14 @@ export class ProviderOnboardingService {
     if (!existing) {
       // P2.1 single provider identity: the business record shares the login
       // identity id (provider_accounts.id = users.id) and ALWAYS stores
-      // user_id, so findOne({user_id}) can never miss. The real password hash
-      // is mirrored too — otherwise post-approval /provider/auth/login could
-      // never verify credentials.
+      // user_id, so findOne({user_id}) can never miss. P3.0b: no password is
+      // copied — /provider/auth/login verifies against users.password_hash.
       const accountId = user.id;
       await accounts.insertOne({
         id: accountId,
         user_id: user.id,
         email,
         phone_e164: fullUser?.phone,
-        password_hash: fullUser?.password_hash || 'onboarding',
         provider_type: ptype,
         display_name_ar: displayNameAr,
         display_name_en: displayNameEn,
@@ -386,9 +384,8 @@ export class ProviderOnboardingService {
       if (current !== 'approved' && current !== 'suspended') {
         await accounts.updateOne({ id: existing.id }, {
           $set: {
-            // Backfill the 1:1 link + credential for pre-P2.1 mirrored rows.
+            // Backfill the 1:1 link for pre-P2.1 mirrored rows (credential stays on users, P3.0b).
             user_id: user.id,
-            password_hash: fullUser?.password_hash || existing.password_hash || 'onboarding',
             provider_type: ptype,
             display_name_ar: displayNameAr || existing.display_name_ar,
             display_name_en: displayNameEn || existing.display_name_en,

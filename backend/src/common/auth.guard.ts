@@ -107,29 +107,38 @@ export class JwtAuthGuard implements CanActivate {
     // Attach original user payload to request. Support tokens are validated against
     // durable session on every request, so revoke/expiry takes effect immediately.
     req.user = payload;
-    // F09 session revocation: every access token carries `tv` (token_version).
+    // F09 session revocation: login access tokens carry `tv` (token_version).
     // Ban, suspend, password change and role change bump the stored version,
-    // so stale tokens 401 on their next request. Unknown subject ids (service
-    // tokens with no tracked account) fail open — there is nothing to revoke.
-    // On public routes a stale token degrades to anonymous, matching the
-    // existing invalid-token leniency for public endpoints.
+    // so stale tokens 401 on their next request. On public routes a stale
+    // token degrades to anonymous, matching the existing invalid-token
+    // leniency for public endpoints.
+    //
+    // The version is compared against the store that SIGNED the token:
+    // provider-scope tokens are signed from provider_accounts.token_version,
+    // everything else from users.token_version. Since P2.1 a provider account
+    // shares its id with the linked user, so checking users first would
+    // compare against the wrong counter (suspend would not revoke, and a
+    // provider password reset would lock the provider out).
+    //
+    // Tokens without `tv` (impersonation/support sessions — validated against
+    // their durable session above — health-passport QR tokens, and access
+    // tokens issued before this release, max 1h) are not version-checked.
     const subjectId = payload?.id || payload?.sub;
-    if (subjectId) {
+    if (subjectId && payload?.tv !== undefined && payload?.tv !== null) {
       // Throw-safe lookup: test doubles may return non-promises or throw
       // synchronously; any lookup failure degrades to "unknown subject".
       const lookup = async (fn: () => any) => {
         try { return (await fn()) || null; } catch { return null; }
       };
-      let current: any = await lookup(() => this.connection.collection('users').findOne(
-        { id: subjectId }, { projection: { token_version: 1 } },
-      ));
-      if (!current) {
-        current = await lookup(() => this.connection.collection('provider_accounts').findOne(
-          { $or: [{ id: subjectId }, { user_id: subjectId }] }, { projection: { token_version: 1 } },
+      const current: any = payload?.scope === 'provider'
+        ? await lookup(() => this.connection.collection('provider_accounts').findOne(
+          { id: subjectId }, { projection: { token_version: 1 } },
+        ))
+        : await lookup(() => this.connection.collection('users').findOne(
+          { id: subjectId }, { projection: { token_version: 1 } },
         ));
-      }
       const currentTv = Number(current?.token_version ?? 0);
-      const tokenTv = Number(payload?.tv ?? 0);
+      const tokenTv = Number(payload.tv);
       if (tokenTv !== currentTv) {
         if (isPublic) {
           req.user = undefined;
