@@ -22,6 +22,7 @@ import { HomeCareBookingSchema, HomeCareBooking } from '../../schemas/home-care.
 import { Appointment, AppointmentSchema } from '../../schemas/appointment.schema';
 import { ProviderProfile, ProviderProfileSchema } from '../../schemas/provider-profile.schema';
 import { ServiceDomain } from '../../common/enums';
+import { MarkDto, AddAttDto } from './booking-ops.dto';
 
 @Schema({ collection: 'booking_attachments', timestamps: true })
 export class BookingAttachment extends Document {
@@ -184,8 +185,8 @@ export class BookingOpsController {
   constructor(private svc: BookingOpsService) {}
   @Get('invoice/:type/:id') invoice(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string) { return this.svc.invoice(u, t, id); }
   @Get('payment/:type/:id') payment(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string) { return this.svc.payment(u, t, id); }
-  @Post('payment/:type/:id/mark') mark(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Body() b: any) { return this.svc.markPayment(u, t, id, b); }
-  @Post('attachments/:type/:id') addAtt(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Body() b: any) { return this.svc.addAttachment(u, t, id, b); }
+  @Post('payment/:type/:id/mark') mark(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Body() b: MarkDto) { return this.svc.markPayment(u, t, id, b); }
+  @Post('attachments/:type/:id') addAtt(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Body() b: AddAttDto) { return this.svc.addAttachment(u, t, id, b); }
   @Get('attachments/:type/:id') listAtt(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string) { return this.svc.listAttachments(u, t, id); }
 }
 

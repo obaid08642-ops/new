@@ -7,6 +7,7 @@ import { Appointment } from '../../../schemas/appointment.schema';
 import { ProviderProfile } from '../../../schemas/provider-profile.schema';
 import { UserRole } from '../../../common/enums';
 import { Roles } from '../../../common/auth.guard';
+import { GetBranchFinancialsDto } from './hospital-enterprise.dto';
 
 @Controller('providers/enterprise')
 @Roles(UserRole.HOSPITAL, UserRole.HOSPITAL_ADMIN, UserRole.ADMIN)
@@ -73,7 +74,7 @@ export class HospitalEnterpriseController {
   async getBranchFinancials(
     @Param('hospitalId') hospitalId: string,
     @Param('branchId') branchId: string,
-    @Body() securityContext: { requestorId: string }
+    @Body() securityContext: GetBranchFinancialsDto
   ) {
     // ENFORCE SECURITY WALL
     if (!securityContext?.requestorId) {

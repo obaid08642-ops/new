@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, ServiceUnavailableException, UnauthorizedException } from '@nestjs/common';
 import axios from 'axios';
 
 @Injectable()
@@ -18,7 +18,7 @@ export class PaymobService {
   }
   
   async initiate(payload: any): Promise<any> {
-    if (!process.env.PAYMOB_API_KEY) throw new Error('PAYMOB_NOT_CONFIGURED');
+    if (!process.env.PAYMOB_API_KEY) throw new ServiceUnavailableException('PAYMOB_NOT_CONFIGURED');
     
     // 1. Authentication Request
     const authRes = await axios.post('https://accept.paymob.com/api/auth/tokens', {
@@ -54,14 +54,14 @@ export class PaymobService {
   }
 
   async verify(payload: any): Promise<any> {
-    if (!process.env.PAYMOB_HMAC_SECRET) throw new Error('PAYMOB_NOT_CONFIGURED');
+    if (!process.env.PAYMOB_HMAC_SECRET) throw new ServiceUnavailableException('PAYMOB_NOT_CONFIGURED');
 
     // M0-05: complete HMAC-SHA512 verification.
     // Paymob wraps the transaction in `obj` and sends the signature in `hmac`.
     const crypto = require('crypto');
     const txn = payload?.obj ? payload.obj : payload;
     const receivedHmac: string | undefined = payload?.hmac;
-    if (!receivedHmac) throw new Error('MISSING_PAYMOB_SIGNATURE');
+    if (!receivedHmac) throw new BadRequestException('MISSING_PAYMOB_SIGNATURE');
 
     // Standard Paymob HMAC concatenated fields (order matters)
     const fields = [
@@ -89,7 +89,7 @@ export class PaymobService {
     const b = Buffer.from(String(receivedHmac), 'utf8');
     if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) {
       this.logger.warn('Paymob webhook rejected: invalid HMAC signature');
-      throw new Error('INVALID_PAYMOB_SIGNATURE');
+      throw new UnauthorizedException('INVALID_PAYMOB_SIGNATURE');
     }
 
     return { status: txn.success === true || txn.success === 'true' ? 'verified' : 'failed', data: txn };

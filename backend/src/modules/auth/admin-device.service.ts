@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { createHash, randomBytes } from 'crypto';
@@ -36,7 +36,7 @@ export class AdminDeviceService {
   }
 
   async enroll(userId: string, deviceId: string, ua?: string, name?: string) {
-    if (!deviceId || deviceId.length < 16) throw new Error('invalid_device_id');
+    if (!deviceId || deviceId.length < 16) throw new BadRequestException('invalid_device_id');
     await this.devices.updateOne(
       { user_id: userId, device_hash: this.hash(deviceId) },
       { $set: { user_id: userId, device_hash: this.hash(deviceId), ua: (ua || '').slice(0, 200), name: name || 'متصفح الإدارة', revoked: false, last_seen_at: new Date() }, $setOnInsert: { enrolled_at: new Date() } },

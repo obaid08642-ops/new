@@ -1,4 +1,5 @@
 
+import { BackfillSlugsDto } from './seo-search.dto';
 /** Arabic/English search normalization: strip Arabic diacritics & tatweel, unify alef/hamza/yeh/teh-marbuta variants, NFKD + lowercase + collapse spaces. Pure, locale-safe. */
 export function normalizeSearchText(input: string): string {
   return (input ?? "")
@@ -157,6 +158,15 @@ export class SeoSearchService {
   // backfill/indexing, so a 6h in-process cache is safe. Zero new deps by design.
   private readonly sitemapCache = new Map<string, { exp: number; val: any }>();
   private static readonly SITEMAP_TTL_MS = 6 * 60 * 60 * 1000;
+
+  /** F23: live medicine count for llms.txt (cached 1h). */
+  private catalogCountCache = { exp: 0, val: 0 };
+  async catalogCount(): Promise<number> {
+    if (Date.now() < this.catalogCountCache.exp) return this.catalogCountCache.val;
+    const n = await this.conn.collection('medicines_master').estimatedDocumentCount().catch(() => 0);
+    this.catalogCountCache = { exp: Date.now() + 3600_000, val: n };
+    return n;
+  }
 
   async metadata(type: string, id: string): Promise<any> {
     const entity = await this.loadEntity(type, id);
@@ -928,13 +938,15 @@ export class SeoSearchController {
     };
   }
 
-  /** AI-search readiness: llms.txt guidance for LLM crawlers. */
+  /** AI-search readiness: llms.txt guidance for LLM crawlers. F23: live product count. */
   @Public()
   @Get('llms.txt')
-  llmsTxt(@Res() res: Response) {
+  async llmsTxt(@Res() res: Response) {
+    const n = await this.svc.catalogCount().catch(() => 0);
+    const countTxt = n > 0 ? `${n.toLocaleString('en-US')} منتجاً` : 'آلاف المنتجات';
     res.setHeader('Content-Type', 'text/plain');
     res.send(`# نبض — منصة رعاية صحية رقمية\n\n` +
-      `> صيدلية إلكترونية (21,052 منتجاً) + استشارات + تحاليل + أشعة + تمريض منزلي في السعودية.\n\n` +
+      `> صيدلية إلكترونية (${countTxt}) + استشارات + تحاليل + أشعة + تمريض منزلي في السعودية.\n\n` +
       `## الكيانات القابلة للفهرسة\n` +
       `- Medicines: ${SITE}/s/medicine/{slug} — تفاصيل كاملة (اسم/مادة/سعر/صور/بدائل/شارات توفر)\n` +
       `- Doctors/Providers: ${SITE}/s/doctor/{slug} — تخصص/مدينة/تقييم\n` +
@@ -1124,7 +1136,7 @@ export class SeoAdminController {
    * through the governed pipeline (collision check + history).
    */
   @Post('backfill-slugs')
-  async backfillSlugs(@Body() dto: { type?: string; limit?: number }) {
+  async backfillSlugs(@Body() dto: BackfillSlugsDto) {
     if (!this.pipeline) return { ok: false, error: 'pipeline_unavailable' };
     const allowed: PipelineEntityType[] = ['doctor', 'pharmacy', 'hospital', 'clinic', 'lab', 'radiology', 'nursing'];
     const type = (dto?.type || 'doctor') as PipelineEntityType;

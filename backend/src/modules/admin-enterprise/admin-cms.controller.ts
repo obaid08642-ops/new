@@ -6,6 +6,7 @@ import { Permission, RequirePermissions } from '../../common/permissions';
 import { UserRole } from '../../common/enums';
 import { validateReason, ReasonError } from '../../common/rbac';
 import { AdminAuditService } from './audit.service';
+import { UpsertDto, PublishDto, ScheduleDto, UnpublishDto } from './admin-cms.dto';
 
 /**
  * A5 — CMS: full article authoring on top of the existing articles module —
@@ -48,7 +49,7 @@ export class AdminCmsController {
 
   /** Create or full-edit; returns the updated document. */
   @Post('articles')
-  async upsert(@Body() b: any, @CurrentUser() me: any): Promise<any> {
+  async upsert(@Body() b: UpsertDto, @CurrentUser() me: any): Promise<any> {
     let reason: string;
     try { reason = validateReason(b?.reason); } catch (e) { if (e instanceof ReasonError) throw new BadRequestException(e.code); throw e; }
     if (!String(b?.title_ar || '').trim()) throw new BadRequestException('title_ar_required');
@@ -85,7 +86,7 @@ export class AdminCmsController {
   }
 
   @Post(':id/publish')
-  async publish(@Param('id') id: string, @Body() b: any, @CurrentUser() me: any) {
+  async publish(@Param('id') id: string, @Body() b: PublishDto, @CurrentUser() me: any) {
     let reason: string;
     try { reason = validateReason(b?.reason); } catch (e) { if (e instanceof ReasonError) throw new BadRequestException(e.code); throw e; }
     const before: any = await this.conn.collection('articles').findOne({ id });
@@ -104,7 +105,7 @@ export class AdminCmsController {
 
   /** Schedule a future publish — the cron flips it when due. */
   @Post(':id/schedule')
-  async schedule(@Param('id') id: string, @Body() b: any, @CurrentUser() me: any) {
+  async schedule(@Param('id') id: string, @Body() b: ScheduleDto, @CurrentUser() me: any) {
     let reason: string;
     try { reason = validateReason(b?.reason); } catch (e) { if (e instanceof ReasonError) throw new BadRequestException(e.code); throw e; }
     const at = new Date(b?.scheduled_at);
@@ -120,7 +121,7 @@ export class AdminCmsController {
   }
 
   @Patch(':id/unpublish')
-  async unpublish(@Param('id') id: string, @Body() b: any, @CurrentUser() me: any) {
+  async unpublish(@Param('id') id: string, @Body() b: UnpublishDto, @CurrentUser() me: any) {
     let reason: string;
     try { reason = validateReason(b?.reason); } catch (e) { if (e instanceof ReasonError) throw new BadRequestException(e.code); throw e; }
     const res = await this.conn.collection('articles').updateOne(

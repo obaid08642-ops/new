@@ -8,6 +8,7 @@ import { JwtAuthGuard, Roles, CurrentUser } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { User, UserDocument } from '../../schemas/user.schema';
 import { ProviderDelta } from '../providers/schemas/provider-delta.schema';
+import { CreateSubAdminDto, UpdateSubAdminDto, CreateProviderDto, CleanupOrphansDto } from './admin.dto';
 
 /** Provider roles an admin may create accounts for (never staff/admin roles). */
 const PROVIDER_CREATABLE_ROLES = [
@@ -342,7 +343,7 @@ export class AdminController {
   }
 
   @Post('sub-admins')
-  async createSubAdmin(@CurrentUser() by: any, @Body() body: any) {
+  async createSubAdmin(@CurrentUser() by: any, @Body() body: CreateSubAdminDto) {
     this.assertOwner(by, await this.resolveUser(by));
     const email = (body?.email || '').trim().toLowerCase();
     const name = (body?.full_name || '').trim();
@@ -371,7 +372,7 @@ export class AdminController {
   }
 
   @Patch('sub-admins/:userId')
-  async updateSubAdmin(@CurrentUser() by: any, @Param('userId') userId: string, @Body() body: any) {
+  async updateSubAdmin(@CurrentUser() by: any, @Param('userId') userId: string, @Body() body: UpdateSubAdminDto) {
     this.assertOwner(by, await this.resolveUser(by));
     const target = await this.userModel.findOne({ id: userId });
     if (!target) throw new BadRequestException('user_not_found');
@@ -417,7 +418,7 @@ export class AdminController {
    * (verified=true via /admin/approve/:userId or the moderation page).
    */
   @Post('providers/create')
-  async createProvider(@CurrentUser() by: any, @Body() body: any) {
+  async createProvider(@CurrentUser() by: any, @Body() body: CreateProviderDto) {
     const role = body?.role as UserRole;
     if (!PROVIDER_CREATABLE_ROLES.includes(role)) throw new BadRequestException('invalid_provider_role');
     const name = (body?.full_name || '').trim();
@@ -562,7 +563,7 @@ export class AdminController {
    * suspended owners still publicly visible. Dry-run by default.
    */
   @Post('users/cleanup-orphans')
-  async cleanupOrphans(@Body() body: any) {
+  async cleanupOrphans(@Body() body: CleanupOrphansDto) {
     const dryRun = body?.dry_run !== false;
     const db = this.userModel.db;
     const profiles: any[] = await db.collection('provider_profiles').find({}, { projection: { user_id: 1, status: 1, public_eligibility: 1 } }).toArray().catch(() => []);

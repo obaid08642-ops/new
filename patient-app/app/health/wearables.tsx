@@ -9,6 +9,7 @@ import { Icon } from '../../src/components/Icon';
 import { AppText, Card, IconButton } from '../../src/components/ui';
 
 import { apiFetch } from '../../src/utils/api';
+import { featureFlags } from '../../src/services/FeatureFlags';
 import { logError } from '../../src/utils/logger';
 import { dateLocale } from '@/utils/dates';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
@@ -34,6 +35,16 @@ const METRIC_ICON: Record<string, string> = {
 export default function WearablesScreen() {
   const insets = useSafeAreaInsets();
   const { colors, isDark } = useApp();
+
+  // F20: smartwatch pairing hidden until real HealthKit/Health Connect integration.
+  if (!featureFlags.isEnabled('wearables_enabled')) {
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background, padding: 24 }}>
+        <StatusBar barStyle="light-content" />
+        <AppText style={{ fontSize: 17, textAlign: 'center' }}>ربط الساعات الذكية غير متاح حاليًا — قريبًا.</AppText>
+      </View>
+    );
+  }
 
   const [devices, setDevices] = useState<any[]>([]);
   const [samples, setSamples] = useState<any[]>([]);

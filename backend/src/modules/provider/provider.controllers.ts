@@ -1,4 +1,6 @@
 import { Controller, Post, Get, Patch, Delete, Body, Param, Query, Req, Inject } from '@nestjs/common';
+import { DisableDto, EndConsultationDto, IssueSickLeaveDto, IssueMedicalReportDto, SetAvailDto, PreviewAdHocDto, DispatchDto } from './provider.controllers.dto';
+import { RegisterDto, LoginDto, RefreshDto, LogoutDto, SendOtpDto, VerifyEmailDto, ForgotDto, VerifyResetCodeDto, ResetDto, AddPhoneDto, UploadDocDto, UploadDocDto2, UpsertBankDto, SubmitDeltaDto, SubmitDeltaDto2, InviteDto, AcceptDto, UpdateDto2, RejectDeltaDto, RejectDeltaDto2, ApproveDto, RejectDto, NeedsChangesDto, SuspendDto, ReactivateDto, AcceptDto2, RejectDto2, StartDto, CompleteDto, CancelDto, UpsertPharmaDto, UpsertLabDto, UpsertLabDto2, UpsertRadDto, UpsertRadDto2, UpsertDocDto, UpsertDocDto2, UpsertHcDto, UpsertHcDto2, UpsertDto, UpsertDto2 } from './provider.controllers.generated.dto';
 import { LedgerService } from '../finance-engine/finance-engine.module';
 import { ProviderAuthService } from './services/provider-auth.service';
 import { ProviderProfileService } from './services/provider-profile.service';
@@ -25,27 +27,27 @@ function meta(req: any) { return { ip: req?.ip || req?.headers?.['x-forwarded-fo
 export class ProviderAuthController {
   constructor(private readonly svc: ProviderAuthService) {}
   @Public() @Post('register')
-  register(@Body() body: any, @Req() req: any) { return this.svc.register({ ...body, meta: meta(req) }); }
+  register(@Body() body: RegisterDto, @Req() req: any) { return this.svc.register({ ...body, meta: meta(req) }); }
   @Public() @Post('login')
-  login(@Body() body: any, @Req() req: any) { return this.svc.login({ ...body, meta: meta(req) }); }
+  login(@Body() body: LoginDto, @Req() req: any) { return this.svc.login({ ...body, meta: meta(req) }); }
   @Public() @Post('refresh')
-  refresh(@Body() body: any, @Req() req: any) { return this.svc.refresh({ ...body, meta: meta(req) }); }
+  refresh(@Body() body: RefreshDto, @Req() req: any) { return this.svc.refresh({ ...body, meta: meta(req) }); }
   @SelfService()
   @Post('logout')
-  logout(@Body() body: any, @Req() req: any) { return this.svc.logout({ ...body, meta: meta(req) }); }
+  logout(@Body() body: LogoutDto, @Req() req: any) { return this.svc.logout({ ...body, meta: meta(req) }); }
   @Public() @Post('send-otp')
-  sendOtp(@Body() body: any, @Req() req: any) {
+  sendOtp(@Body() body: SendOtpDto, @Req() req: any) {
     const purpose: OtpPurpose = body.purpose || OtpPurpose.EMAIL_VERIFICATION;
     return this.svc.sendOtp({ email: body.email, purpose, meta: meta(req) });
   }
   @Public() @Post('verify-email')
-  verifyEmail(@Body() body: any, @Req() req: any) { return this.svc.verifyEmail({ email: body.email, code: body.code, meta: meta(req) }); }
+  verifyEmail(@Body() body: VerifyEmailDto, @Req() req: any) { return this.svc.verifyEmail({ email: body.email, code: body.code, meta: meta(req) }); }
   @Public() @Post('forgot-password')
-  forgot(@Body() body: any, @Req() req: any) { return this.svc.forgotPassword({ email: body.email, meta: meta(req) }); }
+  forgot(@Body() body: ForgotDto, @Req() req: any) { return this.svc.forgotPassword({ email: body.email, meta: meta(req) }); }
   @Public() @Post('verify-reset-code')
-  verifyResetCode(@Body() body: any, @Req() req: any) { return this.svc.verifyResetCode({ email: body.email, code: body.code, meta: meta(req) }); }
+  verifyResetCode(@Body() body: VerifyResetCodeDto, @Req() req: any) { return this.svc.verifyResetCode({ email: body.email, code: body.code, meta: meta(req) }); }
   @Public() @Post('reset-password')
-  reset(@Body() body: any, @Req() req: any) { return this.svc.resetPassword({ email: body.email, code: body.code, new_password: body.new_password, meta: meta(req) }); }
+  reset(@Body() body: ResetDto, @Req() req: any) { return this.svc.resetPassword({ email: body.email, code: body.code, new_password: body.new_password, meta: meta(req) }); }
   @Get('me')
   me(@CurrentUser() user: any) { return this.svc.me(user); }
 }
@@ -60,18 +62,18 @@ export class ProviderProfileController {
   @SelfService()
   @Patch('profile') update(@CurrentUser() u: any, @Body() body: any) { return this.svc.updateProfile(u, body); }
   @SelfService()
-  @Post('profile/phones') addPhone(@CurrentUser() u: any, @Body() body: any) { return this.svc.addPhone(u, body); }
+  @Post('profile/phones') addPhone(@CurrentUser() u: any, @Body() body: AddPhoneDto) { return this.svc.addPhone(u, body); }
   @SelfService()
   @Delete('profile/phones/:phone_id') removePhone(@CurrentUser() u: any, @Param('phone_id') pid: string) { return this.svc.removePhone(u, pid); }
 
   @SelfService()
-  @Post('kyc/documents') uploadDoc(@CurrentUser() u: any, @Body() body: any) { return this.svc.uploadDocument(u, body); }
+  @Post('kyc/documents') uploadDoc(@CurrentUser() u: any, @Body() body: UploadDocDto) { return this.svc.uploadDocument(u, body); }
   @Get('kyc/documents') listDocs(@CurrentUser() u: any) { return this.svc.listDocuments(u); }
 
   @Get('directory') directory() { return this.svc.directory(); }
 
   @SelfService()
-  @Post('bank-account') upsertBank(@CurrentUser() u: any, @Body() body: any) { return this.svc.upsertBank(u, body); }
+  @Post('bank-account') upsertBank(@CurrentUser() u: any, @Body() body: UpsertBankDto) { return this.svc.upsertBank(u, body); }
   @Get('bank-account') getBank(@CurrentUser() u: any) { return this.svc.getBank(u); }
   @Public() @Get('banks') banks() { return this.svc.banks_list(); }
 
@@ -96,7 +98,7 @@ export class ProviderProfileController {
 
   @SelfService()
   @Post('settings/delta')
-  async submitDelta(@CurrentUser() u: any, @Body() body: any) {
+  async submitDelta(@CurrentUser() u: any, @Body() body: SubmitDeltaDto) {
     return this.svc.submitDelta(u, body);
   }
 }
@@ -106,10 +108,10 @@ export class ProviderProfileController {
 export class ProviderOperatorsController {
   constructor(private readonly svc: ProviderOperatorsService) {}
   @Get() list(@CurrentUser() u: any) { return this.svc.list(u); }
-  @Post('invite') invite(@CurrentUser() u: any, @Body() body: any) { return this.svc.invite(u, body); }
-  @Public() @Post('accept-invite') accept(@Body() body: any) { return this.svc.acceptInvite(body); }
-  @Patch(':id') update(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) { return this.svc.update(u, id, body); }
-  @Post(':id/disable') disable(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) { return this.svc.disable(u, id, body?.reason); }
+  @Post('invite') invite(@CurrentUser() u: any, @Body() body: InviteDto) { return this.svc.invite(u, body); }
+  @Public() @Post('accept-invite') accept(@Body() body: AcceptDto) { return this.svc.acceptInvite(body); }
+  @Patch(':id') update(@CurrentUser() u: any, @Param('id') id: string, @Body() body: UpdateDto2) { return this.svc.update(u, id, body); }
+  @Post(':id/disable') disable(@CurrentUser() u: any, @Param('id') id: string, @Body() body: DisableDto) { return this.svc.disable(u, id, body?.reason); }
   @Post(':id/enable') enable(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.enable(u, id); }
   @Delete(':id') revoke(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.revoke(u, id); }
 }
@@ -127,10 +129,10 @@ export class ProviderAdminController {
   @Get('by-user/:userId') byUser(@CurrentUser() u: any, @Param('userId') userId: string) { return this.svc.detailByUser(u, userId); }
   @Get('provider-deltas') getDeltas(@CurrentUser() u: any) { return this.svc.listDeltas(u); }
   @Post('provider-deltas/:id/approve') approveDelta(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.approveDelta(u, id); }
-  @Post('provider-deltas/:id/reject') rejectDelta(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) { return this.svc.rejectDelta(u, id, body); }
+  @Post('provider-deltas/:id/reject') rejectDelta(@CurrentUser() u: any, @Param('id') id: string, @Body() body: RejectDeltaDto) { return this.svc.rejectDelta(u, id, body); }
   @Get(':id') detail(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.detail(u, id); }
-  @Post(':id/approve') approve(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) { return this.svc.approve(u, id, body); }
-  @Post(':id/reject') reject(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) { return this.svc.reject(u, id, body); }
+  @Post(':id/approve') approve(@CurrentUser() u: any, @Param('id') id: string, @Body() body: ApproveDto) { return this.svc.approve(u, id, body); }
+  @Post(':id/reject') reject(@CurrentUser() u: any, @Param('id') id: string, @Body() body: RejectDto) { return this.svc.reject(u, id, body); }
 
   @Post(':id/reprocess-image')
   async reprocessImage(@Param('id') id: string) {
@@ -151,9 +153,9 @@ export class ProviderAdminController {
   async getImageLogs(@Param('id') id: string) {
     return this.processor.getImageLogs(id);
   }
-  @Post(':id/request-changes') needsChanges(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) { return this.svc.requestChanges(u, id, body); }
-  @Post(':id/suspend') suspend(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) { return this.svc.suspend(u, id, body); }
-  @Post(':id/reactivate') reactivate(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) { return this.svc.reactivate(u, id, body); }
+  @Post(':id/request-changes') needsChanges(@CurrentUser() u: any, @Param('id') id: string, @Body() body: NeedsChangesDto) { return this.svc.requestChanges(u, id, body); }
+  @Post(':id/suspend') suspend(@CurrentUser() u: any, @Param('id') id: string, @Body() body: SuspendDto) { return this.svc.suspend(u, id, body); }
+  @Post(':id/reactivate') reactivate(@CurrentUser() u: any, @Param('id') id: string, @Body() body: ReactivateDto) { return this.svc.reactivate(u, id, body); }
 }
 
 // ============================================================================
@@ -178,11 +180,11 @@ export class ProviderRequestsController {
   ) {}
   @Get() list(@CurrentUser() u: any, @Query() q: any) { return this.svc.list(u, q); }
   @Get(':id') detail(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.detail(u, id); }
-  @Post(':id/accept') accept(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) { return this.svc.accept(u, id, body || {}); }
-  @Post(':id/reject') reject(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) { return this.svc.reject(u, id, body || {}); }
-  @Post(':id/start') start(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) { return this.svc.start(u, id, body || {}); }
-  @Post(':id/complete') complete(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) { return this.svc.complete(u, id, body || {}); }
-  @Post(':id/cancel') cancel(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) { return this.svc.cancel(u, id, body || {}); }
+  @Post(':id/accept') accept(@CurrentUser() u: any, @Param('id') id: string, @Body() body: AcceptDto2) { return this.svc.accept(u, id, body || {}); }
+  @Post(':id/reject') reject(@CurrentUser() u: any, @Param('id') id: string, @Body() body: RejectDto2) { return this.svc.reject(u, id, body || {}); }
+  @Post(':id/start') start(@CurrentUser() u: any, @Param('id') id: string, @Body() body: StartDto) { return this.svc.start(u, id, body || {}); }
+  @Post(':id/complete') complete(@CurrentUser() u: any, @Param('id') id: string, @Body() body: CompleteDto) { return this.svc.complete(u, id, body || {}); }
+  @Post(':id/cancel') cancel(@CurrentUser() u: any, @Param('id') id: string, @Body() body: CancelDto) { return this.svc.cancel(u, id, body || {}); }
   @Post(':id/assign-staff') assignStaff(@CurrentUser() u: any, @Param('id') id: string, @Body() body: { staff_id: string; notes?: string }) { return this.svc.assignStaff(u, id, body); }
 
   @Get(':id/orders')
@@ -196,7 +198,7 @@ export class ProviderRequestsController {
 
   // --- V3.0 DOCTOR PLATFORM ENDPOINTS ---
   @Post(':id/end')
-  async endConsultation(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) {
+  async endConsultation(@CurrentUser() u: any, @Param('id') id: string, @Body() body: EndConsultationDto) {
     const request = await this.svc.detail(u, id);
     if (!['in_progress', 'IN_PROGRESS'].includes(String(request.status))) {
       throw new BadRequestException('consultation must be in progress before it can end');
@@ -305,7 +307,7 @@ export class ProviderRequestsController {
   }
 
   @Post(':id/sick-leave')
-  async issueSickLeave(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) {
+  async issueSickLeave(@CurrentUser() u: any, @Param('id') id: string, @Body() body: IssueSickLeaveDto) {
     if (!body?.patient_id) throw new BadRequestException('patient_id required');
     if (!body?.diagnosis?.trim()) throw new BadRequestException('diagnosis required');
     const days = Math.max(1, Math.min(30, parseInt(body?.duration_days) || 1));
@@ -355,7 +357,7 @@ export class ProviderRequestsController {
   }
 
   @Post(':id/medical-report')
-  async issueMedicalReport(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) {
+  async issueMedicalReport(@CurrentUser() u: any, @Param('id') id: string, @Body() body: IssueMedicalReportDto) {
     if (!body?.findings?.trim() && !body?.summary?.trim()) throw new BadRequestException('findings required');
     const request: any = await this.svc.detail(u, id);
     const patientId = request.patient?.id || request.patient_id || request.patient_user_id || request.user_id;
@@ -442,7 +444,7 @@ export class ProviderDashboardController {
   }
   @Get('availability') getAvail(@CurrentUser() u: any) { return this.dash.getAvailability(u); }
   @SelfService()
-  @Post('availability') setAvail(@CurrentUser() u: any, @Body() body: any) { return this.dash.setAvailability(u, body); }
+  @Post('availability') setAvail(@CurrentUser() u: any, @Body() body: SetAvailDto) { return this.dash.setAvailability(u, body); }
   @SelfService()
   @Post('seed') seed(@CurrentUser() u: any) { return this.seedSvc.seed(u); }
   @SelfService()
@@ -460,23 +462,23 @@ export class ProviderCapabilitiesController {
   constructor(private readonly svc: ServiceCapabilityService) {}
   // Pharmacy inventory
   @Get('pharmacy') listPharma(@CurrentUser() u: any) { return this.svc.listPharmacy(u); }
-  @Post('pharmacy') upsertPharma(@CurrentUser() u: any, @Body() body: any) { return this.svc.upsertPharmacy(u, body); }
+  @Post('pharmacy') upsertPharma(@CurrentUser() u: any, @Body() body: UpsertPharmaDto) { return this.svc.upsertPharmacy(u, body); }
   @Delete('pharmacy/:id') delPharma(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.deletePharmacy(u, id); }
   // Lab tests
   @Get('lab') listLab(@CurrentUser() u: any) { return this.svc.listLab(u); }
-  @Post('lab') upsertLab(@CurrentUser() u: any, @Body() body: any) { return this.svc.upsertLab(u, body); }
+  @Post('lab') upsertLab(@CurrentUser() u: any, @Body() body: UpsertLabDto) { return this.svc.upsertLab(u, body); }
   @Delete('lab/:id') delLab(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.deleteLab(u, id); }
   // Radiology
   @Get('radiology') listRad(@CurrentUser() u: any) { return this.svc.listRadiology(u); }
-  @Post('radiology') upsertRad(@CurrentUser() u: any, @Body() body: any) { return this.svc.upsertRadiology(u, body); }
+  @Post('radiology') upsertRad(@CurrentUser() u: any, @Body() body: UpsertRadDto) { return this.svc.upsertRadiology(u, body); }
   @Delete('radiology/:id') delRad(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.deleteRadiology(u, id); }
   // Doctor session types
   @Get('doctor-sessions') listDoc(@CurrentUser() u: any) { return this.svc.listDoctorSessions(u); }
-  @Post('doctor-sessions') upsertDoc(@CurrentUser() u: any, @Body() body: any) { return this.svc.upsertDoctorSession(u, body); }
+  @Post('doctor-sessions') upsertDoc(@CurrentUser() u: any, @Body() body: UpsertDocDto) { return this.svc.upsertDoctorSession(u, body); }
   @Delete('doctor-sessions/:id') delDoc(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.deleteDoctorSession(u, id); }
   // Home care
   @Get('home-care') listHc(@CurrentUser() u: any) { return this.svc.listHomeCare(u); }
-  @Post('home-care') upsertHc(@CurrentUser() u: any, @Body() body: any) { return this.svc.upsertHomeCare(u, body); }
+  @Post('home-care') upsertHc(@CurrentUser() u: any, @Body() body: UpsertHcDto) { return this.svc.upsertHomeCare(u, body); }
   @Delete('home-care/:id') delHc(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.deleteHomeCare(u, id); }
 }
 
@@ -485,7 +487,7 @@ export class ProviderCapabilitiesController {
 export class ProviderZonesController {
   constructor(private readonly svc: ServiceCapabilityService) {}
   @Get() list(@CurrentUser() u: any) { return this.svc.listZones(u); }
-  @Post() upsert(@CurrentUser() u: any, @Body() body: any) { return this.svc.upsertZone(u, body); }
+  @Post() upsert(@CurrentUser() u: any, @Body() body: UpsertDto) { return this.svc.upsertZone(u, body); }
   @Delete(':id') del(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.deleteZone(u, id); }
 }
 
@@ -494,7 +496,7 @@ export class ProviderZonesController {
 export class ProviderScheduleSlotsController {
   constructor(private readonly svc: SchedulingEngineService) {}
   @Get() list(@CurrentUser() u: any) { return this.svc.listSlots(u); }
-  @Post() upsert(@CurrentUser() u: any, @Body() body: any) { return this.svc.upsertSlot(u, body); }
+  @Post() upsert(@CurrentUser() u: any, @Body() body: UpsertDto2) { return this.svc.upsertSlot(u, body); }
   @Delete(':id') del(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.deleteSlot(u, id); }
 }
 
@@ -518,11 +520,11 @@ export class AdminMatchingController {
     return this.matching.matchForRequest(id, parseInt(limit || '10', 10) || 10);
   }
   // Run matching ad-hoc with a custom payload (no DB record created)
-  @Post('preview') previewAdHoc(@CurrentUser() u: any, @Body() body: any) {
-    return this.matching.match(body || {});
+  @Post('preview') previewAdHoc(@CurrentUser() u: any, @Body() body: PreviewAdHocDto) {
+    return this.matching.match({ ...body });
   }
   // Dispatch (run strategy) for an existing unassigned request
-  @Post('dispatch/:requestId') dispatch(@CurrentUser() u: any, @Param('requestId') id: string, @Body() body: any) {
+  @Post('dispatch/:requestId') dispatch(@CurrentUser() u: any, @Param('requestId') id: string, @Body() body: DispatchDto) {
     return this.assignment.dispatch(id, body?.timeout_seconds || 120);
   }
   // Manual assign

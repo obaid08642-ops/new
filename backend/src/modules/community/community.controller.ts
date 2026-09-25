@@ -1,4 +1,5 @@
 import { JwtAuthGuard, SelfService, Roles } from '../../common/auth.guard';
+import { CreatePostDto, CreateSessionDto, AddCommentDto, VotePostDto, ModeratePostDto, UpdateSessionStatusDto} from './community.dto';
 import { UseGuards } from '@nestjs/common';
 import {
   Controller, Get, Post, Put, Delete,
@@ -26,7 +27,7 @@ export class CommunityController {
 
   @SelfService()
   @Post('posts')
-  createPost(@Req() req: any, @Body() body: any) {
+  createPost(@Req() req: any, @Body() body: CreatePostDto) {
     return this.communityService.createPost(req.user?.id ?? 'guest', body);
   }
 
@@ -37,13 +38,13 @@ export class CommunityController {
 
   @SelfService()
   @Post('posts/:id/comment')
-  addComment(@Req() req: any, @Param('id') postId: string, @Body() body: { body: string; is_anonymous?: boolean }) {
+  addComment(@Req() req: any, @Param('id') postId: string, @Body() body: AddCommentDto) {
     return this.communityService.addComment(req.user?.id ?? 'guest', postId, body.body, body.is_anonymous);
   }
 
   @SelfService()
   @Put('posts/:id/vote')
-  votePost(@Req() req: any, @Param('id') postId: string, @Body() body: { vote: 'up' | 'down' }) {
+  votePost(@Req() req: any, @Param('id') postId: string, @Body() body: VotePostDto) {
     return this.communityService.votePost(req.user?.id ?? 'guest', postId, body.vote);
   }
 
@@ -63,7 +64,7 @@ export class CommunityController {
 
   @Roles(UserRole.ADMIN)
   @Put('admin/:id/moderate')
-  moderatePost(@Param('id') postId: string, @Body() body: { decision: 'published' | 'removed' }) {
+  moderatePost(@Param('id') postId: string, @Body() body: ModeratePostDto) {
     return this.communityService.moderatePost(postId, body.decision);
   }
 
@@ -76,7 +77,7 @@ export class CommunityController {
 
   @SelfService()
   @Post('live-sessions')
-  createSession(@Req() req: any, @Body() body: any) {
+  createSession(@Req() req: any, @Body() body: CreateSessionDto) {
     return this.communityService.createSession(req.user?.id ?? 'guest', body);
   }
 
@@ -90,7 +91,7 @@ export class CommunityController {
   @Put('live-sessions/:id/status')
   updateSessionStatus(
     @Param('id') sessionId: string,
-    @Body() body: { status: 'live' | 'ended' | 'cancelled'; stream_url?: string },
+    @Body() body: UpdateSessionStatusDto,
   ) {
     return this.communityService.updateSessionStatus(sessionId, body.status, body.stream_url);
   }

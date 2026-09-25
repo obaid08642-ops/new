@@ -9,6 +9,7 @@ import { AnalyticsSuiteService } from './analytics-suite.service';
 import { ScheduledReportsRunner } from './scheduled-reports.runner';
 import { Optional } from '@nestjs/common';
 import { PresenceService } from '../presence/presence.service';
+import { CreateDto, UpdateDto, RemoveDto } from './admin-analytics.dto';
 
 /**
  * A3 — Analytics Suite endpoints (all real Mongo aggregations, no mocks).
@@ -123,7 +124,7 @@ export class AdminScheduledReportsController {
 
   @Post()
   @RequirePermissions(Permission.SCHEDULED_REPORTS_MANAGE)
-  async create(@Body() b: any, @CurrentUser() me: any) {
+  async create(@Body() b: CreateDto, @CurrentUser() me: any) {
     const report = String(b?.report || '');
     if (!['revenue', 'commissions', 'funnels', 'cohorts', 'anomalies', 'provider_league'].includes(report)) {
       throw new BadRequestException('unknown_report');
@@ -151,7 +152,7 @@ export class AdminScheduledReportsController {
 
   @Patch(':id')
   @RequirePermissions(Permission.SCHEDULED_REPORTS_MANAGE)
-  async update(@Param('id') id: string, @Body() b: any, @CurrentUser() me: any) {
+  async update(@Param('id') id: string, @Body() b: UpdateDto, @CurrentUser() me: any) {
     const before: any = await this.conn.collection('scheduled_reports').findOne({ id });
     if (!before) throw new NotFoundException('report_not_found');
     const $set: any = {};
@@ -187,7 +188,7 @@ export class AdminScheduledReportsController {
 
   @Delete(':id')
   @RequirePermissions(Permission.SCHEDULED_REPORTS_MANAGE)
-  async remove(@Param('id') id: string, @Body() b: any, @CurrentUser() me: any) {
+  async remove(@Param('id') id: string, @Body() b: RemoveDto, @CurrentUser() me: any) {
     let reason: string;
     try { reason = validateReason(b?.reason); } catch (e) {
       if (e instanceof ReasonError) throw new BadRequestException(e.code);

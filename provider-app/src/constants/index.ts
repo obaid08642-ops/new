@@ -115,51 +115,8 @@ export const LANGS = [
  { id:'tr', ar:'التركية', en:'Turkish' },
 ] as const;
 
-export const INSURANCE = [
- { id:'bupa', ar:'بوبا', en:'Bupa Arabia', plans:['VIP+','VIP','A','B','C'] },
- { id:'tawuniya', ar:'التعاونية', en:'Tawuniya', plans:['VIP+','VIP','A','B','C'] },
- { id:'medgulf', ar:'ميدغلف', en:'MedGulf', plans:['VIP','A','B','C'] },
- { id:'malath', ar:'ملاذ', en:'Malath', plans:['A','B','C'] },
- { id:'axa', ar:'أكسا / GIG', en:'AXA / GIG', plans:['VIP+','VIP','A'] },
- { id:'allianz', ar:'أليانز', en:'Allianz SF', plans:['VIP','A','B'] },
- { id:'saico', ar:'سايكو', en:'SAICO', plans:['A','B','C'] },
- { id:'walaa', ar:'ولاء', en:'Walaa', plans:['A','B','C'] },
- { id:'gulf', ar:'اتحاد الخليج', en:'Gulf Union', plans:['A','B'] },
- { id:'rajhi', ar:'الراجحي التكافل', en:'Al-Rajhi Takaful', plans:['A','B','C'] },
- { id:'wataniya', ar:'الوطنية', en:'Wataniya', plans:['A','B','C'] },
- { id:'sagr', ar:'الصقر', en:'Al-Sagr', plans:['B','C'] },
- { id:'arabia', ar:'العربية للتأمين', en:'Arabia Insurance', plans:['A','B','C'] },
- { id:'buruj', ar:'بروج', en:'Buruj', plans:['B','C'] },
-] as const;
 
 // ─── Medical Specialties ──────────────────────────────────────────────────────
-export const SPECIALTIES = [
- { id:'gp', ar:'الطب العام', en:'General Practice', icon:'stethoscope' },
- { id:'internal', ar:'الطب الباطني', en:'Internal Medicine', icon:'doctor' },
- { id:'cardio', ar:'أمراض القلب', en:'Cardiology', icon:'heart' },
- { id:'peds', ar:'طب الأطفال', en:'Pediatrics', icon:'baby' },
- { id:'obgyn', ar:'النساء والولادة', en:'Obstetrics & Gynecology', icon:'pregnancy' },
- { id:'ortho', ar:'العظام والمفاصل', en:'Orthopedics', icon:'bone' },
- { id:'derm', ar:'الجلدية', en:'Dermatology', icon:'bandage' },
- { id:'opthal', ar:'العيون', en:'Ophthalmology', icon:'eye' },
- { id:'ent', ar:'الأنف والأذن والحنجرة', en:'ENT', icon:'ear' },
- { id:'neuro', ar:'الجهاز العصبي', en:'Neurology', icon:'brain' },
- { id:'psych', ar:'الطب النفسي', en:'Psychiatry', icon:'chat' },
- { id:'dent', ar:'طب الأسنان', en:'Dentistry', icon:'tooth' },
- { id:'urol', ar:'المسالك البولية', en:'Urology', icon:'testTube' },
- { id:'gastro', ar:'الجهاز الهضمي', en:'Gastroenterology', icon:'pill' },
- { id:'endo', ar:'الغدد والسكري', en:'Endocrinology', icon:'blood' },
- { id:'onco', ar:'الأورام', en:'Oncology', icon:'shield' },
- { id:'nephro', ar:'الكلى', en:'Nephrology', icon:'lab' },
- { id:'pulmo', ar:'الرئة والجهاز التنفسي', en:'Pulmonology', icon:'lungs' },
- { id:'rheum', ar:'الروماتيزم', en:'Rheumatology', icon:'bone' },
- { id:'surg', ar:'الجراحة العامة', en:'General Surgery', icon:'surgery' },
- { id:'plastic', ar:'الجراحة التجميلية', en:'Plastic Surgery', icon:'star' },
- { id:'em', ar:'طب الطوارئ', en:'Emergency Medicine', icon:'emergency' },
- { id:'nutr', ar:'التغذية', en:'Nutrition', icon:'' },
- { id:'physio', ar:'العلاج الطبيعي', en:'Physiotherapy', icon:'' },
- { id:'rad_spec', ar:'الأشعة والتصوير', en:'Diagnostic Radiology', icon:'' },
-] as const;
 
 // ─── Academic Degrees ─────────────────────────────────────────────────────────
 export const DEGREES = [
@@ -171,28 +128,6 @@ export const DEGREES = [
 ] as const;
 
 // ─── Lab Tests ────────────────────────────────────────────────────────────────
-export const LAB_TESTS = [
- { id:'cbc', ar:'صورة الدم الكاملة CBC', en:'Complete Blood Count', fasting:false, hours:0.5 },
- { id:'vitd', ar:'فيتامين د', en:'Vitamin D', fasting:false, hours:2 },
- { id:'hba1c', ar:'السكر التراكمي HbA1c', en:'Glycated Hemoglobin HbA1c', fasting:false, hours:1 },
- { id:'lipid', ar:'دهون الدم الكاملة', en:'Full Lipid Profile', fasting:true, hours:2, fastH:12 },
- { id:'liver', ar:'وظائف الكبد', en:'Liver Function Tests', fasting:false, hours:2 },
- { id:'kidney', ar:'وظائف الكلى', en:'Kidney Function Tests', fasting:false, hours:2 },
- { id:'tsh', ar:'الغدة الدرقية TSH / T3 / T4', en:'Thyroid Panel TSH/T3/T4', fasting:false, hours:2 },
- { id:'urine', ar:'تحليل البول الشامل', en:'Complete Urinalysis', fasting:false, hours:1 },
- { id:'crp', ar:'بروتين سي التفاعلي CRP', en:'C-Reactive Protein CRP', fasting:false, hours:1 },
- { id:'ferritin', ar:'الفيريتين / مخازن الحديد', en:'Ferritin & Iron Studies', fasting:false, hours:2 },
- { id:'b12', ar:'فيتامين ب12', en:'Vitamin B12', fasting:false, hours:2 },
- { id:'glucose', ar:'سكر الدم الصيامي', en:'Fasting Blood Glucose', fasting:true, hours:1, fastH:8 },
- { id:'testosterone',ar:'هرمون التستوستيرون', en:'Testosterone', fasting:false, hours:3 },
- { id:'prolactin', ar:'البرولاكتين', en:'Prolactin', fasting:false, hours:2 },
- { id:'cortisol', ar:'الكورتيزول', en:'Cortisol', fasting:false, hours:2 },
- { id:'covid', ar:'كوفيد-19 PCR', en:'COVID-19 PCR', fasting:false, hours:24 },
- { id:'culture', ar:'مزرعة بكتيريا وحساسية', en:'Culture & Sensitivity', fasting:false, hours:48 },
- { id:'psa', ar:'بروستات PSA', en:'PSA Prostate Antigen', fasting:false, hours:2 },
- { id:'folate', ar:'حمض الفوليك', en:'Folic Acid', fasting:false, hours:2 },
- { id:'iron', ar:'الحديد والترانسفيرين', en:'Iron & TIBC', fasting:false, hours:2 },
-] as const;
 
 // ─── Radiology Scans ──────────────────────────────────────────────────────────
 export const RAD_SCANS = [
@@ -211,23 +146,6 @@ export const RAD_SCANS = [
 ] as const;
 
 // ─── Nursing Services ─────────────────────────────────────────────────────────
-export const NURSING_SVCS = [
- { id:'wound', ar:'تغيير الجروح والتضميد', en:'Wound Dressing', min:30 },
- { id:'iv', ar:'تركيب مغذي ومحاليل IV', en:'IV Therapy & Infusion', min:90 },
- { id:'blood', ar:'سحب عينات دم', en:'Blood Sample Collection', min:20 },
- { id:'vitals', ar:'قياس العلامات الحيوية', en:'Vital Signs Monitoring', min:20 },
- { id:'inject', ar:'إعطاء حقن طبية', en:'Injection Administration',min:15 },
- { id:'cath', ar:'تركيب قسطرة بولية', en:'Catheterization', min:30 },
- { id:'elderly', ar:'رعاية كبار السن', en:'Elderly Care', min:480 },
- { id:'postpart', ar:'رعاية ما بعد الولادة', en:'Postpartum Care', min:240 },
- { id:'diabetes', ar:'رعاية مرضى السكري', en:'Diabetes Management', min:45 },
- { id:'ostomy', ar:'عناية بالفغرة Ostomy', en:'Ostomy Care', min:45 },
- { id:'ng', ar:'أنبوب أنف معدي NG Tube', en:'NG Tube Management', min:30 },
- { id:'suction', ar:'شفط إفرازات تنفسية', en:'Airway Suctioning', min:30 },
- { id:'oxygen', ar:'إعطاء أكسجين', en:'Oxygen Therapy', min:60 },
- { id:'stroke', ar:'رعاية ما بعد الجلطة', en:'Post-Stroke Care', min:360 },
- { id:'custom', ar:'خدمة مخصصة أخرى', en:'Custom Service', min:0 },
-] as const;
 
 // ─── Pharmacy Categories ──────────────────────────────────────────────────────
 export const PHARMA_CATS = [

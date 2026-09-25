@@ -45,8 +45,11 @@ export default function DoctorProfile() {
   // Removed fallbackDoc
   const [doc, setDoc] = useState<any>({});
   const [loading, setLoading] = useState(true);
+  // F23: cancellation numbers come from /system-config/public.
+  const [policy, setPolicy] = useState<any>(null);
 
   React.useEffect(() => {
+    apiFetch<any>('/system-config/public').then((r: any) => setPolicy(r)).catch(() => {});
     const fetchDocDetails = async () => {
       try {
         const data = await apiFetch(`/care/doctors/${encodeURIComponent(id || 'd1')}`);
@@ -161,9 +164,10 @@ export default function DoctorProfile() {
 
   const docGradientColors = doc?.cg || ['var(--ps)', '#C8EEF4'];
 
-  // Real platform policies (aligned with the backend cancellation policy)
+  // Real platform policies (from backend /system-config/public — never hardcoded).
+  const cp = policy?.cancellation_policy;
   const faqs = [
-    { q: 'هل يمكن إلغاء أو تعديل الموعد؟', a: 'نعم. الإلغاء قبل الموعد بأكثر من 24 ساعة يسترد كامل المبلغ، وقبل 12 ساعة يسترد 50%، وبعدها لا يُسترد المبلغ. يمكنك التعديل من صفحة تفاصيل الموعد.' },
+    { q: 'هل يمكن إلغاء أو تعديل الموعد؟', a: cp ? `نعم. الإلغاء قبل الموعد بأكثر من ${cp.full_hours} ساعة يسترد كامل المبلغ، وقبل ${cp.half_hours} ساعة يسترد ${cp.half_refund_percent}%، وبعدها لا يُسترد المبلغ. يمكنك التعديل من صفحة تفاصيل الموعد.` : 'نعم. يمكنك الإلغاء أو التعديل من صفحة تفاصيل الموعد وفق سياسة المنصة الحالية.' },
     { q: 'ما طرق الدفع المتاحة؟', a: 'الاستشارة عن بعد بالبطاقة فقط، والزيارة المنزلية بالبطاقة أو التأمين، والكشف في العيادة بالبطاقة أو التأمين أو الكاش.' }
   ];
 

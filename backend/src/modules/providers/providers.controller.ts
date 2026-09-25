@@ -2,6 +2,7 @@ import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/co
 import { ProvidersService } from './providers.service';
 import { CurrentUser, JwtAuthGuard, Public, Roles } from '../../common/auth.guard';
 import { ProviderType, ProviderStatus, UserRole } from '../../common/enums';
+import { ApplyDto, AdminCreateDto, RejectDto, SuspendDto} from './providers.dto';
 
 @Controller('providers')
 @Roles(UserRole.ADMIN)
@@ -12,7 +13,7 @@ export class ProvidersController {
   /** Public self-registration */
   @Public()
   @Post('apply')
-  apply(@Body() body: any) {
+  apply(@Body() body: ApplyDto) {
     return this.svc.apply(body);
   }
 
@@ -58,7 +59,7 @@ export class ProvidersController {
 
   @Post('admin/create')
   @Roles(UserRole.ADMIN)
-  adminCreate(@Body() body: any, @CurrentUser() admin: any) {
+  adminCreate(@Body() body: AdminCreateDto, @CurrentUser() admin: any) {
     return this.svc.adminCreate(body, admin);
   }
 
@@ -82,13 +83,13 @@ export class ProvidersController {
 
   @Post(':id/reject')
   @Roles(UserRole.ADMIN)
-  reject(@Param('id') id: string, @CurrentUser() admin: any, @Body() body: { reason?: string }) {
+  reject(@Param('id') id: string, @CurrentUser() admin: any, @Body() body: RejectDto) {
     return this.svc.reject(id, admin, body?.reason || '');
   }
 
   @Post(':id/suspend')
   @Roles(UserRole.ADMIN)
-  suspend(@Param('id') id: string, @CurrentUser() admin: any, @Body() body: { reason?: string }) {
+  suspend(@Param('id') id: string, @CurrentUser() admin: any, @Body() body: SuspendDto) {
     return this.svc.suspend(id, admin, body?.reason || '');
   }
 }

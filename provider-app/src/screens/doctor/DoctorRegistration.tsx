@@ -10,7 +10,8 @@ import {
   NCheckbox, NHeader, NScroll, NDropdown, NDatePickerSheet, NDivider, WizardSection
 } from '../../components/ui';
 import { Validate } from '../../security/Security';
-import { SP, R, FS, FW, SPECIALTIES, DEGREES, INSURANCE } from '../../constants';
+import { SP, R, FS, FW, DEGREES } from '../../constants';
+
 import { I, I as NIcon } from '../../components/icons';
 import { RegistrationSuccess } from '../shared/SharedScreens';
 import { ContractModal } from '../../components/ContractModal';
@@ -25,7 +26,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import MapView, { Circle, Marker } from '../../components/PlatformMap';
 import SignatureCanvas from 'react-native-signature-canvas';
 import { ProviderApi, sanitizeWizardData } from '../../api/provider';
-import { useInsuranceCatalog } from '../../api/catalogs';
+import { useInsuranceCatalog, useSpecialtiesCatalog } from '../../api/catalogs';
 
 const { width: W } = Dimensions.get('window');
 
@@ -387,6 +388,7 @@ function Step2KYC({ data, update, onNext, onBack, step, total, bare = false, sub
 // ══════════════════════════════════════════════════════════════════════════════
 function Step3Profile({ data, update, onNext, onBack, step, total, bare = false, submitRef }: any) {
   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+  const specialties = useSpecialtiesCatalog();
   const [showRemoveBg, setShowRemoveBg] = useState(false);
 
   const handleNext = (): boolean => {
@@ -440,7 +442,7 @@ function Step3Profile({ data, update, onNext, onBack, step, total, bare = false,
       <NDropdown
         label={AR ? 'التخصص الطبي' : 'Specialty'}
         value={data.specialty}
-        options={SPECIALTIES.map(s => ({ val: s.id, label: AR ? s.ar : s.en }))}
+        options={specialties.map(s => ({ val: s.id, label: AR ? s.ar : s.en }))}
         onChange={v => update({ specialty: v })}
         placeholder={AR ? 'اختر التخصص...' : 'Select Specialty...'}
       />

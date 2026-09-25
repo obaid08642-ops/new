@@ -48,3 +48,23 @@ Format: task | commit sha | verify result | notes
 - `sweep.py anon`: BLOCKED — requires running backend with Mongo 7 replica set + Redis 7 Docker; no Docker in this macOS env, disk was 98% before cleanup. Code guarantees no crash: payments no longer throw at construction, seeds are non-blocking. Will verify on staging with `python3 tools/audit/sweep.py - anon` after push.
 - `gitleaks`: workflow YAML valid; full-history scan runs in CI (gitleaks-action@v2, fail on findings); local `which gitleaks` not installed
 - Overall Gate P0: PASS with 2 BLOCKED env items (sweep live run, full CI matrix) to be confirmed on staging/CI.
+
+## Gate P3 — PROVEN LIVE 2026-09-25 (local mongo replset + redis, backend :8002, DISABLE_RATE_LIMIT=true audit env)
+- P3.1 (F13): 467 + 45 write handlers DTO'd (usage-based inference; pipeline fixes: stacked-decorator search, per-class ctor scope, inline-type required fields); tsc 0; TDZ guard (dto imports precede class decorators).
+- P3.2 (F14): SentryExceptionFilter translates CastError/BSONError→404, ValidationError→400, 11000→409; `common/id.utils.ts` findByAnyId; spec 7/7.
+- P3.3 (F15): `common/sanitize.ts` pick(); LAB/RADIOLOGY/HOMECARE_CATALOG_FIELDS; medicines createManualEntry via pickEditable; 6 catalog DTOs; spec labs.catalog-pick 3/3.
+- P3.4: 49 raw request-path throws → HttpException (400/401/403/404/502/503); 19 remain, all non-request-path (12 boot FATALs, 5 caught health probes, 1 caught WS token, 1 queue processor); a4-segments message-preservation 3/3.
+- Gate: admin+patient+provider write sweeps (2550 probes) → **0×500**; admin GET sweep 0×500; other roles GET+write 0×500.
+- Label correction: P3.4 commit wrongly cited "F16" — F16 is Phase-4 seed ratings; P3.4 has no F-number.
+
+## Phase 4 (in progress)
+- F21 DONE (e7a44b4): gateway/provider-service 503='ai_provider_unavailable'; chain-exhaustion + ocr/exercise/voice catches → 502 'ai_upstream_error'; live: ocr/exercise/voice without key → 503 (were 201-empty/500). drug-interactions is rule-based (real) — left. parseExcel success:false honest shape — left.
+
+## Phase 4 (backend DONE, gate triaged)
+- F16 (ff853c0): 6 seeded facilities stripped of fake rating/reviews_count → status:'reference', public_eligibility:false; schema status enum; toPublicFacility omits ratings for reference; migration 2026-09-strip-facility-ratings (dry-run default; local: matched 6/modified 6).
+- F18 (3ca55c0): JSON-LD omits aggregateRating when count=0 (no reviewCount:1), no specialty/city/service fallbacks; spec +3 (23/23 green).
+- F45 (1a84649): admin/config/sla persists to system_configs key 'sla' + SlaDto + audit_logs; live PUT→GET roundtrip + audit row verified.
+- F20 (0b74d80): wearables hidden behind wearables_enabled=false (app flag + web env gate + page notFound + link filter).
+- F22 (7fe157e): /catalogs/specialties live (23 docs); provider-app useSpecialtiesCatalog/useServicesCatalog/useInsuranceCatalog (deleted useCatalog.ts parallel); 4 provider + 5 patient static constants deleted (9 total); backend tsc 0.
+- F23 (d050e86): /system-config/public (anon, whitelisted keys) seeded with cancellation/returns policies; terms + doctor-faq render from backend; llms.txt live count (live route already dynamic; shadow handler fixed too; grep 21,052 → 0); returns timeline from real timestamps; loyalty/config already backend-driven.
+- Gate: fabsweep admin → 41 flags triaged (zeros/pagination/config constants/real seeds/my-sweep artifacts); 1 real fix (8ed5843): ICE credentials → 503 coturn_not_configured when TURN unset. grep mock/dummy/lorem/fake → only removal-comments, honeypot design, test tooling (seed_test.ts), DI docs.

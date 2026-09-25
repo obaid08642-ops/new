@@ -1,9 +1,10 @@
 import { Controller, Get, Put, Body, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard, Roles } from '../../common/auth.guard';
+import { JwtAuthGuard, Roles, Public } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { SystemConfig, SystemConfigDocument } from '../../schemas/system-config.schema';
+import { UpdateConfigDto } from './system-config.dto';
 
 /**
  * SystemConfigController
@@ -30,9 +31,27 @@ export class SystemConfigController {
   }
 
   @Put()
-  async updateConfig(@Body() body: { value: any }) {
+  async updateConfig(@Body() body: UpdateConfigDto) {
     const key = 'system_config';
     const updated = await this.configModel.findOneAndUpdate({ key }, { value: body.value }, { new: true, upsert: true }).lean();
     return { key: updated.key, value: updated.value };
+  }
+}
+
+/** F23: public policy texts (no secrets) — separate controller so class-level
+ * admin @Roles never applies to this route. */
+@Controller('system-config')
+export class PublicSystemConfigController {
+  constructor(@InjectModel(SystemConfig.name) private readonly configModel: Model<SystemConfigDocument>) {}
+
+  @Public()
+  @Get('public')
+  async getPublic() {
+    const doc = await this.configModel.findOne({ key: 'system_config' }).lean();
+    const v: any = doc?.value || {};
+    return {
+      cancellation_policy: v.cancellation_policy || null,
+      returns_policy: v.returns_policy || null,
+    };
   }
 }

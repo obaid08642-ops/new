@@ -18,6 +18,7 @@ import { IdempotencyInterceptor } from '../../common/idempotency.interceptor';
 import * as crypto from 'crypto';
 import { Request } from 'express';
 import { UserRole } from '../../common/enums';
+import { ConstructorDto } from './payments.dto';
 
 /**
  * PAYMENT GATEWAY ADAPTERS — additive layer, never bypasses WorkflowEngine.
@@ -67,7 +68,7 @@ class StripeAdapter implements GatewayAdapter {
     const body = new URLSearchParams({ amount: String(Math.round(o.amount * 100)), currency: (o.currency || 'sar').toLowerCase(), description: o.description || 'Nabd booking', 'automatic_payment_methods[enabled]': 'true' });
     const r = await fetch(`${this.base}/payment_intents`, { method: 'POST', headers: this.headers(), body });
     const j: any = await r.json();
-    if (!r.ok) throw new Error(j.error?.message || 'stripe_intent_failed');
+    if (!r.ok) throw new BadGatewayException(j.error?.message || 'stripe_intent_failed');
     return { intent_id: j.id, client_secret: j.client_secret };
   }
   async verify(id: string) {
@@ -91,7 +92,7 @@ class TapAdapter implements GatewayAdapter {
     const body = JSON.stringify({ amount: o.amount, currency: o.currency || 'SAR', description: o.description, source: { id: 'src_all' }, redirect: { url: process.env.PUBLIC_APP_URL || 'https://example.com/payment/return' } });
     const r = await fetch(`${this.base}/charges`, { method: 'POST', headers: this.headers(), body });
     const j: any = await r.json();
-    if (!r.ok) throw new Error(j.errors?.[0]?.description || 'tap_intent_failed');
+    if (!r.ok) throw new BadGatewayException(j.errors?.[0]?.description || 'tap_intent_failed');
     return { intent_id: j.id, checkout_url: j.transaction?.url };
   }
   async verify(id: string) {
@@ -117,7 +118,7 @@ class MoyasarAdapter implements GatewayAdapter {
     const body = JSON.stringify({ amount: Math.round(o.amount * 100), currency: o.currency || 'SAR', description: o.description, callback_url: process.env.PUBLIC_APP_URL });
     const r = await fetch(`${this.base}/payments`, { method: 'POST', headers: this.headers(), body });
     const j: any = await r.json();
-    if (!r.ok) throw new Error(j.message || 'moyasar_intent_failed');
+    if (!r.ok) throw new BadGatewayException(j.message || 'moyasar_intent_failed');
     return { intent_id: j.id, checkout_url: j.source?.transaction_url };
   }
   async verify(id: string) {
@@ -572,7 +573,7 @@ export class PaymentsWebhookController {
   @Public()
   @Post(':provider') @HttpCode(200) async webhook(
     @Param('provider') p: string,
-    @Body() b: any,
+    @Body() b: ConstructorDto,
     @Headers('moyasar-signature') signature: string,
     @Req() req: Request,
   ) {

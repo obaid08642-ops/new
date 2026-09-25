@@ -1,4 +1,5 @@
 import { BadRequestException, Body, Controller, Delete, ForbiddenException, Get, NotFoundException, Param, Patch, Post, Query, UseGuards, ConflictException } from '@nestjs/common';
+import { CreateRoleDto, UpdateRoleDto, DeleteRoleDto, AssignUserRolesDto } from './admin-security.dto';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { JwtAuthGuard, Roles, CurrentUser } from '../../common/auth.guard';
@@ -123,7 +124,7 @@ export class AdminSecurityController {
 
   @Post('rbac/roles')
   @RequirePermissions(Permission.RBAC_MANAGE)
-  async createRole(@Body() b: any, @CurrentUser() me: any) {
+  async createRole(@Body() b: CreateRoleDto, @CurrentUser() me: any) {
     const reason = validateReason(b?.reason); // fail fast BEFORE any write
     const key = String(b?.key || '').trim();
     if (!CUSTOM_ROLE_KEY_RE.test(key)) throw new BadRequestException('invalid_role_key_format');
@@ -159,7 +160,7 @@ export class AdminSecurityController {
 
   @Patch('rbac/roles/:id')
   @RequirePermissions(Permission.RBAC_MANAGE)
-  async updateRole(@Param('id') id: string, @Body() b: any, @CurrentUser() me: any) {
+  async updateRole(@Param('id') id: string, @Body() b: UpdateRoleDto, @CurrentUser() me: any) {
     const reason = validateReason(b?.reason);
     const before: any = await this.conn.collection('admin_custom_roles').findOne({ id });
     if (!before) throw new NotFoundException('role_not_found');
@@ -183,7 +184,7 @@ export class AdminSecurityController {
 
   @Delete('rbac/roles/:id')
   @RequirePermissions(Permission.RBAC_MANAGE)
-  async deleteRole(@Param('id') id: string, @Body() b: any, @CurrentUser() me: any) {
+  async deleteRole(@Param('id') id: string, @Body() b: DeleteRoleDto, @CurrentUser() me: any) {
     const reason = validateReason(b?.reason);
     const before: any = await this.conn.collection('admin_custom_roles').findOne({ id });
     if (!before) throw new NotFoundException('role_not_found');
@@ -202,7 +203,7 @@ export class AdminSecurityController {
   /** Assign/unassign custom roles to an admin account. */
   @Post('rbac/users/:userId/roles')
   @RequirePermissions(Permission.USER_EDIT, Permission.RBAC_MANAGE)
-  async assignUserRoles(@Param('userId') userId: string, @Body() b: any, @CurrentUser() me: any) {
+  async assignUserRoles(@Param('userId') userId: string, @Body() b: AssignUserRolesDto, @CurrentUser() me: any) {
     const target: any = await this.conn.collection('users').findOne({ id: userId }, { projection: { id: 1, role: 1, full_name: 1, email: 1, custom_role_keys: 1 } });
     if (!target) throw new NotFoundException('user_not_found');
     if (!['admin', 'super_admin', 'support_agent'].includes(String(target.role))) {

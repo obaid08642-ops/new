@@ -2,6 +2,7 @@ import { Controller, Get, Post, Delete, Body, Param, UseGuards, Req, BadRequestE
 import { JwtAuthGuard, Roles, CurrentUser } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { AdminDeviceService } from './admin-device.service';
+import { EnrollDto, SetLockDto } from './admin-devices.dto';
 
 /** This-device-only admin access (device-bound, never IP-bound). */
 @Controller('admin/devices')
@@ -16,7 +17,7 @@ export class AdminDevicesController {
   }
 
   @Post('enroll')
-  enroll(@CurrentUser() user: any, @Req() req: any, @Body() body: { device_id?: string; name?: string }) {
+  enroll(@CurrentUser() user: any, @Req() req: any, @Body() body: EnrollDto) {
     const id = String(body?.device_id || req.headers?.['x-admin-device'] || '');
     if (!id || id.length < 16) throw new BadRequestException('device_id_required');
     return this.devices.enroll(user.id, id, req.headers?.['user-agent'], body?.name);
@@ -28,7 +29,7 @@ export class AdminDevicesController {
   }
 
   @Post('lock')
-  setLock(@CurrentUser() user: any, @Req() req: any, @Body() body: { enabled?: boolean }) {
+  setLock(@CurrentUser() user: any, @Req() req: any, @Body() body: SetLockDto) {
     const id = String(req.headers?.['x-admin-device'] || '');
     return this.devices.setLock(user.id, body?.enabled !== false, id, req.headers?.['user-agent']);
   }

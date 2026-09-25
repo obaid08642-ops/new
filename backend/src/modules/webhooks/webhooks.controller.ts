@@ -4,6 +4,7 @@ import { Controller, Post, Body, Headers, Req, BadRequestException } from '@nest
 import { WebhooksService } from './webhooks.service';
 import { Request } from 'express';
 import { Public } from '../../common/auth.guard';
+import { MoyasarDto, PaytabsDto } from './webhooks.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('webhooks')
@@ -13,7 +14,7 @@ export class WebhooksController {
 
   @Post('moyasar')
   async moyasar(
-    @Body() body: any,
+    @Body() body: MoyasarDto,
     @Headers('moyasar-signature') signature: string,
     @Req() req: Request
   ) {
@@ -23,7 +24,7 @@ export class WebhooksController {
 
   @Post('paytabs')
   async paytabs(
-    @Body() body: any,
+    @Body() body: PaytabsDto,
     @Headers('signature') signature: string,
     @Req() req: Request
   ) {

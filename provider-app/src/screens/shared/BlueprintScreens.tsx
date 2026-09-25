@@ -34,7 +34,7 @@ import {
  NSheet, NEmpty
 } from '../../components/ui';
 import { I, IBg } from '../../components/icons';
-import { SP, R, FS, FW, SPECIALTIES, C } from '../../constants';
+import { SP, R, FS, FW, C } from '../../constants';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width: W, height: H } = Dimensions.get('window');

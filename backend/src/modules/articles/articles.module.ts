@@ -3,6 +3,7 @@
  * Public list/detail serve ONLY published articles (soft-delete aware).
  */
 import { SeoController } from './seo.controller';
+import { CreateDto } from './articles.dto';
 import {
   Body, Controller, Delete, Get, Injectable, Module,
   NotFoundException, Param, Patch, Post, Query, Req, UseGuards,
@@ -113,7 +114,7 @@ export class ArticlesAdminController {
   constructor(private svc: ArticlesService) {}
 
   @Get() list() { return this.svc.adminList(); }
-  @Post() create(@Body() body: any) { return this.svc.create(body); }
+  @Post() create(@Body() body: CreateDto) { return this.svc.create(body); }
   @Patch(':id') update(@Param('id') id: string, @Body() body: any) { return this.svc.update(id, body); }
   @Post(':id/publish') publish(@Param('id') id: string) { return this.svc.publish(id); }
   @Post(':id/unpublish') unpublish(@Param('id') id: string) { return this.svc.unpublish(id); }

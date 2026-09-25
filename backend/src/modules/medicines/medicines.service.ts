@@ -971,7 +971,7 @@ export class MedicinesService {
   // Admin async review later.
   async createManualEntry(data: Partial<Medicine>, byUserId: string, byRole: string) {
     const m = await this.model.create({
-      ...data,
+      ...this.pickEditable(data),
       verified: false,
       source: byRole,
       created_by_user_id: byUserId,

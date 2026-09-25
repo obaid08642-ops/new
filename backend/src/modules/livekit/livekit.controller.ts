@@ -2,6 +2,7 @@ import { Controller, Post, Get, Param, Body, Query, Req, UseGuards } from '@nest
 import { Roles, SelfService, Public, JwtAuthGuard, CurrentUser } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { LiveKitService } from './livekit.service';
+import { PingPatientDto, MarkNoShowDto, InitiateCallDto, SaveMetricsDto, MuteParticipantDto } from './livekit.dto';
 
 @Controller('calls')
 @UseGuards(JwtAuthGuard)
@@ -16,13 +17,13 @@ export class LiveKitController {
 
   @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
   @Post('provider/ping-patient')
-  pingPatient(@CurrentUser() u: any, @Body() body: { patient_id: string }) {
+  pingPatient(@CurrentUser() u: any, @Body() body: PingPatientDto) {
     return this.svc.pingPatient(u.id, body.patient_id);
   }
 
   @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
   @Post('provider/no-show')
-  markNoShow(@CurrentUser() u: any, @Body() body: { appointment_id: string }) {
+  markNoShow(@CurrentUser() u: any, @Body() body: MarkNoShowDto) {
     return this.svc.markNoShow(u.id, body.appointment_id);
   }
 
@@ -39,7 +40,7 @@ export class LiveKitController {
   @Post('initiate')
   initiateCall(
     @CurrentUser() u: any,
-    @Body() body: { callee_id?: string; call_type?: 'voice' | 'video'; booking_id?: string; appointmentId?: string },
+    @Body() body: InitiateCallDto,
   ) {
     const bookingId = body.booking_id || body.appointmentId;
     return this.svc.initiateCall(u.id, u.name || u.id, body.callee_id || '', body.call_type || 'video', bookingId);
@@ -68,7 +69,7 @@ export class LiveKitController {
   saveMetrics(
     @CurrentUser() u: any,
     @Param('sessionId') sessionId: string,
-    @Body() body: { metrics: Array<{ packet_loss: number; jitter: number; rtt: number; bitrate: number }> }
+    @Body() body: SaveMetricsDto
   ) {
     return this.svc.saveMetrics(sessionId, u.id, body.metrics);
   }
@@ -106,7 +107,7 @@ export class LiveKitController {
   muteParticipant(
     @Param('roomName') roomName: string,
     @Param('participantId') pid: string,
-    @Body() body: { muted: boolean },
+    @Body() body: MuteParticipantDto,
   ) {
     return this.svc.muteParticipant(roomName, pid, body.muted);
   }

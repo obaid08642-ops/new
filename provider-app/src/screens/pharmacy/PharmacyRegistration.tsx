@@ -17,7 +17,7 @@ import {
 } from '../../components/ui';
 import { GeoPicker } from '../../components/GeoPicker';
 import { Validate } from '../../security/Security';
-import { SP, R, FS, FW, PHARMA_CATS, LIMITS, C, INSURANCE , LANGS } from '../../constants';
+import { SP, R, FS, FW, PHARMA_CATS, LIMITS, C , LANGS } from '../../constants';
 import { RegistrationSuccess } from '../shared/SharedScreens';
 import { LocationPickerModal } from '../../components/LocationPickerModal';
 import { ContractModal } from '../../components/ContractModal';

@@ -367,5 +367,34 @@ export class SeedService implements OnModuleInit {
       });
       this.logger.log('Seeded default system config (follow-up hours)');
     }
+    // F23: public policy texts (cancellation + returns) — merge defaults into
+    // existing doc so live DBs pick them up without overwrite of admin edits.
+    const POLICY_DEFAULTS: Record<string, any> = {
+      cancellation_policy: {
+        full_hours: 24,
+        full_refund: true,
+        half_hours: 12,
+        half_refund_percent: 50,
+        late_fee_percent: 25,
+        pharmacy_prep_cancellable: false,
+      },
+      returns_policy: {
+        unused_days: 7,
+        intact_packaging_required: true,
+        wallet_refund_days_min: 3,
+        wallet_refund_days_max: 5,
+      },
+    };
+    const main = await this.configModel.findOne({ key: mainKey });
+    if (main) {
+      const missing: Record<string, any> = {};
+      for (const [k, v] of Object.entries(POLICY_DEFAULTS)) {
+        if ((main as any).value?.[k] === undefined) missing[k] = v;
+      }
+      if (Object.keys(missing).length) {
+        await this.configModel.updateOne({ key: mainKey }, { $set: Object.fromEntries(Object.entries(missing).map(([k, v]) => [`value.${k}`, v])) });
+        this.logger.log(`Seeded policy defaults: ${Object.keys(missing).join(',')}`);
+      }
+    }
   }
 }

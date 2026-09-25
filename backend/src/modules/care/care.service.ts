@@ -295,7 +295,8 @@ export class CareService {
   /** Facilities share only patient-facing profile data; contacts, exact location and contracts remain private. */
   private toPublicFacility(raw: any) {
     const f = raw?.toObject ? raw.toObject() : raw;
-    return {
+    // F16: reference listings carry no ratings — omit rather than show fabricated numbers.
+    const out: any = {
       id: f.id,
       name_ar: f.name_ar || null,
       name_en: f.name_en || null,
@@ -309,9 +310,12 @@ export class CareService {
       departments: Array.isArray(f.departments) ? f.departments : [],
       accepts_insurance: Boolean(f.accepts_insurance),
       accepted_insurance: Array.isArray(f.accepted_insurance) ? f.accepted_insurance : [],
-      rating: f.rating ?? null,
-      reviews_count: f.reviews_count ?? 0,
     };
+    if (f.status !== 'reference') {
+      out.rating = f.rating ?? null;
+      out.reviews_count = f.reviews_count ?? 0;
+    }
+    return out;
   }
 }
 

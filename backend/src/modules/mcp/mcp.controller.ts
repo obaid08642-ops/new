@@ -3,6 +3,7 @@ import { Throttle } from '@nestjs/throttler';
 import { McpService, MCP_TOOLS } from './mcp.service';
 import { Public } from '../../common/auth.guard';
 import { RedisCacheInterceptor } from '../../common/redis-cache.interceptor';
+import { HandleRpcDto } from './mcp.dto';
 
 @Controller('mcp')
 @UseInterceptors(RedisCacheInterceptor)
@@ -13,7 +14,7 @@ export class McpController {
   @Post()
   @HttpCode(200)
   @Throttle({ default: { limit: 30, ttl: 60000 } })
-  async handleRpc(@Body() body: any) {
+  async handleRpc(@Body() body: HandleRpcDto) {
     return this.mcpService.handleRpcRequest(body);
   }
 

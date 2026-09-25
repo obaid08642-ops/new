@@ -14,6 +14,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { Appointment, AppointmentSchema } from '../../schemas/appointment.schema';
 import { v4 as uuidv4 } from 'uuid';
+import { FcaDto, FcoapptDto, FraDto, FcoDto, FkcoDto, FrrDto, FclDto, FkclDto, OilDto, FcrDto, FkcrDto, OirDto, SuspDto } from './admin-authority.dto';
 
 @Schema({ timestamps: true, collection: 'admin_actions_log' })
 export class AdminActionLog extends Document {
@@ -253,22 +254,22 @@ export class AdminAuthorityService {
 @Roles(UserRole.ADMIN)
 export class AdminAuthorityController {
   constructor(private svc: AdminAuthorityService) {}
-  @Post('appointments/:id/force-cancel') fca(@Param('id') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.forceCancelAppt(u, id, b.reason || ''); }
-  @Post('appointments/:id/force-confirm') fcoappt(@Param('id') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.forceConfirmAppt(u, id, b.reason || ''); }
-  @Post('appointments/:id/force-reschedule') fra(@Param('id') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.forceRescheduleAppt(u, id, b.new_time, b.reason || ''); }
-  @Post('orders/:id/force-cancel') fco(@Param('id') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.forceCancelOrder(u, id, b.reason || ''); }
-  @Post('orders/:id/force-complete') fkco(@Param('id') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.forceCompleteOrder(u, id, b.reason || ''); }
-  @Post('orders/:id/force-reassign') frr(@Param('id') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.forceReassignOrder(u, id, b.pharmacy_id, b.reason || ''); }
+  @Post('appointments/:id/force-cancel') fca(@Param('id') id: string, @Body() b: FcaDto, @CurrentUser() u: any) { return this.svc.forceCancelAppt(u, id, b.reason || ''); }
+  @Post('appointments/:id/force-confirm') fcoappt(@Param('id') id: string, @Body() b: FcoapptDto, @CurrentUser() u: any) { return this.svc.forceConfirmAppt(u, id, b.reason || ''); }
+  @Post('appointments/:id/force-reschedule') fra(@Param('id') id: string, @Body() b: FraDto, @CurrentUser() u: any) { return this.svc.forceRescheduleAppt(u, id, b.new_time, b.reason || ''); }
+  @Post('orders/:id/force-cancel') fco(@Param('id') id: string, @Body() b: FcoDto, @CurrentUser() u: any) { return this.svc.forceCancelOrder(u, id, b.reason || ''); }
+  @Post('orders/:id/force-complete') fkco(@Param('id') id: string, @Body() b: FkcoDto, @CurrentUser() u: any) { return this.svc.forceCompleteOrder(u, id, b.reason || ''); }
+  @Post('orders/:id/force-reassign') frr(@Param('id') id: string, @Body() b: FrrDto, @CurrentUser() u: any) { return this.svc.forceReassignOrder(u, id, b.pharmacy_id, b.reason || ''); }
 
-  @Post('labs/:id/force-cancel') fcl(@Param('id') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.forceCancelLab(u, id, b.reason || ''); }
-  @Post('labs/:id/force-complete') fkcl(@Param('id') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.forceCompleteLab(u, id, b.reason || ''); }
-  @Post('labs/:id/override-insurance') oil(@Param('id') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.overrideLabInsurance(u, id, b.status, b.reason || ''); }
+  @Post('labs/:id/force-cancel') fcl(@Param('id') id: string, @Body() b: FclDto, @CurrentUser() u: any) { return this.svc.forceCancelLab(u, id, b.reason || ''); }
+  @Post('labs/:id/force-complete') fkcl(@Param('id') id: string, @Body() b: FkclDto, @CurrentUser() u: any) { return this.svc.forceCompleteLab(u, id, b.reason || ''); }
+  @Post('labs/:id/override-insurance') oil(@Param('id') id: string, @Body() b: OilDto, @CurrentUser() u: any) { return this.svc.overrideLabInsurance(u, id, b.status, b.reason || ''); }
 
-  @Post('radiology/:id/force-cancel') fcr(@Param('id') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.forceCancelRad(u, id, b.reason || ''); }
-  @Post('radiology/:id/force-complete') fkcr(@Param('id') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.forceCompleteRad(u, id, b.reason || ''); }
-  @Post('radiology/:id/override-insurance') oir(@Param('id') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.overrideRadInsurance(u, id, b.status, b.reason || ''); }
+  @Post('radiology/:id/force-cancel') fcr(@Param('id') id: string, @Body() b: FcrDto, @CurrentUser() u: any) { return this.svc.forceCancelRad(u, id, b.reason || ''); }
+  @Post('radiology/:id/force-complete') fkcr(@Param('id') id: string, @Body() b: FkcrDto, @CurrentUser() u: any) { return this.svc.forceCompleteRad(u, id, b.reason || ''); }
+  @Post('radiology/:id/override-insurance') oir(@Param('id') id: string, @Body() b: OirDto, @CurrentUser() u: any) { return this.svc.overrideRadInsurance(u, id, b.status, b.reason || ''); }
 
-  @Post('providers/:id/suspend') susp(@Param('id') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.suspendProvider(u, id, b.reason || ''); }
+  @Post('providers/:id/suspend') susp(@Param('id') id: string, @Body() b: SuspDto, @CurrentUser() u: any) { return this.svc.suspendProvider(u, id, b.reason || ''); }
   @Post('providers/:id/unsuspend') unsp(@Param('id') id: string, @CurrentUser() u: any) { return this.svc.unsuspendProvider(u, id); }
   @Post('users/:id/impersonate') impersonate(@Param('id') targetUserId: string, @CurrentUser() admin: any) { return this.svc.impersonateUser(admin, targetUserId); }
 

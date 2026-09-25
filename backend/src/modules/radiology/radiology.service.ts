@@ -1,6 +1,19 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException, Optional } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import { pick } from '../../common/sanitize';
+
+/** P3.3 (F15): writable catalog fields — id/_id/active/governance flags excluded. */
+export const RADIOLOGY_CATALOG_FIELDS = [
+  'name_ar', 'name_en', 'short_code', 'description_ar', 'description_en',
+  'modality', 'modality_category', 'body_part', 'price', 'old_price',
+  'contrast_required', 'fasting_required', 'fasting_hours',
+  'home_visit_supported', 'facility_visit_supported', 'turnaround_hours',
+  'preparation_ar', 'preparation_en', 'requires_referral', 'medical_referral_required',
+  'requires_pregnancy_check', 'requires_metal_implant_check', 'requires_contrast_allergy_check',
+  'estimated_duration_minutes', 'special_notes', 'image_url', 'icon',
+  'cash_availability', 'insurance_availability', 'portable_ultrasound',
+] as const;
 import { RadiologyService, RadiologyBookingState, RADIOLOGY_BOOKING_TRANSITIONS } from '../../schemas/radiology.schema';
 import { RadiologyBooking } from './schemas/radiology-booking.schema';
 import { WorkflowEngineService } from '../workflow-engine/workflow-engine.module';
@@ -453,12 +466,12 @@ export class RadiologyOpsService {
   // --- Admin Catalog CRUD ---
   async createCatalog(user: any, body: any) {
     if (user.role !== 'admin') throw new ForbiddenException();
-    return this.svcModel.create({ ...body, id: require('uuid').v4() });
+    return this.svcModel.create({ ...pick(body, RADIOLOGY_CATALOG_FIELDS), id: require('uuid').v4() });
   }
 
   async updateCatalog(user: any, id: string, body: any) {
     if (user.role !== 'admin') throw new ForbiddenException();
-    const updated = await this.svcModel.findOneAndUpdate({ id }, { $set: body }, { new: true });
+    const updated = await this.svcModel.findOneAndUpdate({ id }, { $set: pick(body, RADIOLOGY_CATALOG_FIELDS) }, { new: true });
     if (!updated) throw new NotFoundException();
     return updated;
   }

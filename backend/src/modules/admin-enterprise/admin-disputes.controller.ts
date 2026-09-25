@@ -7,6 +7,7 @@ import { UserRole } from '../../common/enums';
 import { validateReason, MIN_FINANCIAL_REASON_LENGTH, ReasonError, roleSatisfies } from '../../common/rbac';
 import { AdminAuditService } from './audit.service';
 import { WalletService } from '../wallet/wallet.service';
+import { ResolveDto } from './admin-disputes.dto';
 
 /**
  * A1 — REAL dispute queue (replaces the previous 503 stub).
@@ -110,7 +111,7 @@ export class AdminDisputesController {
    */
   @Post(':id/resolve')
   @RequirePermissions(Permission.DISPUTES_RESOLVE)
-  async resolve(@Param('id') id: string, @Body() b: any, @CurrentUser() me: any) {
+  async resolve(@Param('id') id: string, @Body() b: ResolveDto, @CurrentUser() me: any) {
     const decision = String(b?.decision || '');
     if (!['refund_full', 'refund_partial', 'reject', 'close_no_action'].includes(decision)) {
       throw new BadRequestException('invalid_decision');

@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, Logger, Inject } from '@nestjs/common';
+import { BadGatewayException, BadRequestException, Inject, Injectable, Logger } from '@nestjs/common';
 import { I18nService } from '../i18n/i18n.service';
 import { Model } from 'mongoose';
 import { NotFoundException } from '@nestjs/common';
@@ -118,7 +118,7 @@ export class NotificationsService {
     const anyFailed = vals.some(v => v.status === 'FAILED');
     const status = vals.length === 0 ? 'SENT' : anySent && anyFailed ? 'PARTIAL' : anySent ? 'SENT' : 'FAILED';
     await this.model.updateOne({ id }, { $set: { delivery, status, sent_push: delivery.push?.status === 'SENT' } });
-    if (status === 'FAILED') throw new Error(`notification ${id}: all channels failed`);
+    if (status === 'FAILED') throw new BadGatewayException(`notification ${id}: all channels failed`);
   }
 
   /** M6/ER-8: admin delivery analytics. */
@@ -257,7 +257,7 @@ export class NotificationsService {
         `<div dir="rtl" style="font-family: system-ui, sans-serif; text-align: right;"><h3>${n.title_key}</h3><p>${n.body_key}</p></div>`,
         n.body_key,
       );
-      if (!result.ok) throw new Error(result.error || 'mail_failed');
+      if (!result.ok) throw new BadGatewayException(result.error || 'mail_failed');
     } catch (e) {
       this.logger.error('Failed to send Email', e.stack);
       throw e;

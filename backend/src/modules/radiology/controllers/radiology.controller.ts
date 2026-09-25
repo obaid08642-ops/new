@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { RadiologyBooking } from '../schemas/radiology-booking.schema';
 import { CurrentUser, SelfService, Roles } from '../../../common/auth.guard';
 import { UserRole } from '../../../common/enums';
+import { BookDto, AllocateMachineDto, FinalizeScanDto} from './radiology.dto';
 
 @Controller('radiology/bookings')
 export class RadiologyController {
@@ -22,7 +23,7 @@ export class RadiologyController {
   @SelfService()
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async book(@CurrentUser() user: any, @Body() body: any) {
+  async book(@CurrentUser() user: any, @Body() body: BookDto) {
     if (!body?.scheduled_at) throw new BadRequestException('scheduled_at is required');
     const patient: any = await this.userModel.findOne({ id: user.id }).lean();
     if (!patient) throw new BadRequestException('patient_not_found');
@@ -86,7 +87,7 @@ export class RadiologyController {
   @HttpCode(HttpStatus.OK)
   async allocateMachine(
     @Param('id') bookingId: string,
-    @Body() body: { machineId: string }
+    @Body() body: AllocateMachineDto
   ) {
     const { machineId } = body;
 
@@ -116,7 +117,7 @@ export class RadiologyController {
   @Post('finalize-scan/:id')
   async finalizeScan(
     @Param('id') bookingId: string,
-    @Body() body: { reportText: string; files: string[]; pdfUrl: string }
+    @Body() body: FinalizeScanDto
   ) {
     const { reportText, files, pdfUrl } = body;
 

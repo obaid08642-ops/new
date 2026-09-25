@@ -9,6 +9,8 @@ import { HomeCareBooking, NursingBookingState, HomeCareService, NurseProvider } 
 import { WorkflowEngineService } from '../workflow-engine/workflow-engine.module';
 import { HomeCareSvc } from './home-care.service';
 import { UserRole } from '../../common/enums';
+import { CreateNoteDto, CreateBookingDto, ArriveAtPatientDto, TriggerEmergencyDto} from './home-care.dto';
+import { CreateHomeCareCatalogDto, UpdateHomeCareCatalogDto } from './home-care.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('nursing')
@@ -56,7 +58,7 @@ export class NursingController {
   // ---- Nursing progress notes (vitals + clinical note per patient) ----
   @Roles(UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.ADMIN)
   @Post('notes')
-  async createNote(@CurrentUser() u: any, @Body() body: any) {
+  async createNote(@CurrentUser() u: any, @Body() body: CreateNoteDto) {
     const patientId = String(body?.patient_id || '').trim();
     const bookingId = String(body?.booking_id || '').trim();
     if (!patientId || !bookingId) throw new BadRequestException('patient_id and booking_id are required');
@@ -105,14 +107,14 @@ export class NursingController {
   @Roles(UserRole.ADMIN)
   @Post('admin/catalog')
   @UseGuards(JwtAuthGuard)
-  async createCatalog(@CurrentUser() u: any, @Body() b: any) {
+  async createCatalog(@CurrentUser() u: any, @Body() b: CreateHomeCareCatalogDto) {
     return this.homeSvc.createCatalog(u, b);
   }
 
   @Roles(UserRole.ADMIN)
   @Put('admin/catalog/:id')
   @UseGuards(JwtAuthGuard)
-  async updateCatalog(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
+  async updateCatalog(@CurrentUser() u: any, @Param('id') id: string, @Body() b: UpdateHomeCareCatalogDto) {
     return this.homeSvc.updateCatalog(u, id, b);
   }
 
@@ -127,7 +129,7 @@ export class NursingController {
   // service enforces required fields + 3-minute idempotent replay).
   @SelfService()
   @Post('bookings')
-  async createBooking(@CurrentUser() u: any, @Body() b: any) { return this.homeSvc.book(u, b); }
+  async createBooking(@CurrentUser() u: any, @Body() b: CreateBookingDto) { return this.homeSvc.book(u, b); }
 
   @Get('bookings/mine')
   async myBookings(@CurrentUser() u: any) { return this.homeSvc.mineFor(u); }
@@ -228,7 +230,7 @@ export class NursingController {
 
   @Roles(UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.ADMIN)
   @Post('visits/:id/arrive')
-  async arriveAtPatient(@Param('id') id: string, @Body() body: { lat: number, lng: number }, @CurrentUser() user: any) {
+  async arriveAtPatient(@Param('id') id: string, @Body() body: ArriveAtPatientDto, @CurrentUser() user: any) {
     const b: any = await this.findVisit(id);
     this.assertProviderMutation(b, user);
     
@@ -302,7 +304,7 @@ export class NursingController {
 
   @Roles(UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.ADMIN)
   @Post('visits/:id/emergency-abort')
-  async triggerEmergency(@Param('id') id: string, @Body() body: { reason: string }, @CurrentUser() user: any) {
+  async triggerEmergency(@Param('id') id: string, @Body() body: TriggerEmergencyDto, @CurrentUser() user: any) {
     const b: any = await this.findVisit(id);
     this.assertProviderMutation(b, user);
     if (!String(body?.reason || '').trim()) throw new BadRequestException('reason is required');
