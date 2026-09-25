@@ -1,39 +1,66 @@
-import { IsDefined, IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDefined, IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
+
+export class UpdateAiConfigDto {
+  @IsOptional() @IsIn(['gemini', 'openai', 'groq', 'cerebras', 'openrouter', 'deepseek', 'qwen', 'replicate']) provider?: string;
+  @IsOptional() @IsString() model?: string;
+  @IsOptional() @IsBoolean() enabled?: boolean;
+  @IsOptional() @IsNumber() daily_quota?: number;
+}
+
+export class UpdateAiProviderDto {
+  @IsOptional() @IsBoolean() enabled?: boolean;
+  @IsOptional() @IsString() api_key?: string;
+  @IsOptional() @IsString() model?: string;
+  @IsOptional() @IsString() vision_model?: string;
+  @IsOptional() @IsNumber() daily_quota?: number;
+  @IsOptional() @IsNumber() priority?: number;
+}
 
 export class TriageDto {
-  @IsOptional()
-  symptoms?: any;
+  @IsDefined()
+  @IsString()
+  symptoms: string;
 
   @IsOptional()
-  body_region?: any;
+  @IsString()
+  body_region?: string;
 
   @IsOptional()
-  region?: any;
+  @IsString()
+  region?: string;
 
   @IsOptional()
-  red_flags?: any;
-
+  @IsArray()
+  @IsString({ each: true })
+  red_flags?: string[];
 }
 
 export class SkinAnalysisDto {
   @IsOptional()
-  image_base64?: any;
+  @IsString()
+  image_base64?: string;
 
   @IsOptional()
-  imageBase64?: any;
+  @IsString()
+  imageBase64?: string;
 
   @IsOptional()
-  acknowledge_limitations?: any;
+  @IsBoolean()
+  acknowledge_limitations?: boolean;
 
   @IsOptional()
-  areas?: any;
+  @IsArray()
+  @IsString({ each: true })
+  areas?: string[];
 
   @IsOptional()
-  observations?: any;
+  @IsArray()
+  @IsString({ each: true })
+  observations?: string[];
 
   @IsOptional()
-  note?: any;
-
+  @IsString()
+  note?: string;
 }
 
 export class SetModeDto {
@@ -42,7 +69,8 @@ export class SetModeDto {
   mode: string;
 
   @IsOptional()
-  pinned?: any;
+  @IsIn(['gemini', 'openai', 'groq', 'cerebras', 'openrouter', 'deepseek', 'qwen', 'replicate'])
+  pinned?: 'gemini' | 'openai' | 'groq' | 'cerebras' | 'openrouter' | 'deepseek' | 'qwen' | 'replicate';
 }
 export class SetPurposeDto {
   @IsOptional()
@@ -50,7 +78,8 @@ export class SetPurposeDto {
   feature?: string;
 
   @IsOptional()
-  provider?: any;
+  @IsString()
+  provider?: string;
 }
 export class VoiceDto {
   @IsOptional()

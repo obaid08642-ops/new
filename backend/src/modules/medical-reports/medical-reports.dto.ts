@@ -1,4 +1,4 @@
-import { IsArray, IsDateString, IsIn, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsIn, IsOptional, IsString } from 'class-validator';
 
 export class ShareDto {
   @IsOptional()
@@ -15,60 +15,76 @@ export class ShareDto {
 
 export class CreateDto {
   @IsOptional()
-  patient_id?: any;
+  @IsString()
+  patient_id?: string;
 
   @IsOptional()
-  title_ar?: any;
+  @IsString()
+  title_ar?: string;
 
   @IsOptional()
-  patient_name?: any;
+  @IsString()
+  patient_name?: string;
 
   @IsOptional()
-  title_en?: any;
+  @IsString()
+  title_en?: string;
 
   @IsOptional()
-  report_type?: any;
+  @IsString()
+  report_type?: string;
 
   @IsOptional()
-  summary?: any;
+  @IsString()
+  summary?: string;
 
   @IsOptional()
-  body?: any;
+  @IsString()
+  body?: string;
 
   @IsOptional()
-  diagnosis?: any;
+  @IsString()
+  diagnosis?: string;
 
   @IsOptional()
-  recommendations?: any;
+  @IsString()
+  recommendations?: string;
 
   @IsOptional()
-  critical?: any;
+  @IsBoolean()
+  critical?: boolean;
 
   @IsOptional()
-  appointment_id?: any;
+  @IsString()
+  appointment_id?: string;
 
   @IsOptional()
-  prescription_id?: any;
+  @IsString()
+  prescription_id?: string;
 
   @IsOptional()
-  lab_booking_id?: any;
+  @IsString()
+  lab_booking_id?: string;
 
   @IsOptional()
-  radiology_booking_id?: any;
+  @IsString()
+  radiology_booking_id?: string;
 
   @IsOptional()
-  @IsIn(["doctor"])
-  doctor_id: string;
+  @IsString()
+  doctor_id?: string;
 
   @IsOptional()
-  @IsIn(["doctor"])
-  doctor_name: string;
+  @IsString()
+  doctor_name?: string;
 
   @IsOptional()
-  facility_id?: any;
+  @IsString()
+  facility_id?: string;
 
   @IsOptional()
-  facility_name?: any;
+  @IsString()
+  facility_name?: string;
 
   @IsOptional()
   @IsArray()

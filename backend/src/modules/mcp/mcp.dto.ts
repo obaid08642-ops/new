@@ -1,4 +1,4 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsObject, IsOptional, IsString } from 'class-validator';
 
 export class HandleRpcDto {
   @IsOptional()
@@ -7,7 +7,8 @@ export class HandleRpcDto {
 
 
   @IsOptional()
-  id?: any;
+  @IsString()
+  id?: string;
 
   @IsOptional()
   @IsString()
@@ -15,6 +16,7 @@ export class HandleRpcDto {
 
 
   @IsOptional()
-  params?: any;
+  @IsObject()
+  params?: Record<string, unknown>;
 
 }

@@ -1,23 +1,53 @@
-import { IsDefined, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsDefined, IsIn, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
+
+export class SegmentRuleDto {
+  @IsOptional()
+  @IsString()
+  field?: string;
+
+  @IsOptional()
+  @IsString()
+  op?: string;
+}
+
+export class SegmentDefinitionDto {
+  @IsOptional()
+  @IsIn(['all', 'any'])
+  match?: string;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => SegmentRuleDto)
+  rules?: SegmentRuleDto[];
+}
 
 export class PreviewDto {
   @IsOptional()
-  definition?: any;
+  @ValidateNested()
+  @Type(() => SegmentDefinitionDto)
+  definition?: SegmentDefinitionDto;
 
 }
 
 export class CreateDto {
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
 
   @IsOptional()
-  definition?: any;
+  @ValidateNested()
+  @Type(() => SegmentDefinitionDto)
+  definition?: SegmentDefinitionDto;
 
   @IsOptional()
-  name_ar?: any;
+  @IsString()
+  name_ar?: string;
 
   @IsOptional()
-  description_ar?: any;
+  @IsString()
+  description_ar?: string;
 
 }
 

@@ -1,4 +1,15 @@
-import { IsArray, IsDefined, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsDateString, IsDefined, IsNumber, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
+
+export class ManualRequestDto {
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @IsOptional()
+  @IsString()
+  details?: string;
+}
 
 export class SendDto {
   @IsOptional()
@@ -56,43 +67,56 @@ export class CreateDto {
   items: any[];
 
   @IsOptional()
-  prescription_id?: any;
+  @IsString()
+  prescription_id?: string;
 
   @IsOptional()
-  manual_request?: any;
+  @ValidateNested()
+  @Type(() => ManualRequestDto)
+  manual_request?: ManualRequestDto;
 
   @IsOptional()
-  delivery_address_id?: any;
+  @IsString()
+  delivery_address_id?: string;
 
   @IsOptional()
-  payment_method?: any;
+  @IsString()
+  payment_method?: string;
 
   @IsOptional()
-  insurance_policy_id?: any;
+  @IsString()
+  insurance_policy_id?: string;
 
 }
 
 export class BookDto {
   @IsOptional()
-  service_id?: any;
+  @IsString()
+  service_id?: string;
 
   @IsOptional()
-  package_id?: any;
+  @IsString()
+  package_id?: string;
 
   @IsOptional()
-  scheduled_at?: any;
+  @IsDateString()
+  scheduled_at?: string;
 
   @IsOptional()
-  address_id?: any;
+  @IsString()
+  address_id?: string;
 
   @IsOptional()
-  notes?: any;
+  @IsString()
+  notes?: string;
 
   @IsOptional()
-  payment_method?: any;
+  @IsString()
+  payment_method?: string;
 
   @IsOptional()
-  insurance_policy_id?: any;
+  @IsString()
+  insurance_policy_id?: string;
 
 }
 

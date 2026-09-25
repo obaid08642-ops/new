@@ -1,4 +1,23 @@
-import { IsArray, IsBoolean, IsDefined, IsEmail, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDefined, IsEmail, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+
+export class CreateBranchDto {
+  @IsDefined() @IsString() name_ar: string;
+  @IsDefined() @IsString() name_en: string;
+  @IsDefined() @IsString() city: string;
+  @IsDefined() @IsString() district: string;
+  @IsDefined() @IsObject() coordinates: { latitude: number; longitude: number };
+  @IsDefined() @IsString() contact_number: string;
+  @IsOptional() @IsBoolean() is_active?: boolean;
+}
+
+export class CreateDepartmentDto {
+  @IsDefined() @IsString() branch_id: string;
+  @IsDefined() @IsString() name_ar: string;
+  @IsDefined() @IsString() name_en: string;
+  @IsDefined() @IsString() specialty_code: string;
+  @IsOptional() @IsNumber() consultation_fee?: number;
+  @IsOptional() @IsBoolean() is_active?: boolean;
+}
 
 export class AddStaffDto {
   @IsOptional()
@@ -79,7 +98,8 @@ export class CreateInvitationDto {
   role?: string;
 
   @IsOptional()
-  permissions?: any;
+  @IsObject()
+  permissions?: Record<string, boolean>;
 }
 export class RespondInvitationDto {
   @IsOptional()

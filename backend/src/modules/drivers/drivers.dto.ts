@@ -1,8 +1,9 @@
-import { IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsDefined, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 
 export class OnlineDto {
   @IsOptional()
-  location?: any;
+  @IsObject()
+  location?: { lat: number; lng: number };
 }
 
 export class LocationDto {

@@ -2,7 +2,8 @@ import { IsArray, IsDefined, IsOptional, IsString } from 'class-validator';
 
 export class CreateDto {
   @IsOptional()
-  kind?: any;
+  @IsString()
+  kind?: string;
 
   @IsOptional()
   @IsString()
@@ -13,13 +14,16 @@ export class CreateDto {
   name_en: string;
 
   @IsOptional()
-  doctor_notes?: any;
+  @IsString()
+  doctor_notes?: string;
 
   @IsOptional()
-  doctor_name?: any;
+  @IsString()
+  doctor_name?: string;
 
   @IsOptional()
-  prescription_image?: any;
+  @IsString()
+  prescription_image?: string;
 
   @IsOptional()
   @IsArray()
@@ -35,9 +39,11 @@ export class CreateDto {
 
 export class UpdateStatusDto {
   @IsOptional()
-  status?: any;
+  @IsString()
+  status?: string;
 
   @IsOptional()
-  note?: any;
+  @IsString()
+  note?: string;
 
 }

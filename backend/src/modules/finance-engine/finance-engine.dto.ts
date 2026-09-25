@@ -1,14 +1,17 @@
-import { IsArray, IsDateString, IsDefined, IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsDefined, IsIn, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 
 export class ValidateCouponDto {
   @IsOptional()
-  order_total?: any;
+  @IsNumber()
+  order_total?: number;
 
   @IsOptional()
-  code?: any;
+  @IsString()
+  code?: string;
 
   @IsOptional()
-  provider_id?: any;
+  @IsString()
+  provider_id?: string;
 
   @IsOptional()
   @IsArray()
@@ -18,7 +21,8 @@ export class ValidateCouponDto {
 
 export class LoyaltyQuoteDto {
   @IsOptional()
-  order_total?: any;
+  @IsNumber()
+  order_total?: number;
 
 }
 
@@ -55,7 +59,8 @@ export class SetCommissionRuleDto {
 
 export class ResolveCommissionDto {
   @IsOptional()
-  service_type?: any;
+  @IsString()
+  service_type?: string;
 
   @IsOptional()
   @IsString()
@@ -73,25 +78,31 @@ export class ResolveCommissionDto {
 
 export class RequestApprovalDto {
   @IsOptional()
-  type?: any;
+  @IsIn(['manual_credit', 'manual_debit', 'large_payout', 'large_refund', 'negative_adjustment'])
+  type?: 'manual_credit' | 'manual_debit' | 'large_payout' | 'large_refund' | 'negative_adjustment';
 
   @IsOptional()
-  payload?: any;
+  @IsObject()
+  payload?: Record<string, unknown>;
 
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
 
   @IsOptional()
-  amount?: any;
+  @IsNumber()
+  amount?: number;
 
 }
 
 export class DecideApprovalDto {
   @IsOptional()
-  approve?: any;
+  @IsBoolean()
+  approve?: boolean;
 
   @IsOptional()
-  note?: any;
+  @IsString()
+  note?: string;
 
   @IsOptional()
   @IsString()
@@ -104,7 +115,8 @@ export class DecideApprovalDto {
 
 
   @IsOptional()
-  available_at?: any;
+  @IsBoolean()
+  available_at?: boolean;
 
   @IsOptional()
   @IsString()
@@ -137,7 +149,8 @@ export class DecideApprovalDto {
 
 
   @IsOptional()
-  type?: any;
+  @IsString()
+  type?: string;
 
   @IsOptional()
   @IsNumber()
@@ -160,7 +173,8 @@ export class DecideApprovalDto {
 
 
   @IsOptional()
-  meta?: any;
+  @IsObject()
+  meta?: Record<string, unknown>;
 
   @IsOptional()
   @IsString()

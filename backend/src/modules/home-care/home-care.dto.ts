@@ -1,14 +1,17 @@
-import { IsDefined, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsDefined, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 
 export class CreateNoteDto {
   @IsOptional()
-  patient_id?: any;
+  @IsString()
+  patient_id?: string;
 
   @IsOptional()
-  booking_id?: any;
+  @IsString()
+  booking_id?: string;
 
   @IsOptional()
-  note?: any;
+  @IsString()
+  note?: string;
 
   @IsDefined()
   @IsString()
@@ -66,6 +69,13 @@ export class TriggerEmergencyDto {
   @IsDefined()
   @IsString()
   reason: string;
+}
+
+export class CompleteVisitDto {
+  @IsOptional() @IsObject() vitals?: Record<string, unknown>;
+  @IsOptional() @IsString() clinical_notes?: string;
+  @IsOptional() @IsArray() @IsString({ each: true }) recommendations?: string[];
+  @IsOptional() @IsString() signature_base64?: string;
 }
 
 export class CreateHomeCareCatalogDto {

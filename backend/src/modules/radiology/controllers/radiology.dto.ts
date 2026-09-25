@@ -18,23 +18,28 @@ export class BookDto {
   payment_method?: string;
 
   @IsOptional()
-  scan_type_code?: any;
+  @IsString()
+  scan_type_code?: string;
 
   @IsOptional()
-  scan_name_ar?: any;
+  @IsString()
+  scan_name_ar?: string;
 
   @IsOptional()
-  scan_name_en?: any;
+  @IsString()
+  scan_name_en?: string;
 
   @IsOptional()
-  provider_account_id?: any;
+  @IsString()
+  provider_account_id?: string;
 
   @IsOptional()
-  @IsIn(["MOBILE_HOME_VISIT"])
-  delivery_mode: string;
+  @IsIn(['IN_CENTER', 'MOBILE_HOME_VISIT'])
+  delivery_mode?: string;
 
   @IsOptional()
-  referring_doctor_id?: any;
+  @IsString()
+  referring_doctor_id?: string;
 
 }
 

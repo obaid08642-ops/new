@@ -165,7 +165,7 @@ export class CommunityService {
   }
 
   async createSession(hostId: string, body: {
-    title: string; description?: string; scheduled_at: Date;
+    title: string; description?: string; scheduled_at: Date | string;
     tags?: string[]; host_name?: string; host_specialty?: string;
   }) {
     const session = await this.sessionM.create({

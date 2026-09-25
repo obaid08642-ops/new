@@ -1,24 +1,29 @@
-import { IsArray, IsBoolean, IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDefined, IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateDto {
   @IsOptional()
-  report?: any;
+  @IsIn(['revenue', 'commissions', 'funnels', 'cohorts', 'anomalies', 'provider_league'])
+  report?: string;
 
   @IsOptional()
-  frequency?: any;
+  @IsIn(['daily', 'weekly', 'monthly'])
+  frequency?: string;
 
   @IsDefined()
   @IsArray()
   recipients: any[];
 
   @IsOptional()
-  hour_utc?: any;
+  @IsNumber()
+  hour_utc?: number;
 
   @IsOptional()
-  format?: any;
+  @IsIn(['csv', 'json'])
+  format?: string;
 
   @IsOptional()
-  enabled?: any;
+  @IsBoolean()
+  enabled?: boolean;
 
 }
 
@@ -39,6 +44,7 @@ export class UpdateDto {
 
 export class RemoveDto {
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
 
 }

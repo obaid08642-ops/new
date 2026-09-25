@@ -1,22 +1,29 @@
-import { IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class UpdateProfileDto {
   @IsOptional()
-  is_pregnant?: any;
+  @IsBoolean()
+  is_pregnant?: boolean;
 
   @IsOptional()
-  due_date?: any;
+  @IsString()
+  due_date?: string;
 
   @IsOptional()
-  lmp_date?: any;
-
-  last_period_date?: any;
-
-  @IsOptional()
-  cycle_length?: any;
+  @IsString()
+  lmp_date?: string;
 
   @IsOptional()
-  prev_period_date?: any;
+  @IsString()
+  last_period_date?: string;
+
+  @IsOptional()
+  @IsNumber()
+  cycle_length?: number;
+
+  @IsOptional()
+  @IsString()
+  prev_period_date?: string;
 
   @IsOptional()
   @IsString()

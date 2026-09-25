@@ -1,19 +1,23 @@
-import { IsOptional } from 'class-validator';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class StartDto {
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
 
   @IsOptional()
-  user_id?: any;
+  @IsString()
+  user_id?: string;
 
   @IsOptional()
-  minutes?: any;
+  @IsNumber()
+  minutes?: number;
 
 }
 
 export class RevokeDto {
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
 
 }

@@ -70,7 +70,7 @@ export class ProviderPharmacyAliasController {
 
   @Post('orders/:id/accept') accept() { return canonicalPharmacyFlowRequired(); }
   @Post('orders/:id/submit-basket') submitBasket() { return canonicalPharmacyFlowRequired(); }
-  @Post('orders/:id/insurance') insurance(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
+  @Post('orders/:id/insurance') insurance(@CurrentUser() u: any, @Param('id') id: string) {
     return canonicalPharmacyFlowRequired();
   }
   @Post('orders/:id/dispatch') dispatch() { return canonicalPharmacyFlowRequired(); }

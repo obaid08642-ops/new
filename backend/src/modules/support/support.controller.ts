@@ -2,7 +2,7 @@ import { JwtAuthGuard, Roles, SelfService, CurrentUser } from '../../common/auth
 import { UserRole } from '../../common/enums';
 import { Controller, Get, Post, Patch, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { SupportService } from './support.service';
-import { CreateDto, CreateTicketDto, ReplyDto, AdminUpdateDto } from './support.dto';
+import { CreateDto, CreateTicketDto, ReplyDto, AdminUpdateDto, SupportSettingsDto } from './support.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('support')
@@ -33,10 +33,10 @@ export class SupportController {
   }
 
   @Post('feedback')
-  submitFeedback(@CurrentUser('id') id: string, @Body() body: any) {
-    return this.svc.submitFeedback(id, body);
+  submitFeedback(@CurrentUser('id') id: string) {
+    return this.svc.submitFeedback(id);
   }
 
   @Get('settings') get(@CurrentUser() u: any) { return this.svc.getSettings(u); }
-  @Patch('settings') update(@CurrentUser() u: any, @Body() b: any) { return this.svc.updateSettings(u, b); }
+  @Patch('settings') update(@CurrentUser() u: any, @Body() b: SupportSettingsDto) { return this.svc.updateSettings(u, b); }
 }

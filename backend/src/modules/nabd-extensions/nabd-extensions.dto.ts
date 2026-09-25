@@ -213,3 +213,11 @@ export class EnrollCorporateDto {
   @IsNumber()
   requestedAmount: number;
 }
+
+export class CreateAdBidDto {
+  @IsDefined() @IsString() ad_id: string;
+  @IsDefined() @IsNumber() bid_amount: number;
+  @IsOptional() @IsString() campaign_id?: string;
+  @IsOptional() @IsString() placement?: string;
+  @IsOptional() @IsString() reason?: string;
+}

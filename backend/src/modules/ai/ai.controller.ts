@@ -5,7 +5,8 @@ import { AiService } from './ai.service';
 import { AiGatewayService } from './ai-gateway.service';
 import { JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
-import { TriageDto, SkinAnalysisDto, SetModeDto, SetPurposeDto, VoiceDto, OcrDto, CopilotSuggestDto, OcrTranslateDto, MedicineImageSearchDto, BarcodeLookupDto, AnalyzeMealDto, GenerateExercisePlanDto, GenerateDietPlanDto} from './ai.dto';
+import { TriageDto, SkinAnalysisDto, SetModeDto, SetPurposeDto, VoiceDto, OcrDto, CopilotSuggestDto, OcrTranslateDto, MedicineImageSearchDto, BarcodeLookupDto, AnalyzeMealDto, GenerateExercisePlanDto, GenerateDietPlanDto, UpdateAiConfigDto, UpdateAiProviderDto} from './ai.dto';
+import { AiProviderName } from './ai-gateway.service';
 
 @Controller('ai')
 @SelfService()
@@ -21,7 +22,7 @@ export class AiController {
 
   @Post('config')
   @Roles(UserRole.ADMIN)
-  updateConfig(@Body() body: any) {
+  updateConfig(@Body() body: UpdateAiConfigDto) {
     return this.svc.updateAiConfig(body);
   }
 
@@ -35,7 +36,7 @@ export class AiController {
   /** Admin: enable/disable/rekey/re-model/re-priority a provider. */
   @Post('admin/gateway/provider/:key')
   @Roles(UserRole.ADMIN)
-  updateProvider(@Param('key') key: any, @Body() body: any) {
+  updateProvider(@Param('key') key: AiProviderName, @Body() body: UpdateAiProviderDto) {
     return this.gateway.updateProvider(key, body || {});
   }
 

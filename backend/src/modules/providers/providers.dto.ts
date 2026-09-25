@@ -1,4 +1,5 @@
-import { IsArray, IsBoolean, IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDefined, IsEnum, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import { ProviderType } from '../../common/enums';
 
 export class ApplyDto {
   @IsDefined()
@@ -17,7 +18,9 @@ export class ApplyDto {
   @IsString()
   email?: string;
 
-  type: any;
+  @IsDefined()
+  @IsEnum(ProviderType)
+  type: ProviderType;
 
   @IsDefined()
   @IsString()
@@ -94,34 +97,44 @@ export class AdminCreateDto {
   auto_approve?: boolean;
 
   @IsOptional()
-  full_name?: any;
+  @IsString()
+  full_name?: string;
 
   @IsOptional()
-  email?: any;
+  @IsString()
+  email?: string;
 
   @IsOptional()
-  name_ar?: any;
+  @IsString()
+  name_ar?: string;
 
   @IsOptional()
-  name_en?: any;
+  @IsString()
+  name_en?: string;
 
   @IsOptional()
-  license_number?: any;
+  @IsNumber()
+  license_number?: number;
 
   @IsOptional()
-  city?: any;
+  @IsString()
+  city?: string;
 
   @IsOptional()
-  district?: any;
+  @IsString()
+  district?: string;
 
   @IsOptional()
-  location?: any;
+  @IsObject()
+  location?: Record<string, unknown>;
 
   @IsOptional()
-  specialty?: any;
+  @IsString()
+  specialty?: string;
 
   @IsOptional()
-  years_experience?: any;
+  @IsNumber()
+  years_experience?: number;
 
   @IsOptional()
   @IsArray()
@@ -129,19 +142,24 @@ export class AdminCreateDto {
 
 
   @IsOptional()
-  price_clinic?: any;
+  @IsNumber()
+  price_clinic?: number;
 
   @IsOptional()
-  price_online?: any;
+  @IsNumber()
+  price_online?: number;
 
   @IsOptional()
-  price_home?: any;
+  @IsNumber()
+  price_home?: number;
 
   @IsOptional()
-  pharmacy_chain?: any;
+  @IsString()
+  pharmacy_chain?: string;
 
   @IsOptional()
-  has_own_drivers?: any;
+  @IsBoolean()
+  has_own_drivers?: boolean;
 
   @IsOptional()
   @IsArray()

@@ -2,7 +2,7 @@ import { JwtAuthGuard, SelfService } from '../../common/auth.guard';
 import { Body, Controller, Delete, Get, Param, Post, Query, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { MentalHealthService } from './mental-health.service';
-import { LogMeditationDto, LogBreathingDto, AddCrisisContactDto } from './mental-health.dto';
+import { LogMeditationDto, LogBreathingDto, AddCrisisContactDto, LogMoodDto } from './mental-health.dto';
 
 @ApiTags('Mental Health – الصحة النفسية')
 @UseGuards(JwtAuthGuard)
@@ -22,8 +22,11 @@ export class MentalHealthController {
   /** POST /api/v1/mental-health/mood — self-reported mood, not a diagnosis */
   @Post('mood')
   @ApiOperation({ summary: 'Log a self-reported mood entry / تسجيل مزاج مُبلّغ عنه ذاتياً' })
-  logMood(@Req() req: any, @Body() body: any) {
-    return this.mentalHealthService.logMood(this.patientId(req), body);
+  logMood(@Req() req: any, @Body() body: LogMoodDto) {
+    return this.mentalHealthService.logMood(this.patientId(req), {
+      ...body,
+      logged_at: body.logged_at ? new Date(body.logged_at) : undefined,
+    });
   }
 
   /** GET /api/v1/mental-health/mood?days=30 — patient-owned mood history */

@@ -1,4 +1,42 @@
-import { IsBoolean, IsDateString, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsDefined, IsIn, IsNumber, IsObject, IsOptional, IsString, ValidateIf } from 'class-validator';
+
+export class AddVitalDto {
+  @IsDefined() @IsString() type: string;
+  @ValidateIf((_object, value) => typeof value === 'string') @IsString()
+  @ValidateIf((_object, value) => typeof value === 'number') @IsNumber()
+  value: string | number;
+  @IsOptional() @IsNumber() value_secondary?: number;
+  @IsOptional() @IsString() unit?: string;
+  @IsOptional() @IsDateString() measured_at?: string;
+  @IsOptional() @IsDateString() recorded_at?: string;
+  @IsOptional() @IsString() context?: string;
+  @IsOptional() @IsString() time_of_day?: string;
+  @IsOptional() @IsString() notes?: string;
+  @IsOptional() @IsString() source?: string;
+  @IsOptional() @IsNumber() systolic?: number;
+  @IsOptional() @IsNumber() diastolic?: number;
+}
+
+export class UpdateVitalDto extends AddVitalDto {}
+
+export class UpdateReminderDto {
+  @IsOptional() @IsString() dose?: string;
+  @IsOptional() @IsString() medicine_name_ar?: string;
+  @IsOptional() @IsString() medicine_name_en?: string;
+  @IsOptional() @IsNumber() dosage_count?: number;
+  @IsOptional() @IsIn(['tablet', 'capsule', 'ml', 'drop', 'spray']) dosage_form?: string;
+  @IsOptional() @IsArray() @IsString({ each: true }) times?: string[];
+  @IsOptional() @IsString() time_zone?: string;
+  @IsOptional() @IsString() frequency?: string;
+  @IsOptional() @IsDateString() start_date?: string;
+  @IsOptional() @IsDateString() end_date?: string;
+  @IsOptional() @IsNumber() duration_days?: number;
+  @IsOptional() @IsString() instructions_ar?: string;
+  @IsOptional() @IsBoolean() active?: boolean;
+  @IsOptional() @IsBoolean() chronic?: boolean;
+  @IsOptional() @IsNumber() pills_remaining?: number;
+  @IsOptional() @IsDateString() refill_date?: string;
+}
 
 export class RcDto {
   @IsOptional()
@@ -58,7 +96,8 @@ export class RcDto {
 
 export class RlgDto {
   @IsOptional()
-  status?: any;
+  @IsIn(['taken', 'skipped', 'missed'])
+  status?: 'taken' | 'skipped' | 'missed';
 
   @IsOptional()
   @IsString()
@@ -66,22 +105,26 @@ export class RlgDto {
 
 
   @IsOptional()
-  occurred_at?: any;
+  @IsDateString()
+  occurred_at?: string;
 
 }
 
 export class RefillSnoozeDto {
   @IsOptional()
-  days?: any;
+  @IsNumber()
+  days?: number;
 
 }
 
 export class AddSleepDto {
   @IsOptional()
-  sleep_score?: any;
+  @IsNumber()
+  sleep_score?: number;
 
   @IsOptional()
-  duration_hours?: any;
+  @IsNumber()
+  duration_hours?: number;
 
   @IsOptional()
   @IsDateString()
@@ -97,15 +140,21 @@ export class AddSleepDto {
 
 export class AddEmergencyContactDto {
   @IsOptional()
-  name?: any;
+  @IsString()
+  name?: string;
 
   @IsOptional()
-  phone?: any;
+  @IsString()
+  phone?: string;
 
   @IsOptional()
-  relation?: any;
+  @IsOptional()
+  @IsString()
+  relation?: string;
 
   @IsOptional()
-  isPrimary?: any;
+  @IsOptional()
+  @IsBoolean()
+  isPrimary?: boolean;
 
 }

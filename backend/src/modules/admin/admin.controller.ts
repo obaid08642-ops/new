@@ -139,6 +139,7 @@ export class AdminController {
    */
   @Get('users/:userId/overview')
   async userOverview(@Param('userId') userId: string, @Query('days') daysQ?: string): Promise<any> {
+    // Users are addressed by uuid `id`; fall back to legacy Mongo `_id` (never throws).
     const user: any = await this.userModel.findOne({ id: userId }, { password_hash: 0, otp_codes: 0 }).lean()
       || await this.userModel.findById(userId, { password_hash: 0, otp_codes: 0 }).catch(() => null);
     if (!user) throw new BadRequestException('user_not_found');
@@ -454,6 +455,7 @@ export class AdminController {
   /** Ban/deactivate a user account (blocks login via active=false). */
   @Post('users/:userId/ban')
   async banUser(@Param('userId') userId: string, @CurrentUser() by?: any) {
+    // Users are addressed by uuid `id`; fall back to legacy Mongo `_id` (never throws).
     const user = await this.userModel.findOne({ id: userId }).exec()
       || await this.userModel.findById(userId).catch(() => null);
     if (!user) throw new BadRequestException('user_not_found');
@@ -476,6 +478,7 @@ export class AdminController {
   /** Lift a ban / reactivate an account. */
   @Post('users/:userId/unban')
   async unbanUser(@Param('userId') userId: string, @CurrentUser() by?: any) {
+    // Users are addressed by uuid `id`; fall back to legacy Mongo `_id` (never throws).
     const user = await this.userModel.findOne({ id: userId }).exec()
       || await this.userModel.findById(userId).catch(() => null);
     if (!user) throw new BadRequestException('user_not_found');
@@ -507,6 +510,7 @@ export class AdminController {
    */
   @Delete('users/:userId')
   async deleteUser(@Param('userId') userId: string, @CurrentUser() by?: any) {
+    // Users are addressed by uuid `id`; fall back to legacy Mongo `_id` (never throws).
     const user = await this.userModel.findOne({ id: userId }).exec()
       || await this.userModel.findById(userId).catch(() => null);
     if (!user) throw new BadRequestException('user_not_found');
@@ -589,7 +593,9 @@ export class AdminController {
    */
   @Post('approve/:userId')
   async approveProvider(@Param('userId') userId: string, @CurrentUser() by?: any) {
-    const user = await this.userModel.findById(userId);
+    // Users are addressed by uuid `id`; fall back to legacy Mongo `_id` (never throws).
+    const user = await this.userModel.findOne({ id: userId }).exec()
+      || await this.userModel.findById(userId).catch(() => null);
     if (!user) throw new BadRequestException('user_not_found');
     if (![UserRole.DOCTOR, UserRole.PHARMACY].includes(user.role)) {
       throw new BadRequestException('user_not_a_provider');
@@ -603,7 +609,9 @@ export class AdminController {
 
   @Post('suspend/:userId')
   async suspendProvider(@Param('userId') userId: string, @CurrentUser() by?: any) {
-    const user = await this.userModel.findById(userId);
+    // Users are addressed by uuid `id`; fall back to legacy Mongo `_id` (never throws).
+    const user = await this.userModel.findOne({ id: userId }).exec()
+      || await this.userModel.findById(userId).catch(() => null);
     if (!user) throw new BadRequestException('user_not_found');
     
     user.suspended = true;

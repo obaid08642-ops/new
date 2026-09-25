@@ -1,5 +1,5 @@
 import { Module, Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards, Injectable, BadRequestException, NotFoundException, ServiceUnavailableException, Logger } from '@nestjs/common';
-import { CreateCompanyDto, UpdateCompanyDto, OcrExtractDto, UploadPolicyDto, NphiesEligibilityDto, SavePolicyDto, SubmitClaimDto } from './insurance.dto';
+import { CreateCompanyDto, UpdateCompanyDto, OcrExtractDto, UploadPolicyDto, NphiesEligibilityDto, SavePolicyDto, SubmitClaimDto, CreateInsuranceNetworkDto, CreateCoverageRuleDto } from './insurance.dto';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JwtAuthGuard, Roles, CurrentUser, Public, SelfService } from '../../common/auth.guard';
@@ -455,7 +455,7 @@ export class InsuranceController {
   @Roles(UserRole.ADMIN)
   @Post('companies/:companyId/networks')
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
-  createNetwork(@Param('companyId') companyId: string, @Body() b: any) {
+  createNetwork(@Param('companyId') companyId: string, @Body() b: CreateInsuranceNetworkDto) {
     return this.svc.createNetwork(companyId, b);
   }
 
@@ -468,7 +468,7 @@ export class InsuranceController {
   @Roles(UserRole.ADMIN)
   @Post('networks/:networkId/rules')
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
-  createRule(@Param('networkId') networkId: string, @Body() b: any) {
+  createRule(@Param('networkId') networkId: string, @Body() b: CreateCoverageRuleDto) {
     return this.svc.createRule(networkId, b);
   }
 

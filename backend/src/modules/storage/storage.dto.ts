@@ -21,7 +21,8 @@ export class UploadDto {
 
 
   @IsOptional()
-  visibility?: any;
+  @IsString()
+  visibility?: string;
 
   @IsOptional()
   @IsString()
@@ -29,8 +30,8 @@ export class UploadDto {
 
 
   @IsOptional()
-  @IsIn(["cloudinary"])
-  target: string;
+  @IsIn(['r2', 'cloudinary'])
+  target?: string;
 
   @IsOptional()
   @IsString()
@@ -60,7 +61,8 @@ export class UploadSuggestionImageDto {
 
 
   @IsOptional()
-  visibility?: any;
+  @IsString()
+  visibility?: string;
 
   @IsOptional()
   @IsString()
@@ -68,8 +70,8 @@ export class UploadSuggestionImageDto {
 
 
   @IsOptional()
-  @IsIn(["cloudinary"])
-  target: string;
+  @IsIn(['r2', 'cloudinary'])
+  target?: string;
 
   @IsOptional()
   @IsString()

@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { JwtAuthGuard, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { Location, LocationDocument } from '../location/schemas/location.schema';
+import { CreateLocationDto, UpdateLocationDto } from './admin-location.dto';
 
 /**
  * Admin location governance: add / edit / deactivate cities and districts.
@@ -26,7 +27,7 @@ export class AdminLocationController {
   }
 
   @Post()
-  async create(@Body() body: any) {
+  async create(@Body() body: CreateLocationDto) {
     const { code, name_ar, name_en, type, parent_code, aliases } = body || {};
     if (!code || !name_ar || !name_en || !type) throw new BadRequestException('code_name_type_required');
     if (!['region', 'city', 'district', 'sub_area'].includes(type)) throw new BadRequestException('invalid_type');
@@ -37,7 +38,7 @@ export class AdminLocationController {
   }
 
   @Put(':code')
-  async update(@Param('code') code: string, @Body() body: any) {
+  async update(@Param('code') code: string, @Body() body: UpdateLocationDto) {
     const allowed = ['name_ar', 'name_en', 'aliases', 'is_active', 'coverage'];
     const set: any = {};
     for (const k of allowed) if (body?.[k] !== undefined) set[k] = body[k];

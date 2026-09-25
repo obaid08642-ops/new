@@ -1,4 +1,4 @@
-import { IsArray, IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsIn, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 
 export class AddContractItemDto {
   @IsOptional()
@@ -20,7 +20,8 @@ export class AddContractItemDto {
 
 export class UpdateContractItemDto {
   @IsOptional()
-  quantity?: any;
+  @IsNumber()
+  quantity?: number;
 
   @IsOptional()
   @IsNumber()
@@ -31,13 +32,15 @@ export class UpdateContractItemDto {
 
 export class AddDto {
   @IsOptional()
-  service_id?: any;
+  @IsString()
+  service_id?: string;
 
   @IsOptional()
-  name_ar?: any;
+  @IsString()
+  name_ar?: string;
 
   @IsOptional()
-  @IsIn(["pharmacy"])
+  @IsIn(['lab', 'radiology', 'pharmacy', 'doctor', 'home_care'])
   kind?: string;
 
 
@@ -47,7 +50,8 @@ export class AddDto {
 
 
   @IsOptional()
-  name_en?: any;
+  @IsString()
+  name_en?: string;
 
   @IsOptional()
   @IsNumber()
@@ -60,16 +64,20 @@ export class AddDto {
 
 
   @IsOptional()
-  insurance_provider?: any;
+  @IsString()
+  insurance_provider?: string;
 
   @IsOptional()
-  home_visit?: any;
+  @IsBoolean()
+  home_visit?: boolean;
 
   @IsOptional()
-  notes?: any;
+  @IsString()
+  notes?: string;
 
   @IsOptional()
-  meta?: any;
+  @IsObject()
+  meta?: Record<string, unknown>;
 
 }
 
@@ -83,7 +91,8 @@ export class UpdDto {
 
 export class ClrDto {
   @IsOptional()
-  kind?: any;
+  @IsString()
+  kind?: string;
 
 }
 

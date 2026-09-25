@@ -1,4 +1,4 @@
-import { IsArray, IsDefined, IsNumber, IsOptional } from 'class-validator';
+import { IsArray, IsBoolean, IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class FinishAppointmentDto {
   @IsOptional()
@@ -18,7 +18,8 @@ export class FinishAppointmentDto {
   prescription: any[];
 
   @IsOptional()
-  follow_up_recommended?: any;
+  @IsBoolean()
+  follow_up_recommended?: boolean;
 
   @IsOptional()
   @IsNumber()
@@ -29,6 +30,7 @@ export class FinishAppointmentDto {
 
 export class CancelDto {
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
 
 }

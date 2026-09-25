@@ -1,4 +1,5 @@
-import { IsDateString, IsDefined, IsOptional, IsString } from 'class-validator';
+import { IsDateString, IsDefined, IsEnum, IsObject, IsOptional, IsString } from 'class-validator';
+import { NotificationType, NotificationPriority } from '../../common/enums';
 
 export class SendDto {
   @IsOptional()
@@ -32,16 +33,19 @@ export class SendDto {
 
 
   @IsOptional()
-  params?: any;
+  @IsObject()
+  params?: Record<string, unknown>;
 
   @IsOptional()
-  type?: any;
+  @IsEnum(NotificationType)
+  type?: NotificationType;
 
   @IsOptional()
-  priority?: any;
+  @IsEnum(NotificationPriority)
+  priority?: NotificationPriority;
 
   @IsOptional()
-  action?: any;
+  action?: unknown;
 
   @IsOptional()
   @IsDateString()
@@ -87,17 +91,20 @@ export class ScheduleDto {
 
 
   @IsOptional()
-  params?: any;
+  @IsObject()
+  params?: Record<string, unknown>;
 
   @IsOptional()
-  type?: any;
+  @IsEnum(NotificationType)
+  type?: NotificationType;
 
   @IsOptional()
-  priority?: any;
+  @IsEnum(NotificationPriority)
+  priority?: NotificationPriority;
 
   @IsOptional()
-  action?: any;
-
+  @IsObject()
+  action?: Record<string, unknown>;
 }
 
 export class RegisterTokenDto {

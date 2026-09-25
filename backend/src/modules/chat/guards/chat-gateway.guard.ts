@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { ChatSession, ChatSessionDocument } from '../../../schemas/chat-session.schema';
 import { User, UserDocument } from '../../../schemas/user.schema';
 import { UserRole } from '../../../common/enums';
+import { findByAnyId } from '../../../common/id.utils';
 
 @Injectable()
 export class ChatGatewayGuard implements CanActivate {
@@ -16,7 +17,9 @@ export class ChatGatewayGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const { chatSessionId, senderId, actionType } = request.body; // actionType: 'TEXT' | 'MEDIA_STREAM'
 
-    const session = await this.chatSessionModel.findById(chatSessionId);
+    // ChatSession has no public `id` — findByAnyId matches its Mongo `_id`
+    // without throwing on malformed input; users are addressed by uuid `id`.
+    const session = await findByAnyId<ChatSessionDocument>(this.chatSessionModel, chatSessionId);
     if (!session) throw new ForbiddenException('Chat session record not registered.');
 
     // RULE: FAMILY CHAT bypasses all constraints permanently
@@ -24,7 +27,7 @@ export class ChatGatewayGuard implements CanActivate {
 
     // CLINICAL LIFECYCLE MANAGEMENT RULES
     if (session.status === 'WAITING_FOR_DOCTOR') {
-      const sender = await this.userModel.findById(senderId);
+      const sender = await findByAnyId<UserDocument>(this.userModel, senderId);
       if (!sender || sender.role !== UserRole.DOCTOR) {
         throw new ForbiddenException('المريض في غرفة الانتظار الافتراضية. يجب على الطبيب فتح وبدء الاستشارة أولاً.');
       }

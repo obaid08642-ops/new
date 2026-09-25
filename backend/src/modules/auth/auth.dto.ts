@@ -2,31 +2,39 @@ import { IsDefined, IsIn, IsOptional, IsString } from 'class-validator';
 
 export class AuthLoginDto {
   @IsOptional()
-  identifier?: any;
+  @IsString()
+  identifier?: string;
 
   @IsOptional()
-  email?: any;
+  @IsString()
+  email?: string;
 
   @IsOptional()
-  phone?: any;
+  @IsString()
+  phone?: string;
 
   @IsOptional()
-  password?: any;
+  @IsString()
+  password?: string;
 
 }
 
 export class AuthVerify2faDto {
   @IsOptional()
-  identifier?: any;
+  @IsString()
+  identifier?: string;
 
   @IsOptional()
-  email?: any;
+  @IsString()
+  email?: string;
 
   @IsOptional()
-  phone?: any;
+  @IsString()
+  phone?: string;
 
   @IsOptional()
-  code?: any;
+  @IsString()
+  code?: string;
 
 }
 

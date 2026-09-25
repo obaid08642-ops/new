@@ -1,92 +1,107 @@
-import { IsDefined, IsNumber, IsObject, IsOptional } from 'class-validator';
+import { IsArray, IsDateString, IsDefined, IsIn, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 
 export class UpdateProfileDto {
   @IsOptional()
-  goal?: any;
+  @IsIn(['weight_loss', 'muscle_gain', 'healthy_lifestyle', 'maintain'])
+  goal?: string;
 
   @IsOptional()
-  height_cm?: any;
+  @IsNumber()
+  height_cm?: number;
 
   @IsOptional()
-  weight_kg?: any;
+  @IsNumber()
+  weight_kg?: number;
 
   @IsOptional()
-  target_weight_kg?: any;
+  @IsNumber()
+  target_weight_kg?: number;
 
   @IsOptional()
-  body_fat_percent?: any;
+  @IsNumber()
+  body_fat_percent?: number;
 
   @IsOptional()
-  daily_calorie_target?: any;
+  @IsNumber()
+  daily_calorie_target?: number;
 
   @IsOptional()
-  daily_water_target_ml?: any;
+  @IsNumber()
+  daily_water_target_ml?: number;
 
   @IsOptional()
-  activity_level?: any;
+  @IsIn(['sedentary', 'light', 'moderate', 'active', 'very_active'])
+  activity_level?: string;
 
   @IsOptional()
-  dietary_restrictions?: any;
+  @IsArray()
+  @IsString({ each: true })
+  dietary_restrictions?: string[];
 
   @IsOptional()
-  allergies?: any;
-
+  @IsArray()
+  @IsString({ each: true })
+  allergies?: string[];
 }
 
 export class LogMealDto {
-  @IsOptional()
-  @IsObject()
-  name?: Record<string, unknown>;
-
-
-  @IsOptional()
-  meal_type?: any;
+  @IsDefined()
+  @IsString()
+  name: string;
 
   @IsOptional()
-  calories?: any;
+  @IsIn(['breakfast', 'lunch', 'dinner', 'snack'])
+  meal_type?: string;
 
   @IsOptional()
-  protein_g?: any;
+  @IsNumber()
+  calories?: number;
 
   @IsOptional()
-  carbs_g?: any;
+  @IsNumber()
+  protein_g?: number;
 
   @IsOptional()
-  fat_g?: any;
+  @IsNumber()
+  carbs_g?: number;
 
   @IsOptional()
-  fiber_g?: any;
+  @IsNumber()
+  fat_g?: number;
 
   @IsOptional()
-  @IsObject()
-  image_url?: Record<string, unknown>;
-
+  @IsNumber()
+  fiber_g?: number;
 
   @IsOptional()
-  logged_at?: any;
+  @IsString()
+  image_url?: string;
 
+  @IsOptional()
+  @IsDateString()
+  logged_at?: string;
 }
 
 export class LogExerciseDto {
-  @IsOptional()
-  @IsObject()
-  name?: Record<string, unknown>;
-
-
-  @IsOptional()
-  duration_minutes?: any;
+  @IsDefined()
+  @IsString()
+  name: string;
 
   @IsOptional()
-  calories_burned?: any;
+  @IsNumber()
+  duration_minutes?: number;
 
   @IsOptional()
-  @IsObject()
-  exercise_type?: Record<string, unknown>;
-
+  @IsNumber()
+  calories_burned?: number;
 
   @IsOptional()
-  logged_at?: any;
+  @IsString()
+  exercise_type?: string;
 
+  @IsOptional()
+  @IsDateString()
+  logged_at?: string;
 }
 
 export class LogWaterDto {

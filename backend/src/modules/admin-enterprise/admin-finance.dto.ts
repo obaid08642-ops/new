@@ -16,12 +16,14 @@ export class UpdateConfigDto {
 
 export class ApprovePayoutDto {
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
 
 }
 
 export class RejectPayoutDto {
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
 
 }

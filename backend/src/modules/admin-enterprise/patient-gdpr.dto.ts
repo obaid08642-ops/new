@@ -1,7 +1,8 @@
-import { IsOptional } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class CreateRequestDto {
   @IsOptional()
-  type?: any;
+  @IsString()
+  type?: string;
 
 }

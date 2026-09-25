@@ -28,7 +28,9 @@ export class AdminExtendedOperationsController {
     @Param('procurementId') procurementId: string, 
     @Body() body: IssueWarehouseQuotationDto
   ) {
-    // Intercepts Admin entry sheet inputs to price pharmacy B2B shortages
+    // Intercepts Admin entry sheet inputs to price pharmacy B2B shortages.
+    // procurementId is always the procurement Mongo `_id` (same ID contract as
+    // ProcurementService — the create endpoint returns `request._id`).
     const updatedProcurement = await this.procurementModel.findByIdAndUpdate(
       procurementId,
       {

@@ -1,5 +1,16 @@
-import { IsArray, IsBoolean, IsDefined, IsIn, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
-import { MeditationType } from '../../schemas/mental-health.schema';
+import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import { MeditationType, BreathingTechnique } from '../../schemas/mental-health.schema';
+import { MoodValue } from '../../schemas/mental-health.schema';
+
+export class LogMoodDto {
+  @IsDefined() @IsEnum(MoodValue) mood: MoodValue;
+  @IsOptional() @IsNumber() energy_level?: number;
+  @IsOptional() @IsNumber() stress_level?: number;
+  @IsOptional() @IsNumber() sleep_hours?: number;
+  @IsOptional() @IsString() notes?: string;
+  @IsOptional() @IsArray() @IsString({ each: true }) tags?: string[];
+  @IsOptional() @IsDateString() logged_at?: string;
+}
 
 export class LogMeditationDto {
   @IsDefined()
@@ -20,8 +31,9 @@ export class LogMeditationDto {
 }
 
 export class LogBreathingDto {
-  @IsOptional()
-  technique?: any;
+  @IsDefined()
+  @IsEnum(BreathingTechnique)
+  technique: BreathingTechnique;
 
   @IsOptional()
   @IsNumber()
@@ -34,7 +46,8 @@ export class LogBreathingDto {
 
 
   @IsOptional()
-  logged_at?: any;
+  @IsDateString()
+  logged_at?: string;
 
 }
 

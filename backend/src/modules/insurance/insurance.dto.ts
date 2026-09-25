@@ -1,4 +1,25 @@
-import { IsBoolean, IsDateString, IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsDateString, IsDefined, IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
+
+export class CreateInsuranceNetworkDto {
+  @IsDefined() @IsString() code: string;
+  @IsDefined() @IsString() name_ar: string;
+  @IsDefined() @IsString() name_en: string;
+  @IsOptional() @IsNumber() tier_level?: number;
+  @IsOptional() @IsString() source_url?: string;
+  @IsOptional() @IsString() source_label?: string;
+  @IsOptional() @IsIn(['pending_review', 'verified', 'retired']) catalog_status?: string;
+  @IsOptional() @IsString() provenance?: string;
+  @IsOptional() @IsDateString() retired_at?: string;
+}
+
+export class CreateCoverageRuleDto {
+  @IsDefined() @IsString() service_type: string;
+  @IsOptional() @IsString() service_key?: string;
+  @IsOptional() @IsNumber() copay_percent?: number;
+  @IsOptional() @IsNumber() copay_flat_limit?: number;
+  @IsOptional() @IsBoolean() requires_preauth?: boolean;
+  @IsOptional() @IsNumber() max_annual_limit?: number;
+}
 
 export class CreateCompanyDto {
   @IsDefined()

@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { JwtAuthGuard, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { ManualBoost, ManualBoostDocument } from './manual-boost.schema';
+import { CreateManualBoostDto } from './manual-boost.dto';
 
 /** R77: governed manual boosts — ADMIN only, time-boxed, labeled, never ranked. */
 @Controller('admin/manual-boosts')
@@ -18,7 +19,7 @@ export class ManualBoostsController {
   }
 
   @Post()
-  async create(@Body() dto: any) {
+  async create(@Body() dto: CreateManualBoostDto) {
     const { entity_type, entity_id, weight, reason, starts_at, ends_at } = dto || {};
     if (!entity_type || !entity_id || !starts_at || !ends_at) throw new BadRequestException('entity_type_entity_id_window_required');
     if (new Date(ends_at).getTime() <= new Date(starts_at).getTime()) throw new BadRequestException('invalid_window');

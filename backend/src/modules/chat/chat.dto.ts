@@ -43,10 +43,8 @@ export class SendMessageDto {
 
   @IsOptional()
   @IsArray()
-  media_ids?: any[];
-
-  @IsOptional()
-  trim?: any;
+  @IsString({ each: true })
+  media_ids?: string[];
 }
 
 export class CreateDirectDto {

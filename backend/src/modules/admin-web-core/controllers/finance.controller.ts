@@ -75,6 +75,8 @@ export class FinanceController {
   async executePayout(@Param('id') id: string, @CurrentUser() admin: any) {
     // Resolve the withdrawal WITHOUT mutating it first — we must validate
     // the provider's real balance and large-payout approval before paying.
+    // Legacy withdrawals are keyed by Mongo `_id`; provider-ops withdrawals
+    // fall back to the public uuid `id` below — both paths 404 when absent.
     const legacyDoc: any = await this.withdrawalModel.findById(id).lean().catch(() => null);
     const opsDoc: any = legacyDoc ? null : await this.providerWithdrawalModel.findOne({ id, state: 'PENDING_ADMIN_APPROVAL' }, { _id: 0, __v: 0 }).lean();
     if (!legacyDoc && !opsDoc) throw new NotFoundException('withdrawal not found or already decided');
@@ -106,7 +108,8 @@ export class FinanceController {
       return { success: false, routed_to_approval: true, operation_id: op.id, message: 'المبلغ كبير — تم إرسال العملية لموافقة أدمن آخر (maker-checker)' };
     }
 
-    // Execute: mark paid + append the payout ledger entry (idempotent by ref)
+    // Execute: mark paid + append the payout ledger entry (idempotent by ref).
+    // legacyDoc is only set from the legacy `_id` lookup above.
     if (legacyDoc) {
       await this.withdrawalModel.findByIdAndUpdate(id, { status: 'completed', decided_at: new Date() });
     } else {
@@ -133,6 +136,8 @@ export class FinanceController {
 
   @Post('withdrawals/:id/reject')
   async rejectPayout(@Param('id') id: string, @Body() body: RejectPayoutDto) {
+    // Legacy withdrawals are keyed by Mongo `_id`; provider-ops withdrawals
+    // fall back to the public uuid `id` below — both paths 404 when absent.
     const legacy = await this.withdrawalModel.findByIdAndUpdate(id, { status: 'rejected' }, { new: true }).catch(() => null);
     if (legacy) {
       return { success: true, withdrawal: legacy, source: 'legacy' };

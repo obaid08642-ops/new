@@ -1,47 +1,54 @@
-import { IsArray, IsBoolean, IsDateString, IsIn, IsOptional } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsDefined, IsIn, IsObject, IsOptional, IsString } from 'class-validator';
 
 export class BookDto {
-  @IsOptional()
-  doctor_id?: any;
+  @IsDefined()
+  @IsString()
+  doctor_id: string;
 
-  @IsOptional()
+  @IsDefined()
   @IsDateString()
-  scheduled_at?: string;
+  scheduled_at: string;
 
-
-  @IsOptional()
-  type?: any;
-
-  contact?: any;
+  @IsDefined()
+  @IsString()
+  type: string;
 
   @IsOptional()
-  @IsIn(["insurance"])
-  payment_method: string;
+  @IsObject()
+  contact?: Record<string, unknown>;
 
   @IsOptional()
-  insurance_provider?: any;
+  @IsIn(['cash', 'card', 'insurance'])
+  payment_method?: string;
+
+  @IsOptional()
+  @IsString()
+  insurance_provider?: string;
 
   @IsOptional()
   @IsArray()
   documents: any[];
 
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
 
   @IsOptional()
-  address?: any;
+  @IsObject()
+  address?: Record<string, unknown>;
 
 }
 
 export class TrDto {
   @IsOptional()
-  state?: any;
-
+  @IsIn(['scheduled', 'confirmed', 'patient_arrived', 'in_consultation', 'completed', 'cancelled', 'no_show'])
+  state?: 'scheduled' | 'confirmed' | 'patient_arrived' | 'in_consultation' | 'completed' | 'cancelled' | 'no_show';
 }
 
 export class PostMsgDto {
   @IsOptional()
-  text?: any;
+  @IsString()
+  text?: string;
 
 }
 
@@ -53,4 +60,11 @@ export class AvailDto {
   @IsOptional()
   @IsBoolean()
   is_accepting?: boolean;
+}
+
+export class ConsultationNoteDto {
+  @IsOptional() @IsString() diagnosis?: string;
+  @IsOptional() @IsString() notes?: string;
+  @IsOptional() @IsString() follow_up_instructions?: string;
+  @IsOptional() @IsArray() @IsObject({ each: true }) prescriptions?: Record<string, unknown>[];
 }

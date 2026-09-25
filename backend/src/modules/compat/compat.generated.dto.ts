@@ -1,11 +1,13 @@
-import { IsDateString, IsOptional } from 'class-validator';
+import { IsDateString, IsObject, IsOptional, IsString } from 'class-validator';
 
 export class MarkDto {
   @IsOptional()
-  code?: any;
+  @IsString()
+  code?: string;
 
   @IsOptional()
-  baby_id?: any;
+  @IsString()
+  baby_id?: string;
 
   @IsOptional()
   @IsDateString()
@@ -16,18 +18,23 @@ export class MarkDto {
 
 export class OneDto {
   @IsOptional()
-  kind?: any;
+  @IsString()
+  kind?: string;
 
   @IsOptional()
-  event?: any;
+  @IsString()
+  event?: string;
 
   @IsOptional()
-  screen?: any;
+  @IsString()
+  screen?: string;
 
   @IsOptional()
-  meta?: any;
+  @IsObject()
+  meta?: Record<string, unknown>;
 
   @IsOptional()
-  data?: any;
+  @IsObject()
+  data?: Record<string, unknown>;
 
 }

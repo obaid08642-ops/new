@@ -4,7 +4,7 @@ import { PharmacyOfferService } from '../pharmacy/services/pharmacy-offer.servic
 import { JwtAuthGuard, CurrentUser, Public, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { RedisCacheInterceptor } from '../../common/redis-cache.interceptor';
-import { CreditWalletDto, DebitWalletDto, RespondToBroadcastDto, ClaimReferralDto, UpdateFlagDto, EnrollProgramDto, CompleteSessionDto, MatchPharmacyDto, MatchNurseDto, VerifyNurseAttendanceDto, VerifyBarcodeDto, VerifyLabResultsDto, EnrollCorporateDto} from './nabd-extensions.dto';
+import { CreditWalletDto, DebitWalletDto, RespondToBroadcastDto, ClaimReferralDto, UpdateFlagDto, EnrollProgramDto, CompleteSessionDto, MatchPharmacyDto, MatchNurseDto, VerifyNurseAttendanceDto, VerifyBarcodeDto, VerifyLabResultsDto, EnrollCorporateDto, CreateAdBidDto} from './nabd-extensions.dto';
 
 @Controller()
 @UseGuards(JwtAuthGuard)
@@ -234,7 +234,7 @@ export class NabdExtensionsController {
 
   @Roles(UserRole.ADMIN)
   @Post('admin/ads/bid')
-  async placeAdBid(@CurrentUser() provider: any, @Body() body: any) {
+  async placeAdBid(@CurrentUser() provider: any, @Body() body: CreateAdBidDto) {
     await this.svc.logActivity('ads.bid_placed', undefined, provider.id, body);
     return { success: true, message: 'Ad Bid placed successfully' };
   }

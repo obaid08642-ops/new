@@ -1,4 +1,5 @@
-import { IsArray, IsDateString, IsDefined, IsIn, IsNumber, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsNumber, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { AllocationItemAction } from './schemas/pharmacy.schema';
 import { Type } from 'class-transformer';
 
 export class CreateDto {
@@ -7,10 +8,12 @@ export class CreateDto {
   items: any[];
 
   @IsOptional()
-  delivery_address?: any;
+  @IsString()
+  delivery_address?: string;
 
   @IsOptional()
-  patient_notes?: any;
+  @IsString()
+  patient_notes?: string;
 
   @IsOptional()
   @IsArray()
@@ -25,75 +28,92 @@ export class UpdateDto {
   items: any[];
 
   @IsOptional()
-  delivery_address?: any;
+  @IsString()
+  delivery_address?: string;
 
   @IsOptional()
-  patient_notes?: any;
+  @IsString()
+  patient_notes?: string;
 
 }
 
 export class CancelDto {
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
 
 }
 
 export class PaymentIntentDto {
   @IsOptional()
-  idempotency_key?: any;
+  @IsString()
+  idempotency_key?: string;
 
 }
 
 export class CancelRejectedInsuranceDto {
   @IsOptional()
-  idempotency_key?: any;
+  @IsString()
+  idempotency_key?: string;
 
   @IsOptional()
-  id?: any;
+  @IsString()
+  id?: string;
 
 }
 
 export class SelectOfferDto {
   @IsOptional()
-  idempotency_key?: any;
+  @IsString()
+  idempotency_key?: string;
 
   @IsOptional()
-  coverage_mode?: any;
+  @IsIn(['cash', 'cod', 'card', 'insurance'])
+  coverage_mode?: string;
 
 }
 
 export class AcceptFinalQuoteDto {
   @IsOptional()
-  quote_hash?: any;
+  @IsString()
+  quote_hash?: string;
 
   @IsOptional()
-  quote_revision?: any;
+  @IsNumber()
+  quote_revision?: number;
 
   @IsOptional()
-  idempotency_key?: any;
+  @IsString()
+  idempotency_key?: string;
 
 }
 
 export class RegisterCodDto {
   @IsOptional()
-  idempotency_key?: any;
+  @IsString()
+  idempotency_key?: string;
 
 }
 
 export class AcceptInsuranceDto {
   @IsOptional()
-  payment_method?: any;
+  @IsString()
+  payment_method?: string;
 
   @IsOptional()
-  idempotency_key?: any;
+  @IsString()
+  idempotency_key?: string;
 
   @IsOptional()
-  id?: any;
+  @IsString()
+  id?: string;
 
 }
 
 export class ItemActionDto {
-  action: any;
+  @IsDefined()
+  @IsEnum(AllocationItemAction)
+  action: AllocationItemAction;
 
   @IsOptional()
   @IsString()
@@ -128,21 +148,36 @@ export class OutDto {
 
 }
 
+export class CodCollectionDto {
+  @IsDefined()
+  @IsIn(['cash', 'card_terminal'])
+  method: 'cash' | 'card_terminal';
+
+  @IsDefined()
+  @IsNumber()
+  amount_collected: number;
+}
+
 export class DeliveredDto {
   @IsOptional()
-  collection?: any;
+  @ValidateNested()
+  @Type(() => CodCollectionDto)
+  collection?: CodCollectionDto;
 
   @IsOptional()
-  amount_collected?: any;
+  @IsNumber()
+  amount_collected?: number;
 
   @IsOptional()
-  method?: any;
+  @IsString()
+  method?: string;
 
 }
 
 export class InsuranceDecisionDto {
   @IsOptional()
-  id?: any;
+  @IsString()
+  id?: string;
 
   @IsOptional()
   @IsObject()
@@ -155,10 +190,12 @@ export class InsuranceDecisionDto {
 
 
   @IsOptional()
-  idempotency_key?: any;
+  @IsString()
+  idempotency_key?: string;
 
   @IsOptional()
-  approval_reference?: any;
+  @IsString()
+  approval_reference?: string;
 
   @IsOptional()
   @IsArray()
@@ -168,25 +205,29 @@ export class InsuranceDecisionDto {
 
 export class CancelDto3 {
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
 
 }
 
 export class SetTrackingDto {
   @IsOptional()
-  inventory_tracking?: any;
+  @IsBoolean()
+  inventory_tracking?: boolean;
 
 }
 
 export class RestockDto {
   @IsOptional()
-  qty?: any;
+  @IsNumber()
+  qty?: number;
 
 }
 
 export class SampleOrderDto {
   @IsOptional()
-  patient_account_id?: any;
+  @IsString()
+  patient_account_id?: string;
 
 }
 
@@ -262,8 +303,27 @@ export class DraftOfferDto {
 
 export class RejectDto {
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
 
+}
+
+export class SubstituteOfferDto {
+  @IsOptional()
+  @IsString()
+  sku?: string;
+
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @IsOptional()
+  @IsString()
+  notes?: string;
+
+  @IsOptional()
+  @IsNumber()
+  price?: number;
 }
 
 export class PostDto {
@@ -278,7 +338,9 @@ export class PostDto {
 
 
   @IsOptional()
-  substitute_offer?: any;
+  @ValidateNested()
+  @Type(() => SubstituteOfferDto)
+  substitute_offer?: SubstituteOfferDto;
 
 }
 
@@ -349,7 +411,9 @@ export class CreateDto2 {
 }
 
 export class MarkShortageDto {
-  status: any;
+  @IsDefined()
+  @IsIn(['none', 'availability_may_be_limited', 'admin_flagged_shortage'])
+  status: 'none' | 'availability_may_be_limited' | 'admin_flagged_shortage';
 
   @IsOptional()
   @IsString()
@@ -358,6 +422,7 @@ export class MarkShortageDto {
 
 export class RejectDto5 {
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
 
 }

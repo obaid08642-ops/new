@@ -1,8 +1,9 @@
-import { IsArray, IsDefined, IsOptional } from 'class-validator';
+import { IsArray, IsBoolean, IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class SaveHomeCurationDto {
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
 
   @IsDefined()
   @IsArray()
@@ -12,15 +13,19 @@ export class SaveHomeCurationDto {
 
 export class SaveFeatureFlagDto {
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
 
   @IsOptional()
-  key?: any;
+  @IsString()
+  key?: string;
 
   @IsOptional()
-  rollout_percentage?: any;
+  @IsNumber()
+  rollout_percentage?: number;
 
   @IsOptional()
-  enabled?: any;
+  @IsBoolean()
+  enabled?: boolean;
 
 }

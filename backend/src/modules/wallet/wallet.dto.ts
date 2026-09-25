@@ -2,10 +2,12 @@ import { IsDefined, IsIn, IsNumber, IsOptional, IsString } from 'class-validator
 
 export class AddCardDto {
   @IsOptional()
-  last4?: any;
+  @IsString()
+  last4?: string;
 
   @IsOptional()
-  cardNumber?: any;
+  @IsString()
+  cardNumber?: string;
 
   @IsOptional()
   @IsString()
@@ -16,8 +18,8 @@ export class AddCardDto {
   expiry: string;
 
   @IsOptional()
-  @IsIn(["mada"])
-  type: string;
+  @IsIn(['visa', 'mastercard', 'mada', 'amex'])
+  type?: string;
 
 }
 

@@ -1,4 +1,4 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsDateString, IsIn, IsOptional, IsString } from 'class-validator';
 
 export class FcaDto {
   @IsOptional()
@@ -18,7 +18,8 @@ export class FcoapptDto {
 
 export class FraDto {
   @IsOptional()
-  new_time?: any;
+  @IsDateString()
+  new_time?: string;
 
   @IsOptional()
   @IsString()
@@ -45,7 +46,8 @@ export class FkcoDto {
 
 export class FrrDto {
   @IsOptional()
-  pharmacy_id?: any;
+  @IsString()
+  pharmacy_id?: string;
 
   @IsOptional()
   @IsString()
@@ -72,7 +74,8 @@ export class FkclDto {
 
 export class OilDto {
   @IsOptional()
-  status?: any;
+  @IsIn(['approved', 'rejected'])
+  status?: 'approved' | 'rejected';
 
   @IsOptional()
   @IsString()
@@ -99,7 +102,8 @@ export class FkcrDto {
 
 export class OirDto {
   @IsOptional()
-  status?: any;
+  @IsIn(['approved', 'rejected'])
+  status?: 'approved' | 'rejected';
 
   @IsOptional()
   @IsString()
