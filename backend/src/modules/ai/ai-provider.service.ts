@@ -18,7 +18,7 @@
  * key is missing, the service automatically falls back to any configured
  * provider (gemini first) so features never hard-fail on misconfiguration.
  */
-import { Injectable, Logger } from '@nestjs/common';
+import { BadGatewayException, BadRequestException, Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { GoogleGenerativeAI } from '@google/generative-ai';
@@ -100,7 +100,7 @@ export class AiProviderService {
   /** Admin: switch the active provider at runtime (persists to DB flag). */
   async setActiveProvider(provider: AiProviderName) {
     if (!['gemini', 'openai', 'openrouter', 'groq'].includes(provider)) {
-      throw new Error('INVALID_PROVIDER');
+      throw new BadRequestException('INVALID_PROVIDER');
     }
     await this.conn.collection('featureflags').updateOne(
       { key: 'ai_provider' },
@@ -168,7 +168,7 @@ export class AiProviderService {
   /** Unified generation with automatic cross-provider fallback. */
   async generate(opts: AiGenerateOptions): Promise<AiGenerateResult> {
     const chain = this.providerChain();
-    if (chain.length === 0) throw new Error('NO_AI_PROVIDER_CONFIGURED');
+    if (chain.length === 0) throw new ServiceUnavailableException('NO_AI_PROVIDER_CONFIGURED');
 
     let lastErr: any = null;
     for (const provider of chain) {
@@ -191,7 +191,7 @@ export class AiProviderService {
   }
 
   private async generateGemini(opts: AiGenerateOptions): Promise<string> {
-    if (!this.genAI) throw new Error('gemini_not_configured');
+    if (!this.genAI) throw new ServiceUnavailableException('gemini_not_configured');
     const model = this.genAI.getGenerativeModel({ model: this.modelFor('gemini', !!opts.imageBase64) });
     const payload: any[] = Array.isArray(opts.prompt) ? opts.prompt : [opts.prompt];
     if (opts.imageBase64) {
@@ -204,7 +204,7 @@ export class AiProviderService {
   private async generateOpenAiCompat(provider: AiProviderName, opts: AiGenerateOptions): Promise<string> {
     const conf = OPENAI_COMPAT[provider];
     const apiKey = process.env[conf.keyEnv];
-    if (!apiKey) throw new Error(`${provider}_not_configured`);
+    if (!apiKey) throw new ServiceUnavailableException(`${provider}_not_configured`);
 
     const content: any[] = [{ type: 'text', text: Array.isArray(opts.prompt) ? opts.prompt.join('\n') : opts.prompt }];
     if (opts.imageBase64) {
@@ -223,10 +223,10 @@ export class AiProviderService {
         temperature: 0.3,
       }),
     });
-    if (!resp.ok) throw new Error(`${provider}_http_${resp.status}: ${(await resp.text()).slice(0, 200)}`);
+    if (!resp.ok) throw new BadGatewayException(`${provider}_http_${resp.status}: ${(await resp.text()).slice(0, 200)}`);
     const json: any = await resp.json();
     const text = json?.choices?.[0]?.message?.content;
-    if (!text) throw new Error(`${provider}_empty_response`);
+    if (!text) throw new BadGatewayException(`${provider}_empty_response`);
     return text;
   }
 

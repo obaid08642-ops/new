@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { RedisService } from '../redis/redis.service';
@@ -76,7 +76,7 @@ export class CatalogPublicationService {
 
   async refresh(input: CatalogPublicationInput) {
     const source = await this.conn.collection(SOURCE_COLLECTIONS[input.entityType]).findOne({ id: input.entityId });
-    if (!source) throw new Error(`catalog_source_not_found:${input.entityType}:${input.entityId}`);
+    if (!source) throw new NotFoundException(`catalog_source_not_found:${input.entityType}:${input.entityId}`);
 
     const publicEligible = source.public_eligibility === true;
     const medicalApproved = source.medical_review_status === 'approved';

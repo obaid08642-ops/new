@@ -16,7 +16,7 @@
  *     used_today, usage_date, base_url }
  * Every request is logged to `ai_usage` (provider, model, feature, ms, ok, fell_back).
  */
-import { Injectable, Logger } from '@nestjs/common';
+import { BadGatewayException, BadRequestException, Injectable, Logger, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { GoogleGenerativeAI } from '@google/generative-ai';
@@ -152,7 +152,7 @@ export class AiGatewayService {
   /** Unified generation with automatic fallback across the chain. */
   async generate(opts: AiGenerateOptions): Promise<AiGenerateResult> {
     const chain = await this.attemptChain(opts.feature);
-    if (chain.length === 0) throw new Error('NO_AI_PROVIDER_AVAILABLE');
+    if (chain.length === 0) throw new ServiceUnavailableException('NO_AI_PROVIDER_AVAILABLE');
 
     let lastErr: any = null;
     let fellBack = false;
@@ -218,11 +218,11 @@ export class AiGatewayService {
     });
     if (!resp.ok) {
       const body = await resp.text();
-      throw new Error(`${p.key}_http_${resp.status}: ${body.slice(0, 150)}`);
+      throw new BadGatewayException(`${p.key}_http_${resp.status}: ${body.slice(0, 150)}`);
     }
     const json: any = await resp.json();
     const text = json?.choices?.[0]?.message?.content;
-    if (!text) throw new Error(`${p.key}_empty_response`);
+    if (!text) throw new BadGatewayException(`${p.key}_empty_response`);
     return text;
   }
 
@@ -269,10 +269,10 @@ export class AiGatewayService {
   /** Per-feature provider pin (null clears). Fallback chain stays intact behind it. */
   async setPurposeOverride(feature: string, provider: AiProviderName | null) {
     const clean = String(feature || '').trim().slice(0, 64);
-    if (!clean) throw new Error('feature_required');
+    if (!clean) throw new BadRequestException('feature_required');
     if (provider) {
       const exists = await this.providers.findOne({ key: provider });
-      if (!exists) throw new Error('unknown_provider');
+      if (!exists) throw new NotFoundException('unknown_provider');
     }
     await this.settings.updateOne(
       { key: 'ai_mode' },

@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, Logger, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
 import { AccessToken } from 'livekit-server-sdk';
 import { randomUUID } from 'crypto';
 import { InjectModel, InjectConnection } from '@nestjs/mongoose';
@@ -21,7 +21,7 @@ export class LiveKitService {
   async createToken(roomName: string, participantName: string): Promise<string> {
     this.logger.log(`Creating LiveKit token for ${participantName} in ${roomName}`);
     if (!process.env.LIVEKIT_API_KEY || !process.env.LIVEKIT_API_SECRET) {
-      throw new Error('LIVEKIT_NOT_CONFIGURED');
+      throw new ServiceUnavailableException('LIVEKIT_NOT_CONFIGURED');
     }
     const at = new AccessToken(process.env.LIVEKIT_API_KEY, process.env.LIVEKIT_API_SECRET, {
       identity: participantName,
@@ -34,7 +34,7 @@ export class LiveKitService {
   /** Patient-web booking token: narrower than legacy sessions and valid 10 minutes only. */
   async createBookingToken(roomName: string, participantName: string): Promise<string> {
     if (!process.env.LIVEKIT_API_KEY || !process.env.LIVEKIT_API_SECRET) {
-      throw new Error('LIVEKIT_NOT_CONFIGURED');
+      throw new ServiceUnavailableException('LIVEKIT_NOT_CONFIGURED');
     }
     const at = new AccessToken(process.env.LIVEKIT_API_KEY, process.env.LIVEKIT_API_SECRET, {
       identity: participantName,

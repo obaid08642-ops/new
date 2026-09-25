@@ -155,15 +155,15 @@ export class ProviderImageProcessorService {
     const meta = await image.metadata();
     
     if (!meta.width || !meta.height) {
-      throw new Error('Image is corrupted or has invalid dimensions.');
+      throw new BadRequestException('Image is corrupted or has invalid dimensions.');
     }
     
     // Enforce Minimum and Maximum dimensions
     if (meta.width < 100 || meta.height < 100) {
-      throw new Error(`Image resolution is too low (${meta.width}x${meta.height}px). Minimum resolution is 100x100px.`);
+      throw new BadRequestException(`Image resolution is too low (${meta.width}x${meta.height}px). Minimum resolution is 100x100px.`);
     }
     if (meta.width > 4000 || meta.height > 4000) {
-      throw new Error(`Image resolution is too high (${meta.width}x${meta.height}px). Maximum resolution is 4000x4000px.`);
+      throw new BadRequestException(`Image resolution is too high (${meta.width}x${meta.height}px). Maximum resolution is 4000x4000px.`);
     }
 
     // Step 2: Transparency check (alpha channel detection)

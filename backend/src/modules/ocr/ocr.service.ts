@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { BadGatewayException, Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
 import * as vision from '@google-cloud/vision';
 
 @Injectable()
@@ -17,7 +17,7 @@ export class OcrService {
 
   async extractTextFromImage(imageUrl: string): Promise<string> {
     if (!this.client) {
-      throw new Error('VISION_API_NOT_CONFIGURED');
+      throw new ServiceUnavailableException('VISION_API_NOT_CONFIGURED');
     }
 
     this.logger.log(`Sending to Cloud Vision OCR: ${imageUrl}`);
@@ -29,7 +29,7 @@ export class OcrService {
       return fullTextAnnotation ? fullTextAnnotation.text : '';
     } catch (error) {
       this.logger.error('Failed to extract text using Vision API', error);
-      throw new Error('OCR_EXTRACTION_FAILED');
+      throw new BadGatewayException('OCR_EXTRACTION_FAILED');
     }
   }
 }

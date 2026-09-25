@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -119,7 +119,7 @@ export class ScheduledReportsRunner {
         return { rows: [...(res.cancellation_anomalies || []).map((a) => ({ kind: 'cancellation', ...a })), ...(res.payment_failure_anomalies || []).map((a) => ({ kind: 'payment_failure', ...a }))], period: 'last45d' };
       }
       default:
-        throw new Error(`unknown_report:${report}`);
+        throw new BadRequestException(`unknown_report:${report}`);
     }
   }
 }
