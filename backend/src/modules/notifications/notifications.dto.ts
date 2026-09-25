@@ -1,23 +1,35 @@
-import { IsDefined, IsOptional, IsString } from 'class-validator';
+import { IsDateString, IsDefined, IsOptional, IsString } from 'class-validator';
 
 export class SendDto {
   @IsOptional()
-  user_id?: any;
+  @IsString()
+  user_id?: string;
+
 
   @IsOptional()
-  role?: any;
+  @IsString()
+  role?: string;
+
 
   @IsOptional()
-  title_key?: any;
+  @IsString()
+  title_key?: string;
+
 
   @IsOptional()
-  body_key?: any;
+  @IsString()
+  body_key?: string;
+
 
   @IsOptional()
-  title?: any;
+  @IsString()
+  title?: string;
+
 
   @IsOptional()
-  body?: any;
+  @IsString()
+  body?: string;
+
 
   @IsOptional()
   params?: any;
@@ -32,31 +44,47 @@ export class SendDto {
   action?: any;
 
   @IsOptional()
-  scheduled_at?: any;
+  @IsDateString()
+  scheduled_at?: string;
+
 
 }
 
 export class ScheduleDto {
   @IsOptional()
-  scheduled_at?: any;
+  @IsDateString()
+  scheduled_at?: string;
+
 
   @IsOptional()
-  user_id?: any;
+  @IsString()
+  user_id?: string;
+
 
   @IsOptional()
-  role?: any;
+  @IsString()
+  role?: string;
+
 
   @IsOptional()
-  title_key?: any;
+  @IsString()
+  title_key?: string;
+
 
   @IsOptional()
-  body_key?: any;
+  @IsString()
+  body_key?: string;
+
 
   @IsOptional()
-  title?: any;
+  @IsString()
+  title?: string;
+
 
   @IsOptional()
-  body?: any;
+  @IsString()
+  body?: string;
+
 
   @IsOptional()
   params?: any;

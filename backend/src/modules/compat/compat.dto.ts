@@ -1,4 +1,4 @@
-import { IsArray, IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsDefined, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 
 export class SendDto {
   @IsOptional()
@@ -17,14 +17,18 @@ export class AddDto {
   dosage: string;
 
   @IsOptional()
-  form?: any;
+  @IsString()
+  form?: string;
+
 
   @IsDefined()
   @IsArray()
   times: any[];
 
   @IsOptional()
-  source?: any;
+  @IsString()
+  source?: string;
+
 
 }
 
@@ -118,11 +122,21 @@ export class BatchDto {
 export class CheckDto {
   @IsOptional()
   @IsArray()
+  @IsString({ each: true })
   drugs?: string[];
 
   @IsOptional()
   @IsString()
   drug?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  meds?: string[];
+
+  @IsOptional()
+  @IsString()
+  newDrug?: string;
 }
 export class SendMessageDto {
   @IsOptional()
@@ -131,7 +145,16 @@ export class SendMessageDto {
 }
 export class AddNoteToActiveDto {
   @IsOptional()
-  vitals?: any;
+  @IsString()
+  patient_id?: string;
+
+  @IsOptional()
+  @IsString()
+  booking_id?: string;
+
+  @IsOptional()
+  @IsObject()
+  vitals?: Record<string, unknown>;
 
   @IsOptional()
   @IsString()
@@ -154,6 +177,10 @@ export class VerifyGpsDto {
   @IsOptional()
   @IsNumber()
   lng?: number;
+
+  @IsOptional()
+  @IsNumber()
+  radius?: number;
 }
 export class ReportShortageDto {
   @IsOptional()

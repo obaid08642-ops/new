@@ -6,8 +6,8 @@
  * requiring JWT on every compat endpoint). All writes persist state_history.
  */
 import { Module, Controller, Get, Post, Body, Param, Query, UseGuards, Header, NotFoundException, ForbiddenException, BadRequestException, Optional } from '@nestjs/common';
-import { InjectModel, MongooseModule } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { InjectConnection, InjectModel, MongooseModule } from '@nestjs/mongoose';
+import { Connection, Model } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { v4 as uuid } from 'uuid';
 import { JwtAuthGuard, CurrentUser, Public, SelfService, Roles } from '../../common/auth.guard';
@@ -168,9 +168,12 @@ export class HomeCareCompatController {
   @SelfService()
   @Post('bookings/:id/assign') async assign(@CurrentUser() u: any, @Param('id') id: string, @Body() body: AssignDto) {
     if (!this.isAdmin(u)) throw new ForbiddenException('admin_only');
-    if (!body?.provider_id) throw new BadRequestException('provider_id is required');
+    // Facility dashboard assigns by nurse_* fields; map onto provider identity.
+    const providerId = body?.provider_id || (body as any)?.nurse_id;
+    const providerName = body?.provider_name || (body as any)?.nurse_name;
+    if (!providerId) throw new BadRequestException('provider_id is required');
     await this.getBookingForAccess(u, id);
-    return this.transition(u, id, 'PROVIDER_ASSIGNED', { fields: { provider_id: body.provider_id, provider_name: body.provider_name } });
+    return this.transition(u, id, 'PROVIDER_ASSIGNED', { fields: { provider_id: providerId, provider_name: providerName } });
   }
 
   @SelfService()
@@ -301,7 +304,7 @@ export class NursingOpsController {
 @SelfService()
 @UseGuards(JwtAuthGuard)
 export class ChatAliasController {
-  constructor(private readonly chat: ChatService) {}
+  constructor(private readonly chat: ChatService, @InjectConnection() private readonly conn: Connection) {}
 
   @Get('chats/provider') providerThreads(@CurrentUser() u: any, @Query() q: any) {
     return this.chat.myThreads(u.id, parseInt(q?.page || '1', 10) || 1, parseInt(q?.limit || '30', 10) || 30);
@@ -325,10 +328,23 @@ export class ChatAliasController {
   }
 
   // provider quick-send: POST /provider/chat/send {thread_id, text}
+  // Also accepts {appointment_id, message} from the doctor dashboard chat sheet.
   @Post('provider/chat/send') providerSend(@CurrentUser() u: any, @Body() body: ProviderSendDto) {
-    const threadId = body?.thread_id || body?.threadId;
+    return this.providerQuickSend(u, body);
+  }
+
+  private async providerQuickSend(u: any, body: ProviderSendDto) {
+    let threadId = (body as any)?.thread_id || (body as any)?.threadId;
+    const appointmentId = (body as any)?.appointment_id;
+    if (!threadId && appointmentId) {
+      const thread: any = await this.conn?.collection('chat_threads')?.findOne?.(
+        { booking_id: String(appointmentId) } as any,
+      ).catch(() => null);
+      threadId = thread?.id || thread?._id?.toString();
+    }
     if (!threadId) throw new BadRequestException('thread_id is required');
-    return this.chat.sendMessage(threadId, u.id, u.role || 'provider', { type: 'text', body: body?.text || body?.content });
+    const text = (body as any)?.message || body?.text || body?.content;
+    return this.chat.sendMessage(threadId, u.id, u.role || 'provider', { type: 'text', body: text });
   }
 }
 

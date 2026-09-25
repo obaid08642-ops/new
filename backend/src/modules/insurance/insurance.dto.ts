@@ -1,131 +1,190 @@
-import { IsDefined, IsIn, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsDateString, IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateCompanyDto {
   @IsDefined()
   @IsString()
   code: string;
 
+  @IsDefined()
+  @IsString()
+  name_ar: string;
+
+  @IsDefined()
+  @IsString()
+  name_en: string;
 }
 
 export class UpdateCompanyDto {
   @IsOptional()
-  @IsIn(["number"])
-  catalog_version: string;
+  @IsString()
+  name_ar?: string;
 
   @IsOptional()
-  logo_verified_at?: any;
+  @IsString()
+  name_en?: string;
 
   @IsOptional()
-  retired_at?: any;
+  @IsString()
+  logo_url?: string;
 
   @IsOptional()
-  @IsIn(["boolean"])
-  is_active: string;
+  @IsBoolean()
+  is_active?: boolean;
 
+  @IsOptional()
+  @IsNumber()
+  catalog_version?: number;
+
+  @IsOptional()
+  @IsDateString()
+  logo_verified_at?: string;
+
+  @IsOptional()
+  @IsDateString()
+  retired_at?: string;
 }
 
 export class OcrExtractDto {
   @IsOptional()
-  image_base64?: any;
+  @IsString()
+  image_base64?: string;
 
   @IsOptional()
-  file?: any;
+  file?: unknown;
 
   @IsOptional()
-  mime_type?: any;
-
+  @IsString()
+  mime_type?: string;
 }
 
 export class UploadPolicyDto {
   @IsOptional()
-  policy_number?: any;
+  @IsString()
+  policy_number?: string;
 
   @IsOptional()
-  provider?: any;
+  @IsString()
+  provider?: string;
 
   @IsOptional()
-  company_id?: any;
+  @IsString()
+  company_id?: string;
 
   @IsOptional()
-  network?: any;
+  @IsString()
+  network?: string;
 
   @IsOptional()
-  class?: any;
+  @IsString()
+  class?: string;
 
   @IsOptional()
-  expiry_date?: any;
+  @IsDateString()
+  expiry_date?: string;
 
   @IsOptional()
-  member_name?: any;
+  @IsString()
+  member_name?: string;
 
   @IsOptional()
-  national_id?: any;
+  @IsString()
+  national_id?: string;
 
   @IsOptional()
-  pdf_url?: any;
+  @IsString()
+  pdf_url?: string;
 
   @IsOptional()
-  ocr_extracted?: any;
-
+  @IsBoolean()
+  ocr_extracted?: boolean;
 }
 
 export class NphiesEligibilityDto {
   @IsOptional()
-  national_id?: any;
+  @IsString()
+  national_id?: string;
 
   @IsOptional()
-  insurance_company_code?: any;
+  @IsString()
+  insurance_company_code?: string;
 
   @IsOptional()
-  member_id?: any;
-
+  @IsString()
+  member_id?: string;
 }
 
 export class SavePolicyDto {
   @IsOptional()
-  company_id?: any;
+  @IsString()
+  company_id?: string;
 
   @IsOptional()
-  provider?: any;
+  @IsString()
+  provider?: string;
 
   @IsOptional()
-  policy_number?: any;
+  @IsString()
+  policy_number?: string;
 
   @IsOptional()
-  network?: any;
+  @IsString()
+  network?: string;
 
   @IsOptional()
-  class?: any;
+  @IsString()
+  class?: string;
 
   @IsOptional()
-  expiry_date?: any;
+  @IsDateString()
+  expiry_date?: string;
 
   @IsOptional()
-  member_name?: any;
+  @IsString()
+  member_name?: string;
 
   @IsOptional()
-  national_id?: any;
-
-  verified?: any;
+  @IsString()
+  national_id?: string;
 
   @IsOptional()
-  pdf_url?: any;
+  @IsBoolean()
+  verified?: boolean;
 
-  ocr_extracted?: any;
+  @IsOptional()
+  @IsString()
+  pdf_url?: string;
 
-  nphies_eligible?: any;
+  @IsOptional()
+  @IsBoolean()
+  ocr_extracted?: boolean;
 
+  @IsOptional()
+  @IsBoolean()
+  nphies_eligible?: boolean;
 }
 
 export class SubmitClaimDto {
   @IsOptional()
-  amount?: any;
+  @IsNumber()
+  amount?: number;
 
   @IsOptional()
   @IsString()
-  service: string;
+  service?: string;
 
   @IsOptional()
-  covered?: any;
+  @IsNumber()
+  covered?: number;
 
+  @IsOptional()
+  @IsString()
+  claim_type?: string;
+
+  @IsOptional()
+  @IsString()
+  status?: string;
+
+  @IsOptional()
+  @IsDateString()
+  submitted_at?: string;
 }

@@ -196,7 +196,7 @@ export class LabsService {
     return booking.toObject();
   }
 
-  async addDocument(id: string, user: any, body: { kind: string; url_or_b64: string; filename?: string }) {
+  async addDocument(id: string, user: any, body: { kind?: string; url_or_b64?: string; filename?: string }) {
     const b = await this.bkgModel.findOne({ id });
     if (!b) throw new NotFoundException();
     if (b.patient_id !== user.id && user.role !== 'admin') throw new ForbiddenException();
@@ -426,7 +426,7 @@ export class LabsService {
     });
   }
 
-  async updateSampleStage(user: any, sampleId: string, stage: 'received' | 'analyzing' | 'result_ready' | 'sent', notes?: string) {
+  async updateSampleStage(user: any, sampleId: string, stage: string, notes?: string) {
     if (!getEffectiveRoles(user).some(role => ['admin', 'lab', 'hospital'].includes(role))) throw new ForbiddenException();
     const sample = await this.sampleModel.findOne({ id: sampleId });
     if (!sample) throw new NotFoundException('sample_not_found');

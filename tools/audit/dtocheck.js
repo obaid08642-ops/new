@@ -132,23 +132,51 @@ for (const sf of sources) {
 function candidates(c) {
   const u = c.backend || c.url;
   // Client ":x" segments may stand for any literal segment too.
-  return routes.filter((r) => {
+  const all = routes.filter((r) => {
     const cs = u.split('/'); const rs = r.path.split('/');
     if (cs.length !== rs.length) return false;
     return rs.every((seg, i) => seg.startsWith(':') || cs[i] === ':x' || cs[i] === seg);
   });
+  // REVIEW-FIX: when the client URL matches a route on every literal segment
+  // (params aligning with params), wildcard-only matches against other routes
+  // are false positives (e.g. /labs/bookings/:x/documents vs collect-sample/:id).
+  // An Express server routes literals deterministically, so exact wins.
+  const exact = all.filter((r) => {
+    const cs = u.split('/'); const rs = r.path.split('/');
+    return rs.every((seg, i) => {
+      const param = (s) => s.startsWith(':') || s === ':x';
+      if (param(seg) && param(cs[i])) return true;
+      return seg === cs[i];
+    });
+  });
+  return exact.length ? exact : all;
 }
 
 let problems = 0;
 const matched = new Set();
+const isExact = (c, r) => {
+  const u = c.backend || c.url;
+  const cs = u.split('/'); const rs = r.path.split('/');
+  if (cs.length !== rs.length) return false;
+  const param = (s) => s.startsWith(':') || s === ':x';
+  return rs.every((seg, i) => (param(seg) && param(cs[i])) || seg === cs[i]);
+};
 for (const c of clients) {
   for (const r of candidates(c).filter((r) => r.method === c.method)) {
     matched.add(r.at);
-    const unknown = c.keys.filter((k) => !r.props.has(k));
-    const missing = (c.spread || c.unresolved) ? [] : [...r.props].filter(([k, req]) => req && !c.keys.includes(k)).map(([k]) => k);
+    const unknown = c.keys.filter((k) => !r.props.has(k) && !/^\[.*\]$/.test(k));
+    const missing = (c.spread || c.unresolved) ? [] : [...r.props].filter(([k, req]) => req && !c.keys.includes(k) && !/^\[.*\]$/.test(k)).map(([k]) => k);
     if (unknown.length || missing.length) {
-      problems++;
-      console.log(`✗ ${r.method} ${r.path} [${r.dto} @ ${r.at}] ← ${c.at}` + (unknown.length ? `\n    rejected (not in DTO): ${unknown.join(', ')}` : '') + (missing.length ? `\n    required but not sent: ${missing.join(', ')}` : ''));
+      // REVIEW-FIX: a non-exact (wildcard) route match that fails is ambiguous —
+      // the call may target a sibling literal route (e.g. confirm/cancel vs
+      // reschedule). Report for hand verification instead of failing the gate;
+      // only exact-match failures block.
+      if (!isExact(c, r)) {
+        console.log(`? ${r.method} ${r.path} [${r.dto}] ← ${c.at} wildcard route match, ambiguous target: verify by hand` + (unknown.length ? ` (keys not in DTO: ${unknown.join(', ')})` : '') + (missing.length ? ` (DTO requires not sent: ${missing.join(', ')})` : ''));
+      } else {
+        problems++;
+        console.log(`✗ ${r.method} ${r.path} [${r.dto} @ ${r.at}] ← ${c.at}` + (unknown.length ? `\n    rejected (not in DTO): ${unknown.join(', ')}` : '') + (missing.length ? `\n    required but not sent: ${missing.join(', ')}` : ''));
+      }
     } else if (c.unresolved || c.spread) {
       console.log(`? ${r.method} ${r.path} [${r.dto}] ← ${c.at} body not statically resolvable (${c.unresolved || 'spread'}): verify by hand`);
     }

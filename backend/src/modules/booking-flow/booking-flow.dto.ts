@@ -1,7 +1,10 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsIn, IsOptional, IsString } from 'class-validator';
 
 export class ResolveDto {
-  resolution: any;
+  @IsOptional()
+  @IsIn(['force_complete', 'force_cancel'])
+  resolution?: 'force_complete' | 'force_cancel';
+
 
   @IsOptional()
   @IsString()

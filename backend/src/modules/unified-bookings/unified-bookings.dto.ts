@@ -1,35 +1,54 @@
-import { IsArray, IsBoolean, IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDefined, IsIn, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 
 export class CreateDto {
   @IsOptional()
-  doctor_id?: any;
+  @IsString()
+  doctor_id?: string;
+
 
   @IsOptional()
-  slot_id?: any;
+  @IsString()
+  slot_id?: string;
+
 
   @IsOptional()
-  type?: any;
+  @IsIn(['video', 'clinic', 'home'])
+  type?: 'video' | 'clinic' | 'home';
 
   @IsOptional()
-  notes?: any;
+  @IsString()
+  notes?: string;
+
 
   @IsOptional()
-  symptoms?: any;
+  @IsArray()
+  @IsString({ each: true })
+  symptoms?: string[];
+
 
   @IsOptional()
-  visit_location?: any;
+  @IsObject()
+  visit_location?: { lat: number; lng: number; address: string };
 
   @IsOptional()
-  payment_method_id?: any;
+  @IsString()
+  payment_method_id?: string;
+
 
   @IsOptional()
-  insurance_provider?: any;
+  @IsString()
+  insurance_provider?: string;
+
 
   @IsOptional()
-  insurance_member_id?: any;
+  @IsString()
+  insurance_member_id?: string;
+
 
   @IsOptional()
-  for_member_id?: any;
+  @IsString()
+  for_member_id?: string;
+
 
 }
 
@@ -47,7 +66,9 @@ export class RescheduleRootDto {
 
 export class CancelDto {
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
+
 
 }
 
@@ -129,21 +150,27 @@ export class NursingDto {
 
 export class CheckoutDto {
   @IsOptional()
-  provider_account_id?: any;
+  @IsString()
+  provider_account_id?: string;
+
 
   @IsOptional()
   address?: any;
 
   @IsOptional()
-  scheduled_at?: any;
+  @IsString()
+  scheduled_at?: string;
+
 
   @IsOptional()
-  insurance?: any;
+  insurance?: unknown;
 
   @IsOptional()
-  location_type?: any;
+  @IsIn(['home', 'facility'])
+  location_type?: 'home' | 'facility';
+
 
   @IsOptional()
-  delivery_address?: any;
+  delivery_address?: unknown;
 
 }

@@ -1,14 +1,18 @@
-import { IsOptional } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class FcaDto {
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
+
 
 }
 
 export class FcoapptDto {
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
+
 
 }
 
@@ -17,19 +21,25 @@ export class FraDto {
   new_time?: any;
 
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
+
 
 }
 
 export class FcoDto {
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
+
 
 }
 
 export class FkcoDto {
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
+
 
 }
 
@@ -38,19 +48,25 @@ export class FrrDto {
   pharmacy_id?: any;
 
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
+
 
 }
 
 export class FclDto {
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
+
 
 }
 
 export class FkclDto {
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
+
 
 }
 
@@ -59,19 +75,25 @@ export class OilDto {
   status?: any;
 
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
+
 
 }
 
 export class FcrDto {
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
+
 
 }
 
 export class FkcrDto {
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
+
 
 }
 
@@ -80,12 +102,16 @@ export class OirDto {
   status?: any;
 
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
+
 
 }
 
 export class SuspDto {
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
+
 
 }

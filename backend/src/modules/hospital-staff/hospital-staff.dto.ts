@@ -1,4 +1,4 @@
-import { IsDefined, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateDto {
   @IsDefined()
@@ -22,63 +22,98 @@ export class CreateDto {
   staff_role: string;
 
   @IsOptional()
-  department?: any;
+  @IsString()
+  name_ar?: string;
 
   @IsOptional()
-  permissions?: any;
+  @IsString()
+  name_en?: string;
 
   @IsOptional()
-  schedule?: any;
+  @IsString()
+  legal_name?: string;
 
   @IsOptional()
-  specialty?: any;
+  @IsString()
+  scfhs?: string;
 
   @IsOptional()
-  degree?: any;
+  @IsString()
+  department?: string;
 
   @IsOptional()
-  years_experience?: any;
+  @IsArray()
+  @IsString({ each: true })
+  permissions?: string[];
 
   @IsOptional()
-  license_number?: any;
+  schedule?: unknown;
 
   @IsOptional()
-  consultation_fee?: any;
+  @IsString()
+  specialty?: string;
+
+  @IsOptional()
+  @IsString()
+  degree?: string;
+
+  @IsOptional()
+  @IsNumber()
+  years_experience?: number;
+
+  @IsOptional()
+  @IsString()
+  license_number?: string;
+
+  @IsOptional()
+  @IsNumber()
+  consultation_fee?: number;
+
 
 }
 
 export class UpdateDto {
   @IsOptional()
-  full_name?: any;
+  @IsString()
+  full_name?: string;
 
   @IsOptional()
-  phone?: any;
+  @IsString()
+  phone?: string;
 
   @IsOptional()
-  email?: any;
+  @IsString()
+  email?: string;
 
   @IsOptional()
-  department?: any;
+  @IsString()
+  department?: string;
 
   @IsOptional()
-  permissions?: any;
+  @IsArray()
+  @IsString({ each: true })
+  permissions?: string[];
 
   @IsOptional()
-  schedule?: any;
+  schedule?: unknown;
 
   @IsOptional()
-  specialty?: any;
+  @IsString()
+  specialty?: string;
 
   @IsOptional()
-  degree?: any;
+  @IsString()
+  degree?: string;
 
   @IsOptional()
-  years_experience?: any;
+  @IsNumber()
+  years_experience?: number;
 
   @IsOptional()
-  license_number?: any;
+  @IsString()
+  license_number?: string;
 
   @IsOptional()
-  consultation_fee?: any;
-
+  @IsNumber()
+  consultation_fee?: number;
 }

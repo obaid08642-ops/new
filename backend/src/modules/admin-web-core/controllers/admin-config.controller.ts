@@ -27,6 +27,8 @@ export class AdminConfigController {
   @Roles(UserRole.ADMIN)
   async updateSLA(@Body() body: SlaDto, @CurrentUser() admin: any) {
     const value = { ...SLA_DEFAULTS, ...body };
+    delete (value as any).reason;
+    delete (value as any).systemStatus;
     await this.conn.collection('system_configs').updateOne(
       { key: SLA_KEY },
       { $set: { key: SLA_KEY, value, updated_at: new Date() }, $setOnInsert: { created_at: new Date() } },
@@ -39,7 +41,7 @@ export class AdminConfigController {
       resource_id: `system_config:${SLA_KEY}`,
       actor_account_id: admin?.id,
       actor_role: admin?.role,
-      metadata: { value },
+      metadata: { value, reason: (body as any)?.reason || null },
       created_at: new Date(),
     });
     return { ...(await this.conn.collection('system_configs').findOne({ key: SLA_KEY }))?.value, systemStatus: 'online' };

@@ -142,7 +142,7 @@ export class MentalHealthService {
 
   /* ───── Optional practice logs: activity history, not care or outcome claims ───── */
 
-  async logMeditation(userId: string, data: Partial<MeditationSession>) {
+  async logMeditation(userId: string, data: Omit<Partial<MeditationSession>, 'logged_at'> & { logged_at?: string | Date }) {
     this.requirePatientId(userId);
     if (!data || !Object.values(MeditationType).includes(data.type as MeditationType)) {
       throw new BadRequestException('نوع الممارسة مطلوب وغير صالح / A valid practice type is required');

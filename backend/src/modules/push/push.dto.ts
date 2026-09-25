@@ -6,16 +6,24 @@ export class RegisterDto {
   token: string;
 
   @IsOptional()
-  provider?: any;
+  @IsString()
+  provider?: string;
+
 
   @IsOptional()
-  platform?: any;
+  @IsString()
+  platform?: string;
+
 
   @IsOptional()
-  device_id?: any;
+  @IsString()
+  device_id?: string;
+
 
   @IsOptional()
-  device_name?: any;
+  @IsString()
+  device_name?: string;
+
 
 }
 
@@ -25,10 +33,14 @@ export class TrackDto {
   event: string;
 
   @IsOptional()
-  notification_id?: any;
+  @IsString()
+  notification_id?: string;
+
 
   @IsOptional()
-  campaign_id?: any;
+  @IsString()
+  campaign_id?: string;
+
 
   @IsOptional()
   data?: any;

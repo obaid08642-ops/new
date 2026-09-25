@@ -2,28 +2,40 @@ import { IsArray, IsBoolean, IsDefined, IsNumber, IsOptional, IsString } from 'c
 
 export class SuggestChangeDto {
   @IsOptional()
-  type?: any;
+  @IsString()
+  type?: string;
+
 
   @IsOptional()
   changes?: any;
 
   @IsOptional()
-  note?: any;
+  @IsString()
+  note?: string;
+
 
   @IsOptional()
-  id?: any;
+  @IsString()
+  id?: string;
+
 
   @IsOptional()
-  role?: any;
+  @IsString()
+  role?: string;
+
 
 }
 
 export class SuggestNewItemDto {
   @IsOptional()
-  id?: any;
+  @IsString()
+  id?: string;
+
 
   @IsOptional()
-  role?: any;
+  @IsString()
+  role?: string;
+
 
   @IsOptional()
   note?: any;
@@ -36,11 +48,16 @@ export class AdminUpdateCatalogDto {
   reason: string;
 
   @IsOptional()
-  availability_status?: any;
+  @IsNumber()
+  price?: number;
 
   @IsOptional()
-  image?: any;
+  @IsString()
+  availability_status?: string;
 
+  @IsOptional()
+  @IsString()
+  image?: string;
 }
 
 export class AdminCreateDto {

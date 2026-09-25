@@ -75,7 +75,7 @@ export class RadiologyOpsService {
     return object;
   }
 
-  async transition(id: string, targetState: RadiologyBookingState, user: any, note?: string) {
+  async transition(id: string, targetState: string, user: any, note?: string) {
     const b = await this.findBooking(id, user);
     if (!b) throw new NotFoundException('Radiology booking not found');
     // Center bookings store the lifecycle in `status`; legacy in `state`.

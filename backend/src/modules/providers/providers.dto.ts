@@ -1,4 +1,4 @@
-import { IsBoolean, IsDefined, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class ApplyDto {
   @IsDefined()
@@ -44,34 +44,54 @@ export class ApplyDto {
   has_own_drivers?: boolean;
 
   @IsOptional()
-  specialty?: any;
+  @IsString()
+  specialty?: string;
+
 
   @IsOptional()
-  years_experience?: any;
+  @IsNumber()
+  years_experience?: number;
+
 
   @IsOptional()
-  consultation_modes?: any;
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  consultation_modes?: string[];
+
 
   @IsOptional()
-  price_clinic?: any;
+  @IsNumber()
+  price_clinic?: number;
+
 
   @IsOptional()
-  price_online?: any;
+  @IsNumber()
+  price_online?: number;
+
 
   @IsOptional()
-  pharmacy_chain?: any;
+  @IsString()
+  pharmacy_chain?: string;
+
 }
 
 export class AdminCreateDto {
   @IsOptional()
-  phone?: any;
-
-  password?: any;
+  @IsString()
+  phone?: string;
 
   @IsOptional()
-  type?: any;
+  @IsString()
+  password?: string;
 
-  auto_approve?: any;
+  @IsOptional()
+  @IsString()
+  type?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  auto_approve?: boolean;
 
   @IsOptional()
   full_name?: any;
@@ -104,7 +124,9 @@ export class AdminCreateDto {
   years_experience?: any;
 
   @IsOptional()
-  consultation_modes?: any;
+  @IsArray()
+  consultation_modes?: unknown[];
+
 
   @IsOptional()
   price_clinic?: any;
@@ -122,7 +144,9 @@ export class AdminCreateDto {
   has_own_drivers?: any;
 
   @IsOptional()
-  working_hours?: any;
+  @IsArray()
+  working_hours?: unknown[];
+
 
 }
 

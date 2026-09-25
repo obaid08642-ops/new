@@ -1,10 +1,14 @@
-import { IsOptional } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class CompleteDto {
   @IsOptional()
-  programType?: any;
+  @IsString()
+  programType?: string;
+
 
   @IsOptional()
-  sessionId?: any;
+  @IsString()
+  sessionId?: string;
+
 
 }

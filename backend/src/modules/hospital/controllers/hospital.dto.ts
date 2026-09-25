@@ -1,16 +1,62 @@
-import { IsBoolean, IsDefined, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDefined, IsEmail, IsOptional, IsString } from 'class-validator';
 
 export class AddStaffDto {
-  user_id: any;
+  @IsOptional()
+  @IsString()
+  user_id?: string;
+
+  @IsDefined()
+  @IsString()
+  full_name: string;
 
   @IsOptional()
-  @IsOptional()
-  branch_id?: any;
+  @IsString()
+  name_ar?: string;
 
   @IsOptional()
-  @IsOptional()
-  department_id?: any;
+  @IsString()
+  name_en?: string;
 
+  @IsOptional()
+  @IsString()
+  legal_name?: string;
+
+  @IsOptional()
+  @IsString()
+  phone?: string;
+
+  @IsDefined()
+  @IsEmail()
+  email: string;
+
+  @IsDefined()
+  @IsString()
+  password: string;
+
+  @IsDefined()
+  @IsString()
+  staff_role: string;
+
+  @IsOptional()
+  @IsString()
+  department?: string;
+
+  @IsOptional()
+  @IsString()
+  scfhs?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  permissions?: string[];
+
+  @IsOptional()
+  @IsString()
+  branch_id?: string;
+
+  @IsOptional()
+  @IsString()
+  department_id?: string;
 }
 
 export class OnboardDoctorDto {

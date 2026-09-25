@@ -1,36 +1,73 @@
-import { IsArray, IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDefined, IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class SavePolicyDto {
   @IsOptional()
-  company_id?: any;
+  @IsString()
+  company_id?: string;
 
   @IsOptional()
-  plan_class?: any;
+  @IsString()
+  plan_class?: string;
 
   @IsOptional()
-  member_id?: any;
+  @IsString()
+  member_id?: string;
 
   @IsOptional()
-  policy_number?: any;
+  @IsString()
+  policy_number?: string;
 
   @IsOptional()
-  card_image_url?: any;
+  @IsString()
+  card_image_url?: string;
 
+  @IsOptional()
+  @IsString()
+  provider?: string;
+
+  @IsOptional()
+  @IsString()
+  network?: string;
+
+  @IsOptional()
+  @IsString()
+  class?: string;
+
+  @IsOptional()
+  @IsString()
+  expiry_date?: string;
+
+  @IsOptional()
+  @IsString()
+  member_name?: string;
+
+  @IsOptional()
+  @IsString()
+  national_id?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  verified?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  ocr_extracted?: boolean;
 }
 
 export class CreateRequestDto {
   @IsOptional()
-  booking_id?: any;
+  @IsString()
+  booking_id?: string;
 
   @IsOptional()
-  booking_kind?: any;
-
+  @IsString()
+  booking_kind?: string;
 }
 
 export class PayCopayDto {
   @IsOptional()
-  payment_id?: any;
-
+  @IsString()
+  payment_id?: string;
 }
 
 export class ResubmitDto {
@@ -45,7 +82,8 @@ export class ResubmitDto {
 
 export class AppealDto {
   @IsOptional()
-  documents?: any;
+  @IsArray()
+  documents?: unknown[];
 
   @IsDefined()
   @IsString()
@@ -54,101 +92,95 @@ export class AppealDto {
 }
 
 export class DecideDto {
-  @IsOptional()
-  decision?: any;
-
-  @IsOptional()
-  copay_percent?: any;
-
   @IsDefined()
+  @IsIn(['approve_full', 'approve_partial', 'reject'])
+  decision: string;
+
+  @IsOptional()
+  @IsNumber()
+  copay_percent?: number;
+
+  @IsOptional()
   @IsString()
-  reason: string;
-
-  requests?: any;
-
-  findOne?: any;
-
+  reason?: string;
 }
 
 export class GatekeeperDto {
   @IsOptional()
-  status?: any;
+  @IsString()
+  status?: string;
 
   @IsOptional()
-  copay?: any;
+  @IsNumber()
+  copay?: number;
 
   @IsOptional()
-  approval_code?: any;
-
+  @IsString()
+  approval_code?: string;
 }
 
 export class PaymentConfirmDto {
   @IsOptional()
-  request_id?: any;
+  @IsString()
+  request_id?: string;
 
   @IsOptional()
-  id?: any;
+  @IsString()
+  id?: string;
 
   @IsOptional()
-  payment_id?: any;
-
+  @IsString()
+  payment_id?: string;
 }
 
 export class PayCopayDto2 {
   @IsOptional()
-  request_id?: any;
+  @IsString()
+  request_id?: string;
 
   @IsOptional()
-  id?: any;
+  @IsString()
+  id?: string;
 
   @IsOptional()
-  payment_id?: any;
-
+  @IsString()
+  payment_id?: string;
 }
 
 export class RequestDto {
   @IsOptional()
-  booking_id?: any;
+  @IsString()
+  booking_id?: string;
 
   @IsOptional()
-  amount_paid?: any;
+  @IsNumber()
+  amount_paid?: number;
 
   @IsDefined()
   @IsString()
   reason: string;
 
   @IsOptional()
-  scheduled_at?: any;
+  @IsString()
+  scheduled_at?: string;
 
   @IsOptional()
-  booking_kind?: any;
+  @IsString()
+  booking_kind?: string;
 
   @IsOptional()
-  payment_id?: any;
-
+  @IsString()
+  payment_id?: string;
 }
 
 export class DecideRefundDto {
   @IsOptional()
-  approve?: any;
+  @IsBoolean()
+  approve?: boolean;
 
   @IsOptional()
-  note?: any;
-
-  @IsOptional()
-  decision?: any;
-
-  @IsOptional()
-  copay_percent?: any;
-
-  @IsDefined()
   @IsString()
-  reason: string;
-
-  requests?: any;
-
-  findOne?: any;
-
+  note?: string;
 }
 
 export class AccrueDto {

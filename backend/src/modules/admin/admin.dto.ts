@@ -1,4 +1,4 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsObject, IsOptional, IsString } from 'class-validator';
 
 export class CreateSubAdminDto {
   @IsOptional()
@@ -12,7 +12,9 @@ export class CreateSubAdminDto {
   password: string;
 
   @IsOptional()
-  permissions?: any;
+  @IsObject()
+  permissions?: Record<string, unknown>;
+
 
   @IsOptional()
   phone?: any;
@@ -21,7 +23,9 @@ export class CreateSubAdminDto {
 
 export class UpdateSubAdminDto {
   @IsOptional()
-  permissions?: any;
+  @IsObject()
+  permissions?: Record<string, unknown>;
+
 
   @IsOptional()
   active?: any;

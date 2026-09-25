@@ -1,35 +1,46 @@
-import { IsArray, IsDefined, IsIn, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDefined, IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateDto {
-  @IsOptional()
+  @IsDefined()
   @IsString()
   serviceType: string;
 
-  @IsOptional()
-  reason?: any;
-
-  @IsOptional()
-  orderId?: any;
-
-  @IsOptional()
-  is_opened?: any;
-
-  @IsOptional()
-  is_used?: any;
+  @IsDefined()
+  @IsString()
+  reason: string;
 
   @IsDefined()
+  @IsString()
+  orderId: string;
+
+  @IsOptional()
+  @IsBoolean()
+  is_opened?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  is_used?: boolean;
+
+  @IsOptional()
   @IsArray()
-  items: any[];
+  items?: unknown[];
 
   @IsOptional()
-  details?: any;
+  @IsNumber()
+  amount?: number;
 
   @IsOptional()
-  refundMethod?: any;
+  @IsString()
+  details?: string;
 
   @IsOptional()
-  attachedDocs?: any;
+  @IsString()
+  refundMethod?: string;
 
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  attachedDocs?: string[];
 }
 
 export class DecideDto {

@@ -1,4 +1,4 @@
-import { IsOptional } from 'class-validator';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CancelDto {
   @IsOptional()
@@ -8,7 +8,9 @@ export class CancelDto {
 
 export class RefundDto {
   @IsOptional()
-  amount?: any;
+  @IsNumber()
+  amount?: number;
+
 
   @IsOptional()
   mode?: any;
@@ -20,7 +22,9 @@ export class RefundDto {
 
 export class CompensateDto {
   @IsOptional()
-  amount?: any;
+  @IsNumber()
+  amount?: number;
+
 
   @IsOptional()
   reason?: any;
@@ -29,7 +33,9 @@ export class CompensateDto {
 
 export class ReassignDto {
   @IsOptional()
-  provider_id?: any;
+  @IsString()
+  provider_id?: string;
+
 
   @IsOptional()
   reason?: any;
@@ -44,7 +50,9 @@ export class AddInternalNoteDto {
 
 export class SlaExtendDto {
   @IsOptional()
-  hours?: any;
+  @IsNumber()
+  hours?: number;
+
 
   @IsOptional()
   reason?: any;

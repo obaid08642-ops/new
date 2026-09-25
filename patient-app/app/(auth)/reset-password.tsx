@@ -23,12 +23,13 @@ export default function ResetPasswordScreen() {
   const email = (params.email as string) || "";
   const [pw, setPw] = useState("");
   const [confirmPw, setConfirmPw] = useState("");
+  const [code, setCode] = useState("");
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
 
   const handleReset = async () => {
-    if (pw.length < 6 || pw !== confirmPw) return;
+    if (pw.length < 6 || pw !== confirmPw || !code.trim()) return;
     setLoading(true);
     try {
       await apiFetch("/auth/reset-password", {
@@ -36,6 +37,7 @@ export default function ResetPasswordScreen() {
         body: JSON.stringify({
           identifier: email,
           password: pw,
+          code: code.trim(),
         }),
       });
       setLoading(false);
@@ -110,6 +112,13 @@ export default function ResetPasswordScreen() {
         <AppText variant="h3" align="center">
           أدخل كلمة مرور جديدة
         </AppText>
+        <Input
+          value={code}
+          onChangeText={setCode}
+          placeholder="رمز التحقق المرسل إليك"
+          icon="shield"
+          style={{ width: "100%", marginTop: 16 }}
+        />
         <Input
           value={pw}
           onChangeText={setPw}

@@ -1,4 +1,4 @@
-import { IsOptional } from 'class-validator';
+import { IsDateString, IsOptional } from 'class-validator';
 
 export class MarkDto {
   @IsOptional()
@@ -7,7 +7,10 @@ export class MarkDto {
   @IsOptional()
   baby_id?: any;
 
-  taken_at?: any;
+  @IsOptional()
+  @IsDateString()
+  taken_at?: string;
+
 
 }
 

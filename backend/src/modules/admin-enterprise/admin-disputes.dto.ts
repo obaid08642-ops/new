@@ -1,33 +1,15 @@
-import { IsOptional } from 'class-validator';
+import { IsDefined, IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class ResolveDto {
-  @IsOptional()
-  decision?: any;
+  @IsDefined()
+  @IsIn(['refund_full', 'refund_partial', 'reject', 'close_no_action'])
+  decision: string;
 
-  reason?: any;
-
-  @IsOptional()
-  amount?: any;
-
-  @IsOptional()
-  action?: any;
-
-  actor?: any;
+  @IsDefined()
+  @IsString()
+  reason: string;
 
   @IsOptional()
-  target_type?: any;
-
-  @IsOptional()
-  target_id?: any;
-
-  before?: any;
-
-  after?: any;
-
-  meta?: any;
-
-  ip?: any;
-
-  user_agent?: any;
-
+  @IsNumber()
+  amount?: number;
 }

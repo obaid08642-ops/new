@@ -2,6 +2,7 @@ import { Controller, Post, Get, Patch, Delete, Body, Param, Query, Req, Inject }
 import { DisableDto, EndConsultationDto, IssueSickLeaveDto, IssueMedicalReportDto, SetAvailDto, PreviewAdHocDto, DispatchDto } from './provider.controllers.dto';
 import { RegisterDto, LoginDto, RefreshDto, LogoutDto, SendOtpDto, VerifyEmailDto, ForgotDto, VerifyResetCodeDto, ResetDto, AddPhoneDto, UploadDocDto, UploadDocDto2, UpsertBankDto, SubmitDeltaDto, SubmitDeltaDto2, InviteDto, AcceptDto, UpdateDto2, RejectDeltaDto, RejectDeltaDto2, ApproveDto, RejectDto, NeedsChangesDto, SuspendDto, ReactivateDto, AcceptDto2, RejectDto2, StartDto, CompleteDto, CancelDto, UpsertPharmaDto, UpsertLabDto, UpsertLabDto2, UpsertRadDto, UpsertRadDto2, UpsertDocDto, UpsertDocDto2, UpsertHcDto, UpsertHcDto2, UpsertDto, UpsertDto2 } from './provider.controllers.generated.dto';
 import { LedgerService } from '../finance-engine/finance-engine.module';
+import { ChangePasswordDto, UpdateProfileDto, InsuranceCopayDto, SeedUnassignedDto } from './provider.patch.dto';
 import { ProviderAuthService } from './services/provider-auth.service';
 import { ProviderProfileService } from './services/provider-profile.service';
 import { ProviderOperatorsService } from './services/provider-operators.service';
@@ -50,7 +51,7 @@ export class ProviderAuthController {
   reset(@Body() body: ResetDto, @Req() req: any) { return this.svc.resetPassword({ email: body.email, code: body.code, new_password: body.new_password, meta: meta(req) }); }
   @SelfService()
   @Post('change-password')
-  changePassword(@CurrentUser() user: any, @Body() body: any, @Req() req: any) {
+  changePassword(@CurrentUser() user: any, @Body() body: ChangePasswordDto, @Req() req: any) {
     return this.svc.changePassword(user, {
       current_password: body?.current_password,
       new_password: body?.new_password,
@@ -70,7 +71,7 @@ export class ProviderProfileController {
   ) {}
   @Get('profile') get(@CurrentUser() u: any) { return this.svc.getProfile(u); }
   @SelfService()
-  @Patch('profile') update(@CurrentUser() u: any, @Body() body: any) { return this.svc.updateProfile(u, body); }
+  @Patch('profile') update(@CurrentUser() u: any, @Body() body: UpdateProfileDto) { return this.svc.updateProfile(u, body); }
   @SelfService()
   @Post('profile/phones') addPhone(@CurrentUser() u: any, @Body() body: AddPhoneDto) { return this.svc.addPhone(u, body); }
   @SelfService()
@@ -253,7 +254,7 @@ export class ProviderRequestsController {
    * /patient/pay-copay) works end-to-end — no console.log stubs.
    */
   @Post(':id/insurance-copay')
-  async requestInsuranceCopay(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) {
+  async requestInsuranceCopay(@CurrentUser() u: any, @Param('id') id: string, @Body() body: InsuranceCopayDto) {
     const { approvalStatus, patientCopay, approvalCode, reason } = body || {};
     // 1) Load the provider request and verify ownership
     const preq: any = await this.svc.detail(u, id);
@@ -320,7 +321,7 @@ export class ProviderRequestsController {
   async issueSickLeave(@CurrentUser() u: any, @Param('id') id: string, @Body() body: IssueSickLeaveDto) {
     if (!body?.patient_id) throw new BadRequestException('patient_id required');
     if (!body?.diagnosis?.trim()) throw new BadRequestException('diagnosis required');
-    const days = Math.max(1, Math.min(30, parseInt(body?.duration_days) || 1));
+    const days = Math.max(1, Math.min(30, parseInt(String(body?.duration_days)) || 1));
     const start = body?.start_date ? new Date(body.start_date) : new Date();
     if (isNaN(start.getTime())) throw new BadRequestException('invalid start_date');
     const end = new Date(start.getTime() + days * 24 * 60 * 60 * 1000);
@@ -551,8 +552,8 @@ export class AdminMatchingController {
   }
   // ADMIN seed: create a new UNASSIGNED request that triggers matching (real DB record).
   // Intended for testing flow end-to-end while patient-side ordering is not yet built.
-  @Post('seed-unassigned') seedUnassigned(@CurrentUser() u: any, @Body() body: any) {
-    const b = body || {};
+  @Post('seed-unassigned') seedUnassigned(@CurrentUser() u: any, @Body() body: SeedUnassignedDto) {
+    const b = body as any || {};
     return this.assignment.createAndDispatch({
       type: b.type,
       patient: b.patient || { name: 'Test Patient' },

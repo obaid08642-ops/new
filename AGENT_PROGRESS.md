@@ -69,3 +69,12 @@ Format: task | commit sha | verify result | notes
 - F22 (7fe157e): /catalogs/specialties live (23 docs); provider-app useSpecialtiesCatalog/useServicesCatalog/useInsuranceCatalog (deleted useCatalog.ts parallel); 4 provider + 5 patient static constants deleted (9 total); backend tsc 0.
 - F23 (d050e86): /system-config/public (anon, whitelisted keys) seeded with cancellation/returns policies; terms + doctor-faq render from backend; llms.txt live count (live route already dynamic; shadow handler fixed too; grep 21,052 → 0); returns timeline from real timestamps; loyalty/config already backend-driven.
 - Gate: fabsweep admin → 41 flags triaged (zeros/pagination/config constants/real seeds/my-sweep artifacts); 1 real fix (8ed5843): ICE credentials → 503 coturn_not_configured when TURN unset. grep mock/dummy/lorem/fake → only removal-comments, honeypot design, test tooling (seed_test.ts), DI docs.
+
+## Phase 3 re-review (2026-09-25) — 0 mismatches
+- Sync: `git fetch origin && git merge origin/fix/audit-2026-09 && git merge origin/review/phase-3` (kept both sides for P3.0a x-device-id + P3.0b change-password union, P3.0a/b intact).
+- dtocheck: `node tools/audit/clientbodies.js > /tmp/c.json && node tools/audit/dtocheck.js /tmp/c.json` → **565 DTO routes checked, 285 matched, 0 mismatches** (was 114 → 50 → 0; wildcard-exact + computed-key `[key]/[k]` normalization + alias handling).
+- ValidationPipe table: coupon, broadcast, company, insurance decide — `{}` → `400 field-level`, real payload → `OK`, unknown `evil` → `400 property evil should not exist` (whitelist + forbidNonWhitelisted, verified on dist DTOs).
+- Backend tests: **734/734 passing, 135 suites** (`npm test -- --runInBand`).
+- TSC: 0 (`npx tsc --noEmit`).
+- Remaining: `651 any` DTO props across 78 files and 55 `@Body any` handlers (down from ~1395/71; 51 files typed via signal typer + manual edits for every matched route). The 55 include 2 signature-verified webhooks (kept) and secondary admin-spa ops routes not hit by current client crawl. Completion tracked as follow-up (F-P3-2/3) — all matched routes are now fully typed with real validators.
+- P3.2: `findByAnyId` partial remains (F-P3-4 noted) — 404 filter stops 500s, full replacement of 32 `findById*` + 34 `new ObjectId(` on user ids deferred to P5.2-linked pass (empty local DB, safe to sweep).

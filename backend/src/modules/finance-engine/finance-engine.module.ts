@@ -197,7 +197,7 @@ export class CommissionResolver {
   async setRule(adminId: string, rule: {
     scope: 'service' | 'provider' | 'category' | 'campaign';
     scope_id?: string; service_type?: string; percent: number;
-    effective_from?: Date; effective_to?: Date;
+    effective_from?: Date | string; effective_to?: Date | string;
   }) {
     if (!['service', 'provider', 'category', 'campaign'].includes(rule.scope)) throw new BadRequestException('invalid scope');
     if (!(Number(rule.percent) >= 0 && Number(rule.percent) <= 100)) throw new BadRequestException('percent must be 0..100');

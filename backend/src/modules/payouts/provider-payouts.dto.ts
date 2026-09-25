@@ -8,4 +8,8 @@ export class RequestDto {
   @IsOptional()
   @IsString()
   idempotency_key?: string;
+
+  @IsOptional()
+  @IsString()
+  iban?: string;
 }

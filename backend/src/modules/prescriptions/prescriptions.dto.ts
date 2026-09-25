@@ -5,13 +5,25 @@ export class CreateDto {
   @IsString()
   patient_id: string;
 
-  @IsOptional()
-  @IsString()
-  appointment_id?: string;
-
   @IsDefined()
+  @IsString()
+  appointment_id: string;
+
+  @IsOptional()
   @IsArray()
-  items: any[];
+  items?: unknown[];
+
+  @IsOptional()
+  @IsArray()
+  erx?: Array<Record<string, unknown>>;
+
+  @IsOptional()
+  @IsArray()
+  labs?: unknown[];
+
+  @IsOptional()
+  @IsArray()
+  radiology?: unknown[];
 
   @IsOptional()
   @IsString()
@@ -22,16 +34,20 @@ export class CreateDto {
   notes?: string;
 
   @IsOptional()
-  id?: any;
+  @IsString()
+  id?: string;
 
   @IsOptional()
-  account_id?: any;
+  @IsString()
+  account_id?: string;
 
   @IsOptional()
-  provider_id?: any;
+  @IsString()
+  provider_id?: string;
 
   @IsOptional()
-  provider_profile_id?: any;
+  @IsString()
+  provider_profile_id?: string;
 }
 
 export class UploadDto {
@@ -91,23 +107,17 @@ export class ManualEntryDto {
 export class SendDto {
   @IsOptional()
   @IsString()
-  pharmacy_id: string;
+  pharmacy_id?: string;
 
   @IsOptional()
-  state?: any;
-
-  model?: any;
-
-  isPrivilegedAdmin?: any;
-
-  isOwningDoctor?: any;
-
-  findOne?: any;
-
+  @IsString()
+  state?: string;
 }
 
 export class TransitionDto {
-  to: any;
+  @IsDefined()
+  @IsString()
+  to: string;
 }
 export class SubDto {
   @IsDefined()

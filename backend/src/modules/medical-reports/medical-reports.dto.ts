@@ -1,11 +1,15 @@
-import { IsIn, IsOptional } from 'class-validator';
+import { IsArray, IsDateString, IsIn, IsOptional, IsString } from 'class-validator';
 
 export class ShareDto {
   @IsOptional()
-  doctor_profile_id?: any;
+  @IsString()
+  doctor_profile_id?: string;
+
 
   @IsOptional()
-  doctor_name?: any;
+  @IsString()
+  doctor_name?: string;
+
 
 }
 
@@ -67,8 +71,13 @@ export class CreateDto {
   facility_name?: any;
 
   @IsOptional()
-  attachments?: any;
+  @IsArray()
+  attachments?: unknown[];
 
-  issued_at?: any;
+
+  @IsOptional()
+  @IsDateString()
+  issued_at?: string;
+
 
 }

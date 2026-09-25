@@ -1,4 +1,4 @@
-import { IsArray, IsDefined, IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsDateString, IsDefined, IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class ValidateCouponDto {
   @IsOptional()
@@ -32,16 +32,24 @@ export class SetCommissionRuleDto {
   percent: number;
 
   @IsOptional()
-  scope_id?: any;
+  @IsString()
+  scope_id?: string;
+
 
   @IsOptional()
-  service_type?: any;
+  @IsString()
+  service_type?: string;
+
 
   @IsOptional()
-  effective_from?: any;
+  @IsDateString()
+  effective_from?: string;
+
 
   @IsOptional()
-  effective_to?: any;
+  @IsDateString()
+  effective_to?: string;
+
 
 }
 
@@ -86,52 +94,78 @@ export class DecideApprovalDto {
   note?: any;
 
   @IsOptional()
-  provider_account_id?: any;
+  @IsString()
+  provider_account_id?: string;
+
 
   @IsOptional()
-  state?: any;
+  @IsString()
+  state?: string;
+
 
   @IsOptional()
   available_at?: any;
 
   @IsOptional()
-  ref_type?: any;
+  @IsString()
+  ref_type?: string;
+
 
   @IsOptional()
-  ref_id?: any;
+  @IsString()
+  ref_id?: string;
+
 
   @IsOptional()
-  order_id?: any;
+  @IsString()
+  order_id?: string;
+
 
   @IsOptional()
-  gross?: any;
+  @IsNumber()
+  gross?: number;
+
 
   @IsOptional()
-  commission_percent?: any;
+  @IsNumber()
+  commission_percent?: number;
+
 
   @IsOptional()
-  commission?: any;
+  @IsNumber()
+  commission?: number;
+
 
   @IsOptional()
   type?: any;
 
   @IsOptional()
-  amount?: any;
+  @IsNumber()
+  amount?: number;
+
 
   @IsOptional()
-  vat?: any;
+  @IsNumber()
+  vat?: number;
+
 
   @IsOptional()
-  description?: any;
+  @IsString()
+  description?: string;
+
 
   @IsOptional()
-  actor_id?: any;
+  @IsString()
+  actor_id?: string;
+
 
   @IsOptional()
   meta?: any;
 
   @IsOptional()
-  refund_id?: any;
+  @IsString()
+  refund_id?: string;
+
 
   @IsOptional()
   @IsString()
@@ -142,7 +176,9 @@ export class DecideApprovalDto {
   reason: string;
 
   @IsOptional()
-  patient_id?: any;
+  @IsString()
+  patient_id?: string;
+
 
   @IsOptional()
   @IsString()

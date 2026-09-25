@@ -1,4 +1,4 @@
-import { IsDefined, IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsDefined, IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class RateDto {
   @IsDefined()
@@ -18,7 +18,11 @@ export class RateDto {
   comment?: string;
 
   @IsOptional()
-  aspects?: any;
+  aspects?: unknown;
+
+  @IsOptional()
+  @IsBoolean()
+  anonymous?: boolean;
 }
 
 export class RefundDto {

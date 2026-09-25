@@ -1,4 +1,4 @@
-import { IsArray, IsDefined, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDefined, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 
 export class MatchDto {
   @IsDefined()
@@ -13,10 +13,14 @@ export class MatchDto {
   service_ids?: any[];
 
   @IsOptional()
-  specialty?: any;
+  @IsString()
+  specialty?: string;
+
 
   @IsOptional()
-  insurance?: any;
+  @IsString()
+  insurance?: string;
+
 
   @IsOptional()
   @IsString()
@@ -31,21 +35,33 @@ export class MatchDto {
   insurance_class?: string;
 
   @IsOptional()
-  accepts_insurance?: any;
+  @IsBoolean()
+  accepts_insurance?: boolean;
+
 
   @IsOptional()
-  facility_accepts_insurance?: any;
+  @IsBoolean()
+  facility_accepts_insurance?: boolean;
+
 
   @IsOptional()
-  home_visit?: any;
+  @IsBoolean()
+  home_visit?: boolean;
+
 
   @IsOptional()
-  city?: any;
+  @IsString()
+  city?: string;
 
-  @IsDefined()
-  location: any;
 
   @IsOptional()
-  max_results?: any;
+  @IsObject()
+  location?: { lat: number; lng: number };
+
+
+  @IsOptional()
+  @IsNumber()
+  max_results?: number;
+
 
 }

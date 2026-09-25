@@ -66,10 +66,14 @@ export class CreateAutoRuleDto {
   template?: any;
 
   @IsOptional()
-  channels?: any;
+  @IsArray()
+  channels?: unknown[];
+
 
   @IsOptional()
-  active?: any;
+  @IsBoolean()
+  active?: boolean;
+
 
 }
 
@@ -196,4 +200,8 @@ export class AssignDto {
   @IsOptional()
   @IsString()
   nurse_id?: string;
+
+  @IsOptional()
+  @IsString()
+  nurseId?: string;
 }

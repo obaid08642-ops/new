@@ -1,4 +1,5 @@
-import { IsArray, IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsDateString, IsDefined, IsIn, IsNumber, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateDto {
   @IsOptional()
@@ -12,7 +13,9 @@ export class CreateDto {
   patient_notes?: any;
 
   @IsOptional()
-  prescription_attachments?: any;
+  @IsArray()
+  prescription_attachments?: unknown[];
+
 
 }
 
@@ -111,13 +114,17 @@ export class ItemActionDto {
 
 export class OutDto {
   @IsOptional()
-  courier_name?: any;
+  @IsString()
+  courier_name?: string;
 
   @IsOptional()
-  courier_phone?: any;
+  @IsString()
+  courier_phone?: string;
 
   @IsOptional()
-  eta?: any;
+  @IsDateString()
+  eta?: string;
+
 
 }
 
@@ -137,9 +144,15 @@ export class InsuranceDecisionDto {
   @IsOptional()
   id?: any;
 
-  insurance_decision?: any;
+  @IsOptional()
+  @IsObject()
+  insurance_decision?: Record<string, unknown>;
 
-  insurance?: any;
+
+  @IsOptional()
+  @IsObject()
+  insurance?: Record<string, unknown>;
+
 
   @IsOptional()
   idempotency_key?: any;
@@ -177,32 +190,74 @@ export class SampleOrderDto {
 
 }
 
+export class OfferItemDto {
+  @IsDefined()
+  @IsString()
+  order_item_id: string;
+
+  @IsDefined()
+  @IsIn(['available', 'unavailable', 'substitute'])
+  availability: 'available' | 'unavailable' | 'substitute';
+
+  @IsOptional()
+  @IsNumber()
+  qty_offered?: number;
+
+  @IsOptional()
+  @IsString()
+  inventory_item_id?: string;
+
+  @IsOptional()
+  @IsString()
+  substitute_inventory_item_id?: string;
+
+  @IsOptional()
+  @IsNumber()
+  unit_price_override?: number;
+
+  @IsOptional()
+  @IsString()
+  price_override_reason?: string;
+}
+
 export class PreviewOfferDto {
-  items: any[];
+  @IsDefined()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => OfferItemDto)
+  items: OfferItemDto[];
 
   @IsOptional()
-  delivery_option?: any;
+  @IsIn(['delivery', 'pickup'])
+  delivery_option?: 'delivery' | 'pickup';
 
   @IsOptional()
-  eta_minutes?: any;
+  @IsNumber()
+  eta_minutes?: number;
 
   @IsOptional()
-  provider_note?: any;
-
+  @IsString()
+  provider_note?: string;
 }
 
 export class DraftOfferDto {
-  items: any[];
+  @IsDefined()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => OfferItemDto)
+  items: OfferItemDto[];
 
   @IsOptional()
-  delivery_option?: any;
+  @IsIn(['delivery', 'pickup'])
+  delivery_option?: 'delivery' | 'pickup';
 
   @IsOptional()
-  eta_minutes?: any;
+  @IsNumber()
+  eta_minutes?: number;
 
   @IsOptional()
-  provider_note?: any;
-
+  @IsString()
+  provider_note?: string;
 }
 
 export class RejectDto {
@@ -213,10 +268,14 @@ export class RejectDto {
 
 export class PostDto {
   @IsOptional()
-  text?: any;
+  @IsString()
+  text?: string;
+
 
   @IsOptional()
-  image_uri?: any;
+  @IsString()
+  image_uri?: string;
+
 
   @IsOptional()
   substitute_offer?: any;
@@ -225,43 +284,67 @@ export class PostDto {
 
 export class ReportDto {
   @IsOptional()
-  sku?: any;
+  @IsString()
+  sku?: string;
+
 
   @IsOptional()
-  generic_name?: any;
+  @IsString()
+  generic_name?: string;
+
 
   @IsOptional()
-  name_ar?: any;
+  @IsString()
+  name_ar?: string;
+
 
   @IsOptional()
-  dosage?: any;
+  @IsString()
+  dosage?: string;
+
 
   @IsOptional()
-  form?: any;
+  @IsString()
+  form?: string;
+
 
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
+
 
 }
 
 export class CreateDto2 {
   @IsOptional()
-  sku?: any;
+  @IsString()
+  sku?: string;
+
 
   @IsOptional()
-  generic_name?: any;
+  @IsString()
+  generic_name?: string;
+
 
   @IsOptional()
-  name_ar?: any;
+  @IsString()
+  name_ar?: string;
+
 
   @IsOptional()
-  dosage?: any;
+  @IsString()
+  dosage?: string;
+
 
   @IsOptional()
-  form?: any;
+  @IsString()
+  form?: string;
+
 
   @IsOptional()
-  reason?: any;
+  @IsString()
+  reason?: string;
+
 
 }
 

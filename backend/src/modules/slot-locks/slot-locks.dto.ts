@@ -14,6 +14,8 @@ export class ReserveDto {
   slot_start: string;
 
   @IsOptional()
-  slot_end?: any;
+  @IsString()
+  slot_end?: string;
+
 
 }

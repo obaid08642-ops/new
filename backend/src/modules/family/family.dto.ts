@@ -1,31 +1,43 @@
-import { IsArray, IsDefined, IsIn, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsDateString, IsDefined, IsIn, IsOptional, IsString } from 'class-validator';
 
 export class AddEventDto {
   @IsOptional()
-  description?: any;
+  @IsString()
+  description?: string;
+
 
   @IsOptional()
   @IsString()
   type: string;
 
   @IsOptional()
-  ref_id?: any;
+  @IsString()
+  ref_id?: string;
+
 
   @IsOptional()
-  event_date?: any;
+  @IsDateString()
+  event_date?: string;
+
 
   @IsOptional()
   @IsString()
   member_user_id: string;
 
   @IsOptional()
-  member?: any;
+  @IsString()
+  member?: string;
+
 
   @IsOptional()
-  time?: any;
+  @IsString()
+  time?: string;
+
 
   @IsOptional()
-  color?: any;
+  @IsString()
+  color?: string;
+
 
   @IsDefined()
   @IsString()

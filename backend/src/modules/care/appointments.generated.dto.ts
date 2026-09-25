@@ -1,4 +1,4 @@
-import { IsArray, IsDefined, IsOptional } from 'class-validator';
+import { IsArray, IsDefined, IsNumber, IsOptional } from 'class-validator';
 
 export class FinishAppointmentDto {
   @IsOptional()
@@ -21,7 +21,9 @@ export class FinishAppointmentDto {
   follow_up_recommended?: any;
 
   @IsOptional()
-  follow_up_window_days?: any;
+  @IsNumber()
+  follow_up_window_days?: number;
+
 
 }
 

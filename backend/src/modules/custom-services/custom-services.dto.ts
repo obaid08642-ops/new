@@ -1,4 +1,4 @@
-import { IsDefined, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsDefined, IsOptional, IsString } from 'class-validator';
 
 export class CreateDto {
   @IsOptional()
@@ -22,10 +22,14 @@ export class CreateDto {
   prescription_image?: any;
 
   @IsOptional()
-  attachments?: any;
+  @IsArray()
+  attachments?: unknown[];
+
 
   @IsOptional()
-  priority?: any;
+  @IsString()
+  priority?: string;
+
 
 }
 

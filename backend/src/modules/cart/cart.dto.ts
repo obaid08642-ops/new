@@ -1,14 +1,20 @@
-import { IsArray, IsOptional } from 'class-validator';
+import { IsArray, IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class AddContractItemDto {
   @IsOptional()
-  medicine_id?: any;
+  @IsString()
+  medicine_id?: string;
+
 
   @IsOptional()
-  manual_name?: any;
+  @IsString()
+  manual_name?: string;
+
 
   @IsOptional()
-  quantity?: any;
+  @IsNumber()
+  quantity?: number;
+
 
 }
 
@@ -17,7 +23,9 @@ export class UpdateContractItemDto {
   quantity?: any;
 
   @IsOptional()
-  qty?: any;
+  @IsNumber()
+  qty?: number;
+
 
 }
 
@@ -29,19 +37,27 @@ export class AddDto {
   name_ar?: any;
 
   @IsOptional()
-  kind?: any;
+  @IsIn(["pharmacy"])
+  kind?: string;
+
 
   @IsOptional()
-  qty?: any;
+  @IsNumber()
+  qty?: number;
+
 
   @IsOptional()
   name_en?: any;
 
   @IsOptional()
-  price?: any;
+  @IsNumber()
+  price?: number;
+
 
   @IsOptional()
-  payment_method?: any;
+  @IsString()
+  payment_method?: string;
+
 
   @IsOptional()
   insurance_provider?: any;
@@ -59,7 +75,9 @@ export class AddDto {
 
 export class UpdDto {
   @IsOptional()
-  qty?: any;
+  @IsNumber()
+  qty?: number;
+
 
 }
 
@@ -71,13 +89,19 @@ export class ClrDto {
 
 export class CheckoutDto {
   @IsOptional()
-  address_id?: any;
+  @IsString()
+  address_id?: string;
+
 
   @IsOptional()
-  payment_method_id?: any;
+  @IsString()
+  payment_method_id?: string;
+
 
   @IsOptional()
-  coupon_code?: any;
+  @IsString()
+  coupon_code?: string;
+
 
   @IsOptional()
   @IsArray()

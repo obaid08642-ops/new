@@ -1,4 +1,4 @@
-import { IsArray, IsDefined, IsIn, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsDateString, IsDefined, IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class EscalateDto {
   @IsOptional()
@@ -6,7 +6,9 @@ export class EscalateDto {
   kind: string;
 
   @IsOptional()
-  threshold_minutes?: any;
+  @IsNumber()
+  threshold_minutes?: number;
+
 
 }
 
@@ -28,10 +30,14 @@ export class AssessDto {
   provider_id?: string;
 
   @IsOptional()
-  scheduled_at?: any;
+  @IsDateString()
+  scheduled_at?: string;
+
 
   @IsOptional()
-  cancelled_at?: any;
+  @IsDateString()
+  cancelled_at?: string;
+
 }
 
 export class FallbackDto {

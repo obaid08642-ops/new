@@ -2,7 +2,9 @@ import { IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class SubmitDto {
   @IsOptional()
-  comment?: any;
+  @IsString()
+  comment?: string;
+
   @IsDefined()
   @IsString()
   entity_type: string;

@@ -3,72 +3,89 @@ import { IsArray, IsDefined, IsNumber, IsOptional, IsString } from 'class-valida
 export class BookDto {
   @IsOptional()
   @IsString()
-  service_id: string;
+  service_id?: string;
 
   @IsOptional()
-  payment_method?: any;
+  @IsString()
+  scheduled_at?: string;
 
   @IsOptional()
-  location_type?: any;
+  @IsString()
+  payment_method?: string;
+
+  @IsOptional()
+  @IsString()
+  location_type?: string;
+
+  @IsOptional()
+  @IsString()
+  provider_account_id?: string;
 
   @IsOptional()
   @IsArray()
-  documents: any[];
+  documents?: unknown[];
 
   @IsOptional()
-  total_price?: any;
-
+  @IsNumber()
+  total_price?: number;
 }
 
 export class TransitionDto {
   @IsOptional()
-  state?: any;
+  @IsString()
+  state?: string;
 
   @IsOptional()
-  note?: any;
-
+  @IsString()
+  note?: string;
 }
 
 export class UpdateInsDto {
   @IsOptional()
-  status?: any;
+  @IsString()
+  status?: string;
 
   @IsOptional()
-  reason?: any;
-
+  @IsString()
+  reason?: string;
 }
 
 export class AssignTechDto {
   @IsOptional()
-  technician_id?: any;
-
+  @IsString()
+  technician_id?: string;
 }
 
 export class UploadReportDto {
   @IsOptional()
-  pdf_url?: any;
+  @IsString()
+  pdf_url?: string;
 
   @IsOptional()
-  dicom_url?: any;
+  @IsString()
+  dicom_url?: string;
 
   @IsOptional()
-  image_urls?: any;
+  @IsArray()
+  @IsString({ each: true })
+  image_urls?: string[];
 
-  @IsOptional()
+  @IsDefined()
   @IsString()
   report_storage_object_id: string;
 
-  @IsDefined()
+  @IsOptional()
   @IsString()
-  dicom_storage_object_id: string;
-
-  @IsDefined()
-  @IsArray()
-  scan_storage_object_ids: any[];
+  dicom_storage_object_id?: string;
 
   @IsOptional()
-  findings?: any;
+  @IsArray()
+  @IsString({ each: true })
+  scan_storage_object_ids?: string[];
 
+  @IsOptional()
+  @IsString()
+  findings?: string;
 }
 
 export class ForceStateDto {
@@ -206,4 +223,7 @@ export class UpdateRadiologyCatalogDto {
   @IsOptional()
   @IsArray()
   preparation_en?: string[];
+}
+
+export class SubmitReportForReviewDto {
 }

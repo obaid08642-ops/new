@@ -1,11 +1,13 @@
-import { IsOptional } from 'class-validator';
+import { IsArray, IsOptional, IsString } from 'class-validator';
 
 export class CreateDto {
   @IsOptional()
   title_ar?: any;
 
   @IsOptional()
-  title_en?: any;
+  @IsString()
+  title_en?: string;
+
 
   @IsOptional()
   excerpt_ar?: any;
@@ -23,7 +25,9 @@ export class CreateDto {
   category?: any;
 
   @IsOptional()
-  tags?: any;
+  @IsArray()
+  tags?: unknown[];
+
 
   @IsOptional()
   cover_image?: any;

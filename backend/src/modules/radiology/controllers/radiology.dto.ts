@@ -2,10 +2,20 @@ import { IsArray, IsDefined, IsIn, IsOptional, IsString } from 'class-validator'
 
 export class BookDto {
   @IsOptional()
-  scheduled_at?: any;
+  @IsString()
+  scheduled_at?: string;
 
   @IsOptional()
-  service_id?: any;
+  @IsString()
+  service_id?: string;
+
+  @IsOptional()
+  @IsString()
+  location_type?: string;
+
+  @IsOptional()
+  @IsString()
+  payment_method?: string;
 
   @IsOptional()
   scan_type_code?: any;

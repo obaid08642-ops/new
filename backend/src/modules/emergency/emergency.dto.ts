@@ -1,42 +1,57 @@
-import { IsDefined, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsDefined, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 
 export class TriggerDto {
   @IsOptional()
-  location?: any;
+  @IsObject()
+  location?: Record<string, unknown>;
 
   @IsOptional()
-  symptoms?: any;
+  @IsString()
+  symptoms?: string;
 
   @IsOptional()
-  severity?: any;
+  @IsString()
+  severity?: string;
 
   @IsOptional()
-  id?: any;
+  @IsString()
+  type?: string;
 
   @IsOptional()
-  full_name?: any;
+  @IsString()
+  id?: string;
 
   @IsOptional()
-  phone?: any;
+  @IsString()
+  full_name?: string;
 
+  @IsOptional()
+  @IsString()
+  phone?: string;
 }
 
 export class TrackDto {
   @IsOptional()
-  lat?: any;
+  @IsNumber()
+  lat?: number;
 
   @IsOptional()
-  lng?: any;
+  @IsNumber()
+  lng?: number;
 
   @IsOptional()
-  vehicle_id?: any;
+  @IsString()
+  vehicle_id?: string;
 
+  @IsOptional()
+  @IsBoolean()
+  arrived?: boolean;
 }
 
 export class ResolveDto {
   @IsOptional()
-  notes?: any;
-
+  @IsString()
+  notes?: string;
 }
 
 export class ClaimDto {

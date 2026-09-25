@@ -1,11 +1,13 @@
-import { IsArray, IsDefined, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsDefined, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 
 export class CreateBookingDto {
   @IsOptional()
   service_id?: any;
 
   @IsOptional()
-  scheduled_at?: any;
+  @IsDateString()
+  scheduled_at?: string;
+
 
   @IsOptional()
   service_name_ar?: any;
@@ -32,11 +34,24 @@ export class RespondDto {
 
 export class AssignDto {
   @IsOptional()
-  provider_id?: any;
+  @IsString()
+  provider_id?: string;
 
   @IsOptional()
-  provider_name?: any;
+  @IsString()
+  provider_name?: string;
 
+  @IsOptional()
+  @IsString()
+  nurse_id?: string;
+
+  @IsOptional()
+  @IsString()
+  nurse_name?: string;
+
+  @IsOptional()
+  @IsString()
+  nurse_phone?: string;
 }
 
 export class CheckInDto {
@@ -56,29 +71,51 @@ export class GpsDto {
 
 export class VisitReportDto {
   @IsOptional()
-  complete?: any;
+  @IsBoolean()
+  complete?: boolean;
 
   @IsOptional()
-  vitals?: any;
+  @IsObject()
+  vitals?: Record<string, unknown>;
 
   @IsOptional()
-  clinical_notes?: any;
+  @IsString()
+  clinical_notes?: string;
 
   @IsOptional()
-  procedure_notes?: any;
+  @IsString()
+  procedure_notes?: string;
 
   @IsOptional()
-  medication_administered?: any;
+  medication_administered?: unknown;
 
   @IsOptional()
-  consumables_used?: any;
+  consumables_used?: unknown;
 
   @IsOptional()
-  recommendations?: any;
+  @IsString()
+  recommendations?: string;
 
   @IsOptional()
-  follow_up_instructions?: any;
+  @IsString()
+  follow_up_instructions?: string;
 
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  completed_tasks?: string[];
+
+  @IsOptional()
+  @IsObject()
+  vitals_logged?: Record<string, unknown>;
+
+  @IsOptional()
+  @IsString()
+  notes?: string;
+
+  @IsOptional()
+  @IsString()
+  signature?: string;
 }
 
 export class CreateCarePlanDto {
@@ -87,7 +124,9 @@ export class CreateCarePlanDto {
   title: string;
 
   @IsOptional()
-  tasks?: any;
+  @IsObject()
+  tasks?: Record<string, unknown>;
+
 
   @IsOptional()
   @IsString()
@@ -97,11 +136,16 @@ export class CreateCarePlanDto {
 
 export class SetAvailabilityDto {
   @IsOptional()
-  online?: any;
+  @IsBoolean()
+  online?: boolean;
 
   @IsOptional()
-  available_now?: any;
+  @IsBoolean()
+  available_now?: boolean;
 
+  @IsOptional()
+  @IsBoolean()
+  available?: boolean;
 }
 
 export class InventoryRequestDto {
@@ -130,31 +174,49 @@ export class PostMessageDto {
   type: any[];
 
   @IsOptional()
-  attachment_url?: any;
+  @IsString()
+  attachment_url?: string;
+
 
   @IsOptional()
-  attachment_mime?: any;
+  @IsString()
+  attachment_mime?: string;
+
 
   @IsOptional()
-  attachment_name?: any;
+  @IsString()
+  attachment_name?: string;
+
 
   @IsOptional()
-  attachment_size?: any;
+  @IsNumber()
+  attachment_size?: number;
+
 
   @IsOptional()
-  duration_seconds?: any;
+  @IsNumber()
+  duration_seconds?: number;
+
 
   @IsOptional()
-  reply_to_id?: any;
+  @IsString()
+  reply_to_id?: string;
+
 
   @IsOptional()
-  forwarded_from_id?: any;
+  @IsString()
+  forwarded_from_id?: string;
+
 
   @IsOptional()
-  client_message_id?: any;
+  @IsString()
+  client_message_id?: string;
+
 
   @IsOptional()
-  media_ids?: any;
+  @IsString()
+  media_ids?: string;
+
 
   @IsOptional()
   trim?: any;
@@ -177,31 +239,49 @@ export class PostLegacyDto {
   type: any[];
 
   @IsOptional()
-  attachment_url?: any;
+  @IsString()
+  attachment_url?: string;
+
 
   @IsOptional()
-  attachment_mime?: any;
+  @IsString()
+  attachment_mime?: string;
+
 
   @IsOptional()
-  attachment_name?: any;
+  @IsString()
+  attachment_name?: string;
+
 
   @IsOptional()
-  attachment_size?: any;
+  @IsNumber()
+  attachment_size?: number;
+
 
   @IsOptional()
-  duration_seconds?: any;
+  @IsNumber()
+  duration_seconds?: number;
+
 
   @IsOptional()
-  reply_to_id?: any;
+  @IsString()
+  reply_to_id?: string;
+
 
   @IsOptional()
-  forwarded_from_id?: any;
+  @IsString()
+  forwarded_from_id?: string;
+
 
   @IsOptional()
-  client_message_id?: any;
+  @IsString()
+  client_message_id?: string;
+
 
   @IsOptional()
-  media_ids?: any;
+  @IsString()
+  media_ids?: string;
+
 
   @IsOptional()
   trim?: any;
@@ -210,16 +290,28 @@ export class PostLegacyDto {
 
 export class ProviderSendDto {
   @IsOptional()
-  thread_id?: any;
+  @IsString()
+  thread_id?: string;
 
   @IsOptional()
-  threadId?: any;
+  @IsString()
+  threadId?: string;
 
   @IsOptional()
-  text?: any;
+  @IsString()
+  appointment_id?: string;
 
   @IsOptional()
-  content?: any;
+  @IsString()
+  text?: string;
+
+  @IsOptional()
+  @IsString()
+  content?: string;
+
+  @IsOptional()
+  @IsString()
+  message?: string;
 
   @IsOptional()
   @IsString()

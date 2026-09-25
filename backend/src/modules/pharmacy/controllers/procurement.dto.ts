@@ -3,12 +3,11 @@ import { IsArray, IsDefined, IsOptional, IsString } from 'class-validator';
 export class CreateProcurementRequestDto {
   @IsOptional()
   @IsArray()
-  items: any[];
+  items?: Array<Record<string, unknown>>;
 
-  @IsDefined()
+  @IsOptional()
   @IsString()
-  fileUrl: string;
-
+  fileUrl?: string;
 }
 
 export class FeedbackDto {

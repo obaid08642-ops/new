@@ -1,7 +1,7 @@
-import { IsDefined, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsDefined, IsOptional, IsString } from 'class-validator';
 
 export class CreateDto {
-  @IsOptional()
+  @IsDefined()
   @IsString()
   subject: string;
 
@@ -11,18 +11,19 @@ export class CreateDto {
 
   @IsOptional()
   @IsString()
-  category: string;
+  category?: string;
 
   @IsOptional()
-  attachments?: any;
+  @IsString()
+  type?: string;
 
   @IsOptional()
-  priority?: any;
-
+  @IsArray()
+  attachments?: unknown[];
 }
 
 export class CreateTicketDto {
-  @IsOptional()
+  @IsDefined()
   @IsString()
   subject: string;
 
@@ -32,27 +33,33 @@ export class CreateTicketDto {
 
   @IsOptional()
   @IsString()
-  category: string;
+  category?: string;
 
   @IsOptional()
-  attachments?: any;
+  @IsString()
+  type?: string;
 
   @IsOptional()
-  priority?: any;
+  @IsString()
+  priority?: string;
 
+  @IsOptional()
+  @IsArray()
+  attachments?: unknown[];
 }
 
 export class ReplyDto {
   @IsOptional()
-  message?: any;
-
+  @IsString()
+  message?: string;
 }
 
 export class AdminUpdateDto {
   @IsOptional()
-  status?: any;
+  @IsString()
+  status?: string;
 
   @IsOptional()
-  assigned_to?: any;
-
+  @IsString()
+  assigned_to?: string;
 }

@@ -1,117 +1,191 @@
-import { IsArray, IsDefined, IsIn, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDefined, IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class OrderInsuranceDto {
   @IsDefined()
   @IsArray()
-  items: any[];
-
-  copay_percent?: any;
+  items: unknown[];
 
   @IsOptional()
-  insurer_share?: any;
+  @IsNumber()
+  copay_percent?: number;
 
   @IsOptional()
-  nphies_approval_code?: any;
+  @IsNumber()
+  insurer_share?: number;
 
   @IsOptional()
-  policy_number?: any;
+  @IsString()
+  nphies_approval_code?: string;
 
   @IsOptional()
-  member_id?: any;
+  @IsString()
+  policy_number?: string;
 
+  @IsOptional()
+  @IsString()
+  member_id?: string;
 }
 
 export class LabCoverageDto {
-  bookingCoverageDecision?: any;
+  @IsDefined()
+  @IsIn(['APPROVED_FULL', 'APPROVED_PARTIAL', 'REJECTED'])
+  decision: string;
 
+  @IsOptional()
+  @IsString()
+  decision_reference?: string;
+
+  @IsOptional()
+  @IsString()
+  approval_code?: string;
+
+  @IsOptional()
+  @IsNumber()
+  copay_percent?: number;
+
+  @IsOptional()
+  @IsString()
+  reason?: string;
 }
 
 export class RadCoverageDto {
-  bookingCoverageDecision?: any;
+  @IsDefined()
+  @IsIn(['APPROVED_FULL', 'APPROVED_PARTIAL', 'REJECTED'])
+  decision: string;
 
+  @IsOptional()
+  @IsString()
+  decision_reference?: string;
+
+  @IsOptional()
+  @IsString()
+  approval_code?: string;
+
+  @IsOptional()
+  @IsNumber()
+  copay_percent?: number;
+
+  @IsOptional()
+  @IsString()
+  reason?: string;
 }
 
 export class NursingCoverageDto {
-  bookingCoverageDecision?: any;
+  @IsDefined()
+  @IsIn(['APPROVED_FULL', 'APPROVED_PARTIAL', 'REJECTED'])
+  decision: string;
 
+  @IsOptional()
+  @IsString()
+  decision_reference?: string;
+
+  @IsOptional()
+  @IsString()
+  approval_code?: string;
+
+  @IsOptional()
+  @IsNumber()
+  copay_percent?: number;
+
+  @IsOptional()
+  @IsString()
+  reason?: string;
 }
 
 export class PostCrmDto {
-  @IsDefined()
-  @IsString()
-  tags: string;
-
-  @IsDefined()
+  @IsOptional()
   @IsArray()
-  notes: any[];
+  @IsString({ each: true })
+  tags?: string[];
 
   @IsOptional()
-  vip?: any;
+  @IsArray()
+  notes?: Array<Record<string, unknown>>;
 
   @IsOptional()
-  favorite?: any;
+  @IsBoolean()
+  vip?: boolean;
 
   @IsOptional()
-  blocked?: any;
+  @IsBoolean()
+  favorite?: boolean;
 
   @IsOptional()
-  blocked_reason?: any;
+  @IsBoolean()
+  blocked?: boolean;
 
+  @IsOptional()
+  @IsString()
+  blocked_reason?: string;
 }
 
 export class PutCrmDto {
-  @IsDefined()
-  @IsString()
-  tags: string;
-
-  @IsDefined()
+  @IsOptional()
   @IsArray()
-  notes: any[];
+  @IsString({ each: true })
+  tags?: string[];
 
   @IsOptional()
-  vip?: any;
+  @IsArray()
+  notes?: Array<Record<string, unknown>>;
 
   @IsOptional()
-  favorite?: any;
+  @IsBoolean()
+  vip?: boolean;
 
   @IsOptional()
-  blocked?: any;
+  @IsBoolean()
+  favorite?: boolean;
 
   @IsOptional()
-  blocked_reason?: any;
+  @IsBoolean()
+  blocked?: boolean;
 
+  @IsOptional()
+  @IsString()
+  blocked_reason?: string;
 }
 
 export class CreateReferralDto {
-  @IsOptional()
-  patient_id?: any;
+  @IsDefined()
+  @IsString()
+  patient_id: string;
 
-  @IsOptional()
-  target_type?: any;
+  @IsDefined()
+  @IsIn(['lab', 'radiology', 'nursing'])
+  target_type: string;
 
-  @IsOptional()
+  @IsDefined()
   @IsString()
   notes: string;
 
   @IsOptional()
-  appointment_id?: any;
+  @IsString()
+  appointment_id?: string;
 
   @IsOptional()
-  target_provider_id?: any;
+  @IsString()
+  target_provider_id?: string;
 
   @IsOptional()
-  destination_provider_id?: any;
+  @IsString()
+  destination_provider_id?: string;
 
   @IsOptional()
-  target_name?: any;
+  @IsString()
+  target_name?: string;
 
-  @IsDefined()
+  @IsOptional()
+  @IsString()
+  patient_name?: string;
+
+  @IsOptional()
   @IsArray()
-  requested_tests: any[];
+  requested_tests?: unknown[];
 
   @IsOptional()
-  urgent?: any;
-
+  @IsBoolean()
+  urgent?: boolean;
 }
 
 export class CreatePromotionDto {

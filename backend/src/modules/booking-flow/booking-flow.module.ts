@@ -201,7 +201,7 @@ export class BookingFlowService {
   }
 
   /** Admin force-resolve (cancel with admin reason + audit). */
-  async resolve(user: any, type: string, id: string, body: { resolution: 'force_complete' | 'force_cancel'; reason?: string }) {
+  async resolve(user: any, type: string, id: string, body: { resolution?: 'force_complete' | 'force_cancel'; reason?: string }) {
     if (!this.isAdmin(user)) throw new BadRequestException('admin_only');
     const kind = this.kindAliases[type];
     if (!kind) throw new BadRequestException('invalid_type');

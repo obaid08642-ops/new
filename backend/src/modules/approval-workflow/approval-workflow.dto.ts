@@ -1,22 +1,29 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsDefined, IsIn, IsObject, IsOptional, IsString } from 'class-validator';
 
 export class CreateDto {
-  entity_type: any;
+  @IsDefined()
+  @IsIn(['medicine', 'provider', 'facility', 'service'])
+  entity_type: 'medicine' | 'provider' | 'facility' | 'service';
 
   @IsOptional()
   @IsString()
   entity_id?: string;
 
-  change_data: any;
+  @IsDefined()
+  @IsObject()
+  change_data: Record<string, unknown>;
 }
 
 export class DecideDto {
-  decision: any;
+  @IsDefined()
+  @IsIn(['approved', 'rejected'])
+  decision: 'approved' | 'rejected';
 
   @IsOptional()
   @IsString()
   notes?: string;
 
   @IsOptional()
-  edit_data?: any;
+  @IsObject()
+  edit_data?: Record<string, unknown>;
 }
