@@ -17,8 +17,4 @@ export class SlaDto {
   @IsString()
   @IsIn(['online', 'degraded', 'maintenance'])
   systemStatus?: string;
-
-  @IsOptional()
-  @IsString()
-  reason?: string;
 }
