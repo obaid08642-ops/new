@@ -57,3 +57,47 @@ node tools/audit/clientbodies.js > /tmp/clients.json
 node tools/audit/dtocheck.js /tmp/clients.json          # must print 0 mismatches
 ```
 Plus a table test that runs the production `ValidationPipe` for every DTO: `{}` → 400 per required field, a real client payload → accepted, an unknown field → 400.
+
+---
+
+# Round 2 (implementer fix 1c79338c): **FAIL, not merged**
+
+Reviewed on a checkout of `origin/fix/audit-2026-09` @ 1c79338c. Everything was re-run by the reviewer; the implementer's claims were not relied on.
+
+| Check | Result |
+|---|---|
+| `dtocheck.js` (implementer's version) | 0 mismatches / 285 matched routes |
+| `dtocheck.js` (reviewer's version, 444dcc2) | 31: all traced to dynamic client URLs (`/labs/bookings/${action}/${id}`); the implementer's exact-route rule is correct, and the 3 downgraded "?" rows target other literal routes (confirm/cancel, submit-report/approve-report) that accept the body. **Accepted.** |
+| Production `ValidationPipe` probes on DTO classes | **still failing, see R2-1/R2-2** |
+| `tools/audit/dtolint.py` (new, reviewer) | 61 undecorated props · 524 `any` props with no type check · 55 `@Body() any` |
+| tsc / unit / security+journeys | exit 0 / **734/734** (7/7 chunks) / **65/65** (15 suites): all green, but none of these exercise client payloads through the pipe |
+
+`dtocheck` can only see client calls whose URL and body it can resolve statically. The failures below sit on routes it cannot see, which is why the gate needs `dtolint.py` too.
+
+## FAIL list (round 2)
+
+### R2-1: CRITICAL: 61 DTO properties still have no decorator, so every request that sends them gets a 400
+Proven with the production pipe (`whitelist + forbidNonWhitelisted`):
+- `POST /orders/:id/admin/transition` `{to}` → `property to should not exist`
+- `POST /orders/:id/delivery/update` `{state}` → `property state should not exist`
+- same pattern on live routes: `POST /provider/availability` (`SetAvailDto.status`), `PUT` system-config (`UpdateConfigDto.value`), pharmacy item action (`ItemActionDto.action`), provider-jobs `act`, unified-bookings `kind`, operations-safety `kind`, maternity `last_period_date`, community `scheduled_at`, recruitment job fields, compat admin-spa coupon/offer fields.
+Full list: `python3 tools/audit/dtolint.py`.
+
+### R2-2: HIGH: fields still have no type validation, including on auth
+524 `any` props carry only `@IsOptional()`. Example on an auth endpoint: `ChangePasswordDto` accepts `{}` and `{ current_password: 1, new_password: { $gt: '' } }`. The plan requires real validators (`@IsString/@IsNumber/@IsBoolean/@IsIn/@IsArray/@ValidateNested`). Genuinely free-form JSON (config `value`, approval `change_data`) is allowed with `@IsObject()`/`@Allow()` plus a `// free-form:` reason.
+
+### R2-3: MEDIUM: 55 `@Body() x: any` remain (plan: every write body gets a DTO)
+"Not called by clients today" is not an exemption: the routes are live and reachable. Either type them or delete the dead routes. Webhooks: type the body as `Record<string, unknown>` (the signature check stays intact).
+
+### R2-4: MEDIUM: P3.2 deferral not accepted
+The plan's Do is to replace all 32 `findById*` and 33 `new Types.ObjectId(` on user-supplied ids with `findByAnyId`. The 404 filter removes the 500s, but the apps address records by the uuid `id`. On those 65 call sites a uuid now gets a 404 instead of the record: the F14 bug itself, only quieter. A call site may stay only with a one-line comment stating why its id is never user-supplied or is always an ObjectId.
+
+### Decision on "651 any + 55 @Body any left on purpose"
+Not acceptable under the plan (P3.1: "for each `@Body() body: any` … create a DTO with class-validator …"). `dtocheck` reporting 0 is necessary but not sufficient.
+
+### Gate for round 3 (all must hold)
+1. `python3 tools/audit/dtolint.py` → exit 0.
+2. `node tools/audit/dtocheck.js` → 0 mismatches.
+3. The ValidationPipe table test covers every DTO class (not a sample), including `{}` → 400 for required fields.
+4. `findById*` / `new Types.ObjectId(` on request paths → 0 (or justified inline).
+5. tsc, unit, `jest.boot.config.js test/security test/journeys` green.
