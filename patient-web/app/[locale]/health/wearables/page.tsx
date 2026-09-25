@@ -10,6 +10,8 @@ type Props = { params: Promise<{ locale: string }> };
 export default async function WearablesPage({ params }: Props) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
+  // F20: hidden until real HealthKit/Health Connect integration.
+  if (process.env.NEXT_PUBLIC_WEARABLES_ENABLED !== 'true') notFound();
   setRequestLocale(locale);
   await requirePatientAccess(locale);
   const ar = locale === "ar";
