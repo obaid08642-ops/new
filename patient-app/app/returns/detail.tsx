@@ -90,24 +90,33 @@ export default function ReturnDetailScreen() {
     );
   }
 
+  // F23: timeline derived from the return's real lifecycle fields
+  // (createdAt/resolved_at/status) — never hardcoded dates.
+  const fmtDate = (v: any) => {
+    try {
+      const d = new Date(v);
+      return isNaN(d.getTime()) ? '' : d.toLocaleDateString('ar-SA', { day: 'numeric', month: 'short' });
+    } catch { return ''; }
+  };
+  const decided = !!data?.resolved_at && ['approved', 'completed', 'rejected'].includes(data?.status);
   const TIMELINE = [
     {
-      status: "تم تقديم طلب الإرجاع",
-      desc: "تلقينا طلبك بنجاح وجاري التحقق",
+      status: 'تم تقديم طلب الإرجاع',
+      desc: `تلقينا طلبك بنجاح وجاري التحقق${data?.createdAt ? ` — ${fmtDate(data.createdAt)}` : ''}`,
       done: true,
-      current: data?.status === "processing",
+      current: data?.status === 'processing',
     },
     {
-      status: "مراجعة الطلب والمستندات",
-      desc: "يقوم الفريق الطبي بمراجعة الأسباب والمرفقات",
-      done: ["approved", "completed", "rejected"].includes(data?.status),
-      current: data?.status === "approved",
+      status: 'مراجعة الطلب والمستندات',
+      desc: `يقوم الفريق الطبي بمراجعة الأسباب والمرفقات${decided ? ` — قُرر بتاريخ ${fmtDate(data.resolved_at)}` : ''}`,
+      done: decided,
+      current: data?.status === 'approved',
     },
     {
-      status: "الموافقة وتحويل المبلغ",
-      desc: `استرداد القيمة إلى: ${REFUND_LABELS[data?.refund_method as keyof typeof REFUND_LABELS] || "المحفظة"}`,
-      done: data?.status === "completed",
-      current: data?.status === "completed",
+      status: 'الموافقة وتحويل المبلغ',
+      desc: `استرداد القيمة إلى: ${REFUND_LABELS[data?.refund_method as keyof typeof REFUND_LABELS] || 'المحفظة'}`,
+      done: data?.status === 'completed',
+      current: data?.status === 'completed',
     },
   ];
 

@@ -1,10 +1,11 @@
 // @ts-nocheck
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View, StyleSheet, ScrollView, StatusBar } from "react-native";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useApp } from "../../src/context/AppContext";
+import { apiFetch } from "../../src/utils/api";
 import { Icon } from "../../src/components/Icon";
 import { AppText, Card, IconButton } from "../../src/components/ui";
 
@@ -57,8 +58,9 @@ const SECTIONS: TermsSection[] = [
     title: "الإلغاء والاسترجاع",
     title_en: "Cancellation & Refunds",
     icon: "cash",
-    body: "يمكن إلغاء المواعيد المحجوزة قبل 24 ساعة من الموعد المحدد مع استرداد كامل المبلغ إلى المحفظة خلال 3-5 أيام عمل. في حالة الإلغاء خلال أقل من 24 ساعة، يتم خصم 25% من قيمة الحجز كرسوم إلغاء. طلبات الصيدلية المؤكدة والتي بدأت مرحلة التجهيز لا يمكن إلغاؤها. يمكن إرجاع المنتجات غير المستخدمة خلال 7 أيام من تاريخ الاستلام بشرط سلامة العبوة الأصلية.",
-    body_en: "Booked appointments may be cancelled at least 24 hours before the scheduled time with a full refund to the wallet within 3-5 business days. Cancellations made less than 24 hours in advance incur a 25% cancellation fee. Confirmed pharmacy orders that have entered preparation cannot be cancelled. Unused products may be returned within 7 days of receipt provided the original packaging is intact.",
+    // F23: numbers render from /system-config/public (see sections mapping above).
+    body: "تفاصيل سياسة الإلغاء والاسترجاع الحالية تُعرض من إعدادات المنصة.",
+    body_en: "Current cancellation and refund policy details render from platform settings.",
   },
   {
     title: "التعديلات",
@@ -81,6 +83,22 @@ export default function TermsScreen() {
   const { colors, isDark, lang } = useApp() as any;
   const isEn = lang !== 'ar';
   const t = (ar: string, en: string) => (isEn ? en : ar);
+
+  // F23: cancellation/returns policy numbers come from /system-config/public.
+  const [policy, setPolicy] = useState<any>(null);
+  useEffect(() => {
+    apiFetch<any>('/system-config/public').then((r: any) => setPolicy(r)).catch(() => {});
+  }, []);
+  const sections = SECTIONS.map((s) => {
+    if (s.title !== 'الإلغاء والاسترجاع' || !policy?.cancellation_policy) return s;
+    const c = policy.cancellation_policy;
+    const r = policy.returns_policy || {};
+    return {
+      ...s,
+      body: `يمكن إلغاء المواعيد المحجوزة قبل ${c.full_hours} ساعة من الموعد المحدد مع استرداد كامل المبلغ إلى المحفظة خلال ${r.wallet_refund_days_min}-${r.wallet_refund_days_max} أيام عمل. في حالة الإلغاء خلال أقل من ${c.full_hours} ساعة، يتم خصم ${c.late_fee_percent}% من قيمة الحجز كرسوم إلغاء. طلبات الصيدلية المؤكدة والتي بدأت مرحلة التجهيز لا يمكن إلغاؤها. يمكن إرجاع المنتجات غير المستخدمة خلال ${r.unused_days} أيام من تاريخ الاستلام بشرط سلامة العبوة الأصلية.`,
+      body_en: `Booked appointments may be cancelled at least ${c.full_hours} hours before the scheduled time with a full refund to the wallet within ${r.wallet_refund_days_min}-${r.wallet_refund_days_max} business days. Cancellations made less than ${c.full_hours} hours in advance incur a ${c.late_fee_percent}% cancellation fee. Confirmed pharmacy orders that have entered preparation cannot be cancelled. Unused products may be returned within ${r.unused_days} days of receipt provided the original packaging is intact.`,
+    };
+  });
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -120,7 +138,7 @@ export default function TermsScreen() {
           </View>
         </Animated.View>
 
-        {SECTIONS.map((section, index) => (
+        {sections.map((section, index) => (
           <Animated.View
             key={section.title}
             entering={FadeInDown.delay(150 + index * 80).duration(500)}
