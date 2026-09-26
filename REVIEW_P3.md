@@ -177,7 +177,7 @@ Reviewer note: the round-3 run proved the gates green, but the gate itself was i
 
 ---
 
-# Round 4 (implementer fix cd925fa): **APPROVED in review, pending CodeQL/CI on PR #199**
+# Round 4 (implementer fix cd925fa): **FAIL on CodeQL** (reviewer fixes below kept; see R4-1/R4-2)
 
 Ported onto `review/phase-3` as `[P3-fix]` (3 conflict hunks; the P5.1 offering overlay in `service-catalog.module.ts` was left out, since it belongs to P5).
 
@@ -212,3 +212,15 @@ Ported onto `review/phase-3` as `[P3-fix]` (3 conflict hunks; the P5.1 offering 
 | 2 | MEDIUM | `payments.dto.ts` `RefundPaymentDto`, `moyasar.dto.ts` `RefundDto` | `amount: -5` or `0` passed and went to the gateway | `@IsPositive()` |
 | 3 | MEDIUM | patient-app `shared/location-picker.tsx` | Address create now returns `{id}` only, and the screen stored that as the selected delivery address (label, street and coordinates lost) | store `{ ...payload, id }`. No test: patient-app deps not installed in the review env; one-line change, reviewed by hand. |
 | 4 | LOW | `tour.controller.ts` | `@Body('stepId')` primitive (module unreachable, but the gate must be 0) | `CompleteTourStepDto` |
+
+
+## Round 4 addendum: CodeQL on PR #199 head 5599173: 20 high (was 84 incl. 2 critical)
+
+### R4-1: HIGH: approval-workflow mass-assignment (real, not a CodeQL false positive)
+`POST /approval-workflow/requests` stores free-form `change_data` (`@IsObject`) and a caller-chosen `entity_id`. On admin approval, `approval-workflow.module.ts` ~L106–150 does `$set: { ...change_data, ...edit_data, … }` onto the medicine/provider/facility/lab/radiology/home-care record with that id. There is **no field allowlist** and **no check that the requester owns the target**. So any field, e.g. `verified`, `status`, `commission_*`, `owner/account ids`, `rating`, can be written onto any record the moment an admin clicks approve.
+Fix: (1) a per-entity allowlist (medicine: `MedicinesService.EDITABLE_FIELDS`; provider/facility/service: the fields their own edit DTOs allow) applied **both** at request creation (reject unknown keys, 400) **and** at approval; (2) when `entity_id` is set, require the requester to own it (or be admin); (3) build `$set` from the allowlisted keys only. Test: a request carrying `verified:true` / `status` / an id is rejected, and a foreign `entity_id` is rejected.
+
+### R4-2: HIGH: fix every remaining CodeQL alert on PR #199
+CodeQL cannot see class-validator whitelisting, so it flags whole-object `$set` sinks (`articles.update` `rest`, `service-catalog.updateService` `patch`, system-config `{ value }`, …). For each, build the update from explicit allowlisted keys: `$set: pick(dto, FIELDS)` with a const `FIELDS`, or per-field assignment. Free-form JSON (system-config `value`) goes under an explicit `$set: { value }` with a size limit. The implementer can read the alert list via the API (the reviewer session gets 403), so paste each alert id → resolution into AGENT_PROGRESS.md. The gate is **CodeQL green on PR #199**.
+
+Reviewer fix: `tools/audit/dtocheck.js` module filter is now a path substring, not a regex built from argv (CodeQL #186).
