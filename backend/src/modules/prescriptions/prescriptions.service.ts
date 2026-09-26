@@ -88,7 +88,7 @@ export class PrescriptionsService {
 
       if (!medicineId) {
         // A doctor may record an exceptional medicine only on this verified prescription.
-        // It is deliberately not written to medicines_master and cannot be treated as approved.
+        // It is deliberately not written to the medicines catalog and cannot be treated as approved.
         const manualNameAr = String(item?.manual_name_ar || '').trim();
         const manualNameEn = String(item?.manual_name_en || '').trim();
         if (!manualNameAr && !manualNameEn) {

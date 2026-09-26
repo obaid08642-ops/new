@@ -18,7 +18,7 @@ export interface CatalogPublicationInput {
 }
 
 const SOURCE_COLLECTIONS: Record<CatalogEntityType, string> = {
-  medicine: 'medicines_master',
+  medicine: CATALOG_COLLECTIONS.medicines,
   provider: 'provider_profiles',
   facility: 'facilities',
   lab_service: CATALOG_COLLECTIONS.lab_services,

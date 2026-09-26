@@ -3,7 +3,7 @@ import { Document } from 'mongoose';
 import { v4 as uuid } from 'uuid';
 import { buildSlug } from '../common/slug.util';
 
-@Schema({ timestamps: true, collection: 'medicines_master' })
+@Schema({ timestamps: true, collection: 'medicines' })
 export class Medicine {
   @Prop({ default: () => uuid() }) id: string;
   @Prop({ unique: true, sparse: true, index: true }) slug?: string;

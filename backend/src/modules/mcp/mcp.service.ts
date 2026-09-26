@@ -4,6 +4,7 @@ import { Connection } from 'mongoose';
 import { SearchIntentService } from '../search-intent/search-intent.service';
 import { EntityGraphService } from '../entity-graph/entity-graph.service';
 import { LocationService } from '../location/location.service';
+import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 
 export interface McpToolDefinition {
   name: string;
@@ -288,7 +289,7 @@ export class McpService {
 
   private async toolCheckPrescription(args: Record<string, any>) {
     const { medicine_slug_or_id } = args;
-    const med: any = await this.connection.collection('medicines_master').findOne({
+    const med: any = await this.connection.collection(CATALOG_COLLECTIONS.medicines).findOne({
       $or: [
         { id: medicine_slug_or_id },
         { slug: medicine_slug_or_id },
@@ -316,7 +317,7 @@ export class McpService {
   private async toolSearchMedicines(args: Record<string, any>) {
     const { query, limit = 10 } = args;
     const regex = new RegExp(String(query).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
-    const meds = await this.connection.collection('medicines_master').find({
+    const meds = await this.connection.collection(CATALOG_COLLECTIONS.medicines).find({
       $or: [{ name_ar: regex }, { name_en: regex }, { active_ingredient: regex }],
       is_deleted: { $ne: true },
       active: { $ne: false },
@@ -542,7 +543,7 @@ export class McpService {
     }
 
     if (entity_type === 'medicine') {
-      const medCol = this.connection.collection('medicines_master');
+      const medCol = this.connection.collection(CATALOG_COLLECTIONS.medicines);
       const med = await medCol.findOne({
         $or: [{ slug: entity_id }, { id: entity_id }, { sku: Number(entity_id) || -1 }],
         is_deleted: { $ne: true },
@@ -576,7 +577,7 @@ export class McpService {
     const { transaction_type, entity_id, quantity = 1, slot, insurance_policy_id } = args;
 
     if (transaction_type === 'medicine_order') {
-      const medCol = this.connection.collection('medicines_master');
+      const medCol = this.connection.collection(CATALOG_COLLECTIONS.medicines);
       const med = await medCol.findOne({
         $or: [{ slug: entity_id }, { id: entity_id }, { sku: Number(entity_id) || -1 }],
         is_deleted: { $ne: true },

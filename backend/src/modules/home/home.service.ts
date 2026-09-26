@@ -105,7 +105,7 @@ export class HomeService {
           type: 'doctor', status: 'active',
           $or: [{ name_ar: regex }, { name_en: regex }, { specialty: regex }, { hospital: regex }],
         } as any).limit(6).toArray(),
-        db.collection('medicines_master').find({
+        db.collection(CATALOG_COLLECTIONS.medicines).find({
           verified: true,
           $or: [{ name_ar: regex }, { name_en: regex }, { active_ingredient: regex }],
         } as any).limit(6).toArray(),

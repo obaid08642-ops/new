@@ -1090,8 +1090,8 @@ class AdminProviderSubAccountsController extends AdminController {
 class AdminMedicinesController extends AdminController {
   @Post(':id/shortage')
   async shortage(@Param('id') id: string, @CurrentUser() user: any, @Body() body: ShortageDto) {
-    let med: any = await this.conn.collection('medicines_master').findOne(byId(id) as any);
-    let colName = 'medicines_master';
+    let med: any = await this.conn.collection(CATALOG_COLLECTIONS.medicines).findOne(byId(id) as any);
+    let colName = CATALOG_COLLECTIONS.medicines;
     if (!med) {
       med = await this.conn.collection('medicines').findOne(byId(id) as any);
       colName = 'medicines';
@@ -1107,7 +1107,7 @@ class AdminMedicinesController extends AdminController {
   }
 }
 
-/* ── bulk upload (CSV → medicines_master upsert) ─────────────────────────── */
+/* ── bulk upload (CSV → medicines catalog upsert) ─────────────────────────── */
 @Controller('bulk-upload')
 @UseGuards(JwtAuthGuard)
 @Roles(UserRole.ADMIN)
@@ -1143,7 +1143,7 @@ class AdminBulkUploadController extends AdminController {
         stock: Number(r.stock) || 0, status: 'active', updatedAt: now(),
       };
       const key = r.id ? { id: String(r.id) } : { name_ar: nameAr };
-      const res = await this.conn.collection('medicines_master').updateOne(
+      const res = await this.conn.collection(CATALOG_COLLECTIONS.medicines).updateOne(
         key as any,
         { $set: doc, $setOnInsert: { id: r.id ? String(r.id) : uuid(), createdAt: now(), created_by: uid(user) } },
         { upsert: true },

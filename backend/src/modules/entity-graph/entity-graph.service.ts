@@ -6,6 +6,7 @@ import { EntityRelation, EntityRelationDocument } from './schemas/entity-relatio
 import { SEED_CONDITIONS } from './seeds/conditions.data';
 import { LocationService } from '../location/location.service';
 import { escapeRegex } from '../../common/slug.util';
+import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 
 export interface RelatedGraphResponse {
   entity_type: string;
@@ -70,7 +71,7 @@ export class EntityGraphService implements OnModuleInit {
   }
 
   private async getRelatedMedicine(identifier: string): Promise<RelatedGraphResponse> {
-    const medCol = this.connection.collection('medicines_master');
+    const medCol = this.connection.collection(CATALOG_COLLECTIONS.medicines);
     const medicine = await medCol.findOne({
       $or: [{ slug: identifier }, { sku: Number(identifier) || -1 }, { id: identifier }],
     });
@@ -194,7 +195,7 @@ export class EntityGraphService implements OnModuleInit {
       .toArray();
 
     // Find medicines containing relevant ingredients
-    const medCol = this.connection.collection('medicines_master');
+    const medCol = this.connection.collection(CATALOG_COLLECTIONS.medicines);
     let medicines: any[] = [];
     if (condition.relevant_ingredients?.length) {
       const ingRegexes = condition.relevant_ingredients.map(ing => new RegExp(escapeRegex(String(ing)), 'i'));

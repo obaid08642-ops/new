@@ -2,6 +2,7 @@ import { Injectable, BadRequestException, NotFoundException } from '@nestjs/comm
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { randomBytes } from 'crypto';
+import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 
 export interface ProductFeedQuery {
   page?: number;
@@ -63,7 +64,7 @@ export class AiCommerceService {
       ];
     }
 
-    const medCol = this.connection.collection('medicines_master');
+    const medCol = this.connection.collection(CATALOG_COLLECTIONS.medicines);
     const [total, items] = await Promise.all([
       medCol.countDocuments(filter),
       medCol.find(filter).skip(skip).limit(limit).toArray(),
@@ -191,7 +192,7 @@ export class AiCommerceService {
     let hasPrescriptionItem = false;
     const validatedItems: any[] = [];
 
-    const medCol = this.connection.collection('medicines_master');
+    const medCol = this.connection.collection(CATALOG_COLLECTIONS.medicines);
     const docCol = this.connection.collection('provider_profiles');
 
     for (const item of dto.items) {

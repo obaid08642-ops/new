@@ -42,7 +42,7 @@ export class CatalogsController {
   private async medicinesCatalog() {
     // P5.1: medicines read ONLY the canonical medicines collection through the
     // same governance gate as the public catalog (no static fallback).
-    const rows = await this.conn.collection('medicines_master')
+    const rows = await this.conn.collection(CATALOG_COLLECTIONS.medicines)
       .find({
         is_deleted: { $ne: true },
         public_eligibility: true,

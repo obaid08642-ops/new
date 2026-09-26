@@ -22,7 +22,7 @@ export class SeoController {
 
     let doc: any = null;
     if (type === 'medicine') {
-      doc = await this.conn.collection('medicines_master').findOne(bySlugOrName({ is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' }), { projection: { id: 1 } });
+      doc = await this.conn.collection(CATALOG_COLLECTIONS.medicines).findOne(bySlugOrName({ is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' }), { projection: { id: 1 } });
     } else if (type === 'doctor') {
       doc = await this.conn.collection('provider_profiles').findOne(bySlugOrName({ type: 'doctor', status: 'active', public_eligibility: true, medical_review_status: 'approved' }), { projection: { id: 1, user_id: 1 } });
       if (doc && !doc.id) doc.id = doc.user_id;

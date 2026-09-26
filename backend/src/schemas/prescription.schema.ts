@@ -16,7 +16,7 @@ export class PrescriptionItem {
   @Prop() quantity?: number;
   @Prop() instructions?: string; // "after meals"
   @Prop({ default: false }) is_manual_entry: boolean;
-  // A manual item is prescription-scoped only; it is never a medicines_master record.
+  // A manual item is prescription-scoped only; it is never a medicines catalog record.
   @Prop({ default: true }) verified: boolean;
   @Prop({ default: 'NOT_APPLICABLE', enum: ['NOT_APPLICABLE', 'PENDING_REVIEW', 'REVIEWED', 'REJECTED', 'SUBSTITUTED_APPROVED'] })
   manual_review_status: string;

@@ -41,7 +41,7 @@ const COLLECTION_MAP: Record<PipelineEntityType, string> = {
   service: 'homecareservices',
   lab_test: CATALOG_COLLECTIONS.lab_services,
   radiology_service: CATALOG_COLLECTIONS.radiology_services,
-  medicine: 'medicines_master',
+  medicine: CATALOG_COLLECTIONS.medicines,
 };
 
 /** Multilingual health vocabulary terms across Arabic, English, Urdu, Hindi, Tagalog, and Bengali */

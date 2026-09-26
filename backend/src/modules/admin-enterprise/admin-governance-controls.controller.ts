@@ -7,6 +7,7 @@ import { UserRole } from '../../common/enums';
 import { validateReason, ReasonError } from '../../common/rbac';
 import { AdminAuditService } from './audit.service';
 import { SaveHomeCurationDto, SaveFeatureFlagDto } from './admin-governance-controls.dto';
+import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 
 /**
  * Missing A5/A6 administrative controls. The stored documents are the source
@@ -203,7 +204,7 @@ export class AdminGovernanceControlsController {
     const [conditionsCount, medicinesCount, doctorsCount, facilitiesCount, locationsCount] =
       await Promise.all([
         this.conn.collection('conditions').countDocuments({ is_deleted: { $ne: true } }),
-        this.conn.collection('medicines_master').countDocuments({ is_deleted: { $ne: true } }),
+        this.conn.collection(CATALOG_COLLECTIONS.medicines).countDocuments({ is_deleted: { $ne: true } }),
         this.conn.collection('provider_profiles').countDocuments({ is_active: { $ne: false } }),
         this.conn.collection('facilities').countDocuments({ is_active: { $ne: false } }),
         this.conn.collection('locations').countDocuments({ is_active: { $ne: false } }),

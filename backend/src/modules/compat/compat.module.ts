@@ -477,7 +477,7 @@ class AiInteractionsController {
     // resolve ids to names so rule matching works on names.
     let idNames: string[] = [];
     if (Array.isArray((body as any)?.meds) && (body as any).meds.length) {
-      const rows: any[] = await this.conn.collection('medicines_master')
+      const rows: any[] = await this.conn.collection(CATALOG_COLLECTIONS.medicines)
         .find({ id: { $in: (body as any).meds.map(String) } } as any, { projection: { name: 1, name_ar: 1, name_en: 1 } }).toArray().catch(() => []);
       idNames = rows.map((r: any) => String(r.name || r.name_en || r.name_ar || '').toLowerCase()).filter(Boolean);
     }
@@ -683,7 +683,7 @@ class PharmacyCompatController {
       .limit(500).toArray();
     const medIds = rows.map((r: any) => r.medicine_id).filter(Boolean);
     const meds = medIds.length
-      ? await this.conn.collection('medicines_master').find({ id: { $in: medIds } } as any).toArray()
+      ? await this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ id: { $in: medIds } } as any).toArray()
       : [];
     const byId = new Map(meds.map((m: any) => [m.id, m]));
     let items = rows.map((r: any) => {
@@ -882,7 +882,7 @@ class B2BVoiceController {
       const name = (m ? (/^\d/.test(m[0]) ? m[2] : m[1]) : seg).trim();
       if (!name) continue;
       const rx = new RegExp(name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
-      const product: any = await this.conn.collection('medicines_master')
+      const product: any = await this.conn.collection(CATALOG_COLLECTIONS.medicines)
         .findOne({ $or: [{ name_ar: rx }, { name_en: rx }] } as any);
       if (product) {
         items.push({
@@ -954,7 +954,7 @@ class MentalHealthCompatController {
 @Controller('drugs')
 class ProviderDrugIndexController {
   constructor(@InjectConnection() private readonly conn: Connection) {}
-  private get col() { return this.conn.collection('medicines_master'); }
+  private get col() { return this.conn.collection(CATALOG_COLLECTIONS.medicines); }
 
   private card(m: any) {
     return {

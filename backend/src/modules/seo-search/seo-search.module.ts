@@ -164,7 +164,7 @@ export class SeoSearchService {
   private catalogCountCache = { exp: 0, val: 0 };
   async catalogCount(): Promise<number> {
     if (Date.now() < this.catalogCountCache.exp) return this.catalogCountCache.val;
-    const n = await this.conn.collection('medicines_master').estimatedDocumentCount().catch(() => 0);
+    const n = await this.conn.collection(CATALOG_COLLECTIONS.medicines).estimatedDocumentCount().catch(() => 0);
     this.catalogCountCache = { exp: Date.now() + 3600_000, val: n };
     return n;
   }
@@ -195,7 +195,7 @@ export class SeoSearchService {
 
   private async loadEntity(type: string, id: string): Promise<any> {
     if (type === 'category') return { id, is_category: true };
-    const col = type === 'medicine' ? 'medicines_master' : type === 'article' ? 'articles' : 'provider_profiles';
+    const col = type === 'medicine' ? CATALOG_COLLECTIONS.medicines : type === 'article' ? 'articles' : 'provider_profiles';
     return this.conn.collection(col).findOne({ id }, { projection: { _id: 0 } });
   }
 
@@ -256,7 +256,7 @@ export class SeoSearchService {
   }
 
   async sitemapXml(): Promise<string> {
-    const meds = await this.conn.collection('medicines_master')
+    const meds = await this.conn.collection(CATALOG_COLLECTIONS.medicines)
       .find({ is_deleted: { $ne: true } }, { projection: { _id: 0, id: 1, slug: 1, name_ar: 1, updatedAt: 1 } })
       .sort({ usage_count: -1 }).limit(2000).toArray();
     const urls = meds.map((m: any) => {
@@ -276,10 +276,10 @@ export class SeoSearchService {
     const db = productLocaleToDb(locale);
     const decoded = decodeURIComponent(slug || '').trim();
     if (!decoded) throw new NotFoundException('product_not_found');
-    const med: any = await this.conn.collection('medicines_master').findOne(
+    const med: any = await this.conn.collection(CATALOG_COLLECTIONS.medicines).findOne(
       { ...this.publicProductFilter(), [`translations.${db}.slug`]: decoded },
       { projection: { _id: 0 } },
-    ) || await this.conn.collection('medicines_master').findOne(
+    ) || await this.conn.collection(CATALOG_COLLECTIONS.medicines).findOne(
       { ...this.publicProductFilter(), slug: decoded },
       { projection: { _id: 0 } },
     );
@@ -289,7 +289,7 @@ export class SeoSearchService {
 
   /** Strict per-locale public product DTO by internal id (legacy URL migration). */
   async publicProductById(locale: string, id: string) {
-    const med: any = await this.conn.collection('medicines_master').findOne(
+    const med: any = await this.conn.collection(CATALOG_COLLECTIONS.medicines).findOne(
       { ...this.publicProductFilter(), id },
       { projection: { _id: 0 } },
     );
@@ -301,7 +301,7 @@ export class SeoSearchService {
   async publicProductBySku(sku: string, locale = 'ar') {
     const n = Number(sku);
     if (!Number.isFinite(n)) throw new NotFoundException('product_not_found');
-    const med: any = await this.conn.collection('medicines_master').findOne(
+    const med: any = await this.conn.collection(CATALOG_COLLECTIONS.medicines).findOne(
       { ...this.publicProductFilter(), sku: n },
       { projection: { _id: 0 } },
     );
@@ -339,7 +339,7 @@ export class SeoSearchService {
       }
       filter.$or = orClauses;
     }
-    const cursor = this.conn.collection('medicines_master')
+    const cursor = this.conn.collection(CATALOG_COLLECTIONS.medicines)
       .find(filter, { projection: { _id: 0, interactions: 0, change_requests: 0 } } as any)
       .sort({ usage_count: -1 })
       .skip((Math.max(page, 1) - 1) * perPage)
@@ -347,7 +347,7 @@ export class SeoSearchService {
     const fetched = await cursor.toArray();
     const hasMore = fetched.length > perPage;
     const rows = hasMore ? fetched.slice(0, perPage) : fetched;
-    const total = term ? ((Math.max(page, 1) - 1) * perPage + rows.length + (hasMore ? 1 : 0)) : await this.conn.collection('medicines_master').countDocuments(filter);
+    const total = term ? ((Math.max(page, 1) - 1) * perPage + rows.length + (hasMore ? 1 : 0)) : await this.conn.collection(CATALOG_COLLECTIONS.medicines).countDocuments(filter);
     return {
       query: term || null, locale, page: Math.max(page, 1), limit: perPage, total, has_more: hasMore,
       items: rows.map((m: any) => {
@@ -371,7 +371,7 @@ export class SeoSearchService {
     const hit = this.sitemapCache.get(key);
     if (hit && hit.exp > Date.now()) return hit.val;
     const db = productLocaleToDb(locale);
-    const rows = await this.conn.collection('medicines_master')
+    const rows = await this.conn.collection(CATALOG_COLLECTIONS.medicines)
       .find(this.publicProductFilter(), { projection: { _id: 0, slug: 1, updatedAt: 1, [`translations.${db}.slug`]: 1 } } as any)
       .sort({ id: 1 })
       .skip((page - 1) * perPage)
@@ -391,7 +391,7 @@ export class SeoSearchService {
   }
 
   async publicProductCount(): Promise<number> {
-    return this.conn.collection('medicines_master').countDocuments(this.publicProductFilter());
+    return this.conn.collection(CATALOG_COLLECTIONS.medicines).countDocuments(this.publicProductFilter());
   }
 
   /** DB-vs-sitemap reconciliation snapshot for admin (§52/§72). */
@@ -478,7 +478,7 @@ export class SeoSearchService {
   async publicCategories(locale: string) {
     const db = productLocaleToDb(locale);
     const key = (f: string) => db === 'ar' ? f : `translations.${db}.${f === 'category' ? 'main_category' : f}`;
-    const rows = await this.conn.collection('medicines_master').aggregate([
+    const rows = await this.conn.collection(CATALOG_COLLECTIONS.medicines).aggregate([
       { $match: this.publicProductFilter() },
       { $group: { _id: { c: `$${key('category')}`, s: `$${key('sub_category')}` }, n: { $sum: 1 } } },
       { $sort: { n: -1 } },
@@ -590,12 +590,12 @@ export class SeoSearchService {
       _id: 1,
     };
 
-    const cursor = this.conn.collection('medicines_master')
+    const cursor = this.conn.collection(CATALOG_COLLECTIONS.medicines)
       .find(filter, { projection: { _id: 0, id: 1, sku: 1, slug: 1, name_ar: 1, name_en: 1, price: 1, old_price: 1, image_1: 1, image: 1, images: 1, form: 1, strength: 1, package_size: 1, category: 1, sub_category: 1, active_ingredient: 1, requires_prescription: 1, availability_status: 1, usage_count: 1, translations: 1 } } as any)
       .sort(sortClause)
       .skip((Math.max(page, 1) - 1) * perPage)
       .limit(perPage);
-    const [rows, total] = await Promise.all([cursor.toArray(), this.conn.collection('medicines_master').countDocuments(filter)]);
+    const [rows, total] = await Promise.all([cursor.toArray(), this.conn.collection(CATALOG_COLLECTIONS.medicines).countDocuments(filter)]);
     let items = rows.map((m: any) => {
       const dto = resolveMedicinePublicDto(m, locale);
       return {
@@ -638,7 +638,7 @@ export class SeoSearchService {
             const ingCount = new Map<string, number>();
             const canonicals = [...new Set(Object.values(CANONICAL_CATEGORY_MAP))];
             const perCat: any[][] = await Promise.all(canonicals.map((cat) =>
-              this.conn.collection('medicines_master').find(
+              this.conn.collection(CATALOG_COLLECTIONS.medicines).find(
                 { ...this.publicProductFilter(), $or: [{ category: cat }, { [key('category')]: cat }] },
                 { projection: { _id: 0 } },
               ).sort({ usage_count: -1, rating: -1 }).limit(6).toArray().catch(() => []),
@@ -692,7 +692,7 @@ export class SeoSearchService {
           const have = new Set(items.map((i: any) => i.id));
           const missing = ranked.filter((id: string) => !have.has(id));
           if (missing.length) {
-            const extra: any[] = await this.conn.collection('medicines_master')
+            const extra: any[] = await this.conn.collection(CATALOG_COLLECTIONS.medicines)
               .find({ ...filter, id: { $in: missing } }, { projection: { _id: 0 } }).toArray().catch(() => []);
             for (const m of extra) {
               if (m?.id && !have.has(m.id)) { items.push(toDto(m)); have.add(m.id); }
@@ -741,7 +741,7 @@ export class SeoSearchService {
     }
     const medQuery = { is_deleted: { $ne: true }, $or: medOrClauses };
     const [medicines, doctors, pharmacies, hospitals, labs, services] = await Promise.all([
-      this.conn.collection('medicines_master').find(medQuery as any, { projection: medProj } as any).limit(limit).toArray(),
+      this.conn.collection(CATALOG_COLLECTIONS.medicines).find(medQuery as any, { projection: medProj } as any).limit(limit).toArray(),
       this.conn.collection('provider_profiles').find({ provider_type: 'doctor', $or: [{ name: rx }, { full_name: rx }, { specialty: rx }] } as any, { projection: docProj } as any).limit(limit).toArray(),
       this.conn.collection('provider_profiles').find({ provider_type: 'pharmacy', $or: [{ name: rx }, { facility_name: rx }] } as any, { projection: { _id: 0, id: 1, name: 1, facility_name: 1, city: 1, logo_url: 1 } } as any).limit(limit).toArray(),
       this.conn.collection('provider_profiles').find({ provider_type: { $in: ['hospital', 'clinic', 'medical_center'] }, $or: [{ name: rx }, { facility_name: rx }] } as any, { projection: { _id: 0, id: 1, name: 1, facility_name: 1, city: 1 } } as any).limit(limit).toArray(),
@@ -791,7 +791,7 @@ export class SeoSearchService {
    * and the structure is AI-ranking ready (score breakdown exposed).
    */
   async medicineRecommendations(id: string, limit = 12): Promise<any> {
-    const med: any = await this.conn.collection('medicines_master').findOne({ id, is_deleted: { $ne: true } }, { projection: { _id: 0 } });
+    const med: any = await this.conn.collection(CATALOG_COLLECTIONS.medicines).findOne({ id, is_deleted: { $ne: true } }, { projection: { _id: 0 } });
     if (!med) return { strategy: 'none', items: [] };
     const card = { _id: 0, id: 1, name_ar: 1, name_en: 1, price: 1, old_price: 1, image: 1, manufacturer: 1, brand: 1, requires_prescription: 1, form: 1, strength: 1, active_ingredient: 1, category: 1, sub_category: 1, usage_count: 1, availability_status: 1 };
 
@@ -808,25 +808,25 @@ export class SeoSearchService {
     const queries: Array<Promise<any>> = [];
     // 1) Same active ingredient (strongest)
     if (med.active_ingredient) {
-      queries.push(this.conn.collection('medicines_master').find({ active_ingredient: med.active_ingredient, is_deleted: { $ne: true } } as any, { projection: card } as any).limit(20).toArray()
+      queries.push(this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ active_ingredient: med.active_ingredient, is_deleted: { $ne: true } } as any, { projection: card } as any).limit(20).toArray()
         .then(rows => rows.forEach(r => add(r, 50, 'نفس المادة الفعالة'))));
     }
     // 2) Same strength/dosage (within ingredient match)
     if (med.active_ingredient && med.strength) {
-      queries.push(this.conn.collection('medicines_master').find({ active_ingredient: med.active_ingredient, strength: med.strength, is_deleted: { $ne: true } } as any, { projection: card } as any).limit(10).toArray()
+      queries.push(this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ active_ingredient: med.active_ingredient, strength: med.strength, is_deleted: { $ne: true } } as any, { projection: card } as any).limit(10).toArray()
         .then(rows => rows.forEach(r => add(r, 15, 'نفس التركيز'))));
     }
     // 3) Same category + sub_category (usage similarity)
-    queries.push(this.conn.collection('medicines_master').find({ category: med.category, sub_category: med.sub_category, is_deleted: { $ne: true } } as any, { projection: card } as any).limit(20).toArray()
+    queries.push(this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ category: med.category, sub_category: med.sub_category, is_deleted: { $ne: true } } as any, { projection: card } as any).limit(20).toArray()
       .then(rows => rows.forEach(r => add(r, med.active_ingredient ? 10 : 30, 'نفس الفئة والاستخدام'))));
     // 4) Same brand/manufacturer
     const brand = med.brand || med.manufacturer;
     if (brand) {
-      queries.push(this.conn.collection('medicines_master').find({ $or: [{ brand }, { manufacturer: brand }], is_deleted: { $ne: true } } as any, { projection: card } as any).limit(15).toArray()
+      queries.push(this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ $or: [{ brand }, { manufacturer: brand }], is_deleted: { $ne: true } } as any, { projection: card } as any).limit(15).toArray()
         .then(rows => rows.forEach(r => add(r, 8, 'نفس البراند'))));
     }
     // 5) Popularity boost (usage_count percentile)
-    queries.push(this.conn.collection('medicines_master').find({ category: med.category, is_deleted: { $ne: true } } as any, { projection: card } as any).sort({ usage_count: -1 }).limit(10).toArray()
+    queries.push(this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ category: med.category, is_deleted: { $ne: true } } as any, { projection: card } as any).sort({ usage_count: -1 }).limit(10).toArray()
       .then(rows => rows.forEach(r => add(r, Math.min(12, (r.usage_count || 0) / 10), 'الأكثر رواجاً'))));
     await Promise.all(queries);
 
@@ -972,7 +972,7 @@ export class SeoSearchController {
   @Public()
   @Get('image-sitemap.xml')
   async imageSitemap(@Res() res: Response) {
-    const meds = await (this.svc as any).conn.collection('medicines_master')
+    const meds = await (this.svc as any).conn.collection(CATALOG_COLLECTIONS.medicines)
       .find({ is_deleted: { $ne: true }, image: { $ne: null } }, { projection: { _id: 0, id: 1, name_ar: 1, slug: 1, image: 1 } } as any)
       .sort({ usage_count: -1 }).limit(1500).toArray();
     const cdn = (u: string) => u?.startsWith('http') ? u : `${process.env.S3_PUBLIC_BASE_URL || 'https://cdn.nabd.plus'}/${u}`;
