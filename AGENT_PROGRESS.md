@@ -170,3 +170,6 @@ Format: task | commit sha | verify result | notes
 
 ## [P6.x-5] SOS 997 escalation (2026-09-26)
 - Backend `POST /emergency/:id/escalate-997` (admin-only, validated notes DTO): open cases only, idempotent, sets `escalated_997/at/by` (new schema props) + emits event; `$eq` filter. sos-monitor page gained the red 997 button + escalated badge. Tests 2/2. tsc 0.
+
+## [P6.x-7] Notification templates 6-lang (2026-09-26)
+- Backend `notification_templates` collection + schema: key-validated upsert (lang allowlist ar/en/ur/hi/bn/tl, 2000-char caps), `{{var}}` preview, test-send to self via `NotificationsService.create`. Routes on `notifications/admin/templates*` + BFF mapping rule. UI templates section on notification-center (edit 6 langs, preview, test-send). Tests 4/4 (incl. 2 new template tests). tsc 0.

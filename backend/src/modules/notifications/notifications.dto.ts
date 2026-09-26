@@ -1,4 +1,4 @@
-import { IsDateString, IsDefined, IsEnum, IsObject, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsDateString, IsDefined, IsEnum, IsObject, IsOptional, IsString } from 'class-validator';
 import { NotificationType, NotificationPriority } from '../../common/enums';
 
 export class SendDto {
@@ -131,4 +131,32 @@ export class RegisterTokenDto {
   @IsOptional()
   @IsString()
   device_name?: string;
+}
+
+export class TemplateUpsertDto {
+  @IsDefined()
+  @IsString()
+  key!: string;
+
+  @IsOptional()
+  @IsObject()
+  title?: Record<string, string>;
+
+  @IsOptional()
+  @IsObject()
+  body?: Record<string, string>;
+
+  @IsOptional()
+  @IsBoolean()
+  active?: boolean;
+}
+
+export class TemplatePreviewDto {
+  @IsOptional()
+  @IsString()
+  lang?: string;
+
+  @IsOptional()
+  @IsObject()
+  params?: Record<string, unknown>;
 }
