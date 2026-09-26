@@ -173,3 +173,6 @@ Format: task | commit sha | verify result | notes
 
 ## [P6.x-7] Notification templates 6-lang (2026-09-26)
 - Backend `notification_templates` collection + schema: key-validated upsert (lang allowlist ar/en/ur/hi/bn/tl, 2000-char caps), `{{var}}` preview, test-send to self via `NotificationsService.create`. Routes on `notifications/admin/templates*` + BFF mapping rule. UI templates section on notification-center (edit 6 langs, preview, test-send). Tests 4/4 (incl. 2 new template tests). tsc 0.
+
+## [P6.x-8] Provider lifecycle reactivate UI (2026-09-26)
+- Backend already had pending→approved→suspended→reactivated with audited reasons (`provider-admin.service` + `POST :id/reactivate`); UI only lacked the button. Added Reactivate (reason prompt ≥5 chars) to the moderation detail pane. History lives in provider-audits (audit.create on every transition).
