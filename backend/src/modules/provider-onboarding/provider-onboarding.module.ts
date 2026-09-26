@@ -1,4 +1,5 @@
 import { Module, Controller, Post, Get, Body, Query, Param, UseGuards, Injectable, BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { isEmail } from 'class-validator';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JwtAuthGuard, Roles, CurrentUser, Public, SelfService } from '../../common/auth.guard';
@@ -50,8 +51,9 @@ export class ProviderOnboardingService {
     if (!body.type || !Object.values(ProviderType).includes(body.type)) throw new BadRequestException('invalid_type');
     if (!body.phone) throw new BadRequestException('phone_required');
     if (!String(body.full_name || '').trim()) throw new BadRequestException('full_name_required');
-    if (!/^\S+@\S+\.\S+$/.test(String(body.email || '').trim())) throw new BadRequestException('verified_contact_email_required');
-    let user = await this.userModel.findOne({ phone: body.phone });
+    const email = String(body.email || '').trim();
+    if (email.length > 254 || !isEmail(email)) throw new BadRequestException('verified_contact_email_required');
+    let user = await this.userModel.findOne({ phone: { $eq: body.phone } });
     if (!user) {
       if (!body.password) throw new BadRequestException('password_required_for_new_user');
       const hash = await bcrypt.hash(body.password, 12);
@@ -70,7 +72,7 @@ export class ProviderOnboardingService {
         throw err;
       }
     }
-    let profile = await this.providerModel.findOne({ user_id: user.id });
+    let profile = await this.providerModel.findOne({ user_id: { $eq: user.id } });
     if (!profile) {
       profile = await this.providerModel.create({
         user_id: user.id, account_id: user.id, type: body.type, status: ProviderStatus.PENDING,

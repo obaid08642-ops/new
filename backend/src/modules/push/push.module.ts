@@ -21,7 +21,7 @@ import * as crypto from 'crypto';
 import * as http2 from 'http2';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { redisUrlFromEnv } from '../redis/redis.service';
-import { RegisterDto, TrackDto } from './push.dto';
+import { RegisterDto, TrackDto, UnregisterPushDto, WebSubscribeDto, WebUnsubscribeDto, SendCampaignDto } from './push.dto';
 
 
 // ── Schema ────────────────────────────────────────────────────────────
@@ -355,7 +355,7 @@ export class PushService implements OnModuleInit {
   async register(user: any, body: { token: string; provider?: string; platform?: string; device_id?: string; device_name?: string }) {
     if (!body?.token) return { ok: false, reason: 'missing_token' };
     await this.tokens.findOneAndUpdate(
-      { token: body.token },
+      { token: { $eq: body.token } },
       {
         $set: {
           user_id: user.id,
@@ -375,7 +375,9 @@ export class PushService implements OnModuleInit {
   }
 
   async unregister(userId: string, token: string) {
-    await this.tokens.updateOne({ token, user_id: userId }, { $set: { active: false } });
+    // token is DTO-validated as a string; pin with $eq so query operators
+    // can never be injected into the filter.
+    await this.tokens.updateOne({ token: { $eq: token }, user_id: userId }, { $set: { active: false } });
     return { ok: true };
   }
 
@@ -701,7 +703,7 @@ export class PushController {
 
   @SelfService()
   @Post('unregister')
-  unregister(@CurrentUser() u: any, @Body() b: { token: string }) { return this.svc.unregister(u.id, b.token); }
+  unregister(@CurrentUser() u: any, @Body() b: UnregisterPushDto) { return this.svc.unregister(u.id, b.token); }
 
   @Get('devices')
   devices(@CurrentUser() u: any) { return this.svc.getUserDevices(u.id); }
@@ -713,10 +715,10 @@ export class PushController {
   /** Web Push (PWA) — register a browser subscription */
   @SelfService()
   @Post('web/subscribe')
-  async webSubscribe(@CurrentUser() u: any, @Body() b: { endpoint: string; keys: { p256dh: string; auth: string }; user_agent?: string }) {
+  async webSubscribe(@CurrentUser() u: any, @Body() b: WebSubscribeDto) {
     if (!b?.endpoint || !b?.keys?.p256dh || !b?.keys?.auth) return { ok: false, reason: 'invalid_subscription' };
     await (this.svc as any).webSubs.findOneAndUpdate(
-      { endpoint: b.endpoint },
+      { endpoint: { $eq: b.endpoint } },
       { $set: { endpoint: b.endpoint, user_id: u.id, keys: b.keys, user_agent: b.user_agent, active: true } },
       { upsert: true, new: true },
     );
@@ -726,8 +728,8 @@ export class PushController {
   /** Web Push (PWA) — remove a browser subscription */
   @SelfService()
   @Post('web/unsubscribe')
-  async webUnsubscribe(@CurrentUser() u: any, @Body() b: { endpoint: string }) {
-    await (this.svc as any).webSubs.updateOne({ endpoint: b?.endpoint, user_id: u.id }, { $set: { active: false } });
+  async webUnsubscribe(@CurrentUser() u: any, @Body() b: WebUnsubscribeDto) {
+    await (this.svc as any).webSubs.updateOne({ endpoint: { $eq: b?.endpoint }, user_id: u.id }, { $set: { active: false } });
     return { ok: true };
   }
 
@@ -743,7 +745,7 @@ export class PushController {
   @Roles(UserRole.ADMIN)
   @Post('admin/campaign')
   @Roles(UserRole.ADMIN)
-  async sendCampaign(@Body() b: { title: string; body: string; target: string }) {
+  async sendCampaign(@Body() b: SendCampaignDto) {
     // Real campaign delivery is handled by the Admin Notification Center
     // (modules/admin-notification-center) which resolves segments to users.
     return { ok: false, message: 'استخدم مركز الإشعارات الإداري /admin-notification-center/campaigns' };

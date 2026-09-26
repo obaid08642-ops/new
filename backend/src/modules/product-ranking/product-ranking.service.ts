@@ -159,7 +159,7 @@ export class ProductRankingService {
     const cleanCat = (category || 'general').trim().toLowerCase();
 
     // 1. Fetch or create metrics record
-    let record = await this.metricsModel.findOne({ drug_id: drugId, pharmacy_id: cleanPharm });
+    let record = await this.metricsModel.findOne({ drug_id: { $eq: drugId }, pharmacy_id: { $eq: cleanPharm } });
     if (!record) {
       record = new this.metricsModel({
         drug_id: drugId,
@@ -209,7 +209,7 @@ export class ProductRankingService {
    * Aggregates across pharmacies to update Global ZSets
    */
   private async syncGlobalAggregation(drugId: string, category: string): Promise<void> {
-    const allPharmacyRecords = await this.metricsModel.find({ drug_id: drugId });
+     const allPharmacyRecords = await this.metricsModel.find({ drug_id: { $eq: drugId } });
     if (!allPharmacyRecords.length) return;
 
     let totalViews = 0;
@@ -236,7 +236,7 @@ export class ProductRankingService {
       else if (r.availability_status === 'low_stock' && bestAvailability !== 'in_stock') bestAvailability = 'low_stock';
     }
 
-    let globalRecord = await this.metricsModel.findOne({ drug_id: drugId, pharmacy_id: 'global' });
+     let globalRecord = await this.metricsModel.findOne({ drug_id: { $eq: drugId }, pharmacy_id: 'global' });
     if (!globalRecord) {
       globalRecord = new this.metricsModel({
         drug_id: drugId,
@@ -359,7 +359,7 @@ export class ProductRankingService {
    * Diagnostic telemetry for product rank position and scores across scopes.
    */
   async getTelemetry(drugId: string, pharmacyId: string = 'global') {
-    const record = await this.metricsModel.findOne({ drug_id: drugId, pharmacy_id: pharmacyId });
+    const record = await this.metricsModel.findOne({ drug_id: { $eq: drugId }, pharmacy_id: { $eq: pharmacyId } });
     const globalKey = this.getZSetKey({ pharmacyId });
     const rank = await this.redisService.zrevrank(globalKey, drugId);
     const score = await this.redisService.zscore(globalKey, drugId);

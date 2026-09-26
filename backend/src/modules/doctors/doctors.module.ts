@@ -85,7 +85,7 @@ export class DoctorsService implements OnModuleInit {
   }
 
   async doctorDetail(id: string) {
-    const d = await this.doctors.findOne({ id, is_deleted: { $ne: true }, status: 'published' }, { _id: 0, __v: 0 }).lean();
+    const d = await this.doctors.findOne({ id: { $eq: id }, is_deleted: { $ne: true }, status: 'published' }, { _id: 0, __v: 0 }).lean();
     if (!d) throw new NotFoundException();
     return d;
   }
@@ -102,7 +102,7 @@ export class DoctorsService implements OnModuleInit {
   }
 
   async availableSlots(doctorId: string, date: string) {
-    const doctor: any = await this.doctors.findOne({ id: doctorId }).lean();
+    const doctor: any = await this.doctors.findOne({ id: { $eq: doctorId } }).lean();
     if (!doctor) throw new NotFoundException();
     const day = new Date(date);
     if (doctor.blocked_dates?.includes(date)) return [];
@@ -131,12 +131,12 @@ export class DoctorsService implements OnModuleInit {
   /** Atomic-ish booking via dup index check (best effort under no transactions). */
   async book(user: any, data: any) {
     if (!data.doctor_id || !data.scheduled_at || !data.type) throw new BadRequestException('missing_fields');
-    const doctor: any = await this.doctors.findOne({ id: data.doctor_id }).lean();
+    const doctor: any = await this.doctors.findOne({ id: { $eq: data.doctor_id } }).lean();
     if (!doctor) throw new NotFoundException('doctor_not_found');
     if (!doctor.is_accepting) throw new BadRequestException('doctor_not_accepting');
     const scheduledAt = new Date(data.scheduled_at);
     // Slot validity
-    const sameSlot = await this.appts.countDocuments({ doctor_id: data.doctor_id, scheduled_at: scheduledAt, state: { $nin: ['cancelled', 'no_show'] } });
+    const sameSlot = await this.appts.countDocuments({ doctor_id: { $eq: data.doctor_id }, scheduled_at: { $eq: scheduledAt }, state: { $nin: ['cancelled', 'no_show'] } });
     if (sameSlot >= (doctor.max_bookings_per_slot || 1)) throw new BadRequestException('slot_full');
     const feeMap: Record<string, number> = { clinic: doctor.consultation_fee, home: doctor.home_visit_fee, video: doctor.video_consultation_fee || doctor.consultation_fee, voice: doctor.video_consultation_fee || doctor.consultation_fee };
     const fee = feeMap[data.type] || doctor.consultation_fee;
@@ -190,17 +190,17 @@ export class DoctorsService implements OnModuleInit {
   }
 
   async appointmentDetail(user: any, id: string) {
-    const a: any = await this.appts.findOne({ id }, { _id: 0, __v: 0 }).lean();
+    const a: any = await this.appts.findOne({ id: { $eq: id } }, { _id: 0, __v: 0 }).lean();
     if (!a) throw new NotFoundException();
     if (user.role === 'patient' && a.patient_id !== user.id) throw new ForbiddenException();
-    const doctor = await this.doctors.findOne({ id: a.doctor_id }, { _id: 0, __v: 0 }).lean();
-    const note = await this.notes.findOne({ appointment_id: id }, { _id: 0, __v: 0 }).lean();
+    const doctor = await this.doctors.findOne({ id: { $eq: a.doctor_id } }, { _id: 0, __v: 0 }).lean();
+    const note = await this.notes.findOne({ appointment_id: { $eq: id } }, { _id: 0, __v: 0 }).lean();
     return { ...a, doctor, consultation_note: note };
   }
 
   // ===== CHAT =====
   async listMessages(user: any, appointment_id: string) {
-    const a: any = await this.appts.findOne({ id: appointment_id }).lean();
+    const a: any = await this.appts.findOne({ id: { $eq: appointment_id } }).lean();
     if (!a) throw new NotFoundException();
     if (user.role === 'patient' && a.patient_id !== user.id) throw new ForbiddenException();
     return this.msgs.find({ appointment_id }, { _id: 0, __v: 0 }).sort({ createdAt: 1 }).lean();
@@ -209,7 +209,7 @@ export class DoctorsService implements OnModuleInit {
   async postMessage(user: any, appointment_id: string, text: string) {
     if (!text?.trim()) throw new BadRequestException('empty');
     if (/\b\d{8,}\b/.test(text) || /https?:\/\//i.test(text) || /(whatsapp|telegram|واتساب|تيلي)/i.test(text)) throw new BadRequestException('content_blocked');
-    const a: any = await this.appts.findOne({ id: appointment_id }).lean();
+    const a: any = await this.appts.findOne({ id: { $eq: appointment_id } }).lean();
     if (!a) throw new NotFoundException();
     return this.msgs.create({ appointment_id, sender_account_id: user.id, sender_role: user.role, text });
   }
@@ -217,7 +217,7 @@ export class DoctorsService implements OnModuleInit {
   // ===== CONSULTATION NOTE =====
   async upsertNote(user: any, appointment_id: string, body: any) {
     if (!['provider', 'doctor', 'admin'].includes(user.role)) throw new ForbiddenException();
-    const a: any = await this.appts.findOne({ id: appointment_id });
+    const a: any = await this.appts.findOne({ id: { $eq: appointment_id } });
     if (!a) throw new NotFoundException();
     const exists = await this.notes.findOne({ appointment_id });
     if (exists) {

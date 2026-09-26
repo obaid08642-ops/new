@@ -349,8 +349,8 @@ export class WorkflowEngineService {
     const filter: any = { status: ProviderStatus.ACTIVE };
     if (ptype) filter.type = ptype;
     if (criteria.home_visit) filter.home_visit_supported = true;
-    if (criteria.city) filter.city = criteria.city;
-    if (criteria.insurance) filter.accepted_insurance = criteria.insurance;
+    if (criteria.city) filter.city = { $eq: criteria.city };
+    if (criteria.insurance) filter.accepted_insurance = { $eq: criteria.insurance };
 
     const candidates: any[] = await this.providers
       .find(filter, { _id: 0, __v: 0, license_documents: 0 })

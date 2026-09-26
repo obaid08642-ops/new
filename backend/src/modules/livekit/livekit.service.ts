@@ -124,11 +124,11 @@ export class LiveKitService {
   async markNoShow(providerId: string, appointmentId: string) {
     // Fixed identity + transition (P0-15): match the doctor's account id and
     // only from live states; record history like the canonical transition.
-    const appointmentFilter: any = { id: appointmentId, doctor_user_id: providerId };
+    const appointmentFilter: any = { id: { $eq: appointmentId }, doctor_user_id: { $eq: providerId } };
     if (Types.ObjectId.isValid(appointmentId)) {
       appointmentFilter.$or = [
-        { id: appointmentId, doctor_user_id: providerId },
-        { _id: new Types.ObjectId(appointmentId), doctor_user_id: providerId },
+        { id: { $eq: appointmentId }, doctor_user_id: { $eq: providerId } },
+        { _id: { $eq: new Types.ObjectId(appointmentId) }, doctor_user_id: { $eq: providerId } },
       ];
       delete appointmentFilter.id;
       delete appointmentFilter.doctor_user_id;
@@ -170,8 +170,8 @@ export class LiveKitService {
 
   async initiateCall(callerId: string, callerName: string, calleeId: string, callType: string, bookingId?: string) {
     if (!bookingId) throw new BadRequestException('appointmentId is required');
-    const appointmentFilter: any = { id: bookingId };
-    if (Types.ObjectId.isValid(bookingId)) appointmentFilter.$or = [{ id: bookingId }, { _id: new Types.ObjectId(bookingId) }];
+    const appointmentFilter: any = { id: { $eq: bookingId } };
+    if (Types.ObjectId.isValid(bookingId)) appointmentFilter.$or = [{ id: { $eq: bookingId } }, { _id: { $eq: new Types.ObjectId(bookingId) } }];
     const appt: any = await this.appointments.findOne(appointmentFilter).lean();
     if (!appt) throw new NotFoundException('Appointment not found');
     // Dead appointments can never start a call (P0-14): unify both video

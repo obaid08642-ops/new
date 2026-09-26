@@ -110,9 +110,10 @@ describe('MASTER ADDENDUM — Full End-to-End Architectural Verification', () =>
           return {
             find: jest.fn().mockImplementation(() => createQueryChain(mockMedicines)),
             findOne: jest.fn().mockImplementation((filter) => {
-              if (filter?.slug) return Promise.resolve(mockMedicines.find((m) => m.slug === filter.slug) || null);
+              const scalar = (v: any) => (v && typeof v === 'object' && '$eq' in v ? v.$eq : v);
+              if (filter?.slug) return Promise.resolve(mockMedicines.find((m) => m.slug === scalar(filter.slug)) || null);
               if (filter?.$or) {
-                const terms = filter.$or.map((o: any) => o.slug || o.id || o.sku);
+                const terms = filter.$or.map((o: any) => scalar(o.slug ?? o.id ?? o.sku));
                 const found = mockMedicines.find((m) => terms.includes(m.slug) || terms.includes(m.id) || terms.includes(m.sku));
                 return Promise.resolve(found || null);
               }

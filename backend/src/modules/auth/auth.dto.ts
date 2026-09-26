@@ -1,4 +1,102 @@
-import { IsDefined, IsIn, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsDefined, IsIn, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
+import type {
+  AuthenticationExtensionsClientOutputs,
+  AuthenticatorTransportFuture,
+  RegistrationResponseJSON,
+  AuthenticationResponseJSON,
+} from '@simplewebauthn/server';
+
+export class AttestationResponseDto {
+  @IsDefined()
+  @IsString()
+  clientDataJSON: string;
+
+  @IsDefined()
+  @IsString()
+  attestationObject: string;
+
+  @IsOptional()
+  @IsString()
+  authenticatorData?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  transports?: AuthenticatorTransportFuture[];
+}
+
+export class AssertionResponseDto {
+  @IsDefined()
+  @IsString()
+  clientDataJSON: string;
+
+  @IsDefined()
+  @IsString()
+  authenticatorData: string;
+
+  @IsDefined()
+  @IsString()
+  signature: string;
+
+  @IsOptional()
+  @IsString()
+  userHandle?: string;
+}
+
+export class RegistrationCredentialDto {
+  @IsDefined()
+  @IsString()
+  id: string;
+
+  @IsDefined()
+  @IsString()
+  rawId: string;
+
+  @IsDefined()
+  @ValidateNested()
+  @Type(() => AttestationResponseDto)
+  response: AttestationResponseDto;
+
+  @IsOptional()
+  @IsIn(['cross-platform', 'platform'])
+  authenticatorAttachment?: 'cross-platform' | 'platform';
+
+  @IsDefined()
+  @IsObject()
+  clientExtensionResults: AuthenticationExtensionsClientOutputs;
+
+  @IsDefined()
+  @IsIn(['public-key'])
+  type: 'public-key';
+}
+
+export class AuthenticationCredentialDto {
+  @IsDefined()
+  @IsString()
+  id: string;
+
+  @IsDefined()
+  @IsString()
+  rawId: string;
+
+  @IsDefined()
+  @ValidateNested()
+  @Type(() => AssertionResponseDto)
+  response: AssertionResponseDto;
+
+  @IsOptional()
+  @IsIn(['cross-platform', 'platform'])
+  authenticatorAttachment?: 'cross-platform' | 'platform';
+
+  @IsDefined()
+  @IsObject()
+  clientExtensionResults: AuthenticationExtensionsClientOutputs;
+
+  @IsDefined()
+  @IsIn(['public-key'])
+  type: 'public-key';
+}
 
 export class AuthLoginDto {
   @IsOptional()
@@ -124,4 +222,32 @@ export class SocialLoginDto {
   @IsString()
   name?: string;
 
+}
+
+export class PasskeyEnrollVerifyDto {
+  @IsDefined()
+  @ValidateNested()
+  @Type(() => RegistrationCredentialDto)
+  response: RegistrationCredentialDto;
+
+  @IsOptional()
+  @IsString()
+  device_name?: string;
+}
+
+export class PasskeyLoginVerifyDto {
+  @IsDefined()
+  @IsString()
+  identifier: string;
+
+  @IsDefined()
+  @ValidateNested()
+  @Type(() => AuthenticationCredentialDto)
+  response: AuthenticationCredentialDto;
+}
+
+export class HeartbeatDto {
+  @IsOptional()
+  @IsString()
+  client?: string;
 }

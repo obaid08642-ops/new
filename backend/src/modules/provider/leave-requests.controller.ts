@@ -58,7 +58,7 @@ export class LeaveRequestsController {
       throw new BadRequestException('id and a valid action (approved|rejected) are required');
     }
     const doc = await this.leaveModel.findOneAndUpdate(
-      { id: body.id, facility_id: facility.id, status: 'pending' },
+      { id: { $eq: body.id }, facility_id: { $eq: facility.id }, status: 'pending' },
       { $set: { status: body.action, decided_by: facility.id, decided_at: new Date(), decision_note: body.note } },
       { new: true },
     );

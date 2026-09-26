@@ -26,7 +26,7 @@ export class ChatController {
 
   @Get('threads/:threadId/permissions')
   async getThreadPermissions(@CurrentUser() u: any, @Param('threadId') threadId: string) {
-    const thread = await this.svc.threads.findOne({ id: threadId });
+    const thread = await this.svc.threads.findOne({ id: { $eq: threadId } });
     if (!thread) throw new NotFoundException('thread_not_found');
 
     const isFamily = await this.svc.checkIfFamily(thread.participant_ids);
@@ -44,7 +44,7 @@ export class ChatController {
     }
 
     const AppointmentModel = this.svc.getModel('Appointment');
-    const appt = await AppointmentModel.findOne({ id: thread.booking_id });
+    const appt = await AppointmentModel.findOne({ id: { $eq: thread.booking_id } });
     if (!appt) {
       return {
         status_code: 'closed',

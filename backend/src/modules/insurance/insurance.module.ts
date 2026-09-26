@@ -64,7 +64,7 @@ export class InsuranceService {
 
   async createCompany(data: any): Promise<InsuranceCompany> {
     const code = data.code?.toLowerCase();
-    const existing = await this.companyModel.findOne({ code });
+    const existing = await this.companyModel.findOne({ code: { $eq: code } });
     if (existing) throw new BadRequestException('Company code already exists');
     return this.companyModel.create({ ...data, code });
   }
@@ -91,14 +91,14 @@ export class InsuranceService {
    */
   async updateCompany(id: string, allowed: any): Promise<any> {
     if (!Object.keys(allowed).length) throw new BadRequestException('nothing_to_update');
-    const res = await this.companyModel.findOneAndUpdate({ id }, { $set: allowed }, { new: true }).lean();
+    const res = await this.companyModel.findOneAndUpdate({ id: { $eq: id } }, { $set: allowed }, { new: true }).lean();
     if (!res) throw new NotFoundException('Company not found');
     return res;
   }
 
   /** Admin: remove a tier network from a company. */
   async deleteNetwork(companyId: string, networkId: string): Promise<any> {
-    const res = await this.networkModel.deleteOne({ id: networkId, company_id: companyId });
+    const res = await this.networkModel.deleteOne({ id: { $eq: networkId }, company_id: { $eq: companyId } });
     if (!res.deletedCount) throw new NotFoundException('Network not found');
     return { ok: true };
   }
@@ -111,13 +111,13 @@ export class InsuranceService {
    * withheld while their records remain fully recoverable by administrators.
    */
   async listNetworks(companyId: string): Promise<InsuranceNetwork[]> {
-    const company = await this.companyModel.findOne({ id: companyId, is_active: true }, { _id: 1 } as any).lean();
+     const company = await this.companyModel.findOne({ id: { $eq: companyId }, is_active: true }, { _id: 1 } as any).lean();
     if (!company) return [];
     return this.networkModel.find({ company_id: companyId, catalog_status: { $ne: 'retired' } }).lean();
   }
 
   async createNetwork(companyId: string, data: any): Promise<InsuranceNetwork> {
-    const comp = await this.companyModel.findOne({ id: companyId });
+    const comp = await this.companyModel.findOne({ id: { $eq: companyId } });
     if (!comp) throw new NotFoundException('Company not found');
     return this.networkModel.create({ ...data, company_id: companyId });
   }
@@ -128,7 +128,7 @@ export class InsuranceService {
   }
 
   async createRule(networkId: string, data: any): Promise<CoverageRule> {
-    const net = await this.networkModel.findOne({ id: networkId });
+    const net = await this.networkModel.findOne({ id: { $eq: networkId } });
     if (!net) throw new NotFoundException('Network not found');
     return this.ruleModel.create({ ...data, network_id: networkId });
   }
@@ -143,7 +143,7 @@ export class InsuranceService {
       service_key?: string; // e.g. cardiology, cbc-test
     }
   ) {
-    const patient = (await this.patientModel.findOne({ user_id: patientId }).lean()) as any;
+    const patient = (await this.patientModel.findOne({ user_id: { $eq: patientId } }).lean()) as any;
     if (!patient || !patient.insurance || !patient.insurance.provider) {
       return {
         covered: false,
@@ -165,13 +165,13 @@ export class InsuranceService {
     let name = '';
 
     if (query.provider_id) {
-      const provider = await this.providerModel.findOne({ id: query.provider_id }).lean();
+      const provider = await this.providerModel.findOne({ id: { $eq: query.provider_id } }).lean();
       if (provider) {
         contracts = provider.insurance_contracts || [];
         name = provider.name_ar;
       }
     } else if (query.facility_id) {
-      const facility = await this.facilityModel.findOne({ id: query.facility_id }).lean();
+      const facility = await this.facilityModel.findOne({ id: { $eq: query.facility_id } }).lean();
       if (facility) {
         contracts = facility.insurance_contracts || [];
         name = facility.name_ar;
@@ -301,7 +301,7 @@ Use null for any field not clearly visible. Do not guess.`;
     if (!nationalId || !companyCode) {
       throw new BadRequestException('national_id and insurance_company_code are required');
     }
-    const patient: any = await this.patientModel.findOne({ 'insurance.national_id': nationalId }).lean();
+    const patient: any = await this.patientModel.findOne({ 'insurance.national_id': { $eq: nationalId } }).lean();
     const ins = patient?.insurance;
     const code = String(companyCode).toLowerCase();
     const matches = ins && (
@@ -332,7 +332,7 @@ Use null for any field not clearly visible. Do not guess.`;
   }
 
   async savePolicy(patientId: string, policyData: any) {
-    let patient = await this.patientModel.findOne({ user_id: patientId });
+    let patient = await this.patientModel.findOne({ user_id: { $eq: patientId } });
     if (!patient) {
       patient = await this.patientModel.create({ user_id: patientId });
     }
@@ -375,7 +375,6 @@ Use null for any field not clearly visible. Do not guess.`;
       claim_id: claim.id,
       status: claim.status,
       submitted_at: new Date().toISOString(),
-      ...claimData
     };
   }
 

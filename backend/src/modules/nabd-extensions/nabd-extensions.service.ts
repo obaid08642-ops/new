@@ -591,7 +591,7 @@ export class NabdExtensionsService {
 
   async verifyNurseAttendance(nurseId: string, visitId: string, lat: number, lng: number): Promise<{ success: boolean; distanceM: number }> {
     // Find home-care booking to verify location
-    const booking = await this.userModel.db.model('HomeCareBooking').findOne({ id: visitId }).lean() as any;
+    const booking = await this.userModel.db.model('HomeCareBooking').findOne({ id: { $eq: visitId } }).lean() as any;
     if (!booking) throw new NotFoundException('Home care visit booking not found');
 
     const patientLoc = booking.location || { lat: 24.7136, lng: 46.6753 }; // Riyadh default fallback
@@ -694,7 +694,7 @@ export class NabdExtensionsService {
   }
 
   async verifyLabResultRanges(sampleId: string, actualValue: number) {
-    const sample = await this.userModel.db.model('LabSample').findOne({ sampleId });
+    const sample = await this.userModel.db.model('LabSample').findOne({ sampleId: { $eq: sampleId } });
     if (!sample) throw new NotFoundException('Lab sample not found');
 
     sample.actualValue = actualValue;

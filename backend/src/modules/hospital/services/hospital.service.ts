@@ -1,4 +1,5 @@
 import { Injectable, BadRequestException, UnauthorizedException, NotFoundException, ConflictException } from '@nestjs/common';
+import { isEmail } from 'class-validator';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import * as bcrypt from 'bcryptjs';
@@ -42,8 +43,9 @@ export class HospitalService {
   }
 
   private async objectIdForUser(userId: string): Promise<Types.ObjectId> {
+    if (typeof userId !== 'string' || !userId.trim() || userId.length > 128) throw new BadRequestException('invalid_user_id');
     if (Types.ObjectId.isValid(userId)) return new Types.ObjectId(userId);
-    const user: any = await this.userModel.findOne({ id: userId }).select({ _id: 1 }).lean();
+    const user: any = await this.userModel.findOne({ id: { $eq: userId } }).select({ _id: 1 }).lean();
     if (!user?._id) throw new NotFoundException('hospital_user_not_found');
     return user._id;
   }
@@ -168,7 +170,7 @@ export class HospitalService {
       const password = String((data as any).password || '');
       const fullName = String((data as any).full_name || '').trim();
       if (!fullName) throw new BadRequestException('full_name required');
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new BadRequestException('valid email required');
+      if (email.length > 254 || !isEmail(email)) throw new BadRequestException('valid email required');
       if (password.length < 8 || !/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) throw new BadRequestException('password must be at least 8 characters with letters and numbers');
       const roleKey = String((data as any).staff_role || '');
       const clinical = CLINICAL[roleKey];

@@ -30,7 +30,8 @@ export class UsersAddressesController {
     
     addresses.push(newAddress);
     await this.users.updatePatientProfile(id, { addresses });
-    return newAddress;
+    // Do not reflect caller-controlled address strings into the write response.
+    return { id: newAddress.id };
   }
 
   @Patch(':addressId')

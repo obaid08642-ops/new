@@ -1,4 +1,4 @@
-import { IsArray, IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDefined, IsNumber, IsOptional, IsString, MinLength } from 'class-validator';
 
 export class CreateDto {
   @IsDefined()
@@ -116,4 +116,17 @@ export class UpdateDto {
   @IsOptional()
   @IsNumber()
   consultation_fee?: number;
+}
+
+export class SuspendStaffDto {
+  @IsOptional()
+  @IsBoolean()
+  suspended?: boolean;
+}
+
+export class ResetStaffPasswordDto {
+  @IsDefined()
+  @IsString()
+  @MinLength(6)
+  password: string;
 }

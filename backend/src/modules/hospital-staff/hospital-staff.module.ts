@@ -13,7 +13,7 @@ import { ProviderAccount, ProviderAccountSchema } from '../provider/schemas';
 import { UserRole } from '../../common/enums';
 import * as bcrypt from 'bcryptjs';
 import { v4 as uuid } from 'uuid';
-import { CreateDto, UpdateDto } from './hospital-staff.dto';
+import { CreateDto, UpdateDto, SuspendStaffDto, ResetStaffPasswordDto } from './hospital-staff.dto';
 
 const STAFF_ROLES: UserRole[] = [UserRole.DOCTOR, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.PHARMACY];
 
@@ -119,8 +119,8 @@ export class HospitalStaffController {
   @Get() list(@CurrentUser() u: any) { return this.svc.list(u); }
   @Post() create(@CurrentUser() u: any, @Body() b: CreateDto) { return this.svc.create(u, b); }
   @Patch(':id') update(@CurrentUser() u: any, @Param('id') id: string, @Body() b: UpdateDto) { return this.svc.update(u, id, b); }
-  @Post(':id/suspend') suspend(@CurrentUser() u: any, @Param('id') id: string, @Body() b: { suspended?: boolean }) { return this.svc.suspend(u, id, b?.suspended !== false); }
-  @Post(':id/reset-password') reset(@CurrentUser() u: any, @Param('id') id: string, @Body() b: { password: string }) { return this.svc.resetPassword(u, id, b?.password); }
+  @Post(':id/suspend') suspend(@CurrentUser() u: any, @Param('id') id: string, @Body() b: SuspendStaffDto) { return this.svc.suspend(u, id, b?.suspended !== false); }
+  @Post(':id/reset-password') reset(@CurrentUser() u: any, @Param('id') id: string, @Body() b: ResetStaffPasswordDto) { return this.svc.resetPassword(u, id, b?.password); }
   @Delete(':id') remove(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.remove(u, id); }
 }
 

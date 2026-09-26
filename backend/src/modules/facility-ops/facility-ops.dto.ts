@@ -105,3 +105,43 @@ export class BookSurgeryDto {
   @IsDefined() @IsDateString() scheduled_at: string;
   @IsDefined() @IsNumber() duration_mins: number;
 }
+
+export class DischargeDto {
+  @IsOptional()
+  @IsString()
+  diagnosis?: string;
+
+  @IsOptional()
+  @IsString()
+  medications?: string;
+
+  @IsOptional()
+  @IsString()
+  instructions?: string;
+}
+
+export class UpdateShiftDto {
+  @IsOptional()
+  @IsString()
+  user_id?: string;
+
+  @IsOptional()
+  @IsString()
+  department_id?: string;
+
+  @IsOptional()
+  @IsString()
+  start_time?: string;
+
+  @IsOptional()
+  @IsString()
+  end_time?: string;
+
+  @IsOptional()
+  @IsString()
+  day_of_week?: string;
+
+  @IsOptional()
+  @IsIn(['scheduled', 'substitute', 'cancelled'])
+  status?: string;
+}

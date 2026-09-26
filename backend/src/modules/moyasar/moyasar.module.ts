@@ -16,7 +16,7 @@ import {
   Req,
   UseInterceptors,
 } from '@nestjs/common';
-import { WebhookDto, RefundDto} from './moyasar.dto';
+import { WebhookDto, RefundDto, CreateMoyasarPaymentDto} from './moyasar.dto';
 import { InjectModel, InjectConnection, MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Model, Document, Connection } from 'mongoose';
 import { JwtAuthGuard, CurrentUser, Public, Roles, SelfService } from '../../common/auth.guard';
@@ -101,7 +101,9 @@ export class MoyasarService {
     };
     const cfg = kindMap[bookingKind];
     if (!cfg) throw new BadRequestException('invalid_booking_kind');
-    const doc: any = await this.conn.collection(cfg.collection).findOne({ id: bookingId } as any);
+    // bookingId is DTO-validated as a string; pin with $eq so query
+    // operators can never be injected into the filter.
+    const doc: any = await this.conn.collection(cfg.collection).findOne({ id: { $eq: bookingId } } as any);
     if (!doc) throw new NotFoundException('booking_not_found');
     let amount = 0;
     for (const path of cfg.amounts) {
@@ -148,7 +150,7 @@ export class MoyasarService {
 
     // Return existing pending payment to avoid duplicate charges
     const existing = await this.paymentModel.findOne({
-      booking_id: params.bookingId,
+      booking_id: { $eq: params.bookingId },
       status: { $in: ['initiated', 'authorized'] },
     });
     if (existing) return existing;
@@ -221,13 +223,14 @@ export class MoyasarService {
 
   /** Fetch and sync a single payment's status from Moyasar */
   async syncPaymentStatus(moyasarId: string): Promise<MoyasarPaymentDocument | null> {
-    const payment = await this.paymentModel.findOne({ moyasar_id: moyasarId });
+    this.assertMoyasarId(moyasarId);
+    const payment = await this.paymentModel.findOne({ moyasar_id: { $eq: moyasarId } });
     if (!payment) return null;
 
     const isSandbox = !this.apiKey || moyasarId.startsWith('sandbox_');
     if (!isSandbox) {
       try {
-        const resp = await fetch(`${this.baseUrl}/payments/${moyasarId}`, {
+        const resp = await fetch(`${this.baseUrl}/payments/${encodeURIComponent(moyasarId)}`, {
           headers: this.authHeaders(),
         });
         const data: any = await resp.json();
@@ -266,10 +269,11 @@ export class MoyasarService {
     moyasarId: string,
     amount?: number,
   ): Promise<{ ok: boolean; refund?: any; sandbox?: boolean }> {
+    this.assertMoyasarId(moyasarId);
     const isSandbox = !this.apiKey || moyasarId.startsWith('sandbox_');
 
     if (isSandbox) {
-      const p = await this.paymentModel.findOne({ moyasar_id: moyasarId });
+      const p = await this.paymentModel.findOne({ moyasar_id: { $eq: moyasarId } });
       if (p) {
         p.status = 'refunded';
         p.refunded_at = new Date();
@@ -279,12 +283,12 @@ export class MoyasarService {
       return { ok: true, sandbox: true };
     }
 
-    const payment = await this.paymentModel.findOne({ moyasar_id: moyasarId });
+    const payment = await this.paymentModel.findOne({ moyasar_id: { $eq: moyasarId } });
     if (!payment) throw new BadRequestException('payment_not_found');
 
     try {
       const amountHalalas = amount ? Math.round(amount * 100) : undefined;
-      const resp = await fetch(`${this.baseUrl}/payments/${moyasarId}/refunds`, {
+      const resp = await fetch(`${this.baseUrl}/payments/${encodeURIComponent(moyasarId)}/refunds`, {
         method: 'POST',
         headers: this.authHeaders(),
         body: JSON.stringify(amountHalalas ? { amount: amountHalalas } : {}),
@@ -308,6 +312,12 @@ export class MoyasarService {
     } catch (e: any) {
       this.logger.error('Refund error', e?.message);
       throw new BadRequestException(e?.message || 'refund_failed');
+    }
+  }
+
+  private assertMoyasarId(id: string): void {
+    if (typeof id !== 'string' || id.length > 128 || !/^[A-Za-z0-9_-]+$/.test(id)) {
+      throw new BadRequestException('invalid_moyasar_payment_id');
     }
   }
 
@@ -384,13 +394,7 @@ export class MoyasarController {
   createPayment(
     @CurrentUser() user: any,
     @Body()
-    body: {
-      booking_id: string;
-      booking_kind: string;
-      amount: number;
-      description?: string;
-      callback_url?: string;
-    },
+    body: CreateMoyasarPaymentDto,
   ) {
     return this.svc.createPayment({
       bookingId: body.booking_id,

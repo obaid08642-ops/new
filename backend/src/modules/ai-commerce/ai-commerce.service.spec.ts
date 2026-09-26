@@ -65,7 +65,9 @@ describe('AiCommerceService', () => {
             }),
           }),
           findOne: jest.fn().mockImplementation(({ $or }) => {
-            const val = $or[0]?.id || $or[1]?.slug;
+            // Unwrap scalar equality the same way Mongo matches { $eq: v }.
+            const scalar = (v: any) => (v && typeof v === 'object' && '$eq' in v ? v.$eq : v);
+            const val = scalar($or[0]?.id) || scalar($or[1]?.slug);
             const found = mockMedicines.find(
               (m) => m.id === val || m.slug === val || String(m.sku) === String(val),
             );
@@ -81,7 +83,8 @@ describe('AiCommerceService', () => {
             }),
           }),
           findOne: jest.fn().mockImplementation(({ $or }) => {
-            const val = $or[0]?.id || $or[1]?.slug;
+            const scalar = (v: any) => (v && typeof v === 'object' && '$eq' in v ? v.$eq : v);
+            const val = scalar($or[0]?.id) || scalar($or[1]?.slug);
             const found = mockDoctors.find((d) => d.id === val || d.slug === val);
             return Promise.resolve(found || null);
           }),

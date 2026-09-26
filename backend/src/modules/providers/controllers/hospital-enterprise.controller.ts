@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param, Patch, UseGuards, ForbiddenException } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Patch, UseGuards, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { HospitalSubEntity } from '../schemas/hospital-sub-entity.schema';
@@ -19,6 +19,11 @@ export class HospitalEnterpriseController {
     @InjectModel(ProviderProfile.name) private providerModel: Model<ProviderProfile>
   ) {}
 
+  private objectId(value: string, field: string): Types.ObjectId {
+    if (typeof value !== 'string' || !Types.ObjectId.isValid(value)) throw new BadRequestException(`${field}_must_be_object_id`);
+    return new Types.ObjectId(value);
+  }
+
   @Post('provision-sub-provider')
   async provisionSubProvider(@Body() payload: ProvisionSubProviderDto) {
     const { hospitalId, branchId, staffUserId, entityType, permissions } = payload;
@@ -26,20 +31,23 @@ export class HospitalEnterpriseController {
     // hospitalId/branchId/staffUserId are always Mongo ObjectIds —
     // enforced by @IsMongoId() on ProvisionSubProviderDto.
     // Create the transactional binding mapping the provider sub-account underneath the hospital
+    const hospitalObjectId = this.objectId(hospitalId, 'hospitalId');
+    const branchObjectId = this.objectId(branchId, 'branchId');
+    const staffObjectId = this.objectId(staffUserId, 'staffUserId');
     const binding = await this.subEntityModel.create({
-      parent_hospital_id: new Types.ObjectId(hospitalId),
-      assigned_branch_id: new Types.ObjectId(branchId),
-      sub_entity_user_id: new Types.ObjectId(staffUserId),
+      parent_hospital_id: hospitalObjectId,
+      assigned_branch_id: branchObjectId,
+      sub_entity_user_id: staffObjectId,
       entity_type: entityType,
       custom_branch_permissions: permissions || [],
       is_active: true
     });
 
     // Update the targeted sub-account user record credentials to hook parent identities
-    await this.userModel.findByIdAndUpdate(staffUserId, {
+    await this.userModel.findOneAndUpdate({ _id: { $eq: staffObjectId } }, {
       $set: {
-        parent_provider_account_id: new Types.ObjectId(hospitalId),
-        assigned_branch_id: new Types.ObjectId(branchId),
+        parent_provider_account_id: hospitalObjectId,
+        assigned_branch_id: branchObjectId,
         verified: entityType === 'BRANCH_DOCTOR' ? true : undefined // Auto-approve doctors
       }
     });
@@ -59,8 +67,8 @@ export class HospitalEnterpriseController {
     // Route ids are Mongo ObjectIds here: both come from the provisioned
     // sub-entity binding created above (never client uuids).
     const staffMappings = await this.subEntityModel.find({
-      parent_hospital_id: new Types.ObjectId(hospitalId),
-      assigned_branch_id: new Types.ObjectId(branchId),
+      parent_hospital_id: { $eq: this.objectId(hospitalId, 'hospitalId') },
+      assigned_branch_id: { $eq: this.objectId(branchId, 'branchId') },
       is_active: true
     }).populate('sub_entity_user_id', 'full_name phone email role verified');
 
@@ -87,14 +95,15 @@ export class HospitalEnterpriseController {
 
     // requestorId is always a Mongo ObjectId (enforced by @IsMongoId());
     // branchId is the provisioned binding id from above, never a client uuid.
-    const requestor = await this.userModel.findById(securityContext.requestorId);
+    const requestor = await this.userModel.findOne({ _id: { $eq: this.objectId(securityContext.requestorId, 'requestorId') } });
     if (!requestor || requestor.role === UserRole.RECEPTIONIST) {
       throw new ForbiddenException('حجبت الصلاحية. موظفو الاستقبال لا يملكون إذن الوصول للتقارير والبيانات المالية للمنشأة.');
     }
 
     // Actual Calculation Engine
     // 1. Get all doctors under this branch
-    const staff = await this.subEntityModel.find({ assigned_branch_id: new Types.ObjectId(branchId), entity_type: 'BRANCH_DOCTOR' });
+    const branchObjectId = this.objectId(branchId, 'branchId');
+    const staff = await this.subEntityModel.find({ assigned_branch_id: { $eq: branchObjectId }, entity_type: 'BRANCH_DOCTOR' });
     const doctorUserIds = staff.map(s => s.sub_entity_user_id.toString());
     
     // Convert User IDs to Provider IDs

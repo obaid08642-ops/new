@@ -103,7 +103,7 @@ export class ProductRankingEventService {
 
     // Atomic increment in MongoDB
     await this.metricsModel.findOneAndUpdate(
-      { drug_id: drugId, pharmacy_id: pharmacyId },
+      { drug_id: { $eq: drugId }, pharmacy_id: { $eq: pharmacyId } },
       {
         $inc: incField,
         $setOnInsert: {

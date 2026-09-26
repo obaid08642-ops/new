@@ -33,7 +33,7 @@ export class SystemConfigController {
   @Put()
   async updateConfig(@Body() body: UpdateConfigDto) {
     const key = 'system_config';
-    const updated = await this.configModel.findOneAndUpdate({ key }, { value: body.value }, { new: true, upsert: true }).lean();
+    const updated = await this.configModel.findOneAndUpdate({ key: { $eq: key } }, { value: body.value }, { new: true, upsert: true }).lean();
     return { key: updated.key, value: updated.value };
   }
 }

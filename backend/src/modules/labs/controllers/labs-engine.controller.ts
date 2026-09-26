@@ -36,7 +36,7 @@ export class LabsEngineController {
     // Lab bookings carry no public `id` field — the route id is the Mongo `_id`
     // (idFilter keeps that behavior and never throws on malformed input).
     const booking = await this.labBookingModel.findOneAndUpdate(
-      { ...idFilter(bookingId), lab_id },
+      { ...idFilter(bookingId), lab_id: { $eq: lab_id } },
       { $set: { status: newStatus } },
       { new: true }
     );
@@ -55,7 +55,7 @@ export class LabsEngineController {
     const { barcodeToken } = body;
 
     // Verify barcode uniqueness inside the active pipeline to prevent duplicate vial entries
-    const duplicateCheck = await this.labBookingModel.findOne({ sample_barcode_token: barcodeToken });
+    const duplicateCheck = await this.labBookingModel.findOne({ sample_barcode_token: { $eq: barcodeToken } });
     if (duplicateCheck && duplicateCheck._id.toString() !== bookingId) {
       throw new BadRequestException({
         code: 'DUPLICATE_BARCODE_TOKEN',
@@ -118,7 +118,7 @@ export class LabsEngineController {
     if (!lab_id || !test_code) throw new BadRequestException('lab_id and test_code are required');
 
     const catalogEntry = await this.labCatalogModel.findOneAndUpdate(
-      { lab_id, test_code },
+      { lab_id: { $eq: lab_id }, test_code: { $eq: test_code } },
       { $set: updateData },
       { new: true, upsert: true }
     );

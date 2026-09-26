@@ -348,8 +348,8 @@ export class RadiologyOpsService {
     // The legacy `id` field on catalog docs is stored as binary garbage, so
     // public detail lookup must use `_id` (or human `short_code`) instead.
     const base = { is_deleted: false, active: true, public_eligibility: true, medical_review_status: 'approved' } as const;
-    const or: Record<string, unknown>[] = [{ short_code: id }];
-    if (Types.ObjectId.isValid(id)) or.unshift({ _id: new Types.ObjectId(id) });
+    const or: Record<string, unknown>[] = [{ short_code: { $eq: id } }];
+    if (Types.ObjectId.isValid(id)) or.unshift({ _id: { $eq: new Types.ObjectId(id) } });
     const svc = await this.svcModel.findOne({ ...base, $or: or }).lean();
     if (!svc) throw new NotFoundException();
     return svc;
@@ -358,9 +358,10 @@ export class RadiologyOpsService {
   async book(user: any, body: any) {
     // S4 duplicate-booking prevention: idempotent replay for double-tap/retry within 3 minutes
     if (body?.service_id) {
+      if (typeof body.service_id !== 'string' || body.service_id.length > 128) throw new BadRequestException('invalid service_id');
       const dupe = await this.bkgModel.findOne({
-        patient_id: user.id,
-        service_id: body.service_id,
+        patient_id: { $eq: user.id },
+        service_id: { $eq: body.service_id },
         createdAt: { $gte: new Date(Date.now() - 3 * 60_000) },
         state: { $nin: [RadiologyBookingState.CANCELLED, RadiologyBookingState.REPORT_READY] },
       }).lean();

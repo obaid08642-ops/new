@@ -23,3 +23,9 @@ export class UpdateDto {
   @IsNumber()
   commission_insurance?: number;
 }
+
+export class B2bDecisionDto {
+  @IsOptional()
+  @IsString()
+  note?: string;
+}

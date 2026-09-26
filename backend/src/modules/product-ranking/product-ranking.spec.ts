@@ -7,8 +7,10 @@ describe('Continuous Dynamic Product Ranking Engine (Part 1 & 2)', () => {
   let rankingService: ProductRankingService;
   let eventService: ProductRankingEventService;
 
-  // In-memory mock Mongoose model for isolated, deterministic execution
+  // In-memory mock Mongoose model for isolated, deterministic execution.
+  // Unwraps scalar equality ({ $eq: v }) exactly like Mongo matches it.
   const mockDatabase = new Map<string, any>();
+  const scalar = (v: any) => (v && typeof v === 'object' && '$eq' in v ? v.$eq : v);
 
   const mockModel: any = function (data: any) {
     Object.assign(this, data);
@@ -18,8 +20,8 @@ describe('Continuous Dynamic Product Ranking Engine (Part 1 & 2)', () => {
     };
   };
   mockModel.findOne = jest.fn((query: any) => ({
-    exec: async () => mockDatabase.get(`${query.drug_id}:${query.pharmacy_id}`) || null,
-    then: (resolve: any) => Promise.resolve(mockDatabase.get(`${query.drug_id}:${query.pharmacy_id}`) || null).then(resolve),
+    exec: async () => mockDatabase.get(`${scalar(query.drug_id)}:${scalar(query.pharmacy_id)}`) || null,
+    then: (resolve: any) => Promise.resolve(mockDatabase.get(`${scalar(query.drug_id)}:${scalar(query.pharmacy_id)}`) || null).then(resolve),
   }));
   mockModel.find = jest.fn((query: any) => ({
     sort: (sortObj: any) => ({
@@ -50,12 +52,12 @@ describe('Continuous Dynamic Product Ranking Engine (Part 1 & 2)', () => {
     },
   }));
   mockModel.findOneAndUpdate = jest.fn(async (filter: any, update: any, options: any) => {
-    const key = `${filter.drug_id}:${filter.pharmacy_id}`;
+    const key = `${scalar(filter.drug_id)}:${scalar(filter.pharmacy_id)}`;
     let existing = mockDatabase.get(key);
     if (!existing && options?.upsert) {
       existing = {
-        drug_id: filter.drug_id,
-        pharmacy_id: filter.pharmacy_id,
+        drug_id: scalar(filter.drug_id),
+        pharmacy_id: scalar(filter.pharmacy_id),
         views_count: 0,
         searches_count: 0,
         clicks_count: 0,

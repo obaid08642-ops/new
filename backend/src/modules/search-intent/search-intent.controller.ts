@@ -1,5 +1,6 @@
 import { Controller, Post, Get, Body, Query, UseGuards } from '@nestjs/common';
 import { SearchIntentService, ExtractedSearchIntent } from './search-intent.service';
+import { ExtractIntentDto } from './search-intent.dto';
 import { JwtAuthGuard, Roles, Public } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 
@@ -9,12 +10,8 @@ export class SearchIntentController {
 
   @Public()
   @Post()
-  async extractIntent(
-    @Body('query') query: string,
-    @Body('locale') locale?: string,
-    @Body('client_type') clientType?: string,
-  ): Promise<ExtractedSearchIntent> {
-    return this.intentService.extractIntent(query, locale || 'ar', clientType || 'web');
+  async extractIntent(@Body() body: ExtractIntentDto): Promise<ExtractedSearchIntent> {
+    return this.intentService.extractIntent(body.query, body.locale || 'ar', body.client_type || 'web');
   }
 
   /** R75: consume query analytics — zero/low-result queries drive P9 synonym/ranking work. */

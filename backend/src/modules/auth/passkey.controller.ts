@@ -3,6 +3,7 @@ import { Throttle } from '@nestjs/throttler';
 import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { PasskeyService } from './passkey.service';
+import { PasskeyEnrollVerifyDto, PasskeyLoginVerifyDto } from './auth.dto';
 import { JwtAuthGuard, Public, CurrentUser, SelfService } from '../../common/auth.guard';
 
 /**
@@ -23,7 +24,7 @@ export class PasskeyController {
   }
 
   @Post('enroll/verify')
-  enrollVerify(@CurrentUser() user: any, @Body() body: { response: any; device_name?: string }) {
+  enrollVerify(@CurrentUser() user: any, @Body() body: PasskeyEnrollVerifyDto) {
     if (!body?.response) throw new BadRequestException('response_required');
     return this.passkeys.finishEnrollment(user, body.response, body.device_name);
   }
@@ -43,7 +44,7 @@ export class PasskeyController {
   @Public()
   @Throttle({ default: { limit: 10, ttl: 60000 } }) // same anti brute-force budget as /auth/login
   @Post('login/verify')
-  async loginVerify(@Body() body: { identifier: string; response: any }, @Req() req: Request, @Res({ passthrough: true }) res: Response) {
+  async loginVerify(@Body() body: PasskeyLoginVerifyDto, @Req() req: Request, @Res({ passthrough: true }) res: Response) {
     if (!body?.identifier || !body?.response) throw new BadRequestException('identifier_and_response_required');
     const xff = (req.headers['x-forwarded-for'] as string) || '';
     const result = await this.auth.completePasskeyLogin(body.identifier, body.response, {

@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 import { ProviderAvailabilityStatus, ProviderRequestPriority } from './schemas/requests.schema';
 
 export class DisableDto {
@@ -6,6 +6,51 @@ export class DisableDto {
   @IsString()
   reason?: string;
 
+}
+
+export class WithdrawAliasDto {
+  @IsOptional()
+  @IsNumber()
+  amount?: number;
+
+  @IsOptional()
+  @IsString()
+  iban?: string;
+
+}
+
+export class UploadProfileImageDto {
+  @IsDefined()
+  @IsString()
+  data_base64: string;
+
+  @IsDefined()
+  @IsIn(['image/jpeg', 'image/jpg', 'image/png', 'image/webp'])
+  mime: string;
+
+  @IsDefined()
+  @IsString()
+  original_name: string;
+}
+
+export class ReplaceImageDto {
+  @IsDefined()
+  @IsString()
+  data_base64: string;
+
+  @IsDefined()
+  @IsIn(['image/jpeg', 'image/jpg', 'image/png', 'image/webp'])
+  mime: string;
+}
+
+export class AssignStaffDto {
+  @IsDefined()
+  @IsString()
+  staff_id: string;
+
+  @IsOptional()
+  @IsString()
+  notes?: string;
 }
 
 export class EndConsultationDto {

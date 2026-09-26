@@ -2,7 +2,7 @@ import { Types } from 'mongoose';
 
 /** True when `id` can be cast to a Mongo ObjectId. */
 export function isObjectIdString(id: unknown): id is string {
-  return typeof id === 'string' && Types.ObjectId.isValid(id);
+  return typeof id === 'string' && /^[a-f\d]{24}$/i.test(id);
 }
 
 /**
@@ -12,7 +12,9 @@ export function isObjectIdString(id: unknown): id is string {
  * on a null result instead of 500ing on a cast.
  */
 export function idFilter(id: string): Record<string, unknown> {
-  return isObjectIdString(id) ? { _id: id } : { id };
+  return isObjectIdString(id)
+    ? { _id: { $eq: new Types.ObjectId(id) } }
+    : { id: { $eq: id } };
 }
 
 /**
