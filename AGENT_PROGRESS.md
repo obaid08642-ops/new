@@ -138,3 +138,10 @@ Format: task | commit sha | verify result | notes
 
 ## [P5.3e] F49 provider-delta approval verified single (2026-09-26, no code change)
 - ONE approval implementation: `provider-admin.service.ts` approveDelta/rejectDelta (`POST provider/provider-deltas/:id/approve|reject`). Admin duplicate commit path already removed (note in admin-extended-operations.controller.ts). Writers of `provider_deltas`: submissions only (`provider-profile.service` x2, `legal-enterprise` insurance-matrix, all `status:'pending'`); reads: `listDeltas` (admin) + moved `ProviderDeltasMineController` (own). No consolidation work remaining.
+
+## Gate P5 (2026-09-26, this branch)
+- P5.1 verified: single `/catalogs/:type` reads canonical collections via `CATALOG_COLLECTIONS`; static JSON dir gone; clients on catalog hooks; provider price/availability in `provider_offerings` overlays.
+- P5.2: dead-drop + audit-merge migrations present; doctor-appointments audit migration added; live-copy cutovers (doctor_appointments, pharmacy_orders/orders) staging-gated with decision notes above.
+- P5.3: 7 merges intact; compat retired (26 moved + 1 dead dropped); legacy deleted; F38 dead controllers deleted; nursing single-impl + alias; F49 single approval impl; P5.4 aliases log deprecation.
+- Contracts: dtolint 0/0/0, dtocheck 627/308/0 mismatches, tsc 0, nest build 0.
+- e2e: env-gated (no mongod; memory-server SIGABRT; throttler 429 on race suite) — staging/CI must run journeys + fabsweep on a seeded DB before merge.
