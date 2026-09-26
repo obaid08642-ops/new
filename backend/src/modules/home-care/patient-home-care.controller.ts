@@ -39,6 +39,8 @@ export class PatientHomeCareController {
     return { data: docs.map(({ _id, ...d }: any) => d) };
   }
 
+  // P5.3d: alias of canonical POST /nursing/bookings — same single
+  // implementation (HomeCareSvc.book). Kept because live clients call it.
   @Post('bookings')
   async book(@CurrentUser() u: any, @Body() body: BookDto) {
     const userId = uid(u);

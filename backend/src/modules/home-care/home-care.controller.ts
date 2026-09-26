@@ -125,8 +125,9 @@ export class NursingController {
     return this.homeSvc.deleteCatalog(u, id);
   }
 
-  // 1b. PATIENT BOOKINGS (parity with labs/radiology direct booking; the
-  // service enforces required fields + 3-minute idempotent replay).
+  // 1b. PATIENT BOOKINGS (canonical booking API — parity with labs/radiology
+  // direct booking; the service enforces required fields + 3-minute idempotent
+  // replay). POST /home-care/bookings is a thin alias of this same call.
   @SelfService()
   @Post('bookings')
   async createBooking(@CurrentUser() u: any, @Body() b: CreateBookingDto) { return this.homeSvc.book(u, b); }

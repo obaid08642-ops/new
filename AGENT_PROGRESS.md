@@ -132,3 +132,6 @@ Format: task | commit sha | verify result | notes
 ## [P5.3b] Legacy module deleted (2026-09-26)
 - `legacy/legacy.module.ts` was an admin-only audit report (`GET /legacy/report`, `/legacy/usage-map`) with zero callers outside `app.module` — no live routes to move, no alias needed. Removed the file + `app.module` import/registration. tsc 0.
 - `compat/` directory kept only as shared-DTO location (`compat.dto.ts`, `compat.generated.dto.ts`, imported by the 26 relocated controllers) + retired empty `CompatModule` stub; the gap-fill module itself is gone per plan.
+
+## [P5.3d] Nursing single booking API (2026-09-26)
+- Verified single implementation: `POST /nursing/bookings` (NursingController.createBooking) and `POST /home-care/bookings` (PatientHomeCareController.book) both delegate to `HomeCareSvc.book`; no divergent write path. `/home-care/bookings` is the live path (Doctor/Facility/Nursing dashboards) so it stays as a documented alias; no client calls `/nursing/bookings*`. Alias relationship now explicit in code comments + locked by `nursing-booking-alias.spec.ts` (2/2).
