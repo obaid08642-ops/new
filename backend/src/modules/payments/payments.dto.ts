@@ -1,8 +1,9 @@
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsPositive, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class RefundPaymentDto {
   @IsOptional()
   @IsNumber()
+  @IsPositive()
   amount?: number;
 
   @IsOptional()

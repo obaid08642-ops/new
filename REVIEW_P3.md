@@ -174,3 +174,41 @@ Fix: a validated class DTO for each, following the AGENTS.md DTO rules. For `@Bo
 After R3-1, re-check PR #199's CodeQL run. Every remaining alert in code this phase touched must be fixed. Flagging a false positive is not enough: use `{ $eq: value }` for user values in Mongo filters. The review session cannot read the code-scanning alert list (403), so the implementer must paste the remaining alert ids and resolutions in AGENT_PROGRESS.md.
 
 Reviewer note: the round-3 run proved the gates green, but the gate itself was incomplete. That is corrected now, and the round-3 fixes (labs `reason`, appointment finish, CRM, rejectDelta) stay.
+
+---
+
+# Round 4 (implementer fix cd925fa): **APPROVED in review, pending CodeQL/CI on PR #199**
+
+Ported onto `review/phase-3` as `[P3-fix]` (3 conflict hunks; the P5.1 offering overlay in `service-catalog.module.ts` was left out, since it belongs to P5).
+
+## Verification run (reviewer, final `review/phase-3` state)
+| Check | Result |
+|---|---|
+| `dtolint.py` | 0/0/0/0, exit 0 |
+| `dtocheck.js` | 634 routes, 311 matched, **0 mismatches** |
+| `tsc` / `nest build` | exit 0 / exit 0 |
+| unit | 7/7 chunks, 139 suites, **2666/2666** |
+| security + journeys | 15 suites, **65/65** |
+| 4 REVIEW_P1_P2 fixes | intact |
+
+## R3 items
+| Item | Result |
+|---|---|
+| R3-1: non-class `@Body()` | 35 → **0**. The single leftover (`tour.controller.ts`, P5-deleted on the implementer branch but present in Phase 3) was typed by the reviewer. |
+| R3-2: NoSQL/XSS hardening | `$eq` pinning on user-derived equality filters. Echo-free write responses: surge `{ok:true}`, address `{id}`, insurance `{success, verified}`, and the claim no longer spreads the input. Contract-PDF signature loading is bounded to 1 MB with image types only. |
+| Checker integrity | `tools/` unchanged by the implementer |
+| Commit prefix | `[P3-fix]`, correct |
+
+## Reviewer checks
+- Attack probes through the production pipe: `{ $ne: null }` rejected on business-rules `provider.user_id`, passkey `identifier`, staff `password`. Refund `"50"` rejected.
+- Moyasar payment creation: the amount comes from the booking server-side and is required to be > 0, so a client amount can't underprice.
+- Cross-check of DTO type vs client literal: **0**. DTO type vs service usage: **0**.
+- Response-shape changes traced to their clients (see fix 3).
+
+## Fixes applied in this review (tests in `src/common/review-p3-dto-types.spec.ts`, each failing before its fix)
+| # | Sev | Where | Problem | Fix |
+|---|---|---|---|---|
+| 1 | **CRITICAL** | `moyasar.module.ts` webhook | Typed as class `WebhookDto {id, data}` since round 1 (a648415). Moyasar also sends `type`, `created_at`, `secret_token`, `account_name` and `live`, so `forbidNonWhitelisted` returned 400 on every webhook and paid bookings were never confirmed. The reviewer missed it in rounds 1–3. | `Record<string, unknown>` (signature-verified, the pipe skips it); allow-listed in `dtolint.py`; `WebhookDto` removed |
+| 2 | MEDIUM | `payments.dto.ts` `RefundPaymentDto`, `moyasar.dto.ts` `RefundDto` | `amount: -5` or `0` passed and went to the gateway | `@IsPositive()` |
+| 3 | MEDIUM | patient-app `shared/location-picker.tsx` | Address create now returns `{id}` only, and the screen stored that as the selected delivery address (label, street and coordinates lost) | store `{ ...payload, id }`. No test: patient-app deps not installed in the review env; one-line change, reviewed by hand. |
+| 4 | LOW | `tour.controller.ts` | `@Body('stepId')` primitive (module unreachable, but the gate must be 0) | `CompleteTourStepDto` |
