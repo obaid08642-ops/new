@@ -30,7 +30,14 @@ export class PatientProfile {
       id: String,
       label: String,
       street: String,
+      line1: String,
+      line2: String,
+      building: String,
+      floor: String,
+      district: String,
       city: String,
+      region: String,
+      notes: String,
       lat: Number,
       lng: Number,
       is_default: Boolean,
@@ -42,19 +49,34 @@ export class PatientProfile {
     id: string;
     label: string;
     street: string;
+    line1?: string;
+    line2?: string;
+    building?: string;
+    floor?: string;
+    district?: string;
     city: string;
+    region?: string;
+    notes?: string;
     lat?: number;
     lng?: number;
     is_default?: boolean;
   }[];
   @Prop({
     type: {
+      // insurance-engine save-policy writes company_id/company_name/plan_class/card_image_url/saved_at;
+      // without them here the strict sub-schema silently dropped the patient's insurer.
+      company_id: String,
+      company_name: String,
+      plan_class: String,
+      card_image_url: String,
+      saved_at: Date,
       provider: String,
       policy_number: String,
       network: String,
       class: String,
       expiry_date: String,
       member_name: String,
+      member_id: String,
       national_id: String,
       verified: Boolean,
       pdf_url: String,
@@ -64,12 +86,18 @@ export class PatientProfile {
     _id: false,
   })
   insurance?: {
+    company_id?: string;
+    company_name?: string;
+    plan_class?: string;
+    card_image_url?: string;
+    saved_at?: Date;
     provider: string;
     policy_number: string;
     network: string;
     class?: string;
     expiry_date?: string;
     member_name?: string;
+    member_id?: string;
     national_id?: string;
     verified?: boolean;
     pdf_url?: string;

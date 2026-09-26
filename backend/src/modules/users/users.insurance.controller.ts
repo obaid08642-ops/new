@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards, BadRequestException } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -71,6 +71,9 @@ export class UsersInsuranceController {
   })
   @ApiUnauthorizedResponse({ description: 'Missing, malformed, or expired bearer token.' })
   async updateInsurance(@CurrentUser('id') id: string, @Body() body: UpdatePatientInsuranceDto) {
+    if (![body.provider, body.provider_name, body.policy_number, body.member_id].some((v) => String(v || '').trim())) {
+      throw new BadRequestException('insurance_details_required');
+    }
     const profile = await this.users.getPatientProfile(id);
     const updatedInsurance = {
       ...profile.insurance,

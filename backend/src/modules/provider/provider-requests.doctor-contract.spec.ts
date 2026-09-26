@@ -9,7 +9,7 @@ describe('ProviderRequestsController doctor record contracts', () => {
     const events: any = { emit: jest.fn() };
     const patientProfiles: any = { findOne: jest.fn().mockResolvedValue(null) };
     const conn: any = { collection: jest.fn((name: string) => {
-      if (name === 'patientprofiles') return patientProfiles;
+      if (name === 'patient_profiles') return patientProfiles;
       return { findOne: jest.fn().mockResolvedValue({ display_name: 'Provider' }), insertOne: jest.fn().mockResolvedValue({}) };
     }) };
     return { controller: new ProviderRequestsController(svc, repo, events, conn), svc, repo, events, patientProfiles };

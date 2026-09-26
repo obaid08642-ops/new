@@ -29,7 +29,16 @@ export class HomeCareCompatController {
     @InjectModel('ProviderProfile') private profiles: Model<any>,
     @InjectModel('CarePlan') private carePlans: Model<any>,
     @Optional() private readonly emitter?: EventEmitter2,
+    @Optional() @InjectConnection() private readonly conn?: Connection,
   ) {}
+
+  /** Resolve a saved-address id to the caller's own address (never another patient's). */
+  private async savedAddress(userId: string, addressId: string) {
+    const profile: any = await this.conn?.collection('patient_profiles').findOne({ user_id: { $eq: userId } }, { projection: { addresses: 1 } });
+    const a: any = (profile?.addresses || []).find((x: any) => x?.id === addressId);
+    if (!a) throw new BadRequestException('address_not_found');
+    return { address: a.line1 || a.street || undefined, city: a.city || undefined, district: a.district || undefined, lat: a.lat, lng: a.lng };
+  }
 
   // ---- Catalog ----
   @Public()
@@ -89,6 +98,7 @@ export class HomeCareCompatController {
     if (!body?.scheduled_at) throw new BadRequestException('scheduled_at is required');
     const svc: any = await this.services.findOne({ id: { $eq: body.service_id }, active: true }).lean();
     if (!svc) throw new NotFoundException('service not found');
+    const address = body.address_id ? await this.savedAddress(u.id, body.address_id) : body.address;
     const doc = await this.bookings.create({
       patient_id: u.id,
       service_id: svc?.id || body.service_id,
@@ -97,7 +107,8 @@ export class HomeCareCompatController {
       total: svc.price,
       total_price: svc.price,
       scheduled_at: new Date(body.scheduled_at),
-      address: body.address,
+      address,
+      notes: body.notes?.trim() || undefined,
       payment_method: body.payment_method,
       provider_id: undefined,
       state: 'NEW_REQUEST',

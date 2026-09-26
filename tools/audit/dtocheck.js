@@ -163,12 +163,23 @@ const isExact = (c, r) => {
   const param = (s) => s.startsWith(':') || s === ':x';
   return rs.every((seg, i) => (param(seg) && param(cs[i])) || seg === cs[i]);
 };
+const fails = (c, r) => {
+  const unknown = c.keys.filter((k) => !r.props.has(k) && !/^\[.*\]$/.test(k));
+  const missing = (c.spread || c.unresolved) ? [] : [...r.props].filter(([k, req]) => req && !c.keys.includes(k) && !/^\[.*\]$/.test(k)).map(([k]) => k);
+  return { unknown, missing };
+};
 for (const c of clients) {
-  for (const r of candidates(c).filter((r) => r.method === c.method)) {
+  const cands = candidates(c).filter((r) => r.method === c.method);
+  // The same METHOD+path declared in several files (tools/audit/routes.py --dups): Nest serves only the
+  // first registered one, which static analysis cannot tell. Block only when every declaration rejects.
+  const exactFiles = new Set(cands.filter((r) => isExact(c, r)).map((r) => r.at.split(':')[0]));
+  const dupAccepts = exactFiles.size > 1 && cands.some((r) => isExact(c, r) && !fails(c, r).unknown.length && !fails(c, r).missing.length);
+  for (const r of cands) {
     matched.add(r.at);
-    const unknown = c.keys.filter((k) => !r.props.has(k) && !/^\[.*\]$/.test(k));
-    const missing = (c.spread || c.unresolved) ? [] : [...r.props].filter(([k, req]) => req && !c.keys.includes(k) && !/^\[.*\]$/.test(k)).map(([k]) => k);
-    if (unknown.length || missing.length) {
+    const { unknown, missing } = fails(c, r);
+    if ((unknown.length || missing.length) && dupAccepts && isExact(c, r)) {
+      console.log(`? ${r.method} ${r.path} [${r.dto} @ ${r.at}] ← ${c.at} duplicate route: this declaration rejects (${[...unknown, ...missing].join(', ')}) but another accepts; confirm which one is served`);
+    } else if (unknown.length || missing.length) {
       // REVIEW-FIX: a non-exact (wildcard) route match that fails is ambiguous —
       // the call may target a sibling literal route (e.g. confirm/cancel vs
       // reschedule). Report for hand verification instead of failing the gate;

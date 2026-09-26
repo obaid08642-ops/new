@@ -758,6 +758,8 @@ class AdminDeliveryController extends AdminController {
 
   @Post('rules')
   async createRule(@CurrentUser() user: any, @Body() body: CreateRuleDto) {
+    // An unnamed rule with defaults would be an active free-delivery rule for every order.
+    if (!String(body?.name_ar || '').trim()) throw new BadRequestException('rule_name_required');
     const doc = {
       id: uuid(), name_ar: body?.name_ar || null,
       min_order_sar: body?.min_order_sar ?? null, service_type: body?.service_type || null,

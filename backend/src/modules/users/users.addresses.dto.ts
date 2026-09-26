@@ -1,4 +1,4 @@
-import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
+import { MaxLength, IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class AddAddressDto {
   @IsOptional()
@@ -32,6 +32,13 @@ export class AddAddressDto {
   @IsOptional()
   @IsNumber()
   lng?: number;
+
+  // patient-web address form fields
+  @IsOptional() @IsString() @MaxLength(160) line1?: string;
+  @IsOptional() @IsString() @MaxLength(160) line2?: string;
+  @IsOptional() @IsString() @MaxLength(80) city?: string;
+  @IsOptional() @IsString() @MaxLength(80) district?: string;
+  @IsOptional() @IsString() @MaxLength(80) region?: string;
 }
 
 export class UpdateAddressDto {
@@ -66,4 +73,11 @@ export class UpdateAddressDto {
   @IsOptional()
   @IsNumber()
   lng?: number;
+
+  // patient-web address form fields
+  @IsOptional() @IsString() @MaxLength(160) line1?: string;
+  @IsOptional() @IsString() @MaxLength(160) line2?: string;
+  @IsOptional() @IsString() @MaxLength(80) city?: string;
+  @IsOptional() @IsString() @MaxLength(80) district?: string;
+  @IsOptional() @IsString() @MaxLength(80) region?: string;
 }

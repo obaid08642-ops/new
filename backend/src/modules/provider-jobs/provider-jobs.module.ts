@@ -157,7 +157,7 @@ export class ProviderJobsService {
         { $match: { booking_id: { $in: ids } } },
         { $group: { _id: '$booking_id', n: { $sum: 1 } } },
       ]) : [],
-      patientIds.length ? this.users.db.collection('patientprofiles').find({ user_id: { $in: patientIds } }, { projection: { user_id: 1, age: 1, gender: 1, blood_type: 1, allergies: 1, chronic_diseases: 1 } }).toArray() : [],
+      patientIds.length ? this.users.db.collection('patient_profiles').find({ user_id: { $in: patientIds } }, { projection: { user_id: 1, age: 1, gender: 1, blood_type: 1, allergies: 1, chronic_diseases: 1 } }).toArray() : [],
     ]);
     const userMap = new Map<string, any>(users.map((u: any) => [u.id, u]));
     const attMap = new Map<string, number>(attachmentCounts.map((a: any) => [a._id, a.n]));

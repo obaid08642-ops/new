@@ -1,5 +1,10 @@
-import os,re,json
-root='/home/claude/repo/backend/src'
+"""Backend route inventory (static).
+  python3 tools/audit/routes.py [out.json]   (from repo root) -> writes the route list, prints the count
+  python3 tools/audit/routes.py --dups       -> same METHOD+path declared in more than one file; exit 1 if any
+     (Nest serves only the first registered handler; the other one is dead code that looks alive.)
+"""
+import os,re,json,sys,collections
+root='backend/src'
 routes=[]
 dec=re.compile(r"@(Get|Post|Put|Patch|Delete|All)\(\s*(?:'([^']*)'|\"([^\"]*)\"|`([^`]*)`|\[([^\]]*)\])?")
 ctl=re.compile(r"@Controller\(\s*(?:'([^']*)'|\"([^\"]*)\"|\{[^}]*path:\s*'([^']*)'[^}]*\}|\[([^\]]*)\])?\s*\)")
@@ -22,6 +27,14 @@ for r,_,fs in os.walk(root):
         for pr in prefs:
           for pa in paths:
             full='/'+'/'.join(x.strip('/') for x in [pr,pa] if x.strip('/'))
-            routes.append({'m':d.group(1).upper(),'p':full,'f':p.replace('/home/claude/repo/',''),'l':line})
-json.dump(routes,open('/home/claude/aud/routes.json','w'))
+            routes.append({'m':d.group(1).upper(),'p':full,'f':p,'l':line})
+if '--dups' in sys.argv:
+  d=collections.defaultdict(list)
+  for x in routes:
+    d[(x['m'],re.sub(r':[A-Za-z_]+','*',x['p'].rstrip('/') or '/'))].append(f"{x['f'][len(root)+1:]}:{x['l']}")
+  dups=sorted((k,v) for k,v in d.items() if len({f.split(':')[0] for f in v})>1)
+  print(f"== duplicate routes across files: {len(dups)}")
+  for (m,pth),v in dups: print(f"  {m} {pth}  <-  {' | '.join(v)}")
+  sys.exit(1 if dups else 0)
+json.dump(routes,open(sys.argv[1] if len(sys.argv)>1 else 'routes.json','w'))
 print(len(routes))

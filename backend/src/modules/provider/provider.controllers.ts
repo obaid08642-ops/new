@@ -1,3 +1,4 @@
+import { isProviderRole } from '../../common/enums';
 import { Controller, Post, Get, Patch, Delete, Body, Param, Query, Req, Inject } from '@nestjs/common';
 import { DisableDto, EndConsultationDto, IssueSickLeaveDto, IssueMedicalReportDto, SetAvailDto, PreviewAdHocDto, DispatchDto, WithdrawAliasDto, UploadProfileImageDto, ReplaceImageDto, AssignStaffDto } from './provider.controllers.dto';
 import { RegisterDto, LoginDto, RefreshDto, LogoutDto, SendOtpDto, VerifyEmailDto, ForgotDto, VerifyResetCodeDto, ResetDto, AddPhoneDto, UploadDocDto, UploadDocDto2, UpsertBankDto, SubmitDeltaDto, SubmitDeltaDto2, InviteDto, AcceptDto, UpdateDto2, RejectDeltaDto, RejectDeltaDto2, ApproveDto, RejectDto, NeedsChangesDto, SuspendDto, ReactivateDto, AcceptDto2, RejectDto2, StartDto, CompleteDto, CancelDto, UpsertPharmaDto, UpsertLabDto, UpsertLabDto2, UpsertRadDto, UpsertRadDto2, UpsertDocDto, UpsertDocDto2, UpsertHcDto, UpsertHcDto2, UpsertDto, UpsertDto2 } from './provider.controllers.generated.dto';
@@ -23,6 +24,11 @@ import { UserRole } from '../../common/enums';
 import { OtpPurpose } from './schemas';
 
 function meta(req: any) { return { ip: req?.ip || req?.headers?.['x-forwarded-for'], ua: req?.headers?.['user-agent'] }; }
+
+
+function assertTestSeedAllowed(): void {
+  if (process.env.NODE_ENV !== 'test' || process.env.ALLOW_TEST_SEED !== 'true') throw new NotFoundException();
+}
 
 @Controller('provider/auth')
 export class ProviderAuthController {
@@ -110,6 +116,7 @@ export class ProviderProfileController {
   @SelfService()
   @Post('settings/delta')
   async submitDelta(@CurrentUser() u: any, @Body() body: SubmitDeltaDto) {
+    if (!isProviderRole(u?.role)) throw new ForbiddenException('provider scope required');
     return this.svc.submitDelta(u, body);
   }
 }
@@ -272,7 +279,7 @@ export class ProviderRequestsController {
     if (!rejected && price <= 0) throw new BadRequestException('مبلغ الخدمة الموثق مطلوب');
 
     // 3) Patient's saved insurance policy (required by the insurance flow)
-    const profile: any = await this.conn.collection('patientprofiles').findOne({ user_id: String(patientId) } as any);
+    const profile: any = await this.conn.collection('patient_profiles').findOne({ user_id: String(patientId) } as any);
     if (!profile?.insurance?.company_id || !profile?.insurance?.policy_number) {
       throw new BadRequestException('سياسة تأمين المريض الموثقة مطلوبة');
     }
@@ -456,10 +463,11 @@ export class ProviderDashboardController {
   @Get('availability') getAvail(@CurrentUser() u: any) { return this.dash.getAvailability(u); }
   @SelfService()
   @Post('availability') setAvail(@CurrentUser() u: any, @Body() body: SetAvailDto) { return this.dash.setAvailability(u, body); }
+  // Demo-data seeding: test environments only (404 elsewhere), like the other seed routes (P1.5).
   @SelfService()
-  @Post('seed') seed(@CurrentUser() u: any) { return this.seedSvc.seed(u); }
+  @Post('seed') seed(@CurrentUser() u: any) { assertTestSeedAllowed(); return this.seedSvc.seed(u); }
   @SelfService()
-  @Post('seed/reset') seedReset(@CurrentUser() u: any) { return this.seedSvc.resetSeed(u); }
+  @Post('seed/reset') seedReset(@CurrentUser() u: any) { assertTestSeedAllowed(); return this.seedSvc.resetSeed(u); }
 }
 
 
@@ -516,7 +524,10 @@ export class ProviderScheduleSlotsController {
 export class ProviderScoreController {
   constructor(private readonly svc: ProviderScoringService) {}
   @Get() me(@CurrentUser() u: any) { return this.svc.getMy(u); }
-  @Post('recompute') recompute(@CurrentUser() u: any) { return this.svc.recompute(u.id); }
+  @Post('recompute') recompute(@CurrentUser() u: any) {
+    if (!isProviderRole(u?.role)) throw new ForbiddenException('provider scope required');
+    return this.svc.recompute(u.id);
+  }
 }
 
 @Controller('admin/matching')
