@@ -11,7 +11,8 @@ import {
 } from '../../components/ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Validate } from '../../security/Security';
-import { SP, R, FS, FW, INSURANCE, SPECIALTIES, DEGREES, LAB_TESTS, RAD_SCANS, NURSING_SVCS , LANGS } from '../../constants';
+import { SP, R, FS, FW, DEGREES, RAD_SCANS , LANGS } from '../../constants';
+
 import { I } from '../../components/icons';
 import { RegistrationSuccess } from '../shared/SharedScreens';
 import { ContractModal } from '../../components/ContractModal';
@@ -24,13 +25,12 @@ import { GeoPicker } from '../../components/GeoPicker';
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
 import { ProviderApi, sanitizeWizardData } from '../../api/provider';
-import { useInsuranceCatalog, useServicesCatalog } from '../../api/catalogs';
+import { useInsuranceCatalog, useServicesCatalog, useSpecialtiesCatalog } from '../../api/catalogs';
 
 import SignatureCanvas from 'react-native-signature-canvas';
 import { tokens } from '../../theme/tokens';
 
 const { width: W } = Dimensions.get('window');
-
 
 const WORK_DAYS = [
   { k: 'SUN', ar: 'الأحد', en: 'Sun' },
@@ -497,6 +497,7 @@ function Step4SubProviders({ data, update, onNext, onBack, step, total }: any) {
  const nursingCatalog = useServicesCatalog('nursing');
   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const [modalType, setModalType] = useState<'doctor'|'lab'|'pharmacy'|'radiology'|'nursing'|null>(null);
+  const specialties = useSpecialtiesCatalog();
   
   // Expanded tempSub to hold all required data
   const [tempSub, setTempSub] = useState<any>({ 
@@ -621,7 +622,7 @@ function Step4SubProviders({ data, update, onNext, onBack, step, total }: any) {
                 <NDropdown
                   label={AR ? 'التخصص الطبي' : 'Specialty'}
                   value={tempSub.specialty}
-                  options={SPECIALTIES.map(s => ({ val: s.id, label: AR ? s.ar : s.en }))}
+                  options={specialties.map(s => ({ val: s.id, label: AR ? s.ar : s.en }))}
                   onChange={v => setTempSub({ ...tempSub, specialty: v })}
                 />
                 <NDropdown
@@ -1271,7 +1272,6 @@ function Step7Signature({ data, update, onDone, onBack, step, total }: any) {
             </Text>
           </View>
 
-
         <View style={{ marginBottom: 20, gap: 10 }}>
           {data.signatureData ? (
              <View style={{ alignItems: 'center', marginVertical: 10 }}>
@@ -1284,7 +1284,6 @@ function Step7Signature({ data, update, onDone, onBack, step, total }: any) {
             </TouchableOpacity>
           )}
         </View>
-
 
         <NBtn label={AR ? 'اعتماد وإرسال الطلب' : 'Submit Application'} onPress={submit} style={{ marginTop: SP.sm, marginBottom: 50, backgroundColor: theme.success }} />
       </ScrollView>

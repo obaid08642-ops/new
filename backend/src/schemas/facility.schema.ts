@@ -48,8 +48,11 @@ export class Facility {
   @Prop({ type: [{ day: String, open: String, close: String, closed: { type: Boolean, default: false } }], _id: false, default: [] })
   working_hours: { day: string; open: string; close: string; closed?: boolean }[];
 
-  // Stats
+  // Stats (real reviews only — never seeded)
   @Prop({ default: 0 }) rating: number;
+  // F16: reference (directory listing) vs verified (reviewed) facility.
+  @Prop({ type: String, enum: ['reference', 'verified', 'operational'], default: 'operational', index: true })
+  status: string;
   @Prop({ default: 0 }) reviews_count: number;
   @Prop({ default: true }) is_active: boolean;
   // Operational activity never implies public discovery or search indexing.

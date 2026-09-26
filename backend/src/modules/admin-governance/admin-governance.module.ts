@@ -14,7 +14,7 @@ import { SystemEvent, SystemEventSchema } from '../events/system-event.schema';
 import { toUniversal, domainStatesFor, WorkflowEngineModule } from '../workflow-engine/workflow-engine.module';
 import { B2BRequestSchema } from '../../schemas/b2b-request.schema';
 import { B2BController } from './b2b.controller';
-import { SystemConfigController } from './system-config.controller';
+import { SystemConfigController, PublicSystemConfigController } from './system-config.controller';
 import { ToggleDto, UpdateDto } from './admin-governance.dto';
 
 /**
@@ -385,7 +385,7 @@ export class CommissionsController {
       { name: 'B2BRequest', schema: B2BRequestSchema },
     ]),
   ],
-  controllers: [AdminGovernanceController, KillSwitchesController, CommissionsController, B2BController, SystemConfigController],
+  controllers: [AdminGovernanceController, KillSwitchesController, CommissionsController, B2BController, SystemConfigController, PublicSystemConfigController],
   providers: [AdminGovernanceService],
   exports: [AdminGovernanceService],
 })

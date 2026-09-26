@@ -1,4 +1,4 @@
-import { IsDefined, IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsDefined, IsIn, IsNumber, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class SlaDto {
   @IsDefined()
@@ -18,7 +18,9 @@ export class SlaDto {
   @IsIn(['online', 'degraded', 'maintenance'])
   systemStatus?: string;
 
+  // Admin config-portal sends a change reason; it is written to the audit log.
   @IsOptional()
   @IsString()
+  @MaxLength(500)
   reason?: string;
 }

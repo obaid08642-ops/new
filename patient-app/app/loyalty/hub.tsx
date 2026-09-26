@@ -18,18 +18,10 @@ import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
 const { width } = Dimensions.get('window');
 
-// Pre-load placeholders only — /loyalty/config overwrites with the live table.
-// Values mirror the backend POINTS_TABLE so nothing inflated is ever shown.
-const DEFAULT_TIERS = [
-  { id: 'bronze', label: 'برونزي', icon: 'emoji_events', color: '#CD7C3C', minPts: 0, maxPts: 1000, perks: ['5% كاشباك'] },
-];
-
-const DEFAULT_EARN_WAYS = [
-  { action: 'استشارة طبية مكتملة', pts: '+50', icon: 'stethoscope', color: '#23B5CE' },
-  { action: 'طلب صيدلية مكتمل', pts: '+30', icon: 'medication', color: '#5BA84F' },
-  { action: 'دعوة صديق (عند أول حجز له)', pts: '+100', icon: 'group_add', color: '#EC4899' },
-  { action: 'تسجيل مؤشرات حيوية', pts: '+10', icon: 'assignment', color: '#F0A526' },
-];
+// F23: tiers/earn-ways come ONLY from GET /loyalty/config (backend TIERS +
+// POINTS_TABLE, admin-overridable). No local literals — before the config
+// loads the screen stays on the loader; on failure it shows unavailable.
+const DEFAULT_EARN_WAYS: Array<{ action: string; pts: string; icon: string; color: string }> = [];
 
 export default function LoyaltyHubScreen() {
   const insets = useSafeAreaInsets();
@@ -40,9 +32,10 @@ export default function LoyaltyHubScreen() {
   const [claiming, setClaiming] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [activities, setActivities] = useState<any[]>([]);
-  const [tiers, setTiers] = useState<any[]>(DEFAULT_TIERS);
+  const [tiers, setTiers] = useState<any[]>([]);
   const [earnWays, setEarnWays] = useState<any[]>(DEFAULT_EARN_WAYS);
   const [rewards, setRewards] = useState<any[]>([]);
+  const [configFailed, setConfigFailed] = useState(false);
 
   const [activeTab, setActiveTab] = useState<'earn' | 'redeem' | 'activity'>('earn');
   const progressAnim = useRef(new Animated.Value(0)).current;
@@ -67,9 +60,12 @@ export default function LoyaltyHubScreen() {
       setActivities(txRes.transactions || []);
       
       const configRes = await apiFetch('/loyalty/config').catch(() => null);
-      if (configRes && configRes.tiers) {
+      if (configRes && Array.isArray(configRes.tiers) && configRes.tiers.length) {
         setTiers(configRes.tiers);
-        setEarnWays(configRes.earn_ways || DEFAULT_EARN_WAYS);
+        setEarnWays(Array.isArray(configRes.earn_ways) ? configRes.earn_ways : []);
+      } else {
+        // Honest failure — never fall back to fabricated tiers.
+        setConfigFailed(true);
       }
 
       const rewardsRes = await apiFetch('/loyalty/rewards').catch(() => null);
@@ -99,6 +95,17 @@ export default function LoyaltyHubScreen() {
     return (
       <View style={[styles.container, { backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center' } ]}>
         <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
+
+  if (!tiers.length) {
+    return (
+      <View style={[styles.container, { backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center', padding: 24 } ]}>
+        <StatusBar barStyle="light-content" />
+        <AppText style={{ fontSize: 17, textAlign: 'center' }}>
+          {configFailed ? 'تعذّر تحميل برنامج الولاء — تحقق من الاتصال وحاول مجددًا.' : 'برنامج الولاء غير متاح حاليًا.'}
+        </AppText>
       </View>
     );
   }

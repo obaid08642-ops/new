@@ -27,7 +27,7 @@ export const SEED_FACILITIES = [
       { day: 'wed', open: '00:00', close: '23:59' }, { day: 'thu', open: '00:00', close: '23:59' },
       { day: 'fri', open: '00:00', close: '23:59' },
     ],
-    rating: 4.8, reviews_count: 1240,
+    status: 'reference', public_eligibility: false,
   },
   {
     slug: 'dallah-hospital',
@@ -49,7 +49,7 @@ export const SEED_FACILITIES = [
       { day: 'wed', open: '00:00', close: '23:59' }, { day: 'thu', open: '00:00', close: '23:59' },
       { day: 'fri', open: '00:00', close: '23:59' },
     ],
-    rating: 4.6, reviews_count: 980,
+    status: 'reference', public_eligibility: false,
   },
   {
     slug: 'saudi-german-hospital',
@@ -71,7 +71,7 @@ export const SEED_FACILITIES = [
       { day: 'wed', open: '00:00', close: '23:59' }, { day: 'thu', open: '00:00', close: '23:59' },
       { day: 'fri', open: '00:00', close: '23:59' },
     ],
-    rating: 4.5, reviews_count: 765,
+    status: 'reference', public_eligibility: false,
   },
   {
     slug: 'kingdom-hospital',
@@ -93,7 +93,7 @@ export const SEED_FACILITIES = [
       { day: 'wed', open: '08:00', close: '23:00' }, { day: 'thu', open: '08:00', close: '23:00' },
       { day: 'fri', open: '14:00', close: '23:00' },
     ],
-    rating: 4.7, reviews_count: 612,
+    status: 'reference', public_eligibility: false,
   },
   {
     slug: 'prince-sultan-cardiac',
@@ -115,7 +115,7 @@ export const SEED_FACILITIES = [
       { day: 'wed', open: '08:00', close: '20:00' }, { day: 'thu', open: '08:00', close: '15:00' },
       { day: 'fri', open: '00:00', close: '00:00', closed: true },
     ],
-    rating: 4.9, reviews_count: 432,
+    status: 'reference', public_eligibility: false,
   },
   {
     slug: 'andalusia-clinic',
@@ -137,6 +137,6 @@ export const SEED_FACILITIES = [
       { day: 'wed', open: '09:00', close: '23:00' }, { day: 'thu', open: '09:00', close: '23:00' },
       { day: 'fri', open: '15:00', close: '23:00' },
     ],
-    rating: 4.4, reviews_count: 1530,
+    status: 'reference', public_eligibility: false,
   },
 ];

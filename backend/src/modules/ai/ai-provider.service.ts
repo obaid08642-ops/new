@@ -168,7 +168,7 @@ export class AiProviderService {
   /** Unified generation with automatic cross-provider fallback. */
   async generate(opts: AiGenerateOptions): Promise<AiGenerateResult> {
     const chain = this.providerChain();
-    if (chain.length === 0) throw new ServiceUnavailableException('NO_AI_PROVIDER_CONFIGURED');
+    if (chain.length === 0) throw new ServiceUnavailableException('ai_provider_unavailable');
 
     let lastErr: any = null;
     for (const provider of chain) {
@@ -191,7 +191,7 @@ export class AiProviderService {
   }
 
   private async generateGemini(opts: AiGenerateOptions): Promise<string> {
-    if (!this.genAI) throw new ServiceUnavailableException('gemini_not_configured');
+    if (!this.genAI) throw new ServiceUnavailableException('ai_provider_unavailable');
     const model = this.genAI.getGenerativeModel({ model: this.modelFor('gemini', !!opts.imageBase64) });
     const payload: any[] = Array.isArray(opts.prompt) ? opts.prompt : [opts.prompt];
     if (opts.imageBase64) {
@@ -204,7 +204,7 @@ export class AiProviderService {
   private async generateOpenAiCompat(provider: AiProviderName, opts: AiGenerateOptions): Promise<string> {
     const conf = OPENAI_COMPAT[provider];
     const apiKey = process.env[conf.keyEnv];
-    if (!apiKey) throw new ServiceUnavailableException(`${provider}_not_configured`);
+    if (!apiKey) throw new ServiceUnavailableException('ai_provider_unavailable');
 
     const content: any[] = [{ type: 'text', text: Array.isArray(opts.prompt) ? opts.prompt.join('\n') : opts.prompt }];
     if (opts.imageBase64) {

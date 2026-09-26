@@ -1,4 +1,4 @@
-import { InternalServerErrorException, Injectable, Logger, Optional, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
+import { BadGatewayException, BadRequestException, ForbiddenException, Injectable, Logger, NotFoundException, Optional, ServiceUnavailableException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Connection } from 'mongoose';
@@ -145,7 +145,7 @@ Return ONLY valid JSON with this exact structure:
       return JSON.parse(this.cleanJson(text));
     } catch (e) {
       this.logger.error(e);
-      return { items: [] };
+      throw new BadGatewayException('ai_upstream_error');
     }
   }
 
@@ -209,10 +209,12 @@ Return ONLY valid JSON with this exact structure:
       const prompt = `Extract text from this image and translate to ${lang}. Return ONLY valid JSON with this exact structure: { "items": [ { "medicine_id": null, "raw_name_string": "medicine name extracted", "requested_quantity": 1, "notes": "from OCR" } ] }`;
       const text = await this.genVision('ocrTranslate', prompt, base64);
       const res = JSON.parse(this.cleanJson(text));
-      return res.items ? res : { items: [] };
+      if (!res.items) throw new BadGatewayException('ai_upstream_error');
+      return res;
     } catch (e) {
       this.logger.error(e);
-      return { items: [] };
+      if (e instanceof BadGatewayException || e instanceof ServiceUnavailableException) throw e;
+      throw new BadGatewayException('ai_upstream_error');
     }
   }
 
@@ -263,7 +265,9 @@ Return ONLY valid JSON with this exact structure:
       const text = await this.genVision('medicineImageSearch', prompt, base64);
       return JSON.parse(this.cleanJson(text));
     } catch (e) {
-      return { name: "Unknown", active_ingredient: "Unknown" };
+      // F21: never return a fabricated "Unknown" medicine on provider failure.
+      if (e instanceof BadGatewayException || e instanceof ServiceUnavailableException) throw e;
+      throw new BadGatewayException('ai_upstream_error');
     }
   }
 
@@ -273,7 +277,9 @@ Return ONLY valid JSON with this exact structure:
       const text = await this.gen('barcodeLookup', prompt);
       return JSON.parse(this.cleanJson(text));
     } catch (e) {
-      return { name: "Unknown", active_ingredient: "Unknown" };
+      // F21: never return a fabricated "Unknown" medicine on provider failure.
+      if (e instanceof BadGatewayException || e instanceof ServiceUnavailableException) throw e;
+      throw new BadGatewayException('ai_upstream_error');
     }
   }
 
@@ -285,8 +291,9 @@ Return ONLY valid JSON with this exact structure:
         : await this.gen('analyzeMeal', prompt);
       return JSON.parse(this.cleanJson(text));
     } catch (e) {
-      // Never fabricate nutrition values — surface the failure to the caller
-      throw new InternalServerErrorException('meal_analysis_failed');
+      // F21: never fabricate nutrition values — 502 on provider failure.
+      if (e instanceof BadGatewayException || e instanceof ServiceUnavailableException) throw e;
+      throw new BadGatewayException('ai_upstream_error');
     }
   }
 
@@ -296,7 +303,9 @@ Return ONLY valid JSON with this exact structure:
       const text = await this.gen('generateDietPlan', prompt);
       return JSON.parse(this.cleanJson(text));
     } catch (e) {
-      return { plan: [] };
+      // F21: never return an empty plan masking a provider failure.
+      if (e instanceof BadGatewayException || e instanceof ServiceUnavailableException) throw e;
+      throw new BadGatewayException('ai_upstream_error');
     }
   }
 
@@ -318,10 +327,11 @@ Return ONLY valid JSON in this exact shape:
 Use Arabic day names starting from السبت, include rest days marked as "راحة", and keep exercises realistic for the location and level.`;
       const text = await this.gen('generateExercisePlan', prompt);
       const parsed = JSON.parse(this.cleanJson(text));
-      if (!Array.isArray(parsed?.plan)) return { plan: [], tips: [] };
+      if (!Array.isArray(parsed?.plan)) throw new BadGatewayException('ai_upstream_error');
       return { plan: parsed.plan, tips: Array.isArray(parsed.tips) ? parsed.tips : [] };
     } catch (e) {
-      return { plan: [], tips: [] };
+      if (e instanceof BadGatewayException || e instanceof ServiceUnavailableException) throw e;
+      throw new BadGatewayException('ai_upstream_error');
     }
   }
 

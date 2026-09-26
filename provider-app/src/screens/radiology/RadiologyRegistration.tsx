@@ -17,7 +17,7 @@ import {
 import { I as Icon, IBg as IconBg, ProviderIcon } from '../../components/icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Validate } from '../../security/Security';
-import { SP, R, FS, FW, INSURANCE, C, LAB_TESTS, RAD_SCANS, LIMITS , LANGS } from '../../constants';
+import { SP, R, FS, FW, C, RAD_SCANS, LIMITS , LANGS } from '../../constants';
 import { GeoPicker } from '../../components/GeoPicker';
 import { RegistrationSuccess } from '../shared/SharedScreens';
 import { LocationPickerModal } from '../../components/LocationPickerModal';

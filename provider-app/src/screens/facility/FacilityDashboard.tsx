@@ -35,7 +35,9 @@ import {
  NOnlineToggle, NBottomNav, NDivider, NPriceInput, NRadio
 } from '../../components/ui';
 import { I, hasIcon } from '../../components/icons';
-import { SP, R, FS, FW, SPECIALTIES, C } from '../../constants';
+import { SP, R, FS, FW, C } from '../../constants';
+import { useSpecialtiesCatalog } from '../../api/catalogs';
+
 import { Validate, Vault } from '../../security/Security';
 import client from '../../api/client';
 import { InsuranceRequestsScreen } from '../shared/InsuranceRequestsScreen';
@@ -745,6 +747,7 @@ function SubAccountsScreen({ onBack, onNavigate }: {
 function AddSubAccountScreen({ onBack, preRole }: { onBack: () => void; preRole?: string }) {
  const { theme } = useTheme();
  const { lang } = useLang();
+ const specialties = useSpecialtiesCatalog();
  const { show } = useToast();
  const AR = lang === 'ar';
  const [role, setRole] = useState(preRole ?? 'doctor');
@@ -925,7 +928,7 @@ function AddSubAccountScreen({ onBack, preRole }: { onBack: () => void; preRole?
  </Text>
  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
  <View style={{ flexDirection: 'row', gap: SP.sm }}>
- {SPECIALTIES.slice(0, 12).map(sp => (
+ {specialties.slice(0, 12).map(sp => (
  <TouchableOpacity key={sp.id} onPress={() => setSpec(sp.id)}
  style={[s.chipBtn, {
  backgroundColor: spec === sp.id ? theme.primary : theme.surface2,
@@ -2493,7 +2496,6 @@ const s = StyleSheet.create({
  revCard: { borderRadius:R.xxl, padding:SP.xxl, alignItems:'center', marginBottom:SP.xl, shadowColor:'#000', shadowOffset:{width:0,height:8}, shadowOpacity:0.2, shadowRadius:16, elevation:8 },
  inputLabel: { fontSize:FS.sm, fontWeight:FW.semi, marginBottom:SP.xs },
 });
-
 
 function FacilityOrderDetail({ order, onBack, onNavigate }: any) {
   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
