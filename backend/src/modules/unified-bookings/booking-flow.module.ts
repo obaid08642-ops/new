@@ -4,8 +4,8 @@
  * ║   /booking/flow/* — single contract for ALL 5 service kinds    ║
  * ╚════════════════════════════════════════════════════════════════╝
  */
-import { Module, Controller, Get, Post, Param, Body, UseGuards, Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { InjectModel, MongooseModule } from '@nestjs/mongoose';
+import { Controller, Get, Post, Param, Body, UseGuards, Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JwtAuthGuard, CurrentUser, SelfService } from '../../common/auth.guard';
 import { OrderSchema, OrderDocument } from '../../schemas/order.schema';
@@ -240,22 +240,3 @@ export class BookingFlowController {
   @Post('retry/:type/:id') retry(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string) { return this.svc.retry(u, t, id); }
   @Post('resolve/:type/:id') resolve(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Body() b: ResolveDto) { return this.svc.resolve(u, t, id, b); }
 }
-
-@Module({
-  imports: [
-    WorkflowEngineModule,
-    MongooseModule.forFeature([
-      { name: 'Order', schema: OrderSchema },
-      { name: 'LabBooking', schema: LabBookingSchema },
-      { name: 'RadiologyBooking', schema: RadiologyBookingSchema },
-      { name: 'HomeCareBooking', schema: HomeCareBookingSchema },
-      { name: Appointment.name, schema: AppointmentSchema },
-      { name: 'ProviderProfile', schema: ProviderProfileSchema },
-      { name: 'SystemEvent', schema: SystemEventSchema },
-    ]),
-  ],
-  controllers: [BookingFlowController],
-  providers: [BookingFlowService],
-  exports: [BookingFlowService],
-})
-export class BookingFlowModule {}

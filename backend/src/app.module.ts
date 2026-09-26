@@ -76,7 +76,6 @@ import { ProviderOnboardingModule } from './modules/provider-onboarding/provider
 import { UnifiedBookingsModule } from './modules/unified-bookings/unified-bookings.module';
 import { AdminGovernanceModule } from './modules/admin-governance/admin-governance.module';
 import { WorkflowEngineModule } from './modules/workflow-engine/workflow-engine.module';
-import { BookingFlowModule } from './modules/booking-flow/booking-flow.module';
 import { ProviderJobsModule } from './modules/provider-jobs/provider-jobs.module';
 import { AdminCommandCenterModule } from './modules/admin-command-center/admin-command-center.module';
 import { BusinessRulesModule } from './modules/business-rules/business-rules.module';
@@ -86,7 +85,6 @@ import { ConsistencyModule } from './modules/consistency/consistency.module';
 import { EventReliabilityModule } from './modules/event-reliability/event-reliability.module';
 import { OperationsSafetyModule } from './modules/operations-safety/operations-safety.module';
 import { LegacyModule } from './modules/legacy/legacy.module';
-import { BookingOpsModule } from './modules/booking-ops/booking-ops.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { SlotLocksModule } from './modules/slot-locks/slot-locks.module';
 import { PushModule } from './modules/push/push.module';
@@ -231,7 +229,6 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     UnifiedBookingsModule,
     AdminGovernanceModule,
     WorkflowEngineModule,
-    BookingFlowModule,
     ProviderJobsModule,
     AdminCommandCenterModule,
     BusinessRulesModule,
@@ -239,7 +236,6 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     EventReliabilityModule,
     OperationsSafetyModule,
     LegacyModule,
-    BookingOpsModule,
     PaymentsModule,
     MoyasarModule,
     FinanceEngineModule,

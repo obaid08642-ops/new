@@ -9,8 +9,8 @@
  *   - GET  /booking/flow/attachments/:type/:id   — list attachments
  *   - POST /booking/flow/contact/:type/:id       — request provider contact
  */
-import { Module, Controller, Get, Post, Param, Body, UseGuards, Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
-import { InjectModel, MongooseModule } from '@nestjs/mongoose';
+import { Controller, Get, Post, Param, Body, UseGuards, Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Model } from 'mongoose';
 import { JwtAuthGuard, CurrentUser, SelfService } from '../../common/auth.guard';
@@ -189,19 +189,3 @@ export class BookingOpsController {
   @Post('attachments/:type/:id') addAtt(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Body() b: AddAttDto) { return this.svc.addAttachment(u, t, id, b); }
   @Get('attachments/:type/:id') listAtt(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string) { return this.svc.listAttachments(u, t, id); }
 }
-
-@Module({
-  imports: [MongooseModule.forFeature([
-    { name: 'Order', schema: OrderSchema },
-    { name: 'LabBooking', schema: LabBookingSchema },
-    { name: 'RadiologyBooking', schema: RadiologyBookingSchema },
-    { name: 'HomeCareBooking', schema: HomeCareBookingSchema },
-    { name: Appointment.name, schema: AppointmentSchema },
-    { name: 'ProviderProfile', schema: ProviderProfileSchema },
-    { name: 'BookingAttachment', schema: BookingAttachmentSchema },
-  ])],
-  controllers: [BookingOpsController],
-  providers: [BookingOpsService],
-  exports: [BookingOpsService],
-})
-export class BookingOpsModule {}
