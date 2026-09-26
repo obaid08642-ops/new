@@ -12,6 +12,7 @@ import { ExerciseLogRepository } from "./repositories/exerciselog.repository";
 import { MealLogRepository } from "./repositories/meallog.repository";
 import { NutritionProfileRepository } from "./repositories/nutritionprofile.repository";
 import { WaterLogRepository } from "./repositories/waterlog.repository";
+import { NutritionFoodsController } from './nutrition-compat.controller';
 
 @Module({
   imports: [
@@ -22,7 +23,7 @@ import { WaterLogRepository } from "./repositories/waterlog.repository";
       { name: 'ExerciseLog', schema: ExerciseLogSchema },
     ]),
   ],
-  controllers: [NutritionController],
+  controllers: [NutritionController, NutritionFoodsController],
   providers: [NutritionService, { provide: 'ExerciseLogRepository', useClass: ExerciseLogRepository }, { provide: 'MealLogRepository', useClass: MealLogRepository }, { provide: 'NutritionProfileRepository', useClass: NutritionProfileRepository }, { provide: 'WaterLogRepository', useClass: WaterLogRepository }],
   exports: [NutritionService],
 })

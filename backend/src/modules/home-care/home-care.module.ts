@@ -15,6 +15,10 @@ import { HomeCareBookingRepository } from "./repositories/homecarebooking.reposi
 import { HomeCareServiceRepository } from "./repositories/homecareservice.repository";
 import { MedicalSupplyRequestRepository } from "./repositories/medicalsupplyrequest.repository";
 import { NursingVisitReportRepository } from "./repositories/nursingvisitreport.repository";
+import { HomeCarePackagesController } from './home-care-packages.controller';
+import { NursingCompatController } from './nursing-compat.controller';
+import { PatientHomeCareController } from './patient-home-care.controller';
+import { PatientNurseProfileController } from './nurse-profile.controller';
 
 @Module({
   imports: [
@@ -31,7 +35,7 @@ import { NursingVisitReportRepository } from "./repositories/nursingvisitreport.
       { name: 'ProviderProfile', schema: ProviderProfileSchema },
     ]),
   ],
-  controllers: [NursingController, HomeCareContractController, HomeCareTrackingController, HomeCareCompatController, NursingOpsController, ChatAliasController],
+  controllers: [NursingController, HomeCareContractController, HomeCareTrackingController, HomeCareCompatController, NursingOpsController, ChatAliasController, HomeCarePackagesController, NursingCompatController, PatientHomeCareController, PatientNurseProfileController],
   providers: [HomeCareSvc, { provide: 'CarePlanRepository', useClass: CarePlanRepository }, { provide: 'HomeCareBookingRepository', useClass: HomeCareBookingRepository }, { provide: 'HomeCareServiceRepository', useClass: HomeCareServiceRepository }, { provide: 'MedicalSupplyRequestRepository', useClass: MedicalSupplyRequestRepository }, { provide: 'NursingVisitReportRepository', useClass: NursingVisitReportRepository }],
   exports: [HomeCareSvc],
 })

@@ -10,6 +10,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { CreateDto, ToggleDto, ApproveDto, OfferingDto, UpdateServiceDto, ProviderScheduleDto } from './service-catalog.dto';
+import { CapabilitiesCatalogController } from './service-catalog-compat.controller';
 
 /** Provider catalog ownership map: tracks which lab/radiology service belongs to which provider account (extends existing catalog non-destructively via separate ownership doc). */
 @Schema({ timestamps: true, collection: 'service_ownership' })
@@ -271,7 +272,7 @@ export class ServiceCatalogController {
     { name: 'ProviderSchedule', schema: ProviderScheduleSchema },
     { name: 'ProviderOffering', schema: ProviderOfferingSchema },
   ])],
-  controllers: [ServiceCatalogController],
+  controllers: [ServiceCatalogController, CapabilitiesCatalogController],
   providers: [ServiceCatalogService],
   exports: [ServiceCatalogService, MongooseModule],
 })

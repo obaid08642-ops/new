@@ -78,6 +78,7 @@ import { ProcurementRequest, ProcurementRequestSchema } from './web-core/schemas
 import { Provider, ProviderSchema } from './web-core/schemas/provider.schema';
 import { SystemConfigExtended, SystemConfigExtendedSchema } from './web-core/schemas/system-config-extended.schema';
 import { WithdrawalRequest, WithdrawalRequestSchema } from './web-core/schemas/withdrawal-request.schema';
+import { AuditIngestController } from './admin-audit-ingest.controller';
 
 @Module({
   imports: [
@@ -157,8 +158,9 @@ import { WithdrawalRequest, WithdrawalRequestSchema } from './web-core/schemas/w
     SystemHealthController,
     AdminConfigController,
     WebCoreGovernanceController,
-    AdminExtendedOperationsController,
-  ],
+    AdminExtendedOperationsController,,
+    AuditIngestController
+],
   providers: [
     // P5.3: merged from AdminAuthorityModule
     AdminAuthorityService,

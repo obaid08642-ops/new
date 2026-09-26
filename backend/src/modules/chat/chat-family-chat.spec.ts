@@ -1,5 +1,5 @@
 import { ForbiddenException } from '@nestjs/common';
-import { FamilyChatController } from './compat.module';
+import { FamilyChatController } from './chat-compat.controller';
 
 describe('FamilyChatController canonical membership', () => {
   let groups: any;

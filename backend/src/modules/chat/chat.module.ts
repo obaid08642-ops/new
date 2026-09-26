@@ -15,6 +15,7 @@ import { JwtAuthGuard, CurrentUser, Roles, SelfService } from '../../common/auth
 import { UserRole } from '../../common/enums';
 import { RequireIdempotency } from '../../common/idempotency.interceptor';
 import { EventsModule } from '../events/events.module';
+import { FamilyChatController } from './chat-compat.controller';
 
 // ─── Controller ────────────────────────────────────────────────────────────
 
@@ -247,7 +248,7 @@ export class ChatController {
       { name: 'ChatMessage', schema: ChatMessageSchema },
     ]),
   ],
-  controllers: [ChatController],
+  controllers: [ChatController, FamilyChatController],
   providers: [ChatService, ChatGateway],
   exports: [ChatService],
 })

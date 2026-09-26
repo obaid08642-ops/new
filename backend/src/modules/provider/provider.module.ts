@@ -82,6 +82,9 @@ import { HospitalEnterpriseController } from './controllers/hospital-enterprise.
 import { ProvidersService } from './providers.service';
 import { ProviderProfileRepository } from './repositories/providerprofile.repository';
 import { UserRepository } from './repositories/user.repository';
+import { ProviderDeltasMineController } from './provider-deltas-mine.controller';
+import { ProviderFacilityController } from './provider-facility.controller';
+import { ProviderDrugIndexController } from './provider-drug-index.controller';
 
 @Module({
   imports: [
@@ -155,8 +158,11 @@ import { UserRepository } from './repositories/user.repository';
     // P5.3: merged from ProvidersModule (providers/ → provider/)
     ProvidersController,
     HospitalEnterpriseController,
-    ...(process.env.NODE_ENV === 'test' && process.env.ALLOW_TEST_SEED === 'true' ? [ProvidersSeedController] : []),
-  ],
+    ...(process.env.NODE_ENV === 'test' && process.env.ALLOW_TEST_SEED === 'true' ? [ProvidersSeedController] : []),,
+    ProviderDeltasMineController,
+    ProviderFacilityController,
+    ProviderDrugIndexController
+],
   providers: [
     ProviderImageProcessorService,
     ProviderAuthService,

@@ -13,6 +13,7 @@ import {
   Attendance, AttendanceDocument, AttendanceSchema,
   SurgeryBooking, SurgeryBookingDocument, SurgeryBookingSchema
 } from '../../schemas/hospital-operations.schema';
+import { FacilityInboxController } from './facility-compat.controller';
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  SERVICES
@@ -459,7 +460,7 @@ export class FacilityCommsController {
       { name: SurgeryBooking.name, schema: SurgeryBookingSchema },
     ]),
   ],
-  controllers: [FacilityBedsController, FacilityShiftsController, FacilitySurgeriesController, FacilityCommsController],
+  controllers: [FacilityBedsController, FacilityShiftsController, FacilitySurgeriesController, FacilityCommsController, FacilityInboxController],
   providers: [BedsService, ShiftsService, SurgeriesService],
   exports: [BedsService, ShiftsService, SurgeriesService],
 })

@@ -66,6 +66,10 @@ import { ProviderAvailabilityRepository } from "./services/repositories/provider
 import { ProviderScoreSnapshotRepository } from "./services/repositories/providerscoresnapshot.repository";
 import { QuotationRepository } from "./services/repositories/quotation.repository";
 import { SystemConfigRepository } from "./services/repositories/systemconfig.repository";
+import { OffersDetailController } from './offers-detail.controller';
+import { PromotionsOffersController } from './promotions-offers.controller';
+import { PharmacyCompatController } from './pharmacy-compat.controller';
+import { B2BVoiceController } from './pharmacy-b2b-voice.controller';
 
 @Module({
   imports: [
@@ -154,8 +158,12 @@ import { SystemConfigRepository } from "./services/repositories/systemconfig.rep
     AdminProcurementController,
     // P5.3: merged from PharmacyOpsModule (pharmacy_ops/ → pharmacy/)
     PharmacyOpsController,
-    ProviderPharmacyAliasController,
-  ],
+    ProviderPharmacyAliasController,,
+    OffersDetailController,
+    PromotionsOffersController,
+    PharmacyCompatController,
+    B2BVoiceController
+],
   exports: [PharmacyOrderService, PharmacyAllocationService, PharmacyOrdersProviderService, PharmacyPaymentEvidenceService, PharmacyOfferService],
 })
 export class PharmacyModule {}
