@@ -140,7 +140,7 @@ export function useServicesCatalog(type: SvcType): CatalogService[] {
 
 // ─── Specialties (F22) ───────────────────────────────────────────────────────
 // Canonical `specialties` collection via /catalogs/specialties (admin-managed).
-export interface SpecialtyEntry { id: string; ar: string; en: string }
+export interface SpecialtyEntry { id: string; ar: string; en: string; icon?: string }
 
 let specialtiesCache: { at: number; list: SpecialtyEntry[] } | null = null;
 
@@ -150,7 +150,7 @@ export async function getSpecialtiesCatalog(force = false): Promise<SpecialtyEnt
     const res = await client.get('/catalogs/specialties');
     const raw = Array.isArray(res.data) ? res.data : [];
     const list: SpecialtyEntry[] = raw
-      .map((x: any) => ({ id: String(x.code || x.id || ''), ar: x.name_ar || x.name_en || '', en: x.name_en || x.name_ar || '' }))
+      .map((x: any) => ({ id: String(x.code || x.id || ''), ar: x.name_ar || x.name_en || '', en: x.name_en || x.name_ar || '', icon: typeof x.icon === 'string' ? x.icon : undefined }))
       .filter((s) => s.id && s.ar);
     if (list.length) {
       specialtiesCache = { at: Date.now(), list };

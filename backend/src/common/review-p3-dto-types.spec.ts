@@ -85,3 +85,11 @@ describe('REVIEW-P3: refund amounts must be positive', () => {
     }
   });
 });
+
+describe('REVIEW-P4: admin SLA save (config-portal sends reason)', () => {
+  it('accepts the admin payload with reason; rejects a non-string reason', async () => {
+    const { SlaDto } = require('../modules/admin-web-core/controllers/admin-config.dto');
+    expect(await errors(SlaDto, { consultationDuration: 15, callRingingDuration: 45, jwtExpiry: 24, reason: 'تعديل مؤقت للأوقات' })).toEqual([]);
+    expect(await errors(SlaDto, { consultationDuration: 15, callRingingDuration: 45, jwtExpiry: 24, reason: { $ne: 1 } })).not.toEqual([]);
+  });
+});
