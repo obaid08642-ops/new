@@ -81,11 +81,11 @@ export class CatalogsSeedService implements OnModuleInit {
       }
       for (const x of read('insurance.json')) {
         try {
-          const co: any = await this.conn.collection('insurancecompanies').findOne({ code: x.code });
+          const co: any = await this.conn.collection(CATALOG_COLLECTIONS.insurance_companies).findOne({ code: x.code });
           let companyId = co?.id;
           if (!co) {
             companyId = require('uuid').v4();
-            await this.conn.collection('insurancecompanies').updateOne({ code: x.code },
+            await this.conn.collection(CATALOG_COLLECTIONS.insurance_companies).updateOne({ code: x.code },
               { $setOnInsert: { id: companyId, code: x.code, name_ar: x.name_ar, name_en: x.name_en, logo_url: x.image_url, is_active: x.is_active !== false, catalog_status: 'pending_review', provenance: 'seed-data' } },
               { upsert: true });
             ok++;

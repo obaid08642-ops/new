@@ -7,7 +7,7 @@ import { CATALOG_COLLECTIONS } from './catalog-collections';
 
 /**
  * Unified catalogs — SINGLE READ PATH for every app and every call site:
- * - insurance: live DB (insurancecompanies + insurance_networks with tiers),
+ * - insurance: live DB (insurance_companies + insurance_networks with tiers),
  *   managed via admin insurance-companies page.
  * - labs: live DB (labservices), managed via admin catalog-manager.
  * - radiology: live DB (radiologyservices), managed via admin catalog-manager.
@@ -83,7 +83,7 @@ export class CatalogsController {
   private async insuranceCatalog() {
     // P5.1: DB-only (companies + networks); empty → 404, never static.
     const [companies, networks] = await Promise.all([
-      this.conn.collection('insurancecompanies').find({ is_active: true }).sort({ name_en: 1 }).toArray().catch(() => []),
+      this.conn.collection(CATALOG_COLLECTIONS.insurance_companies).find({ is_active: true }).sort({ name_en: 1 }).toArray().catch(() => []),
       this.conn.collection('insurance_networks').find({ catalog_status: { $ne: 'retired' } }).toArray().catch(() => []),
     ]);
     if (!companies.length) throw new NotFoundException('catalog_unavailable');
