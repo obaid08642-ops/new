@@ -136,7 +136,7 @@ export function expandMultilingualSearchTerms(input: string): string[] {
  * sitemap.xml + robots.txt, universal home search, recommendation engine.
  */
 import { Module, Injectable, Controller, Get, Post, Body, NotFoundException, Param, Query, Res, Optional } from '@nestjs/common';
-import { InjectConnection } from '@nestjs/mongoose';
+import { InjectConnection, MongooseModule } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { Response } from 'express';
 import { Public, Roles } from '../../common/auth.guard';
@@ -144,6 +144,24 @@ import { UserRole } from '../../common/enums';
 import { AutoEntitySeoPipelineService, PipelineEntityType } from '../events/auto-entity-seo-pipeline.service';
 import { resolveMedicinePublicDto, productLocaleToDb, PUBLIC_CATALOG_LOCALES } from '../medicines/med-i18n';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
+// P5.3: merged from SeoModule (seo/ → seo-search/)
+import { MedicineSchema } from '../../schemas/medicine.schema';
+import { LabServiceSchema } from '../../schemas/lab.schema';
+import { HomeCareServiceSchema } from '../../schemas/home-care.schema';
+import { FacilitySchema } from '../../schemas/facility.schema';
+import { ProviderProfileSchema } from '../../schemas/provider-profile.schema';
+import { ArticleSchema } from '../../schemas/article.schema';
+import { SeoController } from './seo.controller';
+import { SeoService } from './seo.service';
+import { IndexNowService } from './indexnow.service';
+import { SeoIndexingListener } from './seo-indexing.listener';
+import { RedisCacheInterceptor } from '../../common/redis-cache.interceptor';
+import { FacilityRepository } from './seo-repositories/facility.repository';
+import { HomeCareServiceRepository } from './seo-repositories/homecareservice.repository';
+import { LabServiceRepository } from './seo-repositories/labservice.repository';
+import { MedicineRepository } from './seo-repositories/medicine.repository';
+import { ProviderProfileRepository } from './seo-repositories/providerprofile.repository';
+import { ArticleRepository } from './seo-repositories/article.repository';
 
 const SITE = process.env.API_PUBLIC_URL?.replace('/api/v1', '') || 'https://api.nabd.plus';
 const SITE_NAME = 'نبض';
@@ -1179,7 +1197,32 @@ export class SeoAdminController {
 }
 
 @Module({
-  controllers: [SeoSearchController, SeoAdminController],
-  providers: [SeoSearchService],
+  imports: [
+    // P5.3: merged from SeoModule (seo/ → seo-search/)
+    MongooseModule.forFeature([
+      { name: 'Medicine', schema: MedicineSchema },
+      { name: 'LabService', schema: LabServiceSchema },
+      { name: 'HomeCareService', schema: HomeCareServiceSchema },
+      { name: 'Facility', schema: FacilitySchema },
+      { name: 'ProviderProfile', schema: ProviderProfileSchema },
+      { name: 'Article', schema: ArticleSchema },
+    ]),
+  ],
+  controllers: [SeoSearchController, SeoAdminController, SeoController],
+  providers: [
+    SeoSearchService,
+    // P5.3: merged from SeoModule (seo/ → seo-search/)
+    SeoService,
+    IndexNowService,
+    SeoIndexingListener,
+    RedisCacheInterceptor,
+    { provide: 'FacilityRepository', useClass: FacilityRepository },
+    { provide: 'ArticleRepository', useClass: ArticleRepository },
+    { provide: 'HomeCareServiceRepository', useClass: HomeCareServiceRepository },
+    { provide: 'LabServiceRepository', useClass: LabServiceRepository },
+    { provide: 'MedicineRepository', useClass: MedicineRepository },
+    { provide: 'ProviderProfileRepository', useClass: ProviderProfileRepository },
+  ],
+  exports: [SeoService, IndexNowService],
 })
 export class SeoSearchModule {}

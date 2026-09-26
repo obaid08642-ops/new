@@ -1,5 +1,5 @@
 import { AutoEntitySeoPipelineService } from './auto-entity-seo-pipeline.service';
-import { SeoService } from '../seo/seo.service';
+import { SeoService } from '../seo-search/seo.service';
 import { McpService } from '../mcp/mcp.service';
 
 describe('Fully Automatic Entity / Content / SEO / AEO / GEO Pipeline (20 Test Scenarios)', () => {

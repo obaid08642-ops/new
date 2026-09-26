@@ -55,7 +55,6 @@ import { SupportModule } from './modules/support/support.module';
 import { CustomServicesModule } from './modules/custom-services/custom-services.module';
 import { MedicalProfileModule } from './modules/medical-profile/medical-profile.module';
 import { TimelineModule } from './modules/timeline/timeline.module';
-import { SeoModule } from './modules/seo/seo.module';
 import { RadiologyModule } from './modules/radiology/radiology.module';
 import { MedicalReportsModule } from './modules/medical-reports/medical-reports.module';
 import { ProviderModule } from './modules/provider/provider.module';
@@ -222,7 +221,6 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     CustomServicesModule,
     MedicalProfileModule,
     TimelineModule,
-    SeoModule,
     RadiologyModule,
     MedicalReportsModule,
     StorageModule,

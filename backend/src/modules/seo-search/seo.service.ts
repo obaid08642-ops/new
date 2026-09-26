@@ -4,11 +4,11 @@ import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { controlsMap, isTypeIndexable, robotsDisallowLines } from './seo-controls.util';
 import { buildSlug, parseSlugSuffix, slugify, escapeRegex } from '../../common/slug.util';
-import { MedicineRepository } from "./repositories/medicine.repository";
-import { LabServiceRepository } from "./repositories/labservice.repository";
-import { HomeCareServiceRepository } from "./repositories/homecareservice.repository";
-import { FacilityRepository } from "./repositories/facility.repository";
-import { ProviderProfileRepository } from "./repositories/providerprofile.repository";
+import { MedicineRepository } from "./seo-repositories/medicine.repository";
+import { LabServiceRepository } from "./seo-repositories/labservice.repository";
+import { HomeCareServiceRepository } from "./seo-repositories/homecareservice.repository";
+import { FacilityRepository } from "./seo-repositories/facility.repository";
+import { ProviderProfileRepository } from "./seo-repositories/providerprofile.repository";
 
 export type EntityType = 'medicine' | 'doctor' | 'lab-service' | 'home-care-service' | 'facility' | 'article';
 

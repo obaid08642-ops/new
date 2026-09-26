@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 import { MailModule } from '../mail/mail.module';
-import { SeoModule } from '../seo/seo.module';
+import { SeoSearchModule } from '../seo-search/seo-search.module';
 import { WalletModule } from '../wallet/wallet.module';
 import { PresenceModule } from '../presence/presence.module';
 import { AdminAuditService } from './audit.service';
@@ -33,7 +33,7 @@ import { ImpersonationSecurityModule } from '../../common/impersonation-security
     ImpersonationSecurityModule,
     WalletModule,
     MailModule,
-    SeoModule,
+    SeoSearchModule,
     PresenceModule,
     BullModule.registerQueue({ name: 'notifications-delivery' }),
   ],

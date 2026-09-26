@@ -6,7 +6,7 @@ import { Permission, RequirePermissions } from '../../common/permissions';
 import { UserRole } from '../../common/enums';
 import { DICTIONARY } from '../i18n/i18n.service';
 import { AdminAuditService } from './audit.service';
-import { SeoService } from '../seo/seo.service';
+import { SeoService } from '../seo-search/seo.service';
 import { Queue } from 'bullmq';
 import { RetryJobDto, RetryFailedDto, UpsertTranslationDto, SetSeoControlDto } from './admin-ops.dto';
 
