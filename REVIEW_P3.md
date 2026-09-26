@@ -101,3 +101,55 @@ Not acceptable under the plan (P3.1: "for each `@Body() body: any` … create a 
 3. The ValidationPipe table test covers every DTO class (not a sample), including `{}` → 400 for required fields.
 4. `findById*` / `new Types.ObjectId(` on request paths → 0 (or justified inline).
 5. tsc, unit, `jest.boot.config.js test/security test/journeys` green.
+
+---
+
+# Round 3 (implementer fix 9b4ea75f): **APPROVED with 5 fixes applied in review** (`[REVIEW-P3] round 3`)
+
+Branch reviewed and merged: `review/phase-3` = main + P3.0a + P3.0b + Phase 3 (aca77eb..1f6b940) + round-2 fix (1c79338) + round-3 fix (9b4ea75), cherry-picked. Phase 4 and P5 are **not** included. The two fix commits were written on top of P4/P5; each of their 7 conflict hunks was resolved to keep Phase 3 behavior and take only the typing. For example, SLA update keeps the Phase 3 echo typed as `SlaDto`; persistence comes with F45 in Phase 4.
+
+## Verification run (reviewer, on `review/phase-3` final state)
+| Check | Result |
+|---|---|
+| `python3 tools/audit/dtolint.py` | 0 / 0 / 0, exit 0 |
+| `dtocheck.js` | 604 DTO routes, 301 matched, **0 mismatches** |
+| backend `tsc --noEmit` / `nest build` | exit 0 / exit 0 |
+| backend unit (`npm test -- --runInBand`) | 7/7 chunks, 137 suites, **2543/2543** |
+| security + journeys (`jest.boot.config.js`) | 15 suites, **65/65** |
+| provider-app `tsc --noEmit` | exit 0 |
+| 4 REVIEW_P1_P2 fixes | intact |
+| admin / patient-web | no Phase 3 changes |
+
+## Round-2 items
+
+| Item | Result |
+|---|---|
+| R2-1: undecorated props | **0** (`dtolint.py`) |
+| R2-2: untyped `any` props | **0**. Types were assigned with a name heuristic (`tools/audit/heuristic-type.py`), so the reviewer cross-checked them (below). |
+| R2-3: `@Body() any` | **0** (webhooks typed `Record<string, unknown>`). One remained on the Phase-3-only branch (`admin rejectDelta`): fixed in review. |
+| R2-4: P3.2 | 24 `findById*` + 33 `new Types.ObjectId(` remain, and every one is acceptable. Hospital-enterprise, doctor referrals and doctor integration are justified inline and enforced by `@IsMongoId()` on the DTO. Procurement has no uuid `id`, so `_id` is its only identifier (documented ID contract). Admin user/withdrawal lookups try `findOne({id})` first. Maternity schema defaults and the generic `mongo.repository` are not request-path lookups. |
+| Checker integrity | `dtocheck.js`/`clientbodies.js`/`dtolint.py` unchanged since round 2. |
+
+## Reviewer cross-checks beyond the gates
+1. **Client value type vs DTO validator** (literal values sent by all 4 apps): 5 real mismatches, all the same bug (labs `reason` typed as array). Numeric fields fed from variables were traced: `parseFloat`/`Number`/server data, so no string-typed numbers. Note that the pipe has no implicit conversion.
+2. **DTO type vs service/schema usage:** found `FinishAppointmentDto` (schema stores text, DTO demanded arrays, and `prescription` was required though optional in the service) and provider-ops `PutCrmDto` (`tags` a required string, while the app and service use an array).
+3. **Enums vs clients:** order transition, delivery state and provider availability enums match what the clients send.
+4. **patient-app reset-password** now sends the OTP `code`. The backend already required and verified it on main, so this is a client fix and never was a vulnerability.
+
+## Fixes applied in this review (test `src/common/review-p3-dto-types.spec.ts`, 5 tests, all failed before the fix)
+| # | Sev | Where | Problem | Fix |
+|---|---|---|---|---|
+| 1 | HIGH | `labs.dto.ts` `RescheduleDto.reason` | array; the lab app sends text, so every reschedule got a 400 | `@IsOptional() @IsString()` |
+| 2 | HIGH | `labs.dto.ts` `DeclareEmergencyDto.reason` | array; `PATIENT_ABSENT`/`WRONG_LOCATION` → 400 (safety flow) | `@IsOptional() @IsString()` |
+| 3 | MEDIUM | `appointments.generated.dto.ts` `FinishAppointmentDto` | diagnosis/notes/recommendations arrays vs string schema; `prescription` required | strings; `prescription` optional array of objects |
+| 4 | MEDIUM | `provider-ops.dto.ts` `PutCrmDto` | `tags` required string, `notes` required; app sends partial updates with a tags array | both optional arrays |
+| 5 | LOW | `admin.controller.ts` `rejectDelta` | `@Body() body?: any` | `RejectDeltaDto { reason?: string }` |
+
+## Process notes for the implementer
+- Commit prefix `[REVIEW-*]` is reserved for the reviewer. Use `[P3-fix]` / `[P<n>.<t>]` (see AGENTS.md).
+- Heuristic typing by field name is not evidence. Every type must come from the client payload or from the service/schema that consumes the field.
+- Phase 4 and P5 work were started before Phase 3 was approved. That is not allowed from now on (AGENTS.md).
+
+## Follow-ups (not blocking)
+- The P3.0b email fallback in `findLinkedUser` at login should be limited to email-verified accounts.
+- `@IsArray()` fields holding objects are validated only as arrays of objects. Add `@ValidateNested` + `@Type` where the element shape matters (money, prescriptions).
