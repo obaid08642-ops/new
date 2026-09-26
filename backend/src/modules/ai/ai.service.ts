@@ -1,4 +1,4 @@
-import { BadGatewayException, BadRequestException, ForbiddenException, Injectable, InternalServerErrorException, Logger, NotFoundException, Optional, ServiceUnavailableException } from '@nestjs/common';
+import { BadGatewayException, BadRequestException, ForbiddenException, Injectable, Logger, NotFoundException, Optional, ServiceUnavailableException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Connection } from 'mongoose';
@@ -265,7 +265,9 @@ Return ONLY valid JSON with this exact structure:
       const text = await this.genVision('medicineImageSearch', prompt, base64);
       return JSON.parse(this.cleanJson(text));
     } catch (e) {
-      return { name: "Unknown", active_ingredient: "Unknown" };
+      // F21: never return a fabricated "Unknown" medicine on provider failure.
+      if (e instanceof BadGatewayException || e instanceof ServiceUnavailableException) throw e;
+      throw new BadGatewayException('ai_upstream_error');
     }
   }
 
@@ -275,7 +277,9 @@ Return ONLY valid JSON with this exact structure:
       const text = await this.gen('barcodeLookup', prompt);
       return JSON.parse(this.cleanJson(text));
     } catch (e) {
-      return { name: "Unknown", active_ingredient: "Unknown" };
+      // F21: never return a fabricated "Unknown" medicine on provider failure.
+      if (e instanceof BadGatewayException || e instanceof ServiceUnavailableException) throw e;
+      throw new BadGatewayException('ai_upstream_error');
     }
   }
 
@@ -287,8 +291,9 @@ Return ONLY valid JSON with this exact structure:
         : await this.gen('analyzeMeal', prompt);
       return JSON.parse(this.cleanJson(text));
     } catch (e) {
-      // Never fabricate nutrition values — surface the failure to the caller
-      throw new InternalServerErrorException('meal_analysis_failed');
+      // F21: never fabricate nutrition values — 502 on provider failure.
+      if (e instanceof BadGatewayException || e instanceof ServiceUnavailableException) throw e;
+      throw new BadGatewayException('ai_upstream_error');
     }
   }
 
@@ -298,7 +303,9 @@ Return ONLY valid JSON with this exact structure:
       const text = await this.gen('generateDietPlan', prompt);
       return JSON.parse(this.cleanJson(text));
     } catch (e) {
-      return { plan: [] };
+      // F21: never return an empty plan masking a provider failure.
+      if (e instanceof BadGatewayException || e instanceof ServiceUnavailableException) throw e;
+      throw new BadGatewayException('ai_upstream_error');
     }
   }
 
