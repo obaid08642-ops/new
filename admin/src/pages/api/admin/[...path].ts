@@ -95,8 +95,31 @@ function apiPath(req: NextApiRequest) {
   return `${upstreamPath}${suffix ? `?${suffix}` : ''}`;
 }
 
-function copyResponseHeaders(response: Response, res: NextApiResponse) {
-  const contentType = response.headers.get('content-type');
+/** One-shot refresh: returns fresh tokens + Set-Cookie headers, or null. */
+async function tryRefresh(req: NextApiRequest): Promise<{ accessToken: string; cookies: string[] } | null> {
+  const refreshToken = cookieValue(req, REFRESH_COOKIE);
+  if (!refreshToken) return null;
+  try {
+    const r = await fetch(`${upstreamBase()}/api/v1/auth/refresh`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ refresh_token: refreshToken }),
+      redirect: 'manual',
+    });
+    if (!r.ok) return null;
+    const payload: any = await r.json().catch(() => null);
+    const accessToken = payload?.token?.accessToken || payload?.access_token || payload?.token;
+    const refresh = payload?.token?.refreshToken || payload?.refresh_token;
+    if (!accessToken) return null;
+    const cookies = [`${ACCESS_COOKIE}=${accessToken}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${60 * 60}`];
+    if (refresh) cookies.push(`${REFRESH_COOKIE}=${refresh}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${60 * 60 * 24 * 14}`);
+    return { accessToken, cookies };
+  } catch {
+    return null;
+  }
+}
+
+function copyResponseHeaders(response: Response, res: NextApiResponse) { {  const contentType = response.headers.get('content-type');
   const contentDisposition = response.headers.get('content-disposition');
   const cacheControl = response.headers.get('cache-control');
   res.setHeader('cache-control', cacheControl || 'no-store');
@@ -141,7 +164,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     copyResponseHeaders(response, res);
     if (setDeviceCookie) res.appendHeader('set-cookie', setDeviceCookie);
+    // BFF refresh flow: on 401, use the admin_refresh cookie → /auth/refresh → retry once.
     if (response.status === 401) {
+      const refreshed = await tryRefresh(req);
+      if (refreshed) {
+        for (const c of refreshed.cookies) res.appendHeader('set-cookie', c);
+        headers.set('authorization', `Bearer ${refreshed.accessToken}`);
+        const retry = await fetch(`${upstreamBase()}${apiPath(req)}`, {
+          method: req.method,
+          headers,
+          body: incomingBody(req),
+          redirect: 'manual',
+        });
+        copyResponseHeaders(retry, res);
+        res.statusCode = retry.status;
+        if (!retry.body) return res.end();
+        const bytes = Buffer.from(await retry.arrayBuffer());
+        return res.end(bytes);
+      }
       res.setHeader('set-cookie', [
         `${ACCESS_COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0`,
         `${REFRESH_COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0`,

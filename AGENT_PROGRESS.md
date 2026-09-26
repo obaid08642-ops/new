@@ -150,3 +150,7 @@ Format: task | commit sha | verify result | notes
 - F46: `admin/nursing/requests` + `assign` 503 stubs replaced with real ops on canonical `homecarebookings` (list w/ state filter, assign/reassign → PROVIDER_ASSIGNED, cancel → CANCELLED, closed-booking guard, state_history push, $eq filters); removed now-unused ServiceUnavailableException import. tsc 0.
 - F47 verified (no change): command-center = one fetch + SSE stream; provider-moderation = event-driven fetches; zero setInterval/setTimeout/polling in both.
 - F48: new `GET /auth/passkey/eligibility` (non-throwing probe of the designated-admin enrollment gate) + admin security.tsx hides the passkey section for ineligible accounts (neutral note, no 403 flash). backend tsc 0; admin deps not installed here so no admin typecheck — JSX brace/paren balance verified by script.
+
+## [P6] BFF refresh + web heartbeat (2026-09-26)
+- BFF `[...path].ts`: on upstream 401 with `admin_refresh` cookie → `POST /api/v1/auth/refresh` → set fresh cookies → retry original request once (same token shapes as login.ts). Refresh failure keeps old behavior (cookies cleared).
+- Online: new patient-web `POST /api/auth/heartbeat` proxying `{client}` to backend `/auth/heartbeat` (feeds presence → admin "online" count). Follows `callPatientApi` + cookie conventions.
