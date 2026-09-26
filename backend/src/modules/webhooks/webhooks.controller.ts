@@ -13,7 +13,7 @@ export class WebhooksController {
 
   @Post('moyasar')
   async moyasar(
-    @Body() body: any,
+    @Body() body: Record<string, unknown>,
     @Headers('moyasar-signature') signature: string,
     @Req() req: Request
   ) {
@@ -23,7 +23,7 @@ export class WebhooksController {
 
   @Post('paytabs')
   async paytabs(
-    @Body() body: any,
+    @Body() body: Record<string, unknown>,
     @Headers('signature') signature: string,
     @Req() req: Request
   ) {
@@ -33,7 +33,7 @@ export class WebhooksController {
 
   @Post('sms')
   async sms(
-    @Body() body: any,
+    @Body() body: Record<string, unknown>,
     @Headers('x-sms-token') token: string
   ) {
     return this.service.handleSmsWebhook(body, token);

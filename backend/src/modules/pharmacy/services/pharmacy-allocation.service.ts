@@ -258,7 +258,7 @@ export class PharmacyAllocationService {
 
   async preparing(user: any, id: string) { return this.advance(user, id, PharmacyAllocationState.PREPARING); }
   async ready(user: any, id: string) { return this.advance(user, id, PharmacyAllocationState.READY_FOR_PICKUP); }
-  async outForDelivery(user: any, id: string, body?: { courier_name?: string; courier_phone?: string; eta?: Date }) {
+  async outForDelivery(user: any, id: string, body?: { courier_name?: string; courier_phone?: string; eta?: Date | string }) {
     assertProvider(user);
     const a = await this.allocs.findOne({ id });
     if (!a) throw new NotFoundException();

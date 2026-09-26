@@ -1,6 +1,7 @@
 import { JwtAuthGuard, SelfService } from '../../common/auth.guard';
 import { Body, Controller, Get, Param, Post, Put, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { MaternityService } from './maternity.service';
+import { UpdateProfileDto, LogKickDto, LogContractionDto, LogInfantGrowthDto} from './maternity.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('maternity')
@@ -29,19 +30,19 @@ export class MaternityController {
 
   /** POST /api/v1/maternity/profile — Set or update maternity/pregnancy profile variables */
   @Post('profile')
-  updateProfile(@Req() req: any, @Body() body: any) {
+  updateProfile(@Req() req: any, @Body() body: UpdateProfileDto) {
     return this.maternityService.updateProfile(this.authenticatedPatientId(req), body);
   }
 
   /** POST /api/v1/maternity/kicks — Log a kick count session */
   @Post('kicks')
-  logKick(@Req() req: any, @Body() body: { count: number; duration_seconds: number }) {
+  logKick(@Req() req: any, @Body() body: LogKickDto) {
     return this.maternityService.logKick(this.authenticatedPatientId(req), body.count, body.duration_seconds);
   }
 
   /** POST /api/v1/maternity/contractions — Log a contraction record */
   @Post('contractions')
-  logContraction(@Req() req: any, @Body() body: { interval_seconds: number; duration_seconds: number }) {
+  logContraction(@Req() req: any, @Body() body: LogContractionDto) {
     return this.maternityService.logContraction(this.authenticatedPatientId(req), body.interval_seconds, body.duration_seconds);
   }
 
@@ -53,7 +54,7 @@ export class MaternityController {
 
   /** POST /api/v1/maternity/infant-growth — Log baby growth metrics */
   @Post('infant-growth')
-  logInfantGrowth(@Req() req: any, @Body() body: { month: number; weight_kg?: number; height_cm?: number; head_circ_cm?: number }) {
+  logInfantGrowth(@Req() req: any, @Body() body: LogInfantGrowthDto) {
     return this.maternityService.logInfantGrowth(this.authenticatedPatientId(req), body);
   }
 }

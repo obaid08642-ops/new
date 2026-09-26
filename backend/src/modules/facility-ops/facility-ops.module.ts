@@ -1,4 +1,5 @@
 import { Module, Injectable, Controller, Get, Post, Put, Patch, Delete, Param, Body, UseGuards, BadRequestException, NotFoundException } from '@nestjs/common';
+import { CreateShiftDto, CreateAnnouncementDto, CreateResourceDto, UpdateResourceDto, CreateWardDto, AdmitDto, CheckInDto, BookSurgeryDto, DischargeDto, UpdateShiftDto} from './facility-ops.dto';
 import { InjectModel, InjectConnection, MongooseModule } from '@nestjs/mongoose';
 import { Model, Connection } from 'mongoose';
 import { JwtAuthGuard, CurrentUser, Roles } from '../../common/auth.guard';
@@ -80,15 +81,15 @@ export class BedsService {
   }
 
   async admitPatient(facilityId: string, patientId: string, bedId: string) {
-    const bed = await this.bedModel.findOne({ id: bedId });
+    const bed = await this.bedModel.findOne({ id: { $eq: bedId } });
     if (!bed) throw new NotFoundException('bed_not_found');
     if (bed.status !== 'available') throw new BadRequestException('bed_not_available');
 
-    const ward = await this.wardModel.findOne({ id: bed.ward_id });
+    const ward = await this.wardModel.findOne({ id: { $eq: bed.ward_id } });
     if (!ward) throw new NotFoundException('ward_not_found');
 
     await this.bedModel.updateOne(
-      { id: bedId },
+      { id: { $eq: bedId } },
       { $set: { status: 'occupied', occupied_by_patient_id: patientId } }
     );
 
@@ -110,15 +111,15 @@ export class BedsService {
   }
 
   async dischargePatient(facilityId: string, admissionId: string, summary?: { diagnosis?: string; medications?: string; instructions?: string }) {
-    const admission = await this.admissionModel.findOne({ id: admissionId, facility_id: facilityId });
+    const admission = await this.admissionModel.findOne({ id: { $eq: admissionId }, facility_id: { $eq: facilityId } });
     if (!admission) throw new NotFoundException('admission_not_found');
     if (admission.status === 'discharged') throw new BadRequestException('already_discharged');
 
-    const bed = await this.bedModel.findOne({ id: admission.bed_id });
+    const bed = await this.bedModel.findOne({ id: { $eq: admission.bed_id } });
     if (!bed) throw new NotFoundException('bed_not_found');
 
     await this.admissionModel.updateOne(
-      { id: admissionId },
+      { id: { $eq: admissionId } },
       {
         $set: {
           status: 'discharged',
@@ -172,22 +173,22 @@ export class ShiftsService {
   }
 
     async requestSubstitute(facilityId: string, shiftId: string) {
-    const shift = await this.shiftModel.findOne({ id: shiftId, facility_id: facilityId });
+    const shift = await this.shiftModel.findOne({ id: { $eq: shiftId }, facility_id: { $eq: facilityId } });
     if (!shift) throw new NotFoundException('shift_not_found');
-    await this.shiftModel.updateOne({ id: shiftId, facility_id: facilityId }, { $set: { status: 'substitute' } });
+    await this.shiftModel.updateOne({ id: { $eq: shiftId }, facility_id: { $eq: facilityId } }, { $set: { status: 'substitute' } });
     return { ok: true };
   }
-  async updateShift(facilityId: string, shiftId: string, body: Record<string, unknown>) {
-    const shift = await this.shiftModel.findOne({ id: shiftId, facility_id: facilityId });
+  async updateShift(facilityId: string, shiftId: string, body: UpdateShiftDto) {
+    const shift = await this.shiftModel.findOne({ id: { $eq: shiftId }, facility_id: { $eq: facilityId } });
     if (!shift) throw new NotFoundException('shift_not_found');
     const allowed = ['user_id', 'department_id', 'start_time', 'end_time', 'day_of_week', 'status'];
     const patch = Object.fromEntries(Object.entries(body || {}).filter(([key, value]) => allowed.includes(key) && value !== undefined));
     if (!Object.keys(patch).length) throw new BadRequestException('no_mutable_shift_fields');
-    await this.shiftModel.updateOne({ id: shiftId, facility_id: facilityId }, { $set: patch });
-    return this.shiftModel.findOne({ id: shiftId, facility_id: facilityId }).lean();
+    await this.shiftModel.updateOne({ id: { $eq: shiftId }, facility_id: { $eq: facilityId } }, { $set: patch });
+    return this.shiftModel.findOne({ id: { $eq: shiftId }, facility_id: { $eq: facilityId } }).lean();
   }
   async deleteShift(facilityId: string, shiftId: string) {
-    const deleted = await this.shiftModel.findOneAndDelete({ id: shiftId, facility_id: facilityId }).lean();
+    const deleted = await this.shiftModel.findOneAndDelete({ id: { $eq: shiftId }, facility_id: { $eq: facilityId } }).lean();
     if (!deleted) throw new NotFoundException('shift_not_found');
     return { ok: true, id: shiftId };
   }
@@ -206,10 +207,10 @@ export class ShiftsService {
   }
 
   async checkOut(facilityId: string, attendanceId: string) {
-    const att = await this.attendanceModel.findOne({ id: attendanceId, facility_id: facilityId });
+    const att = await this.attendanceModel.findOne({ id: { $eq: attendanceId }, facility_id: { $eq: facilityId } });
     if (!att) throw new NotFoundException('attendance_record_not_found');
 
-    await this.attendanceModel.updateOne({ id: attendanceId }, { $set: { check_out_time: new Date() } });
+    await this.attendanceModel.updateOne({ id: { $eq: attendanceId }, facility_id: { $eq: facilityId } }, { $set: { check_out_time: new Date() } });
     return { ok: true };
   }
 
@@ -229,8 +230,8 @@ export class SurgeriesService {
     const end = new Date(start.getTime() + body.duration_mins * 60 * 1000);
 
     const conflicting = await this.surgeryModel.findOne({
-      facility_id: facilityId,
-      ot_room_number: body.ot_room_number,
+      facility_id: { $eq: facilityId },
+      ot_room_number: { $eq: body.ot_room_number },
       status: { $ne: 'cancelled' },
       scheduled_at: { $lt: end },
     });
@@ -281,12 +282,12 @@ export class FacilityBedsController {
   }
 
   @Post('wards')
-  createWard(@CurrentUser() u: any, @Body() b: { name: string; total_beds: number }) {
+  createWard(@CurrentUser() u: any, @Body() b: CreateWardDto) {
     return this.svc.createWard(u.parent_provider_account_id || u.id, b.name, b.total_beds);
   }
 
   @Post('admission')
-  admit(@CurrentUser() u: any, @Body() b: { patient_id: string; bed_id: string }) {
+  admit(@CurrentUser() u: any, @Body() b: AdmitDto) {
     return this.svc.admitPatient(u.parent_provider_account_id || u.id, b.patient_id, b.bed_id);
   }
 
@@ -296,7 +297,7 @@ export class FacilityBedsController {
   }
 
   @Put('discharge/:admissionId')
-  discharge(@CurrentUser() u: any, @Param('admissionId') id: string, @Body() b?: { diagnosis?: string; medications?: string; instructions?: string }) {
+  discharge(@CurrentUser() u: any, @Param('admissionId') id: string, @Body() b?: DischargeDto) {
     return this.svc.dischargePatient(u.parent_provider_account_id || u.id, id, b);
   }
 }
@@ -313,7 +314,7 @@ export class FacilityShiftsController {
   }
 
   @Post()
-  createShift(@CurrentUser() u: any, @Body() b: any) {
+  createShift(@CurrentUser() u: any, @Body() b: CreateShiftDto) {
     return this.svc.createShift(u.parent_provider_account_id || u.id, b);
   }
 
@@ -322,7 +323,7 @@ export class FacilityShiftsController {
     return this.svc.requestSubstitute(u.parent_provider_account_id || u.id, id);
   }
   @Patch(':id')
-  updateShift(@CurrentUser() u: any, @Param('id') id: string, @Body() b: Record<string, unknown>) {
+  updateShift(@CurrentUser() u: any, @Param('id') id: string, @Body() b: UpdateShiftDto) {
     return this.svc.updateShift(u.parent_provider_account_id || u.id, id, b);
   }
   @Delete(':id')
@@ -330,7 +331,7 @@ export class FacilityShiftsController {
     return this.svc.deleteShift(u.parent_provider_account_id || u.id, id);
   }
   @Post('attendance/check-in')
-  checkIn(@CurrentUser() u: any, @Body() b: { lat?: number; lng?: number }) {
+  checkIn(@CurrentUser() u: any, @Body() b: CheckInDto) {
     return this.svc.checkIn(u.parent_provider_account_id || u.id, u.id, b?.lat, b?.lng);
   }
 
@@ -352,8 +353,8 @@ export class FacilitySurgeriesController {
   constructor(private svc: SurgeriesService) {}
 
   @Post('book')
-  book(@CurrentUser() u: any, @Body() b: any) {
-    return this.svc. bookSurgery(u.parent_provider_account_id || u.id, b);
+  book(@CurrentUser() u: any, @Body() b: BookSurgeryDto) {
+    return this.svc.bookSurgery(u.parent_provider_account_id || u.id, { ...b, scheduled_at: new Date(b.scheduled_at) });
   }
 
   @Get('schedule')
@@ -382,7 +383,7 @@ export class FacilityCommsController {
   }
 
   @Post('announcements')
-  async createAnnouncement(@CurrentUser() u: any, @Body() b: any) {
+  async createAnnouncement(@CurrentUser() u: any, @Body() b: CreateAnnouncementDto) {
     const text = String(b?.text || '').trim().slice(0, 2000);
     if (!text) throw new BadRequestException('text is required');
     const doc = {
@@ -406,7 +407,7 @@ export class FacilityCommsController {
   }
 
   @Post('resources')
-  async createResource(@CurrentUser() u: any, @Body() b: any) {
+  async createResource(@CurrentUser() u: any, @Body() b: CreateResourceDto) {
     const nameAr = String(b?.name_ar || '').trim().slice(0, 200);
     const nameEn = String(b?.name_en || '').trim().slice(0, 200);
     if (!nameAr && !nameEn) throw new BadRequestException('name is required');
@@ -428,7 +429,7 @@ export class FacilityCommsController {
   }
 
   @Put('resources/:id')
-  async updateResource(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
+  async updateResource(@CurrentUser() u: any, @Param('id') id: string, @Body() b: UpdateResourceDto) {
     const set: any = {};
     if (b?.name_ar !== undefined) set.name_ar = String(b.name_ar).slice(0, 200);
     if (b?.name_en !== undefined) set.name_en = String(b.name_en).slice(0, 200);

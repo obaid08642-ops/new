@@ -6,6 +6,7 @@ import { Permission, RequirePermissions } from '../../common/permissions';
 import { UserRole } from '../../common/enums';
 import { validateReason, ReasonError } from '../../common/rbac';
 import { AdminAuditService } from './audit.service';
+import { CreateDto, UpdateDto, ValidateDto, RedeemDto, RemoveDto } from './admin-coupons.dto';
 
 // ── Pure coupon engine (unit-tested) ─────────────────────────────────────
 
@@ -92,7 +93,7 @@ export class AdminCouponsController {
   }
 
   @Post()
-  async create(@Body() b: any, @CurrentUser() me: any) {
+  async create(@Body() b: CreateDto, @CurrentUser() me: any) {
     let reason: string;
     try { reason = validateReason(b?.reason); } catch (e) { if (e instanceof ReasonError) throw new BadRequestException(e.code); throw e; }
     const code = String(b?.code || '').trim().toUpperCase();
@@ -129,7 +130,7 @@ export class AdminCouponsController {
 
   @Roles(UserRole.ADMIN)
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() b: any, @CurrentUser() me: any): Promise<any> {
+  async update(@Param('id') id: string, @Body() b: UpdateDto, @CurrentUser() me: any): Promise<any> {
     let reason: string;
     try { reason = validateReason(b?.reason); } catch (e) { if (e instanceof ReasonError) throw new BadRequestException(e.code); throw e; }
     const before: any = await this.col.findOne({ id });
@@ -155,7 +156,7 @@ export class AdminCouponsController {
   /** Dry-run the deterministic engine against a hypothetical basket. */
   @SelfService()
   @Post('validate')
-  async validate(@Body() b: any) {
+  async validate(@Body() b: ValidateDto) {
     const code = String(b?.code || '').trim().toUpperCase();
     const basketTotal = Number(b?.basket_total ?? 0);
     if (!code || !Number.isFinite(basketTotal)) throw new BadRequestException('code_and_basket_required');
@@ -173,7 +174,7 @@ export class AdminCouponsController {
   /** Real redemption record (checkout calls this after order confirmation). */
   @SelfService()
   @Post('redeem')
-  async redeem(@Body() b: any) {
+  async redeem(@Body() b: RedeemDto) {
     const code = String(b?.code || '').trim().toUpperCase();
     const userId = String(b?.user_id || '');
     const orderId = String(b?.order_id || '');
@@ -190,7 +191,7 @@ export class AdminCouponsController {
 
   @Roles(UserRole.ADMIN)
   @Delete(':id')
-  async remove(@Param('id') id: string, @Body() b: any, @CurrentUser() me: any) {
+  async remove(@Param('id') id: string, @Body() b: RemoveDto, @CurrentUser() me: any) {
     let reason: string;
     try { reason = validateReason(b?.reason); } catch (e) { if (e instanceof ReasonError) throw new BadRequestException(e.code); throw e; }
     const before: any = await this.col.findOne({ id });

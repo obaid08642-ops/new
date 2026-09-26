@@ -15,6 +15,7 @@ import { toUniversal, domainStatesFor, WorkflowEngineModule } from '../workflow-
 import { B2BRequestSchema } from '../../schemas/b2b-request.schema';
 import { B2BController } from './b2b.controller';
 import { SystemConfigController } from './system-config.controller';
+import { ToggleDto, UpdateDto } from './admin-governance.dto';
 
 /**
  * Admin Governance — ALL queries derive from the universal lifecycle.
@@ -269,7 +270,7 @@ export class KillSwitchesController {
   }
 
   @Post(':key')
-  async toggle(@Param('key') key: string, @Body() body: { value: boolean; reason?: string }) {
+  async toggle(@Param('key') key: string, @Body() body: ToggleDto) {
     let config = await this.configModel.findOne({ key: 'kill_switches' });
     if (!config) {
       config = await this.configModel.create({ key: 'kill_switches', value: this.defaultSwitches });
@@ -357,7 +358,7 @@ export class CommissionsController {
   }
 
   @Put(':id')
-  async update(@Param('id') id: string, @Body() body: { commission?: number; commission_cash?: number; commission_insurance?: number }) {
+  async update(@Param('id') id: string, @Body() body: UpdateDto) {
     const set: any = {};
     if (body?.commission !== undefined) set.commission_rate = Number(body.commission);
     if (body?.commission_cash !== undefined) { set.commission_cash_pct = Math.min(100, Math.max(0, Number(body.commission_cash))); set.commission_rate = set.commission_cash_pct; }

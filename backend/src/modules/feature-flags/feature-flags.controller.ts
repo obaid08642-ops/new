@@ -1,5 +1,6 @@
 import { Controller, Get, Post, Body, UseGuards, Param } from '@nestjs/common';
 import { FeatureFlagsService } from './feature-flags.service';
+import { SetFeatureFlagDto } from './feature-flags.dto';
 import { JwtAuthGuard, Roles, Public } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 
@@ -30,7 +31,7 @@ export class FeatureFlagsController {
 
   @Post(':key')
   @Roles(UserRole.ADMIN)
-  async setFlag(@Param('key') key: string, @Body('enabled') enabled: boolean) {
-    return this.svc.setFlag(key, enabled);
+  async setFlag(@Param('key') key: string, @Body() body: SetFeatureFlagDto) {
+    return this.svc.setFlag(key, body.enabled);
   }
 }

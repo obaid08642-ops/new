@@ -1,4 +1,5 @@
 import { Injectable, BadRequestException, UnauthorizedException, NotFoundException, ConflictException } from '@nestjs/common';
+import { isEmail } from 'class-validator';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import * as bcrypt from 'bcryptjs';
@@ -42,8 +43,9 @@ export class HospitalService {
   }
 
   private async objectIdForUser(userId: string): Promise<Types.ObjectId> {
+    if (typeof userId !== 'string' || !userId.trim() || userId.length > 128) throw new BadRequestException('invalid_user_id');
     if (Types.ObjectId.isValid(userId)) return new Types.ObjectId(userId);
-    const user: any = await this.userModel.findOne({ id: userId }).select({ _id: 1 }).lean();
+    const user: any = await this.userModel.findOne({ id: { $eq: userId } }).select({ _id: 1 }).lean();
     if (!user?._id) throw new NotFoundException('hospital_user_not_found');
     return user._id;
   }
@@ -133,7 +135,7 @@ export class HospitalService {
     return this.branchModel.find({ hospital_id: await this.objectIdForUser(hospitalId) });
   }
 
-  async createDepartment(hospitalId: string, data: Partial<HospitalDepartment>, actor?: any) {
+  async createDepartment(hospitalId: string, data: Omit<Partial<HospitalDepartment>, 'branch_id'> & { branch_id: string }, actor?: any) {
     this.assertFacilityActor(actor, true);
     return this.departmentModel.create({ ...data, hospital_id: await this.objectIdForUser(hospitalId) });
   }
@@ -143,7 +145,7 @@ export class HospitalService {
     return this.departmentModel.find({ hospital_id: await this.objectIdForUser(hospitalId) });
   }
 
-  async addStaff(hospitalId: string, data: Partial<HospitalStaff>, actor?: any) {
+  async addStaff(hospitalId: string, data: { user_id?: string; full_name: string; name_ar?: string; name_en?: string; legal_name?: string; phone?: string; email?: string; password?: string; staff_role?: string; department?: string; scfhs?: string; permissions?: string[]; branch_id?: string; department_id?: string }, actor?: any) {
     this.assertFacilityActor(actor, true);
     const hospitalObjectId = await this.objectIdForUser(hospitalId);
     // Sub-account with login: create the central User, plus a full provider
@@ -168,7 +170,7 @@ export class HospitalService {
       const password = String((data as any).password || '');
       const fullName = String((data as any).full_name || '').trim();
       if (!fullName) throw new BadRequestException('full_name required');
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new BadRequestException('valid email required');
+      if (email.length > 254 || !isEmail(email)) throw new BadRequestException('valid email required');
       if (password.length < 8 || !/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) throw new BadRequestException('password must be at least 8 characters with letters and numbers');
       const roleKey = String((data as any).staff_role || '');
       const clinical = CLINICAL[roleKey];
@@ -186,8 +188,9 @@ export class HospitalService {
       userObjectId = createdUser._id;
       if (clinical) {
         const accId = randomUUID();
+        // P3.0b: link to the login identity; the credential stays on users.
         await db.collection('provider_accounts').insertOne({
-          id: accId, email, password_hash, provider_type: clinical.ptype,
+          id: accId, user_id: createdUser.id, email, provider_type: clinical.ptype,
           status: 'email_verified', email_verified: true,
           status_history: [{ from: '', to: 'email_verified', by_user_id: hospitalId, by_role: 'facility', at: new Date() }],
           createdAt: new Date(), updatedAt: new Date(),
@@ -230,6 +233,8 @@ export class HospitalService {
       { $set: { affiliated_hospital_id: hospitalObjectId } },
       { new: true, upsert: true },
     );
+    // doctorObjId is an ObjectId resolved by objectIdForUser above (uuid `id`
+    // mapped to `_id`, or a validated ObjectId string) — never raw user input.
     await this.userModel.findByIdAndUpdate(doctorObjId, { $set: { verified: true, active: true } });
     return doctorProfile;
   }
@@ -272,4 +277,3 @@ export class HospitalService {
     return { success: true, total_revenue: totalRevenue, transactions_count: completed.length };
   }
 }
-

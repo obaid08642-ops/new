@@ -110,8 +110,10 @@ export class SeoService {
         { _id: 0, __v: 0 },
       ).lean();
     }
-    // Match the id-prefix (first 6 hex chars after stripping dashes)
-    const reId = new RegExp(`^${sfx}`, 'i');
+    // Match the id-prefix (first 6 hex chars after stripping dashes).
+    // sfx is hex-constrained by parseSlugSuffix and escaped: no regex metachars survive.
+    if (!/^[0-9a-f]{1,64}$/i.test(sfx)) return null;
+    const reId = new RegExp(`^${escapeRegex(sfx)}`, 'i');
     return model.findOne({ ...this.publicQuery(type), id: { $regex: reId } } as any, { _id: 0, __v: 0 }).lean();
   }
 

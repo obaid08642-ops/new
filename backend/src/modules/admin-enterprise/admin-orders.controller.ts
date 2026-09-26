@@ -4,6 +4,7 @@ import { JwtAuthGuard, Roles, CurrentUser } from '../../common/auth.guard';
 import { Permission, RequirePermissions } from '../../common/permissions';
 import { UserRole } from '../../common/enums';
 import { OrdersConsoleService } from './orders-console.service';
+import { CancelDto, RefundDto, CompensateDto, ReassignDto, AddInternalNoteDto, SlaExtendDto } from './admin-orders.dto';
 
 /**
  * A2 — Order Lifecycle Console.
@@ -60,37 +61,37 @@ export class AdminOrdersConsoleController {
 
   @Post(':kind/:id/cancel')
   @RequirePermissions(Permission.ORDER_CANCEL)
-  cancel(@Param('kind') kind: string, @Param('id') id: string, @Body() b: any, @CurrentUser() me: any) {
+  cancel(@Param('kind') kind: string, @Param('id') id: string, @Body() b: CancelDto, @CurrentUser() me: any) {
     return this.svc.cancel(kind, id, b?.reason, me);
   }
 
   @Post(':kind/:id/refund')
   @RequirePermissions(Permission.ORDER_REFUND)
-  refund(@Param('kind') kind: string, @Param('id') id: string, @Body() b: any, @CurrentUser() me: any) {
+  refund(@Param('kind') kind: string, @Param('id') id: string, @Body() b: RefundDto, @CurrentUser() me: any) {
     return this.svc.refund(kind, id, b || {}, me);
   }
 
   @Post(':kind/:id/compensate')
   @RequirePermissions(Permission.ORDER_COMPENSATE)
-  compensate(@Param('kind') kind: string, @Param('id') id: string, @Body() b: any, @CurrentUser() me: any) {
+  compensate(@Param('kind') kind: string, @Param('id') id: string, @Body() b: CompensateDto, @CurrentUser() me: any) {
     return this.svc.compensate(kind, id, b || {}, me);
   }
 
   @Post(':kind/:id/reassign')
   @RequirePermissions(Permission.ORDER_REASSIGN)
-  reassign(@Param('kind') kind: string, @Param('id') id: string, @Body() b: any, @CurrentUser() me: any) {
+  reassign(@Param('kind') kind: string, @Param('id') id: string, @Body() b: ReassignDto, @CurrentUser() me: any) {
     return this.svc.reassign(kind, id, b || {}, me);
   }
 
   @Post(':kind/:id/note')
   @RequirePermissions(Permission.ORDER_NOTE_ADD)
-  addInternalNote(@Param('kind') kind: string, @Param('id') id: string, @Body() b: any, @CurrentUser() me: any) {
+  addInternalNote(@Param('kind') kind: string, @Param('id') id: string, @Body() b: AddInternalNoteDto, @CurrentUser() me: any) {
     return this.svc.addInternalNote(kind, id, b?.note, me);
   }
 
   @Post(':kind/:id/sla-extend')
   @RequirePermissions(Permission.ORDER_SLA_EXTEND)
-  slaExtend(@Param('kind') kind: string, @Param('id') id: string, @Body() b: any, @CurrentUser() me: any) {
+  slaExtend(@Param('kind') kind: string, @Param('id') id: string, @Body() b: SlaExtendDto, @CurrentUser() me: any) {
     return this.svc.extendSla(kind, id, b || {}, me);
   }
 }

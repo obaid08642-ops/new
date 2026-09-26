@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/mongoose';
 import { ApprovalWorkflowService } from './approval-workflow.module';
 import { ApprovalStatus } from '../../schemas/approval-request.schema';
-import { NotFoundException, BadRequestException } from '@nestjs/common';
+import { ForbiddenException, NotFoundException, BadRequestException } from '@nestjs/common';
 import { CatalogPublicationService } from '../events/catalog-publication.service';
 
 describe('ApprovalWorkflowService', () => {
@@ -14,6 +14,7 @@ describe('ApprovalWorkflowService', () => {
   let labModel: any;
   let radiologyModel: any;
   let homeCareModel: any;
+  let ownershipModel: any;
   let publication: any;
 
   beforeEach(async () => {
@@ -25,27 +26,34 @@ describe('ApprovalWorkflowService', () => {
     medicineModel = {
       create: jest.fn(),
       updateOne: jest.fn(),
+      findOne: jest.fn(),
     };
     providerModel = {
       create: jest.fn(),
       updateOne: jest.fn(),
+      findOne: jest.fn(),
     };
     facilityModel = {
       create: jest.fn(),
       updateOne: jest.fn(),
+      findOne: jest.fn(),
     };
     labModel = {
       create: jest.fn(),
       updateOne: jest.fn(),
+      findOne: jest.fn(),
     };
     radiologyModel = {
       create: jest.fn(),
       updateOne: jest.fn(),
+      findOne: jest.fn(),
     };
     homeCareModel = {
       create: jest.fn(),
       updateOne: jest.fn(),
+      findOne: jest.fn(),
     };
+    ownershipModel = { findOne: jest.fn() };
     publication = { refresh: jest.fn().mockResolvedValue({ published: true }) };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -58,6 +66,7 @@ describe('ApprovalWorkflowService', () => {
         { provide: getModelToken('LabService'), useValue: labModel },
         { provide: getModelToken('RadiologyService'), useValue: radiologyModel },
         { provide: getModelToken('HomeCareService'), useValue: homeCareModel },
+        { provide: getModelToken('ServiceOwnership'), useValue: ownershipModel },
         { provide: CatalogPublicationService, useValue: publication },
       ],
     }).compile();
@@ -67,7 +76,7 @@ describe('ApprovalWorkflowService', () => {
 
   describe('createRequest', () => {
     it('should throw BadRequestException if missing type or change_data', async () => {
-      await expect(service.createRequest('u1', { entity_type: 'medicine', change_data: null }))
+      await expect(service.createRequest('u1', 'provider', { entity_type: 'medicine', change_data: null }))
         .rejects.toThrow(BadRequestException);
     });
 
@@ -78,12 +87,67 @@ describe('ApprovalWorkflowService', () => {
         }),
       });
       reqModel.create.mockResolvedValue({ id: 'r1', entity_type: 'medicine', version: 1 });
-      const res = await service.createRequest('u1', {
+      const res = await service.createRequest('u1', 'provider', {
         entity_type: 'medicine',
         change_data: { name_ar: 'البنادول' }
       });
       expect(res.version).toBe(1);
       expect(reqModel.create).toHaveBeenCalled();
+    });
+
+    it('R4-1: rejects governance keys (verified/status/id) at creation', async () => {
+      await expect(service.createRequest('u1', 'provider', {
+        entity_type: 'medicine',
+        change_data: { name_ar: 'x', verified: true },
+      })).rejects.toThrow(/uneditable_fields.*verified/);
+      await expect(service.createRequest('u1', 'provider', {
+        entity_type: 'medicine',
+        change_data: { price: 5, status: 'approved' },
+      })).rejects.toThrow(/uneditable_fields.*status/);
+      await expect(service.createRequest('u1', 'provider', {
+        entity_type: 'provider',
+        change_data: { name_ar: 'x', status: 'active' },
+      })).rejects.toThrow(/uneditable_fields/);
+      await expect(service.createRequest('u1', 'provider', {
+        entity_type: 'medicine',
+        entity_id: 'med1',
+        change_data: { id: 'med1', price: 5 },
+      })).rejects.toThrow(/uneditable_fields.*id/);
+      expect(reqModel.create).not.toHaveBeenCalled();
+    });
+
+    it('R4-1: rejects edit proposals against a foreign medicine record', async () => {
+      medicineModel.findOne.mockReturnValue({ lean: jest.fn().mockResolvedValue({ id: 'med9', created_by_user_id: 'someone-else' }) });
+      await expect(service.createRequest('u1', 'provider', {
+        entity_type: 'medicine',
+        entity_id: 'med9',
+        change_data: { price: 9 },
+      })).rejects.toThrow(ForbiddenException);
+      expect(reqModel.create).not.toHaveBeenCalled();
+    });
+
+    it('R4-1: allows edit proposals against an owned medicine record', async () => {
+      medicineModel.findOne.mockReturnValue({ lean: jest.fn().mockResolvedValue({ id: 'med1', created_by_user_id: 'u1' }) });
+      reqModel.findOne.mockReturnValue({ sort: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue(null) }) });
+      reqModel.create.mockResolvedValue({ id: 'r2', version: 2 });
+      const res = await service.createRequest('u1', 'provider', {
+        entity_type: 'medicine',
+        entity_id: 'med1',
+        change_data: { price: 9 },
+      });
+      expect(res.id).toBe('r2');
+    });
+
+    it('R4-1: admin bypasses the ownership check', async () => {
+      medicineModel.findOne.mockReturnValue({ lean: jest.fn().mockResolvedValue({ id: 'med9', created_by_user_id: 'someone-else' }) });
+      reqModel.findOne.mockReturnValue({ sort: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue(null) }) });
+      reqModel.create.mockResolvedValue({ id: 'r3' });
+      const res = await service.createRequest('admin1', 'admin', {
+        entity_type: 'medicine',
+        entity_id: 'med9',
+        change_data: { price: 9 },
+      });
+      expect(res.id).toBe('r3');
     });
   });
 
@@ -175,7 +239,7 @@ describe('ApprovalWorkflowService', () => {
       const res = await service.decide('admin1', 'r1', { decision: 'approved' });
       expect(res.status).toBe(ApprovalStatus.APPROVED);
       expect(medicineModel.updateOne).toHaveBeenCalledWith(
-        { id: 'med1' },
+        { id: { $eq: 'med1' } },
         { $set: expect.objectContaining({
           ...mockReq.change_data,
           public_eligibility: true,
@@ -188,6 +252,29 @@ describe('ApprovalWorkflowService', () => {
       expect(publication.refresh).toHaveBeenCalledWith(expect.objectContaining({
         entityType: 'medicine', entityId: 'med1', actorId: 'admin1', idempotencyKey: 'approval-workflow:r1:approved',
       }));
+    });
+    it('R4-1: approval $set contains allowlisted keys only (change_data + edit_data filtered)', async () => {
+      const mockReq: any = {
+        id: 'r-evil',
+        entity_type: 'medicine',
+        entity_id: 'med1',
+        status: ApprovalStatus.PENDING_REVIEW,
+        change_data: { price: 5, verified: true, status: 'approved', name_ar: 'x' },
+        save: jest.fn(),
+        toObject: () => ({ id: 'r-evil', status: ApprovalStatus.APPROVED }),
+      };
+      reqModel.findOne.mockResolvedValue(mockReq);
+      medicineModel.updateOne.mockResolvedValue({ ok: 1 });
+
+      await service.decide('admin1', 'r-evil', { decision: 'approved', edit_data: { price: 7, status: 'closed' } as any });
+
+      expect(medicineModel.updateOne).toHaveBeenCalledTimes(1);
+      const setArg = medicineModel.updateOne.mock.calls[0][1].$set;
+      expect(setArg.price).toBe(7);
+      expect(setArg.name_ar).toBe('x');
+      expect(setArg).not.toHaveProperty('verified');
+      expect(setArg).not.toHaveProperty('status');
+      expect(setArg.public_eligibility).toBe(true);
     });
   });
 });

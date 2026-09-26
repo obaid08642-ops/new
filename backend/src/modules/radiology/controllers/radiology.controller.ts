@@ -5,6 +5,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { RadiologyBooking } from '../schemas/radiology-booking.schema';
 import { CurrentUser, SelfService, Roles } from '../../../common/auth.guard';
 import { UserRole } from '../../../common/enums';
+import { BookDto, AllocateMachineDto, FinalizeScanDto} from './radiology.dto';
+import { idFilter } from '../../../common/id.utils';
 
 @Controller('radiology/bookings')
 export class RadiologyController {
@@ -22,14 +24,14 @@ export class RadiologyController {
   @SelfService()
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async book(@CurrentUser() user: any, @Body() body: any) {
+  async book(@CurrentUser() user: any, @Body() body: BookDto) {
     if (!body?.scheduled_at) throw new BadRequestException('scheduled_at is required');
-    const patient: any = await this.userModel.findOne({ id: user.id }).lean();
+    const patient: any = await this.userModel.findOne({ id: { $eq: user.id } }).lean();
     if (!patient) throw new BadRequestException('patient_not_found');
 
     let scan: any = {};
     if (body.service_id) {
-      const svc: any = await this.radServiceModel.findOne({ id: body.service_id, is_deleted: { $ne: true } }).lean();
+      const svc: any = await this.radServiceModel.findOne({ id: { $eq: body.service_id }, is_deleted: { $ne: true } }).lean();
       if (!svc) throw new BadRequestException('service_not_found');
       scan = { scan_type_code: svc.id, scan_name_ar: svc.name_ar, scan_name_en: svc.name_en };
     }
@@ -42,7 +44,7 @@ export class RadiologyController {
 
     let centerId: Types.ObjectId | null = null;
     if (body.provider_account_id) {
-      const center: any = await this.userModel.findOne({ id: body.provider_account_id }).lean();
+      const center: any = await this.userModel.findOne({ id: { $eq: body.provider_account_id } }).lean();
       if (center) centerId = center._id;
     }
 
@@ -63,7 +65,7 @@ export class RadiologyController {
   /** Patient's own radiology bookings. */
   @Get('mine')
   async mine(@CurrentUser() user: any) {
-    const patient: any = await this.userModel.findOne({ id: user.id }).lean();
+    const patient: any = await this.userModel.findOne({ id: { $eq: user.id } }).lean();
     if (!patient) return [];
     return this.radBookingModel.find({ patient_id: patient._id }).sort({ createdAt: -1 }).limit(80).lean();
   }
@@ -71,10 +73,10 @@ export class RadiologyController {
   /** Single booking — owner, bound center, or admin only. */
   @Get(':id')
   async getOne(@Param('id') bookingId: string, @CurrentUser() user: any) {
-    const q: any = Types.ObjectId.isValid(bookingId) ? { _id: bookingId } : { id: bookingId };
+    const q: any = Types.ObjectId.isValid(bookingId) ? { _id: { $eq: new Types.ObjectId(bookingId) } } : { id: { $eq: bookingId } };
     const booking: any = await this.radBookingModel.findOne(q).lean();
     if (!booking) throw new NotFoundException('booking_not_found');
-    const me: any = await this.userModel.findOne({ id: user.id }).lean();
+    const me: any = await this.userModel.findOne({ id: { $eq: user.id } }).lean();
     const mine = me && (String(booking.patient_id) === String(me._id) || String(booking.radiology_center_id) === String(me._id));
     if (!mine && user.role !== 'admin' && user.role !== 'super_admin') throw new NotFoundException('booking_not_found');
     return booking;
@@ -86,13 +88,13 @@ export class RadiologyController {
   @HttpCode(HttpStatus.OK)
   async allocateMachine(
     @Param('id') bookingId: string,
-    @Body() body: { machineId: string }
+    @Body() body: AllocateMachineDto
   ) {
     const { machineId } = body;
 
     // Check if machine is already busy for this period to block conflicts
     const conflict = await this.radBookingModel.findOne({
-      allocated_machine_id: machineId,
+      allocated_machine_id: { $eq: machineId },
       status: { $in: ['ACCEPTED', 'CHECKED_IN'] }
     });
 
@@ -103,8 +105,10 @@ export class RadiologyController {
       });
     }
 
-    const booking = await this.radBookingModel.findByIdAndUpdate(
-      bookingId,
+    // Radiology bookings are addressed by public uuid `id` (idFilter also
+    // accepts a legacy Mongo `_id`) — never throws on malformed input.
+    const booking = await this.radBookingModel.findOneAndUpdate(
+      idFilter(bookingId),
       { $set: { allocated_machine_id: machineId, status: 'ACCEPTED' } },
       { new: true }
     );
@@ -116,12 +120,12 @@ export class RadiologyController {
   @Post('finalize-scan/:id')
   async finalizeScan(
     @Param('id') bookingId: string,
-    @Body() body: { reportText: string; files: string[]; pdfUrl: string }
+    @Body() body: FinalizeScanDto
   ) {
     const { reportText, files, pdfUrl } = body;
 
-    const booking = await this.radBookingModel.findByIdAndUpdate(
-      bookingId,
+    const booking = await this.radBookingModel.findOneAndUpdate(
+      idFilter(bookingId),
       {
         $set: {
           clinical_impression_report: reportText,

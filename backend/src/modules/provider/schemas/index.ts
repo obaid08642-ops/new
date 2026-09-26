@@ -9,7 +9,10 @@ export class ProviderAccount extends Document {
   @Prop({ required: true, unique: true, default: () => uuidv4() }) id: string;
   @Prop({ required: true, unique: true, lowercase: true, trim: true }) email: string;
   @Prop({ unique: true, sparse: true, index: true }) phone_e164?: string;
-  @Prop({ required: true }) password_hash: string;
+  /** P2.1 link to the login identity (users.id); equals `id` for onboarding-created accounts. */
+  @Prop({ index: true }) user_id?: string;
+  /** P3.0b: legacy copy only — login/reset/change read and write users.password_hash. */
+  @Prop() password_hash?: string;
   @Prop({ required: true, enum: Object.values(ProviderType), index: true }) provider_type: ProviderType;
   @Prop({ default: ProviderAccountStatus.EMAIL_UNVERIFIED, enum: Object.values(ProviderAccountStatus), index: true }) status: ProviderAccountStatus;
   @Prop({ default: false }) email_verified: boolean;

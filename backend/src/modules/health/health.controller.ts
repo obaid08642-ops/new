@@ -3,6 +3,7 @@ import { UseGuards, UseInterceptors, NotImplementedException } from '@nestjs/com
 import { Controller, Get, Post, Patch, Delete, Body, Param, Query } from '@nestjs/common';
 import { HealthService } from './health.service';
 import { IdempotencyInterceptor, RequireIdempotency } from '../../common/idempotency.interceptor';
+import { RcDto, RlgDto, RefillSnoozeDto, AddSleepDto, AddEmergencyContactDto, AddVitalDto, UpdateVitalDto, UpdateReminderDto } from './health.dto';
 
 @UseGuards(JwtAuthGuard)
 @UseInterceptors(IdempotencyInterceptor)
@@ -36,13 +37,13 @@ export class HealthModuleController {
   score(@CurrentUser() user: any) { return this.svc.healthScore(user); }
   @RequireIdempotency()
   @Post('vitals')
-  async add(@CurrentUser() user: any, @Body() body: any) {
+  async add(@CurrentUser() user: any, @Body() body: AddVitalDto) {
     const reading = await this.svc.addVital(user, body);
     return { id: reading.id };
   }
   @RequireIdempotency()
   @Patch('vitals/:id')
-  edit(@CurrentUser() user: any, @Param('id') id: string, @Body() body: any) { return this.svc.updateVital(user, id, body); }
+  edit(@CurrentUser() user: any, @Param('id') id: string, @Body() body: UpdateVitalDto) { return this.svc.updateVital(user, id, body); }
   @RequireIdempotency()
   @Delete('vitals/:id')
   del(@CurrentUser() user: any, @Param('id') id: string) { return this.svc.deleteVital(user, id); }
@@ -58,21 +59,21 @@ export class HealthModuleController {
   rl(@CurrentUser() user: any, @Query('active') a?: string) { return this.svc.listReminders(user, a !== '0'); }
   @RequireIdempotency()
   @Post('reminders')
-  rc(@CurrentUser() user: any, @Body() body: any) { return this.svc.createReminder(user, body); }
+  rc(@CurrentUser() user: any, @Body() body: RcDto) { return this.svc.createReminder(user, body); }
   @RequireIdempotency()
   @Post('reminders/:id/log')
-  rlg(@CurrentUser() user: any, @Param('id') id: string, @Body() body: any) {
+  rlg(@CurrentUser() user: any, @Param('id') id: string, @Body() body: RlgDto) {
     return this.svc.logReminder(user, id, body.status, body.time_key || '', body.occurred_at);
   }
   @Post('reminders/:id/refill')
   refill(@CurrentUser() user: any, @Param('id') id: string) { return this.svc.refillNow(user, id); }
   @Post('reminders/:id/refill/snooze')
-  refillSnooze(@CurrentUser() user: any, @Param('id') id: string, @Body() body: any) { return this.svc.snoozeRefill(user, id, body?.days); }
+  refillSnooze(@CurrentUser() user: any, @Param('id') id: string, @Body() body: RefillSnoozeDto) { return this.svc.snoozeRefill(user, id, body?.days); }
   @Post('reminders/:id/refill/cancel')
   refillCancel(@CurrentUser() user: any, @Param('id') id: string) { return this.svc.cancelChronic(user, id); }
   @RequireIdempotency()
   @Patch('reminders/:id')
-  rt(@CurrentUser() user: any, @Param('id') id: string, @Body() body: any) {
+  rt(@CurrentUser() user: any, @Param('id') id: string, @Body() body: UpdateReminderDto) {
     return this.svc.updateReminder(user, id, body);
   }
   @RequireIdempotency()
@@ -88,7 +89,7 @@ export class HealthModuleController {
     return this.svc.listSleep(user, l ? parseInt(l, 10) : 100);
   }
   @Post('sleep')
-  addSleep(@CurrentUser() user: any, @Body() body: any) {
+  addSleep(@CurrentUser() user: any, @Body() body: AddSleepDto) {
     return this.svc.addSleep(user, body);
   }
 
@@ -114,7 +115,7 @@ export class HealthModuleController {
   }
 
   @Post('emergency-contacts')
-  addEmergencyContact(@CurrentUser() user: any, @Body() body: any) {
+  addEmergencyContact(@CurrentUser() user: any, @Body() body: AddEmergencyContactDto) {
     return this.svc.addEmergencyContact(user, body);
   }
 

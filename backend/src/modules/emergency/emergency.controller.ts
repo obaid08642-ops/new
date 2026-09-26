@@ -3,6 +3,7 @@ import { EmergencyService } from './emergency.service';
 import { CurrentUser, JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { ServiceUnavailableException } from '@nestjs/common';
+import { TriggerDto, TrackDto, ResolveDto, ClaimDto, AssignDto} from './emergency.dto';
 
 @Controller('emergency')
 @UseGuards(JwtAuthGuard)
@@ -11,7 +12,7 @@ export class EmergencyController {
 
   @SelfService()
   @Post('trigger')
-  trigger(@Body() body: any, @CurrentUser() user: any) {
+  trigger(@Body() body: TriggerDto, @CurrentUser() user: any) {
     return this.svc.trigger(user, body);
   }
 
@@ -37,7 +38,7 @@ export class EmergencyController {
   /** Driver/ambulance: self-assign an open SOS (first-come-first-served) */
   @Roles(UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
   @Post(':id/claim')
-  claim(@Param('id') id: string, @Body() body: { vehicle_id?: string }, @CurrentUser() user: any) {
+  claim(@Param('id') id: string, @Body() body: ClaimDto, @CurrentUser() user: any) {
     return this.svc.claim(id, user.id, body?.vehicle_id);
   }
 
@@ -50,7 +51,7 @@ export class EmergencyController {
   /** Driver who claimed: push unit GPS position (ownership enforced) */
   @Roles(UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
   @Post(':id/track')
-  track(@Param('id') id: string, @Body() body: any, @CurrentUser() user: any) {
+  track(@Param('id') id: string, @Body() body: TrackDto, @CurrentUser() user: any) {
     return this.svc.updateUnitLocation(id, user.id, body);
   }
 
@@ -69,7 +70,7 @@ export class EmergencyController {
   @Roles(UserRole.ADMIN)
   @Post(':id/assign')
   @Roles(UserRole.ADMIN)
-  assign(@Param('id') id: string, @Body() body: { hospital_id: string }, @CurrentUser() user: any) {
+  assign(@Param('id') id: string, @Body() body: AssignDto, @CurrentUser() user: any) {
     return this.svc.assign(id, body.hospital_id, user);
   }
 
@@ -84,7 +85,7 @@ export class EmergencyController {
   @Roles(UserRole.ADMIN)
   @Post(':id/resolve')
   @Roles(UserRole.ADMIN)
-  resolve(@Param('id') id: string, @CurrentUser() user: any, @Body() body: any) {
+  resolve(@Param('id') id: string, @CurrentUser() user: any, @Body() body: ResolveDto) {
     return this.svc.resolve(id, user, body?.notes);
   }
 }

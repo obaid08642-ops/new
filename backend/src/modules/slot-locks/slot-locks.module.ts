@@ -3,6 +3,7 @@ import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { SlotLock, SlotLockSchema } from '../../schemas/slot-lock.schema';
 import { JwtAuthGuard, CurrentUser, SelfService } from '../../common/auth.guard';
+import { ReserveDto, ConfirmSlotLockDto } from './slot-locks.dto';
 
 /** Contract-pack 10-minute slot-lock TTL with optimistic anti-collision. */
 const LOCK_TTL_MS = 10 * 60 * 1000;
@@ -19,7 +20,7 @@ export class SlotLocksService {
     await this.locks.deleteMany({ status: 'held', expires_at: { $lt: new Date() } });
     // Collision check
     const conflict = await this.locks.findOne({
-      provider_id: body.provider_id,
+      provider_id: { $eq: body.provider_id },
       status: { $in: ['held', 'confirmed'] },
       slot_start: { $lt: end },
       slot_end: { $gt: start },
@@ -39,7 +40,7 @@ export class SlotLocksService {
   }
 
   async confirm(user: any, lockId: string, booking_id: string) {
-    const l = await this.locks.findOne({ id: lockId, patient_id: user.id });
+    const l = await this.locks.findOne({ id: { $eq: lockId }, patient_id: { $eq: user.id } });
     if (!l) throw new BadRequestException('lock_not_found');
     if (l.status !== 'held') throw new BadRequestException('lock_not_holdable');
     l.status = 'confirmed';
@@ -50,7 +51,7 @@ export class SlotLocksService {
   }
 
   async release(user: any, lockId: string) {
-    const l = await this.locks.findOne({ id: lockId, patient_id: user.id });
+    const l = await this.locks.findOne({ id: { $eq: lockId }, patient_id: { $eq: user.id } });
     if (!l) return { ok: true };
     l.status = 'released';
     l.expires_at = new Date();
@@ -64,7 +65,7 @@ export class SlotLocksService {
    * provider/slot/kind mismatch. Pure check — never mutates.
    */
   async validateForBooking(user: any, lockId: string, opts: { provider_id: string; slot_start: Date; booking_kind: string }) {
-    const l: any = await this.locks.findOne({ id: lockId, patient_id: user.id });
+    const l: any = await this.locks.findOne({ id: { $eq: lockId }, patient_id: { $eq: user.id } });
     if (!l) throw new BadRequestException('lock_not_found');
     if (l.status !== 'held') throw new BadRequestException('lock_not_holdable');
     if (l.expires_at && new Date(l.expires_at).getTime() <= Date.now()) throw new BadRequestException('lock_expired');
@@ -77,7 +78,7 @@ export class SlotLocksService {
   /** Best-effort release used on booking failure paths. Only releases held locks; never throws. */
   async releaseQuietly(user: any, lockId: string) {
     try {
-      const l: any = await this.locks.findOne({ id: lockId, patient_id: user.id });
+      const l: any = await this.locks.findOne({ id: { $eq: lockId }, patient_id: { $eq: user.id } });
       if (!l || l.status !== 'held') return { ok: true };
       l.status = 'released';
       l.expires_at = new Date();
@@ -96,8 +97,8 @@ export class SlotLocksService {
 @UseGuards(JwtAuthGuard)
 export class SlotLocksController {
   constructor(private svc: SlotLocksService) {}
-  @Post('reserve') reserve(@CurrentUser() u: any, @Body() b: any) { return this.svc.reserve(u, b); }
-  @Post(':id/confirm') confirm(@CurrentUser() u: any, @Param('id') id: string, @Body() b: { booking_id: string }) { return this.svc.confirm(u, id, b.booking_id); }
+  @Post('reserve') reserve(@CurrentUser() u: any, @Body() b: ReserveDto) { return this.svc.reserve(u, b); }
+  @Post(':id/confirm') confirm(@CurrentUser() u: any, @Param('id') id: string, @Body() b: ConfirmSlotLockDto) { return this.svc.confirm(u, id, b.booking_id); }
   @Post(':id/release') release(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.release(u, id); }
   @Get('mine') mine(@CurrentUser() u: any) { return this.svc.mine(u); }
 }

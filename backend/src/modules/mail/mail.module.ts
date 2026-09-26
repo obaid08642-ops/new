@@ -9,7 +9,7 @@
  * Every send returns { ok, provider, fallback_used } and logs a
  * 'mail.sent' / 'mail.failed' event so admin analytics can watch it.
  */
-import { Global, Injectable, Logger, Module, Optional } from '@nestjs/common';
+import { BadGatewayException, Global, Injectable, Logger, Module, Optional, ServiceUnavailableException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -50,7 +50,7 @@ export class MailService {
   }
 
   private async sendViaResend(to: string, subject: string, html: string, text?: string): Promise<void> {
-    if (!this.resend) throw new Error('resend_not_configured');
+    if (!this.resend) throw new ServiceUnavailableException('resend_not_configured');
     const { error } = await this.resend.emails.send({
       from: this.fromAddress,
       to,
@@ -58,11 +58,11 @@ export class MailService {
       html,
       ...(text ? { text } : {}),
     });
-    if (error) throw new Error(error.message || 'resend_error');
+    if (error) throw new BadGatewayException(error.message || 'resend_error');
   }
 
   private async sendViaSes(to: string, subject: string, html: string, text?: string): Promise<void> {
-    if (!this.sesConfigured()) throw new Error('ses_not_configured');
+    if (!this.sesConfigured()) throw new ServiceUnavailableException('ses_not_configured');
     const transporter = nodemailer.createTransport({
       host: process.env.SES_SMTP_HOST,
       port: parseInt(process.env.SES_SMTP_PORT || '587', 10),
@@ -93,7 +93,7 @@ export class MailService {
       : null;
     // 1) Primary: Resend
     try {
-      if (!this.resend) throw new Error('resend_not_configured');
+      if (!this.resend) throw new ServiceUnavailableException('resend_not_configured');
       const { error } = await this.resend.emails.send({
         from: this.fromAddress,
         to: opts.to,
@@ -102,7 +102,7 @@ export class MailService {
         ...(opts.text ? { text: opts.text } : {}),
         ...(attachment ? { attachments: [{ filename: attachment.filename!, content: Buffer.from(attachment.content, 'utf-8').toString('base64') }] } : {}),
       });
-      if (error) throw new Error(error.message || 'resend_error');
+      if (error) throw new BadGatewayException(error.message || 'resend_error');
       this.events.emit('mail.sent', { to: opts.to, subject: opts.subject, provider: 'resend', fallback_used: false });
       await this.logMail(opts.to, opts.subject, true, 'resend', false);
       return { ok: true, provider: 'resend', fallback_used: false };
@@ -134,7 +134,7 @@ export class MailService {
     opts: { to: string; subject: string; html: string; text?: string },
     attachment: { filename: string; content: string } | null,
   ): Promise<void> {
-    if (!this.sesConfigured()) throw new Error('ses_not_configured');
+    if (!this.sesConfigured()) throw new ServiceUnavailableException('ses_not_configured');
     const transporter = nodemailer.createTransport({
       host: process.env.SES_SMTP_HOST,
       port: parseInt(process.env.SES_SMTP_PORT || '587', 10),

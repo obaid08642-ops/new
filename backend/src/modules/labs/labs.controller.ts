@@ -2,6 +2,8 @@ import { Controller, Get, Post, Patch, Put, Delete, Body, Param, Query, UseGuard
 import { LabsService } from './labs.service';
 import { Public, CurrentUser, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
+import { BookDto, TransitionDto, UploadDocDto, UpdateInsDto, OptInCashDto, AssignTechDto, UploadReportDto, RescheduleDto, UpdateGpsDto, DeclareEmergencyDto, RegisterSampleDto, ForceStateDto, UpdateStageDto} from './labs.dto';
+import { CreateLabCatalogDto, UpdateLabCatalogDto } from './labs.dto';
 
 @Controller('labs')
 export class LabsController {
@@ -38,7 +40,7 @@ export class LabsController {
 
   @SelfService()
   @Post('bookings')
-  book(@Body() body: any, @CurrentUser() user: any) { return this.svc.book(user, body); }
+  book(@Body() body: BookDto, @CurrentUser() user: any) { return this.svc.book(user, body); }
 
   @Get('bookings/mine')
   mine(@CurrentUser() user: any) { return this.svc.mineFor(user); }
@@ -52,25 +54,25 @@ export class LabsController {
 
   @Roles(UserRole.LAB, UserRole.HOSPITAL, UserRole.ADMIN)
   @Patch('bookings/:id/state')
-  transition(@Param('id') id: string, @Body() body: any, @CurrentUser() user: any) {
+  transition(@Param('id') id: string, @Body() body: TransitionDto, @CurrentUser() user: any) {
     return this.svc.transition(id, body.state, user, body.note);
   }
 
   @SelfService()
   @Post('bookings/:id/documents')
-  uploadDoc(@Param('id') id: string, @Body() body: any, @CurrentUser() user: any) {
+  uploadDoc(@Param('id') id: string, @Body() body: UploadDocDto, @CurrentUser() user: any) {
     return this.svc.addDocument(id, user, body);
   }
 
   @Roles(UserRole.LAB, UserRole.HOSPITAL, UserRole.ADMIN)
   @Patch('bookings/:id/insurance')
-  updateIns(@Param('id') id: string, @Body() body: any, @CurrentUser() user: any) {
+  updateIns(@Param('id') id: string, @Body() body: UpdateInsDto, @CurrentUser() user: any) {
     return this.svc.updateInsuranceApproval(id, body, user);
   }
 
   @SelfService()
   @Patch('bookings/:id/items/:serviceId/opt-in-cash')
-  optInCash(@Param('id') id: string, @Param('serviceId') serviceId: string, @Body() body: any, @CurrentUser() user: any) {
+  optInCash(@Param('id') id: string, @Param('serviceId') serviceId: string, @Body() body: OptInCashDto, @CurrentUser() user: any) {
     return this.svc.optInCash(id, serviceId, body, user);
   }
 
@@ -81,26 +83,26 @@ export class LabsController {
 
   @Roles(UserRole.LAB, UserRole.HOSPITAL, UserRole.ADMIN)
   @Post('bookings/:id/assign-technician')
-  assignTech(@Param('id') id: string, @Body() body: any, @CurrentUser() user: any) {
+  assignTech(@Param('id') id: string, @Body() body: AssignTechDto, @CurrentUser() user: any) {
     return this.svc.assignTechnician(id, user, body || {});
   }
 
   @Roles(UserRole.LAB, UserRole.HOSPITAL, UserRole.ADMIN)
   @Post('bookings/:id/upload-report')
-  uploadReport(@Param('id') id: string, @Body() body: any, @CurrentUser() user: any) {
+  uploadReport(@Param('id') id: string, @Body() body: UploadReportDto, @CurrentUser() user: any) {
     return this.svc.uploadReport(id, user, body || {});
   }
 
   // --- Addendum Endpoints ---
   @Roles(UserRole.PATIENT, UserRole.LAB, UserRole.HOSPITAL, UserRole.ADMIN)
   @Patch('bookings/:id/reschedule')
-  reschedule(@Param('id') id: string, @Body() body: any, @CurrentUser() user: any) {
+  reschedule(@Param('id') id: string, @Body() body: RescheduleDto, @CurrentUser() user: any) {
     return this.svc.rescheduleBooking(id, user, body);
   }
 
   @Roles(UserRole.LAB, UserRole.HOSPITAL, UserRole.ADMIN)
   @Post('bookings/:id/gps')
-  updateGps(@Param('id') id: string, @Body() body: any, @CurrentUser() user: any) {
+  updateGps(@Param('id') id: string, @Body() body: UpdateGpsDto, @CurrentUser() user: any) {
     return this.svc.updateGps(id, user, body);
   }
 
@@ -111,7 +113,7 @@ export class LabsController {
 
   @Roles(UserRole.PATIENT, UserRole.LAB, UserRole.HOSPITAL, UserRole.ADMIN)
   @Post('bookings/:id/emergency')
-  declareEmergency(@Param('id') id: string, @Body() body: any, @CurrentUser() user: any) {
+  declareEmergency(@Param('id') id: string, @Body() body: DeclareEmergencyDto, @CurrentUser() user: any) {
     return this.svc.declareEmergency(id, user, body);
   }
 
@@ -138,14 +140,14 @@ export class LabsController {
   @Roles(UserRole.LAB, UserRole.HOSPITAL, UserRole.ADMIN)
   @Post('samples/register')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
-  registerSample(@CurrentUser() u: any, @Body() b: any) {
+  registerSample(@CurrentUser() u: any, @Body() b: RegisterSampleDto) {
     return this.svc.registerSample(u, b);
   }
 
   @Roles(UserRole.LAB, UserRole.HOSPITAL, UserRole.ADMIN)
   @Patch('samples/:id/stage')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
-  updateStage(@CurrentUser() u: any, @Param('id') id: string, @Body() b: { stage: any; notes?: string }) {
+  updateStage(@CurrentUser() u: any, @Param('id') id: string, @Body() b: UpdateStageDto) {
     return this.svc.updateSampleStage(u, id, b.stage, b.notes);
   }
 
@@ -160,7 +162,7 @@ export class LabsController {
   @Post('admin/catalog')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
   @Roles(UserRole.ADMIN)
-  createCatalog(@CurrentUser() u: any, @Body() b: any) {
+  createCatalog(@CurrentUser() u: any, @Body() b: CreateLabCatalogDto) {
     return this.svc.createCatalog(u, b);
   }
 
@@ -168,7 +170,7 @@ export class LabsController {
   @Put('admin/catalog/:id')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
   @Roles(UserRole.ADMIN)
-  updateCatalog(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
+  updateCatalog(@CurrentUser() u: any, @Param('id') id: string, @Body() b: UpdateLabCatalogDto) {
     return this.svc.updateCatalog(u, id, b);
   }
 
@@ -185,7 +187,7 @@ export class LabsController {
   @Patch('admin/bookings/:id/force-state')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
   @Roles(UserRole.ADMIN)
-  forceState(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
+  forceState(@CurrentUser() u: any, @Param('id') id: string, @Body() b: ForceStateDto) {
     return this.svc.adminForceState(u, id, b.state, b.note);
   }
 

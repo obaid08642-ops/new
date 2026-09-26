@@ -142,7 +142,7 @@ export class MentalHealthService {
 
   /* ───── Optional practice logs: activity history, not care or outcome claims ───── */
 
-  async logMeditation(userId: string, data: Partial<MeditationSession>) {
+  async logMeditation(userId: string, data: Omit<Partial<MeditationSession>, 'logged_at'> & { logged_at?: string | Date }) {
     this.requirePatientId(userId);
     if (!data || !Object.values(MeditationType).includes(data.type as MeditationType)) {
       throw new BadRequestException('نوع الممارسة مطلوب وغير صالح / A valid practice type is required');
@@ -177,7 +177,7 @@ export class MentalHealthService {
     return { total_sessions: sessions.length, completed_sessions: completed.length, total_minutes: totalMinutes };
   }
 
-  async logBreathing(userId: string, data: Partial<BreathingSession>) {
+  async logBreathing(userId: string, data: Omit<Partial<BreathingSession>, 'logged_at'> & { logged_at?: string | Date }) {
     this.requirePatientId(userId);
     if (!data || !Object.values(BreathingTechnique).includes(data.technique as BreathingTechnique)) {
       throw new BadRequestException('تقنية التنفس مطلوبة وغير صالحة / A valid breathing technique is required');

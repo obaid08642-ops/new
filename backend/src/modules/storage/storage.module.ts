@@ -8,6 +8,7 @@ import * as crypto from 'crypto';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Logger } from '@nestjs/common';
 import { CurrentUser, Public, JwtAuthGuard, SelfService } from '../../common/auth.guard';
+import { UploadDto, UploadSuggestionImageDto } from './storage.dto';
 
 export enum StorageBackend { BASE64 = 'base64', S3 = 's3', CLOUDINARY = 'cloudinary', SUPABASE = 'supabase' }
 
@@ -136,8 +137,14 @@ export class StorageService {
       const url = payload?.url;
       if (!url) return;
 
-      // Cloudinary asset? → destroy via API (upload + authenticated types)
-      if (url.includes('res.cloudinary.com') && this.cloudinaryConfigured()) {
+      // Cloudinary asset? → destroy via API (upload + authenticated types).
+      // R4-2: exact hostname match — a substring check lets
+      // evil-res.cloudinary.com.attacker.example pass.
+      let isCloudinary = false;
+      try {
+        isCloudinary = new URL(url).hostname.toLowerCase() === 'res.cloudinary.com';
+      } catch { isCloudinary = false; }
+      if (isCloudinary && this.cloudinaryConfigured()) {
         const obj = await this.model.findOne({ external_url: url });
         if (obj?.external_key) {
           const cloudinary = require('cloudinary').v2;
@@ -349,7 +356,7 @@ export class StorageService {
 export class StorageController {
   constructor(private readonly svc: StorageService) {}
   @Post('upload')
-  async upload(@Body() body: any, @CurrentUser() user: any) {
+  async upload(@Body() body: UploadDto, @CurrentUser() user: any) {
     if (!user?.id) throw new ForbiddenException('authenticated_upload_required');
     // Storage backend, object key, and visibility are server policy. The client
     // cannot route clinical/KYC data to Cloudinary or select a public endpoint.
@@ -384,7 +391,7 @@ export class StorageController {
    */
   @Public()
   @Post('upload-suggestion-image')
-  async uploadSuggestionImage(@Body() body: any, @CurrentUser() user: any) {
+  async uploadSuggestionImage(@Body() body: UploadSuggestionImageDto, @CurrentUser() user: any) {
     const IMAGE_MIME = new Set(['image/jpeg', 'image/png', 'image/webp']);
     if (!IMAGE_MIME.has(body?.mime)) throw new BadRequestException('image mime only (jpeg/png/webp)');
     const approxBytes = Math.floor((body?.data_base64?.length || 0) * 0.75);

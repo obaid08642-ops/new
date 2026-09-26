@@ -8,6 +8,7 @@ import { JwtAuthGuard, Roles, CurrentUser } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { User, UserDocument } from '../../schemas/user.schema';
 import { ProviderDelta } from '../providers/schemas/provider-delta.schema';
+import { CreateSubAdminDto, UpdateSubAdminDto, CreateProviderDto, CleanupOrphansDto, RejectDeltaDto } from './admin.dto';
 
 /** Provider roles an admin may create accounts for (never staff/admin roles). */
 const PROVIDER_CREATABLE_ROLES = [
@@ -138,6 +139,7 @@ export class AdminController {
    */
   @Get('users/:userId/overview')
   async userOverview(@Param('userId') userId: string, @Query('days') daysQ?: string): Promise<any> {
+    // Users are addressed by uuid `id`; fall back to legacy Mongo `_id` (never throws).
     const user: any = await this.userModel.findOne({ id: userId }, { password_hash: 0, otp_codes: 0 }).lean()
       || await this.userModel.findById(userId, { password_hash: 0, otp_codes: 0 }).catch(() => null);
     if (!user) throw new BadRequestException('user_not_found');
@@ -342,7 +344,7 @@ export class AdminController {
   }
 
   @Post('sub-admins')
-  async createSubAdmin(@CurrentUser() by: any, @Body() body: any) {
+  async createSubAdmin(@CurrentUser() by: any, @Body() body: CreateSubAdminDto) {
     this.assertOwner(by, await this.resolveUser(by));
     const email = (body?.email || '').trim().toLowerCase();
     const name = (body?.full_name || '').trim();
@@ -371,7 +373,7 @@ export class AdminController {
   }
 
   @Patch('sub-admins/:userId')
-  async updateSubAdmin(@CurrentUser() by: any, @Param('userId') userId: string, @Body() body: any) {
+  async updateSubAdmin(@CurrentUser() by: any, @Param('userId') userId: string, @Body() body: UpdateSubAdminDto) {
     this.assertOwner(by, await this.resolveUser(by));
     const target = await this.userModel.findOne({ id: userId });
     if (!target) throw new BadRequestException('user_not_found');
@@ -417,7 +419,7 @@ export class AdminController {
    * (verified=true via /admin/approve/:userId or the moderation page).
    */
   @Post('providers/create')
-  async createProvider(@CurrentUser() by: any, @Body() body: any) {
+  async createProvider(@CurrentUser() by: any, @Body() body: CreateProviderDto) {
     const role = body?.role as UserRole;
     if (!PROVIDER_CREATABLE_ROLES.includes(role)) throw new BadRequestException('invalid_provider_role');
     const name = (body?.full_name || '').trim();
@@ -453,6 +455,7 @@ export class AdminController {
   /** Ban/deactivate a user account (blocks login via active=false). */
   @Post('users/:userId/ban')
   async banUser(@Param('userId') userId: string, @CurrentUser() by?: any) {
+    // Users are addressed by uuid `id`; fall back to legacy Mongo `_id` (never throws).
     const user = await this.userModel.findOne({ id: userId }).exec()
       || await this.userModel.findById(userId).catch(() => null);
     if (!user) throw new BadRequestException('user_not_found');
@@ -475,6 +478,7 @@ export class AdminController {
   /** Lift a ban / reactivate an account. */
   @Post('users/:userId/unban')
   async unbanUser(@Param('userId') userId: string, @CurrentUser() by?: any) {
+    // Users are addressed by uuid `id`; fall back to legacy Mongo `_id` (never throws).
     const user = await this.userModel.findOne({ id: userId }).exec()
       || await this.userModel.findById(userId).catch(() => null);
     if (!user) throw new BadRequestException('user_not_found');
@@ -506,6 +510,7 @@ export class AdminController {
    */
   @Delete('users/:userId')
   async deleteUser(@Param('userId') userId: string, @CurrentUser() by?: any) {
+    // Users are addressed by uuid `id`; fall back to legacy Mongo `_id` (never throws).
     const user = await this.userModel.findOne({ id: userId }).exec()
       || await this.userModel.findById(userId).catch(() => null);
     if (!user) throw new BadRequestException('user_not_found');
@@ -562,7 +567,7 @@ export class AdminController {
    * suspended owners still publicly visible. Dry-run by default.
    */
   @Post('users/cleanup-orphans')
-  async cleanupOrphans(@Body() body: any) {
+  async cleanupOrphans(@Body() body: CleanupOrphansDto) {
     const dryRun = body?.dry_run !== false;
     const db = this.userModel.db;
     const profiles: any[] = await db.collection('provider_profiles').find({}, { projection: { user_id: 1, status: 1, public_eligibility: 1 } }).toArray().catch(() => []);
@@ -588,7 +593,9 @@ export class AdminController {
    */
   @Post('approve/:userId')
   async approveProvider(@Param('userId') userId: string, @CurrentUser() by?: any) {
-    const user = await this.userModel.findById(userId);
+    // Users are addressed by uuid `id`; fall back to legacy Mongo `_id` (never throws).
+    const user = await this.userModel.findOne({ id: userId }).exec()
+      || await this.userModel.findById(userId).catch(() => null);
     if (!user) throw new BadRequestException('user_not_found');
     if (![UserRole.DOCTOR, UserRole.PHARMACY].includes(user.role)) {
       throw new BadRequestException('user_not_a_provider');
@@ -602,7 +609,9 @@ export class AdminController {
 
   @Post('suspend/:userId')
   async suspendProvider(@Param('userId') userId: string, @CurrentUser() by?: any) {
-    const user = await this.userModel.findById(userId);
+    // Users are addressed by uuid `id`; fall back to legacy Mongo `_id` (never throws).
+    const user = await this.userModel.findOne({ id: userId }).exec()
+      || await this.userModel.findById(userId).catch(() => null);
     if (!user) throw new BadRequestException('user_not_found');
     
     user.suspended = true;
@@ -647,7 +656,7 @@ export class AdminController {
   }
 
   @Post('provider-deltas/:deltaId/reject')
-  async rejectDelta(@Param('deltaId') deltaId: string, @Body() body?: any) {
+  async rejectDelta(@Param('deltaId') deltaId: string, @Body() body: RejectDeltaDto) {
     const delta = (await this.deltaModel.findById(deltaId).catch(() => null))
       || (await this.deltaModel.findOne({ id: deltaId }).exec());
     if (!delta) throw new BadRequestException('delta_not_found');

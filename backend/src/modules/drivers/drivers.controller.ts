@@ -2,6 +2,7 @@ import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { DriversService } from './drivers.service';
 import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
+import { OnlineDto, LocationDto, DeliverDto } from './drivers.dto';
 
 @Controller('drivers')
 @Roles(UserRole.DELIVERY, UserRole.ADMIN)
@@ -11,7 +12,7 @@ export class DriversController {
 
   @Post('online')
   @Roles(UserRole.DELIVERY)
-  online(@CurrentUser() driver: any, @Body() body: { location?: { lat: number; lng: number } }) {
+  online(@CurrentUser() driver: any, @Body() body: OnlineDto) {
     return this.svc.goOnline(driver, body?.location);
   }
 
@@ -29,7 +30,7 @@ export class DriversController {
 
   @Post('location')
   @Roles(UserRole.DELIVERY)
-  location(@CurrentUser() driver: any, @Body() body: { lat: number; lng: number; heading?: number; speed?: number }) {
+  location(@CurrentUser() driver: any, @Body() body: LocationDto) {
     return this.svc.updateLocation(driver, body);
   }
 
@@ -70,7 +71,7 @@ export class DriversController {
 
   @Post('orders/:id/deliver')
   @Roles(UserRole.DELIVERY)
-  deliver(@CurrentUser() driver: any, @Param('id') id: string, @Body() body: { signature?: string; photo?: string }) {
+  deliver(@CurrentUser() driver: any, @Param('id') id: string, @Body() body: DeliverDto) {
     return this.svc.deliverOrder(driver, id, body);
   }
 

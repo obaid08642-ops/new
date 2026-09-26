@@ -76,45 +76,80 @@ export class ContractPdfService {
     }
   }
 
+  private async readBoundedResponse(response: Response): Promise<Buffer | null> {
+    if (!response.ok || !response.body) return null;
+    const contentLength = Number(response.headers.get('content-length') || 0);
+    if (contentLength > 1_000_000) return null;
+    const reader = response.body.getReader();
+    const chunks: Uint8Array[] = [];
+    let size = 0;
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      size += value.byteLength;
+      if (size > 1_000_000) {
+        await reader.cancel();
+        return null;
+      }
+      chunks.push(value);
+    }
+    return Buffer.concat(chunks.map((chunk) => Buffer.from(chunk)), size);
+  }
+
   private async loadSignature(url?: string): Promise<Buffer | null> {
     if (!url) return null;
     try {
       if (url.startsWith('data:')) {
+        if (url.length > 1_400_000 || !/^data:image\/(png|jpeg|webp);base64,/i.test(url)) return null;
         const base64 = url.slice(url.indexOf(',') + 1);
-        return Buffer.from(base64, 'base64');
+        const decoded = Buffer.from(base64, 'base64');
+        return decoded.length <= 1_000_000 ? decoded : null;
       }
       // Storage object ID (the app uploads the drawn signature to /storage and
-      // sends back the object id) → resolve to bytes or a fetchable URL.
-      if (!/^https?:\/\//.test(url)) {
-        const obj: any = await this.conn.collection('storage_objects').findOne({ id: url, deleted: { $ne: true } } as any);
-        if (!obj) return null;
-        if (obj.data_base64) return Buffer.from(obj.data_base64, 'base64');
-        if (obj.backend === 'cloudinary' && obj.external_key) {
-          // Private Cloudinary assets need a signed delivery URL
-          const cloudinary = require('cloudinary').v2;
-          cloudinary.config({
-            cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-            api_key: process.env.CLOUDINARY_API_KEY,
-            api_secret: process.env.CLOUDINARY_API_SECRET,
-            secure: true,
-          });
-          const signed = obj.visibility === 'public_read'
-            ? obj.external_url
-            : cloudinary.url(obj.external_key, { sign_url: true, secure: true, type: 'authenticated' });
-          const res = await fetch(signed);
-          if (!res.ok) return null;
-          return Buffer.from(await res.arrayBuffer());
-        }
-        if (obj.external_url) {
-          const res = await fetch(obj.external_url);
-          if (!res.ok) return null;
-          return Buffer.from(await res.arrayBuffer());
-        }
-        return null;
+      // sends back its id). Arbitrary http(s) URLs are never fetched here.
+      if (/^https?:\/\//i.test(url) || url.length > 256) return null;
+      const obj: any = await this.conn.collection('storage_objects').findOne({ id: { $eq: url }, deleted: { $ne: true } });
+      if (!obj) return null;
+      if (typeof obj.data_base64 === 'string' && obj.data_base64.length <= 1_400_000) {
+        const decoded = Buffer.from(obj.data_base64, 'base64');
+        if (decoded.length <= 1_000_000) return decoded;
       }
-      const res = await fetch(url);
-      if (!res.ok) return null;
-      return Buffer.from(await res.arrayBuffer());
+      if (obj.backend === 's3' && obj.external_key && process.env.S3_BUCKET && process.env.S3_ENDPOINT) {
+        const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
+        const client = new S3Client({
+          region: process.env.S3_REGION || 'auto',
+          endpoint: process.env.S3_ENDPOINT,
+          credentials: {
+            accessKeyId: process.env.S3_ACCESS_KEY_ID as string,
+            secretAccessKey: process.env.S3_SECRET_ACCESS_KEY as string,
+          },
+          forcePathStyle: true,
+        });
+        const result = await client.send(new GetObjectCommand({ Bucket: process.env.S3_BUCKET, Key: obj.external_key }));
+        if (Number(result.ContentLength) > 1_000_000) return null;
+        const bytes = await result.Body?.transformToByteArray();
+        return bytes && bytes.length <= 1_000_000 ? Buffer.from(bytes) : null;
+      }
+      if (obj.backend === 'cloudinary' && typeof obj.external_key === 'string' && /^[A-Za-z0-9/_-]{1,240}$/.test(obj.external_key)) {
+        const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+        if (!cloudName || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) return null;
+        const cloudinary = require('cloudinary').v2;
+        cloudinary.config({
+          cloud_name: cloudName,
+          api_key: process.env.CLOUDINARY_API_KEY,
+          api_secret: process.env.CLOUDINARY_API_SECRET,
+          secure: true,
+        });
+        const signed = cloudinary.url(obj.external_key, {
+          sign_url: obj.visibility !== 'public_read',
+          secure: true,
+          ...(obj.visibility === 'public_read' ? {} : { type: 'authenticated' }),
+        });
+        const parsed = new URL(signed);
+        if (parsed.protocol !== 'https:' || parsed.hostname !== 'res.cloudinary.com') return null;
+        const res = await fetch(parsed, { redirect: 'error', signal: AbortSignal.timeout(5000) });
+        return this.readBoundedResponse(res);
+      }
     } catch (e: any) {
       this.logger.warn(`signature fetch failed: ${e.message}`);
     }

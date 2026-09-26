@@ -40,7 +40,7 @@ describe('legacy pharmacy mutation containment', () => {
     const controller = new ProviderPharmacyAliasController({} as any, {} as any);
     await expectCanonicalReject(() => controller.accept());
     await expectCanonicalReject(() => controller.submitBasket());
-    await expectCanonicalReject(() => controller.insurance(undefined as any, undefined as any, undefined as any));
+    await expectCanonicalReject(() => controller.insurance(undefined as any, undefined as any));
     await expectCanonicalReject(() => controller.dispatch());
   });
 });

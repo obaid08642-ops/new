@@ -1,7 +1,9 @@
 import { Module, Controller, Post, Get, Body, Query, Param, UseGuards, Injectable, BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { isEmail } from 'class-validator';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JwtAuthGuard, Roles, CurrentUser, Public, SelfService } from '../../common/auth.guard';
+import { Step2Dto, Step3Dto } from './provider-onboarding.dto';
 import { UserRole, ProviderType, ProviderStatus } from '../../common/enums';
 import { ProviderProfile, ProviderProfileDocument, ProviderProfileSchema } from '../../schemas/provider-profile.schema';
 import { User, UserDocument, UserSchema } from '../../schemas/user.schema';
@@ -10,6 +12,7 @@ import { ContractPdfService } from './contract-pdf.service';
 import * as bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import { escapeRegex } from '../../common/slug.util';
+import { StartDto, SubmitDto, AdminContractVisibilityDto } from './provider-onboarding.dto';
 
 /**
  * Unified Provider Onboarding Wizard.
@@ -48,8 +51,9 @@ export class ProviderOnboardingService {
     if (!body.type || !Object.values(ProviderType).includes(body.type)) throw new BadRequestException('invalid_type');
     if (!body.phone) throw new BadRequestException('phone_required');
     if (!String(body.full_name || '').trim()) throw new BadRequestException('full_name_required');
-    if (!/^\S+@\S+\.\S+$/.test(String(body.email || '').trim())) throw new BadRequestException('verified_contact_email_required');
-    let user = await this.userModel.findOne({ phone: body.phone });
+    const email = String(body.email || '').trim();
+    if (email.length > 254 || !isEmail(email)) throw new BadRequestException('verified_contact_email_required');
+    let user = await this.userModel.findOne({ phone: { $eq: body.phone } });
     if (!user) {
       if (!body.password) throw new BadRequestException('password_required_for_new_user');
       const hash = await bcrypt.hash(body.password, 12);
@@ -68,7 +72,7 @@ export class ProviderOnboardingService {
         throw err;
       }
     }
-    let profile = await this.providerModel.findOne({ user_id: user.id });
+    let profile = await this.providerModel.findOne({ user_id: { $eq: user.id } });
     if (!profile) {
       profile = await this.providerModel.create({
         user_id: user.id, account_id: user.id, type: body.type, status: ProviderStatus.PENDING,
@@ -356,16 +360,14 @@ export class ProviderOnboardingService {
     if (!existing) {
       // P2.1 single provider identity: the business record shares the login
       // identity id (provider_accounts.id = users.id) and ALWAYS stores
-      // user_id, so findOne({user_id}) can never miss. The real password hash
-      // is mirrored too — otherwise post-approval /provider/auth/login could
-      // never verify credentials.
+      // user_id, so findOne({user_id}) can never miss. P3.0b: no password is
+      // copied — /provider/auth/login verifies against users.password_hash.
       const accountId = user.id;
       await accounts.insertOne({
         id: accountId,
         user_id: user.id,
         email,
         phone_e164: fullUser?.phone,
-        password_hash: fullUser?.password_hash || 'onboarding',
         provider_type: ptype,
         display_name_ar: displayNameAr,
         display_name_en: displayNameEn,
@@ -385,9 +387,8 @@ export class ProviderOnboardingService {
       if (current !== 'approved' && current !== 'suspended') {
         await accounts.updateOne({ id: existing.id }, {
           $set: {
-            // Backfill the 1:1 link + credential for pre-P2.1 mirrored rows.
+            // Backfill the 1:1 link for pre-P2.1 mirrored rows (credential stays on users, P3.0b).
             user_id: user.id,
-            password_hash: fullUser?.password_hash || existing.password_hash || 'onboarding',
             provider_type: ptype,
             display_name_ar: displayNameAr || existing.display_name_ar,
             display_name_en: displayNameEn || existing.display_name_en,
@@ -462,22 +463,22 @@ export class ProviderOnboardingController {
   constructor(private svc: ProviderOnboardingService) {}
 
   @Public() @Post('start')
-  start(@Body() b: any) { return this.svc.start(b); }
+  start(@Body() b: StartDto) { return this.svc.start(b); }
 
   @UseGuards(JwtAuthGuard) @Get('my-profile')
   myProfile(@CurrentUser() u: any) { return this.svc.getMyProfile(u); }
 
   @UseGuards(JwtAuthGuard) @Post('step2')
   @SelfService()
-  step2(@CurrentUser() u: any, @Body() b: any) { return this.svc.step2(u, b); }
+  step2(@CurrentUser() u: any, @Body() b: Step2Dto) { return this.svc.step2(u, b); }
 
   @UseGuards(JwtAuthGuard) @Post('step3')
   @SelfService()
-  step3(@CurrentUser() u: any, @Body() b: any) { return this.svc.step3(u, b); }
+  step3(@CurrentUser() u: any, @Body() b: Step3Dto) { return this.svc.step3(u, b); }
 
   @UseGuards(JwtAuthGuard) @Post('submit')
   @SelfService()
-  submit(@CurrentUser() u: any, @Body() b: any) { return this.svc.submit(u, b); }
+  submit(@CurrentUser() u: any, @Body() b: SubmitDto) { return this.svc.submit(u, b); }
 
   @UseGuards(JwtAuthGuard) @Get('progress')
   progress(@CurrentUser() u: any) { return this.svc.getProgress(u); }
@@ -500,7 +501,7 @@ export class ProviderOnboardingController {
   /** Admin: grant/revoke the provider's ability to view their signed contract. */
   @UseGuards(JwtAuthGuard) @Post('admin/contracts/:id/visibility')
   @Roles(UserRole.ADMIN)
-  async adminContractVisibility(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
+  async adminContractVisibility(@CurrentUser() u: any, @Param('id') id: string, @Body() b: AdminContractVisibilityDto) {
     if (u.role !== 'admin' && u.role !== 'super_admin') throw new ForbiddenException('admin only');
     return this.svc.setContractVisibility(id, !!b?.visible);
   }

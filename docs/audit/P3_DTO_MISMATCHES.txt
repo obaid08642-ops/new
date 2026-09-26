@@ -1,0 +1,288 @@
+✗ PATCH /medicines/admin/catalog/:id [AdminUpdateCatalogDto @ modules/medicines/medicines.controller.ts:233] ← admin/src/pages/admin/catalog-governance.tsx:78
+    rejected (not in DTO): price
+✗ PUT /admin/governance/trigger-emergency-maintenance [TriggerEmergencyMaintenanceDto @ modules/admin-web-core/controllers/admin-governance.controller.ts:26] ← admin/src/pages/admin/config-portal.tsx:75
+    rejected (not in DTO): reason
+? POST /admin/cms/articles [UpsertDto] ← admin/src/pages/admin/content-growth.tsx:14 body not statically resolvable (spread): verify by hand
+✗ POST /admin/cms/:id/publish [PublishDto @ modules/admin-enterprise/admin-cms.controller.ts:88] ← admin/src/pages/admin/content-growth.tsx:14
+    rejected (not in DTO): reason
+✗ POST /admin/coupons [CreateDto @ modules/admin-enterprise/admin-coupons.controller.ts:95] ← admin/src/pages/admin/content-growth.tsx:15
+    required but not sent: segments
+✗ PATCH /admin/coupons/:id [UpdateDto @ modules/admin-enterprise/admin-coupons.controller.ts:131] ← admin/src/pages/admin/content-growth.tsx:16
+    required but not sent: segments
+✗ POST /admin/notification-center/campaigns [CreateCampaignDto @ modules/admin-notification-center/admin-notification-center.module.ts:410] ← admin/src/pages/admin/content-growth.tsx:17
+    rejected (not in DTO): title, body, segment, scheduled_at, audience_confirmed, variants
+✗ POST /admin/disputes/:id/resolve [ResolveDto @ modules/admin-enterprise/admin-disputes.controller.ts:112] ← admin/src/pages/admin/disputes.tsx:37
+    rejected (not in DTO): reason
+✗ POST /insurance/companies [CreateCompanyDto @ modules/insurance/insurance.module.ts:408] ← admin/src/pages/admin/insurance-companies.tsx:80
+    rejected (not in DTO): name_ar, name_en
+✗ PATCH /insurance/companies/:id [UpdateCompanyDto @ modules/insurance/insurance.module.ts:416] ← admin/src/pages/admin/insurance-companies.tsx:98
+    rejected (not in DTO): name_ar, name_en
+✗ POST /admin/finance/refunds/:id/decide [DecideRefundDto @ modules/insurance-engine/insurance-engine.module.ts:714] ← admin/src/pages/admin/insurance-queue.tsx:55
+    required but not sent: reason
+? POST /medicines/admin/catalog [AdminCreateDto] ← admin/src/pages/admin/medicines-catalog.tsx:158 body not statically resolvable (spread): verify by hand
+--
+✗ POST /admin/notification-center/campaigns [CreateCampaignDto @ modules/admin-notification-center/admin-notification-center.module.ts:410] ← admin/src/pages/admin/notification-center.tsx:68
+    rejected (not in DTO): title, body, segment
+✗ POST /admin/notification-center/broadcasts [BroadcastDto @ modules/admin-notification-center/admin-notification-center.module.ts:406] ← admin/src/pages/admin/notification-center.tsx:71
+    rejected (not in DTO): body, segment
+✗ POST /admin/nursing/requests/:id/assign [AssignDto @ modules/compat/admin-spa.module.ts:1313] ← admin/src/pages/admin/nursing-portal.tsx:29
+    rejected (not in DTO): nurseId
+? POST /admin/orders/:kind/:id/cancel [CancelDto] ← admin/src/pages/admin/orders/[kind]/[id].tsx:50 body not statically resolvable (var:body): verify by hand
+--
+✗ POST /admin/providers/:id/approve [ApproveDto @ modules/provider/provider.controllers.ts:144] ← admin/src/pages/admin/provider-moderation.tsx:117
+    rejected (not in DTO): reason
+✗ POST /admin/rbac/roles [CreateRoleDto @ modules/admin-enterprise/admin-security.controller.ts:125] ← admin/src/pages/admin/rbac.tsx:37
+    rejected (not in DTO): reason
+? POST /admin/scheduled-reports [CreateDto] ← admin/src/pages/admin/scheduled-reports.tsx:13 body not statically resolvable (spread): verify by hand
+✗ PATCH /admin/scheduled-reports/:id [UpdateDto @ modules/admin-enterprise/admin-analytics.controller.ts:153] ← admin/src/pages/admin/scheduled-reports.tsx:14
+    required but not sent: recipients
+✗ DELETE /admin/segments/:id [RemoveDto @ modules/admin-enterprise/admin-segments.controller.ts:95] ← admin/src/pages/admin/segments.tsx:18
+    rejected (not in DTO): reason
+✗ POST /admin/ops/queues/:name/retry-failed [RetryFailedDto @ modules/admin-enterprise/admin-ops.controller.ts:81] ← admin/src/pages/admin/system-ops.tsx:14
+    rejected (not in DTO): reason
+✗ POST /admin/ops/queues/:name/jobs/:jobId/retry [RetryJobDto @ modules/admin-enterprise/admin-ops.controller.ts:67] ← admin/src/pages/admin/system-ops.tsx:15
+    rejected (not in DTO): reason
+✗ POST /admin/ops/translations [UpsertTranslationDto @ modules/admin-enterprise/admin-ops.controller.ts:120] ← admin/src/pages/admin/system-ops.tsx:16
+    rejected (not in DTO): reason
+✗ POST /admin/ops/seo/controls [SetSeoControlDto @ modules/admin-enterprise/admin-ops.controller.ts:153] ← admin/src/pages/admin/system-ops.tsx:17
+    rejected (not in DTO): reason
+? POST /auth/login [AuthLoginDto] ← admin/src/pages/api/admin/auth/login.ts:28 body not statically resolvable (spread): verify by hand
+--
+✗ POST /provider/auth/send-otp [SendOtpDto @ modules/provider/provider.controllers.ts:38] ← provider-app/src/screens/auth/PendingDashboard.tsx:35
+    required but not sent: purpose
+? POST /provider/jobs/:type/:id/accept [AcceptDto] ← provider-app/src/screens/doctor/DoctorDashboard.tsx:298 body not statically resolvable (none): verify by hand
+--
+✗ POST /provider/jobs/:type/:id/insurance [InsuranceDto @ modules/provider-jobs/provider-jobs.module.ts:269] ← provider-app/src/screens/doctor/DoctorDashboard.tsx:321
+    rejected (not in DTO): status, copay, coverage, approval_code
+? PATCH /care/appointments/:id/cancel [CancelAppointmentDto] ← provider-app/src/screens/doctor/DoctorDashboard.tsx:642 body not statically resolvable (body || {}): verify by hand
+--
+✗ POST /prescriptions/create [CreateDto @ modules/prescriptions/prescriptions.controller.ts:13] ← provider-app/src/screens/doctor/DoctorDashboard.tsx:887
+    rejected (not in DTO): erx, labs, radiology
+    required but not sent: items
+✗ POST /provider/referrals [CreateReferralDto @ modules/provider-production/provider-production.module.ts:694] ← provider-app/src/screens/doctor/DoctorDashboard.tsx:1324
+    rejected (not in DTO): patient_name
+    required but not sent: requested_tests
+--
+✗ POST /provider/jobs/:type/:id/insurance [InsuranceDto @ modules/provider-jobs/provider-jobs.module.ts:269] ← provider-app/src/screens/doctor/DoctorDashboard.tsx:2173
+    rejected (not in DTO): policyNumber, memberId, diagnosisCode, insuranceCompany, planCategory, coveragePercentage, coveredAmount, copayAmount, patientShare, insuranceShare
+✗ POST /provider/capabilities/doctor-sessions [UpsertDocDto @ modules/provider/provider.controllers.ts:487] ← provider-app/src/screens/doctor/DoctorDashboard.tsx:2654
+    rejected (not in DTO): price, duration_minutes, available
+✗ POST /provider/capabilities/doctor-sessions [UpsertDocDto @ modules/provider/provider.controllers.ts:487] ← provider-app/src/screens/doctor/DoctorDashboard.tsx:2666
+    rejected (not in DTO): price, duration_minutes, available, insurance_covered
+✗ POST /provider/capabilities/doctor-sessions [UpsertDocDto @ modules/provider/provider.controllers.ts:487] ← provider-app/src/screens/doctor/DoctorDashboard.tsx:2701
+    rejected (not in DTO): price, duration_minutes, available
+✗ POST /provider/capabilities/doctor-sessions [UpsertDocDto @ modules/provider/provider.controllers.ts:487] ← provider-app/src/screens/doctor/DoctorDashboard.tsx:2741
+    rejected (not in DTO): price, duration_minutes, available
+✗ POST /provider/kyc/documents [UploadDocDto @ modules/provider/provider.controllers.ts:79] ← provider-app/src/screens/doctor/DoctorDashboard.tsx:3744
+    required but not sent: issued_date, expiry_date
+✗ POST /provider/chat/send [ProviderSendDto @ modules/home-care-compat/home-care-compat.module.ts:324] ← provider-app/src/screens/doctor/DoctorDashboard.tsx:3803
+    rejected (not in DTO): appointment_id, message
+✗ POST /hospital/staff [AddStaffDto @ modules/hospital/controllers/hospital.controller.ts:33] ← provider-app/src/screens/facility/FacilityDashboard.tsx:782
+    rejected (not in DTO): full_name, name_ar, name_en, legal_name, phone, email, password, staff_role, department, scfhs, permissions
+✗ POST /hospital/staff [CreateDto @ modules/hospital-staff/hospital-staff.module.ts:120] ← provider-app/src/screens/facility/FacilityDashboard.tsx:782
+    rejected (not in DTO): name_ar, name_en, legal_name, scfhs
+✗ POST /home-care/bookings/:id/assign [AssignDto @ modules/home-care-compat/home-care-compat.module.ts:164] ← provider-app/src/screens/facility/FacilityDashboard.tsx:2412
+    rejected (not in DTO): nurse_id, nurse_name, nurse_phone
+? POST /provider/jobs/:type/:id/accept [AcceptDto] ← provider-app/src/screens/facility/FacilityDashboard.tsx:2507 body not statically resolvable (none): verify by hand
+--
+✗ PATCH /care/appointments/:id/reschedule [RescheduleAppointmentDto @ modules/care/appointments.controller.ts:40] ← provider-app/src/screens/facility/FacilityUnifiedCalendarScreen.tsx:27
+    required but not sent: slot_start
+✗ POST /labs/bookings/collect-sample/:id [CollectSampleDto @ modules/labs/controllers/labs-engine.controller.ts:46] ← provider-app/src/screens/lab/LabDashboard.tsx:389
+    rejected (not in DTO): decision, decision_reference
+✗ POST /labs/bookings/finalize-test/:id [FinalizeTestDto @ modules/labs/controllers/labs-engine.controller.ts:74] ← provider-app/src/screens/lab/LabDashboard.tsx:389
+    rejected (not in DTO): decision, decision_reference
+✗ POST /labs/bookings/:id/coverage-decision [LabCoverageDto @ modules/provider-production/provider-production.module.ts:673] ← provider-app/src/screens/lab/LabDashboard.tsx:389
+    rejected (not in DTO): decision, decision_reference
+✗ POST /labs/bookings/collect-sample/:id [CollectSampleDto @ modules/labs/controllers/labs-engine.controller.ts:46] ← provider-app/src/screens/lab/LabDashboard.tsx:418
+    rejected (not in DTO): technician_id
+    required but not sent: barcodeToken
+✗ POST /labs/bookings/finalize-test/:id [FinalizeTestDto @ modules/labs/controllers/labs-engine.controller.ts:74] ← provider-app/src/screens/lab/LabDashboard.tsx:418
+    rejected (not in DTO): technician_id
+    required but not sent: metricResults, pdfUrl
+--
+✗ PATCH /labs/samples/:id/stage [UpdateStageDto @ modules/labs/labs.controller.ts:147] ← provider-app/src/screens/lab/LabDashboard.tsx:642
+    rejected (not in DTO): stage
+✗ POST /labs/bookings/collect-sample/:id [CollectSampleDto @ modules/labs/controllers/labs-engine.controller.ts:46] ← provider-app/src/screens/lab/LabDashboard.tsx:744
+    rejected (not in DTO): structuredData, send_to
+    required but not sent: barcodeToken
+✗ POST /labs/bookings/finalize-test/:id [FinalizeTestDto @ modules/labs/controllers/labs-engine.controller.ts:74] ← provider-app/src/screens/lab/LabDashboard.tsx:744
+    rejected (not in DTO): structuredData, send_to
+    required but not sent: metricResults, pdfUrl
+✗ POST /labs/bookings/:id/upload-report [UploadReportDto @ modules/labs/labs.controller.ts:90] ← provider-app/src/screens/lab/LabDashboard.tsx:744
+    rejected (not in DTO): send_to
+✗ PATCH /labs/samples/:id/stage [UpdateStageDto @ modules/labs/labs.controller.ts:147] ← provider-app/src/screens/lab/LabDashboard.tsx:745
+    rejected (not in DTO): stage
+✗ POST /approval-workflow/requests [CreateDto @ modules/approval-workflow/approval-workflow.module.ts:176] ← provider-app/src/screens/lab/LabDashboard.tsx:880
+    rejected (not in DTO): entity_type, change_data
+✗ POST /labs/bookings/collect-sample/:id [CollectSampleDto @ modules/labs/controllers/labs-engine.controller.ts:46] ← provider-app/src/screens/lab/LabDashboard.tsx:916
+    rejected (not in DTO): eta, distance
+    required but not sent: barcodeToken
+✗ POST /labs/bookings/finalize-test/:id [FinalizeTestDto @ modules/labs/controllers/labs-engine.controller.ts:74] ← provider-app/src/screens/lab/LabDashboard.tsx:916
+    rejected (not in DTO): eta, distance
+    required but not sent: metricResults, pdfUrl
+✗ POST /labs/bookings/collect-sample/:id [CollectSampleDto @ modules/labs/controllers/labs-engine.controller.ts:46] ← provider-app/src/screens/lab/LabDashboard.tsx:973
+    rejected (not in DTO): reason
+    required but not sent: barcodeToken
+✗ POST /labs/bookings/finalize-test/:id [FinalizeTestDto @ modules/labs/controllers/labs-engine.controller.ts:74] ← provider-app/src/screens/lab/LabDashboard.tsx:973
+    rejected (not in DTO): reason
+    required but not sent: metricResults, pdfUrl
+✗ POST /labs/bookings/collect-sample/:id [CollectSampleDto @ modules/labs/controllers/labs-engine.controller.ts:46] ← provider-app/src/screens/lab/LabDashboard.tsx:978
+    rejected (not in DTO): reason
+    required but not sent: barcodeToken
+✗ POST /labs/bookings/finalize-test/:id [FinalizeTestDto @ modules/labs/controllers/labs-engine.controller.ts:74] ← provider-app/src/screens/lab/LabDashboard.tsx:978
+    rejected (not in DTO): reason
+    required but not sent: metricResults, pdfUrl
+--
+✗ POST /labs/bookings/collect-sample/:id [CollectSampleDto @ modules/labs/controllers/labs-engine.controller.ts:46] ← provider-app/src/screens/lab/LabDashboard.tsx:1011
+    rejected (not in DTO): technician_id
+    required but not sent: barcodeToken
+✗ POST /labs/bookings/finalize-test/:id [FinalizeTestDto @ modules/labs/controllers/labs-engine.controller.ts:74] ← provider-app/src/screens/lab/LabDashboard.tsx:1011
+    rejected (not in DTO): technician_id
+    required but not sent: metricResults, pdfUrl
+✗ POST /approval-workflow/requests [CreateDto @ modules/approval-workflow/approval-workflow.module.ts:176] ← provider-app/src/screens/lab/LabDashboard.tsx:1394
+    rejected (not in DTO): entity_type, change_data
+✗ POST /approval-workflow/requests [CreateDto @ modules/approval-workflow/approval-workflow.module.ts:176] ← provider-app/src/screens/lab/LabDashboard.tsx:1416
+    rejected (not in DTO): entity_type, change_data
+? POST /provider/ops/lab/bookings/:id/qc/:action [QcDto] ← provider-app/src/screens/lab/LabQcActions.tsx:27 body not statically resolvable (var:body): verify by hand
+✗ POST /home-care/provider/availability [SetAvailabilityDto @ modules/home-care-compat/home-care-compat.module.ts:227] ← provider-app/src/screens/nursing/NursingDashboard.tsx:231
+    rejected (not in DTO): available
+? POST /home-care/bookings/:id/gps [GpsDto] ← provider-app/src/screens/nursing/NursingDashboard.tsx:601 body not statically resolvable (var:p): verify by hand
+--
+✗ POST /nursing/notes [AddNoteToActiveDto @ modules/compat/compat.module.ts:604] ← provider-app/src/screens/nursing/NursingDashboard.tsx:829
+    rejected (not in DTO): patient_id, booking_id
+✗ POST /home-care/bookings/:id/visit-report [VisitReportDto @ modules/home-care-compat/home-care-compat.module.ts:186] ← provider-app/src/screens/nursing/NursingDashboard.tsx:891
+    rejected (not in DTO): completed_tasks, vitals_logged, notes, signature
+✗ POST /nursing/coverage/verify-gps [VerifyGpsDto @ modules/compat/compat.module.ts:646] ← provider-app/src/screens/nursing/NursingDashboard.tsx:1336
+    rejected (not in DTO): radius
+? POST /nursing/visits/:id/arrive [ArriveAtPatientDto] ← provider-app/src/screens/nursing/NursingFieldOps.tsx:47 body not statically resolvable (body || {}): verify by hand
+--
+✗ POST /pharmacy/procurement/submit-request [CreateProcurementRequestDto @ modules/pharmacy/controllers/procurement.controller.ts:31] ← provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:622
+    required but not sent: fileUrl
+? POST /provider/pharmacy/allocations/:id/out-for-delivery [OutDto] ← provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:915 body not statically resolvable (body || {}): verify by hand
+--
+✗ POST /provider/pharmacy/broadcasts/:orderId/offers/draft [DraftOfferDto @ modules/pharmacy/pharmacy.controllers.ts:207] ← provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:1343
+    rejected (not in DTO): items
+? POST /provider/capabilities/pharmacy [UpsertPharmaDto] ← provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:1502 body not statically resolvable (spread): verify by hand
+--
+✗ POST /radiology/bookings/:id/coverage-decision [RadCoverageDto @ modules/provider-production/provider-production.module.ts:675] ← provider-app/src/screens/radiology/RadiologyDashboard.tsx:213
+    rejected (not in DTO): decision, decision_reference
+✗ POST /radiology/bookings/allocate-machine/:id [AllocateMachineDto @ modules/radiology/controllers/radiology.controller.ts:85] ← provider-app/src/screens/radiology/RadiologyDashboard.tsx:213
+    rejected (not in DTO): decision, decision_reference
+✗ POST /radiology/bookings/finalize-scan/:id [FinalizeScanDto @ modules/radiology/controllers/radiology.controller.ts:116] ← provider-app/src/screens/radiology/RadiologyDashboard.tsx:213
+    rejected (not in DTO): decision, decision_reference
+✗ POST /radiology/bookings/allocate-machine/:id [AllocateMachineDto @ modules/radiology/controllers/radiology.controller.ts:85] ← provider-app/src/screens/radiology/RadiologyDashboard.tsx:226
+    rejected (not in DTO): reason
+    required but not sent: machineId
+✗ POST /radiology/bookings/finalize-scan/:id [FinalizeScanDto @ modules/radiology/controllers/radiology.controller.ts:116] ← provider-app/src/screens/radiology/RadiologyDashboard.tsx:226
+    rejected (not in DTO): reason
+    required but not sent: reportText, files, pdfUrl
+✗ POST /radiology/bookings/allocate-machine/:id [AllocateMachineDto @ modules/radiology/controllers/radiology.controller.ts:85] ← provider-app/src/screens/radiology/RadiologyDashboard.tsx:373
+    rejected (not in DTO): report_storage_object_id, dicom_storage_object_id, findings
+    required but not sent: machineId
+✗ POST /radiology/bookings/finalize-scan/:id [FinalizeScanDto @ modules/radiology/controllers/radiology.controller.ts:116] ← provider-app/src/screens/radiology/RadiologyDashboard.tsx:373
+    rejected (not in DTO): report_storage_object_id, dicom_storage_object_id, findings
+    required but not sent: reportText, files, pdfUrl
+✗ POST /radiology/bookings/:id/upload-report [UploadReportDto @ modules/radiology/radiology.controller.ts:92] ← provider-app/src/screens/radiology/RadiologyDashboard.tsx:373
+    required but not sent: scan_storage_object_ids
+✗ POST /radiology/bookings/allocate-machine/:id [AllocateMachineDto @ modules/radiology/controllers/radiology.controller.ts:85] ← provider-app/src/screens/radiology/RadiologyDashboard.tsx:386
+    required but not sent: machineId
+✗ POST /radiology/bookings/finalize-scan/:id [FinalizeScanDto @ modules/radiology/controllers/radiology.controller.ts:116] ← provider-app/src/screens/radiology/RadiologyDashboard.tsx:386
+    required but not sent: reportText, files, pdfUrl
+✗ POST /radiology/bookings/allocate-machine/:id [AllocateMachineDto @ modules/radiology/controllers/radiology.controller.ts:85] ← provider-app/src/screens/radiology/RadiologyDashboard.tsx:392
+    required but not sent: machineId
+✗ POST /radiology/bookings/finalize-scan/:id [FinalizeScanDto @ modules/radiology/controllers/radiology.controller.ts:116] ← provider-app/src/screens/radiology/RadiologyDashboard.tsx:392
+    required but not sent: reportText, files, pdfUrl
+✗ PUT /provider/crm/:patientId [PutCrmDto @ modules/provider-production/provider-production.module.ts:687] ← provider-app/src/screens/shared/BlueprintScreens.tsx:622
+    required but not sent: tags
+✗ POST /emergency/:id/track [TrackDto @ modules/emergency/emergency.controller.ts:52] ← provider-app/src/screens/shared/BlueprintScreens.tsx:1214
+    rejected (not in DTO): arrived
+✗ POST /provider/pharmacy/broadcasts/:orderId/offers/preview [PreviewOfferDto @ modules/pharmacy/pharmacy.controllers.ts:206] ← provider-app/src/screens/shared/BlueprintScreens.tsx:1363
+    rejected (not in DTO): items
+✗ POST /provider/pharmacy/broadcasts/:orderId/offers/draft [DraftOfferDto @ modules/pharmacy/pharmacy.controllers.ts:207] ← provider-app/src/screens/shared/BlueprintScreens.tsx:1379
+    rejected (not in DTO): items
+✗ PATCH /labs/samples/:id/stage [UpdateStageDto @ modules/labs/labs.controller.ts:147] ← provider-app/src/screens/shared/BlueprintScreens.tsx:1504
+    rejected (not in DTO): stage
+✗ PATCH /provider/ambulance/fleet/:id [UpdateDto @ modules/emergency/ambulance-fleet.controller.ts:109] ← provider-app/src/screens/shared/FleetScreen.tsx:48
+    rejected (not in DTO): is_available
+✗ POST /provider/ambulance/fleet [CreateDto @ modules/emergency/ambulance-fleet.controller.ts:103] ← provider-app/src/screens/shared/FleetScreen.tsx:162
+    rejected (not in DTO): has_icu
+✗ POST /insurance/requests/:id/decide [DecideDto @ modules/insurance-engine/insurance-engine.module.ts:592] ← provider-app/src/screens/shared/InsuranceRequestsScreen.tsx:90
+    required but not sent: reason
+✗ POST /approval-workflow/requests [CreateDto @ modules/approval-workflow/approval-workflow.module.ts:176] ← provider-app/src/screens/shared/RealScreensExtended.tsx:208
+    rejected (not in DTO): entity_type, change_data
+✗ POST /provider/payouts/request [RequestDto @ modules/payouts/provider-payouts.controller.ts:48] ← provider-app/src/screens/shared/SharedScreens.tsx:629
+    rejected (not in DTO): iban
+✗ POST /recruitment/candidate/profile [UpsertCandidateProfileDto @ modules/recruitment/recruitment.module.ts:303] ← provider-app/src/screens/shared/SharedScreens.tsx:1242
+    rejected (not in DTO): scfhs_license_number, scfhs_license_expiry
+✗ POST /provider/kyc/documents [UploadDocDto @ modules/provider/provider.controllers.ts:79] ← provider-app/src/screens/shared/SharedScreens.tsx:2408
+    required but not sent: issued_date, expiry_date
+? POST /calls/initiate [InitiateCallDto] ← patient-web/app/[locale]/room/[id]/page.tsx:22 body not statically resolvable ("{}"): verify by hand
+--
+✗ POST /labs/bookings/collect-sample/:id [CollectSampleDto @ modules/labs/controllers/labs-engine.controller.ts:46] ← patient-web/app/api/diagnostics/bookings/[bookingId]/documents/route.ts:23
+    rejected (not in DTO): uploaded_at
+✗ POST /labs/bookings/finalize-test/:id [FinalizeTestDto @ modules/labs/controllers/labs-engine.controller.ts:74] ← patient-web/app/api/diagnostics/bookings/[bookingId]/documents/route.ts:23
+    rejected (not in DTO): uploaded_at
+✗ POST /labs/bookings/:id/documents [UploadDocDto @ modules/labs/labs.controller.ts:61] ← patient-web/app/api/diagnostics/bookings/[bookingId]/documents/route.ts:23
+    rejected (not in DTO): uploaded_at
+? POST /labs/bookings [BookDto] ← patient-web/app/api/diagnostics/bookings/route.ts:37 body not statically resolvable (parsed.data): verify by hand
+--
+✗ POST /insurance/claims/submit [SubmitClaimDto @ modules/insurance/insurance.module.ts:516] ← patient-web/app/api/insurance/claims/route.ts:21
+    rejected (not in DTO): status, submitted_at
+? POST /insurance/save-policy [SavePolicyDto] ← patient-web/app/api/insurance/policy/route.ts:24 body not statically resolvable (parsed.data): verify by hand
+--
+✗ POST /auth/send-otp [SendOtpDto @ modules/auth/auth.controller.ts:287] ← patient-app/app/(auth)/register.tsx:169
+    rejected (not in DTO): purpose
+✗ POST /auth/reset-password [ResetPasswordDto @ modules/auth/auth.controller.ts:303] ← patient-app/app/(auth)/reset-password.tsx:34
+    required but not sent: code
+? POST /ai/skin-analysis [SkinAnalysisDto] ← patient-app/app/ai/skin-analysis.tsx:37 body not statically resolvable (spread): verify by hand
+✗ POST /health/reminders [RcDto @ modules/health/health.controller.ts:60] ← patient-app/app/consultations/prescription-from-doctor.tsx:60
+    rejected (not in DTO): medication_name, dosage, frequency
+✗ POST /labs/bookings [BookDto @ modules/labs/labs.controller.ts:41] ← patient-app/app/diagnostics/checkout.tsx:86
+    required but not sent: documents
+✗ POST /radiology/bookings [BookDto @ modules/radiology/controllers/radiology.controller.ts:23] ← patient-app/app/diagnostics/checkout.tsx:99
+    rejected (not in DTO): location_type, payment_method
+✗ POST /radiology/bookings [BookDto @ modules/radiology/radiology.controller.ts:40] ← patient-app/app/diagnostics/checkout.tsx:99
+    rejected (not in DTO): scheduled_at, provider_account_id
+✗ POST /labs/bookings [BookDto @ modules/labs/labs.controller.ts:41] ← patient-app/app/diagnostics/insurance-upload.tsx:408
+    required but not sent: documents
+✗ POST /radiology/bookings [BookDto @ modules/radiology/controllers/radiology.controller.ts:23] ← patient-app/app/diagnostics/insurance-upload.tsx:421
+    rejected (not in DTO): location_type, payment_method
+✗ POST /radiology/bookings [BookDto @ modules/radiology/radiology.controller.ts:40] ← patient-app/app/diagnostics/insurance-upload.tsx:421
+    rejected (not in DTO): scheduled_at, provider_account_id
+✗ POST /labs/bookings/collect-sample/:id [CollectSampleDto @ modules/labs/controllers/labs-engine.controller.ts:46] ← patient-app/app/diagnostics/insurance-upload.tsx:438
+    rejected (not in DTO): kind, url_or_b64
+    required but not sent: barcodeToken
+✗ POST /labs/bookings/finalize-test/:id [FinalizeTestDto @ modules/labs/controllers/labs-engine.controller.ts:74] ← patient-app/app/diagnostics/insurance-upload.tsx:438
+    rejected (not in DTO): kind, url_or_b64
+    required but not sent: metricResults, pdfUrl
+✗ POST /ai/drug-interactions [CheckDto @ modules/compat/compat.module.ts:469] ← patient-app/app/drug-scanner/index.tsx:48
+    rejected (not in DTO): meds, newDrug
+✗ POST /emergency/trigger [TriggerDto @ modules/emergency/emergency.controller.ts:13] ← patient-app/app/emergency/sos.tsx:58
+    rejected (not in DTO): type
+? POST /family/calendar/event [AddEventDto] ← patient-app/app/family/calendar.tsx:82 body not statically resolvable (var:payload): verify by hand
+--
+✗ POST /insurance/save-policy [SavePolicyDto @ modules/insurance/insurance.module.ts:510] ← patient-app/app/insurance/add-policy.tsx:79
+    rejected (not in DTO): verified, ocr_extracted
+✗ POST /insurance/save-policy [SavePolicyDto @ modules/insurance-engine/insurance-engine.module.ts:552] ← patient-app/app/insurance/add-policy.tsx:79
+    rejected (not in DTO): provider, national_id, verified, ocr_extracted
+✗ POST /insurance/save-policy [SavePolicyDto @ modules/insurance/insurance.module.ts:510] ← patient-app/app/insurance/hub.tsx:162
+    rejected (not in DTO): verified, ocr_extracted
+✗ POST /insurance/save-policy [SavePolicyDto @ modules/insurance-engine/insurance-engine.module.ts:552] ← patient-app/app/insurance/hub.tsx:162
+    rejected (not in DTO): provider, network, class, expiry_date, member_name, national_id, verified, ocr_extracted
+✗ POST /insurance/claims/submit [SubmitClaimDto @ modules/insurance/insurance.module.ts:516] ← patient-app/app/insurance/submit-claim.tsx:27
+    rejected (not in DTO): claim_type, status, submitted_at
+? POST /maternity/profile [UpdateProfileDto] ← patient-app/app/maternity/maternity-setup.tsx:15 body not statically resolvable (mode === 'pregnancy' ? { is_pregnant: true, lmp_date: lmp.tr): verify by hand
+✗ POST /nursing/bookings [CreateBookingDto @ modules/home-care/home-care.controller.ts:130] ← patient-app/app/nursing/nurse-profile.tsx:159
+    rejected (not in DTO): provider_id, service_name_ar
+? POST /nutrition/meals [LogMealDto] ← patient-app/app/nutrition/log-meal.tsx:31 body not statically resolvable (spread): verify by hand
+--
+✗ POST /pharmacy/returns [CreateDto @ modules/returns/returns.controller.ts:13] ← patient-app/app/returns/new-request.tsx:66
+    rejected (not in DTO): amount
+    required but not sent: items
+✗ POST /patient-ux/review [RateDto @ modules/patient-ux/patient-ux.module.ts:150] ← patient-app/app/reviews/index.tsx:64
+    rejected (not in DTO): anonymous
+✗ POST /support/requests [CreateDto @ modules/support/support.controller.ts:12] ← patient-app/app/settings/privacy.tsx:164
+    rejected (not in DTO): type
+✗ POST /users/me/addresses [AddAddressDto @ modules/users/users.addresses.controller.ts:19] ← patient-app/app/shared/location-picker.tsx:170
+    rejected (not in DTO): label, street, building, floor, notes, lat, lng
+? POST /mental-health/crisis-contacts [AddCrisisContactDto] ← patient-app/src/components/views/CrisisContactsView.tsx:46 body not statically resolvable (spread): verify by hand

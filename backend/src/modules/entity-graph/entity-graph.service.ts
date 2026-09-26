@@ -177,7 +177,7 @@ export class EntityGraphService implements OnModuleInit {
   }
 
   private async getRelatedCondition(code: string): Promise<RelatedGraphResponse> {
-    const condition = await this.conditionModel.findOne({ code, is_active: true }).lean();
+    const condition = await this.conditionModel.findOne({ code: { $eq: code }, is_active: true }).lean();
     if (!condition) {
       throw new NotFoundException(`Condition '${code}' not found`);
     }

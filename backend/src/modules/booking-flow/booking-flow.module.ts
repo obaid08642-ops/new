@@ -17,6 +17,7 @@ import { ProviderProfile, ProviderProfileSchema } from '../../schemas/provider-p
 import { SystemEvent, SystemEventSchema } from '../events/system-event.schema';
 import { ServiceState, ServiceDomain } from '../../common/enums';
 import { toUniversal, WorkflowEngineService, WorkflowEngineModule } from '../workflow-engine/workflow-engine.module';
+import { ResolveDto } from './booking-flow.dto';
 
 @Injectable()
 export class BookingFlowService {
@@ -200,7 +201,7 @@ export class BookingFlowService {
   }
 
   /** Admin force-resolve (cancel with admin reason + audit). */
-  async resolve(user: any, type: string, id: string, body: { resolution: 'force_complete' | 'force_cancel'; reason?: string }) {
+  async resolve(user: any, type: string, id: string, body: { resolution?: 'force_complete' | 'force_cancel'; reason?: string }) {
     if (!this.isAdmin(user)) throw new BadRequestException('admin_only');
     const kind = this.kindAliases[type];
     if (!kind) throw new BadRequestException('invalid_type');
@@ -237,7 +238,7 @@ export class BookingFlowController {
   @Get('status/:type/:id') status(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string) { return this.svc.status(u, t, id); }
   @Get('timeline/:type/:id') timeline(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string) { return this.svc.timeline(u, t, id); }
   @Post('retry/:type/:id') retry(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string) { return this.svc.retry(u, t, id); }
-  @Post('resolve/:type/:id') resolve(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Body() b: any) { return this.svc.resolve(u, t, id, b); }
+  @Post('resolve/:type/:id') resolve(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Body() b: ResolveDto) { return this.svc.resolve(u, t, id, b); }
 }
 
 @Module({

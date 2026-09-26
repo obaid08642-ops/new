@@ -6,12 +6,13 @@
  * ║   before creating or transitioning a booking.                  ║
  * ╚════════════════════════════════════════════════════════════════╝
  */
-import { Module, Controller, Post, Get, Body, UseGuards, Injectable } from '@nestjs/common';
+import { Module, Controller, Post, Get, Body, UseGuards, Injectable, BadRequestException } from '@nestjs/common';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole, ServiceDomain } from '../../common/enums';
 import { ProviderProfile, ProviderProfileSchema } from '../../schemas/provider-profile.schema';
+import { UpdateSurgeDto, ValidateRulesDto } from './business-rules.dto';
 
 export type RuleContext = {
   kind: ServiceDomain;
@@ -44,7 +45,25 @@ export class BusinessRulesService {
   private surgeConfig = { startHour: 18, endHour: 22, multiplier: 1.1 };
   
   getSurgeConfig() { return this.surgeConfig; }
-  updateSurgeConfig(config: any) { this.surgeConfig = { ...this.surgeConfig, ...config }; return this.surgeConfig; }
+  updateSurgeConfig(config: UpdateSurgeDto) {
+    // Copy only finite, bounded numeric fields; never reflect body strings or
+    // arbitrary properties into the response/config.
+    const next = { ...this.surgeConfig };
+    if (config.startHour !== undefined) {
+      if (!Number.isFinite(config.startHour) || config.startHour < 0 || config.startHour > 23) throw new BadRequestException('startHour_out_of_range');
+      next.startHour = config.startHour;
+    }
+    if (config.endHour !== undefined) {
+      if (!Number.isFinite(config.endHour) || config.endHour < 0 || config.endHour > 23) throw new BadRequestException('endHour_out_of_range');
+      next.endHour = config.endHour;
+    }
+    if (config.multiplier !== undefined) {
+      if (!Number.isFinite(config.multiplier) || config.multiplier < 1 || config.multiplier > 5) throw new BadRequestException('multiplier_out_of_range');
+      next.multiplier = config.multiplier;
+    }
+    this.surgeConfig = next;
+    return { ok: true };
+  }
 
   // ─── INSURANCE VALIDATION ────────────────────────────────────────
   private validateInsurance(ctx: RuleContext, r: RuleResult) {
@@ -56,7 +75,7 @@ export class BusinessRulesService {
       r.ok = false; return;
     }
     if (!accepted.includes(String(ctx.insurance.provider).toLowerCase())) {
-      r.errors.push(`provider_does_not_accept_${ctx.insurance.provider}`);
+       r.errors.push('provider_does_not_accept_insurance');
       r.ok = false; return;
     }
     if (ctx.service?.key && ctx.insurance.eligible_services && !ctx.insurance.eligible_services.includes(ctx.service.key)) {
@@ -141,9 +160,10 @@ export class BusinessRulesService {
   /** Single entry-point — every domain calls this before booking/transition. */
   async validate(ctx: RuleContext): Promise<RuleResult> {
     const r: RuleResult = { ok: true, errors: [], warnings: [], meta: {} };
-    // Hydrate provider if only id provided
+    // Hydrate provider if only id provided. user_id is DTO-validated as a
+    // string and pinned with $eq so query operators can never be injected.
     if (ctx.provider?.user_id && !ctx.provider.type) {
-      const p = await this.providers.findOne({ user_id: ctx.provider.user_id }, { type: 1, accepted_insurance: 1, nursing_services: 1, test_categories: 1, equipment_list: 1, _id: 0 }).lean();
+      const p = await this.providers.findOne({ user_id: { $eq: ctx.provider.user_id } }, { type: 1, accepted_insurance: 1, nursing_services: 1, test_categories: 1, equipment_list: 1, _id: 0 }).lean();
       if (p) {
         ctx.provider.type = (p as any).type;
         ctx.provider.accepted_insurance = (p as any).accepted_insurance || [];
@@ -173,10 +193,10 @@ export class BusinessRulesController {
 
   @Roles(UserRole.ADMIN)
   @Post('config/surge')
-  updateSurge(@Body() body: any) { return this.svc.updateSurgeConfig(body); }
+  updateSurge(@Body() body: UpdateSurgeDto) { return this.svc.updateSurgeConfig(body); }
 
   @SelfService()
-  @Post('validate') validate(@Body() ctx: RuleContext) { return this.svc.validate(ctx); }
+  @Post('validate') validate(@Body() body: ValidateRulesDto) { return this.svc.validate(body); }
 }
 
 @Module({

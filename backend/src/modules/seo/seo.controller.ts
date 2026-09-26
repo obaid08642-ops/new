@@ -4,6 +4,7 @@ import { Controller, Get, Post, Body, Param, NotFoundException, Header, Res, Use
 import { RedisCacheInterceptor } from '../../common/redis-cache.interceptor';
 import { Response } from 'express';
 import { SeoService } from './seo.service';
+import { SubmitIndexNowDto } from './seo.dto';
 import { IndexNowService } from './indexnow.service';
 import { UserRole } from '../../common/enums';
 
@@ -104,8 +105,8 @@ export class SeoController {
    */
   @Roles(UserRole.ADMIN)
   @Post('indexnow/submit')
-  async submitIndexNow(@Body('urls') urls: string[]) {
-    return this.indexNowSvc.submitUrls(urls);
+  async submitIndexNow(@Body() body: SubmitIndexNowDto) {
+    return this.indexNowSvc.submitUrls(body.urls);
   }
 
   /**

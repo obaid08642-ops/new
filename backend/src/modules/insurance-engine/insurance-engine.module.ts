@@ -26,6 +26,7 @@ import { RadiologyBookingSchema } from '../../schemas/radiology.schema';
 import { HomeCareBookingSchema } from '../../schemas/home-care.schema';
 import { Appointment, AppointmentSchema } from '../../schemas/appointment.schema';
 import { UserRole } from '../../common/enums';
+import { SavePolicyDto, CreateRequestDto, PayCopayDto, ResubmitDto, AppealDto, DecideDto, GatekeeperDto, PaymentConfirmDto, PayCopayDto2, RequestDto, DecideRefundDto, AccrueDto } from './insurance-engine.dto';
 
 // ============================================================================
 // Schemas
@@ -128,7 +129,7 @@ export class FinanceCoreService {
   ) {}
 
   async rateFor(serviceType: string): Promise<number> {
-    const rule = await this.rules.findOne({ service_type: serviceType, active: true }).lean();
+    const rule = await this.rules.findOne({ service_type: { $eq: serviceType }, active: true }).lean();
     return (rule as any)?.rate ?? DEFAULT_COMMISSIONS[serviceType] ?? DEFAULT_COMMISSIONS.default;
   }
 
@@ -232,7 +233,7 @@ export class InsuranceFlowService {
 
   async savePolicy(user: any, body: any) {
     if (!body?.company_id) throw new BadRequestException('company_id is required');
-    const company = await this.companies.findOne({ id: body.company_id }).lean();
+    const company = await this.companies.findOne({ id: { $eq: body.company_id } }).lean();
     if (!company) throw new NotFoundException('insurance company not found');
     const policy = {
       company_id: body.company_id,
@@ -268,7 +269,7 @@ export class InsuranceFlowService {
     const bookingId = String(body?.booking_id || '').trim();
     if (!bookingId) throw new BadRequestException('booking_id_required');
     const { kind, model } = this.bookingModel(body?.booking_kind);
-    const booking: any = await model.findOne({ id: bookingId, patient_id: user.id }).lean();
+    const booking: any = await model.findOne({ id: { $eq: bookingId }, patient_id: { $eq: user.id } }).lean();
     if (!booking) throw new NotFoundException('owned_booking_not_found');
     const providerId = booking.provider_id || booking.doctor_user_id || booking.pharmacy_id || booking.facility_id;
     if (!providerId) throw new BadRequestException('booking_provider_assignment_required');
@@ -292,7 +293,7 @@ export class InsuranceFlowService {
 
   /** Patient resubmits a rejected request with new documents (BR-INS-7). */
   async resubmit(user: any, id: string, body: { documents?: any[]; note?: string }) {
-    const req = await this.requests.findOne({ id });
+    const req = await this.requests.findOne({ id: { $eq: id } });
     if (!req) throw new NotFoundException('request not found');
     if (req.patient_id !== user.id) throw new ForbiddenException();
     if (!['REJECTED', 'CANCELLED'].includes(req.state)) {
@@ -311,7 +312,7 @@ export class InsuranceFlowService {
 
   /** Patient appeals a rejection (separate formal review track, BR-INS-8). */
   async appeal(user: any, id: string, body: { reason: string; documents?: any[] }) {
-    const req = await this.requests.findOne({ id });
+    const req = await this.requests.findOne({ id: { $eq: id } });
     if (!req) throw new NotFoundException('request not found');
     if (req.patient_id !== user.id) throw new ForbiddenException();
     if (req.state !== 'REJECTED') throw new BadRequestException(`cannot appeal in state ${req.state}`);
@@ -357,7 +358,7 @@ export class InsuranceFlowService {
   }
 
   async getOne(id: string, user: any) {
-    const req = await this.requests.findOne({ id }, { _id: 0, __v: 0 }).lean();
+    const req = await this.requests.findOne({ id: { $eq: id } }, { _id: 0, __v: 0 }).lean();
     if (!req) throw new NotFoundException('request not found');
     if ((req as any).patient_id !== user.id && (req as any).provider_id !== user.id && user.role !== 'admin') throw new ForbiddenException();
     return req;
@@ -367,7 +368,7 @@ export class InsuranceFlowService {
    * finds-or-creates the request for the appointment, then applies the
    * decision. Body: {status: approved|rejected, copay, coverage, approval_code}. */
   async gatekeeperDecision(user: any, appointmentId: string, body: any) {
-    const appt: any = await this.appointments.findOne({ id: appointmentId }).lean();
+    const appt: any = await this.appointments.findOne({ id: { $eq: appointmentId } }).lean();
     if (!appt) throw new NotFoundException('appointment not found');
     const ownerIds = [appt.doctor_user_id, appt.doctor_id].filter(Boolean).map(String);
     if (!ownerIds.includes(String(user.id))) throw new ForbiddenException();
@@ -403,7 +404,7 @@ export class InsuranceFlowService {
   }
 
   /** Provider manual decision (BR-2.4): full | partial(copay_percent) | reject(reason). */
-  async decide(user: any, id: string, body: any) {    const req = await this.requests.findOne({ id });
+  async decide(user: any, id: string, body: any) {    const req = await this.requests.findOne({ id: { $eq: id } });
     if (!req) throw new NotFoundException('request not found');
     if (req.provider_id !== user.id && user.role !== 'admin') throw new ForbiddenException();
     if (req.state !== 'PENDING_PROVIDER_REVIEW') throw new BadRequestException(`request already decided (${req.state})`);
@@ -434,7 +435,7 @@ export class InsuranceFlowService {
   /** Patient accepts full self-pay on a rejected/partial request: copay becomes
    * the full price so the standard intent → verify → COPAY_PAID flow applies. */
   async acceptSelfPay(user: any, id: string) {
-    const req = await this.requests.findOne({ id });
+    const req = await this.requests.findOne({ id: { $eq: id } });
     if (!req) throw new NotFoundException('request not found');
     if (req.patient_id !== user.id) throw new ForbiddenException();
     if (!['REJECTED', 'APPROVED_PARTIAL'].includes(req.state)) throw new BadRequestException(`self-pay not available in state ${req.state}`);
@@ -448,7 +449,7 @@ export class InsuranceFlowService {
 
   /** Payment capabilities for an insurance request (methods the gateway supports). */
   async capabilities(user: any, id: string) {
-    const req = await this.requests.findOne({ id });
+    const req = await this.requests.findOne({ id: { $eq: id } });
     if (!req) throw new NotFoundException('request not found');
     if (req.patient_id !== user.id && user.role !== 'admin') throw new ForbiddenException();
     return { methods: [{ id: 'card' }, { id: 'apple-pay' }, { id: 'google-pay' }] };
@@ -461,26 +462,26 @@ export class InsuranceFlowService {
       const { model } = this.bookingModel(req.booking_kind || '');
       const now = new Date();
       if (req.booking_kind === 'consultation') {
-        await model.updateOne({ id: req.booking_id }, {
+        await model.updateOne({ id: { $eq: req.booking_id } }, {
           $set: { status: 'CONFIRMED' },
           $push: { state_history: { state: 'CONFIRMED', at: now, by_user_id: 'system', by_role: 'system', note: 'copay paid' } },
         });
       } else if (req.booking_kind === 'lab') {
-        await model.updateOne({ id: req.booking_id }, { $set: { insurance_status: 'approved' } });
+        await model.updateOne({ id: { $eq: req.booking_id } }, { $set: { insurance_status: 'approved' } });
       } else if (req.booking_kind === 'radiology') {
         await model.updateOne(
-          { id: req.booking_id, state: { $in: ['NEW_REQUEST', 'PENDING_INSURANCE', 'WAITING_COPAY'] } },
+          { id: { $eq: req.booking_id }, state: { $in: ['NEW_REQUEST', 'PENDING_INSURANCE', 'WAITING_COPAY'] } },
           { $set: { state: 'CONFIRMED', insurance_status: 'approved' } },
         );
       } else if (req.booking_kind === 'nursing') {
-        await model.updateOne({ id: req.booking_id }, { $set: { insurance_status: 'approved' } });
+        await model.updateOne({ id: { $eq: req.booking_id } }, { $set: { insurance_status: 'approved' } });
       }
     } catch { /* payment already recorded; projection retries on next event */ }
   }
 
   /** Patient pays only the copay (BR-2.5→2.6). Service starts only after this. */
   async payCopay(user: any, id: string, body: any) {
-    const req = await this.requests.findOne({ id });
+    const req = await this.requests.findOne({ id: { $eq: id } });
     if (!req) throw new NotFoundException('request not found');
     if (req.patient_id !== user.id) throw new ForbiddenException();
     if (req.state === 'APPROVED_FULL') {
@@ -512,7 +513,7 @@ export class InsuranceFlowService {
   @OnEvent('payment.completed')
   async settleVerifiedCopay(event: any) {
     if (event?.booking_kind !== 'insurance' || !event?.transaction_id) return;
-    const req = await this.requests.findOne({ id: event.booking_id, patient_id: event.patient_id, state: 'COPAY_PENDING' });
+    const req = await this.requests.findOne({ id: { $eq: event.booking_id }, patient_id: { $eq: event.patient_id }, state: 'COPAY_PENDING' });
     if (!req) return;
     const payment: any = await this.transactions.findOne({
       id: event.transaction_id,
@@ -531,7 +532,7 @@ export class InsuranceFlowService {
   }
 
   async cancel(user: any, id: string) {
-    const req = await this.requests.findOne({ id });
+    const req = await this.requests.findOne({ id: { $eq: id } });
     if (!req) throw new NotFoundException('request not found');
     if (req.patient_id !== user.id) throw new ForbiddenException();
     if (['COPAY_PAID'].includes(req.state)) throw new BadRequestException('cannot cancel after payment');
@@ -549,7 +550,7 @@ export class InsuranceFlowController {
   // ---- patient ----
   @Get('companies') companies() { return this.svc.companiesList(); }
   @SelfService()
-  @Post('save-policy') savePolicy(@CurrentUser() u: any, @Body() b: any) { return this.svc.savePolicy(u, b); }
+  @Post('save-policy') savePolicy(@CurrentUser() u: any, @Body() b: SavePolicyDto) { return this.svc.savePolicy(u, b); }
   @Get('my-policy') myPolicy(@CurrentUser() u: any) { return this.svc.myPolicy(u); }
 
   @Get('coverage-check') async coverageCheck(@CurrentUser() u: any, @Query() q: any) {
@@ -570,11 +571,11 @@ export class InsuranceFlowController {
   }
 
   @SelfService()
-  @Post('requests') createRequest(@CurrentUser() u: any, @Body() b: any) { return this.svc.createRequest(u, b); }
+  @Post('requests') createRequest(@CurrentUser() u: any, @Body() b: CreateRequestDto) { return this.svc.createRequest(u, b); }
   @Get('requests/my') myRequests(@CurrentUser() u: any) { return this.svc.myRequests(u); }
   @Get('requests/:id') one(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.getOne(id, u); }
   @SelfService()
-  @Post('requests/:id/pay-copay') payCopay(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.payCopay(u, id, b); }
+  @Post('requests/:id/pay-copay') payCopay(@CurrentUser() u: any, @Param('id') id: string, @Body() b: PayCopayDto) { return this.svc.payCopay(u, id, b); }
   @SelfService()
   @Post('requests/:id/accept-self-pay') acceptSelfPay(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.acceptSelfPay(u, id); }
   @Get('requests/:id/capabilities') capabilities(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.capabilities(u, id); }
@@ -582,20 +583,20 @@ export class InsuranceFlowController {
   @SelfService()
   @Post('requests/:id/cancel') cancel(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.cancel(u, id); }
   @SelfService()
-  @Post('requests/:id/resubmit') resubmit(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.resubmit(u, id, b); }
+  @Post('requests/:id/resubmit') resubmit(@CurrentUser() u: any, @Param('id') id: string, @Body() b: ResubmitDto) { return this.svc.resubmit(u, id, b); }
   @SelfService()
-  @Post('requests/:id/appeal') appeal(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.appeal(u, id, b); }
+  @Post('requests/:id/appeal') appeal(@CurrentUser() u: any, @Param('id') id: string, @Body() b: AppealDto) { return this.svc.appeal(u, id, b); }
 
   // ---- provider ----
   @Get('requests/provider/queue') providerQueue(@CurrentUser() u: any, @Query('state') state?: string) { return this.svc.providerQueue(u, state); }
   @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
-  @Post('requests/:id/decide') decide(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.decide(u, id, b); }
+  @Post('requests/:id/decide') decide(@CurrentUser() u: any, @Param('id') id: string, @Body() b: DecideDto) { return this.svc.decide(u, id, b); }
   @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
-  @Post('provider/jobs/consultation/:id/insurance') gatekeeper(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.gatekeeperDecision(u, id, b); }
+  @Post('provider/jobs/consultation/:id/insurance') gatekeeper(@CurrentUser() u: any, @Param('id') id: string, @Body() b: GatekeeperDto) { return this.svc.gatekeeperDecision(u, id, b); }
 
   // ---- legacy aliases the patient app already calls ----
   @SelfService()
-  @Post('payment-confirm') paymentConfirm(@CurrentUser() u: any, @Body() b: any) {
+  @Post('payment-confirm') paymentConfirm(@CurrentUser() u: any, @Body() b: PaymentConfirmDto) {
     return this.svc.payCopay(u, b?.request_id || b?.id, b);
   }
 
@@ -610,7 +611,7 @@ export class InsuranceAliasController {
   constructor(private readonly svc: InsuranceFlowService) {}
 
   @SelfService()
-  @Post('patient/pay-copay') payCopay(@CurrentUser() u: any, @Body() b: any) {
+  @Post('patient/pay-copay') payCopay(@CurrentUser() u: any, @Body() b: PayCopayDto2) {
     return this.svc.payCopay(u, b?.request_id || b?.id, b);
   }
 
@@ -651,7 +652,7 @@ export class RefundService {
     const paid = Number(body?.amount_paid || 0);
     if (paid <= 0) throw new BadRequestException('amount_paid must be positive');
     if (!body?.reason || typeof body.reason !== 'string' || !body.reason.trim()) throw new BadRequestException('reason is required');
-    const dup = await this.refunds.findOne({ booking_id: body.booking_id, state: { $ne: 'REJECTED' } });
+    const dup = await this.refunds.findOne({ booking_id: { $eq: body.booking_id }, state: { $ne: 'REJECTED' } });
     if (dup) return dup.toObject();
     // E1 S15: refund-abuse detection — frequent refunders are flagged for admin review
     await this.fraud.checkRefundAbuse(user.id).catch(() => false);
@@ -677,7 +678,7 @@ export class RefundService {
   }
 
   async decide(user: any, id: string, approve: boolean, note?: string) {
-    const r = await this.refunds.findOne({ id });
+    const r = await this.refunds.findOne({ id: { $eq: id } });
     if (!r) throw new NotFoundException('refund not found');
     if (r.state !== 'REQUESTED') throw new BadRequestException(`already ${r.state}`);
     r.state = approve ? 'APPROVED' : 'REJECTED';
@@ -692,7 +693,7 @@ export class RefundService {
 @UseGuards(JwtAuthGuard)
 export class RefundController {
   constructor(private readonly svc: RefundService) {}
-  @Post('request') request(@CurrentUser() u: any, @Body() b: any) { return this.svc.request(u, b); }
+  @Post('request') request(@CurrentUser() u: any, @Body() b: RequestDto) { return this.svc.request(u, b); }
   @Get('my') my(@CurrentUser() u: any) { return this.svc.myRefunds(u); }
   @Get('policy-preview') preview(@Query('scheduled_at') s?: string) {
     const w = this.svc.policyFor(s ? new Date(s) : undefined);
@@ -710,7 +711,7 @@ export class AdminFinanceCoreController {
   ) {}
   @Get('ledger/summary') summary() { return this.finance.platformSummary(); }
   @Get('refunds/queue') refundsQueue() { return this.refunds.adminQueue(); }
-  @Post('refunds/:id/decide') decideRefund(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
+  @Post('refunds/:id/decide') decideRefund(@CurrentUser() u: any, @Param('id') id: string, @Body() b: DecideRefundDto) {
     return this.refunds.decide(u, id, b?.approve === true, b?.note);
   }
 }
@@ -729,7 +730,7 @@ export class AdminInsuranceController {
 export class FinanceCoreController {
   constructor(private readonly finance: FinanceCoreService) {}
   /** Internal hook: record commission when an order/booking is paid. */
-  @Post('ledger/accrue') accrue(@Body() b: any) { return this.finance.accrue(b); }
+  @Post('ledger/accrue') accrue(@Body() b: AccrueDto) { return this.finance.accrue(b); }
   @Get('ledger/provider/summary') providerSummary(@CurrentUser() u: any) { return this.finance.providerSummary(u.id); }
 }
 

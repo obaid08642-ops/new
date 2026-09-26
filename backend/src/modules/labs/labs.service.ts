@@ -10,6 +10,13 @@ import { LabServiceRepository } from "./repositories/labservice.repository";
 import { LabBookingRepository } from "./repositories/labbooking.repository";
 import { LabSampleRepository } from "./repositories/labsample.repository";
 import { ProviderProfile, ProviderProfileDocument } from '../../schemas/provider-profile.schema';
+import { pick } from '../../common/sanitize';
+
+/** P3.3 (F15): writable catalog fields — id/_id/governance flags excluded. */
+export const LAB_CATALOG_FIELDS = [
+  'lab_id', 'test_code', 'test_name_ar', 'test_name_en',
+  'in_lab_price', 'home_collection_price', 'accepts_insurance', 'reference_ranges',
+] as const;
 import { getEffectiveRoles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { RedisService } from '../redis/redis.service';
@@ -184,7 +191,7 @@ export class LabsService {
     return booking.toObject();
   }
 
-  async addDocument(id: string, user: any, body: { kind: string; url_or_b64: string; filename?: string }) {
+  async addDocument(id: string, user: any, body: { kind?: string; url_or_b64?: string; filename?: string }) {
     const b = await this.bkgModel.findOne({ id });
     if (!b) throw new NotFoundException();
     if (b.patient_id !== user.id && user.role !== 'admin') throw new ForbiddenException();
@@ -414,7 +421,7 @@ export class LabsService {
     });
   }
 
-  async updateSampleStage(user: any, sampleId: string, stage: 'received' | 'analyzing' | 'result_ready' | 'sent', notes?: string) {
+  async updateSampleStage(user: any, sampleId: string, stage: string, notes?: string) {
     if (!getEffectiveRoles(user).some(role => ['admin', 'lab', 'hospital'].includes(role))) throw new ForbiddenException();
     const sample = await this.sampleModel.findOne({ id: sampleId });
     if (!sample) throw new NotFoundException('sample_not_found');
@@ -481,12 +488,12 @@ export class LabsService {
   // --- Admin Catalog CRUD ---
   async createCatalog(user: any, body: any) {
     if (user.role !== 'admin') throw new ForbiddenException();
-    return this.svcModel.create({ ...body, id: require('uuid').v4() });
+    return this.svcModel.create({ ...pick(body, LAB_CATALOG_FIELDS), id: require('uuid').v4() });
   }
 
   async updateCatalog(user: any, id: string, body: any) {
     if (user.role !== 'admin') throw new ForbiddenException();
-    const updated = await this.svcModel.findOneAndUpdate({ id }, { $set: body }, { new: true });
+    const updated = await this.svcModel.findOneAndUpdate({ id }, { $set: pick(body, LAB_CATALOG_FIELDS) }, { new: true });
     if (!updated) throw new NotFoundException();
     return updated;
   }

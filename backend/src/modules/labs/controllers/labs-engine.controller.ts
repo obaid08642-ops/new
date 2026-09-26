@@ -5,6 +5,15 @@ import { LabBooking } from '../schemas/lab-booking.schema';
 import { LabCatalog } from '../schemas/lab-catalog.schema';
 import { Roles } from '../../../common/auth.guard';
 import { UserRole } from '../../../common/enums';
+import { RespondToBookingDto, CollectSampleDto, FinalizeTestDto, UpdateCatalogDto } from './labs-engine.dto';
+import { idFilter } from '../../../common/id.utils';
+
+// R4-2: explicit allowlist for lab catalog upserts (lab_id/test_code are the
+// key, never part of the $set).
+const LAB_CATALOG_UPDATE_FIELDS = [
+  'test_name_ar', 'test_name_en', 'in_lab_price', 'home_collection_price',
+  'accepts_insurance', 'reference_ranges',
+];
 
 @Controller('labs/bookings')
 @Roles(UserRole.LAB, UserRole.HOSPITAL, UserRole.ADMIN)
@@ -18,7 +27,7 @@ export class LabsEngineController {
   async getQueue(@Query('lab_id') labId: string) {
     if (!labId) throw new BadRequestException('lab_id is required');
     return this.labBookingModel.find({
-      lab_id: labId,
+      lab_id: { $eq: labId },
       status: { $in: ['PENDING_ACCEPTANCE', 'ACCEPTED', 'SAMPLE_COLLECTED'] }
     }).sort({ createdAt: -1 });
   }
@@ -26,13 +35,15 @@ export class LabsEngineController {
   @Post(':id/respond')
   async respondToBooking(
     @Param('id') bookingId: string,
-    @Body() body: { accept: boolean; lab_id: string }
+    @Body() body: RespondToBookingDto
   ) {
     const { accept, lab_id } = body;
     const newStatus = accept ? 'ACCEPTED' : 'CANCELLED';
     
+    // Lab bookings carry no public `id` field — the route id is the Mongo `_id`
+    // (idFilter keeps that behavior and never throws on malformed input).
     const booking = await this.labBookingModel.findOneAndUpdate(
-      { _id: bookingId, lab_id },
+      { ...idFilter(bookingId), lab_id: { $eq: lab_id } },
       { $set: { status: newStatus } },
       { new: true }
     );
@@ -46,12 +57,12 @@ export class LabsEngineController {
   @HttpCode(HttpStatus.OK)
   async collectSample(
     @Param('id') bookingId: string,
-    @Body() body: { barcodeToken: string }
+    @Body() body: CollectSampleDto
   ) {
     const { barcodeToken } = body;
 
     // Verify barcode uniqueness inside the active pipeline to prevent duplicate vial entries
-    const duplicateCheck = await this.labBookingModel.findOne({ sample_barcode_token: barcodeToken });
+    const duplicateCheck = await this.labBookingModel.findOne({ sample_barcode_token: { $eq: barcodeToken } });
     if (duplicateCheck && duplicateCheck._id.toString() !== bookingId) {
       throw new BadRequestException({
         code: 'DUPLICATE_BARCODE_TOKEN',
@@ -59,8 +70,8 @@ export class LabsEngineController {
       });
     }
 
-    const booking = await this.labBookingModel.findByIdAndUpdate(
-      bookingId,
+    const booking = await this.labBookingModel.findOneAndUpdate(
+      idFilter(bookingId),
       { $set: { sample_barcode_token: barcodeToken, status: 'SAMPLE_COLLECTED' } },
       { new: true }
     );
@@ -73,12 +84,12 @@ export class LabsEngineController {
   @Post('finalize-test/:id')
   async finalizeTest(
     @Param('id') bookingId: string,
-    @Body() body: { metricResults: any[]; pdfUrl: string }
+    @Body() body: FinalizeTestDto
   ) {
     const { metricResults, pdfUrl } = body;
 
-    const booking = await this.labBookingModel.findByIdAndUpdate(
-      bookingId,
+    const booking = await this.labBookingModel.findOneAndUpdate(
+      idFilter(bookingId),
       {
         $set: {
           entered_metric_results: metricResults || [],
@@ -103,19 +114,23 @@ export class LabsEngineController {
   @Get('catalog')
   async getCatalog(@Query('lab_id') labId: string) {
     if (!labId) throw new BadRequestException('lab_id is required');
-    return this.labCatalogModel.find({ lab_id: labId });
+    return this.labCatalogModel.find({ lab_id: { $eq: labId } });
   }
 
   @Post('catalog')
   async updateCatalog(
-    @Body() body: { lab_id: string; test_code: string; test_name_ar: string; test_name_en: string; in_lab_price: number; home_collection_price: number; accepts_insurance: boolean; reference_ranges: any[] }
+    @Body() body: UpdateCatalogDto
   ) {
-    const { lab_id, test_code, ...updateData } = body;
+    const { lab_id, test_code } = body || {};
     if (!lab_id || !test_code) throw new BadRequestException('lab_id and test_code are required');
 
+    // R4-2: build $set from explicit allowlisted keys (no whole-object spread).
+    const patch = Object.fromEntries(
+      Object.entries(body || {}).filter(([key, value]) => LAB_CATALOG_UPDATE_FIELDS.includes(key) && value !== undefined),
+    );
     const catalogEntry = await this.labCatalogModel.findOneAndUpdate(
-      { lab_id, test_code },
-      { $set: updateData },
+      { lab_id: { $eq: lab_id }, test_code: { $eq: test_code } },
+      { $set: patch },
       { new: true, upsert: true }
     );
     return { success: true, data: catalogEntry };
@@ -126,7 +141,7 @@ export class LabsEngineController {
     if (!labId) throw new BadRequestException('lab_id is required');
     
     const completedBookings = await this.labBookingModel.find({
-      lab_id: labId,
+      lab_id: { $eq: labId },
       status: { $in: ['REPORT_UPLOADED'] }
     });
 

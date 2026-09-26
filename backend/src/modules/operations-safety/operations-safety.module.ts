@@ -18,6 +18,7 @@ import { HomeCareBookingSchema, HomeCareBooking } from '../../schemas/home-care.
 import { Appointment, AppointmentSchema } from '../../schemas/appointment.schema';
 import { ProviderProfile, ProviderProfileSchema } from '../../schemas/provider-profile.schema';
 import { toUniversal, WorkflowEngineService, WorkflowEngineModule } from '../workflow-engine/workflow-engine.module';
+import { EscalateDto, AssessDto, FallbackDto } from './operations-safety.dto';
 
 @Schema({ collection: 'cancellation_penalties', timestamps: true })
 export class CancellationPenalty extends Document {
@@ -100,7 +101,7 @@ export class OperationsSafetyService {
   }
 
   /** Assess cancellation penalty (called by domains on cancel). */
-  async assessPenalty(args: { booking_id: string; kind: string; patient_id: string; provider_id?: string; scheduled_at?: Date; cancelled_at?: Date }) {
+  async assessPenalty(args: { booking_id: string; kind: string; patient_id: string; provider_id?: string; scheduled_at?: Date | string; cancelled_at?: Date | string }) {
     if (!args.scheduled_at) return null;
     const minutesBefore = (new Date(args.scheduled_at).getTime() - new Date(args.cancelled_at || new Date()).getTime()) / 60000;
     let amount = 0; let reason = 'no_penalty';
@@ -140,9 +141,9 @@ export class OperationsSafetyService {
 export class OperationsSafetyController {
   constructor(private svc: OperationsSafetyService) {}
   @Get('sla') sla() { return this.svc.slaReport(); }
-  @Post('escalate') escalate(@Body() b: any) { return this.svc.escalate(b); }
-  @Post('penalty/assess') assess(@Body() b: any) { return this.svc.assessPenalty(b); }
-  @Post('fallback') fallback(@Body() b: any) { return this.svc.fallback(b); }
+  @Post('escalate') escalate(@Body() b: EscalateDto) { return this.svc.escalate(b); }
+  @Post('penalty/assess') assess(@Body() b: AssessDto) { return this.svc.assessPenalty(b); }
+  @Post('fallback') fallback(@Body() b: FallbackDto) { return this.svc.fallback(b); }
   @Get('penalties') penalties(@Query() q: any) { return this.svc.listPenalties(q); }
 }
 

@@ -2,6 +2,7 @@ import { BadRequestException, Body, Controller, Get, NotFoundException, Post, Us
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { JwtAuthGuard, CurrentUser, SelfService } from '../../common/auth.guard';
+import { CreateRequestDto } from './patient-gdpr.dto';
 
 /**
  * A4 — patient-facing GDPR endpoints. These are what the mobile/web privacy
@@ -26,7 +27,7 @@ export class PatientGdprController {
 
   /** Patient creates their own export/erasure request. */
   @Post('requests')
-  async createRequest(@Body() b: any, @CurrentUser() me: any) {
+  async createRequest(@Body() b: CreateRequestDto, @CurrentUser() me: any) {
     const type = String(b?.type || '');
     if (!['export', 'delete'].includes(type)) throw new BadRequestException('invalid_type');
     const open = await this.conn.collection('gdpr_requests').findOne({

@@ -4,6 +4,7 @@ import { PharmacyOfferService } from '../pharmacy/services/pharmacy-offer.servic
 import { JwtAuthGuard, CurrentUser, Public, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { RedisCacheInterceptor } from '../../common/redis-cache.interceptor';
+import { CreditWalletDto, DebitWalletDto, RespondToBroadcastDto, ClaimReferralDto, UpdateFlagDto, EnrollProgramDto, CompleteSessionDto, MatchPharmacyDto, MatchNurseDto, VerifyNurseAttendanceDto, VerifyBarcodeDto, VerifyLabResultsDto, EnrollCorporateDto, CreateAdBidDto} from './nabd-extensions.dto';
 
 @Controller()
 @UseGuards(JwtAuthGuard)
@@ -34,8 +35,8 @@ export class NabdExtensionsController {
 
   @Roles(UserRole.ADMIN)
   @Post('wallet/credit')
-  async creditWallet(@CurrentUser() user: any, @Body() body: any) {
-    const ownerType = user.role !== UserRole.PATIENT ? 'provider' : 'patient';
+  async creditWallet(@CurrentUser() user: any, @Body() body: CreditWalletDto) {
+    const ownerType = (user.role !== UserRole.PATIENT ? 'provider' : 'patient') as 'patient' | 'provider';
     const res = await this.svc.processWalletTransaction({
       ownerId: user.id,
       ownerType,
@@ -56,8 +57,8 @@ export class NabdExtensionsController {
 
   @Roles(UserRole.ADMIN)
   @Post('wallet/debit')
-  async debitWallet(@CurrentUser() user: any, @Body() body: any) {
-    const ownerType = user.role !== UserRole.PATIENT ? 'provider' : 'patient';
+  async debitWallet(@CurrentUser() user: any, @Body() body: DebitWalletDto) {
+    const ownerType = (user.role !== UserRole.PATIENT ? 'provider' : 'patient') as 'patient' | 'provider';
     const res = await this.svc.processWalletTransaction({
       ownerId: user.id,
       ownerType,
@@ -85,7 +86,7 @@ export class NabdExtensionsController {
 
   @SelfService()
   @Post('referral/claim')
-  async claimReferral(@CurrentUser() user: any, @Body() body: { code: string }) {
+  async claimReferral(@CurrentUser() user: any, @Body() body: ClaimReferralDto) {
     if (!body.code) throw new BadRequestException('Referral code is required');
     return this.svc.claimReferral(user.id, body.code);
   }
@@ -99,7 +100,7 @@ export class NabdExtensionsController {
   @Roles(UserRole.ADMIN)
   @Put('admin/config/flags')
   @Roles(UserRole.ADMIN)
-  async updateFlag(@CurrentUser() admin: any, @Body() body: { flagName: string; isEnabled: boolean }) {
+  async updateFlag(@CurrentUser() admin: any, @Body() body: UpdateFlagDto) {
     if (!body.flagName) throw new BadRequestException('flagName is required');
     return this.svc.updateFlag(body.flagName, body.isEnabled, admin.id);
   }
@@ -120,7 +121,7 @@ export class NabdExtensionsController {
 
   @SelfService()
   @Post('medical/programs/enroll')
-  async enrollProgram(@CurrentUser() user: any, @Body() body: { programType: 'diabetes' | 'hypertension' | 'pregnancy' }) {
+  async enrollProgram(@CurrentUser() user: any, @Body() body: EnrollProgramDto) {
     if (!body.programType) throw new BadRequestException('programType is required');
     return this.svc.enrollProgram(user.id, body.programType);
   }
@@ -132,7 +133,7 @@ export class NabdExtensionsController {
 
   @SelfService()
   @Post('medical/programs/complete-session')
-  async completeSession(@CurrentUser() user: any, @Body() body: { programType: string; sessionId: string }) {
+  async completeSession(@CurrentUser() user: any, @Body() body: CompleteSessionDto) {
     if (!body.programType || !body.sessionId) throw new BadRequestException('programType and sessionId are required');
     return this.svc.completeProgramSession(user.id, body.programType, body.sessionId);
   }
@@ -143,13 +144,13 @@ export class NabdExtensionsController {
 
   @SelfService()
   @Post('provider/match/pharmacy')
-  async matchPharmacy(@Body() body: { lat: number; lng: number; requiredMedName?: string }) {
+  async matchPharmacy(@Body() body: MatchPharmacyDto) {
     return this.svc.matchPharmacy(body.lat, body.lng, body.requiredMedName || '');
   }
 
   @SelfService()
   @Post('provider/match/nurse')
-  async matchNurse(@Body() body: { lat: number; lng: number }) {
+  async matchNurse(@Body() body: MatchNurseDto) {
     return this.svc.matchNurse(body.lat, body.lng);
   }
 
@@ -171,7 +172,7 @@ export class NabdExtensionsController {
 
   @Roles(UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.ADMIN)
   @Post('nursing/attendance/verify')
-  async verifyNurseAttendance(@CurrentUser() nurse: any, @Body() body: { visitId: string; lat: number; lng: number }) {
+  async verifyNurseAttendance(@CurrentUser() nurse: any, @Body() body: VerifyNurseAttendanceDto) {
     return this.svc.verifyNurseAttendance(nurse.id, body.visitId, body.lat, body.lng);
   }
 
@@ -182,7 +183,7 @@ export class NabdExtensionsController {
 
   @Roles(UserRole.PHARMACY, UserRole.ADMIN)
   @Post('pharmacy/broadcast/respond')
-  async respondToBroadcast(@CurrentUser() provider: any, @Body() body: any) {
+  async respondToBroadcast(@CurrentUser() provider: any, @Body() body: RespondToBroadcastDto) {
     // F04: no more fake log-and-success. Delegate to the canonical offer
     // service, which verifies the caller is an approved pharmacy AND a
     // notified target of this broadcast before persisting a real offer draft.
@@ -203,7 +204,7 @@ export class NabdExtensionsController {
 
   @Roles(UserRole.LAB, UserRole.HOSPITAL, UserRole.ADMIN)
   @Post('labs/samples/barcode-verify')
-  async verifyBarcode(@CurrentUser() staff: any, @Body() body: { sampleId: string; barcodeId: string }) {
+  async verifyBarcode(@CurrentUser() staff: any, @Body() body: VerifyBarcodeDto) {
     // F05: no more fake log-and-success. Real bind with booking ownership:
     // the sample's lab booking must be served by the caller's lab account
     // (admins bypass), and the physical barcode must be unique across samples.
@@ -217,7 +218,7 @@ export class NabdExtensionsController {
 
   @Roles(UserRole.LAB, UserRole.HOSPITAL, UserRole.ADMIN)
   @Post('labs/results/verify')
-  async verifyLabResults(@Body() body: { sampleId: string; actualValue: number }) {
+  async verifyLabResults(@Body() body: VerifyLabResultsDto) {
     return this.svc.verifyLabResultRanges(body.sampleId, body.actualValue);
   }
 
@@ -233,14 +234,14 @@ export class NabdExtensionsController {
 
   @Roles(UserRole.ADMIN)
   @Post('admin/ads/bid')
-  async placeAdBid(@CurrentUser() provider: any, @Body() body: any) {
+  async placeAdBid(@CurrentUser() provider: any, @Body() body: CreateAdBidDto) {
     await this.svc.logActivity('ads.bid_placed', undefined, provider.id, body);
     return { success: true, message: 'Ad Bid placed successfully' };
   }
 
   @SelfService()
   @Post('corporate/enroll')
-  async enrollCorporate(@CurrentUser() user: any, @Body() body: { companyName: string; employeeId: string; requestedAmount: number }) {
+  async enrollCorporate(@CurrentUser() user: any, @Body() body: EnrollCorporateDto) {
     return this.svc.verifyCorporateCredit(body.companyName, body.employeeId, body.requestedAmount);
   }
 }

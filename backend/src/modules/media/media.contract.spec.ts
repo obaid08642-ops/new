@@ -28,9 +28,9 @@ describe('MediaController private-asset contract', () => {
     const { controller, ChatThreadModel } = controllerFor({ chatThread: null });
     const file: any = { buffer: Buffer.from('x'), originalname: 'note.pdf', mimetype: 'application/pdf', size: 1 };
 
-    await expect(controller.uploadFile(OTHER, file, 'chat', 'thread-1')).rejects.toThrow(NotFoundException);
+    await expect(controller.uploadFile(OTHER, file, { purpose: 'chat', thread_id: 'thread-1' })).rejects.toThrow(NotFoundException);
 
-    expect(ChatThreadModel.findOne).toHaveBeenCalledWith({ id: 'thread-1', participant_ids: OTHER.id });
+    expect(ChatThreadModel.findOne).toHaveBeenCalledWith({ id: { $eq: 'thread-1' }, participant_ids: { $eq: OTHER.id } });
     expect(controller.mediaService.uploadBuffer).not.toHaveBeenCalled();
   });
 
@@ -38,7 +38,7 @@ describe('MediaController private-asset contract', () => {
     const { controller } = controllerFor({ chatThread: { id: 'thread-1', participant_ids: [OWNER.id] } });
     const file: any = { buffer: Buffer.from('x'), originalname: 'note.pdf', mimetype: 'application/pdf', size: 1 };
 
-    await expect(controller.uploadFile(OWNER, file, 'chat', 'thread-1'))
+    await expect(controller.uploadFile(OWNER, file, { purpose: 'chat', thread_id: 'thread-1' }))
       .resolves.toEqual({ id: 'media-1', purpose: 'chat', thread_id: 'thread-1' });
 
     expect(controller.assets.create).toHaveBeenCalledWith(expect.objectContaining({

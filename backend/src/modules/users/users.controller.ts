@@ -1,8 +1,10 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Headers, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CurrentUser, JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
 import { RequireIdempotency } from '../../common/idempotency.interceptor';
 import { UserRole } from '../../common/enums';
+import { UpdateDisplayDto, ChangePasswordDto } from './users.dto';
+import { UpdateProfileDto, UpdateNotificationSettingsDto, UpdatePrivacySettingsDto, UpdateSecuritySettingsDto } from './users.settings.dto';
 
 @Controller('users')
 @SelfService()
@@ -18,7 +20,7 @@ export class UsersController {
 
   /** Contract-pack allowlisted patient profile mutation. */
   @Patch('me')
-  updateDisplay(@CurrentUser('id') id: string, @Body() body: any) {
+  updateDisplay(@CurrentUser('id') id: string, @Body() body: UpdateDisplayDto) {
     return this.users.updatePatientWebProfile(id, body);
   }
 
@@ -33,8 +35,8 @@ export class UsersController {
   }
 
   @Patch('me/profile')
-  updateMyProfile(@CurrentUser('id') id: string, @Body() body: any) {
-    return this.users.updatePatientProfile(id, body);
+  updateMyProfile(@CurrentUser('id') id: string, @Body() body: UpdateProfileDto) {
+    return this.users.updatePatientProfile(id, body as any);
   }
 
   @Get('me/wishlist')
@@ -55,7 +57,7 @@ export class UsersController {
 
   @Patch('me/notification-settings')
   @RequireIdempotency()
-  updateNotificationSettings(@CurrentUser('id') id: string, @Body() body: any) {
+  updateNotificationSettings(@CurrentUser('id') id: string, @Body() body: UpdateNotificationSettingsDto) {
     return this.users.updateNotificationSettings(id, body);
   }
 
@@ -70,7 +72,7 @@ export class UsersController {
   }
 
   @Patch('me/privacy-settings')
-  updatePrivacySettings(@CurrentUser('id') id: string, @Body() body: any) {
+  updatePrivacySettings(@CurrentUser('id') id: string, @Body() body: UpdatePrivacySettingsDto) {
     return this.users.updatePrivacySettings(id, body);
   }
 
@@ -80,13 +82,13 @@ export class UsersController {
   }
 
   @Patch('me/security-settings')
-  updateSecuritySettings(@CurrentUser('id') id: string, @Body() body: any) {
+  updateSecuritySettings(@CurrentUser('id') id: string, @Body() body: UpdateSecuritySettingsDto) {
     return this.users.updateSecuritySettings(id, body);
   }
 
   @Post('me/change-password')
-  changePassword(@CurrentUser('id') id: string, @Body() body: any) {
-    return this.users.changePassword(id, body);
+  changePassword(@CurrentUser('id') id: string, @Body() body: ChangePasswordDto, @Headers('x-device-id') deviceId?: string) {
+    return this.users.changePassword(id, body, deviceId);
   }
 
   @Get('me/sessions')

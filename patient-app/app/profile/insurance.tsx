@@ -98,7 +98,7 @@ export default function InsuranceScreen() {
         method: "POST",
         body: JSON.stringify(payload),
       });
-      setInsurance(saved || payload);
+      setInsurance(saved?.provider ? saved : payload);
       setShowForm(false);
       setPolicyNumber("");
       setMemberId("");

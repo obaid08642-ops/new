@@ -30,6 +30,7 @@ import { RadiologyBooking, RadiologyBookingSchema } from '../../schemas/radiolog
 import { ProviderProfile, ProviderProfileSchema } from '../../schemas/provider-profile.schema';
 import { Facility, FacilitySchema, FacilityDocument } from '../../schemas/facility.schema';
 import { EventBusService } from '../events/event-bus.service';
+import { MatchDto } from './workflow-engine.dto';
 
 /* ──────────────────────────────────────────────────────────────────────
  *   DOMAIN-STATE → UNIVERSAL-STATE MAP (the ONLY place mapping exists)
@@ -348,8 +349,8 @@ export class WorkflowEngineService {
     const filter: any = { status: ProviderStatus.ACTIVE };
     if (ptype) filter.type = ptype;
     if (criteria.home_visit) filter.home_visit_supported = true;
-    if (criteria.city) filter.city = criteria.city;
-    if (criteria.insurance) filter.accepted_insurance = criteria.insurance;
+    if (criteria.city) filter.city = { $eq: criteria.city };
+    if (criteria.insurance) filter.accepted_insurance = { $eq: criteria.insurance };
 
     const candidates: any[] = await this.providers
       .find(filter, { _id: 0, __v: 0, license_documents: 0 })
@@ -560,7 +561,7 @@ export class WorkflowController {
   /** Provider matching endpoint — frontends call this for smart match. */
   @UseGuards(JwtAuthGuard) @Post('match')
   @SelfService()
-  match(@Body() b: any) {
+  match(@Body() b: MatchDto) {
     return this.engine.rankProviders({
       kind: b.kind,
       service_keys: b.service_keys,

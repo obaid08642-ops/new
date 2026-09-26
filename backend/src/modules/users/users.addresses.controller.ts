@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@n
 import { UsersService } from './users.service';
 import { CurrentUser, JwtAuthGuard, SelfService } from '../../common/auth.guard';
 import { v4 as uuid } from 'uuid';
+import { AddAddressDto, UpdateAddressDto } from './users.addresses.dto';
 
 @Controller('users/me/addresses')
 @SelfService()
@@ -16,7 +17,7 @@ export class UsersAddressesController {
   }
 
   @Post()
-  async addAddress(@CurrentUser('id') id: string, @Body() body: any) {
+  async addAddress(@CurrentUser('id') id: string, @Body() body: AddAddressDto) {
     const profile = await this.users.getPatientProfile(id);
     const newAddress = { id: uuid(), ...body };
     const addresses = profile.addresses || [];
@@ -29,11 +30,12 @@ export class UsersAddressesController {
     
     addresses.push(newAddress);
     await this.users.updatePatientProfile(id, { addresses });
-    return newAddress;
+    // Do not reflect caller-controlled address strings into the write response.
+    return { id: newAddress.id };
   }
 
   @Patch(':addressId')
-  async updateAddress(@CurrentUser('id') id: string, @Param('addressId') addressId: string, @Body() body: any) {
+  async updateAddress(@CurrentUser('id') id: string, @Param('addressId') addressId: string, @Body() body: UpdateAddressDto) {
     const profile = await this.users.getPatientProfile(id);
     const addresses = profile.addresses || [];
     

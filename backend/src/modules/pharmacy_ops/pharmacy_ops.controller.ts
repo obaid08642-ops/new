@@ -6,6 +6,7 @@ const canonicalPharmacyFlowRequired = (): never => { throw new ServiceUnavailabl
 import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { OrdersService } from '../orders/orders.service';
+import { SetInsuranceDto } from './pharmacy_ops.dto';
 
 @Controller('pharmacy')
 @UseGuards(JwtAuthGuard)
@@ -51,7 +52,7 @@ export class PharmacyOpsController {
   @Post('orders/:id/submit-basket') submitBasket() { return canonicalPharmacyFlowRequired(); }
 
   // Insurance pre-auth (pharmacy provider)
-  @Post('orders/:id/insurance') setInsurance(@CurrentUser() u: any, @Param('id') id: string, @Body() b: { status: 'approved' | 'rejected' | 'pending'; reason?: string }) {
+  @Post('orders/:id/insurance') setInsurance(@CurrentUser() u: any, @Param('id') id: string, @Body() b: SetInsuranceDto) {
     return canonicalPharmacyFlowRequired();
   }
 }
@@ -69,7 +70,7 @@ export class ProviderPharmacyAliasController {
 
   @Post('orders/:id/accept') accept() { return canonicalPharmacyFlowRequired(); }
   @Post('orders/:id/submit-basket') submitBasket() { return canonicalPharmacyFlowRequired(); }
-  @Post('orders/:id/insurance') insurance(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
+  @Post('orders/:id/insurance') insurance(@CurrentUser() u: any, @Param('id') id: string) {
     return canonicalPharmacyFlowRequired();
   }
   @Post('orders/:id/dispatch') dispatch() { return canonicalPharmacyFlowRequired(); }

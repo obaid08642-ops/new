@@ -1,4 +1,5 @@
-import { Body, Controller, Delete, Get, Headers, Optional, Param, Post, UseGuards, Req, Res, BadRequestException } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Header, Headers, Optional, Param, Post, UseGuards, Req, Res, BadRequestException } from '@nestjs/common';
+import { AuthLoginDto, AuthVerify2faDto, RefreshDto, RecordConsentDto, SendOtpDto, VerifyOtpDto, ResetPasswordDto, SocialLoginDto, HeartbeatDto} from './auth.dto';
 import { PresenceService } from '../presence/presence.service';
 import { Throttle } from '@nestjs/throttler';
 import { Request, Response } from 'express';
@@ -147,7 +148,7 @@ export class AuthController {
   @Public()
   @Throttle({ default: { limit: 10, ttl: 60000 } }) // E5-F4 credential brute-force guard
   @Post('login')
-  async login(@Body() dto: any, @Req() req: Request, @Res({ passthrough: true }) res: Response) {
+  async login(@Body() dto: AuthLoginDto, @Req() req: Request, @Res({ passthrough: true }) res: Response) {
     // Accept email OR phone as a single identifier; backwards-compatible with old { phone }.
     const id = dto?.identifier || dto?.email || dto?.phone || '';
     const result: any = await this.auth.login(id, dto?.password, {
@@ -185,7 +186,7 @@ export class AuthController {
   @Public()
   @Throttle({ default: { limit: 10, ttl: 60000 } }) // E5-F4
   @Post('login/verify-2fa')
-  async verify2fa(@Body() dto: any, @Req() req: Request, @Res({ passthrough: true }) res: Response) {
+  async verify2fa(@Body() dto: AuthVerify2faDto, @Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const id = dto?.identifier || dto?.email || dto?.phone || '';
     const result: any = await this.auth.verify2fa(id, dto?.code, {
       ua: req.headers['user-agent'],
@@ -227,7 +228,7 @@ export class AuthController {
 
   /** Dashboard heartbeat — keeps this device marked as online. */
   @Post('heartbeat')
-  heartbeat(@CurrentUser() user: any, @Req() req: Request, @Body() body?: { client?: string }) {
+  heartbeat(@CurrentUser() user: any, @Req() req: Request, @Body() body?: HeartbeatDto) {
     const out = this.auth.deviceHeartbeat(
       user.id,
       (req as any).cookies?.[DEVICE_COOKIE],
@@ -251,7 +252,7 @@ export class AuthController {
   @Public()
   @Throttle({ default: { limit: 30, ttl: 60000 } })
   @Post('refresh')
-  async refresh(@Body() body: { refresh_token: string }, @Headers('x-device-id') deviceId?: string) {
+  async refresh(@Body() body: RefreshDto, @Headers('x-device-id') deviceId?: string) {
     if (!body?.refresh_token) throw new BadRequestException('refresh_token_required');
     return this.auth.refreshToken(body.refresh_token, deviceId);
   }
@@ -264,7 +265,7 @@ export class AuthController {
 
   @Post('consent')
   @UseGuards(JwtAuthGuard)
-  async recordConsent(@CurrentUser() user: any, @Body() body: { document_type: string, version: string }) {
+  async recordConsent(@CurrentUser() user: any, @Body() body: RecordConsentDto) {
     if (!body?.document_type || !body?.version) throw new BadRequestException('document_type and version required');
     // In production this would write to a specialized compliance log DB or collection
     // We update the user profile meta to reflect the latest accepted version for PDPL.
@@ -286,7 +287,7 @@ export class AuthController {
   @Public()
   @Throttle({ default: { limit: 5, ttl: 60000 } }) // E5-F4 SMS-bombing guard
   @Post('send-otp')
-  sendOtp(@Body() body: { email?: string; phone?: string; identifier?: string }) {
+  sendOtp(@Body() body: SendOtpDto) {
     const id = body.identifier || body.email || body.phone || '';
     return this.auth.sendOtp(id);
   }
@@ -294,7 +295,7 @@ export class AuthController {
   @Public()
   @Throttle({ default: { limit: 10, ttl: 60000 } }) // E5-F4 OTP guessing guard
   @Post('verify-otp')
-  verifyOtp(@Body() body: { email?: string; phone?: string; identifier?: string; code: string }) {
+  verifyOtp(@Body() body: VerifyOtpDto) {
     const id = body.identifier || body.email || body.phone || '';
     return this.auth.verifyOtp(id, body.code);
   }
@@ -302,7 +303,7 @@ export class AuthController {
   @Public()
   @Throttle({ default: { limit: 5, ttl: 60000 } }) // E5-F4
   @Post('reset-password')
-  resetPassword(@Body() body: { email?: string; phone?: string; identifier?: string; password: string; code: string }) {
+  resetPassword(@Body() body: ResetPasswordDto) {
     const id = body.identifier || body.email || body.phone || '';
     if (!body?.code) throw new BadRequestException('code_required');
     return this.auth.resetPassword(id, body.password, body.code);
@@ -311,7 +312,7 @@ export class AuthController {
   @Public()
   @Throttle({ default: { limit: 20, ttl: 60000 } })
   @Post('social-login')
-  socialLogin(@Body() body: { provider: 'google' | 'apple' | 'x' | 'snapchat'; token: string; email?: string; name?: string }) {
+  socialLogin(@Body() body: SocialLoginDto) {
     return this.auth.socialLogin(body);
   }
 }

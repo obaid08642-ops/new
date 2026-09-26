@@ -3,6 +3,7 @@
  * so ChatGateway never imports a provider through this module file.
  */
 import { ChatGateway } from './chat.gateway';
+import { SendMessageDto, CreateDirectDto, CreateGroupDto, CreateBookingDto, MarkReadDto, EditMessageDto, AddReactionDto, AddParticipantDto} from './chat.dto';
 import { ChatService } from './chat.service';
 import { ChatThreadSchema, ChatMessageSchema } from './chat.schemas';
 import {
@@ -25,7 +26,7 @@ export class ChatController {
 
   @Get('threads/:threadId/permissions')
   async getThreadPermissions(@CurrentUser() u: any, @Param('threadId') threadId: string) {
-    const thread = await this.svc.threads.findOne({ id: threadId });
+    const thread = await this.svc.threads.findOne({ id: { $eq: threadId } });
     if (!thread) throw new NotFoundException('thread_not_found');
 
     const isFamily = await this.svc.checkIfFamily(thread.participant_ids);
@@ -43,7 +44,7 @@ export class ChatController {
     }
 
     const AppointmentModel = this.svc.getModel('Appointment');
-    const appt = await AppointmentModel.findOne({ id: thread.booking_id });
+    const appt = await AppointmentModel.findOne({ id: { $eq: thread.booking_id } });
     if (!appt) {
       return {
         status_code: 'closed',
@@ -149,17 +150,17 @@ export class ChatController {
   }
 
   @Post('threads/direct')
-  createDirect(@CurrentUser() u: any, @Body() body: { other_user_id: string }) {
+  createDirect(@CurrentUser() u: any, @Body() body: CreateDirectDto) {
     return this.svc.getOrCreateDirectThread(u.id, body.other_user_id);
   }
 
   @Post('threads/group')
-  createGroup(@CurrentUser() u: any, @Body() body: { name: string; participant_ids: string[] }) {
+  createGroup(@CurrentUser() u: any, @Body() body: CreateGroupDto) {
     return this.svc.createGroupThread(u.id, body.name, body.participant_ids);
   }
 
   @Post('threads/booking')
-  createBooking(@CurrentUser() u: any, @Body() body: { booking_kind: string; booking_id: string; provider_id?: string }) {
+  createBooking(@CurrentUser() u: any, @Body() body: CreateBookingDto) {
     return this.svc.getOrCreateBookingThread(body.booking_kind, body.booking_id, u.id, body.provider_id);
   }
 
@@ -181,12 +182,12 @@ export class ChatController {
 
   @Post('threads/:threadId/messages')
   @RequireIdempotency()
-  sendMessage(@CurrentUser() u: any, @Param('threadId') threadId: string, @Body() body: any) {
+  sendMessage(@CurrentUser() u: any, @Param('threadId') threadId: string, @Body() body: SendMessageDto) {
     return this.svc.sendMessage(threadId, u.id, u.role || 'patient', body);
   }
 
   @Post('threads/:threadId/read')
-  markRead(@CurrentUser() u: any, @Param('threadId') threadId: string, @Body() body: { up_to_message_id?: string }) {
+  markRead(@CurrentUser() u: any, @Param('threadId') threadId: string, @Body() body: MarkReadDto) {
     return this.svc.markRead(threadId, u.id, body?.up_to_message_id);
   }
 
@@ -201,7 +202,7 @@ export class ChatController {
   }
 
   @Patch('messages/:msgId')
-  editMessage(@CurrentUser() u: any, @Param('msgId') msgId: string, @Body() body: { body: string }) {
+  editMessage(@CurrentUser() u: any, @Param('msgId') msgId: string, @Body() body: EditMessageDto) {
     return this.svc.editMessage(msgId, u.id, body.body);
   }
 
@@ -211,7 +212,7 @@ export class ChatController {
   }
 
   @Post('messages/:msgId/reactions')
-  addReaction(@CurrentUser() u: any, @Param('msgId') msgId: string, @Body() body: { emoji: string }) {
+  addReaction(@CurrentUser() u: any, @Param('msgId') msgId: string, @Body() body: AddReactionDto) {
     return this.svc.addReaction(msgId, u.id, body.emoji);
   }
 
@@ -226,7 +227,7 @@ export class ChatController {
   }
 
   @Post('threads/:threadId/participants')
-  addParticipant(@CurrentUser() u: any, @Param('threadId') threadId: string, @Body() body: { user_id: string }) {
+  addParticipant(@CurrentUser() u: any, @Param('threadId') threadId: string, @Body() body: AddParticipantDto) {
     return this.svc.addParticipant(threadId, u.id, body.user_id);
   }
 

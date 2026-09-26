@@ -11,6 +11,7 @@ import {
   HttpStatus,
   UseGuards,
 } from '@nestjs/common';
+import { AddMachineDto, RespondBookingDto, AllocateMachineDto, FinalizeScanDto, UpdateRadiologyCatalogItemDto} from './radiology-provider.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { RadiologyBooking } from '../schemas/radiology-booking.schema';
@@ -74,7 +75,7 @@ export class RadiologyProviderController {
   @HttpCode(HttpStatus.OK)
   async respondBooking(
     @Param('id') bookingId: string,
-    @Body() body: { accept: boolean },
+    @Body() body: RespondBookingDto,
     @CurrentUser() user: any,
   ) {
     const booking = await this.radBookingModel.findOne(bookingQuery(bookingId));
@@ -99,7 +100,7 @@ export class RadiologyProviderController {
   @HttpCode(HttpStatus.OK)
   async allocateMachine(
     @Param('id') bookingId: string,
-    @Body() body: { machineId: string },
+    @Body() body: AllocateMachineDto,
     @CurrentUser() user: any,
   ) {
     const { machineId } = body || ({} as any);
@@ -108,7 +109,7 @@ export class RadiologyProviderController {
     await this.assertBookingAccess(booking, user);
 
     const conflict = await this.radBookingModel.findOne({
-      allocated_machine_id: machineId,
+      allocated_machine_id: { $eq: machineId },
       status: { $in: ['ACCEPTED', 'CHECKED_IN', 'SCANNING_COMPLETED'] },
     });
     if (conflict && String(conflict.id) !== String(bookingId)) {
@@ -130,7 +131,7 @@ export class RadiologyProviderController {
   @Post('finalize-scan/:id')
   async finalizeScan(
     @Param('id') bookingId: string,
-    @Body() body: { reportText: string; files: string[]; pdfUrl: string },
+    @Body() body: FinalizeScanDto,
     @CurrentUser() user: any,
   ) {
     const existing = await this.radBookingModel.findOne(bookingQuery(bookingId));
@@ -196,7 +197,7 @@ export class RadiologyProviderController {
   }
 
   @Post('catalog/:id')
-  async updateCatalogItem(@Param('id') serviceId: string, @Body() body: any, @CurrentUser() user: any) {
+  async updateCatalogItem(@Param('id') serviceId: string, @Body() body: UpdateRadiologyCatalogItemDto, @CurrentUser() user: any) {
     if (!this.isAdmin(user)) throw new ForbiddenException('Only administrators may modify the global radiology catalog');
     const allowed = ['active', 'cash_availability', 'home_visit_supported', 'estimated_duration_minutes', 'price'];
     const patch = Object.fromEntries(Object.entries(body || {}).filter(([key]) => allowed.includes(key)));
@@ -212,7 +213,7 @@ export class RadiologyProviderController {
   }
 
   @Post('inventory')
-  async addMachine(@Body() body: any, @CurrentUser() user: any) {
+  async addMachine(@Body() body: AddMachineDto, @CurrentUser() user: any) {
     if (this.isAdmin(user)) throw new ForbiddenException('Admin must not create provider inventory');
     if (!body?.name || !body?.type) throw new BadRequestException('name and type are required');
     const machine = new this.radMachineModel({ provider_id: user.id, name: body.name, type: body.type, is_active: true });

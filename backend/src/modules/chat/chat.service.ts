@@ -1,6 +1,6 @@
 import { Injectable, ForbiddenException, BadRequestException, NotFoundException, ServiceUnavailableException, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { EventBusService } from '../events/event-bus.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ChatThread, ChatThreadDocument, ChatMessage, ChatMessageDocument } from './chat.schemas';
@@ -53,8 +53,12 @@ export class ChatService {
     if (!modelName) return {};
     try {
       const m = this.getModel(modelName);
-      let doc: any = await m.findOne({ id: bookingId }).lean();
-      if (!doc && /^[a-f0-9]{24}$/i.test(bookingId)) doc = await m.findById(bookingId).lean();
+      // Booking rows are addressed by public uuid `id` first; the `_id`
+      // fallback covers legacy callers holding a Mongo id (never throws).
+      let doc: any = await m.findOne({ id: { $eq: bookingId } }).lean();
+      if (!doc && /^[a-f0-9]{24}$/i.test(bookingId)) {
+        doc = await m.findOne({ _id: { $eq: new Types.ObjectId(bookingId) } }).lean();
+      }
       if (!doc) return {};
       const patientId = doc.patient_id || doc.user_id || doc.patient_user_id || undefined;
       const providerId = doc.provider_account_id || doc.provider_id || doc.doctor_user_id || doc.pharmacy_id || undefined;
@@ -65,7 +69,7 @@ export class ChatService {
   }
 
   async getOrCreateBookingThread(bookingKind: string, bookingId: string, patientId: string, providerId?: string): Promise<ChatThread> {
-    let thread = await this.threads.findOne({ type: 'booking', booking_kind: bookingKind, booking_id: bookingId });
+    let thread = await this.threads.findOne({ type: 'booking', booking_kind: { $eq: bookingKind }, booking_id: { $eq: bookingId } });
     const parties = await this.resolveBookingParties(bookingKind, bookingId);
     const wanted = [...new Set([patientId, providerId, parties.patientId, parties.providerId].filter(Boolean) as string[])];
     if (!thread) {
@@ -144,7 +148,7 @@ export class ChatService {
       throw new ServiceUnavailableException('media_registry_not_available');
     }
     const assets = await MediaAssetModel.find({
-      id: { $in: uniqueIds }, owner_id: senderId, purpose: 'chat', thread_id: threadId,
+      id: { $in: uniqueIds }, owner_id: { $eq: senderId }, purpose: 'chat', thread_id: { $eq: threadId },
     }).lean();
     if (assets.length !== uniqueIds.length) throw new BadRequestException('media_not_owned_or_not_bound_to_thread');
     return uniqueIds;
@@ -167,7 +171,7 @@ export class ChatService {
   }
 
   async verifyCommunicationAllowed(threadId: string, senderId: string): Promise<{ allowed: boolean; message?: string }> {
-    const thread = await this.threads.findOne({ id: threadId });
+    const thread = await this.threads.findOne({ id: { $eq: threadId } });
     if (!thread) return { allowed: true };
 
     const isFamily = await this.checkIfFamily(thread.participant_ids);
@@ -177,7 +181,7 @@ export class ChatService {
       if (!thread.booking_id) return { allowed: false, message: 'معرف الحجز غير موجود.' };
       try {
         const AppointmentModel = this.getModel('Appointment');
-        const appt = await AppointmentModel.findOne({ id: thread.booking_id });
+        const appt = await AppointmentModel.findOne({ id: { $eq: thread.booking_id } });
         if (!appt) return { allowed: false, message: 'لم يتم العثور على الاستشارة المرتبطة.' };
 
         if (appt.status === 'PENDING') {
@@ -214,7 +218,7 @@ export class ChatService {
     attachment_name?: string; attachment_size?: number; duration_seconds?: number;
     reply_to_id?: string; forwarded_from_id?: string; client_message_id?: string; media_ids?: string[];
   }): Promise<ChatMessage> {
-    const thread = await this.threads.findOne({ id: threadId });
+    const thread = await this.threads.findOne({ id: { $eq: threadId } });
     if (!thread) throw new NotFoundException('thread_not_found');
     this.assertParticipant(thread, senderId);
 
@@ -226,7 +230,7 @@ export class ChatService {
 
     // Deduplication check
     if (body.client_message_id) {
-      const existing = await this.msgs.findOne({ client_message_id: body.client_message_id, thread_id: threadId, sender_id: senderId });
+      const existing = await this.msgs.findOne({ client_message_id: { $eq: body.client_message_id }, thread_id: { $eq: threadId }, sender_id: { $eq: senderId } });
       if (existing) {
         return existing.toObject();
       }
@@ -258,7 +262,7 @@ export class ChatService {
     for (const pid of thread.participant_ids) {
       if (pid !== senderId) unread[`unread_counts.${pid}`] = (thread.unread_counts?.[pid] || 0) + 1;
     }
-    await this.threads.updateOne({ id: threadId }, {
+    await this.threads.updateOne({ id: { $eq: threadId } }, {
       $set: { last_message: (body.body || (mediaIds.length ? '[مرفق]' : '')).slice(0, 150), last_message_at: new Date(), last_message_sender_id: senderId, ...unread },
     });
 
@@ -297,14 +301,14 @@ export class ChatService {
   async getMessages(threadId: string, userId: string, options: { before?: string; limit?: number; search?: string }): Promise<{
     messages: ChatMessage[]; has_more: boolean;
   }> {
-    const thread = await this.threads.findOne({ id: threadId });
+    const thread = await this.threads.findOne({ id: { $eq: threadId } });
     if (!thread) throw new NotFoundException('thread_not_found');
     this.assertParticipant(thread, userId);
 
     const limit = options.limit || 50;
     const query: any = { thread_id: threadId, is_deleted: false };
     if (options.before) {
-      const ref = await this.msgs.findOne({ id: options.before }).lean<any>();
+      const ref = await this.msgs.findOne({ id: { $eq: options.before } }).lean<any>();
       if (ref) query.createdAt = { $lt: (ref as any).createdAt };
     }
     if (options.search) query.$text = { $search: options.search };
@@ -315,21 +319,21 @@ export class ChatService {
   }
 
   async markRead(threadId: string, userId: string, upToMessageId?: string): Promise<void> {
-    const thread = await this.threads.findOne({ id: threadId });
+    const thread = await this.threads.findOne({ id: { $eq: threadId } });
     if (!thread) throw new NotFoundException('thread_not_found');
     this.assertParticipant(thread, userId);
     const query: any = { thread_id: threadId, sender_id: { $ne: userId }, read_by: { $ne: userId } };
     if (upToMessageId) {
-      const marker: any = await this.msgs.findOne({ id: upToMessageId, thread_id: threadId }).lean();
+      const marker: any = await this.msgs.findOne({ id: { $eq: upToMessageId }, thread_id: { $eq: threadId } }).lean();
       if (!marker) throw new BadRequestException('invalid_up_to_message_id');
       query.createdAt = { $lte: marker.createdAt };
     }
     await this.msgs.updateMany(query, { $addToSet: { read_by: userId } });
-    await this.threads.updateOne({ id: threadId }, { $set: { [`unread_counts.${userId}`]: 0 } });
+    await this.threads.updateOne({ id: { $eq: threadId } }, { $set: { [`unread_counts.${userId}`]: 0 } });
   }
 
   async markDelivered(threadId: string, userId: string): Promise<void> {
-    const thread = await this.threads.findOne({ id: threadId });
+    const thread = await this.threads.findOne({ id: { $eq: threadId } });
     if (!thread) throw new NotFoundException('thread_not_found');
     this.assertParticipant(thread, userId);
     await this.msgs.updateMany(
@@ -339,7 +343,7 @@ export class ChatService {
   }
 
   async editMessage(msgId: string, userId: string, newBody: string): Promise<ChatMessage> {
-    const msg = await this.msgs.findOne({ id: msgId });
+    const msg = await this.msgs.findOne({ id: { $eq: msgId } });
     if (!msg) throw new NotFoundException('message_not_found');
     if (msg.sender_id !== userId) throw new ForbiddenException('not_sender');
     if (msg.is_deleted) throw new BadRequestException('message_deleted');
@@ -351,7 +355,7 @@ export class ChatService {
   }
 
   async deleteMessage(msgId: string, userId: string): Promise<void> {
-    const msg = await this.msgs.findOne({ id: msgId });
+    const msg = await this.msgs.findOne({ id: { $eq: msgId } });
     if (!msg) throw new NotFoundException('message_not_found');
     if (msg.sender_id !== userId) throw new ForbiddenException('not_sender');
     msg.is_deleted = true;
@@ -361,9 +365,9 @@ export class ChatService {
   }
 
   async addReaction(msgId: string, userId: string, emoji: string): Promise<ChatMessage> {
-    const msg = await this.msgs.findOne({ id: msgId });
+    const msg = await this.msgs.findOne({ id: { $eq: msgId } });
     if (!msg) throw new NotFoundException('message_not_found');
-    const thread = await this.threads.findOne({ id: msg.thread_id });
+    const thread = await this.threads.findOne({ id: { $eq: msg.thread_id } });
     if (!thread) throw new NotFoundException('thread_not_found');
     this.assertParticipant(thread, userId);
     // Remove previous reaction by this user
@@ -378,9 +382,9 @@ export class ChatService {
   }
 
   async removeReaction(msgId: string, userId: string, emoji: string): Promise<ChatMessage> {
-    const msg = await this.msgs.findOne({ id: msgId });
+    const msg = await this.msgs.findOne({ id: { $eq: msgId } });
     if (!msg) throw new NotFoundException('message_not_found');
-    const thread = await this.threads.findOne({ id: msg.thread_id });
+    const thread = await this.threads.findOne({ id: { $eq: msg.thread_id } });
     if (!thread) throw new NotFoundException('thread_not_found');
     this.assertParticipant(thread, userId);
     if (msg.reactions?.[emoji]) {
@@ -392,37 +396,37 @@ export class ChatService {
   }
 
   async pinMessage(msgId: string, userId: string): Promise<void> {
-    const msg = await this.msgs.findOne({ id: msgId });
+    const msg = await this.msgs.findOne({ id: { $eq: msgId } });
     if (!msg) throw new NotFoundException('message_not_found');
-    const thread = await this.threads.findOne({ id: msg.thread_id });
+    const thread = await this.threads.findOne({ id: { $eq: msg.thread_id } });
     if (!thread) throw new NotFoundException('thread_not_found');
     this.assertParticipant(thread, userId);
-    await this.msgs.updateOne({ id: msgId }, { $set: { is_pinned: true } });
+    await this.msgs.updateOne({ id: { $eq: msgId } }, { $set: { is_pinned: true } });
   }
 
   async getThread(threadId: string, userId: string): Promise<ChatThread> {
-    const thread = await this.threads.findOne({ id: threadId }, { _id: 0, __v: 0 }).lean();
+    const thread = await this.threads.findOne({ id: { $eq: threadId } }, { _id: 0, __v: 0 }).lean();
     if (!thread) throw new NotFoundException('thread_not_found');
     this.assertParticipant(thread, userId);
     return thread;
   }
 
   async addParticipant(threadId: string, actorId: string, userId: string): Promise<void> {
-    const thread = await this.threads.findOne({ id: threadId });
+    const thread = await this.threads.findOne({ id: { $eq: threadId } });
     if (!thread) throw new NotFoundException('thread_not_found');
     this.assertParticipant(thread, actorId);
     if (thread.type !== 'group' && thread.type !== 'direct') throw new ForbiddenException('participant_management_not_allowed');
-    await this.threads.updateOne({ id: threadId }, {
+    await this.threads.updateOne({ id: { $eq: threadId } }, {
       $addToSet: { participant_ids: userId },
       $set: { [`unread_counts.${userId}`]: 0 },
     });
   }
 
   async removeParticipant(threadId: string, actorId: string, userId: string): Promise<void> {
-    const thread = await this.threads.findOne({ id: threadId });
+    const thread = await this.threads.findOne({ id: { $eq: threadId } });
     if (!thread) throw new NotFoundException('thread_not_found');
     this.assertParticipant(thread, actorId);
     if (thread.type !== 'group' && thread.type !== 'direct') throw new ForbiddenException('participant_management_not_allowed');
-    await this.threads.updateOne({ id: threadId }, { $pull: { participant_ids: userId } });
+    await this.threads.updateOne({ id: { $eq: threadId } }, { $pull: { participant_ids: userId } });
   }
 }

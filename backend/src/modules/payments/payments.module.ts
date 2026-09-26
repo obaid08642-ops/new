@@ -3,6 +3,7 @@ import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Transaction, TransactionSchema } from '../../schemas/transaction.schema';
+import { RefundPaymentDto } from './payments.dto';
 import { OrderSchema } from '../../schemas/order.schema';
 import { LabBookingSchema } from '../../schemas/lab.schema';
 import { RadiologyBookingSchema } from '../../schemas/radiology.schema';
@@ -67,7 +68,7 @@ class StripeAdapter implements GatewayAdapter {
     const body = new URLSearchParams({ amount: String(Math.round(o.amount * 100)), currency: (o.currency || 'sar').toLowerCase(), description: o.description || 'Nabd booking', 'automatic_payment_methods[enabled]': 'true' });
     const r = await fetch(`${this.base}/payment_intents`, { method: 'POST', headers: this.headers(), body });
     const j: any = await r.json();
-    if (!r.ok) throw new Error(j.error?.message || 'stripe_intent_failed');
+    if (!r.ok) throw new BadGatewayException(j.error?.message || 'stripe_intent_failed');
     return { intent_id: j.id, client_secret: j.client_secret };
   }
   async verify(id: string) {
@@ -91,7 +92,7 @@ class TapAdapter implements GatewayAdapter {
     const body = JSON.stringify({ amount: o.amount, currency: o.currency || 'SAR', description: o.description, source: { id: 'src_all' }, redirect: { url: process.env.PUBLIC_APP_URL || 'https://example.com/payment/return' } });
     const r = await fetch(`${this.base}/charges`, { method: 'POST', headers: this.headers(), body });
     const j: any = await r.json();
-    if (!r.ok) throw new Error(j.errors?.[0]?.description || 'tap_intent_failed');
+    if (!r.ok) throw new BadGatewayException(j.errors?.[0]?.description || 'tap_intent_failed');
     return { intent_id: j.id, checkout_url: j.transaction?.url };
   }
   async verify(id: string) {
@@ -117,7 +118,7 @@ class MoyasarAdapter implements GatewayAdapter {
     const body = JSON.stringify({ amount: Math.round(o.amount * 100), currency: o.currency || 'SAR', description: o.description, callback_url: process.env.PUBLIC_APP_URL });
     const r = await fetch(`${this.base}/payments`, { method: 'POST', headers: this.headers(), body });
     const j: any = await r.json();
-    if (!r.ok) throw new Error(j.message || 'moyasar_intent_failed');
+    if (!r.ok) throw new BadGatewayException(j.message || 'moyasar_intent_failed');
     return { intent_id: j.id, checkout_url: j.source?.transaction_url };
   }
   async verify(id: string) {
@@ -394,7 +395,7 @@ export class PaymentsService {
     if (result.status === 'paid') {
       t.paid_at = new Date();
       if (!(t.booking_kind === 'pharmacy' && await this.finalizeGovernedPharmacyPaid(t))) {
-        await this.modelFor(t.booking_kind).updateOne({ id: t.booking_id }, { $set: { payment_status: 'paid', transaction_id: t.id, paid_at: t.paid_at } });
+      await this.modelFor(t.booking_kind).updateOne({ id: { $eq: t.booking_id } }, { $set: { payment_status: 'paid', transaction_id: t.id, paid_at: t.paid_at } });
       }
       // For online/home services we emit an event so the workflow engine (provider-jobs / booking-flow)
       // can transition CONFIRMED when payment is required pre-confirmation.
@@ -525,7 +526,7 @@ export class PaymentsService {
     // Look up by gateway_intent_id or gateway_charge_id present in payload
     const intentId = payload.data?.object?.id || payload.id || payload.payment_intent;
     if (!intentId) return { ok: false, reason: 'no_intent_id' };
-    const t = await this.txns.findOne({ gateway_intent_id: intentId });
+    const t = await this.txns.findOne({ gateway_intent_id: { $eq: intentId } });
     if (!t) return { ok: false, reason: 'no_match' };
     await this.verifyPayment({ id: t.patient_id, role: 'system' }, t.id);
     return { ok: true };
@@ -558,7 +559,7 @@ export class PaymentsController {
   @UseInterceptors(IdempotencyInterceptor)
   retry(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Headers('idempotency-key') key: string) { return this.svc.retryPayment(u, t, id, key); }
   @Roles(UserRole.ADMIN)
-  @Post('refund/:txn') refund(@CurrentUser() u: any, @Param('txn') txn: string, @Body() b: { amount?: number; reason?: string }) { return this.svc.refundPayment(u, txn, b.amount, b.reason); }
+  @Post('refund/:txn') refund(@CurrentUser() u: any, @Param('txn') txn: string, @Body() b: RefundPaymentDto) { return this.svc.refundPayment(u, txn, b.amount, b.reason); }
   @Roles(UserRole.ADMIN)
   @Post('capture/:txn') capture(@CurrentUser() u: any, @Param('txn') txn: string) { return this.svc.capturePayment(u, txn); }
   @Get('pharmacy/:orderId/capabilities') pharmacyCapabilities(@CurrentUser() u: any, @Param('orderId') orderId: string) { return this.svc.getPharmacyCapabilities(u, orderId); }
@@ -572,7 +573,7 @@ export class PaymentsWebhookController {
   @Public()
   @Post(':provider') @HttpCode(200) async webhook(
     @Param('provider') p: string,
-    @Body() b: any,
+    @Body() b: Record<string, unknown>,
     @Headers('moyasar-signature') signature: string,
     @Req() req: Request,
   ) {

@@ -21,6 +21,7 @@ import {
   Module, Global, Injectable, Controller, Post, Get, Put, Body, Param, Query,
   UseGuards, BadRequestException, NotFoundException, ForbiddenException, Logger,
 } from '@nestjs/common';
+import { ValidateCouponDto, LoyaltyQuoteDto, SetCommissionRuleDto, ResolveCommissionDto, RequestApprovalDto, DecideApprovalDto } from './finance-engine.dto';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
@@ -196,7 +197,7 @@ export class CommissionResolver {
   async setRule(adminId: string, rule: {
     scope: 'service' | 'provider' | 'category' | 'campaign';
     scope_id?: string; service_type?: string; percent: number;
-    effective_from?: Date; effective_to?: Date;
+    effective_from?: Date | string; effective_to?: Date | string;
   }) {
     if (!['service', 'provider', 'category', 'campaign'].includes(rule.scope)) throw new BadRequestException('invalid scope');
     if (!(Number(rule.percent) >= 0 && Number(rule.percent) <= 100)) throw new BadRequestException('percent must be 0..100');
@@ -933,7 +934,7 @@ export class FinanceEngineController {
 
   /** Validate a coupon against a cart (patient checkout). */
   @Post('coupons/validate')
-  async validateCoupon(@CurrentUser() u: any, @Body() b: any) {
+  async validateCoupon(@CurrentUser() u: any, @Body() b: ValidateCouponDto) {
     const orderTotal = Number(b?.order_total);
     if (!(orderTotal > 0)) throw new BadRequestException('order_total required');
     return this.coupons.validate(u.id, String(b?.code || ''), {
@@ -945,7 +946,7 @@ export class FinanceEngineController {
 
   /** Loyalty redemption quote for a cart (patient checkout). */
   @Post('loyalty/redeem-quote')
-  async loyaltyQuote(@CurrentUser() u: any, @Body() b: any) {
+  async loyaltyQuote(@CurrentUser() u: any, @Body() b: LoyaltyQuoteDto) {
     const orderTotal = Number(b?.order_total);
     if (!(orderTotal > 0)) throw new BadRequestException('order_total required');
     return this.loyalty.quote(u.id, orderTotal);
@@ -982,8 +983,8 @@ export class AdminFinanceEngineController {
 
   /** Commission rules with overrides + effective dates + versioning (S11). */
   @Post('commission-rules')
-  setCommissionRule(@CurrentUser() u: any, @Body() b: any) {
-    return this.commissions.setRule(u.id, b || {});
+  setCommissionRule(@CurrentUser() u: any, @Body() b: SetCommissionRuleDto) {
+    return this.commissions.setRule(u.id, { ...b });
   }
 
   @Get('commission-rules/history')
@@ -992,7 +993,7 @@ export class AdminFinanceEngineController {
   }
 
   @Post('commission-rules/resolve')
-  resolveCommission(@Body() b: any) {
+  resolveCommission(@Body() b: ResolveCommissionDto) {
     return this.commissions.resolve(String(b?.service_type || ''), {
       providerId: b?.provider_id, category: b?.category, campaignId: b?.campaign_id,
     });
@@ -1005,12 +1006,12 @@ export class AdminFinanceEngineController {
   }
 
   @Post('approvals/request')
-  requestApproval(@CurrentUser() u: any, @Body() b: any) {
+  requestApproval(@CurrentUser() u: any, @Body() b: RequestApprovalDto) {
     return this.approvals.request(b?.type, b?.payload || {}, u.id, b?.reason);
   }
 
   @Post('approvals/:id/decide')
-  async decideApproval(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
+  async decideApproval(@CurrentUser() u: any, @Param('id') id: string, @Body() b: DecideApprovalDto) {
     const executors: Record<string, (payload: any) => Promise<any>> = {
       // Manual provider credit/debit → ledger adjustment entries (append-only)
       manual_credit: async (pl: any) => this.ledger.append({

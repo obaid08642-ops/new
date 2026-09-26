@@ -4,6 +4,7 @@ import { Model, Types } from 'mongoose';
 import { ProcurementRequest } from '../schemas/procurement-request.schema';
 import { Roles } from '../../../common/auth.guard';
 import { UserRole } from '../../../common/enums';
+import { IssueWarehouseQuotationDto } from './admin-extended-operations.dto';
 
 @Controller('admin/extended-operations')
 @Roles(UserRole.ADMIN)
@@ -25,9 +26,11 @@ export class AdminExtendedOperationsController {
   @Patch('issue-quote/:procurementId')
   async issueWarehouseQuotation(
     @Param('procurementId') procurementId: string, 
-    @Body() body: { pricingItems: any[], totalPrice: number }
+    @Body() body: IssueWarehouseQuotationDto
   ) {
-    // Intercepts Admin entry sheet inputs to price pharmacy B2B shortages
+    // Intercepts Admin entry sheet inputs to price pharmacy B2B shortages.
+    // procurementId is always the procurement Mongo `_id` (same ID contract as
+    // ProcurementService — the create endpoint returns `request._id`).
     const updatedProcurement = await this.procurementModel.findByIdAndUpdate(
       procurementId,
       {

@@ -13,6 +13,7 @@ import { JwtAuthGuard, CurrentUser, Roles, SelfService } from '../../common/auth
 import { UserRole } from '../../common/enums';
 import { EventsModule } from '../events/events.module';
 import { EventBusService } from '../events/event-bus.service';
+import { RateDto, RefundDto, RebookDto, DecideDto, CancelDto, TransitionDto, MarkPaymentDto} from './patient-ux.dto';
 
 /** Reviews + Refund Requests + Rebook */
 @Injectable()
@@ -36,7 +37,7 @@ export class PatientUxService {
   async rate(user: any, body: { booking_kind: string; booking_id: string; rating: number; comment?: string; aspects?: any }) {
     if (!body.rating || body.rating < 1 || body.rating > 5) throw new BadRequestException('invalid_rating');
     const M = this.model(body.booking_kind);
-    const b: any = await M.findOne({ id: body.booking_id }).lean();
+    const b: any = await M.findOne({ id: { $eq: body.booking_id } }).lean();
     if (!b) throw new NotFoundException();
     if (b.patient_id !== user.id) throw new BadRequestException('not_owner');
 
@@ -60,7 +61,7 @@ export class PatientUxService {
     const status = body.rating < 3 ? 'pending_review' : 'approved';
 
     return this.reviews.findOneAndUpdate(
-      { booking_kind: body.booking_kind, booking_id: body.booking_id },
+      { booking_kind: { $eq: body.booking_kind }, booking_id: { $eq: body.booking_id } },
       { $set: { provider_id, patient_id: user.id, booking_kind: body.booking_kind, booking_id: body.booking_id, rating: body.rating, comment: body.comment, aspects: body.aspects, status } },
       { upsert: true, new: true }
     );
@@ -69,10 +70,10 @@ export class PatientUxService {
   async requestRefund(user: any, body: { booking_kind: string; booking_id: string; reason: string; amount?: number }) {
     if (!body.reason) throw new BadRequestException('reason_required');
     const M = this.model(body.booking_kind);
-    const b: any = await M.findOne({ id: body.booking_id }).lean();
+    const b: any = await M.findOne({ id: { $eq: body.booking_id } }).lean();
     if (!b || b.patient_id !== user.id) throw new BadRequestException('not_owner');
     if (!['paid', 'partially_refunded'].includes(b.payment_status)) throw new BadRequestException('not_eligible_for_refund');
-    const existing = await this.refunds.findOne({ booking_id: body.booking_id, status: 'requested' });
+    const existing = await this.refunds.findOne({ booking_id: { $eq: body.booking_id }, status: 'requested' });
     if (existing) return existing.toObject();
     const rr = await this.refunds.create({ booking_kind: body.booking_kind, booking_id: body.booking_id, patient_id: user.id, reason: body.reason, amount: body.amount });
     this.events.emit('refund.requested', rr.toObject());
@@ -92,7 +93,7 @@ export class PatientUxService {
 
   /** ADMIN: decide on a refund request (approve / reject). */
   async adminDecideRefund(admin: any, id: string, decision: 'approved' | 'rejected', note?: string, amount?: number) {
-    const r: any = await this.refunds.findOne({ id });
+    const r: any = await this.refunds.findOne({ id: { $eq: id } });
     if (!r) throw new NotFoundException('refund_not_found');
     if (r.status !== 'requested') throw new BadRequestException('not_pending');
     r.status = decision;
@@ -105,7 +106,7 @@ export class PatientUxService {
     if (decision === 'approved') {
       try {
         const M = this.model(r.booking_kind);
-        await M.updateOne({ id: r.booking_id }, { $set: { payment_status: 'refunded', refunded_at: new Date(), refund_amount: r.amount } });
+        await M.updateOne({ id: { $eq: r.booking_id } }, { $set: { payment_status: 'refunded', refunded_at: new Date(), refund_amount: r.amount } });
       } catch {}
     }
     // Persistent audit log entry (visible in admin events/audit feed)
@@ -126,7 +127,7 @@ export class PatientUxService {
   /** Re-book a previous booking (clones core fields). */
   async rebook(user: any, body: { booking_kind: string; booking_id: string; scheduled_at: string }) {
     const M = this.model(body.booking_kind);
-    const prev: any = await M.findOne({ id: body.booking_id, patient_id: user.id }).lean();
+    const prev: any = await M.findOne({ id: { $eq: body.booking_id }, patient_id: { $eq: user.id } }).lean();
     if (!prev) throw new NotFoundException();
     // Strip non-cloneable fields
     const clone: any = JSON.parse(JSON.stringify(prev));
@@ -146,10 +147,10 @@ export class PatientUxService {
 @UseGuards(JwtAuthGuard)
 export class PatientUxController {
   constructor(private svc: PatientUxService) {}
-  @Post('review') rate(@CurrentUser() u: any, @Body() b: any) { return this.svc.rate(u, b); }
-  @Post('refund') refund(@CurrentUser() u: any, @Body() b: any) { return this.svc.requestRefund(u, b); }
+  @Post('review') rate(@CurrentUser() u: any, @Body() b: RateDto) { return this.svc.rate(u, b); }
+  @Post('refund') refund(@CurrentUser() u: any, @Body() b: RefundDto) { return this.svc.requestRefund(u, b); }
   @Get('refund/mine') refunds(@CurrentUser() u: any) { return this.svc.myRefunds(u); }
-  @Post('rebook') rebook(@CurrentUser() u: any, @Body() b: any) { return this.svc.rebook(u, b); }
+  @Post('rebook') rebook(@CurrentUser() u: any, @Body() b: RebookDto) { return this.svc.rebook(u, b); }
 }
 
 /** Admin queue for refund requests (approve / reject). */
@@ -160,7 +161,7 @@ export class AdminRefundsController {
   constructor(private svc: PatientUxService) {}
   @Get() list() { return this.svc.adminListRefunds(); }
   @Get('pending') pending() { return this.svc.adminListRefunds('requested'); }
-  @Post(':id/decide') decide(@CurrentUser() u: any, @Param('id') id: string, @Body() body: { decision: 'approved' | 'rejected'; note?: string; amount?: number }) {
+  @Post(':id/decide') decide(@CurrentUser() u: any, @Param('id') id: string, @Body() body: DecideDto) {
     return this.svc.adminDecideRefund(u, id, body.decision, body.note, body.amount);
   }
 }
@@ -192,7 +193,7 @@ export class AdminOverrideService {
   async forceCancel(admin: any, kind: string, id: string, reason: string) {
     const M = this.modelFor(kind);
     if (!M) throw new BadRequestException('invalid_kind');
-    const doc: any = await M.findOne({ id });
+    const doc: any = await M.findOne({ id: { $eq: id } });
     if (!doc) throw new NotFoundException('not_found');
     const before = { state: doc.state, status: doc.status, payment_status: doc.payment_status };
     doc.state = 'CANCELLED';
@@ -219,7 +220,7 @@ export class AdminOverrideService {
   async forceTransition(admin: any, kind: string, id: string, state: string, reason: string) {
     const M = this.modelFor(kind);
     if (!M) throw new BadRequestException('invalid_kind');
-    const doc: any = await M.findOne({ id });
+    const doc: any = await M.findOne({ id: { $eq: id } });
     if (!doc) throw new NotFoundException('not_found');
     const before = { state: doc.state, status: doc.status };
     doc.state = state;
@@ -244,7 +245,7 @@ export class AdminOverrideService {
   async markPayment(admin: any, kind: string, id: string, payment_status: 'paid' | 'refunded' | 'failed', reason: string, amount?: number) {
     const M = this.modelFor(kind);
     if (!M) throw new BadRequestException('invalid_kind');
-    const doc: any = await M.findOne({ id });
+    const doc: any = await M.findOne({ id: { $eq: id } });
     if (!doc) throw new NotFoundException('not_found');
     const before = { payment_status: doc.payment_status, amount: doc.amount_total };
     doc.payment_status = payment_status;
@@ -275,17 +276,17 @@ export class AdminOverrideService {
 export class AdminOverrideController {
   constructor(private svc: AdminOverrideService) {}
   /** Force-cancel any order/booking. */
-  @Post('cancel') cancel(@CurrentUser() u: any, @Body() body: { kind: string; id: string; reason: string }) {
+  @Post('cancel') cancel(@CurrentUser() u: any, @Body() body: CancelDto) {
     if (!body?.reason) throw new BadRequestException('reason_required');
     return this.svc.forceCancel(u, body.kind, body.id, body.reason);
   }
   /** Force any order/booking to a specific state (e.g., COMPLETED, DELIVERED). */
-  @Post('transition') transition(@CurrentUser() u: any, @Body() body: { kind: string; id: string; state: string; reason: string }) {
+  @Post('transition') transition(@CurrentUser() u: any, @Body() body: TransitionDto) {
     if (!body?.reason || !body?.state) throw new BadRequestException('reason_and_state_required');
     return this.svc.forceTransition(u, body.kind, body.id, body.state, body.reason);
   }
   /** Manually mark a payment as paid / refunded / failed. */
-  @Post('payment') markPayment(@CurrentUser() u: any, @Body() body: { kind: string; id: string; payment_status: 'paid' | 'refunded' | 'failed'; amount?: number; reason: string }) {
+  @Post('payment') markPayment(@CurrentUser() u: any, @Body() body: MarkPaymentDto) {
     if (!body?.reason || !body?.payment_status) throw new BadRequestException('reason_and_status_required');
     return this.svc.markPayment(u, body.kind, body.id, body.payment_status, body.reason, body.amount);
   }

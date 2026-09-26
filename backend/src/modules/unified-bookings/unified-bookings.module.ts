@@ -1,4 +1,5 @@
 import { Module, Controller, Get, Post, Patch, Body, Query, Param, UseGuards, Injectable, BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
+import { CreateDto, CancelRootDto, RescheduleRootDto, CancelDto, ReschedDto, MatchDto, NursingDto, CheckoutDto } from './unified-bookings.dto';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JwtAuthGuard, CurrentUser, SelfService } from '../../common/auth.guard';
@@ -172,7 +173,7 @@ export class UnifiedBookingsService {
     const requested = new Date(slotId);
     if (Number.isNaN(requested.getTime())) throw new BadRequestException('invalid_slot_id');
 
-    const doctor: any = await this.providers.findOne({ id: doctorId });
+    const doctor: any = await this.providers.findOne({ id: { $eq: doctorId } });
     if (!doctor) throw new NotFoundException('doctor_not_found');
     const availability = await this.slots.slotsForDate(doctor, requested.toISOString().slice(0, 10), type);
     const slot = (availability?.slots || []).find((candidate: any) => candidate.start === slotId);
@@ -306,7 +307,7 @@ export class UnifiedBookingsService {
       kind: 'nursing', entity_id: booking.id, from_domain: booking.state, to_domain: HomeCareBookingState.PROVIDER_ASSIGNED,
       actor_role: 'system', patient_account_id: user.id, reason: 'radius_match',
       mutate: async () => {
-        const b = await this.home.findOne({ id: booking.id });
+         const b = await this.home.findOne({ id: { $eq: booking.id } });
         if (b) {
           b.state = HomeCareBookingState.PROVIDER_ASSIGNED;
           (b as any).provider_account_id = chosen[0].account_id || chosen[0].provider_account_id;
@@ -329,7 +330,7 @@ export class UnifiedBookingsService {
     if (!cart?.groups?.length) throw new BadRequestException('cart_empty');
 
     if (body.provider_account_id) {
-      const provider = await this.providers.findOne({ account_id: body.provider_account_id });
+      const provider = await this.providers.findOne({ account_id: { $eq: body.provider_account_id } });
       if (provider && provider.verified !== true) {
         throw new BadRequestException('provider_not_verified_by_admin');
       }
@@ -493,29 +494,29 @@ export class UnifiedBookingsController {
   @Get('mine') mine(@CurrentUser() u: any, @Query() q: any) { return this.svc.myTimeline(u, { state: q.state, kind: q.kind }); }
   @Post()
   @RequireIdempotency()
-  create(@CurrentUser() u: any, @Body() b: any) { return this.svc.createConsultationContract(u, b); }
+  create(@CurrentUser() u: any, @Body() b: CreateDto) { return this.svc.createConsultationContract(u, b); }
   @Post(':id/cancel')
   @RequireIdempotency()
-  cancelRoot(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.cancelConsultationContract(u, id, b.reason); }
+  cancelRoot(@CurrentUser() u: any, @Param('id') id: string, @Body() b: CancelRootDto) { return this.svc.cancelConsultationContract(u, id, b.reason); }
   @Post(':id/reschedule')
   @RequireIdempotency()
-  rescheduleRoot(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.rescheduleConsultationContract(u, id, b.new_slot_id); }
+  rescheduleRoot(@CurrentUser() u: any, @Param('id') id: string, @Body() b: RescheduleRootDto) { return this.svc.rescheduleConsultationContract(u, id, b.new_slot_id); }
   @Get(':id/call-token')
   callToken(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.consultationCallToken(u, id); }
   @Get(':kind/:id') one(@CurrentUser() u: any, @Param('kind') k: string, @Param('id') id: string) { return this.svc.getOne(u, k, id); }
   @Post(':kind/:id/cancel')
   @RequireIdempotency()
-  cancel(@CurrentUser() u: any, @Param('kind') k: string, @Param('id') id: string, @Body() b: any) { return this.svc.cancelBooking(u, k, id, b.reason || ''); }
+  cancel(@CurrentUser() u: any, @Param('kind') k: string, @Param('id') id: string, @Body() b: CancelDto) { return this.svc.cancelBooking(u, k, id, b.reason || ''); }
   @Patch(':kind/:id/reschedule')
   @RequireIdempotency()
-  resched(@CurrentUser() u: any, @Param('kind') k: string, @Param('id') id: string, @Body() b: any) { return this.svc.rescheduleBooking(u, k, id, b.scheduled_at, b.reason); }
-  @Post('match') match(@CurrentUser() u: any, @Body() b: any) { return this.svc.smartMatch(u, b); }
+  resched(@CurrentUser() u: any, @Param('kind') k: string, @Param('id') id: string, @Body() b: ReschedDto) { return this.svc.rescheduleBooking(u, k, id, b.scheduled_at, b.reason); }
+  @Post('match') match(@CurrentUser() u: any, @Body() b: MatchDto) { return this.svc.smartMatch(u, b); }
   @Post('nursing-broadcast')
   @RequireIdempotency()
-  nursing(@CurrentUser() u: any, @Body() b: any) { return this.svc.nursingRadiusBroadcast(u, b); }
+  nursing(@CurrentUser() u: any, @Body() b: NursingDto) { return this.svc.nursingRadiusBroadcast(u, b); }
   @Post('checkout-cart')
   @RequireIdempotency()
-  checkout(@CurrentUser() u: any, @Body() b: any) { return this.svc.checkoutFromCart(u, b); }
+  checkout(@CurrentUser() u: any, @Body() b: CheckoutDto) { return this.svc.checkoutFromCart(u, b); }
 }
 
 import { LabsModule } from '../labs/labs.module';

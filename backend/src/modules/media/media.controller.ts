@@ -5,6 +5,7 @@ import { Connection, Model } from 'mongoose';
 import { JwtAuthGuard, Roles, CurrentUser, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { MediaService } from './media.service';
+import { UploadMediaDto, PresignedUrlDto } from './media.dto';
 import { MediaAsset, MediaAssetDocument, MEDIA_PURPOSES, MediaPurpose } from './media.schema';
 
 @Controller('media')
@@ -33,9 +34,10 @@ export class MediaController {
   async uploadFile(
     @CurrentUser() user: any,
     @UploadedFile() file: Express.Multer.File,
-    @Body('purpose') purpose: MediaPurpose,
-    @Body('thread_id') threadId?: string,
+    @Body() body: UploadMediaDto,
   ) {
+    const purpose = body.purpose;
+    const threadId = body.thread_id;
     if (!file) throw new BadRequestException('file_required');
     await this.assertUploadAllowed(user, purpose, threadId);
     const uploaded = await this.mediaService.uploadBuffer(file.buffer, file.originalname, file.mimetype, `${purpose}/${user.id}`);
@@ -54,11 +56,9 @@ export class MediaController {
   @Post('presigned')
   async getPresignedUrl(
     @CurrentUser() user: any,
-    @Body('filename') filename: string,
-    @Body('mimetype') mimetype: string,
-    @Body('purpose') purpose: MediaPurpose,
-    @Body('thread_id') threadId?: string,
+    @Body() body: PresignedUrlDto,
   ) {
+    const { filename, mimetype, purpose, thread_id: threadId } = body;
     if (!filename || !mimetype) throw new BadRequestException('filename_and_mimetype_required');
     const allowedExtensions = /\.(jpg|jpeg|png|gif|webp|pdf|mp3|m4a|wav|doc|docx|xls|xlsx)$/i;
     if (!filename.match(allowedExtensions)) throw new BadRequestException('unsupported_media_extension');
@@ -73,7 +73,7 @@ export class MediaController {
 
   @Get(':id/url')
   async signedUrl(@CurrentUser() user: any, @Param('id') id: string) {
-    const asset: any = await this.assets.findOne({ id }).lean();
+    const asset: any = await this.assets.findOne({ id: { $eq: id } }).lean();
     if (!asset) throw new NotFoundException('media_not_found');
     if (!await this.canReadAsset(asset, user)) throw new NotFoundException('media_not_found');
     return { url: await this.mediaService.generatePresignedDownloadUrl(asset.key, 15 * 60), expires_in: 900 };
@@ -94,7 +94,7 @@ export class MediaController {
     if (asset.purpose !== 'chat' || !asset.thread_id) return false;
     try {
       const ChatThreadModel = this.connection.model('ChatThread');
-      const thread = await ChatThreadModel.findOne({ id: asset.thread_id, participant_ids: user.id });
+      const thread = await ChatThreadModel.findOne({ id: { $eq: asset.thread_id }, participant_ids: { $eq: user.id } });
       return Boolean(thread);
     } catch {
       return false;
@@ -104,7 +104,7 @@ export class MediaController {
   private async verifyChatUploadAllowed(threadId: string, userId: string) {
     try {
       const ChatThreadModel = this.connection.model('ChatThread');
-      const thread = await ChatThreadModel.findOne({ id: threadId, participant_ids: userId });
+      const thread = await ChatThreadModel.findOne({ id: { $eq: threadId }, participant_ids: { $eq: userId } });
       if (!thread) throw new NotFoundException('thread_not_found');
 
       if (thread.participant_ids && thread.participant_ids.length >= 2) {
@@ -123,7 +123,7 @@ export class MediaController {
           throw new ForbiddenException('معرف الحجز غير موجود.');
         }
         const AppointmentModel = this.connection.model('Appointment');
-        const appt = await AppointmentModel.findOne({ id: thread.booking_id });
+        const appt = await AppointmentModel.findOne({ id: { $eq: thread.booking_id } });
         if (!appt) {
           throw new ForbiddenException('لم يتم العثور على الاستشارة المرتبطة.');
         }

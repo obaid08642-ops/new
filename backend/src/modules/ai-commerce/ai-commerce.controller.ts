@@ -1,5 +1,6 @@
 import { Controller, Get, Post, Query, Body, HttpCode } from '@nestjs/common';
-import { AiCommerceService, ProductFeedQuery, ServiceFeedQuery, CreateCheckoutSessionDto } from './ai-commerce.service';
+import { AiCommerceService, ProductFeedQuery, ServiceFeedQuery } from './ai-commerce.service';
+import { CreateCheckoutSessionDto } from './ai-commerce.dto';
 import { Public } from '../../common/auth.guard';
 
 @Controller('public')

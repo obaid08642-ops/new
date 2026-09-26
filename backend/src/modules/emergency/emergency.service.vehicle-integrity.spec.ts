@@ -21,7 +21,7 @@ describe('EmergencyService verified ambulance binding', () => {
   it('rejects a vehicle that is absent, unapproved or outside the authenticated provider fleet', async () => {
     const { service, model, vehicles } = make(null);
     await expect(service.claim('emergency-1', 'provider-1', 'vehicle-foreign')).rejects.toBeInstanceOf(ForbiddenException);
-    expect(vehicles.findOne).toHaveBeenCalledWith({ id: 'vehicle-foreign', provider_account_id: 'provider-1', status: 'approved', is_available: true });
+    expect(vehicles.findOne).toHaveBeenCalledWith({ id: { $eq: 'vehicle-foreign' }, provider_account_id: { $eq: 'provider-1' }, status: 'approved', is_available: true });
     expect(model.updateOne).not.toHaveBeenCalled();
   });
 
@@ -29,7 +29,7 @@ describe('EmergencyService verified ambulance binding', () => {
     const { service, model } = make({ id: 'vehicle-1', plate_number: 'ABC-123' });
     await expect(service.claim('emergency-1', 'provider-1', 'vehicle-1')).resolves.toEqual(expect.objectContaining({ ok: true, vehicle_id: 'vehicle-1' }));
     expect(model.updateOne).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 'emergency-1' }),
+      expect.objectContaining({ id: { $eq: 'emergency-1' } }),
       expect.objectContaining({ $set: expect.objectContaining({ assigned_ambulance_id: 'vehicle-1', assigned_provider_id: 'provider-1', unit_label: 'ABC-123' }) }),
     );
   });

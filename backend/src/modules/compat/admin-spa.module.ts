@@ -16,7 +16,9 @@ import {
   Get,
   NotFoundException,
   Param,
+  ParseArrayPipe,
   Patch,
+  PipeTransform,
   Post,
   Put,
   Query,
@@ -26,12 +28,24 @@ import {
   UseInterceptors,
   UploadedFile,
 } from '@nestjs/common';
+import { CreateDto, CreateRuleDto, CreateAutoRuleDto, ExpandDto, DispatchDto, ReassignDto, UpdateDto, CreateDto2, ManualAdjustDto, RedeemDto, ToggleSystemDto, SendDto, RejectDto, ShortageDto, CustomReportDto, AssignDto, CouponUpdateDto, LoyaltyEarnRuleUpdateDto, DeliveryRuleUpdateDto, PromotionUpdateDto, ClaimApprovalDto, PermissionEntryDto, WorkflowEntryDto, AlertRuleDto, ThemeConfigDto, AiConfigDto, AutoRuleUpdateDto } from './admin-spa.dto';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { v4 as uuid } from 'uuid';
 import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
+import { CreateDtoGen2, CreateDto2Gen2, CreateDto3, CreateDto4, CreateDto5, UploadDto } from './admin-spa.generated.dto';
+
+// These config endpoints intentionally store admin-owned, free-form JSON values.
+class FreeformConfigObjectPipe implements PipeTransform<unknown, Record<string, unknown>> {
+  transform(value: unknown): Record<string, unknown> {
+    if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+      throw new BadRequestException('configuration_body_must_be_object');
+    }
+    return value as Record<string, unknown>;
+  }
+}
 
 const now = () => new Date();
 const uid = (u: any) => u?.id || u?._id || u?.user_id;
@@ -128,7 +142,7 @@ class AdminBroadcastController extends AdminController {
   }
 
   @Put('config')
-  async putConfig(@CurrentUser() user: any, @Body() body: any) {
+  async putConfig(@CurrentUser() user: any, @Body(new FreeformConfigObjectPipe()) body: Record<string, unknown>) {
     await this.conn.collection('admin_config').updateOne(
       { key: 'broadcast' } as any,
       { $set: { key: 'broadcast', value: body || {}, updated_by: uid(user), updatedAt: now() } },
@@ -138,7 +152,7 @@ class AdminBroadcastController extends AdminController {
   }
 
   @Post(':id/expand')
-  async expand(@Param('id') id: string, @Body() body: { segments?: string[] }) {
+  async expand(@Param('id') id: string, @Body() body: ExpandDto) {
     const segments = Array.isArray(body?.segments) ? body.segments.map(String) : [];
     const update: any = { $set: { updatedAt: now() } };
     if (segments.length) update.$addToSet = { target_segments: { $each: segments } };
@@ -164,7 +178,7 @@ class AdminBroadcastController extends AdminController {
 @Roles(UserRole.ADMIN)
 class AdminEmergencyController extends AdminController {
   @Post(':id/dispatch')
-  async dispatch(@Param('id') id: string, @CurrentUser() user: any, @Body() body: { ambulance_id?: string; note?: string }) {
+  async dispatch(@Param('id') id: string, @CurrentUser() user: any, @Body() body: DispatchDto) {
     if (!body?.ambulance_id) throw new BadRequestException('ambulance_id مطلوب');
     const res = await this.conn.collection('emergencyrequests').updateOne(
       byId(id) as any,
@@ -206,7 +220,7 @@ class AdminShiftsController extends AdminController {
   }
 
   @Post()
-  async create(@CurrentUser() user: any, @Body() body: any) {
+  async create(@CurrentUser() user: any, @Body() body: CreateDto) {
     if (!body?.facility_id || !body?.staff_id || !body?.date) throw new BadRequestException('المنشأة والموظف والتاريخ مطلوبة');
     const doc = {
       id: uuid(), facility_id: String(body.facility_id), staff_id: String(body.staff_id),
@@ -380,7 +394,7 @@ class AdminTasksController extends AdminController {
   }
 
   @Post()
-  async create(@CurrentUser() user: any, @Body() body: any) {
+  async create(@CurrentUser() user: any, @Body() body: CreateDtoGen2) {
     if (!body?.title) throw new BadRequestException('عنوان المهمة مطلوب');
     const doc = {
       id: uuid(), title: String(body.title), description: body.description || null,
@@ -421,7 +435,7 @@ class AdminSpecialtiesController extends AdminController {
   }
 
   @Post()
-  async create(@Body() body: any) {
+  async create(@Body() body: CreateDto2Gen2) {
     if (!body?.name_ar || !body?.code) throw new BadRequestException('الرمز والاسم مطلوبان');
     const doc = { id: `spec-${body.code}`, code: String(body.code), name_ar: String(body.name_ar), name_en: body.name_en || String(body.code), sort: Number(body.sort) || 100, active: true, createdAt: now(), updatedAt: now() };
     await this.conn.collection('specialties').updateOne({ code: doc.code } as any, { $set: doc }, { upsert: true });
@@ -481,7 +495,7 @@ class AdminBannersController extends AdminController {
   }
 
   @Post()
-  async create(@CurrentUser() user: any, @Body() body: any) {
+  async create(@CurrentUser() user: any, @Body() body: CreateDto3) {
     if (!body?.title_ar) throw new BadRequestException('عنوان البانر مطلوب');
     const doc = {
       id: uuid(), title_ar: String(body.title_ar), title_en: body.title_en || null,
@@ -500,7 +514,7 @@ class AdminBannersController extends AdminController {
 @Roles(UserRole.ADMIN)
 class AdminOrdersController extends AdminController {
   @Post(':id/reassign')
-  async reassign(@Param('id') id: string, @CurrentUser() user: any, @Body() body: { provider_id?: string }) {
+  async reassign(@Param('id') id: string, @CurrentUser() user: any, @Body() body: ReassignDto) {
     const pid = String(body?.provider_id || '').trim();
     if (!pid) throw new BadRequestException('provider_id مطلوب');
     const order: any = await this.conn.collection('orders').findOne(byId(id) as any);
@@ -571,7 +585,7 @@ class AdminCommissionsController extends AdminController {
   }
 
   @Put(':id')
-  async update(@Param('id') id: string, @CurrentUser() user: any, @Body() body: { commission?: any }) {
+  async update(@Param('id') id: string, @CurrentUser() user: any, @Body() body: UpdateDto) {
     if (body?.commission === undefined) throw new BadRequestException('قيمة العمولة مطلوبة');
     const res = await this.conn.collection('commissionrules').updateOne(
       byId(id) as any,
@@ -593,7 +607,7 @@ class AdminRefundsController extends AdminController {
   }
 
   @Post()
-  async create(@CurrentUser() user: any, @Body() body: { order_id?: string; amount?: number; reason?: string }) {
+  async create(@CurrentUser() user: any, @Body() body: CreateDto2) {
     if (!body?.order_id || !(Number(body?.amount) > 0)) throw new BadRequestException('order_id والمبلغ مطلوبان');
     const doc = {
       id: uuid(), order_id: String(body.order_id), amount: Number(body.amount),
@@ -615,7 +629,7 @@ class AdminCouponsController extends AdminController {
   }
 
   @Post()
-  async create(@CurrentUser() user: any, @Body() body: any) {
+  async create(@CurrentUser() user: any, @Body() body: CreateDto4) {
     if (!body?.code) throw new BadRequestException('رمز القسيمة مطلوب');
     const doc = {
       id: uuid(), code: String(body.code).toUpperCase(),
@@ -638,7 +652,7 @@ class AdminCouponsController extends AdminController {
   }
 
   @Patch(':code')
-  async update(@CurrentUser() user: any, @Param('code') code: string, @Body() body: any) {
+  async update(@CurrentUser() user: any, @Param('code') code: string, @Body() body: CouponUpdateDto) {
     const allowed = ['discount_percent', 'discount_amount', 'max_uses', 'valid_from', 'valid_until',
       'min_order', 'max_discount', 'usage_limit_per_user', 'provider_id', 'categories',
       'first_order_only', 'campaign_id', 'active'];
@@ -656,7 +670,7 @@ class AdminCouponsController extends AdminController {
 @Roles(UserRole.ADMIN)
 class AdminLoyaltyController extends AdminController {
   @Put('config')
-  async putConfig(@CurrentUser() user: any, @Body() body: any) {
+  async putConfig(@CurrentUser() user: any, @Body(new FreeformConfigObjectPipe()) body: Record<string, unknown>) {
     await this.conn.collection('loyalty_config').updateOne(
       { key: 'global' } as any,
       { $set: { key: 'global', value: body || {}, updated_by: uid(user), updatedAt: now() } },
@@ -666,7 +680,7 @@ class AdminLoyaltyController extends AdminController {
   }
 
   @Put('earn-rules/:id')
-  async updateEarnRule(@Param('id') id: string, @CurrentUser() user: any, @Body() body: any) {
+  async updateEarnRule(@Param('id') id: string, @CurrentUser() user: any, @Body() body: LoyaltyEarnRuleUpdateDto) {
     const allowed = ['name_ar', 'name_en', 'event', 'points', 'multiplier', 'active', 'conditions'];
     const $set: any = { updated_by: uid(user), updatedAt: now() };
     for (const k of allowed) if (k in (body || {})) $set[k] = body[k];
@@ -713,7 +727,7 @@ class AdminLoyaltyController extends AdminController {
   }
 
   @Post('manual-adjust')
-  async manualAdjust(@CurrentUser() user: any, @Body() body: { user_id?: string; points?: number; reason?: string }) {
+  async manualAdjust(@CurrentUser() user: any, @Body() body: ManualAdjustDto) {
     if (!body?.user_id || !Number.isFinite(Number(body?.points)) || Number(body.points) === 0) {
       throw new BadRequestException('user_id ونقاط غير صفرية مطلوبة');
     }
@@ -722,7 +736,7 @@ class AdminLoyaltyController extends AdminController {
   }
 
   @Post('redeem')
-  async redeem(@CurrentUser() user: any, @Body() body: { user_id?: string; points?: number; order_id?: string }) {
+  async redeem(@CurrentUser() user: any, @Body() body: RedeemDto) {
     if (!body?.user_id || !(Number(body?.points) > 0)) throw new BadRequestException('user_id ونقاط موجبة مطلوبة');
     const pts = Math.trunc(Number(body.points));
     const acc: any = await this.conn.collection('loyalty_accounts').findOne({ user_id: String(body.user_id) } as any);
@@ -743,7 +757,7 @@ class AdminDeliveryController extends AdminController {
   }
 
   @Post('rules')
-  async createRule(@CurrentUser() user: any, @Body() body: any) {
+  async createRule(@CurrentUser() user: any, @Body() body: CreateRuleDto) {
     const doc = {
       id: uuid(), name_ar: body?.name_ar || null,
       min_order_sar: body?.min_order_sar ?? null, service_type: body?.service_type || null,
@@ -756,7 +770,7 @@ class AdminDeliveryController extends AdminController {
   }
 
   @Put('rules/:id')
-  async updateRule(@Param('id') id: string, @CurrentUser() user: any, @Body() body: any) {
+  async updateRule(@Param('id') id: string, @CurrentUser() user: any, @Body() body: DeliveryRuleUpdateDto) {
     const allowed = ['name_ar', 'min_order_sar', 'service_type', 'city', 'user_segment', 'free', 'fee_sar', 'active'];
     const $set: any = { updated_by: uid(user), updatedAt: now() };
     for (const k of allowed) if (k in (body || {})) $set[k] = body[k];
@@ -781,7 +795,7 @@ class AdminDeliveryController extends AdminController {
   }
 
   @Put('base-fees')
-  async baseFees(@CurrentUser() user: any, @Body() body: any) {
+  async baseFees(@CurrentUser() user: any, @Body(new FreeformConfigObjectPipe()) body: Record<string, unknown>) {
     await this.conn.collection('delivery_config').updateOne(
       { key: 'base-fees' } as any,
       { $set: { key: 'base-fees', value: body || {}, updated_by: uid(user), updatedAt: now() } },
@@ -791,7 +805,7 @@ class AdminDeliveryController extends AdminController {
   }
 
   @Post('toggle')
-  async toggleSystem(@CurrentUser() user: any, @Body() body: { enabled?: boolean }) {
+  async toggleSystem(@CurrentUser() user: any, @Body() body: ToggleSystemDto) {
     await this.conn.collection('delivery_config').updateOne(
       { key: 'system' } as any,
       { $set: { key: 'system', enabled: body?.enabled !== false, updated_by: uid(user), updatedAt: now() } },
@@ -844,7 +858,7 @@ class AdminPromotionsController extends AdminController {
   }
 
   @Post()
-  async create(@CurrentUser() user: any, @Body() body: any) {
+  async create(@CurrentUser() user: any, @Body() body: CreateDto5) {
     if (!body?.title_ar) throw new BadRequestException('عنوان العرض مطلوب');
     const doc = {
       id: uuid(), provider_id: body.provider_id || null,
@@ -860,7 +874,7 @@ class AdminPromotionsController extends AdminController {
   }
 
   @Put(':id')
-  async update(@Param('id') id: string, @CurrentUser() user: any, @Body() body: any) {
+  async update(@Param('id') id: string, @CurrentUser() user: any, @Body() body: PromotionUpdateDto) {
     const allowed = ['title_ar', 'title_en', 'original_price', 'discounted_price', 'start_date', 'end_date', 'image_url', 'target_parameters', 'status'];
     const $set: any = { updated_by: uid(user), updatedAt: now() };
     for (const k of allowed) if (k in (body || {})) $set[k] = body[k];
@@ -932,7 +946,7 @@ class AdminNotificationsController extends AdminController {
   }
 
   @Post('send')
-  async send(@CurrentUser() user: any, @Body() body: { user_id?: string; segment?: string; title?: string; body?: string; message?: string }) {
+  async send(@CurrentUser() user: any, @Body() body: SendDto) {
     const text = String(body?.body || body?.message || '').trim();
     if (!text || !body?.title) throw new BadRequestException('العنوان والنص مطلوبان');
     if (body?.user_id) {
@@ -959,7 +973,7 @@ class AdminNotificationsController extends AdminController {
   }
 
   @Post('auto-rules')
-  async createAutoRule(@CurrentUser() user: any, @Body() body: any) {
+  async createAutoRule(@CurrentUser() user: any, @Body() body: CreateAutoRuleDto) {
     if (!body?.name || !body?.trigger) throw new BadRequestException('الاسم والمشغّل مطلوبان');
     const doc = {
       id: uuid(), name: String(body.name), trigger: String(body.trigger),
@@ -971,7 +985,7 @@ class AdminNotificationsController extends AdminController {
   }
 
   @Put('auto-rules/:id')
-  async updateAutoRule(@Param('id') id: string, @Body() body: any) {
+  async updateAutoRule(@Param('id') id: string, @Body() body: AutoRuleUpdateDto) {
     const allowed = ['name', 'trigger', 'template', 'channels', 'active'];
     const $set: any = { updatedAt: now() };
     for (const k of allowed) if (k in (body || {})) $set[k] = body[k];
@@ -1040,12 +1054,12 @@ class AdminInsuranceClaimsController extends AdminController {
   }
 
   @Post('claims/:id/approve')
-  approve(@Param('id') id: string, @CurrentUser() user: any, @Body() body: any) {
+  approve(@Param('id') id: string, @CurrentUser() user: any, @Body() body: ClaimApprovalDto) {
     return this.decide(id, user, true, body);
   }
 
   @Post('claims/:id/reject')
-  reject(@Param('id') id: string, @CurrentUser() user: any, @Body() body: { reason?: string }) {
+  reject(@Param('id') id: string, @CurrentUser() user: any, @Body() body: RejectDto) {
     return this.decide(id, user, false, body);
   }
 }
@@ -1074,7 +1088,7 @@ class AdminProviderSubAccountsController extends AdminController {
 @Roles(UserRole.ADMIN)
 class AdminMedicinesController extends AdminController {
   @Post(':id/shortage')
-  async shortage(@Param('id') id: string, @CurrentUser() user: any, @Body() body: { reporter?: string; note?: string }) {
+  async shortage(@Param('id') id: string, @CurrentUser() user: any, @Body() body: ShortageDto) {
     let med: any = await this.conn.collection('medicines_master').findOne(byId(id) as any);
     let colName = 'medicines_master';
     if (!med) {
@@ -1099,7 +1113,7 @@ class AdminMedicinesController extends AdminController {
 class AdminBulkUploadController extends AdminController {
   @Post()
   @UseInterceptors(FileInterceptor('file'))
-  async upload(@CurrentUser() user: any, @UploadedFile() file: any, @Body() body: any) {
+  async upload(@CurrentUser() user: any, @UploadedFile() file: any, @Body() body: UploadDto) {
     let rows: any[] = [];
     if (file?.buffer) {
       const text = file.buffer.toString('utf8');
@@ -1197,19 +1211,19 @@ class AdminSystemController extends AdminController {
   }
 
   @Get('theme') theme() { return this.getConfig('theme', DEFAULT_THEME); }
-  @Put('theme') putTheme(@CurrentUser() u: any, @Body() b: any) { return this.putConfig('theme', b || {}, u); }
+  @Put('theme') putTheme(@CurrentUser() u: any, @Body() b: ThemeConfigDto) { return this.putConfig('theme', b, u); }
 
   @Get('permissions') permissions() { return this.getConfig('permissions', DEFAULT_PERMISSIONS); }
-  @Put('permissions') putPermissions(@CurrentUser() u: any, @Body() b: any) { return this.putConfig('permissions', b || [], u); }
+  @Put('permissions') putPermissions(@CurrentUser() u: any, @Body(new ParseArrayPipe({ items: PermissionEntryDto })) b: PermissionEntryDto[]) { return this.putConfig('permissions', b, u); }
 
   @Get('workflows') workflows() { return this.getConfig('workflows', DEFAULT_WORKFLOWS); }
-  @Put('workflows') putWorkflows(@CurrentUser() u: any, @Body() b: any) { return this.putConfig('workflows', b || [], u); }
+  @Put('workflows') putWorkflows(@CurrentUser() u: any, @Body(new ParseArrayPipe({ items: WorkflowEntryDto })) b: WorkflowEntryDto[]) { return this.putConfig('workflows', b, u); }
 
   @Get('ai-config') aiConfig() { return this.getConfig('ai-config', DEFAULT_AI_CONFIG); }
-  @Put('ai-config') putAiConfig(@CurrentUser() u: any, @Body() b: any) { return this.putConfig('ai-config', b || {}, u); }
+  @Put('ai-config') putAiConfig(@CurrentUser() u: any, @Body() b: AiConfigDto) { return this.putConfig('ai-config', b, u); }
 
   @Get('alert-rules') alertRules() { return this.getConfig('alert-rules', []); }
-  @Put('alert-rules') putAlertRules(@CurrentUser() u: any, @Body() b: any) { return this.putConfig('alert-rules', b || [], u); }
+  @Put('alert-rules') putAlertRules(@CurrentUser() u: any, @Body(new ParseArrayPipe({ items: AlertRuleDto })) b: AlertRuleDto[]) { return this.putConfig('alert-rules', b, u); }
 }
 
 /* ── analytics ───────────────────────────────────────────────────────────── */
@@ -1262,7 +1276,7 @@ class AdminAnalyticsController extends AdminController {
   }
 
   @Post('custom-report')
-  async customReport(@Body() body: { entity?: string; from?: string; to?: string }) {
+  async customReport(@Body() body: CustomReportDto) {
     const entity = String(body?.entity || 'orders');
     const allowed: Record<string, string> = {
       orders: 'orders', appointments: 'appointments', users: 'users',
@@ -1309,7 +1323,7 @@ class AdminNursingPortalController extends AdminController {
   }
 
   @Post('requests/:id/assign')
-  async assign(@Param('id') id: string, @CurrentUser() user: any, @Body() body: { provider_id?: string; nurse_id?: string }) {
+  async assign(@Param('id') id: string, @CurrentUser() user: any, @Body() body: AssignDto) {
     throw new ServiceUnavailableException('admin nursing assignment is unavailable pending eligible-provider, acceptance, minimum-PHI and audit workflow approval');
   }
 }

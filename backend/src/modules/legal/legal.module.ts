@@ -12,6 +12,7 @@ import { JwtAuthGuard, CurrentUser, Public, Roles } from '../../common/auth.guar
 import { LegalEnterpriseService } from './legal-enterprise.service';
 import { LegalEnterpriseController } from './legal-enterprise.controller';
 import { UserRole } from '../../common/enums';
+import { UpdateLegalPolicyDto, UpdateCommissionsDto } from './legal.dto';
 
 const DEFAULT_COMMISSIONS = {
   service_types: {
@@ -181,7 +182,7 @@ export class LegalController {
   @Put('admin/legal/policy/:key')
   @UseGuards(JwtAuthGuard)
   @Roles(UserRole.ADMIN)
-  upsert(@CurrentUser('id') adminId: string, @Param('key') key: string, @Body() body: any) {
+  upsert(@CurrentUser('id') adminId: string, @Param('key') key: string, @Body() body: UpdateLegalPolicyDto) {
     return this.svc.upsertPolicy(adminId, key, body);
   }
 
@@ -193,7 +194,7 @@ export class LegalController {
   @Put('admin/finance/commissions')
   @UseGuards(JwtAuthGuard)
   @Roles(UserRole.ADMIN)
-  updateCommissions(@CurrentUser('id') adminId: string, @Body() body: any) {
+  updateCommissions(@CurrentUser('id') adminId: string, @Body() body: UpdateCommissionsDto) {
     return this.svc.updateCommissions(adminId, body);
   }
 

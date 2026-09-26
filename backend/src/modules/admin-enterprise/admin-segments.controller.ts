@@ -7,6 +7,7 @@ import { UserRole } from '../../common/enums';
 import { validateReason, ReasonError } from '../../common/rbac';
 import { AdminAuditService } from './audit.service';
 import { compileSegment, SEGMENT_ALLOWED_FIELDS, SegmentDefinition } from './segments.engine';
+import { PreviewDto, CreateDto, RemoveDto } from './admin-segments.dto';
 
 /**
  * Segments builder — dynamic audiences used by campaigns & notifications.
@@ -47,7 +48,7 @@ export class AdminSegmentsController {
 
   @Post('preview')
   @RequirePermissions(Permission.CRM_READ)
-  async preview(@Body() b: any) {
+  async preview(@Body() b: PreviewDto) {
     let filter: Record<string, any>;
     try {
       filter = compileSegment(b?.definition as SegmentDefinition);
@@ -64,7 +65,7 @@ export class AdminSegmentsController {
   }
 
   @Post()
-  async create(@Body() b: any, @CurrentUser() me: any) {
+  async create(@Body() b: CreateDto, @CurrentUser() me: any) {
     let reason: string;
     try { reason = validateReason(b?.reason); } catch (e) { if (e instanceof ReasonError) throw e; throw e; }
     let filter: Record<string, any>;
@@ -92,7 +93,7 @@ export class AdminSegmentsController {
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string, @Body() b: any, @CurrentUser() me: any) {
+  async remove(@Param('id') id: string, @Body() b: RemoveDto, @CurrentUser() me: any) {
     let reason: string;
     try { reason = validateReason(b?.reason); } catch (e) { if (e instanceof ReasonError) throw e; throw e; }
     const before: any = await this.conn.collection('segments').findOne({ id });

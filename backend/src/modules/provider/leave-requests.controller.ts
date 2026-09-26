@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { JwtAuthGuard, CurrentUser, SelfService, Roles } from '../../common/auth.guard';
 import { LeaveRequestDocument } from '../../schemas/leave-request.schema';
 import { UserRole } from '../../common/enums';
+import { CreateLeaveRequestDto, UpdateLeaveRequestDto } from './leave-requests.dto';
 
 @Controller('provider/leave-requests')
 @UseGuards(JwtAuthGuard)
@@ -13,7 +14,7 @@ export class LeaveRequestsController {
   ) {}
 
   @Get()
-  async getLeaveRequests(@CurrentUser() facility: any, @Body() _: any) {
+  async getLeaveRequests(@CurrentUser() facility: any) {
     return this.leaveModel
       .find({ facility_id: facility.id })
       .sort({ createdAt: -1 })
@@ -25,7 +26,7 @@ export class LeaveRequestsController {
   @Post()
   async createLeaveRequest(
     @CurrentUser() user: any,
-    @Body() body: { facility_id?: string; type?: string; start_date: string; end_date: string; reason?: string; provider_name?: string; provider_type?: string },
+    @Body() body: CreateLeaveRequestDto,
   ) {
     if (!body?.start_date || !body?.end_date) throw new BadRequestException('start_date and end_date are required');
     const start = new Date(body.start_date);
@@ -51,13 +52,13 @@ export class LeaveRequestsController {
   @Post('action')
   async updateLeaveRequest(
     @CurrentUser() facility: any,
-    @Body() body: { id: string; action: 'approved' | 'rejected'; note?: string },
+    @Body() body: UpdateLeaveRequestDto,
   ) {
     if (!body?.id || !['approved', 'rejected'].includes(body?.action)) {
       throw new BadRequestException('id and a valid action (approved|rejected) are required');
     }
     const doc = await this.leaveModel.findOneAndUpdate(
-      { id: body.id, facility_id: facility.id, status: 'pending' },
+      { id: { $eq: body.id }, facility_id: { $eq: facility.id }, status: 'pending' },
       { $set: { status: body.action, decided_by: facility.id, decided_at: new Date(), decision_note: body.note } },
       { new: true },
     );

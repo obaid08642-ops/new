@@ -9,6 +9,7 @@ import { EventBusService } from '../events/event-bus.service';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
+import { CreateDto, ToggleDto, ApproveDto, OfferingDto, UpdateServiceDto, ProviderScheduleDto } from './service-catalog.dto';
 
 /** Provider catalog ownership map: tracks which lab/radiology service belongs to which provider account (extends existing catalog non-destructively via separate ownership doc). */
 @Schema({ timestamps: true, collection: 'service_ownership' })
@@ -67,10 +68,15 @@ export class ServiceCatalogService {
   // ===== Provider catalog =====
   async myCatalog(user: any, entity_type: 'lab' | 'radiology') {
     this.assertProvider(user);
-    const ownerships = await this.own.find({ account_id: user.id, entity_type }, { _id: 0, __v: 0 }).lean();
-    const ids = ownerships.map(o => o.entity_id);
+    const ownerships = await this.own.find({ account_id: { $eq: user.id }, entity_type: { $eq: entity_type } }, { _id: 0, __v: 0 }).lean();
+    const ids = ownerships.map(o => o.entity_id).filter((id): id is string => typeof id === 'string' && id.length > 0);
     const Model: any = entity_type === 'lab' ? this.labs : this.rads;
-    const services = ids.length ? await Model.find({ id: { $in: ids } }, { _id: 0, __v: 0 }).lean() : [];
+    // R4-2: per-id $eq lookups instead of a user-tainted $in array.
+    const services: any[] = [];
+    for (const id of ids) {
+      const s = await Model.findOne({ id: { $eq: id } }, { _id: 0, __v: 0 }).lean();
+      if (s) services.push(s);
+    }
     return services.map((s: any) => ({ ...s, owned: true, approved: ownerships.find(o => o.entity_id === s.id)?.approved !== false }));
   }
 
@@ -90,14 +96,20 @@ export class ServiceCatalogService {
     return doc.toObject();
   }
 
+  // Fields a provider may change on its own catalog entry (UpdateServiceDto + toggle).
+  private static readonly UPDATABLE_FIELDS = ['name_ar', 'name_en', 'price', 'active', 'unavailable', 'weekly', 'blocked_dates', 'slot_minutes', 'max_per_slot', 'coverage_radius_km', 'is_online'];
+
   async updateService(user: any, entity_type: 'lab' | 'radiology', id: string, patch: any) {
     this.assertProvider(user);
-    const own = await this.own.findOne({ entity_id: id, entity_type });
+    const own = await this.own.findOne({ entity_id: { $eq: id }, entity_type: { $eq: entity_type } });
     if (user.role !== 'admin' && (!own || own.account_id !== user.id)) throw new ForbiddenException();
     const Model: any = entity_type === 'lab' ? this.labs : this.rads;
-    const r = await Model.findOneAndUpdate({ id }, { $set: patch }, { new: true });
+    const set = Object.fromEntries(
+      Object.entries(patch || {}).filter(([k, v]) => ServiceCatalogService.UPDATABLE_FIELDS.includes(k) && v !== undefined),
+    );
+    const r = await Model.findOneAndUpdate({ id: { $eq: id } }, { $set: set }, { new: true });
     if (!r) throw new NotFoundException();
-    this.bus.emit({ type: 'catalog.service_updated', entity_type: 'service', entity_id: id, actor_account_id: user.id, actor_role: user.role, meta: { kind: entity_type, fields: Object.keys(patch) } }).catch(() => null);
+    this.bus.emit({ type: 'catalog.service_updated', entity_type: 'service', entity_id: id, actor_account_id: user.id, actor_role: user.role, meta: { kind: entity_type, fields: Object.keys(set) } }).catch(() => null);
     return r.toObject();
   }
 
@@ -107,10 +119,10 @@ export class ServiceCatalogService {
 
   async deleteService(user: any, entity_type: 'lab' | 'radiology', id: string) {
     this.assertProvider(user);
-    const own = await this.own.findOne({ entity_id: id, entity_type });
+    const own = await this.own.findOne({ entity_id: { $eq: id }, entity_type: { $eq: entity_type } });
     if (user.role !== 'admin' && (!own || own.account_id !== user.id)) throw new ForbiddenException();
     const Model: any = entity_type === 'lab' ? this.labs : this.rads;
-    await Model.deleteOne({ id });
+    await Model.deleteOne({ id: { $eq: id } });
     await this.own.deleteMany({ entity_id: id, entity_type });
     this.bus.emit({ type: 'catalog.service_deleted', entity_type: 'service', entity_id: id, actor_account_id: user.id, actor_role: user.role, meta: { kind: entity_type } }).catch(() => null);
     return { ok: true };
@@ -123,14 +135,14 @@ export class ServiceCatalogService {
     if (q.search) filter.$or = [{ name_ar: { $regex: q.search, $options: 'i' } }, { name_en: { $regex: q.search, $options: 'i' } }];
     const services = await Model.find(filter, { _id: 0, __v: 0 }).limit(500).lean();
     const ownMap: Record<string, any> = {};
-    for (const o of await this.own.find({ entity_type, entity_id: { $in: services.map((s: any) => s.id) } }).lean()) ownMap[o.entity_id] = o;
+    for (const o of await this.own.find({ entity_type: { $eq: entity_type }, entity_id: { $in: services.map((s: any) => s.id) } }).lean()) ownMap[o.entity_id] = o;
     return services.map((s: any) => ({ ...s, ownership: ownMap[s.id] || null }));
   }
 
   async adminApproveService(entity_type: 'lab' | 'radiology', entity_id: string, approve: boolean, user: any) {
-    const o = await this.own.findOneAndUpdate({ entity_type, entity_id }, { $set: { approved: approve } }, { new: true });
+    const o = await this.own.findOneAndUpdate({ entity_type: { $eq: entity_type }, entity_id: { $eq: entity_id } }, { $set: { approved: approve } }, { new: true });
     const Model: any = entity_type === 'lab' ? this.labs : this.rads;
-    await Model.updateOne({ id: entity_id }, { $set: { active: approve } });
+    await Model.updateOne({ id: { $eq: entity_id } }, { $set: { active: approve } });
     this.bus.emit({ type: approve ? 'catalog.service_approved' : 'catalog.service_disabled', entity_type: 'service', entity_id, actor_account_id: user.id, actor_role: 'admin', meta: { kind: entity_type } }).catch(() => null);
     return { ok: true, ownership: o };
   }
@@ -138,7 +150,7 @@ export class ServiceCatalogService {
   // ===== PROVIDER SCHEDULE =====
   async getSchedule(user: any, entity_type: string) {
     this.assertProvider(user);
-    let s: any = await this.sched.findOne({ account_id: user.id, entity_type }).lean();
+    let s: any = await this.sched.findOne({ account_id: { $eq: user.id }, entity_type: { $eq: entity_type } }).lean();
     if (!s) {
       const created = await this.sched.create({ account_id: user.id, entity_type, weekly: DEFAULT_WEEKLY });
       s = created.toObject();
@@ -150,14 +162,14 @@ export class ServiceCatalogService {
     this.assertProvider(user);
     const $set: any = {};
     for (const k of ['weekly', 'blocked_dates', 'slot_minutes', 'max_per_slot', 'coverage_radius_km', 'is_online']) if (data[k] !== undefined) $set[k] = data[k];
-    const r = await this.sched.findOneAndUpdate({ account_id: user.id, entity_type }, { $set }, { new: true, upsert: true });
+    const r = await this.sched.findOneAndUpdate({ account_id: { $eq: user.id }, entity_type: { $eq: entity_type } }, { $set }, { new: true, upsert: true });
     this.bus.emit({ type: 'provider.schedule_updated', entity_type: 'provider_schedule', entity_id: r.id, actor_account_id: user.id, actor_role: user.role, meta: { entity_type } }).catch(() => null);
     return r.toObject();
   }
 
   // Compute generic available slots for a given provider/entity_type/date
   async availableSlots(account_id: string, entity_type: string, date: string, bookedCounter?: (slotISO: string) => Promise<number>) {
-    let s: any = await this.sched.findOne({ account_id, entity_type }).lean();
+    let s: any = await this.sched.findOne({ account_id: { $eq: account_id }, entity_type: { $eq: entity_type } }).lean();
     if (!s) s = { weekly: DEFAULT_WEEKLY, blocked_dates: [], slot_minutes: 30, max_per_slot: 1 };
     const day = new Date(date);
     if (s.blocked_dates?.includes(date)) return [];
@@ -189,21 +201,21 @@ export class ServiceCatalogController {
 
   @Get('mine/:type') mine(@Param('type') t: 'lab' | 'radiology', @CurrentUser() u: any) { return this.svc.myCatalog(u, t); }
   @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
-  @Post('mine/:type') create(@Param('type') t: 'lab' | 'radiology', @Body() b: any, @CurrentUser() u: any) { return this.svc.createService(u, t, b); }
+  @Post('mine/:type') create(@Param('type') t: 'lab' | 'radiology', @Body() b: CreateDto, @CurrentUser() u: any) { return this.svc.createService(u, t, b); }
   @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
-  @Patch('mine/:type/:id') update(@Param('type') t: 'lab' | 'radiology', @Param('id') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.updateService(u, t, id, b); }
+  @Patch('mine/:type/:id') update(@Param('type') t: 'lab' | 'radiology', @Param('id') id: string, @Body() b: UpdateServiceDto, @CurrentUser() u: any) { return this.svc.updateService(u, t, id, b); }
   @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
-  @Post('mine/:type/:id/toggle') toggle(@Param('type') t: 'lab' | 'radiology', @Param('id') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.toggleService(u, t, id, !!b.active); }
+  @Post('mine/:type/:id/toggle') toggle(@Param('type') t: 'lab' | 'radiology', @Param('id') id: string, @Body() b: ToggleDto, @CurrentUser() u: any) { return this.svc.toggleService(u, t, id, !!b.active); }
   @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
   @Delete('mine/:type/:id') del(@Param('type') t: 'lab' | 'radiology', @Param('id') id: string, @CurrentUser() u: any) { return this.svc.deleteService(u, t, id); }
 
   @Get('schedule/:entity') sched(@Param('entity') e: string, @CurrentUser() u: any) { return this.svc.getSchedule(u, e); }
   @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
-  @Patch('schedule/:entity') setSched(@Param('entity') e: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.upsertSchedule(u, e, b); }
+  @Patch('schedule/:entity') setSched(@Param('entity') e: string, @Body() b: ProviderScheduleDto, @CurrentUser() u: any) { return this.svc.upsertSchedule(u, e, b); }
 
   // Admin
   @Get('admin/:type') @Roles(UserRole.ADMIN) adminAll(@Param('type') t: 'lab' | 'radiology', @Query() q: any) { return this.svc.adminListAll(t, q); }
-  @Post('admin/:type/:id/approve') @Roles(UserRole.ADMIN) approve(@Param('type') t: 'lab' | 'radiology', @Param('id') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.adminApproveService(t, id, b.approve !== false, u); }
+  @Post('admin/:type/:id/approve') @Roles(UserRole.ADMIN) approve(@Param('type') t: 'lab' | 'radiology', @Param('id') id: string, @Body() b: ApproveDto, @CurrentUser() u: any) { return this.svc.adminApproveService(t, id, b.approve !== false, u); }
 }
 
 @Module({

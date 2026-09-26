@@ -6,6 +6,7 @@ import { Model, Types, Connection } from 'mongoose';
 import { EncounterReferral } from './schemas/encounter-referrals.schema';
 import { DoctorProfileExtended } from './schemas/doctor-profile-extended.schema';
 import { UserRole } from '../../common/enums';
+import { DiagnosticCallbackDto, IssueReferralsDto } from './doctor-referrals.dto';
 
 @UseGuards(JwtAuthGuard, NoGuestsGuard)
 @Controller('provider/doctor-referrals')
@@ -30,6 +31,8 @@ export class DoctorReferralsController {
   /** Doctor's issued referrals + returned diagnostic results (inbound reports inbox) */
   @Get('my-referrals/:doctorId')
   async myReferrals(@Req() req: any, @Param('doctorId') doctorId: string) {
+    // doctorId is validated as a Mongo ObjectId on the next line; referral rows
+    // key doctors by Mongo _id (see assertDoctorOwnership above).
     if (!Types.ObjectId.isValid(doctorId)) throw new BadRequestException('invalid doctor id');
     await this.assertDoctorOwnership(req, doctorId);
     const rows = await this.referralModel
@@ -66,10 +69,12 @@ export class DoctorReferralsController {
   }
 
   @Post('issue-referrals-and-prescription')
-  async issueReferralsAndPrescription(@Req() req: any, @Body() payload: any) {
+  async issueReferralsAndPrescription(@Req() req: any, @Body() payload: IssueReferralsDto) {
     const { appointmentId, patientId, doctorId, labTests, radScans, homeCareNotes, medications } = payload;
     await this.assertDoctorOwnership(req, doctorId);
 
+    // Ids are always Mongo ObjectIds (enforced by @IsMongoId() on
+    // IssueReferralsDto); referral/appointment rows key by Mongo _id.
     // Fix 3: Automatic Internal Hospital Pharmacy Routing
     const doctorProfile = await this.doctorProfileModel.findOne({ doctor_id: new Types.ObjectId(doctorId) });
     const isInstitutional = doctorProfile && doctorProfile.parent_provider_account_id;
@@ -94,7 +99,10 @@ export class DoctorReferralsController {
   }
 
   @Patch('diagnostic-callback/:appointmentId')
-  async diagnosticCallback(@Param('appointmentId') appointmentId: string, @Body() body: { fileUrls: string[] }) {
+  async diagnosticCallback(@Param('appointmentId') appointmentId: string, @Body() body: DiagnosticCallbackDto) {
+    // appointment_id is a Mongo ObjectId — reject uuids with 400 instead of
+    // letting the cast fail downstream.
+    if (!Types.ObjectId.isValid(appointmentId)) throw new BadRequestException('invalid appointment id');
     // Intercepted from Lab/Radiology Upload webhook to alert the parent Doctor automatically
     const referral = await this.referralModel.findOneAndUpdate(
       { appointment_id: new Types.ObjectId(appointmentId) },

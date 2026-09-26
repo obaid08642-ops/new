@@ -3,7 +3,7 @@
  * Real allocation optimizer (greedy weighted set-cover).
  * Persists full explainability snapshot on the order's split_decision field.
  */
-import { Injectable, Logger, Inject } from '@nestjs/common';
+import { Injectable, Logger, Inject, NotFoundException, BadRequestException } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { PharmacyInventoryItem } from '../../provider/schemas/capabilities.schema';
@@ -48,11 +48,11 @@ export class SmartSplitService {
    */
   async runForOrder(orderId: string): Promise<PharmacyOrder> {
     const order = await this.orders.findOne({ id: orderId });
-    if (!order) throw new Error('order_not_found');
+    if (!order) throw new NotFoundException('order_not_found');
     if (![PharmacyOrderState.READY_FOR_SPLIT, PharmacyOrderState.ALLOCATING, PharmacyOrderState.PARTIALLY_ALLOCATED].includes(order.status)) {
-      throw new Error(`order_not_splittable: ${order.status}`);
+      throw new BadRequestException(`order_not_splittable: ${order.status}`);
     }
-    if (!order.items || order.items.length === 0) throw new Error('order_empty');
+    if (!order.items || order.items.length === 0) throw new BadRequestException('order_empty');
 
     // Mark in progress
     order.status = PharmacyOrderState.ALLOCATING;

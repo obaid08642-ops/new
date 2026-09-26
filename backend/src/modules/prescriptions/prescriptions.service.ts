@@ -39,7 +39,7 @@ export class PrescriptionsService {
    * Patient and doctor identifiers are derived and checked against the server-owned
    * appointment; manually entered or unverified medicines are intentionally refused.
    */
-  async create(doctor: any, data: { patient_id: string; appointment_id?: string; items: any[]; diagnosis?: string; notes?: string }) {
+  async create(doctor: any, data: { patient_id: string; appointment_id?: string; items?: any[]; erx?: any[]; labs?: any[]; radiology?: any[]; diagnosis?: string; notes?: string }) {
     if (!getEffectiveRoles(doctor).includes(UserRole.DOCTOR)) {
       throw new BadRequestException('doctor role is required to create a prescription');
     }
@@ -49,9 +49,12 @@ export class PrescriptionsService {
     if (!doctorId || !patientId || !appointmentId) {
       throw new BadRequestException('verified appointment and patient are required');
     }
-    if (!Array.isArray(data?.items) || data.items.length === 0) {
+    // Provider app sends the medication lines as `erx`; accept both names.
+    const rawItems = Array.isArray(data?.items) && data.items.length ? data.items : data?.erx;
+    if (!Array.isArray(rawItems) || rawItems.length === 0) {
       throw new BadRequestException('at least one approved medicine is required');
     }
+    data = { ...data, items: rawItems };
 
     const appointment: any = await this.appointments.findOne({
       id: appointmentId,
@@ -203,7 +206,7 @@ export class PrescriptionsService {
     return rx.toObject();
   }
 
-  async transition(id: string, to: PrescriptionState, by: any) {
+  async transition(id: string, to: string, by: any) {
     const rx = await this.model.findOne({ id });
     if (!rx) throw new NotFoundException();
     const isAdmin = this.isPrivilegedAdmin(by);

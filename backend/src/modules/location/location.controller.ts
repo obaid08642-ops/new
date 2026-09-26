@@ -1,5 +1,6 @@
 import { Controller, Get, Post, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { LocationService } from './location.service';
+import { ResolveLocationDto } from './location.dto';
 import { Public } from '../../common/auth.guard';
 
 @Controller('locations')
@@ -26,8 +27,8 @@ export class LocationController {
 
   @Public()
   @Post('resolve')
-  async resolve(@Body('text') text: string) {
-    return this.locationService.resolveFromText(text);
+  async resolve(@Body() body: ResolveLocationDto) {
+    return this.locationService.resolveFromText(body.text);
   }
 
   @Public()

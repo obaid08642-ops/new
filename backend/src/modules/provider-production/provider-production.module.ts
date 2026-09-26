@@ -18,6 +18,7 @@ import {
   Module, Controller, Get, Post, Patch, Put, Delete, Param, Body, Query, UseGuards,
   ForbiddenException, BadRequestException, NotFoundException, Injectable,
 } from '@nestjs/common';
+import { OrderInsuranceDto, LabCoverageDto, RadCoverageDto, NursingCoverageDto, PostCrmDto, PutCrmDto, CreateReferralDto, CreatePromotionDto, CreateTechDto, UpdateTechDto, ClaimResubmitDto, ClaimApproveDto, ClaimRejectDto, PatchAvailabilityDto } from './provider-production.dto';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { JwtAuthGuard, CurrentUser, Roles, getEffectiveRoles } from '../../common/auth.guard';
@@ -664,17 +665,17 @@ export class ProviderProductionController {
 
   // ── 1. pharmacy per-item insurance decision ──
   @Post('orders/:id/insurance-decision')
-  orderInsurance(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
+  orderInsurance(@CurrentUser() u: any, @Param('id') id: string, @Body() b: OrderInsuranceDto) {
     return this.svc.orderInsuranceDecision(u, id, b);
   }
 
   // ── 2-4. coverage decisions (exact governed paths) ──
   @Post('labs/bookings/:id/coverage-decision')
-  labCoverage(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.labCoverageDecision(u, id, b); }
+  labCoverage(@CurrentUser() u: any, @Param('id') id: string, @Body() b: LabCoverageDto) { return this.svc.labCoverageDecision(u, id, b); }
   @Post('radiology/bookings/:id/coverage-decision')
-  radCoverage(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.radiologyCoverageDecision(u, id, b); }
+  radCoverage(@CurrentUser() u: any, @Param('id') id: string, @Body() b: RadCoverageDto) { return this.svc.radiologyCoverageDecision(u, id, b); }
   @Post('home-care/bookings/:id/coverage-decision')
-  nursingCoverage(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.homecareCoverageDecision(u, id, b); }
+  nursingCoverage(@CurrentUser() u: any, @Param('id') id: string, @Body() b: NursingCoverageDto) { return this.svc.homecareCoverageDecision(u, id, b); }
 
   // ── 5-6. CRM exact paths ──
   @Get('provider/crm')
@@ -682,39 +683,39 @@ export class ProviderProductionController {
   @Get('provider/crm/:patientId')
   getCrm(@CurrentUser() u: any, @Param('patientId') p: string) { return this.svc.getCrm(u, p); }
   @Post('provider/crm/:patientId')
-  postCrm(@CurrentUser() u: any, @Param('patientId') p: string, @Body() b: any) { return this.svc.putCrm(u, p, b); }
+  postCrm(@CurrentUser() u: any, @Param('patientId') p: string, @Body() b: PostCrmDto) { return this.svc.putCrm(u, p, b); }
   @Put('provider/crm/:patientId')
-  putCrm(@CurrentUser() u: any, @Param('patientId') p: string, @Body() b: any) { return this.svc.putCrm(u, p, b); }
+  putCrm(@CurrentUser() u: any, @Param('patientId') p: string, @Body() b: PutCrmDto) { return this.svc.putCrm(u, p, b); }
 
   // ── 7. referral tracking exact path ──
   @Get('provider/referrals/mine')
   myReferrals(@CurrentUser() u: any) { return this.svc.myReferrals(u); }
 
   @Post('provider/referrals')
-  createReferral(@CurrentUser() u: any, @Body() b: any) { return this.svc.createReferral(u, b); }
+  createReferral(@CurrentUser() u: any, @Body() b: CreateReferralDto) { return this.svc.createReferral(u, b); }
   @Get('provider/referral-network')
   referralNetwork(@CurrentUser() u: any) { return this.svc.referralNetwork(u); }
   @Get('provider/promotions')
   listPromotions(@CurrentUser() u: any): Promise<any[]> { return this.svc.listPromotions(u); }
   @Post('provider/promotions')
-  createPromotion(@CurrentUser() u: any, @Body() b: any) { return this.svc.createPromotion(u, b); }
+  createPromotion(@CurrentUser() u: any, @Body() b: CreatePromotionDto) { return this.svc.createPromotion(u, b); }
   // ── 8. technician roster exact path ──
   @Get('hospital/staff-roster/technicians')
   listTechs(@CurrentUser() u: any) { return this.svc.listTechnicians(u); }
   @Post('hospital/staff-roster/technicians')
-  createTech(@CurrentUser() u: any, @Body() b: any) { return this.svc.createTechnician(u, b); }
+  createTech(@CurrentUser() u: any, @Body() b: CreateTechDto) { return this.svc.createTechnician(u, b); }
   @Patch('hospital/staff-roster/technicians/:id')
-  updateTech(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.updateTechnician(u, id, b); }
+  updateTech(@CurrentUser() u: any, @Param('id') id: string, @Body() b: UpdateTechDto) { return this.svc.updateTechnician(u, id, b); }
   @Delete('hospital/staff-roster/technicians/:id')
   deleteTech(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.deleteTechnician(u, id); }
 
   // ── 10. claims actions exact paths ──
   @Post('claims/:id/resubmit')
-  claimResubmit(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.claimAction(u, id, 'resubmit', b); }
+  claimResubmit(@CurrentUser() u: any, @Param('id') id: string, @Body() b: ClaimResubmitDto) { return this.svc.claimAction(u, id, 'resubmit', b); }
   @Post('claims/:id/approve')
-  claimApprove(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.claimAction(u, id, 'approve', b); }
+  claimApprove(@CurrentUser() u: any, @Param('id') id: string, @Body() b: ClaimApproveDto) { return this.svc.claimAction(u, id, 'approve', b); }
   @Post('claims/:id/reject')
-  claimReject(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.claimAction(u, id, 'reject', b); }
+  claimReject(@CurrentUser() u: any, @Param('id') id: string, @Body() b: ClaimRejectDto) { return this.svc.claimAction(u, id, 'reject', b); }
 
   // ── 11. inbound reports exact path ──
   @Get('provider/reports/inbound')
@@ -724,7 +725,7 @@ export class ProviderProductionController {
   @Get('provider/profile/availability')
   getAvailability(@CurrentUser() u: any) { return this.svc.getAvailability(u); }
   @Patch('provider/profile/availability')
-  patchAvailability(@CurrentUser() u: any, @Body() b: any) { return this.svc.patchAvailability(u, b); }
+  patchAvailability(@CurrentUser() u: any, @Body() b: PatchAvailabilityDto) { return this.svc.patchAvailability(u, b); }
 }
 
 @Module({

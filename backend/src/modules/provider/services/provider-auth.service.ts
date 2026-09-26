@@ -1,6 +1,7 @@
-import { Injectable, BadRequestException, ConflictException, ForbiddenException, NotFoundException, UnauthorizedException, Logger, Inject } from '@nestjs/common';
+import { Injectable, BadRequestException, ConflictException, ForbiddenException, NotFoundException, UnauthorizedException, Logger, Inject, Optional } from '@nestjs/common';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcryptjs';
+import { isEmail } from 'class-validator';
 import { JwtService } from '@nestjs/jwt';
 import { ProviderAccount, ProviderProfile, ProviderAuditLog } from '../schemas';
 import { ProviderAccountStatus, ProviderType, REQUIRED_DOCS_BY_PROVIDER_TYPE, PROVIDER_STATUS_TRANSITIONS } from '../provider.enums';
@@ -11,6 +12,9 @@ import { ProviderAccountProfileRepository } from "./repositories/provideraccount
 import { ProviderAuditLogRepository } from "./repositories/providerauditlog.repository";
 import { ProviderSessionRepository } from "./repositories/providersession.repository";
 import * as crypto from 'crypto';
+import { revokeAllCredentialSessions } from '../../../common/credential-revocation';
+import { RedisService } from '../../redis/redis.service';
+import { findLinkedUser } from '../provider-credential';
 
 @Injectable()
 export class ProviderAuthService {
@@ -22,6 +26,7 @@ export class ProviderAuthService {
     @Inject('ProviderSessionRepository') private sessions: ProviderSessionRepository,
     private readonly otp: ProviderOtpService,
     private readonly jwt: JwtService,
+    @Optional() private readonly redis?: RedisService,
   ) {}
 
   private signToken(a: ProviderAccount) {
@@ -31,7 +36,7 @@ export class ProviderAuthService {
     return { id: a.id, email: a.email, provider_type: a.provider_type, status: a.status, email_verified: a.email_verified, onboarding_progress: a.onboarding_progress };
   }
   private validateEmail(email: string) {
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new BadRequestException('invalid email');
+    if (typeof email !== 'string' || email.length > 254 || !isEmail(email)) throw new BadRequestException('invalid email');
   }
   private validatePassword(p: string) {
     if (!p || p.length < 8) throw new BadRequestException('password must be at least 8 characters');
@@ -46,61 +51,54 @@ export class ProviderAuthService {
     const email = input.email.toLowerCase().trim();
     const exists = await this.accounts.findOne({ email });
     if (exists) throw new ConflictException('email already registered');
-    const password_hash = await bcrypt.hash(input.password, 10);
-    const acc = await this.accounts.create({ email, password_hash, provider_type: input.provider_type, status: ProviderAccountStatus.EMAIL_UNVERIFIED, status_history: [{ from: '', to: ProviderAccountStatus.EMAIL_UNVERIFIED, by_user_id: 'system', by_role: 'system', at: new Date() }] });
+    // P3.0b: the credential lives on users. Create the login identity first
+    // (restricted until approval, like the onboarding wizard) and share its id.
+    const users = this.db().collection('users');
+    if (await users.findOne({ email })) throw new ConflictException('email already registered');
+    const userId = crypto.randomUUID();
+    const now = new Date();
+    await users.insertOne({
+      id: userId, email, full_name: '', password_hash: await bcrypt.hash(input.password, 12),
+      role: 'guest', active: true, onboarding_only: true, token_version: 0, createdAt: now, updatedAt: now,
+    });
+    const acc = await this.accounts.create({ id: userId, user_id: userId, email, provider_type: input.provider_type, status: ProviderAccountStatus.EMAIL_UNVERIFIED, status_history: [{ from: '', to: ProviderAccountStatus.EMAIL_UNVERIFIED, by_user_id: 'system', by_role: 'system', at: new Date() }] });
     await this.profiles.create({ account_id: acc.id, provider_type: input.provider_type });
     await this.audit.create({ provider_account_id: acc.id, actor_id: acc.id, actor_role: 'provider', action: 'auth.register', target: { collection: 'provider_accounts', id: acc.id } });
     const otpRes = await this.otp.issue(email, OtpPurpose.EMAIL_VERIFICATION, { ip: input.meta?.ip, ua: input.meta?.ua, account_id: acc.id });
     return { account: this.publicAccount(acc), otp: otpRes, required_documents: REQUIRED_DOCS_BY_PROVIDER_TYPE[input.provider_type] };
   }
 
+  private db() {
+    const db = (this.accounts as any).model?.db;
+    if (!db) throw new Error('provider_accounts_db_unavailable');
+    return db;
+  }
+
+  /** P3.0b: the users row that owns this account's credential (single source of truth). */
+  private linkedUser(a: any): Promise<any | null> {
+    return findLinkedUser(this.db(), a);
+  }
+
   /** True when the users row linked to this provider account is banned (active=false). Lookup failures fail open to the account's own status checks. */
   private async isLinkedUserBanned(a: any): Promise<boolean> {
-    const linkedUserId = a?.user_id || a?.id;
-    if (!linkedUserId) return false;
-    const u: any = await Promise.resolve()
-      .then(() => (this.accounts as any).model?.db?.collection('users')?.findOne({ id: linkedUserId }, { projection: { active: 1 } }))
-      .catch(() => null);
+    const u: any = await this.linkedUser(a).catch(() => null);
     return !!u && u.active === false;
   }
 
-  async login(input: { email: string; password: string; meta?: any }) {
-    const email = (input.email || '').toLowerCase().trim();
-    const a = await this.accounts.findOne({ email });
-    if (!a) throw new UnauthorizedException('invalid credentials');
-    // F09: suspended providers cannot start new sessions at all.
-    if (a.status === ProviderAccountStatus.SUSPENDED) {
-      throw new ForbiddenException('account_suspended');
-    }
-    // A banned linked user (admin ban sets users.active=false) must not start
-    // provider sessions either.
-    if (await this.isLinkedUserBanned(a)) throw new ForbiddenException('account_suspended');
-    if (a.locked_until && a.locked_until.getTime() > Date.now()) throw new UnauthorizedException('account temporarily locked — too many failed attempts');
-    const ok = await bcrypt.compare(input.password, a.password_hash);
-    if (!ok) {
-      a.failed_login_attempts = (a.failed_login_attempts || 0) + 1;
-      if (a.failed_login_attempts >= 5) { a.locked_until = new Date(Date.now() + 15 * 60 * 1000); a.failed_login_attempts = 0; }
-      await a.save();
-      throw new UnauthorizedException('invalid credentials');
-    }
-    a.failed_login_attempts = 0; a.locked_until = undefined as any; a.last_login_at = new Date(); await a.save();
-    await this.audit.create({ provider_account_id: a.id, actor_id: a.id, actor_role: 'provider', action: 'auth.login', meta: { ip: input.meta?.ip, device: input.meta?.device_identifier } });
-    
-    // Create new session
+  /** Create a device-bound provider refresh session and the login-shaped response. */
+  private async openSession(a: any, deviceIdentifier?: string) {
     const refresh_token = crypto.randomBytes(40).toString('hex');
     const refresh_token_hash = await bcrypt.hash(refresh_token, 10);
     const session = await this.sessions.create({
       provider_account_id: a.id,
-      device_identifier: input.meta?.device_identifier || 'unknown',
+      device_identifier: deviceIdentifier || 'unknown',
       refresh_token_hash,
       status: 'active',
       expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
     });
-
     const p = await this.profiles.findOne({ account_id: a.id });
     const profileData = p ? p.toObject() : null;
-
-    return { 
+    return {
       access_token: this.signToken(a),
       refresh_token,
       session_id: session.id,
@@ -112,6 +110,65 @@ export class ProviderAuthService {
       account: this.publicAccount(a),
       profile: profileData
     };
+  }
+
+  /** P3.0a: end every session derived from this account's credential (all stores). */
+  private async revokeCredentialSessions(a: any, userId?: string) {
+    const db = this.db();
+    const res = await revokeAllCredentialSessions(db, this.redis?.getClient?.() ?? null, userId || a.user_id || a.id);
+    // Unlinked legacy account (no user_id, id ≠ user id) is still revoked.
+    if (!res.provider_accounts.includes(a.id)) {
+      await db.collection('provider_accounts').updateOne({ id: a.id }, { $inc: { token_version: 1 } });
+      await db.collection('provider_sessions').updateMany({ provider_account_id: a.id, status: 'active' }, { $set: { status: 'revoked', revoked_reason: 'credential_changed', revoked_at: new Date() } });
+    }
+    return res;
+  }
+
+  async login(input: { email: string; password: string; meta?: any }) {
+    const email = (input.email || '').toLowerCase().trim();
+    const a = await this.accounts.findOne({ email });
+    if (!a) throw new UnauthorizedException('invalid credentials');
+    // F09: suspended providers cannot start new sessions at all.
+    if (a.status === ProviderAccountStatus.SUSPENDED) {
+      throw new ForbiddenException('account_suspended');
+    }
+    // P3.0b: verify against the linked users.password_hash only.
+    const user = await this.linkedUser(a);
+    // A banned linked user (admin ban sets users.active=false) must not start
+    // provider sessions either.
+    if (user && user.active === false) throw new ForbiddenException('account_suspended');
+    if (a.locked_until && a.locked_until.getTime() > Date.now()) throw new UnauthorizedException('account temporarily locked — too many failed attempts');
+    if (!user) this.logger.warn(`provider_account_unlinked ${a.id}: no users row — run 2026-09-unify-provider-passwords`);
+    const ok = !!user?.password_hash && typeof input.password === 'string' && await bcrypt.compare(input.password, user.password_hash);
+    if (!ok) {
+      a.failed_login_attempts = (a.failed_login_attempts || 0) + 1;
+      if (a.failed_login_attempts >= 5) { a.locked_until = new Date(Date.now() + 15 * 60 * 1000); a.failed_login_attempts = 0; }
+      await a.save();
+      throw new UnauthorizedException('invalid credentials');
+    }
+    a.failed_login_attempts = 0; a.locked_until = undefined as any; a.last_login_at = new Date(); await a.save();
+    await this.audit.create({ provider_account_id: a.id, actor_id: a.id, actor_role: 'provider', action: 'auth.login', meta: { ip: input.meta?.ip, device: input.meta?.device_identifier } });
+    return this.openSession(a, input.meta?.device_identifier);
+  }
+
+  /**
+   * P3.0b change password (provider app). Verifies and writes users only,
+   * then (P3.0a) ends every session of the credential and opens a fresh
+   * provider session for this device.
+   */
+  async changePassword(principal: any, input: { current_password: string; new_password: string; device_identifier?: string; meta?: any }) {
+    this.validatePassword(input.new_password);
+    const a = await this.accounts.findOne({ id: principal?.id });
+    if (!a) throw new NotFoundException('provider_account_not_found');
+    const user = await this.linkedUser(a);
+    if (!user?.password_hash) throw new BadRequestException('provider_account_unlinked');
+    const ok = typeof input.current_password === 'string' && await bcrypt.compare(input.current_password, user.password_hash);
+    if (!ok) throw new UnauthorizedException('current_password_incorrect');
+    await this.db().collection('users').updateOne({ id: user.id }, { $set: { password_hash: await bcrypt.hash(input.new_password, 12) } });
+    await this.revokeCredentialSessions(a, user.id);
+    const fresh = (await this.accounts.findOne({ id: a.id })) || a;
+    await this.audit.create({ provider_account_id: a.id, actor_id: a.id, actor_role: 'provider', action: 'auth.password_change', meta: { ip: input.meta?.ip } });
+    return this.openSession(fresh, input.device_identifier);
   }
 
   async refresh(input: { refresh_token: string; device_identifier: string; session_id: string; meta?: any }) {
@@ -222,14 +279,20 @@ export class ProviderAuthService {
     this.validatePassword(input.new_password);
     const a = await this.accounts.findOne({ email: input.email.toLowerCase().trim() });
     if (!a) throw new NotFoundException();
+    const user = await this.linkedUser(a);
+    if (!user) throw new BadRequestException('provider_account_unlinked');
     await this.otp.verify(input.email, OtpPurpose.PASSWORD_RESET, input.code, { ip: input.meta?.ip, ua: input.meta?.ua, account_id: a.id });
-    a.password_hash = await bcrypt.hash(input.new_password, 10);
+    // P3.0b: the new credential is written to users only.
+    await this.db().collection('users').updateOne({ id: user.id }, { $set: { password_hash: await bcrypt.hash(input.new_password, 12) } });
     a.failed_login_attempts = 0; a.locked_until = undefined as any;
-    // F09: password reset revokes all other sessions immediately.
-    (a as any).token_version = Number((a as any).token_version || 0) + 1;
     await a.save();
+    // F09 + P3.0a: reset ends every session of this credential — provider
+    // access (token_version) AND provider refresh sessions, plus the linked
+    // user's patient sessions — then signs a fresh token for this device.
+    await this.revokeCredentialSessions(a, user.id);
+    const fresh = (await this.accounts.findOne({ id: a.id })) || a;
     await this.audit.create({ provider_account_id: a.id, actor_id: a.id, actor_role: 'provider', action: 'auth.password_reset' });
-    return { account: this.publicAccount(a), token: this.signToken(a) };
+    return { account: this.publicAccount(fresh), token: this.signToken(fresh) };
   }
 
   async me(user: any) {

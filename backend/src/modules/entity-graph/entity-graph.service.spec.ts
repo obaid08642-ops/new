@@ -49,7 +49,7 @@ describe('EntityGraphService', () => {
   const mockConditionModel = {
     countDocuments: jest.fn().mockResolvedValue(SEED_CONDITIONS.length),
     findOne: jest.fn().mockImplementation(({ code }) => ({
-      lean: jest.fn().mockResolvedValue(SEED_CONDITIONS.find(c => c.code === code) || null),
+      lean: jest.fn().mockResolvedValue(SEED_CONDITIONS.find((c) => c.code === (code && typeof code === 'object' ? code.$eq : code)) || null),
     })),
     find: jest.fn().mockReturnValue({
       select: jest.fn().mockReturnValue({

@@ -1,6 +1,19 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException, Optional } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import { pick } from '../../common/sanitize';
+
+/** P3.3 (F15): writable catalog fields — id/_id/active/governance flags excluded. */
+export const RADIOLOGY_CATALOG_FIELDS = [
+  'name_ar', 'name_en', 'short_code', 'description_ar', 'description_en',
+  'modality', 'modality_category', 'body_part', 'price', 'old_price',
+  'contrast_required', 'fasting_required', 'fasting_hours',
+  'home_visit_supported', 'facility_visit_supported', 'turnaround_hours',
+  'preparation_ar', 'preparation_en', 'requires_referral', 'medical_referral_required',
+  'requires_pregnancy_check', 'requires_metal_implant_check', 'requires_contrast_allergy_check',
+  'estimated_duration_minutes', 'special_notes', 'image_url', 'icon',
+  'cash_availability', 'insurance_availability', 'portable_ultrasound',
+] as const;
 import { RadiologyService, RadiologyBookingState, RADIOLOGY_BOOKING_TRANSITIONS } from '../../schemas/radiology.schema';
 import { RadiologyBooking } from './schemas/radiology-booking.schema';
 import { WorkflowEngineService } from '../workflow-engine/workflow-engine.module';
@@ -62,7 +75,7 @@ export class RadiologyOpsService {
     return object;
   }
 
-  async transition(id: string, targetState: RadiologyBookingState, user: any, note?: string) {
+  async transition(id: string, targetState: string, user: any, note?: string) {
     const b = await this.findBooking(id, user);
     if (!b) throw new NotFoundException('Radiology booking not found');
     // Center bookings store the lifecycle in `status`; legacy in `state`.
@@ -209,7 +222,7 @@ export class RadiologyOpsService {
   }
 
   // Also expose combined publish (for backward compat)
-  async publishReport(id: string, body: any, user: any) {
+  async publishReport(id: string, user: any) {
     return this.approveReport(id, user);
   }
 
@@ -318,8 +331,8 @@ export class RadiologyOpsService {
   // ──────────────────────────────────────────────
   async list(opts: any) {
     const q: any = { is_deleted: false, active: true, public_eligibility: true, medical_review_status: 'approved' };
-    if (opts.modality) q.modality = opts.modality;
-    if (opts.body_part) q.body_part = opts.body_part;
+    if (opts.modality) q.modality = { $eq: opts.modality };
+    if (opts.body_part) q.body_part = { $eq: opts.body_part };
     if (opts.search) q.$text = { $search: opts.search };
     if (opts.home_only) q.home_visit_supported = true;
     if (!this.redis?.getWithSWR) return this.svcModel.find(q).sort({ popularity: -1 }).lean();
@@ -335,8 +348,8 @@ export class RadiologyOpsService {
     // The legacy `id` field on catalog docs is stored as binary garbage, so
     // public detail lookup must use `_id` (or human `short_code`) instead.
     const base = { is_deleted: false, active: true, public_eligibility: true, medical_review_status: 'approved' } as const;
-    const or: Record<string, unknown>[] = [{ short_code: id }];
-    if (Types.ObjectId.isValid(id)) or.unshift({ _id: new Types.ObjectId(id) });
+    const or: Record<string, unknown>[] = [{ short_code: { $eq: id } }];
+    if (Types.ObjectId.isValid(id)) or.unshift({ _id: { $eq: new Types.ObjectId(id) } });
     const svc = await this.svcModel.findOne({ ...base, $or: or }).lean();
     if (!svc) throw new NotFoundException();
     return svc;
@@ -345,9 +358,10 @@ export class RadiologyOpsService {
   async book(user: any, body: any) {
     // S4 duplicate-booking prevention: idempotent replay for double-tap/retry within 3 minutes
     if (body?.service_id) {
+      if (typeof body.service_id !== 'string' || body.service_id.length > 128) throw new BadRequestException('invalid service_id');
       const dupe = await this.bkgModel.findOne({
-        patient_id: user.id,
-        service_id: body.service_id,
+        patient_id: { $eq: user.id },
+        service_id: { $eq: body.service_id },
         createdAt: { $gte: new Date(Date.now() - 3 * 60_000) },
         state: { $nin: [RadiologyBookingState.CANCELLED, RadiologyBookingState.REPORT_READY] },
       }).lean();
@@ -417,8 +431,8 @@ export class RadiologyOpsService {
   }
 
   async listForProvider(user: any, status?: string) {
-    const q: any = { provider_account_id: user.account_id ?? user.id };
-    if (status) q.state = status;
+    const q: any = { provider_account_id: { $eq: user.account_id ?? user.id } };
+    if (status) q.state = { $eq: status };
     return this.bkgModel.find(q).sort({ scheduled_at: 1 }).lean();
   }
 
@@ -432,8 +446,8 @@ export class RadiologyOpsService {
 
   async adminListAll(opts: any) {
     const q: any = {};
-    if (opts.status) q.state = opts.status;
-    if (opts.insurance_status) q.insurance_status = opts.insurance_status;
+    if (opts.status) q.state = { $eq: opts.status };
+    if (opts.insurance_status) q.insurance_status = { $eq: opts.insurance_status };
     const limit = opts.limit || 50;
     return this.bkgModel.find(q).sort({ createdAt: -1 }).limit(limit).lean();
   }
@@ -453,12 +467,12 @@ export class RadiologyOpsService {
   // --- Admin Catalog CRUD ---
   async createCatalog(user: any, body: any) {
     if (user.role !== 'admin') throw new ForbiddenException();
-    return this.svcModel.create({ ...body, id: require('uuid').v4() });
+    return this.svcModel.create({ ...pick(body, RADIOLOGY_CATALOG_FIELDS), id: require('uuid').v4() });
   }
 
   async updateCatalog(user: any, id: string, body: any) {
     if (user.role !== 'admin') throw new ForbiddenException();
-    const updated = await this.svcModel.findOneAndUpdate({ id }, { $set: body }, { new: true });
+    const updated = await this.svcModel.findOneAndUpdate({ id }, { $set: pick(body, RADIOLOGY_CATALOG_FIELDS) }, { new: true });
     if (!updated) throw new NotFoundException();
     return updated;
   }

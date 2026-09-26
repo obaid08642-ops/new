@@ -2,7 +2,8 @@ import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@ne
 import { AppointmentsService } from './appointments.service';
 import { CurrentUser, JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';import { ApptState } from '../../schemas/appointment.schema';
-import { CreateAppointmentDto, CancelAppointmentDto, RescheduleAppointmentDto } from './appointments.dto';
+import { CreateAppointmentDto, CancelAppointmentDto, RescheduleAppointmentDto, JoinWaitlistDto} from './appointments.dto';
+import { FinishAppointmentDto, CancelDto } from './appointments.generated.dto';
 
 @Controller('care/appointments')
 @SelfService()
@@ -27,7 +28,7 @@ export class AppointmentsController {
   }
 
   @Post('waitlist/join')
-  joinWaitlist(@Body() body: { doctorId: string; date: string }, @CurrentUser() user: any) {
+  joinWaitlist(@Body() body: JoinWaitlistDto, @CurrentUser() user: any) {
     return this.svc.joinWaitlist(user, body);
   }
 
@@ -68,7 +69,7 @@ export class AppointmentsController {
 
   @Post(':id/finish')
   @Roles(UserRole.DOCTOR, UserRole.HOME_CARE)
-  finishAppointment(@Param('id') id: string, @Body() body: any, @CurrentUser() user: any) {
+  finishAppointment(@Param('id') id: string, @Body() body: FinishAppointmentDto, @CurrentUser() user: any) {
     return this.svc.finish(id, body, user);
   }
 
@@ -95,7 +96,7 @@ export class AdminAppointmentsController {
   }
 
   @Post(':id/cancel')
-  cancel(@Param('id') id: string, @Body() body: any, @CurrentUser() user: any) {
+  cancel(@Param('id') id: string, @Body() body: CancelDto, @CurrentUser() user: any) {
     return this.svc.cancel(id, { ...user, role: UserRole.ADMIN }, body?.reason);
   }
 }

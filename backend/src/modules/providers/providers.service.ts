@@ -1,3 +1,4 @@
+import { randomBytes } from 'crypto';
 import { Injectable, NotFoundException, BadRequestException, ConflictException, ForbiddenException, Inject } from '@nestjs/common';
 import { Model, Types } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -14,12 +15,31 @@ import { CatalogPublicationService } from '../events/catalog-publication.service
 import { escapeRegex } from '../../common/slug.util';
 
 /**
+ * Fields a provider may edit on their own profile (and, via the
+ * approval-workflow, propose for an existing record). This is intentionally
+ * an allow-list: identity, status, verification and public-governance fields
+ * must never be written from caller-supplied objects.
+ */
+export const PROVIDER_CONFIG_EDITABLE_FIELDS = [
+  'name_ar', 'name_en', 'phone', 'email', 'avatar', 'specialty', 'city',
+  'district', 'location', 'about_ar', 'about_en', 'working_hours',
+  'home_visit_supported', 'home_visit_radius_km', 'coverage_radius_km',
+  'accepts_cash', 'accepts_insurance', 'accepted_insurance',
+  'consultation_fee', 'languages', 'services',
+];
+
+/**
  * Provider Onboarding Service
  * Supports BOTH:
  *  1. Self-registration (`/apply`) — provider creates their own user + profile (status=pending)
  *  2. Admin-assisted (`/admin/create`) — admin creates user + profile directly
  * All providers go through admin review queue before becoming public.
  */
+/** One-time password for accounts created on someone's behalf (18 random bytes, base64url). */
+function generateTempPassword(): string {
+  return randomBytes(18).toString('base64url');
+}
+
 @Injectable()
 export class ProvidersService {
   constructor(
@@ -49,11 +69,14 @@ export class ProvidersService {
       throw new ForbiddenException('صلاحية مرفوضة. فقط إدارة المستشفى تملك حق تعيين الموظفين الفرعيين.');
     }
 
+    // ProviderBranch._id is a UUID string (see provider-branch.schema), so
+    // findById matches the branch uuid directly — never a client ObjectId.
     const branch = await this.branchModel.findById(branchId);
     if (!branch) throw new NotFoundException('الفرع المحدد غير موجود بالمنظومة.');
 
     // Create Sub-Account User
-    const hash = await bcrypt.hash(staffDto.password || 'Temp123!', 12);
+    const generatedPassword = staffDto.password ? undefined : generateTempPassword();
+    const hash = await bcrypt.hash(staffDto.password || generatedPassword, 12);
     const staffUser = await this.userModel.create({
       full_name: staffDto.fullName,
       email: staffDto.email,
@@ -87,7 +110,7 @@ export class ProvidersService {
       await branch.save();
     }
 
-    return { success: true, message: 'تم إنشاء الحساب الفرعي وتفعيله تلقائياً تحت مظلة ترخيص المستشفى.' };
+    return { success: true, message: 'تم إنشاء الحساب الفرعي وتفعيله تلقائياً تحت مظلة ترخيص المستشفى.', generated_password: generatedPassword };
   }
 
   // ============ Self Registration ============
@@ -99,7 +122,7 @@ export class ProvidersService {
     consultation_modes?: string[]; price_clinic?: number; price_online?: number;
     pharmacy_chain?: string; has_own_drivers?: boolean;
   }) {
-    const exists = await this.userModel.findOne({ phone: data.phone });
+    const exists = await this.userModel.findOne({ phone: { $eq: data.phone } });
     if (exists) throw new ConflictException('Phone already registered');
     const hash = await bcrypt.hash(data.password, 12);
     const role = this.typeToRole(data.type);
@@ -137,9 +160,9 @@ export class ProvidersService {
   async adminCreate(data: any, _admin: any) {
     // Admin can create with password OR auto-generate, status defaults to PENDING but admin
     // can flag `auto_approve=true` to skip review.
-    const exists = await this.userModel.findOne({ phone: data.phone });
+    const exists = await this.userModel.findOne({ phone: { $eq: data.phone } });
     if (exists) throw new ConflictException('Phone already registered');
-    const password = data.password || `Temp@${Math.floor(Math.random() * 10000)}`;
+    const password = data.password || generateTempPassword();
     const hash = await bcrypt.hash(password, 12);
     const role = this.typeToRole(data.type);
     const status: ProviderStatus = data.auto_approve ? ProviderStatus.ACTIVE : ProviderStatus.PENDING;
@@ -437,13 +460,7 @@ export class ProvidersService {
 
     // This is intentionally an allow-list: configuration updates must never
     // mutate identity, status, verification, or public-governance fields.
-    const editable = new Set([
-      'name_ar', 'name_en', 'phone', 'email', 'avatar', 'specialty', 'city',
-      'district', 'location', 'about_ar', 'about_en', 'working_hours',
-      'home_visit_supported', 'home_visit_radius_km', 'coverage_radius_km',
-      'accepts_cash', 'accepts_insurance', 'accepted_insurance',
-      'consultation_fee', 'languages', 'services',
-    ]);
+    const editable = new Set(PROVIDER_CONFIG_EDITABLE_FIELDS);
     const patch = Object.fromEntries(Object.entries(payload || {}).filter(([key, value]) => editable.has(key) && value !== undefined));
     if (!Object.keys(patch).length) throw new BadRequestException('No editable provider configuration fields supplied');
 

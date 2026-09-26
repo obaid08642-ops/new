@@ -99,7 +99,7 @@ export class SupportService {
     ];
   }
 
-  async submitFeedback(user_id: string, body: any) {
+  async submitFeedback(user_id: string) {
     return { success: true, message: 'شكرًا لملاحظاتك!' };
   }
 }
