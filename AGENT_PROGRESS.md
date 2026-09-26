@@ -159,3 +159,8 @@ Format: task | commit sha | verify result | notes
 - Backend per owning service: labs/radiology/nursing `approveCatalogItem` + `bulkApproveCatalog` (cap 200, per-id results) setting `medical_review_status` + `public_eligibility` + `last_reviewed` with bus audit events; medicines `adminApproveCatalog` (preserves `verified` on reject; visibility governed by the two review fields) + controller bulk loop. Routes: `POST {labs,radiology,nursing}/admin/catalog/:id/approve`, `.../bulk-approve`, `POST medicines/admin/catalog/:id/approve` + bulk. Validated DTOs (Approve/BulkApprove per module; labs/radiology/nursing/medicines).
 - UI: catalog-manager tabs gained per-item اعتماد/رفض + status badge + bulk-select bar calling the new endpoints (packages tab reuses the lab endpoints).
 - Tests: `labs-approve.spec.ts` 3/3 (approve/reject $set, audit emit, admin-only, bulk cap). tsc 0.
+
+## [P6.x-1] Operational reports (2026-09-26)
+- Backend `GET /admin/reports/{revenue,orders,bookings,providers,patients}` (admin-only, validated from/to/group_by, 366-day cap): revenue = paid transactions net of refunds; bookings = union fan-out across appointments/doctor_appointments/lab/radiology/homecare bookings; every endpoint serves `?format=csv`. Registered in AdminModule.
+- Admin `/admin/reports` page: 5 tabs, date/group filters, recharts bar, table, CSV export link (BFF passes content-disposition through).
+- Tests: `admin-reports.spec.ts` 3/3. tsc 0.
