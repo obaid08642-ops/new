@@ -115,7 +115,7 @@ export class ProvidersService {
     consultation_modes?: string[]; price_clinic?: number; price_online?: number;
     pharmacy_chain?: string; has_own_drivers?: boolean;
   }) {
-    const exists = await this.userModel.findOne({ phone: data.phone });
+    const exists = await this.userModel.findOne({ phone: { $eq: data.phone } });
     if (exists) throw new ConflictException('Phone already registered');
     const hash = await bcrypt.hash(data.password, 12);
     const role = this.typeToRole(data.type);
@@ -153,7 +153,7 @@ export class ProvidersService {
   async adminCreate(data: any, _admin: any) {
     // Admin can create with password OR auto-generate, status defaults to PENDING but admin
     // can flag `auto_approve=true` to skip review.
-    const exists = await this.userModel.findOne({ phone: data.phone });
+    const exists = await this.userModel.findOne({ phone: { $eq: data.phone } });
     if (exists) throw new ConflictException('Phone already registered');
     const password = data.password || `Temp@${Math.floor(Math.random() * 10000)}`;
     const hash = await bcrypt.hash(password, 12);
