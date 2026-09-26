@@ -8,7 +8,7 @@
 import { Module, Controller, Get, Post, Param, Query, Body, UseGuards, Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { JwtAuthGuard, CurrentUser, Roles } from '../../common/auth.guard';
+import { JwtAuthGuard, CurrentUser, Roles, getEffectiveRoles } from '../../common/auth.guard';
 import { OrderSchema, OrderDocument } from '../../schemas/order.schema';
 import { LabBookingSchema, LabBooking } from '../../schemas/lab.schema';
 import { RadiologyBookingSchema, RadiologyBooking } from '../../schemas/radiology.schema';
@@ -66,7 +66,7 @@ export class ProviderJobsService {
       hospital: ['lab', 'radiology', 'consultation'],
       clinic: ['consultation'],
     };
-    const base = byRole[user.role] || [];
+    const base = getEffectiveRoles(user).map((r) => byRole[r]).find(Boolean) || [];
     // Provider profile may declare an explicit `capabilities` array that overrides defaults.
     try {
       const profile: any = await this.providers.findOne({ user_id: user.id }, { capabilities: 1, _id: 0 }).lean();

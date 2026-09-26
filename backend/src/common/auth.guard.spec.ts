@@ -1,4 +1,4 @@
-import { JwtAuthGuard, getEffectiveRoles, normalizeEffectiveRole } from './auth.guard';
+import { JwtAuthGuard, getEffectiveRoles, hasEffectiveRole, normalizeEffectiveRole } from './auth.guard';
 import { UnauthorizedException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
@@ -218,5 +218,15 @@ describe('JwtAuthGuard support session context', () => {
     await expect(guard.canActivate(ctx)).resolves.toBe(true);
     expect(req.impersonator).toEqual({ id: 'admin-1', role: 'admin' });
     expect(req.impersonationSession).toEqual(expect.objectContaining({ id: 'imp-1' }));
+  });
+});
+
+describe('hasEffectiveRole', () => {
+  it('matches provider-auth tokens (role provider + provider_type) and plain role tokens alike', () => {
+    expect(hasEffectiveRole({ role: 'provider', provider_type: 'pharmacy' }, 'pharmacy')).toBe(true);
+    expect(hasEffectiveRole({ role: 'pharmacy' }, 'pharmacy')).toBe(true);
+    expect(hasEffectiveRole({ role: 'provider', provider_type: 'home_care' }, 'nurse', 'home_care')).toBe(true);
+    expect(hasEffectiveRole({ role: 'provider', provider_type: 'lab' }, 'doctor')).toBe(false);
+    expect(hasEffectiveRole({ role: 'patient' }, 'pharmacy')).toBe(false);
   });
 });

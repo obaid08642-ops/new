@@ -221,10 +221,10 @@ export class ProviderAdminService {
         action: 'deactivate',
       }).catch(() => {});
 
-      const docs: any[] = await this.accounts.model.db.collection('providerdocuments').find({ account_id: id }).toArray();
+      const docs: any[] = await this.accounts.model.db.collection('provider_documents').find({ account_id: id }).toArray();
       await this.purgeImages([
         prof.profile_photo, prof.logo, prof.clinic_images, prof.license_documents,
-        ...docs.map((d: any) => d.file_url || d.storage_id || d.url),
+        ...docs.map((d: any) => d.storage_object_id || d.file_url || d.storage_id || d.url),
       ]);
     }
     return a.toObject();

@@ -25,7 +25,7 @@ import { SendDto, AddDto, RegisterDto, IngestDto, CreateDto, BookDto, BareSendDt
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
 import { v4 as uuid } from 'uuid';
-import { CurrentUser, Public, JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
+import { CurrentUser, Public, JwtAuthGuard, Roles, SelfService, getEffectiveRoles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { MarkDto, OneDto } from './compat.generated.dto';
 
@@ -1082,7 +1082,7 @@ class ProviderDashboardController {
       nurse: { col: 'homecarebookings', idField: 'assigned_provider_id', dateField: 'createdAt' },
       driver: { col: 'orders', idField: 'driver_id', dateField: 'createdAt' },
     };
-    const q = jobQueries[role as string] || jobQueries.pharmacy;
+    const q = getEffectiveRoles(user).map((r) => jobQueries[r]).find(Boolean) || jobQueries.pharmacy;
     const col = this.conn.collection(q.col);
 
     const todayStart = new Date();

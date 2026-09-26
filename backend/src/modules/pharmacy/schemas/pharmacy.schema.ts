@@ -115,6 +115,8 @@ export const ALLOCATION_TRANSITIONS: Record<PharmacyAllocationState, PharmacyAll
 export class PharmacyOrder extends Document {
   // Written by the services but previously undeclared: strict mode silently dropped these (tools/audit/schemadrift.js).
   @Prop() payment_method?: string;                 // cash | cod | card | insurance (offer selection / COD)
+  @Prop() payment_status?: string;                 // paid | refunded | partially_refunded | covered_by_insurance
+  @Prop() refund_status?: string;
   @Prop() coverage_mode?: string;                  // cash | insurance
   @Prop() quote_accepted_at?: Date;                // patient accepted the final quote
   @Prop() final_quote_idempotency_key?: string;

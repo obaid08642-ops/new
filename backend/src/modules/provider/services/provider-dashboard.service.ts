@@ -7,6 +7,7 @@ import { ProviderAvailabilityRepository } from "./repositories/provideravailabil
 import { ProviderAccountRepository } from "./repositories/provideraccount.repository";
 import { ProviderAccountProfileRepository } from "./repositories/provideraccountprofile.repository";
 import { isProviderRole } from '../../../common/enums';
+import { hasEffectiveRole } from '../../../common/auth.guard';
 
 function assertProvider(user: any) {
   if (!user || !isProviderRole(user.role)) throw new ForbiddenException('provider scope required');
@@ -29,6 +30,8 @@ export class ProviderDashboardService {
     assertProvider(user);
     const todayStart = startOfDay(new Date());
     const todayEnd = endOfDay(new Date());
+    // Pharmacies work through allocations (broadcast -> offer -> allocation), not provider_requests.
+    if (hasEffectiveRole(user, 'pharmacy')) return this.pharmacyStats(user.id, todayStart, todayEnd);
     const base = { account_id: user.id };
 
     const [today_total, pending, completed_today, today_revenue_agg, accepted_all, in_progress] = await Promise.all([
@@ -53,6 +56,26 @@ export class ProviderDashboardService {
       accepted_total: accepted_all,
       today_revenue,
       currency: 'SAR',
+    };
+  }
+
+  private async pharmacyStats(pharmacyId: string, todayStart: Date, todayEnd: Date) {
+    const allocs = this.requests.model.db.collection('pharmacy_allocations');
+    const today = { $gte: todayStart, $lte: todayEnd };
+    const mine = { pharmacy_account_id: pharmacyId };
+    // delivery time: allocation.delivery.delivered_at, else the last update of a delivered allocation
+    const deliveredToday = { ...mine, status: 'delivered', $or: [{ 'delivery.delivered_at': today }, { 'delivery.delivered_at': null, updatedAt: today }] };
+    const [today_total, pending, completed_today, revenue, accepted_all, in_progress] = await Promise.all([
+      allocs.countDocuments({ ...mine, createdAt: today }),
+      allocs.countDocuments({ ...mine, status: { $in: ['pending_review', 'partially_confirmed'] } }),
+      allocs.countDocuments(deliveredToday),
+      allocs.aggregate([{ $match: deliveredToday }, { $group: { _id: null, total: { $sum: { $ifNull: ['$totals.total', 0] } } } }]).toArray(),
+      allocs.countDocuments({ ...mine, status: { $in: ['confirmed', 'preparing', 'ready_for_pickup', 'out_for_delivery', 'delivered'] } }),
+      allocs.countDocuments({ ...mine, status: { $in: ['confirmed', 'preparing', 'ready_for_pickup', 'out_for_delivery'] } }),
+    ]);
+    return {
+      today_requests: today_total, pending_requests: pending, completed_today, in_progress,
+      accepted_total: accepted_all, today_revenue: Math.round(((revenue[0] as any)?.total || 0) * 100) / 100, currency: 'SAR',
     };
   }
 

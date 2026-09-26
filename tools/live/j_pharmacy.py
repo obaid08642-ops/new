@@ -154,9 +154,33 @@ def run(pat, pharm, admin=None, meds=None):
     o = pat.get(f'/patient/pharmacy/orders/{oid}')
     order = o.body.get('data', o.body) if isinstance(o.body, dict) else {}
     step('patient sees it delivered', str(order.get('governed_state', '')).upper() in ('DELIVERED', 'COMPLETED'), order.get('governed_state'))
+    pharmacy_screens(pharm, oid, total)
     if admin:
         admin_console(admin, oid)
     return oid
+
+
+# Every GET the pharmacy's screens make (provider-app PharmacyDashboard, ProviderHome, BlueprintScreens shared tabs).
+PHARMACY_SCREEN_GETS = ['/provider/dashboard/stats', '/provider/profile', '/provider/pharmacy/allocations', '/provider/pharmacy/broadcasts',
+                        '/provider/capabilities/pharmacy', '/provider/pharmacy/inventory-tracking', '/pharmacy/chat/threads',
+                        '/pharmacy/procurement/my-requests', '/pharmacy/returns/provider/list', '/pharmacy/inventory/expiry',
+                        '/provider/inventory/search?q=a', '/provider/crm', '/provider/jobs/queue?status=active', '/provider/ops/wallet/ledger',
+                        '/provider/promotions', '/provider/referral-network', '/provider/reviews', '/referrals/my', '/provider-onboarding/my-profile',
+                        '/provider/stats/today', '/provider/stats/period?period=month', '/provider/settlements']
+
+
+def pharmacy_screens(pharm, oid, total):
+    journey('pharmacy screens: every tab loads after a delivered order')
+    for path in PHARMACY_SCREEN_GETS:
+        r = pharm.get(path)
+        step(f'GET {path}', r.ok, r)
+    # views that are about this pharmacy's orders must count the delivered one
+    r = pharm.get('/provider/dashboard/stats')
+    step('home stats count the delivered order', r.ok and any(isinstance(v, (int, float)) and v > 0 for v in (r.body.get('data', r.body) if isinstance(r.body, dict) else {}).values()), r)
+    r = pharm.get('/provider/settlements')
+    step('settlement statement includes the order', r.ok and oid in str(r.body), r)
+    r = pharm.get('/provider/crm')
+    step('pharmacy CRM lists the patient', r.ok and len(r.items()) > 0, r)
 
 
 def admin_console(admin, oid):

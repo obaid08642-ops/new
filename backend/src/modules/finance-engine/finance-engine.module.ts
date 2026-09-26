@@ -275,7 +275,11 @@ export class CouponService {
       if (!overlap) return { valid: false, discount: 0, reason: 'wrong_category' };
     }
     if (c.first_order_only) {
-      const prior = await this.conn.collection('orders').countDocuments({ patient_id: userId, state: { $nin: ['CANCELLED'] } } as any);
+      const [legacy, current] = await Promise.all([
+        this.conn.collection('orders').countDocuments({ patient_id: userId, state: { $nin: ['CANCELLED'] } } as any),
+        this.conn.collection('pharmacy_orders').countDocuments({ patient_account_id: userId, status: { $nin: ['draft', 'cancelled'] } } as any),
+      ]);
+      const prior = legacy + current;
       if (prior > 0) return { valid: false, discount: 0, reason: 'first_order_only' };
     }
 
@@ -648,10 +652,10 @@ export class RefundExecutor {
     const coll = kindCollection[opts.booking_kind];
     if (coll) {
       const newStatus = paidTotal != null && amount < paidTotal - 0.001 ? 'partially_refunded' : 'refunded';
-      await this.conn.collection(coll).updateOne(
-        { id: opts.booking_id } as any,
-        { $set: { payment_status: newStatus, refund_status: 'REFUNDED', updatedAt: new Date() } },
-      );
+      const set = { $set: { payment_status: newStatus, refund_status: 'REFUNDED', updatedAt: new Date() } };
+      const res: any = await this.conn.collection(coll).updateOne({ id: opts.booking_id } as any, set);
+      // Current pharmacy orders live in pharmacy_orders; `orders` is the legacy cart checkout.
+      if (coll === 'orders' && !res?.matchedCount) await this.conn.collection('pharmacy_orders').updateOne({ id: opts.booking_id } as any, set);
     }
     await this.conn.collection('notifications').insertOne({
       id: uuid(), user_id: opts.patient_id,
@@ -803,7 +807,10 @@ export class ReportsService {
         { $match: dateQ },
         { $group: { _id: '$state', total: { $sum: '$refund_amount' }, count: { $sum: 1 } } },
       ] as any[]).toArray().catch(() => [] as any[]),
-      this.conn.collection('orders').countDocuments({ ...dateQ, state: 'CANCELLED' } as any).catch(() => 0),
+      Promise.all([
+        this.conn.collection('orders').countDocuments({ ...dateQ, state: 'CANCELLED' } as any),
+        this.conn.collection('pharmacy_orders').countDocuments({ ...dateQ, status: 'cancelled' } as any),
+      ]).then(([a, b]) => a + b).catch(() => 0),
     ]);
 
     const p = (st: string) => (payments as any[]).filter((x) => x._id === st).reduce((s, x) => s + (x.total || 0), 0);

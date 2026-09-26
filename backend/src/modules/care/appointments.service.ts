@@ -10,6 +10,7 @@ import { InsuranceFlowService } from '../insurance-engine/insurance-engine.modul
 import { SlotLocksService } from '../slot-locks/slot-locks.module';
 import { AppointmentRepository } from "./repositories/appointment.repository";
 import { ProviderProfileRepository } from "./repositories/providerprofile.repository";
+import { hasEffectiveRole } from '../../common/auth.guard';
 
 /** Platform fee schedule (SAR). Move to DB/config when admin dashboard supports it. */
 const PLATFORM_FEES = {
@@ -351,7 +352,7 @@ export class AppointmentsService {
         refundPercentage = 50;
         refundDestination = 'wallet';
       }
-    } else if (user.role === UserRole.DOCTOR || user.id === appt.doctor_user_id) {
+    } else if (hasEffectiveRole(user, UserRole.DOCTOR) || user.id === appt.doctor_user_id) {
       refundPercentage = 100;
       refundDestination = 'source';
       penaltyAmount = 50; // 50 SAR penalty applied to Doctor's wallet

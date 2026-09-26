@@ -55,6 +55,12 @@ export function normalizeEffectiveRole(value: unknown): string {
   return aliases[role] || role;
 }
 
+/** True when the user's role or provider_type (provider-auth tokens carry role 'provider') is one of `roles`. */
+export function hasEffectiveRole(user: any, ...roles: string[]): boolean {
+  const mine = getEffectiveRoles(user);
+  return roles.some((r) => mine.includes(normalizeEffectiveRole(r)));
+}
+
 export function getEffectiveRoles(user: any): string[] {
   return Array.from(new Set([
     normalizeEffectiveRole(user?.role),

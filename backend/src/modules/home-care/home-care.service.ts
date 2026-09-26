@@ -17,6 +17,7 @@ import { NursingVisitReportRepository } from "./repositories/nursingvisitreport.
 import { CarePlanRepository } from "./repositories/careplan.repository";
 import { MedicalSupplyRequestRepository } from "./repositories/medicalsupplyrequest.repository";
 import { RedisService } from '../redis/redis.service';
+import { hasEffectiveRole } from '../../common/auth.guard';
 
 @Injectable()
 export class HomeCareSvc {
@@ -208,8 +209,8 @@ export class HomeCareSvc {
     return this.carePlanModel.create({
       id: require('uuid').v4(),
       patient_id: patientId,
-      doctor_id: user.role === 'doctor' ? user.id : undefined,
-      nurse_id: user.role === 'nurse' ? user.id : undefined,
+      doctor_id: hasEffectiveRole(user, 'doctor') ? user.id : undefined,
+      nurse_id: hasEffectiveRole(user, 'nurse', 'nursing', 'home_care') ? user.id : undefined,
       title: body.title,
       description: body.description,
       tasks: body.tasks || [],

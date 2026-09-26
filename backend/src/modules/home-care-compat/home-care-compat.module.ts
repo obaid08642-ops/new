@@ -10,7 +10,7 @@ import { InjectConnection, InjectModel, MongooseModule } from '@nestjs/mongoose'
 import { Connection, Model } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { v4 as uuid } from 'uuid';
-import { JwtAuthGuard, CurrentUser, Public, SelfService, Roles } from '../../common/auth.guard';
+import { JwtAuthGuard, CurrentUser, Public, SelfService, Roles, hasEffectiveRole } from '../../common/auth.guard';
 import { ChatModule } from '../chat/chat.module';
 import { ChatService } from '../chat/chat.service';
 import { HomeCareBookingSchema, HomeCareServiceSchema, CarePlanSchema } from '../../schemas/home-care.schema';
@@ -229,8 +229,8 @@ export class HomeCareCompatController {
     return this.carePlans.create({
       id: uuid(),
       patient_id: patientId,
-      doctor_id: u.role === 'doctor' ? u.id : undefined,
-      nurse_id: u.role === 'nurse' ? u.id : undefined,
+      doctor_id: hasEffectiveRole(u, 'doctor') ? u.id : undefined,
+      nurse_id: hasEffectiveRole(u, 'nurse', 'nursing', 'home_care') ? u.id : undefined,
       title: String(body.title).slice(0, 200),
       description: body?.description ? String(body.description).slice(0, 2000) : undefined,
       tasks: tasks.map((t: string) => t.slice(0, 300)),
