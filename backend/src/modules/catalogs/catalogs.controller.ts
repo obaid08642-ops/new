@@ -22,7 +22,7 @@ const DB_COLLECTIONS: Record<string, string> = {
   specialties: 'specialties',
 };
 
-const CATALOGS = ['insurance', 'labs', 'radiology', 'nursing', 'specialties'] as const;
+const CATALOGS = ['insurance', 'labs', 'radiology', 'nursing', 'specialties', 'medicines'] as const;
 
 @Controller('catalogs')
 @UseInterceptors(RedisCacheInterceptor)
@@ -34,7 +34,30 @@ export class CatalogsController {
   async getCatalog(@Param('type') type: string) {
     if (!CATALOGS.includes(type as any)) throw new NotFoundException('catalog_not_found');
     if (type === 'insurance') return this.insuranceCatalog();
+    if (type === 'medicines') return this.medicinesCatalog();
     return this.dbCatalog(type, DB_COLLECTIONS[type]);
+  }
+
+  private async medicinesCatalog() {
+    // P5.1: medicines read ONLY the canonical medicines collection through the
+    // same governance gate as the public catalog (no static fallback).
+    const rows = await this.conn.collection('medicines_master')
+      .find({
+        is_deleted: { $ne: true },
+        public_eligibility: true,
+        indexing_eligibility: true,
+        medical_review_status: 'approved',
+      } as any)
+      .limit(2000).toArray().catch(() => []);
+    if (!rows.length) throw new NotFoundException('catalog_unavailable');
+    return (rows as any[]).map(({ _id, ...r }: any) => ({
+      code: r.barcode || r.id,
+      name_ar: r.name_ar,
+      name_en: r.name_en,
+      image_url: (Array.isArray(r.images) && r.images[0]) || r.image || null,
+      is_active: true,
+      ...r,
+    }));
   }
 
   private async dbCatalog(type: string, collection: string) {

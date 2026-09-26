@@ -1,4 +1,13 @@
-import { Module, Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards, Injectable, BadRequestException, NotFoundException, ServiceUnavailableException, Logger } from '@nestjs/common';
+import { Module, Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards, Injectable, BadRequestException, NotFoundException, ServiceUnavailableException, Logger, Req } from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiForbiddenResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
+import { NABDAH_ACCESS_TOKEN_SECURITY_SCHEME } from '../../config/openapi.config';
 import { CreateCompanyDto, UpdateCompanyDto, OcrExtractDto, UploadPolicyDto, NphiesEligibilityDto, SavePolicyDto, SubmitClaimDto, CreateInsuranceNetworkDto, CreateCoverageRuleDto } from './insurance.dto';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -36,6 +45,10 @@ export class InsuranceService {
   }
 
   // Companies
+  async getActiveProjection(userId: string) {
+    const profile: any = await this.patientModel.findOne({ user_id: { $eq: userId } }, { _id: 0, insurance_details: 1 }).lean();
+    return profile;
+  }
   /**
    * SINGLE SOURCE OF TRUTH for the insurance directory.
    * Every client (provider onboarding, provider dashboard, patient app) reads
@@ -383,13 +396,78 @@ Use null for any field not clearly visible. Do not guess.`;
   }
 }
 
+@ApiTags('Insurance')
 @Controller('insurance')
 @UseGuards(JwtAuthGuard)
 export class InsuranceController {
   constructor(private svc: InsuranceService) {}
 
+  @Get('active')
+  @ApiBearerAuth(NABDAH_ACCESS_TOKEN_SECURITY_SCHEME)
+  @ApiOperation({
+    summary: 'Get the authenticated patient’s active insurance projection',
+    description: 'Returns `insurance_details` as a zero-or-one `policies` collection for active-policy consumers. It is not interchangeable with the editable `insurance` object from `GET /users/me/insurance`.',
+  })
+  @ApiOkResponse({
+    description: 'Zero or one active `insurance_details` record for the authenticated patient.',
+    schema: {
+      type: 'object',
+      required: ['policies'],
+      properties: {
+        policies: {
+          type: 'array',
+          maxItems: 1,
+          description: 'Active-policy projection populated from `insurance_details` when present.',
+          items: { type: 'object', additionalProperties: true },
+        },
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({ description: 'Missing, malformed, or expired bearer token.' })
+  @ApiForbiddenResponse({ description: 'Guest accounts cannot access insurance operations.' })
+  async getActivePolicies(@Req() req: any) {
+    const profile = await this.svc.getActiveProjection(req.user.id);
+    return { policies: profile?.insurance_details ? [profile.insurance_details] : [] };
+  }
+
   @Public()
   @Get('companies')
+  @ApiBearerAuth(NABDAH_ACCESS_TOKEN_SECURITY_SCHEME)
+  @ApiOperation({
+    summary: 'List active insurance companies and their plan tiers',
+    description: 'Single source of truth for active company catalog entries and embedded plan tiers. Legacy/inactive records remain administratively retrievable and are never deleted.',
+  })
+  @ApiOkResponse({
+    description: 'Active insurance companies with sorted plan tiers.',
+    schema: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          name_ar: { type: 'string' },
+          name_en: { type: 'string' },
+          plans: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                id: { type: 'string' },
+                code: { type: 'string' },
+                name_ar: { type: 'string' },
+                name_en: { type: 'string' },
+                tier_level: { type: 'number' },
+              },
+              additionalProperties: true,
+            },
+          },
+        },
+        additionalProperties: true,
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({ description: 'Missing, malformed, or expired bearer token.' })
+  @ApiForbiddenResponse({ description: 'Guest accounts cannot access insurance operations.' })
   companies() {
     return this.svc.listCompanies();
   }
