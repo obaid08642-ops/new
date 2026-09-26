@@ -13,3 +13,6 @@
 
 ## [P6.x-11] Global admin search (2026-09-26)
 - Backend `GET /admin/search?q=` (admin-only, min 2 chars, max 100, escaped name regex + `$eq` id/phone, 20/group caps) across users/provider_profiles/orders/appointments. Nav entry added. Tests 2/2. tsc 0.
+
+## [P6.x-15] Dispute SLA timers (2026-09-26)
+- Backend list rows now carry `sla_due_at`/`sla_breached`/`sla_hours_left` (deadline from `system_configs` key `sla` → `dispute_hours`, fallback 48h). Disputes table gained an SLA column (overdue badge vs hours-left). tsc 0.

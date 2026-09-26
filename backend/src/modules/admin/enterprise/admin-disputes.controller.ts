@@ -54,8 +54,7 @@ export class AdminDisputesController {
       base.$or = [{ subject: rx }, { message: rx }, { user_name: rx }, { user_phone: rx }, { tracking_id: rx }];
     }
 
-    const col = this.conn.collection('support_requests');
-    const [items, total, byStatus] = await Promise.all([
+    const col = this.conn.collection('support_requests');    const [items, total, byStatus] = await Promise.all([
       col.find(base).sort({ priority: -1, createdAt: -1 }).skip((p - 1) * l).limit(l)
         .project({ _id: 0, thread: 0 })
         .toArray(),
@@ -75,6 +74,18 @@ export class AdminDisputesController {
     const refundMap = new Map<string, number>();
     for (const r of refunds as any[]) refundMap.set(r.referenceId, (refundMap.get(r.referenceId) || 0) + Number(r.amount || 0));
 
+    // P6.x-15: SLA timers — dispute resolution deadline from the `sla`
+    // system_config (fallback 48h), surfaced per row for the disputes center.
+    const slaCfg: any = await this.conn.collection('system_configs').findOne({ key: 'sla' }).catch(() => null);
+    const slaHours = Number(slaCfg?.value?.dispute_hours) > 0 ? Number(slaCfg.value.dispute_hours) : 48;
+    const nowMs = Date.now();
+    const withSla = (t: any) => {
+      const created = t.createdAt ? new Date(t.createdAt).getTime() : nowMs;
+      const due = created + slaHours * 3600000;
+      const open = ['OPEN', 'IN_PROGRESS'].includes(String(t.status));
+      return { sla_due_at: new Date(due).toISOString(), sla_breached: open && nowMs > due, sla_hours_left: open ? Math.max(0, Math.round((due - nowMs) / 3600000)) : null };
+    };
+
     return {
       data: (items as any[]).map((t) => ({
         id: t.id,
@@ -89,6 +100,7 @@ export class AdminDisputesController {
         refunded_so_far: refundMap.get(t.id) || 0,
         created_at: t.createdAt,
         resolved_at: t.resolved_at || null,
+        ...withSla(t),
       })),
       stats: Object.fromEntries((byStatus as any[]).map((s) => [String(s._id || 'unknown'), s.count])),
       total, page: p, pages: Math.ceil(total / l),
