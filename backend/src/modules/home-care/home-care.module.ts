@@ -8,6 +8,9 @@ import { HomeCareBookingSchema, NursingVisitReportSchema, MedicalSupplyRequestSc
 import { HOME_CARE_SEED } from './home-care.seed';
 import { WorkflowEngineModule } from '../workflow-engine/workflow-engine.module';
 import { CarePlanRepository } from "./repositories/careplan.repository";
+import { HomeCareCompatController, NursingOpsController, ChatAliasController } from './home-care-compat.module';
+import { ProviderProfile, ProviderProfileSchema } from '../../schemas/provider-profile.schema';
+import { ChatModule } from '../chat/chat.module';
 import { HomeCareBookingRepository } from "./repositories/homecarebooking.repository";
 import { HomeCareServiceRepository } from "./repositories/homecareservice.repository";
 import { MedicalSupplyRequestRepository } from "./repositories/medicalsupplyrequest.repository";
@@ -16,6 +19,7 @@ import { NursingVisitReportRepository } from "./repositories/nursingvisitreport.
 @Module({
   imports: [
     WorkflowEngineModule,
+    ChatModule,
     MongooseModule.forFeature([
       { name: 'HomeCareService', schema: HomeCareServiceSchema },
       { name: 'NurseProvider', schema: NurseProviderSchema },
@@ -24,9 +28,10 @@ import { NursingVisitReportRepository } from "./repositories/nursingvisitreport.
       { name: 'NursingVisitReport', schema: NursingVisitReportSchema },
       { name: 'CarePlan', schema: CarePlanSchema },
       { name: 'MedicalSupplyRequest', schema: MedicalSupplyRequestSchema },
+      { name: 'ProviderProfile', schema: ProviderProfileSchema },
     ]),
   ],
-  controllers: [NursingController, HomeCareContractController, HomeCareTrackingController],
+  controllers: [NursingController, HomeCareContractController, HomeCareTrackingController, HomeCareCompatController, NursingOpsController, ChatAliasController],
   providers: [HomeCareSvc, { provide: 'CarePlanRepository', useClass: CarePlanRepository }, { provide: 'HomeCareBookingRepository', useClass: HomeCareBookingRepository }, { provide: 'HomeCareServiceRepository', useClass: HomeCareServiceRepository }, { provide: 'MedicalSupplyRequestRepository', useClass: MedicalSupplyRequestRepository }, { provide: 'NursingVisitReportRepository', useClass: NursingVisitReportRepository }],
   exports: [HomeCareSvc],
 })

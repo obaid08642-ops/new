@@ -131,7 +131,6 @@ import { HospitalModule } from './modules/hospital/hospital.module';
 import { AdminWebCoreModule } from './modules/admin-web-core/admin-web-core.module';
 import { HomeModule } from './modules/home/home.module';
 import { SystemHealthModule } from './modules/system-health/system-health.module';
-import { HomeCareCompatModule } from './modules/home-care-compat/home-care-compat.module';
 import { CompatModule } from './modules/compat/compat.module';
 import { AdminSpaModule } from './modules/compat/admin-spa.module';
 import { CatalogsModule } from './modules/catalogs/catalogs.module';
@@ -274,7 +273,6 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     WalletModule,
     ReturnsModule,
     BansModule,
-    HomeCareCompatModule,
     HomeCareModule,
     BillingModule,
     ArticlesModule,
