@@ -80,7 +80,6 @@ import { BansMiddleware } from './modules/bans/bans.middleware';
 import { ConsistencyModule } from './modules/consistency/consistency.module';
 import { EventReliabilityModule } from './modules/event-reliability/event-reliability.module';
 import { OperationsSafetyModule } from './modules/operations-safety/operations-safety.module';
-import { LegacyModule } from './modules/legacy/legacy.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { SlotLocksModule } from './modules/slot-locks/slot-locks.module';
 import { PushModule } from './modules/push/push.module';
@@ -225,7 +224,6 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     ConsistencyModule,
     EventReliabilityModule,
     OperationsSafetyModule,
-    LegacyModule,
     PaymentsModule,
     MoyasarModule,
     FinanceEngineModule,

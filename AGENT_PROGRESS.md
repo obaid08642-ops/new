@@ -128,3 +128,7 @@ Format: task | commit sha | verify result | notes
 - Dropped 1 dead duplicate: compat `ProviderDashboardController` (`GET provider/dashboard`, no client calls, name-collides with canonical `provider` dashboard) — F43 precedent. CompatModule now empty (DTO files stay shared); `compat-family-chat.spec.ts` moved to chat/ with fixed import.
 - Fidelity: route scan old-vs-new = 53/53 present, 0 missing, 0 extra; duplicate-route set identical to HEAD (24 pre-existing, untouched — F43 follow-up material).
 - Gates: tsc 0, nest build 0, dtolint 0/0/0, dtocheck 631/308/0 mismatches, chat-family-chat 2/2.
+
+## [P5.3b] Legacy module deleted (2026-09-26)
+- `legacy/legacy.module.ts` was an admin-only audit report (`GET /legacy/report`, `/legacy/usage-map`) with zero callers outside `app.module` — no live routes to move, no alias needed. Removed the file + `app.module` import/registration. tsc 0.
+- `compat/` directory kept only as shared-DTO location (`compat.dto.ts`, `compat.generated.dto.ts`, imported by the 26 relocated controllers) + retired empty `CompatModule` stub; the gap-fill module itself is gone per plan.
