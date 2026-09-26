@@ -1,3 +1,4 @@
+import { randomBytes } from 'crypto';
 import { Injectable, NotFoundException, BadRequestException, ConflictException, ForbiddenException, Inject } from '@nestjs/common';
 import { Model, Types } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -34,6 +35,11 @@ export const PROVIDER_CONFIG_EDITABLE_FIELDS = [
  *  2. Admin-assisted (`/admin/create`) — admin creates user + profile directly
  * All providers go through admin review queue before becoming public.
  */
+/** One-time password for accounts created on someone's behalf (18 random bytes, base64url). */
+function generateTempPassword(): string {
+  return randomBytes(18).toString('base64url');
+}
+
 @Injectable()
 export class ProvidersService {
   constructor(
@@ -69,7 +75,8 @@ export class ProvidersService {
     if (!branch) throw new NotFoundException('الفرع المحدد غير موجود بالمنظومة.');
 
     // Create Sub-Account User
-    const hash = await bcrypt.hash(staffDto.password || 'Temp123!', 12);
+    const generatedPassword = staffDto.password ? undefined : generateTempPassword();
+    const hash = await bcrypt.hash(staffDto.password || generatedPassword, 12);
     const staffUser = await this.userModel.create({
       full_name: staffDto.fullName,
       email: staffDto.email,
@@ -103,7 +110,7 @@ export class ProvidersService {
       await branch.save();
     }
 
-    return { success: true, message: 'تم إنشاء الحساب الفرعي وتفعيله تلقائياً تحت مظلة ترخيص المستشفى.' };
+    return { success: true, message: 'تم إنشاء الحساب الفرعي وتفعيله تلقائياً تحت مظلة ترخيص المستشفى.', generated_password: generatedPassword };
   }
 
   // ============ Self Registration ============
@@ -155,7 +162,7 @@ export class ProvidersService {
     // can flag `auto_approve=true` to skip review.
     const exists = await this.userModel.findOne({ phone: { $eq: data.phone } });
     if (exists) throw new ConflictException('Phone already registered');
-    const password = data.password || `Temp@${Math.floor(Math.random() * 10000)}`;
+    const password = data.password || generateTempPassword();
     const hash = await bcrypt.hash(password, 12);
     const role = this.typeToRole(data.type);
     const status: ProviderStatus = data.auto_approve ? ProviderStatus.ACTIVE : ProviderStatus.PENDING;

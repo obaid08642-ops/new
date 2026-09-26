@@ -64,3 +64,30 @@ describe('REVIEW-P3: provider phone lookups pin the value with $eq', () => {
     expect(filters).toEqual([{ phone: { $eq: '+966500000000' } }, { phone: { $eq: '+966500000001' } }]);
   });
 });
+
+describe('REVIEW-P3: generated provider passwords are unguessable', () => {
+  const bcrypt = require('bcryptjs');
+  it('adminCreate: generated password is long and random (not Temp@0..9999)', async () => {
+    const created: any[] = [];
+    const userRepository = { findOne: jest.fn(async () => null), create: jest.fn(async (u: any) => { created.push(u); return { ...u, id: 'u1', toObject: () => u }; }) };
+    const providerRepository = { create: jest.fn(async (p: any) => ({ ...p, toObject: () => p })) };
+    const service = new ProvidersService(userRepository as any, providerRepository as any, {} as any, { emit: jest.fn() } as any, { refresh: jest.fn() } as any);
+    const r: any = await service.adminCreate({ phone: '+966500000009', type: 'doctor', full_name: 'x', name_ar: 'x' }, {}).catch((e: any) => ({ err: e }));
+    expect(r.err).toBeUndefined();
+    expect(r.generated_password).toMatch(/^[A-Za-z0-9_-]{16,}$/);
+    expect(r.generated_password).not.toMatch(/^Temp@\d{1,4}$/);
+  });
+  it('branch staff without a password does not get the fixed Temp123!', async () => {
+    const created: any[] = [];
+    const userRepository = {
+      findOne: jest.fn(async () => ({ id: 'adm', role: 'hospital_admin', parent_provider_account_id: 'h1' })),
+      create: jest.fn(async (u: any) => { created.push(u); return { ...u, id: 'staff1' }; }),
+    };
+    const branchModel = { findById: jest.fn(async () => ({ _id: 'b1', doctors_roster: [], save: jest.fn() })) };
+    const service = new ProvidersService(userRepository as any, { create: jest.fn() } as any, branchModel as any, {} as any, { refresh: jest.fn() } as any);
+    const r: any = await service.createBranchStaffAccount('adm', 'b1', { fullName: 'S', role: 'receptionist' });
+    expect(await bcrypt.compare('Temp123!', created[0].password_hash)).toBe(false);
+    expect(r.generated_password).toMatch(/^[A-Za-z0-9_-]{16,}$/);
+    expect(await bcrypt.compare(r.generated_password, created[0].password_hash)).toBe(true);
+  });
+});
