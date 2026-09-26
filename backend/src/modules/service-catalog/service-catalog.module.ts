@@ -69,9 +69,14 @@ export class ServiceCatalogService {
   async myCatalog(user: any, entity_type: 'lab' | 'radiology') {
     this.assertProvider(user);
     const ownerships = await this.own.find({ account_id: { $eq: user.id }, entity_type: { $eq: entity_type } }, { _id: 0, __v: 0 }).lean();
-    const ids = ownerships.map(o => o.entity_id);
+    const ids = ownerships.map(o => o.entity_id).filter((id): id is string => typeof id === 'string' && id.length > 0);
     const Model: any = entity_type === 'lab' ? this.labs : this.rads;
-    const services = ids.length ? await Model.find({ id: { $in: ids } }, { _id: 0, __v: 0 }).lean() : [];
+    // R4-2: per-id $eq lookups instead of a user-tainted $in array.
+    const services: any[] = [];
+    for (const id of ids) {
+      const s = await Model.findOne({ id: { $eq: id } }, { _id: 0, __v: 0 }).lean();
+      if (s) services.push(s);
+    }
     return services.map((s: any) => ({ ...s, owned: true, approved: ownerships.find(o => o.entity_id === s.id)?.approved !== false }));
   }
 

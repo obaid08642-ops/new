@@ -8,6 +8,13 @@ import { UserRole } from '../../../common/enums';
 import { RespondToBookingDto, CollectSampleDto, FinalizeTestDto, UpdateCatalogDto } from './labs-engine.dto';
 import { idFilter } from '../../../common/id.utils';
 
+// R4-2: explicit allowlist for lab catalog upserts (lab_id/test_code are the
+// key, never part of the $set).
+const LAB_CATALOG_UPDATE_FIELDS = [
+  'test_name_ar', 'test_name_en', 'in_lab_price', 'home_collection_price',
+  'accepts_insurance', 'reference_ranges',
+];
+
 @Controller('labs/bookings')
 @Roles(UserRole.LAB, UserRole.HOSPITAL, UserRole.ADMIN)
 export class LabsEngineController {
@@ -20,7 +27,7 @@ export class LabsEngineController {
   async getQueue(@Query('lab_id') labId: string) {
     if (!labId) throw new BadRequestException('lab_id is required');
     return this.labBookingModel.find({
-      lab_id: labId,
+      lab_id: { $eq: labId },
       status: { $in: ['PENDING_ACCEPTANCE', 'ACCEPTED', 'SAMPLE_COLLECTED'] }
     }).sort({ createdAt: -1 });
   }
@@ -107,19 +114,23 @@ export class LabsEngineController {
   @Get('catalog')
   async getCatalog(@Query('lab_id') labId: string) {
     if (!labId) throw new BadRequestException('lab_id is required');
-    return this.labCatalogModel.find({ lab_id: labId });
+    return this.labCatalogModel.find({ lab_id: { $eq: labId } });
   }
 
   @Post('catalog')
   async updateCatalog(
     @Body() body: UpdateCatalogDto
   ) {
-    const { lab_id, test_code, ...updateData } = body;
+    const { lab_id, test_code } = body || {};
     if (!lab_id || !test_code) throw new BadRequestException('lab_id and test_code are required');
 
+    // R4-2: build $set from explicit allowlisted keys (no whole-object spread).
+    const patch = Object.fromEntries(
+      Object.entries(body || {}).filter(([key, value]) => LAB_CATALOG_UPDATE_FIELDS.includes(key) && value !== undefined),
+    );
     const catalogEntry = await this.labCatalogModel.findOneAndUpdate(
       { lab_id: { $eq: lab_id }, test_code: { $eq: test_code } },
-      { $set: updateData },
+      { $set: patch },
       { new: true, upsert: true }
     );
     return { success: true, data: catalogEntry };
@@ -130,7 +141,7 @@ export class LabsEngineController {
     if (!labId) throw new BadRequestException('lab_id is required');
     
     const completedBookings = await this.labBookingModel.find({
-      lab_id: labId,
+      lab_id: { $eq: labId },
       status: { $in: ['REPORT_UPLOADED'] }
     });
 
