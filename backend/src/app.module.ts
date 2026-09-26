@@ -45,7 +45,6 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
 import { EventsModule } from './modules/events/events.module';
 import { SeedModule } from './modules/seed/seed.module';
 import { DriversModule } from './modules/drivers/drivers.module';
-import { PharmacyOpsModule } from './modules/pharmacy_ops/pharmacy_ops.module';
 import { CareModule } from './modules/care/care.module';
 import { LabsModule } from './modules/labs/labs.module';
 import { HomeCareModule } from './modules/home-care/home-care.module';
@@ -209,7 +208,6 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     RealtimeModule,
     SeedModule,
     DriversModule,
-    PharmacyOpsModule,
     CareModule,
     DoctorsModule,
     LabsModule,

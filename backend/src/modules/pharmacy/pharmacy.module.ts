@@ -58,6 +58,10 @@ import { PharmacyOrderRepository } from "./services/repositories/pharmacyorder.r
 import { ProcurementRequestRepository } from "./services/repositories/procurementrequest.repository";
 import { ProviderAccountRepository } from "./services/repositories/provideraccount.repository";
 import { ProviderAccountProfileRepository } from "./services/repositories/provideraccountprofile.repository";
+// P5.3: merged from PharmacyOpsModule (pharmacy_ops/ → pharmacy/)
+import { PharmacyOpsController, ProviderPharmacyAliasController } from './pharmacy_ops.controller';
+import { PharmacyOpsService } from './pharmacy_ops.service';
+import { OrdersModule } from '../orders/orders.module';
 import { ProviderAvailabilityRepository } from "./services/repositories/provideravailability.repository";
 import { ProviderScoreSnapshotRepository } from "./services/repositories/providerscoresnapshot.repository";
 import { QuotationRepository } from "./services/repositories/quotation.repository";
@@ -70,6 +74,8 @@ import { SystemConfigRepository } from "./services/repositories/systemconfig.rep
     WorkflowEngineModule,
     RealtimeModule,
     AiModule,
+    // P5.3: merged from PharmacyOpsModule (pharmacy_ops/ → pharmacy/)
+    OrdersModule,
     MongooseModule.forFeature([
       { name: 'PharmacyOrder', schema: PharmacyOrderSchema },
       { name: 'PharmacyAllocation', schema: PharmacyAllocationSchema },
@@ -96,6 +102,8 @@ import { SystemConfigRepository } from "./services/repositories/systemconfig.rep
   ],
   providers: [
     PharmacyOrderService,
+    // P5.3: merged from PharmacyOpsModule (pharmacy_ops/ → pharmacy/)
+    PharmacyOpsService,
     PharmacyAllocationService,
     SmartSplitService,
     PharmacyInventoryExtService,
@@ -144,6 +152,9 @@ import { SystemConfigRepository } from "./services/repositories/systemconfig.rep
     PatientShortageController,
     ProcurementController,
     AdminProcurementController,
+    // P5.3: merged from PharmacyOpsModule (pharmacy_ops/ → pharmacy/)
+    PharmacyOpsController,
+    ProviderPharmacyAliasController,
   ],
   exports: [PharmacyOrderService, PharmacyAllocationService, PharmacyOrdersProviderService, PharmacyPaymentEvidenceService, PharmacyOfferService],
 })
