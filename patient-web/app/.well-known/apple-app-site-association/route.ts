@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 export async function GET() {
-  const teamId = process.env.APPLE_TEAM_ID || "APPLE_TEAM_ID_PENDING";
+  const teamId = process.env.APPLE_TEAM_ID || "6AT2W85DBC";
   const bundleId = process.env.APPLE_BUNDLE_ID || "com.patient.nabd";
   const providerBundleId = process.env.APPLE_PROVIDER_BUNDLE_ID || "com.nabd.provider";
 
