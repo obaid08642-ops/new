@@ -210,6 +210,11 @@ export class JwtAuthGuard implements CanActivate {
     // satisfies @Roles(ADMIN); nothing else inherits (fixes the A1 bug where
     // super_admin accounts were 403'd out of every admin controller).
     const effectiveRoles = getEffectiveRoles(payload);
+    // A @Public route is open to everyone: signing in must not turn it into a 403. Without this a
+    // class-level @Roles(ADMIN) was applied to its public handlers (medicine search, provider
+    // directory, legal pages, feature flags) whenever the caller sent a token, i.e. for every
+    // signed-in patient and provider.
+    if (isPublic) return true;
     const roles = this.reflector.getAllAndOverride<Array<UserRole | string>>(ROLES_KEY, [ctx.getHandler(), ctx.getClass()]);
     if (roles && roles.length && !roles.some(required => roleSatisfies(normalizeEffectiveRole(String(required)), effectiveRoles))) {
       throw new ForbiddenException('Insufficient role');

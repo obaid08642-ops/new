@@ -7,11 +7,18 @@ import { buildSlug } from '../common/slug.util';
 
 @Schema({ timestamps: true, collection: 'provider_profiles' })
 export class ProviderProfile {
+  // Written by the services but previously undeclared: strict mode silently dropped these (tools/audit/schemadrift.js).
+  @Prop({ type: Object }) availability?: { online?: boolean; available_now?: boolean; updated_at?: Date };
   @Prop({ default: () => uuid() }) id: string;
   @Prop({ unique: true, sparse: true, index: true }) slug?: string;
   @Prop({ required: true, index: true }) user_id: string;
   @Prop({ unique: true, sparse: true, index: true }) account_id?: string;
   @Prop({ type: String, enum: Object.values(ProviderType), required: true }) type: ProviderType;
+  // Operational readers (pharmacy broadcast, smart split, matching, directory/SEO) query the same
+  // provider_profiles collection by provider_type + geo (modules/provider/schemas ProviderProfile).
+  // Kept in sync with type/location so wizard-registered providers are reachable.
+  @Prop({ index: true }) provider_type?: string;
+  @Prop({ type: { lat: Number, lng: Number, service_radius_km: Number }, _id: false }) geo?: { lat: number; lng: number; service_radius_km?: number };
   @Prop({ type: String, enum: Object.values(ProviderStatus), default: ProviderStatus.PENDING })
   status: ProviderStatus;
   // Common

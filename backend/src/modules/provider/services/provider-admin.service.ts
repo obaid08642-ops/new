@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid';
 import { Injectable, BadRequestException, NotFoundException, ForbiddenException, Inject } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Model } from 'mongoose';
@@ -173,6 +174,14 @@ export class ProviderAdminService {
         },
       },
     );
+    // Wizard-registered profiles carry type/location; operational readers query provider_type/geo.
+    await this.accounts.model.db.collection('provider_profiles').updateMany(
+      { account_id: id, user_id: { $exists: true } },
+      [{ $set: {
+        provider_type: { $ifNull: ['$provider_type', '$type'] },
+        geo: { $ifNull: ['$geo', { $cond: [{ $and: [{ $isNumber: '$location.lat' }, { $isNumber: '$location.lng' }] }, { lat: '$location.lat', lng: '$location.lng' }, '$$REMOVE'] }] },
+      } }] as any,
+    );
     await this.audit.create({ provider_account_id: id, actor_id: user.id, actor_role: 'admin', action: 'admin.provider_approved', after: { note: body?.note || body?.reason, commission: body?.commission, commission_cash: body?.commission_cash, commission_insurance: body?.commission_insurance } });
 
     // Trigger Automatic SEO / Content / Discovery Pipeline
@@ -328,7 +337,11 @@ export class ProviderAdminService {
         const res = await db(coll).deleteOne((changes as any).filter || {});
         applied = res.deletedCount || 0;
       } else {
-        const res = await db(coll).updateOne((changes as any).filter || {}, { $set: { ...((changes as any).payload || {}), updated_at: new Date() } }, { upsert: op === 'create' });
+        // A created row needs the id offers/allocations reference (raw upsert skips mongoose defaults).
+        const res = await db(coll).updateOne((changes as any).filter || {}, {
+          $set: { ...((changes as any).payload || {}), updated_at: new Date() },
+          ...(op === 'create' ? { $setOnInsert: { id: uuidv4(), created_at: new Date() } } : {}),
+        }, { upsert: op === 'create' });
         applied = (res.modifiedCount || 0) + ((res.upsertedCount || 0) as number);
       }
     } else if (target === 'insurance_matrix') {

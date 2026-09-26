@@ -147,7 +147,7 @@ function adminBackendPath(url) {
   let up = '/admin/' + d.join('/');
   const modulePrefixes = new Set(['support', 'medicines', 'storage', 'insurance', 'emergency', 'legal', 'ai', 'labs', 'radiology', 'nursing']);
   if (d[0] === 'orders') up = '/admin/' + d.join('/');
-  else if (d[0] === 'providers') up = d[1] === 'provider-deltas' ? '/providers/provider-deltas' + (rest(2) ? '/' + rest(2) : '') : '/admin/providers' + (rest(1) ? '/' + rest(1) : '');
+  else if (d[0] === 'providers') up = '/admin/providers' + (rest(1) ? '/' + rest(1) : '');
   else if (modulePrefixes.has(d[0])) {
     const stayAdmin = (d[0] === 'insurance' && (d[1] === 'stats' || d[1] === 'requests')) || (d[0] === 'nursing' && d[1] === 'requests');
     up = stayAdmin ? '/admin/' + d.join('/') : '/' + d.join('/');

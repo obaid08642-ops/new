@@ -24,23 +24,19 @@ export class RadiologyNotificationListener {
     
     try {
       // 1. Create In-App Notification for the Doctor
+      // Shape of ProviderNotification (provider_notifications): the old payload used user_id/title/body
+      // and a type outside the enum, so create() failed validation and the doctor was never notified.
       await this.notificationModel.create({
-        user_id: payload.doctorId,
-        user_type: 'provider',
-        title: 'نتيجة أشعة جاهزة لمريضك',
+        provider_account_id: payload.doctorId,
+        type: 'booking_update',
+        title_ar: 'نتيجة أشعة جاهزة لمريضك',
         title_en: 'Radiology Results Ready for Patient',
-        body: `تم إصدار تقرير الأشعة للمريض ${payload.patientName}. يمكنك استعراض التقرير والصور الآن.`,
+        body_ar: `تم إصدار تقرير الأشعة للمريض ${payload.patientName}. يمكنك استعراض التقرير والصور الآن.`,
         body_en: `Radiology report for ${payload.patientName} is ready. You can view the report and DICOM images now.`,
-        type: 'RADIOLOGY_RESULT',
-        action_url: `/provider/radiology/${payload.reportId}`,
-        metadata: {
-          patient_id: payload.patientId,
-          report_id: payload.reportId,
-          pdf_url: payload.pdfUrl,
-          dicom_viewer_url: payload.dicomViewerUrl,
-        },
+        icon: 'radiology',
+        related_id: payload.reportId,
+        related_type: 'radiology_report',
         read: false,
-        created_at: new Date(),
       });
 
       this.logger.log(`Successfully dispatched radiology notification to Doctor ${payload.doctorId}`);

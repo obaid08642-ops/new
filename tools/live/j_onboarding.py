@@ -110,11 +110,126 @@ def provider_after_approval(prov):
     return tok
 
 
+
+
+# ── Every provider type: payload structure taken from the registration screen itself ─────────
+import json as _json, os as _os, subprocess as _sp
+
+SCREENS = {  # provider type -> registration screen (provider-app/src/screens)
+    'doctor': 'doctor/DoctorRegistration.tsx', 'lab': 'lab/LabRegistration.tsx', 'radiology': 'radiology/RadiologyRegistration.tsx',
+    'home_care': 'nursing/NursingRegistration.tsx', 'hospital': 'facility/FacilityRegistration.tsx', 'ambulance': 'ambulance/AmbulanceRegistration.tsx',
+}
+_CT = []
+
+
+def _calls():
+    """clientbodies --types output (typed payload shape per call site)."""
+    if not _CT:
+        root = _os.path.abspath(_os.path.join(_os.path.dirname(__file__), '../..'))
+        out = _sp.run(['node', 'tools/audit/clientbodies.js', '--types'], cwd=root, capture_output=True, text=True, check=True).stdout
+        _CT.extend(_json.loads(out))
+    return _CT
+
+
+def _value(key, kind):
+    k = key.lower()
+    if kind is None or kind == 'null':
+        return None
+    if kind == 'string':
+        if 'date' in k or 'expiry' in k:
+            return '2027-06-30'
+        if k in ('gender', 'gender_pref', 'home_collector_gender'):
+            return 'male'
+        if 'email' in k:
+            return None
+        if 'iban' in k:
+            return 'SA0380000000608010167519'
+        if k in ('specialty',):
+            return 'cardiology'
+        if 'city' in k:
+            return 'الرياض'
+        return 'قيمة اختبار'
+    if kind == 'number':
+        return 10
+    if kind == 'boolean':
+        return True
+    if kind.startswith('array<object>'):
+        if 'schedule' in k or 'hours' in k:
+            return [{'day': 'sunday', 'open': '09:00', 'close': '17:00', 'closed': False}]
+        return [{'name': 'وحدة اختبار'}]
+    if kind.startswith('array<string>'):
+        return ['clinic', 'video'] if 'modes' in k else ['قيمة']
+    if kind.startswith('array<number>'):
+        return [1]
+    if kind.startswith('array'):
+        return []
+    if kind == 'object':
+        return {}
+    return None
+
+
+def screen_payloads(ptype):
+    """[(url, payload)] for every step2/step3 call the screen makes, in source order."""
+    screen = SCREENS[ptype]
+    rows = [c for c in _calls() if c['url'] in ('/provider-onboarding/step2', '/provider-onboarding/step3') and c['at'].endswith(screen.split('/')[-1] + ':' + c['at'].split(':')[-1]) and screen in c['at']]
+    rows.sort(key=lambda c: int(c['at'].split(':')[-1]))
+    out = []
+    for c in rows:
+        body = {k: v for k, v in ((k, _value(k, kind)) for k, kind in (c.get('kinds') or {}).items()) if v is not None}
+        if 'address' in body:
+            body['address'] = 'شارع التحلية 7'
+        if 'location' in (c.get('kinds') or {}):
+            body['location'] = {'lat': 24.7, 'lng': 46.7}
+        if c['url'].endswith('step2') and 'license_documents' in (c.get('kinds') or {}):
+            body['license_documents'] = []
+        out.append((c['url'], body, c['at']))
+    return out
+
+
+def register_type(ptype):
+    journey(f'onboarding: {ptype} registers in the provider app')
+    email = f'{uniq(ptype)}@nabd.test'
+    pw = 'Prov-' + uniq('')[-6:] + 'x!'
+    anon = provider_client()
+    r = anon.post('/provider-onboarding/start', {'phone': phone(), 'password': pw, 'full_name': f'مسؤول {ptype}', 'email': email, 'type': ptype})
+    step('start', r.ok, r)
+    r = anon.post('/auth/login', {'identifier': email, 'password': pw})
+    t = r.get('token')
+    tok = t if isinstance(t, str) else (t or {}).get('accessToken')
+    step('wizard sign-in', r.ok and tok, r)
+    c = provider_client(tok)
+    for url, body, at in screen_payloads(ptype):
+        r = c.post(url, body)
+        step(f"{url.split('/')[-1]} as sent by {at.split('/')[-1]}", r.ok, f'{r} body_keys={sorted(body)}')
+    sig = upload(c, 'signature.png', 'image/png')
+    t0 = time.time()
+    r = c.post('/provider/auth/send-otp', {'email': email, 'purpose': 'email_verification'})
+    code = mail_code(email, t0)
+    r = c.post('/provider/auth/verify-email', {'email': email, 'code': code})
+    step('email verified', r.ok, r)
+    r = c.post('/provider-onboarding/submit', {'signer_name': f'مسؤول {ptype}', 'signer_role': 'owner', 'lat': 24.7, 'lng': 46.7, 'signature_url': sig, 'full_data': {}})
+    step('submit for review', r.ok, r)
+    return {'email': email, 'password': pw, 'token': tok, 'type': ptype}
+
+
+def onboard_all(admin):
+    """Register, approve and sign in one provider of every type; returns {type: provider}."""
+    provs = {}
+    p = register_pharmacy()
+    admin_review(admin, p)
+    provider_after_approval(p)
+    provs['pharmacy'] = p
+    for ptype in SCREENS:
+        p = register_type(ptype)
+        admin_review(admin, p)
+        provider_after_approval(p)
+        provs[ptype] = p
+    return provs
+
+
 if __name__ == '__main__':
     from lib import summary
     import j_admin
     admin, _ = j_admin.login()
-    p = register_pharmacy()
-    admin_review(admin, p)
-    provider_after_approval(p)
+    onboard_all(admin)
     summary()

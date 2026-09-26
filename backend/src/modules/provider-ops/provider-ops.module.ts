@@ -412,6 +412,18 @@ export class ProviderOpsService {
       },
       { upsert: true },
     );
+    // The same switch is the provider's "online / accepting orders" state (provider-app toggleOnline).
+    // Order routing (pharmacy broadcast, smart split, matching) reads provider_availability.status, so
+    // without this the switch changed nothing and a new pharmacy never received a request.
+    const now = new Date();
+    await this.conn.collection('provider_availability').updateOne(
+      { provider_account_id: providerId },
+      {
+        $set: { status: instantAvailable ? 'accepting_orders' : 'offline', ...(instantAvailable ? { last_online_at: now } : { last_offline_at: now }), updatedAt: now },
+        $setOnInsert: { provider_account_id: providerId, createdAt: now },
+      },
+      { upsert: true },
+    );
     return { instant_available: instantAvailable };
   }
 

@@ -19,6 +19,8 @@ export ALLOWED_ORIGINS="${ALLOWED_ORIGINS:-http://localhost:3000,http://localhos
 export CORS_ORIGINS="$ALLOWED_ORIGINS"
 # The live suite drives many logins/OTPs from one IP; the limiter itself is covered by its own test.
 export DISABLE_RATE_LIMIT="${DISABLE_RATE_LIMIT:-true}" THROTTLER_LIMIT="${THROTTLER_LIMIT:-1000000}"
+# Same reason for the per-identifier OTP issue cap (the fixed admin account signs in on every journey run).
+export OTP_ISSUE_LIMIT="${OTP_ISSUE_LIMIT:-1000}"
 nohup node --max-old-space-size=1500 dist/main.js > /tmp/nabd-backend.log 2>&1 &
 for i in $(seq 1 90); do
   curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:$PORT/api/v1/health/liveness" 2>/dev/null | grep -q 200 && { echo "backend up (db=$DB_NAME)"; exit 0; }

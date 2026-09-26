@@ -107,6 +107,21 @@ describe('JwtAuthGuard', () => {
     await expect(guard.canActivate(ctx)).rejects.toThrow(ForbiddenException);
   });
 
+  // Live finding: a class-level @Roles(ADMIN) was enforced on its @Public handlers whenever a token was
+  // sent, so signed-in patients got 403 on medicine search, provider directory, legal pages, flags.
+  it('a @Public route stays open to a signed-in user even under a class-level @Roles', async () => {
+    reflector.getAllAndOverride.mockImplementation((key) => {
+      if (key === 'isPublic') return true;
+      if (key === 'roles') return [UserRole.ADMIN];
+      if (key === 'permissions') return [Permission.DOCTOR_CREATE];
+      return null;
+    });
+    jwtService.verifyAsync.mockResolvedValue({ id: 'u1', role: UserRole.PATIENT });
+    const ctx = createMockContext({ authorization: 'Bearer valid-token' });
+    await expect(guard.canActivate(ctx)).resolves.toBe(true);
+    expect(ctx.switchToHttp().getRequest().user).toMatchObject({ id: 'u1' });
+  });
+
   it('should enforce fine-grained permissions', async () => {
     reflector.getAllAndOverride.mockImplementation((key) => {
       if (key === 'permissions') return [Permission.DOCTOR_CREATE];

@@ -17,7 +17,7 @@ const ts = require(path.resolve('backend/node_modules/typescript'));
 const ROOT = path.resolve('backend/src');
 const clients = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
 // Optional module filter: a plain path substring (not a regex).
-const filterText = process.argv[3] || '';
+const filterText = (process.argv[3] && !process.argv[3].startsWith('--')) ? process.argv[3] : '';
 const filter = { test: (p) => p.includes(filterText) };
 
 function walk(dir, out = []) {
@@ -173,10 +173,24 @@ for (const sf of sources) {
       const kinds = kindsFor(resolveIn(sf, tname));
       const full = '/' + [prefix, dArg(verb)].filter(Boolean).join('/').replace(/\/+/g, '/').replace(/^\/|\/$/g, '');
       const re = new RegExp('^' + full.split('/').map((s) => (s.startsWith(':') ? '[^/]+' : s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))).join('/') + '$');
-      routes.push({ method: dName(verb).toUpperCase(), path: full, re, dto: tname, props, kinds, at: `${rel}:${sf.getLineAndCharacterOfPosition(m.getStart()).line + 1}` });
+      routes.push({ method: dName(verb).toUpperCase(), path: full, re, dto: tname, props, kinds, cls: cls.name && cls.name.text, at: `${rel}:${sf.getLineAndCharacterOfPosition(m.getStart()).line + 1}` });
     }
   });
 }
+
+// --served <served.json> (tools/audit/served.py on a boot log): for routes declared in several
+// controllers, check only the controller Express actually dispatches to.
+const servedArg = process.argv.indexOf('--served');
+const servedBy = new Map();
+if (servedArg > 0) {
+  for (const m of JSON.parse(fs.readFileSync(process.argv[servedArg + 1], 'utf8'))) {
+    if (m.served) servedBy.set(`${m.method} ${m.path.replace(/:\w+/g, ':p')}`, m.cls);
+  }
+}
+const isServed = (r) => {
+  const cls = servedBy.get(`${r.method} ${r.path.replace(/:\w+/g, ':p')}`);
+  return !cls || cls === r.cls;
+};
 
 function candidates(c) {
   const u = c.backend || c.url;
@@ -233,7 +247,7 @@ const fails = (c, r) => {
   return { unknown, missing, wrong: typeErrors(c, r) };
 };
 for (const c of clients) {
-  const cands = candidates(c).filter((r) => r.method === c.method);
+  const cands = candidates(c).filter((r) => r.method === c.method && (!servedBy.size || isServed(r)));
   // The same METHOD+path declared in several files (tools/audit/routes.py --dups): Nest serves only the
   // first registered one, which static analysis cannot tell. Block only when every declaration rejects.
   const exactFiles = new Set(cands.filter((r) => isExact(c, r)).map((r) => r.at.split(':')[0]));

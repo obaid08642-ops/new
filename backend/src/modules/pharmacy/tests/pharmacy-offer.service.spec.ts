@@ -38,6 +38,17 @@ describe('PharmacyOfferService', () => {
     expect(result.status).toBe('draft');
   });
 
+  // Live finding: the app cannot send an inventory id (the broadcast lists only order lines), so every
+  // offer failed with inventory_item_id_required. The server resolves the pharmacy's own item by sku.
+  it("prices a line from the pharmacy's own item for the line sku when no inventory id is sent", async () => {
+    const inventory = { findOne: jest.fn((q: any) => lean(q.id === 'inventory-1' || (q.sku === 'SKU-1' && q.provider_account_id === 'pharmacy-1') ? inventoryItem : null)) };
+    const svc = service({ inventory });
+    const result = await svc.upsertDraft({ id: 'pharmacy-1', role: 'provider' }, 'order-1',
+      { items: [{ order_item_id: 'item-1', availability: 'available', qty_offered: 2 } as any] });
+    expect(result.items[0]).toMatchObject({ inventory_item_id: 'inventory-1', unit_price: 17.5 });
+    expect(inventory.findOne).toHaveBeenCalledWith(expect.objectContaining({ provider_account_id: 'pharmacy-1', sku: 'SKU-1', available: true }));
+  });
+
   it('returns a server-derived preview with explicit read-only delivery policy and ignores client ETA', async () => {
     const svc = service();
     const result = await svc.previewQuote(

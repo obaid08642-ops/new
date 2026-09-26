@@ -34,6 +34,8 @@ import { SavePolicyDto, CreateRequestDto, PayCopayDto, ResubmitDto, AppealDto, D
 
 @Schema({ timestamps: true })
 export class InsuranceServiceRequest {
+  // Written by the services but previously undeclared: strict mode silently dropped it (tools/audit/schemadrift.js).
+  @Prop() insurer_approval_code?: string;
   @Prop({ required: true, unique: true, default: () => uuid() }) id: string;
   @Prop({ required: true, index: true }) patient_id: string;
   @Prop() patient_name?: string;

@@ -1,7 +1,7 @@
-import { Injectable, ForbiddenException, NotFoundException, BadRequestException, ServiceUnavailableException, Inject } from '@nestjs/common';
+import { Injectable, ForbiddenException, NotFoundException, BadRequestException, ServiceUnavailableException, Inject, Logger } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
-import { PharmacyOrder, PharmacyOrderState, PharmacyAllocation, PharmacyAllocationState, ALLOCATION_TRANSITIONS, AllocationItemAction } from '../schemas/pharmacy.schema';
+import { PharmacyOrder, PharmacyOrderState, PharmacyAllocation, PharmacyAllocationState, ALLOCATION_TRANSITIONS, ORDER_TRANSITIONS, AllocationItemAction } from '../schemas/pharmacy.schema';
 import { PharmacyInventoryItem } from '../../provider/schemas/capabilities.schema';
 import { SmartSplitService } from './smart-split.service';
 import { PharmacyNotificationService } from './pharmacy-notification.service';
@@ -16,6 +16,7 @@ function assertProvider(u: any) { if (!u || !isProviderRole(u.role)) throw new F
 
 @Injectable()
 export class PharmacyAllocationService {
+  private readonly logger = new Logger('PharmacyAllocation');
   constructor(
     @Inject('PharmacyAllocationRepository') private allocs: PharmacyAllocationRepository,
     @Inject('PharmacyOrderRepository') private orders: PharmacyOrderRepository,
@@ -104,7 +105,7 @@ export class PharmacyAllocationService {
       if (!body.substitute_sku) throw new BadRequestException('substitute_sku_required');
       const subInv = await this.inv.findOne({ provider_account_id: user.id, sku: body.substitute_sku, available: true });
       if (!subInv) throw new BadRequestException('substitute_not_in_inventory');
-      const tracking = await this.tracksInventory(user.id);
+      const tracking = await this.split.holdsStock(a);
       if (tracking && subInv.stock < (body.qty_offered || item.qty_requested)) throw new BadRequestException('substitute_insufficient_stock');
       // Release previous reservation if any
       if (tracking && prevAction === AllocationItemAction.AVAILABLE && prevInvId && prevQty) {
@@ -128,7 +129,7 @@ export class PharmacyAllocationService {
       item.unit_price = subInv.price;
     } else if (body.action === AllocationItemAction.UNAVAILABLE) {
       // Release any reservation
-      if (prevAction === AllocationItemAction.AVAILABLE && prevInvId && prevQty && await this.tracksInventory(user.id)) {
+      if (prevAction === AllocationItemAction.AVAILABLE && prevInvId && prevQty && await this.split.holdsStock(a)) {
         await this.inv.updateOne({ id: prevInvId, provider_account_id: user.id }, { $inc: { stock: prevQty } });
       }
       item.qty_offered = 0;
@@ -138,14 +139,14 @@ export class PharmacyAllocationService {
       const newQty = body.qty_offered || item.qty_requested;
       if (newQty !== prevQty) {
         const delta = newQty - prevQty;
-        if (delta > 0 && await this.tracksInventory(user.id)) {
+        if (delta > 0 && await this.split.holdsStock(a)) {
           // Need to reserve more
           const reserved = await this.inv.findOneAndUpdate(
             { id: item.inventory_id, provider_account_id: user.id, stock: { $gte: delta } },
             { $inc: { stock: -delta } },
           );
           if (!reserved) throw new BadRequestException('insufficient_stock_for_increase');
-        } else if (delta < 0 && item.inventory_id && await this.tracksInventory(user.id)) {
+        } else if (delta < 0 && item.inventory_id && await this.split.holdsStock(a)) {
           await this.inv.updateOne({ id: item.inventory_id, provider_account_id: user.id }, { $inc: { stock: -delta } });
         }
         item.qty_offered = newQty;
@@ -426,26 +427,44 @@ export class PharmacyAllocationService {
     const allDelivered = allocs.length > 0 && allocs.every(a => [PharmacyAllocationState.DELIVERED, PharmacyAllocationState.CANCELLED, PharmacyAllocationState.REJECTED].includes(a.status as any));
     const anyOut = allocs.some(a => a.status === PharmacyAllocationState.OUT_FOR_DELIVERY);
     const anyPreparing = allocs.some(a => [PharmacyAllocationState.PREPARING, PharmacyAllocationState.READY_FOR_PICKUP].includes(a.status as any));
-    let nextStatus: PharmacyOrderState | null = null;
-    let event = '';
-    if (allDelivered && order.status !== PharmacyOrderState.DELIVERED && order.status !== PharmacyOrderState.COMPLETED) { nextStatus = PharmacyOrderState.DELIVERED; event = 'all_allocations_delivered'; }
-    else if (anyOut && order.status !== PharmacyOrderState.OUT_FOR_DELIVERY) { nextStatus = PharmacyOrderState.OUT_FOR_DELIVERY; event = 'first_out_for_delivery'; }
-    else if (anyPreparing && order.status !== PharmacyOrderState.IN_FULFILLMENT) { nextStatus = PharmacyOrderState.IN_FULFILLMENT; event = 'fulfillment_started'; }
-    else if (allConfirmed && order.status === PharmacyOrderState.FULLY_ALLOCATED) { nextStatus = PharmacyOrderState.CONFIRMED; event = 'all_allocations_confirmed'; }
-    if (!nextStatus) return;
-    await this.engine.transition({
-      kind: 'pharmacy', entity_id: order.id, from_domain: order.status, to_domain: nextStatus,
-      actor_role: 'system', patient_account_id: order.patient_account_id, reason: event,
-      mutate: async () => {
-        order.status = nextStatus!;
-        order.timeline.push({ ts: new Date(), event });
-        if (nextStatus === PharmacyOrderState.DELIVERED) {
-          await this.bus.emit({ type: 'pharmacy.all_allocations_delivered', entity_type: 'order', entity_id: order.id, patient_account_id: order.patient_account_id, reason_code: 'all_allocations_delivered', actor_role: 'system', meta: { allocations: allocs.length } });
-        }
-        await order.save();
-        return order.toObject();
-      },
-    }).catch(() => null);
+    // Target stage from the allocations, then walk the order there one ALLOWED step at a time
+    // (ORDER_TRANSITIONS). Payment states (cod_due_on_delivery, payment/insurance settled, fully_allocated)
+    // may only move to CONFIRMED; jumping straight to in_fulfillment/delivered was rejected by the engine,
+    // the error was swallowed, and a cash order never left cod_due_on_delivery even after delivery.
+    const PROGRESSION = [PharmacyOrderState.CONFIRMED, PharmacyOrderState.IN_FULFILLMENT, PharmacyOrderState.OUT_FOR_DELIVERY, PharmacyOrderState.DELIVERED];
+    const EVENTS: Record<string, string> = {
+      [PharmacyOrderState.CONFIRMED]: 'all_allocations_confirmed', [PharmacyOrderState.IN_FULFILLMENT]: 'fulfillment_started',
+      [PharmacyOrderState.OUT_FOR_DELIVERY]: 'first_out_for_delivery', [PharmacyOrderState.DELIVERED]: 'all_allocations_delivered',
+    };
+    const target = allDelivered ? PharmacyOrderState.DELIVERED : anyOut ? PharmacyOrderState.OUT_FOR_DELIVERY
+      : anyPreparing ? PharmacyOrderState.IN_FULFILLMENT : allConfirmed ? PharmacyOrderState.CONFIRMED : null;
+    if (!target) return;
+    for (let guard = 0; guard < PROGRESSION.length; guard++) {
+      const cur = order.status as PharmacyOrderState;
+      if (cur === PharmacyOrderState.COMPLETED || cur === PharmacyOrderState.CANCELLED || cur === target) return;
+      const curIdx = PROGRESSION.indexOf(cur);
+      if (curIdx >= PROGRESSION.indexOf(target)) return;
+      const allowed = ORDER_TRANSITIONS[cur] || [];
+      // farthest stage toward the target that this state allows (pickup goes in_fulfillment -> delivered)
+      const next = PROGRESSION.slice(curIdx + 1, PROGRESSION.indexOf(target) + 1).reverse().find((st) => allowed.includes(st))
+        || (allowed.includes(PharmacyOrderState.CONFIRMED) ? PharmacyOrderState.CONFIRMED : null);
+      if (!next) { this.logger.warn(`order ${orderId}: no allowed step from ${cur} toward ${target}`); return; }
+      const event = EVENTS[next];
+      const ok = await this.engine.transition({
+        kind: 'pharmacy', entity_id: order.id, from_domain: cur, to_domain: next,
+        actor_role: 'system', patient_account_id: order.patient_account_id, reason: event,
+        mutate: async () => {
+          order.status = next;
+          order.timeline.push({ ts: new Date(), event });
+          if (next === PharmacyOrderState.DELIVERED) {
+            await this.bus.emit({ type: 'pharmacy.all_allocations_delivered', entity_type: 'order', entity_id: order.id, patient_account_id: order.patient_account_id, reason_code: 'all_allocations_delivered', actor_role: 'system', meta: { allocations: allocs.length } });
+          }
+          await order.save();
+          return order.toObject();
+        },
+      }).then(() => true).catch((e: any) => { this.logger.error(`order ${orderId}: ${cur} -> ${next} failed: ${e?.message}`); return false; });
+      if (!ok) return;
+    }
   }
 
   /** Sweep expired pending_review allocations. Returns counts. */

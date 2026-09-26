@@ -57,6 +57,8 @@ export const HomeCareServiceSchema = SchemaFactory.createForClass(HomeCareServic
 
 @Schema({ timestamps: true })
 export class HomeCareBooking extends Document {
+  // Written by the services but previously undeclared: strict mode silently dropped these (tools/audit/schemadrift.js).
+  @Prop({ type: [Object], default: [] }) supply_requests?: Array<{ id: string; items: any[]; at: Date; by: string; state: string }>;
   @Prop({ required: true, unique: true, default: () => uuidv4() }) id: string;
   @Prop({ unique: true, default: () => trackingId(TRACK_PREFIX.home_care) }) tracking_id: string;
   @Prop({ required: true, index: true }) patient_id: string;

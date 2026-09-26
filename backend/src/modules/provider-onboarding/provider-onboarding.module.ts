@@ -81,13 +81,13 @@ export class ProviderOnboardingService {
     let profile = await this.providerModel.findOne({ user_id: { $eq: user.id } });
     if (!profile) {
       profile = await this.providerModel.create({
-        user_id: user.id, account_id: user.id, type: body.type, status: ProviderStatus.PENDING,
+        user_id: user.id, account_id: user.id, type: body.type, provider_type: body.type, status: ProviderStatus.PENDING,
         name_ar: String(body.full_name).trim(), onboarding_step: 1,
       });
     } else if (profile.type !== body.type) {
       // An approved/suspended provider keeps its type; only an unfinished wizard may switch it.
       if (profile.status !== ProviderStatus.PENDING) throw new ConflictException('provider_already_registered');
-      profile.type = body.type; profile.onboarding_step = 1;
+      profile.type = body.type; (profile as any).provider_type = body.type; profile.onboarding_step = 1;
       await profile.save();
     }
     this.bus.emit({ type: 'onboarding.started', entity_type: 'provider', entity_id: profile.id, actor_account_id: user.id, actor_role: 'provider', meta: { type: body.type } }).catch(() => null);
@@ -129,6 +129,9 @@ export class ProviderOnboardingService {
       'pharmacist_name', 'tech_officer_name', 'tech_officer_scfhs',
       'lab_category', 'lab_accreditation', 'scfhs_expiry', 'profile_photo', 'region'];
     for (const f of fields) if (body[f] !== undefined) (profile as any)[f] = body[f];
+    const lat = Number(body?.location?.lat), lng = Number(body?.location?.lng);
+    if (Number.isFinite(lat) && Number.isFinite(lng) && (lat !== 0 || lng !== 0)) (profile as any).geo = { lat, lng };
+    if (!(profile as any).provider_type) (profile as any).provider_type = profile.type;
     this.snapshotStep(profile, 'step2', body);
     profile.onboarding_step = Math.max(profile.onboarding_step || 0, 2);
     await profile.save();

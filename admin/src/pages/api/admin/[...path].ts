@@ -57,15 +57,12 @@ function apiPath(req: NextApiRequest) {
     // Admin orders console lives at /api/v1/admin/orders
     upstreamPath = `/api/v1/admin/${encoded}`;
   } else if (decoded[0] === 'providers') {
-    // provider-deltas is a legacy read-only feed on the original providers controller
-    if (decoded[1] === 'provider-deltas') {
-      upstreamPath = `/api/v1/providers/provider-deltas${decoded.slice(2).length ? `/${decoded.slice(2).map(encodeURIComponent).join('/')}` : ''}`;
-    } else {
-      // All provider moderation actions (approve, reject, suspend, list, detail…)
-      // must reach ProviderAdminController at /api/v1/admin/providers/*
-      const tail = decoded.slice(1).map(encodeURIComponent).join('/');
-      upstreamPath = `/api/v1/admin/providers${tail ? `/${tail}` : ''}`;
-    }
+    // All provider moderation, provider-deltas included, goes to ProviderAdminController
+    // (/api/v1/admin/providers/*). Its approveDelta applies each delta by target (profile,
+    // settings, capability = inventory/catalog rows, insurance); the old /providers/provider-deltas
+    // feed wrote every delta onto the profile, so an approved inventory item was never created.
+    const tail = decoded.slice(1).map(encodeURIComponent).join('/');
+    upstreamPath = `/api/v1/admin/providers${tail ? `/${tail}` : ''}`;
   } else if (modulePrefixes.has(decoded[0])) {
     // Second-segment exceptions: admin consoles that share a first segment
     // with a public controller. These MUST stay under /api/v1/admin/*:

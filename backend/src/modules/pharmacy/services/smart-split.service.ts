@@ -111,6 +111,7 @@ export class SmartSplitService {
       const prepMin = itemCount <= 3 ? 18 : itemCount <= 7 ? 30 : 50;
       const reviewExp = new Date(Date.now() + REVIEW_TIMEOUT_MINUTES * 60_000);
       const alloc = await this.allocs.create({
+        stock_reserved: true, // reserveStock() above always decrements
         id: uuidv4(),
         order_id: order.id,
         pharmacy_account_id: plan.pharmacy_account_id,
@@ -384,7 +385,18 @@ export class SmartSplitService {
     return !!res;
   }
 
+  /** True when this allocation holds inventory (explicit flag; older allocations: the pharmacy's tracking setting). */
+  async holdsStock(alloc: PharmacyAllocation): Promise<boolean> {
+    if (typeof alloc.stock_reserved === 'boolean') return alloc.stock_reserved;
+    const doc: any = await this.inv.model.db.collection('provider_settings').findOne({ provider_id: alloc.pharmacy_account_id }).catch(() => null);
+    return doc?.inventory_tracking === true;
+  }
+
   async releaseStockForAllocation(alloc: PharmacyAllocation) {
+    if (!(await this.holdsStock(alloc))) return;
+    // Callers save the allocation afterwards; persist the flag here too so a failed save cannot double-release.
+    alloc.stock_reserved = false;
+    await this.allocs.updateOne({ id: alloc.id }, { $set: { stock_reserved: false } }).catch(() => null);
     for (const it of alloc.items || []) {
       if (it.action !== AllocationItemAction.AVAILABLE) continue;
       if (!it.inventory_id || !it.qty_offered) continue;

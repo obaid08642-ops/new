@@ -1,4 +1,13 @@
-import { IsArray, IsDefined, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsDefined, IsNumber, IsObject, IsOptional, IsString, MaxLength, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
+
+export class NursingVitalsDto {
+  @IsOptional() @IsString() @MaxLength(20) bp?: string;
+  @IsOptional() @IsString() @MaxLength(20) pulse?: string;
+  @IsOptional() @IsString() @MaxLength(20) temp?: string;
+  @IsOptional() @IsString() @MaxLength(20) spo2?: string;
+  @IsOptional() @IsString() @MaxLength(20) glucose?: string;
+}
 
 export class CreateNoteDto {
   @IsOptional()
@@ -13,9 +22,12 @@ export class CreateNoteDto {
   @IsString()
   note?: string;
 
-  @IsDefined()
-  @IsString()
-  vitals: string;
+  // provider-app NursingDashboard sends { bp, pulse, temp, spo2, glucose } (text inputs); the service keeps those keys.
+  @IsOptional()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => NursingVitalsDto)
+  vitals?: NursingVitalsDto;
 
 }
 

@@ -20,7 +20,7 @@ def login():
     r = w.get('/command-center')
     step('BFF call with the session (dashboard: command-center)', r.ok, r)
     bad = AdminWeb(ADMIN_WEB).post('/api/admin/auth/login', {'identifier': EMAIL, 'password': 'wrong'})
-    step('wrong admin password rejected', bad.status in (400, 401), bad)
+    step('wrong admin password rejected (401, or 429 once the login throttle trips)', bad.status in (400, 401, 429), bad)
     # Direct API token for admin steps that the journeys need (same user, same 2FA)
     tok = next((c.value for c in w.jar if 'token' in c.name.lower() and 'refresh' not in c.name.lower()), None)
     return w, Client(tok, 'admin-api') if tok else None

@@ -4,6 +4,8 @@ import { v4 as uuid } from 'uuid';
 
 @Schema({ timestamps: true, collection: 'patient_profiles' })
 export class PatientProfile {
+  // Written by the services but previously undeclared: strict mode silently dropped these (tools/audit/schemadrift.js).
+  @Prop({ type: [String], default: [] }) wishlist?: string[];
   @Prop({ default: () => uuid() }) id: string;
   @Prop({ required: true, index: true }) user_id: string;
   @Prop() age?: number;
