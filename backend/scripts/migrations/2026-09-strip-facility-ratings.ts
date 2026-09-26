@@ -23,7 +23,8 @@ const SEED_SLUGS = [
 
 async function main() {
   if (!process.env.MONGODB_URI) throw new Error('MONGODB_URI_required');
-  await mongoose.connect(process.env.MONGODB_URI, { serverSelectionTimeoutMS: 10_000 });
+  // Same database the app uses (app.module: DB_NAME || 'nabd_nestjs'); the URI path alone is not enough.
+  await mongoose.connect(process.env.MONGODB_URI, { serverSelectionTimeoutMS: 10_000, dbName: process.env.DB_NAME || 'nabd_nestjs' });
   const db = mongoose.connection.db;
 
   const filter = {

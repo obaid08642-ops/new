@@ -13,6 +13,7 @@ echo "═══ [1/7] Secrets & environment ═══"
 ENV_FILE="$DEPLOY_DIR/.env.production"
 if [ ! -f "$ENV_FILE" ]; then
   echo "Generating .env.production with fresh secrets…"
+  [ -f .env.production.example ] || { echo "missing deploy/.env.production.example"; exit 1; }
   cp .env.production.example "$ENV_FILE"
   gen() { openssl rand -hex 24; }
   sed -i "s|__MONGO_ROOT_PASSWORD__|$(gen)|"          "$ENV_FILE"
@@ -54,12 +55,8 @@ if [ ! -f certs/turn/turn.nabd.plus/fullchain.pem ]; then
   echo "bootstrap self-signed TURN cert created (30 days, replaced by Let's Encrypt later)"
 fi
 
-# Payment gateway placeholders — the backend refuses to boot without at least
-# one configured gateway; payments stay INERT until real keys are filled.
-for kv in "MOYASAR_API_KEY=pending_real_key" "MOYASAR_SECRET=pending_real_key" "MOYASAR_PUBLISHABLE_KEY=pending_real_key"; do
-  k="${kv%%=*}"
-  grep -q "^$k=.\+" "$ENV_FILE" || sed -i "s|^$k=.*|$k=pending_real_key|" "$ENV_FILE"
-done
+# Payment keys are left empty until the real ones exist: empty = payment endpoints
+# answer 503 payment_gateway_not_configured (the backend boots fine without them).
 
 echo "═══ [3/7] Build images ═══"
 docker compose --env-file .env.production -f docker-compose.production.yml build --pull
