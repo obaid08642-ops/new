@@ -26,9 +26,6 @@ export class BookDto {
   @IsArray()
   documents?: unknown[];
 
-  @IsOptional()
-  @IsNumber()
-  total_price?: number;
 }
 
 export class TransitionDto {

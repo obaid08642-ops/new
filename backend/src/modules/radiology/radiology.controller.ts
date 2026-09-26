@@ -31,6 +31,9 @@ export class RadiologyController {
     });
   }
 
+  @Public() @Get('compatible-providers')
+  compatibleProviders(@Query('serviceIds') ids?: string) { return this.svc.compatibleProviders(ids ? ids.split(',') : []); }
+
   @Public() @Get('modalities')
   modalities() { return this.svc.modalities(); }
 
@@ -96,7 +99,8 @@ export class RadiologyController {
   }
 
   // --- PILLAR 5: Check-In & Scanning Workflow ---
-  @SelfService()
+  // center staff only (the patient never checks in or aborts a scan from the app)
+  @Roles(UserRole.RADIOLOGY, UserRole.HOSPITAL, UserRole.ADMIN)
   @Post('bookings/:id/checkin')
   checkin(@Param('id') id: string, @CurrentUser() user: any) {
     return this.svc.checkin(id, user);
@@ -109,7 +113,8 @@ export class RadiologyController {
   }
 
   // PILLAR 5: Abort Scan — Emergency edge case
-  @SelfService()
+  // center staff only (the patient never checks in or aborts a scan from the app)
+  @Roles(UserRole.RADIOLOGY, UserRole.HOSPITAL, UserRole.ADMIN)
   @Post('bookings/:id/abort')
   abortScan(@Param('id') id: string, @Body() body: AbortScanDto, @CurrentUser() user: any) {
     return this.svc.abortScan(id, user, body.reason);

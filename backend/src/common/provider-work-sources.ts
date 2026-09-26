@@ -22,4 +22,11 @@ export const PROVIDER_WORK_SOURCES: Record<string, ProviderWorkSource> = {
     inProgress: ['CONFIRMED', 'IN_TRANSIT', 'IN_LAB', 'SAMPLE_COLLECTED', 'PROCESSING', 'RESULT_UPLOADED'],
     done: ['REPORTED'],
   },
+  // radiology.service: book() / transition() / checkin / startScan / uploadReport / approveReport
+  radiology: {
+    collection: 'radiologybookings', providerField: 'provider_account_id', patientField: 'patient_id', stateField: 'state', amountField: 'total',
+    pending: ['NEW_REQUEST', 'PENDING_INSURANCE', 'WAITING_COPAY'],
+    inProgress: ['CONFIRMED', 'ARRIVED_CHECKIN', 'IN_SCANNING', 'REPORT_DRAFT', 'UNDER_REVIEW', 'SCAN_ABORTED'],
+    done: ['REPORT_READY'],
+  },
 };

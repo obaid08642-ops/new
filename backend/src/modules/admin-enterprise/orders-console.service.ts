@@ -55,9 +55,10 @@ export const ORDER_KINDS: OrderKindSpec[] = [
     label_ar: 'حجز مختبر',
   },
   {
+    // radiology.service book(): amount in `total`, center in provider_account_id; REPORT_READY is the final state
     kind: 'radiology', collection: 'radiologybookings', stateField: 'state', historyField: 'state_history',
-    patientField: 'patient_id', patientNameField: 'patient_name', providerField: 'facility_id',
-    amountExpr: '$total_price', cancelledStates: ['CANCELLED'], completedStates: ['REPORT_PUBLISHED'],
+    patientField: 'patient_id', patientNameField: 'patient_name', providerField: 'provider_account_id',
+    amountExpr: '$total', cancelledStates: ['CANCELLED'], completedStates: ['REPORT_READY', 'REPORT_PUBLISHED'],
     label_ar: 'حجز أشعة',
   },
   {

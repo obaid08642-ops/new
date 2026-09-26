@@ -34,28 +34,45 @@ export class PatientUxService {
     return k === 'pharmacy' ? this.orders : k === 'lab' ? this.labs : k === 'radiology' ? this.rads : k === 'nursing' ? this.home : this.appts;
   }
 
+  /**
+   * One view of a booking for rating: who the patient is, its state, and the provider being rated.
+   * Pharmacy orders live in pharmacy_orders (current flow, provider = selected allocation's pharmacy)
+   * or in the legacy cart `orders`.
+   */
+  private async bookingForReview(kind: string, id: string): Promise<{ patient: string; state: string; provider: string | null } | null> {
+    if (kind === 'pharmacy') {
+      const cur: any = await this.orders.db?.collection('pharmacy_orders').findOne({ id });
+      if (cur) {
+        const alloc: any = cur.selected_allocation_id ? await this.orders.db.collection('pharmacy_allocations').findOne({ id: cur.selected_allocation_id }) : null;
+        return { patient: cur.patient_account_id, state: String(cur.status || '').toUpperCase(), provider: alloc?.pharmacy_account_id || null };
+      }
+    }
+    const b: any = await this.model(kind).findOne({ id: { $eq: id } }).lean();
+    if (!b) return null;
+    return {
+      patient: b.patient_id,
+      state: String(b.state || b.status || '').toUpperCase(),
+      provider: b.provider_id || b.provider_account_id || b.assigned_provider_id || b.doctor_id || b.pharmacy_id || null,
+    };
+  }
+
   async rate(user: any, body: { booking_kind: string; booking_id: string; rating: number; comment?: string; aspects?: any }) {
     if (!body.rating || body.rating < 1 || body.rating > 5) throw new BadRequestException('invalid_rating');
-    const M = this.model(body.booking_kind);
-    const b: any = await M.findOne({ id: { $eq: body.booking_id } }).lean();
+    const b = await this.bookingForReview(body.booking_kind, body.booking_id);
     if (!b) throw new NotFoundException();
-    if (b.patient_id !== user.id) throw new BadRequestException('not_owner');
+    if (b.patient !== user.id) throw new BadRequestException('not_owner');
 
-    // Enforce completed booking checks
-    const stateStr = (b.state || b.status || '').toUpperCase();
-    if (body.booking_kind === 'pharmacy') {
-      if (stateStr !== 'DELIVERED') throw new ForbiddenException('You can only rate after order is DELIVERED');
-    } else if (body.booking_kind === 'lab') {
-      if (stateStr !== 'REPORTED' && stateStr !== 'RESULT_READY') throw new ForbiddenException('You can only rate after lab result is ready/reported');
-    } else if (body.booking_kind === 'radiology') {
-      if (stateStr !== 'COMPLETED' && stateStr !== 'REPORT_PUBLISHED') throw new ForbiddenException('You can only rate after radiology report is published');
-    } else if (body.booking_kind === 'nursing') {
-      if (stateStr !== 'COMPLETED') throw new ForbiddenException('You can only rate after home service is COMPLETED');
-    } else {
-      if (stateStr !== 'COMPLETED') throw new ForbiddenException('You can only rate after appointment is COMPLETED');
-    }
+    // Only a finished service can be rated (each vertical's final state).
+    const done: Record<string, string[]> = {
+      pharmacy: ['DELIVERED', 'COMPLETED'],
+      lab: ['REPORTED', 'RESULT_READY'],
+      radiology: ['REPORT_READY', 'REPORT_PUBLISHED', 'COMPLETED'],
+      nursing: ['COMPLETED'],
+    };
+    const allowed = done[body.booking_kind] || ['COMPLETED'];
+    if (!allowed.includes(b.state)) throw new ForbiddenException(`rating_allowed_after_${allowed[0].toLowerCase()}`);
 
-    const provider_id = b.provider_id || b.assigned_provider_id || b.doctor_id;
+    const provider_id = b.provider;
     if (!provider_id) throw new BadRequestException('no_provider');
 
     const status = body.rating < 3 ? 'pending_review' : 'approved';

@@ -154,6 +154,8 @@ def run(pat, pharm, admin=None, meds=None):
     o = pat.get(f'/patient/pharmacy/orders/{oid}')
     order = o.body.get('data', o.body) if isinstance(o.body, dict) else {}
     step('patient sees it delivered', str(order.get('governed_state', '')).upper() in ('DELIVERED', 'COMPLETED'), order.get('governed_state'))
+    r = pat.post('/patient-ux/review', {'booking_kind': 'pharmacy', 'booking_id': oid, 'rating': 4, 'comment': 'توصيل سريع', 'aspects': {}, 'anonymous': False})
+    step('patient rates the pharmacy (reviews screen)', r.ok, r)
     pharmacy_screens(pharm, oid, total)
     if admin:
         admin_console(admin, oid)

@@ -55,7 +55,7 @@ def patient_books(pat, lab_id, location='facility', method='cash'):
 
 
 def run(pat, lab, other_lab=None, admin=None):
-    lab_id = lab.get('/provider/me').get('id') or lab.get('/provider/profile').get('account_id')
+    lab_id = lab.get('/provider/me').get('account', 'id')
     journey('lab: patient books tests at the facility, pays cash there')
     bid, picks = patient_books(pat, lab_id)
     if not bid:
@@ -94,6 +94,8 @@ def run(pat, lab, other_lab=None, admin=None):
     step('booking is REPORTED with a report attached', r.ok and b.get('state') == 'REPORTED' and len(b.get('reports') or []) == 1, b.get('state'))
     r = pat.get('/labs/bookings/mine')
     step('my results lists it', r.ok and bid in str(r.body), r.status)
+    r = pat.post('/patient-ux/review', {'booking_kind': 'lab', 'booking_id': bid, 'rating': 5, 'comment': 'نتائج سريعة', 'aspects': {}, 'anonymous': False})
+    step('patient rates the lab (reviews screen)', r.ok, r)
 
     journey('lab: payment rules on accepting a booking')
     bid2, _ = patient_books(pat, lab_id, location='home', method='card')
