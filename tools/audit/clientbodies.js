@@ -73,9 +73,48 @@ function bodyKeys(expr, sf) {
     };
     if (fn) visit(fn);
     if (found && ts.isObjectLiteralExpression(found)) return keysOfObject(found, sf);
+    // React form state: const [form, setForm] = useState({ ...initial keys })
+    let stateInit = null;
+    const visitState = (n) => {
+      if (ts.isVariableDeclaration(n) && ts.isArrayBindingPattern(n.name) && n.name.elements[0] && n.name.elements[0].name && n.name.elements[0].name.getText(sf) === expr.text
+          && n.initializer && ts.isCallExpression(n.initializer) && /useState$/.test(n.initializer.expression.getText(sf)) && n.initializer.arguments[0]) stateInit = n.initializer.arguments[0];
+      ts.forEachChild(n, visitState);
+    };
+    visitState(sf);
+    if (stateInit) { let e = stateInit; while (ts.isAsExpression(e) || ts.isParenthesizedExpression(e)) e = e.expression; if (ts.isObjectLiteralExpression(e)) return { ...keysOfObject(e, sf), fromState: true }; }
     return { keys: [], spread: false, unresolved: 'var:' + expr.text };
   }
+  if (ts.isPropertyAccessExpression(expr) && expr.name.text === 'data' && ts.isIdentifier(expr.expression)) {
+    const zk = zodKeys(expr.expression.text, sf);
+    if (zk) return { keys: zk, spread: false, fromZod: true };
+  }
   return { keys: [], spread: false, unresolved: expr.getText(sf).slice(0, 60) };
+}
+
+/** keys of z.object({...}) behind `const <resVar> = <schema>.safeParse(...)` (or .parse) in this file */
+function zodKeys(resVar, sf) {
+  let schemaName = null;
+  const findRes = (n) => {
+    if (ts.isVariableDeclaration(n) && ts.isIdentifier(n.name) && n.name.text === resVar && n.initializer) {
+      let e = n.initializer; if (ts.isAwaitExpression(e)) e = e.expression;
+      if (ts.isCallExpression(e) && ts.isPropertyAccessExpression(e.expression) && /^(safeParse|parse)$/.test(e.expression.name.text)) schemaName = e.expression.expression.getText(sf);
+    }
+    ts.forEachChild(n, findRes);
+  };
+  findRes(sf);
+  if (!schemaName) return null;
+  let obj = null;
+  const findSchema = (n) => {
+    if (ts.isVariableDeclaration(n) && ts.isIdentifier(n.name) && n.name.text === schemaName && n.initializer) {
+      let e = n.initializer;
+      while (ts.isCallExpression(e) && ts.isPropertyAccessExpression(e.expression) && e.expression.name.text !== 'object') e = e.expression.expression;
+      if (ts.isCallExpression(e) && /object$/.test(e.expression.getText(sf)) && e.arguments[0] && ts.isObjectLiteralExpression(e.arguments[0])) obj = e.arguments[0];
+    }
+    ts.forEachChild(n, findSchema);
+  };
+  findSchema(sf);
+  if (!obj) return null;
+  return obj.properties.filter((p) => p.name).map((p) => p.name.getText(sf).replace(/['"]/g, ''));
 }
 
 function methodFromOpts(opts, sf) {
@@ -136,6 +175,19 @@ for (const app of APPS) {
         if (verbMatch && a[0]) {
           const url = urlOf(a[0], sf);
           if (url) rec = { method: verbMatch[1].toUpperCase(), url, ...bodyKeys(a[1], sf) };
+        } else if (a[0] && ts.isConditionalExpression(a[0])) {
+          // apiFetch(editing ? `/x/${id}` : '/x', { method: editing ? 'PATCH' : 'POST', body }) -> one record per branch
+          const opts = a.find((x) => ts.isObjectLiteralExpression(x));
+          const m = opts && opts.properties.find((p) => p.name && p.name.getText(sf) === 'method');
+          const mc = m && ts.isPropertyAssignment(m) && ts.isConditionalExpression(m.initializer) ? m.initializer : null;
+          if (mc && mc.condition.getText(sf) === a[0].condition.getText(sf)) {
+            for (const [u, v] of [[a[0].whenTrue, mc.whenTrue], [a[0].whenFalse, mc.whenFalse]]) {
+              const url = urlOf(u, sf);
+              if (url && ts.isStringLiteralLike(v) && v.text.toUpperCase() !== 'GET') {
+                out.push({ method: v.text.toUpperCase(), url, ...bodyFromOpts(opts, sf), at: `${f}:${sf.getLineAndCharacterOfPosition(n.getStart()).line + 1}`, callee });
+              }
+            }
+          }
         } else if (a[0]) {
           const url = urlOf(a[0], sf);
           if (url) {

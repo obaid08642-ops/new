@@ -14,6 +14,8 @@ export async function callPatientApi(path: string, init: RequestInit = {}, acces
   const headers = new Headers(init.headers);
   headers.set("Accept", "application/json");
   if (accessToken) headers.set("Authorization", `Bearer ${accessToken}`);
+  // fetch() labels a string body text/plain, which the API's JSON parser ignores (the handler then sees {}).
+  if (typeof init.body === "string" && !headers.has("content-type")) headers.set("content-type", "application/json");
 
   try {
     return await fetch(patientApiUrl(path), { ...init, headers, cache: "no-store" });

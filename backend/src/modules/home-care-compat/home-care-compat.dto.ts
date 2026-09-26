@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsDateString, IsDefined, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsDefined, IsNumber, IsObject, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class CreateBookingDto {
   @IsOptional()
@@ -17,6 +17,17 @@ export class CreateBookingDto {
   @IsOptional()
   @IsObject()
   address?: Record<string, unknown>;
+
+  // patient-web sends a saved-address id; resolved against the caller's own addresses.
+  @IsOptional()
+  @IsString()
+  @MaxLength(128)
+  address_id?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(2000)
+  notes?: string;
 
   @IsOptional()
   @IsString()

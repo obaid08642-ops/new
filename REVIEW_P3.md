@@ -238,3 +238,31 @@ Ported onto `review/phase-3` (5 conflict hunks). Adjusted by the reviewer to kee
 | Tools | Only the reviewer's own dtocheck/dtolint edits (identical). |
 | Gates (reviewer run) | dtolint 0/0/0/0 · dtocheck 634/311/**0** · tsc + build exit 0 · unit **2671/2671** (139 suites) · security+journeys **65/65** |
 | Process | **Violation:** 18 more P4/P5 commits pushed before Phase 3 approval (AGENTS.md "one phase at a time"). |
+
+---
+
+# Addendum: Gate P3 run live (2026-09-26, reviewer)
+Phase 3 had been approved on static gates plus unit tests. Its own gate says "every write endpoint rejects bad bodies with 400, 0×500". The reviewer ran that live: backend from `main` on a real MongoDB replica set and Redis, with `wsweep.py` sending `{}` to every write route (851) as admin, patient and provider, before and after the fixes. Result: **0×500**. The client payloads were then replayed live.
+The sweep and the replay found the following, all fixed on `review/gate-p3-live`. Each has a test in `src/common/gate-p3-live.spec.ts` (9 of the new tests fail on the old code) or `patient-web/lib/api/upstream.test.ts`.
+
+| # | Sev | Where | Problem | Fix |
+|---|---|---|---|---|
+| G1 | CRIT | `api-security` | Anyone could skip every rate limit with the fixed header `x-bypass-rate-limit: nabd-load-test` | `loadTestBypass()`: never in production, only with the secret `LOAD_TEST_BYPASS_TOKEN` |
+| G2 | CRIT | `provider.controllers` `/provider/seed`, `/seed/reset` | Test-data seeding was reachable outside tests | 404 unless `NODE_ENV=test` and `ALLOW_TEST_SEED=true` |
+| G3 | HIGH | `moyasar` create/refund | The sandbox branch (no gateway key) "succeeded" in production: refunds were marked done without money moving | 503 `payment_gateway_not_configured` in production, nothing saved |
+| G4 | HIGH | provider delta submit, score recompute | Patients could call provider-only routes | 403 unless provider role |
+| G5 | HIGH | patient-app **and** web reminders (`RcDto`) | P3.1 DTO omitted `times`/`time_zone`/counts, which the service requires, so **every new medication reminder got a 400 (mobile included)**. The web form also sent no `time_zone` or idempotency key | DTO fields added; web form sends `time_zone` and a key |
+| G6 | HIGH | patient-web → API (`callPatientApi`) | A string body went out as `text/plain`, which the API's JSON parser ignores, so 22 web routes reached the handler with `{}` | `content-type: application/json` for string bodies |
+| G7 | HIGH | `patient_profiles` schema | Strict sub-schemas silently dropped fields: the web address (`line1`, `district`, `region`, `notes`…) saved as 201 but came back empty; the saved insurance lost `company_id`, `company_name`, `member_id`… | Fields added to the schema; `street` and `line1` mirrored so both apps show the address |
+| G8 | HIGH | provider insurance decision, provider jobs | Read the non-existent collection `patientprofiles`, so the insurance decision always failed and job cards never showed **allergies and chronic diseases** | `patient_profiles` |
+| G9 | MED | checkout (`cash`), nursing booking (`address_id`, `notes`) | Web payload rejected (400) | DTO fields added; `address_id` resolves to the caller's own saved address only (`address_not_found` otherwise) |
+| G10 | MED | empty-body creates (address, insurance, delivery rule, legal policy, shortage report) | `{}` created empty records | 400 with a specific message |
+
+Tools: `clientbodies.js` now resolves zod `input.data`, `useState` form bodies and `cond ? PATCH : POST` calls (that is how G5 and G9 surfaced). `dtocheck.js` does not block when a duplicate route has one accepting declaration. `routes.py` is now portable and has `--dups`.
+**33 METHOD+path pairs are declared in two or three files** (for example `POST /insurance/save-policy`, `POST /home-care/bookings`, `POST /patient/pharmacy/orders`). Only the first registered handler runs, so the other copy is dead code that looks alive. P5.3 must end with `python3 tools/audit/routes.py --dups` = 0, keeping the behavior of the handler that is served today (checked live for save-policy = insurance-engine and home-care bookings = home-care-compat).
+
+Gates (reviewer): tsc 0 · nest build 0 · unit **2703/2703** · security+journeys **65/65** · dtolint 0/0/0/0 · dtocheck **0** · patient-web `pnpm check` 0, vitest 337 passed. Live: all the payloads above now return 201 and read back intact.
+
+Follow-ups (not fixed here):
+- patient-app `consultations/prescription-from-doctor.tsx` "add to reminders" sends no times or time_zone, so it always fails, and the UI marks the item added anyway (pre-existing). It should open the reminder form prefilled instead.
+- About 110 client bodies remain statically unresolvable (the "?" lines in dtocheck). The live replay covered the main patient flows, but the admin console bodies (`var:body`) still need a pass. This goes into Gate P5 "contract scripts 0 mismatches".

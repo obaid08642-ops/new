@@ -92,6 +92,17 @@ export class RcDto {
 
   @IsOptional()
   chronic?: unknown;
+
+  // Schedule fields read by HealthService.normalizeReminderInput (times + time_zone are required there).
+  @IsOptional() @IsArray() @IsString({ each: true }) times?: string[];
+  @IsOptional() @IsString() time_zone?: string;
+  @IsOptional() @IsNumber() dosage_count?: number;
+  @IsOptional() @IsNumber() duration_days?: number;
+  @IsOptional() @IsDateString() start_date?: string;
+  @IsOptional() @IsDateString() end_date?: string;
+  @IsOptional() @IsNumber() pills_remaining?: number;
+  // Accepted for client compatibility; a new reminder is always created active.
+  @IsOptional() @IsBoolean() active?: boolean;
 }
 
 export class RlgDto {
