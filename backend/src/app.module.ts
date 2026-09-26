@@ -22,7 +22,6 @@ import { PresenceModule } from './modules/presence/presence.module';
 import { OpsModule } from './modules/ops/ops.module';
 import { FeatureFlagsModule } from './modules/feature-flags/feature-flags.module';
 import { MediaModule } from './modules/media/media.module';
-import { NotificationModule } from './modules/notification/notification.module';
 import { MoyasarModule } from './modules/moyasar/moyasar.module';
 import { FinanceEngineModule } from './modules/finance-engine/finance-engine.module';
 import { ConfigModule } from '@nestjs/config';
@@ -44,7 +43,6 @@ import { I18nCoreModule } from './modules/i18n/i18n.module';
 import { AiModule } from './modules/ai/ai.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { EventsModule } from './modules/events/events.module';
-import { ProvidersModule } from './modules/providers/providers.module';
 import { SeedModule } from './modules/seed/seed.module';
 import { DriversModule } from './modules/drivers/drivers.module';
 import { PharmacyOpsModule } from './modules/pharmacy_ops/pharmacy_ops.module';
@@ -174,7 +172,6 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     OpsModule,
     FeatureFlagsModule,
     MediaModule,
-    NotificationModule,
     ConfigModule.forRoot({ isGlobal: true, validate: validateEnvironment }),
     MongooseModule.forRootAsync({
       useFactory: () => ({
@@ -205,7 +202,6 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     AuthModule,
     UsersModule,
     MedicinesModule,
-    ProvidersModule,
     PrescriptionsModule,
     OrdersModule,
     EmergencyModule,
