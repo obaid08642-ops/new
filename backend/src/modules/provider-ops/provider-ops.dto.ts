@@ -58,13 +58,15 @@ export class BlockDto {
 }
 
 export class PutCrmDto {
-  @IsDefined()
-  @IsString()
-  tags: string;
-
-  @IsDefined()
+  @IsOptional()
   @IsArray()
-  notes: any[];
+  @IsString({ each: true })
+  tags?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsObject({ each: true })
+  notes?: Array<{ id?: string; date?: string; text?: string }>;
 
   @IsOptional()
   @IsBoolean()

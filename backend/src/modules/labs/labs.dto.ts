@@ -167,8 +167,8 @@ export class RescheduleDto {
 
 
   @IsOptional()
-  @IsArray()
-  reason: any[];
+  @IsString()
+  reason?: string;
 
 }
 
@@ -197,8 +197,8 @@ export class UpdateGpsDto {
 
 export class DeclareEmergencyDto {
   @IsOptional()
-  @IsArray()
-  reason: any[];
+  @IsString()
+  reason?: string;
 
 }
 

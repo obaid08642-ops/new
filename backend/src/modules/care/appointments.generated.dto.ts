@@ -1,21 +1,22 @@
-import { IsArray, IsBoolean, IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsObject, IsArray, IsBoolean, IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class FinishAppointmentDto {
   @IsOptional()
-  @IsArray()
-  diagnosis: any[];
+  @IsString()
+  diagnosis?: string;
+
+  @IsOptional()
+  @IsString()
+  notes?: string;
+
+  @IsOptional()
+  @IsString()
+  recommendations?: string;
 
   @IsOptional()
   @IsArray()
-  notes: any[];
-
-  @IsOptional()
-  @IsArray()
-  recommendations: any[];
-
-  @IsDefined()
-  @IsArray()
-  prescription: any[];
+  @IsObject({ each: true })
+  prescription?: Array<{ name?: string; dose?: string; duration?: string }>;
 
   @IsOptional()
   @IsBoolean()

@@ -8,7 +8,7 @@ import { JwtAuthGuard, Roles, CurrentUser } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { User, UserDocument } from '../../schemas/user.schema';
 import { ProviderDelta } from '../providers/schemas/provider-delta.schema';
-import { CreateSubAdminDto, UpdateSubAdminDto, CreateProviderDto, CleanupOrphansDto } from './admin.dto';
+import { CreateSubAdminDto, UpdateSubAdminDto, CreateProviderDto, CleanupOrphansDto, RejectDeltaDto } from './admin.dto';
 
 /** Provider roles an admin may create accounts for (never staff/admin roles). */
 const PROVIDER_CREATABLE_ROLES = [
@@ -656,7 +656,7 @@ export class AdminController {
   }
 
   @Post('provider-deltas/:deltaId/reject')
-  async rejectDelta(@Param('deltaId') deltaId: string, @Body() body?: any) {
+  async rejectDelta(@Param('deltaId') deltaId: string, @Body() body: RejectDeltaDto) {
     const delta = (await this.deltaModel.findById(deltaId).catch(() => null))
       || (await this.deltaModel.findOne({ id: deltaId }).exec());
     if (!delta) throw new BadRequestException('delta_not_found');
