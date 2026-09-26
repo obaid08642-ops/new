@@ -172,11 +172,8 @@ export default function LocationPickerScreen() {
         body: JSON.stringify(payload),
       });
       // Persist the newly saved address as the effective selection
-      if (saved && saved.id) {
-        await setSelectedAddress(saved);
-      } else {
-        await setSelectedAddress({ ...payload, id: (saved && saved.id) || `local-${Date.now()}` });
-      }
+      // The create response carries only the new id; the address itself is the payload we sent.
+      await setSelectedAddress({ ...payload, id: (saved && saved.id) || `local-${Date.now()}` });
       router.back();
     } catch (e) {
       // Honest failure — do NOT pretend the address was saved

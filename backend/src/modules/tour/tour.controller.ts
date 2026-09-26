@@ -1,3 +1,4 @@
+import { CompleteTourStepDto } from './tour.dto';
 import { Controller, Post, Body, Get, UseGuards } from '@nestjs/common';
 import { TourService } from './tour.service';
 import { JwtAuthGuard, CurrentUser } from '../../common/auth.guard';
@@ -13,7 +14,7 @@ export class TourController {
   }
 
   @Post('complete')
-  async completeStep(@CurrentUser('id') userId: string, @Body('stepId') stepId: string) {
-    return this.tourSvc.markStepComplete(userId, stepId);
+  async completeStep(@CurrentUser('id') userId: string, @Body() body: CompleteTourStepDto) {
+    return this.tourSvc.markStepComplete(userId, body.stepId);
   }
 }
