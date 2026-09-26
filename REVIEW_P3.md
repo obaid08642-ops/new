@@ -104,7 +104,7 @@ Not acceptable under the plan (P3.1: "for each `@Body() body: any` … create a 
 
 ---
 
-# Round 3 (implementer fix 9b4ea75f): **APPROVED with 5 fixes applied in review** (`[REVIEW-P3] round 3`)
+# Round 3 (implementer fix 9b4ea75f): **FAIL, approval withdrawn after CI** (5 reviewer fixes kept; see R3-1)
 
 Branch reviewed and merged: `review/phase-3` = main + P3.0a + P3.0b + Phase 3 (aca77eb..1f6b940) + round-2 fix (1c79338) + round-3 fix (9b4ea75), cherry-picked. Phase 4 and P5 are **not** included. The two fix commits were written on top of P4/P5; each of their 7 conflict hunks was resolved to keep Phase 3 behavior and take only the typing. For example, SLA update keeps the Phase 3 echo typed as `SlaDto`; persistence comes with F45 in Phase 4.
 
@@ -153,3 +153,24 @@ Branch reviewed and merged: `review/phase-3` = main + P3.0a + P3.0b + Phase 3 (a
 ## Follow-ups (not blocking)
 - The P3.0b email fallback in `findLinkedUser` at login should be limited to email-verified accounts.
 - `@IsArray()` fields holding objects are validated only as arrays of objects. Add `@ValidateNested` + `@Type` where the element shape matters (money, prescriptions).
+
+
+---
+
+## Round 3 addendum: approval withdrawn (CodeQL on PR #199)
+
+CodeQL failed on PR #199 (84 new alerts, 2 critical). CodeQL passed on the last review PR (#193). The two alerts posted inline led to a gap that `dtolint.py` did not cover. The reviewer's tool now does.
+
+### R3-1: HIGH: 36 `@Body()` parameters are still not validated at all
+`ValidationPipe` validates only **class** metatypes. A body typed as an inline object (`{ amount?: number }`), a `type`/`interface` alias (`RuleContext`, `CreateCheckoutSessionDto` is an interface), `Record<...>`, or a primitive `@Body('key') x: string` gets **no** whitelist and **no** type check. Any JSON, including objects like `{ $ne: null }`, reaches the service. `python3 tools/audit/dtolint.py` now lists all 36. Examples:
+- `POST /business-rules/validate` (`ctx: RuleContext`, SelfService): `ctx.provider.user_id` goes into `providers.findOne(...)`, so `{ "provider": { "user_id": { "$ne": null } } }` is a NoSQL injection (CodeQL alert 185 pattern; alert 184 is the same handler).
+- Money: `provider.controllers.ts:425` payout `{ amount, iban }`, `payments.module.ts:561` `{ amount, reason }`, `moyasar.module.ts:386` payment creation `{ booking_id, amount, … }`.
+- Auth/identity: `passkey.controller.ts:26/46`, `hospital-staff.module.ts:123` `{ password }`, `auth.controller.ts:231`.
+- Push, media, search-intent, location, seo, tour, b2b, facility-ops, medicines overrides, slot-locks, feature-flags, provider upload/transfer.
+
+Fix: a validated class DTO for each, following the AGENTS.md DTO rules. For `@Body('key')`, replace it with a DTO for the whole body. Only the three signature-verified webhooks stay `Record<string, unknown>` (allow-list in `dtolint.py`).
+
+### R3-2: CodeQL must be green on the Phase 3 PR
+After R3-1, re-check PR #199's CodeQL run. Every remaining alert in code this phase touched must be fixed. Flagging a false positive is not enough: use `{ $eq: value }` for user values in Mongo filters. The review session cannot read the code-scanning alert list (403), so the implementer must paste the remaining alert ids and resolutions in AGENT_PROGRESS.md.
+
+Reviewer note: the round-3 run proved the gates green, but the gate itself was incomplete. That is corrected now, and the round-3 fixes (labs `reason`, appointment finish, CRM, rejectDelta) stay.
