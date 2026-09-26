@@ -943,10 +943,10 @@ export class SeoSearchController {
   @Get('llms.txt')
   async llmsTxt(@Res() res: Response) {
     const n = await this.svc.catalogCount().catch(() => 0);
-    const countTxt = n > 0 ? `${n.toLocaleString('en-US')} منتجاً` : 'آلاف المنتجات';
+    const countTxt = n > 0 ? ` (${n.toLocaleString('en-US')} منتجاً)` : '';
     res.setHeader('Content-Type', 'text/plain');
     res.send(`# نبض — منصة رعاية صحية رقمية\n\n` +
-      `> صيدلية إلكترونية (${countTxt}) + استشارات + تحاليل + أشعة + تمريض منزلي في السعودية.\n\n` +
+      `> صيدلية إلكترونية${countTxt} + استشارات + تحاليل + أشعة + تمريض منزلي في السعودية.\n\n` +
       `## الكيانات القابلة للفهرسة\n` +
       `- Medicines: ${SITE}/s/medicine/{slug} — تفاصيل كاملة (اسم/مادة/سعر/صور/بدائل/شارات توفر)\n` +
       `- Doctors/Providers: ${SITE}/s/doctor/{slug} — تخصص/مدينة/تقييم\n` +
