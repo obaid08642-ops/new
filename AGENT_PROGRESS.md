@@ -135,3 +135,6 @@ Format: task | commit sha | verify result | notes
 
 ## [P5.3d] Nursing single booking API (2026-09-26)
 - Verified single implementation: `POST /nursing/bookings` (NursingController.createBooking) and `POST /home-care/bookings` (PatientHomeCareController.book) both delegate to `HomeCareSvc.book`; no divergent write path. `/home-care/bookings` is the live path (Doctor/Facility/Nursing dashboards) so it stays as a documented alias; no client calls `/nursing/bookings*`. Alias relationship now explicit in code comments + locked by `nursing-booking-alias.spec.ts` (2/2).
+
+## [P5.3e] F49 provider-delta approval verified single (2026-09-26, no code change)
+- ONE approval implementation: `provider-admin.service.ts` approveDelta/rejectDelta (`POST provider/provider-deltas/:id/approve|reject`). Admin duplicate commit path already removed (note in admin-extended-operations.controller.ts). Writers of `provider_deltas`: submissions only (`provider-profile.service` x2, `legal-enterprise` insurance-matrix, all `status:'pending'`); reads: `listDeltas` (admin) + moved `ProviderDeltasMineController` (own). No consolidation work remaining.
