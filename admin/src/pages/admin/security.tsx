@@ -21,6 +21,7 @@ export default function AdminSecurity() {
   const [devices, setDevices] = useState<PasskeyDevice[]>([]);
   const [boundDevices, setBoundDevices] = useState<any[]>([]);
   const [deviceLock, setDeviceLock] = useState<boolean | null>(null);
+  const [eligible, setEligible] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [deviceName, setDeviceName] = useState('');
@@ -29,6 +30,11 @@ export default function AdminSecurity() {
   const load = async () => {
     setLoading(true);
     try {
+      // F48: hide the passkey section for accounts that may not enroll
+      // (no 403 flash — the devices call would reject for them).
+      const elig: any = await apiFetch('/auth/passkey/eligibility').catch(() => null);
+      if (elig && elig.eligible === false) { setEligible(false); return; }
+      setEligible(true);
       const list = await apiFetch('/auth/passkey/devices');
       setDevices(Array.isArray(list) ? list : []);
     } catch (e: any) {
@@ -111,6 +117,12 @@ export default function AdminSecurity() {
           في نافذة التسجيل وامسح رمز QR بكاميرا الآيفون ثم أكّد بالـ Face ID.
         </p>
 
+        {eligible === false ? (
+          <div style={{ padding: 16, borderRadius: 12, fontSize: 14, textAlign: 'center', color: '#93A5B3', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)' }}>
+            مفاتيح الدخول (Passkey) غير متاحة لهذا الحساب.
+          </div>
+        ) : (
+        <>
         {message && (
           <div style={{
             marginBottom: 16, padding: 12, borderRadius: 12, fontSize: 14, textAlign: 'center',
@@ -224,6 +236,8 @@ export default function AdminSecurity() {
             </div>
           )}
         </div>
+        </>
+        )}
       </div>
     </>
   );

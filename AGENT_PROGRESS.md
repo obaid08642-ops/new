@@ -145,3 +145,8 @@ Format: task | commit sha | verify result | notes
 - P5.3: 7 merges intact; compat retired (26 moved + 1 dead dropped); legacy deleted; F38 dead controllers deleted; nursing single-impl + alias; F49 single approval impl; P5.4 aliases log deprecation.
 - Contracts: dtolint 0/0/0, dtocheck 627/308/0 mismatches, tsc 0, nest build 0.
 - e2e: env-gated (no mongod; memory-server SIGABRT; throttler 429 on race suite) — staging/CI must run journeys + fabsweep on a seeded DB before merge.
+
+## [P6] F46/F47/F48 (2026-09-26)
+- F46: `admin/nursing/requests` + `assign` 503 stubs replaced with real ops on canonical `homecarebookings` (list w/ state filter, assign/reassign → PROVIDER_ASSIGNED, cancel → CANCELLED, closed-booking guard, state_history push, $eq filters); removed now-unused ServiceUnavailableException import. tsc 0.
+- F47 verified (no change): command-center = one fetch + SSE stream; provider-moderation = event-driven fetches; zero setInterval/setTimeout/polling in both.
+- F48: new `GET /auth/passkey/eligibility` (non-throwing probe of the designated-admin enrollment gate) + admin security.tsx hides the passkey section for ineligible accounts (neutral note, no 403 flash). backend tsc 0; admin deps not installed here so no admin typecheck — JSX brace/paren balance verified by script.
