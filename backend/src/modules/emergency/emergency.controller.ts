@@ -3,7 +3,7 @@ import { EmergencyService } from './emergency.service';
 import { CurrentUser, JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { ServiceUnavailableException } from '@nestjs/common';
-import { TriggerDto, TrackDto, ResolveDto, ClaimDto, AssignDto} from './emergency.dto';
+import { TriggerDto, TrackDto, ResolveDto, ClaimDto, AssignDto, Escalate997Dto} from './emergency.dto';
 
 @Controller('emergency')
 @UseGuards(JwtAuthGuard)
@@ -72,6 +72,14 @@ export class EmergencyController {
   @Roles(UserRole.ADMIN)
   assign(@Param('id') id: string, @Body() body: AssignDto, @CurrentUser() user: any) {
     return this.svc.assign(id, body.hospital_id, user);
+  }
+
+  /** P6.x-5: escalate an open SOS to 997. */
+  @Roles(UserRole.ADMIN)
+  @Post(':id/escalate-997')
+  @Roles(UserRole.ADMIN)
+  escalate997(@Param('id') id: string, @Body() body: Escalate997Dto, @CurrentUser() user: any) {
+    return this.svc.escalate997(id, user, body?.notes);
   }
 
   /** Admin/dispatcher: (re)run the internal smart-dispatch engine for an open SOS */

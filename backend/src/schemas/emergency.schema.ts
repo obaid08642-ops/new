@@ -29,6 +29,10 @@ export class EmergencyRequest {
   @Prop() admin_notes?: string;
   @Prop() resolved_at?: Date;
   @Prop() resolved_by?: string;
+  /** P6.x-5: 997 (Saudi Red Crescent) escalation marker. */
+  @Prop({ default: false }) escalated_997?: boolean;
+  @Prop() escalated_997_at?: Date;
+  @Prop() escalated_997_by?: string;
   @Prop({ type: [{ from: String, to: String, by: String, at: Date }], _id: false, default: [] })
   state_history: { from: string; to: string; by: string; at: Date }[];
 }

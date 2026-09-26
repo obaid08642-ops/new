@@ -167,3 +167,6 @@ Format: task | commit sha | verify result | notes
 
 ## [P6.x-6] Content review queue (2026-09-26)
 - Backend already had audited publish/schedule/unpublish with reason validation (`admin-cms.controller.ts`). Added the missing UI: per-article اعتماد (publish) / سحب (unpublish) with mandatory reason prompt on the content-growth articles tab — drafts now form a real review queue before public appearance.
+
+## [P6.x-5] SOS 997 escalation (2026-09-26)
+- Backend `POST /emergency/:id/escalate-997` (admin-only, validated notes DTO): open cases only, idempotent, sets `escalated_997/at/by` (new schema props) + emits event; `$eq` filter. sos-monitor page gained the red 997 button + escalated badge. Tests 2/2. tsc 0.

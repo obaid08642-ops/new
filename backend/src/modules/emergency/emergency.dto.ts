@@ -64,3 +64,9 @@ export class AssignDto {
   @IsString()
   hospital_id: string;
 }
+
+export class Escalate997Dto {
+  @IsOptional()
+  @IsString()
+  notes?: string;
+}

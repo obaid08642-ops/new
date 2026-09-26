@@ -182,6 +182,22 @@ export class EmergencyService {
     return e.toObject();
   }
 
+  /** P6.x-5: escalate an open SOS to 997 (Saudi Red Crescent). Audited, idempotent. */
+  async escalate997(id: string, by: any, notes?: string) {
+    const e: any = await this.model.findOne({ id: { $eq: id } });
+    if (!e) throw new NotFoundException();
+    if ([EmergencyState.RESOLVED, EmergencyState.CLOSED, EmergencyState.CANCELLED].includes(e.state)) {
+      throw new BadRequestException('sos_closed');
+    }
+    if (e.escalated_997) return { id, escalated_997: true, at: e.escalated_997_at };
+    await this.model.updateOne(
+      { id: { $eq: id } },
+      { $set: { escalated_997: true, escalated_997_at: new Date(), escalated_997_by: by?.id, admin_notes: notes || e.admin_notes } },
+    );
+    this.events.emit(EVENTS.EMERGENCY_ASSIGNED, { emergency_id: id, escalated_997: true, by: by?.id });
+    return { id, escalated_997: true, at: new Date() };
+  }
+
   async active() {
     return this.model.find(
       { state: { $nin: [EmergencyState.RESOLVED, EmergencyState.CLOSED, EmergencyState.CANCELLED] } },

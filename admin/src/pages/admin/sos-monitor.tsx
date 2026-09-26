@@ -75,6 +75,16 @@ export default function SosMonitorPage() {
     } catch (e: any) { alert(e?.message || 'فشل الإنهاء'); }
   };
 
+  // P6.x-5: escalate an open SOS to 997 (Saudi Red Crescent).
+  const escalate997 = async (id: string) => {
+    const notes = window.prompt('ملاحظات التصعيد لـ 997 (اختياري):') || '';
+    if (!window.confirm('تصعيد هذه الحالة إلى الهلال الأحمر 997؟')) return;
+    try {
+      await apiFetch(`/emergency/${id}/escalate-997`, { method: 'POST', body: JSON.stringify({ notes }) });
+      load(false);
+    } catch (e: any) { alert(e?.message || 'فشل التصعيد'); }
+  };
+
   const activeCount = cases.filter((c) => !['RESOLVED', 'CANCELLED'].includes(c.status || c.state || '')).length;
 
   return (
@@ -158,6 +168,13 @@ export default function SosMonitorPage() {
                             إسناد مستشفى
                           </button>
                         </div>
+                        {c.escalated_997 ? (
+                          <div className="px-3 py-2 bg-red-50 border border-red-200 rounded-lg text-xs font-bold text-red-700">تم التصعيد إلى 997 ✓</div>
+                        ) : (
+                          <button onClick={() => escalate997(c.id)} className="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-bold">
+                            تصعيد إلى 997 (الهلال الأحمر)
+                          </button>
+                        )}
                         {resolvingId === c.id ? (
                           <div className="space-y-2">
                             <textarea
