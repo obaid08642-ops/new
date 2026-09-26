@@ -8,7 +8,7 @@
  * and prints every mismatch. Exit 1 when any is found.
  *
  *   node tools/audit/clientbodies.js > /tmp/clients.json   (import-aware: resolves same-named DTO classes per controller file)
- *   node tools/audit/dtocheck.js /tmp/clients.json   (import-aware: resolves same-named DTO classes per controller file) [module-filter-regex]
+ *   node tools/audit/dtocheck.js /tmp/clients.json   (import-aware: resolves same-named DTO classes per controller file) [module-path-substring]
  */
 const path = require('path');
 const fs = require('fs');
@@ -16,7 +16,9 @@ const ts = require(path.resolve('backend/node_modules/typescript'));
 
 const ROOT = path.resolve('backend/src');
 const clients = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
-const filter = new RegExp(process.argv[3] || '.');
+// Optional module filter: a plain path substring (not a regex).
+const filterText = process.argv[3] || '';
+const filter = { test: (p) => p.includes(filterText) };
 
 function walk(dir, out = []) {
   for (const f of fs.readdirSync(dir)) {
