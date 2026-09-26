@@ -39,3 +39,15 @@ No P5 commits are included.
 - F16 migration matches by slug. If a real facility later registers with one of those 6 slugs before the migration runs, it would be hidden. Run the migration soon, dry-run first.
 - The Gate P4 grep should exclude comments or accept a documented allowlist, so that "0" is achievable literally.
 - Process: P4.21–P4.23 and all of P5 were pushed before this approval (AGENTS.md "one phase at a time").
+
+---
+
+## Addendum (post-merge re-check, 2026-09-26)
+Re-verified the items the first pass had only checked by grep or commit message:
+- **F18:** `aggregateRating` only when `rating_avg` and a real count exist; `medicalSpecialty`/`addressLocality` are `undefined` when unknown. OK.
+- **F20:** patient-app screens return early unless `wearables_enabled`; the patient-web page `notFound()`s and the health hub filters the tile unless `NEXT_PUBLIC_WEARABLES_ENABLED=true`. OK.
+- **Gate P4 fabrication test, run for real:** backend from `main` (10d15e7) on an **empty** MongoDB 7 replica set with Redis, using `fabsweep.py` over 727 GET routes.
+  - patient token: **0** endpoints with non-zero numbers.
+  - admin token: 12 hits, all legitimate: page/limit, `window_days`, a configured threshold, counts of seeded reference data (6 facilities, 2156 locations), real request counters, AI gateway config. No fabricated business metrics.
+- **Found and fixed (follow-up PR):** `llms.txt` printed "صيدلية إلكترونية (آلاف المنتجات)" ("thousands of products") when the catalog was empty, which is an invented claim. It now omits the count when it is 0. Test: `seo-search/llms-count.spec.ts` (fails before). Unit: 2682/2682.
+- **Follow-up for the owner (copy decision, not fixed):** the patient-web category hero says "تسوق آلاف الأدوية…" as static marketing text. It is true for the production catalog (≈21k), but not data-driven.
