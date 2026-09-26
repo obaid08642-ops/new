@@ -76,7 +76,7 @@ export class ArticlesService {
 
   update(id: string, body: any) {
     const { id: _i, slug: _s, ...rest } = body || {};
-    return this.model.findOneAndUpdate({ id }, { $set: rest }, { new: true });
+    return this.model.findOneAndUpdate({ id: { $eq: id } }, { $set: rest }, { new: true });
   }
 
   publish(id: string) {

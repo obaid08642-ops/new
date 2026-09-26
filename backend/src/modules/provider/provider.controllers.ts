@@ -1,5 +1,5 @@
 import { Controller, Post, Get, Patch, Delete, Body, Param, Query, Req, Inject } from '@nestjs/common';
-import { DisableDto, EndConsultationDto, IssueSickLeaveDto, IssueMedicalReportDto, SetAvailDto, PreviewAdHocDto, DispatchDto } from './provider.controllers.dto';
+import { DisableDto, EndConsultationDto, IssueSickLeaveDto, IssueMedicalReportDto, SetAvailDto, PreviewAdHocDto, DispatchDto, WithdrawAliasDto, UploadProfileImageDto, ReplaceImageDto, AssignStaffDto } from './provider.controllers.dto';
 import { RegisterDto, LoginDto, RefreshDto, LogoutDto, SendOtpDto, VerifyEmailDto, ForgotDto, VerifyResetCodeDto, ResetDto, AddPhoneDto, UploadDocDto, UploadDocDto2, UpsertBankDto, SubmitDeltaDto, SubmitDeltaDto2, InviteDto, AcceptDto, UpdateDto2, RejectDeltaDto, RejectDeltaDto2, ApproveDto, RejectDto, NeedsChangesDto, SuspendDto, ReactivateDto, AcceptDto2, RejectDto2, StartDto, CompleteDto, CancelDto, UpsertPharmaDto, UpsertLabDto, UpsertLabDto2, UpsertRadDto, UpsertRadDto2, UpsertDocDto, UpsertDocDto2, UpsertHcDto, UpsertHcDto2, UpsertDto, UpsertDto2 } from './provider.controllers.generated.dto';
 import { LedgerService } from '../finance-engine/finance-engine.module';
 import { ChangePasswordDto, UpdateProfileDto, InsuranceCopayDto, SeedUnassignedDto } from './provider.patch.dto';
@@ -89,7 +89,7 @@ export class ProviderProfileController {
   @Public() @Get('banks') banks() { return this.svc.banks_list(); }
 
   @Post('profile/image/upload')
-  async uploadProfileImage(@CurrentUser() user: any, @Body() body: { data_base64: string; mime: string; original_name: string }) {
+  async uploadProfileImage(@CurrentUser() user: any, @Body() body: UploadProfileImageDto) {
     return this.processor.enqueueJob({
       owner_id: user.id,
       owner_type: user.role === 'nurse' ? 'nurse' : 'doctor',
@@ -151,7 +151,7 @@ export class ProviderAdminController {
   }
 
   @Post(':id/replace-image')
-  async replaceImage(@Param('id') id: string, @Body() body: { data_base64: string; mime: string }) {
+  async replaceImage(@Param('id') id: string, @Body() body: ReplaceImageDto) {
     return this.processor.replaceImage(id, body.data_base64, body.mime);
   }
 
@@ -196,7 +196,7 @@ export class ProviderRequestsController {
   @Post(':id/start') start(@CurrentUser() u: any, @Param('id') id: string, @Body() body: StartDto) { return this.svc.start(u, id, body || {}); }
   @Post(':id/complete') complete(@CurrentUser() u: any, @Param('id') id: string, @Body() body: CompleteDto) { return this.svc.complete(u, id, body || {}); }
   @Post(':id/cancel') cancel(@CurrentUser() u: any, @Param('id') id: string, @Body() body: CancelDto) { return this.svc.cancel(u, id, body || {}); }
-  @Post(':id/assign-staff') assignStaff(@CurrentUser() u: any, @Param('id') id: string, @Body() body: { staff_id: string; notes?: string }) { return this.svc.assignStaff(u, id, body); }
+  @Post(':id/assign-staff') assignStaff(@CurrentUser() u: any, @Param('id') id: string, @Body() body: AssignStaffDto) { return this.svc.assignStaff(u, id, body); }
 
   @Get(':id/orders')
   async getOrders(@CurrentUser() u: any, @Param('id') id: string) {
@@ -422,7 +422,7 @@ export class ProviderWalletController {
    * negative-balance and pending-duplicate guards, Saudi IBAN validation.
    */
   @Post('withdraw')
-  async requestWithdrawal(@CurrentUser() u: any, @Body() body: { amount?: number; iban?: string }) {
+  async requestWithdrawal(@CurrentUser() u: any, @Body() body: WithdrawAliasDto) {
     throw new BadRequestException('withdrawal_alias_retired_use_provider_payouts_request');
   }
 }

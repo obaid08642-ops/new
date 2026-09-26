@@ -175,7 +175,7 @@ describe('ApprovalWorkflowService', () => {
       const res = await service.decide('admin1', 'r1', { decision: 'approved' });
       expect(res.status).toBe(ApprovalStatus.APPROVED);
       expect(medicineModel.updateOne).toHaveBeenCalledWith(
-        { id: 'med1' },
+        { id: { $eq: 'med1' } },
         { $set: expect.objectContaining({
           ...mockReq.change_data,
           public_eligibility: true,

@@ -22,7 +22,7 @@ describe('LiveKit follow-up ownership fixes', () => {
     const service = new LiveKitService({ findOne } as any, conn, events as any);
 
     await expect(service.markNoShow('doctor-user-1', 'appt-uuid-1')).resolves.toEqual({ success: true, message: 'Marked as no-show', previous_status: 'CHECKED_IN' });
-    expect(findOne).toHaveBeenCalledWith({ id: 'appt-uuid-1', doctor_user_id: 'doctor-user-1' });
+    expect(findOne).toHaveBeenCalledWith({ id: { $eq: 'appt-uuid-1' }, doctor_user_id: { $eq: 'doctor-user-1' } });
     expect(save).toHaveBeenCalled();
   });
 

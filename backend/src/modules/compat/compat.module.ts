@@ -869,7 +869,10 @@ class B2BVoiceController {
   async voiceToOrder(@CurrentUser() user: any, @Body() body: VoiceToOrderDto) {
     const text = String(body?.text || '').trim();
     if (!text) throw new BadRequestException('نص الطلب الصوتي مطلوب');
-    const segments = text.split(/[,،;\n]|\s+و\s+/).map((s) => s.trim()).filter(Boolean);
+    if (text.length > 2000) throw new BadRequestException('voice_order_text_too_long');
+    // Split on fixed punctuation first, then on the literal Arabic conjunction;
+    // avoid a regex over caller-controlled text.
+    const segments = text.split(/[,،;\n]/).flatMap((part) => part.split(' و ')).map((s) => s.trim()).filter(Boolean);
     const items: any[] = [];
     const unmatched: string[] = [];
     for (const seg of segments.slice(0, 30)) {

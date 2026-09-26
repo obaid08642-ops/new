@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JwtAuthGuard, Roles } from '../../common/auth.guard';
 import { B2BRequestDocument } from '../../schemas/b2b-request.schema';
+import { B2bDecisionDto } from './admin-governance.dto';
 import { UserRole } from '../../common/enums';
 
 
@@ -24,8 +25,8 @@ export class B2BController {
   }
 
   @Post('requests/:id/approve')
-  async approve(@Param('id') id: string, @Body() body?: { note?: string }) {
-    const req = await this.b2bModel.findOne({ id });
+  async approve(@Param('id') id: string, @Body() body?: B2bDecisionDto) {
+    const req = await this.b2bModel.findOne({ id: { $eq: id } });
     if (!req) throw new NotFoundException('Request not found');
     req.status = 'approved';
     if (body?.note) req.notes = (req.notes ? req.notes + ' | ' : '') + 'ملاحظة أدمن: ' + body.note;
@@ -34,8 +35,8 @@ export class B2BController {
   }
 
   @Post('requests/:id/reject')
-  async reject(@Param('id') id: string, @Body() body?: { note?: string }) {
-    const req = await this.b2bModel.findOne({ id });
+  async reject(@Param('id') id: string, @Body() body?: B2bDecisionDto) {
+    const req = await this.b2bModel.findOne({ id: { $eq: id } });
     if (!req) throw new NotFoundException('Request not found');
     req.status = 'rejected';
     if (body?.note) req.notes = (req.notes ? req.notes + ' | ' : '') + 'سبب الرفض: ' + body.note;

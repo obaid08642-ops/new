@@ -1,6 +1,7 @@
 import { Injectable, BadRequestException, ConflictException, ForbiddenException, NotFoundException, UnauthorizedException, Logger, Inject, Optional } from '@nestjs/common';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcryptjs';
+import { isEmail } from 'class-validator';
 import { JwtService } from '@nestjs/jwt';
 import { ProviderAccount, ProviderProfile, ProviderAuditLog } from '../schemas';
 import { ProviderAccountStatus, ProviderType, REQUIRED_DOCS_BY_PROVIDER_TYPE, PROVIDER_STATUS_TRANSITIONS } from '../provider.enums';
@@ -35,7 +36,7 @@ export class ProviderAuthService {
     return { id: a.id, email: a.email, provider_type: a.provider_type, status: a.status, email_verified: a.email_verified, onboarding_progress: a.onboarding_progress };
   }
   private validateEmail(email: string) {
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new BadRequestException('invalid email');
+    if (typeof email !== 'string' || email.length > 254 || !isEmail(email)) throw new BadRequestException('invalid email');
   }
   private validatePassword(p: string) {
     if (!p || p.length < 8) throw new BadRequestException('password must be at least 8 characters');

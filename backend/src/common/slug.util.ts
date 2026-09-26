@@ -20,15 +20,17 @@ const AR_MAP: Record<string, string> = {
 
 export function slugify(input: string, maxLen = 60): string {
   if (!input) return 'item';
-  // Transliterate Arabic
+  const source = String(input).slice(0, 2048).toLowerCase();
+  const safeMaxLen = Number.isFinite(maxLen) ? Math.min(200, Math.max(1, Math.trunc(maxLen))) : 60;
+  // Transliterate Arabic and collapse repeated separators in the same pass.
   let out = '';
-  for (const ch of input.toLowerCase()) {
-    if (AR_MAP[ch] !== undefined) out += AR_MAP[ch];
-    else if (/[a-z0-9]/.test(ch)) out += ch;
-    else out += '-';
+  for (const ch of source) {
+    const mapped = AR_MAP[ch] !== undefined ? AR_MAP[ch] : /[a-z0-9]/.test(ch) ? ch : '-';
+    if (mapped === '-' && (!out || out.endsWith('-'))) continue;
+    out += mapped;
+    if (out.length >= safeMaxLen) break;
   }
-  // Collapse multiple dashes, trim, limit length
-  out = out.replace(/-+/g, '-').replace(/^-+|-+$/g, '').slice(0, maxLen);
+  while (out.endsWith('-')) out = out.slice(0, -1);
   return out || 'item';
 }
 

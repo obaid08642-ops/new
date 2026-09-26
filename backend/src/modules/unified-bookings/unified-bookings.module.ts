@@ -173,7 +173,7 @@ export class UnifiedBookingsService {
     const requested = new Date(slotId);
     if (Number.isNaN(requested.getTime())) throw new BadRequestException('invalid_slot_id');
 
-    const doctor: any = await this.providers.findOne({ id: doctorId });
+    const doctor: any = await this.providers.findOne({ id: { $eq: doctorId } });
     if (!doctor) throw new NotFoundException('doctor_not_found');
     const availability = await this.slots.slotsForDate(doctor, requested.toISOString().slice(0, 10), type);
     const slot = (availability?.slots || []).find((candidate: any) => candidate.start === slotId);
@@ -307,7 +307,7 @@ export class UnifiedBookingsService {
       kind: 'nursing', entity_id: booking.id, from_domain: booking.state, to_domain: HomeCareBookingState.PROVIDER_ASSIGNED,
       actor_role: 'system', patient_account_id: user.id, reason: 'radius_match',
       mutate: async () => {
-        const b = await this.home.findOne({ id: booking.id });
+         const b = await this.home.findOne({ id: { $eq: booking.id } });
         if (b) {
           b.state = HomeCareBookingState.PROVIDER_ASSIGNED;
           (b as any).provider_account_id = chosen[0].account_id || chosen[0].provider_account_id;
@@ -330,7 +330,7 @@ export class UnifiedBookingsService {
     if (!cart?.groups?.length) throw new BadRequestException('cart_empty');
 
     if (body.provider_account_id) {
-      const provider = await this.providers.findOne({ account_id: body.provider_account_id });
+      const provider = await this.providers.findOne({ account_id: { $eq: body.provider_account_id } });
       if (provider && provider.verified !== true) {
         throw new BadRequestException('provider_not_verified_by_admin');
       }

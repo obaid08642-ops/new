@@ -1380,8 +1380,10 @@ export class MedicinesService {
   }
 
   parseCsv(csv: string): any[] {
+    if (typeof csv !== 'string' || csv.length > 5_000_000) throw new BadRequestException('csv_too_large');
     const lines = csv.split(/\r?\n/).filter((l) => l.trim());
     if (lines.length < 2) return [];
+    if (lines.length > 10_001) throw new BadRequestException('csv_too_many_rows');
     const headers = this.splitCsvLine(lines[0]).map((h) => h.trim().toLowerCase());
     return lines.slice(1).map((line) => {
       const cells = this.splitCsvLine(line);
@@ -1391,6 +1393,7 @@ export class MedicinesService {
     });
   }
   private splitCsvLine(line: string): string[] {
+    if (typeof line !== 'string' || line.length > 20_000) throw new BadRequestException('csv_line_too_long');
     const out: string[] = [];
     let cur = '', inQ = false;
     for (let i = 0; i < line.length; i++) {

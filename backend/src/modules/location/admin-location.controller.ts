@@ -49,10 +49,10 @@ export class AdminLocationController {
 
   @Delete(':code')
   async remove(@Param('code') code: string) {
-    const children = await this.locations.countDocuments({ parent_code: code, is_active: { $ne: false } });
+    const children = await this.locations.countDocuments({ parent_code: { $eq: code }, is_active: { $ne: false } });
     if (children > 0) throw new BadRequestException('has_active_children');
     // Soft-delete: keeps history + seeds idempotent; public queries filter is_active.
-    const updated = await this.locations.findOneAndUpdate({ code }, { $set: { is_active: false } }, { new: true }).lean();
+    const updated = await this.locations.findOneAndUpdate({ code: { $eq: code } }, { $set: { is_active: false } }, { new: true }).lean();
     if (!updated) throw new NotFoundException('location_not_found');
     return { ok: true };
   }

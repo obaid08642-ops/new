@@ -1,10 +1,31 @@
 import 'reflect-metadata';
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import { getMetadataStorage } from 'class-validator';
-/* eslint-disable @typescript-eslint/no-var-requires, @typescript-eslint/no-explicit-any */
-const { defaultMetadataStorage } = require('class-transformer/cjs/storage') as any;
 import * as fs from 'fs';
 import * as path from 'path';
+
+interface DtoConstructor extends Function {
+  prototype: object;
+}
+
+interface ValidationMeta {
+  propertyName: string;
+  type: string;
+  name?: string;
+  constraints?: unknown[];
+}
+
+interface TypeMeta {
+  typeFunction?: () => unknown;
+}
+
+interface TransformerMetadataStorage {
+  findTypeMetadata(target: Function, propertyName: string): TypeMeta | undefined;
+}
+
+const { defaultMetadataStorage } = require('class-transformer/cjs/storage') as {
+  defaultMetadataStorage: TransformerMetadataStorage;
+};
 
 /**
  * P3 round-3 gate: production ValidationPipe table test over EVERY DTO class
@@ -30,18 +51,18 @@ function dtoFiles(dir: string, out: string[] = []): string[] {
 }
 
 interface DtoClass {
-  ctor: any;
+  ctor: DtoConstructor;
   file: string;
 }
 
 function loadDtoClasses(): DtoClass[] {
   const found = new Map<string, DtoClass>();
   for (const file of dtoFiles(path.join(__dirname, '..', 'modules'))) {
-    const mod = require(file);
+    const mod = require(file) as Record<string, unknown>;
     for (const key of Object.keys(mod)) {
       const v = mod[key];
       if (typeof v === 'function' && /Dto$/.test(key)) {
-        found.set(`${file}#${key}`, { ctor: v, file });
+        found.set(`${file}#${key}`, { ctor: v as DtoConstructor, file });
       }
     }
   }
@@ -50,22 +71,16 @@ function loadDtoClasses(): DtoClass[] {
   );
 }
 
-function targetMetas(ctor: any): any[] {
-  return getMetadataStorage().getTargetValidationMetadatas(
-    ctor,
-    undefined,
-    false,
-    false,
-    undefined,
-  );
+function targetMetas(ctor: DtoConstructor): ValidationMeta[] {
+  return getMetadataStorage().getTargetValidationMetadatas(ctor, undefined, false, false, undefined) as unknown as ValidationMeta[];
 }
 
-function allProps(ctor: any): Set<string> {
-  return new Set(targetMetas(ctor).map((m: any) => String(m.propertyName)));
+function allProps(ctor: DtoConstructor): Set<string> {
+  return new Set(targetMetas(ctor).map((m) => String(m.propertyName)));
 }
 
 /** Props with a real (non-conditional, non-nested) constraint. */
-function constrainedProps(ctor: any): Set<string> {
+function constrainedProps(ctor: DtoConstructor): Set<string> {
   const out = new Set<string>();
   for (const m of targetMetas(ctor)) {
     const t = String(m.type);
@@ -76,23 +91,27 @@ function constrainedProps(ctor: any): Set<string> {
   return out;
 }
 
-function isOptionalProp(ctor: any, prop: string): boolean {
+function isOptionalProp(ctor: DtoConstructor, prop: string): boolean {
   return targetMetas(ctor).some(
-    (m: any) =>
+    (m) =>
       String(m.propertyName) === prop && String(m.type) === 'conditionalValidation',
   );
 }
 
 function messagesOf(err: unknown): string[] {
   if (err instanceof BadRequestException) {
-    const res = err.getResponse() as any;
-    const m = Array.isArray(res) ? res : res?.message;
+    const res = err.getResponse();
+    if (Array.isArray(res)) return res.map(String);
+    if (typeof res === 'string') return [res];
+    const m = typeof res === 'object' && res !== null && 'message' in res
+      ? (res as { message?: unknown }).message
+      : res;
     return (Array.isArray(m) ? m : [String(m)]).map(String);
   }
   throw err;
 }
 
-function mentionedProps(ctor: any, messages: string[]): string[] {
+function mentionedProps(ctor: DtoConstructor, messages: string[]): string[] {
   const props = allProps(ctor);
   const hit = new Set<string>();
   for (const prop of props) {
@@ -103,45 +122,46 @@ function mentionedProps(ctor: any, messages: string[]): string[] {
 
 const MONGO_ID = '507f1f77bcf86cd799439011';
 
-function elementCtor(ctor: any, prop: string): any | undefined {
+function elementCtor(ctor: DtoConstructor, prop: string): DtoConstructor | undefined {
   try {
     const found = defaultMetadataStorage.findTypeMetadata(ctor, prop);
-    return found?.typeFunction?.();
+    const ctorFromMetadata = found?.typeFunction?.();
+    return typeof ctorFromMetadata === 'function' ? ctorFromMetadata as DtoConstructor : undefined;
   } catch {
     return undefined;
   }
 }
 
-function designCtor(ctor: any, prop: string): any | undefined {
+function designCtor(ctor: DtoConstructor, prop: string): unknown {
   try {
-    return Reflect.getMetadata('design:type', ctor.prototype, prop);
+    return Reflect.getMetadata('design:type', ctor.prototype, prop) as unknown;
   } catch {
     return undefined;
   }
 }
 
-function kindOf(m: any): string {
+function kindOf(m: ValidationMeta): string {
   // ValidateBy-built decorators (IsIn/IsEnum/Min/...) surface as
   // `customValidation` with the real name on `m.name`.
   return String(m.type) === 'customValidation' ? String(m.name) : String(m.type);
 }
 
-function dummyFor(ctor: any, prop: string, depth: number): any {
+function dummyFor(ctor: DtoConstructor, prop: string, depth: number): unknown {
   if (depth > 3) return 'x';
   const metas = targetMetas(ctor).filter(
-    (m: any) => String(m.propertyName) === prop,
+    (m) => String(m.propertyName) === prop,
   );
   const types = new Set(metas.map(kindOf));
-  const argsOf = (t: string): any[] =>
-    metas.filter((m: any) => kindOf(m) === t).flatMap((m: any) => m.constraints || []);
+  const argsOf = (t: string): unknown[] =>
+    metas.filter((m) => kindOf(m) === t).flatMap((m) => m.constraints || []);
   if (types.has('nestedValidation')) {
     const design = designCtor(ctor, prop);
     if (design === Array) {
       const el = elementCtor(ctor, prop);
       return el ? [buildValid(el, depth + 1)] : [{}];
     }
-    if (design && typeof design === 'function' && design !== Object) {
-      return buildValid(design, depth + 1);
+    if (typeof design === 'function' && design !== Object) {
+      return buildValid(design as DtoConstructor, depth + 1);
     }
     return {};
   }
@@ -174,17 +194,17 @@ function dummyFor(ctor: any, prop: string, depth: number): any {
   return 'x';
 }
 
-const ALT_DUMMIES: any[] = ['x', 10, true, [], {}, MONGO_ID, new Date().toISOString()];
+const ALT_DUMMIES: unknown[] = ['x', 10, true, [], {}, MONGO_ID, new Date().toISOString()];
 
-function buildValid(ctor: any, depth = 0): Record<string, unknown> {
+function buildValid(ctor: DtoConstructor, depth = 0): Record<string, unknown> {
   const out: Record<string, unknown> = {};
   for (const prop of allProps(ctor)) out[prop] = dummyFor(ctor, prop, depth);
   return out;
 }
 
-async function tryTransform(ctor: any, value: unknown): Promise<string[] | null> {
+async function tryTransform(ctor: DtoConstructor, value: unknown): Promise<string[] | null> {
   try {
-    await pipe.transform(value, { type: 'body', metatype: ctor } as any);
+    await pipe.transform(value, { type: 'body', metatype: ctor as never });
     return null;
   } catch (err) {
     return messagesOf(err);
@@ -230,7 +250,7 @@ describe('P3 ValidationPipe DTO table (every DTO class)', () => {
 
       it('accepts a minimal valid payload', async () => {
         let payload: Record<string, unknown> = {};
-        const seen = new Map<string, string[]>();
+        const seen = new Map<string, unknown[]>();
         for (let i = 0; i < 25; i++) {
           const messages = await tryTransform(ctor, payload);
           if (messages === null) return;

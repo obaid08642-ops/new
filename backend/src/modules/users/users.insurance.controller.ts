@@ -66,8 +66,8 @@ export class UsersInsuranceController {
     schema: canonicalInsuranceSchema,
   })
   @ApiCreatedResponse({
-    description: 'Updated canonical insurance object with `verified: false`.',
-    schema: canonicalInsuranceSchema,
+    description: 'Insurance saved with `verified: false`. Read the canonical object with GET /users/me/insurance.',
+    schema: { type: 'object', properties: { success: { type: 'boolean' }, verified: { type: 'boolean' } } },
   })
   @ApiUnauthorizedResponse({ description: 'Missing, malformed, or expired bearer token.' })
   async updateInsurance(@CurrentUser('id') id: string, @Body() body: UpdatePatientInsuranceDto) {
@@ -78,6 +78,7 @@ export class UsersInsuranceController {
       verified: false, // Must be verified by admin
     };
     await this.users.updatePatientProfile(id, { insurance: updatedInsurance });
-    return updatedInsurance;
+    // Do not reflect user-supplied policy/name fields in the write response.
+    return { success: true, verified: false };
   }
 }

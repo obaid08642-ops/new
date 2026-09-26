@@ -196,8 +196,10 @@ export class AiCommerceService {
 
     for (const item of dto.items) {
       if (item.type === 'medicine') {
+        // item.id is DTO-validated as a string; pin each branch with $eq so
+        // query operators can never be injected into the filter.
         const med = await medCol.findOne({
-          $or: [{ id: item.id }, { slug: item.id }, { sku: Number(item.id) || -1 }],
+          $or: [{ id: { $eq: item.id } }, { slug: { $eq: item.id } }, { sku: Number(item.id) || -1 }],
         });
         if (!med) throw new NotFoundException(`Medicine '${item.id}' not found`);
 
@@ -222,7 +224,7 @@ export class AiCommerceService {
         });
       } else if (item.type === 'consultation') {
         const doc = await docCol.findOne({
-          $or: [{ id: item.id }, { slug: item.id }],
+          $or: [{ id: { $eq: item.id } }, { slug: { $eq: item.id } }],
         });
         if (!doc) throw new NotFoundException(`Doctor '${item.id}' not found`);
 

@@ -529,7 +529,7 @@ export class ProviderOpsService {
         const { Types } = require('mongoose');
         if (Types.ObjectId.isValid(ratingId)) {
           r = await this.conn.collection('ratings').updateOne(
-            { _id: new Types.ObjectId(ratingId), ...own } as any,
+            { _id: { $eq: new Types.ObjectId(ratingId) }, ...own } as any,
             { $set: { reply: reply.trim(), reply_at: new Date() } },
           );
         }

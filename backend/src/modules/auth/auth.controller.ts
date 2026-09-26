@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Header, Headers, Optional, Param, Post, UseGuards, Req, Res, BadRequestException } from '@nestjs/common';
-import { AuthLoginDto, AuthVerify2faDto, RefreshDto, RecordConsentDto, SendOtpDto, VerifyOtpDto, ResetPasswordDto, SocialLoginDto} from './auth.dto';
+import { AuthLoginDto, AuthVerify2faDto, RefreshDto, RecordConsentDto, SendOtpDto, VerifyOtpDto, ResetPasswordDto, SocialLoginDto, HeartbeatDto} from './auth.dto';
 import { PresenceService } from '../presence/presence.service';
 import { Throttle } from '@nestjs/throttler';
 import { Request, Response } from 'express';
@@ -228,7 +228,7 @@ export class AuthController {
 
   /** Dashboard heartbeat — keeps this device marked as online. */
   @Post('heartbeat')
-  heartbeat(@CurrentUser() user: any, @Req() req: Request, @Body() body?: { client?: string }) {
+  heartbeat(@CurrentUser() user: any, @Req() req: Request, @Body() body?: HeartbeatDto) {
     const out = this.auth.deviceHeartbeat(
       user.id,
       (req as any).cookies?.[DEVICE_COOKIE],

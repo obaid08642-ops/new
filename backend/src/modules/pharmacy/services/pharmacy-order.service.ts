@@ -28,7 +28,7 @@ export class PharmacyOrderService {
 
   async create(user: any, body: any) {
     assertPatient(user);
-    const sanitize = (str: any) => String(str || '').replace(/<[^>]*>?/gm, '').trim();
+    const sanitize = (str: any) => String(str || '').replace(/[<>]/g, '').trim();
     const items = (body.items || []).map((it: any) => ({
       id: uuidv4(),
       raw_name: sanitize(it.raw_name || it.name || it.name_ar || 'unknown'),
@@ -218,7 +218,7 @@ export class PharmacyOrderService {
     if (order.patient_account_id !== user.id) throw new ForbiddenException('not_yours');
     if (order.status !== PharmacyOrderState.DRAFT) throw new BadRequestException(`not_editable_in_${order.status}`);
     if (body.items) {
-      const sanitize = (str: any) => String(str || '').replace(/<[^>]*>?/gm, '').trim();
+      const sanitize = (str: any) => String(str || '').replace(/[<>]/g, '').trim();
       order.items = body.items.map((it: any) => ({
         id: it.id || uuidv4(),
         raw_name: sanitize(it.raw_name || it.name || it.name_ar || 'unknown'),
@@ -298,5 +298,4 @@ export class PharmacyOrderService {
     });
   }
 }
-
 

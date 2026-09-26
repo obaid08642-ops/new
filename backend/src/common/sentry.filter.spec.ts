@@ -1,6 +1,7 @@
 import { HttpStatus } from '@nestjs/common';
 import { translateMongoError } from './sentry.filter';
 import { idFilter, isObjectIdString } from './id.utils';
+import { Types } from 'mongoose';
 
 describe('P3.2 id-consistency helpers', () => {
   it('CastError -> 404', () => {
@@ -28,8 +29,9 @@ describe('P3.2 id-consistency helpers', () => {
     expect(translateMongoError(null)).toBeNull();
   });
   it('idFilter routes ObjectId vs string id', () => {
-    expect(idFilter('68d7e5dd0563d64f3dfa851c')).toEqual({ _id: '68d7e5dd0563d64f3dfa851c' });
-    expect(idFilter('usr_123')).toEqual({ id: 'usr_123' });
+    expect(idFilter('68d7e5dd0563d64f3dfa851c')).toEqual({ _id: { $eq: new Types.ObjectId('68d7e5dd0563d64f3dfa851c') } });
+    expect(idFilter('usr_123')).toEqual({ id: { $eq: 'usr_123' } });
     expect(isObjectIdString('not-an-id')).toBe(false);
+    expect(isObjectIdString('abcdefghijkl')).toBe(false);
   });
 });

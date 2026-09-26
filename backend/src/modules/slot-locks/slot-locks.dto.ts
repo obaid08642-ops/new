@@ -19,3 +19,9 @@ export class ReserveDto {
 
 
 }
+
+export class ConfirmSlotLockDto {
+  @IsDefined()
+  @IsString()
+  booking_id: string;
+}

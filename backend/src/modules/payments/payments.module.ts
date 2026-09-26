@@ -3,6 +3,7 @@ import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Transaction, TransactionSchema } from '../../schemas/transaction.schema';
+import { RefundPaymentDto } from './payments.dto';
 import { OrderSchema } from '../../schemas/order.schema';
 import { LabBookingSchema } from '../../schemas/lab.schema';
 import { RadiologyBookingSchema } from '../../schemas/radiology.schema';
@@ -394,7 +395,7 @@ export class PaymentsService {
     if (result.status === 'paid') {
       t.paid_at = new Date();
       if (!(t.booking_kind === 'pharmacy' && await this.finalizeGovernedPharmacyPaid(t))) {
-        await this.modelFor(t.booking_kind).updateOne({ id: t.booking_id }, { $set: { payment_status: 'paid', transaction_id: t.id, paid_at: t.paid_at } });
+      await this.modelFor(t.booking_kind).updateOne({ id: { $eq: t.booking_id } }, { $set: { payment_status: 'paid', transaction_id: t.id, paid_at: t.paid_at } });
       }
       // For online/home services we emit an event so the workflow engine (provider-jobs / booking-flow)
       // can transition CONFIRMED when payment is required pre-confirmation.
@@ -525,7 +526,7 @@ export class PaymentsService {
     // Look up by gateway_intent_id or gateway_charge_id present in payload
     const intentId = payload.data?.object?.id || payload.id || payload.payment_intent;
     if (!intentId) return { ok: false, reason: 'no_intent_id' };
-    const t = await this.txns.findOne({ gateway_intent_id: intentId });
+    const t = await this.txns.findOne({ gateway_intent_id: { $eq: intentId } });
     if (!t) return { ok: false, reason: 'no_match' };
     await this.verifyPayment({ id: t.patient_id, role: 'system' }, t.id);
     return { ok: true };
@@ -558,7 +559,7 @@ export class PaymentsController {
   @UseInterceptors(IdempotencyInterceptor)
   retry(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Headers('idempotency-key') key: string) { return this.svc.retryPayment(u, t, id, key); }
   @Roles(UserRole.ADMIN)
-  @Post('refund/:txn') refund(@CurrentUser() u: any, @Param('txn') txn: string, @Body() b: { amount?: number; reason?: string }) { return this.svc.refundPayment(u, txn, b.amount, b.reason); }
+  @Post('refund/:txn') refund(@CurrentUser() u: any, @Param('txn') txn: string, @Body() b: RefundPaymentDto) { return this.svc.refundPayment(u, txn, b.amount, b.reason); }
   @Roles(UserRole.ADMIN)
   @Post('capture/:txn') capture(@CurrentUser() u: any, @Param('txn') txn: string) { return this.svc.capturePayment(u, txn); }
   @Get('pharmacy/:orderId/capabilities') pharmacyCapabilities(@CurrentUser() u: any, @Param('orderId') orderId: string) { return this.svc.getPharmacyCapabilities(u, orderId); }

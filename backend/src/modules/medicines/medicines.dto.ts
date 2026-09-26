@@ -294,3 +294,14 @@ export class ManualEntryDto {
   @IsString()
   storage_conditions?: string;
 }
+
+export class ApproveChangeDto {
+  @IsOptional()
+  @IsObject()
+  overrides?: Record<string, unknown>;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  approved_fields?: string[];
+}

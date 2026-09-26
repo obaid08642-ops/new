@@ -19,14 +19,14 @@ export class AmbulanceFleetService {
   ) {}
 
   list(accountId: string) {
-    return this.model.find({ provider_account_id: accountId }, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).lean();
+    return this.model.find({ provider_account_id: { $eq: accountId } }, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).lean();
   }
 
   async create(accountId: string, body: any) {
     if (!body?.plate_number || typeof body.plate_number !== 'string' || body.plate_number.trim().length < 3) {
       throw new BadRequestException('plate_number_required');
     }
-    const dup = await this.model.findOne({ plate_number: body.plate_number.trim(), status: { $ne: 'rejected' } });
+    const dup = await this.model.findOne({ plate_number: { $eq: body.plate_number.trim() }, status: { $ne: 'rejected' } });
     if (dup) throw new BadRequestException('plate_number_already_registered');
     const doc = await this.model.create({
       provider_account_id: accountId,
@@ -40,11 +40,11 @@ export class AmbulanceFleetService {
       documents: Array.isArray(body.documents) ? body.documents : [],
       status: 'pending',
     });
-    return this.model.findOne({ id: doc.id }, { _id: 0, __v: 0 }).lean();
+    return this.model.findOne({ id: { $eq: doc.id } }, { _id: 0, __v: 0 }).lean();
   }
 
   async update(accountId: string, id: string, body: any) {
-    const v = await this.model.findOne({ id, provider_account_id: accountId });
+    const v = await this.model.findOne({ id: { $eq: id }, provider_account_id: { $eq: accountId } });
     if (!v) throw new NotFoundException('vehicle_not_found');
     const allowed = ['model', 'year', 'equipment', 'paramedic_count', 'has_icu', 'vehicle_type', 'base_city', 'documents', 'is_available', 'last_location'];
     for (const k of allowed) if (body[k] !== undefined) (v as any)[k] = body[k];
@@ -55,11 +55,11 @@ export class AmbulanceFleetService {
     // Any change to a reviewed vehicle goes back to admin review
     if (v.status === 'approved') v.status = 'pending';
     await v.save();
-    return this.model.findOne({ id }, { _id: 0, __v: 0 }).lean();
+    return this.model.findOne({ id: { $eq: id } }, { _id: 0, __v: 0 }).lean();
   }
 
   async remove(accountId: string, id: string) {
-    const res = await this.model.deleteOne({ id, provider_account_id: accountId });
+    const res = await this.model.deleteOne({ id: { $eq: id }, provider_account_id: { $eq: accountId } });
     if (!res.deletedCount) throw new NotFoundException('vehicle_not_found');
     return { ok: true };
   }
@@ -70,7 +70,7 @@ export class AmbulanceFleetService {
   }
 
   async review(id: string, adminId: string, approve: boolean, notes?: string) {
-    const v = await this.model.findOne({ id });
+    const v = await this.model.findOne({ id: { $eq: id } });
     if (!v) throw new NotFoundException('vehicle_not_found');
     if (v.status !== 'pending') throw new BadRequestException(`already_reviewed_${v.status}`);
     v.status = approve ? 'approved' : 'rejected';
@@ -78,7 +78,7 @@ export class AmbulanceFleetService {
     v.reviewed_at = new Date();
     v.admin_notes = notes;
     await v.save();
-    return this.model.findOne({ id }, { _id: 0, __v: 0 }).lean();
+    return this.model.findOne({ id: { $eq: id } }, { _id: 0, __v: 0 }).lean();
   }
 }
 

@@ -86,12 +86,12 @@ export class ServiceCatalogService {
   // ===== Provider catalog =====
   async myCatalog(user: any, entity_type: 'lab' | 'radiology') {
     this.assertProvider(user);
-    const ownerships = await this.own.find({ account_id: user.id, entity_type }, { _id: 0, __v: 0 }).lean();
+    const ownerships = await this.own.find({ account_id: { $eq: user.id }, entity_type: { $eq: entity_type } }, { _id: 0, __v: 0 }).lean();
     const ids = ownerships.map(o => o.entity_id);
     const Model: any = entity_type === 'lab' ? this.labs : this.rads;
     const services = ids.length ? await Model.find({ id: { $in: ids } }, { _id: 0, __v: 0 }).lean() : [];
     // P5.1: merge this provider's price/availability overlay (no catalog copies).
-    const overlays = await this.offers.find({ provider_id: user.id, catalog_type: entity_type }).lean();
+    const overlays = await this.offers.find({ provider_id: { $eq: user.id }, catalog_type: { $eq: entity_type } }).lean();
     const byId = new Map(overlays.map(o => [o.catalog_id, o]));
     return services.map((s: any) => {
       const o: any = byId.get(s.id);
@@ -110,7 +110,7 @@ export class ServiceCatalogService {
     if (!['lab', 'radiology', 'nursing'].includes(catalog_type)) throw new BadRequestException('bad_catalog_type');
     if (patch.price !== undefined && !(Number(patch.price) >= 0)) throw new BadRequestException('bad_price');
     const r = await this.offers.findOneAndUpdate(
-      { provider_id: user.id, catalog_type, catalog_id },
+      { provider_id: { $eq: user.id }, catalog_type: { $eq: catalog_type }, catalog_id: { $eq: catalog_id } },
       { $set: { ...(patch.price !== undefined ? { price: Number(patch.price) } : {}), ...(patch.available !== undefined ? { available: !!patch.available } : {}) } },
       { new: true, upsert: true },
     ).lean();
@@ -135,10 +135,10 @@ export class ServiceCatalogService {
 
   async updateService(user: any, entity_type: 'lab' | 'radiology', id: string, patch: any) {
     this.assertProvider(user);
-    const own = await this.own.findOne({ entity_id: id, entity_type });
+    const own = await this.own.findOne({ entity_id: { $eq: id }, entity_type: { $eq: entity_type } });
     if (user.role !== 'admin' && (!own || own.account_id !== user.id)) throw new ForbiddenException();
     const Model: any = entity_type === 'lab' ? this.labs : this.rads;
-    const r = await Model.findOneAndUpdate({ id }, { $set: patch }, { new: true });
+    const r = await Model.findOneAndUpdate({ id: { $eq: id } }, { $set: patch }, { new: true });
     if (!r) throw new NotFoundException();
     this.bus.emit({ type: 'catalog.service_updated', entity_type: 'service', entity_id: id, actor_account_id: user.id, actor_role: user.role, meta: { kind: entity_type, fields: Object.keys(patch) } }).catch(() => null);
     return r.toObject();
@@ -150,10 +150,10 @@ export class ServiceCatalogService {
 
   async deleteService(user: any, entity_type: 'lab' | 'radiology', id: string) {
     this.assertProvider(user);
-    const own = await this.own.findOne({ entity_id: id, entity_type });
+    const own = await this.own.findOne({ entity_id: { $eq: id }, entity_type: { $eq: entity_type } });
     if (user.role !== 'admin' && (!own || own.account_id !== user.id)) throw new ForbiddenException();
     const Model: any = entity_type === 'lab' ? this.labs : this.rads;
-    await Model.deleteOne({ id });
+    await Model.deleteOne({ id: { $eq: id } });
     await this.own.deleteMany({ entity_id: id, entity_type });
     this.bus.emit({ type: 'catalog.service_deleted', entity_type: 'service', entity_id: id, actor_account_id: user.id, actor_role: user.role, meta: { kind: entity_type } }).catch(() => null);
     return { ok: true };
@@ -166,14 +166,14 @@ export class ServiceCatalogService {
     if (q.search) filter.$or = [{ name_ar: { $regex: q.search, $options: 'i' } }, { name_en: { $regex: q.search, $options: 'i' } }];
     const services = await Model.find(filter, { _id: 0, __v: 0 }).limit(500).lean();
     const ownMap: Record<string, any> = {};
-    for (const o of await this.own.find({ entity_type, entity_id: { $in: services.map((s: any) => s.id) } }).lean()) ownMap[o.entity_id] = o;
+    for (const o of await this.own.find({ entity_type: { $eq: entity_type }, entity_id: { $in: services.map((s: any) => s.id) } }).lean()) ownMap[o.entity_id] = o;
     return services.map((s: any) => ({ ...s, ownership: ownMap[s.id] || null }));
   }
 
   async adminApproveService(entity_type: 'lab' | 'radiology', entity_id: string, approve: boolean, user: any) {
-    const o = await this.own.findOneAndUpdate({ entity_type, entity_id }, { $set: { approved: approve } }, { new: true });
+    const o = await this.own.findOneAndUpdate({ entity_type: { $eq: entity_type }, entity_id: { $eq: entity_id } }, { $set: { approved: approve } }, { new: true });
     const Model: any = entity_type === 'lab' ? this.labs : this.rads;
-    await Model.updateOne({ id: entity_id }, { $set: { active: approve } });
+    await Model.updateOne({ id: { $eq: entity_id } }, { $set: { active: approve } });
     this.bus.emit({ type: approve ? 'catalog.service_approved' : 'catalog.service_disabled', entity_type: 'service', entity_id, actor_account_id: user.id, actor_role: 'admin', meta: { kind: entity_type } }).catch(() => null);
     return { ok: true, ownership: o };
   }
@@ -181,7 +181,7 @@ export class ServiceCatalogService {
   // ===== PROVIDER SCHEDULE =====
   async getSchedule(user: any, entity_type: string) {
     this.assertProvider(user);
-    let s: any = await this.sched.findOne({ account_id: user.id, entity_type }).lean();
+    let s: any = await this.sched.findOne({ account_id: { $eq: user.id }, entity_type: { $eq: entity_type } }).lean();
     if (!s) {
       const created = await this.sched.create({ account_id: user.id, entity_type, weekly: DEFAULT_WEEKLY });
       s = created.toObject();
@@ -193,14 +193,14 @@ export class ServiceCatalogService {
     this.assertProvider(user);
     const $set: any = {};
     for (const k of ['weekly', 'blocked_dates', 'slot_minutes', 'max_per_slot', 'coverage_radius_km', 'is_online']) if (data[k] !== undefined) $set[k] = data[k];
-    const r = await this.sched.findOneAndUpdate({ account_id: user.id, entity_type }, { $set }, { new: true, upsert: true });
+    const r = await this.sched.findOneAndUpdate({ account_id: { $eq: user.id }, entity_type: { $eq: entity_type } }, { $set }, { new: true, upsert: true });
     this.bus.emit({ type: 'provider.schedule_updated', entity_type: 'provider_schedule', entity_id: r.id, actor_account_id: user.id, actor_role: user.role, meta: { entity_type } }).catch(() => null);
     return r.toObject();
   }
 
   // Compute generic available slots for a given provider/entity_type/date
   async availableSlots(account_id: string, entity_type: string, date: string, bookedCounter?: (slotISO: string) => Promise<number>) {
-    let s: any = await this.sched.findOne({ account_id, entity_type }).lean();
+    let s: any = await this.sched.findOne({ account_id: { $eq: account_id }, entity_type: { $eq: entity_type } }).lean();
     if (!s) s = { weekly: DEFAULT_WEEKLY, blocked_dates: [], slot_minutes: 30, max_per_slot: 1 };
     const day = new Date(date);
     if (s.blocked_dates?.includes(date)) return [];

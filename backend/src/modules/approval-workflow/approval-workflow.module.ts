@@ -43,7 +43,7 @@ export class ApprovalWorkflowService {
     let nextVersion = 1;
     if (dto.entity_id) {
       const lastRequest = await this.reqModel
-        .findOne({ entity_type: dto.entity_type, entity_id: dto.entity_id })
+        .findOne({ entity_type: { $eq: dto.entity_type }, entity_id: { $eq: dto.entity_id } })
         .sort({ version: -1 })
         .lean();
       if (lastRequest) nextVersion = (lastRequest as any).version + 1;
@@ -68,7 +68,7 @@ export class ApprovalWorkflowService {
   }
 
   async getRequestDetails(id: string) {
-    const req = await this.reqModel.findOne({ id }).lean();
+    const req = await this.reqModel.findOne({ id: { $eq: id } }).lean();
     if (!req) throw new NotFoundException('Request not found');
     return req;
   }
@@ -82,7 +82,7 @@ export class ApprovalWorkflowService {
       edit_data?: any;
     }
   ) {
-    const req = await this.reqModel.findOne({ id: requestId });
+    const req = await this.reqModel.findOne({ id: { $eq: requestId } });
     if (!req) throw new NotFoundException('Request not found');
     if (req.status !== ApprovalStatus.PENDING_REVIEW) {
       throw new BadRequestException('Request is already decided');
@@ -119,7 +119,7 @@ export class ApprovalWorkflowService {
     if (req.entity_type === 'medicine') {
       publicationType = 'medicine';
       if (req.entity_id) {
-        await this.medicineModel.updateOne({ id: req.entity_id }, { $set: finalData });
+        await this.medicineModel.updateOne({ id: { $eq: req.entity_id } }, { $set: finalData });
       } else {
         const newDoc = await this.medicineModel.create(finalData);
         req.entity_id = newDoc.id;
@@ -127,7 +127,7 @@ export class ApprovalWorkflowService {
     } else if (req.entity_type === 'provider') {
       publicationType = 'provider';
       if (req.entity_id) {
-        await this.providerModel.updateOne({ id: req.entity_id }, { $set: finalData });
+        await this.providerModel.updateOne({ id: { $eq: req.entity_id } }, { $set: finalData });
       } else {
         const newDoc = await this.providerModel.create(finalData);
         req.entity_id = newDoc.id;
@@ -135,7 +135,7 @@ export class ApprovalWorkflowService {
     } else if (req.entity_type === 'facility') {
       publicationType = 'facility';
       if (req.entity_id) {
-        await this.facilityModel.updateOne({ id: req.entity_id }, { $set: finalData });
+        await this.facilityModel.updateOne({ id: { $eq: req.entity_id } }, { $set: finalData });
       } else {
         const newDoc = await this.facilityModel.create(finalData);
         req.entity_id = newDoc.id;
@@ -147,7 +147,7 @@ export class ApprovalWorkflowService {
       publicationType = isLab ? 'lab_service' : isHomeCare ? 'home_care_service' : 'radiology_service';
       const model = isLab ? this.labModel : isHomeCare ? this.homeCareModel : this.radiologyModel;
       if (req.entity_id) {
-        await model.updateOne({ id: req.entity_id }, { $set: finalData });
+        await model.updateOne({ id: { $eq: req.entity_id } }, { $set: finalData });
       } else {
         const newDoc = await model.create(finalData);
         req.entity_id = newDoc.id;

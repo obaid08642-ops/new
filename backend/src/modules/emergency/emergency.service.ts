@@ -144,7 +144,7 @@ export class EmergencyService {
     // S1: internal smart dispatch — best unit by proximity/ETA/type/rating/workload.
     // Fire-and-forget: SOS creation must never fail because dispatch found no unit.
     this.autoDispatch(e.id).catch(() => {});
-    return this.patientView(await this.model.findOne({ id: e.id }));
+    return this.patientView(await this.model.findOne({ id: { $eq: e.id } }));
   }
 
   async transition(id: string, to: EmergencyState, by: any) {
@@ -239,10 +239,10 @@ export class EmergencyService {
    *  Repo updateOne == findOneAndUpdate → returns the doc or null. */
   async claim(id: string, providerId: string, vehicleId?: string) {
     if (!vehicleId) throw new BadRequestException('approved_vehicle_required');
-    const vehicle: any = await this.vehicles.findOne({ id: vehicleId, provider_account_id: providerId, status: 'approved', is_available: true }).lean();
+    const vehicle: any = await this.vehicles.findOne({ id: { $eq: vehicleId }, provider_account_id: { $eq: providerId }, status: 'approved', is_available: true }).lean();
     if (!vehicle) throw new ForbiddenException('vehicle_not_verified_or_not_owned');
     const doc = await this.model.updateOne(
-      { id, assigned_ambulance_id: { $in: [null, undefined] }, state: { $nin: [EmergencyState.RESOLVED, EmergencyState.CLOSED, EmergencyState.CANCELLED] } },
+      { id: { $eq: id }, assigned_ambulance_id: { $in: [null, undefined] }, state: { $nin: [EmergencyState.RESOLVED, EmergencyState.CLOSED, EmergencyState.CANCELLED] } },
       { $set: { assigned_ambulance_id: vehicle.id, assigned_provider_id: providerId, unit_label: vehicle.plate_number || null, claimed_at: new Date(), state: EmergencyState.DISPATCH_INITIATED, updatedAt: new Date() } },
     );
     if (!doc) throw new BadRequestException('already_claimed_or_closed');
@@ -250,7 +250,7 @@ export class EmergencyService {
   }
 
   async getById(id: string) {
-    const e = await this.model.findOne({ id }, { _id: 0, __v: 0 });
+    const e = await this.model.findOne({ id: { $eq: id } }, { _id: 0, __v: 0 });
     if (!e) throw new NotFoundException();
     return e;
   }
@@ -264,7 +264,7 @@ export class EmergencyService {
   /** Patient: live tracking of their own active SOS — real fields only, no fabricated ETA. */
   async tracking(patientId: string) {
     const e = await this.model.findOne(
-      { patient_id: patientId, state: { $nin: [EmergencyState.RESOLVED, EmergencyState.CLOSED, EmergencyState.CANCELLED] } },
+      { patient_id: { $eq: patientId }, state: { $nin: [EmergencyState.RESOLVED, EmergencyState.CLOSED, EmergencyState.CANCELLED] } },
       { _id: 0, __v: 0 },
     );
     if (!e) return { active: false };
@@ -303,10 +303,10 @@ export class EmergencyService {
     const lat = Number(body?.lat), lng = Number(body?.lng);
     if (!isFinite(lat) || !isFinite(lng)) throw new BadRequestException('lat_lng_required');
     if (!body?.vehicle_id) throw new BadRequestException('approved_vehicle_required');
-    const vehicle: any = await this.vehicles.findOne({ id: body.vehicle_id, provider_account_id: providerId, status: 'approved' }).lean();
+    const vehicle: any = await this.vehicles.findOne({ id: { $eq: body.vehicle_id }, provider_account_id: { $eq: providerId }, status: 'approved' }).lean();
     if (!vehicle) throw new ForbiddenException('vehicle_not_verified_or_not_owned');
     const res = await this.model.updateOne(
-      { id, assigned_ambulance_id: vehicle.id, assigned_provider_id: providerId, state: { $nin: [EmergencyState.RESOLVED, EmergencyState.CLOSED, EmergencyState.CANCELLED] } },
+      { id: { $eq: id }, assigned_ambulance_id: { $eq: vehicle.id }, assigned_provider_id: { $eq: providerId }, state: { $nin: [EmergencyState.RESOLVED, EmergencyState.CLOSED, EmergencyState.CANCELLED] } },
       { $set: { unit_location: { lat, lng, updated_at: new Date() }, updatedAt: new Date() } },
     );
     if (!res) throw new NotFoundException('mission_not_found_or_not_yours');

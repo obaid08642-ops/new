@@ -74,7 +74,7 @@ export class HomeCareCompatController {
       && ['nursing', 'nurse', 'provider'].includes(String(u?.provider_type || u?.providerType || u?.role || '').toLowerCase());
   }
   private async getBookingForAccess(u: any, id: string, allowUnassignedProvider = false) {
-    const b: any = await this.bookings.findOne({ id });
+    const b: any = await this.bookings.findOne({ id: { $eq: id } });
     if (!b) throw new NotFoundException('booking not found');
     if (this.isAdmin(u)) return b;
     if (u?.role === 'patient' && b.patient_id === u.id) return b;
@@ -89,7 +89,7 @@ export class HomeCareCompatController {
     if (u?.role !== 'patient') throw new ForbiddenException('patient_only');
     if (!body?.service_id) throw new BadRequestException('service_id is required');
     if (!body?.scheduled_at) throw new BadRequestException('scheduled_at is required');
-    const svc: any = await this.services.findOne({ id: body.service_id, active: true }).lean();
+    const svc: any = await this.services.findOne({ id: { $eq: body.service_id }, active: true }).lean();
     if (!svc) throw new NotFoundException('service not found');
     const doc = await this.bookings.create({
       patient_id: u.id,

@@ -3,7 +3,7 @@ import { MedicinesService } from './medicines.service';
 import { CurrentUser, JwtAuthGuard, Public, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { Permission, RequirePermissions } from '../../common/permissions';
-import { SuggestChangeDto, SuggestNewItemDto, AdminUpdateCatalogDto, AdminCreateDto, LookupBarcodeDto, CompareDto, ReportShortageDto, RejectShortageDto, SetAvailabilityDto, SuggestImageDto, RejectImageDto, RejectChangeDto, AdminDeleteDto, ImportJsonDto, ImportCsvDto, ManualEntryDto} from './medicines.dto';
+import { SuggestChangeDto, SuggestNewItemDto, AdminUpdateCatalogDto, AdminCreateDto, LookupBarcodeDto, CompareDto, ReportShortageDto, RejectShortageDto, SetAvailabilityDto, SuggestImageDto, RejectImageDto, RejectChangeDto, AdminDeleteDto, ImportJsonDto, ImportCsvDto, ManualEntryDto, ApproveChangeDto} from './medicines.dto';
 
 @Controller('medicines')
 @Roles(UserRole.ADMIN)
@@ -218,7 +218,7 @@ export class MedicinesController {
   /** Admin: approve → change applied to the live catalog immediately */
   @Post('admin/change-requests/:requestId/approve')
   @Roles(UserRole.ADMIN)
-  approveChange(@Param('requestId') requestId: string, @CurrentUser('id') by: string, @Body() body?: { overrides?: any; approved_fields?: string[] }) {
+  approveChange(@Param('requestId') requestId: string, @CurrentUser('id') by: string, @Body() body?: ApproveChangeDto) {
     return this.svc.approveChangeRequest(requestId, by, body || {});
   }
 

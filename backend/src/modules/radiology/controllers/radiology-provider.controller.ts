@@ -109,7 +109,7 @@ export class RadiologyProviderController {
     await this.assertBookingAccess(booking, user);
 
     const conflict = await this.radBookingModel.findOne({
-      allocated_machine_id: machineId,
+      allocated_machine_id: { $eq: machineId },
       status: { $in: ['ACCEPTED', 'CHECKED_IN', 'SCANNING_COMPLETED'] },
     });
     if (conflict && String(conflict.id) !== String(bookingId)) {

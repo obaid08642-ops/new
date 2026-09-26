@@ -1,4 +1,4 @@
-import { IsArray, IsDateString, IsDefined, IsNumber, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { IsArray, IsDateString, IsDefined, IsNumber, IsObject, IsOptional, IsString, MaxLength, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class ManualRequestDto {
@@ -222,5 +222,6 @@ export class ReportShortageDto {
 export class VoiceToOrderDto {
   @IsOptional()
   @IsString()
+  @MaxLength(2000)
   text?: string;
 }
