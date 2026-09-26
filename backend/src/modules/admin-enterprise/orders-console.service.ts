@@ -48,9 +48,10 @@ export const ORDER_KINDS: OrderKindSpec[] = [
     label_ar: 'طلب صيدلية',
   },
   {
+    // labs.service book(): amount in `total`, serving lab in provider_account_id
     kind: 'lab', collection: 'labbookings', stateField: 'state', historyField: 'state_history',
-    patientField: 'patient_id', patientNameField: 'patient_name', providerField: 'facility_id',
-    amountExpr: '$total_price', cancelledStates: ['CANCELLED', 'SAMPLE_REJECTED'], completedStates: ['REPORTED'],
+    patientField: 'patient_id', patientNameField: 'patient_name', providerField: 'provider_account_id',
+    amountExpr: '$total', cancelledStates: ['CANCELLED', 'SAMPLE_REJECTED'], completedStates: ['REPORTED'],
     label_ar: 'حجز مختبر',
   },
   {

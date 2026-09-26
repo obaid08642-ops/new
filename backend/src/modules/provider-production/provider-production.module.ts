@@ -21,9 +21,10 @@ import {
 import { OrderInsuranceDto, LabCoverageDto, RadCoverageDto, NursingCoverageDto, PostCrmDto, PutCrmDto, CreateReferralDto, CreatePromotionDto, CreateTechDto, UpdateTechDto, ClaimResubmitDto, ClaimApproveDto, ClaimRejectDto, PatchAvailabilityDto } from './provider-production.dto';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
-import { JwtAuthGuard, CurrentUser, Roles, getEffectiveRoles } from '../../common/auth.guard';
+import { JwtAuthGuard, CurrentUser, Roles, getEffectiveRoles, hasEffectiveRole } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { randomUUID } from 'crypto';
+import { PROVIDER_WORK_SOURCES } from '../../common/provider-work-sources';
 
 /** Provider-scope roles allowed to act on these surfaces (with alias normalization). */
 const PROVIDER_ROLES = [
@@ -247,6 +248,12 @@ export class ProviderProductionService {
     const reqs = await this.conn.collection('provider_requests')
       .find({ account_id: user.id, 'patient.id': { $exists: true } }, { projection: { _id: 0, 'patient.id': 1 } }).sort({ createdAt: -1 }).limit(500).toArray().catch(() => []);
     for (const r of reqs as any[]) if (r.patient?.id) served.add(String(r.patient.id));
+    for (const [type, src] of Object.entries(PROVIDER_WORK_SOURCES)) {
+      if (!hasEffectiveRole(user, type)) continue;
+      const rows = await this.conn.collection(src.collection)
+        .find({ [src.providerField]: user.id }, { projection: { _id: 0, [src.patientField]: 1 } }).sort({ createdAt: -1 }).limit(500).toArray().catch(() => []);
+      for (const r of rows as any[]) if (r[src.patientField]) served.add(String(r[src.patientField]));
+    }
     const known = new Set(records.map((record: any) => String(record.patient_id)));
     for (const id of served) if (!known.has(id)) records.push({ patient_id: id, data: {}, updatedAt: null } as any);
     const patientIds = records.map((record: any) => String(record.patient_id)).filter(Boolean);

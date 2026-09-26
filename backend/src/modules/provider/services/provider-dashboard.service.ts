@@ -8,6 +8,7 @@ import { ProviderAccountRepository } from "./repositories/provideraccount.reposi
 import { ProviderAccountProfileRepository } from "./repositories/provideraccountprofile.repository";
 import { isProviderRole } from '../../../common/enums';
 import { hasEffectiveRole } from '../../../common/auth.guard';
+import { PROVIDER_WORK_SOURCES, ProviderWorkSource } from '../../../common/provider-work-sources';
 
 function assertProvider(user: any) {
   if (!user || !isProviderRole(user.role)) throw new ForbiddenException('provider scope required');
@@ -32,6 +33,8 @@ export class ProviderDashboardService {
     const todayEnd = endOfDay(new Date());
     // Pharmacies work through allocations (broadcast -> offer -> allocation), not provider_requests.
     if (hasEffectiveRole(user, 'pharmacy')) return this.pharmacyStats(user.id, todayStart, todayEnd);
+    const source = Object.entries(PROVIDER_WORK_SOURCES).find(([type]) => hasEffectiveRole(user, type))?.[1];
+    if (source) return this.bookingStats(user.id, source, todayStart, todayEnd);
     const base = { account_id: user.id };
 
     const [today_total, pending, completed_today, today_revenue_agg, accepted_all, in_progress] = await Promise.all([
@@ -56,6 +59,25 @@ export class ProviderDashboardService {
       accepted_total: accepted_all,
       today_revenue,
       currency: 'SAR',
+    };
+  }
+
+  private async bookingStats(providerId: string, src: ProviderWorkSource, todayStart: Date, todayEnd: Date) {
+    const col = this.requests.model.db.collection(src.collection);
+    const today = { $gte: todayStart, $lte: todayEnd };
+    const mine = { [src.providerField]: providerId };
+    const doneToday = { ...mine, [src.stateField]: { $in: src.done }, updatedAt: today };
+    const [today_total, pending, completed_today, revenue, accepted_all, in_progress] = await Promise.all([
+      col.countDocuments({ ...mine, createdAt: today }),
+      col.countDocuments({ ...mine, [src.stateField]: { $in: src.pending } }),
+      col.countDocuments(doneToday),
+      col.aggregate([{ $match: doneToday }, { $group: { _id: null, total: { $sum: { $ifNull: [`$${src.amountField}`, 0] } } } }]).toArray(),
+      col.countDocuments({ ...mine, [src.stateField]: { $in: [...src.inProgress, ...src.done] } }),
+      col.countDocuments({ ...mine, [src.stateField]: { $in: src.inProgress } }),
+    ]);
+    return {
+      today_requests: today_total, pending_requests: pending, completed_today, in_progress,
+      accepted_total: accepted_all, today_revenue: Math.round(((revenue[0] as any)?.total || 0) * 100) / 100, currency: 'SAR',
     };
   }
 

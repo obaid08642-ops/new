@@ -105,6 +105,11 @@ export class NursingController {
 
   // --- Admin Catalog CRUD (nursing/home-care services) ---
   @Roles(UserRole.ADMIN)
+  @Get('admin/catalog')
+  @UseGuards(JwtAuthGuard)
+  adminCatalog(@CurrentUser() u: any) { return this.homeSvc.adminCatalog(u); }
+
+  @Roles(UserRole.ADMIN)
   @Post('admin/catalog')
   @UseGuards(JwtAuthGuard)
   async createCatalog(@CurrentUser() u: any, @Body() b: CreateHomeCareCatalogDto) {

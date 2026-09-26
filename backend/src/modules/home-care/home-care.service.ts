@@ -5,9 +5,7 @@ import { pick } from '../../common/sanitize';
 
 /** P3.3 (F15): writable catalog fields — id/_id/active/governance flags excluded. */
 export const HOMECARE_CATALOG_FIELDS = [
-  'name_ar', 'name_en', 'description_ar', 'description_en', 'category', 'icon',
-  'price', 'duration', 'duration_value', 'requires_patient_medication', 'requires_companion',
-  'cash_availability', 'insurance_availability', 'image_url', 'popularity',
+  'name_ar', 'name_en', 'description_ar', 'description_en', 'category', 'icon', 'price', 'duration', 'duration_value', 'requires_patient_medication', 'requires_companion', 'cash_availability', 'insurance_availability', 'image_url', 'active', 'popularity',
 ] as const;
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { WorkflowEngineService } from '../workflow-engine/workflow-engine.module';
@@ -18,6 +16,8 @@ import { CarePlanRepository } from "./repositories/careplan.repository";
 import { MedicalSupplyRequestRepository } from "./repositories/medicalsupplyrequest.repository";
 import { RedisService } from '../redis/redis.service';
 import { hasEffectiveRole } from '../../common/auth.guard';
+import { reviewUpdate, invalidateCatalogCache } from '../../common/catalog-review';
+import { getEffectiveRoles } from '../../common/auth.guard';
 
 @Injectable()
 export class HomeCareSvc {
@@ -146,14 +146,23 @@ export class HomeCareSvc {
   // --- Admin Catalog CRUD (nursing/home-care services) ---
   async createCatalog(user: any, body: any) {
     if (user.role !== 'admin') throw new ForbiddenException();
-    return this.svcModel.create({ ...pick(body, HOMECARE_CATALOG_FIELDS), id: require('uuid').v4() });
+    const doc = await this.svcModel.create({ ...pick(body, HOMECARE_CATALOG_FIELDS), ...reviewUpdate(body?.medical_review_status, user.id), id: require('uuid').v4() });
+    await invalidateCatalogCache(this.redis, 'cache:home-care-services:');
+    return doc;
   }
 
   async updateCatalog(user: any, id: string, body: any) {
     if (user.role !== 'admin') throw new ForbiddenException();
-    const updated = await this.svcModel.findOneAndUpdate({ id }, { $set: pick(body, HOMECARE_CATALOG_FIELDS) }, { new: true });
+    const updated = await this.svcModel.findOneAndUpdate({ id }, { $set: { ...pick(body, HOMECARE_CATALOG_FIELDS), ...reviewUpdate(body?.medical_review_status, user.id) } }, { new: true });
     if (!updated) throw new NotFoundException();
+    await invalidateCatalogCache(this.redis, 'cache:home-care-services:');
     return updated;
+  }
+
+  /** Admin catalog editor: every item including unpublished ones (the public list only shows approved). */
+  async adminCatalog(user: any) {
+    if (!getEffectiveRoles(user).includes('admin')) throw new ForbiddenException();
+    return this.svcModel.find({ is_deleted: { $ne: true } }, { _id: 0, __v: 0 }).sort({ medical_review_status: 1, popularity: -1, name_ar: 1 }).limit(1000);
   }
 
   async deleteCatalog(user: any, id: string) {

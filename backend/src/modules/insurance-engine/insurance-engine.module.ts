@@ -68,6 +68,11 @@ export class InsuranceServiceRequest {
     filed_at: Date; filed_by: string;
     decided_by?: string; decided_at?: Date; decision_note?: string;
   };
+  // Written by payments verify / finance refunds through a dynamically chosen model (strict mode dropped them).
+  @Prop() payment_status?: string;              // paid | refunded | partially_refunded (payments verify / finance refund)
+  @Prop() transaction_id?: string;
+  @Prop() paid_at?: Date;
+  @Prop() refund_status?: string;
 }
 export const InsuranceServiceRequestSchema = SchemaFactory.createForClass(InsuranceServiceRequest);
 

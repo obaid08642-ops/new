@@ -201,6 +201,11 @@ export class RadiologyBooking extends Document {
   // MODULE 11: Doctor referral sync
   @Prop() referring_doctor_id?: string;
   @Prop({ default: false }) doctor_notified: boolean;
+  // Written by payments verify / finance refunds through a dynamically chosen model (strict mode dropped them).
+  @Prop() payment_status?: string;              // paid | refunded | partially_refunded (payments verify / finance refund)
+  @Prop() transaction_id?: string;
+  @Prop() paid_at?: Date;
+  @Prop() refund_status?: string;
 }
 export const RadiologyBookingSchema = SchemaFactory.createForClass(RadiologyBooking);
 RadiologyBookingSchema.index({ patient_id: 1, createdAt: -1 });

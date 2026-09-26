@@ -146,6 +146,11 @@ export class HomeCareBooking extends Document {
   
   // Ratings (Module 15)
   @Prop({ type: Object, default: {} }) rating: { score?: number; comment?: string };
+  // Written by payments verify / finance refunds through a dynamically chosen model (strict mode dropped them).
+  @Prop() payment_status?: string;              // paid | refunded | partially_refunded (payments verify / finance refund)
+  @Prop() transaction_id?: string;
+  @Prop() paid_at?: Date;
+  @Prop() refund_status?: string;
 }
 export const HomeCareBookingSchema = SchemaFactory.createForClass(HomeCareBooking);
 HomeCareBookingSchema.index({ patient_id: 1, createdAt: -1 });

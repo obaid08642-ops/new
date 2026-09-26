@@ -5,20 +5,15 @@ import { pick } from '../../common/sanitize';
 
 /** P3.3 (F15): writable catalog fields — id/_id/active/governance flags excluded. */
 export const RADIOLOGY_CATALOG_FIELDS = [
-  'name_ar', 'name_en', 'short_code', 'description_ar', 'description_en',
-  'modality', 'modality_category', 'body_part', 'price', 'old_price',
-  'contrast_required', 'fasting_required', 'fasting_hours',
-  'home_visit_supported', 'facility_visit_supported', 'turnaround_hours',
-  'preparation_ar', 'preparation_en', 'requires_referral', 'medical_referral_required',
-  'requires_pregnancy_check', 'requires_metal_implant_check', 'requires_contrast_allergy_check',
-  'estimated_duration_minutes', 'special_notes', 'image_url', 'icon',
-  'cash_availability', 'insurance_availability', 'portable_ultrasound',
+  'name_ar', 'name_en', 'short_code', 'description_ar', 'description_en', 'modality', 'modality_category', 'body_part', 'price', 'old_price', 'contrast_required', 'fasting_required', 'fasting_hours', 'home_visit_supported', 'facility_visit_supported', 'turnaround_hours', 'preparation_ar', 'preparation_en', 'requires_referral', 'medical_referral_required', 'popularity', 'active', 'unavailable', 'image_url', 'icon', 'estimated_duration_minutes', 'cash_availability', 'insurance_availability', 'portable_ultrasound',
 ] as const;
 import { RadiologyService, RadiologyBookingState, RADIOLOGY_BOOKING_TRANSITIONS } from '../../schemas/radiology.schema';
 import { RadiologyBooking } from './schemas/radiology-booking.schema';
 import { WorkflowEngineService } from '../workflow-engine/workflow-engine.module';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { RedisService } from '../redis/redis.service';
+import { reviewUpdate, invalidateCatalogCache } from '../../common/catalog-review';
+import { getEffectiveRoles } from '../../common/auth.guard';
 
 const ALLOWED_ROLES_PROVIDER = ['radiology', 'admin', 'hospital'];
 
@@ -467,14 +462,23 @@ export class RadiologyOpsService {
   // --- Admin Catalog CRUD ---
   async createCatalog(user: any, body: any) {
     if (user.role !== 'admin') throw new ForbiddenException();
-    return this.svcModel.create({ ...pick(body, RADIOLOGY_CATALOG_FIELDS), id: require('uuid').v4() });
+    const doc = await this.svcModel.create({ ...pick(body, RADIOLOGY_CATALOG_FIELDS), ...reviewUpdate(body?.medical_review_status, user.id), id: require('uuid').v4() });
+    await invalidateCatalogCache(this.redis, 'cache:radiology-services:');
+    return doc;
   }
 
   async updateCatalog(user: any, id: string, body: any) {
     if (user.role !== 'admin') throw new ForbiddenException();
-    const updated = await this.svcModel.findOneAndUpdate({ id }, { $set: pick(body, RADIOLOGY_CATALOG_FIELDS) }, { new: true });
+    const updated = await this.svcModel.findOneAndUpdate({ id }, { $set: { ...pick(body, RADIOLOGY_CATALOG_FIELDS), ...reviewUpdate(body?.medical_review_status, user.id) } }, { new: true });
     if (!updated) throw new NotFoundException();
+    await invalidateCatalogCache(this.redis, 'cache:radiology-services:');
     return updated;
+  }
+
+  /** Admin catalog editor: every item including unpublished ones (the public list only shows approved). */
+  async adminCatalog(user: any) {
+    if (!getEffectiveRoles(user).includes('admin')) throw new ForbiddenException();
+    return this.svcModel.find({ is_deleted: { $ne: true } }, { _id: 0, __v: 0 }).sort({ medical_review_status: 1, popularity: -1, name_ar: 1 }).limit(1000);
   }
 
   async deleteCatalog(user: any, id: string) {

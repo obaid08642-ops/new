@@ -186,7 +186,8 @@ def screen_payloads(ptype):
     return out
 
 
-def register_type(ptype):
+def register_type(ptype, overrides=None):
+    """overrides: {field: value} for choices the screen fills from live data (e.g. test_categories = catalog ids)."""
     journey(f'onboarding: {ptype} registers in the provider app')
     email = f'{uniq(ptype)}@nabd.test'
     pw = 'Prov-' + uniq('')[-6:] + 'x!'
@@ -199,6 +200,7 @@ def register_type(ptype):
     step('wizard sign-in', r.ok and tok, r)
     c = provider_client(tok)
     for url, body, at in screen_payloads(ptype):
+        body = {**body, **{k: v for k, v in (overrides or {}).items() if k in body}}
         r = c.post(url, body)
         step(f"{url.split('/')[-1]} as sent by {at.split('/')[-1]}", r.ok, f'{r} body_keys={sorted(body)}')
     sig = upload(c, 'signature.png', 'image/png')

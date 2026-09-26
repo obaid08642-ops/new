@@ -83,7 +83,14 @@ describe('Provider App release contracts', () => {
     expect(labDashboard).not.toContain('const RESULTS =');
     expect(labDashboard).toContain('/labs/bookings/${order.id}/coverage-decision');
     expect(labDashboard).not.toContain("state: 'WAITING_COPAY'");
-    expect(labDashboard).not.toContain("state: 'CONFIRMED'");
+    // Insurance goes through coverage-decision; a direct CONFIRMED is only the cash/paid acceptance
+    // (the server refuses it for insurance and unpaid card bookings: labs.service assertConfirmable).
+    const confirms = labDashboard.split("state: 'CONFIRMED'").length - 1;
+    expect(confirms).toBe(1);
+    const start = labDashboard.indexOf('const handleCashConfirm');
+    expect(start).toBeGreaterThan(-1);
+    // the one CONFIRMED patch sits inside handleCashConfirm (no other handler between them)
+    expect(labDashboard.slice(start + 1, labDashboard.indexOf("state: 'CONFIRMED'"))).not.toContain('const handle');
     expect(radiologyDashboard).toContain('/radiology/bookings/${currentOrder.id}/coverage-decision');
     expect(radiologyDashboard).not.toContain("state:'CONFIRMED'");
     expect(labDashboard).toContain('/labs/bookings/${sample.lab_order_id || sample.id}/upload-report');
