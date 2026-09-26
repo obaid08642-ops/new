@@ -96,14 +96,20 @@ export class ServiceCatalogService {
     return doc.toObject();
   }
 
+  // Fields a provider may change on its own catalog entry (UpdateServiceDto + toggle).
+  private static readonly UPDATABLE_FIELDS = ['name_ar', 'name_en', 'price', 'active', 'unavailable', 'weekly', 'blocked_dates', 'slot_minutes', 'max_per_slot', 'coverage_radius_km', 'is_online'];
+
   async updateService(user: any, entity_type: 'lab' | 'radiology', id: string, patch: any) {
     this.assertProvider(user);
     const own = await this.own.findOne({ entity_id: { $eq: id }, entity_type: { $eq: entity_type } });
     if (user.role !== 'admin' && (!own || own.account_id !== user.id)) throw new ForbiddenException();
     const Model: any = entity_type === 'lab' ? this.labs : this.rads;
-    const r = await Model.findOneAndUpdate({ id: { $eq: id } }, { $set: patch }, { new: true });
+    const set = Object.fromEntries(
+      Object.entries(patch || {}).filter(([k, v]) => ServiceCatalogService.UPDATABLE_FIELDS.includes(k) && v !== undefined),
+    );
+    const r = await Model.findOneAndUpdate({ id: { $eq: id } }, { $set: set }, { new: true });
     if (!r) throw new NotFoundException();
-    this.bus.emit({ type: 'catalog.service_updated', entity_type: 'service', entity_id: id, actor_account_id: user.id, actor_role: user.role, meta: { kind: entity_type, fields: Object.keys(patch) } }).catch(() => null);
+    this.bus.emit({ type: 'catalog.service_updated', entity_type: 'service', entity_id: id, actor_account_id: user.id, actor_role: user.role, meta: { kind: entity_type, fields: Object.keys(set) } }).catch(() => null);
     return r.toObject();
   }
 
