@@ -164,3 +164,6 @@ Format: task | commit sha | verify result | notes
 - Backend `GET /admin/reports/{revenue,orders,bookings,providers,patients}` (admin-only, validated from/to/group_by, 366-day cap): revenue = paid transactions net of refunds; bookings = union fan-out across appointments/doctor_appointments/lab/radiology/homecare bookings; every endpoint serves `?format=csv`. Registered in AdminModule.
 - Admin `/admin/reports` page: 5 tabs, date/group filters, recharts bar, table, CSV export link (BFF passes content-disposition through).
 - Tests: `admin-reports.spec.ts` 3/3. tsc 0.
+
+## [P6.x-6] Content review queue (2026-09-26)
+- Backend already had audited publish/schedule/unpublish with reason validation (`admin-cms.controller.ts`). Added the missing UI: per-article اعتماد (publish) / سحب (unpublish) with mandatory reason prompt on the content-growth articles tab — drafts now form a real review queue before public appearance.
