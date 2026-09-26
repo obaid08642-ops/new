@@ -300,3 +300,20 @@ export class UpdateLabCatalogDto {
   @IsNumber()
   turnaround_hours?: number;
 }
+
+export class ApproveCatalogDto {
+  @IsOptional()
+  @IsBoolean()
+  approve?: boolean;
+}
+
+export class BulkApproveCatalogDto {
+  @IsDefined()
+  @IsArray()
+  @IsString({ each: true })
+  ids!: string[];
+
+  @IsOptional()
+  @IsBoolean()
+  approve?: boolean;
+}

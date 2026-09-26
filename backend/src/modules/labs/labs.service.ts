@@ -510,6 +510,35 @@ export class LabsService {
     return { ok: true };
   }
 
+  /** P6.0: medical-review decision — approve surfaces the item publicly. */
+  async approveCatalogItem(user: any, id: string, approve: boolean) {
+    if (user.role !== 'admin') throw new ForbiddenException();
+    const updated = await this.svcModel.findOneAndUpdate(
+      { id: { $eq: id } },
+      { $set: { medical_review_status: approve ? 'approved' : 'rejected', public_eligibility: !!approve, last_reviewed: new Date() } },
+      { new: true },
+    );
+    if (!updated) throw new NotFoundException();
+    this.bus.emit({ type: approve ? 'catalog.service_approved' : 'catalog.service_disabled', entity_type: 'service', entity_id: id, actor_account_id: user.id, actor_role: 'admin', meta: { kind: 'lab' } }).catch(() => null);
+    return updated;
+  }
+
+  async bulkApproveCatalog(user: any, ids: string[], approve: boolean) {
+    if (user.role !== 'admin') throw new ForbiddenException();
+    const list = (Array.isArray(ids) ? ids : []).filter((x) => typeof x === 'string' && x).slice(0, 200);
+    if (!list.length) throw new BadRequestException('ids_required');
+    const results: any[] = [];
+    for (const id of list) {
+      try {
+        await this.approveCatalogItem(user, id, approve);
+        results.push({ id, ok: true });
+      } catch (e: any) {
+        results.push({ id, ok: false, error: e?.message || 'failed' });
+      }
+    }
+    return { ok: true, approve, results };
+  }
+
   // --- Admin Quality Control & Dispute Intervention ---
   async adminForceState(user: any, id: string, targetState: LabBookingState, note: string) {
     if (user.role !== 'admin') throw new ForbiddenException('admin_only');

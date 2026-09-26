@@ -1,4 +1,4 @@
-import { IsArray, IsDefined, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDefined, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 
 export class CreateNoteDto {
   @IsOptional()
@@ -148,4 +148,21 @@ export class UpdateHomeCareCatalogDto {
   @IsOptional()
   @IsString()
   description_en?: string;
+}
+
+export class ApproveCatalogDto {
+  @IsOptional()
+  @IsBoolean()
+  approve?: boolean;
+}
+
+export class BulkApproveCatalogDto {
+  @IsDefined()
+  @IsArray()
+  @IsString({ each: true })
+  ids!: string[];
+
+  @IsOptional()
+  @IsBoolean()
+  approve?: boolean;
 }

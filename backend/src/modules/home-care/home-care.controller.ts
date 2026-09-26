@@ -10,7 +10,7 @@ import { WorkflowEngineService } from '../workflow-engine/workflow-engine.module
 import { HomeCareSvc } from './home-care.service';
 import { UserRole } from '../../common/enums';
 import { CreateNoteDto, CreateBookingDto, ArriveAtPatientDto, TriggerEmergencyDto, CompleteVisitDto} from './home-care.dto';
-import { CreateHomeCareCatalogDto, UpdateHomeCareCatalogDto } from './home-care.dto';
+import { CreateHomeCareCatalogDto, UpdateHomeCareCatalogDto, ApproveCatalogDto, BulkApproveCatalogDto } from './home-care.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('nursing')
@@ -123,6 +123,21 @@ export class NursingController {
   @UseGuards(JwtAuthGuard)
   async deleteCatalog(@CurrentUser() u: any, @Param('id') id: string) {
     return this.homeSvc.deleteCatalog(u, id);
+  }
+
+  // P6.0: medical-review decision (approve surfaces the item publicly).
+  @Roles(UserRole.ADMIN)
+  @Post('admin/catalog/:id/approve')
+  @UseGuards(JwtAuthGuard)
+  async approveCatalog(@CurrentUser() u: any, @Param('id') id: string, @Body() b: ApproveCatalogDto) {
+    return this.homeSvc.approveCatalogItem(u, id, b.approve !== false);
+  }
+
+  @Roles(UserRole.ADMIN)
+  @Post('admin/catalog/bulk-approve')
+  @UseGuards(JwtAuthGuard)
+  async bulkApproveCatalog(@CurrentUser() u: any, @Body() b: BulkApproveCatalogDto) {
+    return this.homeSvc.bulkApproveCatalog(u, b.ids, b.approve !== false);
   }
 
   // 1b. PATIENT BOOKINGS (canonical booking API — parity with labs/radiology

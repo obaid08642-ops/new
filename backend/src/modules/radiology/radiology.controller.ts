@@ -3,7 +3,7 @@ import { RadiologyOpsService } from './radiology.service';
 import { Public, CurrentUser, SelfService, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { BookDto, TransitionDto, UpdateInsDto, AssignTechDto, UploadReportDto, ForceStateDto, AbortScanDto, InsuranceApprovalDto, RescheduleDto, SubmitReportForReviewDto, RadiologyDocumentDto, CatalogDeltaRequestDto} from './radiology.dto';
-import { CreateRadiologyCatalogDto, UpdateRadiologyCatalogDto } from './radiology.dto';
+import { CreateRadiologyCatalogDto, UpdateRadiologyCatalogDto, ApproveCatalogDto, BulkApproveCatalogDto } from './radiology.dto';
 
 @Controller('radiology')
 export class RadiologyController {
@@ -196,6 +196,21 @@ export class RadiologyController {
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
   deleteCatalog(@CurrentUser() u: any, @Param('id') id: string) {
     return this.svc.deleteCatalog(u, id);
+  }
+
+  // P6.0: medical-review decision (approve surfaces the item publicly).
+  @Roles(UserRole.ADMIN)
+  @Post('admin/catalog/:id/approve')
+  @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
+  approveCatalog(@CurrentUser() u: any, @Param('id') id: string, @Body() b: ApproveCatalogDto) {
+    return this.svc.approveCatalogItem(u, id, b.approve !== false);
+  }
+
+  @Roles(UserRole.ADMIN)
+  @Post('admin/catalog/bulk-approve')
+  @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
+  bulkApproveCatalog(@CurrentUser() u: any, @Body() b: BulkApproveCatalogDto) {
+    return this.svc.bulkApproveCatalog(u, b.ids, b.approve !== false);
   }
 
   // --- Admin Quality Control & Dispute Intervention ---

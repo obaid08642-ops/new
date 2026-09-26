@@ -154,3 +154,8 @@ Format: task | commit sha | verify result | notes
 ## [P6] BFF refresh + web heartbeat (2026-09-26)
 - BFF `[...path].ts`: on upstream 401 with `admin_refresh` cookie → `POST /api/v1/auth/refresh` → set fresh cookies → retry original request once (same token shapes as login.ts). Refresh failure keeps old behavior (cookies cleared).
 - Online: new patient-web `POST /api/auth/heartbeat` proxying `{client}` to backend `/auth/heartbeat` (feeds presence → admin "online" count). Follows `callPatientApi` + cookie conventions.
+
+## [P6.0] Catalog medical-review approval (2026-09-26)
+- Backend per owning service: labs/radiology/nursing `approveCatalogItem` + `bulkApproveCatalog` (cap 200, per-id results) setting `medical_review_status` + `public_eligibility` + `last_reviewed` with bus audit events; medicines `adminApproveCatalog` (preserves `verified` on reject; visibility governed by the two review fields) + controller bulk loop. Routes: `POST {labs,radiology,nursing}/admin/catalog/:id/approve`, `.../bulk-approve`, `POST medicines/admin/catalog/:id/approve` + bulk. Validated DTOs (Approve/BulkApprove per module; labs/radiology/nursing/medicines).
+- UI: catalog-manager tabs gained per-item اعتماد/رفض + status badge + bulk-select bar calling the new endpoints (packages tab reuses the lab endpoints).
+- Tests: `labs-approve.spec.ts` 3/3 (approve/reject $set, audit emit, admin-only, bulk cap). tsc 0.

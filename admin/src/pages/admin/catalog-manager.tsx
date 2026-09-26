@@ -47,6 +47,9 @@ export default function CatalogManagerPage() {
   const [editing, setEditing] = useState<any | null>(null); // {} = new item
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState('');
+  // P6.0: medical-review selection for bulk approve/reject.
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [deciding, setDeciding] = useState(false);
 
   const tabCfg = TABS.find((t) => t.key === tab)!;
 
@@ -139,6 +142,44 @@ export default function CatalogManagerPage() {
     }
   };
 
+  // P6.0: medical-review decision — approve surfaces the item publicly.
+  const decide = async (id: string, approve: boolean) => {
+    try {
+      await apiFetch(`${tabCfg.adminBase}/${id}/approve`, { method: 'POST', body: JSON.stringify({ approve }) });
+      setMsg(approve ? 'تم الاعتماد — ظهر الصنف للمرضى' : 'تم الرفض');
+      await load();
+    } catch (e: any) {
+      setMsg(`فشل القرار: ${e.message}`);
+    }
+  };
+
+  const bulkDecide = async (approve: boolean) => {
+    if (selected.size === 0) return;
+    setDeciding(true);
+    try {
+      const r: any = await apiFetch(`${tabCfg.adminBase}/bulk-approve`, {
+        method: 'POST', body: JSON.stringify({ ids: [...selected], approve }),
+      });
+      const failed = (r?.results || []).filter((x: any) => !x.ok).length;
+      setMsg(failed ? `تم جزئياً — فشل ${failed}` : approve ? `تم اعتماد ${selected.size}` : `تم رفض ${selected.size}`);
+      setSelected(new Set());
+      await load();
+    } catch (e: any) {
+      setMsg(`فشل الاعتماد الجماعي: ${e.message}`);
+    } finally {
+      setDeciding(false);
+    }
+  };
+
+  const toggleSelect = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
   return (
     <div dir="rtl" style={{ padding: 24, maxWidth: 1200, margin: '0 auto', fontFamily: 'Cairo, sans-serif' }}>
       <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 4 }}>إدارة كتالوج الخدمات</h1>
@@ -175,16 +216,31 @@ export default function CatalogManagerPage() {
       {msg && <div style={{ padding: 12, borderRadius: 12, background: '#F0FDF4', color: '#166534', marginBottom: 12, fontWeight: 600 }}>{msg}</div>}
       {loading && <p>جارٍ التحميل…</p>}
 
+      {selected.size > 0 && (
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 12, padding: 10, borderRadius: 12, background: '#EFF6FF', border: '1px solid #BFDBFE' }}>
+          <span style={{ fontSize: 13, fontWeight: 700, color: '#1E40AF' }}>محدد: {selected.size}</span>
+          <button onClick={() => void bulkDecide(true)} disabled={deciding} style={{ padding: '6px 14px', borderRadius: 10, border: 'none', background: '#16A34A', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>اعتماد المحدد</button>
+          <button onClick={() => void bulkDecide(false)} disabled={deciding} style={{ padding: '6px 14px', borderRadius: 10, border: '1px solid #FECACA', background: '#fff', color: '#B91C1C', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>رفض المحدد</button>
+          <button onClick={() => setSelected(new Set())} style={{ padding: '6px 14px', borderRadius: 10, border: '1px solid #CBD5E1', background: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>إلغاء التحديد</button>
+        </div>
+      )}
+
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 12 }}>
         {filtered.map((item) => (
           <div key={item.id || item._id} style={{ border: '1px solid #E2E8F0', borderRadius: 16, padding: 14, display: 'flex', gap: 12, background: '#fff', opacity: item.active === false ? 0.55 : 1 }}>
+            <input type="checkbox" checked={selected.has(item.id)} onChange={() => item.id && toggleSelect(item.id)} title="تحديد للاعتماد الجماعي" style={{ flexShrink: 0, width: 18, height: 18, marginTop: 4 }} />
             {item.image_url && <img src={item.image_url} alt="" style={{ width: 56, height: 56, borderRadius: 12, objectFit: 'cover', flexShrink: 0 }} />}
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontWeight: 800, fontSize: 14 }}>{item.name_ar}</div>
               <div style={{ fontSize: 12, color: '#64748B' }}>{item.name_en} · {item.short_code || item.category || item.modality || item.body_part || ''}{tab === 'nursing' && item.duration ? ` · ${item.duration}` : ''}{tab === 'radiology' && item.modality ? ` · ${item.modality}${item.body_part ? `/${item.body_part}` : ''}` : ''}</div>
               <div style={{ fontSize: 13, fontWeight: 700, color: '#23B5CE', marginTop: 4 }}>{item.price} ر.س</div>
+              <div style={{ fontSize: 11, color: item.medical_review_status === 'approved' ? '#16A34A' : '#B45309', fontWeight: 700, marginTop: 2 }}>
+                {item.medical_review_status === 'approved' ? '● معتمد' : item.medical_review_status === 'rejected' ? '● مرفوض' : '● بانتظار المراجعة'}
+              </div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <button onClick={() => void decide(item.id, true)} style={{ padding: '6px 12px', borderRadius: 10, border: 'none', background: '#16A34A', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>اعتماد</button>
+              <button onClick={() => void decide(item.id, false)} style={{ padding: '6px 12px', borderRadius: 10, border: '1px solid #FED7AA', background: '#FFFBEB', color: '#B45309', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>رفض</button>
               <button onClick={() => setEditing({ ...item })} style={{ padding: '6px 12px', borderRadius: 10, border: '1px solid #CBD5E1', background: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>تعديل</button>
               <button onClick={() => remove(item)} style={{ padding: '6px 12px', borderRadius: 10, border: '1px solid #FECACA', background: '#FEF2F2', color: '#B91C1C', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>حذف</button>
             </div>
