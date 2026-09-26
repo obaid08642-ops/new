@@ -4,7 +4,7 @@ import { LocationService } from './modules/location/location.service';
 import { McpService } from './modules/mcp/mcp.service';
 import { AiCommerceService } from './modules/ai-commerce/ai-commerce.service';
 import { IndexNowService } from './modules/seo-search/indexnow.service';
-import { AdminGovernanceControlsController } from './modules/admin-enterprise/admin-governance-controls.controller';
+import { AdminGovernanceControlsController } from './modules/admin/enterprise/admin-governance-controls.controller';
 
 describe('MASTER ADDENDUM — Full End-to-End Architectural Verification', () => {
   // Mock In-Memory Databases & State

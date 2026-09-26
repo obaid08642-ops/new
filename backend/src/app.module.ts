@@ -5,7 +5,6 @@ import { LiveKitModule } from './modules/livekit/livekit.module';
 import { CoturnModule } from './modules/coturn/coturn.module';
 import { RedisModule } from './modules/redis/redis.module';
 import { MailModule } from './modules/mail/mail.module';
-import { AdminNotificationCenterModule } from './modules/admin-notification-center/admin-notification-center.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { ApiSecurityModule } from './modules/api-security/api-security.module';
 import { DeviceTrustModule } from './modules/device-trust/device-trust.module';
@@ -61,7 +60,6 @@ import { PharmacyModule } from './modules/pharmacy/pharmacy.module';
 import { StorageModule } from './modules/storage/storage.module';
 import { ServiceCatalogModule } from './modules/service-catalog/service-catalog.module';
 import { CartModule } from './modules/cart/cart.module';
-import { AdminAuthorityModule } from './modules/admin-authority/admin-authority.module';
 
 function bullRedisConnection() {
   const configuredUrl = process.env.REDIS_URL ? new URL(process.env.REDIS_URL) : undefined;
@@ -74,10 +72,8 @@ function bullRedisConnection() {
 }
 import { ProviderOnboardingModule } from './modules/provider-onboarding/provider-onboarding.module';
 import { UnifiedBookingsModule } from './modules/unified-bookings/unified-bookings.module';
-import { AdminGovernanceModule } from './modules/admin-governance/admin-governance.module';
 import { WorkflowEngineModule } from './modules/workflow-engine/workflow-engine.module';
 import { ProviderJobsModule } from './modules/provider-jobs/provider-jobs.module';
-import { AdminCommandCenterModule } from './modules/admin-command-center/admin-command-center.module';
 import { BusinessRulesModule } from './modules/business-rules/business-rules.module';
 import { BansModule } from './modules/bans/bans.module';
 import { BansMiddleware } from './modules/bans/bans.middleware';
@@ -108,7 +104,6 @@ import { FacilityOpsModule } from './modules/facility-ops/facility-ops.module';
 import { ProviderProductionModule } from './modules/provider-production/provider-production.module';
 import { ImpersonationSessionService } from './common/impersonation-session.service';
 import { CommonModule } from './common/common.module';
-import { AdminEnterpriseModule } from './modules/admin-enterprise/admin-enterprise.module';
 import { HealthController } from './health.controller';
 import { HealthDashboardController } from './modules/health/health-dashboard.controller';
 import { JwtAuthGuard } from './common/auth.guard';
@@ -125,7 +120,6 @@ import { WalletModule } from './modules/wallet/wallet.module';
 import { ReturnsModule } from './modules/returns/returns.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { HospitalModule } from './modules/hospital/hospital.module';
-import { AdminWebCoreModule } from './modules/admin-web-core/admin-web-core.module';
 import { HomeModule } from './modules/home/home.module';
 import { SystemHealthModule } from './modules/system-health/system-health.module';
 import { CompatModule } from './modules/compat/compat.module';
@@ -151,7 +145,6 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     CoturnModule,
     RedisModule,
     MailModule,
-    AdminNotificationCenterModule,
     AnalyticsModule,
     ApiSecurityModule,
     DeviceTrustModule,
@@ -224,13 +217,10 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     ServiceCatalogModule,
     CartModule,
     ProductRankingModule,
-    AdminAuthorityModule,
     ProviderOnboardingModule,
     UnifiedBookingsModule,
-    AdminGovernanceModule,
     WorkflowEngineModule,
     ProviderJobsModule,
-    AdminCommandCenterModule,
     BusinessRulesModule,
     ConsistencyModule,
     EventReliabilityModule,
@@ -259,7 +249,6 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     ReferralModule,
     FacilityOpsModule,
     ProviderProductionModule,
-    AdminEnterpriseModule,
     MaternityModule,
     NabdExtensionsModule,
     NutritionModule,
@@ -272,7 +261,6 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     ArticlesModule,
     InsuranceEngineModule,
     AdminModule,
-    AdminWebCoreModule,
     CompatModule, // gap-fill endpoints from the screen↔API wiring audit — registered last
     AdminSpaModule, // admin console SPA REST surface (top-level paths, admin-role guarded)
     CatalogsModule, // unified central catalogs (insurance/labs/radiology/nursing) — single source
