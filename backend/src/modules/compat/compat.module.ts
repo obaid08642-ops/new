@@ -1211,7 +1211,7 @@ export class PatientHomeCareController {
   async services(@Query('limit') limit = '50') {
     const lim = Math.min(Math.max(parseInt(limit, 10) || 50, 1), 200);
     const docs = await this.conn.db
-      .collection('nursing_catalog')
+      .collection(CATALOG_COLLECTIONS.nursing_services)
       .find({ is_active: { $ne: false }, kind: { $ne: 'package' } } as any)
       .limit(lim)
       .toArray();
@@ -1222,7 +1222,7 @@ export class PatientHomeCareController {
   async packages(@Query('limit') limit = '50') {
     const lim = Math.min(Math.max(parseInt(limit, 10) || 50, 1), 200);
     const docs = await this.conn.db
-      .collection('nursing_catalog')
+      .collection(CATALOG_COLLECTIONS.nursing_services)
       .find({ is_active: { $ne: false }, kind: 'package' } as any)
       .limit(lim)
       .toArray();

@@ -405,7 +405,7 @@ export class SeoSearchService {
       this.conn.collection('facilities').countDocuments({ is_active: { $ne: false } }).catch(() => 0),
       this.conn.collection(CATALOG_COLLECTIONS.lab_services).countDocuments({ active: { $ne: false } }).catch(() => 0),
       this.conn.collection(CATALOG_COLLECTIONS.radiology_services).countDocuments({ active: { $ne: false } }).catch(() => 0),
-      this.conn.collection('nursing_catalog').countDocuments({ is_active: { $ne: false } }).catch(() => 0),
+      this.conn.collection(CATALOG_COLLECTIONS.nursing_services).countDocuments({ is_active: { $ne: false } }).catch(() => 0),
       this.conn.collection('locations').countDocuments({ is_active: { $ne: false } }).catch(() => 0),
       this.conn.collection('articles').countDocuments({ status: 'PUBLISHED', is_deleted: { $ne: true } }).catch(() => 0),
       this.publicDoctorSitemap().catch(() => []),

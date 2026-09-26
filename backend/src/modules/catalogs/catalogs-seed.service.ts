@@ -30,7 +30,7 @@ export class CatalogsSeedService implements OnModuleInit {
     let ok = 0;
     for (const x of NURSING_ADDITIONS) {
       try {
-        const r: any = await this.conn.collection('nursing_catalog').updateOne(
+        const r: any = await this.conn.collection(CATALOG_COLLECTIONS.nursing_services).updateOne(
           { code: x.code },
           { $setOnInsert: { ...x, id: x.code } },
           { upsert: true },
@@ -66,7 +66,7 @@ export class CatalogsSeedService implements OnModuleInit {
       }
       for (const x of read('nursing.json')) {        const id = x.id || slug(x.name_en);
         try {
-          const r: any = await this.conn.collection('nursing_catalog').updateOne(
+          const r: any = await this.conn.collection(CATALOG_COLLECTIONS.nursing_services).updateOne(
             { id }, { $setOnInsert: { ...x, id, code: x.code || id } }, { upsert: true });
           if (r.upsertedCount || r.upsertedId) ok++;
         } catch { /* already live */ }
