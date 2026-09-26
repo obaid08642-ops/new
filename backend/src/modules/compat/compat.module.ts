@@ -28,6 +28,8 @@ import { v4 as uuid } from 'uuid';
 import { CurrentUser, Public, JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { MarkDto, OneDto } from './compat.generated.dto';
+import { HomeCareSvc } from '../home-care/home-care.service';
+import { HomeCareModule } from '../home-care/home-care.module';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 
 const now = () => new Date();
@@ -1201,11 +1203,17 @@ export class PatientPharmacyOrdersController {
 }
 
 // ─── Patient home-care (services/packages catalog + bookings) ────────────────
+// P5.3: booking writes go through the single canonical implementation
+// (HomeCareSvc.book → `homecarebookings`); reads union canonical + legacy
+// `home_care_bookings` so pre-unification bookings stay visible.
 @Controller('home-care')
 @SelfService()
 @UseGuards(JwtAuthGuard)
 export class PatientHomeCareController {
-  constructor(@InjectConnection() private conn: Connection) {}
+  constructor(
+    @InjectConnection() private conn: Connection,
+    private readonly homeSvc: HomeCareSvc,
+  ) {}
 
   @Get('services')
   async services(@Query('limit') limit = '50') {
@@ -1234,22 +1242,17 @@ export class PatientHomeCareController {
     const userId = uid(u);
     if (!userId) throw new ForbiddenException('authenticated_user_required');
     if (!body?.service_id && !body?.package_id) throw new BadRequestException('service_or_package_required');
-    const doc: any = {
-      id: uuid(),
-      patient_id: userId,
-      service_id: body?.service_id ?? null,
-      package_id: body?.package_id ?? null,
-      scheduled_at: body?.scheduled_at ?? null,
-      address_id: body?.address_id ?? null,
-      notes: body?.notes ?? null,
-      payment_method: body?.payment_method ?? 'cash',
-      insurance_policy_id: body?.insurance_policy_id ?? null,
-      status: 'requested',
-      created_at: now(),
-      updated_at: now(),
-    };
-    await this.conn.db.collection('home_care_bookings').insertOne(doc);
-    const { _id, ...out } = doc;
+    if (body.package_id && !body.service_id) {
+      throw new BadRequestException('package_booking_not_supported_use_service');
+    }
+    const booking = await this.homeSvc.book(u, {
+      service_id: body.service_id,
+      scheduled_at: body.scheduled_at,
+      notes: body.notes,
+      payment_method: body.payment_method,
+      ...(body.address_id ? { address: { address_id: body.address_id } } : {}),
+    });
+    const { _id, ...out } = booking as any;
     return { data: out };
   }
 
@@ -1258,15 +1261,20 @@ export class PatientHomeCareController {
     const userId = uid(u);
     if (!userId) throw new ForbiddenException('authenticated_user_required');
     const lim = Math.min(Math.max(parseInt(limit, 10) || 20, 1), 100);
-    const skip = Math.max((parseInt(page, 10) || 1) - 1, 0) * lim;
-    const docs = await this.conn.db
-      .collection('home_care_bookings')
-      .find({ patient_id: userId } as any)
-      .sort({ created_at: -1 })
-      .skip(skip)
-      .limit(lim)
-      .toArray();
-    return { data: docs.map(({ _id, ...d }: any) => d), page: parseInt(page, 10) || 1, limit: lim };
+    const [canonical, legacy] = await Promise.all([
+      this.homeSvc.mineFor(u).catch(() => []),
+      this.conn.db
+        .collection('home_care_bookings')
+        .find({ patient_id: userId } as any)
+        .sort({ created_at: -1 })
+        .limit(lim)
+        .toArray()
+        .catch(() => []),
+    ]);
+    const merged = [...(canonical as any[]), ...(legacy as any[]).map(({ _id, ...d }: any) => d)]
+      .sort((a: any, b: any) => new Date(b.created_at || b.createdAt || 0).getTime() - new Date(a.created_at || a.createdAt || 0).getTime())
+      .slice(0, lim);
+    return { data: merged, page: parseInt(page, 10) || 1, limit: lim };
   }
 }
 
@@ -1343,6 +1351,7 @@ export class PatientReviewsListController {
 
 
 @Module({
+  imports: [HomeCareModule],
   controllers: [
     ProviderDrugIndexController,
     ProviderDashboardController,

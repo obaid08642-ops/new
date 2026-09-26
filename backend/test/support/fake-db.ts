@@ -17,6 +17,7 @@ export function matches(doc: any, filter: any): boolean {
     const dv = doc?.[k];
     if (v !== null && typeof v === 'object' && !Array.isArray(v) && !(v instanceof RegExp)) {
       const ops = v as any;
+      if ('$eq' in ops) { if (JSON.stringify(dv) !== JSON.stringify(ops.$eq)) return false; continue; }
       if ('$in' in ops) { if (!ops.$in.some((x: any) => String(x) === String(dv))) return false; continue; }
       if ('$ne' in ops) { if (String(dv) === String(ops.$ne)) return false; continue; }
       if ('$exists' in ops) { if (!!ops.$exists !== (dv !== undefined)) return false; continue; }

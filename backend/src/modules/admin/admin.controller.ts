@@ -7,7 +7,7 @@ import { randomBytes } from 'crypto';
 import { JwtAuthGuard, Roles, CurrentUser } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { User, UserDocument } from '../../schemas/user.schema';
-import { ProviderDelta } from '../providers/schemas/provider-delta.schema';
+import { ProviderDelta } from '../provider/schemas/provider-delta.schema';
 import { CreateSubAdminDto, UpdateSubAdminDto, CreateProviderDto, CleanupOrphansDto } from './admin.dto';
 
 /** Provider roles an admin may create accounts for (never staff/admin roles). */

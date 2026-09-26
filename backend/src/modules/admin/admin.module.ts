@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AdminController } from './admin.controller';
 import { User, UserSchema } from '../../schemas/user.schema';
-import { ProviderDelta, ProviderDeltaSchema } from '../providers/schemas/provider-delta.schema';
+import { ProviderDelta, ProviderDeltaSchema } from '../provider/schemas/provider-delta.schema';
 import { AppointmentSchema } from '../../schemas/appointment.schema';
 import { EmergencyRequestSchema } from '../../schemas/emergency.schema';
 

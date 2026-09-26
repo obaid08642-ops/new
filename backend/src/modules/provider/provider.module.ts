@@ -74,6 +74,14 @@ import { ProviderScoreSnapshotRepository } from "./services/repositories/provide
 import { RadiologyServiceCatalogItemRepository } from "./services/repositories/radiologyservicecatalogitem.repository";
 import { ProviderSessionRepository } from "./services/repositories/providersession.repository";
 import { LeaveRequestSchema } from '../../schemas/leave-request.schema';
+import { HospitalSubEntity, HospitalSubEntitySchema } from './schemas/hospital-sub-entity.schema';
+import { ProviderBranch, ProviderBranchSchema } from '../../schemas/provider-branch.schema';
+import { Appointment, AppointmentSchema } from '../../schemas/appointment.schema';
+import { ProvidersController, ProvidersSeedController } from './providers.controller';
+import { HospitalEnterpriseController } from './controllers/hospital-enterprise.controller';
+import { ProvidersService } from './providers.service';
+import { ProviderProfileRepository } from './repositories/providerprofile.repository';
+import { UserRepository } from './repositories/user.repository';
 
 @Module({
   imports: [
@@ -110,6 +118,11 @@ import { LeaveRequestSchema } from '../../schemas/leave-request.schema';
       { name: 'ProviderScheduleSlot', schema: ProviderScheduleSlotSchema },
       { name: 'ProviderAssignmentAttempt', schema: ProviderAssignmentAttemptSchema },
       { name: 'ProviderScoreSnapshot', schema: ProviderScoreSnapshotSchema },
+      // P5.3: merged from ProvidersModule (providers/ → provider/)
+      { name: HospitalSubEntity.name, schema: HospitalSubEntitySchema },
+      { name: ProviderBranch.name, schema: ProviderBranchSchema },
+      { name: Appointment.name, schema: AppointmentSchema },
+      { name: 'ProviderProfile', schema: ProviderProfileSchema },
     ]),
     JwtModule.registerAsync({ useFactory: () => {
       const secret = process.env.JWT_SECRET;
@@ -139,6 +152,10 @@ import { LeaveRequestSchema } from '../../schemas/leave-request.schema';
     ProviderScheduleSlotsController,
     ProviderScoreController,
     AdminMatchingController,
+    // P5.3: merged from ProvidersModule (providers/ → provider/)
+    ProvidersController,
+    HospitalEnterpriseController,
+    ...(process.env.NODE_ENV === 'test' && process.env.ALLOW_TEST_SEED === 'true' ? [ProvidersSeedController] : []),
   ],
   providers: [
     ProviderImageProcessorService,
@@ -182,11 +199,17 @@ import { LeaveRequestSchema } from '../../schemas/leave-request.schema';
     { provide: "ProviderScheduleSlotRepository", useClass: ProviderScheduleSlotRepository },
     { provide: "ProviderScoreSnapshotRepository", useClass: ProviderScoreSnapshotRepository },
     { provide: "RadiologyServiceCatalogItemRepository", useClass: RadiologyServiceCatalogItemRepository },
-    { provide: "ProviderSessionRepository", useClass: ProviderSessionRepository }
+    { provide: "ProviderSessionRepository", useClass: ProviderSessionRepository },
+    // P5.3: merged from ProvidersModule (providers/ → provider/)
+    ProvidersService,
+    { provide: 'ProviderProfileRepository', useClass: ProviderProfileRepository },
+    { provide: 'UserRepository', useClass: UserRepository },
   ],
   exports: [
     ProviderAuthService, ProviderOtpService, ProviderRequestEngineService, ProviderNotificationsService,
     ProviderMatchingService, AssignmentStrategyService, ServiceCapabilityService, ProviderScoringService,
+    // P5.3: merged from ProvidersModule (providers/ → provider/)
+    ProvidersService,
   ],
 })
 export class ProviderModule {}
