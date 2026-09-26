@@ -3,6 +3,7 @@ import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import * as fs from 'fs';
 import * as path from 'path';
+import { CATALOG_COLLECTIONS } from './catalog-collections';
 
 /**
  * Market-gap nursing additions (competitor audit).
@@ -50,7 +51,7 @@ export class CatalogsSeedService implements OnModuleInit {
       for (const x of read('labs.json')) {
         const code = x.short_code || slug(x.name_en);
         try {
-          const r: any = await this.conn.collection('labservices').updateOne(
+          const r: any = await this.conn.collection(CATALOG_COLLECTIONS.lab_services).updateOne(
             { test_code: code }, { $setOnInsert: { ...x, test_code: code, id: x.id || code } }, { upsert: true });
           if (r.upsertedCount || r.upsertedId) ok++;
         } catch { /* already live */ }

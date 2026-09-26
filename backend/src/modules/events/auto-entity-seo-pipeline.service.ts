@@ -4,6 +4,7 @@ import { Connection } from 'mongoose';
 import { RedisService } from '../redis/redis.service';
 import { EventBusService } from './event-bus.service';
 import { buildSlug } from '../../common/slug.util';
+import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 
 export type PipelineEntityType =
   | 'doctor'
@@ -38,7 +39,7 @@ const COLLECTION_MAP: Record<PipelineEntityType, string> = {
   radiology: 'facilities',
   nursing: 'provider_profiles',
   service: 'homecareservices',
-  lab_test: 'labservices',
+  lab_test: CATALOG_COLLECTIONS.lab_services,
   radiology_service: 'radiologyservices',
   medicine: 'medicines_master',
 };

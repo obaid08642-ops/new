@@ -143,6 +143,7 @@ import { Public, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { AutoEntitySeoPipelineService, PipelineEntityType } from '../events/auto-entity-seo-pipeline.service';
 import { resolveMedicinePublicDto, productLocaleToDb, PUBLIC_CATALOG_LOCALES } from '../medicines/med-i18n';
+import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 
 const SITE = process.env.API_PUBLIC_URL?.replace('/api/v1', '') || 'https://api.nabd.plus';
 const SITE_NAME = 'نبض';
@@ -402,7 +403,7 @@ export class SeoSearchService {
       this.publicProductCount().catch(() => 0),
       this.conn.collection('provider_profiles').countDocuments({ provider_type: 'doctor', is_active: { $ne: false } }).catch(() => 0),
       this.conn.collection('facilities').countDocuments({ is_active: { $ne: false } }).catch(() => 0),
-      this.conn.collection('labservices').countDocuments({ active: { $ne: false } }).catch(() => 0),
+      this.conn.collection(CATALOG_COLLECTIONS.lab_services).countDocuments({ active: { $ne: false } }).catch(() => 0),
       this.conn.collection('radiologyservices').countDocuments({ active: { $ne: false } }).catch(() => 0),
       this.conn.collection('nursing_catalog').countDocuments({ is_active: { $ne: false } }).catch(() => 0),
       this.conn.collection('locations').countDocuments({ is_active: { $ne: false } }).catch(() => 0),

@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { trackingId, TRACK_PREFIX } from '../common/tracking';
 import { InsuranceDetails, InsuranceDetailsSchema } from './insurance.schema';
 
-@Schema({ timestamps: true })
+@Schema({ timestamps: true, collection: 'lab_services' })
 export class LabService extends Document {
   @Prop({ required: true, unique: true, default: () => uuidv4() }) id: string;
   @Prop({ required: true }) name_ar: string;

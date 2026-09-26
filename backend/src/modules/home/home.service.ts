@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { PromotionCampaign, PromotionCampaignDocument } from '../../schemas/promotion-campaign.schema';
 import { Appointment, AppointmentDocument } from '../../schemas/appointment.schema';
 import { REQUEST } from '@nestjs/core';
+import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 
 @Injectable()
 export class HomeService {
@@ -108,7 +109,7 @@ export class HomeService {
           verified: true,
           $or: [{ name_ar: regex }, { name_en: regex }, { active_ingredient: regex }],
         } as any).limit(6).toArray(),
-        db.collection('labservices').find({
+        db.collection(CATALOG_COLLECTIONS.lab_services).find({
           $or: [{ name_ar: regex }, { name_en: regex }, { short_code: regex }],
         } as any).limit(5).toArray(),
         db.collection('radiologyservices').find({

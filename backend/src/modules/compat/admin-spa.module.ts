@@ -36,6 +36,7 @@ import { v4 as uuid } from 'uuid';
 import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { CreateDtoGen2, CreateDto2Gen2, CreateDto3, CreateDto4, CreateDto5, UploadDto } from './admin-spa.generated.dto';
+import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 
 // These config endpoints intentionally store admin-owned, free-form JSON values.
 class FreeformConfigObjectPipe implements PipeTransform<unknown, Record<string, unknown>> {
@@ -450,7 +451,7 @@ class AdminServicesController extends AdminController {
   @Get()
   async list() {
     const [labs, rads, home] = await Promise.all([
-      this.conn.collection('labservices').find({ active: { $ne: false } } as any).limit(200).toArray(),
+      this.conn.collection(CATALOG_COLLECTIONS.lab_services).find({ active: { $ne: false } } as any).limit(200).toArray(),
       this.conn.collection('radiologyservices').find({ active: { $ne: false } } as any).limit(200).toArray(),
       this.conn.collection('homecareservices').find({ active: { $ne: false } } as any).limit(200).toArray(),
     ]);

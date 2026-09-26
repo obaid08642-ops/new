@@ -28,6 +28,7 @@ import { v4 as uuid } from 'uuid';
 import { CurrentUser, Public, JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { MarkDto, OneDto } from './compat.generated.dto';
+import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 
 const now = () => new Date();
 const uid = (u: any) => u?.id || u?._id || u?.user_id;
@@ -760,7 +761,7 @@ class CapabilitiesCatalogController {
 
   @Get('lab-services')
   async labServices() {
-    const rows = await this.conn.collection('labservices').find({ active: { $ne: false } } as any).limit(300).toArray();
+    const rows = await this.conn.collection(CATALOG_COLLECTIONS.lab_services).find({ active: { $ne: false } } as any).limit(300).toArray();
     return rows.map((s: any) => ({
       id: s.id || String(s._id), name_ar: s.name_ar, name_en: s.name_en,
       price: s.price, category: s.category, prep: s.prep_instructions || s.prep || null,

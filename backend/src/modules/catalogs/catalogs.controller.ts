@@ -3,6 +3,7 @@ import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { Public } from '../../common/auth.guard';
 import { RedisCacheInterceptor } from '../../common/redis-cache.interceptor';
+import { CATALOG_COLLECTIONS } from './catalog-collections';
 
 /**
  * Unified catalogs — SINGLE READ PATH for every app and every call site:
@@ -16,7 +17,7 @@ import { RedisCacheInterceptor } from '../../common/redis-cache.interceptor';
  * Admin add/remove in the dashboard writes to DB → visible everywhere instantly.
  */
 const DB_COLLECTIONS: Record<string, string> = {
-  labs: 'labservices',
+  labs: CATALOG_COLLECTIONS.lab_services,
   radiology: 'radiologyservices',
   nursing: 'nursing_catalog',
   specialties: 'specialties',
