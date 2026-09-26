@@ -21,7 +21,7 @@ import {
   Module,
   UseGuards,
 } from '@nestjs/common';
-import { SendDto, AddDto, RegisterDto, IngestDto, CreateDto, BookDto, BareSendDto, SendDto2, BatchDto, CheckDto, SendMessageDto, AddNoteToActiveDto, AddNoteDto, VerifyGpsDto, ReportShortageDto, VoiceToOrderDto} from './compat.dto';
+import { SendDto, AddDto, RegisterDto, IngestDto, BookDto, BareSendDto, SendDto2, BatchDto, CheckDto, SendMessageDto, AddNoteToActiveDto, AddNoteDto, VerifyGpsDto, ReportShortageDto, VoiceToOrderDto} from './compat.dto';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
 import { v4 as uuid } from 'uuid';
@@ -1145,63 +1145,10 @@ class ProviderDashboardController {
   }
 }
 
-// ─── Patient pharmacy orders (patient-facing; pharmacy_ops is provider-side) ─
-@Controller('patient/pharmacy')
-@SelfService()
-@UseGuards(JwtAuthGuard)
-export class PatientPharmacyOrdersController {
-  constructor(@InjectConnection() private conn: Connection) {}
-  private get col() { return this.conn.db.collection('pharmacy_orders'); }
-
-  @Post('orders')
-  async create(@CurrentUser() u: any, @Body() body: CreateDto) {
-    const userId = uid(u);
-    if (!userId) throw new ForbiddenException('authenticated_user_required');
-    const items = Array.isArray(body?.items) ? body.items : [];
-    if (items.length === 0 && !body?.prescription_id && !body?.manual_request) {
-      throw new BadRequestException('order_requires_items_or_prescription');
-    }
-    const doc: any = {
-      id: uuid(),
-      patient_id: userId,
-      items,
-      prescription_id: body?.prescription_id ?? null,
-      manual_request: body?.manual_request ?? null,
-      delivery_address_id: body?.delivery_address_id ?? null,
-      payment_method: body?.payment_method ?? 'cash',
-      insurance_policy_id: body?.insurance_policy_id ?? null,
-      status: 'pending_broadcast',
-      created_at: now(),
-      updated_at: now(),
-    };
-    await this.col.insertOne(doc);
-    const { _id, ...out } = doc;
-    return { data: out };
-  }
-
-  @Get('orders')
-  async listMine(@CurrentUser() u: any, @Query('limit') limit = '20', @Query('page') page = '1') {
-    const userId = uid(u);
-    if (!userId) throw new ForbiddenException('authenticated_user_required');
-    const lim = Math.min(Math.max(parseInt(limit, 10) || 20, 1), 100);
-    const skip = Math.max((parseInt(page, 10) || 1) - 1, 0) * lim;
-    const docs = await this.col
-      .find({ patient_id: userId } as any)
-      .sort({ created_at: -1 })
-      .skip(skip)
-      .limit(lim)
-      .toArray();
-    return { data: docs.map(({ _id, ...d }: any) => d), page: parseInt(page, 10) || 1, limit: lim };
-  }
-
-  @Get('orders/:id')
-  async one(@CurrentUser() u: any, @Param('id') id: string) {
-    const doc = await mustOwnBooking(this.conn, 'pharmacy_orders', id, uid(u));
-    const { _id, ...out } = doc as any;
-    return { data: out };
-  }
-}
-
+// ─── Patient pharmacy orders ─────────────────────────────────────────────
+// P5.3: removed — served by the canonical PatientPharmacyController
+// (pharmacy module), which now also accepts manual_request/prescription_id.
+// (Deletion marker kept so the route history stays greppable.)
 // ─── Patient home-care (services/packages catalog + bookings) ────────────────
 // P5.3: booking writes go through the single canonical implementation
 // (HomeCareSvc.book → `homecarebookings`); reads union canonical + legacy
@@ -1376,7 +1323,6 @@ export class PatientReviewsListController {
     ProviderFacilityController,
     B2BVoiceController,
     MentalHealthCompatController,
-    PatientPharmacyOrdersController,
     PatientHomeCareController,
     PatientRefundsController,
     PatientLabsCatalogController,

@@ -40,7 +40,20 @@ export class PharmacyOrderService {
       intake_source: it.intake_source || 'manual',
       notes: it.notes,
     }));
-    if (!items.length) throw new BadRequestException('items_required');
+    // Manual free-text request (web manual form): a named item the pharmacy
+    // matches during broadcast, same as a typed unknown item.
+    const manual = body.manual_request && typeof body.manual_request === 'object' ? body.manual_request : null;
+    if (!items.length && manual && String(manual.name || '').trim()) {
+      items.push({
+        id: uuidv4(),
+        raw_name: sanitize(manual.name),
+        qty: 1,
+        match_status: OrderItemMatchStatus.MANUAL,
+        intake_source: 'manual',
+        notes: typeof manual.details === 'string' ? sanitize(manual.details).slice(0, 500) : undefined,
+      });
+    }
+    if (!items.length && !body.prescription_id) throw new BadRequestException('items_required');
     const addr = body.delivery_address || {};
     const geo = addr.geo || (addr.lat && addr.lng ? { lat: Number(addr.lat), lng: Number(addr.lng) } : null);
     const normalizedAddress = { ...addr, ...(geo ? { geo } : {}) };
@@ -51,6 +64,11 @@ export class PharmacyOrderService {
       items,
       delivery_address: normalizedAddress,
       patient_notes: body.patient_notes,
+      prescription_id: typeof body.prescription_id === 'string' ? body.prescription_id : undefined,
+      manual_request: manual ? { name: sanitize(manual.name).slice(0, 200), details: typeof manual.details === 'string' ? sanitize(manual.details).slice(0, 500) : null } : undefined,
+      payment_method: typeof body.payment_method === 'string' ? body.payment_method : 'cash',
+      insurance_policy_id: typeof body.insurance_policy_id === 'string' ? body.insurance_policy_id : undefined,
+      delivery_address_id: typeof body.delivery_address_id === 'string' ? body.delivery_address_id : undefined,
       prescription_attachments: body.prescription_attachments || [],
       totals: { subtotal: 0, delivery_fee: 0, total: 0, currency: 'SAR' },
       timeline: [{ ts: new Date(), event: 'created' }],
