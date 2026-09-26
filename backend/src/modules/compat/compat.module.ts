@@ -608,33 +608,9 @@ class NursingCompatController {
     }));
   }
 
-  /**
-   * Bare notes endpoint used by the nursing dashboard: attaches vitals+note to
-   * the nurse's CURRENT visit (latest ARRIVED/IN_PROGRESS booking).
-   */
-  @Post('notes')
-  async addNoteToActive(@CurrentUser() user: any, @Body() body: AddNoteToActiveDto) {
-    const u = uid(user);
-    const b: any = await this.conn.collection('homecarebookings')
-      .find({
-        $or: [{ provider_id: u }, { nurse_id: u }, { provider_account_id: u }],
-        $and: [{ $or: [{ state: { $in: ['ARRIVED', 'IN_PROGRESS', 'arrived', 'in_progress'] } }, { status: { $in: ['ARRIVED', 'IN_PROGRESS', 'arrived', 'in_progress'] } }] }],
-      } as any)
-      .sort({ updatedAt: -1 }).limit(1).next();
-    if (!b) throw new NotFoundException('لا توجد زيارة نشطة لإرفاق الملاحظة بها');
-    const vitals = body?.vitals && typeof body.vitals === 'object' ? body.vitals : {};
-    const note = String(body?.note || '').trim();
-    if (!note && !Object.keys(vitals).length) throw new BadRequestException('الملاحظة أو العلامات الحيوية مطلوبة');
-    const ins = await this.conn.collection('nursingvisitreports').insertOne({
-      booking_id: b.id || String(b._id), patient_id: b.patient_id, nurse_id: u,
-      vitals, note, createdAt: now(),
-    } as any);
-    await this.conn.collection('homecarebookings').updateOne(
-      { _id: b._id }, { $set: { latest_vitals: vitals, updatedAt: now() } },
-    );
-    return { ok: true, id: String(ins.insertedId), booking_id: b.id || String(b._id) };
-  }
-
+  // P5.3: removed — POST /nursing/notes is served by the canonical createNote
+  // (home-care module), which targets the explicit booking clients send.
+  // (Deletion marker kept so the route history stays greppable.)
   @Post('jobs/:id/notes')
   async addNote(@Param('id') id: string, @CurrentUser() user: any, @Body() body: AddNoteDto) {
     const u = uid(user);
@@ -1226,28 +1202,9 @@ export class PatientHomeCareController {
 }
 
 // ─── Patient refunds ─────────────────────────────────────────────────────────
-@Controller('refunds')
-@UseGuards(JwtAuthGuard)
-export class PatientRefundsController {
-  constructor(@InjectConnection() private conn: Connection) {}
-
-  @Get('my')
-  async my(@CurrentUser() u: any, @Query('limit') limit = '20', @Query('page') page = '1') {
-    const userId = uid(u);
-    if (!userId) throw new ForbiddenException('authenticated_user_required');
-    const lim = Math.min(Math.max(parseInt(limit, 10) || 20, 1), 100);
-    const skip = Math.max((parseInt(page, 10) || 1) - 1, 0) * lim;
-    const docs = await this.conn.db
-      .collection('refunds')
-      .find({ $or: [{ patient_id: userId }, { user_id: userId }] } as any)
-      .sort({ created_at: -1 })
-      .skip(skip)
-      .limit(lim)
-      .toArray();
-    return { data: docs.map(({ _id, ...d }: any) => d), page: parseInt(page, 10) || 1, limit: lim };
-  }
-}
-
+// P5.3: removed — GET /refunds/my is served by the canonical RefundController
+// (insurance-engine), which returns the array shape the patient app renders.
+// (Deletion marker kept so the route history stays greppable.)
 // ─── Patient: lab detail (parity for mobile diagnostics/lab/[id]) ────────────
 @Controller('labs')
 @UseGuards(JwtAuthGuard)
@@ -1324,7 +1281,6 @@ export class PatientReviewsListController {
     B2BVoiceController,
     MentalHealthCompatController,
     PatientHomeCareController,
-    PatientRefundsController,
     PatientLabsCatalogController,
     PatientNurseProfileController,
     PatientReviewsListController,
