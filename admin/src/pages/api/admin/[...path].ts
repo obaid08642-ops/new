@@ -121,6 +121,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       if (typeof value === 'string') headers.set(header, value);
     }
     headers.set('authorization', `Bearer ${accessToken}`);
+    // Routes marked @RequireIdempotency reject writes without a key: keep the page's key, else mint one.
+    if (WRITE_METHODS.has(req.method)) {
+      const sentKey = req.headers['idempotency-key'];
+      headers.set('idempotency-key', typeof sentKey === 'string' && sentKey.trim() ? sentKey.trim() : `admin-${crypto.randomUUID()}`);
+    }
     headers.set('x-forwarded-for', req.socket.remoteAddress || '');
     headers.set('x-admin-bff', 'next-pages-router');
     // Device binding (NOT IP binding — mobile IPs rotate): stable per-browser id.

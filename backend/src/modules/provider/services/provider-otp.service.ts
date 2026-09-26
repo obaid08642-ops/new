@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, NotFoundException, Logger, Inject } from '@nestjs/common';
+import { ServiceUnavailableException, Injectable, BadRequestException, NotFoundException, Logger, Inject } from '@nestjs/common';
 import { Model } from 'mongoose';
 import * as crypto from 'crypto';
 import { ProviderOtpCode, OtpPurpose, OtpStatus } from '../schemas';
@@ -21,7 +21,8 @@ export class ProviderOtpService {
   ) {}
 
   private hash(code: string) { return crypto.createHash('sha256').update(code).digest('hex'); }
-  private generateCode() { return ('' + Math.floor(100000 + Math.random() * 900000)).slice(-6); }
+  // Cryptographically random (Math.random is predictable): 100000..999999
+  private generateCode() { return String(crypto.randomInt(100000, 1000000)); }
   private bodyFor(purpose: OtpPurpose, code: string) {
     if (purpose === OtpPurpose.PASSWORD_RESET) {
       return { subject: 'إعادة تعيين كلمة المرور - نبض', text: `رمز إعادة التعيين: ${code}\nصالح لمدة ${OTP_EXP_MIN} دقائق.\nإذا لم تطلب هذا تجاهل الرسالة.` };
@@ -52,9 +53,14 @@ export class ProviderOtpService {
     });
     const body = this.bodyFor(purpose, code);
     const send = await this.mailer.send({ to: email, subject: body.subject, text: body.text, tag: purpose });
+    if (send.status === 'failed') {
+      // Do not answer "sent" when nothing was sent: the app would wait for a code that never comes.
+      await this.otpModel.updateOne({ _id: (doc as any)._id }, { $set: { status: OtpStatus.INVALIDATED } });
+      throw new ServiceUnavailableException({ message: 'otp_channel_unavailable', code: 'otp_channel_unavailable' });
+    }
     await this.audit.create({ provider_account_id: meta.account_id, actor_id: meta.account_id || 'system', actor_role: 'system', action: 'otp.issued', target: { collection: 'provider_otp_codes', id: doc.id }, after: { purpose, send_status: send.status }, ip: meta.ip, user_agent: meta.ua });
     if (send.status === 'logged') this.logger.warn(`(LOG_ONLY) OTP for ${email} purpose=${purpose} → ${code}`);
-    return { sent: send.status !== 'failed', cooldown_seconds: OTP_RESEND_COOLDOWN_SEC, expires_in_seconds: OTP_EXP_MIN * 60, log_only: send.status === 'logged' };
+    return { sent: true, cooldown_seconds: OTP_RESEND_COOLDOWN_SEC, expires_in_seconds: OTP_EXP_MIN * 60, log_only: send.status === 'logged' };
   }
 
   /** Verify the latest active OTP. */

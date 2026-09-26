@@ -162,4 +162,15 @@ describe('Provider App release contracts', () => {
     expect(client).toMatch(/\['POST', 'PUT', 'PATCH', 'DELETE'\]\.includes\(method\)/);
     expect(client).toMatch(/h\['Idempotency-Key'\] = `prov-\$\{await CryptoUtils\.randomHex\(16\)\}`/);
   });
+
+  it('registration wizards sign in as the onboarding identity (a provider account exists only after submit + review)', () => {
+    const all = ['doctor/DoctorRegistration.tsx', 'pharmacy/PharmacyRegistration.tsx', 'lab/LabRegistration.tsx', 'radiology/RadiologyRegistration.tsx',
+      'nursing/NursingRegistration.tsx', 'facility/FacilityRegistration.tsx', 'ambulance/AmbulanceRegistration.tsx'];
+    for (const file of all) {
+      const src = read(`screens/${file}`);
+      expect(src).toMatch(/ProviderApi\.onboardingLogin\(data\.(managerEmail|email), data\.password/);
+      expect(src).not.toMatch(/ProviderApi\.login\(/);
+    }
+    expect(read('api/provider.ts')).toMatch(/onboardingLogin[\s\S]*client\.post\('\/auth\/login'/);
+  });
 });

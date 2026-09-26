@@ -210,6 +210,42 @@ export class ProviderProfile {
   @Prop() profile_photo?: string;          // personal photo (storage id / url)
   @Prop() logo?: string;                   // facility/pharmacy logo
   @Prop() clinic_duration?: number;        // consultation length (minutes)
+  // Wizard fields the onboarding service stores but the strict schema used to strip (live run 2026-09-26)
+  @Prop() region?: string;
+  @Prop() legal_name?: string;              // official name (contracts / verification)
+  @Prop() pharmacist_name?: string;
+  @Prop() pharmacy_type?: string;
+  @Prop() tech_officer_name?: string;
+  @Prop() tech_officer_scfhs?: string;
+  @Prop() lab_category?: string;
+  @Prop() lab_accreditation?: string;
+  @Prop() scfhs_expiry?: string;
+  @Prop({ type: Object }) insurance_plans?: Record<string, string[]>;   // companyId -> accepted plan ids
+  @Prop({ type: Object }) test_insurance_map?: Record<string, unknown>;
+  @Prop({ type: Object }) test_turnaround_map?: Record<string, unknown>;
+  @Prop({ type: Object }) test_home_map?: Record<string, unknown>;
+  @Prop({ type: Object }) scan_insurance_map?: Record<string, unknown>;
+  @Prop({ type: Object }) test_prices?: Record<string, number>;
+  @Prop({ type: Object }) scan_prices?: Record<string, number>;
+  @Prop() home_collection_fee?: number;
+  @Prop() target_genders?: string;
+  @Prop() home_collector_count?: number;
+  @Prop() home_collector_gender?: string;
+  @Prop() home_duration?: number;
+  @Prop({ type: [Object], default: undefined }) pharmacy_roster?: Record<string, unknown>[];
+  @Prop({ type: [Object], default: undefined }) ambulance_roster?: Record<string, unknown>[];
+  @Prop() has_insurance_coordinator?: boolean;
+  @Prop() vehicles_count?: number;
+  @Prop({ type: [String], default: undefined }) vehicle_plates?: string[];
+  @Prop() paramedic_count?: number;
+  @Prop() emergency_level?: string;
+  @Prop() has_icu_units?: boolean;
+  @Prop({ type: [String], default: undefined }) service_area_cities?: string[];
+  @Prop({ type: { lat: Number, lng: Number }, _id: false }) base_location?: { lat: number; lng: number };
+  @Prop() consultation_fee?: number;
+  @Prop() online_consultation_fee?: number;
+  @Prop() home_visit_fee?: number;
+
   @Prop() video_duration?: number;
   @Prop() home_transport_fee?: boolean;    // home-visit transport surcharge
   @Prop() home_transport_price?: number;

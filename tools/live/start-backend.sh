@@ -11,6 +11,9 @@ export JWT_SECRET="${JWT_SECRET:-live-test-secret-0123456789abcdef-0123456789}"
 export MONGO_URL="${MONGO_URL:-mongodb://127.0.0.1:27017/?replicaSet=rs0&directConnection=true}"
 export DB_NAME="${DB_NAME:-nabd_live}"
 export REDIS_URL="${REDIS_URL:-redis://127.0.0.1:6379}" REDIS_HOST=127.0.0.1 REDIS_PORT=6379
+# Private object storage (uploads): any S3-compatible server; locally tools/live uses moto_server on :9000.
+export S3_ENDPOINT="${S3_ENDPOINT:-http://127.0.0.1:9000}" S3_BUCKET="${S3_BUCKET:-nabd-live}" S3_REGION="${S3_REGION:-us-east-1}"
+export S3_ACCESS_KEY_ID="${S3_ACCESS_KEY_ID:-live}" S3_SECRET_ACCESS_KEY="${S3_SECRET_ACCESS_KEY:-live-secret}"
 export SES_SMTP_HOST=127.0.0.1 SES_SMTP_PORT=2525 SES_SMTP_USER=live SES_SMTP_PASS=live SES_FROM=no-reply@nabd.test
 export ALLOWED_ORIGINS="${ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:3001,http://localhost:8081,http://localhost:8082}"
 export CORS_ORIGINS="$ALLOWED_ORIGINS"

@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import * as PDFDocument from 'pdfkit';
@@ -235,7 +235,12 @@ export class ContractPdfService {
     doc.font(F).fontSize(10).fillColor('#333');
     doc.text(ar(`الاسم: ${party.signerName || '—'} (${party.signerRole || 'مفوّض'})`), 50 + W - colW, topY + 22, { width: colW, align: 'right' });
     if (sig) {
-      doc.image(sig, 50 + W - colW / 2 - 60, topY + 42, { fit: [120, 60] });
+      try {
+        doc.image(sig, 50 + W - colW / 2 - 60, topY + 42, { fit: [120, 60] });
+      } catch {
+        // A corrupt upload is not a signature: ask the provider to sign again instead of a 500.
+        throw new BadRequestException('signature_image_invalid');
+      }
     } else {
       doc.font(F).fontSize(10).fillColor('#b91c1c');
       doc.text(ar('(لم يُرفق توقيع إلكتروني)'), 50 + W - colW, topY + 46, { width: colW, align: 'right' });

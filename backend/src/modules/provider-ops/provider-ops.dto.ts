@@ -1,4 +1,5 @@
-import { IsArray, IsBoolean, IsDefined, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import { ArrayMaxSize, IsArray, IsBoolean, IsDefined, IsIn, IsNumber, IsObject, IsOptional, IsString, Matches, MaxLength, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class AddLeaveDto {
   @IsDefined()
@@ -134,10 +135,20 @@ export class HandoverDto {
   notes?: string;
 }
 
+/** Ambulance mission vitals as entered on the completion form (free text: "120/80", "88"). */
+export class AmbulanceVitalsDto {
+  @IsOptional() @IsString() @MaxLength(20) bp?: string;
+  @IsOptional() @IsString() @MaxLength(20) hr?: string;
+  @IsOptional() @IsString() @MaxLength(20) spo2?: string;
+}
+
 export class CompleteDto {
+  // provider-app AmbulanceDashboard sends { bp, hr, spo2 }; the service stores it as an object.
   @IsOptional()
-  @IsString()
-  vitals: string;
+  @IsObject()
+  @ValidateNested()
+  @Type(() => AmbulanceVitalsDto)
+  vitals?: AmbulanceVitalsDto;
 
   @IsOptional()
   @IsString()
@@ -163,15 +174,33 @@ export class ReplyReviewDto {
 
 }
 
+/** One day of the weekly schedule (provider-app WorkingHoursScreen). */
+export class WorkingDayDto {
+  @IsIn(['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']) day: string;
+  @IsOptional() @IsString() @Matches(/^([01]\d|2[0-3]):[0-5]\d$/) open?: string;
+  @IsOptional() @IsString() @Matches(/^([01]\d|2[0-3]):[0-5]\d$/) close?: string;
+  @IsOptional() @IsBoolean() closed?: boolean;
+}
+
 export class PutHoursDto {
-  @IsOptional()
-  @IsNumber()
-  hours?: number;
+  // The app sends the whole week: [{ day, open, close, closed }] (the service stores b.hours).
+  @IsArray()
+  @ArrayMaxSize(7)
+  @ValidateNested({ each: true })
+  @Type(() => WorkingDayDto)
+  hours: WorkingDayDto[];
 
 }
 
+/** Nursing shift availability toggles (provider-app NursingScheduleScreen). */
+export class ShiftTogglesDto {
+  @IsOptional() @IsBoolean() morning?: boolean;
+  @IsOptional() @IsBoolean() evening?: boolean;
+  @IsOptional() @IsBoolean() night?: boolean;
+}
+
 export class ScheduleSettingsDto {
-  @IsOptional() @IsArray() @IsObject({ each: true }) shifts?: Record<string, unknown>[];
+  @IsOptional() @IsObject() @ValidateNested() @Type(() => ShiftTogglesDto) shifts?: ShiftTogglesDto;
   @IsOptional() @IsNumber() maxVisits?: number;
   @IsOptional() @IsBoolean() emergencyReady?: boolean;
 }

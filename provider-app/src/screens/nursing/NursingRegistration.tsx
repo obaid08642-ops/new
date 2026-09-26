@@ -202,12 +202,12 @@ function NS1({ data, update, onNext, onBack, step, total, bare = false, submitRe
         email: data.managerEmail,
         type: 'home_care',
       });
-      await ProviderApi.login(data.managerPhone, data.password);
+      await ProviderApi.onboardingLogin(data.managerEmail, data.password, 'home_care');
       if (!bare) onNext();
       return true;
     } catch (e: any) {
       try {
-        await ProviderApi.login(data.managerPhone, data.password);
+        await ProviderApi.onboardingLogin(data.managerEmail, data.password, 'home_care');
         if (!bare) onNext();
         return true;
       } catch (loginErr: any) {

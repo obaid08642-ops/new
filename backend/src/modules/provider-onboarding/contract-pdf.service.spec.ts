@@ -31,4 +31,11 @@ describe('ContractPdfService signature source', () => {
 
     fetchSpy.mockRestore();
   });
+
+  // Live finding: a corrupt signature upload made submit answer 500.
+  it('a corrupt signature image is a 400 (sign again), not a crash', async () => {
+    const service = new ContractPdfService({ collection: () => ({ findOne: jest.fn() }) } as unknown as Connection);
+    const bad = 'data:image/png;base64,' + Buffer.from('89504e470d0a1a0a00000000', 'hex').toString('base64');
+    await expect(service.generate({ signatureUrl: bad, signerName: 'x', signerRole: 'owner' } as any)).rejects.toMatchObject({ status: 400, message: 'signature_image_invalid' });
+  });
 });

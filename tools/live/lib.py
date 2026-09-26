@@ -4,7 +4,7 @@ Every request carries what the real clients send (JSON, idempotency key on mutat
 `step()` records PASS/FAIL with the actual status/body; a journey keeps going after a
 failure when later steps do not depend on it, so one run shows every broken step.
 """
-import json, os, re, time, uuid, urllib.request, urllib.error
+import json, os, re, time, uuid, urllib.request, urllib.error, urllib.parse
 
 BASE = os.environ.get('NABD_API', 'http://127.0.0.1:8002/api/v1')
 MAIL = os.environ.get('NABD_MAIL', '/tmp/nabd-mail.jsonl')
@@ -150,3 +150,54 @@ def summary(path=None):
     if path:
         json.dump(RESULTS, open(path, 'w'), ensure_ascii=False, indent=1)
     return len(fails)
+
+
+class WebClient(Client):
+    """Browser-like client for a Next.js BFF (patient-web /api/*, admin /api/admin/*): keeps cookies,
+    sends JSON, and adds an idempotency key only when the page itself would (explicit headers)."""
+
+    def __init__(self, base, label='web'):
+        import http.cookiejar
+        super().__init__(None, label)
+        self.base = base.rstrip('/')
+        self.jar = http.cookiejar.CookieJar()
+        self.opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(self.jar))
+
+    def req(self, method, path, body=None, headers=None, idem=False):
+        url = path if path.startswith('http') else self.base + path
+        h = {'accept': 'application/json', 'origin': self.base}
+        if body is not None:
+            h['content-type'] = 'application/json'
+        if idem and method in ('POST', 'PATCH', 'PUT', 'DELETE'):
+            h['idempotency-key'] = f'web-{uuid.uuid4()}'
+        h.update(headers or {})
+        data = json.dumps(body).encode() if body is not None else None
+        r = urllib.request.Request(url, data=data, method=method, headers=h)
+        try:
+            with self.opener.open(r, timeout=60) as resp:
+                raw, status, hdrs = resp.read(), resp.status, dict(resp.headers)
+        except urllib.error.HTTPError as e:
+            raw, status, hdrs = e.read(), e.code, dict(e.headers)
+        for c in self.jar:  # production cookies are Secure; the local run is plain http on localhost
+            c.secure = False
+        txt = raw.decode('utf8', 'replace')
+        try:
+            parsed = json.loads(txt) if txt else None
+        except ValueError:
+            parsed = txt
+        return Resp(status, parsed, hdrs)
+
+    def cookie(self, name):
+        return next((c.value for c in self.jar if c.name == name), None)
+
+
+class AdminWeb(WebClient):
+    """admin/src/utils/api.ts: fetchWithAdminGuard -> /api/admin/<path>, x-admin-csrf on writes."""
+
+    def req(self, method, path, body=None, headers=None, idem=False):
+        h = dict(headers or {})
+        if method in ('POST', 'PUT', 'PATCH', 'DELETE') and self.cookie('admin_csrf'):
+            h['x-admin-csrf'] = urllib.parse.unquote(self.cookie('admin_csrf'))
+        if not path.startswith('/api/') and not path.startswith('http'):
+            path = '/api/admin' + path
+        return super().req(method, path, body, h, idem)

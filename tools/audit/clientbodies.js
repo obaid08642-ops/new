@@ -162,10 +162,106 @@ function adminBackendPath(url) {
   return up.replace(/\/+$/, '');
 }
 
+// --types: type every body field with the app's own TypeScript program (checker), so dtocheck can
+// compare value kinds (string/number/boolean/array/object) with the DTO's class-validator decorators.
+const WITH_TYPES = process.argv.includes('--types');
+const programs = new Map();
+function programFor(file) {
+  const root = ['admin', 'provider-app', 'patient-web', 'patient-app'].find((r) => file.startsWith(r + '/'));
+  if (!root) return null;
+  if (!programs.has(root)) {
+    const cfgPath = path.resolve(root, 'tsconfig.json');
+    const cfg = ts.getParsedCommandLineOfConfigFile(cfgPath, {}, { ...ts.sys, onUnRecoverableConfigFileDiagnostic: () => {} });
+    programs.set(root, cfg ? ts.createProgram({ rootNames: cfg.fileNames, options: { ...cfg.options, noEmit: true } }) : null);
+  }
+  return programs.get(root);
+}
+function kindOf(t, checker) {
+  if (!t) return null;
+  const F = ts.TypeFlags;
+  if (t.flags & (F.Any | F.Unknown)) return null;
+  if (t.isUnion && t.isUnion()) {
+    const ks = [...new Set(t.types.filter((x) => !(x.flags & (F.Undefined | F.Null | F.Void))).map((x) => kindOf(x, checker)))];
+    if (ks.includes(null)) return null;
+    return ks.length === 1 ? ks[0] : (ks.length ? ks.sort().join('|') : 'null');
+  }
+  if (t.flags & (F.String | F.StringLiteral | F.TemplateLiteral | F.StringMapping)) return 'string';
+  if (t.flags & (F.Number | F.NumberLiteral | F.BigInt)) return 'number';
+  if (t.flags & (F.Boolean | F.BooleanLiteral)) return 'boolean';
+  if (t.flags & (F.Null | F.Undefined)) return 'null';
+  if (checker.isArrayType(t) || checker.isTupleType(t)) {
+    const el = checker.isArrayType(t) ? (checker.getTypeArguments(t) || [])[0] : null;
+    const ek = el ? kindOf(el, checker) : null;
+    return ek && ek !== 'null' && !ek.includes('|') && !ek.startsWith('array') ? `array<${ek}>` : 'array';
+  }
+  const sym = t.getSymbol && t.getSymbol();
+  if (sym && sym.getName() === 'Date') return 'string'; // JSON.stringify(Date) -> ISO string
+  if (t.flags & F.Object) return 'object';
+  return null;
+}
+function bodyKinds(expr, sf, checker) {
+  while (expr && (ts.isParenthesizedExpression(expr) || ts.isAsExpression(expr))) expr = expr.expression;
+  if (expr && ts.isCallExpression(expr) && /JSON\.stringify$/.test(expr.expression.getText(sf))) expr = expr.arguments[0];
+  if (!expr) return null;
+  const t = checker.getTypeAtLocation(expr);
+  if (!t || (t.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown))) return null;
+  const out = {};
+  for (const p of checker.getPropertiesOfType(t)) {
+    const decl = p.valueDeclaration || (p.declarations || [])[0];
+    const pt = decl ? checker.getTypeOfSymbolAtLocation(p, decl) : checker.getTypeOfSymbol(p);
+    out[p.getName()] = kindOf(pt, checker);
+  }
+  return out;
+}
+function bodyExprOfOpts(opts, sf) {
+  const b = opts && opts.properties.find((p) => p.name && p.name.getText(sf) === 'body');
+  if (!b) return null;
+  return ts.isShorthandPropertyAssignment(b) ? b.name : b.initializer;
+}
+
+// Wrapper resolution: `step3(payload) { return client.post('/x', payload) }` -> type each caller's argument.
+const callIndex = new Map(); // program -> Map(symbol -> CallExpression[])
+function callersOf(prog, checker, fnSym) {
+  if (!callIndex.has(prog)) {
+    const idx = new Map();
+    for (const f of prog.getSourceFiles()) {
+      if (f.isDeclarationFile || f.fileName.includes('node_modules')) continue;
+      const v = (n) => {
+        if (ts.isCallExpression(n)) {
+          let sym = checker.getSymbolAtLocation(ts.isPropertyAccessExpression(n.expression) ? n.expression.name : n.expression);
+          if (sym && sym.flags & ts.SymbolFlags.Alias) sym = checker.getAliasedSymbol(sym);
+          // keyed by declaration node: the symbol seen at a use site can differ from the declaration's
+          for (const d of (sym && sym.declarations) || []) { if (!idx.has(d)) idx.set(d, []); idx.get(d).push(n); }
+        }
+        ts.forEachChild(n, v);
+      };
+      v(f);
+    }
+    callIndex.set(prog, idx);
+  }
+  return (fnSym.declarations || []).flatMap((d) => callIndex.get(prog).get(d) || []);
+}
+function wrapperParam(expr, checker) {
+  if (!expr || !ts.isIdentifier(expr)) return null;
+  const sym = checker.getSymbolAtLocation(expr);
+  const decl = sym && sym.valueDeclaration;
+  if (!decl || !ts.isParameter(decl)) return null;
+  const fn = decl.parent;
+  const index = fn.parameters.indexOf(decl);
+  let fnSym = null;
+  if ((ts.isMethodDeclaration(fn) || ts.isFunctionDeclaration(fn)) && fn.name) fnSym = checker.getSymbolAtLocation(fn.name);
+  else if ((ts.isArrowFunction(fn) || ts.isFunctionExpression(fn)) && fn.parent && (ts.isVariableDeclaration(fn.parent) || ts.isPropertyAssignment(fn.parent)) && fn.parent.name) fnSym = checker.getSymbolAtLocation(fn.parent.name);
+  return fnSym ? { fnSym, index } : null;
+}
+const viaWrappers = [];
+
 const out = [];
 for (const app of APPS) {
   for (const f of walk(app)) {
-    const sf = ts.createSourceFile(f, fs.readFileSync(f, 'utf8'), ts.ScriptTarget.Latest, true, f.endsWith('x') ? ts.ScriptKind.TSX : ts.ScriptKind.TS);
+    const prog = WITH_TYPES ? programFor(f) : null;
+    const checker = prog ? prog.getTypeChecker() : null;
+    const sf = (prog && prog.getSourceFile(path.resolve(f))) || ts.createSourceFile(f, fs.readFileSync(f, 'utf8'), ts.ScriptTarget.Latest, true, f.endsWith('x') ? ts.ScriptKind.TSX : ts.ScriptKind.TS);
+    const typed = !!(checker && prog.getSourceFile(path.resolve(f)));
     const visit = (n) => {
       if (ts.isCallExpression(n)) {
         const callee = n.expression.getText(sf);
@@ -184,7 +280,9 @@ for (const app of APPS) {
             for (const [u, v] of [[a[0].whenTrue, mc.whenTrue], [a[0].whenFalse, mc.whenFalse]]) {
               const url = urlOf(u, sf);
               if (url && ts.isStringLiteralLike(v) && v.text.toUpperCase() !== 'GET') {
-                out.push({ method: v.text.toUpperCase(), url, ...bodyFromOpts(opts, sf), at: `${f}:${sf.getLineAndCharacterOfPosition(n.getStart()).line + 1}`, callee, idem: /idempotency/i.test(n.getText(sf)) });
+                let kinds = null;
+                if (typed) { try { const e = bodyExprOfOpts(opts, sf); kinds = e ? bodyKinds(e, sf, checker) : null; } catch { kinds = null; } }
+                out.push({ method: v.text.toUpperCase(), url, ...bodyFromOpts(opts, sf), kinds, at: `${f}:${sf.getLineAndCharacterOfPosition(n.getStart()).line + 1}`, callee, idem: /idempotency/i.test(n.getText(sf)) });
               }
             }
           }
@@ -206,11 +304,30 @@ for (const app of APPS) {
           const inBff = f.includes('/pages/api/');
           rec.backend = inBff ? rec.url : adminBackendPath(rec.url);
         }
+        if (rec && typed) {
+          const verbCall = /\.(post|put|patch|delete)$/i.test(callee);
+          const expr = verbCall ? a[1] : bodyExprOfOpts(a.find((x) => ts.isObjectLiteralExpression(x) && methodFromOpts(x, sf)), sf);
+          try { rec.kinds = expr ? bodyKinds(expr, sf, checker) : null; } catch { rec.kinds = null; }
+          const w = !rec.kinds ? wrapperParam(expr, checker) : null;
+          if (w) viaWrappers.push({ rec: { ...rec }, w, prog, checker, callee, wat: `${f}:${sf.getLineAndCharacterOfPosition(n.getStart()).line + 1}` });
+        }
         if (rec) out.push({ ...rec, at: `${f}:${sf.getLineAndCharacterOfPosition(n.getStart()).line + 1}`, callee, idem: /idempotency/i.test(n.getText(sf)) });
       }
       ts.forEachChild(n, visit);
     };
     visit(sf);
+  }
+}
+for (const { rec, w, prog, checker, callee, wat } of viaWrappers) {
+  for (const call of callersOf(prog, checker, w.fnSym)) {
+    const arg = call.arguments[w.index];
+    if (!arg) continue;
+    const csf = call.getSourceFile();
+    let kinds = null;
+    try { kinds = bodyKinds(arg, csf, checker); } catch { kinds = null; }
+    const lit = bodyKeys(arg, csf);
+    out.push({ ...rec, ...lit, keys: lit.unresolved && kinds ? Object.keys(kinds) : lit.keys, unresolved: lit.unresolved && !kinds ? lit.unresolved : undefined,
+      kinds, at: `${path.relative(process.cwd(), csf.fileName)}:${csf.getLineAndCharacterOfPosition(call.getStart()).line + 1}`, callee: `${callee} via ${call.expression.getText(csf)}`, via: wat });
   }
 }
 process.stdout.write(JSON.stringify(out, null, 1));

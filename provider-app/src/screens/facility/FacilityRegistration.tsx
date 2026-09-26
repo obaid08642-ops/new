@@ -194,9 +194,9 @@ function Step1Basic({ data, update, onNext, onBack, step, total, bare = false, s
         type: data.facilityType,
       });
       try {
-        await ProviderApi.login(data.managerPhone, data.password);
+        await ProviderApi.onboardingLogin(data.managerEmail, data.password, data.facilityType);
       } catch (e) {
-        await ProviderApi.login(data.managerPhone, data.password);
+        await ProviderApi.onboardingLogin(data.managerEmail, data.password, data.facilityType);
       }
       if (!bare) onNext();
       return true;

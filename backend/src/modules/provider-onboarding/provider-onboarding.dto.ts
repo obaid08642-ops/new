@@ -1,5 +1,16 @@
-import { IsArray, IsBoolean, IsDefined, IsEnum, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDefined, IsEnum, IsNumber, IsObject, IsOptional, IsString, MaxLength, ValidateNested } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
 import { ProviderType } from '../../common/enums';
+
+/** One working-hours row as the wizards send it (pharmacy may send day 'All' for 24/7). */
+export class WorkingHoursEntryDto {
+  @IsString() @MaxLength(20) day: string;
+  @IsOptional() @IsString() open?: string | null;
+  @IsOptional() @IsString() close?: string | null;
+  @IsOptional() @IsString() open_evening?: string | null;
+  @IsOptional() @IsString() close_evening?: string | null;
+  @IsOptional() @IsBoolean() closed?: boolean;
+}
 
 export class Step2Dto {
   @IsOptional()
@@ -18,9 +29,11 @@ export class Step2Dto {
   @IsString()
   district?: string;
 
+  // All registration screens send the typed street address as text (schema: string).
   @IsOptional()
-  @IsObject()
-  address?: Record<string, unknown>;
+  @IsString()
+  @MaxLength(500)
+  address?: string;
 
   @IsOptional()
   @IsObject()
@@ -48,10 +61,10 @@ export class Step2Dto {
   @IsString({ each: true })
   accepted_insurance?: string[];
 
+  // free-form: {companyId: [planIds]} map from the wizard's insurance picker
   @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  insurance_plans?: string[];
+  @IsObject()
+  insurance_plans?: Record<string, string[]>;
 
   @IsOptional()
   @IsBoolean()
@@ -159,6 +172,11 @@ export class Step2Dto {
   @IsString()
   scfhs_expiry?: string;
 
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  region?: string;
 }
 
 export class Step3Dto {
@@ -229,10 +247,11 @@ export class Step3Dto {
   @IsString()
   display_name_en?: string;
 
+  // free-form: facility wizard roster entries (one object per sub-unit: specialty, hours, images)
   @IsOptional()
   @IsArray()
-  @IsString({ each: true })
-  doctors_roster?: string[];
+  @IsObject({ each: true })
+  doctors_roster?: Record<string, unknown>[];
 
   @IsOptional()
   @IsString()
@@ -300,9 +319,10 @@ export class Step3Dto {
   @IsNumber()
   home_duration?: number;
 
+  // doctor wizard: whether a transport surcharge applies (the amount is home_transport_price)
   @IsOptional()
-  @IsNumber()
-  home_transport_fee?: number;
+  @IsBoolean()
+  home_transport_fee?: boolean;
 
   @IsOptional()
   @IsNumber()
@@ -336,15 +356,16 @@ export class Step3Dto {
   @IsString()
   insurance_online?: string;
 
+  // free-form: {companyId: [planIds]} map from the wizard's insurance picker
   @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  insurance_plans?: string[];
+  @IsObject()
+  insurance_plans?: Record<string, string[]>;
 
+  // free-form: facility wizard roster entries (one object per sub-unit: specialty, hours, images)
   @IsOptional()
   @IsArray()
-  @IsString({ each: true })
-  lab_roster?: string[];
+  @IsObject({ each: true })
+  lab_roster?: Record<string, unknown>[];
 
   @IsOptional()
   @IsArray()
@@ -359,10 +380,11 @@ export class Step3Dto {
   @IsString()
   national_id?: string;
 
+  // free-form: facility wizard roster entries (one object per sub-unit: specialty, hours, images)
   @IsOptional()
   @IsArray()
-  @IsString({ each: true })
-  nursing_roster?: string[];
+  @IsObject({ each: true })
+  nursing_roster?: Record<string, unknown>[];
 
   @IsOptional()
   @IsString()
@@ -380,14 +402,17 @@ export class Step3Dto {
   @IsNumber()
   paramedic_count?: number;
 
+  // Chain name. Older wizard builds send `false` ("not a chain"): treated as absent.
   @IsOptional()
+  @Transform(({ value }) => (typeof value === 'boolean' ? undefined : value))
   @IsString()
   pharmacy_chain?: string;
 
+  // free-form: facility wizard roster entries (one object per sub-unit: specialty, hours, images)
   @IsOptional()
   @IsArray()
-  @IsString({ each: true })
-  pharmacy_roster?: string[];
+  @IsObject({ each: true })
+  pharmacy_roster?: Record<string, unknown>[];
 
   @IsOptional()
   @IsNumber()
@@ -405,10 +430,11 @@ export class Step3Dto {
   @IsString()
   radiation_safety_license?: string;
 
+  // free-form: facility wizard roster entries (one object per sub-unit: specialty, hours, images)
   @IsOptional()
   @IsArray()
-  @IsString({ each: true })
-  radiology_roster?: string[];
+  @IsObject({ each: true })
+  radiology_roster?: Record<string, unknown>[];
 
   @IsOptional()
   @IsBoolean()
@@ -418,17 +444,23 @@ export class Step3Dto {
   @IsObject()
   scan_insurance_map?: Record<string, unknown>;
 
+  // free-form: per-day slots from the wizard's schedule builder (schema: array of objects)
   @IsOptional()
-  @IsObject()
-  schedule_clinic?: Record<string, unknown>;
+  @IsArray()
+  @IsObject({ each: true })
+  schedule_clinic?: Record<string, unknown>[];
 
+  // free-form: per-day slots from the wizard's schedule builder (schema: array of objects)
   @IsOptional()
-  @IsObject()
-  schedule_home?: Record<string, unknown>;
+  @IsArray()
+  @IsObject({ each: true })
+  schedule_home?: Record<string, unknown>[];
 
+  // free-form: per-day slots from the wizard's schedule builder (schema: array of objects)
   @IsOptional()
-  @IsObject()
-  schedule_video?: Record<string, unknown>;
+  @IsArray()
+  @IsObject({ each: true })
+  schedule_video?: Record<string, unknown>[];
 
   @IsOptional()
   @IsArray()
@@ -483,13 +515,45 @@ export class Step3Dto {
   video_duration?: number;
 
   @IsOptional()
-  @IsObject()
-  working_hours?: Record<string, unknown>;
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => WorkingHoursEntryDto)
+  working_hours?: WorkingHoursEntryDto[];
 
   @IsOptional()
   @IsNumber()
   years_experience?: number;
 
+
+  // Lab / radiology wizard: price lists and home-collection settings
+  // free-form: {testOrScanId: price} maps
+  @IsOptional()
+  @IsObject()
+  test_prices?: Record<string, number>;
+
+  // free-form: {scanId: price}
+  @IsOptional()
+  @IsObject()
+  scan_prices?: Record<string, number>;
+
+  @IsOptional()
+  @IsNumber()
+  home_collection_fee?: number;
+
+  @IsOptional()
+  @IsString()
+  target_genders?: string;
+
+  // Nursing / home-care wizard pricing (schema: pricingModel string[], price* numbers)
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  pricingModel?: string[];
+
+  @IsOptional() @IsNumber() priceVisit?: number;
+  @IsOptional() @IsNumber() priceHour?: number;
+  @IsOptional() @IsNumber() priceDay?: number;
+  @IsOptional() @IsNumber() priceMonth?: number;
 }
 
 export class StartDto {

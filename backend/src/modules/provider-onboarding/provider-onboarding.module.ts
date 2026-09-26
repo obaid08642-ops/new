@@ -1,4 +1,4 @@
-import { Module, Controller, Post, Get, Body, Query, Param, UseGuards, Injectable, BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Module, Controller, Post, Get, Body, Query, Param, UseGuards, Injectable, BadRequestException, NotFoundException, ForbiddenException, ConflictException } from '@nestjs/common';
 import { isEmail } from 'class-validator';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -54,6 +54,12 @@ export class ProviderOnboardingService {
     const email = String(body.email || '').trim();
     if (email.length > 254 || !isEmail(email)) throw new BadRequestException('verified_contact_email_required');
     let user = await this.userModel.findOne({ phone: { $eq: body.phone } });
+    if (user) {
+      // Resuming a wizard is allowed only with that account's password: this endpoint is public,
+      // and without the check anyone knowing a phone number could re-type or reset its provider profile.
+      const ok = typeof body.password === 'string' && !!user.password_hash && await bcrypt.compare(body.password, user.password_hash);
+      if (!ok) throw new ConflictException('account_exists_login_required');
+    }
     if (!user) {
       if (!body.password) throw new BadRequestException('password_required_for_new_user');
       const hash = await bcrypt.hash(body.password, 12);
@@ -79,6 +85,8 @@ export class ProviderOnboardingService {
         name_ar: String(body.full_name).trim(), onboarding_step: 1,
       });
     } else if (profile.type !== body.type) {
+      // An approved/suspended provider keeps its type; only an unfinished wizard may switch it.
+      if (profile.status !== ProviderStatus.PENDING) throw new ConflictException('provider_already_registered');
       profile.type = body.type; profile.onboarding_step = 1;
       await profile.save();
     }
@@ -119,7 +127,7 @@ export class ProviderOnboardingService {
       // official full name (contracts/verification) — patients see display_name_* instead
       'legal_name', 'insurance_plans',
       'pharmacist_name', 'tech_officer_name', 'tech_officer_scfhs',
-      'lab_category', 'lab_accreditation', 'scfhs_expiry', 'profile_photo'];
+      'lab_category', 'lab_accreditation', 'scfhs_expiry', 'profile_photo', 'region'];
     for (const f of fields) if (body[f] !== undefined) (profile as any)[f] = body[f];
     this.snapshotStep(profile, 'step2', body);
     profile.onboarding_step = Math.max(profile.onboarding_step || 0, 2);
@@ -158,13 +166,15 @@ export class ProviderOnboardingService {
         'gender_pref', 'working_hours', 'accepts_insurance', 'accepted_insurance', 'insurance_plans',
         'accepts_cash', 'nursing_services', 'consultation_modes', 'price_clinic', 'price_home',
         'schedule_home', 'vacation_date', 'test_insurance_map', 'test_turnaround_map',
-        'test_home_map', 'home_collector_count', 'home_collector_gender'
+        'test_home_map', 'home_collector_count', 'home_collector_gender',
+        'test_prices', 'scan_prices', 'home_collection_fee', 'target_genders', 'tech_officer_name', 'tech_officer_scfhs',
       ],
       [ProviderType.RADIOLOGY]: [
         'equipment_list', 'home_visit_supported', 'working_hours',
         'accepts_insurance', 'accepted_insurance', 'insurance_plans', 'accepts_cash', 'test_categories', 'consultation_modes', 'price_clinic', 'price_home',
         'radiation_safety_license', 'available_equipment_text', 'schedule_home',
-        'scan_insurance_map', 'vacation_date'
+        'scan_insurance_map', 'vacation_date',
+        'test_prices', 'scan_prices', 'home_collection_fee', 'target_genders', 'tech_officer_name', 'tech_officer_scfhs',
       ],
       [ProviderType.PHARMACY]: [
         'pharmacy_chain', 'has_own_drivers', 'delivery_radius_km',

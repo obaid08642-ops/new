@@ -40,6 +40,51 @@ const dArg = (d) => {
   return '';
 };
 
+// Value kind a property's class-validator decorators accept (no implicit conversion in the pipe):
+// 'string' | 'number' | 'boolean' | 'array' | 'object' | 'array|string' (each:true on a scalar check) | null (any).
+const kindsOf = new Map();
+const STRING_DECOS = new Set(['IsString', 'IsEmail', 'IsUUID', 'IsDateString', 'IsISO8601', 'IsUrl', 'IsMongoId', 'IsPhoneNumber', 'Matches', 'IsNumberString', 'IsAlphanumeric', 'IsHexColor', 'IsLatLong', 'IsMobilePhone', 'IsIBAN', 'IsJWT', 'IsBase64', 'Length', 'MinLength', 'MaxLength', 'Contains']);
+const NUMBER_DECOS = new Set(['IsNumber', 'IsInt', 'IsPositive', 'IsNegative', 'Min', 'Max', 'IsLatitude', 'IsLongitude', 'IsDivisibleBy']);
+function expectedKind(ds, sf) {
+  const names = ds.map(dName);
+  const each = (d) => /each\s*:\s*true/.test(d.getText(sf));
+  if (names.includes('IsArray') || names.includes('ArrayMinSize') || names.includes('ArrayMaxSize') || names.includes('ArrayNotEmpty')) {
+    const eachOf = (set) => ds.some((d) => set.has(dName(d)) && each(d));
+    if (eachOf(STRING_DECOS)) return 'array<string>';
+    if (eachOf(NUMBER_DECOS)) return 'array<number>';
+    if (ds.some((d) => dName(d) === 'IsBoolean' && each(d))) return 'array<boolean>';
+    if (ds.some((d) => ['IsObject', 'ValidateNested'].includes(dName(d)) && each(d))) return 'array<object>';
+    return 'array';
+  }
+  if (names.includes('IsBoolean')) return ds.some((d) => dName(d) === 'IsBoolean' && each(d)) ? 'array|boolean' : 'boolean';
+  const num = ds.find((d) => NUMBER_DECOS.has(dName(d)));
+  const str = ds.find((d) => STRING_DECOS.has(dName(d)));
+  if (num && !str) return each(num) ? 'array|number' : 'number';
+  if (str && !num) return each(str) ? 'array|string' : 'string';
+  if (names.includes('IsObject') || (names.includes('ValidateNested') && !names.includes('IsArray'))) return 'object';
+  return null; // IsIn / IsEnum / IsDefined / Allow / IsNotEmpty: value kind not constrained here
+}
+function kindsFor(name, seen = new Set()) {
+  const c = classes.get(name);
+  if (!c || seen.has(name)) return new Map();
+  seen.add(name);
+  const key = [...classes.entries()].find(([, v]) => v === c)[0];
+  const cls = key.includes('#') ? key : null;
+  const out = c.ext ? heritageKinds(c.ext, c.sf, seen) : new Map();
+  for (const [prop] of c.props) {
+    const k = kindsOf.get(`${c.sf.fileName}#${c.name}.${prop}`);
+    out.set(prop, k === undefined ? null : k);
+  }
+  return out;
+}
+function heritageKinds(expr, sf, seen) {
+  expr = unwrap(expr);
+  if (!expr) return new Map();
+  if (ts.isIdentifier(expr)) return kindsFor(resolveIn(sf, expr.text), seen);
+  if (ts.isCallExpression(expr)) { const out = new Map(); for (const a of expr.arguments) for (const [k, v] of heritageKinds(a, sf, seen)) out.set(k, v); return out; }
+  return new Map();
+}
+
 // DTO classes: name -> { props: Map(name -> required), heritage expr }
 const classes = new Map();
 for (const sf of sources) {
@@ -51,9 +96,10 @@ for (const sf of sources) {
         const ds = decos(m).map(dName);
         if (!ds.length) continue; // undecorated → stripped by whitelist → rejected
         props.set(m.name.getText(sf), !ds.includes('IsOptional') && !ds.includes('ValidateIf') && !m.questionToken);
+        kindsOf.set(`${sf.fileName}#${n.name.text}.${m.name.getText(sf)}`, expectedKind(decos(m), sf));
       }
       const ext = (n.heritageClauses || []).find((h) => h.token === ts.SyntaxKind.ExtendsKeyword);
-      const e={ props, ext: ext ? ext.types[0].expression : null, sf }; classes.set(sf.fileName+'#'+n.name.text, e); if(!classes.has(n.name.text)) classes.set(n.name.text, e);
+      const e={ props, ext: ext ? ext.types[0].expression : null, sf, name: n.name.text }; classes.set(sf.fileName+'#'+n.name.text, e); if(!classes.has(n.name.text)) classes.set(n.name.text, e);
     }
     ts.forEachChild(n, visit);
   };
@@ -124,9 +170,10 @@ for (const sf of sources) {
       const tname = bodyParam.type.getText(sf);
       const props = dtoProps(resolveIn(sf, tname));
       if (!props) continue;
+      const kinds = kindsFor(resolveIn(sf, tname));
       const full = '/' + [prefix, dArg(verb)].filter(Boolean).join('/').replace(/\/+/g, '/').replace(/^\/|\/$/g, '');
       const re = new RegExp('^' + full.split('/').map((s) => (s.startsWith(':') ? '[^/]+' : s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))).join('/') + '$');
-      routes.push({ method: dName(verb).toUpperCase(), path: full, re, dto: tname, props, at: `${rel}:${sf.getLineAndCharacterOfPosition(m.getStart()).line + 1}` });
+      routes.push({ method: dName(verb).toUpperCase(), path: full, re, dto: tname, props, kinds, at: `${rel}:${sf.getLineAndCharacterOfPosition(m.getStart()).line + 1}` });
     }
   });
 }
@@ -163,33 +210,52 @@ const isExact = (c, r) => {
   const param = (s) => s.startsWith(':') || s === ':x';
   return rs.every((seg, i) => (param(seg) && param(cs[i])) || seg === cs[i]);
 };
+// A client value kind that the DTO rejects: e.g. boolean sent to @IsString, array to @IsObject.
+// 'array' (element kind unknown) matches any array<x>; array<x> vs array<y> must agree.
+const oneOk = (k, allowed) => allowed.some((a) => a === k || (a === 'array' && k.startsWith('array')) || (k === 'array' && a.startsWith('array')));
+const kindOk = (sent, expected) => {
+  if (!sent || !expected || sent === 'null') return true;
+  const allowed = expected.split('|');
+  return sent.split('|').every((k) => oneOk(k, allowed));
+};
+// Definite: no sent kind is accepted. Partial overlap (e.g. expo-router params typed string | string[])
+// usually works at runtime, so it is listed for review instead of failing the gate.
+const overlaps = (sent, expected) => sent.split('|').some((k) => oneOk(k, expected.split('|')));
+const typeErrors = (c, r) => Object.entries(c.kinds || {})
+  .filter(([k, sent]) => r.props.has(k) && !kindOk(sent, (r.kinds || new Map()).get(k)) && !overlaps(sent, (r.kinds || new Map()).get(k)))
+  .map(([k, sent]) => `${k}: sends ${sent}, DTO wants ${(r.kinds || new Map()).get(k)}`);
+const typeMaybe = (c, r) => Object.entries(c.kinds || {})
+  .filter(([k, sent]) => r.props.has(k) && !kindOk(sent, (r.kinds || new Map()).get(k)) && overlaps(sent, (r.kinds || new Map()).get(k)))
+  .map(([k, sent]) => `${k}: may send ${sent}, DTO wants ${(r.kinds || new Map()).get(k)}`);
 const fails = (c, r) => {
   const unknown = c.keys.filter((k) => !r.props.has(k) && !/^\[.*\]$/.test(k));
   const missing = (c.spread || c.unresolved) ? [] : [...r.props].filter(([k, req]) => req && !c.keys.includes(k) && !/^\[.*\]$/.test(k)).map(([k]) => k);
-  return { unknown, missing };
+  return { unknown, missing, wrong: typeErrors(c, r) };
 };
 for (const c of clients) {
   const cands = candidates(c).filter((r) => r.method === c.method);
   // The same METHOD+path declared in several files (tools/audit/routes.py --dups): Nest serves only the
   // first registered one, which static analysis cannot tell. Block only when every declaration rejects.
   const exactFiles = new Set(cands.filter((r) => isExact(c, r)).map((r) => r.at.split(':')[0]));
-  const dupAccepts = exactFiles.size > 1 && cands.some((r) => isExact(c, r) && !fails(c, r).unknown.length && !fails(c, r).missing.length);
+  const dupAccepts = exactFiles.size > 1 && cands.some((r) => { const x = fails(c, r); return isExact(c, r) && !x.unknown.length && !x.missing.length && !x.wrong.length; });
   for (const r of cands) {
     matched.add(r.at);
-    const { unknown, missing } = fails(c, r);
-    if ((unknown.length || missing.length) && dupAccepts && isExact(c, r)) {
-      console.log(`? ${r.method} ${r.path} [${r.dto} @ ${r.at}] ← ${c.at} duplicate route: this declaration rejects (${[...unknown, ...missing].join(', ')}) but another accepts; confirm which one is served`);
-    } else if (unknown.length || missing.length) {
+    const { unknown, missing, wrong } = fails(c, r);
+    if ((unknown.length || missing.length || wrong.length) && dupAccepts && isExact(c, r)) {
+      console.log(`? ${r.method} ${r.path} [${r.dto} @ ${r.at}] ← ${c.at} duplicate route: this declaration rejects (${[...unknown, ...missing, ...wrong].join(', ')}) but another accepts; confirm which one is served`);
+    } else if (unknown.length || missing.length || wrong.length) {
       // REVIEW-FIX: a non-exact (wildcard) route match that fails is ambiguous —
       // the call may target a sibling literal route (e.g. confirm/cancel vs
       // reschedule). Report for hand verification instead of failing the gate;
       // only exact-match failures block.
       if (!isExact(c, r)) {
-        console.log(`? ${r.method} ${r.path} [${r.dto}] ← ${c.at} wildcard route match, ambiguous target: verify by hand` + (unknown.length ? ` (keys not in DTO: ${unknown.join(', ')})` : '') + (missing.length ? ` (DTO requires not sent: ${missing.join(', ')})` : ''));
+        console.log(`? ${r.method} ${r.path} [${r.dto}] ← ${c.at} wildcard route match, ambiguous target: verify by hand` + (unknown.length ? ` (keys not in DTO: ${unknown.join(', ')})` : '') + (missing.length ? ` (DTO requires not sent: ${missing.join(', ')})` : '') + (wrong.length ? ` (wrong type: ${wrong.join('; ')})` : ''));
       } else {
         problems++;
-        console.log(`✗ ${r.method} ${r.path} [${r.dto} @ ${r.at}] ← ${c.at}` + (unknown.length ? `\n    rejected (not in DTO): ${unknown.join(', ')}` : '') + (missing.length ? `\n    required but not sent: ${missing.join(', ')}` : ''));
+        console.log(`✗ ${r.method} ${r.path} [${r.dto} @ ${r.at}] ← ${c.at}` + (unknown.length ? `\n    rejected (not in DTO): ${unknown.join(', ')}` : '') + (missing.length ? `\n    required but not sent: ${missing.join(', ')}` : '') + (wrong.length ? `\n    wrong type: ${wrong.join('; ')}` : ''));
       }
+    } else if (typeMaybe(c, r).length) {
+      console.log(`? ${r.method} ${r.path} [${r.dto}] ← ${c.at} type may not match: ${typeMaybe(c, r).join('; ')}`);
     } else if (c.unresolved || c.spread) {
       console.log(`? ${r.method} ${r.path} [${r.dto}] ← ${c.at} body not statically resolvable (${c.unresolved || 'spread'}): verify by hand`);
     }
