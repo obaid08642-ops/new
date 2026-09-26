@@ -184,7 +184,7 @@ for (const app of APPS) {
             for (const [u, v] of [[a[0].whenTrue, mc.whenTrue], [a[0].whenFalse, mc.whenFalse]]) {
               const url = urlOf(u, sf);
               if (url && ts.isStringLiteralLike(v) && v.text.toUpperCase() !== 'GET') {
-                out.push({ method: v.text.toUpperCase(), url, ...bodyFromOpts(opts, sf), at: `${f}:${sf.getLineAndCharacterOfPosition(n.getStart()).line + 1}`, callee });
+                out.push({ method: v.text.toUpperCase(), url, ...bodyFromOpts(opts, sf), at: `${f}:${sf.getLineAndCharacterOfPosition(n.getStart()).line + 1}`, callee, idem: /idempotency/i.test(n.getText(sf)) });
               }
             }
           }
@@ -206,7 +206,7 @@ for (const app of APPS) {
           const inBff = f.includes('/pages/api/');
           rec.backend = inBff ? rec.url : adminBackendPath(rec.url);
         }
-        if (rec) out.push({ ...rec, at: `${f}:${sf.getLineAndCharacterOfPosition(n.getStart()).line + 1}`, callee });
+        if (rec) out.push({ ...rec, at: `${f}:${sf.getLineAndCharacterOfPosition(n.getStart()).line + 1}`, callee, idem: /idempotency/i.test(n.getText(sf)) });
       }
       ts.forEachChild(n, visit);
     };

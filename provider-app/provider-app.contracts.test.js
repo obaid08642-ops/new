@@ -156,4 +156,10 @@ describe('Provider App release contracts', () => {
     expect(registrations).not.toContain('lng: 46.6753');
     expect(registrations).not.toContain("cashOnly: true");
   });
+
+  it('API client sends an idempotency key on every mutation (routes with @RequireIdempotency reject calls without one)', () => {
+    const client = read('api/client.ts');
+    expect(client).toMatch(/\['POST', 'PUT', 'PATCH', 'DELETE'\]\.includes\(method\)/);
+    expect(client).toMatch(/h\['Idempotency-Key'\] = `prov-\$\{await CryptoUtils\.randomHex\(16\)\}`/);
+  });
 });

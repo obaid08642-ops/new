@@ -289,7 +289,7 @@ export class AuthController {
   @Post('send-otp')
   sendOtp(@Body() body: SendOtpDto) {
     const id = body.identifier || body.email || body.phone || '';
-    return this.auth.sendOtp(id);
+    return this.auth.sendOtp(id, body.purpose);
   }
 
   @Public()

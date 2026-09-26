@@ -200,7 +200,7 @@ export class AuthService {
         if (await this.sms?.sendOtp(user.phone, code)) delivered.push('sms');
       } catch { /* fall through to push/email */ }
     }
-    try {
+    if (user?.id) try {
       const r: any = await this.push?.sendToUser(
         user.id,
         'رمز التحقق — نَبْض',
@@ -870,7 +870,7 @@ export class AuthService {
     return base;
   }
 
-  async sendOtp(identifier: string) {
+  async sendOtp(identifier: string, purpose?: string) {
     AuthService.assertString(identifier, 'identifier');
     const normalized = this.normalizeOtpIdentifier(identifier);
     const rateLimitKey = this.otpIssueRateKey(normalized);
@@ -883,14 +883,21 @@ export class AuthService {
     }
 
     const isEmail = normalized.includes('@');
-    const u = await this.userModel.findOne(isEmail ? { email: normalized } : { phone: normalized });
-    if (!u) throw new UnauthorizedException('User not found');
+    const existing = await this.userModel.findOne(isEmail ? { email: normalized } : { phone: normalized });
+    if (!existing && purpose !== 'register') {
+      // No account: same answer as a sent code, so this endpoint cannot be used to
+      // test which emails/phones are registered. Nothing is stored or sent.
+      return { ok: true, channel: isEmail ? 'email' : 'sms' };
+    }
+    // F63 registration: a new identifier must be able to receive the code that
+    // /auth/register requires (the code goes to the identifier itself).
+    const u: any = existing || { id: null, email: isEmail ? normalized : undefined, phone: isEmail ? undefined : normalized };
 
     const code = require('crypto').randomInt(100000, 1000000).toString();
     // Store only a bcrypt hash. The plaintext code must never persist in Redis or logs.
     await this.redisService.setJson(
       this.otpKey(normalized),
-      { code_hash: await bcrypt.hash(code, 12), user_id: u.id, attempts: 0 },
+      { code_hash: await bcrypt.hash(code, 12), user_id: u.id || null, attempts: 0 },
       this.OTP_TTL_SECONDS,
     );
 

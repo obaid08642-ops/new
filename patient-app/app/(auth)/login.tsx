@@ -22,6 +22,7 @@ import * as Google from 'expo-auth-session/providers/google';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import * as AuthSession from 'expo-auth-session';
 import { LocalizedText } from '../../src/components/LocalizedText';
+import { loginCredentials } from '../../src/utils/login-credentials';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -149,10 +150,9 @@ export default function LoginScreen() {
     
     setLoading(true);
     try {
-        const fullPhone = phone.startsWith('+') ? phone : `+966${phone.replace(/^0+/, '')}`;
         const res = await apiFetch('/auth/login', {
           method: 'POST',
-          body: JSON.stringify({ phone: fullPhone, password }),
+          body: JSON.stringify(loginCredentials(phone, password)),
         });
         // M1: backend returns { user, token: { accessToken, refreshToken } }
         const token = typeof res?.token === 'string' ? res.token : (res?.token?.accessToken || null);

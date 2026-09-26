@@ -106,4 +106,29 @@ describe('AuthService OTP channels + register gate (F34/F63)', () => {
     expect(res.token).toBeDefined();
     expect(userModel.create).toHaveBeenCalled();
   });
+
+  // Live finding: F63 made /auth/register require a verified OTP, but send-otp only
+  // served existing accounts, so no new patient or provider could sign up in the app.
+  it('register purpose + unknown email -> code is sent to that email', async () => {
+    userModel.findOne.mockResolvedValue(null);
+    const res: any = await service.sendOtp('new@example.com', 'register');
+    expect(res).toMatchObject({ ok: true, channel: 'email' });
+    expect(mail.sendOtp).toHaveBeenCalledWith('new@example.com', expect.any(String));
+    expect(push.sendToUser).not.toHaveBeenCalled();
+    expect(redisService.setJson).toHaveBeenCalledWith(expect.stringContaining('new@example.com'), expect.objectContaining({ user_id: null }), expect.any(Number));
+  });
+
+  it('register purpose + unknown phone -> code is sent by SMS to that phone', async () => {
+    userModel.findOne.mockResolvedValue(null);
+    await service.sendOtp('+966500000009', 'register');
+    expect(sms.sendOtp).toHaveBeenCalledWith('+966500000009', expect.any(String));
+  });
+
+  it('unknown account without register purpose -> same answer as success, nothing stored or sent (no enumeration)', async () => {
+    userModel.findOne.mockResolvedValue(null);
+    const res: any = await service.sendOtp('ghost@example.com', 'reset');
+    expect(res).toEqual({ ok: true, channel: 'email' });
+    expect(mail.sendOtp).not.toHaveBeenCalled();
+    expect(redisService.setJson).not.toHaveBeenCalled();
+  });
 });

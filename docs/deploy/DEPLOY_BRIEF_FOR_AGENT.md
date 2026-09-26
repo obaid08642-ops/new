@@ -53,6 +53,7 @@ Clone or fetch the repo into `/opt/nabdah/src`, run `git checkout <SHA>`, and sy
 - Start from `deploy/.env.production.example`, which is new: it lists every variable, marks the required ones and the forbidden ones. `deploy.sh` generates the secrets on first run. **If a `.env.production` already exists, keep its secrets** (changing `JWT_SECRET` logs everyone out; changing the Mongo or Redis passwords breaks the running stack). Only add the missing variables.
 - Required at boot in production: `MONGO_URL`, `REDIS_URL`, `JWT_SECRET` (≥ 32 chars), `ALLOWED_ORIGINS` (exact origins, no `*`). The backend refuses to start without them, which is intended.
 - Remove any `MOYASAR_*=pending_real_key` lines left by older `deploy.sh` runs. Leave them empty unless the owner gives real keys.
+- **`TRUST_PROXY_HOPS` must equal the real number of proxies in front of the backend.** The code defaults to 2. With only nginx in front (DNS-only, no Cloudflare proxy on `api.nabd.plus`) it must be `1`; otherwise a client can forge `X-Forwarded-For`, appear as any IP, and bypass every per-IP limit (login brute force, OTP bombing). Use `2` only if `api.nabd.plus` is proxied by Cloudflare (orange cloud). Verify it in §3.6.
 - For staging use a **separate database**: `DB_NAME=nabd_staging` (never staging on `nabd_nestjs`). Note that `DB_NAME=nabd_staging` also turns the API rate limiter off by design (`api-security.module.ts`). That is acceptable for staging only.
 - patient-web runtime env: `NABD_API_BASE_URL=http://<backend>:8002/api/v1`, `NEXT_PUBLIC_SITE_ORIGIN`, `APPLE_TEAM_ID=6AT2W85DBC` (the code falls back to this too), `APPLE_BUNDLE_ID`, `ANDROID_PACKAGE_NAME`, `ANDROID_SHA256_FINGERPRINT`. `NEXT_PUBLIC_WEARABLES_ENABLED` must stay **unset**, which keeps wearables hidden. `NEXT_PUBLIC_*` values are baked in at build time, so pass them as build args.
 - admin env: `ADMIN_BACKEND_URL=http://backend:8002`, `NEXT_PUBLIC_SITE_URL`.
@@ -81,6 +82,7 @@ Start the stack, then check:
 3. **Security checks. Each must hold; report the actual responses:**
    - `curl -H 'x-bypass-rate-limit: nabd-load-test' …` 130 times on any GET: requests past the limit get 429 (production DB only; staging has the limiter off by design).
    - `POST /api/v1/provider/seed`: 404.
+   - IP spoofing: send 12 `POST /api/v1/auth/login` with a wrong password, each with a different random `X-Forwarded-For: 203.0.113.<n>`. They must still reach 429, because the limit uses the real client IP. If they never do, `TRUST_PROXY_HOPS` is wrong.
    - `POST /api/v1/<any admin route>` without a token: 401. With a patient token: 403.
    - With no Moyasar key, a payment or refund attempt returns 503 `payment_gateway_not_configured` and records nothing.
    - Response headers include Helmet's security headers. CORS allows only the `ALLOWED_ORIGINS` origins.

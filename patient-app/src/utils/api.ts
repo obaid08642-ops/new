@@ -49,6 +49,13 @@ async function saveToken(token: string): Promise<void> {
   }
 }
 
+const MUTATING_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
+
+export function newIdempotencyKey(): string {
+  const uuid = (globalThis as any).crypto?.randomUUID?.();
+  return `app-${uuid || `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`}`;
+}
+
 export async function apiFetch<T = any>(endpoint: string, options: RequestInit = {}): Promise<T> {
   let token = await getToken();
   const url = endpoint.startsWith('http') ? endpoint : `${BASE_URL}${endpoint}`;
@@ -59,6 +66,11 @@ export async function apiFetch<T = any>(endpoint: string, options: RequestInit =
   }
   if (!headers.has('Content-Type') && !(options.body instanceof FormData)) {
     headers.set('Content-Type', 'application/json');
+  }
+  // Mutating routes marked @RequireIdempotency answer 400 idempotency_key_required without a key.
+  // A caller that needs retry de-duplication passes its own stable key; otherwise one key per request.
+  if (MUTATING_METHODS.has(String(options.method || 'GET').toUpperCase()) && !headers.has('Idempotency-Key')) {
+    headers.set('Idempotency-Key', newIdempotencyKey());
   }
 
   let response: Response;
@@ -78,13 +90,15 @@ export async function apiFetch<T = any>(endpoint: string, options: RequestInit =
       errorMsg = typeof m === 'string' ? m : (Array.isArray(m) ? m.join(', ') : (m ? JSON.stringify(m) : errorMsg));
     } catch {}
     
-    // Handle missing/invalid token or auth error
-    if (errorMsg.toLowerCase().includes('missing token') || response.status === 401 || response.status === 403) {
+    // Only an invalid/expired session (401) ends it. A 403 means "not allowed to do this":
+    // signing the user out for it would log them out of the whole app on one forbidden action.
+    if (errorMsg.toLowerCase().includes('missing token') || response.status === 401) {
       console.warn(`[apiFetch] Auth error for endpoint: ${endpoint}`);
       try { await SecureStore.deleteItemAsync(STORAGE_KEYS.AUTH_TOKEN); } catch {}
       await clearLegacyTokenMirror();
       throw new Error(`AUTH_ERROR_${response.status}: ${errorMsg}`);
     }
+    if (response.status === 403) throw new Error(`AUTH_ERROR_403: ${errorMsg}`);
     throw new Error(errorMsg);
   }
 
