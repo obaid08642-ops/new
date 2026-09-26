@@ -28,3 +28,47 @@ import { ImpersonationSecurityModule } from '../../../common/impersonation-secur
 /**
  * Enterprise Control Center (ADMIN_ENTERPRISE_PLAN batches A1→A7).
  */
+@Module({
+  imports: [
+    ImpersonationSecurityModule,
+    WalletModule,
+    MailModule,
+    SeoSearchModule,
+    PresenceModule,
+    BullModule.registerQueue({ name: 'notifications-delivery' }),
+  ],
+  controllers: [
+    // ── A1 ──
+    AdminSecurityController,
+    AdminImpersonationController,
+    AdminDisputesController,
+    // ── A2 ──
+    AdminOrdersConsoleController,
+    AdminFinanceSuiteController,
+    // ── A3 ──
+    AdminAnalyticsSuiteController,
+    AdminScheduledReportsController,
+    // ── A4 ──
+    AdminCrmController,
+    AdminGdprController,
+    PatientGdprController, // patient-facing privacy endpoints (mobile closure)
+    AdminSegmentsController, // segments builder (plan E extension)
+    // ── A5 ──
+    AdminCmsController,
+    AdminCouponsController,
+    // ── A6 ──
+    AdminOpsController,
+    AdminGovernanceControlsController,
+    // ── A7 ──
+    AdminCommandCenterV2Controller,
+  ],
+  providers: [
+    AdminAuditService,
+    OrdersConsoleService,
+    FinanceSuiteService,
+    AnalyticsSuiteService,
+    ScheduledReportsRunner,
+  ],
+  exports: [AdminAuditService, OrdersConsoleService, FinanceSuiteService, AnalyticsSuiteService],
+})
+export class AdminEnterpriseModule {}

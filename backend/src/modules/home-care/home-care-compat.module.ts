@@ -241,12 +241,20 @@ export class HomeCareCompatController {
   @Roles(UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.ADMIN)
   @Post('inventory/request') async inventoryRequest(@CurrentUser() u: any, @Body() body: InventoryRequestDto) {
     if (!Array.isArray(body?.items) || !body.items.length) throw new BadRequestException('items required');
+    if (body.items.length > 100) throw new BadRequestException('too_many_items');
     if (!body?.booking_id) throw new BadRequestException('booking_id is required');
     const b = await this.getBookingForAccess(u, body.booking_id);
     if (!this.isAdmin(u) && (u?.role === 'patient' || !this.isNursingProvider(u) || b.provider_id !== u.id)) throw new ForbiddenException('assigned_provider_required');
+    // R4-2: rebuild each item with static keys/coerced scalars — the raw
+    // caller array (provider-app sends {name, qty, unit}) never enters the $push.
+    const items = body.items.map((it: any) => ({
+      name: String(it?.name ?? it?.nameEn ?? '').slice(0, 200),
+      qty: Math.min(Math.max(Number(it?.qty) || 0, 0), 10000),
+      unit: String(it?.unit ?? 'pcs').slice(0, 20),
+    }));
     await this.bookings.updateOne(
-      { id: body.booking_id, ...(this.isAdmin(u) ? {} : { provider_id: u.id }) },
-      { $push: { supply_requests: { id: uuid(), items: body.items, at: new Date(), by: u.id, state: 'requested' } } },
+      { id: { $eq: body.booking_id }, ...(this.isAdmin(u) ? {} : { provider_id: { $eq: u.id } }) },
+      { $push: { supply_requests: { id: uuid(), items, at: new Date(), by: u.id, state: 'requested' } } },
     );
     return { ok: true, state: 'requested' };
   }

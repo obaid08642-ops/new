@@ -137,8 +137,14 @@ export class StorageService {
       const url = payload?.url;
       if (!url) return;
 
-      // Cloudinary asset? → destroy via API (upload + authenticated types)
-      if (url.includes('res.cloudinary.com') && this.cloudinaryConfigured()) {
+      // Cloudinary asset? → destroy via API (upload + authenticated types).
+      // R4-2: exact hostname match — a substring check lets
+      // evil-res.cloudinary.com.attacker.example pass.
+      let isCloudinary = false;
+      try {
+        isCloudinary = new URL(url).hostname.toLowerCase() === 'res.cloudinary.com';
+      } catch { isCloudinary = false; }
+      if (isCloudinary && this.cloudinaryConfigured()) {
         const obj = await this.model.findOne({ external_url: url });
         if (obj?.external_key) {
           const cloudinary = require('cloudinary').v2;

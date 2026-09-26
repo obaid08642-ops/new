@@ -19,9 +19,9 @@ export class AdminLocationController {
   @Get()
   async list(@Query('type') type?: string, @Query('parent') parent?: string, @Query('q') q?: string, @Query('include_inactive') includeInactive?: string) {
     const filter: any = {};
-    if (type) filter.type = type;
-    if (parent) filter.parent_code = parent;
-    if (q) filter.$or = [{ name_ar: new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i') }, { name_en: new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i') }, { code: q }];
+    if (type) filter.type = { $eq: type };
+    if (parent) filter.parent_code = { $eq: parent };
+    if (q) filter.$or = [{ name_ar: new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i') }, { name_en: new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i') }, { code: { $eq: q } }];
     if (includeInactive !== '1') filter.is_active = { $ne: false };
     return this.locations.find(filter, { _id: 0, __v: 0 }).sort({ type: 1, name_ar: 1 }).limit(500).lean();
   }
@@ -31,8 +31,8 @@ export class AdminLocationController {
     const { code, name_ar, name_en, type, parent_code, aliases } = body || {};
     if (!code || !name_ar || !name_en || !type) throw new BadRequestException('code_name_type_required');
     if (!['region', 'city', 'district', 'sub_area'].includes(type)) throw new BadRequestException('invalid_type');
-    if (await this.locations.findOne({ code }).lean()) throw new BadRequestException('code_exists');
-    if (parent_code && !(await this.locations.findOne({ code: parent_code }).lean())) throw new BadRequestException('parent_not_found');
+    if (await this.locations.findOne({ code: { $eq: code } }).lean()) throw new BadRequestException('code_exists');
+    if (parent_code && !(await this.locations.findOne({ code: { $eq: parent_code } }).lean())) throw new BadRequestException('parent_not_found');
     const doc = await this.locations.create({ code, name_ar, name_en, type, parent_code: parent_code || null, aliases: Array.isArray(aliases) ? aliases : [], is_active: true });
     return doc.toObject();
   }
@@ -42,7 +42,7 @@ export class AdminLocationController {
     const allowed = ['name_ar', 'name_en', 'aliases', 'is_active', 'coverage'];
     const set: any = {};
     for (const k of allowed) if (body?.[k] !== undefined) set[k] = body[k];
-    const updated = await this.locations.findOneAndUpdate({ code }, { $set: set }, { new: true, projection: { _id: 0, __v: 0 } }).lean();
+    const updated = await this.locations.findOneAndUpdate({ code: { $eq: code } }, { $set: set }, { new: true, projection: { _id: 0, __v: 0 } }).lean();
     if (!updated) throw new NotFoundException('location_not_found');
     return updated;
   }

@@ -1,4 +1,4 @@
-import { IsDefined, IsIn, IsNumber, IsObject, IsOptional, IsString, IsUrl } from 'class-validator';
+import { IsPositive, IsDefined, IsIn, IsNumber, IsObject, IsOptional, IsString, IsUrl } from 'class-validator';
 
 export class CreateMoyasarPaymentDto {
   @IsDefined()
@@ -22,19 +22,9 @@ export class CreateMoyasarPaymentDto {
   callback_url?: string;
 }
 
-export class WebhookDto {
-  @IsOptional()
-  @IsString()
-  id?: string;
-
-  @IsOptional()
-  @IsObject()
-  data?: Record<string, unknown>;
-
-}
-
 export class RefundDto {
   @IsOptional()
   @IsNumber()
+  @IsPositive()
   amount?: number;
 }

@@ -173,7 +173,7 @@ export class PasskeyService {
 
   /** Verify an assertion; returns the owning user_id on success. */
   async finishLogin(response: AuthenticationResponseJSON): Promise<string> {
-    const cred: any = await this.passkeyModel.findOne({ credential_id: response?.id }).lean();
+    const cred: any = await this.passkeyModel.findOne({ credential_id: { $eq: response?.id } }).lean();
     if (!cred) throw new UnauthorizedException('unknown_credential');
     const expectedChallenge = await this.takeChallenge(`webauthn_login:${cred.user_id}`);
     if (!expectedChallenge) throw new UnauthorizedException('challenge_expired');

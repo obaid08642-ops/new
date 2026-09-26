@@ -14,6 +14,20 @@ import { CatalogPublicationService } from '../events/catalog-publication.service
 import { escapeRegex } from '../../common/slug.util';
 
 /**
+ * Fields a provider may edit on their own profile (and, via the
+ * approval-workflow, propose for an existing record). This is intentionally
+ * an allow-list: identity, status, verification and public-governance fields
+ * must never be written from caller-supplied objects.
+ */
+export const PROVIDER_CONFIG_EDITABLE_FIELDS = [
+  'name_ar', 'name_en', 'phone', 'email', 'avatar', 'specialty', 'city',
+  'district', 'location', 'about_ar', 'about_en', 'working_hours',
+  'home_visit_supported', 'home_visit_radius_km', 'coverage_radius_km',
+  'accepts_cash', 'accepts_insurance', 'accepted_insurance',
+  'consultation_fee', 'languages', 'services',
+];
+
+/**
  * Provider Onboarding Service
  * Supports BOTH:
  *  1. Self-registration (`/apply`) — provider creates their own user + profile (status=pending)
@@ -439,13 +453,7 @@ export class ProvidersService {
 
     // This is intentionally an allow-list: configuration updates must never
     // mutate identity, status, verification, or public-governance fields.
-    const editable = new Set([
-      'name_ar', 'name_en', 'phone', 'email', 'avatar', 'specialty', 'city',
-      'district', 'location', 'about_ar', 'about_en', 'working_hours',
-      'home_visit_supported', 'home_visit_radius_km', 'coverage_radius_km',
-      'accepts_cash', 'accepts_insurance', 'accepted_insurance',
-      'consultation_fee', 'languages', 'services',
-    ]);
+    const editable = new Set(PROVIDER_CONFIG_EDITABLE_FIELDS);
     const patch = Object.fromEntries(Object.entries(payload || {}).filter(([key, value]) => editable.has(key) && value !== undefined));
     if (!Object.keys(patch).length) throw new BadRequestException('No editable provider configuration fields supplied');
 

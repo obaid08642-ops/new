@@ -17,6 +17,14 @@ import { UserRole } from '../../common/enums';
 import { Article, ArticleSchema } from '../../schemas/article.schema';
 import { buildSlug, slugify, escapeRegex } from '../../common/slug.util';
 
+// R4-2: explicit allowlist for article updates (mirrors UpdateDto keys;
+// id/slug/status are never writable through this path).
+const ARTICLE_UPDATE_FIELDS = [
+  'title_ar', 'title_en', 'excerpt_ar', 'excerpt_en', 'body_ar', 'body_en',
+  'category', 'tags', 'cover_image', 'author_name', 'author_title',
+  'seo_description_ar', 'seo_description_en',
+];
+
 @Injectable()
 export class ArticlesService {
   constructor(@InjectModel(Article.name) private model: Model<any>) {}
@@ -75,8 +83,11 @@ export class ArticlesService {
   }
 
   update(id: string, body: any) {
-    const { id: _i, slug: _s, ...rest } = body || {};
-    return this.model.findOneAndUpdate({ id: { $eq: id } }, { $set: rest }, { new: true });
+    // R4-2: build $set from explicit allowlisted keys (no whole-object spread).
+    const patch = Object.fromEntries(
+      Object.entries(body || {}).filter(([key, value]) => ARTICLE_UPDATE_FIELDS.includes(key) && value !== undefined),
+    );
+    return this.model.findOneAndUpdate({ id: { $eq: id } }, { $set: patch }, { new: true });
   }
 
   publish(id: string) {

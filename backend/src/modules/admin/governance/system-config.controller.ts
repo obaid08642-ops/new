@@ -1,4 +1,4 @@
-import { Controller, Get, Put, Body, UseGuards } from '@nestjs/common';
+import { BadRequestException, Controller, Get, Put, Body, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard, Roles, Public } from '../../../common/auth.guard';
 import { UserRole } from '../../../common/enums';
 import { InjectModel } from '@nestjs/mongoose';
@@ -33,7 +33,10 @@ export class SystemConfigController {
   @Put()
   async updateConfig(@Body() body: UpdateConfigDto) {
     const key = 'system_config';
-    const updated = await this.configModel.findOneAndUpdate({ key: { $eq: key } }, { value: body.value }, { new: true, upsert: true }).lean();
+    // R4-2: free-form admin JSON goes under an explicit $set with a size cap.
+    const raw = JSON.stringify(body?.value ?? {});
+    if (raw.length > 65536) throw new BadRequestException('config_value_too_large');
+    const updated = await this.configModel.findOneAndUpdate({ key: { $eq: key } }, { $set: { value: body.value } }, { new: true, upsert: true }).lean();
     return { key: updated.key, value: updated.value };
   }
 }

@@ -103,19 +103,22 @@ export class RecruitmentService {
 
   async listJobs(query: { location?: string; scfhs_role?: string; status?: string; facility_id?: string; post_type?: string }, requester: any): Promise<any[]> {
     const filter: any = { is_deleted: false };
-    if (query.location) filter.location = query.location;
-    if (query.scfhs_role) filter.scfhs_role = query.scfhs_role;
-    if (query.post_type === 'offer' || query.post_type === 'request') filter.post_type = query.post_type;
+    // R4-2: user-derived filters are $eq-pinned; status is allowlisted.
+    if (query.location) filter.location = { $eq: query.location };
+    if (query.scfhs_role) filter.scfhs_role = { $eq: query.scfhs_role };
+    if (query.post_type === 'offer' || query.post_type === 'request') filter.post_type = { $eq: query.post_type };
     
     // Status logic: general users can only see 'published'
+    // R4-2: status is allowlisted (schema: draft|published|closed) and pinned.
+    const safeStatus = query.status && ['draft', 'published', 'closed'].includes(query.status) ? query.status : undefined;
     if (requester && [UserRole.ADMIN, UserRole.SUPER_ADMIN].includes(requester.role as UserRole)) {
-      if (query.status) filter.status = query.status;
-      if (query.facility_id) filter.facility_id = query.facility_id;
+      if (safeStatus) filter.status = { $eq: safeStatus };
+      if (query.facility_id) filter.facility_id = { $eq: query.facility_id };
     } else if (requester && [UserRole.HOSPITAL, UserRole.DOCTOR].includes(requester.role as UserRole)) {
       // Facilities can see their own jobs in any status
       if (query.facility_id && query.facility_id === requester.id) {
-        filter.facility_id = requester.id;
-        if (query.status) filter.status = query.status;
+        filter.facility_id = { $eq: requester.id };
+        if (safeStatus) filter.status = { $eq: safeStatus };
       } else {
         filter.status = 'published';
       }

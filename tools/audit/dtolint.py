@@ -16,7 +16,7 @@ Free-form JSON is allowed with an explicit @IsObject()/@IsArray()/@Allow() and a
 """
 import glob, re, sys
 
-WEBHOOK_BODY_ALLOW = ('modules/webhooks/webhooks.controller.ts', 'modules/livekit/livekit.controller.ts:webhook', 'modules/payments/payments.module.ts:webhook')
+WEBHOOK_BODY_ALLOW = ('modules/webhooks/webhooks.controller.ts', 'modules/livekit/livekit.controller.ts:webhook', 'modules/payments/payments.module.ts:webhook', 'modules/moyasar/moyasar.module.ts:webhook')
 
 undec, untyped, body_any = [], [], []
 for f in glob.glob('backend/src/**/*.dto.ts', recursive=True):

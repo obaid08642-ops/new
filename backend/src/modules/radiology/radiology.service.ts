@@ -331,8 +331,8 @@ export class RadiologyOpsService {
   // ──────────────────────────────────────────────
   async list(opts: any) {
     const q: any = { is_deleted: false, active: true, public_eligibility: true, medical_review_status: 'approved' };
-    if (opts.modality) q.modality = opts.modality;
-    if (opts.body_part) q.body_part = opts.body_part;
+    if (opts.modality) q.modality = { $eq: opts.modality };
+    if (opts.body_part) q.body_part = { $eq: opts.body_part };
     if (opts.search) q.$text = { $search: opts.search };
     if (opts.home_only) q.home_visit_supported = true;
     if (!this.redis?.getWithSWR) return this.svcModel.find(q).sort({ popularity: -1 }).lean();
@@ -431,8 +431,8 @@ export class RadiologyOpsService {
   }
 
   async listForProvider(user: any, status?: string) {
-    const q: any = { provider_account_id: user.account_id ?? user.id };
-    if (status) q.state = status;
+    const q: any = { provider_account_id: { $eq: user.account_id ?? user.id } };
+    if (status) q.state = { $eq: status };
     return this.bkgModel.find(q).sort({ scheduled_at: 1 }).lean();
   }
 
@@ -446,8 +446,8 @@ export class RadiologyOpsService {
 
   async adminListAll(opts: any) {
     const q: any = {};
-    if (opts.status) q.state = opts.status;
-    if (opts.insurance_status) q.insurance_status = opts.insurance_status;
+    if (opts.status) q.state = { $eq: opts.status };
+    if (opts.insurance_status) q.insurance_status = { $eq: opts.insurance_status };
     const limit = opts.limit || 50;
     return this.bkgModel.find(q).sort({ createdAt: -1 }).limit(limit).lean();
   }
