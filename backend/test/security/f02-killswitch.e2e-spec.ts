@@ -2,7 +2,7 @@
 import { INestApplication } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
 import { SystemConfig } from '../../src/schemas/system-config.schema';
-import { KillSwitchesController } from '../../src/modules/admin/governance/admin-governance.module';
+import { KillSwitchesController } from '../../src/modules/admin-governance/admin-governance.module';
 import { buildSecurityApp, patientToken, post, tokenFor } from './harness';
 
 describe('F02 kill-switches access control', () => {

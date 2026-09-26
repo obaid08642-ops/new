@@ -2,7 +2,7 @@
  * A2 acceptance — pure finance math (revenue bucketing, MoM, payout rules).
  * Numbers here are cross-checked against hand-computed SQL equivalents.
  */
-import { bucketKey, seriesToRows, momComparison, RevenueRow } from '../src/modules/admin/enterprise/finance-suite.service';
+import { bucketKey, seriesToRows, momComparison, RevenueRow } from '../src/modules/admin-enterprise/finance-suite.service';
 
 describe('A2 · revenue bucketing', () => {
   it('day buckets use ISO dates', () => {

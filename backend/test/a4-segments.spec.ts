@@ -1,7 +1,7 @@
 /**
  * Segments DSL compiler — pure-function gate.
  */
-import { compileSegment, compileRule, isAllowedField } from '../src/modules/admin/enterprise/segments.engine';
+import { compileSegment, compileRule, isAllowedField } from '../src/modules/admin-enterprise/segments.engine';
 
 describe('segments engine', () => {
   it('compiles a single rule with the patient fence', () => {

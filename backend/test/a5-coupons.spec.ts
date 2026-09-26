@@ -1,7 +1,7 @@
 /**
  * A5 acceptance — the coupon rules engine (percent/amount/min/cap/limits/expiry).
  */
-import { applyCoupon } from '../src/modules/admin/enterprise/admin-coupons.controller';
+import { applyCoupon } from '../src/modules/admin-enterprise/admin-coupons.controller';
 
 const NOW = new Date('2026-06-15T12:00:00Z');
 const ctx = (basket: number, prevUsage = 0) => ({ basket_total: basket, user_id: 'u1', now: NOW, user_previous_usage: prevUsage });

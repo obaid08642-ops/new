@@ -224,3 +224,17 @@ Fix: (1) a per-entity allowlist (medicine: `MedicinesService.EDITABLE_FIELDS`; p
 CodeQL cannot see class-validator whitelisting, so it flags whole-object `$set` sinks (`articles.update` `rest`, `service-catalog.updateService` `patch`, system-config `{ value }`, …). For each, build the update from explicit allowlisted keys: `$set: pick(dto, FIELDS)` with a const `FIELDS`, or per-field assignment. Free-form JSON (system-config `value`) goes under an explicit `$set: { value }` with a size limit. The implementer can read the alert list via the API (the reviewer session gets 403), so paste each alert id → resolution into AGENT_PROGRESS.md. The gate is **CodeQL green on PR #199**.
 
 Reviewer fix: `tools/audit/dtocheck.js` module filter is now a path substring, not a regex built from argv (CodeQL #186).
+
+---
+
+# Round 5 (implementer fix 0188092): **APPROVED in review, pending CodeQL/CI on PR #199**
+
+Ported onto `review/phase-3` (5 conflict hunks). Adjusted by the reviewer to keep Phase 3 free of P5 code: `approval-workflow` imports `../providers/providers.service` (P5.3 moved it), and the P5.3 module rewrite `admin/enterprise/admin-enterprise.module.ts` and 7 test-file import paths to P5.3 locations were not taken. The P5.1 offering overlay stays out of `service-catalog`.
+
+| Item | Result |
+|---|---|
+| R4-1 approval-workflow | Per-entity allowlists (medicine = `MedicinesService.EDITABLE_FIELDS`, provider = `PROVIDER_CONFIG_EDITABLE_FIELDS`, facility/lab/radiology/home-care explicit lists); unknown keys → 400 `uneditable_fields` at create; ownership (medicine creator / provider user / facility link / `ServiceOwnership`) → 403 `not_entity_owner`, admin bypass; approval `$set` = allowlisted keys of change_data + edit_data only. Tests: governance keys rejected, foreign record rejected, owned accepted, admin bypass, `$set` has no `verified`/`status`. |
+| R4-2 CodeQL | `$eq` per-id lookups, explicit `$set: { value }` with a 64 KB cap on system-config, `pick` of allowlisted keys on update sinks. Final word = CodeQL on PR #199. |
+| Tools | Only the reviewer's own dtocheck/dtolint edits (identical). |
+| Gates (reviewer run) | dtolint 0/0/0/0 · dtocheck 634/311/**0** · tsc + build exit 0 · unit **2671/2671** (139 suites) · security+journeys **65/65** |
+| Process | **Violation:** 18 more P4/P5 commits pushed before Phase 3 approval (AGENTS.md "one phase at a time"). |

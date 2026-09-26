@@ -1,7 +1,7 @@
 /**
  * A3 acceptance — pure analytics math cross-checked by hand.
  */
-import { zScoreAnomalies, buildCohorts, funnelPct, DailyPoint } from '../src/modules/admin/enterprise/analytics-suite.service';
+import { zScoreAnomalies, buildCohorts, funnelPct, DailyPoint } from '../src/modules/admin-enterprise/analytics-suite.service';
 
 describe('A3 · anomaly detection (z-score vs trailing 14d)', () => {
   it('flags a 5× cancellation spike', () => {
