@@ -59,7 +59,7 @@ export class CatalogsSeedService implements OnModuleInit {
       for (const x of read('radiology.json')) {
         const code = x.short_code || slug(x.name_en);
         try {
-          const r: any = await this.conn.collection('radiologyservices').updateOne(
+          const r: any = await this.conn.collection(CATALOG_COLLECTIONS.radiology_services).updateOne(
             { short_code: code }, { $setOnInsert: { ...x, id: x.id || code } }, { upsert: true });
           if (r.upsertedCount || r.upsertedId) ok++;
         } catch { /* already live */ }

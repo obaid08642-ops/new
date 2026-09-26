@@ -40,7 +40,7 @@ const COLLECTION_MAP: Record<PipelineEntityType, string> = {
   nursing: 'provider_profiles',
   service: 'homecareservices',
   lab_test: CATALOG_COLLECTIONS.lab_services,
-  radiology_service: 'radiologyservices',
+  radiology_service: CATALOG_COLLECTIONS.radiology_services,
   medicine: 'medicines_master',
 };
 

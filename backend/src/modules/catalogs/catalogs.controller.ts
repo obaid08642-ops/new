@@ -18,7 +18,7 @@ import { CATALOG_COLLECTIONS } from './catalog-collections';
  */
 const DB_COLLECTIONS: Record<string, string> = {
   labs: CATALOG_COLLECTIONS.lab_services,
-  radiology: 'radiologyservices',
+  radiology: CATALOG_COLLECTIONS.radiology_services,
   nursing: 'nursing_catalog',
   specialties: 'specialties',
 };

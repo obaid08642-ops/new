@@ -112,7 +112,7 @@ export class HomeService {
         db.collection(CATALOG_COLLECTIONS.lab_services).find({
           $or: [{ name_ar: regex }, { name_en: regex }, { short_code: regex }],
         } as any).limit(5).toArray(),
-        db.collection('radiologyservices').find({
+        db.collection(CATALOG_COLLECTIONS.radiology_services).find({
           $or: [{ name_ar: regex }, { name_en: regex }, { body_part: regex }],
         } as any).limit(5).toArray(),
         db.collection('articles').find({

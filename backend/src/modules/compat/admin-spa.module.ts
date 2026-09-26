@@ -452,7 +452,7 @@ class AdminServicesController extends AdminController {
   async list() {
     const [labs, rads, home] = await Promise.all([
       this.conn.collection(CATALOG_COLLECTIONS.lab_services).find({ active: { $ne: false } } as any).limit(200).toArray(),
-      this.conn.collection('radiologyservices').find({ active: { $ne: false } } as any).limit(200).toArray(),
+      this.conn.collection(CATALOG_COLLECTIONS.radiology_services).find({ active: { $ne: false } } as any).limit(200).toArray(),
       this.conn.collection('homecareservices').find({ active: { $ne: false } } as any).limit(200).toArray(),
     ]);
     const map = (t: string) => (s: any) => ({

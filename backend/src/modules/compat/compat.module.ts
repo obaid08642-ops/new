@@ -770,7 +770,7 @@ class CapabilitiesCatalogController {
 
   @Get('radiology-services')
   async radiologyServices() {
-    const rows = await this.conn.collection('radiologyservices').find({ active: { $ne: false } } as any).limit(300).toArray();
+    const rows = await this.conn.collection(CATALOG_COLLECTIONS.radiology_services).find({ active: { $ne: false } } as any).limit(300).toArray();
     return rows.map((s: any) => ({
       id: s.id || String(s._id), name_ar: s.name_ar, name_en: s.name_en,
       price: s.price, category: s.category, modality: s.modality || null,

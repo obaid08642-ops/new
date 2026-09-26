@@ -7,7 +7,7 @@ import { InsuranceDetails, InsuranceDetailsSchema } from './insurance.schema';
 /**
  * RadiologyService — independent catalog from LabService (X-Ray / CT / MRI / Ultrasound / Mammography / DEXA).
  */
-@Schema({ timestamps: true })
+@Schema({ timestamps: true, collection: 'radiology_services' })
 export class RadiologyService extends Document {
   @Prop({ required: true, unique: true, default: () => uuidv4() }) id: string;
   @Prop({ required: true }) name_ar: string;
