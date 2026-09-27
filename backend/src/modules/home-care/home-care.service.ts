@@ -8,6 +8,7 @@ export const HOMECARE_CATALOG_FIELDS = [
   'name_ar', 'name_en', 'description_ar', 'description_en', 'category', 'icon', 'price', 'duration', 'duration_value', 'requires_patient_medication', 'requires_companion', 'cash_availability', 'insurance_availability', 'image_url', 'active', 'popularity',
 ] as const;
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { EventBusService } from '../events/event-bus.service';
 import { WorkflowEngineService } from '../workflow-engine/workflow-engine.module';
 import { HomeCareServiceRepository } from "./repositories/homecareservice.repository";
 import { HomeCareBookingRepository } from "./repositories/homecarebooking.repository";
@@ -29,6 +30,7 @@ export class HomeCareSvc {
     @Inject('MedicalSupplyRequestRepository') private readonly supplyModel: MedicalSupplyRequestRepository,
     private readonly events: EventEmitter2,
     private readonly engine: WorkflowEngineService,
+    private readonly bus: EventBusService,
     @Optional() private readonly redis?: RedisService,
   ) {}
 
@@ -189,6 +191,35 @@ export class HomeCareSvc {
     if (!existing) throw new NotFoundException();
     await this.svcModel.updateOne({ id }, { $set: { active: false, is_deleted: true } });
     return { ok: true };
+  }
+
+  /** P6.0: medical-review decision — approve surfaces the item publicly. */
+  async approveCatalogItem(user: any, id: string, approve: boolean) {
+    if (user.role !== 'admin') throw new ForbiddenException();
+    const updated = await this.svcModel.findOneAndUpdate(
+      { id: { $eq: id } },
+      { $set: { medical_review_status: approve ? 'approved' : 'rejected', public_eligibility: !!approve, last_reviewed: new Date() } },
+      { new: true },
+    );
+    if (!updated) throw new NotFoundException();
+    await this.bus.emit({ type: approve ? 'catalog.service_approved' : 'catalog.service_disabled', entity_type: 'service', entity_id: id, actor_account_id: user.id, actor_role: 'admin', meta: { kind: 'home_care' }, idempotency_key: `homecare-catalog-approve:${id}:${approve ? 'on' : 'off'}` }).catch(() => null);
+    return updated;
+  }
+
+  async bulkApproveCatalog(user: any, ids: string[], approve: boolean) {
+    if (user.role !== 'admin') throw new ForbiddenException();
+    const list = (Array.isArray(ids) ? ids : []).filter((x) => typeof x === 'string' && x).slice(0, 200);
+    if (!list.length) throw new BadRequestException('ids_required');
+    const results: any[] = [];
+    for (const itemId of list) {
+      try {
+        await this.approveCatalogItem(user, itemId, approve);
+        results.push({ id: itemId, ok: true });
+      } catch (e: any) {
+        results.push({ id: itemId, ok: false, error: e?.message || 'failed' });
+      }
+    }
+    return { ok: true, approve, results };
   }
 
   async checkIn(user: any, bookingId: string, lat?: number, lng?: number) {    if (!['admin', 'nurse', 'hospital'].includes(user.role)) throw new ForbiddenException();

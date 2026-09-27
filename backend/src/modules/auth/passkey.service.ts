@@ -65,6 +65,16 @@ export class PasskeyService {
     return dbUser;
   }
 
+  /** F48: non-throwing eligibility probe for UIs (eligible = may enroll). */
+  async isEligible(user: any): Promise<{ eligible: boolean }> {
+    try {
+      await this.assertEnrollmentAllowed(user);
+      return { eligible: true };
+    } catch {
+      return { eligible: false };
+    }
+  }
+
   async countCredentials(userId: string): Promise<number> {
     return this.passkeyModel.countDocuments({ user_id: userId });
   }

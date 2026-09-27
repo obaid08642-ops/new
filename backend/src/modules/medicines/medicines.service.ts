@@ -1649,6 +1649,19 @@ export class MedicinesService {
     return { ok: true, is_deleted: deleted };
   }
 
+  /** P6.0: direct medical-review decision — approve surfaces the item publicly. */
+  async adminApproveCatalog(medicineId: string, approve: boolean, adminId: string) {
+    const med: any = await this.model.findOne({ id: medicineId }, { _id: 0, __v: 0 }).lean();
+    if (!med) throw new NotFoundException('الصنف غير موجود');
+    await this.model.updateOne(
+      { id: medicineId },
+      { $set: { medical_review_status: approve ? 'approved' : 'rejected', public_eligibility: !!approve, verified: approve ? true : med.verified, last_reviewed: new Date(), updated_by: adminId, updatedAt: new Date() } },
+    );
+    this.audit(approve ? 'medicine.admin_approved' : 'medicine.admin_rejected', medicineId, adminId, 'admin', {});
+    await this.invalidateCache();
+    return { ok: true, id: medicineId, medical_review_status: approve ? 'approved' : 'rejected' };
+  }
+
   /** Admin reports: top-selling medicines + most-reported-unavailable. */
   async getPriceHistory(medicineId: string, page = 1, limit = 50): Promise<{ data: any[]; total: number; page: number; pages: number }> {
     const safePage = Math.max(1, page);

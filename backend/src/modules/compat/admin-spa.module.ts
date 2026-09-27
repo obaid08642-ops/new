@@ -22,7 +22,6 @@ import {
   Post,
   Put,
   Query,
-  ServiceUnavailableException,
   Module,
   UseGuards,
   UseInterceptors,
@@ -1330,14 +1329,58 @@ class AdminAnalyticsController extends AdminController {
 @UseGuards(JwtAuthGuard)
 @Roles(UserRole.ADMIN)
 class AdminNursingPortalController extends AdminController {
+  // F46: admin nursing ops on the canonical homecarebookings collection
+  // (same records as /nursing/bookings). No stubs.
   @Get('requests')
-  async requests() {
-    throw new ServiceUnavailableException('admin nursing operations are unavailable pending eligible-provider, acceptance, minimum-PHI and audit workflow approval');
+  async requests(@Query('state') state?: string, @Query('limit') limit = '100') {
+    const filter: any = {};
+    if (state) filter.state = { $eq: state };
+    const rows = await this.conn.collection('homecarebookings').find(filter).sort({ createdAt: -1 }).limit(Math.min(+limit || 100, 500)).toArray();
+    return rows.map((b: any) => ({
+      id: b.id || String(b._id), patient_id: b.patient_id, state: b.state || b.status,
+      service: b.service_name_ar || b.service_name_en || b.service_id,
+      provider_id: b.provider_id || b.nurse_id || null,
+      scheduled_at: b.scheduled_at, created_at: b.createdAt,
+    }));
+  }
+
+  private async transition(id: string, to: string, by: string, patch: any = {}, eligibleProvider?: string) {
+    const b: any = await this.conn.collection('homecarebookings').findOne({ id: { $eq: id } } as any);
+    if (!b) throw new NotFoundException('booking_not_found');
+    if (b.state === 'COMPLETED' || b.state === 'CANCELLED') throw new BadRequestException('booking_closed');
+    // Same rule as the patient booking path (HomeCareSvc.book): only an active, approved home-care
+    // provider that offers this booking's service may receive it.
+    if (eligibleProvider !== undefined) {
+      const nurse = await this.conn.collection('provider_profiles').findOne({
+        account_id: { $eq: eligibleProvider }, type: { $in: ['home_care', 'nursing', 'nurse'] }, status: 'active',
+        public_eligibility: true, medical_review_status: 'approved', 'nursing_services.key': { $eq: b.service_id },
+      } as any);
+      if (!nurse) throw new BadRequestException('provider_cannot_perform_service');
+    }
+    await this.conn.collection('homecarebookings').updateOne(
+      { id: { $eq: id } } as any,
+      { $set: { ...patch, state: to, updatedAt: new Date() }, $push: { state_history: { from: b.state, to, at: new Date(), by } } as any },
+    );
+    return { id, state: to };
   }
 
   @Post('requests/:id/assign')
   async assign(@Param('id') id: string, @CurrentUser() user: any, @Body() body: AssignDto) {
-    throw new ServiceUnavailableException('admin nursing assignment is unavailable pending eligible-provider, acceptance, minimum-PHI and audit workflow approval');
+    const providerId = body?.provider_id || body?.nurse_id;
+    if (!providerId) throw new BadRequestException('provider_required');
+    return this.transition(id, 'PROVIDER_ASSIGNED', uid(user), { provider_id: providerId, nurse_id: providerId }, String(providerId));
+  }
+
+  @Post('requests/:id/reassign')
+  async reassign(@Param('id') id: string, @CurrentUser() user: any, @Body() body: AssignDto) {
+    const providerId = body?.provider_id || body?.nurse_id;
+    if (!providerId) throw new BadRequestException('provider_required');
+    return this.transition(id, 'PROVIDER_ASSIGNED', uid(user), { provider_id: providerId, nurse_id: providerId }, String(providerId));
+  }
+
+  @Post('requests/:id/cancel')
+  async cancel(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.transition(id, 'CANCELLED', uid(user), { cancelled_by: uid(user), cancelled_at: new Date() });
   }
 }
 

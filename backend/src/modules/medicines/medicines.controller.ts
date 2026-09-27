@@ -1,9 +1,9 @@
-import { Body, Controller, Get, Headers, Param, Patch, Post, Query, UseGuards, Delete, Put, GoneException, Res, Header } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Param, Patch, Post, Query, UseGuards, Delete, Put, GoneException, Res, Header, BadRequestException } from '@nestjs/common';
 import { MedicinesService } from './medicines.service';
 import { CurrentUser, JwtAuthGuard, Public, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { Permission, RequirePermissions } from '../../common/permissions';
-import { SuggestChangeDto, SuggestNewItemDto, AdminUpdateCatalogDto, AdminCreateDto, LookupBarcodeDto, CompareDto, ReportShortageDto, RejectShortageDto, SetAvailabilityDto, SuggestImageDto, RejectImageDto, RejectChangeDto, AdminDeleteDto, ImportJsonDto, ImportCsvDto, ManualEntryDto, ApproveChangeDto} from './medicines.dto';
+import { SuggestChangeDto, SuggestNewItemDto, AdminUpdateCatalogDto, AdminCreateDto, LookupBarcodeDto, CompareDto, ReportShortageDto, RejectShortageDto, SetAvailabilityDto, SuggestImageDto, RejectImageDto, RejectChangeDto, AdminDeleteDto, ImportJsonDto, ImportCsvDto, ManualEntryDto, ApproveChangeDto, AdminApproveCatalogDto, AdminBulkApproveCatalogDto} from './medicines.dto';
 
 @Controller('medicines')
 @Roles(UserRole.ADMIN)
@@ -269,6 +269,34 @@ export class MedicinesController {
   @RequirePermissions(Permission.CATALOG_DELETE_RESTORE)
   adminDelete(@Param('id') id: string, @Body() body: AdminDeleteDto, @CurrentUser('id') by: string) {
     return this.svc.adminSetDeleted(id, !body?.restore, by);
+  }
+
+  /** P6.0: medical-review decision (approve surfaces the item publicly). */
+  @Post('admin/catalog/:id/approve')
+  @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.CATALOG_UPDATE)
+  adminApprove(@Param('id') id: string, @Body() body: AdminApproveCatalogDto, @CurrentUser('id') by: string) {
+    return this.svc.adminApproveCatalog(id, body?.approve !== false, by);
+  }
+
+  /** P6.0: bulk medical-review decision (max 200 ids). */
+  @Post('admin/catalog/bulk-approve')
+  @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.CATALOG_UPDATE)
+  async adminBulkApprove(@Body() body: AdminBulkApproveCatalogDto, @CurrentUser('id') by: string) {
+    const list = (Array.isArray(body?.ids) ? body.ids : []).filter((x) => typeof x === 'string' && x).slice(0, 200);
+    if (!list.length) throw new BadRequestException('ids_required');
+    const approve = body?.approve !== false;
+    const results: any[] = [];
+    for (const itemId of list) {
+      try {
+        await this.svc.adminApproveCatalog(itemId, approve, by);
+        results.push({ id: itemId, ok: true });
+      } catch (e: any) {
+        results.push({ id: itemId, ok: false, error: e?.message || 'failed' });
+      }
+    }
+    return { ok: true, approve, results };
   }
 
   /** Admin: immutable price history for governance and finance review. */

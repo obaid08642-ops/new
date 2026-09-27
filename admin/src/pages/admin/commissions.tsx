@@ -21,6 +21,36 @@ export default function CommissionsPage() {
   const [legacy, setLegacy] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // P6.x-4: commission & copay rule editor (per service / provider / category / campaign).
+  const [history, setHistory] = useState<any[]>([]);
+  const [rule, setRule] = useState({ scope: 'provider', scope_id: '', service_type: '', percent: '', effective_from: '', effective_to: '' });
+  const [ruleMsg, setRuleMsg] = useState('');
+
+  const loadHistory = async () => {
+    try {
+      const rows = await apiFetch<any[]>('/admin/finance-engine/commission-rules/history');
+      setHistory(Array.isArray(rows) ? rows : []);
+    } catch { /* history optional */ }
+  };
+
+  const saveRule = async () => {
+    const percent = Number(rule.percent);
+    if (!rule.scope || !(percent >= 0 && percent <= 100)) { setRuleMsg('النسبة 0-100 والنطاق مطلوبان'); return; }
+    if (rule.scope !== 'service' && !rule.scope_id.trim()) { setRuleMsg('scope_id مطلوب لغير نطاق الخدمة'); return; }
+    try {
+      await apiFetch('/admin/finance-engine/commission-rules', {
+        method: 'POST',
+        body: JSON.stringify({
+          scope: rule.scope, scope_id: rule.scope_id.trim() || undefined,
+          service_type: rule.service_type.trim() || undefined, percent,
+          effective_from: rule.effective_from || undefined, effective_to: rule.effective_to || undefined,
+        }),
+      });
+      setRuleMsg('تم حفظ القاعدة');
+      setRule({ scope: 'provider', scope_id: '', service_type: '', percent: '', effective_from: '', effective_to: '' });
+      await loadHistory();
+    } catch (e: any) { setRuleMsg(e?.message || 'فشل الحفظ'); }
+  };
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -40,6 +70,7 @@ export default function CommissionsPage() {
   }, []);
 
   useEffect(() => { load(); }, [load]);
+  useEffect(() => { void loadHistory(); }, []);
 
   const totalGross = (summary?.by_service || []).reduce((s: number, r: any) => s + (r.gross || 0), 0);
 
@@ -136,6 +167,46 @@ export default function CommissionsPage() {
                   </div>
                 )}
               </div>
+          {/* P6.x-4: per-service/provider/category/campaign commission rules */}
+          <div className="bg-white rounded-2xl border p-6 mt-6">
+            <h2 className="text-lg font-bold mb-1">قواعد العمولات (تتجاوز الافتراضي)</h2>
+            <p className="text-xs text-gray-500 mb-4">الأولوية: حملة ← مزود ← فئة ← خدمة ← الإعدادات ← 10%. القواعد المنتهية لا تُطبق.</p>
+            <div className="grid md:grid-cols-3 gap-3">
+              <label className="text-sm">النطاق
+                <select value={rule.scope} onChange={(e) => setRule({ ...rule, scope: e.target.value })} className="mt-1 w-full border rounded p-2">
+                  <option value="provider">مزود</option><option value="service">خدمة</option>
+                  <option value="category">فئة</option><option value="campaign">حملة</option>
+                </select>
+              </label>
+              <label className="text-sm">معرّف النطاق (provider id…)
+                <input value={rule.scope_id} onChange={(e) => setRule({ ...rule, scope_id: e.target.value })} dir="ltr" className="mt-1 w-full border rounded p-2" placeholder="account/user id" />
+              </label>
+              <label className="text-sm">نوع الخدمة
+                <input value={rule.service_type} onChange={(e) => setRule({ ...rule, service_type: e.target.value })} dir="ltr" className="mt-1 w-full border rounded p-2" placeholder="pharmacy/lab/…" />
+              </label>
+              <label className="text-sm">النسبة %
+                <input type="number" min={0} max={100} step={0.1} value={rule.percent} onChange={(e) => setRule({ ...rule, percent: e.target.value })} dir="ltr" className="mt-1 w-full border rounded p-2" />
+              </label>
+              <label className="text-sm">سارية من
+                <input type="date" value={rule.effective_from} onChange={(e) => setRule({ ...rule, effective_from: e.target.value })} className="mt-1 w-full border rounded p-2" />
+              </label>
+              <label className="text-sm">سارية إلى
+                <input type="date" value={rule.effective_to} onChange={(e) => setRule({ ...rule, effective_to: e.target.value })} className="mt-1 w-full border rounded p-2" />
+              </label>
+            </div>
+            <button onClick={saveRule} className="mt-4 px-5 py-2 bg-teal-600 text-white rounded-lg text-sm font-bold">حفظ القاعدة</button>
+            {ruleMsg && <p className="mt-2 text-sm font-bold">{ruleMsg}</p>}
+            {history.length > 0 && (
+              <table className="w-full text-sm mt-4">
+                <thead className="bg-gray-50"><tr><th className="p-2 text-right">النطاق</th><th className="p-2 text-right">المعرّف</th><th className="p-2 text-right">النسبة</th><th className="p-2 text-right">السريان</th></tr></thead>
+                <tbody>
+                  {history.slice(0, 20).map((h: any, i: number) => (
+                    <tr key={i} className="border-t"><td className="p-2">{h.scope}</td><td className="p-2 font-mono text-xs" dir="ltr">{h.scope_id || h.service_type || '—'}</td><td className="p-2">{h.percent ?? h.commission}%</td><td className="p-2 text-xs">{h.effective_from ? String(h.effective_from).slice(0, 10) : '…'} → {h.effective_to ? String(h.effective_to).slice(0, 10) : '…'}</td></tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
             </>
           )}
         </div>

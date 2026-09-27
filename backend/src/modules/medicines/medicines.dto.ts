@@ -335,3 +335,20 @@ export class ApproveChangeDto {
   @IsString({ each: true })
   approved_fields?: string[];
 }
+
+export class AdminApproveCatalogDto {
+  @IsOptional()
+  @IsBoolean()
+  approve?: boolean;
+}
+
+export class AdminBulkApproveCatalogDto {
+  @IsDefined()
+  @IsArray()
+  @IsString({ each: true })
+  ids!: string[];
+
+  @IsOptional()
+  @IsBoolean()
+  approve?: boolean;
+}

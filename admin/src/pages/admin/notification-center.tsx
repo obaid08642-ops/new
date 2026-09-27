@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react';
 import { apiFetch } from '../../utils/api';
 import { dateLocale } from '../../utils/dates';
 
-const SEGMENTS = [
-  { value: 'all', label: 'جميع المستخدمين' },
+const SEGMENTS = [  { value: 'all', label: 'جميع المستخدمين' },
   { value: 'patients', label: 'المرضى فقط' },
   { value: 'providers', label: 'مزودو الخدمة' },
   { value: 'role:pharmacy', label: 'الصيدليات' },
@@ -31,6 +30,56 @@ export default function NotificationCenterPage() {
   const [scheduledAt, setScheduledAt] = useState('');
   const [asCampaign, setAsCampaign] = useState(false);
 
+  // P6.x-7: notification templates (6 languages) + preview + test send.
+  const TEMPLATE_LANGS = ['ar', 'en', 'ur', 'hi', 'bn', 'tl'];
+  const [templates, setTemplates] = useState<any[]>([]);
+  const [tplKey, setTplKey] = useState('');
+  const [tplTitle, setTplTitle] = useState<Record<string, string>>({});
+  const [tplBody, setTplBody] = useState<Record<string, string>>({});
+  const [tplLang, setTplLang] = useState('ar');
+  const [tplParams, setTplParams] = useState('{}');
+  const [tplPreview, setTplPreview] = useState<any>(null);
+
+  const loadTemplates = async () => {
+    try {
+      const rows = await apiFetch<any[]>('/admin/notifications/admin/templates');
+      setTemplates(Array.isArray(rows) ? rows : []);
+    } catch { /* templates optional */ }
+  };
+
+  const saveTemplate = async () => {
+    if (!tplKey.trim()) { alert('أدخل مفتاح القالب'); return; }
+    try {
+      await apiFetch('/admin/notifications/admin/templates', {
+        method: 'POST', body: JSON.stringify({ key: tplKey.trim(), title: tplTitle, body: tplBody }),
+      });
+      setTplKey(''); setTplTitle({}); setTplBody({}); setTplPreview(null);
+      await loadTemplates();
+    } catch (e: any) { alert(e?.message || 'فشل الحفظ'); }
+  };
+
+  const previewTemplate = async (key: string) => {
+    let params = {};
+    try { params = JSON.parse(tplParams || '{}'); } catch { alert('params JSON غير صالح'); return; }
+    try {
+      setTplPreview(await apiFetch(`/admin/notifications/admin/templates/${encodeURIComponent(key)}/preview`, {
+        method: 'POST', body: JSON.stringify({ lang: tplLang, params }),
+      }));
+    } catch (e: any) { alert(e?.message || 'فشل المعاينة'); }
+  };
+
+  const testSendTemplate = async (key: string) => {
+    if (!window.confirm(`إرسال تجريبي للقالب «${key}» إلى حسابك؟`)) return;
+    let params = {};
+    try { params = JSON.parse(tplParams || '{}'); } catch { alert('params JSON غير صالح'); return; }
+    try {
+      await apiFetch(`/admin/notifications/admin/templates/${encodeURIComponent(key)}/test-send`, {
+        method: 'POST', body: JSON.stringify({ lang: tplLang, params }),
+      });
+      alert('تم الإرسال التجريبي');
+    } catch (e: any) { alert(e?.message || 'فشل الإرسال'); }
+  };
+
   const load = async () => {
     setLoading(true);
     try {
@@ -51,6 +100,7 @@ export default function NotificationCenterPage() {
   };
 
   useEffect(() => { load(); }, [page]);
+  useEffect(() => { void loadTemplates(); }, []);
 
   const effectiveSegment = segment === 'single' ? `user:${singleUser.trim()}` : segment;
 
@@ -194,6 +244,51 @@ export default function NotificationCenterPage() {
           <button onClick={runRetarget} className="bg-amber-500 text-white px-4 py-2 rounded hover:bg-amber-600">
             تشغيل إعادة الاستهداف يدوياً
           </button>
+        </div>
+      </div>
+
+      {/* ── Templates (6 languages + preview + test send) ── */}
+      <div className="bg-white rounded-lg shadow border">
+        <div className="p-4 border-b">
+          <h2 className="text-lg font-bold">قوالب الإشعارات ({templates.length})</h2>
+          <p className="text-xs text-gray-500 mt-1">6 لغات (ar/en/ur/hi/bn/tl) · متغيرات بصيغة {"{{name}}"} · المعاينة والاختبار قبل الاعتماد</p>
+        </div>
+        <div className="p-4 space-y-3">
+          <div className="flex gap-2 flex-wrap">
+            <input value={tplKey} onChange={(e) => setTplKey(e.target.value)} placeholder="مفتاح القالب (مثال: appt.reminder)" dir="ltr" className="border rounded px-3 py-2 text-sm flex-1 min-w-[200px]" />
+            <select value={tplLang} onChange={(e) => setTplLang(e.target.value)} className="border rounded px-3 py-2 text-sm">
+              {TEMPLATE_LANGS.map((l) => <option key={l} value={l}>{l}</option>)}
+            </select>
+            <input value={tplParams} onChange={(e) => setTplParams(e.target.value)} placeholder='params JSON {"name":".."}' dir="ltr" className="border rounded px-3 py-2 text-sm flex-1 min-w-[200px]" />
+            <button onClick={saveTemplate} className="px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-bold">حفظ القالب</button>
+          </div>
+          <div className="grid md:grid-cols-2 gap-3">
+            {TEMPLATE_LANGS.map((l) => (
+              <div key={l} className="border rounded p-2">
+                <div className="text-xs font-bold text-gray-500 mb-1" dir="ltr">{l}</div>
+                <input value={tplTitle[l] || ''} onChange={(e) => setTplTitle((p) => ({ ...p, [l]: e.target.value }))} placeholder="العنوان" className="w-full border rounded px-2 py-1 text-sm mb-1" />
+                <textarea value={tplBody[l] || ''} onChange={(e) => setTplBody((p) => ({ ...p, [l]: e.target.value }))} placeholder="النص" rows={2} className="w-full border rounded px-2 py-1 text-sm" />
+              </div>
+            ))}
+          </div>
+          {tplPreview && (
+            <div className="border rounded p-3 bg-slate-50 text-sm">
+              <div className="font-bold">{tplPreview.title}</div>
+              <div className="text-gray-600 mt-1">{tplPreview.body}</div>
+            </div>
+          )}
+          <div className="divide-y border rounded">
+            {templates.map((t: any) => (
+              <div key={t.key} className="p-3 flex items-center justify-between gap-3">
+                <div><strong dir="ltr">{t.key}</strong><span className="text-xs text-gray-500"> · {Object.keys(t.title || {}).length}/6 عناوين · {Object.keys(t.body || {}).length}/6 نصوص</span></div>
+                <div className="flex gap-2">
+                  <button onClick={() => previewTemplate(t.key)} className="text-blue-600 hover:underline text-xs">معاينة</button>
+                  <button onClick={() => testSendTemplate(t.key)} className="text-green-600 hover:underline text-xs">إرسال تجريبي</button>
+                </div>
+              </div>
+            ))}
+            {templates.length === 0 && <div className="p-4 text-center text-gray-400 text-sm">لا توجد قوالب بعد</div>}
+          </div>
         </div>
       </div>
 

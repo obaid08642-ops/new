@@ -93,10 +93,40 @@ export class SupportService {
 
   // --- WP 1.6 Settings Methods ---
   async getFaqs() {
+    try {
+      const rows: any[] = await this.conn.collection('faqs').find({ active: { $ne: false } }).sort({ sort: 1 }).limit(100).toArray();
+      if (rows.length) return rows.map((r: any) => ({ id: r.id || String(r._id), question: r.question_ar, question_en: r.question_en || null, answer: r.answer_ar, answer_en: r.answer_en || null }));
+    } catch { /* fall through to defaults */ }
     return [
       { id: '1', question: 'كيف أحجز موعد؟', answer: 'يمكنك الحجز من خلال قسم العيادات' },
       { id: '2', question: 'هل التأمين مغطى؟', answer: 'نعم، ندعم معظم شركات التأمين' }
     ];
+  }
+
+  /** P6.x-13: admin-managed FAQs (public list falls back to defaults when empty). */
+  async listFaqsAdmin(): Promise<any[]> {
+    return this.conn.collection('faqs').find({}).sort({ sort: 1 }).limit(200).toArray();
+  }
+
+  async upsertFaq(dto: { id?: string; question_ar: string; question_en?: string; answer_ar: string; answer_en?: string; sort?: number; active?: boolean }) {
+    if (!dto?.question_ar?.trim() || !dto?.answer_ar?.trim()) throw new BadRequestException('question_answer_required');
+    const doc = {
+      id: dto.id || require('uuid').v4(),
+      question_ar: String(dto.question_ar).slice(0, 500),
+      question_en: dto.question_en ? String(dto.question_en).slice(0, 500) : null,
+      answer_ar: String(dto.answer_ar).slice(0, 5000),
+      answer_en: dto.answer_en ? String(dto.answer_en).slice(0, 5000) : null,
+      sort: Number.isFinite(dto.sort) ? dto.sort : 0,
+      active: dto.active !== false,
+      updated_at: new Date(),
+    };
+    await this.conn.collection('faqs').updateOne({ id: doc.id }, { $set: doc }, { upsert: true });
+    return doc;
+  }
+
+  async deleteFaq(id: string) {
+    await this.conn.collection('faqs').updateOne({ id: { $eq: id } }, { $set: { active: false } });
+    return { ok: true };
   }
 
   async submitFeedback(user_id: string) {

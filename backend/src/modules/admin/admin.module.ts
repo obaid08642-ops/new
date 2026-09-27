@@ -32,6 +32,8 @@ import { AdminFinanceSuiteController } from './enterprise/admin-finance.controll
 import { FinanceSuiteService } from './enterprise/finance-suite.service';
 import { AnalyticsSuiteService } from './enterprise/analytics-suite.service';
 import { AdminAnalyticsSuiteController, AdminScheduledReportsController } from './enterprise/admin-analytics.controller';
+import { AdminReportsController } from './enterprise/admin-reports.controller';
+import { AdminSearchController } from './enterprise/admin-search.controller';
 import { AdminCrmController, AdminGdprController } from './enterprise/admin-crm.controller';
 import { PatientGdprController } from './enterprise/patient-gdpr.controller';
 import { AdminSegmentsController } from './enterprise/admin-segments.controller';
@@ -134,7 +136,8 @@ import { AuditIngestController } from './admin-audit-ingest.controller';
     AdminFinanceSuiteController,
     AdminAnalyticsSuiteController,
     AdminScheduledReportsController,
-    AdminCrmController,
+    AdminReportsController,
+    AdminSearchController,    AdminCrmController,
     AdminGdprController,
     PatientGdprController,
     AdminSegmentsController,

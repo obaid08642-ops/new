@@ -129,6 +129,21 @@ export default function ProviderModeration() {
     }
   };
 
+  // P6.x-8: reactivate a suspended provider (reason audited server-side).
+  const handleReactivate = async (id: string) => {
+    const reason = window.prompt('سبب إعادة التفعيل (يُحفظ في سجل التدقيق — 5 أحرف على الأقل):', '');
+    if (!reason || reason.trim().length < 5) return;
+    try {
+      const res = await fetchWithAdminGuard(`/api/admin/providers/${id}/reactivate`, {
+        method: 'POST', body: JSON.stringify({ reason: reason.trim() }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      alert('تمت إعادة التفعيل — سيحتاج المزود لتسجيل الدخول من جديد.');
+    } catch (err: any) {
+      alert('فشل التفعيل: ' + (err?.message || 'خطأ'));
+    }
+  };
+
   const handleSuspend = async () => {
     if (!suspendReason) return alert('يرجى إدخال سبب الإيقاف');
     try {
@@ -263,6 +278,9 @@ export default function ProviderModeration() {
               <div className="p-6 border-t border-gray-200 bg-slate-50 flex gap-4">
                 <button onClick={() => handleApprove(selectedProvider.id, selectedProvider.type)} className="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-lg shadow transition text-lg">
                   Approve Provider (اعتماد)
+                </button>
+                <button onClick={() => handleReactivate(selectedProvider.id)} className="flex-1 bg-green-100 hover:bg-green-200 text-green-700 font-bold py-3 rounded-lg shadow-sm border border-green-200 transition text-lg">
+                  Reactivate (إعادة تفعيل)
                 </button>
                 <button onClick={() => setIsModalOpen(true)} className="flex-1 bg-red-100 hover:bg-red-200 text-red-700 font-bold py-3 rounded-lg shadow-sm border border-red-200 transition text-lg">
                   Suspend Provider (إيقاف)

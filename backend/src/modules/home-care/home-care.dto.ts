@@ -131,3 +131,19 @@ export class UpdateHomeCareCatalogDto {
   @IsOptional() @IsIn(['pending', 'approved', 'rejected', 'suspended']) medical_review_status?: string;
 }
 
+export class ApproveCatalogDto {
+  @IsOptional()
+  @IsBoolean()
+  approve?: boolean;
+}
+
+export class BulkApproveCatalogDto {
+  @IsDefined()
+  @IsArray()
+  @IsString({ each: true })
+  ids!: string[];
+
+  @IsOptional()
+  @IsBoolean()
+  approve?: boolean;
+}

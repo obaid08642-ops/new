@@ -7,6 +7,12 @@ export class UpdateSurgeDto {
   @IsOptional() @IsNumber() @Min(1) @Max(5) multiplier?: number;
 }
 
+/** P6.x-14: platform fee defaults (persisted in system_configs). */
+export class UpdateFeesDto {
+  @IsOptional() @IsNumber() @Min(0) @Max(1000) delivery_fee?: number;
+  @IsOptional() @IsNumber() @Min(0) @Max(1000) service_fee?: number;
+}
+
 export class RulePatientDto {
   @IsOptional() @IsString() id?: string;
   @IsOptional() @IsNumber() age?: number;
