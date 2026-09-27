@@ -20,6 +20,7 @@ export const LAB_CATALOG_FIELDS = [
 import { getEffectiveRoles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { RedisService } from '../redis/redis.service';
+import { BusinessRulesService } from '../business-rules/business-rules.module';
 import { reviewUpdate, invalidateCatalogCache } from '../../common/catalog-review';
 
 @Injectable()
@@ -34,6 +35,7 @@ export class LabsService {
     private readonly engine: WorkflowEngineService,
     private readonly pdfService: LabPdfService,
     @Optional() private readonly redis?: RedisService,
+    @Optional() private readonly pricing?: BusinessRulesService,
   ) {}
 
   async list(opts: { category?: string; search?: string; home_only?: boolean; packages_only?: boolean; highest_rated?: boolean; nearest?: boolean; lowest_price?: boolean }) {
@@ -160,7 +162,13 @@ export class LabsService {
     }).lean();
     const dupe = recent.find((b: any) => JSON.stringify((b.items || []).map((i: any) => i.service_id).sort()) === JSON.stringify(svcIds));
     if (dupe) return dupe;
-    const total = items.reduce((sum, i) => sum + (i.price || 0), 0) + (data.location_type === 'home' ? 25 : 0);
+    // R6-4: home-collection fee comes from the saved platform pricing (admin config-portal).
+    let homeFee = 25;
+    try {
+      const fees = await this.pricing?.platformFees();
+      if (fees && Number.isFinite(fees.delivery_fee) && fees.delivery_fee >= 0) homeFee = fees.delivery_fee;
+    } catch { /* booking never fails on pricing config */ }
+    const total = items.reduce((sum, i) => sum + (i.price || 0), 0) + (data.location_type === 'home' ? homeFee : 0);
     const insurance_status = paymentMethod === 'insurance' ? 'pending' : 'none';
     const booking = await this.bkgModel.create({
       patient_id: user.id,

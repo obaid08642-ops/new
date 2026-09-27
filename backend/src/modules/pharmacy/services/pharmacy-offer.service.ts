@@ -1,10 +1,11 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException, Optional } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import * as crypto from 'crypto';
 import { PharmacyAllocationState, PharmacyOrderState } from '../schemas/pharmacy.schema';
 import { EventBusService } from '../../events/event-bus.service';
+import { BusinessRulesService } from '../../business-rules/business-rules.module';
 
 const OFFER_TTL_MS = 10 * 60_000;
 const ACTIVE_PHARMACY_STATUSES = ['approved', 'active'];
@@ -39,6 +40,7 @@ export class PharmacyOfferService {
     @InjectModel('PharmacyInventoryItem') private readonly inventory: Model<any>,
     @InjectModel('ProviderAccount') private readonly accounts: Model<any>,
     private readonly bus: EventBusService,
+    @Optional() private readonly pricing?: BusinessRulesService,
   ) {}
 
   private async assertActivePharmacy(user: any) {
@@ -147,8 +149,16 @@ export class PharmacyOfferService {
       items.push(await this.inventoryForOffer(userId, orderItem, byOrderItem.get(orderItem.id)!));
     }
     const subtotal = items.reduce((sum, item) => sum + (item.action === 'unavailable' ? 0 : item.unit_price * item.qty_offered), 0);
-    // Delivery fees/options/ETA are policy-owned. No configured server policy exists yet, so they are explicit read-only/unavailable values.
-    const deliveryFee = 0;
+    // R6-4: delivery fee comes from the saved platform pricing (admin config-portal).
+    let deliveryFee = 0;
+    let feeSource = 'no_active_server_delivery_policy';
+    try {
+      const fees = await this.pricing?.platformFees();
+      if (fees && Number.isFinite(fees.delivery_fee) && fees.delivery_fee > 0) {
+        deliveryFee = Math.round(fees.delivery_fee * 100) / 100;
+        feeSource = 'platform_pricing_config';
+      }
+    } catch { /* quote never fails on pricing config */ }
     const estimatedPreparationMinutes = Math.max(15, Math.min(60, 10 + items.filter((item) => item.action !== 'unavailable').length * 5));
     return {
       items,
@@ -158,7 +168,7 @@ export class PharmacyOfferService {
         policy_status: 'unavailable_read_only',
         delivery_option: null,
         eta_minutes: null,
-        delivery_fee_source: 'no_active_server_delivery_policy',
+        delivery_fee_source: feeSource,
       },
     };
   }

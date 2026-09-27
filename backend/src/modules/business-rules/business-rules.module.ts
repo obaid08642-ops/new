@@ -76,6 +76,21 @@ export class BusinessRulesService {
   
   getSurgeConfig() { return this.surgeConfig; }
   getPricing() { return { surge: this.surgeConfig, fees: this.feeDefaults }; }
+
+  /** R6-4: fresh platform fees for quote paths (no stale cache — the live
+   * check is "change a fee → the next quote shows it"). */
+  async platformFees(): Promise<{ delivery_fee: number; service_fee: number }> {
+    try {
+      const doc: any = await this.conn.collection('system_configs').findOne({ key: 'pricing' });
+      const v = doc?.value || {};
+      return {
+        delivery_fee: Number.isFinite(v.delivery_fee) && v.delivery_fee >= 0 ? v.delivery_fee : this.feeDefaults.delivery_fee,
+        service_fee: Number.isFinite(v.service_fee) && v.service_fee >= 0 ? v.service_fee : this.feeDefaults.service_fee,
+      };
+    } catch {
+      return { ...this.feeDefaults };
+    }
+  }
   async pricing() { await this.loadPricing(); return this.getPricing(); }
   async updateSurgeConfig(config: UpdateSurgeDto) {
     await this.loadPricing();

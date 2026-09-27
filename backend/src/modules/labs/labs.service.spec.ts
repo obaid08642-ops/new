@@ -7,6 +7,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { EventBusService } from '../events/event-bus.service';
 import { WorkflowEngineService } from '../workflow-engine/workflow-engine.module';
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { BusinessRulesService } from '../business-rules/business-rules.module';
 
 describe('LabsService', () => {
   let service: LabsService;
@@ -17,6 +18,7 @@ describe('LabsService', () => {
     create: jest.fn(),
     updateOne: jest.fn(),
     updateMany: jest.fn(),
+    countDocuments: jest.fn(),
     lean: jest.fn(),
     sort: jest.fn().mockReturnThis(),
   });
@@ -31,7 +33,7 @@ describe('LabsService', () => {
   };
 
   const mockEventBus = {
-    emit: jest.fn(),
+    emit: jest.fn().mockResolvedValue(undefined),
   };
 
   const mockWorkflowEngine = {
@@ -59,6 +61,7 @@ describe('LabsService', () => {
         { provide: EventEmitter2, useValue: mockEventEmitter },
         { provide: EventBusService, useValue: mockEventBus },
         { provide: WorkflowEngineService, useValue: mockWorkflowEngine },
+        { provide: BusinessRulesService, useValue: { platformFees: jest.fn().mockResolvedValue({ delivery_fee: 25, service_fee: 0 }) } },
       ],
     }).compile();
 
@@ -207,6 +210,65 @@ describe('LabsService', () => {
       await expect(service.listSamples({ id: 'lab-b', role: 'lab' })).resolves.toEqual([]);
       expect(mockLabBooking.find).toHaveBeenCalledWith({ provider_account_id: 'lab-b' }, { id: 1 });
       expect(mockLabSample.find).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('home-collection fee (R6-4)', () => {
+    const future = () => new Date(Date.now() + 86400000).toISOString();
+    const svcDoc = { id: 'svc-1', price: 100, home_visit_supported: true, sample_type: 'blood', fasting_required: false };
+    function bookMocks() {
+      mockLabService.find.mockResolvedValue([svcDoc]);
+      mockLabBooking.countDocuments.mockResolvedValue(0);
+      mockLabBooking.find.mockReturnValue({ lean: jest.fn().mockResolvedValue([]) });
+      mockLabBooking.create.mockImplementation(async (doc: any) => ({ ...doc, toObject: () => doc }));
+    }
+    function withFees(fees: any) {
+      return Test.createTestingModule({
+        providers: [
+          LabsService,
+          { provide: LabPdfService, useValue: {} },
+          { provide: 'LabServiceRepository', useValue: mockLabService },
+          { provide: 'LabBookingRepository', useValue: mockLabBooking },
+          { provide: 'LabSampleRepository', useValue: mockLabSample },
+          { provide: getModelToken('ProviderProfile'), useValue: mockProviderProfile },
+          { provide: EventEmitter2, useValue: mockEventEmitter },
+          { provide: EventBusService, useValue: mockEventBus },
+          { provide: WorkflowEngineService, useValue: mockWorkflowEngine },
+          { provide: BusinessRulesService, useValue: { platformFees: jest.fn().mockResolvedValue(fees) } },
+        ],
+      }).compile();
+    }
+    it('uses the saved platform delivery fee for home collection', async () => {
+      bookMocks();
+      const mod = await withFees({ delivery_fee: 12, service_fee: 3 });
+      const svc: LabsService = mod.get(LabsService);
+      const booking: any = await svc.book(
+        { id: 'patient-1', role: 'patient' },
+        { items: [{ service_id: 'svc-1' }], scheduled_at: future(), location_type: 'home', provider_account_id: 'lab-1', payment_method: 'card' },
+      );
+      expect(booking.total).toBe(112);
+    });
+    it('falls back to the legacy home fee when pricing is unavailable', async () => {
+      bookMocks();
+      const mod: TestingModule = await Test.createTestingModule({
+        providers: [
+          LabsService,
+          { provide: LabPdfService, useValue: {} },
+          { provide: 'LabServiceRepository', useValue: mockLabService },
+          { provide: 'LabBookingRepository', useValue: mockLabBooking },
+          { provide: 'LabSampleRepository', useValue: mockLabSample },
+          { provide: getModelToken('ProviderProfile'), useValue: mockProviderProfile },
+          { provide: EventEmitter2, useValue: mockEventEmitter },
+          { provide: EventBusService, useValue: mockEventBus },
+          { provide: WorkflowEngineService, useValue: mockWorkflowEngine },
+        ],
+      }).compile();
+      const svc: LabsService = mod.get(LabsService);
+      const booking: any = await svc.book(
+        { id: 'patient-1', role: 'patient' },
+        { items: [{ service_id: 'svc-1' }], scheduled_at: future(), location_type: 'home', provider_account_id: 'lab-1', payment_method: 'card' },
+      );
+      expect(booking.total).toBe(125);
     });
   });
 });

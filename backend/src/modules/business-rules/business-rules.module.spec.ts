@@ -36,6 +36,14 @@ describe('BusinessRulesService surge configuration', () => {
     )).rejects.toBeInstanceOf(BadRequestException);
   });
 
+  it('serves the saved platform fees fresh for quote paths (R6-4)', async () => {
+    const coll = { findOne: jest.fn().mockResolvedValue({ value: { delivery_fee: 12, service_fee: 3 } }), updateOne: jest.fn().mockResolvedValue({}) };
+    const svc = new BusinessRulesService({} as unknown as Model<ProviderProfile>, { collection: () => coll } as any);
+    await expect(svc.platformFees()).resolves.toEqual({ delivery_fee: 12, service_fee: 3 });
+    await svc.updateFees({ delivery_fee: 20 });
+    expect(svc.getPricing().fees.delivery_fee).toBe(20);
+  });
+
   it('pins provider hydration to a scalar equality filter', async () => {
     const query = { select: jest.fn().mockReturnThis(), lean: jest.fn().mockResolvedValue(null) };
     const findOne = jest.fn().mockReturnValue(query);

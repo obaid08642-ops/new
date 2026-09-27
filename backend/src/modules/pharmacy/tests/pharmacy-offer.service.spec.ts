@@ -23,7 +23,7 @@ describe('PharmacyOfferService', () => {
     const allocations = overrides.allocations || {};
     const connection = overrides.connection || { startSession: jest.fn() };
     const bus = { emit: jest.fn().mockResolvedValue(undefined) };
-    return new PharmacyOfferService(connection as any, offers as any, orders as any, allocations as any, broadcasts as any, inventory as any, accounts as any, bus as any);
+    return new PharmacyOfferService(connection as any, offers as any, orders as any, allocations as any, broadcasts as any, inventory as any, accounts as any, bus as any, (overrides as any).pricing);
   }
 
   it('derives item price and total from pharmacy inventory rather than client input', async () => {
@@ -47,6 +47,17 @@ describe('PharmacyOfferService', () => {
       { items: [{ order_item_id: 'item-1', availability: 'available', qty_offered: 2 } as any] });
     expect(result.items[0]).toMatchObject({ inventory_item_id: 'inventory-1', unit_price: 17.5 });
     expect(inventory.findOne).toHaveBeenCalledWith(expect.objectContaining({ provider_account_id: 'pharmacy-1', sku: 'SKU-1', available: true }));
+  });
+
+  it('applies the saved platform delivery fee to the quote totals (R6-4)', async () => {
+    const pricing = { platformFees: jest.fn().mockResolvedValue({ delivery_fee: 12, service_fee: 3 }) };
+    const svc = service({ pricing } as any);
+    const result = await svc.previewQuote(
+      { id: 'pharmacy-1', role: 'provider' }, 'order-1',
+      { items: [{ order_item_id: 'item-1', availability: 'available', inventory_item_id: 'inventory-1', qty_offered: 1 }] },
+    );
+    expect(result.totals).toEqual({ subtotal: 17.5, delivery_fee: 12, total: 29.5, currency: 'SAR' });
+    expect(result.fulfillment).toEqual(expect.objectContaining({ delivery_fee_source: 'platform_pricing_config' }));
   });
 
   it('returns a server-derived preview with explicit read-only delivery policy and ignores client ETA', async () => {
