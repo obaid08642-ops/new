@@ -143,10 +143,14 @@ export class ProviderDashboardService {
     if (!a) throw new NotFoundException();
     const p = await this.profiles.findOne({ account_id: a.id });
     const av = await this.getAvailability(user);
+    // F53: promotions/CRM entries are only for business provider types —
+    // nursing/nurse/home-care/ambulance/delivery accounts get 403s there.
+    const businessType = ['doctor', 'pharmacy', 'lab', 'radiology', 'hospital', 'clinic'].includes(String(a.provider_type));
     return {
       account: { id: a.id, email: a.email, provider_type: a.provider_type, status: a.status, email_verified: a.email_verified, approved_at: a.approved_at },
       profile: p?.toObject() || null,
       availability: av,
+      capabilities: { promotions: businessType, crm: businessType },
     };
   }
 }
