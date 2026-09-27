@@ -14,6 +14,8 @@ const NAV_SECTIONS: NavSection[] = [
       { href: '/admin/command-center', label: 'مركز القيادة الحي', permission: 'command.center.view' },
       { href: '/admin/orders', label: 'دورة الطلبات', permission: 'order.read' },
       { href: '/admin/analytics-suite', label: 'التحليلات', permission: 'analytics.read' },
+      { href: '/admin/reports', label: 'التقارير التشغيلية', permission: 'analytics.read' },
+      { href: '/admin/search', label: 'البحث الشامل', permission: 'users.view' },
       { href: '/admin/sos-monitor', label: 'مراقبة الطوارئ SOS' },
       { href: '/admin/fraud-monitoring', label: 'مراقبة الاحتيال' },
     ],

@@ -4,6 +4,8 @@ import { Model } from 'mongoose';
 import { NotFoundException } from '@nestjs/common';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { Notification, NotificationDocument } from '../../schemas/notification.schema';
+import { NotificationTemplate, NotificationTemplateDocument, TEMPLATE_LANGS } from '../../schemas/notification-template.schema';
+import { InjectModel } from '@nestjs/mongoose';
 import { NotificationPriority, NotificationType } from '../../common/enums';
 import { EVENTS } from '../../common/events';
 import { NotificationRepository } from "./repositories/notification.repository";
@@ -20,6 +22,7 @@ export class NotificationsService {
   private logger = new Logger('Notifications');
   constructor(
     @Inject('NotificationRepository') private model: NotificationRepository,
+    @InjectModel(NotificationTemplate.name) private templateModel: Model<NotificationTemplateDocument>,
     private events: EventEmitter2,
     private smsService: SmsService,
     private mail: MailService,
@@ -122,6 +125,48 @@ export class NotificationsService {
   }
 
   /** M6/ER-8: admin delivery analytics. */
+  /** P6.x-7: template CRUD + preview + test-send. */
+  async listTemplates() {
+    return this.templateModel.find({}).sort({ key: 1 }).lean();
+  }
+
+  async upsertTemplate(user: any, dto: { key: string; title?: any; body?: any; active?: boolean }) {
+    if (!dto?.key || !/^[a-z0-9_.:-]{2,80}$/i.test(dto.key)) throw new BadRequestException('bad_template_key');
+    const clean = (m: any) => {
+      const out: any = {};
+      for (const lang of TEMPLATE_LANGS) {
+        const v = m?.[lang];
+        if (typeof v === 'string' && v.trim()) out[lang] = v.slice(0, 2000);
+      }
+      return out;
+    };
+    const doc = await this.templateModel.findOneAndUpdate(
+      { key: { $eq: String(dto.key) } },
+      { $set: { title: clean(dto.title), body: clean(dto.body), active: dto.active !== false, updated_by: user?.id } },
+      { new: true, upsert: true },
+    );
+    return doc.toObject ? doc.toObject() : doc;
+  }
+
+  renderTemplate(tpl: any, lang: string, params: any = {}) {
+    const pick = (m: any) => (m && typeof m === 'object' && (m[lang] || m.en || m.ar)) || '';
+    const fill = (text: string) => String(text).replace(/\{\{(\w+)\}\}/g, (_m, k) => (params?.[k] ?? ''));
+    return { title: fill(pick(tpl?.title)), body: fill(pick(tpl?.body)) };
+  }
+
+  async previewTemplate(key: string, lang: string, params: any = {}) {
+    const tpl: any = await this.templateModel.findOne({ key: { $eq: key } }).lean();
+    if (!tpl) throw new NotFoundException('template_not_found');
+    return { key, lang, ...this.renderTemplate(tpl, lang, params) };
+  }
+
+  async testSendTemplate(user: any, key: string, lang: string, params: any = {}) {
+    const tpl: any = await this.templateModel.findOne({ key: { $eq: key } }).lean();
+    if (!tpl) throw new NotFoundException('template_not_found');
+    const rendered = this.renderTemplate(tpl, lang, params);
+    return this.create({ user_id: user?.id, title: rendered.title, body: rendered.body, type: 'info' as any });
+  }
+
   async deliveryStats() {
     const rows = await this.model.aggregate([{ $group: { _id: '$status', count: { $sum: 1 } } }]);
     const by_status: any = {};

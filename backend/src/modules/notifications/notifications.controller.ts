@@ -3,7 +3,7 @@ import { NotificationsService } from './notifications.service';
 import { CurrentUser, JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { PushService } from '../push/push.module';
-import { SendDto, ScheduleDto, RegisterTokenDto} from './notifications.dto';
+import { SendDto, ScheduleDto, RegisterTokenDto, TemplateUpsertDto, TemplatePreviewDto} from './notifications.dto';
 
 @Controller('notifications')
 @UseGuards(JwtAuthGuard)
@@ -68,5 +68,30 @@ export class NotificationsController {
   @Roles(UserRole.ADMIN)
   deliveryStats() {
     return this.svc.deliveryStats();
+  }
+
+  // P6.x-7: admin — notification templates (6 languages) + preview + test send
+  @Get('admin/templates')
+  @Roles(UserRole.ADMIN)
+  templates() {
+    return this.svc.listTemplates();
+  }
+
+  @Post('admin/templates')
+  @Roles(UserRole.ADMIN)
+  upsertTemplate(@CurrentUser() u: any, @Body() b: TemplateUpsertDto) {
+    return this.svc.upsertTemplate(u, b);
+  }
+
+  @Post('admin/templates/:key/preview')
+  @Roles(UserRole.ADMIN)
+  previewTemplate(@Param('key') key: string, @Body() b: TemplatePreviewDto) {
+    return this.svc.previewTemplate(key, b?.lang || 'ar', b?.params || {});
+  }
+
+  @Post('admin/templates/:key/test-send')
+  @Roles(UserRole.ADMIN)
+  testSendTemplate(@CurrentUser() u: any, @Param('key') key: string, @Body() b: TemplatePreviewDto) {
+    return this.svc.testSendTemplate(u, key, b?.lang || 'ar', b?.params || {});
   }
 }

@@ -18,6 +18,11 @@ import { JwtAuthGuard, Public, CurrentUser, SelfService } from '../../common/aut
 export class PasskeyController {
   constructor(private auth: AuthService, private passkeys: PasskeyService) {}
 
+  @Get('eligibility')
+  eligibility(@CurrentUser() user: any) {
+    return this.passkeys.isEligible(user);
+  }
+
   @Post('enroll/options')
   enrollOptions(@CurrentUser() user: any) {
     return this.passkeys.startEnrollment(user);

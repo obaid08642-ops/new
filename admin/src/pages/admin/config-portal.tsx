@@ -2,14 +2,75 @@ import React, { useState, useEffect } from 'react';
 import { fetchWithAdminGuard } from '@/utils/api';
 
 export default function ConfigPortal() {
-  const [activeTab, setActiveTab] = useState<'sla' | 'maintenance'>('sla');
+  const [activeTab, setActiveTab] = useState<'sla' | 'maintenance' | 'pricing' | 'apps'>('sla');
 
   // SLA State
   const [consultationDuration, setConsultationDuration] = useState(15);
   const [callRingingDuration, setCallRingingDuration] = useState(45);
   const [jwtExpiry, setJwtExpiry] = useState(24);
 
-  // Maintenance State
+  // P6.x-13: per-app force-update versions + maintenance flags.
+  const APPS = ['patient', 'provider', 'driver', 'pharmacy', 'web'];
+  const [appVersions, setAppVersions] = useState<Record<string, { min_version?: string; latest_version?: string; maintenance?: boolean; message_ar?: string; message_en?: string }>>({});
+  const [appsMsg, setAppsMsg] = useState('');
+
+  const loadAppVersions = async () => {
+    try {
+      const res = await fetchWithAdminGuard('/api/admin/config/app-versions');
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data?.apps && typeof data.apps === 'object') setAppVersions(data.apps);
+    } catch { /* optional */ }
+  };
+
+  const setApp = (app: string, patch: Record<string, unknown>) => {
+    setAppVersions((p) => ({ ...p, [app]: { ...(p[app] || {}), ...patch } }));
+  };
+
+  const saveAppVersions = async () => {
+    setAppsMsg('');
+    try {
+      const res = await fetchWithAdminGuard('/api/admin/config/app-versions', { method: 'PUT', body: JSON.stringify({ apps: appVersions }) });
+      setAppsMsg(res.ok ? 'تم حفظ إصدارات التطبيقات' : 'فشل الحفظ');
+    } catch { setAppsMsg('فشل الحفظ'); }
+  };
+  // P6.x-14: platform pricing (surge + fee defaults, persisted server-side).
+  const [surgeStart, setSurgeStart] = useState(18);
+  const [surgeEnd, setSurgeEnd] = useState(22);
+  const [surgeMult, setSurgeMult] = useState(1.1);
+  const [deliveryFee, setDeliveryFee] = useState(0);
+  const [serviceFee, setServiceFee] = useState(0);
+  const [pricingMsg, setPricingMsg] = useState('');
+
+  const loadPricing = async () => {
+    try {
+      const res = await fetchWithAdminGuard('/api/admin/business-rules/config/pricing');
+      if (!res.ok) return;
+      const p = await res.json();
+      if (p?.surge) {
+        if (Number.isFinite(p.surge.startHour)) setSurgeStart(p.surge.startHour);
+        if (Number.isFinite(p.surge.endHour)) setSurgeEnd(p.surge.endHour);
+        if (Number.isFinite(p.surge.multiplier)) setSurgeMult(p.surge.multiplier);
+      }
+      if (p?.fees) {
+        if (Number.isFinite(p.fees.delivery_fee)) setDeliveryFee(p.fees.delivery_fee);
+        if (Number.isFinite(p.fees.service_fee)) setServiceFee(p.fees.service_fee);
+      }
+    } catch { /* pricing optional */ }
+  };
+
+  const savePricing = async () => {
+    setPricingMsg('');
+    try {
+      const s = await fetchWithAdminGuard('/api/admin/business-rules/config/surge', {
+        method: 'POST', body: JSON.stringify({ startHour: surgeStart, endHour: surgeEnd, multiplier: surgeMult }),
+      });
+      const f = await fetchWithAdminGuard('/api/admin/business-rules/config/fees', {
+        method: 'POST', body: JSON.stringify({ delivery_fee: deliveryFee, service_fee: serviceFee }),
+      });
+      setPricingMsg(s.ok && f.ok ? 'تم حفظ التسعير' : 'فشل الحفظ — تحقق من القيم');
+    } catch { setPricingMsg('فشل الحفظ'); }
+  };
   const [killSwitchChecked1, setKillSwitchChecked1] = useState(false);
   const [killSwitchChecked2, setKillSwitchChecked2] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -139,6 +200,18 @@ export default function ConfigPortal() {
           <span className="w-3 h-3 rounded-full bg-red-500 animate-pulse"></span>
           مفتاح الإيقاف الطارئ
         </button>
+        <button
+          className={`py-3 px-6 font-medium text-lg ${activeTab === 'pricing' ? 'border-b-2 border-teal-500 text-teal-600' : 'text-gray-500'}`}
+          onClick={() => { setActiveTab('pricing'); void loadPricing(); }}
+        >
+          التسعير والذروة
+        </button>
+        <button
+          className={`py-3 px-6 font-medium text-lg ${activeTab === 'apps' ? 'border-b-2 border-teal-500 text-teal-600' : 'text-gray-500'}`}
+          onClick={() => { setActiveTab('apps'); void loadAppVersions(); }}
+        >
+          إصدارات التطبيقات
+        </button>
       </div>
 
       {/* Content */}
@@ -239,6 +312,63 @@ export default function ConfigPortal() {
                   </button>
                 </div>
               )}
+            </div>
+          </div>
+        )}
+        {activeTab === 'pricing' && (
+          <div className="space-y-6">
+            <div className="bg-white p-6 rounded border border-gray-200">
+              <h2 className="text-xl font-bold mb-4">قواعد الذروة (Surge) والرسوم الافتراضية</h2>
+              <p className="text-sm text-gray-500 mb-4">تُحفظ في إعدادات المنصة وتبقى بعد إعادة التشغيل.</p>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <label className="text-sm font-medium">بداية الذروة (ساعة)
+                  <input type="number" min={0} max={23} value={surgeStart} onChange={(e) => setSurgeStart(Number(e.target.value))} className="mt-1 w-full border rounded p-2" />
+                </label>
+                <label className="text-sm font-medium">نهاية الذروة (ساعة)
+                  <input type="number" min={0} max={23} value={surgeEnd} onChange={(e) => setSurgeEnd(Number(e.target.value))} className="mt-1 w-full border rounded p-2" />
+                </label>
+                <label className="text-sm font-medium">معامل الذروة (1-5)
+                  <input type="number" min={1} max={5} step={0.1} value={surgeMult} onChange={(e) => setSurgeMult(Number(e.target.value))} className="mt-1 w-full border rounded p-2" />
+                </label>
+                <label className="text-sm font-medium">رسوم التوصيل الافتراضية
+                  <input type="number" min={0} max={1000} value={deliveryFee} onChange={(e) => setDeliveryFee(Number(e.target.value))} className="mt-1 w-full border rounded p-2" />
+                </label>
+                <label className="text-sm font-medium">رسوم الخدمة الافتراضية
+                  <input type="number" min={0} max={1000} value={serviceFee} onChange={(e) => setServiceFee(Number(e.target.value))} className="mt-1 w-full border rounded p-2" />
+                </label>
+              </div>
+              <button onClick={() => void savePricing()} className="mt-4 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-6 rounded-lg">حفظ التسعير</button>
+              {pricingMsg && <p className="mt-2 text-sm font-bold">{pricingMsg}</p>}
+            </div>
+          </div>
+        )}
+        {activeTab === 'apps' && (
+          <div className="space-y-4">
+            <div className="bg-white p-6 rounded border border-gray-200">
+              <h2 className="text-xl font-bold mb-1">إصدارات التطبيقات والصيانة</h2>
+              <p className="text-sm text-gray-500 mb-4">min_version يفرض التحديث الإجباري · maintenance يفعّل وضع الصيانة لذلك التطبيق.</p>
+              {APPS.map((app) => (
+                <div key={app} className="border rounded-lg p-4 mb-3">
+                  <div className="font-bold mb-2" dir="ltr">{app}</div>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <label className="text-sm">min_version
+                      <input value={appVersions[app]?.min_version || ''} onChange={(e) => setApp(app, { min_version: e.target.value })} dir="ltr" className="mt-1 w-full border rounded p-2" placeholder="1.0.0" />
+                    </label>
+                    <label className="text-sm">latest_version
+                      <input value={appVersions[app]?.latest_version || ''} onChange={(e) => setApp(app, { latest_version: e.target.value })} dir="ltr" className="mt-1 w-full border rounded p-2" placeholder="1.2.0" />
+                    </label>
+                    <label className="text-sm flex items-center gap-2 mt-6">
+                      <input type="checkbox" checked={!!appVersions[app]?.maintenance} onChange={(e) => setApp(app, { maintenance: e.target.checked })} /> صيانة
+                    </label>
+                  </div>
+                  <div className="grid md:grid-cols-2 gap-3 mt-2">
+                    <input value={appVersions[app]?.message_ar || ''} onChange={(e) => setApp(app, { message_ar: e.target.value })} className="border rounded p-2 text-sm" placeholder="رسالة الصيانة (عربي)" />
+                    <input value={appVersions[app]?.message_en || ''} onChange={(e) => setApp(app, { message_en: e.target.value })} dir="ltr" className="border rounded p-2 text-sm" placeholder="Maintenance message" />
+                  </div>
+                </div>
+              ))}
+              <button onClick={() => void saveAppVersions()} className="mt-2 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-6 rounded-lg">حفظ الإصدارات</button>
+              {appsMsg && <p className="mt-2 text-sm font-bold">{appsMsg}</p>}
             </div>
           </div>
         )}

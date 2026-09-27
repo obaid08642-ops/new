@@ -1,9 +1,19 @@
-import { Controller, Get, Param, NotFoundException, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, NotFoundException, Post, Put, UseGuards, UseInterceptors, BadRequestException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
-import { Public } from '../../common/auth.guard';
+import { Public, JwtAuthGuard, Roles } from '../../common/auth.guard';
+import { UserRole } from '../../common/enums';
 import { RedisCacheInterceptor } from '../../common/redis-cache.interceptor';
 import { CATALOG_COLLECTIONS } from './catalog-collections';
+import { IsBoolean, IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
+
+export class SpecialtyUpsertDto {
+  @IsOptional() @IsString() code?: string;
+  @IsDefined() @IsString() name_ar!: string;
+  @IsOptional() @IsString() name_en?: string;
+  @IsOptional() @IsNumber() sort?: number;
+  @IsOptional() @IsBoolean() active?: boolean;
+}
 
 /**
  * Unified catalogs — SINGLE READ PATH for every app and every call site:
@@ -101,5 +111,42 @@ export class CatalogsController {
       is_active: c.is_active !== false,
       plans: (byCompany.get(c.id) || []).sort((a: any, b: any) => (a.tier_level || 0) - (b.tier_level || 0)),
     }));
+  }
+
+  // P6.x-2: admin-managed reference specialties (public list hides inactive).
+  @Get('admin/specialties')
+  @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.ADMIN)
+  async specialtiesAdmin(): Promise<any[]> {
+    return this.conn.collection('specialties').find({}).sort({ sort: 1 }).limit(500).toArray();
+  }
+
+  @Post('admin/specialties')
+  @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.ADMIN)
+  async upsertSpecialty(@Body() b: SpecialtyUpsertDto) {
+    if (!b?.name_ar?.trim()) throw new BadRequestException('name_ar_required');
+    // Arabic-only names slug to dashes: they would all share one code and overwrite each other.
+    const code = String(b.code || b.name_en || '').trim().toLowerCase().split(/[^a-z0-9_]+/).filter(Boolean).join('-').slice(0, 80)
+      || `sp-${require('crypto').createHash('sha1').update(b.name_ar.trim()).digest('hex').slice(0, 10)}`;
+    const doc = {
+      id: `spec-${code}`,
+      code,
+      name_ar: b.name_ar.trim().slice(0, 200),
+      name_en: (b.name_en || b.name_ar).trim().slice(0, 200),
+      sort: Number.isFinite(b.sort) ? b.sort : 0,
+      active: b.active !== false,
+      updated_at: new Date(),
+    };
+    await this.conn.collection('specialties').updateOne({ code }, { $set: doc }, { upsert: true });
+    return doc;
+  }
+
+  @Delete('admin/specialties/:code')
+  @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.ADMIN)
+  async deleteSpecialty(@Param('code') code: string) {
+    await this.conn.collection('specialties').updateOne({ code: { $eq: code } }, { $set: { active: false } });
+    return { ok: true };
   }
 }

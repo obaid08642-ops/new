@@ -3,6 +3,7 @@ import { getModelToken } from '@nestjs/mongoose';
 import { HomeCareSvc } from './home-care.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { WorkflowEngineService } from '../workflow-engine/workflow-engine.module';
+import { EventBusService } from '../events/event-bus.service';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 
 describe('HomeCareSvc', () => {
@@ -52,6 +53,7 @@ describe('HomeCareSvc', () => {
         { provide: 'MedicalSupplyRequestRepository', useValue: mockMedicalSupplyRequest },
         { provide: EventEmitter2, useValue: mockEventEmitter },
         { provide: WorkflowEngineService, useValue: mockWorkflowEngine },
+        { provide: EventBusService, useValue: { emit: jest.fn(), publish: jest.fn() } },
       ],
     }).compile();
 

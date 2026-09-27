@@ -3,7 +3,7 @@ import { LabsService } from './labs.service';
 import { Public, CurrentUser, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { BookDto, TransitionDto, UploadDocDto, UpdateInsDto, OptInCashDto, AssignTechDto, UploadReportDto, RescheduleDto, UpdateGpsDto, DeclareEmergencyDto, RegisterSampleDto, ForceStateDto, UpdateStageDto} from './labs.dto';
-import { CreateLabCatalogDto, UpdateLabCatalogDto } from './labs.dto';
+import { CreateLabCatalogDto, UpdateLabCatalogDto, ApproveCatalogDto, BulkApproveCatalogDto } from './labs.dto';
 
 @Controller('labs')
 export class LabsController {
@@ -184,6 +184,23 @@ export class LabsController {
   @Roles(UserRole.ADMIN)
   deleteCatalog(@CurrentUser() u: any, @Param('id') id: string) {
     return this.svc.deleteCatalog(u, id);
+  }
+
+  // P6.0: medical-review decision (approve surfaces the item publicly).
+  @Roles(UserRole.ADMIN)
+  @Post('admin/catalog/:id/approve')
+  @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
+  @Roles(UserRole.ADMIN)
+  approveCatalog(@CurrentUser() u: any, @Param('id') id: string, @Body() b: ApproveCatalogDto) {
+    return this.svc.approveCatalogItem(u, id, b.approve !== false);
+  }
+
+  @Roles(UserRole.ADMIN)
+  @Post('admin/catalog/bulk-approve')
+  @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
+  @Roles(UserRole.ADMIN)
+  bulkApproveCatalog(@CurrentUser() u: any, @Body() b: BulkApproveCatalogDto) {
+    return this.svc.bulkApproveCatalog(u, b.ids, b.approve !== false);
   }
 
   // --- Admin Quality Control & Dispute Intervention ---

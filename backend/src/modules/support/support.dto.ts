@@ -81,3 +81,13 @@ export class SupportSettingsDto {
   @IsOptional() @IsBoolean() notif_lab_results?: boolean;
   @IsOptional() @IsString() expo_push_token?: string;
 }
+
+export class FaqUpsertDto {
+  @IsOptional() @IsString() id?: string;
+  @IsDefined() @IsString() question_ar!: string;
+  @IsOptional() @IsString() question_en?: string;
+  @IsDefined() @IsString() answer_ar!: string;
+  @IsOptional() @IsString() answer_en?: string;
+  @IsOptional() sort?: number;
+  @IsOptional() @IsBoolean() active?: boolean;
+}

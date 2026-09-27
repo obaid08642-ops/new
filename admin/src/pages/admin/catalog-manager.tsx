@@ -9,7 +9,7 @@ import { apiFetch } from '../../utils/api';
  * Fields per catalog mirror the backend DTOs (labs.dto / radiology.dto / home-care.dto): an unknown field is a 400.
  */
 
-type TabKey = 'labs' | 'packages' | 'radiology' | 'nursing';
+type TabKey = 'labs' | 'packages' | 'radiology' | 'nursing' | 'specialties';
 
 type Field = { key: string; label: string; type: 'text' | 'number' | 'textarea' | 'checkbox' };
 const F = {
@@ -44,6 +44,8 @@ const TABS: { key: TabKey; label: string; adminBase: string; fields: Field[]; fi
     fields: [F.name_ar, F.name_en, F.short_code, F.modality, F.body_part, F.price, F.old_price, F.turnaround_hours, F.popularity, F.contrast_required, F.fasting_required, F.home_visit_supported, F.image_url, F.icon, F.active, F.description_ar, F.description_en] },
   { key: 'nursing', label: 'التمريض المنزلي', adminBase: '/nursing/admin/catalog',
     fields: [F.name_ar, F.name_en, F.category, F.price, F.duration, F.popularity, F.image_url, F.icon, F.active, F.description_ar, F.description_en] },
+  // P6.x-2: reference specialties have their own inline form (name only, no review flow).
+  { key: 'specialties', label: 'التخصصات', adminBase: '/catalogs/admin/specialties', fields: [] },
 ];
 
 // Medical review = publication: only "approved" items are shown to patients and bookable.
@@ -62,6 +64,9 @@ export default function CatalogManagerPage() {
   const [editing, setEditing] = useState<any | null>(null); // {} = new item
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState('');
+  // P6.0: medical-review selection for bulk approve/reject.
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [deciding, setDeciding] = useState(false);
 
   const tabCfg = TABS.find((t) => t.key === tab)!;
 
@@ -131,6 +136,70 @@ export default function CatalogManagerPage() {
     }
   };
 
+  // P6.0: medical-review decision — approve surfaces the item publicly.
+  const decide = async (id: string, approve: boolean) => {
+    try {
+      await apiFetch(`${tabCfg.adminBase}/${id}/approve`, { method: 'POST', body: JSON.stringify({ approve }) });
+      setMsg(approve ? 'تم الاعتماد — ظهر الصنف للمرضى' : 'تم الرفض');
+      await load();
+    } catch (e: any) {
+      setMsg(`فشل القرار: ${e.message}`);
+    }
+  };
+
+  const bulkDecide = async (approve: boolean) => {
+    if (selected.size === 0) return;
+    setDeciding(true);
+    try {
+      const r: any = await apiFetch(`${tabCfg.adminBase}/bulk-approve`, {
+        method: 'POST', body: JSON.stringify({ ids: [...selected], approve }),
+      });
+      const failed = (r?.results || []).filter((x: any) => !x.ok).length;
+      setMsg(failed ? `تم جزئياً — فشل ${failed}` : approve ? `تم اعتماد ${selected.size}` : `تم رفض ${selected.size}`);
+      setSelected(new Set());
+      await load();
+    } catch (e: any) {
+      setMsg(`فشل الاعتماد الجماعي: ${e.message}`);
+    } finally {
+      setDeciding(false);
+    }
+  };
+
+  const toggleSelect = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  // P6.x-2: reference specialties (name/sort/active only — no price/review flow).
+  const [specNameAr, setSpecNameAr] = useState('');
+  const [specNameEn, setSpecNameEn] = useState('');
+
+  const saveSpecialty = async () => {
+    if (!specNameAr.trim()) return;
+    try {
+      await apiFetch(tabCfg.adminBase, { method: 'POST', body: JSON.stringify({ name_ar: specNameAr.trim(), name_en: specNameEn.trim() || undefined }) });
+      setSpecNameAr(''); setSpecNameEn('');
+      setMsg('تم حفظ التخصص');
+      await load();
+    } catch (e: any) {
+      setMsg(`فشل الحفظ: ${e.message}`);
+    }
+  };
+
+  const removeSpecialty = async (code: string) => {
+    if (!confirm('تعطيل هذا التخصص؟')) return;
+    try {
+      await apiFetch(`${tabCfg.adminBase}/${encodeURIComponent(code)}`, { method: 'DELETE' });
+      await load();
+    } catch (e: any) {
+      setMsg(`فشل التعطيل: ${e.message}`);
+    }
+  };
+
   return (
     <div dir="rtl" style={{ padding: 24, maxWidth: 1200, margin: '0 auto', fontFamily: 'Cairo, sans-serif' }}>
       <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 4 }}>إدارة كتالوج الخدمات</h1>
@@ -145,9 +214,11 @@ export default function CatalogManagerPage() {
           </button>
         ))}
         <div style={{ flex: 1 }} />
+        {tab !== 'specialties' && (
         <button onClick={() => setEditing({ active: true, medical_review_status: 'pending', ...(tab === 'nursing' ? { duration: 'hour', category: 'nursing' } : {}), ...(tab === 'radiology' ? { modality: '', body_part: '' } : {}) })} style={{ padding: '8px 18px', borderRadius: 12, border: 'none', cursor: 'pointer', fontWeight: 700, background: '#0F172A', color: '#fff' }}>
           + إضافة صنف جديد
         </button>
+        )}
       </div>
 
       <input value={search} onChange={(e) => onSearch(e.target.value)} placeholder="بحث بالاسم أو الكود أو الفئة…"
@@ -156,10 +227,41 @@ export default function CatalogManagerPage() {
 
       {msg && <div style={{ padding: 12, borderRadius: 12, background: '#F0FDF4', color: '#166534', marginBottom: 12, fontWeight: 600 }}>{msg}</div>}
       {loading && <p>جارٍ التحميل…</p>}
+      {tab === 'specialties' ? (
+        <div className="rounded-2xl border bg-white p-6 shadow-sm">
+          <h2 className="text-xl font-bold mb-1">التخصصات المرجعية</h2>
+          <p className="text-sm text-slate-500 mb-4">تظهر في البحث والفلاتر — التعطيل يخفيها من القائمة العامة.</p>
+          <div className="flex gap-2 flex-wrap mb-4">
+            <input value={specNameAr} onChange={(e) => setSpecNameAr(e.target.value)} placeholder="الاسم (عربي)" className="border rounded px-3 py-2 text-sm flex-1 min-w-[200px]" />
+            <input value={specNameEn} onChange={(e) => setSpecNameEn(e.target.value)} placeholder="Name (en)" dir="ltr" className="border rounded px-3 py-2 text-sm flex-1 min-w-[200px]" />
+            <button onClick={() => void saveSpecialty()} className="px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-bold">حفظ التخصص</button>
+          </div>
+          <div className="divide-y">
+            {filtered.map((item: any) => (
+              <div key={item.code || item.id} className="py-2 flex items-center justify-between gap-3">
+                <div><strong>{item.name_ar}</strong> <span className="text-xs text-slate-500" dir="ltr">{item.name_en} · {item.code}</span></div>
+                <button onClick={() => void removeSpecialty(item.code || item.id)} className="text-red-600 text-xs font-bold border border-red-200 rounded px-3 py-1">تعطيل</button>
+              </div>
+            ))}
+            {filtered.length === 0 && <p className="text-slate-400 text-sm py-4 text-center">لا توجد تخصصات.</p>}
+          </div>
+        </div>
+      ) : (
+      <>
+
+      {selected.size > 0 && (
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 12, padding: 10, borderRadius: 12, background: '#EFF6FF', border: '1px solid #BFDBFE' }}>
+          <span style={{ fontSize: 13, fontWeight: 700, color: '#1E40AF' }}>محدد: {selected.size}</span>
+          <button onClick={() => void bulkDecide(true)} disabled={deciding} style={{ padding: '6px 14px', borderRadius: 10, border: 'none', background: '#16A34A', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>اعتماد المحدد</button>
+          <button onClick={() => void bulkDecide(false)} disabled={deciding} style={{ padding: '6px 14px', borderRadius: 10, border: '1px solid #FECACA', background: '#fff', color: '#B91C1C', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>رفض المحدد</button>
+          <button onClick={() => setSelected(new Set())} style={{ padding: '6px 14px', borderRadius: 10, border: '1px solid #CBD5E1', background: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>إلغاء التحديد</button>
+        </div>
+      )}
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 12 }}>
         {filtered.map((item) => (
           <div key={item.id || item._id} style={{ border: '1px solid #E2E8F0', borderRadius: 16, padding: 14, display: 'flex', gap: 12, background: '#fff', opacity: item.active === false ? 0.55 : 1 }}>
+            <input type="checkbox" checked={selected.has(item.id)} onChange={() => item.id && toggleSelect(item.id)} title="تحديد للاعتماد الجماعي" style={{ flexShrink: 0, width: 18, height: 18, marginTop: 4 }} />
             {item.image_url && <img src={item.image_url} alt="" style={{ width: 56, height: 56, borderRadius: 12, objectFit: 'cover', flexShrink: 0 }} />}
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontWeight: 800, fontSize: 14 }}>{item.name_ar}</div>
@@ -168,6 +270,8 @@ export default function CatalogManagerPage() {
               {(() => { const r = REVIEW[item.medical_review_status || 'pending'] || REVIEW.pending; return <span style={{ display: 'inline-block', marginTop: 6, padding: '2px 8px', borderRadius: 8, fontSize: 11, fontWeight: 700, color: r.color, background: r.bg }}>{r.label}</span>; })()}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <button onClick={() => void decide(item.id, true)} style={{ padding: '6px 12px', borderRadius: 10, border: 'none', background: '#16A34A', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>اعتماد</button>
+              <button onClick={() => void decide(item.id, false)} style={{ padding: '6px 12px', borderRadius: 10, border: '1px solid #FED7AA', background: '#FFFBEB', color: '#B45309', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>رفض</button>
               <button onClick={() => setEditing({ ...item })} style={{ padding: '6px 12px', borderRadius: 10, border: '1px solid #CBD5E1', background: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>تعديل</button>
               <button onClick={() => remove(item)} style={{ padding: '6px 12px', borderRadius: 10, border: '1px solid #FECACA', background: '#FEF2F2', color: '#B91C1C', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>حذف</button>
             </div>
@@ -175,6 +279,7 @@ export default function CatalogManagerPage() {
         ))}
       </div>
       {!loading && filtered.length === 0 && <p style={{ color: '#94A3B8', textAlign: 'center', marginTop: 40 }}>لا توجد أصناف مطابقة.</p>}
+      </>)}
 
       {editing && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}

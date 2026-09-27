@@ -21,7 +21,7 @@ import { AdminCmsController } from './admin-cms.controller';
 import { AdminOpsController } from './admin-ops.controller';
 import { ScheduledReportsRunner } from './scheduled-reports.runner';
 import { AdminCommandCenterV2Controller } from './command-center-v2.controller';
-import { AdminGovernanceControlsController } from './admin-governance-controls.controller';
+import { AdminGovernanceControlsController, PublicContentController } from './admin-governance-controls.controller';
 import { AdminImpersonationController } from './admin-impersonation.controller';
 import { ImpersonationSecurityModule } from '../../../common/impersonation-security.module';
 
@@ -59,6 +59,7 @@ import { ImpersonationSecurityModule } from '../../../common/impersonation-secur
     // ── A6 ──
     AdminOpsController,
     AdminGovernanceControlsController,
+    PublicContentController,
     // ── A7 ──
     AdminCommandCenterV2Controller,
   ],

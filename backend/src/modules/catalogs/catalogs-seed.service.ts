@@ -57,6 +57,8 @@ export class CatalogsSeedService implements OnModuleInit {
     try {
       const dir = path.join(__dirname, 'seed-data');
       const slug = (s: string) => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '').slice(0, 60) || 'item';
+      // An exported id that is not printable text (a raw UUID buffer) breaks every URL it lands in.
+      const okId = (v: unknown) => (typeof v === 'string' && /^[\x21-\x7e]{1,100}$/.test(v) ? v : undefined);
       const read = (f: string): any[] => {
         try { return JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8')); } catch { return []; }
       };
@@ -64,7 +66,7 @@ export class CatalogsSeedService implements OnModuleInit {
         const code = x.short_code || slug(x.name_en);
         try {
           const r: any = await this.conn.collection(CATALOG_COLLECTIONS.lab_services).updateOne(
-            { test_code: code }, { $setOnInsert: { active: true, ...x, test_code: code, id: x.id || code } }, { upsert: true });
+            { test_code: code }, { $setOnInsert: { active: true, ...x, test_code: code, id: okId(x.id) || code } }, { upsert: true });
           if (r.upsertedCount || r.upsertedId) ok++;
         } catch { /* already live */ }
       }
@@ -72,11 +74,12 @@ export class CatalogsSeedService implements OnModuleInit {
         const code = x.short_code || slug(x.name_en);
         try {
           const r: any = await this.conn.collection(CATALOG_COLLECTIONS.radiology_services).updateOne(
-            { short_code: code }, { $setOnInsert: { active: true, ...x, id: x.id || code } }, { upsert: true });
+            { short_code: code }, { $setOnInsert: { active: true, ...x, id: okId(x.id) || code } }, { upsert: true });
           if (r.upsertedCount || r.upsertedId) ok++;
         } catch { /* already live */ }
       }
-      for (const x of read('nursing.json')) {        const id = x.id || slug(x.name_en);
+      for (const x of read('nursing.json')) {
+        const id = okId(x.id) || slug(x.name_en);
         try {
           const r: any = await this.conn.collection(CATALOG_COLLECTIONS.nursing_services).updateOne(
             { id }, { $setOnInsert: { active: true, duration: 'hour', duration_value: 1, ...x, id, code: x.code || id } }, { upsert: true });

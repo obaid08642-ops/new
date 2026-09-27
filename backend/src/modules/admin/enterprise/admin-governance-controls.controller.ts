@@ -1,7 +1,7 @@
 import { BadRequestException, Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
-import { CurrentUser, JwtAuthGuard, Roles } from '../../../common/auth.guard';
+import { CurrentUser, JwtAuthGuard, Public, Roles } from '../../../common/auth.guard';
 import { Permission, RequirePermissions } from '../../../common/permissions';
 import { UserRole } from '../../../common/enums';
 import { validateReason, ReasonError } from '../../../common/rbac';
@@ -223,5 +223,23 @@ export class AdminGovernanceControlsController {
       graph_status: 'healthy',
       updatedAt: new Date(),
     };
+  }
+}
+
+/**
+ * P6.x-13: public home content (banners/sections) managed on the
+ * home-curation admin page. Enabled sections only, position-ordered.
+ */
+@Controller('content')
+export class PublicContentController {
+  constructor(@InjectConnection() private readonly conn: Connection) {}
+
+  @Public()
+  @Get('home')
+  async home(): Promise<any> {
+    const doc: any = await this.conn.collection('home_curation').findOne({ key: 'primary' }, { projection: { _id: 0 } });
+    const sections = Array.isArray(doc?.sections) ? doc.sections.filter((s: any) => s?.enabled !== false) : [];
+    sections.sort((a: any, b: any) => (a?.position || 0) - (b?.position || 0));
+    return { key: 'primary', version: doc?.version || 0, sections, updatedAt: doc?.updatedAt || null };
   }
 }

@@ -145,3 +145,64 @@ Format: task | commit sha | verify result | notes
 - P5.3: 7 merges intact; compat retired (26 moved + 1 dead dropped); legacy deleted; F38 dead controllers deleted; nursing single-impl + alias; F49 single approval impl; P5.4 aliases log deprecation.
 - Contracts: dtolint 0/0/0, dtocheck 627/308/0 mismatches, tsc 0, nest build 0.
 - e2e: env-gated (no mongod; memory-server SIGABRT; throttler 429 on race suite) — staging/CI must run journeys + fabsweep on a seeded DB before merge.
+
+## [P6] F46/F47/F48 (2026-09-26)
+- F46: `admin/nursing/requests` + `assign` 503 stubs replaced with real ops on canonical `homecarebookings` (list w/ state filter, assign/reassign → PROVIDER_ASSIGNED, cancel → CANCELLED, closed-booking guard, state_history push, $eq filters); removed now-unused ServiceUnavailableException import. tsc 0.
+- F47 verified (no change): command-center = one fetch + SSE stream; provider-moderation = event-driven fetches; zero setInterval/setTimeout/polling in both.
+- F48: new `GET /auth/passkey/eligibility` (non-throwing probe of the designated-admin enrollment gate) + admin security.tsx hides the passkey section for ineligible accounts (neutral note, no 403 flash). backend tsc 0; admin deps not installed here so no admin typecheck — JSX brace/paren balance verified by script.
+
+## [P6] BFF refresh + web heartbeat (2026-09-26)
+- BFF `[...path].ts`: on upstream 401 with `admin_refresh` cookie → `POST /api/v1/auth/refresh` → set fresh cookies → retry original request once (same token shapes as login.ts). Refresh failure keeps old behavior (cookies cleared).
+- Online: new patient-web `POST /api/auth/heartbeat` proxying `{client}` to backend `/auth/heartbeat` (feeds presence → admin "online" count). Follows `callPatientApi` + cookie conventions.
+
+## [P6.0] Catalog medical-review approval (2026-09-26)
+- Backend per owning service: labs/radiology/nursing `approveCatalogItem` + `bulkApproveCatalog` (cap 200, per-id results) setting `medical_review_status` + `public_eligibility` + `last_reviewed` with bus audit events; medicines `adminApproveCatalog` (preserves `verified` on reject; visibility governed by the two review fields) + controller bulk loop. Routes: `POST {labs,radiology,nursing}/admin/catalog/:id/approve`, `.../bulk-approve`, `POST medicines/admin/catalog/:id/approve` + bulk. Validated DTOs (Approve/BulkApprove per module; labs/radiology/nursing/medicines).
+- UI: catalog-manager tabs gained per-item اعتماد/رفض + status badge + bulk-select bar calling the new endpoints (packages tab reuses the lab endpoints).
+- Tests: `labs-approve.spec.ts` 3/3 (approve/reject $set, audit emit, admin-only, bulk cap). tsc 0.
+
+## [P6.x-1] Operational reports (2026-09-26)
+- Backend `GET /admin/reports/{revenue,orders,bookings,providers,patients}` (admin-only, validated from/to/group_by, 366-day cap): revenue = paid transactions net of refunds; bookings = union fan-out across appointments/doctor_appointments/lab/radiology/homecare bookings; every endpoint serves `?format=csv`. Registered in AdminModule.
+- Admin `/admin/reports` page: 5 tabs, date/group filters, recharts bar, table, CSV export link (BFF passes content-disposition through).
+- Tests: `admin-reports.spec.ts` 3/3. tsc 0.
+
+## [P6.x-6] Content review queue (2026-09-26)
+- Backend already had audited publish/schedule/unpublish with reason validation (`admin-cms.controller.ts`). Added the missing UI: per-article اعتماد (publish) / سحب (unpublish) with mandatory reason prompt on the content-growth articles tab — drafts now form a real review queue before public appearance.
+
+## [P6.x-5] SOS 997 escalation (2026-09-26)
+- Backend `POST /emergency/:id/escalate-997` (admin-only, validated notes DTO): open cases only, idempotent, sets `escalated_997/at/by` (new schema props) + emits event; `$eq` filter. sos-monitor page gained the red 997 button + escalated badge. Tests 2/2. tsc 0.
+
+## [P6.x-7] Notification templates 6-lang (2026-09-26)
+- Backend `notification_templates` collection + schema: key-validated upsert (lang allowlist ar/en/ur/hi/bn/tl, 2000-char caps), `{{var}}` preview, test-send to self via `NotificationsService.create`. Routes on `notifications/admin/templates*` + BFF mapping rule. UI templates section on notification-center (edit 6 langs, preview, test-send). Tests 4/4 (incl. 2 new template tests). tsc 0.
+
+## [P6.x-8] Provider lifecycle reactivate UI (2026-09-26)
+- Backend already had pending→approved→suspended→reactivated with audited reasons (`provider-admin.service` + `POST :id/reactivate`); UI only lacked the button. Added Reactivate (reason prompt ≥5 chars) to the moderation detail pane. History lives in provider-audits (audit.create on every transition).
+
+## [P6.x-14] Pricing controls persisted (2026-09-26)
+- Surge config was in-memory (lost on restart) → persists to `system_configs` key `pricing` (load on validate/update, save on update); added platform `delivery_fee`/`service_fee` defaults (bounded 0..1000) in the same doc. Routes: `GET config/pricing`, `POST config/fees` (+ existing surge POST, now async persisted). config-portal gained a pricing tab; BFF maps `business-rules/*`. Business-rules spec updated for the conn dep (4/4). tsc 0.
+
+## [P6.x-12] RBAC staffer assignment UI (2026-09-26)
+- Backend already audited role create/assign (reasons, session revocation, staff-only). Added the missing UI: assign/withdraw custom roles on a staffer id with mandatory reason on the rbac page.
+
+## [P6.x-13] Admin-managed FAQs (2026-09-26)
+- FAQs were 2 hardcoded items. Now `faqs` collection with admin CRUD (`support/admin/faqs*`, validated DTO, active-flag soft delete) and public `GET /support/faqs` falls back to defaults when empty. content-growth gained an FAQs tab (list/edit/hide). tsc 0.
+
+## [P6.x-4] Commission rule editor UI (2026-09-26)
+- Backend resolver already supported per-service/provider/category/campaign rules with versioning + history (`POST/GET commission-rules*`). Added the missing admin UI: rule form (scope/scope_id/service/percent/effective window) + history table on the commissions page.
+
+## [P6.x-10] Finance + insurance report kinds (2026-09-26)
+- Extended `/admin/reports` with `finance` (wallet_transactions by day/type) and `insurance` (requests by state + copay sums), both CSV-capable; reports page gained the two tabs + type/copay columns. tsc 0.
+
+## [P6.0b] Medicines item review buttons (2026-09-26)
+- medicines-catalog rows gained اعتماد/رفض calling the new `POST medicines/admin/catalog/:id/approve` endpoint (change-request flow untouched).
+
+## [P6.x-4b] Coverage rule (copay) editor UI (2026-09-26)
+- Backend rule CRUD per network already existed (`networks/:id/rules`, validated DTO). Added the missing admin UI: per-tier expandable copay rules (service/service_key/percent/cap/preauth) with list + create on the insurance-companies page.
+
+## [P6.x-2b] Specialties admin CRUD (2026-09-26)
+- Reference specialties were seed-only. Backend `catalogs/admin/specialties` (list incl. inactive, upsert with slugified code, soft-delete) + catalog-manager specialties tab + BFF mapping. Public list already hides inactive. Tests 2/2. tsc 0.
+
+## Gate P6 (2026-09-26, this branch)
+- F46/F47/F48/BFF-refresh/web-heartbeat/P6.0(+medicines buttons)/reports/finance+insurance/search/997/templates/SLA/pricing/RBAC-assign/FAQs/copay-rules/specialties/app-versions — all committed with tests where backend (labs-approve, admin-reports, admin-search, emergency-997, notifications-templates, catalogs-specialties, nursing-alias, business-rules updated).
+- Contracts: dtolint 0/0/0, dtocheck 644/317/0 mismatches, backend tsc 0, nest build 0 (re-verified at push time).
+- Gate P6 adminshot (all admin pages, 0 console/4xx-5xx) + Playwright button-clicks: ENV-BLOCKED here (needs running admin+backend+seeded DB) — CI/staging must run `adminshot.py` and per-page click tests.
+- Deferred with reasons: live orders geo-map + 5xx-rate tile (no error-log/geo telemetry sink exists — needs new infra, not a UI tweak); per-module deep reports beyond revenue/orders/bookings/providers/patients/finance/insurance (analytics-suite funnels/cohorts/league/NPS + finance-suite ledger + insurance-queue cover the listed domains; labs-turnaround/nursing-visits/pharmacy-fill-rate/consultation-no-shows/user-retention specifics need staging-data verification of each aggregation).
