@@ -35,7 +35,7 @@ export const tokens = {
 } as const;
 export type Tokens = typeof tokens;
 
-/** F50: alpha-suffix replacement — withAlpha(tokens.success, 0.12) instead of 'tokens.success12'. */
+/** F50: alpha-suffix replacement via withAlpha(). */
 export function withAlpha(hex: string, alpha: number): string {
   const h = String(hex).replace('#', '');
   const full = h.length === 3 ? h.split('').map((c) => c + c).join('') : h;

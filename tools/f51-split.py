@@ -28,7 +28,7 @@ def depth_fix_stmts(text):
     out = []
     buf = []
     for l in lines:
-        if not buf and re.match(r'^\s*import\b', l):
+        if not buf and re.match(r'^import(?=\s|[\'"*\{])', l):
             buf = [l]
             if l.rstrip().endswith(';'):
                 out.append(fix_one_import(buf))
@@ -53,6 +53,15 @@ def fix_one_import(buf):
     return stmt
 
 
+def fix_dynamic_imports(text):
+    """Depth-fix dynamic import('...') / require('...') calls (not statements)."""
+    def repl(m):
+        if '_shared' in m.group(0):
+            return m.group(0)
+        return m.group(1) + fix_rel(m.group(2)) + m.group(3)
+    return re.sub(r"((?:await\s+)?(?:import|require)\(\s*')(\.\.?/[^']*)('\s*\))", repl, text)
+
+
 def is_comment_line(l):
     s = l.strip()
     return s.startswith('//') or s.startswith('/*') or s.startswith('*') or s.startswith('*/')
@@ -69,11 +78,11 @@ def main():
     os.makedirs(out_dir, exist_ok=True)
 
     lines = io.open(src, encoding='utf8').read().split('\n')
-    exp_idx = [i for i, l in enumerate(lines) if re.match(r'^export function ([A-Za-z0-9_]+)', l)]
+    exp_idx = [i for i, l in enumerate(lines) if re.match(r'^(?:export\s+)?function ([A-Z][A-Za-z0-9_]*)', l)]
     if not exp_idx:
         print('no exported functions found')
         sys.exit(1)
-    names = [re.match(r'^export function ([A-Za-z0-9_]+)', lines[i]).group(1) for i in exp_idx]
+    names = [re.match(r'^(?:export\s+)?function ([A-Z][A-Za-z0-9_]*)', lines[i]).group(1) for i in exp_idx]
     header = lines[:exp_idx[0]]
 
     # trailing block after last unit (e.g. const _styles) -> shared tail
@@ -84,7 +93,7 @@ def main():
     header_stmts = []
     buf = []
     for l in header:
-        if not buf and re.match(r'^\s*import\b', l):
+        if not buf and re.match(r'^import(?=\s|[\'"*\{])', l):
             buf = [l]
             if l.rstrip().endswith(';'):
                 header_stmts.append(('import', buf))
@@ -161,6 +170,43 @@ def main():
         shared_lines.insert(0, "import React from 'react';")
     io.open(os.path.join(out_dir, '_shared.tsx'), 'w', encoding='utf8').write('\n'.join(shared_lines))
 
+    # hoist mid-file imports (module-scope, depth-fix) into unit_imports
+    hoisted = []
+    hoisted_seen = set(unit_imports)
+    fixed_units = []
+    for name, body in units:
+        text = '\n'.join(body)
+        fixed = depth_fix_stmts(text)
+        # collect import statements now present
+        new_body = []
+        buf = []
+        for l in fixed.split('\n'):
+            if not buf and re.match(r'^import(?=\s|[\'"*\{])', l):
+                buf = [l]
+                if l.rstrip().endswith(';'):
+                    if buf[0] not in hoisted_seen:
+                        hoisted.append(buf[0])
+                        hoisted_seen.add(buf[0])
+                    buf = []
+            elif buf:
+                buf.append(l)
+                if l.rstrip().endswith(';'):
+                    stmt = '\n'.join(buf)
+                    if stmt not in hoisted_seen:
+                        hoisted.append(stmt)
+                        hoisted_seen.add(stmt)
+                    buf = []
+            else:
+                new_body.append(l)
+        if buf:
+            new_body.extend(buf)
+        fixed_units.append((name, new_body))
+    units = fixed_units
+    # merge hoisted imports into unit_imports (keep original order: hoisted after header)
+    for stmt in hoisted:
+        for l in stmt.split('\n'):
+            if l not in unit_imports:
+                unit_imports.append(l)
     shared_text = '\n'.join(shared_lines)
     shared_defs = set(re.findall(r'^(?:export\s+)?(?:const|function|let|var|class|enum)\s+([A-Za-z0-9_]+)', shared_text, re.M))
     for dm in re.finditer(r'^export const\s*\{([^}]*)\}', shared_text, re.M):
@@ -175,16 +221,22 @@ def main():
         for ident in sorted(shared_defs):
             if re.search(r'(?<![A-Za-z0-9_.])%s(?![A-Za-z0-9_])' % ident, body_text):
                 extra.append(ident)
-        content = unit_imports + (["import { %s } from './_shared';" % ', '.join(extra), ''] if extra else ['']) + body + ['']
+        bodied = fix_dynamic_imports('\n'.join(body)).split('\n')
+        content = unit_imports + (["import { %s } from './_shared';" % ', '.join(extra), ''] if extra else ['']) + bodied + ['']
         io.open(os.path.join(out_dir, name + '.tsx'), 'w', encoding='utf8').write('\n'.join(content))
 
-    # shell: original-depth imports actually needed (react for nothing? keep
-    # side-effect-free minimal: only re-exports). Keep original header imports
-    # that are side-effectful? Simplest correct: re-export only.
+    # shell: re-exports for split units + any pre-existing re-export lines
+    # (e.g. export * from './RegistrationSuccess'), which stay valid.
     shell = ["// F51: split into ./%s/ — one file per screen. Re-exports keep existing imports working." % out_sub]
     for name in names:
         shell.append("export { %s } from './%s/%s';" % (name, out_sub, name))
     shell.append("export * from './%s/_shared';" % out_sub)
+    for i, l in enumerate(lines):
+        m = re.match(r'^\s*export\s+(.+?)\s+from\s+(\'[^\']+\'|"[^"]+")\s*;?\s*$', l)
+        if m:
+            stmt = l.strip()
+            if stmt not in shell:
+                shell.append(stmt)
     shell.append('')
     io.open(src, 'w', encoding='utf8').write('\n'.join(shell))
     print('split %d units -> %s/ (shared %d lines)' % (len(units), out_sub, len(shared_lines)))
