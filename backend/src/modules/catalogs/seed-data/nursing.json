@@ -363,7 +363,6 @@
   "active": true,
   "cash_availability": true,
   "insurance_availability": true,
-  "id": "֘�\f�H��\tjx\u001c�Ԏ",
   "preparation_ar": [
    "تجهيز الدواء الموصوف وروشتة الطبيب.",
    "حفظ الدواء بالثلاجة إذا تطلب ذلك حسب النشرة.",
@@ -395,7 +394,6 @@
   "active": true,
   "cash_availability": true,
   "insurance_availability": true,
-  "id": "��H���Ly��.Q����",
   "preparation_ar": [
    "تجهيز المحلول أو الدواء الموصوف مع روشتة الطبيب.",
    "توفير مكان مريح للمريض أثناء التركيب (سرير أو كرسي مائل).",
@@ -427,7 +425,6 @@
   "active": true,
   "cash_availability": true,
   "insurance_availability": true,
-  "id": "��\bδ�J��~�۵��f",
   "preparation_ar": [
    "تجهيز المحلول أو الدواء الموصوف مع روشتة الطبيب.",
    "توفير مكان مريح للمريض أثناء التركيب (سرير أو كرسي مائل).",
@@ -459,7 +456,6 @@
   "active": true,
   "cash_availability": true,
   "insurance_availability": true,
-  "id": "*�Y\u0002�\u0002@\u0014���wѪp�",
   "preparation_ar": [
    "تجهيز المحلول أو الدواء الموصوف مع روشتة الطبيب.",
    "توفير مكان مريح للمريض أثناء التركيب (سرير أو كرسي مائل).",
@@ -491,7 +487,6 @@
   "active": true,
   "cash_availability": true,
   "insurance_availability": true,
-  "id": "�T�\u001b|rJ���x�\u0014�3",
   "preparation_ar": [
    "تجهيز تقرير الطبيب أو تعليمات العناية بالجرح إن وجدت.",
    "توفير مكان نظيف وجيد الإضاءة.",
@@ -523,7 +518,6 @@
   "active": true,
   "cash_availability": true,
   "insurance_availability": true,
-  "id": "\u0006-��s�G��k�)��\u0000�",
   "preparation_ar": [
    "تجهيز تقرير الطبيب أو تعليمات العناية بالجرح إن وجدت.",
    "توفير مكان نظيف وجيد الإضاءة.",
@@ -555,7 +549,6 @@
   "active": true,
   "cash_availability": true,
   "insurance_availability": true,
-  "id": "��\u0018\u0007\u001a�O��m\u0000�ڏ��",
   "preparation_ar": [
    "تجهيز تقرير الطبيب أو تعليمات العناية بالجرح إن وجدت.",
    "توفير مكان نظيف وجيد الإضاءة.",
@@ -587,7 +580,6 @@
   "active": true,
   "cash_availability": true,
   "insurance_availability": true,
-  "id": "Ѳ�7�oO9��\"��I\u000e,",
   "preparation_ar": [
    "تجهيز تقرير العملية أو موعد الفك المحدد من الجراح."
   ],
@@ -615,7 +607,6 @@
   "active": true,
   "cash_availability": true,
   "insurance_availability": true,
-  "id": "�\u001azI�C\u0010�+��\u0000\u0013ŝ",
   "preparation_ar": [
    "إبلاغ الممرض بأي التهابات بولية سابقة أو حساسية من اللاتكس."
   ],
@@ -643,7 +634,6 @@
   "active": true,
   "cash_availability": true,
   "insurance_availability": true,
-  "id": "����ݐO��C켪�y",
   "preparation_ar": [
    "تجهيز نوع الغذاء الموصوف وخطة التغذية من الطبيب."
   ],
@@ -671,7 +661,6 @@
   "active": true,
   "cash_availability": true,
   "insurance_availability": true,
-  "id": "����_�B��x��n>��",
   "preparation_ar": [
    "تجهيز مستلزمات الستوما المتوفرة لديكم إن وجدت."
   ],
@@ -699,7 +688,6 @@
   "active": true,
   "cash_availability": true,
   "insurance_availability": true,
-  "id": "K�����@َ�h�x\u001a��",
   "preparation_ar": [
    "إذا كان التحليل يتطلب صياماً، الالتزام بالصيام حسب تعليمات المختبر.",
    "تجهيز أسماء التحاليل المطلوبة أو روشتة الطبيب."
@@ -729,7 +717,6 @@
   "active": true,
   "cash_availability": true,
   "insurance_availability": true,
-  "id": "U\u001bUx��B����ও�w",
   "preparation_ar": [
    "تجهيز قائمة الأدوية اليومية وأرقام الطوارئ.",
    "إزالة العوائق من ممرات المنزل لتجنب السقوط."
@@ -759,7 +746,6 @@
   "active": true,
   "cash_availability": true,
   "insurance_availability": true,
-  "id": "ï���AMh�gh]��\f�",
   "preparation_ar": [
    "تجهيز قائمة الأدوية اليومية وأرقام الطوارئ.",
    "إزالة العوائق من ممرات المنزل لتجنب السقوط."
@@ -789,7 +775,6 @@
   "active": true,
   "cash_availability": true,
   "insurance_availability": true,
-  "id": "Ak�5��FӒM=\u0011�\u0002��",
   "preparation_ar": [
    "تجهيز تقرير الخروج من المستشفى وقائمة الأدوية."
   ],
@@ -817,7 +802,6 @@
   "active": true,
   "cash_availability": true,
   "insurance_availability": true,
-  "id": "��a��N\u0019�r��\u000f�I�",
   "preparation_ar": [
    "تجهيز تقرير الولادة وأي تعليمات من الطبيب."
   ],
@@ -845,7 +829,6 @@
   "active": true,
   "cash_availability": true,
   "insurance_availability": true,
-  "id": "\u0011;��^�B��yH��\u001aa�",
   "preparation_ar": [
    "تجهيز سجل تطعيمات الطفل.",
    "إبلاغ الممرض بأي حساسية أو ارتفاع حرارة حالي للطفل."
@@ -875,7 +858,6 @@
   "active": true,
   "cash_availability": true,
   "insurance_availability": true,
-  "id": "\f�$��3G;�ڶ\b�}{\t",
   "preparation_ar": [
    "ارتداء ملابس مريحة تسمح بالحركة.",
    "تجهيز التقارير أو الأشعة المتعلقة بالإصابة إن وجدت."
@@ -905,7 +887,6 @@
   "active": true,
   "cash_availability": true,
   "insurance_availability": true,
-  "id": "�(6��\nK4��p���D^",
   "preparation_ar": [
    "تجهيز قائمة الأدوية اليومية وأرقام الطوارئ.",
    "إزالة العوائق من ممرات المنزل لتجنب السقوط."
@@ -935,7 +916,6 @@
   "active": true,
   "cash_availability": true,
   "insurance_availability": true,
-  "id": "�'Y���@\u0014�]�\u000b8�~A",
   "preparation_ar": [
    "تجهيز وصفة الطبيب لمعدل تدفق الأكسجين.",
    "إبعاد أي مصادر لهب أو تدخين عن منطقة الأكسجين."
@@ -965,7 +945,6 @@
   "active": true,
   "cash_availability": true,
   "insurance_availability": true,
-  "id": "ya�w�\u001cA\u0004�R�\u00038��v",
   "preparation_ar": [
    "تجهيز خطة العلاج وقائمة مسكنات الطبيب."
   ],
@@ -993,7 +972,6 @@
   "active": true,
   "cash_availability": true,
   "insurance_availability": true,
-  "id": "\n���@����ꕽ",
   "preparation_ar": [
    "تجميع جميع أدوية المريض الحالية في مكان واحد قبل الزيارة."
   ],
@@ -1021,7 +999,6 @@
   "active": true,
   "cash_availability": true,
   "insurance_availability": true,
-  "id": "\u001c��k\u0006�B��D!\u001e\u0016�W3",
   "preparation_ar": [
    "تجهيز الدواء الموصوف للاستنشاق وروشتة الطبيب."
   ],
@@ -1049,7 +1026,6 @@
   "active": true,
   "cash_availability": true,
   "insurance_availability": true,
-  "id": "�h��0!C:�I\u0011�\u001a-\u0016�",
   "preparation_ar": [
    "تجهيز قائمة أدوية الضغط الحالية.",
    "تجنب الكافيين والتدخين قبل القياس بنصف ساعة."

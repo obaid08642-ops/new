@@ -126,8 +126,9 @@ export class CatalogsController {
   @Roles(UserRole.ADMIN)
   async upsertSpecialty(@Body() b: SpecialtyUpsertDto) {
     if (!b?.name_ar?.trim()) throw new BadRequestException('name_ar_required');
-    const code = (b.code || b.name_en || b.name_ar).trim().toLowerCase().replace(/[^a-z0-9_-]+/gi, '-').slice(0, 80);
-    if (!code) throw new BadRequestException('code_required');
+    // Arabic-only names slug to dashes: they would all share one code and overwrite each other.
+    const code = String(b.code || b.name_en || '').trim().toLowerCase().split(/[^a-z0-9_]+/).filter(Boolean).join('-').slice(0, 80)
+      || `sp-${require('crypto').createHash('sha1').update(b.name_ar.trim()).digest('hex').slice(0, 10)}`;
     const doc = {
       id: `spec-${code}`,
       code,

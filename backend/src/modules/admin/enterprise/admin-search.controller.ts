@@ -38,10 +38,11 @@ export class AdminSearchController {
         { $or: [{ id: exact }, { user_id: exact }, { account_id: exact }, { phone: exact }, { name_ar: nameRe }, { name_en: nameRe }] } as any,
         { projection: { _id: 0, id: 1, user_id: 1, name_ar: 1, name_en: 1, phone: 1, provider_type: 1, verification_status: 1 } },
       ).limit(20).toArray(),
-      this.conn.collection('orders').find(
-        { $or: [{ id: exact }, { tracking_id: exact }, { patient_phone: exact }] } as any,
-        { projection: { _id: 0, id: 1, state: 1, total_price: 1, createdAt: 1 } },
-      ).limit(20).toArray(),
+      // Pharmacy orders live in pharmacy_orders; `orders` only holds legacy rows.
+      Promise.all(['pharmacy_orders', 'orders'].map((col) => this.conn.collection(col).find(
+        { $or: [{ id: exact }, { tracking_id: exact }, { patient_phone: exact }, { patient_account_id: exact }] } as any,
+        { projection: { _id: 0, id: 1, state: 1, status: 1, total_price: 1, createdAt: 1 } },
+      ).limit(20).toArray())).then((parts) => parts.flat().slice(0, 20)),
       this.conn.collection('appointments').find(
         { $or: [{ id: exact }, { patient_phone: exact }, { patient_name: nameRe }] } as any,
         { projection: { _id: 0, id: 1, status: 1, doctor_id: 1, slot_start: 1 } },

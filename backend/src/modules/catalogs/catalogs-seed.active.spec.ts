@@ -18,6 +18,8 @@ describe('CatalogsSeedService seeds rows the readers can list and book', () => {
       expect(c.doc.active).toBe(true);
       if (c.name === CATALOG_COLLECTIONS.nursing_services) expect(c.doc.duration).toBeTruthy();
     }
+    // seed-data exported some ids as raw UUID bytes: every id a patient sees must be URL-safe text.
+    for (const c of calls) if (c.doc.id !== undefined) expect(c.doc.id).toMatch(/^[\x21-\x7e]{1,100}$/);
     expect(many.some((m) => m.name === CATALOG_COLLECTIONS.nursing_services && m.args[0].is_active === true)).toBe(true);
     expect(many.some((m) => m.name === CATALOG_COLLECTIONS.nursing_services && m.args[0].duration)).toBe(true);
   });

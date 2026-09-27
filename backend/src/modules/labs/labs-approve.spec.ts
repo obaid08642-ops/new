@@ -5,8 +5,9 @@ describe('LabsService.approveCatalogItem', () => {
   const make = () => {
     const svcModel: any = { findOneAndUpdate: jest.fn().mockResolvedValue({ id: 't1' }) };
     const bus: any = { emit: jest.fn().mockResolvedValue({ duplicate: false }) };
-    const svc = new LabsService(svcModel, {} as any, {} as any, {} as any, {} as any, bus, {} as any, {} as any, undefined);
-    return { svc, svcModel, bus };
+    const redis: any = { keys: jest.fn().mockResolvedValue(['cache:lab-services:all']), del: jest.fn().mockResolvedValue(1) };
+    const svc = new LabsService(svcModel, {} as any, {} as any, {} as any, {} as any, bus, {} as any, {} as any, redis);
+    return { svc, svcModel, bus, redis };
   };
 
   it('approve sets approved + public_eligibility and emits audit event', async () => {
@@ -18,6 +19,13 @@ describe('LabsService.approveCatalogItem', () => {
       { new: true },
     );
     expect(bus.emit).toHaveBeenCalledWith(expect.objectContaining({ type: 'catalog.service_approved', entity_id: 't1' }));
+  });
+
+  it('approve drops the cached public lists so the item shows immediately', async () => {
+    const { svc, redis } = make();
+    await svc.approveCatalogItem({ id: 'a1', role: 'admin' }, 't1', true);
+    expect(redis.keys).toHaveBeenCalledWith('cache:lab-services:*');
+    expect(redis.del).toHaveBeenCalledWith('cache:lab-services:all');
   });
 
   it('reject sets rejected + not public', async () => {

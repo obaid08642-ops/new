@@ -9,7 +9,8 @@ function backendBase() {
 
 function cookie(name: string, value: string, httpOnly = true) {
   const secure = process.env.NODE_ENV === 'production' ? '; Secure' : '';
-  const maxAge = name === 'admin_csrf' ? 60 * 60 * 24 : 60 * 60;
+  // The refresh cookie must outlive the 1h access cookie, or the BFF refresh-on-401 never has a token to use.
+  const maxAge = name === 'admin_refresh' ? 60 * 60 * 24 * 14 : name === 'admin_csrf' ? 60 * 60 * 24 : 60 * 60;
   return `${name}=${encodeURIComponent(value)}; Path=/; SameSite=Lax; Max-Age=${maxAge}${httpOnly ? '; HttpOnly' : ''}${secure}`;
 }
 

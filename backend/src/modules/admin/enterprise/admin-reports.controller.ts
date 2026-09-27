@@ -90,12 +90,23 @@ export class AdminReportsController {
 
   @Get('orders')
   async orders(@Query() q: ReportsQueryDto, @Query('format') format?: string, @Res({ passthrough: true }) res?: Response) {
-    const rows: any[] = await this.conn.collection('orders').aggregate([
-      { $match: this.window(q) },
-      { $group: { _id: this.groupKey(q.group_by), count: { $sum: 1 }, total: { $sum: { $ifNull: ['$total_price', { $ifNull: ['$total', 0] }] } } } },
-      { $project: { bucket: '$_id', count: 1, total: 1, _id: 0 } },
-      { $sort: { bucket: 1 } },
-    ]).toArray();
+    // Pharmacy orders live in pharmacy_orders; `orders` only holds legacy rows. Sum both per bucket.
+    const merged = new Map<string, { bucket: any; count: number; total: number }>();
+    for (const col of ['pharmacy_orders', 'orders']) {
+      const part: any[] = await this.conn.collection(col).aggregate([
+        { $match: { is_deleted: { $ne: true }, ...this.window(q) } },
+        // pharmacy_orders keep the amount in totals.total (total_price stays 0 there).
+        { $group: { _id: this.groupKey(q.group_by), count: { $sum: 1 },
+          total: { $sum: { $ifNull: ['$totals.total', { $ifNull: ['$total_price', { $ifNull: ['$total', 0] }] }] } } } },
+      ]).toArray();
+      for (const r of part) {
+        const key = JSON.stringify(r._id ?? null);
+        const acc = merged.get(key) || { bucket: r._id ?? null, count: 0, total: 0 };
+        acc.count += r.count; acc.total += r.total;
+        merged.set(key, acc);
+      }
+    }
+    const rows = [...merged.values()].sort((a, b) => String(a.bucket).localeCompare(String(b.bucket)));
     if (this.maybeCsv(res, 'orders', rows, format)) return;
     return { group_by: q.group_by || 'day', rows };
   }
@@ -179,8 +190,12 @@ export class AdminReportsController {
   @Get('labs-turnaround')
   async labsTurnaround(@Query() q: ReportsQueryDto, @Query('format') format?: string, @Res({ passthrough: true }) res?: Response) {
     const rows: any[] = await this.conn.collection('labbookings').aggregate([
-      { $match: { status: 'REPORT_UPLOADED', ...this.window(q) } },
-      { $group: { _id: DAY, count: { $sum: 1 }, avg_hours: { $avg: { $divide: [{ $subtract: ['$updatedAt', '$createdAt'] }, 3600000] } } } },
+      // Lab bookings carry `state` (RESULT_UPLOADED → REPORTED); turnaround ends at the first result
+      // entry in state_history (updatedAt moves on later edits).
+      { $match: { state: { $in: ['RESULT_UPLOADED', 'REPORTED'] }, ...this.window(q) } },
+      { $addFields: { _done: { $first: { $filter: { input: { $ifNull: ['$state_history', []] }, as: 'h', cond: { $in: ['$$h.to', ['RESULT_UPLOADED', 'REPORTED']] } } } } } },
+      { $addFields: { _doneAt: { $ifNull: [{ $toDate: '$_done.at' }, '$updatedAt'] } } },
+      { $group: { _id: DAY, count: { $sum: 1 }, avg_hours: { $avg: { $divide: [{ $subtract: ['$_doneAt', '$createdAt'] }, 3600000] } } } },
       { $project: { bucket: '$_id', count: 1, avg_hours: { $round: ['$avg_hours', 1] }, _id: 0 } },
       { $sort: { bucket: 1 } },
     ]).toArray().catch(() => []);
