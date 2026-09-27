@@ -10,7 +10,7 @@ export class MediaAsset {
   @Prop({ default: () => uuid(), unique: true, index: true }) id: string;
   @Prop({ required: true, unique: true, index: true }) key: string;
   @Prop({ required: true, index: true }) owner_id: string;
-  @Prop({ required: true, enum: MEDIA_PURPOSES, index: true }) purpose: MediaPurpose;
+  @Prop({ required: true, enum: MEDIA_PURPOSES, index: true, type: String }) purpose: MediaPurpose;
   @Prop({ index: true }) thread_id?: string;
   @Prop() original_name?: string;
   @Prop() mime_type?: string;

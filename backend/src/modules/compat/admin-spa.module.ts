@@ -487,29 +487,6 @@ class AdminCmsController extends AdminController {
   }
 }
 
-@Controller('banners')
-@UseGuards(JwtAuthGuard)
-@Roles(UserRole.ADMIN)
-class AdminBannersController extends AdminController {
-  @Get()
-  async list() {
-    const rows = await this.conn.collection('banners').find({} as any).sort({ sort: 1 }).limit(100).toArray();
-    return rows.map((r: any) => ({ ...r, id: r.id || String(r._id) }));
-  }
-
-  @Post()
-  async create(@CurrentUser() user: any, @Body() body: CreateDto3) {
-    if (!body?.title_ar) throw new BadRequestException('عنوان البانر مطلوب');
-    const doc = {
-      id: uuid(), title_ar: String(body.title_ar), title_en: body.title_en || null,
-      image_url: body.image_url || null, link: body.link || null,
-      sort: Number(body.sort) || 0, active: body.active !== false,
-      created_by: uid(user), createdAt: now(), updatedAt: now(),
-    };
-    await this.conn.collection('banners').insertOne(doc as any);
-    return doc;
-  }
-}
 
 /* ── orders reassign ─────────────────────────────────────────────────────── */
 @Controller('orders')
@@ -1407,7 +1384,6 @@ class AdminNursingPortalController extends AdminController {
     AdminServicesController,
     AdminComplaintsController,
     AdminCmsController,
-    AdminBannersController,
     AdminOrdersController,
     AdminFinancialController,
     AdminCommissionsController,

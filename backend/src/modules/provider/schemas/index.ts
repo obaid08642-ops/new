@@ -13,8 +13,8 @@ export class ProviderAccount extends Document {
   @Prop({ index: true }) user_id?: string;
   /** P3.0b: legacy copy only — login/reset/change read and write users.password_hash. */
   @Prop() password_hash?: string;
-  @Prop({ required: true, enum: Object.values(ProviderType), index: true }) provider_type: ProviderType;
-  @Prop({ default: ProviderAccountStatus.EMAIL_UNVERIFIED, enum: Object.values(ProviderAccountStatus), index: true }) status: ProviderAccountStatus;
+  @Prop({ required: true, enum: Object.values(ProviderType), index: true, type: String }) provider_type: ProviderType;
+  @Prop({ default: ProviderAccountStatus.EMAIL_UNVERIFIED, enum: Object.values(ProviderAccountStatus), index: true , type: String }) status: ProviderAccountStatus;
   @Prop({ default: false }) email_verified: boolean;
   @Prop() email_verified_at?: Date;
   @Prop({ default: 0 }) failed_login_attempts: number;
@@ -55,7 +55,7 @@ export class ProviderProfile extends Document {
   @Prop() pending_profile_image_id?: string;
   @Prop({ required: true, unique: true, default: () => uuidv4() }) id: string;
   @Prop({ required: true, unique: true, index: true }) account_id: string;
-  @Prop({ required: true, enum: Object.values(ProviderType) }) provider_type: ProviderType;
+  @Prop({ required: true, enum: Object.values(ProviderType) , type: String }) provider_type: ProviderType;
   @Prop() display_name_ar?: string;
   @Prop() display_name_en?: string;
   @Prop() business_name?: string;
@@ -94,13 +94,13 @@ export enum DocumentReviewStatus { PENDING = 'pending', UNDER_REVIEW = 'under_re
 export class ProviderDocument extends Document {
   @Prop({ required: true, unique: true, default: () => uuidv4() }) id: string;
   @Prop({ required: true, index: true }) account_id: string;
-  @Prop({ required: true, enum: Object.values(ProviderDocumentType) }) doc_type: ProviderDocumentType;
+  @Prop({ required: true, enum: Object.values(ProviderDocumentType) , type: String }) doc_type: ProviderDocumentType;
   @Prop({ required: true }) storage_object_id: string;
   @Prop() doc_number?: string;
   @Prop() issuer?: string;
   @Prop() issued_date?: Date;
   @Prop() expiry_date?: Date;
-  @Prop({ default: DocumentReviewStatus.PENDING, enum: Object.values(DocumentReviewStatus) }) review_status: DocumentReviewStatus;
+  @Prop({ default: DocumentReviewStatus.PENDING, enum: Object.values(DocumentReviewStatus) , type: String }) review_status: DocumentReviewStatus;
   @Prop() reviewer_id?: string;
   @Prop() reviewer_note?: string;
   @Prop() reviewed_at?: Date;
@@ -135,7 +135,7 @@ export class ProviderBankAccount extends Document {
   @Prop({ required: true, uppercase: true }) iban: string;
   @Prop() vat_number?: string;
   @Prop() iban_letter_storage_id?: string;
-  @Prop({ default: BankReviewStatus.PENDING, enum: Object.values(BankReviewStatus) }) review_status: BankReviewStatus;
+  @Prop({ default: BankReviewStatus.PENDING, enum: Object.values(BankReviewStatus) , type: String }) review_status: BankReviewStatus;
   @Prop() reviewer_id?: string;
   @Prop() reviewer_note?: string;
 }
@@ -150,9 +150,9 @@ export class ProviderOperator extends Document {
   @Prop({ required: true, lowercase: true, trim: true }) email: string;
   @Prop() phone?: string;
   @Prop() full_name?: string;
-  @Prop({ required: true, enum: Object.values(OperatorRole) }) role: OperatorRole;
+  @Prop({ required: true, enum: Object.values(OperatorRole) , type: String }) role: OperatorRole;
   @Prop({ default: [], type: [String] }) permissions: OperatorPermission[];
-  @Prop({ default: OperatorStatus.INVITED, enum: Object.values(OperatorStatus) }) status: OperatorStatus;
+  @Prop({ default: OperatorStatus.INVITED, enum: Object.values(OperatorStatus) , type: String }) status: OperatorStatus;
   @Prop() password_hash?: string;
   @Prop() invite_token?: string;
   @Prop() invite_token_expires_at?: Date;
@@ -172,9 +172,9 @@ export enum OtpStatus { ACTIVE = 'active', USED = 'used', EXPIRED = 'expired', I
 export class ProviderOtpCode extends Document {
   @Prop({ required: true, unique: true, default: () => uuidv4() }) id: string;
   @Prop({ required: true, lowercase: true, trim: true, index: true }) email: string;
-  @Prop({ required: true, enum: Object.values(OtpPurpose), index: true }) purpose: OtpPurpose;
+  @Prop({ required: true, enum: Object.values(OtpPurpose), index: true , type: String }) purpose: OtpPurpose;
   @Prop({ required: true }) code_hash: string;
-  @Prop({ default: OtpStatus.ACTIVE, enum: Object.values(OtpStatus), index: true }) status: OtpStatus;
+  @Prop({ default: OtpStatus.ACTIVE, enum: Object.values(OtpStatus), index: true , type: String }) status: OtpStatus;
   @Prop({ default: 0 }) attempts: number;
   @Prop({ required: true }) expires_at: Date;
   @Prop() consumed_at?: Date;
@@ -212,7 +212,7 @@ export class ProviderDelta extends Document {
   @Prop({ required: true, unique: true, default: () => uuidv4() }) id: string;
   @Prop({ required: true, index: true }) provider_id: string;
   @Prop({ type: Object, required: true }) requested_changes: any; // { clinic_price, online_price, home_price, home_radius_km, accepted_insurances }
-  @Prop({ default: DeltaStatus.PENDING, enum: Object.values(DeltaStatus) }) status: DeltaStatus;
+  @Prop({ default: DeltaStatus.PENDING, enum: Object.values(DeltaStatus) , type: String }) status: DeltaStatus;
   @Prop() reviewer_id?: string;
   @Prop() review_note?: string;
   @Prop() reviewed_at?: Date;
