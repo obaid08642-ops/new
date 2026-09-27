@@ -104,6 +104,11 @@ export function DoctorLeavesScreen({ onBack }: { onBack: () => void }) {
                 <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
                   {(TYPES.find(t => t.k === l.type) || TYPES[1])[AR ? 'ar' : 'en']}{l.note ? ` · ${l.note}` : ''}
                 </Text>
+                {l.status === 'pending_facility' && (
+                  <Text style={{ fontSize: FS.xs, color: theme.warn, textAlign: AR ? 'right' : 'left' }}>
+                    {AR ? 'بانتظار موافقة المنشأة' : 'Awaiting facility approval'}
+                  </Text>
+                )}
               </View>
               <TouchableOpacity onPress={() => cancel(l.id)}>
                 <Text style={{ color: theme.danger, fontWeight: FW.bold }}>{AR ? 'إلغاء' : 'Cancel'}</Text>

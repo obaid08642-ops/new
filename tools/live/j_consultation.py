@@ -34,7 +34,8 @@ def doctor_publishes_hours(doctor, admin):
     step('the hours are live on the doctor schedule', r.ok and len(r.items() if not isinstance(r.body, list) else r.body) > 0, r)
 
 
-def run(pat, doctor, admin):
+def book_paid(pat, doctor):
+    """patient finds the doctor, holds a clinic slot tomorrow, books and pays by card; returns the appointment id."""
     doc_id = doctor.get('/provider/me').get('account', 'id')
     journey('consultation: patient finds the doctor and a slot')
     r = pat.get('/care/specialties')
@@ -55,7 +56,7 @@ def run(pat, doctor, admin):
     free = [s for s in slots if (s.get('available', True) if isinstance(s, dict) else True)]
     step('the doctor has free clinic slots tomorrow', r.ok and free, r)
     if not free:
-        return
+        return None
     s0 = free[0]
     slot = s0.get('start') or s0.get('slot_start') or s0.get('time') if isinstance(s0, dict) else s0
 
@@ -68,7 +69,7 @@ def run(pat, doctor, admin):
     aid = r.get('id')
     step('appointment created', r.ok and aid, r)
     if not aid:
-        return
+        return None
     r2 = pat.post('/care/appointments', body, headers={'Idempotency-Key': f'appointment-create-{did}-{slot}-{uuid.uuid4()}'})
     step('the same slot cannot be booked twice', not r2.ok, r2)
     r = pat.get(f'/payments/consultation/{aid}/capabilities')
@@ -83,6 +84,13 @@ def run(pat, doctor, admin):
     r = pat.get(f'/care/appointments/{aid}')
     step('booking-status shows it paid', r.ok and r.get('payment_status') == 'paid', r)
 
+    return aid
+
+
+def run(pat, doctor, admin):
+    aid = book_paid(pat, doctor)
+    if not aid:
+        return
     journey('consultation: the doctor runs the visit')
     r = doctor.get('/provider/jobs/queue?status=incoming&kind=consultation')
     inc = [j.get('id') for j in r.items()] if not isinstance(r.body, list) else [j.get('id') for j in r.body]

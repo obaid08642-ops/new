@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Put, Body, Param, Query, UseGuards, Req } from '@nestjs/common';
+import { Controller, Post, Get, Put, Delete, Body, Param, Query, UseGuards, Req } from '@nestjs/common';
 import { HospitalService } from '../services/hospital.service';
 import { JwtAuthGuard, CurrentUser, Roles } from '../../../common/auth.guard';
 import { UserRole } from '../../../common/enums';
@@ -38,6 +38,11 @@ export class HospitalController {
   @Get('staff')
   async getStaff(@CurrentUser() user: any) {
     return this.hospitalService.getStaff(user.id, user);
+  }
+
+  @Delete('staff/:id')
+  async removeStaff(@CurrentUser() user: any, @Param('id') id: string) {
+    return this.hospitalService.removeStaff(user.id, id, user);
   }
 
   @Post('doctors/onboard')

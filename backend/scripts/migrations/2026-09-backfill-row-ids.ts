@@ -20,6 +20,7 @@ const COLLECTIONS = [
   'provider_capabilities_doctor_sessions',
   'provider_capabilities_home_care',
   'provider_delivery_zones',
+  'provider_profiles', // facility sub-accounts (hospital.service addStaff)
 ];
 
 async function main() {

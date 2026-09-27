@@ -574,9 +574,10 @@ class FacilityInboxController {
   }
 
   @Post('inbox/:id/read')
-  async markRead(@Param('id') id: string) {
+  async markRead(@Param('id') id: string, @CurrentUser() user: any) {
+    const fid = await facilityIdOf(this.conn, uid(user));
     await this.conn.collection('facilityinbox')
-      .updateOne(byStringOrObjectId(id) as any, { $set: { read: true } });
+      .updateOne({ ...(byStringOrObjectId(id) as any), facility_id: fid } as any, { $set: { read: true } });
     return { ok: true };
   }
 }
@@ -805,15 +806,17 @@ class ProviderFacilityController {
     const fid = await facilityIdOf(this.conn, uid(user));
     const ids = await this.staffIds(fid);
     const horizon = new Date(Date.now() + Math.min(+days || 30, 90) * 86400000);
+    // appointments carry slot_start and doctor_id = the doctor's profile id, doctor_user_id = the account/user id
     const rows = await this.conn.collection('appointments')
       .find({
-        $or: [{ facility_id: fid }, { provider_id: { $in: ids } }, { doctor_id: { $in: ids } }],
-        scheduled_at: { $lte: horizon },
+        $or: [{ facility_id: fid }, { provider_id: { $in: ids } }, { doctor_id: { $in: ids } }, { doctor_user_id: { $in: ids } }],
+        slot_start: { $gte: new Date(Date.now() - 86400000), $lte: horizon },
       } as any)
-      .sort({ scheduled_at: 1 }).limit(300).toArray();
+      .sort({ slot_start: 1 }).limit(300).toArray();
     return rows.map((a: any) => ({
       id: a.id || String(a._id), patient_id: a.patient_id, provider_id: a.provider_id || a.doctor_id,
-      scheduled_at: a.scheduled_at, status: a.status, kind: a.kind || 'consultation',
+      scheduled_at: a.slot_start || a.scheduled_at, status: a.status, kind: a.kind || 'consultation',
+      service_type: a.service_type || null, payment_status: a.payment_status || null,
     }));
   }
 
@@ -821,10 +824,13 @@ class ProviderFacilityController {
   async activePatients(@CurrentUser() user: any) {
     const fid = await facilityIdOf(this.conn, uid(user));
     const ids = await this.staffIds(fid);
-    const patientIds: string[] = await this.conn.collection('appointments').distinct('patient_id', {
-      $or: [{ facility_id: fid }, { provider_id: { $in: ids } }, { doctor_id: { $in: ids } }],
+    const booked: string[] = await this.conn.collection('appointments').distinct('patient_id', {
+      $or: [{ facility_id: fid }, { provider_id: { $in: ids } }, { doctor_id: { $in: ids } }, { doctor_user_id: { $in: ids } }],
       status: { $nin: ['CANCELLED', 'cancelled', 'COMPLETED', 'completed'] },
     } as any);
+    // inpatients currently in a bed of this facility
+    const admitted: string[] = await this.conn.collection('facility_admissions').distinct('patient_id', { facility_id: fid, status: 'active' } as any);
+    const patientIds = [...new Set([...booked, ...admitted].filter(Boolean).map(String))];
     if (!patientIds.length) return [];
     const users = await this.conn.collection('users')
       .find({ $or: [{ id: { $in: patientIds } }, { _id: { $in: patientIds } }] } as any)

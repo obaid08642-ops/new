@@ -56,12 +56,25 @@ export class ProviderOpsService {
       status: 'active',
       createdAt: new Date(),
     };
+    // A doctor linked to a facility asks the facility first (FacilityLeaveRequestsScreen approves/rejects);
+    // the leave blocks bookings once approved.
+    const acc: any = await this.conn.collection('provider_accounts').findOne({ $or: [{ id: doctorId }, { user_id: doctorId }] }, { projection: { facility_id: 1, email: 1 } });
+    if (acc?.facility_id) {
+      doc.status = 'pending_facility';
+      const prof: any = await this.conn.collection('provider_profiles').findOne({ account_id: doctorId }, { projection: { display_name_ar: 1, display_name_en: 1 } });
+      const LEAVE_TYPE: Record<string, string> = { vacation: 'vacation', emergency_closing: 'emergency', leave: 'other', break: 'other' };
+      await this.conn.collection('leaverequests').insertOne({
+        id: doc.id, facility_id: acc.facility_id, provider_account_id: doctorId, provider_name: prof?.display_name_ar || prof?.display_name_en || acc.email,
+        provider_type: 'doctor', type: LEAVE_TYPE[doc.type] || 'other', start_date: start, end_date: end, reason: doc.note || undefined,
+        status: 'pending', createdAt: new Date(), updatedAt: new Date(),
+      });
+    }
     await this.conn.collection('doctor_leaves').insertOne(doc);
     return { ok: true, leave: doc };
   }
 
   async myLeaves(doctorId: string): Promise<any[]> {
-    return this.conn.collection('doctor_leaves').find({ doctor_id: doctorId, status: 'active' }).sort({ start_date: 1 }).limit(50).toArray();
+    return this.conn.collection('doctor_leaves').find({ doctor_id: doctorId, status: { $in: ['active', 'pending_facility'] } }).sort({ start_date: 1 }).limit(50).toArray();
   }
 
   async cancelLeave(doctorId: string, leaveId: string) {
@@ -69,6 +82,8 @@ export class ProviderOpsService {
       { id: leaveId, doctor_id: doctorId },
       { $set: { status: 'cancelled', updatedAt: new Date() } },
     );
+    // withdrawn before the facility decided: drop it from the facility queue
+    await this.conn.collection('leaverequests').deleteOne({ id: leaveId, provider_account_id: doctorId, status: 'pending' });
     return { ok: true };
   }
 
@@ -343,6 +358,11 @@ export class ProviderOpsService {
       { $set: { handover, state: 'HANDED_OVER', updatedAt: now }, $push: { state_history: { from: mission.state, to: 'HANDED_OVER', by_user_id: user.id, at: now, reason: 'hospital_handover' } } } as any,
     );
     if (update.modifiedCount !== 1) throw new BadRequestException('mission_transition_conflict');
+    // The receiving hospital sees the incoming patient in its inbox (FacilityDashboard reads facilityinbox by facility id).
+    await this.conn.collection('facilityinbox').insertOne({
+      facility_id: hospital.facility_id || hospital.id, kind: 'ambulance_handover', emergency_id: bookingId,
+      title: 'استلام مريض من الإسعاف', body: handover.notes || 'تم تسليم مريض طوارئ إلى المنشأة', read: false, createdAt: now,
+    } as any);
     await this.conn.collection('audit_logs').insertOne({ id: `ambulance_handover_${bookingId}_${now.getTime()}`, action: 'ambulance_handover', resource_kind: 'emergency_request', resource_id: bookingId, actor_account_id: user.id, purpose: 'clinical_handover', metadata: { hospital_provider_account_id: hospitalId }, createdAt: now });
     return { ok: true, state: 'HANDED_OVER', handover_reference: `handover:${bookingId}:${now.getTime()}` };
   }
