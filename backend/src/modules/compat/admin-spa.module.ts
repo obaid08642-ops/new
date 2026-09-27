@@ -1341,6 +1341,20 @@ class AdminNursingPortalController extends AdminController {
     return { id, state: to };
   }
 
+  /** R6-1: nurses eligible for this booking (same rule as assign). */
+  @Get('requests/:id/eligible-providers')
+  async eligibleProviders(@Param('id') id: string) {
+    const b: any = await this.conn.collection('homecarebookings').findOne({ id: { $eq: id } } as any);
+    if (!b) throw new NotFoundException('booking_not_found');
+    const rows: any[] = await this.conn.collection('provider_profiles').find({
+      account_id: { $exists: true, $ne: null }, type: { $in: ['home_care', 'nursing', 'nurse'] }, status: 'active',
+      public_eligibility: true, medical_review_status: 'approved', 'nursing_services.key': { $eq: b.service_id },
+    } as any).project({ account_id: 1, name_ar: 1, name_en: 1, display_name_ar: 1, city: 1 }).limit(100).toArray();
+    return rows.map((p: any) => ({
+      provider_id: p.account_id, name: p.display_name_ar || p.name_ar || p.name_en || p.account_id, city: p.city || null,
+    }));
+  }
+
   @Post('requests/:id/assign')
   async assign(@Param('id') id: string, @CurrentUser() user: any, @Body() body: AssignDto) {
     const providerId = body?.provider_id || body?.nurse_id;
