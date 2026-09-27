@@ -231,3 +231,8 @@ Format: task | commit sha | verify result | notes
 ## [P8] F69/F74 (2026-09-26)
 - F69: web reminders gained edit (PATCH), delete, and mark-taken (log) via new `/api/health/reminders/[id]` + `/log` proxies (same backend endpoints as the app); notification settings page converted from read-only to toggles (PATCH allowlisted); profile edit form already existed.
 - F74: see previous entry (diagnostics parent order).
+
+## [P8] Screen merges (2026-09-26)
+- profile/edit (5-line stub) deleted — all links already used /health/edit-profile.
+- family/hub (older subset) merged into /health/family-hub: backend notification routes + push verbatim set + family/join repointed; stubs deleted (family/index redirect kept for deep links).
+- insurance hub/claim-tracking/refund-status merged into one tabbed hub (?tab=, param-synced); screens moved to src/components (routes gone); all inbound links (orders, hub, approval-pending, claim→refund) repointed.

@@ -720,7 +720,7 @@ export class NotificationsService {
       title_key: 'notif.family_member_joined.title',
       body_key: 'notif.family_member_joined.body',
       type: NotificationType.INFO,
-      action: { route: '/family/hub' },
+      action: { route: '/health/family-hub' },
     });
   }
   @OnEvent('family.permission_requested')
@@ -744,7 +744,7 @@ export class NotificationsService {
       title_key: approved ? 'notif.family_perm_approved.title' : 'notif.family_perm_rejected.title',
       body_key: approved ? 'notif.family_perm_approved.body' : 'notif.family_perm_rejected.body',
       type: NotificationType.INFO,
-      action: { route: '/family/hub' },
+      action: { route: '/health/family-hub' },
     });
   }
   @OnEvent('family.permissions_updated')
@@ -755,7 +755,7 @@ export class NotificationsService {
       title_key: 'notif.family_perms_updated.title',
       body_key: 'notif.family_perms_updated.body',
       type: NotificationType.INFO,
-      action: { route: '/family/hub' },
+      action: { route: '/health/family-hub' },
     });
   }
 

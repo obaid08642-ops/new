@@ -6,7 +6,7 @@ import {
   Dimensions, StatusBar, Modal, Alert, ActivityIndicator, TextInput,
 } from 'react-native';
 import { WebView } from 'react-native-webview';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';
@@ -15,6 +15,8 @@ import { useGuestGuard } from '../../src/hooks/useGuestGuard';
 import { AppText, Card, Badge, Button, IconButton } from '../../src/components/ui';
 import { apiFetch } from '../../src/utils/api';
 import { logError } from '../../src/utils/logger';
+import ClaimTrackingScreen from '../../src/components/insurance/claim-tracking';
+import InsuranceRefundScreen from '../../src/components/insurance/refund-status';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
 const { width } = Dimensions.get('window');
@@ -85,6 +87,15 @@ export default function InsuranceHubScreen() {
   const { isGuest, requireAuth } = useGuestGuard();
   // Insurance is one of the ONLY two guest-restricted areas (with family).
   if (isGuest) { requireAuth('insurance'); return null; }
+  // P8: merged hub — policies | claims | refunds tabs (deep links use ?tab=).
+  const params = useLocalSearchParams() as any;
+  const [hubTab, setHubTab] = useState<'policies' | 'claims' | 'refunds'>(
+    params?.tab === 'claims' || params?.tab === 'refunds' ? params.tab : 'policies',
+  );
+  // Deep links (notifications, orders) land with ?tab= — follow param changes.
+  useEffect(() => {
+    if (params?.tab === 'claims' || params?.tab === 'refunds' || params?.tab === 'policies') setHubTab(params.tab);
+  }, [params?.tab]);
 
   const [policies, setPolicies] = useState<any[]>([]);
   const [claims, setClaims] = useState<any[]>([]);
@@ -210,6 +221,22 @@ export default function InsuranceHubScreen() {
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
+      {/* P8 merged tabs: policies | claims | refunds */}
+      <View style={{ flexDirection: 'row-reverse', gap: 8, marginHorizontal: 16, marginTop: 12 }}>
+        {(['policies', 'claims', 'refunds'] as const).map((t) => (
+          <TouchableOpacity key={t} onPress={() => setHubTab(t)}
+            style={{ flex: 1, paddingVertical: 10, borderRadius: 12, alignItems: 'center', backgroundColor: hubTab === t ? colors.primary : colors.surfaceSecondary }}>
+            <AppText variant="body" color={hubTab === t ? '#fff' : colors.textPrimary}>
+              {t === 'policies' ? 'الوثائق' : t === 'claims' ? 'المطالبات' : 'الاسترداد'}
+            </AppText>
+          </TouchableOpacity>
+        ))}
+      </View>
+      {hubTab !== 'policies' ? (
+        <View style={{ marginHorizontal: 16, marginTop: 12 }}>
+          {hubTab === 'claims' ? <ClaimTrackingScreen /> : <InsuranceRefundScreen />}
+        </View>
+      ) : (
       <View style={{ marginHorizontal: 16, marginTop: 12 }}>
 
         {/* Active Policy Card */}
@@ -391,7 +418,7 @@ export default function InsuranceHubScreen() {
         {/* Recent Claims */}
         <View style={{ marginBottom: 14 }}>
           <View style={[styles.sectionHeader, { paddingHorizontal: 16 } ]}>
-            <TouchableOpacity onPress={() => router.push('/insurance/claim-tracking')}>
+            <TouchableOpacity onPress={() => router.push({ pathname: '/insurance/hub', params: { tab: 'claims' } })}>
               <AppText variant="caption" color={colors.primary} style={{ fontWeight: '700' }}>عرض الكل</AppText>
             </TouchableOpacity>
             <AppText variant="h6">آخر المطالبات</AppText>
@@ -403,7 +430,7 @@ export default function InsuranceHubScreen() {
           ) : claims.slice(0, 3).map((claim, i) => (
             <TouchableOpacity
               key={i}
-              onPress={() => router.push('/insurance/claim-tracking')}
+              onPress={() => router.push({ pathname: '/insurance/hub', params: { tab: 'claims' } })}
               style={[styles.claimCard, { backgroundColor: isDark ? colors.surface : colors.white } ]}>
               <View style={{ alignItems: 'center', gap: 2 }}>
                 <AppText variant="h6" style={{ fontFamily: 'Cairo-ExtraBold' }}>{claim.covered} ر</AppText>
@@ -421,6 +448,7 @@ export default function InsuranceHubScreen() {
             </TouchableOpacity>
           ))}
         </View>
+      )}
       </ScrollView>
 
       {/* ── CHI WebView Modal ───────────────────────────────────────────────── */}

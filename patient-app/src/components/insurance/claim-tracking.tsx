@@ -4,9 +4,9 @@ import React from 'react';
 import { View, StyleSheet, FlatList, TouchableOpacity} from 'react-native';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useApp } from '../../src/context/AppContext';
-import { Icon } from '../../src/components/Icon';
-import { AppText, Card, Badge, Button, IconButton } from '../../src/components/ui';
+import { useApp } from '../context/AppContext';
+import { Icon } from '../Icon';
+import { AppText, Card, Badge, Button, IconButton } from '../ui';
 
 // Claims DB Connected
 
@@ -109,7 +109,7 @@ export default function ClaimTrackingScreen() {
                 </View>
               )}
               {item.status === 'approved' && (
-                <TouchableOpacity onPress={() => router.push('/insurance/refund-status')}
+                <TouchableOpacity onPress={() => router.push({ pathname: '/insurance/hub', params: { tab: 'refunds' } })}
                   style={[styles.refundBtn, { backgroundColor: '#EBF3FF' } ]}>
                   <View style={{flexDirection:'row-reverse',alignItems:'center',gap:6}}><Icon name="wallet" size={16} color={colors.primary} /><AppText variant="bodySM">استرداد النقود</AppText></View>
                 </TouchableOpacity>

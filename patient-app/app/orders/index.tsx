@@ -142,7 +142,7 @@ export default function OrderCenterScreen() {
         title: c.title || `مطالبة ${c.claim_number || ''}`.trim() || 'مطالبة تأمين',
         subtitle: c.provider || c.insurance_company || '',
         status: c.status || 'submitted', date: c.createdAt || c.submitted_at,
-        route: { pathname: '/insurance/claim-tracking' },
+        route: { pathname: '/insurance/hub', params: { tab: 'claims' } },
       });
     }
     for (const r of arr(returns)) {

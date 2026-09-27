@@ -3,17 +3,17 @@ import React, { useEffect, useState } from "react";
 import { View, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useApp } from "../../src/context/AppContext";
-import { Icon } from "../../src/components/Icon";
+import { useApp } from "../context/AppContext";
+import { Icon } from "../Icon";
 import {
   AppText,
   Card,
   Badge,
   Button,
   IconButton,
-} from "../../src/components/ui";
+} from "../ui";
 
-import { apiFetch } from "../../src/utils/api";
+import { apiFetch } from "../utils/api";
 
 const STATE_MAP: any = {
   REQUESTED: { label: "قيد المراجعة", color: "#F0A526" },
