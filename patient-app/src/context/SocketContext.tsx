@@ -56,6 +56,8 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
         try {
             await apiFetch(`/chats/threads/${m.threadId}/messages`, {
               method: 'POST',
+              // Stable per queued message: a replay after a lost response is not sent twice.
+              headers: { 'Idempotency-Key': `chat-offline-${m.id}` },
               body: JSON.stringify({
                 body: m.content,
                 type: m.messageType,

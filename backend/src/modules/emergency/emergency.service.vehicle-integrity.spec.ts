@@ -6,7 +6,7 @@ describe('EmergencyService verified ambulance binding', () => {
     const model: any = { updateOne: jest.fn().mockResolvedValue({ id: 'emergency-1' }) };
     const vehicles: any = {
       findOne: jest.fn(() => ({ lean: jest.fn().mockResolvedValue(vehicle) })),
-      find: jest.fn(() => ({ lean: jest.fn().mockResolvedValue(vehicle ? [vehicle] : []) })),
+      find: jest.fn(() => { const q: any = { lean: jest.fn().mockResolvedValue(vehicle ? [vehicle] : []) }; q.limit = jest.fn(() => q); return q; }),
     };
     const service = new EmergencyService(model, vehicles, { db: { collection: jest.fn() } } as any, { emit: jest.fn() } as any);
     return { service, model, vehicles };
@@ -32,5 +32,11 @@ describe('EmergencyService verified ambulance binding', () => {
       expect.objectContaining({ id: { $eq: 'emergency-1' } }),
       expect.objectContaining({ $set: expect.objectContaining({ assigned_ambulance_id: 'vehicle-1', assigned_provider_id: 'provider-1', unit_label: 'ABC-123' }) }),
     );
+  });
+
+  it('a claim without a vehicle uses the provider\'s only approved unit (installed apps send none)', async () => {
+    const { service, model } = make({ id: 'vehicle-1', plate_number: 'ABC-123' });
+    await expect(service.claim('emergency-1', 'provider-1', undefined)).resolves.toEqual(expect.objectContaining({ ok: true, vehicle_id: 'vehicle-1' }));
+    expect(model.updateOne).toHaveBeenCalled();
   });
 });

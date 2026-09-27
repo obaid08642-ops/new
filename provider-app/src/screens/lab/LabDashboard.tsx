@@ -48,6 +48,42 @@ const STAGES = [
 ];
 
 
+// Backend booking (labs.service): state, payment_method, location_type, items[{service_id,name_ar,name_en}].
+// The detail screen reads a view shape; map once here so every list opens the same thing.
+export const toLabOrderView = (x: any) => ({
+  ...x,
+  status: x.state,
+  patient: x.patient_name,
+  is_insurance: x.payment_method === 'insurance',
+  insurance: x.payment_method === 'insurance' ? (x.insurance_provider || 'Insurance') : x.payment_method === 'card' ? 'Card' : 'Cash',
+  homeCollection: x.location_type === 'home',
+  tests: (x.items || []).map((i: any) => i.service_id),
+  tech_name: x.technician_name || x.technician_id,
+});
+
+const BOOKING_STATES: Record<string, { ar: string; en: string; color: string }> = {
+  NEW_REQUEST: { ar: 'طلب جديد', en: 'New request', color: 'tokens.warning' },
+  PENDING_INSURANCE: { ar: 'بانتظار التأمين', en: 'Pending insurance', color: 'tokens.warning' },
+  WAITING_COPAY: { ar: 'بانتظار التحمل', en: 'Waiting co-pay', color: 'tokens.warning' },
+  CONFIRMED: { ar: 'مؤكد', en: 'Confirmed', color: 'tokens.info' },
+  IN_TRANSIT: { ar: 'الفني في الطريق', en: 'In transit', color: 'tokens.info' },
+  IN_LAB: { ar: 'في المختبر', en: 'In lab', color: 'tokens.info' },
+  SAMPLE_COLLECTED: { ar: 'تم سحب العينة', en: 'Sample collected', color: 'tokens.info' },
+  PROCESSING: { ar: 'قيد التحليل', en: 'Processing', color: 'tokens.purple' },
+  RESULT_UPLOADED: { ar: 'النتيجة جاهزة', en: 'Result ready', color: 'tokens.success' },
+  REPORTED: { ar: 'تم إرسال التقرير', en: 'Reported', color: 'tokens.success' },
+  SAMPLE_REJECTED: { ar: 'عينة مرفوضة', en: 'Sample rejected', color: 'tokens.error' },
+  CANCELLED: { ar: 'ملغى', en: 'Cancelled', color: 'tokens.error' },
+};
+
+// Sample custody stages (labs.service updateSampleStage): received → analyzing → result_ready → sent.
+const SAMPLE_STAGES = [
+  { key: 'received', ar: 'مستلمة', en: 'Received', color: 'tokens.info' },
+  { key: 'analyzing', ar: 'قيد التحليل', en: 'Analyzing', color: 'tokens.purple' },
+  { key: 'result_ready', ar: 'النتيجة جاهزة', en: 'Result ready', color: 'tokens.success' },
+  { key: 'sent', ar: 'مُرسلة', en: 'Sent', color: 'tokens.success' },
+];
+
 // ══════════════════════════════════════════════════════════════════
 // LAB ORDERS SUB-TABS COMPONENT
 // ══════════════════════════════════════════════════════════════════
@@ -60,7 +96,7 @@ function LabOrdersTab({ onNav }: { onNav: (s: string, p?: any) => void }) {
 
   useEffect(() => {
     client.get('/labs/provider/inbox')
-      .then(res => setOrders(res.data || []))
+      .then(res => setOrders((res.data || []).map(toLabOrderView)))
       .catch(() => setOrders([]))
       .finally(() => setLoading(false));
   }, []);
@@ -103,7 +139,7 @@ function LabOrdersTab({ onNav }: { onNav: (s: string, p?: any) => void }) {
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 100 }}>
         {filtered.length === 0 && <NEmpty title={AR ? 'لا توجد طلبات هنا' : 'No Orders Here'} icon="document" />}
         {filtered.map(order => {
-          const st = STAGES.find(s => s.key === order.status) || STAGES[0];
+          const st = BOOKING_STATES[order.status] || { ar: order.status, en: order.status, color: 'tokens.info' };
           return (
             <NCard key={order.id} style={{ marginBottom: SP.md, borderColor: order.status === 'SAMPLE_REJECTED' ? theme.danger : theme.border, borderWidth: 1 }} onPress={() => onNav('order_detail', order)}>
               <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -232,29 +268,18 @@ function LabHome({ onNav, onTriggerAlarm }:{ onNav:(s:string,p?:any)=>void; onTr
  try {
  const inboxRes = await client.get('/labs/provider/inbox');
  const combined = inboxRes.data || [];
- 
- setOrders(combined.map((x: any) => ({
- id: x.id,
- patient: x.patient_name || (AR ? 'مريض نبض' : 'Nabdah Patient'),
- doctor: x.doctor_name || '—',
- tests: x.tests || ['cbc'],
- insurance: x.insurance_provider || 'Cash',
- total: x.total || 150,
- status: x.state === 'SAMPLE_COLLECTED' ? 'analyzing' : x.state === 'REPORTED' ? 'ready' : 'pending',
- date: x.scheduled_at ? new Date(x.scheduled_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : (AR ? 'قريباً' : 'Soon'),
- homeCollection: x.service_type === 'home' || false,
- collectorName: x.technician_name || '',
- raw: x
- })));
+ setOrders(combined.map(toLabOrderView));
 
  const resSamples = await client.get('/labs/samples');
  setSamples(resSamples.data || []);
 
  setStats({
- todayCount: combined.length,
- analyzingCount: combined.filter(o => o.state === 'SAMPLE_COLLECTED').length,
- readyCount: combined.filter(o => o.state === 'REPORTED').length,
- revenue: combined.reduce((acc: number, cur: any) => acc + (cur.total || 0), 0)
+ todayCount: combined.filter((o: any) => o.scheduled_at && new Date(o.scheduled_at).toDateString() === new Date().toDateString() && o.state !== 'CANCELLED').length,
+ analyzingCount: combined.filter((o: any) => ['SAMPLE_COLLECTED', 'PROCESSING'].includes(o.state)).length,
+ readyCount: combined.filter((o: any) => ['RESULT_UPLOADED', 'REPORTED'].includes(o.state)).length,
+ // reported today (the result was delivered, so the visit is done)
+ revenue: combined.filter((o: any) => o.state === 'REPORTED' && o.updatedAt && new Date(o.updatedAt).toDateString() === new Date().toDateString())
+   .reduce((acc: number, cur: any) => acc + (Number(cur.total) || 0), 0)
  });
  } catch (e: any) {
   // No fabricated numbers — show zeros and let the provider pull-to-refresh.
@@ -329,7 +354,7 @@ function LabHome({ onNav, onTriggerAlarm }:{ onNav:(s:string,p?:any)=>void; onTr
  {/* Pipeline */}
  <NSecHeader title={AR?'خط أنابيب العينات':'Sample Pipeline'} action={AR?'الكل':'All'} onAction={()=>onNav('sample_tracking')} />
  <View style={{flexDirection:AR?'row-reverse':'row',gap:SP.sm,marginBottom:SP.xl}}>
- {STAGES.map(st=>{
+ {SAMPLE_STAGES.map(st=>{
  const count = samples.filter(sm=>sm.stage===st.key).length;
  return (
  <View key={st.key} style={{flex:1,backgroundColor:`${st.color}10`,borderRadius:R.lg,borderWidth:1,borderColor:`${st.color}30`,padding:SP.md,alignItems:'center'}}>
@@ -376,8 +401,21 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
   };
 
  
-  const handleReject = () => {
-    show(AR ? 'رفض الحجز يحتاج سبباً مسجلاً عبر أمر التغطية الخادمي؛ لا يمكن تغيير الحالة مباشرةً.' : 'Booking rejection requires a recorded reason through the server coverage command; direct state changes are disabled.', 'info');
+  const [showReject, setShowReject] = useState(false);
+  const [rejectReason, setRejectReason] = useState('');
+  const handleReject = async () => {
+    if (rejectReason.trim().length < 5) return show(AR ? 'اكتب سبب الرفض (5 أحرف على الأقل)' : 'Enter a rejection reason (at least 5 characters)', 'warning');
+    setLoading(true);
+    try {
+      await client.patch(`/labs/bookings/${order.id}/state`, { state: 'CANCELLED', note: `rejected_by_lab: ${rejectReason.trim()}` });
+      show(AR ? 'تم رفض الطلب وإبلاغ المريض' : 'Booking rejected; the patient was notified', 'success');
+      setShowReject(false);
+      onBack();
+    } catch (e: any) {
+      show(e.message, 'error');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleNphiesApproval = async () => {
@@ -401,10 +439,13 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
     }
   };
 
+  // The server accepts this only for cash at the facility (paid at the visit) or an already-paid card booking.
   const handleCashConfirm = async () => {
     setLoading(true);
     try {
-      show(AR ? 'لا يمكن تأكيد طلب نقدي من التطبيق قبل وصول حالة الدفع الحاكمة من الخادم.' : 'A cash booking cannot be confirmed from the app before the server payment state is authoritative.', 'info');
+      await client.patch(`/labs/bookings/${order.id}/state`, { state: 'CONFIRMED', note: 'accepted_by_lab' });
+      show(AR ? 'تم تأكيد الطلب' : 'Booking confirmed', 'success');
+      onBack();
     } catch (e: any) {
       show(e.message, 'error');
     } finally {
@@ -461,6 +502,19 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
     }
   };
 
+  // Results are entered against the registered sample (custody record), found by its booking id.
+  const openSampleForResults = async () => {
+    try {
+      const res = await client.get('/labs/samples');
+      const sample = (res.data || []).find((sm: any) => sm.lab_order_id === order.id);
+      if (!sample) return show(AR ? 'سجّل العينة أولاً' : 'Register the sample first', 'warning');
+      if (sample.stage === 'received') await client.patch(`/labs/samples/${sample.id}/stage`, { stage: 'analyzing' });
+      onNav('result_review', { ...sample, stage: sample.stage === 'received' ? 'analyzing' : sample.stage });
+    } catch (e: any) {
+      show(e.message, 'error');
+    }
+  };
+
   const anyRequiresFasting = (order?.tests || []).some((tid: string) => lookupTest(tid)?.fasting);
 
  return (
@@ -487,7 +541,8 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
 
  <Text style={{fontSize:FS.md,fontWeight:FW.bold,color:theme.text,marginBottom:SP.md,textAlign:AR?'right':'left'}}>{AR?'التحاليل المطلوبة':'Requested Tests'}</Text>
  {(order?.tests??[]).map((tid:string)=>{
- const t=lookupTest(tid);
+ const item=(order?.items||[]).find((i:any)=>i.service_id===tid);
+ const t=lookupTest(tid) || (item ? { ar: item.name_ar || item.name_en, en: item.name_en || item.name_ar, fasting: !!item.fasting_required, hours: 24 } : null);
  return t ? <View key={tid} style={{flexDirection:AR?'row-reverse':'row',alignItems:'center',gap:SP.md,paddingVertical:SP.sm,borderBottomWidth:StyleSheet.hairlineWidth,borderBottomColor:theme.border}}>
  <IBg name="testTube" size={12} color="tokens.purple" bg="tokens.purple12" />
  <View style={{flex:1}}>
@@ -510,7 +565,7 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
           ) : (
             <NBtn label={AR ? 'تأكيد الطلب المباشر (كاش)' : 'Confirm Direct Order (Cash)'} onPress={handleCashConfirm} />
           )}
-          <NBtn label={AR?'رفض الطلب':'Reject Order'} variant="danger" onPress={handleReject} />
+          <NBtn label={AR?'رفض الطلب':'Reject Order'} variant="danger" onPress={() => setShowReject(true)} />
         </View>
       )}
 
@@ -545,7 +600,7 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
 
       {order?.status === 'SAMPLE_COLLECTED' && (
         <View style={{gap:SP.md}}>
-          <NBtn label={AR ? 'بدء الفحص وإدخال النتائج' : 'Process & Enter Results'} onPress={() => onNav('result_review', order)} />
+          <NBtn label={AR ? 'بدء الفحص وإدخال النتائج' : 'Process & Enter Results'} onPress={openSampleForResults} />
         </View>
       )}
 
@@ -563,6 +618,14 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
           </Text>
           <NInput label={AR ? 'الموعد الجديد' : 'New Date/Time'} placeholder="YYYY-MM-DD HH:MM" value={rescheduleDate} onChange={setRescheduleDate} icon="event" />
           <NBtn label={AR ? 'تأكيد وإشعار المريض' : 'Confirm & Notify Patient'} loading={loading} onPress={handleReschedule} style={{ marginTop: SP.md }} />
+        </View>
+      </NSheet>
+
+      {/* Reject Sheet: a recorded reason is required */}
+      <NSheet visible={showReject} onClose={()=>setShowReject(false)} title={AR ? 'رفض الطلب' : 'Reject booking'} height={320}>
+        <View style={{ padding: SP.md }}>
+          <NInput label={AR ? 'سبب الرفض' : 'Reason'} placeholder={AR ? 'مثال: التحليل غير متوفر حالياً' : 'e.g. test not available'} value={rejectReason} onChange={setRejectReason} icon="edit" />
+          <NBtn label={AR ? 'تأكيد الرفض' : 'Confirm rejection'} variant="danger" loading={loading} onPress={handleReject} style={{ marginTop: SP.md }} />
         </View>
       </NSheet>
 
@@ -661,7 +724,7 @@ function SampleTracking({ onBack, onNav }:{ onBack:()=>void; onNav:(s:string,p?:
  <TouchableOpacity onPress={()=>setFilter('all')} style={[s.chip,{backgroundColor:filter==='all'?'tokens.purple':theme.surface2,borderColor:filter==='all'?'tokens.purple':theme.border}]}>
  <Text style={{color:filter==='all'?'#FFF':theme.text,fontSize:FS.xs,fontWeight:FW.semi}}>{AR?'الكل':'All'} ({samples.length})</Text>
  </TouchableOpacity>
- {STAGES.map(st=>{
+ {SAMPLE_STAGES.map(st=>{
  const c=samples.filter(sm=>sm.stage===st.key).length;
  return <TouchableOpacity key={st.key} onPress={()=>setFilter(st.key)} style={[s.chip,{backgroundColor:filter===st.key?st.color:theme.surface2,borderColor:filter===st.key?st.color:theme.border}]}>
  <Text style={{color:filter===st.key?'#FFF':theme.text,fontSize:FS.xs,fontWeight:FW.semi}}>{AR?st.ar:st.en} ({c})</Text>
@@ -672,7 +735,7 @@ function SampleTracking({ onBack, onNav }:{ onBack:()=>void; onNav:(s:string,p?:
  refreshing={loading}
  onRefresh={fetchSamples}
  renderItem={({item:sam})=>{
- const si=STAGES.findIndex(st=>st.key===sam.stage); const sc=STAGES[si];
+ const si=SAMPLE_STAGES.findIndex(st=>st.key===sam.stage); const sc=SAMPLE_STAGES[Math.max(0, si)];
  return (
  <NCard style={{marginBottom:SP.md}} accent={sc?.color}>
  <View style={{flexDirection:AR?'row-reverse':'row',justifyContent:'space-between',marginBottom:SP.md}}>
@@ -687,12 +750,12 @@ function SampleTracking({ onBack, onNav }:{ onBack:()=>void; onNav:(s:string,p?:
  </View>
  {/* Progress dots */}
  <View style={{flexDirection:AR?'row-reverse':'row',alignItems:'center',gap:SP.xs,marginBottom:SP.md}}>
- {STAGES.map((st2,i)=>(
+ {SAMPLE_STAGES.map((st2,i)=>(
  <React.Fragment key={st2.key}>
  <View style={{width:22,height:22,borderRadius:11,backgroundColor:i<=si?st2.color:theme.surface2,alignItems:'center',justifyContent:'center'}}>
  {i<=si && <I name="check" size={10} color="#FFF" />}
  </View>
- {i<STAGES.length-1 && <View style={{flex:1,height:2,backgroundColor:i<si?STAGES[i+1].color:theme.border}} />}
+ {i<SAMPLE_STAGES.length-1 && <View style={{flex:1,height:2,backgroundColor:i<si?SAMPLE_STAGES[i+1].color:theme.border}} />}
  </React.Fragment>
  ))}
  </View>
@@ -741,6 +804,8 @@ function ResultReview({ sample, onBack }:{ sample:any; onBack:()=>void }) {
  }
  setLoading(true);
  try {
+ // The server accepts a report once the booking is RESULT_UPLOADED, i.e. the sample reached result_ready.
+ if (sample.stage === 'analyzing') await client.patch(`/labs/samples/${sample.id}/stage`, { stage: 'result_ready' });
  await client.post(`/labs/bookings/${sample.lab_order_id || sample.id}/upload-report`, { structuredData: resultRows, send_to: sendTo });
  await client.patch(`/labs/samples/${sample.id}/stage`, { stage: 'sent' });
  show(AR ? 'تم إرسال النتيجة' : 'Result sent', 'success');
@@ -1309,14 +1374,24 @@ function LabSettings({ onLogout, onNavigate }:{ onLogout:()=>void; onNavigate:(s
 function ResultsList({ onNav }:{ onNav:(s:string,p?:any)=>void }) {
  const insets = useSafeAreaInsets();
  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang==='ar';
+ // Samples past accessioning: results being entered, ready to send, or sent.
+ const [items, setItems] = useState<any[]>([]);
+ const load = useCallback(() => {
+   client.get('/labs/samples')
+     .then((r: any) => setItems((r.data || []).filter((sm: any) => ['analyzing', 'result_ready', 'sent'].includes(sm.stage))
+       .map((sm: any) => ({ ...sm, patient: sm.patient_name || (AR ? 'مريض' : 'Patient'), tests: sm.tests || [] }))))
+     .catch(() => setItems([]));
+ }, [AR]);
+ useEffect(() => { load(); }, [load]);
  return (
  <View style={{flex:1,backgroundColor:theme.bg}}>
  <View style={[s.topBar,{backgroundColor:theme.surface,borderBottomColor:theme.border, paddingTop: Math.max(insets.top, 16) }]}>
  <Text style={{fontSize:FS.xl,fontWeight:FW.bold,color:theme.text}}>{AR?'النتائج':'Results'}</Text>
  </View>
- <FlatList data={[]} keyExtractor={(i: any) => i.id} contentContainerStyle={{padding:SP.lg,paddingBottom:100}}
+ <FlatList data={items} keyExtractor={(i: any) => i.id} contentContainerStyle={{padding:SP.lg,paddingBottom:100}} onRefresh={load} refreshing={false}
+ ListEmptyComponent={<NEmpty title={AR ? 'لا توجد نتائج بعد' : 'No results yet'} icon="document" />}
  renderItem={({item})=>{
- const sc=STAGES.find(st=>st.key===item.stage);
+ const sc=SAMPLE_STAGES.find(st=>st.key===item.stage);
  return (
  <NCard style={{marginBottom:SP.md}} accent={sc?.color}
  onPress={()=>{if(item.stage==='analyzing'||item.stage==='result_ready')onNav('result_review',item);}}>

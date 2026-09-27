@@ -1,18 +1,17 @@
-const mockSecureStore = {
-  getItemAsync: jest.fn(),
-  setItemAsync: jest.fn(),
-  deleteItemAsync: jest.fn(),
-};
 const mockAsyncStorage = {
   getItem: jest.fn(),
   setItem: jest.fn(),
   removeItem: jest.fn(),
 };
 
-jest.mock('expo-secure-store', () => mockSecureStore);
+// Factory must not close over a module-level const: `import './api'` is hoisted above it,
+// so the mock would be created while that const is still undefined.
+jest.mock('expo-secure-store', () => ({ getItemAsync: jest.fn(), setItemAsync: jest.fn(), deleteItemAsync: jest.fn() }));
 jest.mock('@react-native-async-storage/async-storage', () => ({ __esModule: true, default: mockAsyncStorage }));
 
 import { ApiContractError, apiFetch } from './api';
+
+const mockSecureStore = jest.requireMock('expo-secure-store') as Record<'getItemAsync' | 'setItemAsync' | 'deleteItemAsync', jest.Mock>;
 
 describe('apiFetch security contract', () => {
   beforeEach(() => {
@@ -52,5 +51,33 @@ describe('apiFetch security contract', () => {
 
     await expect(apiFetch('/patient-only', { method: 'POST', body: JSON.stringify({ action: 'submit' }) })).rejects.toThrow('OFFLINE_ERROR');
     expect(global.fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('adds an idempotency key to every mutation (routes with @RequireIdempotency reject calls without one)', async () => {
+    (global.fetch as jest.Mock).mockResolvedValue({ ok: true, json: jest.fn().mockResolvedValue({ ok: true }) });
+    await apiFetch('/health/vitals', { method: 'POST', body: '{}' });
+    await apiFetch('/health/reminders/1', { method: 'PATCH', body: '{}' });
+    await apiFetch('/health/vitals');
+    const keys = (global.fetch as jest.Mock).mock.calls.map(([, r]) => new Headers(r.headers).get('Idempotency-Key'));
+    expect(keys[0]).toMatch(/^app-.{16,}/);
+    expect(keys[1]).toMatch(/^app-.{16,}/);
+    expect(keys[0]).not.toBe(keys[1]);
+    expect(keys[2]).toBeNull();
+  });
+
+  it("keeps the caller's own idempotency key", async () => {
+    (global.fetch as jest.Mock).mockResolvedValue({ ok: true, json: jest.fn().mockResolvedValue({ ok: true }) });
+    await apiFetch('/cart/checkout', { method: 'POST', body: '{}', headers: { 'idempotency-key': 'checkout-attempt-1' } });
+    expect(new Headers((global.fetch as jest.Mock).mock.calls[0][1].headers).get('Idempotency-Key')).toBe('checkout-attempt-1');
+  });
+
+  it('a 403 does not sign the user out; a 401 does', async () => {
+    mockSecureStore.getItemAsync.mockResolvedValue('session-token');
+    (global.fetch as jest.Mock).mockResolvedValue({ ok: false, status: 403, json: jest.fn().mockResolvedValue({ message: 'provider scope required' }) });
+    await expect(apiFetch('/providers/x')).rejects.toThrow('AUTH_ERROR_403');
+    expect(mockSecureStore.deleteItemAsync).not.toHaveBeenCalled();
+    (global.fetch as jest.Mock).mockResolvedValue({ ok: false, status: 401, json: jest.fn().mockResolvedValue({ message: 'Unauthorized' }) });
+    await expect(apiFetch('/auth/me')).rejects.toThrow('AUTH_ERROR_401');
+    expect(mockSecureStore.deleteItemAsync).toHaveBeenCalled();
   });
 });

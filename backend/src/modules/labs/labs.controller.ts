@@ -159,6 +159,10 @@ export class LabsController {
 
   // --- Admin Catalog CRUD ---
   @Roles(UserRole.ADMIN)
+  @Roles(UserRole.ADMIN)
+  @Get('admin/catalog')
+  adminCatalog(@CurrentUser() u: any) { return this.svc.adminCatalog(u); }
+
   @Post('admin/catalog')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
   @Roles(UserRole.ADMIN)

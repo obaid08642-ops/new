@@ -1,3 +1,4 @@
+import { isProviderRole } from '../../common/enums';
 import { Controller, Post, Get, Patch, Delete, Body, Param, Query, Req, Inject } from '@nestjs/common';
 import { DisableDto, EndConsultationDto, IssueSickLeaveDto, IssueMedicalReportDto, SetAvailDto, PreviewAdHocDto, DispatchDto, WithdrawAliasDto, UploadProfileImageDto, ReplaceImageDto, AssignStaffDto } from './provider.controllers.dto';
 import { RegisterDto, LoginDto, RefreshDto, LogoutDto, SendOtpDto, VerifyEmailDto, ForgotDto, VerifyResetCodeDto, ResetDto, AddPhoneDto, UploadDocDto, UploadDocDto2, UpsertBankDto, SubmitDeltaDto, SubmitDeltaDto2, InviteDto, AcceptDto, UpdateDto2, RejectDeltaDto, RejectDeltaDto2, ApproveDto, RejectDto, NeedsChangesDto, SuspendDto, ReactivateDto, AcceptDto2, RejectDto2, StartDto, CompleteDto, CancelDto, UpsertPharmaDto, UpsertLabDto, UpsertLabDto2, UpsertRadDto, UpsertRadDto2, UpsertDocDto, UpsertDocDto2, UpsertHcDto, UpsertHcDto2, UpsertDto, UpsertDto2 } from './provider.controllers.generated.dto';
@@ -110,6 +111,7 @@ export class ProviderProfileController {
   @SelfService()
   @Post('settings/delta')
   async submitDelta(@CurrentUser() u: any, @Body() body: SubmitDeltaDto) {
+    if (!isProviderRole(u?.role)) throw new ForbiddenException('provider scope required');
     return this.svc.submitDelta(u, body);
   }
 }
@@ -272,7 +274,7 @@ export class ProviderRequestsController {
     if (!rejected && price <= 0) throw new BadRequestException('مبلغ الخدمة الموثق مطلوب');
 
     // 3) Patient's saved insurance policy (required by the insurance flow)
-    const profile: any = await this.conn.collection('patientprofiles').findOne({ user_id: String(patientId) } as any);
+    const profile: any = await this.conn.collection('patient_profiles').findOne({ user_id: String(patientId) } as any);
     if (!profile?.insurance?.company_id || !profile?.insurance?.policy_number) {
       throw new BadRequestException('سياسة تأمين المريض الموثقة مطلوبة');
     }
@@ -516,7 +518,10 @@ export class ProviderScheduleSlotsController {
 export class ProviderScoreController {
   constructor(private readonly svc: ProviderScoringService) {}
   @Get() me(@CurrentUser() u: any) { return this.svc.getMy(u); }
-  @Post('recompute') recompute(@CurrentUser() u: any) { return this.svc.recompute(u.id); }
+  @Post('recompute') recompute(@CurrentUser() u: any) {
+    if (!isProviderRole(u?.role)) throw new ForbiddenException('provider scope required');
+    return this.svc.recompute(u.id);
+  }
 }
 
 @Controller('admin/matching')

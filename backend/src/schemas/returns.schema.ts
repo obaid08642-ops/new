@@ -4,6 +4,10 @@ import { v4 as uuidv4 } from 'uuid';
 
 @Schema({ timestamps: true })
 export class ReturnRequest extends Document {
+  // Written by the services but previously undeclared: strict mode silently dropped these (tools/audit/schemadrift.js).
+  @Prop({ type: [Object], default: [] }) items?: Record<string, any>[];
+  @Prop({ default: false }) is_opened?: boolean;
+  @Prop({ default: false }) is_used?: boolean;
   @Prop({ default: () => uuidv4(), unique: true }) id: string;
   @Prop({ required: true, index: true }) patient_id: string;
   @Prop({ required: true, index: true }) order_id: string;

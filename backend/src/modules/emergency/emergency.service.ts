@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 import { Injectable, NotFoundException, BadRequestException, Inject } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
@@ -122,7 +123,14 @@ export class EmergencyService {
       },
     );
     if (!res) return { ok: false, reason: 'race_lost' };
-    this.events.emit(EVENTS.EMERGENCY_ASSIGNED, { emergency_id: id, vehicle_id: v.id, auto: true });
+    this.events.emit(EVENTS.EMERGENCY_ASSIGNED, { emergency_id: id, vehicle_id: v.id, provider_account_id: v.provider_account_id, auto: true });
+    // The crew learns about the mission: in-app notification (provider app bell) + device push (push module listener).
+    await this.conn.db.collection('provider_notifications').insertOne({
+      id: randomUUID(), provider_account_id: v.provider_account_id, type: 'new_request',
+      title_ar: 'مهمة إسعاف جديدة', title_en: 'New ambulance mission',
+      body_ar: `تم إسناد بلاغ طوارئ إلى سيارتك ${v.plate_number || ''}`.trim(), body_en: `An SOS was dispatched to your unit ${v.plate_number || ''}`.trim(),
+      icon: 'ambulance', related_id: id, related_type: 'emergency', read: false, createdAt: new Date(), updatedAt: new Date(),
+    } as any).catch(() => {});
     return { ok: true, id, vehicle_id: v.id, score: best.score };
   }
 
@@ -248,12 +256,23 @@ export class EmergencyService {
         { _id: 0, __v: 0, patient_phone: 0, patient_id: 0, assigned_provider_id: 0, assigned_hospital_id: 0 },
       ).sort({ createdAt: -1 }).limit(20),
     ]);
-    return { pool, mine, vehicles: vehicles.map((v: any) => ({ id: v.id, label: v.plate_number, type: v.vehicle_type })) };
+    // finished missions of this ambulance (the app's history tab)
+    const history = await this.model.find(
+      { assigned_provider_id: providerId, state: { $in: [EmergencyState.RESOLVED, EmergencyState.CLOSED, 'HANDED_OVER'] } },
+      { _id: 0, __v: 0, patient_phone: 0, patient_id: 0, assigned_provider_id: 0, assigned_hospital_id: 0 },
+    ).sort({ updatedAt: -1 }).limit(50);
+    return { pool, mine, history, vehicles: vehicles.map((v: any) => ({ id: v.id, label: v.plate_number, type: v.vehicle_type })) };
   }
 
   /** Driver claims an open SOS — atomic first-come-first-served.
    *  Repo updateOne == findOneAndUpdate → returns the doc or null. */
   async claim(id: string, providerId: string, vehicleId?: string) {
+    // Installed ambulance apps claim without naming a vehicle: use the driver's only approved, available one.
+    if (!vehicleId) {
+      const own = await this.vehicles.find({ provider_account_id: providerId, status: 'approved', is_available: true }, { id: 1 }).limit(2).lean();
+      if (own.length === 1) vehicleId = (own[0] as any).id;
+      else if (own.length > 1) throw new BadRequestException('vehicle_selection_required');
+    }
     if (!vehicleId) throw new BadRequestException('approved_vehicle_required');
     const vehicle: any = await this.vehicles.findOne({ id: { $eq: vehicleId }, provider_account_id: { $eq: providerId }, status: 'approved', is_available: true }).lean();
     if (!vehicle) throw new ForbiddenException('vehicle_not_verified_or_not_owned');
@@ -318,8 +337,14 @@ export class EmergencyService {
   async updateUnitLocation(id: string, providerId: string, body: { lat?: number; lng?: number; vehicle_id?: string }) {
     const lat = Number(body?.lat), lng = Number(body?.lng);
     if (!isFinite(lat) || !isFinite(lng)) throw new BadRequestException('lat_lng_required');
-    if (!body?.vehicle_id) throw new BadRequestException('approved_vehicle_required');
-    const vehicle: any = await this.vehicles.findOne({ id: { $eq: body.vehicle_id }, provider_account_id: { $eq: providerId }, status: 'approved' }).lean();
+    // the vehicle that claimed this mission, unless the app names it
+    let vehicleId = body?.vehicle_id;
+    if (!vehicleId) {
+      const m: any = await this.model.findOne({ id: { $eq: id }, assigned_provider_id: { $eq: providerId } }, { assigned_ambulance_id: 1 }).lean();
+      vehicleId = m?.assigned_ambulance_id;
+    }
+    if (!vehicleId) throw new BadRequestException('approved_vehicle_required');
+    const vehicle: any = await this.vehicles.findOne({ id: { $eq: vehicleId }, provider_account_id: { $eq: providerId }, status: 'approved' }).lean();
     if (!vehicle) throw new ForbiddenException('vehicle_not_verified_or_not_owned');
     const res = await this.model.updateOne(
       { id: { $eq: id }, assigned_ambulance_id: { $eq: vehicle.id }, assigned_provider_id: { $eq: providerId }, state: { $nin: [EmergencyState.RESOLVED, EmergencyState.CLOSED, EmergencyState.CANCELLED] } },

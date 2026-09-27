@@ -40,24 +40,31 @@ describe('P3.3 catalog mass-assignment guard', () => {
       service = module.get<LabsService>(LabsService);
     });
 
-    it('strips id/_id/governance fields from $set, keeps price', async () => {
+    it('strips id/_id and caller-supplied governance fields from $set, keeps price', async () => {
       mockSvc.findOneAndUpdate.mockResolvedValueOnce({ id: 'lab-1' });
-      await service.updateCatalog({ role: 'admin' }, 'lab-1', {
-        id: 'x', _id: 'y', price: 99, public_eligibility: true, medical_review_status: 'approved',
+      await service.updateCatalog({ role: 'admin', id: 'adm-1' }, 'lab-1', {
+        id: 'x', _id: 'y', price: 99, public_eligibility: true, provenance: 'forged', last_reviewed: 'x', medical_review_status: 'bogus',
       } as any);
-      expect(mockSvc.findOneAndUpdate).toHaveBeenCalledWith(
-        { id: 'lab-1' },
-        { $set: { price: 99 } },
-        { new: true },
-      );
+      expect(mockSvc.findOneAndUpdate).toHaveBeenCalledWith({ id: 'lab-1' }, { $set: { price: 99 } }, { new: true });
+    });
+
+    it('publication is derived from a valid medical review status and records the reviewer', async () => {
+      mockSvc.findOneAndUpdate.mockResolvedValueOnce({ id: 'lab-1' });
+      await service.updateCatalog({ role: 'admin', id: 'adm-1' }, 'lab-1', { medical_review_status: 'approved', public_eligibility: false } as any);
+      const set = mockSvc.findOneAndUpdate.mock.calls[0][1].$set;
+      expect(set).toEqual(expect.objectContaining({ medical_review_status: 'approved', public_eligibility: true, provenance: 'admin_catalog:adm-1' }));
+      mockSvc.findOneAndUpdate.mockResolvedValueOnce({ id: 'lab-1' });
+      await service.updateCatalog({ role: 'admin', id: 'adm-1' }, 'lab-1', { medical_review_status: 'suspended' } as any);
+      expect(mockSvc.findOneAndUpdate.mock.calls[1][1].$set.public_eligibility).toBe(false);
     });
 
     it('createCatalog never takes caller id', async () => {
       mockSvc.create.mockResolvedValueOnce({ id: 'generated' });
-      await service.createCatalog({ role: 'admin' }, { id: 'x', name_en: 'CBC', category: 'blood', price: 50 } as any);
+      await service.createCatalog({ role: 'admin', id: 'adm-1' }, { id: 'x', name_ar: 'ت', name_en: 'T1' } as any);
       const arg = mockSvc.create.mock.calls[0][0];
       expect(arg.id).not.toBe('x');
-      expect(arg.name_en).toBe('CBC');
+      expect(arg.name_en).toBe('T1');
+      expect(arg.public_eligibility).toBeUndefined();
     });
   });
 });

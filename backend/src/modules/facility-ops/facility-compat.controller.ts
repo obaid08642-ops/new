@@ -35,9 +35,10 @@ export class FacilityInboxController {
   }
 
   @Post('inbox/:id/read')
-  async markRead(@Param('id') id: string) {
+  async markRead(@Param('id') id: string, @CurrentUser() user: any) {
+    const fid = await facilityIdOf(this.conn, uid(user));
     await this.conn.collection('facilityinbox')
-      .updateOne(byStringOrObjectId(id) as any, { $set: { read: true } });
+      .updateOne({ ...(byStringOrObjectId(id) as any), facility_id: fid } as any, { $set: { read: true } });
     return { ok: true };
   }
 }

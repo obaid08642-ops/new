@@ -31,6 +31,7 @@ export class SupportRequest extends Document {
   @Prop({ default: [] }) attachments: any[]; // [{name,url_base64,type}]
   @Prop({ default: SupportStatus.OPEN, enum: Object.values(SupportStatus) }) status: SupportStatus;
   @Prop({ default: 'patient' }) source_role: string;
+  @Prop({ index: true }) channel?: string; // 'chat' for the in-app support chat conversation
   @Prop({ default: 'medium' }) priority: string;
   @Prop({ default: [] }) thread: any[]; // [{by, role, message, at}]
   @Prop() resolved_at?: Date;

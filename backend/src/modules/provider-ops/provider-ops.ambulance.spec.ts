@@ -3,7 +3,7 @@ import { ProviderOpsService } from './provider-ops.module';
 
 function setup({ assigned = 'ambulance-1', state = 'ON_SCENE' }: { assigned?: string; state?: string } = {}) {
   const accounts = { findOne: jest.fn().mockResolvedValueOnce({ id: 'ambulance-1', provider_type: 'ambulance', status: 'approved' }).mockResolvedValueOnce({ id: 'hospital-1', provider_type: 'hospital', status: 'approved' }) };
-  const emergency = { findOne: jest.fn().mockResolvedValue({ id: 'mission-1', assigned_ambulance_id: assigned, state, fare: 180, location: { lat: 24.7, lng: 46.7 } }), updateOne: jest.fn().mockResolvedValue({ modifiedCount: 1 }) };
+  const emergency = { findOne: jest.fn().mockResolvedValue({ id: 'mission-1', assigned_ambulance_id: 'vehicle-1', assigned_provider_id: assigned, state, fare: 180, location: { lat: 24.7, lng: 46.7 } }), updateOne: jest.fn().mockResolvedValue({ modifiedCount: 1 }) };
   const audit = { insertOne: jest.fn().mockResolvedValue({}) };
   const conn = { collection: jest.fn((name: string) => name === 'provider_accounts' ? accounts : name === 'emergency_requests' ? emergency : name === 'audit_logs' ? audit : { findOne: jest.fn(), updateOne: jest.fn(), insertOne: jest.fn() }) };
   return { service: new ProviderOpsService(conn as any), emergency, audit };

@@ -10,9 +10,9 @@ import { CATALOG_COLLECTIONS } from './catalog-collections';
  * Per-item upsert by code — deploys live automatically, never overwrites admin edits.
  */
 const NURSING_ADDITIONS = [
-  { code: 'dialysis_home', name_ar: 'غسيل كلى منزلي', name_en: 'Home Dialysis Session', category: 'specialized_care', price: 450, popularity: 40, description_ar: 'جلسة غسيل كلى منزلية بإشراف تمريضي متخصص.', description_en: 'Supervised home hemodialysis session.', image_url: 'https://cdn.nabd.plus/nursing/dialysis_home.png', is_active: true },
-  { code: 'speech_therapy', name_ar: 'علاج النطق والتخاطب', name_en: 'Speech Therapy', category: 'specialized_care', price: 220, popularity: 45, description_ar: 'جلسات تخاطب للأطفال ومرضى الجلطات.', description_en: 'Speech sessions for children and stroke patients.', image_url: 'https://cdn.nabd.plus/nursing/speech_therapy.png', is_active: true },
-  { code: 'lactation', name_ar: 'استشارة الرضاعة الطبيعية', name_en: 'Lactation Consultant', category: 'baby', price: 180, popularity: 55, description_ar: 'دعم الرضاعة للأمهات الجدد في المنزل.', description_en: 'In-home breastfeeding support for new mothers.', image_url: 'https://cdn.nabd.plus/nursing/lactation.png', is_active: true },
+  { code: 'dialysis_home', duration: 'hour', duration_value: 4, name_ar: 'غسيل كلى منزلي', name_en: 'Home Dialysis Session', category: 'specialized_care', price: 450, popularity: 40, description_ar: 'جلسة غسيل كلى منزلية بإشراف تمريضي متخصص.', description_en: 'Supervised home hemodialysis session.', image_url: 'https://cdn.nabd.plus/nursing/dialysis_home.png', active: true },
+  { code: 'speech_therapy', duration: 'hour', duration_value: 1, name_ar: 'علاج النطق والتخاطب', name_en: 'Speech Therapy', category: 'specialized_care', price: 220, popularity: 45, description_ar: 'جلسات تخاطب للأطفال ومرضى الجلطات.', description_en: 'Speech sessions for children and stroke patients.', image_url: 'https://cdn.nabd.plus/nursing/speech_therapy.png', active: true },
+  { code: 'lactation', duration: 'hour', duration_value: 1, name_ar: 'استشارة الرضاعة الطبيعية', name_en: 'Lactation Consultant', category: 'baby', price: 180, popularity: 55, description_ar: 'دعم الرضاعة للأمهات الجدد في المنزل.', description_en: 'In-home breastfeeding support for new mothers.', image_url: 'https://cdn.nabd.plus/nursing/lactation.png', active: true },
 ];
 
 @Injectable()
@@ -39,6 +39,18 @@ export class CatalogsSeedService implements OnModuleInit {
       } catch { /* already live */ }
     }
     if (ok) this.logger.log(`Seeded ${ok} new nursing services`);
+    // Rows seeded by an earlier build carried `is_active` (not a schema field): every reader filters on
+    // `active`, so they never reached patients even after admin approval. Idempotent repair.
+    await this.conn.collection(CATALOG_COLLECTIONS.nursing_services)
+      .updateMany({ is_active: true, active: { $exists: false } } as any, { $set: { active: true }, $unset: { is_active: '' } } as any)
+      .catch(() => null);
+    // Raw upserts skip the schema default (active: true): rows seeded without the field never listed.
+    for (const c of [CATALOG_COLLECTIONS.lab_services, CATALOG_COLLECTIONS.radiology_services, CATALOG_COLLECTIONS.nursing_services]) {
+      await this.conn.collection(c).updateMany({ active: { $exists: false } } as any, { $set: { active: true } } as any).catch(() => null);
+    }
+    // A booking copies the service duration (required on the booking): rows without it could not be booked.
+    await this.conn.collection(CATALOG_COLLECTIONS.nursing_services)
+      .updateMany({ duration: { $exists: false } } as any, { $set: { duration: 'hour', duration_value: 1 } } as any).catch(() => null);
     // P5.1: seed-data JSONs are the insert-only bootstrap source (never a read
     // fallback). Same keys as the one-shot migration script.
     ok = 0;
@@ -52,7 +64,7 @@ export class CatalogsSeedService implements OnModuleInit {
         const code = x.short_code || slug(x.name_en);
         try {
           const r: any = await this.conn.collection(CATALOG_COLLECTIONS.lab_services).updateOne(
-            { test_code: code }, { $setOnInsert: { ...x, test_code: code, id: x.id || code } }, { upsert: true });
+            { test_code: code }, { $setOnInsert: { active: true, ...x, test_code: code, id: x.id || code } }, { upsert: true });
           if (r.upsertedCount || r.upsertedId) ok++;
         } catch { /* already live */ }
       }
@@ -60,14 +72,14 @@ export class CatalogsSeedService implements OnModuleInit {
         const code = x.short_code || slug(x.name_en);
         try {
           const r: any = await this.conn.collection(CATALOG_COLLECTIONS.radiology_services).updateOne(
-            { short_code: code }, { $setOnInsert: { ...x, id: x.id || code } }, { upsert: true });
+            { short_code: code }, { $setOnInsert: { active: true, ...x, id: x.id || code } }, { upsert: true });
           if (r.upsertedCount || r.upsertedId) ok++;
         } catch { /* already live */ }
       }
       for (const x of read('nursing.json')) {        const id = x.id || slug(x.name_en);
         try {
           const r: any = await this.conn.collection(CATALOG_COLLECTIONS.nursing_services).updateOne(
-            { id }, { $setOnInsert: { ...x, id, code: x.code || id } }, { upsert: true });
+            { id }, { $setOnInsert: { active: true, duration: 'hour', duration_value: 1, ...x, id, code: x.code || id } }, { upsert: true });
           if (r.upsertedCount || r.upsertedId) ok++;
         } catch { /* already live */ }
       }

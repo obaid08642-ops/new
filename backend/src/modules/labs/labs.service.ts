@@ -2,7 +2,7 @@ import { Injectable, NotFoundException, BadRequestException, ForbiddenException,
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { LabService, LabBooking, LabBookingState, LAB_BOOKING_TRANSITIONS, LabSample } from '../../schemas/lab.schema';
-import { EventEmitter2 } from '@nestjs/event-emitter';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { EventBusService } from '../events/event-bus.service';
 import { WorkflowEngineService } from '../workflow-engine/workflow-engine.module';
 import { LabPdfService } from './lab-pdf.service';
@@ -15,16 +15,12 @@ import { pick } from '../../common/sanitize';
 /** P3.3 (F15): writable catalog fields — LabService model vocabulary (lab.schema).
  * id/_id/is_deleted/governance flags excluded. */
 export const LAB_CATALOG_FIELDS = [
-  'name_ar', 'name_en', 'short_code', 'description_ar', 'description_en',
-  'category', 'sample_type', 'price', 'old_price',
-  'fasting_required', 'fasting_hours', 'home_visit_supported', 'facility_visit_supported',
-  'turnaround_hours', 'preparation_ar', 'preparation_en',
-  'is_package', 'included_services', 'popularity', 'active', 'unavailable',
-  'medical_referral_required',
+  'name_ar', 'name_en', 'short_code', 'description_ar', 'description_en', 'category', 'sample_type', 'price', 'old_price', 'fasting_required', 'fasting_hours', 'home_visit_supported', 'facility_visit_supported', 'turnaround_hours', 'preparation_ar', 'preparation_en', 'is_package', 'included_services', 'popularity', 'active', 'unavailable', 'medical_referral_required',
 ] as const;
 import { getEffectiveRoles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { RedisService } from '../redis/redis.service';
+import { reviewUpdate, invalidateCatalogCache } from '../../common/catalog-review';
 
 @Injectable()
 export class LabsService {
@@ -89,7 +85,9 @@ export class LabsService {
       public_eligibility: true,
       medical_review_status: 'approved',
       account_id: { $exists: true, $ne: null },
-      ...(categories.length ? { test_categories: { $all: categories } } : {}),
+      // The lab registration stores the tests it runs (catalog service ids) in test_categories;
+      // older profiles may hold category names. Either must cover every requested test.
+      $or: [{ test_categories: { $all: ids } }, ...(categories.length ? [{ test_categories: { $all: categories } }] : [])],
     }, { _id: 0, account_id: 1, id: 1, name_ar: 1, name_en: 1, home_visit_supported: 1, rating_avg: 1, rating_count: 1, logo: 1 }).limit(50).lean();
     return profiles.map((profile: any) => ({
       id: profile.account_id,
@@ -208,8 +206,10 @@ export class LabsService {
 
   async updateInsuranceApproval(id: string, payload: { status?: string; totalCopay?: number; items?: any[] }, user: any) {
     if (!getEffectiveRoles(user).some(role => ['admin', 'lab', 'hospital'].includes(role))) throw new ForbiddenException();
-    const b = await this.bkgModel.findOne({ id });
+    const b = await this.bkgModel.findOne({ id: { $eq: id } });
     if (!b) throw new NotFoundException();
+    // only the lab the booking is assigned to (or admin) decides its insurance coverage
+    this.assertAssignedProviderOrAdmin(user, b);
 
     const { status, totalCopay, items } = payload;
     
@@ -287,8 +287,11 @@ export class LabsService {
     if (!getEffectiveRoles(user).some(role => ['admin', 'lab', 'hospital'].includes(role))) throw new ForbiddenException('admin/lab only');
     const b = await this.bkgModel.findOne({ id });
     if (!b) throw new NotFoundException();
+    // Only the lab the patient booked (or admin) may move the booking.
+    this.assertBookingOwner(user, b);
     const allowed = LAB_BOOKING_TRANSITIONS[b.state] || [];
     if (!allowed.includes(to)) throw new BadRequestException(`invalid transition ${b.state} → ${to}`);
+    if (b.state === LabBookingState.NEW_REQUEST && to === LabBookingState.CONFIRMED) this.assertConfirmable(b);
     return await this.engine.apply({
       kind: 'lab', entity_id: b.id, from_domain: b.state, to_domain: to,
       actor_account_id: user.id, actor_role: user.role, patient_account_id: b.patient_id, reason: note,
@@ -300,6 +303,37 @@ export class LabsService {
         return b.toObject();
       },
     });
+  }
+
+  /**
+   * A new booking is accepted by the lab only when its payment is settled or deferred to the visit:
+   * cash is only offered at the facility (collected there), card must be paid, insurance goes through
+   * the coverage decision (POST /labs/bookings/:id/coverage-decision).
+   */
+  private assertConfirmable(b: any) {
+    if (b.payment_method === 'insurance') throw new BadRequestException('insurance_booking_requires_coverage_decision');
+    if (b.payment_method === 'card' && b.payment_status !== 'paid') throw new BadRequestException('card_payment_not_completed');
+    if (b.payment_method === 'cash' && b.location_type !== 'facility') throw new BadRequestException('cash_only_at_facility');
+  }
+
+  /** Verified card payment confirms a new lab booking (server-side; the app never confirms unpaid card bookings). */
+  @OnEvent('payment.completed')
+  async confirmPaidBooking(event: any) {
+    if (event?.booking_kind !== 'lab' || !event?.booking_id) return;
+    const b = await this.bkgModel.findOne({ id: event.booking_id });
+    if (!b || b.state !== LabBookingState.NEW_REQUEST || b.payment_method !== 'card') return;
+    await this.engine.apply({
+      kind: 'lab', entity_id: b.id, from_domain: b.state, to_domain: LabBookingState.CONFIRMED,
+      actor_account_id: 'system', actor_role: 'system', patient_account_id: b.patient_id, reason: `payment_verified:${event.transaction_id || ''}`,
+      mutate: async () => {
+        b.state_history.push({ from: b.state, to: LabBookingState.CONFIRMED, by_user_id: 'system', by_role: 'system', at: new Date(), note: 'card_payment_verified' });
+        b.state = LabBookingState.CONFIRMED;
+        (b as any).payment_status = 'paid';
+        await b.save();
+        this.events.emit('lab.booking_state_changed', { booking_id: b.id, patient_id: b.patient_id, state: b.state, tracking_id: b.tracking_id });
+        return b.toObject();
+      },
+    }).catch(() => null);
   }
 
   /** Provider/Admin list bookings for inbox. */
@@ -493,14 +527,23 @@ export class LabsService {
   // --- Admin Catalog CRUD ---
   async createCatalog(user: any, body: any) {
     if (user.role !== 'admin') throw new ForbiddenException();
-    return this.svcModel.create({ ...pick(body, LAB_CATALOG_FIELDS), id: require('uuid').v4() });
+    const doc = await this.svcModel.create({ ...pick(body, LAB_CATALOG_FIELDS), ...reviewUpdate(body?.medical_review_status, user.id), id: require('uuid').v4() });
+    await invalidateCatalogCache(this.redis, 'cache:lab-services:');
+    return doc;
   }
 
   async updateCatalog(user: any, id: string, body: any) {
     if (user.role !== 'admin') throw new ForbiddenException();
-    const updated = await this.svcModel.findOneAndUpdate({ id }, { $set: pick(body, LAB_CATALOG_FIELDS) }, { new: true });
+    const updated = await this.svcModel.findOneAndUpdate({ id }, { $set: { ...pick(body, LAB_CATALOG_FIELDS), ...reviewUpdate(body?.medical_review_status, user.id) } }, { new: true });
     if (!updated) throw new NotFoundException();
+    await invalidateCatalogCache(this.redis, 'cache:lab-services:');
     return updated;
+  }
+
+  /** Admin catalog editor: every item including unpublished ones (the public list only shows approved). */
+  async adminCatalog(user: any) {
+    if (!getEffectiveRoles(user).includes('admin')) throw new ForbiddenException();
+    return this.svcModel.find({ is_deleted: { $ne: true } }, { _id: 0, __v: 0 }).sort({ medical_review_status: 1, popularity: -1, name_ar: 1 }).limit(1000);
   }
 
   async deleteCatalog(user: any, id: string) {
@@ -605,12 +648,19 @@ export class LabsService {
     if ([LabBookingState.REPORTED, LabBookingState.CANCELLED].includes(b.state)) {
       throw new BadRequestException('booking_already_closed');
     }
-    b.emergency_reason = body.reason;
-    // For emergency, we cancel the appointment or mark it for review
-    b.state_history.push({ from: b.state, to: LabBookingState.CANCELLED, by_user_id: user.id, by_role: user.role, at: new Date(), note: `Emergency declared: ${body.reason}` });
-    b.state = LabBookingState.CANCELLED;
-    await b.save();
-    return b;
+    // Emergency cancels the visit; through the workflow engine like every other cancellation.
+    return this.engine.apply({
+      kind: 'lab', entity_id: b.id, from_domain: b.state, to_domain: LabBookingState.CANCELLED,
+      actor_account_id: user.id, actor_role: user.role, patient_account_id: b.patient_id, reason: `emergency: ${body.reason || ''}`,
+      mutate: async () => {
+        b.emergency_reason = body.reason;
+        b.state_history.push({ from: b.state, to: LabBookingState.CANCELLED, by_user_id: user.id, by_role: user.role, at: new Date(), note: `Emergency declared: ${body.reason}` });
+        b.state = LabBookingState.CANCELLED;
+        await b.save();
+        this.events.emit('lab.booking_state_changed', { booking_id: b.id, patient_id: b.patient_id, state: b.state, tracking_id: b.tracking_id });
+        return b.toObject();
+      },
+    });
   }
 
   /** Provider: cancel current technician assignment and return the booking to the CONFIRMED pool for reassignment. */
@@ -621,6 +671,10 @@ export class LabsService {
     if (user.role !== 'admin' && b.provider_account_id && b.provider_account_id !== user.id) throw new ForbiddenException();
     if ([LabBookingState.CANCELLED, LabBookingState.REPORTED].includes(b.state)) {
       throw new BadRequestException('booking_already_closed');
+    }
+    // Returning to CONFIRMED is only meaningful before the sample is taken; later it would rewind the lifecycle.
+    if (![LabBookingState.CONFIRMED, LabBookingState.IN_TRANSIT].includes(b.state)) {
+      throw new BadRequestException(`cannot_reassign_in_${b.state}`);
     }
     const prevTech = b.technician_id || null;
     b.technician_id = undefined as any;

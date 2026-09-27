@@ -203,12 +203,12 @@ function PStep1Basic({ data, update, onNext, onBack, step, total, bare = false, 
         email: data.managerEmail,
         type: 'pharmacy',
       });
-      await ProviderApi.login(data.managerEmail, data.password);
+      await ProviderApi.onboardingLogin(data.managerEmail, data.password, 'pharmacy');
       if (!bare) onNext();
       return true;
     } catch (e: any) {
       try {
-        await ProviderApi.login(data.managerEmail, data.password);
+        await ProviderApi.onboardingLogin(data.managerEmail, data.password, 'pharmacy');
         if (!bare) onNext();
         return true;
       } catch (loginErr: any) {
@@ -885,7 +885,6 @@ function PStep7Submit({ data, update, onDone, onBack, step, total }: any) {
       }));
 
       await ProviderApi.step3({
-        pharmacy_chain: false,
         has_own_drivers: data.hasDelivery && data.hasOwnDrivers,
         has_own_delivery: data.hasDelivery,
         delivery_radius_km: data.deliveryRadius,

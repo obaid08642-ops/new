@@ -8,7 +8,7 @@ const doc = (id: string, extra: any = {}) => ({
 describe('publicCategoryProducts popularity ordering', () => {
   const svc = (medicines: any[], metrics: any[] = []) => {
     const cols: any = {
-      medicines_master: {
+      medicines: {
         find: jest.fn().mockImplementation((filter: any) => {
           // Respect id/category constraints like Mongo would (incl. $or regex).
           const matchClause = (m: any, clause: any): boolean =>
@@ -45,8 +45,8 @@ describe('publicCategoryProducts popularity ordering', () => {
     const conn: any = { collection: jest.fn((n: string) => cols[n]) };
     const service = new SeoSearchService(conn);
     let sortArg: any = null;
-    const origFind = cols.medicines_master.find;
-    cols.medicines_master.find = jest.fn().mockImplementation((filter: any) => {
+    const origFind = cols.medicines.find;
+    cols.medicines.find = jest.fn().mockImplementation((filter: any) => {
       const cursor = (origFind as any)(filter);
       const withSort = cursor.sort;
       cursor.sort = jest.fn().mockImplementation((s: any) => { if (!sortArg) sortArg = s; return (withSort as any)(s); });

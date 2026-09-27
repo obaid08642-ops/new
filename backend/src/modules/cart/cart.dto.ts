@@ -114,6 +114,12 @@ export class CheckoutDto {
 
   @IsOptional()
   @IsArray()
-  prescription_media_ids: any[];
+  @IsString({ each: true })
+  prescription_media_ids?: string[];
+
+  // patient-web sends `cash: true` instead of payment_method_id; both mean the cash-only contract checkout.
+  @IsOptional()
+  @IsBoolean()
+  cash?: boolean;
 
 }

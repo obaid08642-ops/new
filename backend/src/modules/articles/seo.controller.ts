@@ -33,7 +33,7 @@ export class SeoController {
     } else if (type === 'lab-service') {
       doc = await this.conn.collection(CATALOG_COLLECTIONS.lab_services).findOne(bySlugOrName({ active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' }), { projection: { id: 1 } });
     } else if (type === 'home-care-service') {
-      doc = await this.conn.collection('homecareservices').findOne(bySlugOrName({ active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' }), { projection: { id: 1 } })
+      doc = await this.conn.collection(CATALOG_COLLECTIONS.nursing_services).findOne(bySlugOrName({ active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' }), { projection: { id: 1 } })
         || await this.conn.collection(CATALOG_COLLECTIONS.lab_services).findOne(bySlugOrName({ active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' }), { projection: { id: 1 } });
     } else {
       throw new NotFoundException('unknown link type');

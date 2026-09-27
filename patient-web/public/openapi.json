@@ -268,6 +268,60 @@
         ]
       }
     },
+    "/api/v1/hospital/staff/{id}": {
+      "delete": {
+        "operationId": "HospitalStaffController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "HospitalStaff"
+        ]
+      },
+      "patch": {
+        "operationId": "HospitalStaffController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "HospitalStaff"
+        ]
+      }
+    },
     "/api/v1/hospital/doctors/onboard": {
       "post": {
         "operationId": "HospitalController_onboardDoctor",
@@ -13276,6 +13330,18 @@
       }
     },
     "/api/v1/labs/admin/catalog": {
+      "get": {
+        "operationId": "LabsController_adminCatalog",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Labs"
+        ]
+      },
       "post": {
         "operationId": "LabsController_createCatalog",
         "parameters": [],
@@ -15538,133 +15604,6 @@
         ]
       }
     },
-    "/api/v1/radiology/bookings": {
-      "post": {
-        "operationId": "RadiologyController_book",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/BookDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Radiology"
-        ]
-      }
-    },
-    "/api/v1/radiology/bookings/mine": {
-      "get": {
-        "operationId": "RadiologyController_mine",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Radiology"
-        ]
-      }
-    },
-    "/api/v1/radiology/bookings/{id}": {
-      "get": {
-        "operationId": "RadiologyController_oneBooking",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Radiology"
-        ]
-      }
-    },
-    "/api/v1/radiology/bookings/allocate-machine/{id}": {
-      "post": {
-        "operationId": "RadiologyController_allocateMachine",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AllocateMachineDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Radiology"
-        ]
-      }
-    },
-    "/api/v1/radiology/bookings/finalize-scan/{id}": {
-      "post": {
-        "operationId": "RadiologyController_finalizeScan",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/FinalizeScanDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Radiology"
-        ]
-      }
-    },
     "/api/v1/radiology/provider/queue": {
       "get": {
         "operationId": "RadiologyProviderController_getProviderQueue",
@@ -15990,6 +15929,29 @@
         ]
       }
     },
+    "/api/v1/radiology/compatible-providers": {
+      "get": {
+        "operationId": "RadiologyController_compatibleProviders",
+        "parameters": [
+          {
+            "name": "serviceIds",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Radiology"
+        ]
+      }
+    },
     "/api/v1/radiology/modalities": {
       "get": {
         "operationId": "RadiologyController_modalities",
@@ -16007,6 +15969,67 @@
     "/api/v1/radiology/services/{id}": {
       "get": {
         "operationId": "RadiologyController_one",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Radiology"
+        ]
+      }
+    },
+    "/api/v1/radiology/bookings": {
+      "post": {
+        "operationId": "RadiologyController_book",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BookDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Radiology"
+        ]
+      }
+    },
+    "/api/v1/radiology/bookings/mine": {
+      "get": {
+        "operationId": "RadiologyController_mine",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Radiology"
+        ]
+      }
+    },
+    "/api/v1/radiology/bookings/{id}": {
+      "get": {
+        "operationId": "RadiologyController_oneBooking",
         "parameters": [
           {
             "name": "id",
@@ -16561,6 +16584,18 @@
       }
     },
     "/api/v1/radiology/admin/catalog": {
+      "get": {
+        "operationId": "RadiologyController_adminCatalog",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Radiology"
+        ]
+      },
       "post": {
         "operationId": "RadiologyController_createCatalog",
         "parameters": [],
@@ -21285,6 +21320,44 @@
         ]
       }
     },
+    "/api/v1/admin/pharmacy/fulfillment-policies": {
+      "get": {
+        "operationId": "AdminFulfillmentPolicyController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminFulfillmentPolicy"
+        ]
+      }
+    },
+    "/api/v1/admin/pharmacy/fulfillment-policies/cod": {
+      "put": {
+        "operationId": "AdminFulfillmentPolicyController_setCod",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetCodPolicyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminFulfillmentPolicy"
+        ]
+      }
+    },
     "/api/v1/admin/pharmacy/orders/{orderId}/insurance-decision": {
       "post": {
         "operationId": "AdminPharmacyInsuranceController_decide",
@@ -23704,6 +23777,30 @@
         ]
       }
     },
+    "/api/v1/unified-bookings/diagnostics/orders": {
+      "post": {
+        "operationId": "UnifiedBookingsController_diagnosticsOrder",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDiagnosticOrderDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "UnifiedBookings"
+        ]
+      }
+    },
     "/api/v1/unified-bookings/checkout-cart": {
       "post": {
         "operationId": "UnifiedBookingsController_checkout",
@@ -24097,6 +24194,18 @@
       }
     },
     "/api/v1/nursing/admin/catalog": {
+      "get": {
+        "operationId": "NursingController_adminCatalog",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Nursing"
+        ]
+      },
       "post": {
         "operationId": "NursingController_createCatalog",
         "parameters": [],
@@ -24722,6 +24831,14 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "serviceId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -25221,6 +25338,29 @@
         },
         "responses": {
           "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "ChatAlias"
+        ]
+      }
+    },
+    "/api/v1/provider/chat/appointment/{id}": {
+      "get": {
+        "operationId": "ChatAliasController_appointmentChat",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
             "description": ""
           }
         },
@@ -27500,60 +27640,6 @@
         },
         "tags": [
           "AdminOverride"
-        ]
-      }
-    },
-    "/api/v1/hospital/staff/{id}": {
-      "patch": {
-        "operationId": "HospitalStaffController_update",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "HospitalStaff"
-        ]
-      },
-      "delete": {
-        "operationId": "HospitalStaffController_remove",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "HospitalStaff"
         ]
       }
     },
@@ -39558,15 +39644,15 @@
         "type": "object",
         "properties": {}
       },
+      "RespondBookingDto": {
+        "type": "object",
+        "properties": {}
+      },
       "AllocateMachineDto": {
         "type": "object",
         "properties": {}
       },
       "FinalizeScanDto": {
-        "type": "object",
-        "properties": {}
-      },
-      "RespondBookingDto": {
         "type": "object",
         "properties": {}
       },
@@ -39854,6 +39940,10 @@
         "type": "object",
         "properties": {}
       },
+      "SetCodPolicyDto": {
+        "type": "object",
+        "properties": {}
+      },
       "PostDto": {
         "type": "object",
         "properties": {}
@@ -39967,6 +40057,10 @@
         "properties": {}
       },
       "NursingDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "CreateDiagnosticOrderDto": {
         "type": "object",
         "properties": {}
       },

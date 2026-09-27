@@ -25,13 +25,17 @@ export class AdminCommandCenterV2Controller {
 
     const [activeOrders, activeLabs, activeRads, activeNursing, apptsToday, openSos,
       unreadTickets, payments24hAgg] = await Promise.all([
-      count('orders', { state: { $nin: ['CANCELLED', 'DELIVERED', 'REJECTED'] } }),
+      Promise.all([
+        count('orders', { state: { $nin: ['CANCELLED', 'DELIVERED', 'REJECTED'] } }),
+        // current pharmacy flow (lowercase states)
+        count('pharmacy_orders', { status: { $nin: ['draft', 'cancelled', 'delivered', 'completed'] } }),
+      ]).then(([legacy, current]) => legacy + current),
       count('labbookings', { state: { $nin: ['CANCELLED', 'REPORTED', 'SAMPLE_REJECTED'] } }),
       count('radiologybookings', { state: { $nin: ['CANCELLED', 'REPORT_PUBLISHED'] } }),
       count('homecarebookings', { state: { $nin: ['CANCELLED', 'COMPLETED', 'DONE', 'REJECTED'] } }),
       count('appointments', { slot_start: { $gte: new Date(new Date().setHours(0, 0, 0, 0)), $lt: new Date(new Date().setHours(24, 0, 0, 0)) }, status: { $nin: ['CANCELLED'] } }),
-      count('emergencyrequests', { status: { $in: ['PENDING', 'DISPATCHED', 'IN_PROGRESS', 'ACCEPTED'] } }).catch(() => 0),
-      count('support_requests', { status: { $in: ['OPEN', 'IN_PROGRESS'] } }),
+      count('emergency_requests', { state: { $nin: ['RESOLVED', 'CANCELLED', 'CLOSED'] } }),
+      count('supportrequests', { status: { $in: ['OPEN', 'IN_PROGRESS'] } }),
       db.collection('moyasar_payments').aggregate([
         { $match: { status: { $in: ['paid', 'confirmed', 'succeeded'] }, createdAt: { $gte: dayAgo } } },
         { $group: { _id: null, total: { $sum: '$amount' }, n: { $sum: 1 } } },

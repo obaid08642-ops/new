@@ -44,6 +44,7 @@ export class SeedService implements OnModuleInit {
       () => this.seedMedicines(),
       () => this.seedLabs(),
       () => this.seedFacilities(),
+      () => this.seedFulfillmentPolicies(),
     ]) {
       try {
         await step();
@@ -72,6 +73,19 @@ export class SeedService implements OnModuleInit {
     } else {
       this.logger.log('Seed complete — reference data only (demo identities skipped outside explicit test mode)');
     }
+  }
+
+  /** Platform cash-on-delivery policy. The allocation gate (pharmacy-allocation.service) refuses to
+   * prepare a COD order without an active policy, and nothing else ever created one, so no cash order
+   * could be fulfilled. INSERT-ONLY: an admin who disables it (PUT /admin/pharmacy/fulfillment-policies/cod)
+   * is never overridden on restart. */
+  private async seedFulfillmentPolicies() {
+    const col = (this.configModel as any).model.db.collection('pharmacy_fulfillment_policies');
+    await col.updateOne(
+      { id: 'platform-cod' },
+      { $setOnInsert: { id: 'platform-cod', payment_method: 'cod', provider_account_id: null, active: true, allow_preparation: true, created_by: 'system-default', createdAt: new Date() } },
+      { upsert: true },
+    );
   }
 
   /** Seed facilities (hospitals/clinics) with stable IDs by slug.

@@ -10,7 +10,7 @@ import { InjectConnection, InjectModel, MongooseModule } from '@nestjs/mongoose'
 import { Connection, Model } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { v4 as uuid } from 'uuid';
-import { JwtAuthGuard, CurrentUser, Public, SelfService, Roles } from '../../common/auth.guard';
+import { JwtAuthGuard, CurrentUser, Public, SelfService, Roles, hasEffectiveRole } from '../../common/auth.guard';
 import { ChatModule } from '../chat/chat.module';
 import { ChatService } from '../chat/chat.service';
 import { HomeCareBookingSchema, HomeCareServiceSchema, CarePlanSchema } from '../../schemas/home-care.schema';
@@ -19,6 +19,8 @@ import { UserRole } from '../../common/enums';
 import { CreateBookingDto, RespondDto, AssignDto, CheckInDto, GpsDto, VisitReportDto, CreateCarePlanDto, SetAvailabilityDto, InventoryRequestDto, PostMessageDto, PostLegacyDto, ProviderSendDto } from './home-care-compat.dto';
 
 const ACTIVE_STATES = ['NEW_REQUEST', 'PROVIDER_ASSIGNED', 'ACCEPTED', 'EN_ROUTE', 'ARRIVED', 'CARE_STARTED'];
+
+const NURSE_TYPES = ['home_care', 'nursing', 'nurse'];
 
 @Controller('home-care')
 @UseGuards(JwtAuthGuard)
@@ -29,49 +31,89 @@ export class HomeCareCompatController {
     @InjectModel('ProviderProfile') private profiles: Model<any>,
     @InjectModel('CarePlan') private carePlans: Model<any>,
     @Optional() private readonly emitter?: EventEmitter2,
+    @Optional() @InjectConnection() private readonly conn?: Connection,
   ) {}
+
+  /** Resolve a saved-address id to the caller's own address (never another patient's). */
+  private async savedAddress(userId: string, addressId: string) {
+    const profile: any = await this.conn?.collection('patient_profiles').findOne({ user_id: { $eq: userId } }, { projection: { addresses: 1 } });
+    const a: any = (profile?.addresses || []).find((x: any) => x?.id === addressId);
+    if (!a) throw new BadRequestException('address_not_found');
+    return { address: a.line1 || a.street || undefined, city: a.city || undefined, district: a.district || undefined, lat: a.lat, lng: a.lng };
+  }
 
   // ---- Catalog ----
   @Public()
   @Get('services') servicesList(@Query() q: any) {
-    const filter: any = { active: true };
+    // Patients only see services that passed medical review (same rule as /nursing/catalog).
+    const filter: any = { active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' };
     if (q?.category) filter.category = q.category;
     return this.services.find(filter, { _id: 0, __v: 0 }).lean();
   }
 
   @Public()
   @Get('services/:id') async serviceOne(@Param('id') id: string) {
-    const svc = await this.services.findOne({ id, active: true }, { _id: 0, __v: 0 }).lean();
+    const svc = await this.services.findOne({ id, ...{ active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' } }, { _id: 0, __v: 0 }).lean();
     if (!svc) throw new NotFoundException('service not found');
     return svc;
   }
 
   @Public()
   @Get('packages') async packagesList() {
-    return this.services.find({ active: true, is_package: true }, { _id: 0, __v: 0 }).lean();
+    return this.services.find({ ...{ active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' }, is_package: true }, { _id: 0, __v: 0 }).lean();
   }
 
   @Public()
   @Get('providers') async providers(@Query() q: any) {
-    const filter: any = { provider_type: 'nursing', active: true, approval_status: 'approved' };
-    if (q?.city) filter['address.city'] = q.city;
-    return this.profiles.find(filter, {
-      _id: 0, id: 1, full_name: 1, provider_type: 1, rating_avg: 1, rating_count: 1, address: 1, specialties: 1, years_experience: 1,
-    }).limit(50).lean();
+    // Approved home-care providers; `type` is the chosen service id (patient-app nursing/service-details).
+    const filter: any = { type: { $in: NURSE_TYPES }, status: 'active', public_eligibility: true, medical_review_status: 'approved', account_id: { $exists: true, $ne: null }, is_deleted: { $ne: true } };
+    const serviceId = typeof q?.type === 'string' && q.type ? q.type : null;
+    // query values are coerced to plain strings and matched with $eq (never operator objects)
+    const svc: any = serviceId ? await this.services.findOne({ id: { $eq: String(serviceId) } }).lean() : null;
+    if (serviceId) filter['nursing_services.key'] = { $eq: String(serviceId) };
+    const gender = typeof q?.gender === 'string' ? q.gender : '';
+    if (gender && gender !== 'any') filter.gender = { $eq: gender };
+    if (typeof q?.search === 'string' && q.search.trim()) {
+      const rx = new RegExp(q.search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+      filter.$or = [{ name_ar: rx }, { name_en: rx }, { full_name: rx }];
+    }
+    const rows: any[] = await this.profiles.find(filter).limit(50).lean();
+    const sort = String(q?.sort || '');
+    const list = rows.map((p) => this.nurseView(p, svc));
+    if (sort === 'rating') list.sort((a, b) => Number(b.rating || 0) - Number(a.rating || 0));
+    return list;
+  }
+
+  /** The bookable nurse: `id` is the provider account id (bookings and the nurse's job queue key on it). */
+  private nurseView(p: any, svc?: any) {
+    return {
+      id: p.account_id, profile_id: p.id,
+      name_ar: p.name_ar || p.full_name || p.name_en, name: p.name_ar || p.full_name || p.name_en, name_en: p.name_en,
+      gender: p.gender || null, degree: p.qualification || p.degree || null,
+      facility_name: p.facility_name || p.organization_name || '', facility: p.facility_name || p.organization_name || '',
+      rating: p.rating_count > 0 ? p.rating_avg : null, reviews_count: p.rating_count || 0, reviews: [],
+      years_experience: p.years_experience || null, profile_photo: p.profile_photo || null,
+      // the booking is charged at the catalog service price (home-care.service book())
+      price: svc ? Number(svc.price) : null, service_id: svc?.id || null,
+      available_now: Boolean(p.availability?.accepting ?? true),
+      services: (p.nursing_services || []).map((x: any) => x.key),
+    };
   }
 
   @Public()
-  @Get('providers/:id') async provider(@Param('id') id: string) {
-    const p = await this.profiles.findOne({ id }, { _id: 0, __v: 0 }).lean();
+  @Get('providers/:id') async provider(@Param('id') id: string, @Query('serviceId') serviceId?: string) {
+    const key = String(id);
+    const p = await this.profiles.findOne({ $or: [{ account_id: { $eq: key } }, { id: { $eq: key } }], type: { $in: NURSE_TYPES }, status: 'active', public_eligibility: true }).lean();
     if (!p) throw new NotFoundException('provider not found');
-    return p;
+    const svc: any = typeof serviceId === 'string' && serviceId ? await this.services.findOne({ id: { $eq: serviceId } }).lean() : null;
+    return this.nurseView(p, svc);
   }
 
   // ---- Bookings ----
   private isAdmin(u: any) { return u?.role === 'admin' || u?.role === 'super_admin'; }
   private isNursingProvider(u: any) {
-    return ['nurse', 'nursing', 'provider'].includes(String(u?.role || '').toLowerCase())
-      && ['nursing', 'nurse', 'provider'].includes(String(u?.provider_type || u?.providerType || u?.role || '').toLowerCase());
+    // role or provider_type (provider-auth tokens: role 'provider', provider_type 'home_care')
+    return hasEffectiveRole(u, 'nurse', 'nursing', 'home_care');
   }
   private async getBookingForAccess(u: any, id: string, allowUnassignedProvider = false) {
     const b: any = await this.bookings.findOne({ id: { $eq: id } });
@@ -91,6 +133,7 @@ export class HomeCareCompatController {
     if (!body?.scheduled_at) throw new BadRequestException('scheduled_at is required');
     const svc: any = await this.services.findOne({ id: { $eq: body.service_id }, active: true }).lean();
     if (!svc) throw new NotFoundException('service not found');
+    const address = body.address_id ? await this.savedAddress(u.id, body.address_id) : body.address;
     const doc = await this.bookings.create({
       patient_id: u.id,
       service_id: svc?.id || body.service_id,
@@ -99,7 +142,8 @@ export class HomeCareCompatController {
       total: svc.price,
       total_price: svc.price,
       scheduled_at: new Date(body.scheduled_at),
-      address: body.address,
+      address,
+      notes: body.notes?.trim() || undefined,
       payment_method: body.payment_method,
       provider_id: undefined,
       state: 'NEW_REQUEST',
@@ -222,8 +266,8 @@ export class HomeCareCompatController {
     return this.carePlans.create({
       id: uuid(),
       patient_id: patientId,
-      doctor_id: u.role === 'doctor' ? u.id : undefined,
-      nurse_id: u.role === 'nurse' ? u.id : undefined,
+      doctor_id: hasEffectiveRole(u, 'doctor') ? u.id : undefined,
+      nurse_id: hasEffectiveRole(u, 'nurse', 'nursing', 'home_care') ? u.id : undefined,
       title: String(body.title).slice(0, 200),
       description: body?.description ? String(body.description).slice(0, 2000) : undefined,
       tasks: tasks.map((t: string) => t.slice(0, 300)),
@@ -341,15 +385,24 @@ export class ChatAliasController {
     return this.providerQuickSend(u, body);
   }
 
+  /** The doctor's pre-visit chat for an appointment is the appointment's booking thread
+   *  (ChatService enforces that the caller is the booking's patient or provider). */
+  private async appointmentThreadId(u: any, appointmentId: string): Promise<string> {
+    const thread: any = await this.chat.getOrCreateBookingThread('consultation', String(appointmentId), String(u.id));
+    return thread?.id;
+  }
+
+  // doctor PreVisitChatScreen: history of the appointment's conversation
+  @Get('provider/chat/appointment/:id') async appointmentChat(@CurrentUser() u: any, @Param('id') id: string) {
+    const threadId = await this.appointmentThreadId(u, id);
+    const { messages } = await this.chat.getMessages(threadId, u.id, { limit: 100 });
+    return { thread_id: threadId, messages: [...messages].reverse() };
+  }
+
   private async providerQuickSend(u: any, body: ProviderSendDto) {
     let threadId = (body as any)?.thread_id || (body as any)?.threadId;
     const appointmentId = (body as any)?.appointment_id;
-    if (!threadId && appointmentId) {
-      const thread: any = await this.conn?.collection('chat_threads')?.findOne?.(
-        { booking_id: String(appointmentId) } as any,
-      ).catch(() => null);
-      threadId = thread?.id || thread?._id?.toString();
-    }
+    if (!threadId && appointmentId) threadId = await this.appointmentThreadId(u, String(appointmentId));
     if (!threadId) throw new BadRequestException('thread_id is required');
     const text = (body as any)?.message || body?.text || body?.content;
     return this.chat.sendMessage(threadId, u.id, u.role || 'provider', { type: 'text', body: text });

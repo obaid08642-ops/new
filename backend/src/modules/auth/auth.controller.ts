@@ -294,7 +294,7 @@ export class AuthController {
   sendOtp(@Body() body: SendOtpDto) {
     this.log.warn('deprecated auth alias called: send-otp (canonical: otp/request)');
     const id = body.identifier || body.email || body.phone || '';
-    return this.auth.sendOtp(id);
+    return this.auth.sendOtp(id, body.purpose);
   }
 
   @Public()

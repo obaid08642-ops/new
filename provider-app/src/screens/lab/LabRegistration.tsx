@@ -235,12 +235,12 @@ function LStep1({ data, update, onNext, onBack, step, total, bare = false, submi
         email: data.managerEmail,
         type: data.centerType === 'lab' ? 'lab' : 'radiology',
       });
-      await ProviderApi.login(data.managerEmail, data.password);
+      await ProviderApi.onboardingLogin(data.managerEmail, data.password, data.centerType === 'lab' ? 'lab' : 'radiology');
       if (!bare) onNext();
       return true;
     } catch (e: any) {
       try {
-        await ProviderApi.login(data.managerEmail, data.password);
+        await ProviderApi.onboardingLogin(data.managerEmail, data.password, data.centerType === 'lab' ? 'lab' : 'radiology');
         if (!bare) onNext();
         return true;
       } catch (loginErr: any) {

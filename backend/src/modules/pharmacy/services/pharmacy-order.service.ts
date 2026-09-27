@@ -122,7 +122,11 @@ export class PharmacyOrderService {
     const codRegistered = method === 'cod' && !!order.cod_registered_at;
 
     let governed_state: string | null = null;
-    if (selected) {
+    // Once fulfilment starts the order status is the truth (the app shows governed_state first,
+    // so it used to stay "COD_REGISTERED" through preparation, dispatch and delivery).
+    const FULFILMENT = ['confirmed', 'in_fulfillment', 'out_for_delivery', 'delivered', 'completed', 'cancelled'];
+    if (FULFILMENT.includes(String(order.status))) governed_state = String(order.status).toUpperCase();
+    else if (selected) {
       if (method === 'insurance') {
         if (!decision) governed_state = 'INSURANCE_PROCESSING';
         else if (decision.outcome === 'full') governed_state = 'CONFIRMED';
@@ -291,16 +295,28 @@ export class PharmacyOrderService {
     const order = await this.orders.findOne({ id });
     if (!order) throw new NotFoundException('order_not_found');
     if (order.patient_account_id !== user.id) throw new ForbiddenException('not_yours');
+    return this.cancelOrder(order, { id: user.id, role: 'patient' }, reason || 'patient_requested');
+  }
+
+  /** Admin orders console: same transition, allocation release and restock as a patient cancel. */
+  async adminCancel(admin: { id: string }, id: string, reason: string) {
+    const order = await this.orders.findOne({ id });
+    if (!order) throw new NotFoundException('order_not_found');
+    return this.cancelOrder(order, { id: admin.id, role: 'admin' }, reason);
+  }
+
+  private async cancelOrder(order: any, actor: { id: string; role: 'patient' | 'admin' }, reason: string) {
     if ([PharmacyOrderState.DELIVERED, PharmacyOrderState.COMPLETED, PharmacyOrderState.CANCELLED].includes(order.status)) {
       throw new BadRequestException(`cannot_cancel_in_${order.status}`);
     }
+    const id = order.id;
     return await this.engine.transition({
       kind: 'pharmacy', entity_id: order.id, from_domain: order.status, to_domain: PharmacyOrderState.CANCELLED,
-      actor_account_id: user.id, actor_role: 'patient', patient_account_id: order.patient_account_id, reason: reason || 'patient_requested',
+      actor_account_id: actor.id, actor_role: actor.role, patient_account_id: order.patient_account_id, reason,
       mutate: async () => {
         order.status = PharmacyOrderState.CANCELLED;
-        order.cancellation_reason = reason || 'patient_requested';
-        order.timeline.push({ ts: new Date(), event: 'cancelled_by_patient', meta: { reason } });
+        order.cancellation_reason = reason;
+        order.timeline.push({ ts: new Date(), event: `cancelled_by_${actor.role}`, by: actor.id, meta: { reason } });
         await order.save();
         // Release any open allocations + restock
         const openAllocs = await this.allocs.find({ order_id: id });
@@ -308,15 +324,14 @@ export class PharmacyOrderService {
           if (![PharmacyAllocationState.DELIVERED, PharmacyAllocationState.CANCELLED, PharmacyAllocationState.REJECTED].includes(a.status as any)) {
             await this.split.releaseStockForAllocation(a);
             a.status = PharmacyAllocationState.CANCELLED;
-            a.cancellation_reason = 'order_cancelled_by_patient';
-            a.timeline.push({ ts: new Date(), event: 'cancelled_by_patient' });
+            a.cancellation_reason = `order_cancelled_by_${actor.role}`;
+            a.timeline.push({ ts: new Date(), event: `cancelled_by_${actor.role}` });
             await a.save();
           }
         }
-        this.bus.emit({ type: 'pharmacy.allocations_released', entity_type: 'order', entity_id: id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: user.id, reason_code: reason || 'patient_requested', meta: { released_allocations: openAllocs.length } }).catch(() => null);
+        this.bus.emit({ type: 'pharmacy.allocations_released', entity_type: 'order', entity_id: id, actor_account_id: actor.id, actor_role: actor.role, patient_account_id: order.patient_account_id, reason_code: reason, meta: { released_allocations: openAllocs.length } }).catch(() => null);
         return { ok: true };
       },
     });
   }
 }
-

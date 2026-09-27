@@ -11,10 +11,10 @@ describe('Fully Automatic Entity / Content / SEO / AEO / GEO Pipeline (20 Test S
   const mockCollections: Record<string, any[]> = {
     provider_profiles: [],
     facilities: [],
-    medicines_master: [],
-    homecareservices: [],
-    labservices: [],
-    radiologyservices: [],
+    medicines: [],
+    nursing_services: [],
+    lab_services: [],
+    radiology_services: [],
     public_catalog_projections: [],
     seo_controls: [],
   };
@@ -240,7 +240,7 @@ describe('Fully Automatic Entity / Content / SEO / AEO / GEO Pipeline (20 Test S
       public_eligibility: true,
       medical_review_status: 'approved',
     };
-    mockCollections.homecareservices.push(svc);
+    mockCollections.nursing_services.push(svc);
 
     const res = await pipeline.processEntity({ entityType: 'service', entityId: 'svc-501' });
 
@@ -263,7 +263,7 @@ describe('Fully Automatic Entity / Content / SEO / AEO / GEO Pipeline (20 Test S
       public_eligibility: true,
       medical_review_status: 'approved',
     };
-    mockCollections.labservices.push(test);
+    mockCollections.lab_services.push(test);
 
     const res = await pipeline.processEntity({ entityType: 'lab_test', entityId: 'test-601' });
 
@@ -285,7 +285,7 @@ describe('Fully Automatic Entity / Content / SEO / AEO / GEO Pipeline (20 Test S
       public_eligibility: true,
       medical_review_status: 'approved',
     };
-    mockCollections.radiologyservices.push(radSvc);
+    mockCollections.radiology_services.push(radSvc);
 
     const res = await pipeline.processEntity({ entityType: 'radiology_service', entityId: 'radsvc-701' });
 
@@ -306,7 +306,7 @@ describe('Fully Automatic Entity / Content / SEO / AEO / GEO Pipeline (20 Test S
       public_eligibility: true,
       medical_review_status: 'approved',
     };
-    mockCollections.medicines_master.push(med);
+    mockCollections.medicines.push(med);
 
     const res = await pipeline.processEntity({ entityType: 'medicine', entityId: 'med-801' });
 
@@ -327,7 +327,7 @@ describe('Fully Automatic Entity / Content / SEO / AEO / GEO Pipeline (20 Test S
       public_eligibility: true,
       medical_review_status: 'approved',
     };
-    mockCollections.medicines_master = [med];
+    mockCollections.medicines = [med];
 
     const res = await pipeline.processEntity({ entityType: 'medicine', entityId: 'med-801', action: 'update' });
 
@@ -447,7 +447,7 @@ describe('Fully Automatic Entity / Content / SEO / AEO / GEO Pipeline (20 Test S
       public_eligibility: true,
       medical_review_status: 'approved',
     };
-    mockCollections.medicines_master = [med];
+    mockCollections.medicines = [med];
 
     const res = await pipeline.processEntity({ entityType: 'medicine', entityId: 'med-paracetamol' });
 
@@ -514,7 +514,7 @@ describe('Fully Automatic Entity / Content / SEO / AEO / GEO Pipeline (20 Test S
       is_deleted: false,
       slug: 'brufen-400mg',
     };
-    mockCollections.medicines_master = [med];
+    mockCollections.medicines = [med];
 
     const searchRes: any = await mcpService.executeTool('search_medicines', { query: 'Brufen' });
 

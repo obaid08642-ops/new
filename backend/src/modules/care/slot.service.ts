@@ -13,6 +13,8 @@ import { AppointmentRepository } from "./repositories/appointment.repository";
  *  open/close = 'HH:MM'
  * We chunk each day into 30-minute slots, exclude already-booked slots and slots in the past.
  */
+const FULL_DAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+
 @Injectable()
 export class SlotService {
   constructor(
@@ -32,12 +34,11 @@ export class SlotService {
       return { date: dateStr, service_type, slots: [], reason: 'service_not_supported' };
     }
 
-    // 2. Get working hours for the requested day.
+    // 2. Opening windows for that day (see hoursFor).
     const date = new Date(dateStr + 'T00:00:00Z');
     if (isNaN(date.getTime())) return { date: dateStr, service_type, slots: [], reason: 'invalid_date' };
-    const dayKey = this.DAY_KEYS[date.getUTCDay()];
-    const wh = (doctor.working_hours || []).find((w: any) => w.day === dayKey || w.day === 'all');
-    if (!wh || wh.closed) {
+    const windows = await this.hoursFor(doctor, date.getUTCDay(), service_type);
+    if (!windows.length) {
       return { date: dateStr, service_type, slots: [], reason: 'closed' };
     }
 
@@ -55,30 +56,36 @@ export class SlotService {
       if (leave) return { date: dateStr, service_type, slots: [], reason: 'on_leave' };
     }
 
-    // 3. Generate raw slot starts every {duration} minutes between open & close.
-    const [oh, om] = wh.open.split(':').map(Number);
-    const [ch, cm] = wh.close.split(':').map(Number);
+    // 3. Generate raw slot starts every {duration} minutes inside each window.
     const baseDate = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
-    const openTs = new Date(baseDate.getTime() + oh * 3600_000 + om * 60_000);
-    let closeTs = new Date(baseDate.getTime() + ch * 3600_000 + cm * 60_000);
-    if (closeTs.getTime() <= openTs.getTime()) closeTs = new Date(closeTs.getTime() + 24 * 3600_000); // overnight
     const slots: { id: string; start: string; end: string; label: string; available: boolean }[] = [];
+    const seen = new Set<string>();
     const now = Date.now();
-    for (let t = openTs.getTime(); t + duration_minutes * 60_000 <= closeTs.getTime(); t += duration_minutes * 60_000) {
-      const start = new Date(t);
-      const end = new Date(t + duration_minutes * 60_000);
-      if (start.getTime() < now + 15 * 60_000) continue; // ≥15 min lead time
-      const slotId = start.toISOString();
-      slots.push({
-        // The canonical server-generated start timestamp is the published slot id.
-        // Keeping it equal to `start` prevents accepting an opaque client-made id.
-        id: slotId,
-        start: slotId,
-        end: end.toISOString(),
-        label: slotId.substring(11, 16),
-        available: true,
-      });
+    for (const w of windows) {
+      const [oh, om] = w.open.split(':').map(Number);
+      const [ch, cm] = w.close.split(':').map(Number);
+      const openTs = new Date(baseDate.getTime() + oh * 3600_000 + om * 60_000);
+      let closeTs = new Date(baseDate.getTime() + ch * 3600_000 + cm * 60_000);
+      if (closeTs.getTime() <= openTs.getTime()) closeTs = new Date(closeTs.getTime() + 24 * 3600_000); // overnight
+      for (let t = openTs.getTime(); t + duration_minutes * 60_000 <= closeTs.getTime(); t += duration_minutes * 60_000) {
+        const start = new Date(t);
+        const end = new Date(t + duration_minutes * 60_000);
+        if (start.getTime() < now + 15 * 60_000) continue; // ≥15 min lead time
+        const slotId = start.toISOString();
+        if (seen.has(slotId)) continue;
+        seen.add(slotId);
+        slots.push({
+          // The canonical server-generated start timestamp is the published slot id.
+          // Keeping it equal to `start` prevents accepting an opaque client-made id.
+          id: slotId,
+          start: slotId,
+          end: end.toISOString(),
+          label: slotId.substring(11, 16),
+          available: true,
+        });
+      }
     }
+    slots.sort((x, y) => x.start.localeCompare(y.start));
     if (slots.length === 0) return { date: dateStr, service_type, slots: [], reason: 'no_slots' };
 
     // 4. Mark booked slots as unavailable.
@@ -87,13 +94,42 @@ export class SlotService {
     const booked = await this.apptModel.find({
       doctor_id: doctor.id,
       slot_start: { $gte: startOfDay, $lt: endOfDay },
-      status: { $in: ['PENDING', 'CONFIRMED', 'CHECKED_IN', 'IN_PROGRESS'] },
+      status: { $in: ['PENDING', 'CONFIRMED', 'RESCHEDULED', 'CHECKED_IN', 'IN_PROGRESS'] },
     }).select({ slot_start: 1 }).lean();
     const bookedSet = new Set(booked.map((b: any) => new Date(b.slot_start).toISOString()));
     for (const s of slots) {
       if (bookedSet.has(s.start)) s.available = false;
     }
     return { date: dateStr, service_type, slots };
+  }
+
+  /**
+   * Opening windows ('HH:MM' open/close) for a weekday (0=Sunday) and consultation mode, from the first source
+   * the doctor has:
+   *  1. weekly slots approved by admin (provider_schedule_slots, DoctorDashboard "schedule" screen),
+   *  2. the per-mode schedule entered at registration (schedule_clinic / schedule_video / schedule_home),
+   *  3. legacy working_hours.
+   * Day keys are accepted as 'sun', 'sunday', a 0-6 number or 'all'.
+   */
+  private async hoursFor(doctor: any, dow: number, mode: 'clinic' | 'video' | 'home'): Promise<{ open: string; close: string }[]> {
+    const HHMM = /^\d{2}:\d{2}$/;
+    const slotsCol = (this.leaves as any).db?.collection('provider_schedule_slots');
+    const approved = doctor.account_id && slotsCol ? await slotsCol.find({
+      provider_account_id: doctor.account_id, day_of_week: dow, active: { $ne: false }, service_type: { $in: [mode, 'all'] },
+    }).toArray().catch(() => []) : [];
+    const fromApproved = (approved as any[]).filter((x) => HHMM.test(x.start_time) && HHMM.test(x.end_time)).map((x) => ({ open: x.start_time, close: x.end_time }));
+    if (fromApproved.length) return fromApproved;
+    const dayMatches = (d: any) => {
+      const v = String(d ?? '').toLowerCase();
+      return v === 'all' || v === String(dow) || v === this.DAY_KEYS[dow] || v === FULL_DAYS[dow];
+    };
+    const fromEntries = (rows: any[]) => (rows || []).filter((w) => w && !w.closed && dayMatches(w.day)).flatMap((w) => [
+      ...(HHMM.test(w.open || '') && HHMM.test(w.close || '') ? [{ open: w.open, close: w.close }] : []),
+      ...(HHMM.test(w.open_evening || '') && HHMM.test(w.close_evening || '') ? [{ open: w.open_evening, close: w.close_evening }] : []),
+    ]);
+    const perMode = fromEntries(doctor[`schedule_${mode}`]);
+    if (perMode.length) return perMode;
+    return fromEntries(doctor.working_hours);
   }
 
   /**

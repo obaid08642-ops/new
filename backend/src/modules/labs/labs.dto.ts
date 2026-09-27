@@ -241,64 +241,57 @@ export class UpdateStageDto {
   notes?: string;
 }
 
+// Admin catalog editor (admin/src/pages/admin/catalog-manager.tsx). medical_review_status publishes/unpublishes.
 export class CreateLabCatalogDto {
-  @IsDefined()
-  @IsString()
-  name_ar: string;
-
-  @IsDefined()
-  @IsString()
-  name_en: string;
-
-  @IsDefined()
-  @IsString()
-  category: string;
-
-  @IsDefined()
-  price: number;
-
-  @IsOptional()
-  @IsString()
-  short_code?: string;
-
-  @IsOptional()
-  @IsString()
-  description_ar?: string;
-
-  @IsOptional()
-  @IsString()
-  description_en?: string;
-
-  @IsOptional()
-  fasting_required?: boolean;
-
-  @IsOptional()
-  @IsNumber()
-  turnaround_hours?: number;
+  @IsDefined() @IsString() name_ar: string;
+  @IsDefined() @IsString() name_en: string;
+  @IsOptional() @IsString() short_code?: string;
+  @IsOptional() @IsString() description_ar?: string;
+  @IsOptional() @IsString() description_en?: string;
+  @IsDefined() @IsString() category: string;
+  @IsOptional() @IsString() sample_type?: string;
+  @IsDefined() @IsNumber() price: number;
+  @IsOptional() @IsNumber() old_price?: number;
+  @IsOptional() @IsBoolean() fasting_required?: boolean;
+  @IsOptional() @IsNumber() fasting_hours?: number;
+  @IsOptional() @IsBoolean() home_visit_supported?: boolean;
+  @IsOptional() @IsBoolean() facility_visit_supported?: boolean;
+  @IsOptional() @IsNumber() turnaround_hours?: number;
+  @IsOptional() @IsArray() @IsString({ each: true }) preparation_ar?: string[];
+  @IsOptional() @IsArray() @IsString({ each: true }) preparation_en?: string[];
+  @IsOptional() @IsBoolean() is_package?: boolean;
+  @IsOptional() @IsArray() @IsString({ each: true }) included_services?: string[];
+  @IsOptional() @IsNumber() popularity?: number;
+  @IsOptional() @IsBoolean() active?: boolean;
+  @IsOptional() @IsBoolean() unavailable?: boolean;
+  @IsOptional() @IsBoolean() medical_referral_required?: boolean;
+  @IsOptional() @IsIn(['pending', 'approved', 'rejected', 'suspended']) medical_review_status?: string;
 }
 
 export class UpdateLabCatalogDto {
-  @IsOptional()
-  @IsString()
-  name_ar?: string;
-
-  @IsOptional()
-  @IsString()
-  name_en?: string;
-
-  @IsOptional()
-  @IsString()
-  category?: string;
-
-  @IsOptional()
-  price?: number;
-
-  @IsOptional()
-  fasting_required?: boolean;
-
-  @IsOptional()
-  @IsNumber()
-  turnaround_hours?: number;
+  @IsOptional() @IsString() name_ar?: string;
+  @IsOptional() @IsString() name_en?: string;
+  @IsOptional() @IsString() short_code?: string;
+  @IsOptional() @IsString() description_ar?: string;
+  @IsOptional() @IsString() description_en?: string;
+  @IsOptional() @IsString() category?: string;
+  @IsOptional() @IsString() sample_type?: string;
+  @IsOptional() @IsNumber() price?: number;
+  @IsOptional() @IsNumber() old_price?: number;
+  @IsOptional() @IsBoolean() fasting_required?: boolean;
+  @IsOptional() @IsNumber() fasting_hours?: number;
+  @IsOptional() @IsBoolean() home_visit_supported?: boolean;
+  @IsOptional() @IsBoolean() facility_visit_supported?: boolean;
+  @IsOptional() @IsNumber() turnaround_hours?: number;
+  @IsOptional() @IsArray() @IsString({ each: true }) preparation_ar?: string[];
+  @IsOptional() @IsArray() @IsString({ each: true }) preparation_en?: string[];
+  @IsOptional() @IsBoolean() is_package?: boolean;
+  @IsOptional() @IsArray() @IsString({ each: true }) included_services?: string[];
+  @IsOptional() @IsNumber() popularity?: number;
+  @IsOptional() @IsBoolean() active?: boolean;
+  @IsOptional() @IsBoolean() unavailable?: boolean;
+  @IsOptional() @IsBoolean() medical_referral_required?: boolean;
+  @IsOptional() @IsIn(['pending', 'approved', 'rejected', 'suspended']) medical_review_status?: string;
 }
 
 export class ApproveCatalogDto {

@@ -39,7 +39,7 @@ export default async function ConsultationChatPage({ params, searchParams }: Pro
   }
   const praw = asRecord(await profile.json().catch(() => null));
   const prec = asRecord(praw?.data) ?? praw;
-  const otherUserId = prec && [prec.user_id, prec.account_id, prec.doctor_user_id].find((v) => typeof v === "string" && (v as string).trim());
+  const otherUserId = (prec && [prec.user_id, prec.account_id, prec.doctor_user_id].find((v) => typeof v === "string" && (v as string).trim())) as string | undefined;
   if (!otherUserId) redirect(`/${locale}/chat`);
 
   const thread = await callPatientApi("/chat/threads/direct", {

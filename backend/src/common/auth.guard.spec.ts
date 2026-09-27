@@ -1,4 +1,4 @@
-import { JwtAuthGuard, getEffectiveRoles, normalizeEffectiveRole } from './auth.guard';
+import { JwtAuthGuard, getEffectiveRoles, hasEffectiveRole, normalizeEffectiveRole } from './auth.guard';
 import { UnauthorizedException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
@@ -107,6 +107,21 @@ describe('JwtAuthGuard', () => {
     await expect(guard.canActivate(ctx)).rejects.toThrow(ForbiddenException);
   });
 
+  // Live finding: a class-level @Roles(ADMIN) was enforced on its @Public handlers whenever a token was
+  // sent, so signed-in patients got 403 on medicine search, provider directory, legal pages, flags.
+  it('a @Public route stays open to a signed-in user even under a class-level @Roles', async () => {
+    reflector.getAllAndOverride.mockImplementation((key) => {
+      if (key === 'isPublic') return true;
+      if (key === 'roles') return [UserRole.ADMIN];
+      if (key === 'permissions') return [Permission.DOCTOR_CREATE];
+      return null;
+    });
+    jwtService.verifyAsync.mockResolvedValue({ id: 'u1', role: UserRole.PATIENT });
+    const ctx = createMockContext({ authorization: 'Bearer valid-token' });
+    await expect(guard.canActivate(ctx)).resolves.toBe(true);
+    expect(ctx.switchToHttp().getRequest().user).toMatchObject({ id: 'u1' });
+  });
+
   it('should enforce fine-grained permissions', async () => {
     reflector.getAllAndOverride.mockImplementation((key) => {
       if (key === 'permissions') return [Permission.DOCTOR_CREATE];
@@ -203,5 +218,15 @@ describe('JwtAuthGuard support session context', () => {
     await expect(guard.canActivate(ctx)).resolves.toBe(true);
     expect(req.impersonator).toEqual({ id: 'admin-1', role: 'admin' });
     expect(req.impersonationSession).toEqual(expect.objectContaining({ id: 'imp-1' }));
+  });
+});
+
+describe('hasEffectiveRole', () => {
+  it('matches provider-auth tokens (role provider + provider_type) and plain role tokens alike', () => {
+    expect(hasEffectiveRole({ role: 'provider', provider_type: 'pharmacy' }, 'pharmacy')).toBe(true);
+    expect(hasEffectiveRole({ role: 'pharmacy' }, 'pharmacy')).toBe(true);
+    expect(hasEffectiveRole({ role: 'provider', provider_type: 'home_care' }, 'nurse', 'home_care')).toBe(true);
+    expect(hasEffectiveRole({ role: 'provider', provider_type: 'lab' }, 'doctor')).toBe(false);
+    expect(hasEffectiveRole({ role: 'patient' }, 'pharmacy')).toBe(false);
   });
 });

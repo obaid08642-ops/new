@@ -10,6 +10,7 @@ import { InsuranceFlowService } from '../insurance-engine/insurance-engine.modul
 import { SlotLocksService } from '../slot-locks/slot-locks.module';
 import { AppointmentRepository } from "./repositories/appointment.repository";
 import { ProviderProfileRepository } from "./repositories/providerprofile.repository";
+import { hasEffectiveRole } from '../../common/auth.guard';
 
 /** Platform fee schedule (SAR). Move to DB/config when admin dashboard supports it. */
 const PLATFORM_FEES = {
@@ -244,10 +245,22 @@ export class AppointmentsService {
     return actorIds.some((id) => doctorIds.includes(id));
   }
 
+  /** Hospital acting on an appointment of a doctor linked to it (provider_accounts.facility_id, set on invitation accept). */
+  private async isFacilityOwner(appt: any, user: any): Promise<boolean> {
+    if (!hasEffectiveRole(user, UserRole.HOSPITAL) || !user?.id) return false;
+    const profile: any = await this.providerModel.findOne({ id: appt.doctor_id, type: ProviderType.DOCTOR });
+    const accountIds = [profile?.account_id, profile?.user_id, appt.doctor_user_id].filter(Boolean).map(String);
+    if (!accountIds.length) return false;
+    const linked = await this.connection.collection('provider_accounts')
+      .findOne({ $or: [{ id: { $in: accountIds } }, { user_id: { $in: accountIds } }], facility_id: String(user.id) } as any, { projection: { _id: 1 } });
+    return !!linked;
+  }
+
   private async assertAppointmentAccess(appt: any, user: any): Promise<void> {
     if (user?.role === UserRole.ADMIN || user?.role === UserRole.SUPER_ADMIN) return;
     if (appt.patient_id === user?.id) return;
     if (await this.isDoctorOwner(appt, user)) return;
+    if (await this.isFacilityOwner(appt, user)) return;
     throw new ForbiddenException();
   }
 
@@ -351,10 +364,14 @@ export class AppointmentsService {
         refundPercentage = 50;
         refundDestination = 'wallet';
       }
-    } else if (user.role === UserRole.DOCTOR || user.id === appt.doctor_user_id) {
+    } else if (hasEffectiveRole(user, UserRole.DOCTOR) || user.id === appt.doctor_user_id) {
       refundPercentage = 100;
       refundDestination = 'source';
       penaltyAmount = 50; // 50 SAR penalty applied to Doctor's wallet
+    } else if (hasEffectiveRole(user, UserRole.HOSPITAL) || hasEffectiveRole(user, UserRole.ADMIN)) {
+      // provider-side cancellation by the facility (or admin): the patient is refunded in full
+      refundPercentage = 100;
+      refundDestination = 'source';
     }
 
     appt.cancellation_reason = reason || '';

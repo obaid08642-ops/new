@@ -248,6 +248,65 @@
 
 ---
 
+## PHASE 7A — Owner scope change (2026-09-27): no patient wallet, loyalty limits — Task A
+
+Owner decision. Do it after Gate P7, before Phase 8. Where this conflicts with older tasks or with `docs/audit/03_LIVE_JOURNEY_FINDINGS.md`, this phase wins (see the notes).
+
+| Task | Do | Verify |
+|---|---|---|
+| A1 | **Remove the patient money wallet.** Remove every patient-wallet route and UI: `/wallet/*` topup, transfer, balance, transactions and saved cards for patients; the `wallet` and `wallet_split` payment methods (capabilities, intents, checkout pickers); admin credit/debit on patient wallets; all wallet screens and entries in patient-app (`app/wallet/*`, menus, checkout) and patient-web. **Keep** the provider earnings ledgers (`platformledgerentries`, provider wallet/payouts). | `grep` shows no patient wallet route or screen; payment capabilities never list `wallet`/`wallet_split`; provider balance/payout journeys still green |
+| A2 | **Refunds go to the original payment method only.** Card: Moyasar refund. Cash: a ledger record (`refund`, method `cash`, who and when) and **no wallet credit**. Keep the admin approval flow and the maker-checker for large refunds. `RefundExecutor` loses its wallet branch. | Refund of a card payment → Moyasar refund + ledger; refund of a cash order → ledger row `method: cash`, no `wallets`/`wallet_transactions` write; a large refund needs a second admin |
+| A3 | **Migration** `scripts/migrations/<date>-patient-wallet-report.ts`, dry-run by default and report only: patients with a non-zero wallet balance (count, total, per-patient id + balance, no PII beyond ids). Deletes nothing; the owner decides what happens next. | Dry-run prints the report; no `--apply` path that deletes |
+| A4 | **Loyalty redemption cap.** Points are redeemed only as an order discount. Default `max_redeem_percent = 10`. The cap is computed on the **server's** order total, never a client value. | A client that sends a higher discount or a fake total gets the capped discount; unit test on the cap |
+| A5 | **Loyalty fully configurable in the admin UI:** `max_redeem_percent`, `point_value_sar`, `redeem_enabled`, every per-activity earning value, and daily/monthly caps on non-purchase earning (reviews, vitals, referrals…). Every change is written to the audit log (who, old → new, when). No hardcoded loyalty values left in code. | Change each value in the admin UI → the next earn/redeem uses it; audit log shows each change; caps stop earning past the limit |
+
+**Notes:**
+- A2 supersedes `03_LIVE_JOURNEY_FINDINGS.md` LJ-05 item 4 and the reviewer's interim fix that made `RefundExecutor` create a wallet. Drop that branch.
+- A5 supersedes LJ-08 item 2. The rest of LJ-08 (rewards/challenges admin, wishlist add) stays open unless the owner removes it.
+
+**Gate P7A:** journeys `j_returns` (card + cash refunds, no wallet), `j_loyalty` (earn, redeem within the cap, config change audited) and the payment capability checks are green; the migration dry-run output is attached to the PR.
+
+---
+
+## PHASE 7B — Admin reports, live monitoring, full control — Task B
+
+| Task | Do | Verify |
+|---|---|---|
+| B1 | **Reports for every domain**, filterable by date range and exportable as CSV: patients; providers (by type); orders/bookings (all 5 domains); payments; refunds; commissions and VAT; payouts; loyalty (earned, redeemed, discount value, top earners); insurance; disputes; admin actions (audit log). Server-side aggregation and pagination. The CSV comes from the same query as the screen. | Each report matches a seeded dataset; the CSV row count equals the on-screen total for the same filter |
+| B2 | **Drill-down everywhere:** from any report row open the patient, provider or order and see its full history (state history, payments, refunds, chat/support links, audit entries). | Click-through from each report reaches the detail with its full history |
+| B3 | **Live monitoring dashboard:** who is online now (patients and providers), live orders/bookings with status, who is requesting what, provider availability, and alerts on stuck orders and payment failures. Realtime (existing gateway) with polling fallback. | Create a booking/order in a journey → it appears live; a stuck order past the threshold raises an alert; a failed payment raises an alert |
+| B4 | **No hardcoded business values:** move every business setting (commissions, VAT, settlement delays, payout minimum, SLA/stuck thresholds, refund windows and percentages, delivery fees, loyalty (see A5), feature flags) into admin-editable config, validated and audited. Include a `grep` inventory in the PR of each value that was moved. | Changing each setting in the admin UI changes behavior without a deploy; audit log entry per change |
+| B5 | **Admin UI fully responsive and usable on an iPhone screen** (tables become cards or scroll correctly, actions reachable, no horizontal page scroll). | Playwright at 390×844 over every admin page: no horizontal overflow, primary actions visible (extend `tools/live/web_render.mjs`) |
+
+**Gate P7B:** every B1 report plus its CSV is verified against seeded data; the B5 mobile render test passes; the B4 inventory is attached.
+
+---
+
+## PHASE 7C — Admin hardening, owner-only control — Task C
+
+| Task | Do | Verify |
+|---|---|---|
+| C1 | **Passkey/WebAuthn required for admin roles, in addition to the password.** Platform authenticators: the owner's MacBook (Touch ID) and iPhone (Face/Touch ID). Only registered credentials are accepted. Registering a **new** credential requires an existing passkey **plus** an email confirmation. Build on the existing `auth/passkey.service.ts` (today limited to one designated email). | Login with password only → 403; with an unregistered passkey → 403; registering a new passkey without an existing one → 403 |
+| C2 | **Admin device allow-list:** the owner's MacBook, the owner's iPhone, and one offline backup hardware key (break-glass). Any other device is rejected at login **and on every admin API call** (server-side check bound to the passkey credential/device record, not a client header alone). | An admin API call from an unregistered device → 403 (test) |
+| C3 | **Network gate** in front of the admin UI and every `/admin/*` API: Cloudflare Access (device posture/identity) or an mTLS client certificate held only by the owner's devices. Write `docs/deploy/ADMIN_NETWORK_GATE.md` with step-by-step setup for the owner (both options, recommended one first). The backend also rejects `/admin/*` that did not come through the gate (header/cert check). | Request to `/admin/*` without the gate credential → blocked at the edge and 403 at the backend |
+| C4 | **Step-up re-authentication** (a fresh passkey assertion, Touch/Face ID) for sensitive actions: refunds, payouts, financial and loyalty config, role/permission changes, deletions. Short-lived step-up token bound to the action. | Each sensitive action without step-up → 403 (test per action); with step-up → 2xx |
+| C5 | **Admin session idle timeout 15 minutes**; **instant alert** (email + push to the owner) on every admin login and on every failed admin login attempt (with device, IP and time). | Idle 15 min → next call 401; login and failed attempt each produce an alert (smtp sink in tests) |
+| C6 | **Recovery:** 10 single-use printed recovery codes, stored hashed. A recovery code can restore access only together with an email code. **An email code alone never grants access.** Regenerating the codes requires step-up. | Recovery code + email code → access; email code alone → 403; a used code → 403 |
+| C7 | **Tests (required):** unregistered device → 403; no passkey → 403; sensitive action without step-up → 403; email-only recovery → 403. Add them to the backend e2e tests and to the live gate. | Tests green in CI |
+| C8 | Write **`docs/SECURITY_OWNER_CHECKLIST.md`**: 2FA on GitHub, the hosting provider, the database provider, the domain/DNS registrar and the email account; **2FA on the Apple ID (passkeys sync through iCloud)**; SSH keys only (no passwords); the break-glass key and the printed recovery codes stored offline; who to call if a device is lost. | File present and reviewed by the owner |
+
+**Gate P7C:** C7 tests green; the owner confirms the network gate and passkeys on their MacBook and iPhone; the checklist has been delivered.
+
+---
+
+## PHASE 7D — Focused security review (after 7A–7C are merged)
+
+| Task | Do | Verify |
+|---|---|---|
+| S1 | Reviewer-led security review of payments, refunds, loyalty (earn/redeem/caps), payouts and admin access (passkeys, device allow-list, network gate, step-up, recovery). Threat-model each flow; try client-controlled amounts, replay, IDOR, race conditions and privilege escalation. The implementer fixes the findings. | Written review with findings and fixes; the live gate is extended with the new negative tests |
+
+---
+
 ## PHASE 8 — Patient journeys & web parity — F69–F74
 
 | Task | Do |

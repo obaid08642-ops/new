@@ -124,6 +124,10 @@ export class Appointment {
   @Prop() rescheduled_from_id?: string;
   @Prop() confirmed_at?: Date;
   @Prop() completed_at?: Date;
+  // Written by payments verify / finance refunds through a dynamically chosen model (strict mode dropped them).
+  @Prop() transaction_id?: string;
+  @Prop() paid_at?: Date;
+  @Prop() refund_status?: string;
 }
 export type AppointmentDocument = Appointment & Document;
 export const AppointmentSchema = SchemaFactory.createForClass(Appointment);

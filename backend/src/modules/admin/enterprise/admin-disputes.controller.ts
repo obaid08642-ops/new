@@ -12,7 +12,7 @@ import { ResolveDto } from './admin-disputes.dto';
 /**
  * A1 — REAL dispute queue (replaces the previous 503 stub).
  *
- * Source of truth: `support_requests` where the category is a financial /
+ * Source of truth: `supportrequests` (SupportRequest model) where the category is a financial /
  * order complaint. Resolution moves real money through WalletService.topup()
  * (the same audited internal-credit path used for refunds platform-wide) and
  * every decision is RBAC-gated + reason-mandatory + audit-logged.
@@ -54,7 +54,8 @@ export class AdminDisputesController {
       base.$or = [{ subject: rx }, { message: rx }, { user_name: rx }, { user_phone: rx }, { tracking_id: rx }];
     }
 
-    const col = this.conn.collection('support_requests');    const [items, total, byStatus] = await Promise.all([
+    const col = this.conn.collection('supportrequests');
+    const [items, total, byStatus] = await Promise.all([
       col.find(base).sort({ priority: -1, createdAt: -1 }).skip((p - 1) * l).limit(l)
         .project({ _id: 0, thread: 0 })
         .toArray(),
@@ -109,7 +110,7 @@ export class AdminDisputesController {
 
   @Get(':id')
   async detail(@Param('id') id: string) {
-    const t: any = await this.conn.collection('support_requests').findOne({ id }, { projection: { _id: 0 } });
+    const t: any = await this.conn.collection('supportrequests').findOne({ id }, { projection: { _id: 0 } });
     if (!t) throw new NotFoundException('dispute_not_found');
     const refunds = await this.conn.collection('wallet_transactions')
       .find({ referenceType: 'refund', referenceId: id, type: 'credit' }).project({ _id: 0, amount: 1, description: 1, createdAt: 1 }).toArray();
@@ -141,7 +142,7 @@ export class AdminDisputesController {
       throw new ForbiddenException('insufficient_permissions');
     }
 
-    const ticket: any = await this.conn.collection('support_requests').findOne({ id });
+    const ticket: any = await this.conn.collection('supportrequests').findOne({ id });
     if (!ticket) throw new NotFoundException('dispute_not_found');
     if (['RESOLVED', 'CLOSED'].includes(String(ticket.status))) {
       throw new ConflictException('dispute_already_resolved');
@@ -177,7 +178,7 @@ export class AdminDisputesController {
       message: `[resolution:${decision}] ${reason}${creditedAmount ? ` — مبلغ ${creditedAmount} ر.س إلى المحفظة` : ''}`,
       at: new Date(),
     };
-    await this.conn.collection('support_requests').updateOne(
+    await this.conn.collection('supportrequests').updateOne(
       { id },
       { $set: { status: 'RESOLVED', resolved_at: new Date(), resolved_by: me.id, resolution_decision: decision }, $push: { thread: resolutionEntry } } as any,
     );

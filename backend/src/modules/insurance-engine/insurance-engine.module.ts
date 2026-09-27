@@ -34,6 +34,8 @@ import { SavePolicyDto, CreateRequestDto, PayCopayDto, ResubmitDto, AppealDto, D
 
 @Schema({ timestamps: true })
 export class InsuranceServiceRequest {
+  // Written by the services but previously undeclared: strict mode silently dropped it (tools/audit/schemadrift.js).
+  @Prop() insurer_approval_code?: string;
   @Prop({ required: true, unique: true, default: () => uuid() }) id: string;
   @Prop({ required: true, index: true }) patient_id: string;
   @Prop() patient_name?: string;
@@ -66,6 +68,11 @@ export class InsuranceServiceRequest {
     filed_at: Date; filed_by: string;
     decided_by?: string; decided_at?: Date; decision_note?: string;
   };
+  // Written by payments verify / finance refunds through a dynamically chosen model (strict mode dropped them).
+  @Prop() payment_status?: string;              // paid | refunded | partially_refunded (payments verify / finance refund)
+  @Prop() transaction_id?: string;
+  @Prop() paid_at?: Date;
+  @Prop() refund_status?: string;
 }
 export const InsuranceServiceRequestSchema = SchemaFactory.createForClass(InsuranceServiceRequest);
 
@@ -233,15 +240,26 @@ export class InsuranceFlowService {
 
   async savePolicy(user: any, body: any) {
     if (!body?.company_id) throw new BadRequestException('company_id is required');
-    const company = await this.companies.findOne({ id: { $eq: body.company_id } }).lean();
+    // add-policy.tsx sends the company code; other clients send the id
+    const key = String(body.company_id);
+    const company = await this.companies.findOne({ $or: [{ id: { $eq: key } }, { code: { $eq: key.toLowerCase() } }], is_active: true }).lean();
     if (!company) throw new NotFoundException('insurance company not found');
+    // `verified` is never taken from the client: verification is a separate server/admin step
     const policy = {
-      company_id: body.company_id,
+      company_id: (company as any).id,
+      company_code: (company as any).code,
       company_name: (company as any).name_ar || (company as any).name,
-      plan_class: body.plan_class,
+      provider: (company as any).name_ar || (company as any).name_en || (company as any).code,
+      plan_class: body.plan_class || body.class,
+      network: body.network,
       member_id: body.member_id,
+      member_name: body.member_name,
+      national_id: body.national_id,
       policy_number: body.policy_number,
+      expiry_date: body.expiry_date,
       card_image_url: body.card_image_url,
+      ocr_extracted: !!body.ocr_extracted,
+      verified: false,
       saved_at: new Date(),
     };
     await this.patients.updateOne({ user_id: user.id }, { $set: { insurance: policy } }, { upsert: true });

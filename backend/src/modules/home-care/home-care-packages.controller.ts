@@ -1,3 +1,4 @@
+import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 import { Controller, Get, UseGuards } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -10,7 +11,7 @@ export class HomeCarePackagesController {
   @Get()
   async list() {
     const services = await this.conn
-      .collection('homecareservices')
+      .collection(CATALOG_COLLECTIONS.nursing_services)
       .find({ $or: [{ active: true }, { is_active: true }, { status: 'active' }] } as any)
       .limit(100)
       .toArray();

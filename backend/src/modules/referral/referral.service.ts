@@ -129,6 +129,12 @@ export class ReferralService {
     return { ok: true, status: 'registered' };
   }
 
+  /** Every domain completes through the workflow engine (service.completed); nothing emits booking.completed. */
+  @OnEvent('service.completed')
+  async onServiceCompleted(p: { patient_account_id?: string; entity_id?: string }) {
+    if (p?.patient_account_id) await this.onBookingCompleted({ user_id: p.patient_account_id, booking_id: String(p.entity_id || '') });
+  }
+
   /** Conversion: referred user's first completed booking rewards BOTH sides once. */
   @OnEvent('booking.completed')
   async onBookingCompleted(payload: { user_id: string; booking_id: string }) {

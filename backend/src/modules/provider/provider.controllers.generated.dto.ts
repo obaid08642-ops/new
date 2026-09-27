@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsNumber, IsObject, IsOptional, IsString, MaxLength, Min, Matches } from 'class-validator';
 import { OtpPurpose } from './schemas';
 
 export class RegisterDto {
@@ -454,26 +454,27 @@ export class CancelDto {
 }
 
 export class UpsertPharmaDto {
-  @IsOptional()
-  @IsString()
-  sku?: string;
-
-  @IsOptional()
-  @IsString()
-  name_ar?: string;
-
-  @IsOptional()
-  @IsNumber()
-  stock?: number;
-
-  @IsOptional()
-  @IsNumber()
-  min_stock_alert?: number;
-
-  @IsOptional()
-  @IsDateString()
-  last_restocked_at?: string;
-
+  // provider-app ActiveInventoryScreen: add-from-catalog (sku = catalog medicine id) and item edits.
+  @IsOptional() @IsString() @MaxLength(120) sku?: string;
+  @IsOptional() @IsString() @MaxLength(300) name_ar?: string;
+  @IsOptional() @IsString() @MaxLength(300) name_en?: string;
+  @IsOptional() @IsString() @MaxLength(64) barcode?: string;
+  @IsOptional() @IsString() @MaxLength(120) category?: string;
+  @IsOptional() @IsString() @MaxLength(200) generic_name?: string;
+  @IsOptional() @IsString() @MaxLength(60) form?: string;
+  @IsOptional() @IsString() @MaxLength(60) dosage?: string;
+  @IsOptional() @IsString() @MaxLength(60) pack_size?: string;
+  @IsOptional() @IsArray() @IsString({ each: true }) substitute_skus?: string[];
+  @IsOptional() @IsNumber() @Min(0) price?: number;
+  @IsOptional() @IsString() @MaxLength(3) currency?: string;
+  @IsOptional() @IsNumber() @Min(0) stock?: number;
+  @IsOptional() @IsNumber() @Min(0) min_stock_alert?: number;
+  @IsOptional() @IsDateString() last_restocked_at?: string;
+  @IsOptional() @IsBoolean() available?: boolean;
+  @IsOptional() @IsBoolean() insurance_covered?: boolean;
+  @IsOptional() @IsString() @MaxLength(500) coverage_notes?: string;
+  @IsOptional() @IsDateString() expiry_date?: string;
+  @IsOptional() @IsString() @MaxLength(1000) notes?: string;
 }
 
 export class UpsertLabDto {
@@ -604,12 +605,13 @@ export class UpsertDto2 {
   @IsNumber()
   day_of_week?: number;
 
+  // weekly recurring hours: 'HH:MM' (scheduling-engine parseHHMM; DoctorDashboard schedule screen)
   @IsOptional()
-  @IsDateString()
+  @Matches(/^\d{2}:\d{2}$/)
   start_time?: string;
 
   @IsOptional()
-  @IsDateString()
+  @Matches(/^\d{2}:\d{2}$/)
   end_time?: string;
 
   @IsDefined()

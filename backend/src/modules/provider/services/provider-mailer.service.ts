@@ -73,17 +73,19 @@ export class ProviderMailerService {
   private logger = new Logger('Mailer');
   constructor() {
     const key = process.env.RESEND_API_KEY;
-    const from = process.env.PROVIDER_MAIL_FROM || 'noreply@nabd.app';
-    const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com';
-    const smtpPort = parseInt(process.env.SMTP_PORT || '465', 10);
-    const smtpUser = process.env.SMTP_USER;
-    const smtpPass = process.env.SMTP_PASS;
+    const from = process.env.PROVIDER_MAIL_FROM || process.env.MAIL_FROM || 'noreply@nabd.app';
+    // Same SMTP channel as the patient MailService (SES_SMTP_*), with the older SMTP_* names still honoured:
+    // with only SES configured, provider verification codes were never sent.
+    const smtpHost = process.env.SMTP_HOST || process.env.SES_SMTP_HOST || 'smtp.gmail.com';
+    const smtpPort = parseInt(process.env.SMTP_PORT || process.env.SES_SMTP_PORT || '465', 10);
+    const smtpUser = process.env.SMTP_USER || process.env.SES_SMTP_USER;
+    const smtpPass = process.env.SMTP_PASS || process.env.SES_SMTP_PASS;
 
     if (key && key.trim().length > 0) {
       this.adapter = new ResendAdapter(key, from);
       this.logger.log(`Initialised Resend adapter (from=${from})`);
     } else if (smtpUser && smtpPass && smtpUser.trim().length > 0) {
-      const mailFrom = process.env.PROVIDER_MAIL_FROM || smtpUser;
+      const mailFrom = process.env.PROVIDER_MAIL_FROM || process.env.SES_FROM || process.env.MAIL_FROM || smtpUser;
       this.adapter = new NodemailerAdapter(smtpHost, smtpPort, smtpUser, smtpPass, mailFrom);
       this.logger.log(`Initialised Nodemailer SMTP adapter (host=${smtpHost}, port=${smtpPort}, from=${mailFrom})`);
     } else {

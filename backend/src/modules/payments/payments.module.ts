@@ -20,6 +20,7 @@ import { IdempotencyInterceptor } from '../../common/idempotency.interceptor';
 import * as crypto from 'crypto';
 import { Request } from 'express';
 import { UserRole } from '../../common/enums';
+import { moyasarBase } from '../../common/moyasar-base';
 
 /**
  * PAYMENT GATEWAY ADAPTERS — additive layer, never bypasses WorkflowEngine.
@@ -110,7 +111,7 @@ class TapAdapter implements GatewayAdapter {
 }
 class MoyasarAdapter implements GatewayAdapter {
   name = 'moyasar' as const;
-  private base = 'https://api.moyasar.com/v1';
+  private get base() { return moyasarBase(); }
   private headers() {
     const b = Buffer.from(`${process.env.MOYASAR_API_KEY}:`).toString('base64');
     return { Authorization: `Basic ${b}`, 'Content-Type': 'application/json' };
@@ -503,7 +504,7 @@ export class PaymentsService {
     if (t.gateway !== 'moyasar') throw new BadRequestException('capture_supported_for_moyasar_only');
     const key = process.env.MOYASAR_SECRET_KEY || process.env.MOYASAR_SECRET || process.env.MOYASAR_API_KEY;
     if (!key) throw new BadRequestException('payment_gateway_not_configured');
-    const r = await fetch(`https://api.moyasar.com/v1/payments/${t.gateway_intent_id}/capture`, {
+    const r = await fetch(`${moyasarBase()}/payments/${t.gateway_intent_id}/capture`, {
       method: 'POST',
       headers: { Authorization: `Basic ${Buffer.from(`${key}:`).toString('base64')}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({}),

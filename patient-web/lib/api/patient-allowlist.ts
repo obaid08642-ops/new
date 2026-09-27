@@ -32,6 +32,8 @@ const patientReadRoutes = [
   new RegExp(`^/nursing/visits/${orderId}$`, "i"),
   new RegExp(`^/nursing/visits/${orderId}/tracking$`, "i"),
   new RegExp("^/users/me/wishlist$"),
+  // app/[locale]/map: nearby providers (public read)
+  new RegExp("^/providers/map$", "i"),
   new RegExp("^/users/me/profile$"),
   new RegExp("^/users/me/notification-settings$"),
   new RegExp(`^/unified-bookings/consultation/${orderId}$`, "i"),

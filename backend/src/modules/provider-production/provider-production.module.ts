@@ -21,9 +21,10 @@ import {
 import { OrderInsuranceDto, LabCoverageDto, RadCoverageDto, NursingCoverageDto, PostCrmDto, PutCrmDto, CreateReferralDto, CreatePromotionDto, CreateTechDto, UpdateTechDto, ClaimResubmitDto, ClaimApproveDto, ClaimRejectDto, PatchAvailabilityDto } from './provider-production.dto';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
-import { JwtAuthGuard, CurrentUser, Roles, getEffectiveRoles } from '../../common/auth.guard';
+import { JwtAuthGuard, CurrentUser, Roles, getEffectiveRoles, hasEffectiveRole } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { randomUUID } from 'crypto';
+import { PROVIDER_WORK_SOURCES } from '../../common/provider-work-sources';
 
 /** Provider-scope roles allowed to act on these surfaces (with alias normalization). */
 const PROVIDER_ROLES = [
@@ -234,6 +235,27 @@ export class ProviderProductionService {
     const records = await this.conn.collection('doctor_patient_crm')
       .find({ owner_id: user.id }, { projection: { _id: 0, patient_id: 1, data: 1, updatedAt: 1 } })
       .sort({ updatedAt: -1 }).limit(200).toArray();
+    // Patients this provider has served, so the CRM can be opened for them before any note exists
+    // (the screen only opens patients from this list).
+    const served = new Set<string>();
+    const allocs = await this.conn.collection('pharmacy_allocations')
+      .find({ pharmacy_account_id: user.id }, { projection: { _id: 0, order_id: 1 } }).sort({ createdAt: -1 }).limit(500).toArray().catch(() => []);
+    if (allocs.length) {
+      const orders = await this.conn.collection('pharmacy_orders')
+        .find({ id: { $in: allocs.map((a: any) => a.order_id) } }, { projection: { _id: 0, patient_account_id: 1 } }).toArray().catch(() => []);
+      for (const o of orders as any[]) if (o.patient_account_id) served.add(String(o.patient_account_id));
+    }
+    const reqs = await this.conn.collection('provider_requests')
+      .find({ account_id: user.id, 'patient.id': { $exists: true } }, { projection: { _id: 0, 'patient.id': 1 } }).sort({ createdAt: -1 }).limit(500).toArray().catch(() => []);
+    for (const r of reqs as any[]) if (r.patient?.id) served.add(String(r.patient.id));
+    for (const [type, src] of Object.entries(PROVIDER_WORK_SOURCES)) {
+      if (!hasEffectiveRole(user, type)) continue;
+      const rows = await this.conn.collection(src.collection)
+        .find({ [src.providerField]: user.id }, { projection: { _id: 0, [src.patientField]: 1 } }).sort({ createdAt: -1 }).limit(500).toArray().catch(() => []);
+      for (const r of rows as any[]) if (r[src.patientField]) served.add(String(r[src.patientField]));
+    }
+    const known = new Set(records.map((record: any) => String(record.patient_id)));
+    for (const id of served) if (!known.has(id)) records.push({ patient_id: id, data: {}, updatedAt: null } as any);
     const patientIds = records.map((record: any) => String(record.patient_id)).filter(Boolean);
     const patients = patientIds.length
       ? await this.conn.collection('users').find({ id: { $in: patientIds } }, { projection: { _id: 0, id: 1, full_name: 1, name: 1, phone: 1 } }).toArray()

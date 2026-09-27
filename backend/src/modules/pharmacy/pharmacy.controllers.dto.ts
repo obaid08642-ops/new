@@ -1,6 +1,23 @@
-import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsNumber, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsNumber, IsObject, IsOptional, IsString, MaxLength, ValidateNested } from 'class-validator';
 import { AllocationItemAction } from './schemas/pharmacy.schema';
 import { Type } from 'class-transformer';
+
+/** Delivery address as the apps send it (patient-app pharmacy-draft.ts, patient-web checkout-flow.tsx). */
+export class GeoPointDto {
+  @IsNumber() lat: number;
+  @IsNumber() lng: number;
+}
+
+export class DeliveryAddressDto {
+  @IsOptional() @IsString() @MaxLength(80) label?: string;
+  @IsOptional() @IsString() @MaxLength(300) street?: string;
+  @IsOptional() @IsString() @MaxLength(80) city?: string;
+  @IsOptional() @IsString() @MaxLength(80) district?: string;
+  @IsOptional() @IsString() @MaxLength(32) phone?: string;
+  @IsOptional() @IsNumber() lat?: number;
+  @IsOptional() @IsNumber() lng?: number;
+  @IsOptional() @ValidateNested() @Type(() => GeoPointDto) geo?: GeoPointDto;
+}
 
 export class ManualRequestDto {
   @IsOptional()
@@ -18,8 +35,10 @@ export class CreateDto {
   items: any[];
 
   @IsOptional()
-  @IsString()
-  delivery_address?: string;
+  @IsObject()
+  @ValidateNested()
+  @Type(() => DeliveryAddressDto)
+  delivery_address?: DeliveryAddressDto;
 
   @IsOptional()
   @IsString()
@@ -67,8 +86,10 @@ export class UpdateDto {
   items: any[];
 
   @IsOptional()
-  @IsString()
-  delivery_address?: string;
+  @IsObject()
+  @ValidateNested()
+  @Type(() => DeliveryAddressDto)
+  delivery_address?: DeliveryAddressDto;
 
   @IsOptional()
   @IsString()
@@ -464,4 +485,10 @@ export class RejectDto5 {
   @IsString()
   reason?: string;
 
+}
+
+export class SetCodPolicyDto {
+  @IsDefined()
+  @IsBoolean()
+  active: boolean;
 }

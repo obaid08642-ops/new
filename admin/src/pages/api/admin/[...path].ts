@@ -57,15 +57,12 @@ function apiPath(req: NextApiRequest) {
     // Admin orders console lives at /api/v1/admin/orders
     upstreamPath = `/api/v1/admin/${encoded}`;
   } else if (decoded[0] === 'providers') {
-    // provider-deltas is a legacy read-only feed on the original providers controller
-    if (decoded[1] === 'provider-deltas') {
-      upstreamPath = `/api/v1/providers/provider-deltas${decoded.slice(2).length ? `/${decoded.slice(2).map(encodeURIComponent).join('/')}` : ''}`;
-    } else {
-      // All provider moderation actions (approve, reject, suspend, list, detail…)
-      // must reach ProviderAdminController at /api/v1/admin/providers/*
-      const tail = decoded.slice(1).map(encodeURIComponent).join('/');
-      upstreamPath = `/api/v1/admin/providers${tail ? `/${tail}` : ''}`;
-    }
+    // All provider moderation, provider-deltas included, goes to ProviderAdminController
+    // (/api/v1/admin/providers/*). Its approveDelta applies each delta by target (profile,
+    // settings, capability = inventory/catalog rows, insurance); the old /providers/provider-deltas
+    // feed wrote every delta onto the profile, so an approved inventory item was never created.
+    const tail = decoded.slice(1).map(encodeURIComponent).join('/');
+    upstreamPath = `/api/v1/admin/providers${tail ? `/${tail}` : ''}`;
   } else if (modulePrefixes.has(decoded[0])) {
     // Second-segment exceptions: admin consoles that share a first segment
     // with a public controller. These MUST stay under /api/v1/admin/*:
@@ -74,7 +71,9 @@ function apiPath(req: NextApiRequest) {
     // - nursing requests → AdminNursing (/api/v1/admin/nursing/*)
     //   while nursing catalog → public (/api/v1/nursing/*)
     const stayAdmin = (decoded[0] === 'insurance' && (decoded[1] === 'stats' || decoded[1] === 'requests'))
-      || (decoded[0] === 'nursing' && decoded[1] === 'requests');
+      || (decoded[0] === 'nursing' && decoded[1] === 'requests')
+      // legal: reads are public (/api/v1/legal/*); edits and diffs are AdminLegal (/api/v1/admin/legal/*)
+      || (decoded[0] === 'legal' && ((req.method || 'GET') !== 'GET' || decoded[decoded.length - 1] === 'diff'));
     upstreamPath = stayAdmin ? `/api/v1/admin/${encoded}` : `/api/v1/${encoded}`;
   }
   if (decoded[0] === 'ambulance' && decoded[1] === 'fleet') upstreamPath = `/api/v1/admin/ambulance/fleet${decoded.slice(2).length ? `/${decoded.slice(2).map(encodeURIComponent).join('/')}` : ''}`;
@@ -89,7 +88,8 @@ function apiPath(req: NextApiRequest) {
   // Pricing/surge admin routes live on the public business-rules controller.
   if (decoded[0] === 'business-rules') upstreamPath = `/api/v1/business-rules/${decoded.slice(1).map(encodeURIComponent).join('/')}`;
   // Reference-specialty admin routes live on the public catalogs controller.
-  if (decoded[0] === 'catalogs' && decoded[1] === 'admin') upstreamPath = `/api/v1/catalogs/admin/${decoded.slice(2).map(encodeURIComponent).join('/')}`;  if (decoded[0] === 'loyalty') upstreamPath = `/api/v1/loyalty/${decoded.slice(1).map(encodeURIComponent).join('/')}`;
+  if (decoded[0] === 'catalogs' && decoded[1] === 'admin') upstreamPath = `/api/v1/catalogs/admin/${decoded.slice(2).map(encodeURIComponent).join('/')}`;
+  if (decoded[0] === 'loyalty') upstreamPath = `/api/v1/loyalty/${decoded.slice(1).map(encodeURIComponent).join('/')}`;
   if (decoded[0] === 'chat' || decoded[0] === 'chats') upstreamPath = `/api/v1/${decoded[0]}/${decoded.slice(1).map(encodeURIComponent).join('/')}`;
   if (decoded[0] === 'auth') upstreamPath = `/api/v1/auth/${decoded.slice(1).map(encodeURIComponent).join('/')}`;
   if (decoded[0] === 'support-session') upstreamPath = `/api/v1/support-session/${decoded.slice(1).map(encodeURIComponent).join('/')}`;
@@ -124,7 +124,8 @@ async function tryRefresh(req: NextApiRequest): Promise<{ accessToken: string; c
   }
 }
 
-function copyResponseHeaders(response: Response, res: NextApiResponse) { {  const contentType = response.headers.get('content-type');
+function copyResponseHeaders(response: Response, res: NextApiResponse) {
+  const contentType = response.headers.get('content-type');
   const contentDisposition = response.headers.get('content-disposition');
   const cacheControl = response.headers.get('cache-control');
   res.setHeader('cache-control', cacheControl || 'no-store');
@@ -149,6 +150,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       if (typeof value === 'string') headers.set(header, value);
     }
     headers.set('authorization', `Bearer ${accessToken}`);
+    // Routes marked @RequireIdempotency reject writes without a key: keep the page's key, else mint one.
+    if (WRITE_METHODS.has(req.method)) {
+      const sentKey = req.headers['idempotency-key'];
+      headers.set('idempotency-key', typeof sentKey === 'string' && sentKey.trim() ? sentKey.trim() : `admin-${crypto.randomUUID()}`);
+    }
     headers.set('x-forwarded-for', req.socket.remoteAddress || '');
     headers.set('x-admin-bff', 'next-pages-router');
     // Device binding (NOT IP binding — mobile IPs rotate): stable per-browser id.

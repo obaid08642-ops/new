@@ -68,12 +68,19 @@ describe('PharmacyInsuranceDecisionService', () => {
 
   it('allows the patient to cancel a rejected decision once, releases selected inventory, and persists an idempotent cancellation intent', async () => {
     const rejected = order({ status: 'manual_review', insurance_decision: { outcome: 'rejected' } });
-    const { service, inventory, allocations, orders, outbox } = setup({ order: rejected });
+    const { service, inventory, allocations, orders, outbox } = setup({ order: rejected, allocation: allocation({ stock_reserved: true }) });
     const result = await service.cancelRejectedByPatient({ id: 'patient-1', role: 'patient' }, 'order-1', 'insurance_cancel_key_000001');
     expect(result).toEqual({ ok: true, idempotent: false, status: 'cancelled' });
     expect(inventory.updateOne).toHaveBeenCalledWith({ id: 'inventory-1', provider_account_id: 'pharmacy-1' }, { $inc: { stock: 2 } }, expect.anything());
     expect(allocations.updateOne).toHaveBeenCalledWith(expect.objectContaining({ id: 'allocation-1' }), expect.objectContaining({ $set: expect.objectContaining({ status: 'cancelled' }) }), expect.anything());
     expect(orders.updateOne).toHaveBeenCalledWith(expect.objectContaining({ patient_account_id: 'patient-1', status: 'manual_review' }), expect.objectContaining({ $set: expect.objectContaining({ status: 'cancelled' }) }), expect.anything());
     expect(outbox.updateOne).toHaveBeenCalledWith(expect.objectContaining({ event_type: 'pharmacy.insurance.rejected_cancelled' }), expect.anything(), expect.anything());
+  });
+
+  it('does not add stock back when the allocation never reserved any (inventory tracking off)', async () => {
+    const rejected = order({ status: 'manual_review', insurance_decision: { outcome: 'rejected' } });
+    const { service, inventory } = setup({ order: rejected, allocation: allocation({ stock_reserved: false }) });
+    await expect(service.cancelRejectedByPatient({ id: 'patient-1', role: 'patient' }, 'order-1', 'insurance_cancel_key_000002')).resolves.toEqual(expect.objectContaining({ status: 'cancelled' }));
+    expect(inventory.updateOne).not.toHaveBeenCalled();
   });
 });

@@ -5,20 +5,15 @@ import { pick } from '../../common/sanitize';
 
 /** P3.3 (F15): writable catalog fields — id/_id/active/governance flags excluded. */
 export const RADIOLOGY_CATALOG_FIELDS = [
-  'name_ar', 'name_en', 'short_code', 'description_ar', 'description_en',
-  'modality', 'modality_category', 'body_part', 'price', 'old_price',
-  'contrast_required', 'fasting_required', 'fasting_hours',
-  'home_visit_supported', 'facility_visit_supported', 'turnaround_hours',
-  'preparation_ar', 'preparation_en', 'requires_referral', 'medical_referral_required',
-  'requires_pregnancy_check', 'requires_metal_implant_check', 'requires_contrast_allergy_check',
-  'estimated_duration_minutes', 'special_notes', 'image_url', 'icon',
-  'cash_availability', 'insurance_availability', 'portable_ultrasound',
+  'name_ar', 'name_en', 'short_code', 'description_ar', 'description_en', 'modality', 'modality_category', 'body_part', 'price', 'old_price', 'contrast_required', 'fasting_required', 'fasting_hours', 'home_visit_supported', 'facility_visit_supported', 'turnaround_hours', 'preparation_ar', 'preparation_en', 'requires_referral', 'medical_referral_required', 'popularity', 'active', 'unavailable', 'image_url', 'icon', 'estimated_duration_minutes', 'cash_availability', 'insurance_availability', 'portable_ultrasound',
 ] as const;
 import { RadiologyService, RadiologyBookingState, RADIOLOGY_BOOKING_TRANSITIONS } from '../../schemas/radiology.schema';
 import { RadiologyBooking } from './schemas/radiology-booking.schema';
 import { WorkflowEngineService } from '../workflow-engine/workflow-engine.module';
-import { EventEmitter2 } from '@nestjs/event-emitter';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { RedisService } from '../redis/redis.service';
+import { reviewUpdate, invalidateCatalogCache } from '../../common/catalog-review';
+import { getEffectiveRoles } from '../../common/auth.guard';
 
 const ALLOWED_ROLES_PROVIDER = ['radiology', 'admin', 'hospital'];
 
@@ -31,6 +26,7 @@ export class RadiologyOpsService {
     @InjectModel('User') private userModel: Model<any>,
     @InjectModel('LabResult') private resultModel: Model<any>,
     @InjectModel('StorageObject') private storageObjects: Model<any>,
+    @InjectModel('ProviderProfile') private profileModel: Model<any>,
     private engine: WorkflowEngineService,
     private events: EventEmitter2,
     @Optional() private readonly redis?: RedisService,
@@ -87,6 +83,13 @@ export class RadiologyOpsService {
     if (!allowed.includes(targetState)) {
       throw new BadRequestException(`Cannot transition from ${current} to ${targetState}`);
     }
+    // The patient may only cancel (before arriving); every other move belongs to the booked center.
+    const roles = getEffectiveRoles(user);
+    const isStaff = roles.some((r) => ['admin', 'super_admin', 'radiology', 'hospital'].includes(r));
+    if (!isStaff || (b.patient_id === user.id && !roles.includes('admin'))) {
+      if (targetState !== RadiologyBookingState.CANCELLED) throw new ForbiddenException('patient_can_only_cancel');
+    }
+    if (current === RadiologyBookingState.NEW_REQUEST && targetState === RadiologyBookingState.CONFIRMED) this.assertConfirmable(b);
     b.state_history = [...(b.state_history || []), { from: current, to: targetState, by_user_id: user.id, by_role: user.role, at: new Date(), note }];
     b.state = targetState;
     if (b.status !== undefined) b.status = targetState;
@@ -95,6 +98,26 @@ export class RadiologyOpsService {
     // MODULE 16: Emit notification
     this.events.emit('radiology.state_changed', { bookingId: id, state: targetState, patientId: b.patient_id });
     return b;
+  }
+
+  /** Same payment rule as labs: cash only at the center, card must be paid, insurance via coverage decision. */
+  private assertConfirmable(b: any) {
+    if (b.payment_method === 'insurance') throw new BadRequestException('insurance_booking_requires_coverage_decision');
+    if (b.payment_method === 'card' && b.payment_status !== 'paid') throw new BadRequestException('card_payment_not_completed');
+    if (b.payment_method === 'cash' && b.location_type === 'home') throw new BadRequestException('cash_only_at_facility');
+  }
+
+  /** Verified card payment confirms a new radiology booking. */
+  @OnEvent('payment.completed')
+  async confirmPaidBooking(event: any) {
+    if (event?.booking_kind !== 'radiology' || !event?.booking_id) return;
+    const b = await this.bkgModel.findOne({ id: event.booking_id });
+    if (!b || b.state !== RadiologyBookingState.NEW_REQUEST || b.payment_method !== 'card') return;
+    b.state_history = [...(b.state_history || []), { from: b.state, to: RadiologyBookingState.CONFIRMED, by_user_id: 'system', by_role: 'system', at: new Date(), note: 'card_payment_verified' }];
+    b.state = RadiologyBookingState.CONFIRMED;
+    b.payment_status = 'paid';
+    await b.save().catch(() => null);
+    this.events.emit('radiology.state_changed', { bookingId: b.id, state: b.state, patientId: b.patient_id });
   }
 
   // ──────────────────────────────────────────────
@@ -160,6 +183,10 @@ export class RadiologyOpsService {
     const b = await this.findBooking(id, user);
     if (!b) throw new NotFoundException();
     if (body.pdf_url || body.dicom_url || body.image_urls) throw new BadRequestException('raw_report_urls_not_allowed');
+    // A report belongs to a performed scan (or replaces a draft sent back from review).
+    if (![RadiologyBookingState.IN_SCANNING, RadiologyBookingState.REPORT_DRAFT].includes((b.state || b.status) as RadiologyBookingState)) {
+      throw new BadRequestException(`invalid_transition_${b.state || b.status}_to_REPORT_DRAFT`);
+    }
     const reportObjectId = String(body.report_storage_object_id || '').trim();
     if (!reportObjectId) throw new BadRequestException('report_storage_object_id_required');
     await this.privateProviderStorage(reportObjectId, user, true);
@@ -187,6 +214,7 @@ export class RadiologyOpsService {
     const b = await this.findBooking(id, user);
     if (!b) throw new NotFoundException();
     if (!b.report_storage_object_id) throw new BadRequestException('secure_report_storage_object_required_before_review');
+    if ((b.state || b.status) !== RadiologyBookingState.REPORT_DRAFT) throw new BadRequestException(`invalid_transition_${b.state || b.status}_to_UNDER_REVIEW`);
     b.report_status = 'under_review';
     (b.state_history = b.state_history || []).push({ from: b.state, to: RadiologyBookingState.UNDER_REVIEW, by_user_id: user.id, by_role: user.role, at: new Date(), note: 'Submitted for radiologist quality review' });
     b.state = RadiologyBookingState.UNDER_REVIEW;
@@ -348,62 +376,108 @@ export class RadiologyOpsService {
     // The legacy `id` field on catalog docs is stored as binary garbage, so
     // public detail lookup must use `_id` (or human `short_code`) instead.
     const base = { is_deleted: false, active: true, public_eligibility: true, medical_review_status: 'approved' } as const;
-    const or: Record<string, unknown>[] = [{ short_code: { $eq: id } }];
+    const or: Record<string, unknown>[] = [{ id: { $eq: id } }, { short_code: { $eq: id } }];
     if (Types.ObjectId.isValid(id)) or.unshift({ _id: { $eq: new Types.ObjectId(id) } });
     const svc = await this.svcModel.findOne({ ...base, $or: or }).lean();
     if (!svc) throw new NotFoundException();
     return svc;
   }
 
+  /** Centers able to perform every requested scan (registration stores the scan ids in equipment_list). */
+  async compatibleProviders(serviceIds: string[]) {
+    const ids = [...new Set((serviceIds || []).filter(Boolean))];
+    if (!ids.length) return [];
+    const services = await this.svcModel.find({ id: { $in: ids }, is_deleted: false, active: true, public_eligibility: true, medical_review_status: 'approved' }, { _id: 0, modality: 1 }).lean();
+    if (services.length !== ids.length) return [];
+    const modalities = [...new Set((services as any[]).map((sv) => sv.modality).filter(Boolean))];
+    const profiles = await this.profileModel.find({
+      type: { $in: ['radiology', 'hospital'] }, status: 'active', public_eligibility: true, medical_review_status: 'approved',
+      account_id: { $exists: true, $ne: null },
+      $or: [{ equipment_list: { $all: ids } }, ...(modalities.length ? [{ equipment_list: { $all: modalities } }] : [])],
+    }, { _id: 0, account_id: 1, id: 1, name_ar: 1, name_en: 1, home_visit_supported: 1, rating_avg: 1, rating_count: 1, logo: 1 }).limit(50).lean();
+    return (profiles as any[]).map((profile) => ({
+      id: profile.account_id, facility_id: profile.id, name: profile.name_ar || profile.name_en,
+      homeVisitAvailable: Boolean(profile.home_visit_supported),
+      rating: profile.rating_count > 0 ? profile.rating_avg : null, logo: profile.logo || null,
+    }));
+  }
+
   async book(user: any, body: any) {
-    // S4 duplicate-booking prevention: idempotent replay for double-tap/retry within 3 minutes
-    if (body?.service_id) {
-      if (typeof body.service_id !== 'string' || body.service_id.length > 128) throw new BadRequestException('invalid service_id');
-      const dupe = await this.bkgModel.findOne({
-        patient_id: { $eq: user.id },
-        service_id: { $eq: body.service_id },
-        createdAt: { $gte: new Date(Date.now() - 3 * 60_000) },
-        state: { $nin: [RadiologyBookingState.CANCELLED, RadiologyBookingState.REPORT_READY] },
-      }).lean();
-      if (dupe) return dupe;
+    // Only the approved catalog decides what is booked and what it costs; the body names the scan and center.
+    const serviceId = typeof body?.service_id === 'string' ? body.service_id : '';
+    if (!serviceId || serviceId.length > 128) throw new BadRequestException('service_id_required');
+    const svc: any = await this.getById(serviceId).catch(() => null);
+    if (!svc) throw new BadRequestException('service_not_available');
+    const isAdmin = ['admin', 'super_admin', 'system'].includes(user?.role);
+    const providerId = typeof body?.provider_account_id === 'string' ? body.provider_account_id : '';
+    if (!providerId && !isAdmin) throw new BadRequestException('provider_account_id_required');
+    if (providerId && !isAdmin) {
+      const ok = (await this.compatibleProviders([svc.id])).some((p: any) => p.id === providerId);
+      if (!ok) throw new BadRequestException('provider_cannot_perform_scan');
     }
+    const when = new Date(String(body?.scheduled_at || ''));
+    if (isNaN(when.getTime())) throw new BadRequestException('scheduled_at_required');
+    if (when.getTime() < Date.now() - 5 * 60_000) throw new BadRequestException('slot_expired');
+    const location = ['home'].includes(String(body?.location_type)) ? 'home' : 'facility';
+    if (location === 'home' && !svc.home_visit_supported) throw new BadRequestException('scan_not_home_eligible');
     const pm = String(body?.payment_method || 'cash').toLowerCase();
     if (!['cash', 'card', 'insurance'].includes(pm)) throw new BadRequestException('invalid payment_method');
+    if (location === 'home' && pm === 'cash') throw new BadRequestException('payment_method_cash_not_allowed_for_home_visit');
+    const documents: any[] = Array.isArray(body?.documents) ? body.documents.map((d: any) => ({ kind: String(d?.kind || ''), url_or_b64: String(d?.url_or_b64 || ''), filename: d?.filename, uploaded_at: new Date() })) : [];
     // Home rule (mirror labs): insurance + home requires uploaded doctor_request OR preauth.
-    if (body?.location_type === 'home' && pm === 'insurance') {
-      const documents: any[] = Array.isArray(body?.documents) ? body.documents : [];
-      const hasProof = documents.some((d: any) => d && (d.kind === 'doctor_request' || d.kind === 'preauth'));
-      if (!hasProof) throw new BadRequestException('insurance_home_requires_doctor_request_or_preauth');
+    if (location === 'home' && pm === 'insurance' && !documents.some((d) => d.kind === 'doctor_request' || d.kind === 'preauth')) {
+      throw new BadRequestException('insurance_home_requires_doctor_request_or_preauth');
     }
-    // Server price authority: recompute from the approved catalog, never trust client price.
-    let total_price = Number(body?.total_price ?? 0) || 0;
-    if (body?.service_id) {
-      try {
-        const svc = await this.getById(String(body.service_id));
-        if (svc && Number.isFinite(Number((svc as any).price))) total_price = Number((svc as any).price);
-      } catch { /* unknown service falls through to validation below */ }
-    }
+    // S4 duplicate-booking prevention: idempotent replay for double-tap/retry within 3 minutes
+    const dupe = await this.bkgModel.findOne({
+      patient_id: { $eq: user.id }, 'items.service_id': { $eq: svc.id },
+      createdAt: { $gte: new Date(Date.now() - 3 * 60_000) },
+      state: { $nin: [RadiologyBookingState.CANCELLED, RadiologyBookingState.REPORT_READY] },
+    }).lean();
+    if (dupe) return dupe;
+    const total = Number(svc.price) || 0;
     const booking = await this.bkgModel.create({
-      ...body,
       id: require('uuid').v4(),
-      patient_id: user.id,
+      patient_id: user.id, patient_name: user.full_name, patient_phone: user.phone,
+      items: [{ service_id: svc.id, name_ar: svc.name_ar, name_en: svc.name_en, modality: svc.modality, body_part: svc.body_part, price: total }],
+      total, total_price: total,
+      scan_type_code: svc.short_code, scan_name_ar: svc.name_ar, scan_name_en: svc.name_en,
+      location_type: location, delivery_mode: location === 'home' ? 'MOBILE_HOME_VISIT' : 'IN_CENTER',
+      provider_account_id: providerId || undefined,
+      scheduled_at: when,
       payment_method: pm,
-      total_price,
       insurance_status: pm === 'insurance' ? 'pending' : 'none',
+      documents,
       state: RadiologyBookingState.NEW_REQUEST,
+      state_history: [{ from: '', to: RadiologyBookingState.NEW_REQUEST, by_user_id: user.id, by_role: user.role, at: new Date() }],
     });
     this.events.emit('radiology.new_booking', { bookingId: booking.id, patientId: user.id });
     return booking;
   }
 
   async mineFor(user: any) {
-    return this.bkgModel.find({ patient_id: user.id }).sort({ createdAt: -1 }).lean();
+    // Older bookings may sit in the center store (patient_id = the user's Mongo _id).
+    const me: any = await this.userModel.findOne({ id: user.id }, { _id: 1 }).lean();
+    const [current, center] = await Promise.all([
+      this.bkgModel.find({ patient_id: user.id }).sort({ createdAt: -1 }).lean(),
+      me?._id ? this.centerBkgModel.find({ patient_id: me._id }).sort({ createdAt: -1 }).lean() : Promise.resolve([]),
+    ]);
+    return [...(current as any[]), ...(center as any[]).map((c) => ({ ...c, state: c.state || c.status }))]
+      .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
   }
 
   async getBooking(id: string, user: any) {
     const b = await this.bkgModel.findOne({ id }).lean() as any;
-    if (!b) throw new NotFoundException();
-    if (b.patient_id !== user.id && user.role !== 'admin' && user.role !== 'super_admin') {
+    if (!b) {
+      // older center-store booking: findBooking applies its own participant check
+      const c = await this.findBooking(id, user);
+      if (!c) throw new NotFoundException();
+      const o = c.toObject ? c.toObject() : c;
+      return { ...o, state: o.state || o.status };
+    }
+    // the patient, the booked center (its detail screen refreshes after every action) or admin
+    const isProvider = !!b.provider_account_id && b.provider_account_id === (user.account_id ?? user.id);
+    if (b.patient_id !== user.id && !isProvider && user.role !== 'admin' && user.role !== 'super_admin') {
       throw new NotFoundException();
     }
     return b;
@@ -467,14 +541,23 @@ export class RadiologyOpsService {
   // --- Admin Catalog CRUD ---
   async createCatalog(user: any, body: any) {
     if (user.role !== 'admin') throw new ForbiddenException();
-    return this.svcModel.create({ ...pick(body, RADIOLOGY_CATALOG_FIELDS), id: require('uuid').v4() });
+    const doc = await this.svcModel.create({ ...pick(body, RADIOLOGY_CATALOG_FIELDS), ...reviewUpdate(body?.medical_review_status, user.id), id: require('uuid').v4() });
+    await invalidateCatalogCache(this.redis, 'cache:radiology-services:');
+    return doc;
   }
 
   async updateCatalog(user: any, id: string, body: any) {
     if (user.role !== 'admin') throw new ForbiddenException();
-    const updated = await this.svcModel.findOneAndUpdate({ id }, { $set: pick(body, RADIOLOGY_CATALOG_FIELDS) }, { new: true });
+    const updated = await this.svcModel.findOneAndUpdate({ id }, { $set: { ...pick(body, RADIOLOGY_CATALOG_FIELDS), ...reviewUpdate(body?.medical_review_status, user.id) } }, { new: true });
     if (!updated) throw new NotFoundException();
+    await invalidateCatalogCache(this.redis, 'cache:radiology-services:');
     return updated;
+  }
+
+  /** Admin catalog editor: every item including unpublished ones (the public list only shows approved). */
+  async adminCatalog(user: any) {
+    if (!getEffectiveRoles(user).includes('admin')) throw new ForbiddenException();
+    return this.svcModel.find({ is_deleted: { $ne: true } }, { _id: 0, __v: 0 }).sort({ medical_review_status: 1, popularity: -1, name_ar: 1 }).limit(1000);
   }
 
   async deleteCatalog(user: any, id: string) {

@@ -691,7 +691,8 @@ function AppointmentDetailScreen({ apt, onBack, onNavigate }:
   </View>
   ))}
   </NCard>
-  <NBtn label={AR ? 'بدء الاستشارة يحتاج تأكيد الخادم' : 'Consultation start requires server confirmation'} onPress={() => show(AR ? 'لا يمكن فتح الاستشارة قبل تحقق الخادم من حالة الموعد والدفع وعلاقة الطبيب بالمريض.' : 'The consultation cannot open before the server verifies appointment state, payment, and doctor–patient relation.', 'info')} style={{ marginTop: SP.xl }} />
+  {/* the consultation screen verifies the appointment with the server before anything opens */}
+  <NBtn label={AR ? 'فتح الاستشارة' : 'Open consultation'} onPress={() => onNavigate('consultation', apt)} style={{ marginTop: SP.xl }} />
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginTop: SP.md }}>
  <View style={{ flex: 1 }}><NBtn label={AR ? 'تأكيد الموعد' : 'Confirm'} loading={acting} onPress={() => doPatch('confirm')} /></View>
  <View style={{ flex: 1 }}><NBtn label={AR ? 'إلغاء' : 'Cancel'} variant="danger" onPress={() => setShowCancel((v) => !v)} /></View>
@@ -727,18 +728,36 @@ function LiveConsultationScreen({ apt, onBack, onNavigate }: { apt: any; onBack:
  const AR = lang === 'ar';
  const [verified, setVerified] = useState<any | null>(null);
  const [loading, setLoading] = useState(true);
+ const [acting, setActing] = useState(false);
+ const [diagnosis, setDiagnosis] = useState('');
+ const [visitNotes, setVisitNotes] = useState('');
+ const [advice, setAdvice] = useState('');
  const aptId = String(apt?.id || apt?.raw?.id || apt?.appointment_id || '');
 
- useEffect(() => {
+ const load = useCallback(() => {
    if (!aptId) { setLoading(false); return; }
-   let alive = true;
    client.get(`/care/appointments/${encodeURIComponent(aptId)}`).then((res: any) => {
-     if (alive) setVerified(res?.data?.data || res?.data || null);
+     setVerified(res?.data?.data || res?.data || null);
    }).catch(() => {
-     if (alive) show(AR ? 'تعذر التحقق من الموعد' : 'Could not verify appointment', 'error');
-   }).finally(() => { if (alive) setLoading(false); });
-   return () => { alive = false; };
+     show(AR ? 'تعذر التحقق من الموعد' : 'Could not verify appointment', 'error');
+   }).finally(() => setLoading(false));
  }, [aptId]);
+ useEffect(() => { load(); }, [load]);
+
+ // Visit lifecycle on the server: CONFIRMED -> CHECKED_IN -> IN_PROGRESS -> COMPLETED (finish saves the summary).
+ const step = async (fn: () => Promise<any>, ok: string) => {
+   setActing(true);
+   try { await fn(); show(ok, 'success'); load(); }
+   catch (e: any) { show(e?.response?.data?.message || e.message || (AR ? 'تعذر تنفيذ الإجراء' : 'Action failed'), 'error'); }
+   finally { setActing(false); }
+ };
+ const checkIn = () => step(() => client.patch(`/care/appointments/${aptId}/check-in`, {}), AR ? 'تم تسجيل حضور المريض' : 'Patient checked in');
+ const startVisit = () => step(() => client.patch(`/care/appointments/${aptId}/start`, {}), AR ? 'بدأت الاستشارة' : 'Consultation started');
+ const finishVisit = () => {
+   if (!diagnosis.trim()) return show(AR ? 'اكتب التشخيص قبل إنهاء الزيارة' : 'Enter the diagnosis before finishing', 'warning');
+   step(() => client.post(`/care/appointments/${aptId}/finish`, { diagnosis: diagnosis.trim(), notes: visitNotes.trim() || undefined, recommendations: advice.trim() || undefined }),
+     AR ? 'انتهت الزيارة وأُرسل الملخص للمريض' : 'Visit finished; summary sent to the patient');
+ };
 
  const status = String(verified?.status || '').toUpperCase();
  const okStates = ['CONFIRMED', 'CHECKED_IN', 'IN_PROGRESS'];
@@ -771,6 +790,16 @@ function LiveConsultationScreen({ apt, onBack, onNavigate }: { apt: any; onBack:
      </Text>
      <Text style={{ color: theme.textSub, marginTop: 4 }}>{AR ? `الموعد: ${aptId}` : `Appointment: ${aptId}`} · {status}</Text>
     </NCard>
+    {status === 'CONFIRMED' && <NBtn label={AR ? 'حضر المريض (تسجيل الحضور)' : 'Patient arrived (check in)'} loading={acting} onPress={checkIn} style={{ marginBottom: SP.md }} />}
+    {status === 'CHECKED_IN' && <NBtn label={AR ? 'بدء الاستشارة' : 'Start consultation'} loading={acting} onPress={startVisit} style={{ marginBottom: SP.md }} />}
+    {status === 'IN_PROGRESS' && (
+     <NCard style={{ marginBottom: SP.md }}>
+      <NInput label={AR ? 'التشخيص' : 'Diagnosis'} value={diagnosis} onChange={setDiagnosis} />
+      <NInput label={AR ? 'ملاحظات الزيارة' : 'Visit notes'} value={visitNotes} onChange={setVisitNotes} />
+      <NInput label={AR ? 'التوصيات' : 'Recommendations'} value={advice} onChange={setAdvice} />
+      <NBtn label={AR ? 'إنهاء الزيارة' : 'Finish visit'} loading={acting} onPress={finishVisit} style={{ marginTop: SP.md }} />
+     </NCard>
+    )}
     <NBtn label={AR ? 'بدء مكالمة الفيديو' : 'Start video call'} onPress={() => onNavigate('video_call', fullApt)} style={{ marginBottom: SP.md }} />
     <NBtn label={AR ? 'محادثة ما قبل الزيارة' : 'Pre-visit chat'} variant="outline" onPress={() => onNavigate('pre_visit_chat', fullApt)} style={{ marginBottom: SP.md }} />
     <NBtn label={AR ? 'كتابة وصفة' : 'Write prescription'} variant="outline" onPress={() => onNavigate('prescription', fullApt)} style={{ marginBottom: SP.md }} />
@@ -874,13 +903,15 @@ export function EPrescriptionScreen({ apt, onBack }:
   appointment_id: appointmentId,
   diagnosis: drugNotes.trim(),
   notes: drugNotes.trim(),
-  erx: drugs.map(d => ({
-    medicine_name_en: d.name,
-    medicine_name_ar: d.name,
+  erx: drugs.map(d => {
+    // a drug picked from the approved catalog carries its id; anything typed is recorded as a manual line
+    const hit = drugDb.find(m => m.name.trim().toLowerCase() === d.name.trim().toLowerCase());
+    return {
+    ...(hit ? { medicine_id: hit.id } : { manual_name_en: d.name, manual_name_ar: d.name }),
     dose: d.dose,
     duration_days: parseInt(d.duration, 10),
     instructions: `${d.freq}. ${d.notes}`.trim()
-  })),
+  }; }),
   labs: [],
   radiology: []
   };
@@ -3789,9 +3820,18 @@ function PreVisitChatScreen({ apt, onBack, onNavigate }: { apt: any, onBack: () 
   
   const [msg, setMsg] = useState('');
   const [loading, setLoading] = useState(false);
-  const [messages, setMessages] = useState([
-  ]);
-  
+  const [messages, setMessages] = useState<any[]>([]);
+  // the conversation the patient opened from consultations/chat-with-doctor
+  const loadChat = useCallback(async () => {
+    if (!apt?.id) return;
+    try {
+      const res = await client.get(`/provider/chat/appointment/${encodeURIComponent(apt.id)}`);
+      const rows = res.data?.messages || [];
+      setMessages(rows.map((m: any) => ({ id: m.id, text: m.body, sender: m.sender_id === apt?.patient_id ? 'patient' : 'doctor', attachment: m.attachment_url || '' })));
+    } catch { /* keep what is on screen */ }
+  }, [apt?.id, apt?.patient_id]);
+  useEffect(() => { loadChat(); const t = setInterval(loadChat, 8000); return () => clearInterval(t); }, [loadChat]);
+
   const handleSend = async () => {
     if (!msg.trim()) return;
     setLoading(true);

@@ -21,6 +21,8 @@ interface SosCase {
   created_at?: string;
   createdAt?: string;
   notes?: string;
+  escalated_997?: boolean;
+  escalated_997_at?: string;
 }
 
 const STATUS_AR: Record<string, string> = {

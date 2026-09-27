@@ -1,0 +1,5 @@
+# False positives in reviewed commits (fake values, no real credentials):
+# - unit test of placeholder-secret stripping (fake 'sk_live_abc123' style strings)
+d4cb6b03ed4bedd33f6161386f81afacb66667d7:backend/src/config/env.placeholders.spec.ts:generic-api-key:12
+# - empty STRIPE_SECRET_KEY= in the env example, matched across the next line
+d4cb6b03ed4bedd33f6161386f81afacb66667d7:deploy/.env.production.example:generic-api-key:54
