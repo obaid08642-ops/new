@@ -77,11 +77,14 @@ export class PatientUxService {
 
     const status = body.rating < 3 ? 'pending_review' : 'approved';
 
-    return this.reviews.findOneAndUpdate(
+    const review: any = await this.reviews.findOneAndUpdate(
       { booking_kind: { $eq: body.booking_kind }, booking_id: { $eq: body.booking_id } },
       { $set: { provider_id, patient_id: user.id, booking_kind: body.booking_kind, booking_id: body.booking_id, rating: body.rating, comment: body.comment, aspects: body.aspects, status } },
       { upsert: true, new: true }
     );
+    // loyalty: one award per booking review (awardPoints is idempotent on the ref)
+    this.events.emit('review.submitted', { user_id: user.id, review_id: `${body.booking_kind}:${body.booking_id}` });
+    return review;
   }
 
   async requestRefund(user: any, body: { booking_kind: string; booking_id: string; reason: string; amount?: number }) {

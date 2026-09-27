@@ -144,3 +144,24 @@ Status: `open` means the agent does it; `done` means the reviewer verified it li
 - **Required:**
   1. On `service.assigned` / `service.requested` (and pharmacy broadcast, insurance request created, new chat message to a provider), write a `provider_notifications` row for **that provider account only**, with `related_type`/`related_id` so the bell opens the job, and send the device push to that account.
   2. Remove the role-wide provider broadcast.
+
+### LJ-08: Loyalty cannot be administered; wishlist cannot be added to
+- **Status:** open
+- **Live check:** `tools/live/j_loyalty.py` (95/95 for what exists).
+  - Rewards/claim steps only run when rewards exist; today there are none.
+- **Where:**
+  - `modules/loyalty/loyalty.controller.ts`
+  - admin `pages/admin/loyalty-config.tsx`
+  - patient-app `app/loyalty/*`, `app/pharmacy/wishlist.tsx`
+- **Problem:**
+  1. There are no admin routes to create, edit or disable rewards or challenges, so the rewards catalogue and challenges are always empty. The patient can earn points but never spend them.
+  2. The admin loyalty page saves with `PUT /loyalty/config`, but only `GET` exists (404). The points table cannot be changed.
+  3. The wishlist screen can only list and remove (the remove uses `POST /users/me/wishlist/:id`, a toggle). No screen in the app adds an item, so the wishlist is always empty.
+- **Required:**
+  1. Admin CRUD for rewards (name, points cost, stock, active) and challenges (goal, points, dates, active), plus admin pages.
+  2. `PUT /admin/loyalty/config` (whitelisted keys, audited), with the page pointed at it.
+  3. A heart/save button on the medicine detail (and pharmacy product card) that toggles `/users/me/wishlist/:medicineId`, and a wishlist screen that shows the real item names and prices.
+- *(Reviewer already fixed:)* points were never earned.
+  - Nothing emitted `booking.completed` or `review.submitted`.
+  - `order.delivered` carried `patient_id` while the listener read `user_id`.
+  - Loyalty and referral now listen to the workflow engine's `service.completed` (all domains); reviews emit `review.submitted`; order payloads are accepted.
