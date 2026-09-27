@@ -26,7 +26,7 @@ const DAY = { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } };
  * P6.x-1: operational reports over live aggregates (no constants).
  * Revenue from `transactions` (paid, net of refunds); orders from `orders`;
  * bookings as a union across the five booking collections; providers/patients
- * from profile/user creation. Every endpoint also serves ?format=csv.
+ * from profile/user creation. Every endpoint also serves ?format=csv and ?format=xlsx.
  */
 @Controller('admin/reports')
 @UseGuards(JwtAuthGuard)
@@ -76,6 +76,36 @@ export class AdminReportsController {
     return false;
   }
 
+  /** R6-7: same rows as CSV, as a real .xlsx workbook (exceljs is a backend dep). */
+  private async xlsx(res: Response, name: string, rows: any[]) {
+    const ExcelJS = require('exceljs');
+    const wb = new ExcelJS.Workbook();
+    const ws = wb.addWorksheet('report');
+    const cols = Array.from(new Set(rows.flatMap((r) => Object.keys(r || {}))));
+    ws.columns = cols.map((c) => ({ header: c, key: c, width: Math.max(12, Math.min(40, c.length + 2)) }));
+    for (const r of rows) {
+      const row: any = {};
+      for (const c of cols) {
+        const v = (r as any)?.[c];
+        row[c] = v instanceof Date ? v : (v ?? '');
+      }
+      ws.addRow(row);
+    }
+    ws.getRow(1).font = { bold: true };
+    const buf: Buffer = await wb.xlsx.writeBuffer();
+    res.setHeader('content-type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('content-disposition', `attachment; filename="${name}.xlsx"`);
+    res.send(Buffer.from(buf));
+  }
+
+  private async maybeXlsx(res: Response | undefined, name: string, rows: any[], format?: string) {
+    if (format === 'xlsx' && res) {
+      await this.xlsx(res, name, rows);
+      return true;
+    }
+    return false;
+  }
+
   @Get('revenue')
   async revenue(@Query() q: ReportsQueryDto, @Query('format') format?: string, @Res({ passthrough: true }) res?: Response) {
     const rows: any[] = await this.conn.collection('transactions').aggregate([
@@ -84,7 +114,7 @@ export class AdminReportsController {
       { $project: { bucket: '$_id', gross: 1, refunded: 1, net: { $subtract: ['$gross', '$refunded'] }, count: 1, _id: 0 } },
       { $sort: { bucket: 1 } },
     ]).toArray();
-    if (this.maybeCsv(res, 'revenue', rows, format)) return;
+    if (this.maybeCsv(res, 'revenue', rows, format) || await this.maybeXlsx(res, 'revenue', rows, format)) return;
     return { group_by: q.group_by || 'day', rows };
   }
 
@@ -107,7 +137,7 @@ export class AdminReportsController {
       }
     }
     const rows = [...merged.values()].sort((a, b) => String(a.bucket).localeCompare(String(b.bucket)));
-    if (this.maybeCsv(res, 'orders', rows, format)) return;
+    if (this.maybeCsv(res, 'orders', rows, format) || await this.maybeXlsx(res, 'orders', rows, format)) return;
     return { group_by: q.group_by || 'day', rows };
   }
 
@@ -132,7 +162,7 @@ export class AdminReportsController {
       ]).toArray().catch(() => []);
       for (const r of rows) out.push({ kind: k.kind, ...r });
     }
-    if (this.maybeCsv(res, 'bookings', out, format)) return;
+    if (this.maybeCsv(res, 'bookings', out, format) || await this.maybeXlsx(res, 'bookings', out, format)) return;
     return { group_by: q.group_by || 'day', rows: out };
   }
 
@@ -144,7 +174,7 @@ export class AdminReportsController {
       { $project: { bucket: '$_id', count: 1, _id: 0 } },
       { $sort: { bucket: 1 } },
     ]).toArray();
-    if (this.maybeCsv(res, 'providers', rows, format)) return;
+    if (this.maybeCsv(res, 'providers', rows, format) || await this.maybeXlsx(res, 'providers', rows, format)) return;
     return { group_by: q.group_by || 'type', rows };
   }
 
@@ -156,7 +186,7 @@ export class AdminReportsController {
       { $project: { bucket: '$_id', count: 1, _id: 0 } },
       { $sort: { bucket: 1 } },
     ]).toArray();
-    if (this.maybeCsv(res, 'patients', rows, format)) return;
+    if (this.maybeCsv(res, 'patients', rows, format) || await this.maybeXlsx(res, 'patients', rows, format)) return;
     return { group_by: 'day', rows };
   }
 
@@ -169,7 +199,7 @@ export class AdminReportsController {
       { $project: { bucket: '$_id.day', type: '$_id.type', total: 1, count: 1, _id: 0 } },
       { $sort: { bucket: 1, type: 1 } },
     ]).toArray().catch(() => []);
-    if (this.maybeCsv(res, 'finance', rows, format)) return;
+    if (this.maybeCsv(res, 'finance', rows, format) || await this.maybeXlsx(res, 'finance', rows, format)) return;
     return { group_by: 'day', rows };
   }
 
@@ -182,7 +212,7 @@ export class AdminReportsController {
       { $project: { bucket: '$_id', count: 1, copay: 1, _id: 0 } },
       { $sort: { bucket: 1 } },
     ]).toArray().catch(() => []);
-    if (this.maybeCsv(res, 'insurance', rows, format)) return;
+    if (this.maybeCsv(res, 'insurance', rows, format) || await this.maybeXlsx(res, 'insurance', rows, format)) return;
     return { group_by: q.group_by || 'state', rows };
   }
 
@@ -199,7 +229,7 @@ export class AdminReportsController {
       { $project: { bucket: '$_id', count: 1, avg_hours: { $round: ['$avg_hours', 1] }, _id: 0 } },
       { $sort: { bucket: 1 } },
     ]).toArray().catch(() => []);
-    if (this.maybeCsv(res, 'labs-turnaround', rows, format)) return;
+    if (this.maybeCsv(res, 'labs-turnaround', rows, format) || await this.maybeXlsx(res, 'labs-turnaround', rows, format)) return;
     return { group_by: 'day', rows };
   }
 }
