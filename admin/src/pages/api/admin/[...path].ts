@@ -71,7 +71,9 @@ function apiPath(req: NextApiRequest) {
     // - nursing requests → AdminNursing (/api/v1/admin/nursing/*)
     //   while nursing catalog → public (/api/v1/nursing/*)
     const stayAdmin = (decoded[0] === 'insurance' && (decoded[1] === 'stats' || decoded[1] === 'requests'))
-      || (decoded[0] === 'nursing' && decoded[1] === 'requests');
+      || (decoded[0] === 'nursing' && decoded[1] === 'requests')
+      // legal: reads are public (/api/v1/legal/*); edits and diffs are AdminLegal (/api/v1/admin/legal/*)
+      || (decoded[0] === 'legal' && ((req.method || 'GET') !== 'GET' || decoded[decoded.length - 1] === 'diff'));
     upstreamPath = stayAdmin ? `/api/v1/admin/${encoded}` : `/api/v1/${encoded}`;
   }
   if (decoded[0] === 'ambulance' && decoded[1] === 'fleet') upstreamPath = `/api/v1/admin/ambulance/fleet${decoded.slice(2).length ? `/${decoded.slice(2).map(encodeURIComponent).join('/')}` : ''}`;

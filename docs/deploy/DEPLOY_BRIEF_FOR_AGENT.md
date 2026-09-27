@@ -53,6 +53,7 @@ Clone or fetch the repo into `/opt/nabdah/src`, run `git checkout <SHA>`, and sy
 - Start from `deploy/.env.production.example`, which is new: it lists every variable, marks the required ones and the forbidden ones. `deploy.sh` generates the secrets on first run. **If a `.env.production` already exists, keep its secrets** (changing `JWT_SECRET` logs everyone out; changing the Mongo or Redis passwords breaks the running stack). Only add the missing variables.
 - Required at boot in production: `MONGO_URL`, `REDIS_URL`, `JWT_SECRET` (≥ 32 chars), `ALLOWED_ORIGINS` (exact origins, no `*`). The backend refuses to start without them, which is intended.
 - Remove any `MOYASAR_*=pending_real_key` lines left by older `deploy.sh` runs. Leave them empty unless the owner gives real keys.
+- `MOYASAR_API_BASE` must stay **unset** in staging and production (the code then uses Moyasar's real https API). It exists only so the local test suite can point at a fake gateway.
 - **`TRUST_PROXY_HOPS` must equal the real number of proxies in front of the backend.** The code defaults to 2. With only nginx in front (DNS-only, no Cloudflare proxy on `api.nabd.plus`) it must be `1`; otherwise a client can forge `X-Forwarded-For`, appear as any IP, and bypass every per-IP limit (login brute force, OTP bombing). Use `2` only if `api.nabd.plus` is proxied by Cloudflare (orange cloud). Verify it in §3.6.
 - For staging use a **separate database**: `DB_NAME=nabd_staging` (never staging on `nabd_nestjs`). Note that `DB_NAME=nabd_staging` also turns the API rate limiter off by design (`api-security.module.ts`). That is acceptable for staging only.
 - patient-web runtime env: `NABD_API_BASE_URL=http://<backend>:8002/api/v1`, `NEXT_PUBLIC_SITE_ORIGIN`, `APPLE_TEAM_ID=6AT2W85DBC` (the code falls back to this too), `APPLE_BUNDLE_ID`, `ANDROID_PACKAGE_NAME`, `ANDROID_SHA256_FINGERPRINT`. `NEXT_PUBLIC_WEARABLES_ENABLED` must stay **unset**, which keeps wearables hidden. `NEXT_PUBLIC_*` values are baked in at build time, so pass them as build args.
@@ -72,6 +73,8 @@ npx ts-node --transpile-only scripts/migrations/2026-09-link-provider-accounts.t
 npx ts-node --transpile-only scripts/migrations/2026-09-unify-provider-passwords.ts
 npx ts-node --transpile-only scripts/migrations/2026-09-strip-facility-ratings.ts
 npx ts-node --transpile-only scripts/migrations/2026-09-purge-demo.ts                     # soft-deletes demo/test records
+npx ts-node --transpile-only scripts/migrations/2026-09-backfill-row-ids.ts               # gives id-less provider rows an id (409s on approval/sub-accounts)
+npx ts-node --transpile-only scripts/migrations/2026-09-sync-profile-type-geo.ts          # provider profile type + geo for matching
 ```
 Report every dry-run output to the owner, then rerun each with `--apply` in the **same order**. `link-provider-accounts` must be applied before `unify-provider-passwords`. Also check whether the index scripts `20260827-pharmacy-expiry-indexes.js` and `20260827-pharmacy-payment-evidence-indexes.js` were applied (`db.<coll>.getIndexes()`) and run them if not, plus `deploy/mongo/init-indexes.js` (idempotent).
 
@@ -90,7 +93,12 @@ Start the stack, then check:
    - patient: register/OTP, log in, add an address (it must show on both web and app), add a medication reminder, save an insurance policy (reopen it: company and member id are still there), book nursing with a saved address, cart checkout (cash).
    - provider: log in, see jobs (patient allergies and chronic conditions are visible), submit a profile change.
    - admin: log in, approve that provider change, create a delivery rule, view orders.
-5. `https://staging.nabd.plus` loads; `/.well-known/apple-app-site-association` contains `6AT2W85DBC`.
+5. **Admin content the platform needs before anyone can use it (the owner or their admin does this in the admin panel; report what exists):**
+   - Catalogs: lab tests, radiology scans, nursing services and medicines are only visible to patients after the admin publishes them (medical review = approved) in the catalog manager.
+   - Insurance companies: add the insurers and activate them, or patients cannot add a policy.
+   - Legal: publish the privacy policy and terms (a fresh database has none).
+   - Specialties list present (doctors register against it).
+6. `https://staging.nabd.plus` loads; `/.well-known/apple-app-site-association` contains `6AT2W85DBC`.
 
 ## 4. Production (only after the owner says "go")
 Repeat §3 against production: backup, pin the same SHA, keep the existing secrets, run the migrations dry-run → owner OK → apply, and verify everything in §3.6 including the rate limiter check. Deploy during low traffic and watch the logs and Sentry for 30 minutes.

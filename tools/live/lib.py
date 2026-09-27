@@ -198,6 +198,11 @@ class AdminWeb(WebClient):
         h = dict(headers or {})
         if method in ('POST', 'PUT', 'PATCH', 'DELETE') and self.cookie('admin_csrf'):
             h['x-admin-csrf'] = urllib.parse.unquote(self.cookie('admin_csrf'))
-        if not path.startswith('/api/') and not path.startswith('http'):
+        # same normalisation as admin/src/utils/api.ts toAdminProxyUrl
+        if path.startswith('/api/v1/admin/'):
+            path = '/api/admin/' + path[len('/api/v1/admin/'):]
+        elif path.startswith('/admin/'):
+            path = '/api/admin/' + path[len('/admin/'):]
+        elif not path.startswith('/api/') and not path.startswith('http'):
             path = '/api/admin' + path
         return super().req(method, path, body, h, idem)

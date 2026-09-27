@@ -165,3 +165,32 @@ Status: `open` means the agent does it; `done` means the reviewer verified it li
   - Nothing emitted `booking.completed` or `review.submitted`.
   - `order.delivered` carried `patient_id` while the listener read `user_id`.
   - Loyalty and referral now listen to the workflow engine's `service.completed` (all domains); reviews emit `review.submitted`; order payloads are accepted.
+
+### LJ-09 (CRITICAL): Provider earnings are never credited on completion, so no payout is possible
+- **Status:** open
+- **Live check:** `tools/live/j_admin_ops.py` → `payouts` (fails today).
+  - A doctor who completed a card-paid consultation has `available: 0, lifetime_earned: 0`.
+  - `POST /provider/payouts/request` → 400 `valid_amount_required`.
+  - The admin payouts page is empty.
+- **Where:**
+  - `modules/provider-ops/provider-ops.module.ts` `creditEarning`, plus its callers:
+    - `endConsultation` works on the legacy `doctor_appointments` collection, so it never runs for real appointments;
+    - the lab/nursing ops endpoints use their own `ref_type`s (`lab_booking`, `homecare_booking`).
+  - `workflow-engine` emits `service.completed` for every domain; `finance-engine` ledger; `payouts`.
+- **Problem:**
+  - The governed completion paths (`/care/appointments/:id/finish`, lab/radiology result publish, nursing complete, pharmacy allocation delivered) never write a `provider_earning` ledger row.
+  - The provider balance, "today's earnings", the CRM revenue, the admin ledger summary and payouts are therefore all zero.
+- **Required:**
+  1. One place credits earnings: on `service.completed` (or the domain's completion transition), resolve the booking, its provider account (for pharmacy, the allocation's pharmacy per delivered allocation), and the gross amount the patient actually paid (card paid or cash collected; insurance: the covered part plus the copay).
+  2. Call `creditEarning` with one canonical `ref_type` per domain, idempotent on the booking id, so the ops endpoints and the event cannot double-credit.
+  3. Refunds already claw back through RefundExecutor (keep that working).
+  4. Add the ledger step to each domain journey: after completion the provider's `lifetime_earned > 0`; after the delay window the payout request, then admin execute, then the provider sees it paid.
+
+### Notes (admin sweep, `tools/live/j_admin_sweep.py`)
+- Every literal page-load call in the admin panel (60) returns 2xx, except:
+  - `nursing-portal` (`/admin/nursing/requests` 503): the intentional gate "pending eligible-provider/PHI/audit workflow".
+  - `security` (`/auth/passkey/devices` 403): passkeys are restricted to the designated admin email by design.
+  - `impersonation` (403): super-admin only by design.
+  - The pages must show those states instead of an error. Check this in the render test (task #4).
+- *(Reviewer already fixed:)* the admin BFF sent `PUT /legal/policy/:key` to the public controller (404), so legal policies could not be edited. Legal edits and diffs now go to `/api/v1/admin/legal/*`.
+- On a fresh database there are no legal policies (`/legal/policies` = []). The admin must publish privacy/terms before launch (added to the deploy brief).
