@@ -32,7 +32,10 @@ function toBffUrl(url: string) {
 export const fetchWithAdminGuard = async (url: string, options: RequestInit = {}) => {
   const method = (options.method || 'GET').toUpperCase();
   const headers = new Headers(options.headers);
-  if (!headers.has('Content-Type') && options.body) headers.set('Content-Type', 'application/json');
+  // R6-6: FormData (CSV upload) carries its own multipart boundary — never override it.
+  if (!headers.has('Content-Type') && options.body && typeof FormData !== 'undefined' && !(options.body instanceof FormData)) {
+    headers.set('Content-Type', 'application/json');
+  }
   if (WRITE_METHODS.has(method)) {
     const csrf = csrfToken();
     if (!csrf) throw new Error('csrf_validation_failed');
