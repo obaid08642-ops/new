@@ -185,3 +185,6 @@ Format: task | commit sha | verify result | notes
 
 ## [P6.x-13] Admin-managed FAQs (2026-09-26)
 - FAQs were 2 hardcoded items. Now `faqs` collection with admin CRUD (`support/admin/faqs*`, validated DTO, active-flag soft delete) and public `GET /support/faqs` falls back to defaults when empty. content-growth gained an FAQs tab (list/edit/hide). tsc 0.
+
+## [P6.x-4] Commission rule editor UI (2026-09-26)
+- Backend resolver already supported per-service/provider/category/campaign rules with versioning + history (`POST/GET commission-rules*`). Added the missing admin UI: rule form (scope/scope_id/service/percent/effective window) + history table on the commissions page.
