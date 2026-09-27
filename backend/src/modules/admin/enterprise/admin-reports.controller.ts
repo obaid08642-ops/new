@@ -174,4 +174,17 @@ export class AdminReportsController {
     if (this.maybeCsv(res, 'insurance', rows, format)) return;
     return { group_by: q.group_by || 'state', rows };
   }
+
+  /** P6.x-10: labs turnaround — avg hours from creation to report upload, by day. */
+  @Get('labs-turnaround')
+  async labsTurnaround(@Query() q: ReportsQueryDto, @Query('format') format?: string, @Res({ passthrough: true }) res?: Response) {
+    const rows: any[] = await this.conn.collection('labbookings').aggregate([
+      { $match: { status: 'REPORT_UPLOADED', ...this.window(q) } },
+      { $group: { _id: DAY, count: { $sum: 1 }, avg_hours: { $avg: { $divide: [{ $subtract: ['$updatedAt', '$createdAt'] }, 3600000] } } } },
+      { $project: { bucket: '$_id', count: 1, avg_hours: { $round: ['$avg_hours', 1] }, _id: 0 } },
+      { $sort: { bucket: 1 } },
+    ]).toArray().catch(() => []);
+    if (this.maybeCsv(res, 'labs-turnaround', rows, format)) return;
+    return { group_by: 'day', rows };
+  }
 }

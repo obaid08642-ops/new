@@ -23,3 +23,6 @@
 ## [P6.x-13c] Home content served + dead banners removed (2026-09-26)
 - New public `GET /content/home` (enabled sections, position-ordered) backed by the admin-managed `home_curation` doc — banners/home sections are now actually served, not just editable.
 - Deleted dead `AdminBannersController` (`banners` collection, zero readers) — home_curation is the canonical path. tsc 0.
+
+## [P6.x-10b] Labs turnaround report (2026-09-26)
+- `GET /admin/reports/labs-turnaround` (avg createdAt→updatedAt hours for REPORT_UPLOADED, by day, CSV). Consultations-by-status incl. NO_SHOW, nursing-by-state, pharmacy-by-state served by existing bookings/orders groupings. tsc 0.
