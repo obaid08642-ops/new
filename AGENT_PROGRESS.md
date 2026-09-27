@@ -210,3 +210,8 @@ Format: task | commit sha | verify result | notes
 ## [P7] F24/F25 (2026-09-26)
 - F24: patient-app ai-assistant posted to nonexistent `/ai/triage/chat` (backend intentionally has no free-form chat) → now posts `{symptoms}` to `/ai/triage` and renders care_level/notice guidance.
 - F25: web insurance payment-capabilities repointed to `/insurance/requests/:id/capabilities` (+self-pay variant); backend capabilities now returns the validated shape (booking_id/amount>0/currency/purpose/methods+kind). patient-web vitest not runnable here (deps uninstalled) — CI must run route tests.
+
+## [P7] F27 build-time openapi.json (2026-09-26)
+- New `backend/scripts/generate-openapi.ts` (boots app without listening, `/api/v1` prefix mirror, monorepo mirror to `patient-web/public/openapi.json`, mongo-unreachable skip unless --strict, JWT placeholder) wired into `npm run build`. 1471 paths incl. all new P5/P6 endpoints; well-known public subset paths all resolve in it.
+- Deleted hand-written full spec (`patient-web/app/openapi.json/route.ts`); static file serves `/openapi.json`. The `.well-known/openapi.json` public *subset* stays intentionally (scoped discovery, not the private API).
+- Fixed 3 real boot-breakers found via the generator probe (app could not boot since the P5.3 merges): double-comma sparse controllers arrays in provider/pharmacy/admin modules + `type: String` on TS-enum `@Prop`s (media purpose, provider schemas).

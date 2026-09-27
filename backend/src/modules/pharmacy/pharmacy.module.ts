@@ -158,7 +158,7 @@ import { B2BVoiceController } from './pharmacy-b2b-voice.controller';
     AdminProcurementController,
     // P5.3: merged from PharmacyOpsModule (pharmacy_ops/ → pharmacy/)
     PharmacyOpsController,
-    ProviderPharmacyAliasController,,
+    ProviderPharmacyAliasController,
     OffersDetailController,
     PromotionsOffersController,
     PharmacyCompatController,

@@ -158,7 +158,7 @@ import { ProviderDrugIndexController } from './provider-drug-index.controller';
     // P5.3: merged from ProvidersModule (providers/ → provider/)
     ProvidersController,
     HospitalEnterpriseController,
-    ...(process.env.NODE_ENV === 'test' && process.env.ALLOW_TEST_SEED === 'true' ? [ProvidersSeedController] : []),,
+    ...(process.env.NODE_ENV === 'test' && process.env.ALLOW_TEST_SEED === 'true' ? [ProvidersSeedController] : []),
     ProviderDeltasMineController,
     ProviderFacilityController,
     ProviderDrugIndexController

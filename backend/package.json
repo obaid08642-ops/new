@@ -4,7 +4,7 @@
   "description": "Nabd Healthcare Super Platform - NestJS Core Backend",
   "private": true,
   "scripts": {
-    "build": "nest build",
+    "build": "nest build && npm run openapi:generate",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:prod": "node dist/main",
@@ -12,7 +12,8 @@
     "test": "node scripts/run-tests-chunked.mjs",
     "test:boot": "jest --config jest.boot.config.js --runInBand",
     "migration:hospital-staff-parent-account": "ts-node scripts/migrate-hospital-staff-parent-account.ts",
-    "test:enterprise": "jest --config jest.enterprise.config.js --runInBand --detectOpenHandles"
+    "test:enterprise": "jest --config jest.enterprise.config.js --runInBand --detectOpenHandles",
+    "openapi:generate": "ts-node -T scripts/generate-openapi.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1075.0",
