@@ -26,6 +26,8 @@ export default function VirtualWaitingRoomScreen() {
 
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<any>(null);
+  // F37: hide the join button when video calls are disabled server-side (LiveKit unconfigured).
+  const [callsEnabled, setCallsEnabled] = useState(true);
 
   const pulseAnim = useRef(new Animated.Value(0)).current;
 
@@ -55,6 +57,12 @@ export default function VirtualWaitingRoomScreen() {
           setData(null);
           setLoading(false);
         });
+      // F37: explicit false hides the join button; errors fail open.
+      apiFetch(`/config`)
+        .then((cfg: any) => {
+          if (cfg?.features && cfg.features.video_calls === false) setCallsEnabled(false);
+        })
+        .catch(() => null);
     } else {
       setData(null);
       setLoading(false);
@@ -186,6 +194,7 @@ export default function VirtualWaitingRoomScreen() {
         </LocalizedText>
       </View>
 
+      {callsEnabled ? (
       <TouchableOpacity
         style={[styles.joinBtn, { backgroundColor: resolveColor("var(--p)") }]}
         onPress={() =>
@@ -209,6 +218,7 @@ export default function VirtualWaitingRoomScreen() {
           دخول المكالمة
         </LocalizedText>
       </TouchableOpacity>
+      ) : null}
     </View>
   );
 }

@@ -215,3 +215,15 @@ Format: task | commit sha | verify result | notes
 - New `backend/scripts/generate-openapi.ts` (boots app without listening, `/api/v1` prefix mirror, monorepo mirror to `patient-web/public/openapi.json`, mongo-unreachable skip unless --strict, JWT placeholder) wired into `npm run build`. 1471 paths incl. all new P5/P6 endpoints; well-known public subset paths all resolve in it.
 - Deleted hand-written full spec (`patient-web/app/openapi.json/route.ts`); static file serves `/openapi.json`. The `.well-known/openapi.json` public *subset* stays intentionally (scoped discovery, not the private API).
 - Fixed 3 real boot-breakers found via the generator probe (app could not boot since the P5.3 merges): double-comma sparse controllers arrays in provider/pharmacy/admin modules + `type: String` on TS-enum `@Prop`s (media purpose, provider schemas).
+
+## [P7] F26/F27/F29/F36/F37 (2026-09-26)
+- F26: provider BlueprintScreens nursing note `POST /home-care/notes` (404, no such route) → `/nursing/notes` with booking_id (required server-side; clear prompt when no visit selected).
+- F27: build-time openapi.json (1471 paths, /api/v1 prefix mirror, monorepo mirror to patient-web/public); hand-written full spec route deleted; well-known public *subset* kept intentionally. Wired into backend `npm run build` (mongo-gated skip unless --strict). Fixed 3 latent app-boot breakers found by the probe: sparse controllers arrays (double commas from P5.3 merges in provider/pharmacy/admin modules) + `type: String` on TS-enum props (media, provider schemas).
+- F28 verified (no change): facility back links already target /consultations flows.
+- F29: medicines page login gate removed → public SSR via getPublicMedicines; audit: other entity pages already public; home-care bookings page correctly requires login (private data).
+- F31 structural (no deletion): web renders sitemap/robots/llms from backend data with one index; backend renderers stay (referenced by backend llms text + external links).
+- F32 verified: no TODO/lorem/console.log in web UI; status enums compared as codes with Arabic labels.
+- F33 verified: jobId already `deliver:${id}`.
+- F35 owner-blocked (unchanged): AASA keeps reviewer-set default Team ID until owner provides envs.
+- F36: app.json intentFilters now enumerate the 17 AASA entity paths × 7 locale variants × 4 hosts (477 entries) — off-list links open in browser.
+- F37: `video_calls` flag in /config features from LiveKit env presence; waiting-room join button hides on explicit false (fail-open on error).
