@@ -19,3 +19,7 @@
 
 ## [P6.x-13b] App force-update + per-app maintenance (2026-09-26)
 - Public `/config` now includes `app_versions` (fail-open) from `system_configs` key `app_versions`; admin `GET/PUT admin/config/app-versions` (app-allowlisted keys, length caps, audited). config-portal gained an apps tab (min/latest/maintenance/messages per app). tsc 0.
+
+## [P6.x-13c] Home content served + dead banners removed (2026-09-26)
+- New public `GET /content/home` (enabled sections, position-ordered) backed by the admin-managed `home_curation` doc — banners/home sections are now actually served, not just editable.
+- Deleted dead `AdminBannersController` (`banners` collection, zero readers) — home_curation is the canonical path. tsc 0.

@@ -42,7 +42,7 @@ import { AdminCmsController } from './enterprise/admin-cms.controller';
 import { AdminOpsController } from './enterprise/admin-ops.controller';
 import { ScheduledReportsRunner } from './enterprise/scheduled-reports.runner';
 import { AdminCommandCenterV2Controller } from './enterprise/command-center-v2.controller';
-import { AdminGovernanceControlsController } from './enterprise/admin-governance-controls.controller';
+import { AdminGovernanceControlsController, PublicContentController } from './enterprise/admin-governance-controls.controller';
 import { AdminImpersonationController } from './enterprise/admin-impersonation.controller';
 import { AdminAuditService } from './enterprise/audit.service';
 // P5.3: merged from AdminGovernanceModule (governance/ → admin/)
@@ -145,6 +145,7 @@ import { AuditIngestController } from './admin-audit-ingest.controller';
     AdminCouponsController,
     AdminOpsController,
     AdminGovernanceControlsController,
+    PublicContentController,
     AdminCommandCenterV2Controller,
     // P5.3: merged from AdminGovernanceModule
     GovernanceAdminController,

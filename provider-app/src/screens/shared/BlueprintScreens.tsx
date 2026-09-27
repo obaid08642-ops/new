@@ -851,9 +851,15 @@ export function AiMedicalCopilot({ onBack }: { onBack: () => void }) {
      show(AR ? 'اختر المريض الذي تخصه الملاحظة' : 'Select the patient this note belongs to', 'error');
      return;
    }
+   // F26: nursing progress notes live at /nursing/notes (booking-bound server-side).
+   const bookingId = selectedPatient?.booking_id || selectedPatient?.bookingId || selectedPatient?.visit_id || selectedPatient?.appointment_id;
+   if (!bookingId) {
+     show(AR ? 'اختر زيارة/حجزاً لتوثيق الملاحظة عليه' : 'Select a visit/booking for this note', 'error');
+     return;
+   }
    setLoading(true);
    try {
-     await client.post('/home-care/notes', { patient_id: patientId, note });
+     await client.post('/nursing/notes', { patient_id: patientId, booking_id: bookingId, note });
      show(AR ? 'تم حفظ التقرير الطبي بنجاح' : 'Clinical SOAP note saved', 'success');
      onBack();
    } catch (err: any) {
