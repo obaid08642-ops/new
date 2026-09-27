@@ -191,3 +191,6 @@ Format: task | commit sha | verify result | notes
 
 ## [P6.x-10] Finance + insurance report kinds (2026-09-26)
 - Extended `/admin/reports` with `finance` (wallet_transactions by day/type) and `insurance` (requests by state + copay sums), both CSV-capable; reports page gained the two tabs + type/copay columns. tsc 0.
+
+## [P6.0b] Medicines item review buttons (2026-09-26)
+- medicines-catalog rows gained اعتماد/رفض calling the new `POST medicines/admin/catalog/:id/approve` endpoint (change-request flow untouched).

@@ -183,8 +183,16 @@ export default function MedicinesCatalogPage() {
     } catch (e: any) { alert(`فشل: ${e?.message || ''}`); } finally { setBusy(null); }
   };
 
-  const toggleBadge = async (m: any) => {
-    const flagged = m.availability_status === 'admin_flagged_shortage' || m.availability_status === 'availability_may_be_limited';
+  // P6.0: direct medical-review decision on the catalog item.
+  const decideItem = async (m: any, approve: boolean) => {
+    setBusy(m.id);
+    try {
+      await apiFetch(`/medicines/admin/catalog/${m.id}/approve`, { method: 'POST', body: JSON.stringify({ approve }) });
+      await loadCatalog();
+    } catch (e: any) { alert(`فشل: ${e?.message || ''}`); } finally { setBusy(null); }
+  };
+
+  const toggleBadge = async (m: any) => {    const flagged = m.availability_status === 'admin_flagged_shortage' || m.availability_status === 'availability_may_be_limited';
     setBusy(m.id);
     try {
       await apiFetch(`/medicines/admin/catalog/${m.id}/availability`, {
@@ -384,6 +392,11 @@ export default function MedicinesCatalogPage() {
                           <td className="p-3">
                             <div className="flex gap-2">
                               <button onClick={() => openEdit(m)} className="text-teal-700 font-bold text-xs">تعديل</button>
+                              {m.medical_review_status === 'approved' ? (
+                                <button onClick={() => decideItem(m, false)} disabled={busy === m.id} className="text-amber-700 font-bold text-xs">رفض</button>
+                              ) : (
+                                <button onClick={() => decideItem(m, true)} disabled={busy === m.id} className="text-green-700 font-bold text-xs">اعتماد</button>
+                              )}
                               {deleted ? (
                                 <button onClick={() => softDelete(m, true)} disabled={busy === m.id} className="text-green-700 font-bold text-xs">استرجاع</button>
                               ) : (
