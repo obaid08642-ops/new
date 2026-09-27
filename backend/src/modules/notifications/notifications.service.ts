@@ -141,7 +141,7 @@ export class NotificationsService {
       return out;
     };
     const doc = await this.templateModel.findOneAndUpdate(
-      { key: dto.key },
+      { key: { $eq: String(dto.key) } },
       { $set: { title: clean(dto.title), body: clean(dto.body), active: dto.active !== false, updated_by: user?.id } },
       { new: true, upsert: true },
     );

@@ -127,7 +127,7 @@ export class CatalogsController {
   async upsertSpecialty(@Body() b: SpecialtyUpsertDto) {
     if (!b?.name_ar?.trim()) throw new BadRequestException('name_ar_required');
     // Arabic-only names slug to dashes: they would all share one code and overwrite each other.
-    const code = String(b.code || b.name_en || '').trim().toLowerCase().replace(/[^a-z0-9_-]+/gi, '-').replace(/^-+|-+$/g, '').slice(0, 80)
+    const code = String(b.code || b.name_en || '').trim().toLowerCase().split(/[^a-z0-9_]+/).filter(Boolean).join('-').slice(0, 80)
       || `sp-${require('crypto').createHash('sha1').update(b.name_ar.trim()).digest('hex').slice(0, 10)}`;
     const doc = {
       id: `spec-${code}`,
