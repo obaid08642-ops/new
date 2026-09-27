@@ -95,6 +95,8 @@ const diagnosticsMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp
   { method: "POST", route: new RegExp("^/support/chat$", "i") },
   { method: "POST", route: new RegExp(`^/support/requests/[^/]+/reply$`, "i") },
   { method: "POST", route: new RegExp("^/medical/programs/complete-session$", "i") },
+  { method: "PATCH", route: new RegExp("^/users/me/notification-settings$") },
+  { method: "PATCH", route: new RegExp("^/users/me/profile$") },
 ];
 
 const pharmacyMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp }> = [

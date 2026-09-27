@@ -227,3 +227,7 @@ Format: task | commit sha | verify result | notes
 - F35 owner-blocked (unchanged): AASA keeps reviewer-set default Team ID until owner provides envs.
 - F36: app.json intentFilters now enumerate the 17 AASA entity paths × 7 locale variants × 4 hosts (477 entries) — off-list links open in browser.
 - F37: `video_calls` flag in /config features from LiveKit env presence; waiting-room join button hides on explicit false (fail-open on error).
+
+## [P8] F69/F74 (2026-09-26)
+- F69: web reminders gained edit (PATCH), delete, and mark-taken (log) via new `/api/health/reminders/[id]` + `/log` proxies (same backend endpoints as the app); notification settings page converted from read-only to toggles (PATCH allowlisted); profile edit form already existed.
+- F74: see previous entry (diagnostics parent order).
