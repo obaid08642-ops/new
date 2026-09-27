@@ -1,8 +1,8 @@
 import { JwtAuthGuard, Roles, SelfService, CurrentUser } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
-import { Controller, Get, Post, Patch, Body, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Delete, Get, Post, Patch, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { SupportService } from './support.service';
-import { CreateDto, CreateTicketDto, ReplyDto, AdminUpdateDto, SupportSettingsDto } from './support.dto';
+import { CreateDto, CreateTicketDto, ReplyDto, AdminUpdateDto, SupportSettingsDto, FaqUpsertDto } from './support.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('support')
@@ -31,6 +31,11 @@ export class SupportController {
   getFaqs() {
     return this.svc.getFaqs();
   }
+
+  // P6.x-13: admin-managed FAQs.
+  @Get('admin/faqs') @Roles(UserRole.ADMIN) faqsAdmin(): Promise<any[]> { return this.svc.listFaqsAdmin(); }
+  @Post('admin/faqs') @Roles(UserRole.ADMIN) upsertFaq(@Body() b: FaqUpsertDto) { return this.svc.upsertFaq(b); }
+  @Delete('admin/faqs/:id') @Roles(UserRole.ADMIN) deleteFaq(@Param('id') id: string) { return this.svc.deleteFaq(id); }
 
   @Post('feedback')
   submitFeedback(@CurrentUser('id') id: string) {
