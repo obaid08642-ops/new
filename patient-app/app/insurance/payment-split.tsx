@@ -32,7 +32,7 @@ export default function InsurancePaymentSplitScreen() {
 
   const openCheckout = async (kind: 'copay' | 'self-pay') => {
     if (!request) return;
-    const capabilitiesPath = kind === 'copay' ? `/payments/insurance/${encodeURIComponent(request.id)}/capabilities` : `/payments/insurance/${encodeURIComponent(request.id)}/self-pay-capabilities`;
+    const capabilitiesPath = kind === 'copay' ? `/insurance/requests/${encodeURIComponent(request.id)}/capabilities` : `/insurance/requests/${encodeURIComponent(request.id)}/self-pay-capabilities`;
     const capabilities = await apiFetch<any>(capabilitiesPath);
     const method = capabilities?.methods?.find((item: any) => item?.id === 'card')?.id;
     if (method !== 'card') throw new Error('الدفع الإلكتروني غير متاح حالياً لهذا القرار');

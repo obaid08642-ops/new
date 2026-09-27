@@ -205,8 +205,10 @@ export class LabsService {
 
   async updateInsuranceApproval(id: string, payload: { status?: string; totalCopay?: number; items?: any[] }, user: any) {
     if (!getEffectiveRoles(user).some(role => ['admin', 'lab', 'hospital'].includes(role))) throw new ForbiddenException();
-    const b = await this.bkgModel.findOne({ id });
+    const b = await this.bkgModel.findOne({ id: { $eq: id } });
     if (!b) throw new NotFoundException();
+    // only the lab the booking is assigned to (or admin) decides its insurance coverage
+    this.assertAssignedProviderOrAdmin(user, b);
 
     const { status, totalCopay, items } = payload;
     

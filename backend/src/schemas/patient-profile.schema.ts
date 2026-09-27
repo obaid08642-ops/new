@@ -68,6 +68,7 @@ export class PatientProfile {
       // insurance-engine save-policy writes company_id/company_name/plan_class/card_image_url/saved_at;
       // without them here the strict sub-schema silently dropped the patient's insurer.
       company_id: String,
+      company_code: String,
       company_name: String,
       plan_class: String,
       card_image_url: String,
@@ -89,6 +90,7 @@ export class PatientProfile {
   })
   insurance?: {
     company_id?: string;
+    company_code?: string;
     company_name?: string;
     plan_class?: string;
     card_image_url?: string;
