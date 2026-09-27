@@ -304,6 +304,7 @@ export default function InsuranceHubScreen() {
           </AppText>
         </TouchableOpacity>
       </View>
+      )}
         {/* Quick Actions */}
         <View style={styles.quickGrid}>
           {QUICK_ACTIONS.map((a, i) => (
@@ -448,7 +449,6 @@ export default function InsuranceHubScreen() {
             </TouchableOpacity>
           ))}
         </View>
-      )}
       </ScrollView>
 
       {/* ── CHI WebView Modal ───────────────────────────────────────────────── */}
