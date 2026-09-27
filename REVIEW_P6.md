@@ -23,6 +23,7 @@ As delivered, the branch had these defects:
 - **Labs turnaround report:** it filtered on `status: 'REPORT_UPLOADED'`, but lab bookings use `state` (`RESULT_UPLOADED`/`REPORTED`), so the report was always empty. It now measures to the first result entry in `state_history`.
 - **Specialties:** every Arabic-only name slugged to `-`, so all such specialties shared one code and overwrote each other. They now get a stable code per name (new test).
 - **Found here, but a Phase 5 defect:** `seed-data/*.json` was not copied to `dist`, so the P5.1 JSON catalog bootstrap never ran in a built app, including production. That covers 252 documents: specialties, insurers and the lab/radiology/nursing additions. Fixed in `nest-cli.json` assets.
+  - Once the files were in `dist`, the fresh-DB gate crashed in lab and radiology. The P5.1 export wrote 101 ids as raw UUID bytes (54 of 90 labs, 23 of 44 radiology, 24 of 39 nursing), and those ids reached patients and broke every URL they were used in. The corrupt ids are removed from the JSON (the seeder falls back to the code), the seeder rejects any non-text id, and `catalogs-seed.active.spec.ts` asserts that seeded ids are URL-safe.
 - **Merge:** `'support_requests'` → `'supportrequests'` (the real collection) in the P6 disputes, CRM and command-center readers. The disputes center showed nothing.
 
 ## FAIL — mandatory for the agent (plan tasks, not done or not wired)
@@ -46,7 +47,7 @@ Each item needs a live verification (the harness in `tools/live`), not only a un
 - patient-web: `tsc` 0; vitest 338 passed.
 - Admin render of all 62 static pages, signed in, with gate data: **0 broken, 0 4xx**.
 - New endpoints called live through the BFF, all 200 with real data: reports (orders, revenue, bookings, labs-turnaround, finance, insurance), search, nursing requests, specialties, templates, pricing, app-versions, FAQs.
-- Live gate on a **fresh database** (with the seed-data fix, so 252 more catalog documents are present): see the PR.
+- Live gate on a **fresh database** (with the seed-data fix, so 252 more catalog documents are present): P1 0/358; accounts, onboarding, pharmacy, lab, radiology, nursing, consultation, ambulance, facility, support and loyalty all **100%**.
 
 ## For the agent (process)
 - Build **every** app you touched before a gate note (`admin: npx tsc --noEmit && npx next build`). The Phase 6 note claimed green, but the admin panel did not compile.
