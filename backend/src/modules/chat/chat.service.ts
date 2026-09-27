@@ -68,21 +68,20 @@ export class ChatService {
     }
   }
 
-  async getOrCreateBookingThread(bookingKind: string, bookingId: string, patientId: string, providerId?: string): Promise<ChatThread> {
-    let thread = await this.threads.findOne({ type: 'booking', booking_kind: { $eq: bookingKind }, booking_id: { $eq: bookingId } });
+  /** Booking conversation between the booking's patient and its provider. Only those two parties may open or
+   *  join it: the caller must be one of them, and a client-supplied provider id is ignored (IDOR). */
+  async getOrCreateBookingThread(bookingKind: string, bookingId: string, callerId: string, _clientProviderId?: string): Promise<ChatThread> {
     const parties = await this.resolveBookingParties(bookingKind, bookingId);
-    const wanted = [...new Set([patientId, providerId, parties.patientId, parties.providerId].filter(Boolean) as string[])];
+    const members = [...new Set([parties.patientId, parties.providerId].filter(Boolean).map(String))];
+    if (!members.includes(String(callerId))) throw new ForbiddenException('not_a_party_to_this_booking');
+    let thread = await this.threads.findOne({ type: 'booking', booking_kind: { $eq: bookingKind }, booking_id: { $eq: bookingId } });
     if (!thread) {
-      const participants = wanted.length ? wanted : [patientId];
       const counts: Record<string, number> = {};
-      participants.forEach(id => counts[id] = 0);
-      thread = await this.threads.create({ type: 'booking', booking_kind: bookingKind, booking_id: bookingId, participant_ids: participants, created_by: patientId, unread_counts: counts });
+      members.forEach(id => counts[id] = 0);
+      thread = await this.threads.create({ type: 'booking', booking_kind: bookingKind, booking_id: bookingId, participant_ids: members, created_by: callerId, unread_counts: counts });
     } else {
-      // Lazily attach resolved parties / the caller to an existing thread.
-      // Only ids tied to the booking document itself are auto-joined, which
-      // keeps this safe against arbitrary thread-join (IDOR) attempts.
-      const allowed = new Set([...wanted, patientId]);
-      const missing = [...allowed].filter(id => !thread.participant_ids.includes(id));
+      // attach a booking party that is not in the thread yet (e.g. provider assigned later)
+      const missing = members.filter(id => !thread.participant_ids.includes(id));
       if (missing.length) {
         await this.threads.updateOne(
           { id: thread.id },

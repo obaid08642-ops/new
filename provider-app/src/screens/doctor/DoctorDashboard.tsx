@@ -3820,9 +3820,18 @@ function PreVisitChatScreen({ apt, onBack, onNavigate }: { apt: any, onBack: () 
   
   const [msg, setMsg] = useState('');
   const [loading, setLoading] = useState(false);
-  const [messages, setMessages] = useState([
-  ]);
-  
+  const [messages, setMessages] = useState<any[]>([]);
+  // the conversation the patient opened from consultations/chat-with-doctor
+  const loadChat = useCallback(async () => {
+    if (!apt?.id) return;
+    try {
+      const res = await client.get(`/provider/chat/appointment/${encodeURIComponent(apt.id)}`);
+      const rows = res.data?.messages || [];
+      setMessages(rows.map((m: any) => ({ id: m.id, text: m.body, sender: m.sender_id === apt?.patient_id ? 'patient' : 'doctor', attachment: m.attachment_url || '' })));
+    } catch { /* keep what is on screen */ }
+  }, [apt?.id, apt?.patient_id]);
+  useEffect(() => { loadChat(); const t = setInterval(loadChat, 8000); return () => clearInterval(t); }, [loadChat]);
+
   const handleSend = async () => {
     if (!msg.trim()) return;
     setLoading(true);

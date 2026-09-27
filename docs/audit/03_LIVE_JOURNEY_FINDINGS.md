@@ -109,3 +109,38 @@ Status: `open` means the agent does it; `done` means the reviewer verified it li
 - *(Reviewer already fixed:)*
   - RefundExecutor credited nothing ("offline_recorded") when the patient had no wallet document yet; it now creates the wallet.
   - The non-pharmacy branch now rejects an order that is not the patient's.
+
+### LJ-06: Patient↔provider chat must be per booking; direct messages are unrestricted
+- **Status:** open
+- **Live check:** `tools/live/j_chat.py`.
+  - It already drives the target: booking thread, doctor PreVisitChatScreen, outsider refused.
+  - Add patient-app steps once the screens use it.
+- **Where:**
+  - patient-app `app/consultations/chat-with-doctor.tsx`, which `clinic-confirm.tsx`, `home-visit-tracking.tsx`, `follow-up.tsx` and `NotificationHandler.tsx` open with `doctorId` only.
+  - `modules/chat` `POST /chat/threads/direct`.
+- **Problem:**
+  1. chat-with-doctor needs the doctor's user id, but the public doctor profile (`/care/doctors/:id`) does not expose it, so the screen never opens a thread (it stops at `doctorUserId` undefined).
+  2. `POST /chat/threads/direct` lets any user open a thread with any user id and message them, with no booking and no relationship check.
+  3. Before the reviewer fix, the doctor's PreVisitChatScreen looked for a booking thread that the patient never created, and never loaded history.
+- **Required:**
+  1. chat-with-doctor opens `POST /chat/threads/booking {booking_kind:'consultation', booking_id}`, so every caller passes the appointment id. For follow-up and notifications, use the appointment of that conversation.
+  2. Restrict `threads/direct`: allow only family (existing `checkIfFamily`) or an existing booking relation between the two users; otherwise 403.
+  3. Nursing and other providers already use booking threads; keep them.
+- *(Reviewer already fixed:)*
+  - The booking thread admits only the booking's patient and provider. The caller was previously always added, and so was any client `provider_id` (IDOR on any booking conversation).
+  - The doctor's PreVisitChatScreen now reads and sends on the appointment's booking thread (`GET /provider/chat/appointment/:id`, polling).
+
+### LJ-07: Providers get no in-app notifications for new work
+- **Status:** open
+- **Live check:** `j_chat.py`, step "the doctor was notified about the new booking" (fails today).
+- **Where:**
+  - `modules/notifications/notifications.service.ts` (`service.assigned` → `create({ role: 'provider' })`).
+  - `provider_notifications`, read by provider-app `/provider/notifications` (bell).
+  - `push.module.ts`.
+- **Problem:**
+  - The provider bell reads `provider_notifications`, which only radiology results and ambulance dispatch write.
+  - New consultations, lab, radiology and nursing bookings, pharmacy offers requested, insurance requests to decide and patient chat messages never notify the provider in the app.
+  - `service.assigned` writes a role-wide notification to *every* provider instead of the assigned one.
+- **Required:**
+  1. On `service.assigned` / `service.requested` (and pharmacy broadcast, insurance request created, new chat message to a provider), write a `provider_notifications` row for **that provider account only**, with `related_type`/`related_id` so the bell opens the job, and send the device push to that account.
+  2. Remove the role-wide provider broadcast.

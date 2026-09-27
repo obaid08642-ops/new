@@ -381,15 +381,24 @@ export class ChatAliasController {
     return this.providerQuickSend(u, body);
   }
 
+  /** The doctor's pre-visit chat for an appointment is the appointment's booking thread
+   *  (ChatService enforces that the caller is the booking's patient or provider). */
+  private async appointmentThreadId(u: any, appointmentId: string): Promise<string> {
+    const thread: any = await this.chat.getOrCreateBookingThread('consultation', String(appointmentId), String(u.id));
+    return thread?.id;
+  }
+
+  // doctor PreVisitChatScreen: history of the appointment's conversation
+  @Get('provider/chat/appointment/:id') async appointmentChat(@CurrentUser() u: any, @Param('id') id: string) {
+    const threadId = await this.appointmentThreadId(u, id);
+    const { messages } = await this.chat.getMessages(threadId, u.id, { limit: 100 });
+    return { thread_id: threadId, messages: [...messages].reverse() };
+  }
+
   private async providerQuickSend(u: any, body: ProviderSendDto) {
     let threadId = (body as any)?.thread_id || (body as any)?.threadId;
     const appointmentId = (body as any)?.appointment_id;
-    if (!threadId && appointmentId) {
-      const thread: any = await this.conn?.collection('chat_threads')?.findOne?.(
-        { booking_id: String(appointmentId) } as any,
-      ).catch(() => null);
-      threadId = thread?.id || thread?._id?.toString();
-    }
+    if (!threadId && appointmentId) threadId = await this.appointmentThreadId(u, String(appointmentId));
     if (!threadId) throw new BadRequestException('thread_id is required');
     const text = (body as any)?.message || body?.text || body?.content;
     return this.chat.sendMessage(threadId, u.id, u.role || 'provider', { type: 'text', body: text });
