@@ -1,4 +1,5 @@
-import { IsArray, IsBoolean, IsDateString, IsDefined, IsIn, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsDefined, IsIn, IsNumber, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateDto {
   @IsOptional()
@@ -183,4 +184,39 @@ export class CheckoutDto {
   @IsOptional()
   delivery_address?: unknown;
 
+}
+
+export class DiagnosticLineDto {
+  @IsDefined()
+  @IsIn(['lab', 'radiology'])
+  kind!: 'lab' | 'radiology';
+
+  @IsDefined()
+  @IsString()
+  service_id!: string;
+
+  @IsOptional()
+  @IsString()
+  provider_account_id?: string;
+}
+
+/** F74: one parent diagnostics order containing lab + radiology lines. */
+export class CreateDiagnosticOrderDto {
+  @IsDefined()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => DiagnosticLineDto)
+  lines!: DiagnosticLineDto[];
+
+  @IsOptional()
+  @IsString()
+  scheduled_at?: string;
+
+  @IsOptional()
+  @IsIn(['home', 'facility'])
+  location_type?: 'home' | 'facility';
+
+  @IsOptional()
+  @IsIn(['cash', 'card', 'insurance'])
+  payment_method?: string;
 }
