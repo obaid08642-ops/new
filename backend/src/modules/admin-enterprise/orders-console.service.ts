@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { ModuleRef } from '@nestjs/core';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { validateReason, MIN_FINANCIAL_REASON_LENGTH, ReasonError } from '../../common/rbac';
@@ -22,31 +23,49 @@ export interface OrderKindSpec {
   cancelledStates: string[];
   completedStates: string[];
   label_ar: string;
+  /** Value written on admin cancel (the collection's own casing). */
+  cancelledValue?: string;
+  /**
+   * Orders whose lifecycle is owned by a domain service (allocations, stock, workflow engine):
+   * the console must go through that service instead of writing the document directly.
+   */
+  managed?: boolean;
 }
 
 export const ORDER_KINDS: OrderKindSpec[] = [
   {
+    // Current pharmacy flow (patient-app broadcast -> offers -> allocation), lowercase states.
+    kind: 'pharmacy', collection: 'pharmacy_orders', stateField: 'status', historyField: 'timeline',
+    patientField: 'patient_account_id', amountExpr: '$totals.total',
+    cancelledStates: ['cancelled'], completedStates: ['delivered', 'completed'], cancelledValue: 'cancelled',
+    label_ar: 'طلب صيدلية', managed: true,
+  },
+  {
+    // Legacy cart checkout (/orders) still writes here.
     kind: 'pharmacy', collection: 'orders', stateField: 'state', historyField: 'state_history',
     patientField: 'patient_id', patientNameField: 'patient_name', providerField: 'pharmacy_id',
     amountExpr: '$total', cancelledStates: ['CANCELLED'], completedStates: ['DELIVERED'],
     label_ar: 'طلب صيدلية',
   },
   {
+    // labs.service book(): amount in `total`, serving lab in provider_account_id
     kind: 'lab', collection: 'labbookings', stateField: 'state', historyField: 'state_history',
-    patientField: 'patient_id', patientNameField: 'patient_name', providerField: 'facility_id',
-    amountExpr: '$total_price', cancelledStates: ['CANCELLED', 'SAMPLE_REJECTED'], completedStates: ['REPORTED'],
+    patientField: 'patient_id', patientNameField: 'patient_name', providerField: 'provider_account_id',
+    amountExpr: '$total', cancelledStates: ['CANCELLED', 'SAMPLE_REJECTED'], completedStates: ['REPORTED'],
     label_ar: 'حجز مختبر',
   },
   {
+    // radiology.service book(): amount in `total`, center in provider_account_id; REPORT_READY is the final state
     kind: 'radiology', collection: 'radiologybookings', stateField: 'state', historyField: 'state_history',
-    patientField: 'patient_id', patientNameField: 'patient_name', providerField: 'facility_id',
-    amountExpr: '$total_price', cancelledStates: ['CANCELLED'], completedStates: ['REPORT_PUBLISHED'],
+    patientField: 'patient_id', patientNameField: 'patient_name', providerField: 'provider_account_id',
+    amountExpr: '$total', cancelledStates: ['CANCELLED'], completedStates: ['REPORT_READY', 'REPORT_PUBLISHED'],
     label_ar: 'حجز أشعة',
   },
   {
+    // home-care.service book(): amount in `total`, the chosen nurse in provider_id
     kind: 'nursing', collection: 'homecarebookings', stateField: 'state', historyField: 'state_history',
     patientField: 'patient_id', patientNameField: 'patient_name', providerField: 'provider_id',
-    amountExpr: '$total_price', cancelledStates: ['CANCELLED', 'REJECTED'], completedStates: ['COMPLETED', 'DONE'],
+    amountExpr: '$total', cancelledStates: ['CANCELLED', 'REJECTED'], completedStates: ['COMPLETED', 'DONE'],
     label_ar: 'تمريض منزلي',
   },
   {
@@ -57,13 +76,18 @@ export const ORDER_KINDS: OrderKindSpec[] = [
   },
 ];
 
-export function getKindSpec(kind: string): OrderKindSpec {
-  const spec = ORDER_KINDS.find((k) => k.kind === kind);
-  if (!spec) throw new BadRequestException(`unknown_order_kind:${kind}`);
-  return spec;
+/** Every collection that stores orders of this kind (a kind can live in more than one). */
+export function getKindSpecs(kind: string): OrderKindSpec[] {
+  const specs = ORDER_KINDS.filter((k) => k.kind === kind);
+  if (!specs.length) throw new BadRequestException(`unknown_order_kind:${kind}`);
+  return specs;
 }
 
-const CANCELLED_SETS = new Map(ORDER_KINDS.map((k) => [k.kind, new Set(k.cancelledStates)]));
+export function getKindSpec(kind: string): OrderKindSpec {
+  return getKindSpecs(kind)[0];
+}
+
+const isCancelled = (spec: OrderKindSpec, state: unknown) => spec.cancelledStates.includes(String(state));
 
 @Injectable()
 export class OrdersConsoleService {
@@ -71,7 +95,33 @@ export class OrdersConsoleService {
     @InjectConnection() private readonly conn: Connection,
     private readonly audit: AdminAuditService,
     private readonly wallet: WalletService,
+    private readonly moduleRef: ModuleRef,
   ) {}
+
+  /**
+   * Gateway payments for a booking. App checkouts go through PaymentsService (`transactions`); the Moyasar
+   * module records `moyasar_payments`. Both count; each row keeps its source so refunds are mirrored back.
+   */
+  private async paymentsFor(id: string, paidOnly = false): Promise<any[]> {
+    const paid = ['paid', 'confirmed', 'succeeded'];
+    const [moy, txn] = await Promise.all([
+      this.conn.collection('moyasar_payments').find({
+        $or: [{ booking_id: id }, { reference_id: id }, { order_id: id }], ...(paidOnly ? { status: { $in: paid } } : {}),
+      }).sort({ createdAt: -1 }).limit(20).toArray().catch(() => []),
+      this.conn.collection('transactions').find({ booking_id: id, ...(paidOnly ? { status: { $in: paid } } : {}) })
+        .sort({ createdAt: -1 }).limit(20).toArray().catch(() => []),
+    ]);
+    return [...(moy as any[]).map((p) => ({ ...p, _source: 'moyasar_payments' })), ...(txn as any[]).map((p) => ({ ...p, _source: 'transactions' }))];
+  }
+
+  /** Finds the order in whichever collection of this kind holds it. */
+  private async findOrder(kind: string, id: string): Promise<{ spec: OrderKindSpec; doc: any }> {
+    for (const spec of getKindSpecs(kind)) {
+      const doc: any = await this.conn.collection(spec.collection).findOne({ id });
+      if (doc) return { spec, doc };
+    }
+    throw new NotFoundException('order_not_found');
+  }
 
   // ── Listing ──────────────────────────────────────────────────
 
@@ -86,14 +136,17 @@ export class OrdersConsoleService {
   }) {
     const page = Math.max(1, opts.page || 1);
     const limit = Math.min(100, Math.max(1, opts.limit || 25));
-    const kinds = opts.kind && opts.kind !== 'all' ? [getKindSpec(opts.kind)] : ORDER_KINDS;
+    const kinds = opts.kind && opts.kind !== 'all' ? getKindSpecs(opts.kind) : ORDER_KINDS;
     const rx = opts.q?.trim() ? new RegExp(opts.q.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i') : null;
 
     const rows: any[] = [];
     let total = 0;
     for (const spec of kinds) {
       const match: any = {};
-      if (opts.status) match[spec.stateField] = String(opts.status).toUpperCase();
+      if (opts.status) {
+        const st = String(opts.status);
+        match[spec.stateField] = { $in: [...new Set([st, st.toUpperCase(), st.toLowerCase()])] };
+      }
       if (opts.from || opts.to) {
         match.createdAt = {
           ...(opts.from ? { $gte: new Date(opts.from) } : {}),
@@ -108,10 +161,12 @@ export class OrdersConsoleService {
       const col = this.conn.collection(spec.collection);
       const [count] = await col.aggregate([{ $match: match }, { $count: 'n' }]).toArray().catch(() => [{ n: 0 }]);
       total += count?.n || 0;
-      const perCol = opts.kind && opts.kind !== 'all' ? limit : page * limit;
+      // Each collection contributes its newest page*limit rows; the merge below slices the page.
+      const perCol = page * limit;
+      const amountField = spec.amountExpr.slice(1);
       const mongoSort: Record<string, 1 | -1> = opts.sort === 'oldest' || opts.sort === 'amount_asc'
-        ? (opts.sort === 'amount_asc' ? { total: 1, total_price: 1, createdAt: -1 } : { createdAt: 1 })
-        : (opts.sort === 'amount_desc' ? { total: -1, total_price: -1, createdAt: -1 } : { createdAt: -1 });
+        ? (opts.sort === 'amount_asc' ? { [amountField]: 1, createdAt: -1 } : { createdAt: 1 })
+        : (opts.sort === 'amount_desc' ? { [amountField]: -1, createdAt: -1 } : { createdAt: -1 });
       const items = await col.find(match)
         .sort(mongoSort)
         .limit(perCol)
@@ -124,21 +179,20 @@ export class OrdersConsoleService {
           patient_phone: 1,
           provider_id: spec.providerField ? `$${spec.providerField}` : null,
           payment_method: 1, payment_status: 1,
-          total: {
-            $ifNull: [
-              spec.amountExpr === '$total_price' ? '$total_price'
-                : spec.amountExpr === '$total' ? '$total' : '$total_price',
-              0,
-            ],
-          },
+          total: { $ifNull: [spec.amountExpr, 0] },
           sla_due_at: 1,
         })
         .toArray();
       for (const it of items as any[]) {
         it.kind = spec.kind;
         it.kind_label_ar = spec.label_ar;
-        it.is_cancelled = CANCELLED_SETS.get(spec.kind)?.has(String(it.state)) || false;
+        it.is_cancelled = isCancelled(spec, it.state);
         it.is_completed = spec.completedStates.includes(String(it.state));
+        // Shape read by admin/src/pages/admin/orders/index.tsx (status, patient{}, provider{}, amount).
+        it.status = it.state;
+        it.patient = { id: it.patient_id ?? undefined, name: it.patient_name ?? undefined, phone: it.patient_phone ?? undefined };
+        it.provider = it.provider_id ? { id: it.provider_id } : undefined;
+        it.amount = typeof it.total === 'number' ? it.total : Number(it.total || 0);
         rows.push(it);
       }
     }
@@ -149,21 +203,25 @@ export class OrdersConsoleService {
       if (opts.sort === 'amount_desc') return Number(b.total || 0) - Number(a.total || 0);
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     });
-    const sliced = opts.kind && opts.kind !== 'all' ? rows : rows.slice((page - 1) * limit, page * limit);
+    const sliced = rows.slice((page - 1) * limit, page * limit);
 
     // status facet across requested kinds (for filter chips)
     const byStatus: Record<string, number> = {};
-    if (kinds.length === 1) {
-      const spec = kinds[0];
-      const facetRows = await this.conn.collection(spec.collection).aggregate([
-        { $group: { _id: `$${spec.stateField}`, n: { $sum: 1 } } },
-      ]).toArray().catch(() => []);
-      for (const r of facetRows as any[]) byStatus[String(r._id || 'unknown')] = r.n;
+    if (opts.kind && opts.kind !== 'all') {
+      for (const spec of kinds) {
+        const facetRows = await this.conn.collection(spec.collection).aggregate([
+          { $group: { _id: `$${spec.stateField}`, n: { $sum: 1 } } },
+        ]).toArray().catch(() => []);
+        for (const r of facetRows as any[]) {
+          const k = String(r._id || 'unknown');
+          byStatus[k] = (byStatus[k] || 0) + r.n;
+        }
+      }
     }
     const byKind: Record<string, number> = {};
     for (const spec of ORDER_KINDS) {
       const [c] = await this.conn.collection(spec.collection).aggregate([{ $count: 'n' }]).toArray().catch(() => [{ n: 0 }]);
-      byKind[spec.kind] = c?.n || 0;
+      byKind[spec.kind] = (byKind[spec.kind] || 0) + (c?.n || 0);
     }
 
     return { data: sliced, total, page, pages: Math.ceil(total / limit), by_status: byStatus, by_kind: byKind };
@@ -201,15 +259,9 @@ export class OrdersConsoleService {
   // ── Detail ───────────────────────────────────────────────────
 
   async detail(kind: string, id: string) {
-    const spec = getKindSpec(kind);
-    const doc: any = await this.conn.collection(spec.collection).findOne({ id });
-    if (!doc) throw new NotFoundException('order_not_found');
+    const { spec, doc } = await this.findOrder(kind, id);
 
-    const payments = await this.conn.collection('moyasar_payments')
-      .find({ $or: [{ booking_id: id }, { reference_id: id }, { order_id: id }] })
-      .project({ _id: 0 })
-      .sort({ createdAt: -1 }).limit(20).toArray()
-      .catch(() => []);
+    const payments = (await this.paymentsFor(id)).map(({ _id, client_secret, webhook_payload, ...p }: any) => p);
 
     const refunds = await this.conn.collection('wallet_transactions')
       .find({ referenceType: 'refund', referenceId: id, type: 'credit' })
@@ -223,8 +275,11 @@ export class OrdersConsoleService {
     const { _id, __v, ...clean } = doc;
     return {
       order: clean,
-      kind, kind_label_ar: spec.label_ar,
-      timeline: doc[spec.historyField] || [],
+      kind, kind_label_ar: spec.label_ar, source_collection: spec.collection,
+      // The detail page renders { from, to, note, at, by_user_id }; `timeline` collections store { ts, event, by, meta }.
+      timeline: (doc[spec.historyField] || []).map((e: any) => (spec.historyField === 'timeline'
+        ? { at: e.ts, from: e.meta?.from, to: e.meta?.to ?? e.event, note: e.meta?.note ?? e.meta?.reason ?? e.event, by_user_id: e.by }
+        : e)),
       payments,
       financials: { gross_paid: Math.round(paid * 100) / 100, refunded_total: Math.round(refundsTotal * 100) / 100, refundable_max: Math.max(0, Math.round((paid - refundsTotal) * 100) / 100) },
       refunds,
@@ -234,49 +289,42 @@ export class OrdersConsoleService {
   // ── Mutations ────────────────────────────────────────────────
 
   private async pushHistory(spec: OrderKindSpec, id: string, fromState: string, toState: string, admin: any, note: string) {
-    await this.conn.collection(spec.collection).updateOne(
-      { id },
-      {
-        $push: {
-          [spec.historyField]: {
-            from: fromState, to: toState,
-            by_user_id: admin.id, by_role: 'admin',
-            at: new Date(), note,
-          },
-        } as any,
-      },
-    );
+    // `timeline` collections use { ts, event, by, meta }; `state_history` ones { from, to, at, note }.
+    const entry = spec.historyField === 'timeline'
+      ? { ts: new Date(), event: 'admin_action', by: admin.id, meta: { from: fromState, to: toState, note } }
+      : { from: fromState, to: toState, by_user_id: admin.id, by_role: 'admin', at: new Date(), note };
+    await this.conn.collection(spec.collection).updateOne({ id }, { $push: { [spec.historyField]: entry } as any });
   }
 
   async cancel(kind: string, id: string, rawReason: unknown, admin: any) {
     const reason = this.reason(rawReason);
-    const spec = getKindSpec(kind);
-    const doc: any = await this.conn.collection(spec.collection).findOne({ id });
-    if (!doc) throw new NotFoundException('order_not_found');
+    const { spec, doc } = await this.findOrder(kind, id);
     const from = String(doc[spec.stateField]);
-    if (CANCELLED_SETS.get(kind)?.has(from)) throw new BadRequestException('already_cancelled');
+    if (isCancelled(spec, from)) throw new BadRequestException('already_cancelled');
     if (spec.completedStates.includes(from)) throw new BadRequestException(`cannot_cancel_completed_state_${from}`);
+    const to = spec.cancelledValue || 'CANCELLED';
 
-    await this.conn.collection(spec.collection).updateOne({ id }, { $set: { [spec.stateField]: 'CANCELLED', cancelled_at: new Date(), cancellation_reason: reason } });
-    await this.pushHistory(spec, id, from, 'CANCELLED', admin, `admin_cancel: ${reason}`);
+    if (spec.managed && spec.collection === 'pharmacy_orders') {
+      // Releases allocations and stock and goes through the workflow engine.
+      const { PharmacyOrderService } = await import('../pharmacy/services/pharmacy-order.service');
+      await this.moduleRef.get(PharmacyOrderService, { strict: false }).adminCancel(admin, id, reason);
+    } else {
+      await this.conn.collection(spec.collection).updateOne({ id }, { $set: { [spec.stateField]: to, cancelled_at: new Date(), cancellation_reason: reason } });
+      await this.pushHistory(spec, id, from, to, admin, `admin_cancel: ${reason}`);
+    }
     await this.audit.write({
       action: 'order_cancel', actor: admin, target_type: spec.collection, target_id: id,
-      reason, before: { state: from }, after: { state: 'CANCELLED' },
+      reason, before: { state: from }, after: { state: to },
     });
-    return { ok: true, id, previous_state: from, state: 'CANCELLED' };
+    return { ok: true, id, previous_state: from, state: to };
   }
 
   /** Real wallet refund capped at net paid (gross − already refunded). */
   async refund(kind: string, id: string, body: { amount?: number; mode?: 'partial' | 'full'; reason?: unknown }, admin: any) {
     const reason = this.financialReason(body?.reason);
-    const spec = getKindSpec(kind);
-    const doc: any = await this.conn.collection(spec.collection).findOne({ id });
-    if (!doc) throw new NotFoundException('order_not_found');
+    const { spec, doc } = await this.findOrder(kind, id);
 
-    const payments = await this.conn.collection('moyasar_payments').find({
-      $or: [{ booking_id: id }, { reference_id: id }, { order_id: id }],
-      status: { $in: ['paid', 'confirmed', 'succeeded'] },
-    }).toArray().catch(() => []);
+    const payments = await this.paymentsFor(id, true);
     const paid = (payments as any[]).reduce((a: number, p: any) => a + Number(p.amount || 0), 0);
     if (paid <= 0) throw new BadRequestException('no_confirmed_payment_to_refund');
     const priorRefunds = await this.conn.collection('wallet_transactions')
@@ -298,7 +346,7 @@ export class OrdersConsoleService {
     // daily reconciliation don't keep counting refunded money as gross.
     const fullyRefunded = Math.round((refunded + amount) * 100) / 100 >= paid;
     for (const p of payments) {
-      await this.conn.collection('moyasar_payments').updateOne(
+      await this.conn.collection((p as any)._source).updateOne(
         { _id: (p as any)._id },
         { $set: {
           status: fullyRefunded ? 'refunded' : (p as any).status,
@@ -320,9 +368,7 @@ export class OrdersConsoleService {
   async compensate(kind: string, id: string, body: { amount?: number; reason?: unknown }, admin: any) {
     const reason = this.financialReason(body?.reason);
     const cap = Number(process.env.COMPENSATION_MAX_SAR || 500);
-    const spec = getKindSpec(kind);
-    const doc: any = await this.conn.collection(spec.collection).findOne({ id });
-    if (!doc) throw new NotFoundException('order_not_found');
+    const { spec, doc } = await this.findOrder(kind, id);
     const amount = Math.round(Number(body?.amount) * 100) / 100;
     if (!Number.isFinite(amount) || amount <= 0) throw new BadRequestException('amount_required_positive');
     if (amount > cap) throw new BadRequestException(`amount_exceeds_compensation_cap_${cap}`);
@@ -337,13 +383,13 @@ export class OrdersConsoleService {
 
   async reassign(kind: string, id: string, body: { provider_id?: string; reason?: unknown }, admin: any) {
     const reason = this.reason(body?.reason);
-    const spec = getKindSpec(kind);
-    if (!spec.providerField) throw new BadRequestException('kind_has_no_provider_field');
     const newProvider = String(body?.provider_id || '').trim();
     if (!newProvider) throw new BadRequestException('provider_id_required');
-    const doc: any = await this.conn.collection(spec.collection).findOne({ id });
-    if (!doc) throw new NotFoundException('order_not_found');
-    if (CANCELLED_SETS.get(kind)?.has(String(doc[spec.stateField]))) throw new BadRequestException('cannot_reassign_cancelled');
+    const { spec, doc } = await this.findOrder(kind, id);
+    // Managed pharmacy orders are held by allocations (stock reserved per pharmacy): a field swap
+    // would leave the old pharmacy's allocation live, so reassignment is not offered there.
+    if (!spec.providerField || spec.managed) throw new BadRequestException('kind_has_no_provider_field');
+    if (isCancelled(spec, doc[spec.stateField])) throw new BadRequestException('cannot_reassign_cancelled');
 
     const oldProvider = doc[spec.providerField] || null;
     await this.conn.collection(spec.collection).updateOne(
@@ -362,9 +408,7 @@ export class OrdersConsoleService {
     const reason = this.reason(body?.reason);
     const hours = Number(body?.hours);
     if (!Number.isFinite(hours) || hours <= 0 || hours > 72) throw new BadRequestException('hours_must_be_1_to_72');
-    const spec = getKindSpec(kind);
-    const doc: any = await this.conn.collection(spec.collection).findOne({ id });
-    if (!doc) throw new NotFoundException('order_not_found');
+    const { spec, doc } = await this.findOrder(kind, id);
     const base = doc.sla_due_at ? new Date(doc.sla_due_at) : new Date();
     const newDue = new Date(base.getTime() + hours * 3600_000);
     await this.conn.collection(spec.collection).updateOne(
@@ -381,9 +425,7 @@ export class OrdersConsoleService {
   /** Internal operations note; no client-side state is treated as the source of truth. */
   async addInternalNote(kind: string, id: string, rawNote: unknown, admin: any) {
     const note = this.reason(rawNote);
-    const spec = getKindSpec(kind);
-    const doc: any = await this.conn.collection(spec.collection).findOne({ id });
-    if (!doc) throw new NotFoundException('order_not_found');
+    const { spec, doc } = await this.findOrder(kind, id);
     const entry = { by_user_id: admin.id, by_role: 'admin', at: new Date(), note: `internal_note: ${note}` };
     await this.conn.collection(spec.collection).updateOne({ id }, { $push: { internal_notes: entry } } as any);
     await this.audit.write({

@@ -15,6 +15,9 @@ export const LoyaltyAccountSchema = SchemaFactory.createForClass(LoyaltyAccount)
 // ─── LoyaltyTransaction ───────────────────────────────────────────────────────
 @Schema({ timestamps: true, collection: 'loyalty_transactions' })
 export class LoyaltyTransaction extends Document {
+  // Written by the services but previously undeclared: strict mode silently dropped these (tools/audit/schemadrift.js).
+  @Prop({ index: true }) expires_at?: Date;
+  @Prop({ default: false }) swept?: boolean;
   @Prop({ required: true, unique: true, index: true }) id: string;
   @Prop({ required: true, index: true }) user_id: string;
   /** Positive = earned, Negative = redeemed */

@@ -4,6 +4,8 @@ import { v4 as uuid } from 'uuid';
 
 @Schema({ timestamps: true, collection: 'patient_profiles' })
 export class PatientProfile {
+  // Written by the services but previously undeclared: strict mode silently dropped these (tools/audit/schemadrift.js).
+  @Prop({ type: [String], default: [] }) wishlist?: string[];
   @Prop({ default: () => uuid() }) id: string;
   @Prop({ required: true, index: true }) user_id: string;
   @Prop() age?: number;
@@ -66,6 +68,7 @@ export class PatientProfile {
       // insurance-engine save-policy writes company_id/company_name/plan_class/card_image_url/saved_at;
       // without them here the strict sub-schema silently dropped the patient's insurer.
       company_id: String,
+      company_code: String,
       company_name: String,
       plan_class: String,
       card_image_url: String,
@@ -87,6 +90,7 @@ export class PatientProfile {
   })
   insurance?: {
     company_id?: string;
+    company_code?: string;
     company_name?: string;
     plan_class?: string;
     card_image_url?: string;

@@ -27,9 +27,15 @@ export default function GlobalCart() {
   React.useEffect(() => {
     if (items.length > 0) {
       setLoadingLabs(true);
-      const ids = items.map(i => i.id).join(',');
-      apiFetch(`/labs/compatible-providers?testIds=${ids}`)
-        .then((res: any) => setCompatibleLabs(res?.data || res || []))
+      // Lab tests and scans are matched by their own services; a mixed cart needs a provider doing both.
+      const labIds = items.filter((i: any) => i.kind !== 'radiology').map(i => i.id);
+      const scanIds = items.filter((i: any) => i.kind === 'radiology').map(i => i.id);
+      const list = (res: any) => (Array.isArray(res) ? res : res?.data || []);
+      Promise.all([
+        labIds.length ? apiFetch(`/labs/compatible-providers?testIds=${labIds.join(',')}`).then(list) : Promise.resolve(null),
+        scanIds.length ? apiFetch(`/radiology/compatible-providers?serviceIds=${scanIds.join(',')}`).then(list) : Promise.resolve(null),
+      ])
+        .then(([labs, centers]: any[]) => setCompatibleLabs(labs && centers ? labs.filter((l: any) => centers.some((c: any) => c.id === l.id)) : (labs || centers || [])))
         .catch((e) => logError('diagnostics:cart', e))
         .finally(() => setLoadingLabs(false));
     } else {

@@ -14,6 +14,23 @@ export default function ConfigPortal() {
   const [killSwitchChecked2, setKillSwitchChecked2] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [systemStatus, setSystemStatus] = useState<'online' | 'maintenance'>('online');
+  // Platform cash-on-delivery policy: pharmacies may prepare COD orders only while it is active.
+  const [codActive, setCodActive] = useState<boolean | null>(null);
+  const [codSaving, setCodSaving] = useState(false);
+  useEffect(() => {
+    fetchWithAdminGuard(`/api/admin/pharmacy/fulfillment-policies`)
+      .then((r) => (r.ok ? r.json() : []))
+      .then((rows: any[]) => setCodActive(Boolean((rows || []).find((p: any) => p.id === 'platform-cod')?.active)))
+      .catch(() => setCodActive(null));
+  }, []);
+  const toggleCod = async () => {
+    if (codActive === null) return;
+    setCodSaving(true);
+    try {
+      const r = await fetchWithAdminGuard(`/api/admin/pharmacy/fulfillment-policies/cod`, { method: 'PUT', body: JSON.stringify({ active: !codActive }) });
+      if (r.ok) setCodActive(!codActive); else alert('تعذر حفظ سياسة الدفع عند الاستلام');
+    } finally { setCodSaving(false); }
+  };
 
   useEffect(() => {
     const fetchSLA = async () => {
@@ -154,6 +171,17 @@ export default function ConfigPortal() {
                   <input type="number" min={1} max={72} value={jwtExpiry} onChange={(e) => setJwtExpiry(Number(e.target.value))} className="border rounded px-4 py-2 w-full text-left" dir="ltr" />
                 </div>
               </div>
+            </div>
+
+            <div className="mt-6 p-4 rounded-lg border border-gray-200 flex items-center justify-between">
+              <div>
+                <div className="font-medium text-gray-800">الدفع عند الاستلام لطلبات الصيدليات</div>
+                <div className="text-gray-500 text-sm">عند الإيقاف لا تستطيع الصيدليات تجهيز الطلبات النقدية حتى يُعاد التفعيل.</div>
+              </div>
+              <button disabled={codActive === null || codSaving} onClick={toggleCod}
+                className={`px-5 py-2 rounded-lg font-bold text-white disabled:opacity-50 ${codActive ? 'bg-teal-600' : 'bg-gray-400'}`}>
+                {codActive === null ? '…' : codActive ? 'مُفعّل' : 'موقوف'}
+              </button>
             </div>
 
             <div className="pt-6">

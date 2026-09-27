@@ -136,13 +136,16 @@ export function NursingDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
                <Text style={{ fontSize: FS.md, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
                {AR ? 'موقع المريض:' : 'Patient Location:'} {incomingRequest.address?.address || incomingRequest.address || '—'}
                </Text>
+               {incomingRequest.scheduled_at ? (
                <Text style={{ fontSize: FS.sm, color: theme.primary, fontWeight: FW.bold, textAlign: AR ? 'right' : 'left' }}>
-                {AR ? 'المسافة الجغرافية: 3.2 كم' : 'Distance: 3.2 KM'}
+                {AR ? 'الموعد: ' : 'Scheduled: '}{new Date(incomingRequest.scheduled_at).toLocaleString(AR ? 'ar-SA-u-ca-gregory' : 'en-GB')}
                </Text>
+               ) : null}
                <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginTop: SP.md }}>
                <NBtn label={AR ? 'قبول' : 'Accept'} style={{ flex: 1 }} onPress={async () => {
                try {
-               await client.post(`/nursing/visits/${incomingRequest.id}/respond`, { accept: true });
+               // governed accept (workflow engine; a card visit must be paid first)
+               await client.post(`/provider/jobs/nursing/${incomingRequest.id}/accept`, {});
                show(AR ? 'تم قبول الطلب بنجاح' : 'Request accepted successfully', 'success');
                setIncomingRequest(null);
                fetchJobs();
@@ -152,7 +155,7 @@ export function NursingDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
                }} />
                <NBtn label={AR ? 'رفض' : 'Reject'} variant="danger" style={{ flex: 1 }} onPress={async () => {
                try {
-               await client.post(`/nursing/visits/${incomingRequest.id}/respond`, { accept: false });
+               await client.post(`/provider/jobs/nursing/${incomingRequest.id}/reject`, { reason: 'provider_declined' });
                show(AR ? 'تم رفض الطلب' : 'Request rejected', 'info');
                setIncomingRequest(null);
                fetchJobs();
@@ -428,7 +431,7 @@ function NursingOrdersTab({ onNavigate }: any) {
     if (!order?.id) return;
     setActing(true);
     try {
-      await client.post(`/provider/requests/${order.id}/accept`, {});
+      await client.post(`/provider/jobs/nursing/${order.id}/accept`, {});
       show(AR ? 'تم قبول الزيارة بنجاح وإضافتها لجدول العمل' : 'Visit accepted successfully', 'success');
       onRefresh?.();
       onBack();
@@ -443,7 +446,7 @@ function NursingOrdersTab({ onNavigate }: any) {
     if (!order?.id) return;
     setActing(true);
     try {
-      await client.post(`/provider/requests/${order.id}/reject`, { reason: 'unavailable_capacity' });
+      await client.post(`/provider/jobs/nursing/${order.id}/reject`, { reason: 'unavailable_capacity' });
       show(AR ? 'تم الاعتذار عن الزيارة بنجاح' : 'Visit declined with recorded audit', 'info');
       onRefresh?.();
       onBack();

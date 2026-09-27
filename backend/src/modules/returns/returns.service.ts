@@ -158,7 +158,8 @@ export class ReturnsService {
       if (!(amount > 0)) throw new BadRequestException('computed_return_amount_is_zero');
     } else {
       // Non-pharmacy services: amount must resolve from the booking, never the client
-      const order: any = await this.conn.collection('orders').findOne({ id: data.orderId } as any);
+      const order: any = await this.conn.collection('orders').findOne({ id: { $eq: String(data.orderId) } } as any);
+      if (order && order.patient_id !== userId) throw new ForbiddenException('not_your_order');
       amount = Number(order?.total ?? order?.totals?.total ?? 0);
       if (!(amount > 0)) throw new BadRequestException('could_not_resolve_amount_from_booking');
     }

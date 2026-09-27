@@ -113,6 +113,18 @@ export const ALLOCATION_TRANSITIONS: Record<PharmacyAllocationState, PharmacyAll
 // ============ PHARMACY ORDER (master) ============
 @Schema({ timestamps: true, collection: 'pharmacy_orders' })
 export class PharmacyOrder extends Document {
+  // Written by the services but previously undeclared: strict mode silently dropped these (tools/audit/schemadrift.js).
+  @Prop() payment_method?: string;                 // cash | cod | card | insurance (offer selection / COD)
+  @Prop() payment_status?: string;                 // paid | refunded | partially_refunded | covered_by_insurance
+  @Prop() refund_status?: string;
+  @Prop() coverage_mode?: string;                  // cash | insurance
+  @Prop() quote_accepted_at?: Date;                // patient accepted the final quote
+  @Prop() final_quote_idempotency_key?: string;
+  @Prop() cod_registered_at?: Date;
+  @Prop() cod_idempotency_key?: string;
+  @Prop({ type: Object }) insurance_decision?: Record<string, any>;
+  @Prop() insurance_rejection_cancellation_key?: string;
+  @Prop({ type: Object }) delivery?: { method?: string; courier_name?: string; courier_phone?: string; courier_eta?: Date; dispatched_at?: Date; delivered_at?: Date };
   @Prop({ required: true, unique: true, default: () => uuidv4() }) id: string;
   @Prop({ required: true, index: true }) patient_account_id: string;
   @Prop({ required: true, default: PharmacyOrderState.DRAFT, enum: Object.values(PharmacyOrderState), index: true }) status: PharmacyOrderState;
@@ -223,6 +235,12 @@ export class PharmacyAllocation extends Document {
   @Prop({ required: true, index: true }) offer_id: string;
   @Prop({ required: true }) offer_version: number;
   @Prop({ required: true, default: PharmacyAllocationState.PENDING_REVIEW, enum: Object.values(PharmacyAllocationState), index: true }) status: PharmacyAllocationState;
+  /**
+   * Whether this allocation took stock out of the pharmacy inventory. Reservation only happens when the
+   * pharmacy has inventory tracking on, so releases must follow this flag (else a cancel adds phantom stock).
+   * Cleared once released so a second release path cannot add it back twice.
+   */
+  @Prop() stock_reserved?: boolean;
 
   // Item-level decisions taken by the pharmacist.
   @Prop({ type: [Object], default: [] }) items: Array<{

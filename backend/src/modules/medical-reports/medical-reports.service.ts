@@ -4,6 +4,7 @@ import { InjectConnection } from '@nestjs/mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { MedicalReport, MedicalReportType } from '../../schemas/medical-report.schema';
 import { MedicalReportRepository } from "./repositories/medicalreport.repository";
+import { hasEffectiveRole } from '../../common/auth.guard';
 
 @Injectable()
 export class MedicalReportsService {
@@ -54,8 +55,8 @@ export class MedicalReportsService {
       prescription_id: body.prescription_id,
       lab_booking_id: body.lab_booking_id,
       radiology_booking_id: body.radiology_booking_id,
-      doctor_id: body.doctor_id || (user.role === 'doctor' ? user.id : undefined),
-      doctor_name: body.doctor_name || (user.role === 'doctor' ? user.full_name : undefined),
+      doctor_id: body.doctor_id || (hasEffectiveRole(user, 'doctor') ? user.id : undefined),
+      doctor_name: body.doctor_name || (hasEffectiveRole(user, 'doctor') ? user.full_name : undefined),
       facility_id: body.facility_id,
       facility_name: body.facility_name,
       attachments: body.attachments || [],
@@ -78,7 +79,7 @@ export class MedicalReportsService {
 
   /** Resolve the caller's provider profile id when they act as a doctor. */
   private async ownDoctorProfileId(user: any): Promise<string | null> {
-    if (!user || user.role !== 'doctor') return null;
+    if (!user || !hasEffectiveRole(user, 'doctor')) return null;
     const p: any = await this.connection.collection('provider_profiles').findOne(
       { $or: [{ user_id: user.id }, { account_id: user.id }] },
       { projection: { _id: 0, id: 1 } },
@@ -127,7 +128,7 @@ export class MedicalReportsService {
 
   /** Doctor inbox: reports patients explicitly shared with them. */
   async sharedWithMe(user: any) {
-    if (!user || user.role !== 'doctor') throw new ForbiddenException('doctor only');
+    if (!user || !hasEffectiveRole(user, 'doctor')) throw new ForbiddenException('doctor only');
     const pid = await this.ownDoctorProfileId(user);
     if (!pid) return [];
     return this.model.find({ shared_with_doctor_ids: pid }, { _id: 0, __v: 0, body: 0 }).sort({ issued_at: -1, createdAt: -1 }).limit(100);

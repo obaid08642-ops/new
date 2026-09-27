@@ -63,6 +63,11 @@ export class LeaveRequestsController {
       { new: true },
     );
     if (!doc) throw new NotFoundException('pending leave request not found for this facility');
+    // the doctor's own leave (DoctorOpsScreens) follows the decision; approved leave blocks bookings
+    await this.leaveModel.db.collection('doctor_leaves').updateOne(
+      { id: doc.id, status: 'pending_facility' },
+      { $set: { status: doc.status === 'approved' ? 'active' : 'rejected', updatedAt: new Date() } },
+    );
     return { success: true, id: doc.id, status: doc.status };
   }
 }

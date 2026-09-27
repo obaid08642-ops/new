@@ -5,6 +5,8 @@ import { v4 as uuid } from 'uuid';
 
 @Schema({ timestamps: true, collection: 'emergency_requests' })
 export class EmergencyRequest {
+  // Written by the services but previously undeclared: strict mode silently dropped these (tools/audit/schemadrift.js).
+  @Prop() cancelled_at?: Date;
   @Prop({ default: () => uuid() }) id: string;
   @Prop({ required: true, index: true }) patient_id: string;
   @Prop() patient_name?: string;

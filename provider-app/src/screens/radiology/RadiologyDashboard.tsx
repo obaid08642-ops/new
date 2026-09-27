@@ -220,6 +220,20 @@ function OrderDetailScreen({ order, onBack, onNav }: { order: any; onBack: () =>
     } catch (e: any) { show(e.message, 'error'); } finally { setLoading(false); }
   };
 
+  const [showReject, setShowReject] = useState(false);
+  const [rejectReason, setRejectReason] = useState('');
+  const setState = async (state: string, note: string, done: string) => {
+    setLoading(true);
+    try { await client.patch(`/radiology/bookings/${currentOrder.id}/state`, { state, note }); show(done, 'success'); await refresh(); }
+    catch (e: any) { show(e?.response?.data?.message || e.message, 'error'); } finally { setLoading(false); }
+  };
+  const acceptBooking = () => setState('CONFIRMED', 'accepted_by_center', AR ? 'تم قبول الحجز' : 'Booking accepted');
+  const rejectBooking = async () => {
+    if (rejectReason.trim().length < 5) return show(AR ? 'اكتب سبب الرفض (5 أحرف على الأقل)' : 'Enter a reason (at least 5 characters)', 'warning');
+    await setState('CANCELLED', `rejected_by_center: ${rejectReason.trim()}`, AR ? 'تم رفض الحجز وإبلاغ المريض' : 'Booking rejected');
+    setShowReject(false);
+  };
+
   const handleAbort = async () => {
     if (!abortReason) return show(AR ? 'اختر سبب الإلغاء' : 'Select abort reason', 'warning');
     setLoading(true);
@@ -281,9 +295,13 @@ function OrderDetailScreen({ order, onBack, onNav }: { order: any; onBack: () =>
       <NSecHeader title={AR ? 'الإجراءات' : 'Actions'} />
       <View style={{ gap: SP.md, marginBottom: SP.xl }}>
         {currentOrder.state === 'NEW_REQUEST' && (<>
-          <NBtn label={AR?' ينتظر تأكيد الدفع من الخادم':' Waiting for server payment confirmation'} variant="outline" onPress={() => show(AR ? 'لا يمكن تأكيد الدفع النقدي من التطبيق.' : 'Cash payment cannot be confirmed from the app.', 'info')} />
-          <NBtn label={AR?' تسجيل قرار تغطية داخلي':' Record Internal Coverage Decision'} variant="outline" onPress={() => setShowNphies(true)} />
-          <NBtn label={AR?' الرفض يحتاج سبباً خادمياً':' Rejection requires a server-recorded reason'} variant="danger" onPress={() => show(AR ? 'لا يمكن رفض الحجز بتغيير الحالة مباشرةً.' : 'A booking cannot be rejected by directly changing its state.', 'info')} />
+          {currentOrder.payment_method === 'insurance' ? (
+            <NBtn label={AR?' تسجيل قرار تغطية داخلي':' Record Internal Coverage Decision'} variant="outline" onPress={() => setShowNphies(true)} />
+          ) : (
+            // server accepts only cash at the center or a paid card booking (radiology.service assertConfirmable)
+            <NBtn label={AR?' قبول الحجز':' Accept booking'} loading={loading} onPress={acceptBooking} style={{ backgroundColor:'tokens.mintDeep' }} />
+          )}
+          <NBtn label={AR?' رفض الحجز':' Reject booking'} variant="danger" onPress={() => setShowReject(true)} />
         </>)}
         {currentOrder.state ==='PENDING_INSURANCE' && <NBtn label={AR?' إدخال موافقة التأمين':' Enter Insurance Approval'} onPress={() => setShowNphies(true)} />}
         {currentOrder.state ==='CONFIRMED' && <NBtn label={AR?' تأكيد حضور المريض (Check-in)':' Confirm Patient Arrival (Check-in)'} loading={loading} onPress={() => doAction('checkin')} style={{ backgroundColor:'tokens.mintDeep' }} />}
@@ -311,6 +329,10 @@ function OrderDetailScreen({ order, onBack, onNav }: { order: any; onBack: () =>
       </NSheet>
 
       {/* Abort Modal — PILLAR 5 */}
+      <NSheet visible={showReject} onClose={() => setShowReject(false)} title={AR ? 'رفض الحجز' : 'Reject booking'} height={320}>
+        <NInput label={AR ? 'سبب الرفض' : 'Reason'} value={rejectReason} onChange={setRejectReason} icon="edit" />
+        <NBtn label={AR ? 'تأكيد الرفض' : 'Confirm rejection'} variant="danger" loading={loading} onPress={rejectBooking} style={{ marginTop: SP.md }} />
+      </NSheet>
       <NSheet visible={showAbort} onClose={() => setShowAbort(false)} title={AR?' إلغاء الفحص - اختر السبب':' Abort Scan - Select Reason'}>
         <Text style={{ color: 'tokens.error', marginBottom: SP.md, textAlign: AR ? 'right' : 'left', fontSize: FS.sm }}>{AR ? 'سيُسجل الإلغاء في الخادم. لا يُفترض استرداد أو تحويل مالي من هذه الشاشة.' : 'The abort is recorded by the server. This screen does not create or claim a refund or financial transfer.'}</Text>
         {ABORT_REASONS.map(r => (

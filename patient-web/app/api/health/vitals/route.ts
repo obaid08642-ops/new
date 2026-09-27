@@ -25,7 +25,9 @@ export async function POST(request: Request) {
   const store = await cookies();
   const accessToken = store.get(authCookieNames.access)?.value;
   if (!accessToken) return NextResponse.json({ message: "authentication_required" }, { status: 401 });
-  const upstream = await callPatientApi("/health/vitals", { method: "POST", body: JSON.stringify(parsed.data) }, accessToken);
+  // The API requires an idempotency key on this route; forward the browser's, or mint one per request.
+  const key = request.headers.get("idempotency-key")?.trim() || `web-vital-${crypto.randomUUID()}`;
+  const upstream = await callPatientApi("/health/vitals", { method: "POST", headers: { "idempotency-key": key }, body: JSON.stringify(parsed.data) }, accessToken);
   const data = await upstream.json().catch(() => null);
   if (!upstream.ok) return boundedUpstreamError(data, "vital_log_failed", upstream.status);
   return NextResponse.json(data ?? { ok: true }, { headers: { "cache-control": "no-store" } });

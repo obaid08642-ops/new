@@ -25,6 +25,7 @@ import { UserRole } from '../../common/enums';
 import { IdempotencyInterceptor } from '../../common/idempotency.interceptor';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import * as crypto from 'crypto';
+import { moyasarBase } from '../../common/moyasar-base';
 
 // ── Schemas ──────────────────────────────────────────────────────────────────
 
@@ -65,7 +66,7 @@ MoyasarPaymentSchema.index({ moyasar_id: 1 }, { sparse: true });
 export class MoyasarService {
   private readonly logger = new Logger('MoyasarService');
   private readonly apiKey: string;
-  private readonly baseUrl = 'https://api.moyasar.com/v1';
+  private get baseUrl() { return moyasarBase(); }
 
   constructor(
     @InjectModel(MoyasarPayment.name)

@@ -91,12 +91,12 @@ function AS1Account({ data, update, onNext, onBack, step, total }: any) {
         email: data.managerEmail,
         type: 'ambulance',
       });
-      await ProviderApi.login(data.managerPhone, data.password);
+      await ProviderApi.onboardingLogin(data.managerEmail, data.password, 'ambulance');
       onNext();
     } catch (e: any) {
       // Account may already exist from a previous attempt — try continuing via login
       try {
-        await ProviderApi.login(data.managerPhone, data.password);
+        await ProviderApi.onboardingLogin(data.managerEmail, data.password, 'ambulance');
         onNext();
       } catch {
         setErrs({ managerPhone: e?.message || (AR ? 'تعذر بدء التسجيل' : 'Could not start registration') });

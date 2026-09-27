@@ -181,8 +181,20 @@ export class LoyaltyService {
   }
 
   @OnEvent('order.delivered')
-  async onOrderDelivered(payload: { user_id: string; order_id: string }) {
-    await this.awardPoints(payload.user_id, 'order_delivered', 'order', payload.order_id);
+  async onOrderDelivered(payload: { user_id?: string; patient_id?: string; order_id: string }) {
+    // emitters send patient_id (orders/drivers); user_id kept for older callers
+    const uid = payload?.user_id || payload?.patient_id;
+    if (!uid) return;
+    await this.awardPoints(uid, 'order_delivered', 'order', payload.order_id);
+  }
+
+  /** The workflow engine emits service.completed for every domain (pharmacy, lab, radiology, nursing,
+   *  consultation). Nothing emitted booking.completed, so completed services never earned points. */
+  @OnEvent('service.completed')
+  async onServiceCompleted(p: { patient_account_id?: string; entity_type?: string; entity_id?: string }) {
+    if (!p?.patient_account_id || !p?.entity_id) return;
+    if (p.entity_type === 'order') await this.awardPoints(p.patient_account_id, 'order_delivered', 'order', p.entity_id);
+    else await this.awardPoints(p.patient_account_id, 'booking_completed', 'appointment', p.entity_id);
   }
 
   @OnEvent('review.submitted')

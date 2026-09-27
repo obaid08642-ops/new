@@ -105,6 +105,11 @@ export class NursingController {
 
   // --- Admin Catalog CRUD (nursing/home-care services) ---
   @Roles(UserRole.ADMIN)
+  @Get('admin/catalog')
+  @UseGuards(JwtAuthGuard)
+  adminCatalog(@CurrentUser() u: any) { return this.homeSvc.adminCatalog(u); }
+
+  @Roles(UserRole.ADMIN)
   @Post('admin/catalog')
   @UseGuards(JwtAuthGuard)
   async createCatalog(@CurrentUser() u: any, @Body() b: CreateHomeCareCatalogDto) {
@@ -234,6 +239,7 @@ export class NursingController {
     const b: any = await this.findVisit(id);
     this.assertProviderMutation(b, user);
     
+    if (b.state !== NursingBookingState.IN_TRANSIT) throw new BadRequestException('Invalid state transition');
     if (!Number.isFinite(body?.lat) || !Number.isFinite(body?.lng) || body.lat < -90 || body.lat > 90 || body.lng < -180 || body.lng > 180) {
       throw new BadRequestException('valid lat/lng required');
     }
@@ -255,6 +261,9 @@ export class NursingController {
     b.markModified('timers');
     b.gps_tracking.current_lat = body.lat;
     b.gps_tracking.current_lng = body.lng;
+    // Older bookings saved the address as text only: the arrival could not be geofenced, say so on the record.
+    b.gps_tracking.geofence = Number.isFinite(patientLat) && Number.isFinite(patientLng) ? 'verified' : 'no_patient_coordinates';
+    b.markModified('gps_tracking');
     b.markModified('gps_tracking');
     b.state_history.push({ from: NursingBookingState.IN_TRANSIT, to: b.state, at: new Date() });
     await b.save();

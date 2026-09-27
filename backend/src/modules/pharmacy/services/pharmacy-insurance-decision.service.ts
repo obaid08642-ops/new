@@ -127,13 +127,16 @@ export class PharmacyInsuranceDecisionService {
       const allocation: any = await (this.allocations.findOne({ id: order.selected_allocation_id, order_id: order.id, offer_id: order.selected_offer_id }) as any).session(session);
       if (!allocation) throw new BadRequestException('selected_allocation_required');
       if (![PharmacyAllocationState.PENDING_REVIEW, PharmacyAllocationState.PARTIALLY_CONFIRMED].includes(allocation.status)) throw new BadRequestException('rejected_order_cancellation_not_allowed_after_fulfillment');
-      for (const item of allocation.items || []) {
+      // Only give back stock this allocation actually took (inventory tracking on at selection).
+      const heldStock = typeof allocation.stock_reserved === 'boolean' ? allocation.stock_reserved
+        : (await this.connection.collection('provider_settings').findOne({ provider_id: allocation.pharmacy_account_id }, { session }))?.inventory_tracking === true;
+      for (const item of heldStock ? allocation.items || [] : []) {
         if (!item.inventory_id || item.action === 'unavailable' || Number(item.qty_offered || 0) <= 0) continue;
         const release = await this.inventory.updateOne({ id: item.inventory_id, provider_account_id: allocation.pharmacy_account_id }, { $inc: { stock: Number(item.qty_offered) } }, { session });
         if (Number((release as any)?.matchedCount ?? (release as any)?.n ?? 0) !== 1) throw new BadRequestException('reserved_inventory_release_conflict');
       }
       const now = new Date();
-      const allocationUpdate = await this.allocations.updateOne({ id: allocation.id, status: allocation.status }, { $set: { status: PharmacyAllocationState.CANCELLED, cancellation_reason: 'patient_cancelled_after_rejected_insurance' }, $push: { timeline: { ts: now, event: 'cancelled_after_rejected_insurance', by: patient.id } } }, { session });
+      const allocationUpdate = await this.allocations.updateOne({ id: allocation.id, status: allocation.status }, { $set: { status: PharmacyAllocationState.CANCELLED, cancellation_reason: 'patient_cancelled_after_rejected_insurance', stock_reserved: false }, $push: { timeline: { ts: now, event: 'cancelled_after_rejected_insurance', by: patient.id } } }, { session });
       if (!this.modified(allocationUpdate)) throw new BadRequestException('allocation_cancellation_conflict');
       const orderUpdate = await this.orders.updateOne({ id: order.id, patient_account_id: patient.id, status: PharmacyOrderState.MANUAL_REVIEW }, { $set: { status: PharmacyOrderState.CANCELLED, insurance_rejection_cancellation_key: idempotencyKey }, $push: { timeline: { ts: now, event: 'patient_cancelled_after_rejected_insurance', by: patient.id } } }, { session });
       if (!this.modified(orderUpdate)) throw new BadRequestException('order_cancellation_conflict');

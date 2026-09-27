@@ -22,6 +22,12 @@ export class HospitalStaff {
 
   @Prop({ default: true })
   is_active: boolean;
+
+  // Shown on the facility staff/credentials screens (clinical staff also carry them on their provider profile)
+  @Prop() department?: string;
+  @Prop() scfhs?: string;
+  // Provider account created for clinical staff (their own dashboard login)
+  @Prop() account_id?: string;
 }
 
 export const HospitalStaffSchema = SchemaFactory.createForClass(HospitalStaff);

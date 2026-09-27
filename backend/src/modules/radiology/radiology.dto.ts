@@ -26,9 +26,6 @@ export class BookDto {
   @IsArray()
   documents?: unknown[];
 
-  @IsOptional()
-  @IsNumber()
-  total_price?: number;
 }
 
 export class TransitionDto {
@@ -157,109 +154,73 @@ export class RescheduleDto {
   reason: string;
 }
 
+// Admin catalog editor (admin/src/pages/admin/catalog-manager.tsx). medical_review_status publishes/unpublishes.
 export class CreateRadiologyCatalogDto {
-  @IsDefined()
-  @IsString()
-  name_ar: string;
-
-  @IsDefined()
-  @IsString()
-  name_en: string;
-
-  @IsDefined()
-  @IsString()
-  modality: string;
-
-  @IsDefined()
-  @IsNumber()
-  price: number;
-
-  @IsOptional()
-  @IsString()
-  short_code?: string;
-
-  @IsOptional()
-  @IsString()
-  description_ar?: string;
-
-  @IsOptional()
-  @IsString()
-  description_en?: string;
-
-  @IsOptional()
-  @IsString()
-  body_part?: string;
-
-  @IsOptional()
-  @IsNumber()
-  old_price?: number;
-
-  @IsOptional()
-  contrast_required?: boolean;
-
-  @IsOptional()
-  fasting_required?: boolean;
-
-  @IsOptional()
-  @IsNumber()
-  fasting_hours?: number;
-
-  @IsOptional()
-  home_visit_supported?: boolean;
-
-  @IsOptional()
-  facility_visit_supported?: boolean;
-
-  @IsOptional()
-  @IsNumber()
-  turnaround_hours?: number;
-
-  @IsOptional()
-  @IsArray()
-  preparation_ar?: string[];
-
-  @IsOptional()
-  @IsArray()
-  preparation_en?: string[];
+  @IsDefined() @IsString() name_ar: string;
+  @IsDefined() @IsString() name_en: string;
+  @IsOptional() @IsString() short_code?: string;
+  @IsOptional() @IsString() description_ar?: string;
+  @IsOptional() @IsString() description_en?: string;
+  @IsDefined() @IsString() modality: string;
+  @IsOptional() @IsString() modality_category?: string;
+  @IsOptional() @IsString() body_part?: string;
+  @IsDefined() @IsNumber() price: number;
+  @IsOptional() @IsNumber() old_price?: number;
+  @IsOptional() @IsBoolean() contrast_required?: boolean;
+  @IsOptional() @IsBoolean() fasting_required?: boolean;
+  @IsOptional() @IsNumber() fasting_hours?: number;
+  @IsOptional() @IsBoolean() home_visit_supported?: boolean;
+  @IsOptional() @IsBoolean() facility_visit_supported?: boolean;
+  @IsOptional() @IsNumber() turnaround_hours?: number;
+  @IsOptional() @IsArray() @IsString({ each: true }) preparation_ar?: string[];
+  @IsOptional() @IsArray() @IsString({ each: true }) preparation_en?: string[];
+  @IsOptional() @IsBoolean() requires_referral?: boolean;
+  @IsOptional() @IsBoolean() medical_referral_required?: boolean;
+  @IsOptional() @IsNumber() popularity?: number;
+  @IsOptional() @IsBoolean() active?: boolean;
+  @IsOptional() @IsBoolean() unavailable?: boolean;
+  @IsOptional() @IsString() image_url?: string;
+  @IsOptional() @IsString() icon?: string;
+  @IsOptional() @IsNumber() estimated_duration_minutes?: number;
+  @IsOptional() @IsBoolean() cash_availability?: boolean;
+  @IsOptional() @IsBoolean() insurance_availability?: boolean;
+  @IsOptional() @IsBoolean() portable_ultrasound?: boolean;
+  @IsOptional() @IsIn(['pending', 'approved', 'rejected', 'suspended']) medical_review_status?: string;
 }
 
 export class UpdateRadiologyCatalogDto {
-  @IsOptional()
-  @IsString()
-  name_ar?: string;
-
-  @IsOptional()
-  @IsString()
-  name_en?: string;
-
-  @IsOptional()
-  @IsString()
-  modality?: string;
-
-  @IsOptional()
-  @IsNumber()
-  price?: number;
-
-  @IsOptional()
-  @IsString()
-  short_code?: string;
-
-  @IsOptional()
-  @IsString()
-  body_part?: string;
-
-  @IsOptional()
-  @IsNumber()
-  old_price?: number;
-
-  @IsOptional()
-  @IsArray()
-  preparation_ar?: string[];
-
-  @IsOptional()
-  @IsArray()
-  preparation_en?: string[];
+  @IsOptional() @IsString() name_ar?: string;
+  @IsOptional() @IsString() name_en?: string;
+  @IsOptional() @IsString() short_code?: string;
+  @IsOptional() @IsString() description_ar?: string;
+  @IsOptional() @IsString() description_en?: string;
+  @IsOptional() @IsString() modality?: string;
+  @IsOptional() @IsString() modality_category?: string;
+  @IsOptional() @IsString() body_part?: string;
+  @IsOptional() @IsNumber() price?: number;
+  @IsOptional() @IsNumber() old_price?: number;
+  @IsOptional() @IsBoolean() contrast_required?: boolean;
+  @IsOptional() @IsBoolean() fasting_required?: boolean;
+  @IsOptional() @IsNumber() fasting_hours?: number;
+  @IsOptional() @IsBoolean() home_visit_supported?: boolean;
+  @IsOptional() @IsBoolean() facility_visit_supported?: boolean;
+  @IsOptional() @IsNumber() turnaround_hours?: number;
+  @IsOptional() @IsArray() @IsString({ each: true }) preparation_ar?: string[];
+  @IsOptional() @IsArray() @IsString({ each: true }) preparation_en?: string[];
+  @IsOptional() @IsBoolean() requires_referral?: boolean;
+  @IsOptional() @IsBoolean() medical_referral_required?: boolean;
+  @IsOptional() @IsNumber() popularity?: number;
+  @IsOptional() @IsBoolean() active?: boolean;
+  @IsOptional() @IsBoolean() unavailable?: boolean;
+  @IsOptional() @IsString() image_url?: string;
+  @IsOptional() @IsString() icon?: string;
+  @IsOptional() @IsNumber() estimated_duration_minutes?: number;
+  @IsOptional() @IsBoolean() cash_availability?: boolean;
+  @IsOptional() @IsBoolean() insurance_availability?: boolean;
+  @IsOptional() @IsBoolean() portable_ultrasound?: boolean;
+  @IsOptional() @IsIn(['pending', 'approved', 'rejected', 'suspended']) medical_review_status?: string;
 }
+
 
 export class SubmitReportForReviewDto {
 }

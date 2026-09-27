@@ -89,8 +89,9 @@ export class PrescriptionsService {
       if (!medicineId) {
         // A doctor may record an exceptional medicine only on this verified prescription.
         // It is deliberately not written to medicines_master and cannot be treated as approved.
-        const manualNameAr = String(item?.manual_name_ar || '').trim();
-        const manualNameEn = String(item?.manual_name_en || '').trim();
+        // installed provider-app versions send the typed name as medicine_name_ar/en
+        const manualNameAr = String(item?.manual_name_ar || item?.medicine_name_ar || '').trim();
+        const manualNameEn = String(item?.manual_name_en || item?.medicine_name_en || '').trim();
         if (!manualNameAr && !manualNameEn) {
           throw new BadRequestException('manual medicine name is required');
         }

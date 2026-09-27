@@ -54,8 +54,10 @@ export class BedsService {
     return this.wardModel.find({ facility_id: facilityId }).lean();
   }
 
-  async getWardBeds(wardId: string) {
-    return this.bedModel.find({ ward_id: wardId }).lean();
+  async getWardBeds(facilityId: string, wardId: string) {
+    const ward = await this.wardModel.findOne({ id: { $eq: wardId }, facility_id: { $eq: facilityId } }).lean();
+    if (!ward) throw new NotFoundException('ward_not_found');
+    return this.bedModel.find({ ward_id: { $eq: wardId } }).lean();
   }
 
   async createWard(facilityId: string, name: string, totalBeds: number) {
@@ -85,13 +87,18 @@ export class BedsService {
     if (!bed) throw new NotFoundException('bed_not_found');
     if (bed.status !== 'available') throw new BadRequestException('bed_not_available');
 
-    const ward = await this.wardModel.findOne({ id: { $eq: bed.ward_id } });
+    // the bed must belong to this facility
+    const ward = await this.wardModel.findOne({ id: { $eq: bed.ward_id }, facility_id: { $eq: facilityId } });
     if (!ward) throw new NotFoundException('ward_not_found');
+    const patient = await this.conn.db.collection('users').findOne({ id: { $eq: String(patientId || '') } }, { projection: { _id: 1 } });
+    if (!patient) throw new NotFoundException('patient_not_found');
 
-    await this.bedModel.updateOne(
-      { id: { $eq: bedId } },
+    // atomic: two admissions racing for the same bed — only one wins
+    const taken = await this.bedModel.updateOne(
+      { id: { $eq: bedId }, status: 'available' },
       { $set: { status: 'occupied', occupied_by_patient_id: patientId } }
     );
+    if (!taken.modifiedCount) throw new BadRequestException('bed_not_available');
 
     const admission = await this.admissionModel.create({
       id: uuid(),
@@ -159,15 +166,41 @@ export class ShiftsService {
     @InjectModel(Attendance.name) private attendanceModel: Model<AttendanceDocument>,
   ) {}
 
+  /** Shifts in the shape ShiftManagementScreen reads: doctor (name), dept, from, to, day, status. */
   async listShifts(facilityId: string) {
-    return this.shiftModel.find({ facility_id: facilityId }).lean();
+    const rows: any[] = await this.shiftModel.find({ facility_id: facilityId, status: { $ne: 'cancelled' } }).lean();
+    const db = this.shiftModel.db;
+    const ids = [...new Set(rows.map((r) => String(r.user_id)))];
+    const users: any[] = ids.length ? await db.collection('users').find({ id: { $in: ids } }, { projection: { id: 1, full_name: 1 } }).toArray() : [];
+    const names = new Map(users.map((u) => [u.id, u.full_name]));
+    return rows.map((r) => ({
+      ...r, doctor: names.get(String(r.user_id)) || '—', dept: r.department_id || null, from: r.start_time, to: r.end_time, day: r.day_of_week,
+    }));
+  }
+
+  /** The person must belong to this facility: a sub-account it created, or a provider linked to it by invitation. */
+  private async isFacilityMember(facilityId: string, userId: string): Promise<boolean> {
+    const db = this.shiftModel.db;
+    const linked = await db.collection('provider_accounts').findOne({ $or: [{ id: userId }, { user_id: userId }], facility_id: facilityId }, { projection: { _id: 1 } });
+    if (linked) return true;
+    const [facilityUser, member]: any[] = await Promise.all([
+      db.collection('users').findOne({ id: facilityId }, { projection: { _id: 1 } }),
+      db.collection('users').findOne({ id: userId }, { projection: { _id: 1 } }),
+    ]);
+    if (!facilityUser || !member) return false;
+    return !!(await db.collection('hospitalstaffs').findOne({ hospital_id: facilityUser._id, user_id: member._id, is_active: true }, { projection: { _id: 1 } }));
   }
 
   async createShift(facilityId: string, body: { user_id: string; department_id?: string; start_time: string; end_time: string; day_of_week: string }) {
+    const hhmm = /^([01]\d|2[0-3]):[0-5]\d$/;
+    if (!hhmm.test(String(body.start_time)) || !hhmm.test(String(body.end_time))) throw new BadRequestException('time_must_be_HH:MM');
+    const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    if (!DAYS.includes(String(body.day_of_week))) throw new BadRequestException('invalid_day_of_week');
+    if (!(await this.isFacilityMember(facilityId, String(body.user_id)))) throw new BadRequestException('not_a_facility_member');
     return this.shiftModel.create({
       id: uuid(),
       facility_id: facilityId,
-      ...body,
+      user_id: String(body.user_id), department_id: body.department_id, start_time: body.start_time, end_time: body.end_time, day_of_week: body.day_of_week,
       status: 'scheduled',
     });
   }
@@ -277,8 +310,8 @@ export class FacilityBedsController {
   }
 
   @Get('wards/:wardId/beds')
-  getWardBeds(@Param('wardId') wardId: string) {
-    return this.svc.getWardBeds(wardId);
+  getWardBeds(@CurrentUser() u: any, @Param('wardId') wardId: string) {
+    return this.svc.getWardBeds(u.parent_provider_account_id || u.id, wardId);
   }
 
   @Post('wards')

@@ -1,4 +1,13 @@
-import { IsArray, IsDefined, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsDefined, IsNumber, IsObject, IsOptional, IsString, MaxLength, ValidateNested, IsBoolean, IsIn } from 'class-validator';
+import { Type } from 'class-transformer';
+
+export class NursingVitalsDto {
+  @IsOptional() @IsString() @MaxLength(20) bp?: string;
+  @IsOptional() @IsString() @MaxLength(20) pulse?: string;
+  @IsOptional() @IsString() @MaxLength(20) temp?: string;
+  @IsOptional() @IsString() @MaxLength(20) spo2?: string;
+  @IsOptional() @IsString() @MaxLength(20) glucose?: string;
+}
 
 export class CreateNoteDto {
   @IsOptional()
@@ -13,9 +22,12 @@ export class CreateNoteDto {
   @IsString()
   note?: string;
 
-  @IsDefined()
-  @IsString()
-  vitals: string;
+  // provider-app NursingDashboard sends { bp, pulse, temp, spo2, glucose } (text inputs); the service keeps those keys.
+  @IsOptional()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => NursingVitalsDto)
+  vitals?: NursingVitalsDto;
 
 }
 
@@ -78,74 +90,44 @@ export class CompleteVisitDto {
   @IsOptional() @IsString() signature_base64?: string;
 }
 
+// Admin catalog editor (admin/src/pages/admin/catalog-manager.tsx). medical_review_status publishes/unpublishes.
 export class CreateHomeCareCatalogDto {
-  @IsDefined()
-  @IsString()
-  name_ar: string;
-
-  @IsDefined()
-  @IsString()
-  name_en: string;
-
-  @IsDefined()
-  @IsString()
-  category: string;
-
-  @IsDefined()
-  @IsNumber()
-  price: number;
-
-  @IsDefined()
-  @IsString()
-  duration: string;
-
-  @IsOptional()
-  @IsString()
-  description_ar?: string;
-
-  @IsOptional()
-  @IsString()
-  description_en?: string;
-
-  @IsOptional()
-  @IsString()
-  icon?: string;
-
-  @IsOptional()
-  @IsNumber()
-  duration_value?: number;
-
-  @IsOptional()
-  @IsString()
-  image_url?: string;
+  @IsDefined() @IsString() name_ar: string;
+  @IsDefined() @IsString() name_en: string;
+  @IsOptional() @IsString() description_ar?: string;
+  @IsOptional() @IsString() description_en?: string;
+  @IsDefined() @IsString() category: string;
+  @IsOptional() @IsString() icon?: string;
+  @IsDefined() @IsNumber() price: number;
+  @IsDefined() @IsString() duration: string;
+  @IsOptional() @IsNumber() duration_value?: number;
+  @IsOptional() @IsBoolean() requires_patient_medication?: boolean;
+  @IsOptional() @IsBoolean() requires_companion?: boolean;
+  @IsOptional() @IsBoolean() cash_availability?: boolean;
+  @IsOptional() @IsBoolean() insurance_availability?: boolean;
+  @IsOptional() @IsString() image_url?: string;
+  @IsOptional() @IsBoolean() active?: boolean;
+  @IsOptional() @IsNumber() popularity?: number;
+  @IsOptional() @IsIn(['pending', 'approved', 'rejected', 'suspended']) medical_review_status?: string;
 }
 
 export class UpdateHomeCareCatalogDto {
-  @IsOptional()
-  @IsString()
-  name_ar?: string;
-
-  @IsOptional()
-  @IsString()
-  name_en?: string;
-
-  @IsOptional()
-  @IsString()
-  category?: string;
-
-  @IsOptional()
-  @IsNumber()
-  price?: number;
-
-  @IsOptional()
-  @IsString()
-  duration?: string;
-
-  @IsOptional()
-  @IsString()
-  description_ar?: string;
-
-  @IsOptional()
-  @IsString()
-  description_en?: string;
+  @IsOptional() @IsString() name_ar?: string;
+  @IsOptional() @IsString() name_en?: string;
+  @IsOptional() @IsString() description_ar?: string;
+  @IsOptional() @IsString() description_en?: string;
+  @IsOptional() @IsString() category?: string;
+  @IsOptional() @IsString() icon?: string;
+  @IsOptional() @IsNumber() price?: number;
+  @IsOptional() @IsString() duration?: string;
+  @IsOptional() @IsNumber() duration_value?: number;
+  @IsOptional() @IsBoolean() requires_patient_medication?: boolean;
+  @IsOptional() @IsBoolean() requires_companion?: boolean;
+  @IsOptional() @IsBoolean() cash_availability?: boolean;
+  @IsOptional() @IsBoolean() insurance_availability?: boolean;
+  @IsOptional() @IsString() image_url?: string;
+  @IsOptional() @IsBoolean() active?: boolean;
+  @IsOptional() @IsNumber() popularity?: number;
+  @IsOptional() @IsIn(['pending', 'approved', 'rejected', 'suspended']) medical_review_status?: string;
 }
+

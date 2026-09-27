@@ -1,4 +1,4 @@
-import { Module, Controller, Post, Get, Body, Query, Param, UseGuards, Injectable, BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Module, Controller, Post, Get, Body, Query, Param, UseGuards, Injectable, BadRequestException, NotFoundException, ForbiddenException, ConflictException } from '@nestjs/common';
 import { isEmail } from 'class-validator';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -54,6 +54,12 @@ export class ProviderOnboardingService {
     const email = String(body.email || '').trim();
     if (email.length > 254 || !isEmail(email)) throw new BadRequestException('verified_contact_email_required');
     let user = await this.userModel.findOne({ phone: { $eq: body.phone } });
+    if (user) {
+      // Resuming a wizard is allowed only with that account's password: this endpoint is public,
+      // and without the check anyone knowing a phone number could re-type or reset its provider profile.
+      const ok = typeof body.password === 'string' && !!user.password_hash && await bcrypt.compare(body.password, user.password_hash);
+      if (!ok) throw new ConflictException('account_exists_login_required');
+    }
     if (!user) {
       if (!body.password) throw new BadRequestException('password_required_for_new_user');
       const hash = await bcrypt.hash(body.password, 12);
@@ -75,11 +81,13 @@ export class ProviderOnboardingService {
     let profile = await this.providerModel.findOne({ user_id: { $eq: user.id } });
     if (!profile) {
       profile = await this.providerModel.create({
-        user_id: user.id, account_id: user.id, type: body.type, status: ProviderStatus.PENDING,
+        user_id: user.id, account_id: user.id, type: body.type, provider_type: body.type, status: ProviderStatus.PENDING,
         name_ar: String(body.full_name).trim(), onboarding_step: 1,
       });
     } else if (profile.type !== body.type) {
-      profile.type = body.type; profile.onboarding_step = 1;
+      // An approved/suspended provider keeps its type; only an unfinished wizard may switch it.
+      if (profile.status !== ProviderStatus.PENDING) throw new ConflictException('provider_already_registered');
+      profile.type = body.type; (profile as any).provider_type = body.type; profile.onboarding_step = 1;
       await profile.save();
     }
     this.bus.emit({ type: 'onboarding.started', entity_type: 'provider', entity_id: profile.id, actor_account_id: user.id, actor_role: 'provider', meta: { type: body.type } }).catch(() => null);
@@ -119,8 +127,11 @@ export class ProviderOnboardingService {
       // official full name (contracts/verification) — patients see display_name_* instead
       'legal_name', 'insurance_plans',
       'pharmacist_name', 'tech_officer_name', 'tech_officer_scfhs',
-      'lab_category', 'lab_accreditation', 'scfhs_expiry', 'profile_photo'];
+      'lab_category', 'lab_accreditation', 'scfhs_expiry', 'profile_photo', 'region'];
     for (const f of fields) if (body[f] !== undefined) (profile as any)[f] = body[f];
+    const lat = Number(body?.location?.lat), lng = Number(body?.location?.lng);
+    if (Number.isFinite(lat) && Number.isFinite(lng) && (lat !== 0 || lng !== 0)) (profile as any).geo = { lat, lng };
+    if (!(profile as any).provider_type) (profile as any).provider_type = profile.type;
     this.snapshotStep(profile, 'step2', body);
     profile.onboarding_step = Math.max(profile.onboarding_step || 0, 2);
     await profile.save();
@@ -158,13 +169,15 @@ export class ProviderOnboardingService {
         'gender_pref', 'working_hours', 'accepts_insurance', 'accepted_insurance', 'insurance_plans',
         'accepts_cash', 'nursing_services', 'consultation_modes', 'price_clinic', 'price_home',
         'schedule_home', 'vacation_date', 'test_insurance_map', 'test_turnaround_map',
-        'test_home_map', 'home_collector_count', 'home_collector_gender'
+        'test_home_map', 'home_collector_count', 'home_collector_gender',
+        'test_prices', 'scan_prices', 'home_collection_fee', 'target_genders', 'tech_officer_name', 'tech_officer_scfhs',
       ],
       [ProviderType.RADIOLOGY]: [
         'equipment_list', 'home_visit_supported', 'working_hours',
         'accepts_insurance', 'accepted_insurance', 'insurance_plans', 'accepts_cash', 'test_categories', 'consultation_modes', 'price_clinic', 'price_home',
         'radiation_safety_license', 'available_equipment_text', 'schedule_home',
-        'scan_insurance_map', 'vacation_date'
+        'scan_insurance_map', 'vacation_date',
+        'test_prices', 'scan_prices', 'home_collection_fee', 'target_genders', 'tech_officer_name', 'tech_officer_scfhs',
       ],
       [ProviderType.PHARMACY]: [
         'pharmacy_chain', 'has_own_drivers', 'delivery_radius_km',
@@ -192,6 +205,17 @@ export class ProviderOnboardingService {
       ],
     };
     const keys = allowed[profile.type] || [];
+    // Nursing services arrive as catalog ids (the app sends the id as the name): only published catalog services,
+    // named from the catalog; the provider's own price is kept.
+    if (Array.isArray(body.nursing_services)) {
+      const ids = body.nursing_services.map((x: any) => String(x?.key || '')).filter(Boolean);
+      const catalog = ids.length ? await this.providerModel.db.collection('homecareservices')
+        .find({ id: { $in: ids }, is_deleted: { $ne: true } }, { projection: { _id: 0, id: 1, name_ar: 1, name_en: 1 } }).toArray() : [];
+      const byId = new Map(catalog.map((c: any) => [c.id, c]));
+      body.nursing_services = body.nursing_services
+        .filter((x: any) => byId.has(String(x?.key)))
+        .map((x: any) => ({ key: String(x.key), name_ar: byId.get(String(x.key))!.name_ar, name_en: byId.get(String(x.key))!.name_en, price: Number(x.price) || 0 }));
+    }
     for (const k of keys) if (body[k] !== undefined) (profile as any)[k] = body[k];
     this.snapshotStep(profile, 'step3', body);
     profile.onboarding_step = Math.max(profile.onboarding_step || 0, 3);

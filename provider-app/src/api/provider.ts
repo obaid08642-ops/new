@@ -25,7 +25,21 @@ export const ProviderApi = {
     return res.data;
   },
 
-  /** Step 1.5: Login to obtain JWT token for subsequent steps.
+  /** Step 1.5 (registration wizard): sign in as the onboarding identity that /provider-onboarding/start
+   * just created (users row, role guest, onboarding_only). The wizard endpoints (step2/step3/submit,
+   * storage upload) run on that identity; a provider account only exists after submit + admin review,
+   * so /provider/auth/login cannot work during registration. */
+  async onboardingLogin(email: string, password: string, providerType: string) {
+    const res = await client.post('/auth/login', { identifier: (email || '').trim().toLowerCase(), password });
+    const t = res.data?.token;
+    const accessToken = typeof t === 'string' ? t : (t?.accessToken || '');
+    const refreshToken = typeof t === 'object' && t ? (t.refreshToken || '') : '';
+    if (!accessToken) throw new Error('onboarding_login_failed');
+    await Tokens.save(accessToken, refreshToken, '', res.data?.user?.id || '', providerType);
+    return res.data;
+  },
+
+  /** Provider sign-in (approved provider account).
    * F11: provider onboarding uses the PROVIDER login (role-scoped token),
    * never the patient /auth/login (which yields a guest-role token that can
    * never reach provider operations). The provider endpoint answers a flat

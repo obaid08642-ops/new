@@ -15,7 +15,7 @@ import { Module, Injectable, Controller, Get, Post, Put, Delete, Body, Param, Qu
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection, Schema } from 'mongoose';
 import { randomUUID } from 'crypto';
-import { JwtAuthGuard, CurrentUser, Roles } from '../../common/auth.guard';
+import { JwtAuthGuard, CurrentUser, Roles, hasEffectiveRole } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { AddLeaveDto, SaveTemplateDto, SaveDxDto, BlockDto, PutCrmDto, QcDto, ChecklistDto, SignDto, TrackDto, EscalateDto, HandoverDto, CompleteDto, PutPricingDto, ReplyReviewDto, PutHoursDto, EndConsultationDto, ScheduleSettingsDto } from './provider-ops.dto';
 
@@ -56,12 +56,25 @@ export class ProviderOpsService {
       status: 'active',
       createdAt: new Date(),
     };
+    // A doctor linked to a facility asks the facility first (FacilityLeaveRequestsScreen approves/rejects);
+    // the leave blocks bookings once approved.
+    const acc: any = await this.conn.collection('provider_accounts').findOne({ $or: [{ id: doctorId }, { user_id: doctorId }] }, { projection: { facility_id: 1, email: 1 } });
+    if (acc?.facility_id) {
+      doc.status = 'pending_facility';
+      const prof: any = await this.conn.collection('provider_profiles').findOne({ account_id: doctorId }, { projection: { display_name_ar: 1, display_name_en: 1 } });
+      const LEAVE_TYPE: Record<string, string> = { vacation: 'vacation', emergency_closing: 'emergency', leave: 'other', break: 'other' };
+      await this.conn.collection('leaverequests').insertOne({
+        id: doc.id, facility_id: acc.facility_id, provider_account_id: doctorId, provider_name: prof?.display_name_ar || prof?.display_name_en || acc.email,
+        provider_type: 'doctor', type: LEAVE_TYPE[doc.type] || 'other', start_date: start, end_date: end, reason: doc.note || undefined,
+        status: 'pending', createdAt: new Date(), updatedAt: new Date(),
+      });
+    }
     await this.conn.collection('doctor_leaves').insertOne(doc);
     return { ok: true, leave: doc };
   }
 
   async myLeaves(doctorId: string): Promise<any[]> {
-    return this.conn.collection('doctor_leaves').find({ doctor_id: doctorId, status: 'active' }).sort({ start_date: 1 }).limit(50).toArray();
+    return this.conn.collection('doctor_leaves').find({ doctor_id: doctorId, status: { $in: ['active', 'pending_facility'] } }).sort({ start_date: 1 }).limit(50).toArray();
   }
 
   async cancelLeave(doctorId: string, leaveId: string) {
@@ -69,6 +82,8 @@ export class ProviderOpsService {
       { id: leaveId, doctor_id: doctorId },
       { $set: { status: 'cancelled', updatedAt: new Date() } },
     );
+    // withdrawn before the facility decided: drop it from the facility queue
+    await this.conn.collection('leaverequests').deleteOne({ id: leaveId, provider_account_id: doctorId, status: 'pending' });
     return { ok: true };
   }
 
@@ -300,7 +315,7 @@ export class ProviderOpsService {
   private async ownedAmbulanceMission(user: any, bookingId: string) {
     const role = String(user?.role || '').toLowerCase();
     const admin = role === 'admin' || role === 'super_admin';
-    if (!user?.id || (!admin && !['ambulance', 'paramedic', 'ems'].includes(role))) throw new ForbiddenException('ambulance_provider_role_required');
+    if (!user?.id || (!admin && !hasEffectiveRole(user, 'ambulance', 'paramedic', 'ems'))) throw new ForbiddenException('ambulance_provider_role_required');
     if (!admin) {
       const account: any = await this.conn.collection('provider_accounts').findOne({
         id: user.id, provider_type: { $in: ['ambulance', 'ems'] }, status: { $in: ['approved', 'active'] },
@@ -309,7 +324,8 @@ export class ProviderOpsService {
     }
     const mission: any = await this.conn.collection('emergency_requests').findOne({ id: bookingId } as any);
     if (!mission) throw new NotFoundException('emergency_not_found');
-    if (!admin && String(mission.assigned_ambulance_id || '') !== String(user.id)) throw new ForbiddenException('mission_not_assigned_to_ambulance');
+    // claim() stores the vehicle in assigned_ambulance_id and the ambulance provider in assigned_provider_id
+    if (!admin && String(mission.assigned_provider_id || '') !== String(user.id)) throw new ForbiddenException('mission_not_assigned_to_ambulance');
     return mission;
   }
 
@@ -329,7 +345,8 @@ export class ProviderOpsService {
 
   async ambulanceHandover(user: any, bookingId: string, body: { hospital_provider_account_id: string; notes?: string }) {
     const mission = await this.ownedAmbulanceMission(user, bookingId);
-    if (!['DISPATCHED', 'IN_TRANSIT', 'ON_SCENE', 'AT_HOSPITAL'].includes(String(mission.state))) throw new BadRequestException(`invalid_mission_state:${mission.state}`);
+    // DISPATCH_INITIATED is what claim() sets (EmergencyState); the others are legacy dispatch states
+    if (!['DISPATCH_INITIATED', 'DISPATCHED', 'IN_TRANSIT', 'ON_SCENE', 'AT_HOSPITAL'].includes(String(mission.state))) throw new BadRequestException(`invalid_mission_state:${mission.state}`);
     const hospitalId = String(body?.hospital_provider_account_id || '').trim();
     if (!hospitalId) throw new BadRequestException('hospital_provider_account_id_required');
     const hospital: any = await this.conn.collection('provider_accounts').findOne({ id: hospitalId, provider_type: { $in: ['hospital', 'facility'] }, status: { $in: ['approved', 'active'] } });
@@ -341,6 +358,11 @@ export class ProviderOpsService {
       { $set: { handover, state: 'HANDED_OVER', updatedAt: now }, $push: { state_history: { from: mission.state, to: 'HANDED_OVER', by_user_id: user.id, at: now, reason: 'hospital_handover' } } } as any,
     );
     if (update.modifiedCount !== 1) throw new BadRequestException('mission_transition_conflict');
+    // The receiving hospital sees the incoming patient in its inbox (FacilityDashboard reads facilityinbox by facility id).
+    await this.conn.collection('facilityinbox').insertOne({
+      facility_id: hospital.facility_id || hospital.id, kind: 'ambulance_handover', emergency_id: bookingId,
+      title: 'استلام مريض من الإسعاف', body: handover.notes || 'تم تسليم مريض طوارئ إلى المنشأة', read: false, createdAt: now,
+    } as any);
     await this.conn.collection('audit_logs').insertOne({ id: `ambulance_handover_${bookingId}_${now.getTime()}`, action: 'ambulance_handover', resource_kind: 'emergency_request', resource_id: bookingId, actor_account_id: user.id, purpose: 'clinical_handover', metadata: { hospital_provider_account_id: hospitalId }, createdAt: now });
     return { ok: true, state: 'HANDED_OVER', handover_reference: `handover:${bookingId}:${now.getTime()}` };
   }
@@ -352,15 +374,16 @@ export class ProviderOpsService {
     const now = new Date();
     const update = await this.conn.collection('emergency_requests').updateOne(
       { id: bookingId, state: 'HANDED_OVER' } as any,
-      { $set: { completion_report: { summary: String(body.summary).trim(), outcome: String(body.outcome).trim(), vitals: body.vitals || {}, by: user.id, at: now }, state: 'COMPLETED', updatedAt: now }, $push: { state_history: { from: 'HANDED_OVER', to: 'COMPLETED', by_user_id: user.id, at: now, reason: 'mission_completion' } } } as any,
+      // RESOLVED is the emergency's final state (EmergencyState): the patient's SOS closes and the unit is freed
+      { $set: { completion_report: { summary: String(body.summary).trim(), outcome: String(body.outcome).trim(), vitals: body.vitals || {}, by: user.id, at: now }, state: 'RESOLVED', resolved_at: now, updatedAt: now }, $push: { state_history: { from: 'HANDED_OVER', to: 'RESOLVED', by_user_id: user.id, at: now, reason: 'mission_completion' } } } as any,
     );
     if (update.modifiedCount !== 1) throw new BadRequestException('mission_transition_conflict');
     // Credit only the server-resolved mission fare; the completion request never supplies an amount.
     const fare = Number(mission.fare ?? mission.amount ?? 0);
     if (!Number.isFinite(fare) || fare < 0) throw new BadRequestException('server_fare_required');
-    await this.creditEarning(mission.assigned_ambulance_id, 'ambulance', fare, 'emergency', bookingId);
+    await this.creditEarning(mission.assigned_provider_id || user.id, 'ambulance', fare, 'emergency', bookingId);
     await this.conn.collection('audit_logs').insertOne({ id: `ambulance_complete_${bookingId}_${now.getTime()}`, action: 'ambulance_complete', resource_kind: 'emergency_request', resource_id: bookingId, actor_account_id: user.id, purpose: 'clinical_mission_completion', createdAt: now });
-    return { ok: true, state: 'COMPLETED' };
+    return { ok: true, state: 'RESOLVED' };
   }
 
   // ═══ FINANCE: invoice PDF + wallet ledger ═════════════════════════════════
@@ -409,6 +432,18 @@ export class ProviderOpsService {
           updatedAt: new Date(),
         },
         $setOnInsert: { id: `availability_${providerId}`, createdAt: new Date() },
+      },
+      { upsert: true },
+    );
+    // The same switch is the provider's "online / accepting orders" state (provider-app toggleOnline).
+    // Order routing (pharmacy broadcast, smart split, matching) reads provider_availability.status, so
+    // without this the switch changed nothing and a new pharmacy never received a request.
+    const now = new Date();
+    await this.conn.collection('provider_availability').updateOne(
+      { provider_account_id: providerId },
+      {
+        $set: { status: instantAvailable ? 'accepting_orders' : 'offline', ...(instantAvailable ? { last_online_at: now } : { last_offline_at: now }), updatedAt: now },
+        $setOnInsert: { provider_account_id: providerId, createdAt: now },
       },
       { upsert: true },
     );

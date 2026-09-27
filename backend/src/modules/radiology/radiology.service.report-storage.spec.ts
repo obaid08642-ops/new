@@ -27,6 +27,7 @@ describe('RadiologyOpsService secure report storage', () => {
       {} as any, 
       {} as any, 
       storage as any, 
+      {} as any, // ProviderProfile
       {} as any, 
       { emit: jest.fn() } as any
     );

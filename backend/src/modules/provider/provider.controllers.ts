@@ -19,7 +19,7 @@ import { ProviderScoringService } from './services/provider-scoring.service';
 import { ProviderMatchingService } from './services/provider-matching.service';
 import { AssignmentStrategyService } from './services/assignment-strategy.service';
 import { ProviderImageProcessorService } from './services/provider-image-processor.service';
-import { Public, CurrentUser, Roles, SelfService } from '../../common/auth.guard';
+import { Public, CurrentUser, Roles, SelfService, hasEffectiveRole } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { OtpPurpose } from './schemas';
 
@@ -98,7 +98,7 @@ export class ProviderProfileController {
   async uploadProfileImage(@CurrentUser() user: any, @Body() body: UploadProfileImageDto) {
     return this.processor.enqueueJob({
       owner_id: user.id,
-      owner_type: user.role === 'nurse' ? 'nurse' : 'doctor',
+      owner_type: hasEffectiveRole(user, 'nurse', 'nursing', 'home_care') ? 'nurse' : 'doctor',
       data_base64: body.data_base64,
       mime: body.mime,
       original_name: body.original_name,

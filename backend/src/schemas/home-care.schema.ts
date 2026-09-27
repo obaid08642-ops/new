@@ -57,6 +57,8 @@ export const HomeCareServiceSchema = SchemaFactory.createForClass(HomeCareServic
 
 @Schema({ timestamps: true })
 export class HomeCareBooking extends Document {
+  // Written by the services but previously undeclared: strict mode silently dropped these (tools/audit/schemadrift.js).
+  @Prop({ type: [Object], default: [] }) supply_requests?: Array<{ id: string; items: any[]; at: Date; by: string; state: string }>;
   @Prop({ required: true, unique: true, default: () => uuidv4() }) id: string;
   @Prop({ unique: true, default: () => trackingId(TRACK_PREFIX.home_care) }) tracking_id: string;
   @Prop({ required: true, index: true }) patient_id: string;
@@ -125,7 +127,7 @@ export class HomeCareBooking extends Document {
   @Prop() procedure_notes?: string;
   @Prop() medication_administered?: string;
   @Prop() consumables_used?: string;
-  @Prop() recommendations?: string;
+  @Prop({ type: [String], default: undefined }) recommendations?: string[]; // CompleteVisitDto sends a list
   @Prop() follow_up_instructions?: string;
   
   // Photos (Module 12)
@@ -144,6 +146,11 @@ export class HomeCareBooking extends Document {
   
   // Ratings (Module 15)
   @Prop({ type: Object, default: {} }) rating: { score?: number; comment?: string };
+  // Written by payments verify / finance refunds through a dynamically chosen model (strict mode dropped them).
+  @Prop() payment_status?: string;              // paid | refunded | partially_refunded (payments verify / finance refund)
+  @Prop() transaction_id?: string;
+  @Prop() paid_at?: Date;
+  @Prop() refund_status?: string;
 }
 export const HomeCareBookingSchema = SchemaFactory.createForClass(HomeCareBooking);
 HomeCareBookingSchema.index({ patient_id: 1, createdAt: -1 });

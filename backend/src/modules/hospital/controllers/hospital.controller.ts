@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Put, Body, Param, Query, UseGuards, Req } from '@nestjs/common';
+import { Controller, Post, Get, Put, Delete, Body, Param, Query, UseGuards, Req } from '@nestjs/common';
 import { HospitalService } from '../services/hospital.service';
 import { JwtAuthGuard, CurrentUser, Roles } from '../../../common/auth.guard';
 import { UserRole } from '../../../common/enums';
@@ -40,6 +40,11 @@ export class HospitalController {
     return this.hospitalService.getStaff(user.id, user);
   }
 
+  @Delete('staff/:id')
+  async removeStaff(@CurrentUser() user: any, @Param('id') id: string) {
+    return this.hospitalService.removeStaff(user.id, id, user);
+  }
+
   @Post('doctors/onboard')
   async onboardDoctor(@CurrentUser() user: any, @Body() body: OnboardDoctorDto) {
     return this.hospitalService.onboardDoctor(user.id, body.doctor_id, user);
@@ -76,16 +81,22 @@ export class HospitalController {
     return this.hospitalService.listFacilityInvitations(user.id);
   }
 
+  // the invited clinician (doctor / nurse) answers, not the facility
+  @Roles(UserRole.DOCTOR, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.ADMIN)
   @Get('invitations/inbox')
   async listMyInvitations(@CurrentUser() user: any) {
     return this.hospitalService.listMyInvitations(user.id);
   }
 
+  // the invited clinician (doctor / nurse) answers, not the facility
+  @Roles(UserRole.DOCTOR, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.ADMIN)
   @Post('invitations/:id/respond')
   async respondInvitation(@CurrentUser() user: any, @Param('id') id: string, @Body() body: RespondInvitationDto) {
     return this.hospitalService.respondInvitation(user.id, id, !!body?.accept);
   }
 
+  // the invited clinician (doctor / nurse) answers, not the facility
+  @Roles(UserRole.DOCTOR, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.ADMIN)
   @Post('leave-facility')
   async leaveFacility(@CurrentUser() user: any) {
     return this.hospitalService.leaveFacility(user.id);
