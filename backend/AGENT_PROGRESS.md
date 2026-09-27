@@ -16,3 +16,6 @@
 
 ## [P6.x-15] Dispute SLA timers (2026-09-26)
 - Backend list rows now carry `sla_due_at`/`sla_breached`/`sla_hours_left` (deadline from `system_configs` key `sla` → `dispute_hours`, fallback 48h). Disputes table gained an SLA column (overdue badge vs hours-left). tsc 0.
+
+## [P6.x-13b] App force-update + per-app maintenance (2026-09-26)
+- Public `/config` now includes `app_versions` (fail-open) from `system_configs` key `app_versions`; admin `GET/PUT admin/config/app-versions` (app-allowlisted keys, length caps, audited). config-portal gained an apps tab (min/latest/maintenance/messages per app). tsc 0.

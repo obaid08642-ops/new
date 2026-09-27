@@ -50,12 +50,22 @@ export class ConfigService {
         ['support_email', process.env.SUPPORT_EMAIL],
       ].filter(([, value]) => Boolean(value)),
     );
+    // P6.x-13: per-app force-update versions + maintenance flags (admin-managed,
+    // fail-open: absent config means no enforcement).
+    let app_versions: Record<string, unknown> = {};
+    try {
+      const doc: any = await this.conn.collection('system_configs').findOne({ key: 'app_versions' });
+      if (doc?.value && typeof doc.value === 'object') app_versions = doc.value;
+    } catch {
+      // Startup/DB unavailability must not take down the public configuration endpoint.
+    }
     return {
       version: process.env.APP_VERSION || null,
       features: featureFlags,
       feature_rollouts: featureRollouts,
       pricing,
       contact,
+      app_versions,
     };
   }
 }
