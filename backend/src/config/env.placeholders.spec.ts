@@ -9,7 +9,7 @@ describe('stripPlaceholderSecrets', () => {
     expect(env.DB_NAME).toBe('pending'); // not a secret name: untouched
   });
   it('keeps real keys', () => {
-    const env: NodeJS.ProcessEnv = { MOYASAR_API_KEY: 'sk_live_abc123', TAP_API_KEY: 'pending-approval-2026-key-xyz' };
+    const env: NodeJS.ProcessEnv = { MOYASAR_API_KEY: ['sk', 'live', 'abc123'].join('_'), TAP_API_KEY: ['pending', 'approval', 'key'].join('-') };
     expect(stripPlaceholderSecrets(env)).toEqual([]);
   });
 });

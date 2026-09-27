@@ -68,9 +68,11 @@ export class HomeCareCompatController {
     // Approved home-care providers; `type` is the chosen service id (patient-app nursing/service-details).
     const filter: any = { type: { $in: NURSE_TYPES }, status: 'active', public_eligibility: true, medical_review_status: 'approved', account_id: { $exists: true, $ne: null }, is_deleted: { $ne: true } };
     const serviceId = typeof q?.type === 'string' && q.type ? q.type : null;
-    const svc: any = serviceId ? await this.services.findOne({ id: serviceId }).lean() : null;
-    if (serviceId) filter['nursing_services.key'] = serviceId;
-    if (q?.gender && q.gender !== 'any') filter.gender = q.gender;
+    // query values are coerced to plain strings and matched with $eq (never operator objects)
+    const svc: any = serviceId ? await this.services.findOne({ id: { $eq: String(serviceId) } }).lean() : null;
+    if (serviceId) filter['nursing_services.key'] = { $eq: String(serviceId) };
+    const gender = typeof q?.gender === 'string' ? q.gender : '';
+    if (gender && gender !== 'any') filter.gender = { $eq: gender };
     if (typeof q?.search === 'string' && q.search.trim()) {
       const rx = new RegExp(q.search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
       filter.$or = [{ name_ar: rx }, { name_en: rx }, { full_name: rx }];
@@ -100,9 +102,10 @@ export class HomeCareCompatController {
 
   @Public()
   @Get('providers/:id') async provider(@Param('id') id: string, @Query('serviceId') serviceId?: string) {
-    const p = await this.profiles.findOne({ $or: [{ account_id: id }, { id }], type: { $in: NURSE_TYPES }, status: 'active', public_eligibility: true }).lean();
+    const key = String(id);
+    const p = await this.profiles.findOne({ $or: [{ account_id: { $eq: key } }, { id: { $eq: key } }], type: { $in: NURSE_TYPES }, status: 'active', public_eligibility: true }).lean();
     if (!p) throw new NotFoundException('provider not found');
-    const svc: any = serviceId ? await this.services.findOne({ id: serviceId }).lean() : null;
+    const svc: any = typeof serviceId === 'string' && serviceId ? await this.services.findOne({ id: { $eq: serviceId } }).lean() : null;
     return this.nurseView(p, svc);
   }
 
