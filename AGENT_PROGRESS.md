@@ -206,3 +206,7 @@ Format: task | commit sha | verify result | notes
 - Contracts: dtolint 0/0/0, dtocheck 644/317/0 mismatches, backend tsc 0, nest build 0 (re-verified at push time).
 - Gate P6 adminshot (all admin pages, 0 console/4xx-5xx) + Playwright button-clicks: ENV-BLOCKED here (needs running admin+backend+seeded DB) — CI/staging must run `adminshot.py` and per-page click tests.
 - Deferred with reasons: live orders geo-map + 5xx-rate tile (no error-log/geo telemetry sink exists — needs new infra, not a UI tweak); per-module deep reports beyond revenue/orders/bookings/providers/patients/finance/insurance (analytics-suite funnels/cohorts/league/NPS + finance-suite ledger + insurance-queue cover the listed domains; labs-turnaround/nursing-visits/pharmacy-fill-rate/consultation-no-shows/user-retention specifics need staging-data verification of each aggregation).
+
+## [P7] F24/F25 (2026-09-26)
+- F24: patient-app ai-assistant posted to nonexistent `/ai/triage/chat` (backend intentionally has no free-form chat) → now posts `{symptoms}` to `/ai/triage` and renders care_level/notice guidance.
+- F25: web insurance payment-capabilities repointed to `/insurance/requests/:id/capabilities` (+self-pay variant); backend capabilities now returns the validated shape (booking_id/amount>0/currency/purpose/methods+kind). patient-web vitest not runnable here (deps uninstalled) — CI must run route tests.

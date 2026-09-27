@@ -448,11 +448,18 @@ export class InsuranceFlowService {
   }
 
   /** Payment capabilities for an insurance request (methods the gateway supports). */
-  async capabilities(user: any, id: string) {
+  async capabilities(user: any, id: string, mode: 'copay' | 'self-pay' = 'copay') {
     const req = await this.requests.findOne({ id: { $eq: id } });
     if (!req) throw new NotFoundException('request not found');
     if (req.patient_id !== user.id && user.role !== 'admin') throw new ForbiddenException();
-    return { methods: [{ id: 'card' }, { id: 'apple-pay' }, { id: 'google-pay' }] };
+    const methods = [{ id: 'card', kind: 'online' }, { id: 'apple-pay', kind: 'online' }, { id: 'google-pay', kind: 'online' }];
+    return {
+      booking_id: req.booking_id,
+      amount: mode === 'copay' ? Number(req.copay_amount || 0) : Number(req.total_amount || req.price || 0),
+      currency: 'SAR',
+      purpose: mode === 'copay' ? 'insurance_copay' : 'insurance_self_pay',
+      methods,
+    };
   }
 
   /** Project COPAY_PAID onto the underlying service booking so each service
@@ -578,8 +585,8 @@ export class InsuranceFlowController {
   @Post('requests/:id/pay-copay') payCopay(@CurrentUser() u: any, @Param('id') id: string, @Body() b: PayCopayDto) { return this.svc.payCopay(u, id, b); }
   @SelfService()
   @Post('requests/:id/accept-self-pay') acceptSelfPay(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.acceptSelfPay(u, id); }
-  @Get('requests/:id/capabilities') capabilities(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.capabilities(u, id); }
-  @Get('requests/:id/self-pay-capabilities') selfPayCapabilities(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.capabilities(u, id); }
+  @Get('requests/:id/capabilities') capabilities(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.capabilities(u, id, 'copay'); }
+  @Get('requests/:id/self-pay-capabilities') selfPayCapabilities(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.capabilities(u, id, 'self-pay'); }
   @SelfService()
   @Post('requests/:id/cancel') cancel(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.cancel(u, id); }
   @SelfService()

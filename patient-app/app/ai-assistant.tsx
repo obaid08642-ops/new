@@ -46,14 +46,21 @@ export default function AIAssistantScreen() {
     setLoading(true);
 
     try {
-      const response = await HttpClient.post<{ response: string }>('/ai/triage/chat', {
-        messages: messages.concat(userMessage).map(m => ({ role: m.role, content: m.content })),
+      // F24: guided-triage contract — free-form chat is intentionally unavailable server-side.
+      const response = await HttpClient.post<{ care_level?: string; notice?: string }>('/ai/triage', {
+        symptoms: userMessage.content.slice(0, 1000),
       });
 
+      const level = response.data?.care_level;
+      const text = level === 'emergency'
+        ? 'علامات طارئة — توجه لأقرب طوارئ فوراً (997 عند الحاجة).'
+        : response.data?.notice
+          ? 'إرشاد عام وليس تشخيصاً — راجع الطبيب إذا استمرت الأعراض.'
+          : 'عذراً، حدث خطأ في النظام.';
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: response.data?.response || 'عذراً، حدث خطأ في النظام.',
+        content: text,
         timestamp: new Date(),
       };
 
