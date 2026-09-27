@@ -41,7 +41,7 @@ export default function AdminSecurity() {
       setMessage({ type: 'err', text: 'تعذر تحميل الأجهزة المسجلة' });
     }
     try {
-      const bound: any = await apiFetch('/admin/devices');
+      const bound: any = await apiFetch('/api/admin/admin/devices');
       setBoundDevices(Array.isArray(bound) ? bound : []);
       const me: any = await apiFetch('/auth/me').catch(() => null);
       setDeviceLock(me?.device_lock_enabled === true);
@@ -55,7 +55,7 @@ export default function AdminSecurity() {
     if (enabled && !window.confirm('سيُقفل الدخول للإدارة على هذا المتصفح فقط (مربوط بالجهاز لا بالإنترنت — تغيير الـ IP لا يؤثر). متابعة؟')) return;
     setBusy(true);
     try {
-      const r: any = await apiFetch('/admin/devices/lock', { method: 'POST', body: JSON.stringify({ enabled }) });
+      const r: any = await apiFetch('/api/admin/admin/devices/lock', { method: 'POST', body: JSON.stringify({ enabled }) });
       setDeviceLock(r?.device_lock_enabled === enabled ? enabled : null);
       setMessage({ type: 'ok', text: enabled ? 'تم تفعيل القفل — هذا المتصفح مسجل تلقائياً.' : 'تم إيقاف القفل.' });
       await load();

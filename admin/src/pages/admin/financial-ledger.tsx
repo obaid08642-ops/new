@@ -50,7 +50,7 @@ export default function FinancialLedger() {
         setFinanceUnavailable(false);
 
         // Live finance summary — never render placeholder KPIs in production.
-        const summaryRes = await fetchWithAdminGuard(`/api/admin/finance-engine/reports/summary?period=monthly`);
+        const summaryRes = await fetchWithAdminGuard(`/api/admin/admin/finance-engine/reports/summary?period=monthly`);
         if (summaryRes.ok) {
           setSummary(await summaryRes.json());
         } else {
@@ -58,14 +58,14 @@ export default function FinancialLedger() {
         }
 
         // Fetch Commissions
-        const commRes = await fetchWithAdminGuard(`/api/admin/finance/commissions`);
+        const commRes = await fetchWithAdminGuard(`/api/admin/admin/finance/commissions`);
         if (commRes.ok) {
           const data = await commRes.json();
           setCommissions(data.data || []);
         }
 
         // Fetch Withdrawals
-        const withRes = await fetchWithAdminGuard(`/api/admin/finance/withdrawals/pending`);
+        const withRes = await fetchWithAdminGuard(`/api/admin/admin/finance/withdrawals/pending`);
         if (withRes.ok) {
           const data = await withRes.json();
           const rows = data.data || [];
@@ -76,7 +76,7 @@ export default function FinancialLedger() {
         }
 
         // Fetch Warehouse Orders
-        const whRes = await fetchWithAdminGuard(`/api/admin/extended-operations/procurement/pending`);
+        const whRes = await fetchWithAdminGuard(`/api/admin/admin/extended-operations/procurement/pending`);
         if (whRes.ok) {
           const data = await whRes.json();
           setWarehouseOrders(data.data || []);
@@ -108,7 +108,7 @@ export default function FinancialLedger() {
 
   const handleExecutePayout = async (id: string) => {
     try {
-      const res: any = await fetchWithAdminGuard(`/api/admin/finance/withdrawals/${id}/execute`, { method: 'POST' });
+      const res: any = await fetchWithAdminGuard(`/api/admin/admin/finance/withdrawals${id}/execute`, { method: 'POST' });
       if (res?.routed_to_approval) {
         alert('أُرسل للاعتماد الثاني (maker-checker) — بانتظار مدير آخر.');
       } else {
@@ -134,7 +134,7 @@ export default function FinancialLedger() {
     if (total_warehouse_quotation_price <= 0) return alert('يجب تسعير العناصر أولاً');
 
     try {
-            const res = await fetchWithAdminGuard(`/api/admin/extended-operations/issue-quote/${order.id}`, {
+            const res = await fetchWithAdminGuard(`/api/admin/admin/extended-operations/issue-quote${order.id}`, {
         method: 'PATCH',
         body: JSON.stringify({ pricingItems: order.items, totalPrice: total_warehouse_quotation_price })
       });

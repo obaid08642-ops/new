@@ -44,7 +44,7 @@ export default function FraudMonitoring() {
           const params = new URLSearchParams({ page: String(page), limit: '50' });
           if (query.trim()) params.set('q', query.trim());
           if (severity) params.set('severity', severity);
-          const alertsRes = await fetchWithAdminGuard(`/api/admin/governance/fraud-alerts?${params}`, { signal: ac.signal });
+          const alertsRes = await fetchWithAdminGuard(`/api/admin/admin/governance/fraud-alerts?${params}`, { signal: ac.signal });
           if (alertsRes.ok) {
             const alertsData = await alertsRes.json();
             setAlerts(alertsData.data || []);
@@ -52,7 +52,7 @@ export default function FraudMonitoring() {
           }
           const logsParams = new URLSearchParams(params);
           logsParams.delete('severity');
-          const logsRes = await fetchWithAdminGuard(`/api/admin/governance/audit-logs?${logsParams}`, { signal: ac.signal });
+          const logsRes = await fetchWithAdminGuard(`/api/admin/admin/governance/audit-logs?${logsParams}`, { signal: ac.signal });
           if (logsRes.ok) {
             const logsData = await logsRes.json();
             setLogs(logsData.data || []);

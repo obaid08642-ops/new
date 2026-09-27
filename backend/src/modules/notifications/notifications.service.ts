@@ -78,9 +78,37 @@ export class NotificationsService {
     }
   }
 
+  /**
+   * R6-3: senders resolve the admin-edited template by key in the user's
+   * language, falling back to the built-in text. Editing a template changes
+   * the next real notification.
+   */
+  async resolveNotificationText(n: any, lang: string): Promise<{ title: string; body: string }> {
+    const fallback = () => {
+      try {
+        return { title: this.i18n.t(n.title_key, lang, n.params), body: this.i18n.t(n.body_key, lang, n.params) };
+      } catch {
+        return { title: String(n.title_key || ''), body: String(n.body_key || '') };
+      }
+    };
+    try {
+      const tpl: any = await this.templateModel.findOne({ key: { $eq: n.title_key }, active: { $ne: false } }).lean();
+      if (tpl) {
+        const pick = (m: any) => (m && typeof m === 'object' && (m[lang] || m.en || m.ar)) || '';
+        const fill = (text: string) => String(text).replace(/\{\{(\w+)\}\}/g, (_m, k) => (n.params?.[k] ?? ''));
+        const title = fill(pick(tpl.title));
+        const body = fill(pick(tpl.body));
+        if (title || body) return { title: title || n.title_key, body: body || n.body_key };
+      }
+    } catch {
+      // template store unreachable — fall through to built-in text.
+    }
+    return fallback();
+  }
+
   /** Processor entry: deliver + record per-channel status; throws when ALL channels failed (→ retry). */
   async deliverById(id: string) {
-    const n: any = await this.model.findOne({ id });
+    let n: any = await this.model.findOne({ id });
     if (!n) { this.logger.warn(`deliverById: notification ${id} not found`); return; }
     const prev = n.delivery || {};
     const bump = (ch: string, ok: boolean, err?: string) => ({
@@ -91,6 +119,16 @@ export class NotificationsService {
     });
 
     const delivery: any = {};
+    // R6-3: resolve the admin template (or built-in text) once per delivery.
+    let lang = 'ar';
+    try {
+      if (n.user_id) {
+        const u: any = await this.model.db.model('User').findOne({ id: n.user_id }, { lang: 1 }).lean();
+        if (u?.lang) lang = u.lang;
+      }
+    } catch { /* default language */ }
+    const text = await this.resolveNotificationText(n.toObject ? n.toObject() : n, lang);
+    n = { ...(n.toObject ? n.toObject() : n), title: text.title, body: text.body };
     // Push
     try { const sent = await this.sendPush(n); delivery.push = bump('push', sent !== false); }
     catch (e: any) { delivery.push = bump('push', false, e.message); }
@@ -175,6 +213,11 @@ export class NotificationsService {
   }
 
   async broadcast(n: any) {
+    // R6-3: resolve template text before fanning out.
+    try {
+      const text = await this.resolveNotificationText(n, 'ar');
+      n = { ...n, title: text.title, body: text.body };
+    } catch { /* built-in keys pass through */ }
     // 1. Broadcast Push Notification
     await this.sendPush(n);
 
@@ -253,7 +296,7 @@ export class NotificationsService {
       });
     }
     const payload = {
-      notification: { title: n.title_key, body: n.body_key },
+      notification: { title: n.title || n.title_key, body: n.body || n.body_key },
       data: dataPayload,
     };
     if (tokens && tokens.length > 0) {
@@ -271,8 +314,8 @@ export class NotificationsService {
     try {
       const messages = tokens.map((to) => ({
         to,
-        title: n.title_key,
-        body: n.body_key,
+        title: n.title || n.title_key,
+        body: n.body || n.body_key,
         data: dataPayload,
         sound: n.priority === 'HIGH' || n.priority === 'CRITICAL' ? 'default' : undefined,
       }));
@@ -298,9 +341,9 @@ export class NotificationsService {
     try {
       const result = await this.mail.send(
         email,
-        n.title_key,
-        `<div dir="rtl" style="font-family: system-ui, sans-serif; text-align: right;"><h3>${n.title_key}</h3><p>${n.body_key}</p></div>`,
-        n.body_key,
+        n.title || n.title_key,
+        `<div dir="rtl" style="font-family: system-ui, sans-serif; text-align: right;"><h3>${n.title || n.title_key}</h3><p>${n.body || n.body_key}</p></div>`,
+        n.body || n.body_key,
       );
       if (!result.ok) throw new BadGatewayException(result.error || 'mail_failed');
     } catch (e) {

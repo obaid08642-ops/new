@@ -56,3 +56,31 @@ describe('NotificationsService templates', () => {
     expect(t).toEqual({ id: 'n1' });
   });
 });
+
+describe('NotificationsService template resolution (R6-3)', () => {
+  const svcFor = (tpl: any) => {
+    const templateModel: any = { findOne: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue(tpl) }) };
+    const i18n: any = { t: jest.fn((key: string) => `built-in:${key}`) };
+    return new NotificationsService({} as any, templateModel, {} as any, {} as any, {} as any, {} as any, i18n);
+  };
+
+  it('uses the edited template text in the user language with param fill', async () => {
+    const svc = svcFor({ key: 'notif.x.title', active: true, title: { ar: 'مخصص {{name}}' }, body: { ar: 'نص' } });
+    await expect(svc.resolveNotificationText(
+      { title_key: 'notif.x.title', body_key: 'notif.x.body', params: { name: 'N' } }, 'ar',
+    )).resolves.toEqual({ title: 'مخصص N', body: 'نص' });
+  });
+
+  it('falls back to built-in text when no active template matches', async () => {
+    const svc = svcFor(null);
+    await expect(svc.resolveNotificationText({ title_key: 'k.t', body_key: 'k.b', params: {} }, 'ar'))
+      .resolves.toEqual({ title: 'built-in:k.t', body: 'built-in:k.b' });
+  });
+
+  it('falls back when the template store is unreachable', async () => {
+    const templateModel: any = { findOne: jest.fn().mockImplementation(() => { throw new Error('down'); }) };
+    const svc = new NotificationsService({} as any, templateModel, {} as any, {} as any, {} as any, {} as any, {} as any);
+    await expect(svc.resolveNotificationText({ title_key: 'k.t', body_key: 'k.b' }, 'ar'))
+      .resolves.toEqual({ title: 'k.t', body: 'k.b' });
+  });
+});

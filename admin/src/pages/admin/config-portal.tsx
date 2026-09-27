@@ -16,7 +16,7 @@ export default function ConfigPortal() {
 
   const loadAppVersions = async () => {
     try {
-      const res = await fetchWithAdminGuard('/api/admin/config/app-versions');
+      const res = await fetchWithAdminGuard('/api/admin/admin/config/app-versions');
       if (!res.ok) return;
       const data = await res.json();
       if (data?.apps && typeof data.apps === 'object') setAppVersions(data.apps);
@@ -30,7 +30,7 @@ export default function ConfigPortal() {
   const saveAppVersions = async () => {
     setAppsMsg('');
     try {
-      const res = await fetchWithAdminGuard('/api/admin/config/app-versions', { method: 'PUT', body: JSON.stringify({ apps: appVersions }) });
+      const res = await fetchWithAdminGuard('/api/admin/admin/config/app-versions', { method: 'PUT', body: JSON.stringify({ apps: appVersions }) });
       setAppsMsg(res.ok ? 'تم حفظ إصدارات التطبيقات' : 'فشل الحفظ');
     } catch { setAppsMsg('فشل الحفظ'); }
   };
@@ -79,7 +79,7 @@ export default function ConfigPortal() {
   const [codActive, setCodActive] = useState<boolean | null>(null);
   const [codSaving, setCodSaving] = useState(false);
   useEffect(() => {
-    fetchWithAdminGuard(`/api/admin/pharmacy/fulfillment-policies`)
+    fetchWithAdminGuard(`/api/admin/admin/pharmacy/fulfillment-policies`)
       .then((r) => (r.ok ? r.json() : []))
       .then((rows: any[]) => setCodActive(Boolean((rows || []).find((p: any) => p.id === 'platform-cod')?.active)))
       .catch(() => setCodActive(null));
@@ -88,7 +88,7 @@ export default function ConfigPortal() {
     if (codActive === null) return;
     setCodSaving(true);
     try {
-      const r = await fetchWithAdminGuard(`/api/admin/pharmacy/fulfillment-policies/cod`, { method: 'PUT', body: JSON.stringify({ active: !codActive }) });
+      const r = await fetchWithAdminGuard(`/api/admin/admin/pharmacy/fulfillment-policies/cod`, { method: 'PUT', body: JSON.stringify({ active: !codActive }) });
       if (r.ok) setCodActive(!codActive); else alert('تعذر حفظ سياسة الدفع عند الاستلام');
     } finally { setCodSaving(false); }
   };
@@ -96,7 +96,7 @@ export default function ConfigPortal() {
   useEffect(() => {
     const fetchSLA = async () => {
       try {
-                const res = await fetchWithAdminGuard(`/api/admin/config/sla`);
+                const res = await fetchWithAdminGuard(`/api/admin/admin/config/sla`);
         if (res.ok) {
           const data = await res.json();
           if (data.consultationDuration) setConsultationDuration(data.consultationDuration);
@@ -129,7 +129,7 @@ export default function ConfigPortal() {
             const slaReason = window.prompt('سبب تعديل SLA (يُحفظ في سجل التدقيق — 5 أحرف على الأقل):', '');
             if (slaReason === null) { setIsSubmitting(false); return; }
             if (slaReason.trim().length < 5) { alert('يرجى إدخال سبب لا يقل عن 5 أحرف'); setIsSubmitting(false); return; }
-            await fetchWithAdminGuard(`/api/admin/config/sla`, {
+            await fetchWithAdminGuard(`/api/admin/admin/config/sla`, {
         method: 'PUT',
         body: JSON.stringify({ consultationDuration, callRingingDuration, jwtExpiry, reason: slaReason.trim() })
       });
@@ -150,7 +150,7 @@ export default function ConfigPortal() {
 
     setIsSubmitting(true);
     try {
-            const res = await fetchWithAdminGuard(`/api/admin/governance/trigger-emergency-maintenance`, {
+            const res = await fetchWithAdminGuard(`/api/admin/admin/governance/trigger-emergency-maintenance`, {
         method: 'PUT',
         body: JSON.stringify({
           forceMaintenanceState,

@@ -38,7 +38,7 @@ export default function CommissionsPage() {
     if (!rule.scope || !(percent >= 0 && percent <= 100)) { setRuleMsg('النسبة 0-100 والنطاق مطلوبان'); return; }
     if (rule.scope !== 'service' && !rule.scope_id.trim()) { setRuleMsg('scope_id مطلوب لغير نطاق الخدمة'); return; }
     try {
-      await apiFetch('/admin/finance-engine/commission-rules', {
+      await apiFetch('/api/admin/admin/finance-engine/commission-rules', {
         method: 'POST',
         body: JSON.stringify({
           scope: rule.scope, scope_id: rule.scope_id.trim() || undefined,
@@ -57,8 +57,8 @@ export default function CommissionsPage() {
     setError(null);
     try {
       const [s, c] = await Promise.all([
-        apiFetch('/admin/finance/ledger/summary').catch(() => null),
-        apiFetch('/admin/finance/commissions').catch(() => ({ data: [] })),
+        apiFetch('/api/admin/admin/finance/ledger/summary').catch(() => null),
+        apiFetch('/api/admin/admin/finance/commissions').catch(() => ({ data: [] })),
       ]);
       setSummary(s);
       setLegacy(c?.data || []);

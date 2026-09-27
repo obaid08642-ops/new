@@ -7,7 +7,7 @@ export default function BroadcastMonitorPage() {
   const [loading, setLoading] = useState(true);
   const load = useCallback(async()=>{
     setLoading(true);
-    try{ const r:any = await apiFetch('/admin/pharmacy/broadcasts?limit=50'); setItems(Array.isArray(r)?r:r?.data||[]);}catch{}
+    try{ const r:any = await apiFetch('/api/admin/admin/pharmacy/broadcasts?limit=50'); setItems(Array.isArray(r)?r:r?.data||[]);}catch{}
     finally{setLoading(false);}
   },[]);
   useEffect(()=>{load(); const t=setInterval(load,15000); return()=>clearInterval(t);},[load]);

@@ -17,7 +17,7 @@ export default function LocationsAdminPage() {
     setLoading(true); setError('');
     try {
       const qs = new URLSearchParams({ type, include_inactive: '1', ...(q ? { q } : {}) }).toString();
-      const r: any = await apiFetch(`/admin/locations?${qs}`);
+      const r: any = await apiFetch(`/api/admin/admin/locations?${qs}`);
       setRows(Array.isArray(r) ? r : []);
     } catch (e: any) { setError(e?.message || 'تعذر تحميل المواقع'); }
     finally { setLoading(false); }
@@ -28,7 +28,7 @@ export default function LocationsAdminPage() {
     if (!form.code.trim() || !form.name_ar.trim() || !form.name_en.trim()) { setError('الكود والاسمان مطلوبة'); return; }
     setBusy('create'); setError('');
     try {
-      await apiFetch('/admin/locations', { method: 'POST', body: JSON.stringify({ ...form, code: form.code.trim(), parent_code: form.parent_code.trim() || undefined }) });
+      await apiFetch('/api/admin/admin/locations', { method: 'POST', body: JSON.stringify({ ...form, code: form.code.trim(), parent_code: form.parent_code.trim() || undefined }) });
       setForm({ code: '', name_ar: '', name_en: '', type: form.type, parent_code: '' });
       await load();
     } catch (e: any) { setError(e?.message || 'فشل الإضافة'); }
@@ -38,7 +38,7 @@ export default function LocationsAdminPage() {
   const deactivate = async (code: string) => {
     if (!confirm(`تعطيل ${code}؟ سيختفي من كل القوائم.`)) return;
     setBusy(code); setError('');
-    try { await apiFetch(`/admin/locations/${encodeURIComponent(code)}`, { method: 'DELETE' }); await load(); }
+    try { await apiFetch(`/api/admin/admin/locations${encodeURIComponent(code)}`, { method: 'DELETE' }); await load(); }
     catch (e: any) { setError(e?.message || 'فشل التعطيل'); }
     finally { setBusy(''); }
   };

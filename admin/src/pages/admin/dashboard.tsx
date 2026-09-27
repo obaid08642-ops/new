@@ -84,7 +84,7 @@ export default function MasterDashboard() {
         }
 
         // Live orders feed + global summary (command-center snapshot)
-        const ccRes = await fetchWithAdminGuard(`/api/admin/command-center`);
+        const ccRes = await fetchWithAdminGuard(`/api/admin/admin/command-center`);
         if (ccRes.ok) {
           const cc = await ccRes.json();
           setLiveOrders(Array.isArray(cc?.live_bookings) ? cc.live_bookings : []);
