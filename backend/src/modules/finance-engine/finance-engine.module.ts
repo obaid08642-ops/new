@@ -597,7 +597,12 @@ export class RefundExecutor {
       );
     } else {
       // 2) Wallet/cash payments → credit the patient wallet (real, spendable)
-      const wallet: any = await this.conn.collection('wallets').findOne({ ownerId: opts.patient_id, ownerType: 'patient' } as any);
+      // a patient who never opened the wallet screen has no wallet yet: create it, never drop the refund
+      const wallet: any = await this.conn.collection('wallets').findOneAndUpdate(
+        { ownerId: opts.patient_id, ownerType: 'patient' } as any,
+        { $setOnInsert: { id: uuid(), ownerId: opts.patient_id, ownerType: 'patient', balance: 0, savedCards: [], createdAt: new Date() } } as any,
+        { upsert: true, returnDocument: 'after' } as any,
+      ).then((r: any) => (r && 'value' in r ? r.value : r));
       if (wallet) {
         await this.conn.collection('wallets').updateOne({ _id: wallet._id } as any, { $inc: { balance: amount }, $set: { updatedAt: new Date() } });
         await this.conn.collection('wallet_transactions').insertOne({

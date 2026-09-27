@@ -87,3 +87,25 @@ Status: `open` means the agent does it; `done` means the reviewer verified it li
 - `save-policy` looked the company up by `id`, but the add-policy screen sends its `code`, so no patient could add a policy (404). It now accepts either, keeps the form fields (expiry, national id, member name) and always stores `verified: false`.
 - `payment-split.tsx` called `/payments/insurance/:id/(self-pay-)capabilities`, which does not exist (404), so the copay and self-pay checkout never opened. It now calls `/insurance/requests/:id/...`.
 - After self-pay the server moves the request to COPAY_PENDING at 100%. The app's SELF_PAY_* states are never produced by the server; the app handles this through `checkout_copay`.
+
+### LJ-05: Returns: the admin cannot see or decide them; service returns never work; two refund stores
+- **Status:** open
+- **Live check:** `tools/live/j_returns.py`.
+  - Currently failing: "admin panel can list/decide", "refund-status lists the refund".
+  - The refund itself works when the API is called directly.
+- **Where:**
+  - Backend: `modules/returns/*`; `modules/insurance-engine` `RefundController` (`/refunds/*`); `modules/patient-ux` refunds; `finance-engine` `RefundExecutor`.
+  - Apps: patient-app `app/returns/new-request.tsx` and `hub.tsx`, `app/insurance/refund-status.tsx`; admin (no page).
+- **Problem:**
+  1. There is no admin list route (`ReturnsService.adminList` is never exposed). `POST /pharmacy/returns/:id/decide` sits outside `/admin/*`, so the admin BFF cannot reach it, and there is no admin page. **No return can ever be approved from the admin panel.**
+  2. `new-request.tsx` offers consultation, diagnostics, nursing and insurance returns, but the server only resolves those amounts from the legacy `orders` collection. They always fail (400).
+  3. The patient types the order id by hand, and the screen sends hardcoded amounts (250/120/80). The server ignores the amounts, which is correct, but the screen shows them.
+  4. Refunds are recorded in three places: RefundExecutor (ledger plus wallet or Moyasar), `/refunds/*` (insurance-engine) and patient-ux refunds. `refund-status` reads `/refunds/my`, so executed refunds never appear there.
+- **Required:**
+  1. Add admin `GET /admin/returns` (filter by status) and `POST /admin/returns/:id/decide`, plus an admin page (list, detail with items and amount, approve/reject with note).
+  2. `new-request` picks the order or booking from the patient's own delivered/completed ones (pharmacy orders, lab, radiology, nursing, consultations) and shows the server's eligibility and amount. Remove the hardcoded amounts.
+  3. For service bookings, either resolve the amount from the real booking collections, checking ownership and paid status, or send those cases to the existing cancellation/refund rules. Do not keep a return path that can never succeed.
+  4. Use one refund read model: `refund-status` lists every refund executed by RefundExecutor (card or wallet) with its status.
+- *(Reviewer already fixed:)*
+  - RefundExecutor credited nothing ("offline_recorded") when the patient had no wallet document yet; it now creates the wallet.
+  - The non-pharmacy branch now rejects an order that is not the patient's.
