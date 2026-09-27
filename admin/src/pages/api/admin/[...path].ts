@@ -116,8 +116,9 @@ async function tryRefresh(req: NextApiRequest): Promise<{ accessToken: string; c
     const accessToken = payload?.token?.accessToken || payload?.access_token || payload?.token;
     const refresh = payload?.token?.refreshToken || payload?.refresh_token;
     if (!accessToken) return null;
-    const cookies = [`${ACCESS_COOKIE}=${accessToken}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${60 * 60}`];
-    if (refresh) cookies.push(`${REFRESH_COOKIE}=${refresh}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${60 * 60 * 24 * 14}`);
+    const secure = process.env.NODE_ENV === 'production' ? '; Secure' : '';
+    const cookies = [`${ACCESS_COOKIE}=${encodeURIComponent(accessToken)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${60 * 60}${secure}`];
+    if (refresh) cookies.push(`${REFRESH_COOKIE}=${encodeURIComponent(refresh)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${60 * 60 * 24 * 14}${secure}`);
     return { accessToken, cookies };
   } catch {
     return null;

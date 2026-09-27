@@ -572,10 +572,12 @@ export class RadiologyOpsService {
     if (user.role !== 'admin') throw new ForbiddenException();
     const updated = await this.svcModel.findOneAndUpdate(
       { id: { $eq: id } },
-      { $set: { medical_review_status: approve ? 'approved' : 'rejected', public_eligibility: !!approve, last_reviewed: new Date() } },
+      { $set: reviewUpdate(approve ? 'approved' : 'rejected', user.id) },
       { new: true },
     );
     if (!updated) throw new NotFoundException();
+    // Public lists are cached per query: without this an approved item stays hidden until the TTL.
+    await invalidateCatalogCache(this.redis, 'cache:radiology-services:');
     this.events.emit({ type: approve ? 'catalog.service_approved' : 'catalog.service_disabled', entity_type: 'service', entity_id: id, actor_account_id: user.id, actor_role: 'admin', meta: { kind: 'radiology' } } as any);
     return updated;
   }

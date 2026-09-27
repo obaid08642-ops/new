@@ -5,6 +5,14 @@
   "compilerOptions": {
     "deleteOutDir": true,
     "tsConfigPath": "tsconfig.build.json",
-    "assets": [{ "include": "assets/**/*" }]
+    "assets": [
+      {
+        "include": "assets/**/*"
+      },
+      {
+        "include": "modules/catalogs/seed-data/*.json",
+        "watchAssets": false
+      }
+    ]
   }
 }

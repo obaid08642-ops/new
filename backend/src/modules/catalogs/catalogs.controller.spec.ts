@@ -26,4 +26,14 @@ describe('CatalogsController specialties admin', () => {
     await ctrl.deleteSpecialty('cardiology');
     expect(col.updateOne).toHaveBeenCalledWith({ code: { $eq: 'cardiology' } }, expect.objectContaining({ $set: expect.objectContaining({ active: false }) }));
   });
+
+  it('gives Arabic-only specialties distinct codes (no shared "-" code overwriting each other)', async () => {
+    const { ctrl } = make();
+    const a: any = await ctrl.upsertSpecialty({ name_ar: 'قلب' } as any);
+    const b: any = await ctrl.upsertSpecialty({ name_ar: 'جلدية' } as any);
+    expect(a.code).toMatch(/^sp-[0-9a-f]{10}$/);
+    expect(b.code).not.toBe(a.code);
+    const again: any = await ctrl.upsertSpecialty({ name_ar: 'قلب' } as any);
+    expect(again.code).toBe(a.code);
+  });
 });
