@@ -28,18 +28,22 @@ if (!pages.length) (function walkPages(dir, route) {
 })(appDir, '');
 const staticPages = pages.filter((p) => !p.includes('[')).map((p) => prefix + p);
 
-const browser = await chromium.launch({ executablePath: process.env.CHROMIUM || undefined });
-const ctx = await browser.newContext({ locale: 'ar-SA' });
-if (process.env.COOKIES) {
-  const jar = JSON.parse(fs.readFileSync(process.env.COOKIES, 'utf8'));
-  await ctx.addCookies(jar.map((c) => ({ name: c.name, value: c.value, domain: '127.0.0.1', path: '/', httpOnly: true, secure: false, sameSite: 'Lax' })));
-}
-if (identifier) {
-  const r = await ctx.request.post(base + loginPath, { data: { identifier, password } });
-  console.error('login', r.status());
+let browser, ctx;
+async function openBrowser() {
+  if (browser) await browser.close().catch(() => {});
+  browser = await chromium.launch({ executablePath: process.env.CHROMIUM || undefined, args: ['--disable-dev-shm-usage'] });
+  ctx = await browser.newContext({ locale: 'ar-SA' });
+  if (process.env.COOKIES) {
+    const jar = JSON.parse(fs.readFileSync(process.env.COOKIES, 'utf8'));
+    await ctx.addCookies(jar.map((c) => ({ name: c.name, value: c.value, domain: '127.0.0.1', path: '/', httpOnly: true, secure: false, sameSite: 'Lax' })));
+  }
+  if (identifier) {
+    const r = await ctx.request.post(base + loginPath, { data: { identifier, password } });
+    if (!results.length) console.error('login', r.status());
+  }
 }
 const results = [];
-for (const p of staticPages) {
+async function visit(p) {
   const page = await ctx.newPage();
   const res = { page: p, status: 0, jsErrors: [], api5xx: [], api4xx: [] };
   page.on('pageerror', (e) => res.jsErrors.push(String(e.message).slice(0, 160)));
@@ -50,18 +54,21 @@ for (const p of staticPages) {
     else if (r.status() >= 400 && r.status() !== 401) res.api4xx.push(`${r.status()} ${r.request().method()} ${u.pathname}`);
   });
   try {
-    const resp = await page.goto(base + p, { waitUntil: 'networkidle', timeout: 30000 });
+    const resp = await page.goto(base + p, { waitUntil: 'load', timeout: 45000 });
+    await page.waitForTimeout(2500); // let client-side data calls land
     res.status = resp ? resp.status() : 0;
-  } catch (e) {
-    // live pages (polling/websocket) never go network-idle: judge them on load + a short settle instead
-    try {
-      const resp = await page.goto(base + p, { waitUntil: 'load', timeout: 30000 });
-      await page.waitForTimeout(4000);
-      res.status = resp ? resp.status() : 0; res.live = true;
-    } catch (e2) { res.status = -1; res.jsErrors.push('navigation: ' + String(e2.message).slice(0, 100)); }
-  }
-  await page.close();
+  } catch (e) { res.status = -1; res.jsErrors.push('navigation: ' + String(e.message).slice(0, 100)); }
+  await page.close().catch(() => {});
+  return res;
+}
+await openBrowser();
+for (let i = 0; i < staticPages.length; i++) {
+  if (i && i % 25 === 0) await openBrowser(); // fresh browser every 25 pages (memory)
+  let res;
+  try { res = await visit(staticPages[i]); }
+  catch { await openBrowser(); try { res = await visit(staticPages[i]); } catch (e) { res = { page: staticPages[i], status: -1, jsErrors: ['browser: ' + String(e.message).slice(0, 80)], api5xx: [], api4xx: [] }; } }
   results.push(res);
+  fs.writeFileSync('/tmp/web_render.json', JSON.stringify(results, null, 1));
 }
 await browser.close();
 const broken = results.filter((r) => r.status >= 500 || r.status === 404 || r.status === -1 || r.jsErrors.length || r.api5xx.length);
