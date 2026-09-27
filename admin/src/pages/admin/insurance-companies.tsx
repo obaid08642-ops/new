@@ -33,11 +33,14 @@ export default function InsuranceCompaniesPage() {
   const [editNameEn, setEditNameEn] = useState('');
 
   // add-tier form
-  const [tierCompany, setTierCompany] = useState<string | null>(null);
-  const [tierCode, setTierCode] = useState('');
+  const [tierCompany, setTierCompany] = useState<string | null>(null);  const [tierCode, setTierCode] = useState('');
   const [tierNameAr, setTierNameAr] = useState('');
   const [tierNameEn, setTierNameEn] = useState('');
   const [tierLevel, setTierLevel] = useState('1');
+  // P6.x-4: coverage rules (copay per service) per network tier.
+  const [rulesOpen, setRulesOpen] = useState<string | null>(null);
+  const [rules, setRules] = useState<Record<string, any[]>>({});
+  const [ruleForm, setRuleForm] = useState({ service_type: '', service_key: '', copay_percent: '', copay_flat_limit: '', requires_preauth: false, max_annual_limit: '' });
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -134,8 +137,42 @@ export default function InsuranceCompaniesPage() {
     }
   };
 
-  const removeTier = async (companyId: string, tier: any) => {
-    if (!confirm(`حذف فئة «${tier.name_ar}» نهائياً؟`)) return;
+  const loadRules = async (networkId: string) => {
+    try {
+      const rows = await apiFetch(`/insurance/networks/${networkId}/rules`);
+      setRules((p) => ({ ...p, [networkId]: Array.isArray(rows) ? rows : [] }));
+    } catch (e: any) {
+      alert(`فشل تحميل القواعد: ${e?.message || ''}`);
+    }
+  };
+
+  const saveRule = async (networkId: string) => {
+    const pct = Number(ruleForm.copay_percent);
+    if (!ruleForm.service_type.trim()) { alert('نوع الخدمة مطلوب'); return; }
+    if (ruleForm.copay_percent !== '' && !(pct >= 0 && pct <= 100)) { alert('نسبة التحمل 0-100'); return; }
+    setBusy(networkId);
+    try {
+      await apiFetch(`/insurance/networks/${networkId}/rules`, {
+        method: 'POST',
+        body: JSON.stringify({
+          service_type: ruleForm.service_type.trim(),
+          service_key: ruleForm.service_key.trim() || undefined,
+          copay_percent: ruleForm.copay_percent === '' ? undefined : pct,
+          copay_flat_limit: ruleForm.copay_flat_limit === '' ? undefined : Number(ruleForm.copay_flat_limit),
+          requires_preauth: !!ruleForm.requires_preauth,
+          max_annual_limit: ruleForm.max_annual_limit === '' ? undefined : Number(ruleForm.max_annual_limit),
+        }),
+      });
+      setRuleForm({ service_type: '', service_key: '', copay_percent: '', copay_flat_limit: '', requires_preauth: false, max_annual_limit: '' });
+      await loadRules(networkId);
+    } catch (e: any) {
+      alert(`فشل حفظ القاعدة: ${e?.message || ''}`);
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const removeTier = async (companyId: string, tier: any) => {    if (!confirm(`حذف فئة «${tier.name_ar}» نهائياً؟`)) return;
     setBusy(tier.id || tier._id);
     try {
       await apiFetch(`/insurance/companies/${companyId}/networks/${tier.id || tier._id}`, { method: 'DELETE' });
@@ -256,13 +293,38 @@ export default function InsuranceCompaniesPage() {
                         <div className="text-sm text-slate-400">لا توجد فئات بعد — أضف أول فئة لهذه الشركة.</div>
                       ) : (
                         <div className="flex flex-wrap gap-2">
-                          {(c.tiers || []).map((t: any) => (
-                            <span key={t.id || t._id} className="inline-flex items-center gap-2 bg-slate-100 border border-slate-200 rounded-full px-3 py-1.5 text-sm">
-                              <span className="font-bold text-slate-700">{t.name_ar}</span>
-                              <span className="text-slate-400 text-xs" dir="ltr">{t.name_en} · L{t.tier_level}</span>
-                              <button onClick={() => removeTier(id, t)} disabled={busy === (t.id || t._id)} className="text-red-500 hover:text-red-700 font-bold" title="حذف الفئة">×</button>
-                            </span>
-                          ))}
+                          {(c.tiers || []).map((t: any) => {
+                            const nid = t.id || t._id;
+                            const open = rulesOpen === nid;
+                            return (
+                              <div key={nid} className="border border-slate-200 rounded-xl px-3 py-1.5 text-sm w-full">
+                                <div className="inline-flex items-center gap-2">
+                                  <span className="font-bold text-slate-700">{t.name_ar}</span>
+                                  <span className="text-slate-400 text-xs" dir="ltr">{t.name_en} · L{t.tier_level}</span>
+                                  <button onClick={() => { if (open) setRulesOpen(null); else { setRulesOpen(nid); void loadRules(nid); } }} className="text-teal-700 font-bold text-xs">قواعد التحمل</button>
+                                  <button onClick={() => removeTier(id, t)} disabled={busy === nid} className="text-red-500 hover:text-red-700 font-bold" title="حذف الفئة">×</button>
+                                </div>
+                                {open && (
+                                  <div className="mt-2 space-y-2">
+                                    {(rules[nid] || []).map((r: any, i: number) => (
+                                      <div key={i} className="text-xs text-slate-600" dir="ltr">
+                                        {r.service_type}{r.service_key ? `/${r.service_key}` : ''} · copay {r.copay_percent ?? '—'}%{r.copay_flat_limit ? ` (cap ${r.copay_flat_limit})` : ''}{r.requires_preauth ? ' · preauth' : ''}
+                                      </div>
+                                    ))}
+                                    {(rules[nid] || []).length === 0 && <div className="text-xs text-slate-400">لا قواعد — يُستخدم تحمل العقد.</div>}
+                                    <div className="flex flex-wrap gap-1 items-end">
+                                      <input value={ruleForm.service_type} onChange={(e) => setRuleForm({ ...ruleForm, service_type: e.target.value })} placeholder="service_type" dir="ltr" className="border rounded px-2 py-1 text-xs w-28" />
+                                      <input value={ruleForm.service_key} onChange={(e) => setRuleForm({ ...ruleForm, service_key: e.target.value })} placeholder="service_key?" dir="ltr" className="border rounded px-2 py-1 text-xs w-28" />
+                                      <input value={ruleForm.copay_percent} onChange={(e) => setRuleForm({ ...ruleForm, copay_percent: e.target.value.replace(/[^0-9.]/g, '') })} placeholder="copay%" dir="ltr" className="border rounded px-2 py-1 text-xs w-20" />
+                                      <input value={ruleForm.copay_flat_limit} onChange={(e) => setRuleForm({ ...ruleForm, copay_flat_limit: e.target.value.replace(/[^0-9.]/g, '') })} placeholder="cap?" dir="ltr" className="border rounded px-2 py-1 text-xs w-20" />
+                                      <label className="text-xs flex items-center gap-1"><input type="checkbox" checked={ruleForm.requires_preauth} onChange={(e) => setRuleForm({ ...ruleForm, requires_preauth: e.target.checked })} /> preauth</label>
+                                      <button onClick={() => saveRule(nid)} disabled={busy === nid} className="bg-teal-600 text-white text-xs font-bold px-3 py-1 rounded disabled:opacity-50">حفظ القاعدة</button>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
                         </div>
                       )}
                     </div>

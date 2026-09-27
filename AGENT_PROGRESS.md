@@ -194,3 +194,6 @@ Format: task | commit sha | verify result | notes
 
 ## [P6.0b] Medicines item review buttons (2026-09-26)
 - medicines-catalog rows gained اعتماد/رفض calling the new `POST medicines/admin/catalog/:id/approve` endpoint (change-request flow untouched).
+
+## [P6.x-4b] Coverage rule (copay) editor UI (2026-09-26)
+- Backend rule CRUD per network already existed (`networks/:id/rules`, validated DTO). Added the missing admin UI: per-tier expandable copay rules (service/service_key/percent/cap/preauth) with list + create on the insurance-companies page.
