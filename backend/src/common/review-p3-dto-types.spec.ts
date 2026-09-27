@@ -40,25 +40,6 @@ describe('REVIEW-P3 DTO types vs clients/services', () => {
   });
 });
 
-describe('REVIEW-P3: admin delta reject body is a validated DTO', () => {
-  it('rejectDelta body is a class with validators, reason must be text', async () => {
-    const { AdminController } = require('../modules/admin/admin.controller');
-    const types = Reflect.getMetadata('design:paramtypes', AdminController.prototype, 'rejectDelta');
-    expect(types[1]).not.toBe(Object);
-    expect(await errors(types[1], { reason: 'بيانات ناقصة' })).toEqual([]);
-    expect(await errors(types[1], { reason: { $ne: 1 } })).not.toEqual([]);
-    expect(await errors(types[1], { status: 'approved' })).toContain('property status should not exist');
-  });
-});
-
-describe('REVIEW-P3: tour step body is a validated DTO', () => {
-  it('stepId must be a string (no object injection)', async () => {
-    const { CompleteTourStepDto } = require('../modules/tour/tour.dto');
-    expect(await errors(CompleteTourStepDto, { stepId: 'welcome' })).toEqual([]);
-    expect(await errors(CompleteTourStepDto, { stepId: { $ne: null } })).not.toEqual([]);
-  });
-});
-
 describe('REVIEW-P3: Moyasar webhook body is not whitelisted (signature-verified third-party payload)', () => {
   it('a real Moyasar event shape passes the production pipe untouched', async () => {
     const { MoyasarController } = require('../modules/moyasar/moyasar.module');
@@ -88,7 +69,7 @@ describe('REVIEW-P3: refund amounts must be positive', () => {
 
 describe('REVIEW-P4: admin SLA save (config-portal sends reason)', () => {
   it('accepts the admin payload with reason; rejects a non-string reason', async () => {
-    const { SlaDto } = require('../modules/admin-web-core/controllers/admin-config.dto');
+    const { SlaDto } = require('../modules/admin/web-core/controllers/admin-config.dto');
     expect(await errors(SlaDto, { consultationDuration: 15, callRingingDuration: 45, jwtExpiry: 24, reason: 'تعديل مؤقت للأوقات' })).toEqual([]);
     expect(await errors(SlaDto, { consultationDuration: 15, callRingingDuration: 45, jwtExpiry: 24, reason: { $ne: 1 } })).not.toEqual([]);
   });

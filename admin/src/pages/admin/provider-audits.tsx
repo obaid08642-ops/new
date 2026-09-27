@@ -14,7 +14,8 @@ export default function ProviderAuditsPage() {
   const fetchDeltas = async () => {
     setLoading(true);
     try {
-      const res = await apiFetch<any[]>('/admin/provider-deltas', { method: 'POST' });
+      // F49: single delta implementation lives in the provider module.
+      const res = await apiFetch<any[]>('/api/admin/providers/provider-deltas');
       setDeltas(Array.isArray(res) ? res : []);
     } catch (err) {
       console.error('Failed to fetch provider deltas:', err);
@@ -26,7 +27,7 @@ export default function ProviderAuditsPage() {
   const handleApprove = async (id: string) => {
     setProcessingId(id);
     try {
-      await apiFetch(`/admin/provider-deltas/${id}/approve`, { method: 'POST' });
+      await apiFetch(`/api/admin/providers/provider-deltas/${id}/approve`, { method: 'POST' });
       setDeltas((prev) => prev.filter((d) => (d.id || d._id) !== id));
       alert('تم اعتماد التعديلات وتحديث ملف مقدم الخدمة بنجاح.');
     } catch (err: any) {
@@ -41,7 +42,7 @@ export default function ProviderAuditsPage() {
     if (!reason) return;
     setProcessingId(id);
     try {
-      await apiFetch(`/admin/provider-deltas/${id}/reject`, { method: 'POST', body: JSON.stringify({ reason }) });
+      await apiFetch(`/api/admin/providers/provider-deltas/${id}/reject`, { method: 'POST', body: JSON.stringify({ reason }) });
       setDeltas((prev) => prev.filter((d) => (d.id || d._id) !== id));
       alert('تم رفض التعديل وإشعار مقدم الخدمة.');
     } catch (err: any) {

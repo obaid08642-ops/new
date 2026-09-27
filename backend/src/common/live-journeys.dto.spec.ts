@@ -5,7 +5,7 @@
 import { ValidationPipe } from '@nestjs/common';
 import { Step2Dto, Step3Dto } from '../modules/provider-onboarding/provider-onboarding.dto';
 import { CompleteDto, PutHoursDto, ScheduleSettingsDto } from '../modules/provider-ops/provider-ops.dto';
-import { CreateCarePlanDto } from '../modules/home-care-compat/home-care-compat.dto';
+import { CreateCarePlanDto } from '../modules/home-care/home-care-compat.dto';
 import { CreateNoteDto } from '../modules/home-care/home-care.dto';
 import { CreateDto as PharmacyOrderCreateDto } from '../modules/pharmacy/pharmacy.controllers.dto';
 

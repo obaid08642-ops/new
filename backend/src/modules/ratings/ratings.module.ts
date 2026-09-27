@@ -7,6 +7,7 @@ import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { JwtAuthGuard, CurrentUser, Public, SelfService } from '../../common/auth.guard';
 import { SubmitDto } from './ratings.dto';
+import { PatientReviewsListController } from './ratings-compat.controller';
 
 @Injectable()
 export class RatingsService {
@@ -108,7 +109,7 @@ export class RatingsController {
 }
 
 @Module({
-  controllers: [RatingsController],
+  controllers: [RatingsController, PatientReviewsListController],
   providers: [RatingsService],
 })
 export class RatingsModule {}

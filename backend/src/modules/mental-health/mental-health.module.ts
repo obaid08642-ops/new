@@ -12,6 +12,7 @@ import { BreathingSessionRepository } from './repositories/breathingsession.repo
 import { CrisisContactRepository } from './repositories/crisiscontact.repository';
 import { MeditationSessionRepository } from './repositories/meditationsession.repository';
 import { MoodEntryRepository } from './repositories/moodentry.repository';
+import { MentalHealthCompatController } from './mental-health-compat.controller';
 
 @Module({
   imports: [
@@ -22,7 +23,7 @@ import { MoodEntryRepository } from './repositories/moodentry.repository';
       { name: 'CrisisContact', schema: CrisisContactSchema },
     ]),
   ],
-  controllers: [MentalHealthController],
+  controllers: [MentalHealthController, MentalHealthCompatController],
   providers: [
     MentalHealthService,
     { provide: 'BreathingSessionRepository', useClass: BreathingSessionRepository },

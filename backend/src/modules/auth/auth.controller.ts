@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Header, Headers, Optional, Param, Post, UseGuards, Req, Res, BadRequestException } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Header, Headers, Logger, Optional, Param, Post, UseGuards, Req, Res, BadRequestException } from '@nestjs/common';
 import { AuthLoginDto, AuthVerify2faDto, RefreshDto, RecordConsentDto, SendOtpDto, VerifyOtpDto, ResetPasswordDto, SocialLoginDto, HeartbeatDto} from './auth.dto';
 import { PresenceService } from '../presence/presence.service';
 import { Throttle } from '@nestjs/throttler';
@@ -86,6 +86,7 @@ class ConvertGuestDto {
 @SelfService()
 @UseGuards(JwtAuthGuard)
 export class AuthController {
+  private readonly log = new Logger(AuthController.name);
   constructor(private auth: AuthService, @Optional() private presence?: PresenceService) {}
 
   /** Patient-web bridge: opaque request response prevents account enumeration. */
@@ -284,26 +285,34 @@ export class AuthController {
     return { success: true };
   }
 
+  // P5.4: legacy names — distinct generic-OTP flow (not aliases of otp/*);
+  // kept with deprecation headers. Canonical: otp/request, otp/verify, password/reset.
   @Public()
+  @Header('Deprecation', 'true')
   @Throttle({ default: { limit: 5, ttl: 60000 } }) // E5-F4 SMS-bombing guard
   @Post('send-otp')
   sendOtp(@Body() body: SendOtpDto) {
+    this.log.warn('deprecated auth alias called: send-otp (canonical: otp/request)');
     const id = body.identifier || body.email || body.phone || '';
     return this.auth.sendOtp(id, body.purpose);
   }
 
   @Public()
+  @Header('Deprecation', 'true')
   @Throttle({ default: { limit: 10, ttl: 60000 } }) // E5-F4 OTP guessing guard
   @Post('verify-otp')
   verifyOtp(@Body() body: VerifyOtpDto) {
+    this.log.warn('deprecated auth alias called: verify-otp (canonical: otp/verify)');
     const id = body.identifier || body.email || body.phone || '';
     return this.auth.verifyOtp(id, body.code);
   }
 
   @Public()
+  @Header('Deprecation', 'true')
   @Throttle({ default: { limit: 5, ttl: 60000 } }) // E5-F4
   @Post('reset-password')
   resetPassword(@Body() body: ResetPasswordDto) {
+    this.log.warn('deprecated auth alias called: reset-password (canonical: password/reset)');
     const id = body.identifier || body.email || body.phone || '';
     if (!body?.code) throw new BadRequestException('code_required');
     return this.auth.resetPassword(id, body.password, body.code);

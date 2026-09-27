@@ -25,6 +25,10 @@ import { CartService } from '../cart/cart.module';
 import { WorkflowEngineModule, WorkflowEngineService, toUniversal } from '../workflow-engine/workflow-engine.module';
 import { LiveKitModule } from '../livekit/livekit.module';
 import { LiveKitService } from '../livekit/livekit.service';
+// P5.3: merged from BookingFlowModule + BookingOpsModule (booking-flow/, booking-ops/ → unified-bookings/)
+import { BookingFlowService, BookingFlowController } from './booking-flow.module';
+import { BookingOpsService, BookingOpsController, BookingAttachment, BookingAttachmentSchema } from './booking-ops.module';
+import { SystemEvent, SystemEventSchema } from '../events/system-event.schema';
 
 /**
  * UNIFIED BOOKING ORCHESTRATOR
@@ -536,6 +540,9 @@ import { OrdersModule } from '../orders/orders.module';
       { name: 'HomeCareBooking', schema: HomeCareBookingSchema },
       { name: Appointment.name, schema: AppointmentSchema },
       { name: 'ProviderProfile', schema: ProviderProfileSchema },
+      // P5.3: merged from BookingFlowModule + BookingOpsModule
+      { name: 'SystemEvent', schema: SystemEventSchema },
+      { name: 'BookingAttachment', schema: BookingAttachmentSchema },
     ]),
     LabsModule,
     RadiologyModule,
@@ -546,7 +553,7 @@ import { OrdersModule } from '../orders/orders.module';
     WorkflowEngineModule,
     LiveKitModule,
   ],
-  controllers: [UnifiedBookingsController],
-  providers: [UnifiedBookingsService],
+  controllers: [UnifiedBookingsController, BookingFlowController, BookingOpsController],
+  providers: [UnifiedBookingsService, BookingFlowService, BookingOpsService],
 })
 export class UnifiedBookingsModule {}

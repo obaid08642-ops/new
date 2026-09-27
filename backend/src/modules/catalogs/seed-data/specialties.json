@@ -1,0 +1,186 @@
+[
+  {
+    "id": "spec-cardiology",
+    "code": "cardiology",
+    "name_ar": "قلب وأوعية دموية",
+    "name_en": "cardiology",
+    "sort": 1,
+    "active": true
+  },
+  {
+    "id": "spec-dermatology",
+    "code": "dermatology",
+    "name_ar": "جلدية",
+    "name_en": "dermatology",
+    "sort": 2,
+    "active": true
+  },
+  {
+    "id": "spec-pediatrics",
+    "code": "pediatrics",
+    "name_ar": "طب أطفال",
+    "name_en": "pediatrics",
+    "sort": 3,
+    "active": true
+  },
+  {
+    "id": "spec-obgyn",
+    "code": "obgyn",
+    "name_ar": "نساء وولادة",
+    "name_en": "obgyn",
+    "sort": 4,
+    "active": true
+  },
+  {
+    "id": "spec-orthopedics",
+    "code": "orthopedics",
+    "name_ar": "عظام",
+    "name_en": "orthopedics",
+    "sort": 5,
+    "active": true
+  },
+  {
+    "id": "spec-neurology",
+    "code": "neurology",
+    "name_ar": "أعصاب",
+    "name_en": "neurology",
+    "sort": 6,
+    "active": true
+  },
+  {
+    "id": "spec-psychiatry",
+    "code": "psychiatry",
+    "name_ar": "طب نفسي",
+    "name_en": "psychiatry",
+    "sort": 7,
+    "active": true
+  },
+  {
+    "id": "spec-dentistry",
+    "code": "dentistry",
+    "name_ar": "أسنان",
+    "name_en": "dentistry",
+    "sort": 8,
+    "active": true
+  },
+  {
+    "id": "spec-ophthalmology",
+    "code": "ophthalmology",
+    "name_ar": "عيون",
+    "name_en": "ophthalmology",
+    "sort": 9,
+    "active": true
+  },
+  {
+    "id": "spec-ent",
+    "code": "ent",
+    "name_ar": "أنف وأذن وحنجرة",
+    "name_en": "ent",
+    "sort": 10,
+    "active": true
+  },
+  {
+    "id": "spec-internal",
+    "code": "internal",
+    "name_ar": "باطنية",
+    "name_en": "internal",
+    "sort": 11,
+    "active": true
+  },
+  {
+    "id": "spec-family",
+    "code": "family",
+    "name_ar": "طب أسرة",
+    "name_en": "family",
+    "sort": 12,
+    "active": true
+  },
+  {
+    "id": "spec-urology",
+    "code": "urology",
+    "name_ar": "مسالك بولية",
+    "name_en": "urology",
+    "sort": 13,
+    "active": true
+  },
+  {
+    "id": "spec-gastro",
+    "code": "gastro",
+    "name_ar": "جهاز هضمي",
+    "name_en": "gastro",
+    "sort": 14,
+    "active": true
+  },
+  {
+    "id": "spec-endocrine",
+    "code": "endocrine",
+    "name_ar": "غدد صماء وسكري",
+    "name_en": "endocrine",
+    "sort": 15,
+    "active": true
+  },
+  {
+    "id": "spec-pulmonology",
+    "code": "pulmonology",
+    "name_ar": "صدرية",
+    "name_en": "pulmonology",
+    "sort": 16,
+    "active": true
+  },
+  {
+    "id": "spec-nephrology",
+    "code": "nephrology",
+    "name_ar": "كلى",
+    "name_en": "nephrology",
+    "sort": 17,
+    "active": true
+  },
+  {
+    "id": "spec-oncology",
+    "code": "oncology",
+    "name_ar": "أورام",
+    "name_en": "oncology",
+    "sort": 18,
+    "active": true
+  },
+  {
+    "id": "spec-rheumatology",
+    "code": "rheumatology",
+    "name_ar": "روماتيزم",
+    "name_en": "rheumatology",
+    "sort": 19,
+    "active": true
+  },
+  {
+    "id": "spec-surgery",
+    "code": "surgery",
+    "name_ar": "جراحة عامة",
+    "name_en": "surgery",
+    "sort": 20,
+    "active": true
+  },
+  {
+    "id": "spec-physiotherapy",
+    "code": "physiotherapy",
+    "name_ar": "علاج طبيعي",
+    "name_en": "physiotherapy",
+    "sort": 21,
+    "active": true
+  },
+  {
+    "id": "spec-nutrition",
+    "code": "nutrition",
+    "name_ar": "تغذية",
+    "name_en": "nutrition",
+    "sort": 22,
+    "active": true
+  },
+  {
+    "id": "spec-emergency",
+    "code": "emergency",
+    "name_ar": "طوارئ",
+    "name_en": "emergency",
+    "sort": 23,
+    "active": true
+  }
+]

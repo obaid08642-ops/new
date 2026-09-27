@@ -5,6 +5,7 @@ import { ReturnRequest } from '../../schemas/returns.schema';
 import { WalletService } from '../wallet/wallet.service';
 import { ReturnRequestRepository } from "./repositories/returnrequest.repository";
 import { RefundExecutor } from '../finance-engine/finance-engine.module';
+import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 
 /**
  * E1 S5 — Returns engine with Saudi pharmacy rules.
@@ -101,7 +102,7 @@ export class ReturnsService {
     const skus = [...new Set(offerItems.map((o: any) => String(o.sku || '')).filter(Boolean))];
     const master: any = {};
     if (skus.length) {
-      const docs: any[] = await this.conn.collection('medicines_master')
+      const docs: any[] = await this.conn.collection(CATALOG_COLLECTIONS.medicines)
         .find({ $or: [{ sku: { $in: skus } }, { id: { $in: skus } }] } as any).toArray().catch(() => []);
       for (const d of docs) {
         if (d.sku) master[String(d.sku)] = d;

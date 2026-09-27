@@ -7,6 +7,8 @@ set -uo pipefail
 cd "$(dirname "$0")"
 JOURNEYS=(j_accounts j_onboarding j_pharmacy j_lab j_radiology j_nursing j_consultation j_ambulance j_facility j_support j_loyalty)
 fail=0
+# one admin 2FA login per gate run (the login endpoint is rate limited per IP)
+export LIVE_ADMIN_SESSION="$(mktemp)"; rm -f "$LIVE_ADMIN_SESSION"
 python3 gate_p1.py || fail=1
 for j in "${JOURNEYS[@]}"; do
   out=$(timeout 1200 python3 "$j.py" 2>&1)

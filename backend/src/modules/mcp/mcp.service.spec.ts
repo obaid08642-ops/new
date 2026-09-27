@@ -84,7 +84,7 @@ describe('McpService', () => {
 
   const mockConnection = {
     collection: jest.fn().mockImplementation((colName) => {
-      if (colName === 'medicines_master') {
+      if (colName === 'medicines') {
         return {
           findOne: mockMedicinesFindOne,
         };

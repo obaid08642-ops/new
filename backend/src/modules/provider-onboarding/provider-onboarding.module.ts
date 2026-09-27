@@ -1,3 +1,4 @@
+import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 import { Module, Controller, Post, Get, Body, Query, Param, UseGuards, Injectable, BadRequestException, NotFoundException, ForbiddenException, ConflictException } from '@nestjs/common';
 import { isEmail } from 'class-validator';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
@@ -209,7 +210,7 @@ export class ProviderOnboardingService {
     // named from the catalog; the provider's own price is kept.
     if (Array.isArray(body.nursing_services)) {
       const ids = body.nursing_services.map((x: any) => String(x?.key || '')).filter(Boolean);
-      const catalog = ids.length ? await this.providerModel.db.collection('homecareservices')
+      const catalog = ids.length ? await this.providerModel.db.collection(CATALOG_COLLECTIONS.nursing_services)
         .find({ id: { $in: ids }, is_deleted: { $ne: true } }, { projection: { _id: 0, id: 1, name_ar: 1, name_en: 1 } }).toArray() : [];
       const byId = new Map(catalog.map((c: any) => [c.id, c]));
       body.nursing_services = body.nursing_services

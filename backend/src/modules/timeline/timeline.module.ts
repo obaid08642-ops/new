@@ -23,6 +23,7 @@ import { OrderRepository } from "./repositories/order.repository";
 import { PrescriptionRepository } from "./repositories/prescription.repository";
 import { RadiologyBookingRepository } from "./repositories/radiologybooking.repository";
 import { VitalReadingRepository } from "./repositories/vitalreading.repository";
+import { ReportsTimelineController } from './timeline-compat.controller';
 
 @Module({
   imports: [MongooseModule.forFeature([
@@ -38,7 +39,7 @@ import { VitalReadingRepository } from "./repositories/vitalreading.repository";
     { name: 'RadiologyBooking', schema: RadiologyBookingSchema },
     { name: 'MedicalReport', schema: MedicalReportSchema },
   ])],
-  controllers: [TimelineController],
+  controllers: [TimelineController, ReportsTimelineController],
   providers: [TimelineService, { provide: 'AppointmentRepository', useClass: AppointmentRepository }, { provide: 'CustomServiceRequestRepository', useClass: CustomServiceRequestRepository }, { provide: 'HomeCareBookingRepository', useClass: HomeCareBookingRepository }, { provide: 'LabBookingRepository', useClass: LabBookingRepository }, { provide: 'LabResultRepository', useClass: LabResultRepository }, { provide: 'MedicalReportRepository', useClass: MedicalReportRepository }, { provide: 'MedicationReminderRepository', useClass: MedicationReminderRepository }, { provide: 'OrderRepository', useClass: OrderRepository }, { provide: 'PrescriptionRepository', useClass: PrescriptionRepository }, { provide: 'RadiologyBookingRepository', useClass: RadiologyBookingRepository }, { provide: 'VitalReadingRepository', useClass: VitalReadingRepository }],
 })
 export class TimelineModule {}

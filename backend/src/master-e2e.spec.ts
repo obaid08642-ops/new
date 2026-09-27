@@ -3,8 +3,8 @@ import { EntityGraphService } from './modules/entity-graph/entity-graph.service'
 import { LocationService } from './modules/location/location.service';
 import { McpService } from './modules/mcp/mcp.service';
 import { AiCommerceService } from './modules/ai-commerce/ai-commerce.service';
-import { IndexNowService } from './modules/seo/indexnow.service';
-import { AdminGovernanceControlsController } from './modules/admin-enterprise/admin-governance-controls.controller';
+import { IndexNowService } from './modules/seo-search/indexnow.service';
+import { AdminGovernanceControlsController } from './modules/admin/enterprise/admin-governance-controls.controller';
 
 describe('MASTER ADDENDUM — Full End-to-End Architectural Verification', () => {
   // Mock In-Memory Databases & State
@@ -106,7 +106,7 @@ describe('MASTER ADDENDUM — Full End-to-End Architectural Verification', () =>
             find: jest.fn().mockImplementation(() => createQueryChain(mockLocations)),
             countDocuments: jest.fn().mockResolvedValue(mockLocations.length),
           };
-        case 'medicines_master':
+        case 'medicines':
           return {
             find: jest.fn().mockImplementation(() => createQueryChain(mockMedicines)),
             findOne: jest.fn().mockImplementation((filter) => {

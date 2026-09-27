@@ -109,8 +109,8 @@ describe('Gate P3 live: provider-only routes', () => {
 import { CheckoutDto } from '../modules/cart/cart.dto';
 import { RcDto } from '../modules/health/health.dto';
 import { SavePolicyDto } from '../modules/insurance-engine/insurance-engine.dto';
-import { CreateBookingDto } from '../modules/home-care-compat/home-care-compat.dto';
-import { HomeCareCompatController } from '../modules/home-care-compat/home-care-compat.module';
+import { CreateBookingDto } from '../modules/home-care/home-care-compat.dto';
+import { HomeCareCompatController } from '../modules/home-care/home-care-compat.module';
 import mongoose from 'mongoose';
 import { PatientProfileSchema } from '../schemas/patient-profile.schema';
 

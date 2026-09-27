@@ -3,6 +3,7 @@ import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { RedisService } from '../redis/redis.service';
 import { EventBusService } from './event-bus.service';
+import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 
 export type CatalogEntityType = 'medicine' | 'provider' | 'facility' | 'lab_service' | 'radiology_service' | 'home_care_service';
 
@@ -17,12 +18,12 @@ export interface CatalogPublicationInput {
 }
 
 const SOURCE_COLLECTIONS: Record<CatalogEntityType, string> = {
-  medicine: 'medicines_master',
+  medicine: CATALOG_COLLECTIONS.medicines,
   provider: 'provider_profiles',
   facility: 'facilities',
-  lab_service: 'labservices',
-  radiology_service: 'radiologyservices',
-  home_care_service: 'homecareservices',
+  lab_service: CATALOG_COLLECTIONS.lab_services,
+  radiology_service: CATALOG_COLLECTIONS.radiology_services,
+  home_care_service: CATALOG_COLLECTIONS.nursing_services,
 };
 
 /**

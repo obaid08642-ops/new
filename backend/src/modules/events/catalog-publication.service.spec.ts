@@ -17,7 +17,7 @@ describe('CatalogPublicationService', () => {
     const sourceCollection = { findOne: jest.fn().mockResolvedValue(source) };
     const projectionCollection = { updateOne: jest.fn().mockResolvedValue({ acknowledged: true }) };
     const conn = {
-      collection: jest.fn((name: string) => name === 'medicines_master' ? sourceCollection : projectionCollection),
+      collection: jest.fn((name: string) => name === 'medicines' ? sourceCollection : projectionCollection),
     } as any;
     const redis = { del: jest.fn().mockResolvedValue(undefined) } as any;
     const events = { emit: jest.fn().mockResolvedValue({ duplicate: false }) } as any;

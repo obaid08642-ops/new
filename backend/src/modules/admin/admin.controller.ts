@@ -7,8 +7,8 @@ import { randomBytes } from 'crypto';
 import { JwtAuthGuard, Roles, CurrentUser } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { User, UserDocument } from '../../schemas/user.schema';
-import { ProviderDelta } from '../providers/schemas/provider-delta.schema';
-import { CreateSubAdminDto, UpdateSubAdminDto, CreateProviderDto, CleanupOrphansDto, RejectDeltaDto } from './admin.dto';
+import { ProviderDelta } from '../provider/schemas/provider-delta.schema';
+import { CreateSubAdminDto, UpdateSubAdminDto, CreateProviderDto, CleanupOrphansDto } from './admin.dto';
 
 /** Provider roles an admin may create accounts for (never staff/admin roles). */
 const PROVIDER_CREATABLE_ROLES = [
@@ -619,53 +619,5 @@ export class AdminController {
     await user.save();
     try { this.events?.emit('admin.provider_rejected', { admin_id: by?.id, provider_id: user.id || userId, action: 'suspend' }); } catch {}
     return { ok: true, message: 'provider_suspended' };
-  }
-
-  // --- DELTA AUDIT GUARD ENDPOINTS ---
-
-  @Post('provider-deltas')
-  async getPendingDeltas() {
-    const deltas = await this.deltaModel.find({ status: 'pending' }).exec();
-    return deltas;
-  }
-
-  @Post('provider-deltas/:deltaId/approve')
-  async approveDelta(@Param('deltaId') deltaId: string) {
-    const delta = (await this.deltaModel.findById(deltaId).catch(() => null))
-      || (await this.deltaModel.findOne({ id: deltaId }).exec());
-    if (!delta) throw new BadRequestException('delta_not_found');
-
-    delta.status = 'approved';
-    delta.reviewedAt = new Date();
-    await delta.save();
-
-    // Apply the changes to the provider_profiles collection
-    const accountId = delta.account_id || delta.provider_account_id || delta.user_id || delta.providerId;
-    let changes = delta.requested_changes || delta.changes || delta.newData || {};
-    if (changes && typeof changes === 'object' && typeof (changes as any).changes === 'object' && (changes as any).changes) changes = (changes as any).changes;
-    else if (changes && typeof changes === 'object' && typeof (changes as any).newData === 'object' && (changes as any).newData) changes = (changes as any).newData;
-
-    if (accountId && Object.keys(changes).length) {
-      await this.connection.collection('provider_profiles').updateOne(
-        { $or: [{ account_id: accountId }, { user_id: accountId }, { id: accountId }] } as any,
-        { $set: { ...changes, updated_at: new Date() } },
-      );
-    }
-    
-    return { ok: true, message: 'delta_approved' };
-  }
-
-  @Post('provider-deltas/:deltaId/reject')
-  async rejectDelta(@Param('deltaId') deltaId: string, @Body() body: RejectDeltaDto) {
-    const delta = (await this.deltaModel.findById(deltaId).catch(() => null))
-      || (await this.deltaModel.findOne({ id: deltaId }).exec());
-    if (!delta) throw new BadRequestException('delta_not_found');
-
-    delta.status = 'rejected';
-    delta.reviewedAt = new Date();
-    if (body?.reason) delta.rejectionReason = String(body.reason);
-    await delta.save();
-    
-    return { ok: true, message: 'delta_rejected' };
   }
 }

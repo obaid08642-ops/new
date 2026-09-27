@@ -4,6 +4,7 @@ import { Connection } from 'mongoose';
 import { RedisService } from '../redis/redis.service';
 import { EventBusService } from './event-bus.service';
 import { buildSlug } from '../../common/slug.util';
+import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 
 export type PipelineEntityType =
   | 'doctor'
@@ -37,10 +38,10 @@ const COLLECTION_MAP: Record<PipelineEntityType, string> = {
   lab: 'facilities',
   radiology: 'facilities',
   nursing: 'provider_profiles',
-  service: 'homecareservices',
-  lab_test: 'labservices',
-  radiology_service: 'radiologyservices',
-  medicine: 'medicines_master',
+  service: CATALOG_COLLECTIONS.nursing_services,
+  lab_test: CATALOG_COLLECTIONS.lab_services,
+  radiology_service: CATALOG_COLLECTIONS.radiology_services,
+  medicine: CATALOG_COLLECTIONS.medicines,
 };
 
 /** Multilingual health vocabulary terms across Arabic, English, Urdu, Hindi, Tagalog, and Bengali */

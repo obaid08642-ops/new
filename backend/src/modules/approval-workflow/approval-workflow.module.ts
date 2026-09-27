@@ -13,7 +13,7 @@ import { RadiologyService, RadiologyServiceSchema } from '../../schemas/radiolog
 import { HomeCareService, HomeCareServiceSchema } from '../../schemas/home-care.schema';
 import { CatalogPublicationService, CatalogEntityType } from '../events/catalog-publication.service';
 import { MedicinesService } from '../medicines/medicines.service';
-import { PROVIDER_CONFIG_EDITABLE_FIELDS } from '../providers/providers.service';
+import { PROVIDER_CONFIG_EDITABLE_FIELDS } from '../provider/providers.service';
 import { ServiceOwnership, ServiceOwnershipSchema } from '../service-catalog/service-catalog.module';
 import { CreateDto, DecideDto } from './approval-workflow.dto';
 

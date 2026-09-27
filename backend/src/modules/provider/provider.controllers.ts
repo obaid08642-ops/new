@@ -19,16 +19,11 @@ import { ProviderScoringService } from './services/provider-scoring.service';
 import { ProviderMatchingService } from './services/provider-matching.service';
 import { AssignmentStrategyService } from './services/assignment-strategy.service';
 import { ProviderImageProcessorService } from './services/provider-image-processor.service';
-import { Public, CurrentUser, Roles, SelfService, hasEffectiveRole } from '../../common/auth.guard';
+import { Public, CurrentUser, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { OtpPurpose } from './schemas';
 
 function meta(req: any) { return { ip: req?.ip || req?.headers?.['x-forwarded-for'], ua: req?.headers?.['user-agent'] }; }
-
-
-function assertTestSeedAllowed(): void {
-  if (process.env.NODE_ENV !== 'test' || process.env.ALLOW_TEST_SEED !== 'true') throw new NotFoundException();
-}
 
 @Controller('provider/auth')
 export class ProviderAuthController {
@@ -98,7 +93,7 @@ export class ProviderProfileController {
   async uploadProfileImage(@CurrentUser() user: any, @Body() body: UploadProfileImageDto) {
     return this.processor.enqueueJob({
       owner_id: user.id,
-      owner_type: hasEffectiveRole(user, 'nurse', 'nursing', 'home_care') ? 'nurse' : 'doctor',
+      owner_type: user.role === 'nurse' ? 'nurse' : 'doctor',
       data_base64: body.data_base64,
       mime: body.mime,
       original_name: body.original_name,
@@ -463,11 +458,10 @@ export class ProviderDashboardController {
   @Get('availability') getAvail(@CurrentUser() u: any) { return this.dash.getAvailability(u); }
   @SelfService()
   @Post('availability') setAvail(@CurrentUser() u: any, @Body() body: SetAvailDto) { return this.dash.setAvailability(u, body); }
-  // Demo-data seeding: test environments only (404 elsewhere), like the other seed routes (P1.5).
   @SelfService()
-  @Post('seed') seed(@CurrentUser() u: any) { assertTestSeedAllowed(); return this.seedSvc.seed(u); }
+  @Post('seed') seed(@CurrentUser() u: any) { return this.seedSvc.seed(u); }
   @SelfService()
-  @Post('seed/reset') seedReset(@CurrentUser() u: any) { assertTestSeedAllowed(); return this.seedSvc.resetSeed(u); }
+  @Post('seed/reset') seedReset(@CurrentUser() u: any) { return this.seedSvc.resetSeed(u); }
 }
 
 

@@ -21,7 +21,7 @@ export enum NursingBookingState {
 }
 export const HomeCareBookingState = NursingBookingState;
 
-@Schema({ timestamps: true })
+@Schema({ timestamps: true, collection: 'nursing_services' })
 export class HomeCareService extends Document {
   @Prop({ required: true, unique: true, default: () => uuidv4() }) id: string;
   @Prop({ required: true }) name_ar: string;

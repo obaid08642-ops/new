@@ -157,6 +157,10 @@ export class PharmacyOrder extends Document {
     geo?: { lat: number; lng: number }; notes?: string;
   };
   @Prop() patient_notes?: string;
+  @Prop() prescription_id?: string;
+  @Prop({ type: Object }) manual_request?: { name?: string; details?: string | null };
+  @Prop() insurance_policy_id?: string;
+  @Prop() delivery_address_id?: string;
   @Prop({ type: [Object], default: [] }) prescription_attachments?: Array<{
     type: 'image' | 'pdf' | 'voice' | 'text';
     uri?: string; base64?: string; intake_id?: string;

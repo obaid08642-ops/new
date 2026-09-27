@@ -36,6 +36,7 @@ import { v4 as uuid } from 'uuid';
 import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { CreateDtoGen2, CreateDto2Gen2, CreateDto3, CreateDto4, CreateDto5, UploadDto } from './admin-spa.generated.dto';
+import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 
 // These config endpoints intentionally store admin-owned, free-form JSON values.
 class FreeformConfigObjectPipe implements PipeTransform<unknown, Record<string, unknown>> {
@@ -46,6 +47,7 @@ class FreeformConfigObjectPipe implements PipeTransform<unknown, Record<string, 
     return value as Record<string, unknown>;
   }
 }
+
 
 const now = () => new Date();
 const uid = (u: any) => u?.id || u?._id || u?.user_id;
@@ -452,9 +454,9 @@ class AdminServicesController extends AdminController {
   @Get()
   async list() {
     const [labs, rads, home] = await Promise.all([
-      this.conn.collection('labservices').find({ active: { $ne: false } } as any).limit(200).toArray(),
-      this.conn.collection('radiologyservices').find({ active: { $ne: false } } as any).limit(200).toArray(),
-      this.conn.collection('homecareservices').find({ active: { $ne: false } } as any).limit(200).toArray(),
+      this.conn.collection(CATALOG_COLLECTIONS.lab_services).find({ active: { $ne: false } } as any).limit(200).toArray(),
+      this.conn.collection(CATALOG_COLLECTIONS.radiology_services).find({ active: { $ne: false } } as any).limit(200).toArray(),
+      this.conn.collection(CATALOG_COLLECTIONS.nursing_services).find({ active: { $ne: false } } as any).limit(200).toArray(),
     ]);
     const map = (t: string) => (s: any) => ({
       id: s.id || String(s._id), type: t, name_ar: s.name_ar, name_en: s.name_en,
@@ -1100,8 +1102,8 @@ class AdminProviderSubAccountsController extends AdminController {
 class AdminMedicinesController extends AdminController {
   @Post(':id/shortage')
   async shortage(@Param('id') id: string, @CurrentUser() user: any, @Body() body: ShortageDto) {
-    let med: any = await this.conn.collection('medicines_master').findOne(byId(id) as any);
-    let colName = 'medicines_master';
+    let med: any = await this.conn.collection(CATALOG_COLLECTIONS.medicines).findOne(byId(id) as any);
+    let colName = CATALOG_COLLECTIONS.medicines;
     if (!med) {
       med = await this.conn.collection('medicines').findOne(byId(id) as any);
       colName = 'medicines';
@@ -1117,7 +1119,7 @@ class AdminMedicinesController extends AdminController {
   }
 }
 
-/* ── bulk upload (CSV → medicines_master upsert) ─────────────────────────── */
+/* ── bulk upload (CSV → medicines catalog upsert) ─────────────────────────── */
 @Controller('bulk-upload')
 @UseGuards(JwtAuthGuard)
 @Roles(UserRole.ADMIN)
@@ -1153,7 +1155,7 @@ class AdminBulkUploadController extends AdminController {
         stock: Number(r.stock) || 0, status: 'active', updatedAt: now(),
       };
       const key = r.id ? { id: String(r.id) } : { name_ar: nameAr };
-      const res = await this.conn.collection('medicines_master').updateOne(
+      const res = await this.conn.collection(CATALOG_COLLECTIONS.medicines).updateOne(
         key as any,
         { $set: doc, $setOnInsert: { id: r.id ? String(r.id) : uuid(), createdAt: now(), created_by: uid(user) } },
         { upsert: true },

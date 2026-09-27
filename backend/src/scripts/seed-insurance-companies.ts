@@ -4,6 +4,7 @@
  */
 import mongoose from 'mongoose';
 import { v4 as uuid } from 'uuid';
+import { CATALOG_COLLECTIONS } from '../modules/catalogs/catalog-collections';
 
 const COMPANIES = [
   { code: 'bupa', name_ar: 'بوبا العربية', name_en: 'Bupa Arabia' },
@@ -22,7 +23,7 @@ async function main() {
   const { MONGO_URL, DB_NAME } = process.env;
   if (!MONGO_URL) { console.error('MONGO_URL is required'); process.exit(1); }
   await mongoose.connect(MONGO_URL, { dbName: DB_NAME || 'nabd' });
-  const col = mongoose.connection.collection('insurancecompanies');
+  const col = mongoose.connection.collection(CATALOG_COLLECTIONS.insurance_companies);
 
   let inserted = 0;
   for (const c of COMPANIES) {

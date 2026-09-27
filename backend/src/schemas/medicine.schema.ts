@@ -3,7 +3,7 @@ import { Document } from 'mongoose';
 import { v4 as uuid } from 'uuid';
 import { buildSlug } from '../common/slug.util';
 
-@Schema({ timestamps: true, collection: 'medicines_master' })
+@Schema({ timestamps: true, collection: 'medicines' })
 export class Medicine {
   // Written by the services but previously undeclared: strict mode silently dropped these (tools/audit/schemadrift.js).
   @Prop() deleted_at?: Date;

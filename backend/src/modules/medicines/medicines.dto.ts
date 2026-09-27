@@ -42,6 +42,9 @@ export class SuggestNewItemDto {
   @IsString()
   note?: string;
 
+  @IsOptional()
+  @IsString()
+  image?: string;
 }
 
 /**

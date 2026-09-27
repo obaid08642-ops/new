@@ -16,7 +16,7 @@ import { HomeCareBookingSchema, HomeCareBooking } from '../../schemas/home-care.
 import { Appointment, AppointmentSchema } from '../../schemas/appointment.schema';
 import { ProviderProfile, ProviderProfileSchema } from '../../schemas/provider-profile.schema';
 import { User, UserSchema } from '../../schemas/user.schema';
-import { BookingAttachmentSchema } from '../booking-ops/booking-ops.module';
+import { BookingAttachmentSchema } from '../unified-bookings/booking-ops.module';
 import { ServiceState, ServiceDomain, UserRole } from '../../common/enums';
 import { toUniversal, domainStatesFor, WorkflowEngineService, WorkflowEngineModule } from '../workflow-engine/workflow-engine.module';
 import { AcceptDto, RejectDto, StartDto, CompleteDto, InsuranceDto } from './provider-jobs.dto';

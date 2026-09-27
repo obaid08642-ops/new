@@ -194,3 +194,11 @@ Status: `open` means the agent does it; `done` means the reviewer verified it li
   - The pages must show those states instead of an error. Check this in the render test (task #4).
 - *(Reviewer already fixed:)* the admin BFF sent `PUT /legal/policy/:key` to the public controller (404), so legal policies could not be edited. Legal edits and diffs now go to `/api/v1/admin/legal/*`.
 - On a fresh database there are no legal policies (`/legal/policies` = []). The admin must publish privacy/terms before launch (added to the deploy brief).
+
+### LJ-10: Website render test: small UX gaps
+- **Status:** open
+- **Live check:** `tools/live/web_render.mjs` over all 227 static patient-web pages as a logged-in patient.
+  - Every page answers 200, with no JS errors and no 5xx.
+- **Remaining:** `/family/chat` for a patient with no family group calls `/family/chat/messages` and receives 403. The page must show the "create or join a family" state instead of an error.
+- *(Reviewer already fixed:)* `/map` was blocked by the web BFF allow-list (`/providers/map` 404). It is now allowed as a read-only request.
+- **Note:** `POST /api/auth/heartbeat` returned 404 on every page of the `main` build. The agent's P6 commit `e3afb28` adds that proxy; verify it when P6 is reviewed.

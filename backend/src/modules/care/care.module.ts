@@ -20,6 +20,7 @@ import { FacilityRepository } from "./repositories/facility.repository";
 import { ProviderProfileRepository } from "./repositories/providerprofile.repository";
 import { UserRepository } from "./repositories/user.repository";
 import { SlotLocksModule } from "../slot-locks/slot-locks.module";
+import { ConsultationsCompatController } from './care-compat.controller';
 
 @Module({
   imports: [
@@ -36,7 +37,7 @@ import { SlotLocksModule } from "../slot-locks/slot-locks.module";
       { name: LeaveRequest.name, schema: LeaveRequestSchema },
     ]),
   ],
-  controllers: [CareController, PublicSpecialtiesController, AppointmentsController, AdminAppointmentsController, DoctorReferralsController],
+  controllers: [CareController, PublicSpecialtiesController, AppointmentsController, AdminAppointmentsController, DoctorReferralsController, ConsultationsCompatController],
   providers: [CareService, AppointmentsService, SlotService, { provide: 'AppointmentRepository', useClass: AppointmentRepository }, { provide: 'FacilityRepository', useClass: FacilityRepository }, { provide: 'ProviderProfileRepository', useClass: ProviderProfileRepository }, { provide: 'UserRepository', useClass: UserRepository }],
   exports: [CareService, AppointmentsService, SlotService],
 })

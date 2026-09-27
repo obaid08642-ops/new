@@ -205,6 +205,7 @@ export class ScheduleSettingsDto {
   @IsOptional() @IsBoolean() emergencyReady?: boolean;
 }
 
+
 export class EndConsultationDto {
   @IsOptional()
   @IsString()

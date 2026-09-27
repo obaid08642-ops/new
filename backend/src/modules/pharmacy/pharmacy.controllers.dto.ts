@@ -19,6 +19,16 @@ export class DeliveryAddressDto {
   @IsOptional() @ValidateNested() @Type(() => GeoPointDto) geo?: GeoPointDto;
 }
 
+export class ManualRequestDto {
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @IsOptional()
+  @IsString()
+  details?: string;
+}
+
 export class CreateDto {
   @IsOptional()
   @IsArray()
@@ -38,6 +48,26 @@ export class CreateDto {
   @IsArray()
   prescription_attachments?: unknown[];
 
+  @IsOptional()
+  @IsString()
+  prescription_id?: string;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => ManualRequestDto)
+  manual_request?: ManualRequestDto;
+
+  @IsOptional()
+  @IsString()
+  payment_method?: string;
+
+  @IsOptional()
+  @IsString()
+  insurance_policy_id?: string;
+
+  @IsOptional()
+  @IsString()
+  delivery_address_id?: string;
 
 }
 

@@ -7,8 +7,8 @@ import { ChatService } from '../../src/modules/chat/chat.service';
 import { AiController } from '../../src/modules/ai/ai.controller';
 import { AiService } from '../../src/modules/ai/ai.service';
 import { AiGatewayService } from '../../src/modules/ai/ai-gateway.service';
-import { AdminFinanceSuiteController } from '../../src/modules/admin-enterprise/admin-finance.controller';
-import { FinanceSuiteService } from '../../src/modules/admin-enterprise/finance-suite.service';
+import { AdminFinanceSuiteController } from '../../src/modules/admin/enterprise/admin-finance.controller';
+import { FinanceSuiteService } from '../../src/modules/admin/enterprise/finance-suite.service';
 import { buildSecurityApp, tokenFor } from './harness';
 import request from 'supertest';
 

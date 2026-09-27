@@ -8,6 +8,7 @@ import { Connection } from 'mongoose';
 import { JwtAuthGuard, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { RedisService } from '../redis/redis.service';
+import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 
 @Controller('admin/health-dashboard')
 @UseGuards(JwtAuthGuard)
@@ -70,7 +71,7 @@ export class HealthDashboardController {
       this.conn.collection('carts').countDocuments({}),
       this.conn.collection('system_events').find({ type: /error|failed/i }).sort({ createdAt: -1 }).limit(10).project({ _id: 0, type: 1, createdAt: 1, meta: 1 }).toArray().catch(() => []),
       db.stats().catch(() => null),
-      this.conn.collection('medicines_master').countDocuments({}),
+      this.conn.collection(CATALOG_COLLECTIONS.medicines).countDocuments({}),
       this.conn.collection('pharmacy_shortage_reports').countDocuments({ status: 'pending' }),
       this.conn.collection('medicine_image_suggestions').countDocuments({ status: 'pending' }),
     ]);

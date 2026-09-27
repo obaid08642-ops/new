@@ -5,7 +5,6 @@ import { LiveKitModule } from './modules/livekit/livekit.module';
 import { CoturnModule } from './modules/coturn/coturn.module';
 import { RedisModule } from './modules/redis/redis.module';
 import { MailModule } from './modules/mail/mail.module';
-import { AdminNotificationCenterModule } from './modules/admin-notification-center/admin-notification-center.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { ApiSecurityModule } from './modules/api-security/api-security.module';
 import { DeviceTrustModule } from './modules/device-trust/device-trust.module';
@@ -22,7 +21,6 @@ import { PresenceModule } from './modules/presence/presence.module';
 import { OpsModule } from './modules/ops/ops.module';
 import { FeatureFlagsModule } from './modules/feature-flags/feature-flags.module';
 import { MediaModule } from './modules/media/media.module';
-import { NotificationModule } from './modules/notification/notification.module';
 import { MoyasarModule } from './modules/moyasar/moyasar.module';
 import { FinanceEngineModule } from './modules/finance-engine/finance-engine.module';
 import { ConfigModule } from '@nestjs/config';
@@ -44,10 +42,8 @@ import { I18nCoreModule } from './modules/i18n/i18n.module';
 import { AiModule } from './modules/ai/ai.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { EventsModule } from './modules/events/events.module';
-import { ProvidersModule } from './modules/providers/providers.module';
 import { SeedModule } from './modules/seed/seed.module';
 import { DriversModule } from './modules/drivers/drivers.module';
-import { PharmacyOpsModule } from './modules/pharmacy_ops/pharmacy_ops.module';
 import { CareModule } from './modules/care/care.module';
 import { LabsModule } from './modules/labs/labs.module';
 import { HomeCareModule } from './modules/home-care/home-care.module';
@@ -57,7 +53,6 @@ import { SupportModule } from './modules/support/support.module';
 import { CustomServicesModule } from './modules/custom-services/custom-services.module';
 import { MedicalProfileModule } from './modules/medical-profile/medical-profile.module';
 import { TimelineModule } from './modules/timeline/timeline.module';
-import { SeoModule } from './modules/seo/seo.module';
 import { RadiologyModule } from './modules/radiology/radiology.module';
 import { MedicalReportsModule } from './modules/medical-reports/medical-reports.module';
 import { ProviderModule } from './modules/provider/provider.module';
@@ -65,7 +60,6 @@ import { PharmacyModule } from './modules/pharmacy/pharmacy.module';
 import { StorageModule } from './modules/storage/storage.module';
 import { ServiceCatalogModule } from './modules/service-catalog/service-catalog.module';
 import { CartModule } from './modules/cart/cart.module';
-import { AdminAuthorityModule } from './modules/admin-authority/admin-authority.module';
 
 function bullRedisConnection() {
   const configuredUrl = process.env.REDIS_URL ? new URL(process.env.REDIS_URL) : undefined;
@@ -78,19 +72,14 @@ function bullRedisConnection() {
 }
 import { ProviderOnboardingModule } from './modules/provider-onboarding/provider-onboarding.module';
 import { UnifiedBookingsModule } from './modules/unified-bookings/unified-bookings.module';
-import { AdminGovernanceModule } from './modules/admin-governance/admin-governance.module';
 import { WorkflowEngineModule } from './modules/workflow-engine/workflow-engine.module';
-import { BookingFlowModule } from './modules/booking-flow/booking-flow.module';
 import { ProviderJobsModule } from './modules/provider-jobs/provider-jobs.module';
-import { AdminCommandCenterModule } from './modules/admin-command-center/admin-command-center.module';
 import { BusinessRulesModule } from './modules/business-rules/business-rules.module';
 import { BansModule } from './modules/bans/bans.module';
 import { BansMiddleware } from './modules/bans/bans.middleware';
 import { ConsistencyModule } from './modules/consistency/consistency.module';
 import { EventReliabilityModule } from './modules/event-reliability/event-reliability.module';
 import { OperationsSafetyModule } from './modules/operations-safety/operations-safety.module';
-import { LegacyModule } from './modules/legacy/legacy.module';
-import { BookingOpsModule } from './modules/booking-ops/booking-ops.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { SlotLocksModule } from './modules/slot-locks/slot-locks.module';
 import { PushModule } from './modules/push/push.module';
@@ -114,7 +103,6 @@ import { FacilityOpsModule } from './modules/facility-ops/facility-ops.module';
 import { ProviderProductionModule } from './modules/provider-production/provider-production.module';
 import { ImpersonationSessionService } from './common/impersonation-session.service';
 import { CommonModule } from './common/common.module';
-import { AdminEnterpriseModule } from './modules/admin-enterprise/admin-enterprise.module';
 import { HealthController } from './health.controller';
 import { HealthDashboardController } from './modules/health/health-dashboard.controller';
 import { JwtAuthGuard } from './common/auth.guard';
@@ -131,10 +119,8 @@ import { WalletModule } from './modules/wallet/wallet.module';
 import { ReturnsModule } from './modules/returns/returns.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { HospitalModule } from './modules/hospital/hospital.module';
-import { AdminWebCoreModule } from './modules/admin-web-core/admin-web-core.module';
 import { HomeModule } from './modules/home/home.module';
 import { SystemHealthModule } from './modules/system-health/system-health.module';
-import { HomeCareCompatModule } from './modules/home-care-compat/home-care-compat.module';
 import { CompatModule } from './modules/compat/compat.module';
 import { AdminSpaModule } from './modules/compat/admin-spa.module';
 import { CatalogsModule } from './modules/catalogs/catalogs.module';
@@ -158,7 +144,6 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     CoturnModule,
     RedisModule,
     MailModule,
-    AdminNotificationCenterModule,
     AnalyticsModule,
     ApiSecurityModule,
     DeviceTrustModule,
@@ -174,7 +159,6 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     OpsModule,
     FeatureFlagsModule,
     MediaModule,
-    NotificationModule,
     ConfigModule.forRoot({ isGlobal: true, validate: validateEnvironment }),
     MongooseModule.forRootAsync({
       useFactory: () => ({
@@ -205,7 +189,6 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     AuthModule,
     UsersModule,
     MedicinesModule,
-    ProvidersModule,
     PrescriptionsModule,
     OrdersModule,
     EmergencyModule,
@@ -215,7 +198,6 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     RealtimeModule,
     SeedModule,
     DriversModule,
-    PharmacyOpsModule,
     CareModule,
     DoctorsModule,
     LabsModule,
@@ -226,7 +208,6 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     CustomServicesModule,
     MedicalProfileModule,
     TimelineModule,
-    SeoModule,
     RadiologyModule,
     MedicalReportsModule,
     StorageModule,
@@ -235,20 +216,14 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     ServiceCatalogModule,
     CartModule,
     ProductRankingModule,
-    AdminAuthorityModule,
     ProviderOnboardingModule,
     UnifiedBookingsModule,
-    AdminGovernanceModule,
     WorkflowEngineModule,
-    BookingFlowModule,
     ProviderJobsModule,
-    AdminCommandCenterModule,
     BusinessRulesModule,
     ConsistencyModule,
     EventReliabilityModule,
     OperationsSafetyModule,
-    LegacyModule,
-    BookingOpsModule,
     PaymentsModule,
     MoyasarModule,
     FinanceEngineModule,
@@ -272,7 +247,6 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     ReferralModule,
     FacilityOpsModule,
     ProviderProductionModule,
-    AdminEnterpriseModule,
     MaternityModule,
     NabdExtensionsModule,
     NutritionModule,
@@ -280,13 +254,11 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     WalletModule,
     ReturnsModule,
     BansModule,
-    HomeCareCompatModule,
     HomeCareModule,
     BillingModule,
     ArticlesModule,
     InsuranceEngineModule,
     AdminModule,
-    AdminWebCoreModule,
     CompatModule, // gap-fill endpoints from the screen↔API wiring audit — registered last
     AdminSpaModule, // admin console SPA REST surface (top-level paths, admin-role guarded)
     CatalogsModule, // unified central catalogs (insurance/labs/radiology/nursing) — single source
