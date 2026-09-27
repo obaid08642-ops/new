@@ -1,7 +1,45 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { io } from 'socket.io-client';
+import { AppointmentStatus } from '../../../types/contracts';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet,
+ Animated, FlatList, Alert, Dimensions, Platform, Modal, TextInput,
+ RefreshControl, Switch, ActivityIndicator, KeyboardAvoidingView, Linking } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTheme, useLang, useAuth, useToast } from '../../../context';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { Audio } from 'expo-av';
+import {
+ NBtn, NCard, NInput, NStatCard, NAvatar, NBadge,
+ NHeader, NScroll, NSheet, NSearch, NToggle, NSettingsRow,
+ NSecHeader, NConfirm, NEmpty, NSkeleton, NOnlineToggle,
+ NBottomNav, NDivider, NPriceInput, NProfileImageUploader
+} from '../../../components/ui';
+import { I, IBg } from '../../../components/icons';
+import { SP, R, FS, FW, API_BASE } from '../../../constants';
+import { buildHeaders, Vault, SK } from '../../../security/Security';
+import client from '../../../api/client';
+import { useServicesCatalog, getInsuranceCatalog, useSpecialtiesCatalog } from '../../../api/catalogs';
+import { VideoCallRoom } from '../../shared/VideoCallRoom';
+import { InsuranceRequestsScreen } from '../../shared/InsuranceRequestsScreen';
+import { WithdrawalWorkflow, MedicalJobsScreen, MedicalDrugIndexScreen, InsuranceConfigScreen, GlobalSystemSettings, ChatSystem, MediaConfigScreen } from '../../shared/SharedScreens';
+import { DoctorStatsRow } from '../components/DoctorStatsRow';
+import { DoctorUrgentRequests } from '../components/DoctorUrgentRequests';
+import { DoctorQueueList } from '../components/DoctorQueueList';
+import { FacilityInvitationsScreen } from '../FacilityInvitationsScreen';
+import {
+ PromotionsDashboard, CreateCampaignScreen, ProfileWebConfig,
+ SubscriptionsAdsScreen, AffiliatePortal, ReputationHub,
+ LiveOrderAlarmModal, CrmHub, RevenueInsights, AiMedicalCopilot,
+ SmartOutboundReferralNetwork, SosDispatchScreen, GpsRouterScreen
+} from '../../shared/BlueprintScreens';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { tokens } from '../../../theme/tokens';
+import { DoctorServiceSlotsCard } from './StatisticsScreen';
+
+import { DoctorProfileEditScreen } from './DoctorProfileEditScreen';
 
 export function AvailabilityExceptions({ ctx }: any) {
-  const { theme, AR, exceptions, showAddException, setShowAddException, exStart, setExStart, exEnd, setExEnd, handleAddException, handleDeleteException } = ctx;
+  const { theme, AR, exceptions, showAddException, setShowAddException, exStart, setExStart, exEnd, setExEnd, handleAddException, handleDeleteException, exDate, exType, setExDate, setExType } = ctx;
   return (
     <>
      {/* Exceptional Settings */}
@@ -31,7 +69,6 @@ export function AvailabilityExceptions({ ctx }: any) {
      </View>
      </NCard>
      ))}
-     </ScrollView>
 
      {/* Exception Sheet */}
      <NSheet visible={showAddException} onClose={() => setShowAddException(false)} title={AR ? ' إضافة قاعدة استثنائية' : ' Add Exceptional Rule'} height={500}>

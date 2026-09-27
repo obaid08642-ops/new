@@ -372,6 +372,7 @@ export function DoctorAvailabilityScreen({ onBack, onNavigate }: { onBack: () =>
  <DoctorServiceSlotsCard />
 
       <AvailabilityExceptions ctx={ctx} />
+      </ScrollView>
 
  </View>
  );
