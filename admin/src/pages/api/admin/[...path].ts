@@ -87,7 +87,9 @@ function apiPath(req: NextApiRequest) {
   // Notification template admin routes live on the public notifications controller.
   if (decoded[0] === 'notifications' && decoded[1] === 'admin') upstreamPath = `/api/v1/notifications/admin/${decoded.slice(2).map(encodeURIComponent).join('/')}`;
   // Pricing/surge admin routes live on the public business-rules controller.
-  if (decoded[0] === 'business-rules') upstreamPath = `/api/v1/business-rules/${decoded.slice(1).map(encodeURIComponent).join('/')}`;  if (decoded[0] === 'loyalty') upstreamPath = `/api/v1/loyalty/${decoded.slice(1).map(encodeURIComponent).join('/')}`;
+  if (decoded[0] === 'business-rules') upstreamPath = `/api/v1/business-rules/${decoded.slice(1).map(encodeURIComponent).join('/')}`;
+  // Reference-specialty admin routes live on the public catalogs controller.
+  if (decoded[0] === 'catalogs' && decoded[1] === 'admin') upstreamPath = `/api/v1/catalogs/admin/${decoded.slice(2).map(encodeURIComponent).join('/')}`;  if (decoded[0] === 'loyalty') upstreamPath = `/api/v1/loyalty/${decoded.slice(1).map(encodeURIComponent).join('/')}`;
   if (decoded[0] === 'chat' || decoded[0] === 'chats') upstreamPath = `/api/v1/${decoded[0]}/${decoded.slice(1).map(encodeURIComponent).join('/')}`;
   if (decoded[0] === 'auth') upstreamPath = `/api/v1/auth/${decoded.slice(1).map(encodeURIComponent).join('/')}`;
   if (decoded[0] === 'support-session') upstreamPath = `/api/v1/support-session/${decoded.slice(1).map(encodeURIComponent).join('/')}`;

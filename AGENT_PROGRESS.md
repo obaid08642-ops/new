@@ -197,3 +197,6 @@ Format: task | commit sha | verify result | notes
 
 ## [P6.x-4b] Coverage rule (copay) editor UI (2026-09-26)
 - Backend rule CRUD per network already existed (`networks/:id/rules`, validated DTO). Added the missing admin UI: per-tier expandable copay rules (service/service_key/percent/cap/preauth) with list + create on the insurance-companies page.
+
+## [P6.x-2b] Specialties admin CRUD (2026-09-26)
+- Reference specialties were seed-only. Backend `catalogs/admin/specialties` (list incl. inactive, upsert with slugified code, soft-delete) + catalog-manager specialties tab + BFF mapping. Public list already hides inactive. Tests 2/2. tsc 0.

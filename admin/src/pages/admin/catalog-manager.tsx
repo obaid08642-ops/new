@@ -11,13 +11,14 @@ import { apiFetch } from '../../utils/api';
  *           Radiology DTO requires { name_ar, name_en, modality, price } — category alias handled below.
  */
 
-type TabKey = 'labs' | 'packages' | 'radiology' | 'nursing';
+type TabKey = 'labs' | 'packages' | 'radiology' | 'nursing' | 'specialties';
 
 const TABS: { key: TabKey; label: string; listUrl: string; adminBase: string; serverSearch: boolean }[] = [
   { key: 'labs', label: 'التحاليل', listUrl: '/labs/services', adminBase: '/labs/admin/catalog', serverSearch: true },
   { key: 'packages', label: 'الباقات', listUrl: '/labs/packages', adminBase: '/labs/admin/catalog', serverSearch: false },
   { key: 'radiology', label: 'الأشعة', listUrl: '/radiology/services', adminBase: '/radiology/admin/catalog', serverSearch: true },
   { key: 'nursing', label: 'التمريض المنزلي', listUrl: '/nursing/catalog', adminBase: '/nursing/admin/catalog', serverSearch: false },
+  { key: 'specialties', label: 'التخصصات', listUrl: '/catalogs/specialties', adminBase: '/catalogs/admin/specialties', serverSearch: false },
 ];
 
 const EDITABLE_FIELDS: { key: string; label: string; type: 'text' | 'number' | 'textarea' | 'checkbox' }[] = [
@@ -180,6 +181,32 @@ export default function CatalogManagerPage() {
     });
   };
 
+  // P6.x-2: reference specialties (name/sort/active only — no price/review flow).
+  const [specNameAr, setSpecNameAr] = useState('');
+  const [specNameEn, setSpecNameEn] = useState('');
+
+  const saveSpecialty = async () => {
+    if (!specNameAr.trim()) return;
+    try {
+      await apiFetch(tabCfg.adminBase, { method: 'POST', body: JSON.stringify({ name_ar: specNameAr.trim(), name_en: specNameEn.trim() || undefined }) });
+      setSpecNameAr(''); setSpecNameEn('');
+      setMsg('تم حفظ التخصص');
+      await load();
+    } catch (e: any) {
+      setMsg(`فشل الحفظ: ${e.message}`);
+    }
+  };
+
+  const removeSpecialty = async (code: string) => {
+    if (!confirm('تعطيل هذا التخصص؟')) return;
+    try {
+      await apiFetch(`${tabCfg.adminBase}/${encodeURIComponent(code)}`, { method: 'DELETE' });
+      await load();
+    } catch (e: any) {
+      setMsg(`فشل التعطيل: ${e.message}`);
+    }
+  };
+
   return (
     <div dir="rtl" style={{ padding: 24, maxWidth: 1200, margin: '0 auto', fontFamily: 'Cairo, sans-serif' }}>
       <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 4 }}>إدارة كتالوج الخدمات</h1>
@@ -194,9 +221,11 @@ export default function CatalogManagerPage() {
           </button>
         ))}
         <div style={{ flex: 1 }} />
+        {tab !== 'specialties' && (
         <button onClick={() => setEditing({ active: true, ...(tab === 'nursing' ? { duration: 'hour', category: 'nursing' } : {}), ...(tab === 'radiology' ? { modality: '', body_part: '' } : {}) })} style={{ padding: '8px 18px', borderRadius: 12, border: 'none', cursor: 'pointer', fontWeight: 700, background: '#0F172A', color: '#fff' }}>
           + إضافة صنف جديد
         </button>
+        )}
       </div>
 
       <input value={search} onChange={(e) => onSearch(e.target.value)} placeholder={tabCfg.serverSearch ? 'بحث خادمي بالاسم أو الكود…' : 'بحث بالاسم أو الكود أو الفئة…'}
@@ -215,6 +244,27 @@ export default function CatalogManagerPage() {
 
       {msg && <div style={{ padding: 12, borderRadius: 12, background: '#F0FDF4', color: '#166534', marginBottom: 12, fontWeight: 600 }}>{msg}</div>}
       {loading && <p>جارٍ التحميل…</p>}
+      {tab === 'specialties' ? (
+        <div className="rounded-2xl border bg-white p-6 shadow-sm">
+          <h2 className="text-xl font-bold mb-1">التخصصات المرجعية</h2>
+          <p className="text-sm text-slate-500 mb-4">تظهر في البحث والفلاتر — التعطيل يخفيها من القائمة العامة.</p>
+          <div className="flex gap-2 flex-wrap mb-4">
+            <input value={specNameAr} onChange={(e) => setSpecNameAr(e.target.value)} placeholder="الاسم (عربي)" className="border rounded px-3 py-2 text-sm flex-1 min-w-[200px]" />
+            <input value={specNameEn} onChange={(e) => setSpecNameEn(e.target.value)} placeholder="Name (en)" dir="ltr" className="border rounded px-3 py-2 text-sm flex-1 min-w-[200px]" />
+            <button onClick={() => void saveSpecialty()} className="px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-bold">حفظ التخصص</button>
+          </div>
+          <div className="divide-y">
+            {filtered.map((item: any) => (
+              <div key={item.code || item.id} className="py-2 flex items-center justify-between gap-3">
+                <div><strong>{item.name_ar}</strong> <span className="text-xs text-slate-500" dir="ltr">{item.name_en} · {item.code}</span></div>
+                <button onClick={() => void removeSpecialty(item.code || item.id)} className="text-red-600 text-xs font-bold border border-red-200 rounded px-3 py-1">تعطيل</button>
+              </div>
+            ))}
+            {filtered.length === 0 && <p className="text-slate-400 text-sm py-4 text-center">لا توجد تخصصات.</p>}
+          </div>
+        </div>
+      ) : (
+      <>
 
       {selected.size > 0 && (
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 12, padding: 10, borderRadius: 12, background: '#EFF6FF', border: '1px solid #BFDBFE' }}>
@@ -248,6 +298,7 @@ export default function CatalogManagerPage() {
         ))}
       </div>
       {!loading && filtered.length === 0 && <p style={{ color: '#94A3B8', textAlign: 'center', marginTop: 40 }}>لا توجد أصناف مطابقة.</p>}
+      </>)}
 
       {editing && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}
