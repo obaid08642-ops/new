@@ -283,8 +283,8 @@ export function WelcomeScreen({
  <View style={{ flexDirection: 'row', justifyContent: 'center', gap: SP.xl, marginTop: SP.lg }}>
  {[
  { icon: 'lock', color: theme.primary, ar: 'تشفير آمن', en: 'Secure Encryption' },
- { icon: 'shield', color: 'tokens.success', ar: 'معتمد MOH', en: 'MOH Certified' },
- { icon: 'check', color: 'tokens.mintDeep', ar: 'سعودي 100%', en: '100% Saudi' },
+ { icon: 'shield', color: tokens.success, ar: 'معتمد MOH', en: 'MOH Certified' },
+ { icon: 'check', color: tokens.mintDeep, ar: 'سعودي 100%', en: '100% Saudi' },
  ].map((b, i) => (
  <View key={i} style={{ alignItems: 'center', gap: 4 }}>
  <I name={b.icon as any} size={20} color={b.color} />

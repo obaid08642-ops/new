@@ -124,17 +124,17 @@ export const ProviderHome = ({ onLogout }: { onLogout?: () => void }) => {
             <Text style={[styles.statLbl, { color: theme.textSub }]}>{AR ? 'الطلبات النشطة' : 'Active Orders'}</Text>
           </NCard>
           <NCard style={styles.statBox}>
-            <I name="check" size={24} color="tokens.success" />
+            <I name="check" size={24} color={tokens.success} />
             <Text style={[styles.statVal, { color: theme.text }]}>{stats.completed_today || 0}</Text>
             <Text style={[styles.statLbl, { color: theme.textSub }]}>{AR ? 'المكتملة اليوم' : 'Completed Today'}</Text>
           </NCard>
           <NCard style={styles.statBox}>
-            <I name="credit-card" size={24} color="tokens.warning" />
+            <I name="credit-card" size={24} color={tokens.warning} />
             <Text style={[styles.statVal, { color: theme.text }]}>{stats.wallet_balance || 0} {AR ? 'ر.س' : 'SAR'}</Text>
             <Text style={[styles.statLbl, { color: theme.textSub }]}>{AR ? 'رصيد المحفظة' : 'Balance'}</Text>
           </NCard>
           <NCard style={styles.statBox}>
-            <I name="star" size={24} color="tokens.warning" />
+            <I name="star" size={24} color={tokens.warning} />
             <Text style={[styles.statVal, { color: theme.text }]}>{stats.rating || 5.0}</Text>
             <Text style={[styles.statLbl, { color: theme.textSub }]}>{AR ? 'التقييم العام' : 'Rating'}</Text>
           </NCard>

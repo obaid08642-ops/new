@@ -382,10 +382,10 @@ function FacilityHomeTab({ onNavigate, wards, onTriggerAlarm, branches, selected
  const aptsToday = todayStats?.todayCount ?? todayApts.length;
  const revenue = todayStats?.revenue;
  return (<>
- <NStatCard icon="calendar" label={AR ? 'مواعيد اليوم' : "Today's Apts"} value={String(aptsToday)} color="tokens.info" style={{ width: '47%' }} />
- <NStatCard icon="bed" label={AR ? 'أسرّة مشغولة' : 'Occupied Beds'} value={totalBeds > 0 ? `${occupied}/${totalBeds}` : '—'} color="tokens.warning" style={{ width: '47%' }} />
- <NStatCard icon="money" label={AR ? 'إيرادات اليوم' : "Today's Rev."} value={typeof revenue === 'number' ? revenue.toLocaleString() : '—'} unit={AR?'ر':'SAR'} color="tokens.success" style={{ width: '47%' }} />
- <NStatCard icon="users" label={AR ? 'الكوادر النشطة' : 'Active Staff'} value={String(activeStaff)} color="tokens.purple" style={{ width: '47%' }} />
+ <NStatCard icon="calendar" label={AR ? 'مواعيد اليوم' : "Today's Apts"} value={String(aptsToday)} color={tokens.info} style={{ width: '47%' }} />
+ <NStatCard icon="bed" label={AR ? 'أسرّة مشغولة' : 'Occupied Beds'} value={totalBeds > 0 ? `${occupied}/${totalBeds}` : '—'} color={tokens.warning} style={{ width: '47%' }} />
+ <NStatCard icon="money" label={AR ? 'إيرادات اليوم' : "Today's Rev."} value={typeof revenue === 'number' ? revenue.toLocaleString() : '—'} unit={AR?'ر':'SAR'} color={tokens.success} style={{ width: '47%' }} />
+ <NStatCard icon="users" label={AR ? 'الكوادر النشطة' : 'Active Staff'} value={String(activeStaff)} color={tokens.purple} style={{ width: '47%' }} />
  </>);
  })()}
  </View>
@@ -481,7 +481,7 @@ function FacilityHomeTab({ onNavigate, wards, onTriggerAlarm, branches, selected
  const available = ward.available_beds || 0;
  const occupied = total - available;
  const pct = total > 0 ? occupied / total : 0;
- const color = available === 0 ? 'tokens.error' : available <= 2 ? 'tokens.warning' : 'tokens.success';
+ const color = available === 0 ? tokens.error : available <= 2 ? tokens.warning : tokens.success;
  return (
  <NCard key={ward.id || i} style={{ width: 120, padding: SP.lg }}>
  <Text style={{ fontSize: FS.xs, color: theme.textSub, marginBottom: SP.xs,
@@ -575,11 +575,11 @@ function SubAccountsScreen({ onBack, onNavigate }: {
  const [loading, setLoading] = useState(false);
 
  const ROLE_LABELS: Record<string, { ar: string; en: string; icon: string; color: string }> = {
- doctor: { ar: 'طبيب', en: 'Doctor', icon: '', color: 'tokens.success' },
- insurance: { ar: 'منسق تأمين', en: 'Ins. Coord.', icon: '', color: 'tokens.info' },
- reception: { ar:'استقبال', en:'Reception', icon:'', color:'tokens.warning' },
- nurse: { ar: 'ممرض/ممرضة', en: 'Nurse', icon: '', color: 'tokens.pink' },
- lab: { ar: 'محلل مختبر', en: 'Lab Tech', icon: '', color: 'tokens.purple' },
+ doctor: { ar: 'طبيب', en: 'Doctor', icon: '', color: tokens.success },
+ insurance: { ar: 'منسق تأمين', en: 'Ins. Coord.', icon: '', color: tokens.info },
+ reception: { ar:'استقبال', en:'Reception', icon:'', color:tokens.warning },
+ nurse: { ar: 'ممرض/ممرضة', en: 'Nurse', icon: '', color: tokens.pink },
+ lab: { ar: 'محلل مختبر', en: 'Lab Tech', icon: '', color: tokens.purple },
  };
 
  const fetchStaff = async () => {
@@ -665,9 +665,9 @@ function SubAccountsScreen({ onBack, onNavigate }: {
 
  {/* Stats row */}
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginBottom: SP.xl }}>
- <NStatCard icon="users" label={AR?'إجمالي الكوادر':'Total Staff'} value={String(staffList.length)} color="tokens.info" style={{ flex:1 }} />
- <NStatCard icon="check" label={AR?'نشط':'Active'} value={String(staffList.filter(s=>s.status==='active').length)} color="tokens.success" style={{ flex:1 }} />
- <NStatCard icon="close" label={AR?'غير نشط':'Inactive'} value={String(staffList.filter(s=>s.status!=='active').length)} color="tokens.warning" style={{ flex:1 }} />
+ <NStatCard icon="users" label={AR?'إجمالي الكوادر':'Total Staff'} value={String(staffList.length)} color={tokens.info} style={{ flex:1 }} />
+ <NStatCard icon="check" label={AR?'نشط':'Active'} value={String(staffList.filter(s=>s.status==='active').length)} color={tokens.success} style={{ flex:1 }} />
+ <NStatCard icon="close" label={AR?'غير نشط':'Inactive'} value={String(staffList.filter(s=>s.status!=='active').length)} color={tokens.warning} style={{ flex:1 }} />
  </View>
 
  {/* Add quick role buttons */}
@@ -1020,9 +1020,9 @@ function DepartmentManagementScreen({ onBack }: { onBack: () => void }) {
  <NHeader title={AR ? ' إدارة الأقسام' : ' Department Management'} onBack={onBack} />
 
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginBottom: SP.xl }}>
- <NStatCard icon="" label={AR?'الأقسام':'Departments'} value={String(DEPT_DATA.length)} color="tokens.info" style={{ flex:1 }} />
- <NStatCard icon="" label={AR?'نشطة':'Active'} value={String(DEPT_DATA.filter(d=>d.active).length)} color="tokens.success" style={{ flex:1 }} />
- <NStatCard icon="" label={AR?'الكوادر':'Staff'} value={String(staff.length)} color="tokens.purple" style={{ flex:1 }} />
+ <NStatCard icon="" label={AR?'الأقسام':'Departments'} value={String(DEPT_DATA.length)} color={tokens.info} style={{ flex:1 }} />
+ <NStatCard icon="" label={AR?'نشطة':'Active'} value={String(DEPT_DATA.filter(d=>d.active).length)} color={tokens.success} style={{ flex:1 }} />
+ <NStatCard icon="" label={AR?'الكوادر':'Staff'} value={String(staff.length)} color={tokens.purple} style={{ flex:1 }} />
  </View>
 
  {staffLoading ? (
@@ -1351,9 +1351,9 @@ function BedManagementScreen({ onBack, wards, onRefresh }: { onBack: () => void;
 
  {/* Summary */}
  <View style={{ flexDirection: 'row', gap: SP.md, marginBottom: SP.xl, paddingHorizontal: SP.md }}>
- <NStatCard icon="bed" label={AR?'الإجمالي':'Total'} value={String(totalBeds)} color="tokens.info" style={{ flex:1 }} />
- <NStatCard icon="user" label={AR?'مشغول':'Occupied'} value={String(occupiedBeds)} color="tokens.error" style={{ flex:1 }} />
- <NStatCard icon="online" label={AR?'متاح':'Available'} value={String(availableBeds)} color="tokens.success" style={{ flex:1 }} />
+ <NStatCard icon="bed" label={AR?'الإجمالي':'Total'} value={String(totalBeds)} color={tokens.info} style={{ flex:1 }} />
+ <NStatCard icon="user" label={AR?'مشغول':'Occupied'} value={String(occupiedBeds)} color={tokens.error} style={{ flex:1 }} />
+ <NStatCard icon="online" label={AR?'متاح':'Available'} value={String(availableBeds)} color={tokens.success} style={{ flex:1 }} />
  </View>
 
  {/* Occupancy gauge */}
@@ -1386,7 +1386,7 @@ function BedManagementScreen({ onBack, wards, onRefresh }: { onBack: () => void;
  const available = ward.available_beds || 0;
  const occupied = total - available;
  const pct = total > 0 ? (occupied / total) * 100 : 0;
- const color = available === 0 ? 'tokens.error' : available <= 2 ? 'tokens.warning' : 'tokens.success';
+ const color = available === 0 ? tokens.error : available <= 2 ? tokens.warning : tokens.success;
  return (
  <NCard key={ward.id || i} style={{ marginBottom: SP.md, marginHorizontal: SP.md }}>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', marginBottom: SP.md }}>
@@ -1750,8 +1750,8 @@ function InsuranceClaimsHubScreen({ onBack }: { onBack: () => void }) {
  <NHeader title={AR ? ' مطالبات التأمين' : ' Insurance Claims Hub'} onBack={onBack} />
 
  <View style={{ flexDirection:'row', gap: SP.md, marginBottom: SP.xl }}>
- <NStatCard icon="" label={AR?'مقبولة هذا الشهر':'Approved this month'} value={`${(totalAmt/1000).toFixed(1)}K`} unit={AR?'ر':'SAR'} color="tokens.success" style={{ flex:1 }} />
- <NStatCard icon="" label={AR?'قيد الانتظار':'Pending'} value={`${(pendingAmt/1000).toFixed(1)}K`} unit={AR?'ر':'SAR'} color="tokens.warning" style={{ flex:1 }} />
+ <NStatCard icon="" label={AR?'مقبولة هذا الشهر':'Approved this month'} value={`${(totalAmt/1000).toFixed(1)}K`} unit={AR?'ر':'SAR'} color={tokens.success} style={{ flex:1 }} />
+ <NStatCard icon="" label={AR?'قيد الانتظار':'Pending'} value={`${(pendingAmt/1000).toFixed(1)}K`} unit={AR?'ر':'SAR'} color={tokens.warning} style={{ flex:1 }} />
  </View>
 
  <ScrollView horizontal showsHorizontalScrollIndicator={false}
@@ -1934,7 +1934,7 @@ function FacilityFinancialScreen({ onBack }: { onBack: () => void }) {
   {AR?'التوزيع حسب نوع الحركة':'Breakdown by Transaction Type'}
  </Text>
  {(() => {
-   const colors = ['tokens.info','tokens.purple','tokens.warning','tokens.error','tokens.success','tokens.textSecondary'];
+   const colors = [tokens.info,tokens.purple,tokens.warning,tokens.error,tokens.success,tokens.textSecondary];
    const sums: Record<string, number> = {};
    txns.forEach((t: any) => { sums[t.type || 'other'] = (sums[t.type || 'other'] || 0) + Math.abs(t.amount || 0); });
    const total = Object.values(sums).reduce((a, b) => a + b, 0) || 1;
@@ -1995,9 +1995,9 @@ function StaffAttendanceScreen({ onBack }: { onBack: () => void }) {
  <NHeader title={AR?' الحضور والانصراف':' Staff Attendance'} onBack={onBack} />
 
  <View style={{ flexDirection:'row', gap: SP.md, marginBottom: SP.xl }}>
- <NStatCard icon="" label={AR?'حاضر':'Present'} value={String(present)} color="tokens.success" style={{ flex:1 }} />
- <NStatCard icon="" label={AR?'غائب':'Absent'} value={String(absent)} color="tokens.error" style={{ flex:1 }} />
- <NStatCard icon="users" label={AR?'الإجمالي':'Total'} value={String(ATTENDANCE.length)} color="tokens.info" style={{ flex:1 }} />
+ <NStatCard icon="" label={AR?'حاضر':'Present'} value={String(present)} color={tokens.success} style={{ flex:1 }} />
+ <NStatCard icon="" label={AR?'غائب':'Absent'} value={String(absent)} color={tokens.error} style={{ flex:1 }} />
+ <NStatCard icon="users" label={AR?'الإجمالي':'Total'} value={String(ATTENDANCE.length)} color={tokens.info} style={{ flex:1 }} />
  </View>
 
  <NCard style={{ backgroundColor: theme.infoBg, marginBottom: SP.xl }}>
@@ -2234,9 +2234,9 @@ function CredentialingScreen({ onBack }: { onBack: () => void }) {
  </NCard>
 
  <View style={{ flexDirection:'row', gap: SP.md, marginBottom: SP.xl }}>
- <NStatCard icon="" label={AR?'سارية':'Valid'} value={String(CREDS.filter(c=>c.status==='valid').length)} color="tokens.success" style={{ flex:1 }} />
- <NStatCard icon="" label={AR?'تنتهي قريباً':'Expiring'} value={String(CREDS.filter(c=>c.status==='expiring').length)} color="tokens.warning" style={{ flex:1 }} />
- <NStatCard icon="" label={AR?'منتهية':'Expired'} value={String(CREDS.filter(c=>c.status==='expired').length)} color="tokens.error" style={{ flex:1 }} />
+ <NStatCard icon="" label={AR?'سارية':'Valid'} value={String(CREDS.filter(c=>c.status==='valid').length)} color={tokens.success} style={{ flex:1 }} />
+ <NStatCard icon="" label={AR?'تنتهي قريباً':'Expiring'} value={String(CREDS.filter(c=>c.status==='expiring').length)} color={tokens.warning} style={{ flex:1 }} />
+ <NStatCard icon="" label={AR?'منتهية':'Expired'} value={String(CREDS.filter(c=>c.status==='expired').length)} color={tokens.error} style={{ flex:1 }} />
  </View>
 
  {CREDS.map(cred => (
@@ -2515,7 +2515,7 @@ function HospitalDispatchScreen({ onBack }: { onBack: () => void }) {
  contentContainerStyle={{ padding: SP.xl, gap: SP.md }}
  ListEmptyComponent={<NEmpty title={AR ? 'لا توجد طلبات رعاية منزلية حالياً' : 'No home care requests available'} />}
  renderItem={({ item }) => (
- <NCard style={{ gap: SP.sm }} accent={item.state === 'CREATED' ? 'tokens.warning' : 'tokens.success'}>
+ <NCard style={{ gap: SP.sm }} accent={item.state === 'CREATED' ? tokens.warning : tokens.success}>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{item.patient_name || item.patient_id}</Text>
  <NBadge label={item.state} variant={item.state === 'CREATED' ? 'warning' : 'success'} />

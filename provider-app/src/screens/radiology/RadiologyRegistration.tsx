@@ -26,15 +26,15 @@ import { OtpModal } from '../../components/OtpModal';
 import { sendEmailOtp, verifyEmailOtp } from '../../api/otp';
 import { SuccessScreen } from '../../components/SuccessScreen';
 import { SignatureCanvasModal } from '../../components/SignatureCanvasModal';
-import { tokens } from '../../theme/tokens';
+import { tokens, withAlpha } from '../../theme/tokens';
 
 const { width: W } = Dimensions.get('window');
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 const CENTER_TYPES = [
-  { id: 'lab', color: 'tokens.purple', label_ar: 'معمل تحاليل', label_en: 'Radiology' },
-  { id: 'radiology',color: 'tokens.mintDeep', label_ar: 'مركز أشعة', label_en: 'Radiology Center' },
-  { id: 'both', color: 'tokens.navy', label_ar: 'معمل تحاليل + أشعة', label_en: 'Radiology + Radiology' },
+  { id: 'lab', color: tokens.purple, label_ar: 'معمل تحاليل', label_en: 'Radiology' },
+  { id: 'radiology',color: tokens.mintDeep, label_ar: 'مركز أشعة', label_en: 'Radiology Center' },
+  { id: 'both', color: tokens.navy, label_ar: 'معمل تحاليل + أشعة', label_en: 'Radiology + Radiology' },
 ] as const;
 
 interface RadiologyRegData {
@@ -767,7 +767,7 @@ function LStep3({ data, update, onNext, onBack, step, total, bare = false, submi
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: 12, marginBottom: 24 }}>
               {['all', 'male', 'female'].map(g => (
                 <TouchableOpacity key={g} onPress={() => update({ targetGenders: g })}
-                  style={{ flex: 1, padding: 12, borderWidth: 1, borderColor: data.targetGenders === g ? theme.primary : theme.border, backgroundColor: data.targetGenders === g ? 'tokens.purple10' : '#FFF', borderRadius: 8, alignItems: 'center' }}>
+                  style={{ flex: 1, padding: 12, borderWidth: 1, borderColor: data.targetGenders === g ? theme.primary : theme.border, backgroundColor: data.targetGenders === g ? withAlpha(tokens.purple, 0.10) : '#FFF', borderRadius: 8, alignItems: 'center' }}>
                   <Text style={{ color: data.targetGenders === g ? theme.primary : theme.text }}>
                     {g === 'all' ? (AR ? 'كلاهما' : 'Both') : g === 'male' ? (AR ? 'رجال' : 'Male') : (AR ? 'نساء' : 'Female')}
                   </Text>
@@ -905,8 +905,8 @@ function LStep4({ data, update, onNext, onBack, step, total, bare = false, submi
           {isRadiology && (
             <TouchableOpacity onPress={() => setTab('lab')}
               style={[st.tabBtn, {
-                backgroundColor: tab === 'lab' ? 'tokens.purple' : theme.surface2,
-                borderColor: tab === 'lab' ? 'tokens.purple' : theme.border,
+                backgroundColor: tab === 'lab' ? tokens.purple : theme.surface2,
+                borderColor: tab === 'lab' ? tokens.purple : theme.border,
                 flex: 1,
               }]}>
               <Icon name="test_tube" size={16} color={tab === 'lab' ? '#FFF' : theme.text} />
@@ -918,8 +918,8 @@ function LStep4({ data, update, onNext, onBack, step, total, bare = false, submi
           {isRad && (
             <TouchableOpacity onPress={() => setTab('rad')}
               style={[st.tabBtn, {
-                backgroundColor: tab === 'rad' ? 'tokens.mintDeep' : theme.surface2,
-                borderColor: tab === 'rad' ? 'tokens.mintDeep' : theme.border,
+                backgroundColor: tab === 'rad' ? tokens.mintDeep : theme.surface2,
+                borderColor: tab === 'rad' ? tokens.mintDeep : theme.border,
                 flex: 1,
               }]}>
               <Icon name="scan" size={16} color={tab === 'rad' ? '#FFF' : theme.text} />
@@ -934,8 +934,8 @@ function LStep4({ data, update, onNext, onBack, step, total, bare = false, submi
       {/* Summary */}
       <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginBottom: SP.lg }}>
         {isRadiology && (
-          <NCard style={{ flex: 1, padding: SP.md, alignItems: 'center', backgroundColor: 'tokens.purple10' }}>
-            <Text style={{ fontSize: FS['2xl'], fontWeight: FW.xbold, color: 'tokens.purple' }}>
+          <NCard style={{ flex: 1, padding: SP.md, alignItems: 'center', backgroundColor: withAlpha(tokens.purple, 0.10) }}>
+            <Text style={{ fontSize: FS['2xl'], fontWeight: FW.xbold, color: tokens.purple }}>
               {data.enabledTests.length}
             </Text>
             <Text style={{ fontSize: FS.xs, color: theme.textSub }}>
@@ -944,8 +944,8 @@ function LStep4({ data, update, onNext, onBack, step, total, bare = false, submi
           </NCard>
         )}
         {isRad && (
-          <NCard style={{ flex: 1, padding: SP.md, alignItems: 'center', backgroundColor: 'tokens.mintDeep10' }}>
-            <Text style={{ fontSize: FS['2xl'], fontWeight: FW.xbold, color: 'tokens.mintDeep' }}>
+          <NCard style={{ flex: 1, padding: SP.md, alignItems: 'center', backgroundColor: withAlpha(tokens.mintDeep, 0.10) }}>
+            <Text style={{ fontSize: FS['2xl'], fontWeight: FW.xbold, color: tokens.mintDeep }}>
               {data.enabledScans.length}
             </Text>
             <Text style={{ fontSize: FS.xs, color: theme.textSub }}>
@@ -983,7 +983,7 @@ function LStep4({ data, update, onNext, onBack, step, total, bare = false, submi
         const expanded = expandedTest === test.id;
         return (
           <NCard key={test.id} style={{ marginBottom: SP.sm }}
-            accent={enabled ? 'tokens.purple' : undefined}>
+            accent={enabled ? tokens.purple : undefined}>
             <TouchableOpacity
               onPress={() => toggleTest(test.id)}
               style={{
@@ -991,15 +991,15 @@ function LStep4({ data, update, onNext, onBack, step, total, bare = false, submi
                 alignItems: 'center', gap: SP.md,
               }}>
               <View style={[st.checkBox, {
-                backgroundColor: enabled ? 'tokens.purple' : 'transparent',
-                borderColor: enabled ? 'tokens.purple' : theme.border,
+                backgroundColor: enabled ? tokens.purple : 'transparent',
+                borderColor: enabled ? tokens.purple : theme.border,
               }]}>
                 {enabled && <Icon name="check" size={10} color="#FFF" />}
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={{
                   fontSize: FS.md, fontWeight: enabled ? FW.bold : FW.reg,
-                  color: enabled ? 'tokens.purple' : theme.text,
+                  color: enabled ? tokens.purple : theme.text,
                   textAlign: AR ? 'right' : 'left',
                 }}>
                   {AR ? test.ar : test.en}
@@ -1058,7 +1058,7 @@ function LStep4({ data, update, onNext, onBack, step, total, bare = false, submi
         const enabled = data.enabledScans.includes(scan.id);
         return (
           <NCard key={scan.id} style={{ marginBottom: SP.sm }}
-            accent={enabled ? 'tokens.mintDeep' : undefined}>
+            accent={enabled ? tokens.mintDeep : undefined}>
             <TouchableOpacity
               onPress={() => toggleScan(scan.id)}
               style={{
@@ -1066,15 +1066,15 @@ function LStep4({ data, update, onNext, onBack, step, total, bare = false, submi
                 alignItems: 'center', gap: SP.md,
               }}>
               <View style={[st.checkBox, {
-                backgroundColor: enabled ? 'tokens.mintDeep' : 'transparent',
-                borderColor: enabled ? 'tokens.mintDeep' : theme.border,
+                backgroundColor: enabled ? tokens.mintDeep : 'transparent',
+                borderColor: enabled ? tokens.mintDeep : theme.border,
               }]}>
                 {enabled && <Icon name="check" size={10} color="#FFF" />}
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={{
                   fontSize: FS.md, fontWeight: enabled ? FW.bold : FW.reg,
-                  color: enabled ? 'tokens.mintDeep' : theme.text,
+                  color: enabled ? tokens.mintDeep : theme.text,
                   textAlign: AR ? 'right' : 'left',
                 }}>
                   {AR ? scan.ar : scan.en}
@@ -1367,7 +1367,7 @@ function LStep6({ data, update, onNext, onBack, step, total, bare = false, submi
   const [showVacationCal, setShowVacationCal] = useState(false);
 
   const PLAN_COLORS: Record<string, string> = {
-    'VIP+': 'tokens.yellow', 'VIP': 'tokens.textTertiary', 'A': 'tokens.success', 'B': 'tokens.info', 'C': 'tokens.purple'
+    'VIP+': tokens.yellow, 'VIP': tokens.textTertiary, 'A': tokens.success, 'B': tokens.info, 'C': tokens.purple
   };
 
   const toggleDay = (field: 'workDays' | 'homeWorkDays', k: string) => {

@@ -63,10 +63,10 @@ export function GeoPicker({ value, onChange, locale = 'ar' }: {
 }
 const s = StyleSheet.create({
   input:{borderWidth:1, borderColor:'#e2e8f0', borderRadius:12, padding:12, backgroundColor:'#fff'},
-  inputText:{fontWeight:'700', color:'tokens.navy'},
+  inputText:{fontWeight:'700', color:tokens.navy},
   backdrop:{flex:1, backgroundColor:'rgba(0,0,0,0.4)', justifyContent:'flex-end'},
   sheet:{backgroundColor:'#fff', borderTopLeftRadius:16, borderTopRightRadius:16, padding:16, maxHeight:'70%'},
   sheetTitle:{fontWeight:'800', fontSize:16, marginBottom:12, textAlign:'center'},
   row:{paddingVertical:14, borderBottomWidth:1, borderBottomColor:'#f1f5f9'},
-  rowText:{fontSize:15, color:'tokens.navy'},
+  rowText:{fontSize:15, color:tokens.navy},
 });
