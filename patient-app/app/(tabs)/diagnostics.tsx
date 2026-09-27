@@ -372,7 +372,11 @@ export default function DiagnosticsHub() {
 
                   <TouchableOpacity
                     style={[styles.addBtnRed, { backgroundColor: colors.primary }]}
-                    onPress={() => (router.push as any)({ pathname: '/diagnostics/checkout', params: { serviceType, labName: rad.name, total: String(rad.price || ''), isRadiology: 'true', radiologyType: rad.name, serviceId: rad.id } })}
+                    onPress={() => {
+                      // The center is chosen in the cart (centers able to perform this scan), then checkout.
+                      if (!items.some((i: any) => i.id === rad.id)) addItem({ id: rad.id, name: rad.name, price: typeof rad.price === 'string' ? parseInt(rad.price) : rad.price, kind: 'radiology' });
+                      (router.push as any)('/diagnostics/cart');
+                    }}
                   >
                     <Icon name="calendar-check" size={18} color="#fff" />
                     <AppText style={{ color: '#fff', fontWeight: 'bold', fontSize: 12, marginLeft: 4 }}>احجز الآن</AppText>
@@ -388,7 +392,7 @@ export default function DiagnosticsHub() {
       </ScrollView>
 
       {/* Floating Global Cart Button */}
-      {mainTab === 'labs' && itemCount > 0 && (
+      {itemCount > 0 && (
         <Animated.View entering={SlideInDown.duration(400)} style={styles.floatingCartWrap}>
           <TouchableOpacity 
             style={[styles.floatingCart, { backgroundColor: colors.primary }]}

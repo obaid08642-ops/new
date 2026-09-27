@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards, BadRequestException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CurrentUser, JwtAuthGuard, SelfService } from '../../common/auth.guard';
 import { v4 as uuid } from 'uuid';
@@ -18,8 +18,12 @@ export class UsersAddressesController {
 
   @Post()
   async addAddress(@CurrentUser('id') id: string, @Body() body: AddAddressDto) {
+    const hasLocation = (body.lat != null && body.lng != null) || !!(body.street || body.line1 || '').trim();
+    if (!hasLocation) throw new BadRequestException('address_location_required');
     const profile = await this.users.getPatientProfile(id);
-    const newAddress = { id: uuid(), ...body };
+    // Mobile reads `street`, the website reads `line1`: store both so an address added on one shows on the other.
+    const line = (body.street || body.line1 || '').trim() || undefined;
+    const newAddress = { id: uuid(), ...body, street: line, line1: line };
     const addresses = profile.addresses || [];
     
     // If it's the first address, make it default
@@ -45,7 +49,8 @@ export class UsersAddressesController {
     
     const idx = addresses.findIndex(a => a.id === addressId);
     if (idx !== -1) {
-      addresses[idx] = { ...addresses[idx], ...body };
+      const line = (body.street ?? body.line1)?.trim();
+      addresses[idx] = { ...addresses[idx], ...body, ...(line ? { street: line, line1: line } : {}) };
       await this.users.updatePatientProfile(id, { addresses });
       return addresses[idx];
     }

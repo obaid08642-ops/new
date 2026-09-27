@@ -216,12 +216,12 @@ function Step1Basic({ data, update, onNext, onBack, step, total, bare = false, s
         email: data.email,
         type: 'doctor',
       });
-      await ProviderApi.login(data.email, data.password);
+      await ProviderApi.onboardingLogin(data.email, data.password, 'doctor');
       if (!bare) onNext();
       return true;
     } catch (e: any) {
       try {
-        await ProviderApi.login(data.email, data.password);
+        await ProviderApi.onboardingLogin(data.email, data.password, 'doctor');
         if (!bare) onNext();
         return true;
       } catch (loginErr: any) {

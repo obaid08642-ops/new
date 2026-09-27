@@ -155,9 +155,9 @@ export class AnalyticsSuiteService {
     };
     await Promise.all(ORDER_KINDS.map(async (k) => {
       const rows = await this.conn.collection(k.collection)
-        .find({ patient_id: { $in: users.map((u: any) => u.id) } }, { projection: { patient_id: 1, createdAt: 1 } })
+        .find({ [k.patientField]: { $in: users.map((u: any) => u.id) } }, { projection: { [k.patientField]: 1, createdAt: 1 } })
         .limit(50000).toArray().catch(() => []);
-      for (const r of rows as any[]) addAct(r.patient_id, r.createdAt);
+      for (const r of rows as any[]) addAct(r[k.patientField], r.createdAt);
     }));
 
     const retention = buildCohorts(users.map((u: any) => ({ userId: u.id, at: new Date(u.createdAt) })), activity);
@@ -205,7 +205,7 @@ export class AnalyticsSuiteService {
           total: { $sum: 1 },
           cancelled: { $sum: { $cond: [{ $in: [`$${k.stateField}`, k.cancelledStates] }, 1, 0] } },
           completed: { $sum: { $cond: [{ $in: [`$${k.stateField}`, k.completedStates] }, 1, 0] } },
-          gmv: { $sum: { $ifNull: ['$total_price', '$total'] } },
+          gmv: { $sum: { $ifNull: [k.amountExpr, 0] } },
         } },
       ]).toArray().catch(() => []);
       for (const r of agg as any[]) rows.push({ kind: k.kind, provider_id: r._id, total: r.total, cancelled: r.cancelled, completed: r.completed, gmv: r.gmv });

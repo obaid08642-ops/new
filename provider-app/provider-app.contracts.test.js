@@ -83,7 +83,14 @@ describe('Provider App release contracts', () => {
     expect(labDashboard).not.toContain('const RESULTS =');
     expect(labDashboard).toContain('/labs/bookings/${order.id}/coverage-decision');
     expect(labDashboard).not.toContain("state: 'WAITING_COPAY'");
-    expect(labDashboard).not.toContain("state: 'CONFIRMED'");
+    // Insurance goes through coverage-decision; a direct CONFIRMED is only the cash/paid acceptance
+    // (the server refuses it for insurance and unpaid card bookings: labs.service assertConfirmable).
+    const confirms = labDashboard.split("state: 'CONFIRMED'").length - 1;
+    expect(confirms).toBe(1);
+    const start = labDashboard.indexOf('const handleCashConfirm');
+    expect(start).toBeGreaterThan(-1);
+    // the one CONFIRMED patch sits inside handleCashConfirm (no other handler between them)
+    expect(labDashboard.slice(start + 1, labDashboard.indexOf("state: 'CONFIRMED'"))).not.toContain('const handle');
     expect(radiologyDashboard).toContain('/radiology/bookings/${currentOrder.id}/coverage-decision');
     expect(radiologyDashboard).not.toContain("state:'CONFIRMED'");
     expect(labDashboard).toContain('/labs/bookings/${sample.lab_order_id || sample.id}/upload-report');
@@ -124,9 +131,11 @@ describe('Provider App release contracts', () => {
     expect(dashboard).not.toContain('تم قفل حالة الدفع وبدء الاستشارة');
     expect(dashboard).not.toContain('Video Call Connected...');
     expect(dashboard).not.toContain("sender: 'patient', time: '10:00'");
-    // Consultations open only after server verification of appointment state,
-    // payment and doctor-patient relation (fail-closed gate, current copy).
-    expect(dashboard).toContain('Consultation start requires server confirmation');
+    // The visit moves only through server mutations on a server-verified appointment
+    // (LiveConsultationScreen loads it first; check-in / start / finish are PATCH/POST calls).
+    expect(dashboard).toContain("client.get(`/care/appointments/${encodeURIComponent(aptId)}`)");
+    expect(dashboard).toContain('client.patch(`/care/appointments/${aptId}/start`');
+    expect(dashboard).toContain('client.post(`/care/appointments/${aptId}/finish`');
     expect(dashboard).toContain('setError(true);');
   });
 
@@ -155,5 +164,22 @@ describe('Provider App release contracts', () => {
     expect(registrations).not.toContain('lat: 24.7136');
     expect(registrations).not.toContain('lng: 46.6753');
     expect(registrations).not.toContain("cashOnly: true");
+  });
+
+  it('API client sends an idempotency key on every mutation (routes with @RequireIdempotency reject calls without one)', () => {
+    const client = read('api/client.ts');
+    expect(client).toMatch(/\['POST', 'PUT', 'PATCH', 'DELETE'\]\.includes\(method\)/);
+    expect(client).toMatch(/h\['Idempotency-Key'\] = `prov-\$\{await CryptoUtils\.randomHex\(16\)\}`/);
+  });
+
+  it('registration wizards sign in as the onboarding identity (a provider account exists only after submit + review)', () => {
+    const all = ['doctor/DoctorRegistration.tsx', 'pharmacy/PharmacyRegistration.tsx', 'lab/LabRegistration.tsx', 'radiology/RadiologyRegistration.tsx',
+      'nursing/NursingRegistration.tsx', 'facility/FacilityRegistration.tsx', 'ambulance/AmbulanceRegistration.tsx'];
+    for (const file of all) {
+      const src = read(`screens/${file}`);
+      expect(src).toMatch(/ProviderApi\.onboardingLogin\(data\.(managerEmail|email), data\.password/);
+      expect(src).not.toMatch(/ProviderApi\.login\(/);
+    }
+    expect(read('api/provider.ts')).toMatch(/onboardingLogin[\s\S]*client\.post\('\/auth\/login'/);
   });
 });

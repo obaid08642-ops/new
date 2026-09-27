@@ -23,7 +23,7 @@ const SOURCE_COLLECTIONS: Record<CatalogEntityType, string> = {
   facility: 'facilities',
   lab_service: CATALOG_COLLECTIONS.lab_services,
   radiology_service: CATALOG_COLLECTIONS.radiology_services,
-  home_care_service: 'homecareservices',
+  home_care_service: CATALOG_COLLECTIONS.nursing_services,
 };
 
 /**

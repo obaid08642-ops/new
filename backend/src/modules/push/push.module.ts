@@ -659,6 +659,18 @@ export class PushService implements OnModuleInit {
     );
   }
 
+  @OnEvent('emergency.assigned')
+  async onEmergencyAssigned(evt: any) {
+    if (!evt?.provider_account_id) return; // hospital assignment carries no crew
+    await this.queueNotification(
+      evt.provider_account_id,
+      'مهمة إسعاف جديدة',
+      'تم إسناد بلاغ طوارئ إلى سيارتك — افتح التطبيق للتوجه',
+      { type: 'emergency', emergency_id: evt.emergency_id, vehicle_id: evt.vehicle_id },
+      'high',
+    );
+  }
+
   @OnEvent('call.missed')
   async onCallMissed(evt: any) {
     if (!evt?.callee_id) return;

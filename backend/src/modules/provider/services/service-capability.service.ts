@@ -21,6 +21,9 @@ function assertProvider(user: any) {
 // Fields that may change live without admin review (operational stock counts only).
 const LIVE_STOCK_KEYS = new Set(['stock', 'min_stock_alert', 'last_restocked_at']);
 
+const PHARMACY_ITEM_FIELDS = ['sku', 'name_ar', 'name_en', 'barcode', 'category', 'generic_name', 'form', 'dosage', 'pack_size', 'substitute_skus',
+  'price', 'currency', 'stock', 'min_stock_alert', 'last_restocked_at', 'available', 'insurance_covered', 'coverage_notes', 'expiry_date', 'notes'];
+
 @Injectable()
 export class ServiceCapabilityService {
   constructor(
@@ -61,7 +64,9 @@ export class ServiceCapabilityService {
       const r = await this.pharma.findOneAndUpdate(filter, { stock: body.stock, min_stock_alert: body.min_stock_alert, last_restocked_at: body.last_restocked_at, provider_account_id: user.id }, { new: true });
       return r ? r.toObject() : null;
     }
-    return this.gateCapabilityChange(user, 'pharmacy', existing ? 'update' : 'create', filter, { ...body, provider_account_id: user.id });
+    // Only item fields: never let a client choose id / owner / timestamps of an inventory row.
+    const payload = Object.fromEntries(PHARMACY_ITEM_FIELDS.filter((k) => body[k] !== undefined).map((k) => [k, body[k]]));
+    return this.gateCapabilityChange(user, 'pharmacy', existing ? 'update' : 'create', filter, { ...payload, provider_account_id: user.id });
   }
   async deletePharmacy(user: any, id: string) {
     assertProvider(user);

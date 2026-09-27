@@ -5,6 +5,8 @@ export type WithdrawalRequestDocument = WithdrawalRequest & Document;
 
 @Schema({ timestamps: true })
 export class WithdrawalRequest {
+  // Written by the services but previously undeclared: strict mode silently dropped these (tools/audit/schemadrift.js).
+  @Prop() decided_at?: Date;
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
   providerId: Types.ObjectId;
 

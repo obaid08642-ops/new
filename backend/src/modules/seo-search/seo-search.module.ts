@@ -764,7 +764,7 @@ export class SeoSearchService {
       this.conn.collection('provider_profiles').find({ provider_type: 'pharmacy', $or: [{ name: rx }, { facility_name: rx }] } as any, { projection: { _id: 0, id: 1, name: 1, facility_name: 1, city: 1, logo_url: 1 } } as any).limit(limit).toArray(),
       this.conn.collection('provider_profiles').find({ provider_type: { $in: ['hospital', 'clinic', 'medical_center'] }, $or: [{ name: rx }, { facility_name: rx }] } as any, { projection: { _id: 0, id: 1, name: 1, facility_name: 1, city: 1 } } as any).limit(limit).toArray(),
       this.conn.collection('provider_profiles').find({ provider_type: { $in: ['lab', 'laboratory'] }, $or: [{ name: rx }, { facility_name: rx }] } as any, { projection: { _id: 0, id: 1, name: 1, facility_name: 1, city: 1 } } as any).limit(limit).toArray(),
-      this.conn.collection('homecareservices').find({ $or: [{ name_ar: rx }, { name_en: rx }] } as any, { projection: { _id: 0, id: 1, name_ar: 1, name_en: 1, price: 1 } } as any).limit(limit).toArray().catch(() => []),
+      this.conn.collection(CATALOG_COLLECTIONS.nursing_services).find({ $or: [{ name_ar: rx }, { name_en: rx }] } as any, { projection: { _id: 0, id: 1, name_ar: 1, name_en: 1, price: 1 } } as any).limit(limit).toArray().catch(() => []),
     ]);
     const total = medicines.length + doctors.length + pharmacies.length + hospitals.length + labs.length + (services || []).length;
 

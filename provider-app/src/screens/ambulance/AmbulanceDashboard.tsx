@@ -37,12 +37,14 @@ function AmbulanceHomeScreen({ onNavigate }: { onNavigate: (s: string, p?: any) 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [claiming, setClaiming] = useState<string | null>(null);
+  const [vehicles, setVehicles] = useState<{ id: string; label?: string }[]>([]);
 
   const load = useCallback(async () => {
     try {
       const res = await client.get('/emergency/driver/missions');
       setPool(res.data?.pool || []);
       setMine(res.data?.mine || []);
+      setVehicles(res.data?.vehicles || []);
     } catch {
       setPool([]); setMine([]);
     } finally {
@@ -61,7 +63,8 @@ function AmbulanceHomeScreen({ onNavigate }: { onNavigate: (s: string, p?: any) 
   const claim = async (id: string) => {
     setClaiming(id);
     try {
-      await client.post(`/emergency/${id}/claim`, {});
+      // the driver's approved, available vehicle (the server also resolves it when there is only one)
+      await client.post(`/emergency/${id}/claim`, vehicles.length ? { vehicle_id: vehicles[0].id } : {});
       show(AR ? 'تم قبول المهمة — انطلق' : 'Mission claimed — go!', 'success');
       await load();
       onNavigate('mission', { id });
@@ -385,8 +388,8 @@ function AmbulanceHistoryScreen({ onBack }: { onBack: () => void }) {
   useEffect(() => {
     client.get('/emergency/driver/missions')
       .then((res: any) => {
-        const all = [...(res.data?.mine || []), ...(res.data?.pool || [])];
-        setRows(all.filter((m: any) => ['completed', 'handed_over', 'closed'].includes(String(m.state || m.status || '').toLowerCase())));
+        // finished missions come back in `history` (the live lists only hold open ones)
+        setRows(res.data?.history || []);
       })
       .catch(() => setRows([]))
       .finally(() => setLoading(false));

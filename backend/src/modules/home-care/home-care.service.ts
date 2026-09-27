@@ -5,9 +5,7 @@ import { pick } from '../../common/sanitize';
 
 /** P3.3 (F15): writable catalog fields — id/_id/active/governance flags excluded. */
 export const HOMECARE_CATALOG_FIELDS = [
-  'name_ar', 'name_en', 'description_ar', 'description_en', 'category', 'icon',
-  'price', 'duration', 'duration_value', 'requires_patient_medication', 'requires_companion',
-  'cash_availability', 'insurance_availability', 'image_url', 'popularity',
+  'name_ar', 'name_en', 'description_ar', 'description_en', 'category', 'icon', 'price', 'duration', 'duration_value', 'requires_patient_medication', 'requires_companion', 'cash_availability', 'insurance_availability', 'image_url', 'active', 'popularity',
 ] as const;
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { WorkflowEngineService } from '../workflow-engine/workflow-engine.module';
@@ -17,6 +15,9 @@ import { NursingVisitReportRepository } from "./repositories/nursingvisitreport.
 import { CarePlanRepository } from "./repositories/careplan.repository";
 import { MedicalSupplyRequestRepository } from "./repositories/medicalsupplyrequest.repository";
 import { RedisService } from '../redis/redis.service';
+import { hasEffectiveRole } from '../../common/auth.guard';
+import { reviewUpdate, invalidateCatalogCache } from '../../common/catalog-review';
+import { getEffectiveRoles } from '../../common/auth.guard';
 
 @Injectable()
 export class HomeCareSvc {
@@ -62,8 +63,25 @@ export class HomeCareSvc {
   async book(user: any, data: any) {
     if (!data.service_id) throw new BadRequestException('service_id required');
     if (!data.scheduled_at) throw new BadRequestException('scheduled_at required');
-    const svc = await this.svcModel.findOne({ id: data.service_id });
+    const svc = await this.svcModel.findOne({ id: data.service_id, active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' });
     if (!svc) throw new NotFoundException('service');
+    // The patient picks the nurse (nursing/service-details -> nurse-profile): it must be an approved home-care
+    // provider offering this service. The booking lands in that nurse's job queue (provider-jobs, ASSIGNED).
+    const isAdmin = ['admin', 'super_admin', 'system'].includes(user?.role);
+    const providerId = typeof data.provider_id === 'string' ? data.provider_id : '';
+    if (!providerId && !isAdmin) throw new BadRequestException('provider_id_required');
+    if (providerId) {
+      const nurse = await this.svcModel.db.collection('provider_profiles').findOne({
+        account_id: providerId, type: { $in: ['home_care', 'nursing', 'nurse'] }, status: 'active', public_eligibility: true, medical_review_status: 'approved',
+        'nursing_services.key': svc.id,
+      });
+      if (!nurse) throw new BadRequestException('provider_cannot_perform_service');
+    }
+    const when = new Date(String(data.scheduled_at));
+    if (isNaN(when.getTime()) || when.getTime() < Date.now() - 5 * 60_000) throw new BadRequestException('slot_expired');
+    // Home visits are paid by card or insurance (same policy as lab/radiology home visits).
+    const paymentMethod = String(data.payment_method || 'card');
+    if (!['card', 'insurance'].includes(paymentMethod)) throw new BadRequestException(`payment_method_${paymentMethod}_not_allowed_for_home_visit`);
     // S4 duplicate-booking prevention: idempotent replay for double-tap/retry within 3 minutes
     const dupe = await this.bkgModel.findOne({
       patient_id: user.id,
@@ -84,11 +102,12 @@ export class HomeCareSvc {
       duration: svc.duration,
       total,
       address: data.address,
-      scheduled_at: new Date(data.scheduled_at),
-      state: NursingBookingState.NEW_REQUEST,
-      state_history: [{ from: '', to: NursingBookingState.NEW_REQUEST, by_user_id: user.id, at: new Date() }],
+      scheduled_at: when,
+      provider_id: providerId || undefined,
+      state: providerId ? NursingBookingState.PROVIDER_ASSIGNED : NursingBookingState.NEW_REQUEST,
+      state_history: [{ from: '', to: providerId ? NursingBookingState.PROVIDER_ASSIGNED : NursingBookingState.NEW_REQUEST, by_user_id: user.id, at: new Date() }],
       notes: data.notes,
-      payment_method: data.payment_method || 'cash',
+      payment_method: paymentMethod,
       sessions_count: sessions,
     });
     this.events.emit('homecare.booking_created', { booking_id: booking.id, patient_id: user.id });
@@ -145,14 +164,23 @@ export class HomeCareSvc {
   // --- Admin Catalog CRUD (nursing/home-care services) ---
   async createCatalog(user: any, body: any) {
     if (user.role !== 'admin') throw new ForbiddenException();
-    return this.svcModel.create({ ...pick(body, HOMECARE_CATALOG_FIELDS), id: require('uuid').v4() });
+    const doc = await this.svcModel.create({ ...pick(body, HOMECARE_CATALOG_FIELDS), ...reviewUpdate(body?.medical_review_status, user.id), id: require('uuid').v4() });
+    await invalidateCatalogCache(this.redis, 'cache:home-care-services:');
+    return doc;
   }
 
   async updateCatalog(user: any, id: string, body: any) {
     if (user.role !== 'admin') throw new ForbiddenException();
-    const updated = await this.svcModel.findOneAndUpdate({ id }, { $set: pick(body, HOMECARE_CATALOG_FIELDS) }, { new: true });
+    const updated = await this.svcModel.findOneAndUpdate({ id }, { $set: { ...pick(body, HOMECARE_CATALOG_FIELDS), ...reviewUpdate(body?.medical_review_status, user.id) } }, { new: true });
     if (!updated) throw new NotFoundException();
+    await invalidateCatalogCache(this.redis, 'cache:home-care-services:');
     return updated;
+  }
+
+  /** Admin catalog editor: every item including unpublished ones (the public list only shows approved). */
+  async adminCatalog(user: any) {
+    if (!getEffectiveRoles(user).includes('admin')) throw new ForbiddenException();
+    return this.svcModel.find({ is_deleted: { $ne: true } }, { _id: 0, __v: 0 }).sort({ medical_review_status: 1, popularity: -1, name_ar: 1 }).limit(1000);
   }
 
   async deleteCatalog(user: any, id: string) {
@@ -208,8 +236,8 @@ export class HomeCareSvc {
     return this.carePlanModel.create({
       id: require('uuid').v4(),
       patient_id: patientId,
-      doctor_id: user.role === 'doctor' ? user.id : undefined,
-      nurse_id: user.role === 'nurse' ? user.id : undefined,
+      doctor_id: hasEffectiveRole(user, 'doctor') ? user.id : undefined,
+      nurse_id: hasEffectiveRole(user, 'nurse', 'nursing', 'home_care') ? user.id : undefined,
       title: body.title,
       description: body.description,
       tasks: body.tasks || [],

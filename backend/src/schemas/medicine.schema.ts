@@ -5,6 +5,9 @@ import { buildSlug } from '../common/slug.util';
 
 @Schema({ timestamps: true, collection: 'medicines' })
 export class Medicine {
+  // Written by the services but previously undeclared: strict mode silently dropped these (tools/audit/schemadrift.js).
+  @Prop() deleted_at?: Date;
+  @Prop() updated_by?: string;
   @Prop({ default: () => uuid() }) id: string;
   @Prop({ unique: true, sparse: true, index: true }) slug?: string;
   @Prop({ required: true, index: 'text' }) name_ar: string;

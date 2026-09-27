@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { API_BASE } from '../constants';
-import { buildHeaders, Tokens, Vault, SK } from '../security/Security';
+import { buildHeaders, Tokens, Vault, SK, CryptoUtils } from '../security/Security';
 
 const client = axios.create({
   baseURL: API_BASE,
@@ -22,6 +22,13 @@ client.interceptors.request.use(
  ...config.headers,
  ...secureHeaders,
  } as any;
+ // Routes marked @RequireIdempotency answer 400 idempotency_key_required without a key.
+ // A caller needing retry de-duplication sets its own stable key; otherwise one per request.
+ const method = String(config.method || 'get').toUpperCase();
+ const h: any = config.headers;
+ if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method) && !h['Idempotency-Key'] && !h['idempotency-key']) {
+   h['Idempotency-Key'] = `prov-${await CryptoUtils.randomHex(16)}`;
+ }
  } catch (e) {
  if (__DEV__) console.warn('[API Client Request Interceptor Error]', e);
  }

@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsDateString, IsDefined, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import { ArrayMaxSize, IsArray, IsBoolean, IsDateString, IsDefined, IsNumber, IsObject, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class CreateBookingDto {
   @IsOptional()
@@ -17,6 +17,17 @@ export class CreateBookingDto {
   @IsOptional()
   @IsObject()
   address?: Record<string, unknown>;
+
+  // patient-web sends a saved-address id; resolved against the caller's own addresses.
+  @IsOptional()
+  @IsString()
+  @MaxLength(128)
+  address_id?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(2000)
+  notes?: string;
 
   @IsOptional()
   @IsString()
@@ -133,9 +144,13 @@ export class CreateCarePlanDto {
   @IsString()
   title: string;
 
+  // provider-app NursingDashboard sends one string per line; the service keeps up to 50 strings.
   @IsOptional()
-  @IsObject()
-  tasks?: Record<string, unknown>;
+  @IsArray()
+  @ArrayMaxSize(50)
+  @IsString({ each: true })
+  @MaxLength(500, { each: true })
+  tasks?: string[];
 
 
   @IsOptional()

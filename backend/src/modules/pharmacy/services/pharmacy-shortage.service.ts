@@ -3,7 +3,7 @@
  * Rules A (5 consecutive rejections) and B (10 rejections in 7 days) automatic triggers.
  * Includes shortage monitoring dashboard analytics for admins.
  */
-import { Injectable, ForbiddenException, NotFoundException, Inject } from '@nestjs/common';
+import { Injectable, ForbiddenException, NotFoundException, Inject, BadRequestException } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { DrugShortageFlag, PharmacyOrder } from '../schemas/pharmacy.schema';
@@ -31,6 +31,9 @@ export class PharmacyShortageService {
 
   async reportByPharmacy(user: any, body: { sku?: string; generic_name?: string; name_ar?: string; dosage?: string; form?: string; reason?: string }): Promise<any> {
     if (!isProviderRole(user?.role)) throw new ForbiddenException();
+    if (![body.sku, body.generic_name, body.name_ar].some((v) => String(v || '').trim())) {
+      throw new BadRequestException('medicine_identifier_required');
+    }
     const flag = await this.flags.create({
       id: uuidv4(),
       sku: body.sku, generic_name: body.generic_name, name_ar: body.name_ar, dosage: body.dosage, form: body.form,

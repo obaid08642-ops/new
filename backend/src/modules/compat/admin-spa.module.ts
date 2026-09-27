@@ -48,6 +48,7 @@ class FreeformConfigObjectPipe implements PipeTransform<unknown, Record<string, 
   }
 }
 
+
 const now = () => new Date();
 const uid = (u: any) => u?.id || u?._id || u?.user_id;
 
@@ -78,8 +79,9 @@ class AdminDashboardController extends AdminController {
       this.conn.collection('provider_profiles').countDocuments({} as any),
       this.conn.collection('provider_profiles').countDocuments({ verification_status: { $nin: ['verified'] } } as any),
       this.conn.collection('appointments').countDocuments({ createdAt: { $gte: day } } as any),
-      this.conn.collection('orders').countDocuments({ createdAt: { $gte: day } } as any),
-      this.conn.collection('emergencyrequests').countDocuments({ state: { $nin: ['RESOLVED', 'CLOSED'] } } as any),
+      Promise.all(['orders', 'pharmacy_orders'].map((c) => this.conn.collection(c).countDocuments({ createdAt: { $gte: day } } as any)))
+        .then((n) => n[0] + n[1]),
+      this.conn.collection('emergency_requests').countDocuments({ state: { $nin: ['RESOLVED', 'CANCELLED', 'CLOSED'] } } as any),
       this.conn.collection('insuranceservicerequests').countDocuments({ state: 'PENDING_PROVIDER_REVIEW' } as any),
     ]);
     return {
@@ -93,7 +95,7 @@ class AdminDashboardController extends AdminController {
   @Get('alerts')
   async alerts() {
     const [sos, shortages, pendingProviders, openComplaints] = await Promise.all([
-      this.conn.collection('emergencyrequests').find({ state: { $nin: ['RESOLVED', 'CLOSED'] } } as any).sort({ createdAt: -1 }).limit(10).toArray(),
+      this.conn.collection('emergency_requests').find({ state: { $nin: ['RESOLVED', 'CANCELLED', 'CLOSED'] } } as any).sort({ createdAt: -1 }).limit(10).toArray(),
       this.conn.collection('pharmacy_shortage_reports').find({ status: 'open' } as any).sort({ createdAt: -1 }).limit(10).toArray(),
       this.conn.collection('provider_profiles').find({ verification_status: { $nin: ['verified'] } } as any).sort({ createdAt: -1 }).limit(10).toArray(),
       this.conn.collection('complaints').find({ status: { $nin: ['resolved', 'closed'] } } as any).sort({ createdAt: -1 }).limit(10).toArray(),
@@ -110,9 +112,10 @@ class AdminDashboardController extends AdminController {
   @Get('live-feed')
   async liveFeed() {
     const [orders, appts, sos] = await Promise.all([
-      this.conn.collection('orders').find({} as any).sort({ createdAt: -1 }).limit(10).toArray(),
+      Promise.all(['orders', 'pharmacy_orders'].map((c) => this.conn.collection(c).find({} as any).sort({ createdAt: -1 }).limit(10).toArray()))
+        .then(([a, b]) => [...a, ...b]),
       this.conn.collection('appointments').find({} as any).sort({ createdAt: -1 }).limit(10).toArray(),
-      this.conn.collection('emergencyrequests').find({} as any).sort({ createdAt: -1 }).limit(5).toArray(),
+      this.conn.collection('emergency_requests').find({} as any).sort({ createdAt: -1 }).limit(5).toArray(),
     ]);
     const feed: any[] = [];
     for (const o of orders) feed.push({ kind: 'order', id: o.id || String(o._id), label: `طلب صيدلية — ${o.status || o.state || ''}`, at: o.createdAt });
@@ -181,7 +184,7 @@ class AdminEmergencyController extends AdminController {
   @Post(':id/dispatch')
   async dispatch(@Param('id') id: string, @CurrentUser() user: any, @Body() body: DispatchDto) {
     if (!body?.ambulance_id) throw new BadRequestException('ambulance_id مطلوب');
-    const res = await this.conn.collection('emergencyrequests').updateOne(
+    const res = await this.conn.collection('emergency_requests').updateOne(
       byId(id) as any,
       {
         $set: { assigned_ambulance_id: body.ambulance_id, state: 'DISPATCH_INITIATED', updatedAt: now() },
@@ -453,7 +456,7 @@ class AdminServicesController extends AdminController {
     const [labs, rads, home] = await Promise.all([
       this.conn.collection(CATALOG_COLLECTIONS.lab_services).find({ active: { $ne: false } } as any).limit(200).toArray(),
       this.conn.collection(CATALOG_COLLECTIONS.radiology_services).find({ active: { $ne: false } } as any).limit(200).toArray(),
-      this.conn.collection('homecareservices').find({ active: { $ne: false } } as any).limit(200).toArray(),
+      this.conn.collection(CATALOG_COLLECTIONS.nursing_services).find({ active: { $ne: false } } as any).limit(200).toArray(),
     ]);
     const map = (t: string) => (s: any) => ({
       id: s.id || String(s._id), type: t, name_ar: s.name_ar, name_en: s.name_en,
@@ -544,24 +547,31 @@ class AdminOrdersController extends AdminController {
 @UseGuards(JwtAuthGuard)
 @Roles(UserRole.ADMIN)
 class AdminFinancialController extends AdminController {
+  /** Pharmacy GMV across the legacy cart orders (`state`, `total`) and the current flow (`status`, `totals.total`). */
+  private pharmacyGmv(extra: Record<string, any>) {
+    return this.conn.collection('orders').aggregate([
+      { $match: { ...extra, state: { $nin: ['cancelled', 'CANCELLED'] }, status: { $nin: ['cancelled', 'CANCELLED'] } } },
+      { $project: { amount: { $ifNull: ['$total', { $ifNull: ['$totals.total', 0] }] } } },
+      { $unionWith: { coll: 'pharmacy_orders', pipeline: [
+        { $match: { ...extra, status: { $nin: ['draft', 'cancelled'] } } },
+        { $project: { amount: { $ifNull: ['$totals.total', 0] } } },
+      ] } },
+      { $group: { _id: null, total: { $sum: '$amount' }, count: { $sum: 1 } } },
+    ]).toArray();
+  }
+
   @Get('summary')
   async summary() {
     const month = new Date(); month.setDate(1); month.setHours(0, 0, 0, 0);
     const [gmvRows, monthRows, refundsPending, copayRows, withdrawalsPending] = await Promise.all([
-      this.conn.collection('orders').aggregate([
-        { $match: { status: { $nin: ['cancelled', 'CANCELLED'] } } },
-        { $group: { _id: null, total: { $sum: { $ifNull: ['$total', '$totals.total', 0] } }, count: { $sum: 1 } } },
-      ]).toArray(),
-      this.conn.collection('orders').aggregate([
-        { $match: { createdAt: { $gte: month }, status: { $nin: ['cancelled', 'CANCELLED'] } } },
-        { $group: { _id: null, total: { $sum: { $ifNull: ['$total', '$totals.total', 0] } }, count: { $sum: 1 } } },
-      ]).toArray(),
+      this.pharmacyGmv({}),
+      this.pharmacyGmv({ createdAt: { $gte: month } }),
       this.conn.collection('refund_requests').countDocuments({ status: { $in: ['pending', 'requested'] } } as any),
       this.conn.collection('insuranceservicerequests').aggregate([
         { $match: { state: 'COPAY_PAID' } },
         { $group: { _id: null, total: { $sum: { $ifNull: ['$copay_amount', 0] } }, count: { $sum: 1 } } },
       ]).toArray(),
-      this.conn.collection('withdrawals').countDocuments({ status: { $in: ['pending', 'PENDING'] } } as any),
+      this.conn.collection('providerwithdrawals').countDocuments({ $or: [{ status: { $in: ['pending', 'PENDING'] } }, { state: { $in: ['pending', 'PENDING', 'REQUESTED'] } }] } as any),
     ]);
     return {
       gmv_total: gmvRows[0]?.total || 0, orders_total: gmvRows[0]?.count || 0,
@@ -759,6 +769,8 @@ class AdminDeliveryController extends AdminController {
 
   @Post('rules')
   async createRule(@CurrentUser() user: any, @Body() body: CreateRuleDto) {
+    // An unnamed rule with defaults would be an active free-delivery rule for every order.
+    if (!String(body?.name_ar || '').trim()) throw new BadRequestException('rule_name_required');
     const doc = {
       id: uuid(), name_ar: body?.name_ar || null,
       min_order_sar: body?.min_order_sar ?? null, service_type: body?.service_type || null,

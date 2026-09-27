@@ -44,7 +44,7 @@ export class AdminCrmController {
     const counts = new Map<string, number>();
     await Promise.all(ORDER_KINDS.map(async (k) => {
       const rows = await this.conn.collection(k.collection).aggregate([
-        { $match: { patient_id: { $in: ids } } },
+        { $match: { [k.patientField]: { $in: ids } } },
         { $group: { _id: `$${k.patientField}`, n: { $sum: 1 } } },
       ]).toArray().catch(() => []);
       for (const r of rows as any[]) counts.set(String(r._id), (counts.get(String(r._id)) || 0) + r.n);
@@ -69,23 +69,40 @@ export class AdminCrmController {
       Promise.all(ORDER_KINDS.map(async (k) => ({
         kind: k.kind, label_ar: k.label_ar,
         rows: await this.conn.collection(k.collection)
-          .find({ patient_id: id })
+          .find({ [k.patientField]: id })
           .sort({ createdAt: -1 }).limit(15)
-          .project({ _id: 0, id: 1, state: `$${k.stateField}`, total: { $ifNull: ['$total_price', '$total'] }, payment_status: 1, createdAt: 1 })
+          .project({ _id: 0, id: 1, state: `$${k.stateField}`, total: { $ifNull: [k.amountExpr, 0] }, payment_status: 1, createdAt: 1 })
           .toArray()
           .catch(() => []),
-        count: await this.conn.collection(k.collection).countDocuments({ patient_id: id }).catch(() => 0),
-      }))),
+        count: await this.conn.collection(k.collection).countDocuments({ [k.patientField]: id }).catch(() => 0),
+      }))).then((groups) => {
+        // a kind can span several collections (pharmacy: current + legacy cart): one group per kind
+        const byKind = new Map<string, { kind: string; label_ar: string; rows: any[]; count: number }>();
+        for (const g of groups) {
+          const prev = byKind.get(g.kind);
+          if (!prev) byKind.set(g.kind, { ...g, rows: [...g.rows] });
+          else { prev.rows.push(...g.rows); prev.count += g.count; }
+        }
+        for (const g of byKind.values()) g.rows = g.rows.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 15);
+        return [...byKind.values()];
+      }),
       this.conn.collection('wallets').findOne({ ownerId: id, ownerType: 'patient' }).catch(() => null),
       this.conn.collection('wallet_transactions').find({
         walletId: (await this.conn.collection('wallets').findOne({ ownerId: id, ownerType: 'patient' }))?.id || '__none__',
       }).sort({ createdAt: -1 }).limit(20).project({ _id: 0 }).toArray().catch(() => []),
-      this.conn.collection('support_requests').find({ user_id: id }).sort({ createdAt: -1 }).limit(15)
+      this.conn.collection('supportrequests').find({ user_id: id }).sort({ createdAt: -1 }).limit(15)
         .project({ _id: 0, id: 1, tracking_id: 1, category: 1, subject: 1, status: 1, priority: 1, createdAt: 1 })
         .toArray().catch(() => []),
-      this.conn.collection('sessions').find({ user_id: id }).sort({ last_seen_at: -1 }).limit(10)
-        .project({ _id: 0, device_name: 1, platform: 1, ip: 1, last_seen_at: 1, revoked: 1 })
-        .toArray().catch(() => []),
+      // Devices: the patient's registered app installs (PushToken model) + trusted 2FA devices.
+      Promise.all([
+        this.conn.collection('pushtokens').find({ user_id: id }).sort({ last_seen_at: -1 }).limit(10)
+          .project({ _id: 0, device_id: 1, platform: 1, last_seen_at: 1, active: 1 }).toArray().catch(() => []),
+        this.conn.collection('trusted_devices').find({ user_id: id }).sort({ last_seen_at: -1 }).limit(10)
+          .project({ _id: 0, name: 1, last_ip: 1, ip: 1, last_seen_at: 1, revoked: 1 }).toArray().catch(() => []),
+      ]).then(([push, trusted]) => [
+        ...(push as any[]).map((d) => ({ device_name: d.device_id, platform: d.platform, last_seen_at: d.last_seen_at, revoked: d.active === false })),
+        ...(trusted as any[]).map((d) => ({ device_name: d.name, platform: 'trusted', ip: d.last_ip || d.ip, last_seen_at: d.last_seen_at, revoked: !!d.revoked })),
+      ].sort((a, b) => new Date(b.last_seen_at || 0).getTime() - new Date(a.last_seen_at || 0).getTime()).slice(0, 10)),
     ]);
 
     const lifetimeSpend = await this.conn.collection('moyasar_payments').aggregate([
@@ -197,13 +214,13 @@ export class AdminGdprController {
     const pkg: any = { generated_at: new Date().toISOString(), user_id: uid, collections: {} };
     pkg.collections.user = await this.conn.collection('users').findOne({ id: uid }, { projection: { _id: 0, password_hash: 0, otp_codes: 0 } });
     for (const k of ORDER_KINDS) {
-      pkg.collections[k.kind] = await this.conn.collection(k.collection)
-        .find({ patient_id: uid }).sort({ createdAt: -1 }).limit(500)
+      pkg.collections[k.collection] = await this.conn.collection(k.collection)
+        .find({ [k.patientField]: uid }).sort({ createdAt: -1 }).limit(500)
         .project({ _id: 0 }).toArray();
     }
     pkg.collections.wallet_transactions = await this.conn.collection('wallet_transactions').find(
       { referenceId: uid }).limit(500).project({ _id: 0 }).toArray().catch(() => []);
-    pkg.collections.support_requests = await this.conn.collection('support_requests').find(
+    pkg.collections.support_requests = await this.conn.collection('supportrequests').find(
       { user_id: uid }).limit(200).project({ _id: 0 }).toArray();
 
     await this.conn.collection('gdpr_exports').updateOne(

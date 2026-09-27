@@ -158,7 +158,7 @@ import { AuditIngestController } from './admin-audit-ingest.controller';
     SystemHealthController,
     AdminConfigController,
     WebCoreGovernanceController,
-    AdminExtendedOperationsController,,
+    AdminExtendedOperationsController,
     AuditIngestController
 ],
   providers: [

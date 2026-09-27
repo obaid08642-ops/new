@@ -2,7 +2,6 @@ import { Module, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { MongooseModule, InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { RADIOLOGY_SEED } from './radiology.seed';
-import { RadiologyController } from './controllers/radiology.controller';
 import { RadiologyController as RadiologyPublicController } from './radiology.controller';
 import { RadiologyOpsService } from './radiology.service';
 import { RadiologyProviderController } from './controllers/radiology-provider.controller';
@@ -18,6 +17,7 @@ import { RadiologyServiceRepository } from "./repositories/radiologyservice.repo
 import { RadiologyNotificationListener } from './listeners/radiology-notification.listener';
 import { RadiologyReminderCron } from './cron/radiology-reminder.cron';
 import { StorageObjectSchema } from '../storage/storage.module';
+import { ProviderProfile, ProviderProfileSchema } from '../../schemas/provider-profile.schema';
 
 @Injectable()
 export class RadiologySeed implements OnModuleInit {
@@ -52,6 +52,7 @@ export class RadiologySeed implements OnModuleInit {
     WorkflowEngineModule,
     MongooseModule.forFeature([
       { name: 'RadiologyService', schema: RadiologyServiceSchema },
+      { name: ProviderProfile.name, schema: ProviderProfileSchema },
       { name: 'RadiologyBooking', schema: LegacyRadiologyBookingSchema },
       { name: 'RadiologyCenterBooking', schema: RadiologyCenterBookingSchema },
       { name: 'RadiologyMachine', schema: RadiologyMachineSchema },
@@ -61,7 +62,10 @@ export class RadiologySeed implements OnModuleInit {
       { name: 'StorageObject', schema: StorageObjectSchema },
     ]),
   ],
-  controllers: [RadiologyController, RadiologyProviderController, RadiologyPublicController],
+  // controllers/radiology.controller.ts (a second RadiologyController) was removed: its book/mine/:id shadowed these
+  // routes and wrote a store the center app never reads; its allocate/finalize duplicated the provider controller
+  // without ownership checks.
+  controllers: [RadiologyProviderController, RadiologyPublicController],
   providers: [
     RadiologyOpsService, 
     RadiologyNotificationListener,

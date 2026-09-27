@@ -1497,9 +1497,14 @@ function ActiveInventoryScreen({ onBack }: any) {
 
   useEffect(() => { fetchInventory(); }, [fetchInventory]);
 
+  // Only the fields a pharmacy may set: the server rejects unknown fields (and owns id/timestamps).
+  const EDITABLE = ['sku', 'name_ar', 'name_en', 'barcode', 'category', 'generic_name', 'form', 'dosage', 'pack_size', 'price', 'currency',
+    'stock', 'min_stock_alert', 'available', 'insurance_covered', 'coverage_notes', 'expiry_date', 'notes', 'substitute_skus'];
+  const editable = (x: any) => Object.fromEntries(Object.entries(x || {}).filter(([k, v]) => EDITABLE.includes(k) && v !== undefined && v !== null));
+
   const persistItem = async (item: any, patch: any) => {
     try {
-      const res = await client.post('/provider/capabilities/pharmacy', { ...item, ...patch });
+      const res = await client.post('/provider/capabilities/pharmacy', editable({ ...item, ...patch }));
       if ((res?.data as any)?.pending_review) {
         show(AR ? 'تم الإرسال — تُطبق بعد اعتماد الإدارة' : 'Sent — applied after admin approval', 'success');
         fetchInventory();
@@ -1533,11 +1538,77 @@ function ActiveInventoryScreen({ onBack }: any) {
   const itemName = (x: any) => (AR ? (x.name_ar || x.name_en || x.sku) : (x.name_en || x.name_ar || x.sku)) || '';
   const filtered = inventory.filter(x => itemName(x).toLowerCase().includes(search.toLowerCase()));
 
+  // Add a catalog medicine to this pharmacy's price list. Offers are priced only from inventory
+  // items, so without this a newly registered pharmacy could never answer a patient request.
+  // sku = catalog medicine id: the same key the patient's cart sends as the order line sku.
+  const [catalogQuery, setCatalogQuery] = useState('');
+  const [catalogResults, setCatalogResults] = useState<any[]>([]);
+  const [picked, setPicked] = useState<any>(null);
+  const [newPrice, setNewPrice] = useState('');
+  const [newStock, setNewStock] = useState('');
+  const [catalogBusy, setCatalogBusy] = useState(false);
+  const searchCatalog = async () => {
+    if (catalogQuery.trim().length < 2) return;
+    setCatalogBusy(true);
+    try {
+      const res = await client.get('/medicines', { params: { q: catalogQuery.trim(), limit: 10 } });
+      const rows = Array.isArray(res.data) ? res.data : (res.data?.data || res.data?.items || []);
+      setCatalogResults(rows.filter((m: any) => m?.id));
+    } catch {
+      setCatalogResults([]);
+      show(AR ? 'تعذر البحث في الكتالوج' : 'Catalog search failed', 'error');
+    } finally { setCatalogBusy(false); }
+  };
+  const addFromCatalog = async () => {
+    const price = Number(newPrice);
+    const stock = Math.max(0, Math.floor(Number(newStock) || 0));
+    if (!picked || !Number.isFinite(price) || price <= 0) { show(AR ? 'أدخل سعراً أكبر من صفر' : 'Enter a price above zero', 'error'); return; }
+    setCatalogBusy(true);
+    try {
+      await client.post('/provider/capabilities/pharmacy', {
+        sku: String(picked.id), name_ar: picked.name_ar || picked.name || picked.name_en, name_en: picked.name_en || undefined,
+        price, stock, available: true,
+      });
+      show(AR ? 'أُرسل الصنف — يظهر في عروضك بعد اعتماد الإدارة' : 'Item sent — usable in offers after admin approval', 'success');
+      setPicked(null); setNewPrice(''); setNewStock(''); setCatalogResults([]); setCatalogQuery('');
+      fetchInventory();
+    } catch (e: any) {
+      const msg = e?.response?.data?.message;
+      show(typeof msg === 'string' ? msg : (AR ? 'تعذر إرسال الصنف' : 'Could not send the item'), 'error');
+    } finally { setCatalogBusy(false); }
+  };
+
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
       <NHeader title={AR ? 'إدارة المخزون' : 'Active Inventory'} onBack={onBack} />
       <View style={{ padding: 16 }}>
         <NInput placeholder={AR ? 'ابحث عن منتج...' : 'Search product...'} value={search} onChange={(v: string) => setSearch(v)} />
+        <NCard style={{ marginTop: 12 }}>
+          <Text style={{ fontWeight: 'bold', color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: 8 }}>
+            {AR ? 'إضافة صنف من كتالوج الأدوية' : 'Add a medicine from the catalog'}
+          </Text>
+          {!picked ? (
+            <>
+              <NInput placeholder={AR ? 'اسم الدواء (حرفان على الأقل)' : 'Medicine name (2+ letters)'} value={catalogQuery} onChange={(v: string) => setCatalogQuery(v)} />
+              <NBtn label={AR ? 'بحث' : 'Search'} size="sm" loading={catalogBusy} onPress={searchCatalog} />
+              {catalogResults.map((m: any) => (
+                <TouchableOpacity key={m.id} onPress={() => setPicked(m)} style={{ paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: theme.surface2 }}>
+                  <Text style={{ color: theme.text, textAlign: AR ? 'right' : 'left' }}>{AR ? (m.name_ar || m.name_en) : (m.name_en || m.name_ar)}</Text>
+                </TouchableOpacity>
+              ))}
+            </>
+          ) : (
+            <>
+              <Text style={{ color: theme.primary, textAlign: AR ? 'right' : 'left', marginBottom: 6 }}>{AR ? (picked.name_ar || picked.name_en) : (picked.name_en || picked.name_ar)}</Text>
+              <NInput placeholder={AR ? 'السعر (ر.س)' : 'Price (SAR)'} value={newPrice} onChange={(v: string) => setNewPrice(v)} kbType="decimal-pad" />
+              <NInput placeholder={AR ? 'الكمية المتوفرة' : 'Stock on hand'} value={newStock} onChange={(v: string) => setNewStock(v)} kbType="numeric" />
+              <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: 8 }}>
+                <NBtn label={AR ? 'إرسال للاعتماد' : 'Send for approval'} size="sm" loading={catalogBusy} onPress={addFromCatalog} />
+                <NBtn label={AR ? 'إلغاء' : 'Cancel'} size="sm" variant="outline" onPress={() => setPicked(null)} />
+              </View>
+            </>
+          )}
+        </NCard>
       </View>
       {loading ? (
         <ActivityIndicator color={theme.primary} style={{ marginTop: 40 }} />

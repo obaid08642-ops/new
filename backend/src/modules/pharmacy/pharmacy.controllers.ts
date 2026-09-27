@@ -1,5 +1,8 @@
 import { Body, Controller, Get, Param, Post, Patch, Put, UseGuards, Query, Headers, ForbiddenException, ServiceUnavailableException } from '@nestjs/common';
 import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
+import { InjectConnection } from '@nestjs/mongoose';
+import { Connection } from 'mongoose';
+import { v4 as uuidv4 } from 'uuid';
 import { UserRole, isProviderRole } from '../../common/enums';
 import { RequireIdempotency } from '../../common/idempotency.interceptor';
 import { PharmacyOrderService } from './services/pharmacy-order.service';
@@ -15,7 +18,7 @@ import { PharmacyOfferService } from './services/pharmacy-offer.service';
 import { PharmacyInsuranceDecisionService } from './services/pharmacy-insurance-decision.service';
 import { PharmacyExpiryCommandService } from './services/pharmacy-expiry-command.service';
 import { PharmacyPaymentEvidenceService } from './services/pharmacy-payment-evidence.service';
-import { CreateDto, UpdateDto, CancelDto, PaymentIntentDto, CancelRejectedInsuranceDto, SelectOfferDto, AcceptFinalQuoteDto, RegisterCodDto, AcceptInsuranceDto, ItemActionDto, OutDto, DeliveredDto, InsuranceDecisionDto, CancelDto3, SetTrackingDto, RestockDto, SampleOrderDto, PreviewOfferDto, DraftOfferDto, RejectDto, PostDto, ReportDto, CreateDto2, MarkShortageDto, RejectDto5 } from './pharmacy.controllers.dto';
+import { CreateDto, UpdateDto, CancelDto, PaymentIntentDto, CancelRejectedInsuranceDto, SelectOfferDto, AcceptFinalQuoteDto, RegisterCodDto, AcceptInsuranceDto, ItemActionDto, OutDto, DeliveredDto, InsuranceDecisionDto, CancelDto3, SetTrackingDto, RestockDto, SampleOrderDto, PreviewOfferDto, DraftOfferDto, RejectDto, PostDto, ReportDto, CreateDto2, MarkShortageDto, RejectDto5, SetCodPolicyDto } from './pharmacy.controllers.dto';
 
 // =========================================================================
 //  PATIENT ENDPOINTS (/api/v2/patient/pharmacy/*)
@@ -210,6 +213,27 @@ export class ProviderBroadcastController {
   @Post(':orderId/i-have-all') haveAll() { throw new ServiceUnavailableException('legacy_broadcast_acceptance_disabled_use_offer_draft'); }
   @Post(':orderId/i-have-partial') havePartial() { throw new ServiceUnavailableException('legacy_broadcast_acceptance_disabled_use_offer_draft'); }
   @Post(':orderId/reject') reject(@CurrentUser() u: any, @Param('orderId') oid: string, @Body() b: RejectDto) { return this.bc.respondReject(u, oid, b); }
+}
+
+/** Platform fulfillment policies (admin config-portal). The COD policy gates preparing cash orders. */
+@Controller('admin/pharmacy/fulfillment-policies')
+@Roles(UserRole.ADMIN)
+@UseGuards(JwtAuthGuard)
+export class AdminFulfillmentPolicyController {
+  constructor(@InjectConnection() private readonly conn: Connection) {}
+  private get col() { return this.conn.collection('pharmacy_fulfillment_policies'); }
+  @Get() list(): Promise<any[]> { return this.col.find({ provider_account_id: null }, { projection: { _id: 0 } }).toArray(); }
+  @Put('cod') async setCod(@CurrentUser() u: any, @Body() b: SetCodPolicyDto): Promise<any> {
+    const now = new Date();
+    await this.col.updateOne(
+      { id: 'platform-cod' },
+      { $set: { active: b.active === true, allow_preparation: b.active === true, updated_by: u?.id, updatedAt: now },
+        $setOnInsert: { id: 'platform-cod', payment_method: 'cod', provider_account_id: null, createdAt: now } },
+      { upsert: true },
+    );
+    await this.conn.collection('audit_logs').insertOne({ id: uuidv4(), actor_id: u?.id, actor_role: 'admin', action: 'pharmacy.cod_policy_set', after: { active: b.active === true }, createdAt: now });
+    return this.col.findOne({ id: 'platform-cod' }, { projection: { _id: 0 } });
+  }
 }
 
 @Controller('admin/pharmacy/broadcasts')

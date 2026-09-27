@@ -65,7 +65,7 @@ describe('EntityGraphService', () => {
 
   const mockConnection = {
     collection: jest.fn().mockImplementation((name: string) => {
-      if (name === 'medicines_master') {
+      if (name === 'medicines') {
         return {
           findOne: jest.fn().mockResolvedValue(mockMedicine),
           find: jest.fn().mockReturnValue({

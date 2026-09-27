@@ -1,3 +1,4 @@
+import { ServiceUnavailableException } from '@nestjs/common';
 import {
   Module,
   Injectable,
@@ -24,6 +25,7 @@ import { UserRole } from '../../common/enums';
 import { IdempotencyInterceptor } from '../../common/idempotency.interceptor';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import * as crypto from 'crypto';
+import { moyasarBase } from '../../common/moyasar-base';
 
 // ── Schemas ──────────────────────────────────────────────────────────────────
 
@@ -64,7 +66,7 @@ MoyasarPaymentSchema.index({ moyasar_id: 1 }, { sparse: true });
 export class MoyasarService {
   private readonly logger = new Logger('MoyasarService');
   private readonly apiKey: string;
-  private readonly baseUrl = 'https://api.moyasar.com/v1';
+  private get baseUrl() { return moyasarBase(); }
 
   constructor(
     @InjectModel(MoyasarPayment.name)
@@ -112,6 +114,10 @@ export class MoyasarService {
     }
     if (!(amount > 0)) throw new BadRequestException('booking_has_no_payable_amount');
     return { amount: Math.round(amount * 100) / 100, patient_id: doc.patient_id || doc.user_id || null };
+  }
+
+  private assertSandboxAllowed(): void {
+    if (process.env.NODE_ENV === 'production') throw new ServiceUnavailableException('payment_gateway_not_configured');
   }
 
   private authHeaders(): Record<string, string> {
@@ -191,7 +197,9 @@ export class MoyasarService {
         throw new BadRequestException(e?.message || 'payment_create_failed');
       }
     } else {
-      // Sandbox / dev mode when no API key is configured
+      // Sandbox / dev mode when no API key is configured — never in production,
+      // where a missing key must fail closed instead of issuing a fake payment.
+      this.assertSandboxAllowed();
       moyasarResponse = {
         id: `sandbox_${Date.now()}`,
         status: 'initiated',
@@ -273,6 +281,9 @@ export class MoyasarService {
     const isSandbox = !this.apiKey || moyasarId.startsWith('sandbox_');
 
     if (isSandbox) {
+      // Without a key in production, marking a payment refunded would record a
+      // refund that never reached Moyasar.
+      this.assertSandboxAllowed();
       const p = await this.paymentModel.findOne({ moyasar_id: { $eq: moyasarId } });
       if (p) {
         p.status = 'refunded';

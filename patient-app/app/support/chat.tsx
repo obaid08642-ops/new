@@ -121,7 +121,7 @@ export default function SupportChatScreen() {
         <View style={styles.headerRow}>
           <View style={styles.agentStatus}>
             <View style={styles.onlineDot} />
-            <AppText variant="bodySM">متاح الآن • ردّ خلال دقيقة</AppText>
+            <AppText variant="bodySM">فريق الدعم يرد عليك هنا</AppText>
           </View>
           <View style={styles.agentInfo}>
             <AppText variant="bodySM">دعم نبض</AppText>

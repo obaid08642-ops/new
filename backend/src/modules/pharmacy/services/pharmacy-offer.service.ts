@@ -76,9 +76,18 @@ export class PharmacyOfferService {
       };
     }
 
-    const inventoryId = input.availability === 'substitute'
+    let inventoryId = input.availability === 'substitute'
       ? input.substitute_inventory_item_id
       : input.inventory_item_id || orderItem.matched_inventory_id;
+    // The broadcast shows the pharmacy only order lines (matched_sku), not its own inventory ids, so the
+    // app cannot send one. Resolve the pharmacy's own live item for that sku (same filter as below).
+    if (!inventoryId && input.availability !== 'substitute' && orderItem.matched_sku) {
+      const own: any = await this.inventory.findOne({
+        provider_account_id: userId, sku: orderItem.matched_sku, available: true, stock: { $gt: 0 },
+        $or: [{ expiry_date: { $exists: false } }, { expiry_date: null }, { expiry_date: { $gt: new Date() } }],
+      }).lean();
+      inventoryId = own?.id;
+    }
     if (!inventoryId) throw new BadRequestException('inventory_item_id_required');
     const inventoryItem: any = await this.inventory.findOne({
       id: inventoryId,
@@ -330,8 +339,8 @@ export class PharmacyOfferService {
         const offer: any = await this.offers.findOne({ id: offerId, order_id: orderId, patient_account_id: user.id, status: 'submitted', quote_expires_at: { $gt: now } }).session(session);
         if (!offer) throw new BadRequestException('offer_not_selectable');
 
+        const tracking = await this.tracksInventory(offer.pharmacy_account_id);
         for (const item of offer.items.filter((item: any) => item.action !== 'unavailable')) {
-          const tracking = await this.tracksInventory(offer.pharmacy_account_id);
           if (!tracking) continue;
           const reserved = await this.inventory.findOneAndUpdate(
             { id: item.inventory_item_id, provider_account_id: offer.pharmacy_account_id, available: true, stock: { $gte: item.qty_offered } },
@@ -358,7 +367,7 @@ export class PharmacyOfferService {
         const allocation = await this.allocations.create([{
           id: uuidv4(), order_id: orderId, pharmacy_account_id: offer.pharmacy_account_id,
           offer_id: offer.id, offer_version: offer.version,
-          status: PharmacyAllocationState.PENDING_REVIEW,
+          status: PharmacyAllocationState.PENDING_REVIEW, stock_reserved: tracking,
           items: offer.items.map((item: any) => ({ id: uuidv4(), order_item_id: item.order_item_id, action: item.action, inventory_id: item.inventory_item_id, sku: item.sku, name: item.name_ar || item.name_en, qty_requested: item.qty_requested, qty_offered: item.qty_offered, unit_price: item.unit_price, updated_at: now })),
           totals: offer.totals, estimated_preparation_minutes: offer.estimated_preparation_minutes,
           timeline: [{ ts: now, event: 'created_after_patient_offer_selection', by: user.id, meta: { offer_id: offer.id, offer_version: offer.version } }],

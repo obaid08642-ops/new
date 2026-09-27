@@ -6,7 +6,7 @@ import { CreateDto, UpdateDto, RejectDto } from './ambulance-fleet.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { AmbulanceVehicle, AmbulanceVehicleDocument } from '../../schemas/ambulance-vehicle.schema';
-import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
+import { CurrentUser, JwtAuthGuard, Roles, getEffectiveRoles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 
 // clinic accounts carry the HOSPITAL role (typeToRole), so both fleet owners are covered.
@@ -52,8 +52,9 @@ export class AmbulanceFleetService {
       throw new BadRequestException('invalid_vehicle_type');
     }
     if (body.plate_number && body.plate_number !== v.plate_number) v.plate_number = String(body.plate_number).trim();
-    // Any change to a reviewed vehicle goes back to admin review
-    if (v.status === 'approved') v.status = 'pending';
+    // A change to what the admin reviewed sends the vehicle back to review; going on/off shift or a GPS update does not.
+    const reviewed = ['model', 'year', 'equipment', 'paramedic_count', 'has_icu', 'vehicle_type', 'base_city', 'documents', 'plate_number'];
+    if (v.status === 'approved' && reviewed.some((k) => v.isModified(k))) v.status = 'pending';
     await v.save();
     return this.model.findOne({ id: { $eq: id } }, { _id: 0, __v: 0 }).lean();
   }
@@ -83,13 +84,14 @@ export class AmbulanceFleetService {
 }
 
 @Controller('provider/ambulance/fleet')
-@Roles(UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
+@Roles(UserRole.AMBULANCE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)
 @UseGuards(JwtAuthGuard)
 export class ProviderAmbulanceFleetController {
   constructor(private svc: AmbulanceFleetService) {}
 
   private assertFleetRole(user: any) {
-    if (!FLEET_ROLES.includes(user?.role)) {
+    // role or provider_type (provider-auth tokens carry role 'provider')
+    if (!getEffectiveRoles(user).some((r) => (FLEET_ROLES as string[]).includes(r))) {
       throw new ForbiddenException('only_ambulance_or_facility_providers');
     }
   }

@@ -54,7 +54,7 @@ describe('AiCommerceService', () => {
 
   const mockConnection = {
     collection: jest.fn().mockImplementation((name: string) => {
-      if (name === 'medicines_master') {
+      if (name === 'medicines') {
         return {
           countDocuments: jest.fn().mockResolvedValue(mockMedicines.length),
           find: jest.fn().mockReturnValue({

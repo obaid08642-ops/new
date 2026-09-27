@@ -25,9 +25,10 @@ export function MedicationReminderForm({ locale }: { locale: string }) {
     try {
       const res = await fetch("/api/health/reminders", {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: { "content-type": "application/json", "idempotency-key": crypto.randomUUID() },
         body: JSON.stringify({
           medicine_name_ar: name.trim(),
+          time_zone: Intl.DateTimeFormat().resolvedOptions().timeZone,
           dose: dose.trim(),
           times: times.split(",").map((t) => t.trim()).filter(Boolean),
           frequency,

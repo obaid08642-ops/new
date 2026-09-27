@@ -36,21 +36,28 @@ export class AdminGovernanceService {
   ) {}
 
   // ---- internal helpers --------------------------------------------------
+  /** Scoring must never fail the whole dashboard on one odd row: unknown/missing states count as nothing.
+   *  History entries are {to} for engine-driven domains and {state} for appointments. */
+  private uni(kind: any, domainState: any): ServiceState | null {
+    if (!domainState) return null;
+    try { return toUniversal(kind, domainState); } catch { return null; }
+  }
+
   private scoreBucket(items: Array<{ kind: any; state: string; createdAt?: Date; state_history?: any[]; scheduled_at?: Date }>) {
     let total = items.length, completed = 0, cancelled = 0, accepted = 0, delayed = 0;
     let sum_response_min = 0, response_count = 0;
     for (const it of items) {
-      const us = toUniversal(it.kind, it.state);
+      const us = this.uni(it.kind, it.state);
       if (us === ServiceState.COMPLETED) completed++;
       if (us === ServiceState.CANCELLED) cancelled++;
-      const acceptedEvt = (it.state_history || []).find((s: any) => [ServiceState.ASSIGNED, ServiceState.CONFIRMED].includes(toUniversal(it.kind, s.to)));
+      const acceptedEvt = (it.state_history || []).find((s: any) => [ServiceState.ASSIGNED, ServiceState.CONFIRMED].includes(this.uni(it.kind, s.to ?? s.state) as any));
       if (acceptedEvt) {
         accepted++;
         const ms = new Date(acceptedEvt.at).getTime() - new Date(it.createdAt as any).getTime();
         sum_response_min += ms / 60000; response_count++;
       }
       if (it.scheduled_at) {
-        const lastComplete = (it.state_history || []).slice().reverse().find((s: any) => toUniversal(it.kind, s.to) === ServiceState.COMPLETED);
+        const lastComplete = (it.state_history || []).slice().reverse().find((s: any) => this.uni(it.kind, s.to ?? s.state) === ServiceState.COMPLETED);
         if (lastComplete && new Date(lastComplete.at).getTime() > new Date(it.scheduled_at).getTime() + 60 * 60000) delayed++;
       }
     }
@@ -113,7 +120,7 @@ export class AdminGovernanceService {
       this.appts.find({ patient_id, createdAt: { $gte: since } }, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(100).lean(),
       this.events.find({ actor_account_id: patient_id }, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(100).lean(),
     ]);
-    const isActive = (kind: any, st: string) => ![ServiceState.COMPLETED, ServiceState.CANCELLED].includes(toUniversal(kind, st));
+    const isActive = (kind: any, st: string) => { const u = this.uni(kind, st); return !!u && ![ServiceState.COMPLETED, ServiceState.CANCELLED].includes(u); };
     const activeOrders = orders.filter(o => isActive('pharmacy', o.state));
     const activeLabs = labs.filter(b => isActive('lab', b.state));
     const activeRads = rads.filter(b => isActive('radiology', b.state));

@@ -73,12 +73,42 @@ const { width: W } = Dimensions.get('window');
 function FacilityOrdersTab({ onNavigate, onRefresh }: any) {
  const insets = useSafeAreaInsets();
   const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
-  const [tab, setTab] = useState<'pending'|'active'>('pending');
-  const [orders, setOrders] = useState<any[]>([]);
+  const [tab, setTab] = useState<'pending'|'active'|'inbox'>('pending');
+  // Governed job queue (hospital kinds: lab, radiology, consultation); accept/reject in FacilityOrderDetail.
+  const [incoming, setIncoming] = useState<any[]>([]);
+  const [active, setActive] = useState<any[]>([]);
+  // Facility inbox: notices such as an ambulance handing a patient over to this facility.
+  const [inbox, setInbox] = useState<any[]>([]);
+  const rows = (r: any) => (Array.isArray(r?.data) ? r.data : r?.data?.items || []);
 
-  useEffect(() => {
-    client.get('/facility/inbox').then(res => setOrders(res.data || []));
+  const load = useCallback(() => {
+    client.get('/provider/jobs/queue?status=incoming').then(r => setIncoming(rows(r))).catch(() => setIncoming([]));
+    client.get('/provider/jobs/queue?status=active').then(r => setActive(rows(r))).catch(() => setActive([]));
+    client.get('/facility/inbox').then(r => setInbox(rows(r))).catch(() => setInbox([]));
   }, []);
+  useEffect(() => { load(); }, [load]);
+
+  const markRead = async (id: string) => {
+    try { await client.post(`/facility/inbox/${id}/read`); setInbox(prev => prev.map(n => n.id === id ? { ...n, read: true } : n)); } catch {}
+  };
+
+  const jobCard = (order: any, confirmed: boolean) => (
+    <NCard key={`${order.kind}:${order.id}`} style={{ marginBottom: SP.md }} onPress={() => (confirmed ? null : onNavigate('order_detail', order))}>
+      <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{order.title_ar || order.kind}</Text>
+        <NBadge label={confirmed ? (AR ? 'مؤكد' : 'Confirmed') : (AR ? 'جديد' : 'New')} variant={confirmed ? 'success' : 'info'} size="xs" />
+      </View>
+      <Text style={{ color: theme.textSub, marginTop: SP.sm, textAlign: AR ? 'right' : 'left' }}>
+        {order.tracking_id} · {order.total} SAR{order.scheduled_at ? ` · ${new Date(order.scheduled_at).toLocaleString(AR ? 'ar-SA' : 'en-US')}` : ''}
+      </Text>
+    </NCard>
+  );
+
+  const tabs: Array<{ k: 'pending'|'active'|'inbox'; ar: string; en: string }> = [
+    { k: 'pending', ar: `طلبات جديدة (${incoming.length})`, en: `New (${incoming.length})` },
+    { k: 'active', ar: 'مؤكدة', en: 'Confirmed' },
+    { k: 'inbox', ar: `الإشعارات (${inbox.filter(n => !n.read).length})`, en: `Notices (${inbox.filter(n => !n.read).length})` },
+  ];
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
@@ -87,44 +117,27 @@ function FacilityOrdersTab({ onNavigate, onRefresh }: any) {
       </View>
 
       <View style={{ flexDirection: AR ? 'row-reverse' : 'row', borderBottomWidth: 1, borderColor: theme.border }}>
-        <TouchableOpacity style={{ flex: 1, padding: SP.md, alignItems: 'center', borderBottomWidth: tab === 'pending' ? 2 : 0, borderColor: theme.primary }} onPress={() => setTab('pending')}>
-          <Text style={{ color: tab === 'pending' ? theme.primary : theme.textSub, fontWeight: FW.bold }}>{AR ? 'طلبات جديدة' : 'New'}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={{ flex: 1, padding: SP.md, alignItems: 'center', borderBottomWidth: tab === 'active' ? 2 : 0, borderColor: theme.primary }} onPress={() => setTab('active')}>
-          <Text style={{ color: tab === 'active' ? theme.primary : theme.textSub, fontWeight: FW.bold }}>{AR ? 'مؤكدة' : 'Confirmed'}</Text>
-        </TouchableOpacity>
+        {tabs.map(t => (
+          <TouchableOpacity key={t.k} style={{ flex: 1, padding: SP.md, alignItems: 'center', borderBottomWidth: tab === t.k ? 2 : 0, borderColor: theme.primary }} onPress={() => { setTab(t.k); load(); }}>
+            <Text style={{ color: tab === t.k ? theme.primary : theme.textSub, fontWeight: FW.bold }}>{AR ? t.ar : t.en}</Text>
+          </TouchableOpacity>
+        ))}
       </View>
 
-      {tab === 'pending' && (
-        <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 100 }}>
-          {orders.length === 0 && <NEmpty title={AR ? 'لا توجد طلبات' : 'No Orders'} icon="document" />}
-          {orders.map(order => (
-            <NCard key={order.id} style={{ marginBottom: SP.md }} onPress={() => onNavigate('order_detail', order)}>
-              <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{order.patient_name || 'Patient'}</Text>
-                <NBadge label={AR ? 'جديد' : 'New'} variant="info" size="xs" />
-              </View>
-              <Text style={{ color: theme.textSub, marginTop: SP.sm, textAlign: AR ? 'right' : 'left' }}>{order.svc} - {order.total} SAR</Text>
-            </NCard>
-          ))}
-        </ScrollView>
-      )}
-
-      {tab === 'active' && (
-        <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 100 }}>
-          {orders.filter((o: any) => ['confirmed', 'active', 'in_progress', 'accepted'].includes(String(o.status || '').toLowerCase())).length === 0
-            ? <NEmpty title={AR ? 'لا توجد مواعيد' : 'No Appointments'} icon="calendar" />
-            : orders.filter((o: any) => ['confirmed', 'active', 'in_progress', 'accepted'].includes(String(o.status || '').toLowerCase())).map((order: any) => (
-              <NCard key={order.id} style={{ marginBottom: SP.md }} onPress={() => onNavigate('order_detail', order)}>
-                <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{order.patient_name || 'Patient'}</Text>
-                  <NBadge label={AR ? 'مؤكد' : 'Confirmed'} variant="success" size="xs" />
-                </View>
-                <Text style={{ color: theme.textSub, marginTop: SP.sm, textAlign: AR ? 'right' : 'left' }}>{order.svc} - {order.total} SAR</Text>
-              </NCard>
-            ))}
-        </ScrollView>
-      )}
+      <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 100 }}>
+        {tab === 'pending' && (incoming.length === 0 ? <NEmpty title={AR ? 'لا توجد طلبات' : 'No Orders'} icon="document" /> : incoming.map(o => jobCard(o, false)))}
+        {tab === 'active' && (active.length === 0 ? <NEmpty title={AR ? 'لا توجد مواعيد' : 'No Appointments'} icon="calendar" /> : active.map(o => jobCard(o, true)))}
+        {tab === 'inbox' && (inbox.length === 0 ? <NEmpty title={AR ? 'لا توجد إشعارات' : 'No Notices'} icon="notifications" /> : inbox.map((n: any) => (
+          <NCard key={n.id} style={{ marginBottom: SP.md, opacity: n.read ? 0.6 : 1 }} onPress={() => !n.read && markRead(n.id)}>
+            <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{n.title}</Text>
+              {!n.read && <NBadge label={AR ? 'جديد' : 'New'} variant="warning" size="xs" />}
+            </View>
+            <Text style={{ color: theme.textSub, marginTop: SP.sm, textAlign: AR ? 'right' : 'left' }}>{n.body}</Text>
+            {n.created_at ? <Text style={{ color: theme.textSub, fontSize: FS.xs, marginTop: SP.xs }}>{new Date(n.created_at).toLocaleString(AR ? 'ar-SA' : 'en-US')}</Text> : null}
+          </NCard>
+        )))}
+      </ScrollView>
     </View>
   );
 }
@@ -1077,6 +1090,42 @@ function ShiftManagementScreen({ onBack }: { onBack: () => void }) {
  const DAYS = AR
  ? ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت']
  : ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+ const DAY_KEYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+ const todayKey = DAY_KEYS[new Date().getDay()];
+ const visible = view === 'today' ? shifts.filter((sh: any) => !sh.day_of_week || sh.day_of_week === todayKey) : shifts;
+
+ // Add shift: facility members = sub-accounts it created + providers linked to it by invitation
+ const [showAdd, setShowAdd] = useState(false);
+ const [members, setMembers] = useState<Array<{ id: string; name: string }>>([]);
+ const [memberId, setMemberId] = useState('');
+ const [day, setDay] = useState(todayKey);
+ const [from, setFrom] = useState('08:00');
+ const [to, setTo] = useState('16:00');
+ const [dept, setDept] = useState('');
+ const [saving, setSaving] = useState(false);
+ useEffect(() => {
+   if (!showAdd) return;
+   Promise.all([client.get('/hospital/staff').catch(() => null), client.get('/provider/facility/subaccounts').catch(() => null)]).then(([st, sub]) => {
+     const a = (Array.isArray(st?.data) ? st!.data : []).map((x: any) => ({ id: x.user_id, name: x.full_name || x.email }));
+     const b = (Array.isArray(sub?.data) ? sub!.data : []).map((x: any) => ({ id: x.id, name: x.name || x.email }));
+     const seen = new Set<string>();
+     setMembers([...a, ...b].filter(m => m.id && !seen.has(m.id) && seen.add(m.id)));
+   });
+ }, [showAdd]);
+ const saveShift = async () => {
+   const hhmm = /^([01]\d|2[0-3]):[0-5]\d$/;
+   if (!memberId) return show(AR ? 'اختر الموظف' : 'Choose a staff member', 'warning');
+   if (!hhmm.test(from) || !hhmm.test(to)) return show(AR ? 'الوقت بصيغة HH:MM' : 'Time must be HH:MM', 'warning');
+   setSaving(true);
+   try {
+     await client.post('/facility/shifts', { user_id: memberId, day_of_week: day, start_time: from, end_time: to, department_id: dept.trim() || undefined });
+     show(AR ? 'تمت إضافة المناوبة' : 'Shift added', 'success');
+     setShowAdd(false); setMemberId('');
+     await loadShifts();
+   } catch (e: any) {
+     show(e?.response?.data?.message || (AR ? 'فشل إضافة المناوبة' : 'Failed to add shift'), 'error');
+   } finally { setSaving(false); }
+ };
 
  return (
  <NScroll>
@@ -1127,8 +1176,8 @@ function ShiftManagementScreen({ onBack }: { onBack: () => void }) {
  )}
 
  {/* Shifts */}
- <NSecHeader title={AR ? 'مناوبات اليوم' : "Today's Shifts"} />
- {loadingShifts ? <ActivityIndicator color={theme.primary} /> : shifts.length === 0 ? <NEmpty title={AR ? 'لا توجد مناوبات' : 'No shifts'} sub={AR ? 'ستظهر المناوبات المحفوظة للمنشأة هنا.' : 'Saved facility shifts will appear here.'} icon="calendar" /> : shifts.map((shift: any) => (
+ <NSecHeader title={view === 'today' ? (AR ? 'مناوبات اليوم' : "Today's Shifts") : (AR ? 'مناوبات الأسبوع' : "This Week's Shifts")} />
+ {loadingShifts ? <ActivityIndicator color={theme.primary} /> : visible.length === 0 ? <NEmpty title={AR ? 'لا توجد مناوبات' : 'No shifts'} sub={AR ? 'ستظهر المناوبات المحفوظة للمنشأة هنا.' : 'Saved facility shifts will appear here.'} icon="calendar" /> : visible.map((shift: any) => (
  <NCard key={shift.id} style={{ marginBottom: SP.md }}
  accent={shift.status === 'substitute' ? theme.warn : theme.primary}>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, alignItems: 'center' }}>
@@ -1158,7 +1207,35 @@ function ShiftManagementScreen({ onBack }: { onBack: () => void }) {
  </NCard>
  ))}
 
- <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: 'center' }}>{AR ? 'تُدار الورديات من نظام الحضور — تواصل مع الإدارة لإضافة وردية' : 'Shifts are managed by rostering — contact admin to add one'}</Text>
+ {!showAdd ? (
+   <NBtn label={AR ? '+ إضافة مناوبة' : '+ Add shift'} onPress={() => setShowAdd(true)} />
+ ) : (
+   <NCard style={{ marginBottom: SP.md }}>
+     <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm }}>{AR ? 'مناوبة جديدة' : 'New shift'}</Text>
+     {members.length === 0 && <Text style={{ color: theme.textSub, fontSize: FS.xs }}>{AR ? 'لا يوجد موظفون — أضف حساباً فرعياً أو ادعُ مزوداً أولاً' : 'No staff — add a sub-account or invite a provider first'}</Text>}
+     <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: SP.xs, marginBottom: SP.sm }}>
+       {members.map(m => (
+         <TouchableOpacity key={m.id} onPress={() => setMemberId(m.id)} style={{ paddingHorizontal: SP.md, paddingVertical: SP.xs, borderRadius: R.lg, borderWidth: 1, borderColor: memberId === m.id ? theme.primary : theme.border, backgroundColor: memberId === m.id ? theme.primaryLight : theme.surface2 }}>
+           <Text style={{ color: theme.text, fontSize: FS.xs }}>{m.name}</Text>
+         </TouchableOpacity>
+       ))}
+     </View>
+     <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: SP.xs, marginBottom: SP.sm }}>
+       {DAY_KEYS.map((k, i) => (
+         <TouchableOpacity key={k} onPress={() => setDay(k)} style={{ paddingHorizontal: SP.sm, paddingVertical: SP.xs, borderRadius: R.lg, borderWidth: 1, borderColor: day === k ? theme.primary : theme.border, backgroundColor: day === k ? theme.primaryLight : theme.surface2 }}>
+           <Text style={{ color: theme.text, fontSize: FS.xs }}>{DAYS[i]}</Text>
+         </TouchableOpacity>
+       ))}
+     </View>
+     <NInput label={AR ? 'من (HH:MM)' : 'From (HH:MM)'} value={from} onChange={setFrom} icon="" />
+     <NInput label={AR ? 'إلى (HH:MM)' : 'To (HH:MM)'} value={to} onChange={setTo} icon="" />
+     <NInput label={AR ? 'القسم (اختياري)' : 'Department (optional)'} value={dept} onChange={setDept} icon="" />
+     <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md }}>
+       <NBtn label={AR ? 'إلغاء' : 'Cancel'} onPress={() => setShowAdd(false)} style={{ flex: 1, backgroundColor: theme.surface2 }} />
+       <NBtn label={AR ? 'حفظ' : 'Save'} loading={saving} onPress={saveShift} style={{ flex: 1 }} />
+     </View>
+   </NCard>
+ )}
  </NScroll>
  );
 }
@@ -2519,7 +2596,7 @@ function FacilityOrderDetail({ order, onBack, onNavigate }: any) {
       <NHeader title={AR ? 'تفاصيل الطلب' : 'Order Details'} onBack={onBack} />
       <ScrollView contentContainerStyle={{ padding: SP.lg }}>
         <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{order?.patient_name || 'Patient'}</Text>
-        <Text style={{ color: theme.textSub, marginTop: SP.sm, textAlign: AR ? 'right' : 'left' }}>{order?.svc || order?.service_name || 'Service'}</Text>
+        <Text style={{ color: theme.textSub, marginTop: SP.sm, textAlign: AR ? 'right' : 'left' }}>{order?.title_ar || order?.svc || order?.service_name || 'Service'}{order?.tracking_id ? ` · ${order.tracking_id}` : ''}{order?.total ? ` · ${order.total} SAR` : ''}</Text>
 
         <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginTop: SP.xl }}>
           <NBtn label={AR ? 'رفض الطلب' : 'Reject'} loading={acting} onPress={() => act('reject')} style={{ flex: 1, backgroundColor: theme.danger }} />

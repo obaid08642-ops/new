@@ -106,7 +106,7 @@ describe('MASTER ADDENDUM — Full End-to-End Architectural Verification', () =>
             find: jest.fn().mockImplementation(() => createQueryChain(mockLocations)),
             countDocuments: jest.fn().mockResolvedValue(mockLocations.length),
           };
-        case 'medicines_master':
+        case 'medicines':
           return {
             find: jest.fn().mockImplementation(() => createQueryChain(mockMedicines)),
             findOne: jest.fn().mockImplementation((filter) => {

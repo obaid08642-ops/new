@@ -51,6 +51,8 @@ ProviderSessionSchema.index({ provider_account_id: 1, status: 1 });
 // ===================== PROFILE =====================
 @Schema({ timestamps: true, collection: 'provider_profiles' })
 export class ProviderProfile extends Document {
+  // Written by the services but previously undeclared: strict mode silently dropped these (tools/audit/schemadrift.js).
+  @Prop() pending_profile_image_id?: string;
   @Prop({ required: true, unique: true, default: () => uuidv4() }) id: string;
   @Prop({ required: true, unique: true, index: true }) account_id: string;
   @Prop({ required: true, enum: Object.values(ProviderType) }) provider_type: ProviderType;

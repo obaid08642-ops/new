@@ -44,13 +44,13 @@ export class AppointmentsController {
 
   // Doctor / admin only
   @Patch(':id/confirm')
-  @Roles(UserRole.DOCTOR, UserRole.ADMIN)
+  @Roles(UserRole.DOCTOR, UserRole.HOSPITAL, UserRole.ADMIN)
   confirm(@Param('id') id: string, @CurrentUser() user: any) {
     return this.svc.confirm(id, user);
   }
 
   @Patch(':id/check-in')
-  @Roles(UserRole.DOCTOR, UserRole.ADMIN, UserRole.PATIENT)
+  @Roles(UserRole.DOCTOR, UserRole.HOSPITAL, UserRole.ADMIN, UserRole.PATIENT)
   checkIn(@Param('id') id: string, @CurrentUser() user: any) {
     return this.svc.checkIn(id, user);
   }

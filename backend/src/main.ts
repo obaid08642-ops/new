@@ -1,5 +1,6 @@
 // IMPORTANT: instrument.ts must be the first import (tracing setup).
 import './instrument';
+import './config/strip-placeholder-secrets';
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger, VersioningType } from '@nestjs/common';
 import { SwaggerModule } from '@nestjs/swagger';

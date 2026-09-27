@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsDefined, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDefined, IsNumber, IsObject, IsOptional, IsString, MaxLength, Min } from 'class-validator';
 
 export class SuggestChangeDto {
   @IsOptional()
@@ -42,32 +42,62 @@ export class SuggestNewItemDto {
   @IsString()
   note?: string;
 
-}
-
-export class AdminUpdateCatalogDto {
-  @IsOptional()
-  @IsString()
-  reason: string;
-
-  @IsOptional()
-  @IsNumber()
-  price?: number;
-
-  @IsOptional()
-  @IsString()
-  availability_status?: string;
-
   @IsOptional()
   @IsString()
   image?: string;
 }
 
-export class AdminCreateDto {
+/**
+ * Catalog medicine fields an admin may set: exactly MedicinesService.EDITABLE_FIELDS (the service
+ * picks the same list). admin/src/pages/admin/medicines-catalog.tsx sends the whole form on create
+ * and edit; before this the create DTO allowed only `reason`, so no medicine could be added.
+ */
+export class CatalogMedicineFieldsDto {
+  @IsOptional() @IsString() @MaxLength(300) name_ar?: string;
+  @IsOptional() @IsString() @MaxLength(300) name_en?: string;
+  @IsOptional() @IsString() @MaxLength(300) active_ingredient?: string;
+  @IsOptional() @IsString() @MaxLength(300) generic_name?: string;
+  @IsOptional() @IsString() @MaxLength(300) manufacturer?: string;
+  @IsOptional() @IsString() @MaxLength(300) category?: string;
+  @IsOptional() @IsString() @MaxLength(300) sub_category?: string;
+  @IsOptional() @IsString() @MaxLength(300) brand?: string;
+  @IsOptional() @IsString() @MaxLength(300) form?: string;
+  @IsOptional() @IsString() @MaxLength(300) strength?: string;
+  @IsOptional() @IsString() @MaxLength(300) barcode?: string;
+  @IsOptional() @IsString() @MaxLength(300) package_size?: string;
+  @IsOptional() @IsString() @MaxLength(300) storage_conditions?: string;
+  @IsOptional() @IsString() @MaxLength(5000) description_ar?: string;
+  @IsOptional() @IsString() @MaxLength(5000) description_en?: string;
+  @IsOptional() @IsString() @MaxLength(5000) dosage_ar?: string;
+  @IsOptional() @IsString() @MaxLength(5000) dosage_en?: string;
+  @IsOptional() @IsString() @MaxLength(5000) usage_instructions_ar?: string;
+  @IsOptional() @IsString() @MaxLength(5000) usage_instructions_en?: string;
+  @IsOptional() @IsString() @MaxLength(2000) image?: string;
+  @IsOptional() @IsBoolean() requires_prescription?: boolean;
+  @IsOptional() @IsNumber() @Min(0) price?: number;
+  @IsOptional() @IsArray() @IsString({ each: true }) images?: string[];
+  @IsOptional() @IsArray() @IsString({ each: true }) indications_ar?: string[];
+  @IsOptional() @IsArray() @IsString({ each: true }) indications_en?: string[];
+  @IsOptional() @IsArray() @IsString({ each: true }) contraindications_ar?: string[];
+  @IsOptional() @IsArray() @IsString({ each: true }) contraindications_en?: string[];
+  @IsOptional() @IsArray() @IsString({ each: true }) warnings_ar?: string[];
+  @IsOptional() @IsArray() @IsString({ each: true }) warnings_en?: string[];
+  @IsOptional() @IsArray() @IsString({ each: true }) side_effects_ar?: string[];
+  @IsOptional() @IsArray() @IsString({ each: true }) side_effects_en?: string[];
+  @IsOptional() @IsArray() @IsString({ each: true }) precautions_ar?: string[];
+  @IsOptional() @IsArray() @IsString({ each: true }) precautions_en?: string[];
+  @IsOptional() @IsArray() @IsString({ each: true }) interactions?: string[];
+  // audit note (price history / change log)
+  @IsOptional() @IsString() @MaxLength(500) reason?: string;
+}
+
+export class AdminUpdateCatalogDto extends CatalogMedicineFieldsDto {
   @IsOptional()
   @IsString()
-  reason?: string;
-
+  availability_status?: string;
 }
+
+export class AdminCreateDto extends CatalogMedicineFieldsDto {}
 
 export class LookupBarcodeDto {
   @IsDefined()

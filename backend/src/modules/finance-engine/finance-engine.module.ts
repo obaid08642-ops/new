@@ -28,6 +28,7 @@ import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { v4 as uuid } from 'uuid';
 import { JwtAuthGuard, CurrentUser, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
+import { moyasarBase } from '../../common/moyasar-base';
 
 export const LEDGER_TYPES = [
   'provider_earning', 'provider_debit', 'payout', 'refund', 'commission',
@@ -275,7 +276,11 @@ export class CouponService {
       if (!overlap) return { valid: false, discount: 0, reason: 'wrong_category' };
     }
     if (c.first_order_only) {
-      const prior = await this.conn.collection('orders').countDocuments({ patient_id: userId, state: { $nin: ['CANCELLED'] } } as any);
+      const [legacy, current] = await Promise.all([
+        this.conn.collection('orders').countDocuments({ patient_id: userId, state: { $nin: ['CANCELLED'] } } as any),
+        this.conn.collection('pharmacy_orders').countDocuments({ patient_account_id: userId, status: { $nin: ['draft', 'cancelled'] } } as any),
+      ]);
+      const prior = legacy + current;
       if (prior > 0) return { valid: false, discount: 0, reason: 'first_order_only' };
     }
 
@@ -573,7 +578,7 @@ export class RefundExecutor {
     // 1) Gateway refund (real money back to the card)
     if (paidPayment && paidPayment.moyasar_id && !String(paidPayment.moyasar_id).startsWith('sandbox_')) {
       const key = this.moyasarKey();
-      const resp = await fetch(`https://api.moyasar.com/v1/payments/${paidPayment.moyasar_id}/refund`, {
+      const resp = await fetch(`${moyasarBase()}/payments/${paidPayment.moyasar_id}/refund`, {
         method: 'POST',
         headers: { Authorization: `Basic ${Buffer.from(`${key}:`).toString('base64')}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ amount: Math.round(amount * 100), reason: opts.reason?.slice(0, 255) || 'refund' }),
@@ -592,7 +597,12 @@ export class RefundExecutor {
       );
     } else {
       // 2) Wallet/cash payments → credit the patient wallet (real, spendable)
-      const wallet: any = await this.conn.collection('wallets').findOne({ ownerId: opts.patient_id, ownerType: 'patient' } as any);
+      // a patient who never opened the wallet screen has no wallet yet: create it, never drop the refund
+      const wallet: any = await this.conn.collection('wallets').findOneAndUpdate(
+        { ownerId: opts.patient_id, ownerType: 'patient' } as any,
+        { $setOnInsert: { id: uuid(), ownerId: opts.patient_id, ownerType: 'patient', balance: 0, savedCards: [], createdAt: new Date() } } as any,
+        { upsert: true, returnDocument: 'after' } as any,
+      ).then((r: any) => (r && 'value' in r ? r.value : r));
       if (wallet) {
         await this.conn.collection('wallets').updateOne({ _id: wallet._id } as any, { $inc: { balance: amount }, $set: { updatedAt: new Date() } });
         await this.conn.collection('wallet_transactions').insertOne({
@@ -648,10 +658,10 @@ export class RefundExecutor {
     const coll = kindCollection[opts.booking_kind];
     if (coll) {
       const newStatus = paidTotal != null && amount < paidTotal - 0.001 ? 'partially_refunded' : 'refunded';
-      await this.conn.collection(coll).updateOne(
-        { id: opts.booking_id } as any,
-        { $set: { payment_status: newStatus, refund_status: 'REFUNDED', updatedAt: new Date() } },
-      );
+      const set = { $set: { payment_status: newStatus, refund_status: 'REFUNDED', updatedAt: new Date() } };
+      const res: any = await this.conn.collection(coll).updateOne({ id: opts.booking_id } as any, set);
+      // Current pharmacy orders live in pharmacy_orders; `orders` is the legacy cart checkout.
+      if (coll === 'orders' && !res?.matchedCount) await this.conn.collection('pharmacy_orders').updateOne({ id: opts.booking_id } as any, set);
     }
     await this.conn.collection('notifications').insertOne({
       id: uuid(), user_id: opts.patient_id,
@@ -803,7 +813,10 @@ export class ReportsService {
         { $match: dateQ },
         { $group: { _id: '$state', total: { $sum: '$refund_amount' }, count: { $sum: 1 } } },
       ] as any[]).toArray().catch(() => [] as any[]),
-      this.conn.collection('orders').countDocuments({ ...dateQ, state: 'CANCELLED' } as any).catch(() => 0),
+      Promise.all([
+        this.conn.collection('orders').countDocuments({ ...dateQ, state: 'CANCELLED' } as any),
+        this.conn.collection('pharmacy_orders').countDocuments({ ...dateQ, status: 'cancelled' } as any),
+      ]).then(([a, b]) => a + b).catch(() => 0),
     ]);
 
     const p = (st: string) => (payments as any[]).filter((x) => x._id === st).reduce((s, x) => s + (x.total || 0), 0);

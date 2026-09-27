@@ -94,7 +94,7 @@ export default function NursingMegaProfile() {
 
     const fetchData = async () => {
       try {
-        const nurseData = await apiFetch(`/home-care/providers/${nurseId}`);
+        const nurseData = await apiFetch(`/home-care/providers/${nurseId}${serviceId ? `?serviceId=${encodeURIComponent(String(serviceId))}` : ''}`);
         setNurse(nurseData);
 
         if (flow === 'insurance') {
@@ -151,7 +151,14 @@ export default function NursingMegaProfile() {
         service_id: serviceId || undefined,
         service_name_ar: nurse?.service_name_ar || undefined,
         scheduled_at: scheduled.toISOString(),
-        address: formatAddressLine(addressObj),
+        // with coordinates: the nurse navigates to it and the arrival geofence checks against it
+        address: {
+          address: formatAddressLine(addressObj),
+          city: addressObj?.city || undefined,
+          district: addressObj?.district || undefined,
+          lat: Number.isFinite(Number(addressObj?.lat)) ? Number(addressObj.lat) : undefined,
+          lng: Number.isFinite(Number(addressObj?.lng)) ? Number(addressObj.lng) : undefined,
+        },
         payment_method: flow === 'insurance' ? 'insurance' : 'card',
       };
       // POST /nursing/bookings is the patient booking contract (P6-D): the

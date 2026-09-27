@@ -70,6 +70,9 @@ export class LegalService {
     const existing: any = await this.policies.findOne({ key });
     const { change_note, ...fields } = patch;
     if (!existing) {
+      // A new policy must have real content (users may be asked to accept it) and a slug key.
+      if (!/^[a-z0-9][a-z0-9_-]{1,63}$/.test(String(key || ''))) throw new BadRequestException('policy_key_invalid');
+      if (!String(fields.content_ar || '').trim()) throw new BadRequestException('policy_content_required');
       const doc = {
         key,
         title_ar: fields.title_ar || key,

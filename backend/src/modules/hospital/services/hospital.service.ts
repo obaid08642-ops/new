@@ -110,6 +110,9 @@ export class HospitalService {
         { id: userId },
         { $set: { parent_provider_account_id: inv.facility_id, permissions: Object.keys(inv.permissions || {}).filter(k => inv.permissions[k]) } },
       );
+      // The facility's calendar, patient tracker and sub-accounts find their providers by provider_accounts.facility_id.
+      await this.staffModel.db.collection('provider_accounts').updateOne(
+        { $or: [{ id: userId }, { user_id: userId }] }, { $set: { facility_id: inv.facility_id, updatedAt: new Date() } });
     }
     return inv;
   }
@@ -122,6 +125,8 @@ export class HospitalService {
     user.parent_provider_account_id = undefined;
     user.permissions = [];
     await user.save();
+    await this.staffModel.db.collection('provider_accounts').updateOne(
+      { $or: [{ id: userId }, { user_id: userId }] }, { $unset: { facility_id: '' }, $set: { updatedAt: new Date() } });
     return { ok: true };
   }
 
@@ -187,15 +192,21 @@ export class HospitalService {
       });
       userObjectId = createdUser._id;
       if (clinical) {
-        const accId = randomUUID();
+        const accId = createdUser.id; // same id for login user and provider account, as provider onboarding does
         // P3.0b: link to the login identity; the credential stays on users.
         await db.collection('provider_accounts').insertOne({
           id: accId, user_id: createdUser.id, email, provider_type: clinical.ptype,
           status: 'email_verified', email_verified: true,
+          // raw insert: set what the ProviderAccount schema defaults would
+          failed_login_attempts: 0, token_version: 0, onboarding_progress: {}, facility_id: hospitalId,
           status_history: [{ from: '', to: 'email_verified', by_user_id: hospitalId, by_role: 'facility', at: new Date() }],
           createdAt: new Date(), updatedAt: new Date(),
         });
         await db.collection('provider_profiles').insertOne({
+          // raw insert: the unique `id` (and other schema defaults) are not applied — without an id the
+          // second sub-account collided on the unique index (409)
+          id: randomUUID(), phones: [], enabled_modules: [], commission_rate: 10, has_own_delivery: false,
+          use_platform_delivery: true, profile_completeness: 0,
           account_id: accId, provider_type: clinical.ptype,
           display_name_ar: (data as any).name_ar || fullName,
           display_name_en: (data as any).name_en || fullName,
@@ -213,15 +224,47 @@ export class HospitalService {
       role: (CLINICAL[String((data as any).staff_role || '')]?.staff) || (ADMIN_STAFF[String((data as any).staff_role || '')]) || 'receptionist',
       is_active: true,
     };
+    if ((data as any).department) staff.department = String((data as any).department);
+    if ((data as any).scfhs) staff.scfhs = String((data as any).scfhs);
+    if (accountId) staff.account_id = accountId;
     if (data.branch_id) staff.branch_id = this.objectId(String(data.branch_id), 'branch_id');
     if (data.department_id) staff.department_id = this.objectId(String(data.department_id), 'department_id');
     const created = await this.staffModel.create(staff);
     return { staff: created, account_id: accountId, login_available: loginAvailable };
   }
 
+  /** Staff list in the shape the facility screens read (id, full_name, role key, department, suspended). */
   async getStaff(hospitalId: string, actor?: any) {
     this.assertFacilityActor(actor);
-    return this.staffModel.find({ hospital_id: await this.objectIdForUser(hospitalId) });
+    const rows: any[] = await this.staffModel.find({ hospital_id: await this.objectIdForUser(hospitalId), is_active: true }).sort({ createdAt: -1 }).lean();
+    const users: any[] = rows.length ? await this.userModel.find({ _id: { $in: rows.map((r) => r.user_id) } })
+      .select({ full_name: 1, email: 1, phone: 1, id: 1, active: 1, suspended: 1 }).lean() : [];
+    const byId = new Map(users.map((u) => [String(u._id), u]));
+    // staff record role -> the role keys of the add-sub-account form
+    const ROLE_KEY: Record<string, string> = { lab_tech: 'lab', receptionist: 'reception', insurance_coordinator: 'insurance', pharmacist: 'pharmacist', radiologist: 'radiologist' };
+    return rows.map((r) => {
+      const u: any = byId.get(String(r.user_id)) || {};
+      return {
+        id: String(r._id), user_id: u.id || String(r.user_id), account_id: r.account_id || null,
+        full_name: u.full_name || '', email: u.email || null, phone: u.phone || null,
+        role: ROLE_KEY[r.role] || r.role, department: r.department || null, scfhs: r.scfhs || null,
+        suspended: u.active === false || !!u.suspended, createdAt: r.createdAt,
+      };
+    });
+  }
+
+  /** Remove a staff member from the facility: the record is deactivated and their login is switched off. */
+  async removeStaff(hospitalId: string, staffId: string, actor?: any) {
+    this.assertFacilityActor(actor, true);
+    const staff: any = await this.staffModel.findOne({ _id: this.objectId(staffId, 'staff_id'), hospital_id: await this.objectIdForUser(hospitalId), is_active: true });
+    if (!staff) throw new NotFoundException('staff_not_found');
+    staff.is_active = false;
+    await staff.save();
+    await this.userModel.updateOne({ _id: staff.user_id }, { $set: { active: false } });
+    if (staff.account_id) {
+      await this.staffModel.db.collection('provider_accounts').updateOne({ id: staff.account_id }, { $set: { status: 'suspended', updatedAt: new Date() } });
+    }
+    return { ok: true };
   }
 
   async onboardDoctor(hospitalId: string, doctorId: string, actor?: any) {

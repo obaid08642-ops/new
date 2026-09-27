@@ -49,6 +49,17 @@ export const STATE_MAP: Record<ServiceDomain, Record<string, ServiceState>> = {
     ESCALATED_TO_ADMIN: ServiceState.MATCHING,
     FULLY_ALLOCATED: ServiceState.ASSIGNED,
     PHARMACY_RECEIVED: ServiceState.ASSIGNED,
+    // PharmacyOrderState values that had no mapping: every engine transition from them threw
+    // unknown_domain_state, so an order stopped after offer selection (COD, payment, insurance).
+    INTAKE_PROCESSING: ServiceState.REQUESTED,
+    NEGOTIATING_SUBSTITUTES: ServiceState.MATCHING,
+    MANUAL_REVIEW: ServiceState.MATCHING,
+    PARTIALLY_ALLOCATED: ServiceState.ASSIGNED,
+    OFFER_SELECTION_PENDING: ServiceState.ASSIGNED,
+    CASH_CARD_PAYMENT_PENDING: ServiceState.ASSIGNED,
+    COD_DUE_ON_DELIVERY: ServiceState.ASSIGNED,
+    INSURANCE_DECISION_PENDING: ServiceState.ASSIGNED,
+    WAITING_COPAY: ServiceState.ASSIGNED,
     ACCEPTED: ServiceState.CONFIRMED,
     PHARMACY_ACCEPTED: ServiceState.CONFIRMED,
     CONFIRMED: ServiceState.CONFIRMED,
@@ -109,6 +120,8 @@ export const STATE_MAP: Record<ServiceDomain, Record<string, ServiceState>> = {
   },
   nursing: {
     NEW_REQUEST: ServiceState.REQUESTED,
+    PENDING_INSURANCE: ServiceState.REQUESTED,   // NursingBookingState values that had no mapping
+    WAITING_COPAY: ServiceState.REQUESTED,
     CREATED: ServiceState.REQUESTED,
     REQUESTED: ServiceState.REQUESTED,
     BROADCASTING: ServiceState.MATCHING,

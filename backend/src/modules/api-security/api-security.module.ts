@@ -43,6 +43,16 @@ const HONEYPOTS = new Set([
   '/api/v1/medicines/export-all',
 ]);
 
+/**
+ * Load-test bypass: never in production, and only with a secret configured via
+ * LOAD_TEST_BYPASS_TOKEN (a fixed header value would let anyone skip rate limits).
+ */
+export function loadTestBypass(req: Request): boolean {
+  const token = process.env.LOAD_TEST_BYPASS_TOKEN;
+  if (process.env.NODE_ENV === 'production' || !token) return false;
+  return (req.headers?.['x-bypass-rate-limit'] as string) === token;
+}
+
 @Injectable()
 export class ApiSecurityService {
   private readonly logger = new Logger('ApiSecurity');
@@ -94,7 +104,7 @@ export class ApiSecurityService {
       process.env.DB_NAME === 'nabd_staging' ||
       process.env.DISABLE_RATE_LIMIT === 'true' ||
       process.env.NODE_ENV === 'test' ||
-      (req.headers?.['x-bypass-rate-limit'] as string) === 'nabd-load-test';
+      loadTestBypass(req);
 
     if (isStagingOrLoadTest) {
       return { allowed: true, className: 'staging-unlimited' };
@@ -176,7 +186,7 @@ export class ApiSecurityMiddleware implements NestMiddleware {
       process.env.DB_NAME === 'nabd_staging' ||
       process.env.DISABLE_RATE_LIMIT === 'true' ||
       process.env.NODE_ENV === 'test' ||
-      (req.headers?.['x-bypass-rate-limit'] as string) === 'nabd-load-test';
+      loadTestBypass(req);
 
     // 2. Honeypot: any hit = instant blacklist + event (serve convincing fake data)
     if (HONEYPOTS.has(pathOnly)) {

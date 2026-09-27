@@ -10,6 +10,7 @@ const schema = z.object({
   medicine_name_en: z.string().trim().max(200).optional(),
   dose: z.string().max(128).optional().default(""),
   times: z.array(z.string().max(8)).max(12).optional().default([]),
+  time_zone: z.string().trim().min(1).max(64),
   frequency: z.string().max(64).optional().default("daily"),
   duration_days: z.number().min(0).max(3650).optional(),
   chronic: z.boolean().optional().default(false),
@@ -24,7 +25,9 @@ export async function POST(request: Request) {
   const store = await cookies();
   const accessToken = store.get(authCookieNames.access)?.value;
   if (!accessToken) return NextResponse.json({ message: "authentication_required" }, { status: 401 });
-  const upstream = await callPatientApi("/health/reminders", { method: "POST", body: JSON.stringify(parsed.data) }, accessToken);
+  const key = request.headers.get("idempotency-key")?.trim() || "";
+  if (key.length < 16 || key.length > 128) return NextResponse.json({ message: "idempotency_key_required" }, { status: 400 });
+  const upstream = await callPatientApi("/health/reminders", { method: "POST", headers: { "idempotency-key": key }, body: JSON.stringify(parsed.data) }, accessToken);
   const data = await upstream.json().catch(() => null);
   if (!upstream.ok) return boundedUpstreamError(data, "reminder_create_failed", upstream.status);
   return NextResponse.json(data ?? { ok: true }, { headers: { "cache-control": "no-store" } });

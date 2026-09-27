@@ -18,16 +18,16 @@ describe('HospitalService UUID and ownership contract', () => {
 
   it('resolves UUID hospital id to the stored Mongo _id for staff reads', async () => {
     const { service, staffModel } = make();
-    staffModel.find.mockResolvedValue([]);
+    staffModel.find.mockReturnValue({ sort: () => ({ lean: jest.fn().mockResolvedValue([]) }) });
     await service.getStaff('hospital-uuid', { id: 'hospital-uuid', role: 'hospital_admin' });
-    expect(staffModel.find).toHaveBeenCalledWith({ hospital_id: 'mongo-hospital-id' });
+    expect(staffModel.find).toHaveBeenCalledWith({ hospital_id: 'mongo-hospital-id', is_active: true });
   });
 
   it('accepts an approved hospital provider identity normalized from provider_type', async () => {
     const { service, staffModel } = make();
-    staffModel.find.mockResolvedValue([]);
+    staffModel.find.mockReturnValue({ sort: () => ({ lean: jest.fn().mockResolvedValue([]) }) });
     await service.getStaff('hospital-uuid', { id: 'hospital-uuid', role: 'provider', provider_type: 'hospital' });
-    expect(staffModel.find).toHaveBeenCalledWith({ hospital_id: 'mongo-hospital-id' });
+    expect(staffModel.find).toHaveBeenCalledWith({ hospital_id: 'mongo-hospital-id', is_active: true });
   });
 
   it('rejects a patient-shaped actor and a non-facility provider before querying facility data', async () => {

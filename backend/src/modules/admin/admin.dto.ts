@@ -77,3 +77,9 @@ export class CleanupOrphansDto {
   dry_run?: boolean;
 
 }
+
+export class RejectDeltaDto {
+  @IsOptional()
+  @IsString()
+  reason?: string;
+}

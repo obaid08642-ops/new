@@ -130,6 +130,11 @@ export class LabBooking extends Document {
   @Prop() emergency_reason?: string;
   @Prop() reject_reason?: string;
   @Prop({ type: Object }) gps_location?: { lat?: number; lng?: number; eta?: number; distance?: number };
+  // Written by payments verify / finance refunds through a dynamically chosen model (strict mode dropped them).
+  @Prop() payment_status?: string;              // paid | refunded | partially_refunded (payments verify / finance refund)
+  @Prop() transaction_id?: string;
+  @Prop() paid_at?: Date;
+  @Prop() refund_status?: string;
 }
 export const LabBookingSchema = SchemaFactory.createForClass(LabBooking);
 LabBookingSchema.index({ patient_id: 1, createdAt: -1 });
