@@ -6,13 +6,15 @@ import { adminFetch, apiErrorMessage, toQuery } from '@/lib/admin-client';
 const today = new Date().toISOString().slice(0, 10);
 const monthAgo = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10);
 
-type TabKey = 'revenue' | 'orders' | 'bookings' | 'providers' | 'patients';
+type TabKey = 'revenue' | 'orders' | 'bookings' | 'providers' | 'patients' | 'finance' | 'insurance';
 const TABS: { key: TabKey; label: string }[] = [
   { key: 'revenue', label: 'الإيرادات' },
   { key: 'orders', label: 'الطلبات' },
   { key: 'bookings', label: 'الحجوزات' },
   { key: 'providers', label: 'المزودون' },
   { key: 'patients', label: 'المرضى' },
+  { key: 'finance', label: 'المالية' },
+  { key: 'insurance', label: 'التأمين' },
 ];
 const GROUPS: Record<TabKey, string[]> = {
   revenue: ['day', 'service', 'gateway'],
@@ -20,8 +22,9 @@ const GROUPS: Record<TabKey, string[]> = {
   bookings: ['day', 'service', 'status'],
   providers: ['type', 'day'],
   patients: ['day'],
+  finance: ['day'],
+  insurance: ['state', 'day'],
 };
-type Row = { bucket?: string; kind?: string; count?: number; gross?: number; refunded?: number; net?: number; total?: number };
 
 /** P6.x-1: operational reports over live aggregates + CSV export. */
 export default function ReportsPage() {
@@ -48,7 +51,8 @@ export default function ReportsPage() {
   useEffect(() => { setGroupBy(GROUPS[tab][0]); }, [tab]);
   useEffect(() => { void load(); }, [load]);
 
-  const valueOf = (r: Row) => r.net ?? r.total ?? r.gross ?? r.count ?? 0;
+  type Row = { bucket?: string; kind?: string; type?: string; count?: number; gross?: number; refunded?: number; net?: number; total?: number; copay?: number };
+  const valueOf = (r: Row) => r.net ?? r.total ?? r.copay ?? r.gross ?? r.count ?? 0;
   const csvHref = `/api/admin/reports/${tab}${toQuery({ from, to, group_by: groupBy, format: 'csv' })}`;
 
   return (
@@ -97,24 +101,26 @@ export default function ReportsPage() {
               <div className="overflow-x-auto">
                 <table className="min-w-full text-right text-sm">
                   <thead><tr className="border-b text-slate-500">
-                    {rows.some((r) => r.kind !== undefined) && <th className="p-2">النوع</th>}
+                    {rows.some((r) => r.kind !== undefined || r.type !== undefined) && <th className="p-2">النوع</th>}
                     <th className="p-2">الفئة</th>
                     {rows.some((r) => r.count !== undefined) && <th className="p-2">العدد</th>}
                     {rows.some((r) => r.gross !== undefined) && <th className="p-2">الإجمالي</th>}
                     {rows.some((r) => r.refunded !== undefined) && <th className="p-2">المسترد</th>}
                     {rows.some((r) => r.net !== undefined) && <th className="p-2">الصافي</th>}
                     {rows.some((r) => r.total !== undefined) && <th className="p-2">المجموع</th>}
+                    {rows.some((r) => r.copay !== undefined) && <th className="p-2">كوباي</th>}
                   </tr></thead>
                   <tbody>
                     {rows.map((r, i) => (
                       <tr key={i} className="border-b">
-                        {rows.some((x) => x.kind !== undefined) && <td className="p-2">{r.kind || '—'}</td>}
+                        {rows.some((x) => x.kind !== undefined || x.type !== undefined) && <td className="p-2">{r.kind || r.type || '—'}</td>}
                         <td className="p-2">{r.bucket || '—'}</td>
                         {rows.some((x) => x.count !== undefined) && <td className="p-2">{r.count ?? '—'}</td>}
                         {rows.some((x) => x.gross !== undefined) && <td className="p-2">{r.gross ?? '—'}</td>}
                         {rows.some((x) => x.refunded !== undefined) && <td className="p-2">{r.refunded ?? '—'}</td>}
                         {rows.some((x) => x.net !== undefined) && <td className="p-2">{r.net ?? '—'}</td>}
                         {rows.some((x) => x.total !== undefined) && <td className="p-2">{r.total ?? '—'}</td>}
+                        {rows.some((x) => x.copay !== undefined) && <td className="p-2">{r.copay ?? '—'}</td>}
                       </tr>
                     ))}
                   </tbody>

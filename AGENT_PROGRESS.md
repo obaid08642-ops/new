@@ -188,3 +188,6 @@ Format: task | commit sha | verify result | notes
 
 ## [P6.x-4] Commission rule editor UI (2026-09-26)
 - Backend resolver already supported per-service/provider/category/campaign rules with versioning + history (`POST/GET commission-rules*`). Added the missing admin UI: rule form (scope/scope_id/service/percent/effective window) + history table on the commissions page.
+
+## [P6.x-10] Finance + insurance report kinds (2026-09-26)
+- Extended `/admin/reports` with `finance` (wallet_transactions by day/type) and `insurance` (requests by state + copay sums), both CSV-capable; reports page gained the two tabs + type/copay columns. tsc 0.

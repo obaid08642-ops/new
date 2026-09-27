@@ -148,4 +148,30 @@ export class AdminReportsController {
     if (this.maybeCsv(res, 'patients', rows, format)) return;
     return { group_by: 'day', rows };
   }
+
+  /** P6.x-10: finance — commissions (provider_earning debits), payouts, refunds. */
+  @Get('finance')
+  async finance(@Query() q: ReportsQueryDto, @Query('format') format?: string, @Res({ passthrough: true }) res?: Response) {
+    const rows: any[] = await this.conn.collection('wallet_transactions').aggregate([
+      { $match: this.window(q) },
+      { $group: { _id: { day: DAY, type: '$type' }, total: { $sum: '$amount' }, count: { $sum: 1 } } },
+      { $project: { bucket: '$_id.day', type: '$_id.type', total: 1, count: 1, _id: 0 } },
+      { $sort: { bucket: 1, type: 1 } },
+    ]).toArray().catch(() => []);
+    if (this.maybeCsv(res, 'finance', rows, format)) return;
+    return { group_by: 'day', rows };
+  }
+
+  /** P6.x-10: insurance — decisions by state + copay collected. */
+  @Get('insurance')
+  async insurance(@Query() q: ReportsQueryDto, @Query('format') format?: string, @Res({ passthrough: true }) res?: Response) {
+    const rows: any[] = await this.conn.collection('insuranceservicerequests').aggregate([
+      { $match: this.window(q) },
+      { $group: { _id: this.groupKey(q.group_by, '$state'), count: { $sum: 1 }, copay: { $sum: { $ifNull: ['$copay_amount', 0] } } } },
+      { $project: { bucket: '$_id', count: 1, copay: 1, _id: 0 } },
+      { $sort: { bucket: 1 } },
+    ]).toArray().catch(() => []);
+    if (this.maybeCsv(res, 'insurance', rows, format)) return;
+    return { group_by: q.group_by || 'state', rows };
+  }
 }
