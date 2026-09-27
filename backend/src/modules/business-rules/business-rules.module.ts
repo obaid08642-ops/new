@@ -7,12 +7,12 @@
  * ╚════════════════════════════════════════════════════════════════╝
  */
 import { Module, Controller, Post, Get, Body, UseGuards, Injectable, BadRequestException } from '@nestjs/common';
-import { InjectModel, MongooseModule } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { InjectModel, InjectConnection, MongooseModule } from '@nestjs/mongoose';
+import { Connection, Model } from 'mongoose';
 import { JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole, ServiceDomain } from '../../common/enums';
 import { ProviderProfile, ProviderProfileSchema } from '../../schemas/provider-profile.schema';
-import { UpdateSurgeDto, ValidateRulesDto } from './business-rules.dto';
+import { UpdateSurgeDto, UpdateFeesDto, ValidateRulesDto } from './business-rules.dto';
 
 export type RuleContext = {
   kind: ServiceDomain;
@@ -40,12 +40,45 @@ export type RuleResult = {
 
 @Injectable()
 export class BusinessRulesService {
-  constructor(@InjectModel('ProviderProfile') private providers: Model<any>) {}
+  constructor(
+    @InjectModel('ProviderProfile') private providers: Model<any>,
+    @InjectConnection() private conn: Connection,
+  ) {}
 
   private surgeConfig = { startHour: 18, endHour: 22, multiplier: 1.1 };
+  private feeDefaults = { delivery_fee: 0, service_fee: 0 };
+  private pricingLoaded = false;
+
+  /** P6.x-14: platform pricing config persists in system_configs key 'pricing'. */
+  private async loadPricing() {
+    if (this.pricingLoaded) return;
+    this.pricingLoaded = true;
+    try {
+      const doc: any = await this.conn.collection('system_configs').findOne({ key: 'pricing' });
+      const v = doc?.value || {};
+      if (Number.isFinite(v.surge_startHour) && v.surge_startHour >= 0 && v.surge_startHour <= 23) this.surgeConfig.startHour = v.surge_startHour;
+      if (Number.isFinite(v.surge_endHour) && v.surge_endHour >= 0 && v.surge_endHour <= 23) this.surgeConfig.endHour = v.surge_endHour;
+      if (Number.isFinite(v.surge_multiplier) && v.surge_multiplier >= 1 && v.surge_multiplier <= 5) this.surgeConfig.multiplier = v.surge_multiplier;
+      if (Number.isFinite(v.delivery_fee) && v.delivery_fee >= 0) this.feeDefaults.delivery_fee = v.delivery_fee;
+      if (Number.isFinite(v.service_fee) && v.service_fee >= 0) this.feeDefaults.service_fee = v.service_fee;
+    } catch { /* config optional — built-in defaults stand */ }
+  }
+
+  private async savePricing() {
+    try {
+      await this.conn.collection('system_configs').updateOne(
+        { key: 'pricing' },
+        { $set: { key: 'pricing', value: { surge_startHour: this.surgeConfig.startHour, surge_endHour: this.surgeConfig.endHour, surge_multiplier: this.surgeConfig.multiplier, ...this.feeDefaults }, updated_at: new Date() } },
+        { upsert: true },
+      );
+    } catch { /* observability only */ }
+  }
   
   getSurgeConfig() { return this.surgeConfig; }
-  updateSurgeConfig(config: UpdateSurgeDto) {
+  getPricing() { return { surge: this.surgeConfig, fees: this.feeDefaults }; }
+  async pricing() { await this.loadPricing(); return this.getPricing(); }
+  async updateSurgeConfig(config: UpdateSurgeDto) {
+    await this.loadPricing();
     // Copy only finite, bounded numeric fields; never reflect body strings or
     // arbitrary properties into the response/config.
     const next = { ...this.surgeConfig };
@@ -62,7 +95,23 @@ export class BusinessRulesService {
       next.multiplier = config.multiplier;
     }
     this.surgeConfig = next;
+    await this.savePricing();
     return { ok: true };
+  }
+
+  /** P6.x-14: platform fee defaults (persisted; runtime consumers adopt per flow). */
+  async updateFees(fees: { delivery_fee?: number; service_fee?: number }) {
+    await this.loadPricing();
+    if (fees.delivery_fee !== undefined) {
+      if (!Number.isFinite(fees.delivery_fee) || fees.delivery_fee < 0 || fees.delivery_fee > 1000) throw new BadRequestException('delivery_fee_out_of_range');
+      this.feeDefaults.delivery_fee = fees.delivery_fee;
+    }
+    if (fees.service_fee !== undefined) {
+      if (!Number.isFinite(fees.service_fee) || fees.service_fee < 0 || fees.service_fee > 1000) throw new BadRequestException('service_fee_out_of_range');
+      this.feeDefaults.service_fee = fees.service_fee;
+    }
+    await this.savePricing();
+    return { ok: true, fees: this.feeDefaults };
   }
 
   // ─── INSURANCE VALIDATION ────────────────────────────────────────
@@ -159,6 +208,7 @@ export class BusinessRulesService {
 
   /** Single entry-point — every domain calls this before booking/transition. */
   async validate(ctx: RuleContext): Promise<RuleResult> {
+    await this.loadPricing();
     const r: RuleResult = { ok: true, errors: [], warnings: [], meta: {} };
     // Hydrate provider if only id provided. user_id is DTO-validated as a
     // string and pinned with $eq so query operators can never be injected.
@@ -194,6 +244,15 @@ export class BusinessRulesController {
   @Roles(UserRole.ADMIN)
   @Post('config/surge')
   updateSurge(@Body() body: UpdateSurgeDto) { return this.svc.updateSurgeConfig(body); }
+
+  /** P6.x-14: platform pricing (surge + fee defaults, persisted). */
+  @Roles(UserRole.ADMIN)
+  @Get('config/pricing')
+  pricing() { return this.svc.pricing(); }
+
+  @Roles(UserRole.ADMIN)
+  @Post('config/fees')
+  updateFees(@Body() body: UpdateFeesDto) { return this.svc.updateFees(body); }
 
   @SelfService()
   @Post('validate') validate(@Body() body: ValidateRulesDto) { return this.svc.validate(body); }

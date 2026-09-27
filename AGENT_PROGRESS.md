@@ -176,3 +176,6 @@ Format: task | commit sha | verify result | notes
 
 ## [P6.x-8] Provider lifecycle reactivate UI (2026-09-26)
 - Backend already had pending→approved→suspended→reactivated with audited reasons (`provider-admin.service` + `POST :id/reactivate`); UI only lacked the button. Added Reactivate (reason prompt ≥5 chars) to the moderation detail pane. History lives in provider-audits (audit.create on every transition).
+
+## [P6.x-14] Pricing controls persisted (2026-09-26)
+- Surge config was in-memory (lost on restart) → persists to `system_configs` key `pricing` (load on validate/update, save on update); added platform `delivery_fee`/`service_fee` defaults (bounded 0..1000) in the same doc. Routes: `GET config/pricing`, `POST config/fees` (+ existing surge POST, now async persisted). config-portal gained a pricing tab; BFF maps `business-rules/*`. Business-rules spec updated for the conn dep (4/4). tsc 0.

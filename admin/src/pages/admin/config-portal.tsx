@@ -2,14 +2,50 @@ import React, { useState, useEffect } from 'react';
 import { fetchWithAdminGuard } from '@/utils/api';
 
 export default function ConfigPortal() {
-  const [activeTab, setActiveTab] = useState<'sla' | 'maintenance'>('sla');
+  const [activeTab, setActiveTab] = useState<'sla' | 'maintenance' | 'pricing'>('sla');
 
   // SLA State
   const [consultationDuration, setConsultationDuration] = useState(15);
   const [callRingingDuration, setCallRingingDuration] = useState(45);
   const [jwtExpiry, setJwtExpiry] = useState(24);
 
-  // Maintenance State
+  // P6.x-14: platform pricing (surge + fee defaults, persisted server-side).
+  const [surgeStart, setSurgeStart] = useState(18);
+  const [surgeEnd, setSurgeEnd] = useState(22);
+  const [surgeMult, setSurgeMult] = useState(1.1);
+  const [deliveryFee, setDeliveryFee] = useState(0);
+  const [serviceFee, setServiceFee] = useState(0);
+  const [pricingMsg, setPricingMsg] = useState('');
+
+  const loadPricing = async () => {
+    try {
+      const res = await fetchWithAdminGuard('/api/admin/business-rules/config/pricing');
+      if (!res.ok) return;
+      const p = await res.json();
+      if (p?.surge) {
+        if (Number.isFinite(p.surge.startHour)) setSurgeStart(p.surge.startHour);
+        if (Number.isFinite(p.surge.endHour)) setSurgeEnd(p.surge.endHour);
+        if (Number.isFinite(p.surge.multiplier)) setSurgeMult(p.surge.multiplier);
+      }
+      if (p?.fees) {
+        if (Number.isFinite(p.fees.delivery_fee)) setDeliveryFee(p.fees.delivery_fee);
+        if (Number.isFinite(p.fees.service_fee)) setServiceFee(p.fees.service_fee);
+      }
+    } catch { /* pricing optional */ }
+  };
+
+  const savePricing = async () => {
+    setPricingMsg('');
+    try {
+      const s = await fetchWithAdminGuard('/api/admin/business-rules/config/surge', {
+        method: 'POST', body: JSON.stringify({ startHour: surgeStart, endHour: surgeEnd, multiplier: surgeMult }),
+      });
+      const f = await fetchWithAdminGuard('/api/admin/business-rules/config/fees', {
+        method: 'POST', body: JSON.stringify({ delivery_fee: deliveryFee, service_fee: serviceFee }),
+      });
+      setPricingMsg(s.ok && f.ok ? 'تم حفظ التسعير' : 'فشل الحفظ — تحقق من القيم');
+    } catch { setPricingMsg('فشل الحفظ'); }
+  };
   const [killSwitchChecked1, setKillSwitchChecked1] = useState(false);
   const [killSwitchChecked2, setKillSwitchChecked2] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -122,6 +158,12 @@ export default function ConfigPortal() {
           <span className="w-3 h-3 rounded-full bg-red-500 animate-pulse"></span>
           مفتاح الإيقاف الطارئ
         </button>
+        <button
+          className={`py-3 px-6 font-medium text-lg ${activeTab === 'pricing' ? 'border-b-2 border-teal-500 text-teal-600' : 'text-gray-500'}`}
+          onClick={() => { setActiveTab('pricing'); void loadPricing(); }}
+        >
+          التسعير والذروة
+        </button>
       </div>
 
       {/* Content */}
@@ -211,6 +253,33 @@ export default function ConfigPortal() {
                   </button>
                 </div>
               )}
+            </div>
+          </div>
+        )}
+        {activeTab === 'pricing' && (
+          <div className="space-y-6">
+            <div className="bg-white p-6 rounded border border-gray-200">
+              <h2 className="text-xl font-bold mb-4">قواعد الذروة (Surge) والرسوم الافتراضية</h2>
+              <p className="text-sm text-gray-500 mb-4">تُحفظ في إعدادات المنصة وتبقى بعد إعادة التشغيل.</p>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <label className="text-sm font-medium">بداية الذروة (ساعة)
+                  <input type="number" min={0} max={23} value={surgeStart} onChange={(e) => setSurgeStart(Number(e.target.value))} className="mt-1 w-full border rounded p-2" />
+                </label>
+                <label className="text-sm font-medium">نهاية الذروة (ساعة)
+                  <input type="number" min={0} max={23} value={surgeEnd} onChange={(e) => setSurgeEnd(Number(e.target.value))} className="mt-1 w-full border rounded p-2" />
+                </label>
+                <label className="text-sm font-medium">معامل الذروة (1-5)
+                  <input type="number" min={1} max={5} step={0.1} value={surgeMult} onChange={(e) => setSurgeMult(Number(e.target.value))} className="mt-1 w-full border rounded p-2" />
+                </label>
+                <label className="text-sm font-medium">رسوم التوصيل الافتراضية
+                  <input type="number" min={0} max={1000} value={deliveryFee} onChange={(e) => setDeliveryFee(Number(e.target.value))} className="mt-1 w-full border rounded p-2" />
+                </label>
+                <label className="text-sm font-medium">رسوم الخدمة الافتراضية
+                  <input type="number" min={0} max={1000} value={serviceFee} onChange={(e) => setServiceFee(Number(e.target.value))} className="mt-1 w-full border rounded p-2" />
+                </label>
+              </div>
+              <button onClick={() => void savePricing()} className="mt-4 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-6 rounded-lg">حفظ التسعير</button>
+              {pricingMsg && <p className="mt-2 text-sm font-bold">{pricingMsg}</p>}
             </div>
           </div>
         )}

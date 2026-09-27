@@ -8,20 +8,23 @@ import { ValidationPipe } from '@nestjs/common';
 describe('BusinessRulesService surge configuration', () => {
   let service: BusinessRulesService;
 
+  const mockConn: any = {
+    collection: () => ({ findOne: jest.fn().mockResolvedValue(null), updateOne: jest.fn().mockResolvedValue({}) }),
+  };
   beforeEach(() => {
-    service = new BusinessRulesService({} as unknown as Model<ProviderProfile>);
+    service = new BusinessRulesService({} as unknown as Model<ProviderProfile>, mockConn);
   });
 
-  it('updates only bounded numeric settings and never reflects extra body properties', () => {
-    const result = service.updateSurgeConfig({ multiplier: 1.25, startHour: 19 } satisfies UpdateSurgeDto);
+  it('updates only bounded numeric settings and never reflects extra body properties', async () => {
+    const result = await service.updateSurgeConfig({ multiplier: 1.25, startHour: 19 } satisfies UpdateSurgeDto);
 
     expect(result).toEqual({ ok: true });
     expect(service.getSurgeConfig()).toEqual({ startHour: 19, endHour: 22, multiplier: 1.25 });
     expect(JSON.stringify(result)).not.toContain('<script>');
   });
 
-  it('rejects out-of-range values instead of storing or echoing them', () => {
-    expect(() => service.updateSurgeConfig({ multiplier: 6 } satisfies UpdateSurgeDto)).toThrow(BadRequestException);
+  it('rejects out-of-range values instead of storing or echoing them', async () => {
+    await expect(service.updateSurgeConfig({ multiplier: 6 } satisfies UpdateSurgeDto)).rejects.toThrow(BadRequestException);
     expect(service.getSurgeConfig()).toEqual({ startHour: 18, endHour: 22, multiplier: 1.1 });
   });
 
@@ -36,7 +39,7 @@ describe('BusinessRulesService surge configuration', () => {
   it('pins provider hydration to a scalar equality filter', async () => {
     const query = { select: jest.fn().mockReturnThis(), lean: jest.fn().mockResolvedValue(null) };
     const findOne = jest.fn().mockReturnValue(query);
-    service = new BusinessRulesService({ findOne } as unknown as Model<ProviderProfile>);
+    service = new BusinessRulesService({ findOne } as unknown as Model<ProviderProfile>, mockConn);
 
     await service.validate({ kind: 'pharmacy', provider: { user_id: 'provider-1' } });
 
