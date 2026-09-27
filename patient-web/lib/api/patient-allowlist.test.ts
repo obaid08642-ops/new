@@ -92,3 +92,11 @@ describe("patient API allowlist", () => {
     ).toBe(false);
   });
 });
+
+describe("patient allowlist: providers map (render test finding)", () => {
+  it("allows the map page to read nearby providers, read-only", async () => {
+    const { isAllowedPatientApiRequest } = await import("./patient-allowlist");
+    expect(isAllowedPatientApiRequest("/providers/map", "GET")).toBe(true);
+    expect(isAllowedPatientApiRequest("/providers/map", "POST")).toBe(false);
+  });
+});
