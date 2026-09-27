@@ -46,7 +46,7 @@ class H(BaseHTTPRequestHandler):
             pid = 'pay_' + uuid.uuid4().hex[:20]
             PAYMENTS[pid] = {'id': pid, 'status': 'initiated', 'amount': b.get('amount'), 'currency': b.get('currency', 'SAR'),
                              'description': b.get('description'), 'refunded': 0,
-                             'source': {'type': 'creditcard', 'transaction_url': f'http://127.0.0.1:9100/checkout/{pid}'}}
+                             'source': {'type': 'creditcard', 'transaction_url': f'https://checkout.fake-moyasar.test/{pid}'}}
             return self._send(201, PAYMENTS[pid])
         if len(p) == 5 and p[1:3] == ['v1', 'payments'] and p[3] in PAYMENTS:
             pay = PAYMENTS[p[3]]

@@ -22,6 +22,8 @@ import {
 
 import { apiFetch } from '../../src/utils/api';
 import { logError } from '../../src/utils/logger';
+import { toMedicationViews, reminderPayload, MedicationView } from '../../src/utils/prescription-view';
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
 export default function PrescriptionFromDoctorScreen() {
   const insets = useSafeAreaInsets();
@@ -54,29 +56,32 @@ export default function PrescriptionFromDoctorScreen() {
     }
   };
 
-  const addToReminder = async (id: string) => {
-    const med = prescription?.medications?.find((m: any) => String(m.id) === String(id));
+  // The API returns `items`; the screen shows mapped medicine views (src/utils/prescription-view).
+  const medications: MedicationView[] = React.useMemo(() => toMedicationViews(prescription), [prescription]);
+
+  /** Creates the reminder on the server; the row is marked added only when that succeeded. */
+  const createReminder = async (med: MedicationView): Promise<boolean> => {
     try {
-      await apiFetch('/health/reminders', {
-        method: 'POST',
-        body: JSON.stringify({
-          medication_name: med?.name || med?.name_ar || 'دواء',
-          dosage: med?.dosage || '',
-          frequency: med?.frequency || 'daily',
-          prescription_id: prescription?.id,
-        }),
-      });
+      await apiFetch('/health/reminders', { method: 'POST', body: JSON.stringify(reminderPayload(med, prescription?.id)) });
+      setAddedToReminders((p) => (p.includes(med.id) ? p : [...p, med.id]));
+      return true;
     } catch (e) {
       logError('consultations:prescription:reminder', e);
-    } finally {
-      setAddedToReminders((p) => (p.includes(id) ? p : [...p, id]));
+      return false;
     }
   };
 
-  const addAllToReminders = () => {
-    if (prescription?.medications) {
-      setAddedToReminders(prescription.medications.map((m: any) => m.id));
-    }
+  const addToReminder = async (id: string) => {
+    const med = medications.find((m) => m.id === id);
+    if (!med) return;
+    if (!(await createReminder(med))) showLocalizedAlert('تعذر إضافة التذكير', 'حاول مرة أخرى بعد قليل.');
+  };
+
+  const addAllToReminders = async () => {
+    const pending = medications.filter((m) => !addedToReminders.includes(m.id));
+    let failed = 0;
+    for (const med of pending) if (!(await createReminder(med))) failed += 1;
+    if (failed) showLocalizedAlert('تعذر إضافة بعض التذكيرات', `لم يُضف ${failed} من ${pending.length}. حاول مرة أخرى.`);
   };
 
   const orderFromPharmacy = () => {
@@ -162,7 +167,7 @@ export default function PrescriptionFromDoctorScreen() {
               }}
             >
               <SectionHeader
-                title={`الأدوية (${prescription.medications?.length || 0})`}
+                title={`الأدوية (${medications.length})`}
               />
               <TouchableOpacity onPress={addAllToReminders}>
                 <AppText variant="labelMD" color={colors.primary}>
@@ -171,7 +176,7 @@ export default function PrescriptionFromDoctorScreen() {
               </TouchableOpacity>
             </View>
 
-            {prescription.medications?.map((med: any) => {
+            {medications.map((med) => {
               const added = addedToReminders.includes(med.id);
               return (
                 <Card key={med.id}>
@@ -202,15 +207,10 @@ export default function PrescriptionFromDoctorScreen() {
                     style={[st.detailsGrid, { borderColor: colors.borderLight }]}
                   >
                     {[
-                      { icon: "clock", label: "التكرار", value: med.freq },
+                      { icon: "medication", label: "الجرعة", value: med.dose },
                       { icon: "calendar", label: "المدة", value: med.duration },
                       { icon: "food", label: "التعليمات", value: med.instruction },
-                      {
-                        icon: "medication",
-                        label: "الجرعة",
-                        value: `${med.pills} حبة`,
-                      },
-                    ].map((d, i) => (
+                    ].filter((d) => d.value).map((d, i) => (
                       <View key={i} style={st.detailItem}>
                         <Icon
                           name={d.icon as any}
@@ -240,6 +240,8 @@ export default function PrescriptionFromDoctorScreen() {
                       onPress={() => addToReminder(med.id)}
                       style={{ flex: 1 }}
                     />
+                    {/* catalog medicines only: a manually written line has no product page */}
+                    {med.medicine_id ? (
                     <Button
                       label="التفاصيل"
                       variant="ghost"
@@ -249,11 +251,12 @@ export default function PrescriptionFromDoctorScreen() {
                       onPress={() =>
                         router.push({
                           pathname: "/pharmacy/product-detail",
-                          params: { productId: med.id },
+                          params: { productId: med.medicine_id },
                         })
                       }
                       style={{ flex: 1 }}
                     />
+                    ) : null}
                   </View>
                 </Card>
               );

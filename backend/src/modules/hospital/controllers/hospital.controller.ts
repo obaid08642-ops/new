@@ -76,16 +76,22 @@ export class HospitalController {
     return this.hospitalService.listFacilityInvitations(user.id);
   }
 
+  // the invited clinician (doctor / nurse) answers, not the facility
+  @Roles(UserRole.DOCTOR, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.ADMIN)
   @Get('invitations/inbox')
   async listMyInvitations(@CurrentUser() user: any) {
     return this.hospitalService.listMyInvitations(user.id);
   }
 
+  // the invited clinician (doctor / nurse) answers, not the facility
+  @Roles(UserRole.DOCTOR, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.ADMIN)
   @Post('invitations/:id/respond')
   async respondInvitation(@CurrentUser() user: any, @Param('id') id: string, @Body() body: RespondInvitationDto) {
     return this.hospitalService.respondInvitation(user.id, id, !!body?.accept);
   }
 
+  // the invited clinician (doctor / nurse) answers, not the facility
+  @Roles(UserRole.DOCTOR, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.ADMIN)
   @Post('leave-facility')
   async leaveFacility(@CurrentUser() user: any) {
     return this.hospitalService.leaveFacility(user.id);

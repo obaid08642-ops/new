@@ -131,9 +131,11 @@ describe('Provider App release contracts', () => {
     expect(dashboard).not.toContain('تم قفل حالة الدفع وبدء الاستشارة');
     expect(dashboard).not.toContain('Video Call Connected...');
     expect(dashboard).not.toContain("sender: 'patient', time: '10:00'");
-    // Consultations open only after server verification of appointment state,
-    // payment and doctor-patient relation (fail-closed gate, current copy).
-    expect(dashboard).toContain('Consultation start requires server confirmation');
+    // The visit moves only through server mutations on a server-verified appointment
+    // (LiveConsultationScreen loads it first; check-in / start / finish are PATCH/POST calls).
+    expect(dashboard).toContain("client.get(`/care/appointments/${encodeURIComponent(aptId)}`)");
+    expect(dashboard).toContain('client.patch(`/care/appointments/${aptId}/start`');
+    expect(dashboard).toContain('client.post(`/care/appointments/${aptId}/finish`');
     expect(dashboard).toContain('setError(true);');
   });
 

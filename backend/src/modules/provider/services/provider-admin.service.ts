@@ -356,7 +356,11 @@ export class ProviderAdminService {
         const res = await db('provider_schedule_slots').deleteOne((changes as any).filter || {});
         applied = res.deletedCount || 0;
       } else if (op === 'create') {
-        await db('provider_schedule_slots').insertOne({ ...((changes as any).payload || {}), createdAt: new Date(), updatedAt: new Date() });
+        // raw insert skips mongoose defaults: give the row its id (unique index) and the schema defaults
+        await db('provider_schedule_slots').insertOne({
+          slot_duration_minutes: 30, capacity_per_slot: 1, active: true,
+          ...((changes as any).payload || {}), id: uuidv4(), createdAt: new Date(), updatedAt: new Date(),
+        });
         applied = 1;
       } else {
         const res = await db('provider_schedule_slots').updateOne((changes as any).filter || {}, { $set: { ...((changes as any).payload || {}), updatedAt: new Date() } });

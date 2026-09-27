@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsNumber, IsObject, IsOptional, IsString, MaxLength, Min } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsNumber, IsObject, IsOptional, IsString, MaxLength, Min, Matches } from 'class-validator';
 import { OtpPurpose } from './schemas';
 
 export class RegisterDto {
@@ -605,12 +605,13 @@ export class UpsertDto2 {
   @IsNumber()
   day_of_week?: number;
 
+  // weekly recurring hours: 'HH:MM' (scheduling-engine parseHHMM; DoctorDashboard schedule screen)
   @IsOptional()
-  @IsDateString()
+  @Matches(/^\d{2}:\d{2}$/)
   start_time?: string;
 
   @IsOptional()
-  @IsDateString()
+  @Matches(/^\d{2}:\d{2}$/)
   end_time?: string;
 
   @IsDefined()
