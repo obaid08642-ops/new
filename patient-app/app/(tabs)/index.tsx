@@ -8,6 +8,7 @@ import { AppText, Badge, Card, IconButton } from '../../src/components/ui';
 import { Icon } from '../../src/components/Icon';
 import { apiFetch } from '../../src/utils/api';
 import { healthDayT } from '../../src/i18n/health-day';
+import HomeSections from '../../src/components/HomeSections';
 
 type DoseStatus = 'pending' | 'taken' | 'skipped' | 'missed';
 type Dose = { time_key: string; status: DoseStatus };
@@ -83,6 +84,7 @@ export default function HealthDayScreen() {
         <View style={styles.rightText}><AppText variant="h5" color={colors.textPrimary}>{patientName ? `${t('greeting')}، ${patientName}` : `${t('greeting')} ${t('anonymous')}`}</AppText><AppText variant="caption" color={colors.textTertiary}>{t('updated')}</AppText></View>
       </Animated.View>
       {hasError ? <Card style={[styles.error, { backgroundColor: colors.warningSurface, borderColor: colors.warning + '50' }]}><AppText variant="caption" color={colors.textPrimary} align="right">{t('error')}</AppText><TouchableOpacity accessibilityRole="button" onPress={() => void load(true)}><AppText variant="labelSM" color={colors.primary}>{t('retry')}</AppText></TouchableOpacity></Card> : null}
+      <HomeSections />
 
       <Section title={lang === 'ar' ? 'الخدمات الطبية الأساسية' : 'Core Health Services'} colors={colors} />
       <View style={styles.coreGrid}>

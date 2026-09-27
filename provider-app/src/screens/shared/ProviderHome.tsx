@@ -6,6 +6,7 @@ import { I } from '../../components/icons';
 import { FS, FW, R, SP } from '../../constants';
 import client from '../../api/client';
 import { tokens } from '../../theme/tokens';
+import { HomeSections } from '../../components/HomeSections';
 
 export const ProviderHome = ({ onLogout }: { onLogout?: () => void }) => {
   const { theme } = useTheme();
@@ -68,6 +69,8 @@ export const ProviderHome = ({ onLogout }: { onLogout?: () => void }) => {
         contentContainerStyle={styles.scrollContent}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.primary} />}
       >
+        {/* R6-5: admin-curated home sections */}
+        <HomeSections />
         {/* Profile Header Card */}
         <NCard style={styles.profileCard}>
           <View style={[styles.row, { flexDirection: AR ? 'row-reverse' : 'row' }]}>

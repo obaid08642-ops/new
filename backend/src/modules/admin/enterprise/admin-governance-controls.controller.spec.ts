@@ -1,4 +1,31 @@
-import { AdminGovernanceControlsController } from './admin-governance-controls.controller';
+import { AdminGovernanceControlsController, PublicContentController } from './admin-governance-controls.controller';
+
+describe('PublicContentController home (R6-5)', () => {
+  it('serves only enabled sections in position order', async () => {
+    const conn: any = {
+      collection: jest.fn().mockReturnValue({
+        findOne: jest.fn().mockResolvedValue({
+          key: 'primary', version: 3,
+          sections: [
+            { id: 'b', position: 2, enabled: true, items: [] },
+            { id: 'a', position: 1, enabled: false, items: [] },
+            { id: 'c', position: 0, enabled: true, items: [] },
+          ],
+        }),
+      }),
+    };
+    const res: any = await new PublicContentController(conn).home();
+    expect(res.sections.map((s: any) => s.id)).toEqual(['c', 'b']);
+    expect(res.version).toBe(3);
+  });
+
+  it('returns an empty section list when nothing is curated', async () => {
+    const conn: any = { collection: jest.fn().mockReturnValue({ findOne: jest.fn().mockResolvedValue(null) }) };
+    await expect(new PublicContentController(conn).home()).resolves.toEqual(
+      expect.objectContaining({ sections: [] }),
+    );
+  });
+});
 
 describe('AdminGovernanceControlsController', () => {
   let controller: AdminGovernanceControlsController;

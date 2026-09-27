@@ -31,6 +31,7 @@ import { isLocale, locales } from "@/lib/i18n";
 import { localizedUrl, siteOrigin } from "@/lib/seo";
 import { getPublicDoctors } from "@/lib/api/doctors-server";
 import { extractDoctors } from "@/lib/api/doctors";
+import { getHomeContent, getPublicConfig, isWebMaintenance, selectHomeSections } from "@/lib/api/public-config-server";
 import styles from "./home.module.css";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -165,6 +166,20 @@ export default async function LandingPage({ params }: Props) {
     }
   } catch {}
 
+  // R6-5: web honours the admin maintenance flag; home renders curated sections.
+  const maintenance = isWebMaintenance(await getPublicConfig());
+  if (maintenance.maintenance) {
+    return (
+      <main className={`main ${styles.homePage}`}>
+        <section className={styles.hero}>
+          <h1>{isAr ? "صيانة مجدولة" : "Scheduled maintenance"}</h1>
+          <p>{maintenance.message || (isAr ? "نعمل على تحسين الخدمة. حاول لاحقاً." : "We are improving the service. Please try again later.")}</p>
+        </section>
+      </main>
+    );
+  }
+  const homeSections = selectHomeSections(await getHomeContent());
+
   return (
     <main className={`main ${styles.homePage}`}>
       <JsonLd
@@ -252,6 +267,23 @@ export default async function LandingPage({ params }: Props) {
           ))}
         </div>
       </section>
+
+      {/* R6-5: admin-curated home sections */}
+      {homeSections.map((section) => (
+        <section key={section.id || section.title_ar} className={`${styles.verticalsSection} ${styles.fadeInUp}`}>
+          <div className={styles.sectionHead}>
+            <h2>{isAr ? section.title_ar || section.title_en : section.title_en || section.title_ar}</h2>
+          </div>
+          <div className={styles.grid || ""}>
+            {(section.items || []).map((item) => (
+              <Link key={item.id || item.title_ar} href={item.deep_link || `/${locale}`} className={styles.card || ""}>
+                {item.image_url ? <Image src={item.image_url} alt={isAr ? item.title_ar || "" : item.title_en || ""} width={440} height={220} /> : null}
+                <span>{isAr ? item.title_ar || item.title_en : item.title_en || item.title_ar}</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      ))}
 
       {/* 2. Specialized Healthcare Verticals Hub */}
       <section className={`${styles.verticalsSection} ${styles.fadeInUp}`}>
