@@ -127,7 +127,7 @@ export class HomeCareBooking extends Document {
   @Prop() procedure_notes?: string;
   @Prop() medication_administered?: string;
   @Prop() consumables_used?: string;
-  @Prop() recommendations?: string;
+  @Prop({ type: [String], default: undefined }) recommendations?: string[]; // CompleteVisitDto sends a list
   @Prop() follow_up_instructions?: string;
   
   // Photos (Module 12)

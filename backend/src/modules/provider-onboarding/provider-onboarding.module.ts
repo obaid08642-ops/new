@@ -205,6 +205,17 @@ export class ProviderOnboardingService {
       ],
     };
     const keys = allowed[profile.type] || [];
+    // Nursing services arrive as catalog ids (the app sends the id as the name): only published catalog services,
+    // named from the catalog; the provider's own price is kept.
+    if (Array.isArray(body.nursing_services)) {
+      const ids = body.nursing_services.map((x: any) => String(x?.key || '')).filter(Boolean);
+      const catalog = ids.length ? await this.providerModel.db.collection('homecareservices')
+        .find({ id: { $in: ids }, is_deleted: { $ne: true } }, { projection: { _id: 0, id: 1, name_ar: 1, name_en: 1 } }).toArray() : [];
+      const byId = new Map(catalog.map((c: any) => [c.id, c]));
+      body.nursing_services = body.nursing_services
+        .filter((x: any) => byId.has(String(x?.key)))
+        .map((x: any) => ({ key: String(x.key), name_ar: byId.get(String(x.key))!.name_ar, name_en: byId.get(String(x.key))!.name_en, price: Number(x.price) || 0 }));
+    }
     for (const k of keys) if (body[k] !== undefined) (profile as any)[k] = body[k];
     this.snapshotStep(profile, 'step3', body);
     profile.onboarding_step = Math.max(profile.onboarding_step || 0, 3);

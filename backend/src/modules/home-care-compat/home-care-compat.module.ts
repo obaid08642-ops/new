@@ -20,6 +20,8 @@ import { CreateBookingDto, RespondDto, AssignDto, CheckInDto, GpsDto, VisitRepor
 
 const ACTIVE_STATES = ['NEW_REQUEST', 'PROVIDER_ASSIGNED', 'ACCEPTED', 'EN_ROUTE', 'ARRIVED', 'CARE_STARTED'];
 
+const NURSE_TYPES = ['home_care', 'nursing', 'nurse'];
+
 @Controller('home-care')
 @UseGuards(JwtAuthGuard)
 export class HomeCareCompatController {
@@ -43,44 +45,72 @@ export class HomeCareCompatController {
   // ---- Catalog ----
   @Public()
   @Get('services') servicesList(@Query() q: any) {
-    const filter: any = { active: true };
+    // Patients only see services that passed medical review (same rule as /nursing/catalog).
+    const filter: any = { active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' };
     if (q?.category) filter.category = q.category;
     return this.services.find(filter, { _id: 0, __v: 0 }).lean();
   }
 
   @Public()
   @Get('services/:id') async serviceOne(@Param('id') id: string) {
-    const svc = await this.services.findOne({ id, active: true }, { _id: 0, __v: 0 }).lean();
+    const svc = await this.services.findOne({ id, ...{ active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' } }, { _id: 0, __v: 0 }).lean();
     if (!svc) throw new NotFoundException('service not found');
     return svc;
   }
 
   @Public()
   @Get('packages') async packagesList() {
-    return this.services.find({ active: true, is_package: true }, { _id: 0, __v: 0 }).lean();
+    return this.services.find({ ...{ active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' }, is_package: true }, { _id: 0, __v: 0 }).lean();
   }
 
   @Public()
   @Get('providers') async providers(@Query() q: any) {
-    const filter: any = { provider_type: 'nursing', active: true, approval_status: 'approved' };
-    if (q?.city) filter['address.city'] = q.city;
-    return this.profiles.find(filter, {
-      _id: 0, id: 1, full_name: 1, provider_type: 1, rating_avg: 1, rating_count: 1, address: 1, specialties: 1, years_experience: 1,
-    }).limit(50).lean();
+    // Approved home-care providers; `type` is the chosen service id (patient-app nursing/service-details).
+    const filter: any = { type: { $in: NURSE_TYPES }, status: 'active', public_eligibility: true, medical_review_status: 'approved', account_id: { $exists: true, $ne: null }, is_deleted: { $ne: true } };
+    const serviceId = typeof q?.type === 'string' && q.type ? q.type : null;
+    const svc: any = serviceId ? await this.services.findOne({ id: serviceId }).lean() : null;
+    if (serviceId) filter['nursing_services.key'] = serviceId;
+    if (q?.gender && q.gender !== 'any') filter.gender = q.gender;
+    if (typeof q?.search === 'string' && q.search.trim()) {
+      const rx = new RegExp(q.search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+      filter.$or = [{ name_ar: rx }, { name_en: rx }, { full_name: rx }];
+    }
+    const rows: any[] = await this.profiles.find(filter).limit(50).lean();
+    const sort = String(q?.sort || '');
+    const list = rows.map((p) => this.nurseView(p, svc));
+    if (sort === 'rating') list.sort((a, b) => Number(b.rating || 0) - Number(a.rating || 0));
+    return list;
+  }
+
+  /** The bookable nurse: `id` is the provider account id (bookings and the nurse's job queue key on it). */
+  private nurseView(p: any, svc?: any) {
+    return {
+      id: p.account_id, profile_id: p.id,
+      name_ar: p.name_ar || p.full_name || p.name_en, name: p.name_ar || p.full_name || p.name_en, name_en: p.name_en,
+      gender: p.gender || null, degree: p.qualification || p.degree || null,
+      facility_name: p.facility_name || p.organization_name || '', facility: p.facility_name || p.organization_name || '',
+      rating: p.rating_count > 0 ? p.rating_avg : null, reviews_count: p.rating_count || 0, reviews: [],
+      years_experience: p.years_experience || null, profile_photo: p.profile_photo || null,
+      // the booking is charged at the catalog service price (home-care.service book())
+      price: svc ? Number(svc.price) : null, service_id: svc?.id || null,
+      available_now: Boolean(p.availability?.accepting ?? true),
+      services: (p.nursing_services || []).map((x: any) => x.key),
+    };
   }
 
   @Public()
-  @Get('providers/:id') async provider(@Param('id') id: string) {
-    const p = await this.profiles.findOne({ id }, { _id: 0, __v: 0 }).lean();
+  @Get('providers/:id') async provider(@Param('id') id: string, @Query('serviceId') serviceId?: string) {
+    const p = await this.profiles.findOne({ $or: [{ account_id: id }, { id }], type: { $in: NURSE_TYPES }, status: 'active', public_eligibility: true }).lean();
     if (!p) throw new NotFoundException('provider not found');
-    return p;
+    const svc: any = serviceId ? await this.services.findOne({ id: serviceId }).lean() : null;
+    return this.nurseView(p, svc);
   }
 
   // ---- Bookings ----
   private isAdmin(u: any) { return u?.role === 'admin' || u?.role === 'super_admin'; }
   private isNursingProvider(u: any) {
-    return ['nurse', 'nursing', 'provider'].includes(String(u?.role || '').toLowerCase())
-      && ['nursing', 'nurse', 'provider'].includes(String(u?.provider_type || u?.providerType || u?.role || '').toLowerCase());
+    // role or provider_type (provider-auth tokens: role 'provider', provider_type 'home_care')
+    return hasEffectiveRole(u, 'nurse', 'nursing', 'home_care');
   }
   private async getBookingForAccess(u: any, id: string, allowUnassignedProvider = false) {
     const b: any = await this.bookings.findOne({ id: { $eq: id } });

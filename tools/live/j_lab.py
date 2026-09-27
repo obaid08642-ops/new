@@ -104,6 +104,13 @@ def run(pat, lab, other_lab=None, admin=None):
         step('an unpaid card booking cannot be accepted', r.status == 400, r)
         r = lab.req('PATCH', f'/labs/bookings/{bid2}/state', {'state': 'CANCELLED', 'note': 'rejected_by_lab: التحليل غير متوفر'})
         step('lab rejects with a reason', r.ok and r.get('state') == 'CANCELLED', r)
+    journey('lab: card payment confirms the booking')
+    from j_nursing import card_payment
+    bid3, _ = patient_books(pat, lab_id, location='home', method='card')
+    if bid3:
+        card_payment(pat, 'lab', bid3)
+        r = pat.get(f'/labs/bookings/{bid3}')
+        step('verified card payment confirms the lab booking', r.ok and r.get('state') == 'CONFIRMED' and r.get('payment_status') == 'paid', r)
 
     journey('lab screens: every tab loads after a reported booking')
     for path in LAB_SCREEN_GETS:

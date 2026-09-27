@@ -22,6 +22,13 @@ export const PROVIDER_WORK_SOURCES: Record<string, ProviderWorkSource> = {
     inProgress: ['CONFIRMED', 'IN_TRANSIT', 'IN_LAB', 'SAMPLE_COLLECTED', 'PROCESSING', 'RESULT_UPLOADED'],
     done: ['REPORTED'],
   },
+  // home-care.service book() (patient picks the nurse) -> provider-jobs accept -> /nursing/visits transit/arrive/start/complete
+  home_care: {
+    collection: 'homecarebookings', providerField: 'provider_id', patientField: 'patient_id', stateField: 'state', amountField: 'total',
+    pending: ['NEW_REQUEST', 'PROVIDER_ASSIGNED', 'PENDING_INSURANCE', 'WAITING_COPAY'],
+    inProgress: ['CONFIRMED', 'IN_TRANSIT', 'ARRIVED', 'CARE_IN_PROGRESS', 'IN_PROGRESS'],
+    done: ['COMPLETED'],
+  },
   // radiology.service: book() / transition() / checkin / startScan / uploadReport / approveReport
   radiology: {
     collection: 'radiologybookings', providerField: 'provider_account_id', patientField: 'patient_id', stateField: 'state', amountField: 'total',

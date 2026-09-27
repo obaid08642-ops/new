@@ -3,6 +3,14 @@ import { Transform, Type } from 'class-transformer';
 import { ProviderType } from '../../common/enums';
 
 /** One working-hours row as the wizards send it (pharmacy may send day 'All' for 24/7). */
+/** NursingRegistration: { key: catalog service id, name_ar, price } per ticked service. */
+export class NursingServiceEntryDto {
+  @IsString() @MaxLength(128) key: string;
+  @IsOptional() @IsString() @MaxLength(200) name_ar?: string;
+  @IsOptional() @IsString() @MaxLength(200) name_en?: string;
+  @IsOptional() @IsNumber() price?: number;
+}
+
 export class WorkingHoursEntryDto {
   @IsString() @MaxLength(20) day: string;
   @IsOptional() @IsString() open?: string | null;
@@ -387,8 +395,10 @@ export class Step3Dto {
   nursing_roster?: Record<string, unknown>[];
 
   @IsOptional()
-  @IsString()
-  nursing_services?: string;
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => NursingServiceEntryDto)
+  nursing_services?: NursingServiceEntryDto[];
 
   @IsOptional()
   @IsNumber()

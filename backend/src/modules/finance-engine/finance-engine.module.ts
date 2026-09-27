@@ -28,6 +28,7 @@ import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { v4 as uuid } from 'uuid';
 import { JwtAuthGuard, CurrentUser, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
+import { moyasarBase } from '../../common/moyasar-base';
 
 export const LEDGER_TYPES = [
   'provider_earning', 'provider_debit', 'payout', 'refund', 'commission',
@@ -577,7 +578,7 @@ export class RefundExecutor {
     // 1) Gateway refund (real money back to the card)
     if (paidPayment && paidPayment.moyasar_id && !String(paidPayment.moyasar_id).startsWith('sandbox_')) {
       const key = this.moyasarKey();
-      const resp = await fetch(`https://api.moyasar.com/v1/payments/${paidPayment.moyasar_id}/refund`, {
+      const resp = await fetch(`${moyasarBase()}/payments/${paidPayment.moyasar_id}/refund`, {
         method: 'POST',
         headers: { Authorization: `Basic ${Buffer.from(`${key}:`).toString('base64')}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ amount: Math.round(amount * 100), reason: opts.reason?.slice(0, 255) || 'refund' }),

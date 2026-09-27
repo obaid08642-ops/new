@@ -5,7 +5,7 @@
  * ║   types (pharmacy / lab / radiology / nursing / doctor)        ║
  * ╚════════════════════════════════════════════════════════════════╝
  */
-import { Module, Controller, Get, Post, Param, Query, Body, UseGuards, Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Module, Controller, Get, Post, Param, Query, Body, UseGuards, Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JwtAuthGuard, CurrentUser, Roles, getEffectiveRoles } from '../../common/auth.guard';
@@ -22,6 +22,8 @@ import { toUniversal, domainStatesFor, WorkflowEngineService, WorkflowEngineModu
 import { AcceptDto, RejectDto, StartDto, CompleteDto, InsuranceDto } from './provider-jobs.dto';
 
 type JobStatus = 'incoming' | 'active' | 'completed';
+
+const PROVIDER_ROLES = ['provider', 'pharmacy', 'lab', 'radiology', 'doctor', 'home_care', 'nursing', 'nurse', 'hospital', 'admin'];
 
 @Injectable()
 export class ProviderJobsService {
@@ -188,12 +190,18 @@ export class ProviderJobsService {
 
   /** Generic provider action — transitions via engine. */
   private async act(user: any, type: string, id: string, target: ServiceState, reason?: string) {
-    if (!['provider', 'pharmacy', 'lab', 'radiology', 'doctor', 'admin'].includes(user.role)) throw new ForbiddenException('provider_only');
+    if (!getEffectiveRoles(user).some((r) => PROVIDER_ROLES.includes(r))) throw new ForbiddenException('provider_only');
     const kind = this.kindAliases[type];
     if (!kind) throw new NotFoundException('invalid_type');
     const entity = await this.findEntity(kind, id, user.id);
     const field = kind === 'consultation' ? 'status' : 'state';
     const from = entity[field];
+    // Accepting a home visit commits the provider to a paid job: card must be paid; insurance is decided
+    // through the coverage decision (POST /home-care/bookings/:id/coverage-decision), not here.
+    if (kind === 'nursing' && target === ServiceState.CONFIRMED) {
+      if (entity.payment_method === 'insurance') throw new BadRequestException('insurance_booking_requires_coverage_decision');
+      if (entity.payment_method === 'card' && entity.payment_status !== 'paid') throw new BadRequestException('card_payment_not_completed');
+    }
     // Map universal target → domain literal that the entity understands.
     const domainLiteralFor: Record<ServiceState, Record<ServiceDomain, string>> = {
       [ServiceState.REQUESTED]: { pharmacy: 'CREATED', lab: 'CREATED', radiology: 'PENDING', nursing: 'CREATED', consultation: 'PENDING' },
@@ -227,7 +235,7 @@ export class ProviderJobsService {
   start(user: any, type: string, id: string, reason?: string) { return this.act(user, type, id, ServiceState.IN_PROGRESS, reason || 'provider_started'); }
   complete(user: any, type: string, id: string, reason?: string) { return this.act(user, type, id, ServiceState.COMPLETED, reason || 'provider_completed'); }
   async updateInsurance(user: any, type: string, id: string, insuranceDetails: any) {
-    if (!['provider', 'pharmacy', 'lab', 'radiology', 'doctor', 'admin'].includes(user.role)) {
+    if (!getEffectiveRoles(user).some((r) => PROVIDER_ROLES.includes(r))) {
       throw new ForbiddenException('provider_only');
     }
     const kind = this.kindAliases[type];

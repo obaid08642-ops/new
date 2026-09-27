@@ -131,10 +131,16 @@ def _calls():
     return _CT
 
 
+# Fields the type checker could not infer (kind None): what the registration screens actually send, by name.
+UNTYPED = {'working_hours': [{'day': 'sunday', 'open': '09:00', 'close': '17:00', 'open_evening': None, 'close_evening': None, 'closed': False}],
+           'home_visit_radius_km': 10, 'coverage_radius_km': 10, 'gender': 'female', 'pricingModel': ['visit'],
+           'nursing_services': [], 'equipment_list': [], 'test_categories': []}
+
+
 def _value(key, kind):
     k = key.lower()
     if kind is None or kind == 'null':
-        return None
+        return UNTYPED.get(key)
     if kind == 'string':
         if 'date' in k or 'expiry' in k:
             return '2027-06-30'
@@ -200,7 +206,8 @@ def register_type(ptype, overrides=None):
     step('wizard sign-in', r.ok and tok, r)
     c = provider_client(tok)
     for url, body, at in screen_payloads(ptype):
-        body = {**body, **{k: v for k, v in (overrides or {}).items() if k in body}}
+        sent = {k for c in _calls() if c['at'] == at for k in (c.get('kinds') or {})}
+        body = {**body, **{k: v for k, v in (overrides or {}).items() if k in body or k in sent}}
         r = c.post(url, body)
         step(f"{url.split('/')[-1]} as sent by {at.split('/')[-1]}", r.ok, f'{r} body_keys={sorted(body)}')
     sig = upload(c, 'signature.png', 'image/png')

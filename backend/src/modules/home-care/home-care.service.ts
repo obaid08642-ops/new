@@ -63,8 +63,25 @@ export class HomeCareSvc {
   async book(user: any, data: any) {
     if (!data.service_id) throw new BadRequestException('service_id required');
     if (!data.scheduled_at) throw new BadRequestException('scheduled_at required');
-    const svc = await this.svcModel.findOne({ id: data.service_id });
+    const svc = await this.svcModel.findOne({ id: data.service_id, active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' });
     if (!svc) throw new NotFoundException('service');
+    // The patient picks the nurse (nursing/service-details -> nurse-profile): it must be an approved home-care
+    // provider offering this service. The booking lands in that nurse's job queue (provider-jobs, ASSIGNED).
+    const isAdmin = ['admin', 'super_admin', 'system'].includes(user?.role);
+    const providerId = typeof data.provider_id === 'string' ? data.provider_id : '';
+    if (!providerId && !isAdmin) throw new BadRequestException('provider_id_required');
+    if (providerId) {
+      const nurse = await this.svcModel.db.collection('provider_profiles').findOne({
+        account_id: providerId, type: { $in: ['home_care', 'nursing', 'nurse'] }, status: 'active', public_eligibility: true, medical_review_status: 'approved',
+        'nursing_services.key': svc.id,
+      });
+      if (!nurse) throw new BadRequestException('provider_cannot_perform_service');
+    }
+    const when = new Date(String(data.scheduled_at));
+    if (isNaN(when.getTime()) || when.getTime() < Date.now() - 5 * 60_000) throw new BadRequestException('slot_expired');
+    // Home visits are paid by card or insurance (same policy as lab/radiology home visits).
+    const paymentMethod = String(data.payment_method || 'card');
+    if (!['card', 'insurance'].includes(paymentMethod)) throw new BadRequestException(`payment_method_${paymentMethod}_not_allowed_for_home_visit`);
     // S4 duplicate-booking prevention: idempotent replay for double-tap/retry within 3 minutes
     const dupe = await this.bkgModel.findOne({
       patient_id: user.id,
@@ -85,11 +102,12 @@ export class HomeCareSvc {
       duration: svc.duration,
       total,
       address: data.address,
-      scheduled_at: new Date(data.scheduled_at),
-      state: NursingBookingState.NEW_REQUEST,
-      state_history: [{ from: '', to: NursingBookingState.NEW_REQUEST, by_user_id: user.id, at: new Date() }],
+      scheduled_at: when,
+      provider_id: providerId || undefined,
+      state: providerId ? NursingBookingState.PROVIDER_ASSIGNED : NursingBookingState.NEW_REQUEST,
+      state_history: [{ from: '', to: providerId ? NursingBookingState.PROVIDER_ASSIGNED : NursingBookingState.NEW_REQUEST, by_user_id: user.id, at: new Date() }],
       notes: data.notes,
-      payment_method: data.payment_method || 'cash',
+      payment_method: paymentMethod,
       sessions_count: sessions,
     });
     this.events.emit('homecare.booking_created', { booking_id: booking.id, patient_id: user.id });

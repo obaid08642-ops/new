@@ -62,9 +62,10 @@ export const ORDER_KINDS: OrderKindSpec[] = [
     label_ar: 'حجز أشعة',
   },
   {
+    // home-care.service book(): amount in `total`, the chosen nurse in provider_id
     kind: 'nursing', collection: 'homecarebookings', stateField: 'state', historyField: 'state_history',
     patientField: 'patient_id', patientNameField: 'patient_name', providerField: 'provider_id',
-    amountExpr: '$total_price', cancelledStates: ['CANCELLED', 'REJECTED'], completedStates: ['COMPLETED', 'DONE'],
+    amountExpr: '$total', cancelledStates: ['CANCELLED', 'REJECTED'], completedStates: ['COMPLETED', 'DONE'],
     label_ar: 'تمريض منزلي',
   },
   {
@@ -96,6 +97,22 @@ export class OrdersConsoleService {
     private readonly wallet: WalletService,
     private readonly moduleRef: ModuleRef,
   ) {}
+
+  /**
+   * Gateway payments for a booking. App checkouts go through PaymentsService (`transactions`); the Moyasar
+   * module records `moyasar_payments`. Both count; each row keeps its source so refunds are mirrored back.
+   */
+  private async paymentsFor(id: string, paidOnly = false): Promise<any[]> {
+    const paid = ['paid', 'confirmed', 'succeeded'];
+    const [moy, txn] = await Promise.all([
+      this.conn.collection('moyasar_payments').find({
+        $or: [{ booking_id: id }, { reference_id: id }, { order_id: id }], ...(paidOnly ? { status: { $in: paid } } : {}),
+      }).sort({ createdAt: -1 }).limit(20).toArray().catch(() => []),
+      this.conn.collection('transactions').find({ booking_id: id, ...(paidOnly ? { status: { $in: paid } } : {}) })
+        .sort({ createdAt: -1 }).limit(20).toArray().catch(() => []),
+    ]);
+    return [...(moy as any[]).map((p) => ({ ...p, _source: 'moyasar_payments' })), ...(txn as any[]).map((p) => ({ ...p, _source: 'transactions' }))];
+  }
 
   /** Finds the order in whichever collection of this kind holds it. */
   private async findOrder(kind: string, id: string): Promise<{ spec: OrderKindSpec; doc: any }> {
@@ -244,11 +261,7 @@ export class OrdersConsoleService {
   async detail(kind: string, id: string) {
     const { spec, doc } = await this.findOrder(kind, id);
 
-    const payments = await this.conn.collection('moyasar_payments')
-      .find({ $or: [{ booking_id: id }, { reference_id: id }, { order_id: id }] })
-      .project({ _id: 0 })
-      .sort({ createdAt: -1 }).limit(20).toArray()
-      .catch(() => []);
+    const payments = (await this.paymentsFor(id)).map(({ _id, client_secret, webhook_payload, ...p }: any) => p);
 
     const refunds = await this.conn.collection('wallet_transactions')
       .find({ referenceType: 'refund', referenceId: id, type: 'credit' })
@@ -311,10 +324,7 @@ export class OrdersConsoleService {
     const reason = this.financialReason(body?.reason);
     const { spec, doc } = await this.findOrder(kind, id);
 
-    const payments = await this.conn.collection('moyasar_payments').find({
-      $or: [{ booking_id: id }, { reference_id: id }, { order_id: id }],
-      status: { $in: ['paid', 'confirmed', 'succeeded'] },
-    }).toArray().catch(() => []);
+    const payments = await this.paymentsFor(id, true);
     const paid = (payments as any[]).reduce((a: number, p: any) => a + Number(p.amount || 0), 0);
     if (paid <= 0) throw new BadRequestException('no_confirmed_payment_to_refund');
     const priorRefunds = await this.conn.collection('wallet_transactions')
@@ -336,7 +346,7 @@ export class OrdersConsoleService {
     // daily reconciliation don't keep counting refunded money as gross.
     const fullyRefunded = Math.round((refunded + amount) * 100) / 100 >= paid;
     for (const p of payments) {
-      await this.conn.collection('moyasar_payments').updateOne(
+      await this.conn.collection((p as any)._source).updateOne(
         { _id: (p as any)._id },
         { $set: {
           status: fullyRefunded ? 'refunded' : (p as any).status,

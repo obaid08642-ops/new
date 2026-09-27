@@ -21,6 +21,8 @@ export CORS_ORIGINS="$ALLOWED_ORIGINS"
 export DISABLE_RATE_LIMIT="${DISABLE_RATE_LIMIT:-true}" THROTTLER_LIMIT="${THROTTLER_LIMIT:-1000000}"
 # Same reason for the per-identifier OTP issue cap (the fixed admin account signs in on every journey run).
 export OTP_ISSUE_LIMIT="${OTP_ISSUE_LIMIT:-1000}"
+# Card payments go to tools/live/fake_moyasar.py (:9100); /__pay/<id> plays the patient completing checkout.
+export MOYASAR_API_KEY="${MOYASAR_API_KEY:-sk_test_live_journeys}" MOYASAR_API_BASE="${MOYASAR_API_BASE:-http://127.0.0.1:9100/v1}"
 nohup node --max-old-space-size=1500 dist/main.js > /tmp/nabd-backend.log 2>&1 &
 for i in $(seq 1 90); do
   curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:$PORT/api/v1/health/liveness" 2>/dev/null | grep -q 200 && { echo "backend up (db=$DB_NAME)"; exit 0; }
