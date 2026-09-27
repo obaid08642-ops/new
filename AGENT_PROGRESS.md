@@ -200,3 +200,9 @@ Format: task | commit sha | verify result | notes
 
 ## [P6.x-2b] Specialties admin CRUD (2026-09-26)
 - Reference specialties were seed-only. Backend `catalogs/admin/specialties` (list incl. inactive, upsert with slugified code, soft-delete) + catalog-manager specialties tab + BFF mapping. Public list already hides inactive. Tests 2/2. tsc 0.
+
+## Gate P6 (2026-09-26, this branch)
+- F46/F47/F48/BFF-refresh/web-heartbeat/P6.0(+medicines buttons)/reports/finance+insurance/search/997/templates/SLA/pricing/RBAC-assign/FAQs/copay-rules/specialties/app-versions — all committed with tests where backend (labs-approve, admin-reports, admin-search, emergency-997, notifications-templates, catalogs-specialties, nursing-alias, business-rules updated).
+- Contracts: dtolint 0/0/0, dtocheck 644/317/0 mismatches, backend tsc 0, nest build 0 (re-verified at push time).
+- Gate P6 adminshot (all admin pages, 0 console/4xx-5xx) + Playwright button-clicks: ENV-BLOCKED here (needs running admin+backend+seeded DB) — CI/staging must run `adminshot.py` and per-page click tests.
+- Deferred with reasons: live orders geo-map + 5xx-rate tile (no error-log/geo telemetry sink exists — needs new infra, not a UI tweak); per-module deep reports beyond revenue/orders/bookings/providers/patients/finance/insurance (analytics-suite funnels/cohorts/league/NPS + finance-suite ledger + insurance-queue cover the listed domains; labs-turnaround/nursing-visits/pharmacy-fill-rate/consultation-no-shows/user-retention specifics need staging-data verification of each aggregation).
