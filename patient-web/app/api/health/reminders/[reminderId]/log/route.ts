@@ -19,9 +19,10 @@ export async function POST(req: Request, context: Context) {
   if (!accessToken) return NextResponse.json({ message: "authentication_required" }, { status: 401 });
   const parsed = schema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ message: "invalid_log_payload" }, { status: 400 });
+  const idempotencyKey = req.headers.get("idempotency-key")?.trim() || "";
   const upstream = await callPatientApi(`/health/reminders/${encodeURIComponent(reminderId)}/log`, {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    headers: { "content-type": "application/json", ...(idempotencyKey ? { "idempotency-key": idempotencyKey } : {}) },
     body: JSON.stringify(parsed.data),
   }, accessToken);
   const data = await upstream.json().catch(() => null);

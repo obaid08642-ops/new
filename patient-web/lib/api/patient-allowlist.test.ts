@@ -57,7 +57,7 @@ describe("patient API allowlist", () => {
     expect(isAllowedPatientApiRequest("/nursing/visits", "POST")).toBe(false);
     expect(isAllowedPatientApiRequest("/health/vitals-log", "POST")).toBe(false);
     expect(isAllowedPatientApiPath("/health/vitals-log?limit=10")).toBe(false);
-    expect(isAllowedPatientApiRequest("/users/me/profile", "PATCH")).toBe(false);
+    expect(isAllowedPatientApiRequest("/users/me/profile", "PATCH")).toBe(true);
     expect(isAllowedPatientApiRequest("/users/me/notification-settings", "POST")).toBe(false);
     expect(isAllowedPatientApiPath("/nursing/visits?limit=10")).toBe(false);
     expect(isAllowedPatientApiRequest("/users/me/wishlist", "GET")).toBe(true);

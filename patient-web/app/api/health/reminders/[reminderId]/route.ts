@@ -21,9 +21,10 @@ export async function PATCH(req: Request, context: Context) {
   const accessToken = await tokenOr401();
   if (!accessToken) return NextResponse.json({ message: "authentication_required" }, { status: 401 });
   const body = await req.json().catch(() => null);
+  const idempotencyKey = req.headers.get("idempotency-key")?.trim() || "";
   const upstream = await callPatientApi(`/health/reminders/${encodeURIComponent(reminderId)}`, {
     method: "PATCH",
-    headers: { "content-type": "application/json" },
+    headers: { "content-type": "application/json", ...(idempotencyKey ? { "idempotency-key": idempotencyKey } : {}) },
     body: JSON.stringify(body || {}),
   }, accessToken);
   const data = await upstream.json().catch(() => null);
@@ -32,12 +33,16 @@ export async function PATCH(req: Request, context: Context) {
 }
 
 /** F69: delete a medication reminder (same endpoint as the app). */
-export async function DELETE(_req: Request, context: Context) {
+export async function DELETE(req: Request, context: Context) {
   const { reminderId } = await context.params;
   if (!idSchema.safeParse(reminderId).success) return NextResponse.json({ message: "resource_not_found" }, { status: 404 });
   const accessToken = await tokenOr401();
   if (!accessToken) return NextResponse.json({ message: "authentication_required" }, { status: 401 });
-  const upstream = await callPatientApi(`/health/reminders/${encodeURIComponent(reminderId)}`, { method: "DELETE" }, accessToken);
+  const idempotencyKey = req.headers.get("idempotency-key")?.trim() || "";
+  const upstream = await callPatientApi(`/health/reminders/${encodeURIComponent(reminderId)}`, {
+    method: "DELETE",
+    ...(idempotencyKey ? { headers: { "idempotency-key": idempotencyKey } } : {}),
+  }, accessToken);
   const data = await upstream.json().catch(() => null);
   if (!upstream.ok) return boundedUpstreamError(data, "reminder_delete_failed", upstream.status);
   return NextResponse.json(data ?? { ok: true }, { headers: { "cache-control": "no-store" } });
