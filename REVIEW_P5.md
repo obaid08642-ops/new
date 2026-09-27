@@ -19,6 +19,12 @@
   - The kept `ScheduleSettingsDto` matches what NursingDashboard sends (`shifts` as an object).
   - The pharmacy order `payment_method` has no default, so an order is not pre-marked as cash.
 
+- **Found by the CI live gate on a fresh database (not visible on a warm dev DB).** The P5.1 boot seeder (`catalogs-seed.service.ts`) inserts rows with raw upserts, which skip schema defaults:
+  - the added nursing services carried `is_active` instead of `active`, so they never listed even after approval;
+  - they had no `duration`, which a booking requires, so booking one returned 400;
+  - 13 JSON rows had no `active`.
+  Fixed: defaults on insert, `nursing.json` corrected, and an idempotent repair of existing rows at boot. Covered by `catalogs-seed.active.spec.ts`.
+
 ## Conflict resolution rules
 - **DTOs:** `main`'s shapes are the ones verified against the real client payloads (live journeys). Fields that existed only on the agent's side were kept, e.g. `ManualRequestDto` and the pharmacy order fields.
 - **Files the agent moved or deleted in P5.3:** the move is kept.
