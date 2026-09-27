@@ -52,7 +52,7 @@ export default function InsuranceQueuePage() {
 
   const decideRefund = async (id: string, approve: boolean) => {
     try {
-      await apiFetch(`/api/admin/admin/finance/refunds${id}/decide`, {
+      await apiFetch(`/api/admin/admin/finance/refunds/${id}/decide`, {
         method: 'POST',
         body: JSON.stringify({ approve, note: decideNote || undefined }),
       });

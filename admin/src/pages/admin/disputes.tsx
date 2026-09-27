@@ -34,7 +34,7 @@ export default function DisputesPage() {
     if (!window.confirm('سيُسجّل القرار في سجل التدقيق وقد يضيف رصيداً حقيقياً إلى محفظة المريض. هل تريد المتابعة؟')) return;
     setSubmitting(true); setError('');
     try {
-      await adminMutation(`/disputes/${active.id}/resolve`, 'POST', { decision, reason: reason.trim(), ...(decision === 'refund_partial' ? { amount: Number(amount) } : {}) });
+      await adminMutation(`/api/admin/admin/disputes/${active.id}/resolve`, 'POST', { decision, reason: reason.trim(), ...(decision === 'refund_partial' ? { amount: Number(amount) } : {}) });
       setActive(null); setReason(''); setAmount('');
       await load();
     } catch (cause) { setError(apiErrorMessage(cause, 'تعذر تنفيذ قرار النزاع.')); }

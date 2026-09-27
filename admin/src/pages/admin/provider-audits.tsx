@@ -27,7 +27,7 @@ export default function ProviderAuditsPage() {
   const handleApprove = async (id: string) => {
     setProcessingId(id);
     try {
-      await apiFetch(`/api/admin/admin/providers/provider-deltas${id}/approve`, { method: 'POST' });
+      await apiFetch(`/api/admin/admin/providers/provider-deltas/${id}/approve`, { method: 'POST' });
       setDeltas((prev) => prev.filter((d) => (d.id || d._id) !== id));
       alert('تم اعتماد التعديلات وتحديث ملف مقدم الخدمة بنجاح.');
     } catch (err: any) {
@@ -42,7 +42,7 @@ export default function ProviderAuditsPage() {
     if (!reason) return;
     setProcessingId(id);
     try {
-      await apiFetch(`/api/admin/admin/providers/provider-deltas${id}/reject`, { method: 'POST', body: JSON.stringify({ reason }) });
+      await apiFetch(`/api/admin/admin/providers/provider-deltas/${id}/reject`, { method: 'POST', body: JSON.stringify({ reason }) });
       setDeltas((prev) => prev.filter((d) => (d.id || d._id) !== id));
       alert('تم رفض التعديل وإشعار مقدم الخدمة.');
     } catch (err: any) {

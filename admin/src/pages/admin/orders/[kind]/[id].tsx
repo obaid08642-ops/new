@@ -47,7 +47,7 @@ export default function OrderDetailPage() {
     setSubmitting(true); setError('');
     try {
       const body = action === 'note' ? { note: note.trim() } : { reason: reason.trim(), ...(action === 'refund' ? { mode: amount ? 'partial' : 'full', ...(amount ? { amount: Number(amount) } : {}) } : {}), ...(action === 'compensate' ? { amount: Number(amount) } : {}), ...(action === 'reassign' ? { provider_id: providerId.trim() } : {}), ...(action === 'sla-extend' ? { hours: Number(hours) } : {}) };
-      await adminMutation(`/orders/${encodeURIComponent(kind)}/${encodeURIComponent(id)}/${action}`, 'POST', body);
+      await adminMutation(`/api/admin/admin/orders/${encodeURIComponent(kind)}/${encodeURIComponent(id)}/${action}`, 'POST', body);
       setAction(null); await load();
     } catch (cause) { setError(apiErrorMessage(cause, `تعذر تنفيذ «${labels[action]}».`)); }
     finally { setSubmitting(false); }

@@ -439,7 +439,7 @@ function MedicinesPanel() {
     try {
       const body = new FormData();
       body.append('file', file);
-      const res: any = await apiFetch('/api/admin/bulk-upload', { method: 'POST', body });
+      const res: any = await apiFetch('/api/admin/admin/bulk-upload', { method: 'POST', body });
       setMsg(`استيراد CSV: استلام ${res?.received || 0} — جديد ${res?.inserted || 0} — محدّث ${res?.updated || 0}`);
       await load();
     } catch (e: any) {

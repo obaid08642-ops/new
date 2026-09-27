@@ -16,7 +16,7 @@ export default function OrderDetailPage() {
   useEffect(() => {
     if (!kind || !id) return;
     setLoading(true);
-    apiFetch(`/api/admin/admin/command-center/order${encodeURIComponent(kind)}/${encodeURIComponent(id)}`)
+    apiFetch(`/api/admin/admin/command-center/order/${encodeURIComponent(kind)}/${encodeURIComponent(id)}`)
       .then(setData)
       .catch((e: any) => setError(e?.message || 'تعذر تحميل تفاصيل الطلب'))
       .finally(() => setLoading(false));

@@ -13,7 +13,7 @@ export default function AppointmentsOversightPage() {
   useEffect(()=>{load();},[load]);
   const cancel = async(id:string)=>{
     if(!confirm('إلغاء الموعد؟')) return;
-    try{ await apiFetch(`/api/admin/admin/appointments${id}/cancel`,{method:'POST', body: JSON.stringify({reason:'admin_cancel'})}); await load();}catch(e:any){alert(e?.message||'فشل');}
+    try{ await apiFetch(`/api/admin/admin/appointments/${id}/cancel`,{method:'POST', body: JSON.stringify({reason:'admin_cancel'})}); await load();}catch(e:any){alert(e?.message||'فشل');}
   };
   return (<><Head><title>إشراف المواعيد | نبض</title></Head>
   <div className="p-8 space-y-6">

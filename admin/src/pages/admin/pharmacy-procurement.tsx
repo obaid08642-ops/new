@@ -74,7 +74,7 @@ export default function PharmacyProcurementPage() {
           line_total: lineTotal(it, i),
         };
       });
-      await apiFetch(`/api/admin/admin/extended-operations/issue-quote${selected._id || selected.id}`, {
+      await apiFetch(`/api/admin/admin/extended-operations/issue-quote/${selected._id || selected.id}`, {
         method: 'PATCH',
         body: JSON.stringify({ pricingItems, totalPrice: total }),
       });

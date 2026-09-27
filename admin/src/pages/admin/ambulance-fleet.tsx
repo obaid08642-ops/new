@@ -54,7 +54,7 @@ export default function AmbulanceFleetReview() {
   const approve = async (v: Vehicle) => {
     setBusyId(v.id);
     try {
-      const res = await fetchWithAdminGuard(`/api/admin/admin/ambulance/fleet${v.id}/approve`, { method: 'POST' });
+      const res = await fetchWithAdminGuard(`/api/admin/admin/ambulance/fleet/${v.id}/approve`, { method: 'POST' });
       if (!res.ok) throw new Error();
       setVehicles(list => list.filter(x => x.id !== v.id));
       alert(`تم اعتماد المركبة ${v.plate_number} — أصبحت مؤهلة لاستلام مهام الطوارئ`);
@@ -69,7 +69,7 @@ export default function AmbulanceFleetReview() {
     if (!rejectReason.trim()) { alert('أدخل سبب الرفض'); return; }
     setBusyId(v.id);
     try {
-      const res = await fetchWithAdminGuard(`/api/admin/admin/ambulance/fleet${v.id}/reject`, {
+      const res = await fetchWithAdminGuard(`/api/admin/admin/ambulance/fleet/${v.id}/reject`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ reason: rejectReason.trim() }),

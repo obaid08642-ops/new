@@ -62,7 +62,7 @@ export default function NotificationCenterPage() {
     let params = {};
     try { params = JSON.parse(tplParams || '{}'); } catch { alert('params JSON غير صالح'); return; }
     try {
-      setTplPreview(await apiFetch(`/api/admin/notifications/admin/templates${encodeURIComponent(key)}/preview`, {
+      setTplPreview(await apiFetch(`/api/admin/notifications/admin/templates/${encodeURIComponent(key)}/preview`, {
         method: 'POST', body: JSON.stringify({ lang: tplLang, params }),
       }));
     } catch (e: any) { alert(e?.message || 'فشل المعاينة'); }
@@ -73,7 +73,7 @@ export default function NotificationCenterPage() {
     let params = {};
     try { params = JSON.parse(tplParams || '{}'); } catch { alert('params JSON غير صالح'); return; }
     try {
-      await apiFetch(`/api/admin/notifications/admin/templates${encodeURIComponent(key)}/test-send`, {
+      await apiFetch(`/api/admin/notifications/admin/templates/${encodeURIComponent(key)}/test-send`, {
         method: 'POST', body: JSON.stringify({ lang: tplLang, params }),
       });
       alert('تم الإرسال التجريبي');
@@ -87,7 +87,7 @@ export default function NotificationCenterPage() {
         apiFetch('/api/admin/admin/notification-center/stats/overview').catch(() => null),
         apiFetch('/api/admin/admin/notification-center/segments').catch(() => null),
         apiFetch(`/api/admin/admin/notification-center/campaigns?page=${page}&limit=15`).catch(() => ({ data: [] })),
-        apiFetch('/analytics-suite/email-usage').catch(() => null),
+        apiFetch('/api/admin/admin/analytics-suite/email-usage').catch(() => null),
       ]);
       setStats(s);
       setEmailUsage(eu);
@@ -132,13 +132,13 @@ export default function NotificationCenterPage() {
 
   const sendNow = async (id: string) => {
     if (!confirm('إرسال هذه الحملة الآن؟')) return;
-    await apiFetch(`/api/admin/admin/notification-center/campaigns${id}/send`, { method: 'POST' }).catch(() => alert('فشل'));
+    await apiFetch(`/api/admin/admin/notification-center/campaigns/${id}/send`, { method: 'POST' }).catch(() => alert('فشل'));
     load();
   };
 
   const cancel = async (id: string) => {
     if (!confirm('إلغاء هذه الحملة المجدولة؟')) return;
-    await apiFetch(`/api/admin/admin/notification-center/campaigns${id}`, { method: 'DELETE' }).catch(() => alert('فشل'));
+    await apiFetch(`/api/admin/admin/notification-center/campaigns/${id}`, { method: 'DELETE' }).catch(() => alert('فشل'));
     load();
   };
 

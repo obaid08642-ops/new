@@ -38,7 +38,7 @@ export default function LocationsAdminPage() {
   const deactivate = async (code: string) => {
     if (!confirm(`تعطيل ${code}؟ سيختفي من كل القوائم.`)) return;
     setBusy(code); setError('');
-    try { await apiFetch(`/api/admin/admin/locations${encodeURIComponent(code)}`, { method: 'DELETE' }); await load(); }
+    try { await apiFetch(`/api/admin/admin/locations/${encodeURIComponent(code)}`, { method: 'DELETE' }); await load(); }
     catch (e: any) { setError(e?.message || 'فشل التعطيل'); }
     finally { setBusy(''); }
   };

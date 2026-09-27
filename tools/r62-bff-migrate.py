@@ -30,6 +30,7 @@ def to_bff(url):
 def current_upstream(bff_url):
     pathpart = bff_url.split('?')[0]
     assert pathpart.startswith('/api/admin/')
+    trailing = pathpart.endswith('/') and len(pathpart) > len('/api/admin/')
     segs = [s for s in pathpart[len('/api/admin/'):].split('/') if s != '']
     decoded = segs
     encoded = '/'.join(segs)
@@ -71,15 +72,23 @@ def current_upstream(bff_url):
         up = '/api/v1/system-health/' + '/'.join(decoded[1:])
     if decoded[0:2] == ['nabd-extensions', 'admin']:
         up = '/api/v1/nabd-extensions/admin/' + '/'.join(decoded[2:])
+    if trailing and not up.endswith('/'):
+        up += '/'
     return up
+
+
+def bff_path(path):
+    if path.startswith('/api/admin/'):
+        return path
+    if path.startswith('/admin/'):
+        return '/api/admin' + path[len('/admin'):]
+    if path.startswith('/'):
+        return '/api/admin' + path
+    return '/api/admin/' + path
 
 
 def new_form(url):
     """Rewrite a caller URL to the 1:1 form. Returns None if no rewrite needed."""
-    q = ''
-    if '?' in url and '${' not in url.split('?')[0]:
-        # keep query/dynamic tails untouched; only rewrite the static head
-        pass
     # split static head from dynamic/query tail
     m = re.match(r'^([^$?]+)(.*)$', url)
     if not m:
@@ -87,7 +96,7 @@ def new_form(url):
     head, tail = m.group(1), m.group(2)
     if '${' in head:
         return None
-    if not (head.startswith('/admin/') or head.startswith('/api/admin/')):
+    if not head.startswith('/'):
         return None
     # already migrated (double-admin head): pure 1:1 resolves it correctly
     if head.startswith('/api/admin/admin/'):
@@ -96,7 +105,7 @@ def new_form(url):
     # reads stay public; callers under /admin/legal/* always mean the admin routes
     if head.startswith('/admin/legal/'):
         return '/api/admin/admin' + head[len('/admin'):] + tail
-    bff = to_bff(head)
+    bff = to_bff(head) if head.startswith('/api/') else bff_path(head)
     up = current_upstream(bff)
     assert up.startswith('/api/v1/')
     # already in 1:1 form when the pure mapping agrees with the old rules
@@ -116,8 +125,15 @@ def process(path, apply):
             if new is None:
                 return m.group(0)
             return m.group(1) + new + m.group(3)
-        # apiFetch('...' / `...`) and fetchWithAdminGuard('...' / `...`)
-        nl = re.sub(r"((?:apiFetch|fetchWithAdminGuard)\(\s*[`'])((?:[^`'\\]|\\.|\\\$\{[^}]*\})+)([`'])", repl, l)
+        # apiFetch/fetchWithAdminGuard/adminFetch/adminMutation('...' / `...`)
+        # plus raw href="/api/admin/..." and href={`/api/admin/...`} links
+        nl = re.sub(r"((?:apiFetch|fetchWithAdminGuard|adminFetch|adminMutation)\(\s*[`'])((?:[^`'\\]|\\.|\\\$\{[^}]*\})+)([`'])", repl, l)
+
+        def repl_href(m):
+            if not m.group(2).startswith('/api/admin/'):
+                return m.group(0)
+            return repl(m)
+        nl = re.sub(r"((?:href=)[`'\"]{1})((?:[^`'\"\\]|\\.)+)([`'\"])", repl_href, nl)
         if nl != l:
             changed += 1
         out.append(nl)

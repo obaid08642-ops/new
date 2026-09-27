@@ -108,7 +108,7 @@ export default function FinancialLedger() {
 
   const handleExecutePayout = async (id: string) => {
     try {
-      const res: any = await fetchWithAdminGuard(`/api/admin/admin/finance/withdrawals${id}/execute`, { method: 'POST' });
+      const res: any = await fetchWithAdminGuard(`/api/admin/admin/finance/withdrawals/${id}/execute`, { method: 'POST' });
       if (res?.routed_to_approval) {
         alert('أُرسل للاعتماد الثاني (maker-checker) — بانتظار مدير آخر.');
       } else {
@@ -134,7 +134,7 @@ export default function FinancialLedger() {
     if (total_warehouse_quotation_price <= 0) return alert('يجب تسعير العناصر أولاً');
 
     try {
-            const res = await fetchWithAdminGuard(`/api/admin/admin/extended-operations/issue-quote${order.id}`, {
+            const res = await fetchWithAdminGuard(`/api/admin/admin/extended-operations/issue-quote/${order.id}`, {
         method: 'PATCH',
         body: JSON.stringify({ pricingItems: order.items, totalPrice: total_warehouse_quotation_price })
       });

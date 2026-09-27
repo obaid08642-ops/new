@@ -39,7 +39,7 @@ export default function ReportsPage() {
   const load = useCallback(async () => {
     setLoading(true); setError('');
     try {
-      const r: any = await adminFetch(`/reports/${tab}${toQuery({ from, to, group_by: groupBy })}`);
+      const r: any = await adminFetch(`/api/admin/admin/reports/${tab}${toQuery({ from, to, group_by: groupBy })}`);
       setRows(Array.isArray(r?.rows) ? r.rows : []);
     } catch (cause) {
       setError(apiErrorMessage(cause, 'تعذر تحميل التقرير.'));

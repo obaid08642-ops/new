@@ -21,7 +21,7 @@ export default function AnalyticsPage() {
 
   useEffect(() => {
     setLoading(true);
-    apiFetch(`/api/admin/admin/analytics${section}?limit=15`)
+    apiFetch(`/api/admin/admin/analytics/${section}?limit=15`)
       .then(d => setRows(Array.isArray(d) ? d : []))
       .catch(() => setRows([]))
       .finally(() => setLoading(false));

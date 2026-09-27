@@ -46,7 +46,7 @@ export default function PayoutApprovalPage() {
   const handleExecutePayout = async (id: string) => {
     if (!window.confirm('هل أنت متأكد من تنفيذ تحويل المستحقات المالية لهذا المزود؟ لا يمكن التراجع عن هذه العملية بعد التحويل.')) return;
     try {
-      await apiFetch(`/api/admin/admin/finance/withdrawals${id}/execute`, { method: 'POST' });
+      await apiFetch(`/api/admin/admin/finance/withdrawals/${id}/execute`, { method: 'POST' });
       alert('تم اعتماد السحب وتحويل مستحقات المزود بنجاح');
       fetchPayouts();
     } catch (e: any) {
@@ -60,7 +60,7 @@ export default function PayoutApprovalPage() {
       return;
     }
     try {
-      await apiFetch(`/api/admin/admin/finance/withdrawals${id}/reject`, {
+      await apiFetch(`/api/admin/admin/finance/withdrawals/${id}/reject`, {
         method: 'POST',
         body: JSON.stringify({ reason: rejectReason.trim() }),
       });
