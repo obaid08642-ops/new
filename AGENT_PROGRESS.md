@@ -236,3 +236,7 @@ Format: task | commit sha | verify result | notes
 - profile/edit (5-line stub) deleted — all links already used /health/edit-profile.
 - family/hub (older subset) merged into /health/family-hub: backend notification routes + push verbatim set + family/join repointed; stubs deleted (family/index redirect kept for deep links).
 - insurance hub/claim-tracking/refund-status merged into one tabbed hub (?tab=, param-synced); screens moved to src/components (routes gone); all inbound links (orders, hub, approval-pending, claim→refund) repointed.
+
+## Gate P8 (2026-09-26, this branch)
+- F69–F75 implemented per entries above (F69 reminders edit/log/delete + settings toggles; F70 family CTA; F71 intent-first search; F73 draft fields + 15km pickup; F74 parent order + single-payment wiring; F75 OTP resend). Screen merges done (family/profile/insurance). Touched screens carry loading/error/empty states; full 34-screen states sweep needs screens.py (absent) — recorded.
+- Journey e2e (pharmacy ×/consultation ×/lab ×/radiology ×/nursing × insurance flow, no NPHIES): STAGING-GATED (needs real Mongo + geo + transactions + payment sandbox).
