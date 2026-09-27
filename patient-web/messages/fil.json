@@ -366,7 +366,11 @@
     "unavailableTitle": "Hindi na-load ang pamilya",
     "unavailable": "Walang kapalit na data na ipinakita. Subukang muli mamaya.",
     "notice": "Tungkulin ng miyembro at petsa lamang ng pagsali ang ipinapakita. Hindi ipinapakita ang mga identifier, pahintulot, rekord ng kalusugan at imbitasyon.",
-    "membersCount": "{count} members"
+    "membersCount": "{count} members",
+    "noFamilyTitle": "Gumawa ng grupo ng pamilya",
+    "noFamilyBody": "Wala pang grupo ng pamilya — gumawa ng isa upang mag-imbita at magbahagi ng pangangalaga.",
+    "createFamily": "Gumawa ng grupo",
+    "familyCreated": "Nagawa — nire-refresh…"
   },
   "Notifications": {
     "eyebrow": "Pribadong mga abiso",

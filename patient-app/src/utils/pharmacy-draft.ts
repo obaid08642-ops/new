@@ -1,7 +1,7 @@
 export type CartDraftLine = { id?: string; sku?: string; name?: string; name_ar?: string; qty?: number; quantity?: number; [key: string]: unknown };
 export type DeliveryAddress = { label?: string; street?: string; city?: string; lat?: number; lng?: number };
 
-export function buildPatientPharmacyDraft(items: CartDraftLine[], deliveryAddress: DeliveryAddress, prescriptionAttachment?: string) {
+export function buildPatientPharmacyDraft(items: CartDraftLine[], deliveryAddress: DeliveryAddress, prescriptionAttachment?: string, opts?: { fulfillment?: 'delivery' | 'pickup'; payment_mode?: 'cash' | 'insurance' }) {
   return {
     items: items.map((item) => ({
       raw_name: String(item.name_ar || item.name || '').trim(),
@@ -14,6 +14,9 @@ export function buildPatientPharmacyDraft(items: CartDraftLine[], deliveryAddres
       lat: Number(deliveryAddress.lat), lng: Number(deliveryAddress.lng),
     },
     prescription_attachments: prescriptionAttachment ? [prescriptionAttachment] : [],
+    // F73: draft fulfillment + payment mode travel end-to-end.
+    fulfillment: opts?.fulfillment === 'pickup' ? 'pickup' : 'delivery',
+    payment_mode: opts?.payment_mode === 'insurance' ? 'insurance' : 'cash',
   };
 }
 

@@ -42,6 +42,15 @@ export class CreateDto {
   @IsString()
   payment_method?: string;
 
+  /** F73: draft fulfillment + payment mode (end-to-end: app + web + backend). */
+  @IsOptional()
+  @IsIn(['delivery', 'pickup'])
+  fulfillment?: 'delivery' | 'pickup';
+
+  @IsOptional()
+  @IsIn(['cash', 'insurance'])
+  payment_mode?: 'cash' | 'insurance';
+
   @IsOptional()
   @IsString()
   insurance_policy_id?: string;
