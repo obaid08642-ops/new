@@ -86,7 +86,7 @@ export class NotificationsService {
   async resolveNotificationText(n: any, lang: string): Promise<{ title: string; body: string }> {
     const fallback = () => {
       try {
-        return { title: this.i18n.t(n.title_key, lang, n.params), body: this.i18n.t(n.body_key, lang, n.params) };
+        return { title: this.i18n.t(n.title_key, lang as any, n.params), body: this.i18n.t(n.body_key, lang as any, n.params) };
       } catch {
         return { title: String(n.title_key || ''), body: String(n.body_key || '') };
       }
