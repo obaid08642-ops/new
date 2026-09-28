@@ -18,6 +18,10 @@ export class ReportsQueryDto {
   @IsOptional()
   @IsIn(['day', 'service', 'status', 'gateway', 'city', 'type'])
   group_by?: string;
+
+  @IsOptional()
+  @IsIn(['csv', 'xlsx'])
+  format?: string;
 }
 
 const DAY = { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } };
