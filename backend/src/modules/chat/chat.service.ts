@@ -23,12 +23,49 @@ export class ChatService {
   // ── Thread management ────────────────────────────────────────
 
   async getOrCreateDirectThread(userA: string, userB: string): Promise<ChatThread> {
+    if (!userB || String(userA) === String(userB)) throw new BadRequestException('invalid_direct_recipient');
+    // LJ-06: a direct thread is only allowed between family members or users who
+    // already share a booking. Everything else must go through a booking thread.
+    if (!(await this.hasDirectRelationship(userA, userB))) {
+      throw new ForbiddenException('direct_chat_requires_existing_relationship');
+    }
     const participants = [userA, userB].sort();
     let thread = await this.threads.findOne({ type: 'direct', participant_ids: { $all: participants, $size: 2 } });
     if (!thread) {
       thread = await this.threads.create({ type: 'direct', participant_ids: participants, created_by: userA, unread_counts: { [userA]: 0, [userB]: 0 } });
     }
     return thread.toObject();
+  }
+
+  /** LJ-06: true when the two users are family, or one is the patient and the other
+   *  the provider on an existing booking in any domain. */
+  async hasDirectRelationship(userA: string, userB: string): Promise<boolean> {
+    if (await this.checkIfFamily([userA, userB])) return true;
+    const bookings: Array<{ model: string; patient: string[]; provider: string[] }> = [
+      { model: 'Appointment', patient: ['patient_id', 'user_id'], provider: ['doctor_user_id', 'provider_id', 'provider_account_id'] },
+      { model: 'LabBooking', patient: ['patient_id', 'user_id'], provider: ['provider_id', 'provider_account_id', 'lab_id', 'facility_id'] },
+      { model: 'RadiologyBooking', patient: ['patient_id', 'user_id'], provider: ['provider_id', 'provider_account_id', 'radiology_center_id'] },
+      { model: 'HomeCareBooking', patient: ['patient_id', 'user_id'], provider: ['provider_id', 'provider_account_id', 'nurse_id'] },
+      { model: 'Order', patient: ['patient_id', 'user_id'], provider: ['pharmacy_account_id', 'selected_pharmacy_account_id', 'pharmacy_id'] },
+    ];
+    for (const booking of bookings) {
+      try {
+        const model = this.getModel(booking.model);
+        const forward = await model.countDocuments({ $and: [
+          { $or: booking.patient.map((f) => ({ [f]: userA })) },
+          { $or: booking.provider.map((f) => ({ [f]: userB })) },
+        ] } as any);
+        if (forward > 0) return true;
+        const reverse = await model.countDocuments({ $and: [
+          { $or: booking.patient.map((f) => ({ [f]: userB })) },
+          { $or: booking.provider.map((f) => ({ [f]: userA })) },
+        ] } as any);
+        if (reverse > 0) return true;
+      } catch {
+        // model not registered in this context — skip
+      }
+    }
+    return false;
   }
 
   async createGroupThread(creatorId: string, name: string, participantIds: string[]): Promise<ChatThread> {
