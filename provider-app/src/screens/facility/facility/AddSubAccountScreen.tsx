@@ -1,3 +1,4 @@
+import * as Crypto from 'expo-crypto';
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
  View, Text, TouchableOpacity, ScrollView, StyleSheet,
@@ -79,7 +80,9 @@ export function AddSubAccountScreen({ onBack, preRole }: { onBack: () => void; p
  return;
  }
  setLoading(true);
- const tempPass = `TempPass#${String(Math.floor(1000 + Math.random() * 9000))}`;
+ // Crypto-strength temporary password (was TempPass# + 4 Math.random digits: 9000 guesses).
+ const ALPHA = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
+ const tempPass = `Np#${Array.from(Crypto.getRandomBytes(12), (b) => ALPHA[b % ALPHA.length]).join('')}7a`;
  try {
  const response = await client.post('/hospital/staff', {
  full_name: name,

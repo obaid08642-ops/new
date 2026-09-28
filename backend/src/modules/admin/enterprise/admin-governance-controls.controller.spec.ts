@@ -38,23 +38,13 @@ describe('AdminGovernanceControlsController', () => {
     collection: jest.fn().mockImplementation((name: string) => {
       if (name === 'query_analytics') {
         return {
-          countDocuments: jest.fn().mockImplementation((filter) => {
-            if (filter.results_count === 0) return Promise.resolve(2);
-            return Promise.resolve(10);
-          }),
-          aggregate: jest.fn().mockImplementation((pipeline: any[]) => {
-            const hasLimit = (n: number) => (pipeline || []).some((s: any) => s?.$limit === n);
-            if (hasLimit(50)) {
-              return {
-                toArray: jest.fn().mockResolvedValue([
-                  { _id: { q: 'طبيب جلدية في الرياض', locale: 'ar' }, count: 5, zero: 2, raw_query: 'طبيب جلدية في الرياض', intent_type: 'discovery', entity_type: 'doctor', location_code: 'ruh', last_searched: new Date() },
-                ]),
-              };
-            }
-            if (hasLimit(20)) {
-              return { toArray: jest.fn().mockResolvedValue([{ _id: 'ruh', count: 5 }]) };
-            }
-            return { toArray: jest.fn().mockResolvedValue([{ total: 10, zero: 2 }]) };
+aggregate: jest.fn().mockImplementation((pipeline: any[]) => {
+            const group = pipeline.find((st: any) => st.$group)?.$group || {};
+            const rows = group._id === null ? [{ _id: null, total: 10, zero: 2 }]
+              : group._id === '$specialty' ? [{ _id: 'dermatology', count: 3 }]
+              : group._id === '$resolved_location_code' ? [{ _id: 'riyadh', count: 4 }]
+              : [{ _id: { q: 'طبيب جلدية في الرياض', locale: 'ar' }, raw_query: 'طبيب جلدية في الرياض', intent_type: 'discovery', count: 5, zero: 1 }];
+            return { toArray: jest.fn().mockResolvedValue(rows) };
           }),
         };
       }
@@ -131,6 +121,15 @@ describe('AdminGovernanceControlsController', () => {
     expect(res.top_queries).toHaveLength(1);
     expect(res.top_queries[0].raw_query).toBe('طبيب جلدية في الرياض');
     expect(res.zero_result_queries).toHaveLength(1);
+    expect(res.top_specialties).toEqual([{ specialty: 'dermatology', count: 3 }]);
+    expect(res.top_locations).toEqual([{ location: 'riyadh', count: 4 }]);
+  });
+
+  it('searchIntentAnalytics never lets a query-string object become a Mongo operator', async () => {
+    await controller.searchIntentAnalytics({ $ne: 'x' } as any);
+    const used = mockConnection.collection.mock.results.map((r: any) => r.value).filter((v: any) => v?.aggregate?.mock?.calls?.length);
+    const match = used.at(-1).aggregate.mock.calls[0][0][0].$match;
+    expect(match.locale).toEqual({ $eq: '[object Object]' });
   });
 
   it('medicinePriceHistory returns audit records of price changes', async () => {
