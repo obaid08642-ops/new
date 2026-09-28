@@ -6,8 +6,13 @@ import { callPatientApi } from "@/lib/api/upstream";
 import { boundedUpstreamError } from "@/lib/api/error-response";
 
 const schema = z.object({
-  claim_type: z.enum(["consultation", "pharmacy", "lab", "radiology", "nursing", "hospitalization", "dental", "optical"]),
-  description: z.string().max(2000).optional().default(""),
+  booking_kind: z.enum(["consultation", "pharmacy", "lab", "radiology", "nursing"]),
+  booking_id: z.string().min(1).max(128),
+  claim_type: z.string().max(64).optional(),
+  amount: z.number().positive().optional(),
+  service_date: z.string().max(64).optional(),
+  attachment_url: z.string().max(2000).optional(),
+  note: z.string().max(2000).optional(),
 });
 
 export async function POST(request: Request) {
@@ -18,12 +23,14 @@ export async function POST(request: Request) {
   const accessToken = store.get(authCookieNames.access)?.value;
   if (!accessToken) return NextResponse.json({ message: "authentication_required" }, { status: 401 });
   const key = request.headers.get("idempotency-key")?.trim();
+  // R7-4: forward only booking-backed fields. The backend sets status/date
+  // itself and ignores client status/submitted_at — never send them.
   const upstream = await callPatientApi(
     "/insurance/claims/submit",
     {
       method: "POST",
       headers: { ...(key ? { "idempotency-key": key } : {}) },
-      body: JSON.stringify({ ...parsed.data, status: "pending", submitted_at: new Date().toISOString() }),
+      body: JSON.stringify(parsed.data),
     },
     accessToken,
   );

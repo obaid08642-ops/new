@@ -3,6 +3,9 @@ const memberId = "[A-Za-z0-9_-]{1,128}";
 const threadId = orderId;
 const patientReadRoutes = [
   new RegExp("^/orders/mine$"),
+  new RegExp("^/care/appointments/mine$", "i"),
+  new RegExp("^/labs/bookings/mine$", "i"),
+  new RegExp("^/radiology/bookings/mine$", "i"),
   new RegExp("^/prescriptions/mine$"),
   new RegExp("^/prescriptions/active$"),
   new RegExp(`^/prescriptions/${orderId}$`, "i"),
