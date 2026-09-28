@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException, ForbiddenException, Inject, Optional } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ForbiddenException, ServiceUnavailableException, Inject, Optional } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { LabService, LabBooking, LabBookingState, LAB_BOOKING_TRANSITIONS, LabSample } from '../../schemas/lab.schema';
@@ -21,6 +21,7 @@ import { getEffectiveRoles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { RedisService } from '../redis/redis.service';
 import { BusinessRulesService } from '../business-rules/business-rules.module';
+import { InsuranceFlowService } from '../insurance-engine/insurance-engine.module';
 import { reviewUpdate, invalidateCatalogCache } from '../../common/catalog-review';
 
 @Injectable()
@@ -36,6 +37,7 @@ export class LabsService {
     private readonly pdfService: LabPdfService,
     @Optional() private readonly redis?: RedisService,
     @Optional() private readonly pricing?: BusinessRulesService,
+    @Optional() private readonly insurance?: InsuranceFlowService,
   ) {}
 
   async list(opts: { category?: string; search?: string; home_only?: boolean; packages_only?: boolean; highest_rated?: boolean; nearest?: boolean; lowest_price?: boolean }) {
@@ -195,6 +197,18 @@ export class LabsService {
     await this.engine.announceCreated({ kind: 'lab', entity_id: booking.id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: user.id, meta: { tracking_id: booking.tracking_id, items: items.length, total, location_type: booking.location_type, payment_method: paymentMethod } });
     if (paymentMethod === 'insurance') {
       this.bus.emit({ type: 'insurance.pending', entity_type: 'lab_booking', entity_id: booking.id, patient_account_id: user.id, reason_code: data.insurance_provider || 'unknown_provider', meta: { docs: documents.length } }).catch(() => null);
+      // LJ-03: open the insurance request now so the provider decides a real request
+      // and the patient pays the copay through the engine checkout.
+      if (this.insurance) {
+        try {
+          const request: any = await this.insurance.createRequest(user, { booking_kind: 'lab', booking_id: booking.id });
+          booking.insurance_request_id = request.id;
+          booking.insurance_status = 'pending';
+          booking.state = LabBookingState.PENDING_INSURANCE;
+          booking.state_history.push({ from: LabBookingState.NEW_REQUEST, to: LabBookingState.PENDING_INSURANCE, by_user_id: 'system', by_role: 'system', at: new Date(), note: 'insurance request opened' });
+          await booking.save();
+        } catch { /* policy missing or price not ready — the provider decision path will retry */ }
+      }
     }
     if (booking.location_type === 'home') {
       this.bus.emit({ type: 'home_visit.assigned', entity_type: 'lab_booking', entity_id: booking.id, patient_account_id: user.id, meta: { facility_id: booking.facility_id } }).catch(() => null);
@@ -212,21 +226,44 @@ export class LabsService {
     return b.toObject();
   }
 
-  async updateInsuranceApproval(id: string, payload: { status?: string; totalCopay?: number; items?: any[] }, user: any) {
+  /** LJ-03: the lab decision is a decision on the insurance request engine, not a
+   * free-form status string. The booking mirrors the engine's server-computed
+   * decision so the existing patient screen keeps working. */
+  async updateInsuranceApproval(id: string, payload: { status?: string; totalCopay?: number; items?: any[]; reason?: string }, user: any) {
     if (!getEffectiveRoles(user).some(role => ['admin', 'lab', 'hospital'].includes(role))) throw new ForbiddenException();
     const b = await this.bkgModel.findOne({ id: { $eq: id } });
     if (!b) throw new NotFoundException();
     // only the lab the booking is assigned to (or admin) decides its insurance coverage
     this.assertAssignedProviderOrAdmin(user, b);
 
-    const { status, totalCopay, items } = payload;
-    
-    if (status) {
-      b.insurance_status = status;
+    const rawStatus = String(payload?.status || '').trim().toLowerCase();
+    const allowed = ['approved', 'approved_full', 'partial', 'partial_approval', 'approve_partial', 'rejected', 'reject'];
+    if (rawStatus && !allowed.includes(rawStatus)) throw new BadRequestException('invalid_insurance_status');
+    if (!this.insurance) throw new ServiceUnavailableException('insurance_engine_unavailable');
+
+    let request: any = null;
+    if (rawStatus) {
+      const items = Array.isArray(payload.items) ? payload.items : [];
+      const rejected = items.find((it: any) => it?.isCovered === false || it?.rejectReason);
+      request = await this.insurance.providerDecideBooking(user, 'lab', id, {
+        decision: rawStatus,
+        totalCopay: payload.totalCopay,
+        copay: payload.totalCopay,
+        reason: payload.reason || rejected?.rejectReason,
+        rejectReason: rejected?.rejectReason,
+      });
     }
-    if (totalCopay !== undefined) {
-      b.insurance_copay = totalCopay;
+
+    // Mirror the engine's decision onto the booking the patient screen reads.
+    if (request) {
+      b.insurance_request_id = request.id;
+      b.insurance_copay = Number(request.copay_amount || 0);
+      b.insurance_status = request.state === 'APPROVED_FULL' ? 'approved'
+        : request.state === 'COPAY_PENDING' ? 'partial_approval'
+          : request.state === 'REJECTED' ? 'rejected'
+            : request.state === 'COPAY_PAID' ? 'approved' : b.insurance_status;
     }
+    const items = payload.items;
     if (items && Array.isArray(items)) {
       for (const itemPayload of items) {
         const item = b.items.find((i: any) => i.service_id === itemPayload.service_id);
@@ -238,14 +275,16 @@ export class LabsService {
       }
       b.markModified('items');
     }
-    
+
     await b.save();
-    if (status) {
-      this.bus.emit({ type: status === 'approved' || status === 'partial_approval' ? 'insurance.approved' : 'insurance.rejected', entity_type: 'lab_booking', entity_id: b.id, actor_account_id: user.id, actor_role: user.role, patient_account_id: b.patient_id }).catch(() => null);
+    if (rawStatus) {
+      this.bus.emit({ type: rawStatus.startsWith('approv') || rawStatus.startsWith('partial') ? 'insurance.approved' : 'insurance.rejected', entity_type: 'lab_booking', entity_id: b.id, actor_account_id: user.id, actor_role: user.role, patient_account_id: b.patient_id }).catch(() => null);
     }
     return b.toObject();
   }
 
+  /** LJ-03: opting into cash is an engine self-pay acceptance, so the patient then
+   * pays the server-computed amount through the standard copay checkout. */
   async optInCash(id: string, serviceId: string, payload: { optInCash?: boolean }, user: any) {
     const b = await this.bkgModel.findOne({ id, patient_id: user.id });
     if (!b) throw new NotFoundException('Booking not found');
@@ -255,8 +294,15 @@ export class LabsService {
 
     (item as any).optInCash = payload.optInCash ?? true;
     b.markModified('items');
-    
     await b.save();
+
+    if ((payload.optInCash ?? true) && this.insurance && b.insurance_request_id) {
+      const request: any = await this.insurance.getOne(b.insurance_request_id, user).catch(() => null);
+      if (request && ['REJECTED', 'APPROVED_PARTIAL'].includes(request.state)) {
+        const updated = await this.insurance.acceptSelfPay(user, b.insurance_request_id).catch(() => null);
+        if (updated) b.insurance_copay = Number(updated.copay_amount || 0);
+      }
+    }
     return b.toObject();
   }
 

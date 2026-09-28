@@ -10,6 +10,7 @@ export const RADIOLOGY_CATALOG_FIELDS = [
 import { RadiologyService, RadiologyBookingState, RADIOLOGY_BOOKING_TRANSITIONS } from '../../schemas/radiology.schema';
 import { RadiologyBooking } from './schemas/radiology-booking.schema';
 import { WorkflowEngineService } from '../workflow-engine/workflow-engine.module';
+import { InsuranceFlowService } from '../insurance-engine/insurance-engine.module';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { RedisService } from '../redis/redis.service';
 import { reviewUpdate, invalidateCatalogCache } from '../../common/catalog-review';
@@ -30,6 +31,7 @@ export class RadiologyOpsService {
     private engine: WorkflowEngineService,
     private events: EventEmitter2,
     @Optional() private readonly redis?: RedisService,
+    @Optional() private readonly insurance?: InsuranceFlowService,
   ) {}
 
   // ──────────────────────────────────────────────
@@ -266,14 +268,29 @@ export class RadiologyOpsService {
     if (!insurancePhase.includes(b.state as RadiologyBookingState)) {
       throw new BadRequestException(`invalid_transition_${b.state}_to_insurance_approval`);
     }
+    // LJ-03: route the radiology decision through the insurance request engine so a
+    // radiology booking on insurance has the same decision + copay path as the rest.
+    let copay = Number(body.copay) || 0;
+    if (this.insurance) {
+      const request: any = await this.insurance.providerDecideBooking(user, 'radiology', id, {
+        decision: copay > 0 ? 'partial' : 'approved',
+        copay,
+        approval_code: body.approval_code,
+        reason: body.approval_code || 'radiology coverage rejected',
+      });
+      if (request) {
+        copay = Number(request.copay_amount ?? copay) || 0;
+        b.insurance_request_id = request.id;
+      }
+    }
     b.insurance_approval_code = body.approval_code;
-    b.insurance_copay = body.copay;
+    b.insurance_copay = copay;
     b.insurance_status = 'approved';
-    const nextState = body.copay > 0 ? RadiologyBookingState.WAITING_COPAY : RadiologyBookingState.CONFIRMED;
-    (b.state_history = b.state_history || []).push({ from: b.state, to: nextState, by_user_id: user.id, by_role: user.role, at: new Date(), note: `NPHIES approved. Code: ${body.approval_code}. Copay: ${body.copay} SAR` });
+    const nextState = copay > 0 ? RadiologyBookingState.WAITING_COPAY : RadiologyBookingState.CONFIRMED;
+    (b.state_history = b.state_history || []).push({ from: b.state, to: nextState, by_user_id: user.id, by_role: user.role, at: new Date(), note: `NPHIES approved. Code: ${body.approval_code}. Copay: ${copay} SAR` });
     b.state = nextState;
     await b.save();
-    this.events.emit('radiology.insurance_approved', { bookingId: id, patientId: b.patient_id, copay: body.copay });
+    this.events.emit('radiology.insurance_approved', { bookingId: id, patientId: b.patient_id, copay });
     return b;
   }
 

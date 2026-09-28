@@ -136,11 +136,30 @@ def insured_lab(pat, lab, other_lab):
     items = [{'service_id': p['id'], 'isCovered': i == 0, 'rejectReason': None if i == 0 else 'غير مشمول', 'cashPrice': p.get('price')} for i, p in enumerate(picks)]
     r = lab.patch(f'/labs/bookings/{bid}/insurance', {'status': 'partial_approval', 'totalCopay': 20, 'items': items})
     step('the assigned lab records a partial approval', r.ok and r.get('insurance_status') == 'partial_approval', r)
+    rid = r.get('insurance_request_id')
     r = pat.get(f'/labs/bookings/{bid}')
     step('insurance-approval shows covered/uncovered items', r.ok and r.get('insurance_status') == 'partial_approval', r)
+    rid = rid or r.get('insurance_request_id')
+    step('the booking links to the insurance request engine', bool(rid), r)
     if len(picks) > 1:
         r = pat.patch(f"/labs/bookings/{bid}/items/{picks[1]['id']}/opt-in-cash", {'optInCash': True})
-        step('patient pays cash for the uncovered test', r.ok, r)
+        step('patient opts to pay cash for the uncovered test', r.ok, r)
+    if rid:
+        r = pat.get(f'/insurance/requests/{rid}')
+        step('the lab decision is a real insurance request (COPAY_PENDING)', r.ok and r.get('state') == 'COPAY_PENDING', r)
+        r = pat.get(f'/insurance/requests/{rid}/capabilities')
+        step('copay: card is offered', r.ok and any(m.get('id') == 'card' for m in (r.get('methods') or [])), r)
+        r = pat.post(f'/payments/intent/insurance/{rid}', {'method': 'card'}, headers={'Idempotency-Key': f'payment-insurance-{rid}-{uuid.uuid4()}'})
+        txn = r.body.get('data', r.body) if isinstance(r.body, dict) else {}
+        step('copay: checkout link is https', r.ok and str(txn.get('checkout_url', '')).startswith('https://'), r)
+        if txn.get('gateway_intent_id'):
+            fake_pay(txn['gateway_intent_id'])
+            r = pat.post(f"/payments/verify/{txn['id']}", {})
+            step('copay: paid', r.ok and r.get('status') == 'paid', r)
+        r = pat.get(f'/insurance/requests/{rid}')
+        step('request shows the copay paid', r.ok and r.get('state') == 'COPAY_PAID', r)
+        r = pat.get(f'/labs/bookings/{bid}')
+        step('the lab booking reaches CONFIRMED once the copay is paid', r.ok and str(r.get('state')).upper() == 'CONFIRMED', r)
 
 
 def run(pat, doctor, admin, labs=None):

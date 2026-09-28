@@ -11,6 +11,7 @@ import { RadiologyBookingSchema as RadiologyCenterBookingSchema } from './schema
 import { UserSchema } from '../../schemas/user.schema';
 import { LabResultSchema } from '../../schemas/lab-result.schema';
 import { WorkflowEngineModule } from '../workflow-engine/workflow-engine.module';
+import { InsuranceEngineModule } from '../insurance-engine/insurance-engine.module';
 import { LabResultRepository } from "./repositories/labresult.repository";
 import { RadiologyBookingRepository } from "./repositories/radiologybooking.repository";
 import { RadiologyServiceRepository } from "./repositories/radiologyservice.repository";
@@ -50,6 +51,7 @@ export class RadiologySeed implements OnModuleInit {
 @Module({
   imports: [
     WorkflowEngineModule,
+    InsuranceEngineModule,
     MongooseModule.forFeature([
       { name: 'RadiologyService', schema: RadiologyServiceSchema },
       { name: ProviderProfile.name, schema: ProviderProfileSchema },

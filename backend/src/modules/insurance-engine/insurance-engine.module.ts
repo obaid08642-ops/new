@@ -289,7 +289,7 @@ export class InsuranceFlowService {
     const { kind, model } = this.bookingModel(body?.booking_kind);
     const booking: any = await model.findOne({ id: { $eq: bookingId }, patient_id: { $eq: user.id } }).lean();
     if (!booking) throw new NotFoundException('owned_booking_not_found');
-    const providerId = booking.provider_id || booking.doctor_user_id || booking.pharmacy_id || booking.facility_id;
+    const providerId = booking.provider_id || booking.provider_account_id || booking.doctor_user_id || booking.pharmacy_id || booking.facility_id || booking.lab_id || booking.radiology_center_id || booking.nurse_id;
     if (!providerId) throw new BadRequestException('booking_provider_assignment_required');
     const price = Number(booking.total ?? booking.total_price ?? booking.price ?? 0);
     if (!Number.isFinite(price) || price <= 0) throw new BadRequestException('booking_price_not_ready');
@@ -421,6 +421,58 @@ export class InsuranceFlowService {
     return this.decide(user, req.id, { decision: 'approve_full' });
   }
 
+  /** LJ-03: one decision entry point for a provider on any service booking
+   * (lab, radiology, consultation). Finds-or-creates the request from the
+   * booking, checks the caller owns that booking, validates the decision and
+   * delegates to `decide`. */
+  async providerDecideBooking(user: any, bookingKind: string, bookingId: string, body: any) {
+    const { kind, model } = this.bookingModel(bookingKind);
+    const booking: any = await model.findOne({ id: { $eq: bookingId } }).lean();
+    if (!booking) throw new NotFoundException('booking_not_found');
+    const owners = [booking.provider_id, booking.provider_account_id, booking.doctor_user_id, booking.facility_id, booking.lab_id, booking.radiology_center_id, booking.nurse_id]
+      .filter(Boolean).map(String);
+    const callerIds = [user.id, user.parent_provider_account_id].filter(Boolean).map(String);
+    if (user.role !== 'admin' && !owners.some((owner: string) => callerIds.includes(owner))) throw new ForbiddenException();
+
+    let req: any = await this.requests.findOne({ booking_kind: kind, booking_id: bookingId, state: { $in: ['PENDING_PROVIDER_REVIEW', 'COPAY_PENDING', 'APPROVED_FULL', 'COPAY_PAID'] } });
+    if (!req) {
+      const price = Number(booking.total ?? booking.total_price ?? booking.price ?? 0);
+      if (!Number.isFinite(price) || price <= 0) throw new BadRequestException('booking_price_not_ready');
+      const pat: any = await this.patients.findOne({ user_id: booking.patient_id }).lean();
+      const policy = pat?.insurance || null;
+      if (!policy || !(policy.company_id || policy.provider || policy.policy_number)) throw new BadRequestException('NO_INSURANCE_POLICY');
+      const providerId = owners.includes(String(user.id)) ? String(user.id) : owners[0];
+      req = await this.requests.create({
+        patient_id: booking.patient_id, provider_id: providerId,
+        booking_id: bookingId, booking_kind: kind, service_type: booking.service_type || kind,
+        price, policy, history: [{ state: 'PENDING_PROVIDER_REVIEW', at: new Date(), by: user.id }],
+      });
+      this.events.emit('insurance.requested', { request_id: req.id, provider_id: req.provider_id });
+    }
+    if (req.state !== 'PENDING_PROVIDER_REVIEW') return req.toObject();
+
+    const decision = String(body?.decision || body?.status || '').trim().toLowerCase();
+    const code = typeof body?.approval_code === 'string' ? body.approval_code.trim() : '';
+    if (code) await this.requests.updateOne({ id: req.id }, { $set: { insurer_approval_code: code } });
+    if (['approved', 'approve_full', 'full', 'approved_full'].includes(decision)) return this.decide(user, req.id, { decision: 'approve_full' });
+    if (['partial', 'partial_approval', 'approve_partial'].includes(decision)) {
+      const pct = Number(body?.copay_percent);
+      const copay = Number(body?.copay ?? body?.totalCopay ?? 0) || 0;
+      if (pct > 0) return this.decide(user, req.id, { decision: 'approve_partial', copay_percent: pct });
+      if (copay > 0) {
+        const computed = Math.min(99, Math.max(1, Math.round((copay / Math.max(1, Number(req.price) || 1)) * 100)));
+        return this.decide(user, req.id, { decision: 'approve_partial', copay_percent: computed });
+      }
+      return this.decide(user, req.id, { decision: 'approve_full' });
+    }
+    if (['rejected', 'reject'].includes(decision)) {
+      const reason = String(body?.reason || body?.rejectReason || code || '').trim();
+      if (!reason) throw new BadRequestException('rejection reason is required');
+      return this.decide(user, req.id, { decision: 'reject', reason });
+    }
+    throw new BadRequestException('status must be approved|partial|rejected');
+  }
+
   /** Provider manual decision (BR-2.4): full | partial(copay_percent) | reject(reason). */
   async decide(user: any, id: string, body: any) {    const req = await this.requests.findOne({ id: { $eq: id } });
     if (!req) throw new NotFoundException('request not found');
@@ -492,7 +544,11 @@ export class InsuranceFlowService {
           $push: { state_history: { state: 'CONFIRMED', at: now, by_user_id: 'system', by_role: 'system', note: 'copay paid' } },
         });
       } else if (req.booking_kind === 'lab') {
-        await model.updateOne({ id: { $eq: req.booking_id } }, { $set: { insurance_status: 'approved' } });
+        // LJ-03: a paid lab insurance booking must reach CONFIRMED, not stay pending.
+        await model.updateOne(
+          { id: { $eq: req.booking_id }, state: { $in: ['NEW_REQUEST', 'PENDING_INSURANCE', 'WAITING_COPAY'] } },
+          { $set: { state: 'CONFIRMED', insurance_status: 'approved' }, $push: { state_history: { from: 'WAITING_COPAY', to: 'CONFIRMED', by_user_id: 'system', by_role: 'system', at: now, note: 'copay paid' } } },
+        );
       } else if (req.booking_kind === 'radiology') {
         await model.updateOne(
           { id: { $eq: req.booking_id }, state: { $in: ['NEW_REQUEST', 'PENDING_INSURANCE', 'WAITING_COPAY'] } },

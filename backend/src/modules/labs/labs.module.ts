@@ -12,6 +12,7 @@ import { LabBookingSchema as LabCenterBookingSchema } from './schemas/lab-bookin
 import { LabCatalogSchema } from './schemas/lab-catalog.schema';
 import { WorkflowEngineModule } from '../workflow-engine/workflow-engine.module';
 import { BusinessRulesModule } from '../business-rules/business-rules.module';
+import { InsuranceEngineModule } from '../insurance-engine/insurance-engine.module';
 import { LabBookingRepository } from "./repositories/labbooking.repository";
 import { LabResultRepository } from "./repositories/labresult.repository";
 import { LabSampleRepository } from "./repositories/labsample.repository";
@@ -23,6 +24,7 @@ import { PatientLabsCatalogController } from './labs-compat.controller';
   imports: [
     WorkflowEngineModule,
     BusinessRulesModule,
+    InsuranceEngineModule,
     MongooseModule.forFeature([
       { name: 'LabService', schema: LabServiceSchema },
       { name: 'LabBooking', schema: LabBookingSchema },

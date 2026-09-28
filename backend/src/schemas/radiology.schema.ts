@@ -197,6 +197,7 @@ export class RadiologyBooking extends Document {
   @Prop() reschedule_reason?: string;
   @Prop() insurance_copay?: number;
   @Prop() insurance_approval_code?: string;
+  @Prop() insurance_request_id?: string;
 
   // MODULE 11: Doctor referral sync
   @Prop() referring_doctor_id?: string;

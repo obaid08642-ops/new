@@ -26,6 +26,7 @@ export default function InsuranceApproval() {
   const [status, setStatus] = useState<ApprovalState>('pending');
   const [approvalDetails, setApprovalDetails] = useState<any>(null);
   const [optedInCashItems, setOptedInCashItems] = useState<string[]>([]); // Array of item IDs that user opted to pay cash for
+  const [insuranceRequestId, setInsuranceRequestId] = useState('');
   const orderId = params.orderId as string;
 
   useEffect(() => {
@@ -49,6 +50,7 @@ export default function InsuranceApproval() {
           const coveredAmount = Math.max(0, totalAmount - copayAmount);
           const coveragePercent = totalAmount > 0 ? Math.round((coveredAmount / totalAmount) * 100) : 0;
 
+          if (data.insurance_request_id) setInsuranceRequestId(String(data.insurance_request_id));
           setStatus(newStatus as ApprovalState);
           setApprovalDetails({
             totalAmount,
@@ -269,7 +271,13 @@ export default function InsuranceApproval() {
             <TouchableOpacity 
               style={[styles.confirmBtn, { backgroundColor: colors.primary }]} 
               onPress={() => {
-                (router.push as any)({ 
+                // LJ-03: pay the server-computed copay through the insurance engine
+                // when the request is linked; otherwise fall back to the local checkout.
+                if (insuranceRequestId) {
+                  (router.push as any)({ pathname: '/insurance/payment-split', params: { request_id: insuranceRequestId, booking_kind: 'lab' } });
+                  return;
+                }
+                (router.push as any)({
                   pathname: '/diagnostics/checkout',
                   params: { visitType, isInsurance: 'hybrid', copay: finalTotalToPay }
                 });
