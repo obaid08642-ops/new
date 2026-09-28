@@ -122,8 +122,16 @@ def insured_consultation(pat, doctor, decision='approve_partial'):
         fake_pay(txn['gateway_intent_id'])
         r = pat.post(f"/payments/verify/{txn['id']}", {})
         step(f'{kind}: paid', r.ok and r.get('status') == 'paid', r)
-    r = pat.get(f'/insurance/requests/{rid}')
-    step(f'request shows {kind} paid', r.ok and r.get('state') in ('COPAY_PAID', 'SELF_PAY_PAID'), r)
+    # Copay settlement is event-driven (payment.completed → engine), so poll.
+    import time as _time2
+    paid_state = None
+    for _ in range(10):
+        r = pat.get(f'/insurance/requests/{rid}')
+        paid_state = r.get('state')
+        if paid_state in ('COPAY_PAID', 'SELF_PAY_PAID'):
+            break
+        _time2.sleep(1.5)
+    step(f'request shows {kind} paid', paid_state in ('COPAY_PAID', 'SELF_PAY_PAID'), paid_state)
     r = pat.get(f'/care/appointments/{aid}')
     step('appointment confirmed once paid', r.ok and str(r.get('status')).upper() == 'CONFIRMED', r)
     return aid, rid
