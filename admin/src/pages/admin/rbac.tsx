@@ -22,7 +22,7 @@ export default function RbacPage() {
   const load = useCallback(async () => {
     setLoading(true); setError('');
     try {
-      const [nextCatalog, nextRoles] = await Promise.all([adminFetch<Catalog>('/rbac/catalog'), adminFetch<{ data?: Role[] } | Role[]>('/rbac/roles')]);
+      const [nextCatalog, nextRoles] = await Promise.all([adminFetch<Catalog>('/api/admin/admin/rbac/catalog'), adminFetch<{ data?: Role[] } | Role[]>('/api/admin/admin/rbac/roles')]);
       setCatalog(nextCatalog);
       setRoles(Array.isArray(nextRoles) ? nextRoles : nextRoles.data || []);
     } catch (cause) { setError(apiErrorMessage(cause, 'تعذر تحميل مصفوفة الصلاحيات.')); }

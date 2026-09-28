@@ -21,7 +21,7 @@ export default function SearchPage() {
     if (q.trim().length < 2) { setError('أدخل حرفين على الأقل.'); return; }
     setLoading(true); setError('');
     try {
-      setData(await adminFetch<Results>(`/search?q=${encodeURIComponent(q.trim())}`));
+      setData(await adminFetch<Results>(`/api/admin/admin/search?q=${encodeURIComponent(q.trim())}`));
     } catch (cause) {
       setError(apiErrorMessage(cause, 'تعذر البحث.'));
     } finally {

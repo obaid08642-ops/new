@@ -177,7 +177,7 @@ export const AdminGuard = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     let mounted = true;
-    adminFetch<AdminSession>('/session')
+    adminFetch<AdminSession>('/api/admin/admin/session')
       .then((data) => {
         if (mounted) setSession(data);
       })

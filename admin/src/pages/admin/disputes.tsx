@@ -20,7 +20,7 @@ export default function DisputesPage() {
 
   const load = useCallback(async () => {
     setLoading(true); setError('');
-    try { setResult(await adminFetch<DisputeResponse>(`/disputes${toQuery({ status: 'open', q: query, page, limit: 25 })}`)); }
+    try { setResult(await adminFetch<DisputeResponse>(`/api/admin/admin/disputes${toQuery({ status: 'open', q: query, page, limit: 25 })}`)); }
     catch (cause) { setError(apiErrorMessage(cause, 'تعذر تحميل قائمة النزاعات.')); }
     finally { setLoading(false); }
   }, [page, query]);

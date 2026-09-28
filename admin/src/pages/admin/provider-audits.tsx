@@ -15,7 +15,7 @@ export default function ProviderAuditsPage() {
     setLoading(true);
     try {
       // F49: single delta implementation lives in the provider module.
-      const res = await apiFetch<any[]>('/api/admin/providers/provider-deltas');
+      const res = await apiFetch<any[]>('/api/admin/admin/providers/provider-deltas');
       setDeltas(Array.isArray(res) ? res : []);
     } catch (err) {
       console.error('Failed to fetch provider deltas:', err);

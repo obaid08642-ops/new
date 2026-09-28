@@ -27,7 +27,7 @@ export default function OrderDetailPage() {
   const load = useCallback(async () => {
     if (!kind || !id) return;
     setLoading(true); setError('');
-    try { setDetail(await adminFetch<Detail>(`/orders/${encodeURIComponent(kind)}/${encodeURIComponent(id)}`)); }
+    try { setDetail(await adminFetch<Detail>(`/api/admin/admin/orders/${encodeURIComponent(kind)}/${encodeURIComponent(id)}`)); }
     catch (cause) { setError(apiErrorMessage(cause, 'تعذر تحميل تفاصيل الطلب.')); }
     finally { setLoading(false); }
   }, [kind, id]);

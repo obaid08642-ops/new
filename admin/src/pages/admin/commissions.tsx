@@ -28,7 +28,7 @@ export default function CommissionsPage() {
 
   const loadHistory = async () => {
     try {
-      const rows = await apiFetch<any[]>('/admin/finance-engine/commission-rules/history');
+      const rows = await apiFetch<any[]>('/api/admin/admin/finance-engine/commission-rules/history');
       setHistory(Array.isArray(rows) ? rows : []);
     } catch { /* history optional */ }
   };
