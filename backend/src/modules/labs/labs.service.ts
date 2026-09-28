@@ -306,6 +306,28 @@ export class LabsService {
     return b.toObject();
   }
 
+  /** R7-3: real technicians — staff accounts linked to this lab, with live names. */
+  async listTechnicians(user: any) {
+    const labId = String(user?.parent_provider_account_id || user?.facility_id || user?.id || '');
+    const db: any = (this.bkgModel as any).db;
+    const accounts: any[] = await db.collection('provider_accounts').find({
+      $or: [{ facility_id: labId }, { parent_provider_account_id: labId }],
+    }, { projection: { _id: 0, id: 1, user_id: 1, full_name: 1, email: 1, role: 1, status: 1 } })
+      .limit(100).toArray().catch(() => []);
+    const userIds = [...new Set(accounts.map((a: any) => String(a.user_id || a.id)).filter(Boolean))];
+    const users: any[] = userIds.length
+      ? await db.collection('users').find({ id: { $in: userIds } }, { projection: { _id: 0, id: 1, full_name: 1 } }).toArray().catch(() => [])
+      : [];
+    const names = new Map(users.map((u: any) => [String(u.id), u.full_name]));
+    return accounts.map((a: any) => ({
+      id: String(a.user_id || a.id),
+      account_id: String(a.id),
+      name: names.get(String(a.user_id || a.id)) || a.full_name || a.email || '—',
+      role: a.role,
+      status: a.status,
+    }));
+  }
+
   async mineFor(user: any) {
     return this.bkgModel.find({ patient_id: user.id }, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(80);
   }
@@ -405,7 +427,13 @@ export class LabsService {
     const b = await this.bkgModel.findOne({ id });
     if (!b) throw new NotFoundException();
     if (user.role !== 'admin' && b.provider_account_id && b.provider_account_id !== user.id) throw new ForbiddenException();
-    b.technician_id = body.technician_id || user.id;
+    // R7-3: only a listed technician of this lab (or the caller themselves) may be assigned.
+    const techId = String(body.technician_id || user.id);
+    if (techId !== String(user.id)) {
+      const team = await this.listTechnicians(user).catch(() => []);
+      if (!team.some((t: any) => String(t.id) === techId)) throw new ForbiddenException('technician_not_on_team');
+    }
+    b.technician_id = techId;
     if (body.notes) b.notes = body.notes;
     await b.save();
     this.events.emit('lab.technician_assigned', { booking_id: b.id, patient_id: b.patient_id, technician_id: b.technician_id });
@@ -666,9 +694,14 @@ export class LabsService {
     const b = await this.bkgModel.findOne({ id });
     if (!b) throw new NotFoundException('Booking not found');
     this.assertAssignedProviderOrAdmin(user, b);
+    // R7-3: GPS must come from the real device — reject missing/zero coordinates.
+    const lat = Number(body?.lat);
+    const lng = Number(body?.lng);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng) || (lat === 0 && lng === 0)) {
+      throw new BadRequestException('real_device_location_required');
+    }
     b.gps_location = {
-      lat: body.lat || 0,
-      lng: body.lng || 0,
+      lat, lng,
       eta: body.eta || 0,
       distance: body.distance || 0
     };
