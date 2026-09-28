@@ -34,6 +34,7 @@ Four claims were not true:
 - **Admin catalog manager (R6-6):** creating an insurance network sent `level`, which the DTO rejects. It now sends `tier_level` and requires the Arabic name.
 - **Schema:** `ProviderBankAccount.reviewed_at` is now declared (it was written on approval and silently dropped).
 - **Audit tool:** `tools/audit/clientbodies.js` still mirrored the pre-R6-2 BFF rewrite rules, so admin calls were checked against the wrong routes (coverage dropped from 317 to 264). It now uses the 1:1 mapping (327 calls checked).
+- **The patient app did not build.** The P8 insurance screen merge moved `claim-tracking.tsx` and `refund-status.tsx` into `src/components/insurance/` without fixing their relative imports (`../context/AppContext`, `../utils/api`). `tsc` passed, but `expo export` (the CI "Patient Mobile build") failed. Imports fixed and the export succeeds. For the agent: run `npx expo export` for the patient app before a gate note; `tsc` alone does not catch this.
 - **Harness:** `j_admin_clicks.py` accepts `CHROMIUM=<path>`; `j_lab` catalog check restored; `run_gate.sh` no longer counts the click test.
 
 ## FAIL — mandatory for the agent
@@ -55,7 +56,7 @@ Four claims were not true:
 - **Apps:**
   - admin: `tsc` 0 + `next build`;
   - patient-web: `tsc` 0 + vitest 343;
-  - patient-app: jest 102/102, `tsc` 0;
+  - patient-app: jest 102/102, `tsc` 0, `expo export` OK;
   - provider-app: jest 17/17, `tsc` 0.
 - **Static:**
   - dtocheck 327 client calls checked, 1 mismatch (R7-4);

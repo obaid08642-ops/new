@@ -4,7 +4,7 @@ import React from 'react';
 import { View, StyleSheet, FlatList, TouchableOpacity} from 'react-native';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useApp } from '../context/AppContext';
+import { useApp } from '../../context/AppContext';
 import { Icon } from '../Icon';
 import { AppText, Card, Badge, Button, IconButton } from '../ui';
 
