@@ -84,3 +84,19 @@ describe('NotificationsService template resolution (R6-3)', () => {
       .resolves.toEqual({ title: 'k.t', body: 'k.b' });
   });
 });
+
+describe('NotificationsService delivery queue (F33)', () => {
+  it('enqueues with a job id BullMQ accepts, so delivery keeps its retry and delay', async () => {
+    const { Job } = require('bullmq');
+    const queueStub: any = { name: 'notifications-delivery', keys: {}, toKey: (t: string) => t, opts: {}, qualifiedName: 'bull:notifications-delivery' };
+    const queue: any = {
+      // Same validation BullMQ runs when a job is added: a bad custom id throws here.
+      add: jest.fn(async (name: string, data: any, opts: any) => new Job(queueStub, name, data, opts).validateOptions({})),
+    };
+    const svc = new NotificationsService({} as any, {} as any, {} as any, {} as any, {} as any, queue, {} as any);
+    const direct = jest.spyOn(svc as any, 'deliverById').mockResolvedValue(undefined);
+    await (svc as any).enqueueDelivery('0b9d5a2e-7f1c-4c55-9a0e-2f6b1c3d4e5f', 60000);
+    expect(queue.add).toHaveBeenCalledWith('deliver', { id: '0b9d5a2e-7f1c-4c55-9a0e-2f6b1c3d4e5f' }, expect.objectContaining({ jobId: 'deliver-0b9d5a2e-7f1c-4c55-9a0e-2f6b1c3d4e5f', delay: 60000 }));
+    expect(direct).not.toHaveBeenCalled();
+  });
+});

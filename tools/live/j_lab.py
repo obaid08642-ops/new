@@ -22,8 +22,8 @@ def admin_publishes_tests(admin, n=4):
     journey('lab catalog: admin creates and publishes tests')
     r = admin.get('/labs/admin/catalog')
     items = r.body if isinstance(r.body, list) else r.items()
-    # Fresh DB starts empty — the create/publish steps below prove the flow.
-    step('admin catalog lists tests including unpublished ones', r.ok, f'{r.status} {len(items)}')
+    # A fresh DB is not empty: the catalog seed-data bootstrap inserts the lab tests at boot.
+    step('admin catalog lists tests including unpublished ones', r.ok and len(items) > 0, f'{r.status} {len(items)}')
     tag = uuid.uuid4().hex[:5]
     body = {'name_ar': f'فيتامين د {tag}', 'name_en': f'Vitamin D {tag}', 'short_code': 'VITD', 'category': 'vitamins', 'sample_type': 'blood',
             'price': 120, 'turnaround_hours': 24, 'popularity': 50, 'fasting_required': False, 'home_visit_supported': True, 'active': True,

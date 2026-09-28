@@ -31,7 +31,8 @@ def main():
     journey('admin clicks: login through the browser (2FA)')
     try:
         pw = sync_playwright().start()
-        browser = pw.chromium.launch()
+        # CHROMIUM: a preinstalled browser (e.g. /opt/pw-browsers/chromium) when the bundled one is absent.
+        browser = pw.chromium.launch(executable_path=os.environ.get('CHROMIUM') or None)
     except Exception as e:
         pw.stop()
         return skip('admin clicks', f'no chromium: {e}')

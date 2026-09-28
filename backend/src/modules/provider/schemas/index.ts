@@ -138,6 +138,7 @@ export class ProviderBankAccount extends Document {
   @Prop({ default: BankReviewStatus.PENDING, enum: Object.values(BankReviewStatus) , type: String }) review_status: BankReviewStatus;
   @Prop() reviewer_id?: string;
   @Prop() reviewer_note?: string;
+  @Prop() reviewed_at?: Date;
 }
 export const ProviderBankAccountSchema = SchemaFactory.createForClass(ProviderBankAccount);
 

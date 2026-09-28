@@ -142,24 +142,9 @@ function adminBackendPath(url) {
   else if (u.startsWith('/admin/')) u = '/api/admin/' + u.slice('/admin/'.length);
   else if (!u.startsWith('/api/')) u = '/api/admin' + u;
   if (!u.startsWith('/api/admin/')) return null; // other Next API routes (auth, impersonation BFFs)
+  // R6-2: the BFF maps /api/admin/<x> 1:1 to /api/v1/<x> (no rewrite rules).
   const d = u.slice('/api/admin/'.length).split('/').filter(Boolean);
-  const rest = (n) => d.slice(n).join('/');
-  let up = '/admin/' + d.join('/');
-  const modulePrefixes = new Set(['support', 'medicines', 'storage', 'insurance', 'emergency', 'legal', 'ai', 'labs', 'radiology', 'nursing']);
-  if (d[0] === 'orders') up = '/admin/' + d.join('/');
-  else if (d[0] === 'providers') up = '/admin/providers' + (rest(1) ? '/' + rest(1) : '');
-  else if (modulePrefixes.has(d[0])) {
-    const stayAdmin = (d[0] === 'insurance' && (d[1] === 'stats' || d[1] === 'requests')) || (d[0] === 'nursing' && d[1] === 'requests');
-    up = stayAdmin ? '/admin/' + d.join('/') : '/' + d.join('/');
-  }
-  if (d[0] === 'ambulance' && d[1] === 'fleet') up = '/admin/ambulance/fleet' + (rest(2) ? '/' + rest(2) : '');
-  if (d[0] === 'locations' && d.length > 1) up = '/locations/' + rest(1);
-  for (const m of ['community', 'loyalty', 'auth', 'support-session', 'system-health']) if (d[0] === m) up = `/${m}/` + rest(1);
-  if (d[0] === 'chat' || d[0] === 'chats') up = `/${d[0]}/` + rest(1);
-  if (d[0] === 'search' && d[1] === 'intent') up = '/search/intent';
-  if (d[0] === 'provider-onboarding' && d[1] === 'admin') up = '/provider-onboarding/admin/' + rest(2);
-  if (d[0] === 'nabd-extensions' && d[1] === 'admin') up = '/nabd-extensions/admin/' + rest(2);
-  return up.replace(/\/+$/, '');
+  return ('/' + d.join('/')).replace(/\/+$/, '');
 }
 
 // --types: type every body field with the app's own TypeScript program (checker), so dtocheck can

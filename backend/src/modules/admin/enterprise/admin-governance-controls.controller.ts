@@ -102,20 +102,18 @@ export class AdminGovernanceControlsController {
     return doc;
   }
 
-  /**
-   * Batch 7: Medicine Price History & Verification Audit.
-   */
   /** Search intelligence for the admin search-intelligence page: zero-result
-   * queries, top queries, locales and locations from the query_analytics log. */
+   * queries, top queries, specialties, locales and locations from the query_analytics log. */
   @Get('search-intent-analytics')
   @RequirePermissions(Permission.ANALYTICS_READ)
   async searchIntentAnalytics(@Query('locale') locale?: string, @Query('days') days?: string) {
     const safeDays = Math.min(Math.max(Number(days) || 30, 1), 90);
     const since = new Date(Date.now() - safeDays * 86400000);
     const match: any = { created_at: { $gte: since } };
-    if (locale && locale !== 'all') match.locale = locale;
+    // String(): a query like ?locale[$ne]=x arrives as an object and would become an operator.
+    if (locale && locale !== 'all') match.locale = { $eq: String(locale) };
     const col = this.conn.collection('query_analytics');
-    const [totals, top, locations] = await Promise.all([
+    const [totals, top, locations, specialties] = await Promise.all([
       col.aggregate([
         { $match: match },
         { $group: { _id: null, total: { $sum: 1 }, zero: { $sum: { $cond: [{ $eq: ['$results_count', 0] }, 1, 0] } } } },
@@ -144,6 +142,12 @@ export class AdminGovernanceControlsController {
         { $sort: { count: -1 } },
         { $limit: 20 },
       ]).toArray(),
+      col.aggregate([
+        { $match: { ...match, specialty: { $ne: null } } },
+        { $group: { _id: '$specialty', count: { $sum: 1 } } },
+        { $sort: { count: -1 } },
+        { $limit: 5 },
+      ]).toArray(),
     ]);
     const total = Number(totals?.[0]?.total || 0);
     const zero = Number(totals?.[0]?.zero || 0);
@@ -157,11 +161,14 @@ export class AdminGovernanceControlsController {
         count: t.count, last_searched: t.last_searched,
       })),
       zero_result_queries: top.filter((t: any) => t.zero > 0).map((t: any) => ({ raw_query: t.raw_query, locale: t._id?.locale, count: t.zero })),
-      top_specialties: [],
+      top_specialties: specialties.map((sp: any) => ({ specialty: sp._id, count: sp.count })),
       top_locations: locations.map((l: any) => ({ location: l._id, count: l.count })),
     };
   }
 
+  /**
+   * Batch 7: Medicine Price History & Verification Audit.
+   */
   @Get('medicine-price-history')
   @RequirePermissions(Permission.CATALOG_READ)
   async medicinePriceHistory(@Query('page') page?: string, @Query('limit') limit?: string, @Query('search') search?: string) {

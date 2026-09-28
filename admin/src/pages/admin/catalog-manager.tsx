@@ -555,11 +555,12 @@ function InsurancePanel() {
   };
 
   const saveNetwork = async () => {
-    if (!netForm?.companyId || !netForm?.code?.trim()) { setMsg('الشركة والكود مطلوبان'); return; }
+    // CreateInsuranceNetworkDto: code + name_ar + name_en are required; the tier field is tier_level.
+    if (!netForm?.companyId || !netForm?.code?.trim() || !netForm?.name_ar?.trim()) { setMsg('الشركة والكود والاسم العربي مطلوبة'); return; }
     try {
       await apiFetch(`/insurance/companies/${netForm.companyId}/networks`, {
         method: 'POST',
-        body: JSON.stringify({ code: netForm.code.trim(), name_ar: netForm.name_ar, name_en: netForm.name_en, level: Number(netForm.level) || 1 }),
+        body: JSON.stringify({ code: netForm.code.trim(), name_ar: netForm.name_ar.trim(), name_en: (netForm.name_en || netForm.name_ar).trim(), tier_level: Number(netForm.level) || 1 }),
       });
       setNetForm(null);
       await load();

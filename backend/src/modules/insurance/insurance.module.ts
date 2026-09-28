@@ -387,10 +387,15 @@ Use null for any field not clearly visible. Do not guess.`;
     if (!bookingId) throw new BadRequestException('booking_id is required');
     if (!this.conn) throw new ServiceUnavailableException('claim_store_unavailable');
 
-    const booking: any = await this.conn.collection(collection).findOne({ id: bookingId } as any);
-    if (!booking || String(booking.patient_id) !== String(patientId)) throw new NotFoundException('owned_booking_not_found');
+    // Pharmacy orders live in pharmacy_orders (owner in patient_account_id, amount in totals.total);
+    // `orders` only holds legacy cart checkouts.
+    const booking: any = (collection === 'orders'
+      ? await this.conn.collection('pharmacy_orders').findOne({ id: { $eq: bookingId } } as any)
+      : null) || await this.conn.collection(collection).findOne({ id: { $eq: bookingId } } as any);
+    const owner = booking ? String(booking.patient_id ?? booking.patient_account_id ?? '') : '';
+    if (!booking || owner !== String(patientId)) throw new NotFoundException('owned_booking_not_found');
 
-    const amount = Number(claimData?.amount) || Number(booking.total ?? booking.total_price ?? booking.price ?? 0);
+    const amount = Number(claimData?.amount) || Number(booking.totals?.total || booking.total || booking.total_price || booking.price || 0);
     if (!amount || amount <= 0) throw new BadRequestException('a valid amount is required (booking price not ready)');
 
     const claim = await this.claimModel.create({

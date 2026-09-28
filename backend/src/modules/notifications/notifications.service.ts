@@ -65,7 +65,9 @@ export class NotificationsService {
   private async enqueueDelivery(id: string, delayMs = 0) {
     try {
       await this.queue.add('deliver', { id }, {
-        jobId: `deliver:${id}`, // E5-F5: BullMQ dedup — a second enqueue for the same notification is dropped
+        // F33: BullMQ rejects a custom id with one ":" ("Custom Id cannot contain :"), which sent every
+        // notification to the direct fallback (no retry, no delay). "-" keeps the dedup key valid.
+        jobId: `deliver-${id}`, // E5-F5: BullMQ dedup — a second enqueue for the same notification is dropped
         delay: delayMs,
         attempts: 4,
         backoff: { type: 'exponential', delay: 30000 },
