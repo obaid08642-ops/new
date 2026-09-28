@@ -276,3 +276,20 @@ Format: task | commit sha | verify result | notes
 - patient-app `tsc --noEmit`: 0 errors (new insurance-chi-contract test 4/4).
 - provider-app `tsc --noEmit`: 0 errors (was 152 errors from the broken F51 split before the repair).
 - Live gate `tools/live/run_gate.sh`: NOT run here — needs the full stack (Mongo replica set + backend :8002 + admin :3001 + smtp_sink :2525 + fake_moyasar :9100); journeys extended (j_chat direct-refusal, j_insurance claim + lab copay→CONFIRMED, j_loyalty admin catalogue/wishlist, j_facility attendance) and must be run on a fresh DB before push acceptance.
+
+## Reviewer re-check (2026-09-28) — items 1-6
+- Item 1 (R6-2 harness paths): all AdminWeb journey calls moved to the real doubled paths (`/admin/admin/...` → backend `/api/v1/admin/...`): j_admin_ops (finance/users/legal/commissions), j_onboarding (providers pending/detail/approve), j_admin (command-center), j_returns (admin returns list/decide), j_consultation/j_facility (provider-deltas), j_lab/j_radiology/j_nursing (orders console), j_nursing (nursing requests), j_insurance (insurance requests), j_loyalty (loyalty admin), j_pharmacy (deltas/orders console/fulfillment-policies), j_ambulance (fleet), j_admin_clicks (nursing eligible-providers).
+- Item 2 (admin pages): price-override-audit → `/api/admin/admin/governance-controls/medicine-price-history`; search-intelligence → `/api/admin/admin/governance-controls/search-intent-analytics` (new backend route returning the page's shape; the old Batch-7 duplicate removed). The `/search/intent` POST test call was already correct (public route) and left alone.
+- Item 3 (pharmacy refund lookup): RefundExecutor now falls back to `pharmacy_orders`; COD/delivered counts as collected; cap falls back to priced items and then to the originating return request's server-computed items.
+- Item 4 (own journey steps): j_facility checks in at (24.7001,46.7001) inside the radius with att_id guards; j_chat resolves the patient via `/auth/me`; j_insurance PATIENT_GETS drops removed `/insurance/claims/my`, lab + consultation copay checks poll for event-driven settlement; j_admin_ops sets the live-env hold to 0 (+ payout minimum 0), submits/verifies the bank account via the real provider + new admin approve-bank endpoints, and reads the withdrawal id from `request.id`.
+- Item 5 (unit tests): pharmacy-notification.realtime.spec mock gains notifyProviderAccount (+ bell-row assertion); provider-app.contracts.test.js reads the F51 split directories (14/14).
+- Item 6 (stop P9): no P9 work in this round; only gate/LJ/review fixes.
+
+### New backend surface added for the above (all covered by the gate)
+- `POST /provider/bank-account` already existed (provider module) — removed my shadow duplicate; added `POST /api/v1/admin/providers/:id/approve-bank`.
+- `PUT /api/v1/admin/finance/commissions` stays single-owned by the legal module; `settlement` added to UpdateCommissionsDto (my duplicate PUT/GET removed).
+
+### Gate evidence (fresh DB, local stack: mongod 7.0 rs0 + redis + backend :8002 + admin :3001 + smtp sink :2525 + fake moyasar :9100 + fake S3 :9000)
+- `bash tools/live/run_gate.sh`: gate P1 368 routes 0 leaks; j_accounts 42/42; j_onboarding 112/112; j_pharmacy 125/125; j_lab 94/94; j_radiology 86/86; j_nursing 73/73; j_consultation 76/76; j_ambulance 66/66; j_facility 185/185; j_support 31/31; j_loyalty 103/103; j_admin_clicks 1/1.
+- Non-gate journeys (fresh DB each): j_insurance 123/123; j_returns 114/114; j_chat 73/73; j_admin_ops 99/99.
+- Env notes: `timeout(1)` missing on macOS → run_gate.sh uses a portable wrapper; aiosmtpd greeting stalls (~5s, local DNS) → replaced locally by a minimal threaded sink (repo smtp_sink.py untouched); backend must be restarted after a DB wipe so boot seeds (broadcast stages, system config) repopulate.
