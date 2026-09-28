@@ -425,8 +425,123 @@ export class NotificationsService {
   @OnEvent('service.assigned')
   async onServiceAssigned(p: any) {
     if (p.patient_account_id) await this.create({ user_id: p.patient_account_id, title_key: 'notif.service.assigned.title', body_key: 'notif.service.assigned.body', type: NotificationType.ORDER, action: { route: `/tracking/${this.routeKind(p)}/${p.entity_id}` } });
-    // also notify the receiving provider
-    await this.create({ role: 'provider', title_key: 'notif.new_job.title', body_key: 'notif.new_job.body', type: NotificationType.ORDER, priority: NotificationPriority.HIGH });
+    // LJ-07: notify the assigned provider account only — never a role-wide broadcast.
+    await this.notifyBookingProvider(p, 'booking_update');
+  }
+
+  @OnEvent('service.requested')
+  async onServiceRequestedTargeted(p: any) {
+    // LJ-07: direct bookings already name their provider — notify that account only.
+    if (p?.entity_type && p?.entity_id) await this.notifyBookingProvider(p, 'new_request').catch(() => null);
+  }
+
+  @OnEvent('service.confirmed')
+  async onServiceConfirmedTargeted(p: any) {
+    if (p?.entity_type && p?.entity_id) await this.notifyBookingProvider(p, 'booking_update').catch(() => null);
+  }
+
+  @OnEvent('insurance.requested')
+  async onInsuranceRequestedTargeted(p: any) {
+    if (!p?.request_id) return;
+    const accountId = await this.resolveProviderAccount(p.provider_id);
+    if (!accountId) return;
+    await this.notifyProviderAccount(accountId, {
+      type: 'booking_update',
+      title_ar: 'طلب تأمين جديد للمراجعة', title_en: 'New insurance request to review',
+      body_ar: `طلب تأمين ${String(p.request_id).slice(0, 8)} بانتظار قرارك`, body_en: `Insurance request ${String(p.request_id).slice(0, 8)} awaits your decision`,
+      related_id: String(p.request_id), related_type: 'insurance_request',
+    });
+  }
+
+  @OnEvent('chat.message_sent')
+  async onChatMessageTargeted(p: any) {
+    const threadId = p?.thread_id || p?.meta?.thread_id;
+    const sender = p?.sender_id || p?.actor_account_id;
+    const participants: string[] = p?.participant_ids || p?.meta?.participant_ids || [];
+    if (!threadId || !sender) return;
+    for (const participant of participants.filter((id: string) => id && id !== sender)) {
+      const accountId = await this.resolveProviderAccount(participant).catch(() => null);
+      if (!accountId) continue;
+      await this.notifyProviderAccount(accountId, {
+        type: 'booking_update',
+        title_ar: 'رسالة جديدة من مريض', title_en: 'New patient message',
+        body_ar: String(p?.body || p?.meta?.body || '').slice(0, 120), body_en: 'You have a new patient message',
+        related_id: String(p?.msg_id || p?.entity_id || threadId), related_type: 'chat_message',
+      }).catch(() => null);
+    }
+  }
+
+  /**
+   * LJ-07: one bell row per provider account per job, with related_type/
+   * related_id so the bell opens the job, plus a device push to that account.
+   * Idempotent on (provider_account_id, related_type, related_id).
+   */
+  async notifyProviderAccount(providerAccountId: string, input: {
+    type: 'new_request' | 'booking_update' | 'request_status' | 'request_cancelled' | 'admin_message' | 'kyc_update' | 'bank_update' | 'payout';
+    title_ar: string; title_en: string; body_ar?: string; body_en?: string;
+    related_id?: string; related_type?: string; action?: any;
+  }): Promise<any> {
+    if (!providerAccountId) return null;
+    const col = this.model.db.collection('provider_notifications');
+    if (input.related_id) {
+      const dup = await col.findOne({ provider_account_id: providerAccountId, related_type: input.related_type, related_id: input.related_id });
+      if (dup) return dup;
+    }
+    const { v4: uuidv4 } = require('uuid');
+    const doc: any = {
+      id: uuidv4(), provider_account_id: providerAccountId, type: input.type,
+      title_ar: input.title_ar, title_en: input.title_en,
+      body_ar: input.body_ar, body_en: input.body_en,
+      related_id: input.related_id, related_type: input.related_type,
+      read: false, createdAt: new Date(), updatedAt: new Date(),
+    };
+    await col.insertOne(doc);
+    // Device push to that account only (best-effort; bell row is the record).
+    try {
+      await this.sendPush({ user_id: providerAccountId, type: 'info', action: input.action || (input.related_id ? { route: `/provider/job/${input.related_id}` } : {}) });
+    } catch (e: any) {
+      this.logger.debug(`provider push best-effort failed for ${providerAccountId}: ${e?.message}`);
+    }
+    return doc;
+  }
+
+  /** Resolve any provider-side id (account id, user id, profile id) to the provider account id. */
+  async resolveProviderAccount(id: any): Promise<string | null> {
+    if (!id) return null;
+    const raw = String(id);
+    const account: any = await this.model.db.collection('provider_accounts').findOne({ $or: [{ id: raw }, { user_id: raw }] });
+    if (account) return String(account.id || account.user_id);
+    return null;
+  }
+
+  /** LJ-07: notify the provider named on a service booking (assigned/requested/confirmed). */
+  async notifyBookingProvider(p: any, type: 'new_request' | 'booking_update'): Promise<any> {
+    const entityType = String(p?.entity_type || '');
+    const entityId = String(p?.entity_id || '');
+    if (!entityType || !entityId) return null;
+    const lookups: Record<string, { collection: string; fields: string[] }> = {
+      appointment: { collection: 'appointments', fields: ['doctor_user_id'] },
+      lab_booking: { collection: 'labbookings', fields: ['lab_id', 'facility_id', 'provider_account_id'] },
+      radiology_booking: { collection: 'radiologybookings', fields: ['radiology_center_id', 'provider_id', 'provider_account_id'] },
+      nursing_booking: { collection: 'homecarebookings', fields: ['provider_id', 'nurse_id', 'provider_account_id'] },
+      order: { collection: 'orders', fields: ['pharmacy_account_id', 'pharmacy_id', 'selected_pharmacy_account_id'] },
+    };
+    const lookup = lookups[entityType];
+    if (!lookup) return null;
+    const booking: any = await this.model.db.collection(lookup.collection).findOne({ id: entityId });
+    if (!booking) return null;
+    const rawId = lookup.fields.map((f) => booking[f]).find(Boolean);
+    const accountId = await this.resolveProviderAccount(rawId);
+    if (!accountId) return null;
+    const titles = type === 'new_request'
+      ? { title_ar: 'حجز جديد بانتظارك', title_en: 'New booking assigned to you' }
+      : { title_ar: 'تحديث على حجزك', title_en: 'Update on your booking' };
+    return this.notifyProviderAccount(accountId, {
+      type, ...titles,
+      body_ar: `رقم الحجز ${entityId.slice(0, 8)}`, body_en: `Booking ${entityId.slice(0, 8)}`,
+      related_id: entityId, related_type: entityType,
+      action: { route: `/tracking/${this.routeKind(p)}/${entityId}` },
+    });
   }
   @OnEvent('service.confirmed')
   async onServiceConfirmed(p: any) {
