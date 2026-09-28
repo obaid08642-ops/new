@@ -158,6 +158,103 @@ export class OpsController {
     } };
   }
 
+  /**
+   * R6-8: per-domain service metrics from live data — pharmacy fill rate +
+   * avg quote time, consultation no-shows, nursing visits by state.
+   */
+  @Get('domain-metrics')
+  async domainMetrics() {
+    const safe = async <T>(fn: () => Promise<T>, fallback: T): Promise<T> => {
+      try { return await fn(); } catch { return fallback; }
+    };
+    // Pharmacy fill rate: delivered allocation qty vs ordered qty (30d).
+    const fill = await safe(async () => {
+      const since = new Date(Date.now() - 30 * 86400000);
+      const allocs: any[] = await this.conn.collection('pharmacy_allocations')
+        .find({ createdAt: { $gte: since } }).project({ items: 1 }).limit(2000).toArray();
+      let ordered = 0, filled = 0;
+      for (const a of allocs) for (const it of a.items || []) {
+        ordered += Number(it.qty_ordered ?? it.qty ?? 0);
+        filled += Number(it.qty_filled ?? it.qty_delivered ?? 0);
+      }
+      return { ordered, filled, fill_rate_pct: ordered ? Math.round((filled / ordered) * 1000) / 10 : null };
+    }, { ordered: 0, filled: 0, fill_rate_pct: null });
+    // Avg quote time: broadcast created → first offer submitted (30d, seconds).
+    const quote = await safe(async () => {
+      const since = new Date(Date.now() - 30 * 86400000);
+      const bcs: any[] = await this.conn.collection('pharmacy_broadcasts')
+        .find({ createdAt: { $gte: since } }).project({ id: 1, order_id: 1, createdAt: 1 }).limit(500).toArray();
+      const gaps: number[] = [];
+      for (const bc of bcs.slice(0, 200)) {
+        const first: any = await this.conn.collection('pharmacy_offers')
+          .find({ broadcast_id: bc.id }).sort({ createdAt: 1 }).limit(1).toArray().catch(() => []);
+        if (first[0]?.createdAt && bc.createdAt) {
+          gaps.push((new Date(first[0].createdAt).getTime() - new Date(bc.createdAt).getTime()) / 1000);
+        }
+      }
+      gaps.sort((a, b) => a - b);
+      const avg = gaps.length ? gaps.reduce((s, g) => s + g, 0) / gaps.length : null;
+      return { samples: gaps.length, avg_quote_seconds: avg == null ? null : Math.round(avg) };
+    }, { samples: 0, avg_quote_seconds: null });
+    // Consultation no-shows (30d) + rate.
+    const noshow = await safe(async () => {
+      const since = new Date(Date.now() - 30 * 86400000);
+      const [no, total] = await Promise.all([
+        this.conn.collection('appointments').countDocuments({ status: 'NO_SHOW', createdAt: { $gte: since } }),
+        this.conn.collection('appointments').countDocuments({ createdAt: { $gte: since } }),
+      ]);
+      return { no_show: no, total, no_show_rate_pct: total ? Math.round((no / total) * 1000) / 10 : 0 };
+    }, { no_show: 0, total: 0, no_show_rate_pct: 0 });
+    // Nursing visits by state.
+    const nursing = await safe(async () => {
+      const rows: any[] = await this.conn.collection('homecarebookings')
+        .aggregate([{ $group: { _id: '$state', n: { $sum: 1 } } }]).toArray();
+      const byState: Record<string, number> = {};
+      for (const r of rows) byState[String(r._id)] = r.n;
+      return { by_state: byState };
+    }, { by_state: {} });
+    return { generated_at: new Date().toISOString(), pharmacy: { ...fill, ...quote }, consultations: noshow, nursing };
+  }
+
+  /**
+   * R6-8: live orders with coordinates for the ops map (active bookings only,
+   * capped for render). Coordinate-less rows still appear with city only.
+   */
+  @Get('live-map')
+  async liveMap(@Query('limit') limit?: string) {
+    const lim = Math.min(Math.max(parseInt(limit || '200') || 200, 1), 500);
+    const geoOf = (doc: any): { lat: number; lng: number } | null => {
+      const g = doc.delivery_address?.geo || doc.address || doc.visit_location || doc.gps_tracking;
+      const lat = Number(g?.lat ?? g?.current_lat);
+      const lng = Number(g?.lng ?? g?.current_lng);
+      return Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null;
+    };
+    const cityOf = (doc: any): string | null =>
+      doc.delivery_address?.city || doc.address?.city || doc.city || null;
+    const pick = async (coll: string, kind: string, active: any, idField = 'id') => {
+      try {
+        const rows: any[] = await this.conn.collection(coll).find(active)
+          .project({ [idField]: 1, status: 1, state: 1, delivery_address: 1, address: 1, visit_location: 1, gps_tracking: 1, city: 1, createdAt: 1 })
+          .sort({ createdAt: -1 }).limit(lim).toArray();
+        return rows.map((d: any) => ({
+          kind, id: d[idField] || String(d._id), state: d.status || d.state,
+          city: cityOf(d), geo: geoOf(d), created_at: d.createdAt || null,
+        }));
+      } catch { return []; }
+    };
+    const [pharmacy, lab, radiology, nursing, consultations] = await Promise.all([
+      pick('pharmacy_orders', 'pharmacy', { status: { $nin: ['draft', 'cancelled', 'delivered', 'completed'] } }),
+      pick('labbookings', 'lab', { state: { $nin: ['CANCELLED', 'REPORTED', 'SAMPLE_REJECTED'] } }),
+      pick('radiologybookings', 'radiology', { state: { $nin: ['CANCELLED', 'REPORT_PUBLISHED'] } }),
+      pick('homecarebookings', 'nursing', { state: { $nin: ['CANCELLED', 'COMPLETED', 'DONE', 'REJECTED'] } }),
+      pick('appointments', 'consultation', { status: { $nin: ['CANCELLED', 'COMPLETED', 'NO_SHOW'] } }),
+    ]);
+    const points = [...pharmacy, ...lab, ...radiology, ...nursing, ...consultations].slice(0, lim);
+    const byCity: Record<string, number> = {};
+    for (const p of points) byCity[p.city || 'unknown'] = (byCity[p.city || 'unknown'] || 0) + 1;
+    return { generated_at: new Date().toISOString(), total: points.length, with_geo: points.filter((p) => p.geo).length, by_city: byCity, points };
+  }
+
   /** Traffic for a specific day (up to 14 days back). */
   @Get('traffic')
   async traffic(@Query('date') date?: string) {
