@@ -127,7 +127,7 @@ def process(path, apply):
             return m.group(1) + new + m.group(3)
         # apiFetch/fetchWithAdminGuard/adminFetch/adminMutation('...' / `...`)
         # plus raw href="/api/admin/..." and href={`/api/admin/...`} links
-        nl = re.sub(r"((?:apiFetch|fetchWithAdminGuard|adminFetch|adminMutation)\(\s*[`'])((?:[^`'\\]|\\.|\\\$\{[^}]*\})+)([`'])", repl, l)
+        nl = re.sub(r"((?:apiFetch|fetchWithAdminGuard|adminFetch|adminMutation)(?:<[^>]*>)?\(\s*[`'])((?:[^`'\\]|\\.|\\\$\{[^}]*\})+)([`'])", repl, l)
 
         def repl_href(m):
             if not m.group(2).startswith('/api/admin/'):
