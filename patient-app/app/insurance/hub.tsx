@@ -15,6 +15,7 @@ import { useGuestGuard } from '../../src/hooks/useGuestGuard';
 import { AppText, Card, Badge, Button, IconButton } from '../../src/components/ui';
 import { apiFetch } from '../../src/utils/api';
 import { logError } from '../../src/utils/logger';
+import { matchInsuranceCompany, buildChiPolicyPayload } from '../../src/utils/insurance-chi-contract';
 import ClaimTrackingScreen from '../../src/components/insurance/claim-tracking';
 import InsuranceRefundScreen from '../../src/components/insurance/refund-status';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
@@ -166,40 +167,38 @@ export default function InsuranceHubScreen() {
       }
       if (msg.status === 'success' && msg.data?.length > 0) {
         const item = msg.data[0];
+        // LJ-04: only save a real policy for a company we can map to an active
+        // insurer. Never invent a policy number and never claim verification.
+        const companiesRes: any = await apiFetch('/insurance/companies').catch(() => []);
+        const companies = Array.isArray(companiesRes) ? companiesRes : companiesRes?.data || [];
+        const company = matchInsuranceCompany(companies, item.company);
+        if (!company) {
+          showLocalizedAlert('لم نتعرف على شركة التأمين', `تعذّر مطابقة "${item.company}" مع شركة تأمين مسجّلة. أضف الوثيقة يدوياً واختر الشركة من القائمة.`);
+          return;
+        }
+        const payload = buildChiPolicyPayload(company, item);
+        if (!payload) {
+          showLocalizedAlert('رقم البوليصة مطلوب', 'تعذّر إيجاد رقم البوليصة من البوابة. أضف الوثيقة يدوياً وأدخل رقم البوليصة.');
+          return;
+        }
         setChiScraped(true);
         setChiSaving(true);
         try {
-          // Save scraped insurance to backend
-          const saved = await apiFetch('/insurance/save-policy', {
-            method: 'POST',
-            body: JSON.stringify({
-              provider: item.company,
-              policy_number: item.policy_number || 'CHI-SCRAPED',
-              network: item.network || item.class,
-              class: item.class || 'A',
-              expiry_date: item.expiry || '',
-              member_name: '',
-              national_id: '',
-              verified: true,
-              ocr_extracted: true,
-            }),
-          }).catch(() => null);
-
+          await apiFetch('/insurance/save-policy', { method: 'POST', body: JSON.stringify(payload) });
           setChiVisible(false);
           showLocalizedAlert(
             'تم سحب بيانات التأمين تلقائياً',
             `شركة التأمين: ${item.company}\nرقم البوليصة: ${item.policy_number}\nالفئة: ${item.class}\nشبكة: ${item.network}`,
             [{ text: 'موافق' }]
           );
-          // Refresh policies list
           setPolicies(prev => [{
             ...prev[0],
-            company: item.company || prev[0].company,
-            policyNumber: item.policy_number || prev[0].policyNumber,
-            network: item.class || prev[0].network,
+            company: item.company || prev[0]?.company,
+            policyNumber: item.policy_number,
+            network: item.class || prev[0]?.network,
           }]);
-        } catch (_) {
-          showLocalizedAlert('خطأ', 'تم سحب البيانات لكن فشل حفظها. يرجى المحاولة لاحقاً.');
+        } catch (err: any) {
+          showLocalizedAlert('خطأ', err?.message || 'تم سحب البيانات لكن فشل حفظها. يرجى المحاولة لاحقاً.');
         } finally {
           setChiSaving(false);
         }
