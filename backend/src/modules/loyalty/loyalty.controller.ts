@@ -1,7 +1,8 @@
-import { JwtAuthGuard, SelfService } from '../../common/auth.guard';
+import { JwtAuthGuard, SelfService, Roles, CurrentUser } from '../../common/auth.guard';
+import { UserRole } from '../../common/enums';
 import { UseGuards } from '@nestjs/common';
 import {
-  Controller, Get, Post, Query, Param, Req,
+  Controller, Get, Post, Put, Patch, Delete, Body, Query, Param, Req,
 } from '@nestjs/common';
 import { LoyaltyService } from './loyalty.service';
 
@@ -63,4 +64,24 @@ export class LoyaltyController {
   getClaimedRewards(@Req() req: any) {
     return this.loyaltyService.getClaimedRewards(req.user?.id ?? 'guest');
   }
+}
+
+/** LJ-08: admin catalogue + config, so rewards and challenges are never empty. */
+@UseGuards(JwtAuthGuard)
+@Roles(UserRole.ADMIN)
+@Controller('admin/loyalty')
+export class AdminLoyaltyController {
+  constructor(private readonly loyaltyService: LoyaltyService) {}
+
+  @Get('rewards') rewards() { return this.loyaltyService.adminListRewards(); }
+  @Post('rewards') createReward(@Body() body: any) { return this.loyaltyService.adminCreateReward(body); }
+  @Patch('rewards/:id') updateReward(@Param('id') id: string, @Body() body: any) { return this.loyaltyService.adminUpdateReward(id, body); }
+  @Delete('rewards/:id') deleteReward(@Param('id') id: string) { return this.loyaltyService.adminDeleteReward(id); }
+
+  @Get('challenges') challenges() { return this.loyaltyService.adminListChallenges(); }
+  @Post('challenges') createChallenge(@Body() body: any) { return this.loyaltyService.adminCreateChallenge(body); }
+  @Patch('challenges/:id') updateChallenge(@Param('id') id: string, @Body() body: any) { return this.loyaltyService.adminUpdateChallenge(id, body); }
+  @Delete('challenges/:id') deleteChallenge(@Param('id') id: string) { return this.loyaltyService.adminDeleteChallenge(id); }
+
+  @Put('config') updateConfig(@CurrentUser() u: any, @Body() body: any) { return this.loyaltyService.adminUpdateConfig(body, u); }
 }

@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { LoyaltyService } from './loyalty.service';
-import { LoyaltyController } from './loyalty.controller';
+import { LoyaltyController, AdminLoyaltyController } from './loyalty.controller';
 import {
   LoyaltyAccountSchema,
   LoyaltyTransactionSchema,
@@ -28,7 +28,7 @@ import { RewardClaimRepository } from "./repositories/rewardclaim.repository";
       { name: 'RewardClaim',       schema: RewardClaimSchema },
     ]),
   ],
-  controllers: [LoyaltyController],
+  controllers: [LoyaltyController, AdminLoyaltyController],
   providers: [LoyaltyService, { provide: 'ChallengeProgressRepository', useClass: ChallengeProgressRepository }, { provide: 'LoyaltyAccountRepository', useClass: LoyaltyAccountRepository }, { provide: 'LoyaltyChallengeRepository', useClass: LoyaltyChallengeRepository }, { provide: 'LoyaltyTransactionRepository', useClass: LoyaltyTransactionRepository }, { provide: 'RewardRepository', useClass: RewardRepository }, { provide: 'RewardClaimRepository', useClass: RewardClaimRepository }],
   exports: [LoyaltyService],
 })

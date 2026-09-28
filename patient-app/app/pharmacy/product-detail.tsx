@@ -113,6 +113,32 @@ export default function ProductDetailScreen() {
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const qty = items.find(i => i.id === id)?.qty || 0;
   const inCart = qty > 0;
+  const [inWishlist, setInWishlist] = useState(false);
+  const [wishlistBusy, setWishlistBusy] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    apiFetch('/users/me/wishlist')
+      .then((rows: any) => {
+        const list = Array.isArray(rows) ? rows : rows?.data || [];
+        if (active) setInWishlist(list.some((r: any) => String(r.id) === String(id)));
+      })
+      .catch(() => null);
+    return () => { active = false; };
+  }, [id]);
+
+  const toggleWishlist = async () => {
+    if (wishlistBusy) return;
+    setWishlistBusy(true);
+    try {
+      const res: any = await apiFetch(`/users/me/wishlist/${id}`, { method: 'POST' });
+      setInWishlist(res?.in_wishlist ?? !inWishlist);
+    } catch {
+      // honest failure: leave the icon unchanged
+    } finally {
+      setWishlistBusy(false);
+    }
+  };
 
   useEffect(() => {
     (async () => {
@@ -240,12 +266,17 @@ export default function ProductDetailScreen() {
         <TouchableOpacity style={styles.iconBtn} onPress={() => router.back()}>
           <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#141A2A', fontSize: 26 }}>{isRTL ? 'arrow_forward' : 'arrow_back'}</LocalizedText>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.iconBtn} onPress={() => router.push('/pharmacy/cart')}>
-          <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#141A2A', fontSize: 26 }}>shopping_cart</LocalizedText>
-          {items.length > 0 && (
-            <View style={styles.cartBadge}><LocalizedText style={{ fontFamily: 'Cairo-Bold', color: '#fff', fontSize: 10 }}>{items.length}</LocalizedText></View>
-          )}
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <TouchableOpacity style={styles.iconBtn} onPress={toggleWishlist} accessibilityLabel={inWishlist ? 'إزالة من المفضلة' : 'إضافة إلى المفضلة'}>
+            <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: inWishlist ? '#E11D48' : '#141A2A', fontSize: 26 }}>{inWishlist ? 'favorite' : 'favorite_border'}</LocalizedText>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.iconBtn} onPress={() => router.push('/pharmacy/cart')}>
+            <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#141A2A', fontSize: 26 }}>shopping_cart</LocalizedText>
+            {items.length > 0 && (
+              <View style={styles.cartBadge}><LocalizedText style={{ fontFamily: 'Cairo-Bold', color: '#fff', fontSize: 10 }}>{items.length}</LocalizedText></View>
+            )}
+          </TouchableOpacity>
+        </View>
       </View>
 
       <ScrollView contentContainerStyle={{ paddingBottom: 170 }} showsVerticalScrollIndicator={false}>
