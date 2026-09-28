@@ -287,4 +287,28 @@ describe('RefundService', () => {
     await expect(service.request({ id: 'pat-1' }, {})).rejects.toThrow(BadRequestException);
     await expect(service.request({ id: 'pat-1' }, { booking_id: 'bk-1', amount_paid: 0 })).rejects.toThrow(BadRequestException);
   });
+
+  it('includes executed RefundExecutor ledger entries in the patient refund view (LJ-05)', async () => {
+    const requestQuery = {
+      sort: jest.fn().mockReturnThis(), limit: jest.fn().mockReturnThis(),
+      lean: jest.fn().mockResolvedValue([{ id: 'refund-ledger-1', state: 'REQUESTED', createdAt: new Date('2026-01-01') }]),
+    };
+    const rows = [{
+      ref_id: 'refund-ledger-1', order_id: 'booking-1', amount: 120,
+      description: 'Refund completed', createdAt: new Date('2026-02-01'),
+      meta: { patient_id: 'pat-1', booking_kind: 'lab', method: 'gateway' },
+    }];
+    const ledger = { find: jest.fn().mockReturnValue({ sort: jest.fn().mockReturnThis(), limit: jest.fn().mockReturnThis(), toArray: jest.fn().mockResolvedValue(rows) }) };
+    const refundService = new RefundService(
+      { find: jest.fn().mockReturnValue(requestQuery) } as any,
+      events,
+      { checkRefundAbuse: jest.fn() } as any,
+      { collection: jest.fn().mockReturnValue(ledger) } as any,
+    );
+
+    await expect(refundService.myRefunds({ id: 'pat-1' })).resolves.toEqual([expect.objectContaining({
+      id: 'refund-ledger-1', booking_id: 'booking-1', booking_kind: 'lab', state: 'EXECUTED', refund_amount: 120, method: 'gateway',
+    })]);
+    expect(ledger.find).toHaveBeenCalledWith({ type: 'refund', 'meta.patient_id': 'pat-1' }, { projection: { _id: 0 } });
+  });
 });

@@ -31,6 +31,12 @@ export class ReturnsController {
     return this.returnsService.eligibility(user.id, orderId);
   }
 
+  /** LJ-05: server-eligible completed bookings for the return picker. */
+  @Get('eligible/:serviceType')
+  eligible(@Param('serviceType') serviceType: string, @CurrentUser() user: any) {
+    return this.returnsService.eligibleBookings(user.id, serviceType);
+  }
+
   @Get(':id')
   async getDetails(@Param('id') id: string, @CurrentUser() user: any) {
     return this.returnsService.getById(id, user.id, user.role);
@@ -43,6 +49,23 @@ export class ReturnsController {
     @Body() body: DecideDto,
     @CurrentUser() adminUser: any,
   ) {
+    return this.returnsService.adminDecide(id, body.decision, body.note || '', adminUser);
+  }
+}
+
+@Controller('admin/returns')
+@Roles(UserRole.ADMIN)
+@UseGuards(JwtAuthGuard)
+export class AdminReturnsController {
+  constructor(private readonly returnsService: ReturnsService) {}
+
+  @Get()
+  list(@Query('status') status?: string) {
+    return this.returnsService.adminList(status);
+  }
+
+  @Post(':id/decide')
+  decide(@Param('id') id: string, @Body() body: DecideDto, @CurrentUser() adminUser: any) {
     return this.returnsService.adminDecide(id, body.decision, body.note || '', adminUser);
   }
 }

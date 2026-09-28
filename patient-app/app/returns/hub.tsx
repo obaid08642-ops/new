@@ -53,9 +53,7 @@ const TYPE_LABELS = {
 };
 
 const REFUND_LABELS = {
-  wallet: "محفظة نبض",
-  card: "البطاقة الأصلية",
-  bank: "الحساب البنكي",
+  original: "وسيلة الدفع الأصلية",
 };
 
 export default function ReturnsHubScreen() {
@@ -87,7 +85,7 @@ export default function ReturnsHubScreen() {
             icon: r.service_type === "pharmacy" ? "pill" : "wallet",
             refundMethod:
               REFUND_LABELS[r.refund_method as keyof typeof REFUND_LABELS] ||
-              "محفظة نبض",
+              "وسيلة الدفع الأصلية",
             timeline:
               r.status === "completed"
                 ? "اكتمل"

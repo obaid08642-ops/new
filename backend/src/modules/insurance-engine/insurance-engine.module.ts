@@ -9,10 +9,10 @@
  * BR-1 (payment matrix): online/video/audio/home/delivery = online payment only;
  * clinic = online or pay-at-clinic. Enforced server-side via /bookings/quote.
  */
-import { Module, Controller, Injectable, Get, Post, Body, Param, Query, UseGuards, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
-import { InjectModel, MongooseModule } from '@nestjs/mongoose';
+import { Module, Controller, Injectable, Get, Post, Body, Param, Query, UseGuards, NotFoundException, BadRequestException, ForbiddenException, Optional } from '@nestjs/common';
+import { InjectConnection, InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Connection, Model } from 'mongoose';
 import { v4 as uuid } from 'uuid';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { JwtAuthGuard, CurrentUser, SelfService, Roles } from '../../common/auth.guard';
@@ -662,6 +662,7 @@ export class RefundService {
     @InjectModel('RefundRequest') private refunds: Model<any>,
     private events: EventEmitter2,
     private readonly fraud: FraudService,
+    @Optional() @InjectConnection() private readonly conn?: Connection,
   ) {}
 
   policyFor(scheduledAt?: Date) {
@@ -694,8 +695,33 @@ export class RefundService {
     return doc.toObject();
   }
 
-  myRefunds(user: any) {
-    return this.refunds.find({ patient_id: user.id }, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(50).lean();
+  /** LJ-05: one refund read model — pending requests plus every refund
+   * executed by RefundExecutor (card or cash) with its status. */
+  async myRefunds(user: any) {
+    const [requests, executed] = await Promise.all([
+      this.refunds.find({ patient_id: user.id }, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(50).lean(),
+      this.conn
+        ? this.conn.collection('platformledgerentries').find(
+            { type: 'refund', 'meta.patient_id': user.id },
+            { projection: { _id: 0 } },
+          ).sort({ createdAt: -1 }).limit(50).toArray()
+        : Promise.resolve([]),
+    ]);
+    const executedIds = new Set(executed.map((row: any) => String(row.ref_id)));
+    const pending = requests.filter((row: any) => !executedIds.has(String(row.id)));
+    const ledgerRefunds = executed.map((row: any) => ({
+      id: row.ref_id,
+      booking_id: row.order_id,
+      booking_kind: row.meta?.booking_kind,
+      state: 'EXECUTED',
+      refund_amount: row.amount,
+      reason: row.description,
+      method: row.meta?.method,
+      createdAt: row.createdAt,
+    }));
+    return [...pending, ...ledgerRefunds]
+      .sort((a: any, b: any) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())
+      .slice(0, 50);
   }
 
   adminQueue() {

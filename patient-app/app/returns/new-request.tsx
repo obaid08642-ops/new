@@ -1,9 +1,9 @@
 // @ts-nocheck
 // app/returns/new-request.tsx
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View, StyleSheet, ScrollView, TouchableOpacity,
-  TextInput,
+  TextInput, ActivityIndicator,
 } from 'react-native';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -32,33 +32,34 @@ const REASONS = {
   insurance: ['دفع زائد', 'خطأ في الحساب', 'خدمة غير مغطاة', 'سبب آخر'],
 };
 
-const REFUND_METHODS = [
-  { id: 'wallet', label: 'محفظة نبض', icon: 'wallet', duration: 'فوري' },
-  { id: 'card', label: 'البطاقة الأصلية', icon: 'card', duration: '3-5 أيام' },
-  { id: 'bank', label: 'حساب بنكي', icon: 'hospital', duration: '5-7 أيام' },
-];
-
-// Policy per type
-const POLICIES: Record<string, { rate: number; conditions: string }> = {
-  pharmacy: { rate: 100, conditions: 'خلال 24 ساعة من الاستلام وبحالة سليمة' },
-  consultation: { rate: 100, conditions: 'إلغاء قبل 24 ساعة — 50% قبل 12 ساعة' },
-  diagnostics: { rate: 100, conditions: 'قبل إجراء التحليل — 50% إذا بدأ السحب' },
-  nursing: { rate: 90, conditions: 'إذا لم يبدأ الممرض الخدمة بعد' },
-  insurance: { rate: 100, conditions: 'في حالة ثبوت خطأ في الحساب' },
-};
-
 export default function NewReturnRequestScreen() {
   const insets = useSafeAreaInsets();
   const { colors, isDark } = useApp();
-  
+
   const [step, setStep] = useState<'type' | 'details' | 'confirm' | 'success'>('type');
   const [serviceType, setServiceType] = useState('');
   const [selectedReason, setSelectedReason] = useState('');
   const [orderId, setOrderId] = useState('');
   const [details, setDetails] = useState('');
-  const [refundMethod, setRefundMethod] = useState('wallet');
   const [attachedDocs, setAttachedDocs] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // LJ-05: eligible completed bookings from the server (no hand-typed ids, no client amounts).
+  const [eligibleBookings, setEligibleBookings] = useState<any[]>([]);
+  const [loadingBookings, setLoadingBookings] = useState(false);
+
+  useEffect(() => {
+    if (!serviceType) return;
+    let cancelled = false;
+    setLoadingBookings(true);
+    setOrderId('');
+    apiFetch(`/pharmacy/returns/eligible/${encodeURIComponent(serviceType)}`)
+      .then((rows: any) => { if (!cancelled) setEligibleBookings(Array.isArray(rows) ? rows : []); })
+      .catch(() => { if (!cancelled) setEligibleBookings([]); })
+      .finally(() => { if (!cancelled) setLoadingBookings(false); });
+    return () => { cancelled = true; };
+  }, [serviceType]);
+
+  const selectedBooking = eligibleBookings.find((booking) => booking.id === orderId);
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
@@ -68,10 +69,9 @@ export default function NewReturnRequestScreen() {
         body: JSON.stringify({
           serviceType,
           reason: selectedReason,
-          orderId,
+          orderId: selectedBooking?.id,
           details,
-          refundMethod,
-          amount: serviceType === 'consultation' ? 250 : serviceType === 'diagnostics' ? 120 : 80,
+          refundMethod: 'original',
         }),
       });
       setIsSubmitting(false);
@@ -82,7 +82,6 @@ export default function NewReturnRequestScreen() {
     }
   };
 
-  const policy = POLICIES[serviceType] || { rate: 100, conditions: '' };
   const reasons = REASONS[serviceType as keyof typeof REASONS] || [];
 
   if (step === 'success') {
@@ -149,11 +148,6 @@ export default function NewReturnRequestScreen() {
                 </View>
                 <View style={styles.typeInfo}>
                   <AppText variant="bodySM">{t.label}</AppText>
-                  {serviceType === t.id && POLICIES[t.id] && (
-                    <AppText variant="bodySM">
-                      استرداد {POLICIES[t.id].rate}% — {POLICIES[t.id].conditions}
-                    </AppText>
-                  )}
                 </View>
                 <View style={[styles.typeIcon, { backgroundColor: t.color + '18' } ]}>
                   <AppText variant="bodySM">{t.icon}</AppText>
@@ -174,13 +168,20 @@ export default function NewReturnRequestScreen() {
           <>
             <AppText variant="bodySM">تفاصيل طلب الإرجاع</AppText>
 
-            {/* Order ID */}
+            {/* Server-eligible completed bookings */}
             <View style={[styles.card, { backgroundColor: isDark ? colors.surface : colors.white } ]}>
-              <AppText variant="bodySM">رقم الطلب أو الفاتورة</AppText>
-              <View style={[styles.inputRow, { backgroundColor: isDark ? colors.background : colors.backgroundSecondary, borderColor: colors.border } ]}>
-                <TextInput style={[styles.input, { color: colors.textPrimary }]} value={orderId} onChangeText={setOrderId}
-                  placeholder="مثال: ORD-2024-001" placeholderTextColor={colors.textTertiary} textAlign="right" />
-              </View>
+              <AppText variant="bodySM">اختر حجزًا مكتملًا ومدفوعًا</AppText>
+              {loadingBookings ? <ActivityIndicator color={colors.primary} /> : eligibleBookings.length === 0
+                ? <AppText variant="bodySM" color={colors.textSecondary}>لا توجد حجوزات مؤهلة لهذا النوع.</AppText>
+                : eligibleBookings.map((booking) => (
+                  <TouchableOpacity key={booking.id} onPress={() => setOrderId(booking.id)}
+                    style={[styles.reasonRow, { borderBottomColor: colors.border, backgroundColor: orderId === booking.id ? '#EDE9FE' : 'transparent' }]}>
+                    <View style={[styles.radioOuter, { borderColor: orderId === booking.id ? '#7C3AED' : colors.border }]}>
+                      {orderId === booking.id && <View style={[styles.radioDot, { backgroundColor: '#7C3AED' }]} />}
+                    </View>
+                    <AppText variant="bodySM">{booking.id} · {Number(booking.amount).toFixed(2)} ر.س</AppText>
+                  </TouchableOpacity>
+                ))}
             </View>
 
             {/* Reason */}
@@ -224,8 +225,8 @@ export default function NewReturnRequestScreen() {
               </View>
             </View>
 
-            <TouchableOpacity onPress={() => setStep('confirm')} disabled={!selectedReason}
-              activeOpacity={0.85} style={{ opacity: !selectedReason ? 0.5 : 1 }}>
+            <TouchableOpacity onPress={() => setStep('confirm')} disabled={!selectedReason || !selectedBooking}
+              activeOpacity={0.85} style={{ opacity: !selectedReason || !selectedBooking ? 0.5 : 1 }}>
               <View style={styles.nextBtn}>
                 <AppText variant="bodySM">مراجعة الطلب ←</AppText>
               </View>
@@ -244,7 +245,8 @@ export default function NewReturnRequestScreen() {
               {[
                 { label: 'نوع الخدمة', val: SERVICE_TYPES.find(t => t.id === serviceType)?.label || '' },
                 { label: 'السبب', val: selectedReason },
-                { label: 'رقم الطلب', val: orderId || 'غير محدد' },
+                { label: 'رقم الحجز', val: selectedBooking?.id || 'غير محدد' },
+                { label: 'المبلغ المؤهل', val: selectedBooking ? `${Number(selectedBooking.amount).toFixed(2)} ر.س` : 'غير متاح' },
               ].map((r, i) => (
                 <View key={i} style={[styles.summaryDetailRow, { borderBottomColor: colors.border } ]}>
                   <AppText variant="bodySM">{r.val}</AppText>
@@ -253,30 +255,12 @@ export default function NewReturnRequestScreen() {
               ))}
             </View>
 
-            {/* Refund Method */}
-            <View style={[styles.card, { backgroundColor: isDark ? colors.surface : colors.white } ]}>
-              <AppText variant="bodySM">طريقة الاسترداد</AppText>
-              {REFUND_METHODS.map(m => (
-                <TouchableOpacity key={m.id} onPress={() => setRefundMethod(m.id)}
-                  style={[styles.refundRow, { borderBottomColor: colors.border, backgroundColor: refundMethod === m.id ? '#EDE9FE' : 'transparent' } ]}>
-                  <View style={styles.refundRight}>
-                    <AppText variant="bodySM">{m.duration}</AppText>
-                  </View>
-                  <View style={styles.refundInfo}>
-                    <AppText variant="bodySM">{m.icon} {m.label}</AppText>
-                  </View>
-                  <View style={[styles.radioOuter, { borderColor: refundMethod === m.id ? '#7C3AED' : colors.border } ]}>
-                    {refundMethod === m.id && <View style={[styles.radioDot, { backgroundColor: '#7C3AED' }]} />}
-                  </View>
-                </TouchableOpacity>
-              ))}
-            </View>
-
             {/* Policy reminder */}
             <View style={[styles.policyNote, { backgroundColor: '#EDE9FE' } ]}>
               <AppText variant="bodySM">
-                 بناءً على سياستنا، الاسترداد المتوقع: {policy.rate}% من قيمة الطلب
+                 المبلغ النهائي يحدده فريق المراجعة وفق تفاصيل الحجز وسياسة الاسترداد.
               </AppText>
+              <AppText variant="bodySM">يُعاد المبلغ إلى وسيلة الدفع الأصلية عند اعتماد الاسترداد.</AppText>
             </View>
 
             <TouchableOpacity onPress={handleSubmit} disabled={isSubmitting} activeOpacity={0.85}>
