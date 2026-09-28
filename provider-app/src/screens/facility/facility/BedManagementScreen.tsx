@@ -42,7 +42,7 @@ import { NotificationsCenterScreen, TechnicalSupportTicketsScreen, SecurityManag
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { tokens } from '../../../theme/tokens';
 
-function BedManagementScreen({ onBack, wards, onRefresh }: { onBack: () => void; wards: any[]; onRefresh: () => void }) {
+export function BedManagementScreen({ onBack, wards, onRefresh }: { onBack: () => void; wards: any[]; onRefresh: () => void }) {
  const { theme } = useTheme();
  const { lang } = useLang();
  const { show } = useToast();

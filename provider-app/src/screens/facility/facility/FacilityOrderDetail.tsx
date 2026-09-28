@@ -42,7 +42,7 @@ import { NotificationsCenterScreen, TechnicalSupportTicketsScreen, SecurityManag
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { tokens } from '../../../theme/tokens';
 
-function FacilityOrderDetail({ order, onBack, onNavigate }: any) {
+export function FacilityOrderDetail({ order, onBack, onNavigate }: any) {
   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const [acting, setActing] = useState(false);
   const kind = order?.kind || order?.type || 'appointment';

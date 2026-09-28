@@ -18,6 +18,7 @@ import { SP, R, FS, FW, C } from '../../../constants';
 import { useSpecialtiesCatalog } from '../../../api/catalogs';
 import { Validate, Vault } from '../../../security/Security';
 import client from '../../../api/client';
+import { s } from './_shared';
 import { InsuranceRequestsScreen } from '../../shared/InsuranceRequestsScreen';
 import { EPrescriptionScreen } from '../../doctor/DoctorDashboard';
 import { FleetScreen } from '../../shared/FleetScreen';
@@ -42,7 +43,7 @@ import { NotificationsCenterScreen, TechnicalSupportTicketsScreen, SecurityManag
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { tokens } from '../../../theme/tokens';
 
-function SubAccountsScreen({ onBack, onNavigate }: {
+export function SubAccountsScreen({ onBack, onNavigate }: {
  onBack: () => void; onNavigate: (s: string, p?: any) => void;
 }) {
  const insets = useSafeAreaInsets();

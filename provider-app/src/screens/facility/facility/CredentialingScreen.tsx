@@ -42,7 +42,7 @@ import { NotificationsCenterScreen, TechnicalSupportTicketsScreen, SecurityManag
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { tokens } from '../../../theme/tokens';
 
-function CredentialingScreen({ onBack }: { onBack: () => void }) {
+export function CredentialingScreen({ onBack }: { onBack: () => void }) {
  const { theme } = useTheme();
  const { lang } = useLang();
  const { show } = useToast();

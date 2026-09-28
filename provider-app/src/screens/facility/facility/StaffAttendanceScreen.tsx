@@ -42,23 +42,53 @@ import { NotificationsCenterScreen, TechnicalSupportTicketsScreen, SecurityManag
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { tokens } from '../../../theme/tokens';
 
-function StaffAttendanceScreen({ onBack }: { onBack: () => void }) {
+export function StaffAttendanceScreen({ onBack }: { onBack: () => void }) {
  const { theme } = useTheme();
  const { lang } = useLang();
  const { show } = useToast();
  const AR = lang === 'ar';
 
  const [ATTENDANCE, setAttendance] = useState<any[]>([]);
- useEffect(() => {
+ const [busy, setBusy] = useState(false);
+
+ const load = useCallback(() => {
    client.get('/facility/shifts/attendance')
      .then((res: any) => setAttendance((res.data || []).map((a: any) => ({
        id: a.id, name: a.staff_name || a.name || '—', role: a.role || 'staff',
-       checkIn: (a.check_in_at || '').slice(11, 16) || '—',
-       checkOut: (a.check_out_at || '').slice(11, 16) || '—',
-       status: a.check_out_at ? 'done' : (a.check_in_at ? 'present' : 'absent'),
+       checkIn: (a.check_in_time || '').slice(11, 16) || '—',
+       checkOut: (a.check_out_time || '').slice(11, 16) || '—',
+       open: !a.check_out_time,
+       status: a.check_out_time ? 'done' : (a.check_in_time ? 'present' : 'absent'),
      }))))
      .catch(() => setAttendance([]));
  }, []);
+ useEffect(() => { load(); }, [load]);
+
+ const checkInSelf = async () => {
+   setBusy(true);
+   try {
+     const { requestForegroundPermissionsAsync, getCurrentPositionAsync } = await import('expo-location');
+     const perm = await requestForegroundPermissionsAsync();
+     if (perm.status !== 'granted') { show(AR ? 'صلاحية الموقع مطلوبة لتسجيل الحضور' : 'Location permission required', 'error'); return; }
+     const pos = await getCurrentPositionAsync({ accuracy: 5 } as any);
+     await client.post('/facility/shifts/attendance/check-in', { lat: pos.coords.latitude, lng: pos.coords.longitude });
+     show(AR ? 'تم تسجيل حضورك' : 'Checked in', 'success');
+     load();
+   } catch (error: any) {
+     show(error?.response?.data?.message || (AR ? 'تعذر تسجيل الحضور' : 'Check-in failed'), 'error');
+   } finally { setBusy(false); }
+ };
+
+ const checkOut = async (id: string) => {
+   setBusy(true);
+   try {
+     await client.post(`/facility/shifts/attendance/check-out/${id}`, {});
+     show(AR ? 'تم تسجيل الانصراف' : 'Checked out', 'success');
+     load();
+   } catch (error: any) {
+     show(error?.response?.data?.message || (AR ? 'تعذر تسجيل الانصراف' : 'Check-out failed'), 'error');
+   } finally { setBusy(false); }
+ };
 
  const present = ATTENDANCE.filter(a=>a.status!=='absent').length;
  const absent = ATTENDANCE.filter(a=>a.status==='absent').length;
@@ -73,12 +103,13 @@ function StaffAttendanceScreen({ onBack }: { onBack: () => void }) {
  <NStatCard icon="users" label={AR?'الإجمالي':'Total'} value={String(ATTENDANCE.length)} color={tokens.info} style={{ flex:1 }} />
  </View>
 
- <NCard style={{ backgroundColor: theme.infoBg, marginBottom: SP.xl }}>
+ <NCard style={{ backgroundColor: theme.infoBg, marginBottom: SP.md }}>
  <Text style={{ fontSize: FS.sm, color: theme.info, textAlign: AR?'right':'left' }}>
  {AR
- ? 'تسجيل الحضور يتم تلقائياً عند تسجيل الدخول في التطبيق داخل نطاق المنشأة (GPS).'
- : 'Attendance auto-registered when staff log in within facility GPS range.'}
+ ? 'سجّل حضورك من هنا داخل نطاق المنشأة؛ يُتحقق من موقعك (GPS) مقابل إحداثيات المنشأة. لكل شخص سجل حضور مفتوح واحد.'
+ : 'Check in here within the facility range; your GPS is verified against the facility coordinates. One open record per person.'}
  </Text>
+ <NBtn label={AR?'تسجيل حضوري الآن':'Check myself in'} onPress={checkInSelf} loading={busy} style={{ marginTop: SP.sm }} />
  </NCard>
 
  {ATTENDANCE.map(staff => (
@@ -98,12 +129,16 @@ function StaffAttendanceScreen({ onBack }: { onBack: () => void }) {
  </Text>
  </View>
  </View>
+ {staff.open ? (
+ <NBtn label={AR?'انصراف':'Check out'} size="sm" variant="outline" loading={busy} onPress={() => checkOut(staff.id)} />
+ ) : (
  <NBadge
  label={staff.status==='present'?(AR?'حاضر':'Present') :
  staff.status==='done'?(AR?'أكمل':'Completed') : (AR?'غائب':'Absent')}
  variant={staff.status==='absent'?'danger':staff.status==='done'?'info':'success'}
  size="xs"
  />
+ )}
  </View>
  </NCard>
  ))}

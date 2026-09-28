@@ -41,6 +41,23 @@ import { MedicalJobsScreen, MedicalDrugIndexScreen, InsuranceConfigScreen, Certi
 import { NotificationsCenterScreen, TechnicalSupportTicketsScreen, SecurityManagementScreen } from '../../shared/RealScreens';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { tokens } from '../../../theme/tokens';
+import { FacilityHomeTab } from './FacilityHomeTab';
+import { FacilityOrdersTab } from './FacilityOrdersTab';
+import { FacilitySettingsScreen } from './FacilitySettingsScreen';
+import { SubAccountsScreen } from './SubAccountsScreen';
+import { DepartmentManagementScreen } from './DepartmentManagementScreen';
+import { ShiftManagementScreen } from './ShiftManagementScreen';
+import { BedManagementScreen } from './BedManagementScreen';
+import { QRCheckinScreen } from './QRCheckinScreen';
+import { InsuranceClaimsHubScreen } from './InsuranceClaimsHubScreen';
+import { FacilityFinancialScreen } from './FacilityFinancialScreen';
+import { StaffAttendanceScreen } from './StaffAttendanceScreen';
+import { SurgeryScheduleScreen } from './SurgeryScheduleScreen';
+import { CredentialingScreen } from './CredentialingScreen';
+import { HospitalDispatchScreen } from './HospitalDispatchScreen';
+import { FacilityOrderDetail } from './FacilityOrderDetail';
+
+const Stack = createNativeStackNavigator();
 
 export function FacilityDashboardNavigator({ onLogout }: { onLogout: () => void }) {
   const [activeTab, setActiveTab] = useState('home');
