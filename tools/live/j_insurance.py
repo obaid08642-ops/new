@@ -56,13 +56,18 @@ def add_policy(pat, code=None):
     return c
 
 
-def claims(pat):
+def claims(pat, booking_kind=None, booking_id=None):
     journey('insurance: submit-claim -> claim-tracking')
-    r = pat.post('/insurance/claims/submit', {'claim_type': 'reimbursement', 'status': 'pending', 'submitted_at': '2026-09-27T00:00:00Z'})
-    cid = r.get('id') or r.get('claim', 'id')
-    step('submit a claim', r.ok, r)
-    r = pat.get('/insurance/claims/my')
-    step('claim-tracking lists the submitted claim', r.ok and cid and cid in str(r.body), r)
+    if booking_kind and booking_id:
+        r = pat.post('/insurance/claims/submit', {'booking_kind': booking_kind, 'booking_id': booking_id,
+                                                  'claim_type': 'reimbursement', 'note': 'live claim'})
+        cid = r.get('claim_id') or r.get('id')
+        step('submit a reimbursement claim for a paid booking', r.ok and cid, r)
+        r = pat.get('/insurance/claims')
+        step('claim-tracking lists the submitted claim', r.ok and cid and cid in str(r.body), r)
+    else:
+        r = pat.get('/insurance/claims')
+        step('claims list loads', r.ok, r)
 
 
 def insured_consultation(pat, doctor, decision='approve_partial'):
@@ -168,8 +173,10 @@ def run(pat, doctor, admin, labs=None):
         r = pat.get(path)
         step(f'GET {path}', r.ok, r)
     claims(pat)
+    reject_out = insured_consultation(pat, doctor, 'reject')
+    if reject_out and reject_out[0]:
+        claims(pat, 'consultation', reject_out[0])
     insured_consultation(pat, doctor, 'approve_partial')
-    insured_consultation(pat, doctor, 'reject')
     if labs:
         insured_lab(pat, labs[0], labs[1])
     journey('insurance: admin view')

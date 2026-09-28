@@ -681,8 +681,9 @@ export class InsuranceFlowController {
     return this.svc.payCopay(u, b?.request_id || b?.id, b);
   }
 
-  // M4 alias: patient claim-tracking screens call /insurance/claims/*
-  @Get('claims/my') claimsMy(@CurrentUser() u: any) { return this.svc.myRequests(u); }
+  // LJ-02: `/insurance/claims/my` used to return insurance *requests* from here,
+  // a second store the claim screens read. Claims live in the insurance module
+  // behind `GET /insurance/claims`; this duplicate route is removed.
 }
 
 // Patient-app aliases: POST /patient/pay-copay, POST /home-care/insurance/verify

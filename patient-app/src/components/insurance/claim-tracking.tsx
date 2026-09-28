@@ -27,7 +27,7 @@ export default function ClaimTrackingScreen() {
   React.useEffect(() => {
     async function fetchClaims() {
       try {
-        const res = await apiFetch('/insurance/claims/my');
+        const res = await apiFetch('/insurance/claims');
         if (Array.isArray(res)) setClaims(res);
         else if (res?.data) setClaims(res.data);
       } catch (e) {
