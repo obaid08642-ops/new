@@ -1,4 +1,4 @@
-import { Module, Injectable, Controller, Get, Post, Put, Patch, Delete, Param, Body, UseGuards, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Module, Injectable, Controller, Get, Post, Put, Patch, Delete, Param, Body, UseGuards, BadRequestException, NotFoundException, ForbiddenException, Optional } from '@nestjs/common';
 import { CreateShiftDto, CreateAnnouncementDto, CreateResourceDto, UpdateResourceDto, CreateWardDto, AdmitDto, CheckInDto, BookSurgeryDto, DischargeDto, UpdateShiftDto} from './facility-ops.dto';
 import { InjectModel, InjectConnection, MongooseModule } from '@nestjs/mongoose';
 import { Model, Connection } from 'mongoose';
@@ -165,6 +165,7 @@ export class ShiftsService {
   constructor(
     @InjectModel(Shift.name) private shiftModel: Model<ShiftDocument>,
     @InjectModel(Attendance.name) private attendanceModel: Model<AttendanceDocument>,
+    @Optional() @InjectConnection() private readonly conn?: Connection,
   ) {}
 
   /** Shifts in the shape ShiftManagementScreen reads: doctor (name), dept, from, to, day, status. */
@@ -228,28 +229,91 @@ export class ShiftsService {
   }
 
 
-  async checkIn(facilityId: string, userId: string, lat?: number, lng?: number) {
+  /** LJ-01: the facility a staff member belongs to is resolved on the server from
+   * provider_accounts.facility_id — never from a client body. */
+  async resolveFacilityId(user: any): Promise<string> {
+    const db = this.shiftModel.db;
+    const account: any = await db.collection('provider_accounts').findOne(
+      { $or: [{ id: user?.id }, { user_id: user?.id }] },
+      { projection: { _id: 0, id: 1, user_id: 1, facility_id: 1, parent_provider_account_id: 1 } },
+    ).catch(() => null);
+    const facilityId = account?.facility_id || user?.facility_id || account?.parent_provider_account_id || user?.parent_provider_account_id;
+    if (facilityId) return String(facilityId);
+    // A hospital/facility account checking in for itself.
+    return String(user?.id);
+  }
+
+  /** Configurable check-in radius (metres). System config wins; 300m default. */
+  private async attendanceRadiusM(): Promise<number> {
+    try {
+      const cfg: any = await this.conn?.collection('system_config').findOne({ key: 'system_config' } as any);
+      const value = Number(cfg?.value?.attendance_radius_m);
+      if (Number.isFinite(value) && value > 0) return value;
+    } catch { /* default */ }
+    return 300;
+  }
+
+  private async facilityGeo(facilityId: string): Promise<{ lat: number; lng: number } | null> {
+    const db = this.shiftModel.db;
+    const profile: any = await db.collection('provider_profiles').findOne(
+      { $or: [{ id: facilityId }, { user_id: facilityId }], $and: [{ $or: [{ 'geo.lat': { $exists: true } }, { 'location.lat': { $exists: true } }, { 'base_location.lat': { $exists: true } }] }] },
+      { projection: { _id: 0, geo: 1, location: 1, base_location: 1 } },
+    ).catch(() => null);
+    const point = profile?.geo?.lat != null ? profile.geo : profile?.location?.lat != null ? profile.location : profile?.base_location;
+    return point && point.lat != null && point.lng != null ? { lat: Number(point.lat), lng: Number(point.lng) } : null;
+  }
+
+  private static distanceMeters(a: { lat: number; lng: number }, b: { lat: number; lng: number }): number {
+    const R = 6371000;
+    const toRad = (d: number) => (d * Math.PI) / 180;
+    const dLat = toRad(b.lat - a.lat);
+    const dLng = toRad(b.lng - a.lng);
+    const lat1 = toRad(a.lat);
+    const lat2 = toRad(b.lat);
+    const h = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
+    return 2 * R * Math.asin(Math.min(1, Math.sqrt(h)));
+  }
+
+  /** LJ-01: one open attendance per person; GPS checked against the facility. */
+  async checkIn(user: any, lat?: number, lng?: number) {
+    const facilityId = await this.resolveFacilityId(user);
+    const userId = String(user.id);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) throw new BadRequestException('location_required');
+    const open: any = await this.attendanceModel.findOne({ facility_id: facilityId, user_id: userId, check_out_time: null }).lean();
+    if (open) throw new BadRequestException('already_checked_in');
+    const geo = await this.facilityGeo(facilityId);
+    if (geo) {
+      const distance = ShiftsService.distanceMeters(geo, { lat: Number(lat), lng: Number(lng) });
+      const radius = await this.attendanceRadiusM();
+      if (distance > radius) throw new ForbiddenException('outside_facility_radius');
+    }
     return this.attendanceModel.create({
-      id: uuid(),
-      user_id: userId,
-      facility_id: facilityId,
-      check_in_time: new Date(),
-      location_lat: lat,
-      location_lng: lng,
-      status: 'present',
+      id: uuid(), user_id: userId, facility_id: facilityId,
+      check_in_time: new Date(), location_lat: Number(lat), location_lng: Number(lng), status: 'present',
     });
   }
 
-  async checkOut(facilityId: string, attendanceId: string) {
-    const att = await this.attendanceModel.findOne({ id: { $eq: attendanceId }, facility_id: { $eq: facilityId } });
+  /** LJ-01: only the owner or the facility can close a record. */
+  async checkOut(user: any, attendanceId: string) {
+    const att: any = await this.attendanceModel.findOne({ id: { $eq: attendanceId } });
     if (!att) throw new NotFoundException('attendance_record_not_found');
-
-    await this.attendanceModel.updateOne({ id: { $eq: attendanceId }, facility_id: { $eq: facilityId } }, { $set: { check_out_time: new Date() } });
-    return { ok: true };
+    const isOwner = String(att.user_id) === String(user.id);
+    const isFacility = String(att.facility_id) === (await this.resolveFacilityId(user)) || user.role === 'admin';
+    if (!isOwner && !isFacility) throw new ForbiddenException('not_attendance_owner');
+    if (att.check_out_time) throw new BadRequestException('already_checked_out');
+    await this.attendanceModel.updateOne({ id: { $eq: attendanceId } }, { $set: { check_out_time: new Date() } });
+    return { ok: true, id: attendanceId, check_out_time: new Date() };
   }
 
-  async getAttendance(facilityId: string) {
-    return this.attendanceModel.find({ facility_id: facilityId }).sort({ check_in_time: -1 }).lean();
+  /** Real rows for the facility attendance screen (staff names resolved). */
+  async getAttendance(user: any) {
+    const facilityId = await this.resolveFacilityId(user);
+    const rows: any[] = await this.attendanceModel.find({ facility_id: facilityId }).sort({ check_in_time: -1 }).limit(200).lean();
+    const ids = [...new Set(rows.map((r) => String(r.user_id)))];
+    const db = this.shiftModel.db;
+    const users: any[] = ids.length ? await db.collection('users').find({ id: { $in: ids } }, { projection: { _id: 0, id: 1, full_name: 1, name: 1 } }).toArray() : [];
+    const names = new Map(users.map((u: any) => [String(u.id), u.full_name || u.name || '—']));
+    return rows.map((r) => ({ ...r, staff_name: names.get(String(r.user_id)) || '—', open: !r.check_out_time }));
   }
 }
 
@@ -364,19 +428,29 @@ export class FacilityShiftsController {
   deleteShift(@CurrentUser() u: any, @Param('id') id: string) {
     return this.svc.deleteShift(u.parent_provider_account_id || u.id, id);
   }
-  @Post('attendance/check-in')
+}
+
+/** LJ-01: any linked provider (not only the hospital role) can clock in/out for
+ * the facility it belongs to. Facility id and GPS come from the server side. */
+@Controller('facility/shifts/attendance')
+@Roles(UserRole.DOCTOR, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.LAB, UserRole.RADIOLOGY, UserRole.PHARMACY, UserRole.HOSPITAL, UserRole.HOSPITAL_ADMIN, UserRole.ADMIN)
+@UseGuards(JwtAuthGuard)
+export class FacilityAttendanceController {
+  constructor(private svc: ShiftsService) {}
+
+  @Post('check-in')
   checkIn(@CurrentUser() u: any, @Body() b: CheckInDto) {
-    return this.svc.checkIn(u.parent_provider_account_id || u.id, u.id, b?.lat, b?.lng);
+    return this.svc.checkIn(u, b?.lat, b?.lng);
   }
 
-  @Post('attendance/check-out/:attendanceId')
+  @Post('check-out/:attendanceId')
   checkOut(@CurrentUser() u: any, @Param('attendanceId') id: string) {
-    return this.svc.checkOut(u.parent_provider_account_id || u.id, id);
+    return this.svc.checkOut(u, id);
   }
 
-  @Get('attendance')
+  @Get()
   getAttendance(@CurrentUser() u: any) {
-    return this.svc.getAttendance(u.parent_provider_account_id || u.id);
+    return this.svc.getAttendance(u);
   }
 }
 
@@ -493,7 +567,7 @@ export class FacilityCommsController {
       { name: SurgeryBooking.name, schema: SurgeryBookingSchema },
     ]),
   ],
-  controllers: [FacilityBedsController, FacilityShiftsController, FacilitySurgeriesController, FacilityCommsController, FacilityInboxController],
+  controllers: [FacilityBedsController, FacilityShiftsController, FacilityAttendanceController, FacilitySurgeriesController, FacilityCommsController, FacilityInboxController],
   providers: [BedsService, ShiftsService, SurgeriesService],
   exports: [BedsService, ShiftsService, SurgeriesService],
 })
