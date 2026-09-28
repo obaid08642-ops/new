@@ -34,7 +34,7 @@ export default function LoyaltyConfigPage() {
   const saveConfig = async () => {
     setSaving(true); setError('');
     try {
-      await apiFetch('/admin/loyalty/config', { method: 'PUT', body: JSON.stringify({ points_per_order: config?.points_per_order ?? 10, referral_points: config?.referral_points ?? 50 }) });
+      await apiFetch('/admin/admin/loyalty/config', { method: 'PUT', body: JSON.stringify({ points_per_order: config?.points_per_order ?? 10, referral_points: config?.referral_points ?? 50 }) });
       alert('تم الحفظ'); await load();
     } catch (e: any) { setError(e?.message || 'فشل الحفظ'); }
     finally { setSaving(false); }
@@ -43,7 +43,7 @@ export default function LoyaltyConfigPage() {
   const createReward = async () => {
     setError('');
     try {
-      await apiFetch('/admin/loyalty/rewards', { method: 'POST', body: JSON.stringify(rewardDraft) });
+      await apiFetch('/admin/admin/loyalty/rewards', { method: 'POST', body: JSON.stringify(rewardDraft) });
       setRewardDraft({ title_ar: '', title_en: '', points_required: 500, reward_type: 'coupon', stock: 100 });
       await load();
     } catch (e: any) { setError(e?.message || 'تعذر إنشاء المكافأة'); }
@@ -58,7 +58,7 @@ export default function LoyaltyConfigPage() {
   const createChallenge = async () => {
     setError('');
     try {
-      await apiFetch('/admin/loyalty/challenges', { method: 'POST', body: JSON.stringify(challengeDraft) });
+      await apiFetch('/admin/admin/loyalty/challenges', { method: 'POST', body: JSON.stringify(challengeDraft) });
       setChallengeDraft({ title_ar: '', title_en: '', target_action: 'book_appointment', target_count: 1, reward_points: 200, start_date: '', end_date: '' });
       await load();
     } catch (e: any) { setError(e?.message || 'تعذر إنشاء التحدي'); }

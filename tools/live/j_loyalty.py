@@ -18,17 +18,17 @@ def run(pat, friend, admin=None):
 
     if admin:
         journey('loyalty: admin builds the catalogue (LJ-08)')
-        r = admin.post('/admin/loyalty/rewards', {'title_ar': 'قسيمة تجريبية', 'title_en': 'Test coupon',
+        r = admin.post('/admin/admin/loyalty/rewards', {'title_ar': 'قسيمة تجريبية', 'title_en': 'Test coupon',
                                                   'points_required': 1, 'reward_type': 'coupon', 'stock': 10})
         step('admin creates an affordable reward', r.ok or r.status == 201, r)
-        r = admin.post('/admin/loyalty/rewards', {'title_ar': 'مكافأة كبرى', 'title_en': 'Grand reward',
+        r = admin.post('/admin/admin/loyalty/rewards', {'title_ar': 'مكافأة كبرى', 'title_en': 'Grand reward',
                                                   'points_required': 999999, 'reward_type': 'gift', 'stock': 1})
         step('admin creates an expensive reward', r.ok or r.status == 201, r)
-        r = admin.post('/admin/loyalty/challenges', {'title_ar': 'تحدي شهري', 'title_en': 'Monthly challenge',
+        r = admin.post('/admin/admin/loyalty/challenges', {'title_ar': 'تحدي شهري', 'title_en': 'Monthly challenge',
                                                      'target_action': 'book_appointment', 'target_count': 1, 'reward_points': 50,
                                                      'start_date': '2020-01-01', 'end_date': '2035-01-01'})
         step('admin creates a live challenge', r.ok or r.status == 201, r)
-        r = admin.put('/admin/loyalty/config', {'points_per_order': 25})
+        r = admin.put('/admin/admin/loyalty/config', {'points_per_order': 25})
         step('admin updates the points config', r.ok, r)
 
     journey('loyalty: points from the completed consultation and its review')

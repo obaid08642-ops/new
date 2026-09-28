@@ -575,9 +575,14 @@ export class RefundExecutor {
       lab: 'labbookings', radiology: 'radiologybookings', nursing: 'homecarebookings',
     };
     const bookingCollection = bookingCollections[opts.booking_kind];
-    const booking: any = bookingCollection
+    let booking: any = bookingCollection
       ? await this.conn.collection(bookingCollection).findOne({ id: opts.booking_id } as any)
       : null;
+    // Pharmacy orders live in pharmacy_orders (governed broadcast flow); the
+    // legacy `orders` collection is only the fallback.
+    if (!booking && ['pharmacy', 'order'].includes(String(opts.booking_kind))) {
+      booking = await this.conn.collection('pharmacy_orders').findOne({ id: opts.booking_id } as any);
+    }
     const originalMethod = String(paidTransaction?.method || booking?.payment_method || '').toLowerCase();
     const cashCollected = originalMethod === 'cash' && (
       paidTransaction?.status === 'paid' || String(booking?.payment_status || '').toLowerCase() === 'paid'

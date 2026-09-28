@@ -5,13 +5,17 @@
 # keep theirs out until fixed.
 set -uo pipefail
 cd "$(dirname "$0")"
+# macOS has no GNU `timeout`; run the step directly when it is missing.
+run_step() {
+  if command -v timeout >/dev/null 2>&1; then timeout "$@"; else shift; "$@"; fi
+}
 JOURNEYS=(j_accounts j_onboarding j_pharmacy j_lab j_radiology j_nursing j_consultation j_ambulance j_facility j_support j_loyalty)
 fail=0
 # one admin 2FA login per gate run (the login endpoint is rate limited per IP)
 export LIVE_ADMIN_SESSION="$(mktemp)"; rm -f "$LIVE_ADMIN_SESSION"
 python3 gate_p1.py || fail=1
 for j in "${JOURNEYS[@]}"; do
-  out=$(timeout 1200 python3 "$j.py" 2>&1)
+  out=$(run_step 1200 python3 "$j.py" 2>&1)
   line=$(grep -E '^##### ' <<<"$out" | tail -1)
   echo "$j: ${line:-no summary (crashed)}"
   if [[ -z $line || ! $line =~ ", 0 failed" ]]; then
@@ -20,7 +24,7 @@ for j in "${JOURNEYS[@]}"; do
   fi
 done
 # R6-9: admin per-page click tests (real Chromium; skips cleanly without a browser or seed data).
-out=$(timeout 1800 python3 j_admin_clicks.py 2>&1)
+out=$(run_step 1800 python3 j_admin_clicks.py 2>&1)
 line=$(grep -E '^##### ' <<<"$out" | tail -1)
 echo "j_admin_clicks: ${line:-no summary (crashed)}"
 if [[ -z $line || ! $line =~ ", 0 failed" ]]; then

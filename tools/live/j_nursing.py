@@ -113,18 +113,18 @@ def run(pat, nurse, admin=None):
 
     if admin:
         journey('nursing: admin orders console')
-        r = admin.get('/orders?kind=nursing&limit=25')
+        r = admin.get('/admin/admin/orders?kind=nursing&limit=25')
         row = next((x for x in r.items() if x.get('id') == bid), None)
         step('console lists it with status and amount', r.ok and row and row.get('status') == 'COMPLETED' and row.get('amount', 0) > 0, row or r.status)
-        d = admin.get(f'/orders/nursing/{bid}')
+        d = admin.get(f'/admin/admin/orders/nursing/{bid}')
         fin = d.get('financials') or {}
         step('console detail shows the card payment', d.ok and (fin.get('gross_paid') or 0) > 0, d.get('financials'))
         paid = fin.get('gross_paid') or 0
-        r = admin.post(f'/orders/nursing/{bid}/refund', {'mode': 'partial', 'amount': round(paid / 2, 2), 'reason': 'تأخر الممرضة عن الموعد المحدد نصف ساعة'})
+        r = admin.post(f'/admin/admin/orders/nursing/{bid}/refund', {'mode': 'partial', 'amount': round(paid / 2, 2), 'reason': 'تأخر الممرضة عن الموعد المحدد نصف ساعة'})
         step('admin partial refund to the patient wallet', r.ok and r.get('credited_amount') == round(paid / 2, 2), r)
-        d = admin.get(f'/orders/nursing/{bid}')
+        d = admin.get(f'/admin/admin/orders/nursing/{bid}')
         step('detail shows the refund and what is left refundable', d.ok and (d.get('financials') or {}).get('refundable_max') == round(paid - round(paid / 2, 2), 2), d.get('financials'))
-        r = admin.post(f'/orders/nursing/{bid}/refund', {'mode': 'partial', 'amount': paid, 'reason': 'محاولة استرداد يتجاوز المتبقي من المبلغ'})
+        r = admin.post(f'/admin/admin/orders/nursing/{bid}/refund', {'mode': 'partial', 'amount': paid, 'reason': 'محاولة استرداد يتجاوز المتبقي من المبلغ'})
         step('refund above the remaining amount is refused', r.status == 400, r)
     return bid
 

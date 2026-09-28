@@ -38,7 +38,7 @@ export default function SearchIntelligencePage() {
     setError('');
     try {
       const res = await adminFetch<SearchAnalyticsResponse>(
-        `/governance-controls/search-intent-analytics?locale=${selectedLocale}`,
+        `/api/admin/admin/governance-controls/search-intent-analytics?locale=${selectedLocale}`,
       );
       setData(res);
     } catch (err) {

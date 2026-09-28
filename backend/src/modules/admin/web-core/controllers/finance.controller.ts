@@ -1,4 +1,4 @@
-import { Body, Controller, Get, NotFoundException, BadRequestException, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, NotFoundException, BadRequestException, Param, Post, Put } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
 import { CommissionLedger } from '../schemas/commission-ledger.schema';
@@ -35,7 +35,71 @@ export class FinanceController {
   @Get('commissions')
   async getCommissions() {
     const data = await this.commissionModel.find().exec();
-    return { data };
+    // Live platform config (finance_config key 'commissions'): service percents,
+    // escrow settlement delays, payout schedule and VAT. Returned alongside the
+    // legacy ledger rows so one call drives the commissions screen and tests.
+    const cfg: any = await this.conn.collection('finance_config').findOne({ key: 'commissions' } as any).catch(() => null);
+    return { data, service_types: cfg?.service_types || {}, settlement: cfg?.settlement || {}, payout_schedule: cfg?.payout_schedule || {}, tax: cfg?.tax || {} };
+  }
+
+  /** Merge platform finance config (whitelisted keys only, audited). Used by the
+   * commissions screen and by live tests to set the escrow hold to 0. */
+  @Put('commissions')
+  async updateCommissions(@Body() body: any, @CurrentUser() admin: any) {
+    const patch: any = {};
+    if (body?.service_types !== undefined) {
+      if (!body.service_types || typeof body.service_types !== 'object' || Array.isArray(body.service_types)) {
+        throw new BadRequestException('service_types must be an object');
+      }
+      for (const [kind, rule] of Object.entries(body.service_types as Record<string, any>)) {
+        const pct = Number((rule as any)?.percent);
+        if (!Number.isFinite(pct) || pct < 0 || pct > 100) throw new BadRequestException(`service_types.${kind}.percent must be 0-100`);
+      }
+      patch.service_types = body.service_types;
+    }
+    if (body?.settlement !== undefined) {
+      const delays = body.settlement?.delay_days;
+      if (!delays || typeof delays !== 'object' || Array.isArray(delays)) throw new BadRequestException('settlement.delay_days must be an object');
+      for (const [kind, days] of Object.entries(delays as Record<string, any>)) {
+        const n = Number(days);
+        if (!Number.isInteger(n) || n < 0 || n > 30) throw new BadRequestException(`settlement.delay_days.${kind} must be an integer 0-30`);
+      }
+      patch.settlement = body.settlement;
+    }
+    if (body?.payout_schedule !== undefined) {
+      const min = Number(body.payout_schedule?.minimum_payout_sar);
+      if (body.payout_schedule?.minimum_payout_sar !== undefined && (!Number.isFinite(min) || min < 0)) {
+        throw new BadRequestException('payout_schedule.minimum_payout_sar must be non-negative');
+      }
+      patch.payout_schedule = body.payout_schedule;
+    }
+    if (body?.tax !== undefined) {
+      const vat = Number(body.tax?.vat_percent);
+      if (body.tax?.vat_percent !== undefined && (!Number.isFinite(vat) || vat < 0 || vat > 100)) {
+        throw new BadRequestException('tax.vat_percent must be 0-100');
+      }
+      patch.tax = body.tax;
+    }
+    if (!Object.keys(patch).length) throw new BadRequestException('no configurable keys supplied (allowed: service_types, settlement, payout_schedule, tax)');
+    const col = this.conn.collection('finance_config');
+    const existing: any = await col.findOne({ key: 'commissions' } as any).catch(() => null);
+    const now = new Date();
+    await col.updateOne(
+      { key: 'commissions' } as any,
+      {
+        $set: {
+          key: 'commissions',
+          service_types: { ...(existing?.service_types || {}), ...(patch.service_types || {}) },
+          settlement: { ...(existing?.settlement || {}), ...(patch.settlement || {}) },
+          payout_schedule: { ...(existing?.payout_schedule || {}), ...(patch.payout_schedule || {}) },
+          tax: { ...(existing?.tax || {}), ...(patch.tax || {}) },
+          updated_at: now, updated_by: admin?.id,
+        },
+        $push: { audit: { at: now, by: admin?.id, changes: patch } } as any,
+      },
+      { upsert: true },
+    );
+    return this.getCommissions();
   }
 
   @Get('withdrawals/pending')

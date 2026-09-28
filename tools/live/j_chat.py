@@ -20,10 +20,11 @@ def run(pat, doctor, other_doctor, aid, profile_id=None):
     step('an outsider cannot join the appointment conversation', r.status == 403, r)
     r = pat.post('/chat/threads/direct', {'other_user_id': str(uuid.uuid4())})
     step('a direct thread to a stranger is refused (LJ-06)', r.status == 403, r)
-    me = pat.get('/users/me')
+    me = pat.get('/auth/me')
     pid = ((me.body.get('data') or me.body) or {}).get('id') if isinstance(me.body, dict) else None
+    step('patient id resolves for the direct-thread check', bool(pid), me.status)
     r = doctor.post('/chat/threads/direct', {'other_user_id': pid or str(uuid.uuid4())})
-    step('a direct thread to the booked patient is allowed', r.status in (200, 201), r)
+    step('a direct thread to the booked patient is allowed', r.status in (200, 201) and bool(pid), r)
 
     journey('chat: doctor answers from the appointment (PreVisitChatScreen)')
     r = doctor.get(f'/provider/chat/appointment/{aid}')

@@ -146,6 +146,7 @@ export class ProviderAdminController {
   @Get(':id') detail(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.detail(u, id); }
   @Post(':id/approve') approve(@CurrentUser() u: any, @Param('id') id: string, @Body() body: ApproveDto) { return this.svc.approve(u, id, body); }
   @Post(':id/reject') reject(@CurrentUser() u: any, @Param('id') id: string, @Body() body: RejectDto) { return this.svc.reject(u, id, body); }
+  @Post(':id/approve-bank') approveBank(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.approveBank(u, id); }
 
   @Post(':id/reprocess-image')
   async reprocessImage(@Param('id') id: string) {

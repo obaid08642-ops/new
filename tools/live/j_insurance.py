@@ -6,7 +6,7 @@ from lib import Client, journey, step
 from j_nursing import fake_pay
 
 PATIENT_GETS = ['/insurance/companies', '/insurance/my-policy', '/insurance/benefits-summary', '/insurance/requests/my',
-                '/insurance/claims/my', '/insurance/claims', '/users/me/insurance', '/users/me/profile', '/refunds/my']
+                '/insurance/claims', '/users/me/insurance', '/users/me/profile', '/refunds/my']
 
 
 def rows(r):
@@ -180,7 +180,7 @@ def run(pat, doctor, admin, labs=None):
     if labs:
         insured_lab(pat, labs[0], labs[1])
     journey('insurance: admin view')
-    r = admin.get('/insurance/requests?limit=25')
+    r = admin.get('/admin/admin/insurance/requests?limit=25')
     step('admin insurance requests console loads', r.ok, r)
 
 

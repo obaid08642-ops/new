@@ -126,13 +126,13 @@ def main():
     try:
         reqs = []
         if admin:
-            r = admin.get('/admin/nursing/requests?limit=20')
+            r = admin.get('/admin/admin/nursing/requests?limit=20')
             reqs = [x for x in (r.body if isinstance(r.body, list) else r.items()) if x.get('state') in ('NEW_REQUEST', 'PENDING_INSURANCE')]
         if not reqs:
             skip('nursing assign', 'no assignable bookings')
         else:
             rid = reqs[0].get('id')
-            r = admin.get(f'/admin/nursing/requests/{rid}/eligible-providers')
+            r = admin.get(f'/admin/admin/nursing/requests/{rid}/eligible-providers')
             provs = r.body if isinstance(r.body, list) else r.items()
             if not provs:
                 skip('nursing assign', 'no eligible providers')

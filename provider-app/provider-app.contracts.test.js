@@ -4,16 +4,22 @@ const path = require('node:path');
 describe('Provider App release contracts', () => {
   const root = process.cwd();
   const read = file => fs.readFileSync(path.join(root, 'src', file), 'utf8');
-  const dashboard = read('screens/doctor/DoctorDashboard.tsx');
+  // F51: split dashboards are barrels — read the whole split directory instead.
+  const readSplit = dir => fs.readdirSync(path.join(root, 'src', dir))
+    .filter(f => f.endsWith('.tsx') || f.endsWith('.ts'))
+    .sort()
+    .map(f => fs.readFileSync(path.join(root, 'src', dir, f), 'utf8'))
+    .join('\n');
+  const dashboard = readSplit('screens/doctor/doctor');
   const pharmacyDashboard = read('screens/pharmacy/PharmacyDashboard.tsx');
   const labDashboard = read('screens/lab/LabDashboard.tsx');
   const radiologyDashboard = read('screens/radiology/RadiologyDashboard.tsx');
-  const facilityDashboard = read('screens/facility/FacilityDashboard.tsx');
+  const facilityDashboard = readSplit('screens/facility/facility');
   const nursingDashboard = read('screens/nursing/NursingDashboard.tsx');
   const nursingFieldOps = read('screens/nursing/NursingFieldOps.tsx');
   const ambulanceDashboard = read('screens/ambulance/AmbulanceDashboard.tsx');
-  const sharedBlueprint = read('screens/shared/BlueprintScreens.tsx');
-  const sharedScreens = read('screens/shared/SharedScreens.tsx');
+  const sharedBlueprint = readSplit('screens/shared/blueprint');
+  const sharedScreens = readSplit('screens/shared/shared');
   const app = fs.readFileSync(path.join(root, 'App.tsx'), 'utf8');
   const authContext = read('context/index.tsx');
   const platformMapWeb = read('components/PlatformMap.web.tsx');
