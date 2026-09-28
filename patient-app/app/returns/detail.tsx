@@ -37,7 +37,7 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 const REFUND_LABELS: Record<string, string> = {
-  wallet: "محفظة نبض",
+  original: "وسيلة الدفع الأصلية",
   card: "البطاقة الأصلية",
   bank: "الحساب البنكي",
 };
@@ -58,17 +58,7 @@ export default function ReturnDetailScreen() {
         setLoading(false);
       })
       .catch(() => {
-        // Load default empty state on error
-        setData({
-          id: returnId,
-          service_type: "pharmacy",
-          order_id: "ORD-984321",
-          amount: 80,
-          reason: "دواء تالف أو منتهي الصلاحية",
-          refund_method: "wallet",
-          status: "processing",
-          createdAt: new Date().toISOString(),
-        });
+        setData(null);
         setLoading(false);
       });
   }, [returnId]);
@@ -86,6 +76,24 @@ export default function ReturnDetailScreen() {
         ]}
       >
         <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
+
+  if (!data) {
+    return (
+      <View
+        style={[
+          styles.container,
+          {
+            backgroundColor: colors.background,
+            justifyContent: "center",
+            alignItems: "center",
+            padding: 24,
+          },
+        ]}
+      >
+        <AppText variant="bodySM" color={colors.textSecondary}>تعذر تحميل طلب الإرجاع. تحقق من الاتصال ثم أعد المحاولة.</AppText>
       </View>
     );
   }
@@ -114,7 +122,7 @@ export default function ReturnDetailScreen() {
     },
     {
       status: 'الموافقة وتحويل المبلغ',
-      desc: `استرداد القيمة إلى: ${REFUND_LABELS[data?.refund_method as keyof typeof REFUND_LABELS] || 'المحفظة'}`,
+      desc: `استرداد القيمة إلى: ${REFUND_LABELS[data?.refund_method as keyof typeof REFUND_LABELS] || 'وسيلة الدفع الأصلية'}`,
       done: data?.status === 'completed',
       current: data?.status === 'completed',
     },

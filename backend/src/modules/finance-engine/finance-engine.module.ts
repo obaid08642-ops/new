@@ -44,7 +44,7 @@ const DEFAULTS = {
   minimum_payout_sar: 100,
   large_payout_sar: 10000,
   large_refund_sar: 5000,
-  loyalty_max_redeem_percent: 20,
+  loyalty_max_redeem_percent: 10,
   loyalty_point_value_sar: 0.1,
   refund_abuse_count_30d: 3,
   payment_velocity_failed_1h: 5,
@@ -582,6 +582,10 @@ export class RefundExecutor {
     // legacy `orders` collection is only the fallback.
     if (!booking && ['pharmacy', 'order'].includes(String(opts.booking_kind))) {
       booking = await this.conn.collection('pharmacy_orders').findOne({ id: opts.booking_id } as any);
+    }
+    if (booking) {
+      const owner = String(booking.patient_id || booking.patient_account_id || booking.user_id || '');
+      if (owner && owner !== String(opts.patient_id)) throw new ForbiddenException('refund_patient_mismatch');
     }
     const originalMethod = String(paidTransaction?.method || booking?.payment_method || '').toLowerCase();
     const bookingState = String(booking?.status || '').toLowerCase();

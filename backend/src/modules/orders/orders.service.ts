@@ -74,6 +74,10 @@ export class OrdersService {
     }
     const inputItems = data.items || data.cartItems;
     if (!inputItems || inputItems.length === 0) throw new BadRequestException('Empty cart');
+    // A1: the patient wallet is gone — wallet/wallet_split can no longer pay.
+    if (['wallet', 'wallet_split'].includes(String(data.payment_method))) {
+      throw new BadRequestException('wallet_payment_removed');
+    }
     if (!data.delivery_address?.lat || !data.delivery_address?.lng) {
       throw new BadRequestException('Delivery location (lat/lng) required for dispatch');
     }
@@ -179,35 +183,8 @@ export class OrdersService {
       if (loyaltyPointsUsed > 0) {
         await this.loyaltyRedeem.redeem(patient.id, order.id, loyaltyPointsUsed, preTotal - couponDiscount);
       }
-      // Wallet payment (full or split) — real debit from the patient's wallet
-      if (data.payment_method === 'wallet' || data.payment_method === 'wallet_split') {
-        const wallet: any = await this.conn.collection('wallets').findOne({ ownerId: patient.id, ownerType: 'patient' } as any);
-        const balance = Number(wallet?.balance || 0);
-        const applied = data.payment_method === 'wallet' ? order.total : Math.min(balance, order.total);
-        if (data.payment_method === 'wallet' && balance < order.total) {
-          throw new BadRequestException('insufficient_wallet_balance');
-        }
-        if (applied > 0) {
-          const r = await this.conn.collection('wallets').updateOne(
-            { _id: wallet._id, balance: { $gte: applied } } as any,
-            { $inc: { balance: -applied }, $set: { updatedAt: new Date() } },
-          );
-          if (!r.matchedCount) throw new BadRequestException('insufficient_wallet_balance');
-          await this.conn.collection('wallet_transactions').insertOne({
-            id: require('uuid').v4(), walletId: wallet.id, amount: applied, type: 'debit',
-            referenceType: 'booking', referenceId: order.id,
-            description: `دفع طلب صيدلية #${order.id.slice(0, 8)}`,
-            createdAt: new Date(), updatedAt: new Date(),
-          } as any);
-          (order as any).wallet_applied = round2(applied);
-          if (applied >= order.total - 0.001) {
-            order.payment_status = 'paid';
-            (order as any).paid_at = new Date();
-            (order as any).paid_via = 'wallet';
-          }
-          await order.save();
-        }
-      }
+      // A1: wallet payment removed — the guard at the top of create() rejects
+      // wallet/wallet_split before an order exists, so no wallet debit can occur.
     } catch (e) {
       // Compensate: release coupon + re-credit points, then surface the error
       try { await this.coupons.release(order.id); } catch {}

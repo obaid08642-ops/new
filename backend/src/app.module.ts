@@ -115,7 +115,6 @@ import { MaternityModule } from './modules/maternity/maternity.module';
 import { NabdExtensionsModule } from './modules/nabd-extensions/nabd-extensions.module';
 import { NutritionModule } from './modules/nutrition/nutrition.module';
 import { MentalHealthModule } from './modules/mental-health/mental-health.module';
-import { WalletModule } from './modules/wallet/wallet.module';
 import { ReturnsModule } from './modules/returns/returns.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { HospitalModule } from './modules/hospital/hospital.module';
@@ -251,7 +250,6 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     NabdExtensionsModule,
     NutritionModule,
     MentalHealthModule,
-    WalletModule,
     ReturnsModule,
     BansModule,
     HomeCareModule,

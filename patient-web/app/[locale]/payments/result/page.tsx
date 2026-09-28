@@ -4,7 +4,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { callPatientApi } from "@/lib/api/upstream";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
-import { CheckCircle2, XCircle, Loader2, Wallet } from "lucide-react";
+import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { VectorInsurance } from "@/components-next/vector-illustrations";
 import styles from "./payment-result.module.css";
 
@@ -44,7 +44,6 @@ export default async function PaymentResultPage({ params, searchParams }: Props)
       <div className={styles.actions}>
         {failed ? <Link className={styles.primary} href={`/${locale}/cart/checkout`}>{t("retry")}</Link> : null}
         <Link className={ok ? styles.primary : styles.secondary} href={`/${locale}/orders`}>{t("myOrders")}</Link>
-        <Link className={styles.secondary} href={`/${locale}/wallet`}><Wallet size={16} aria-hidden="true" />{t("wallet")}</Link>
       </div>
     </section>
   </main>;

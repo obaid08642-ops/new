@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, ConflictException, ForbiddenException, Get, Inject, NotFoundException, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, ConflictException, ForbiddenException, Get, NotFoundException, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { JwtAuthGuard, Roles, CurrentUser, getEffectiveRoles } from '../../../common/auth.guard';
@@ -6,16 +6,16 @@ import { Permission, RequirePermissions } from '../../../common/permissions';
 import { UserRole } from '../../../common/enums';
 import { validateReason, MIN_FINANCIAL_REASON_LENGTH, ReasonError, roleSatisfies } from '../../../common/rbac';
 import { AdminAuditService } from './audit.service';
-import { WalletService } from '../../wallet/wallet.service';
+import { RefundExecutor } from '../../finance-engine/finance-engine.module';
 import { ResolveDto } from './admin-disputes.dto';
 
 /**
  * A1 — REAL dispute queue (replaces the previous 503 stub).
  *
  * Source of truth: `supportrequests` (SupportRequest model) where the category is a financial /
- * order complaint. Resolution moves real money through WalletService.topup()
- * (the same audited internal-credit path used for refunds platform-wide) and
- * every decision is RBAC-gated + reason-mandatory + audit-logged.
+ * order complaint. Money decisions execute a REAL refund through the original
+ * payment method (RefundExecutor — A2, no wallet) and every decision is
+ * RBAC-gated + reason-mandatory + audit-logged.
  */
 @Controller('admin/disputes')
 @UseGuards(JwtAuthGuard)
@@ -27,7 +27,7 @@ export class AdminDisputesController {
   constructor(
     @InjectConnection() private readonly conn: Connection,
     private readonly audit: AdminAuditService,
-    @Inject(WalletService) private readonly wallet: WalletService,
+    private readonly refundExec: RefundExecutor,
   ) {}
 
   private static DISPUTE_CATEGORIES = ['COMPLAINT', 'PAYMENT', 'ORDER_ISSUE'];
@@ -120,7 +120,7 @@ export class AdminDisputesController {
   /**
    * Resolve a dispute.
    * body: { decision: refund_full | refund_partial | reject | close_no_action, amount?, reason }
-   * Money decisions REQUIRE a ≥10-char reason and move REAL wallet credit.
+   * Money decisions REQUIRE a ≥10-char reason and execute a REAL refund to the original payment method.
    */
   @Post(':id/resolve')
   @RequirePermissions(Permission.DISPUTES_RESOLVE)
@@ -163,19 +163,27 @@ export class AdminDisputesController {
     }
 
     if (creditedAmount > 0) {
-      await this.wallet.topup(
-        ticket.user_id, 'patient',
-        creditedAmount,
-        `refund: ${reason}`.slice(0, 180),
-        'refund',
-        ticket.id,
-      );
+      // A2: the dispute refund executes against a real booking through the
+      // original payment method — never a wallet credit.
+      const bookingKind = String((b as any)?.booking_kind || '').trim().toLowerCase();
+      const bookingId = String((b as any)?.booking_id || '').trim();
+      if (!bookingKind || !bookingId) throw new BadRequestException('booking_kind and booking_id are required for a refund decision');
+      const { v4: uuidv4 } = require('uuid');
+      await this.refundExec.execute({
+        refund_id: `dispute_${ticket.id}_${uuidv4()}`,
+        booking_kind: bookingKind,
+        booking_id: bookingId,
+        patient_id: ticket.user_id,
+        amount: creditedAmount,
+        reason: `dispute ${ticket.id}: ${reason}`.slice(0, 180),
+        actor_id: me.id,
+      });
     }
 
     const resolutionEntry = {
       by: me.id,
       role: 'admin',
-      message: `[resolution:${decision}] ${reason}${creditedAmount ? ` — مبلغ ${creditedAmount} ر.س إلى المحفظة` : ''}`,
+      message: `[resolution:${decision}] ${reason}${creditedAmount ? ` — مبلغ ${creditedAmount} ر.س يُرد لوسيلة الدفع الأصلية` : ''}`,
       at: new Date(),
     };
     await this.conn.collection('supportrequests').updateOne(

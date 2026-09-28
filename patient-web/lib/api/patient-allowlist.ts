@@ -81,9 +81,7 @@ const patientReadRoutes = [
   new RegExp("^/emergency/my/active$", "i"),
   new RegExp(`^/labs/bookings/${orderId}$`, "i"),
   new RegExp(`^/labs/bookings/${orderId}/tracking$`, "i"),
-  new RegExp("^/wallet/balance$", "i"),
-  new RegExp("^/wallet/transactions$", "i"),
-  new RegExp("^/wallet/cards$", "i"),
+  // A1: the patient wallet is gone — these backend routes no longer exist.
 ];
 
 const diagnosticsMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp }> = [

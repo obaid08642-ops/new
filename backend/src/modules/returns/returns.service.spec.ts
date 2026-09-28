@@ -13,7 +13,7 @@ describe('ReturnsService service-booking returns (LJ-05)', () => {
       transactions: { find: jest.fn().mockReturnValue({ toArray: jest.fn().mockResolvedValue(transactions) }) },
     };
     const conn = { collection: jest.fn((name: string) => collections[name] || { findOne: jest.fn() }) };
-    const service = new ReturnsService(repo as any, {} as any, refundExec as any, conn as any);
+    const service = new ReturnsService(repo as any, refundExec as any, conn as any);
     return { service, repo, refundExec, collections };
   }
 
@@ -63,7 +63,7 @@ describe('ReturnsService service-booking returns (LJ-05)', () => {
           ? { find: jest.fn().mockReturnValue(transactionCursor) }
           : { findOne: jest.fn().mockResolvedValue(null) }),
     };
-    const service = new ReturnsService({} as any, {} as any, {} as any, conn as any);
+    const service = new ReturnsService({} as any, {} as any, conn as any);
 
     await expect(service.eligibleBookings('patient-1', 'consultation')).resolves.toEqual([
       expect.objectContaining({ id: 'appt-1', booking_kind: 'consultation', amount: 300 }),

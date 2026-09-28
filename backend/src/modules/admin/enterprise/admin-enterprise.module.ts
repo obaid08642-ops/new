@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 import { MailModule } from '../../mail/mail.module';
 import { SeoSearchModule } from '../../seo-search/seo-search.module';
-import { WalletModule } from '../../wallet/wallet.module';
+import { FinanceEngineModule } from '../../finance-engine/finance-engine.module';
 import { PresenceModule } from '../../presence/presence.module';
 import { AdminAuditService } from './audit.service';
 import { AdminSecurityController } from './admin-security.controller';
@@ -31,7 +31,7 @@ import { ImpersonationSecurityModule } from '../../../common/impersonation-secur
 @Module({
   imports: [
     ImpersonationSecurityModule,
-    WalletModule,
+    FinanceEngineModule,
     MailModule,
     SeoSearchModule,
     PresenceModule,

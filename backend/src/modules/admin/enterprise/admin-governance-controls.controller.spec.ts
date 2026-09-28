@@ -42,10 +42,19 @@ describe('AdminGovernanceControlsController', () => {
             if (filter.results_count === 0) return Promise.resolve(2);
             return Promise.resolve(10);
           }),
-          aggregate: jest.fn().mockReturnValue({
-            toArray: jest.fn().mockResolvedValue([
-              { _id: { q: 'طبيب جلدية في الرياض', locale: 'ar', intent: 'discovery' }, count: 5, avgResults: 3 },
-            ]),
+          aggregate: jest.fn().mockImplementation((pipeline: any[]) => {
+            const hasLimit = (n: number) => (pipeline || []).some((s: any) => s?.$limit === n);
+            if (hasLimit(50)) {
+              return {
+                toArray: jest.fn().mockResolvedValue([
+                  { _id: { q: 'طبيب جلدية في الرياض', locale: 'ar' }, count: 5, zero: 2, raw_query: 'طبيب جلدية في الرياض', intent_type: 'discovery', entity_type: 'doctor', location_code: 'ruh', last_searched: new Date() },
+                ]),
+              };
+            }
+            if (hasLimit(20)) {
+              return { toArray: jest.fn().mockResolvedValue([{ _id: 'ruh', count: 5 }]) };
+            }
+            return { toArray: jest.fn().mockResolvedValue([{ total: 10, zero: 2 }]) };
           }),
         };
       }

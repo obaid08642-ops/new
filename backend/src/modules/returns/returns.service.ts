@@ -2,7 +2,7 @@ import { Injectable, NotFoundException, ForbiddenException, BadRequestException,
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection, Types } from 'mongoose';
 import { ReturnRequest } from '../../schemas/returns.schema';
-import { WalletService } from '../wallet/wallet.service';
+
 import { ReturnRequestRepository } from "./repositories/returnrequest.repository";
 import { RefundExecutor } from '../finance-engine/finance-engine.module';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
@@ -24,7 +24,6 @@ const NON_RETURNABLE_CATEGORIES = ['cold_chain', 'refrigerated', 'controlled', '
 export class ReturnsService {
   constructor(
     @Inject('ReturnRequestRepository') private readonly returnModel: ReturnRequestRepository,
-    private readonly walletService: WalletService,
     private readonly refundExec: RefundExecutor,
     @InjectConnection() private readonly conn: Connection,
   ) {}

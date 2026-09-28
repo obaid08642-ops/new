@@ -34,6 +34,9 @@ const POINTS_TABLE: Record<string, number> = {
   vitals_logged:      10,
 };
 
+/** Reasons tied to a purchase/completion (no earning caps); everything else is capped. */
+const PURCHASE_REASONS = new Set(['booking_completed', 'order_delivered', 'challenge_completed']);
+
 /** Earned points expire after this many days (lazy sweep on account read). */
 const POINTS_TTL_DAYS = 365;
 
@@ -74,25 +77,74 @@ export class LoyaltyService {
     } catch { /* defaults win */ }
     return {
       tiers: this.getTiers(),
-      earn_ways: this.getEarnWays(),
+      earn_ways: await this.getEarnWays(),
       points_per_order: Number(overrides.points_per_order ?? 10),
       referral_points: Number(overrides.referral_points ?? 50),
+      earn_points: await this.earnTable().catch(() => ({ ...POINTS_TABLE })),
+      earn_caps: overrides.earn_caps || {},
+      max_redeem_percent: overrides.max_redeem_percent,
+      point_value_sar: overrides.point_value_sar,
+      redeem_enabled: overrides.redeem_enabled,
     };
   }
 
-  getEarnWays() {
-    return EARN_WAYS;
+  async getEarnWays() {
+    const table = await this.earnTable().catch(() => POINTS_TABLE);
+    return EARN_WAYS.map((w) => ({ ...w, pts: (w as any).reason ? `+${table[(w as any).reason] ?? 0}` : (w as any).ptsLabel }));
   }
 
   // ── Points Engine ──────────────────────────────────────────────────────────
 
+  /** A5: effective per-activity values = admin config over built-in defaults. */
+  async earnTable(): Promise<Record<string, number>> {
+    let overrides: Record<string, number> = {};
+    try {
+      const doc: any = await (this as any).conn?.collection('loyalty_config')?.findOne({ key: 'global' });
+      if (doc?.value?.earn_points && typeof doc.value.earn_points === 'object') overrides = doc.value.earn_points;
+    } catch { /* defaults win */ }
+    const table: Record<string, number> = { ...POINTS_TABLE };
+    for (const [reason, value] of Object.entries(overrides)) {
+      const n = Number(value);
+      if (Number.isFinite(n) && n >= 0) table[reason] = n;
+    }
+    return table;
+  }
+
+  /** A5: points already earned for a reason since a cutoff (for daily/monthly caps). */
+  private async earnedSince(userId: string, reason: string, since: Date): Promise<number> {
+    const rows: any[] = await this.txM.find({ user_id: userId, reason, createdAt: { $gte: since } }).lean().catch(() => []);
+    return rows.filter((r: any) => Number(r?.points_delta) > 0).reduce((s: number, r: any) => s + Number(r.points_delta), 0);
+  }
+
   /**
    * Award points to a user for a specific action.
    * Creates a LoyaltyAccount if one doesn't exist yet.
+   * A5: per-activity values and daily/monthly caps come from admin config.
    */
   async awardPoints(userId: string, reason: string, refType?: string, refId?: string, overridePoints?: number) {
-    const pts = overridePoints ?? POINTS_TABLE[reason] ?? 0;
-    if (pts === 0) return { ok: true, points_awarded: 0 };
+    const table = await this.earnTable();
+    let pts = overridePoints ?? table[reason] ?? 0;
+    if (pts <= 0) return { ok: true, points_awarded: 0 };
+
+    if (!PURCHASE_REASONS.has(reason)) {
+      let caps: { daily?: Record<string, number>; monthly?: Record<string, number> } = {};
+      try {
+        const doc: any = await (this as any).conn?.collection('loyalty_config')?.findOne({ key: 'global' });
+        if (doc?.value?.earn_caps && typeof doc.value.earn_caps === 'object') caps = doc.value.earn_caps;
+      } catch { /* no caps */ }
+      const now = new Date();
+      const dayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      const [dayEarned, monthEarned] = await Promise.all([
+        this.earnedSince(userId, reason, dayStart),
+        this.earnedSince(userId, reason, monthStart),
+      ]);
+      const dayCap = Number(caps.daily?.[reason]);
+      const monthCap = Number(caps.monthly?.[reason]);
+      if (Number.isFinite(dayCap) && dayCap >= 0) pts = Math.max(0, Math.min(pts, dayCap - dayEarned));
+      if (Number.isFinite(monthCap) && monthCap >= 0) pts = Math.max(0, Math.min(pts, monthCap - monthEarned));
+      if (pts <= 0) return { ok: true, points_awarded: 0, capped: true };
+    }
 
     // Idempotency: the same (reason, ref) pair can never be awarded twice —
     // guards against duplicate events and replay-based farming.
@@ -460,16 +512,48 @@ export class LoyaltyService {
     return { ok: true, id, active: false };
   }
 
-  /** PUT /admin/loyalty/config — whitelisted keys only, audited. */
+  /** PUT /admin/loyalty/config — A5 full set, whitelisted keys only, audited. */
   async adminUpdateConfig(body: any, actor: any) {
     if (!this.conn) throw new BadRequestException('config_store_unavailable');
-    const allowed = ['points_per_order', 'referral_points'];
     const patch: any = {};
-    for (const key of allowed) if (body?.[key] !== undefined) {
-      const value = Number(body[key]);
-      if (!Number.isFinite(value) || value < 0) throw new BadRequestException(`${key} must be a non-negative number`);
-      patch[key] = value;
+    for (const key of ['points_per_order', 'referral_points', 'point_value_sar']) {
+      if (body?.[key] !== undefined) {
+        const value = Number(body[key]);
+        if (!Number.isFinite(value) || value < 0) throw new BadRequestException(`${key} must be a non-negative number`);
+        patch[key] = value;
+      }
     }
+    if (body?.max_redeem_percent !== undefined) {
+      const value = Number(body.max_redeem_percent);
+      if (!Number.isFinite(value) || value < 0 || value > 100) throw new BadRequestException('max_redeem_percent must be 0-100');
+      patch.max_redeem_percent = value;
+    }
+    if (body?.redeem_enabled !== undefined) patch.redeem_enabled = body.redeem_enabled === true;
+    if (body?.earn_points !== undefined) {
+      if (!body.earn_points || typeof body.earn_points !== 'object' || Array.isArray(body.earn_points)) {
+        throw new BadRequestException('earn_points must be an object of reason → points');
+      }
+      for (const [reason, value] of Object.entries(body.earn_points)) {
+        const n = Number(value);
+        if (!Number.isFinite(n) || n < 0) throw new BadRequestException(`earn_points.${reason} must be a non-negative number`);
+      }
+      patch.earn_points = body.earn_points;
+    }
+    if (body?.earn_caps !== undefined) {
+      const caps = body.earn_caps;
+      if (!caps || typeof caps !== 'object') throw new BadRequestException('earn_caps must be an object');
+      for (const period of ['daily', 'monthly']) {
+        const bucket = (caps as any)[period];
+        if (bucket === undefined) continue;
+        if (!bucket || typeof bucket !== 'object' || Array.isArray(bucket)) throw new BadRequestException(`earn_caps.${period} must be an object of reason → points`);
+        for (const [reason, value] of Object.entries(bucket)) {
+          const n = Number(value);
+          if (!Number.isFinite(n) || n < 0) throw new BadRequestException(`earn_caps.${period}.${reason} must be a non-negative number`);
+        }
+      }
+      patch.earn_caps = caps;
+    }
+    const allowed = ['points_per_order', 'referral_points', 'point_value_sar', 'max_redeem_percent', 'redeem_enabled', 'earn_points', 'earn_caps'];
     if (!Object.keys(patch).length) throw new BadRequestException(`no configurable keys supplied (allowed: ${allowed.join(', ')})`);
     const col = this.conn.collection('loyalty_config');
     const now = new Date();
