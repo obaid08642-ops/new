@@ -22,7 +22,7 @@ export default function RbacPage() {
   const load = useCallback(async () => {
     setLoading(true); setError('');
     try {
-      const [nextCatalog, nextRoles] = await Promise.all([adminFetch<Catalog>('/rbac/catalog'), adminFetch<{ data?: Role[] } | Role[]>('/rbac/roles')]);
+      const [nextCatalog, nextRoles] = await Promise.all([adminFetch<Catalog>('/api/admin/admin/rbac/catalog'), adminFetch<{ data?: Role[] } | Role[]>('/api/admin/admin/rbac/roles')]);
       setCatalog(nextCatalog);
       setRoles(Array.isArray(nextRoles) ? nextRoles : nextRoles.data || []);
     } catch (cause) { setError(apiErrorMessage(cause, 'تعذر تحميل مصفوفة الصلاحيات.')); }
@@ -38,7 +38,7 @@ export default function RbacPage() {
     if (!form.key.trim() || !form.name_ar.trim() || form.reason.trim().length < 5) { setError('المعرّف والاسم وسبب لا يقل عن خمسة أحرف مطلوبة.'); return; }
     setCreating(true); setError('');
     try {
-      await adminMutation('/rbac/roles', 'POST', { key: form.key.trim(), name_ar: form.name_ar.trim(), permissions: form.permissions, reason: form.reason.trim() });
+      await adminMutation('/api/admin/admin/rbac/roles', 'POST', { key: form.key.trim(), name_ar: form.name_ar.trim(), permissions: form.permissions, reason: form.reason.trim() });
       setForm({ key: '', name_ar: '', permissions: [], reason: '' });
       await load();
     } catch (cause) { setError(apiErrorMessage(cause, 'تعذر إنشاء الدور.')); }
@@ -50,7 +50,7 @@ export default function RbacPage() {
     if (!assignUser.trim() || assignReason.trim().length < 5) { setError('معرّف الموظف وسبب لا يقل عن خمسة أحرف مطلوبان.'); return; }
     setAssigning(true); setError('');
     try {
-      await adminMutation(`/rbac/users/${encodeURIComponent(assignUser.trim())}/roles`, 'POST', { custom_role_keys: assignKeys, reason: assignReason.trim() });
+      await adminMutation(`/api/admin/admin/rbac/users/${encodeURIComponent(assignUser.trim())}/roles`, 'POST', { custom_role_keys: assignKeys, reason: assignReason.trim() });
       setAssignUser(''); setAssignKeys([]); setAssignReason('');
     } catch (cause) { setError(apiErrorMessage(cause, 'تعذر إسناد الأدوار.')); }
     finally { setAssigning(false); }

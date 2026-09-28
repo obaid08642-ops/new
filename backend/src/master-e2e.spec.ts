@@ -150,10 +150,15 @@ describe('MASTER ADDENDUM — Full End-to-End Architectural Verification', () =>
         case 'query_analytics':
           return {
             insertOne: jest.fn().mockResolvedValue({}),
-            countDocuments: jest.fn().mockResolvedValue(10),
-            aggregate: jest.fn().mockReturnValue({
-              toArray: jest.fn().mockResolvedValue([{ _id: { q: 'بنادول', locale: 'ar', intent: 'discovery' }, count: 5, avgResults: 2 }]),
-            }),
+countDocuments: jest.fn().mockResolvedValue(10),
+            aggregate: jest.fn().mockImplementation((pipeline: any[]) => {
+            const group = pipeline.find((st: any) => st.$group)?.$group || {};
+            const rows = group._id === null ? [{ _id: null, total: 10, zero: 2 }]
+              : group._id === '$specialty' ? [{ _id: 'dermatology', count: 3 }]
+              : group._id === '$resolved_location_code' ? [{ _id: 'riyadh', count: 4 }]
+              : [{ _id: { q: 'بنادول', locale: 'ar' }, raw_query: 'بنادول', intent_type: 'discovery', count: 5, zero: 1 }];
+            return { toArray: jest.fn().mockResolvedValue(rows) };
+          }),
           };
         case 'medicine_price_history':
           return {

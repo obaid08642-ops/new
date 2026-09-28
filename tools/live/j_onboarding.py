@@ -85,17 +85,19 @@ def register_pharmacy():
 
 def admin_review(admin, prov):
     journey(f"onboarding: admin reviews the {prov['type']}")
-    r = admin.get('/providers?status=pending&limit=100')
+    # The moderation list lives behind the admin controller (BFF 1:1 → /api/v1/admin/providers);
+    # GET /providers is the public discovery feed and never shows pending accounts.
+    r = admin.get('/admin/admin/providers?status=pending&limit=100')
     items = r.body.get('items', []) if isinstance(r.body, dict) else []
     mine = next((i for i in items if i.get('email') == prov['email']), None)
     step('pending list (provider-moderation) shows the new provider', r.ok and mine, f"{r.status} {len(items)} items; emails={[i.get('email') for i in items][:5]}")
     if not mine:
         return None
-    r = admin.get(f"/providers/{mine['id']}")
+    r = admin.get(f"/admin/admin/providers/{mine['id']}")
     step('provider detail opens', r.ok, r)
-    r = admin.post(f"/providers/{mine['id']}/approve", {'reason': 'مستندات مكتملة', 'commission_cash': 10, 'commission_insurance': 8})
+    r = admin.post(f"/admin/admin/providers/{mine['id']}/approve", {'reason': 'مستندات مكتملة', 'commission_cash': 10, 'commission_insurance': 8})
     step('approve with commissions', r.ok, r)
-    r = admin.get('/providers?status=pending&limit=100')
+    r = admin.get('/admin/admin/providers?status=pending&limit=100')
     still = [i for i in (r.body.get('items', []) if isinstance(r.body, dict) else []) if i.get('email') == prov['email']]
     step('no longer pending', r.ok and not still, r)
     return mine['id']

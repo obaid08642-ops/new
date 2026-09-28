@@ -43,9 +43,18 @@ export default function InsurancePaymentSplitScreen() {
   };
 
   const returnToAppointmentStatus = async () => {
-    if (!request || request.booking_kind !== 'consultation') throw new Error('لا يمكن فتح حالة الاستشارة لهذا الطلب.');
-    const appointment = await apiFetch(`/care/appointments/${encodeURIComponent(request.booking_id)}`);
-    router.replace({ pathname: '/consultations/booking-status', params: appointmentStatusRouteParams(appointment, request.booking_id) });
+    if (!request) throw new Error('لا يمكن فتح حالة الخدمة لهذا الطلب.');
+    // LJ-03: the same engine now drives consultation, lab and radiology coverage.
+    if (request.booking_kind === 'consultation') {
+      const appointment = await apiFetch(`/care/appointments/${encodeURIComponent(request.booking_id)}`);
+      router.replace({ pathname: '/consultations/booking-status', params: appointmentStatusRouteParams(appointment, request.booking_id) });
+      return;
+    }
+    if (request.booking_kind === 'lab' || request.booking_kind === 'radiology') {
+      router.replace({ pathname: '/diagnostics/order/[id]', params: { id: request.booking_id } } as any);
+      return;
+    }
+    router.replace('/diagnostics/orders' as any);
   };
 
   const continueFlow = async () => {

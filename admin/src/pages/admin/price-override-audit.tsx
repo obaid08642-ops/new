@@ -40,7 +40,7 @@ export default function PriceOverrideAuditPage() {
     setError('');
     try {
       const res = await adminFetch<PriceAuditResponse>(
-        `/governance-controls/medicine-price-history${toQuery({ page, limit: 25, search })}`,
+        `/api/admin/admin/governance-controls/medicine-price-history${toQuery({ page, limit: 25, search })}`,
       );
       setData(res);
     } catch (err) {

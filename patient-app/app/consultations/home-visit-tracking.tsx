@@ -103,8 +103,9 @@ export default function HomeVisitTrackingScreen() {
           style={[styles.callBtn, { backgroundColor: colors.n, marginTop: 24 }]}
           onPress={() => {
             const doctorId = data?.doctor_id;
-            if (doctorId) {
-              router.push({ pathname: '/consultations/chat-with-doctor', params: { doctorId } });
+            const bookingId = data?.id || data?.appointment_id || appointmentId;
+            if (bookingId) {
+              router.push({ pathname: '/consultations/chat-with-doctor', params: { doctorId, appointmentId: bookingId } });
             }
           }}
         >

@@ -4,10 +4,14 @@ const itemSchema = z.object({ name: z.string().trim().min(1).max(240), quantity:
 const orderId = z.string().uuid();
 export type PatientPharmacyDraftItem = z.infer<typeof itemSchema>;
 
-export function buildPatientPharmacyDraft(items: unknown) {
+export function buildPatientPharmacyDraft(items: unknown, opts?: { fulfillment?: 'delivery' | 'pickup'; payment_mode?: 'cash' | 'insurance' }) {
   const parsed = z.array(itemSchema).min(1).max(100).safeParse(items);
   if (!parsed.success) return null;
-  return { items: parsed.data.map((item) => ({ raw_name: item.name, qty: item.quantity, ...(item.sku ? { sku: item.sku } : {}) })) };
+  return {
+    items: parsed.data.map((item) => ({ raw_name: item.name, qty: item.quantity, ...(item.sku ? { sku: item.sku } : {}) })),
+    fulfillment: opts?.fulfillment === 'pickup' ? 'pickup' : 'delivery',
+    payment_mode: opts?.payment_mode === 'insurance' ? 'insurance' : 'cash',
+  };
 }
 
 export function extractPatientPharmacyOrderId(value: unknown): string | null {

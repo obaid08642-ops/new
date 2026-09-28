@@ -7,7 +7,7 @@ export default function HealthDashboardPage() {
   const [loading, setLoading] = useState(true);
 
   const load = () => {
-    apiFetch('/admin/health-dashboard')
+    apiFetch('/api/admin/admin/health-dashboard')
       .then(setD)
       .catch(() => setD(null))
       .finally(() => setLoading(false));

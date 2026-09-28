@@ -18,4 +18,7 @@ export class UpdateCommissionsDto {
   @IsOptional() @IsObject() provider_overrides?: Record<string, unknown>;
   @IsOptional() @IsObject() payout_schedule?: Record<string, unknown>;
   @IsOptional() @IsObject() tax?: Record<string, unknown>;
+  // Escrow settlement delays, e.g. { delay_days: { default: 3, consultation: 1 } }.
+  // Live tests set the hold to 0 so payouts complete in one run.
+  @IsOptional() @IsObject() settlement?: Record<string, unknown>;
 }

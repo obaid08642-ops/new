@@ -7,13 +7,13 @@ export default function AppointmentsOversightPage() {
   const [loading, setLoading] = useState(true);
   const load = useCallback(async()=>{
     setLoading(true);
-    try{ const r:any = await apiFetch('/admin/appointments?limit=50'); setRows(Array.isArray(r)?r:r?.data||r?.appointments||[]);}catch{}
+    try{ const r:any = await apiFetch('/api/admin/admin/appointments?limit=50'); setRows(Array.isArray(r)?r:r?.data||r?.appointments||[]);}catch{}
     finally{setLoading(false);}
   },[]);
   useEffect(()=>{load();},[load]);
   const cancel = async(id:string)=>{
     if(!confirm('إلغاء الموعد؟')) return;
-    try{ await apiFetch(`/admin/appointments/${id}/cancel`,{method:'POST', body: JSON.stringify({reason:'admin_cancel'})}); await load();}catch(e:any){alert(e?.message||'فشل');}
+    try{ await apiFetch(`/api/admin/admin/appointments/${id}/cancel`,{method:'POST', body: JSON.stringify({reason:'admin_cancel'})}); await load();}catch(e:any){alert(e?.message||'فشل');}
   };
   return (<><Head><title>إشراف المواعيد | نبض</title></Head>
   <div className="p-8 space-y-6">

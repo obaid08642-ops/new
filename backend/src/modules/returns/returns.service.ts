@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException, Inject } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
-import { Connection } from 'mongoose';
+import { Connection, Types } from 'mongoose';
 import { ReturnRequest } from '../../schemas/returns.schema';
 import { WalletService } from '../wallet/wallet.service';
 import { ReturnRequestRepository } from "./repositories/returnrequest.repository";
@@ -158,16 +158,57 @@ export class ReturnsService {
       amount = Math.round(reviewedItems.reduce((s: number, i: any) => s + (i.price || 0) * (i.qty || 1), 0) * 100) / 100;
       if (!(amount > 0)) throw new BadRequestException('computed_return_amount_is_zero');
     } else {
-      // Non-pharmacy services: amount must resolve from the booking, never the client
-      const order: any = await this.conn.collection('orders').findOne({ id: { $eq: String(data.orderId) } } as any);
-      if (order && order.patient_id !== userId) throw new ForbiddenException('not_your_order');
-      amount = Number(order?.total ?? order?.totals?.total ?? 0);
-      if (!(amount > 0)) throw new BadRequestException('could_not_resolve_amount_from_booking');
+      // LJ-05: service returns resolve ownership + paid amount from the real
+      // booking collections (completed + paid only), never the client.
+      const sources: Record<string, Array<{ collection: string; kind: string; terminal: string[] }>> = {
+        consultation: [{ collection: 'appointments', kind: 'consultation', terminal: ['COMPLETED'] }],
+        diagnostics: [
+          { collection: 'labbookings', kind: 'lab', terminal: ['REPORTED', 'COMPLETED'] },
+          { collection: 'radiologybookings', kind: 'radiology', terminal: ['REPORT_READY', 'REPORT_PUBLISHED', 'COMPLETED'] },
+        ],
+        nursing: [{ collection: 'homecarebookings', kind: 'nursing', terminal: ['COMPLETED'] }],
+        insurance: [
+          { collection: 'appointments', kind: 'consultation', terminal: ['COMPLETED'] },
+          { collection: 'labbookings', kind: 'lab', terminal: ['REPORTED', 'COMPLETED'] },
+          { collection: 'radiologybookings', kind: 'radiology', terminal: ['REPORT_READY', 'REPORT_PUBLISHED', 'COMPLETED'] },
+          { collection: 'homecarebookings', kind: 'nursing', terminal: ['COMPLETED'] },
+        ],
+      };
+      const candidates = sources[String(data.serviceType).toLowerCase()];
+      if (!candidates) throw new BadRequestException('unsupported_return_service');
+
+      let booking: any;
+      let bookingKind: string | undefined;
+      for (const source of candidates) {
+        const found: any = await this.conn.collection(source.collection).findOne({ id: data.orderId } as any);
+        if (!found) continue;
+        if (String(found.patient_id || found.patient_account_id) !== String(userId)) throw new ForbiddenException('not_your_booking');
+        const state = String(found.status || found.state || '').toUpperCase();
+        if (!source.terminal.includes(state)) throw new BadRequestException('booking_not_completed');
+        booking = found;
+        bookingKind = source.kind;
+        break;
+      }
+      if (!booking || !bookingKind) throw new NotFoundException('completed_booking_not_found');
+
+      const transactions: any[] = await this.conn.collection('transactions').find(
+        { booking_kind: bookingKind, booking_id: data.orderId, status: 'paid' },
+        { projection: { amount: 1, _id: 0 } },
+      ).toArray();
+      const paidTotal = transactions.reduce((sum: number, txn: any) => sum + Number(txn.amount || 0), 0);
+      const paymentStatus = String(booking.payment_status || '').toLowerCase();
+      amount = ['paid', 'covered_by_insurance'].includes(paymentStatus)
+        ? Number(booking.total_price ?? booking.total ?? booking.price ?? 0) || paidTotal
+        : Number(booking.collection_proof?.amount_collected || 0) || paidTotal;
+      if (!(amount > 0)) throw new BadRequestException('booking_has_no_collected_payment');
+      reviewedItems = [];
+      data.bookingKind = bookingKind;
     }
 
     const returnRequest = await this.returnModel.create({
       patient_id: userId,
       order_id: data.orderId,
+      booking_kind: data.bookingKind || 'pharmacy',
       service_type: data.serviceType,
       reason: data.reason,
       details: data.details,
@@ -210,16 +251,77 @@ export class ReturnsService {
     return request;
   }
 
+  /** LJ-05: server-eligible completed bookings for the return picker. */
+  async eligibleBookings(userId: string, serviceType: string) {
+    const type = String(serviceType || '').toLowerCase();
+    if (type.includes('pharm')) {
+      const [legacy, governed] = await Promise.all([
+        this.conn.collection('orders').find({ patient_id: userId, state: { $in: ['DELIVERED', 'COMPLETED', 'PARTIALLY_FULFILLED'] } } as any).sort({ createdAt: -1 }).limit(50).toArray(),
+        this.conn.collection('pharmacy_orders').find({ patient_account_id: userId, status: { $in: ['DELIVERED', 'COMPLETED'] } } as any).sort({ createdAt: -1 }).limit(50).toArray(),
+      ]);
+      const seen = new Set<string>();
+      const eligible: any[] = [];
+      for (const order of [...legacy, ...governed]) {
+        const id = String(order.id || '');
+        if (!id || seen.has(id)) continue;
+        seen.add(id);
+        const result = await this.eligibility(userId, id).catch(() => null);
+        if (!result?.eligible) continue;
+        const amount = Math.round(result.items.filter((item: any) => item.returnable).reduce((sum: number, item: any) => sum + Number(item.price || 0) * Number(item.qty || 1), 0) * 100) / 100;
+        if (amount > 0) eligible.push({ id, booking_kind: 'pharmacy', service_type: 'pharmacy', amount, items: result.items, createdAt: order.createdAt });
+      }
+      return eligible;
+    }
+
+    const sources: Record<string, Array<{ collection: string; kind: string; terminal: string[] }>> = {
+      consultation: [{ collection: 'appointments', kind: 'consultation', terminal: ['COMPLETED'] }],
+      diagnostics: [
+        { collection: 'labbookings', kind: 'lab', terminal: ['REPORTED', 'COMPLETED'] },
+        { collection: 'radiologybookings', kind: 'radiology', terminal: ['REPORT_READY', 'REPORT_PUBLISHED', 'COMPLETED'] },
+      ],
+      nursing: [{ collection: 'homecarebookings', kind: 'nursing', terminal: ['COMPLETED'] }],
+      insurance: [
+        { collection: 'appointments', kind: 'consultation', terminal: ['COMPLETED'] },
+        { collection: 'labbookings', kind: 'lab', terminal: ['REPORTED', 'COMPLETED'] },
+        { collection: 'radiologybookings', kind: 'radiology', terminal: ['REPORT_READY', 'REPORT_PUBLISHED', 'COMPLETED'] },
+        { collection: 'homecarebookings', kind: 'nursing', terminal: ['COMPLETED'] },
+      ],
+    };
+    const eligible: any[] = [];
+    const ownerIds: any[] = [userId];
+    if (Types.ObjectId.isValid(userId)) ownerIds.push(new Types.ObjectId(userId));
+    for (const source of sources[type] || []) {
+      const bookings: any[] = await this.conn.collection(source.collection)
+        .find({ patient_id: { $in: ownerIds } }, { projection: { _id: 0 } }).sort({ createdAt: -1 }).limit(50).toArray();
+      for (const booking of bookings) {
+        const state = String(booking.status || booking.state || '').toUpperCase();
+        if (!source.terminal.includes(state)) continue;
+        const transactions: any[] = await this.conn.collection('transactions').find(
+          { booking_kind: source.kind, booking_id: String(booking.id), status: 'paid' },
+          { projection: { amount: 1, _id: 0 } },
+        ).toArray();
+        const paidTotal = transactions.reduce((sum: number, txn: any) => sum + Number(txn.amount || 0), 0);
+        const paymentStatus = String(booking.payment_status || '').toLowerCase();
+        const amount = ['paid', 'covered_by_insurance'].includes(paymentStatus)
+          ? Number(booking.total_price ?? booking.total ?? booking.price ?? 0) || paidTotal
+          : Number(booking.collection_proof?.amount_collected || 0) || paidTotal;
+        if (amount > 0) eligible.push({ id: String(booking.id), booking_kind: source.kind, service_type: type, amount, createdAt: booking.createdAt });
+      }
+    }
+    return eligible.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+  }
+
   async adminList(status?: string) {
+    const allowed = ['processing', 'approved', 'completed', 'rejected'];
+    if (status && !allowed.includes(status)) throw new BadRequestException('invalid_return_status');
     const filter = status ? { status } : {};
     return this.returnModel.find(filter).sort({ createdAt: -1 }).lean();
   }
 
   /**
    * Admin decision. Approval executes a REAL refund via the original payment
-   * method (E1 S4/S5): gateway refund to the card when a Moyasar payment
-   * exists; otherwise a wallet credit. Ledger entries + patient notification
-   * are written by the RefundExecutor.
+   * method: gateway refund to the card, or a cash ledger record (no wallet).
+   * Ledger entries + patient notification are written by the RefundExecutor.
    */
   async adminDecide(id: string, decision: 'approved' | 'rejected', note: string, adminUser: any) {
     const request = await this.returnModel.findOne({ id });
@@ -239,7 +341,7 @@ export class ReturnsService {
     request.status = 'approved';
     const exec = await this.refundExec.execute({
       refund_id: `return_${request.id}`,
-      booking_kind: 'pharmacy',
+      booking_kind: request.booking_kind || 'pharmacy',
       booking_id: request.order_id,
       patient_id: request.patient_id,
       amount: Number(request.amount),

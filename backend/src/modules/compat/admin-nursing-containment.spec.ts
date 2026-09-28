@@ -13,4 +13,9 @@ describe('admin nursing ops source contract', () => {
     expect(portal).toContain("medical_review_status: 'approved'");
     expect((portal.match(/'PROVIDER_ASSIGNED', uid\(user\), \{[^}]*\}, String\(providerId\)\)/g) || []).length).toBe(2);
   });
+
+  it('exposes eligible providers for a booking under the same eligibility rule', () => {
+    expect(portal).toContain("Get('requests/:id/eligible-providers')");
+    expect(portal).toContain("'nursing_services.key': { $eq: b.service_id }");
+  });
 });

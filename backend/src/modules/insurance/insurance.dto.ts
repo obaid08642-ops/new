@@ -203,9 +203,21 @@ export class SubmitClaimDto {
 
   @IsOptional()
   @IsString()
-  status?: string;
+  booking_kind?: string;
 
   @IsOptional()
-  @IsDateString()
-  submitted_at?: string;
+  @IsString()
+  booking_id?: string;
+
+  @IsOptional()
+  @IsString()
+  service_date?: string;
+
+  @IsOptional()
+  @IsString()
+  attachment_url?: string;
+
+  @IsOptional()
+  @IsString()
+  note?: string;
 }

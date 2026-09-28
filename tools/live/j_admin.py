@@ -39,7 +39,8 @@ def login():
     r = w.post('/api/admin/auth/verify-2fa', {'identifier': EMAIL, 'code': code})
     step('verify-2fa -> session', r.ok, r)
     step('session cookie set (httpOnly)', any(c.name for c in w.jar), [c.name for c in w.jar])
-    r = w.get('/command-center')
+    # BFF 1:1 → /api/v1/admin/command-center (the dashboard's aggregated snapshot).
+    r = w.get('/admin/admin/command-center')
     step('BFF call with the session (dashboard: command-center)', r.ok, r)
     bad = AdminWeb(ADMIN_WEB).post('/api/admin/auth/login', {'identifier': EMAIL, 'password': 'wrong'})
     step('wrong admin password rejected (401, or 429 once the login throttle trips)', bad.status in (400, 401, 429), bad)

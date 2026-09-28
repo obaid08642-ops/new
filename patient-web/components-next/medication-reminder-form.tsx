@@ -3,13 +3,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export function MedicationReminderForm({ locale }: { locale: string }) {
+export function MedicationReminderForm({ locale, initial }: { locale: string; initial?: { id?: string; name?: string; dose?: string; times?: string; frequency?: string; chronic?: boolean } }) {
   const router = useRouter();
-  const [name, setName] = useState("");
-  const [dose, setDose] = useState("");
-  const [times, setTimes] = useState("08:00");
-  const [frequency, setFrequency] = useState("daily");
-  const [chronic, setChronic] = useState(false);
+  const [name, setName] = useState(initial?.name || "");
+  const [dose, setDose] = useState(initial?.dose || "");
+  const [times, setTimes] = useState(initial?.times || "08:00");
+  const [frequency, setFrequency] = useState(initial?.frequency || "daily");
+  const [chronic, setChronic] = useState(!!initial?.chronic);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const ar = locale === "ar";
@@ -23,8 +23,9 @@ export function MedicationReminderForm({ locale }: { locale: string }) {
     }
     setSaving(true);
     try {
-      const res = await fetch("/api/health/reminders", {
-        method: "POST",
+      const url = initial?.id ? `/api/health/reminders/${encodeURIComponent(initial.id)}` : "/api/health/reminders";
+      const res = await fetch(url, {
+        method: initial?.id ? "PATCH" : "POST",
         headers: { "content-type": "application/json", "idempotency-key": crypto.randomUUID() },
         body: JSON.stringify({
           medicine_name_ar: name.trim(),

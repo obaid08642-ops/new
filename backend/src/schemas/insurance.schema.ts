@@ -88,6 +88,17 @@ export class InsuranceClaim {
   @Prop({ required: true }) covered: number;
   @Prop({ required: true, enum: ['approved', 'reimbursed', 'pending', 'rejected'], default: 'pending' }) status: string;
   @Prop() date: string;
+  // LJ-02: a claim is always tied to a real, paid booking so it can be reimbursed.
+  @Prop() booking_kind?: string;
+  @Prop() booking_id?: string;
+  @Prop() claim_type?: string;
+  @Prop() service_date?: string;
+  @Prop() attachment_url?: string;
+  @Prop() note?: string;
+  @Prop() decided_by?: string;
+  @Prop() decided_at?: Date;
+  @Prop() decision_note?: string;
+  @Prop() refund_id?: string;
 }
 export type InsuranceClaimDocument = InsuranceClaim & Document;
 export const InsuranceClaimSchema = SchemaFactory.createForClass(InsuranceClaim);

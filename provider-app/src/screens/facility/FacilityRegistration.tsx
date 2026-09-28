@@ -511,11 +511,11 @@ function Step4SubProviders({ data, update, onNext, onBack, step, total }: any) {
   });
 
   const TYPES: any = {
-    doctor: { ar: 'طبيب', en: 'Doctor', color: 'tokens.success' },
-    lab: { ar: 'مختبر', en: 'Laboratory', color: 'tokens.purple' },
-    pharmacy: { ar: 'صيدلية', en: 'Pharmacy', color: 'tokens.warning' },
+    doctor: { ar: 'طبيب', en: 'Doctor', color: tokens.success },
+    lab: { ar: 'مختبر', en: 'Laboratory', color: tokens.purple },
+    pharmacy: { ar: 'صيدلية', en: 'Pharmacy', color: tokens.warning },
     radiology: { ar: 'أشعة', en: 'Radiology', color: '#03A9F4' },
-    nursing: { ar: 'تمريض', en: 'Nursing', color: 'tokens.pink' }
+    nursing: { ar: 'تمريض', en: 'Nursing', color: tokens.pink }
   };
 
   const saveSub = () => {

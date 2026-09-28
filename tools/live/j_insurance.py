@@ -6,7 +6,7 @@ from lib import Client, journey, step
 from j_nursing import fake_pay
 
 PATIENT_GETS = ['/insurance/companies', '/insurance/my-policy', '/insurance/benefits-summary', '/insurance/requests/my',
-                '/insurance/claims/my', '/insurance/claims', '/users/me/insurance', '/users/me/profile', '/refunds/my']
+                '/insurance/claims', '/users/me/insurance', '/users/me/profile', '/refunds/my']
 
 
 def rows(r):
@@ -56,13 +56,18 @@ def add_policy(pat, code=None):
     return c
 
 
-def claims(pat):
+def claims(pat, booking_kind=None, booking_id=None):
     journey('insurance: submit-claim -> claim-tracking')
-    r = pat.post('/insurance/claims/submit', {'claim_type': 'reimbursement', 'status': 'pending', 'submitted_at': '2026-09-27T00:00:00Z'})
-    cid = r.get('id') or r.get('claim', 'id')
-    step('submit a claim', r.ok, r)
-    r = pat.get('/insurance/claims/my')
-    step('claim-tracking lists the submitted claim', r.ok and cid and cid in str(r.body), r)
+    if booking_kind and booking_id:
+        r = pat.post('/insurance/claims/submit', {'booking_kind': booking_kind, 'booking_id': booking_id,
+                                                  'claim_type': 'reimbursement', 'note': 'live claim'})
+        cid = r.get('claim_id') or r.get('id')
+        step('submit a reimbursement claim for a paid booking', r.ok and cid, r)
+        r = pat.get('/insurance/claims')
+        step('claim-tracking lists the submitted claim', r.ok and cid and cid in str(r.body), r)
+    else:
+        r = pat.get('/insurance/claims')
+        step('claims list loads', r.ok, r)
 
 
 def insured_consultation(pat, doctor, decision='approve_partial'):
@@ -117,8 +122,16 @@ def insured_consultation(pat, doctor, decision='approve_partial'):
         fake_pay(txn['gateway_intent_id'])
         r = pat.post(f"/payments/verify/{txn['id']}", {})
         step(f'{kind}: paid', r.ok and r.get('status') == 'paid', r)
-    r = pat.get(f'/insurance/requests/{rid}')
-    step(f'request shows {kind} paid', r.ok and r.get('state') in ('COPAY_PAID', 'SELF_PAY_PAID'), r)
+    # Copay settlement is event-driven (payment.completed → engine), so poll.
+    import time as _time2
+    paid_state = None
+    for _ in range(10):
+        r = pat.get(f'/insurance/requests/{rid}')
+        paid_state = r.get('state')
+        if paid_state in ('COPAY_PAID', 'SELF_PAY_PAID'):
+            break
+        _time2.sleep(1.5)
+    step(f'request shows {kind} paid', paid_state in ('COPAY_PAID', 'SELF_PAY_PAID'), paid_state)
     r = pat.get(f'/care/appointments/{aid}')
     step('appointment confirmed once paid', r.ok and str(r.get('status')).upper() == 'CONFIRMED', r)
     return aid, rid
@@ -136,11 +149,39 @@ def insured_lab(pat, lab, other_lab):
     items = [{'service_id': p['id'], 'isCovered': i == 0, 'rejectReason': None if i == 0 else 'غير مشمول', 'cashPrice': p.get('price')} for i, p in enumerate(picks)]
     r = lab.patch(f'/labs/bookings/{bid}/insurance', {'status': 'partial_approval', 'totalCopay': 20, 'items': items})
     step('the assigned lab records a partial approval', r.ok and r.get('insurance_status') == 'partial_approval', r)
+    rid = r.get('insurance_request_id')
     r = pat.get(f'/labs/bookings/{bid}')
     step('insurance-approval shows covered/uncovered items', r.ok and r.get('insurance_status') == 'partial_approval', r)
+    rid = rid or r.get('insurance_request_id')
+    step('the booking links to the insurance request engine', bool(rid), r)
     if len(picks) > 1:
         r = pat.patch(f"/labs/bookings/{bid}/items/{picks[1]['id']}/opt-in-cash", {'optInCash': True})
-        step('patient pays cash for the uncovered test', r.ok, r)
+        step('patient opts to pay cash for the uncovered test', r.ok, r)
+    if rid:
+        r = pat.get(f'/insurance/requests/{rid}')
+        step('the lab decision is a real insurance request (COPAY_PENDING)', r.ok and r.get('state') == 'COPAY_PENDING', r)
+        r = pat.get(f'/insurance/requests/{rid}/capabilities')
+        step('copay: card is offered', r.ok and any(m.get('id') == 'card' for m in (r.get('methods') or [])), r)
+        r = pat.post(f'/payments/intent/insurance/{rid}', {'method': 'card'}, headers={'Idempotency-Key': f'payment-insurance-{rid}-{uuid.uuid4()}'})
+        txn = r.body.get('data', r.body) if isinstance(r.body, dict) else {}
+        step('copay: checkout link is https', r.ok and str(txn.get('checkout_url', '')).startswith('https://'), r)
+        if txn.get('gateway_intent_id'):
+            fake_pay(txn['gateway_intent_id'])
+            r = pat.post(f"/payments/verify/{txn['id']}", {})
+            step('copay: paid', r.ok and r.get('status') == 'paid', r)
+        # Copay settlement is event-driven (payment.completed → engine), so poll.
+        import time as _time
+        req_state, booking_state = None, None
+        for _ in range(10):
+            r = pat.get(f'/insurance/requests/{rid}')
+            req_state = r.get('state')
+            b = pat.get(f'/labs/bookings/{bid}')
+            booking_state = str(b.get('state')).upper()
+            if req_state == 'COPAY_PAID' and booking_state == 'CONFIRMED':
+                break
+            _time.sleep(1.5)
+        step('request shows the copay paid', req_state == 'COPAY_PAID', req_state)
+        step('the lab booking reaches CONFIRMED once the copay is paid', booking_state == 'CONFIRMED', booking_state)
 
 
 def run(pat, doctor, admin, labs=None):
@@ -149,12 +190,14 @@ def run(pat, doctor, admin, labs=None):
         r = pat.get(path)
         step(f'GET {path}', r.ok, r)
     claims(pat)
+    reject_out = insured_consultation(pat, doctor, 'reject')
+    if reject_out and reject_out[0]:
+        claims(pat, 'consultation', reject_out[0])
     insured_consultation(pat, doctor, 'approve_partial')
-    insured_consultation(pat, doctor, 'reject')
     if labs:
         insured_lab(pat, labs[0], labs[1])
     journey('insurance: admin view')
-    r = admin.get('/insurance/requests?limit=25')
+    r = admin.get('/admin/admin/insurance/requests?limit=25')
     step('admin insurance requests console loads', r.ok, r)
 
 

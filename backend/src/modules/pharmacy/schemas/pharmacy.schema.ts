@@ -159,6 +159,9 @@ export class PharmacyOrder extends Document {
   @Prop() patient_notes?: string;
   @Prop() prescription_id?: string;
   @Prop({ type: Object }) manual_request?: { name?: string; details?: string | null };
+  /** F73: draft fulfillment + payment mode. */
+  @Prop({ type: String, enum: ['delivery', 'pickup'], default: 'delivery' }) fulfillment?: 'delivery' | 'pickup';
+  @Prop({ type: String, enum: ['cash', 'insurance'], default: 'cash' }) payment_mode?: 'cash' | 'insurance';
   @Prop() insurance_policy_id?: string;
   @Prop() delivery_address_id?: string;
   @Prop({ type: [Object], default: [] }) prescription_attachments?: Array<{

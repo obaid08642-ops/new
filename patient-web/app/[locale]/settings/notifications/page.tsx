@@ -6,6 +6,7 @@ import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { getPatientNotificationSettings } from "@/lib/api/notification-settings-server";
 import { extractNotificationSettings } from "@/lib/api/notification-settings";
+import { NotificationToggle } from "./notification-toggle";
 import styles from "../settings.module.css";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -59,7 +60,7 @@ export default async function SettingsNotificationsPage({ params }: Props) {
           {ar ? "الإشعارات" : "Notifications"}
         </p>
         <h1 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{ar ? "إعدادات الإشعارات" : "Notification settings"}</h1>
-        <p style={{ overflowWrap: "anywhere" } as any}>{ar ? "عرض فقط — غيّرها من تطبيق الجوال." : "Read-only — change them in the mobile app."}</p>
+        <p style={{ overflowWrap: "anywhere" } as any}>{ar ? "فعّل أو عطّل كل فئة — تُحفظ فوراً." : "Toggle each category — saved immediately."}</p>
         <span className={styles.icon} style={{ backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any} aria-hidden="true">
           <Bell size={22} color="#1E332E" />
         </span>
@@ -73,7 +74,7 @@ export default async function SettingsNotificationsPage({ params }: Props) {
             <div style={{ minInlineSize: 0 }}>
               <h2 style={{ margin: 0, fontSize: "1.05rem", color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{ar ? label.ar : label.en}</h2>
             </div>
-            <strong style={{ marginInlineStart: "auto", padding: "6px 12px", borderRadius: 20, border: "1px solid #E8EDEE", background: settings[key as keyof typeof settings] ? "#5FD9B3" : "rgba(255,255,255,.82)", color: "#1E332E", fontSize: ".82rem", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", overflowWrap: "anywhere" } as any}>{settings[key as keyof typeof settings] === undefined ? "—" : settings[key as keyof typeof settings] ? (ar ? "مفعّلة" : "On") : (ar ? "معطّلة" : "Off")}</strong>
+            <NotificationToggle initial={settings[key as keyof typeof settings] === true} settingKey={key} label={ar ? label.ar : label.en} />
           </article>
         ))}
       </section>

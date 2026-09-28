@@ -84,7 +84,7 @@ export default function InsuranceApprovalPendingScreen() {
             )}
           </View>
         )}
-        <Button label="متابعة حالة الطلبات" variant="ghost" icon="refresh" onPress={() => router.push('/insurance/claim-tracking')} />
+        <Button label="متابعة حالة الطلبات" variant="ghost" icon="refresh" onPress={() => router.push({ pathname: '/insurance/hub', params: { tab: 'claims' } })} />
       </View>
     );
   }

@@ -56,7 +56,7 @@ export default function WishlistScreen() {
     try {
       await addItem({
         id: item.id,
-        name: pickLocalized(item.name_ar, item.name) || 'منتج',
+        name: pickLocalized(item.name_ar, item.name_en) || item.name || 'منتج',
         price: item.price ?? 0,
         rx: !!item.rx || !!item.requires_prescription,
         image: item.image,
@@ -114,68 +114,42 @@ export default function WishlistScreen() {
               <TouchableOpacity
                 onPress={() => removeFromWishlist(item.id)}
                 style={[styles.removeBtn, { backgroundColor: "#FEE2E2" }]}
+                accessibilityLabel="إزالة من المفضلة"
               >
-                <Icon name="info" size={16} color="#F0695C" />
+                <Icon name="delete" size={16} color="#F0695C" />
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => addToCart(item)}
-                style={[
-                  styles.cartBtn,
-                  {
-                    backgroundColor: item.inStock !== false
-                      ? colors.secondary
-                      : colors.textDisabled,
-                  },
-                ]}
-                disabled={item.inStock === false || addingId === item.id}
+                style={[styles.cartBtn, { backgroundColor: item.available === false ? colors.textDisabled : colors.secondary }]}
+                disabled={item.available === false || addingId === item.id}
               >
                 <Icon name="shopping_cart" size={16} color="#fff" />
               </TouchableOpacity>
             </View>
             <View style={styles.wishInfo}>
-              <AppText variant="bodySM">{item.name}</AppText>
-              <AppText variant="bodySM">{item.brand}</AppText>
+              <AppText variant="bodySM">{pickLocalized(item.name_ar, item.name_en) || 'منتج'}</AppText>
+              {!!item.requires_prescription && (
+                <View style={[styles.discountBadge, { backgroundColor: "#EDE9FE" }]}>
+                  <AppText variant="bodySM">يتطلب روشتة</AppText>
+                </View>
+              )}
               <View style={styles.wishPricing}>
-                <AppText variant="bodySM">{item.price} ر</AppText>
-                {item.discount > 0 && (
-                  <View
-                    style={[
-                      styles.discountBadge,
-                      { backgroundColor: "#FEE2E2" },
-                    ]}
-                  >
-                    <AppText variant="bodySM">-{item.discount}%</AppText>
-                  </View>
-                )}
+                <AppText variant="bodySM">{Number(item.price || 0).toFixed(2)} ر.س</AppText>
               </View>
-              <View
-                style={[
-                  styles.stockBadge,
-                  { backgroundColor: item.inStock ? "#DCFCE7" : "#FEE2E2" },
-                ]}
-              >
-                <AppText variant="bodySM">
-                  {item.inStock ? " متوفر" : " غير متوفر"}
-                </AppText>
+              <View style={[styles.stockBadge, { backgroundColor: item.available === false ? "#FEE2E2" : "#DCFCE7" }]}>
+                <AppText variant="bodySM">{item.available === false ? " غير متوفر" : " متوفر"}</AppText>
               </View>
             </View>
             <TouchableOpacity
               onPress={() =>
                 router.push({
                   pathname: "/pharmacy/product-detail",
-                  params: { id: item.id, name: item.name },
+                  params: { id: item.id, name: item.name_ar },
                 })
               }
-              style={[
-                styles.wishEmoji,
-                {
-                  backgroundColor: isDark
-                    ? colors.background
-                    : colors.backgroundSecondary,
-                },
-              ]}
+              style={[styles.wishEmoji, { backgroundColor: isDark ? colors.background : colors.backgroundSecondary }]}
             >
-              <AppText variant="bodySM">{item.emoji}</AppText>
+              <Icon name="medication" size={26} color={colors.primary} />
             </TouchableOpacity>
           </View>
         )}

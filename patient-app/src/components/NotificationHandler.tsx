@@ -53,7 +53,10 @@ const ALLOWED_SCREENS = new Set([
 function resolveLegacyRoute(data: any): { pathname: string; params: Record<string, any> } | null {
   switch (data?.type) {
     case 'chat':
-      return { pathname: '/consultations/chat-with-doctor', params: { doctorId: data.senderId, doctorName: data.senderName } };
+      return {
+        pathname: '/consultations/chat-with-doctor',
+        params: { doctorId: data.doctorId || data.senderId, doctorName: data.senderName, appointmentId: data.appointmentId || data.bookingId },
+      };
     case 'prescription':
       return { pathname: '/consultations/prescription-from-doctor', params: { prescriptionId: data.prescriptionId, doctorId: data.doctorId } };
     case 'order':

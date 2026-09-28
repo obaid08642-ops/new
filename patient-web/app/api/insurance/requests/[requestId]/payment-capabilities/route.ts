@@ -18,7 +18,7 @@ export async function GET(request: Request, context: Context) {
   const store = await cookies(); const accessToken = store.get(authCookieNames.access)?.value;
   if (!accessToken) return NextResponse.json({ message: "authentication_required" }, { status: 401 });
   const userAgent = request.headers.get("user-agent");
-  const upstreamPath = mode.data === "copay" ? `/payments/insurance/${requestId}/capabilities` : `/payments/insurance/${requestId}/self-pay-capabilities`;
+  const upstreamPath = mode.data === "copay" ? `/insurance/requests/${requestId}/capabilities` : `/insurance/requests/${requestId}/self-pay-capabilities`;
   const upstream = await callPatientApi(upstreamPath, { headers: userAgent ? { "user-agent": userAgent } : undefined }, accessToken);
   const data = await upstream.json().catch(() => null);
   if (!upstream.ok) return boundedUpstreamError(data, "payment_capabilities_failed", upstream.status);

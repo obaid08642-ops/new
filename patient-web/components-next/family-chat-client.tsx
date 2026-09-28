@@ -5,6 +5,16 @@ import { LoaderCircle, Send } from "lucide-react";
 
 type Msg = { id: string; text: string; sender: string; time: string; isMe: boolean; pending?: boolean };
 
+/** LJ-10: classify a /family/chat/messages reply — a 403/not_active_family_member
+ * reply means "no family group", not a generic error. */
+export function parseFamilyChatGate(status: number, payload: unknown): "ok" | "no-group" | "error" {
+  if (status >= 200 && status < 300) return "ok";
+  try {
+    if (status === 403 && JSON.stringify(payload ?? "").includes("not_active_family_member")) return "no-group";
+  } catch { /* fall through */ }
+  return "error";
+}
+
 function parseMessages(payload: unknown, myId: string): { messages: Msg[]; members: number } {
   const root = (payload && typeof payload === "object" ? payload : {}) as Record<string, unknown>;
   const list = [root.rows, root.data, root.messages].find(Array.isArray);
@@ -32,6 +42,7 @@ export function FamilyChatClient({ locale }: { locale: string }) {
   const [messages, setMessages] = useState<Msg[] | null>(null);
   const [members, setMembers] = useState(0);
   const [failed, setFailed] = useState(false);
+  const [noGroup, setNoGroup] = useState(false);
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
   const myId = useRef("");
@@ -51,8 +62,19 @@ export function FamilyChatClient({ locale }: { locale: string }) {
       }
       // Backend binding via BFF → callPatientApi("/family/chat/messages") — no mock
       const res = await fetch("/api/patient/family/chat/messages", { cache: "no-store", credentials: "same-origin" });
+      const body = await res.json().catch(() => null);
+      const gate = parseFamilyChatGate(res.status, body);
+      // LJ-10: a patient with no family group gets 403/not_active_family_member —
+      // show the create-or-join state, not a generic error.
+      if (gate === "no-group") {
+        setNoGroup(true);
+        setFailed(false);
+        stopped.current = true;
+        return;
+      }
+      setNoGroup(false);
       if (!res.ok) { if (!silent) setFailed(true); return; }
-      const parsed = parseMessages(await res.json().catch(() => null), myId.current);
+      const parsed = parseMessages(body, myId.current);
       setMessages(parsed.messages);
       setMembers(parsed.members);
       setFailed(false);
@@ -94,6 +116,22 @@ export function FamilyChatClient({ locale }: { locale: string }) {
     finally { setSending(false); }
   }
 
+  if (noGroup) {
+    return (
+      <div style={{ display: "grid", placeItems: "center", gap: 12, padding: 24, borderRadius: 20, border: "1px dashed #E8EDEE", background: "rgba(255,255,255,.82)" }}>
+        <p role="status" style={{ margin: 0, color: "#1E332E", fontWeight: 700, textAlign: "center", overflowWrap: "anywhere" as any }}>
+          {ar ? "لست عضواً في مجموعة عائلية بعد" : "You are not in a family group yet"}
+        </p>
+        <p style={{ margin: 0, color: "#64748B", fontSize: ".9rem", textAlign: "center", overflowWrap: "anywhere" as any }}>
+          {ar ? "أنشئ مجموعة عائلية أو انضم بدعوة لبدء المحادثة." : "Create a family group or join with an invite to start chatting."}
+        </p>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center" }}>
+          <a href={`/${locale}/family/join`} style={{ minHeight: 44, display: "inline-flex", alignItems: "center", padding: "0 20px", borderRadius: 20, background: "#5FD9B3", color: "#1E332E", fontWeight: 800, textDecoration: "none" }}>{ar ? "الانضمام بدعوة" : "Join with invite"}</a>
+          <a href={`/${locale}/family`} style={{ minHeight: 44, display: "inline-flex", alignItems: "center", padding: "0 20px", borderRadius: 20, border: "1px solid #E8EDEE", color: "#1E332E", fontWeight: 800, textDecoration: "none" }}>{ar ? "العودة للعائلة" : "Back to family"}</a>
+        </div>
+      </div>
+    );
+  }
   if (messages === null && !failed) return (
     <p role="status" style={{ display: "flex", alignItems: "center", gap: 8, color: "#64748B", overflowWrap: "anywhere" as any }}>
       <LoaderCircle size={18} aria-hidden="true" style={{ animation: "spin 1s linear infinite" }} /> {ar ? "جارٍ التحميل…" : "Loading…"}

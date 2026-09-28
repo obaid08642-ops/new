@@ -230,6 +230,20 @@ export class ProviderAdminService {
     return a.toObject();
   }
 
+  /** Approve the provider's payout bank account (submitted via POST /provider/bank-account). */
+  async approveBank(user: any, id: string) {
+    this.assertAdmin(user);
+    const a = await this.accounts.findOne({ id }); if (!a) throw new NotFoundException();
+    const res: any = await this.banks.updateMany(
+      { account_id: id, review_status: { $in: [BankReviewStatus.PENDING, BankReviewStatus.UNDER_REVIEW] } },
+      { $set: { review_status: BankReviewStatus.APPROVED, reviewer_id: user.id, reviewed_at: new Date() } },
+    );
+    const approved = Number(res?.modifiedCount ?? res?.nModified ?? 0);
+    await this.audit.create({ provider_account_id: id, actor_id: user.id, actor_role: 'admin', action: 'admin.provider_bank_approved', after: { approved } });
+    if (!approved) throw new NotFoundException('no_pending_bank_account');
+    return { ok: true, account_id: id, approved };
+  }
+
   async requestChanges(user: any, id: string, body: any) {
     this.assertAdmin(user);
     const a = await this.accounts.findOne({ id }); if (!a) throw new NotFoundException();

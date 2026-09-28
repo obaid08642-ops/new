@@ -206,3 +206,90 @@ Format: task | commit sha | verify result | notes
 - Contracts: dtolint 0/0/0, dtocheck 644/317/0 mismatches, backend tsc 0, nest build 0 (re-verified at push time).
 - Gate P6 adminshot (all admin pages, 0 console/4xx-5xx) + Playwright button-clicks: ENV-BLOCKED here (needs running admin+backend+seeded DB) — CI/staging must run `adminshot.py` and per-page click tests.
 - Deferred with reasons: live orders geo-map + 5xx-rate tile (no error-log/geo telemetry sink exists — needs new infra, not a UI tweak); per-module deep reports beyond revenue/orders/bookings/providers/patients/finance/insurance (analytics-suite funnels/cohorts/league/NPS + finance-suite ledger + insurance-queue cover the listed domains; labs-turnaround/nursing-visits/pharmacy-fill-rate/consultation-no-shows/user-retention specifics need staging-data verification of each aggregation).
+
+## [P7] F24/F25 (2026-09-26)
+- F24: patient-app ai-assistant posted to nonexistent `/ai/triage/chat` (backend intentionally has no free-form chat) → now posts `{symptoms}` to `/ai/triage` and renders care_level/notice guidance.
+- F25: web insurance payment-capabilities repointed to `/insurance/requests/:id/capabilities` (+self-pay variant); backend capabilities now returns the validated shape (booking_id/amount>0/currency/purpose/methods+kind). patient-web vitest not runnable here (deps uninstalled) — CI must run route tests.
+
+## [P7] F27 build-time openapi.json (2026-09-26)
+- New `backend/scripts/generate-openapi.ts` (boots app without listening, `/api/v1` prefix mirror, monorepo mirror to `patient-web/public/openapi.json`, mongo-unreachable skip unless --strict, JWT placeholder) wired into `npm run build`. 1471 paths incl. all new P5/P6 endpoints; well-known public subset paths all resolve in it.
+- Deleted hand-written full spec (`patient-web/app/openapi.json/route.ts`); static file serves `/openapi.json`. The `.well-known/openapi.json` public *subset* stays intentionally (scoped discovery, not the private API).
+- Fixed 3 real boot-breakers found via the generator probe (app could not boot since the P5.3 merges): double-comma sparse controllers arrays in provider/pharmacy/admin modules + `type: String` on TS-enum `@Prop`s (media purpose, provider schemas).
+
+## [P7] F26/F27/F29/F36/F37 (2026-09-26)
+- F26: provider BlueprintScreens nursing note `POST /home-care/notes` (404, no such route) → `/nursing/notes` with booking_id (required server-side; clear prompt when no visit selected).
+- F27: build-time openapi.json (1471 paths, /api/v1 prefix mirror, monorepo mirror to patient-web/public); hand-written full spec route deleted; well-known public *subset* kept intentionally. Wired into backend `npm run build` (mongo-gated skip unless --strict). Fixed 3 latent app-boot breakers found by the probe: sparse controllers arrays (double commas from P5.3 merges in provider/pharmacy/admin modules) + `type: String` on TS-enum props (media, provider schemas).
+- F28 verified (no change): facility back links already target /consultations flows.
+- F29: medicines page login gate removed → public SSR via getPublicMedicines; audit: other entity pages already public; home-care bookings page correctly requires login (private data).
+- F31 structural (no deletion): web renders sitemap/robots/llms from backend data with one index; backend renderers stay (referenced by backend llms text + external links).
+- F32 verified: no TODO/lorem/console.log in web UI; status enums compared as codes with Arabic labels.
+- F33 verified: jobId already `deliver:${id}`.
+- F35 owner-blocked (unchanged): AASA keeps reviewer-set default Team ID until owner provides envs.
+- F36: app.json intentFilters now enumerate the 17 AASA entity paths × 7 locale variants × 4 hosts (477 entries) — off-list links open in browser.
+- F37: `video_calls` flag in /config features from LiveKit env presence; waiting-room join button hides on explicit false (fail-open on error).
+
+## [P8] F69/F74 (2026-09-26)
+- F69: web reminders gained edit (PATCH), delete, and mark-taken (log) via new `/api/health/reminders/[id]` + `/log` proxies (same backend endpoints as the app); notification settings page converted from read-only to toggles (PATCH allowlisted); profile edit form already existed.
+- F74: see previous entry (diagnostics parent order).
+
+## [P8] Screen merges (2026-09-26)
+- profile/edit (5-line stub) deleted — all links already used /health/edit-profile.
+- family/hub (older subset) merged into /health/family-hub: backend notification routes + push verbatim set + family/join repointed; stubs deleted (family/index redirect kept for deep links).
+- insurance hub/claim-tracking/refund-status merged into one tabbed hub (?tab=, param-synced); screens moved to src/components (routes gone); all inbound links (orders, hub, approval-pending, claim→refund) repointed.
+
+## Gate P8 (2026-09-26, this branch)
+- F69–F75 implemented per entries above (F69 reminders edit/log/delete + settings toggles; F70 family CTA; F71 intent-first search; F73 draft fields + 15km pickup; F74 parent order + single-payment wiring; F75 OTP resend). Screen merges done (family/profile/insurance). Touched screens carry loading/error/empty states; full 34-screen states sweep needs screens.py (absent) — recorded.
+- Journey e2e (pharmacy ×/consultation ×/lab ×/radiology ×/nursing × insurance flow, no NPHIES): STAGING-GATED (needs real Mongo + geo + transactions + payment sandbox).
+
+## Recovery (2026-09-27, new clone at 57764db in /Users/ahmedobaid/nabd-plus)
+- Previous /tmp workspace was lost with unpushed commits. Re-applied on the reviewer-merged base (Phase 6 review PR #207 + PR #205/206 merges): [P9] F78/F50/F53/F51 (Blueprint 18, Shared 13+subsplits, Doctor 24, Facility 18; all units ≤400, provider tsc 0), plan 7A-7D already present on base (no change needed). P9 commits stay local until LJ gates pass (reviewer: do not start Phase 9 before 5-8 approval — P9 redo preserved locally, will push with gates).
+
+## [P8] Stale-test fixes for F25/F29/F69/F73 + reminders idempotency (2026-09-27)
+- patient-allowlist.test: PATCH /users/me/profile now allowed (F69 web profile edit is governed self-service).
+- payment-capabilities route.test: expects the F25-repointed `/insurance/requests/:id/capabilities` + user-agent forwarding.
+- medicines-ssr.test: mocks/gets `getPublicMedicines` (F29 public SSR, no login gate, no token).
+- reminders-ssr.test: next/navigation mock gains useRouter (F69 ReminderActions); edit-link id allowed in action URLs (same rule as medicine links), true secrets still forbidden.
+- pharmacy-draft.test: F73 fulfillment/payment_mode defaults + explicit pickup/insurance case.
+- Reminders BFF (PATCH/DELETE/[id]/log POST) forwards `idempotency-key` when the client sends one.
+- Verify: `pnpm vitest run` on the 4 files → 12/12 passed; patient-app jest pharmacy-draft → 4/4 passed. (pnpm-lock.yaml restored after local --no-frozen install.)
+
+## Recovery + R6/test fixes (2026-09-28, base 57764db)
+- Re-applied lost P9 (F78/F50/F53/F51: 18+13+24+18 files, all units ≤400, provider tsc 0). Plan 7A-7D already on base.
+- P7/P8 stale tests fixed: web vitest 12/12 (allowlist PATCH profile, capabilities path, medicines/reminders SSR), app pharmacy-draft 4/4; reminders BFF forwards idempotency-key.
+- R6-1: eligible-providers endpoint + wired nursing page. R6-2: BFF pure 1:1 + 100+ callers migrated (tools/r62-bff-migrate.py). R6-3: senders resolve templates. R6-4: pharmacy quote + lab home fee from platform pricing. R6-5: app gates + home sections + web maintenance. R6-6: medicines/insurance tabs + upload/history/CSV. R6-7: XLSX on all reports. R6-8: domain-metrics + live-map + command-center sections. R6-9: j_admin_clicks.py wired into run_gate.sh.
+
+## LJ items (2026-09-28, base 57764db) — reviewer order LJ-09, LJ-05, LJ-07, LJ-06, LJ-03, LJ-02, LJ-04, LJ-08, LJ-01
+- LJ-09: `service.completed` → `creditCompletedService` (provider_ops); legacy credits removed from double_verify/nursingSign/endConsultation; spec 4/4.
+- LJ-05: admin `GET /admin/returns` + `POST /admin/returns/:id/decide` + admin page; new-request picks a server-eligible paid booking (no hardcoded amounts); service returns resolve from the real booking collections; RefundExecutor card-only/original-method; `myRefunds` merges the executed ledger. Tests: returns.service + refund-executor + insurance-flow ledger merge → 53/53.
+- LJ-07: provider bell rows are targeted (per provider account, related_type/id), pharmacy broadcasts included, `chat.message_sent` targets provider participants, role-wide provider broadcast removed. Spec 11/11.
+- LJ-06: chat-with-doctor opens the appointment booking thread (callers pass appointmentId); `POST /chat/threads/direct` refuses non-family users with no shared booking. Spec 11/11.
+- LJ-03: lab/radiology insurance route through the request engine (`providerDecideBooking`), copay via engine checkout, lab booking → CONFIRMED on payment, decision values validated. Tests 95/95 (labs+radiology+insurance-engine).
+- LJ-02: real reimbursement claims (booking-backed, server-set status, one store), admin decide executes RefundExecutor; duplicate `/insurance/claims/my` removed. Spec 5/5.
+- LJ-04: CHI lookup maps to a real insurer, requires a real policy number, never sends `verified`; pure helper + 4 tests.
+- LJ-08: admin loyalty reward/challenge CRUD + `PUT /admin/loyalty/config` (whitelisted, audited) + admin page; wishlist add toggle on product detail and real names/prices. Loyalty spec 11/11, wishlist spec 2/2.
+- LJ-01: any linked provider can GPS check-in/out; facility id resolved from `provider_accounts.facility_id`; one open record per person; facility screen lists real rows with a check-in action. Spec 14/14 (facility-ops).
+- P9 F51 repair: the facility split on base dropped `export`, the shared `s` styles and the navigator imports — restored (facility barrel + navigator now compile). Commit 6fe0e4e.
+
+### Gate evidence (this branch)
+- backend `tsc --noEmit`: 0 errors. Focused jest: returns/refund/insurance-flow 53/53; notifications 11/11; chat 11/11; labs+radiology+insurance-engine 95/95; insurance claims 5/5; loyalty 11/11; users wishlist 2/2; facility-ops 14/14.
+- admin `tsc --noEmit`: 0 errors; `npm run build`: success (route list rendered).
+- patient-app `tsc --noEmit`: 0 errors (new insurance-chi-contract test 4/4).
+- provider-app `tsc --noEmit`: 0 errors (was 152 errors from the broken F51 split before the repair).
+- Live gate `tools/live/run_gate.sh`: NOT run here — needs the full stack (Mongo replica set + backend :8002 + admin :3001 + smtp_sink :2525 + fake_moyasar :9100); journeys extended (j_chat direct-refusal, j_insurance claim + lab copay→CONFIRMED, j_loyalty admin catalogue/wishlist, j_facility attendance) and must be run on a fresh DB before push acceptance.
+
+## Reviewer re-check (2026-09-28) — items 1-6
+- Item 1 (R6-2 harness paths): all AdminWeb journey calls moved to the real doubled paths (`/admin/admin/...` → backend `/api/v1/admin/...`): j_admin_ops (finance/users/legal/commissions), j_onboarding (providers pending/detail/approve), j_admin (command-center), j_returns (admin returns list/decide), j_consultation/j_facility (provider-deltas), j_lab/j_radiology/j_nursing (orders console), j_nursing (nursing requests), j_insurance (insurance requests), j_loyalty (loyalty admin), j_pharmacy (deltas/orders console/fulfillment-policies), j_ambulance (fleet), j_admin_clicks (nursing eligible-providers).
+- Item 2 (admin pages): price-override-audit → `/api/admin/admin/governance-controls/medicine-price-history`; search-intelligence → `/api/admin/admin/governance-controls/search-intent-analytics` (new backend route returning the page's shape; the old Batch-7 duplicate removed). The `/search/intent` POST test call was already correct (public route) and left alone.
+- Item 3 (pharmacy refund lookup): RefundExecutor now falls back to `pharmacy_orders`; COD/delivered counts as collected; cap falls back to priced items and then to the originating return request's server-computed items.
+- Item 4 (own journey steps): j_facility checks in at (24.7001,46.7001) inside the radius with att_id guards; j_chat resolves the patient via `/auth/me`; j_insurance PATIENT_GETS drops removed `/insurance/claims/my`, lab + consultation copay checks poll for event-driven settlement; j_admin_ops sets the live-env hold to 0 (+ payout minimum 0), submits/verifies the bank account via the real provider + new admin approve-bank endpoints, and reads the withdrawal id from `request.id`.
+- Item 5 (unit tests): pharmacy-notification.realtime.spec mock gains notifyProviderAccount (+ bell-row assertion); provider-app.contracts.test.js reads the F51 split directories (14/14).
+- Item 6 (stop P9): no P9 work in this round; only gate/LJ/review fixes.
+
+### New backend surface added for the above (all covered by the gate)
+- `POST /provider/bank-account` already existed (provider module) — removed my shadow duplicate; added `POST /api/v1/admin/providers/:id/approve-bank`.
+- `PUT /api/v1/admin/finance/commissions` stays single-owned by the legal module; `settlement` added to UpdateCommissionsDto (my duplicate PUT/GET removed).
+
+### Gate evidence (fresh DB, local stack: mongod 7.0 rs0 + redis + backend :8002 + admin :3001 + smtp sink :2525 + fake moyasar :9100 + fake S3 :9000)
+- `bash tools/live/run_gate.sh`: gate P1 368 routes 0 leaks; j_accounts 42/42; j_onboarding 112/112; j_pharmacy 125/125; j_lab 94/94; j_radiology 86/86; j_nursing 73/73; j_consultation 76/76; j_ambulance 66/66; j_facility 185/185; j_support 31/31; j_loyalty 103/103; j_admin_clicks 1/1.
+- Non-gate journeys (fresh DB each): j_insurance 123/123; j_returns 114/114; j_chat 73/73; j_admin_ops 99/99.
+- Env notes: `timeout(1)` missing on macOS → run_gate.sh uses a portable wrapper; aiosmtpd greeting stalls (~5s, local DNS) → replaced locally by a minimal threaded sink (repo smtp_sink.py untouched); backend must be restarted after a DB wipe so boot seeds (broadcast stages, system config) repopulate.

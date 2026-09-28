@@ -364,4 +364,124 @@ export class LoyaltyService {
   async getClaimedRewards(userId: string) {
     return this.claimM.find({ user_id: userId }).sort({ createdAt: -1 }).lean();
   }
+
+  // ── Admin: reward + challenge catalogue, config (LJ-08) ─────────────────────
+
+  adminListRewards() {
+    return this.rewardM.find({}).sort({ createdAt: -1 }).limit(200).lean();
+  }
+
+  async adminCreateReward(body: any) {
+    this.assertRewardBody(body, true);
+    const reward = await this.rewardM.create({
+      id: uuidv4(),
+      title_ar: String(body.title_ar).trim(),
+      title_en: String(body.title_en).trim(),
+      description: body.description,
+      points_required: Number(body.points_required),
+      reward_type: body.reward_type,
+      value: body.value !== undefined ? Number(body.value) : undefined,
+      image: body.image,
+      stock: body.stock !== undefined ? Number(body.stock) : 999,
+      active: body.active !== false,
+    });
+    return reward;
+  }
+
+  async adminUpdateReward(id: string, body: any) {
+    const patch: any = {};
+    for (const key of ['title_ar', 'title_en', 'description', 'reward_type', 'image']) if (body[key] !== undefined) patch[key] = body[key];
+    for (const key of ['points_required', 'value', 'stock']) if (body[key] !== undefined) patch[key] = Number(body[key]);
+    if (body.active !== undefined) patch.active = body.active === true;
+    if (!Object.keys(patch).length) throw new BadRequestException('no reward fields to update');
+    const updated = await this.rewardM.findOneAndUpdate({ id }, patch);
+    if (!updated) throw new NotFoundException('reward not found');
+    return updated;
+  }
+
+  async adminDeleteReward(id: string) {
+    const updated = await this.rewardM.findOneAndUpdate({ id }, { active: false });
+    if (!updated) throw new NotFoundException('reward not found');
+    return { ok: true, id, active: false };
+  }
+
+  private assertRewardBody(body: any, requireAll: boolean) {
+    if (requireAll && (!body?.title_ar || !body?.title_en || body?.points_required === undefined || !body?.reward_type)) {
+      throw new BadRequestException('title_ar, title_en, points_required and reward_type are required');
+    }
+    if (body.points_required !== undefined && !(Number(body.points_required) > 0)) throw new BadRequestException('points_required must be positive');
+    if (body.reward_type !== undefined && !['coupon', 'cashback', 'badge', 'gift'].includes(body.reward_type)) {
+      throw new BadRequestException('reward_type must be coupon|cashback|badge|gift');
+    }
+  }
+
+  adminListChallenges() {
+    return this.challengeM.find({}).sort({ createdAt: -1 }).limit(200).lean();
+  }
+
+  async adminCreateChallenge(body: any) {
+    if (!body?.title_ar || !body?.title_en || !body?.target_action || body?.reward_points === undefined || !body?.start_date || !body?.end_date) {
+      throw new BadRequestException('title_ar, title_en, target_action, reward_points, start_date and end_date are required');
+    }
+    const start = new Date(body.start_date);
+    const end = new Date(body.end_date);
+    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || end <= start) throw new BadRequestException('end_date must be after start_date');
+    return this.challengeM.create({
+      id: uuidv4(),
+      title_ar: String(body.title_ar).trim(),
+      title_en: String(body.title_en).trim(),
+      description: body.description,
+      target_action: body.target_action,
+      target_count: body.target_count !== undefined ? Number(body.target_count) : 1,
+      reward_points: Number(body.reward_points),
+      start_date: start,
+      end_date: end,
+      active: body.active !== false,
+    });
+  }
+
+  async adminUpdateChallenge(id: string, body: any) {
+    const patch: any = {};
+    for (const key of ['title_ar', 'title_en', 'description', 'target_action']) if (body[key] !== undefined) patch[key] = body[key];
+    for (const key of ['target_count', 'reward_points']) if (body[key] !== undefined) patch[key] = Number(body[key]);
+    if (body.start_date !== undefined) patch.start_date = new Date(body.start_date);
+    if (body.end_date !== undefined) patch.end_date = new Date(body.end_date);
+    if (body.active !== undefined) patch.active = body.active === true;
+    if (!Object.keys(patch).length) throw new BadRequestException('no challenge fields to update');
+    if (patch.start_date && patch.end_date && patch.end_date <= patch.start_date) throw new BadRequestException('end_date must be after start_date');
+    const updated = await this.challengeM.findOneAndUpdate({ id }, patch);
+    if (!updated) throw new NotFoundException('challenge not found');
+    return updated;
+  }
+
+  async adminDeleteChallenge(id: string) {
+    const updated = await this.challengeM.findOneAndUpdate({ id }, { active: false });
+    if (!updated) throw new NotFoundException('challenge not found');
+    return { ok: true, id, active: false };
+  }
+
+  /** PUT /admin/loyalty/config — whitelisted keys only, audited. */
+  async adminUpdateConfig(body: any, actor: any) {
+    if (!this.conn) throw new BadRequestException('config_store_unavailable');
+    const allowed = ['points_per_order', 'referral_points'];
+    const patch: any = {};
+    for (const key of allowed) if (body?.[key] !== undefined) {
+      const value = Number(body[key]);
+      if (!Number.isFinite(value) || value < 0) throw new BadRequestException(`${key} must be a non-negative number`);
+      patch[key] = value;
+    }
+    if (!Object.keys(patch).length) throw new BadRequestException(`no configurable keys supplied (allowed: ${allowed.join(', ')})`);
+    const col = this.conn.collection('loyalty_config');
+    const now = new Date();
+    const existing: any = await col.findOne({ key: 'global' });
+    await col.updateOne(
+      { key: 'global' },
+      {
+        $set: { key: 'global', value: { ...(existing?.value || {}), ...patch }, updated_at: now, updated_by: actor?.id },
+        $push: { audit: { at: now, by: actor?.id, changes: patch } } as any,
+      },
+      { upsert: true },
+    );
+    return this.getConfig();
+  }
 }

@@ -6,6 +6,7 @@ import { parseFamilyGroup } from "@/lib/api/family-group";
 import { getPatientFamilyGroup } from "@/lib/api/family-group-server";
 import { getPatientFamilyMembers } from "@/lib/api/family-server";
 import { familyMemberRef } from "@/lib/api/family-member-ref";
+import { CreateFamilyCta } from "./create-family-cta";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { RetryButton } from "@/components-next/retry-button";
@@ -23,7 +24,18 @@ export default async function FamilyPage({ params }: Props) {
   const token = await requirePatientAccess(locale);
   const [response, groupResponse] = await Promise.all([getPatientFamilyMembers(token), getPatientFamilyGroup(token)]);
   if (response.status === 401) redirect(`/${locale}/login`);
-  if (response.status === 403 || response.status === 404) notFound();
+  // F70: no family yet → create-family CTA instead of a bare 404.
+  if (response.status === 404) {
+    return <main className={`main ${styles.page}`} style={{ background: "#FDFDFC" }}>
+      <section className={styles.state} style={{ backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderColor: "#E8EDEE", borderRadius: 20 }}>
+        <UsersRound size={25} aria-hidden="true" />
+        <h1>{t("noFamilyTitle")}</h1>
+        <p>{t("noFamilyBody")}</p>
+        <CreateFamilyCta locale={locale} label={t("createFamily")} doneLabel={t("familyCreated")} />
+      </section>
+    </main>;
+  }
+  if (response.status === 403) notFound();
   if (!response.ok) return <main className={`main ${styles.page}`}><section className={styles.state} role="alert"><UsersRound size={25} aria-hidden="true" /><h1>{t("unavailableTitle")}</h1><p>{t("unavailable")}</p><RetryButton /></section></main>;
   const members = extractFamilyMembers(await response.json().catch(() => null));
   const group = groupResponse.ok ? parseFamilyGroup(await groupResponse.json().catch(() => null)) : null;

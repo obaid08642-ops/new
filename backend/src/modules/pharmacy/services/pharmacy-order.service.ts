@@ -67,6 +67,9 @@ export class PharmacyOrderService {
       prescription_id: typeof body.prescription_id === 'string' ? body.prescription_id : undefined,
       manual_request: manual ? { name: sanitize(manual.name).slice(0, 200), details: typeof manual.details === 'string' ? sanitize(manual.details).slice(0, 500) : null } : undefined,
       payment_method: typeof body.payment_method === 'string' ? body.payment_method : 'cash',
+      // F73: draft fulfillment + payment mode (validated by DTO enums).
+      fulfillment: body.fulfillment === 'pickup' ? 'pickup' : 'delivery',
+      payment_mode: body.payment_mode === 'insurance' ? 'insurance' : 'cash',
       insurance_policy_id: typeof body.insurance_policy_id === 'string' ? body.insurance_policy_id : undefined,
       delivery_address_id: typeof body.delivery_address_id === 'string' ? body.delivery_address_id : undefined,
       prescription_attachments: body.prescription_attachments || [],

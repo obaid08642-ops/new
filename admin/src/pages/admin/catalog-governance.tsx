@@ -39,7 +39,7 @@ export default function CatalogGovernancePage() {
       const [catalog, shortage, overrideRes] = await Promise.all([
         apiFetch<{ data: Medicine[] }>(`/medicines/admin/catalog?page=1&limit=50&q=${encodeURIComponent(search)}`),
         apiFetch<{ data: Shortage[] }>('/medicines/admin/shortage-reports?status=pending&page=1&limit=50'),
-        apiFetch<{ data: PriceOverride[]; items?: PriceOverride[] }>('/pharmacy/price-overrides?page=1&limit=50').catch(() => ({ data: [] })),
+        apiFetch<{ data: PriceOverride[]; items?: PriceOverride[] }>('/api/admin/admin/pharmacy/price-overrides?page=1&limit=50').catch(() => ({ data: [] })),
       ]);
       setItems(catalog.data || []);
       setShortages(shortage.data || []);

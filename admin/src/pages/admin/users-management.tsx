@@ -57,13 +57,13 @@ export default function UsersManagementPage() {
     setUserOverview(null);
     setProviderFile(null);
     try {
-      const ov = await apiFetch(`/admin/users/${id}/overview?days=${days}`).catch(() => null);
+      const ov = await apiFetch(`/api/admin/admin/users/${id}/overview?days=${days}`).catch(() => null);
       setUserOverview(ov);
       const role = String(u.role || '').toLowerCase();
       if (role && role !== 'patient' && role !== 'guest' && role !== 'admin' && role !== 'super_admin') {
         // Provider account — pull the COMPLETE registration file (same record
         // the moderation screen reviews: every entered field + contract).
-        const pf = await apiFetch(`/admin/providers/by-user/${id}`).catch(() => null);
+        const pf = await apiFetch(`/api/admin/admin/providers/by-user/${id}`).catch(() => null);
         setProviderFile(pf);
       }
     } finally {
@@ -74,7 +74,7 @@ export default function UsersManagementPage() {
   const reloadActivity = async (days: number) => {
     if (!viewUser) return;
     setActivityDays(days);
-    const ov = await apiFetch(`/admin/users/${viewUser.id || viewUser._id}/overview?days=${days}`).catch(() => null);
+    const ov = await apiFetch(`/api/admin/admin/users/${viewUser.id || viewUser._id}/overview?days=${days}`).catch(() => null);
     if (ov) setUserOverview(ov);
   };
 
@@ -88,7 +88,7 @@ export default function UsersManagementPage() {
       if (geo.region) params.set('region', geo.region);
       if (geo.city) params.set('city', geo.city);
       if (geo.district) params.set('district', geo.district);
-      const res = await apiFetch(`/admin/users?${params.toString()}`);
+      const res = await apiFetch(`/api/admin/admin/users?${params.toString()}`);
       setUsers(Array.isArray(res) ? res : res?.data || []);
       setTotal(res?.total ?? (Array.isArray(res) ? res.length : res?.data?.length ?? 0));
     } catch (err: any) {
@@ -111,7 +111,7 @@ export default function UsersManagementPage() {
     if (!confirm(`تعليق حساب «${u.full_name || u.phone}»؟ يمكن إعادة تفعيله لاحقاً.`)) return;
     setActionBusy(id);
     try {
-      await apiFetch(`/admin/users/${id}/ban`, { method: 'POST' });
+      await apiFetch(`/api/admin/admin/users/${id}/ban`, { method: 'POST' });
       await fetchUsers();
     } catch (err: any) {
       alert(`فشل التعليق: ${err?.message || ''}`);
@@ -125,16 +125,16 @@ export default function UsersManagementPage() {
     const id = u.id || u._id;
     setActionBusy(id);
     try {
-      await apiFetch(`/admin/users/${id}/unban`, { method: 'POST' });
+      await apiFetch(`/api/admin/admin/users/${id}/unban`, { method: 'POST' });
       // F80: a provider user's live state lives in provider_accounts — the
       // users unban alone leaves the account suspended. Resolve the account
       // by user id and reactivate it through the provider endpoint too.
       const PROVIDER_ROLES = ['doctor', 'pharmacy', 'lab', 'radiology', 'nurse', 'nursing', 'home_care', 'hospital', 'ambulance', 'pharmacist'];
       if (PROVIDER_ROLES.includes(String(u.role || '').toLowerCase())) {
         try {
-          const file = await apiFetch(`/admin/providers/by-user/${id}`);
+          const file = await apiFetch(`/api/admin/admin/providers/by-user/${id}`);
           const accountId = file?.account?.id;
-          if (accountId) await apiFetch(`/admin/providers/${accountId}/reactivate`, { method: 'POST', body: JSON.stringify({}) });
+          if (accountId) await apiFetch(`/api/admin/admin/providers/${accountId}/reactivate`, { method: 'POST', body: JSON.stringify({}) });
         } catch { /* no provider account — users unban sufficed */ }
       }
       await fetchUsers();
@@ -163,7 +163,7 @@ export default function UsersManagementPage() {
     } else if (!confirm('اعتماد هذا المزود وتفعيل حسابه؟')) return;
     setActionBusy(accountId);
     try {
-      await apiFetch(`/admin/providers/${accountId}/${action}`, { method: 'POST', body: JSON.stringify(body) });
+      await apiFetch(`/api/admin/admin/providers/${accountId}/${action}`, { method: 'POST', body: JSON.stringify(body) });
       if (viewUser) await openUserFile(viewUser, activityDays);
       await fetchUsers();
     } catch (err: any) {
@@ -181,7 +181,7 @@ export default function UsersManagementPage() {
     if (!confirm(`تأكيد أخير: حذف «${name}» نهائياً من الـ backend وقاعدة البيانات؟`)) return;
     setActionBusy(id);
     try {
-      await apiFetch(`/admin/users/${id}`, { method: 'DELETE' });
+      await apiFetch(`/api/admin/admin/users/${id}`, { method: 'DELETE' });
       await fetchUsers();
     } catch (err: any) {
       alert(`فشل الحذف: ${err?.message || ''}`);

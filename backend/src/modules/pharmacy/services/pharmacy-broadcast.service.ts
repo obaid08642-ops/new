@@ -202,7 +202,9 @@ export class PharmacyBroadcastService {
    */
   private async broadcastRound(bc: PharmacyBroadcast, order: PharmacyOrder) {
     const center = order.delivery_address?.geo;
-    const pharms = await this.findEligiblePharmaciesWithin(center, bc.current_radius_km, { extended: Boolean((bc as any).extended_stage) });
+    // F73: pickup orders filter pharmacies to a 15 km radius (patient travels).
+    const radius = (order as any).fulfillment === 'pickup' ? Math.min(Number(bc.current_radius_km) || 15, 15) : bc.current_radius_km;
+    const pharms = await this.findEligiblePharmaciesWithin(center, radius, { extended: Boolean((bc as any).extended_stage) });
     const alreadyNotified = new Set<string>(Array.isArray(bc.notified_pharmacies) ? bc.notified_pharmacies : []);
     const candidates = pharms.map((pharmacy: any) => String(pharmacy.account_id)).filter((id: string) => id && !alreadyNotified.has(id));
     const now = new Date();

@@ -6,6 +6,7 @@ import { Transaction, TransactionSchema } from '../../schemas/transaction.schema
 import { RefundPaymentDto } from './payments.dto';
 import { OrderSchema } from '../../schemas/order.schema';
 import { LabBookingSchema } from '../../schemas/lab.schema';
+import { DiagnosticOrder, DiagnosticOrderSchema } from '../../schemas/diagnostic-order.schema';
 import { RadiologyBookingSchema } from '../../schemas/radiology.schema';
 import { HomeCareBookingSchema } from '../../schemas/home-care.schema';
 import { Appointment, AppointmentSchema } from '../../schemas/appointment.schema';
@@ -136,9 +137,9 @@ class MoyasarAdapter implements GatewayAdapter {
   }
 }
 
-const KIND_TO_MODEL: any = { pharmacy: 'Order', lab: 'LabBooking', radiology: 'RadiologyBooking', nursing: 'HomeCareBooking', consultation: Appointment.name };
+const KIND_TO_MODEL: any = { pharmacy: 'Order', lab: 'LabBooking', radiology: 'RadiologyBooking', nursing: 'HomeCareBooking', consultation: Appointment.name, diagnostics: 'DiagnosticOrder' };
 function normalizeKind(k: string) {
-  const m: any = { orders: 'pharmacy', pharmacy: 'pharmacy', lab: 'lab', labs: 'lab', radiology: 'radiology', rads: 'radiology', nursing: 'nursing', 'home-care': 'nursing', homecare: 'nursing', consultation: 'consultation', appt: 'consultation', insurance: 'insurance', 'insurance-copay': 'insurance', copay: 'insurance' };
+  const m: any = { orders: 'pharmacy', pharmacy: 'pharmacy', lab: 'lab', labs: 'lab', radiology: 'radiology', rads: 'radiology', nursing: 'nursing', 'home-care': 'nursing', homecare: 'nursing', consultation: 'consultation', appt: 'consultation', insurance: 'insurance', 'insurance-copay': 'insurance', copay: 'insurance', diagnostics: 'diagnostics', diagnostic: 'diagnostics' };
   return m[k];
 }
 
@@ -154,6 +155,7 @@ export class PaymentsService {
     @InjectModel('HomeCareBooking') private home: Model<any>,
     @InjectModel(Appointment.name) private appts: Model<any>,
     @InjectModel('InsuranceServiceRequest') private insReqs: Model<any>,
+    @InjectModel('DiagnosticOrder') private diagOrders: Model<any>,
     private engine: WorkflowEngineService,
     private events: EventEmitter2,
     private realtime: RealtimeService,
@@ -171,6 +173,7 @@ export class PaymentsService {
     const kind = normalizeKind(k);
     if (!kind) throw new BadRequestException('invalid_booking_kind');
     if (kind === 'insurance') return this.insReqs;
+    if (kind === 'diagnostics') return this.diagOrders;
     return kind === 'pharmacy' ? this.orders : kind === 'lab' ? this.labs : kind === 'radiology' ? this.rads : kind === 'nursing' ? this.home : this.appts;
   }
 
@@ -270,8 +273,26 @@ export class PaymentsService {
    * the fulfillment-gate evidence record. All quote-binding metadata is read
    * from the order document server-side — never from client or gateway input.
    */
-  private async finalizeGovernedPharmacyPaid(t: any): Promise<boolean> {
-    const order = await this.governedPharmacyOrder(t.booking_id);
+  /**
+   * F74: project a paid diagnostics parent onto its child bookings so each
+   * service confirms without its own listener. Best-effort; never fails payment.
+   */
+  private async confirmDiagnosticChildren(t: any): Promise<void> {
+    const parent: any = await this.diagOrders.findOne({ id: t.booking_id }).lean();
+    if (!parent || !Array.isArray(parent.lines)) return;
+    for (const line of parent.lines) {
+      try {
+        if (!line?.booking_id) continue;
+        if (line.kind === 'lab') {
+          await this.labs.updateOne({ id: line.booking_id }, { $set: { payment_status: 'paid', transaction_id: t.id, paid_at: t.paid_at } });
+        } else if (line.kind === 'radiology') {
+          await this.rads.updateOne({ id: line.booking_id }, { $set: { payment_status: 'paid', transaction_id: t.id, paid_at: t.paid_at } });
+        }
+      } catch { /* per-child projection retries on next event */ }
+    }
+  }
+
+  private async finalizeGovernedPharmacyPaid(t: any): Promise<boolean> {    const order = await this.governedPharmacyOrder(t.booking_id);
     if (!order) return false;
     // Idempotent replay: verify/retry/webhook paths can all report the same
     // paid transaction. Skip the write AND the evidence event when this exact
@@ -398,6 +419,8 @@ export class PaymentsService {
       if (!(t.booking_kind === 'pharmacy' && await this.finalizeGovernedPharmacyPaid(t))) {
       await this.modelFor(t.booking_kind).updateOne({ id: { $eq: t.booking_id } }, { $set: { payment_status: 'paid', transaction_id: t.id, paid_at: t.paid_at } });
       }
+      // F74: a paid diagnostics parent confirms every child booking too.
+      if (t.booking_kind === 'diagnostics') await this.confirmDiagnosticChildren(t).catch(() => null);
       // For online/home services we emit an event so the workflow engine (provider-jobs / booking-flow)
       // can transition CONFIRMED when payment is required pre-confirmation.
       this.events.emit('payment.completed', {
@@ -594,6 +617,7 @@ export class PaymentsWebhookController {
       { name: 'HomeCareBooking', schema: HomeCareBookingSchema },
       { name: Appointment.name, schema: AppointmentSchema },
       { name: 'InsuranceServiceRequest', schema: InsuranceServiceRequestSchema },
+      { name: 'DiagnosticOrder', schema: DiagnosticOrderSchema },
     ]),
   ],
   controllers: [PaymentsController, PaymentsWebhookController],

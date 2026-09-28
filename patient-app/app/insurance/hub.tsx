@@ -6,7 +6,7 @@ import {
   Dimensions, StatusBar, Modal, Alert, ActivityIndicator, TextInput,
 } from 'react-native';
 import { WebView } from 'react-native-webview';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';
@@ -15,6 +15,9 @@ import { useGuestGuard } from '../../src/hooks/useGuestGuard';
 import { AppText, Card, Badge, Button, IconButton } from '../../src/components/ui';
 import { apiFetch } from '../../src/utils/api';
 import { logError } from '../../src/utils/logger';
+import { matchInsuranceCompany, buildChiPolicyPayload } from '../../src/utils/insurance-chi-contract';
+import ClaimTrackingScreen from '../../src/components/insurance/claim-tracking';
+import InsuranceRefundScreen from '../../src/components/insurance/refund-status';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
 const { width } = Dimensions.get('window');
@@ -85,6 +88,15 @@ export default function InsuranceHubScreen() {
   const { isGuest, requireAuth } = useGuestGuard();
   // Insurance is one of the ONLY two guest-restricted areas (with family).
   if (isGuest) { requireAuth('insurance'); return null; }
+  // P8: merged hub — policies | claims | refunds tabs (deep links use ?tab=).
+  const params = useLocalSearchParams() as any;
+  const [hubTab, setHubTab] = useState<'policies' | 'claims' | 'refunds'>(
+    params?.tab === 'claims' || params?.tab === 'refunds' ? params.tab : 'policies',
+  );
+  // Deep links (notifications, orders) land with ?tab= — follow param changes.
+  useEffect(() => {
+    if (params?.tab === 'claims' || params?.tab === 'refunds' || params?.tab === 'policies') setHubTab(params.tab);
+  }, [params?.tab]);
 
   const [policies, setPolicies] = useState<any[]>([]);
   const [claims, setClaims] = useState<any[]>([]);
@@ -155,40 +167,38 @@ export default function InsuranceHubScreen() {
       }
       if (msg.status === 'success' && msg.data?.length > 0) {
         const item = msg.data[0];
+        // LJ-04: only save a real policy for a company we can map to an active
+        // insurer. Never invent a policy number and never claim verification.
+        const companiesRes: any = await apiFetch('/insurance/companies').catch(() => []);
+        const companies = Array.isArray(companiesRes) ? companiesRes : companiesRes?.data || [];
+        const company = matchInsuranceCompany(companies, item.company);
+        if (!company) {
+          showLocalizedAlert('لم نتعرف على شركة التأمين', `تعذّر مطابقة "${item.company}" مع شركة تأمين مسجّلة. أضف الوثيقة يدوياً واختر الشركة من القائمة.`);
+          return;
+        }
+        const payload = buildChiPolicyPayload(company, item);
+        if (!payload) {
+          showLocalizedAlert('رقم البوليصة مطلوب', 'تعذّر إيجاد رقم البوليصة من البوابة. أضف الوثيقة يدوياً وأدخل رقم البوليصة.');
+          return;
+        }
         setChiScraped(true);
         setChiSaving(true);
         try {
-          // Save scraped insurance to backend
-          const saved = await apiFetch('/insurance/save-policy', {
-            method: 'POST',
-            body: JSON.stringify({
-              provider: item.company,
-              policy_number: item.policy_number || 'CHI-SCRAPED',
-              network: item.network || item.class,
-              class: item.class || 'A',
-              expiry_date: item.expiry || '',
-              member_name: '',
-              national_id: '',
-              verified: true,
-              ocr_extracted: true,
-            }),
-          }).catch(() => null);
-
+          await apiFetch('/insurance/save-policy', { method: 'POST', body: JSON.stringify(payload) });
           setChiVisible(false);
           showLocalizedAlert(
             'تم سحب بيانات التأمين تلقائياً',
             `شركة التأمين: ${item.company}\nرقم البوليصة: ${item.policy_number}\nالفئة: ${item.class}\nشبكة: ${item.network}`,
             [{ text: 'موافق' }]
           );
-          // Refresh policies list
           setPolicies(prev => [{
             ...prev[0],
-            company: item.company || prev[0].company,
-            policyNumber: item.policy_number || prev[0].policyNumber,
-            network: item.class || prev[0].network,
+            company: item.company || prev[0]?.company,
+            policyNumber: item.policy_number,
+            network: item.class || prev[0]?.network,
           }]);
-        } catch (_) {
-          showLocalizedAlert('خطأ', 'تم سحب البيانات لكن فشل حفظها. يرجى المحاولة لاحقاً.');
+        } catch (err: any) {
+          showLocalizedAlert('خطأ', err?.message || 'تم سحب البيانات لكن فشل حفظها. يرجى المحاولة لاحقاً.');
         } finally {
           setChiSaving(false);
         }
@@ -210,6 +220,22 @@ export default function InsuranceHubScreen() {
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
+      {/* P8 merged tabs: policies | claims | refunds */}
+      <View style={{ flexDirection: 'row-reverse', gap: 8, marginHorizontal: 16, marginTop: 12 }}>
+        {(['policies', 'claims', 'refunds'] as const).map((t) => (
+          <TouchableOpacity key={t} onPress={() => setHubTab(t)}
+            style={{ flex: 1, paddingVertical: 10, borderRadius: 12, alignItems: 'center', backgroundColor: hubTab === t ? colors.primary : colors.surfaceSecondary }}>
+            <AppText variant="body" color={hubTab === t ? '#fff' : colors.textPrimary}>
+              {t === 'policies' ? 'الوثائق' : t === 'claims' ? 'المطالبات' : 'الاسترداد'}
+            </AppText>
+          </TouchableOpacity>
+        ))}
+      </View>
+      {hubTab !== 'policies' ? (
+        <View style={{ marginHorizontal: 16, marginTop: 12 }}>
+          {hubTab === 'claims' ? <ClaimTrackingScreen /> : <InsuranceRefundScreen />}
+        </View>
+      ) : (
       <View style={{ marginHorizontal: 16, marginTop: 12 }}>
 
         {/* Active Policy Card */}
@@ -277,6 +303,7 @@ export default function InsuranceHubScreen() {
           </AppText>
         </TouchableOpacity>
       </View>
+      )}
         {/* Quick Actions */}
         <View style={styles.quickGrid}>
           {QUICK_ACTIONS.map((a, i) => (
@@ -391,7 +418,7 @@ export default function InsuranceHubScreen() {
         {/* Recent Claims */}
         <View style={{ marginBottom: 14 }}>
           <View style={[styles.sectionHeader, { paddingHorizontal: 16 } ]}>
-            <TouchableOpacity onPress={() => router.push('/insurance/claim-tracking')}>
+            <TouchableOpacity onPress={() => router.push({ pathname: '/insurance/hub', params: { tab: 'claims' } })}>
               <AppText variant="caption" color={colors.primary} style={{ fontWeight: '700' }}>عرض الكل</AppText>
             </TouchableOpacity>
             <AppText variant="h6">آخر المطالبات</AppText>
@@ -403,7 +430,7 @@ export default function InsuranceHubScreen() {
           ) : claims.slice(0, 3).map((claim, i) => (
             <TouchableOpacity
               key={i}
-              onPress={() => router.push('/insurance/claim-tracking')}
+              onPress={() => router.push({ pathname: '/insurance/hub', params: { tab: 'claims' } })}
               style={[styles.claimCard, { backgroundColor: isDark ? colors.surface : colors.white } ]}>
               <View style={{ alignItems: 'center', gap: 2 }}>
                 <AppText variant="h6" style={{ fontFamily: 'Cairo-ExtraBold' }}>{claim.covered} ر</AppText>

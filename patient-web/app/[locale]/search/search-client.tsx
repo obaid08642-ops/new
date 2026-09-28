@@ -18,6 +18,22 @@ export function SearchClient({ locale, labels }: { locale: string; labels: Label
     timer.current = setTimeout(async () => {
       setState("loading");
       try {
+        // F71: parse intent first; a confident actionable intent navigates to
+        // its canonical path, otherwise fall back to the results list.
+        try {
+          const intentRes = await fetch(`/api/search/intent`, {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ query: q, locale }),
+            cache: "no-store",
+          });
+          const intent = await intentRes.json().catch(() => null);
+          const path = intent?.canonical_path;
+          if (intentRes.ok && typeof path === "string" && path !== `/${locale}/search` && path.startsWith("/")) {
+            window.location.assign(path.startsWith(`/${locale}/`) ? path : `/${locale}${path}`);
+            return;
+          }
+        } catch { /* fall through to results list */ }
         const response = await fetch(`/api/patient/home/search?q=${encodeURIComponent(q)}`, { cache: "no-store" });
         if (!response.ok) throw new Error("search_unavailable");
         setResults(extractSearchResults(await response.json().catch(() => []), locale));

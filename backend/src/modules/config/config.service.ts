@@ -12,6 +12,9 @@ export class ConfigService {
    * rollout controls effective for every client that consumes /config.
    */
   async getClientConfig() {
+    // F37: video calls are advertised only when LiveKit is fully configured;
+    // apps hide call buttons otherwise (no dead call button).
+    const livekitReady = !!(process.env.LIVEKIT_URL && process.env.LIVEKIT_API_KEY && process.env.LIVEKIT_API_SECRET);
     const featureFlags: Record<string, boolean> = Object.fromEntries(
       [
         ['telehealth', process.env.FEATURE_TELEHEALTH],
@@ -22,6 +25,7 @@ export class ConfigService {
         ['ai_symptom_checker', process.env.FEATURE_AI_SYMPTOM],
       ].flatMap(([key, value]) => value === undefined ? [] : [[key, value === 'true']]),
     );
+    featureFlags['video_calls'] = livekitReady;
     const featureRollouts: Record<string, number> = {};
     try {
       const rows = await this.conn.collection('feature_flags').find({}).project({ _id: 0, key: 1, enabled: 1, rollout_percentage: 1 }).toArray();

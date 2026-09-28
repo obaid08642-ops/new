@@ -26,3 +26,12 @@
 
 ## [P6.x-10b] Labs turnaround report (2026-09-26)
 - `GET /admin/reports/labs-turnaround` (avg createdAt→updatedAt hours for REPORT_UPLOADED, by day, CSV). Consultations-by-status incl. NO_SHOW, nursing-by-state, pharmacy-by-state served by existing bookings/orders groupings. tsc 0.
+
+## [P8] F70/F71/F73/F75 (2026-09-26)
+- F70: family 404 → create-family CTA (new `/api/family/create` proxy + client button + 6-locale strings) instead of bare 404.
+- F71: web search tries `POST /api/search/intent` (new public proxy) first — confident actionable intents navigate to canonical_path, else legacy results list.
+- F73: draft `fulfillment` (delivery|pickup) + `payment_mode` (cash|insurance) end-to-end — backend DTO/schema/service, pickup broadcasts capped to 15 km, app checkout sends deliveryMode, web draft builder + selector. Web draft test updated.
+- F75: OTP resend now calls `/auth/send-otp` with the same identifier (pending-disabled, timer reset, error shown).
+
+## [P8] F74 diagnostics parent order (2026-09-26)
+- New `diagnostic_orders` collection + `POST /unified-bookings/diagnostics/orders` (validated DTO): creates lab (grouped) + radiology children through the real booking flows, sums the single total, rolls back created children + marks parent FAILED on any child failure. Payments wired for pay-once: `diagnostics` kind in normalizeKind/KIND_TO_MODEL/modelFor + children projection on parent-paid. Web lab-only checkout untouched (no regression); mixed-cart UI + journey e2e staging-gated. Tests 3/3. tsc 0.

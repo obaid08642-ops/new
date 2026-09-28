@@ -1,5 +1,6 @@
 import { Module, Controller, Get, Post, Patch, Body, Query, Param, UseGuards, Injectable, BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
-import { CreateDto, CancelRootDto, RescheduleRootDto, CancelDto, ReschedDto, MatchDto, NursingDto, CheckoutDto } from './unified-bookings.dto';
+import { CreateDto, CancelRootDto, RescheduleRootDto, CancelDto, ReschedDto, MatchDto, NursingDto, CheckoutDto, CreateDiagnosticOrderDto } from './unified-bookings.dto';
+import { DiagnosticOrder, DiagnosticOrderSchema } from '../../schemas/diagnostic-order.schema';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JwtAuthGuard, CurrentUser, SelfService } from '../../common/auth.guard';
@@ -46,6 +47,7 @@ export class UnifiedBookingsService {
     @InjectModel('HomeCareBooking') private home: Model<HomeCareBooking>,
     @InjectModel(Appointment.name) private appts: Model<any>,
     @InjectModel('ProviderProfile') private providers: Model<any>,
+    @InjectModel('DiagnosticOrder') private diagOrders: Model<any>,
     private bus: EventBusService,
     private labsSvc: LabsService,
     private radSvc: RadiologyOpsService,
@@ -107,8 +109,79 @@ export class UnifiedBookingsService {
     return merged;
   }
 
-  async getOne(user: any, kind: string, id: string) {
-    const k = this.kindMap[kind];
+  /**
+   * F74: one parent diagnostics order containing lab + radiology lines.
+   * Children are created through the real lab/radiology booking flows;
+   * any failure rolls back already-created children and fails the parent.
+   * The parent carries the single total paid once via the payments flow.
+   */
+  async createDiagnosticOrder(user: any, dto: { lines: Array<{ kind: string; service_id: string; provider_account_id?: string }>; scheduled_at?: string; location_type?: string; payment_method?: string }) {
+    const lines = Array.isArray(dto?.lines) ? dto.lines : [];
+    if (!lines.length || lines.length > 20) throw new BadRequestException('lines_required');
+    for (const l of lines) {
+      if (!['lab', 'radiology'].includes(l?.kind) || typeof l?.service_id !== 'string' || !l.service_id) {
+        throw new BadRequestException('bad_line');
+      }
+    }
+    const scheduled_at = dto.scheduled_at ? new Date(dto.scheduled_at) : new Date();
+    if (isNaN(+scheduled_at) || +scheduled_at < Date.now() - 5 * 60_000) throw new BadRequestException('slot_expired');
+    const location_type = dto.location_type === 'home' ? 'home' : 'facility';
+    const payment_method = ['cash', 'card', 'insurance'].includes(String(dto.payment_method)) ? String(dto.payment_method) : 'card';
+
+    const parent: any = await this.diagOrders.create({
+      patient_id: user.id,
+      lines: lines.map((l) => ({ kind: l.kind, service_id: l.service_id, provider_account_id: l.provider_account_id })),
+      total: 0,
+      currency: 'SAR',
+      payment_status: 'pending',
+      status: 'DRAFT',
+      scheduled_at,
+    });
+    const created: Array<{ kind: string; id: string }> = [];
+    try {
+      const labLines = lines.filter((l) => l.kind === 'lab');
+      if (labLines.length) {
+        const labProvider = labLines.find((l) => l.provider_account_id)?.provider_account_id;
+        const child: any = await this.labsSvc.book(user, {
+          items: labLines.map((l) => ({ service_id: l.service_id })),
+          provider_account_id: labProvider,
+          scheduled_at: scheduled_at.toISOString(),
+          location_type,
+          payment_method,
+        });
+        created.push({ kind: 'lab', id: child.id });
+        parent.lines.filter((l: any) => l.kind === 'lab').forEach((l: any) => { l.booking_id = child.id; l.price = child.total; l.status = child.state; });
+      }
+      for (const l of lines.filter((x) => x.kind === 'radiology')) {
+        const child: any = await this.radSvc.book(user, {
+          service_id: l.service_id,
+          provider_account_id: l.provider_account_id,
+          scheduled_at: scheduled_at.toISOString(),
+          location_type,
+          payment_method,
+        });
+        created.push({ kind: 'radiology', id: child.id });
+        const pl: any = parent.lines.find((x: any) => x.kind === 'radiology' && x.service_id === l.service_id && !x.booking_id);
+        if (pl) { pl.booking_id = child.id; pl.price = child.total_price; pl.status = child.state; }
+      }
+    } catch (e) {
+      for (const c of created) {
+        try {
+          if (c.kind === 'lab') await this.labsSvc.cancel(c.id, user);
+          else await this.radSvc.cancel(c.id, user);
+        } catch { /* rollback best-effort */ }
+      }
+      parent.status = 'FAILED';
+      await parent.save().catch(() => null);
+      throw e;
+    }
+    parent.total = parent.lines.reduce((s: number, l: any) => s + (Number(l.price) || 0), 0);
+    parent.status = 'CONFIRMED';
+    await parent.save();
+    return parent.toObject ? parent.toObject() : parent;
+  }
+
+  async getOne(user: any, kind: string, id: string) {    const k = this.kindMap[kind];
     let result: any;
     if (k === 'pharmacy') result = await this.orders.findOne({ id, patient_id: user.id }, { _id: 0, __v: 0 }).lean();
     else if (k === 'lab') result = await this.labs.findOne({ id, patient_id: user.id }, { _id: 0, __v: 0 }).lean();
@@ -518,6 +591,9 @@ export class UnifiedBookingsController {
   @Post('nursing-broadcast')
   @RequireIdempotency()
   nursing(@CurrentUser() u: any, @Body() b: NursingDto) { return this.svc.nursingRadiusBroadcast(u, b); }
+  @Post('diagnostics/orders')
+  diagnosticsOrder(@CurrentUser() u: any, @Body() b: CreateDiagnosticOrderDto) { return this.svc.createDiagnosticOrder(u, b); }
+
   @Post('checkout-cart')
   @RequireIdempotency()
   checkout(@CurrentUser() u: any, @Body() b: CheckoutDto) { return this.svc.checkoutFromCart(u, b); }
@@ -538,6 +614,7 @@ import { OrdersModule } from '../orders/orders.module';
       { name: 'LabBooking', schema: LabBookingSchema },
       { name: 'RadiologyBooking', schema: RadiologyBookingSchema },
       { name: 'HomeCareBooking', schema: HomeCareBookingSchema },
+      { name: 'DiagnosticOrder', schema: DiagnosticOrderSchema },
       { name: Appointment.name, schema: AppointmentSchema },
       { name: 'ProviderProfile', schema: ProviderProfileSchema },
       // P5.3: merged from BookingFlowModule + BookingOpsModule

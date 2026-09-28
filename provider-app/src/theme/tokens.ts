@@ -34,3 +34,11 @@ export const tokens = {
   radius: { sm: 10, md: 16, lg: 20, xl: 28 },
 } as const;
 export type Tokens = typeof tokens;
+
+/** F50: alpha-suffix replacement via withAlpha(). */
+export function withAlpha(hex: string, alpha: number): string {
+  const h = String(hex).replace('#', '');
+  const full = h.length === 3 ? h.split('').map((c) => c + c).join('') : h;
+  const a = Math.round(Math.min(1, Math.max(0, alpha)) * 255).toString(16).padStart(2, '0');
+  return `#${full}${a}`;
+}

@@ -34,9 +34,9 @@ export default function InsuranceQueuePage() {
     setError(null);
     try {
       const [s, r, f] = await Promise.all([
-        apiFetch('/admin/insurance/stats').catch(() => null),
-        apiFetch(`/admin/insurance/requests${stateFilter ? `?state=${stateFilter}` : ''}`).catch(() => []),
-        apiFetch('/admin/finance/refunds/queue').catch(() => []),
+        apiFetch('/api/admin/admin/insurance/stats').catch(() => null),
+        apiFetch(`/api/admin/admin/insurance/requests${stateFilter ? `?state=${stateFilter}` : ''}`).catch(() => []),
+        apiFetch('/api/admin/admin/finance/refunds/queue').catch(() => []),
       ]);
       setStats(s);
       setRequests(Array.isArray(r) ? r : r?.data || []);
@@ -52,7 +52,7 @@ export default function InsuranceQueuePage() {
 
   const decideRefund = async (id: string, approve: boolean) => {
     try {
-      await apiFetch(`/admin/finance/refunds/${id}/decide`, {
+      await apiFetch(`/api/admin/admin/finance/refunds/${id}/decide`, {
         method: 'POST',
         body: JSON.stringify({ approve, note: decideNote || undefined }),
       });

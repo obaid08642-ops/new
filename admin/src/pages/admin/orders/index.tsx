@@ -26,7 +26,7 @@ export default function OrdersConsolePage() {
 
   const load = useCallback(async () => {
     setLoading(true); setError('');
-    try { setResult(await adminFetch<OrdersResponse>(`/orders${toQuery({ ...filters, page, limit: 25 })}`)); }
+    try { setResult(await adminFetch<OrdersResponse>(`/api/admin/admin/orders${toQuery({ ...filters, page, limit: 25 })}`)); }
     catch (cause) { setError(apiErrorMessage(cause, 'تعذر تحميل الطلبات.')); }
     finally { setLoading(false); }
   }, [filters, page]);

@@ -20,6 +20,18 @@ def admin_publishes_scans(admin, n=3):
     journey('radiology catalog: admin publishes scans')
     r = admin.get('/radiology/admin/catalog')
     items = r.body if isinstance(r.body, list) else r.items()
+    if r.ok and len(items) == 0:
+        # Fresh DB: the catalog starts empty — create the scans, then publish them.
+        seeds = [('أشعة سينية صدر', 'Chest X-Ray', 'XR-CHEST', 120, 'xray'),
+                 ('رنين مغناطيسي ركبة', 'Knee MRI', 'MRI-KNEE', 850, 'mri'),
+                 ('موجات فوق صوتية بطن', 'Abdominal Ultrasound', 'US-ABD', 220, 'ultrasound')]
+        for ar, en, code, price, modality in seeds:
+            rc = admin.post('/radiology/admin/catalog', {'name_ar': ar, 'name_en': en, 'short_code': code,
+                                                         'price': price, 'modality': modality, 'category': 'imaging',
+                                                         'active': True})
+            step(f"admin creates scan '{en}'", rc.ok, rc)
+        r = admin.get('/radiology/admin/catalog')
+        items = r.body if isinstance(r.body, list) else r.items()
     step('admin catalog lists scans including unpublished ones', r.ok and len(items) > 0, f'{r.status} {len(items)}')
     for it in [i for i in items if i.get('medical_review_status') != 'approved'][:n]:
         r = admin.put(f"/radiology/admin/catalog/{it['id']}", {'medical_review_status': 'approved'})
@@ -111,7 +123,7 @@ def run(pat, center, other_center=None, admin=None):
 
     if admin:
         journey('radiology: admin orders console')
-        r = admin.get('/orders?kind=radiology&limit=25')
+        r = admin.get('/admin/admin/orders?kind=radiology&limit=25')
         row = next((x for x in r.items() if x.get('id') == bid), None)
         step('console lists it with status and amount', r.ok and row and row.get('status') == 'REPORT_READY' and row.get('amount', 0) > 0 and row.get('is_completed'), row or r.status)
     return bid

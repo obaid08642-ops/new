@@ -127,7 +127,7 @@ def run(hosp, admin, patient_id=None, emergency_id=None, invitee_email=None, inv
     step('profile edit submitted', r.ok, r)
     r = hosp.post('/provider/settings/delta', {'newData': {'icuDaily': 2500, 'icuHourly': 120, 'wardDaily': 900, 'surgPrice': 8000, 'erFee': 300, 'ambFee': 500}})
     step('pricing change submitted', r.ok, r)
-    r = admin.get('/providers/provider-deltas')
+    r = admin.get('/admin/admin/providers/provider-deltas')
     step('admin sees the pending hospital changes', r.ok and any(x.get('status') == 'pending' for x in r.items()), r)
 
 
@@ -170,6 +170,30 @@ def facility_calendar(hosp, doctor, pat, admin):
     step('request a substitute', r.ok, r)
     r = hosp.get('/facility/shifts')
     step('the shift shows it needs a substitute', r.ok and any(x.get('id') == shid and x.get('status') == 'substitute' for x in rows(r)), r)
+
+    journey('hospital: staff attendance (LJ-01)')
+    # The hospital onboards at (24.7, 46.7); check in ~15 m away, inside the radius.
+    loc = {'lat': 24.7001, 'lng': 46.7001}
+    r = doctor.post('/facility/shifts/attendance/check-in', loc)
+    att_id = r.get('id')
+    step('the linked doctor checks in for its facility (GPS)', r.ok and att_id, r)
+    if not att_id:
+        step('the attendance list shows the doctor present', False, r)
+    else:
+        r = doctor.get('/facility/shifts/attendance')
+        step('the attendance list shows the doctor present', r.ok and att_id in str(r.body), r)
+    r = doctor.post('/facility/shifts/attendance/check-in', loc)
+    step('a second check-in while one is open is refused', r.status == 400, r)
+    if att_id:
+        r = doctor.post(f'/facility/shifts/attendance/check-out/{att_id}', {})
+        step('the doctor checks out', r.ok, r)
+        r = doctor.get('/facility/shifts/attendance')
+        att_rows = r.body if isinstance(r.body, list) else r.items()
+        row = next((x for x in att_rows if x.get('id') == att_id), {})
+        step('the record closes (not open)', r.ok and row.get('open') is False, row or r.status)
+    else:
+        step('the doctor checks out', False, 'no attendance id')
+        step('the record closes (not open)', False, 'no attendance id')
 
     journey('hospital: the linked doctor asks for leave, the facility decides')
     d1 = (datetime.date.today() + datetime.timedelta(days=10)).isoformat()

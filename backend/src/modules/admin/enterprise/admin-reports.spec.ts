@@ -22,6 +22,17 @@ describe('AdminReportsController', () => {
     expect(out.rows[0].net).toBe(90);
   });
 
+  it('serves the same rows as xlsx with a spreadsheet content type (R6-7)', async () => {
+    const { ctrl } = make([{ bucket: '2026-09-01', gross: 100, refunded: 10, net: 90, count: 2 }]);
+    const headers: Record<string, string> = {};
+    const res: any = { setHeader: (k: string, v: string) => { headers[k] = v; }, send: jest.fn() };
+    await ctrl.revenue({}, 'xlsx', res);
+    expect(headers['content-type']).toBe('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    expect(res.send).toHaveBeenCalled();
+    const bytes: Buffer = res.send.mock.calls[0][0];
+    expect(bytes.slice(0, 2).toString()).toBe('PK');
+  });
+
   it('bookings fans out across the five booking collections', async () => {
     const { ctrl, conn } = make([{ bucket: '2026-09-01', count: 3 }]);
     const out: any = await ctrl.bookings({}, undefined, undefined);

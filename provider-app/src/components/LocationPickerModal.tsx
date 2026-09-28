@@ -106,7 +106,7 @@ export const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
           </View>
 
           {locError && (
-            <Text style={{ color: 'tokens.error', fontSize: FS.sm, marginBottom: SP.sm, textAlign: 'center' }}>{locError}</Text>
+            <Text style={{ color: tokens.error, fontSize: FS.sm, marginBottom: SP.sm, textAlign: 'center' }}>{locError}</Text>
           )}
           <Text style={{ color: theme.textSub, fontSize: FS.xs, marginBottom: SP.sm, textAlign: 'center' }}>
             {AR ? 'اضغط على الخريطة أو اسحب الدبوس لتحديد الموقع بدقة' : 'Tap the map or drag the pin to fine-tune the location'}

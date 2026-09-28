@@ -14,7 +14,7 @@ import { LocalizedText } from '../../src/components/LocalizedText';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
 export default function ChatWithDoctorScreen() {
-  const { doctorId } = expSearchParams();
+  const { doctorId, appointmentId } = expSearchParams();
   const insets = useSafeAreaInsets();
   const { isDark, lang } = useApp() as any;
   const colors = isDark ? darkColors : lightColors;
@@ -29,67 +29,69 @@ export default function ChatWithDoctorScreen() {
   const [docData, setDocData] = useState<any>(null);
   const [messages, setMessages] = useState<any[]>([]);
   const [msg, setMsg] = useState('');
+  const [blocked, setBlocked] = useState('');
 
-  // M1-32: real chat contract — a direct thread fetched/created via POST /chat/threads/direct
+  // LJ-06: chat is always per booking — the appointment's booking thread, not a
+  // bare direct thread. The doctor is resolved from the booking server-side.
   const [threadId, setThreadId] = useState('');
 
   useEffect(() => {
     let cancelled = false;
-    if (doctorId) {
-      // 1) Resolve the doctor profile first — the chat thread needs the doctor's
-      //    USER id (provider_profile.user_id), not the profile id.
-      apiFetch(`/care/doctors/${doctorId}`)
-        .then((res: any) => {
-          const doc = res?.data || res;
-          if (cancelled) return null;
-          setDocData(doc);
-          setLoading(false);
-          const doctorUserId = doc?.user_id || doc?.account_id;
-          if (!doctorUserId) return null;
-
-          // 2) Get-or-create the direct thread with this doctor's user id
-          return apiFetch(`/chat/threads/direct`, { method: 'POST', body: JSON.stringify({ other_user_id: doctorUserId }) })
-            .then((tres: any) => {
-              const thread = tres?.data || tres;
-              const tid = thread?.id || thread?.thread_id;
-              if (!tid || cancelled) return null;
-              setThreadId(tid);
-              joinThread(tid);
-              return apiFetch(`/chat/threads/${tid}/messages`).then((mres: any) => ({ mres, doctorUserId }));
-            });
-        })
-        .then((out: any) => {
-          if (!out || cancelled) return;
-          const { mres, doctorUserId } = out;
-          if (mres) {
-            const list = mres?.data || mres || [];
-            setMessages(Array.isArray(list) ? list.map((m: any) => ({
-              id: m.id || m._id,
-              sender: m.sender_id === doctorUserId ? 'doc' : 'me',
-              text: m.body || m.content || m.text || '',
-              time: m.createdAt ? new Date(m.createdAt).toLocaleTimeString(dateLocale(), { hour: '2-digit', minute: '2-digit' }) : '',
-            })) : []);
-          }
-        })
-        .catch(() => { if (!cancelled) { setDocData(null); setLoading(false); } });
-    } else {
+    setBlocked('');
+    if (!appointmentId) {
       setDocData(null);
       setMessages([]);
       setLoading(false);
+      setBlocked('افتح المحادثة من تفاصيل الاستشارة حتى نربطها بالحجز.');
+      return () => { cancelled = true; };
     }
+
+    // 1) Doctor profile is display-only (name, specialty) — the thread is keyed
+    //    by the appointment, so no doctor user id is needed to open it.
+    if (doctorId) {
+      apiFetch(`/care/doctors/${doctorId}`)
+        .then((res: any) => { if (!cancelled) setDocData(res?.data || res); })
+        .catch(() => null);
+    }
+
+    // 2) Get-or-create the booking thread for this appointment.
+    const appointment = String(appointmentId);
+    apiFetch(`/chat/threads/booking`, { method: 'POST', body: JSON.stringify({ booking_kind: 'consultation', booking_id: appointment }) })
+      .then((tres: any) => {
+        const thread = tres?.data || tres;
+        const tid = thread?.id || thread?.thread_id;
+        if (!tid || cancelled) return null;
+        setThreadId(tid);
+        joinThread(tid);
+        return apiFetch(`/chat/threads/${tid}/messages`);
+      })
+      .then((mres: any) => {
+        if (!mres || cancelled) return;
+        const list = mres?.data || mres || [];
+        setMessages(Array.isArray(list) ? list.map((m: any) => ({
+          id: m.id || m._id,
+          sender: (m.sender_role === 'provider' || m.sender_role === 'doctor') ? 'doc' : 'me',
+          text: m.body || m.content || m.text || '',
+          time: m.createdAt ? new Date(m.createdAt).toLocaleTimeString(dateLocale(), { hour: '2-digit', minute: '2-digit' }) : '',
+        })) : []);
+      })
+      .catch(() => {
+        if (!cancelled) setBlocked('تعذر فتح المحادثة. تأكد أن الاستشارة بدأت وأنك طرف فيها.');
+      })
+      .finally(() => { if (!cancelled) setLoading(false); });
 
     return () => {
       cancelled = true;
-      if (threadId) leaveThread(threadId);
+      setThreadId((current) => { if (current) leaveThread(current); return current; });
     };
-  }, [doctorId, isConnected]);
+  }, [appointmentId, doctorId, isConnected]);
 
   useEffect(() => {
     if (!socket) return;
     
     const handleNewMessage = (newMsg: any) => {
       if (newMsg.thread_id === threadId) {
-        const mine = newMsg.sender_id !== undefined && docData && newMsg.sender_id !== (docData.user_id || docData.account_id);
+        const mine = !(newMsg.sender_role === 'provider' || newMsg.sender_role === 'doctor');
         setMessages(prev => [...prev, {
           id: newMsg.id || String(Date.now()),
           sender: mine ? 'me' : 'doc',
@@ -158,9 +160,19 @@ export default function ChatWithDoctorScreen() {
         </View>
       </View>
 
+      {!!blocked && (
+        <View style={{ backgroundColor: '#FEF3C7', paddingHorizontal: 14, paddingVertical: 10 }}>
+          <LocalizedText style={{ fontSize: 11, color: '#92400E', textAlign: isRTL ? 'right' : 'left' }}>{blocked}</LocalizedText>
+        </View>
+      )}
+
       <ScrollView contentContainerStyle={styles.chatArea}>
 
-        {messages.map((m: any) => m.sender === 'doc' ? (
+        {messages.length === 0 && !blocked ? (
+          <LocalizedText style={{ fontSize: 11, color: colors.t3, textAlign: 'center', marginTop: 24 }}>
+            لا توجد رسائل بعد. ابدأ المحادثة حول هذه الاستشارة.
+          </LocalizedText>
+        ) : messages.map((m: any) => m.sender === 'doc' ? (
           <View key={m.id} style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: 8, marginBottom: 12 }}>
             <View style={[styles.chatAvatar, { backgroundColor: resolveColor('var(--ps)') } ]}>
               <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: resolveColor('var(--p)'), fontSize: 20 }}>person</LocalizedText>
@@ -189,10 +201,11 @@ export default function ChatWithDoctorScreen() {
           placeholder="اكتب رسالة..."
           placeholderTextColor={colors.t3}
           value={msg}
+          editable={!blocked}
           onChangeText={handleTyping}
           onSubmitEditing={send}
         />
-        <TouchableOpacity style={[styles.micBtn, { backgroundColor: resolveColor('var(--p)') }]} onPress={send}>
+        <TouchableOpacity disabled={!!blocked} style={[styles.micBtn, { backgroundColor: resolveColor('var(--p)'), opacity: blocked ? 0.5 : 1 }]} onPress={send}>
           <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 21 }}>{msg ? 'send' : 'mic'}</LocalizedText>
         </TouchableOpacity>
       </View>

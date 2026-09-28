@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { BellRing, Clock3, Pill } from "lucide-react";
 import { extractMedicationReminderSummaries } from "@/lib/api/reminders";
+import { ReminderActions } from "./reminder-actions";
 import { getPatientMedicationReminders } from "@/lib/api/reminders-server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
@@ -60,10 +61,11 @@ export default async function RemindersPage({ params }: Props) {
           <span className={styles.summaryIcon}>
             <Clock3 size={22} aria-hidden="true" />
           </span>
-          <div>
-            <strong>{nextDose ? `${nextDose.timeKey} · ${nextDose.reminder.medicineName ?? t("medicineUnavailable")}` : t("empty")}</strong>
-            <span>{doseRows.length ? `${takenDoses}/${doseRows.length}` : t("notice")}</span>
-          </div>
+              <div>
+                <strong>{nextDose ? `${nextDose.timeKey} · ${nextDose.reminder.medicineName ?? t("medicineUnavailable")}` : t("empty")}</strong>
+                <span>{doseRows.length ? `${takenDoses}/${doseRows.length}` : t("notice")}</span>
+              </div>
+              {nextDose && <ReminderActions locale={locale} id={nextDose.reminder.id} nextTimeKey={nextDose.timeKey} />}
         </section>
       ) : null}
       {reminders.length === 0 ? (
@@ -96,6 +98,7 @@ export default async function RemindersPage({ params }: Props) {
                 ) : null}
                 {reminder.frequency ? <span className={styles.frequency}>{reminder.frequency}</span> : null}
               </div>
+              <ReminderActions locale={locale} id={reminder.id} nextTimeKey={reminder.times[0]} />
             </article>
           ))}
         </section>

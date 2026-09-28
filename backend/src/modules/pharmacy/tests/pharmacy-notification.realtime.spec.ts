@@ -1,7 +1,10 @@
 import { PharmacyNotificationService } from '../services/pharmacy-notification.service';
 
 describe('PharmacyNotificationService realtime broadcasts', () => {
-  const notifications = { create: jest.fn().mockResolvedValue(undefined) };
+  const notifications = {
+    create: jest.fn().mockResolvedValue(undefined),
+    notifyProviderAccount: jest.fn().mockResolvedValue({ id: 'bell-1' }),
+  };
   const orders = { findOne: jest.fn() };
   const realtime = { emitToUser: jest.fn().mockResolvedValue(undefined) };
   const service = new PharmacyNotificationService(notifications as any, orders as any, realtime as any);
@@ -22,6 +25,9 @@ describe('PharmacyNotificationService realtime broadcasts', () => {
     expect(realtime.emitToUser).toHaveBeenCalledWith('pharmacy-account-1', 'pharmacy:broadcast:available', {
       broadcast_id: 'broadcast-1', order_id: 'order-1', round: 2, radius_km: 12,
     });
+    expect(notifications.notifyProviderAccount).toHaveBeenCalledWith('pharmacy-account-1', expect.objectContaining({
+      type: 'new_request', related_id: 'broadcast-1', related_type: 'broadcast',
+    }));
   });
 
   it('emits a targeted cancellation event', async () => {

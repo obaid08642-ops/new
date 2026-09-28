@@ -41,7 +41,7 @@ export default function ProviderModeration() {
     if (!selectedProvider) { setProviderDetail(null); return; }
     setDetailLoading(true);
     setProviderDetail(null);
-    fetchWithAdminGuard(`/api/admin/providers/${selectedProvider.id}`)
+    fetchWithAdminGuard(`/api/admin/admin/providers/${selectedProvider.id}`)
       .then(async (res) => { if (res.ok) setProviderDetail(await res.json()); })
       .catch(() => setProviderDetail(null))
       .finally(() => setDetailLoading(false));
@@ -62,7 +62,7 @@ export default function ProviderModeration() {
         if (geo.city) geoParams.set('city', geo.city);
         if (geo.district) geoParams.set('district', geo.district);
         const geoQuery = geoParams.toString() ? `&${geoParams.toString()}` : '';
-        const providersRes = await fetchWithAdminGuard(`/api/admin/providers?status=pending&limit=100${geoQuery}`);
+        const providersRes = await fetchWithAdminGuard(`/api/admin/admin/providers?status=pending&limit=100${geoQuery}`);
         if (providersRes.ok) {
           const providersData = await providersRes.json();
           const items = providersData.items || [];
@@ -78,7 +78,7 @@ export default function ProviderModeration() {
 
         // REAL pending delta mutations (provider_deltas collection — the same
         // pipeline the provider app submits to via POST /provider/settings/delta)
-        const deltasRes = await fetchWithAdminGuard(`/api/admin/providers/provider-deltas`, { method: 'GET' });
+        const deltasRes = await fetchWithAdminGuard(`/api/admin/admin/providers/provider-deltas`, { method: 'GET' });
         if (deltasRes.ok) {
           const deltasData = await deltasRes.json();
           const rows = Array.isArray(deltasData) ? deltasData : (deltasData.data || []);
@@ -114,7 +114,7 @@ export default function ProviderModeration() {
     const commission_cash = Math.min(100, Math.max(0, parseFloat(cashRaw) || 0));
     const commission_insurance = Math.min(100, Math.max(0, parseFloat(insRaw) || 0));
     try {
-        const res = await fetchWithAdminGuard(`/api/admin/providers/${id}/approve`, { method: 'POST', body: JSON.stringify({ reason: reason.trim(), commission_cash, commission_insurance }) });
+        const res = await fetchWithAdminGuard(`/api/admin/admin/providers/${id}/approve`, { method: 'POST', body: JSON.stringify({ reason: reason.trim(), commission_cash, commission_insurance }) });
       if (res.ok) {
         alert('تم اعتماد المزود — أصبح حسابه فعالاً ويظهر الآن في دليل المرضى.');
         setPendingProviders(prev => prev.filter(p => p.id !== id));
@@ -134,7 +134,7 @@ export default function ProviderModeration() {
     const reason = window.prompt('سبب إعادة التفعيل (يُحفظ في سجل التدقيق — 5 أحرف على الأقل):', '');
     if (!reason || reason.trim().length < 5) return;
     try {
-      const res = await fetchWithAdminGuard(`/api/admin/providers/${id}/reactivate`, {
+      const res = await fetchWithAdminGuard(`/api/admin/admin/providers/${id}/reactivate`, {
         method: 'POST', body: JSON.stringify({ reason: reason.trim() }),
       });
       if (!res.ok) throw new Error(await res.text());
@@ -147,7 +147,7 @@ export default function ProviderModeration() {
   const handleSuspend = async () => {
     if (!suspendReason) return alert('يرجى إدخال سبب الإيقاف');
     try {
-        const res = await fetchWithAdminGuard(`/api/admin/providers/${selectedProvider?.id}/suspend`, {
+        const res = await fetchWithAdminGuard(`/api/admin/admin/providers/${selectedProvider?.id}/suspend`, {
         method: 'POST',
         body: JSON.stringify({ reason: suspendReason })
       });
@@ -172,7 +172,7 @@ export default function ProviderModeration() {
     if (reason === null) return;
     if (reason.trim().length < 5) { alert('يرجى إدخال سبب لا يقل عن 5 أحرف'); return; }
     try {
-        const res = await fetchWithAdminGuard(`/api/admin/providers/provider-deltas/${id}/approve`, { method: 'POST', body: JSON.stringify({ reason: reason.trim() }) });
+        const res = await fetchWithAdminGuard(`/api/admin/admin/providers/provider-deltas/${id}/approve`, { method: 'POST', body: JSON.stringify({ reason: reason.trim() }) });
       if (res.ok) {
         alert('تم اعتماد التعديلات وتطبيقها على ملف المزود — ستظهر الآن لتطبيق المرضى.');
         setPendingDeltas(prev => prev.filter(d => d.id !== id));
@@ -192,7 +192,7 @@ export default function ProviderModeration() {
     if (reason === null) return;
     if (reason.trim().length < 5) { alert('يرجى إدخال سبب رفض لا يقل عن 5 أحرف'); return; }
     try {
-        const res = await fetchWithAdminGuard(`/api/admin/providers/provider-deltas/${id}/reject`, { method: 'POST', body: JSON.stringify({ reason: reason.trim() }) });
+        const res = await fetchWithAdminGuard(`/api/admin/admin/providers/provider-deltas/${id}/reject`, { method: 'POST', body: JSON.stringify({ reason: reason.trim() }) });
       if (res.ok) {
         alert('تم رفض التعديلات — لن تُطبق على ملف المزود.');
         setPendingDeltas(prev => prev.filter(d => d.id !== id));

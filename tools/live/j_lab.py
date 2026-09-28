@@ -22,6 +22,7 @@ def admin_publishes_tests(admin, n=4):
     journey('lab catalog: admin creates and publishes tests')
     r = admin.get('/labs/admin/catalog')
     items = r.body if isinstance(r.body, list) else r.items()
+    # A fresh DB is not empty: the catalog seed-data bootstrap inserts the lab tests at boot.
     step('admin catalog lists tests including unpublished ones', r.ok and len(items) > 0, f'{r.status} {len(items)}')
     tag = uuid.uuid4().hex[:5]
     body = {'name_ar': f'فيتامين د {tag}', 'name_en': f'Vitamin D {tag}', 'short_code': 'VITD', 'category': 'vitamins', 'sample_type': 'blood',
@@ -124,10 +125,10 @@ def run(pat, lab, other_lab=None, admin=None):
 
     if admin:
         journey('lab: admin orders console')
-        r = admin.get('/orders?kind=lab&limit=25')
+        r = admin.get('/admin/admin/orders?kind=lab&limit=25')
         row = next((x for x in r.items() if x.get('id') == bid), None)
         step('console lists the lab booking with status and amount', r.ok and row and row.get('status') == 'REPORTED' and row.get('amount', 0) > 0, row or r.status)
-        d = admin.get(f'/orders/lab/{bid}')
+        d = admin.get(f'/admin/admin/orders/lab/{bid}')
         step('console detail opens with its timeline', d.ok and len(d.get('timeline') or []) >= 4, d)
     return bid
 

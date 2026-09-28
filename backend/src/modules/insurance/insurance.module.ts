@@ -9,8 +9,11 @@ import {
 } from '@nestjs/swagger';
 import { NABDAH_ACCESS_TOKEN_SECURITY_SCHEME } from '../../config/openapi.config';
 import { CreateCompanyDto, UpdateCompanyDto, OcrExtractDto, UploadPolicyDto, NphiesEligibilityDto, SavePolicyDto, SubmitClaimDto, CreateInsuranceNetworkDto, CreateCoverageRuleDto } from './insurance.dto';
-import { InjectModel, MongooseModule } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { InjectModel, InjectConnection, MongooseModule } from '@nestjs/mongoose';
+import { Model, Connection } from 'mongoose';
+import { Optional } from '@nestjs/common';
+import { RefundExecutor } from '../finance-engine/finance-engine.module';
+import { FinanceEngineModule } from '../finance-engine/finance-engine.module';
 import { JwtAuthGuard, Roles, CurrentUser, Public, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import {
@@ -38,7 +41,14 @@ export class InsuranceService {
     @InjectModel('PatientProfile') private patientModel: Model<any>,
     @InjectModel('InsuranceClaim') private claimModel: Model<InsuranceClaimDocument>,
     private readonly ai: AiGatewayService,
+    @Optional() @InjectConnection() private readonly conn?: Connection,
+    @Optional() private readonly refundExec?: RefundExecutor,
   ) {}
+
+  private static readonly CLAIM_BOOKING_COLLECTIONS: Record<string, string> = {
+    pharmacy: 'orders', order: 'orders', consultation: 'appointments', appointment: 'appointments',
+    lab: 'labbookings', radiology: 'radiologybookings', nursing: 'homecarebookings',
+  };
 
   private cleanJson(text: string): string {
     return String(text || '').replace(/```json|```/g, '').trim();
@@ -367,32 +377,99 @@ Use null for any field not clearly visible. Do not guess.`;
     return { success: true, insurance: patient.insurance };
   }
 
+  /** LJ-02: a claim is filed against a real paid booking; the server sets the
+   * status/date and ignores any client-supplied status or submitted_at. */
   async submitClaim(patientId: string, claimData: any) {
-    const amount = Number(claimData?.amount);
-    if (!claimData?.service || !String(claimData.service).trim()) {
-      throw new BadRequestException('service is required');
-    }
-    if (!amount || amount <= 0) {
-      throw new BadRequestException('a valid amount is required');
-    }
+    const bookingKind = String(claimData?.booking_kind || '').trim().toLowerCase();
+    const bookingId = String(claimData?.booking_id || '').trim();
+    const collection = InsuranceService.CLAIM_BOOKING_COLLECTIONS[bookingKind];
+    if (!collection) throw new BadRequestException('booking_kind must be pharmacy|consultation|lab|radiology|nursing');
+    if (!bookingId) throw new BadRequestException('booking_id is required');
+    if (!this.conn) throw new ServiceUnavailableException('claim_store_unavailable');
+
+    // Pharmacy orders live in pharmacy_orders (owner in patient_account_id, amount in totals.total);
+    // `orders` only holds legacy cart checkouts.
+    const booking: any = (collection === 'orders'
+      ? await this.conn.collection('pharmacy_orders').findOne({ id: { $eq: bookingId } } as any)
+      : null) || await this.conn.collection(collection).findOne({ id: { $eq: bookingId } } as any);
+    const owner = booking ? String(booking.patient_id ?? booking.patient_account_id ?? '') : '';
+    if (!booking || owner !== String(patientId)) throw new NotFoundException('owned_booking_not_found');
+
+    const amount = Number(claimData?.amount) || Number(booking.totals?.total || booking.total || booking.total_price || booking.price || 0);
+    if (!amount || amount <= 0) throw new BadRequestException('a valid amount is required (booking price not ready)');
+
     const claim = await this.claimModel.create({
       patient_id: patientId,
-      service: String(claimData.service).trim(),
+      service: String(claimData?.service || claimData?.claim_type || bookingKind).trim(),
+      claim_type: String(claimData?.claim_type || bookingKind).trim(),
+      booking_kind: bookingKind,
+      booking_id: bookingId,
       amount,
-      covered: Number(claimData.covered) || 0,
+      covered: 0,
       status: 'pending',
-      date: new Date().toISOString()
+      service_date: claimData?.service_date || booking.scheduled_at || booking.createdAt,
+      attachment_url: claimData?.attachment_url,
+      note: claimData?.note,
+      date: new Date().toISOString(),
     });
     return {
       success: true,
       claim_id: claim.id,
+      id: claim.id,
       status: claim.status,
-      submitted_at: new Date().toISOString(),
+      submitted_at: claim.date,
     };
   }
 
   async getClaims(patientId: string) {
     return this.claimModel.find({ patient_id: patientId }).sort({ createdAt: -1 }).lean();
+  }
+
+  /** Admin/insurer decision. Approval reimburses the patient through RefundExecutor. */
+  async decideClaim(adminUser: any, id: string, approve: boolean, note?: string) {
+    const claim: any = await this.claimModel.findOne({ id: { $eq: id } });
+    if (!claim) throw new NotFoundException('claim not found');
+    if (claim.status !== 'pending') throw new BadRequestException(`claim already ${claim.status}`);
+    if (approve) {
+      if (!this.refundExec) throw new ServiceUnavailableException('refund_executor_unavailable');
+      await this.refundExec.execute({
+        refund_id: claim.id,
+        booking_kind: claim.booking_kind,
+        booking_id: claim.booking_id,
+        patient_id: claim.patient_id,
+        amount: Number(claim.amount),
+        reason: note || 'insurance claim reimbursement',
+        actor_id: adminUser.id,
+      });
+      claim.status = 'reimbursed';
+      claim.refund_id = claim.id;
+    } else {
+      claim.status = 'rejected';
+    }
+    claim.decided_by = adminUser.id;
+    claim.decided_at = new Date();
+    claim.decision_note = note;
+    await claim.save();
+    return claim.toObject();
+  }
+
+  adminClaims(status?: string) {
+    // String(): a query object (?status[$ne]=x) must not become a Mongo operator.
+    const filter = status ? { status: { $eq: String(status) } } : {};
+    return this.claimModel.find(filter).sort({ createdAt: -1 }).limit(200).lean();
+  }
+}
+
+@Controller('admin/insurance/claims')
+@Roles(UserRole.ADMIN)
+@UseGuards(JwtAuthGuard)
+export class AdminInsuranceClaimsController {
+  constructor(private readonly svc: InsuranceService) {}
+
+  @Get() list(@Query('status') status?: string) { return this.svc.adminClaims(status); }
+
+  @Post(':id/decide') decide(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) {
+    return this.svc.decideClaim(u, id, body?.approve === true, body?.note);
   }
 }
 
@@ -613,9 +690,10 @@ export class InsuranceController {
       { name: 'PatientProfile', schema: PatientProfileSchema },
       { name: 'InsuranceClaim', schema: InsuranceClaimSchema },
     ]),
-    AiModule
+    AiModule,
+    FinanceEngineModule,
   ],
-  controllers: [InsuranceController],
+  controllers: [InsuranceController, AdminInsuranceClaimsController],
   providers: [InsuranceService],
   exports: [InsuranceService, MongooseModule],
 })

@@ -102,43 +102,67 @@ export class AdminGovernanceControlsController {
     return doc;
   }
 
-  /**
-   * Batch 7: Search Intent & Query Analytics.
-   * Tracks natural search queries, zero-result searches, and location distribution.
-   */
+  /** Search intelligence for the admin search-intelligence page: zero-result
+   * queries, top queries, specialties, locales and locations from the query_analytics log. */
   @Get('search-intent-analytics')
   @RequirePermissions(Permission.ANALYTICS_READ)
-  async searchIntentAnalytics() {
+  async searchIntentAnalytics(@Query('locale') locale?: string, @Query('days') days?: string) {
+    const safeDays = Math.min(Math.max(Number(days) || 30, 1), 90);
+    const since = new Date(Date.now() - safeDays * 86400000);
+    const match: any = { created_at: { $gte: since } };
+    // String(): a query like ?locale[$ne]=x arrives as an object and would become an operator.
+    if (locale && locale !== 'all') match.locale = { $eq: String(locale) };
     const col = this.conn.collection('query_analytics');
-    const [total, noResults, topQueries, topSpecialties, zeroList] = await Promise.all([
-      col.countDocuments({}),
-      col.countDocuments({ results_count: 0 }),
+    const [totals, top, locations, specialties] = await Promise.all([
       col.aggregate([
-        { $group: { _id: { q: '$normalized_query', locale: '$locale', intent: '$detected_intent' }, count: { $sum: 1 }, avgResults: { $avg: '$results_count' } } },
-        { $sort: { count: -1 } },
-        { $limit: 10 },
+        { $match: match },
+        { $group: { _id: null, total: { $sum: 1 }, zero: { $sum: { $cond: [{ $eq: ['$results_count', 0] }, 1, 0] } } } },
       ]).toArray(),
       col.aggregate([
-        { $match: { specialty: { $ne: null } } },
+        { $match: match },
+        { $sort: { created_at: -1 } },
+        {
+          $group: {
+            _id: { q: '$normalized_query', locale: '$locale' },
+            count: { $sum: 1 },
+            zero: { $sum: { $cond: [{ $eq: ['$results_count', 0] }, 1, 0] } },
+            raw_query: { $first: '$raw_query' },
+            intent_type: { $first: '$detected_intent' },
+            entity_type: { $first: '$detected_entity_type' },
+            location_code: { $first: '$resolved_location_code' },
+            last_searched: { $max: '$created_at' },
+          },
+        },
+        { $sort: { zero: -1, count: -1 } },
+        { $limit: 50 },
+      ]).toArray(),
+      col.aggregate([
+        { $match: { ...match, resolved_location_code: { $ne: null } } },
+        { $group: { _id: '$resolved_location_code', count: { $sum: 1 } } },
+        { $sort: { count: -1 } },
+        { $limit: 20 },
+      ]).toArray(),
+      col.aggregate([
+        { $match: { ...match, specialty: { $ne: null } } },
         { $group: { _id: '$specialty', count: { $sum: 1 } } },
         { $sort: { count: -1 } },
         { $limit: 5 },
       ]).toArray(),
-      col.aggregate([
-        { $match: { results_count: 0 } },
-        { $group: { _id: { q: '$normalized_query', locale: '$locale' }, count: { $sum: 1 } } },
-        { $sort: { count: -1 } },
-        { $limit: 20 },
-      ]).toArray(),
     ]);
-
+    const total = Number(totals?.[0]?.total || 0);
+    const zero = Number(totals?.[0]?.zero || 0);
     return {
       total_queries: total,
-      no_results_queries: noResults,
-      zero_result_rate: total > 0 ? Number(((noResults / total) * 100).toFixed(2)) : 0,
-      top_queries: topQueries.map((q) => ({ raw_query: q._id?.q, locale: q._id?.locale, intent_type: q._id?.intent, count: q.count, avg_results: Math.round(q.avgResults || 0) })),
-      zero_result_queries: zeroList.map((z) => ({ raw_query: z._id?.q, locale: z._id?.locale, count: z.count })),
-      top_specialties: topSpecialties.map((s) => ({ specialty: s._id, count: s.count })),
+      no_results_queries: zero,
+      zero_result_rate: total > 0 ? Math.round((zero / total) * 1000) / 10 : 0,
+      top_queries: top.map((t: any) => ({
+        raw_query: t.raw_query, normalized_query: t._id?.q, locale: t._id?.locale,
+        intent_type: t.intent_type, entity_type: t.entity_type, location_code: t.location_code,
+        count: t.count, last_searched: t.last_searched,
+      })),
+      zero_result_queries: top.filter((t: any) => t.zero > 0).map((t: any) => ({ raw_query: t.raw_query, locale: t._id?.locale, count: t.zero })),
+      top_specialties: specialties.map((sp: any) => ({ specialty: sp._id, count: sp.count })),
+      top_locations: locations.map((l: any) => ({ location: l._id, count: l.count })),
     };
   }
 

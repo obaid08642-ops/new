@@ -181,7 +181,7 @@ export default function FollowUpScreen() {
                 label="محادثة الطبيب"
                 variant="outline"
                 icon="chat"
-                onPress={() => router.push({ pathname: '/consultations/chat-with-doctor', params: { doctorId: appt.doctor_id } } as any)}
+                onPress={() => router.push({ pathname: '/consultations/chat-with-doctor', params: { doctorId: appt.doctor_id, appointmentId: appt.id } } as any)}
               />
             )}
             {!!appt.doctor_id && (

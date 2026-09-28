@@ -39,7 +39,7 @@ export default function ReportsPage() {
   const load = useCallback(async () => {
     setLoading(true); setError('');
     try {
-      const r: any = await adminFetch(`/reports/${tab}${toQuery({ from, to, group_by: groupBy })}`);
+      const r: any = await adminFetch(`/api/admin/admin/reports/${tab}${toQuery({ from, to, group_by: groupBy })}`);
       setRows(Array.isArray(r?.rows) ? r.rows : []);
     } catch (cause) {
       setError(apiErrorMessage(cause, 'تعذر تحميل التقرير.'));
@@ -53,7 +53,8 @@ export default function ReportsPage() {
 
   type Row = { bucket?: string; kind?: string; type?: string; count?: number; gross?: number; refunded?: number; net?: number; total?: number; copay?: number };
   const valueOf = (r: Row) => r.net ?? r.total ?? r.copay ?? r.gross ?? r.count ?? 0;
-  const csvHref = `/api/admin/reports/${tab}${toQuery({ from, to, group_by: groupBy, format: 'csv' })}`;
+  const csvHref = `/api/admin/admin/reports/${tab}${toQuery({ from, to, group_by: groupBy, format: 'csv' })}`;
+  const xlsxHref = `/api/admin/admin/reports/${tab}${toQuery({ from, to, group_by: groupBy, format: 'xlsx' })}`;
 
   return (
     <>
@@ -65,6 +66,7 @@ export default function ReportsPage() {
             <p className="mt-1 text-sm text-slate-500">تجميعات حية من قاعدة البيانات — بلا ثوابت.</p>
           </div>
           <a href={csvHref} className="rounded-lg bg-teal-700 px-4 py-2 text-sm font-bold text-white">تصدير CSV</a>
+          <a href={xlsxHref} className="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-bold text-white">تصدير XLSX</a>
         </header>
         <div className="flex flex-wrap gap-2">
           {TABS.map((t) => (

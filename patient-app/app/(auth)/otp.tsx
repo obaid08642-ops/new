@@ -34,6 +34,7 @@ export default function OtpScreen() {
   const [otp, setOtp] = useState(['', '', '', '', '', '']); // 6 digits for our backend
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false);
   const [timer, setTimer] = useState(60);
   const inputs = useRef<(TextInput | null)[]>([]);
 
@@ -51,6 +52,29 @@ export default function OtpScreen() {
 
     if (text && index < 5) {
       inputs.current[index + 1]?.focus();
+    }
+  };
+
+  // F75: resend calls the same send-OTP endpoint as the first send.
+  const handleResend = async () => {
+    if (resending || timer > 0) return;
+    const identifier = registrationPayload?.email || (params.email as string) || phone;
+    if (!identifier) {
+      showLocalizedAlert('خطأ', 'تعذر تحديد الحساب لإعادة الإرسال');
+      return;
+    }
+    setResending(true);
+    try {
+      await apiFetch('/auth/send-otp', {
+        method: 'POST',
+        body: JSON.stringify({ identifier }),
+      });
+      setTimer(60);
+      setOtp(['', '', '', '', '', '']);
+    } catch (e: any) {
+      showLocalizedAlert('خطأ', e?.message || 'فشلت إعادة الإرسال');
+    } finally {
+      setResending(false);
     }
   };
 
@@ -195,7 +219,7 @@ export default function OtpScreen() {
                 00:{timer < 10 ? `0${timer}` : timer}
               </LocalizedText>
             ) : (
-              <TouchableOpacity onPress={() => { setTimer(60); setOtp(['', '', '', '', '', '']); }}>
+              <TouchableOpacity disabled={resending} onPress={() => void handleResend()}>
                 <LocalizedText style={[styles.timerText, { color: resolveColor('var(--p)', isDark) } ]}>إعادة إرسال الرمز</LocalizedText>
               </TouchableOpacity>
             )}

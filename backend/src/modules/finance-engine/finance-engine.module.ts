@@ -535,8 +535,11 @@ export class RefundExecutor {
 
   /**
    * Execute an approved refund end-to-end. Idempotent per refund_id.
+   * 7A-A2: refunds go to the original payment method only — card payments via
+   * Moyasar (full or partial); cash is a ledger record with no wallet credit.
+   * There is no patient-wallet branch anymore.
    *  1. Refund via Moyasar when a gateway payment exists (full or partial).
-   *  2. Otherwise credit the patient wallet (wallet/cash payments).
+   *  2. Otherwise the booking must be cash-collected: record a cash ledger row.
    *  3. Append ledger entries (refund + commission reversal).
    *  4. Provider debit: if the provider was already credited, claw the net
    *     back as provider_debit — the balance goes NEGATIVE and is deducted
@@ -564,15 +567,63 @@ export class RefundExecutor {
       { booking_id: opts.booking_id, status: { $in: ['paid', 'refunded'] } } as any,
       { sort: { createdAt: -1 } } as any,
     );
-    const paidTotal = paidPayment ? Number(paidPayment.amount || 0) : null;
+    const paidTransaction: any = await this.conn.collection('transactions').findOne({
+      booking_kind: opts.booking_kind, booking_id: opts.booking_id, status: 'paid',
+    } as any);
+    const bookingCollections: Record<string, string> = {
+      pharmacy: 'orders', order: 'orders', consultation: 'appointments', appointment: 'appointments',
+      lab: 'labbookings', radiology: 'radiologybookings', nursing: 'homecarebookings',
+    };
+    const bookingCollection = bookingCollections[opts.booking_kind];
+    let booking: any = bookingCollection
+      ? await this.conn.collection(bookingCollection).findOne({ id: opts.booking_id } as any)
+      : null;
+    // Pharmacy orders live in pharmacy_orders (governed broadcast flow); the
+    // legacy `orders` collection is only the fallback.
+    if (!booking && ['pharmacy', 'order'].includes(String(opts.booking_kind))) {
+      booking = await this.conn.collection('pharmacy_orders').findOne({ id: opts.booking_id } as any);
+    }
+    const originalMethod = String(paidTransaction?.method || booking?.payment_method || '').toLowerCase();
+    const bookingState = String(booking?.status || '').toLowerCase();
+    const cashLike = originalMethod === 'cash' || originalMethod === 'cod' || originalMethod === 'cash_on_delivery';
+    const cashCollected = cashLike && (
+      paidTransaction?.status === 'paid' || String(booking?.payment_status || '').toLowerCase() === 'paid'
+      || Number(booking?.collection_proof?.amount_collected || 0) > 0
+      // COD collected at the door: a delivered/completed order means the courier took the money.
+      || (originalMethod !== 'cash' && ['delivered', 'completed'].includes(bookingState))
+    );
+    if (!paidPayment && !cashCollected) throw new BadRequestException('original_payment_not_found');
+    if (paidPayment && (!paidPayment.moyasar_id || String(paidPayment.moyasar_id).startsWith('sandbox_'))) {
+      throw new BadRequestException('original_card_refund_unavailable');
+    }
+    // Cash-like orders may carry no payment total (e.g. governed pharmacy_orders
+    // with total_price 0) — fall back to the priced items the refund was computed from.
+    const itemsTotal = Array.isArray(booking?.items)
+      ? booking.items.reduce((sum: number, it: any) => sum + Number(it?.price || 0) * Number(it?.qty ?? it?.quantity ?? 1), 0)
+      : 0;
+    let paidTotal = paidPayment
+      ? Number(paidPayment.amount || 0)
+      : Number(paidTransaction?.amount || booking?.total_price || booking?.total || booking?.price || booking?.collection_proof?.amount_collected || itemsTotal || 0);
+    if (!(paidTotal > 0)) {
+      // Cash-like with no recorded totals (e.g. governed pharmacy_orders carry no
+      // prices): cap by the originating return request's server-computed items.
+      try {
+        const returnId = String(opts.refund_id || '').replace(/^return_/, '');
+        const ret: any = returnId ? await this.conn.collection('returnrequests').findOne({ id: returnId } as any) : null;
+        const retTotal = Array.isArray(ret?.items)
+          ? ret.items.reduce((sum: number, it: any) => sum + Number(it?.price || 0) * Number(it?.qty ?? it?.quantity ?? 1), 0)
+          : 0;
+        if (retTotal > 0) paidTotal = retTotal;
+      } catch { /* cap stays 0 → the guard below refuses */ }
+    }
     if (paidTotal != null) {
-      const alreadyRefunded = Number(paidPayment.refunded_amount || 0);
+      const alreadyRefunded = Number(paidPayment?.refunded_amount || paidTransaction?.refunded_amount || booking?.refunded_amount || 0);
       if (alreadyRefunded + amount > paidTotal + 0.001) {
         throw new BadRequestException(`refund_exceeds_paid: paid ${paidTotal}, already refunded ${alreadyRefunded}`);
       }
     }
 
-    let method = 'wallet';
+    let method = 'cash';
     let gatewayRefundId: string | undefined;
 
     // 1) Gateway refund (real money back to the card)
@@ -595,25 +646,9 @@ export class RefundExecutor {
         { _id: paidPayment._id } as any,
         { $set: { refunded_amount: newRefunded, status: newRefunded >= Number(paidPayment.amount || 0) - 0.001 ? 'refunded' : 'paid', refunded_at: new Date() } },
       );
-    } else {
-      // 2) Wallet/cash payments → credit the patient wallet (real, spendable)
-      // a patient who never opened the wallet screen has no wallet yet: create it, never drop the refund
-      const wallet: any = await this.conn.collection('wallets').findOneAndUpdate(
-        { ownerId: opts.patient_id, ownerType: 'patient' } as any,
-        { $setOnInsert: { id: uuid(), ownerId: opts.patient_id, ownerType: 'patient', balance: 0, savedCards: [], createdAt: new Date() } } as any,
-        { upsert: true, returnDocument: 'after' } as any,
-      ).then((r: any) => (r && 'value' in r ? r.value : r));
-      if (wallet) {
-        await this.conn.collection('wallets').updateOne({ _id: wallet._id } as any, { $inc: { balance: amount }, $set: { updatedAt: new Date() } });
-        await this.conn.collection('wallet_transactions').insertOne({
-          id: uuid(), walletId: wallet.id, amount, type: 'credit',
-          referenceType: 'refund', referenceId: opts.refund_id,
-          description: `استرداد مبلغ ${opts.booking_kind} #${String(opts.booking_id).slice(0, 8)}`,
-          createdAt: new Date(), updatedAt: new Date(),
-        } as any);
-      }
-      method = wallet ? 'wallet' : 'offline_recorded';
     }
+    // 2) Cash: the money never entered the platform — record the refund in the
+    // ledger only. No patient wallet is created, credited, or read here.
 
     // 3) Ledger: refund record (+ commission reversal note for reports)
     await this.ledger.append({
@@ -665,7 +700,7 @@ export class RefundExecutor {
     }
     await this.conn.collection('notifications').insertOne({
       id: uuid(), user_id: opts.patient_id,
-      title_key: 'تم استرداد المبلغ', body_key: `تم إرجاع ${amount} ر.س ${method === 'gateway' ? 'إلى بطاقتك البنكية' : 'إلى محفظتك'} — ${opts.reason || ''}`.trim(),
+      title_key: 'تم استرداد المبلغ', body_key: `تم إرجاع ${amount} ر.س ${method === 'gateway' ? 'إلى بطاقتك البنكية' : 'تم تسجيله نقدًا'} — ${opts.reason || ''}`.trim(),
       params: {}, type: 'payment', priority: 'high', read_by: [],
       status: 'DELIVERED', createdAt: new Date(), updatedAt: new Date(),
     } as any);

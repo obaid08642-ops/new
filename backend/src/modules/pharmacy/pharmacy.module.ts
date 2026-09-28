@@ -43,6 +43,7 @@ import { PharmacyPaymentEvidenceService } from './services/pharmacy-payment-evid
 import { NotificationsModule } from '../notifications/notifications.module';
 import { GeoEngineService } from '../provider/services/geo-engine.service';
 import { ProviderModule } from '../provider/provider.module';
+import { BusinessRulesModule } from '../business-rules/business-rules.module';
 import { WorkflowEngineModule } from '../workflow-engine/workflow-engine.module';
 import { RealtimeModule } from '../realtime/realtime.module';
 import { DrugRejectionLogRepository } from "./services/repositories/drugrejectionlog.repository";
@@ -76,6 +77,7 @@ import { B2BVoiceController } from './pharmacy-b2b-voice.controller';
     NotificationsModule,
     ProviderModule,
     WorkflowEngineModule,
+    BusinessRulesModule,
     RealtimeModule,
     AiModule,
     // P5.3: merged from PharmacyOpsModule (pharmacy_ops/ → pharmacy/)

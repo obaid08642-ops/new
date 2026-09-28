@@ -16,12 +16,12 @@ export default function AnalyticsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    apiFetch('/admin/analytics/overview').then(setOverview).catch(() => null);
+    apiFetch('/api/admin/admin/analytics/overview').then(setOverview).catch(() => null);
   }, []);
 
   useEffect(() => {
     setLoading(true);
-    apiFetch(`/admin/analytics/${section}?limit=15`)
+    apiFetch(`/api/admin/admin/analytics/${section}?limit=15`)
       .then(d => setRows(Array.isArray(d) ? d : []))
       .catch(() => setRows([]))
       .finally(() => setLoading(false));

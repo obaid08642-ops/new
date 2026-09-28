@@ -27,9 +27,30 @@ export class UsersService {
     @Optional() private readonly auth?: AuthService,
   ) {}
 
+  /** LJ-08: the wishlist carries a real product snapshot so the screen can show
+   * names and current prices without a second lookup per row. */
   async getWishlist(userId: string) {
     const profile = await this.patientRepository.findOne({ user_id: userId });
-    return profile?.wishlist || [];
+    const items: any[] = profile?.wishlist || [];
+    if (!items.length) return [];
+    const ids = items.map((i) => i.id).filter(Boolean);
+    let medicines: any[] = [];
+    try {
+      medicines = await this.conn.collection('medicines').find({ id: { $in: ids } } as any).toArray();
+    } catch { /* fall back to the stored snapshot */ }
+    const byId = new Map(medicines.map((m: any) => [String(m.id), m]));
+    return items.map((item: any) => {
+      const med = byId.get(String(item.id));
+      return {
+        id: item.id,
+        name_ar: med?.name_ar || item.name_ar,
+        name_en: med?.name_en || item.name_en,
+        price: Number(med?.price ?? item.price ?? 0),
+        image: med?.image || item.image,
+        requires_prescription: med?.requires_prescription ?? item.requires_prescription ?? false,
+        available: !!med,
+      };
+    });
   }
 
   async toggleWishlist(userId: string, itemId: string) {
@@ -39,8 +60,19 @@ export class UsersService {
     if (idx >= 0) {
       profile.wishlist.splice(idx, 1);
     } else {
+      // Snapshot the medicine so the wishlist is useful even if it is later delisted.
+      let medicine: any = null;
+      try { medicine = await this.conn.collection('medicines').findOne({ id: itemId } as any); } catch { /* keep bare id */ }
       if (!profile.wishlist) profile.wishlist = [];
-      profile.wishlist.push({ id: itemId }); // Real implementation would query product
+      profile.wishlist.push({
+        id: itemId,
+        name_ar: medicine?.name_ar,
+        name_en: medicine?.name_en,
+        price: Number(medicine?.price ?? 0),
+        image: medicine?.image,
+        requires_prescription: medicine?.requires_prescription ?? false,
+        added_at: new Date(),
+      });
       if (this.rankingEvents) {
         this.rankingEvents.recordEvent({
           eventType: 'wishlist_added',
@@ -50,7 +82,7 @@ export class UsersService {
       }
     }
     await this.patientRepository.updateOne({ user_id: userId }, { $set: { wishlist: profile.wishlist } });
-    return { ok: true, message: 'Wishlist toggled' };
+    return { ok: true, in_wishlist: idx < 0, message: 'Wishlist toggled' };
   }
 
   listAll(role?: UserRole, search?: string) {

@@ -321,7 +321,11 @@
     "unavailableTitle": "Unable to load family",
     "unavailable": "No fallback data was shown. Please retry later.",
     "notice": "Only member role and join date are displayed. Identifiers, permissions, health records, and invitations are not displayed in this interface.",
-    "membersCount": "{count} members"
+    "membersCount": "{count} members",
+    "noFamilyTitle": "Create a family group",
+    "noFamilyBody": "No family group yet — create one to invite relatives and share care.",
+    "createFamily": "Create group",
+    "familyCreated": "Created — refreshing…"
   },
   "Notifications": {
     "eyebrow": "Private notifications",

@@ -2,8 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { extractMedicineRows, parseMedicineSearch } from "@/lib/api/medicines";
-import { getPatientMedicines } from "@/lib/api/medicines-server";
-import { requirePatientAccess } from "@/lib/auth/session";
+import { getPublicMedicines } from "@/lib/api/public-medicines-server";
 import { isLocale } from "@/lib/i18n";
 import { RetryButton } from "@/components-next/retry-button";
 import { ArrowUpLeft, Pill, Search, ShieldCheck } from "lucide-react";
@@ -17,10 +16,10 @@ export default async function MedicinesPage({ params, searchParams }: Props) {
   setRequestLocale(locale);
   const t = await getTranslations("Medicines");
   const search = parseMedicineSearch(await searchParams);
-  const token = await requirePatientAccess(locale);
-  const response = await getPatientMedicines(token, search);
-  if (response.status === 401) redirect(`/${locale}/login`);
-  if (response.status === 403 || response.status === 404) notFound();
+  // F29: public SSR — no login gate; personalization happens client-side only.
+  const response = await getPublicMedicines(search);
+  if (!response) return <main className={`main ${styles.page}`}><section className={styles.state} role="alert"><span className={styles.stateIcon}><Pill size={24} aria-hidden="true" /></span><h1>{t("unavailableTitle")}</h1><p>{t("unavailableBody")}</p><RetryButton /></section></main>;
+  if (response.status === 404) notFound();
   if (!response.ok) return <main className={`main ${styles.page}`}><section className={styles.state} role="alert"><span className={styles.stateIcon}><Pill size={24} aria-hidden="true" /></span><h1>{t("unavailableTitle")}</h1><p>{t("unavailableBody")}</p><RetryButton /></section></main>;
 
   const medicines = extractMedicineRows(await response.json().catch(() => null));

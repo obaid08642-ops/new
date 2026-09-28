@@ -34,6 +34,17 @@ def admin_publishes_nursing(admin, n=3):
     journey('nursing catalog: admin publishes services')
     r = admin.get('/nursing/admin/catalog')
     items = r.body if isinstance(r.body, list) else r.items()
+    if r.ok and len(items) == 0:
+        # Fresh DB: the catalog starts empty — create the services, then publish them.
+        seeds = [('زيارة تمريضية منزلية', 'Home nursing visit', 'general', 150, '60 دقيقة'),
+                 ('قياس العلامات الحيوية', 'Vitals check', 'general', 80, '30 دقيقة'),
+                 ('العناية بالجروح', 'Wound care', 'general', 200, '45 دقيقة')]
+        for ar, en, cat, price, duration in seeds:
+            rc = admin.post('/nursing/admin/catalog', {'name_ar': ar, 'name_en': en, 'category': cat,
+                                                       'price': price, 'duration': duration, 'active': True})
+            step(f"admin creates service '{en}'", rc.ok, rc)
+        r = admin.get('/nursing/admin/catalog')
+        items = r.body if isinstance(r.body, list) else r.items()
     step('admin catalog lists services including unpublished ones', r.ok and len(items) > 0, f'{r.status} {len(items)}')
     for it in [i for i in items if i.get('medical_review_status') != 'approved'][:n]:
         r = admin.put(f"/nursing/admin/catalog/{it['id']}", {'medical_review_status': 'approved'})
@@ -113,18 +124,18 @@ def run(pat, nurse, admin=None):
 
     if admin:
         journey('nursing: admin orders console')
-        r = admin.get('/orders?kind=nursing&limit=25')
+        r = admin.get('/admin/admin/orders?kind=nursing&limit=25')
         row = next((x for x in r.items() if x.get('id') == bid), None)
         step('console lists it with status and amount', r.ok and row and row.get('status') == 'COMPLETED' and row.get('amount', 0) > 0, row or r.status)
-        d = admin.get(f'/orders/nursing/{bid}')
+        d = admin.get(f'/admin/admin/orders/nursing/{bid}')
         fin = d.get('financials') or {}
         step('console detail shows the card payment', d.ok and (fin.get('gross_paid') or 0) > 0, d.get('financials'))
         paid = fin.get('gross_paid') or 0
-        r = admin.post(f'/orders/nursing/{bid}/refund', {'mode': 'partial', 'amount': round(paid / 2, 2), 'reason': 'تأخر الممرضة عن الموعد المحدد نصف ساعة'})
+        r = admin.post(f'/admin/admin/orders/nursing/{bid}/refund', {'mode': 'partial', 'amount': round(paid / 2, 2), 'reason': 'تأخر الممرضة عن الموعد المحدد نصف ساعة'})
         step('admin partial refund to the patient wallet', r.ok and r.get('credited_amount') == round(paid / 2, 2), r)
-        d = admin.get(f'/orders/nursing/{bid}')
+        d = admin.get(f'/admin/admin/orders/nursing/{bid}')
         step('detail shows the refund and what is left refundable', d.ok and (d.get('financials') or {}).get('refundable_max') == round(paid - round(paid / 2, 2), 2), d.get('financials'))
-        r = admin.post(f'/orders/nursing/{bid}/refund', {'mode': 'partial', 'amount': paid, 'reason': 'محاولة استرداد يتجاوز المتبقي من المبلغ'})
+        r = admin.post(f'/admin/admin/orders/nursing/{bid}/refund', {'mode': 'partial', 'amount': paid, 'reason': 'محاولة استرداد يتجاوز المتبقي من المبلغ'})
         step('refund above the remaining amount is refused', r.status == 400, r)
     return bid
 

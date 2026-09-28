@@ -122,7 +122,7 @@ function AppNavigator() {
 
 import { ProviderHome } from "./src/screens/shared/ProviderHome";
 import { LiveKitRoomProvider } from "./src/screens/shared/LiveKitRoomProvider";
-import { PharmacyChatResponder } from "./src/screens/shared/PharmacyChatResponder";
+import { AppGate } from "./src/components/AppGate";
 import { initProviderSentry } from "./src/utils/sentry";
 
 initProviderSentry();
@@ -145,7 +145,9 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <RootProvider>
-        <AppNavigator />
+        <AppGate>
+          <AppNavigator />
+        </AppGate>
       </RootProvider>
     </SafeAreaProvider>
   );

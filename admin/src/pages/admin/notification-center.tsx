@@ -42,7 +42,7 @@ export default function NotificationCenterPage() {
 
   const loadTemplates = async () => {
     try {
-      const rows = await apiFetch<any[]>('/admin/notifications/admin/templates');
+      const rows = await apiFetch<any[]>('/api/admin/notifications/admin/templates');
       setTemplates(Array.isArray(rows) ? rows : []);
     } catch { /* templates optional */ }
   };
@@ -50,7 +50,7 @@ export default function NotificationCenterPage() {
   const saveTemplate = async () => {
     if (!tplKey.trim()) { alert('أدخل مفتاح القالب'); return; }
     try {
-      await apiFetch('/admin/notifications/admin/templates', {
+      await apiFetch('/api/admin/notifications/admin/templates', {
         method: 'POST', body: JSON.stringify({ key: tplKey.trim(), title: tplTitle, body: tplBody }),
       });
       setTplKey(''); setTplTitle({}); setTplBody({}); setTplPreview(null);
@@ -62,7 +62,7 @@ export default function NotificationCenterPage() {
     let params = {};
     try { params = JSON.parse(tplParams || '{}'); } catch { alert('params JSON غير صالح'); return; }
     try {
-      setTplPreview(await apiFetch(`/admin/notifications/admin/templates/${encodeURIComponent(key)}/preview`, {
+      setTplPreview(await apiFetch(`/api/admin/notifications/admin/templates/${encodeURIComponent(key)}/preview`, {
         method: 'POST', body: JSON.stringify({ lang: tplLang, params }),
       }));
     } catch (e: any) { alert(e?.message || 'فشل المعاينة'); }
@@ -73,7 +73,7 @@ export default function NotificationCenterPage() {
     let params = {};
     try { params = JSON.parse(tplParams || '{}'); } catch { alert('params JSON غير صالح'); return; }
     try {
-      await apiFetch(`/admin/notifications/admin/templates/${encodeURIComponent(key)}/test-send`, {
+      await apiFetch(`/api/admin/notifications/admin/templates/${encodeURIComponent(key)}/test-send`, {
         method: 'POST', body: JSON.stringify({ lang: tplLang, params }),
       });
       alert('تم الإرسال التجريبي');
@@ -84,10 +84,10 @@ export default function NotificationCenterPage() {
     setLoading(true);
     try {
       const [s, seg, c, eu] = await Promise.all([
-        apiFetch('/admin/notification-center/stats/overview').catch(() => null),
-        apiFetch('/admin/notification-center/segments').catch(() => null),
-        apiFetch(`/admin/notification-center/campaigns?page=${page}&limit=15`).catch(() => ({ data: [] })),
-        apiFetch('/analytics-suite/email-usage').catch(() => null),
+        apiFetch('/api/admin/admin/notification-center/stats/overview').catch(() => null),
+        apiFetch('/api/admin/admin/notification-center/segments').catch(() => null),
+        apiFetch(`/api/admin/admin/notification-center/campaigns?page=${page}&limit=15`).catch(() => ({ data: [] })),
+        apiFetch('/api/admin/admin/analytics-suite/email-usage').catch(() => null),
       ]);
       setStats(s);
       setEmailUsage(eu);
@@ -115,10 +115,10 @@ export default function NotificationCenterPage() {
       };
       if (asCampaign && scheduledAt) {
         payload.scheduled_at = new Date(scheduledAt).toISOString();
-        await apiFetch('/admin/notification-center/campaigns', { method: 'POST', body: JSON.stringify(payload) });
+        await apiFetch('/api/admin/admin/notification-center/campaigns', { method: 'POST', body: JSON.stringify(payload) });
         alert('تمت جدولة الحملة بنجاح');
       } else {
-        await apiFetch('/admin/notification-center/broadcasts', { method: 'POST', body: JSON.stringify(payload) });
+        await apiFetch('/api/admin/admin/notification-center/broadcasts', { method: 'POST', body: JSON.stringify(payload) });
         alert('تم إرسال الإشعار بنجاح');
       }
       setTitle(''); setBody(''); setDeepLink(''); setScheduledAt('');
@@ -132,18 +132,18 @@ export default function NotificationCenterPage() {
 
   const sendNow = async (id: string) => {
     if (!confirm('إرسال هذه الحملة الآن؟')) return;
-    await apiFetch(`/admin/notification-center/campaigns/${id}/send`, { method: 'POST' }).catch(() => alert('فشل'));
+    await apiFetch(`/api/admin/admin/notification-center/campaigns/${id}/send`, { method: 'POST' }).catch(() => alert('فشل'));
     load();
   };
 
   const cancel = async (id: string) => {
     if (!confirm('إلغاء هذه الحملة المجدولة؟')) return;
-    await apiFetch(`/admin/notification-center/campaigns/${id}`, { method: 'DELETE' }).catch(() => alert('فشل'));
+    await apiFetch(`/api/admin/admin/notification-center/campaigns/${id}`, { method: 'DELETE' }).catch(() => alert('فشل'));
     load();
   };
 
   const runRetarget = async () => {
-    await apiFetch('/admin/notification-center/retarget/run', { method: 'POST' }).catch(() => null);
+    await apiFetch('/api/admin/admin/notification-center/retarget/run', { method: 'POST' }).catch(() => null);
     alert('تم تشغيل إعادة الاستهداف يدوياً');
   };
 

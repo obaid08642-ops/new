@@ -40,6 +40,7 @@ const NAV_SECTIONS: NavSection[] = [
       { href: '/admin/finance-suite', label: 'المالية والتسويات', permission: 'finance.read' },
       { href: '/admin/disputes', label: 'النزاعات المالية', permission: 'disputes.resolve' },
       { href: '/admin/payouts', label: 'اعتمادات السحب' },
+      { href: '/admin/returns', label: 'طلبات الإرجاع والاسترداد' },
       { href: '/admin/financial-ledger', label: 'دفتر الأستاذ المالي' },
     ],
   },
@@ -105,6 +106,7 @@ const ROUTE_PERMISSIONS: Record<string, string> = {
   '/admin/financial-ledger': 'finance.read',
   '/admin/commissions': 'finance.read',
   '/admin/payouts': 'finance.payout.approve',
+  '/admin/returns': 'finance.payout.approve',
   '/admin/disputes': 'disputes.resolve',
   '/admin/provider-moderation': 'doctor.read',
   '/admin/provider-audits': 'doctor.read',
@@ -177,7 +179,7 @@ export const AdminGuard = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     let mounted = true;
-    adminFetch<AdminSession>('/session')
+    adminFetch<AdminSession>('/api/admin/admin/session')
       .then((data) => {
         if (mounted) setSession(data);
       })

@@ -31,7 +31,7 @@ export default function AuditLogsPage() {
   const load = useCallback(async () => {
     setLoading(true); setError('');
     try {
-      const result = await adminFetch<AuditResponse>(`/audit${toQuery(filters)}`);
+      const result = await adminFetch<AuditResponse>(`/api/admin/admin/audit${toQuery(filters)}`);
       setData(result);
     } catch (reason) {
       setError(apiErrorMessage(reason, 'تعذر تحميل سجل التدقيق.'));

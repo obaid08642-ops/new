@@ -11,9 +11,10 @@
  *             completion report.
  *  FINANCE:   invoice PDF per order, wallet ledger transactions for providers.
  */
-import { Module, Injectable, Controller, Get, Post, Put, Delete, Body, Param, Query, Res, UseGuards, BadRequestException, ForbiddenException, NotFoundException, StreamableFile } from '@nestjs/common';
+import { Module, Injectable, Controller, Get, Post, Put, Delete, Body, Param, Query, Res, UseGuards, BadRequestException, ForbiddenException, NotFoundException, StreamableFile, Logger } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection, Schema } from 'mongoose';
+import { OnEvent } from '@nestjs/event-emitter';
 import { randomUUID } from 'crypto';
 import { JwtAuthGuard, CurrentUser, Roles, hasEffectiveRole } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
@@ -38,7 +39,58 @@ export const ProviderWithdrawalSchema = new Schema(
 
 @Injectable()
 export class ProviderOpsService {
+  private readonly logger = new Logger(ProviderOpsService.name);
+
   constructor(@InjectConnection() private readonly conn: Connection) {}
+
+  /**
+   * LJ-09: one place credits earnings — on the governed `service.completed`
+   * event. Resolves the booking, its provider account, and the collected
+   * amount (paid transactions, paid/covered booking total, or cash proof),
+   * then credits one canonical ref_type per domain, idempotent per booking.
+   */
+  @OnEvent('service.completed')
+  async creditCompletedService(event: any): Promise<void> {
+    const domains: Record<string, { collection: string; kind: string; service: string; providerFields: string[] }> = {
+      appointment: { collection: 'appointments', kind: 'consultation', service: 'doctor', providerFields: ['doctor_user_id'] },
+      lab_booking: { collection: 'labbookings', kind: 'lab', service: 'lab', providerFields: ['lab_id', 'facility_id', 'provider_account_id'] },
+      radiology_booking: { collection: 'radiologybookings', kind: 'radiology', service: 'radiology', providerFields: ['radiology_center_id', 'provider_id', 'provider_account_id'] },
+      nursing_booking: { collection: 'homecarebookings', kind: 'nursing', service: 'nursing', providerFields: ['provider_id', 'nurse_id', 'provider_account_id'] },
+    };
+    const domain = domains[String(event?.entity_type || '')];
+    const bookingId = String(event?.entity_id || '');
+    if (!domain || !bookingId) return;
+
+    try {
+      const booking: any = await this.conn.collection(domain.collection).findOne({ id: bookingId });
+      if (!booking) return;
+
+      const providerId = domain.providerFields.map((field) => booking[field]).find(Boolean);
+      if (!providerId) return;
+
+      const paidTransactions = await this.conn.collection('transactions').find(
+        { booking_kind: domain.kind, booking_id: bookingId, status: 'paid' },
+        { projection: { amount: 1, _id: 0 } },
+      ).toArray();
+      const transactionTotal = paidTransactions.reduce((sum: number, transaction: any) => sum + Number(transaction.amount || 0), 0);
+      const paymentState = String(booking.payment_status || '').toLowerCase();
+      const collected = Number(booking.collection_proof?.amount_collected || 0)
+        || (['paid', 'covered_by_insurance'].includes(paymentState)
+          ? Number(booking.total_price ?? booking.total ?? booking.price ?? 0) || transactionTotal
+          : transactionTotal);
+      if (!(collected > 0)) return;
+
+      const account: any = await this.conn.collection('provider_accounts').findOne({
+        $or: [{ id: String(providerId) }, { user_id: String(providerId) }],
+      });
+      const providerAccountId = account?.id || account?.user_id;
+      if (!providerAccountId) return;
+
+      await this.creditEarning(providerAccountId, domain.service, collected, domain.kind === 'nursing' ? 'homecare_booking' : domain.kind === 'consultation' ? 'appointment' : `${domain.kind}_booking`, bookingId);
+    } catch (error: any) {
+      this.logger.error(`provider_earning_credit_failed booking=${bookingId}: ${error?.message || error}`);
+    }
+  }
 
   // ═══ DOCTOR: vacation / leave management ═════════════════════════════════
   async addLeave(doctorId: string, body: { start_date: string; end_date: string; type: string; note?: string }) {
@@ -237,12 +289,7 @@ export class ProviderOpsService {
         break;
     }
     await this.conn.collection('labbookings').updateOne({ id: bookingId }, { $set: patch, $push: { qc_history: hist } as any });
-    // 💰 Final QC (double verify) = results released → credit lab earnings (idempotent per booking)
-    if (action === 'double_verify') {
-      const fee = Number(b.price ?? b.amount ?? b.total ?? 0);
-      const labId = b.lab_id || b.provider_id || user.id;
-      await this.creditEarning(labId, 'lab', fee, 'lab_booking', bookingId);
-    }
+    // LJ-09: earnings are credited by the unified service.completed listener.
     return { ok: true, action, booking_id: bookingId, state: patch.state || b.state, priority: patch.priority || b.priority };
   }
 
@@ -280,10 +327,7 @@ export class ProviderOpsService {
         },
       },
     );
-    // 💰 Credit nurse earnings on signed completion (idempotent per booking)
-    const bk: any = await this.conn.collection('homecarebookings').findOne({ id: bookingId } as any);
-    const fee = Number(bk?.price ?? bk?.amount ?? bk?.total ?? 0);
-    await this.creditEarning(user.id, 'nursing', fee, 'homecare_booking', bookingId);
+    // LJ-09: earnings are credited by the unified service.completed listener.
     return { ok: true, signed: true, signer: signerName.trim(), state: 'COMPLETED' };
   }
 
@@ -631,9 +675,7 @@ export class ProviderOpsService {
         items: body.prescription, state: 'CREATED_BY_DOCTOR', createdAt: now,
       });
     }
-    // 💰 Credit doctor earnings (gross − commission − VAT) — idempotent per appointment
-    const fee = Number(appt?.price ?? appt?.fee ?? appt?.amount ?? body.amount ?? 0);
-    await this.creditEarning(user.id, 'doctor', fee, 'appointment', appointmentId);
+    // LJ-09: earnings are credited by the unified service.completed listener.
     return { ok: true, state: 'completed' };
   }
 

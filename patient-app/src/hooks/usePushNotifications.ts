@@ -69,7 +69,7 @@ export function translateBackendRoute(route: string): { pathname: string; params
   const VERBATIM_ROUTES = new Set([
     '/insurance/hub', '/returns/hub',
     '/loyalty/hub', '/loyalty/referrals', '/loyalty/challenges',
-    '/family/hub', '/ai/symptom-timeline', '/emergency/tracking',
+    '/health/family-hub', '/ai/symptom-timeline', '/emergency/tracking',
   ]);
   if (VERBATIM_ROUTES.has(clean)) return { pathname: clean };
 
@@ -137,7 +137,7 @@ export function routeFromNotificationData(data: any): void {
         router.push('/insurance/hub' as any);
         break;
       case 'family':
-        router.push('/family/hub' as any);
+        router.push('/health/family-hub' as any);
         break;
       case 'wallet':
       case 'topup':

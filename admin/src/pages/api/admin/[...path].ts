@@ -42,62 +42,11 @@ function apiPath(req: NextApiRequest) {
   }
   const suffix = query.toString();
   const encoded = segments.map((segment) => encodeURIComponent(String(segment))).join('/');
-  // Explicitly allow only the existing read-only health/extension contracts;
-  // every other path remains under /api/v1/admin and server-side RBAC.
-  let upstreamPath = `/api/v1/admin/${encoded}`;
-  // These legacy module prefixes are still real backend controllers, but their
-  // browser transport is now forced through this BFF route.
-  // 'providers' intentionally excluded from modulePrefixes — handled separately below.
-  // 'users' intentionally excluded — admin user actions (ban/unban/delete) live on
-  // AdminController at /api/v1/admin/users/* (stripping to /api/v1/users/* 404s).
-  // 'pharmacy' intentionally excluded — the only admin consumer (broadcast-monitor)
-  // targets AdminBroadcastController at /api/v1/admin/pharmacy/*.
-  const modulePrefixes = new Set(['support', 'medicines', 'storage', 'insurance', 'emergency', 'legal', 'ai', 'labs', 'radiology', 'nursing']);
-  if (decoded[0] === 'orders') {
-    // Admin orders console lives at /api/v1/admin/orders
-    upstreamPath = `/api/v1/admin/${encoded}`;
-  } else if (decoded[0] === 'providers') {
-    // All provider moderation, provider-deltas included, goes to ProviderAdminController
-    // (/api/v1/admin/providers/*). Its approveDelta applies each delta by target (profile,
-    // settings, capability = inventory/catalog rows, insurance); the old /providers/provider-deltas
-    // feed wrote every delta onto the profile, so an approved inventory item was never created.
-    const tail = decoded.slice(1).map(encodeURIComponent).join('/');
-    upstreamPath = `/api/v1/admin/providers${tail ? `/${tail}` : ''}`;
-  } else if (modulePrefixes.has(decoded[0])) {
-    // Second-segment exceptions: admin consoles that share a first segment
-    // with a public controller. These MUST stay under /api/v1/admin/*:
-    // - insurance stats|requests → AdminInsurance (/api/v1/admin/insurance/*)
-    //   while insurance companies* → public (/api/v1/insurance/*)
-    // - nursing requests → AdminNursing (/api/v1/admin/nursing/*)
-    //   while nursing catalog → public (/api/v1/nursing/*)
-    const stayAdmin = (decoded[0] === 'insurance' && (decoded[1] === 'stats' || decoded[1] === 'requests'))
-      || (decoded[0] === 'nursing' && decoded[1] === 'requests')
-      // legal: reads are public (/api/v1/legal/*); edits and diffs are AdminLegal (/api/v1/admin/legal/*)
-      || (decoded[0] === 'legal' && ((req.method || 'GET') !== 'GET' || decoded[decoded.length - 1] === 'diff'));
-    upstreamPath = stayAdmin ? `/api/v1/admin/${encoded}` : `/api/v1/${encoded}`;
-  }
-  if (decoded[0] === 'ambulance' && decoded[1] === 'fleet') upstreamPath = `/api/v1/admin/ambulance/fleet${decoded.slice(2).length ? `/${decoded.slice(2).map(encodeURIComponent).join('/')}` : ''}`;
-  // Public read controllers the admin UI consumes directly (GeoPicker, moderation,
-  // loyalty, chat, passkey enrollment). Backend paths are /api/v1/<module>/* —
-  // the default /api/v1/admin/* prefix 404s there. Backend guards still apply.
-  if (decoded[0] === 'locations' && decoded.length > 1) upstreamPath = `/api/v1/locations/${decoded.slice(1).map(encodeURIComponent).join('/')}`;
-  // Bare /admin/locations (admin list/create UI) stays on /api/v1/admin/locations/*.
-  if (decoded[0] === 'community') upstreamPath = `/api/v1/community/${decoded.slice(1).map(encodeURIComponent).join('/')}`;
-  // Notification template admin routes live on the public notifications controller.
-  if (decoded[0] === 'notifications' && decoded[1] === 'admin') upstreamPath = `/api/v1/notifications/admin/${decoded.slice(2).map(encodeURIComponent).join('/')}`;
-  // Pricing/surge admin routes live on the public business-rules controller.
-  if (decoded[0] === 'business-rules') upstreamPath = `/api/v1/business-rules/${decoded.slice(1).map(encodeURIComponent).join('/')}`;
-  // Reference-specialty admin routes live on the public catalogs controller.
-  if (decoded[0] === 'catalogs' && decoded[1] === 'admin') upstreamPath = `/api/v1/catalogs/admin/${decoded.slice(2).map(encodeURIComponent).join('/')}`;
-  if (decoded[0] === 'loyalty') upstreamPath = `/api/v1/loyalty/${decoded.slice(1).map(encodeURIComponent).join('/')}`;
-  if (decoded[0] === 'chat' || decoded[0] === 'chats') upstreamPath = `/api/v1/${decoded[0]}/${decoded.slice(1).map(encodeURIComponent).join('/')}`;
-  if (decoded[0] === 'auth') upstreamPath = `/api/v1/auth/${decoded.slice(1).map(encodeURIComponent).join('/')}`;
-  if (decoded[0] === 'support-session') upstreamPath = `/api/v1/support-session/${decoded.slice(1).map(encodeURIComponent).join('/')}`;
-  if (decoded[0] === 'search' && decoded[1] === 'intent') upstreamPath = `/api/v1/search/intent`;
-  if (decoded[0] === 'provider-onboarding' && decoded[1] === 'admin') upstreamPath = `/api/v1/provider-onboarding/admin/${decoded.slice(2).map(encodeURIComponent).join('/')}`;
-  if (decoded[0] === 'system-health') upstreamPath = `/api/v1/system-health/${decoded.slice(1).map(encodeURIComponent).join('/')}`;
-  if (decoded[0] === 'nabd-extensions' && decoded[1] === 'admin') upstreamPath = `/api/v1/nabd-extensions/admin/${decoded.slice(2).map(encodeURIComponent).join('/')}`;
-  return `${upstreamPath}${suffix ? `?${suffix}` : ''}`;
+  // R6-2: pure 1:1 mapping — /api/admin/<x> → /api/v1/<x>. Admin pages call the
+  // real backend paths (e.g. /api/admin/admin/finance/... for /api/v1/admin/...).
+  // Server-side RBAC still applies; no rewrite rules live here.
+  void decoded;
+  return `/api/v1/${encoded}${suffix ? `?${suffix}` : ''}`;
 }
 
 /** One-shot refresh: returns fresh tokens + Set-Cookie headers, or null. */

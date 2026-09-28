@@ -106,6 +106,14 @@ export class PharmacyNotificationService {
       priority: NotificationPriority.HIGH,
       action: { type: 'open_pharmacy_broadcast', broadcast_id: bc.id, order_id: order.id },
         }).catch(() => null);
+    // LJ-07: bell row for that pharmacy account only (the provider bell reads provider_notifications).
+    await this.notif.notifyProviderAccount(pharmacy_account_id, {
+      type: 'new_request',
+      title_ar: 'طلب صيدلية جديد في منطقتك', title_en: 'New pharmacy request in your area',
+      body_ar: `طلب ${order.id.slice(0, 8)} · الجولة ${bc.current_round}`, body_en: `Order ${order.id.slice(0, 8)} · round ${bc.current_round}`,
+      related_id: bc.id, related_type: 'broadcast',
+      action: { type: 'open_pharmacy_broadcast', broadcast_id: bc.id, order_id: order.id },
+    }).catch(() => null);
     await this.realtime.emitToUser(pharmacy_account_id, 'pharmacy:broadcast:available', {
       broadcast_id: bc.id,
       order_id: order.id,

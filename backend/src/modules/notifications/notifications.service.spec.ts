@@ -56,3 +56,47 @@ describe('NotificationsService templates', () => {
     expect(t).toEqual({ id: 'n1' });
   });
 });
+
+describe('NotificationsService template resolution (R6-3)', () => {
+  const svcFor = (tpl: any) => {
+    const templateModel: any = { findOne: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue(tpl) }) };
+    const i18n: any = { t: jest.fn((key: string) => `built-in:${key}`) };
+    return new NotificationsService({} as any, templateModel, {} as any, {} as any, {} as any, {} as any, i18n);
+  };
+
+  it('uses the edited template text in the user language with param fill', async () => {
+    const svc = svcFor({ key: 'notif.x.title', active: true, title: { ar: 'مخصص {{name}}' }, body: { ar: 'نص' } });
+    await expect(svc.resolveNotificationText(
+      { title_key: 'notif.x.title', body_key: 'notif.x.body', params: { name: 'N' } }, 'ar',
+    )).resolves.toEqual({ title: 'مخصص N', body: 'نص' });
+  });
+
+  it('falls back to built-in text when no active template matches', async () => {
+    const svc = svcFor(null);
+    await expect(svc.resolveNotificationText({ title_key: 'k.t', body_key: 'k.b', params: {} }, 'ar'))
+      .resolves.toEqual({ title: 'built-in:k.t', body: 'built-in:k.b' });
+  });
+
+  it('falls back when the template store is unreachable', async () => {
+    const templateModel: any = { findOne: jest.fn().mockImplementation(() => { throw new Error('down'); }) };
+    const svc = new NotificationsService({} as any, templateModel, {} as any, {} as any, {} as any, {} as any, {} as any);
+    await expect(svc.resolveNotificationText({ title_key: 'k.t', body_key: 'k.b' }, 'ar'))
+      .resolves.toEqual({ title: 'k.t', body: 'k.b' });
+  });
+});
+
+describe('NotificationsService delivery queue (F33)', () => {
+  it('enqueues with a job id BullMQ accepts, so delivery keeps its retry and delay', async () => {
+    const { Job } = require('bullmq');
+    const queueStub: any = { name: 'notifications-delivery', keys: {}, toKey: (t: string) => t, opts: {}, qualifiedName: 'bull:notifications-delivery' };
+    const queue: any = {
+      // Same validation BullMQ runs when a job is added: a bad custom id throws here.
+      add: jest.fn(async (name: string, data: any, opts: any) => new Job(queueStub, name, data, opts).validateOptions({})),
+    };
+    const svc = new NotificationsService({} as any, {} as any, {} as any, {} as any, {} as any, queue, {} as any);
+    const direct = jest.spyOn(svc as any, 'deliverById').mockResolvedValue(undefined);
+    await (svc as any).enqueueDelivery('0b9d5a2e-7f1c-4c55-9a0e-2f6b1c3d4e5f', 60000);
+    expect(queue.add).toHaveBeenCalledWith('deliver', { id: '0b9d5a2e-7f1c-4c55-9a0e-2f6b1c3d4e5f' }, expect.objectContaining({ jobId: 'deliver-0b9d5a2e-7f1c-4c55-9a0e-2f6b1c3d4e5f', delay: 60000 }));
+    expect(direct).not.toHaveBeenCalled();
+  });
+});
