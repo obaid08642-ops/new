@@ -240,3 +240,39 @@ Format: task | commit sha | verify result | notes
 ## Gate P8 (2026-09-26, this branch)
 - F69–F75 implemented per entries above (F69 reminders edit/log/delete + settings toggles; F70 family CTA; F71 intent-first search; F73 draft fields + 15km pickup; F74 parent order + single-payment wiring; F75 OTP resend). Screen merges done (family/profile/insurance). Touched screens carry loading/error/empty states; full 34-screen states sweep needs screens.py (absent) — recorded.
 - Journey e2e (pharmacy ×/consultation ×/lab ×/radiology ×/nursing × insurance flow, no NPHIES): STAGING-GATED (needs real Mongo + geo + transactions + payment sandbox).
+
+## Recovery (2026-09-27, new clone at 57764db in /Users/ahmedobaid/nabd-plus)
+- Previous /tmp workspace was lost with unpushed commits. Re-applied on the reviewer-merged base (Phase 6 review PR #207 + PR #205/206 merges): [P9] F78/F50/F53/F51 (Blueprint 18, Shared 13+subsplits, Doctor 24, Facility 18; all units ≤400, provider tsc 0), plan 7A-7D already present on base (no change needed). P9 commits stay local until LJ gates pass (reviewer: do not start Phase 9 before 5-8 approval — P9 redo preserved locally, will push with gates).
+
+## [P8] Stale-test fixes for F25/F29/F69/F73 + reminders idempotency (2026-09-27)
+- patient-allowlist.test: PATCH /users/me/profile now allowed (F69 web profile edit is governed self-service).
+- payment-capabilities route.test: expects the F25-repointed `/insurance/requests/:id/capabilities` + user-agent forwarding.
+- medicines-ssr.test: mocks/gets `getPublicMedicines` (F29 public SSR, no login gate, no token).
+- reminders-ssr.test: next/navigation mock gains useRouter (F69 ReminderActions); edit-link id allowed in action URLs (same rule as medicine links), true secrets still forbidden.
+- pharmacy-draft.test: F73 fulfillment/payment_mode defaults + explicit pickup/insurance case.
+- Reminders BFF (PATCH/DELETE/[id]/log POST) forwards `idempotency-key` when the client sends one.
+- Verify: `pnpm vitest run` on the 4 files → 12/12 passed; patient-app jest pharmacy-draft → 4/4 passed. (pnpm-lock.yaml restored after local --no-frozen install.)
+
+## Recovery + R6/test fixes (2026-09-28, base 57764db)
+- Re-applied lost P9 (F78/F50/F53/F51: 18+13+24+18 files, all units ≤400, provider tsc 0). Plan 7A-7D already on base.
+- P7/P8 stale tests fixed: web vitest 12/12 (allowlist PATCH profile, capabilities path, medicines/reminders SSR), app pharmacy-draft 4/4; reminders BFF forwards idempotency-key.
+- R6-1: eligible-providers endpoint + wired nursing page. R6-2: BFF pure 1:1 + 100+ callers migrated (tools/r62-bff-migrate.py). R6-3: senders resolve templates. R6-4: pharmacy quote + lab home fee from platform pricing. R6-5: app gates + home sections + web maintenance. R6-6: medicines/insurance tabs + upload/history/CSV. R6-7: XLSX on all reports. R6-8: domain-metrics + live-map + command-center sections. R6-9: j_admin_clicks.py wired into run_gate.sh.
+
+## LJ items (2026-09-28, base 57764db) — reviewer order LJ-09, LJ-05, LJ-07, LJ-06, LJ-03, LJ-02, LJ-04, LJ-08, LJ-01
+- LJ-09: `service.completed` → `creditCompletedService` (provider_ops); legacy credits removed from double_verify/nursingSign/endConsultation; spec 4/4.
+- LJ-05: admin `GET /admin/returns` + `POST /admin/returns/:id/decide` + admin page; new-request picks a server-eligible paid booking (no hardcoded amounts); service returns resolve from the real booking collections; RefundExecutor card-only/original-method; `myRefunds` merges the executed ledger. Tests: returns.service + refund-executor + insurance-flow ledger merge → 53/53.
+- LJ-07: provider bell rows are targeted (per provider account, related_type/id), pharmacy broadcasts included, `chat.message_sent` targets provider participants, role-wide provider broadcast removed. Spec 11/11.
+- LJ-06: chat-with-doctor opens the appointment booking thread (callers pass appointmentId); `POST /chat/threads/direct` refuses non-family users with no shared booking. Spec 11/11.
+- LJ-03: lab/radiology insurance route through the request engine (`providerDecideBooking`), copay via engine checkout, lab booking → CONFIRMED on payment, decision values validated. Tests 95/95 (labs+radiology+insurance-engine).
+- LJ-02: real reimbursement claims (booking-backed, server-set status, one store), admin decide executes RefundExecutor; duplicate `/insurance/claims/my` removed. Spec 5/5.
+- LJ-04: CHI lookup maps to a real insurer, requires a real policy number, never sends `verified`; pure helper + 4 tests.
+- LJ-08: admin loyalty reward/challenge CRUD + `PUT /admin/loyalty/config` (whitelisted, audited) + admin page; wishlist add toggle on product detail and real names/prices. Loyalty spec 11/11, wishlist spec 2/2.
+- LJ-01: any linked provider can GPS check-in/out; facility id resolved from `provider_accounts.facility_id`; one open record per person; facility screen lists real rows with a check-in action. Spec 14/14 (facility-ops).
+- P9 F51 repair: the facility split on base dropped `export`, the shared `s` styles and the navigator imports — restored (facility barrel + navigator now compile). Commit 6fe0e4e.
+
+### Gate evidence (this branch)
+- backend `tsc --noEmit`: 0 errors. Focused jest: returns/refund/insurance-flow 53/53; notifications 11/11; chat 11/11; labs+radiology+insurance-engine 95/95; insurance claims 5/5; loyalty 11/11; users wishlist 2/2; facility-ops 14/14.
+- admin `tsc --noEmit`: 0 errors; `npm run build`: success (route list rendered).
+- patient-app `tsc --noEmit`: 0 errors (new insurance-chi-contract test 4/4).
+- provider-app `tsc --noEmit`: 0 errors (was 152 errors from the broken F51 split before the repair).
+- Live gate `tools/live/run_gate.sh`: NOT run here — needs the full stack (Mongo replica set + backend :8002 + admin :3001 + smtp_sink :2525 + fake_moyasar :9100); journeys extended (j_chat direct-refusal, j_insurance claim + lab copay→CONFIRMED, j_loyalty admin catalogue/wishlist, j_facility attendance) and must be run on a fresh DB before push acceptance.
