@@ -95,6 +95,46 @@
         ]
       }
     },
+    "/api/v1/provider/payouts/bank-account": {
+      "get": {
+        "operationId": "ProviderPayoutsController_myBank",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "ProviderPayouts"
+        ]
+      },
+      "post": {
+        "operationId": "ProviderPayoutsController_submitBank",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "ProviderPayouts"
+        ]
+      }
+    },
+    "/api/v1/provider/payouts/banks": {
+      "get": {
+        "operationId": "ProviderPayoutsController_myBanks",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "ProviderPayouts"
+        ]
+      }
+    },
     "/api/v1/provider/payouts/balance": {
       "get": {
         "operationId": "ProviderPayoutsController_balance",
@@ -2598,25 +2638,15 @@
         ]
       },
       "put": {
-        "operationId": "LegalController_updateCommissions",
+        "operationId": "FinanceController_updateCommissions",
         "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateCommissionsDto"
-              }
-            }
-          }
-        },
         "responses": {
           "200": {
             "description": ""
           }
         },
         "tags": [
-          "Legal"
+          "Finance"
         ]
       }
     },
@@ -3169,6 +3199,43 @@
               "type": "string"
             }
           },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Ops"
+        ]
+      }
+    },
+    "/api/v1/admin/ops/domain-metrics": {
+      "get": {
+        "operationId": "OpsController_domainMetrics",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Ops"
+        ]
+      }
+    },
+    "/api/v1/admin/ops/live-map": {
+      "get": {
+        "operationId": "OpsController_liveMap",
+        "parameters": [
           {
             "name": "limit",
             "required": true,
@@ -11983,20 +12050,6 @@
         ]
       }
     },
-    "/api/v1/insurance/claims/my": {
-      "get": {
-        "operationId": "InsuranceFlowController_claimsMy",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "InsuranceFlow"
-        ]
-      }
-    },
     "/api/v1/patient/pay-copay": {
       "post": {
         "operationId": "InsuranceAliasController_payCopay",
@@ -13849,6 +13902,104 @@
         },
         "tags": [
           "PatientLabsCatalog"
+        ]
+      }
+    },
+    "/api/v1/business-rules/config/surge": {
+      "get": {
+        "operationId": "BusinessRulesController_getSurge",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "BusinessRules"
+        ]
+      },
+      "post": {
+        "operationId": "BusinessRulesController_updateSurge",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSurgeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "BusinessRules"
+        ]
+      }
+    },
+    "/api/v1/business-rules/config/pricing": {
+      "get": {
+        "operationId": "BusinessRulesController_pricing",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "BusinessRules"
+        ]
+      }
+    },
+    "/api/v1/business-rules/config/fees": {
+      "post": {
+        "operationId": "BusinessRulesController_updateFees",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateFeesDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "BusinessRules"
+        ]
+      }
+    },
+    "/api/v1/business-rules/validate": {
+      "post": {
+        "operationId": "BusinessRulesController_validate",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ValidateRulesDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "BusinessRules"
         ]
       }
     },
@@ -18026,6 +18177,29 @@
             }
           }
         },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "ProviderAdmin"
+        ]
+      }
+    },
+    "/api/v1/admin/providers/{id}/approve-bank": {
+      "post": {
+        "operationId": "ProviderAdminController_approveBank",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "201": {
             "description": ""
@@ -25696,104 +25870,6 @@
         ]
       }
     },
-    "/api/v1/business-rules/config/surge": {
-      "get": {
-        "operationId": "BusinessRulesController_getSurge",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "BusinessRules"
-        ]
-      },
-      "post": {
-        "operationId": "BusinessRulesController_updateSurge",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateSurgeDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "BusinessRules"
-        ]
-      }
-    },
-    "/api/v1/business-rules/config/pricing": {
-      "get": {
-        "operationId": "BusinessRulesController_pricing",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "BusinessRules"
-        ]
-      }
-    },
-    "/api/v1/business-rules/config/fees": {
-      "post": {
-        "operationId": "BusinessRulesController_updateFees",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateFeesDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "BusinessRules"
-        ]
-      }
-    },
-    "/api/v1/business-rules/validate": {
-      "post": {
-        "operationId": "BusinessRulesController_validate",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ValidateRulesDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "BusinessRules"
-        ]
-      }
-    },
     "/api/v1/consistency/audit": {
       "get": {
         "operationId": "ConsistencyController_audit",
@@ -28229,6 +28305,52 @@
         ]
       }
     },
+    "/api/v1/admin/insurance/claims": {
+      "get": {
+        "operationId": "AdminInsuranceClaimsController_list",
+        "parameters": [
+          {
+            "name": "status",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminInsuranceClaims"
+        ]
+      }
+    },
+    "/api/v1/admin/insurance/claims/{id}/decide": {
+      "post": {
+        "operationId": "AdminInsuranceClaimsController_decide",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminInsuranceClaims"
+        ]
+      }
+    },
     "/api/v1/approval-workflow/requests": {
       "post": {
         "operationId": "ApprovalWorkflowController_create",
@@ -29621,6 +29743,160 @@
         ]
       }
     },
+    "/api/v1/admin/loyalty/rewards": {
+      "get": {
+        "operationId": "AdminLoyaltyController_rewards",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminLoyalty"
+        ]
+      },
+      "post": {
+        "operationId": "AdminLoyaltyController_createReward",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminLoyalty"
+        ]
+      }
+    },
+    "/api/v1/admin/loyalty/rewards/{id}": {
+      "patch": {
+        "operationId": "AdminLoyaltyController_updateReward",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminLoyalty"
+        ]
+      },
+      "delete": {
+        "operationId": "AdminLoyaltyController_deleteReward",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminLoyalty"
+        ]
+      }
+    },
+    "/api/v1/admin/loyalty/challenges": {
+      "get": {
+        "operationId": "AdminLoyaltyController_challenges",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminLoyalty"
+        ]
+      },
+      "post": {
+        "operationId": "AdminLoyaltyController_createChallenge",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminLoyalty"
+        ]
+      }
+    },
+    "/api/v1/admin/loyalty/challenges/{id}": {
+      "patch": {
+        "operationId": "AdminLoyaltyController_updateChallenge",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminLoyalty"
+        ]
+      },
+      "delete": {
+        "operationId": "AdminLoyaltyController_deleteChallenge",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminLoyalty"
+        ]
+      }
+    },
+    "/api/v1/admin/loyalty/config": {
+      "put": {
+        "operationId": "AdminLoyaltyController_updateConfig",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminLoyalty"
+        ]
+      }
+    },
     "/api/v1/referrals/my": {
       "get": {
         "operationId": "ReferralController_my",
@@ -29904,7 +30180,7 @@
     },
     "/api/v1/facility/shifts/attendance/check-in": {
       "post": {
-        "operationId": "FacilityShiftsController_checkIn",
+        "operationId": "FacilityAttendanceController_checkIn",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -29922,13 +30198,13 @@
           }
         },
         "tags": [
-          "FacilityShifts"
+          "FacilityAttendance"
         ]
       }
     },
     "/api/v1/facility/shifts/attendance/check-out/{attendanceId}": {
       "post": {
-        "operationId": "FacilityShiftsController_checkOut",
+        "operationId": "FacilityAttendanceController_checkOut",
         "parameters": [
           {
             "name": "attendanceId",
@@ -29945,13 +30221,13 @@
           }
         },
         "tags": [
-          "FacilityShifts"
+          "FacilityAttendance"
         ]
       }
     },
     "/api/v1/facility/shifts/attendance": {
       "get": {
-        "operationId": "FacilityShiftsController_getAttendance",
+        "operationId": "FacilityAttendanceController_getAttendance",
         "parameters": [],
         "responses": {
           "200": {
@@ -29959,7 +30235,7 @@
           }
         },
         "tags": [
-          "FacilityShifts"
+          "FacilityAttendance"
         ]
       }
     },
@@ -32108,6 +32384,29 @@
         ]
       }
     },
+    "/api/v1/pharmacy/returns/eligible/{serviceType}": {
+      "get": {
+        "operationId": "ReturnsController_eligible",
+        "parameters": [
+          {
+            "name": "serviceType",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Returns"
+        ]
+      }
+    },
     "/api/v1/pharmacy/returns/{id}": {
       "get": {
         "operationId": "ReturnsController_getDetails",
@@ -32161,6 +32460,62 @@
         },
         "tags": [
           "Returns"
+        ]
+      }
+    },
+    "/api/v1/admin/returns": {
+      "get": {
+        "operationId": "AdminReturnsController_list",
+        "parameters": [
+          {
+            "name": "status",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminReturns"
+        ]
+      }
+    },
+    "/api/v1/admin/returns/{id}/decide": {
+      "post": {
+        "operationId": "AdminReturnsController_decide",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DecideDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminReturns"
         ]
       }
     },
@@ -36012,7 +36367,24 @@
     "/api/v1/admin/governance-controls/search-intent-analytics": {
       "get": {
         "operationId": "AdminGovernanceControlsController_searchIntentAnalytics",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "locale",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "days",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": ""
@@ -36975,6 +37347,29 @@
             "name": "state",
             "required": true,
             "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminNursingPortal"
+        ]
+      }
+    },
+    "/api/v1/admin/nursing/requests/{id}/eligible-providers": {
+      "get": {
+        "operationId": "AdminNursingPortalController_eligibleProviders",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
             "schema": {
               "type": "string"
             }
@@ -39564,6 +39959,18 @@
         "type": "object",
         "properties": {}
       },
+      "UpdateSurgeDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "UpdateFeesDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "ValidateRulesDto": {
+        "type": "object",
+        "properties": {}
+      },
       "AddVitalDto": {
         "type": "object",
         "properties": {}
@@ -40149,18 +40556,6 @@
         "properties": {}
       },
       "InsuranceDto": {
-        "type": "object",
-        "properties": {}
-      },
-      "UpdateSurgeDto": {
-        "type": "object",
-        "properties": {}
-      },
-      "UpdateFeesDto": {
-        "type": "object",
-        "properties": {}
-      },
-      "ValidateRulesDto": {
         "type": "object",
         "properties": {}
       },

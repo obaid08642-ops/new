@@ -34,6 +34,17 @@ def admin_publishes_nursing(admin, n=3):
     journey('nursing catalog: admin publishes services')
     r = admin.get('/nursing/admin/catalog')
     items = r.body if isinstance(r.body, list) else r.items()
+    if r.ok and len(items) == 0:
+        # Fresh DB: the catalog starts empty — create the services, then publish them.
+        seeds = [('زيارة تمريضية منزلية', 'Home nursing visit', 'general', 150, '60 دقيقة'),
+                 ('قياس العلامات الحيوية', 'Vitals check', 'general', 80, '30 دقيقة'),
+                 ('العناية بالجروح', 'Wound care', 'general', 200, '45 دقيقة')]
+        for ar, en, cat, price, duration in seeds:
+            rc = admin.post('/nursing/admin/catalog', {'name_ar': ar, 'name_en': en, 'category': cat,
+                                                       'price': price, 'duration': duration, 'active': True})
+            step(f"admin creates service '{en}'", rc.ok, rc)
+        r = admin.get('/nursing/admin/catalog')
+        items = r.body if isinstance(r.body, list) else r.items()
     step('admin catalog lists services including unpublished ones', r.ok and len(items) > 0, f'{r.status} {len(items)}')
     for it in [i for i in items if i.get('medical_review_status') != 'approved'][:n]:
         r = admin.put(f"/nursing/admin/catalog/{it['id']}", {'medical_review_status': 'approved'})

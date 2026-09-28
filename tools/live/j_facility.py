@@ -188,7 +188,9 @@ def facility_calendar(hosp, doctor, pat, admin):
         r = doctor.post(f'/facility/shifts/attendance/check-out/{att_id}', {})
         step('the doctor checks out', r.ok, r)
         r = doctor.get('/facility/shifts/attendance')
-        step('the record closes (not open)', r.ok and f'"open":false' in str(r.body).replace(' ', ''), r)
+        rows = r.body if isinstance(r.body, list) else r.items()
+        row = next((x for x in rows if x.get('id') == att_id), {})
+        step('the record closes (not open)', r.ok and row.get('open') is False, row or r.status)
     else:
         step('the doctor checks out', False, 'no attendance id')
         step('the record closes (not open)', False, 'no attendance id')

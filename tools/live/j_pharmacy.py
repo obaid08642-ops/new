@@ -47,11 +47,11 @@ def pharmacy_prices_items(pharm, admin, meds):
     for m in meds:
         r = pharm.post('/provider/capabilities/pharmacy', {'sku': m['id'], 'name_ar': m['name_ar'], 'name_en': m['name_en'], 'price': m['price'] + 1, 'stock': 20, 'available': True})
         step(f"pharmacy sends {m['name_en']} for approval", r.ok and r.get('pending_review'), r)
-    r = admin.get('/providers/provider-deltas')
+    r = admin.get('/admin/admin/providers/provider-deltas')
     deltas = [d for d in r.items() if d.get('target') == 'capability' and d.get('status') == 'pending']
     step('admin sees the pending inventory items', r.ok and len(deltas) >= len(meds), f'{r.status} {len(deltas)}')
     for d in deltas:
-        r = admin.post(f"/providers/provider-deltas/{d['id']}/approve", {'reason': 'سعر معتمد'})
+        r = admin.post(f"/admin/admin/providers/provider-deltas/{d['id']}/approve", {'reason': 'سعر معتمد'})
         step('admin approves an inventory item', r.ok, r)
     r = pharm.get('/provider/capabilities/pharmacy')
     live = [x for x in (r.body if isinstance(r.body, list) else r.items()) if x.get('sku') in {m['id'] for m in meds}]
@@ -127,7 +127,7 @@ def run(pat, pharm, admin=None, meds=None):
 
     if admin:
         journey('pharmacy order: platform cash-on-delivery policy (admin config-portal)')
-        r = admin.get('/pharmacy/fulfillment-policies')
+        r = admin.get('/admin/admin/pharmacy/fulfillment-policies')
         cod = next((x for x in (r.body if isinstance(r.body, list) else []) if x.get('id') == 'platform-cod'), None)
         step('default platform COD policy exists and is active', r.ok and cod and cod.get('active') is True, r)
     journey('pharmacy order: pharmacy fulfils and delivers')
@@ -188,19 +188,19 @@ def pharmacy_screens(pharm, oid, total):
 def admin_console(admin, oid):
     # admin/src/pages/admin/orders/index.tsx + [kind]/[id].tsx
     journey('admin orders console: list + detail of the delivered order')
-    r = admin.get('/orders?kind=pharmacy&limit=25&page=1&sort=newest')
+    r = admin.get('/admin/admin/orders?kind=pharmacy&limit=25&page=1&sort=newest')
     row = next((x for x in r.items() if x.get('id') == oid), None)
     step('console lists it', r.ok and row, r.status)
     step('row carries status, patient and amount the table shows', row and row.get('status') in ('delivered', 'completed') and (row.get('patient') or {}).get('id') and row.get('amount', 0) > 0, row)
-    r = admin.get(f"/orders?kind=pharmacy&status={str((row or {}).get('status') or 'completed').upper()}&limit=25")
+    r = admin.get(f"/admin/admin/orders?kind=pharmacy&status={str((row or {}).get('status') or 'completed').upper()}&limit=25")
     step('status filter (any casing) finds it', r.ok and oid in [x.get('id') for x in r.items()], r.status)
-    d = admin.get(f'/orders/pharmacy/{oid}')
+    d = admin.get(f'/admin/admin/orders/pharmacy/{oid}')
     step('detail opens with the order and its timeline', d.ok and (d.get('order') or {}).get('id') == oid and len(d.get('timeline') or []) > 0 and all('at' in e for e in d.get('timeline')), d)
-    r = admin.post(f'/orders/pharmacy/{oid}/note', {'note': 'تم التواصل مع العميل وتأكيد الاستلام'})
+    r = admin.post(f'/admin/admin/orders/pharmacy/{oid}/note', {'note': 'تم التواصل مع العميل وتأكيد الاستلام'})
     step('internal note', r.ok, r)
-    r = admin.post(f'/orders/pharmacy/{oid}/cancel', {'reason': 'اختبار إلغاء طلب مُسلَّم'})
+    r = admin.post(f'/admin/admin/orders/pharmacy/{oid}/cancel', {'reason': 'اختبار إلغاء طلب مُسلَّم'})
     step('cancelling a delivered order is refused', r.status == 400, r)
-    r = admin.post(f'/orders/pharmacy/{oid}/reassign', {'provider_id': 'x', 'reason': 'تحويل لصيدلية أخرى'})
+    r = admin.post(f'/admin/admin/orders/pharmacy/{oid}/reassign', {'provider_id': 'x', 'reason': 'تحويل لصيدلية أخرى'})
     step('reassign is refused for allocation-managed orders (clear error)', r.status == 400, r)
 
 
@@ -250,7 +250,7 @@ def cancellations(pat, pharm, admin, meds):
     oid, alloc = open_order(pat, pharm, meds, addr)
     held = stock_of(pharm, meds[0]['id'])
     step('order allocated to the pharmacy', alloc, oid)
-    r = admin.post(f'/orders/pharmacy/{oid}/cancel', {'reason': 'طلب العميل الإلغاء عبر الدعم'})
+    r = admin.post(f'/admin/admin/orders/pharmacy/{oid}/cancel', {'reason': 'طلب العميل الإلغاء عبر الدعم'})
     step('admin cancel', r.ok and r.get('state') == 'cancelled', r)
     o = pat.get(f'/patient/pharmacy/orders/{oid}')
     order = o.body.get('data', o.body) if isinstance(o.body, dict) else {}
@@ -261,7 +261,7 @@ def cancellations(pat, pharm, admin, meds):
         step("pharmacy's allocation is released", st == 'cancelled', a)
     after = stock_of(pharm, meds[0]['id'])
     step('reserved stock is returned to the pharmacy', after == before, f'before={before} while_allocated={held} after={after}')
-    d = admin.get(f'/orders/pharmacy/{oid}')
+    d = admin.get(f'/admin/admin/orders/pharmacy/{oid}')
     step('audit trail: console timeline shows the admin cancel', d.ok and any('admin' in str(e.get('to')) or 'admin' in str(e.get('note')) for e in d.get('timeline') or []), d.get('timeline'))
 
     journey('inventory tracking ON (provider-app switch): stock reserved on selection, returned on cancel')
@@ -272,7 +272,7 @@ def cancellations(pat, pharm, admin, meds):
     oid, alloc = open_order(pat, pharm, meds, addr)
     held = stock_of(pharm, meds[0]['id'])
     step('selection reserves stock (-1)', alloc and held == before - 1, f'before={before} held={held}')
-    r = admin.post(f'/orders/pharmacy/{oid}/cancel', {'reason': 'طلب العميل الإلغاء عبر الدعم'})
+    r = admin.post(f'/admin/admin/orders/pharmacy/{oid}/cancel', {'reason': 'طلب العميل الإلغاء عبر الدعم'})
     step('admin cancel', r.ok, r)
     after = stock_of(pharm, meds[0]['id'])
     step('cancel returns exactly the reserved stock', after == before, f'before={before} held={held} after={after}')

@@ -161,10 +161,19 @@ def insured_lab(pat, lab, other_lab):
             fake_pay(txn['gateway_intent_id'])
             r = pat.post(f"/payments/verify/{txn['id']}", {})
             step('copay: paid', r.ok and r.get('status') == 'paid', r)
-        r = pat.get(f'/insurance/requests/{rid}')
-        step('request shows the copay paid', r.ok and r.get('state') == 'COPAY_PAID', r)
-        r = pat.get(f'/labs/bookings/{bid}')
-        step('the lab booking reaches CONFIRMED once the copay is paid', r.ok and str(r.get('state')).upper() == 'CONFIRMED', r)
+        # Copay settlement is event-driven (payment.completed → engine), so poll.
+        import time as _time
+        req_state, booking_state = None, None
+        for _ in range(10):
+            r = pat.get(f'/insurance/requests/{rid}')
+            req_state = r.get('state')
+            b = pat.get(f'/labs/bookings/{bid}')
+            booking_state = str(b.get('state')).upper()
+            if req_state == 'COPAY_PAID' and booking_state == 'CONFIRMED':
+                break
+            _time.sleep(1.5)
+        step('request shows the copay paid', req_state == 'COPAY_PAID', req_state)
+        step('the lab booking reaches CONFIRMED once the copay is paid', booking_state == 'CONFIRMED', booking_state)
 
 
 def run(pat, doctor, admin, labs=None):

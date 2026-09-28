@@ -24,11 +24,11 @@ def doctor_publishes_hours(doctor, admin):
     dow = (d.weekday() + 1) % 7  # JS getDay(): Sunday=0
     r = doctor.post('/provider/schedule-slots', {'day_of_week': dow, 'start_time': '09:00', 'end_time': '12:00', 'service_type': 'clinic'})
     step('doctor submits clinic hours', r.ok, r)
-    r = admin.get('/providers/provider-deltas')
+    r = admin.get('/admin/admin/providers/provider-deltas')
     pend = [x for x in r.items() if x.get('status') == 'pending']
     step('admin sees the pending schedule change', r.ok and pend, f'{r.status} {[x.get("target") for x in pend][:5]}')
     for x in pend:
-        r = admin.post(f"/providers/provider-deltas/{x['id']}/approve", {'reason': 'ساعات العيادة معتمدة'})
+        r = admin.post(f"/admin/admin/providers/provider-deltas/{x['id']}/approve", {'reason': 'ساعات العيادة معتمدة'})
         step(f"admin approves the {x.get('target')} change", r.ok, r)
     r = doctor.get('/provider/schedule-slots')
     step('the hours are live on the doctor schedule', r.ok and len(r.items() if not isinstance(r.body, list) else r.body) > 0, r)
@@ -137,7 +137,7 @@ def run(pat, doctor, admin):
         step(f'GET {path}', r.ok, r)
 
     journey('consultation: admin orders console')
-    r = admin.get('/orders?kind=consultation&limit=25')
+    r = admin.get('/admin/admin/orders?kind=consultation&limit=25')
     row = next((x for x in r.items() if x.get('id') == aid), None)
     step('console lists it with status and amount', r.ok and row and str(row.get('status')).upper() == 'COMPLETED' and row.get('amount', 0) > 0, row or r.status)
     return aid
