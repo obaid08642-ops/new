@@ -116,57 +116,6 @@ export class ProviderPayoutsController {
     return this.withdrawals.find({ provider_id: user.id }, { projection: { _id: 0 } }).sort({ createdAt: -1 }).limit(50).toArray();
   }
 
-  private get banks() { return this.conn.collection('provider_bank_accounts'); }
-
-  private static sanitizeBank(row: any) {
-    if (!row) return null;
-    const { _id, password_hash, ...rest } = row;
-    return rest;
-  }
-
-  /** The provider's bank account for payouts (used by the withdrawal screen). */
-  @Get('bank-account')
-  async myBank(@CurrentUser() user: any) {
-    const row = await this.banks.findOne({ account_id: user.id });
-    return ProviderPayoutsController.sanitizeBank(row);
-  }
-
-  @Get('banks')
-  async myBanks(@CurrentUser() user: any): Promise<any[]> {
-    const rows = await this.banks.find({ account_id: user.id }, { projection: { _id: 0 } }).sort({ createdAt: -1 }).toArray();
-    return rows;
-  }
-
-  /** Submit (or re-submit) the payout bank account. A new IBAN returns to review;
-   * an admin approval flips it to approved (also auto-approved at provider approval). */
-  @Post('bank-account')
-  async submitBank(@CurrentUser() user: any, @Body() body: { bank_code?: string; bank_name?: string; holder_name?: string; iban?: string }) {
-    const bankCode = String(body?.bank_code || '').trim();
-    const holder = String(body?.holder_name || '').trim();
-    const iban = String(body?.iban || '').replace(/\s+/g, '').toUpperCase();
-    if (!bankCode) throw new BadRequestException('bank_code_required');
-    if (holder.length < 3) throw new BadRequestException('holder_name_required');
-    if (!/^SA\d{22}$/.test(iban)) throw new BadRequestException('invalid_verified_iban');
-    const existing: any = await this.banks.findOne({ account_id: user.id });
-    if (existing && String(existing.iban).toUpperCase() === iban && existing.review_status === 'approved') {
-      return ProviderPayoutsController.sanitizeBank(existing);
-    }
-    const now = new Date();
-    const doc = {
-      id: existing?.id || uuid(),
-      account_id: user.id,
-      bank_code: bankCode,
-      bank_name: String(body?.bank_name || '').trim() || bankCode,
-      holder_name: holder,
-      iban,
-      review_status: 'pending',
-      createdAt: existing?.createdAt || now,
-      updatedAt: now,
-    };
-    await this.banks.updateOne({ account_id: user.id }, { $set: doc }, { upsert: true });
-    return ProviderPayoutsController.sanitizeBank({ ...doc, review_status: 'pending' });
-  }
-
   @Get('balance')
   balance(@CurrentUser() user: any) {
     return this.ledger.providerBalance(user.id);

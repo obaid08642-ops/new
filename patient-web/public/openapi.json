@@ -95,46 +95,6 @@
         ]
       }
     },
-    "/api/v1/provider/payouts/bank-account": {
-      "get": {
-        "operationId": "ProviderPayoutsController_myBank",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "ProviderPayouts"
-        ]
-      },
-      "post": {
-        "operationId": "ProviderPayoutsController_submitBank",
-        "parameters": [],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "ProviderPayouts"
-        ]
-      }
-    },
-    "/api/v1/provider/payouts/banks": {
-      "get": {
-        "operationId": "ProviderPayoutsController_myBanks",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "ProviderPayouts"
-        ]
-      }
-    },
     "/api/v1/provider/payouts/balance": {
       "get": {
         "operationId": "ProviderPayoutsController_balance",
@@ -2638,15 +2598,25 @@
         ]
       },
       "put": {
-        "operationId": "FinanceController_updateCommissions",
+        "operationId": "LegalController_updateCommissions",
         "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCommissionsDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": ""
           }
         },
         "tags": [
-          "Finance"
+          "Legal"
         ]
       }
     },

@@ -584,17 +584,38 @@ export class RefundExecutor {
       booking = await this.conn.collection('pharmacy_orders').findOne({ id: opts.booking_id } as any);
     }
     const originalMethod = String(paidTransaction?.method || booking?.payment_method || '').toLowerCase();
-    const cashCollected = originalMethod === 'cash' && (
+    const bookingState = String(booking?.status || '').toLowerCase();
+    const cashLike = originalMethod === 'cash' || originalMethod === 'cod' || originalMethod === 'cash_on_delivery';
+    const cashCollected = cashLike && (
       paidTransaction?.status === 'paid' || String(booking?.payment_status || '').toLowerCase() === 'paid'
       || Number(booking?.collection_proof?.amount_collected || 0) > 0
+      // COD collected at the door: a delivered/completed order means the courier took the money.
+      || (originalMethod !== 'cash' && ['delivered', 'completed'].includes(bookingState))
     );
     if (!paidPayment && !cashCollected) throw new BadRequestException('original_payment_not_found');
     if (paidPayment && (!paidPayment.moyasar_id || String(paidPayment.moyasar_id).startsWith('sandbox_'))) {
       throw new BadRequestException('original_card_refund_unavailable');
     }
-    const paidTotal = paidPayment
+    // Cash-like orders may carry no payment total (e.g. governed pharmacy_orders
+    // with total_price 0) — fall back to the priced items the refund was computed from.
+    const itemsTotal = Array.isArray(booking?.items)
+      ? booking.items.reduce((sum: number, it: any) => sum + Number(it?.price || 0) * Number(it?.qty ?? it?.quantity ?? 1), 0)
+      : 0;
+    let paidTotal = paidPayment
       ? Number(paidPayment.amount || 0)
-      : Number(paidTransaction?.amount || booking?.total_price || booking?.total || booking?.price || booking?.collection_proof?.amount_collected || 0);
+      : Number(paidTransaction?.amount || booking?.total_price || booking?.total || booking?.price || booking?.collection_proof?.amount_collected || itemsTotal || 0);
+    if (!(paidTotal > 0)) {
+      // Cash-like with no recorded totals (e.g. governed pharmacy_orders carry no
+      // prices): cap by the originating return request's server-computed items.
+      try {
+        const returnId = String(opts.refund_id || '').replace(/^return_/, '');
+        const ret: any = returnId ? await this.conn.collection('returnrequests').findOne({ id: returnId } as any) : null;
+        const retTotal = Array.isArray(ret?.items)
+          ? ret.items.reduce((sum: number, it: any) => sum + Number(it?.price || 0) * Number(it?.qty ?? it?.quantity ?? 1), 0)
+          : 0;
+        if (retTotal > 0) paidTotal = retTotal;
+      } catch { /* cap stays 0 → the guard below refuses */ }
+    }
     if (paidTotal != null) {
       const alreadyRefunded = Number(paidPayment?.refunded_amount || paidTransaction?.refunded_amount || booking?.refunded_amount || 0);
       if (alreadyRefunded + amount > paidTotal + 0.001) {

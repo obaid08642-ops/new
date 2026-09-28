@@ -9,16 +9,18 @@ def rows(r):
 
 
 def live_env_hold_zero(admin):
-    # Live env only: escrow matures immediately so the payout flow can complete
-    # in one run (production keeps the multi-day settlement delay).
+    # Live env only: escrow matures immediately and the payout minimum is lifted
+    # so the payout flow can complete in one run (production keeps the delay
+    # and the 100 SAR minimum).
     journey('payouts: live env releases the escrow hold')
-    r = admin.put('/admin/admin/finance/commissions', {'settlement': {'delay_days': {'default': 0}}})
+    r = admin.put('/admin/admin/finance/commissions', {'settlement': {'delay_days': {'default': 0}},
+                                                       'payout_schedule': {'minimum_payout_sar': 0}})
     step('settlement hold set to 0 for the live env', r.ok, r)
 
 
 def bank_setup(admin, doctor):
     journey('payouts: provider bank account verified (WithdrawalWorkflow)')
-    r = doctor.post('/provider/bank-account', {'bank_code': '80', 'holder_name': 'عيادة الاختبار الحي',
+    r = doctor.post('/provider/bank-account', {'bank_code': 'rajhi', 'holder_name': 'عيادة الاختبار الحي',
                                                 'iban': 'SA0380000000608010167519'})
     step('provider submits the bank account', r.ok, r)
     aid = doctor.get('/provider/me').get('account', 'id')
@@ -36,7 +38,7 @@ def payouts(admin, doctor):
     bal = float(r.get('available') or r.get('balance') or 0)
     step('provider balance reflects the completed consultation', r.ok and bal > 0, r)
     r = doctor.post('/provider/payouts/request', {'amount': bal, 'iban': 'SA0380000000608010167519', 'idempotency_key': f'payout_{uuid.uuid4()}'})
-    pid = r.get('id') or r.get('withdrawal', 'id') or r.get('payout', 'id')
+    pid = r.get('request', 'id') or r.get('id') or r.get('withdrawal', 'id') or r.get('payout', 'id')
     step('provider requests the payout', r.ok and pid, r)
     r = doctor.post('/provider/payouts/request', {'amount': bal * 10 + 1000, 'iban': 'SA0380000000608010167519', 'idempotency_key': f'payout_{uuid.uuid4()}'})
     step('asking for more than the balance is refused', r.status in (400, 409, 422), r)
@@ -46,7 +48,7 @@ def payouts(admin, doctor):
         r = admin.post(f'/admin/admin/finance/withdrawals/{pid}/execute', {})
         step('admin executes it', r.ok, r)
         r = doctor.get('/provider/payouts/mine')
-        step('provider sees it paid', r.ok and any(x.get('id') == pid and str(x.get('status')).lower() in ('paid', 'executed', 'completed') for x in rows(r)), r)
+        step('provider sees it paid', r.ok and any(x.get('id') == pid and str(x.get('state') or x.get('status')).lower() in ('paid', 'executed', 'completed') for x in rows(r)), r)
 
 
 def users(admin, pat, pat_email):
