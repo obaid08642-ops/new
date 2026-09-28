@@ -19,4 +19,12 @@ for j in "${JOURNEYS[@]}"; do
     grep -E '^\s+FAIL|Traceback|Error' <<<"$out" | head -20
   fi
 done
+# R6-9: admin per-page click tests (real Chromium; skips cleanly without a browser or seed data).
+out=$(timeout 1800 python3 j_admin_clicks.py 2>&1)
+line=$(grep -E '^##### ' <<<"$out" | tail -1)
+echo "j_admin_clicks: ${line:-no summary (crashed)}"
+if [[ -z $line || ! $line =~ ", 0 failed" ]]; then
+  fail=1
+  grep -E '^\s+FAIL|Traceback|Error' <<<"$out" | head -20
+fi
 exit $fail
