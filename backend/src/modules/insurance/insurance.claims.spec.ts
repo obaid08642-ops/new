@@ -44,6 +44,14 @@ describe('InsuranceService claims (LJ-02)', () => {
     await expect(service.submitClaim('patient-2', { booking_kind: 'pharmacy', booking_id: 'ph-1' })).rejects.toThrow(NotFoundException);
   });
 
+  it('admin claim list never lets a query-string object become a Mongo operator', async () => {
+    const { service } = serviceFor(null);
+    const lean = jest.fn().mockResolvedValue([]);
+    service.claimModel.find = jest.fn().mockReturnValue({ sort: () => ({ limit: () => ({ lean }) }) });
+    await service.adminClaims({ $ne: 'x' } as any);
+    expect(service.claimModel.find).toHaveBeenCalledWith({ status: { $eq: '[object Object]' } });
+  });
+
   it('requires a positive amount from the claim or the booking', async () => {
     const { service } = serviceFor({ id: 'lab-1', patient_id: 'patient-1' });
     await expect(service.submitClaim('patient-1', { booking_kind: 'lab', booking_id: 'lab-1' })).rejects.toThrow(BadRequestException);

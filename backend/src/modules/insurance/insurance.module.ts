@@ -454,7 +454,8 @@ Use null for any field not clearly visible. Do not guess.`;
   }
 
   adminClaims(status?: string) {
-    const filter = status ? { status } : {};
+    // String(): a query object (?status[$ne]=x) must not become a Mongo operator.
+    const filter = status ? { status: { $eq: String(status) } } : {};
     return this.claimModel.find(filter).sort({ createdAt: -1 }).limit(200).lean();
   }
 }
