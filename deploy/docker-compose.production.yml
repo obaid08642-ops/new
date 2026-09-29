@@ -168,7 +168,9 @@ services:
     restart: unless-stopped
     command: ["-c", "/etc/coturn/turnserver.conf"]
     volumes:
-      - ./coturn/turnserver.conf:/etc/coturn/turnserver.conf:ro
+      # The committed turnserver.conf is a template; the real static-auth-secret is
+      # rendered into turnserver.rendered.conf by deploy/scripts/render-coturn-config.sh
+      - ./coturn/turnserver.rendered.conf:/etc/coturn/turnserver.conf:ro
       - ./certs/turn:/etc/coturn/certs:ro
     network_mode: host  # TURN requires host networking (relay ports + source IPs)
     depends_on: []
