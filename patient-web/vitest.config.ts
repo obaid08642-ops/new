@@ -10,6 +10,9 @@ export default defineConfig({
       "@": templateRoot,
       "@shared": path.resolve(templateRoot, "shared"),
       "@assets": path.resolve(templateRoot, "attached_assets"),
+      // The design system packages live outside this app, so tests resolve them
+      // from the repository rather than from node_modules.
+      "@nabd/design-tokens": path.resolve(templateRoot, "../packages/design-tokens/dist/ts/tokens.ts"),
     },
   },
   test: {

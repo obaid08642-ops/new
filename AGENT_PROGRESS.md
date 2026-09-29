@@ -416,3 +416,68 @@ Still open, honestly:
 - LiveKit still sits on the RN 0.81 line after the provider-app SDK jump; it needs two real
   devices and cannot be exercised by a bundler.
 - 7C is still missing C6 (recovery codes); C1 without C6 leaves no non-passkey admin entry.
+
+## PHASE 12 — Brand, design system and UI rebuild (owner decision 2026-09-29, started 2026-09-29)
+
+Owner instruction for this round: start at **Phase 12** and leave the pre-12 backlog alone.
+The design stamps that §C2 reserves for a "design session" are built here, transcribed from the
+owner-approved canvas in `docs/design/canvas/` — the geometry and every colour come from the
+canvas and `docs/audit/05_OWNER_ADDITIONS_DESIGN_AND_GAPS.md` Part A; nothing was invented.
+
+### [P12.A2] design tokens (53610a0) — the single source of truth
+- `packages/design-tokens/tokens.json`: 173 semantic tokens, `{light,dark}` pairs, plus a
+  `contrast` array declaring every foreground/background pairing a component may use.
+  Retires the Fair Mint / Forest Ink V3 palette that was in this file.
+- `build.mjs` (zero dependencies) generates `dist/css/tokens.css` (CSS custom properties),
+  `dist/ts/tokens.ts` (a **nested** module — React Native has no CSS variables) and
+  `dist/tailwind-preset.js` (68 colour tokens, 11 spacing steps). `--check` fails on drift.
+- `tools/design/contrast-check.ts`: WCAG 2.2 guard over the declared pairs in BOTH themes,
+  compositing translucent tints over the surface they really sit on.
+- **Three real defects the checker found, fixed in the tokens (never in the checker):**
+  1. `status.info.fg` on the dark tint was 4.45:1 → text now uses the canvas `#9DB0FF`; the
+     spec's `#6E8BFF` is kept as `status.info.fill`.
+  2. `bg.inverse` (the ink hero card) is dark in BOTH themes, so it cannot use `text.primary`
+     — that was 1.00:1 on light. Added `text.onInverse` / `text.onInverseSecondary`.
+  3. A declared pair compared ink text with the ink surface; replaced with the real one.
+- Verify: `npm run check` → "3 generated artefacts are up to date"; `npm run contrast` →
+  "all 60 checks pass in both themes"; `tsc --strict` on the generated module → 0 errors.
+
+### [P12.A1] brand assets — the "Noon Dot" mark
+- `packages/brand/src/logo-mark.svg` is the master: the open bowl of ن with the pulse dot,
+  verbatim from §A1. `build.mjs` **fails** if any other source stops using that exact path and
+  circle, so the mark cannot drift between the store listing and the app.
+- 15 generated assets: iOS icon (1024, **opaque** — the store rejects alpha), maskable icon
+  (mark at 52%, inside the 66% safe zone), Android adaptive background/foreground, rounded
+  social/PWA tile, 512/192/180/32/16, a hand-written 3-size `favicon.ico`, the flat white
+  notification silhouette, and portrait light/dark splashes.
+- The wordmark "نبض" is **text, never an asset** (Readex Pro, screen readers, locale) — the
+  canvas composes the mark as an SVG and the word as live text, and so do we.
+- Replaced in the clients: patient-web header + dashboard, patient-web `app/icon.svg`,
+  admin `public/favicon.ico`, and the icon/adaptive/favicon/notification/splash of both apps.
+  The retired `#0066CC` brand blue is gone from both `app.json` files.
+- Removed the old ECG brand: `PulseShieldMark` (web), `NabdahLogo` + `HeartbeatLogo` (app).
+  The dot now beats at **60 bpm** on the launch screen (A9) and stops completely under
+  `prefers-reduced-motion` / `AccessibilityInfo.isReduceMotionEnabled()`.
+- `metro.config.js` gained `watchFolders` for `<repo>`: Metro could not see `packages/`, so
+  `expo export` would fail while `tsc` passed. This is the same class of bug as REVIEW_P7/P8.
+
+### Gate evidence (this commit)
+- design-tokens: `check` up to date; `contrast` all 60 pass in both themes.
+- brand: `build.mjs --check` → "all 15 generated assets are up to date".
+- patient-web: `tsc --noEmit` 0 errors; `vitest run` → **347 passed, 23 skipped, 0 failed**
+  (159 files passed, 14 skipped). The 23 skips are the pre-existing `sandbox-*.test.ts`
+  contract suites gated behind `RUN_SANDBOX_TESTS`; they are the same 23 the previous round
+  reported, not new.
+- admin: `tsc --noEmit` 0 errors; `next build` → "✓ Compiled successfully in 14.7s",
+  "✓ Generating static pages using 3 workers (60/60)".
+- provider-app: `tsc --noEmit` 0 errors; `jest` 17/17.
+- patient-app: `tsc --noEmit` 0 errors; `jest` **111/111** (42 suites, was 102; +9 brand);
+  `npx expo export` → web (4 bundles) + android (14MB hbc) + ios (13MB hbc), `favicon.ico (15KB)`.
+
+**Backend gate NOT run in this commit — and this is deliberate, not skipped:**
+another session is actively writing `backend/` and `tools/live/` in the same working tree
+(`auth.service.ts`, `f60-webhook-signature.e2e-spec.ts`, `lib.py`, `start-backend.sh`,
+`start-web.sh` all changed mid-task). `backend jest`, `dtocheck`, `idemcheck`, `schemadrift`
+and `run_gate.sh` are therefore not meaningful right now, and pushing a red backend gate is
+forbidden. Only this agent's own paths were staged. The backend gate gets run on the next
+Phase 12 commit, once that tree is quiet.

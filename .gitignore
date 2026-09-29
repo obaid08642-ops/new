@@ -10,11 +10,12 @@ build/
 .cache/
 out/
 
-# The design tokens are the exception: dist/ is GENERATED but COMMITTED, so
-# patient-web, patient-app, provider-app and admin can import the system
-# without a build step. CI runs `npm run check` in packages/design-tokens to
-# fail if it drifts from tokens.json.
+# The design system packages are the exception: dist/ is GENERATED but
+# COMMITTED, so patient-web, patient-app, provider-app and admin can consume it
+# without a build step. CI runs `npm run check` in each package to fail if it
+# drifts from its source of truth.
 !packages/design-tokens/dist/
+!packages/brand/dist/
 
 # Environment and secrets
 .env*.local

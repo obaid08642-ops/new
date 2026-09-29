@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240">
+  <!--
+    FAVICON — the bare mark on transparency, so it reads on both the light and
+    the dark browser chrome. The 16px raster is generated from this file.
+  -->
+  <path d="M40 104 C40 196 200 196 200 104" fill="none" stroke="#FF4B55" stroke-width="36" stroke-linecap="round"/>
+  <circle cx="120" cy="58" r="24" fill="#FF4B55"/>
+</svg>

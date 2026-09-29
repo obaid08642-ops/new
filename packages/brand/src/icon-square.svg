@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240">
+  <!--
+    SOCIAL / PWA ICON — the rounded coral tile from the canvas (radius 46 on a
+    200 tile = 23%), white mark at 65%. For surfaces nothing masks: Open Graph
+    images, the PWA manifest, the store listing preview.
+  -->
+  <rect width="240" height="240" rx="55" fill="#FF4B55"/>
+  <g transform="translate(120 120) scale(0.65) translate(-120 -120)">
+    <path d="M40 104 C40 196 200 196 200 104" fill="none" stroke="#FFFFFF" stroke-width="36" stroke-linecap="round"/>
+    <circle cx="120" cy="58" r="24" fill="#FFFFFF"/>
+  </g>
+</svg>

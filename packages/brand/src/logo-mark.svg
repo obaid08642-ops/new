@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240" role="img" aria-labelledby="nabd-mark-title">
+  <title id="nabd-mark-title">Nabd+</title>
+  <!--
+    MASTER MARK — "Noon Dot", direction A, owner-approved 2026-09-29.
+    The open bowl of the Arabic letter ن (a holding hand) with the dot above it
+    (the pulse). Geometry is the contract in docs/audit/05 Part A §A1; do not
+    redraw, nudge or "improve" it. New variants must be generated from this file.
+  -->
+  <path d="M40 104 C40 196 200 196 200 104" fill="none" stroke="#FF4B55" stroke-width="36" stroke-linecap="round"/>
+  <circle cx="120" cy="58" r="24" fill="#FF4B55"/>
+</svg>

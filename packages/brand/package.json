@@ -1,0 +1,17 @@
+{
+  "name": "@nabd/brand",
+  "version": "4.0.0",
+  "private": true,
+  "description": "Nabd+ brand assets — the owner-approved Noon Dot mark, the icon tiles, the favicon and the splash screens, plus the React wrapper for web.",
+  "scripts": {
+    "build": "node build.mjs",
+    "check": "node build.mjs --check"
+  },
+  "files": ["src", "react", "dist"],
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "peerDependenciesMeta": {
+    "react": { "optional": true }
+  }
+}

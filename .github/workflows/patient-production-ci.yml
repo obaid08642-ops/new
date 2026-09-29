@@ -75,8 +75,8 @@ jobs:
       - name: Build
         run: npm run build
 
-  design-tokens:
-    name: Design tokens and contrast
+  design-system:
+    name: Design tokens, brand assets and contrast
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -97,6 +97,30 @@ jobs:
         run: npm install --ignore-scripts --no-save typescript@5.9.3
       - name: Type check the generated TypeScript module
         run: npx tsc --noEmit --strict --target ES2022 --module ESNext --moduleResolution bundler dist/ts/tokens.ts
+
+  brand-assets:
+    name: Brand assets
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/brand
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # Same rule as the tokens: dist/ is committed, so this fails if anyone
+      # hand-edits a generated icon or redraws the mark away from the approved
+      # geometry in src/logo-mark.svg.
+      - name: Generated assets are in sync with the SVG sources
+        run: node build.mjs --check
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install sharp (rasteriser)
+        run: npm install --no-save --prefix ../admin sharp
+      - name: Re-verify after a clean rasteriser
+        run: node build.mjs --check
 
   shared-contracts:
     name: Governed shared contracts

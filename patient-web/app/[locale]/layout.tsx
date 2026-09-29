@@ -15,7 +15,7 @@ import { cookies } from "next/headers";
 import { LocaleSelector } from "@/components-next/locale-selector";
 import { SessionActions } from "@/components-next/session-actions";
 import { PresenceBeacon } from "@/components-next/presence-beacon";
-import { PulseShieldMark } from "@/components-next/pulse-shield-mark";
+import { NabdMark } from "@/components-next/nabd-mark";
 import { ShieldCheck } from "lucide-react";
 import { authCookieNames } from "@/lib/auth/cookies";
 import { getDirection, isLocale, locales, type Locale } from "@/lib/i18n";
@@ -76,7 +76,7 @@ export default async function LocaleLayout({ children, params }: Props) {
         <header className="topbar">
           <Link className="brand" href={`/${typedLocale}`}>
             <span className="brand-mark">
-              <PulseShieldMark decorative />
+              <NabdMark size={26} />
             </span>
             <span className="brand-wordmark">{t("brand")}</span>
           </Link>

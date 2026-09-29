@@ -1,0 +1,43 @@
+/*
+ * NabdMark — the 60 bpm pulse of the Noon Dot.
+ *
+ * 12.A9: "the logo dot pulsing at 60 bpm" on the splash, on loading and on
+ * success, and "respect reduce motion": when the reader asked for less motion
+ * the animation is dropped entirely and the dot simply sits still, which is
+ * still a complete logo.
+ *
+ * Only `transform` and `opacity` animate, so nothing here causes a layout pass.
+ */
+
+.nabd-mark {
+  display: block;
+  flex: none;
+}
+
+.nabd-mark__dot {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .nabd-mark--pulse .nabd-mark__dot {
+    animation: nabd-dot-beat 1000ms ease-in-out infinite;
+  }
+}
+
+@keyframes nabd-dot-beat {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  /* One beat per second: a quick swell, then a settle. */
+  12% {
+    transform: scale(1.22);
+    opacity: 0.82;
+  }
+  30% {
+    transform: scale(0.96);
+    opacity: 1;
+  }
+}

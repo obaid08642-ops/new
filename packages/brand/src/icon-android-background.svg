@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240">
+  <!--
+    ANDROID ADAPTIVE — background layer.
+    The launcher tints and masks this, so it is a flat full-bleed field and
+    carries no transparency and no detail.
+  -->
+  <rect width="240" height="240" fill="#FF4B55"/>
+</svg>
