@@ -297,11 +297,12 @@ export class AdminNotificationCenterService {
         );
         doctorName = prov?.name_ar || prov?.name || '';
       }
-      await this.push.queueNotification(
+      await this.push.queueTemplated(
         pid,
-        'تذكير بموعدك',
-        `لديك موعد غداً ${doctorName ? `مع ${doctorName}` : ''}. لا تنسَ الحضور.`,
+        'push.appointment.reminder.title',
+        'push.appointment.reminder.body',
         { type: 'reminder', screen: '/consultations/appointments', appointment_id: (a as any).id },
+        { doctor: doctorName || '' },
         'normal',
       );
       await this.conn.collection('appointments').updateOne({ _id: a._id }, { $set: { reminder_24h_sent: true } });
@@ -325,11 +326,12 @@ export class AdminNotificationCenterService {
     for (const cart of carts) {
       const uid = (cart as any).user_id || (cart as any).patient_id;
       if (!uid) continue;
-      await this.push.queueNotification(
+      await this.push.queueTemplated(
         uid,
-        'سلتك بانتظارك 🛒',
-        'لديك أدوية في السلة لم تكمل طلبها — أكمل الطلب الآن ويصلك بسرعة.',
+        'push.cart.reminder.title',
+        'push.cart.reminder.body',
         { type: 'retarget', screen: '/pharmacy/cart', campaign_id: 'auto_retarget_cart' },
+        undefined,
         'normal',
       );
       await this.conn.collection('carts').updateOne({ _id: cart._id }, { $set: { retargeted_at: new Date() } });
@@ -345,11 +347,12 @@ export class AdminNotificationCenterService {
     for (const o of unpaid) {
       const uid = (o as any).patient_id || (o as any).user_id;
       if (!uid) continue;
-      await this.push.queueNotification(
+      await this.push.queueTemplated(
         uid,
-        'طلبك غير مكتمل',
-        'طلبك لم يكتمل — اضغط هنا لإتمام الدفع والتوصيل.',
+        'push.order.reminder.title',
+        'push.order.reminder.body',
         { type: 'retarget', screen: '/pharmacy/order-tracking', params: { orderId: (o as any).id }, campaign_id: 'auto_retarget_order' },
+        undefined,
         'normal',
       );
       await this.conn.collection('orders').updateOne({ _id: o._id }, { $set: { retargeted_at: new Date() } });

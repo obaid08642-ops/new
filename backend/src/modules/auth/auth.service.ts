@@ -201,11 +201,12 @@ export class AuthService {
       } catch { /* fall through to push/email */ }
     }
     if (user?.id) try {
-      const r: any = await this.push?.sendToUser(
+      const r: any = await this.push?.sendTemplated(
         user.id,
-        'رمز التحقق — نَبْض',
-        `رمز التحقق الخاص بك: ${code} — صالح لمدة 10 دقائق. لا تشاركه مع أحد.`,
+        'push.otp.title',
+        'push.otp.body',
         { kind: 'otp' },
+        { code },
       );
       if (r && Number(r.sent) > 0) delivered.push('push');
     } catch { /* push must never break OTP delivery */ }

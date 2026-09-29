@@ -22,6 +22,8 @@ import * as http2 from 'http2';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { redisUrlFromEnv } from '../redis/redis.service';
 import { RegisterDto, TrackDto, UnregisterPushDto, WebSubscribeDto, WebUnsubscribeDto, SendCampaignDto } from './push.dto';
+import { NotificationTemplate, NotificationTemplateDocument, NotificationTemplateSchema } from '../../schemas/notification-template.schema';
+import { I18nService } from '../i18n/i18n.service';
 
 
 // ── Schema ────────────────────────────────────────────────────────────
@@ -171,6 +173,8 @@ export class PushService implements OnModuleInit {
     @InjectModel('PushLog') private readonly logs: Model<PushLogDocument>,
     @InjectModel('WebPushSubscription') private readonly webSubs: Model<WebPushSubscriptionDocument>,
     @InjectModel('PushEngagement') private readonly engagement: Model<PushEngagementDocument>,
+    @InjectModel(NotificationTemplate.name) private readonly templateModel: Model<NotificationTemplateDocument>,
+    private readonly i18n: I18nService,
   ) {}
 
   // ── APNs direct delivery (HTTP/2, ES256 provider-token JWT) ──────────────
@@ -397,6 +401,32 @@ export class PushService implements OnModuleInit {
     this.logger.log(`Cleanup complete. Deleted ${result.deletedCount} stale or inactive push tokens.`);
   }
 
+  /**
+   * R7-7: resolve push text through the admin-editable template store, with a
+   * built-in i18n fallback. Senders pass template keys (e.g. 'push.otp.title')
+   * and params; if an active template exists its localized text wins, otherwise
+   * the built-in dictionary text is used.
+   */
+  async resolvePushText(titleKey: string, bodyKey: string, params?: Record<string, any>, lang = 'ar'): Promise<{ title: string; body: string }> {
+    const fill = (text: string) => String(text).replace(/\{\{(\w+)\}\}/g, (_m, k) => (params?.[k] ?? ''));
+    try {
+      const tpl: any = await this.templateModel.findOne({ key: { $eq: titleKey }, active: { $ne: false } }).lean();
+      if (tpl) {
+        const pick = (m: any) => (m && typeof m === 'object' && (m[lang] || m.en || m.ar)) || '';
+        const title = fill(pick(tpl.title));
+        const body = fill(pick(tpl.body));
+        if (title || body) return { title: title || titleKey, body: body || bodyKey };
+      }
+    } catch {
+      // template store unreachable — fall through to built-in text.
+    }
+    try {
+      return { title: fill(this.i18n.t(titleKey, lang as any, params)), body: fill(this.i18n.t(bodyKey, lang as any, params)) };
+    } catch {
+      return { title: String(titleKey || ''), body: String(bodyKey || '') };
+    }
+  }
+
   /** Queue a notification for reliable delivery */
   async queueNotification(userId: string, title: string, body: string, data: any = {}, priority: 'high' | 'normal' = 'high') {
     await this.queue.add('send', { userId, title, body, data, priority }, {
@@ -410,6 +440,18 @@ export class PushService implements OnModuleInit {
   /** Direct delivery (bypasses queue - use for critical notifications) */
   async sendToUser(userId: string, title: string, body: string, data: any = {}) {
     return this.deliverPush({ userId, title, body, data, priority: 'high' });
+  }
+
+  /** R7-7: queue with template keys — resolved through templates with built-in fallback. */
+  async queueTemplated(userId: string, titleKey: string, bodyKey: string, data: any = {}, params?: Record<string, any>, priority: 'high' | 'normal' = 'high') {
+    const { title, body } = await this.resolvePushText(titleKey, bodyKey, params);
+    return this.queueNotification(userId, title, body, data, priority);
+  }
+
+  /** R7-7: direct send with template keys. */
+  async sendTemplated(userId: string, titleKey: string, bodyKey: string, data: any = {}, params?: Record<string, any>) {
+    const { title, body } = await this.resolvePushText(titleKey, bodyKey, params);
+    return this.sendToUser(userId, title, body, data);
   }
 
   private async deliverPush(payload: { userId: string; title: string; body: string; data?: any; priority?: string }) {
@@ -773,10 +815,11 @@ export class PushController {
       { name: 'PushLog', schema: PushLogSchema },
       { name: 'WebPushSubscription', schema: WebPushSubscriptionSchema },
       { name: 'PushEngagement', schema: PushEngagementSchema },
+      { name: NotificationTemplate.name, schema: NotificationTemplateSchema },
     ]),
   ],
   controllers: [PushController],
-  providers: [PushService],
+  providers: [PushService, I18nService],
   exports: [PushService],
 })
 export class PushModule {}
