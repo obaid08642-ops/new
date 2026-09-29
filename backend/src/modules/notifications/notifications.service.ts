@@ -500,7 +500,12 @@ export class NotificationsService {
     await col.insertOne(doc);
     // Device push to that account only (best-effort; bell row is the record).
     try {
-      await this.sendPush({ user_id: providerAccountId, type: 'info', action: input.action || (input.related_id ? { route: `/provider/job/${input.related_id}` } : {}) });
+      // The bell row carries the text; the push needs it too (it was sent with no title/body).
+      await this.sendPush({
+        user_id: providerAccountId, type: 'info',
+        title: input.title_ar || input.title_en, body: input.body_ar || input.body_en || '',
+        action: input.action || (input.related_id ? { route: `/provider/job/${input.related_id}` } : {}),
+      });
     } catch (e: any) {
       this.logger.debug(`provider push best-effort failed for ${providerAccountId}: ${e?.message}`);
     }

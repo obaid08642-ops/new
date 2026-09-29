@@ -24,6 +24,12 @@ export class BroadcastDto {
   @IsOptional()
   @IsDateString()
   scheduled_at?: string;
+
+  // Required (true) by the service for any audience wider than one user; without it here the
+  // ValidationPipe rejected the field, so no segment broadcast could ever be sent.
+  @IsOptional()
+  @IsBoolean()
+  audience_confirmed?: boolean;
 }
 
 export class CreateCampaignDto {

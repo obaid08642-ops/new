@@ -307,6 +307,93 @@ Owner decision. Do it after Gate P7, before Phase 8. Where this conflicts with o
 
 ---
 
+## PHASE 7E — Engagement: notifications and deep links (reviewer audit 2026-09-29)
+
+Evidence and what the reviewer already fixed: `docs/audit/04_DISCOVERY_ENGAGEMENT_AUDIT.md`. Order: after R7-1..R7-8 and 7A–7D, then 7E, then 7F.
+
+These items were checked against the rest of this plan. Only work that no other phase covers is listed. Where an item extends an existing task, that task is named. Every "Verify" must be a test or a live-harness step, not a claim.
+
+**N: Notifications**
+
+| Task | Do | Verify |
+|---|---|---|
+| N1 | patient-app: **one** tap router for push data (cold start + warm). Map every backend `type`/`screen` to a real app route, with the id in the param the screen reads: order/lab/radiology/nursing/consultation `service.*`, booking, payment, payment_failed, report, emergency, call_missed, chat (`thread_id`), prescription (id), insurance, refund, loyalty, campaign. Use `translateBackendRoute` for backend routes. Remove the dead `usePushNotifications.ts` router and `src/navigation/DeepLinking.ts`. Remove routes that don't exist (`/wallet/hub`, `/loyalty`). | Unit test: each type → route + params; every route file exists |
+| N2 | provider-app: tap routing (cold + warm) and bell-item navigation (`related_type`/`related_id` → job/order/booking/chat/payout screen). Add a NavigationContainer `linking` config. | Unit test on the mapping; e2e: new booking push → job screen |
+| N3 | One provider inbox: every provider-facing notice goes through `notifyProviderAccount` (push + bell). Covers: doctor new appointment, pharmacy allocation/broadcast, payout approved/paid/rejected, inventory expiry, KYC/bank/approval, radiology doctor notify, lab technician assigned. Replace role-topic sends (`n.role`), which no device subscribes to, with per-account sends. | Live journey: each event → a `provider_notifications` row + push attempt for the right account |
+| N4 | Wire the dead events (listed in the audit): `patient.notify` (radiology prep, nursing), `doctor.notify`, `medication.missed`, `call.missed`, `report.ready`, `refund.requested`/`decided`/`execution_failed`, lab reassigned/cancelled, radiology rescheduled/scan_aborted, insurance resubmitted/appeal/copay paid, `pharmacy.bid_*`, `emergency.resolved`, `provider.approved`. Ambulance: give the patient dispatch/ETA/arrived/resolved notices. | One test per event → notification created for the right user |
+| N5 | Hygiene: email sent twice; `payment.completed` and chat pushed twice; missing i18n keys (`notif.service.*`, `pharmacy.*`) show raw keys; direct `collection('notifications').insertOne` writers skip delivery (route them through `create()`); compat direct send stores no `title_key`, so the title is blank. | Unit tests; i18n key-coverage test (every key used exists in 6 locales) |
+| N6 | Respect user notification settings, quiet hours and a per-user frequency cap in `deliverById` and `PushService` (transactional notices bypass quiet hours). | Tests: opted-out category → no push; quiet hours → deferred |
+| N7 | **Do together with R7-7** (templates for push). Admin campaigns: also write an in-app inbox row; localize to the user's language (template per locale); optional email/WhatsApp channel. Targeting: saved segments in the UI (`segment:<id>`), user-id list / CSV upload, city, language, last activity, orders/bookings history, health-interest opt-ins (chronic, pregnancy). Age/gender only if collected with consent. Deep link: pick from real routes, validated server-side. | Live: campaign to a saved segment → inbox rows + pushes for exactly that segment |
+| N8 | Automatic notifications, each admin-configurable (enable/disable, timing, template text):<br>• appointment reminders 24h + 1h for consultation, lab, radiology and nursing;<br>• server-side medication-reminder backup and refill reminders from dispensed quantity;<br>• maternity weekly tips;<br>• re-engagement after 14/30 days inactive;<br>• abandoned cart (fix: uses the legacy `orders`);<br>• prescription renewal.<br>Either execute the stored `notification_auto_rules`/`admin_broadcasts` or delete them. | Each job: unit test + admin toggle stops it |
+| N9 | patient-web: notification list items are links (same route map) with mark-read. Web push via the existing VAPID backend (service worker + `/push/web/subscribe`). | Live: click → target page; web push received in Chromium |
+
+**D: Deep links**
+
+| Task | Do | Verify |
+|---|---|---|
+| D1 | **Extends F35/F36** (F35 still needs `APPLE_TEAM_ID` and the Play signing fingerprint from the owner). One AASA/assetlinks source. The nginx static file shadows the Next route, and its appID is `com.nabd.patient` while the app bundle is `com.patient.nabd`. Use correct appIDs, all 6 locales, and only paths the app handles. Remove the fallbacks (F35). Remove the unreachable hosts `app.nabd.plus` and `app.nabdahplus.com` from `app.json` (they break Android autoVerify on ≤11), or create them. Move the custom scheme out of the autoVerify filter. **Ship together with D2** (otherwise links open the app to not-found). | `curl` both files in the prod nginx image; Apple/Google validators (owner) |
+| D2 | patient-app `app/+native-intent.tsx` (`redirectSystemPath`): strip `/(ar\|en\|ur\|hi\|bn\|fil)`, map web paths to app routes (`/p/:slug`, `/medicine/:slug`, `/doctor/:slug[/:city]`, `/consultations/doctors/:id`, `/offers/:id`, `/orders/:id`, `/appointments/:id`, `/chat/:id`, `/family/join`, `/labs/…`, `/radiology/…`, `/services/…`, `/pharmacy/:slug`, …). Paths with no app screen open in the browser (`Linking.openURL`), never `+not-found`. | Table test over every sitemap URL pattern and every claimed prefix |
+| D3 | Claim the high-value paths in AASA and intent filters once D2 maps them: offers, orders, appointments, chat, family/join, prescriptions, diagnostics, community. | Same table test |
+| D4 | One share-link helper: `https://nabd.plus/{locale}/…` canonical URLs (no `app.nabdahplus.com`, `nabdahplus.app`, `nabdahplus.com`). Fix the family-invite QR. Web `/s/{type}/{slug}` returns 404 today: add a route that 301s to the canonical page. | Unit test on the helper; `/ar/s/doctor/x` → 301 |
+| D5 | provider-app: associated domain `provider.nabd.plus` with its own AASA/assetlinks (today the SPA fallback returns HTML), a `linking` config, and handling for the operator-invite link (`/operators/accept?token=`). | Live: invite link opens the app to accept |
+| D6 | Smart app banner with the **current page URL** as `app-argument`; drop the non-standard `google-play-app` meta; add an "Open in app" button on entity pages. | Rendered head check |
+
+**Gate P7E:**
+- the notification route table test is green;
+- the deep-link table test is green;
+- live: a new booking push creates the provider's notification for the right account;
+- live: an admin campaign reaches exactly its segment.
+
+---
+
+## PHASE 7F — Discovery: search engines and AI assistants (reviewer audit 2026-09-29)
+
+Evidence: `docs/audit/04_DISCOVERY_ENGAGEMENT_AUDIT.md`. Order: after 7E.
+
+Not repeated here because another task covers it: **page speed (LCP) is Phase 10 F82**.
+
+**S: SEO (search engines)**
+
+| Task | Do | Verify |
+|---|---|---|
+| S1 | Sitemaps list only indexable canonical URLs. Remove:<br>• robots-disallowed and noindex URLs (`static.xml` has `/reminders`, `/family`, `/health`, `/community`, `/nutrition`, `/maternity/tracker`, `/mental-health`);<br>• 404s (`locations.xml` → `/doctors/{slug}`);<br>• noindex-header pages (`/doctor/{slug}/{city}`).<br>Also:<br>• chunk every sitemap to ≤ 5,000 URLs (doctors/labs/radiology/services can exceed 50k);<br>• add `lastmod` everywhere;<br>• add eligibility filters (public + indexing + review) to doctors, facilities, conditions, entity-graph, ai-catalog and image sitemaps;<br>• add hreflang with per-locale URLs on every sitemap. | Crawler test: fetch every sitemap URL → 200, `index`, canonical = itself, not disallowed |
+| S2 | No doorway pages: a city × test/service page is indexable only when real providers offer it in that city (show them and the price range). Otherwise noindex and leave it out of the sitemap. The lab page currently ignores `testSlug`. | Test: city with no provider → noindex |
+| S3 | Medicine page completeness (per locale). Today only description, indications, dosage and warnings are visible out of ~21 translated fields. Render: side effects, how to use, storage, package contents, more information, brand benefits, and contraindications/pregnancy/interactions when present.<br>Other fixes on the page:<br>• FAQ questions translated (hard-coded Arabic today);<br>• HowTo name translated;<br>• MedicalDrug `contraindication` taken from contraindications, not warnings;<br>• `lastReviewed`/`reviewedBy`;<br>• AggregateRating/Review only from real reviews;<br>• links to alternatives with the same active ingredient and to the category;<br>• per-locale image alt;<br>• image sitemap on the web domain. | Snapshot test per locale: every non-empty field visible; Rich Results test (owner) |
+| S4 | Doctor, condition, facility and category pages translated into all 6 locales: descriptions not hard-coded English, category titles not hard-coded Arabic. | Test: ur/hi/bn/fil pages contain no ar/en fallback where a translation exists |
+| S5 | Articles: per-article title, description and OG `article`; include them in the sitemap; show author and medical reviewer. | Metadata test |
+| S6 | **Extends F29** (public entity pages; offers were missed). Offers and home-care: public offer detail pages (no login redirect) with Offer JSON-LD. Remove `/offers` and `/home-care` from the robots Disallow list and add them to the sitemap. | Anonymous GET → 200 with price |
+| S7 | Duplicates: `/medicine/[slug]` → 301 `/p/[slug]`; `/consultations/doctors/[id]` → 301 `/doctor/[slug]`. Align the proxy noindex regex with page metadata (`diagnostics/packages`, `clinics` and `nurses` currently say index but get a noindex header). | Crawler test |
+| S8 | Structured data:<br>• Organization logo, sameAs and contactPoint;<br>• Pharmacy/MedicalClinic/Laboratory geo, openingHours and telephone;<br>• Offer and price on lab, radiology and nursing;<br>• WebSite SearchAction target = an indexable results page. | JSON-LD validation test |
+| S10 | IndexNow: real key from env; ping product, article and offer canonical URLs on create/update/unpublish (not `/s/`). | Unit test on the listener |
+| S11 | **F31 reopened**: it was logged as done "structural, no deletion", but the renderers are still live. Remove the legacy backend SEO renderers (`/api/v1/sitemap.xml`, `robots.txt`, `llms.txt`, `image-sitemap.xml`, `seo/:type/:id`), which emit `api.nabd.plus/s/...` URLs. Fix the route that shadows `seo/indexnow/submissions`. | `curl` → 404; served-route test |
+| S12 | **Rich result like the leading pharmacies** (title + short use line + price + "in stock" + delivery + image in Google results). Product JSON-LD today lacks `brand` and `gtin13` (the barcode is in the data), sends a fixed shipping rate of 15 SAR (not the saved delivery fee / free-delivery rule), and always says `InStock` although a catalog item is not tied to pharmacy stock. Do:<br>• `brand` and `gtin13` from the catalog;<br>• `shippingDetails` from the platform pricing (free delivery when it applies) with `deliveryTime`;<br>• `availability` from real pharmacy stock or allocation (otherwise omit the Offer, never claim InStock);<br>• `hasMerchantReturnPolicy`;<br>• meta description template per locale: use/benefit first line, then form/strength/pack, then price, max ~155 characters, from the translated fields (not the first 160 characters of the description). | Rich Results Test and Merchant listing report (owner) on 20 random medicines × 6 locales; snapshot test of the JSON-LD |
+| S13 | **Keywords and data QA on the full catalog (20,990 × 6 locales).** Write `tools/seo/catalog_qa.ts`, run against the DB, with a report committed to `docs/seo/`:<br>• missing or empty fields per locale;<br>• duplicate titles or slugs;<br>• titles over 60 characters and descriptions over 160;<br>• untranslated text (Latin script in ar/ur/hi/bn pages and the reverse);<br>• banned or unsafe claims ("يشفي نهائيًا", "cure", "100%", "best", superlatives the SFDA forbids).<br>Use `search_aliases` (spelling variants: بنادول/بانادول, panadol/panadole) and the active ingredient on the page ("also known as"), as internal search synonyms and in structured data (`alternateName`). Never stuff keywords into titles, and never use hidden text. | Report shows 0 blocking problems; unit test on the title/description builder |
+| S14 | **Public health tools and content hubs are indexable** (today several are disallowed or noindex): pregnancy week-by-week, due-date calculator, ovulation calculator, BMI/calorie and nutrition guides, mental-health info pages, and a symptom-checker landing page. Serve only public educational content (never user data), in 6 locales, with `MedicalWebPage` + `reviewedBy` + FAQ, and add them to the sitemap. The logged-in trackers stay private. | Anonymous GET → 200, `index`; listed in the sitemap |
+| S15 | **Automatic publishing.** When a provider (doctor, hospital, lab, radiology centre, pharmacy, nurse) is approved, or a catalog item, offer or price changes:<br>• its public page is live and in the sitemap within minutes;<br>• IndexNow is pinged;<br>• the product feed row is updated;<br>• unpublishing removes all of them.<br>This covers doctor × specialty × city pages for multi-specialty doctors, and hospital pages with their departments. | Live: approve a provider → page 200 + sitemap entry + IndexNow call; suspend → 404/410 and removed |
+
+**A: AI assistants and agentic commerce**
+
+| Task | Do | Verify |
+|---|---|---|
+| A1 | AI checkout must complete. MCP `prepare_transaction` returns `/{locale}/checkout?id=` and ai-commerce returns `/{locale}/checkout/session/:id`; **both 404 on the web and have no app route.** Build the page: load the session → login/OTP → cart prefilled → pay. Also:<br>• use the same total as the site (don't add 15% VAT on top of medicine prices; most medicines are zero-rated in KSA, confirm with the accountant);<br>• add eligibility filters;<br>• remove fabricated fallbacks (price 20, `priceRange '150 SAR'`, default insurers, hard-coded InStock). | Live: MCP prepare → open URL → pay → order exists |
+| A2 | MCP to the current spec: streamable-HTTP transport with protocol-version negotiation; notifications return 202 with no body; OAuth 2.1 for write tools (the `.well-known/oauth-*` docs exist); consistent server card. Then list it in MCP registries. | MCP inspector/conformance run |
+| A3 | `llms.txt`: one source (the `public/llms.txt` and the route conflict); accurate (it says there is no MCP). `llms-full.txt` should cover all eligible products (paginated, or link the sitemaps); today it has at most ~1,050 items with empty columns. | Test: counts match the eligible catalog |
+| A4 | Discovery docs (`ai-catalog`, `agent-card`, `ucp`, `acp`, `x402`) must point to real hosts (`api.nabd.plus`, `mcp.nabd.plus`). Remove or mark disabled anything not implemented. | Test: every URL in them returns 2xx |
+| A5 | Product feeds from the eligible catalog: Google Merchant Center, Microsoft Merchant and the OpenAI product-feed format, per locale (at least ar and en). Include GTIN (barcode), brand, availability, the site price, image and canonical link. Regenerate daily. Add an admin exclusion list (Rx categories are never advertised). | Feed validator; count = eligible OTC products |
+| A6 | **AI-friendly pages and access for every assistant** (ChatGPT, Gemini/AI Overviews, Claude, Perplexity, Copilot, Apple):<br>• robots names and allows `OAI-SearchBot`, `ChatGPT-User`, `GPTBot`, `Google-Extended`, `ClaudeBot`, `Claude-SearchBot`, `Claude-User`, `PerplexityBot`, `Perplexity-User`, `Bingbot`, `Applebot`/`Applebot-Extended` on public pages;<br>• each entity page starts with a short answer block in plain language (what it is / what it is used for / price / where to get it), then details, sources, `reviewedBy` and `lastReviewed`;<br>• link entities to shared identifiers (`sameAs` to Wikidata/Wikipedia for active ingredients and conditions; SFDA registration number when available);<br>• the same facts in HTML, JSON-LD, `llms.txt`, MCP and the product feed (no contradictions);<br>• all public content present in the server HTML (no client-only rendering, no login wall). | Test: robots contains each agent; per-page check that answer block, JSON-LD and HTML agree |
+
+**Gate P7F:**
+- the crawler test over all sitemaps is green (every URL returns 200, is indexable, is its own canonical and is not disallowed);
+- the per-locale medicine page snapshot test is green;
+- every URL in the AI discovery docs returns 2xx;
+- live: MCP prepare → checkout → paid order;
+- the product feed validates;
+- the catalog QA report (S13) shows 0 blocking problems on the full catalog;
+- live: approving a provider publishes its page, sitemap entry and IndexNow ping (S15);
+- the Rich Results Test passes on 20 random medicines × 6 locales (owner runs it once the site is live) (S12).
+
+---
+
 ## PHASE 8 — Patient journeys & web parity — F69–F74
 
 | Task | Do |

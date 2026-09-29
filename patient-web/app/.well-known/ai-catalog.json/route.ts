@@ -152,7 +152,7 @@ const catalog = {
       identifier: "urn:air:nabd.plus:lifecycle:management",
       displayName: "Appointment lifecycle: Rescheduling and cancellation APIs",
       type: "application/json",
-      url: `${origin}/openapi.json`,
+      url: `${origin}/.well-known/openapi.json`,
       representativeQueries: [
         "How can a patient reschedule or cancel an appointment?",
         "إعادة جدولة أو إلغاء موعد كشف أو فحص مخبري",

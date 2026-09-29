@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getProductSitemap } from "@/lib/api/public-products-server";
 import { isLocale } from "@/lib/i18n";
-import { localizedUrl, SITEMAP_NS, hreflangLinks } from "@/lib/seo";
+import { localizedUrl, SITEMAP_NS, hreflangLinksPerLocale } from "@/lib/seo";
 
 export const revalidate = 21600;
 
@@ -23,7 +23,11 @@ export async function GET(_req: Request, { params }: Props) {
   const urls = data.urls.map((u) => {
     const path = `/p/${encodeURIComponent(u.slug)}`;
     const loc = localizedUrl(locale, path);
-    return `  <url><loc>${esc(loc)}</loc>${hreflangLinks(path)}${u.lastmod ? `<lastmod>${u.lastmod}</lastmod>` : ""}<changefreq>weekly</changefreq><priority>0.8</priority></url>`;
+    const alt = hreflangLinksPerLocale((l) => {
+      const s = u.alternates?.[l] || (l === locale ? u.slug : null);
+      return s ? `/p/${encodeURIComponent(s)}` : null;
+    });
+    return `  <url><loc>${esc(loc)}</loc>${alt}${u.lastmod ? `<lastmod>${u.lastmod}</lastmod>` : ""}<changefreq>weekly</changefreq><priority>0.8</priority></url>`;
   });
   const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset ${SITEMAP_NS}>\n${urls.join("\n")}\n</urlset>`;
   return new NextResponse(xml, { headers: { "Content-Type": "application/xml; charset=utf-8" } });
