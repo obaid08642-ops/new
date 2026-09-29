@@ -20,5 +20,22 @@ export const viewport: Viewport = {
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const requested = (await headers()).get("x-next-intl-locale") || "";
   const locale = isLocale(requested) ? requested : "ar";
-  return <html lang={locale} dir={getDirection(locale)}><body>{children}</body></html>;
+  // F82: the API and the image CDN are both on the critical path of the home and
+  // category pages. Opening them during HTML parse removes a full round trip from
+  // both the LCP image and the first data fetch.
+  const apiOrigin = (() => {
+    try { return new URL(process.env.NEXT_PUBLIC_API_ORIGIN || "https://api.nabd.plus").origin; } catch { return "https://api.nabd.plus"; }
+  })();
+
+  return (
+    <html lang={locale} dir={getDirection(locale)}>
+      <head>
+        <link rel="preconnect" href={apiOrigin} crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://cdn.nabd.plus" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href={apiOrigin} />
+        <link rel="dns-prefetch" href="https://cdn.nabd.plus" />
+      </head>
+      <body>{children}</body>
+    </html>
+  );
 }
