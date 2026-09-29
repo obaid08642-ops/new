@@ -136,10 +136,19 @@ describe('JwtAuthGuard', () => {
   it('fails closed for the legacy header-based impersonation path', async () => {
     reflector.getAllAndOverride.mockReturnValue(null);
     jwtService.verifyAsync.mockResolvedValue({ id: 'admin1', role: UserRole.ADMIN, email: 'admin@nabdah.com' });
+    const { createHash } = require('crypto');
+    const devId = 'a'.repeat(32);
+    (connection.collection as jest.fn()).mockImplementation((name: string) => {
+      if (name === 'admin_devices') {
+        return { findOne: jest.fn().mockResolvedValue({ user_id: 'admin1', device_hash: createHash('sha256').update(devId).digest('hex') }) };
+      }
+      return { findOne: jest.fn() };
+    });
 
     const ctx = createMockContext({
       authorization: 'Bearer token',
       'x-impersonate-user-id': 'patient1',
+      'x-admin-device': devId,
     });
 
     await expect(guard.canActivate(ctx)).rejects.toThrow('impersonation_session_required');
