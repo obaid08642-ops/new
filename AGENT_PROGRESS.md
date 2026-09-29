@@ -293,3 +293,20 @@ Format: task | commit sha | verify result | notes
 - `bash tools/live/run_gate.sh`: gate P1 368 routes 0 leaks; j_accounts 42/42; j_onboarding 112/112; j_pharmacy 125/125; j_lab 94/94; j_radiology 86/86; j_nursing 73/73; j_consultation 76/76; j_ambulance 66/66; j_facility 185/185; j_support 31/31; j_loyalty 103/103; j_admin_clicks 1/1.
 - Non-gate journeys (fresh DB each): j_insurance 123/123; j_returns 114/114; j_chat 73/73; j_admin_ops 99/99.
 - Env notes: `timeout(1)` missing on macOS → run_gate.sh uses a portable wrapper; aiosmtpd greeting stalls (~5s, local DNS) → replaced locally by a minimal threaded sink (repo smtp_sink.py untouched); backend must be restarted after a DB wipe so boot seeds (broadcast stages, system config) repopulate.
+
+## R7 mandatory items (2026-09-29) — all done
+- R7-1 (real browser for j_admin_clicks): harness infra-skips → FAIL; login flow fixed; admin BFF caching bug fixed (`cache: 'no-store'`); catalog-manager inputs gain placeholders; ReportsQueryDto gains `format` enum; CI workflow gains Playwright+Chromium install step; j_admin_clicks re-added to run_gate.sh → 16/16.
+- R7-2 (F76 real image upload): returns/new-request.tsx camera/library → multipart upload → signed URL → attachedDocs; j_returns uploads real PNG → 116/116.
+- R7-3 (no fake collectors/ETA/GPS): GET /labs/team/technicians; assignTechnician team-only; updateGps rejects 0,0; LabDashboard HomeCollection real technicians + expo-location + haversine → labs.team.spec 3/3.
+- R7-4 (web claim booking picker): insurance-submit-claim-form.tsx paid-booking picker; BFF forwards booking-backed fields; dtocheck 639 DTO routes, 327 matched, 0 mismatches.
+- R7-5 (P8 journey matrix): j_pharmacy 143/143 (pickup×cash×Rx, delivery×insurance with pharmacy offer + full decision); j_lab 132/132; j_radiology 104/104; j_nursing 92/92; j_consultation 109/109.
+- R7-6 (loading/error/empty states): all 87 flagged patient-app screens wired to shared ScreenState; screens.py audit → 0 missing; tsc 0.
+- R7-7 (push via templates): PushService.resolvePushText + queueTemplated/sendTemplated (template store → i18n fallback); OTP, appointment reminder, cart/order retarget now use template keys; 6 new dictionary entries.
+
+### Gate evidence (fresh DB, full stack)
+- backend: tsc 0; jest 2936/2936 (178 suites).
+- patient-app: tsc 0; jest 102/102; expo export OK.
+- provider-app: tsc 0; jest 17/17.
+- patient-web: tsc 0; vitest 343 passed, 23 skipped.
+- admin: tsc 0.
+- run_gate.sh: gate P1 368 routes 0 leaks; j_accounts 42/42; j_onboarding 112/112; j_pharmacy 143/143; j_lab 132/132; j_radiology 104/104; j_nursing 92/92; j_consultation 109/109; j_ambulance 66/66; j_facility 185/185; j_support 31/31; j_loyalty 103/103; j_admin_clicks 16/16 (real Chromium).
