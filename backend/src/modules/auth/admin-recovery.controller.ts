@@ -34,7 +34,9 @@ export class AdminRecoveryController {
     const email = String(body?.email || '').trim().toLowerCase();
     const emailCode = String(body?.email_code || '').trim();
     const recCode = String(body?.recovery_code || '').trim();
-    if (!email || !emailCode || !recCode) throw new BadRequestException('email_email_code_and_recovery_code_required');
+    if (!email || !emailCode) throw new BadRequestException('email_and_email_code_required');
+    // C7: an email code alone never grants access — missing recovery code is a 403.
+    if (!recCode) throw new ForbiddenException('recovery_code_required');
     // 1) Email OTP first — proves control of the mailbox. Alone it grants nothing.
     const u: any = await (this.auth as any).userModel.findOne({ email });
     if (!u || (u.role !== UserRole.ADMIN && u.role !== UserRole.SUPER_ADMIN)) {
