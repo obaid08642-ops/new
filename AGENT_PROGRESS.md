@@ -310,3 +310,53 @@ Format: task | commit sha | verify result | notes
 - patient-web: tsc 0; vitest 343 passed, 23 skipped.
 - admin: tsc 0.
 - run_gate.sh: gate P1 368 routes 0 leaks; j_accounts 42/42; j_onboarding 112/112; j_pharmacy 143/143; j_lab 132/132; j_radiology 104/104; j_nursing 92/92; j_consultation 109/109; j_ambulance 66/66; j_facility 185/185; j_support 31/31; j_loyalty 103/103; j_admin_clicks 16/16 (real Chromium).
+
+## [10.1] PDPL — data-subject rights, backend + patient-app (2026-09-29)
+- Backend `PdplService` (`backend/src/modules/users/pdpl.service.ts`) + 4 endpoints on UsersController:
+  `GET /users/me/data-export`, `DELETE /users/me` (password proof + @RequireIdempotency),
+  `GET /users/me/consents`, `POST /users/me/consents`. Ownership is not uniform in this codebase
+  (appointments carry `patient_id` OR `patient_account_id`, prescriptions `patient_id`, pharmacy
+  orders `patient_account_id`), so the service lists the owning fields per collection from the schemas.
+  Legal records (transactions/invoices/audit) are anonymised, not deleted; sessions and push tokens
+  are deleted immediately; the account is anonymised in place for DataRetentionService to hard-delete.
+- The privacy screen previously offered "request permanent deletion of my personal data" but POSTed
+  to `/support/requests` — a support ticket with a 72h callback, no export, no real deletion. Replaced
+  with a real export (JSON via expo-file-system/legacy + share sheet) and real erasure behind a
+  password-confirmation modal, then logout + return to login.
+- Bug the suite caught: Mongoose treats `email: undefined` as "leave unchanged", so the first cut left
+  the erased patient's email in place. Changed to `$unset` and added a regression test asserting a
+  post-erasure export no longer discloses email or phone.
+- Gate: `npx jest --config jest.boot.config.js test/pdpl-data-rights.e2e-spec.ts` -> 9/9 against a
+  real mongod (replica set rs0) in a throwaway database that is dropped afterwards; backend tsc clean
+  for the new files; patient-app `tsc --noEmit` clean; patient-app `npx jest` 102/102;
+  `npx expo export --platform ios` produced a 13MB Hermes bundle.
+- NOT verified: the flow was not exercised against the deployed API. staging.nabd.plus answers 200 on
+  /api/v1/config, /api/v1/care/doctors and /api/v1/medicines, and 404 on the two new PDPL paths,
+  i.e. staging still runs the previous build. The on-device share sheet and the post-erasure logout
+  still need a manual pass.
+- `mongodb-memory-server`'s bundled mongod aborts (SIGABRT) on this machine, so the suite targets the
+  local replica set instead. CI will need a working mongod.
+
+## [10.F60] Payment webhook + callback (2026-09-29)
+- `verifyWebhookSignature` returned true when `MOYASAR_WEBHOOK_SECRET` was unset outside production:
+  a staging deployment with no secret would accept a forged payment webhook and could mark an order
+  paid. Now fails closed in every environment, as the plan requires.
+- `GET /callback` answered `{ ok: true }` without contacting the gateway, so a finished card payment
+  only reached the platform if the patient reopened the app. It now reconciles through
+  `syncPaymentStatus` and redirects to `PAYMENT_RESULT_URL` (default https://nabd.plus/payments/result)
+  with the settled status; JSON is returned only when no response object is available.
+- Note: F60 in the audit is these two defects. The plan's separate "single PaymentGateway interface"
+  item is NOT the same thing; an interface was started on a misreading and removed unreferenced.
+- Gate: `npx jest --config jest.boot.config.js test/f60-webhook-signature.e2e-spec.ts` -> 6/6
+  (no secret in dev, no secret in prod, missing header, wrong signature, valid signature, rotation);
+  backend tsc clean for the touched files.
+- NOT verified: an end-to-end sandbox charge (success/fail/refund) — needs MOYASAR_API_KEY and
+  MOYASAR_WEBHOOK_SECRET from the owner; the live harness's fake_moyasar.py is the intended vehicle.
+
+## Phase 10 status (honest)
+Done in earlier phases and re-checked: ZATCA e-invoice, VAT 15% single reader (B4), forced-update
+flags, 997 emergency escalation, webhook HMAC. Added here: PDPL backend + patient-app UI, F60.
+Still open: PDPL UI in patient-web (Apple requires account deletion on every client), F68 CSP headers
+(absent repo-wide), the Phase 10 "single PaymentGateway interface / Tap + HyperPay adapters" item
+(needs owner gateway keys to be exercised), F82 LCP work on patient-web, and the platform backup and
+restore-drill scripts. No mock data was added: every endpoint reads and writes real collections.
