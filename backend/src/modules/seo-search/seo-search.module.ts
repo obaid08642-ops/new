@@ -389,16 +389,28 @@ export class SeoSearchService {
     const hit = this.sitemapCache.get(key);
     if (hit && hit.exp > Date.now()) return hit.val;
     const db = productLocaleToDb(locale);
+    // Every locale's slug: sitemap hreflang alternates must point at each locale's canonical URL
+    // (slugs differ per locale; reusing one slug listed non-canonical URLs that Google ignores).
+    const slugProjection: Record<string, 1> = {};
+    for (const l of PUBLIC_CATALOG_LOCALES) slugProjection[`translations.${productLocaleToDb(l)}.slug`] = 1;
     const rows = await this.conn.collection(CATALOG_COLLECTIONS.medicines)
-      .find(this.publicProductFilter(), { projection: { _id: 0, slug: 1, updatedAt: 1, [`translations.${db}.slug`]: 1 } } as any)
+      .find(this.publicProductFilter(), { projection: { _id: 0, slug: 1, updatedAt: 1, ...slugProjection } } as any)
       .sort({ id: 1 })
       .skip((page - 1) * perPage)
       .limit(perPage)
       .toArray();
-    const val = rows.map((m: any) => ({
-      slug: m?.translations?.[db]?.slug || m.slug,
-      lastmod: m.updatedAt ? new Date(m.updatedAt).toISOString().slice(0, 10) : undefined,
-    })).filter((r: any) => r.slug);
+    const val = rows.map((m: any) => {
+      const alternates: Record<string, string> = {};
+      for (const l of PUBLIC_CATALOG_LOCALES) {
+        const alt = m?.translations?.[productLocaleToDb(l)]?.slug || m.slug;
+        if (alt) alternates[l] = alt;
+      }
+      return {
+        slug: m?.translations?.[db]?.slug || m.slug,
+        alternates,
+        lastmod: m.updatedAt ? new Date(m.updatedAt).toISOString().slice(0, 10) : undefined,
+      };
+    }).filter((r: any) => r.slug);
     this.sitemapCache.set(key, { exp: Date.now() + SeoSearchService.SITEMAP_TTL_MS, val });
     // Bound memory: 6 locales × 5 pages max; evict expired entries on write.
     if (this.sitemapCache.size > 40) {

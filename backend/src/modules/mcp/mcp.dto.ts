@@ -1,4 +1,4 @@
-import { IsObject, IsOptional, IsString } from 'class-validator';
+import { Allow, IsObject, IsOptional, IsString } from 'class-validator';
 
 export class HandleRpcDto {
   @IsOptional()
@@ -6,9 +6,10 @@ export class HandleRpcDto {
   jsonrpc?: string;
 
 
+  // JSON-RPC 2.0: id is a string, a number or null. MCP clients (ChatGPT, Claude, …) send numbers.
   @IsOptional()
-  @IsString()
-  id?: string;
+  @Allow()
+  id?: string | number | null;
 
   @IsOptional()
   @IsString()

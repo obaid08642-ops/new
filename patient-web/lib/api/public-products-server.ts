@@ -188,7 +188,8 @@ export type ProductSitemapPage = {
   per_page: number;
   total: number;
   pages: number;
-  urls: Array<{ slug: string; lastmod?: string }>;
+  /** alternates: each locale's own slug for the same product (hreflang must use canonical URLs). */
+  urls: Array<{ slug: string; alternates?: Partial<Record<string, string>>; lastmod?: string }>;
 };
 
 export async function getProductSitemap(locale: string, page: number): Promise<ProductSitemapPage | null> {

@@ -19,7 +19,7 @@ export function GET() {
       },
       endpoints: {
         catalog: `${origin}/.well-known/ai-catalog.json`,
-        openapi: `${origin}/openapi.json`,
+        openapi: `${origin}/.well-known/openapi.json`,
         search: `${origin}/api/v1/public/products/search`,
       }
     },
@@ -33,7 +33,7 @@ export function GET() {
     },
     endpoints: {
       catalog: `${origin}/.well-known/ai-catalog.json`,
-      openapi: `${origin}/openapi.json`,
+      openapi: `${origin}/.well-known/openapi.json`,
       search: `${origin}/api/v1/public/products/search`,
     },
     status: "discovery-only",

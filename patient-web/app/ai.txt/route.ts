@@ -2,7 +2,7 @@ export async function GET() {
   const body = [
     "# Nabd Plus — AI usage",
     "Preferred machine-readable catalog: /llms.txt",
-    "Agent discovery: /.well-known/ai-catalog.json, /.well-known/agent-card.json, /openapi.json",
+    "Agent discovery: /.well-known/ai-catalog.json, /.well-known/agent-card.json, /.well-known/openapi.json",
     "Public indexable surfaces are listed in /llms.txt and /sitemap.xml.",
     "No public OAuth/OIDC/MCP write access. Private patient APIs require session cookies.",
   ].join("\n");

@@ -7,8 +7,12 @@ const SEGMENTS = [  { value: 'all', label: 'جميع المستخدمين' },
   { value: 'providers', label: 'مزودو الخدمة' },
   { value: 'role:pharmacy', label: 'الصيدليات' },
   { value: 'role:doctor', label: 'الأطباء' },
+  { value: 'role:lab', label: 'المختبرات' },
+  { value: 'role:radiology', label: 'مراكز الأشعة' },
+  { value: 'role:nurse', label: 'التمريض' },
+  { value: 'role:hospital', label: 'المستشفيات والعيادات' },
+  { value: 'role:ambulance', label: 'الإسعاف' },
   { value: 'role:driver', label: 'السائقون' },
-  { value: 'role:admin', label: 'الإداريون' },
 ];
 
 export default function NotificationCenterPage() {
@@ -107,10 +111,17 @@ export default function NotificationCenterPage() {
   const send = async () => {
     if (!title.trim() || !body.trim()) { alert('العنوان والنص مطلوبان'); return; }
     if (segment === 'single' && !singleUser.trim()) { alert('أدخل معرف المستخدم'); return; }
+    // Any audience wider than one user needs an explicit confirmation (the server requires it).
+    const wide = segment !== 'single';
+    if (wide) {
+      const label = SEGMENTS.find((x) => x.value === segment)?.label || segment;
+      if (!window.confirm(`سيُرسل هذا الإشعار إلى: ${label}. هل أنت متأكد؟`)) return;
+    }
     setSending(true);
     try {
       const payload: any = {
         title, body, segment: effectiveSegment, name: title,
+        ...(wide ? { audience_confirmed: true } : {}),
         ...(deepLink.trim() ? { deep_link: { route: deepLink.trim() } } : {}),
       };
       if (asCampaign && scheduledAt) {
