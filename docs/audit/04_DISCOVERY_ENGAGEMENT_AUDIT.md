@@ -43,8 +43,20 @@ The groups are:
 - SEO (sitemap correctness, doorway pages, the medicine page showing only about 5 of 21 fields per language, articles);
 - AI commerce (the checkout links end on a 404, VAT added on medicines, streamable-HTTP MCP, product feeds).
 
+## Limits of this audit (stated plainly)
+- Medicines: 3 synthetic rows were imported through the real importer and checked in 6 languages. The real catalog (20,990 rows, 30+ fields per language, many nulls) was **not** tested.
+- Doctors, hospitals, labs, radiology, nursing, insurance, and the family, pregnancy, mental-health, nutrition and symptom-check features were reviewed **from the code**, not on live data.
+- The importer reads about 13 translated keys and 22 top-level fields; the other source fields are dropped silently (plan S16).
+
+The full, real-data checks are plan tasks **S16 and V1–V5** (PHASE 7F). They need the owner items below.
+
 ## Needs the owner (cannot be done in code)
-- Allow `nabd.plus`, `api.nabd.plus` and `mcp.nabd.plus` in this environment's network access, so the reviewer can check production (real catalog count, live pages, Rich Results).
+- **For real testing** (in order of value):
+  1. **A staging environment**: a copy of production (same backend image and a copy of the production DB, with personal data removed) on its own URL, for example `staging.nabd.plus` and `api.staging.nabd.plus`. Every V1–V5 check runs there without risk to real users or orders.
+  2. **The real catalog export** (`catalog_v14.jsonl.gz` or whatever file the import uses), placed on the server or shared as a file (not committed to git). This is enough for S13, S16 and the medicine part of V1.
+  3. **Network access** for this environment: allow `nabd.plus`, `api.nabd.plus`, `mcp.nabd.plus` (and the staging hosts). For read-only checks of production: live pages, sitemaps, robots, MCP, and the real counts.
+  4. Optional: a **read-only** MongoDB user for staging. Never production write access, and never paste passwords in chat or commits: they go in the environment secrets.
+- Server access (SSH) is **not** needed for testing. It is only needed if you want the reviewer to deploy, and deployment is on hold.
 - Confirm the Apple Team ID (`6AT2W85DBC`?) and the Play **App Signing** SHA-256 fingerprint (Play Console → App integrity). The current fingerprint is a placeholder shared by all packages.
 - Google Search Console and Bing Webmaster Tools: verify `nabd.plus`, submit `https://nabd.plus/sitemap.xml`, watch Coverage and Enhancements.
 - Google Business Profile for the company, and for partner pharmacies, clinics and labs if they allow it (local ranking).
