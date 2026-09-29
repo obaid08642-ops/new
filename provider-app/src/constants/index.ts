@@ -221,16 +221,13 @@ export const LIMITS = {
  SESSION_MIN: 30, LOGIN_MAX_TRIES: 5, LOGIN_LOCK_MIN: 15,
  MIN_WITHDRAW_SAR: 100,
  MIN_PRICE: 10, MAX_PRICE: 99999,
- MIN_PASS: 8, MIN_RADIUS_KM: 1, MAX_RADIUS_KM: 50,
- BROADCAST_R1_KM: 4, BROADCAST_R2_KM: 6, BROADCAST_R3_KM: 8,
- BROADCAST_WAIT_MIN: 3,
+  MIN_PASS: 8, MIN_RADIUS_KM: 1, MAX_RADIUS_KM: 50,
 } as const;
 
 // ─── API Config ────────────────────────────────────────────────────────────────
 export const API = {
- BASE: __DEV__ ? 'https://api-dev.nabdahplus.sa/v1' : 'https://api.nabdahplus.sa/v1',
- WS: __DEV__ ? 'wss://ws-dev.nabdahplus.sa' : 'wss://ws.nabdahplus.sa',
- TIMEOUT: 30000,
+  WS: __DEV__ ? 'wss://ws-dev.nabdahplus.sa' : 'wss://ws.nabdahplus.sa',
+  TIMEOUT: 30000,
 } as const;
 
 // ─── Translations ──────────────────────────────────────────────────────────────
