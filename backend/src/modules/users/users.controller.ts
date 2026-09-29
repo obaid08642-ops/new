@@ -5,12 +5,14 @@ import { RequireIdempotency } from '../../common/idempotency.interceptor';
 import { UserRole } from '../../common/enums';
 import { UpdateDisplayDto, ChangePasswordDto } from './users.dto';
 import { UpdateProfileDto, UpdateNotificationSettingsDto, UpdatePrivacySettingsDto, UpdateSecuritySettingsDto } from './users.settings.dto';
+import { EraseAccountDto, RecordConsentDto } from './pdpl.dto';
+import { PdplService } from './pdpl.service';
 
 @Controller('users')
 @SelfService()
 @UseGuards(JwtAuthGuard)
 export class UsersController {
-  constructor(private users: UsersService) {}
+  constructor(private users: UsersService, private pdpl: PdplService) {}
 
   /** Contract-pack patient display DTO: no PII or internal identifiers. */
   @Get('me/display')
@@ -94,6 +96,31 @@ export class UsersController {
   @Get('me/sessions')
   getSessions(@CurrentUser('id') id: string) {
     return this.users.getSessions(id);
+  }
+
+  // --- PDPL (Phase 10): data-subject rights ---
+
+  /** PDPL portability: a machine-readable copy of everything held about the patient. */
+  @Get('me/data-export')
+  exportMyData(@CurrentUser('id') id: string) {
+    return this.pdpl.exportPatientData(id);
+  }
+
+  /** PDPL erasure. Requires the password so the request cannot be forged from a stolen token. */
+  @Delete('me')
+  @RequireIdempotency()
+  eraseMyAccount(@CurrentUser('id') id: string, @Body() body: EraseAccountDto) {
+    return this.pdpl.erasePatientData(id, { password: body.password, reason: body.reason });
+  }
+
+  @Get('me/consents')
+  getMyConsents(@CurrentUser('id') id: string) {
+    return this.pdpl.getConsents(id);
+  }
+
+  @Post('me/consents')
+  recordConsent(@CurrentUser('id') id: string, @Body() body: RecordConsentDto) {
+    return this.pdpl.recordConsent(id, body.policy_id, body.version, body.accepted);
   }
   @Delete('me/sessions/:jti')
   @RequireIdempotency()
