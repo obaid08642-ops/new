@@ -153,9 +153,10 @@ export class JwtAuthGuard implements CanActivate {
         throw new UnauthorizedException('session_revoked');
       }
     }
-    // Admin device lock (device-bound, never IP-bound — mobile IPs rotate).
-    // Applies to admin-role JWTs except the device-management endpoints themselves
-    // (otherwise enabling the lock would lock out enrollment).
+    // C2: Admin device allow-list — MANDATORY for every admin/super_admin JWT.
+    // Device-bound, never IP-bound (mobile IPs rotate). Any admin API call from
+    // an unregistered device is rejected. The device-management endpoints and
+    // login are exempt so the owner can enroll devices.
     try {
       const path = String((req as any).path || (req as any).originalUrl || (req as any).url || '').split('?')[0];
       const isAdminRole = payload?.role === 'admin' || payload?.role === 'super_admin'
@@ -164,17 +165,12 @@ export class JwtAuthGuard implements CanActivate {
       if (isAdminRole && !isDeviceEndpoint && !isPublic) {
         const uid = payload?.id || payload?.sub;
         if (uid) {
-          const u: any = await this.connection.collection('users').findOne(
-            { id: uid }, { projection: { device_lock_enabled: 1 } },
+          const devId = String((req.headers as any)?.['x-admin-device'] || '');
+          const { createHash } = require('crypto');
+          const ok = devId.length >= 16 && await this.connection.collection('admin_devices').findOne(
+            { user_id: uid, device_hash: createHash('sha256').update(devId).digest('hex'), revoked: { $ne: true } },
           ).catch(() => null);
-          if (u?.device_lock_enabled === true) {
-            const devId = String((req.headers as any)?.['x-admin-device'] || '');
-            const { createHash } = require('crypto');
-            const ok = devId.length >= 16 && await this.connection.collection('admin_devices').findOne(
-              { user_id: uid, device_hash: createHash('sha256').update(devId).digest('hex'), revoked: { $ne: true } },
-            ).catch(() => null);
-            if (!ok) throw new ForbiddenException('device_not_enrolled');
-          }
+          if (!ok) throw new ForbiddenException('device_not_enrolled');
         }
       }
     } catch (e: any) {

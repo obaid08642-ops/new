@@ -244,6 +244,14 @@ export class PasskeyLoginVerifyDto {
   @ValidateNested()
   @Type(() => AuthenticationCredentialDto)
   response: AuthenticationCredentialDto;
+
+  @IsOptional()
+  @IsString()
+  device_id?: string;
+
+  @IsOptional()
+  @IsString()
+  device_name?: string;
 }
 
 export class HeartbeatDto {

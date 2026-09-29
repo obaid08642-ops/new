@@ -57,6 +57,8 @@ export class PasskeyController {
     const result = await this.auth.completePasskeyLogin(body.identifier, body.response, {
       ua: req.headers['user-agent'],
       ip: (xff.split(',')[0] || req.ip || '').trim() || undefined,
+      deviceId: body.device_id,
+      deviceName: body.device_name,
     });
     if (result && result.device_token) {
       res.cookie('nabd_admin_device', result.device_token, {

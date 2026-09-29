@@ -39,6 +39,7 @@ export class AuthService {
     private redisService: RedisService,
     @Optional() private passkeys?: PasskeyService,
     @Optional() private deviceTrust?: DeviceTrustService,
+    @Optional() private adminDevices?: any,
     @Optional() private push?: PushService,
     @Optional() private mail?: MailService,
     @Optional() private sms?: SmsService,
@@ -641,7 +642,7 @@ export class AuthService {
    * digital signature has been cryptographically verified against the
    * registered public key.
    */
-  async completePasskeyLogin(identifier: string, response: any, ctx?: { ua?: string; ip?: string }) {
+  async completePasskeyLogin(identifier: string, response: any, ctx?: { ua?: string; ip?: string; deviceId?: string; deviceName?: string }) {
     AuthService.assertString(identifier, 'identifier');
     if (!this.passkeys) throw new UnauthorizedException('passkey_not_available');
     const u = await this.userModel.findOne({ email: identifier.trim().toLowerCase() });
@@ -656,8 +657,11 @@ export class AuthService {
     await u.save();
     this.events.emit(EVENTS.USER_LOGGED_IN, { user_id: u.id, role: u.role, method: 'passkey' });
     const result: any = { user: this.publicUser(u), token: this.signToken(u) };
-    // A successful passkey assertion inherently proves device possession —
-    // trust the device and alert about it being newly recognized.
+    // C2: auto-enroll the presenting device into the admin allow-list on
+    // successful passkey login (the passkey assertion proves possession).
+    if (this.adminDevices && ctx?.deviceId) {
+      await this.adminDevices.enroll(u.id, ctx.deviceId, ctx.ua, ctx.deviceName);
+    }
     if (this.deviceTrust) {
       const { token, device } = await this.deviceTrust.issue(u.id, ctx?.ua, ctx?.ip);
       result.device_token = token;
