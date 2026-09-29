@@ -21,52 +21,25 @@ import * as crypto from 'crypto';
 import { Request } from 'express';
 import { UserRole } from '../../common/enums';
 import { moyasarBase } from '../../common/moyasar-base';
+import {
+  CreateIntentRequest,
+  PaymentGateway,
+  PaymentProvider,
+  VerifyResult,
+  isProviderConfigured,
+  selectGateway,
+} from './payment-gateway';
 
 /**
- * PAYMENT GATEWAY ADAPTERS — additive layer, never bypasses WorkflowEngine.
- * Real API calls require STRIPE_SECRET_KEY / TAP_API_KEY / MOYASAR_API_KEY.
- * When no key is provided, selectAdapter() returns a DisabledGatewayAdapter
- * whose every method throws 503 payment_gateway_not_configured, so the app
- * boots normally and payment endpoints fail closed with a clear code.
+ * F60 (plan item): one PaymentGateway contract, adapter chosen by
+ * PAYMENT_PROVIDER. The adapter classes below are the real HTTP
+ * implementations; payment-gateway.ts owns the contract and the selection.
  */
-interface GatewayAdapter {
-  name: 'stripe' | 'tap' | 'moyasar' | 'disabled';
-  createIntent(opts: { amount: number; currency: string; description: string; metadata: any }): Promise<{ intent_id: string; client_secret?: string; checkout_url?: string }>;
-  verify(intentId: string): Promise<{ status: 'paid' | 'pending' | 'failed' | 'cancelled'; charge_id?: string; raw?: any }>;
-  refund(chargeId: string, amount?: number): Promise<{ refunded: boolean; raw?: any }>;
-}
-
-function selectAdapter(): GatewayAdapter {
-  if (process.env.STRIPE_SECRET_KEY) return new StripeAdapter();
-  if (process.env.TAP_API_KEY) return new TapAdapter();
-  if (process.env.MOYASAR_API_KEY) return new MoyasarAdapter();
-  return new DisabledGatewayAdapter();
-}
-
-/**
- * Fail-closed adapter used when no payment gateway key is configured.
- * Lets the application boot; every gateway operation throws 503 with the
- * payment_gateway_not_configured code instead of crashing the process.
- */
-class DisabledGatewayAdapter implements GatewayAdapter {
-  name = 'disabled' as const;
-  async createIntent(_opts: { amount: number; currency: string; description: string; metadata: any }): Promise<{ intent_id: string; client_secret?: string; checkout_url?: string }> {
-    throw new ServiceUnavailableException('payment_gateway_not_configured');
-  }
-  async verify(_intentId: string): Promise<{ status: 'paid' | 'pending' | 'failed' | 'cancelled'; charge_id?: string; raw?: any }> {
-    throw new ServiceUnavailableException('payment_gateway_not_configured');
-  }
-  async refund(_chargeId: string, _amount?: number): Promise<{ refunded: boolean; raw?: any }> {
-    throw new ServiceUnavailableException('payment_gateway_not_configured');
-  }
-}
-
-
-class StripeAdapter implements GatewayAdapter {
-  name = 'stripe' as const;
+class StripeAdapter implements PaymentGateway {
+  readonly name = 'stripe' as const;
   private base = 'https://api.stripe.com/v1';
   private headers() { return { Authorization: `Bearer ${process.env.STRIPE_SECRET_KEY}`, 'Content-Type': 'application/x-www-form-urlencoded' }; }
-  async createIntent(o: any) {
+  async createIntent(o: CreateIntentRequest) {
     const body = new URLSearchParams({ amount: String(Math.round(o.amount * 100)), currency: (o.currency || 'sar').toLowerCase(), description: o.description || 'Nabd booking', 'automatic_payment_methods[enabled]': 'true' });
     const r = await fetch(`${this.base}/payment_intents`, { method: 'POST', headers: this.headers(), body });
     const j: any = await r.json();
@@ -77,7 +50,7 @@ class StripeAdapter implements GatewayAdapter {
     const r = await fetch(`${this.base}/payment_intents/${id}`, { headers: this.headers() });
     const j: any = await r.json();
     const map: any = { succeeded: 'paid', requires_payment_method: 'failed', canceled: 'cancelled', processing: 'pending' };
-    return { status: map[j.status] || 'pending', charge_id: j.latest_charge, raw: j };
+    return { status: (map[j.status] || 'pending') as VerifyResult['status'], charge_id: j.latest_charge, raw: j };
   }
   async refund(chargeId: string, amount?: number) {
     const body = new URLSearchParams({ charge: chargeId, ...(amount ? { amount: String(Math.round(amount * 100)) } : {}) });
@@ -86,11 +59,12 @@ class StripeAdapter implements GatewayAdapter {
     return { refunded: r.ok, raw: j };
   }
 }
-class TapAdapter implements GatewayAdapter {
-  name = 'tap' as const;
+
+class TapAdapter implements PaymentGateway {
+  readonly name = 'tap' as const;
   private base = 'https://api.tap.company/v2';
   private headers() { return { Authorization: `Bearer ${process.env.TAP_API_KEY}`, 'Content-Type': 'application/json' }; }
-  async createIntent(o: any) {
+  async createIntent(o: CreateIntentRequest) {
     const body = JSON.stringify({ amount: o.amount, currency: o.currency || 'SAR', description: o.description, source: { id: 'src_all' }, redirect: { url: process.env.PUBLIC_APP_URL || 'https://example.com/payment/return' } });
     const r = await fetch(`${this.base}/charges`, { method: 'POST', headers: this.headers(), body });
     const j: any = await r.json();
@@ -101,7 +75,7 @@ class TapAdapter implements GatewayAdapter {
     const r = await fetch(`${this.base}/charges/${id}`, { headers: this.headers() });
     const j: any = await r.json();
     const map: any = { CAPTURED: 'paid', INITIATED: 'pending', FAILED: 'failed', CANCELLED: 'cancelled' };
-    return { status: map[j.status] || 'pending', charge_id: j.id, raw: j };
+    return { status: (map[j.status] || 'pending') as VerifyResult['status'], charge_id: j.id, raw: j };
   }
   async refund(id: string, amount?: number) {
     const r = await fetch(`${this.base}/refunds`, { method: 'POST', headers: this.headers(), body: JSON.stringify({ charge_id: id, amount }) });
@@ -109,15 +83,16 @@ class TapAdapter implements GatewayAdapter {
     return { refunded: r.ok, raw: j };
   }
 }
-class MoyasarAdapter implements GatewayAdapter {
-  name = 'moyasar' as const;
+
+class MoyasarAdapter implements PaymentGateway {
+  readonly name = 'moyasar' as const;
   private get base() { return moyasarBase(); }
   private headers() {
     const b = Buffer.from(`${process.env.MOYASAR_API_KEY}:`).toString('base64');
     return { Authorization: `Basic ${b}`, 'Content-Type': 'application/json' };
   }
-  async createIntent(o: any) {
-    const body = JSON.stringify({ amount: Math.round(o.amount * 100), currency: o.currency || 'SAR', description: o.description, callback_url: process.env.PUBLIC_APP_URL });
+  async createIntent(o: CreateIntentRequest) {
+    const body = JSON.stringify({ amount: Math.round(o.amount * 100), currency: o.currency || 'SAR', description: o.description, callback_url: process.env.PAYMENT_RESULT_URL || `${process.env.PUBLIC_APP_URL || ''}/payments/result` });
     const r = await fetch(`${this.base}/payments`, { method: 'POST', headers: this.headers(), body });
     const j: any = await r.json();
     if (!r.ok) throw new BadGatewayException(j.message || 'moyasar_intent_failed');
@@ -127,7 +102,7 @@ class MoyasarAdapter implements GatewayAdapter {
     const r = await fetch(`${this.base}/payments/${id}`, { headers: this.headers() });
     const j: any = await r.json();
     const map: any = { paid: 'paid', initiated: 'pending', failed: 'failed', authorized: 'pending' };
-    return { status: map[j.status] || 'pending', charge_id: j.id, raw: j };
+    return { status: (map[j.status] || 'pending') as VerifyResult['status'], charge_id: j.id, raw: j };
   }
   async refund(id: string, amount?: number) {
     const body = JSON.stringify(amount ? { amount: Math.round(amount * 100) } : {});
@@ -135,6 +110,16 @@ class MoyasarAdapter implements GatewayAdapter {
     const j: any = await r.json();
     return { refunded: r.ok, raw: j };
   }
+}
+
+const GATEWAY_FACTORIES: Partial<Record<PaymentProvider, () => PaymentGateway>> = {
+  stripe: () => new StripeAdapter(),
+  tap: () => new TapAdapter(),
+  moyasar: () => new MoyasarAdapter(),
+};
+
+function selectAdapter(): PaymentGateway {
+  return selectGateway(GATEWAY_FACTORIES);
 }
 
 const KIND_TO_MODEL: any = { pharmacy: 'Order', lab: 'LabBooking', radiology: 'RadiologyBooking', nursing: 'HomeCareBooking', consultation: Appointment.name, diagnostics: 'DiagnosticOrder' };
@@ -146,7 +131,7 @@ function normalizeKind(k: string) {
 @Injectable()
 export class PaymentsService {
   private logger = new Logger('PaymentsService');
-  private adapter: GatewayAdapter;
+  private adapter: PaymentGateway;
   constructor(
     @InjectModel('Transaction') private txns: Model<any>,
     @InjectModel('Order') private orders: Model<any>,
@@ -163,9 +148,9 @@ export class PaymentsService {
   ) {
     this.adapter = selectAdapter();
     if (this.adapter.name === 'disabled') {
-      this.logger.warn('No payment gateway configured (STRIPE_SECRET_KEY/TAP_API_KEY/MOYASAR_API_KEY all unset) — payment endpoints will return 503 payment_gateway_not_configured');
+      this.logger.warn('No payment gateway configured (no STRIPE_SECRET_KEY / TAP_API_KEY / MOYASAR_API_KEY) — payment endpoints will return 503 payment_gateway_not_configured');
     } else {
-      this.logger.log(`Payment adapter: ${this.adapter.name}`);
+      this.logger.log(`Payment adapter: ${this.adapter.name} (PAYMENT_PROVIDER=${process.env.PAYMENT_PROVIDER || 'auto'})`);
     }
   }
 
@@ -436,7 +421,7 @@ export class PaymentsService {
       // E1 S15: a second PAID payment for the same booking is a double charge — alert admins
       await this.fraud.detectDuplicatePayments(t.booking_id).catch(() => null);
     } else if (result.status === 'failed') {
-      t.failure_reason = result.raw?.last_payment_error?.message || 'gateway_failure';
+      t.failure_reason = (result.raw as any)?.last_payment_error?.message || 'gateway_failure';
       this.events.emit('payment.failed', {
         kind: t.booking_kind,
         id: t.booking_id,
