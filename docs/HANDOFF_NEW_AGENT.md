@@ -28,7 +28,7 @@ You are the **implementing agent**. A separate reviewer (another Claude session)
 | **R7-1..R7-8** (`REVIEW_P7_P8.md`) | **Open. Do these first.** |
 | 7A (no patient wallet, loyalty caps) | Pushed as `59d6b31` and **not reviewed yet**. Finish it and make sure its Verify steps pass. |
 | 7B, 7C, 7D | Not started |
-| **7E** (notifications, deep links) and **7F** (search engines, AI assistants) | New. Added by the reviewer on 2026-09-29. |
+| **7E** (notifications, deep links) and **7F** (search engines, AI assistants) | New. Added by the reviewer on 2026-09-29. 7E includes the admin Notifications page: campaigns with an audience builder (N7), recurring rules (N8) and behaviour-triggered nudges (N10). 7F includes the importer keeping all 30+ fields (S16) and the real-data checks V1–V5. |
 | 9 | F50, F51, F53, F78 merged; F52 (Expo SDK upgrade) left |
 | 10, 11 | Not started (Phase 10 includes page speed F82) |
 
