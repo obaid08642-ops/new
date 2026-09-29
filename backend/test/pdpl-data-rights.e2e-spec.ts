@@ -42,7 +42,7 @@ describe('PdplService (PDPL portability + erasure) — real Mongo', () => {
     service = new PdplService(conn as any, userModel);
 
     await userModel.create([
-      { id: PATIENT, email: 'patient@example.test', phone: '+966500000001', password_hash: 'HASH', full_name: 'Real Patient' },
+      { id: PATIENT, email: 'patient@example.test', phone: '+966500000001', password_hash: 'HASH', full_name: 'Real Patient', national_id: '1012345678', medical_record_number: 'MRN-42' },
       { id: OTHER_PATIENT, email: 'other@example.test', phone: '+966500000002', password_hash: 'HASH', full_name: 'Someone Else' },
     ]);
 
@@ -132,11 +132,14 @@ describe('PdplService (PDPL portability + erasure) — real Mongo', () => {
 
   it('a post-erasure export no longer discloses the erased identifiers', async () => {
     // Guards the $unset regression: a lingering email/phone column would still
-    // be handed out by the portability endpoint.
+    // be handed out by the portability endpoint. national_id and the medical
+    // record number are the same class of identifier.
     const out = await service.exportPatientData(PATIENT);
     const serialized = JSON.stringify(out);
     expect(serialized).not.toContain('patient@example.test');
     expect(serialized).not.toContain('+966500000001');
+    expect(serialized).not.toContain('1012345678');
+    expect(serialized).not.toContain('MRN-42');
     expect(out.data.account.full_name).toBe('Deleted User');
   });
 

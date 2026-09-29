@@ -18,6 +18,11 @@ export class User {
   @Prop({ default: false, index: true }) onboarding_only?: boolean;
   @Prop({ default: false }) is_guest: boolean;
   @Prop() deleted_at?: Date;
+  /** PDPL erasure audit: why and when the account was anonymised (10.1). */
+  @Prop() deletion_reason?: string;
+  /** Restricted identity; declared so PDPL erasure can $unset it (10.1 / schemadrift). */
+  @Prop() national_id?: string;
+  @Prop() medical_record_number?: string;
   @Prop() avatar?: string;
   @Prop() city?: string;
   @Prop() district?: string;
