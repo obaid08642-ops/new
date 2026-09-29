@@ -24,14 +24,16 @@ export class PasskeyController {
   }
 
   @Post('enroll/options')
-  enrollOptions(@CurrentUser() user: any) {
-    return this.passkeys.startEnrollment(user);
+  async enrollOptions(@CurrentUser() user: any) {
+    const existing = await this.passkeys.countCredentials(user.id);
+    return this.passkeys.startEnrollment(user, existing > 0);
   }
 
   @Post('enroll/verify')
-  enrollVerify(@CurrentUser() user: any, @Body() body: PasskeyEnrollVerifyDto) {
+  async enrollVerify(@CurrentUser() user: any, @Body() body: PasskeyEnrollVerifyDto) {
     if (!body?.response) throw new BadRequestException('response_required');
-    return this.passkeys.finishEnrollment(user, body.response, body.device_name);
+    const existing = await this.passkeys.countCredentials(user.id);
+    return this.passkeys.finishEnrollment(user, body.response, body.device_name, existing > 0);
   }
 
   @Get('devices')
@@ -42,7 +44,7 @@ export class PasskeyController {
 
   @Delete('devices/:credentialId')
   async remove(@CurrentUser() user: any, @Param('credentialId') credentialId: string) {
-    await this.passkeys.assertEnrollmentAllowed(user);
+    await this.passkeys.assertEnrollmentAllowed(user, true);
     return this.passkeys.removeCredential(user.id, credentialId);
   }
 

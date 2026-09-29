@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, BadRequestException, ForbiddenException, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import {
@@ -31,6 +31,8 @@ const LOGIN_CHAL_TTL = 300;
  */
 @Injectable()
 export class PasskeyService {
+  private readonly logger = new Logger(PasskeyService.name);
+
   constructor(
     @InjectModel(PasskeyCredential.name) private passkeyModel: Model<PasskeyCredential>,
     @InjectModel(User.name) private userModel: Model<User>,
@@ -52,23 +54,30 @@ export class PasskeyService {
   }
 
   /**
-   * Enrollment gate: designated admin email + admin role. The JWT payload does
-   * NOT carry the email (only id/role) — always resolve the fresh user record
-   * from the database so the check cannot be bypassed with a stale token.
+   * Enrollment gate: admin/super_admin role. The JWT payload does NOT carry the
+   * email (only id/role) — always resolve the fresh user record from the
+   * database so the check cannot be bypassed with a stale token.
+   *
+   * C1: enrolling an ADDITIONAL credential requires at least one existing
+   * passkey (the first one is bootstrapped via email OTP at login).
    */
-  async assertEnrollmentAllowed(user: any) {
+  async assertEnrollmentAllowed(user: any, requireExisting = false) {
     const dbUser: any = await this.userModel.findOne({ id: user?.id }).lean();
-    const email = (dbUser?.email || '').trim().toLowerCase();
     const role = dbUser?.role || user?.role;
-    if (email !== this.designatedEmail) throw new ForbiddenException('passkey_enroll_not_allowed');
     if (role !== 'admin' && role !== 'super_admin') throw new ForbiddenException('admin_only');
+    if (requireExisting) {
+      const count = await this.countCredentials(user.id);
+      if (count === 0) throw new ForbiddenException('existing_passkey_required');
+    }
     return dbUser;
   }
 
-  /** F48: non-throwing eligibility probe for UIs (eligible = may enroll). */
+  /** C1: non-throwing eligibility probe for UIs (eligible = may enroll). */
   async isEligible(user: any): Promise<{ eligible: boolean }> {
     try {
-      await this.assertEnrollmentAllowed(user);
+      const dbUser: any = await this.userModel.findOne({ id: user?.id }).lean();
+      const role = dbUser?.role || user?.role;
+      if (role !== 'admin' && role !== 'super_admin') return { eligible: false };
       return { eligible: true };
     } catch {
       return { eligible: false };
@@ -99,8 +108,8 @@ export class PasskeyService {
 
   // ── Enrollment ────────────────────────────────────────────────────────────
 
-  async startEnrollment(user: any) {
-    const dbUser = await this.assertEnrollmentAllowed(user);
+  async startEnrollment(user: any, requireExisting = false) {
+    const dbUser = await this.assertEnrollmentAllowed(user, requireExisting);
     const existing = await this.passkeyModel.find({ user_id: user.id }).lean();
     const options = await generateRegistrationOptions({
       rpName: this.rpName,
@@ -124,8 +133,8 @@ export class PasskeyService {
     return options;
   }
 
-  async finishEnrollment(user: any, response: RegistrationResponseJSON, deviceName?: string) {
-    await this.assertEnrollmentAllowed(user);
+  async finishEnrollment(user: any, response: RegistrationResponseJSON, deviceName?: string, requireExisting = false) {
+    await this.assertEnrollmentAllowed(user, requireExisting);
     const expectedChallenge = await this.takeChallenge(`webauthn_enroll:${user.id}`);
     if (!expectedChallenge) throw new UnauthorizedException('challenge_expired');
     let verification;
@@ -182,11 +191,41 @@ export class PasskeyService {
   }
 
   /** Verify an assertion; returns the owning user_id on success. */
+  /**
+   * The signature counter of an incoming assertion, read from authenticatorData
+   * (the trailing 4 bytes, big-endian). This value is covered by the assertion
+   * signature, so it cannot be tampered with without failing verification; it is
+   * only used to decide WHICH check applies (see `counterSupported`).
+   */
+  private assertionCounter(response: AuthenticationResponseJSON): number {
+    const raw = response?.response?.authenticatorData;
+    if (typeof raw !== 'string' || raw.length < 8) return -1;
+    try {
+      return Buffer.from(raw, 'base64url').readUInt32BE(Buffer.from(raw, 'base64url').length - 4);
+    } catch {
+      return -1;
+    }
+  }
+
   async finishLogin(response: AuthenticationResponseJSON): Promise<string> {
     const cred: any = await this.passkeyModel.findOne({ credential_id: { $eq: response?.id } }).lean();
     if (!cred) throw new UnauthorizedException('unknown_credential');
     const expectedChallenge = await this.takeChallenge(`webauthn_login:${cred.user_id}`);
     if (!expectedChallenge) throw new UnauthorizedException('challenge_expired');
+
+    // Synced platform passkeys (iCloud Keychain, Google Password Manager — the
+    // authenticators C1/C8 require the owner to use) never increment their
+    // signature counter: they always report 0. @simplewebauthn/server rejects
+    // any assertion whose counter is not strictly greater than the stored one, so
+    // once a stored counter is above 0 such a device is locked out permanently —
+    // this is why passkey enforcement had to stay disabled. For those devices the
+    // counter carries no signal (a clone cannot be detected by a value that is
+    // always 0), so the monotonic check is skipped and the stored value is reset
+    // to 0. Authenticators that DO maintain a counter keep the strict check.
+    const assertedCounter = this.assertionCounter(response);
+    const syncedPasskey = assertedCounter === 0;
+    const storedCounter = syncedPasskey ? 0 : cred.counter || 0;
+
     let verification;
     try {
       verification = await verifyAuthenticationResponse({
@@ -198,19 +237,19 @@ export class PasskeyService {
         credential: {
           id: cred.credential_id,
           publicKey: new Uint8Array(cred.public_key),
-          counter: cred.counter || 0,
+          counter: storedCounter,
           transports: (cred.transports || []) as AuthenticatorTransportFuture[],
         },
       });
     } catch (e: any) {
-      // TEMP-DIAG: surface the real simplewebauthn failure reason in container logs
-      console.error('PASSKEY_LOGIN_VERIFY_FAIL', e?.message, JSON.stringify({ rpID: this.rpID, origin: this.origin, cred_user: cred?.user_id }));
+      // Never log credential ids or user ids on a failed assertion.
+      this.logger?.warn?.(`passkey_login_rejected rp=${this.rpID} reason=${e?.message}`);
       throw new UnauthorizedException('passkey_verification_failed');
     }
     if (!verification.verified) throw new UnauthorizedException('passkey_verification_failed');
     await this.passkeyModel.updateOne(
       { credential_id: cred.credential_id },
-      { $set: { counter: verification.authenticationInfo.newCounter, last_used_at: new Date() } },
+      { $set: { counter: syncedPasskey ? 0 : verification.authenticationInfo.newCounter, last_used_at: new Date() } },
     );
     return cred.user_id;
   }

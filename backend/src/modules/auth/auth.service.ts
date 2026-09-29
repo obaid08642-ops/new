@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, UnauthorizedException, ConflictException, GoneException, Inject, HttpException, HttpStatus, ServiceUnavailableException } from '@nestjs/common';
+import { Injectable, BadRequestException, UnauthorizedException, ConflictException, GoneException, ForbiddenException, Inject, HttpException, HttpStatus, ServiceUnavailableException } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
@@ -575,29 +575,20 @@ export class AuthService {
           };
         }
       }
-      // Passkey-enforced admin (ADMIN_PASSKEY_EMAIL, default Obaid08642@gmail.com):
-      // password is already verified above — the ONLY next step is the WebAuthn
-      // assertion. No session token, no OTP, and no challenge is ever issued
-      // before this point (strict ordering, no password-only bypass).
-      // Passkey 2FA is OPT-IN via ADMIN_PASSKEY_ENFORCED=true. It is currently
-      // DISABLED: verification failed on every enrolled device (enroll succeeds,
-      // login assertion is rejected), locking the owner out. While disabled the
-      // designated admin signs in with email + OTP like everyone else.
-      const passkeyEnforced = process.env.ADMIN_PASSKEY_ENFORCED === 'true';
-      const designated = passkeyEnforced ? this.passkeys?.designatedEmail : undefined;
-      if (designated && (u.email || '').trim().toLowerCase() === designated) {
-        const keyCount = await this.passkeys!.countCredentials(u.id);
-        if (keyCount > 0) {
-          const options = await this.passkeys!.startLogin(u);
-          return {
-            requires_passkey: true,
-            identifier: u.email,
-            passkey_options: options,
-            message: 'Passkey verification required.',
-          };
-        }
-        // First-time bootstrap: no passkey enrolled yet → fall back to email OTP
-        // so the owner can sign in and enroll a device from the security page.
+      // C1: Passkey is MANDATORY for every admin/super_admin account.
+      // Password is already verified above — the ONLY next step is the WebAuthn
+      // assertion. No session token, no OTP fallback for admin roles.
+      if (u.role === UserRole.SUPER_ADMIN || u.role === UserRole.ADMIN) {
+        if (!this.passkeys) throw new UnauthorizedException('passkey_not_available');
+        const keyCount = await this.passkeys.countCredentials(u.id);
+        if (keyCount === 0) throw new ForbiddenException('passkey_enrollment_required');
+        const options = await this.passkeys.startLogin(u);
+        return {
+          requires_passkey: true,
+          identifier: u.email,
+          passkey_options: options,
+          message: 'Passkey verification required.',
+        };
       }
       const contact = this.otpContact(u, identifier);
       await this.sendOtp(contact);
@@ -653,12 +644,9 @@ export class AuthService {
   async completePasskeyLogin(identifier: string, response: any, ctx?: { ua?: string; ip?: string }) {
     AuthService.assertString(identifier, 'identifier');
     if (!this.passkeys) throw new UnauthorizedException('passkey_not_available');
-    if ((identifier || '').trim().toLowerCase() !== this.passkeys.designatedEmail) {
-      // Never reveal passkey state for other accounts
-      throw new UnauthorizedException('Invalid credentials');
-    }
     const u = await this.userModel.findOne({ email: identifier.trim().toLowerCase() });
     if (!u || (u.role !== UserRole.SUPER_ADMIN && u.role !== UserRole.ADMIN)) {
+      // Never reveal passkey state for other accounts
       throw new UnauthorizedException('Invalid credentials');
     }
     if (u.active === false) throw new UnauthorizedException('Account disabled');
