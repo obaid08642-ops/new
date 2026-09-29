@@ -171,6 +171,99 @@ PHARMACY_SCREEN_GETS = ['/provider/dashboard/stats', '/provider/profile', '/prov
                         '/provider/stats/today', '/provider/stats/period?period=month', '/provider/settlements']
 
 
+def matrix_pharmacy(pat, pharm, meds, addr, admin=None):
+    """P8 matrix (R7-5): pickup x cash x Rx and delivery x insurance."""
+    import j_onboarding
+    journey('pharmacy matrix: pickup x cash x Rx')
+    rx = j_onboarding.upload(pat, 'rx.png', 'image/png')
+    draft = {
+        'items': [{'raw_name': m['name_ar'], 'qty': 1, 'sku': m['id'], 'intake_source': 'cart'} for m in (meds or [])[:2]],
+        'delivery_address': {'label': 'المنزل', 'street': addr.get('street') or '', 'city': addr.get('city') or '',
+                             'lat': float(addr.get('lat') or 0), 'lng': float(addr.get('lng') or 0)},
+        'fulfillment': 'pickup',
+        'prescription_attachments': [{'uri': rx, 'type': 'image'}] if rx else [],
+    }
+    r = pat.post('/patient/pharmacy/orders', draft, headers={'Idempotency-Key': KEY('mx-pickup')})
+    oid = r.get('id')
+    step('pickup draft with Rx created', r.ok and oid, r)
+    if oid:
+        r = pat.post(f'/patient/pharmacy/orders/{oid}/submit', {}, headers={'Idempotency-Key': KEY('mx-pickup-submit')})
+        step('pickup order submitted', r.ok, r)
+        r = pharm.get('/provider/pharmacy/broadcasts')
+        mine = next((b for b in r.items() if b.get('order_id') == oid), None)
+        step('the pharmacy sees the pickup broadcast', r.ok and mine, r.status)
+        if mine:
+            meds2 = mine.get('items') or mine.get('medicines') or []
+            offer_items = [{'order_item_id': str(m.get('id') or m.get('order_item_id') or ''), 'availability': 'available',
+                            'qty_offered': int(m.get('qty_requested') or m.get('qty') or m.get('quantity') or 1)} for m in meds2]
+            r = pharm.post(f'/provider/pharmacy/broadcasts/{oid}/offers/draft', {'items': offer_items})
+            offer_id = r.get('id')
+            r = pharm.post(f'/provider/pharmacy/broadcasts/{oid}/offers/{offer_id}/submit')
+            step('pharmacy submits a pickup offer', r.ok, r)
+        r = pat.get(f'/patient/pharmacy/orders/{oid}/offers')
+        offers = r.items()
+        if offers:
+            of = offers[0]
+            r = pat.post(f"/patient/pharmacy/orders/{oid}/offers/{of.get('id') or of.get('offer_id')}/select",
+                         {'coverage_mode': 'cash'}, headers={'Idempotency-Key': KEY('mx-pickup-select')})
+            step('pickup offer selected (cash)', r.ok, r)
+        o = pat.get(f'/patient/pharmacy/orders/{oid}')
+        order = o.body.get('data', o.body) if isinstance(o.body, dict) else {}
+        step('pickup fulfillment recorded with Rx', o.ok and order.get('fulfillment') == 'pickup'
+             and len(order.get('prescription_attachments') or []) > 0, order.get('fulfillment'))
+
+    journey('pharmacy matrix: delivery x insurance')
+    rx2 = j_onboarding.upload(pat, 'rx-ins.png', 'image/png')
+    draft2 = {
+        'items': [{'raw_name': m['name_ar'], 'qty': 1, 'sku': m['id'], 'intake_source': 'cart'} for m in (meds or [])[:2]],
+        'delivery_address': {'label': 'المنزل', 'street': addr.get('street') or '', 'city': addr.get('city') or '',
+                             'lat': float(addr.get('lat') or 0), 'lng': float(addr.get('lng') or 0)},
+        'fulfillment': 'delivery',
+        'payment_mode': 'insurance',
+        'prescription_attachments': [{'uri': rx2, 'type': 'image'}] if rx2 else [],
+    }
+    r = pat.post('/patient/pharmacy/orders', draft2, headers={'Idempotency-Key': KEY('mx-ins')})
+    oid2 = r.get('id')
+    step('insurance draft created', r.ok and oid2, r)
+    if not oid2:
+        return
+    r = pat.post(f'/patient/pharmacy/orders/{oid2}/submit', {}, headers={'Idempotency-Key': KEY('mx-ins-submit')})
+    step('insurance order submitted', r.ok, r)
+    r = pharm.get('/provider/pharmacy/broadcasts')
+    mine = next((b for b in r.items() if b.get('order_id') == oid2), None)
+    step('the pharmacy sees the insurance broadcast', r.ok and mine, f'{r.status} {len(r.items())} broadcasts')
+    if not mine:
+        return
+    meds = mine.get('items') or mine.get('medicines') or []
+    offer_items = [{'order_item_id': str(m.get('id') or m.get('order_item_id') or ''), 'availability': 'available',
+                    'qty_offered': int(m.get('qty_requested') or m.get('qty') or m.get('quantity') or 1)} for m in meds]
+    r = pharm.post(f'/provider/pharmacy/broadcasts/{oid2}/offers/draft', {'items': offer_items})
+    offer_id = r.get('id')
+    r = pharm.post(f'/provider/pharmacy/broadcasts/{oid2}/offers/{offer_id}/submit')
+    step('pharmacy submits an offer', r.ok, r)
+    r = pat.get(f'/patient/pharmacy/orders/{oid2}/offers')
+    offers = r.items()
+    step('pharmacy offers on the insurance order', r.ok and offers, r.status)
+    if not offers:
+        return
+    of = offers[0]
+    r = pat.post(f"/patient/pharmacy/orders/{oid2}/offers/{of.get('id') or of.get('offer_id')}/select",
+                 {'coverage_mode': 'insurance'}, headers={'Idempotency-Key': KEY('mx-ins-select')})
+    step('insurance coverage selected', r.ok, r)
+    items = of.get('items') or []
+    decisions = [{'order_item_id': str(i.get('id') or i.get('order_item_id') or ''), 'outcome': 'approved',
+                  'approved_qty': int(i.get('qty_offered') or i.get('qty') or 1)} for i in items]
+    r = pharm.post(f'/provider/pharmacy/orders/{oid2}/insurance-decision',
+                   {'idempotency_key': KEY('mx-ins-decide'), 'approval_reference': f'APR-{uuid.uuid4().hex[:8]}',
+                    'items': decisions})
+    step('pharmacy records a full insurance decision', r.ok, r)
+    if r.ok:
+        o = pat.get(f'/patient/pharmacy/orders/{oid2}')
+        order = o.body.get('data', o.body) if isinstance(o.body, dict) else {}
+        step('order covered by insurance', o.ok and (order.get('insurance_decision') or {}).get('outcome') == 'full'
+             and order.get('payment_status') == 'covered_by_insurance', order.get('insurance_decision'))
+
+
 def pharmacy_screens(pharm, oid, total):
     journey('pharmacy screens: every tab loads after a delivered order')
     for path in PHARMACY_SCREEN_GETS:
@@ -302,5 +395,6 @@ if __name__ == '__main__':
     pharmacy_prices_items(ph, admin, meds)
     pc = Client(pat['token'], 'patient')
     run(pc, ph, admin, meds)
+    matrix_pharmacy(pc, ph, meds, patient_address(pc), admin)
     cancellations(pc, ph, admin, meds)
     summary()

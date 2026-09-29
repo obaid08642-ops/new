@@ -4,7 +4,12 @@
 # Mail goes to tools/live/smtp_sink.py on :2525 so OTP/email flows can be completed end to end.
 set -euo pipefail
 cd "$(dirname "$0")/../../backend"
-ps -eo pid,args | grep "[d]ist/main.js" | awk '{print $1}' | xargs -r kill || true
+# Kill every previous backend (macOS xargs has no -r; pkill covers all).
+pkill -f "dist/main.js" 2>/dev/null || true
+sleep 1
+if pgrep -f "dist/main.js" >/dev/null 2>&1; then
+  echo "old backend still running — kill it manually"; exit 1
+fi
 sleep 1
 export NODE_ENV="${NODE_ENV:-development}" PORT="${PORT:-8002}"
 export JWT_SECRET="${JWT_SECRET:-live-test-secret-0123456789abcdef-0123456789}"

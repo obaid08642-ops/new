@@ -137,11 +137,13 @@ def insured_consultation(pat, doctor, decision='approve_partial'):
     return aid, rid
 
 
-def insured_lab(pat, lab, other_lab):
+def insured_lab(pat, lab, other_lab, location='facility'):
     import j_lab
-    journey('insurance: lab booking on insurance (insurance-upload -> lab decides -> insurance-approval)')
+    journey(f'insurance: lab booking on insurance ({location}) (insurance-upload -> lab decides -> insurance-approval)')
     lab_id = lab.get('/provider/me').get('account', 'id')
-    bid, picks = j_lab.patient_books(pat, lab_id, 'facility', 'insurance')
+    docs = j_lab.home_insurance_proof() if location == 'home' else None
+    bid, picks = j_lab.patient_books(pat, lab_id, location, 'insurance', documents=docs, offset=6,
+                                     hour=13 if location == 'home' else 10)
     if not bid:
         return
     r = other_lab.patch(f'/labs/bookings/{bid}/insurance', {'status': 'approved', 'totalCopay': 0, 'items': []})

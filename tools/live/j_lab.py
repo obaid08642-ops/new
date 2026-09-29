@@ -39,20 +39,40 @@ def admin_publishes_tests(admin, n=4):
     return new_id
 
 
-def patient_books(pat, lab_id, location='facility', method='cash'):
-    """diagnostics tab -> add tests -> cart (compatible labs) -> checkout."""
+def patient_books(pat, lab_id, location='facility', method='cash', documents=None, offset=0, hour=10):
+    """diagnostics tab -> add tests -> cart (compatible labs) -> checkout.
+    offset: rotate the picked tests so back-to-back matrix bookings are not
+    collapsed by the 3-minute duplicate-submit guard."""
     r = pat.get('/labs/services')
     services = r.items()
     step('patient sees the lab test catalog', r.ok and len(services) > 0, f'{r.status} {len(services)}')
-    picks = [s for s in services if location != 'home' or s.get('home_visit_supported')][:2]
+    eligible = [s for s in services if location != 'home' or s.get('home_visit_supported')]
+    picks = (eligible[offset:] + eligible[:offset])[:2]
     ids = ','.join(s['id'] for s in picks)
     r = pat.get(f'/labs/compatible-providers?testIds={ids}')
     labs = r.body if isinstance(r.body, list) else r.items()
     step('cart lists the approved lab as able to run the tests', r.ok and any(l.get('id') == lab_id for l in labs), f'{r.status} {[l.get("id") for l in labs][:5]} want {lab_id}')
-    r = pat.post('/labs/bookings', {'items': [{'service_id': s['id']} for s in picks], 'scheduled_at': tomorrow_at(),
-                                    'location_type': location, 'payment_method': method, 'provider_account_id': lab_id})
+    body = {'items': [{'service_id': s['id']} for s in picks], 'scheduled_at': tomorrow_at(hour),
+            'location_type': location, 'payment_method': method, 'provider_account_id': lab_id}
+    if documents:
+        body['documents'] = documents
+    r = pat.post('/labs/bookings', body)
     step(f'checkout creates the booking ({location}, {method})', r.ok and r.get('id'), r)
     return r.get('id'), picks
+
+
+def home_insurance_proof():
+    # Minimal valid PNG standing in for the uploaded doctor request (home + insurance rule).
+    import base64
+    import struct
+    import zlib
+
+    def chunk(t, d):
+        c = t + d
+        return struct.pack('>I', len(d)) + c + struct.pack('>I', zlib.crc32(c))
+    raw = b''.join(b'\x00\xff\x00' for _ in range(64))
+    png = b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', struct.pack('>IIBBBBB', 8, 8, 8, 2, 0, 0, 0)) + chunk(b'IDAT', zlib.compress(raw)) + chunk(b'IEND', b'')
+    return [{'kind': 'doctor_request', 'url_or_b64': base64.b64encode(png).decode(), 'filename': 'doctor-request.png'}]
 
 
 def run(pat, lab, other_lab=None, admin=None):
@@ -130,7 +150,40 @@ def run(pat, lab, other_lab=None, admin=None):
         step('console lists the lab booking with status and amount', r.ok and row and row.get('status') == 'REPORTED' and row.get('amount', 0) > 0, row or r.status)
         d = admin.get(f'/admin/admin/orders/lab/{bid}')
         step('console detail opens with its timeline', d.ok and len(d.get('timeline') or []) >= 4, d)
+    matrix_payment_location(pat, lab, admin, other_lab)
     return bid
+
+
+def matrix_payment_location(pat, lab, admin=None, other_lab=None):
+    """P8 matrix (R7-5): lab {home, center} x {cash, card, insurance} beyond the main flow."""
+    lab_id = lab.get('/provider/me').get('account', 'id')
+    journey('lab matrix: home x cash refused, home x card instead')
+    r = pat.post('/labs/bookings', {'items': [{'service_id': s['id']} for s in (pat.get('/labs/services').items()[:1])],
+                                    'scheduled_at': tomorrow_at(), 'location_type': 'home',
+                                    'payment_method': 'cash', 'provider_account_id': lab_id})
+    step('home visit cannot be cash (server rule)', r.status == 400, r)
+    bid, _ = patient_books(pat, lab_id, location='home', method='card', offset=2, hour=11)
+    if bid:
+        from j_nursing import card_payment as card_payment_home
+        card_payment_home(pat, 'lab', bid)
+        r = pat.get(f'/labs/bookings/{bid}')
+        step('verified card payment confirms the home booking', r.ok and r.get('state') == 'CONFIRMED', r)
+    journey('lab matrix: center x card')
+    bid, _ = patient_books(pat, lab_id, location='facility', method='card', offset=4, hour=12)
+    if bid:
+        from j_nursing import card_payment
+        card_payment(pat, 'lab', bid)
+        r = pat.get(f'/labs/bookings/{bid}')
+        step('verified card payment confirms the center booking', r.ok and r.get('state') == 'CONFIRMED', r)
+    if admin:
+        import j_insurance
+        from j_insurance import insured_lab
+        journey('lab matrix: home x insurance')
+        j_insurance.add_policy(pat, j_insurance.admin_adds_company(admin))
+        if other_lab is not None:
+            insured_lab(pat, lab, other_lab, location='home')
+        else:
+            step('home x insurance needs a second lab for the outsider check', False, 'no other_lab in this run')
 
 
 if __name__ == '__main__':
