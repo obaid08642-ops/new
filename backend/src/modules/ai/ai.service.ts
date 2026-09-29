@@ -4,6 +4,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Connection } from 'mongoose';
 import * as ExcelJS from 'exceljs';
 import { AiGatewayService } from './ai-gateway.service';
+import { AiContentReviewService } from './ai-content-review.service';
 
 /**
  * AI features service — ALL generation goes through the AI Gateway,
@@ -19,6 +20,7 @@ export class AiService {
     @InjectConnection() private readonly conn: Connection,
     private readonly gateway: AiGatewayService,
     @Optional() private readonly eventEmitter?: EventEmitter2,
+    @Optional() private readonly reviewQueue?: AiContentReviewService,
   ) {}
 
   private get triageSessions() { return this.conn.collection('ai_triage_sessions'); }
@@ -117,6 +119,17 @@ export class AiService {
       createdAt: new Date(),
     });
     try { this.eventEmitter?.emit('ai.triage_completed', { patient_id: ownerId, care_level: careLevel }); } catch { /* notification is non-blocking */ }
+    // Phase 10 medical safety: queue the generated guidance for review. Emergency
+    // triage is published to the patient now and still recorded (flagged
+    // auto_published); the service never throws, so a Mongo blip cannot withhold
+    // a possible emergency.
+    await this.reviewQueue?.record({
+      kind: 'triage',
+      content: JSON.stringify(result),
+      patientId: ownerId,
+      careLevel,
+      requestSummary: `symptoms: ${String(symptoms || '').slice(0, 200)}`,
+    });
     return result;
   }
 
