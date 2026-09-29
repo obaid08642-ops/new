@@ -360,3 +360,59 @@ Still open: PDPL UI in patient-web (Apple requires account deletion on every cli
 (absent repo-wide), the Phase 10 "single PaymentGateway interface / Tap + HyperPay adapters" item
 (needs owner gateway keys to be exercised), F82 LCP work on patient-web, and the platform backup and
 restore-drill scripts. No mock data was added: every endpoint reads and writes real collections.
+
+## [10.F60b] One PaymentGateway, chosen by PAYMENT_PROVIDER (2026-09-29)
+- The plan's F60 item is a single PaymentGateway contract with the adapter chosen
+  by `PAYMENT_PROVIDER`. The three HTTP adapters already existed but selection was
+  "first API key present" (STRIPE > TAP > MOYASAR), so a deployment holding two
+  keys charged through a processor nobody chose.
+- payment-gateway.ts now owns the contract, the per-provider key requirement and the
+  selection. An explicitly requested provider whose key is missing, or one without an
+  adapter, throws instead of falling back. HyperPay is not implemented and is therefore
+  not selectable. The duplicate local GatewayAdapter/DisabledGatewayAdapter are gone.
+- Gate: provider-selection suite 9/9; payments+moyasar+finance-engine 17/17; tsc clean.
+
+## [10.F68] Content-Security-Policy (2026-09-29)
+- The web clients sent no CSP; the admin had no security headers at all; the backend
+  sent a policy whose script-src allowed 'unsafe-inline', so an injected script ran.
+- backend: fresh per-request nonce + strict-dynamic in production, helmet no longer
+  overrides it, object-src/frame-ancestors/base-uri/form-action locked, HSTS-grade
+  upgrade-insecure-requests production-only. patient-web: CSP built from
+  NEXT_PUBLIC_API_ORIGIN. admin: full header set + CSP.
+- style-src keeps 'unsafe-inline' everywhere: the UIs ship CSS-in-JS. Migrating to CSS
+  modules is what removes it and remains open.
+- Gate: CSP suite 8/8; backend tsc 0; admin tsc + next build; patient-web tsc + next build.
+
+## [10] Platform: weekly restore drill + disk alert (2026-09-29)
+- The nightly backup (mongodump + R2 + 14d retention) already existed; nothing ever
+  restored one. restore-drill.sh restores the newest archive into a throwaway database,
+  asserts ≥2 non-empty collections came back, always drops the drill DB, and fails when
+  the volume is at/above DISK_THRESHOLD_PCT (default 80). Falls back mongosh→mongo, and
+  reports unverified when neither exists rather than passing silently.
+- Verified locally against a real mongod: seeded data, produced a real mongodump archive,
+  ran the script — it restored 2 non-empty collections and read them back. The final drop
+  could not complete in this sandbox because mongosh/mongo are not installed here (only
+  the dump/restore tools are); that is an environment gap, not a script defect.
+
+## [10.1] PDPL on the web client (2026-09-29)
+- Apple requires account deletion on every client. The web privacy page only linked to
+  /support to "request" deletion; there was no export and no deletion.
+- /api/privacy/data-export GET (JSON attachment) and DELETE (password required via zod,
+  session cookies cleared on success); pdpl-rights.tsx with a bilingual export button and
+  password-confirmed delete. The /support stub link is removed.
+- Gate: tsc clean; next build succeeded; full vitest 346 passed / 1 failed where the single
+  failure (diagnostics-ssr) passes in isolation 2/2 — a cross-file flake, not a regression.
+
+## Phase 10 — what is now done and what genuinely remains
+Done: PDPL consent/export/erasure (backend + patient-app + patient-web), F60 (both the audit
+defects and the plan's gateway item), F68 CSP, ZATCA + VAT 15% + forced-update + 997 (earlier
+phases, re-checked), restore drill + disk alert (the nightly backup already existed).
+Still open, honestly:
+- F82 LCP budgets on patient-web (the /ar, /ar/c, /ar/consultations/doctors work) — needs a
+  Lighthouse run against a real deployment to measure before changing.
+- A sandbox payment e2e (success/fail/refund) through the new gateway contract — needs
+  MOYASAR_API_KEY + MOYASAR_WEBHOOK_SECRET from the owner; the live harness's
+  fake_moyasar.py is the intended vehicle.
+- LiveKit still sits on the RN 0.81 line after the provider-app SDK jump; it needs two real
+  devices and cannot be exercised by a bundler.
+- 7C is still missing C6 (recovery codes); C1 without C6 leaves no non-passkey admin entry.
