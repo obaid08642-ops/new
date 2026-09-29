@@ -1,4 +1,5 @@
-import { Injectable, CanActivate, ExecutionContext, UnauthorizedException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, Optional, UnauthorizedException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { AdminSessionService } from '../modules/auth/admin-session.service';
 import { JwtService } from '@nestjs/jwt';
 import { Reflector } from '@nestjs/core';
 import { SetMetadata } from '@nestjs/common';
@@ -76,6 +77,7 @@ export class JwtAuthGuard implements CanActivate {
     private reflector: Reflector,
     @InjectConnection() private connection: Connection,
     private impersonationSessions: ImpersonationSessionService,
+    @Optional() private adminIdle?: AdminSessionService,
   ) {}
 
   async canActivate(ctx: ExecutionContext): Promise<boolean> {
@@ -171,10 +173,17 @@ export class JwtAuthGuard implements CanActivate {
             { user_id: uid, device_hash: createHash('sha256').update(devId).digest('hex'), revoked: { $ne: true } },
           ).catch(() => null);
           if (!ok) throw new ForbiddenException('device_not_enrolled');
+          // C5: sliding 15-minute idle window for admin sessions.
+          if (this.adminIdle) {
+            if (await this.adminIdle.isIdleExpired(uid)) {
+              throw new UnauthorizedException('admin_session_idle_expired');
+            }
+            await this.adminIdle.touch(uid);
+          }
         }
       }
     } catch (e: any) {
-      if (e?.message === 'device_not_enrolled' || e?.status === 403) throw e;
+      if (e?.message === 'device_not_enrolled' || e?.message === 'admin_session_idle_expired' || e?.status === 403 || e?.status === 401) throw e;
       // Observability must never break auth on DB hiccups (fail-open here would
       // defeat the lock; fail-closed would lock everyone on a blip) — fail OPEN
       // but only when the lookup itself errored, never on a negative result.

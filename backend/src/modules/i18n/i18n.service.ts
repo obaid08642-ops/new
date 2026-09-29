@@ -729,6 +729,8 @@ export const DICTIONARY: Record<string, Record<Lang, string>> = {
   'push.cart.reminder.body': { ar: 'لديك أدوية في السلة لم تكمل طلبها — أكمل الطلب الآن ويصلك بسرعة.', en: 'You have medicines in your cart — complete your order now for fast delivery.', ur: 'کارٹ میں دوائیاں ہیں — ابھی آرڈر مکمل کریں' },
   'push.order.reminder.title': { ar: 'طلبك غير مكتمل', en: 'Your order is incomplete', ur: 'آپ کا آرڈر مکمل نہیں' },
   'push.order.reminder.body': { ar: 'طلبك لم يكتمل — اضغط هنا لإتمام الدفع والتوصيل.', en: 'Your order is incomplete — tap here to complete payment and delivery.', ur: 'آرڈر مکمل نہیں — ادائیگی مکمل کریں' },
+  'push.admin.login.title': { ar: 'دخول لوحة التحكم — نَبْض', en: 'Admin panel sign-in — Nabd', ur: 'ایڈمن لاگ اِن — نبض' },
+  'push.admin.login.body': { ar: 'تسجيل دخول للحساب {email} من {ip}', en: 'Sign-in for {email} from {ip}', ur: '{email} کے لیے لاگ اِن' },
 };
 
 @Injectable()

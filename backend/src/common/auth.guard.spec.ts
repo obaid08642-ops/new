@@ -138,7 +138,7 @@ describe('JwtAuthGuard', () => {
     jwtService.verifyAsync.mockResolvedValue({ id: 'admin1', role: UserRole.ADMIN, email: 'admin@nabdah.com' });
     const { createHash } = require('crypto');
     const devId = 'a'.repeat(32);
-    (connection.collection as jest.fn()).mockImplementation((name: string) => {
+    (connection.collection as jest.Mock).mockImplementation((name: string) => {
       if (name === 'admin_devices') {
         return { findOne: jest.fn().mockResolvedValue({ user_id: 'admin1', device_hash: createHash('sha256').update(devId).digest('hex') }) };
       }
