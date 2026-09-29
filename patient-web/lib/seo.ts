@@ -9,8 +9,9 @@ export function localizedUrl(locale: Locale, path = "") {
   return `${siteOrigin()}/${locale}${path === "" ? "" : suffix}`;
 }
 
-function escXml(s: string) {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+/** Escape for XML text *and* attribute values (quotes included: values go into href="…"). */
+export function escXml(s: string) {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
 }
 
 /** xhtml:link hreflang alternates for one path across all 6 locales (sitemaps). */
