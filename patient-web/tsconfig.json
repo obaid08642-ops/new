@@ -35,6 +35,12 @@
       ],
       "@/lib/*": [
         "./lib/*"
+      ],
+      "@nabd/design-tokens": [
+        "../packages/design-tokens/dist/ts/tokens.ts"
+      ],
+      "@nabd/design-tokens/*": [
+        "../packages/design-tokens/*"
       ]
     }
   },

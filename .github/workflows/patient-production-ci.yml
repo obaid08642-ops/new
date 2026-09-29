@@ -93,6 +93,11 @@ jobs:
         run: npm run check
       - name: Contrast check (both themes)
         run: npm run contrast
+      # A5's guard. Ratcheted: the 289 sizes that predate the design system are
+      # recorded in tools/design/no-px-font-size.baseline.json, and 12.A11
+      # removes them as screens are rebuilt. This fails on any NEW one.
+      - name: No new hard-coded font size (ratchet)
+        run: npm run type-scale
       - name: Install compiler
         run: npm install --ignore-scripts --no-save typescript@5.9.3
       - name: Type check the generated TypeScript module

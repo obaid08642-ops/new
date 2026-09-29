@@ -481,3 +481,40 @@ another session is actively writing `backend/` and `tools/live/` in the same wor
 and `run_gate.sh` are therefore not meaningful right now, and pushing a red backend gate is
 forbidden. Only this agent's own paths were staged. The backend gate gets run on the next
 Phase 12 commit, once that tree is quiet.
+
+### [P12.A5] typography — one family for five scripts, and a type scale
+- `font.family.locale.*` gives each of the six locales its own stack, with the
+  script-specific family FIRST where it must win (Nastaliq for `ur`, Devanagari
+  for `hi`, Bengali for `bn`) and Readex Pro leading for `ar`/`en`/`fil`.
+- `fontHrefFor(locale)` returns a Google Fonts request carrying **only** that
+  locale's families — a Hindi page never downloads Nastaliq, an English page
+  never downloads Devanagari ("loaded per locale only", §A5). `fontStackFor()`
+  returns the matching stack; both are generated from `tokens.json`.
+- `dist/css/fonts.css` emits the scale as custom properties: every step gets a
+  `--nabd-font-size-*`, a `--nabd-line-height-*` and a `--nabd-font-weight-*`.
+  The line height is not optional — it is the Arabic line height, which is the
+  reason the scale exists. Its `@import` is a safe default for previews; a real
+  page uses `fontHrefFor()`.
+- The Tailwind preset became `tailwind-preset.cjs` so the package can declare
+  `"type": "module"`; the old `.js` name produced a Node module warning.
+- `tools/design/no-px-font-size.ts` — A5's guard, as a **RATCHET**, and this is
+  PARTIAL, not green: when the rule landed, **289 hard-coded font sizes already
+  existed** across the four clients, written before any design system. They are
+  recorded per file in `no-px-font-size.baseline.json` (35 files). The rule
+  fails if the total grows or if any file exceeds its own entry, and refuses to
+  raise the baseline (`--init` records it once; `--update` only lowers it).
+  Clearing them is 12.A11's job — it rebuilds the screens on the stamps.
+  Proven to bite: adding one `font-size: 15px` to `globals.css` turns it red
+  (290 vs baseline 289) and names the file.
+
+### Gate evidence (this commit)
+- design-tokens `npm test`: `check` up to date; `contrast` all 60 pass in both
+  themes; `type-scale` "1741 files scanned. 289 recorded, none added".
+- patient-web: `tsc --noEmit` 0 errors; `vitest run` → **354 passed, 23 skipped,
+  0 failed** (160 files). The 23 skips are the same pre-existing sandbox suites.
+- patient-app: `tsc --noEmit` 0 errors; `jest` 111/111; `npx expo export` → web +
+  ios (13MB hbc) + android (14MB hbc), `favicon.ico (15KB)`.
+- provider-app: `tsc --noEmit` 0 errors; `jest` 17/17.
+- admin: `tsc --noEmit` 0 errors; `next build` → "✓ Compiled successfully in 11.7s",
+  "Generating static pages (60/60)".
+- Backend gate again deliberately not run: the other session is still writing it.

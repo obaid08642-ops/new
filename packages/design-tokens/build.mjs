@@ -224,7 +224,42 @@ export function isThemed(path: string): boolean {
   return Object.prototype.hasOwnProperty.call(themedPaths, path);
 }
 
-export default { tokens, light, dark, token, isThemed };
+${(() => {
+  const hrefs = LOCALES.map((l) => `  ${l}: ${JSON.stringify(fontHref(l))},`).join('\n');
+  const stacks = LOCALES.map((l) => `  ${l}: lightTree.font.family.locale.${l},`).join('\n');
+  return `/** The six supported locales. ar and ur are RTL; the rest are LTR. */
+export const locales = ${JSON.stringify(LOCALES)} as const;
+export type Locale = (typeof locales)[number];
+
+const hrefByLocale: Readonly<Record<Locale, string>> = {
+${hrefs}
+};
+
+const stackByLocale: Readonly<Record<Locale, string>> = {
+${stacks}
+};
+
+/**
+ * The Google Fonts request for ONE locale, so a page downloads only the scripts
+ * it actually renders: a Hindi page never pulls Nastaliq, and an English page
+ * never pulls Devanagari. \`\`fontHrefFor('en')\`\`.
+ */
+export function fontHrefFor(locale: Locale): string {
+  return hrefByLocale[locale];
+}
+
+/** The font stack for one locale, ready for a StyleSheet or a CSS variable. */
+export function fontStackFor(locale: Locale): string {
+  return stackByLocale[locale];
+}
+
+/** The type scale for one theme, e.g. \`fontStack('ar').size.h1.size\` -> "26px". */
+export function typeScale(theme: ThemeName = 'light') {
+  return (theme === 'dark' ? darkTree : lightTree).font.size;
+}`;
+})()}
+
+export default { tokens, light, dark, token, isThemed, locales, fontHrefFor, fontStackFor, typeScale };
 `;
 }
 
@@ -286,13 +321,84 @@ module.exports.nabdTokens = { colors, spacing, borderRadius, boxShadow, fontFami
 `;
 }
 
-/* --------------------------------------------------------------------- main */
+/* ------------------------------------------------------------------- fonts */
+
+const LOCALES = ['ar', 'en', 'ur', 'hi', 'fil', 'bn'];
+
+/** The Google Fonts request for one locale: only what that locale needs. */
+function fontHref(locale) {
+  const spec = tokens.font?.load?.[locale];
+  if (!spec) throw new Error(`font.load has no entry for locale "${locale}"`);
+  const families = spec.families
+    .map((f) => `family=${f}:wght@${spec.weights.join(';')}`)
+    .join('&');
+  return `https://fonts.googleapis.com/css2?${families}&display=swap`;
+}
+
+function buildFontsCss(flat) {
+  const sizeVars = Object.entries(flat)
+    .filter(([p]) => p.startsWith('font.size.') && !Array.isArray(tokens.font.size) && !isThemed(p))
+    .filter(([p]) => !p.includes('.size.') || p.split('.').length === 4)
+    .map(([p, v]) => [p, v])
+    .filter(([p, v]) => typeof v === 'string' || typeof v === 'number');
+
+  const line = (name, prop) => {
+    const entry = sizeVars.find(([p]) => p === `font.size.${name}.${prop}`);
+    return entry ? entry[1] : undefined;
+  };
+
+  const vars = [];
+  for (const name of Object.keys(tokens.font.size)) {
+    const size = line(name, 'size');
+    const lh = line(name, 'lineHeight');
+    const weight = line(name, 'weight');
+    const kebab = name.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
+    if (size) vars.push(`  --nabd-font-size-${kebab}: ${size};`);
+    if (lh) vars.push(`  --nabd-line-height-${kebab}: ${lh};`);
+    if (weight !== undefined) vars.push(`  --nabd-font-weight-${kebab}: ${weight};`);
+  }
+
+  const localeVars = LOCALES.map(
+    (l) => `  --nabd-font-${l}: ${flat[`font.family.locale.${l}`]};`,
+  );
+
+  // One request for a preview page: every family any locale can need.
+  const allFamilies = [...new Set(LOCALES.flatMap((l) => tokens.font.load[l].families))];
+  const allWeights = [...new Set(LOCALES.flatMap((l) => tokens.font.load[l].weights))].sort((a, b) => a - b);
+  const previewHref = `https://fonts.googleapis.com/css2?${allFamilies
+    .map((f) => `family=${f}:wght@${allWeights.join(';')}`)
+    .join('&')}&display=swap`;
+
+  return [
+    BANNER('packages/design-tokens/build.mjs'),
+    '/*',
+    ' * Web fonts and the type scale as CSS custom properties.',
+    ' *',
+    ' * The @import below is a SAFE DEFAULT: every family, so a preview page or a',
+    ' * static render never falls back to a system font. A real app does NOT load',
+    ' * this file wholesale — 12.A4 loads the href for the ACTIVE locale only via',
+    ' * `fontHrefFor()`, so a Hindi page never downloads Nastaliq.',
+    ' */',
+    `@import url("${previewHref}");`,
+    '',
+    ':root {',
+    `  --nabd-font-sans: ${flat['font.family.sans']};`,
+    `  --nabd-font-brand: ${flat['font.family.brand']};`,
+    ...localeVars,
+    ...vars,
+    '}',
+    '',
+  ].join('\n');
+}
+
+/* ------------------------------------------------------------------ main */
 
 const flat = flatten(tokens);
 const outputs = {
   'css/tokens.css': buildCss(flat),
+  'css/fonts.css': buildFontsCss(flat),
   'ts/tokens.ts': buildTs(flat),
-  'tailwind-preset.js': buildTailwindPreset(flat),
+  'tailwind-preset.cjs': buildTailwindPreset(flat),
 };
 
 let drift = 0;

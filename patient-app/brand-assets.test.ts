@@ -21,7 +21,8 @@ const BRAND = join(ROOT, 'packages', 'brand');
 const ASSETS = join(__dirname, 'assets');
 
 const sha256 = (file: string) => createHash('sha256').update(readFileSync(file)).digest('hex');
-const read = (file: string, encoding: BufferEncoding) => readFileSync(file, encoding);
+const read = (file: string): Buffer => readFileSync(file);
+const readText = (file: string): string => readFileSync(file, 'utf8');
 
 /** Copies that must be byte-identical to the generated asset. */
 const SHIPPED: ReadonlyArray<readonly [string, string]> = [
@@ -49,7 +50,7 @@ describe('Nabd+ brand assets shipped by the app', () => {
     // The shipped PNG is byte-identical to the generated one (above), so it is
     // enough to prove the source it was generated from is white-only. That is
     // the fact a reviewer can actually check by eye, and it costs nothing.
-    const source = read(join(BRAND, 'src', 'notification-icon.svg'), 'utf8');
+    const source = readText(join(BRAND, 'src', 'notification-icon.svg'));
     // Comments are prose, not markup: strip them so this checks the drawing.
     const markup = source.replace(/<!--[\s\S]*?-->/g, '');
     const colours = [...markup.matchAll(/(?:fill|stroke)="(#[0-9A-Fa-f]{3,8})"/g)].map((m) =>
@@ -85,7 +86,7 @@ describe('Nabd+ brand assets shipped by the app', () => {
       'splash-light.svg',
       'splash-dark.svg',
     ]) {
-      const svg = read(join(BRAND, 'src', file), 'utf8');
+      const svg = readText(join(BRAND, 'src', file));
       expect(svg).toContain(BOWL);
       expect(svg).toContain(DOT);
       expect(svg).toContain('stroke-width="36"');
@@ -93,7 +94,7 @@ describe('Nabd+ brand assets shipped by the app', () => {
   });
 
   it('app.json paints the splash and the adaptive icon in brand colours', () => {
-    const expo = JSON.parse(read(join(__dirname, 'app.json'), 'utf8')).expo;
+    const expo = JSON.parse(readText(join(__dirname, 'app.json'))).expo;
     // #F5F5F7 = brand.canvas, #FF4B55 = brand.coral, #D42A38 = action.primary.
     expect(expo.splash.backgroundColor).toBe('#F5F5F7');
     expect(expo.android.adaptiveIcon.backgroundColor).toBe('#FF4B55');

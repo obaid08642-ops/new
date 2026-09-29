@@ -222,6 +222,37 @@ export interface Tokens {
         readonly weight: number;
       };
     };
+    readonly weights: {
+      readonly regular: number;
+      readonly medium: number;
+      readonly semiBold: number;
+    };
+    readonly load: {
+      readonly ar: {
+        readonly families: readonly (string | number)[];
+        readonly weights: readonly (string | number)[];
+      };
+      readonly en: {
+        readonly families: readonly (string | number)[];
+        readonly weights: readonly (string | number)[];
+      };
+      readonly fil: {
+        readonly families: readonly (string | number)[];
+        readonly weights: readonly (string | number)[];
+      };
+      readonly ur: {
+        readonly families: readonly (string | number)[];
+        readonly weights: readonly (string | number)[];
+      };
+      readonly hi: {
+        readonly families: readonly (string | number)[];
+        readonly weights: readonly (string | number)[];
+      };
+      readonly bn: {
+        readonly families: readonly (string | number)[];
+        readonly weights: readonly (string | number)[];
+      };
+    };
   };
   readonly shadow: {
     readonly tile: string;
@@ -514,6 +545,37 @@ const lightTree: Tokens = {
         "size": "11.5px",
         "lineHeight": "1.3",
         "weight": 500,
+      },
+    },
+    "weights": {
+      "regular": 400,
+      "medium": 500,
+      "semiBold": 700,
+    },
+    "load": {
+      "ar": {
+        "families": ["Readex+Pro","Noto+Sans+Arabic"],
+        "weights": [300,400,500,700],
+      },
+      "en": {
+        "families": ["Readex+Pro"],
+        "weights": [300,400,500,700],
+      },
+      "fil": {
+        "families": ["Readex+Pro"],
+        "weights": [300,400,500,700],
+      },
+      "ur": {
+        "families": ["Readex+Pro","Noto+Nastaliq+Urdu"],
+        "weights": [300,400,500,700],
+      },
+      "hi": {
+        "families": ["Readex+Pro","Noto+Sans+Devanagari"],
+        "weights": [300,400,500,700],
+      },
+      "bn": {
+        "families": ["Readex+Pro","Noto+Sans+Bengali"],
+        "weights": [300,400,500,700],
       },
     },
   },
@@ -810,6 +872,37 @@ const darkTree: Tokens = {
         "weight": 500,
       },
     },
+    "weights": {
+      "regular": 400,
+      "medium": 500,
+      "semiBold": 700,
+    },
+    "load": {
+      "ar": {
+        "families": ["Readex+Pro","Noto+Sans+Arabic"],
+        "weights": [300,400,500,700],
+      },
+      "en": {
+        "families": ["Readex+Pro"],
+        "weights": [300,400,500,700],
+      },
+      "fil": {
+        "families": ["Readex+Pro"],
+        "weights": [300,400,500,700],
+      },
+      "ur": {
+        "families": ["Readex+Pro","Noto+Nastaliq+Urdu"],
+        "weights": [300,400,500,700],
+      },
+      "hi": {
+        "families": ["Readex+Pro","Noto+Sans+Devanagari"],
+        "weights": [300,400,500,700],
+      },
+      "bn": {
+        "families": ["Readex+Pro","Noto+Sans+Bengali"],
+        "weights": [300,400,500,700],
+      },
+    },
   },
   "shadow": {
     "tile": "0 8px 24px rgba(0,0,0,0.25)",
@@ -1089,6 +1182,9 @@ export const light: Readonly<Record<string, string | number>> = Object.freeze({
   "font.size.micro.size": "11.5px",
   "font.size.micro.lineHeight": "1.3",
   "font.size.micro.weight": 500,
+  "font.weights.regular": 400,
+  "font.weights.medium": 500,
+  "font.weights.semiBold": 700,
   "shadow.tile": "0 8px 24px rgba(11,27,43,0.07)",
   "shadow.card": "0 6px 18px rgba(11,27,43,0.05)",
   "shadow.raised": "0 16px 40px rgba(11,27,43,0.08)",
@@ -1266,6 +1362,9 @@ export const dark: Readonly<Record<string, string | number>> = Object.freeze({
   "font.size.micro.size": "11.5px",
   "font.size.micro.lineHeight": "1.3",
   "font.size.micro.weight": 500,
+  "font.weights.regular": 400,
+  "font.weights.medium": 500,
+  "font.weights.semiBold": 700,
   "shadow.tile": "0 8px 24px rgba(0,0,0,0.25)",
   "shadow.card": "0 6px 18px rgba(0,0,0,0.20)",
   "shadow.raised": "0 16px 40px rgba(0,0,0,0.35)",
@@ -1330,4 +1429,45 @@ export function isThemed(path: string): boolean {
   return Object.prototype.hasOwnProperty.call(themedPaths, path);
 }
 
-export default { tokens, light, dark, token, isThemed };
+/** The six supported locales. ar and ur are RTL; the rest are LTR. */
+export const locales = ["ar","en","ur","hi","fil","bn"] as const;
+export type Locale = (typeof locales)[number];
+
+const hrefByLocale: Readonly<Record<Locale, string>> = {
+  ar: "https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;700&family=Noto+Sans+Arabic:wght@300;400;500;700&display=swap",
+  en: "https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;700&display=swap",
+  ur: "https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;700&family=Noto+Nastaliq+Urdu:wght@300;400;500;700&display=swap",
+  hi: "https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;700&family=Noto+Sans+Devanagari:wght@300;400;500;700&display=swap",
+  fil: "https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;700&display=swap",
+  bn: "https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;700&family=Noto+Sans+Bengali:wght@300;400;500;700&display=swap",
+};
+
+const stackByLocale: Readonly<Record<Locale, string>> = {
+  ar: lightTree.font.family.locale.ar,
+  en: lightTree.font.family.locale.en,
+  ur: lightTree.font.family.locale.ur,
+  hi: lightTree.font.family.locale.hi,
+  fil: lightTree.font.family.locale.fil,
+  bn: lightTree.font.family.locale.bn,
+};
+
+/**
+ * The Google Fonts request for ONE locale, so a page downloads only the scripts
+ * it actually renders: a Hindi page never pulls Nastaliq, and an English page
+ * never pulls Devanagari. ``fontHrefFor('en')``.
+ */
+export function fontHrefFor(locale: Locale): string {
+  return hrefByLocale[locale];
+}
+
+/** The font stack for one locale, ready for a StyleSheet or a CSS variable. */
+export function fontStackFor(locale: Locale): string {
+  return stackByLocale[locale];
+}
+
+/** The type scale for one theme, e.g. `fontStack('ar').size.h1.size` -> "26px". */
+export function typeScale(theme: ThemeName = 'light') {
+  return (theme === 'dark' ? darkTree : lightTree).font.size;
+}
+
+export default { tokens, light, dark, token, isThemed, locales, fontHrefFor, fontStackFor, typeScale };
