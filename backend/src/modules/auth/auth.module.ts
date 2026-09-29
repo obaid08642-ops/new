@@ -13,6 +13,8 @@ import { TrustedDevice, TrustedDeviceSchema } from './schemas/trusted-device.sch
 import { DeviceTrustService } from './device-trust.service';
 import { AdminDeviceService } from './admin-device.service';
 import { AdminSessionService } from './admin-session.service';
+import { AdminRecoveryService } from './admin-recovery.service';
+import { AdminRecoveryController } from './admin-recovery.controller';
 import { AdminDevicesController } from './admin-devices.controller';
 import { User, UserSchema } from '../../schemas/user.schema';
 import { PatientProfile, PatientProfileSchema } from '../../schemas/patient-profile.schema';
@@ -46,8 +48,8 @@ import { UserRepository } from "./repositories/user.repository";
       { name: TrustedDevice.name, schema: TrustedDeviceSchema },
     ]),
   ],
-  controllers: [AuthController, PasskeyController, AdminDevicesController],
-  providers: [AuthService, PasskeyService, DeviceTrustService, AdminDeviceService, AdminSessionService, JwtAuthGuard, { provide: 'PatientProfileRepository', useClass: PatientProfileRepository }, { provide: 'UserRepository', useClass: UserRepository }],
+  controllers: [AuthController, PasskeyController, AdminDevicesController, AdminRecoveryController],
+  providers: [AuthService, PasskeyService, DeviceTrustService, AdminDeviceService, AdminSessionService, AdminRecoveryService, JwtAuthGuard, { provide: 'PatientProfileRepository', useClass: PatientProfileRepository }, { provide: 'UserRepository', useClass: UserRepository }],
   exports: [AuthService, JwtModule, JwtAuthGuard, MongooseModule, DeviceTrustService, AdminSessionService],
 })
 export class AuthModule {}
