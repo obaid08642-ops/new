@@ -3,6 +3,7 @@ import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { randomBytes } from 'crypto';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
+import { readVatRate } from '../business-rules/business-rules.module';
 
 export interface ProductFeedQuery {
   page?: number;
@@ -246,8 +247,9 @@ export class AiCommerceService {
     }
 
     const subtotalFormatted = Number(subtotal.toFixed(2));
-    const vat15 = Number((subtotalFormatted * 0.15).toFixed(2));
-    const totalSar = Number((subtotalFormatted + vat15).toFixed(2));
+    const vatRate = await readVatRate(this.connection).catch(() => 0.15);
+    const vatAmount = Number((subtotalFormatted * vatRate).toFixed(2));
+    const totalSar = Number((subtotalFormatted + vatAmount).toFixed(2));
 
     const sessionId = `ai_chk_${randomBytes(16).toString('hex')}`;
     const expiresAt = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes validity
@@ -260,7 +262,7 @@ export class AiCommerceService {
       pricing: {
         currency: 'SAR',
         subtotal: subtotalFormatted,
-        vat_15_percent: vat15,
+        vat_amount: vatAmount,
         total_sar: totalSar,
       },
       requires_prescription: hasPrescriptionItem,
@@ -283,7 +285,7 @@ export class AiCommerceService {
       pricing: {
         currency: 'SAR',
         subtotal: subtotalFormatted,
-        vat_15_percent: vat15,
+        vat_amount: vatAmount,
         total_sar: totalSar,
       },
       items_count: validatedItems.length,

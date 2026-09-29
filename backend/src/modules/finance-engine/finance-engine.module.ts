@@ -596,7 +596,10 @@ export class RefundExecutor {
       // COD collected at the door: a delivered/completed order means the courier took the money.
       || (originalMethod !== 'cash' && ['delivered', 'completed'].includes(bookingState))
     );
-    if (!paidPayment && !cashCollected) throw new BadRequestException('original_payment_not_found');
+    // A paid transactions row is payment evidence too (card payments live there;
+    // moyasar_payments only exists for the legacy gateway flow).
+    const cardPaidTx = paidTransaction?.status === 'paid';
+    if (!paidPayment && !cashCollected && !cardPaidTx) throw new BadRequestException('original_payment_not_found');
     if (paidPayment && (!paidPayment.moyasar_id || String(paidPayment.moyasar_id).startsWith('sandbox_'))) {
       throw new BadRequestException('original_card_refund_unavailable');
     }

@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Param, Patch, Get, Query, BadRequestException, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, Param, Patch, Get, Query, BadRequestException, HttpCode, HttpStatus, Optional } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { LabBooking } from '../schemas/lab-booking.schema';
@@ -7,6 +7,7 @@ import { Roles } from '../../../common/auth.guard';
 import { UserRole } from '../../../common/enums';
 import { RespondToBookingDto, CollectSampleDto, FinalizeTestDto, UpdateCatalogDto } from './labs-engine.dto';
 import { idFilter } from '../../../common/id.utils';
+import { BusinessRulesService } from '../../business-rules/business-rules.module';
 
 // R4-2: explicit allowlist for lab catalog upserts (lab_id/test_code are the
 // key, never part of the $set).
@@ -20,7 +21,8 @@ const LAB_CATALOG_UPDATE_FIELDS = [
 export class LabsEngineController {
   constructor(
     @InjectModel('LabCenterBooking') private labBookingModel: Model<LabBooking>,
-    @InjectModel('LabCatalog') private labCatalogModel: Model<LabCatalog>
+    @InjectModel('LabCatalog') private labCatalogModel: Model<LabCatalog>,
+    @Optional() private readonly pricing?: BusinessRulesService,
   ) {}
 
   @Get('queue')
@@ -159,7 +161,9 @@ export class LabsEngineController {
       }
     });
 
-    const platformCommissions = (grossRevenue + insuranceClaims) * 0.15; // 15% platform fee
+    // B4: platform fee percent comes from admin finance config, not code.
+    const feePct = (await this.pricing?.commissionPercent('lab', 15).catch(() => 15)) ?? 15;
+    const platformCommissions = (grossRevenue + insuranceClaims) * (feePct / 100);
     const netPayout = (grossRevenue + insuranceClaims) - platformCommissions;
 
     return {

@@ -13089,6 +13089,20 @@
         ]
       }
     },
+    "/api/v1/labs/team/technicians": {
+      "get": {
+        "operationId": "LabsController_technicians",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Labs"
+        ]
+      }
+    },
     "/api/v1/labs/bookings/{id}/upload-report": {
       "post": {
         "operationId": "LabsController_uploadReport",
@@ -31139,7 +31153,7 @@
     },
     "/api/v1/wallet/balance": {
       "get": {
-        "operationId": "WalletController_getBalance",
+        "operationId": "NabdExtensionsController_getWalletBalance",
         "parameters": [],
         "responses": {
           "200": {
@@ -31147,7 +31161,7 @@
           }
         },
         "tags": [
-          "Wallet"
+          "NabdExtensions"
         ]
       }
     },
@@ -32096,188 +32110,6 @@
         },
         "tags": [
           "MentalHealthCompat"
-        ]
-      }
-    },
-    "/api/v1/wallet/transactions": {
-      "get": {
-        "operationId": "WalletController_getTransactions",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Wallet"
-        ]
-      }
-    },
-    "/api/v1/wallet/spending-data": {
-      "get": {
-        "operationId": "WalletController_getSpendingData",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Wallet"
-        ]
-      }
-    },
-    "/api/v1/wallet/topup": {
-      "post": {
-        "operationId": "WalletController_topup",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TopupDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Wallet"
-        ]
-      }
-    },
-    "/api/v1/wallet/topup/confirm": {
-      "post": {
-        "operationId": "WalletController_confirmTopup",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ConfirmTopupDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Wallet"
-        ]
-      }
-    },
-    "/api/v1/wallet/topup/{id}": {
-      "get": {
-        "operationId": "WalletController_getTopup",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Wallet"
-        ]
-      }
-    },
-    "/api/v1/wallet/transfer": {
-      "post": {
-        "operationId": "WalletController_transfer",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TransferDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Wallet"
-        ]
-      }
-    },
-    "/api/v1/wallet/cards": {
-      "get": {
-        "operationId": "WalletController_getCards",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Wallet"
-        ]
-      },
-      "post": {
-        "operationId": "WalletController_addCard",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AddCardDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Wallet"
-        ]
-      }
-    },
-    "/api/v1/wallet/cards/{id}": {
-      "delete": {
-        "operationId": "WalletController_removeCard",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Wallet"
         ]
       }
     },
@@ -40918,22 +40750,6 @@
         "properties": {}
       },
       "AddCrisisContactDto": {
-        "type": "object",
-        "properties": {}
-      },
-      "TopupDto": {
-        "type": "object",
-        "properties": {}
-      },
-      "ConfirmTopupDto": {
-        "type": "object",
-        "properties": {}
-      },
-      "TransferDto": {
-        "type": "object",
-        "properties": {}
-      },
-      "AddCardDto": {
         "type": "object",
         "properties": {}
       },

@@ -26,6 +26,16 @@ export type RuleContext = {
   service_context?: 'home_visit' | 'online_consultation' | 'in_clinic' | 'pharmacy_delivery';
 };
 
+/** B4: single VAT reader — admin finance config wins, 15% KSA default stands. */
+export async function readVatRate(db: { collection: (name: string) => any }): Promise<number> {
+  try {
+    const cfg: any = await db.collection('finance_config').findOne({ key: 'commissions' });
+    const v = Number(cfg?.tax?.vat_percent ?? cfg?.vat_rate);
+    if (Number.isFinite(v) && v >= 0 && v <= 100) return v / 100;
+  } catch { /* default stands */ }
+  return 0.15;
+}
+
 export type RuleResult = {
   ok: boolean;
   final_price?: number;
@@ -92,6 +102,27 @@ export class BusinessRulesService {
     }
   }
   async pricing() { await this.loadPricing(); return this.getPricing(); }
+
+  /** B4: VAT and commission percents come from the admin-edited finance_config
+   * commissions doc (PUT /api/v1/admin/finance/commissions); code defaults
+   * stand only when no config exists. */
+  async financeConfig(): Promise<any> {
+    try {
+      return (await this.conn.collection('finance_config').findOne({ key: 'commissions' } as any)) || {};
+    } catch {
+      return {};
+    }
+  }
+
+  async vatRate(): Promise<number> {
+    return readVatRate(this.conn);
+  }
+
+  async commissionPercent(serviceType: string, fallback = 10): Promise<number> {
+    const cfg = await this.financeConfig();
+    const v = Number(cfg?.service_types?.[serviceType]?.percent);
+    return Number.isFinite(v) && v >= 0 && v <= 100 ? v : fallback;
+  }
   async updateSurgeConfig(config: UpdateSurgeDto) {
     await this.loadPricing();
     // Copy only finite, bounded numeric fields; never reflect body strings or

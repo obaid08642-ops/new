@@ -361,7 +361,7 @@ countDocuments: jest.fn().mockResolvedValue(10),
       });
       expect(session.session_id).toMatch(/^ai_chk_/);
       expect(session.pricing.subtotal).toBe(37.0);
-      expect(session.pricing.vat_15_percent).toBe(5.55);
+      expect(session.pricing.vat_amount).toBe(5.55);
       expect(session.pricing.total_sar).toBe(42.55);
       expect(session.checkout_url).toContain('https://nabd.plus/ar/checkout/session/');
       expect(session.governance.human_approval_required).toBe(true);
