@@ -15,26 +15,32 @@ import { AppText, Button, IconButton } from "../../src/components/ui";
 import { apiFetch } from "../../src/utils/api";
 import { Icon } from "../../src/components/Icon";
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 export default function AddressesScreen() {
   const insets = useSafeAreaInsets();
   const { colors, isDark } = useApp();
   const [addresses, setAddresses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [nonce, setNonce] = useState(0);
 
   useEffect(() => {
     (async () => {
+      setLoading(true);
+      setError(null);
       try {
         // Fetch from the backend we just built!
         const data = await apiFetch("/users/me/addresses");
         setAddresses(data || []);
       } catch {
+        setError('تعذر تحميل العناوين');
         setAddresses([]);
       } finally {
         setLoading(false);
       }
     })();
-  }, []);
+  }, [nonce]);
 
   const handleSetDefault = async (id: string) => {
     // E2: optimistic update with revert + alert on failure (was silent catch{} — UI lied about the default)
@@ -92,6 +98,7 @@ export default function AddressesScreen() {
           <ActivityIndicator size="large" color={colors.primary} />
         </View>
       ) : (
+        <ScreenState loading={false} error={error} empty={!loading && !error && addresses.length === 0} emptyTitle="لا توجد عناوين" onRetry={() => setNonce(n => n + 1)}>
         <ScrollView contentContainerStyle={{ padding: 20, gap: 16 }}>
           {addresses.map((addr) => (
             <TouchableOpacity
@@ -155,6 +162,7 @@ export default function AddressesScreen() {
             style={{ marginTop: 20 }}
           />
         </ScrollView>
+        </ScreenState>
       )}
     </View>
   );

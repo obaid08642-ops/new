@@ -20,6 +20,7 @@ import * as Google from 'expo-auth-session/providers/google';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import * as AuthSession from 'expo-auth-session';
 import { LocalizedText } from '../../src/components/LocalizedText';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -209,6 +210,7 @@ export default function RegisterScreen() {
 
   return (
     <KeyboardAvoidingView style={[styles.container, { backgroundColor: resolveColor('var(--bg)', isDark) }]} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <ScreenState loading={loading} error={null} empty={false} emptyTitle="لا توجد بيانات" onRetry={() => setLoading(false)}>
       <ScrollView contentContainerStyle={{ paddingHorizontal: 28, paddingTop: insets.top + 20, paddingBottom: 120, flexGrow: 1 }} keyboardShouldPersistTaps="handled">
         
         <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, { backgroundColor: resolveColor('var(--s)', isDark), borderColor: resolveColor('var(--bd)', isDark) } ]}>
@@ -331,6 +333,7 @@ export default function RegisterScreen() {
         </View>
 
       </ScrollView>
+      </ScreenState>
     </KeyboardAvoidingView>
   );
 }

@@ -9,6 +9,7 @@ import { apiFetch } from '../../src/utils/api';
 import { dateLocale } from '../../src/utils/dates';
 import { mentalHealthT } from '../../src/i18n/mental-health';
 import { buildMoodJournalPayload, parseMoodHistory, type MoodEntry, type MoodValue } from '../../src/utils/mood-journal-contract';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 const moodOptions: { value: MoodValue; key: 'moodGreat' | 'moodGood' | 'moodOkay' | 'moodBad' | 'moodTerrible'; color: string; icon: string }[] = [
   { value: 'great', key: 'moodGreat', color: '#15803D', icon: 'emoticon-excited-outline' },
@@ -39,16 +40,19 @@ export default function MoodJournalScreen() {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const loadHistory = useCallback(async () => {
     setLoading(true);
     setLoadError(false);
+    setError(null);
     try {
       const result: unknown = await apiFetch('/mental-health/mood?days=30');
       setEntries(parseMoodHistory(result));
     } catch {
       setEntries([]);
       setLoadError(true);
+      setError('تعذر تحميل سجل المزاج');
     } finally {
       setLoading(false);
     }
@@ -93,6 +97,7 @@ export default function MoodJournalScreen() {
         <AppText variant="caption" color="rgba(255,255,255,0.82)">{t('noDiagnosis')}</AppText>
       </View>
 
+      <ScreenState loading={false} error={error} empty={false} emptyTitle="لا توجد بيانات" onRetry={() => void loadHistory()}>
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
         <View style={[styles.card, { backgroundColor: colors.surface }]}>
           <AppText variant="h6" color={colors.textPrimary}>{t('moodPrompt')}</AppText>
@@ -124,6 +129,7 @@ export default function MoodJournalScreen() {
           return <View key={entry.id || `${entry.logged_at}-${index}`} style={[styles.entry, { backgroundColor: colors.surface, borderRightColor: option.color }]}><Icon name={option.icon} size={26} color={option.color} /><View style={styles.entryText}><AppText variant="h6" color={colors.textPrimary}>{t(option.key)}</AppText><AppText variant="caption" color={colors.textTertiary}>{t('recordLabel', { date })}</AppText>{entry.notes ? <AppText variant="caption" color={colors.textSecondary}>{entry.notes}</AppText> : null}{entry.tags?.length ? <AppText variant="caption" color={colors.textTertiary}>{entry.tags.map((tag) => { const found = tagOptions.find((option) => option.value === tag); return found ? t(found.key) : tag; }).join(' · ')}</AppText> : null}</View></View>;
         })}
       </ScrollView>
+      </ScreenState>
     </View>
   );
 }

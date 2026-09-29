@@ -14,6 +14,7 @@ import { useApp } from "../../src/context/AppContext";
 import { lightColors, darkColors } from "../../src/theme/colors";
 import { BASE_URL } from "../../src/utils/api";
 import { LocalizedText } from '../../src/components/LocalizedText';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 // Fallback shown only when the legal service is unreachable (offline first-open).
 const FALLBACK_AR = `تحترم منصة نبض خصوصية المستخدمين، وتلتزم بحماية بياناتهم وفق الأنظمة المعمول بها.
@@ -65,12 +66,15 @@ export default function PrivacyScreen() {
 
   const [policy, setPolicy] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    setLoading(true);
+    setError(null);
     fetch(`${BASE_URL}/legal/policy/privacy_policy?lang=${AR ? "ar" : "en"}`)
       .then((r) => r.json())
       .then((d) => { if (d?.content) setPolicy(d); })
-      .catch(() => {})
+      .catch(() => setError('تعذر تحميل سياسة الخصوصية'))
       .finally(() => setLoading(false));
   }, [AR]);
 
@@ -117,6 +121,7 @@ export default function PrivacyScreen() {
         <View style={{ width: 40 }} />
       </View>
 
+      <ScreenState loading={false} error={error} empty={false} emptyTitle="لا توجد سياسة" onRetry={() => setError(null)}>
       <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 100 }}>
         {loading && (
           <ActivityIndicator color={colors.p} style={{ marginTop: 40 }} />
@@ -148,6 +153,7 @@ export default function PrivacyScreen() {
           </>
         )}
       </ScrollView>
+      </ScreenState>
     </View>
   );
 }

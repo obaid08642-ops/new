@@ -9,6 +9,7 @@ import { Icon } from '../../src/components/Icon';
 import { apiFetch } from '../../src/utils/api';
 import { AppText, Card, Badge, Button, IconButton } from '../../src/components/ui';
 import { pickLocalized } from '../../src/utils/localize';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 export default function BarcodeScannerScreen() {
   const insets = useSafeAreaInsets();
@@ -98,6 +99,7 @@ export default function BarcodeScannerScreen() {
   };
 
   return (
+    <ScreenState loading={false} error={null} empty={false} emptyTitle="لا توجد بيانات">
     <View style={[st.c, { backgroundColor: '#000' } ]}>
       <StatusBar barStyle="light-content" />
 
@@ -219,6 +221,7 @@ export default function BarcodeScannerScreen() {
         </View>
       )}
     </View>
+    </ScreenState>
   );
 }
 

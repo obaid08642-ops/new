@@ -13,6 +13,7 @@ import { useApp } from "../../src/context/AppContext";
 import { Icon, IconName } from "../../src/components/Icon";
 import { AppText, Card, Input, IconButton } from "../../src/components/ui";
 import { apiFetch } from "../../src/utils/api";
+import { ScreenState } from "../../src/components/ScreenStates";
 
 
 
@@ -22,8 +23,10 @@ export default function SpecialtySelectScreen() {
   const [q, setQ] = useState("");
   const [specs, setSpecs] = useState<any[]>([]);
   const [loadError, setLoadError] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const loadSpecs = React.useCallback(() => {
+    setLoading(true);
     setLoadError(false);
     apiFetch('/care/specialties')
       .then((res: any) => {
@@ -31,7 +34,8 @@ export default function SpecialtySelectScreen() {
         // Real specialties with live counts only — never a fabricated fallback list
         setSpecs(Array.isArray(list) ? list : []);
       })
-      .catch(() => { setSpecs([]); setLoadError(true); });
+      .catch(() => { setSpecs([]); setLoadError(true); })
+      .finally(() => setLoading(false));
   }, []);
 
   React.useEffect(() => { loadSpecs(); }, [loadSpecs]);
@@ -64,6 +68,7 @@ export default function SpecialtySelectScreen() {
           icon="search"
         />
       </View>
+      <ScreenState loading={loading} error={null} empty={false} emptyTitle="لا توجد تخصصات" onRetry={loadSpecs}>
       <ScrollView
         contentContainerStyle={{ padding: 16, gap: 10, paddingBottom: 100 }}
       >
@@ -109,6 +114,7 @@ export default function SpecialtySelectScreen() {
           </Card>
         )})}
       </ScrollView>
+      </ScreenState>
     </View>
   );
 }

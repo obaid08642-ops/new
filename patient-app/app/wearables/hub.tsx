@@ -23,6 +23,7 @@ import {
 import { apiFetch } from "../../src/utils/api";
 import { featureFlags } from "../../src/services/FeatureFlags";
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 const FIELDS = [
   {
@@ -182,6 +183,7 @@ export default function WearablesHubScreen() {
         </View>
       </View>
 
+      <ScreenState loading={saving} error={null} empty={false} emptyTitle="لا توجد بيانات" onRetry={handleSave}>
       <ScrollView
         contentContainerStyle={{ padding: 16, gap: 14, paddingBottom: 100 }}
       >
@@ -252,6 +254,7 @@ export default function WearablesHubScreen() {
           />
         </View>
       </ScrollView>
+      </ScreenState>
     </View>
   );
 }

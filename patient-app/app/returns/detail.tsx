@@ -20,6 +20,7 @@ import {
   IconButton,
 } from "../../src/components/ui";
 import { apiFetch } from "../../src/utils/api";
+import { ScreenState } from "../../src/components/ScreenStates";
 
 const STATUS_LABELS: Record<string, string> = {
   processing: "قيد المراجعة",
@@ -49,9 +50,12 @@ export default function ReturnDetailScreen() {
 
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!returnId) return;
+    setLoading(true);
+    setError(null);
     apiFetch<any>(`/pharmacy/returns/${returnId}`)
       .then((res) => {
         setData(res);
@@ -59,6 +63,7 @@ export default function ReturnDetailScreen() {
       })
       .catch(() => {
         setData(null);
+        setError('تعذر تحميل طلب الإرجاع');
         setLoading(false);
       });
   }, [returnId]);
@@ -129,6 +134,7 @@ export default function ReturnDetailScreen() {
   ];
 
   return (
+    <ScreenState loading={false} error={error} empty={false} emptyTitle="لا توجد بيانات" onRetry={() => setError(null)}>
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <View style={styles.headerRow}>
@@ -248,6 +254,7 @@ export default function ReturnDetailScreen() {
         </View>
       </ScrollView>
     </View>
+    </ScreenState>
   );
 }
 

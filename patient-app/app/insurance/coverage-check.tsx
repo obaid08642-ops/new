@@ -11,6 +11,7 @@ import { apiFetch } from '../../src/utils/api';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 import { useLocalSearchParams as __useRouteParams } from "expo-router";
 import InsuranceBenefitsView from "../../src/components/views/InsuranceBenefitsView";
+import { ScreenState } from '../../src/components/ScreenStates';
 
 const SERVICE_TYPES: any[] = [
   { id:'consultation', icon:'', label:'استشارة طبيب', examples:'قلب، باطنة، أطفال' },
@@ -38,7 +39,7 @@ function CoverageCheckScreenInner() {
       );
       setResult(data);
       setStep('result');
-    } catch {
+    } catch (e) {
       setStep('form');
       showLocalizedAlert('تعذر الفحص', 'تأكد من تسجيل بيانات التأمين في ملفك الشخصي');
     }
@@ -170,6 +171,7 @@ function CoverageCheckScreenInner() {
         </View>
       </View>
 
+      <ScreenState loading={false} error={null} empty={false} emptyTitle="لا توجد بيانات" onRetry={handleCheck}>
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 100 }]} showsVerticalScrollIndicator={false}>
         <View style={[styles.card, { backgroundColor: isDark ? colors.surface : colors.white } ]}>
           <AppText variant="bodySM">نوع الخدمة المطلوبة</AppText>
@@ -205,6 +207,7 @@ function CoverageCheckScreenInner() {
           </View>
         </TouchableOpacity>
       </ScrollView>
+      </ScreenState>
     </View>
   );
 }

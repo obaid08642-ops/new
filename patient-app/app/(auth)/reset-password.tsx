@@ -15,6 +15,7 @@ import { Icon } from "../../src/components/Icon";
 import { AppText, Button, Input, IconButton } from "../../src/components/ui";
 import { apiFetch } from "../../src/utils/api";
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 export default function ResetPasswordScreen() {
   const insets = useSafeAreaInsets();
@@ -103,6 +104,7 @@ export default function ResetPasswordScreen() {
         <AppText variant="h4">كلمة مرور جديدة</AppText>
         <IconButton icon="back" onPress={() => router.back()} />
       </View>
+      <ScreenState loading={loading} error={null} empty={false} emptyTitle="لا توجد بيانات" onRetry={handleReset}>
       <View style={st.body}>
         <View
           style={[st.iconCircle, { backgroundColor: colors.primarySurface }]}
@@ -147,6 +149,7 @@ export default function ResetPasswordScreen() {
           style={{ marginTop: 16 }}
         />
       </View>
+      </ScreenState>
     </KeyboardAvoidingView>
   );
 }

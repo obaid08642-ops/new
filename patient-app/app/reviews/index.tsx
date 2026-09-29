@@ -24,6 +24,7 @@ import {
 } from "../../src/components/ui";
 import { apiFetch } from "../../src/utils/api";
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 const ASPECTS = [
   "الدقة في المعلومات",
@@ -107,6 +108,7 @@ export default function ReviewsScreen() {
         </AppText>
       </View>
 
+      <ScreenState loading={submitting} error={null} empty={false} emptyTitle="لا توجد بيانات" onRetry={handleSubmit}>
       <ScrollView
         contentContainerStyle={{ padding: 16, gap: 14, paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}
@@ -228,6 +230,7 @@ export default function ReviewsScreen() {
           </View>
         </TouchableOpacity>
       </ScrollView>
+      </ScreenState>
     </View>
   );
 }

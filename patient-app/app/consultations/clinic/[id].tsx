@@ -8,6 +8,7 @@ import { apiFetch } from '../../../src/utils/api';
 import { Icon } from '../../../src/components/Icon';
 import { pickLocalized } from '../../../src/utils/localize';
 import { LocalizedText } from '../../../src/components/LocalizedText';
+import { ScreenState } from '../../../src/components/ScreenStates';
 
 const { width } = Dimensions.get('window');
 
@@ -18,15 +19,17 @@ export default function ClinicProfile() {
   
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) return;
     setLoading(true);
+    setError(null);
     apiFetch<any>(`/care/facilities/${id}`)
       .then(res => {
         setData(res?.data || res || null);
       })
-      .catch(() => setData(null))
+      .catch(() => { setData(null); setError('تعذر تحميل بيانات المنشأة'); })
       .finally(() => setLoading(false));
   }, [id]);
 
@@ -47,6 +50,7 @@ export default function ClinicProfile() {
   }
 
   return (
+    <ScreenState loading={false} error={error} empty={false} emptyTitle="لا توجد بيانات" onRetry={() => setError(null)}>
     <View style={{ flex: 1, backgroundColor: colors.background }}>
       <ScrollView contentContainerStyle={{ paddingBottom: 100 }} bounces={false} showsVerticalScrollIndicator={false}>
         
@@ -107,5 +111,6 @@ export default function ClinicProfile() {
         </View>
       </ScrollView>
     </View>
+    </ScreenState>
   );
 }

@@ -12,6 +12,7 @@ import { logError } from '../../src/utils/logger';
 import MapView, { Marker, PROVIDER_DEFAULT } from '../../src/components/MapPrimitives';
 import * as Location from 'expo-location';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 export default function SosActiveScreen() {
   const router = useRouter();
@@ -23,6 +24,7 @@ export default function SosActiveScreen() {
   const [paramedic, setParamedic] = useState<any>(null);
   const [vehicleLabel, setVehicleLabel] = useState<string>('');
   const [coords, setCoords] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // E2: real patient GPS for the SOS map (was a fake animated graphic)
@@ -37,6 +39,7 @@ export default function SosActiveScreen() {
   }, []);
 
   useEffect(() => {
+    let first = true;
     const fetchStatus = async () => {
       try {
         // M1-31: real backend contract — patient's own active SOS (was non-existent /sos/status)
@@ -53,6 +56,8 @@ export default function SosActiveScreen() {
         }
       } catch (e) {
         logError('emergency:sos-active', e);
+      } finally {
+        if (first) { first = false; setLoading(false); }
       }
     };
     fetchStatus();
@@ -101,6 +106,7 @@ export default function SosActiveScreen() {
         <IconButton icon="close" bg="rgba(255,255,255,0.25)" color="#fff" onPress={handleCancelSOS} />
       </View>
 
+      <ScreenState loading={loading} error={null} empty={false} emptyTitle="لا توجد بيانات">
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 16, gap: 16, paddingBottom: insets.bottom + 120 }}>
         {/* Real map showing the patient's actual GPS position shared with dispatch */}
         <Card style={st.mapCard}>
@@ -180,6 +186,7 @@ export default function SosActiveScreen() {
           </AppText>
         </Card>
       </ScrollView>
+      </ScreenState>
 
       {/* Footer buttons */}
       <View style={[st.footer, { paddingBottom: insets.bottom + 8, backgroundColor: colors.surface, borderTopColor: colors.borderLight } ]}>

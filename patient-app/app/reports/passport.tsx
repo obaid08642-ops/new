@@ -24,6 +24,7 @@ import {
 import { apiFetch } from "../../src/utils/api";
 import QRCode from "react-native-qrcode-svg";
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 // PASSPORT_DATA removed
 
@@ -33,9 +34,16 @@ export default function HealthPassportScreen() {
   const { colors, isDark } = useApp();
   const [profile, setProfile] = React.useState<any>(null);
   const [passportToken, setPassportToken] = React.useState<any>(null);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
-    apiFetch('/medical-profile').then(res => setProfile(res)).catch(() => {});
+    setLoading(true);
+    setError(null);
+    apiFetch('/medical-profile')
+      .then(res => setProfile(res))
+      .catch(() => setError('تعذر تحميل الملف الطبي'))
+      .finally(() => setLoading(false));
     apiFetch('/medical-profile/passport-token').then(res => setPassportToken(res)).catch(() => setPassportToken(null));
   }, []);
 
@@ -79,6 +87,7 @@ export default function HealthPassportScreen() {
         <IconButton icon="share" onPress={handleSharePassport} />
       </View>
 
+      <ScreenState loading={loading} error={error} empty={false} emptyTitle="لا توجد بيانات" onRetry={() => setError(null)}>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
@@ -273,6 +282,7 @@ export default function HealthPassportScreen() {
           ))}
         </Card>
       </ScrollView>
+      </ScreenState>
     </View>
   );
 }

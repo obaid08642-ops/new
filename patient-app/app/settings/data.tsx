@@ -14,14 +14,19 @@ import {
   IconButton,
 } from "../../src/components/ui";
 import { apiFetch } from "../../src/utils/api";
+import { ScreenState } from "../../src/components/ScreenStates";
 
 export default function DataManagementScreen() {
   const insets = useSafeAreaInsets();
   const { colors, isDark } = useApp();
   const [storageData, setStorageData] = React.useState<any[]>([]);
   const [totalStorage, setTotalStorage] = React.useState("0 MB");
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string|null>(null);
 
-  React.useEffect(() => {
+  const loadStorage = () => {
+    setLoading(true);
+    setError(null);
     apiFetch<any>('/users/me/storage')
       .then(res => {
         if (res) {
@@ -29,8 +34,11 @@ export default function DataManagementScreen() {
           setTotalStorage(res.total || "0 MB");
         }
       })
-      .catch(() => {});
-  }, []);
+      .catch(() => setError('تعذر تحليل مساحة البيانات'))
+      .finally(() => setLoading(false));
+  };
+
+  React.useEffect(() => { loadStorage(); }, []);
   const DATA_ACTIONS = [
     {
       icon: "download",
@@ -78,6 +86,7 @@ export default function DataManagementScreen() {
           <Icon name="back" size={22} color={colors.textPrimary} />
         </TouchableOpacity>
       </View>
+      <ScreenState loading={loading} error={error} empty={!loading && !error && storageData.length === 0} emptyTitle="لا توجد بيانات" onRetry={loadStorage}>
       <ScrollView
         contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 80 }}
       >
@@ -150,6 +159,7 @@ export default function DataManagementScreen() {
           </TouchableOpacity>
         ))}
       </ScrollView>
+      </ScreenState>
     </View>
   );
 }

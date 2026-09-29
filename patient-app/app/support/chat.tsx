@@ -27,6 +27,7 @@ import {
 
 import { apiFetch } from "../../src/utils/api";
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 const QUICK_REPLIES = [
   "إلغاء حجز",
@@ -44,9 +45,13 @@ export default function SupportChatScreen() {
   const [inputText, setInputText] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [attaching, setAttaching] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<ScrollView>(null);
 
   React.useEffect(() => {
+    setLoading(true);
+    setError(null);
     apiFetch<any[]>('/support/chat')
       .then(res => {
         if (res && res.length > 0) {
@@ -61,7 +66,8 @@ export default function SupportChatScreen() {
           }]);
         }
       })
-      .catch(() => {});
+      .catch(() => setError('تعذر تحميل المحادثة'))
+      .finally(() => setLoading(false));
   }, []);
 
   const sendMessage = async (text: string) => {
@@ -136,6 +142,7 @@ export default function SupportChatScreen() {
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
+        <ScreenState loading={loading} error={error} empty={false} emptyTitle="لا توجد رسائل" onRetry={() => setError(null)}>
         <ScrollView
           ref={scrollRef}
           onContentSizeChange={() =>
@@ -210,6 +217,7 @@ export default function SupportChatScreen() {
             ))}
           </ScrollView>
         </ScrollView>
+        </ScreenState>
 
         <View
           style={[

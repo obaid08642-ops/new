@@ -14,16 +14,21 @@ const theme = { colors: Colors.light };
 import Icon from "@expo/vector-icons/MaterialIcons";
 import { useRouter } from "expo-router";
 import { apiFetch } from "../../src/utils/api";
+import { logError } from '../../src/utils/logger';
 import { pickLocalized } from '../../src/utils/localize';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 export default function DiagnosticsPackages() {
   const router = useRouter();
   const [activeCat, setActiveCat] = useState("الكل");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [allPackages, setAllPackages] = useState<any[]>([]);
   const [categories, setCategories] = useState<string[]>(["الكل"]);
 
   useEffect(() => {
+    setLoading(true);
+    setError(null);
     Promise.all([
       apiFetch('/labs/packages'),
       apiFetch('/labs/categories')
@@ -34,6 +39,7 @@ export default function DiagnosticsPackages() {
       setLoading(false);
     }).catch((err) => {
       logError('diagnostics:packages', err);
+      setError('تعذر تحميل باقات التحاليل');
       setLoading(false);
     });
   }, []);
@@ -99,6 +105,7 @@ export default function DiagnosticsPackages() {
         <ActivityIndicator size="large" color={theme.colors.primary} style={{ marginTop: 40 }} />
       ) : (
 
+      <ScreenState loading={false} error={error} empty={!loading && !error && filtered.length === 0} emptyTitle="لا توجد باقات" onRetry={() => setError(null)}>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -161,6 +168,7 @@ export default function DiagnosticsPackages() {
           </TouchableOpacity>
         ))}
       </ScrollView>
+      </ScreenState>
       )}
     </View>
   );

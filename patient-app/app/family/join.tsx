@@ -16,6 +16,7 @@ import {
   SegmentedControl,
 } from "../../src/components/ui";
 import { apiFetch } from "../../src/utils/api";
+import { ScreenState } from "../../src/components/ScreenStates";
 
 const RELATION_OPTIONS = [
   { key: "spouse", label: "زوج/ة" },
@@ -33,6 +34,7 @@ export default function FamilyJoinScreen() {
   const [code, setCode] = useState((params.code as string) || "");
   const [relation, setRelation] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string|null>(null);
   const [found, setFound] = useState<any>(null);
   const [joined, setJoined] = useState(false);
 
@@ -58,6 +60,7 @@ export default function FamilyJoinScreen() {
         setJoined(true);
       }
     } catch (err: any) {
+      setError(err.message || "فشل الانضمام. يرجى التحقق من الكود وصلاحيته.");
       alert(err.message || "فشل الانضمام. يرجى التحقق من الكود وصلاحيته.");
     } finally {
       setLoading(false);
@@ -121,6 +124,7 @@ export default function FamilyJoinScreen() {
         <IconButton icon="back" onPress={() => router.back()} />
       </View>
 
+      <ScreenState loading={loading} error={error} empty={false} emptyTitle="لا توجد بيانات" onRetry={lookupCode}>
       <View style={{ flex: 1, padding: 20, gap: 16 }}>
         {!found ? (
           <>
@@ -227,6 +231,7 @@ export default function FamilyJoinScreen() {
           </>
         )}
       </View>
+      </ScreenState>
     </View>
   );
 }

@@ -9,6 +9,7 @@ import Svg, { Path, Circle, Defs, Stop, Line, LinearGradient as SvgGradient } fr
 import { apiFetch } from '../../src/utils/api';
 import { logError } from '../../src/utils/logger';
 import { LocalizedText } from '../../src/components/LocalizedText';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 const { width } = Dimensions.get('window');
 
@@ -23,6 +24,7 @@ export default function NursingServiceDetails() {
   const { serviceId, title, flow, gender, availability, nationality, search } = useLocalSearchParams();
   const [nurses, setNurses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string|null>(null);
   const [sortVisible, setSortVisible] = useState(false);
   const [currentSort, setCurrentSort] = useState('nearest');
   
@@ -32,11 +34,13 @@ export default function NursingServiceDetails() {
 
   const fetchNurses = async (sortType: string) => {
     setLoading(true);
+    setError(null);
     try {
       const res = await apiFetch(`/home-care/providers?type=${serviceId}&sort=${sortType}&gender=${gender || "any"}&availability=${availability || "any"}&nationality=${nationality || "any"}&search=${search || ""}`);
       setNurses(res || []);
     } catch (err) {
       logError('nursing:service-details', err);
+      setError('تعذر تحميل الممرضين المتاحين');
     } finally {
       setLoading(false);
     }
@@ -65,6 +69,7 @@ export default function NursingServiceDetails() {
         <LocalizedText style={styles.headerTitle}>{title}</LocalizedText>
       </BlurView>
 
+      <ScreenState loading={loading} error={error} empty={!loading && !error && nurses.length === 0} emptyTitle="لا يوجد ممرضون متاحون" onRetry={() => fetchNurses(currentSort)}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         
         {/* PREMIUM TOP CARD (No Emojis) */}
@@ -162,6 +167,7 @@ export default function NursingServiceDetails() {
           ))
         )}
       </ScrollView>
+      </ScreenState>
 
       {/* SORT BOTTOM SHEET WITH DISMISS */}
       <Modal visible={sortVisible} transparent animationType="slide">

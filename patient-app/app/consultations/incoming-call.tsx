@@ -13,6 +13,7 @@ import { useApp } from "../../src/context/AppContext";
 import { Icon } from "../../src/components/Icon";
 import { AppText } from "../../src/components/ui";
 import { apiFetch } from "../../src/utils/api";
+import { ScreenState } from "../../src/components/ScreenStates";
 
 export default function IncomingCallScreen() {
   const insets = useSafeAreaInsets();
@@ -25,6 +26,7 @@ export default function IncomingCallScreen() {
   const callType = (params.callType as "voice" | "video") || "video";
 
   const [ringTime, setRingTime] = useState(0);
+  const [error, setError] = useState<string | null>(null);
 
   // Vibrate / ring simulator
   useEffect(() => {
@@ -64,12 +66,14 @@ export default function IncomingCallScreen() {
         await apiFetch(`/calls/${sessionId}/reject`, { method: "POST" });
       } catch (err) {
         console.warn("Could not reject call", err);
+        setError('تعذر رفض المكالمة');
       }
     }
     router.back();
   };
 
   return (
+    <ScreenState loading={false} error={error} empty={false} emptyTitle="لا توجد بيانات" onRetry={() => setError(null)}>
     <View style={[st.c, { backgroundColor: "#090D14" }]}>
       <StatusBar barStyle="light-content" />
 
@@ -111,6 +115,7 @@ export default function IncomingCallScreen() {
         </View>
       </View>
     </View>
+    </ScreenState>
   );
 }
 

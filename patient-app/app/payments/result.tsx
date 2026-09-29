@@ -12,6 +12,7 @@ import { apiFetch } from '../../src/utils/api';
 import { useLocalSearchParams as __useRouteParams } from "expo-router";
 import PaymentSuccessView from "../../src/components/views/PaymentSuccessView";
 import PaymentFailedView from "../../src/components/views/PaymentFailedView";
+import { ScreenState } from '../../src/components/ScreenStates';
 
 // Conditionally import WebView (not available in Expo Go)
 let WebViewComponent: any = null;
@@ -301,6 +302,7 @@ function PaymentProcessingScreenInner() {
 
   // Polling / Timeout phase
   return (
+    <ScreenState loading={false} error={null} empty={false} emptyTitle="لا توجد بيانات" onRetry={handleManualCheck}>
     <View style={styles.container}>
       <View
         style={StyleSheet.absoluteFillObject}
@@ -428,6 +430,7 @@ function PaymentProcessingScreenInner() {
         )}
       </View>
     </View>
+    </ScreenState>
   );
 }
 

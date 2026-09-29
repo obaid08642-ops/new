@@ -9,6 +9,7 @@ import { AppText, Card, Badge, Button, IconButton } from '../../src/components/u
 import { apiFetch } from '../../src/utils/api';
 import { dateLocale } from '@/utils/dates';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 export default function AppointmentDetailScreen() {
   const insets = useSafeAreaInsets();
@@ -17,10 +18,12 @@ export default function AppointmentDetailScreen() {
   const params = useLocalSearchParams();
   const [appointment, setAppointment] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!params.appointmentId) return;
     setLoading(true);
+    setError(null);
     apiFetch<any>(`/care/appointments/${params.appointmentId}`)
       .then(res => {
         if (res) {
@@ -30,6 +33,7 @@ export default function AppointmentDetailScreen() {
       })
       .catch(() => {
         setAppointment(null);
+        setError('تعذر تحميل تفاصيل الموعد');
         setLoading(false);
       });
   }, [params.appointmentId]);
@@ -63,6 +67,7 @@ export default function AppointmentDetailScreen() {
   ];
 
   return (
+    <ScreenState loading={false} error={error} empty={false} emptyTitle="لا توجد بيانات" onRetry={() => setError(null)}>
     <View style={[styles.container, { backgroundColor: colors.background } ]}>
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
       <View style={[styles.header, { paddingTop: insets.top + 8, backgroundColor: colors.surface, borderBottomColor: colors.borderLight, borderBottomWidth: 1 } ]}>
@@ -234,6 +239,7 @@ export default function AppointmentDetailScreen() {
         )}
       </View>
     </View>
+    </ScreenState>
   );
 }
 

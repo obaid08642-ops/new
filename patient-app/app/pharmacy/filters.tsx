@@ -13,6 +13,7 @@ import { Icon } from '../../src/components/Icon';
 import { apiFetch } from '../../src/utils/api';
 import { useEffect } from 'react';
 import { LocalizedText } from '../../src/components/LocalizedText';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 const SORT_OPTIONS = [
   { id: 'relevant', label: 'الأكثر صلة',              icon: 'star' },
@@ -43,10 +44,13 @@ export default function PharmacyFiltersScreen() {
   const [categoriesData, setCategoriesData] = useState<any[]>([]);
   const [formsData, setFormsData] = useState<any[]>([]);
   const [brandsData, setBrandsData] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string|null>(null);
 
-  useEffect(() => {
-    (async () => {
-      try {
+  const loadFilters = async () => {
+    setLoading(true);
+    setError(null);
+    try {
         const data = await apiFetch('/medicines/filters');
         if (data) {
           if (data.categories && Array.isArray(data.categories)) {
@@ -73,9 +77,14 @@ export default function PharmacyFiltersScreen() {
             setBrandsData(data.brands);
           }
         }
-      } catch (err) {}
-    })();
-  }, []);
+      } catch (err) {
+        setError('تعذر تحميل خيارات التصفية');
+      } finally {
+        setLoading(false);
+      }
+  };
+
+  useEffect(() => { loadFilters(); }, []);
 
   const toggleArr = (arr: string[], set: any, val: string) =>
     set((prev: string[]) => prev.includes(val) ? prev.filter(x => x !== val) : [...prev, val]);
@@ -149,6 +158,7 @@ export default function PharmacyFiltersScreen() {
         </View>
       </View>
 
+      <ScreenState loading={loading} error={error} empty={false} emptyTitle="لا توجد فلاتر" onRetry={loadFilters}>
       <ScrollView
         contentContainerStyle={{ padding: 16, gap: 24, paddingTop: insets.top + 80, paddingBottom: 120 }} showsVerticalScrollIndicator={false}>
 
@@ -306,6 +316,7 @@ export default function PharmacyFiltersScreen() {
         </View>
 
       </ScrollView>
+      </ScreenState>
 
       {/* ── Apply Button ── */}
       <View style={[st.footer, { paddingBottom: insets.bottom + 16, backgroundColor: colors.bg, borderTopColor: colors.bd } ]}>

@@ -19,6 +19,7 @@ import { AppText, Card, Badge, IconButton, Button } from "../../src/components/u
 import { apiFetch } from "../../src/utils/api";
 import { pickLocalized } from '../../src/utils/localize';
 import { dateLocale } from '@/utils/dates';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 export default function ArticleDetailScreen() {
   const insets = useSafeAreaInsets();
@@ -109,6 +110,7 @@ export default function ArticleDetailScreen() {
         <IconButton icon="back" onPress={() => router.back()} />
       </View>
 
+      <ScreenState loading={false} error={null} empty={false} emptyTitle="لا توجد مقالات" onRetry={load}>
       <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 40 }}>
         {!!article.cover_image && (
           <Image source={{ uri: article.cover_image }} style={{ width: "100%", height: 210 }} resizeMode="cover" />
@@ -182,6 +184,7 @@ export default function ArticleDetailScreen() {
           )}
         </View>
       </ScrollView>
+      </ScreenState>
     </View>
   );
 }

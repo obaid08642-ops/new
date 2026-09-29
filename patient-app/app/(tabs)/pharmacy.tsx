@@ -30,6 +30,7 @@ import { pickLocalized, pickDbField } from '../../src/utils/localize';
 import { LocalizedText } from '../../src/components/LocalizedText';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 import { getCategoryVector } from '../../src/components/CategoryVectorIcons';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 const PHARMACY_CATEGORIES = [
   { id: 'all', label: 'الكل', dbName: 'all' },
@@ -63,8 +64,10 @@ export default function PharmacyTab() {
   const [activeCat, setActiveCat] = useState('all');
   const [medicines, setMedicines] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string|null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [viewCols, setViewCols] = useState<1 | 2>(1); // 1 = wide row cards, 2 = two-per-row grid
+  const [reloadKey, setReloadKey] = useState(0);
 
   // Count active filters for badge on filter button
   const activeFilterCount = [
@@ -111,11 +114,12 @@ export default function PharmacyTab() {
         AsyncStorage.setItem(ck, JSON.stringify({ data: rows, ts: Date.now() })).catch(() => {});
       } catch (err) {
         logError('pharmacy:tab', err);
+        setError('تعذر تحميل الأدوية والمستلزمات');
       } finally {
         setLoading(false);
       }
     })();
-  }, [searchQuery, activeCat, params.filter_category, params.filter_forms, params.filter_brands, params.filter_rx, params.filter_min_price, params.filter_max_price, params.filter_sort]);
+  }, [searchQuery, activeCat, params.filter_category, params.filter_forms, params.filter_brands, params.filter_rx, params.filter_min_price, params.filter_max_price, params.filter_sort, reloadKey]);
 
   const showRxToast = () => {
     Animated.sequence([
@@ -384,6 +388,7 @@ export default function PharmacyTab() {
   return (
     <View style={[styles.container, { backgroundColor: colors.bg }]}>
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
+      <ScreenState loading={loading} error={error} empty={false} emptyTitle="لا توجد منتجات" onRetry={() => setReloadKey(k => k + 1)}>
       <FlatList
         key={`cols-${viewCols}`}
         data={filtered}
@@ -553,6 +558,7 @@ export default function PharmacyTab() {
           );
         }}
       />
+      </ScreenState>
 
       {/* ─── Rx Toast ─── */}
       <Animated.View

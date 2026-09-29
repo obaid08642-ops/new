@@ -21,6 +21,7 @@ import {
 } from "../../src/utils/dates";
 import { Icon, IconName } from "../../src/components/Icon";
 import { AppText, Card, IconButton } from "../../src/components/ui";
+import { ScreenState } from "../../src/components/ScreenStates";
 
 interface SettingsItem {
   icon: IconName;
@@ -109,6 +110,7 @@ export default function SettingsScreen() {
         <IconButton icon="back" onPress={() => router.back()} />
       </View>
 
+      <ScreenState loading={false} error={null} empty={false} emptyTitle="لا توجد بيانات">
       <ScrollView
         contentContainerStyle={{ padding: 16, paddingBottom: 100, gap: 16 }}
       >
@@ -206,6 +208,7 @@ export default function SettingsScreen() {
           نبض بلس v1.0.0
         </AppText>
       </ScrollView>
+      </ScreenState>
     </View>
   );
 }

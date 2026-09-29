@@ -12,6 +12,7 @@ import { LocalizedText } from '../../src/components/LocalizedText';
 import { useLocalSearchParams as __useRouteParams } from "expo-router";
 import PharmacyProductSearchView from "../../src/components/views/PharmacyProductSearchView";
 import DoctorSearchView from "../../src/components/views/DoctorSearchView";
+import { ScreenState } from '../../src/components/ScreenStates';
 
 const RECENT_KEY = '@nabdah_recent_searches';
 
@@ -31,6 +32,9 @@ function SearchInner() {
   const [query, setQuery] = useState('');
   const [searchData, setSearchData] = useState<any[]>([]);
   const [recent, setRecent] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string|null>(null);
+  const [nonce, setNonce] = useState(0);
 
   // Load the user's real recent searches
   React.useEffect(() => {
@@ -55,16 +59,22 @@ function SearchInner() {
       return;
     }
     const delayDebounceFn = setTimeout(() => {
+      setLoading(true);
+      setError(null);
       apiFetch(`/home/search?q=${encodeURIComponent(query)}`)
         .then((res: any) => {
           setSearchData(Array.isArray(res) ? res : res?.data || []);
           saveRecent(query);
         })
-        .catch((e) => logError('search', e));
+        .catch((e) => {
+          logError('search', e);
+          setError('تعذر تنفيذ البحث');
+        })
+        .finally(() => setLoading(false));
     }, 500);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [query]);
+  }, [query, nonce]);
 
   const catList = lang === 'ar' ? cats : catsEn;
   const map = lang === 'ar' ? catMap : catMapEn;
@@ -108,7 +118,8 @@ function SearchInner() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.bg } ]}>
-      <ScrollView 
+      <ScreenState loading={loading} error={error} empty={!loading && !error && query.length > 0 && results.length === 0} emptyTitle="لا توجد نتائج" onRetry={() => setNonce(n => n + 1)}>
+      <ScrollView
         contentContainerStyle={{ paddingTop: insets.top + 12, paddingBottom: 100, paddingHorizontal: 16 }} showsVerticalScrollIndicator={false}>
         <View style={[styles.searchInputRow, { backgroundColor: colors.s, borderColor: colors.p, flexDirection: isRTL ? 'row-reverse' : 'row' } ]}>
           <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: colors.p, fontSize: 20 }}>search</LocalizedText>
@@ -223,6 +234,7 @@ function SearchInner() {
         </View>
 
       </ScrollView>
+      </ScreenState>
     </View>
   );
 }

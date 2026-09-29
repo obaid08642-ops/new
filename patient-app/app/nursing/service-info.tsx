@@ -11,6 +11,7 @@ import { apiFetch } from '../../src/utils/api';
 import { logError } from '../../src/utils/logger';
 import { pickDbField, pickLocalized } from '../../src/utils/localize';
 import { LocalizedText } from '../../src/components/LocalizedText';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 const { width } = Dimensions.get('window');
 
@@ -23,11 +24,17 @@ export default function NursingServiceInfo() {
 
   const [svc, setSvc] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string|null>(null);
 
   useEffect(() => {
+    setLoading(true);
+    setError(null);
     apiFetch(`/home-care/services/${serviceId}`)
       .then((res: any) => setSvc(res?.data || res))
-      .catch((e) => logError('nursing:service-info', e))
+      .catch((e) => {
+        logError('nursing:service-info', e);
+        setError('تعذر تحميل تفاصيل الخدمة');
+      })
       .finally(() => setLoading(false));
   }, [serviceId]);
 
@@ -60,6 +67,7 @@ export default function NursingServiceInfo() {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
+      <ScreenState loading={false} error={error} empty={false} emptyTitle="لا توجد بيانات" onRetry={() => setError(null)}>
       <ScrollView contentContainerStyle={{ paddingBottom: 140 }} showsVerticalScrollIndicator={false}>
         {/* Hero image */}
         <View>
@@ -125,6 +133,7 @@ export default function NursingServiceInfo() {
           )}
         </View>
       </ScrollView>
+      </ScreenState>
 
       {/* Bottom CTA */}
       <View style={[styles.bottomBar, { backgroundColor: colors.surface, borderTopColor: colors.border, paddingBottom: insets.bottom + 16 }]}>

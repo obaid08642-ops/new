@@ -11,6 +11,7 @@ import { apiFetch } from '../../src/utils/api';
 import { logError } from '../../src/utils/logger';
 import { useLocalSearchParams } from 'expo-router';
 import { pickLocalized } from '../../src/utils/localize';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 const COMPARE_ROWS = [
   { label: 'المادة الفعالة', key: 'ingredient', icon: 'science' },
@@ -30,20 +31,24 @@ export default function MedicineCompareScreen() {
   
   const [medicines, setMedicines] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string|null>(null);
 
-  React.useEffect(() => {
-    (async () => {
-      try {
-        const ids = params.ids ? params.ids.split(',') : ['1', '2']; // Fallback to test ids if not provided
-        const data = await apiFetch('/medicines/compare', 'POST', { ids });
-        if (data && Array.isArray(data)) setMedicines(data);
-      } catch (err) {
-        logError('pharmacy:medicine-compare', err);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [params.ids]);
+  const loadComparison = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const ids = params.ids ? params.ids.split(',') : ['1', '2']; // Fallback to test ids if not provided
+      const data = await apiFetch('/medicines/compare', 'POST', { ids });
+      if (data && Array.isArray(data)) setMedicines(data);
+    } catch (err) {
+      logError('pharmacy:medicine-compare', err);
+      setError('تعذر تحميل بيانات المقارنة');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  React.useEffect(() => { loadComparison(); }, [params.ids]);
 
   const getBetter = (key: string) => {
     if (medicines.length < 2) return -1;
@@ -62,6 +67,7 @@ export default function MedicineCompareScreen() {
         </TouchableOpacity>
       </View>
 
+      <ScreenState loading={loading} error={error} empty={!loading && !error && medicines.length === 0} emptyTitle="لا توجد أدوية للمقارنة" onRetry={loadComparison}>
       <ScrollView contentContainerStyle={{ paddingBottom: 100 }} showsVerticalScrollIndicator={false}>
         {/* Product Headers */}
         <View style={[styles.productHeaders, { backgroundColor: isDark ? colors.surface : colors.white } ]}>
@@ -120,6 +126,7 @@ export default function MedicineCompareScreen() {
           ))}
         </View>
       </ScrollView>
+      </ScreenState>
     </View>
   );
 }

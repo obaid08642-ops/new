@@ -13,6 +13,7 @@ import { useFocusEffect } from 'expo-router';
 import Svg, { Path, Circle, Rect, Line, Polyline } from 'react-native-svg';
 import { LocalizedText } from '../../src/components/LocalizedText';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 const { width } = Dimensions.get('window');
 
@@ -35,6 +36,7 @@ export default function NursingMegaProfile() {
   const [insuranceData, setInsuranceData] = useState<any>(null);
   const [processing, setProcessing] = useState(false);
   const [insuranceSent, setInsuranceSent] = useState(false);
+  const [error, setError] = useState<string|null>(null);
 
   // Scheduling State
   const [selectedDate, setSelectedDate] = useState('');
@@ -104,6 +106,7 @@ export default function NursingMegaProfile() {
         }
       } catch (err) {
         logError('nursing:nurse-profile', err);
+        setError('تعذر تحميل بيانات الممرض');
       }
     };
     fetchData();
@@ -242,6 +245,7 @@ export default function NursingMegaProfile() {
         <LocalizedText style={styles.headerTitle}>حجز الخدمة</LocalizedText>
       </BlurView>
 
+      <ScreenState loading={false} error={error} empty={false} emptyTitle="لا توجد بيانات" onRetry={() => setError(null)}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         
         {/* SECTION A: NURSE DETAILS */}
@@ -363,6 +367,7 @@ export default function NursingMegaProfile() {
         </View>
 
       </ScrollView>
+      </ScreenState>
 
       {/* PINNED ACTION BUTTON */}
       <BlurView intensity={90} tint="light" style={styles.glassFooter}>

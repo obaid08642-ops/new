@@ -22,6 +22,7 @@ import {
 } from "../../src/components/ui";
 import { apiFetch } from "../../src/utils/api";
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 export default function PrivacySettingsScreen() {
   const insets = useSafeAreaInsets();
@@ -35,11 +36,19 @@ export default function PrivacySettingsScreen() {
     thirdParty: false,
   });
 
-  useEffect(() => {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string|null>(null);
+
+  const loadSettings = () => {
+    setLoading(true);
+    setError(null);
     apiFetch<any>('/users/me/privacy-settings')
       .then(res => { if (res) setSettings(prev => ({ ...prev, ...res })); })
-      .catch(() => {});
-  }, []);
+      .catch(() => setError('تعذر تحميل إعدادات الخصوصية'))
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => { loadSettings(); }, []);
 
   const toggle = (k: string) => {
     setSettings(prev => {
@@ -96,6 +105,7 @@ export default function PrivacySettingsScreen() {
           <Icon name="back" size={22} color={colors.textPrimary} />
         </TouchableOpacity>
       </View>
+      <ScreenState loading={loading} error={error} empty={false} emptyTitle="لا توجد إعدادات" onRetry={loadSettings}>
       <ScrollView
         contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 80 }}
       >
@@ -182,6 +192,7 @@ export default function PrivacySettingsScreen() {
           <AppText variant="bodySM">طلب حذف بياناتي الشخصية نهائياً</AppText>
         </TouchableOpacity>
       </ScrollView>
+      </ScreenState>
     </View>
   );
 }

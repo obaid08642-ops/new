@@ -54,7 +54,7 @@ function ClinicConfirmScreenInner() {
 
   if (loading) return <ScreenState loading>{null}</ScreenState>;
   if (error && !appt) return <ScreenState error={error} onRetry={() => load()}>{null}</ScreenState>;
-  if (!appt) return <ScreenState empty emptyTitle={AR ? 'الموعد غير موجود' : 'Appointment not found'}>{null}</ScreenState>;
+  if (!appt) return <ScreenState empty emptyTitle={AR ? 'لا يوجد موعد' : 'Appointment not found'}>{null}</ScreenState>;
 
   const facility = doctor?.facility || null;
   const clinicName = facility?.name || doctor?.clinic_name || (AR ? 'العيادة' : 'Clinic');

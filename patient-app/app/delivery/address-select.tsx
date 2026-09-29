@@ -11,6 +11,7 @@ import { Icon } from '../../src/components/Icon';
 import { AppText, Button, IconButton, SectionHeader } from '../../src/components/ui';
 import { apiFetch } from '../../src/utils/api';
 import { setSelectedAddress } from '../../src/utils/selectedAddress';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 interface Address {
   id: string;
@@ -28,10 +29,12 @@ export default function AddressSelectScreen() {
   const [selected, setSelected] = useState<string | null>(null);
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
       setLoading(true);
+      setError(null);
       try {
         const data = await apiFetch('/users/me/addresses');
         const list: Address[] = Array.isArray(data) ? data : [];
@@ -40,6 +43,7 @@ export default function AddressSelectScreen() {
         if (def) setSelected(def.id);
       } catch {
         // No mock fallback — show the honest empty state
+        setError('تعذر تحميل العناوين المحفوظة');
         setAddresses([]);
       } finally {
         setLoading(false);
@@ -66,6 +70,7 @@ export default function AddressSelectScreen() {
         <IconButton icon="back" onPress={() => router.back()} />
       </View>
 
+      <ScreenState loading={false} error={error} empty={false} emptyTitle="لا توجد عناوين" onRetry={() => setError(null)}>
       <ScrollView contentContainerStyle={{ padding: 16, gap: 14, paddingBottom: 120 }}>
         {/* GPS button → opens real location picker */}
         <TouchableOpacity
@@ -149,6 +154,7 @@ export default function AddressSelectScreen() {
           disabled={!selected}
         />
       </View>
+      </ScreenState>
     </View>
   );
 }

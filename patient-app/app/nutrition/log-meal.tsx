@@ -7,6 +7,7 @@ import { useApp } from '../../src/context/AppContext';
 import { AppText, Button, Card, IconButton, Input, SegmentedControl } from '../../src/components/ui';
 import { apiFetch } from '../../src/utils/api';
 import { nutritionT } from '../../src/i18n/nutrition';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 type MealType = 'breakfast' | 'lunch' | 'dinner' | 'snack';
 const mealTypes: MealType[] = ['breakfast', 'lunch', 'dinner', 'snack'];
@@ -30,12 +31,13 @@ export default function LogMealScreen() {
     try {
       await apiFetch('/nutrition/meals', { method: 'POST', body: JSON.stringify({ name: name.trim(), calories: numericCalories, meal_type: mealType, ...(optional[0] !== undefined ? { protein_g: optional[0] } : {}), ...(optional[1] !== undefined ? { carbs_g: optional[1] } : {}), ...(optional[2] !== undefined ? { fat_g: optional[2] } : {}), ...(optional[3] !== undefined ? { fiber_g: optional[3] } : {}) }) });
       router.replace('/nutrition/daily-tracker');
-    } catch { setError(t('saveError')); } finally { setSaving(false); }
+    } catch (e) { setError(t('saveError')); } finally { setSaving(false); }
   };
 
   return <View style={[styles.container, { backgroundColor: colors.background }]}>
     <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
     <View style={[styles.header, { paddingTop: insets.top + 16 }]}><View style={{ width: 44 }} /><View style={styles.titleWrap}><AppText variant="h3">{t('logMeal')}</AppText><AppText variant="caption" color={colors.textTertiary}>{t('nutritionSafety')}</AppText></View><IconButton icon="back" bg={colors.surfaceSecondary} color={colors.textPrimary} onPress={() => router.back()} /></View>
+    <ScreenState loading={saving} error={null} empty={false} emptyTitle="لا توجد بيانات" onRetry={save}>
     <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 32 }]} showsVerticalScrollIndicator={false}>
       {error && <Card style={styles.error}><AppText variant="bodySM" color="#B91C1C" align="right">{error}</AppText></Card>}
       <Animated.View entering={FadeInDown.duration(300)}><Card style={styles.section}><SectionHeading value="1" title={t('mealType')} colors={colors} /><SegmentedControl value={mealType} onChange={(value) => setMealType(value as MealType)} options={mealTypes.map((type) => ({ key: type, label: t(type) }))} /></Card></Animated.View>
@@ -44,6 +46,7 @@ export default function LogMealScreen() {
       <Animated.View entering={FadeInDown.delay(220).duration(300)}><Card style={[styles.notice, { backgroundColor: colors.infoSurface, borderColor: colors.info + '40' }]}><AppText variant="bodySM" color={colors.textSecondary} align="right">{t('nutritionSafety')}</AppText></Card></Animated.View>
       <Animated.View entering={FadeInDown.delay(280).duration(300)}><Button label={saving ? t('saving') : t('saveMeal')} variant="gradient" icon="check_circle" loading={saving} onPress={save} /></Animated.View>
     </ScrollView>
+    </ScreenState>
   </View>;
 }
 

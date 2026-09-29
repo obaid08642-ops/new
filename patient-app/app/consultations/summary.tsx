@@ -57,7 +57,7 @@ export default function ConsultationSummaryScreen() {
     return (
       <ScreenState
         empty
-        emptyTitle={AR ? 'الملخص غير متاح بعد' : 'Summary not available yet'}
+        emptyTitle={AR ? 'لا يوجد ملخص متاح بعد' : 'Summary not available yet'}
         emptySubtitle={AR ? 'سيكتب الطبيب ملخص الاستشارة بعد انتهاء الموعد' : 'The doctor will write the summary after the appointment ends'}
         emptyIcon="document"
         onRetry={() => load()}

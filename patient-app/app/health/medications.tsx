@@ -7,6 +7,7 @@ import { useApp } from '../../src/context/AppContext';
 import { AppText, Card, Button, IconButton } from '../../src/components/ui';
 import { apiFetch } from '../../src/utils/api';
 import { medicationT } from '../../src/i18n/medications';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 type Reminder = { id: string; medicine_name_ar?: string; medicine_name_en?: string; today_doses?: Array<{ status: string }>; times?: string[]; chronic?: boolean };
 
@@ -39,7 +40,7 @@ export default function MedicationsScreen() {
       <IconButton icon="back" bg={colors.surfaceSecondary} color={colors.textPrimary} onPress={() => router.back()} />
     </View>
     {loading ? <View style={styles.center}><ActivityIndicator color={colors.primary} /><AppText variant="bodySM" color={colors.textTertiary}>{t('loading')}</AppText></View> :
-      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 32 }]} showsVerticalScrollIndicator={false}>
+      <ScreenState loading={false} error={null} empty={false} emptyTitle="لا توجد تذكيرات" onRetry={load}><ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 32 }]} showsVerticalScrollIndicator={false}>
         <Animated.View entering={FadeInDown.duration(360)}>
           <Card style={[styles.hero, { backgroundColor: colors.primarySurface, borderColor: colors.primary + '30' }]}>
             <View style={styles.heroTop}><View style={[styles.ring, { borderColor: colors.primary }]}><AppText variant="h4" color={colors.primary}>{progress}%</AppText><AppText variant="caption" color={colors.textTertiary}>{t('dosesLogged')}</AppText></View><View style={styles.heroCopy}><AppText variant="h5" color={colors.textPrimary}>{t('dailyPlan')}</AppText><AppText variant="bodySM" color={colors.textSecondary}>{scheduled ? t('doseProgress', { taken, scheduled }) : t('noDoseToday')}</AppText></View></View>
@@ -53,7 +54,7 @@ export default function MedicationsScreen() {
         <Animated.View entering={FadeInDown.delay(185).duration(360)}><NavigationCard title={t('addReminder')} detail={t('medicationAndDose')} action={t('add')} tint={colors.secondary} onPress={() => router.push('/health/medication-reminder-add')} /></Animated.View>
         <Animated.View entering={FadeInDown.delay(255).duration(360)}><NavigationCard title={t('chronicMeds')} detail={chronic ? t('chronicCount', { count: chronic }) : t('chronicHint')} action={t('manage')} tint={colors.warning} onPress={() => router.push('/health/chronic-medications')} /></Animated.View>
         <Animated.View entering={FadeInDown.delay(325).duration(360)}><NavigationCard title={t('prescriptions')} detail={t('prescriptionsHint')} action={t('viewPrescriptions')} tint={colors.info} onPress={() => router.push('/health/prescriptions')} /></Animated.View>
-      </ScrollView>}
+      </ScrollView></ScreenState>}
   </View>;
 }
 

@@ -28,6 +28,7 @@ import {
   SectionHeader,
 } from "../../src/components/ui";
 import { apiFetch } from "../../src/utils/api";
+import { ScreenState } from "../../src/components/ScreenStates";
 
 const QUICK: { icon: IconName; label: string; color: string; route: string }[] =
   [
@@ -95,36 +96,43 @@ export default function HealthScreen() {
   const [vitals, setVitals] = useState<any[]>([]);
   const [scoreData, setScoreData] = useState<any>(null);
   const [upcomingAppt, setUpcomingAppt] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string|null>(null);
 
-  useEffect(() => {
-    async function loadData() {
-      try {
-        const [vitalsRes, scoreRes, apptRes] = await Promise.all([
-          apiFetch("/health/vitals/summary").catch(() => null),
-          apiFetch("/health/score").catch(() => null),
-          apiFetch('/home/upcoming-appointment').catch(() => null)
-        ]);
+  const loadData = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [vitalsRes, scoreRes, apptRes] = await Promise.all([
+        apiFetch("/health/vitals/summary").catch(() => null),
+        apiFetch("/health/score").catch(() => null),
+        apiFetch('/home/upcoming-appointment').catch(() => null)
+      ]);
 
-        if (vitalsRes) setVitals(Array.isArray(vitalsRes) ? vitalsRes : vitalsRes?.data || []);
-        if (scoreRes) setScoreData(scoreRes);
-        if (apptRes) setUpcomingAppt(Array.isArray(apptRes) ? apptRes[0] : apptRes?.data?.[0] || apptRes);
+      if (vitalsRes) setVitals(Array.isArray(vitalsRes) ? vitalsRes : vitalsRes?.data || []);
+      if (scoreRes) setScoreData(scoreRes);
+      if (apptRes) setUpcomingAppt(Array.isArray(apptRes) ? apptRes[0] : apptRes?.data?.[0] || apptRes);
 
-        // Load water intake from nutrition
-        const waterRes = await apiFetch(`/nutrition/daily-summary?date=${new Date().toISOString().split("T")[0]}`).catch(() => null);
-        if (waterRes) {
-          const waterGlasses = Math.round((waterRes?.total_water_ml ?? 0) / 250);
-          setVitals((prev) =>
-            prev.map((v) =>
-              v.label === "الماء اليوم"
-                ? { ...v, value: String(waterGlasses) }
-                : v,
-            ),
-          );
-        }
-      } catch (e) {}
+      // Load water intake from nutrition
+      const waterRes = await apiFetch(`/nutrition/daily-summary?date=${new Date().toISOString().split("T")[0]}`).catch(() => null);
+      if (waterRes) {
+        const waterGlasses = Math.round((waterRes?.total_water_ml ?? 0) / 250);
+        setVitals((prev) =>
+          prev.map((v) =>
+            v.label === "الماء اليوم"
+              ? { ...v, value: String(waterGlasses) }
+              : v,
+          ),
+        );
+      }
+    } catch (e) {
+      setError('تعذر تحميل البيانات الصحية');
+    } finally {
+      setLoading(false);
     }
-    loadData();
-  }, []);
+  };
+
+  useEffect(() => { loadData(); }, []);
 
   return (
     <View style={[styles.c, { backgroundColor: colors.background }]}>
@@ -163,6 +171,7 @@ export default function HealthScreen() {
         </View>
       </View>
 
+      <ScreenState loading={loading} error={error} empty={false} emptyTitle="لا توجد بيانات" onRetry={loadData}>
       <Animated.ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
@@ -377,6 +386,7 @@ export default function HealthScreen() {
           </View>
         )}
       </Animated.ScrollView>
+      </ScreenState>
     </View>
   );
 }

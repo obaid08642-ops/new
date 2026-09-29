@@ -16,6 +16,8 @@ import { apiFetch } from "../../src/utils/api";
 
 import { Room, RoomEvent, VideoPresets } from "livekit-client";
 import { LocalizedText } from '../../src/components/LocalizedText';
+import { logError } from '../../src/utils/logger';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 // @livekit/react-native is a NATIVE module — absent in Expo Go. Loading it
 // statically crashes the whole screen with Invariant Violation there, so we
@@ -34,6 +36,7 @@ export default function VideoCallScreen() {
 
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
   const [micOn, setMicOn] = useState(true);
   const [camOn, setCamOn] = useState(true);
 
@@ -124,6 +127,7 @@ export default function VideoCallScreen() {
         activeRoom = newRoom;
       } catch (error) {
         logError('consultations:video-call:livekit', error);
+        setError('تعذر بدء غرفة الفيديو');
         setLoading(false);
       }
     };
@@ -169,6 +173,7 @@ export default function VideoCallScreen() {
     );
 
   return (
+    <ScreenState loading={false} error={error} empty={false} emptyTitle="لا توجد بيانات" onRetry={() => setError(null)}>
     <View style={styles.container}>
       <StatusBar barStyle="light-content" hidden />
       
@@ -215,6 +220,7 @@ export default function VideoCallScreen() {
         </TouchableOpacity>
       </View>
     </View>
+    </ScreenState>
   );
 }
 

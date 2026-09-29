@@ -10,6 +10,7 @@ import { AppText, Card, Button, IconButton, SectionHeader } from '../../src/comp
 import { apiFetch } from '../../src/utils/api';
 import { logError } from '../../src/utils/logger';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 // Rewards fetched from API
 export default function LoyaltyRewardsScreen() {
@@ -19,6 +20,7 @@ export default function LoyaltyRewardsScreen() {
   const [points, setPoints] = useState(0);
   const [rewards, setRewards] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string|null>(null);
   const [claimingId, setClaimingId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -26,8 +28,9 @@ export default function LoyaltyRewardsScreen() {
   }, []);
 
   const loadData = async () => {
+    setLoading(true);
+    setError(null);
     try {
-      setLoading(true);
       const acc = await apiFetch('/loyalty/account');
       setPoints(acc.points || 0);
 
@@ -35,6 +38,7 @@ export default function LoyaltyRewardsScreen() {
       setRewards(Array.isArray(catalog) ? catalog : catalog?.data || []);
     } catch (err) {
       logError('loyalty:rewards', err);
+      setError('تعذر تحميل المكافآت');
       setRewards([]);
     } finally {
       setLoading(false);
@@ -98,6 +102,7 @@ export default function LoyaltyRewardsScreen() {
         </View>
       </View>
 
+      <ScreenState loading={false} error={error} empty={!loading && !error && rewards.length === 0} emptyTitle="لا توجد مكافآت" onRetry={loadData}>
       <ScrollView contentContainerStyle={{ paddingBottom: 100 }} showsVerticalScrollIndicator={false}>
         <View style={{ marginHorizontal: 16, marginTop: 12 }}>
           <Card style={{ alignItems: 'center', backgroundColor: colors.warningSurface }}>
@@ -149,6 +154,7 @@ export default function LoyaltyRewardsScreen() {
         })}
       </View>
       </ScrollView>
+      </ScreenState>
     </View>
   );
 }

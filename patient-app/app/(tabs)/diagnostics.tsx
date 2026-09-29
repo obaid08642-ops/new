@@ -16,6 +16,7 @@ import { apiFetch } from '../../src/utils/api';
 import { logError } from '../../src/utils/logger';
 import { normalizeLabList, normalizeLabService } from '../../src/utils/labMappers';
 import { resolveEffectiveAddress, formatAddressLine } from '../../src/utils/selectedAddress';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 export default function DiagnosticsHub() {
   const router = useRouter();
@@ -34,6 +35,7 @@ export default function DiagnosticsHub() {
   const [radiologyServices, setRadiologyServices] = useState<any[]>([]);
   const [labs, setLabs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string|null>(null);
   const [deliveryAddress, setDeliveryAddress] = useState<any>(null);
   const [addressLoaded, setAddressLoaded] = useState(false);
 
@@ -53,36 +55,38 @@ export default function DiagnosticsHub() {
     }, [])
   );
 
-  React.useEffect(() => {
-    const fetchHomeData = async () => {
-      try {
-        const [pkgsRes, testsRes, radsRes, labsRes] = await Promise.all([
-          apiFetch('/labs/packages').catch(() => ({ data: [] })),
-          apiFetch('/labs/services').catch(() => ({ data: [] })),
-          apiFetch('/radiology/services').catch(() => ({ data: [] })),
-          apiFetch('/providers?type=lab').catch(() => ({ data: [] }))
-        ]);
-        
-        setPackages(normalizeLabList(pkgsRes?.data || pkgsRes || []));
-        
-        const allTests = normalizeLabList(testsRes?.data || testsRes || []);
-        setTestsPart1(allTests.slice(0, Math.ceil(allTests.length / 2)));
-        setTestsPart2(allTests.slice(Math.ceil(allTests.length / 2)));
-        
-        setRadiologyServices(normalizeLabList(radsRes?.data || radsRes || []));
-        
-        const labsData = labsRes?.data || labsRes;
-        if (Array.isArray(labsData) && labsData.length > 0) {
-          setLabs(labsData);
-        }
-      } catch (err) {
-        logError('diagnostics:tab', err);
-      } finally {
-        setLoading(false);
+  const fetchHomeData = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [pkgsRes, testsRes, radsRes, labsRes] = await Promise.all([
+        apiFetch('/labs/packages').catch(() => ({ data: [] })),
+        apiFetch('/labs/services').catch(() => ({ data: [] })),
+        apiFetch('/radiology/services').catch(() => ({ data: [] })),
+        apiFetch('/providers?type=lab').catch(() => ({ data: [] }))
+      ]);
+
+      setPackages(normalizeLabList(pkgsRes?.data || pkgsRes || []));
+
+      const allTests = normalizeLabList(testsRes?.data || testsRes || []);
+      setTestsPart1(allTests.slice(0, Math.ceil(allTests.length / 2)));
+      setTestsPart2(allTests.slice(Math.ceil(allTests.length / 2)));
+
+      setRadiologyServices(normalizeLabList(radsRes?.data || radsRes || []));
+
+      const labsData = labsRes?.data || labsRes;
+      if (Array.isArray(labsData) && labsData.length > 0) {
+        setLabs(labsData);
       }
-    };
-    fetchHomeData();
-  }, []);
+    } catch (err) {
+      logError('diagnostics:tab', err);
+      setError('تعذر تحميل خدمات المختبرات والأشعة');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  React.useEffect(() => { fetchHomeData(); }, []);
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background } ]}>
@@ -103,6 +107,7 @@ export default function DiagnosticsHub() {
         </View>
       </View>
 
+      <ScreenState loading={loading} error={error} empty={!loading && !error && packages.length === 0 && testsPart1.length === 0 && radiologyServices.length === 0} emptyTitle="لا توجد خدمات متاحة" onRetry={fetchHomeData}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         
         {/* Search Bar - NOW AT THE VERY TOP */}
@@ -390,6 +395,7 @@ export default function DiagnosticsHub() {
 
         <View style={{ height: 100 }}/>
       </ScrollView>
+      </ScreenState>
 
       {/* Floating Global Cart Button */}
       {itemCount > 0 && (

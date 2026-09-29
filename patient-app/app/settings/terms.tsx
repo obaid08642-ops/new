@@ -8,6 +8,7 @@ import { useApp } from "../../src/context/AppContext";
 import { apiFetch } from "../../src/utils/api";
 import { Icon } from "../../src/components/Icon";
 import { AppText, Card, IconButton } from "../../src/components/ui";
+import { ScreenState } from "../../src/components/ScreenStates";
 
 interface TermsSection {
   title: string;
@@ -86,8 +87,15 @@ export default function TermsScreen() {
 
   // F23: cancellation/returns policy numbers come from /system-config/public.
   const [policy, setPolicy] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string|null>(null);
   useEffect(() => {
-    apiFetch<any>('/system-config/public').then((r: any) => setPolicy(r)).catch(() => {});
+    setLoading(true);
+    setError(null);
+    apiFetch<any>('/system-config/public')
+      .then((r: any) => setPolicy(r))
+      .catch(() => setError('تعذر تحميل سياسة الإلغاء والاسترجاع'))
+      .finally(() => setLoading(false));
   }, []);
   const sections = SECTIONS.map((s) => {
     if (s.title !== 'الإلغاء والاسترجاع' || !policy?.cancellation_policy) return s;
@@ -119,6 +127,7 @@ export default function TermsScreen() {
         <IconButton icon="back" onPress={() => router.back()} />
       </View>
 
+      <ScreenState loading={loading} error={error} empty={false} emptyTitle="لا توجد شروط" onRetry={() => { setLoading(true); setError(null); apiFetch<any>('/system-config/public').then((r: any) => setPolicy(r)).catch(() => setError('تعذر تحميل سياسة الإلغاء والاسترجاع')).finally(() => setLoading(false)); }}>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -181,6 +190,7 @@ export default function TermsScreen() {
           </AppText>
         </Animated.View>
       </ScrollView>
+      </ScreenState>
     </View>
   );
 }
