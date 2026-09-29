@@ -7,7 +7,9 @@
 
 The production domains (`nabd.plus`, `api.nabd.plus`, `mcp.nabd.plus`) are blocked by this environment's network policy. The real catalog size and the live pages were therefore not checked here.
 
-The tasks for the agent are in the execution plan as **PHASE 7E** (`02_AGENT_EXECUTION_PLAN.md`). This file holds the evidence.
+The tasks for the agent are in the execution plan (`02_AGENT_EXECUTION_PLAN.md`) as **PHASE 7E** (notifications, deep links) and **PHASE 7F** (search engines, AI assistants). This file holds the evidence.
+
+Each finding was checked against the existing plan so that nothing is listed twice. Page speed stays in Phase 10 (F82). F31 is reopened: it was logged as done, but the legacy renderers are still live. D1 extends F35/F36, S6 extends F29, and N7 goes with R7-7.
 
 ## Fixed by the reviewer in this PR (tested live)
 | Problem | Evidence before | After |
@@ -34,7 +36,7 @@ The tasks for the agent are in the execution plan as **PHASE 7E** (`02_AGENT_EXE
 - **MCP tools** `search_medicines`, `get_entity_detail`, `prepare_transaction` and the others return real prices and canonical URLs, now that the id bug is fixed.
 - **`robots.txt`** allows the public catalog to all search and AI crawlers. `llms.txt` is present.
 
-## Open, for the agent: see PHASE 7E in the execution plan
+## Open, for the agent: see PHASES 7E and 7F in the execution plan
 The groups are:
 - notifications (routing on tap, provider inbox, dead events, admin control);
 - deep links (the iOS app ID, locale-prefixed links, provider app);
