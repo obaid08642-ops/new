@@ -130,6 +130,7 @@ import { ArticlesModule } from './modules/articles/articles.module';
 import { CorrelationMiddleware } from './common/correlation.middleware';
 import { DoctorsModule } from './modules/doctors/doctors.module';
 import { WriteGuard } from './common/write-guard';
+import { AdminGateGuard } from './common/admin-gate.guard';
 import { ProductRankingModule } from './modules/product-ranking/product-ranking.module';
 import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
 
@@ -268,6 +269,7 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: WriteGuard },
     { provide: APP_GUARD, useClass: ThrottlerGuard },
+    { provide: APP_GUARD, useClass: AdminGateGuard },
     { provide: APP_INTERCEPTOR, useClass: AuditLogInterceptor },
     { provide: APP_INTERCEPTOR, useClass: IdempotencyInterceptor },
     { provide: APP_INTERCEPTOR, useClass: AdaptiveConcurrencyInterceptor },
