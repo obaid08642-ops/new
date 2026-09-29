@@ -767,7 +767,7 @@ const s = StyleSheet.create({
  sheet: { position:'absolute', bottom:0, left:0, right:0, padding:SP.xl },
  sheetHandle: { width:40, height:4, borderRadius:R.full, alignSelf:'center', marginBottom:SP.xl },
  sheetTitle: { fontSize:FS.xl, fontWeight:FW.bold, marginBottom:SP.xl },
- confirmCenter: { ...StyleSheet.absoluteFillObject as object, justifyContent:'center', alignItems:'center', padding:SP.xxl },
+ confirmCenter: { position:'absolute', top:0, left:0, right:0, bottom:0, justifyContent:'center', alignItems:'center', padding:SP.xxl },
  confirmTitle: { fontSize:FS.xl, fontWeight:FW.bold, textAlign:'center', marginBottom:SP.md },
  confirmMsg: { fontSize:FS.md, textAlign:'center', lineHeight:22, marginBottom:SP.xxl },
  successIcon: { width:100, height:100, borderRadius:50, alignItems:'center', justifyContent:'center', marginBottom:SP.xxl, shadowColor:tokens.success, shadowOffset:{width:0,height:0}, shadowOpacity:0.3, shadowRadius:20, elevation:10 },

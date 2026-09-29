@@ -24,7 +24,7 @@
  */
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
-import { Audio } from 'expo-av';
+import { createAudioPlayer, type AudioPlayer } from 'expo-audio';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import {
@@ -199,24 +199,22 @@ function PharmacyHomeTab({ onNavigate, onSwitchTab }: any) {
   const isOnline = !!user?.isOnline;
   const [broadcasts, setBroadcasts] = useState<any[]>([]);
   const knownBroadcastIds = useRef<Set<string>>(new Set());
-  const [sound, setSound] = useState<Audio.Sound | null>(null);
+  const [sound, setSound] = useState<AudioPlayer | null>(null);
 
   // Play alarm sound
-  async function playAlarm() {
+  function playAlarm() {
     try {
-      const { sound } = await Audio.Sound.createAsync(
-        // Use the packaged alert asset; pharmacy-specific sonic branding remains a separate product asset.
-        require('../../../assets/audio/rad_dispatch_alert.mp3')
-      );
-      setSound(sound);
-      await sound.playAsync();
+      // Use the packaged alert asset; pharmacy-specific sonic branding remains a separate product asset.
+      const player = createAudioPlayer(require('../../../assets/audio/rad_dispatch_alert.mp3'));
+      setSound(player);
+      player.play();
     } catch (e) {
       console.warn("Could not play alarm sound", e);
     }
   }
 
   useEffect(() => {
-    return sound ? () => { sound.unloadAsync(); } : undefined;
+    return sound ? () => { sound.remove(); } : undefined;
   }, [sound]);
 
     useEffect(() => {

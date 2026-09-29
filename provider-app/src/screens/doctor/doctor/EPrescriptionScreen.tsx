@@ -7,7 +7,6 @@ import { View, Text, TouchableOpacity, ScrollView, StyleSheet,
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, useLang, useAuth, useToast } from '../../../context';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Audio } from 'expo-av';
 import {
  NBtn, NCard, NInput, NStatCard, NAvatar, NBadge,
  NHeader, NScroll, NSheet, NSearch, NToggle, NSettingsRow,

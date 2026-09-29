@@ -30,7 +30,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       if (saved === 'light' || saved === 'dark' || saved === 'system') setModeState(saved);
     });
     const sub = Appearance.addChangeListener(({ colorScheme }) => {
-      if (!colorScheme) return;
+      if (colorScheme !== 'light' && colorScheme !== 'dark') return;
       setSystemColor(colorScheme);
     });
     return () => sub.remove();
