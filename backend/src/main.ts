@@ -8,6 +8,7 @@ import { AppModule } from './app.module';
 import { createNabdahOpenApiDocument } from './config/openapi.config';
 import { ConfiguredIoAdapter } from './config/configured-io.adapter';
 import helmet from 'helmet';
+import { contentSecurityPolicy, newCspNonce } from './common/security-headers';
 
 // Fastify adapter — activated only when USE_FASTIFY=true (staging test, opt-in)
 const useFastify = process.env.USE_FASTIFY === 'true';
@@ -132,15 +133,28 @@ async function bootstrap() {
       next();
     });
   }
+  // F68: helmet for the transport/header defaults, plus a real CSP. The previous
+  // policy allowed 'unsafe-inline' for scripts, so an injected <script> still ran.
+  // A per-request nonce is issued and attached to the request (no controller
+  // renders inline script today, so strict CSP is safe to adopt).
+  app.use((req: any, res: any, next: any) => {
+    const nonce = newCspNonce();
+    req.cspNonce = nonce;
+    res.setHeader(
+      'Content-Security-Policy',
+      contentSecurityPolicy({
+        nonce,
+        isProduction: process.env.NODE_ENV === 'production',
+        // `allowedOrigins` is `true` when nothing was configured (reflect the
+        // request origin); the CSP only needs the explicit list.
+        allowedOrigins: Array.isArray(allowedOrigins) ? allowedOrigins : configuredOrigins ?? [],
+      }),
+    );
+    next();
+  });
   app.use(helmet({
-    contentSecurityPolicy: process.env.NODE_ENV === 'production' ? {
-      directives: {
-        defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'"],
-        styleSrc: ["'self'", "'unsafe-inline'"],
-        imgSrc: ["'self'", 'data:', 'https:'],
-      },
-    } : false,
+    // The policy above is set explicitly, per request, with a nonce.
+    contentSecurityPolicy: false,
     crossOriginEmbedderPolicy: false,
   }));
   app.use(compression());

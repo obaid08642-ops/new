@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 import { withSentryConfig } from "@sentry/nextjs";
+import { contentSecurityPolicy } from "./csp";
 
 const nextConfig: NextConfig = {
   output: "standalone",
@@ -43,6 +44,8 @@ const nextConfig: NextConfig = {
       { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
       { key: "Cross-Origin-Resource-Policy", value: "same-site" },
       { key: "X-DNS-Prefetch-Control", value: "off" },
+      // F68: the web clients had no CSP at all.
+      { key: "Content-Security-Policy", value: contentSecurityPolicy() },
       ...(process.env.NODE_ENV === "production" ? [{ key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" }] : []),
     ] }];
   }
