@@ -4,6 +4,11 @@
 
 ---
 
+## ORDER OF WORK (owner decision 2026-09-29, from `docs/audit/05_OWNER_ADDITIONS_DESIGN_AND_GAPS.md`)
+Phases 3 → 4 → 5 → 6 → 7 → 7A–7F → **12** (the design session delivers the stamps first: tokens, core components, illustrated icons, illustrations, motion; then the implementer rebuilds the screens together with Phase 8/9 and C3/C4, so each screen is touched once) → 8 → 9 → **13** → **14** (performance and capacity) → 10 → 11.
+
+---
+
 ## 0. RULES FOR THE AGENT (read before anything)
 
 1. **Branch:** work ONLY on `fix/audit-2026-09`, created from latest `main`. Never push to `main`.
@@ -400,6 +405,15 @@ Samples are not enough. The reviewer's 2026-09-29 test used 3 synthetic medicine
 | V4 | **Deep links on real URLs:** take 500 random sitemap URLs across all types and locales and run them through the D2 mapper and an Android/iOS simulator (`adb shell am start -d` / `xcrun simctl openurl`). Each opens the right screen with the right item, or the browser. Never `+not-found`. | Table report, 0 failures |
 | V5 | **AI on real data:** an MCP conformance run on staging; for 50 random medicines and 20 providers, `get_entity_detail` gives the same facts as the page and the feed (name, price, availability, canonical); `prepare_transaction` → checkout → paid order (A1); the AI symptom check answers in all 6 locales with safe wording and a doctor or specialty suggestion that exists. | Report, 0 mismatches |
 
+**C6: Additions from the owner (2026-09-29).** Full text: `docs/audit/05_OWNER_ADDITIONS_DESIGN_AND_GAPS.md` Part C6. The answer block, robots and sameAs are already in A6, and the feeds in A5; these tasks add only what is missing.
+
+| Task | Do | Verify |
+|---|---|---|
+| C6.1 | **ASO:** store listings in 6 languages with keyword research per locale; screenshots from the new design (after Phase 12); an app preview video; an in-app review prompt at success moments; a workflow in admin for replying to store ratings. | Listings text committed per locale; the review prompt fires once per success moment (test); the admin reply page click test |
+| C6.2 | **Answer-ready content, extends A6:** besides A6's answer block (what it is, price range, availability, who provides it, how to order), every public entity page has FAQs with `FAQPage` schema. | Schema test on each entity type |
+| C6.3 | **Brand entity:** Google Business Profile and a Wikidata item (owner actions); in code, the same name, address and phone everywhere and `sameAs` links in Organization JSON-LD (extends S8). | JSON-LD test: Organization NAP equals the config |
+| C6.4 | **Measurement:** track AI referrals (utm and referrer for chat.openai.com, perplexity.ai, gemini, copilot, claude.ai) in analytics and an admin report; a monthly check script of how assistants answer 50 target questions (which pages they cite), with the result stored. | Referral from each host is recorded (test); first monthly report committed |
+
 **Gate P7F:**
 - the crawler test over all sitemaps is green (every URL returns 200, is indexable, is its own canonical and is not disallowed);
 - the per-locale medicine page snapshot test is green;
@@ -410,7 +424,8 @@ Samples are not enough. The reviewer's 2026-09-29 test used 3 synthetic medicine
 - the importer report shows 0 dropped fields and 20,990 documents (S16);
 - the V1–V5 reports on staging show 0 failures;
 - live: approving a provider publishes its page, sitemap entry and IndexNow ping (S15);
-- the Rich Results Test passes on 20 random medicines × 6 locales (owner runs it once the site is live) (S12).
+- the Rich Results Test passes on 20 random medicines × 6 locales (owner runs it once the site is live) (S12);
+- C6.1–C6.4 Verify steps are green.
 
 ---
 
@@ -468,6 +483,84 @@ Pharmacy {cash, insurance} × {delivery, pickup} × {Rx, no-Rx}; Consultation {o
 2. Harness on staging (real data): `sweep.py` (all roles), `wsweep.py` (all roles), `admin.py`, `clients.py`, `nav.py`, `adminshot.py`, `webauth.sh`, `screenapi.py` → attach outputs to `AGENT_PROGRESS.md`.
 3. `gitleaks` full history clean; `npm/pnpm audit` 0 critical/high (runtime deps).
 4. Push branch; open PR `fix/audit-2026-09 → main` with checklist of all F-ids and their commit SHAs.
+
+---
+
+## PHASE 12 — Brand, design system and UI rebuild (owner decision 2026-09-29)
+
+Full specification: `docs/audit/05_OWNER_ADDITIONS_DESIGN_AND_GAPS.md` **Part A** and **C1–C4**. The approved design is in `docs/design/canvas/` (`.dc.html` sources: `System`, `Palette`, `IconSet`, `Icon`, `Home`, `HomeDark`, `WebHome`, `Product`, `Checkout`, `Booking`, `Doctor`, `Success`, and the logo studies `NoonPulse`/`HeartPlus`/`PulsePlus`; `Main` and `canvas.json` index them). Text in brackets in the designs ([السعر], [اسم الطبيب]…) is always filled from real API data.
+
+**Who builds what (C2).** The design stamps are built by a **Claude design session, not by the implementer**: `packages/design-tokens`, the core components in `packages/ui` and `packages/ui-native`, the icon wrapper and illustrated icon set, the illustrations and the motion helpers. Each has a preview page. The implementer only composes screens from them. It never draws icons, invents colors or restyles components locally. A missing component is requested in `AGENT_PROGRESS.md` as `NEEDS_COMPONENT: <name>`.
+
+| Task | Built by | Do (spec in 05) | Verify |
+|---|---|---|---|
+| 12.A0 | — | The principle: one central design system, no hard-coded color, size, radius, spacing, shadow, icon or animation in any screen of the 4 clients. | Enforced by the lints in 12.A2, 12.A6 and 12.C2 |
+| 12.A1 | Design session (assets) · implementer (replacement) | Logo "Noon Dot" in `packages/brand/` (SVG master, PNG sizes, favicon, maskable/adaptive icons, splash). The implementer replaces every old logo in the 4 clients, store metadata, emails, PDFs and OG images. | No old logo file referenced (grep); OG and email renders |
+| 12.A2 | Design session | Color tokens (`tokens.json` → CSS vars, TS module, theme preset), semantic names only; `tools/design/contrast-check.ts` in CI. | `contrast-check` green in both themes |
+| 12.A3 | Design session (tokens) · implementer (wiring) | Light and dark theme: device default, live update, user override synced to `preferences.theme`, no flash on web. | Theme tests |
+| 12.A4 | Implementer | Language from the device, 6 locales, fallback rules, root `/` 302 (never overrides a locale in the URL), override synced to `preferences.locale`. **Extends F37 and the 7F hreflang/`x-default` work; does not change canonical URLs.** | Tests for each of the 6 device languages and an unsupported one |
+| 12.A5 | Design session | Typography: Readex Pro + per-locale Noto fallbacks, type-scale tokens. | No px font size in components (lint) |
+| 12.A6 | Design session | Illustrated icon set (one style, 48 grid), service tiles, Phosphor for small UI icons in one `<Icon>` wrapper, illustrations for onboarding/empty/error/success in `packages/brand/illustrations/`; `no-emoji-in-ui` lint. | Lint green; preview page |
+| 12.A7 | Design session | Components in `packages/ui` and `packages/ui-native` (same API): the list in 05 A7, with light/dark, RTL/LTR, states, keyboard and screen reader. | Preview page per component; a11y test |
+| 12.A8 | Design session | Liquid glass only on tab bar, scrolled app bar, sheets/modals and floating surfaces, with solid fallbacks and a scrim. | Contrast check on glass |
+| 12.A9 | Design session | Motion helpers: stagger, press, skeletons, success celebration, pulsing dot loader, reduce-motion. | Reduce-motion test |
+| 12.A10 | Implementer | Responsive web at all breakpoints; no horizontal scroll. **Extends F82 (Phase 10) for layout only.** | Playwright screenshot suite 375/768/1280/1920 × ar/en × light/dark, with overflow and overlap checks |
+| 12.A11 | Implementer | Rebuild **every** screen of patient-app, patient-web, provider-app and admin on the stamps. Merge duplicate screens. **Done together with Phase 8 "Merge screens"/journeys, Phase 9 (provider app UI) and 7B (admin on iPhone width), so each screen is touched once.** | 12.C3 rows complete; reviewer visual pass |
+| 12.A12 | Implementer | Brand colors are not editable in admin; admin can enable and schedule pre-designed seasonal themes (token overrides, contrast-checked). | Toggle test; contrast check on each theme |
+| 12.C1 | — | The canvas in `docs/design/canvas/` is the visual contract: match its tokens, spacing, hierarchy and components. | Reviewer visual pass |
+| 12.C2 | Design session (lints) | Lints in all 4 clients: `no-raw-color`, `no-emoji-in-ui`, and an import rule that screens take visual primitives only from `packages/ui*`. | Lints green in CI |
+| 12.C3 | Implementer | For each rebuilt screen, `docs/audit/screens/<app>/<screen>.md`: one row per interactive element → API endpoint → DB collection → test id; loading/empty/error/success present; no mock data. **Extends R7-6 (states).** | Reviewer spot-checks with the live harness |
+| 12.C4 | Implementer | Step budget: entity → confirmation in ≤ 3 screens (returning) / ≤ 4 (first time): Buy now/Book now → one-page checkout/booking with smart defaults, inline prescription upload, non-blocking insurance with a "Pay copay" notification. Deliverable `docs/ux/journeys.md` for every service × scenario. **Extends Phase 8 "Merge screens" and the R7-5 journey matrix.** | Journeys doc complete; journey e2e tests updated and within the budget |
+
+**Gate P12:** `contrast-check`, `no-emoji-in-ui` and `no-raw-color` green in all 4 clients; the screenshot suite has no overflow or overlap across breakpoints × ar/en × light/dark; theme and language detection tests green; `docs/ux/journeys.md` complete with every journey within the step budget; the reviewer's visual pass on the 20 main screens of each client.
+
+---
+
+## PHASE 13 — Owner requirements not covered by any other phase
+
+Full specification: `docs/audit/05_OWNER_ADDITIONS_DESIGN_AND_GAPS.md` **Part B** (R1–R20). The task ids there are prefixed **13.** to avoid a clash with the review items R6-x/R7-x. Where a task extends an existing one, it is named; do the extension, not a second copy.
+
+| Task | Summary | Extends |
+|---|---|---|
+| 13.R1 | Pharmacy staged geo-broadcast 3 → 5 → 8 km, offers kept, no duplicates; distinct delivery modes and radii | Phase 8 F73 |
+| 13.R2 | Item-level substitution proposed by the pharmacy, accepted or rejected by the patient | — |
+| 13.R3 | Price override audit (`price_overrides`) + admin history and CSV | — |
+| 13.R4 | Location privacy before acceptance (approximate distance and district only) | — |
+| 13.R5 | One error-code catalog for backend, apps, web and MCP, localized in 6 locales | Phase 3 error hygiene (F15) |
+| 13.R6 | Provider `legal_name`/`display_name` and lifecycle; status changes propagate to search, sitemap, cache and MCP | 7F S15 |
+| 13.R7 | Search pipeline (normalization, aliases, transliteration, intent/entity extraction, category scope) | F71, 7F V3 |
+| 13.R8 | Entity graph; internal links only from real edges | — |
+| 13.R9 | Dynamic product ranking service (events, windows, modes, category scope, pharmacy vs global, anti-abuse, one API) | — |
+| 13.R10 | Ranking and search analytics in admin | 7B reports |
+| 13.R11 | Saudi location hierarchy from verified official data | — |
+| 13.R12 | Slug system with history and 301 on rename | — |
+| 13.R13 | Observability, failed-propagation list, reconciliation job | — |
+| 13.R14 | Consultation outputs (prescription, recommendations, referral) linking straight to booking/ordering | — |
+| 13.R15 | Medical content trust (author, reviewer, references, human review of AI content) | 7F S5, A6 |
+| 13.R16 | "Cite this" block and JSON-LD by page type | 7F S8 |
+| 13.R17 | Provider "Verified on Nabd+" website badge | — |
+| 13.R18 | `nabd://` fallback and deferred deep links | 7E D1–D6 |
+| 13.R19 | One product id with 6 localized field sets, no per-language duplicates | 7F S13, S16 |
+| 13.R20 | Final report per requirement of `طلب.md` (PASS/PARTIAL/FAIL/MISSING/MOCK/BLOCKED + evidence) | Phase 11 |
+
+Each task's Do and Verify are in 05 Part B. **Gate P13:** every Verify green; the 13.R9 test proves the ranking is not frozen; 13.R6 propagation proven live on staging; 13.R13 reconciliation shows 0 drift.
+
+---
+
+## PHASE 14 — Performance and capacity
+
+Full specification: `docs/audit/05_OWNER_ADDITIONS_DESIGN_AND_GAPS.md` **Part C5** (current setup, assessment, P14.1–P14.6). Numbers come from load tests, not guesses.
+
+| Task | Summary | Extends |
+|---|---|---|
+| 14.1 | Edge caching of public pages (ISR, Cloudflare rules, image formats, purge on entity change) | F82 (Phase 10), 7F S15, 13.R6 |
+| 14.2 | k6 load tests on staging with a copy of production data; report the real ceilings | — |
+| 14.3 | Backend hot paths: Redis caching, indexes (no COLLSCAN), pools, pagination, N+1, rate limits | — |
+| 14.4 | Write-path resilience: idempotent API, queue for side effects, outbox | F33 queue |
+| 14.5 | Horizontal scaling runbook (`deploy/SCALING.md`); 2 backend nodes behind an LB on staging | — |
+| 14.6 | Cloudflare WAF, bot and rate-limit rules in the repo; alerting | — |
+
+**Gate P14:** load-test report committed with the measured ceilings; edge cache-hit ≥ 90%; Core Web Vitals pass on the 20 main pages.
 
 ---
 

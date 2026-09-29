@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>Illustrated icon set</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Readex Pro',sans-serif}
+</style>
+</helmet>
+<div dir="rtl" style="width: 1440px; height: 760px; box-sizing: border-box; background: #F5F5F7; color: #0B1B2B; font-family: 'Readex Pro', sans-serif; padding: 56px; display: flex; flex-direction: column; gap: 28px">
+<div style="display: flex; justify-content: space-between; align-items: baseline">
+<div style="font-size: 32px; font-weight: 700">أيقونات نبض+ المرسومة</div>
+<div style="font-size: 15px; color: #6E6E73">أسلوب واحد: خط كحلي ٢٫٢ · ألوان مسطحة من لوحة البراند · لمسة إضاءة</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 16px">
+<sc-for list="{{icons}}" as="ic" hint-placeholder-count="9">
+<div style="border-radius: 28px; background: #FFFFFF; box-shadow: 0 10px 30px rgba(11,27,43,0.07); padding: 20px 8px; display: flex; flex-direction: column; align-items: center; gap: 12px">
+<dc-import name="Icon" icon="{{ic.key}}" size="{{big}}" hint-size="88px,88px"></dc-import>
+<div style="font-size: 14px; font-weight: 500">{{ic.label}}</div>
+</div>
+</sc-for>
+</div>
+<div style="display: flex; gap: 16px">
+<div style="flex-grow: 1; flex-basis: 0; border-radius: 28px; background: #0B1B2B; color: #F5F5F7; padding: 24px; display: flex; flex-direction: column; gap: 16px">
+<div style="font-size: 17px; font-weight: 700">على الوضع الغامق</div>
+<div style="display: flex; gap: 12px">
+<sc-for list="{{icons}}" as="ic" hint-placeholder-count="9">
+<div style="width: 76px; height: 76px; border-radius: 24px; background: #12263A; border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center">
+<dc-import name="Icon" icon="{{ic.key}}" size="{{small}}" hint-size="46px,46px"></dc-import>
+</div>
+</sc-for>
+</div>
+</div>
+</div>
+<div style="font-size: 14px; color: #6E6E73; line-height: 1.8">القاعدة: كل أيقونة جديدة ترسم بنفس الأسلوب (نفس سمك الخط، نفس الألوان، نفس الزوايا الدائرية). الأيقونات الصغيرة داخل الأزرار والقوائم تبقى خطية بسيطة من مجموعة واحدة، والمرسومة للخدمات والأقسام والحالات الفارغة فقط.</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":760}}'>
+class Component extends DCLogic {
+renderVals() {
+const icons = [
+{ key: 'pharmacy', label: 'الصيدلية' }, { key: 'consult', label: 'استشارة' }, { key: 'doctor', label: 'الطبيب' },
+{ key: 'lab', label: 'تحاليل' }, { key: 'radiology', label: 'أشعة' }, { key: 'nursing', label: 'تمريض منزلي' },
+{ key: 'mind', label: 'صحة نفسية' }, { key: 'nutrition', label: 'تغذية' }, { key: 'family', label: 'العائلة' },
+];
+return { icons, big: 88, small: 46 };
+}
+}
+</script>
+</body>
+</html>

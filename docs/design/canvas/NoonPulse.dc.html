@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ar">
+<head>
+<meta charset="utf-8">
+<title>Direction D — Noon Pulse</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;500;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Readex Pro',sans-serif;background:#F7F3EE}
+</style>
+</helmet>
+<div style="width: 880px; height: 1040px; box-sizing: border-box; padding: 56px; display: flex; flex-direction: column; gap: 32px; background: #F7F3EE; color: #0B1B2B">
+<div style="display: flex; justify-content: space-between; align-items: baseline">
+<div style="font-size: 15px; letter-spacing: 3px; font-weight: 500">DIRECTION D — A + B MERGED</div>
+<div style="font-size: 22px; font-weight: 700">حضن + نبض + بلس</div>
+</div>
+<div style="height: 440px; border-radius: 28px; background: #FFFFFF; display: flex; align-items: center; justify-content: center; gap: 56px">
+<svg width="270" height="270" viewBox="0 0 240 240" aria-label="Noon Pulse mark">
+<path d="M36 100 C36 150 58 180 90 186 L106 150 L126 206 L142 176 C180 170 204 146 204 100" fill="none" stroke="{{coral}}" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"></path>
+<path d="M120 30 V86 M92 58 H148" fill="none" stroke="{{coral}}" stroke-width="24" stroke-linecap="round"></path>
+</svg>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<div style="font-size: 96px; font-weight: 700; line-height: 1">نبض</div>
+<div style="font-size: 44px; font-weight: 300; letter-spacing: 2px; direction: ltr">Nabd<span style="color: {{coral}}; font-weight: 700">+</span></div>
+</div>
+</div>
+<div style="display: flex; gap: 24px">
+<div style="width: 200px; height: 200px; border-radius: 46px; background: {{coral}}; display: flex; align-items: center; justify-content: center">
+<svg width="136" height="136" viewBox="0 0 240 240" aria-label="App icon">
+<path d="M36 100 C36 150 58 180 90 186 L106 150 L126 206 L142 176 C180 170 204 146 204 100" fill="none" stroke="#FFFFFF" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"></path>
+<path d="M120 30 V86 M92 58 H148" fill="none" stroke="#FFFFFF" stroke-width="24" stroke-linecap="round"></path>
+</svg>
+</div>
+<div style="flex-grow: 1; height: 200px; border-radius: 28px; background: #0B1B2B; display: flex; align-items: center; justify-content: center; gap: 28px">
+<svg width="116" height="116" viewBox="0 0 240 240" aria-label="Mark on dark">
+<path d="M36 100 C36 150 58 180 90 186 L106 150 L126 206 L142 176 C180 170 204 146 204 100" fill="none" stroke="#F7F3EE" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"></path>
+<path d="M120 30 V86 M92 58 H148" fill="none" stroke="{{coral}}" stroke-width="24" stroke-linecap="round"></path>
+</svg>
+<div style="font-size: 56px; font-weight: 700; color: #F7F3EE">نبض<span style="color: {{coral}}">+</span></div>
+</div>
+</div>
+<div style="font-size: 17px; line-height: 1.7">The open hand of ن keeps its warmth, a heartbeat runs through its base, and the dot becomes the plus. It no longer reads as a plain letter, so it stays ours rather than borrowing from any brand named after it.</div>
+<div style="display: flex; gap: 12px; margin-top: auto">
+<div style="flex-grow: 1; height: 72px; border-radius: 14px; background: {{coral}}; color: #0B1B2B; font-size: 13px; padding: 12px; box-sizing: border-box">Pulse Coral</div>
+<div style="flex-grow: 1; height: 72px; border-radius: 14px; background: #0B1B2B; color: #F7F3EE; font-size: 13px; padding: 12px; box-sizing: border-box">Ink #0B1B2B</div>
+<div style="flex-grow: 1; height: 72px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E4DDD3; font-size: 13px; padding: 12px; box-sizing: border-box">Sand #F7F3EE</div>
+<div style="flex-grow: 1; height: 72px; border-radius: 14px; background: #3FBF9A; color: #0B1B2B; font-size: 13px; padding: 12px; box-sizing: border-box">Mint #3FBF9A</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"coral":{"editor":"color","default":"#FF4B55","options":["#FF4B55","#F2545B","#E63946","#FF6B5A"]},"$preview":{"width":880,"height":1040}}'>
+class Component extends DCLogic {
+renderVals() {
+return { coral: this.props.coral ?? '#FF4B55' };
+}
+}
+</script>
+</body>
+</html>

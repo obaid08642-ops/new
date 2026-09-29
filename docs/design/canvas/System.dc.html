@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>Nabd+ design system</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Readex Pro',sans-serif}
+</style>
+</helmet>
+<div dir="rtl" style="width: 1440px; height: 1000px; box-sizing: border-box; background: #F5F5F7; color: #0B1B2B; font-family: 'Readex Pro', sans-serif; padding: 56px; display: flex; flex-direction: column; gap: 32px">
+<div style="display: flex; justify-content: space-between; align-items: baseline">
+<div style="font-size: 36px; font-weight: 700">نظام تصميم نبض+</div>
+<div style="font-size: 15px; color: #5B6470; direction: ltr">Nabd+ Design System · v1</div>
+</div>
+<div style="display: flex; gap: 32px">
+<div style="flex-grow: 1; flex-basis: 0; display: flex; flex-direction: column; gap: 14px">
+<div style="font-size: 18px; font-weight: 700">الألوان — الوضع الفاتح</div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px">
+<sc-for list="{{light}}" as="s" hint-placeholder-count="8">
+<div style="height: 88px; border-radius: 16px; background: {{s.hex}}; color: {{s.fg}}; border: 1px solid #E0E0E5; padding: 12px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between">
+<div style="font-size: 13px; font-weight: 500">{{s.name}}</div>
+<div style="font-size: 12px; direction: ltr; text-align: left">{{s.hex}}</div>
+</div>
+</sc-for>
+</div>
+</div>
+<div style="flex-grow: 1; flex-basis: 0; border-radius: 24px; background: #0B1B2B; color: #F5F5F7; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+<div style="font-size: 18px; font-weight: 700">الألوان — الوضع الغامق</div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px">
+<sc-for list="{{dark}}" as="s" hint-placeholder-count="8">
+<div style="height: 88px; border-radius: 16px; background: {{s.hex}}; color: {{s.fg}}; border: 1px solid rgba(255,255,255,0.10); padding: 12px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between">
+<div style="font-size: 13px; font-weight: 500">{{s.name}}</div>
+<div style="font-size: 12px; direction: ltr; text-align: left">{{s.hex}}</div>
+</div>
+</sc-for>
+</div>
+</div>
+</div>
+<div style="display: flex; gap: 32px">
+<div style="flex-grow: 1; flex-basis: 0; border-radius: 24px; background: #FFFFFF; border: 1px solid #E5E5EA; padding: 24px; display: flex; flex-direction: column; gap: 16px">
+<div style="font-size: 18px; font-weight: 700">الأزرار</div>
+<div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center">
+<button style="height: 52px; padding: 0 24px; border-radius: 16px; border: 0; background: #D42A38; color: #FFFFFF; font-family: inherit; font-size: 16px; font-weight: 700">أساسي</button>
+<button style="height: 52px; padding: 0 24px; border-radius: 16px; border: 0; background: #0B1B2B; color: #F5F5F7; font-family: inherit; font-size: 16px; font-weight: 500">ثانوي</button>
+<button style="height: 52px; padding: 0 24px; border-radius: 16px; border: 1.5px solid #0B1B2B; background: transparent; color: #0B1B2B; font-family: inherit; font-size: 16px">محدد</button>
+<button style="height: 52px; padding: 0 24px; border-radius: 16px; border: 0; background: transparent; color: #C8202F; font-family: inherit; font-size: 16px">رابط</button>
+<span style="height: 52px; padding: 0 16px; border-radius: 16px; background: #0B1B2B; display: inline-flex; align-items: center">
+<button style="height: 40px; padding: 0 18px; border-radius: 12px; border: 0; background: #D7FF00; color: #0B1B2B; font-family: inherit; font-size: 15px; font-weight: 700">ليموني على الغامق</button>
+</span>
+</div>
+<div style="font-size: 18px; font-weight: 700">الشارات</div>
+<div style="display: flex; gap: 10px; flex-wrap: wrap">
+<span style="height: 30px; padding: 0 12px; border-radius: 15px; background: #DDF4EC; color: #1F7A5C; font-size: 13px; display: inline-flex; align-items: center">بدون وصفة</span>
+<span style="height: 30px; padding: 0 12px; border-radius: 15px; background: #FFE3E5; color: #B81E2B; font-size: 13px; display: inline-flex; align-items: center">يحتاج وصفة</span>
+<span style="height: 30px; padding: 0 12px; border-radius: 15px; background: #E3E9FF; color: #3A56D4; font-size: 13px; display: inline-flex; align-items: center">يقبل التأمين</span>
+<span style="height: 30px; padding: 0 12px; border-radius: 15px; background: #FFF4D6; color: #8A5A00; font-size: 13px; display: inline-flex; align-items: center">بانتظار الموافقة</span>
+</div>
+</div>
+<div style="flex-grow: 1; flex-basis: 0; border-radius: 24px; background: #FFFFFF; border: 1px solid #E5E5EA; padding: 24px; display: flex; flex-direction: column; gap: 12px">
+<div style="font-size: 18px; font-weight: 700">الخط والأحجام</div>
+<div style="font-size: 40px; font-weight: 700; line-height: 1.2">عنوان رئيسي ٤٠</div>
+<div style="font-size: 24px; font-weight: 700">عنوان قسم ٢٤</div>
+<div style="font-size: 17px; font-weight: 500">عنوان بطاقة ١٧</div>
+<div style="font-size: 15px; line-height: 1.7">نص أساسي ١٥ — مريح للقراءة بالعربية مع مسافة سطر ١٫٧</div>
+<div style="font-size: 13px; color: #5B6470">نص ثانوي ١٣</div>
+</div>
+<div style="width: 360px; border-radius: 24px; background: #FFFFFF; border: 1px solid #E5E5EA; padding: 24px; display: flex; flex-direction: column; gap: 14px">
+<div style="font-size: 18px; font-weight: 700">الحركة</div>
+<div style="font-size: 14px; line-height: 1.8; color: #0B1B2B">ظهور متتابع للمحتوى: ٤٠–٦٠ ملي ثانية بين العناصر، مدة ٢٠٠ ملي ثانية<br>ضغطة الزر: تصغير ٩٧٪<br>التحميل: نقطة اللوجو تنبض<br>النجاح: احتفال ≤ ١٫٥ ثانية مع اهتزاز خفيف<br>يحترم إعداد تقليل الحركة</div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+renderVals() {
+const light = [
+{ name: 'الخلفية', hex: '#F5F5F7', fg: '#0B1B2B' }, { name: 'البطاقات', hex: '#FFFFFF', fg: '#0B1B2B' },
+{ name: 'النص', hex: '#0B1B2B', fg: '#F5F5F7' }, { name: 'نص ثانوي', hex: '#5B6470', fg: '#FFFFFF' },
+{ name: 'البراند', hex: '#FF4B55', fg: '#0B1B2B' }, { name: 'زر أساسي', hex: '#D42A38', fg: '#FFFFFF' },
+{ name: 'نجاح', hex: '#1F7A5C', fg: '#FFFFFF' }, { name: 'تنبيه', hex: '#FFF4D6', fg: '#8A5A00' },
+];
+const dark = [
+{ name: 'الخلفية', hex: '#0B1B2B', fg: '#F5F5F7' }, { name: 'البطاقات', hex: '#12263A', fg: '#F5F5F7' },
+{ name: 'مرتفع', hex: '#1A3148', fg: '#F5F5F7' }, { name: 'نص ثانوي', hex: '#9AA4B2', fg: '#0B1B2B' },
+{ name: 'البراند', hex: '#FF6B73', fg: '#0B1B2B' }, { name: 'ليموني', hex: '#D7FF00', fg: '#0B1B2B' },
+{ name: 'نجاح', hex: '#6FE0B8', fg: '#0B1B2B' }, { name: 'معلومة', hex: '#9DB0FF', fg: '#0B1B2B' },
+];
+return { light, dark };
+}
+}
+</script>
+</body>
+</html>

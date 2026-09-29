@@ -32,7 +32,7 @@ You are the **implementing agent**. A separate reviewer (another Claude session)
 | 9 | F50, F51, F53, F78 merged; F52 (Expo SDK upgrade) left |
 | 10, 11 | Not started (Phase 10 includes page speed F82) |
 
-**Order of work:** R7 → finish 7A → 7B → 7C → 7D → 7E → 7F → 9 (F52) → 10 → 11.
+**Order of work** (owner, 2026-09-29): R7 → finish 7A → 7B → 7C → 7D → 7E → 7F → **12** (design stamps come from a Claude design session first; you then rebuild screens together with Phase 8/9) → 8 → 9 → **13** → **14** → 10 → 11. See the "ORDER OF WORK" section of the plan and `docs/audit/05_OWNER_ADDITIONS_DESIGN_AND_GAPS.md`.
 - One phase at a time.
 - After each phase, push and report, then **stop and wait** for the reviewer's verdict before starting the next phase.
 

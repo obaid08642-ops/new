@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>Order success celebration</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Readex Pro',sans-serif}
+@keyframes nabdPulse{0%{transform:scale(1);opacity:.55}100%{transform:scale(1.9);opacity:0}}
+@keyframes nabdPop{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.08);opacity:1}100%{transform:scale(1)}}
+.ring{animation:nabdPulse 1.2s ease-out infinite}
+.pop{animation:nabdPop .6s ease-out both}
+@media (prefers-reduced-motion: reduce){.ring,.pop{animation:none}}
+</style>
+</helmet>
+<div dir="rtl" style="width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #0B1B2B; color: #F5F5F7; font-family: 'Readex Pro', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 120px 24px 34px; gap: 28px">
+<svg width="300" height="220" viewBox="0 0 300 220" aria-hidden="true" style="position: absolute; top: 70px">
+<circle cx="40" cy="40" r="6" fill="#FF6B73"></circle>
+<rect x="250" y="30" width="12" height="12" rx="3" fill="#D7FF00" transform="rotate(20 256 36)"></rect>
+<circle cx="270" cy="150" r="5" fill="#9DB0FF"></circle>
+<rect x="20" y="160" width="10" height="10" rx="2" fill="#FFD166" transform="rotate(-25 25 165)"></rect>
+<circle cx="80" cy="200" r="4" fill="#6FE0B8"></circle>
+<rect x="220" y="195" width="9" height="9" rx="2" fill="#FF6B73" transform="rotate(35 224 199)"></rect>
+<circle cx="150" cy="10" r="4" fill="#D7FF00"></circle>
+</svg>
+<div style="position: relative; width: 150px; height: 150px; display: flex; align-items: center; justify-content: center">
+<div class="ring" style="position: absolute; width: 150px; height: 150px; border-radius: 75px; background: rgba(215,255,0,0.35)"></div>
+<div class="pop" style="width: 124px; height: 124px; border-radius: 62px; background: #D7FF00; display: flex; align-items: center; justify-content: center">
+<svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#0B1B2B" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center">
+<div style="font-size: 26px; font-weight: 700">تم تأكيد طلبك</div>
+<div style="font-size: 15px; color: #9AA4B2; line-height: 1.6">أرسلنا طلبك للصيدليات القريبة، وستصلك العروض خلال دقائق</div>
+</div>
+<div style="width: 100%; border-radius: 22px; background: #12263A; border: 1px solid rgba(255,255,255,0.08); padding: 16px; display: flex; flex-direction: column; gap: 12px; box-sizing: border-box">
+<div style="display: flex; justify-content: space-between; font-size: 14px"><span style="color: #9AA4B2">رقم الطلب</span><span>[#رقم]</span></div>
+<div style="display: flex; justify-content: space-between; font-size: 14px"><span style="color: #9AA4B2">طريقة الاستلام</span><span>توصيل للمنزل</span></div>
+<div style="display: flex; justify-content: space-between; font-size: 14px"><span style="color: #9AA4B2">نقاط مكتسبة</span><span style="color: #D7FF00">+[النقاط]</span></div>
+</div>
+<div style="margin-top: auto; width: 100%; display: flex; flex-direction: column; gap: 12px">
+<button style="height: 56px; border-radius: 18px; border: 0; background: #D7FF00; color: #0B1B2B; font-family: inherit; font-size: 17px; font-weight: 700">تتبّع الطلب</button>
+<button style="height: 56px; border-radius: 18px; border: 1px solid rgba(255,255,255,0.18); background: transparent; color: #F5F5F7; font-family: inherit; font-size: 16px">العودة للرئيسية</button>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
