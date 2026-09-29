@@ -1,0 +1,13 @@
+{
+  "name": "@nabd/design-tokens",
+  "version": "4.0.0",
+  "private": true,
+  "description": "Nabd+ design tokens — the single source of truth for colour, type, spacing, radius, shadow and motion across patient-web, patient-app, provider-app and admin.",
+  "scripts": {
+    "build": "node build.mjs",
+    "check": "node build.mjs --check",
+    "contrast": "node ../../tools/design/contrast-check.ts",
+    "test": "npm run check && npm run contrast"
+  },
+  "files": ["dist", "tokens.json"]
+}

@@ -75,6 +75,29 @@ jobs:
       - name: Build
         run: npm run build
 
+  design-tokens:
+    name: Design tokens and contrast
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/design-tokens
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # The generated artefacts are committed so every client can import them
+      # without a build step. This step is what stops anyone hand-editing them
+      # or changing a token without regenerating: a diff means dist/ is stale.
+      - name: Generated artefacts are in sync with tokens.json
+        run: npm run check
+      - name: Contrast check (both themes)
+        run: npm run contrast
+      - name: Install compiler
+        run: npm install --ignore-scripts --no-save typescript@5.9.3
+      - name: Type check the generated TypeScript module
+        run: npx tsc --noEmit --strict --target ES2022 --module ESNext --moduleResolution bundler dist/ts/tokens.ts
+
   shared-contracts:
     name: Governed shared contracts
     runs-on: ubuntu-latest
