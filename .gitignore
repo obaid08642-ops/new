@@ -30,3 +30,4 @@ extracted/
 # Filled production secrets (deploy/scripts/deploy.sh writes it)
 deploy/.env.production
 dump.rdb
+patient-web/public/openapi.json

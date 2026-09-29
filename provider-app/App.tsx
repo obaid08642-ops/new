@@ -1,4 +1,5 @@
 import { setupPushNotifications } from "./src/utils/PushNotifications";
+import { registerForPushNotificationsAsync } from "./src/utils/notifications";
 /**
  * NABDAH PLUS — App.tsx
  * Phase 0-5: Doctor + Facility + Pharmacy + Lab/Radiology + Nursing
@@ -40,6 +41,12 @@ function AppNavigator() {
   const { isLoggedIn, user, logout, appState } = useAuth();
   const { theme } = useTheme();
   const [pType, setPType]   = useState('doctor');
+  // Register this device's push token once the provider is signed in (the token used to be
+  // fetched and thrown away, so providers never received a push — not even for new orders).
+  React.useEffect(() => {
+    if (appState !== 'logged_in') return;
+    registerForPushNotificationsAsync().catch(() => null);
+  }, [appState, user?.id]);
 
   if (appState === 'checking') {
     return <SplashScreen onDone={() => {}} />;

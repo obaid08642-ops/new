@@ -47,10 +47,8 @@ async function main() {
     const out = process.argv[2] || path.resolve(__dirname, '..', 'openapi.json');
     const payload = JSON.stringify(document, null, 2);
     fs.writeFileSync(out, payload);
-    // Monorepo mirror: patient-web serves it statically at /openapi.json.
-    try {
-      fs.writeFileSync(path.resolve(__dirname, '..', '..', 'patient-web', 'public', 'openapi.json'), payload);
-    } catch { /* patient-web checkout absent — backend copy stands */ }
+    // Never mirror this into patient-web/public: it is the full private spec (admin routes
+    // included). Agents get the curated public subset at /.well-known/openapi.json.
     console.log(JSON.stringify({ openapi: out, paths: Object.keys(prefixed).length }));
   } finally {
     await app.close().catch(() => null);

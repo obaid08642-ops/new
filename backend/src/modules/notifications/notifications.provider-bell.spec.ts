@@ -82,4 +82,10 @@ describe('NotificationsService provider bell (LJ-07)', () => {
       provider_account_id: 'doctor-account-1', related_type: 'chat_message', related_id: 'msg-1',
     }));
   });
+
+  it('sends the provider push with the bell text (it used to arrive with no title or body)', async () => {
+    const { service } = setup();
+    await service.notifyProviderAccount('acct-1', { type: 'new_request', title_ar: 'طلب جديد', title_en: 'New request', body_ar: 'لديك طلب', related_id: 'b1', related_type: 'booking' });
+    expect(service.sendPush).toHaveBeenCalledWith(expect.objectContaining({ user_id: 'acct-1', title: 'طلب جديد', body: 'لديك طلب' }));
+  });
 });

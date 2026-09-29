@@ -2,11 +2,12 @@ import mongoose from 'mongoose';
 import * as fs from 'fs';
 import * as zlib from 'zlib';
 import * as readline from 'readline';
+import { CATALOG_COLLECTIONS } from '../src/modules/catalogs/catalog-collections';
 
 /**
  * Catalog v14 full replacement import.
  *
- * Replaces the medicines_master collection with the v14 catalog export
+ * Replaces the canonical `medicines` collection (CATALOG_COLLECTIONS.medicines) with the v14 catalog export
  * (JSONL, optionally gzipped). Every row carries:
  *   - canonical retail identity: sku (unique), source_product_id
  *   - governance: verified + public_eligibility + indexing_eligibility + approved
@@ -158,7 +159,9 @@ async function main() {
   }
 
   await mongoose.connect(mongoUrl, { dbName: process.env.MONGO_DB || undefined });
-  const col = mongoose.connection.collection('medicines_master');
+  // P5.1: the canonical catalog is `medicines` (every reader uses CATALOG_COLLECTIONS);
+  // importing into the legacy medicines_master left the live catalog untouched.
+  const col = mongoose.connection.collection(CATALOG_COLLECTIONS.medicines);
   const before = await col.countDocuments({});
   console.log(`existing documents: ${before} — deleting (backup release: medicines-backup-pre-v14-20260830)`);
   await col.deleteMany({});

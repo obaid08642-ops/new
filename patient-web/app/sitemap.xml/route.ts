@@ -4,7 +4,9 @@ import { siteOrigin } from "@/lib/seo";
 import { getProductSitemap } from "@/lib/api/public-products-server";
 import { patientApiUrl } from "@/lib/api/upstream";
 
-export const revalidate = 3600;
+// Computed per request: a build-time prerender (backend unreachable during the image build) froze an
+// index with no product sitemaps. The backend count itself is cached for an hour (fetch revalidate).
+export const dynamic = "force-dynamic";
 
 /** Sitemap index: static pages + paginated product sitemaps per locale. */
 export async function GET() {

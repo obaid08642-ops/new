@@ -7,7 +7,8 @@ API="${NABD_BACKEND:-http://127.0.0.1:8002}"
 what="${1:-all}"
 # Next renames its process to "next-server", so stop whatever listens on the port.
 # Next renames its process ("next-server"), so find it by working directory.
-stop() { for pid in $(pgrep -f 'next-server|next start|server.js'); do [[ "$(readlink /proc/$pid/cwd 2>/dev/null)" == "$1" ]] && kill "$pid" 2>/dev/null; done; sleep 2; }
+# A rebuild replaces the directory, so a running server's cwd reads "<dir> (deleted)": match both.
+stop() { for pid in $(pgrep -f 'next-server|next start|server.js'); do cwd="$(readlink /proc/$pid/cwd 2>/dev/null)"; [[ "${cwd% (deleted)}" == "$1" ]] && kill "$pid" 2>/dev/null; done; sleep 2; }
 if [[ $what == admin || $what == all ]]; then
   stop "$ROOT/admin"
   (cd "$ROOT/admin" && ADMIN_BACKEND_URL=$API NODE_ENV=production nohup npx next start -p 3001 -H 127.0.0.1 > /tmp/admin-server.log 2>&1 &)

@@ -72,7 +72,7 @@ export class AdminNotificationCenterService {
     const segment = String(body?.segment || '').trim();
     if (!title || !message || !segment) throw new BadRequestException('title, body, segment are required');
     if (title.length > 140 || message.length > 2000) throw new BadRequestException('notification content exceeds permitted length');
-    const allowedSegments = new Set(['all', 'patients', 'providers', 'role:pharmacy', 'role:doctor', 'role:lab', 'role:radiology', 'role:nurse', 'role:driver']);
+    const allowedSegments = new Set(['all', 'patients', 'providers', 'role:pharmacy', 'role:doctor', 'role:lab', 'role:radiology', 'role:nurse', 'role:hospital', 'role:ambulance', 'role:driver']);
     if (!allowedSegments.has(segment) && !/^user:[A-Za-z0-9_-]{1,128}$/.test(segment) && !/^segment:[A-Za-z0-9_-]{1,128}$/.test(segment)) {
       throw new BadRequestException('unsupported notification segment');
     }
@@ -108,7 +108,7 @@ export class AdminNotificationCenterService {
     }
     if (segment === 'patients') return this.usersByRole('patient');
     if (segment === 'providers') {
-      const roles = ['provider', 'doctor', 'pharmacy', 'lab', 'radiology', 'nurse', 'driver'];
+      const roles = Object.values(AdminNotificationCenterService.ROLE_ALIASES).flat().concat('provider');
       const rows = await this.users.find({ role: { $in: roles } }, { projection: { id: 1, _id: 0 } }).limit(100000).toArray();
       return rows.map((u: any) => u.id).filter(Boolean);
     }
@@ -129,8 +129,15 @@ export class AdminNotificationCenterService {
     throw new BadRequestException(`Unknown segment: ${segment}`);
   }
 
+  /** Segment role → stored user roles (onboarding stores nurses as home_care/nursing, labs as lab/laboratory). */
+  static readonly ROLE_ALIASES: Record<string, string[]> = {
+    pharmacy: ['pharmacy'], doctor: ['doctor'], lab: ['lab', 'laboratory'], radiology: ['radiology'],
+    nurse: ['nurse', 'home_care', 'nursing'], hospital: ['hospital'], ambulance: ['ambulance'], driver: ['driver'],
+  };
+
   private async usersByRole(role: string): Promise<string[]> {
-    const rows = await this.users.find({ role }, { projection: { id: 1, _id: 0 } }).limit(100000).toArray();
+    const roles = AdminNotificationCenterService.ROLE_ALIASES[role] || [role];
+    const rows = await this.users.find({ role: { $in: roles } }, { projection: { id: 1, _id: 0 } }).limit(100000).toArray();
     return rows.map((u: any) => u.id).filter(Boolean);
   }
 

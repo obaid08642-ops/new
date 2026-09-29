@@ -18,6 +18,18 @@ export function hreflangLinks(path: string) {
   return locales.map((l) => `<xhtml:link rel="alternate" hreflang="${l}" href="${escXml(localizedUrl(l, path))}" />`).join("");
 }
 
+/** hreflang for entities whose slug differs per locale (products): each alternate is that locale's
+ *  canonical URL, plus x-default → Arabic (the site default), matching the page's own <link>s. */
+export function hreflangLinksPerLocale(pathFor: (locale: Locale) => string | null) {
+  const links = locales
+    .map((l) => ({ l, path: pathFor(l) }))
+    .filter((x): x is { l: Locale; path: string } => Boolean(x.path))
+    .map(({ l, path }) => `<xhtml:link rel="alternate" hreflang="${l}" href="${escXml(localizedUrl(l, path))}" />`);
+  const def = pathFor("ar");
+  if (def) links.push(`<xhtml:link rel="alternate" hreflang="x-default" href="${escXml(localizedUrl("ar", def))}" />`);
+  return links.join("");
+}
+
 export const SITEMAP_NS = 'xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml"';
 
 export const DEFAULT_OG_IMAGE = "/images/og-default.jpg";
