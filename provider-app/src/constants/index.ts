@@ -3,21 +3,22 @@
  * Expo SDK 53 / React Native 0.76
  */
 import { Dimensions, Platform, StyleSheet } from 'react-native';
+import { dark } from './theme.generated';
 
 export const { width: SW, height: SH } = Dimensions.get('window');
 
 // ─── Brand Colors ─────────────────────────────────────────────────────────────
 export const C = {
  green50: '#F1F8E9', green100: '#DCEDC8', green200: '#C5E1A5',
- green500: '#4CAF50', green600: '#43A047', green700: '#388E3C',
+ green500: '#1F7A5C', green600: '#43A047', green700: '#388E3C',
  green800: '#2E7D32', greenNeon:'#69F0AE',
- blue500: '#2196F3', blueLight:'#E3F2FD',
- orange500: '#FF9800', orangeLight:'#FFF3E0',
- red500: '#F44336', redLight: '#FFEBEE',
+ blue500: '#1F5FA8', blueLight:'#E3E9FF',
+ orange500: '#8A5A00', orangeLight:'#FFF4D6',
+ red500: '#B81E2B', redLight: '#FFE3E5',
  yellow500: '#FFC107', yellowLight:'#FFFDE7',
  purple500: '#7C3AED', purpleLight:'#EDE9FE',
- teal500: '#009688', tealLight: '#E0F2F1',
- pink500: '#E91E63', pinkLight: '#FCE4EC',
+ teal500: '#1F7A5C', tealLight: '#FFE3E5',
+ pink500: '#F4B8E4', pinkLight: '#FFE3E5',
  white: '#FFFFFF', black: '#0D0D0D',
  g50: '#F8F9FA', g100: '#F1F3F5', g150: '#EAECEF', g200: '#E2E5E9',
  g300: '#CDD2D8', g400: '#A8B0BB', g500: '#7E8898', g600: '#56606E',
@@ -32,34 +33,19 @@ export const LIGHT = {
  card: C.white, inputBg: '#F8F9FA',
  border: '#D0D7DE', borderFocus: '#007AFF', borderErr: C.red500,
  text: '#1A1A1A', textSub: '#5A6370', textHint: '#8A94A3', textInv: C.white, textOff: '#8A94A3',
- primary: '#00BFA5', primaryDark: '#00897B', primaryLight: '#E0F2F1',
+ primary: '#00BFA5', primaryDark: '#00897B', primaryLight: '#FFE3E5',
  secondary: '#007AFF', secondaryDark: '#005BB5', secondaryLight: '#E5F1FF',
- success: '#34C759', successBg: '#E8F5E9',
- warn: '#FF9500', warnBg: '#FFF3E0',
- danger: '#FF3B30', dangerBg: '#FFEBEE',
- info: '#5AC8FA', infoBg: '#E3F2FD',
+ success: '#34C759', successBg: '#DDF4EC',
+ warn: '#FF9500', warnBg: '#FFF4D6',
+ danger: '#FF3B30', dangerBg: '#FFE3E5',
+ info: '#5AC8FA', infoBg: '#E3E9FF',
  navBg: C.white, navActive: '#00BFA5', navOff: '#8A94A3',
  overlay: 'rgba(0,0,0,0.5)',
  shadow: 'rgba(0,0,0,0.08)', shadowMd: 'rgba(0,0,0,0.12)',
  statusBar: 'dark-content' as const,
 } as const;
 
-export const DARK = {
- bg: '#0D1117', surface: '#161B22', surface2: '#21262D', surface3: '#30363D',
- card: '#161B22', inputBg: '#0D1117',
- border: '#30363D', borderFocus: '#58A6FF', borderErr: '#FF7B72',
- text: '#F0F6FC', textSub: '#8B949E', textHint: '#6E7681', textInv: '#0D1117', textOff: '#6E7681',
- primary: '#00BFA5', primaryDark: '#00897B', primaryLight: 'rgba(0, 191, 165, 0.15)',
- secondary: '#58A6FF', secondaryDark: '#1F6FEB', secondaryLight: 'rgba(88, 166, 255, 0.15)',
- success: '#3FB950', successBg: 'rgba(63, 185, 80, 0.15)',
- warn: '#D29922', warnBg: 'rgba(210, 153, 34, 0.15)',
- danger: '#F85149', dangerBg: 'rgba(248, 81, 73, 0.15)',
- info: '#58A6FF', infoBg: 'rgba(88, 166, 255, 0.15)',
- navBg: '#161B22', navActive: '#00BFA5', navOff: '#8B949E',
- overlay: 'rgba(0,0,0,0.75)',
- shadow: 'rgba(0,0,0,0.4)', shadowMd: 'rgba(0,0,0,0.6)',
- statusBar: 'light-content' as const,
-} as const;
+export const DARK = dark as unknown as typeof LIGHT;
 
 export type Theme = {
  bg: string; surface: string; surface2: string; surface3: string;
@@ -92,13 +78,13 @@ export const SH_LG = Platform.select({ ios:{shadowColor:'#000',shadowOffset:{wid
 
 // ─── Provider Types ───────────────────────────────────────────────────────────
 export const PROVIDER_TYPES = [
- { key:'doctor', icon:'', color:'#4CAF50', light:'#E8F5E9', arName:'طبيب مستقل', enName:'Independent Doctor', arDesc:'استشارات أونلاين، عيادة، زيارات منزلية', enDesc:'Online consults, clinic, home visits' },
- { key:'facility', icon:'', color:'#2196F3', light:'#E3F2FD', arName:'منشأة طبية', enName:'Medical Facility', arDesc:'مستشفى، مستوصف، مركز طبي', enDesc:'Hospital, clinic, medical center' },
- { key:'pharmacy', icon:'', color:'#FF9800', light:'#FFF3E0', arName:'صيدلية', enName:'Pharmacy', arDesc:'صرف أدوية، توصيل، وصفات طبية', enDesc:'Medications, delivery, prescriptions' },
- { key:'lab', icon:'', color:'#9C27B0', light:'#F3E5F5', arName:'معمل تحاليل', enName:'Laboratory', arDesc:'تحاليل طبية، نتائج، سحب عينات', enDesc:'Lab tests, results, home collection' },
- { key:'radiology', icon:'', color:'#009688', light:'#E0F2F1', arName:'مركز أشعة', enName:'Radiology Center', arDesc:'أشعة سينية، رنين، مقطعية', enDesc:'X-Ray, MRI, CT Scan, Ultrasound' },
- { key:'nursing', icon:'', color:'#E91E63', light:'#FCE4EC', arName:'تمريض منزلي', enName:'Home Nursing', arDesc:'رعاية منزلية، تمريض، إجراءات طبية', enDesc:'Home care, nursing, procedures' },
- { key:'ambulance', icon:'', color:'#F44336', light:'#FFEBEE', arName:'خدمة إسعاف', enName:'Ambulance Service', arDesc:'نقل طبي طارئ، وحدات عناية متنقلة', enDesc:'Emergency medical transport, mobile ICU' },
+ { key:'doctor', icon:'', color:'#1F7A5C', light:'#DDF4EC', arName:'طبيب مستقل', enName:'Independent Doctor', arDesc:'استشارات أونلاين، عيادة، زيارات منزلية', enDesc:'Online consults, clinic, home visits' },
+ { key:'facility', icon:'', color:'#1F5FA8', light:'#E3E9FF', arName:'منشأة طبية', enName:'Medical Facility', arDesc:'مستشفى، مستوصف، مركز طبي', enDesc:'Hospital, clinic, medical center' },
+ { key:'pharmacy', icon:'', color:'#8A5A00', light:'#FFF4D6', arName:'صيدلية', enName:'Pharmacy', arDesc:'صرف أدوية، توصيل، وصفات طبية', enDesc:'Medications, delivery, prescriptions' },
+ { key:'lab', icon:'', color:'#7A5AF0', light:'#EDEBFD', arName:'معمل تحاليل', enName:'Laboratory', arDesc:'تحاليل طبية، نتائج، سحب عينات', enDesc:'Lab tests, results, home collection' },
+ { key:'radiology', icon:'', color:'#1F7A5C', light:'#FFE3E5', arName:'مركز أشعة', enName:'Radiology Center', arDesc:'أشعة سينية، رنين، مقطعية', enDesc:'X-Ray, MRI, CT Scan, Ultrasound' },
+ { key:'nursing', icon:'', color:'#F4B8E4', light:'#FFE3E5', arName:'تمريض منزلي', enName:'Home Nursing', arDesc:'رعاية منزلية، تمريض، إجراءات طبية', enDesc:'Home care, nursing, procedures' },
+ { key:'ambulance', icon:'', color:'#B81E2B', light:'#FFE3E5', arName:'خدمة إسعاف', enName:'Ambulance Service', arDesc:'نقل طبي طارئ، وحدات عناية متنقلة', enDesc:'Emergency medical transport, mobile ICU' },
 ] as const;
 export type ProviderKey = typeof PROVIDER_TYPES[number]['key'];
 

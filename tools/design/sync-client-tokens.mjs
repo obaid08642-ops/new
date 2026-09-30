@@ -70,8 +70,13 @@ const NAMES = {
 };
 
 function read(path, theme = 'light') {
-  const value = path.split('.').reduce((acc, k) => acc?.[k], color);
-  if (value === undefined) throw new Error(`design token not found: color.${path}`);
+  // Most tokens live under `color`, but shadows are top-level alongside it, so
+  // the resolver falls back to the root rather than needing two spellings at
+  // every call site.
+  const value =
+    path.split('.').reduce((acc, k) => acc?.[k], color) ??
+    path.split('.').reduce((acc, k) => acc?.[k], source);
+  if (value === undefined) throw new Error(`design token not found: ${path}`);
   if (typeof value === 'string') return value;
   if (value && typeof value === 'object' && 'light' in value && 'dark' in value) return value[theme];
   return String(value);
@@ -88,13 +93,35 @@ const banner = (client) => `/**
  * Client: ${client}
  */`;
 
-function emit(client, names) {
+function emit(client, names, target = {}) {
   const light = Object.entries(names)
     .map(([k, p]) => `  ${k}: ${JSON.stringify(read(p))},`)
     .join('\n');
   const dark = Object.entries(names)
     .map(([k, p]) => `  ${k}: ${JSON.stringify(read(p, 'dark'))},`)
     .join('\n');
+  if (target.onlyDark) {
+    return `${banner(client)}
+
+export const DARK = {
+${dark}
+} as const;
+
+export type DarkTheme = typeof DARK;
+export type DarkThemeName = keyof DarkTheme;
+`;
+  }
+  if (target.onlyLight) {
+    return `${banner(client)}
+
+export const LIGHT = {
+${light}
+} as const;
+
+export type LightTheme = typeof LIGHT;
+export type LightThemeName = keyof LightTheme;
+`;
+  }
   return `${banner(client)}
 
 export const light = {
@@ -159,15 +186,64 @@ const PATIENT = {
   ors: 'status.warning.bg',
 };
 
+/**
+ * provider-app/src/constants/index.ts — a raw Material Design and iOS-default
+ * palette (`green500: '#4CAF50'`, `red500: '#F44336'`, `primary: '#00BFA5'`),
+ * 113 keys across C / LIGHT / DARK. None of it was the owner's.
+ *
+ * The ramps map by ROLE, and a ramp step that has no token of its own reuses the
+ * nearest one. A `g400` and a `g500` both meaning "muted text" is honest: the
+ * token file has three text weights, not ten greys, and pretending otherwise
+ * would invent a palette nobody approved.
+ */
+const PROVIDER_C = {
+  green50: 'status.success.bg', green100: 'status.success.bg', green200: 'status.success.bg',
+  green500: 'status.success.fg', green600: 'status.success.fg',
+  green700: 'status.success.fg', green800: 'status.success.fg', greenNeon: 'iconArt.mint',
+  blue500: 'status.info.fg', blueLight: 'status.info.bg',
+  orange500: 'status.warning.fg', orangeLight: 'status.warning.bg',
+  red500: 'status.danger.fg', redLight: 'status.danger.bg',
+  yellow500: 'accent.lime', yellowLight: 'accent.limeMuted',
+  purple500: 'iconArt.violet', purpleLight: 'service.consult.bg',
+  teal500: 'service.lab.glyph', tealLight: 'service.lab.bg',
+  pink500: 'iconArt.pink', pinkLight: 'status.danger.bg',
+  white: 'bg.surface', black: 'brand.ink',
+  g50: 'bg.sunken', g100: 'bg.sunken', g150: 'bg.elevated', g200: 'border.subtle',
+  g300: 'border.strong', g400: 'text.tertiary', g500: 'text.secondary',
+  g600: 'text.secondary', g700: 'text.primary', g800: 'text.primary', g900: 'brand.ink',
+  d900: 'bg.inverse', d800: 'bg.inverse', d750: 'bg.inverse', d700: 'bg.inverse',
+  d650: 'bg.elevated', d600: 'bg.elevated', d500: 'border.strong', dBdr: 'border.strong',
+};
+
+const PROVIDER_THEME = {
+  bg: 'bg.canvas', surface: 'bg.surface', surface2: 'bg.sunken', surface3: 'bg.elevated',
+  card: 'bg.surface', inputBg: 'bg.sunken',
+  border: 'border.subtle', borderFocus: 'action.primary.bg', borderErr: 'status.danger.fg',
+  text: 'text.primary', textSub: 'text.secondary', textHint: 'text.tertiary',
+  textInv: 'text.onInverse', textOff: 'text.tertiary',
+  primary: 'action.primary.bg', primaryDark: 'brand.coral', primaryLight: 'status.danger.bg',
+  secondary: 'service.consult.glyph', secondaryDark: 'service.consult.glyph',
+  secondaryLight: 'service.consult.bg',
+  success: 'status.success.fg', successBg: 'status.success.bg',
+  warn: 'status.warning.fg', warnBg: 'status.warning.bg',
+  danger: 'status.danger.fg', dangerBg: 'status.danger.bg',
+  info: 'status.info.fg', infoBg: 'status.info.bg',
+  navBg: 'bg.surface', navActive: 'action.primary.bg', navOff: 'text.secondary',
+  overlay: 'glass.scrim', shadow: 'shadow.card', shadowMd: 'shadow.raised',
+  statusBar: 'bg.surface',
+};
+
 const TARGETS = [
   { file: 'provider-app/src/theme/tokens.generated.ts', client: 'provider-app', names: NAMES.provider },
   { file: 'patient-app/src/theme/colors.generated.ts', client: 'patient-app', names: PATIENT },
+  { file: 'provider-app/src/constants/palette.generated.ts', client: 'provider-app', names: PROVIDER_C },
+  { file: 'provider-app/src/constants/theme.generated.ts', client: 'provider-app', names: PROVIDER_THEME, bothThemes: true },
 ];
 
 let stale = 0;
 for (const target of TARGETS) {
   const out = resolve(REPO, target.file);
-  const content = emit(target.client, target.names);
+  const content = emit(target.client, target.names, target);
   if (CHECK_ONLY) {
     const current = existsSync(out) ? readFileSync(out, 'utf8') : '';
     if (current !== content) {

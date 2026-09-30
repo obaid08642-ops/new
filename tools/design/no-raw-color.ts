@@ -84,6 +84,10 @@ const SKIP_PATH_PREFIXES: Record<string, string> = {
     'its literals ARE the token file, and `sync-client-tokens --check` fails if it drifts',
   'patient-app/src/theme/colors.generated.ts':
     'same generator, same reason: the literals are the token file, not a hand copy',
+  'provider-app/src/constants/palette.generated.ts':
+    'generated from tokens.json by tools/design/sync-client-tokens.mjs; the literals ARE the token file',
+  'provider-app/src/constants/theme.generated.ts':
+    'same generator, same reason',
 };
 
 const isSkippedPath = (file: string) =>
