@@ -1074,3 +1074,96 @@ Also removed `phosphor-react-native` from patient-app: it was never imported, an
   all need credentials, devices or infrastructure this machine does not have.
 - gitleaks history (191: 184 fixtures + 7 old TURN secret copies) is untouched;
   rewriting history needs a force-push this branch does not do.
+
+---
+
+## Phase 12 — design system (in progress)
+
+Committed so far: `671e079` A1 artwork, `53610a0` A2 tokens, `ef4c17c` A5
+typography, `4bad33b` A6 iconography, `384a20f` A7 component contract, `17d67ea`
++ `b7762c1` A0 wiring.
+
+### 12.A0 — the palette now reaches the screen, and cannot quietly stop
+
+**Four `var()`s resolved to nothing.** `patient-web/app/globals.css` referenced
+`--nabd-color-border-default`, `--nabd-color-glass-surface`,
+`--nabd-font-family-body` and `--nabd-font-family-locale-ar`; none of them was
+ever defined. A `var()` with no definition is not a fallback — the declaration is
+dropped and the element inherits whatever the cascade happens to offer. The file
+imported the token sheets without resolving them. All four now point at real
+token names, and `tests/design-system.test.ts` fails on any unresolved reference
+so the class cannot come back.
+
+**A partial dark override was making dark theme half-broken.** The file carried
+an `html.dark, .dark` block that redeclared 24 of roughly 60 aliases, so the
+other 36 kept their LIGHT values inside a dark theme — while a comment directly
+above it stated that no such block existed. `tokens.css` already emits both
+themes, so the block is gone and `data-theme="dark"` re-points the tokens. Both
+themes verified in Chromium: light canvas `#f5f5f7` / ink `#0b1b2b` / brand
+`#ff4b55`; dark canvas `#0b1b2b` / ink `#f5f5f7` / brand `#ff6b73`. Body paint
+and `font-family` confirmed to resolve, not just the variables.
+
+**Two hero CTAs were unreadable at 1.00:1.** "Book a doctor" and "Insurance" were
+white on `rgba(255,255,255,0.12)` — a glass chip built for a dark hero, left
+behind when A2 put a light canvas behind it. Nothing measured text on a gradient,
+so it shipped. Now outlined buttons on the surface: **17.41:1 light, 14.14:1
+dark**. "Shop Pharmacy" moved off a mint that was never the brand onto the owner
+coral action pair (5.01:1 light, 6.30:1 dark). The hero surface, badge, headings
+and body copy moved to tokens in the same pass, removing 19 hand-coded colours
+from the client.
+
+**The colour ratchet had spendable slack.** `no-raw-color` compares
+`count <= baseline`, so every colour removed by A11 left an allowance a later
+contributor could spend silently — the file that fell 118 → 117 accepted a new
+literal and still read 118. `--update` was named in three of the tool's own
+messages and did not exist. It is implemented now and only ever lowers a count; a
+file that has grown is refused, so it cannot launder a violation. Baseline is
+committed at **9,544 with zero slack**, 19 lower than before.
+
+Mutation-verified, because a guard nobody has seen fail is a guess:
+
+| probe | result |
+|---|---|
+| one new literal in `home.module.css` | exit 1, names file + line + kind |
+| `--update` while that literal is present | exit 1, refused |
+| hand-edit inside the generated mirror | `sync-web:check` exit 1 |
+| dangling `var()` reintroduced | test fails |
+| partial `html.dark` block reintroduced | test fails |
+| `sync-web` mirror made stale | `sync-web:check` exit 1 |
+
+`patient-web/app/design-tokens/` is exempt from the ratchet by name, with the
+reason attached: it is the generated mirror of `packages/design-tokens/dist/css`
+(already exempt through `dist/`), and the mirror is not itself in a `dist`
+directory, so the palette definition was being counted as 153 hand-coded
+colours. The exemption is not a hole — `sync-token-css --check` is now in
+`packages/design-tokens` `npm test` and in CI, so `tokens.json` still has exactly
+one source of truth.
+
+### Two tests were asserting the old contract
+
+`design-system.test.ts` pinned `--brand: #087f8c`, `--ink: #101828`,
+`--canvas: #f6f7f9`; `premium-motion.test.ts` pinned `--font-ui:
+-apple-system`. All four literals are pre-A2/pre-A5 values. They would have
+blocked the work rather than protecting it, so both are rewritten to the
+invariant that matters now — the palette is generated rather than hand-written,
+and the font resolves from the token sheet with real system fallbacks and no
+embedded binary.
+
+### Verification
+
+- `packages/design-tokens npm test`: green, including the new `sync-web:check`.
+  contrast **65/65** in both themes; `no-px-font-size` 289 none added;
+  `no-emoji-in-ui` 47 none added; `no-raw-color` 9,544 none added.
+- patient-web `tsc --noEmit`: clean. Production build: clean.
+- patient-web vitest: **401 passed, 23 skipped, 0 failed** (177 files).
+- Cross-checked the other three clients: no test asserts an old brand literal and
+  no stylesheet has a dangling `var()`. That defect class was patient-web only.
+
+### Still open
+
+- 9,544 ratcheted colours, 289 px font sizes, 47 emoji, 23 vitest skips. Frozen
+  and measured, not cleared. 12.A11 clears them; none may be added.
+- patient-app, provider-app and admin are still essentially unwired: three files
+  across all three reference the tokens at all. A0 is done for patient-web only.
+- A1 artwork and A6 iconography exist in the package but are not yet placed in
+  real screens.
