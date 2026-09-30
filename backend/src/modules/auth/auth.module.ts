@@ -16,6 +16,8 @@ import { AdminSessionService } from './admin-session.service';
 import { AdminRecoveryService } from './admin-recovery.service';
 import { AdminRecoveryController } from './admin-recovery.controller';
 import { AdminDevicesController } from './admin-devices.controller';
+import { StepUpController } from './step-up.controller';
+import { StepUpService, StepUpGuard } from '../../common/step-up.guard';
 import { User, UserSchema } from '../../schemas/user.schema';
 import { PatientProfile, PatientProfileSchema } from '../../schemas/patient-profile.schema';
 import { ProviderProfile, ProviderProfileSchema } from '../../schemas/provider-profile.schema';
@@ -48,8 +50,8 @@ import { UserRepository } from "./repositories/user.repository";
       { name: TrustedDevice.name, schema: TrustedDeviceSchema },
     ]),
   ],
-  controllers: [AuthController, PasskeyController, AdminDevicesController, AdminRecoveryController],
-  providers: [AuthService, PasskeyService, DeviceTrustService, AdminDeviceService, AdminSessionService, AdminRecoveryService, JwtAuthGuard, { provide: 'PatientProfileRepository', useClass: PatientProfileRepository }, { provide: 'UserRepository', useClass: UserRepository }],
+  controllers: [AuthController, PasskeyController, AdminDevicesController, AdminRecoveryController, StepUpController],
+  providers: [AuthService, PasskeyService, DeviceTrustService, AdminDeviceService, AdminSessionService, AdminRecoveryService, StepUpService, StepUpGuard, JwtAuthGuard, { provide: 'PatientProfileRepository', useClass: PatientProfileRepository }, { provide: 'UserRepository', useClass: UserRepository }],
   exports: [AuthService, JwtModule, JwtAuthGuard, MongooseModule, DeviceTrustService, AdminSessionService],
 })
 export class AuthModule {}

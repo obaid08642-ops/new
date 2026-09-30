@@ -27,6 +27,29 @@ export class AdminRecoveryController {
     return { ok: true, codes, warning: 'Store these offline. Each code works once, only with an email code.' };
   }
 
+  /**
+   * C6: start recovery by emailing a one-time code to the admin's mailbox.
+   *
+   * Without this the redeem step is unreachable: it requires an email code, but
+   * a locked-out admin cannot log in to request one. The code alone grants
+   * nothing — redeem still requires the recovery code too.
+   */
+  @Public()
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  @Post('start')
+  async start(@Body() body: { email?: string }) {
+    const email = String(body?.email || '').trim().toLowerCase();
+    if (!email) throw new BadRequestException('email_required');
+    const u: any = await (this.auth as any).userModel.findOne({ email });
+    if (!u || (u.role !== UserRole.ADMIN && u.role !== UserRole.SUPER_ADMIN)) {
+      // Same answer as a sent code: this endpoint must not reveal which emails
+      // are registered admin accounts.
+      return { ok: true, channel: 'email' };
+    }
+    const res = await this.auth.sendOtp(email, 'admin_recovery');
+    return { ok: !!res?.ok, channel: res?.channel || 'email' };
+  }
+
   @Public()
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Post('redeem')

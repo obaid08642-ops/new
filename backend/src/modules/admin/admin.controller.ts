@@ -1,3 +1,4 @@
+import { StepUp } from '../../common/step-up.guard';
 import { Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards, BadRequestException, ForbiddenException, Optional, ServiceUnavailableException } from '@nestjs/common';
 import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
@@ -372,6 +373,7 @@ export class AdminController {
     return { ok: true, id: doc.id, email, initial_password: body?.password ? undefined : password };
   }
 
+  @StepUp()
   @Patch('sub-admins/:userId')
   async updateSubAdmin(@CurrentUser() by: any, @Param('userId') userId: string, @Body() body: UpdateSubAdminDto) {
     this.assertOwner(by, await this.resolveUser(by));
@@ -393,6 +395,7 @@ export class AdminController {
     return { ok: true };
   }
 
+  @StepUp()
   @Delete('sub-admins/:userId')
   async deleteSubAdmin(@CurrentUser() by: any, @Param('userId') userId: string) {
     this.assertOwner(by, await this.resolveUser(by));
@@ -453,6 +456,7 @@ export class AdminController {
   }
 
   /** Ban/deactivate a user account (blocks login via active=false). */
+  @StepUp()
   @Post('users/:userId/ban')
   async banUser(@Param('userId') userId: string, @CurrentUser() by?: any) {
     // Users are addressed by uuid `id`; fall back to legacy Mongo `_id` (never throws).
@@ -476,6 +480,7 @@ export class AdminController {
   }
 
   /** Lift a ban / reactivate an account. */
+  @StepUp()
   @Post('users/:userId/unban')
   async unbanUser(@Param('userId') userId: string, @CurrentUser() by?: any) {
     // Users are addressed by uuid `id`; fall back to legacy Mongo `_id` (never throws).
@@ -508,6 +513,7 @@ export class AdminController {
    * Permanently delete a user account and purge their directly-owned records.
    * Irreversible — the admin UI requires an explicit typed confirmation.
    */
+  @StepUp()
   @Delete('users/:userId')
   async deleteUser(@Param('userId') userId: string, @CurrentUser() by?: any) {
     // Users are addressed by uuid `id`; fall back to legacy Mongo `_id` (never throws).
@@ -566,6 +572,7 @@ export class AdminController {
    * is deleted/suspended/inactive (legacy of the pre-fix BFF misroute), plus
    * suspended owners still publicly visible. Dry-run by default.
    */
+  @StepUp()
   @Post('users/cleanup-orphans')
   async cleanupOrphans(@Body() body: CleanupOrphansDto) {
     const dryRun = body?.dry_run !== false;
@@ -591,6 +598,7 @@ export class AdminController {
   /**
    * Manually approve a Doctor or Pharmacy (ensures 'verified: boolean' blocks booking until Admin approves).
    */
+  @StepUp()
   @Post('approve/:userId')
   async approveProvider(@Param('userId') userId: string, @CurrentUser() by?: any) {
     // Users are addressed by uuid `id`; fall back to legacy Mongo `_id` (never throws).
@@ -607,6 +615,7 @@ export class AdminController {
     return { ok: true, message: 'provider_verified' };
   }
 
+  @StepUp()
   @Post('suspend/:userId')
   async suspendProvider(@Param('userId') userId: string, @CurrentUser() by?: any) {
     // Users are addressed by uuid `id`; fall back to legacy Mongo `_id` (never throws).

@@ -169,10 +169,10 @@ export class JwtAuthGuard implements CanActivate {
         if (uid) {
           const devId = String((req.headers as any)?.['x-admin-device'] || '');
           const { createHash } = require('crypto');
-          const ok = devId.length >= 16 && await this.connection.collection('admin_devices').findOne(
+          const dev = devId.length >= 16 && await this.connection.collection('admin_devices').findOne(
             { user_id: uid, device_hash: createHash('sha256').update(devId).digest('hex'), revoked: { $ne: true } },
           ).catch(() => null);
-          if (!ok) throw new ForbiddenException('device_not_enrolled');
+          if (!dev) throw new ForbiddenException('device_not_enrolled');
           // C5: sliding 15-minute idle window for admin sessions.
           if (this.adminIdle) {
             if (await this.adminIdle.isIdleExpired(uid)) {

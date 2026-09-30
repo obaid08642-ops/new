@@ -107,6 +107,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
     headers.set('x-forwarded-for', req.socket.remoteAddress || '');
     headers.set('x-admin-bff', 'next-pages-router');
+    // 7C-C3: the backend network-gate check needs this on every /api/v1/admin/* call.
+    if (process.env.ADMIN_GATE_TOKEN) headers.set('x-admin-gate-token', process.env.ADMIN_GATE_TOKEN);
     // Device binding (NOT IP binding — mobile IPs rotate): stable per-browser id.
     let deviceId = cookieValue(req, 'admin_device');
     let setDeviceCookie: string | null = null;

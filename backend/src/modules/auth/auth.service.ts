@@ -596,7 +596,19 @@ export class AuthService {
       if (u.role === UserRole.SUPER_ADMIN || u.role === UserRole.ADMIN) {
         if (!this.passkeys) throw new UnauthorizedException('passkey_not_available');
         const keyCount = await this.passkeys.countCredentials(u.id);
-        if (keyCount === 0) throw new ForbiddenException('passkey_enrollment_required');
+        if (keyCount === 0) {
+          // Bootstrap: no passkey enrolled yet → email OTP so the owner can
+          // sign in once and enroll the first device from the security page.
+          // After the first key exists, OTP is never offered again.
+          const contact = this.otpContact(u, identifier);
+          await this.sendOtp(contact);
+          return {
+            requires_2fa: true,
+            identifier: contact,
+            message: 'OTP sent to your registered contact.',
+            passkey_bootstrap: true,
+          };
+        }
         const options = await this.passkeys.startLogin(u);
         return {
           requires_passkey: true,
@@ -690,9 +702,12 @@ export class AuthService {
     await this.adminLoginAlert(u, true, ctx); // C5
     const result: any = { user: this.publicUser(u), token: this.signToken(u) };
     // C2: auto-enroll the presenting device into the admin allow-list on
-    // successful passkey login (the passkey assertion proves possession).
+    // successful passkey login (the passkey assertion proves possession). The
+    // device is bound to the credential that was just verified, so removing that
+    // passkey revokes the device — a token replayed without a live credential is
+    // rejected by the guard even though the device id is enrolled.
     if (this.adminDevices && ctx?.deviceId) {
-      await this.adminDevices.enroll(u.id, ctx.deviceId, ctx.ua, ctx.deviceName);
+      await this.adminDevices.enroll(u.id, ctx.deviceId, ctx.ua, ctx.deviceName, response?.id);
     }
     if (this.deviceTrust) {
       const { token, device } = await this.deviceTrust.issue(u.id, ctx?.ua, ctx?.ip);

@@ -6,15 +6,16 @@ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 API="${NABD_BACKEND:-http://127.0.0.1:8002}"
 what="${1:-all}"
 # Next renames its process to "next-server", so stop whatever listens on the port.
-# Next renames its process ("next-server"), so find it by working directory.
-# A rebuild replaces the directory, so a running server's cwd reads "<dir> (deleted)": match both.
-stop() { for pid in $(pgrep -f 'next-server|next start|server.js'); do cwd="$(readlink /proc/$pid/cwd 2>/dev/null)"; [[ "${cwd% (deleted)}" == "$1" ]] && kill "$pid" 2>/dev/null; done; sleep 2; }
+# /proc does not exist on macOS, so match on the listening port (lsof) as well;
+# without this a "restart" silently left the old build running and every change
+# appeared to have no effect.
+stop() { local port="$1"; local pids; pids="$(lsof -ti "tcp:${port}" 2>/dev/null)"; [[ -n "$pids" ]] && kill $pids 2>/dev/null; for pid in $(pgrep -f 'next-server|next start|server.js' 2>/dev/null); do cwd="$(readlink /proc/$pid/cwd 2>/dev/null)"; [[ -n "$cwd" && "${cwd% (deleted)}" == "$2" ]] && kill "$pid" 2>/dev/null; done; sleep 2; }
 if [[ $what == admin || $what == all ]]; then
-  stop "$ROOT/admin"
-  (cd "$ROOT/admin" && ADMIN_BACKEND_URL=$API NODE_ENV=production nohup npx next start -p 3001 -H 127.0.0.1 > /tmp/admin-server.log 2>&1 &)
+  stop 3001 "$ROOT/admin"
+  (cd "$ROOT/admin" && ADMIN_BACKEND_URL=$API ADMIN_GATE_TOKEN="${ADMIN_GATE_TOKEN:-live-gate-token}" NODE_ENV=production nohup npx next start -p 3001 -H 127.0.0.1 > /tmp/admin-server.log 2>&1 &)
 fi
 if [[ $what == patient-web || $what == all ]]; then
-  stop "$ROOT/patient-web/.next/standalone"
+  stop 3000 "$ROOT/patient-web/.next/standalone"
   cd "$ROOT/patient-web" && rm -rf .next/standalone/public .next/standalone/.next/static && cp -r public .next/standalone/ && mkdir -p .next/standalone/.next && cp -r .next/static .next/standalone/.next/
   (cd "$ROOT/patient-web/.next/standalone" && PORT=3000 HOSTNAME=127.0.0.1 NABD_API_BASE_URL=$API/api/v1 NEXT_PUBLIC_SITE_ORIGIN=http://localhost:3000 NODE_ENV=production nohup node server.js > /tmp/pw-server.log 2>&1 &)
 fi

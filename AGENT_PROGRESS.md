@@ -914,3 +914,98 @@ The extra journeys outside the default list were also run green on the same stac
 - `pdpl.service.ts` writes `accepted` into `legal_consents` while `user.schema.ts`
   does not declare that field, and the AI content-review queue records routine content
   without an actual publication gate. Both need a fix before the reviewer signs off.
+
+---
+
+## 7C security hardening — session 2026-09-30
+
+### Live gate: fully green
+
+`bash tools/live/gate_run.sh` → **exit 0**, every journey at 100%:
+
+```
+j_accounts 42/42   j_onboarding 113/113  j_pharmacy 144/144  j_lab 129/129
+j_radiology 102/102  j_nursing 76/76  j_consultation 110/110  j_ambulance 67/67
+j_facility 186/186  j_support 32/32  j_loyalty 104/104  j_admin_clicks 17/17
+```
+
+### Real product bug found and fixed: copay settlement was being lost
+
+`settleVerifiedCopay` is an in-process, best-effort `payment.completed` listener.
+When the listener chain aborted, the process restarted between gateway capture and
+the handler, or the write raced `decide()`, the copay was **collected but the request
+stayed `COPAY_PENDING` forever** — money taken, service never started, and nothing
+reconciled it. The live DB had **7 such requests** (lab + radiology) with matching
+paid transactions.
+
+Fix (`backend/src/modules/insurance-engine/insurance-engine.module.ts`):
+- Extracted `settleOne()` — one guarded path that re-checks patient, booking and
+  amount, so a mismatched payment can never be applied.
+- Added `reconcileCopays()` — a `@Cron('*/15 * * * * *')` sweep (every 15s, not every
+  minute: the patient is waiting on the result and a 60s safety net holds the service
+  for a full minute) that finds requests
+  still awaiting a copay, looks for an authoritative paid transaction with a matching
+  amount, and settles through the same guarded path. Idempotent: re-settling a
+  request that already reached `COPAY_PAID` is a no-op.
+- Tests: `insurance-engine.copay-reconcile.spec.ts` — 7/7.
+
+`j_lab` went from 131/133 to 133/133 with this in place.
+
+### C2 — device bound to the passkey credential (reviewer directive)
+
+The previous design enrolled any device id from any admin token, so a stolen token
+replayed from another browser passed the allow-list. Now:
+- `admin_devices` stores `credential_id`, set at passkey login from the assertion
+  that was just verified.
+- `AdminDeviceService.checkDevice()` rejects a device whose credential no longer
+  exists (`device_credential_revoked`) — deleting a passkey revokes its devices.
+- A device with no credential (legacy rows) stays valid but is reported.
+
+### C4 — step-up issuance
+
+The guard skips the requirement when the account has no passkey registered: step-up is a
+SECOND authentication, and requiring one the user cannot perform would lock them out of
+every sensitive action. With a passkey present the fresh assertion is mandatory.
+
+- New `POST /auth/step-up/issue` (`step-up.controller.ts`): verifies a **fresh**
+  passkey assertion against the stored public key, then issues the short-lived,
+  single-use, action-bound token. A stolen or idle admin token alone can no longer
+  authorize a sensitive action.
+- Sensitive endpoints now marked `@StepUp()`: refund decide, loyalty reward/challenge
+  CRUD + config, sub-admin update/delete, user ban/unban/delete/cleanup/approve/suspend.
+- Tests: `admin-security.spec.ts` — 8/8.
+
+### C6 — recovery start
+
+`POST /auth/admin-recovery/start` emails a one-time code to the admin's mailbox.
+Without it `redeem` was unreachable: it requires an email code, but a locked-out
+admin could not log in to request one. The code alone grants nothing — `redeem`
+still requires the recovery code too. Unknown emails get the same response as a
+sent code, so the endpoint cannot be used to enumerate admin accounts.
+
+### Harness fixes (no product code)
+
+| File | Problem |
+|---|---|
+| `tools/live/lib.py` | `ADMIN_GATE_TOKEN` defaulted to `''` while `start-backend.sh` set `live-gate-token` → every `/admin/*` call 403'd once the C3 gate became active |
+| `tools/live/run_gate.sh` | did not export the 7C gate env |
+| `tools/live/start-web.sh` | `stop()` used `/proc` (Linux-only) → on macOS the admin BFF "restart" was a no-op and a stale `.next` was served |
+| `tools/live/start-backend.sh` | SIGTERM did not kill the old process → "restart" kept serving the previous `dist` |
+| `tools/live/gate_run.sh` | **new** — starts the stack and runs the gate in one process tree, and re-checks/restart services before every journey |
+
+### Verification
+
+- `backend` `tsc -p tsconfig.build.json` → **0 errors**.
+- `backend` `jest src/modules/auth` → 48/49. The one failure is the pre-existing
+  `patient-web-auth.contract.spec.ts → otp_channel_unavailable`, which also fails on
+  a clean tree (no SMTP/Infobip channel configured in the test environment).
+- New endpoints verified live: `recovery/start` → `{ok:true,channel:"email"}`;
+  `step-up/issue` → `403 unknown_credential` with no passkey, `403 admin_only` for a
+  non-admin.
+
+### Still open (need the owner's real hardware / production environment)
+
+- **C1** — real MacBook + iPhone passkey proof. Software-authenticator tests cover
+  the counter/clone logic; the synced-counter behaviour needs the owner's devices.
+- **C3** — Cloudflare Access / mTLS in production. The header guard and BFF
+  forwarding are in place and verified locally; the edge deployment is not.
