@@ -1167,3 +1167,28 @@ embedded binary.
   across all three reference the tokens at all. A0 is done for patient-web only.
 - A1 artwork and A6 iconography exist in the package but are not yet placed in
   real screens.
+
+---
+
+## Phases 6–11 review pass — N5 duplicate email + A1 wallet-copy cleanup
+
+Verified the N5 duplicate-send path directly: `deliverById()` emailed users with
+both phone and email twice. It now sends email at most once per delivery and keeps
+WhatsApp/push unchanged. Added an N5 regression test.
+
+Also removed the remaining A1 “wallet” residuals that contradicted refunds to the
+original payment method: patient-web return request/default now use `original`,
+and the app terms copy says “original payment method” instead of wallet.
+
+Targeted verification for this pass:
+
+- `backend/src/modules/notifications/notifications.service.spec.ts`: **9/9**
+- `backend npx tsc --noEmit`: **clean**
+- `backend src/modules/payments/payments-idor.spec.ts`: **12/12**
+- `backend/package.json` declares `@simplewebauthn/server` and `ioredis`; no
+  `redis` or `@simplewebauthn/types` imports remain for the step-up path.
+
+Not claimed here: the broader 7E/7F net-new engagement/discovery scope
+(campaigns/recurring/nudges/full provider linking/full sitemap/importer/AI-checkout)
+and Phase 12–14 remain explicitly open; they are larger product work, not one-line
+fixes.

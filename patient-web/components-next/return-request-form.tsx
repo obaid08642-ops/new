@@ -38,7 +38,7 @@ export function ReturnRequestForm({ locale }: { locale: string }) {
           reason: reason.trim(),
           orderId: orderId.trim(),
           details: details.trim(),
-          refundMethod: "wallet",
+          refundMethod: "original",
           amount: DEFAULT_AMOUNTS[serviceType],
         }),
       });
