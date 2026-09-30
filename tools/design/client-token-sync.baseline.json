@@ -114,7 +114,7 @@
     "patient-app/src/navigation/guards/AuthGuard.tsx": 1,
     "patient-app/src/theme/ThemeEngine.ts": 1,
     "patient-app/src/theme/brand.ts": 9,
-    "patient-app/src/theme/colors.ts": 61,
+    "patient-app/src/theme/colors.ts": 2,
     "patient-app/src/theme/index.ts": 111,
     "patient-app/src/utils/labMappers.ts": 10,
     "patient-app/src/utils/medication-notifications.ts": 2,

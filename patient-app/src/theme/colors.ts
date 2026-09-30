@@ -1,82 +1,48 @@
-import { brand } from './brand';
-export const lightColors = {
-  // Phase 8: brand-driven tokens (primary lime; iPhone off-white surface)
-  brandPrimary: brand.primary.lime,
-  brandPrimaryDeep: brand.primary.limeDeep,
-  brandBg: brand.surface.light,
-  bg: '#F2F4F7',
-  s: '#FFFFFF',
-  n: '#141A2A',
-  n2: '#222A3D',
-  t: '#141A2A',
-  t2: '#4C5566',
-  t3: '#8C93A3',
-  bd: '#E5E8EE',
-  p: '#7CB518',
-  pd: '#5C8F11',
-  ps: '#F0F9D4',
-  pt: '#3F6212',
-  c1: '#8FD4E3',
-  c2: '#62C5D7',
-  tl: '#2BB89C',
-  ts: '#E2F7F2',
-  pr: '#7A6BEA',
-  prs: '#EDEBFD',
-  am: '#F0A526',
-  as: '#FEF4E0',
-  cr: '#F0695C',
-  cs: '#FEEFED',
-  bl: '#4889D4',
-  bs: '#E8F1FB',
-  pk: '#E8568E',
-  pks: '#FCE8F1',
-  gr: '#5BA84F',
-  grs: '#EBF6E9',
-  or: '#F58634',
-  ors: '#FEF0E4',
-};
+/**
+ * patient-app palette.
+ *
+ * The VALUES are generated — see colors.generated.ts, written from
+ * packages/design-tokens/tokens.json by tools/design/sync-client-tokens.mjs.
+ * This file only keeps the historical export names, because several hundred
+ * call sites use them and the names are the API.
+ *
+ * WHY THIS USED TO BE HAND-WRITTEN
+ *
+ * `theme/colors.ts` and `theme/index.ts` together held 172 colour literals and a
+ * primary of lime `#7CB518` / `#B8E030`, from a design system that predates the
+ * owner's palette. `theme/brand.ts` still says so in its own comment: "الأساسي:
+ * الأخضر الليموني" — the primary is lime green. That comment is now wrong, and
+ * it was wrong before this change too.
+ *
+ * The key names are cryptic (`p`, `pd`, `ts`, `prs`) but they are load-bearing,
+ * so they are kept and mapped to tokens BY ROLE: `p` was "the primary action
+ * colour", so it is now the owner's coral action pair regardless of its name.
+ * `ps` and `pt` were pale/deep lime; they are now pale/deep coral, because a
+ * pale lime surface behind coral text is a pairing nobody chose.
+ *
+ * Both themes come from the token file, so a token change moves both at once —
+ * which the hand-written pair could not promise.
+ */
 
-export const darkColors = {
-  brandPrimary: brand.primary.lime,
-  brandPrimaryDeep: brand.primary.limeDeep,
-  bg: '#0E1422',
-  s: '#1A2234',
-  n: '#F2F4F7',
-  n2: '#E5E8EE',
-  t: '#F2F4F7',
-  t2: '#B8BEC9',
-  t3: '#7C8494',
-  bd: '#2A3346',
-  p: '#B8E030',
-  pd: '#9FCC28',
-  ps: '#2A3316', 
-  pt: '#3F6212',
-  c1: '#8FD4E3',
-  c2: '#62C5D7',
-  tl: '#2BB89C',
-  ts: '#1A2F2C', 
-  pr: '#7A6BEA',
-  prs: '#221F36', 
-  am: '#F0A526',
-  as: '#30261A', 
-  cr: '#F0695C',
-  cs: '#351F1E', 
-  bl: '#4889D4',
-  bs: '#1E2835', 
-  pk: '#E8568E',
-  pks: '#341E28', 
-  gr: '#5BA84F',
-  grs: '#1F2E1E', 
-  or: '#F58634',
-  ors: '#35251B', 
-};
+import { dark, light } from './colors.generated';
+
+export const lightColors: Colors = light;
+export const darkColors: Colors = dark;
+
+export type ColorName = keyof typeof light;
+export type Colors = Record<ColorName, string>;
+
+/** The palette for one theme, so callers stop branching on it themselves. */
+export function colorsFor(theme: 'light' | 'dark'): Colors {
+  return theme === 'dark' ? darkColors : lightColors;
+}
 
 /**
- * Resolves a CSS variable string like 'var(--p)' to an actual color hex value.
- * Also handles plain hex/named colors by returning them as-is.
- * @param {string} c - color string, e.g. 'var(--p)' or '#7CB518'
- * @param {object} colors - the current theme's color object (lightColors or darkColors)
- * @returns {string} resolved hex color
+ * Resolve a colour reference to a value.
+ *
+ * Kept because ThemeEngine imports it and because the indirection is real: a
+ * screen may be handed a token NAME (`p`, `cr`) or a `var(--x)` string, and both
+ * have to land on a value. The `#000` fallbacks are unchanged.
  */
 export function resolveColor(c: string | undefined | null, colors?: Record<string, string>) {
   if (!c) return '#000';
@@ -84,10 +50,8 @@ export function resolveColor(c: string | undefined | null, colors?: Record<strin
   if (c.startsWith('var(')) {
     const v = c.replace('var(--', '').replace(')', '');
     if (colors && colors[v]) return colors[v];
-    // fallback to light colors if no colors object provided
     return (lightColors as Record<string, string>)[v] || c;
   }
-  // If it's a key name directly (like 'p', 'cr', etc.)
   if (colors && colors[c]) return colors[c];
   return c;
 }

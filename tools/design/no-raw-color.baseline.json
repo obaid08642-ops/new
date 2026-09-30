@@ -2,7 +2,7 @@
   "note": "Hard-coded colours that predate the design system. Recorded once with --init. 12.A11 rebuilds the screens on tokens and each rebuilt file drops out. --update only ever LOWERS a count; it cannot raise one.",
   "totals": {
     "patient-web": 6324,
-    "patient-app": 2615,
+    "patient-app": 2553,
     "provider-app": 354,
     "admin": 215
   },
@@ -484,7 +484,7 @@
     "patient-app/src/services/Notifications.ts": 1,
     "patient-app/src/theme/ThemeEngine.ts": 1,
     "patient-app/src/theme/brand.ts": 12,
-    "patient-app/src/theme/colors.ts": 64,
+    "patient-app/src/theme/colors.ts": 2,
     "patient-app/src/theme/index.ts": 119,
     "patient-app/src/utils/labMappers.ts": 10,
     "patient-app/src/utils/medication-notifications.ts": 2,

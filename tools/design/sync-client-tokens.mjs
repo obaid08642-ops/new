@@ -110,8 +110,58 @@ export type PaletteName = keyof Palette;
 `;
 }
 
+/**
+ * patient-app's legacy palette, by ROLE rather than by name.
+ *
+ * Its keys are cryptic one- and two-letter names (`p`, `pd`, `tl`, `prs`) from a
+ * pre-12 design system whose primary was lime `#7CB518`. Mapping each key to the
+ * token that plays the same part is what lets the screens keep compiling while
+ * the brand underneath them changes: `p` was "the primary action colour" and is
+ * now the owner's coral action pair, whatever the key is called.
+ *
+ * `ps`/`pt` (pale and deep primary) map to the coral tints rather than the lime
+ * ones they used to be, because a pale lime surface behind coral text is a
+ * pairing nobody chose.
+ */
+const PATIENT = {
+  brandPrimary: 'action.primary.bg',
+  brandPrimaryDeep: 'brand.coral',
+  brandBg: 'bg.canvas',
+  bg: 'bg.sunken',
+  s: 'bg.surface',
+  n: 'brand.ink',
+  n2: 'bg.elevated',
+  t: 'text.primary',
+  t2: 'text.secondary',
+  t3: 'text.tertiary',
+  bd: 'border.subtle',
+  p: 'action.primary.bg',
+  pd: 'brand.coral',
+  ps: 'status.danger.bg',
+  pt: 'status.danger.fg',
+  c1: 'service.consult.glyph',
+  c2: 'service.consult.glyph',
+  tl: 'service.lab.glyph',
+  ts: 'service.lab.bg',
+  pr: 'iconArt.violet',
+  prs: 'service.consult.bg',
+  am: 'status.warning.fg',
+  as: 'status.warning.bg',
+  cr: 'status.danger.fg',
+  cs: 'status.danger.bg',
+  bl: 'status.info.fg',
+  bs: 'status.info.bg',
+  pk: 'iconArt.pink',
+  pks: 'status.danger.bg',
+  gr: 'status.success.fg',
+  grs: 'status.success.bg',
+  or: 'iconArt.amber',
+  ors: 'status.warning.bg',
+};
+
 const TARGETS = [
   { file: 'provider-app/src/theme/tokens.generated.ts', client: 'provider-app', names: NAMES.provider },
+  { file: 'patient-app/src/theme/colors.generated.ts', client: 'patient-app', names: PATIENT },
 ];
 
 let stale = 0;
