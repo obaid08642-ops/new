@@ -98,6 +98,11 @@ jobs:
       # quietly reintroducing a second source of truth.
       - name: Mirrored token sheets in patient-web are not stale
         run: npm run sync-web:check
+      # patient-web cannot import @nabd/ui (Turbopack refuses to resolve outside
+      # the app root), so the web renderer is mirrored. This is what stops the
+      # artwork a screen renders from drifting from the artwork A6/A7 ship.
+      - name: Mirrored UI renderer in patient-web is not stale
+        run: node tools/design/sync-ui-components.mjs --check
       - name: Contrast check (both themes)
         run: npm run contrast
       # A5's guard. Ratcheted: the 289 sizes that predate the design system are

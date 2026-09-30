@@ -27,6 +27,10 @@ import {
   VectorInsurance,
   VectorHealthShield,
 } from "@/components-next/vector-illustrations";
+// 12.A6 — the owner-approved service artwork, mirrored from packages/ui by
+// tools/design/sync-ui-components.mjs. patient-web cannot import @nabd/ui:
+// Turbopack refuses to resolve outside the app root (see module-boundary.test.ts).
+import { IllustratedIconView } from "@/components-next/ui-generated/src/Icon";
 import { isLocale, locales } from "@/lib/i18n";
 import { localizedUrl, siteOrigin } from "@/lib/seo";
 import { getPublicDoctors } from "@/lib/api/doctors-server";
@@ -74,7 +78,7 @@ export default async function LandingPage({ params }: Props) {
   const coreServices = [
     {
       id: "pharmacy",
-      icon: <VectorPharmacy size={52} />,
+      icon: <IllustratedIconView name="pharmacy" size={52} />,
       badge: isAr ? "توصيل 30 دقيقة" : "30-min Delivery",
       badgeBg: "rgba(0, 135, 111, 0.12)",
       badgeColor: "#00876F",
@@ -84,7 +88,7 @@ export default async function LandingPage({ params }: Props) {
     },
     {
       id: "doctors",
-      icon: <VectorDoctor size={52} />,
+      icon: <IllustratedIconView name="doctor" size={52} />,
       badge: isAr ? "أطباء معتمدون" : "Verified Doctors",
       badgeBg: "rgba(29, 78, 216, 0.12)",
       badgeColor: "#1D4ED8",
@@ -94,7 +98,7 @@ export default async function LandingPage({ params }: Props) {
     },
     {
       id: "diagnostics",
-      icon: <VectorLabs size={52} />,
+      icon: <IllustratedIconView name="lab" size={52} />,
       badge: isAr ? "سحب منزلي ومراكز" : "Home Sample",
       badgeBg: "rgba(180, 83, 9, 0.12)",
       badgeColor: "#B45309",
@@ -104,7 +108,7 @@ export default async function LandingPage({ params }: Props) {
     },
     {
       id: "nursing",
-      icon: <VectorNursing size={52} />,
+      icon: <IllustratedIconView name="nursing" size={52} />,
       badge: isAr ? "زيارة فورية" : "Home Visit",
       badgeBg: "rgba(190, 18, 60, 0.12)",
       badgeColor: "#BE123C",
@@ -118,7 +122,7 @@ export default async function LandingPage({ params }: Props) {
   const verticals = [
     {
       id: "maternity",
-      icon: <VectorMaternity size={42} />,
+      icon: <IllustratedIconView name="family" size={52} />,
       badge: isAr ? "أسبوعاً بأسبوع" : "Weekly Tracker",
       badgeBg: "rgba(236, 72, 153, 0.12)",
       badgeColor: "#DB2777",
@@ -128,7 +132,7 @@ export default async function LandingPage({ params }: Props) {
     },
     {
       id: "nutrition",
-      icon: <VectorNutrition size={42} />,
+      icon: <IllustratedIconView name="nutrition" size={52} />,
       badge: isAr ? "أنظمة مخصصة" : "Diet Plans",
       badgeBg: "rgba(16, 185, 129, 0.12)",
       badgeColor: "#059669",
@@ -138,7 +142,7 @@ export default async function LandingPage({ params }: Props) {
     },
     {
       id: "mental",
-      icon: <VectorMentalHealth size={42} />,
+      icon: <IllustratedIconView name="mind" size={52} />,
       badge: isAr ? "راحة وطمأنينة" : "Mindfulness",
       badgeBg: "rgba(99, 102, 241, 0.12)",
       badgeColor: "#4F46E5",
@@ -148,7 +152,7 @@ export default async function LandingPage({ params }: Props) {
     },
     {
       id: "chronic",
-      icon: <VectorChronicCare size={42} />,
+      icon: <IllustratedIconView name="doctor" size={52} />,
       badge: isAr ? "متابعة مستمرة" : "Chronic Care",
       badgeBg: "rgba(2, 132, 199, 0.12)",
       badgeColor: "#0284C7",

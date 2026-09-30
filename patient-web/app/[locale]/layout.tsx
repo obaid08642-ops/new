@@ -22,6 +22,7 @@ import { getDirection, isLocale, locales, type Locale } from "@/lib/i18n";
 import { WebMcpProvider } from "@/components-next/web-mcp-provider";
 import { ThemeToggle } from "@/components-next/theme-toggle";
 import { THEME_INIT_SCRIPT } from "@/app/theme";
+import { ServiceWorkerRegister } from "@/components-next/service-worker-register";
 
 type Props = Readonly<{ children: React.ReactNode; params: Promise<{ locale: string }> }>;
 
