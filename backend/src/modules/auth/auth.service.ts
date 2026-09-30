@@ -450,7 +450,11 @@ export class AuthService {
         throw new BadRequestException({ message: 'duplicate_consent', code: 'duplicate_consent', statusCode: HttpStatus.BAD_REQUEST });
       }
       seenPolicies.add(key);
-      return { policy_id: consent.policy_id.trim(), version: consent.version.trim(), accepted_at: new Date() };
+      // Registration consent is an acceptance by definition — the account cannot
+      // be created without agreeing — so `accepted` is recorded explicitly rather
+      // than left undefined, keeping the consent trail uniform with the PDPL
+      // consent endpoint.
+      return { policy_id: consent.policy_id.trim(), version: consent.version.trim(), accepted_at: new Date(), accepted: true };
     });
 
     const existing = await this.userModel.findOne(isEmail ? { email: identifier } : { phone: identifier });

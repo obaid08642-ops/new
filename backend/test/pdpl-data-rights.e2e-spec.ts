@@ -14,6 +14,7 @@
  */
 import mongoose from 'mongoose';
 import { PdplService } from '../src/modules/users/pdpl.service';
+import { UserSchema } from '../src/schemas/user.schema';
 
 jest.setTimeout(180_000);
 
@@ -33,10 +34,10 @@ describe('PdplService (PDPL portability + erasure) — real Mongo', () => {
     await mongoose.connection.useDb(DB_NAME);
     conn = mongoose.connection;
 
-    const UserSchema = new mongoose.Schema(
-      { id: String, email: String, phone: String, password_hash: String, legal_consents: Array, deleted_at: Date },
-      { strict: false },
-    );
+    // The real UserSchema, not a loose stand-in: a `strict: false` clone let
+    // legal_consents.accepted through even though the schema never declared it,
+    // so a consent refusal was stored identically to an acceptance. Casting
+    // through the real schema is what makes that class of drift visible.
     userModel = conn.model('UserPdplTest', UserSchema);
 
     service = new PdplService(conn as any, userModel);
@@ -148,6 +149,19 @@ describe('PdplService (PDPL portability + erasure) — real Mongo', () => {
     const { consents } = await service.getConsents(PATIENT);
     expect(consents.length).toBeGreaterThanOrEqual(1);
     expect(consents[consents.length - 1]).toMatchObject({ policy_id: 'privacy_policy', version: '1.0', accepted: true });
+  });
+
+  it('keeps a refusal distinguishable from an acceptance after a real schema round-trip', async () => {
+    await service.recordConsent(PATIENT, 'marketing_policy', '2.0', false);
+
+    // Read through the model, not a projection, so Mongoose casting is exercised.
+    const doc: any = await userModel.findOne({ id: { $eq: PATIENT } });
+    const stored = doc.legal_consents.find((c: any) => c.policy_id === 'marketing_policy');
+    expect(stored).toBeDefined();
+    expect(stored.accepted).toBe(false);
+
+    const { consents } = await service.getConsents(PATIENT);
+    expect(consents.find((c: any) => c.policy_id === 'marketing_policy')).toMatchObject({ accepted: false });
   });
 
   it('rejects an unknown subject instead of returning an empty export', async () => {

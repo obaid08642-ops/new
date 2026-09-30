@@ -10,8 +10,24 @@ import { AiContentReviewItem, AiContentReviewDocument, AiContentKind } from '../
  * anything the triage engine marks as needing immediate human attention) are
  * published to the patient straight away and *also* recorded, because making a
  * patient wait for a moderator before they learn they may be in an emergency is
- * a worse failure than an unreviewed sentence. Everything else is queued and
- * withheld until a reviewer approves it.
+ * a worse failure than an unreviewed sentence.
+ *
+ * What this queue is today, precisely: an audit and sign-off trail, not a
+ * pre-publish gate. The medical surfaces that feed it (triage, skin assessment)
+ * publish no model prose by construction — they return a deterministic care
+ * level, the red flags the patient ticked, `diagnosis: null`, `treatment: null`
+ * and a fixed disclaimer. So for a non-urgent item there is no AI-authored
+ * sentence being withheld; `published_to_patient: false` records the *moderation
+ * policy* (this one was not auto-published as an emergency), not a suppression
+ * that happened. The invariant that keeps it true lives in
+ * ai-content-review.service.spec.ts — if someone later starts returning model
+ * text from a medical surface, that test is what must change first, and it has
+ * to change deliberately rather than by accident.
+ *
+ * The surfaces that DO return model output to a patient today are the nutrition
+ * ones (`analyzeMeal`, `generateDietPlan`, `generateExercisePlan`). They are
+ * deliberately not gated here: gating them is a product decision about the
+ * patient experience, not a safety fix, and it was not taken unilaterally.
  *
  * Recording is deliberately best-effort and never blocks or fails the clinical
  * response: if Mongo is unavailable the patient still gets their triage answer.
@@ -48,6 +64,8 @@ export class AiContentReviewService {
         request_summary: input.requestSummary,
         model: input.model,
         status: urgent ? 'auto_published' : 'pending',
+        // Moderation policy, not a suppression: see the class comment. Nothing is
+        // withheld here because the medical payloads carry no model prose.
         published_to_patient: urgent,
       });
       return { id: doc.id, published: urgent, status: doc.status };

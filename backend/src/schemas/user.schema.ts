@@ -28,9 +28,13 @@ export class User {
   @Prop() district?: string;
   @Prop({ type: { lat: Number, lng: Number }, _id: false }) location?: { lat: number; lng: number };
   @Prop({ default: 'ar' }) preferred_lang: string;
-  /** Immutable registration-consent evidence; policy id and version are contract fields. */
-  @Prop({ type: [{ policy_id: String, version: String, accepted_at: Date }], _id: false, default: [] })
-  legal_consents?: { policy_id: string; version: string; accepted_at: Date }[];
+  /** Immutable registration-consent evidence; policy id and version are contract fields.
+   *  `accepted` is declared in BOTH the @Prop type and the TS type on purpose: Mongoose
+   *  casts from the decorator, so a TS-only field is silently stripped on write and a
+   *  refusal ends up stored identically to an acceptance. No default, so consents
+   *  written before this field existed stay `undefined` rather than claiming a decision. */
+  @Prop({ type: [{ policy_id: String, version: String, accepted_at: Date, accepted: Boolean }], _id: false, default: [] })
+  legal_consents?: { policy_id: string; version: string; accepted_at: Date; accepted: boolean }[];
   /** Opaque patient-facing identifier; never expose Mongo or account ids to clients. */
   @Prop({ unique: true, sparse: true, index: true }) health_id?: string;
   @Prop({ default: [] }) device_tokens: string[]; // Native push tokens (FCM/APNs/Expo)
