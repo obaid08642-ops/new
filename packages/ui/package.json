@@ -1,0 +1,41 @@
+{
+  "name": "@nabd/ui",
+  "version": "4.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Nabd+ web design system (12.A6/A7) \u2014 the illustrated icon set, the illustration scenes, the small-UI line set behind <Icon>, and the generated preview a reviewer opens to see both themes side by side.",
+  "exports": {
+    ".": "./src/Icon.tsx",
+    "./icons/illustrated": "./icons/illustrated.ts",
+    "./icons/illustrations": "./icons/illustrations.ts"
+  },
+  "scripts": {
+    "icons": "node build-icons.mjs",
+    "preview": "node build-preview.mjs",
+    "check": "node build-icons.mjs --check && node build-preview.mjs --check",
+    "test": "node build-icons.mjs --check && node build-preview.mjs --check",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "files": [
+    "src",
+    "icons",
+    "dist"
+  ],
+  "peerDependencies": {
+    "react": ">=18",
+    "@phosphor-icons/react": ">=2.1.10"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@phosphor-icons/react": "^2.1.10",
+    "@types/react": "^19.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "sharp": "0.35.4",
+    "typescript": "^5.5.0"
+  }
+}

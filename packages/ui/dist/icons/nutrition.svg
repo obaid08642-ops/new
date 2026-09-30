@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="nutrition">
+  <title>nutrition</title>
+  <path d="M24 16 c-3-3-14-2-14 9 c0 9 6 15 10 15 c2 0 3-1 4-1 s2 1 4 1 c4 0 10-6 10-15 c0-11-11-12-14-9 z" fill="#8EDC5E" stroke="#0B1B2B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M24 16 c0-4 2-7 6-8" fill="none" stroke="#0B1B2B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M27 11 c3-4 8-3 9-1 c-2 3-6 4-9 1 z" fill="#3FBF9A" stroke="#0B1B2B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M15 23 c1-3 3-4 5-4" fill="none" stroke="#FFFFFF" stroke-width="2.6" opacity="0.8" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

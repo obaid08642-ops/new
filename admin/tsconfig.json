@@ -20,13 +20,23 @@
     "paths": {
       "@/*": [
         "./src/*"
+      ],
+      "@nabd/ui": [
+        "../packages/ui/src/Icon.tsx"
+      ],
+      "@nabd/ui/icons/illustrated": [
+        "../packages/ui/icons/illustrated.ts"
+      ],
+      "@nabd/ui/icons/illustrations": [
+        "../packages/ui/icons/illustrations.ts"
       ]
     },
     "plugins": [
       {
         "name": "next"
       }
-    ]
+    ],
+    "baseUrl": "."
   },
   "include": [
     "next-env.d.ts",

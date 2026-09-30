@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1408 232" width="1408" height="232" dir="ltr">
+  <title>Nabd+ illustrated icon set — light theme, en labels</title>
+  <defs>
+    <filter id="s" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#0B1B2B" flood-opacity="0.07"/>
+    </filter>
+  </defs>
+  <rect width="100%" height="100%" fill="#F5F5F7"/>
+<g transform="translate(40 96)">
+  <rect width="128" height="128" rx="28" fill="#FFFFFF" stroke="rgba(11,27,43,0.04)" filter="url(#s)"/>
+  <g transform="translate(24 24) scale(1.6667)"><g transform="rotate(-40 22 22)"><rect x="6" y="15" width="32" height="14" rx="7" fill="#FFFFFF" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 15 H22 V29 H13 A7 7 0 0 1 13 15 Z" fill="#FF6B73" stroke-linecap="round" stroke-linejoin="round"/><rect x="6" y="15" width="32" height="14" rx="7" fill="none" stroke="#0B1B2B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 15 V29" fill="none" stroke="#0B1B2B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M27 19.5 h6" fill="none" stroke="#0B1B2B" stroke-width="2" opacity="0.3" stroke-linecap="round" stroke-linejoin="round"/></g><circle cx="36" cy="36" r="7" fill="#FFD166" stroke="#0B1B2B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M32 36 h8" fill="none" stroke="#0B1B2B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g>
+  <text x="64" y="164" text-anchor="middle" font-family="'Readex Pro', 'Geeza Pro', 'Noto Sans Arabic', 'Baghdad', 'Al Bayan', 'Damascus', 'Arial Unicode MS', system-ui, sans-serif" font-size="14" font-weight="500" fill="#0B1B2B">Pharmacy</text>
+</g>
+<g transform="translate(192 96)">
+  <rect width="128" height="128" rx="28" fill="#FFFFFF" stroke="rgba(11,27,43,0.04)" filter="url(#s)"/>
+  <g transform="translate(24 24) scale(1.6667)"><path d="M18 17 v-4 a3 3 0 0 1 3-3 h6 a3 3 0 0 1 3 3 v4" fill="none" stroke="#0B1B2B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="7" y="17" width="34" height="24" rx="7" fill="#9DB0FF" stroke="#0B1B2B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 21 h26" fill="none" stroke="#6E8BFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 24 v11 M18.5 29.5 h11" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></g>
+  <text x="64" y="164" text-anchor="middle" font-family="'Readex Pro', 'Geeza Pro', 'Noto Sans Arabic', 'Baghdad', 'Al Bayan', 'Damascus', 'Arial Unicode MS', system-ui, sans-serif" font-size="14" font-weight="500" fill="#0B1B2B">Consultation</text>
+</g>
+<g transform="translate(344 96)">
+  <rect width="128" height="128" rx="28" fill="#FFFFFF" stroke="rgba(11,27,43,0.04)" filter="url(#s)"/>
+  <g transform="translate(24 24) scale(1.6667)"><g transform="rotate(28 22 26)"><path d="M17 25 V36 a5 5 0 0 0 10 0 V25 Z" fill="#3FBF9A" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 8 V36 a5 5 0 0 0 10 0 V8" fill="none" stroke="#0B1B2B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 8 h14" fill="none" stroke="#0B1B2B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 25 h10" fill="none" stroke="#0B1B2B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 14 v6" fill="none" stroke="#0B1B2B" stroke-width="1.8" opacity="0.3" stroke-linecap="round" stroke-linejoin="round"/></g><circle cx="37" cy="11" r="3.5" fill="#FFD166" stroke="#0B1B2B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="41" cy="20" r="2.2" fill="#6FE0B8" stroke-linecap="round" stroke-linejoin="round"/></g>
+  <text x="64" y="164" text-anchor="middle" font-family="'Readex Pro', 'Geeza Pro', 'Noto Sans Arabic', 'Baghdad', 'Al Bayan', 'Damascus', 'Arial Unicode MS', system-ui, sans-serif" font-size="14" font-weight="500" fill="#0B1B2B">Labs</text>
+</g>
+<g transform="translate(496 96)">
+  <rect width="128" height="128" rx="28" fill="#FFFFFF" stroke="rgba(11,27,43,0.04)" filter="url(#s)"/>
+  <g transform="translate(24 24) scale(1.6667)"><rect x="7" y="7" width="34" height="34" rx="9" fill="#C3A8FF" stroke="#0B1B2B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 12 v24" fill="none" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 17 c3 1.2 5.5 1.2 8 0 M32 17 c-3 1.2-5.5 1.2-8 0 M15 23.5 c4 1.6 6.5 1.6 9 0 M33 23.5 c-4 1.6-6.5 1.6-9 0 M16 30 c3 1.2 5.5 1.2 8 0 M32 30 c-3 1.2-5.5 1.2-8 0" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="37" cy="11" r="2" fill="#FFD166" stroke-linecap="round" stroke-linejoin="round"/></g>
+  <text x="64" y="164" text-anchor="middle" font-family="'Readex Pro', 'Geeza Pro', 'Noto Sans Arabic', 'Baghdad', 'Al Bayan', 'Damascus', 'Arial Unicode MS', system-ui, sans-serif" font-size="14" font-weight="500" fill="#0B1B2B">Radiology</text>
+</g>
+<g transform="translate(648 96)">
+  <rect width="128" height="128" rx="28" fill="#FFFFFF" stroke="rgba(11,27,43,0.04)" filter="url(#s)"/>
+  <g transform="translate(24 24) scale(1.6667)"><path d="M10 23 L24 11 L38 23 V40 H10 Z" fill="#FFD166" stroke="#0B1B2B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 25 L24 9 L42 25" fill="none" stroke="#FF6B73" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 36 s-7-4.4-7-9 a3.5 3.5 0 0 1 7-1.2 a3.5 3.5 0 0 1 7 1.2 c0 4.6-7 9-7 9 z" fill="#FFFFFF" stroke="#0B1B2B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g>
+  <text x="64" y="164" text-anchor="middle" font-family="'Readex Pro', 'Geeza Pro', 'Noto Sans Arabic', 'Baghdad', 'Al Bayan', 'Damascus', 'Arial Unicode MS', system-ui, sans-serif" font-size="14" font-weight="500" fill="#0B1B2B">Home nursing</text>
+</g>
+<g transform="translate(800 96)">
+  <rect width="128" height="128" rx="28" fill="#FFFFFF" stroke="rgba(11,27,43,0.04)" filter="url(#s)"/>
+  <g transform="translate(24 24) scale(1.6667)"><path d="M23 10 a6 6 0 0 0-10 3 a6 6 0 0 0-3 10 a6 6 0 0 0 4 9 a6 6 0 0 0 9 4 Z" fill="#D2B8FF" stroke="#0B1B2B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M25 10 a6 6 0 0 1 10 3 a6 6 0 0 1 3 10 a6 6 0 0 1-4 9 a6 6 0 0 1-9 4 Z" fill="#F4B8E4" stroke="#0B1B2B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 20 c2 0 3 1.5 3 3 M34 20 c-2 0-3 1.5-3 3" fill="none" stroke="#0B1B2B" stroke-width="1.8" opacity="0.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M41 4 l1.4 3.4 3.4 1.4-3.4 1.4 L41 13.6 l-1.4-3.4 L36.2 8.8 l3.4-1.4 z" fill="#FFD166" stroke-linecap="round" stroke-linejoin="round"/></g>
+  <text x="64" y="164" text-anchor="middle" font-family="'Readex Pro', 'Geeza Pro', 'Noto Sans Arabic', 'Baghdad', 'Al Bayan', 'Damascus', 'Arial Unicode MS', system-ui, sans-serif" font-size="14" font-weight="500" fill="#0B1B2B">Mental health</text>
+</g>
+<g transform="translate(952 96)">
+  <rect width="128" height="128" rx="28" fill="#FFFFFF" stroke="rgba(11,27,43,0.04)" filter="url(#s)"/>
+  <g transform="translate(24 24) scale(1.6667)"><path d="M24 16 c-3-3-14-2-14 9 c0 9 6 15 10 15 c2 0 3-1 4-1 s2 1 4 1 c4 0 10-6 10-15 c0-11-11-12-14-9 z" fill="#8EDC5E" stroke="#0B1B2B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 16 c0-4 2-7 6-8" fill="none" stroke="#0B1B2B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M27 11 c3-4 8-3 9-1 c-2 3-6 4-9 1 z" fill="#3FBF9A" stroke="#0B1B2B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 23 c1-3 3-4 5-4" fill="none" stroke="#FFFFFF" stroke-width="2.6" opacity="0.8" stroke-linecap="round" stroke-linejoin="round"/></g>
+  <text x="64" y="164" text-anchor="middle" font-family="'Readex Pro', 'Geeza Pro', 'Noto Sans Arabic', 'Baghdad', 'Al Bayan', 'Damascus', 'Arial Unicode MS', system-ui, sans-serif" font-size="14" font-weight="500" fill="#0B1B2B">Nutrition</text>
+</g>
+<g transform="translate(1104 96)">
+  <rect width="128" height="128" rx="28" fill="#FFFFFF" stroke="rgba(11,27,43,0.04)" filter="url(#s)"/>
+  <g transform="translate(24 24) scale(1.6667)"><circle cx="17" cy="15" r="6" fill="#FFB38A" stroke="#0B1B2B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="32" cy="18" r="5" fill="#9DB0FF" stroke="#0B1B2B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 40 c0-7 4.5-12 10-12 s10 5 10 12 z" fill="#FF6B73" stroke="#0B1B2B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 40 c0-6 3.5-10 8-10 s8 4 8 10 z" fill="#6E8BFF" stroke="#0B1B2B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
+  <text x="64" y="164" text-anchor="middle" font-family="'Readex Pro', 'Geeza Pro', 'Noto Sans Arabic', 'Baghdad', 'Al Bayan', 'Damascus', 'Arial Unicode MS', system-ui, sans-serif" font-size="14" font-weight="500" fill="#0B1B2B">Family</text>
+</g>
+<g transform="translate(1256 96)">
+  <rect width="128" height="128" rx="28" fill="#FFFFFF" stroke="rgba(11,27,43,0.04)" filter="url(#s)"/>
+  <g transform="translate(24 24) scale(1.6667)"><path d="M10 42 c0-8 6-13 14-13 s14 5 14 13 z" fill="#FFFFFF" stroke="#0B1B2B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 29.5 l4 6 4-6" fill="none" stroke="#0B1B2B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="24" cy="17" r="8" fill="#FFB38A" stroke="#0B1B2B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 16 c1-6 5-8 8-8 s7 2 8 8 c-3-2-6-3-8-3 s-5 1-8 3 z" fill="#0B1B2B" stroke-linecap="round" stroke-linejoin="round"/><path d="M31 33 v4 a3 3 0 0 1-6 0" fill="none" stroke="#6E8BFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="25" cy="38.5" r="2" fill="#6E8BFF" stroke-linecap="round" stroke-linejoin="round"/></g>
+  <text x="64" y="164" text-anchor="middle" font-family="'Readex Pro', 'Geeza Pro', 'Noto Sans Arabic', 'Baghdad', 'Al Bayan', 'Damascus', 'Arial Unicode MS', system-ui, sans-serif" font-size="14" font-weight="500" fill="#0B1B2B">Doctor</text>
+</g>
+</svg>

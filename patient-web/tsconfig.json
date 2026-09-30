@@ -41,6 +41,12 @@
       ],
       "@nabd/design-tokens/*": [
         "../packages/design-tokens/*"
+      ],
+      "@nabd/ui": [
+        "../packages/ui/src/Icon.tsx"
+      ],
+      "@nabd/ui/*": [
+        "../packages/ui/*"
       ]
     }
   },

@@ -32,6 +32,8 @@ const PREFIX = 'nabd-';
 
 /** Keys that are documentation, not design tokens. */
 const SKIP_TOP = new Set(['$schema', 'meta', 'contrast']);
+/** A leading underscore marks a documentation key at ANY depth (e.g. `_note`). */
+const isDoc = (key, depth) => key.startsWith('_') || (depth === 0 && SKIP_TOP.has(key));
 
 const CHECK_ONLY = process.argv.includes('--check');
 
@@ -45,7 +47,7 @@ const isPlain = (v) => v !== null && typeof v === 'object' && !Array.isArray(v) 
 /** Flatten to { 'color.bg.canvas': value }. value is a string or {light,dark}. */
 function flatten(node, trail = [], out = {}) {
   for (const [key, value] of Object.entries(node)) {
-    if (trail.length === 0 && SKIP_TOP.has(key)) continue;
+    if (isDoc(key, trail.length)) continue;
     const path = [...trail, key];
     if (isThemed(value)) {
       for (const theme of ['light', 'dark']) {
@@ -127,7 +129,7 @@ function tsInterface(node, indent) {
   const inner = '  '.repeat(indent);
   const lines = [];
   for (const [key, value] of Object.entries(node)) {
-    if (SKIP_TOP.has(key) && indent === 1) continue;
+    if (isDoc(key, indent - 1)) continue;
     if (isThemed(value) || Array.isArray(value) || !isPlain(value)) {
       lines.push(`${inner}readonly ${tsKey(key)}: ${tsType(value)};`);
     } else {
@@ -144,7 +146,7 @@ function tsValue(node, theme, indent) {
   const inner = '  '.repeat(indent);
   const lines = [];
   for (const [key, value] of Object.entries(node)) {
-    if (SKIP_TOP.has(key) && indent === 1) continue;
+    if (isDoc(key, indent - 1)) continue;
     if (isThemed(value) || Array.isArray(value) || !isPlain(value)) {
       const resolved = Array.isArray(value) ? value : forTheme(value, theme);
       lines.push(`${inner}${JSON.stringify(key)}: ${JSON.stringify(resolved)},`);
@@ -269,6 +271,7 @@ function buildTailwindPreset(flat) {
   const colors = {};
   for (const [path, value] of Object.entries(flat)) {
     if (!path.startsWith('color.') || Array.isArray(value)) continue;
+    if (path.split('.').some((part) => part.startsWith('_'))) continue;
     const key = path.slice('color.'.length).replace(/\./g, '-');
     colors[key] = isThemed(value) ? { light: value.light, dark: value.dark, DEFAULT: value.light } : value;
   }
@@ -276,13 +279,13 @@ function buildTailwindPreset(flat) {
   const group = (prefix) =>
     Object.fromEntries(
       Object.entries(flat)
-        .filter(([p, v]) => p.startsWith(`${prefix}.`) && !Array.isArray(v) && !isThemed(v))
+        .filter(([p, v]) => p.startsWith(`${prefix}.`) && !Array.isArray(v) && !isThemed(v) && !p.split('.').some((q) => q.startsWith('_')))
         .map(([p, v]) => [p.slice(prefix.length + 1).replace(/\./g, '-'), v]),
     );
 
   const shadows = Object.fromEntries(
     Object.entries(flat)
-      .filter(([p, v]) => p.startsWith('shadow.') && !Array.isArray(v))
+      .filter(([p, v]) => p.startsWith('shadow.') && !Array.isArray(v) && !p.includes('_'))
       .map(([p, v]) => [p.slice('shadow.'.length).replace(/\./g, '-'), isThemed(v) ? v.light : v]),
   );
 

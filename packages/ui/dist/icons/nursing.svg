@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="nursing">
+  <title>nursing</title>
+  <path d="M10 23 L24 11 L38 23 V40 H10 Z" fill="#FFD166" stroke="#0B1B2B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M6 25 L24 9 L42 25" fill="none" stroke="#FF6B73" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M24 36 s-7-4.4-7-9 a3.5 3.5 0 0 1 7-1.2 a3.5 3.5 0 0 1 7 1.2 c0 4.6-7 9-7 9 z" fill="#FFFFFF" stroke="#0B1B2B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

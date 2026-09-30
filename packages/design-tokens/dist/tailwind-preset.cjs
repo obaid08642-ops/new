@@ -147,6 +147,8 @@ const colors = {
     "dark": "#0B1B2B",
     "DEFAULT": "#FFFFFF"
   },
+  "accent-lime": "#D7FF00",
+  "accent-limeMuted": "rgba(215,255,0,0.16)",
   "status-success-fg": {
     "light": "#1F7A5C",
     "dark": "#6FE0B8",
@@ -308,7 +310,20 @@ const colors = {
     "light": "rgba(11,27,43,0.18)",
     "dark": "rgba(255,255,255,0.14)",
     "DEFAULT": "rgba(11,27,43,0.18)"
-  }
+  },
+  "iconArt-ink": "#0B1B2B",
+  "iconArt-paper": "#FFFFFF",
+  "iconArt-coral": "#FF6B73",
+  "iconArt-amber": "#FFD166",
+  "iconArt-blue": "#6E8BFF",
+  "iconArt-blueSoft": "#9DB0FF",
+  "iconArt-mint": "#3FBF9A",
+  "iconArt-mintSoft": "#6FE0B8",
+  "iconArt-violet": "#C3A8FF",
+  "iconArt-lavender": "#D2B8FF",
+  "iconArt-pink": "#F4B8E4",
+  "iconArt-lime": "#8EDC5E",
+  "iconArt-skin": "#FFB38A"
 };
 
 const spacing = {

@@ -36,6 +36,8 @@
   --nabd-color-action-accent-fg: #0B1B2B;
   --nabd-color-action-danger-bg: #D42A38;
   --nabd-color-action-danger-fg: #FFFFFF;
+  --nabd-color-accent-lime: #D7FF00;
+  --nabd-color-accent-limeMuted: rgba(215,255,0,0.16);
   --nabd-color-status-success-fg: #1F7A5C;
   --nabd-color-status-success-bg: #DDF4EC;
   --nabd-color-status-success-fill: #3FBF9A;
@@ -70,6 +72,19 @@
   --nabd-color-glass-blur: 20px;
   --nabd-color-track-filled: #D7FF00;
   --nabd-color-track-rest: rgba(11,27,43,0.18);
+  --nabd-color-iconArt-ink: #0B1B2B;
+  --nabd-color-iconArt-paper: #FFFFFF;
+  --nabd-color-iconArt-coral: #FF6B73;
+  --nabd-color-iconArt-amber: #FFD166;
+  --nabd-color-iconArt-blue: #6E8BFF;
+  --nabd-color-iconArt-blueSoft: #9DB0FF;
+  --nabd-color-iconArt-mint: #3FBF9A;
+  --nabd-color-iconArt-mintSoft: #6FE0B8;
+  --nabd-color-iconArt-violet: #C3A8FF;
+  --nabd-color-iconArt-lavender: #D2B8FF;
+  --nabd-color-iconArt-pink: #F4B8E4;
+  --nabd-color-iconArt-lime: #8EDC5E;
+  --nabd-color-iconArt-skin: #FFB38A;
   --nabd-space-3xs: 4px;
   --nabd-space-2xs: 8px;
   --nabd-space-xs: 12px;

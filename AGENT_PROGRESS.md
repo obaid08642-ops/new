@@ -519,6 +519,74 @@ Phase 12 commit, once that tree is quiet.
   "Generating static pages (60/60)".
 - Backend gate again deliberately not run: the other session is still writing it.
 
+### [P12.A6] icons, illustrations and the empty/error/success scenes
+- `packages/ui/icons/illustrated.ts` is the single geometry for the NINE service
+  tiles, transcribed from the approved canvas. Colours are `color.iconArt` KEYS
+  (`ink`, `coral`, `amber`, …), never hex, so a palette change moves the artwork;
+  `assertArtworkIsPaletteBound()` fails the build on a stray hex and both
+  generators run it before emitting anything.
+- `packages/ui/icons/illustrations.ts` adds SEVENTEEN SCENES on a 64 grid (the
+  icons stay on 48, because a scene carries a subject, a supporting mark and a
+  badge): 3 onboarding, the 8 empty states the product actually shows, 3 errors
+  and 3 success states. Two rules the canvas states are enforced by tests:
+  - **no text, ever** — no glyphs, no digits, no punctuation. A "404" drawn as a
+    path is 404 drawn wrong for an Arabic-first user, so the number lives in app
+    text and the picture stays language-free. `Prim` has no text primitive, and
+    the render test asserts no `<text>` and no digits reach the markup;
+  - **acid lime takes ink** — `successPayment` puts its check on lime in INK.
+    White on lime is 1.06:1, which the contrast checker rejects, so the artwork
+    obeys the same rule the checker enforces.
+- `accent.lime` and `accent.limeMuted` were MISSING from `tokens.json` and are
+  now added. The preview rendered an empty box where lime should have been, which
+  is how a headline brand colour got through three earlier tasks unnoticed.
+- `<Icon>` and `<Illustration>` exist in BOTH `packages/ui` (web) and
+  `packages/ui-native` (React Native) over the same geometry, so an app service
+  tile and a website service tile are one drawing. The two families are kept
+  apart on purpose: illustrated artwork for tiles, avatars and empty states, and a
+  single Phosphor *regular* line set for the 20px UI inside buttons, lists and the
+  tab bar.
+- `packages/ui/dist/preview.html` is generated and COMMITTED: both themes side by
+  side, every tile at 76px and 128px, all 17 scenes, the whole line set, the
+  surfaces, the status colours, the type scale, radius and spacing. A reviewer
+  opens the file and sees the system without booting anything. `npm run check`
+  fails if it drifts.
+- `tools/design/no-emoji-in-ui.ts` — A6's guard, as a RATCHET, and PARTIAL: 47
+  UI files still contain emoji (29 provider-app, 17 admin, 1 patient-web) that
+  predate the design system. Proven to bite: adding an emoji to a screen turns it
+  red and names the file; removing one lowers the count. 12.A11 clears them as
+  screens are rebuilt.
+- **NOT migrated, deliberately:** `patient-app/src/components/Icon.tsx` is a
+  legacy wrapper over `@expo/vector-icons` with a ~200-entry MaterialCommunityIcons
+  name map, used by many screens. `patient-app/src/design-system/index.ts` now
+  re-exports the new wrapper as `NabdIcon`/`NabdIllustration` rather than
+  replacing it, because folding 200 names into a curated set is a screen-by-screen
+  migration and belongs to 12.A7, not to the task that introduces the set.
+
+### Gate evidence (this commit)
+- design-tokens `npm test`: `check` up to date; `contrast` **all 65 pass in both
+  themes** (up from 60 — five pairs added for the lime); `type-scale` "1745 files
+  scanned. 289 recorded, none added".
+- packages/ui `npm test`: 11 SVGs up to date; preview up to date — "9 illustrated
+  icons, 17 scenes, 29 line icons, both themes". `tsc --noEmit` 0 errors.
+- packages/ui-native `tsc --noEmit` 0 errors.
+- patient-web: `tsc --noEmit` 0 errors; `vitest run` → **371 passed, 23 skipped,
+  0 failed** (175 files). The 17 new A6 tests are included; the 23 skips are the
+  same pre-existing sandbox suites.
+- patient-app: `tsc --noEmit` 0 errors; `jest` **117/117** (43 suites) — up from
+  111, the 6 new being the native geometry contract.
+- provider-app: `tsc --noEmit` 0 errors; `jest` 17/17.
+- admin: `tsc --noEmit` 0 errors; `next build` → "Generating static pages (60/60)".
+- patient-app `npx expo export` → web (6048 modules) + ios (6571) + android (6656),
+  "Files (3): favicon.ico (15KB), index.html (1.2KB), metadata.json (6.7KB)".
+- Backend gate again deliberately not run: the other session is still writing it.
+- Fixed along the way, both real: the preview's status chips interpolated a
+  `var(--…)` STRING into a text colour, which cannot resolve — it rendered the
+  token path as the label; and `build-preview.mjs` resolved Phosphor and React out
+  of `patient-web/node_modules`, so the generator only worked if an unrelated app
+  happened to be installed and CI would have failed on a clean checkout. It now
+  derives the ESM entry from the package's own `exports` field and resolves from
+  its own devDependencies.
+
 ## PHASE 11 — final verification (2026-09-29, this branch)
 
 ### 1. Typecheck — all five projects, real output

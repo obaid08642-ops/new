@@ -59,6 +59,10 @@ export interface Tokens {
         readonly fg: string;
       };
     };
+    readonly accent: {
+      readonly lime: string;
+      readonly limeMuted: string;
+    };
     readonly status: {
       readonly success: {
         readonly fg: string;
@@ -126,6 +130,21 @@ export interface Tokens {
     readonly track: {
       readonly filled: string;
       readonly rest: string;
+    };
+    readonly iconArt: {
+      readonly ink: string;
+      readonly paper: string;
+      readonly coral: string;
+      readonly amber: string;
+      readonly blue: string;
+      readonly blueSoft: string;
+      readonly mint: string;
+      readonly mintSoft: string;
+      readonly violet: string;
+      readonly lavender: string;
+      readonly pink: string;
+      readonly lime: string;
+      readonly skin: string;
     };
   };
   readonly space: {
@@ -384,6 +403,10 @@ const lightTree: Tokens = {
         "fg": "#FFFFFF",
       },
     },
+    "accent": {
+      "lime": "#D7FF00",
+      "limeMuted": "rgba(215,255,0,0.16)",
+    },
     "status": {
       "success": {
         "fg": "#1F7A5C",
@@ -451,6 +474,21 @@ const lightTree: Tokens = {
     "track": {
       "filled": "#D7FF00",
       "rest": "rgba(11,27,43,0.18)",
+    },
+    "iconArt": {
+      "ink": "#0B1B2B",
+      "paper": "#FFFFFF",
+      "coral": "#FF6B73",
+      "amber": "#FFD166",
+      "blue": "#6E8BFF",
+      "blueSoft": "#9DB0FF",
+      "mint": "#3FBF9A",
+      "mintSoft": "#6FE0B8",
+      "violet": "#C3A8FF",
+      "lavender": "#D2B8FF",
+      "pink": "#F4B8E4",
+      "lime": "#8EDC5E",
+      "skin": "#FFB38A",
     },
   },
   "space": {
@@ -709,6 +747,10 @@ const darkTree: Tokens = {
         "fg": "#0B1B2B",
       },
     },
+    "accent": {
+      "lime": "#D7FF00",
+      "limeMuted": "rgba(215,255,0,0.16)",
+    },
     "status": {
       "success": {
         "fg": "#6FE0B8",
@@ -776,6 +818,21 @@ const darkTree: Tokens = {
     "track": {
       "filled": "#D7FF00",
       "rest": "rgba(255,255,255,0.14)",
+    },
+    "iconArt": {
+      "ink": "#0B1B2B",
+      "paper": "#FFFFFF",
+      "coral": "#FF6B73",
+      "amber": "#FFD166",
+      "blue": "#6E8BFF",
+      "blueSoft": "#9DB0FF",
+      "mint": "#3FBF9A",
+      "mintSoft": "#6FE0B8",
+      "violet": "#C3A8FF",
+      "lavender": "#D2B8FF",
+      "pink": "#F4B8E4",
+      "lime": "#8EDC5E",
+      "skin": "#FFB38A",
     },
   },
   "space": {
@@ -1087,6 +1144,8 @@ export const light: Readonly<Record<string, string | number>> = Object.freeze({
   "color.action.accent.fg": "#0B1B2B",
   "color.action.danger.bg": "#D42A38",
   "color.action.danger.fg": "#FFFFFF",
+  "color.accent.lime": "#D7FF00",
+  "color.accent.limeMuted": "rgba(215,255,0,0.16)",
   "color.status.success.fg": "#1F7A5C",
   "color.status.success.bg": "#DDF4EC",
   "color.status.success.fill": "#3FBF9A",
@@ -1121,6 +1180,19 @@ export const light: Readonly<Record<string, string | number>> = Object.freeze({
   "color.glass.blur": "20px",
   "color.track.filled": "#D7FF00",
   "color.track.rest": "rgba(11,27,43,0.18)",
+  "color.iconArt.ink": "#0B1B2B",
+  "color.iconArt.paper": "#FFFFFF",
+  "color.iconArt.coral": "#FF6B73",
+  "color.iconArt.amber": "#FFD166",
+  "color.iconArt.blue": "#6E8BFF",
+  "color.iconArt.blueSoft": "#9DB0FF",
+  "color.iconArt.mint": "#3FBF9A",
+  "color.iconArt.mintSoft": "#6FE0B8",
+  "color.iconArt.violet": "#C3A8FF",
+  "color.iconArt.lavender": "#D2B8FF",
+  "color.iconArt.pink": "#F4B8E4",
+  "color.iconArt.lime": "#8EDC5E",
+  "color.iconArt.skin": "#FFB38A",
   "space.3xs": "4px",
   "space.2xs": "8px",
   "space.xs": "12px",
@@ -1267,6 +1339,8 @@ export const dark: Readonly<Record<string, string | number>> = Object.freeze({
   "color.action.accent.fg": "#0B1B2B",
   "color.action.danger.bg": "#FF6B73",
   "color.action.danger.fg": "#0B1B2B",
+  "color.accent.lime": "#D7FF00",
+  "color.accent.limeMuted": "rgba(215,255,0,0.16)",
   "color.status.success.fg": "#6FE0B8",
   "color.status.success.bg": "rgba(111,224,184,0.14)",
   "color.status.success.fill": "#6FE0B8",
@@ -1301,6 +1375,19 @@ export const dark: Readonly<Record<string, string | number>> = Object.freeze({
   "color.glass.blur": "20px",
   "color.track.filled": "#D7FF00",
   "color.track.rest": "rgba(255,255,255,0.14)",
+  "color.iconArt.ink": "#0B1B2B",
+  "color.iconArt.paper": "#FFFFFF",
+  "color.iconArt.coral": "#FF6B73",
+  "color.iconArt.amber": "#FFD166",
+  "color.iconArt.blue": "#6E8BFF",
+  "color.iconArt.blueSoft": "#9DB0FF",
+  "color.iconArt.mint": "#3FBF9A",
+  "color.iconArt.mintSoft": "#6FE0B8",
+  "color.iconArt.violet": "#C3A8FF",
+  "color.iconArt.lavender": "#D2B8FF",
+  "color.iconArt.pink": "#F4B8E4",
+  "color.iconArt.lime": "#8EDC5E",
+  "color.iconArt.skin": "#FFB38A",
   "space.3xs": "4px",
   "space.2xs": "8px",
   "space.xs": "12px",

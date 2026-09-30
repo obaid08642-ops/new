@@ -127,6 +127,38 @@ jobs:
       - name: Re-verify after a clean rasteriser
         run: node build.mjs --check
 
+  design-artwork:
+    name: Icon and illustration set (12.A6)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/ui
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # Same rule as the tokens and the brand: the generated icon sheets and the
+      # preview page are committed so a reviewer can open dist/preview.html
+      # without booting anything. This fails if anyone hand-edits a generated
+      # file or redraws geometry without regenerating it.
+      - name: Generated icon sheets and preview are in sync with the geometry
+        run: npm test
+      # The artwork is checked, not just generated: the generator refuses to emit
+      # anything whose colour is not a `color.iconArt` key, so a stray hex fails
+      # the build rather than shipping a colour the palette cannot change.
+      - name: Install compiler
+        run: npm install --ignore-scripts --no-save typescript@5.9.3
+      - name: Type check the wrappers
+        run: npx tsc --noEmit -p tsconfig.json
+      - name: Type check the React Native wrapper over the same geometry
+        working-directory: packages/ui-native
+        run: npx tsc --noEmit -p tsconfig.json
+      # The contract tests themselves (palette binding, the no-text rule, the a11y
+      # contract, the grid sizes) run inside `patient-web` and `patient-mobile`,
+      # which already run each app's full suite — duplicating the install here
+      # would buy nothing and double the slowest part of CI.
+
   shared-contracts:
     name: Governed shared contracts
     runs-on: ubuntu-latest

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="mind">
+  <title>mind</title>
+  <path d="M23 10 a6 6 0 0 0-10 3 a6 6 0 0 0-3 10 a6 6 0 0 0 4 9 a6 6 0 0 0 9 4 Z" fill="#D2B8FF" stroke="#0B1B2B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M25 10 a6 6 0 0 1 10 3 a6 6 0 0 1 3 10 a6 6 0 0 1-4 9 a6 6 0 0 1-9 4 Z" fill="#F4B8E4" stroke="#0B1B2B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M14 20 c2 0 3 1.5 3 3 M34 20 c-2 0-3 1.5-3 3" fill="none" stroke="#0B1B2B" stroke-width="1.8" opacity="0.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M41 4 l1.4 3.4 3.4 1.4-3.4 1.4 L41 13.6 l-1.4-3.4 L36.2 8.8 l3.4-1.4 z" fill="#FFD166" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
