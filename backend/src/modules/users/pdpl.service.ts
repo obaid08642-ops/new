@@ -149,9 +149,32 @@ export class PdplService {
     const user: any = await this.userModel.findOne({ id: { $eq: String(userId) } }).lean();
     if (!user) throw new BadRequestException('user_not_found');
 
-    // The password is re-entered by the patient to prove the request is theirs.
-    if (user.password_hash && opts?.password) {
-      const bcrypt = require('bcrypt');
+    // Erasure is irreversible and removes medical records, so it must not be
+    // reachable with a stolen token alone. The password is re-entered by the
+    // patient to prove the request is theirs.
+    //
+    // This used to be `if (user.password_hash && opts?.password)`, which skipped
+    // the check entirely whenever either side was falsy. Social sign-in creates
+    // patients with `password_hash: ''` (auth.service social callback), so those
+    // accounts could be erased with no proof at all — exactly the attack the check
+    // exists to stop. Missing proof now fails closed in both directions.
+    if (!user.password_hash) {
+      // No password on file means the password cannot prove anything. Self-service
+      // erasure is refused rather than silently allowed; the account needs a
+      // password set (or a verified channel) first.
+      throw new BadRequestException({
+        message: 'reauthentication_required',
+        code: 'reauthentication_required',
+        detail: 'This account signs in with a social provider and has no password, so erasure cannot be authorised by password alone.',
+      });
+    }
+    if (!opts?.password) throw new BadRequestException('password_required');
+    {
+      // bcryptjs, like the rest of the backend. This was `require('bcrypt')`, and
+      // bcrypt is neither declared nor installed, so the moment a patient supplied
+      // a password the check threw "Cannot find module 'bcrypt'" and erasure 500'd
+      // instead of verifying. The old test missed it by never passing a password.
+      const bcrypt = require('bcryptjs');
       const ok = await bcrypt.compare(opts.password, user.password_hash);
       if (!ok) throw new BadRequestException('invalid_password');
     }

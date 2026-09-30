@@ -13,6 +13,8 @@
  * never touches the nabd_live data used by the live gate.
  */
 import mongoose from 'mongoose';
+// Same library the service uses: bcryptjs. `bcrypt` is not installed at all.
+const bcrypt = require('bcryptjs');
 import { PdplService } from '../src/modules/users/pdpl.service';
 import { UserSchema } from '../src/schemas/user.schema';
 
@@ -22,6 +24,11 @@ const MONGO_URL = process.env.PDPL_TEST_MONGO_URL || 'mongodb://127.0.0.1:27017/
 const DB_NAME = `pdpl_test_${process.pid}_${Date.now()}`;
 
 const PATIENT = 'pat-1';
+// A real bcryptjs hash, because erasure now requires the password to verify
+// against it. The old fixture stored the literal string 'HASH' and called
+// erasure with no password at all, which is exactly the hole the check exists
+// to close — so the happy path never actually exercised the comparison.
+const PATIENT_PASSWORD = 'correct-horse-battery';
 const OTHER_PATIENT = 'pat-2';
 
 describe('PdplService (PDPL portability + erasure) — real Mongo', () => {
@@ -43,7 +50,7 @@ describe('PdplService (PDPL portability + erasure) — real Mongo', () => {
     service = new PdplService(conn as any, userModel);
 
     await userModel.create([
-      { id: PATIENT, email: 'patient@example.test', phone: '+966500000001', password_hash: 'HASH', full_name: 'Real Patient', national_id: '1012345678', medical_record_number: 'MRN-42' },
+      { id: PATIENT, email: 'patient@example.test', phone: '+966500000001', password_hash: await bcrypt.hash(PATIENT_PASSWORD, 4), full_name: 'Real Patient', national_id: '1012345678', medical_record_number: 'MRN-42' },
       { id: OTHER_PATIENT, email: 'other@example.test', phone: '+966500000002', password_hash: 'HASH', full_name: 'Someone Else' },
     ]);
 
@@ -100,7 +107,7 @@ describe('PdplService (PDPL portability + erasure) — real Mongo', () => {
   });
 
   it('erasure deletes the real personal documents but keeps legal records anonymised', async () => {
-    const res = await service.erasePatientData(PATIENT);
+    const res = await service.erasePatientData(PATIENT, { password: PATIENT_PASSWORD });
 
     // Personal data really gone from the database
     expect(await conn.collection('appointments').countDocuments({ patient_id: PATIENT })).toBe(0);
@@ -166,5 +173,68 @@ describe('PdplService (PDPL portability + erasure) — real Mongo', () => {
 
   it('rejects an unknown subject instead of returning an empty export', async () => {
     await expect(service.exportPatientData('does-not-exist')).rejects.toThrow('user_not_found');
+  });
+
+  describe('erasure requires proof of ownership', () => {
+    const SOCIAL = 'social-patient';
+
+    beforeEach(async () => {
+      await userModel.create({
+        id: SOCIAL,
+        email: 'social@example.test',
+        phone: '+966500000009',
+        // exactly what the social sign-in callback writes
+        password_hash: '',
+        role: 'patient',
+        active: true,
+      });
+    });
+
+    afterEach(async () => {
+      await userModel.deleteOne({ id: { $eq: SOCIAL } });
+    });
+
+    it('refuses erasure for a social account that has no password to verify against', async () => {
+      // Previously `password_hash && password` was false, so the check was skipped
+      // and the whole account was erased on nothing but a session token.
+      await expect(service.erasePatientData(SOCIAL, { password: 'anything' })).rejects.toThrow('reauthentication_required');
+      expect(await userModel.findOne({ id: { $eq: SOCIAL } })).toBeTruthy();
+    });
+
+    it('refuses erasure when the account has a password but none was supplied', async () => {
+      const WITH_PASSWORD = 'password-patient';
+      await userModel.create({
+        id: WITH_PASSWORD,
+        email: 'pw@example.test',
+        phone: '+966500000010',
+        password_hash: await bcrypt.hash('correct-horse-battery', 4),
+        role: 'patient',
+        active: true,
+      });
+      try {
+        await expect(service.erasePatientData(WITH_PASSWORD, {})).rejects.toThrow('password_required');
+        await expect(service.erasePatientData(WITH_PASSWORD)).rejects.toThrow('password_required');
+        expect(await userModel.findOne({ id: { $eq: WITH_PASSWORD } })).toBeTruthy();
+      } finally {
+        await userModel.deleteOne({ id: { $eq: WITH_PASSWORD } });
+      }
+    });
+
+    it('still refuses a wrong password', async () => {
+      const WITH_PASSWORD = 'password-patient-2';
+      await userModel.create({
+        id: WITH_PASSWORD,
+        email: 'pw2@example.test',
+        phone: '+966500000011',
+        password_hash: await bcrypt.hash('correct-horse-battery', 4),
+        role: 'patient',
+        active: true,
+      });
+      try {
+        await expect(service.erasePatientData(WITH_PASSWORD, { password: 'wrong-password' })).rejects.toThrow('invalid_password');
+      } finally {
+        await userModel.deleteOne({ id: { $eq: WITH_PASSWORD } });
+      }
+    });
   });
 });
