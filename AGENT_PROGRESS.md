@@ -679,3 +679,30 @@ main is the reviewer's step.
 | F82 | `1b52d3f` | [10.F82] LCP: prioritise the first product-card image and preconnect the A |
 | F82 | `4afc9ad` | [REVIEW] plan: split discovery work into PHASE 7E (engagement) and 7F (sea |
 | F82 | `d40a9e6` | [REVIEW-P0] docs: CI results + F82 performance finding |
+
+## LiveKit video path — correction to an earlier note (2026-09-29)
+
+Earlier I recorded, as a known risk, that the provider app's video consultations
+might be broken by the Expo SDK 57 jump (RN 0.81.5 -> 0.86.2) because
+@livekit/react-native-webrtc ships native code, and that it could not be verified
+without two devices. That was an assumption, and it is wrong:
+
+- the installed @livekit/react-native-webrtc 144.1.2 declares peer react-native >=0.60.0
+  and both native packages resolve against the app;
+- the iOS Hermes bundle from `expo export` contains livekit;
+- backend `POST /calls/:sessionId/join` mints a real signed LiveKit JWT with
+  livekit-server-sdk from LIVEKIT_API_KEY / LIVEKIT_API_SECRET (livekit.service.ts), and
+  the client connects a real Room with that token. There is no locally minted token and
+  no simulated "connected" state.
+
+`provider-app/src/screens/shared/video-call-room.livekit.test.js` now pins all of it
+(5 tests). The only part that cannot be asserted in a JS suite is two-party media, which
+needs two devices; that is a hardware fact, not a code gap.
+
+## Phase 8 and Phase 9 — status checked with evidence (2026-09-29)
+
+Phase 8 (F69–F74) is complete: the web screens call the real endpoints (me/profile,
+family/create with the 404 CTA in `create-family-cta.tsx`, search/intent) and fulfillment
+/ payment_mode are wired through the backend (16 and 3 references respectively). Phase 9
+is complete: F50 quoted-token count is 0, expo is 57.0.14, F78's PharmacyChatResponder
+is gone, and F53 capabilities gating is present (3 references in the pharmacy dashboard).
