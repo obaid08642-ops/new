@@ -27,6 +27,15 @@ importers:
       '@hookform/resolvers':
         specifier: ^5.2.2
         version: 5.2.2(react-hook-form@7.64.0(react@19.2.1))
+      '@nabd/design-tokens':
+        specifier: link:../packages/design-tokens
+        version: link:../packages/design-tokens
+      '@nabd/ui':
+        specifier: link:../packages/ui
+        version: link:../packages/ui
+      '@nabd/ui-native':
+        specifier: link:../packages/ui-native
+        version: link:../packages/ui-native
       '@phosphor-icons/react':
         specifier: 2.1.10
         version: 2.1.10(react-dom@19.2.1(react@19.2.1))(react@19.2.1)

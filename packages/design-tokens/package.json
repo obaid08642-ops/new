@@ -9,10 +9,23 @@
     "check": "node build.mjs --check",
     "contrast": "node ../../tools/design/contrast-check.ts",
     "type-scale": "node ../../tools/design/no-px-font-size.ts",
-    "test": "npm run check && npm run contrast && npm run type-scale"
+    "test": "npm run check && npm run sync-web:check && npm run contrast && npm run type-scale && npm run no-emoji && npm run no-raw-color",
+    "no-raw-color": "node ../../tools/design/no-raw-color.ts",
+    "no-emoji": "node ../../tools/design/no-emoji-in-ui.ts",
+    "sync-web": "node ../../tools/design/sync-token-css.mjs",
+    "sync-web:check": "node ../../tools/design/sync-token-css.mjs --check"
   },
   "files": [
     "dist",
     "tokens.json"
-  ]
+  ],
+  "exports": {
+    ".": "./dist/ts/tokens.ts",
+    "./tokens.json": "./tokens.json",
+    "./dist/css/tokens.css": "./dist/css/tokens.css",
+    "./dist/css/fonts.css": "./dist/css/fonts.css",
+    "./dist/ts/tokens.ts": "./dist/ts/tokens.ts",
+    "./dist/tailwind-preset.cjs": "./dist/tailwind-preset.cjs",
+    "./*": "./*"
+  }
 }

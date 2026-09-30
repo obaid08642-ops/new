@@ -91,6 +91,13 @@ jobs:
       # or changing a token without regenerating: a diff means dist/ is stale.
       - name: Generated artefacts are in sync with tokens.json
         run: npm run check
+      # patient-web cannot @import a sibling package (Next refuses to resolve
+      # outside the app root, via every mechanism), so the token sheets are
+      # MIRRORED into patient-web/app/design-tokens/. The mirror is generated and
+      # committed; this step is what stops it drifting from tokens.json and
+      # quietly reintroducing a second source of truth.
+      - name: Mirrored token sheets in patient-web are not stale
+        run: npm run sync-web:check
       - name: Contrast check (both themes)
         run: npm run contrast
       # A5's guard. Ratcheted: the 289 sizes that predate the design system are
@@ -98,6 +105,15 @@ jobs:
       # removes them as screens are rebuilt. This fails on any NEW one.
       - name: No new hard-coded font size (ratchet)
         run: npm run type-scale
+      # A0 is the principle the owner set: nothing in a screen may hardcode a
+      # colour, so changing a token changes every screen at once. This rule is
+      # what makes that true rather than aspirational. RATCHETED and PARTIAL:
+      # 9,563 colours predate the system and are frozen per file. 12.A11 clears
+      # them; any NEW one fails here.
+      - name: No new hard-coded colour, in any of the four clients (ratchet)
+        run: npm run no-raw-color
+      - name: No new emoji in UI (ratchet)
+        run: npm run no-emoji
       - name: Install compiler
         run: npm install --ignore-scripts --no-save typescript@5.9.3
       - name: Type check the generated TypeScript module
