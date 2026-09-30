@@ -41,7 +41,7 @@ export default function robots(): MetadataRoute.Robots {
       // surface (never the private trees). Explicit entry so AI bots do not
       // have to infer permissions from the wildcard rule.
       {
-        userAgent: ["GPTBot", "ChatGPT-User", "ClaudeBot", "PerplexityBot", "Google-Extended", "Amazonbot", "Applebot-Extended"],
+        userAgent: ["GPTBot", "ChatGPT-User", "ClaudeBot", "Claude-SearchBot", "Claude-User", "PerplexityBot", "Perplexity-User", "Google-Extended", "Amazonbot", "Applebot", "Applebot-Extended", "OAI-SearchBot", "Bingbot"],
         allow: ["/", "/llms.txt", ...publicExplicitAllows],
         disallow: [
           "/api/",
