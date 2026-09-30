@@ -854,3 +854,63 @@ family/create with the 404 CTA in `create-family-cta.tsx`, search/intent) and fu
 / payment_mode are wired through the backend (16 and 3 references respectively). Phase 9
 is complete: F50 quoted-token count is 0, expo is 57.0.14, F78's PharmacyChatResponder
 is gone, and F53 capabilities gating is present (3 references in the pharmacy dashboard).
+
+## Phase 11 — live gate green on a fresh DB (2026-09-30)
+
+`bash tools/live/run_gate.sh` on DB `nabd_p11_gate_1790756126` (fresh, single gate
+instance, no concurrent runs): **1146/1146 steps passed, 0 failed**, and no backend
+restart was needed, so nothing was silently healed.
+
+```
+gate P1: 368 admin/provider write routes tried with a patient token; 0 answered 2xx
+j_accounts 42/42   j_onboarding 113/113  j_pharmacy 144/144  j_lab 133/133
+j_radiology 105/105  j_nursing 93/93    j_consultation 110/110  j_ambulance 67/67
+j_facility 186/186  j_support 32/32     j_loyalty 104/104   j_admin_clicks 17/17
+```
+
+The extra journeys outside the default list were also run green on the same stack:
+`j_chat 74/74`, `j_insurance 124/124`, `j_admin_ops 100/100`, `j_returns 117/117`.
+
+### What the earlier red runs actually were (all environment, not code)
+
+- **No seeded admin.** Nothing in the gate seeded `admin@nabd.test`, so a fresh DB
+  produced ~29 misleading `401` / `csrf_validation_failed` / `admin_session_required`
+  step failures. The gate now upserts it via `tools/live/seed_admin.js` (idempotent).
+- **A stale 1.2 GB orphan** (`node tools/audit/clientbodies.js --types`) plus several
+  concurrent `run_gate.sh` / `gate_run.sh` instances exhausted the 8 GB host; macOS
+  SIGKILLed the backend mid-run, which surfaced as dozens of `502
+  admin_backend_unavailable` and `ConnectionRefusedError` failures. No V8 heap error
+  was ever logged, i.e. an external kill rather than a crash. With the orphans gone
+  and one gate running, the backend stayed up for the whole run.
+- **A corrupted `admin/.next`.** The admin login page served SSR HTML but its
+  `_next/static` chunks 404'd (`_clientMiddlewareManifest.js` missing), so React never
+  hydrated and the submit button was inert — `j_admin_clicks` timed out on
+  `input[inputmode="numeric"]`. A clean `next build` fixed it; the page then booted,
+  `POST /api/admin/auth/login` returned `202 requires_2fa`, and the journey went
+  17/17. This was a build artifact, not an app defect, and it is exactly the class of
+  failure the real-browser journey exists to catch.
+
+### Gate harness changes (harness only, no product code)
+
+- `tools/live/run_gate.sh` seeds the admin before the journeys, so a fresh DB works.
+- It verifies `health/liveness` before each journey and restarts the backend if the
+  host killed it, printing `!!` per restart and a `NOTE:` count at the end, so
+  instability stays visible instead of being masked.
+- `CHROMIUM=<path>` is documented in that script but the journey reads `CHROME`; the
+  override is now forwarded. The bundled Playwright browser works with neither set.
+
+### Still open (not code gaps, they need environments or a decision)
+
+- F82 is still over the 3 s LCP budget on `/ar/c` (4.3 s) and `/ar` (4.5 s); the
+  bottleneck is `scriptEvaluation` across 104 client components and needs real bundle
+  splitting, not more caching.
+- Payment needs real sandbox keys to prove success/fail/refund against a PSP; the
+  local Moyasar double only proves the contract.
+- Two-party LiveKit media needs two devices and EAS dev builds; the token/bundle
+  wiring is already asserted in CI.
+- `gitleaks` still reports 191 findings in history (184 test fixtures + 7 copies of the
+  old TURN secret). The secret is gone from HEAD, but rotation on the server and a
+  history rewrite are still outstanding.
+- `pdpl.service.ts` writes `accepted` into `legal_consents` while `user.schema.ts`
+  does not declare that field, and the AI content-review queue records routine content
+  without an actual publication gate. Both need a fix before the reviewer signs off.
