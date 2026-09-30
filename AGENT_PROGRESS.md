@@ -1192,3 +1192,31 @@ Not claimed here: the broader 7E/7F net-new engagement/discovery scope
 (campaigns/recurring/nudges/full provider linking/full sitemap/importer/AI-checkout)
 and Phase 12–14 remain explicitly open; they are larger product work, not one-line
 fixes.
+
+### The A6 artwork cannot be wired into patient-web yet, and now that is enforced
+
+A6 built the illustrated service artwork in `packages/ui`. The home page's
+eight service tiles were rewritten to render it. `tsc --noEmit` passed.
+`next build` failed:
+
+    Module not found: Can't resolve '@nabd/ui'
+    Import map: aliased to relative '../packages/ui/src/index.ts' inside of [project]/
+
+Turbopack refuses to resolve outside the app root, and the alias does not help:
+it resolves, and the target is still outside the project. It is the same wall
+`sync-token-css.mjs` documents for CSS, which is why the token sheets are
+mirrored into `app/design-tokens/` and generated.
+
+So patient-web gets shared design-system VALUES through a generated mirror, and
+shared React COMPONENTS will need the same treatment. The change was reverted
+rather than shipped half-wired; A6 remains available in the package and
+`packages/ui`'s own conformance tests keep the two renderers in step.
+
+`tests/module-boundary.test.ts` now enforces this. It scans only SHIPPED code
+(`app/`, `components-next/`, `lib/`, `components/`) — `tests/` may import the
+packages, because vitest resolves `link:` dependencies and the A7 contract test
+depends on doing so, and the build never sees a test file. A boundary test that
+walks an empty list passes forever, so it also asserts it scanned something.
+
+Mutation-verified: putting `@nabd/ui` back into a screen fails it with the file
+and the specifier named.
