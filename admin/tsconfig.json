@@ -22,13 +22,19 @@
         "./src/*"
       ],
       "@nabd/ui": [
-        "../packages/ui/src/Icon.tsx"
+        "../packages/ui/src/index.ts"
       ],
       "@nabd/ui/icons/illustrated": [
         "../packages/ui/icons/illustrated.ts"
       ],
       "@nabd/ui/icons/illustrations": [
         "../packages/ui/icons/illustrations.ts"
+      ],
+      "@nabd/ui/icons/names": [
+        "../packages/ui/icons/names.ts"
+      ],
+      "@nabd/ui/components/contract": [
+        "../packages/ui/components/contract.ts"
       ]
     },
     "plugins": [

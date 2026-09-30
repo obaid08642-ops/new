@@ -1,37 +1,8 @@
 import * as React from 'react';
+import { ActivityIndicator } from 'react-native';
 import Svg, { Circle, Path, Rect, G as SvgG } from 'react-native-svg';
 import type { IconProps as PhosphorIconProps } from 'phosphor-react-native';
-import {
-  Bell,
-  CalendarBlank,
-  CaretDown,
-  CaretLeft,
-  CaretRight,
-  CaretUp,
-  Check,
-  CheckCircle,
-  Clock,
-  CreditCard,
-  DownloadSimple,
-  Funnel,
-  Gear,
-  Heart,
-  House,
-  List,
-  MagnifyingGlass,
-  MapPin,
-  Minus,
-  Phone,
-  Plus,
-  ShoppingCart,
-  SignOut,
-  Star,
-  Trash,
-  User,
-  UsersThree,
-  Warning,
-  X,
-} from 'phosphor-react-native';
+import * as phosphor from 'phosphor-react-native';
 
 import { tokens, type ThemeName } from '../../design-tokens/dist/ts/tokens';
 import {
@@ -41,6 +12,11 @@ import {
   type IllustratedIcon,
   type Prim,
 } from '../../ui/icons/illustrated';
+import {
+  LINE_ICON_NAMES as SHARED_LINE_NAMES,
+  type IconName as SharedIconName,
+  type LineIconName as SharedLineIconName,
+} from '../../ui/icons/names';
 import {
   GRID as ILLUSTRATION_GRID,
   ILLUSTRATIONS,
@@ -79,41 +55,49 @@ type GlyphProps = PhosphorIconProps & {
   accessible?: boolean;
 };
 
-const LINE: Record<string, React.FC<GlyphProps>> = {
-  bell: Bell,
-  calendar: CalendarBlank,
-  'caret-down': CaretDown,
-  'caret-left': CaretLeft,
-  'caret-right': CaretRight,
-  'caret-up': CaretUp,
-  check: Check,
-  'check-circle': CheckCircle,
-  clock: Clock,
-  card: CreditCard,
-  download: DownloadSimple,
-  filter: Funnel,
-  settings: Gear,
-  heart: Heart,
-  home: House,
-  list: List,
-  search: MagnifyingGlass,
-  pin: MapPin,
-  minus: Minus,
-  phone: Phone,
-  plus: Plus,
-  cart: ShoppingCart,
-  signout: SignOut,
-  star: Star,
-  trash: Trash,
-  user: User,
-  users: UsersThree,
-  warning: Warning,
-  close: X,
-} as const satisfies Record<string, React.FC<GlyphProps>>;
+/**
+ * Keyed by the SHARED name union, exactly as the web map is, so a name added to
+ * `packages/ui/icons/names.ts` and mapped on the web is a compile error here
+ * until the native glyph exists. `phosphor-react-native` exports each glyph
+ * under the suffixed `BellIcon` name with the bare one deprecated, so the
+ * suffixed form is what is referenced.
+ */
+const LINE: Record<SharedLineIconName, React.FC<GlyphProps>> = {
+  bell: phosphor.BellIcon,
+  calendar: phosphor.CalendarBlankIcon,
+  search: phosphor.MagnifyingGlassIcon,
+  cart: phosphor.ShoppingCartIcon,
+  user: phosphor.UserIcon,
+  users: phosphor.UsersThreeIcon,
+  home: phosphor.HouseIcon,
+  heart: phosphor.HeartIcon,
+  clock: phosphor.ClockIcon,
+  pin: phosphor.MapPinIcon,
+  phone: phosphor.PhoneIcon,
+  card: phosphor.CreditCardIcon,
+  star: phosphor.StarIcon,
+  check: phosphor.CheckIcon,
+  'check-circle': phosphor.CheckCircleIcon,
+  close: phosphor.XIcon,
+  plus: phosphor.PlusIcon,
+  minus: phosphor.MinusIcon,
+  filter: phosphor.FunnelIcon,
+  settings: phosphor.GearIcon,
+  list: phosphor.ListIcon,
+  download: phosphor.DownloadSimpleIcon,
+  trash: phosphor.TrashIcon,
+  warning: phosphor.WarningIcon,
+  signout: phosphor.SignOutIcon,
+  'caret-down': phosphor.CaretDownIcon,
+  'caret-up': phosphor.CaretUpIcon,
+  'caret-left': phosphor.CaretLeftIcon,
+  'caret-right': phosphor.CaretRightIcon,
+};
 
-export const LINE_ICON_NAMES = Object.keys(LINE) as Array<keyof typeof LINE>;
-export type LineIconName = keyof typeof LINE;
-export type IconName = IllustratedIcon | LineIconName;
+export const LINE_ICON_NAMES = SHARED_LINE_NAMES;
+export type LineIconName = SharedLineIconName;
+
+export type IconName = IllustratedIcon | SharedIconName;
 
 export type IconSize = 'sm' | 'md' | 'lg' | 'xl' | 'hero';
 const SIZES: Record<IconSize, number> = { sm: 20, md: 24, lg: 32, xl: 46, hero: 88 };
@@ -256,7 +240,57 @@ export function Icon({
   );
 }
 
+/* ------------------------------------------------------------------ spinner */
+
+/**
+ * Spinner — the native counterpart of the web one. Same job, same a11y
+ * contract: `aria-hidden` equivalent, because the element that owns the loading
+ * STATE is the one that announces it.
+ *
+ * React Native ships a spinner, so this wraps `ActivityIndicator` rather than
+ * reimplementing an arc with react-native-svg — the native one inherits the
+ * platform's reduced-motion handling for free.
+ */
+export function Spinner({ size = 20, color }: { size?: number; color?: string }) {
+  return (
+    <ActivityIndicator
+      size="small"
+      color={color}
+      style={{ width: size, height: size }}
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
+    />
+  );
+}
+
 /* ------------------------------------------------------------- illustrations */
+
+/**
+ * The illustrated artwork on its own, for a service tile that supplies its own
+ * background and badge. The web wrapper has the same export, so a tile is the
+ * same component on both platforms rather than "a ServiceTile on the web and
+ * something else on the phone".
+ */
+export function IllustratedIconView({
+  name,
+  size,
+  theme = 'light',
+}: {
+  name: IllustratedIcon;
+  size: number;
+  theme?: ThemeName;
+}) {
+  const prims = ILLUSTRATED[name];
+  if (!prims) throw new Error(`Unknown illustrated icon: ${name}`);
+  return (
+    <Svg width={size} height={size} viewBox="0 0 48 48" accessibilityElementsHidden>
+      {prims.map((prim, i) => (
+        <PrimNode key={i} prim={prim} />
+      ))}
+    </Svg>
+  );
+}
+
 
 /**
  * `<Illustration>` — the SCENE set for 12.A6, the same geometry as the web

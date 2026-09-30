@@ -43,7 +43,7 @@
         "../packages/design-tokens/*"
       ],
       "@nabd/ui": [
-        "../packages/ui/src/Icon.tsx"
+        "../packages/ui/src/index.ts"
       ],
       "@nabd/ui/*": [
         "../packages/ui/*"

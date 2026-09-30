@@ -1,0 +1,275 @@
+import * as React from 'react';
+import {
+  ActivityIndicator,
+  Modal as RNModal,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from 'react-native';
+
+import type {
+  EmptyStateProps,
+  ErrorStateProps,
+  ModalProps,
+  SkeletonProps,
+  ToastProps,
+} from '../../../ui/components/contract';
+import { Icon, Illustration } from '../Icon';
+import { Button } from './Button';
+
+/**
+ * Status, overlays and loading — 12.A7, React Native.
+ *
+ * Empty and error stay two components with two pictures and two different
+ * buttons, exactly as on the web: "you have no orders" is information, "we could
+ * not load your orders" is an apology, and merging them means apologising to
+ * people who simply have nothing yet.
+ *
+ * What differs from the web is the overlay. A native modal is a real
+ * `Modal`, which is what makes the hardware back button dismiss it and the
+ * system apply the dim — neither of which a `position: fixed` view can do.
+ */
+
+const SKELETON_W = { auto: 'auto', full: '100%', half: '50%' } as const;
+
+export function Skeleton({ variant = 'text', lines = 1, width = 'full', testID, theme = 'light' }: SkeletonProps & { theme?: 'light' | 'dark' }) {
+  const bg = theme === 'dark' ? '#12263A' : '#F4F6F8';
+  const w = SKELETON_W[width];
+
+  if (variant === 'circle') {
+    return <View testID={testID} accessibilityElementsHidden style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: bg }} />;
+  }
+  if (variant === 'tile') {
+    return <View testID={testID} accessibilityElementsHidden style={{ width: 128, height: 128, borderRadius: 24, backgroundColor: bg }} />;
+  }
+  if (variant === 'block' || variant === 'title') {
+    return <View testID={testID} accessibilityElementsHidden style={{ width: w, height: variant === 'title' ? 28 : 64, borderRadius: 12, backgroundColor: bg }} />;
+  }
+
+  return (
+    <View testID={testID} accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={{ gap: 8, width: w }}>
+      {Array.from({ length: lines }).map((_, i) => (
+        <View
+          key={i}
+          style={{
+            height: 12,
+            // A trailing line is shorter, which is what makes a stack of them
+            // read as text rather than as a barcode.
+            width: i === lines - 1 && lines > 1 ? '60%' : '100%',
+            borderRadius: 9999,
+            backgroundColor: bg,
+          }}
+        />
+      ))}
+    </View>
+  );
+}
+
+export function EmptyState({ illustration, title, body, actionLabel, secondaryActionLabel, testID, theme = 'light' }: EmptyStateProps & { theme?: 'light' | 'dark' }) {
+  const dark = theme === 'dark';
+  return (
+    <View
+      testID={testID}
+      style={{ alignItems: 'center', gap: 16, paddingVertical: 32, paddingHorizontal: 24 }}
+    >
+      <Illustration name={illustration as never} size={128} />
+      <View style={{ gap: 4, alignItems: 'center' }}>
+        <Text style={{ fontSize: 17, fontWeight: '700', color: dark ? '#F5F5F7' : '#0B1B2B', textAlign: 'center' }}>{title}</Text>
+        {body ? (
+          <Text style={{ fontSize: 15, color: dark ? '#C2CBD6' : '#5B6673', textAlign: 'center', maxWidth: 320 }}>{body}</Text>
+        ) : null}
+      </View>
+      {actionLabel || secondaryActionLabel ? (
+        <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
+          {secondaryActionLabel ? <Button label={secondaryActionLabel} variant="ghost" size="sm" theme={dark ? 'dark' : 'light'} /> : null}
+          {actionLabel ? <Button label={actionLabel} size="sm" theme={dark ? 'dark' : 'light'} /> : null}
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
+/**
+ * `detail` is the technical cause, shown small and quiet so a support agent can
+ * read it out of a screenshot. It is deliberately NOT the title: a user cannot
+ * act on "TypeError: fetch failed", they can act on "We could not reach Nabd+".
+ */
+export function ErrorState({
+  illustration = 'errorServer',
+  title,
+  body,
+  detail,
+  actionLabel,
+  retryLabel,
+  loading = false,
+  testID,
+  theme = 'light',
+}: ErrorStateProps & { theme?: 'light' | 'dark' }) {
+  const dark = theme === 'dark';
+  return (
+    <View
+      testID={testID}
+      accessibilityRole="alert"
+      accessible
+      style={{
+        alignItems: 'center',
+        gap: 16,
+        padding: 24,
+        borderRadius: 16,
+        backgroundColor: dark ? '#33161A' : '#FDECEE',
+      }}
+    >
+      <Illustration name={illustration as never} size={128} />
+      <View style={{ gap: 4, alignItems: 'center' }}>
+        <Text style={{ fontSize: 17, fontWeight: '700', color: dark ? '#F5F5F7' : '#0B1B2B', textAlign: 'center' }}>{title}</Text>
+        {body ? (
+          <Text style={{ fontSize: 15, color: dark ? '#C2CBD6' : '#5B6673', textAlign: 'center', maxWidth: 340 }}>{body}</Text>
+        ) : null}
+        {detail ? <Text style={{ fontSize: 11, color: dark ? '#8A97A6' : '#8A94A0', textAlign: 'center' }}>{detail}</Text> : null}
+      </View>
+      {retryLabel || actionLabel ? (
+        <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
+          {retryLabel ? (
+            <Button label={retryLabel} variant="secondary" size="sm" loading={loading} theme={dark ? 'dark' : 'light'} />
+          ) : null}
+          {actionLabel ? <Button label={actionLabel} size="sm" theme={dark ? 'dark' : 'light'} /> : null}
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
+/**
+ * A toast is a live region. `accessibilityLiveRegion="polite"` announces it
+ * without cutting off whatever the user is hearing, which is the difference
+ * between a helpful confirmation and a hijacked screen reader mid-sentence.
+ */
+export function Toast({
+  message,
+  tone = 'neutral',
+  dismissible = false,
+  dismissLabel = 'Dismiss',
+  actionLabel,
+  durationMs,
+  testID,
+  theme = 'light',
+}: ToastProps & { theme?: 'light' | 'dark' }) {
+  const dark = theme === 'dark';
+  const accent = {
+    neutral: '#8A94A0',
+    primary: '#D42A38',
+    success: '#1B7A4B',
+    warning: '#8A5A00',
+    danger: '#B3202C',
+    info: '#1F5FBF',
+  }[tone];
+
+  return (
+    <View
+      testID={testID}
+      accessibilityLiveRegion="polite"
+      accessibilityRole="alert"
+      style={{
+        position: 'absolute',
+        insetInline: 20,
+        bottom: 96,
+        zIndex: 500,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        padding: 16,
+        borderRadius: 12,
+        backgroundColor: dark ? '#F5F5F7' : '#12263A',
+        borderStartWidth: 4,
+        borderStartColor: accent,
+        elevation: 6,
+      }}
+    >
+      <Text numberOfLines={2} style={{ flex: 1, fontSize: 15, color: dark ? '#0B1B2B' : '#F5F5F7' }}>
+        {message}
+      </Text>
+      {actionLabel ? (
+        <Pressable accessibilityRole="button" accessibilityLabel={actionLabel} style={{ padding: 8 }}>
+          <Text style={{ fontWeight: '700', color: dark ? '#0B1B2B' : '#F5F5F7' }}>{actionLabel}</Text>
+        </Pressable>
+      ) : null}
+      {dismissible ? (
+        <Pressable accessibilityRole="button" accessibilityLabel={dismissLabel} style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}>
+          <Icon name="close" size={16} theme={dark ? 'light' : 'dark'} />
+        </Pressable>
+      ) : null}
+    </View>
+  );
+}
+
+export function Modal({
+  open,
+  title,
+  body,
+  variant = 'modal',
+  confirmLabel,
+  cancelLabel,
+  destructive = false,
+  closeLabel,
+  loading = false,
+  testID,
+  theme = 'light',
+}: ModalProps & { theme?: 'light' | 'dark' }) {
+  const dark = theme === 'dark';
+  const isSheet = variant === 'sheet';
+
+  return (
+    <RNModal
+      visible={open}
+      transparent
+      animationType={isSheet ? 'slide' : 'fade'}
+      // A hardware back press has to dismiss a native dialog; there is no Esc key.
+      onRequestClose={() => undefined}
+      testID={testID}
+    >
+      <View
+        accessibilityViewIsModal
+        accessibilityRole="alert"
+        style={{
+          flex: 1,
+          backgroundColor: 'rgba(18,38,58,0.55)',
+          justifyContent: isSheet ? 'flex-end' : 'center',
+          padding: isSheet ? 0 : 24,
+        }}
+      >
+        <View
+          accessible
+          accessibilityViewIsModal
+          accessibilityLabel={title}
+          style={{
+            backgroundColor: dark ? '#12263A' : '#FFFFFF',
+            borderTopLeftRadius: isSheet ? 28 : 24,
+            borderTopRightRadius: isSheet ? 28 : 24,
+            borderBottomLeftRadius: isSheet ? 0 : 24,
+            borderBottomRightRadius: isSheet ? 0 : 24,
+            padding: 24,
+            gap: 16,
+            elevation: 12,
+          }}
+        >
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <Text style={{ flex: 1, fontSize: 20, fontWeight: '700', color: dark ? '#F5F5F7' : '#0B1B2B' }}>{title}</Text>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={closeLabel}
+              style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}
+            >
+              <Icon name="close" size={18} theme={dark ? 'dark' : 'light'} />
+            </Pressable>
+          </View>
+          {body ? <Text style={{ fontSize: 15, color: dark ? '#C2CBD6' : '#5B6673' }}>{body}</Text> : null}
+          <View style={{ flexDirection: 'row', gap: 8, justifyContent: 'flex-end' }}>
+            {cancelLabel ? <Button label={cancelLabel} variant="ghost" size="sm" theme={dark ? 'dark' : 'light'} /> : null}
+            <Button label={confirmLabel} size="sm" variant={destructive ? 'danger' : 'primary'} loading={loading} theme={dark ? 'dark' : 'light'} />
+          </View>
+        </View>
+      </View>
+    </RNModal>
+  );
+}

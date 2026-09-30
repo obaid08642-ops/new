@@ -6,6 +6,22 @@ module.exports = {
   testMatch: ['**/__tests__/**/*.test.[jt]s?(x)', '**/?(*.)+(spec|test).[jt]s?(x)'],
   moduleNameMapper: {
     '@react-native-async-storage/async-storage': '@react-native-async-storage/async-storage/jest/async-storage-mock',
+
+    // ONE React, ONE react-native, for the whole module graph.
+    //
+    // packages/ui-native carries react/react-native/react-native-svg as
+    // DEVdependencies so its own `tsc` can typecheck them, which means
+    // packages/ui-native/node_modules holds a SECOND copy of React. The nearest
+    // node_modules wins, so phosphor-react-native (resolved from there) picked up
+    // that second copy while react-test-renderer used the app's — and React's
+    // hook dispatcher is per-copy, so every hook call blew up with "Invalid hook
+    // call". Forcing all of them to the app's copies is what a peer dependency
+    // means in practice, and it is why the app's copy has to be the one that runs.
+    '^react$': '<rootDir>/node_modules/react',
+    '^react/(.*)$': '<rootDir>/node_modules/react/$1',
+    '^react-native$': '<rootDir>/node_modules/react-native',
+    '^react-native/(.*)$': '<rootDir>/node_modules/react-native/$1',
+    '^react-native-svg$': '<rootDir>/node_modules/react-native-svg',
   },
   // packages/ui-native is a source-only workspace with no install of its own, so
   // its `import 'react'` / babel-runtime helpers cannot be found by walking up

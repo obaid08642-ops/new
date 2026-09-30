@@ -1,36 +1,5 @@
 import * as React from 'react';
-import {
-  Bell,
-  CalendarBlank,
-  CaretDown,
-  CaretLeft,
-  CaretRight,
-  CaretUp,
-  Check,
-  CheckCircle,
-  Clock,
-  CreditCard,
-  DownloadSimple,
-  Funnel,
-  Gear,
-  Heart,
-  House,
-  List,
-  MagnifyingGlass,
-  MapPin,
-  Minus,
-  Phone,
-  Plus,
-  ShoppingCart,
-  SignOut,
-  Star,
-  Trash,
-  User,
-  UsersThree,
-  Warning,
-  X,
-} from '@phosphor-icons/react';
-
+import * as phosphor from '@phosphor-icons/react';
 import {
   ILLUSTRATED,
   ILLUSTRATED_ICONS,
@@ -38,6 +7,11 @@ import {
   type IllustratedIcon,
   type Prim,
 } from '../icons/illustrated';
+import {
+  LINE_ICON_NAMES as SHARED_LINE_NAMES,
+  type IconName as SharedIconName,
+  type LineIconName as SharedLineIconName,
+} from '../icons/names';
 import {
   GRID as ILLUSTRATION_GRID,
   ILLUSTRATIONS,
@@ -68,43 +42,51 @@ import {
  * are therefore `aria-hidden` by default; pass `title` when one stands alone.
  */
 
-/** The curated small-UI set. One line set, one weight, no per-screen additions. */
-const LINE = {
-  bell: Bell,
-  calendar: CalendarBlank,
-  'caret-down': CaretDown,
-  'caret-left': CaretLeft,
-  'caret-right': CaretRight,
-  'caret-up': CaretUp,
-  check: Check,
-  'check-circle': CheckCircle,
-  clock: Clock,
-  card: CreditCard,
-  download: DownloadSimple,
-  filter: Funnel,
-  settings: Gear,
-  heart: Heart,
-  home: House,
-  list: List,
-  search: MagnifyingGlass,
-  pin: MapPin,
-  minus: Minus,
-  phone: Phone,
-  plus: Plus,
-  cart: ShoppingCart,
-  signout: SignOut,
-  star: Star,
-  trash: Trash,
-  user: User,
-  users: UsersThree,
-  warning: Warning,
-  close: X,
-} as const;
+/**
+ * The curated small-UI set, keyed by the shared name union.
+ *
+ * Typed `Record<SharedLineIconName, ...>` on purpose: a name added to
+ * `names.ts` without a glyph here, or a glyph here without a name, is a compile
+ * error in BOTH renderers. That is the whole point of the union living outside
+ * the platform code — the curated set is a decision, and a decision is enforced
+ * once.
+ */
+const LINE: Record<SharedLineIconName, React.ComponentType<Record<string, unknown>>> = {
+  bell: phosphor.Bell,
+  calendar: phosphor.CalendarBlank,
+  search: phosphor.MagnifyingGlass,
+  cart: phosphor.ShoppingCart,
+  user: phosphor.User,
+  users: phosphor.UsersThree,
+  home: phosphor.House,
+  heart: phosphor.Heart,
+  clock: phosphor.Clock,
+  pin: phosphor.MapPin,
+  phone: phosphor.Phone,
+  card: phosphor.CreditCard,
+  star: phosphor.Star,
+  check: phosphor.Check,
+  'check-circle': phosphor.CheckCircle,
+  close: phosphor.X,
+  plus: phosphor.Plus,
+  minus: phosphor.Minus,
+  filter: phosphor.Funnel,
+  settings: phosphor.Gear,
+  list: phosphor.List,
+  download: phosphor.DownloadSimple,
+  trash: phosphor.Trash,
+  warning: phosphor.Warning,
+  signout: phosphor.SignOut,
+  'caret-down': phosphor.CaretDown,
+  'caret-up': phosphor.CaretUp,
+  'caret-left': phosphor.CaretLeft,
+  'caret-right': phosphor.CaretRight,
+};
 
-export const LINE_ICON_NAMES = Object.keys(LINE) as Array<keyof typeof LINE>;
-export type LineIconName = keyof typeof LINE;
+export const LINE_ICON_NAMES = SHARED_LINE_NAMES;
+export type LineIconName = SharedLineIconName;
 
-export type IconName = IllustratedIcon | LineIconName;
+export type IconName = IllustratedIcon | SharedIconName;
 
 export type IconSize = 'sm' | 'md' | 'lg' | 'xl' | 'hero';
 export type IconTone =

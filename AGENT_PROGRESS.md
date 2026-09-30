@@ -587,6 +587,86 @@ Phase 12 commit, once that tree is quiet.
   derives the ESM entry from the package's own `exports` field and resolves from
   its own devDependencies.
 
+### [P12.A7] components — one contract, two renderers, checked at compile time
+- `packages/ui/components/contract.ts` is the whole A7 surface: 28 components,
+  typed once, with no platform in the file. Both renderers are typed against it,
+  so "the same API on web and native" is a fact about the build rather than a
+  sentence in a document.
+- `packages/ui/components/conformance.ts` turns that claim into a compile error.
+  A renderer may ADD props (`onClick` on the web, `onPress` on native, `theme` on
+  native) but may not drop or narrow a contract prop, and the two may not disagree
+  on a shape. The error NAMES the component: an early version printed
+  `Type 'false' does not satisfy the constraint 'true'`, which is the difference
+  between a five-second fix and a search.
+- **Proven to bite**, not asserted: deleting `Rating` from the native prop map
+  turns the job red with "native renderer is missing: Rating". So does dropping
+  `label` from `Button`.
+- **A vacuous gate, found and fixed.** `WEB_ONLY` (the two admin-only surfaces
+  the spec marks web-only) was first typed as `Partial<...> & Record<...>`, which
+  made `keyof typeof WEB_ONLY` equal EVERY contract name — so `RequiredBy<'native'>`
+  collapsed to `never` and the native check passed without looking at anything. It
+  is now a genuinely partial record, and the probe fails as it should. A check that
+  does not look is not a check.
+- `packages/ui/tsconfig.json` was missing `components/**` from its `include`, so
+  `tsc` had been reporting success while never opening the files this task added.
+  Fixed, and the conformance check now runs in CI (`design-components`).
+- The ICON NAMES moved out of both renderers into `packages/ui/icons/names.ts`, so
+  the 29-name curated set is one list. Each renderer maps it explicitly, typed
+  `Record<SharedLineIconName, …>`, which means a name added there without a glyph
+  is a compile error in BOTH — the curated set is a decision, enforced once.
+- Three components were built to the contract and had to be corrected by it:
+  - `Stepper` had no way to be stepped — a value change is platform-free, so
+    `onChange` is in the contract, not a platform extra;
+  - `Otp` is a controlled field, and React was right to refuse it with no
+    `onChange`. `onComplete` is kept separately for auto-submit, which is a
+    different moment from "the user typed";
+  - `Search` destructured `onChange` and never passed it to the input, which is
+    exactly the bug React's own warning was pointing at.
+- Rules the components hold, each with a test: nothing interactive is under
+  44px; a `loading` control is also `disabled` so a tap cannot fire twice; an
+  invalid field is `aria-invalid` and not merely red; `IconButton` cannot be
+  unnamed because `label` is required at the type level; empty and error stay two
+  components with two pictures, because "you have no orders" is information and
+  "we could not load your orders" is an apology; a Rating always states what it is
+  out of and how many rated it, and the SENTENCE is supplied by the app so it is
+  localised where the strings live; no component paints a raw hex.
+- The gallery in `dist/preview.html` renders the REAL components through their
+  real React runtime (`tsx-loader.mjs` compiles the TSX, because Node strips types
+  but not JSX), so a specimen cannot drift from what a screen gets. It resolved
+  Phosphor and React out of `patient-web/node_modules` before; it now uses its own
+  devDependencies, and CI runs it on a clean checkout.
+- `patient-app/jest.config.js` now forces ONE `react`, `react-native` and
+  `react-native-svg` for the whole graph. `packages/ui-native` carries them as
+  devDependencies so its own `tsc` can see them, which meant a second copy of
+  React under `packages/ui-native/node_modules`; the nearest one wins, so
+  phosphor-react-native used a different React than react-test-renderer and every
+  hook call failed with "Invalid hook call". That is what a peer dependency means
+  in practice.
+- **NOT migrated:** `patient-app/src/components/Icon.tsx`, the legacy
+  MaterialCommunityIcons wrapper, is untouched. It resolves ~200 names through its
+  own map and many screens use it; the new set is exported alongside as
+  `NabdIcon`/`NabdIllustration` in the design-system barrel. Folding 200 names into
+  29 curated ones is a screen-by-screen migration and A8 is where it starts.
+
+### Gate evidence (this commit)
+- tsc, all five projects: **0 errors each** (patient-web, patient-app, provider-app,
+  admin) plus both design packages.
+- packages/ui `npm test`: 11 SVGs up to date; preview up to date — "9 illustrated
+  icons, 17 scenes, 29 line icons, both themes" (now including the component
+  gallery). `tsc --noEmit` 0 errors.
+- packages/ui-native `tsc --noEmit` 0 errors, including the conformance check.
+- patient-web: `vitest run` → **391 passed, 23 skipped, 0 failed** (176 files) —
+  up from 371, the 20 new being the A7 contract tests.
+- patient-app: `jest` **136/136** (45 suites) — up from 117, the 19 new being the
+  native semantics tests.
+- provider-app: `jest` 22/22.
+- admin: `next build` succeeded.
+- contrast **65/65** both themes; no-px "1748 files scanned. 289 recorded, none
+  added"; no-emoji "1466 UI files scanned. 47 recorded, none added".
+- patient-app `npx expo export` → web + ios + android, "Files (3): favicon.ico
+  (15KB), index.html (1.2KB), metadata.json (6.7KB)".
+- Backend gate again deliberately not run: the other session is still writing it.
+
 ## PHASE 11 — final verification (2026-09-29, this branch)
 
 ### 1. Typecheck — all five projects, real output

@@ -154,6 +154,38 @@ jobs:
       - name: Type check the React Native wrapper over the same geometry
         working-directory: packages/ui-native
         run: npx tsc --noEmit -p tsconfig.json
+
+  design-components:
+    name: Component contract and conformance (12.A7)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # `tsc` here is not a formality. `packages/ui/components/conformance.ts`
+      # compares the contract against BOTH renderers' prop maps, so this step
+      # fails when a component exists on one platform and not the other, when a
+      # renderer stops accepting a prop the contract promises, or when the two
+      # disagree on a shape. That is the whole enforcement mechanism for "same
+      # API on web and native", and it costs nothing to run.
+      - name: Install the web design system
+        working-directory: packages/ui
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: The two renderers implement one contract
+        working-directory: packages/ui
+        run: npx tsc --noEmit -p tsconfig.json
+      - name: The React Native renderer type checks against the same contract
+        working-directory: packages/ui-native
+        run: |
+          npm install --ignore-scripts --no-audit --no-fund
+          npx tsc --noEmit -p tsconfig.json
+      # The gallery is the review artifact, and it renders the REAL components
+      # rather than a hand-written template, so a component that does not
+      # compile cannot appear in it.
+      - name: The gallery renders every component
+        working-directory: packages/ui
+        run: npm test
       # The contract tests themselves (palette binding, the no-text rule, the a11y
       # contract, the grid sizes) run inside `patient-web` and `patient-mobile`,
       # which already run each app's full suite — duplicating the install here

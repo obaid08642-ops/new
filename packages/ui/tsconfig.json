@@ -1,7 +1,10 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "lib": ["es2020", "dom"],
+    "lib": [
+      "es2020",
+      "dom"
+    ],
     "jsx": "react-jsx",
     "module": "esnext",
     "moduleResolution": "bundler",
@@ -13,5 +16,13 @@
     "isolatedModules": true,
     "types": []
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "icons/**/*.ts"]
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "icons/**/*.ts",
+    "icons/**/*.tsx",
+    "components/**/*.ts",
+    "components/**/*.tsx",
+    "*.ts"
+  ]
 }

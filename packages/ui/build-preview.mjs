@@ -14,7 +14,7 @@
 import { mkdirSync, writeFileSync, existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { createRequire } from 'node:module';
+import { createRequire, register } from 'node:module';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const DIST = join(HERE, 'dist');
@@ -30,6 +30,18 @@ const {
   ILLUSTRATION_SECTIONS,
   GRID,
 } = await import(join(HERE, 'icons', 'illustrations.ts'));
+const fixtures = await import(join(HERE, 'components', 'fixtures.ts'));
+
+// The gallery renders the REAL components, so a specimen cannot drift from what
+// a screen gets. `tsx-loader.mjs` compiles them for Node's ESM loader, because
+// Node strips TypeScript types but not JSX. If it cannot, the gallery degrades
+// to the geometry-only view rather than failing the build — a missing
+// devDependency should cost the reviewer a section, not the whole run.
+register('./tsx-loader.mjs', import.meta.url);
+const ui = await import(join(HERE, 'src', 'index.ts')).catch((err) => {
+  console.warn('preview: components unavailable, showing geometry only —', err.message);
+  return null;
+});
 
 const offenders = assertArtworkIsPaletteBound(ILLUSTRATED).concat(
   assertArtworkIsPaletteBound(ILLUSTRATIONS),
@@ -54,6 +66,7 @@ if (offenders.length) {
  * when the package renames its dist files.
  */
 const req = createRequire(import.meta.url);
+
 
 /** The ESM entry a package advertises, falling back to `main`. */
 function phosphorModuleEntry(pkgJsonPath) {
@@ -181,6 +194,7 @@ function theme(themeName) {
         .map((n) => illustrationTile(n, 128))
         .join('')}</div>`,
   ).join('')}
+  ${componentsGallery()}
   <h3>Small UI line set — Phosphor regular, one weight</h3>
   <div class="row icons">${lineNames
     .map((n) => {
@@ -272,6 +286,16 @@ h4 { font-size: var(--nabd-font-size-bodyStrong); color: var(--nabd-color-text-t
 .scene[data-kind="success"] .scene-art { background: var(--nabd-color-status-success-bg); }
 .scene[data-kind="onboarding"] .scene-art { background: var(--nabd-color-bg-surface); }
 .scene-meta { font-size: var(--nabd-font-size-caption); color: var(--nabd-color-text-tertiary); font-style: normal; text-align: center; }
+.spec { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.spec-art { position: relative; display: grid; place-items: center; padding: var(--nabd-space-sm); border-radius: var(--nabd-radius-lg); background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-default); min-width: 120px; overflow: hidden; }
+/* An overlay specimen gets a taller box: the component is still position-fixed
+   (correct for a real screen), but the containing block above keeps it inside
+   its own specimen instead of over the whole gallery. */
+.spec-art--overlay { min-width: 280px; min-height: 220px; overflow: hidden; }
+.spec-art--overlay > * { position: absolute !important; inset: 0; }
+.spec code { font-size: var(--nabd-font-size-micro); color: var(--nabd-color-text-tertiary); }
+.spec-art--wide { min-width: 320px; }
+.gallery { margin-top: 24px; }
 .icons { gap: 20px; }
 .ic { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--nabd-color-icon-primary); }
 .ic em { font-style: normal; font-size: 10px; color: var(--nabd-color-text-tertiary); }
@@ -302,6 +326,115 @@ ${theme('dark')}
 
 mkdirSync(DIST, { recursive: true });
 const target = join(DIST, 'preview.html');
+
+
+/* ------------------------------------------------------- component gallery */
+
+/**
+ * Specimens for every component in the contract, rendered through the real
+ * components. If a specimen and a screen disagree, the specimen is wrong — which
+ * is the whole reason the gallery calls the component instead of reimplementing
+ * its markup in a template string.
+ */
+function specimen(name, body, note, variant) {
+  return `<div class="spec"><div class="spec-art${variant ? ` spec-art--${variant}` : ''}">${body}</div><code>${name}</code>${
+    note ? `<em class="scene-meta">${note}</em>` : ''
+  }</div>`;
+}
+
+/** A specimen is a picture, not an interaction, so every handler is a no-op. */
+function noop() {}
+
+function componentsGallery() {
+  if (!ui) return '';
+
+  const h = React.createElement;
+  const C = ui;
+  const F = fixtures;
+  const out = [];
+
+  out.push('<h3>Controls</h3><div class="row">');
+  for (const v of ['primary', 'secondary', 'ghost', 'danger', 'lime']) {
+    out.push(specimen(`Button ${v}`, render(h(C.Button, { label: v, variant: v, size: 'md' }))));
+  }
+  out.push(specimen('Button sm', render(h(C.Button, { label: 'small', size: 'sm' }))));
+  out.push(specimen('Button lg', render(h(C.Button, { label: 'large', size: 'lg' }))));
+  out.push(specimen('Button loading', render(h(C.Button, { label: 'Saving', loading: true }))));
+  out.push(specimen('Button disabled', render(h(C.Button, { label: 'Disabled', disabled: true }))));
+  out.push('</div>');
+
+  out.push('<h3>Icon buttons</h3><div class="row">');
+  for (const v of ['plain', 'outlined', 'filled', 'tinted']) {
+    out.push(specimen(`IconButton ${v}`, render(h(C.IconButton, { name: 'close', label: `Close (${v})`, variant: v, onClick: noop }))));
+  }
+  out.push('</div>');
+
+  out.push('<h3>Inputs</h3><div class="row">');
+  out.push(specimen('Input', render(h(C.Input, { label: 'Full name', placeholder: 'e.g. Amina', startIcon: 'user', onChange: noop }))));
+  out.push(specimen('Input invalid', render(h(C.Input, { label: 'Phone', error: 'Enter a valid mobile number', onChange: noop }))));
+  out.push(specimen('TextArea', render(h(C.Input, { label: 'Notes', multiline: true, rows: 3, onChange: noop }))));
+  out.push(specimen('Select', render(h(C.Select, { label: 'City', options: F.CITIES, placeholder: 'Choose', onChange: noop }))));
+  out.push(specimen('Otp', render(h(C.Otp, { label: 'Verification code', length: 6, onChange: noop, onComplete: noop }))));
+  out.push(specimen('Search', render(h(C.Search, { placeholder: 'Search medicines', onChange: noop, onFilterPress: noop, filterLabel: 'Filter' }))));
+  out.push(specimen('Stepper', render(h(C.Stepper, { value: 2, onChange: noop, label: 'Quantity', min: 1, max: 9 }))));
+  out.push(specimen('SlotPicker', render(h(C.SlotPicker, { dayLabel: 'Sunday 12 Oct', slots: F.SLOTS, value: '1000', onChange: noop }))));
+  out.push('</div>');
+
+  out.push('<h3>Chips &amp; badges</h3><div class="row">');
+  for (const t of ['neutral', 'primary', 'success', 'warning', 'danger', 'info']) {
+    out.push(specimen(`Chip ${t}`, render(h(C.Chip, { label: t, tone: t }))));
+  }
+  out.push(specimen('Chip dismiss', render(h(C.Chip, { label: 'Selected', variant: 'solid', tone: 'primary', onDismissLabel: 'Remove Selected' }))));
+  out.push(specimen('Badge 7', render(h(C.Badge, { content: 7 }))));
+  out.push(specimen('Badge 142 (capped)', render(h(C.Badge, { content: 142 }))));
+  out.push('</div>');
+
+  out.push('<h3>Surfaces</h3><div class="row">');
+  out.push(specimen('Card', render(h(C.Card, { title: 'Order #4821', subtitle: 'Confirmed · 12 Oct', footer: 'Pay at the clinic' }))));
+  out.push(specimen('ListItem', render(h(C.ListItem, { title: 'Dr. Amina Haddad', subtitle: 'Endocrinology', meta: '4.9', startIcon: 'star' }))));
+  for (const size of ['sm', 'md', 'lg']) {
+    out.push(specimen(`ServiceTile ${size}`, render(h(C.ServiceTile, { name: 'pharmacy', label: 'Pharmacy', size }))));
+  }
+  out.push(specimen('ServiceTile badge', render(h(C.ServiceTile, { name: 'consult', label: 'Consult', badge: 3 }))));
+  out.push(specimen('Avatar initials', render(h(C.Avatar, { name: 'Amina Haddad', status: 'online' }))));
+  out.push(specimen('Avatar illustrated', render(h(C.Avatar, { name: 'Dr. Youssef', illustratedName: 'doctor' }))));
+  out.push(specimen('PriceTag', render(h(C.PriceTag, { amount: '240', currency: 'SAR', was: '300', note: '20% off' }))));
+  out.push(specimen('Rating', render(h(C.Rating, { value: 4.5, count: 128 }))));
+  out.push(specimen('MapPinCard', render(h(C.MapPinCard, { title: 'Nabd+ Olaya', address: 'King Fahd Rd', distance: '1.2 km', actionLabel: 'Directions' }))));
+  out.push('</div>');
+
+  out.push('<h3>Navigation</h3><div class="row">');
+  out.push(specimen('Tabs line', render(h(C.Tabs, { items: F.TABS, value: 'home', onChange: noop }))));
+  out.push(specimen('Tabs segmented', render(h(C.Tabs, { items: F.SEGMENTED, value: 'all', variant: 'segmented', onChange: noop }))));
+  out.push(specimen('NavBar', render(h(C.NavBar, { title: 'Order details', showBack: true, backLabel: 'Back', actions: [{ name: 'close', label: 'Close' }] }))));
+  out.push(specimen('BottomTabBar', render(h(C.BottomTabBar, { items: F.TABS, value: 'bookings', onChange: noop }))));
+  out.push(specimen('Sidebar', render(h(C.Sidebar, { title: 'Admin', items: F.SIDEBAR_ITEMS, value: 'orders', onChange: noop }))));
+  out.push('</div>');
+
+  out.push('<h3>Status</h3><div class="row">');
+  out.push(specimen('EmptyState', render(h(C.EmptyState, { illustration: 'emptyOrders', title: 'No orders yet', body: 'Your orders will appear here once you place one.', actionLabel: 'Browse medicines' }))));
+  out.push(specimen('ErrorState', render(h(C.ErrorState, { title: 'We could not reach Nabd+', body: 'Check your connection and try again.', detail: 'TypeError: fetch failed', retryLabel: 'Try again' }))));
+  out.push(specimen('Toast', render(h(C.Toast, { message: 'Order confirmed', tone: 'success', dismissible: true, dismissLabel: 'Dismiss' })), undefined, 'overlay'));
+  out.push(specimen('Modal', render(h(C.Modal, { open: true, title: 'Cancel this order?', body: 'The clinic will be notified.', confirmLabel: 'Cancel order', cancelLabel: 'Keep it', destructive: true, closeLabel: 'Close' })), undefined, 'overlay'));
+  out.push(specimen('Skeleton text', render(h(C.Skeleton, { variant: 'text', lines: 3 }))));
+  out.push(specimen('Skeleton tile', render(h(C.Skeleton, { variant: 'tile' }))));
+  out.push(specimen('DataTable', render(h(C.DataTable, {
+    columns: [{ key: 'id', header: 'Order' }, { key: 'total', header: 'Total', numeric: true }],
+    rows: [{ id: '#4821', total: '240' }, { id: '#4822', total: '180' }],
+    rowKey: (r) => String(r.id),
+    emptyMessage: 'No orders',
+    caption: 'Recent orders',
+  })), undefined, 'wide'));
+  out.push(specimen('ChartCard', render(h(C.ChartCard, { title: 'Orders this week', summary: '42 orders, up 12% on last week', legend: [{ label: 'This week', value: '42' }] }))));
+  out.push('</div>');
+
+  return `<section class="gallery"><h2>Components — the A7 roster, rendered</h2>${out.join('')}</section>`;
+}
+
+function render(el) {
+  return renderToStaticMarkup(el);
+}
+
 const summary =
   `${ILLUSTRATED_ICONS.length} illustrated icons, ` +
   `${ILLUSTRATION_NAMES.length} scenes, ` +

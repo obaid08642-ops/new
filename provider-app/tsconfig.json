@@ -26,6 +26,12 @@
       ],
       "@nabd/ui/icons/illustrations": [
         "../packages/ui/icons/illustrations.ts"
+      ],
+      "@nabd/ui/icons/names": [
+        "../packages/ui/icons/names.ts"
+      ],
+      "@nabd/ui/components/contract": [
+        "../packages/ui/components/contract.ts"
       ]
     },
     "baseUrl": "."

@@ -17,7 +17,11 @@ export default defineConfig({
       "@nabd/design-tokens": path.resolve(templateRoot, "../packages/design-tokens/dist/ts/tokens.ts"),
       "@nabd/ui/icons/illustrated": path.resolve(templateRoot, "../packages/ui/icons/illustrated.ts"),
       "@nabd/ui/icons/illustrations": path.resolve(templateRoot, "../packages/ui/icons/illustrations.ts"),
-      "@nabd/ui": path.resolve(templateRoot, "../packages/ui/src/Icon.tsx"),
+      "@nabd/ui/icons/names": path.resolve(templateRoot, "../packages/ui/icons/names.ts"),
+      "@nabd/ui/components/contract": path.resolve(templateRoot, "../packages/ui/components/contract.ts"),
+      "@nabd/ui/components/fixtures": path.resolve(templateRoot, "../packages/ui/components/fixtures.ts"),
+      "@nabd/ui/components/conformance": path.resolve(templateRoot, "../packages/ui/components/conformance.ts"),
+      "@nabd/ui": path.resolve(templateRoot, "../packages/ui/src/index.ts"),
       // @nabd/ui is a peer-dependency consumer, not a workspace with its own
       // install, so its `import 'react'` cannot resolve by walking up from
       // packages/. Point the peers at THIS app's copies, which is also what keeps
