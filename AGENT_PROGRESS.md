@@ -1009,3 +1009,68 @@ sent code, so the endpoint cannot be used to enumerate admin accounts.
   the counter/clone logic; the synced-counter behaviour needs the owner's devices.
 - **C3** — Cloudflare Access / mTLS in production. The header guard and BFF
   forwarding are in place and verified locally; the edge deployment is not.
+
+## Phase 10/11 — defects found by running the gates, and fixed (2026-09-30, later)
+
+Everything below was found by executing a gate, not by reading code, and each fix
+has a test that fails without it.
+
+**PDPL consent trail.** `user.schema.ts` declared `legal_consents` without
+`accepted` while `PdplService.recordConsent` writes it, and Mongoose casts from the
+`@Prop` decorator rather than the TS type, so a patient's refusal was stored
+identically to an acceptance. A probe against the real UserSchema reported
+"STRIPPED". Both the decorator and the TS type now declare it, with no default so
+pre-existing consents stay `undefined` rather than claiming a decision. The e2e
+had used a `strict: false` clone with `legal_consents: Array`, which is why it never
+caught this; it now casts through the real schema.
+
+**PDPL erasure could be reached with a stolen token.** The proof check was
+`if (user.password_hash && opts?.password)`, skipped when either side was falsy.
+Social sign-in creates patients with `password_hash: ''`, so those accounts could
+be erased entirely on a session token alone, on an endpoint whose comment says the
+password exists precisely to prevent that. It now fails closed.
+
+**The erasure comparison could not have run.** It did `require('bcrypt')`, but
+bcrypt is neither declared nor installed — the backend uses bcryptjs everywhere
+and this was the only file importing the wrong name. The first patient who entered
+a password would have received a 500. The old e2e missed it by passing no password,
+so the branch was never taken.
+
+**AI review decision was unvalidated.** An inline `{ decision?: string }` body type
+skips the global ValidationPipe entirely, and the handler coerced everything that
+was not exactly "approved" into "rejected", so a typo recorded a rejection against a
+medical review item. Now a real DTO; four tests cover it.
+
+**The auth contract spec was mis-wired.** It passed its mock mailer into the 9th
+AuthService constructor slot, which is `adminSession`; `mail` is the 11th, so
+`this.mail` was undefined and the per-channel catch inside `deliverOtp` turned a
+wiring mistake into an opaque `otp_channel_unavailable`. Slot order fixed and every
+skipped slot labelled.
+
+**The restore drill's legacy fallback could never run.** It preferred mongosh and
+fell back to the legacy `mongo` shell, but passed `--uri` to both; that flag is a
+mongosh option, so on exactly the 4.x/5.x hosts the fallback exists for, the check
+died on an unrecognised option. Connection arguments are now built per shell.
+
+Also removed `phosphor-react-native` from patient-app: it was never imported, and
+72b5bdd had swept it in from the other session's working tree.
+
+### Final verification
+
+- backend `npm test`: **3009/3009, 189 suites, 9/9 chunks, 0 failures** (was 2978/2979).
+- `npx tsc --noEmit`: clean. This required repairing `step-up.spec.ts`, whose arity
+  and synchronous assertions had been left behind by f2dd8f9, which made the branch
+  fail to compile.
+- patient-app: **136/136**, 45 suites. PDPL e2e 13/13. AI review 11/11. AI 22/22.
+- `bash tools/live/run_gate.sh` on a fresh DB, one instance, **no backend restart**:
+  **1146/1146, 0 failed**, `gate P1` 368 routes → 0 × 2xx.
+
+### Still open, and why
+
+- F82 remains over budget (`/ar/c` 4.3s, `/ar` 4.5s vs ≤3s). Untouched on purpose:
+  LCP cannot be measured honestly on this 8 GB host, and a large refactor without a
+  trustworthy measurement is worse than leaving it.
+- Payment sandbox, two-device LiveKit media, staging deploy and the TURN rotation
+  all need credentials, devices or infrastructure this machine does not have.
+- gitleaks history (191: 184 fixtures + 7 old TURN secret copies) is untouched;
+  rewriting history needs a force-push this branch does not do.
