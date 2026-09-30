@@ -42,10 +42,19 @@ mongorestore --quiet --uri="${MONGO_URL:-mongodb://localhost:27017}" \
 # Prefer mongosh (MongoDB 6+), fall back to mongo (4.x/5.x). If neither exists we
 # cannot verify, and an unverifiable restore is reported as a failure rather than
 # silently passing.
+#
+# The connection arguments differ per shell and must not be shared: `--uri` is a
+# mongosh flag, while the legacy mongo shell takes the connection string as a
+# positional argument and rejects `--uri` outright. Sharing one form meant the
+# fallback this block exists to provide could never actually run on a 4.x/5.x
+# host — it would fail on the flag instead of verifying the restore.
+SHELL_CONN=""
 if command -v mongosh >/dev/null 2>&1; then
   SHELL_BIN="mongosh"
+  SHELL_CONN="--uri=${MONGO_URL:-mongodb://localhost:27017}"
 elif command -v mongo >/dev/null 2>&1; then
   SHELL_BIN="mongo"
+  SHELL_CONN="${MONGO_URL:-mongodb://localhost:27017}"
 else
   echo "$LOG_TAG FAIL: neither mongosh nor mongo is installed; the restore cannot be verified"
   fail=1
@@ -53,8 +62,14 @@ else
 fi
 
 if [ -n "$SHELL_BIN" ]; then
-  count=$("$SHELL_BIN" --quiet --uri="${MONGO_URL:-mongodb://localhost:27017}" "$DRILL_DB" \
-    --eval 'db.getCollectionNames().map(c => ({c, n: db.getCollection(c).countDocuments({})})).filter(x => x.n > 0).length' | tail -1)
+  if [ "$SHELL_BIN" = "mongosh" ]; then
+    count=$("$SHELL_BIN" --quiet "$SHELL_CONN" "$DRILL_DB" \
+      --eval 'db.getCollectionNames().map(c => ({c, n: db.getCollection(c).countDocuments({})})).filter(x => x.n > 0).length' | tail -1)
+  else
+    # legacy mongo: [options] [db address] [db name]
+    count=$("$SHELL_BIN" --quiet "$SHELL_CONN" "$DRILL_DB" \
+      --eval 'db.getCollectionNames().map(function(c) { return {c: c, n: db.getCollection(c).countDocuments({})}; }).filter(function(x) { return x.n > 0; }).length' | tail -1)
+  fi
 
   if [ "${count:-0}" -lt 2 ]; then
     echo "$LOG_TAG FAIL: restored database has ${count} non-empty collection(s) — the archive is empty or corrupt"
@@ -64,7 +79,11 @@ if [ -n "$SHELL_BIN" ]; then
   fi
 
   # ── 4. Always clean up the drill database ────────────────────────────────
-  "$SHELL_BIN" --quiet --uri="${MONGO_URL:-mongodb://localhost:27017}" --eval "db.getSiblingDB('$DRILL_DB').dropDatabase()" >/dev/null
+  if [ "$SHELL_BIN" = "mongosh" ]; then
+    "$SHELL_BIN" --quiet "$SHELL_CONN" --eval "db.getSiblingDB('$DRILL_DB').dropDatabase()" >/dev/null
+  else
+    "$SHELL_BIN" --quiet "$SHELL_CONN" --eval "db.getSiblingDB('$DRILL_DB').dropDatabase()" >/dev/null
+  fi
   echo "$LOG_TAG dropped $DRILL_DB"
 fi
 
