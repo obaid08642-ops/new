@@ -68,6 +68,22 @@ const EXEMPT_FILES: Record<string, string> = {
 
 const SKIP_FILES = new Set(Object.keys(EXEMPT_FILES));
 
+/**
+ * Generated output, exempt for the same reason `dist/` is: these files are
+ * produced by a build step from packages/design-tokens/tokens.json, so the
+ * literals in them are the palette definition itself, not a hand-coded colour
+ * that escaped review. Exempting them by prefix keeps the rule honest — the
+ * source of truth is still checked, and the mirror is still checked for being
+ * non-stale by `sync-token-css --check`.
+ */
+const SKIP_PATH_PREFIXES: Record<string, string> = {
+  'patient-web/app/design-tokens/':
+    'generated mirror of packages/design-tokens/dist/css, written by tools/design/sync-token-css.mjs',
+};
+
+const isSkippedPath = (file: string) =>
+  SKIP_FILES.has(file) || Object.keys(SKIP_PATH_PREFIXES).some((p) => file.startsWith(p));
+
 /* ------------------------------------------------------------------ patterns */
 
 /**
@@ -131,7 +147,7 @@ function scan(): Offender[] {
   for (const client of CLIENTS) {
     for (const file of walk(join(REPO, client))) {
       const rel = relative(REPO, file);
-      if (SKIP_FILES.has(rel)) continue;
+      if (isSkippedPath(rel)) continue;
 
       // A test is not a screen: an expected colour in an assertion is data, not
       // a decision about how the product looks.
@@ -224,6 +240,43 @@ if (!baseline) {
   process.exit(2);
 }
 
+/**
+ * `--update` tightens the baseline to the CURRENT counts.
+ *
+ * This exists because of a real failure mode. The rule above is `count <=
+ * baseline`, so every colour removed by 12.A11 leaves behind slack that a later
+ * contributor can spend without tripping anything: the file that drops from 118
+ * to 117 will happily accept one new literal and still report 118. Cleanup has
+ * to be committed to the baseline, or the guard decays into a suggestion.
+ *
+ * It can only ever move a number DOWN. A file that has grown is reported and
+ * left alone, so `--update` can never be used to launder a new violation in.
+ */
+if (argv.has('--update')) {
+  const grown: string[] = [];
+  for (const [file, list] of [...byFile].sort((a, b) => a[0].localeCompare(b[0]))) {
+    if (list.length > (baseline.files[file] ?? 0)) grown.push(file);
+  }
+  if (grown.length) {
+    console.error('no-raw-color: --update refused. These files have MORE colours than the baseline allows:\n');
+    grown.forEach((f) => console.error(`  ${f}`));
+    console.error('\nFix them first. --update lowers counts; it never raises one.');
+    process.exit(1);
+  }
+
+  const next = buildBaseline(offenders);
+  const was = Object.values(baseline.files).reduce((a, b) => a + b, 0);
+  const now = offenders.length;
+  const dropped = Object.keys(baseline.files).filter((f) => !byFile.has(f)).length;
+  writeFileSync(BASELINE_PATH, `${JSON.stringify(next, null, 2)}\n`, 'utf8');
+  console.log(
+    `no-raw-color: baseline tightened ${was} -> ${now}` +
+      (dropped ? `, ${dropped} now-clean file(s) removed` : '') +
+      '. No count was raised.',
+  );
+  process.exit(0);
+}
+
 const problems: string[] = [];
 
 // 1. A file that appears for the first time, or grew, is a NEW hard-coded colour.
@@ -272,6 +325,8 @@ if (problems.length) {
 
 console.log(
   `no-raw-color: ${byFile.size} files scanned, ${total} recorded` +
-    (total < baseTotal ? ` — ${baseTotal - total} fewer than the baseline` : ` (baseline ${baseTotal})`) +
+    (total < baseTotal
+      ? ` — ${baseTotal - total} fewer than the baseline. Run --update to tighten it, or the slack is spendable.`
+      : ` (baseline ${baseTotal})`) +
     `. PARTIAL: the debt is frozen and measured, not cleared. 12.A11 clears it.`,
 );

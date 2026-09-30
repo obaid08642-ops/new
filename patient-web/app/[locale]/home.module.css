@@ -23,14 +23,21 @@
 
 /* 1. Hero — Warm Cream, Forest Ink, Glass — Ultra-Premium */
 .hero {
-  background: linear-gradient(135deg, #FDFDFC 0%, #F0FDF9 100%);
+  /* 12.A0 — was a hard-coded mint-white wash (#FDFDFC -> #F0FDF9) with a mint
+     cast that no longer matched the brand. Both stops are tokens, so this
+     follows the theme instead of pinning one. */
+  background: linear-gradient(
+    135deg,
+    var(--nabd-color-bg-surface) 0%,
+    var(--nabd-color-status-danger-bg) 100%
+  );
   border-radius: 28px;
   padding: 40px 36px;
-  color: #1E332E;
+  color: var(--nabd-color-text-primary);
   position: relative;
   overflow: hidden;
-  box-shadow: 0 16px 40px rgba(30, 51, 46, 0.07);
-  border: 1px solid #E8EDEE;
+  box-shadow: var(--nabd-shadow-raised);
+  border: 1px solid var(--nabd-color-border-subtle);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -45,9 +52,9 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: rgba(95, 217, 179, 0.12);
-  color: #1E332E;
-  border: 1px solid rgba(95, 217, 179, 0.22);
+  background: var(--nabd-color-status-danger-bg);
+  color: var(--nabd-color-text-primary);
+  border: 1px solid var(--nabd-color-border-subtle);
   backdrop-filter: blur(8px);
   padding: 6px 14px;
   border-radius: 999px;
@@ -62,7 +69,7 @@
   margin: 0 0 14px;
   line-height: 1.25;
   letter-spacing: -0.02em;
-  color: #1E332E;
+  color: var(--nabd-color-text-primary);
   overflow-wrap: anywhere;
 }
 
@@ -71,7 +78,7 @@
   opacity: 1;
   line-height: 1.7;
   margin: 0 0 24px;
-  color: #6B7C6E;
+  color: var(--nabd-color-text-secondary);
   overflow-wrap: anywhere;
 }
 
@@ -108,41 +115,49 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: #5FD9B3;
-  color: #1E332E;
+  /* 12.A0 — was #5FD9B3 on #1E332E, a mint that is not the brand. The action
+     pair is the owner's coral and is contrast-checked in both themes. */
+  background: var(--nabd-color-action-primary-bg);
+  color: var(--nabd-color-action-primary-fg);
   font-weight: 800;
   padding: 12px 24px;
   border-radius: 14px;
   text-decoration: none;
   font-size: 15px;
-  box-shadow: 0 6px 20px rgba(95, 217, 179, 0.22);
+  box-shadow: var(--nabd-shadow-card);
   transition: transform 0.15s ease, background-color 0.15s ease;
 }
 
 .heroPrimaryBtn:hover {
   transform: translateY(-2px);
-  background: #3DBB9A;
-  color: #FFFFFF;
+  background: var(--nabd-color-brand-coral);
+  color: var(--nabd-color-action-primary-fg);
 }
 
 .heroSecondaryBtn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: rgba(255, 255, 255, 0.12);
-  color: #ffffff;
+  /* 12.A0 — this was white text on rgba(255,255,255,0.12): a glass pattern
+     that only works over a DARK hero. On the light hero it measured 1:1, so
+     "Book a doctor" and "Insurance" were literally unreadable. It is an
+     outlined secondary on the surface now, which is legible in both themes
+     because every value is a token. */
+  background: var(--nabd-color-bg-surface);
+  color: var(--nabd-color-text-primary);
   font-weight: 700;
   padding: 12px 20px;
   border-radius: 14px;
   text-decoration: none;
   font-size: 15px;
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  transition: background-color 0.15s ease;
+  border: 1px solid var(--nabd-color-border-strong);
+  transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
 .heroSecondaryBtn:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--nabd-color-bg-sunken);
+  border-color: var(--nabd-color-border-strong);
 }
 
 /* 2. Services Section Head */
