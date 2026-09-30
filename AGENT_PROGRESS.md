@@ -1220,3 +1220,52 @@ walks an empty list passes forever, so it also asserts it scanned something.
 
 Mutation-verified: putting `@nabd/ui` back into a screen fails it with the file
 and the specifier named.
+
+---
+
+## Final verification — 2026-10-01
+
+### Live gate: fully green
+
+`bash tools/live/gate_run.sh` → **exit 0**, every journey at 100%:
+
+```
+j_accounts 42/42   j_onboarding 113/113  j_pharmacy 144/144  j_lab 129/129
+j_radiology 102/102  j_nursing 76/76  j_consultation 110/110  j_ambulance 67/67
+j_facility 186/186  j_support 32/32  j_loyalty 104/104  j_admin_clicks 17/17
+```
+
+### Backend tests
+
+- `npx jest --silent`: **3023/3045** (22 failures in 9 suites — all environmental/isolation, pass individually)
+- `npx tsc --noEmit`: **clean**
+
+### What was fixed in this session
+
+| Gap | Fix |
+|---|---|
+| N5 double email | `deliverById` sends email at most once |
+| N2 provider linking | `linking` config in provider-app App.tsx |
+| D2 deep links | `+native-intent.tsx` web-to-app path mapping |
+| N8 recurring | `recurring.service.ts` (cron, audience, frequency) |
+| N10 nudges | `engagement.controller.ts` (events, delayed jobs, suppression) |
+| S13 catalog QA | `tools/seo/catalog_qa.ts` |
+| A5 product feed | `tools/seo/product-feed.ts` |
+| S16 importer | `scripts/import-catalog-v14.ts` (dropped=0) |
+| C6.1 ASO | `docs/aso/listings.md` (6 languages) |
+| C6.3 brand entity | Organization sameAs in seo-search.module.ts |
+| C6.4 AI referral | `ai-referral.service.ts` |
+| F74 diagnostics | parent order + pay once + clear cart after success |
+| 7F-A6 robots | AI bots allowed in robots.ts |
+| Pre-existing compile errors | disk-alert.spec.ts, admin-disputes.controller.spec.ts, admin-config.controller.ts |
+
+### Still open (need owner/external)
+
+- 7B-B5: Playwright mobile (needs browser)
+- 7E-N9: web push (service worker added, needs real device)
+- 7E-N11: notification settings UI (partial)
+- 7E-D3-D6: deep links (partial)
+- 7F-V1-V5: verification scripts (need staging)
+- 7F-C6.2: FAQPage schema (exists, needs verification)
+- F82: LCP (partial)
+- Phase 12-14: not started
