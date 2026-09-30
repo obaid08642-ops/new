@@ -3,7 +3,7 @@
   "totals": {
     "patient-web": 6324,
     "patient-app": 2615,
-    "provider-app": 381,
+    "provider-app": 354,
     "admin": 215
   },
   "files": {
@@ -544,7 +544,6 @@
     "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx": 5,
     "provider-app/src/screens/radiology/RadiologyDashboard.tsx": 7,
     "provider-app/src/screens/radiology/RadiologyRegistration.tsx": 16,
-    "provider-app/src/theme/tokens.ts": 27,
     "provider-app/src/utils/PushNotifications.ts": 1,
     "provider-app/src/utils/notifications.ts": 2,
     "admin/src/components/EmptyIcon.tsx": 1,

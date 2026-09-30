@@ -119,6 +119,15 @@ jobs:
       # the public nursing catalogue. This compares every locale against en.
       - name: Every locale covers every key (i18n coverage)
         run: node tools/design/i18n-coverage.mjs
+      # A0 across the OTHER THREE clients. provider-app/src/theme/tokens.ts
+      # claimed in its own comment to be a mirror of tokens.json and held the
+      # pre-A2 palette while ten screens imported it: the token contrast check
+      # reads tokens.json, the runtime check renders patient-web, and this file
+      # was checked by neither. This closes that gap.
+      - name: Generated client token modules are not stale
+        run: node tools/design/sync-client-tokens.mjs --check
+      - name: No new off-palette colour in the mobile/admin clients (ratchet)
+        run: node tools/design/client-token-sync.mjs
       - name: Install compiler
         run: npm install --ignore-scripts --no-save typescript@5.9.3
       - name: Type check the generated TypeScript module

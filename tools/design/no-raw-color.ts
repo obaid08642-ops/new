@@ -79,6 +79,9 @@ const SKIP_FILES = new Set(Object.keys(EXEMPT_FILES));
 const SKIP_PATH_PREFIXES: Record<string, string> = {
   'patient-web/app/design-tokens/':
     'generated mirror of packages/design-tokens/dist/css, written by tools/design/sync-token-css.mjs',
+  'provider-app/src/theme/tokens.generated.ts':
+    'generated from packages/design-tokens/tokens.json by tools/design/sync-client-tokens.mjs; ' +
+    'its literals ARE the token file, and `sync-client-tokens --check` fails if it drifts',
 };
 
 const isSkippedPath = (file: string) =>
