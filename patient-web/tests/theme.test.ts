@@ -50,6 +50,32 @@ describe("12.A3 — theme", () => {
     expect(THEME_INIT_SCRIPT.trim().endsWith("})();"));
   });
 
+  it("declares one breakpoint scale, and the a11y floor", () => {
+    // 12.A10: nine ad-hoc max-widths (360/420/430/440/540/760/860/1024/1060/
+    // 1080/1100) meant two screens could each be "mobile" at a different point.
+    for (const bp of ["sm", "md", "lg", "xl", "2xl"]) {
+      expect(css).toContain(`--nabd-breakpoint-${bp}:`);
+    }
+    expect(css).toContain("--nabd-layout-max:");
+    expect(css).toContain("@media (max-width: 360px)");
+  });
+
+  it("uses the motion tokens rather than hand-written durations (12.A9)", () => {
+    // The motion scale existed and nothing consumed it, so timings were written
+    // by hand in 11 places and the reduced-motion decision could not be enforced.
+    expect(css).toContain("--nabd-motion-duration-enter");
+    expect(css).toContain("--nabd-motion-easing-enter");
+  });
+
+  it("consumes the glass tokens rather than hand-rolled white (12.A8)", () => {
+    // glass.bg / glass.bgStrong existed and zero screens used them; the premium
+    // surfaces reimplemented the idea with rgba(255,255,255,...) that cannot
+    // follow a theme change.
+    expect(css).toContain("--nabd-color-glass-bg");
+    expect(css).toContain("--nabd-color-glass-bgStrong");
+    expect(css).not.toMatch(/rgba\(255,\s*255,\s*255/);
+  });
+
   it("offers all three states in the header", () => {
     expect(layout).toContain("<ThemeToggle");
     expect(css).toContain(".theme-toggle");
