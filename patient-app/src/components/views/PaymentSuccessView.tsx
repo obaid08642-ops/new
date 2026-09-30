@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
   heroOrb2: { position: 'absolute', width: 150, height: 150, borderRadius: 75, backgroundColor: 'rgba(34,197,94,0.15)', bottom: -20, left: -30 },
   successIcon: { width: 110, height: 110, borderRadius: 34, backgroundColor: 'rgba(255,255,255,0.15)', justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: 'rgba(255,255,255,0.3)' },
   successTitle: { color: '#fff', fontSize: 26, fontWeight: '800' },
-  successAmount: { color: '#fff', fontSize: 36, fontFamily: 'Cairo-ExtraBold' },
+  successAmount: { color: '#fff', fontSize: 36, fontFamily: 'ReadexPro-700' },
   successSub: { color: 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: '400' },
   detailsSection: { margin: 16, borderRadius: 20, padding: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 },
   detailRow: { flexDirection: 'row-reverse', justifyContent: 'space-between', paddingVertical: 11, borderBottomWidth: 1 },

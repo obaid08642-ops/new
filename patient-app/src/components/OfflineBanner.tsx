@@ -51,5 +51,5 @@ const styles = StyleSheet.create({
     position: 'absolute', top: 0, left: 0, right: 0, zIndex: 999,
     paddingTop: 46, paddingBottom: 10, alignItems: 'center',
   },
-  text: { color: '#fff', fontFamily: 'Cairo-Bold', fontSize: 12 },
+  text: { color: '#fff', fontFamily: 'ReadexPro-700', fontSize: 12 },
 });

@@ -141,5 +141,5 @@ const styles = StyleSheet.create({
   ref: { fontSize: 11, fontWeight: "400" } as any,
   badge: { borderRadius: 8, paddingHorizontal: 8, paddingVertical: 3 },
   badgeAlt: { fontSize: 10, fontWeight: "700" } as any,
-  amount: { fontSize: 18, fontFamily: "Cairo-ExtraBold" } as any,
+  amount: { fontSize: 18, fontFamily: "ReadexPro-700" } as any,
 });
