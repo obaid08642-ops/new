@@ -114,10 +114,60 @@ jobs:
         run: npm run no-raw-color
       - name: No new emoji in UI (ratchet)
         run: npm run no-emoji
+      # A4: a missing translation key is not an error in next-intl, it renders the
+      # KEY. `NursingCatalog.emptyBody` reached users as that literal string on
+      # the public nursing catalogue. This compares every locale against en.
+      - name: Every locale covers every key (i18n coverage)
+        run: node tools/design/i18n-coverage.mjs
       - name: Install compiler
         run: npm install --ignore-scripts --no-save typescript@5.9.3
       - name: Type check the generated TypeScript module
         run: npx tsc --noEmit --strict --target ES2022 --module ESNext --moduleResolution bundler dist/ts/tokens.ts
+
+  # ---------------------------------------------------------------------------
+  # Runtime contrast (C1) — the gate that found the unreadable hero.
+  #
+  # The token contrast check proves the DECLARED pairs are legible. It cannot
+  # see a screen, which is how white-on-white at 1.00:1 and a dark-mode header
+  # at 1.08:1 both shipped while every declared pair passed. This renders the
+  # public pages in BOTH themes and measures the text that is actually painted,
+  # compositing translucent backgrounds the way the browser does.
+  #
+  # RATCHETED like the others: --update only ever lowers it, and 12.A11 clears
+  # the remainder as screens are rebuilt onto the tokens.
+  runtime-contrast:
+    name: runtime contrast (rendered pages, both themes)
+    runs-on: ubuntu-latest
+    needs: [design-system]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install workspace
+        run: npm --prefix patient-web ci --ignore-scripts
+      - name: Install a browser
+        run: npx --yes playwright@1.63.0 install --with-deps chromium
+      - name: Build
+        working-directory: patient-web
+        run: npm run build
+      - name: Start
+        working-directory: patient-web
+        run: npm run start -- --port 3999 &
+      - name: Wait for the server
+        run: |
+          for i in $(seq 1 60); do
+            curl -sf -o /dev/null http://localhost:3999/en && exit 0
+            sleep 2
+          done
+          echo "server did not come up" >&2
+          exit 1
+      - name: No new unreadable text (ratchet)
+        run: |
+          PLAYWRIGHT_PATH="$PWD/patient-web/node_modules/playwright" \
+            node tools/design/runtime-contrast.mjs \
+              --base http://localhost:3999 \
+              --routes tools/design/runtime-contrast.routes.txt
 
   brand-assets:
     name: Brand assets

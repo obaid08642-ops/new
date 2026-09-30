@@ -9,11 +9,12 @@
     "check": "node build.mjs --check",
     "contrast": "node ../../tools/design/contrast-check.ts",
     "type-scale": "node ../../tools/design/no-px-font-size.ts",
-    "test": "npm run check && npm run sync-web:check && npm run contrast && npm run type-scale && npm run no-emoji && npm run no-raw-color",
+    "test": "npm run check && npm run sync-web:check && npm run contrast && npm run type-scale && npm run no-emoji && npm run no-raw-color && npm run i18n-coverage",
     "no-raw-color": "node ../../tools/design/no-raw-color.ts",
     "no-emoji": "node ../../tools/design/no-emoji-in-ui.ts",
     "sync-web": "node ../../tools/design/sync-token-css.mjs",
-    "sync-web:check": "node ../../tools/design/sync-token-css.mjs --check"
+    "sync-web:check": "node ../../tools/design/sync-token-css.mjs --check",
+    "i18n-coverage": "node ../../tools/design/i18n-coverage.mjs"
   },
   "files": [
     "dist",

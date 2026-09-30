@@ -11,7 +11,8 @@
     "navPharmacy": "Botika",
     "navDiagnostics": "Pagsusuri",
     "navNursing": "Home Nursing",
-    "devNotice": "Development preview — nasa construction at testing pa. Walang tunay na serbisyong ibinibigay sa site na ito; ang lahat ng nilalaman ay para sa pagsusuri lamang."
+    "devNotice": "Development preview — nasa construction at testing pa. Walang tunay na serbisyong ibinibigay sa site na ito; ang lahat ng nilalaman ay para sa pagsusuri lamang.",
+    "theme": "Theme"
   },
   "Home": {
     "eyebrow": "Digital na portal ng pasyente",
@@ -345,7 +346,8 @@
     "empty": "Walang nursing service na available ngayon.",
     "unavailable": "Hindi available ang nursing catalogue",
     "unavailableBody": "Hindi ma-load ang catalogue mula sa awtorisadong serbisyo.",
-    "back": "Bumalik"
+    "back": "Bumalik",
+    "emptyBody": "Wala pang serbisyong tumutugma sa paghahanap na ito."
   },
   "HomeCareProviders": {
     "eyebrow": "Mga verified na home-care provider",

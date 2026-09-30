@@ -1,0 +1,258 @@
+{
+  "note": "Rendered text that fails WCAG contrast, recorded per signature with the routes it appears on. --update only ever lowers this. 12.A11 clears it as screens are rebuilt.",
+  "base": "http://localhost:3999",
+  "signatures": [
+    {
+      "sel": "_ItHWta :: Continue as guest (no account)",
+      "ratio": 1.53,
+      "need": 4.5,
+      "routes": [
+        "/en/login"
+      ],
+      "themes": [
+        "light",
+        "dark"
+      ]
+    },
+    {
+      "sel": "span :: Check Coverage",
+      "ratio": 3.19,
+      "need": 4.5,
+      "routes": [
+        "/en/diagnostics"
+      ],
+      "themes": [
+        "light",
+        "dark"
+      ]
+    },
+    {
+      "sel": "_7zMy2a._7zMy2a :: All",
+      "ratio": 3.86,
+      "need": 4.5,
+      "routes": [
+        "/en/diagnostics"
+      ],
+      "themes": [
+        "light",
+        "dark"
+      ]
+    },
+    {
+      "sel": "_7zMy2a :: 0 tests",
+      "ratio": 3.86,
+      "need": 4.5,
+      "routes": [
+        "/en/diagnostics"
+      ],
+      "themes": [
+        "light",
+        "dark"
+      ]
+    },
+    {
+      "sel": "_ol-dRW :: Medical care",
+      "ratio": 3.89,
+      "need": 4.5,
+      "routes": [
+        "/en/consultations/doctors"
+      ],
+      "themes": [
+        "light",
+        "dark"
+      ]
+    },
+    {
+      "sel": "_ZqsAaW :: All",
+      "ratio": 4.2,
+      "need": 4.5,
+      "routes": [
+        "/en/c"
+      ],
+      "themes": [
+        "light",
+        "dark"
+      ]
+    },
+    {
+      "sel": "_ZqsAaW :: Medicines",
+      "ratio": 4.2,
+      "need": 4.5,
+      "routes": [
+        "/en/c/%D8%A7%D9%84%D8%A3%D8%AF%D9%88%D9%8A%D8%A9%20%D9%88%D8%A7%D9%84%D8%B9%D9%84%D8%A7%D8%AC"
+      ],
+      "themes": [
+        "light",
+        "dark"
+      ]
+    },
+    {
+      "sel": "_ZqsAaW :: Mother & Baby",
+      "ratio": 4.2,
+      "need": 4.5,
+      "routes": [
+        "/en/c/%D8%A7%D9%84%D8%A3%D9%85%20%D9%88%D8%A7%D9%84%D8%B7%D9%81%D9%84"
+      ],
+      "themes": [
+        "light",
+        "dark"
+      ]
+    },
+    {
+      "sel": "_ZqsAaW :: Personal Care",
+      "ratio": 4.2,
+      "need": 4.5,
+      "routes": [
+        "/en/c/%D8%A7%D9%84%D8%B9%D9%86%D8%A7%D9%8A%D8%A9%20%D8%A7%D9%84%D8%B4%D8%AE%D8%B5%D9%8A%D8%A9"
+      ],
+      "themes": [
+        "light",
+        "dark"
+      ]
+    },
+    {
+      "sel": "_ZqsAaW :: Skin Care",
+      "ratio": 4.2,
+      "need": 4.5,
+      "routes": [
+        "/en/c/%D8%A7%D9%84%D8%B9%D9%86%D8%A7%D9%8A%D8%A9%20%D8%A8%D8%A7%D9%84%D8%A8%D8%B4%D8%B1%D8%A9"
+      ],
+      "themes": [
+        "light",
+        "dark"
+      ]
+    },
+    {
+      "sel": "_ZqsAaW :: Hair Care",
+      "ratio": 4.2,
+      "need": 4.5,
+      "routes": [
+        "/en/c/%D8%A7%D9%84%D8%B9%D9%86%D8%A7%D9%8A%D8%A9%20%D8%A8%D8%A7%D9%84%D8%B4%D8%B9%D8%B1"
+      ],
+      "themes": [
+        "light",
+        "dark"
+      ]
+    },
+    {
+      "sel": "_ZqsAaW :: Vitamins",
+      "ratio": 4.2,
+      "need": 4.5,
+      "routes": [
+        "/en/c/%D8%A7%D9%84%D9%81%D9%8A%D8%AA%D8%A7%D9%85%D9%8A%D9%86%D8%A7%D8%AA%20%D9%88%D8%A7%D9%84%D8%AA%D8%BA%D8%B0%D9%8A%D8%A9%20%D8%A7%D9%84%D8%B5%D8%AD%D9%8A%D8%A9"
+      ],
+      "themes": [
+        "light",
+        "dark"
+      ]
+    },
+    {
+      "sel": "_ZqsAaW :: Makeup & Beauty",
+      "ratio": 4.2,
+      "need": 4.5,
+      "routes": [
+        "/en/c/%D8%A7%D9%84%D9%85%D9%83%D9%8A%D8%A7%D8%AC%20%D9%88%D8%A7%D9%84%D8%A5%D9%83%D8%B3%D8%B3%D9%88%D8%A7%D8%B1%D8%A7%D8%AA"
+      ],
+      "themes": [
+        "light",
+        "dark"
+      ]
+    },
+    {
+      "sel": "span :: Visit Lab",
+      "ratio": 4.34,
+      "need": 4.5,
+      "routes": [
+        "/en/diagnostics"
+      ],
+      "themes": [
+        "light",
+        "dark"
+      ]
+    },
+    {
+      "sel": "p :: Select a service for instant access and ",
+      "ratio": 4.37,
+      "need": 4.5,
+      "routes": [
+        "/en"
+      ],
+      "themes": [
+        "light",
+        "dark"
+      ]
+    },
+    {
+      "sel": "p :: Smart continuous care for you and your f",
+      "ratio": 4.37,
+      "need": 4.5,
+      "routes": [
+        "/en"
+      ],
+      "themes": [
+        "light",
+        "dark"
+      ]
+    },
+    {
+      "sel": "_74K5oW :: Browse services published by the nursing",
+      "ratio": 4.42,
+      "need": 4.5,
+      "routes": [
+        "/en/nursing/catalog"
+      ],
+      "themes": [
+        "light",
+        "dark"
+      ]
+    },
+    {
+      "sel": "p :: No services match this search yet.",
+      "ratio": 4.42,
+      "need": 4.5,
+      "routes": [
+        "/en/nursing/catalog"
+      ],
+      "themes": [
+        "light",
+        "dark"
+      ]
+    },
+    {
+      "sel": "span :: Laboratory Tests",
+      "ratio": 4.47,
+      "need": 4.5,
+      "routes": [
+        "/en/diagnostics"
+      ],
+      "themes": [
+        "light",
+        "dark"
+      ]
+    },
+    {
+      "sel": "span :: Home Sample",
+      "ratio": 4.47,
+      "need": 4.5,
+      "routes": [
+        "/en/diagnostics"
+      ],
+      "themes": [
+        "light",
+        "dark"
+      ]
+    },
+    {
+      "sel": "_7zMy2a :: View All Tests",
+      "ratio": 4.47,
+      "need": 4.5,
+      "routes": [
+        "/en/diagnostics"
+      ],
+      "themes": [
+        "light",
+        "dark"
+      ]
+    }
+  ]
+}
