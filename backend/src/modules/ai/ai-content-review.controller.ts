@@ -2,6 +2,7 @@ import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/co
 import { JwtAuthGuard, Roles, CurrentUser } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { AiContentReviewService } from './ai-content-review.service';
+import { AiContentReviewDecisionDto } from './dto/ai-content-review-decision.dto';
 
 /**
  * Phase 10 medical safety: the human side of the AI content review queue.
@@ -26,9 +27,8 @@ export class AiContentReviewController {
   decide(
     @CurrentUser() user: any,
     @Param('id') id: string,
-    @Body() body: { decision?: string; note?: string },
+    @Body() body: AiContentReviewDecisionDto,
   ) {
-    const decision = body?.decision === 'approved' ? 'approved' : 'rejected';
-    return this.review.review(id, user?.id, decision, body?.note);
+    return this.review.review(id, user?.id, body.decision, body.note);
   }
 }

@@ -26,8 +26,13 @@ describe('patient web auth contract', () => {
       })),
     };
     const jwt = { sign: jest.fn().mockReturnValueOnce('access-token').mockReturnValueOnce('refresh-token') };
-    // F34: OTP delivery needs a working channel; the mail channel stands in
-    // so contract assertions stay delivery-agnostic (8th/9th ctor slots).
+    // F34: OTP delivery needs a working channel; the mail channel stands in so
+    // contract assertions stay delivery-agnostic. `mail` is the 11th constructor
+    // slot (after userModel, patientModel, jwt, events, redisService, passkeys,
+    // deviceTrust, adminDevices, adminSession, push). Passing it one or two slots
+    // early lands it on adminSession/push, this.mail stays undefined, and the
+    // per-channel catch in deliverOtp turns the missing mailer into an opaque
+    // `otp_channel_unavailable` instead of an obvious wiring mistake.
     const mail = { sendOtp: jest.fn(async () => ({ ok: true, provider: 'resend', fallback_used: false })) };
     const service = new AuthService(
       userModel as any,
@@ -35,9 +40,11 @@ describe('patient web auth contract', () => {
       jwt as any,
       { emit: jest.fn() } as any,
       redis as any,
-      undefined,
-      undefined,
-      undefined,
+      undefined, // passkeys
+      undefined, // deviceTrust
+      undefined, // adminDevices
+      undefined, // adminSession
+      undefined, // push
       mail as any,
     );
     return { data, userModel, patientModel, redis, jwt, service };
@@ -80,7 +87,10 @@ describe('patient web auth contract', () => {
 
   it('registers the Contract V1 patient with consents, starts OTP, and returns no session token', async () => {
     const { service, userModel, patientModel, redis } = build();
-    const user = { id: 'patient-new', full_name: 'Patient Name', role: 'patient', active: true };
+    // The stubbed user must carry the contact the OTP is delivered to. F34 made
+    // the service refuse to answer "sent" when no channel exists, so a user
+    // without an email is now a 503 rather than a silently swallowed code.
+    const user = { id: 'patient-new', full_name: 'Patient Name', email: 'patient@example.test', role: 'patient', active: true };
     userModel.findOne.mockResolvedValueOnce(null).mockResolvedValueOnce(user);
     userModel.create.mockResolvedValue(user);
 

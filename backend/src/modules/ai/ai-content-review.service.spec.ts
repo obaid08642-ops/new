@@ -1,4 +1,6 @@
+import { validate } from 'class-validator';
 import { AiContentReviewService } from './ai-content-review.service';
+import { AiContentReviewDecisionDto } from './dto/ai-content-review-decision.dto';
 
 /**
  * The review queue had no test at all, which is how a comment could claim
@@ -97,5 +99,35 @@ describe('AiContentReviewService', () => {
   it('rejects an unknown review id', async () => {
     const { service } = makeService({ findOneAndUpdate: jest.fn(async () => null) });
     await expect(service.review('nope', 'admin-1', 'approved')).rejects.toThrow();
+  });
+
+  describe('decision DTO', () => {
+    // The controller used to coerce anything that was not exactly "approved" into
+    // "rejected", so a typo silently recorded a rejection against a medical review
+    // item. The global ValidationPipe only validates class instances, so the fix is
+    // a real DTO class — these assertions are what stop that regressing.
+    const dto = new AiContentReviewDecisionDto();
+
+    it('accepts the two real decisions', async () => {
+      for (const decision of ['approved', 'rejected'] as const) {
+        expect(await validate(Object.assign(new AiContentReviewDecisionDto(), { decision }))).toHaveLength(0);
+      }
+      expect(dto).toBeInstanceOf(AiContentReviewDecisionDto);
+    });
+
+    it('rejects a typo instead of silently recording a rejection', async () => {
+      const bad = Object.assign(new AiContentReviewDecisionDto(), { decision: 'aproved' });
+      const errors = await validate(bad);
+      expect(errors.map((e) => e.property)).toContain('decision');
+    });
+
+    it('rejects a missing decision', async () => {
+      expect((await validate(new AiContentReviewDecisionDto())).map((e) => e.property)).toContain('decision');
+    });
+
+    it('caps the moderator note', async () => {
+      const long = Object.assign(new AiContentReviewDecisionDto(), { decision: 'approved', note: 'x'.repeat(501) });
+      expect((await validate(long)).map((e) => e.property)).toContain('note');
+    });
   });
 });
