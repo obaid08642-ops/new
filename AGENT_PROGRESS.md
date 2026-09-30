@@ -518,3 +518,164 @@ Phase 12 commit, once that tree is quiet.
 - admin: `tsc --noEmit` 0 errors; `next build` → "✓ Compiled successfully in 11.7s",
   "Generating static pages (60/60)".
 - Backend gate again deliberately not run: the other session is still writing it.
+
+## PHASE 11 — final verification (2026-09-29, this branch)
+
+### 1. Typecheck — all five projects, real output
+```
+backend        errors=0
+patient-app    errors=0
+admin          errors=0
+patient-web    errors=0
+provider-app   errors=0
+```
+
+### 2. Unit tests — real output
+```
+backend       Tests: 1 failed, 2978 passed, 2979 total
+patient-app   Tests: 1 failed, 120 passed, 121 total
+provider-app  Tests: 17 passed, 17 total
+patient-web   Tests  371 passed | 23 skipped (394)
+```
+The two failures are NOT in this work and are both reproducible in isolation:
+- backend `patient-web-auth.contract.spec.ts` rejects with `otp_channel_unavailable`; the
+  OTP guard changed in b98452a (7C-C5) and that spec is still at its P6 state.
+- patient-app `__tests__/design-system-icons.test.tsx` is not in HEAD at all — it is
+  another session's in-flight Phase 12 icon work (@nabd/ui-native geometry).
+
+### 3. Builds — real output
+```
+admin next build        Compiled successfully
+patient-web next build  Compiled successfully
+patient-app expo export OK (iOS Hermes bundle)
+provider-app expo export OK (iOS Hermes bundle)
+```
+
+### 4. Contract checks — real output
+```
+dtocheck     641 DTO routes checked, 328 matched by client calls, 0 mismatches
+schemadrift  writes to fields the schema does not declare: 0
+dtolint      flags loyalty/insurance (pre-existing) and admin-recovery.controller.ts:33 (7C-C6) — none in this work
+```
+
+### 5. Dependency audit — runtime deps, real output
+```
+backend      9 moderate, 0 high, 0 critical
+admin        0 vulnerabilities
+patient-app  15 moderate, 0 high, 0 critical
+provider-app 14 moderate, 0 high, 0 critical
+patient-web  1 low, 2 moderate, 0 high, 0 critical   (pnpm audit --prod)
+```
+patient-app lost 4 highs and provider-app 1 to npm overrides on transitive packages
+(@xmldom/xmldom, browserslist, js-yaml, image-size) that arrive through metro and
+@expo/config-plugins. Both were re-verified with tsc, jest and expo export afterwards.
+
+### 6. gitleaks — full history, real output
+```
+282 commits scanned, 191 findings
+  184  test/e2e/script fixtures (JWT test secrets)
+    7  deploy/coturn/turnserver.conf  <-- a real TURN static-auth-secret, 7 commits
+```
+The real one is now removed from the working tree: the committed config carries an
+explicit `${COTURN_STATIC_AUTH_SECRET:?...}` placeholder and deploy/scripts/render-coturn-config.sh
+renders the value from the environment into a git-ignored file (mode 600). Verified by
+running the script: it exits 1 with instructions when the env var is missing and renders
+correctly when set.
+
+**Not done, and it needs the owner's decision:** gitleaks walks commit history, so the 7
+historical findings remain until the history is rewritten. `git filter-repo` would do it,
+but that rewrites the SHA of every commit after the oldest one, so I did not do it
+unilaterally. Independently of the rewrite, the owner MUST rotate COTURN_STATIC_AUTH_SECRET
+and the backend COTURN_SECRET, because the old value is public in this repository's
+history and editing the file does not un-publish it.
+
+### 7. Staging harness — NOT RUN
+`tools/live/run_gate.sh` and the sweep/wsweep/admin/clients/nav/adminshot/webauth/screenapi
+harnesses were not run in this session. They need the local stack (Mongo replica set,
+backend :8002, admin :3001, smtp_sink :2525, fake_moyasar :9100) and, for the staging
+variants, real staging data. staging.nabd.plus answers 200 on /api/v1/config and
+/api/v1/medicines and 404 on the new PDPL paths, i.e. it still runs the previous build, so
+the new endpoints cannot be exercised there until it is redeployed.
+
+### 8. PR
+Not opened. The branch is local; the reviewer pushes after review, and opening a PR against
+main is the reviewer's step.
+
+### F-id → commit checklist (generated from the commit subjects, not from memory)
+
+| F-ids | commit | subject |
+|---|---|---|
+| F09 | `3b7240b` | [P3.0a] F09 Password change/reset revokes all refresh sessions; fresh toke |
+| F10 | `58279dd` | [P3.0b] F10 users.password_hash is the single provider credential |
+| F10 | `0ba2847` | [P2.2] F10 Approve role flip + reactivate endpoint + provider scope fix |
+| F10 | `ce33929` | [P2.1] F10 Single provider identity (id=user.id, password mirror) + link m |
+| F11 | `61625f8` | [P2.3] F11 Provider app uses provider auth endpoints only |
+| F12 | `814f924` | [P2.4] F12 KYC 404 instead of 500 on missing account |
+| F13 | `a648415` | [P3.1] F13 Validated DTOs for write endpoints (usage-based, tsc-clean) |
+| F14 | `33cef54` | [P3.2] F14 BSONError->404 + P3 gate: zero non-AI 500s all roles (8.5k live |
+| F14, F21 | `500342f` | [P3.2] F14 ID consistency: mongo-error translation filter + findByAnyId (a |
+| F15 | `ea13ae6` | [P3.3] F15 mass-assignment pick() + P3.1 completion: 45 more DTOs (pipelin |
+| F16, F23, F45 | `10d15e7` | Merge Phase 4 (reviewed): remove fake/static data (#202) |
+| F16 | `530736c` | [F16] Strip fabricated facility ratings: seed reference-status, schema sta |
+| F16 | `1435b59` | [P3.4] F16 raw throws -> HttpException (400/401/403/404/502/503); P3 gate  |
+| F17 | `78a8c6c` | [P1.5] F17 Test-only seeder registration + purge-demo migration |
+| F18 | `702fb26` | [F18] JSON-LD honesty: omit aggregateRating when count=0, no specialty/cit |
+| F19 | `6f0fd3b` | [P1.6] F19 Prescription provenance states + pharmacist verify gate + UI la |
+| F20 | `325ea12` | [F20] Wearables hidden behind wearables_enabled=false (app flag + web env  |
+| F21 | `a2acb7a` | [REVIEW-P4] Approve Phase 4; fix SLA DTO reason, provider-app SpecialtyEnt |
+| F21 | `1a54ba2` | [REVIEW-P4] Approve Phase 4; fix SLA DTO reason, provider-app SpecialtyEnt |
+| F21 | `2f39048` | [P4.21] F21 AI endpoints fail honest 502 instead of fake success |
+| F21 | `f4f850e` | [F21] AI fail-closed: ai_provider_unavailable 503, ai_upstream_error 502,  |
+| F22 | `68404da` | [P4.22] F22 delete unused patient-app catalog constant lists |
+| F22 | `9d769b7` | [F22] Provider catalogs from backend hooks; /catalogs/specialties live; de |
+| F23 | `c4dbb23` | [P4.23] F23 loyalty tiers/earn-ways only from backend config |
+| F23 | `3375722` | [F23] Dynamic policies/llms/timeline: public system-config, live llms coun |
+| F24, F25 | `2b1c904` | [P7] F24 triage contract + F25 capabilities wiring |
+| F25, F29, F69 | `e545d0c` | [P8] fix stale web tests for F25/F29/F69 plus reminders idempotency forwar |
+| F26, F27, F29, F36, F37 | `906b31c` | [P7] F26/F27/F29/F36/F37 + verifications |
+| F27 | `d0e4783` | [P7] F27 build-time openapi + fix app boot |
+| F33 | `5db2d85` | [REVIEW-P7/P8] reviewer fixes + REVIEW_P7_P8.md verdict |
+| F34, F63 | `0d105c9` | [P1.7] F34 SMS-first OTP channels + 503; F63 OTP-required registration |
+| F35 | `000b1d3` | [REVIEW-P3] AASA: default Apple Team ID 6AT2W85DBC (F35 iOS half) |
+| F35 | `53c186b` | [REVIEW-P3] AASA: default Apple Team ID 6AT2W85DBC (F35 iOS half) |
+| F38 | `544fd73` | [P5.3c] F38 delete dead paymob + doctor-integration controllers |
+| F40 | `cfd6d5b` | [P5.3] F40 merge admin submodules into admin module |
+| F40 | `4eab2e7` | [P5.3] F40 merge booking-flow and booking-ops modules into unified-booking |
+| F40 | `5c03a37` | [P5.3] F40 merge pharmacy_ops module into pharmacy |
+| F40 | `6eb057c` | [P5.3] F40 merge home-care-compat module into home-care |
+| F41 | `6ef4228` | [P5.4] F41 deprecated auth aliases log warnings |
+| F43, F39 | `15842a1` | [P5.3] F43/F39 remove shadowed compat duplicates that broke live clients |
+| F43, F39 | `aeff3b5` | [P5.3] F43/F39 unify patient pharmacy orders on canonical flow |
+| F44 | `ffb7b24` | [P1.4] F44 Delete RolesGuard, hierarchical JwtAuthGuard only |
+| F45 | `4475bac` | [F45] SLA timers persist in system_configs key sla + DTO + audit log |
+| F46, F48 | `35aa5fa` | [P6] F46 nursing ops live, F48 passkey eligibility |
+| F50 | `8626d22` | [P9] F50 quoted tokens strings to bare imports plus withAlpha |
+| F51 | `6fe0e4e` | [P9] F51 restore facility split exports, shared styles and navigator impor |
+| F51 | `580f32a` | [P9] F51 rebuild availability exceptions from monolith section |
+| F51 | `f8920fe` | [P9] F51 tooling plus tokens comment |
+| F51 | `55eca00` | [P9] F51 split FacilityDashboard into 18 files |
+| F51 | `ddc2d04` | [P9] F51 availability exceptions sub-split plus ref fixes |
+| F51 | `a8375cd` | [P9] F51 split DoctorDashboard into 24 files |
+| F51 | `e1730e5` | [P9] F51 split SharedScreens into 13 plus sub-splits |
+| F51 | `95c1e84` | [P9] F51 split BlueprintScreens into 18 files |
+| F52 | `07d0695` | [9.F52] upgrade provider-app to Expo SDK 57 (RN 0.86.2), expo-av -> expo-a |
+| F52 | `51ed491` | [9.F52] remove dead provider-app API.BASE, BROADCAST_* constants and servi |
+| F53 | `fccda42` | [P9] F53 capabilities gating for promotions and CRM |
+| F54 | `d6ab7cd` | [P1.8] F54 Admin Next.js 16.2.10 to 16.3.6, audit clean |
+| F58 | `74655e6` | [P0.5] F58 Boot without payment keys via DisabledGatewayAdapter |
+| F59 | `8655396` | [P0.6-7] F59/F-seed Non-blocking seeds ($setOnInsert) + per-step chain + s |
+| F60 | `d141cab` | [10] progress log: PDPL and F60 with real gate outputs and the honest gaps |
+| F60 | `7229cc6` | [10.F60] webhook signature required in all envs; callback reconciles befor |
+| F61 | `1886886` | [P0.3] F61 patient-web pnpm-only, admin npm-only, CI updated |
+| F61 | `4466f9e` | [P0.2] F61 Align backend to NestJS 12, regenerate lockfile |
+| F62 | `7c912ee` | [P0.4] F62 Fix web test expectations to real tokens, mock t.raw |
+| F68 | `b53e886` | [10.F68] Content-Security-Policy everywhere, with a per-request nonce on t |
+| F69 | `be9b445` | [P8] F69 reminders edit/log/delete + settings toggles |
+| F70, F71, F73, F75 | `800fd16` | [P8] F70/F71/F73/F75 |
+| F73 | `9ba7f8d` | [P8] fix pharmacy-draft tests for F73 fulfillment and payment mode |
+| F74 | `8326ec4` | [P8] F74 diagnostics parent order + single payment |
+| F78 | `39698a5` | [P9] F78 delete dead PharmacyChatResponder |
+| F80 | `4f00984` | [P2.5] F80 Provider reactivate action in admin UI |
+| F82 | `1b52d3f` | [10.F82] LCP: prioritise the first product-card image and preconnect the A |
+| F82 | `4afc9ad` | [REVIEW] plan: split discovery work into PHASE 7E (engagement) and 7F (sea |
+| F82 | `d40a9e6` | [REVIEW-P0] docs: CI results + F82 performance finding |
