@@ -562,6 +562,12 @@ export class PaymentsController {
   @UseInterceptors(IdempotencyInterceptor)
   intent(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Headers('idempotency-key') key: string) { return this.svc.createPaymentIntent(u, t, id, key); }
   @SelfService()
+  @Post('intent/diagnostics')
+  @UseInterceptors(IdempotencyInterceptor)
+  diagnosticsIntent(@CurrentUser() u: any, @Body() b: { order_id?: string; method?: string }, @Headers('idempotency-key') key: string) {
+    return this.svc.createPaymentIntent(u, 'diagnostics', b.order_id, key);
+  }
+  @SelfService()
   @Post('verify/:txn') verify(@CurrentUser() u: any, @Param('txn') txn: string) { return this.svc.verifyPayment(u, txn); }
   @SelfService()
   @Post('retry/:type/:id')
