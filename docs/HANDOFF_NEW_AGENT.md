@@ -16,7 +16,8 @@ You are the **implementing agent**. A separate reviewer (another Claude session)
 ## 2. Read in this order before writing code
 1. `AGENTS.md`: the rules. They override your defaults.
 2. `docs/audit/02_AGENT_EXECUTION_PLAN.md`: the contract. Each task has **Do** and **Verify**.
-3. `REVIEW_P7R_TO_P12.md`: the latest review (2026-10-01). **X1..X10 are mandatory before anything else.** Then `REVIEW_P7_P8.md` for the earlier items.
+3. `REVIEW_P7R_TO_P12.md`: the latest review (2026-10-01). **X0 (a live data leak), X11, X12, then X1..X10 are mandatory before anything else.** Then `REVIEW_P7_P8.md` for the earlier items.
+   - `docs/perf/SCALE_ARCHITECTURE.md`: the performance and capacity design behind Phase 14 and X0/X11/X12.
 4. `REVIEW_P6.md` and `REVIEW_P5.md`: earlier verdicts, and the process lessons in them.
 5. `docs/audit/04_DISCOVERY_ENGAGEMENT_AUDIT.md`: evidence for PHASE 7E and 7F.
 6. `docs/audit/03_LIVE_JOURNEY_FINDINGS.md` (LJ items; all were merged) and `AGENT_PROGRESS.md` (read the last 3 sections).
@@ -26,13 +27,14 @@ You are the **implementing agent**. A separate reviewer (another Claude session)
 |---|---|
 | 0–8, R6 (Phase 6 review items), LJ-01..LJ-10 | Reviewed and merged to `main` (PRs #202–#208) |
 | R7-1..R7-8, 7A, Phase 9 | Reviewed and merged 2026-10-01 (`REVIEW_P7R_TO_P12.md`) |
-| **X1..X10** (`REVIEW_P7R_TO_P12.md`): 7B, 7C, 7E, 7F, 10 gaps | **Open. Do these first, in order.** |
+| **X0, X11, X12, X1..X10** (`REVIEW_P7R_TO_P12.md`) | **Open. Do these first, in this order.** X0 is a proven leak of private data through the Nginx cache. |
+| 15 (resilience), 16 (security hardening), 17 (UX essentials), 18 (languages and copy), 19 (Saudi compliance), 20 (observability), PHASE R (reviewer re-audit) | New on 2026-10-01. See the plan's ORDER OF WORK. |
 | 7D | Not started (after X1–X5) |
 | **7E** (notifications, deep links) and **7F** (search engines, AI assistants) | New. Added by the reviewer on 2026-09-29. 7E includes the admin Notifications page: campaigns with an audience builder (N7), recurring rules (N8) and behaviour-triggered nudges (N10). 7F includes the importer keeping all 30+ fields (S16) and the real-data checks V1–V5. |
 | 10, 11 | Partly done; gaps in X9 (Tap adapter, payment and account-deletion journeys, F82) |
 | 12 | Started early; paused until X1–X10 are done (see the review) |
 
-**Order of work** (owner, 2026-10-01): X1–X10 → 7D → 7E → 7F → **12** (you build the design stamps first, ported exactly from `docs/design/canvas/`, then stop for review; screens follow 12.C5, the owner-approved information architecture) → 8 → **13** → **14** → 10 → 11. See the "ORDER OF WORK" section of the plan and `docs/audit/05_OWNER_ADDITIONS_DESIGN_AND_GAPS.md`.
+**Order of work** (owner, 2026-10-01): follow the "ORDER OF WORK" section at the top of `docs/audit/02_AGENT_EXECUTION_PLAN.md`. In short: X0 → X11 → X12 → X1–X10 → 7D → 16 → 7E → 7F → 15 → 12 (with 8/9, 17, 18) → 13 → 14 → 20 → 19 (as the owner decides) → 10 → 11.
 - One phase at a time.
 - After each phase, push and report, then **stop and wait** for the reviewer's verdict before starting the next phase.
 
