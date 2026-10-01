@@ -67,7 +67,11 @@ export class AdminDeviceService {
   }
 
   async revoke(userId: string, deviceDbId: string) {
-    await this.devices.updateOne({ _id: deviceDbId as any, user_id: userId }, { $set: { revoked: true } }).catch(() => null);
+    const res: any = await this.devices.updateOne({ _id: deviceDbId as any, user_id: userId }, { $set: { revoked: true } }).catch(() => null);
+    if (!res?.modifiedCount && !(await this.devices.findOne({ _id: deviceDbId as any, user_id: userId }).catch(() => null))) {
+      const { NotFoundException } = await import('@nestjs/common');
+      throw new NotFoundException('device_not_found');
+    }
     return { ok: true };
   }
 

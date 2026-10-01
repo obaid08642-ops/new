@@ -165,7 +165,11 @@ export class ServiceCatalogService {
     const own = await this.own.findOne({ entity_id: { $eq: id }, entity_type: { $eq: entity_type } });
     if (user.role !== 'admin' && (!own || own.account_id !== user.id)) throw new ForbiddenException();
     const Model: any = entity_type === 'lab' ? this.labs : this.rads;
-    await Model.deleteOne({ id: { $eq: id } });
+    const res: any = await Model.deleteOne({ id: { $eq: id } });
+    if (!res.deletedCount && !(await Model.findOne({ id: { $eq: id } }))) {
+      const { NotFoundException } = await import('@nestjs/common');
+      throw new NotFoundException('service_not_found');
+    }
     await this.own.deleteMany({ entity_id: id, entity_type });
     this.bus.emit({ type: 'catalog.service_deleted', entity_type: 'service', entity_id: id, actor_account_id: user.id, actor_role: user.role, meta: { kind: entity_type } }).catch(() => null);
     return { ok: true };
@@ -184,6 +188,10 @@ export class ServiceCatalogService {
 
   async adminApproveService(entity_type: 'lab' | 'radiology', entity_id: string, approve: boolean, user: any) {
     const o = await this.own.findOneAndUpdate({ entity_type: { $eq: entity_type }, entity_id: { $eq: entity_id } }, { $set: { approved: approve } }, { new: true });
+    if (!o) {
+      const { NotFoundException } = await import('@nestjs/common');
+      throw new NotFoundException('service_not_found');
+    }
     const Model: any = entity_type === 'lab' ? this.labs : this.rads;
     await Model.updateOne({ id: { $eq: entity_id } }, { $set: { active: approve } });
     this.bus.emit({ type: approve ? 'catalog.service_approved' : 'catalog.service_disabled', entity_type: 'service', entity_id, actor_account_id: user.id, actor_role: 'admin', meta: { kind: entity_type } }).catch(() => null);
@@ -203,6 +211,11 @@ export class ServiceCatalogService {
 
   async upsertSchedule(user: any, entity_type: string, data: any) {
     this.assertProvider(user);
+    const validTypes = ['lab', 'radiology', 'nursing', 'pharmacy', 'doctor', 'clinic'];
+    if (!validTypes.includes(entity_type)) {
+      const { BadRequestException } = await import('@nestjs/common');
+      throw new BadRequestException(`invalid entity_type: must be one of ${validTypes.join(', ')}`);
+    }
     const $set: any = {};
     for (const k of ['weekly', 'blocked_dates', 'slot_minutes', 'max_per_slot', 'coverage_radius_km', 'is_online']) if (data[k] !== undefined) $set[k] = data[k];
     const r = await this.sched.findOneAndUpdate({ account_id: { $eq: user.id }, entity_type: { $eq: entity_type } }, { $set }, { new: true, upsert: true });
