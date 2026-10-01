@@ -150,7 +150,7 @@ and it is the only one this file makes.
 | `insurance/refunds` | — |  | 7 |  | 54 |
 | `insurance/requests/[requestId]` | — |  | 11 |  | 73 |
 | `insurance/submit-claim` | — |  | 9 | **y** | 36 |
-| `labs` | — |  | 0 | **y** | 114 |
+| `labs` | — |  | 0 |  | 119 |
 | `labs/[testSlug]/[citySlug]` | — |  | 26 | **y** | 222 |
 | `login` | — |  | 0 |  | 11 |
 | `loyalty` | — |  | 9 | **y** | 150 |

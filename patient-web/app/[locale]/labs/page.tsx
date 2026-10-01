@@ -1,7 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { ArrowLeft, ArrowRight, Search, ShieldCheck } from "lucide-react";
+// 12.A11 — `Arrow` below was a local variable holding a *component*
+// (`rtl ? ArrowLeft : ArrowRight`), so a direction was chosen by importing
+// whichever arrow component suited the locale. It now holds a *name*, and the
+// design system resolves it — the same way the contract intends, and the same
+// string works on native.
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { extractLabServices } from "@/lib/api/labs";
 import { getPublicLabServices } from "@/lib/api/labs-server";
 import { isLocale, locales } from "@/lib/i18n";
@@ -37,14 +42,14 @@ export default async function LabsIndexPage({ params, searchParams }: Props) {
   const t = await getTranslations("LabsServices");
   const search = (query.q ?? "").trim(); const homeOnly = query.home === "1";
   const response = await getPublicLabServices({ search, homeOnly });
-  const rtl = locale === "ar" || locale === "ur"; const Arrow = rtl ? ArrowLeft : ArrowRight;
+  const rtl = locale === "ar" || locale === "ur"; const arrow = rtl ? "arrow-left" : "arrow-right";
   if (!response || !response.ok) return <main className={`main ${styles.page}`}><section className={styles.state} role="alert"><VectorLabs size={48} aria-hidden="true" /><h1>{t("unavailableTitle")}</h1><p>{t("unavailableBody")}</p><Link className={styles.action} href={`/${locale}/labs`}>{t("retry")}</Link></section></main>;
   const services = extractLabServices(await response.json().catch(() => null));
   return (
     <main className={`main ${styles.page}`}>
       <section className={styles.hero}>
         <div>
-          <p className={styles.eyebrow}><ShieldCheck size={15} aria-hidden="true" />{t("eyebrow")}</p>
+          <p className={styles.eyebrow}><Icon name="shield-check" size={15} />{t("eyebrow")}</p>
           <h1>{t("title")}</h1>
           <p className={styles.subtitle}>{t("subtitle")}</p>
         </div>
@@ -55,7 +60,7 @@ export default async function LabsIndexPage({ params, searchParams }: Props) {
 
       <form className={styles.filters} method="get" role="search">
         <label className={styles.search}>
-          <Search size={18} aria-hidden="true" />
+          <Icon name="search" size={18} />
           <span className="sr-only">{t("searchLabel")}</span>
           <input name="q" defaultValue={search} placeholder={t("searchPlaceholder")} />
         </label>
@@ -102,7 +107,7 @@ export default async function LabsIndexPage({ params, searchParams }: Props) {
                     {service.unavailable ? <span>{t("unavailable")}</span> : null}
                   </div>
                 </div>
-                <Arrow size={18} aria-hidden="true" />
+                <Icon name={arrow} size={18} />
               </Link>
             );
           })}
