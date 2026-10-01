@@ -75,7 +75,7 @@ export default function InsuranceQueuePage() {
 
   return (
     <>
-      <Head><title>التأمين والمستردات | نبض</title></Head>
+      <Head><title>التأمين والمستردات | نبض بلس</title></Head>
         <div className="p-8 space-y-6">
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">

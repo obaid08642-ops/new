@@ -243,7 +243,7 @@ export default function MedicinesCatalogPage() {
 
   return (
     <>
-      <Head><title>كتالوج الأدوية | نبض</title></Head>
+      <Head><title>كتالوج الأدوية | نبض بلس</title></Head>
       <div className="p-8 space-y-6">
         <div className="flex flex-wrap justify-between items-center gap-3">
           <div>

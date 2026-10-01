@@ -74,7 +74,7 @@ export default function PayoutApprovalPage() {
 
   return (
     <>
-      <Head><title>اعتمادات السحب المالي | نبض</title></Head>
+      <Head><title>اعتمادات السحب المالي | نبض بلس</title></Head>
         <div className="p-8 space-y-6">
           <div className="flex justify-between items-center">
             <p className="text-slate-500">مراجعة طلبات سحب الأرباح للأطباء والمنشآت والصيدليات — المصدران (قديم/جديد) مدمجان في طابور واحد.</p>

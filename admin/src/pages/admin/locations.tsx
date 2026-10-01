@@ -43,7 +43,7 @@ export default function LocationsAdminPage() {
     finally { setBusy(''); }
   };
 
-  return (<><Head><title>إدارة المدن والأحياء | نبض</title></Head>
+  return (<><Head><title>إدارة المدن والأحياء | نبض بلس</title></Head>
   <div className="p-8 space-y-6">
     <h1 className="text-2xl font-black">إدارة المدن والأحياء</h1>
     {error ? <p role="alert" className="rounded-lg bg-rose-50 p-3 text-rose-700">{error}</p> : null}

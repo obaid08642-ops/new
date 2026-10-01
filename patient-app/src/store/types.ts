@@ -1,5 +1,5 @@
 /**
- * Nabdah Plus - Global State Architecture Types & Conventions
+ * Nabd+ - Global State Architecture Types & Conventions
  * 
  * NAMING CONVENTIONS:
  * 1. Slices: Use camelCase (e.g., `userProfile`, `auth`).

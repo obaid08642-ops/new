@@ -91,7 +91,7 @@ export default function SosMonitorPage() {
 
   return (
     <>
-      <Head><title>مراقبة الطوارئ SOS | نبض</title></Head>
+      <Head><title>مراقبة الطوارئ SOS | نبض بلس</title></Head>
         <div className="p-8 space-y-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">

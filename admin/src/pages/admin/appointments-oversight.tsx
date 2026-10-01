@@ -15,7 +15,7 @@ export default function AppointmentsOversightPage() {
     if(!confirm('إلغاء الموعد؟')) return;
     try{ await apiFetch(`/api/admin/admin/appointments/${id}/cancel`,{method:'POST', body: JSON.stringify({reason:'admin_cancel'})}); await load();}catch(e:any){alert(e?.message||'فشل');}
   };
-  return (<><Head><title>إشراف المواعيد | نبض</title></Head>
+  return (<><Head><title>إشراف المواعيد | نبض بلس</title></Head>
   <div className="p-8 space-y-6">
    <div className="flex justify-between items-center"><h1 className="text-2xl font-black">إشراف المواعيد</h1><button onClick={()=>load()} className="text-sm text-teal-700 font-bold">تحديث</button></div>
    {loading? <div className="p-8 text-center">جاري التحميل...</div> : rows.length===0? <div className="p-8 text-center text-slate-400 bg-white rounded-xl border">لا توجد مواعيد</div> : (

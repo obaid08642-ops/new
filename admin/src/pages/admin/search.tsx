@@ -38,7 +38,7 @@ export default function SearchPage() {
 
   return (
     <>
-      <Head><title>البحث الشامل | نبض</title></Head>
+      <Head><title>البحث الشامل | نبض بلس</title></Head>
       <section dir="rtl" className="space-y-6 p-6 md:p-8">
         <header><h1 className="text-3xl font-bold">البحث الشامل</h1>
           <p className="mt-1 text-sm text-slate-500">بحث برقم الهوية أو الجوال أو الاسم عبر المستخدمين والمزودين والطلبات والحجوزات.</p>

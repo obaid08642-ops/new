@@ -60,7 +60,7 @@ export default function RbacPage() {
     setAssignKeys((current) => current.includes(key) ? current.filter((item) => item !== key) : [...current, key]);
   }
 
-  return <><Head><title>الأدوار والصلاحيات | نبض</title></Head><section dir="rtl" className="space-y-6 p-6 md:p-8">
+  return <><Head><title>الأدوار والصلاحيات | نبض بلس</title></Head><section dir="rtl" className="space-y-6 p-6 md:p-8">
     <header><h1 className="text-3xl font-bold">الأدوار والصلاحيات</h1><p className="mt-1 text-sm text-slate-500">الكتالوج والأدوار مصدرها backend؛ منع تعديل أدوار النظام مفروض خادمياً.</p></header>
     {error ? <p role="alert" className="rounded-lg bg-rose-50 p-3 text-rose-700">{error}</p> : null}
     <div className="overflow-x-auto rounded-2xl border bg-white shadow-sm"><table className="min-w-full text-right text-sm"><thead className="bg-slate-50 text-xs text-slate-600"><tr><th className="p-4">الدور</th><th className="p-4">النوع</th><th className="p-4">عدد الصلاحيات</th><th className="p-4">الصلاحيات</th></tr></thead><tbody>{loading ? <tr><td colSpan={4} className="p-10 text-center text-slate-500">جارٍ تحميل الأدوار…</td></tr> : allRoles.map((role) => <tr key={role.id || role.key} className="border-t"><td className="p-4 font-bold">{role.name_ar || role.label_ar || role.key}<p dir="ltr" className="mt-1 text-xs font-normal text-slate-500">{role.key}</p></td><td className="p-4">{role.is_system ? 'دور نظامي محمي' : 'دور مخصص'}</td><td className="p-4">{(role.permissions || []).length}</td><td className="max-w-2xl p-4 text-xs text-slate-600">{(role.permissions || []).join('، ') || (role.permission_count ? `${role.permission_count} صلاحية` : 'لا توجد صلاحيات')}</td></tr>)}</tbody></table></div>

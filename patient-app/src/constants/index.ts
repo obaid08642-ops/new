@@ -1,5 +1,5 @@
 export const APP_NAME = 'نبض بلس';
-export const APP_NAME_EN = 'Nabdah Plus';
+export const APP_NAME_EN = 'Nabd+';
 export const APP_VERSION = '1.0.0';
 
 // M1-ENV: fixed wrong default (was missing the /api prefix → pointed at non-existent /v1)

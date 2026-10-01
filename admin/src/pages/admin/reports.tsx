@@ -90,7 +90,7 @@ export default function ReportsPage() {
 
   return (
     <>
-      <Head><title>التقارير | نبض</title></Head>
+      <Head><title>التقارير | نبض بلس</title></Head>
       <section dir="rtl" className="space-y-6 p-6 md:p-8">
         <header className="flex flex-wrap items-end justify-between gap-3">
           <div>

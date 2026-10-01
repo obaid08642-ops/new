@@ -134,7 +134,7 @@ export default function CatalogGovernancePage() {
   return (
     <>
       <Head>
-        <title>حوكمة الكتالوج وتجاوز الأسعار | نبض</title>
+        <title>حوكمة الكتالوج وتجاوز الأسعار | نبض بلس</title>
       </Head>
       <section dir="rtl" className="space-y-6 p-6 md:p-8 max-w-7xl mx-auto">
         <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">

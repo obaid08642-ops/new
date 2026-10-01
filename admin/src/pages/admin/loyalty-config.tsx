@@ -88,7 +88,7 @@ export default function LoyaltyConfigPage() {
   };
 
   if (loading) return <div className="p-8 text-center">جاري التحميل...</div>;
-  return (<><Head><title>إعدادات الولاء | نبض</title></Head>
+  return (<><Head><title>إعدادات الولاء | نبض بلس</title></Head>
   <div className="p-8 space-y-6">
     <h1 className="text-2xl font-black">إعداد الولاء والإحالة</h1>
     {error ? <p role="alert" className="rounded-lg bg-rose-50 p-3 text-rose-700">{error}</p> : null}
