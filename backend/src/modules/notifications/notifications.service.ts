@@ -1090,7 +1090,7 @@ export class NotificationsService {
       params: p?.payload?.amount != null ? { amount: p.payload.amount } : {},
       type: NotificationType.INFO,
       priority: NotificationPriority.HIGH,
-      action: { route: '/wallet/hub' },
+      action: { route: '/provider/earnings' },
     });
   }
   @OnEvent('finance.operation.rejected')
@@ -1117,7 +1117,7 @@ export class NotificationsService {
       body_key: 'notif.payment_received.body',
       params: p.amount != null ? { amount: p.amount } : {},
       type: NotificationType.INFO,
-      action: { route: '/wallet/hub' },
+      action: { route: '/orders' },
     });
   }
 }
