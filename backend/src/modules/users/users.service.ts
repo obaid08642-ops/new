@@ -394,9 +394,11 @@ export class UsersService {
 
   async deleteUser(user_id: string, by: any) {
     if (user_id === by.id) throw new ForbiddenException('Cannot delete yourself');
+    // R2: 404 for an unknown target — never report success on a missing user.
+    const target: any = await this.userRepository.findOne({ id: user_id });
+    if (!target) throw new NotFoundException('user_not_found');
     // S5: user deletion is irreversible and sensitive — audit BEFORE deleting,
     // keeping only privacy-safe identifiers (hashed phone tail, role).
-    const target: any = await this.userRepository.findOne({ id: user_id });
     try {
       this.events?.emit('admin.user_deleted', {
         admin_id: by?.id,

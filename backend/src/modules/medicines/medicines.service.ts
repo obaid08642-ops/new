@@ -1174,10 +1174,14 @@ export class MedicinesService {
 
   /** Admin: clear the badge when stock normalizes. */
   async clearShortageBadge(medicineId: string, adminId: string) {
-    await this.model.updateOne(
+    const res: any = await this.model.updateOne(
       { id: medicineId },
       { $set: { availability_status: 'none', shortage_notes: null, updatedAt: new Date() } },
     );
+    if (!res.modifiedCount && !(await this.model.findOne({ id: medicineId }))) {
+      const { NotFoundException } = await import('@nestjs/common');
+      throw new NotFoundException('medicine_not_found');
+    }
     this.audit('medicine.shortage_badge_cleared', medicineId, adminId, 'admin', {});
     await this.invalidateCache();
     return { ok: true };

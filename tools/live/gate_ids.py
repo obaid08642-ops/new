@@ -22,6 +22,19 @@ SKIP = re.compile(r'(logout|webhook|stream|/auth/|sse|events$|realtime|guest-app
 MISSING = '507f1f77bcf86cd79943901a'
 # METHOD path-pattern -> reason. Keep this short; every entry is a reviewed exception.
 ALLOW_2XX = {
+    # Idempotent deletes of the caller's OWN sub-items stay 2xx by design:
+    # deleting an already-deleted line/allergy is not an error, it is the
+    # desired end state. Each entry lists the reason.
+    'DELETE /cart/items/:lineId': 'own cart line — idempotent remove',
+    'DELETE /cart/lines/:lineId': 'own cart line — idempotent remove',
+    'DELETE /medical-profile/chronic-diseases/:id': 'own sub-item — idempotent remove',
+    'DELETE /medical-profile/allergies/:id': 'own sub-item — idempotent remove',
+    'DELETE /medical-profile/surgeries/:id': 'own sub-item — idempotent remove',
+    'DELETE /medical-profile/long-term-medications/:id': 'own sub-item — idempotent remove',
+    'POST /users/me/wishlist/:itemId': 'own wishlist toggle — idempotent',
+    'POST /notifications/:id/read': 'own notification — mark-read is idempotent',
+    'PATCH /notifications/:id/read': 'own notification — mark-read is idempotent',
+    'POST /slot-locks/:id/release': 'own lock — release is idempotent',
 }
 
 

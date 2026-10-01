@@ -38,7 +38,11 @@ export class BansService implements OnModuleInit {
   }
 
   async unban(value: string) {
-    await this.banModel.updateMany({ value }, { $set: { is_active: false } });
+    const res: any = await this.banModel.updateMany({ value }, { $set: { is_active: false } });
+    if (!res.modifiedCount && !(await this.banModel.findOne({ value }))) {
+      const { NotFoundException } = await import('@nestjs/common');
+      throw new NotFoundException('ban_not_found');
+    }
     await this.refreshCache();
     return { success: true };
   }
