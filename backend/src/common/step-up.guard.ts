@@ -46,14 +46,18 @@ export class StepUpService {
     }
   }
 
-  issue(userId: string, action: string): string {
+  async issue(userId: string, action: string): Promise<string> {
     const token = randomBytes(32).toString('base64url');
     const hash = createHash('sha256').update(token).digest('hex');
-    store.set(hash, {
+    // Store in Redis (not a process-local Map) so a token issued by one worker
+    // verifies on any other worker in the production cluster.
+    const client = new Redis(process.env.REDIS_URL || 'redis://127.0.0.1:6379');
+    await client.set(`stepup:${hash}`, JSON.stringify({
       user_id: userId,
       action_hash: createHash('sha256').update(action).digest('hex'),
       expires_at: Date.now() + STEP_UP_TTL * 1000,
-    });
+    }), 'EX', STEP_UP_TTL);
+    await client.disconnect();
     return token;
   }
 
@@ -96,11 +100,17 @@ export class StepUpService {
     return this.issue(userId, action);
   }
 
-  verify(userId: string, action: string, token: string): boolean {
+  async verify(userId: string, action: string, token: string): Promise<boolean> {
     const hash = createHash('sha256').update(token).digest('hex');
-    const rec = store.get(hash);
+    const client = new Redis(process.env.REDIS_URL || 'redis://127.0.0.1:6379');
+    let rec: StepUpRecord | null = null;
+    try {
+      const raw = await client.getdel(`stepup:${hash}`);
+      rec = raw ? JSON.parse(raw) : null;
+    } finally {
+      await client.disconnect();
+    }
     if (!rec) return false;
-    store.delete(hash); // single-use
     if (rec.expires_at < Date.now()) return false;
     if (rec.user_id !== userId) return false;
     const actionHash = createHash('sha256').update(action).digest('hex');
