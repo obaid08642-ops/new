@@ -271,7 +271,7 @@ and it is the only one this file makes.
 | `services` | — |  | 0 |  | 11 |
 | `services/[serviceSlug]/[citySlug]` | — |  | 10 | **y** | 184 |
 | `settings` | — |  | 18 | **y** | 56 |
-| `settings/about` | — |  | 8 | **y** | 133 |
+| `settings/about` | — |  | 7 |  | 135 |
 | `settings/data` | — |  | 18 | **y** | 170 |
 | `settings/feedback` | — |  | 12 | **y** | 116 |
 | `settings/help` | — |  | 8 | **y** | 60 |
