@@ -352,6 +352,8 @@ Make one schema the single source, migrate the other, and point both admin pages
 - The first refresh failed as "device mismatch" → the provider was signed out on every app start.
 - Fix: `provider.controllers.ts` login keeps `meta.device_identifier` (or the `X-Device-ID` header). Test: `provider-login-device.spec.ts`.
 
+**R41 — fixed by the reviewer in this PR (do not revert).** Nursing registration creates `home_care` accounts, but `App.tsx` routed only `nursing`/`nurse` to the nursing dashboard, so every home-care provider got the generic portal. `home_care` is now routed to `NursingDashboardNavigator`.
+
 **R40 (Low)** "Remember me" (تذكرني) on the provider login is written but never read. Implement it or remove it.
 
 **For every item:**

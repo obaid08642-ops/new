@@ -111,7 +111,7 @@ function AppNavigator() {
               if (t === 'pharmacy' || t === 'pharmacist') return <PharmacyDashboardNavigator onLogout={doLogout} />;
               if (t === 'doctor' || t === 'physician') return <DoctorDashboardNavigator onLogout={doLogout} />;
               if (t === 'facility' || t === 'hospital' || t === 'clinic' || t === 'center') return <FacilityDashboardNavigator onLogout={doLogout} />;
-              if (t === 'nursing' || t === 'nurse') return <NursingDashboardNavigator onLogout={doLogout} />;
+              if (t === 'home_care' || t === 'nursing' || t === 'nurse') return <NursingDashboardNavigator onLogout={doLogout} />;
               if (t === 'lab' || t === 'laboratory') return <LabDashboardNavigator onLogout={doLogout} />;
               if (t === 'radiology' || t === 'radiologist' || t === 'scan_center') return <RadiologyDashboardNavigator onLogout={doLogout} />;
               if (t === 'ambulance' || t === 'paramedic' || t === 'emt') return <AmbulanceDashboardNavigator onLogout={doLogout} />;
