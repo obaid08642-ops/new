@@ -132,6 +132,20 @@ export class ProviderAdminService {
   async approve(user: any, id: string, body: any) {
     this.assertAdmin(user);
     const a = await this.accounts.findOne({ id }); if (!a) throw new NotFoundException();
+    // R1: approval requires every required document to exist and not be rejected.
+    // An explicit override needs a written reason (≥20 chars), is audit-logged,
+    // and requires step-up (the @StepUp() decorator on the controller route).
+    const required = (await import('../provider.enums')).REQUIRED_DOCS_BY_PROVIDER_TYPE[(a as any).provider_type] || [];
+    const docs = await this.docs.find({ account_id: id });
+    const okTypes = new Set(docs.filter((d: any) => d.review_status !== 'REJECTED').map((d: any) => d.doc_type));
+    const missing = required.filter((r: string) => !okTypes.has(r));
+    if (missing.length) {
+      const reason = String(body?.override_reason || '').trim();
+      if (reason.length < 20) {
+        throw new BadRequestException(`required_documents_missing: ${missing.join(', ')}`);
+      }
+      await this.audit.create({ provider_account_id: id, actor_id: user.id, actor_role: 'admin', action: 'admin.provider_approved_override', after: { missing, override_reason: reason } });
+    }
     await this.transition(a, ProviderAccountStatus.APPROVED, user, body?.note || body?.reason);
     a.approved_at = new Date(); a.approved_by = user.id;
     // P2.2 role flip: the login identity becomes the provider type, and every
