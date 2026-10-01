@@ -8,6 +8,7 @@ import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { JwtAuthGuard, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
+import { AiReferralController } from './ai-referral.controller';
 
 @Injectable()
 export class AdminAnalyticsService {
@@ -143,7 +144,7 @@ export class AdminAnalyticsController {
 }
 
 @Module({
-  controllers: [AdminAnalyticsController],
+  controllers: [AdminAnalyticsController, AiReferralController],
   providers: [AdminAnalyticsService],
 })
 export class AnalyticsModule {}
