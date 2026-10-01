@@ -13,7 +13,7 @@
    - first the stamps, ported from the canvas, then stop for review;
    - then the owner approves 12.C5 (information architecture);
    - then the screens are rebuilt together with Phase 8/9, **17** (UX essentials and accessibility) and **18** (languages and copy), so each screen is touched once.
-6. **13**, then **22** (mature-platform features), then **14** (performance and capacity; X0, X11 and X12 are already done by then), then **20** (observability and operations).
+6. **13**, then **23** (audit trail and legal records), then **22** (mature-platform features), then **14** (performance and capacity; X0, X11 and X12 are already done by then), then **20** (observability and operations).
 7. **19** (Saudi compliance and integrations), as the owner's legal and business decisions arrive. The owner-side steps can start now.
 8. **10** (the remaining gaps, X9), then **11** (final verification).
 
@@ -782,7 +782,7 @@ Real users have weak or dropped networks, old and low-end phones, Huawei phones 
 | 21.1 | **Guest identity.**<br>• A real server-side guest account (UUID, `is_guest`).<br>• Its token is kept in SecureStore/Keychain (app) or an httpOnly cookie (web), together with a device id.<br>• The IP address is never used as identity: it changes and is shared. | Reinstalling the app without signing in creates a new guest; a reopen keeps the same guest. |
 | 21.2 | **Guest → account merge for every sign-up or sign-in method:** email, phone, Google, Apple, Snapchat and X.<br>• Every collection that holds the guest's data is moved (the list above, generated from the schemas so new collections are not forgotten).<br>• The move runs in **one MongoDB transaction**, with clear rules for conflicts (two carts → merged; duplicate addresses → deduplicated).<br>• One audit row records what moved.<br>• The patient app calls it. | • Live in the app and on the web: as a guest, order from the pharmacy, book a lab test and add an address. Sign in with Google → everything is in the account.<br>• A failure injected halfway → nothing is moved. |
 | 21.3 | **What a guest may do** (a permission matrix the admin can edit).<br>**Default — a guest may:**<br>• browse, search and use the cart;<br>• order from the pharmacy;<br>• book consultations, labs, radiology and nursing, paying by card or cash.<br>**A full account is required for:**<br>• insurance;<br>• family;<br>• medical records and reports;<br>• prescription refills;<br>• loyalty points;<br>• saved cards;<br>• chat history after the order is closed.<br>The screen explains why and offers a one-tap sign-up that keeps the history (21.2). | A test per row of the matrix; an admin change takes effect without a deploy. |
-| 21.4 | **OTP by email by default** (no SMS cost at the start).<br>• Sign-up, sign-in and password reset use an email code. The channels already exist in `auth.service.ts` (SMS → push → email).<br>• SMS is a per-country feature flag, off by default. WhatsApp authentication codes are an option for later: Meta charges per message, usually less than SMS.<br>• Email delivery: SPF, DKIM and DMARC (16.13); one provider; the code email is short, branded and sent in the user's language.<br>• Rate limits (16.3) apply to email codes too. | • Live: sign-up and sign-in with an email code only.<br>• With SMS off, no SMS is sent.<br>• mail-tester ≥ 9/10. |
+| 21.4 | **OTP by email by default** (no SMS cost at the start).<br>• Sign-up, sign-in and password reset use an email code. The channels already exist in `auth.service.ts` (SMS → push → email).<br>• SMS is a per-country feature flag, off by default. WhatsApp authentication codes are an option for later: Meta charges per message, usually less than SMS.<br>• **Email provider chain with automatic failover** (owner 2026-10-01). The code supports Resend and SES today; add Brevo. Per provider: a daily and monthly quota (the free tiers have caps), a health state and a cooldown. Order: Resend → Amazon SES → Brevo. The chain switches on an error, a timeout or a used-up quota, and goes back to the first provider when its window resets. The admin sees which provider sent each code and the remaining quota. API keys live only in the server env.<br>• Email delivery: SPF, DKIM and DMARC for each provider (16.13). The code email is short, branded and in the user's language.<br>• Rate limits (16.3) apply to email codes too. | • Live: sign-up and sign-in with an email code only.<br>• With SMS off, no SMS is sent.<br>• mail-tester ≥ 9/10. |
 | 21.5 | **Contact phone and address at checkout, without SMS.** Every order or booking (guest or account, including Google/Apple/Snapchat/X users who gave no phone) asks for:<br>• the location and address, saved to the profile;<br>• a contact phone in **one** field: country code +966 by default, validated with libphonenumber, stored as E.164, shown back formatted ("is this right?"). No double-entry field.<br>Risk controls for unverified phones:<br>• cash on delivery is limited for new, unverified customers (a cap on value and on open orders); card payment is not limited;<br>• the provider can call before dispatch;<br>• the phone is marked "verified" later, if it is ever confirmed (WhatsApp/SMS when enabled, or by the provider). | • Tests for formats (05…, 5…, +9665…) and Arabic digits.<br>• A COD cap test for an unverified new customer. |
 | 21.6 | **Account linking.**<br>• The same verified email across providers (Google, Apple, email) offers to link to one account, after confirmation.<br>• Apple "hide my email" relay addresses work for codes and receipts. | Live tests with each provider (sandbox). |
 | 21.7 | **Sessions.** A list of signed-in devices, with "sign out other devices"; rotating refresh tokens; sign-out removes the push token. | Tests. |
@@ -819,6 +819,32 @@ Real users have weak or dropped networks, old and low-end phones, Huawei phones 
 | 22.16 | **City operations.**<br>• Service-area management and city launch switches.<br>• Provider coverage maps for the admin. | Admin click tests. |
 
 **Gate P22:** each built item has its live proof; the inventory of existing vs built items is committed.
+
+---
+
+## PHASE 23 — Audit trail and legal records (owner decision 2026-10-01)
+
+**Today:** the logs are split across about ten stores:
+- `audit_logs`, `admin_audit_log`, `provider_audit_logs`, `facility_audit_logs`;
+- `mcp_audit_log`, `pharmacy_price_override_audit`, `impersonation_sessions`;
+- `state_history` inside each booking.
+
+Patients have **no login history**: only `last_login_at` is kept, and it is overwritten on every login. There is no single place to answer "who did what, when, from which device".
+
+| Task | Do | Verify |
+|---|---|---|
+| 23.1 | **One audit trail for every actor** (patient, guest, provider, provider staff, admin, system/job, AI agent through MCP). Each event records:<br>• **who:** actor id, role, and the impersonator if any;<br>• **what:** action and entity, with a before/after diff of the changed fields;<br>• **when:** server time;<br>• **where:** IP, device id, user agent, platform and app version;<br>• **why:** a reason for admin and financial actions;<br>• the request id (20.1).<br>The existing stores feed into it (or are replaced), with no gap in history. | A test per actor type: an action → one event with every field filled. |
+| 23.2 | **Covered events**, at least:<br>• sign-up, login and logout (success and failure), OTP requests, password changes, device and session changes;<br>• every order and booking event: create, change, cancel (by whom), accept, reject, dispatch, deliver, complete;<br>• payments, refunds, copay;<br>• insurance decisions;<br>• prescriptions and reports issued, viewed and downloaded (16.9);<br>• consent and policy acceptance (19.12);<br>• admin changes to config, prices, users and providers;<br>• data exports and deletions (PDPL). | Live journey: one pharmacy order and one booking produce the full, ordered chain of events. |
+| 23.3 | **Tamper-evident and separate storage.**<br>• Append-only (no update or delete through the app); each event carries the hash of the previous one, so any gap or edit is detectable.<br>• Written through the queue, so a slow log never slows the user.<br>• Copied daily to separate storage (object storage with object lock / write-once). | A test: editing or deleting an event breaks the hash chain, and a check reports it. |
+| 23.4 | **Admin views.**<br>• A timeline per user, per order/booking and per provider.<br>• Search by user, phone, email, order id, IP, device or date; export to CSV/PDF for a legal request.<br>• Reading the audit trail is itself logged.<br>• Only the owner (and named roles) can see full details; PII is masked for everyone else. | Admin click tests; the export matches the stored events. |
+| 23.5 | **Retention by type.** The owner and the lawyer set the periods, and a scheduled job applies them:<br>• e-invoices and tax records as ZATCA requires;<br>• medical records as MOH requires;<br>• authentication and security logs for a fixed period;<br>• everything else under the PDPL "no longer than necessary" rule.<br>After the period, records are deleted or anonymized; legal holds pause deletion. | Job test with a short test period; a legal hold blocks deletion. |
+| 23.6 | **User-facing history.**<br>• Patients and providers see their own login and device history ("active sessions", 21.7).<br>• They see the status history of their own orders and bookings.<br>• On request (PDPL), the export includes their audit events. | Tests. |
+
+**Gate P23:**
+- every covered event is logged with all fields;
+- the hash-chain check is green;
+- admin timelines and exports work;
+- the retention job is tested.
 
 ---
 
