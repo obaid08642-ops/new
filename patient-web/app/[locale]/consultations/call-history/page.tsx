@@ -4,7 +4,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getPatientAppointments } from "@/lib/api/appointments-server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
-import { ChevronLeft } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { VectorDoctor } from "@/components-next/vector-illustrations";
 import styles from "./call-history.module.css";
 
@@ -26,7 +26,7 @@ export default async function CallHistoryPage({ params }: Props) {
   return (
     <main className={`main ${styles.page}`} style={{ background: "#FDFDFC" }}>
       <Link className={styles.back} href={`/${locale}/appointments`} style={{ borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", color: "#1E332E", gap: 8 } as any}>
-        <ChevronLeft size={17} aria-hidden="true" />
+        <Icon name="caret-left" size={17} />
         {t("back")}
       </Link>
       <h1 className={styles.title} style={{ color: "#1E332E", gap: 16, overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>

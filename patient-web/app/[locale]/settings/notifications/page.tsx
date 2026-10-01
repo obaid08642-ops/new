@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Bell } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { getPatientNotificationSettings } from "@/lib/api/notification-settings-server";
@@ -38,7 +38,7 @@ export default async function SettingsNotificationsPage({ params }: Props) {
     return (
       <main className={`main ${styles.page}`}>
         <section className={styles.state} role="alert">
-          <Bell size={20} aria-hidden="true" style={{ color: "#1E332E" }} />
+          <Icon name="bell" size={20} style={{ color: "#1E332E" } />
           <h1 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>
             {ar ? "تعذر تحميل إعدادات الإشعارات" : "Could not load notification settings"}
           </h1>
@@ -56,20 +56,20 @@ export default async function SettingsNotificationsPage({ params }: Props) {
       </Link>
       <section className={styles.hero}>
         <p className={styles.eyebrow}>
-          <Bell size={15} aria-hidden="true" />
+          <Icon name="bell" size={15} />
           {ar ? "الإشعارات" : "Notifications"}
         </p>
         <h1 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{ar ? "إعدادات الإشعارات" : "Notification settings"}</h1>
         <p style={{ overflowWrap: "anywhere" } as any}>{ar ? "فعّل أو عطّل كل فئة — تُحفظ فوراً." : "Toggle each category — saved immediately."}</p>
         <span className={styles.icon} style={{ backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any} aria-hidden="true">
-          <Bell size={22} color="#1E332E" />
+          <Icon name="bell" size={22} tone="primary" />
         </span>
       </section>
       <section className={styles.grid}>
         {entries.map(([key, label]) => (
           <article key={key} className={styles.card} style={{ alignItems: "center" }}>
             <span className={styles.icon}>
-              <Bell size={20} aria-hidden="true" />
+              <Icon name="bell" size={20} />
             </span>
             <div style={{ minInlineSize: 0 }}>
               <h2 style={{ margin: 0, fontSize: "1.05rem", color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{ar ? label.ar : label.en}</h2>

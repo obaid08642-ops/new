@@ -5,7 +5,7 @@ import { localizedUrl } from "@/lib/seo";
 import { isLocale, locales } from "@/lib/i18n";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronLeft, FileText, ShieldCheck } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getPublicArticle } from "@/lib/api/articles-server";
 import { articleSlug, parseArticle } from "@/lib/api/articles";
@@ -89,12 +89,12 @@ export default async function ArticlePage({ params }: Props) {
         ]}
       />
       <Link className={styles.back} href={`/${locale}/articles`}>
-        <ChevronLeft size={48} aria-hidden="true" style={{ width: 17, height: 17 }} />
+        <Icon name="caret-left" size={48} style={{ width: 17, height: 17 } />
         {t("back")}
       </Link>
       <section className={styles.hero}>
         <p className={styles.eyebrow}>
-          <ShieldCheck size={48} aria-hidden="true" style={{ width: 16, height: 16 }} />
+          <Icon name="shield-check" size={48} style={{ width: 16, height: 16 } />
           {t("eyebrow")}
         </p>
         <h1>{title}</h1>
@@ -121,7 +121,7 @@ export default async function ArticlePage({ params }: Props) {
         locale={locale}
       />
       <section className={styles.notice}>
-        <FileText size={48} aria-hidden="true" style={{ width: 20, height: 20, flexShrink: 0, color: "#1E332E" }} />
+        <Icon name="file-text" size={48} style={{ width: 20, height: 20, flexShrink: 0, color: "#1E332E" } />
         <p>{t("bodyHidden")}</p>
       </section>
     </main>

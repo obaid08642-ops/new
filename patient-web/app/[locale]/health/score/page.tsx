@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { ChevronLeft, ShieldCheck } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { getPatientHealthScore } from "@/lib/api/vitals-server";
 import { parseHealthScore } from "@/lib/api/health-score";
 import { requirePatientAccess } from "@/lib/auth/session";
@@ -79,7 +79,7 @@ export default async function HealthScorePage({ params }: Props) {
           overflowWrap: "anywhere",
         } as any}
       >
-        <ChevronLeft size={16} aria-hidden="true" />
+        <Icon name="caret-left" size={16} />
         {t("back")}
       </Link>
       <section
@@ -96,7 +96,7 @@ export default async function HealthScorePage({ params }: Props) {
       >
         <div style={{ display: "grid", gap: 8, minWidth: 0 }}>
           <p className={styles.eyebrow} style={{ color: "#1E332E", display: "flex", alignItems: "center", gap: 8, overflowWrap: "anywhere" } as any}>
-            <ShieldCheck size={15} aria-hidden="true" />
+            <Icon name="shield-check" size={15} />
             <span style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2 as any, WebkitBoxOrient: "vertical" as any, overflow: "hidden" } as any}>
               {t("eyebrow")}
             </span>
@@ -163,7 +163,7 @@ export default async function HealthScorePage({ params }: Props) {
                 border: "1px solid #E8EDEE",
               } as any}
             >
-              <ShieldCheck size={20} color="#1E332E" aria-hidden="true" />
+              <Icon name="shield-check" size={20} tone="primary" />
             </span>
           </div>
           <strong className={styles.value} style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2 as any, WebkitBoxOrient: "vertical" as any, overflow: "hidden" } as any}>

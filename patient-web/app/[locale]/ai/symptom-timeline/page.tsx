@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Clock } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { callPatientApi } from "@/lib/api/upstream";
@@ -82,7 +82,7 @@ export default async function AiSymptomTimelinePage({ params }: Props) {
       <section className={styles.hero} style={{ backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderColor: "#E8EDEE", borderRadius: 20 }}>
         <div style={{ minWidth: 0 }}>
           <p className={styles.eyebrow} style={{ color: "#1E332E", overflowWrap: "anywhere" }}>
-            <Clock size={14} aria-hidden="true" />
+            <Icon name="clock" size={14} />
             {locale === "ar" ? "الجدول الزمني للأعراض" : "Symptom Timeline"}
           </p>
           <h1

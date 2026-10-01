@@ -8,7 +8,7 @@ import { localizedUrl } from "@/lib/seo";
 import type { Metadata } from "next";
 import { AddressList, AddAddressForm } from "@/components-next/addresses";
 import { VectorMap } from "@/components-next/vector-illustrations";
-import { ChevronLeft, MapPin } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import styles from "../profile.module.css";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -54,14 +54,14 @@ export default async function AddressesPage({ params }: Props) {
           textDecoration: "none",
         }}
       >
-        <ChevronLeft size={17} aria-hidden="true" />
+        <Icon name="caret-left" size={17} />
         {isAr ? "العودة للملف الشخصي" : "Back to Profile"}
       </Link>
 
       <section className={styles.hero}>
         <div>
           <p className={styles.eyebrow}>
-            <MapPin size={15} aria-hidden="true" />
+            <Icon name="pin" size={15} />
             {isAr ? "العناوين ومواقع التوصيل" : "Delivery Locations"}
           </p>
           <h1>{t("title")}</h1>

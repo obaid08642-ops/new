@@ -10,7 +10,7 @@ import { JsonLd } from "@/components-next/json-ld";
 import { physician } from "@/lib/seo/structured-data";
 import { BookingFlow } from "@/components-next/booking-flow";
 import type { Metadata } from "next";
-import { ChevronLeft } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { VectorDoctor } from "@/components-next/vector-illustrations";
 import styles from "./book.module.css";
 
@@ -41,7 +41,7 @@ export default async function BookConsultationPage({ params }: Props) {
   const canonical = localizedUrl(locale, `/consultations/book/${encodeURIComponent(doctorId)}`);
   return (
     <main className={`main ${styles.page}`} style={{ background: "#FDFDFC" }}>
-      <Link href={`/${locale}/consultations/doctors/${encodeURIComponent(doctorId)}`} className={styles.backLink} style={{ borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", color: "#1E332E", gap: 8 } as any}><ChevronLeft size={16} aria-hidden="true" />{t("back")}</Link>
+      <Link href={`/${locale}/consultations/doctors/${encodeURIComponent(doctorId)}`} className={styles.backLink} style={{ borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", color: "#1E332E", gap: 8 } as any}><Icon name="caret-left" size={16} />{t("back")}</Link>
       <JsonLd data={physician({ name, locale, path: `/consultations/doctors/${encodeURIComponent(doctorId)}`, specialty: doctor?.specialty })} />
       <section className={styles.header} style={{ gap: 16, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", padding: 16 } as any}>
         <div style={{ display: "grid", gap: 8, minWidth: 0, flex: "1 1 auto" }}>

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Sparkles } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { VectorAI } from "@/components-next/vector-illustrations";
@@ -32,7 +32,7 @@ export default async function TriagePage({ params }: Props) {
       >
         <div style={{ minWidth: 0 }}>
           <p className={styles.eyebrow} style={{ color: "#1E332E", overflowWrap: "anywhere" }}>
-            <Sparkles size={14} aria-hidden="true" />
+            <Icon name="sparkle" size={14} />
             {ar ? "الفرز الطبي الذكي" : "Smart Medical Triage"}
           </p>
           <h1

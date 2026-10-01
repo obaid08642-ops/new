@@ -16,7 +16,7 @@ import { LocaleSelector } from "@/components-next/locale-selector";
 import { SessionActions } from "@/components-next/session-actions";
 import { PresenceBeacon } from "@/components-next/presence-beacon";
 import { NabdMark } from "@/components-next/nabd-mark";
-import { ShieldCheck } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { authCookieNames } from "@/lib/auth/cookies";
 import { getDirection, isLocale, locales, type Locale } from "@/lib/i18n";
 import { WebMcpProvider } from "@/components-next/web-mcp-provider";
@@ -97,7 +97,7 @@ export default async function LocaleLayout({ children, params }: Props) {
               <SessionActions locale={typedLocale} accountLabel={t("account")} signOutLabel={t("signOut")} />
             ) : (
               <Link className="button button-primary header-login" href={`/${typedLocale}/login`}>
-                <ShieldCheck size={16} aria-hidden="true" />
+                <Icon name="shield-check" size={16} />
                 <span>{t("patientSignIn")}</span>
               </Link>
             )}

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { CalendarDays, ChevronLeft, Clock3, Pill, ShieldCheck } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getPatientChronicMedications } from "@/lib/api/chronic-meds-server";
 import { parseChronicMedications } from "@/lib/api/chronic-meds";
@@ -79,7 +79,7 @@ export default async function ChronicMedicationsPage({ params }: Props) {
           overflowWrap: "anywhere",
         } as any}
       >
-        <ChevronLeft size={16} aria-hidden="true" />
+        <Icon name="caret-left" size={16} />
         {t("back")}
       </Link>
       <section
@@ -96,7 +96,7 @@ export default async function ChronicMedicationsPage({ params }: Props) {
       >
         <div style={{ display: "grid", gap: 8, minWidth: 0 }}>
           <p className={styles.eyebrow} style={{ color: "#1E332E", display: "flex", alignItems: "center", gap: 8, overflowWrap: "anywhere" } as any}>
-            <ShieldCheck size={15} aria-hidden="true" />
+            <Icon name="shield-check" size={15} />
             <span style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2 as any, WebkitBoxOrient: "vertical" as any, overflow: "hidden" } as any}>
               {t("eyebrow")}
             </span>
@@ -158,7 +158,7 @@ export default async function ChronicMedicationsPage({ params }: Props) {
                     border: "1px solid #E8EDEE",
                   } as any}
                 >
-                  <Pill size={18} aria-hidden="true" />
+                  <Icon name="pill" size={18} />
                 </span>
               </div>
               <p className={styles.value} style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2 as any, WebkitBoxOrient: "vertical" as any, overflow: "hidden", color: "#1E332E" } as any}>
@@ -171,7 +171,7 @@ export default async function ChronicMedicationsPage({ params }: Props) {
               ) : null}
               {med.frequency ? (
                 <p className={styles.date} style={{ overflowWrap: "anywhere", color: "#6B7C6E", display: "flex", alignItems: "center", gap: 8 } as any}>
-                  <Clock3 size={14} aria-hidden="true" />
+                  <Icon name="clock" size={14} />
                   <span style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2 as any, WebkitBoxOrient: "vertical" as any, overflow: "hidden" } as any}>
                     {med.frequency}
                     {med.times.length ? ` · ${med.times.join(", ")}` : ""}
@@ -180,7 +180,7 @@ export default async function ChronicMedicationsPage({ params }: Props) {
               ) : null}
               {med.refillDate ? (
                 <p className={styles.date} style={{ overflowWrap: "anywhere", color: "#6B7C6E", display: "flex", alignItems: "center", gap: 8 } as any}>
-                  <CalendarDays size={14} aria-hidden="true" />
+                  <Icon name="calendar-days" size={14} />
                   <span style={{ overflowWrap: "anywhere" } as any}>
                     {t("refillDate")}: {med.refillDate}
                     {med.daysUntilRefill !== undefined ? ` · ${med.daysUntilRefill} ${t("days")}` : ""}

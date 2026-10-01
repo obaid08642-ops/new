@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { ChevronLeft, FileText, ShieldCheck } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { getPatientReports } from "@/lib/api/vitals-server";
 import { parseReports } from "@/lib/api/reports";
 import { requirePatientAccess } from "@/lib/auth/session";
@@ -61,7 +61,7 @@ export default async function HealthReportsPage({ params }: Props) {
           overflowWrap: "anywhere",
         } as any}
       >
-        <ChevronLeft size={16} aria-hidden="true" />
+        <Icon name="caret-left" size={16} />
         {t("back")}
       </Link>
       <section
@@ -78,7 +78,7 @@ export default async function HealthReportsPage({ params }: Props) {
       >
         <div style={{ display: "grid", gap: 8, minWidth: 0 }}>
           <p className={styles.eyebrow} style={{ color: "#1E332E", display: "flex", alignItems: "center", gap: 8, overflowWrap: "anywhere" } as any}>
-            <ShieldCheck size={15} aria-hidden="true" />
+            <Icon name="shield-check" size={15} />
             <span style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2 as any, WebkitBoxOrient: "vertical" as any, overflow: "hidden" } as any}>
               {t("eyebrow")}
             </span>
@@ -173,7 +173,7 @@ export default async function HealthReportsPage({ params }: Props) {
                     flex: "0 0 auto",
                   } as any}
                 >
-                  <FileText size={18} aria-hidden="true" />
+                  <Icon name="file-text" size={18} />
                 </span>
                 <span style={{ color: "#1E332E", fontWeight: 700, overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2 as any, WebkitBoxOrient: "vertical" as any, overflow: "hidden" } as any}>
                   {report.type || t("report")}

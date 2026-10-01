@@ -5,7 +5,7 @@ import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { callPatientApi } from "@/lib/api/upstream";
 import { VectorPharmacy } from "@/components-next/vector-illustrations";
-import { ShieldCheck, FileText } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ prescriptionId?: string; id?: string }> };
 
@@ -48,7 +48,7 @@ export default async function PharmacyRxOrderPage({ params, searchParams }: Prop
       <main className="main" style={{ display: "grid", gap: 12, padding: "24px 0 64px" }}>
         <section style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: 24, border: "1px solid #E8EDEE", borderRadius: 20, background: "linear-gradient(135deg, #FDFDFC 0%, #F0FDF9 60%, #E7FFF6 100%)", boxShadow: "0 12px 32px rgba(30,51,46,.07)" }}>
           <div style={{ display: "grid", gap: 6 }}>
-            <p style={{ display: "inline-flex", alignItems: "center", gap: 6, margin: 0, color: "#1E332E", fontSize: 12, fontWeight: 800 }}><ShieldCheck size={14} />{ar ? "صيدلية نبض — وصفات" : "Nabd Pharmacy — Prescriptions"}</p>
+            <p style={{ display: "inline-flex", alignItems: "center", gap: 6, margin: 0, color: "#1E332E", fontSize: 12, fontWeight: 800 }}><Icon name="shield-check" size={14} />{ar ? "صيدلية نبض — وصفات" : "Nabd Pharmacy — Prescriptions"}</p>
             <h1 style={{ margin: 0, color: "#1E332E", fontSize: 20, fontWeight: 900, overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{ar ? "طلب أدوية الوصفة" : "Order prescription medicines"}</h1>
             <Link href={`/${locale}/pharmacy`} style={{ color: "#00876F", fontWeight: 700, fontSize: 13, textDecoration: "none" }}>{ar ? "← الصيدلية" : "← Pharmacy"}</Link>
           </div>
@@ -84,7 +84,7 @@ export default async function PharmacyRxOrderPage({ params, searchParams }: Prop
     <main className="main" style={{ display: "grid", gap: 12, padding: "24px 0 64px" }}>
       <section style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: 24, border: "1px solid #E8EDEE", borderRadius: 20, background: "linear-gradient(135deg, #FDFDFC 0%, #F0FDF9 60%, #E7FFF6 100%)", boxShadow: "0 12px 32px rgba(30,51,46,.07)" }}>
         <div style={{ display: "grid", gap: 6 }}>
-          <p style={{ display: "inline-flex", alignItems: "center", gap: 6, margin: 0, color: "#1E332E", fontSize: 12, fontWeight: 800 }}><ShieldCheck size={14} />{ar ? "صيدلية نبض — وصفات" : "Nabd Pharmacy — Prescriptions"}</p>
+          <p style={{ display: "inline-flex", alignItems: "center", gap: 6, margin: 0, color: "#1E332E", fontSize: 12, fontWeight: 800 }}><Icon name="shield-check" size={14} />{ar ? "صيدلية نبض — وصفات" : "Nabd Pharmacy — Prescriptions"}</p>
           <h1 style={{ margin: 0, color: "#1E332E", fontSize: 20, fontWeight: 900, overflowWrap: "anywhere" }}>{ar ? "طلب أدوية الوصفة" : "Order prescription medicines"}</h1>
           <Link href={`/${locale}/pharmacy`} style={{ color: "#00876F", fontWeight: 700, fontSize: 13, textDecoration: "none" }}>{ar ? "← الصيدلية" : "← Pharmacy"}</Link>
         </div>

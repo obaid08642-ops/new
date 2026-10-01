@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { MapPin, ShieldCheck } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { extractHomeCareProviders } from "@/lib/api/home-care-providers";
 import { getPatientHomeCareProviders } from "@/lib/api/home-care-providers-server";
 import { requirePatientAccess } from "@/lib/auth/session";
@@ -61,7 +61,7 @@ export default async function HomeCareProvidersPage({ params }: Props) {
       >
         <div style={{ display: "grid", gap: 8, minWidth: 0 }}>
           <p className={styles.eyebrow} style={{ color: "#1E332E", display: "flex", alignItems: "center", gap: 8, overflowWrap: "anywhere" } as any}>
-            <ShieldCheck size={15} aria-hidden="true" />
+            <Icon name="shield-check" size={15} />
             <span style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2 as any, WebkitBoxOrient: "vertical" as any, overflow: "hidden" } as any}>
               {t("eyebrow")}
             </span>
@@ -153,7 +153,7 @@ export default async function HomeCareProvidersPage({ params }: Props) {
                 </h2>
                 {provider.city ? (
                   <p className={styles.location} style={{ color: "#6B7C6E", overflowWrap: "anywhere", display: "flex", alignItems: "center", gap: 8 } as any}>
-                    <MapPin size={14} aria-hidden="true" />
+                    <Icon name="pin" size={14} />
                     <span style={{ overflowWrap: "anywhere" } as any}>{provider.city}</span>
                   </p>
                 ) : null}

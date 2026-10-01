@@ -5,7 +5,7 @@ import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { callPatientApi } from "@/lib/api/upstream";
 import { VectorPharmacy } from "@/components-next/vector-illustrations";
-import { ShieldCheck } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ orderId?: string; id?: string }> };
 const idPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -31,7 +31,7 @@ export default async function PharmacyOrderConfirmPage({ params, searchParams }:
       <main className="main" style={{ display: "grid", gap: 12, padding: "24px 0 64px" }}>
         <section style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: 24, border: "1px solid #E8EDEE", borderRadius: 20, background: "linear-gradient(135deg, #FDFDFC 0%, #F0FDF9 60%, #E7FFF6 100%)" }}>
           <div style={{ display: "grid", gap: 6 }}>
-            <p style={{ display: "inline-flex", alignItems: "center", gap: 6, margin: 0, color: "#1E332E", fontSize: 12, fontWeight: 800 }}><ShieldCheck size={14} />{ar ? "صيدلية نبض" : "Nabd Pharmacy"}</p>
+            <p style={{ display: "inline-flex", alignItems: "center", gap: 6, margin: 0, color: "#1E332E", fontSize: 12, fontWeight: 800 }}><Icon name="shield-check" size={14} />{ar ? "صيدلية نبض" : "Nabd Pharmacy"}</p>
             <h1 style={{ margin: 0, color: "#1E332E", fontWeight: 900, overflowWrap: "anywhere" }}>{ar ? "تأكيد الطلب" : "Confirm order"}</h1>
             <Link href={`/${locale}/pharmacy`} style={{ color: "#00876F", fontWeight: 700, fontSize: 13, textDecoration: "none" }}>{ar ? "← الصيدلية" : "← Pharmacy"}</Link>
           </div>
@@ -51,7 +51,7 @@ export default async function PharmacyOrderConfirmPage({ params, searchParams }:
       <main className="main" style={{ display: "grid", gap: 12, padding: "24px 0 64px" }}>
         <section style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: 24, border: "1px solid #E8EDEE", borderRadius: 20, background: "linear-gradient(135deg, #FDFDFC 0%, #F0FDF9 60%, #E7FFF6 100%)" }}>
           <div style={{ display: "grid", gap: 6 }}>
-            <p style={{ display: "inline-flex", alignItems: "center", gap: 6, margin: 0, color: "#1E332E", fontSize: 12, fontWeight: 800 }}><ShieldCheck size={14} />{ar ? "صيدلية نبض" : "Nabd Pharmacy"}</p>
+            <p style={{ display: "inline-flex", alignItems: "center", gap: 6, margin: 0, color: "#1E332E", fontSize: 12, fontWeight: 800 }}><Icon name="shield-check" size={14} />{ar ? "صيدلية نبض" : "Nabd Pharmacy"}</p>
             <h1 style={{ margin: 0, color: "#1E332E", fontWeight: 900, overflowWrap: "anywhere" }}>{ar ? "تأكيد الطلب" : "Confirm order"}</h1>
             <Link href={`/${locale}/pharmacy`} style={{ color: "#00876F", fontWeight: 700, fontSize: 13, textDecoration: "none" }}>{ar ? "← الصيدلية" : "← Pharmacy"}</Link>
           </div>

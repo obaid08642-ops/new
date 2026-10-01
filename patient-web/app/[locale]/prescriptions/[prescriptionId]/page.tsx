@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { FileText } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
@@ -17,7 +17,7 @@ export default async function PrescriptionDetailPage({ params }: Props) {
 
   return <main className={`main ${styles.page}`}>
     <section className={styles.state} role="alert">
-      <FileText size={25} aria-hidden="true" />
+      <Icon name="file-text" size={25} />
       <h1>{t("detailTitle")}</h1>
       <p>{t("contractPending")}</p>
       <Link className={styles.date} href={`/${locale}/prescriptions`}>{t("back")}</Link>

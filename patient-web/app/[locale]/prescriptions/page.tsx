@@ -6,7 +6,7 @@ import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { RetryButton } from "@/components-next/retry-button";
 import { VectorPharmacy } from "@/components-next/vector-illustrations";
-import { CalendarDays, FileText, ShieldCheck } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import styles from "./prescriptions.module.css";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -49,7 +49,7 @@ export default async function PrescriptionsPage({ params }: Props) {
       <section className={styles.intro}>
         <div className={styles.introText}>
           <p className={styles.eyebrow}>
-            <ShieldCheck size={15} aria-hidden="true" />
+            <Icon name="shield-check" size={15} />
             {t("eyebrow")}
           </p>
           <h1>{t("title")}</h1>
@@ -68,7 +68,7 @@ export default async function PrescriptionsPage({ params }: Props) {
           {prescriptions.map((prescription) => (
             <article className={styles.card} key={prescription.id}>
               <span className={styles.cardIcon}>
-                <FileText size={19} aria-hidden="true" />
+                <Icon name="file-text" size={19} />
               </span>
               <div className={styles.cardBody}>
                 <strong className={styles.status}>{stateLabels[prescription.state ?? ""] ?? t("stateUnavailable")}</strong>
@@ -79,7 +79,7 @@ export default async function PrescriptionsPage({ params }: Props) {
                 ) : null}
                 {prescription.createdAt ? (
                   <span className={styles.date}>
-                    <CalendarDays size={14} aria-hidden="true" />
+                    <Icon name="calendar-days" size={14} />
                     {new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(prescription.createdAt))}
                   </span>
                 ) : null}

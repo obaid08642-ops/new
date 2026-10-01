@@ -6,7 +6,7 @@ import { isLocale, locales, type Locale } from "@/lib/i18n";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
-import { MapPin } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { VectorRadiology } from "@/components-next/vector-illustrations";
 import { getPublicRadiologyServices } from "@/lib/api/radiology-server";
 import { extractRadiologyServices } from "@/lib/api/radiology";
@@ -177,7 +177,7 @@ export default async function RadiologyCityPage({ params }: Props) {
                     <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 600, color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{fac.name_ar || fac.name_en}</h3>
                   </div>
                   <p style={{ margin: "0.25rem 0", color: "#6B7C6E", fontSize: "0.875rem", display: "flex", alignItems: "center", gap: "0.25rem", overflowWrap: "anywhere" }}>
-                    <MapPin size={14} />
+                    <Icon name="pin" size={14} />
                     <span style={{ overflowWrap: "anywhere" }}>{fac.city}</span>
                   </p>
                 </div>

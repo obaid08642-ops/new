@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { Activity, CalendarDays, ChevronLeft, Clock3, ShieldCheck } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { parseBreathingHistory } from "@/lib/api/breathing";
 import { getPatientBreathingHistory } from "@/lib/api/breathing-server";
@@ -38,13 +38,13 @@ export default async function BreathingHistoryPage({ params }: Props) {
   return (
     <main className={`main ${styles.page}`}>
       <Link className={styles.back} href={`/${locale}/mental-health`}>
-        <ChevronLeft size={17} aria-hidden="true" />
+        <Icon name="caret-left" size={17} />
         {t("breathingBack")}
       </Link>
       <section className={styles.hero}>
         <div>
           <p className={styles.eyebrow}>
-            <ShieldCheck size={15} aria-hidden="true" />
+            <Icon name="shield-check" size={15} />
             {t("breathingEyebrow")}
           </p>
           <h1>{t("breathingTitle")}</h1>
@@ -59,17 +59,17 @@ export default async function BreathingHistoryPage({ params }: Props) {
         <section className={styles.grid} aria-label={t("breathingTitle")}>
           {sessions.map((session) => (
             <article className={styles.card} key={session.id}>
-              <Activity size={24} aria-hidden="true" />
+              <Icon name="pulse" size={24} />
               <strong>{session.technique || t("techniqueUnavailable")}</strong>
               {session.rounds !== undefined ? <span>{t("rounds")}: {session.rounds}</span> : null}
               {session.durationSeconds !== undefined ? (
                 <span>
-                  <Clock3 size={13} aria-hidden="true" style={{ display: "inline", verticalAlign: "middle" }} /> {t("durationSeconds")}: {session.durationSeconds}
+                  <Icon name="clock" size={13} style={{ display: "inline", verticalAlign: "middle" } /> {t("durationSeconds")}: {session.durationSeconds}
                 </span>
               ) : null}
               {session.loggedAt ? (
                 <span>
-                  <CalendarDays size={13} aria-hidden="true" style={{ display: "inline", verticalAlign: "middle" }} /> {new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(session.loggedAt))}
+                  <Icon name="calendar-days" size={13} style={{ display: "inline", verticalAlign: "middle" } /> {new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(session.loggedAt))}
                 </span>
               ) : null}
             </article>

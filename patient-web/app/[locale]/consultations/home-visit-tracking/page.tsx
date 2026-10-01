@@ -4,7 +4,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getPatientAppointment } from "@/lib/api/appointments-server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
-import { ChevronLeft } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { VectorDoctor } from "@/components-next/vector-illustrations";
 import styles from "./home-visit.module.css";
 
@@ -30,7 +30,7 @@ export default async function HomeVisitTrackingPage({ params, searchParams }: Pr
   return (
     <main className={`main ${styles.page}`} style={{ background: "#FDFDFC", gap: 16 } as any}>
       <Link className={styles.back} href={`/${locale}/appointments/${encodeURIComponent(appointmentId)}`} style={{ color: "#1E332E", gap: 8, borderRadius: 20, border: "1px solid #E8EDEE", padding: "8px 12px", background: "rgba(255,255,255,.82)", overflowWrap: "anywhere" } as any}>
-        <ChevronLeft size={17} aria-hidden="true" />
+        <Icon name="caret-left" size={17} />
         <span style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{t("back")}</span>
       </Link>
       <section style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, padding: 24, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Activity, CalendarDays } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { callPatientApi } from "@/lib/api/upstream";
@@ -45,7 +45,7 @@ export default async function ReportsTimelinePage({ params, searchParams }: Prop
   return (
     <main className="main" style={{ padding: "24px 16px", maxWidth: 760, margin: "0 auto" }}>
       <Link href={`/${locale}/reports`}>{ar ? "التقارير" : "Reports"}</Link>
-      <h1><Activity size={18} aria-hidden="true" /> {ar ? "الخط الزمني الصحي" : "Health timeline"}</h1>
+      <h1><Icon name="pulse" size={18} /> {ar ? "الخط الزمني الصحي" : "Health timeline"}</h1>
       <nav aria-label={ar ? "تصفية حسب النوع" : "Filter by type"} style={{ display: "flex", gap: 8, flexWrap: "wrap", margin: "12px 0" }}>
         {TYPES.map((k) => (
           <Link key={k} href={`/${locale}/reports/timeline${k === "all" ? "" : `?type=${k}`}`} aria-current={active === k ? "page" : undefined} style={{ fontWeight: active === k ? 700 : 400 }}>
@@ -62,7 +62,7 @@ export default async function ReportsTimelinePage({ params, searchParams }: Prop
               <strong>{e.title || e.type || "—"}</strong>
               <div style={{ fontSize: 13, opacity: 0.7, marginTop: 4 }}>
                 {[e.type, e.status, e.date ? new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(e.date)) : null].filter(Boolean).join(" · ")}
-                {e.date ? <span> <CalendarDays size={13} aria-hidden="true" /></span> : null}
+                {e.date ? <span> <Icon name="calendar-days" size={13} /></span> : null}
               </div>
             </li>
           ))}

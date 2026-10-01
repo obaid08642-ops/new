@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Clock, ShieldCheck } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { extractNursingCatalog } from "@/lib/api/nursing-catalog";
 import { getPublicNursingCatalog } from "@/lib/api/nursing-catalog-server";
 import { isLocale, locales } from "@/lib/i18n";
@@ -72,7 +72,7 @@ export default async function NursingCatalogPage({ params }: Props) {
     <main className={`main ${styles.page}`} dir={rtl ? "rtl" : "ltr"} style={{ background: "#FDFDFC" }}>
       <section className={styles.hero}>
         <div>
-          <p className={styles.eyebrow}><ShieldCheck size={15} aria-hidden="true" />{t("eyebrow")}</p>
+          <p className={styles.eyebrow}><Icon name="shield-check" size={15} />{t("eyebrow")}</p>
           <h1 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t("title")}</h1>
           <p className={styles.subtitle} style={{ overflowWrap: "anywhere" }}>{t("subtitle")}</p>
         </div>
@@ -114,13 +114,13 @@ export default async function NursingCatalogPage({ params }: Props) {
                   ) : null}
                   {duration ? (
                     <span className={styles.durationBadge}>
-                      <Clock size={12} aria-hidden="true" />
+                      <Icon name="clock" size={12} />
                       {duration}
                     </span>
                   ) : null}
                   {item.insuranceAvailable ? (
                     <span className={styles.insuranceBadge}>
-                      <ShieldCheck size={12} aria-hidden="true" />
+                      <Icon name="shield-check" size={12} />
                       {t("insurance")}
                     </span>
                   ) : null}

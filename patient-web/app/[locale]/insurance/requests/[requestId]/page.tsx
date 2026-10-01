@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { ChevronLeft, ShieldCheck } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { getPatientInsuranceRequest } from "@/lib/api/insurance-server";
 import { parseInsuranceRequest } from "@/lib/api/insurance-request";
 import { requirePatientAccess } from "@/lib/auth/session";
@@ -42,14 +42,14 @@ export default async function InsuranceRequestPage({ params }: Props) {
   return (
     <main className={`main ${styles.page}`} style={{ background: "#FDFDFC", display: "grid", gap: 16 }}>
       <Link className={styles.back} href={`/${locale}/appointments`}>
-        <ChevronLeft size={17} aria-hidden="true" />
+        <Icon name="caret-left" size={17} />
         {AR ? "العودة إلى المواعيد" : "Back to Appointments"}
       </Link>
 
       <section className={styles.hero} style={{ background: "rgba(255,255,255,.76)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: "1px solid #E8EDEE", borderRadius: 20, padding: 16, display: "flex", justifyContent: "space-between", gap: 16, alignItems: "center" }}>
         <div className={styles.heroCopy}>
           <div className={styles.eyebrow}>
-            <ShieldCheck size={15} aria-hidden="true" />
+            <Icon name="shield-check" size={15} />
             {AR ? "التأمين الصحي والمطالبات" : "Health Insurance Decision"}
           </div>
           <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as React.CSSProperties}>{AR ? "قرار تغطية الاستشارة الطبية" : "Consultation Coverage Decision"}</h1>

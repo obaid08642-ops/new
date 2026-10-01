@@ -4,7 +4,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { callPatientApi } from "@/lib/api/upstream";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
-import { ChevronLeft } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { VectorNursing } from "@/components-next/vector-illustrations";
 import styles from "./visit-tracking.module.css";
 
@@ -35,7 +35,7 @@ export default async function NursingVisitTrackingPage({ params }: Props) {
   const nurseName = visit?.nurse_name ?? visit?.nurse?.name ?? track?.nurse_name ?? null;
 
   return <main className={`main ${styles.page}`} dir={rtl ? "rtl" : "ltr"} style={{ background: "#FDFDFC" }}>
-    <Link className={styles.back} href={`/${locale}/nursing/visits`}><ChevronLeft size={17} aria-hidden="true" />{t("back")}</Link>
+    <Link className={styles.back} href={`/${locale}/nursing/visits`}><Icon name="caret-left" size={17} />{t("back")}</Link>
     <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16 }}>
       <VectorNursing size={48} aria-hidden="true" />
       <h1 className={styles.title} style={{ margin: 0 }}>{t("title")}</h1>

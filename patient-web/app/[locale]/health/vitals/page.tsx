@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
-import { Activity, CalendarDays, ChevronLeft, ShieldCheck } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { extractVitalHistory } from "@/lib/api/vitals";
 import { getPatientVitalHistory } from "@/lib/api/vitals-server";
@@ -39,13 +39,13 @@ export default async function VitalsPage({ params }: Props) {
   return (
     <main className={`main ${s.page}`}>
       <Link href={`/${locale}/health`} className={s.back}>
-        <ChevronLeft size={17} aria-hidden="true" />
+        <Icon name="caret-left" size={17} />
         {t("backToHealth")}
       </Link>
       <section className={s.hero}>
         <div>
           <p className={s.eyebrow}>
-            <ShieldCheck size={15} aria-hidden="true" />
+            <Icon name="shield-check" size={15} />
             {t("vitalsHistoryEyebrow")}
           </p>
           <h1>{t("vitalsHistoryTitle")}</h1>
@@ -67,7 +67,7 @@ export default async function VitalsPage({ params }: Props) {
               <div className={s.cardTop}>
                 <span>{t(`vitals.${reading.key}`)}</span>
                 <span className={s.glyph}>
-                  <Activity size={18} aria-hidden="true" />
+                  <Icon name="pulse" size={18} />
                 </span>
               </div>
               <p className={s.value}>
@@ -77,7 +77,7 @@ export default async function VitalsPage({ params }: Props) {
               {reading.context ? <p className={s.context}>{reading.context}</p> : null}
               {reading.measuredAt ? (
                 <p className={s.date}>
-                  <CalendarDays size={14} aria-hidden="true" />
+                  <Icon name="calendar-days" size={14} />
                   {new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(reading.measuredAt))}
                 </p>
               ) : null}

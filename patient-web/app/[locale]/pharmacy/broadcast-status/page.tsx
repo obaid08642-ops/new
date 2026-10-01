@@ -5,7 +5,7 @@ import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { PharmacyBroadcastClient } from "@/components-next/pharmacy-broadcast-client";
 import { VectorPharmacy } from "@/components-next/vector-illustrations";
-import { ShieldCheck } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ requestId?: string; orderId?: string; id?: string }> };
 const idPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -23,7 +23,7 @@ export default async function PharmacyBroadcastStatusPage({ params, searchParams
     <main className="main" style={{ display: "grid", gap: 12, padding: "24px 0 64px" }}>
       <section style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: 24, border: "1px solid #E8EDEE", borderRadius: 20, background: "linear-gradient(135deg, #FDFDFC 0%, #F0FDF9 60%, #E7FFF6 100%)", boxShadow: "0 12px 32px rgba(30,51,46,.07)" }}>
         <div style={{ display: "grid", gap: 6 }}>
-          <p style={{ display: "inline-flex", alignItems: "center", gap: 6, margin: 0, color: "#1E332E", fontSize: 12, fontWeight: 800 }}><ShieldCheck size={14} aria-hidden="true" />{ar ? "صيدلية نبض — خدمة مميزة" : "Nabd Pharmacy — Premium Care"}</p>
+          <p style={{ display: "inline-flex", alignItems: "center", gap: 6, margin: 0, color: "#1E332E", fontSize: 12, fontWeight: 800 }}><Icon name="shield-check" size={14} />{ar ? "صيدلية نبض — خدمة مميزة" : "Nabd Pharmacy — Premium Care"}</p>
           <h1 style={{ margin: 0, color: "#1E332E", fontSize: 20, fontWeight: 900, lineHeight: 1.3, overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{ar ? "عروض الصيدليات" : "Pharmacy offers"}</h1>
         </div>
         <span style={{ display: "grid", placeItems: "center", width: 48, height: 48, borderRadius: 16, background: "rgba(255,255,255,.82)", border: "1px solid #E8EDEE", flexShrink: 0 }}><VectorPharmacy size={48} /></span>
