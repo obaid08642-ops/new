@@ -272,28 +272,7 @@ export class DoctorsController {
   @Public() @Get(':id') detail(@Param('id') id: string) { return this.svc.doctorDetail(id); }
   @Public() @Get(':id/slots') slots(@Param('id') id: string, @Query('date') date: string) { return this.svc.availableSlots(id, date); }
 
-  @Post('appointments') book(@Body() body: BookDto, @CurrentUser() user: any) { return this.svc.book(user, body); }
-  @Get('appointments/mine') mine(@CurrentUser() user: any) { return this.svc.myAppointments(user); }
-  @Get('appointments/inbox') inbox(@Query('status') s: string | undefined, @CurrentUser() user: any) { return this.svc.doctorInbox(user, s); }
-  @Get('appointments/:id') ap(@Param('id') id: string, @CurrentUser() user: any) { return this.svc.appointmentDetail(user, id); }
-  @Patch('appointments/:id/state') tr(@Param('id') id: string, @Body() body: TrDto, @CurrentUser() user: any) { return this.svc.transition(user, id, body.state); }
-
-  @Get('appointments/:id/messages') msgs(@Param('id') id: string, @CurrentUser() user: any) { return this.svc.listMessages(user, id); }
-  @Post('appointments/:id/messages') postMsg(@Param('id') id: string, @Body() body: PostMsgDto, @CurrentUser() user: any) { return this.svc.postMessage(user, id, body.text); }
-  @Post('appointments/:id/note') note(@Param('id') id: string, @Body() body: ConsultationNoteDto, @CurrentUser() user: any) { return this.svc.upsertNote(user, id, body); }
-
   @Patch('availability') avail(@Body() body: AvailDto, @CurrentUser() user: any) { return this.svc.setAvailability(user, body); }
-}
-
-@Controller('notifications')
-@SelfService()
-@UseGuards(JwtAuthGuard)
-export class NotificationsController {
-  constructor(private svc: DoctorsService) {}
-  @Get('') list(@CurrentUser() user: any) { return this.svc.listNotifications(user); }
-  @Get('unread-count') unread(@CurrentUser() user: any) { return this.svc.unreadCount(user); }
-  @Patch(':id/read') mr(@Param('id') id: string, @CurrentUser() user: any) { return this.svc.markRead(user, id); }
-  @Post('mark-all-read') mar(@CurrentUser() user: any) { return this.svc.markAllRead(user); }
 }
 
 @Module({
@@ -304,7 +283,7 @@ export class NotificationsController {
     { name: 'ConsultationNote', schema: ConsultationNoteSchema },
     { name: 'NotificationItem', schema: NotificationItemSchema },
   ])],
-  controllers: [DoctorsController, NotificationsController],
+  controllers: [DoctorsController],
   providers: [DoctorsService],
   exports: [DoctorsService],
 })
