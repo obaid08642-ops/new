@@ -1,0 +1,222 @@
+{
+ "provider_type": "radiology",
+ "login_via_ui": true,
+ "states": [
+  {
+   "path": [],
+   "heading": "لوحة الأشعة | ◎ | 0 | فحوصات اليوم | ◔ | 0 | جاري الفحص | check | 0 | مكتمل | ◈ | ",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الرئيسية",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الطلبات",
+     "result": "NAVIGATE",
+     "to": "إدارة الطلبات | جديد | تأمين | مجدول | جاري | docu"
+    },
+    {
+     "label": "الكتالوج",
+     "result": "NAVIGATE",
+     "to": "كتالوج الأشعة | الفحوصات المتاحة (0) | + إضا"
+    },
+    {
+     "label": "الجدول",
+     "result": "NAVIGATE",
+     "to": "جدول المواعيد والتوفر |  أيام العمل | الأحد | "
+    },
+    {
+     "label": "الإعدادات",
+     "result": "NAVIGATE",
+     "to": "الإعدادات | معلومات المركز | تعديل بيانات ال"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الطلبات"
+   ],
+   "heading": "إدارة الطلبات | جديد | تأمين | مجدول | جاري | document | لا توجد طلبات | ا",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "جديد",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "تأمين",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "مجدول",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "جاري",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الرئيسية",
+     "result": "NAVIGATE",
+     "to": "لوحة الأشعة | ◎ | 0 | فحوصات اليوم | ◔ | 0 | جاري ال"
+    },
+    {
+     "label": "الطلبات",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الكتالوج",
+     "result": "NAVIGATE",
+     "to": "كتالوج الأشعة | الفحوصات المتاحة (0) | + إضا"
+    },
+    {
+     "label": "الجدول",
+     "result": "NAVIGATE",
+     "to": "جدول المواعيد والتوفر |  أيام العمل | الأحد | "
+    },
+    {
+     "label": "الإعدادات",
+     "result": "NAVIGATE",
+     "to": "الإعدادات | معلومات المركز | تعديل بيانات ال"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الكتالوج"
+   ],
+   "heading": "كتالوج الأشعة | الفحوصات المتاحة (0) | + إضافة فحص | scan | لا توجد ",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "+ إضافة فحص",
+     "result": "NAVIGATE",
+     "to": "كتالوج الأشعة | الفحوصات المتاحة (0) | + إضا"
+    },
+    {
+     "label": "الرئيسية",
+     "result": "NAVIGATE",
+     "to": "لوحة الأشعة | ◎ | 0 | فحوصات اليوم | ◔ | 0 | جاري ال"
+    },
+    {
+     "label": "الطلبات",
+     "result": "NAVIGATE",
+     "to": "إدارة الطلبات | جديد | تأمين | مجدول | جاري | docu"
+    },
+    {
+     "label": "الكتالوج",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الجدول",
+     "result": "NAVIGATE",
+     "to": "جدول المواعيد والتوفر |  أيام العمل | الأحد | "
+    },
+    {
+     "label": "الإعدادات",
+     "result": "NAVIGATE",
+     "to": "الإعدادات | معلومات المركز | تعديل بيانات ال"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الجدول"
+   ],
+   "heading": "جدول المواعيد والتوفر |  أيام العمل | الأحد | الاثنين | الثلاثاء | الأ",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 5,
+   "elements": [
+    {
+     "label": "الأحد",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الاثنين",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الثلاثاء",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الأربعاء",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الخميس",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الجمعة",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "السبت",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "من",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "إلى",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "حفظ وإرسال للمراجعة",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/radiology/catalog/delta-request",
+     "tokens_sent": 4,
+     "tokens_stored": 0
+    },
+    {
+     "label": "الرئيسية",
+     "result": "NAVIGATE",
+     "to": "لوحة الأشعة | ◎ | 0 | فحوصات اليوم | ◔ | 0 | جاري ال"
+    },
+    {
+     "label": "الطلبات",
+     "result": "NAVIGATE",
+     "to": "إدارة الطلبات | جديد | تأمين | مجدول | جاري | docu"
+    },
+    {
+     "label": "الكتالوج",
+     "result": "NAVIGATE",
+     "to": "كتالوج الأشعة | الفحوصات المتاحة (0) | + إضا"
+    },
+    {
+     "label": "الجدول",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الإعدادات",
+     "result": "NAVIGATE",
+     "to": "الإعدادات | معلومات المركز | تعديل بيانات ال"
+    }
+   ]
+  }
+ ]
+}

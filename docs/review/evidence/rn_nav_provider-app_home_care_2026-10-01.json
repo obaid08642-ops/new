@@ -1,0 +1,28 @@
+{
+ "provider_type": "home_care",
+ "login_via_ui": true,
+ "states": [
+  {
+   "path": [],
+   "heading": "بوابة المزود الموحدة | H | home_care89102019355e6@nabd.test | home",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "غير متاح",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/provider/ops/availability/toggle-instant",
+     "tokens_sent": 0,
+     "tokens_stored": 0
+    }
+   ]
+  }
+ ],
+ "unvisited_states": 0
+}

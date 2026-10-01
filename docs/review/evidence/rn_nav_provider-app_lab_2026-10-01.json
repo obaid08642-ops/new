@@ -1,0 +1,228 @@
+{
+ "provider_type": "lab",
+ "login_via_ui": true,
+ "states": [
+  {
+   "path": [],
+   "heading": "معمل تحاليل | معمل نبضة الطبي | غير متاح | ⊥ | 0 | طلبات اليوم | ◔ | 0 | تحت",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "غير متاح",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/provider/ops/availability/toggle-instant",
+     "tokens_sent": 0,
+     "tokens_stored": 0
+    },
+    {
+     "label": "",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "المحفظة والإيرادات",
+     "result": "NAVIGATE",
+     "to": "→ | المحفظة والإيرادات | الرصيد المتاح للسحب"
+    },
+    {
+     "label": "تتبع العينات",
+     "result": "NAVIGATE",
+     "to": "تتبع العينات | الكل (0) | مستلمة (0) | قيد الت"
+    },
+    {
+     "label": "إدخال نتائج",
+     "result": "NAVIGATE",
+     "to": "تتبع العينات | الكل (0) | مستلمة (0) | قيد الت"
+    },
+    {
+     "label": "وقت النتائج",
+     "result": "NAVIGATE",
+     "to": "→ | تتبع زمن الإنجاز | flask | لا توجد عينات ب"
+    },
+    {
+     "label": "سحب منزلي",
+     "result": "JS_ERROR",
+     "error": "Cannot read properties of undefined (reading 'id')"
+    },
+    {
+     "label": "ملصق QR",
+     "result": "NAVIGATE",
+     "to": "→ | ملصق QR للعينة | SMP-2025-XXX | — | تحليل دم"
+    },
+    {
+     "label": "إدارة الحزم",
+     "result": "NAVIGATE",
+     "to": "→ | كتالوج الفحوصات والباقات | 🧪 | لا توجد فحو"
+    },
+    {
+     "label": "فحص مخصص",
+     "result": "NAVIGATE",
+     "to": "→ | إضافة فحص مخصص | الفحوصات المخصصة تنتظر "
+    },
+    {
+     "label": "مطالبات تأمين",
+     "result": "NAVIGATE",
+     "to": "→ | مطالبات التأمين | ◔ | 0 | انتظار | 0 | معالجة | لا"
+    },
+    {
+     "label": "الكل",
+     "result": "NAVIGATE",
+     "to": "تتبع العينات | الكل (0) | مستلمة (0) | قيد الت"
+    },
+    {
+     "label": "الرئيسية",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الطلبات",
+     "result": "NAVIGATE",
+     "to": "الطلبات والمختبر | الواردة | الجدولة والسحب | "
+    },
+    {
+     "label": "الوظائف",
+     "result": "NAVIGATE",
+     "to": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | "
+    },
+    {
+     "label": "الأدوية",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | UE3C96A10 (2) | ca"
+    },
+    {
+     "label": "الإعدادات",
+     "result": "NAVIGATE",
+     "to": "الإعدادات | معمل نبضة الطبي | نشط | إدارة المخ"
+    }
+   ]
+  },
+  {
+   "path": [
+    "المحفظة والإيرادات"
+   ],
+   "heading": "→ | المحفظة والإيرادات | الرصيد المتاح للسحب | 0 ريال | طلب سحب | tren",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "معمل تحاليل | معمل نبضة الطبي | غير متاح | ⊥ | 0"
+    },
+    {
+     "label": "طلب سحب",
+     "result": "NO_EFFECT"
+    }
+   ]
+  },
+  {
+   "path": [
+    "تتبع العينات"
+   ],
+   "heading": "تتبع العينات | الكل (0) | مستلمة (0) | قيد التحليل (0) | النتيجة جاه",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "",
+     "result": "NAVIGATE",
+     "to": "معمل تحاليل | معمل نبضة الطبي | غير متاح | ⊥ | 0"
+    },
+    {
+     "label": "الكل (0)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "مستلمة (0)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "قيد التحليل (0)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "النتيجة جاهزة (0)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "مُرسلة (0)",
+     "result": "NO_EFFECT"
+    }
+   ]
+  },
+  {
+   "path": [
+    "وقت النتائج"
+   ],
+   "heading": "→ | تتبع زمن الإنجاز | flask | لا توجد عينات بعد",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "معمل تحاليل | معمل نبضة الطبي | غير متاح | ⊥ | 0"
+    }
+   ]
+  },
+  {
+   "path": [
+    "ملصق QR"
+   ],
+   "heading": "→ | ملصق QR للعينة | SMP-2025-XXX | — | تحليل دم شامل (CBC) | اطبع الم",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "معمل تحاليل | معمل نبضة الطبي | غير متاح | ⊥ | 0"
+    },
+    {
+     "label": "حفظ كصورة",
+     "result": "UI_CHANGE"
+    }
+   ]
+  },
+  {
+   "path": [
+    "إدارة الحزم"
+   ],
+   "heading": "→ | كتالوج الفحوصات والباقات | 🧪 | لا توجد فحوصات في الكتالوج بعد | ",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "معمل تحاليل | معمل نبضة الطبي | غير متاح | ⊥ | 0"
+    }
+   ]
+  }
+ ]
+}

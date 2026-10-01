@@ -1,0 +1,567 @@
+[
+ {
+  "at": "admin/src/pages/admin/catalog-manager.tsx:145",
+  "route": "POST /kill-switches/:key",
+  "dto": "ToggleDto",
+  "field": "approve",
+  "problem": "UNDECLARED",
+  "sent": "boolean"
+ },
+ {
+  "at": "admin/src/pages/admin/catalog-manager.tsx:561",
+  "route": "POST /insurance/companies/:companyId/networks",
+  "dto": "CreateInsuranceNetworkDto",
+  "field": "code",
+  "problem": "UNDECLARED",
+  "sent": null
+ },
+ {
+  "at": "admin/src/pages/admin/catalog-manager.tsx:561",
+  "route": "POST /insurance/companies/:companyId/networks",
+  "dto": "CreateInsuranceNetworkDto",
+  "field": "name_ar",
+  "problem": "UNDECLARED",
+  "sent": null
+ },
+ {
+  "at": "admin/src/pages/admin/catalog-manager.tsx:561",
+  "route": "POST /insurance/companies/:companyId/networks",
+  "dto": "CreateInsuranceNetworkDto",
+  "field": "name_en",
+  "problem": "UNDECLARED",
+  "sent": null
+ },
+ {
+  "at": "admin/src/pages/admin/catalog-manager.tsx:561",
+  "route": "POST /insurance/companies/:companyId/networks",
+  "dto": "CreateInsuranceNetworkDto",
+  "field": "tier_level",
+  "problem": "UNDECLARED",
+  "sent": "number"
+ },
+ {
+  "at": "admin/src/pages/admin/config-portal.tsx:132",
+  "route": "PUT /admin/config/sla",
+  "dto": "SlaDto",
+  "field": "reason",
+  "problem": "UNDECLARED",
+  "sent": "string"
+ },
+ {
+  "at": "admin/src/pages/admin/insurance-companies.tsx:121",
+  "route": "POST /insurance/companies/:companyId/networks",
+  "dto": "CreateInsuranceNetworkDto",
+  "field": "code",
+  "problem": "UNDECLARED",
+  "sent": "string"
+ },
+ {
+  "at": "admin/src/pages/admin/insurance-companies.tsx:121",
+  "route": "POST /insurance/companies/:companyId/networks",
+  "dto": "CreateInsuranceNetworkDto",
+  "field": "name_ar",
+  "problem": "UNDECLARED",
+  "sent": "string"
+ },
+ {
+  "at": "admin/src/pages/admin/insurance-companies.tsx:121",
+  "route": "POST /insurance/companies/:companyId/networks",
+  "dto": "CreateInsuranceNetworkDto",
+  "field": "name_en",
+  "problem": "UNDECLARED",
+  "sent": "string"
+ },
+ {
+  "at": "admin/src/pages/admin/insurance-companies.tsx:121",
+  "route": "POST /insurance/companies/:companyId/networks",
+  "dto": "CreateInsuranceNetworkDto",
+  "field": "tier_level",
+  "problem": "UNDECLARED",
+  "sent": "number"
+ },
+ {
+  "at": "admin/src/pages/admin/insurance-companies.tsx:155",
+  "route": "POST /insurance/networks/:networkId/rules",
+  "dto": "CreateCoverageRuleDto",
+  "field": "service_key",
+  "problem": "UNDECLARED",
+  "sent": "string"
+ },
+ {
+  "at": "admin/src/pages/admin/insurance-companies.tsx:155",
+  "route": "POST /insurance/networks/:networkId/rules",
+  "dto": "CreateCoverageRuleDto",
+  "field": "copay_flat_limit",
+  "problem": "UNDECLARED",
+  "sent": "number"
+ },
+ {
+  "at": "admin/src/pages/admin/insurance-companies.tsx:155",
+  "route": "POST /insurance/networks/:networkId/rules",
+  "dto": "CreateCoverageRuleDto",
+  "field": "requires_preauth",
+  "problem": "UNDECLARED",
+  "sent": "boolean"
+ },
+ {
+  "at": "admin/src/pages/admin/insurance-companies.tsx:155",
+  "route": "POST /insurance/networks/:networkId/rules",
+  "dto": "CreateCoverageRuleDto",
+  "field": "max_annual_limit",
+  "problem": "UNDECLARED",
+  "sent": "number"
+ },
+ {
+  "at": "admin/src/pages/admin/loyalty-config.tsx:43",
+  "route": "PUT /admin/loyalty/config",
+  "dto": "LoyaltyConfigDto",
+  "field": "points_per_order",
+  "problem": "UNDECLARED",
+  "sent": null
+ },
+ {
+  "at": "admin/src/pages/admin/loyalty-config.tsx:43",
+  "route": "PUT /admin/loyalty/config",
+  "dto": "LoyaltyConfigDto",
+  "field": "referral_points",
+  "problem": "UNDECLARED",
+  "sent": null
+ },
+ {
+  "at": "admin/src/pages/admin/loyalty-config.tsx:63",
+  "route": "POST /admin/loyalty/rewards",
+  "dto": "RewardDto",
+  "field": "title_ar",
+  "problem": "UNDECLARED",
+  "sent": "string"
+ },
+ {
+  "at": "admin/src/pages/admin/loyalty-config.tsx:63",
+  "route": "POST /admin/loyalty/rewards",
+  "dto": "RewardDto",
+  "field": "title_en",
+  "problem": "UNDECLARED",
+  "sent": "string"
+ },
+ {
+  "at": "admin/src/pages/admin/loyalty-config.tsx:63",
+  "route": "POST /admin/loyalty/rewards",
+  "dto": "RewardDto",
+  "field": "points_required",
+  "problem": "UNDECLARED",
+  "sent": "number"
+ },
+ {
+  "at": "admin/src/pages/admin/loyalty-config.tsx:63",
+  "route": "POST /admin/loyalty/rewards",
+  "dto": "RewardDto",
+  "field": "reward_type",
+  "problem": "UNDECLARED",
+  "sent": "string"
+ },
+ {
+  "at": "admin/src/pages/admin/loyalty-config.tsx:63",
+  "route": "POST /admin/loyalty/rewards",
+  "dto": "RewardDto",
+  "field": "stock",
+  "problem": "UNDECLARED",
+  "sent": "number"
+ },
+ {
+  "at": "admin/src/pages/admin/loyalty-config.tsx:78",
+  "route": "POST /admin/loyalty/challenges",
+  "dto": "ChallengeDto",
+  "field": "title_ar",
+  "problem": "UNDECLARED",
+  "sent": "string"
+ },
+ {
+  "at": "admin/src/pages/admin/loyalty-config.tsx:78",
+  "route": "POST /admin/loyalty/challenges",
+  "dto": "ChallengeDto",
+  "field": "title_en",
+  "problem": "UNDECLARED",
+  "sent": "string"
+ },
+ {
+  "at": "admin/src/pages/admin/loyalty-config.tsx:78",
+  "route": "POST /admin/loyalty/challenges",
+  "dto": "ChallengeDto",
+  "field": "target_action",
+  "problem": "UNDECLARED",
+  "sent": "string"
+ },
+ {
+  "at": "admin/src/pages/admin/loyalty-config.tsx:78",
+  "route": "POST /admin/loyalty/challenges",
+  "dto": "ChallengeDto",
+  "field": "target_count",
+  "problem": "UNDECLARED",
+  "sent": "number"
+ },
+ {
+  "at": "admin/src/pages/admin/loyalty-config.tsx:78",
+  "route": "POST /admin/loyalty/challenges",
+  "dto": "ChallengeDto",
+  "field": "reward_points",
+  "problem": "UNDECLARED",
+  "sent": "number"
+ },
+ {
+  "at": "admin/src/pages/admin/loyalty-config.tsx:78",
+  "route": "POST /admin/loyalty/challenges",
+  "dto": "ChallengeDto",
+  "field": "start_date",
+  "problem": "UNDECLARED",
+  "sent": "string"
+ },
+ {
+  "at": "admin/src/pages/admin/loyalty-config.tsx:78",
+  "route": "POST /admin/loyalty/challenges",
+  "dto": "ChallengeDto",
+  "field": "end_date",
+  "problem": "UNDECLARED",
+  "sent": "string"
+ },
+ {
+  "at": "admin/src/pages/api/admin/auth/login.ts:28",
+  "route": "POST /auth/login",
+  "dto": "AuthLoginDto",
+  "field": "code",
+  "problem": "UNDECLARED",
+  "sent": "string"
+ },
+ {
+  "at": "provider-app/src/screens/nursing/NursingDashboard.tsx:642",
+  "route": "POST /home-care/bookings/:id/check-in",
+  "dto": "CheckInDto",
+  "field": "lat",
+  "problem": "UNDECLARED",
+  "sent": "number"
+ },
+ {
+  "at": "provider-app/src/screens/nursing/NursingDashboard.tsx:642",
+  "route": "POST /home-care/bookings/:id/check-in",
+  "dto": "CheckInDto",
+  "field": "lng",
+  "problem": "UNDECLARED",
+  "sent": "number"
+ },
+ {
+  "at": "patient-web/app/api/appointments/[appointmentId]/reschedule/route.ts:21",
+  "route": "PATCH /unified-bookings/:kind/:id/reschedule",
+  "dto": "ReschedDto",
+  "field": "new_slot_id",
+  "problem": "UNDECLARED",
+  "sent": "string"
+ },
+ {
+  "at": "patient-web/app/api/auth/register/route.ts:31",
+  "route": "POST /auth/register",
+  "dto": "RegisterDto",
+  "field": "name",
+  "problem": "UNDECLARED",
+  "sent": "string"
+ },
+ {
+  "at": "patient-web/app/api/auth/register/route.ts:31",
+  "route": "POST /auth/register",
+  "dto": "RegisterDto",
+  "field": "identifier",
+  "problem": "UNDECLARED",
+  "sent": "string"
+ },
+ {
+  "at": "patient-web/app/api/auth/register/route.ts:31",
+  "route": "POST /auth/register",
+  "dto": "RegisterDto",
+  "field": "locale",
+  "problem": "UNDECLARED",
+  "sent": "string"
+ },
+ {
+  "at": "patient-web/app/api/auth/register/route.ts:31",
+  "route": "POST /auth/register",
+  "dto": "RegisterDto",
+  "field": "consents",
+  "problem": "UNDECLARED",
+  "sent": "array<object>"
+ },
+ {
+  "at": "patient-web/app/api/health/vitals/route.ts:30",
+  "route": "POST /health/vitals",
+  "dto": "AddVitalDto",
+  "field": "value",
+  "problem": "TYPE",
+  "sent": "number",
+  "dto_type": "string"
+ },
+ {
+  "at": "patient-web/app/api/insurance/claims/route.ts:28",
+  "route": "POST /insurance/claims/submit",
+  "dto": "SubmitClaimDto",
+  "field": "booking_kind",
+  "problem": "UNDECLARED",
+  "sent": "string"
+ },
+ {
+  "at": "patient-web/app/api/insurance/claims/route.ts:28",
+  "route": "POST /insurance/claims/submit",
+  "dto": "SubmitClaimDto",
+  "field": "claim_type",
+  "problem": "UNDECLARED",
+  "sent": "string"
+ },
+ {
+  "at": "patient-web/app/api/insurance/claims/route.ts:28",
+  "route": "POST /insurance/claims/submit",
+  "dto": "SubmitClaimDto",
+  "field": "amount",
+  "problem": "UNDECLARED",
+  "sent": "number"
+ },
+ {
+  "at": "patient-web/app/api/insurance/claims/route.ts:28",
+  "route": "POST /insurance/claims/submit",
+  "dto": "SubmitClaimDto",
+  "field": "service_date",
+  "problem": "UNDECLARED",
+  "sent": "string"
+ },
+ {
+  "at": "patient-web/app/api/insurance/claims/route.ts:28",
+  "route": "POST /insurance/claims/submit",
+  "dto": "SubmitClaimDto",
+  "field": "attachment_url",
+  "problem": "UNDECLARED",
+  "sent": "string"
+ },
+ {
+  "at": "patient-web/app/api/insurance/claims/route.ts:28",
+  "route": "POST /insurance/claims/submit",
+  "dto": "SubmitClaimDto",
+  "field": "note",
+  "problem": "UNDECLARED",
+  "sent": "string"
+ },
+ {
+  "at": "patient-web/app/api/insurance/policy/route.ts:24",
+  "route": "POST /insurance/save-policy",
+  "dto": "SavePolicyDto",
+  "field": "member_name",
+  "problem": "UNDECLARED",
+  "sent": "string"
+ },
+ {
+  "at": "patient-web/app/api/insurance/policy/route.ts:24",
+  "route": "POST /insurance/save-policy",
+  "dto": "SavePolicyDto",
+  "field": "expiry_date",
+  "problem": "UNDECLARED",
+  "sent": "string"
+ },
+ {
+  "at": "patient-web/app/api/support/feedback/route.ts:21",
+  "route": "POST /support/feedback",
+  "dto": "SupportSettingsDto",
+  "field": "rating",
+  "problem": "UNDECLARED",
+  "sent": "number"
+ },
+ {
+  "at": "patient-web/app/api/support/feedback/route.ts:21",
+  "route": "POST /support/feedback",
+  "dto": "SupportSettingsDto",
+  "field": "type",
+  "problem": "UNDECLARED",
+  "sent": "string"
+ },
+ {
+  "at": "patient-web/app/api/support/feedback/route.ts:21",
+  "route": "POST /support/feedback",
+  "dto": "SupportSettingsDto",
+  "field": "message",
+  "problem": "UNDECLARED",
+  "sent": "string"
+ },
+ {
+  "at": "patient-app/app/(auth)/otp.tsx:124",
+  "route": "POST /auth/register",
+  "dto": "RegisterDto",
+  "field": "full_name",
+  "problem": "UNDECLARED",
+  "sent": "string"
+ },
+ {
+  "at": "patient-app/app/(auth)/otp.tsx:124",
+  "route": "POST /auth/register",
+  "dto": "RegisterDto",
+  "field": "phone",
+  "problem": "UNDECLARED",
+  "sent": "string"
+ },
+ {
+  "at": "patient-app/app/insurance/add-policy.tsx:45",
+  "route": "POST /insurance/ocr-extract",
+  "dto": "OcrExtractDto",
+  "field": "image_base64",
+  "problem": "UNDECLARED",
+  "sent": "string"
+ },
+ {
+  "at": "patient-app/app/insurance/add-policy.tsx:45",
+  "route": "POST /insurance/ocr-extract",
+  "dto": "OcrExtractDto",
+  "field": "mime_type",
+  "problem": "UNDECLARED",
+  "sent": "string"
+ },
+ {
+  "at": "patient-app/app/insurance/add-policy.tsx:79",
+  "route": "POST /insurance/save-policy",
+  "dto": "SavePolicyDto",
+  "field": "verified",
+  "problem": "UNDECLARED",
+  "sent": "boolean"
+ },
+ {
+  "at": "patient-app/app/insurance/add-policy.tsx:79",
+  "route": "POST /insurance/save-policy",
+  "dto": "SavePolicyDto",
+  "field": "ocr_extracted",
+  "problem": "UNDECLARED",
+  "sent": "boolean"
+ },
+ {
+  "at": "patient-app/app/insurance/add-policy.tsx:79",
+  "route": "POST /insurance/save-policy",
+  "dto": "SavePolicyDto",
+  "field": "member_name",
+  "problem": "UNDECLARED",
+  "sent": "string"
+ },
+ {
+  "at": "patient-app/app/insurance/add-policy.tsx:79",
+  "route": "POST /insurance/save-policy",
+  "dto": "SavePolicyDto",
+  "field": "expiry_date",
+  "problem": "UNDECLARED",
+  "sent": "string"
+ },
+ {
+  "at": "patient-app/app/insurance/add-policy.tsx:79",
+  "route": "POST /insurance/save-policy",
+  "dto": "SavePolicyDto",
+  "field": "provider",
+  "problem": "UNDECLARED",
+  "sent": null
+ },
+ {
+  "at": "patient-app/app/insurance/submit-claim.tsx:82",
+  "route": "POST /insurance/claims/submit",
+  "dto": "SubmitClaimDto",
+  "field": "booking_kind",
+  "problem": "UNDECLARED",
+  "sent": "string"
+ },
+ {
+  "at": "patient-app/app/insurance/submit-claim.tsx:82",
+  "route": "POST /insurance/claims/submit",
+  "dto": "SubmitClaimDto",
+  "field": "claim_type",
+  "problem": "UNDECLARED",
+  "sent": "string"
+ },
+ {
+  "at": "patient-app/app/insurance/submit-claim.tsx:82",
+  "route": "POST /insurance/claims/submit",
+  "dto": "SubmitClaimDto",
+  "field": "amount",
+  "problem": "UNDECLARED",
+  "sent": "number"
+ },
+ {
+  "at": "patient-app/app/insurance/submit-claim.tsx:82",
+  "route": "POST /insurance/claims/submit",
+  "dto": "SubmitClaimDto",
+  "field": "service_date",
+  "problem": "UNDECLARED",
+  "sent": "string"
+ },
+ {
+  "at": "patient-app/app/insurance/submit-claim.tsx:82",
+  "route": "POST /insurance/claims/submit",
+  "dto": "SubmitClaimDto",
+  "field": "attachment_url",
+  "problem": "UNDECLARED",
+  "sent": "string"
+ },
+ {
+  "at": "patient-app/app/insurance/submit-claim.tsx:82",
+  "route": "POST /insurance/claims/submit",
+  "dto": "SubmitClaimDto",
+  "field": "note",
+  "problem": "UNDECLARED",
+  "sent": "string"
+ },
+ {
+  "at": "patient-app/app/settings/feedback.tsx:35",
+  "route": "POST /support/feedback",
+  "dto": "SupportSettingsDto",
+  "field": "rating",
+  "problem": "UNDECLARED",
+  "sent": "number"
+ },
+ {
+  "at": "patient-app/app/settings/feedback.tsx:35",
+  "route": "POST /support/feedback",
+  "dto": "SupportSettingsDto",
+  "field": "type",
+  "problem": "UNDECLARED",
+  "sent": "string"
+ },
+ {
+  "at": "patient-app/app/settings/feedback.tsx:35",
+  "route": "POST /support/feedback",
+  "dto": "SupportSettingsDto",
+  "field": "message",
+  "problem": "UNDECLARED",
+  "sent": "string"
+ },
+ {
+  "at": "patient-app/app/wearables/hub.tsx:36",
+  "route": "POST /health/vitals",
+  "dto": "AddVitalDto",
+  "field": "value",
+  "problem": "TYPE",
+  "sent": "number",
+  "dto_type": "string"
+ },
+ {
+  "at": "patient-app/app/wearables/hub.tsx:71",
+  "route": "POST /health/vitals",
+  "dto": "AddVitalDto",
+  "field": "value",
+  "problem": "TYPE",
+  "sent": "number",
+  "dto_type": "string"
+ },
+ {
+  "at": "patient-app/app/wearables/hub.tsx:84",
+  "route": "POST /health/vitals",
+  "dto": "AddVitalDto",
+  "field": "value",
+  "problem": "TYPE",
+  "sent": "number",
+  "dto_type": "string"
+ },
+ {
+  "at": "patient-app/app/wearables/hub.tsx:97",
+  "route": "POST /health/vitals",
+  "dto": "AddVitalDto",
+  "field": "value",
+  "problem": "TYPE",
+  "sent": "number",
+  "dto_type": "string"
+ }
+]

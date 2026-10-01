@@ -1,0 +1,3102 @@
+[
+ {
+  "route": "(tabs)/health",
+  "url": "/health",
+  "landed": "/health",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "󰗶",
+    "result": "NAVIGATE",
+    "to": "/health/vitals"
+   },
+   {
+    "label": "󰐂",
+    "result": "NAVIGATE",
+    "to": "/health/medications"
+   },
+   {
+    "label": "󰈙",
+    "result": "NAVIGATE",
+    "to": "/health/reports"
+   },
+   {
+    "label": "󰡉",
+    "result": "NAVIGATE",
+    "to": "/health/family-hub"
+   },
+   {
+    "label": "󰭹",
+    "result": "NAVIGATE",
+    "to": "/family/chat"
+   },
+   {
+    "label": "󰂚",
+    "result": "NAVIGATE",
+    "to": "/health/medication-reminder-list"
+   },
+   {
+    "label": "󰔸",
+    "result": "JS_ERROR",
+    "error": "Cannot read properties of undefined (reading 'minPts')"
+   },
+   {
+    "label": "عرض الكل",
+    "result": "TAP_FAILED",
+    "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiti"
+   },
+   {
+    "label": "home",
+    "result": "TAP_FAILED",
+    "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiti"
+   },
+   {
+    "label": "prescriptions",
+    "result": "TAP_FAILED",
+    "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiti"
+   },
+   {
+    "label": "stethoscope",
+    "result": "TAP_FAILED",
+    "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiti"
+   },
+   {
+    "label": "science",
+    "result": "TAP_FAILED",
+    "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiti"
+   },
+   {
+    "label": "healing",
+    "result": "TAP_FAILED",
+    "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiti"
+   }
+  ]
+ },
+ {
+  "route": "(tabs)/index",
+  "url": "/",
+  "landed": "/",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "light_mode",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "ع",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "notifications",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "person",
+    "result": "NAVIGATE",
+    "to": "/profile"
+   },
+   {
+    "label": "إدارة التذكيرات",
+    "result": "NAVIGATE",
+    "to": "/health/medication-reminder-list"
+   },
+   {
+    "label": "فتح المتتبع",
+    "result": "NAVIGATE",
+    "to": "/nutrition/daily-tracker"
+   },
+   {
+    "label": "عرض الكل",
+    "result": "NAVIGATE",
+    "to": "/consultations/appointments"
+   },
+   {
+    "label": "home",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "prescriptions",
+    "result": "NAVIGATE",
+    "to": "/pharmacy"
+   },
+   {
+    "label": "stethoscope",
+    "result": "NAVIGATE",
+    "to": "/consultations"
+   },
+   {
+    "label": "science",
+    "result": "NAVIGATE",
+    "to": "/diagnostics"
+   },
+   {
+    "label": "healing",
+    "result": "NAVIGATE",
+    "to": "/nursing"
+   }
+  ]
+ },
+ {
+  "route": "(tabs)/nursing",
+  "url": "/nursing",
+  "landed": "/nursing",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 1,
+  "elements": [
+   {
+    "label": "زياراتي وتتبع الممرض",
+    "result": "NAVIGATE",
+    "to": "/nursing/visits"
+   },
+   {
+    "label": "تأمين طبي",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "بدون تأمين / نقدي",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "Vital Signs Monitoring",
+    "result": "NAVIGATE",
+    "to": "/nursing/service-info?serviceId=ef35bff2-28a7-405e-ae0f-aa917388f776&flow=cash&gender=any&availability=any&nationality=any&search="
+   },
+   {
+    "label": "احجز الآن",
+    "result": "NAVIGATE",
+    "to": "/nursing/service-details?serviceId=ef35bff2-28a7-405e-ae0f-aa917388f776&title=Vital%20Signs%20Monitoring&flow=cash&gender=any&availability=any&nationality=any&search=RDC02B01"
+   },
+   {
+    "label": "Blood Draw for Labs",
+    "result": "NAVIGATE",
+    "to": "/nursing/service-info?serviceId=b018287d-d1e2-4214-a5f6-0b864aae2458&flow=cash&gender=any&availability=any&nationality=any&search="
+   },
+   {
+    "label": "Medical Injections (IV/IM)",
+    "result": "NAVIGATE",
+    "to": "/nursing/service-info?serviceId=33214ef8-a932-4dff-bff5-af3c4e22163a&flow=cash&gender=any&availability=any&nationality=any&search="
+   },
+   {
+    "label": "IV Drip Therapy",
+    "result": "NAVIGATE",
+    "to": "/nursing/service-info?serviceId=9156aa94-5d3c-4a12-8f27-347ebd94a416&flow=cash&gender=any&availability=any&nationality=any&search="
+   },
+   {
+    "label": "Advanced Wound & Diabetic Foot Care",
+    "result": "NAVIGATE",
+    "to": "/nursing/service-info?serviceId=afc52622-a9ea-48a2-a917-71ed5c0e9914&flow=cash&gender=any&availability=any&nationality=any&search="
+   },
+   {
+    "label": "Urinary Catheter Care",
+    "result": "NAVIGATE",
+    "to": "/nursing/service-info?serviceId=694c83a7-66dd-43cf-b3e1-fbfe08d96cb9&flow=cash&gender=any&availability=any&nationality=any&search="
+   },
+   {
+    "label": "Tracheostomy Care",
+    "result": "NAVIGATE",
+    "to": "/nursing/service-info?serviceId=22502800-5bd4-41d2-b85f-6d2ce76e3a3a&flow=cash&gender=any&availability=any&nationality=any&search="
+   },
+   {
+    "label": "Home Oxygen Therapy",
+    "result": "NAVIGATE",
+    "to": "/nursing/service-info?serviceId=46641867-57eb-4f99-a524-1b7ab23c268c&flow=cash&gender=any&availability=any&nationality=any&search="
+   },
+   {
+    "label": "Post-Surgery Care",
+    "result": "NAVIGATE",
+    "to": "/nursing/service-info?serviceId=776da61d-1d7e-4bc2-abb4-7adcd4311aff&flow=cash&gender=any&availability=any&nationality=any&search="
+   },
+   {
+    "label": "Elderly Companion & Care",
+    "result": "NAVIGATE",
+    "to": "/nursing/service-info?serviceId=b4ce607b-ecad-46d1-8e63-9c3b2bc8dbd9&flow=cash&gender=any&availability=any&nationality=any&search="
+   },
+   {
+    "label": "Mother & Newborn Care",
+    "result": "NAVIGATE",
+    "to": "/nursing/service-info?serviceId=e3d89072-12d1-4420-bdd0-1236ec6996b8&flow=cash&gender=any&availability=any&nationality=any&search="
+   },
+   {
+    "label": "Home ICU Care",
+    "result": "NAVIGATE",
+    "to": "/nursing/service-info?serviceId=9b2c1773-4baa-43af-a3cf-94992df50387&flow=cash&gender=any&availability=any&nationality=any&search="
+   },
+   {
+    "label": "Intramuscular Injection",
+    "result": "NAVIGATE",
+    "to": "/nursing/service-info?serviceId=intramuscular_injection&flow=cash&gender=any&availability=any&nationality=any&search="
+   },
+   {
+    "label": "Intravenous Injection / Cannula",
+    "result": "NAVIGATE",
+    "to": "/nursing/service-info?serviceId=intravenous_injection_cannula&flow=cash&gender=any&availability=any&nationality=any&search="
+   },
+   {
+    "label": "IV Drip / Fluids & Vitamins",
+    "result": "NAVIGATE",
+    "to": "/nursing/service-info?serviceId=iv_drip_fluids_vitamins&flow=cash&gender=any&availability=any&nationality=any&search="
+   },
+   {
+    "label": "Antibiotic IV Course",
+    "result": "NAVIGATE",
+    "to": "/nursing/service-info?serviceId=antibiotic_iv_course&flow=cash&gender=any&availability=any&nationality=any&search="
+   },
+   {
+    "label": "Wound Dressing",
+    "result": "NAVIGATE",
+    "to": "/nursing/service-info?serviceId=wound_dressing&flow=cash&gender=any&availability=any&nationality=any&search="
+   },
+   {
+    "label": "Bedsore Care",
+    "result": "NAVIGATE",
+    "to": "/nursing/service-info?serviceId=bedsore_care&flow=cash&gender=any&availability=any&nationality=any&search="
+   },
+   {
+    "label": "Diabetic Foot Care",
+    "result": "NAVIGATE",
+    "to": "/nursing/service-info?serviceId=diabetic_foot_care&flow=cash&gender=any&availability=any&nationality=any&search="
+   },
+   {
+    "label": "Suture Removal",
+    "result": "NAVIGATE",
+    "to": "/nursing/service-info?serviceId=suture_removal&flow=cash&gender=any&availability=any&nationality=any&search="
+   },
+   {
+    "label": "Urinary Catheterization",
+    "result": "NAVIGATE",
+    "to": "/nursing/service-info?serviceId=urinary_catheterization&flow=cash&gender=any&availability=any&nationality=any&search="
+   },
+   {
+    "label": "Feeding Tube Care",
+    "result": "NAVIGATE",
+    "to": "/nursing/service-info?serviceId=feeding_tube_care&flow=cash&gender=any&availability=any&nationality=any&search="
+   },
+   {
+    "label": "Stoma Care",
+    "result": "NAVIGATE",
+    "to": "/nursing/service-info?serviceId=stoma_care&flow=cash&gender=any&availability=any&nationality=any&search="
+   },
+   {
+    "label": "Blood Sample Collection",
+    "result": "NAVIGATE",
+    "to": "/nursing/service-info?serviceId=blood_sample_collection&flow=cash&gender=any&availability=any&nationality=any&search="
+   },
+   {
+    "label": "Elderly Daily Care",
+    "result": "NAVIGATE",
+    "to": "/nursing/service-info?serviceId=elderly_daily_care&flow=cash&gender=any&availability=any&nationality=any&search="
+   },
+   {
+    "label": "Elderly Overnight Care",
+    "result": "NAVIGATE",
+    "to": "/nursing/service-info?serviceId=elderly_overnight_care&flow=cash&gender=any&availability=any&nationality=any&search="
+   }
+  ]
+ },
+ {
+  "route": "(tabs)/pharmacy",
+  "url": "/pharmacy",
+  "landed": "/pharmacy",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 1,
+  "elements": [
+   {
+    "label": "home",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "prescriptions",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "stethoscope",
+    "result": "NAVIGATE",
+    "to": "/consultations"
+   },
+   {
+    "label": "science",
+    "result": "NAVIGATE",
+    "to": "/diagnostics"
+   },
+   {
+    "label": "healing",
+    "result": "NAVIGATE",
+    "to": "/nursing"
+   }
+  ]
+ },
+ {
+  "route": "(tabs)/services",
+  "url": "/services",
+  "landed": "/services",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "󰓙",
+    "result": "NAVIGATE",
+    "to": "/consultations"
+   },
+   {
+    "label": "󰂓",
+    "result": "NAVIGATE",
+    "to": "/diagnostics"
+   },
+   {
+    "label": "󱓆",
+    "result": "NAVIGATE",
+    "to": "/diagnostics"
+   },
+   {
+    "label": "󰴡",
+    "result": "NAVIGATE",
+    "to": "/nursing"
+   },
+   {
+    "label": "󰀯",
+    "result": "NAVIGATE",
+    "to": "/emergency/sos"
+   },
+   {
+    "label": "󰐂",
+    "result": "NAVIGATE",
+    "to": "/pharmacy"
+   },
+   {
+    "label": "󰗶",
+    "result": "NAVIGATE",
+    "to": "/health"
+   },
+   {
+    "label": "󰂚",
+    "result": "NAVIGATE",
+    "to": "/health/medication-reminder-list"
+   },
+   {
+    "label": "󰈙",
+    "result": "NAVIGATE",
+    "to": "/reports/view-report"
+   },
+   {
+    "label": "󰚩",
+    "result": "NAVIGATE",
+    "to": "/ai/triage"
+   },
+   {
+    "label": "󰗊",
+    "result": "NAVIGATE",
+    "to": "/ai/prescription-translator"
+   },
+   {
+    "label": "󰄪",
+    "result": "NAVIGATE",
+    "to": "/ai/monthly-report"
+   },
+   {
+    "label": "󰉛",
+    "result": "NAVIGATE",
+    "to": "/nutrition/hub"
+   },
+   {
+    "label": "󰗏",
+    "result": "NAVIGATE",
+    "to": "/maternity/hub"
+   },
+   {
+    "label": "󰧑",
+    "result": "NAVIGATE",
+    "to": "/mental-health/hub"
+   },
+   {
+    "label": "󰡉",
+    "result": "NAVIGATE",
+    "to": "/community/hub"
+   },
+   {
+    "label": "󰠧",
+    "result": "NAVIGATE",
+    "to": "/health/family-hub"
+   },
+   {
+    "label": "󰠤",
+    "result": "NAVIGATE",
+    "to": "/orders"
+   },
+   {
+    "label": "󰒘",
+    "result": "JS_ERROR",
+    "error": "Cannot read properties of undefined (reading 'coverage')"
+   },
+   {
+    "label": "󰹄",
+    "result": "TAP_FAILED",
+    "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiti"
+   },
+   {
+    "label": "󰓹",
+    "result": "TAP_FAILED",
+    "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiti"
+   },
+   {
+    "label": "󰍍",
+    "result": "TAP_FAILED",
+    "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiti"
+   }
+  ]
+ },
+ {
+  "route": "ai-assistant",
+  "url": "/ai-assistant",
+  "landed": "/ai-assistant",
+  "status": "TESTED",
+  "render": {
+   "js": [
+    "(0 , h.useThemeColors) is not a function"
+   ],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": []
+ },
+ {
+  "route": "ai/chat-doctor",
+  "url": "/ai/chat-doctor",
+  "landed": "/ai/triage",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 1,
+  "elements": [
+   {
+    "label": "ألم أو ضغط في الصدر",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "صعوبة في التنفس",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "إغماء أو عدم استجابة",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "نزف غزير",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "ارتباك جديد أو مفاجئ",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "علامات تحسس شديد",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "إصابة شديدة",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "لا تنطبق أي إشارة مما سبق",
+    "result": "UI_CHANGE"
+   }
+  ]
+ },
+ {
+  "route": "ai/monthly-report",
+  "url": "/ai/monthly-report",
+  "landed": "/ai/monthly-report",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "󰁔",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "تسجيل قياس الآن",
+    "result": "NAVIGATE",
+    "to": "/health/vitals-log"
+   },
+   {
+    "label": "عرض المؤشرات التاريخية",
+    "result": "NAVIGATE",
+    "to": "/health/trends"
+   },
+   {
+    "label": "احجز متابعة مع الطبيب",
+    "result": "NAVIGATE",
+    "to": "/consultations"
+   }
+  ]
+ },
+ {
+  "route": "ai/prescription-translator",
+  "url": "/ai/prescription-translator",
+  "landed": "/ai/prescription-translator",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "󰈙",
+    "result": "NO_EFFECT"
+   }
+  ]
+ },
+ {
+  "route": "ai/skin-analysis",
+  "url": "/ai/skin-analysis",
+  "landed": "/ai/skin-analysis",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 1,
+  "elements": [
+   {
+    "label": "󰁔",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "الوجه",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "اليدان",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "الظهر",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "الجسم",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "منطقة أخرى",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "بقعة جديدة أو تغير في بقعة موجودة",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "نمو أو تغير في اللون أو الملمس",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "ألم أو حكة",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "نزف أو قشور",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "بقعة أو جرح لا يلتئم لأكثر من 4 أسابيع",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "لا تنطبق أي ملاحظة مما سبق",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "أفهم أن هذه القائمة لا تشخص حالة جلدية و",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "عرض التوجيه",
+    "result": "WRITE",
+    "status": 201,
+    "method": "POST",
+    "url": "/ai/skin-analysis",
+    "tokens_sent": 1,
+    "tokens_stored": 1
+   }
+  ]
+ },
+ {
+  "route": "ai/symptom-checker",
+  "url": "/ai/symptom-checker",
+  "landed": "/ai/triage",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 1,
+  "elements": [
+   {
+    "label": "ألم أو ضغط في الصدر",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "صعوبة في التنفس",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "إغماء أو عدم استجابة",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "نزف غزير",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "ارتباك جديد أو مفاجئ",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "علامات تحسس شديد",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "إصابة شديدة",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "لا تنطبق أي إشارة مما سبق",
+    "result": "UI_CHANGE"
+   }
+  ]
+ },
+ {
+  "route": "ai/symptom-timeline",
+  "url": "/ai/symptom-timeline",
+  "landed": "/ai/triage",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 1,
+  "elements": [
+   {
+    "label": "ألم أو ضغط في الصدر",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "صعوبة في التنفس",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "إغماء أو عدم استجابة",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "نزف غزير",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "ارتباك جديد أو مفاجئ",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "علامات تحسس شديد",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "إصابة شديدة",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "لا تنطبق أي إشارة مما سبق",
+    "result": "UI_CHANGE"
+   }
+  ]
+ },
+ {
+  "route": "ai/triage",
+  "url": "/ai/triage",
+  "landed": "/ai/triage",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 1,
+  "elements": [
+   {
+    "label": "ألم أو ضغط في الصدر",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "صعوبة في التنفس",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "إغماء أو عدم استجابة",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "نزف غزير",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "ارتباك جديد أو مفاجئ",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "علامات تحسس شديد",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "إصابة شديدة",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "لا تنطبق أي إشارة مما سبق",
+    "result": "UI_CHANGE"
+   }
+  ]
+ },
+ {
+  "route": "articles/[slug]",
+  "status": "NOT_TESTED_DYNAMIC"
+ },
+ {
+  "route": "articles/bookmarks",
+  "url": "/articles/bookmarks",
+  "landed": "/articles/bookmarks",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": []
+ },
+ {
+  "route": "articles/index",
+  "url": "/articles",
+  "landed": "/articles",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 1,
+  "elements": [
+   {
+    "label": "U26CC7602",
+    "result": "NAVIGATE",
+    "to": "/articles/u26cc7603"
+   }
+  ]
+ },
+ {
+  "route": "community/hub",
+  "url": "/community/hub",
+  "landed": "/community/hub",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "الكل",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "مقالات طبية",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "تجارب المرضى",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "أسئلة وأجوبة",
+    "result": "NO_EFFECT"
+   }
+  ]
+ },
+ {
+  "route": "community/post-detail",
+  "url": "/community/post-detail",
+  "landed": "/community/post-detail",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 1,
+  "elements": [
+   {
+    "label": "󰁔",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "󰒗",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "󰭹",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "󰋑",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "󰒊",
+    "result": "NO_EFFECT"
+   }
+  ]
+ },
+ {
+  "route": "consultations/appointment-detail",
+  "url": "/consultations/appointment-detail",
+  "landed": "/consultations/appointment-detail",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": []
+ },
+ {
+  "route": "consultations/appointments",
+  "url": "/consultations/appointments",
+  "landed": "/consultations/appointments",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "󰁔",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "القادمة",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "السابقة",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "احجز موعداً الآن",
+    "result": "TAP_FAILED",
+    "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiti"
+   }
+  ]
+ },
+ {
+  "route": "consultations/book/[id]",
+  "status": "NOT_TESTED_DYNAMIC"
+ },
+ {
+  "route": "consultations/booking-confirm",
+  "url": "/consultations/booking-confirm",
+  "landed": "/consultations/booking-status",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "󰕧",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "󰋡",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "󰋜",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "󰿯",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "󰄖",
+    "result": "TAP_FAILED",
+    "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiti"
+   },
+   {
+    "label": "󰒘",
+    "result": "UI_CHANGE"
+   }
+  ]
+ },
+ {
+  "route": "consultations/booking-pending",
+  "url": "/consultations/booking-pending",
+  "landed": "/consultations/booking-status",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "󰕧",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "󰋡",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "󰋜",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "󰿯",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "󰄖",
+    "result": "TAP_FAILED",
+    "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiti"
+   },
+   {
+    "label": "󰒘",
+    "result": "UI_CHANGE"
+   }
+  ]
+ },
+ {
+  "route": "consultations/booking-status",
+  "url": "/consultations/booking-status",
+  "landed": "/consultations/booking-status",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "󰕧",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "󰋡",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "󰋜",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "󰿯",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "󰄖",
+    "result": "TAP_FAILED",
+    "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiti"
+   },
+   {
+    "label": "󰒘",
+    "result": "UI_CHANGE"
+   }
+  ]
+ },
+ {
+  "route": "consultations/booking-success",
+  "url": "/consultations/booking-success",
+  "landed": "/consultations/booking-status",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "󰕧",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "󰋡",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "󰋜",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "󰿯",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "󰄖",
+    "result": "TAP_FAILED",
+    "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiti"
+   },
+   {
+    "label": "󰒘",
+    "result": "UI_CHANGE"
+   }
+  ]
+ },
+ {
+  "route": "consultations/call-history",
+  "url": "/consultations/call-history",
+  "landed": "/consultations/call-history",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": []
+ },
+ {
+  "route": "consultations/cancel-reschedule",
+  "url": "/consultations/cancel-reschedule",
+  "landed": "/consultations/cancel-reschedule",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "󰁔",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "إعادة المحاولة",
+    "result": "NO_EFFECT"
+   }
+  ]
+ },
+ {
+  "route": "consultations/chat-with-doctor",
+  "url": "/consultations/chat-with-doctor",
+  "landed": "/consultations/chat-with-doctor",
+  "status": "TESTED",
+  "render": {
+   "js": [
+    "Cannot access 'E' before initialization"
+   ],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": []
+ },
+ {
+  "route": "consultations/clinic-confirm",
+  "url": "/consultations/clinic-confirm",
+  "landed": "/consultations/clinic-confirm",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "󰑐",
+    "result": "NO_EFFECT"
+   }
+  ]
+ },
+ {
+  "route": "consultations/clinic-location",
+  "url": "/consultations/clinic-location",
+  "landed": "/consultations/clinic-confirm?view=location",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "arrow_forward",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "directions_car",
+    "result": "NO_EFFECT"
+   }
+  ]
+ },
+ {
+  "route": "consultations/clinic/[id]",
+  "status": "NOT_TESTED_DYNAMIC"
+ },
+ {
+  "route": "consultations/doctor-profile",
+  "url": "/consultations/doctor-profile",
+  "landed": "/search?view=doctors",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 1,
+  "elements": [
+   {
+    "label": "الأعلى تقييماً",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "الأقل سعراً",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "الأقل انتظاراً",
+    "result": "NO_EFFECT"
+   }
+  ]
+ },
+ {
+  "route": "consultations/doctor-search",
+  "url": "/consultations/doctor-search",
+  "landed": "/search?view=doctors",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 1,
+  "elements": [
+   {
+    "label": "الأعلى تقييماً",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "الأقل سعراً",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "الأقل انتظاراً",
+    "result": "NO_EFFECT"
+   }
+  ]
+ },
+ {
+  "route": "consultations/doctor/[id]",
+  "status": "NOT_TESTED_DYNAMIC"
+ },
+ {
+  "route": "consultations/follow-up",
+  "url": "/consultations/follow-up",
+  "landed": "/consultations/follow-up",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": []
+ },
+ {
+  "route": "consultations/home-visit-tracking",
+  "url": "/consultations/home-visit-tracking",
+  "landed": "/consultations/home-visit-tracking",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "رجوع",
+    "result": "NO_EFFECT"
+   }
+  ]
+ },
+ {
+  "route": "consultations/incoming-call",
+  "url": "/consultations/incoming-call",
+  "landed": "/consultations/incoming-call",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "󰏲",
+    "result": "NO_EFFECT"
+   }
+  ]
+ },
+ {
+  "route": "consultations/offer/[id]",
+  "status": "NOT_TESTED_DYNAMIC"
+ },
+ {
+  "route": "consultations/post-call-rating",
+  "url": "/consultations/post-call-rating",
+  "landed": "/consultations/post-call-rating",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 1,
+  "elements": [
+   {
+    "label": "close",
+    "result": "NAVIGATE",
+    "to": "/consultations"
+   },
+   {
+    "label": "star",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "ممتاز",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "سريع",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "احترافي",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "نظيف",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "متعاون",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "أنصح به",
+    "result": "NO_EFFECT"
+   }
+  ]
+ },
+ {
+  "route": "consultations/prescription-from-doctor",
+  "url": "/consultations/prescription-from-doctor",
+  "landed": "/consultations/prescription-from-doctor",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": []
+ },
+ {
+  "route": "consultations/share-report",
+  "url": "/consultations/share-report",
+  "landed": "/consultations/share-report",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": []
+ },
+ {
+  "route": "consultations/specialty-select",
+  "url": "/consultations/specialty-select",
+  "landed": "/consultations/specialty-select",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 1,
+  "elements": []
+ },
+ {
+  "route": "consultations/summary",
+  "url": "/consultations/summary",
+  "landed": "/consultations/summary",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "󰑐",
+    "result": "NO_EFFECT"
+   }
+  ]
+ },
+ {
+  "route": "consultations/video-call",
+  "url": "/consultations/video-call",
+  "landed": "/consultations/video-call",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "󰑐",
+    "result": "UI_CHANGE"
+   }
+  ]
+ },
+ {
+  "route": "consultations/virtual-waiting-room",
+  "url": "/consultations/virtual-waiting-room",
+  "landed": "/consultations/virtual-waiting-room",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": []
+ },
+ {
+  "route": "consultations/waiting-room",
+  "url": "/consultations/waiting-room",
+  "landed": "/consultations/virtual-waiting-room",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": []
+ },
+ {
+  "route": "delivery/address-select",
+  "url": "/delivery/address-select",
+  "landed": "/delivery/address-select",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "󰍒",
+    "result": "NAVIGATE",
+    "to": "/shared/location-picker"
+   },
+   {
+    "label": "󰐕",
+    "result": "NAVIGATE",
+    "to": "/shared/location-picker"
+   }
+  ]
+ },
+ {
+  "route": "diagnostics/book-sample",
+  "url": "/diagnostics/book-sample",
+  "landed": "/diagnostics/book-sample",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": []
+ },
+ {
+  "route": "diagnostics/booking-confirm",
+  "url": "/diagnostics/booking-confirm",
+  "landed": "/diagnostics",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 1,
+  "elements": [
+   {
+    "label": "󰧮",
+    "result": "NAVIGATE",
+    "to": "/diagnostics/orders"
+   },
+   {
+    "label": "󰅙",
+    "result": "TAP_FAILED",
+    "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiti"
+   },
+   {
+    "label": "󰘮",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "󰂖",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "󱓆",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "󰮧",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "󰿷",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "اختيار",
+    "result": "TAP_FAILED",
+    "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiti"
+   },
+   {
+    "label": "󰕥",
+    "result": "NAVIGATE",
+    "to": "/diagnostics/insurance-upload"
+   },
+   {
+    "label": "عرض الكل",
+    "result": "NAVIGATE",
+    "to": "/diagnostics/packages"
+   },
+   {
+    "label": "الأكثر طلباً",
+    "result": "NAVIGATE",
+    "to": "/diagnostics/package-detail?id=834c1dc5-9fbd-4341-82a5-e12863446ffa&serviceType=home"
+   },
+   {
+    "label": "Thyroid Package",
+    "result": "NAVIGATE",
+    "to": "/diagnostics/package-detail?id=PKG_THYROID&serviceType=home"
+   },
+   {
+    "label": "Seniors Package",
+    "result": "NAVIGATE",
+    "to": "/diagnostics/package-detail?id=PKG_SENIORS&serviceType=home"
+   },
+   {
+    "label": "Women Hormones Package",
+    "result": "NAVIGATE",
+    "to": "/diagnostics/package-detail?id=e8d1fb4f-1b9b-4ca7-9f3a-33e4d571f354&serviceType=home"
+   },
+   {
+    "label": "Heart Health Package",
+    "result": "NAVIGATE",
+    "to": "/diagnostics/package-detail?id=PKG_HEART&serviceType=home"
+   },
+   {
+    "label": "Women Health Package",
+    "result": "NAVIGATE",
+    "to": "/diagnostics/package-detail?id=PKG_WOMEN&serviceType=home"
+   },
+   {
+    "label": "Cardiac Package",
+    "result": "NAVIGATE",
+    "to": "/diagnostics/package-detail?id=593eff7e-c5f8-4bb6-8b78-09a63eca7043&serviceType=home"
+   },
+   {
+    "label": "Men Health Package",
+    "result": "NAVIGATE",
+    "to": "/diagnostics/package-detail?id=PKG_WOMEN&serviceType=home"
+   },
+   {
+    "label": "Complete Blood Count",
+    "result": "NAVIGATE",
+    "to": "/diagnostics/test-detail?id=2f227444-b928-40ee-8308-8cc8cc3ac9fb"
+   },
+   {
+    "label": "󰄒",
+    "result": "NAVIGATE",
+    "to": "/diagnostics/test-detail?id=2f227444-b928-40ee-8308-8cc8cc3ac9fb"
+   },
+   {
+    "label": "General Wellness Package",
+    "result": "NAVIGATE",
+    "to": "/diagnostics/package-detail?id=PKG_GENERAL&serviceType=home"
+   },
+   {
+    "label": "Vitamin D (25-OH)",
+    "result": "NAVIGATE",
+    "to": "/diagnostics/test-detail?id=b0677806-b8c5-48db-bd46-03de16742ce7"
+   },
+   {
+    "label": "Comprehensive Health Package",
+    "result": "NAVIGATE",
+    "to": "/diagnostics/package-detail?id=834c1dc5-9fbd-4341-82a5-e12863446ffa&serviceType=home"
+   },
+   {
+    "label": "Glycated Hemoglobin (HbA1c)",
+    "result": "NAVIGATE",
+    "to": "/diagnostics/test-detail?id=HBA1C"
+   },
+   {
+    "label": "Fasting Blood Sugar",
+    "result": "NAVIGATE",
+    "to": "/diagnostics/test-detail?id=5bc3c2a7-c27c-4d78-a619-302fd7cf04c8"
+   },
+   {
+    "label": "Thyroid Stimulating Hormone",
+    "result": "NAVIGATE",
+    "to": "/diagnostics/test-detail?id=9295c3a1-25cc-4a94-befb-9ab062ffb547"
+   },
+   {
+    "label": "Diabetes Care Package",
+    "result": "NAVIGATE",
+    "to": "/diagnostics/package-detail?id=PKG_DIABETES&serviceType=home"
+   },
+   {
+    "label": "Lipid Profile",
+    "result": "NAVIGATE",
+    "to": "/diagnostics/test-detail?id=LIPID"
+   },
+   {
+    "label": "Vitamins & Minerals Package",
+    "result": "NAVIGATE",
+    "to": "/diagnostics/package-detail?id=PKG_VITAMINS&serviceType=home"
+   },
+   {
+    "label": "Complete Urine Analysis",
+    "result": "NAVIGATE",
+    "to": "/diagnostics/test-detail?id=URINE"
+   }
+  ]
+ },
+ {
+  "route": "diagnostics/booking-success",
+  "url": "/diagnostics/booking-success",
+  "landed": "/diagnostics/orders",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "󰁍",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "قيد التنفيذ",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "النتائج السابقة",
+    "result": "NO_EFFECT"
+   }
+  ]
+ },
+ {
+  "route": "diagnostics/cart",
+  "url": "/diagnostics/cart",
+  "landed": "/diagnostics/cart",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "󰁍",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "العودة للتحاليل",
+    "result": "NO_EFFECT"
+   }
+  ]
+ },
+ {
+  "route": "diagnostics/checkout",
+  "url": "/diagnostics/checkout",
+  "landed": "/diagnostics/checkout",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "تصفح الباقات والتحاليل",
+    "result": "NAVIGATE",
+    "to": "/diagnostics/packages"
+   }
+  ]
+ },
+ {
+  "route": "diagnostics/insurance-approval",
+  "url": "/diagnostics/insurance-approval",
+  "landed": "/diagnostics/insurance-approval",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": []
+ },
+ {
+  "route": "diagnostics/insurance-upload",
+  "url": "/diagnostics/insurance-upload",
+  "landed": "/diagnostics/insurance-upload",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "󰁍",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "󰻛",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "تحدث مع طبيب عام",
+    "result": "UI_CHANGE"
+   }
+  ]
+ },
+ {
+  "route": "diagnostics/lab-comparison",
+  "url": "/diagnostics/lab-comparison",
+  "landed": "/diagnostics/lab-comparison",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "",
+    "result": "NO_EFFECT"
+   }
+  ]
+ },
+ {
+  "route": "diagnostics/lab/[id]",
+  "status": "NOT_TESTED_DYNAMIC"
+ },
+ {
+  "route": "diagnostics/my-results",
+  "url": "/diagnostics/my-results",
+  "landed": "/diagnostics/my-results",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": []
+ },
+ {
+  "route": "diagnostics/order/[id]",
+  "status": "NOT_TESTED_DYNAMIC"
+ },
+ {
+  "route": "diagnostics/orders",
+  "url": "/diagnostics/orders",
+  "landed": "/diagnostics/orders",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "󰁍",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "قيد التنفيذ",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "النتائج السابقة",
+    "result": "NO_EFFECT"
+   }
+  ]
+ },
+ {
+  "route": "diagnostics/package-detail",
+  "url": "/diagnostics/package-detail",
+  "landed": "/diagnostics/package-detail",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": [
+    "404 GET /labs/packages/undefined"
+   ]
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "العودة",
+    "result": "NO_EFFECT"
+   }
+  ]
+ },
+ {
+  "route": "diagnostics/packages",
+  "url": "/diagnostics/packages",
+  "landed": "/diagnostics/packages",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 1,
+  "elements": [
+   {
+    "label": "",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "الكل",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "hormones",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "infection",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "blood",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "vitamins",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "cardiac",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "diabetes",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "kidney",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "liver",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "urine",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "",
+    "result": "TAP_FAILED",
+    "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiti"
+   }
+  ]
+ },
+ {
+  "route": "diagnostics/results-history",
+  "url": "/diagnostics/results-history",
+  "landed": "/diagnostics/my-results",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": []
+ },
+ {
+  "route": "diagnostics/sample-tracking",
+  "url": "/diagnostics/sample-tracking",
+  "landed": "/diagnostics/sample-tracking",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "󰁍",
+    "result": "NO_EFFECT"
+   }
+  ]
+ },
+ {
+  "route": "diagnostics/search",
+  "url": "/diagnostics/search",
+  "landed": "/diagnostics/search",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 1,
+  "elements": []
+ },
+ {
+  "route": "diagnostics/technician-tracking",
+  "url": "/diagnostics/technician-tracking",
+  "landed": "/diagnostics/technician-tracking",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "󰁍",
+    "result": "NO_EFFECT"
+   }
+  ]
+ },
+ {
+  "route": "diagnostics/test-detail",
+  "url": "/diagnostics/test-detail",
+  "landed": "/diagnostics/test-detail",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": [
+    "404 GET /labs/services/undefined"
+   ]
+  },
+  "inputs_filled": 0,
+  "elements": []
+ },
+ {
+  "route": "diagnostics/upload-rx",
+  "url": "/diagnostics/upload-rx",
+  "landed": "/pharmacy/scan-prescription",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "التقاط صورة",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "اختيار من الصور",
+    "result": "NO_EFFECT"
+   }
+  ]
+ },
+ {
+  "route": "doctor/[slug]",
+  "status": "NOT_TESTED_DYNAMIC"
+ },
+ {
+  "route": "drug-scanner/index",
+  "url": "/drug-scanner",
+  "landed": "/drug-scanner",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "󰁔",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "بنادول",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "إيبوبروفين",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "أموكسيسيلين",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "كلاريثروميسين",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "أوميبرازول",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "لوسارتان",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "فيتامين D",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "أوميغا 3",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "󰙔",
+    "result": "WRITE",
+    "status": 201,
+    "method": "POST",
+    "url": "/ai/drug-interactions",
+    "tokens_sent": 0,
+    "tokens_stored": 0
+   }
+  ]
+ },
+ {
+  "route": "emergency/index",
+  "url": "/emergency",
+  "landed": "/emergency/sos",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "󰀯",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "󰒘",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "󰈸",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "󰄋",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "󰋼",
+    "result": "NO_EFFECT"
+   }
+  ]
+ },
+ {
+  "route": "emergency/sos",
+  "url": "/emergency/sos",
+  "landed": "/emergency/sos",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "󰀯",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "󰒘",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "󰈸",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "󰄋",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "󰋼",
+    "result": "NO_EFFECT"
+   }
+  ]
+ },
+ {
+  "route": "emergency/sos-active",
+  "url": "/emergency/sos-active",
+  "landed": "/emergency/sos-active",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": []
+ },
+ {
+  "route": "emergency/tracking",
+  "url": "/emergency/tracking",
+  "landed": "/emergency/tracking",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": []
+ },
+ {
+  "route": "facility/[slug]",
+  "status": "NOT_TESTED_DYNAMIC"
+ },
+ {
+  "route": "family/calendar",
+  "url": "/family/calendar",
+  "landed": "/family/calendar",
+  "status": "TESTED",
+  "render": {
+   "js": [
+    "logError is not defined"
+   ],
+   "bad_reads": [
+    "404 GET /family/calendar",
+    "404 GET /family/members"
+   ]
+  },
+  "inputs_filled": 0,
+  "elements": []
+ },
+ {
+  "route": "family/chat",
+  "url": "/family/chat",
+  "landed": "/family/chat",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": [
+    "403 GET /family/chat/messages",
+    "404 GET /family/members"
+   ]
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "إعادة المحاولة",
+    "result": "NO_EFFECT"
+   }
+  ]
+ },
+ {
+  "route": "family/emergency-contacts",
+  "url": "/family/emergency-contacts",
+  "landed": "/family/emergency-contacts",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": []
+ },
+ {
+  "route": "family/index",
+  "url": "/family",
+  "landed": "/health/family-hub",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": [
+    "404 GET /family/my-group"
+   ]
+  },
+  "inputs_filled": 0,
+  "elements": []
+ },
+ {
+  "route": "family/invite",
+  "url": "/family/invite",
+  "landed": "/family/invite",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "إعادة المحاولة",
+    "result": "NO_EFFECT"
+   }
+  ]
+ },
+ {
+  "route": "family/join",
+  "url": "/family/join",
+  "landed": "/family/join",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 1,
+  "elements": [
+   {
+    "label": "زوج/ة",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "ابن/ة",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "والد/ة",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "أخ/أخت",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "مقدم رعاية",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "أخرى",
+    "result": "NO_EFFECT"
+   }
+  ]
+ },
+ {
+  "route": "family/member-health",
+  "url": "/family/member-health",
+  "landed": "/family/member-health",
+  "status": "TESTED",
+  "render": {
+   "js": [
+    "Cannot read properties of null (reading 'name')",
+    "logError is not defined"
+   ],
+   "bad_reads": [
+    "404 GET /family/member-records/"
+   ]
+  },
+  "inputs_filled": 0,
+  "elements": []
+ },
+ {
+  "route": "family/permission-request",
+  "url": "/family/permission-request",
+  "landed": "/family/permission-request",
+  "status": "TESTED",
+  "render": {
+   "js": [
+    "apiFetch is not defined"
+   ],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": []
+ },
+ {
+  "route": "family/permissions",
+  "url": "/family/permissions",
+  "landed": "/family/permissions",
+  "status": "TESTED",
+  "render": {
+   "js": [
+    "logError is not defined"
+   ],
+   "bad_reads": [
+    "404 GET /family/my-group"
+   ]
+  },
+  "inputs_filled": 9,
+  "elements": []
+ },
+ {
+  "route": "family/scan",
+  "url": "/family/scan",
+  "landed": "/family/scan",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": []
+ },
+ {
+  "route": "family/shared-calendar",
+  "url": "/family/shared-calendar",
+  "landed": "/family/calendar",
+  "status": "TESTED",
+  "render": {
+   "js": [
+    "logError is not defined"
+   ],
+   "bad_reads": [
+    "404 GET /family/calendar",
+    "404 GET /family/members"
+   ]
+  },
+  "inputs_filled": 0,
+  "elements": []
+ },
+ {
+  "route": "health/actionable-order",
+  "url": "/health/actionable-order",
+  "landed": "/health/actionable-order",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "󰁔",
+    "result": "NO_EFFECT"
+   }
+  ]
+ },
+ {
+  "route": "health/add-family-member",
+  "url": "/health/add-family-member",
+  "landed": "/family/invite",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "إعادة المحاولة",
+    "result": "NO_EFFECT"
+   }
+  ]
+ },
+ {
+  "route": "health/chronic-disease",
+  "url": "/health/chronic-disease",
+  "landed": "/health/chronic-disease",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "󰐕",
+    "result": "NO_EFFECT"
+   }
+  ]
+ },
+ {
+  "route": "health/chronic-medications",
+  "url": "/health/chronic-medications",
+  "landed": "/health/chronic-medications",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": []
+ },
+ {
+  "route": "health/conditions-allergies",
+  "url": "/health/conditions-allergies",
+  "landed": "/health/conditions-allergies",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 2,
+  "elements": []
+ },
+ {
+  "route": "health/edit-profile",
+  "url": "/health/edit-profile",
+  "landed": "/health/edit-profile",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 2,
+  "elements": [
+   {
+    "label": "غير معروف",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "A+",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "A-",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "B+",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "B-",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "AB+",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "AB-",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "O+",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "O-",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "لا أريد التحديد",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "أنثى",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "ذكر",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "لا",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "نعم",
+    "result": "NO_EFFECT"
+   }
+  ]
+ },
+ {
+  "route": "health/emergency-contacts",
+  "url": "/health/emergency-contacts",
+  "landed": "/health/emergency-contacts",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "+ إضافة",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "󰁔",
+    "result": "NO_EFFECT"
+   }
+  ]
+ },
+ {
+  "route": "health/family-calendar",
+  "url": "/health/family-calendar",
+  "landed": "/family/calendar",
+  "status": "TESTED",
+  "render": {
+   "js": [
+    "logError is not defined"
+   ],
+   "bad_reads": [
+    "404 GET /family/calendar",
+    "404 GET /family/members"
+   ]
+  },
+  "inputs_filled": 0,
+  "elements": []
+ },
+ {
+  "route": "health/family-chat",
+  "url": "/health/family-chat",
+  "landed": "/family/chat",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": [
+    "403 GET /family/chat/messages",
+    "404 GET /family/members"
+   ]
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "إعادة المحاولة",
+    "result": "NO_EFFECT"
+   }
+  ]
+ },
+ {
+  "route": "health/family-hub",
+  "url": "/health/family-hub",
+  "landed": "/health/family-hub",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": [
+    "404 GET /family/my-group"
+   ]
+  },
+  "inputs_filled": 0,
+  "elements": []
+ },
+ {
+  "route": "health/family-member-detail",
+  "url": "/health/family-member-detail",
+  "landed": "/family/member-health",
+  "status": "TESTED",
+  "render": {
+   "js": [
+    "Cannot read properties of null (reading 'name')",
+    "logError is not defined"
+   ],
+   "bad_reads": [
+    "404 GET /family/member-records/"
+   ]
+  },
+  "inputs_filled": 0,
+  "elements": []
+ },
+ {
+  "route": "health/health-id",
+  "url": "/health/health-id",
+  "landed": "/health/health-id",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "إدارة",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "󰋼",
+    "result": "NO_EFFECT"
+   }
+  ]
+ },
+ {
+  "route": "health/medication-reminder-add",
+  "url": "/health/medication-reminder-add",
+  "landed": "/health/medication-reminder-add",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 6,
+  "elements": [
+   {
+    "label": "06:00",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "08:00",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "12:00",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "14:00",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "18:00",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "20:00",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "22:00",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "يومياً",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "أسبوعياً",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "عند الحاجة",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "مدة محددة",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "دواء مزمن",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "تنبيه عادي",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "تنبيه مهم",
+    "result": "NO_EFFECT"
+   }
+  ]
+ },
+ {
+  "route": "health/medication-reminder-list",
+  "url": "/health/medication-reminder-list",
+  "landed": "/health/medication-reminder-list",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": []
+ },
+ {
+  "route": "health/medications",
+  "url": "/health/medications",
+  "landed": "/health/medications",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": []
+ },
+ {
+  "route": "health/prescriptions",
+  "url": "/health/prescriptions",
+  "landed": "/health/prescriptions",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "󰑐",
+    "result": "NO_EFFECT"
+   }
+  ]
+ },
+ {
+  "route": "health/refills",
+  "url": "/health/refills",
+  "landed": "/health/refills",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": []
+ },
+ {
+  "route": "health/reminders",
+  "url": "/health/reminders",
+  "landed": "/health/medication-reminder-list",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": []
+ },
+ {
+  "route": "health/reports",
+  "url": "/health/reports",
+  "landed": "/health/reports",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": []
+ },
+ {
+  "route": "health/sleep-score",
+  "url": "/health/sleep-score",
+  "landed": "/health/sleep-score",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": []
+ },
+ {
+  "route": "health/sleep-tracker",
+  "url": "/health/sleep-tracker",
+  "landed": "/health/sleep-tracker",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 2,
+  "elements": []
+ },
+ {
+  "route": "health/smart-reminders",
+  "url": "/health/smart-reminders",
+  "landed": "/health/medication-reminder-list",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": []
+ },
+ {
+  "route": "health/trends",
+  "url": "/health/trends",
+  "landed": "/health/trends",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": []
+ },
+ {
+  "route": "health/vitals",
+  "url": "/health/vitals",
+  "landed": "/health/vitals",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": []
+ },
+ {
+  "route": "health/vitals-log",
+  "url": "/health/vitals-log",
+  "landed": "/health/vitals-log",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "ضغط الدم",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "سكر الدم",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "نبض القلب",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "الوزن",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "درجة الحرارة",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "أكسجين الدم",
+    "result": "NO_EFFECT"
+   }
+  ]
+ },
+ {
+  "route": "health/wearables",
+  "url": "/health/wearables",
+  "landed": "/health/wearables",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": []
+ },
+ {
+  "route": "index",
+  "url": "/",
+  "landed": "/",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "dark_mode",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "ع",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "notifications",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "person",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "إدارة التذكيرات",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "فتح المتتبع",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "عرض الكل",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "home",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "prescriptions",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "stethoscope",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "science",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "healing",
+    "result": "NO_EFFECT"
+   }
+  ]
+ },
+ {
+  "route": "insurance/add-policy",
+  "url": "/insurance/add-policy",
+  "landed": "/insurance/add-policy",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 4,
+  "elements": [
+   {
+    "label": "󰁔",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "مسح بطاقة التأمين",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "name_en-21851",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "Tawuniya",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "MedGulf",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "SAICO",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "Al Rajhi Takaful",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "Walaa",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "Allianz Saudi",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "AXA Gulf",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "CIG",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "Malath",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "Salama",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "Gulf Union",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "Arabian Shield",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "AlSagr",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "Amana",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "Cigna",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "GlobeMed",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "NextCare",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "Mediviza",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "MedNet",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "Buruj",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "ACIG",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "Enaya",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "UCA",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "AlAhli Takaful",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "Chubb",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "Aljazira Takaful",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "SABB Takaful",
+    "result": "NO_EFFECT"
+   }
+  ]
+ },
+ {
+  "route": "insurance/approval-pending",
+  "url": "/insurance/approval-pending",
+  "landed": "/insurance/approval-pending",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": []
+ },
+ {
+  "route": "insurance/benefits-summary",
+  "url": "/insurance/benefits-summary",
+  "landed": "/insurance/coverage-check?view=benefits",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "󰁔",
+    "result": "NO_EFFECT"
+   }
+  ]
+ },
+ {
+  "route": "insurance/copay",
+  "url": "/insurance/copay",
+  "landed": "/insurance/copay",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "تأكيد الدفع",
+    "result": "NO_EFFECT"
+   }
+  ]
+ },
+ {
+  "route": "insurance/coverage-check",
+  "url": "/insurance/coverage-check",
+  "landed": "/insurance/coverage-check",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 1,
+  "elements": [
+   {
+    "label": "󰁔",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "استشارة طبيب",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "تحاليل مخبرية",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "أشعة وتشخيص",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "تمريض منزلي",
+    "result": "NO_EFFECT"
+   }
+  ]
+ },
+ {
+  "route": "insurance/hub",
+  "url": "/insurance/hub",
+  "landed": "/insurance/hub",
+  "status": "TESTED",
+  "render": {
+   "js": [
+    "Cannot read properties of undefined (reading 'coverage')"
+   ],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": []
+ },
+ {
+  "route": "insurance/index",
+  "url": "/insurance",
+  "landed": "/insurance",
+  "status": "TESTED",
+  "render": {
+   "js": [
+    "Cannot read properties of undefined (reading 'coverage')"
+   ],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": []
+ }
+]

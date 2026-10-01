@@ -31,7 +31,14 @@ export class ProviderAuthController {
   @Public() @Post('register')
   register(@Body() body: RegisterDto, @Req() req: any) { return this.svc.register({ ...body, meta: meta(req) }); }
   @Public() @Post('login')
-  login(@Body() body: LoginDto, @Req() req: any) { return this.svc.login({ ...body, meta: meta(req) }); }
+  login(@Body() body: LoginDto, @Req() req: any) {
+    // The session is bound to the device that signs in; refresh must present the same id. The app sends it in
+    // meta.device_identifier (and the X-Device-ID header): replacing meta with ip/ua dropped it, so every session
+    // was bound to 'unknown' and the app's first refresh failed as a device mismatch (forced sign-out).
+    const sent = body.meta?.device_identifier ?? req?.headers?.['x-device-id'];
+    const device_identifier = typeof sent === 'string' && sent.trim() ? sent.trim().slice(0, 128) : undefined;
+    return this.svc.login({ ...body, meta: { ...meta(req), device_identifier } });
+  }
   @Public() @Post('refresh')
   refresh(@Body() body: RefreshDto, @Req() req: any) { return this.svc.refresh({ ...body, meta: meta(req) }); }
   @SelfService()

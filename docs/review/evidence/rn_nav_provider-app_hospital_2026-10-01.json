@@ -1,0 +1,164 @@
+{
+ "provider_type": "hospital",
+ "login_via_ui": true,
+ "states": [
+  {
+   "path": [],
+   "heading": "مرحباً، | مستشفى نبضة الطبي | calendar | 0 | مواعيد اليوم | bed | — | أسرّ",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "",
+     "result": "NAVIGATE",
+     "to": "→ |  تسجيل دخول المرضى QR | مسح QR | يدوي | السج"
+    },
+    {
+     "label": "توسيع",
+     "result": "NAVIGATE",
+     "to": "→ | لوحة توجيه التمريض والممرضين | لا توجد ط"
+    },
+    {
+     "label": "◈",
+     "result": "NAVIGATE",
+     "to": "→ |  التقارير المالية الموحدة | أسبوع | شهر | سن"
+    },
+    {
+     "label": "إدارة",
+     "result": "NAVIGATE",
+     "to": "→ |  إدارة الكوادر | + | الكل | طبيب | منسق تأمين | "
+    },
+    {
+     "label": "طلبات",
+     "result": "NAVIGATE",
+     "to": "→ | إدارة الإجازات والأعذار | لا توجد طلبات "
+    },
+    {
+     "label": "الأقسام",
+     "result": "NAVIGATE",
+     "to": "→ |  إدارة الأقسام | 0 | الأقسام | 0 | نشطة | 0 | الكو"
+    },
+    {
+     "label": "جدول",
+     "result": "NAVIGATE",
+     "to": "→ |  جدول غرف العمليات | 3 | غرف | 0 | عمليات مجدو"
+    },
+    {
+     "label": "مطالبات",
+     "result": "NAVIGATE",
+     "to": "→ |  مطالبات التأمين | 0.0K | ر | مقبولة هذا الش"
+    },
+    {
+     "label": "الحضور",
+     "result": "NAVIGATE",
+     "to": "→ |  الحضور والانصراف | 0 | حاضر | 0 | غائب | users | "
+    },
+    {
+     "label": "التوثيق",
+     "result": "NAVIGATE",
+     "to": "→ |  التوثيق المهني | تتبع تراخيص SCFHS، شها"
+    },
+    {
+     "label": "تتبع",
+     "result": "NAVIGATE",
+     "to": "→ | تتبع المرضى (Patient Tracker) | مراقبة ح"
+    },
+    {
+     "label": "لوحة",
+     "result": "NAVIGATE",
+     "to": "→ | لوحة توجيه التمريض والممرضين | لا توجد ط"
+    },
+    {
+     "label": "التواصل",
+     "result": "NAVIGATE",
+     "to": "→ | التواصل الداخلي | قنوات التواصل المباشر"
+    },
+    {
+     "label": "سجل",
+     "result": "NAVIGATE",
+     "to": "→ | سجل التدقيق (Audit Logs) | تتبع وتوثيق ك"
+    },
+    {
+     "label": "التعاميم",
+     "result": "NAVIGATE",
+     "to": "→ | التعاميم والإعلانات | إرسال تعميم جديد | ن"
+    },
+    {
+     "label": "التفاصيل",
+     "result": "NAVIGATE",
+     "to": "→ |  إدارة الأسرّة | bed | 0 | الإجمالي | user | 0 | م"
+    },
+    {
+     "label": "الكل",
+     "result": "NAVIGATE",
+     "to": "→ | التقويم الموحد (Unified Calendar) | عرض "
+    },
+    {
+     "label": "الرئيسية",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الطلبات",
+     "result": "NAVIGATE",
+     "to": "الطلبات | طلبات جديدة (0) | مؤكدة | الإشعارات "
+    },
+    {
+     "label": "الوظائف",
+     "result": "NAVIGATE",
+     "to": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | "
+    },
+    {
+     "label": "الأدوية",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | UE3C96A10 (2) | ca"
+    },
+    {
+     "label": "الإعدادات",
+     "result": "NAVIGATE",
+     "to": " إعدادات المنشأة | مستشفى نبضة الطبي | مستشف"
+    }
+   ]
+  },
+  {
+   "path": [
+    ""
+   ],
+   "heading": "→ |  تسجيل دخول المرضى QR | مسح QR | يدوي | السجل | وجّه الكاميرا نحو ",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "مرحباً، | مستشفى نبضة الطبي | calendar | 0 | موا"
+    },
+    {
+     "label": "مسح QR",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "يدوي",
+     "result": "NAVIGATE",
+     "to": "→ |  تسجيل دخول المرضى QR | مسح QR | يدوي | السج"
+    },
+    {
+     "label": "السجل",
+     "result": "NAVIGATE",
+     "to": "→ |  تسجيل دخول المرضى QR | مسح QR | يدوي | السج"
+    },
+    {
+     "label": "تفعيل الكاميرا",
+     "result": "UI_CHANGE"
+    }
+   ]
+  }
+ ]
+}
