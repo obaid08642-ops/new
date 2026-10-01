@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards, BadRequestException } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -7,6 +7,7 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { NotificationsService } from '../notifications/notifications.service';
 import { NotificationType } from '../../common/enums';
+import { EngagementEventDto } from './engagement.dto';
 
 /**
  * N10: Behaviour-triggered nudges.
@@ -21,19 +22,6 @@ import { NotificationType } from '../../common/enums';
  * - the user already had a nudge for this kind within the cooldown
  */
 
-const INTEREST_KINDS = [
-  'medicine', 'category', 'doctor', 'specialty', 'lab_test',
-  'radiology', 'nursing', 'pregnancy', 'ovulation', 'family',
-  'mental_health', 'nutrition', 'search_query',
-] as const;
-
-class EngagementEventDto {
-  kind: string;
-  ref_id?: string;
-  query?: string;
-  locale: string;
-}
-
 @Controller('engagement')
 @UseGuards(JwtAuthGuard)
 export class EngagementController {
@@ -46,10 +34,6 @@ export class EngagementController {
   @Post('events')
   @Throttle({ default: { limit: 30, ttl: 60000 } })
   async trackEvent(@CurrentUser() user: any, @Body() body: EngagementEventDto) {
-    if (!body?.kind || !INTEREST_KINDS.includes(body.kind as any)) {
-      throw new BadRequestException('invalid_kind');
-    }
-    if (!body.locale) throw new BadRequestException('locale_required');
 
     const event = {
       id: `evt_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
@@ -94,12 +78,19 @@ export async function processNudge(
   const userId = event.user_id;
   const kind = event.kind;
 
-  // 1. User has since ordered or booked that kind → skip
-  const recentOrder = await conn.collection('orders').findOne({
-    patient_id: userId,
-    created_at: { $gte: event.created_at },
-  });
-  if (recentOrder) return;
+  // 1. User has since ordered or booked that kind → skip.
+  // Check both the canonical orders and the governed pharmacy orders.
+  const [legacyOrder, governedOrder] = await Promise.all([
+    conn.collection('orders').findOne({
+      patient_id: userId,
+      created_at: { $gte: event.created_at },
+    }),
+    conn.collection('pharmacy_orders').findOne({
+      patient_account_id: userId,
+      created_at: { $gte: event.created_at },
+    }),
+  ]);
+  if (legacyOrder || governedOrder) return;
 
   // 2. User opted out → skip
   const settings = await conn.collection('users').findOne({ id: userId }, { projection: { notification_settings: 1 } });
@@ -113,14 +104,15 @@ export async function processNudge(
     if (hour >= start && hour < end) return;
   }
 
-  // 4. Cooldown: already had a nudge for this kind within 24h → skip
-  const recentNudge = await conn.collection('user_interest_events').findOne({
+  // 4. Cooldown: a nudge was already SENT for this kind within 24h → skip.
+  // Check sent notifications, not interest events: viewing twice should not
+  // suppress the first nudge, but a sent nudge suppresses the second.
+  const recentSentNudge = await conn.collection('notifications').findOne({
     user_id: userId,
-    kind,
+    type: 'nudge',
     created_at: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
-    _id: { $ne: event._id },
   });
-  if (recentNudge) return;
+  if (recentSentNudge) return;
 
   // Send the nudge
   const rule = await conn.collection('engagement_nudge_rules').findOne({ kind });

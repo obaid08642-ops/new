@@ -117,6 +117,7 @@ import { NutritionModule } from './modules/nutrition/nutrition.module';
 import { MentalHealthModule } from './modules/mental-health/mental-health.module';
 import { ReturnsModule } from './modules/returns/returns.module';
 import { AdminModule } from './modules/admin/admin.module';
+import { EngagementModule } from './modules/engagement/engagement.module';
 import { HospitalModule } from './modules/hospital/hospital.module';
 import { HomeModule } from './modules/home/home.module';
 import { SystemHealthModule } from './modules/system-health/system-health.module';
@@ -259,6 +260,7 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     ArticlesModule,
     InsuranceEngineModule,
     AdminModule,
+    EngagementModule,
     CompatModule, // gap-fill endpoints from the screen↔API wiring audit — registered last
     AdminSpaModule, // admin console SPA REST surface (top-level paths, admin-role guarded)
     CatalogsModule, // unified central catalogs (insurance/labs/radiology/nursing) — single source
