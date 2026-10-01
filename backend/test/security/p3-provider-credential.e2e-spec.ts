@@ -26,6 +26,7 @@ import { AuthController } from '../../src/modules/auth/auth.controller';
 import { AuthService } from '../../src/modules/auth/auth.service';
 import { UsersController } from '../../src/modules/users/users.controller';
 import { UsersService } from '../../src/modules/users/users.service';
+import { PdplService } from '../../src/modules/users/pdpl.service';
 import { RedisService } from '../../src/modules/redis/redis.service';
 import { ProviderAuthController } from '../../src/modules/provider/provider.controllers';
 import { ProviderAuthService } from '../../src/modules/provider/services/provider-auth.service';
@@ -57,6 +58,7 @@ describe('P3.0b single credential: provider login uses users.password_hash', () 
       providers: [
         AuthService,
         UsersService,
+        { provide: PdplService, useValue: { exportPatientData: jest.fn(), erasePatientData: jest.fn() } },
         ProviderAuthService,
         { provide: 'UserRepository', useValue: repo('users') },
         { provide: 'PatientProfileRepository', useValue: repo('patient_profiles') },
