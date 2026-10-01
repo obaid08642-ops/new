@@ -46,3 +46,4 @@ patient-web/public/openapi.json
 
 # Rendered coturn config holds the live TURN secret (deploy/scripts/render-coturn-config.sh)
 deploy/coturn/turnserver.rendered.conf
+tools/design/.og-image.html
