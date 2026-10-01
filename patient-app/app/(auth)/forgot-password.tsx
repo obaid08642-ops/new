@@ -91,7 +91,6 @@ export default function ForgotPasswordScreen() {
           </LocalizedText>
         </TouchableOpacity>
       </View>
-      <ScreenState loading={loading} error={null} empty={false} emptyTitle="لا توجد بيانات" onRetry={handleSend}>
       <View style={st.body}>
         <View
           style={[st.iconCircle, { backgroundColor: colors.warningSurface }]}
@@ -126,7 +125,6 @@ export default function ForgotPasswordScreen() {
           onPress={() => router.back()}
         />
       </View>
-      </ScreenState>
     </KeyboardAvoidingView>
   );
 }

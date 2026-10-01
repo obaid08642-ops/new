@@ -183,7 +183,6 @@ export default function WearablesHubScreen() {
         </View>
       </View>
 
-      <ScreenState loading={saving} error={null} empty={false} emptyTitle="لا توجد بيانات" onRetry={handleSave}>
       <ScrollView
         contentContainerStyle={{ padding: 16, gap: 14, paddingBottom: 100 }}
       >
@@ -254,7 +253,6 @@ export default function WearablesHubScreen() {
           />
         </View>
       </ScrollView>
-      </ScreenState>
     </View>
   );
 }

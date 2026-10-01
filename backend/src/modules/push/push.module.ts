@@ -443,14 +443,28 @@ export class PushService implements OnModuleInit {
   }
 
   /** R7-7: queue with template keys — resolved through templates with built-in fallback. */
+  /** The recipient's language (profile `locale`/`language`), so templated pushes are not always Arabic. */
+  async userLang(userId: string): Promise<string> {
+    const supported = ['ar', 'en', 'ur', 'hi', 'bn', 'fil'];
+    try {
+      const u: any = await (this.tokens as any).db.collection('users')
+        .findOne({ id: { $eq: String(userId) } }, { projection: { _id: 0, locale: 1, language: 1 } });
+      const raw = String(u?.locale || u?.language || '').toLowerCase().split(/[-_]/)[0];
+      const lang = raw === 'tl' ? 'fil' : raw;
+      return supported.includes(lang) ? lang : 'ar';
+    } catch {
+      return 'ar';
+    }
+  }
+
   async queueTemplated(userId: string, titleKey: string, bodyKey: string, data: any = {}, params?: Record<string, any>, priority: 'high' | 'normal' = 'high') {
-    const { title, body } = await this.resolvePushText(titleKey, bodyKey, params);
+    const { title, body } = await this.resolvePushText(titleKey, bodyKey, params, await this.userLang(userId));
     return this.queueNotification(userId, title, body, data, priority);
   }
 
   /** R7-7: direct send with template keys. */
   async sendTemplated(userId: string, titleKey: string, bodyKey: string, data: any = {}, params?: Record<string, any>) {
-    const { title, body } = await this.resolvePushText(titleKey, bodyKey, params);
+    const { title, body } = await this.resolvePushText(titleKey, bodyKey, params, await this.userLang(userId));
     return this.sendToUser(userId, title, body, data);
   }
 

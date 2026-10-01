@@ -331,6 +331,12 @@ jobs:
           cache-dependency-path: patient-app/package-lock.json
       - name: Install frozen dependencies
         run: npm ci
+      # patient-app imports the design system sources from ../packages (12.A6/A7);
+      # their own dependencies must be present for tsc, jest and the export.
+      - name: Install the shared design packages
+        run: |
+          npm install --ignore-scripts --no-audit --no-fund --prefix ../packages/ui-native
+          npm install --ignore-scripts --no-audit --no-fund --prefix ../packages/ui
       - name: Type check
         run: npm run typecheck
       - name: Run tests

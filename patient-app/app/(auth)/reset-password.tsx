@@ -104,7 +104,6 @@ export default function ResetPasswordScreen() {
         <AppText variant="h4">كلمة مرور جديدة</AppText>
         <IconButton icon="back" onPress={() => router.back()} />
       </View>
-      <ScreenState loading={loading} error={null} empty={false} emptyTitle="لا توجد بيانات" onRetry={handleReset}>
       <View style={st.body}>
         <View
           style={[st.iconCircle, { backgroundColor: colors.primarySurface }]}
@@ -149,7 +148,6 @@ export default function ResetPasswordScreen() {
           style={{ marginTop: 16 }}
         />
       </View>
-      </ScreenState>
     </KeyboardAvoidingView>
   );
 }

@@ -2,11 +2,12 @@ import { ForbiddenException, BadRequestException } from '@nestjs/common';
 import { LabsService } from './labs.service';
 
 /** R7-3: real technicians, team-only assignment, real-device GPS. */
-function serviceFor(opts: { accounts?: any[]; users?: any[]; booking?: any } = {}) {
+function serviceFor(opts: { operators?: any[]; accounts?: any[]; users?: any[]; booking?: any } = {}) {
   const service: any = Object.create(LabsService.prototype);
   service.bkgModel = {
     db: {
       collection: jest.fn((name: string) => {
+        if (name === 'provider_operators') return { find: jest.fn().mockReturnValue({ limit: jest.fn().mockReturnValue({ toArray: jest.fn().mockResolvedValue(opts.operators ?? []) }) }) };
         if (name === 'provider_accounts') return { find: jest.fn().mockReturnValue({ limit: jest.fn().mockReturnValue({ toArray: jest.fn().mockResolvedValue(opts.accounts ?? []) }) }) };
         if (name === 'users') return { find: jest.fn().mockReturnValue({ toArray: jest.fn().mockResolvedValue(opts.users ?? []) }) };
         return { findOne: jest.fn().mockResolvedValue(null) };
@@ -25,6 +26,14 @@ describe('LabsService technicians (R7-3)', () => {
     });
     const out = await service.listTechnicians({ id: 'lab-1', role: 'lab' });
     expect(out).toEqual([{ id: 'tech-1', account_id: 'acc-1', name: 'فني حقيقي', role: 'technician', status: undefined }]);
+  });
+
+  it('lists technicians invited through provider/operators (the real team flow)', async () => {
+    const service = serviceFor({
+      operators: [{ id: 'op-7', full_name: 'فنية سحب', email: 'op@lab.test', role: 'lab_technician', status: 'active' }],
+    });
+    const out = await service.listTechnicians({ id: 'lab-1', role: 'lab' });
+    expect(out).toEqual([{ id: 'op-7', account_id: 'op-7', name: 'فنية سحب', role: 'lab_technician', status: 'active' }]);
   });
 
   it('refuses to assign an outsider as technician', async () => {

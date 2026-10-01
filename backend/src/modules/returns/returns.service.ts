@@ -1,4 +1,5 @@
-import { Injectable, NotFoundException, ForbiddenException, BadRequestException, Inject } from '@nestjs/common';
+import { MediaService } from '../media/media.service';
+import { Injectable, NotFoundException, ForbiddenException, BadRequestException, Inject, Optional } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection, Types } from 'mongoose';
 import { ReturnRequest } from '../../schemas/returns.schema';
@@ -26,7 +27,45 @@ export class ReturnsService {
     @Inject('ReturnRequestRepository') private readonly returnModel: ReturnRequestRepository,
     private readonly refundExec: RefundExecutor,
     @InjectConnection() private readonly conn: Connection,
+    @Optional() private readonly media?: MediaService,
   ) {}
+
+  /**
+   * R7-2: photo evidence is stored as `media:<assetId>` (owned by the patient), never as a
+   * presigned URL, which expires after 15 minutes. Readers get a fresh signed URL.
+   */
+  private async evidenceRefs(userId: string, docs: unknown): Promise<string[]> {
+    if (!Array.isArray(docs) || !docs.length) return [];
+    if (docs.length > 10) throw new BadRequestException('too_many_attachments');
+    const ids = docs.map((d) => String(d || ''));
+    if (ids.some((d) => !/^media:[A-Za-z0-9_-]{1,128}$/.test(d))) throw new BadRequestException('attachment_must_be_uploaded_media');
+    const assetIds = ids.map((d) => d.slice('media:'.length));
+    const owned = await (this.conn as any).collection('media_assets')
+      .countDocuments({ id: { $in: assetIds }, owner_id: { $eq: String(userId) } });
+    if (owned !== new Set(assetIds).size) throw new BadRequestException('attachment_not_owned');
+    return ids;
+  }
+
+  private async withEvidenceUrls<T extends Record<string, any>>(row: T | null): Promise<T | null> {
+    if (!row || !Array.isArray((row as any).attached_docs) || !(row as any).attached_docs.length) return row;
+    const refs: string[] = (row as any).attached_docs.map(String);
+    const assetIds = refs.filter((r) => r.startsWith('media:')).map((r) => r.slice('media:'.length));
+    const assets: any[] = assetIds.length
+      ? await (this.conn as any).collection('media_assets').find({ id: { $in: assetIds } }, { projection: { _id: 0, id: 1, key: 1 } }).toArray()
+      : [];
+    const keyOf = new Map(assets.map((a: any) => [String(a.id), String(a.key)]));
+    const urls = await Promise.all(refs.map(async (r) => {
+      if (!r.startsWith('media:')) return r;
+      const key = keyOf.get(r.slice('media:'.length));
+      if (!key || !this.media) return null;
+      return this.media.generatePresignedDownloadUrl(key, 15 * 60).catch(() => null);
+    }));
+    return { ...row, attached_docs: urls.filter(Boolean) } as T;
+  }
+
+  private async withEvidenceUrlsAll<T extends Record<string, any>>(rows: T[]): Promise<T[]> {
+    return Promise.all(rows.map(async (r) => (await this.withEvidenceUrls(r)) as T));
+  }
 
   private async policy() {
     const cfg: any = await this.conn.collection('finance_config').findOne({ key: 'return_policy' } as any);
@@ -216,7 +255,7 @@ export class ReturnsService {
       is_used: data.is_used === true,
       refund_method: data.refundMethod || 'original',
       amount,
-      attached_docs: data.attachedDocs || [],
+      attached_docs: await this.evidenceRefs(userId, data.attachedDocs),
       status: 'processing',
     } as any);
 
@@ -224,7 +263,7 @@ export class ReturnsService {
   }
 
   async myReturns(userId: string) {
-    return this.returnModel.find({ patient_id: userId }).sort({ createdAt: -1 }).lean();
+    return this.withEvidenceUrlsAll(await this.returnModel.find({ patient_id: userId }).sort({ createdAt: -1 }).lean() as any[]);
   }
 
   /** Returns filed against this provider's orders: legacy `orders` plus
@@ -238,7 +277,7 @@ export class ReturnsService {
     ]);
     const ids = [...legacy.map((o: any) => o.id), ...allocs.map((a: any) => a.order_id)].filter(Boolean);
     if (!ids.length) return [];
-    return this.returnModel.find({ order_id: { $in: ids } } as any).sort({ createdAt: -1 }).lean() as any;
+    return this.withEvidenceUrlsAll(await this.returnModel.find({ order_id: { $in: ids } } as any).sort({ createdAt: -1 }).lean() as any[]);
   }
 
   async getById(id: string, userId: string, userRole: string) {
@@ -247,7 +286,7 @@ export class ReturnsService {
     if (request.patient_id !== userId && userRole !== 'admin') {
       throw new ForbiddenException('Access denied');
     }
-    return request;
+    return this.withEvidenceUrls(request as any);
   }
 
   /** LJ-05: server-eligible completed bookings for the return picker. */
@@ -314,7 +353,7 @@ export class ReturnsService {
     const allowed = ['processing', 'approved', 'completed', 'rejected'];
     if (status && !allowed.includes(status)) throw new BadRequestException('invalid_return_status');
     const filter = status ? { status } : {};
-    return this.returnModel.find(filter).sort({ createdAt: -1 }).lean();
+    return this.withEvidenceUrlsAll(await this.returnModel.find(filter).sort({ createdAt: -1 }).lean() as any[]);
   }
 
   /**

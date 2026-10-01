@@ -27,7 +27,7 @@ describe('scripts/disk-alert.sh', () => {
   const run = (env: Record<string, string> = {}) =>
     new Promise<{ code: number; stdout: string; stderr: string }>((resolve) => {
       execFile(
-        'bash',
+        '/bin/bash',
         [SCRIPT],
         { env: { ...process.env, ...env } },
         (error: any, stdout, stderr) => resolve({ code: error ? error.code : 0, stdout, stderr }),

@@ -28,7 +28,8 @@ describe('AdminDisputesController refund cap (7B-B4)', () => {
     return { controller: new AdminDisputesController(conn, audit as any, refundExec as any), audit, executed };
   };
 
-  const admin = { id: 'admin-1', roles: ['admin'] };
+  // The admin JWT carries `role` (see getEffectiveRoles), not a `roles` array.
+  const admin = { id: 'admin-1', role: 'admin' };
   const partial = { decision: 'refund_partial', amount: 100, reason: 'refund approved by admin review', booking_kind: 'consultation', booking_id: 'b-1' };
 
   it('uses the admin-configured cap from system_configs', async () => {

@@ -85,10 +85,8 @@ export default function NewReturnRequestScreen() {
       const up: any = await apiFetch('/media/upload', { method: 'POST', body: formData });
       const assetId = up?.id || up?.data?.id;
       if (!assetId) throw new Error('no asset');
-      const signed: any = await apiFetch(`/media/${encodeURIComponent(assetId)}/url`);
-      const url = signed?.url || signed?.data?.url;
-      if (!url) throw new Error('no url');
-      setAttachedDocs((prev) => [...prev, url]);
+      // R7-2: store the media reference; the server signs a fresh URL on every read.
+      setAttachedDocs((prev) => [...prev, `media:${assetId}`]);
     } catch {
       showLocalizedAlert('تعذر إرفاق الصورة', 'حاول مرة أخرى.');
     } finally {

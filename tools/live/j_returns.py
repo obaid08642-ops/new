@@ -7,8 +7,11 @@ def rows(r):
     return r.body if isinstance(r.body, list) else r.items()
 
 
+import urllib.request
+
+
 def upload_evidence(pat):
-    # F76/R7-2: the app flow — expo-image-picker bytes -> multipart /media/upload -> URL.
+    # F76/R7-2: the app flow — expo-image-picker bytes -> multipart /media/upload -> `media:<id>`.
     import base64
     import struct
     import urllib.request
@@ -31,13 +34,7 @@ def upload_evidence(pat):
         with urllib.request.urlopen(req, timeout=60) as resp:
             payload = __import__('json').loads(resp.read().decode())
         asset_id = payload.get('id') or (payload.get('data') or {}).get('id')
-        if not asset_id:
-            return None
-        req2 = urllib.request.Request(f'http://127.0.0.1:8002/api/v1/media/{asset_id}/url',
-                                      headers={'authorization': f'Bearer {token}'})
-        with urllib.request.urlopen(req2, timeout=60) as resp2:
-            signed = __import__('json').loads(resp2.read().decode())
-        return signed.get('url') or (signed.get('data') or {}).get('url')
+        return f'media:{asset_id}' if asset_id else None
     except Exception:
         return None
 
@@ -56,7 +53,19 @@ def run(pat, pharm, admin, oid, admin_api=None):
     if rid and evidence:
         r = pat.get(f'/pharmacy/returns/{rid}')
         docs = r.get('attached_docs') or []
-        step('the stored return carries the real image URL', r.ok and evidence in docs, docs)
+        # The return stores the media reference; readers get a fresh signed URL that really downloads.
+        url = docs[0] if docs else ''
+        ok_img = False
+        if url.startswith('http'):
+            try:
+                with urllib.request.urlopen(url, timeout=30) as img:
+                    ok_img = img.read(8) == b'\x89PNG\r\n\x1a\n'
+            except Exception as e:
+                url = f'{url[:60]} -> {e}'
+        step('the stored return serves the real image (fresh signed URL)', r.ok and ok_img, url[:120])
+        r = pat.post('/pharmacy/returns', {'serviceType': 'pharmacy', 'reason': 'x', 'orderId': oid,
+                                           'attachedDocs': ['https://evil.example/fake.jpg']})
+        step('a raw URL as evidence is rejected', r.status == 400, r)
     r = pat.post('/pharmacy/returns', {'serviceType': 'pharmacy', 'reason': 'x', 'orderId': 'not-my-order', 'refundMethod': 'wallet'})
     step('a return on an unknown order is refused', r.status in (400, 403, 404), r)
     r = pat.get('/pharmacy/returns')
