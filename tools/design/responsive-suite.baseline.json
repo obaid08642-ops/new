@@ -1,0 +1,4 @@
+{
+  "note": "Viewport combinations with horizontal overflow, clipped text or an unclickable overlap. Ratcheted; --update only ever lowers it. 12.A11 clears these as screens are rebuilt on the responsive scale.",
+  "files": {}
+}
