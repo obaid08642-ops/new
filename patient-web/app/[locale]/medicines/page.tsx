@@ -6,6 +6,12 @@ import { getPublicMedicines } from "@/lib/api/public-medicines-server";
 import { isLocale } from "@/lib/i18n";
 import { RetryButton } from "@/components-next/retry-button";
 import { ArrowUpLeft, Pill, Search, ShieldCheck } from "lucide-react";
+// 12.A7 / 12.C2 — the submit control is the contract's `Button`, not hand-rolled
+// markup. It is also the one place on this screen that could stop importing
+// lucide: C2 forbids a primitive icon library in a screen, and `startIcon` takes
+// a platform-free name from the curated set. The three icons still imported above
+// are outside that set, which is why this is one of three and not three of three.
+import { Button } from "@/components-next/ui-generated/components/Button";
 import styles from "../medicine-catalog/medicine-catalog.module.css";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ q?: string | string[]; page?: string | string[] }> };
@@ -37,7 +43,7 @@ export default async function MedicinesPage({ params, searchParams }: Props) {
         <span>{t("searchLabel")}</span>
         <span className={styles.fieldInput}><Search size={18} aria-hidden="true" /><input name="q" maxLength={80} defaultValue={search.q} autoComplete="off" /></span>
       </label>
-      <button className={`button button-primary ${styles.submit}`} type="submit"><Search size={17} aria-hidden="true" />{t("search")}</button>
+      <Button type="submit" variant="primary" label={t("search")} startIcon="search" />
     </form>
     {medicines.length === 0 ? <section className={styles.state}><span className={styles.stateIcon}><Pill size={24} aria-hidden="true" /></span><p>{t("empty")}</p></section> : <section className={styles.grid} aria-label={t("title")}>
       {medicines.map((medicine) => <Link className={styles.card} key={medicine.id} href={`/${locale}/medicines/${medicine.id}`}>

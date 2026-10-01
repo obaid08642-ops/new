@@ -54,6 +54,26 @@ const FILES = [
   { from: 'packages/ui/icons/names.ts', to: 'patient-web/components-next/ui-generated/icons/names.ts' },
   { from: 'packages/ui/icons/illustrations.ts', to: 'patient-web/components-next/ui-generated/icons/illustrations.ts' },
   { from: 'packages/ui/src/Icon.tsx', to: 'patient-web/components-next/ui-generated/src/Icon.tsx', useClient: true },
+
+  // 12.A7 — the components, not just the icons.
+  //
+  // The mirror carried `Icon.tsx` and nothing else, so 26 components existed in
+  // `packages/ui` and a screen could not reach one of them. The fix is a copy
+  // rather than a port: the modules import `'../src/Icon'` and `'./contract'`,
+  // and those two relative paths land on `ui-generated/src/Icon` and
+  // `ui-generated/components/contract` once the directory layout is preserved —
+  // which is why the mirror has always preserved it.
+  //
+  // `contract.ts` is mirrored rather than re-declared so the props a screen
+  // passes are checked against the SAME types the package declares. A hand-copied
+  // prop list would drift from the contract silently, and the contract is the
+  // only thing that makes "same API across platforms" a build fact.
+  { from: 'packages/ui/components/contract.ts', to: 'patient-web/components-next/ui-generated/components/contract.ts' },
+  { from: 'packages/ui/components/Button.tsx', to: 'patient-web/components-next/ui-generated/components/Button.tsx' },
+  { from: 'packages/ui/components/Surfaces.tsx', to: 'patient-web/components-next/ui-generated/components/Surfaces.tsx' },
+  { from: 'packages/ui/components/Inputs.tsx', to: 'patient-web/components-next/ui-generated/components/Inputs.tsx' },
+  { from: 'packages/ui/components/Feedback.tsx', to: 'patient-web/components-next/ui-generated/components/Feedback.tsx' },
+  { from: 'packages/ui/components/Spinner.tsx', to: 'patient-web/components-next/ui-generated/components/Spinner.tsx' },
 ];
 
 const banner = (from) => `// GENERATED FILE — DO NOT EDIT.
