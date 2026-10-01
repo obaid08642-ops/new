@@ -133,6 +133,11 @@ jobs:
         run: node tools/design/sync-client-tokens.mjs --check
       - name: No new off-palette colour in the mobile/admin clients (ratchet)
         run: node tools/design/client-token-sync.mjs
+      # C2, third leg: screens take visual primitives from packages/ui* only. The
+      # other two lints catch a hard-coded VALUE; this catches a hard-coded
+      # COMPONENT — a screen reaching past the design system for its own icons.
+      - name: No new direct visual-primitive import in any client (ratchet)
+        run: node tools/design/import-rule.mjs
       - name: Install compiler
         run: npm install --ignore-scripts --no-save typescript@5.9.3
       - name: Type check the generated TypeScript module
