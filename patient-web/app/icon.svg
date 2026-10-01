@@ -1,10 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Nabd Plus">
-  <defs>
-    <linearGradient id="nabd" x1="8" y1="6" x2="58" y2="60" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#13a8bd"/>
-      <stop offset="1" stop-color="#078494"/>
-    </linearGradient>
-  </defs>
-  <rect width="64" height="64" rx="18" fill="url(#nabd)"/>
-  <path d="M13 34h10l4-13 7 25 5-17 3 5h9" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="5"/>
+<!--
+  The favicon Next.js serves for the site. The owner-approved "Noon Dot" mark
+  (docs/audit/05 Part A §A1, packages/brand/src/logo-mark.svg). The previous
+  teal shield was the retired pre-2026-09-29 brand.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240" role="img" aria-label="Nabd+">
+  <path d="M40 104 C40 196 200 196 200 104" fill="none" stroke="#FF4B55" stroke-width="36" stroke-linecap="round"/>
+  <circle cx="120" cy="58" r="24" fill="#FF4B55"/>
 </svg>

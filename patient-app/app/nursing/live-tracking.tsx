@@ -23,6 +23,7 @@ import Svg, {
   Polyline,
   Polygon,
 } from "react-native-svg";
+import { ScreenState } from "../../src/components/ScreenStates";
 
 const { width, height } = Dimensions.get("window");
 
@@ -76,17 +77,24 @@ export default function NursingLiveTracking() {
 
   const [eta, setEta] = useState<number | null>(null);
   const [trackingData, setTrackingData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string|null>(null);
 
   useEffect(() => {
     if (!bookingId) return;
     let stopped = false;
+    let first = true;
     const fetchTracking = async () => {
       try {
         const res = await apiFetch(`/nursing/visits/${bookingId}/tracking`);
         if (stopped) return;
         setTrackingData(res);
         if (res?.eta_minutes != null) setEta(res.eta_minutes);
-      } catch { /* keep last known state; next poll retries */ }
+      } catch {
+        setError('تعذر تحميل بيانات التتبع');
+      } finally {
+        if (first) { first = false; setLoading(false); }
+      }
     };
     fetchTracking();
     // E2: poll the live API every 15s (was: fetch once + a fake local ETA countdown)
@@ -137,6 +145,7 @@ export default function NursingLiveTracking() {
   }
 
   return (
+    <ScreenState loading={loading} error={error} empty={false} emptyTitle="لا توجد بيانات">
     <View style={styles.container}>
       {/* REAL MAP — nurse GPS + destination from the live tracking API */}
       <View style={styles.mapBg}>
@@ -275,6 +284,7 @@ export default function NursingLiveTracking() {
         </BlurView>
       </View>
     </View>
+    </ScreenState>
   );
 }
 

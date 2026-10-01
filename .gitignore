@@ -10,6 +10,18 @@ build/
 .cache/
 out/
 
+# The design system packages are the exception: dist/ is GENERATED but
+# COMMITTED, so patient-web, patient-app, provider-app and admin can consume it
+# without a build step. CI runs `npm run check` in each package to fail if it
+# drifts from its source of truth.
+!packages/design-tokens/dist/
+!packages/brand/dist/
+
+# @nabd/ui's dist/ holds the GENERATED icon sheets and the preview page, which
+# the design review reads directly. Committed like the other two, and `npm run
+# check` in the package fails if it drifts from the source geometry.
+!packages/ui/dist/
+
 # Environment and secrets
 .env*.local
 *.pem
@@ -31,3 +43,6 @@ extracted/
 deploy/.env.production
 dump.rdb
 patient-web/public/openapi.json
+
+# Rendered coturn config holds the live TURN secret (deploy/scripts/render-coturn-config.sh)
+deploy/coturn/turnserver.rendered.conf

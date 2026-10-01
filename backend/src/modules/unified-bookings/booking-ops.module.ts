@@ -16,6 +16,7 @@ import { Document, Model } from 'mongoose';
 import { JwtAuthGuard, CurrentUser, SelfService } from '../../common/auth.guard';
 import { ForbiddenException } from '@nestjs/common';
 import { OrderSchema, OrderDocument } from '../../schemas/order.schema';
+import { readVatRate } from '../business-rules/business-rules.module';
 import { LabBookingSchema, LabBooking } from '../../schemas/lab.schema';
 import { RadiologyBookingSchema, RadiologyBooking } from '../../schemas/radiology.schema';
 import { HomeCareBookingSchema, HomeCareBooking } from '../../schemas/home-care.schema';
@@ -88,7 +89,7 @@ export class BookingOpsService {
     const e = await this.fetchEntity(kind, id, user);
     if (!e) throw new NotFoundException();
     const subtotal = e.subtotal ?? e.total ?? e.price ?? 0;
-    const taxRate = 0.15;
+    const taxRate = await readVatRate(this.appts.db).catch(() => 0.15);
     const tax = Math.round(subtotal * taxRate * 100) / 100;
     const insuranceDiscount = e.insurance_provider ? Math.round(subtotal * 0.8 * 100) / 100 : 0;
     const total = e.total ?? Math.max(0, subtotal - insuranceDiscount) + tax;

@@ -75,34 +75,64 @@ export function DiagnosticsCheckoutForm({
     }
     setSaving(true);
     try {
-      const res = await fetch("/api/diagnostics/bookings", {
+      // F74: create ONE parent diagnostics order containing lab+radiology lines.
+      const res = await fetch("/api/diagnostics/orders", {
         method: "POST",
         headers: {
           "content-type": "application/json",
           "idempotency-key": `web-diag-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
         },
         body: JSON.stringify({
-          items: items.map((service_id) => ({ service_id })),
-          provider_account_id: labId,
+          lines: items.map((service_id) => ({
+            kind: service_id.startsWith("rad_") ? "radiology" : "lab",
+            service_id: service_id.replace(/^(rad_|lab_)/, ""),
+            provider_account_id: labId,
+          })),
           scheduled_at: scheduled.toISOString(),
           location_type: initialLocation,
           payment_method: method,
-          address: address.trim() || undefined,
-          insurance_provider: method === "insurance" ? insuranceProvider.trim() : undefined,
         }),
       });
       const data = await res.json().catch(() => null);
       if (!res.ok) {
-        setError((data as { message?: string })?.message || (ar ? "تعذر إنشاء الحجز" : "Could not create booking"));
+        setError((data as { message?: string })?.message || (ar ? "تعذر إنشاء الطلب" : "Could not create order"));
         return;
       }
-      const booking = (data as { data?: { id?: string }; id?: string })?.data ?? data;
-      const bookingId = (booking as { id?: string })?.id;
-      if (bookingId) router.push(`/${locale}/diagnostics/labs/${encodeURIComponent(bookingId)}`);
-      else router.push(`/${locale}/diagnostics/bookings`);
+      const order = (data as { data?: { id?: string }; id?: string })?.data ?? data;
+      const orderId = (order as { id?: string })?.id;
+      if (!orderId) {
+        setError(ar ? "تعذر إنشاء الطلب" : "Could not create order");
+        return;
+      }
+
+      // Pay once for the total (card payments only; cash/insurance are handled at the lab)
+      if (method === "card") {
+        const payRes = await fetch("/api/payments/intent/diagnostics", {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            "idempotency-key": `web-diag-pay-${orderId}`,
+          },
+          body: JSON.stringify({ order_id: orderId, method: "card" }),
+        });
+        const payData = await payRes.json().catch(() => null);
+        if (!payRes.ok) {
+          setError((payData as { message?: string })?.message || (ar ? "تعذر الدفع" : "Payment failed"));
+          return;
+        }
+        const checkoutUrl = (payData as { checkout_url?: string })?.checkout_url;
+        if (checkoutUrl) {
+          window.location.href = checkoutUrl;
+          return;
+        }
+      }
+
+      // Clear cart only after payment success (or immediately for cash/insurance)
+      await fetch("/api/diagnostics/cart", { method: "DELETE" }).catch(() => null);
+      router.push(`/${locale}/diagnostics/orders/${encodeURIComponent(orderId)}`);
       router.refresh();
     } catch {
-      setError(ar ? "تعذر إنشاء الحجز" : "Could not create booking");
+      setError(ar ? "تعذر إنشاء الطلب" : "Could not create order");
     } finally {
       setSaving(false);
     }

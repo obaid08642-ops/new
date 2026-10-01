@@ -19,7 +19,7 @@ docker exec nabdah-redis redis-cli --no-auth-warning -a "$REDIS_PASSWORD" ping 2
 docker exec nabdah-backend wget -qO- http://127.0.0.1:8002/api/v1/health/liveness >/dev/null 2>&1 || alert "backend liveness failed"
 
 DISK=$(df / | awk 'NR==2{gsub("%","",$5); print $5}')
-[ "${DISK:-0}" -gt 85 ] && alert "disk usage ${DISK}% > 85%"
+[ "${DISK:-0}" -ge 80 ] && alert "disk usage ${DISK}% >= 80%"
 RAM=$(free | awk '/Mem:/{printf "%.0f", $3/$2*100}')
 [ "${RAM:-0}" -gt 90 ] && alert "ram usage ${RAM}% > 90%"
 LOAD=$(cat /proc/loadavg | awk '{print $1}')

@@ -30,7 +30,6 @@ export const deepLinkingConfig = {
           index: 'home',
           consultations: 'consultations',
           pharmacy: 'pharmacy',
-          wallet: 'wallet',
           profile: 'profile',
         },
       },
@@ -62,7 +61,6 @@ export const deepLinkingConfig = {
       'reports/timeline': 'reports/timeline',
       'reports/passport': 'reports/passport',
       'family/emergency-contacts': 'family/emergency',
-      'wallet': 'wallet',
       'search': 'search',
       // Modals & Overlays
       'guided-tour': 'tour',

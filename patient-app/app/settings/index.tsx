@@ -21,6 +21,7 @@ import {
 } from "../../src/utils/dates";
 import { Icon, IconName } from "../../src/components/Icon";
 import { AppText, Card, IconButton } from "../../src/components/ui";
+import { ScreenState } from "../../src/components/ScreenStates";
 
 interface SettingsItem {
   icon: IconName;

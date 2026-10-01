@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="family">
+  <title>family</title>
+  <circle cx="17" cy="15" r="6" fill="#FFB38A" stroke="#0B1B2B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="32" cy="18" r="5" fill="#9DB0FF" stroke="#0B1B2B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M7 40 c0-7 4.5-12 10-12 s10 5 10 12 z" fill="#FF6B73" stroke="#0B1B2B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M24 40 c0-6 3.5-10 8-10 s8 4 8 10 z" fill="#6E8BFF" stroke="#0B1B2B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

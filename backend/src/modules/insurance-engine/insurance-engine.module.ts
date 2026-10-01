@@ -9,12 +9,14 @@
  * BR-1 (payment matrix): online/video/audio/home/delivery = online payment only;
  * clinic = online or pay-at-clinic. Enforced server-side via /bookings/quote.
  */
-import { Module, Controller, Injectable, Get, Post, Body, Param, Query, UseGuards, NotFoundException, BadRequestException, ForbiddenException, Optional } from '@nestjs/common';
+import { Module, Controller, Injectable, Get, Post, Body, Param, Query, UseGuards, NotFoundException, BadRequestException, ForbiddenException, Optional, Logger } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectConnection, InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
 import { v4 as uuid } from 'uuid';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
+import { StepUp } from '../../common/step-up.guard';
 import { JwtAuthGuard, CurrentUser, SelfService, Roles } from '../../common/auth.guard';
 import { InsuranceCompanySchema, InsuranceCompanyDocument } from '../../schemas/insurance.schema';
 import { PatientProfileSchema } from '../../schemas/patient-profile.schema';
@@ -216,6 +218,7 @@ export class QuoteController {
 
 @Injectable()
 export class InsuranceFlowService {
+  private readonly logger = new Logger('InsuranceFlowService');
   constructor(
     @InjectModel('InsuranceServiceRequest') private requests: Model<any>,
     @InjectModel('InsuranceCompany') private companies: Model<InsuranceCompanyDocument>,
@@ -590,26 +593,85 @@ export class InsuranceFlowService {
     return req.toObject();
   }
 
-  /** The payment event is the normal post-checkout settlement path; it cannot be faked by a client body. */
-  @OnEvent('payment.completed')
-  async settleVerifiedCopay(event: any) {
-    if (event?.booking_kind !== 'insurance' || !event?.transaction_id) return;
-    const req = await this.requests.findOne({ id: { $eq: event.booking_id }, patient_id: { $eq: event.patient_id }, state: 'COPAY_PENDING' });
-    if (!req) return;
+  /**
+   * Settle ONE copay from a verified paid transaction. The patient, the booking
+   * and the amount must all line up; anything else is refused so a mismatched
+   * payment can never be applied to a request.
+   *
+   * Returns the settled state, or null when the request is not in a settleable
+   * state (already settled, cancelled, or not awaiting a copay).
+   */
+  private async settleOne(req: any, paymentId: string): Promise<string | null> {
+    if (!req || req.state !== 'COPAY_PENDING') return null;
     const payment: any = await this.transactions.findOne({
-      id: event.transaction_id,
+      id: paymentId,
       patient_id: req.patient_id,
       booking_kind: 'insurance',
       booking_id: req.id,
       status: 'paid',
     }).lean();
-    if (!payment || Number(payment.amount) !== Number(req.copay_amount)) return;
+    if (!payment || Number(payment.amount) !== Number(req.copay_amount)) return null;
     req.payment_id = payment.id;
     req.copay_paid_at = new Date();
     this.push(req, 'COPAY_PAID', 'system', `verified payment ${payment.id}`);
     await req.save();
     this.events.emit('insurance.copay.paid', { request_id: req.id, provider_id: req.provider_id, patient_id: req.patient_id });
     await this.confirmServiceBooking(req);
+    return req.state;
+  }
+
+  /** The payment event is the normal post-checkout settlement path; it cannot be faked by a client body. */
+  @OnEvent('payment.completed')
+  async settleVerifiedCopay(event: any) {
+    if (event?.booking_kind !== 'insurance' || !event?.transaction_id) return;
+    const req = await this.requests.findOne({ id: { $eq: event.booking_id }, patient_id: { $eq: event.patient_id }, state: 'COPAY_PENDING' });
+    if (!req) return;
+    await this.settleOne(req, event.transaction_id).catch(() => null);
+  }
+
+  /**
+   * Reconciliation sweep for copays the event listener missed.
+   *
+   * `settleVerifiedCopay` is an in-process, best-effort handler: if the listener
+   * chain aborts, the process restarts between the gateway capture and the
+   * handler, or the write races the decide() that created the request, the copay
+   * is collected but the request stays COPAY_PENDING forever and the service
+   * never starts. That is a money-taken / service-not-delivered state, so it must
+   * not depend on a single best-effort delivery.
+   *
+   * This is the standard "reconcile paid-but-unsettled" job: find requests that
+   * are still awaiting a copay, look for an authoritative paid transaction with a
+   * matching amount, and settle through the exact same guarded path. Safe to run
+   * repeatedly — settling a request that is already COPAY_PAID is a no-op.
+   */
+  // Every 15s, not every minute: the patient is waiting on the result, and a
+  // 60s safety net means a failed event delivery holds the service for a full
+  // minute. The sweep is cheap (one indexed find + at most 100 guarded writes).
+  @Cron('*/15 * * * * *')
+  async reconcileCopays() {
+    try {
+      const stale = await this.requests.find({ state: 'COPAY_PENDING', payment_id: { $in: [null, undefined] } })
+        .sort({ decided_at: 1 }).limit(100).lean();
+      if (!stale.length) return;
+      let settled = 0;
+      for (const row of stale) {
+        const payment: any = await this.transactions.findOne({
+          booking_kind: 'insurance',
+          booking_id: row.id,
+          status: 'paid',
+        }).sort({ paid_at: -1 }).lean();
+        if (!payment || Number(payment.amount) !== Number(row.copay_amount)) continue;
+        // Re-read as a document: the guard re-checks state so a concurrent
+        // settlement cannot double-apply.
+        const fresh = await this.requests.findOne({ id: { $eq: row.id }, state: 'COPAY_PENDING' });
+        if (!fresh) continue;
+        const state = await this.settleOne(fresh, payment.id).catch(() => null);
+        if (state === 'COPAY_PAID') settled++;
+      }
+      if (settled) this.logger.warn(`insurance copay reconciliation settled ${settled} request(s)`);
+    } catch (e: any) {
+      this.logger.warn(`insurance copay reconciliation failed: ${e.message}`);
+    }
   }
 
   async cancel(user: any, id: string) {
@@ -819,6 +881,7 @@ export class AdminFinanceCoreController {
   ) {}
   @Get('ledger/summary') summary() { return this.finance.platformSummary(); }
   @Get('refunds/queue') refundsQueue() { return this.refunds.adminQueue(); }
+  @StepUp()
   @Post('refunds/:id/decide') decideRefund(@CurrentUser() u: any, @Param('id') id: string, @Body() b: DecideRefundDto) {
     return this.refunds.decide(u, id, b?.approve === true, b?.note);
   }

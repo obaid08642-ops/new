@@ -11,7 +11,8 @@
     "navPharmacy": "Pharmacy",
     "navDiagnostics": "Diagnostics",
     "navNursing": "Home Nursing",
-    "devNotice": "Development preview under construction and testing — no real services are provided through this site; all content is for testing purposes only. Do not rely on it for any health or medical need."
+    "devNotice": "Development preview under construction and testing — no real services are provided through this site; all content is for testing purposes only. Do not rely on it for any health or medical need.",
+    "theme": "Theme"
   },
   "Home": {
     "eyebrow": "Digital patient portal",
@@ -95,7 +96,8 @@
     "empty": "No nursing services are currently available.",
     "unavailable": "Nursing catalogue unavailable",
     "unavailableBody": "The catalogue could not be loaded from the authorized service.",
-    "back": "Back"
+    "back": "Back",
+    "emptyBody": "No services match this search yet."
   },
   "Dashboard": {
     "eyebrow": "Private portal",

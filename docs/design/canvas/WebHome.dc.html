@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>Web home — desktop</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Readex Pro',sans-serif}
+</style>
+</helmet>
+<div dir="rtl" style="width: 1440px; height: 960px; box-sizing: border-box; background: #F5F5F7; color: #0B1B2B; font-family: 'Readex Pro', sans-serif; display: flex; flex-direction: column">
+<header style="height: 76px; padding: 0 64px; display: flex; align-items: center; gap: 40px; background: rgba(255,255,255,0.7); backdrop-filter: blur(20px); border-bottom: 1px solid #E5E5EA">
+<div style="display: flex; align-items: center; gap: 10px">
+<svg width="36" height="36" viewBox="0 0 240 240" aria-hidden="true"><path d="M40 104 C40 196 200 196 200 104" fill="none" stroke="#FF4B55" stroke-width="36" stroke-linecap="round"></path><circle cx="120" cy="58" r="24" fill="#FF4B55"></circle></svg>
+<div style="font-size: 24px; font-weight: 700">نبض<span style="color: #FF4B55">+</span></div>
+</div>
+<nav style="display: flex; gap: 28px; font-size: 15px">
+<a href="#" style="color: #0B1B2B; text-decoration: none; font-weight: 500">الصيدلية</a>
+<a href="#" style="color: #5B6470; text-decoration: none">استشارات</a>
+<a href="#" style="color: #5B6470; text-decoration: none">تحاليل وأشعة</a>
+<a href="#" style="color: #5B6470; text-decoration: none">تمريض منزلي</a>
+<a href="#" style="color: #5B6470; text-decoration: none">صحتي</a>
+</nav>
+<div style="margin-right: auto; display: flex; gap: 12px; align-items: center">
+<button style="height: 44px; padding: 0 16px; border-radius: 22px; border: 1px solid #E5E5EA; background: #FFFFFF; font-family: inherit; font-size: 14px; color: #0B1B2B">العربية</button>
+<button style="height: 44px; padding: 0 22px; border-radius: 22px; border: 0; background: #0B1B2B; color: #F5F5F7; font-family: inherit; font-size: 14px; font-weight: 500">تسجيل الدخول</button>
+</div>
+</header>
+<div style="padding: 48px 64px 0; display: flex; gap: 40px; align-items: stretch">
+<div style="flex-grow: 1; flex-basis: 0; border-radius: 36px; background: #0B1B2B; color: #F5F5F7; padding: 56px; display: flex; flex-direction: column; gap: 28px">
+<div style="font-size: 52px; font-weight: 700; line-height: 1.2">كل ما تحتاجه لصحتك،<br>في مكان واحد.</div>
+<div style="font-size: 18px; color: #9AA4B2; line-height: 1.7">أدوية وطبيب وتحاليل وتمريض منزلي — بالدفع المباشر أو بالتأمين.</div>
+<label style="height: 64px; border-radius: 32px; background: #F5F5F7; display: flex; align-items: center; gap: 12px; padding: 0 8px 0 24px">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5B6470" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 11a7 7 0 1 0 14 0a7 7 0 1 0-14 0 M20 20l-4-4"></path></svg>
+<input placeholder="ابحث عن دواء، طبيب، تحليل أو خدمة…" style="flex-grow: 1; border: 0; background: transparent; font-family: inherit; font-size: 17px; outline: none; color: #0B1B2B">
+<button style="height: 48px; padding: 0 28px; border-radius: 24px; border: 0; background: #D7FF00; color: #0B1B2B; font-family: inherit; font-size: 16px; font-weight: 700">بحث</button>
+</label>
+</div>
+<div style="width: 520px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px">
+<sc-for list="{{tiles}}" as="t" hint-placeholder-count="4">
+<a href="#" style="border-radius: 28px; background: #FFFFFF; border: 1px solid rgba(11,27,43,0.04); box-shadow: 0 10px 30px rgba(11,27,43,0.07); padding: 24px; display: flex; flex-direction: column; justify-content: space-between; text-decoration: none; color: #0B1B2B">
+<div style="width: 72px; height: 72px; border-radius: 22px; background: {{t.bg}}; display: flex; align-items: center; justify-content: center">
+<dc-import name="Icon" icon="{{t.key}}" size="{{iconSize}}" hint-size="52px,52px"></dc-import>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<div style="font-size: 19px; font-weight: 700">{{t.label}}</div>
+<div style="font-size: 14px; color: #5B6470">{{t.sub}}</div>
+</div>
+</a>
+</sc-for>
+</div>
+</div>
+<div style="padding: 40px 64px 0; display: flex; justify-content: space-between; align-items: baseline">
+<div style="font-size: 26px; font-weight: 700">الأكثر طلبًا الآن</div>
+<a href="#" style="font-size: 15px; color: #C8202F; text-decoration: none">عرض كل المنتجات</a>
+</div>
+<div style="padding: 20px 64px 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px">
+<sc-for list="{{products}}" as="p" hint-placeholder-count="5">
+<div style="border-radius: 24px; background: #FFFFFF; border: 1px solid #E5E5EA; padding: 14px; display: flex; flex-direction: column; gap: 10px">
+<div style="height: 120px; border-radius: 16px; background: {{p.bg}}"></div>
+<div style="font-size: 15px; font-weight: 500">{{p.name}}</div>
+<div style="display: flex; justify-content: space-between; align-items: center">
+<div style="font-size: 15px; font-weight: 700">[السعر]</div>
+<button style="height: 36px; padding: 0 14px; border-radius: 18px; border: 0; background: #D42A38; color: #FFFFFF; font-family: inherit; font-size: 13px; font-weight: 500">أضف</button>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+renderVals() {
+const tiles = [
+{ key: 'pharmacy', label: 'الصيدلية', sub: 'أكثر من ٢٠ ألف منتج', bg: '#FFE3E5', fg: '#B81E2B', d: 'M8.5 15.5l7-7a3.5 3.5 0 0 0-5-5l-7 7a3.5 3.5 0 0 0 5 5z M7 7l5 5' },
+{ key: 'consult', label: 'استشارة طبيب', sub: 'فيديو، عيادة، أو منزلية', bg: '#E3E9FF', fg: '#3A56D4', d: 'M6 3v6a4 4 0 0 0 8 0V3 M10 13v2a5 5 0 0 0 10 0v-3 M18 10a2 2 0 1 0 4 0a2 2 0 1 0-4 0' },
+{ key: 'lab', label: 'تحاليل وأشعة', sub: 'في المنزل أو المختبر', bg: '#DDF4EC', fg: '#1F7A5C', d: 'M9 3h6 M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3 M7 15h10' },
+{ key: 'nursing', label: 'تمريض منزلي', sub: 'غيار جروح ورعاية', bg: '#FFF1CC', fg: '#8A5A00', d: 'M3 11l9-7 9 7 M5 10v10h14V10 M12 17s-3-2-3-4a1.5 1.5 0 0 1 3-.5a1.5 1.5 0 0 1 3 .5c0 2-3 4-3 4z' },
+];
+const products = [
+{ name: 'باراسيتامول ٥٠٠ ملغ', bg: '#FFE3E5' }, { name: 'فيتامين د ٥٠٠٠', bg: '#FFF1CC' }, { name: 'مرطب البشرة الحساسة', bg: '#E3E9FF' },
+{ name: 'جهاز قياس الضغط', bg: '#DDF4EC' }, { name: 'واقي شمس SPF 50', bg: '#F0E8FF' },
+];
+return { tiles, products, iconSize: 52 };
+}
+}
+</script>
+</body>
+</html>

@@ -11,6 +11,7 @@ import { apiFetch } from '../../src/utils/api';
 import { logError } from '../../src/utils/logger';
 import { pickLocalized, pickDbField } from '../../src/utils/localize';
 import { LocalizedText } from '../../src/components/LocalizedText';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 const { width } = Dimensions.get('window');
 
@@ -41,17 +42,33 @@ export default function NursingDirectoryHub() {
 
   const [dbServices, setDbServices] = useState<any[]>([]);
   const [dbPackages, setDbPackages] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string|null>(null);
 
-  useEffect(() => {
-    apiFetch('/home-care/services')
-      .then((rows: any) => setDbServices((Array.isArray(rows) ? rows : []).map((s: any) => ({
+  const loadData = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [servicesRes, packagesRes] = await Promise.all([
+        apiFetch('/home-care/services').catch((e) => { logError('nursing:tab', e); return null; }),
+        apiFetch('/home-care/packages').catch((e) => { logError('nursing:tab', e); return null; }),
+      ]);
+      if (servicesRes) setDbServices((Array.isArray(servicesRes) ? servicesRes : []).map((s: any) => ({
         ...s,
         title: pickDbField(s, 'name') || s.name_ar || s.name_en || s.title,
         image: s.image_url || s.image || null,
-      }))))
-      .catch((e) => logError('nursing:tab', e));
-    apiFetch('/home-care/packages').then((r: any) => setDbPackages(Array.isArray(r) ? r : (r?.data || []))).catch((e) => logError('nursing:tab', e));
-  }, []);
+      })));
+      if (packagesRes) setDbPackages(Array.isArray(packagesRes) ? packagesRes : (packagesRes?.data || []));
+      if (!servicesRes && !packagesRes) setError('تعذر تحميل خدمات التمريض المنزلي');
+    } catch (e) {
+      logError('nursing:tab', e);
+      setError('تعذر تحميل خدمات التمريض المنزلي');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { loadData(); }, []);
 
   const getIcon = (id: string) => {
     switch (id) {
@@ -107,6 +124,7 @@ export default function NursingDirectoryHub() {
     <View style={styles.container}>
       <View style={StyleSheet.absoluteFillObject} />
 
+      <ScreenState loading={loading} error={error} empty={false} emptyTitle="لا توجد خدمات" onRetry={loadData}>
       <ScrollView contentContainerStyle={[styles.content, { paddingTop: insets.top + 16 }]} showsVerticalScrollIndicator={false}>
         
         {/* PREMIUM SEARCH BAR */}
@@ -228,6 +246,7 @@ export default function NursingDirectoryHub() {
           ))}
         </View>
       </ScrollView>
+      </ScreenState>
 
       {/* FILTER BOTTOM SHEET WITH DISMISS ON BACKDROP */}
       <Modal visible={filterVisible} transparent animationType="slide">

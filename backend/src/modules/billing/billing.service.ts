@@ -12,12 +12,13 @@ export interface CommissionBreakdown {
 
 @Injectable()
 export class BillingService {
-  private readonly VAT_RATE = 0.15; // 15% KSA VAT on commission
-
+  // B4: VAT comes from admin finance config; the parameter default (15% KSA)
+  // stands only when the caller has no config value.
   calculateCommission(
     baseAmount: number,
     providerType: string,
-    surgeMultiplier: number = 1.0
+    surgeMultiplier: number = 1.0,
+    vatRate = 0.15
   ): CommissionBreakdown {
     let commissionRate = 0;
 
@@ -47,7 +48,7 @@ export class BillingService {
     const finalAmount = baseAmount * surgeMultiplier;
 
     const nabdahCommissionAmount = finalAmount * commissionRate;
-    const nabdahVatAmount = nabdahCommissionAmount * this.VAT_RATE;
+    const nabdahVatAmount = nabdahCommissionAmount * vatRate;
     
     // Nabdah deducts its commission + VAT on that commission from the total.
     // So patient pays the total (finalAmount), and provider gets: 
@@ -60,7 +61,7 @@ export class BillingService {
       nabdahVatAmount: parseFloat(nabdahVatAmount.toFixed(2)),
       totalPatientBilled: parseFloat(finalAmount.toFixed(2)),
       commissionRate,
-      vatRate: this.VAT_RATE,
+      vatRate,
     };
   }
 }

@@ -1,3 +1,4 @@
+import { StepUp } from '../../common/step-up.guard';
 import { JwtAuthGuard, SelfService, Roles, CurrentUser } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { UseGuards } from '@nestjs/common';
@@ -74,14 +75,21 @@ export class AdminLoyaltyController {
   constructor(private readonly loyaltyService: LoyaltyService) {}
 
   @Get('rewards') rewards() { return this.loyaltyService.adminListRewards(); }
+  @StepUp()
   @Post('rewards') createReward(@Body() body: any) { return this.loyaltyService.adminCreateReward(body); }
+  @StepUp()
   @Patch('rewards/:id') updateReward(@Param('id') id: string, @Body() body: any) { return this.loyaltyService.adminUpdateReward(id, body); }
+  @StepUp()
   @Delete('rewards/:id') deleteReward(@Param('id') id: string) { return this.loyaltyService.adminDeleteReward(id); }
 
   @Get('challenges') challenges() { return this.loyaltyService.adminListChallenges(); }
+  @StepUp()
   @Post('challenges') createChallenge(@Body() body: any) { return this.loyaltyService.adminCreateChallenge(body); }
+  @StepUp()
   @Patch('challenges/:id') updateChallenge(@Param('id') id: string, @Body() body: any) { return this.loyaltyService.adminUpdateChallenge(id, body); }
+  @StepUp()
   @Delete('challenges/:id') deleteChallenge(@Param('id') id: string) { return this.loyaltyService.adminDeleteChallenge(id); }
 
+  @StepUp()
   @Put('config') updateConfig(@CurrentUser() u: any, @Body() body: any) { return this.loyaltyService.adminUpdateConfig(body, u); }
 }

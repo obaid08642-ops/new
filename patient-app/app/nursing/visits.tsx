@@ -10,6 +10,7 @@ import { Icon } from '../../src/components/Icon';
 import { AppText, Card } from '../../src/components/ui';
 import { apiFetch } from '../../src/utils/api';
 import { dateLocale } from '@/utils/dates';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 export default function NursingVisitsScreen() {
   const insets = useSafeAreaInsets();
@@ -42,6 +43,7 @@ export default function NursingVisitsScreen() {
           <Icon name="back" size={22} color={colors.textPrimary} />
         </TouchableOpacity>
       </View>
+      <ScreenState loading={loading} error={loadError ? 'تعذر تحميل الزيارات' : null} empty={!loading && !loadError && visits.length === 0} emptyTitle="لا توجد زيارات بعد" onRetry={load}>
       <ScrollView contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 100 }}>
         {loading ? (
           <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 40 }} />
@@ -71,6 +73,7 @@ export default function NursingVisitsScreen() {
           </TouchableOpacity>
         ))}
       </ScrollView>
+      </ScreenState>
     </View>
   );
 }

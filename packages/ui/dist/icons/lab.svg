@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="lab">
+  <title>lab</title>
+  <g transform="rotate(28 22 26)"><path d="M17 25 V36 a5 5 0 0 0 10 0 V25 Z" fill="#3FBF9A" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 8 V36 a5 5 0 0 0 10 0 V8" fill="none" stroke="#0B1B2B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 8 h14" fill="none" stroke="#0B1B2B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 25 h10" fill="none" stroke="#0B1B2B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 14 v6" fill="none" stroke="#0B1B2B" stroke-width="1.8" opacity="0.3" stroke-linecap="round" stroke-linejoin="round"/></g>
+  <circle cx="37" cy="11" r="3.5" fill="#FFD166" stroke="#0B1B2B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="41" cy="20" r="2.2" fill="#6FE0B8" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

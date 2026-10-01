@@ -9,6 +9,7 @@ import { apiFetch } from '../../../src/utils/api';
 import Animated, { FadeInDown, SlideInUp } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { showLocalizedAlert } from '../../../src/components/LocalizedAlert';
+import { ScreenState } from '../../../src/components/ScreenStates';
 
 const { width } = Dimensions.get('window');
 
@@ -21,6 +22,7 @@ export default function OrderDetails() {
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [canceling, setCanceling] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const [kind, setKind] = useState<'lab' | 'radiology' | null>(null);
   const [reload, setReload] = useState(0);
@@ -29,6 +31,7 @@ export default function OrderDetails() {
     // E2 fix: was apiFetch('/orders/mine' + id) — a malformed URL that ALWAYS 404'd,
     // so this screen never loaded (eternal spinner). Try radiology then lab.
     const fetchOrder = async () => {
+      setError(null);
       try {
         let data: any = null;
         try {
@@ -44,6 +47,7 @@ export default function OrderDetails() {
         setOrder(data);
       } catch (e) {
         setOrder(null);
+        setError('تعذر تحميل الطلب');
       } finally {
         setLoading(false);
       }
@@ -132,6 +136,7 @@ export default function OrderDetails() {
   const progressPercent = isCancelled ? 0 : currentStageIndex >= 0 ? ((currentStageIndex + 1) / STAGES.length) * 100 : 0;
 
   return (
+    <ScreenState loading={false} error={error} empty={false} emptyTitle="لا توجد بيانات" onRetry={() => { setOrder(null); setKind(null); setReload(r => r + 1); }}>
     <View style={[styles.container, { backgroundColor: colors.background } ]}>
       {/* Header */}
       <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border } ]}>
@@ -280,6 +285,7 @@ export default function OrderDetails() {
         <View style={{ height: 40 }}/>
       </ScrollView>
     </View>
+    </ScreenState>
   );
 }
 

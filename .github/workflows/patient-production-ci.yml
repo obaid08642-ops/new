@@ -75,6 +75,202 @@ jobs:
       - name: Build
         run: npm run build
 
+  design-system:
+    name: Design tokens, brand assets and contrast
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/design-tokens
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # The generated artefacts are committed so every client can import them
+      # without a build step. This step is what stops anyone hand-editing them
+      # or changing a token without regenerating: a diff means dist/ is stale.
+      - name: Generated artefacts are in sync with tokens.json
+        run: npm run check
+      # patient-web cannot @import a sibling package (Next refuses to resolve
+      # outside the app root, via every mechanism), so the token sheets are
+      # MIRRORED into patient-web/app/design-tokens/. The mirror is generated and
+      # committed; this step is what stops it drifting from tokens.json and
+      # quietly reintroducing a second source of truth.
+      - name: Mirrored token sheets in patient-web are not stale
+        run: npm run sync-web:check
+      # patient-web cannot import @nabd/ui (Turbopack refuses to resolve outside
+      # the app root), so the web renderer is mirrored. This is what stops the
+      # artwork a screen renders from drifting from the artwork A6/A7 ship.
+      - name: Mirrored UI renderer in patient-web is not stale
+        run: node tools/design/sync-ui-components.mjs --check
+      - name: Contrast check (both themes)
+        run: npm run contrast
+      # A5's guard. Ratcheted: the 289 sizes that predate the design system are
+      # recorded in tools/design/no-px-font-size.baseline.json, and 12.A11
+      # removes them as screens are rebuilt. This fails on any NEW one.
+      - name: No new hard-coded font size (ratchet)
+        run: npm run type-scale
+      # A0 is the principle the owner set: nothing in a screen may hardcode a
+      # colour, so changing a token changes every screen at once. This rule is
+      # what makes that true rather than aspirational. RATCHETED and PARTIAL:
+      # 9,563 colours predate the system and are frozen per file. 12.A11 clears
+      # them; any NEW one fails here.
+      - name: No new hard-coded colour, in any of the four clients (ratchet)
+        run: npm run no-raw-color
+      - name: No new emoji in UI (ratchet)
+        run: npm run no-emoji
+      # A4: a missing translation key is not an error in next-intl, it renders the
+      # KEY. `NursingCatalog.emptyBody` reached users as that literal string on
+      # the public nursing catalogue. This compares every locale against en.
+      - name: Every locale covers every key (i18n coverage)
+        run: node tools/design/i18n-coverage.mjs
+      # A0 across the OTHER THREE clients. provider-app/src/theme/tokens.ts
+      # claimed in its own comment to be a mirror of tokens.json and held the
+      # pre-A2 palette while ten screens imported it: the token contrast check
+      # reads tokens.json, the runtime check renders patient-web, and this file
+      # was checked by neither. This closes that gap.
+      - name: Generated client token modules are not stale
+        run: node tools/design/sync-client-tokens.mjs --check
+      - name: No new off-palette colour in the mobile/admin clients (ratchet)
+        run: node tools/design/client-token-sync.mjs
+      - name: Install compiler
+        run: npm install --ignore-scripts --no-save typescript@5.9.3
+      - name: Type check the generated TypeScript module
+        run: npx tsc --noEmit --strict --target ES2022 --module ESNext --moduleResolution bundler dist/ts/tokens.ts
+
+  # ---------------------------------------------------------------------------
+  # Runtime contrast (C1) — the gate that found the unreadable hero.
+  #
+  # The token contrast check proves the DECLARED pairs are legible. It cannot
+  # see a screen, which is how white-on-white at 1.00:1 and a dark-mode header
+  # at 1.08:1 both shipped while every declared pair passed. This renders the
+  # public pages in BOTH themes and measures the text that is actually painted,
+  # compositing translucent backgrounds the way the browser does.
+  #
+  # RATCHETED like the others: --update only ever lowers it, and 12.A11 clears
+  # the remainder as screens are rebuilt onto the tokens.
+  runtime-contrast:
+    name: runtime contrast (rendered pages, both themes)
+    runs-on: ubuntu-latest
+    needs: [design-system]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install workspace
+        run: npm --prefix patient-web ci --ignore-scripts
+      - name: Install a browser
+        run: npx --yes playwright@1.63.0 install --with-deps chromium
+      - name: Build
+        working-directory: patient-web
+        run: npm run build
+      - name: Start
+        working-directory: patient-web
+        run: npm run start -- --port 3999 &
+      - name: Wait for the server
+        run: |
+          for i in $(seq 1 60); do
+            curl -sf -o /dev/null http://localhost:3999/en && exit 0
+            sleep 2
+          done
+          echo "server did not come up" >&2
+          exit 1
+      - name: No new unreadable text (ratchet)
+        run: |
+          PLAYWRIGHT_PATH="$PWD/patient-web/node_modules/playwright" \
+            node tools/design/runtime-contrast.mjs \
+              --base http://localhost:3999 \
+              --routes tools/design/runtime-contrast.routes.txt
+
+  brand-assets:
+    name: Brand assets
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/brand
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # Same rule as the tokens: dist/ is committed, so this fails if anyone
+      # hand-edits a generated icon or redraws the mark away from the approved
+      # geometry in src/logo-mark.svg.
+      - name: Generated assets are in sync with the SVG sources
+        run: node build.mjs --check
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install sharp (rasteriser)
+        run: npm install --no-save --prefix ../admin sharp
+      - name: Re-verify after a clean rasteriser
+        run: node build.mjs --check
+
+  design-artwork:
+    name: Icon and illustration set (12.A6)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/ui
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # Same rule as the tokens and the brand: the generated icon sheets and the
+      # preview page are committed so a reviewer can open dist/preview.html
+      # without booting anything. This fails if anyone hand-edits a generated
+      # file or redraws geometry without regenerating it.
+      - name: Generated icon sheets and preview are in sync with the geometry
+        run: npm test
+      # The artwork is checked, not just generated: the generator refuses to emit
+      # anything whose colour is not a `color.iconArt` key, so a stray hex fails
+      # the build rather than shipping a colour the palette cannot change.
+      - name: Install compiler
+        run: npm install --ignore-scripts --no-save typescript@5.9.3
+      - name: Type check the wrappers
+        run: npx tsc --noEmit -p tsconfig.json
+      - name: Type check the React Native wrapper over the same geometry
+        working-directory: packages/ui-native
+        run: npx tsc --noEmit -p tsconfig.json
+
+  design-components:
+    name: Component contract and conformance (12.A7)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # `tsc` here is not a formality. `packages/ui/components/conformance.ts`
+      # compares the contract against BOTH renderers' prop maps, so this step
+      # fails when a component exists on one platform and not the other, when a
+      # renderer stops accepting a prop the contract promises, or when the two
+      # disagree on a shape. That is the whole enforcement mechanism for "same
+      # API on web and native", and it costs nothing to run.
+      - name: Install the web design system
+        working-directory: packages/ui
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: The two renderers implement one contract
+        working-directory: packages/ui
+        run: npx tsc --noEmit -p tsconfig.json
+      - name: The React Native renderer type checks against the same contract
+        working-directory: packages/ui-native
+        run: |
+          npm install --ignore-scripts --no-audit --no-fund
+          npx tsc --noEmit -p tsconfig.json
+      # The gallery is the review artifact, and it renders the REAL components
+      # rather than a hand-written template, so a component that does not
+      # compile cannot appear in it.
+      - name: The gallery renders every component
+        working-directory: packages/ui
+        run: npm test
+      # The contract tests themselves (palette binding, the no-text rule, the a11y
+      # contract, the grid sizes) run inside `patient-web` and `patient-mobile`,
+      # which already run each app's full suite — duplicating the install here
+      # would buy nothing and double the slowest part of CI.
+
   shared-contracts:
     name: Governed shared contracts
     runs-on: ubuntu-latest
@@ -135,6 +331,12 @@ jobs:
           cache-dependency-path: patient-app/package-lock.json
       - name: Install frozen dependencies
         run: npm ci
+      # patient-app imports the design system sources from ../packages (12.A6/A7);
+      # their own dependencies must be present for tsc, jest and the export.
+      - name: Install the shared design packages
+        run: |
+          npm install --ignore-scripts --no-audit --no-fund --prefix ../packages/ui-native
+          npm install --ignore-scripts --no-audit --no-fund --prefix ../packages/ui
       - name: Type check
         run: npm run typecheck
       - name: Run tests

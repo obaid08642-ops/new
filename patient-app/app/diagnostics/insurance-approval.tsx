@@ -10,6 +10,7 @@ import Animated, { FadeIn, ZoomIn, SlideInUp } from 'react-native-reanimated';
 import { useDiagnosticsCart } from '../../src/context/DiagnosticsCartContext';
 import { apiFetch } from '../../src/utils/api';
 import { logError } from '../../src/utils/logger';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 const { width } = Dimensions.get('window');
 
@@ -27,12 +28,15 @@ export default function InsuranceApproval() {
   const [approvalDetails, setApprovalDetails] = useState<any>(null);
   const [optedInCashItems, setOptedInCashItems] = useState<string[]>([]); // Array of item IDs that user opted to pay cash for
   const [insuranceRequestId, setInsuranceRequestId] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const orderId = params.orderId as string;
 
   useEffect(() => {
     if (!orderId) return;
 
     let intervalId: any;
+    let first = true;
 
     const fetchOrder = async () => {
       try {
@@ -69,6 +73,9 @@ export default function InsuranceApproval() {
         }
       } catch (err) {
         logError('diagnostics:insurance-approval', err);
+        setError('تعذر تحميل حالة الموافقة');
+      } finally {
+        if (first) { first = false; setLoading(false); }
       }
     };
 
@@ -128,6 +135,7 @@ export default function InsuranceApproval() {
   const finalTotalToPay = approvalDetails ? (approvalDetails.copayAmount + hybridCashAdditions + (visitType === 'home' ? 50 : 0)) : 0;
 
   return (
+    <ScreenState loading={loading} error={error} empty={false} emptyTitle="لا توجد بيانات" onRetry={() => setError(null)}>
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background } ]}>
       <Stack.Screen options={{ headerShown: false }} />
       
@@ -291,6 +299,7 @@ export default function InsuranceApproval() {
       )}
 
     </SafeAreaView>
+    </ScreenState>
   );
 }
 

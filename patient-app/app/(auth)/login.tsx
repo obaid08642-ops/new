@@ -14,6 +14,7 @@ import { resolveColor } from '../../src/theme/colors';
 // storeAuthSession lives in the shared network client (root utils/api.ts) —
 // src/utils/api.ts is a legacy thin wrapper that does not export it.
 import { apiFetch, storeAuthSession } from '../../utils/api';
+import { ScreenState } from '../../src/components/ScreenStates';
 import { decodeJwt } from '../../src/utils/jwt';
 import { STORAGE_KEYS } from '../../src/constants';
 

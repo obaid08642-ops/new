@@ -12,6 +12,7 @@ import { apiFetch } from '../../src/utils/api';
 import { logError } from '../../src/utils/logger';
 import { pickLocalized } from '../../src/utils/localize';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 
 
@@ -31,6 +32,7 @@ export default function PrescriptionTranslatorScreen() {
   const [translated, setTranslated] = useState(false);
   const [expandedMed, setExpandedMed] = useState<number | null>(null);
   const [translatedResult, setTranslatedResult] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const pickImage = async (useCamera: boolean) => {
     try {
@@ -121,6 +123,7 @@ export default function PrescriptionTranslatorScreen() {
       }
     } catch (err: any) {
       logError('ai:prescription-translator', err);
+      setError('لم نتمكن من معالجة صورة الوصفة الطبية. يرجى التأكد من وضوح الصورة والمحاولة مرة أخرى.');
       showLocalizedAlert('خطأ في الترجمة', 'لم نتمكن من معالجة صورة الوصفة الطبية. يرجى التأكد من وضوح الصورة والمحاولة مرة أخرى.');
     } finally {
       setTranslating(false);
@@ -140,6 +143,7 @@ export default function PrescriptionTranslatorScreen() {
         </View>
       </View>
 
+      <ScreenState loading={translating} error={error} empty={false} emptyTitle="لا توجد بيانات" onRetry={() => setError(null)}>
       <ScrollView contentContainerStyle={{ padding: 16, gap: 14, paddingBottom: 120 }}>
         {/* Upload area */}
         {!translated && (
@@ -279,6 +283,7 @@ export default function PrescriptionTranslatorScreen() {
           </>
         )}
       </ScrollView>
+      </ScreenState>
     </View>
   );
 }

@@ -121,6 +121,24 @@ export class NotificationsService {
     });
 
     const delivery: any = {};
+    // N6: quiet hours — non-transactional notifications are deferred during the
+    // user's quiet hours. Transactional notices (order/payment/appointment) bypass.
+    const isTransactional = [NotificationType.ORDER, NotificationType.APPOINTMENT, NotificationType.PRESCRIPTION].includes(n.type);
+    if (!isTransactional && n.user_id) {
+      try {
+        const settings = await this.model.db.model('User').findOne({ id: n.user_id }, { projection: { notification_settings: 1 } }).lean();
+        const qh = settings?.notification_settings?.quiet_hours;
+        if (qh) {
+          const now = new Date();
+          const hour = now.getHours();
+          if (hour >= qh.start && hour < qh.end) {
+            // Defer: mark as pending and skip delivery
+            await this.model.updateOne({ id }, { $set: { status: 'DEFERRED', delivery } });
+            return;
+          }
+        }
+      } catch { /* fail open — deliver anyway */ }
+    }
     // R6-3: resolve the admin template (or built-in text) once per delivery.
     let lang = 'ar';
     try {
@@ -134,22 +152,30 @@ export class NotificationsService {
     // Push
     try { const sent = await this.sendPush(n); delivery.push = bump('push', sent !== false); }
     catch (e: any) { delivery.push = bump('push', false, e.message); }
-    // User-targeted channels
+    // User-targeted channels. Email must be sent at most once per delivery: users
+    // with both phone and email otherwise get the same message twice.
+    let emailSent = false;
     if (n.user_id) {
       try {
         const user = (await this.model.db.model('User').findOne({ id: n.user_id }).lean()) as any;
         if (user?.phone) {
           // SMS retired: phone users are served by email (if on file) + push + WhatsApp.
-          if (user?.email) {
-            try { await this.sendEmail(n, user.email); delivery.email = bump('email', true); }
-            catch (e: any) { delivery.email = bump('email', false, e.message); }
+          if (user?.email && !emailSent) {
+            try {
+              await this.sendEmail(n, user.email);
+              delivery.email = bump('email', true);
+              emailSent = true;
+            } catch (e: any) { delivery.email = bump('email', false, e.message); }
           }
           try { await this.sendWhatsApp(n, user.phone); delivery.whatsapp = bump('whatsapp', true); }
           catch (e: any) { delivery.whatsapp = bump('whatsapp', false, e.message); }
         }
-        if (user?.email) {
-          try { await this.sendEmail(n, user.email); delivery.email = bump('email', true); }
-          catch (e: any) { delivery.email = bump('email', false, e.message); }
+        if (user?.email && !emailSent) {
+          try {
+            await this.sendEmail(n, user.email);
+            delivery.email = bump('email', true);
+            emailSent = true;
+          } catch (e: any) { delivery.email = bump('email', false, e.message); }
         }
       } catch (e: any) {
         this.logger.error('Failed resolving user channels', e.message);
@@ -629,6 +655,36 @@ export class NotificationsService {
   @OnEvent('order.partially_fulfilled')
   async onOrderPartial(p: any) {
     if (p.patient_id) await this.create({ user_id: p.patient_id, title_key: 'notif.order_partial.title', body_key: 'notif.order_partial.body', type: NotificationType.ORDER, action: { route: `/orders/${p.order_id}` } });
+  }
+
+  // ============ N4: Dead events wired — each creates a notification ============
+  @OnEvent('call.missed')
+  async onCallMissed(p: any) {
+    if (p.patient_id) await this.create({ user_id: p.patient_id, title_key: 'notif.call_missed.title', body_key: 'notif.call_missed.body', type: NotificationType.INFO, priority: NotificationPriority.HIGH });
+  }
+  @OnEvent('report.ready')
+  async onReportReady(p: any) {
+    if (p.patient_id) await this.create({ user_id: p.patient_id, title_key: 'notif.report_ready.title', body_key: 'notif.report_ready.body', type: NotificationType.INFO, action: { route: `/reports/${p.report_id}` } });
+  }
+  @OnEvent('refund.requested')
+  async onRefundRequested(p: any) {
+    if (p.patient_id) await this.create({ user_id: p.patient_id, title_key: 'notif.refund_requested.title', body_key: 'notif.refund_requested.body', type: NotificationType.INFO });
+  }
+  @OnEvent('refund.decided')
+  async onRefundDecided(p: any) {
+    if (p.patient_id) await this.create({ user_id: p.patient_id, title_key: 'notif.refund_decided.title', body_key: 'notif.refund_decided.body', type: NotificationType.INFO, priority: NotificationPriority.HIGH });
+  }
+  @OnEvent('provider.approved')
+  async onProviderApproved(p: any) {
+    if (p.provider_id) await this.create({ user_id: p.provider_id, title_key: 'notif.provider_approved.title', body_key: 'notif.provider_approved.body', type: NotificationType.INFO, priority: NotificationPriority.HIGH });
+  }
+  @OnEvent('emergency.resolved')
+  async onEmergencyResolved(p: any) {
+    if (p.patient_id) await this.create({ user_id: p.patient_id, title_key: 'notif.emergency_resolved.title', body_key: 'notif.emergency_resolved.body', type: NotificationType.INFO });
+  }
+  @OnEvent('medication.missed')
+  async onMedicationMissed(p: any) {
+    if (p.user_id) await this.create({ user_id: p.user_id, title_key: 'notif.medication_missed.title', body_key: 'notif.medication_missed.body', type: NotificationType.MEDICATION, priority: NotificationPriority.HIGH });
   }
   // ============ APPOINTMENT Lifecycle (EventBus payload shape: patient_account_id) ============
   @OnEvent('doctor_appointment.created')

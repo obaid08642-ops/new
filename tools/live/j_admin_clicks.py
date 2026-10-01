@@ -16,14 +16,21 @@ EMAIL = 'admin@nabd.test'
 
 
 def skip(name, reason):
+    # Seed-independent data skips stay explicitly labeled; they are not coverage.
     return step(f'SKIP {name} ({reason})', True, 'skipped: no live data')
+
+
+def fail(name, reason):
+    # R7-1: missing infrastructure (browser, admin web) is a FAIL, never a PASS.
+    return step(f'{name}', False, reason)
 
 
 def main():
     try:
         from playwright.sync_api import sync_playwright
     except ImportError:
-        return skip('admin clicks', 'python playwright not installed')
+        journey('admin clicks: login through the browser (2FA)')
+        return fail('admin clicks', 'python playwright not installed')
 
     import j_admin
     from lib import mail_code
@@ -34,8 +41,11 @@ def main():
         # CHROMIUM: a preinstalled browser (e.g. /opt/pw-browsers/chromium) when the bundled one is absent.
         browser = pw.chromium.launch(executable_path=os.environ.get('CHROMIUM') or None)
     except Exception as e:
-        pw.stop()
-        return skip('admin clicks', f'no chromium: {e}')
+        try:
+            pw.stop()
+        except Exception:
+            pass
+        return fail('admin clicks', f'no chromium: {e}')
     ctx = browser.new_context(locale='ar-SA')
     page = ctx.new_page()
     try:
@@ -43,25 +53,24 @@ def main():
     except Exception as e:
         browser.close()
         pw.stop()
-        return skip('admin clicks', f'admin web not running: {e}')
+        return fail('admin clicks', f'admin web not running: {e}')
 
     t0 = time.time()
-    page.fill('input[type="email"], input[type="password"] >> nth=0', EMAIL)
-    # login form fields: identifier + password (see admin/src/pages/login.tsx)
-    for sel, val in (('input[type="email"]', EMAIL),):
-        try:
-            page.fill(sel, val)
-        except Exception:
-            pass
+    # login form fields: identifier (plain input) + password (see admin/src/pages/login.tsx)
     try:
+        page.locator('form input:not([type])').first.fill(EMAIL)
         page.fill('input[type="password"]', os.environ.get('NABD_ADMIN_PASSWORD', 'Adm1n!Live-Pass'))
         page.click('button[type="submit"]')
-        page.wait_for_timeout(2000)
+        page.wait_for_selector('input[inputmode="numeric"]', timeout=20000)
         code = mail_code(EMAIL, t0)
-        if code:
-            page.fill('input[inputmode="numeric"], input[name="code"]', code)
-            page.click('button[type="submit"]')
-            page.wait_for_timeout(2000)
+        if not code:
+            step('admin browser login', False, 'no 2FA mail')
+            browser.close()
+            pw.stop()
+            return
+        page.fill('input[inputmode="numeric"]', code)
+        page.click('button[type="submit"]')
+        page.wait_for_url('**/admin**', timeout=20000)
     except Exception as e:
         step('admin browser login', False, f'login form changed: {e}')
         browser.close()

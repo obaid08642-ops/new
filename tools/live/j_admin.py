@@ -1,6 +1,6 @@
 """Journey: admin login (admin/src/pages/login.tsx via the admin BFF) + session."""
 import os, time
-from lib import AdminWeb, Client, journey, step, mail_code
+from lib import AdminWeb, Client, journey, step, mail_code, enroll_admin_device
 
 ADMIN_WEB = os.environ.get('NABD_ADMIN_WEB', 'http://127.0.0.1:3001')
 EMAIL, PASSWORD = 'admin@nabd.test', 'Adm1n!Live-Pass'
@@ -22,7 +22,10 @@ def _reuse():
     journey('admin: reuse the gate run admin session')
     step('admin session still valid (command-center)', True, '')
     tok = next((c.value for c in w.jar if c.name == 'admin_access'), None)
-    return w, Client(tok, 'admin-api') if tok else None
+    admin = Client(tok, 'admin-api') if tok else None
+    if admin:
+        enroll_admin_device(admin)  # 7C-C2, idempotent
+    return w, admin
 
 
 def login():
@@ -49,7 +52,11 @@ def login():
     if SESSION_FILE:
         import json
         json.dump([{'name': c.name, 'value': c.value} for c in w.jar], open(SESSION_FILE, 'w'))
-    return w, Client(tok, 'admin-api') if tok else None
+    admin = Client(tok, 'admin-api') if tok else None
+    # 7C-C2: every direct /api/v1/admin/* call needs an enrolled device.
+    if admin:
+        enroll_admin_device(admin)
+    return w, admin
 
 
 if __name__ == '__main__':

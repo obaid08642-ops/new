@@ -20,6 +20,10 @@
     },
     "android": {
       "package": "com.nabd.provider",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FF4B55"
+      },
       "permissions": [
         "CAMERA",
         "RECORD_AUDIO",
@@ -45,7 +49,7 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#0066CC"
+      "backgroundColor": "#F5F5F7"
     },
     "icon": "./assets/icon.png"
   }

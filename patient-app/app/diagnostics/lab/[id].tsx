@@ -9,7 +9,9 @@ import { useRouter, useLocalSearchParams, Stack } from 'expo-router';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useDiagnosticsCart } from '../../../src/context/DiagnosticsCartContext';
 import { apiFetch } from '../../../src/utils/api';
+import { logError } from '../../../src/utils/logger';
 import { showLocalizedAlert } from '../../../src/components/LocalizedAlert';
+import { ScreenState } from '../../../src/components/ScreenStates';
 
 export default function LabProfile() {
   const router = useRouter();
@@ -20,9 +22,11 @@ export default function LabProfile() {
   const [lab, setLab] = useState<any>(null);
   const [tests, setTests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
+      setError(null);
       try {
         const [labRes, testsRes] = await Promise.all([
           apiFetch(`/providers/${id}`),
@@ -32,6 +36,7 @@ export default function LabProfile() {
         setTests(testsRes.data || testsRes || []);
       } catch (err) {
         logError('diagnostics:lab:detail', err);
+        setError('تعذر تحميل بيانات المختبر');
         // Fallback or handle error
       } finally {
         setLoading(false);
@@ -60,6 +65,7 @@ export default function LabProfile() {
   }
 
   return (
+    <ScreenState loading={false} error={error} empty={false} emptyTitle="لا توجد بيانات" onRetry={() => setError(null)}>
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background } ]}>
       <Stack.Screen options={{ headerShown: false }} />
 
@@ -164,6 +170,7 @@ export default function LabProfile() {
 
       </ScrollView>
     </SafeAreaView>
+    </ScreenState>
   );
 }
 

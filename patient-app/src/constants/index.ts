@@ -54,7 +54,6 @@ export const PAYMENT_METHODS = [
   { id: 'stc_pay', nameAr: 'STC Pay', icon: 'sparkles' },
   { id: 'cash', nameAr: 'كاش عند الزيارة', icon: 'cash' },
   { id: 'insurance', nameAr: 'تأمين صحي', icon: 'shield' },
-  { id: 'wallet', nameAr: 'محفظة نبض', icon: 'wallet' },
   { id: 'loyalty_points', nameAr: 'نقاط النبض', icon: 'star' },
   { id: 'installment', nameAr: 'تقسيط', icon: 'receipt' },
 ];

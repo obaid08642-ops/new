@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>Home</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Readex Pro',sans-serif}
+</style>
+</helmet>
+<div dir="rtl" style="width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: {{c.bg}}; color: {{c.text}}; font-family: 'Readex Pro', sans-serif">
+<div style="padding: 60px 20px 0; display: flex; flex-direction: column; gap: 20px">
+<div style="display: flex; align-items: center; justify-content: space-between">
+<div style="display: flex; align-items: center; gap: 12px">
+<div style="width: 44px; height: 44px; border-radius: 22px; background: {{c.surface}}; border: 1px solid {{c.border}}; display: flex; align-items: center; justify-content: center">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{c.text}}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{i.user}}"></path></svg>
+</div>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<div style="font-size: 13px; color: {{c.muted}}">مساء الخير</div>
+<div style="font-size: 18px; font-weight: 700">[اسم المستخدم]</div>
+</div>
+</div>
+<button aria-label="الإشعارات" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid {{c.border}}; background: {{c.surface}}; display: flex; align-items: center; justify-content: center; padding: 0">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{c.text}}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{i.bell}}"></path></svg>
+</button>
+</div>
+<label style="height: 52px; border-radius: 26px; background: {{c.surface}}; border: 1px solid {{c.border}}; display: flex; align-items: center; gap: 10px; padding: 0 16px">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="{{c.muted}}" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="{{i.search}}"></path></svg>
+<input placeholder="ابحث عن دواء، طبيب، تحليل…" style="flex-grow: 1; border: 0; background: transparent; font-family: inherit; font-size: 15px; color: {{c.text}}; outline: none">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="{{c.muted}}" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="{{i.mic}}"></path></svg>
+</label>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px 10px">
+<sc-for list="{{tiles}}" as="t" hint-placeholder-count="8">
+<a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 8px; text-decoration: none; color: {{c.text}}">
+<div style="width: 76px; height: 76px; border-radius: 24px; background: {{c.tile}}; box-shadow: {{c.tileShadow}}; border: 1px solid {{c.tileBorder}}; display: flex; align-items: center; justify-content: center">
+<dc-import name="Icon" icon="{{t.key}}" size="{{iconSize}}" hint-size="46px,46px"></dc-import>
+</div>
+<div style="font-size: 12.5px; font-weight: 500">{{t.label}}</div>
+</a>
+</sc-for>
+</div>
+<div style="border-radius: 24px; background: {{c.hero}}; color: {{c.heroText}}; padding: 18px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<div style="font-size: 12px; opacity: 0.8">طلبك رقم [#رقم الطلب]</div>
+<div style="font-size: 17px; font-weight: 700">في الطريق إليك</div>
+</div>
+<div style="height: 30px; padding: 0 12px; border-radius: 15px; background: {{c.chipBg}}; color: {{c.chipText}}; font-size: 12.5px; font-weight: 500; display: flex; align-items: center">[الوقت المتوقع]</div>
+</div>
+<div style="display: flex; gap: 6px">
+<div style="flex-grow: 1; height: 6px; border-radius: 3px; background: {{c.progress}}"></div>
+<div style="flex-grow: 1; height: 6px; border-radius: 3px; background: {{c.progress}}"></div>
+<div style="flex-grow: 1; height: 6px; border-radius: 3px; background: {{c.progress}}"></div>
+<div style="flex-grow: 1; height: 6px; border-radius: 3px; background: {{c.track}}"></div>
+</div>
+</div>
+<div style="display: flex; justify-content: space-between; align-items: baseline">
+<div style="font-size: 18px; font-weight: 700">الأكثر طلبًا الآن</div>
+<a href="#" style="font-size: 13px; color: {{c.link}}; text-decoration: none">عرض الكل</a>
+</div>
+<div style="display: flex; gap: 12px">
+<sc-for list="{{products}}" as="p" hint-placeholder-count="3">
+<div style="width: 150px; flex-shrink: 0; border-radius: 20px; background: {{c.surface}}; border: 1px solid {{c.border}}; padding: 10px; display: flex; flex-direction: column; gap: 8px">
+<div style="height: 96px; border-radius: 14px; background: {{p.tint}}; display: flex; align-items: center; justify-content: center">
+<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="{{p.fg}}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{i.pill}}"></path></svg>
+</div>
+<div style="font-size: 13px; font-weight: 500; line-height: 1.4">{{p.name}}</div>
+<div style="display: flex; justify-content: space-between; align-items: center">
+<div style="font-size: 13px; font-weight: 700">[السعر]</div>
+<button aria-label="أضف للسلة" style="width: 32px; height: 32px; border-radius: 16px; border: 0; background: {{c.action}}; display: flex; align-items: center; justify-content: center; padding: 0">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="{{c.actionText}}" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14 M5 12h14"></path></svg>
+</button>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+<nav style="position: absolute; left: 16px; right: 16px; bottom: 24px; height: 72px; border-radius: 36px; background: {{c.glass}}; border: 1px solid {{c.glassBorder}}; backdrop-filter: blur(20px); display: flex; justify-content: space-around; align-items: center">
+<sc-for list="{{tabs}}" as="tab" hint-placeholder-count="5">
+<a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none; color: {{tab.color}}; font-size: 11.5px; font-weight: 500">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{tab.d}}"></path></svg>
+{{tab.label}}
+</a>
+</sc-for>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+const dark = (this.props.theme ?? 'light') === 'dark';
+const i = {
+user: 'M8 8a4 4 0 1 0 8 0a4 4 0 1 0-8 0 M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6',
+bell: 'M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z M10 20a2 2 0 0 0 4 0',
+search: 'M4 11a7 7 0 1 0 14 0a7 7 0 1 0-14 0 M20 20l-4-4',
+mic: 'M12 3a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z M5 11a7 7 0 0 0 14 0 M12 18v3',
+pill: 'M8.5 15.5l7-7a3.5 3.5 0 0 0-5-5l-7 7a3.5 3.5 0 0 0 5 5z M7 7l5 5',
+home: 'M3 11.5L12 4l9 7.5 M5 10v10h14V10',
+cal: 'M4 6h16v14H4z M8 3v4 M16 3v4 M4 10h16',
+cart: 'M3 4h2l2.5 11h11L21 7H6.5 M8 20.5a1 1 0 1 0 2 0a1 1 0 1 0-2 0 M16 20.5a1 1 0 1 0 2 0a1 1 0 1 0-2 0',
+};
+const c = dark ? {
+bg: '#0B1B2B', surface: '#12263A', border: 'rgba(255,255,255,0.10)', tile: '#12263A', tileBorder: 'rgba(255,255,255,0.08)', tileShadow: '0 8px 24px rgba(0,0,0,0.25)', text: '#F5F5F7', muted: '#9AA4B2',
+hero: '#1A3148', heroText: '#F5F5F7', chipBg: 'rgba(215,255,0,0.16)', chipText: '#D7FF00', progress: '#D7FF00', track: 'rgba(255,255,255,0.14)',
+link: '#D7FF00', action: '#D7FF00', actionText: '#0B1B2B', glass: 'rgba(18,38,58,0.72)', glassBorder: 'rgba(255,255,255,0.12)', active: '#D7FF00', idle: '#9AA4B2'
+} : {
+bg: '#F5F5F7', surface: '#FFFFFF', border: '#E5E5EA', tile: '#FFFFFF', tileBorder: 'rgba(11,27,43,0.04)', tileShadow: '0 8px 24px rgba(11,27,43,0.07)', text: '#0B1B2B', muted: '#6E6E73',
+hero: '#0B1B2B', heroText: '#F5F5F7', chipBg: 'rgba(215,255,0,0.16)', chipText: '#D7FF00', progress: '#D7FF00', track: 'rgba(255,255,255,0.18)',
+link: '#C8202F', action: '#D42A38', actionText: '#FFFFFF', glass: 'rgba(255,255,255,0.78)', glassBorder: 'rgba(11,27,43,0.08)', active: '#C8202F', idle: '#5B6470'
+};
+const tiles = [
+{ label: 'الصيدلية', key: 'pharmacy' }, { label: 'استشارة', key: 'consult' }, { label: 'تحاليل', key: 'lab' }, { label: 'أشعة', key: 'radiology' },
+{ label: 'تمريض منزلي', key: 'nursing' }, { label: 'صحة نفسية', key: 'mind' }, { label: 'تغذية', key: 'nutrition' }, { label: 'العائلة', key: 'family' },
+];
+const iconSize = 46;
+const P = (name, lt, lf, dt, df) => ({ name, tint: dark ? dt : lt, fg: dark ? df : lf });
+const products = [
+P('باراسيتامول ٥٠٠ ملغ', '#FFE3E5', '#B81E2B', 'rgba(255,107,115,0.14)', '#FF8A91'),
+P('فيتامين د ٥٠٠٠ وحدة', '#FFF1CC', '#8A5A00', 'rgba(255,209,102,0.14)', '#FFD166'),
+P('مرطب للبشرة الحساسة', '#E3E9FF', '#3A56D4', 'rgba(110,139,255,0.16)', '#9DB0FF'),
+];
+const tab = (label, d, on) => ({ label, d, color: on ? c.active : c.idle });
+const tabs = [tab('الرئيسية', i.home, true), tab('مواعيدي', i.cal, false), tab('الصيدلية', i.pill, false), tab('السلة', i.cart, false), tab('حسابي', i.user, false)];
+return { c, i, tiles, iconSize, products, tabs };
+}
+}
+</script>
+</body>
+</html>

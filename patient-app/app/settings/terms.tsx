@@ -8,6 +8,7 @@ import { useApp } from "../../src/context/AppContext";
 import { apiFetch } from "../../src/utils/api";
 import { Icon } from "../../src/components/Icon";
 import { AppText, Card, IconButton } from "../../src/components/ui";
+import { ScreenState } from "../../src/components/ScreenStates";
 
 interface TermsSection {
   title: string;
@@ -86,8 +87,15 @@ export default function TermsScreen() {
 
   // F23: cancellation/returns policy numbers come from /system-config/public.
   const [policy, setPolicy] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string|null>(null);
   useEffect(() => {
-    apiFetch<any>('/system-config/public').then((r: any) => setPolicy(r)).catch(() => {});
+    setLoading(true);
+    setError(null);
+    apiFetch<any>('/system-config/public')
+      .then((r: any) => setPolicy(r))
+      .catch(() => setError('تعذر تحميل سياسة الإلغاء والاسترجاع'))
+      .finally(() => setLoading(false));
   }, []);
   const sections = SECTIONS.map((s) => {
     if (s.title !== 'الإلغاء والاسترجاع' || !policy?.cancellation_policy) return s;
@@ -95,8 +103,8 @@ export default function TermsScreen() {
     const r = policy.returns_policy || {};
     return {
       ...s,
-      body: `يمكن إلغاء المواعيد المحجوزة قبل ${c.full_hours} ساعة من الموعد المحدد مع استرداد كامل المبلغ إلى المحفظة خلال ${r.wallet_refund_days_min}-${r.wallet_refund_days_max} أيام عمل. في حالة الإلغاء خلال أقل من ${c.full_hours} ساعة، يتم خصم ${c.late_fee_percent}% من قيمة الحجز كرسوم إلغاء. طلبات الصيدلية المؤكدة والتي بدأت مرحلة التجهيز لا يمكن إلغاؤها. يمكن إرجاع المنتجات غير المستخدمة خلال ${r.unused_days} أيام من تاريخ الاستلام بشرط سلامة العبوة الأصلية.`,
-      body_en: `Booked appointments may be cancelled at least ${c.full_hours} hours before the scheduled time with a full refund to the wallet within ${r.wallet_refund_days_min}-${r.wallet_refund_days_max} business days. Cancellations made less than ${c.full_hours} hours in advance incur a ${c.late_fee_percent}% cancellation fee. Confirmed pharmacy orders that have entered preparation cannot be cancelled. Unused products may be returned within ${r.unused_days} days of receipt provided the original packaging is intact.`,
+      body: `يمكن إلغاء المواعيد المحجوزة قبل ${c.full_hours} ساعة من الموعد المحدد مع استرداد كامل المبلغ إلى وسيلة الدفع الأصلية خلال ${r.wallet_refund_days_min}-${r.wallet_refund_days_max} أيام عمل. في حالة الإلغاء خلال أقل من ${c.full_hours} ساعة، يتم خصم ${c.late_fee_percent}% من قيمة الحجز كرسوم إلغاء. طلبات الصيدلية المؤكدة والتي بدأت مرحلة التجهيز لا يمكن إلغاؤها. يمكن إرجاع المنتجات غير المستخدمة خلال ${r.unused_days} أيام من تاريخ الاستلام بشرط سلامة العبوة الأصلية.`,
+      body_en: `Booked appointments may be cancelled at least ${c.full_hours} hours before the scheduled time with a full refund to the original payment method within ${r.wallet_refund_days_min}-${r.wallet_refund_days_max} business days. Cancellations made less than ${c.full_hours} hours in advance incur a ${c.late_fee_percent}% cancellation fee. Confirmed pharmacy orders that have entered preparation cannot be cancelled. Unused products may be returned within ${r.unused_days} days of receipt provided the original packaging is intact.`,
     };
   });
 
@@ -119,6 +127,7 @@ export default function TermsScreen() {
         <IconButton icon="back" onPress={() => router.back()} />
       </View>
 
+      <ScreenState loading={loading} error={error} empty={false} emptyTitle="لا توجد شروط" onRetry={() => { setLoading(true); setError(null); apiFetch<any>('/system-config/public').then((r: any) => setPolicy(r)).catch(() => setError('تعذر تحميل سياسة الإلغاء والاسترجاع')).finally(() => setLoading(false)); }}>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -181,6 +190,7 @@ export default function TermsScreen() {
           </AppText>
         </Animated.View>
       </ScrollView>
+      </ScreenState>
     </View>
   );
 }

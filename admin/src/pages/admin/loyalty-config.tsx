@@ -23,7 +23,13 @@ export default function LoyaltyConfigPage() {
         apiFetch<any>('/admin/loyalty/rewards').catch(() => []),
         apiFetch<any>('/admin/loyalty/challenges').catch(() => []),
       ]);
-      setConfig({ points_per_order: cfg?.points_per_order ?? 10, referral_points: cfg?.referral_points ?? 50, tiers: cfg?.tiers ?? [], earn_ways: cfg?.earn_ways ?? [] });
+      setConfig({
+        points_per_order: cfg?.points_per_order ?? 10, referral_points: cfg?.referral_points ?? 50,
+        max_redeem_percent: cfg?.max_redeem_percent ?? 10, point_value_sar: cfg?.point_value_sar ?? 0.1,
+        redeem_enabled: cfg?.redeem_enabled !== false,
+        earn_points: cfg?.earn_points || {}, earn_caps: cfg?.earn_caps || { daily: {}, monthly: {} },
+        tiers: cfg?.tiers ?? [], earn_ways: cfg?.earn_ways ?? [],
+      });
       setRewards(Array.isArray(rw) ? rw : rw?.data || []);
       setChallenges(Array.isArray(ch) ? ch : ch?.data || []);
     } catch (e: any) { setError(e?.message || 'تعذر تحميل إعدادات الولاء'); }
@@ -34,7 +40,18 @@ export default function LoyaltyConfigPage() {
   const saveConfig = async () => {
     setSaving(true); setError('');
     try {
-      await apiFetch('/admin/admin/loyalty/config', { method: 'PUT', body: JSON.stringify({ points_per_order: config?.points_per_order ?? 10, referral_points: config?.referral_points ?? 50 }) });
+      await apiFetch('/admin/admin/loyalty/config', {
+        method: 'PUT',
+        body: JSON.stringify({
+          points_per_order: config?.points_per_order ?? 10,
+          referral_points: config?.referral_points ?? 50,
+          max_redeem_percent: config?.max_redeem_percent ?? 10,
+          point_value_sar: config?.point_value_sar ?? 0.1,
+          redeem_enabled: config?.redeem_enabled !== false,
+          earn_points: config?.earn_points || {},
+          earn_caps: config?.earn_caps || {},
+        }),
+      });
       alert('تم الحفظ'); await load();
     } catch (e: any) { setError(e?.message || 'فشل الحفظ'); }
     finally { setSaving(false); }
@@ -77,9 +94,39 @@ export default function LoyaltyConfigPage() {
     {error ? <p role="alert" className="rounded-lg bg-rose-50 p-3 text-rose-700">{error}</p> : null}
 
     <div className="rounded-xl border bg-white p-5 space-y-4">
-      <h2 className="font-black">النقاط</h2>
-      <div><label className="mb-1 block text-sm font-bold">نقاط لكل طلب</label><input type="number" value={config?.points_per_order ?? 10} onChange={e => setConfig({ ...config, points_per_order: parseInt(e.target.value) || 0 })} className="w-40 rounded border px-3 py-2" /></div>
-      <div><label className="mb-1 block text-sm font-bold">نقاط الإحالة</label><input type="number" value={config?.referral_points ?? 50} onChange={e => setConfig({ ...config, referral_points: parseInt(e.target.value) || 0 })} className="w-40 rounded border px-3 py-2" /></div>
+      <h2 className="font-black">النقاط والاسترداد</h2>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <div><label className="mb-1 block text-sm font-bold">نقاط لكل طلب</label><input type="number" value={config?.points_per_order ?? 10} onChange={e => setConfig({ ...config, points_per_order: parseInt(e.target.value) || 0 })} className="w-full rounded border px-3 py-2" /></div>
+        <div><label className="mb-1 block text-sm font-bold">نقاط الإحالة</label><input type="number" value={config?.referral_points ?? 50} onChange={e => setConfig({ ...config, referral_points: parseInt(e.target.value) || 0 })} className="w-full rounded border px-3 py-2" /></div>
+        <div><label className="mb-1 block text-sm font-bold">قيمة النقطة (ر.س)</label><input type="number" step="0.01" value={config?.point_value_sar ?? 0.1} onChange={e => setConfig({ ...config, point_value_sar: parseFloat(e.target.value) || 0 })} className="w-full rounded border px-3 py-2" /></div>
+        <div><label className="mb-1 block text-sm font-bold">أقصى استرداد % من الطلب</label><input type="number" value={config?.max_redeem_percent ?? 10} onChange={e => setConfig({ ...config, max_redeem_percent: parseInt(e.target.value) || 0 })} className="w-full rounded border px-3 py-2" /></div>
+        <div className="flex items-end gap-2 pb-2"><input id="redeem-enabled" type="checkbox" checked={config?.redeem_enabled !== false} onChange={e => setConfig({ ...config, redeem_enabled: e.target.checked })} className="h-5 w-5" /><label htmlFor="redeem-enabled" className="text-sm font-bold">الاسترداد مفعّل</label></div>
+      </div>
+      <div>
+        <h3 className="mb-2 text-sm font-black">قيم الكسب لكل نشاط</h3>
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+          {['booking_completed', 'order_delivered', 'review_submitted', 'referral_converted', 'referral_welcome', 'vitals_logged'].map((reason) => (
+            <div key={reason}><label className="mb-1 block text-xs font-bold">{reason}</label>
+              <input type="number" value={config?.earn_points?.[reason] ?? ''} placeholder="الافتراضي" onChange={e => setConfig({ ...config, earn_points: { ...(config?.earn_points || {}), [reason]: parseInt(e.target.value) || 0 } })} className="w-full rounded border px-3 py-2" />
+            </div>
+          ))}
+        </div>
+      </div>
+      <div>
+        <h3 className="mb-2 text-sm font-black">سقوف الكسب اليومية / الشهرية (للأنشطة غير الشرائية)</h3>
+        {(['daily', 'monthly'] as const).map((period) => (
+          <div key={period} className="mb-2">
+            <p className="mb-1 text-xs font-bold">{period === 'daily' ? 'يومي' : 'شهري'}</p>
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-4">
+              {['review_submitted', 'vitals_logged', 'referral_converted', 'referral_welcome'].map((reason) => (
+                <div key={reason}><label className="mb-1 block text-xs">{reason}</label>
+                  <input type="number" value={config?.earn_caps?.[period]?.[reason] ?? ''} placeholder="بلا سقف" onChange={e => setConfig({ ...config, earn_caps: { ...(config?.earn_caps || {}), [period]: { ...((config?.earn_caps || {})[period] || {}), [reason]: parseInt(e.target.value) || 0 } } })} className="w-full rounded border px-3 py-2" />
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
       <button onClick={saveConfig} disabled={saving} className="rounded-xl bg-teal-600 px-6 py-2 font-bold text-white disabled:opacity-50">{saving ? '...' : 'حفظ الإعدادات'}</button>
     </div>
 

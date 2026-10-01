@@ -3,6 +3,9 @@ const memberId = "[A-Za-z0-9_-]{1,128}";
 const threadId = orderId;
 const patientReadRoutes = [
   new RegExp("^/orders/mine$"),
+  new RegExp("^/care/appointments/mine$", "i"),
+  new RegExp("^/labs/bookings/mine$", "i"),
+  new RegExp("^/radiology/bookings/mine$", "i"),
   new RegExp("^/prescriptions/mine$"),
   new RegExp("^/prescriptions/active$"),
   new RegExp(`^/prescriptions/${orderId}$`, "i"),
@@ -81,9 +84,7 @@ const patientReadRoutes = [
   new RegExp("^/emergency/my/active$", "i"),
   new RegExp(`^/labs/bookings/${orderId}$`, "i"),
   new RegExp(`^/labs/bookings/${orderId}/tracking$`, "i"),
-  new RegExp("^/wallet/balance$", "i"),
-  new RegExp("^/wallet/transactions$", "i"),
-  new RegExp("^/wallet/cards$", "i"),
+  // A1: the patient wallet is gone — these backend routes no longer exist.
 ];
 
 const diagnosticsMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp }> = [

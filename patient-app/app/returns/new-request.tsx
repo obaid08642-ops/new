@@ -7,6 +7,7 @@ import {
 } from 'react-native';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as ImagePicker from 'expo-image-picker';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';
 import { Icon } from '../../src/components/Icon';
@@ -43,6 +44,7 @@ export default function NewReturnRequestScreen() {
   const [details, setDetails] = useState('');
   const [attachedDocs, setAttachedDocs] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
   // LJ-05: eligible completed bookings from the server (no hand-typed ids, no client amounts).
   const [eligibleBookings, setEligibleBookings] = useState<any[]>([]);
   const [loadingBookings, setLoadingBookings] = useState(false);
@@ -61,6 +63,37 @@ export default function NewReturnRequestScreen() {
 
   const selectedBooking = eligibleBookings.find((booking) => booking.id === orderId);
 
+  // F76: real photo evidence — camera or library → /media/upload → URLs in attachments[].
+  const attachPhoto = async (fromCamera: boolean) => {
+    try {
+      const perm = fromCamera
+        ? await ImagePicker.requestCameraPermissionsAsync()
+        : await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (perm.status !== 'granted') {
+        showLocalizedAlert('الصلاحية مطلوبة', fromCamera ? 'اسمح بالوصول إلى الكاميرا لتصوير الدليل.' : 'اسمح بالوصول إلى الصور لاختيار الدليل.');
+        return;
+      }
+      const result = fromCamera
+        ? await ImagePicker.launchCameraAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, quality: 0.7 })
+        : await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, quality: 0.7 });
+      if (result.canceled || !result.assets?.[0]) return;
+      const asset = result.assets[0];
+      setUploadingPhoto(true);
+      const formData = new FormData();
+      formData.append('file', { uri: asset.uri, name: asset.fileName || 'return-evidence.jpg', type: asset.mimeType || 'image/jpeg' } as any);
+      formData.append('purpose', 'report');
+      const up: any = await apiFetch('/media/upload', { method: 'POST', body: formData });
+      const assetId = up?.id || up?.data?.id;
+      if (!assetId) throw new Error('no asset');
+      // R7-2: store the media reference; the server signs a fresh URL on every read.
+      setAttachedDocs((prev) => [...prev, `media:${assetId}`]);
+    } catch {
+      showLocalizedAlert('تعذر إرفاق الصورة', 'حاول مرة أخرى.');
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
+
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
@@ -72,6 +105,7 @@ export default function NewReturnRequestScreen() {
           orderId: selectedBooking?.id,
           details,
           refundMethod: 'original',
+          attachedDocs,
         }),
       });
       setIsSubmitting(false);
@@ -210,16 +244,26 @@ export default function NewReturnRequestScreen() {
             {/* Attach photos */}
             <View style={[styles.card, { backgroundColor: isDark ? colors.surface : colors.white } ]}>
               <AppText variant="bodySM">إرفاق صور (اختياري)</AppText>
-              <TouchableOpacity onPress={() => setAttachedDocs(p => [...p, `صورة ${p.length + 1}`])}
-                style={[styles.attachBtn, { borderColor: colors.border } ]}>
-                <Icon name="camera" size={20} color={colors.textTertiary} />
-                <AppText variant="bodySM">التقط أو ارفع صورة</AppText>
-              </TouchableOpacity>
+              <View style={{ flexDirection: 'row', gap: 8 }}>
+                <TouchableOpacity onPress={() => void attachPhoto(true)} disabled={uploadingPhoto}
+                  style={[styles.attachBtn, { borderColor: colors.border, flex: 1, opacity: uploadingPhoto ? 0.5 : 1 } ]}>
+                  <Icon name="camera" size={20} color={colors.textTertiary} />
+                  <AppText variant="bodySM">{uploadingPhoto ? 'جارٍ الرفع…' : 'التقط صورة'}</AppText>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => void attachPhoto(false)} disabled={uploadingPhoto}
+                  style={[styles.attachBtn, { borderColor: colors.border, flex: 1, opacity: uploadingPhoto ? 0.5 : 1 } ]}>
+                  <Icon name="image" size={20} color={colors.textTertiary} />
+                  <AppText variant="bodySM">اختر من الصور</AppText>
+                </TouchableOpacity>
+              </View>
               <View style={styles.docsRow}>
                 {attachedDocs.map((doc, i) => (
                   <View key={i} style={[styles.docTag, { backgroundColor: '#EDE9FE' } ]}>
                     <Icon name="image" size={12} color="#7C3AED" />
-                    <AppText variant="bodySM">{doc}</AppText>
+                    <AppText variant="bodySM">صورة {i + 1}</AppText>
+                    <TouchableOpacity onPress={() => setAttachedDocs((prev) => prev.filter((_, idx) => idx !== i))}>
+                      <Icon name="close" size={12} color="#7C3AED" />
+                    </TouchableOpacity>
                   </View>
                 ))}
               </View>

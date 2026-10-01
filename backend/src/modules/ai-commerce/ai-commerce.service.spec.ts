@@ -151,7 +151,7 @@ describe('AiCommerceService', () => {
       expect(session.session_id).toMatch(/^ai_chk_/);
       expect(session.requires_prescription).toBe(false);
       expect(session.pricing.subtotal).toBe(37.0);
-      expect(session.pricing.vat_15_percent).toBe(5.55);
+      expect(session.pricing.vat_amount).toBe(5.55);
       expect(session.pricing.total_sar).toBe(42.55);
       expect(session.checkout_url).toContain('https://nabd.plus/ar/checkout/session/');
       expect(session.deep_link).toContain('nabdplus://checkout/session/');

@@ -9,6 +9,7 @@ import { Icon } from '../../src/components/Icon';
 import { apiFetch } from '../../src/utils/api';
 import { healthDayT } from '../../src/i18n/health-day';
 import HomeSections from '../../src/components/HomeSections';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 type DoseStatus = 'pending' | 'taken' | 'skipped' | 'missed';
 type Dose = { time_key: string; status: DoseStatus };
@@ -78,7 +79,7 @@ export default function HealthDayScreen() {
       <View style={styles.headerTitle}><AppText variant="h3" color="#FFFFFF">{t('title')}</AppText><AppText variant="caption" color="rgba(255,255,255,0.82)">{t('subtitle')}</AppText></View>
       <IconButton icon="person" bg="rgba(255,255,255,0.15)" color="#FFFFFF" onPress={() => router.push('/profile')} />
     </View>
-    <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 100 }]} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => void load(true)} tintColor={colors.primary} />}>
+    <ScreenState loading={false} error={null} empty={false} emptyTitle="لا توجد بيانات" onRetry={() => void load(true)}><ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 100 }]} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => void load(true)} tintColor={colors.primary} />}>
       <Animated.View entering={FadeInDown.duration(280)} style={[styles.greeting, { backgroundColor: colors.primarySurface, borderColor: colors.primary + '26' }]}>
         <View style={[styles.greetingIcon, { backgroundColor: colors.primary }]}><Icon name="heart-pulse" size={24} color="#FFFFFF" /></View>
         <View style={styles.rightText}><AppText variant="h5" color={colors.textPrimary}>{patientName ? `${t('greeting')}، ${patientName}` : `${t('greeting')} ${t('anonymous')}`}</AppText><AppText variant="caption" color={colors.textTertiary}>{t('updated')}</AppText></View>
@@ -184,7 +185,7 @@ export default function HealthDayScreen() {
 
       <Section title={t('appointments')} action={t('viewAll')} onAction={() => router.push('/consultations/appointments')} colors={colors} />
       <Card onPress={() => appointment?.id ? router.push({ pathname: '/consultations/appointment-detail', params: { id: appointment.id } }) : router.push('/(tabs)/consultations')} style={styles.featureCard}><View style={[styles.featureIcon, { backgroundColor: '#2E86FF18' }]}><Icon name="calendar_today" size={24} color="#2E86FF" /></View><View style={styles.rightText}>{appointment ? <><AppText variant="caption" color={colors.textTertiary}>{t('nextAppointment')}</AppText><AppText variant="h6">{appointment.doctorName || appointment.type || t('consultation')}</AppText><AppText variant="caption" color={colors.textSecondary}>{[appointment.date, appointment.time].filter(Boolean).join(' · ')}</AppText></> : <><AppText variant="h6">{t('noAppointment')}</AppText><AppText variant="caption" color={colors.textTertiary}>{t('consultation')}</AppText></>}</View><Icon name="chevronLeft" size={20} color={colors.textTertiary} /></Card>
-    </ScrollView>
+    </ScrollView></ScreenState>
   </View>;
 }
 

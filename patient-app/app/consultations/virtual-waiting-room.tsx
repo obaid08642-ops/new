@@ -16,6 +16,7 @@ import { resolveColor, darkColors, lightColors } from "../../src/theme/colors";
 import { apiFetch } from "../../src/utils/api";
 import { pickLocalized } from '../../src/utils/localize';
 import { LocalizedText } from '../../src/components/LocalizedText';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 export default function VirtualWaitingRoomScreen() {
   const { appointmentId } = useLocalSearchParams();
@@ -26,6 +27,7 @@ export default function VirtualWaitingRoomScreen() {
 
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
   // F37: hide the join button when video calls are disabled server-side (LiveKit unconfigured).
   const [callsEnabled, setCallsEnabled] = useState(true);
 
@@ -48,6 +50,8 @@ export default function VirtualWaitingRoomScreen() {
     ).start();
 
     if (appointmentId) {
+      setLoading(true);
+      setError(null);
       apiFetch(`/care/appointments/${appointmentId}`)
         .then((res: any) => {
           setData(res?.data || res);
@@ -55,6 +59,7 @@ export default function VirtualWaitingRoomScreen() {
         })
         .catch(() => {
           setData(null);
+          setError('تعذر تحميل بيانات الموعد');
           setLoading(false);
         });
       // F37: explicit false hides the join button; errors fail open.
@@ -86,6 +91,7 @@ export default function VirtualWaitingRoomScreen() {
     );
 
   return (
+    <ScreenState loading={false} error={error} empty={false} emptyTitle="لا توجد بيانات" onRetry={() => setError(null)}>
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
       <View style={[StyleSheet.absoluteFillObject, { backgroundColor: '#222A3D' }]} />
@@ -220,6 +226,7 @@ export default function VirtualWaitingRoomScreen() {
       </TouchableOpacity>
       ) : null}
     </View>
+    </ScreenState>
   );
 }
 

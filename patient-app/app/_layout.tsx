@@ -40,14 +40,29 @@ function ThemedStatusBar() {
 }
 
 function RootLayout() {
+  // 12.A5 — the owner's typography. This app shipped six embedded Cairo weights
+  // (1.4 MB of binaries) from a design system that predates the brand. Readex Pro
+  // is the primary face and Noto Sans Arabic covers the Arabic script, both OFL
+  // and redistributable.
+  //
+  // Six Cairo weights map onto the three Readex weights the family ships, so
+  // SemiBold/ExtraBold/Black resolve to 500/700/700 rather than faking a weight
+  // the face does not have. The call sites were renamed, not aliased: a style
+  // still asking for `Cairo-Black` after this change would have silently fallen
+  // back to a system font, and the rename is what makes that failure impossible.
   const [loaded, error] = useFonts({
-    'Cairo-Regular': require('../assets/fonts/Cairo-Regular.ttf'),
-    'Cairo-Medium': require('../assets/fonts/Cairo-Medium.ttf'),
-    'Cairo-SemiBold': require('../assets/fonts/Cairo-SemiBold.ttf'),
-    'Cairo-Bold': require('../assets/fonts/Cairo-Bold.ttf'),
-    'Cairo-ExtraBold': require('../assets/fonts/Cairo-ExtraBold.ttf'),
-    'Cairo-Black': require('../assets/fonts/Cairo-Black.ttf'),
-    'MaterialSymbolsRounded': require('../assets/fonts/MaterialSymbolsRounded.ttf'),
+    // The KEY is the family name every call site asks for. It must match
+    // `fontFamily` exactly: a mismatch here is invisible to tsc and to every
+    // test, and the symptom is the whole app quietly rendering in a system
+    // font. tests/design-system/typography.test.ts asserts the two agree.
+    'ReadexPro-300': require('../assets/fonts/ReadexPro-300.ttf'),
+    'ReadexPro-400': require('../assets/fonts/ReadexPro-400.ttf'),
+    'ReadexPro-500': require('../assets/fonts/ReadexPro-500.ttf'),
+    'ReadexPro-700': require('../assets/fonts/ReadexPro-700.ttf'),
+    'NotoSansArabic-400': require('../assets/fonts/NotoSansArabic-400.ttf'),
+    'NotoSansArabic-500': require('../assets/fonts/NotoSansArabic-500.ttf'),
+    'NotoSansArabic-700': require('../assets/fonts/NotoSansArabic-700.ttf'),
+    MaterialSymbolsRounded: require('../assets/fonts/MaterialSymbolsRounded.ttf'),
   });
 
   useEffect(() => {

@@ -15,11 +15,14 @@ import { cookies } from "next/headers";
 import { LocaleSelector } from "@/components-next/locale-selector";
 import { SessionActions } from "@/components-next/session-actions";
 import { PresenceBeacon } from "@/components-next/presence-beacon";
-import { PulseShieldMark } from "@/components-next/pulse-shield-mark";
+import { NabdMark } from "@/components-next/nabd-mark";
 import { ShieldCheck } from "lucide-react";
 import { authCookieNames } from "@/lib/auth/cookies";
 import { getDirection, isLocale, locales, type Locale } from "@/lib/i18n";
 import { WebMcpProvider } from "@/components-next/web-mcp-provider";
+import { ThemeToggle } from "@/components-next/theme-toggle";
+import { THEME_INIT_SCRIPT } from "@/app/theme";
+import { ServiceWorkerRegister } from "@/components-next/service-worker-register";
 
 type Props = Readonly<{ children: React.ReactNode; params: Promise<{ locale: string }> }>;
 
@@ -73,15 +76,23 @@ export default async function LocaleLayout({ children, params }: Props) {
     <NextIntlClientProvider messages={messages}>
       <WebMcpProvider locale={typedLocale} />
       <div className={`shell ${tajawal.variable}`} lang={typedLocale} dir={getDirection(typedLocale)}>
+        {/*
+          12.A3 — the theme has to be known before the first pixel, or every
+          navigation flashes the wrong theme. This is a synchronous inline script
+          at the top of the body for that reason; see app/theme.ts for why it
+          sets BOTH data-theme and .dark.
+        */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <header className="topbar">
           <Link className="brand" href={`/${typedLocale}`}>
             <span className="brand-mark">
-              <PulseShieldMark decorative />
+              <NabdMark size={26} />
             </span>
             <span className="brand-wordmark">{t("brand")}</span>
           </Link>
           <div className="nav-actions">
             <LocaleSelector current={typedLocale} label={t("language")} />
+            <ThemeToggle label={t("theme")} />
             {hasAccessToken ? (
               <SessionActions locale={typedLocale} accountLabel={t("account")} signOutLabel={t("signOut")} />
             ) : (

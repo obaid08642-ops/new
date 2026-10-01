@@ -11,6 +11,7 @@ import { useDiagnosticsCart } from '../../src/context/DiagnosticsCartContext';
 import { apiFetch } from '../../src/utils/api';
 import { logError } from '../../src/utils/logger';
 import { normalizeLabService } from '../../src/utils/labMappers';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 const { width } = Dimensions.get('window');
 
@@ -23,11 +24,14 @@ export default function PackageDetail() {
 
   const [pkg, setPkg] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    setLoading(true);
+    setError(null);
     apiFetch(`/labs/packages/${id}`)
       .then(res => setPkg(normalizeLabService(res?.data || res)))
-      .catch((e) => logError('diagnostics:package-detail', e))
+      .catch((e) => { logError('diagnostics:package-detail', e); setError('تعذر تحميل بيانات الباقة'); })
       .finally(() => setLoading(false));
   }, [id]);
 
@@ -51,6 +55,7 @@ export default function PackageDetail() {
   const inCart = items.some(i => i.id === id);
 
   return (
+    <ScreenState loading={false} error={error} empty={false} emptyTitle="لا توجد بيانات" onRetry={() => setError(null)}>
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background } ]}>
       <Stack.Screen options={{ headerShown: false }} />
       
@@ -146,6 +151,7 @@ export default function PackageDetail() {
         </TouchableOpacity>
       </Animated.View>
     </SafeAreaView>
+    </ScreenState>
   );
 }
 

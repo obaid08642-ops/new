@@ -9,6 +9,7 @@ import { AppText, Card, Badge, Button, IconButton, Input, SegmentedControl, Sect
 import { apiFetch } from '../../src/utils/api';
 import { logError } from '../../src/utils/logger';
 import QRCode from 'react-native-qrcode-svg';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 export default function FamilyInviteScreen() {
   const insets = useSafeAreaInsets();
@@ -73,6 +74,7 @@ export default function FamilyInviteScreen() {
           </TouchableOpacity>
         </View>
       ) : (
+        <ScreenState loading={false} error={null} empty={false} emptyTitle="لا توجد بيانات" onRetry={loadInviteCode}>
         <ScrollView contentContainerStyle={{ padding: 16, gap: 14, paddingBottom: 100 }}>
           {/* Member info */}
           <Card>
@@ -142,6 +144,7 @@ export default function FamilyInviteScreen() {
             </View>
           </Card>
         </ScrollView>
+        </ScreenState>
       )}
     </View>
   );

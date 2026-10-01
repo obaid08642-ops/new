@@ -15,6 +15,7 @@ import {
   IconButton,
 } from "../../src/components/ui";
 import { apiFetch } from "../../src/utils/api";
+import { ScreenState } from "../../src/components/ScreenStates";
 
 export default function FeedbackScreen() {
   const insets = useSafeAreaInsets();
@@ -25,6 +26,7 @@ export default function FeedbackScreen() {
   const [text, setText] = useState("");
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string|null>(null);
 
   const handleSend = async () => {
     if (!text) return;
@@ -36,6 +38,7 @@ export default function FeedbackScreen() {
       });
       setSent(true);
     } catch {
+      setError('تعذر إرسال الملاحظة');
       setSent(true); // show success even if API fails, don't block UX
     } finally {
       setSending(false);
@@ -89,6 +92,7 @@ export default function FeedbackScreen() {
           <Icon name="back" size={22} color={colors.textPrimary} />
         </TouchableOpacity>
       </View>
+      <ScreenState loading={sending} error={error} empty={false} emptyTitle="لا توجد بيانات" onRetry={handleSend}>
       <View style={{ padding: 16, gap: 14, flex: 1 }}>
         {/* App rating */}
         <View
@@ -178,6 +182,7 @@ export default function FeedbackScreen() {
           </View>
         </TouchableOpacity>
       </View>
+      </ScreenState>
     </View>
   );
 }

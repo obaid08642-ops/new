@@ -18,6 +18,10 @@ export class ReportsQueryDto {
   @IsOptional()
   @IsIn(['day', 'service', 'status', 'gateway', 'city', 'type'])
   group_by?: string;
+
+  @IsOptional()
+  @IsIn(['csv', 'xlsx'])
+  format?: string;
 }
 
 const DAY = { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } };
@@ -190,14 +194,15 @@ export class AdminReportsController {
     return { group_by: 'day', rows };
   }
 
-  /** P6.x-10: finance — commissions (provider_earning debits), payouts, refunds. */
+  /** Finance — commissions and VAT from provider_earning ledger rows (A1: the wallet store is dead). */
   @Get('finance')
   async finance(@Query() q: ReportsQueryDto, @Query('format') format?: string, @Res({ passthrough: true }) res?: Response) {
-    const rows: any[] = await this.conn.collection('wallet_transactions').aggregate([
-      { $match: this.window(q) },
-      { $group: { _id: { day: DAY, type: '$type' }, total: { $sum: '$amount' }, count: { $sum: 1 } } },
-      { $project: { bucket: '$_id.day', type: '$_id.type', total: 1, count: 1, _id: 0 } },
-      { $sort: { bucket: 1, type: 1 } },
+    const rows: any[] = await this.conn.collection('platformledgerentries').aggregate([
+      { $match: { type: 'provider_earning', ...this.window(q) } },
+      { $group: { _id: DAY, gross: { $sum: { $ifNull: ['$gross', '$amount'] } },
+        commission: { $sum: { $ifNull: ['$commission', 0] } }, vat: { $sum: { $ifNull: ['$vat', 0] } }, count: { $sum: 1 } } },
+      { $project: { bucket: '$_id', gross: 1, commission: 1, vat: 1, count: 1, _id: 0 } },
+      { $sort: { bucket: 1 } },
     ]).toArray().catch(() => []);
     if (this.maybeCsv(res, 'finance', rows, format) || await this.maybeXlsx(res, 'finance', rows, format)) return;
     return { group_by: 'day', rows };
@@ -230,6 +235,121 @@ export class AdminReportsController {
       { $sort: { bucket: 1 } },
     ]).toArray().catch(() => []);
     if (this.maybeCsv(res, 'labs-turnaround', rows, format) || await this.maybeXlsx(res, 'labs-turnaround', rows, format)) return;
+    return { group_by: 'day', rows };
+  }
+
+  /** B1: payments — every transaction by gateway and status (server-side window). */
+  @Get('payments')
+  async payments(@Query() q: ReportsQueryDto, @Query('format') format?: string, @Res({ passthrough: true }) res?: Response) {
+    const rows: any[] = await this.conn.collection('transactions').aggregate([
+      { $match: this.window(q) },
+      { $group: { _id: { day: DAY, gateway: { $ifNull: ['$gateway', 'unknown'] }, status: { $ifNull: ['$status', 'unknown'] } },
+        total: { $sum: '$amount' }, count: { $sum: 1 } } },
+      { $project: { bucket: '$_id.day', gateway: '$_id.gateway', status: '$_id.status', total: 1, count: 1, _id: 0 } },
+      { $sort: { bucket: 1, gateway: 1, status: 1 } },
+    ]).toArray().catch(() => []);
+    if (this.maybeCsv(res, 'payments', rows, format) || await this.maybeXlsx(res, 'payments', rows, format)) return;
+    return { group_by: 'day', rows };
+  }
+
+  /** B1: refunds — ledger refund rows by method (A2: the only refund store). */
+  @Get('refunds')
+  async refunds(@Query() q: ReportsQueryDto, @Query('format') format?: string, @Res({ passthrough: true }) res?: Response) {
+    const rows: any[] = await this.conn.collection('platformledgerentries').aggregate([
+      { $match: { type: 'refund', ...this.window(q) } },
+      { $group: { _id: { day: DAY, method: { $ifNull: ['$meta.method', 'unknown'] } },
+        total: { $sum: '$amount' }, count: { $sum: 1 } } },
+      { $project: { bucket: '$_id.day', method: '$_id.method', total: 1, count: 1, _id: 0 } },
+      { $sort: { bucket: 1, method: 1 } },
+    ]).toArray().catch(() => []);
+    if (this.maybeCsv(res, 'refunds', rows, format) || await this.maybeXlsx(res, 'refunds', rows, format)) return;
+    return { group_by: 'day', rows };
+  }
+
+  /** B1: payouts — withdrawals by state plus cleared payout ledger totals. */
+  @Get('payouts')
+  async payouts(@Query() q: ReportsQueryDto, @Query('format') format?: string, @Res({ passthrough: true }) res?: Response) {
+    const [withdrawals, cleared]: any[] = await Promise.all([
+      this.conn.collection('providerwithdrawals').aggregate([
+        { $match: this.window(q) },
+        { $group: { _id: { day: DAY, state: { $ifNull: ['$state', 'unknown'] } },
+          total: { $sum: '$amount' }, count: { $sum: 1 } } },
+        { $project: { bucket: '$_id.day', state: '$_id.state', total: 1, count: 1, _id: 0 } },
+        { $sort: { bucket: 1, state: 1 } },
+      ]).toArray().catch(() => []),
+      this.conn.collection('platformledgerentries').aggregate([
+        { $match: { type: 'payout', state: 'cleared', ...this.window(q) } },
+        { $group: { _id: DAY, total: { $sum: '$amount' }, count: { $sum: 1 } } },
+        { $project: { bucket: '$_id', total: 1, count: 1, _id: 0 } },
+      ]).toArray().catch(() => []),
+    ]);
+    const rows = [...withdrawals.map((w: any) => ({ ...w, source: 'withdrawals' })),
+      ...cleared.map((c: any) => ({ ...c, state: 'cleared', source: 'ledger' }))];
+    if (this.maybeCsv(res, 'payouts', rows, format) || await this.maybeXlsx(res, 'payouts', rows, format)) return;
+    return { group_by: 'day', rows };
+  }
+
+  /** B1: loyalty — earned vs redeemed points, discount SAR value, top earners. */
+  @Get('loyalty')
+  async loyalty(@Query() q: ReportsQueryDto, @Query('format') format?: string, @Res({ passthrough: true }) res?: Response) {
+    const [flow, top]: any[] = await Promise.all([
+      this.conn.collection('loyalty_transactions').aggregate([
+        { $match: this.window(q) },
+        { $group: { _id: { day: DAY, kind: { $ifNull: ['$kind', { $cond: [{ $gte: ['$points_delta', 0] }, 'earn', 'redeem'] }] } },
+          points: { $sum: '$points_delta' }, discount_sar: { $sum: { $ifNull: ['$discount_sar', 0] } }, count: { $sum: 1 } } },
+        { $project: { bucket: '$_id.day', kind: '$_id.kind', points: 1, discount_sar: 1, count: 1, _id: 0 } },
+        { $sort: { bucket: 1, kind: 1 } },
+      ]).toArray().catch(() => []),
+      this.conn.collection('loyalty_transactions').aggregate([
+        { $match: { points_delta: { $gt: 0 }, ...this.window(q) } },
+        { $group: { _id: '$user_id', earned: { $sum: '$points_delta' } } },
+        { $sort: { earned: -1 } },
+        { $limit: 50 },
+        { $project: { user_id: '$_id', earned: 1, _id: 0 } },
+      ]).toArray().catch(() => []),
+    ]);
+    const rows = [...flow, ...top.map((t: any) => ({ bucket: 'top-earners', ...t }))];
+    if (this.maybeCsv(res, 'loyalty', rows, format) || await this.maybeXlsx(res, 'loyalty', rows, format)) return;
+    return { group_by: 'day', rows, top_earners: top };
+  }
+
+  /** B1: disputes — tickets by category and status. */
+  @Get('disputes')
+  async disputes(@Query() q: ReportsQueryDto, @Query('format') format?: string, @Res({ passthrough: true }) res?: Response) {
+    const rows: any[] = await this.conn.collection('supportrequests').aggregate([
+      { $match: this.window(q) },
+      { $group: { _id: { day: DAY, category: { $ifNull: ['$category', 'unknown'] }, status: { $ifNull: ['$status', 'unknown'] } },
+        count: { $sum: 1 } } },
+      { $project: { bucket: '$_id.day', category: '$_id.category', status: '$_id.status', count: 1, _id: 0 } },
+      { $sort: { bucket: 1, category: 1, status: 1 } },
+    ]).toArray().catch(() => []);
+    if (this.maybeCsv(res, 'disputes', rows, format) || await this.maybeXlsx(res, 'disputes', rows, format)) return;
+    return { group_by: 'day', rows };
+  }
+
+  /** B1: admin actions — the audit log by action. */
+  @Get('audit')
+  async audit(@Query() q: ReportsQueryDto, @Query('format') format?: string, @Res({ passthrough: true }) res?: Response) {
+    const rows: any[] = await this.conn.collection('admin_actions_log').aggregate([
+      { $match: this.window(q) },
+      { $group: { _id: { day: DAY, action: { $ifNull: ['$action', 'unknown'] } }, count: { $sum: 1 } } },
+      { $project: { bucket: '$_id.day', action: '$_id.action', count: 1, _id: 0 } },
+      { $sort: { bucket: 1, action: 1 } },
+    ]).toArray().catch(() => []);
+    if (this.maybeCsv(res, 'audit', rows, format) || await this.maybeXlsx(res, 'audit', rows, format)) return;
+    return { group_by: 'day', rows };
+  }
+
+  /** B1 fix: finance reads the ledger (RefundExecutor), not the dead wallet store. */
+  @Get('ledger')
+  async ledger(@Query() q: ReportsQueryDto, @Query('format') format?: string, @Res({ passthrough: true }) res?: Response) {
+    const rows: any[] = await this.conn.collection('platformledgerentries').aggregate([
+      { $match: this.window(q) },
+      { $group: { _id: { day: DAY, type: '$type' }, total: { $sum: '$amount' }, count: { $sum: 1 } } },
+      { $project: { bucket: '$_id.day', type: '$_id.type', total: 1, count: 1, _id: 0 } },
+      { $sort: { bucket: 1, type: 1 } },
+    ]).toArray().catch(() => []);
+    if (this.maybeCsv(res, 'ledger', rows, format) || await this.maybeXlsx(res, 'ledger', rows, format)) return;
     return { group_by: 'day', rows };
   }
 }

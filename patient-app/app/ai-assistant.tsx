@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { HttpClient } from '@/services/HttpClient';
 import { useAppSelector } from '@/store/hooks';
 import { useThemeColors, IconButton } from '../src/components/ui';
+import { ScreenState } from '../src/components/ScreenStates';
 
 interface Message {
   id: string;
@@ -28,6 +29,7 @@ export default function AIAssistantScreen() {
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string|null>(null);
   const flatListRef = useRef<FlatList>(null);
   const user = useAppSelector(state => state.auth.user);
 
@@ -120,6 +122,7 @@ export default function AIAssistantScreen() {
         </ScrollView>
       </View>
 
+      <ScreenState error={error} empty={messages.length === 0} emptyTitle="لا توجد رسائل" onRetry={() => setError(null)}>
       <FlatList
         ref={flatListRef}
         data={messages}
@@ -128,6 +131,7 @@ export default function AIAssistantScreen() {
         contentContainerStyle={styles.listContent}
         onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
       />
+      </ScreenState>
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}

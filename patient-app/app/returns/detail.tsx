@@ -20,6 +20,7 @@ import {
   IconButton,
 } from "../../src/components/ui";
 import { apiFetch } from "../../src/utils/api";
+import { ScreenState } from "../../src/components/ScreenStates";
 
 const STATUS_LABELS: Record<string, string> = {
   processing: "قيد المراجعة",
@@ -37,7 +38,7 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 const REFUND_LABELS: Record<string, string> = {
-  wallet: "محفظة نبض",
+  original: "وسيلة الدفع الأصلية",
   card: "البطاقة الأصلية",
   bank: "الحساب البنكي",
 };
@@ -49,26 +50,20 @@ export default function ReturnDetailScreen() {
 
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!returnId) return;
+    setLoading(true);
+    setError(null);
     apiFetch<any>(`/pharmacy/returns/${returnId}`)
       .then((res) => {
         setData(res);
         setLoading(false);
       })
       .catch(() => {
-        // Load default empty state on error
-        setData({
-          id: returnId,
-          service_type: "pharmacy",
-          order_id: "ORD-984321",
-          amount: 80,
-          reason: "دواء تالف أو منتهي الصلاحية",
-          refund_method: "wallet",
-          status: "processing",
-          createdAt: new Date().toISOString(),
-        });
+        setData(null);
+        setError('تعذر تحميل طلب الإرجاع');
         setLoading(false);
       });
   }, [returnId]);
@@ -86,6 +81,24 @@ export default function ReturnDetailScreen() {
         ]}
       >
         <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
+
+  if (!data) {
+    return (
+      <View
+        style={[
+          styles.container,
+          {
+            backgroundColor: colors.background,
+            justifyContent: "center",
+            alignItems: "center",
+            padding: 24,
+          },
+        ]}
+      >
+        <AppText variant="bodySM" color={colors.textSecondary}>تعذر تحميل طلب الإرجاع. تحقق من الاتصال ثم أعد المحاولة.</AppText>
       </View>
     );
   }
@@ -114,13 +127,14 @@ export default function ReturnDetailScreen() {
     },
     {
       status: 'الموافقة وتحويل المبلغ',
-      desc: `استرداد القيمة إلى: ${REFUND_LABELS[data?.refund_method as keyof typeof REFUND_LABELS] || 'المحفظة'}`,
+      desc: `استرداد القيمة إلى: ${REFUND_LABELS[data?.refund_method as keyof typeof REFUND_LABELS] || 'وسيلة الدفع الأصلية'}`,
       done: data?.status === 'completed',
       current: data?.status === 'completed',
     },
   ];
 
   return (
+    <ScreenState loading={false} error={error} empty={false} emptyTitle="لا توجد بيانات" onRetry={() => setError(null)}>
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <View style={styles.headerRow}>
@@ -240,6 +254,7 @@ export default function ReturnDetailScreen() {
         </View>
       </ScrollView>
     </View>
+    </ScreenState>
   );
 }
 

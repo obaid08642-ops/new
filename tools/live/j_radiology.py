@@ -2,6 +2,7 @@
 Payloads copied from patient-app app/(tabs)/diagnostics.tsx (scan "book now" -> cart), diagnostics/cart.tsx, diagnostics/checkout.tsx,
 provider-app screens/radiology/RadiologyDashboard.tsx (OrderDetailScreen, ReportingScreen) and api/provider.ts uploadFile."""
 import base64
+import uuid
 from lib import Client, journey, step
 from j_lab import tomorrow_at
 
@@ -110,6 +111,50 @@ def run(pat, center, other_center=None, admin=None):
         card_payment(pat, 'radiology', bid3)
         r = pat.get(f'/radiology/bookings/{bid3}')
         step('verified card payment confirms the radiology booking', r.ok and r.get('state') == 'CONFIRMED' and r.get('payment_status') == 'paid', r)
+
+    journey('radiology matrix: insurance (request -> decide -> copay -> CONFIRMED)')
+    import j_insurance
+    j_insurance.add_policy(pat, j_insurance.admin_adds_company(admin) if admin else None)
+    rb = pat.post('/radiology/bookings', {'service_id': scans[0]['id'], 'scheduled_at': tomorrow_at(14),
+                                          'location_type': 'facility', 'payment_method': 'insurance', 'provider_account_id': center_id})
+    rid_bid = rb.get('id')
+    step('insurance booking created', rb.ok and rid_bid, rb)
+    if rid_bid:
+        rq = pat.post('/insurance/requests', {'booking_kind': 'radiology', 'booking_id': rid_bid})
+        rid = rq.get('id')
+        step('insurance request opened', rq.ok and rid, rq)
+        if rid:
+            d = center.post(f'/insurance/requests/{rid}/decide', {'decision': 'approve_partial', 'copay_percent': 15})
+            step('center decides partial copay', d.ok, d)
+            import time as _time
+            state = None
+            for _ in range(10):
+                q = pat.get(f'/insurance/requests/{rid}')
+                state = q.get('state')
+                if state == 'COPAY_PENDING':
+                    break
+                _time.sleep(1.5)
+            if state == 'COPAY_PENDING':
+                from j_nursing import card_payment as rad_card_payment
+                caps = pat.get(f'/insurance/requests/{rid}/capabilities')
+                step('copay capabilities offered', caps.ok, caps)
+                ci = pat.post(f'/payments/intent/insurance/{rid}', {'method': 'card'},
+                              headers={'Idempotency-Key': f'payment-insurance-{rid}-{uuid.uuid4()}'})
+                txn = ci.body.get('data', ci.body) if isinstance(ci.body, dict) else {}
+                if txn.get('gateway_intent_id'):
+                    from j_consultation import fake_pay
+                    fake_pay(txn['gateway_intent_id'])
+                    v = pat.post(f"/payments/verify/{txn['id']}", {})
+                    step('copay paid', v.ok and v.get('status') == 'paid', v)
+                for _ in range(10):
+                    q = pat.get(f'/insurance/requests/{rid}')
+                    state = q.get('state')
+                    b = pat.get(f'/radiology/bookings/{rid_bid}')
+                    if state == 'COPAY_PAID' and str(b.get('state')).upper() == 'CONFIRMED':
+                        break
+                    _time.sleep(1.5)
+                step('request shows the copay paid', state == 'COPAY_PAID', state)
+                step('radiology booking CONFIRMED after copay', str(b.get('state')).upper() == 'CONFIRMED', b.get('state'))
 
     journey('radiology screens: every tab loads')
     for path in RAD_SCREEN_GETS:

@@ -1,0 +1,27 @@
+{
+  "name": "@nabd/ui-native",
+  "version": "4.0.0",
+  "private": true,
+  "description": "Nabd+ React Native design system (12.A6) \u2014 <Icon> and <Illustration> over the SAME geometry as @nabd/ui, so patient-app and provider-app cannot drift from the website.",
+  "main": "src/Icon.tsx",
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "files": [
+    "src"
+  ],
+  "peerDependencies": {
+    "phosphor-react-native": ">=3.0.6",
+    "react": ">=18",
+    "react-native": ">=0.73",
+    "react-native-svg": ">=14"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "phosphor-react-native": "^3.0.6",
+    "react": "^19.0.0",
+    "react-native": "^0.86.0",
+    "react-native-svg": "^15.0.0",
+    "typescript": "^5.5.0"
+  }
+}

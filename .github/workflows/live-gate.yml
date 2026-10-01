@@ -54,6 +54,12 @@ jobs:
           for i in $(seq 1 30); do curl -s -o /dev/null http://127.0.0.1:9000 && break; sleep 1; done
           python3 -c "import boto3; boto3.client('s3', endpoint_url='http://127.0.0.1:9000', aws_access_key_id='live', aws_secret_access_key='live-secret', region_name='us-east-1').create_bucket(Bucket='nabd-live')"
 
+      - name: Real browser for admin click tests (R7-1)
+        run: |
+          pip install 'playwright==1.60.*'
+          python3 -m playwright install --with-deps chromium
+          python3 -c "from playwright.sync_api import sync_playwright; p = sync_playwright().start(); b = p.chromium.launch(); print('chromium ok:', b.version); b.close(); p.stop()"
+
       - name: Backend
         working-directory: backend
         run: |
@@ -67,7 +73,7 @@ jobs:
         run: |
           npm ci
           npx next build
-          ADMIN_BACKEND_URL=http://127.0.0.1:8002 NODE_ENV=production nohup npx next start -p 3001 -H 127.0.0.1 > /tmp/admin.log 2>&1 &
+          ADMIN_GATE_TOKEN=live-gate-token ADMIN_BACKEND_URL=http://127.0.0.1:8002 NODE_ENV=production nohup npx next start -p 3001 -H 127.0.0.1 > /tmp/admin.log 2>&1 &
           for i in $(seq 1 60); do curl -s -o /dev/null http://127.0.0.1:3001/ && break; sleep 2; done
 
       - name: Journeys

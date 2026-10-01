@@ -8,6 +8,24 @@ import json, os, re, time, uuid, urllib.request, urllib.error, urllib.parse
 
 BASE = os.environ.get('NABD_API', 'http://127.0.0.1:8002/api/v1')
 MAIL = os.environ.get('NABD_MAIL', '/tmp/nabd-mail.jsonl')
+# 7C: admin hardening headers. The gate backend requires every direct
+# /api/v1/admin/* call to carry an enrolled device id (C2) and the network
+# gate token (C3). Non-admin clients are unaffected.
+ADMIN_DEVICE_ID = os.environ.get('NABD_ADMIN_DEVICE') or 'live-gate-owner-macbook-01'
+# start-backend.sh sets ADMIN_GATE_TOKEN (and mirrors it to NABD_ADMIN_GATE_TOKEN)
+# with this same default, so the harness must present the identical secret. Reading
+# the env alone left the default empty and every /admin/* call 403'd once the C3
+# gate actually became active.
+ADMIN_GATE_TOKEN = (os.environ.get('NABD_ADMIN_GATE_TOKEN')
+                    or os.environ.get('ADMIN_GATE_TOKEN')
+                    or 'live-gate-token')
+
+
+def enroll_admin_device(admin):
+    """Enroll the gate run's device id for the admin user (C2). Idempotent."""
+    r = admin.post('/admin/devices/enroll', {'device_id': ADMIN_DEVICE_ID, 'name': 'gate-run-owner-macbook'})
+    step('admin device enrolled for the gate run (C2)', r.ok, r)
+    return r.ok
 RESULTS = []  # {journey, step, ok, detail}
 _journey = ['?']
 
@@ -65,8 +83,10 @@ class Resp:
 
 
 class Client:
-    def __init__(self, token=None, label='anon'):
+    def __init__(self, token=None, label='anon', admin=False):
         self.token, self.label = token, label
+        # 7C: admin API clients carry the device + gate headers the backend requires.
+        self.is_admin = admin or 'admin' in str(label or '')
 
     def req(self, method, path, body=None, headers=None, idem=True):
         url = path if path.startswith('http') else BASE + path
@@ -75,6 +95,10 @@ class Client:
             h['content-type'] = 'application/json'
         if self.token:
             h['authorization'] = f'Bearer {self.token}'
+        if self.is_admin:
+            h['x-admin-device'] = ADMIN_DEVICE_ID
+            if ADMIN_GATE_TOKEN:
+                h['x-admin-gate-token'] = ADMIN_GATE_TOKEN
         if idem and method in ('POST', 'PATCH', 'PUT', 'DELETE'):
             h['idempotency-key'] = f'live-{uuid.uuid4()}'
         h.update(headers or {})

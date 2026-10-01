@@ -38,7 +38,8 @@ def admin_publishes_nursing(admin, n=3):
         # Fresh DB: the catalog starts empty — create the services, then publish them.
         seeds = [('زيارة تمريضية منزلية', 'Home nursing visit', 'general', 150, '60 دقيقة'),
                  ('قياس العلامات الحيوية', 'Vitals check', 'general', 80, '30 دقيقة'),
-                 ('العناية بالجروح', 'Wound care', 'general', 200, '45 دقيقة')]
+                 ('العناية بالجروح', 'Wound care', 'general', 200, '45 دقيقة'),
+                 ('مرافقة تمريضية (شفت)', 'Nursing shift companion', 'general', 600, 'shift')]
         for ar, en, cat, price, duration in seeds:
             rc = admin.post('/nursing/admin/catalog', {'name_ar': ar, 'name_en': en, 'category': cat,
                                                        'price': price, 'duration': duration, 'active': True})
@@ -46,7 +47,7 @@ def admin_publishes_nursing(admin, n=3):
         r = admin.get('/nursing/admin/catalog')
         items = r.body if isinstance(r.body, list) else r.items()
     step('admin catalog lists services including unpublished ones', r.ok and len(items) > 0, f'{r.status} {len(items)}')
-    for it in [i for i in items if i.get('medical_review_status') != 'approved'][:n]:
+    for it in [i for i in items if i.get('medical_review_status') != 'approved']:
         r = admin.put(f"/nursing/admin/catalog/{it['id']}", {'medical_review_status': 'approved'})
         step(f"admin publishes '{it.get('name_en')}'", r.ok and r.get('public_eligibility') is True, r)
 
@@ -132,11 +133,53 @@ def run(pat, nurse, admin=None):
         step('console detail shows the card payment', d.ok and (fin.get('gross_paid') or 0) > 0, d.get('financials'))
         paid = fin.get('gross_paid') or 0
         r = admin.post(f'/admin/admin/orders/nursing/{bid}/refund', {'mode': 'partial', 'amount': round(paid / 2, 2), 'reason': 'تأخر الممرضة عن الموعد المحدد نصف ساعة'})
-        step('admin partial refund to the patient wallet', r.ok and r.get('credited_amount') == round(paid / 2, 2), r)
+        step('admin partial refund to the original method', r.ok and r.get('credited_amount') == round(paid / 2, 2), r)
         d = admin.get(f'/admin/admin/orders/nursing/{bid}')
         step('detail shows the refund and what is left refundable', d.ok and (d.get('financials') or {}).get('refundable_max') == round(paid - round(paid / 2, 2), 2), d.get('financials'))
         r = admin.post(f'/admin/admin/orders/nursing/{bid}/refund', {'mode': 'partial', 'amount': paid, 'reason': 'محاولة استرداد يتجاوز المتبقي من المبلغ'})
         step('refund above the remaining amount is refused', r.status == 400, r)
+    matrix_shift_booking(pat, nurse, admin)
+    return bid
+
+
+def matrix_shift_booking(pat, nurse, admin=None):
+    """P8 matrix (R7-5): nursing shift booking alongside the hourly flow."""
+    journey('nursing matrix: shift booking')
+    r = pat.get('/home-care/services')
+    svcs = r.body if isinstance(r.body, list) else r.items()
+    svc = next((s for s in svcs if s.get('duration') == 'shift'), None)
+    if not svc and admin:
+        existing = admin.get('/nursing/admin/catalog')
+        items = existing.body if isinstance(existing.body, list) else existing.items()
+        dup = next((s for s in items if s.get('duration') == 'shift'), None)
+        if dup and dup.get('medical_review_status') != 'approved':
+            admin.put(f"/nursing/admin/catalog/{dup.get('id')}", {'medical_review_status': 'approved'})
+        elif not dup:
+            rc = admin.post('/nursing/admin/catalog', {'name_ar': 'مرافقة تمريضية (شفت)', 'name_en': 'Nursing shift companion',
+                                                       'category': 'general', 'price': 600, 'duration': 'shift', 'active': True})
+            nid = rc.get('id')
+            if nid:
+                admin.put(f'/nursing/admin/catalog/{nid}', {'medical_review_status': 'approved'})
+        r = pat.get('/home-care/services')
+        svcs = r.body if isinstance(r.body, list) else r.items()
+        svc = next((s for s in svcs if s.get('duration') == 'shift'), None)
+    step('a shift-duration service is published', bool(svc), len(svcs))
+    if not svc:
+        return None
+    nurse_id = nurse.get('/provider/me').get('account', 'id')
+    addr = {'address': 'شارع الملك فهد 3، الرياض', 'city': 'الرياض', 'lat': 24.7001, 'lng': 46.7001}
+    import datetime as _dt
+    day = (_dt.date.today() + _dt.timedelta(days=2)).isoformat()
+    body = {'provider_id': nurse_id, 'service_id': svc['id'], 'service_name_ar': svc.get('name_ar'),
+            'scheduled_at': f'{day}T10:00:00+03:00', 'address': addr, 'payment_method': 'card'}
+    r = pat.post('/nursing/bookings', body)
+    bid = r.get('id')
+    step('shift booking created', r.ok and bid, r)
+    if not bid:
+        return None
+    card_payment(pat, 'nursing', bid)
+    r = nurse.post(f'/provider/jobs/nursing/{bid}/accept', {})
+    step('nurse accepts the shift visit', r.ok, r)
     return bid
 
 

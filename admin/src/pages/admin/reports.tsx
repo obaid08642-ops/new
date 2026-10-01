@@ -6,7 +6,7 @@ import { adminFetch, apiErrorMessage, toQuery } from '@/lib/admin-client';
 const today = new Date().toISOString().slice(0, 10);
 const monthAgo = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10);
 
-type TabKey = 'revenue' | 'orders' | 'bookings' | 'providers' | 'patients' | 'finance' | 'insurance';
+type TabKey = 'revenue' | 'orders' | 'bookings' | 'providers' | 'patients' | 'finance' | 'insurance' | 'payments' | 'refunds' | 'payouts' | 'loyalty' | 'disputes' | 'audit' | 'ledger' | 'labs-turnaround';
 const TABS: { key: TabKey; label: string }[] = [
   { key: 'revenue', label: 'الإيرادات' },
   { key: 'orders', label: 'الطلبات' },
@@ -15,6 +15,14 @@ const TABS: { key: TabKey; label: string }[] = [
   { key: 'patients', label: 'المرضى' },
   { key: 'finance', label: 'المالية' },
   { key: 'insurance', label: 'التأمين' },
+  { key: 'payments', label: 'المدفوعات' },
+  { key: 'refunds', label: 'الاسترداد' },
+  { key: 'payouts', label: 'السحوبات' },
+  { key: 'loyalty', label: 'الولاء' },
+  { key: 'disputes', label: 'النزاعات' },
+  { key: 'audit', label: 'سجل الإدارة' },
+  { key: 'ledger', label: 'الدفتر' },
+  { key: 'labs-turnaround', label: 'زمن التحاليل' },
 ];
 const GROUPS: Record<TabKey, string[]> = {
   revenue: ['day', 'service', 'gateway'],
@@ -24,9 +32,31 @@ const GROUPS: Record<TabKey, string[]> = {
   patients: ['day'],
   finance: ['day'],
   insurance: ['state', 'day'],
+  payments: ['day'],
+  refunds: ['day'],
+  payouts: ['day'],
+  loyalty: ['day'],
+  disputes: ['day'],
+  audit: ['day'],
+  ledger: ['day'],
+  'labs-turnaround': ['day'],
 };
 
 /** P6.x-1: operational reports over live aggregates + CSV export. */
+/** B2: every report tab links to the console where a row drills into its entity. */
+const CONSOLES: Partial<Record<TabKey, { href: string; label: string }>> = {
+  orders: { href: '/admin/orders', label: 'فتح سجل الطلبات' },
+  bookings: { href: '/admin/appointments-oversight', label: 'فتح المواعيد' },
+  providers: { href: '/admin/provider-moderation', label: 'فتح المزودين' },
+  patients: { href: '/admin/users-management', label: 'فتح المستخدمين' },
+  finance: { href: '/admin/finance-suite', label: 'فتح المالية' },
+  payouts: { href: '/admin/payouts', label: 'فتح السحوبات' },
+  refunds: { href: '/admin/returns', label: 'فتح الإرجاع' },
+  insurance: { href: '/admin/insurance-queue', label: 'فتح التأمين' },
+  disputes: { href: '/admin/disputes', label: 'فتح النزاعات' },
+  loyalty: { href: '/admin/loyalty-config', label: 'فتح الولاء' },
+  audit: { href: '/admin/audit-logs', label: 'فتح سجل الإدارة' },
+};
 export default function ReportsPage() {
   const [tab, setTab] = useState<TabKey>('revenue');
   const [from, setFrom] = useState(monthAgo);
@@ -67,6 +97,7 @@ export default function ReportsPage() {
           </div>
           <a href={csvHref} className="rounded-lg bg-teal-700 px-4 py-2 text-sm font-bold text-white">تصدير CSV</a>
           <a href={xlsxHref} className="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-bold text-white">تصدير XLSX</a>
+          {CONSOLES[tab] ? <a href={CONSOLES[tab]!.href} className="rounded-lg border px-4 py-2 text-sm font-bold text-slate-700">{CONSOLES[tab]!.label}</a> : null}
         </header>
         <div className="flex flex-wrap gap-2">
           {TABS.map((t) => (

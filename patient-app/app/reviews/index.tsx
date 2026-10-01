@@ -24,6 +24,7 @@ import {
 } from "../../src/components/ui";
 import { apiFetch } from "../../src/utils/api";
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 const ASPECTS = [
   "الدقة في المعلومات",

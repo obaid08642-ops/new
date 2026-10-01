@@ -4,7 +4,7 @@ import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { validateReason, MIN_FINANCIAL_REASON_LENGTH, ReasonError } from '../../../common/rbac';
 import { AdminAuditService } from './audit.service';
-import { WalletService } from '../../wallet/wallet.service';
+import { RefundExecutor } from '../../finance-engine/finance-engine.module';
 
 /**
  * Unified order-kind registry. Every lifecycle surface (list/detail/actions)
@@ -94,7 +94,7 @@ export class OrdersConsoleService {
   constructor(
     @InjectConnection() private readonly conn: Connection,
     private readonly audit: AdminAuditService,
-    private readonly wallet: WalletService,
+    private readonly refundExec: RefundExecutor,
     private readonly moduleRef: ModuleRef,
   ) {}
 
@@ -263,9 +263,10 @@ export class OrdersConsoleService {
 
     const payments = (await this.paymentsFor(id)).map(({ _id, client_secret, webhook_payload, ...p }: any) => p);
 
-    const refunds = await this.conn.collection('wallet_transactions')
-      .find({ referenceType: 'refund', referenceId: id, type: 'credit' })
-      .project({ _id: 0, amount: 1, description: 1, createdAt: 1 })
+    // A2: refunds live in the ledger (RefundExecutor), never in a patient wallet.
+    const refunds = await this.conn.collection('platformledgerentries')
+      .find({ type: 'refund', order_id: id })
+      .project({ _id: 0, amount: 1, description: 1, createdAt: 1, meta: 1 })
       .toArray();
 
     const refundsTotal = refunds.reduce((a: number, r: any) => a + Number(r.amount || 0), 0);
@@ -319,7 +320,8 @@ export class OrdersConsoleService {
     return { ok: true, id, previous_state: from, state: to };
   }
 
-  /** Real wallet refund capped at net paid (gross − already refunded). */
+  /** Real refund through the original payment method (RefundExecutor — A2, no wallet).
+   * Capped at net paid (gross − already refunded). */
   async refund(kind: string, id: string, body: { amount?: number; mode?: 'partial' | 'full'; reason?: unknown }, admin: any) {
     const reason = this.financialReason(body?.reason);
     const { spec, doc } = await this.findOrder(kind, id);
@@ -327,8 +329,8 @@ export class OrdersConsoleService {
     const payments = await this.paymentsFor(id, true);
     const paid = (payments as any[]).reduce((a: number, p: any) => a + Number(p.amount || 0), 0);
     if (paid <= 0) throw new BadRequestException('no_confirmed_payment_to_refund');
-    const priorRefunds = await this.conn.collection('wallet_transactions')
-      .find({ referenceType: 'refund', referenceId: id, type: 'credit' }).toArray();
+    const priorRefunds = await this.conn.collection('platformledgerentries')
+      .find({ type: 'refund', order_id: id }).toArray();
     const refunded = priorRefunds.reduce((a: number, r: any) => a + Number(r.amount || 0), 0);
     const maxRefundable = Math.round((paid - refunded) * 100) / 100;
     if (maxRefundable <= 0) throw new BadRequestException('fully_refunded_already');
@@ -341,7 +343,16 @@ export class OrdersConsoleService {
       if (amount > maxRefundable) throw new BadRequestException(`amount_exceeds_refundable_${maxRefundable}`);
     }
 
-    await this.wallet.topup(doc[spec.patientField], 'patient', amount, `refund ${kind}:${id} — ${reason}`.slice(0, 180), 'refund', id);
+    const { v4: uuidv4 } = require('uuid');
+    await this.refundExec.execute({
+      refund_id: `console_${kind}_${id}_${uuidv4()}`,
+      booking_kind: kind,
+      booking_id: id,
+      patient_id: doc[spec.patientField],
+      amount,
+      reason: `admin console refund ${kind}:${id} — ${reason}`.slice(0, 180),
+      actor_id: admin.id,
+    });
     // Mirror the refund onto the gateway payment records so revenue and the
     // daily reconciliation don't keep counting refunded money as gross.
     const fullyRefunded = Math.round((refunded + amount) * 100) / 100 >= paid;
@@ -364,7 +375,8 @@ export class OrdersConsoleService {
     return { ok: true, id, credited_amount: amount, refunded_total: Math.round((refunded + amount) * 100) / 100 };
   }
 
-  /** Goodwill compensation — separate permission from refund, never exceeds cap. */
+  /** Goodwill compensation — separate permission from refund, never exceeds cap.
+   * Paid through the original payment method (RefundExecutor — A2, no wallet). */
   async compensate(kind: string, id: string, body: { amount?: number; reason?: unknown }, admin: any) {
     const reason = this.financialReason(body?.reason);
     const cap = Number(process.env.COMPENSATION_MAX_SAR || 500);
@@ -373,7 +385,16 @@ export class OrdersConsoleService {
     if (!Number.isFinite(amount) || amount <= 0) throw new BadRequestException('amount_required_positive');
     if (amount > cap) throw new BadRequestException(`amount_exceeds_compensation_cap_${cap}`);
 
-    await this.wallet.topup(doc[spec.patientField], 'patient', amount, `compensation ${kind}:${id} — ${reason}`.slice(0, 180), 'refund', `comp_${id}`);
+    const { v4: uuidv4 } = require('uuid');
+    await this.refundExec.execute({
+      refund_id: `comp_${kind}_${id}_${uuidv4()}`,
+      booking_kind: kind,
+      booking_id: id,
+      patient_id: doc[spec.patientField],
+      amount,
+      reason: `goodwill compensation ${kind}:${id} — ${reason}`.slice(0, 180),
+      actor_id: admin.id,
+    });
     await this.audit.write({
       action: 'order_compensate', actor: admin, target_type: spec.collection, target_id: id,
       reason, after: { amount }, meta: { patient_id: doc[spec.patientField] },

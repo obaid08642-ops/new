@@ -7,6 +7,7 @@ import { useApp } from '../../src/context/AppContext';
 import { resolveColor, darkColors, lightColors } from '../../src/theme/colors';
 import { apiFetch } from '../../src/utils/api';
 import { LocalizedText } from '../../src/components/LocalizedText';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 export default function HomeVisitTrackingScreen() {
   const { appointmentId } = useLocalSearchParams();
@@ -17,12 +18,15 @@ export default function HomeVisitTrackingScreen() {
 
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (appointmentId) {
+      setLoading(true);
+      setError(null);
       apiFetch(`/care/appointments/${appointmentId}`)
         .then((res: any) => { setData(res?.data || res); setLoading(false); })
-        .catch(() => { setData(null); setLoading(false); });
+        .catch(() => { setData(null); setError('تعذر تحميل بيانات الزيارة'); setLoading(false); });
     } else {
       setData(null); setLoading(false);
     }
@@ -43,6 +47,7 @@ export default function HomeVisitTrackingScreen() {
   if (loading) return <View style={[styles.container, { backgroundColor: colors.bg, justifyContent: 'center' } ]}><ActivityIndicator color={resolveColor('var(--p)')} /></View>;
 
   return (
+    <ScreenState loading={false} error={error} empty={false} emptyTitle="لا توجد بيانات" onRetry={() => setError(null)}>
     <View style={[styles.container, { backgroundColor: colors.bg } ]}>
       <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
       
@@ -114,6 +119,7 @@ export default function HomeVisitTrackingScreen() {
         </TouchableOpacity>
       </View>
     </View>
+    </ScreenState>
   );
 }
 

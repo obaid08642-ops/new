@@ -80,7 +80,7 @@ export const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
           <View style={{ flex: 1, borderRadius: R.md, overflow: 'hidden', marginBottom: SP.md }}>
             <MapView
               ref={mapRef}
-              style={StyleSheet.absoluteFillObject}
+              style={StyleSheet.absoluteFill}
               initialRegion={{
                 latitude: selected.lat,
                 longitude: selected.lng,

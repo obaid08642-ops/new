@@ -14,7 +14,27 @@
     "noEmit": true,
     "resolveJsonModule": true,
     "target": "ESNext",
-    "types": ["jest"]
+    "types": [
+      "jest"
+    ],
+    "paths": {
+      "@nabd/ui-native": [
+        "../packages/ui-native/src/Icon.tsx"
+      ],
+      "@nabd/ui/icons/illustrated": [
+        "../packages/ui/icons/illustrated.ts"
+      ],
+      "@nabd/ui/icons/illustrations": [
+        "../packages/ui/icons/illustrations.ts"
+      ],
+      "@nabd/ui/icons/names": [
+        "../packages/ui/icons/names.ts"
+      ],
+      "@nabd/ui/components/contract": [
+        "../packages/ui/components/contract.ts"
+      ]
+    },
+    "baseUrl": "."
   },
   "include": [
     "**/*.ts",

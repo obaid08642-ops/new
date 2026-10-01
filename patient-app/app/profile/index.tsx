@@ -11,6 +11,7 @@ import { Icon, IconName } from '../../src/components/Icon';
 import { AppText, Card, Badge, Button, IconButton, Avatar } from '../../src/components/ui';
 import { useGuestGuard } from '../../src/hooks/useGuestGuard';
 import { apiFetch } from '../../src/utils/api';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 const MENU: { icon: IconName; label: string; route: string; color: string; badge?: string }[] = [
   { icon: 'favorite', label: 'صحتي', route: '/(tabs)/health', color: '#E11D48' },
@@ -23,7 +24,6 @@ const MENU: { icon: IconName; label: string; route: string; color: string; badge
   { icon: 'location', label: 'عناويني', route: '/profile/addresses', color: '#DB2777' },
   { icon: 'users', label: 'عائلتي', route: '/health/family-hub', color: '#0D9488' },
   { icon: 'trophy', label: 'النقاط', route: '/loyalty/hub', color: '#F59E0B' },
-  { icon: 'wallet', label: 'المحفظة', route: '/wallet', color: '#0D9488' },
   { icon: 'settings', label: 'الإعدادات', route: '/settings', color: '#64748B' },
 ];
 
@@ -39,11 +39,16 @@ export default function ProfileScreen() {
   const user = useSelector((state: any) => state.auth.user);
   // E2: real loyalty balance for the points badge (was hardcoded '1,250')
   const [loyaltyPoints, setLoyaltyPoints] = React.useState<number | null>(null);
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
   React.useEffect(() => {
     if (isGuest) return;
+    setLoading(true);
+    setError(null);
     apiFetch('/loyalty/account')
       .then((acc: any) => setLoyaltyPoints(Number(acc?.points ?? 0)))
-      .catch(() => setLoyaltyPoints(null));
+      .catch(() => { setLoyaltyPoints(null); setError('تعذر تحميل رصيد النقاط'); })
+      .finally(() => setLoading(false));
   }, [isGuest]);
 
   const menu = React.useMemo(
@@ -69,6 +74,7 @@ export default function ProfileScreen() {
         </View>
       </View>
 
+      <ScreenState loading={loading} error={error} empty={false} emptyTitle="لا توجد بيانات">
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 120, gap: 12 }}>
         
         {isGuest && (
@@ -114,6 +120,7 @@ export default function ProfileScreen() {
 
         {!isGuest && <Button label="تسجيل الخروج" variant="outline" icon="logout" onPress={handleLogout} style={{ borderColor: colors.error }}/>}
       </ScrollView>
+      </ScreenState>
     </View>
   );
 }

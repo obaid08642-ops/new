@@ -29,7 +29,7 @@ export interface Payment extends BaseEntity {
   appointmentId?: string;
   userId: string;
   amount: Money;
-  method: 'card' | 'wallet' | 'cash' | 'apple-pay' | 'stc-pay';
+  method: 'card' | 'cash' | 'apple-pay' | 'stc-pay';
   status: 'pending' | 'success' | 'failed' | 'refunded';
   transactionReference?: string;
 }

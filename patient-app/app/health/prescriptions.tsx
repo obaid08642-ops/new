@@ -11,6 +11,7 @@ import { useGuestGuard } from '../../src/hooks/useGuestGuard';
 import { AppText, Card, Badge, Button, IconButton } from '../../src/components/ui';
 import { apiFetch } from '../../src/utils/api';
 import { logError } from '../../src/utils/logger';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 // Prescriptions fetched from API
 
@@ -20,20 +21,23 @@ export default function PrescriptionsScreen() {
   // Guests CAN view prescriptions — device-bound guest account.
   const [prescriptions, setPrescriptions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string|null>(null);
 
-  React.useEffect(() => {
-    async function load() {
-      try {
-        const res = await apiFetch('/health/prescriptions');
-        setPrescriptions(Array.isArray(res) ? res : res?.data || []);
-      } catch (err) {
-        logError('health:prescriptions', err);
-      } finally {
-        setLoading(false);
-      }
+  const load = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await apiFetch('/health/prescriptions');
+      setPrescriptions(Array.isArray(res) ? res : res?.data || []);
+    } catch (err) {
+      logError('health:prescriptions', err);
+      setError('تعذر تحميل الوصفات الطبية');
+    } finally {
+      setLoading(false);
     }
-    load();
-  }, []);
+  };
+
+  React.useEffect(() => { load(); }, []);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background } ]}>
@@ -56,6 +60,7 @@ export default function PrescriptionsScreen() {
         </Card>
       </View>
 
+      <ScreenState loading={loading} error={error} empty={!loading && !error && prescriptions.length === 0} emptyTitle="لا توجد وصفات" onRetry={load}>
       <FlatList
         data={prescriptions}
         keyExtractor={p => p.id}
@@ -112,6 +117,7 @@ export default function PrescriptionsScreen() {
           </View>
         )}
       />
+      </ScreenState>
     </View>
   );
 }

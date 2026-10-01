@@ -15,6 +15,7 @@ import { Icon } from "../../src/components/Icon";
 import { AppText, Button, Input, IconButton } from "../../src/components/ui";
 import { apiFetch } from "../../src/utils/api";
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 export default function ResetPasswordScreen() {
   const insets = useSafeAreaInsets();

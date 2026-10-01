@@ -1,4 +1,5 @@
-import { Injectable, CanActivate, ExecutionContext, UnauthorizedException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, Optional, UnauthorizedException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { AdminSessionService } from '../modules/auth/admin-session.service';
 import { JwtService } from '@nestjs/jwt';
 import { Reflector } from '@nestjs/core';
 import { SetMetadata } from '@nestjs/common';
@@ -76,6 +77,7 @@ export class JwtAuthGuard implements CanActivate {
     private reflector: Reflector,
     @InjectConnection() private connection: Connection,
     private impersonationSessions: ImpersonationSessionService,
+    @Optional() private adminIdle?: AdminSessionService,
   ) {}
 
   async canActivate(ctx: ExecutionContext): Promise<boolean> {
@@ -153,9 +155,10 @@ export class JwtAuthGuard implements CanActivate {
         throw new UnauthorizedException('session_revoked');
       }
     }
-    // Admin device lock (device-bound, never IP-bound — mobile IPs rotate).
-    // Applies to admin-role JWTs except the device-management endpoints themselves
-    // (otherwise enabling the lock would lock out enrollment).
+    // C2: Admin device allow-list — MANDATORY for every admin/super_admin JWT.
+    // Device-bound, never IP-bound (mobile IPs rotate). Any admin API call from
+    // an unregistered device is rejected. The device-management endpoints and
+    // login are exempt so the owner can enroll devices.
     try {
       const path = String((req as any).path || (req as any).originalUrl || (req as any).url || '').split('?')[0];
       const isAdminRole = payload?.role === 'admin' || payload?.role === 'super_admin'
@@ -164,21 +167,23 @@ export class JwtAuthGuard implements CanActivate {
       if (isAdminRole && !isDeviceEndpoint && !isPublic) {
         const uid = payload?.id || payload?.sub;
         if (uid) {
-          const u: any = await this.connection.collection('users').findOne(
-            { id: uid }, { projection: { device_lock_enabled: 1 } },
+          const devId = String((req.headers as any)?.['x-admin-device'] || '');
+          const { createHash } = require('crypto');
+          const dev = devId.length >= 16 && await this.connection.collection('admin_devices').findOne(
+            { user_id: uid, device_hash: createHash('sha256').update(devId).digest('hex'), revoked: { $ne: true } },
           ).catch(() => null);
-          if (u?.device_lock_enabled === true) {
-            const devId = String((req.headers as any)?.['x-admin-device'] || '');
-            const { createHash } = require('crypto');
-            const ok = devId.length >= 16 && await this.connection.collection('admin_devices').findOne(
-              { user_id: uid, device_hash: createHash('sha256').update(devId).digest('hex'), revoked: { $ne: true } },
-            ).catch(() => null);
-            if (!ok) throw new ForbiddenException('device_not_enrolled');
+          if (!dev) throw new ForbiddenException('device_not_enrolled');
+          // C5: sliding 15-minute idle window for admin sessions.
+          if (this.adminIdle) {
+            if (await this.adminIdle.isIdleExpired(uid)) {
+              throw new UnauthorizedException('admin_session_idle_expired');
+            }
+            await this.adminIdle.touch(uid);
           }
         }
       }
     } catch (e: any) {
-      if (e?.message === 'device_not_enrolled' || e?.status === 403) throw e;
+      if (e?.message === 'device_not_enrolled' || e?.message === 'admin_session_idle_expired' || e?.status === 403 || e?.status === 401) throw e;
       // Observability must never break auth on DB hiccups (fail-open here would
       // defeat the lock; fail-closed would lock everyone on a blip) — fail OPEN
       // but only when the lookup itself errored, never on a negative result.

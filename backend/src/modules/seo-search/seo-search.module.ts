@@ -914,7 +914,7 @@ export class SeoSearchController {
     return {
       '@context': 'https://schema.org', '@type': 'Organization', name: 'نبض', url: SITE,
       logo: `${SITE}/logo.png`,
-      sameAs: [],
+      sameAs: [SITE, `${SITE}/llms.txt`],
       contactPoint: [{ '@type': 'ContactPoint', contactType: 'customer support', availableLanguage: ['ar', 'en'] }],
     };
   }

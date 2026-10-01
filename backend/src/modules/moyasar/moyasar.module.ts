@@ -15,8 +15,11 @@ import {
   HttpCode,
   Headers,
   Req,
+  Query,
+  Res,
   UseInterceptors,
 } from '@nestjs/common';
+import type { Response } from 'express';
 import { RefundDto, CreateMoyasarPaymentDto } from './moyasar.dto';
 import { InjectModel, InjectConnection, MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Model, Document, Connection } from 'mongoose';
@@ -332,15 +335,16 @@ export class MoyasarService {
     }
   }
 
-  /** Verify Moyasar webhook HMAC-SHA256 signature — fail-closed in production (E5-F1) */
+  /** Verify Moyasar webhook HMAC-SHA256 signature.
+   *  F60: the signature is required in EVERY environment. A missing secret used
+   *  to be accepted outside production, which meant a staging deployment with
+   *  no secret set would accept forged payment webhooks and could mark an
+   *  order paid. A webhook that cannot be authenticated is never trusted. */
   verifyWebhookSignature(payload: string, signature?: string): boolean {
     const secret = process.env.MOYASAR_WEBHOOK_SECRET || '';
     if (!secret) {
-      if (process.env.NODE_ENV === 'production') {
-        this.logger.error('MOYASAR_WEBHOOK_SECRET is not set — rejecting webhook (fail-closed)');
-        return false;
-      }
-      return true; // dev/test convenience only
+      this.logger.error('MOYASAR_WEBHOOK_SECRET is not set — rejecting webhook (fail-closed)');
+      return false;
     }
     if (!signature) return false;
     const hmac = crypto.createHmac('sha256', secret).update(payload).digest('hex');
@@ -469,11 +473,28 @@ export class MoyasarController {
     return this.svc.handleWebhook(body);
   }
 
-  /** Moyasar redirect callback after hosted checkout */
+  /**
+   * Moyasar redirect callback after the hosted checkout.
+   *
+   * F60-b: this used to answer `{ ok: true }` and nothing else, so a card payment
+   * the patient completed only reached the platform when the app later polled
+   * /payments/sync. If the patient never returned to the app, the order stayed
+   * pending forever even though the money moved. The callback now reconciles the
+   * payment with the gateway before responding, then redirects the patient to a
+   * real result page carrying the status.
+   */
   @Public()
   @Get('callback')
-  callback() {
-    return { ok: true, message: 'Payment callback received' };
+  async callback(@Query('id') moyasarId?: string, @Query('status') status?: string, @Res() res?: Response) {
+    // Reconcile with the gateway: a hosted page can be abandoned, so trust the
+    // provider's view of the payment, not the query string the browser sent.
+    const synced = moyasarId ? await this.svc.syncPaymentStatus(moyasarId).catch(() => null) : null;
+    const settled = String(synced?.status || status || 'pending');
+    // The patient lands back in the app: hand them a real result page, not JSON.
+    const target = process.env.PAYMENT_RESULT_URL || 'https://nabd.plus/payments/result';
+    const back = `${target}?status=${encodeURIComponent(settled)}${moyasarId ? `&id=${encodeURIComponent(moyasarId)}` : ''}`;
+    if (res && typeof res.redirect === 'function') return res.redirect(back);
+    return { ok: true, status: settled, moyasar_id: moyasarId, redirect: back };
   }
 }
 

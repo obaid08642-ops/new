@@ -41,6 +41,8 @@ const DSTokens = {
 };
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppSelector } from '@/store';
+import { logError } from '../../src/utils/logger';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 // Set up server URL (can be from env)
 const liveKitUrl = process.env.EXPO_PUBLIC_LIVEKIT_URL || 'wss://live.nabd.plus';
@@ -195,6 +197,7 @@ export default function RoomScreen() {
   }
 
   return (
+    <ScreenState loading={false} error={null} empty={false} emptyTitle="لا توجد بيانات" onRetry={() => setError(null)}>
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
       <LiveKitRoom
@@ -208,6 +211,7 @@ export default function RoomScreen() {
         <ActiveCallView onEndCall={handleDisconnect} />
       </LiveKitRoom>
     </View>
+    </ScreenState>
   );
 }
 

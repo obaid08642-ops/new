@@ -16,6 +16,7 @@ import { consultationMutationHeaders } from "../../src/utils/consultation-paymen
 import { showLocalizedAlert } from "../../src/components/LocalizedAlert";
 import { brand } from "../../src/theme/brand";
 import { Icon } from "../../src/components/Icon";
+import { ScreenState } from "../../src/components/ScreenStates";
 import BookingConfirmForm from "../../src/components/BookingConfirmForm";
 
 type Mode = "confirm" | "success" | "pending";
@@ -53,6 +54,7 @@ export default function BookingStatusScreen() {
   const [error, setError] = useState("");
   const [refreshing, setRefreshing] = useState(false);
   const [cancelling, setCancelling] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const refresh = useCallback(async () => {
     if (!appointmentId) { setError(AR ? "معرّف الموعد مفقود" : "Missing appointment identifier"); return; }
@@ -62,7 +64,7 @@ export default function BookingStatusScreen() {
     finally { setRefreshing(false); }
   }, [AR, appointmentId]);
 
-  useEffect(() => { if (mode === "pending") void refresh(); }, [mode, refresh]);
+  useEffect(() => { if (mode === "pending") { setLoading(true); void refresh().finally(() => setLoading(false)); } }, [mode, refresh]);
 
   const status = appointment?.status || "PENDING";
   const confirmed = ["CONFIRMED", "CHECKED_IN", "IN_PROGRESS"].includes(status);
@@ -115,6 +117,7 @@ export default function BookingStatusScreen() {
 
   /* ── الحالة 3: تتبع/انتظار ── */
   return (
+    <ScreenState loading={loading} error={null} empty={false} emptyTitle="لا توجد بيانات" onRetry={refresh}>
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
       <View style={[styles.content, { paddingTop: insets.top + 48, paddingBottom: insets.bottom + 24 }]}>
@@ -134,6 +137,7 @@ export default function BookingStatusScreen() {
         ) : null}
       </View>
     </View>
+    </ScreenState>
   );
 }
 

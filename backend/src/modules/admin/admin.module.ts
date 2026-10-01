@@ -21,7 +21,6 @@ import { SystemEventSchema } from '../events/system-event.schema';
 // P5.3: merged from AdminEnterpriseModule (enterprise/ → admin/)
 import { MailModule } from '../mail/mail.module';
 import { SeoSearchModule } from '../seo-search/seo-search.module';
-import { WalletModule } from '../wallet/wallet.module';
 import { PresenceModule } from '../presence/presence.module';
 import { ImpersonationSecurityModule } from '../../common/impersonation-security.module';
 import { AdminSecurityController } from './enterprise/admin-security.controller';
@@ -85,7 +84,6 @@ import { AuditIngestController } from './admin-audit-ingest.controller';
 @Module({
   imports: [
     ImpersonationSecurityModule,
-    WalletModule,
     MailModule,
     SeoSearchModule,
     PresenceModule,

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ar">
+<head>
+<meta charset="utf-8">
+<title>Direction B — Pulse to Plus</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;500;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Readex Pro',sans-serif;background:#F7F3EE}
+</style>
+</helmet>
+<div style="width: 880px; height: 1040px; box-sizing: border-box; padding: 56px; display: flex; flex-direction: column; gap: 32px; background: #F7F3EE; color: #0B1B2B">
+<div style="display: flex; justify-content: space-between; align-items: baseline">
+<div style="font-size: 15px; letter-spacing: 3px; font-weight: 500">DIRECTION B</div>
+<div style="font-size: 22px; font-weight: 700">النبضة التي تصبح +</div>
+</div>
+<div style="height: 440px; border-radius: 28px; background: #FFFFFF; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 36px">
+<svg width="520" height="200" viewBox="0 0 520 200" aria-label="Pulse to Plus mark">
+<path d="M16 120 H150 L190 40 L240 176 L276 120 H340" fill="none" stroke="{{coral}}" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"></path>
+<path d="M340 120 H470 M405 55 V185" fill="none" stroke="{{coral}}" stroke-width="22" stroke-linecap="round"></path>
+</svg>
+<div style="display: flex; gap: 28px; align-items: baseline">
+<div style="font-size: 72px; font-weight: 700; line-height: 1">نبض</div>
+<div style="font-size: 40px; font-weight: 300; letter-spacing: 2px; direction: ltr">Nabd<span style="color: {{coral}}; font-weight: 700">+</span></div>
+</div>
+</div>
+<div style="display: flex; gap: 24px">
+<div style="width: 200px; height: 200px; border-radius: 46px; background: {{coral}}; display: flex; align-items: center; justify-content: center">
+<svg width="130" height="130" viewBox="0 0 200 200" aria-label="App icon">
+<path d="M20 110 H60 L80 60 L106 150 L122 110 H132" fill="none" stroke="#FFFFFF" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"></path>
+<path d="M132 110 H182 M157 85 V135" fill="none" stroke="#FFFFFF" stroke-width="14" stroke-linecap="round"></path>
+</svg>
+</div>
+<div style="flex-grow: 1; height: 200px; border-radius: 28px; background: #0B1B2B; display: flex; align-items: center; justify-content: center">
+<svg width="420" height="160" viewBox="0 0 520 200" aria-label="Mark on dark">
+<path d="M16 120 H150 L190 40 L240 176 L276 120 H340" fill="none" stroke="#F7F3EE" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"></path>
+<path d="M340 120 H470 M405 55 V185" fill="none" stroke="{{coral}}" stroke-width="22" stroke-linecap="round"></path>
+</svg>
+</div>
+</div>
+<div style="font-size: 17px; line-height: 1.7">One continuous line: a heartbeat that settles into a plus — نبض and بلس in a single gesture. Easiest to read at first glance; needs strict geometry so it does not look like a generic ECG icon.</div>
+<div style="display: flex; gap: 12px; margin-top: auto">
+<div style="flex-grow: 1; height: 72px; border-radius: 14px; background: {{coral}}; color: #0B1B2B; font-size: 13px; padding: 12px; box-sizing: border-box">Pulse Coral</div>
+<div style="flex-grow: 1; height: 72px; border-radius: 14px; background: #0B1B2B; color: #F7F3EE; font-size: 13px; padding: 12px; box-sizing: border-box">Ink #0B1B2B</div>
+<div style="flex-grow: 1; height: 72px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E4DDD3; font-size: 13px; padding: 12px; box-sizing: border-box">Sand #F7F3EE</div>
+<div style="flex-grow: 1; height: 72px; border-radius: 14px; background: #3FBF9A; color: #0B1B2B; font-size: 13px; padding: 12px; box-sizing: border-box">Mint #3FBF9A</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"coral":{"editor":"color","default":"#FF4B55","options":["#FF4B55","#F2545B","#E63946","#FF6B5A"]},"$preview":{"width":880,"height":1040}}'>
+class Component extends DCLogic {
+renderVals() {
+return { coral: this.props.coral ?? '#FF4B55' };
+}
+}
+</script>
+</body>
+</html>

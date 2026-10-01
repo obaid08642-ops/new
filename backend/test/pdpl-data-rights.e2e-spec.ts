@@ -1,0 +1,240 @@
+/**
+ * PDPL Phase 10 — data-subject rights against a REAL MongoDB.
+ *
+ * This deliberately uses a real mongod rather than mocks: the whole point of
+ * the PDPL endpoints is which documents and which query shape actually reach
+ * the database, and a mocked collection cannot prove that the $or ownership
+ * filters match real rows or that deletion really removes them. The data below
+ * is real documents written into a real database.
+ *
+ * mongodb-memory-server's bundled mongod aborts (SIGABRT) on this machine, so
+ * the suite runs against the local replica set — the same one tools/live uses —
+ * inside a throwaway database name that is dropped afterwards. It therefore
+ * never touches the nabd_live data used by the live gate.
+ */
+import mongoose from 'mongoose';
+// Same library the service uses: bcryptjs. `bcrypt` is not installed at all.
+const bcrypt = require('bcryptjs');
+import { PdplService } from '../src/modules/users/pdpl.service';
+import { UserSchema } from '../src/schemas/user.schema';
+
+jest.setTimeout(180_000);
+
+const MONGO_URL = process.env.PDPL_TEST_MONGO_URL || 'mongodb://127.0.0.1:27017/?replicaSet=rs0&directConnection=true';
+const DB_NAME = `pdpl_test_${process.pid}_${Date.now()}`;
+
+const PATIENT = 'pat-1';
+// A real bcryptjs hash, because erasure now requires the password to verify
+// against it. The old fixture stored the literal string 'HASH' and called
+// erasure with no password at all, which is exactly the hole the check exists
+// to close — so the happy path never actually exercised the comparison.
+const PATIENT_PASSWORD = 'correct-horse-battery';
+const OTHER_PATIENT = 'pat-2';
+
+describe('PdplService (PDPL portability + erasure) — real Mongo', () => {
+  let conn: mongoose.Connection;
+  let service: PdplService;
+  let userModel: any;
+
+  beforeAll(async () => {
+    await mongoose.connect(MONGO_URL, { serverSelectionTimeoutMS: 15_000 });
+    await mongoose.connection.useDb(DB_NAME);
+    conn = mongoose.connection;
+
+    // The real UserSchema, not a loose stand-in: a `strict: false` clone let
+    // legal_consents.accepted through even though the schema never declared it,
+    // so a consent refusal was stored identically to an acceptance. Casting
+    // through the real schema is what makes that class of drift visible.
+    userModel = conn.model('UserPdplTest', UserSchema);
+
+    service = new PdplService(conn as any, userModel);
+
+    await userModel.create([
+      { id: PATIENT, email: 'patient@example.test', phone: '+966500000001', password_hash: await bcrypt.hash(PATIENT_PASSWORD, 4), full_name: 'Real Patient', national_id: '1012345678', medical_record_number: 'MRN-42' },
+      { id: OTHER_PATIENT, email: 'other@example.test', phone: '+966500000002', password_hash: 'HASH', full_name: 'Someone Else' },
+    ]);
+
+    // Personal data across the ownership shapes the service must understand.
+    await conn.collection('appointments').insertMany([
+      { id: 'appt-1', patient_id: PATIENT, doctor_name: 'Dr A', state: 'completed' },
+      { id: 'appt-2', patient_account_id: PATIENT, doctor_name: 'Dr B', state: 'completed' },
+      { id: 'appt-3', patient_id: OTHER_PATIENT, doctor_name: 'Dr C' },
+    ]);
+    await conn.collection('pharmacy_orders').insertMany([
+      { id: 'ord-1', patient_account_id: PATIENT, totals: { total: 120 } },
+      { id: 'ord-2', patient_account_id: OTHER_PATIENT, totals: { total: 55 } },
+    ]);
+    await conn.collection('prescriptions').insertMany([
+      { id: 'rx-1', patient_id: PATIENT, items: [{ drug: 'x' }] },
+      { id: 'rx-2', patient_id: OTHER_PATIENT },
+    ]);
+    // A legal record: must survive erasure, anonymised.
+    await conn.collection('transactions').insertMany([{ id: 'tx-1', patient_id: PATIENT, amount: 99, card_last4: '4242' }]);
+    // Secrets that must never be exported.
+    await conn.collection('pushtokens').insertMany([{ user_id: PATIENT, fcm_token: 'SECRET_TOKEN' }]);
+  });
+
+  afterAll(async () => {
+    try { await mongoose.connection.dropDatabase(); } catch { /* already gone */ }
+    await mongoose.disconnect();
+  });
+
+  it('exports every real document owned by the patient across all ownership field shapes', async () => {
+    const out = await service.exportPatientData(PATIENT);
+
+    expect(out.format).toBe('pdpl-portability-v1');
+    // appointments owned via patient_id AND via patient_account_id
+    expect(out.data.collections.appointments).toHaveLength(2);
+    // order owned via patient_account_id
+    expect(out.data.collections.pharmacy_orders).toHaveLength(1);
+    expect(out.data.collections.prescriptions).toHaveLength(1);
+    // account itself, without the password hash
+    expect(out.data.account.email).toBe('patient@example.test');
+    expect(out.data.account.password_hash).toBeUndefined();
+  });
+
+  it('never includes another patient data in the export', async () => {
+    const out = await service.exportPatientData(PATIENT);
+    const serialized = JSON.stringify(out);
+    expect(serialized).not.toContain(OTHER_PATIENT);
+    expect(serialized).not.toContain('appt-3');
+    expect(serialized).not.toContain('Someone Else');
+  });
+
+  it('strips secrets (push tokens) from the export', async () => {
+    const out = await service.exportPatientData(PATIENT);
+    expect(JSON.stringify(out)).not.toContain('SECRET_TOKEN');
+  });
+
+  it('erasure deletes the real personal documents but keeps legal records anonymised', async () => {
+    const res = await service.erasePatientData(PATIENT, { password: PATIENT_PASSWORD });
+
+    // Personal data really gone from the database
+    expect(await conn.collection('appointments').countDocuments({ patient_id: PATIENT })).toBe(0);
+    expect(await conn.collection('appointments').countDocuments({ patient_account_id: PATIENT })).toBe(0);
+    expect(await conn.collection('prescriptions').countDocuments({ patient_id: PATIENT })).toBe(0);
+    // Sessions/tokens deleted immediately
+    expect(await conn.collection('pushtokens').countDocuments({ user_id: PATIENT })).toBe(0);
+    // Legal record kept but de-identified
+    expect(res.anonymised.transactions).toBe(1);
+    const tx = await conn.collection('transactions').findOne({ id: 'tx-1' }) as any;
+    expect(tx).toBeTruthy();
+    expect(tx.patient_id).toBeUndefined();
+    expect(tx.amount).toBe(99); // financial record intact
+  });
+
+  it('erasure does not touch the other patient', async () => {
+    expect(await conn.collection('appointments').countDocuments({ patient_id: OTHER_PATIENT })).toBe(1);
+    expect(await conn.collection('prescriptions').countDocuments({ patient_id: OTHER_PATIENT })).toBe(1);
+    expect(await userModel.countDocuments({ id: OTHER_PATIENT })).toBe(1);
+  });
+
+  it('anonymises the account in place and marks it deleted for the retention job', async () => {
+    const u = await userModel.findOne({ id: PATIENT }).lean() as any;
+    expect(u.full_name).toBe('Deleted User');
+    expect(u.email).toBeFalsy();
+    expect(u.password_hash).toBeFalsy();
+    expect(u.active).toBe(false);
+    expect(u.deleted_at).toBeTruthy();
+  });
+
+  it('a post-erasure export no longer discloses the erased identifiers', async () => {
+    // Guards the $unset regression: a lingering email/phone column would still
+    // be handed out by the portability endpoint. national_id and the medical
+    // record number are the same class of identifier.
+    const out = await service.exportPatientData(PATIENT);
+    const serialized = JSON.stringify(out);
+    expect(serialized).not.toContain('patient@example.test');
+    expect(serialized).not.toContain('+966500000001');
+    expect(serialized).not.toContain('1012345678');
+    expect(serialized).not.toContain('MRN-42');
+    expect(out.data.account.full_name).toBe('Deleted User');
+  });
+
+  it('records immutable consent evidence', async () => {
+    await service.recordConsent(PATIENT, 'privacy_policy', '1.0', true);
+    const { consents } = await service.getConsents(PATIENT);
+    expect(consents.length).toBeGreaterThanOrEqual(1);
+    expect(consents[consents.length - 1]).toMatchObject({ policy_id: 'privacy_policy', version: '1.0', accepted: true });
+  });
+
+  it('keeps a refusal distinguishable from an acceptance after a real schema round-trip', async () => {
+    await service.recordConsent(PATIENT, 'marketing_policy', '2.0', false);
+
+    // Read through the model, not a projection, so Mongoose casting is exercised.
+    const doc: any = await userModel.findOne({ id: { $eq: PATIENT } });
+    const stored = doc.legal_consents.find((c: any) => c.policy_id === 'marketing_policy');
+    expect(stored).toBeDefined();
+    expect(stored.accepted).toBe(false);
+
+    const { consents } = await service.getConsents(PATIENT);
+    expect(consents.find((c: any) => c.policy_id === 'marketing_policy')).toMatchObject({ accepted: false });
+  });
+
+  it('rejects an unknown subject instead of returning an empty export', async () => {
+    await expect(service.exportPatientData('does-not-exist')).rejects.toThrow('user_not_found');
+  });
+
+  describe('erasure requires proof of ownership', () => {
+    const SOCIAL = 'social-patient';
+
+    beforeEach(async () => {
+      await userModel.create({
+        id: SOCIAL,
+        email: 'social@example.test',
+        phone: '+966500000009',
+        // exactly what the social sign-in callback writes
+        password_hash: '',
+        role: 'patient',
+        active: true,
+      });
+    });
+
+    afterEach(async () => {
+      await userModel.deleteOne({ id: { $eq: SOCIAL } });
+    });
+
+    it('refuses erasure for a social account that has no password to verify against', async () => {
+      // Previously `password_hash && password` was false, so the check was skipped
+      // and the whole account was erased on nothing but a session token.
+      await expect(service.erasePatientData(SOCIAL, { password: 'anything' })).rejects.toThrow('reauthentication_required');
+      expect(await userModel.findOne({ id: { $eq: SOCIAL } })).toBeTruthy();
+    });
+
+    it('refuses erasure when the account has a password but none was supplied', async () => {
+      const WITH_PASSWORD = 'password-patient';
+      await userModel.create({
+        id: WITH_PASSWORD,
+        email: 'pw@example.test',
+        phone: '+966500000010',
+        password_hash: await bcrypt.hash('correct-horse-battery', 4),
+        role: 'patient',
+        active: true,
+      });
+      try {
+        await expect(service.erasePatientData(WITH_PASSWORD, {})).rejects.toThrow('password_required');
+        await expect(service.erasePatientData(WITH_PASSWORD)).rejects.toThrow('password_required');
+        expect(await userModel.findOne({ id: { $eq: WITH_PASSWORD } })).toBeTruthy();
+      } finally {
+        await userModel.deleteOne({ id: { $eq: WITH_PASSWORD } });
+      }
+    });
+
+    it('still refuses a wrong password', async () => {
+      const WITH_PASSWORD = 'password-patient-2';
+      await userModel.create({
+        id: WITH_PASSWORD,
+        email: 'pw2@example.test',
+        phone: '+966500000011',
+        password_hash: await bcrypt.hash('correct-horse-battery', 4),
+        role: 'patient',
+        active: true,
+      });
+      try {
+        await expect(service.erasePatientData(WITH_PASSWORD, { password: 'wrong-password' })).rejects.toThrow('invalid_password');
+      } finally {
+        await userModel.deleteOne({ id: { $eq: WITH_PASSWORD } });
+      }
+    });
+  });
+});

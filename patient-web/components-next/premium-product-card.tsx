@@ -13,9 +13,15 @@ type Props = {
   image?: string | null;
   images?: string[];
   locale: string;
+  /**
+   * F82: the first product card in the viewport is the LCP element on /ar and
+   * /ar/c. Without this the browser treats its image as lazy, discovers it only
+   * after hydration finishes, and LCP lands far past the 3s budget.
+   */
+  priority?: boolean;
 };
 
-export function PremiumProductCard({ slug, name, price, oldPrice, image, images, locale }: Props) {
+export function PremiumProductCard({ slug, name, price, oldPrice, image, images, locale, priority = false }: Props) {
   const allImages = images && images.length > 0 ? images : image ? [image] : [];
   const [idx, setIdx] = useState(0);
 
@@ -56,6 +62,8 @@ export function PremiumProductCard({ slug, name, price, oldPrice, image, images,
                 src={allImages[idx]}
                 alt={name}
                 fill
+                priority={priority}
+                fetchPriority={priority ? 'high' : 'auto'}
                 style={{ objectFit: 'contain', padding: 16, transition: 'opacity 0.5s ease' }}
                 sizes="(max-width: 640px) 50vw, 200px"
               />

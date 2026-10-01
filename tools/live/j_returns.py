@@ -7,14 +7,65 @@ def rows(r):
     return r.body if isinstance(r.body, list) else r.items()
 
 
+import urllib.request
+
+
+def upload_evidence(pat):
+    # F76/R7-2: the app flow — expo-image-picker bytes -> multipart /media/upload -> `media:<id>`.
+    import base64
+    import struct
+    import urllib.request
+    import zlib
+    def chunk(t, d):
+        c = t + d
+        return struct.pack('>I', len(d)) + c + struct.pack('>I', zlib.crc32(c))
+    raw = b''.join(b'\x00\xff\x00' for _ in range(64))
+    png = b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', struct.pack('>IIBBBBB', 8, 8, 8, 2, 0, 0, 0)) + chunk(b'IDAT', zlib.compress(raw)) + chunk(b'IEND', b'')
+    boundary = '----liveboundary'
+    body = (f'--{boundary}\r\nContent-Disposition: form-data; name="file"; filename="evidence.png"\r\n'
+            f'Content-Type: image/png\r\n\r\n').encode() + png + (
+            f'\r\n--{boundary}\r\nContent-Disposition: form-data; name="purpose"\r\n\r\nreport\r\n'
+            f'--{boundary}--\r\n').encode()
+    token = pat.token
+    req = urllib.request.Request('http://127.0.0.1:8002/api/v1/media/upload', data=body, method='POST',
+                                 headers={'content-type': f'multipart/form-data; boundary={boundary}',
+                                          'authorization': f'Bearer {token}'})
+    try:
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            payload = __import__('json').loads(resp.read().decode())
+        asset_id = payload.get('id') or (payload.get('data') or {}).get('id')
+        return f'media:{asset_id}' if asset_id else None
+    except Exception:
+        return None
+
+
 def run(pat, pharm, admin, oid, admin_api=None):
     journey('returns: patient returns a delivered pharmacy order')
     r = pat.get(f'/pharmacy/returns/eligibility/{oid}')
     step('eligibility for the delivered order', r.ok and r.get('eligible'), r)
+    evidence = upload_evidence(pat)
+    step('photo evidence uploads to /media/upload', bool(evidence), (evidence or '')[:80])
     r = pat.post('/pharmacy/returns', {'serviceType': 'pharmacy', 'reason': 'منتج تالف', 'orderId': oid, 'details': 'العبوة مكسورة',
-                                       'refundMethod': 'original', 'amount': 80})
+                                       'refundMethod': 'original', 'amount': 80,
+                                       'attachedDocs': [evidence] if evidence else []})
     rid = r.get('id')
     step('return request filed (server computes the amount)', r.ok and rid and r.get('amount') != 80 or (r.ok and r.get('amount', 0) > 0), r)
+    if rid and evidence:
+        r = pat.get(f'/pharmacy/returns/{rid}')
+        docs = r.get('attached_docs') or []
+        # The return stores the media reference; readers get a fresh signed URL that really downloads.
+        url = docs[0] if docs else ''
+        ok_img = False
+        if url.startswith('http'):
+            try:
+                with urllib.request.urlopen(url, timeout=30) as img:
+                    ok_img = img.read(8) == b'\x89PNG\r\n\x1a\n'
+            except Exception as e:
+                url = f'{url[:60]} -> {e}'
+        step('the stored return serves the real image (fresh signed URL)', r.ok and ok_img, url[:120])
+        r = pat.post('/pharmacy/returns', {'serviceType': 'pharmacy', 'reason': 'x', 'orderId': oid,
+                                           'attachedDocs': ['https://evil.example/fake.jpg']})
+        step('a raw URL as evidence is rejected', r.status == 400, r)
     r = pat.post('/pharmacy/returns', {'serviceType': 'pharmacy', 'reason': 'x', 'orderId': 'not-my-order', 'refundMethod': 'wallet'})
     step('a return on an unknown order is refused', r.status in (400, 403, 404), r)
     r = pat.get('/pharmacy/returns')

@@ -1,4 +1,4 @@
-import { Module, Controller, Get, Post, Patch, Body, Query, Param, UseGuards, Injectable, BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
+import { Module, Controller, Get, Post, Patch, Delete, Body, Query, Param, UseGuards, Injectable, BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
 import { CreateDto, CancelRootDto, RescheduleRootDto, CancelDto, ReschedDto, MatchDto, NursingDto, CheckoutDto, CreateDiagnosticOrderDto } from './unified-bookings.dto';
 import { DiagnosticOrder, DiagnosticOrderSchema } from '../../schemas/diagnostic-order.schema';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
@@ -179,6 +179,23 @@ export class UnifiedBookingsService {
     parent.status = 'CONFIRMED';
     await parent.save();
     return parent.toObject ? parent.toObject() : parent;
+  }
+
+  /** F74: clear the diagnostics cart after a successful checkout. */
+  async clearDiagnosticsCart(user: any) {
+    const cart = await this.cart.get(user);
+    if (!cart?.groups?.length) return { ok: true, cleared: 0 };
+    const before = cart.groups.length;
+    // Remove only diagnostics groups; other domains keep their cart.
+    const remaining = (cart.groups as any[]).filter((g: any) => g.domain !== 'diagnostics');
+    for (const g of cart.groups as any[]) {
+      if (g.domain === 'diagnostics') {
+        for (const line of (g.lines || [])) {
+          await this.cart.removeLine(user, line.id).catch(() => null);
+        }
+      }
+    }
+    return { ok: true, cleared: before - remaining.length };
   }
 
   async getOne(user: any, kind: string, id: string) {    const k = this.kindMap[kind];
@@ -593,6 +610,9 @@ export class UnifiedBookingsController {
   nursing(@CurrentUser() u: any, @Body() b: NursingDto) { return this.svc.nursingRadiusBroadcast(u, b); }
   @Post('diagnostics/orders')
   diagnosticsOrder(@CurrentUser() u: any, @Body() b: CreateDiagnosticOrderDto) { return this.svc.createDiagnosticOrder(u, b); }
+
+  @Delete('diagnostics/cart')
+  clearDiagnosticsCart(@CurrentUser() u: any) { return this.svc.clearDiagnosticsCart(u); }
 
   @Post('checkout-cart')
   @RequireIdempotency()

@@ -17,7 +17,9 @@ import { Icon } from "../../src/components/Icon";
 import { AppText, Card, IconButton } from "../../src/components/ui";
 import * as Location from "expo-location";
 import { apiFetch } from "../../src/utils/api";
+import { logError } from '../../src/utils/logger';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 const EMERGENCY_NUMBERS = {
   ambulance: "997",
@@ -31,6 +33,7 @@ export default function EmergencySOSScreen() {
   const insets = useSafeAreaInsets();
   const { colors, isDark } = useApp();
   const [isSending, setIsSending] = useState(false);
+  const [error, setError] = useState<string|null>(null);
 
   const handleSOS = useCallback(() => {
     showLocalizedAlert(
@@ -73,6 +76,7 @@ export default function EmergencySOSScreen() {
               }
             } catch (err) {
               logError('emergency:sos', err);
+              setError('تعذر إرسال طلب الطوارئ');
               Linking.openURL(`tel:${EMERGENCY_NUMBERS.ambulance}`);
             } finally {
               setIsSending(false);
@@ -109,6 +113,7 @@ export default function EmergencySOSScreen() {
         </View>
       </View>
 
+      <ScreenState loading={isSending} error={error} empty={false} emptyTitle="لا توجد بيانات" onRetry={handleSOS}>
       <View style={st.content}>
         {/* SOS Button */}
         <Animated.View entering={FadeIn.duration(600)} style={st.sosWrap}>
@@ -252,6 +257,7 @@ export default function EmergencySOSScreen() {
           </TouchableOpacity>
         </Animated.View>
       </View>
+      </ScreenState>
     </View>
   );
 }

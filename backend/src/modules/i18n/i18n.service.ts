@@ -721,6 +721,16 @@ export const DICTIONARY: Record<string, Record<Lang, string>> = {
   'notification.inventory.expiry.body': { ar: 'أصناف في المخزون تقترب من انتهاء الصلاحية', en: 'Inventory items are nearing expiry', ur: 'اسٹاک کی میعاد قریب' },
   'notification.labs.critical.title': { ar: 'نتيجة حرجة', en: 'Critical result', ur: 'اہم نتیجہ' },
   'notification.labs.critical.body': { ar: 'نتيجة مختبر حرجة تتطلب مراجعة فورية', en: 'A critical lab result requires immediate review', ur: 'لیب کا اہم نتیجہ' },
+  'push.otp.title': { ar: 'رمز التحقق — نَبْض', en: 'Verification code — Nabd', ur: 'تصدیقی کوڈ — نبض' },
+  'push.otp.body': { ar: 'رمز التحقق الخاص بك: {code} — صالح لمدة 10 دقائق. لا تشاركه مع أحد.', en: 'Your verification code: {code} — valid for 10 minutes. Do not share it.', ur: 'آپ کا تصدیقی کوڈ: {code} — 10 منٹ کے لیے درست' },
+  'push.appointment.reminder.title': { ar: 'تذكير بموعدك', en: 'Appointment reminder', ur: 'ملاقات کی یاددہانی' },
+  'push.appointment.reminder.body': { ar: 'لديك موعد غداً {doctor}. لا تنسَ الحضور.', en: 'You have an appointment tomorrow with {doctor}. Do not forget to attend.', ur: 'کل آپ کی ملاقات ہے۔ یاد رکھیں' },
+  'push.cart.reminder.title': { ar: 'سلتك بانتظارك', en: 'Your cart is waiting', ur: 'آپ کی کارٹ منتظر ہے' },
+  'push.cart.reminder.body': { ar: 'لديك أدوية في السلة لم تكمل طلبها — أكمل الطلب الآن ويصلك بسرعة.', en: 'You have medicines in your cart — complete your order now for fast delivery.', ur: 'کارٹ میں دوائیاں ہیں — ابھی آرڈر مکمل کریں' },
+  'push.order.reminder.title': { ar: 'طلبك غير مكتمل', en: 'Your order is incomplete', ur: 'آپ کا آرڈر مکمل نہیں' },
+  'push.order.reminder.body': { ar: 'طلبك لم يكتمل — اضغط هنا لإتمام الدفع والتوصيل.', en: 'Your order is incomplete — tap here to complete payment and delivery.', ur: 'آرڈر مکمل نہیں — ادائیگی مکمل کریں' },
+  'push.admin.login.title': { ar: 'دخول لوحة التحكم — نَبْض', en: 'Admin panel sign-in — Nabd', ur: 'ایڈمن لاگ اِن — نبض' },
+  'push.admin.login.body': { ar: 'تسجيل دخول للحساب {email} من {ip}', en: 'Sign-in for {email} from {ip}', ur: '{email} کے لیے لاگ اِن' },
 };
 
 @Injectable()

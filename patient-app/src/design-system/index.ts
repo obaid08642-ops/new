@@ -20,6 +20,32 @@ export {
 // ── Icon ─────────────────────────────────────────────────────────────────────
 export { Icon, type IconName } from './Icon';
 
+/**
+ * ── Brand icon + illustration set (12.A6) ────────────────────────────────────
+ *
+ * `NabdIcon` and `NabdIllustration` come from @nabd/ui-native and draw the
+ * owner-approved artwork, which is the SAME geometry the website renders, so an
+ * app service tile and a web service tile cannot drift apart.
+ *
+ * They are exported under their own names rather than replacing `Icon` above:
+ * that `Icon` resolves ~200 MaterialCommunityIcons names through its own map and
+ * is used by many screens, so folding it into the curated set is a deliberate
+ * migration (12.A7), not something to do silently inside the task that introduces
+ * the set. New work should use these.
+ */
+export {
+  Icon as NabdIcon,
+  Illustration as NabdIllustration,
+  ILLUSTRATIONS,
+  ILLUSTRATION_META,
+  ILLUSTRATION_NAMES,
+  ILLUSTRATED_ICONS,
+  LINE_ICON_NAMES,
+  type IllustrationName,
+  type IllustratedIcon,
+  type LineIconName,
+} from '@nabd/ui-native';
+
 // ── Text ─────────────────────────────────────────────────────────────────────
 export {
   DSText, DSTitle, DSCaption, DSLabel,

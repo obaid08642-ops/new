@@ -16,6 +16,7 @@ import { loginSuccess } from '../../src/store/slices/authSlice';
 import { LocalizedText } from '../../src/components/LocalizedText';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 import { consumeRegistrationTransaction } from '../../src/services/auth/RegistrationTransaction';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 export default function OtpScreen() {
   const { isDark, lang } = useApp() as any;

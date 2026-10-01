@@ -1,44 +1,47 @@
 /**
- * Provider App canonical theme — MIRROR of packages/design-tokens/tokens.json v1.0.0.
- * Replaces ad-hoc Material hex (#2196F3/#FF9800/#F44336/...) with Nabd brand tokens.
- * Wave 1 (this file): single import point. Wave 2: migrate screens to import from here.
+ * Provider App theme.
+ *
+ * The VALUES are generated — see tokens.generated.ts, written from
+ * packages/design-tokens/tokens.json. This file only adds the two things a
+ * flat palette cannot carry on its own: a dark variant and an alpha helper.
+ *
+ * WHY THIS USED TO BE WRITTEN BY HAND
+ *
+ * It claimed in its own header to be a "MIRROR of packages/design-tokens" and it
+ * was not: it held `primary: '#B8E030'`, `mint: '#5FD9B3'`, `navy: '#1E332E'` —
+ * the pre-12.A2 palette — while the owner approved coral. Ten screens imported
+ * it, so the provider app wore a brand the product had already replaced.
+ *
+ * Nothing reported it, and the reason is the point: the token contrast check
+ * reads tokens.json, and the runtime contrast check renders patient-web. This
+ * file was checked by neither. It is generated now, and
+ * tools/design/client-token-sync.mjs fails if a client carries a colour the
+ * token file does not declare.
  */
-export const tokens = {
-  primary: '#B8E030',
-  primarySoft: '#D9F26B',
-  primaryDeep: '#7CB518',
-  mint: '#5FD9B3',
-  yellow: '#FFC93C',
-  coral: '#FF4D5A',
-  navy: '#1E332E',
-  sky: '#4FA8E0',
-  background: '#FDFDFC',
-  surface: '#FFFFFF',
-  text: '#1E332E',
-  textSecondary: '#64748B',
-  textTertiary: '#94A3B8',
-  border: '#E8EDEE',
-  success: '#5BA84F',
-  successSurface: '#EBF6E9',
-  warning: '#F0A526',
-  warningSurface: '#FEF4E0',
-  error: '#F0695C',
-  errorSurface: '#FEEFED',
-  info: '#4889D4',
-  infoSurface: '#E8F1FB',
-  purple: '#7A6BEA',
-  purpleSurface: '#EDEBFD',
-  pink: '#E8568E',
-  pinkSurface: '#FCE8F1',
-  mintDeep: '#00876F',
-  radius: { sm: 10, md: 16, lg: 20, xl: 28 },
-} as const;
-export type Tokens = typeof tokens;
 
-/** F50: alpha-suffix replacement via withAlpha(). */
+import { dark, light } from './tokens.generated';
+
+export const tokens = light;
+export type Tokens = typeof tokens;
+export const darkTokens = dark;
+export type DarkTokens = typeof dark;
+
+/** The owner palette for both themes, for code that has to switch at runtime. */
+export function palette(theme: 'light' | 'dark') {
+  return theme === 'dark' ? dark : light;
+}
+
 export function withAlpha(hex: string, alpha: number): string {
-  const h = String(hex).replace('#', '');
-  const full = h.length === 3 ? h.split('').map((c) => c + c).join('') : h;
-  const a = Math.round(Math.min(1, Math.max(0, alpha)) * 255).toString(16).padStart(2, '0');
-  return `#${full}${a}`;
+  const clean = hex.replace('#', '');
+  const full =
+    clean.length === 3
+      ? clean
+          .split('')
+          .map((c) => c + c)
+          .join('')
+      : clean;
+  const r = parseInt(full.slice(0, 2), 16);
+  const g = parseInt(full.slice(2, 4), 16);
+  const b = parseInt(full.slice(4, 6), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }

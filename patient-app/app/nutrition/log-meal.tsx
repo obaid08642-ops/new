@@ -7,6 +7,7 @@ import { useApp } from '../../src/context/AppContext';
 import { AppText, Button, Card, IconButton, Input, SegmentedControl } from '../../src/components/ui';
 import { apiFetch } from '../../src/utils/api';
 import { nutritionT } from '../../src/i18n/nutrition';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 type MealType = 'breakfast' | 'lunch' | 'dinner' | 'snack';
 const mealTypes: MealType[] = ['breakfast', 'lunch', 'dinner', 'snack'];
@@ -30,7 +31,7 @@ export default function LogMealScreen() {
     try {
       await apiFetch('/nutrition/meals', { method: 'POST', body: JSON.stringify({ name: name.trim(), calories: numericCalories, meal_type: mealType, ...(optional[0] !== undefined ? { protein_g: optional[0] } : {}), ...(optional[1] !== undefined ? { carbs_g: optional[1] } : {}), ...(optional[2] !== undefined ? { fat_g: optional[2] } : {}), ...(optional[3] !== undefined ? { fiber_g: optional[3] } : {}) }) });
       router.replace('/nutrition/daily-tracker');
-    } catch { setError(t('saveError')); } finally { setSaving(false); }
+    } catch (e) { setError(t('saveError')); } finally { setSaving(false); }
   };
 
   return <View style={[styles.container, { backgroundColor: colors.background }]}>

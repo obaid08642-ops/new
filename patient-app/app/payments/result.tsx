@@ -12,6 +12,7 @@ import { apiFetch } from '../../src/utils/api';
 import { useLocalSearchParams as __useRouteParams } from "expo-router";
 import PaymentSuccessView from "../../src/components/views/PaymentSuccessView";
 import PaymentFailedView from "../../src/components/views/PaymentFailedView";
+import { ScreenState } from '../../src/components/ScreenStates';
 
 // Conditionally import WebView (not available in Expo Go)
 let WebViewComponent: any = null;

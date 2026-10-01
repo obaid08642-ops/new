@@ -960,32 +960,67 @@ function AddCustomTest({ onBack }:{ onBack:()=>void }) {
 // ══════════════════════════════════════════════════════════════════
 // HOME COLLECTION — Dispatch Phlebotomists
 // ══════════════════════════════════════════════════════════════════
+function haversineKm(aLat: number, aLng: number, bLat: number, bLng: number): number {
+  const R = 6371;
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const dLat = toRad(bLat - aLat);
+  const dLng = toRad(bLng - aLng);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(aLat)) * Math.cos(toRad(bLat)) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.min(1, Math.sqrt(h)));
+}
+
 function HomeCollection({ order, onBack }:{ order:any; onBack:()=>void }) {
  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
- const COLLECTORS = [
- {id:'c1',name:'خالد المالكي',status:'available',orders:3,loc:'حي النرجس'},
- {id:'c2',name:'سعد الغامدي',status:'busy',orders:5,loc:'حي الورود'},
- {id:'c3',name:'ريم القحطاني',status:'available',orders:2,loc:'حي الروضة'},
- ];
+ // R7-3: real technicians from the lab team endpoint — never hard-coded names.
+ const [collectors, setCollectors] = useState<any[]>([]);
+ const [loadingTeam, setLoadingTeam] = useState(true);
+ useEffect(() => {
+   let active = true;
+   client.get('/labs/team/technicians')
+     .then((res: any) => { if (active) setCollectors(res.data || []); })
+     .catch(() => { if (active) setCollectors([]); })
+     .finally(() => { if (active) setLoadingTeam(false); });
+   return () => { active = false; };
+ }, []);
   const [tracking, setTracking] = useState(false);
-  const [eta, setEta] = useState(15);
-  const [distance, setDistance] = useState(4.2);
+  const [eta, setEta] = useState<number | null>(null);
+  const [distance, setDistance] = useState<number | null>(null);
+  const [locError, setLocError] = useState('');
+
+  const destGeo = order?.address?.geo || order?.address || null;
+  const destLat = Number(destGeo?.lat);
+  const destLng = Number(destGeo?.lng);
+  const hasDestination = Number.isFinite(destLat) && Number.isFinite(destLng);
 
   useEffect(() => {
     let int: any;
-    if (tracking) {
-      int = setInterval(async () => {
-        setEta(prev => Math.max(0, prev - 1));
-        setDistance(prev => Math.max(0, parseFloat((prev - 0.2).toFixed(1))));
-        try {
-          await client.post(`/labs/bookings/${order.id}/gps`, { eta, distance });
-        } catch (e) {
-          // Silent fail for backend sync
+    if (!tracking) return () => clearInterval(int);
+    const tick = async () => {
+      try {
+        const { requestForegroundPermissionsAsync, getCurrentPositionAsync } = await import('expo-location');
+        const perm = await requestForegroundPermissionsAsync();
+        if (perm.status !== 'granted') { setLocError(AR ? 'صلاحية الموقع مطلوبة للتتبع' : 'Location permission required'); return; }
+        const pos = await getCurrentPositionAsync({ accuracy: 5 } as any);
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        let etaMin: number | null = null;
+        let distKm: number | null = null;
+        if (hasDestination) {
+          distKm = haversineKm(lat, lng, destLat, destLng);
+          etaMin = Math.round((distKm / 30) * 60);
+          setEta(etaMin);
+          setDistance(Math.round(distKm * 10) / 10);
         }
-      }, 5000);
-    }
+        // R7-3: only real device GPS is ever posted — the server rejects 0,0.
+        await client.post(`/labs/bookings/${order.id}/gps`, { lat, lng, eta: etaMin ?? 0, distance: distKm ?? 0 });
+      } catch (e: any) {
+        setLocError(e?.response?.data?.message || e?.message || '');
+      }
+    };
+    void tick();
+    int = setInterval(() => { void tick(); }, 15000);
     return () => clearInterval(int);
-  }, [tracking, eta, distance, order.id]);
+  }, [tracking, order.id]);
 
   if (order?.status === 'ASSIGNED' || tracking) {
     return (
@@ -1002,16 +1037,22 @@ function HomeCollection({ order, onBack }:{ order:any; onBack:()=>void }) {
           <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
             <View style={{ alignItems: AR ? 'flex-start' : 'flex-end' }}>
               <Text style={{ fontSize: FS.sm, color: theme.textSub }}>{AR ? 'الوقت المتبقي' : 'ETA'}</Text>
-              <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.primary }}>{eta} {AR ? 'دقيقة' : 'min'}</Text>
+              <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.primary }}>{eta == null ? '—' : `${eta} ${AR ? 'دقيقة' : 'min'}`}</Text>
             </View>
             <View style={{ alignItems: AR ? 'flex-start' : 'flex-end' }}>
               <Text style={{ fontSize: FS.sm, color: theme.textSub }}>{AR ? 'المسافة' : 'Distance'}</Text>
-              <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.primary }}>{distance} {AR ? 'كم' : 'km'}</Text>
+              <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.primary }}>{distance == null ? '—' : `${distance} ${AR ? 'كم' : 'km'}`}</Text>
             </View>
           </View>
+          {!hasDestination ? (
+            <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{AR ? 'لا توجد إحداثيات وجهة في الحجز — يُرسل موقع الجهاز فقط.' : 'No destination coordinates on the booking — device location only.'}</Text>
+          ) : null}
+          {locError ? (
+            <Text style={{ fontSize: FS.xs, color: theme.danger }}>{locError}</Text>
+          ) : null}
         </NCard>
 
-        {distance === 0 ? (
+        {distance !== null && distance <= 0.1 ? (
           <NBtn label={AR ? 'الفني وصل (تم الوصول)' : 'Technician Arrived'} variant="primary" onPress={async () => {
             try {
               await client.patch(`/labs/bookings/${order?.id}/state`, { state: 'IN_LAB', note: 'ARRIVED at location' });
@@ -1059,28 +1100,34 @@ function HomeCollection({ order, onBack }:{ order:any; onBack:()=>void }) {
     <NScroll>
       <NHeader title={AR ? 'خدمة السحب المنزلي (تعيين فني)' : 'Home Collection (Assign)'} onBack={onBack} />
       <NSecHeader title={AR ? 'مندوبو السحب المتاحين' : 'Available Phlebotomists'} />
-      {COLLECTORS.map(col=>(
+      {loadingTeam ? (
+        <Text style={{ fontSize: FS.sm, color: theme.textSub }}>{AR ? 'جارٍ تحميل الفريق…' : 'Loading team…'}</Text>
+      ) : collectors.length === 0 ? (
+        <NCard style={{ marginBottom: SP.sm }}>
+          <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: 'center' }}>
+            {AR ? 'لا يوجد فنيون مرتبطون بهذا المختبر بعد.' : 'No technicians are linked to this lab yet.'}
+          </Text>
+        </NCard>
+      ) : null}
+      {collectors.map(col=>(
         <NCard key={col.id} style={{marginBottom:SP.sm}}>
           <View style={{flexDirection:AR?'row-reverse':'row',alignItems:'center',gap:SP.md}}>
-            <NAvatar name={col.name} size={44} online={col.status==='available'} />
+            <NAvatar name={col.name} size={44} online />
             <View style={{flex:1}}>
               <Text style={{fontSize:FS.md,fontWeight:FW.bold,color:theme.text,textAlign:AR?'right':'left'}}>{col.name}</Text>
-              <Text style={{fontSize:FS.xs,color:theme.textSub}}>{col.loc} | {col.orders} {AR?'طلب':'orders'}</Text>
+              <Text style={{fontSize:FS.xs,color:theme.textSub}}>{col.role || ''}</Text>
             </View>
             <View style={{alignItems:'flex-end',gap:SP.xs}}>
-              <NBadge label={col.status==='available'?(AR?'متاح':'Available'):(AR?'مشغول':'Busy')} variant={col.status==='available'?'success':'warning'} size="xs" />
-              {col.status==='available' && (
-                <NBtn label={AR?'تعيين كفني':'Assign Tech'} size="xs" full={false} style={{paddingHorizontal:SP.md}} onPress={async () => {
-                  if (!order?.id) { show(AR ? 'لا يوجد طلب محدد للتعيين' : 'No order selected to assign', 'error'); return; }
-                  try {
-                    await client.post(`/labs/bookings/${order.id}/assign-technician`, { technician_id: col.id });
-                    show(AR ? `تم تعيين ${col.name}` : `${col.name} assigned`, 'success');
-                    onBack();
-                  } catch(err: any) {
-                    show(err.message || 'Error', 'error');
-                  }
-                }} />
-              )}
+              <NBtn label={AR?'تعيين كفني':'Assign Tech'} size="xs" full={false} style={{paddingHorizontal:SP.md}} onPress={async () => {
+                if (!order?.id) { show(AR ? 'لا يوجد طلب محدد للتعيين' : 'No order selected to assign', 'error'); return; }
+                try {
+                  await client.post(`/labs/bookings/${order.id}/assign-technician`, { technician_id: col.id });
+                  show(AR ? `تم تعيين ${col.name}` : `${col.name} assigned`, 'success');
+                  onBack();
+                } catch(err: any) {
+                  show(err?.response?.data?.message || err.message || 'Error', 'error');
+                }
+              }} />
             </View>
           </View>
         </NCard>

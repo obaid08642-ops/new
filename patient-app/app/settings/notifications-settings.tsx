@@ -9,6 +9,7 @@ import { Icon } from "../../src/components/Icon";
 import { AppText, Card, IconButton } from "../../src/components/ui";
 import type { IconName } from "../../src/components/Icon";
 import { apiFetch } from "../../src/utils/api";
+import { ScreenState } from "../../src/components/ScreenStates";
 
 interface NotificationSetting {
   key: string;
@@ -95,11 +96,19 @@ export default function NotificationsSettingsScreen() {
     vibration: true,
   });
 
-  useEffect(() => {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string|null>(null);
+
+  const loadSettings = () => {
+    setLoading(true);
+    setError(null);
     apiFetch<Record<string, boolean>>('/users/me/notification-settings')
       .then(res => { if (res) setSettings(prev => ({ ...prev, ...res })); })
-      .catch(() => {});
-  }, []);
+      .catch(() => setError('تعذر تحميل إعدادات الإشعارات'))
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => { loadSettings(); }, []);
 
   const toggleSetting = (key: string) => {
     const next = (prev: Record<string, boolean>) => ({ ...prev, [key]: !prev[key] });
@@ -197,6 +206,7 @@ export default function NotificationsSettingsScreen() {
         <IconButton icon="back" onPress={() => router.back()} />
       </View>
 
+      <ScreenState loading={loading} error={error} empty={false} emptyTitle="لا توجد إعدادات" onRetry={loadSettings}>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -277,6 +287,7 @@ export default function NotificationsSettingsScreen() {
           </View>
         </Animated.View>
       </ScrollView>
+      </ScreenState>
     </View>
   );
 }

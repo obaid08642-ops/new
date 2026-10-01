@@ -34,8 +34,38 @@ import { MedicalJobsScreen, MedicalDrugIndexScreen } from './src/screens/shared/
 
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { LinkingOptions } from '@react-navigation/native';
 
 const Stack = createNativeStackNavigator();
+
+// N2: deep-link / push-tap routing. Maps a notification's related_type/related_id
+// to the right screen so a tap lands on the exact entity, not the dashboard.
+const linking: LinkingOptions<any> = {
+  prefixes: ['nabdplus-provider://', 'https://provider.nabd.plus'],
+  config: {
+    screens: {
+      Dashboard: {
+        screens: {
+          Jobs: 'jobs',
+          Order: 'order/:id',
+          Booking: 'booking/:id',
+          Chat: 'chat/:id',
+          Payout: 'payout/:id',
+        },
+      },
+    },
+  },
+  // Resolve a notification's related_type/related_id into a screen path.
+  getStateFromPath: (path, options) => {
+    const parts = path.replace(/^\//, '').split('/').filter(Boolean);
+    if (parts.length >= 2) {
+      const [type, id] = parts;
+      const screen = { job: 'Jobs', order: 'Order', booking: 'Booking', chat: 'Chat', payout: 'Payout' }[type as string];
+      if (screen) return { routes: [{ name: 'Dashboard', state: { routes: [{ name: screen, params: { id } }] } }] };
+    }
+    return undefined;
+  },
+};
 
 function AppNavigator() {
   const { isLoggedIn, user, logout, appState } = useAuth();
@@ -71,7 +101,7 @@ function AppNavigator() {
   }
 
   return (
-    <NavigationContainer>
+    <NavigationContainer linking={linking}>
       <Stack.Navigator id={undefined as any} screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.bg } }}>
         {appState === 'logged_in' ? (
           <Stack.Screen name="Dashboard">

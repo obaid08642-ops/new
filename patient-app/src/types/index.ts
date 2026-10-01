@@ -716,7 +716,6 @@ export type ProfileStackParamList = {
   'mental-health': undefined;
   'nutrition-hub': undefined;
   'loyalty': undefined;
-  'wallet': undefined;
   'insurance': undefined;
   'add-insurance': undefined;
   'settings': undefined;

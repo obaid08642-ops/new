@@ -11,6 +11,7 @@ import { apiFetch } from '../../src/utils/api';
 import { logError } from '../../src/utils/logger';
 import { dateLocale } from '@/utils/dates';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 // Challenges will be loaded from API
 export default function LoyaltyChallengesScreen() {
@@ -19,6 +20,7 @@ export default function LoyaltyChallengesScreen() {
 
   const [challenges, setChallenges] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string|null>(null);
   const [joinedList, setJoinedList] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
@@ -26,8 +28,9 @@ export default function LoyaltyChallengesScreen() {
   }, []);
 
   const loadChallenges = async () => {
+    setLoading(true);
+    setError(null);
     try {
-      setLoading(true);
       const res = await apiFetch('/loyalty/challenges');
       const list = Array.isArray(res) ? res : res?.data || [];
       setChallenges(list);
@@ -42,6 +45,7 @@ export default function LoyaltyChallengesScreen() {
       setJoinedList(joined);
     } catch (err) {
       logError('loyalty:challenges', err);
+      setError('تعذر تحميل التحديات');
       setChallenges([]);
     } finally {
       setLoading(false);
@@ -97,6 +101,7 @@ export default function LoyaltyChallengesScreen() {
         </View>
       </View>
 
+      <ScreenState loading={false} error={error} empty={!loading && !error && challenges.length === 0} emptyTitle="لا توجد تحديات" onRetry={loadChallenges}>
       <FlatList
         data={challenges}
         keyExtractor={c => c.id}
@@ -157,6 +162,7 @@ export default function LoyaltyChallengesScreen() {
           );
         }}
       />
+      </ScreenState>
 
     </View>
   );

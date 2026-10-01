@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
   failedAmount: {
     color: "rgba(255,255,255,0.8)",
     fontSize: 20,
-    fontFamily: "Cairo-ExtraBold",
+    fontFamily: "ReadexPro-700",
   },
   failedSub: {
     color: "rgba(255,255,255,0.7)",

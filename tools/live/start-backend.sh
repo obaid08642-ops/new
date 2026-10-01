@@ -4,7 +4,18 @@
 # Mail goes to tools/live/smtp_sink.py on :2525 so OTP/email flows can be completed end to end.
 set -euo pipefail
 cd "$(dirname "$0")/../../backend"
-ps -eo pid,args | grep "[d]ist/main.js" | awk '{print $1}' | xargs -r kill || true
+# Kill every previous backend (macOS xargs has no -r; pkill covers all).
+# SIGTERM alone left the process alive here, so escalate to SIGKILL — otherwise
+# the "restart" silently kept serving the previous dist.
+pkill -f "dist/main.js" 2>/dev/null || true
+for i in 1 2 3 4 5; do
+  pgrep -f "dist/main.js" >/dev/null 2>&1 || break
+  sleep 1
+  pkill -9 -f "dist/main.js" 2>/dev/null || true
+done
+if pgrep -f "dist/main.js" >/dev/null 2>&1; then
+  echo "old backend still running — kill it manually"; exit 1
+fi
 sleep 1
 export NODE_ENV="${NODE_ENV:-development}" PORT="${PORT:-8002}"
 export JWT_SECRET="${JWT_SECRET:-live-test-secret-0123456789abcdef-0123456789}"
@@ -23,6 +34,11 @@ export DISABLE_RATE_LIMIT="${DISABLE_RATE_LIMIT:-true}" THROTTLER_LIMIT="${THROT
 export OTP_ISSUE_LIMIT="${OTP_ISSUE_LIMIT:-1000}"
 # Card payments go to tools/live/fake_moyasar.py (:9100); /__pay/<id> plays the patient completing checkout.
 export MOYASAR_API_KEY="${MOYASAR_API_KEY:-sk_test_live_journeys}" MOYASAR_API_BASE="${MOYASAR_API_BASE:-http://127.0.0.1:9100/v1}"
+# 7C-C3: the backend network-gate check requires this header on /api/v1/admin/*.
+# The harness sends it (NABD_ADMIN_GATE_TOKEN, same default); keep both in sync.
+export ADMIN_GATE_TOKEN="${ADMIN_GATE_TOKEN:-live-gate-token}"
+export NABD_ADMIN_GATE_TOKEN="${NABD_ADMIN_GATE_TOKEN:-$ADMIN_GATE_TOKEN}"
+export NABD_ADMIN_DEVICE="${NABD_ADMIN_DEVICE:-live-gate-owner-macbook-01}"
 nohup node --max-old-space-size=1500 dist/main.js > /tmp/nabd-backend.log 2>&1 &
 for i in $(seq 1 90); do
   curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:$PORT/api/v1/health/liveness" 2>/dev/null | grep -q 200 && { echo "backend up (db=$DB_NAME)"; exit 0; }

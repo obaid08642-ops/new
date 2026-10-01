@@ -10,6 +10,7 @@ import { AppText, Card, Badge, Button, IconButton, SectionHeader } from '../../s
 import { apiFetch } from '../../src/utils/api';
 import { logError } from '../../src/utils/logger';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 export default function ActiveProgramsScreen() {
   const router = useRouter();
@@ -18,14 +19,16 @@ export default function ActiveProgramsScreen() {
   const [programs, setPrograms] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<string>('diabetes');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string|null>(null);
 
   React.useEffect(() => {
     loadPrograms();
   }, []);
 
   const loadPrograms = async () => {
+    setLoading(true);
+    setError(null);
     try {
-      setLoading(true);
       const res = await apiFetch('/medical/programs/active');
       if (res && res.length > 0) {
         setPrograms(res);
@@ -36,6 +39,7 @@ export default function ActiveProgramsScreen() {
         setPrograms([]);
       }
     } catch (e) {
+      setError('تعذر تحميل البرامج العلاجية');
       setPrograms([]);
     } finally {
       setLoading(false);
@@ -106,6 +110,7 @@ export default function ActiveProgramsScreen() {
         })}
       </View>
 
+      <ScreenState loading={loading} error={error} empty={!loading && !error && programs.length === 0} emptyTitle="لا توجد برامج نشطة" onRetry={loadPrograms}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 16, gap: 16, paddingBottom: insets.bottom + 60 }}>
         {/* Progress Card */}
         <Card style={st.progressCard}>
@@ -187,6 +192,7 @@ export default function ActiveProgramsScreen() {
           );
         })}
       </ScrollView>
+      </ScreenState>
     </View>
   );
 }

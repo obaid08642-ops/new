@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240" role="img" aria-labelledby="nabd-mark-ink-title">
+  <title id="nabd-mark-ink-title">Nabd+</title>
+  <!--
+    MARK ON INK — the dark lockup from the canvas (Main.dc.html, "Mark on dark").
+    An off-white bowl with the coral dot, for the ink canvas #0B1B2B.
+    Generated from logo-mark.svg: only the bowl colour changes.
+  -->
+  <path d="M40 104 C40 196 200 196 200 104" fill="none" stroke="#F5F5F7" stroke-width="36" stroke-linecap="round"/>
+  <circle cx="120" cy="58" r="24" fill="#FF4B55"/>
+</svg>

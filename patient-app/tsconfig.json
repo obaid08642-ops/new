@@ -19,27 +19,84 @@
       "jest"
     ],
     "paths": {
-      "@/*": ["./src/*"],
-      "@/design-system": ["./src/design-system/index.ts"],
-      "@/design-system/*": ["./src/design-system/*"],
-      "@/theme": ["./src/theme/index.ts"],
-      "@/theme/*": ["./src/theme/*"],
-      "@/components/*": ["./src/components/*"],
-      "@/hooks/*": ["./src/hooks/*"],
-      "@/store": ["./src/store/index.ts"],
-      "@/store/*": ["./src/store/*"],
-      "@/services/*": ["./src/services/*"],
-      "@/utils/*": ["./src/utils/*"],
-      "@/types": ["./src/types/index.ts"],
-      "@/types/*": ["./src/types/*"],
-      "@/constants": ["./src/constants/index.ts"],
-      "@/constants/*": ["./src/constants/*"],
-      "@/context/*": ["./src/context/*"],
-      "@/i18n": ["./src/i18n/index.ts"],
-      "@/i18n/*": ["./src/i18n/*"],
-      "@/guided-tour": ["./src/guided-tour/index.ts"],
-      "@/guided-tour/*": ["./src/guided-tour/*"],
-      "@/assets/*": ["./assets/*"]
+      "@/*": [
+        "./src/*"
+      ],
+      "@/design-system": [
+        "./src/design-system/index.ts"
+      ],
+      "@/design-system/*": [
+        "./src/design-system/*"
+      ],
+      "@/theme": [
+        "./src/theme/index.ts"
+      ],
+      "@/theme/*": [
+        "./src/theme/*"
+      ],
+      "@/components/*": [
+        "./src/components/*"
+      ],
+      "@/hooks/*": [
+        "./src/hooks/*"
+      ],
+      "@/store": [
+        "./src/store/index.ts"
+      ],
+      "@/store/*": [
+        "./src/store/*"
+      ],
+      "@/services/*": [
+        "./src/services/*"
+      ],
+      "@/utils/*": [
+        "./src/utils/*"
+      ],
+      "@/types": [
+        "./src/types/index.ts"
+      ],
+      "@/types/*": [
+        "./src/types/*"
+      ],
+      "@/constants": [
+        "./src/constants/index.ts"
+      ],
+      "@/constants/*": [
+        "./src/constants/*"
+      ],
+      "@/context/*": [
+        "./src/context/*"
+      ],
+      "@/i18n": [
+        "./src/i18n/index.ts"
+      ],
+      "@/i18n/*": [
+        "./src/i18n/*"
+      ],
+      "@/guided-tour": [
+        "./src/guided-tour/index.ts"
+      ],
+      "@/guided-tour/*": [
+        "./src/guided-tour/*"
+      ],
+      "@/assets/*": [
+        "./assets/*"
+      ],
+      "@nabd/ui-native": [
+        "../packages/ui-native/src/Icon.tsx"
+      ],
+      "@nabd/ui/icons/illustrated": [
+        "../packages/ui/icons/illustrated.ts"
+      ],
+      "@nabd/ui/icons/illustrations": [
+        "../packages/ui/icons/illustrations.ts"
+      ],
+      "@nabd/ui/icons/names": [
+        "../packages/ui/icons/names.ts"
+      ],
+      "@nabd/ui/components/contract": [
+        "../packages/ui/components/contract.ts"
+      ]
     }
   },
   "include": [

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1242 2688" width="1242" height="2688">
+  <!--
+    SPLASH — dark (brand.ink #0B1B2B) with the ink lockup: off-white bowl and
+    the coral dot. Same rule as the light splash: the wordmark is app text.
+  -->
+  <rect width="1242" height="2688" fill="#0B1B2B"/>
+  <g transform="translate(621 1344) scale(3.2) translate(-120 -120)">
+    <path d="M40 104 C40 196 200 196 200 104" fill="none" stroke="#F5F5F7" stroke-width="36" stroke-linecap="round"/>
+    <circle cx="120" cy="58" r="24" fill="#FF4B55"/>
+  </g>
+</svg>

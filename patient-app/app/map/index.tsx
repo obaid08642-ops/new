@@ -25,6 +25,7 @@ import { Icon } from '../../src/components/Icon';
 import { AppText } from '../../src/components/ui';
 import { apiFetch } from '../../src/utils/api';
 import { pickLocalized } from '../../src/utils/localize';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 // ─────────────────────────────────────────────────────────────
 // DATA
@@ -161,6 +162,8 @@ export default function MapScreen() {
   const [showSheet, setShowSheet] = useState(false);
   const [userInsurance, setUserInsurance] = useState<string | null>(null);
   const [userLoc, setUserLoc] = useState<{ lat: number; lng: number } | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string|null>(null);
 
   // ── Fetch providers from backend using user coordinates
   const fetchProviders = useCallback(async (lat?: number, lng?: number) => {
@@ -204,7 +207,9 @@ export default function MapScreen() {
         setProviders(normalized);
       }
       // else keep the empty real state (no fabricated providers)
-    } catch { /* keep fallback */ }
+    } catch {
+      setError('تعذر تحميل مزودي الخدمة');
+    }
   }, [selectedType]);
 
   // ── Fetch providers + insurance on mount
@@ -224,6 +229,8 @@ export default function MapScreen() {
   // ── Get user location on mount + fetch nearby providers
   useEffect(() => {
     (async () => {
+      setLoading(true);
+      setError(null);
       try {
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== 'granted') {
@@ -242,6 +249,8 @@ export default function MapScreen() {
         await fetchProviders(coord.lat, coord.lng);
       } catch {
         await fetchProviders();
+      } finally {
+        setLoading(false);
       }
     })();
   }, []);
@@ -348,6 +357,7 @@ export default function MapScreen() {
 
   // ─────────────────────────────────────────────────────────────
   return (
+    <ScreenState loading={loading} error={error} empty={false} emptyTitle="لا توجد بيانات" onRetry={() => fetchProviders()}>
     <View style={[styles.root, { backgroundColor: colors.background } ]}>
       <StatusBar barStyle="dark-content" translucent backgroundColor="transparent" />
 
@@ -663,6 +673,7 @@ export default function MapScreen() {
         </View>
       )}
     </View>
+    </ScreenState>
   );
 }
 

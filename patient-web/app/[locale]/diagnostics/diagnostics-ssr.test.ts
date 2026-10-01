@@ -24,7 +24,13 @@ describe("diagnostics SSR boundary", () => {
     state.requirePatientAccess.mockReset().mockResolvedValue(serverToken);
   });
 
-  it("renders list data through both server boundaries without embedding the token or sensitive fields", async () => {
+  // The timeout is explicit and generous because this is a RENDERING assertion,
+  // not a performance one: it checks that the server boundary does not serialise
+  // the token or private fields. Left on vitest's 5s default it timed out at
+  // ~6s under full-suite parallelism while passing in ~1s in isolation, so it was
+  // measuring how busy the machine was, not whether the boundary held. A test
+  // whose failure mode is "the CI box was loaded" trains people to re-run it.
+  it("renders list data through both server boundaries without embedding the token or sensitive fields", { timeout: 30_000 }, async () => {
     state.getDiagnosticBookings
       .mockResolvedValueOnce(new Response(JSON.stringify([{ id: bookingId, state: "CONFIRMED", patient_name: "private", total_price: 500 }]), { status: 200 }))
       .mockResolvedValueOnce(new Response(JSON.stringify([]), { status: 200 }));

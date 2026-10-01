@@ -334,7 +334,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
           }
           return (
             <div className={styles.gridCards} style={{ marginTop: 16 }}>
-              {productsList.map((it) => (
+              {productsList.map((it, cardIndex) => (
                 <PremiumProductCard
                   key={it.id}
                   id={it.id}
@@ -344,6 +344,8 @@ export default async function CategoryPage({ params, searchParams }: Props) {
                   oldPrice={it.old_price}
                   image={it.image}
                   images={it.images as any}
+                  /* F82: the first card in the viewport is the LCP element. */
+                  priority={cardIndex < 2}
                   locale={locale}
                 />
               ))}

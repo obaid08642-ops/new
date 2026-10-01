@@ -6,6 +6,7 @@ import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { callPatientApi } from "@/lib/api/upstream";
 import { PrivacyToggles, type PrivacyState } from "@/components-next/privacy-toggles";
+import { PdplRights } from "./pdpl-rights";
 import styles from "../settings.module.css";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -70,9 +71,10 @@ export default async function SettingsPrivacyPage({ params }: Props) {
           saving: ar ? "جارٍ الحفظ…" : "Saving…",
         }}
       />
-      <p style={{ margin: 0, display: "flex", flexWrap: "wrap", gap: 8 }}>
-        <Link href={`/${locale}/support`} style={{ padding: "10px 16px", borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", color: "#1E332E", fontWeight: 700, textDecoration: "none", overflowWrap: "anywhere" } as any}>{ar ? "طلب حذف بياناتي الشخصية نهائياً" : "Request permanent deletion of my data"}</Link>
-      </p>
+      {/* PDPL Art. 20/23: the subject acts here. The previous link pointed at
+          /support to "request" deletion within 72 hours, which is a ticket, not
+          a right — and the web client had no export at all. */}
+      <PdplRights locale={locale} />
     </main>
   );
 }

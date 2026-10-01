@@ -10,7 +10,7 @@ const schema = z.object({
   reason: z.string().trim().min(1).max(1000),
   orderId: z.string().max(128).optional().default(""),
   details: z.string().max(2000).optional().default(""),
-  refundMethod: z.string().max(32).optional().default("wallet"),
+  refundMethod: z.string().max(32).optional().default("original"),
   amount: z.number().min(0).max(1000000).optional(),
 });
 

@@ -87,6 +87,13 @@ export class LabsController {
     return this.svc.assignTechnician(id, user, body || {});
   }
 
+  /** R7-3: the lab's real technicians (linked staff accounts) for assignment. */
+  @Roles(UserRole.LAB, UserRole.HOSPITAL, UserRole.ADMIN)
+  @Get('team/technicians')
+  technicians(@CurrentUser() user: any) {
+    return this.svc.listTechnicians(user);
+  }
+
   @Roles(UserRole.LAB, UserRole.HOSPITAL, UserRole.ADMIN)
   @Post('bookings/:id/upload-report')
   uploadReport(@Param('id') id: string, @Body() body: UploadReportDto, @CurrentUser() user: any) {

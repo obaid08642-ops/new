@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, UnauthorizedException, ConflictException, GoneException, Inject, HttpException, HttpStatus, ServiceUnavailableException } from '@nestjs/common';
+import { Injectable, BadRequestException, UnauthorizedException, ConflictException, GoneException, ForbiddenException, Inject, HttpException, HttpStatus, ServiceUnavailableException } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
@@ -17,6 +17,7 @@ import { PatientProfileRepository } from "./repositories/patientprofile.reposito
 import { RedisService } from '../redis/redis.service';
 import { PasskeyService } from './passkey.service';
 import { DeviceTrustService } from './device-trust.service';
+import { AdminSessionService } from './admin-session.service';
 import { revokeAllCredentialSessions, revokeRedisRefreshSessions, RevocationResult } from '../../common/credential-revocation';
 
 @Injectable()
@@ -39,6 +40,8 @@ export class AuthService {
     private redisService: RedisService,
     @Optional() private passkeys?: PasskeyService,
     @Optional() private deviceTrust?: DeviceTrustService,
+    @Optional() private adminDevices?: any,
+    @Optional() private adminSession?: AdminSessionService,
     @Optional() private push?: PushService,
     @Optional() private mail?: MailService,
     @Optional() private sms?: SmsService,
@@ -201,11 +204,12 @@ export class AuthService {
       } catch { /* fall through to push/email */ }
     }
     if (user?.id) try {
-      const r: any = await this.push?.sendToUser(
+      const r: any = await this.push?.sendTemplated(
         user.id,
-        'رمز التحقق — نَبْض',
-        `رمز التحقق الخاص بك: ${code} — صالح لمدة 10 دقائق. لا تشاركه مع أحد.`,
+        'push.otp.title',
+        'push.otp.body',
         { kind: 'otp' },
+        { code },
       );
       if (r && Number(r.sent) > 0) delivered.push('push');
     } catch { /* push must never break OTP delivery */ }
@@ -446,7 +450,11 @@ export class AuthService {
         throw new BadRequestException({ message: 'duplicate_consent', code: 'duplicate_consent', statusCode: HttpStatus.BAD_REQUEST });
       }
       seenPolicies.add(key);
-      return { policy_id: consent.policy_id.trim(), version: consent.version.trim(), accepted_at: new Date() };
+      // Registration consent is an acceptance by definition — the account cannot
+      // be created without agreeing — so `accepted` is recorded explicitly rather
+      // than left undefined, keeping the consent trail uniform with the PDPL
+      // consent endpoint.
+      return { policy_id: consent.policy_id.trim(), version: consent.version.trim(), accepted_at: new Date(), accepted: true };
     });
 
     const existing = await this.userModel.findOne(isEmail ? { email: identifier } : { phone: identifier });
@@ -551,9 +559,15 @@ export class AuthService {
     const isEmail = identifier.includes('@');
     const query = isEmail ? { email: identifier.trim().toLowerCase() } : { phone: identifier };
     const u = await this.userModel.findOne(query);
-    if (!u || !u.password_hash) throw new UnauthorizedException('Invalid credentials');
+    if (!u || !u.password_hash) {
+      if (u) await this.adminLoginAlert(u, false, ctx); // C5: known account, bad secret
+      throw new UnauthorizedException('Invalid credentials');
+    }
     const ok = await bcrypt.compare(password, u.password_hash);
-    if (!ok) throw new UnauthorizedException('Invalid credentials');
+    if (!ok) {
+      await this.adminLoginAlert(u, false, ctx); // C5: failed admin login attempt
+      throw new UnauthorizedException('Invalid credentials');
+    }
     if (u.active === false) throw new UnauthorizedException('Account disabled');
 
     // Check 2FA requirement
@@ -566,6 +580,8 @@ export class AuthService {
           u.last_login_at = new Date();
           await u.save();
           this.events.emit(EVENTS.USER_LOGGED_IN, { user_id: u.id, role: u.role, method: 'trusted_device' });
+          await this.adminSession?.touch(u.id); // C5: idle window starts at login
+          await this.adminLoginAlert(u, true, { ...ctx, deviceName: trusted.name }); // C5
           return {
             user: this.publicUser(u),
             token: this.signToken(u),
@@ -574,29 +590,32 @@ export class AuthService {
           };
         }
       }
-      // Passkey-enforced admin (ADMIN_PASSKEY_EMAIL, default Obaid08642@gmail.com):
-      // password is already verified above — the ONLY next step is the WebAuthn
-      // assertion. No session token, no OTP, and no challenge is ever issued
-      // before this point (strict ordering, no password-only bypass).
-      // Passkey 2FA is OPT-IN via ADMIN_PASSKEY_ENFORCED=true. It is currently
-      // DISABLED: verification failed on every enrolled device (enroll succeeds,
-      // login assertion is rejected), locking the owner out. While disabled the
-      // designated admin signs in with email + OTP like everyone else.
-      const passkeyEnforced = process.env.ADMIN_PASSKEY_ENFORCED === 'true';
-      const designated = passkeyEnforced ? this.passkeys?.designatedEmail : undefined;
-      if (designated && (u.email || '').trim().toLowerCase() === designated) {
-        const keyCount = await this.passkeys!.countCredentials(u.id);
-        if (keyCount > 0) {
-          const options = await this.passkeys!.startLogin(u);
+      // C1: Passkey is MANDATORY for every admin/super_admin account.
+      // Password is already verified above — the ONLY next step is the WebAuthn
+      // assertion. No session token, no OTP fallback for admin roles.
+      if (u.role === UserRole.SUPER_ADMIN || u.role === UserRole.ADMIN) {
+        if (!this.passkeys) throw new UnauthorizedException('passkey_not_available');
+        const keyCount = await this.passkeys.countCredentials(u.id);
+        if (keyCount === 0) {
+          // Bootstrap: no passkey enrolled yet → email OTP so the owner can
+          // sign in once and enroll the first device from the security page.
+          // After the first key exists, OTP is never offered again.
+          const contact = this.otpContact(u, identifier);
+          await this.sendOtp(contact);
           return {
-            requires_passkey: true,
-            identifier: u.email,
-            passkey_options: options,
-            message: 'Passkey verification required.',
+            requires_2fa: true,
+            identifier: contact,
+            message: 'OTP sent to your registered contact.',
+            passkey_bootstrap: true,
           };
         }
-        // First-time bootstrap: no passkey enrolled yet → fall back to email OTP
-        // so the owner can sign in and enroll a device from the security page.
+        const options = await this.passkeys.startLogin(u);
+        return {
+          requires_passkey: true,
+          identifier: u.email,
+          passkey_options: options,
+          message: 'Passkey verification required.',
+        };
       }
       const contact = this.otpContact(u, identifier);
       await this.sendOtp(contact);
@@ -624,7 +643,14 @@ export class AuthService {
     // Verify using the same identifier that received the OTP during login.
     // Login may be initiated with email while the OTP is sent to the user's phone
     // (or vice versa), so the submitted identifier is not always the OTP key.
-    await this.verifyOtp(this.otpContact(u, identifier), code); // Will throw if invalid
+    try {
+      await this.verifyOtp(this.otpContact(u, identifier), code); // Will throw if invalid
+    } catch (e) {
+      await this.adminLoginAlert(u, false, ctx); // C5: failed OTP (admin only alerts)
+      throw e;
+    }
+    await this.adminSession?.touch(u.id); // C5
+    await this.adminLoginAlert(u, true, ctx); // C5
 
     u.last_login_at = new Date();
     await u.save();
@@ -649,26 +675,40 @@ export class AuthService {
    * digital signature has been cryptographically verified against the
    * registered public key.
    */
-  async completePasskeyLogin(identifier: string, response: any, ctx?: { ua?: string; ip?: string }) {
+  async completePasskeyLogin(identifier: string, response: any, ctx?: { ua?: string; ip?: string; deviceId?: string; deviceName?: string }) {
     AuthService.assertString(identifier, 'identifier');
     if (!this.passkeys) throw new UnauthorizedException('passkey_not_available');
-    if ((identifier || '').trim().toLowerCase() !== this.passkeys.designatedEmail) {
+    const u = await this.userModel.findOne({ email: identifier.trim().toLowerCase() });
+    if (!u || (u.role !== UserRole.SUPER_ADMIN && u.role !== UserRole.ADMIN)) {
       // Never reveal passkey state for other accounts
       throw new UnauthorizedException('Invalid credentials');
     }
-    const u = await this.userModel.findOne({ email: identifier.trim().toLowerCase() });
-    if (!u || (u.role !== UserRole.SUPER_ADMIN && u.role !== UserRole.ADMIN)) {
+    if (u.active === false) throw new UnauthorizedException('Account disabled');
+    let ownerId: string;
+    try {
+      ownerId = await this.passkeys.finishLogin(response);
+    } catch (e) {
+      await this.adminLoginAlert(u, false, ctx); // C5: failed passkey assertion
+      throw e;
+    }
+    if (ownerId !== u.id) {
+      await this.adminLoginAlert(u, false, ctx);
       throw new UnauthorizedException('Invalid credentials');
     }
-    if (u.active === false) throw new UnauthorizedException('Account disabled');
-    const ownerId = await this.passkeys.finishLogin(response);
-    if (ownerId !== u.id) throw new UnauthorizedException('Invalid credentials');
     u.last_login_at = new Date();
     await u.save();
     this.events.emit(EVENTS.USER_LOGGED_IN, { user_id: u.id, role: u.role, method: 'passkey' });
+    await this.adminSession?.touch(u.id); // C5: idle window starts at login
+    await this.adminLoginAlert(u, true, ctx); // C5
     const result: any = { user: this.publicUser(u), token: this.signToken(u) };
-    // A successful passkey assertion inherently proves device possession —
-    // trust the device and alert about it being newly recognized.
+    // C2: auto-enroll the presenting device into the admin allow-list on
+    // successful passkey login (the passkey assertion proves possession). The
+    // device is bound to the credential that was just verified, so removing that
+    // passkey revokes the device — a token replayed without a live credential is
+    // rejected by the guard even though the device id is enrolled.
+    if (this.adminDevices && ctx?.deviceId) {
+      await this.adminDevices.enroll(u.id, ctx.deviceId, ctx.ua, ctx.deviceName, response?.id);
+    }
     if (this.deviceTrust) {
       const { token, device } = await this.deviceTrust.issue(u.id, ctx?.ua, ctx?.ip);
       result.device_token = token;
@@ -701,6 +741,41 @@ export class AuthService {
       );
     } catch (e) {
       // Alert failure must never block a successful, fully-verified login
+    }
+  }
+
+  /**
+   * C5: instant alert (email + push) on every admin login and every failed
+   * admin login attempt, with device, IP and time. Records the attempt for
+   * the audit trail. Never throws.
+   */
+  private async adminLoginAlert(u: any, ok: boolean, ctx?: { ua?: string; ip?: string; deviceId?: string; deviceName?: string }) {
+    try {
+      if (!u || (u.role !== UserRole.SUPER_ADMIN && u.role !== UserRole.ADMIN)) return;
+      await this.adminSession?.recordLoginAttempt(u.id, u.email, ok, ctx?.ip, ctx?.ua);
+      const to = (u.email || '').trim();
+      const when = new Date().toLocaleString('ar-SA', { timeZone: 'Asia/Riyadh' });
+      const subject = ok ? 'تسجيل دخول إلى لوحة تحكم نبض — نَبْض' : 'تنبيه أمني: محاولة دخول فاشلة — نَبْض';
+      const html = `<div dir="rtl" style="font-family:Tahoma,Arial,sans-serif;line-height:1.9">
+          <h2 style="color:#0E8FA3">${ok ? 'تسجيل دخول — لوحة تحكم نبض' : 'محاولة دخول فاشلة — لوحة تحكم نبض'}</h2>
+          <ul>
+            <li><b>الحساب:</b> ${u.email || '-'}</li>
+            <li><b>الجهاز:</b> ${ctx?.deviceName || 'غير معروف'}</li>
+            <li><b>عنوان IP:</b> ${ctx?.ip || '-'}</li>
+            <li><b>الوقت:</b> ${when}</li>
+          </ul>
+          ${ok ? '' : '<p>إذا لم يكن هذا أنت، غيّر كلمة المرور فورًا.</p>'}
+        </div>`;
+      if (to && this.mail) await this.mail.send(to, subject, html).catch(() => {});
+      try {
+        const text = await this.push?.resolvePushText?.(
+          'push.admin.login.title', 'push.admin.login.body',
+          { email: u.email || '', ip: ctx?.ip || '', ok: ok ? '1' : '0' },
+        );
+        if (text && u.id) await this.push?.sendToUser?.(u.id, text.title, text.body, { kind: 'admin_login', ok });
+      } catch { /* push is best-effort here */ }
+    } catch {
+      /* alerts must never break login */
     }
   }
 

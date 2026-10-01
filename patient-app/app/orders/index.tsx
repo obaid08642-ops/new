@@ -13,6 +13,7 @@ import { AppText, IconButton } from '../../src/components/ui';
 import { apiFetch } from '../../src/utils/api';
 import { pickLocalized } from '../../src/utils/localize';
 import { dateLocale } from '@/utils/dates';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 const STATUS_AR: Record<string, string> = {
   PENDING: 'بانتظار التأكيد', CONFIRMED: 'مؤكد', CHECKED_IN: 'تم الحضور',
@@ -74,7 +75,7 @@ export default function OrderCenterScreen() {
   const load = useCallback(async () => {
     let failures = 0;
     const safe = async (p: Promise<any>) => {
-      try { return await p; } catch { failures++; return null; }
+      try { return await p; } catch (e) { failures++; return null; }
     };
     const [appts, orders, labs, rads, nursing, claims, returns, emergency] = await Promise.all([
       safe(apiFetch('/care/appointments/mine')),
@@ -226,6 +227,7 @@ export default function OrderCenterScreen() {
         </TouchableOpacity>
       )}
 
+      <ScreenState loading={false} error={null} empty={false} emptyTitle="لا توجد طلبات" onRetry={() => { setLoading(true); load(); }}>
       {loading ? (
         <ActivityIndicator color={colors.primary} style={{ marginTop: 40 }} />
       ) : filtered.length === 0 ? (
@@ -273,6 +275,7 @@ export default function OrderCenterScreen() {
           }}
         />
       )}
+      </ScreenState>
     </View>
   );
 }

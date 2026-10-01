@@ -8,7 +8,7 @@ import * as SecureStore from "expo-secure-store";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { STORAGE_KEYS } from "../src/constants";
 import { useApp } from "../src/context/AppContext";
-import { NabdahLogo } from "../src/components/NabdahLogo";
+import { NabdLogo } from "../src/components/NabdLogo";
 import { AppText } from "../src/components/ui";
 
 export default function Index() {
@@ -41,7 +41,7 @@ export default function Index() {
         exiting={FadeOut}
         style={{ alignItems: "center", gap: 18 }}
       >
-        <NabdahLogo size={140} animated />
+        <NabdLogo size={140} pulse />
         <Animated.View
           entering={FadeIn.delay(1400).duration(600)}
           style={{ alignItems: "center", gap: 4 }}

@@ -12,6 +12,7 @@ import { UserRepository } from './repositories/user.repository';
 import { PatientProfileRepository } from './repositories/patient-profile.repository';
 import { ProviderProfileRepository } from './repositories/provider-profile.repository';
 import { DataRetentionService } from './data-retention.service';
+import { PdplService } from './pdpl.service';
 
 @Module({
   imports: [
@@ -27,8 +28,9 @@ import { DataRetentionService } from './data-retention.service';
     { provide: 'UserRepository', useClass: UserRepository },
     { provide: 'PatientProfileRepository', useClass: PatientProfileRepository },
     { provide: 'ProviderProfileRepository', useClass: ProviderProfileRepository },
-    DataRetentionService
+    DataRetentionService,
+    PdplService
   ],
-  exports: [UsersService],
+  exports: [UsersService, PdplService],
 })
 export class UsersModule {}

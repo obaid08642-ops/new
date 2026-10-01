@@ -14,6 +14,7 @@ import { apiFetch, storeAuthSession } from '../../utils/api';
 import { getDeviceId } from '../../src/utils/deviceId';
 import { decodeJwt } from '../../src/utils/jwt';
 import { guestLogin } from '../../src/store/slices/authSlice';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 const { width } = Dimensions.get('window');
 

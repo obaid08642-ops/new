@@ -23,6 +23,7 @@ import { apiFetch } from '../../src/utils/api';
 import { logError } from '../../src/utils/logger';
 import { useCart } from '../../src/context/CartContext';
 import { pickLocalized } from '../../src/utils/localize';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 export default function WishlistScreen() {
   const insets = useSafeAreaInsets();
@@ -31,15 +32,23 @@ export default function WishlistScreen() {
 
   const [items, setItems] = useState<any[]>([]);
   const [addingId, setAddingId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string|null>(null);
 
-  React.useEffect(() => {
-    (async () => {
-      try {
-        const data = await apiFetch('/users/me/wishlist');
-        if (data && Array.isArray(data)) setItems(data);
-      } catch (err) {}
-    })();
-  }, []);
+  const loadWishlist = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await apiFetch('/users/me/wishlist');
+      if (data && Array.isArray(data)) setItems(data);
+    } catch (err) {
+      setError('تعذر تحميل قائمة الأمنيات');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  React.useEffect(() => { loadWishlist(); }, []);
 
   const removeFromWishlist = async (id: string) => {
     const prev = items;
@@ -86,6 +95,7 @@ export default function WishlistScreen() {
         </TouchableOpacity>
       </View>
 
+      <ScreenState loading={loading} error={error} empty={!loading && !error && items.length === 0} emptyTitle="لا توجد منتجات في قائمة الأمنيات" onRetry={loadWishlist}>
       <FlatList
         data={items}
         keyExtractor={(i) => i.id}
@@ -154,6 +164,7 @@ export default function WishlistScreen() {
           </View>
         )}
       />
+      </ScreenState>
     </View>
   );
 }

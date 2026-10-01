@@ -5,7 +5,7 @@ import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useApp, LANGUAGES, LangCode } from '../../src/context/AppContext';
-import { NabdahLogo } from '../../src/components/NabdahLogo';
+import { NabdLogo } from '../../src/components/NabdLogo';
 import { AppText, Button } from '../../src/components/ui';
 import { Icon } from '../../src/components/Icon';
 
@@ -25,7 +25,7 @@ export default function LanguageScreen() {
   return (
     <View style={[styles.c, { backgroundColor: colors.background, paddingTop: insets.top + 20 } ]}>
       <View style={styles.logoWrap}>
-        <NabdahLogo size={84} animated={false} />
+        <NabdLogo size={84} />
         <AppText variant="h2" align="center" style={{ marginTop: 12 }}>اختر لغتك</AppText>
         <AppText variant="bodySM" color={colors.textTertiary} align="center">Choose your language</AppText>
       </View>

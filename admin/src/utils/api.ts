@@ -47,6 +47,8 @@ export const fetchWithAdminGuard = async (url: string, options: RequestInit = {}
     method,
     headers,
     credentials: 'same-origin',
+    // R7-1: admin lists must never render a cached GET after a mutation.
+    cache: 'no-store',
   });
 
   if (response.status === 401 && typeof window !== 'undefined') {

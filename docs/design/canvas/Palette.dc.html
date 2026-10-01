@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ar">
+<head>
+<meta charset="utf-8">
+<title>Palette and Acid Lime test</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;500;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Readex Pro',sans-serif;background:#F7F3EE}
+</style>
+</helmet>
+<div style="width: 1840px; height: 1040px; box-sizing: border-box; padding: 56px; display: flex; flex-direction: column; gap: 32px; background: #F7F3EE; color: #0B1B2B">
+<div style="display: flex; justify-content: space-between; align-items: baseline">
+<div style="font-size: 15px; letter-spacing: 3px; font-weight: 500">PALETTE + ACID LIME TEST</div>
+<div style="font-size: 22px; font-weight: 700">الألوان — تجربة الليموني</div>
+</div>
+<div style="display: flex; gap: 12px">
+<div style="flex-grow: 1; height: 110px; border-radius: 18px; background: #FF4B55; padding: 16px; box-sizing: border-box; font-size: 14px">Primary · Pulse Coral #FF4B55</div>
+<div style="flex-grow: 1; height: 110px; border-radius: 18px; background: #0B1B2B; color: #F7F3EE; padding: 16px; box-sizing: border-box; font-size: 14px">Primary · Ink #0B1B2B</div>
+<div style="flex-grow: 1; height: 110px; border-radius: 18px; background: #F7F3EE; border: 1px solid #E4DDD3; padding: 16px; box-sizing: border-box; font-size: 14px">Base · Sand #F7F3EE</div>
+<div style="flex-grow: 1; height: 110px; border-radius: 18px; background: {{lime}}; padding: 16px; box-sizing: border-box; font-size: 14px">Accent · Acid Lime (dark surfaces only)</div>
+<div style="flex-grow: 1; height: 110px; border-radius: 18px; background: #3FBF9A; padding: 16px; box-sizing: border-box; font-size: 14px">Status · Mint</div>
+<div style="flex-grow: 1; height: 110px; border-radius: 18px; background: #6E8BFF; padding: 16px; box-sizing: border-box; font-size: 14px">Info · Soft Blue</div>
+</div>
+<div style="display: flex; gap: 32px; flex-grow: 1">
+<div style="flex-grow: 1; flex-basis: 0; border-radius: 28px; background: #FFFFFF; padding: 40px; display: flex; flex-direction: column; gap: 24px">
+<div style="font-size: 20px; font-weight: 700">On light — lime does NOT work here</div>
+<div style="display: flex; gap: 16px; flex-wrap: wrap">
+<button style="height: 56px; padding: 0 28px; border: 0; border-radius: 16px; background: #FF4B55; color: #0B1B2B; font-family: inherit; font-size: 18px; font-weight: 700">احجز الآن</button>
+<button style="height: 56px; padding: 0 28px; border: 0; border-radius: 16px; background: #0B1B2B; color: #F7F3EE; font-family: inherit; font-size: 18px; font-weight: 500">اطلب دواء</button>
+<button style="height: 56px; padding: 0 28px; border: 1.5px solid #0B1B2B; border-radius: 16px; background: #FFFFFF; color: #0B1B2B; font-family: inherit; font-size: 18px; font-weight: 500">التفاصيل</button>
+</div>
+<div style="display: flex; flex-direction: column; gap: 10px; padding: 20px; border-radius: 18px; border: 2px dashed #E4DDD3">
+<div style="font-size: 14px; color: #5B6470">✕ Avoid:</div>
+<div style="font-size: 28px; font-weight: 700; color: {{lime}}">نص ليموني على أبيض — لا يُقرأ</div>
+<div style="display: flex; gap: 12px">
+<button style="height: 48px; padding: 0 22px; border: 0; border-radius: 14px; background: {{lime}}; color: #FFFFFF; font-family: inherit; font-size: 16px">أبيض على ليموني</button>
+<button style="height: 48px; padding: 0 22px; border: 0; border-radius: 14px; background: {{lime}}; color: #0B1B2B; font-family: inherit; font-size: 16px">بجانب المرجاني</button>
+<button style="height: 48px; padding: 0 22px; border: 0; border-radius: 14px; background: #FF4B55; color: #0B1B2B; font-family: inherit; font-size: 16px">يتصادمان</button>
+</div>
+</div>
+</div>
+<div style="flex-grow: 1; flex-basis: 0; border-radius: 28px; background: #0B1B2B; color: #F7F3EE; padding: 40px; display: flex; flex-direction: column; gap: 24px">
+<div style="font-size: 20px; font-weight: 700">On dark — lime shines as a small accent</div>
+<div style="display: flex; gap: 16px; flex-wrap: wrap; align-items: center">
+<button style="height: 56px; padding: 0 28px; border: 0; border-radius: 16px; background: {{lime}}; color: #0B1B2B; font-family: inherit; font-size: 18px; font-weight: 700">ابدأ الاستشارة</button>
+<span style="height: 32px; padding: 0 14px; border-radius: 999px; background: rgba(215,255,0,0.14); color: {{lime}}; font-size: 14px; font-weight: 500; display: inline-flex; align-items: center">جديد</span>
+<span style="height: 32px; padding: 0 14px; border-radius: 999px; background: rgba(255,255,255,0.08); color: #F7F3EE; font-size: 14px; display: inline-flex; align-items: center">نقاطك: 1,240</span>
+</div>
+<div style="margin-top: auto; height: 84px; border-radius: 28px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.14); display: flex; justify-content: space-around; align-items: center">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 6px; color: {{lime}}; font-size: 13px">
+<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"></path><path d="M5 10v10h14V10"></path></svg>
+الرئيسية</div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 6px; color: #9AA4B2; font-size: 13px">
+<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"></rect><path d="M8 3v4M16 3v4M4 10h16"></path></svg>
+مواعيدي</div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 6px; color: #9AA4B2; font-size: 13px">
+<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="5"></rect><path d="M7 12h10"></path></svg>
+الصيدلية</div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 6px; color: #9AA4B2; font-size: 13px">
+<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"></path></svg>
+حسابي</div>
+</div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"lime":{"editor":"color","default":"#D7FF00","options":["#D7FF00","#C6F432","#B8E62E"]},"$preview":{"width":1840,"height":1040}}'>
+class Component extends DCLogic {
+renderVals() {
+return { lime: this.props.lime ?? '#D7FF00' };
+}
+}
+</script>
+</body>
+</html>

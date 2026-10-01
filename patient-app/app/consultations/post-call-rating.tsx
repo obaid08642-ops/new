@@ -8,6 +8,7 @@ import { resolveColor, darkColors, lightColors } from '../../src/theme/colors';
 import { apiFetch } from '../../src/utils/api';
 import { LocalizedText } from '../../src/components/LocalizedText';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 const RATING_LABELS = ['', 'سيئ', 'مقبول', 'جيد', 'ممتاز', 'رائع جداً'];
 const TAGS = ['ممتاز', 'سريع', 'احترافي', 'نظيف', 'متعاون', 'أنصح به'];
@@ -23,6 +24,7 @@ export default function PostCallRatingScreen() {
   const [comment, setComment] = useState('');
   const [activeTags, setActiveTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const toggleTag = (t: string) => {
     if (activeTags.includes(t)) {
@@ -47,6 +49,7 @@ export default function PostCallRatingScreen() {
       router.replace('/(tabs)/consultations');
     } catch (e: any) {
       setLoading(false);
+      setError(e?.message || 'تعذر إرسال التقييم');
       showLocalizedAlert('تعذر إرسال التقييم', e?.message || 'حاول مرة أخرى لاحقاً.');
     }
   };
@@ -63,6 +66,7 @@ export default function PostCallRatingScreen() {
         <View style={{ width: 40 }}/>
       </View>
 
+      <ScreenState loading={loading} error={error} empty={false} emptyTitle="لا توجد بيانات" onRetry={submit}>
       <ScrollView contentContainerStyle={{ padding: 16 }}>
         <View style={{ alignItems: 'center', paddingVertical: 20 }}>
           <View  style={styles.iconCircle}  >
@@ -127,6 +131,7 @@ export default function PostCallRatingScreen() {
           {loading ? <ActivityIndicator color={colors.bg} /> : <LocalizedText style={{ fontSize: 14, fontWeight: '800', color: colors.bg }}>إرسال التقييم</LocalizedText>}
         </TouchableOpacity>
       </ScrollView>
+      </ScreenState>
     </View>
   );
 }

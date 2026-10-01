@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1242 2688" width="1242" height="2688">
+  <!--
+    SPLASH — light (brand.canvas #F5F5F7) with the coral mark centred.
+    Only the mark is baked into the raster. The wordmark "نبض" is drawn by the
+    app as a real <Text> beside it, so it uses Readex Pro, stays selectable by
+    screen readers and localises with the rest of the UI. See README.md.
+  -->
+  <rect width="1242" height="2688" fill="#F5F5F7"/>
+  <g transform="translate(621 1344) scale(3.2) translate(-120 -120)">
+    <path d="M40 104 C40 196 200 196 200 104" fill="none" stroke="#FF4B55" stroke-width="36" stroke-linecap="round"/>
+    <circle cx="120" cy="58" r="24" fill="#FF4B55"/>
+  </g>
+</svg>

@@ -7,7 +7,7 @@ import { View, Text, TouchableOpacity, ScrollView, StyleSheet,
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, useLang, useAuth, useToast } from '../../../context';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Audio } from 'expo-av';
+import { createAudioPlayer, type AudioPlayer } from 'expo-audio';
 import {
  NBtn, NCard, NInput, NStatCard, NAvatar, NBadge,
  NHeader, NScroll, NSheet, NSearch, NToggle, NSettingsRow,
@@ -65,30 +65,31 @@ export function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: 
  const [error, setError] = useState(false);
  const { show } = useToast();
 
- const [sound, setSound] = useState<any | null>(null);
+ const [sound, setSound] = useState<AudioPlayer | null>(null);
  const [insuranceModalReq, setInsuranceModalReq] = useState<any>(null);
  const [approvalStatus, setApprovalStatus] = useState('كلية');
  const [patientCopay, setPatientCopay] = useState('');
  const [insuranceCoverage, setInsuranceCoverage] = useState('');
  const [approvalCode, setApprovalCode] = useState('');
 
- async function playRingtone() {
+  function playRingtone() {
     try {
-      const { sound: s } = await Audio.Sound.createAsync(require('../../../assets/audio/rad_dispatch_alert.mp3'), { isLooping: true });
-      setSound(s);
-      await s.playAsync();
-      setTimeout(() => { s.stopAsync(); }, 45000);
+      const player = createAudioPlayer(require('../../../assets/audio/rad_dispatch_alert.mp3'));
+      player.loop = true;
+      setSound(player);
+      player.play();
+      setTimeout(() => { player.pause(); }, 45000);
     } catch (e) {
       console.warn("Could not play ringtone", e);
     }
   }
 
-  async function stopRingtone() {
-    if (sound) { await sound.stopAsync(); await sound.unloadAsync(); setSound(null); }
+  function stopRingtone() {
+    if (sound) { sound.pause(); sound.remove(); setSound(null); }
   }
 
   useEffect(() => {
-    return sound ? () => { sound.unloadAsync(); } : undefined;
+    return sound ? () => { sound.remove(); } : undefined;
   }, [sound]);
 
   useEffect(() => {

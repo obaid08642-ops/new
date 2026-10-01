@@ -115,7 +115,6 @@ import { MaternityModule } from './modules/maternity/maternity.module';
 import { NabdExtensionsModule } from './modules/nabd-extensions/nabd-extensions.module';
 import { NutritionModule } from './modules/nutrition/nutrition.module';
 import { MentalHealthModule } from './modules/mental-health/mental-health.module';
-import { WalletModule } from './modules/wallet/wallet.module';
 import { ReturnsModule } from './modules/returns/returns.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { HospitalModule } from './modules/hospital/hospital.module';
@@ -131,6 +130,8 @@ import { ArticlesModule } from './modules/articles/articles.module';
 import { CorrelationMiddleware } from './common/correlation.middleware';
 import { DoctorsModule } from './modules/doctors/doctors.module';
 import { WriteGuard } from './common/write-guard';
+import { AdminGateGuard } from './common/admin-gate.guard';
+import { StepUpGuard, StepUpService } from './common/step-up.guard';
 import { ProductRankingModule } from './modules/product-ranking/product-ranking.module';
 import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
 
@@ -251,7 +252,6 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     NabdExtensionsModule,
     NutritionModule,
     MentalHealthModule,
-    WalletModule,
     ReturnsModule,
     BansModule,
     HomeCareModule,
@@ -270,6 +270,9 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: WriteGuard },
     { provide: APP_GUARD, useClass: ThrottlerGuard },
+    { provide: APP_GUARD, useClass: AdminGateGuard },
+    { provide: APP_GUARD, useClass: StepUpGuard },
+    StepUpService,
     { provide: APP_INTERCEPTOR, useClass: AuditLogInterceptor },
     { provide: APP_INTERCEPTOR, useClass: IdempotencyInterceptor },
     { provide: APP_INTERCEPTOR, useClass: AdaptiveConcurrencyInterceptor },

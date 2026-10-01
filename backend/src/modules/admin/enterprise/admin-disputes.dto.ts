@@ -12,4 +12,13 @@ export class ResolveDto {
   @IsOptional()
   @IsNumber()
   amount?: number;
+
+  /** Money decisions require the booking the refund executes against (A2). */
+  @IsOptional()
+  @IsString()
+  booking_kind?: string;
+
+  @IsOptional()
+  @IsString()
+  booking_id?: string;
 }

@@ -14,6 +14,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { apiFetch } from '../../src/utils/api';
 import { logError } from '../../src/utils/logger';
 import Animated, { FadeInDown } from 'react-native-reanimated';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 export default function SampleTrackingScreen() {
   const { colors } = useApp();
@@ -22,6 +23,7 @@ export default function SampleTrackingScreen() {
   const [loading, setLoading] = useState(true);
   const [tracking, setTracking] = useState<any>(null);
   const [booking, setBooking] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!bookingId) {
@@ -40,6 +42,7 @@ export default function SampleTrackingScreen() {
         if (trackRes?.data || trackRes) setTracking(trackRes?.data || trackRes);
       } catch (err) {
         logError('diagnostics:sample-tracking', err);
+        setError('تعذر تحميل بيانات التتبع');
       } finally {
         if (!stopped) setLoading(false);
       }
@@ -79,6 +82,7 @@ export default function SampleTrackingScreen() {
         <View style={{ width: 40 }} />
       </View>
 
+      <ScreenState loading={false} error={error} empty={false} emptyTitle="لا توجد بيانات" onRetry={() => setError(null)}>
       <ScrollView contentContainerStyle={styles.content}>
         {loading ? (
           <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 50 }} />
@@ -187,6 +191,7 @@ export default function SampleTrackingScreen() {
           </>
         )}
       </ScrollView>
+      </ScreenState>
     </View>
   );
 }

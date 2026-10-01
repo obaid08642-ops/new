@@ -44,7 +44,7 @@ const DEFAULTS = {
   minimum_payout_sar: 100,
   large_payout_sar: 10000,
   large_refund_sar: 5000,
-  loyalty_max_redeem_percent: 20,
+  loyalty_max_redeem_percent: 10,
   loyalty_point_value_sar: 0.1,
   refund_abuse_count_30d: 3,
   payment_velocity_failed_1h: 5,
@@ -583,6 +583,10 @@ export class RefundExecutor {
     if (!booking && ['pharmacy', 'order'].includes(String(opts.booking_kind))) {
       booking = await this.conn.collection('pharmacy_orders').findOne({ id: opts.booking_id } as any);
     }
+    if (booking) {
+      const owner = String(booking.patient_id || booking.patient_account_id || booking.user_id || '');
+      if (owner && owner !== String(opts.patient_id)) throw new ForbiddenException('refund_patient_mismatch');
+    }
     const originalMethod = String(paidTransaction?.method || booking?.payment_method || '').toLowerCase();
     const bookingState = String(booking?.status || '').toLowerCase();
     const cashLike = originalMethod === 'cash' || originalMethod === 'cod' || originalMethod === 'cash_on_delivery';
@@ -592,7 +596,10 @@ export class RefundExecutor {
       // COD collected at the door: a delivered/completed order means the courier took the money.
       || (originalMethod !== 'cash' && ['delivered', 'completed'].includes(bookingState))
     );
-    if (!paidPayment && !cashCollected) throw new BadRequestException('original_payment_not_found');
+    // A paid transactions row is payment evidence too (card payments live there;
+    // moyasar_payments only exists for the legacy gateway flow).
+    const cardPaidTx = paidTransaction?.status === 'paid';
+    if (!paidPayment && !cashCollected && !cardPaidTx) throw new BadRequestException('original_payment_not_found');
     if (paidPayment && (!paidPayment.moyasar_id || String(paidPayment.moyasar_id).startsWith('sandbox_'))) {
       throw new BadRequestException('original_card_refund_unavailable');
     }

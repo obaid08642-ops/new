@@ -85,6 +85,42 @@ describe('NotificationsService template resolution (R6-3)', () => {
   });
 });
 
+describe('NotificationsService delivery channels (N5)', () => {
+  it('sends email once when a user has both phone and email', async () => {
+    const notification = {
+      id: 'n1',
+      user_id: 'user-1',
+      title_key: 'title',
+      body_key: 'body',
+      params: {},
+      delivery: {},
+      toObject() { return { id: this.id, user_id: this.user_id, title_key: this.title_key, body_key: this.body_key, params: this.params, delivery: this.delivery }; },
+    };
+    const user = { id: 'user-1', email: 'user@example.com', phone: '+966500000000', lang: 'ar' };
+    const model: any = {
+      findOne: jest.fn().mockResolvedValue(notification),
+      updateOne: jest.fn().mockResolvedValue({}),
+      db: { model: () => ({ findOne: () => ({ lean: async () => user }) }) },
+    };
+    const templateModel: any = { findOne: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue(null) }) };
+    const i18n: any = { t: jest.fn((key: string) => key) };
+    const svc = new NotificationsService(model, templateModel, {} as any, {} as any, {} as any, {} as any, i18n);
+    const sendPush = jest.spyOn(svc, 'sendPush').mockResolvedValue(true);
+    const sendEmail = jest.spyOn(svc, 'sendEmail').mockResolvedValue(undefined);
+    const sendWhatsApp = jest.spyOn(svc, 'sendWhatsApp').mockResolvedValue(undefined);
+
+    await svc.deliverById('n1');
+
+    expect(sendPush).toHaveBeenCalledTimes(1);
+    expect(sendEmail).toHaveBeenCalledTimes(1);
+    expect(sendWhatsApp).toHaveBeenCalledTimes(1);
+    expect(model.updateOne).toHaveBeenCalledWith(
+      { id: 'n1' },
+      expect.objectContaining({ $set: expect.objectContaining({ delivery: expect.objectContaining({ email: expect.objectContaining({ status: 'SENT' }) }) }) }),
+    );
+  });
+});
+
 describe('NotificationsService delivery queue (F33)', () => {
   it('enqueues with a job id BullMQ accepts, so delivery keeps its retry and delay', async () => {
     const { Job } = require('bullmq');

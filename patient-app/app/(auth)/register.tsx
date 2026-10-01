@@ -20,6 +20,7 @@ import * as Google from 'expo-auth-session/providers/google';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import * as AuthSession from 'expo-auth-session';
 import { LocalizedText } from '../../src/components/LocalizedText';
+import { ScreenState } from '../../src/components/ScreenStates';
 
 WebBrowser.maybeCompleteAuthSession();
 
