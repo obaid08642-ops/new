@@ -190,6 +190,7 @@ export class HomeCareSvc {
     const existing = await this.svcModel.findOne({ id });
     if (!existing) throw new NotFoundException();
     await this.svcModel.updateOne({ id }, { $set: { active: false, is_deleted: true } });
+    await invalidateCatalogCache(this.redis, 'cache:home-care-services:');
     return { ok: true };
   }
 

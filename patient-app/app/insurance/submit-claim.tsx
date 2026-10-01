@@ -32,7 +32,7 @@ export default function Screen() {
   const load = useCallback(async () => {
     const safe = async (p: Promise<any>) => { try { return await p; } catch { return null; } };
     const [appts, orders, labs, rads, nursing] = await Promise.all([
-      safe(apiFetch('/care/appointments/mine')),
+      safe(apiFetch('/care/appointments')),
       safe(apiFetch('/orders/mine')),
       safe(apiFetch('/labs/bookings/mine')),
       safe(apiFetch('/radiology/bookings/mine')),

@@ -5,7 +5,7 @@ Method: no claim from `AGENT_PROGRESS.md` was taken on trust. Every result below
 local stack: Mongo replica set, Redis, moto S3, SMTP sink, fake Moyasar, admin BFF with the gate token, and a fresh
 database per run.
 
-**Verdict: CHANGES REQUIRED.** The FAIL list (R1–R8) is mandatory before Phase 12 screens (A11/C3/C4) continue.
+**Verdict: CHANGES REQUIRED.** The FAIL list (R1–R20) is mandatory before Phase 12 screens (A11/C3/C4) continue.
 The items marked *fixed by reviewer* are already in this PR. Do not revert them.
 
 ---
@@ -116,6 +116,111 @@ The items marked *fixed by reviewer* are already in this PR. Do not revert them.
 
 ---
 
+## Round 2 — owner-requested deep check (admin, catalogs, every screen and button)
+
+The owner reported that before the plan almost every admin screen had problems: catalogs whose edits did not apply, suspend/reactivate and delete not working, missing admin control and reports, and no live "who is online / who is requesting what". Everything below was re-tested live on a fresh database (`nabd_cat`) seeded only by real journeys.
+
+### What was tested this round (live, by the reviewer)
+
+| Area | How | Result |
+|---|---|---|
+| Admin, every page and button | `tools/live/admin_buttons.py`: Chromium opens all 61 admin pages and clicks every distinct non-destructive button (255 clicks). Destructive actions are tested through the API (users below) | 8 failing buttons → R17, plus the reports race (fixed) |
+| Admin, existing click flows | `j_admin_clicks.py` (needs `CHROMIUM=/opt/pw-browsers/chromium-1194/chrome-linux/chrome`) | 17/17 |
+| Catalogs, admin edit → every client read | For each catalog: admin create → (hidden before approval) → approve → visible → edit → change visible → delete → gone. Read through **every** endpoint the patient app, website and provider app call | Labs, packages, radiology, nursing: green after reviewer fixes. Medicines, specialties, insurance: R9–R11 |
+| Users | Suspend → old token/login refused → reactivate → login; delete; for a patient and an approved provider, exactly as `users-management.tsx` calls | Patient OK, provider suspend/reactivate OK. Provider delete leaves an orphan (R13); admin-created provider cannot sign in (R12) |
+| Online and live monitoring | A patient connects a socket the way the app does; the admin reads `analytics-suite/online` and `ops/overview` | Was wrong (0 pharmacy orders, `null` emergency state, no names). Fixed by the reviewer |
+| Reports vs database | Each report total compared with direct Mongo counts | Orders 12=12, bookings 22=22, payments 16=16, patients 19=19, providers, insurance, disputes, loyalty: correct. Missing domains → R18 |
+| Website, all pages signed in | `web_render.mjs` over all 226 static pages as a patient | 0 broken (heartbeat 503s were backend restarts during the run). The only real error, `/insurance/submit-claim` calling 2 missing routes, is fixed |
+| Provider app, every screen's data calls, all 7 provider types | `screenapi.py` with a real approved account per type | 0 broken data calls. 3 real 403/503 screens → R15 |
+| Patient app, every screen's data calls | `screenapi.py`, 148 screens | 0 broken |
+| Journeys | pharmacy 144, lab 133, radiology 86, nursing 93/76, insurance 124, support 32, chat 74, consultation 110, ambulance 67, facility 186, admin_ops 100, onboarding 113, loyalty 104, returns 118 | All green |
+
+### Not tested, and why (honest list)
+
+- **Mobile UI on a device** (taps, layout, gestures, camera, push): the apps' API calls are verified screen by screen, but nothing here renders React Native. Needs a device/emulator run (Maestro or Detox) on an EAS dev build. Added to Phase 17.
+- **The 21k-medicine catalog, and dynamic product/doctor pages at scale:** the fresh DB has no catalog import. Must run on staging after the import.
+- **Real payment gateway, Apple Pay, real SMS/push:** local doubles only.
+- **The other 5 locales rendered visually:** key coverage is 100%, but only `/ar` was rendered.
+- **Load/performance:** Phase 14.
+
+### Fixed by the reviewer in round 2 (do not revert)
+
+1. **Radiology:** the admin could not add a radiology item at all (`POST /radiology/admin/catalog` had no `@Roles` → 403 `role_declaration_missing`).
+2. **Labs/radiology/nursing delete:** deleting a catalog item did not clear the cache, so the patient kept seeing the deleted test or package. Delete now invalidates it like create/edit/approve.
+3. **Medicine edit:** the edit was saved but the admin got 404 `catalog_source_not_found:medicine:undefined` (a spread mongoose document lost `id`).
+4. **Live monitoring** (`ops/overview`):
+   - It read the empty legacy `orders`/`pharmacyorders` collections and used `status` where bookings and emergencies use `state`, so the board showed 0 pharmacy orders and `null` emergencies.
+   - It now reads `pharmacy_orders`, `labbookings`, `radiologybookings`, `homecarebookings` and `emergency_requests` with the right field.
+   - "Late" = older than 24 h and not final.
+5. **Who is online:** the online list now carries name and phone/email, and the command center shows the table (name, contact, role, platform, last seen).
+6. **Reports:** switching tabs sent the previous tab's `group_by` (400 on insurance/payments). Fixed.
+7. **`GET /home-care/bookings/my`** answered 404 for every patient (`bookings/:bookingId` registered first). The patient's nursing bookings were missing from the app's orders screen, the claim screens and the nursing insurance status (app and web).
+8. **`/care/appointments/mine` does not exist:** consultations were missing from the app's orders screen and from claim submission (app and web). Clients now call `/care/appointments`.
+9. **Missing translations:** the `NursingVisits` namespace and `facilityVisit` showed raw keys. Added in all 6 locales.
+10. **Insurance report never opened by default:** its first grouping `state` was rejected by the DTO (400), and "day" silently grouped by state. Both now work; `day` and `state` are explicit.
+11. **New tool:** `tools/live/admin_buttons.py`.
+
+### FAIL list, round 2 (mandatory)
+
+**R9 — medicines catalog (owner's main complaint).**
+- a) `GET /medicines` (search/list) returns items that are not approved/public; the public filter is missing there.
+- b) A medicine the admin creates and approves never gets `public_eligibility`/`indexing_eligibility`. As a result:
+  - `/medicines/:id` and `/medicines/:id/details` → 404, so the product page is dead;
+  - it never appears in `/public/products/search` or barcode lookup.
+- c) Owner expectation: **an admin edit applies immediately everywhere.** Today every admin edit resets the item to "pending review" and hides it until someone approves it again. An edit by an admin who holds the catalog approve permission must publish immediately (price history + audit log kept). Provider-suggested changes stay reviewed.
+- d) After an edit the patient search served the old name for a while (cache). Invalidate the list caches on every catalog write.
+- e) `/drugs/:id` for a missing id answers 200 `{"error":"not_found"}` → must be 404.
+- f) Two admin medicine editors: `medicines-catalog.tsx` (full form) and the medicines tab in `catalog-manager.tsx` (7 fields). Keep one full editor.
+- **Verify:** extend the reviewer's round-trip (scratch `cat_med.py` → `tools/live/j_catalog_sync.py`). Every step must pass for patient app, website, provider drug index, public search and barcode.
+
+**R10 — six languages in every catalog.**
+- Medicines, labs, packages, radiology, nursing, specialties and insurance are edited in Arabic and English only.
+- Medicines keep ur/hi/bn/fil in `translations`, which nothing can edit.
+- Do: the admin edits all 6 languages for every catalog field shown to patients, and the read endpoints return the requested locale.
+
+**R11 — single source for specialties, insurers and degrees.**
+- `/care/specialties` (patient app and web) reads the hard-coded `SPECIALTY_MASTER`, while the admin edits the `specialties` collection (read by the provider app). An admin-added specialty never reaches patients.
+- `/care/insurance` and `/care/degrees` are also hard-coded.
+- Do: read the DB everywhere and delete the constants.
+
+**R12 — insurance companies.**
+- The admin cannot deactivate or delete a company: there is no route, and `PATCH` rejects `catalog_status`/`is_active`.
+- A new company is visible to patients immediately, while every company is `pending_review`, so the field means nothing.
+- The public `/catalogs/insurance` served a stale name after an edit.
+
+**R13 — admin creates a provider.**
+- `POST /admin/providers/create` writes only a `users` row. That provider cannot sign in to the provider app and does not appear in the moderation list. No admin screen calls it.
+- Do: build it on the same records as onboarding (account + profile + documents), send an invite email to set a password, and add a form in the admin.
+
+**R14 — deleting a provider user leaves its provider account and profile behind** (still listed in admin providers). Delete must cascade, or be refused with a clear reason.
+
+**R15 — provider-app screens that cannot load for their own provider type:**
+- `SosDispatchScreen` → `/emergency/active` is admin-only;
+- `HospitalDispatchScreen` → `/home-care/bookings/nursing/all` refuses hospitals;
+- pharmacy refills → `/pharmacy/orders/refills` is a deliberate 503.
+- Do: fix each permission, or hide the entry.
+
+**R16 — provider presence.** The provider app opens the realtime socket only on 3 doctor screens, so pharmacies, labs, radiology, nurses, hospitals and ambulances never appear online. Add app-wide presence like the patient app.
+
+**R17 — admin UI honesty.**
+- `theme-control` saves to localStorage and its server call fails silently while showing "saved and applied to all screens": remove it (Phase 12 tokens are the source).
+- Show the backend reason when an action is refused: loyalty add with empty fields, segment preview without rules, disabling a region with active children.
+- Hide "cancel" on appointments that are already in a final state.
+
+**R18 — reports: all domains, exact money.** Add ambulance/emergency and surgery reports (B1). Round every money aggregate to 2 decimals (`net: 2016.3600000000001` today).
+
+**R19 — delivery fee has three sources:**
+- a constant `15` in `orders.service.ts`;
+- `business-rules` platform fees;
+- `delivery_config.base-fees` (served by `/delivery/check`, no admin screen).
+- Do: one admin-editable setting used by checkout and by `/delivery/check` (B4).
+
+**R20 — i18n check gap.** `i18n-coverage.mjs` compares locales with `en.json` but not code with `en.json`, so missing namespaces reach users. Add a check that every `t()`/`getTranslations(namespace)` key used in code exists in `en.json`.
+
+Also under R4: `GET /home-care/packages` has three handlers and the served one returns `[]`, so the nursing tab's packages are always empty. After de-duplication it must list real, admin-managed packages.
+
+---
+
 ## Gate run by the reviewer for this PR
 
 ```
@@ -133,3 +238,14 @@ live     malformed-id sweep: patient 1350 / admin 1350 calls, 0 HTTP 500
 live     fabrication sweep on an empty DB: 0 fabricated metrics
 live     admin token without the gate header on /medicines/admin/catalog -> 403 admin_gate_required; via BFF -> 200
 ```
+
+Round 2 gate (reviewer, same stack):
+```
+backend  tsc 0 errors · nest build ok · unit 9/9 chunks, 3031 tests · dtolint exit 0 · dtocheck 0 mismatches
+backend  boot suites: 12/15 (the 3 failing are R8, unchanged)
+admin    tsc 0 · admin.py OK 263, 0 real mismatches · admin_buttons.py 61 pages, 257 clicks: remaining failures = R17 items + theme (R17)
+web      tsc 0 · vitest 412 passed · web_render 226 pages signed in: 0 broken · i18n-coverage ok
+app      patient-app tsc 0
+live     j_nursing 76/76 after the home-care route-order fix; catalog round-trip green for labs/packages/radiology/nursing
+```
+

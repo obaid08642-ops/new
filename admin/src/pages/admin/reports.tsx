@@ -69,7 +69,9 @@ export default function ReportsPage() {
   const load = useCallback(async () => {
     setLoading(true); setError('');
     try {
-      const r: any = await adminFetch(`/api/admin/admin/reports/${tab}${toQuery({ from, to, group_by: groupBy })}`);
+      // On a tab switch groupBy still holds the previous tab's value for one render; never send it.
+      const g = GROUPS[tab].includes(groupBy) ? groupBy : GROUPS[tab][0];
+      const r: any = await adminFetch(`/api/admin/admin/reports/${tab}${toQuery({ from, to, group_by: g })}`);
       setRows(Array.isArray(r?.rows) ? r.rows : []);
     } catch (cause) {
       setError(apiErrorMessage(cause, 'تعذر تحميل التقرير.'));

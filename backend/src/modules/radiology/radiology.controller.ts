@@ -187,6 +187,7 @@ export class RadiologyController {
   @Get('admin/catalog')
   adminCatalog(@CurrentUser() u: any) { return this.svc.adminCatalog(u); }
 
+  @Roles(UserRole.ADMIN)
   @Post('admin/catalog')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
   createCatalog(@CurrentUser() u: any, @Body() b: CreateRadiologyCatalogDto) {

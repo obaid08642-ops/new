@@ -937,7 +937,8 @@
     "turnaround": "{value} ساعة",
     "fasting": "قد يتطلب صياماً",
     "preparationTitle": "التحضير",
-    "bookingUnavailableNotice": "الحجز الإلكتروني لهذه الخدمة غير متاح بعد."
+    "bookingUnavailableNotice": "الحجز الإلكتروني لهذه الخدمة غير متاح بعد.",
+    "facilityVisit": "زيارة المركز"
   },
   "Wishlist": {
     "eyebrow": "قائمة أمنيات خاصة",
@@ -1417,5 +1418,12 @@
       "title": "مقارنة الأدوية",
       "description": "قارن الأدوية والأسعار والبدائل."
     }
+  },
+  "NursingVisits": {
+    "eyebrow": "التمريض المنزلي",
+    "title": "زيارات التمريض",
+    "subtitle": "مواعيد زياراتك التمريضية وحالة كل زيارة.",
+    "empty": "لا توجد زيارات تمريض بعد.",
+    "visit": "زيارة تمريض"
   }
 }

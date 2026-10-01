@@ -647,6 +647,8 @@ export class LabsService {
     if (user.role !== 'admin') throw new ForbiddenException();
     const deleted = await this.svcModel.findOneAndDelete({ id });
     if (!deleted) throw new NotFoundException();
+    // Without this a deleted item stays in the patients' cached lists until the TTL runs out.
+    await invalidateCatalogCache(this.redis, 'cache:lab-services:');
     return { ok: true };
   }
 
