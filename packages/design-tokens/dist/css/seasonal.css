@@ -1,0 +1,48 @@
+/* GENERATED from packages/design-tokens/tokens.json by build.mjs. Do not edit. */
+/*
+ * 12.A12 seasonal themes: token overrides, contrast-checked by
+ * `npm run contrast`, which checks every declared pair under every theme.
+ */
+
+/* default  (manual) */
+[data-seasonal="default"] {
+}
+
+/* ramadan  (scheduled 02-15 -> 04-15) */
+[data-seasonal="ramadan"] {
+  --nabd-color-accent-lime: #E4F58A;
+  --nabd-color-status-info-bg: #EAF6F3;
+  --nabd-color-service-consult-bg: #E6F0F7;
+}
+[data-theme="dark"][data-seasonal="ramadan"],
+[data-theme="dark"] [data-seasonal="ramadan"] {
+  --nabd-color-accent-lime: #D3EA6B;
+  --nabd-color-status-info-bg: rgba(110,139,255,0.16);
+  --nabd-color-service-consult-bg: rgba(110,139,255,0.16);
+}
+
+/* national  (scheduled 09-22 -> 09-24) */
+[data-seasonal="national"] {
+  --nabd-color-accent-lime: #C8F04A;
+  --nabd-color-status-success-bg: #EEF8E4;
+  --nabd-color-service-mind-bg: #F1F0FA;
+}
+[data-theme="dark"][data-seasonal="national"],
+[data-theme="dark"] [data-seasonal="national"] {
+  --nabd-color-accent-lime: #B7DE36;
+  --nabd-color-status-success-bg: rgba(111,224,184,0.14);
+  --nabd-color-service-mind-bg: rgba(122,107,234,0.16);
+}
+
+/* winter  (scheduled 12-15 -> 02-15) */
+[data-seasonal="winter"] {
+  --nabd-color-bg-sunken: #EEF2F7;
+  --nabd-color-border-subtle: #DFE6EF;
+  --nabd-color-service-lab-bg: #E9F1F6;
+}
+[data-theme="dark"][data-seasonal="winter"],
+[data-theme="dark"] [data-seasonal="winter"] {
+  --nabd-color-bg-sunken: #0E1F31;
+  --nabd-color-border-subtle: rgba(255,255,255,0.10);
+  --nabd-color-service-lab-bg: rgba(31,122,92,0.16);
+}

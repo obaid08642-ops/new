@@ -91,8 +91,28 @@ function contrastRatio(a: Rgba, b: Rgba): number {
 /* ------------------------------------------------------------- token access */
 
 /** Read a dotted token path and resolve it for one theme. Paths in `contrast` are relative to the `color` group. */
+/**
+ * 12.A12 — the seasonal theme currently in force, or null.
+ *
+ * Set by `SEASONAL_ID` so the same declared pair can be re-checked under every
+ * pre-designed theme. A seasonal theme is a set of token OVERRIDES, so it can
+ * only change the answer for a pair whose fg or bg it actually overrides — but
+ * that is exactly the pair a designer would not think to re-check, which is why
+ * it is checked mechanically rather than by remembering.
+ */
+let SEASONAL: { id: string; overrides: Record<string, string> } | null = null;
+const SEASONAL_ID = process.env.SEASONAL_ID || '';
+
 function resolve(path: string, theme: Theme, group = 'color'): unknown {
   const full = path.startsWith(`${group}.`) ? path : `${group}.${path}`;
+  if (SEASONAL && group === 'color' && full in SEASONAL.overrides) {
+    const override = SEASONAL.overrides[full];
+    // A themed override is a {light,dark} pair, resolved for the theme under test.
+    if (override && typeof override === 'object' && theme in override) {
+      return (override as Record<string, unknown>)[theme];
+    }
+    return override;
+  }
   let node: any = TOKENS;
   for (const key of full.split('.')) {
     if (node === null || typeof node !== 'object' || !(key in node)) {
@@ -130,6 +150,16 @@ const pairs: Pair[] = TOKENS.contrast;
 if (!Array.isArray(pairs) || pairs.length === 0) {
   console.error('contrast-check: tokens.json has no `contrast` pairs. Every component pairing must be declared.');
   process.exit(1);
+}
+
+if (SEASONAL_ID) {
+  const theme = (TOKENS.seasonal?.themes ?? []).find((t: any) => t.id === SEASONAL_ID);
+  if (!theme) {
+    console.error(`contrast-check: no seasonal theme "${SEASONAL_ID}" in tokens.json.`);
+    process.exit(2);
+  }
+  SEASONAL = { id: SEASONAL_ID, overrides: theme.overrides ?? {} };
+  console.log(`contrast-check: checking under seasonal theme "${SEASONAL_ID}".`);
 }
 
 const failures: string[] = [];

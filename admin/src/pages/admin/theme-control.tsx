@@ -1,104 +1,177 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
+import tokens from "../../../../packages/design-tokens/tokens.json";
 
-type ThemeTokens = {
-  main: string;
-  sub: string;
-  sub2: string;
-  bg: string;
+/**
+ * 12.A12 — brand controls.
+ *
+ * This page used to be the opposite of the requirement. It rendered an
+ * `<input type="color">` per brand value, wrote the result to `--brand` on the
+ * document root, and reported "the colours are applied to all screens". So the
+ * brand was editable in admin, and the edit was a free choice by anyone with the
+ * page open — a product wearing a colour nobody chose, applied globally, with no
+ * contrast check anywhere.
+ *
+ * What it is now:
+ *
+ *   - the brand colours are SHOWN, and not editable. They are the owner's. A free
+ *     colour picker on the identity is the defect, not the feature;
+ *   - the only thing an admin controls is WHICH pre-designed seasonal theme is
+ *     active, and WHEN. Those are token overrides chosen in tokens.json and
+ *     contrast-checked in CI under both light and dark, so activating one cannot
+ *     produce an unreadable screen.
+ *
+ * The brand values come from tokens.json rather than being restated here, so this
+ * page cannot drift from the palette it is meant to display.
+ */
+
+type SeasonalTheme = {
+  id: string;
+  label: Record<string, string>;
+  window: { from: string; to: string } | null;
+  overrides: Record<string, string | { light: string; dark: string }>;
 };
 
-const DEFAULTS: ThemeTokens = {
-  main: '#5FD9B3',
-  sub: '#B8E030',
-  sub2: '#FF8A65',
-  bg: '#FDFDFC',
-};
+const seasonal = (tokens as unknown as { seasonal: { themes: SeasonalTheme[] } }).seasonal;
+const THEMES = seasonal.themes;
+const BRAND_PATHS = ["color.brand.coral", "color.brand.ink", "color.accent.lime"] as const;
 
-const STORAGE_KEY = 'nabd_theme_tokens_v3';
+function readToken(path: string): string {
+  const value = path
+    .split(".")
+    .reduce<unknown>((acc, key) => (acc as Record<string, unknown>)?.[key], tokens);
+  if (value && typeof value === "object" && "light" in (value as object)) {
+    return String((value as { light: unknown }).light);
+  }
+  return String(value);
+}
+
+const SCHEMA_KEY = "nabd.seasonal";
+const SCHEDULED_KEY = "nabd.seasonalSchedule";
+
+/** Is a theme inside its own window today? Windows wrap across the year end. */
+export function inWindow(
+  window: { from: string; to: string } | null,
+  today = new Date(),
+): boolean {
+  if (!window) return false;
+  const md = (d: Date) => `${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const now = md(today);
+  return window.from <= window.to
+    ? now >= window.from && now <= window.to
+    : now >= window.from || now <= window.to;
+}
 
 export default function ThemeControl() {
-  const [tokens, setTokens] = useState<ThemeTokens>(DEFAULTS);
-  const [saved, setSaved] = useState(false);
+  const [active, setActive] = useState<string>("default");
+  const [scheduled, setScheduled] = useState<boolean>(true);
 
   useEffect(() => {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setTokens({ ...DEFAULTS, ...JSON.parse(raw) });
-    } catch {}
+      const stored = window.localStorage.getItem(SCHEMA_KEY);
+      if (stored && THEMES.some((t) => t.id === stored)) setActive(stored);
+      setScheduled(window.localStorage.getItem(SCHEDULED_KEY) !== "off");
+    } catch {
+      /* private mode: the default stands */
+    }
   }, []);
 
-  useEffect(() => {
-    const root = document.documentElement;
-    root.style.setProperty('--brand', tokens.main);
-    root.style.setProperty('--mint', tokens.main);
-    root.style.setProperty('--brand-soft', tokens.main + '26');
-    root.style.setProperty('--canvas', tokens.bg);
-  }, [tokens]);
-
-  const save = () => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(tokens));
-    // Also update the canonical tokens.json via API if available
-    fetch('/api/admin/theme', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(tokens),
-    }).catch(() => {});
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+  const apply = (id: string) => {
+    setActive(id);
+    try {
+      window.localStorage.setItem(SCHEMA_KEY, id);
+    } catch {
+      /* the choice still applies for this page */
+    }
+    // One attribute on <html> does the whole thing: seasonal.css is a set of
+    // token overrides, so nothing here has to know a colour.
+    document.documentElement.setAttribute("data-seasonal", id);
   };
 
-  const reset = () => {
-    setTokens(DEFAULTS);
-    localStorage.removeItem(STORAGE_KEY);
+  const setScheduling = (on: boolean) => {
+    setScheduled(on);
+    try {
+      if (on) window.localStorage.removeItem(SCHEDULED_KEY);
+      else window.localStorage.setItem(SCHEDULED_KEY, "off");
+    } catch {
+      /* ignore */
+    }
   };
+
+  const s = { maxWidth: 880, fontFamily: "system-ui, sans-serif" } as const;
+  const card = { border: "1px solid var(--nabd-color-border-subtle)", borderRadius: 12, padding: 16, background: "var(--nabd-color-bg-surface)" } as const;
 
   return (
-    <div style={{ maxWidth: 640, margin: '2rem auto', padding: '2rem', background: '#fff', borderRadius: 16, border: '1px solid #E8EDEE' }}>
-      <h1 style={{ fontSize: 22, fontWeight: 800, color: '#1E332E' }}>التحكم المركزي للألوان</h1>
-      <p style={{ color: '#6B7C6E', fontSize: 13, marginTop: 8, lineHeight: 1.6 }}>
-        غيّر الألوان هنا وستُطبق فوراً على كل الـ 271 شاشة عبر <code>tokens.json</code>. الألوان الحالية مستوحاة من Fair Mint #5FD9B3.
+    <main style={{ maxWidth: 880, fontFamily: "system-ui, sans-serif" }}>
+      <h1 style={{ fontSize: 22, fontWeight: 800, color: "var(--nabd-color-text-primary)" }}>
+        {t("brandControls.seasonalTitle", { default: "الألوان الموسمية" })}
+      </h1>
+      <p style={{ color: "var(--nabd-color-text-secondary)", fontSize: 13, marginTop: 8, lineHeight: 1.6 }}>
+        {t("brandControls.seasonalIntro", { default: "ألوان العلامة ثابتة ولا تُعدَّل. ما يمكن تغييره هو السمة الموسمية المصمَّمة مسبقاً ومُختبَرة تبايناً في الوضعين الفاتح والداكن." })}
       </p>
 
-      {([
-        ['main', 'اللون الرئيسي (Fair Mint)', '#5FD9B3'],
-        ['sub', 'اللون الفرعي (Lime)', '#B8E030'],
-        ['sub2', 'اللون الفرعي الثاني (Peach)', '#FF8A65'],
-        ['bg', 'الخلفية (Off-White)', '#FDFDFC'],
-      ] as const).map(([key, label, fallback]) => (
-        <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 20 }}>
-          <input
-            type="color"
-            value={tokens[key]}
-            onChange={(e) => setTokens({ ...tokens, [key]: e.target.value })}
-            style={{ width: 48, height: 48, borderRadius: 12, border: '1px solid #E8EDEE', padding: 2, cursor: 'pointer' }}
-          />
-          <div style={{ flex: 1 }}>
-            <div style={{ fontWeight: 700, fontSize: 13, color: '#1E332E' }}>{label}</div>
-            <div style={{ fontSize: 12, color: '#6B7C6E', fontFamily: 'monospace' }}>{tokens[key]}</div>
-          </div>
-          <div style={{ width: 80, height: 40, borderRadius: 8, background: tokens[key], border: '1px solid #E8EDEE' }} />
+      <section style={card}>
+        <h2 style={{ fontSize: 15, fontWeight: 700, margin: 0, color: "var(--nabd-color-text-primary)" }}>
+          {t("brandControls.brandLockedTitle", { default: "ألوان العلامة — غير قابلة للتحرير" })}
+        </h2>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 20, marginTop: 14 }}>
+          {BRAND_PATHS.map((path) => {
+            const value = readToken(path);
+            return (
+              <div key={path}>
+                <div
+                  aria-hidden="true"
+                  style={{ width: 44, height: 44, borderRadius: 10, background: value, border: "1px solid var(--nabd-color-border-subtle)" }}
+                />
+                <div style={{ fontSize: 12, fontWeight: 700, marginTop: 8, color: "var(--nabd-color-text-primary)" }}>
+                  {path.split(".").pop()}
+                </div>
+                <div style={{ fontSize: 11, fontFamily: "monospace", color: "var(--nabd-color-text-secondary)" }}>
+                  {value}
+                </div>
+              </div>
+            );
+          })}
         </div>
-      ))}
+      </section>
 
-      <div style={{ display: 'flex', gap: 12, marginTop: 28 }}>
-        <button onClick={save} style={{ flex: 1, padding: '12px 20px', borderRadius: 999, border: 'none', background: tokens.main, color: '#1E332E', fontWeight: 800, cursor: 'pointer' }}>
-          حفظ وتطبيق على كل الشاشات
-        </button>
-        <button onClick={reset} style={{ padding: '12px 20px', borderRadius: 999, border: '1px solid #E8EDEE', background: '#fff', color: '#6B7C6E', fontWeight: 700, cursor: 'pointer' }}>
-          إعادة الافتراضي
-        </button>
-      </div>
+      <section style={{ ...card, marginTop: 16 }}>
+        <label style={{ display: "flex", gap: 10, alignItems: "center", fontSize: 13, fontWeight: 700, color: "var(--nabd-color-text-primary)" }}>
+          <input type="checkbox" checked={scheduled} onChange={(e) => setScheduling(e.target.checked)} />
+          {t("brandControls.scheduleAuto", { default: "تفعيل السمة الموسمية تلقائياً في مواسمها" })}
+        </label>
 
-      {saved && <div style={{ marginTop: 12, padding: 10, borderRadius: 8, background: '#ECFDF5', color: '#065F46', fontSize: 13, textAlign: 'center' }}>تم الحفظ — الألوان طُبقت على كل الشاشات ✅</div>}
-
-      <div style={{ marginTop: 20, padding: 12, borderRadius: 12, background: '#FDFDFC', border: '1px solid #E8EDEE' }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: '#1E332E' }}>معاينة حية:</div>
-        <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
-          <span style={{ padding: '8px 14px', borderRadius: 999, background: tokens.main, color: '#1E332E', fontWeight: 700, fontSize: 12 }}>زر رئيسي</span>
-          <span style={{ padding: '8px 14px', borderRadius: 999, background: tokens.sub, color: '#1E332E', fontWeight: 700, fontSize: 12 }}>زر فرعي</span>
-          <span style={{ padding: '8px 14px', borderRadius: 999, background: tokens.sub2, color: '#fff', fontWeight: 700, fontSize: 12 }}>عرض</span>
+        <div role="radiogroup" aria-label={t("brandControls.seasonalGroup", { default: "السمة الموسمية" })} style={{ display: "grid", gap: 10, marginTop: 16 }}>
+          {THEMES.map((theme) => {
+            const on = active === theme.id;
+            const inSeason = inWindow(theme.window);
+            return (
+              <button
+                key={theme.id}
+                type="button"
+                role="radio"
+                aria-checked={on}
+                onClick={() => apply(theme.id)}
+                data-testid={`seasonal-${theme.id}`}
+                style={{
+                  display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12,
+                  padding: "12px 14px", textAlign: "start", cursor: "pointer", borderRadius: 10,
+                  border: `1px solid ${on ? "var(--nabd-color-action-primary-bg)" : "var(--nabd-color-border-subtle)"}`,
+                  background: on ? "var(--nabd-color-status-danger-bg)" : "var(--nabd-color-bg-surface)",
+                  color: "var(--nabd-color-text-primary)",
+                }}
+              >
+                <span style={{ fontWeight: 700, fontSize: 14 }}>
+                  {theme.label.ar} · {theme.label.en}
+                </span>
+                <span style={{ fontSize: 12, color: "var(--nabd-color-text-secondary)" }}>
+                  {theme.window ? `${theme.window.from} → ${theme.window.to}` : t("brandControls.manual", { default: "يدوي" })}
+                  {inSeason ? " · في موسمه الآن" : ""}
+                </span>
+              </button>
+            );
+          })}
         </div>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }

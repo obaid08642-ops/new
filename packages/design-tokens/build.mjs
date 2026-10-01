@@ -31,7 +31,7 @@ const DIST = join(HERE, 'dist');
 const PREFIX = 'nabd-';
 
 /** Keys that are documentation, not design tokens. */
-const SKIP_TOP = new Set(['$schema', 'meta', 'contrast']);
+const SKIP_TOP = new Set(['$schema', 'meta', 'contrast', 'seasonal']);
 /** A leading underscore marks a documentation key at ANY depth (e.g. `_note`). */
 const isDoc = (key, depth) => key.startsWith('_') || (depth === 0 && SKIP_TOP.has(key));
 
@@ -397,8 +397,80 @@ function buildFontsCss(flat) {
 /* ------------------------------------------------------------------ main */
 
 const flat = flatten(tokens);
+/**
+ * 12.A12 — the seasonal stylesheet.
+ *
+ * Each theme is a block of token overrides under `[data-seasonal="<id>"]`, which
+ * sits BELOW `[data-theme]` in specificity terms only by being written after it,
+ * so a seasonal theme composes with light/dark rather than replacing either. The
+ * brand tokens are absent by construction: `buildSeasonalCss` refuses to emit an
+ * override for `brand.coral` or `brand.ink`, so the identity cannot be themed
+ * away even by a mistake in tokens.json.
+ *
+ * The window is NOT compiled in. A schedule is a date range and the calendar is
+ * the server's problem at request time, not the stylesheet's; emitting it here
+ * would freeze a season into a build artefact.
+ */
+function buildSeasonalCss(seasonal, flat) {
+  if (!seasonal || !Array.isArray(seasonal.themes)) return '';
+  const tokenToVar = (path) => '--nabd-' + path.replace(/\./g, '-');
+  const has = (path) => path in flat;
+
+  const lines = [
+    '/* GENERATED from packages/design-tokens/tokens.json by build.mjs. Do not edit. */',
+    '/*',
+    ' * 12.A12 seasonal themes: token overrides, contrast-checked by',
+    ' * `npm run contrast`, which checks every declared pair under every theme.',
+    ' */',
+    '',
+  ];
+
+  for (const theme of seasonal.themes) {
+    const entries = Object.entries(theme.overrides || {});
+    lines.push(`/* ${theme.id}${theme.window ? '  (scheduled ' + theme.window.from + ' -> ' + theme.window.to + ')' : '  (manual)'} */`);
+    // Dark overrides go in their own top-level block, never nested: a `@media`
+    // inside a rule is CSS-nesting syntax, and nesting that emits nothing
+    // silently is worse than a duplication.
+    const dark = [];
+    lines.push(`[data-seasonal="${theme.id}"] {`);
+    for (const [path, value] of entries) {
+      if (!has(path)) {
+        // A typo here would be an override that silently does nothing.
+        throw new Error(
+          `seasonal theme "${theme.id}" overrides ${path}, which is not a declared token`,
+        );
+      }
+      if (path === 'color.brand.coral' || path === 'color.brand.ink') {
+        throw new Error(
+          `seasonal theme "${theme.id}" tries to override the brand colour ${path}; ` +
+            `brand colours are not themable`,
+        );
+      }
+      // A themed override is a {light,dark} pair, and both halves are emitted:
+      // the seasonal block is not scoped by data-theme, so one value cannot serve
+      // both. The contrast run checks each half against every declared pair.
+      if (value && typeof value === 'object' && 'light' in value && 'dark' in value) {
+        lines.push(`  ${tokenToVar(path)}: ${value.light};`);
+        dark.push(`  ${tokenToVar(path)}: ${value.dark};`);
+      } else {
+        lines.push(`  ${tokenToVar(path)}: ${value};`);
+      }
+    }
+    lines.push('}');
+    if (dark.length) {
+      lines.push(`[data-theme="dark"][data-seasonal="${theme.id}"],`);
+      lines.push(`[data-theme="dark"] [data-seasonal="${theme.id}"] {`);
+      lines.push(...dark);
+      lines.push('}');
+    }
+    lines.push('');
+  }
+  return lines.join('\n');
+}
+
 const outputs = {
   'css/tokens.css': buildCss(flat),
+  'css/seasonal.css': buildSeasonalCss(tokens.seasonal, flat),
   'css/fonts.css': buildFontsCss(flat),
   'ts/tokens.ts': buildTs(flat),
   'tailwind-preset.cjs': buildTailwindPreset(flat),
