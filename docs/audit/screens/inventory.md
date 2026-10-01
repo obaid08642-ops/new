@@ -112,7 +112,7 @@ and it is the only one this file makes.
 | `family/permissions` | — |  | 11 |  | 57 |
 | `family/scan` | — |  | 10 |  | 38 |
 | `forgot-password` | — |  | 0 |  | 11 |
-| `health` | — |  | 13 | **y** | 104 |
+| `health` | — |  | 13 |  | 110 |
 | `health/actionable-order` | — |  | 38 |  | 298 |
 | `health/add-family-member` | — |  | 0 |  | 14 |
 | `health/chronic-diseases` | — |  | 0 |  | 95 |

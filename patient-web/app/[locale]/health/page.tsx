@@ -2,7 +2,13 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { CSSProperties } from "react";
-import { Activity, Bell, CalendarDays, FileText, HeartPulse, MessageCircle, Moon, Pill, UsersRound } from "lucide-react";
+// 12.A11 — the data table below stores icon NAMES, not components.
+//
+// It stored the React component itself (`icon: UsersRound`) and destructured it as
+// `icon: Icon`, which shadowed the design system's `Icon` in the same scope and
+// bound the table to a library import. The contract already has `IconName`; a name
+// is portable, needs no import, and is checkable.
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { extractVitalSummary } from "@/lib/api/vitals";
 import { getPatientVitalSummary } from "@/lib/api/vitals-server";
 import { requirePatientAccess } from "@/lib/auth/session";
@@ -14,19 +20,19 @@ import styles from "./health.module.css";
 
 type Props = { params: Promise<{ locale: string }> };
 const quickActions = [
-  { key: "prescriptions", href: "prescriptions", icon: FileText, color: "#7A6BEA" },
-  { key: "family", href: "family", icon: UsersRound, color: "#EC4899" },
-  { key: "reminders", href: "reminders", icon: Bell, color: "#F0A526" },
-  { key: "chat", href: "chat", icon: MessageCircle, color: "#23B5CE" },
-  { key: "sleep", href: "health/sleep", icon: Moon, color: "#6366F1" },
-  { key: "chronicDiseases", href: "health/chronic-diseases", icon: HeartPulse, color: "#E11D48" },
-  { key: "chronicMedications", href: "health/chronic-medications", icon: Pill, color: "#16A34A" },
-  { key: "trends", href: "health/trends", icon: Activity, color: "#2563EB" },
-  { key: "vitalsHistory", href: "health/vitals", icon: HeartPulse, color: "#0EA5E9" },
-  { key: "medications", href: "health/medications", icon: Pill, color: "#7C3AED" },
-  { key: "refills", href: "health/refills", icon: Bell, color: "#059669" },
-  { key: "conditions", href: "health/conditions-allergies", icon: FileText, color: "#DC2626" },
-  { key: "wearables", href: "health/wearables", icon: Activity, color: "#8B5CF6" },
+  { key: "prescriptions", href: "prescriptions", icon: 'file-text', color: "#7A6BEA" },
+  { key: "family", href: "family", icon: 'users-round', color: "#EC4899" },
+  { key: "reminders", href: "reminders", icon: 'bell', color: "#F0A526" },
+  { key: "chat", href: "chat", icon: 'message-circle', color: "#23B5CE" },
+  { key: "sleep", href: "health/sleep", icon: 'moon', color: "#6366F1" },
+  { key: "chronicDiseases", href: "health/chronic-diseases", icon: 'heart-pulse', color: "#E11D48" },
+  { key: "chronicMedications", href: "health/chronic-medications", icon: 'pill', color: "#16A34A" },
+  { key: "trends", href: "health/trends", icon: 'activity', color: "#2563EB" },
+  { key: "vitalsHistory", href: "health/vitals", icon: 'heart-pulse', color: "#0EA5E9" },
+  { key: "medications", href: "health/medications", icon: 'pill', color: "#7C3AED" },
+  { key: "refills", href: "health/refills", icon: 'bell', color: "#059669" },
+  { key: "conditions", href: "health/conditions-allergies", icon: 'file-text', color: "#DC2626" },
+  { key: "wearables", href: "health/wearables", icon: 'activity', color: "#8B5CF6" },
   // F20: filtered below unless NEXT_PUBLIC_WEARABLES_ENABLED=true
 ] as const;
 const quickLabels: Record<string, Record<string, string>> = {
@@ -56,7 +62,7 @@ export default async function HealthPage({ params }: Props) {
     <main className={`main ${styles.page}`}>
       <section className={styles.hero}>
         <div>
-          <p className={styles.eyebrow}><HeartPulse size={15} aria-hidden="true" />{t("eyebrow")}</p>
+          <p className={styles.eyebrow}><Icon name="heart-pulse" size={15} />{t("eyebrow")}</p>
           <h1>{t("title")}</h1>
         </div>
         <span className={styles.heroVector}>
@@ -66,9 +72,9 @@ export default async function HealthPage({ params }: Props) {
       <nav className={styles.quickGrid} aria-label={t("title")}>
         {quickActions
           .filter((a) => a.key !== 'wearables' || process.env.NEXT_PUBLIC_WEARABLES_ENABLED === 'true')
-          .map(({ key, href, icon: Icon, color }) => (
+          .map(({ key, href, icon, color }) => (
           <Link className={styles.quickAction} key={key} href={`/${locale}/${href}`} style={{ "--quick-color": color } as CSSProperties}>
-            <span><Icon size={21} aria-hidden="true" /></span>
+            <span><Icon name={icon} size={21} /></span>
             <strong>{labels[key]}</strong>
           </Link>
         ))}
@@ -89,7 +95,7 @@ export default async function HealthPage({ params }: Props) {
               <p className={styles.value}>{vital.value}{vital.unit ? ` ${vital.unit}` : ""}</p>
               {vital.measuredAt ? (
                 <p className={styles.date}>
-                  <CalendarDays size={14} aria-hidden="true" />
+                  <Icon name="calendar-days" size={14} />
                   {new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(vital.measuredAt))}
                 </p>
               ) : null}
