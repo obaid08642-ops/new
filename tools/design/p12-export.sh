@@ -71,8 +71,12 @@ export COLLIDE
   echo "## Collision surface"
   echo "Shared with the other session, and the only realistic conflict source:"
   for f in $COLLIDE; do
-    if git log --format='%h %s' -- "$f" | grep -q '\[P12\.'; then
-      echo "- \`$f\` — Phase 12 added design-system dependencies or path aliases here"
+    # Not `| grep -q`: under `set -o pipefail` grep exits on the first match, git
+    # log takes SIGPIPE, the pipeline reports failure, and the branch is skipped.
+    # That is why this list came out empty the first time.
+    hits=$(git log --format='%h %s' -- "$f" | grep -c '\[P12\.' || true)
+    if [ "$hits" -gt 0 ]; then
+      echo "- \`$f\` — $hits Phase 12 commit(s); design-system deps or path aliases"
     fi
   done
   echo
