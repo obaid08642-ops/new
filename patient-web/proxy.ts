@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import createMiddleware from "next-intl/middleware";
 import { routing } from "./i18n/routing";
+import { LOCALE_PREFERENCE_KEY, isSupportedLocale, negotiateLocale } from "./lib/locale-negotiation";
 
 const handleI18nRouting = createMiddleware(routing);
 const noIndexHeader = "noindex, nofollow, noarchive";
@@ -87,6 +88,28 @@ export async function proxy(request: NextRequest) {
   requestHeaders.set("Content-Security-Policy", contentSecurityPolicy);
 
   const requestWithNonce = new NextRequest(request, { headers: requestHeaders });
+
+  // 12.A4 — the device's language, before next-intl looks.
+  //
+  // next-intl 4.x reads the locale cookie and, finding none, uses
+  // `defaultLocale`. It never looks at `Accept-Language`, so every device on
+  // English, Urdu, Hindi, Bengali or Filipino was sent to `/ar` — by an
+  // omission rather than a decision.
+  //
+  // The ordering is the requirement. An existing cookie is left alone, so an
+  // explicit choice survives a device language change: a user who picked Arabic
+  // on an English laptop must not be moved to English on their next visit. Only
+  // when there is no choice does the header decide, and only when the header
+  // expresses nothing does `defaultLocale` apply.
+  //
+  // `negotiateLocale` is the tested implementation of those rules, so the header
+  // handling is not re-derived here. It is applied to the request the router
+  // sees, which also makes it visible to `app/layout.tsx` via the locale cookie.
+  if (!request.cookies.get(LOCALE_PREFERENCE_KEY)?.value) {
+    const detected = negotiateLocale(request.headers.get("accept-language"));
+    requestWithNonce.cookies.set(LOCALE_PREFERENCE_KEY, detected);
+  }
+
   const response = handleI18nRouting(requestWithNonce);
   response.headers.set("Content-Security-Policy", contentSecurityPolicy);
   if (!isPublicIndexable(pathname)) response.headers.set("X-Robots-Tag", noIndexHeader);
