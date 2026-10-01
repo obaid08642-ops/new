@@ -9,7 +9,7 @@ import { AiService } from '../../src/modules/ai/ai.service';
 import { AiGatewayService } from '../../src/modules/ai/ai-gateway.service';
 import { AdminFinanceSuiteController } from '../../src/modules/admin/enterprise/admin-finance.controller';
 import { FinanceSuiteService } from '../../src/modules/admin/enterprise/finance-suite.service';
-import { buildSecurityApp, tokenFor } from './harness';
+import { buildSecurityApp, tokenFor, ADMIN_DEVICE } from './harness';
 import request from 'supertest';
 
 describe('F44 super_admin hierarchy on admin surfaces', () => {
@@ -29,7 +29,7 @@ describe('F44 super_admin hierarchy on admin surfaces', () => {
   });
   afterAll(async () => { await app?.close(); });
   const get = (url: string, token: string) =>
-    request(app.getHttpServer()).get(url).set('Authorization', `Bearer ${token}`);
+    request(app.getHttpServer()).get(url).set('Authorization', `Bearer ${token}`).set('x-admin-device', ADMIN_DEVICE);
 
   it('super_admin → 200 on all four admin surfaces', async () => {
     const t = tokenFor('root-1', 'super_admin');

@@ -11,7 +11,8 @@
  *
  * JWTs are real (signed with JwtService, verified by the real JwtAuthGuard).
  * Tokens carry no `scope`, so no DB lookups fire; the injected mongoose
- * connection is a stub returning null (admin device-lock path no-ops).
+ * connection is a stub returning null, except `admin_devices`: admin tokens
+ * act from an enrolled device (C2), which has its own tests.
  */
 import { INestApplication, VersioningType } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
@@ -38,7 +39,10 @@ export const patientToken = () => signToken({ id: 'patient-1', role: 'patient' }
 export const tokenFor = (id: string, role: string) => signToken({ id, role });
 
 const connectionStub = {
-  collection: () => ({ findOne: async () => null, insertOne: async () => ({}) }),
+  collection: (name: string) => ({
+    findOne: async () => (name === 'admin_devices' ? { device_hash: 'enrolled', revoked: false } : null),
+    insertOne: async () => ({}),
+  }),
   model: () => null,
 };
 
@@ -70,12 +74,15 @@ export async function buildSecurityApp(
   return app;
 }
 
+// C2: every admin call carries the browser's device id (the BFF sends it from the admin_device cookie).
+export const ADMIN_DEVICE = 'security-harness-device-0001';
+const withAuth = (r: request.Test, token?: string) =>
+  token ? r.set('Authorization', `Bearer ${token}`).set('x-admin-device', ADMIN_DEVICE) : r;
+
 export const post = (app: INestApplication, url: string, token?: string, body: any = {}) => {
-  const r = request(app.getHttpServer()).post(url).send(body);
-  return token ? r.set('Authorization', `Bearer ${token}`) : r;
+  return withAuth(request(app.getHttpServer()).post(url).send(body), token);
 };
 
 export const put = (app: INestApplication, url: string, token?: string, body: any = {}) => {
-  const r = request(app.getHttpServer()).put(url).send(body);
-  return token ? r.set('Authorization', `Bearer ${token}`) : r;
+  return withAuth(request(app.getHttpServer()).put(url).send(body), token);
 };

@@ -42,11 +42,6 @@ export class RealtimeService {
     if (this.server) this.server.emit(event, data);
   }
 
-  emitToBooking(kind: string, id: string, event: string, data: any) {
-    if (this.server) this.server.to(`booking:${kind}:${id}`).emit(event, data);
-    this.em.emit('realtime.booking', { kind, id, event, payload: data });
-  }
-
   async setUserOnline(userId: string, socketId: string, opts?: { platform?: unknown; role?: unknown }): Promise<void> {
     if (this.presenceService) await this.presenceService.setOnline(userId, socketId, opts);
   }

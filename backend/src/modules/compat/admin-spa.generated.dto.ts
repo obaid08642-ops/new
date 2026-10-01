@@ -173,9 +173,11 @@ export class CreateDto5 {
 }
 
 export class UploadDto {
+  // free-form: CSV-shaped rows (name_ar/name_en/price/...), one object per medicine
   @IsOptional()
-  @IsObject()
-  rows?: Record<string, unknown>;
+  @IsArray()
+  @IsObject({ each: true })
+  rows?: Record<string, unknown>[];
 
 
 }

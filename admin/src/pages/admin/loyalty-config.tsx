@@ -68,7 +68,7 @@ export default function LoyaltyConfigPage() {
 
   const toggleReward = async (reward: Reward) => {
     setError('');
-    try { await apiFetch(`/admin/loyalty/rewards/${reward.id}`, { method: 'PATCH', body: JSON.stringify({ active: !reward.active }) }); await load(); }
+    try { await apiFetch(`/admin/admin/loyalty/rewards/${reward.id}`, { method: 'PATCH', body: JSON.stringify({ active: !reward.active }) }); await load(); }
     catch (e: any) { setError(e?.message || 'تعذر تحديث المكافأة'); }
   };
 
@@ -83,7 +83,7 @@ export default function LoyaltyConfigPage() {
 
   const toggleChallenge = async (challenge: Challenge) => {
     setError('');
-    try { await apiFetch(`/admin/loyalty/challenges/${challenge.id}`, { method: 'PATCH', body: JSON.stringify({ active: !challenge.active }) }); await load(); }
+    try { await apiFetch(`/admin/admin/loyalty/challenges/${challenge.id}`, { method: 'PATCH', body: JSON.stringify({ active: !challenge.active }) }); await load(); }
     catch (e: any) { setError(e?.message || 'تعذر تحديث التحدي'); }
   };
 
