@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Database, HardDrive, Download, Trash2 } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { getPatientStorage } from "@/lib/api/settings-server";
@@ -25,7 +25,7 @@ export default async function SettingsDataPage({ params }: Props) {
     return (
       <main className={`main ${styles.page}`}>
         <section className={styles.state} role="alert">
-          <Database size={20} aria-hidden="true" style={{ color: "#1E332E" }} />
+          <Icon name="database" size={20} style={{ color: "#1E332E" } />
           <h1 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>
             {t("unavailableTitle")}
           </h1>
@@ -44,7 +44,7 @@ export default async function SettingsDataPage({ params }: Props) {
 
       <section className={styles.hero}>
         <p className={styles.eyebrow}>
-          <Database size={15} aria-hidden="true" />
+          <Icon name="database" size={15} />
           {ar ? "البيانات" : "Data"}
         </p>
         <h1 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>
@@ -54,13 +54,13 @@ export default async function SettingsDataPage({ params }: Props) {
           {ar ? "لك الحق في الوصول لبياناتك وتصحيحها ونقلها وحذفها وفق نظام حماية البيانات." : "You have the right to access, correct, port and delete your data."}
         </p>
         <span className={styles.icon} style={{ backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any} aria-hidden="true">
-          <HardDrive size={22} color="#1E332E" />
+          <Icon name="hard-drive" size={22} tone="primary" />
         </span>
       </section>
 
       <section className={styles.card} style={{ display: "grid" }}>
         <span className={styles.icon} aria-hidden="true">
-          <HardDrive size={20} />
+          <Icon name="hard-drive" size={20} />
         </span>
         <div style={{ minInlineSize: 0, display: "grid", gap: 8 }}>
           <h2 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>
@@ -98,7 +98,7 @@ export default async function SettingsDataPage({ params }: Props) {
       <section className={styles.grid}>
         <article className={styles.card}>
           <span className={styles.icon} aria-hidden="true">
-            <Download size={20} />
+            <Icon name="download" size={20} />
           </span>
           <div style={{ minInlineSize: 0 }}>
             <h2>{ar ? "تحميل نسخة من بياناتي" : "Download a copy of my data"}</h2>
@@ -114,7 +114,7 @@ export default async function SettingsDataPage({ params }: Props) {
 
         <article className={styles.card}>
           <span className={styles.icon} aria-hidden="true">
-            <Trash2 size={20} />
+            <Icon name="trash" size={20} />
           </span>
           <div style={{ minInlineSize: 0 }}>
             <h2>{ar ? "حذف بياناتي نهائياً" : "Delete my data permanently"}</h2>
@@ -130,7 +130,7 @@ export default async function SettingsDataPage({ params }: Props) {
 
         <article className={styles.card}>
           <span className={styles.icon} aria-hidden="true">
-            <Database size={20} />
+            <Icon name="database" size={20} />
           </span>
           <div style={{ minInlineSize: 0 }}>
             <h2>{ar ? "ما البيانات التي نجمعها؟" : "What data do we collect?"}</h2>
@@ -146,7 +146,7 @@ export default async function SettingsDataPage({ params }: Props) {
 
         <article className={styles.card}>
           <span className={styles.icon} aria-hidden="true">
-            <Download size={20} />
+            <Icon name="download" size={20} />
           </span>
           <div style={{ minInlineSize: 0 }}>
             <h2>{ar ? "نقل بياناتي لمنصة أخرى" : "Port my data elsewhere"}</h2>

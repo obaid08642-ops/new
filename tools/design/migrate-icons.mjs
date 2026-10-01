@@ -214,10 +214,30 @@ for (const rel of files) {
   // is ever used as `<Arrow />`. No regex over JSX will find it, and no JSX regex
   // should: the correct migration is to alias the *token* name, and that is a
   // per-screen judgement, not a rewrite.
-  const body = src.replace(importMatch[0], '');
+  // String literals are removed before looking for surviving references. The last
+  // screen in the worklist was blocked by the word "Download" in the English
+  // string `"Download a copy of my data"` — a user-facing sentence that happens
+  // to start with the same word as the imported binding. The guard saw a
+  // reference and refused a screen that was already fully migrated.
+  //
+  // That is the exact mirror of the three bugs earlier in this phase, where a
+  // gate read a comment as code. A name in prose is not a reference, and a check
+  // that cannot tell them apart will refuse correct work as often as it accepts
+  // broken work.
+  const body = src.replace(importMatch[0], '').replace(/"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'/g, '""');
   const remaining = names.filter((n) => new RegExp(`\\b${n}\\b`).test(body));
   if (remaining.length) {
-    const aliased = remaining.filter((n) => new RegExp(`=\\s*[^;\\n]*\\b${n}\\b|\\?\\s*${n}\\s*:`).test(body));
+    // Two ways a lucide name survives without a JSX tag, and the first version
+    // detected only the first, so 20 screens were mislabelled again:
+    //   const Arrow = rtl ? ArrowLeft : ArrowRight;   -- an alias
+    //   { key: 'sleep', icon: Moon, color: '...' }   -- a component stored as DATA
+    // The second is the more interesting one: the contract already has `IconName`
+    // for exactly this, so the correct migration is to put the name string in the
+    // data and let the renderer resolve it. That is a design-system change, not a
+    // rewrite, which is why no regex here may touch it.
+    const aliased = remaining.filter((n) =>
+      new RegExp(`=\\s*[^;\\n]*\\b${n}\\b|\\?\\s*${n}\\s*:|[:(]\\s*${n}\\s*[,}\\)]`).test(body),
+    );
     const inJsx = remaining.filter((n) => !aliased.includes(n));
     const why = aliased.length
       ? `aliased in an expression (needs a per-screen decision): ${aliased.join(', ')}`
