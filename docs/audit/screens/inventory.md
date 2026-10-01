@@ -17,35 +17,35 @@ and it is the only one this file makes.
 | screen | own doc | use client | raw colour | lucide | src lines |
 | --- | --- | --- | --- | --- | --- |
 | `/` | — |  | 19 | **y** | 386 |
-| `ai` | — |  | 20 | **y** | 58 |
-| `ai/chat-doctor` | — |  | 8 | **y** | 88 |
+| `ai` | — |  | 20 |  | 58 |
+| `ai/chat-doctor` | — |  | 8 |  | 88 |
 | `ai/monthly-report` | — |  | 55 |  | 171 |
 | `ai/prescription-translator` | — |  | 3 |  | 36 |
 | `ai/report` | — |  | 10 |  | 53 |
-| `ai/skin-analysis` | — |  | 18 | **y** | 125 |
-| `ai/symptom-checker` | — |  | 18 | **y** | 120 |
-| `ai/symptom-timeline` | — |  | 8 | **y** | 115 |
-| `ai/triage` | — |  | 18 | **y** | 138 |
+| `ai/skin-analysis` | — |  | 18 |  | 125 |
+| `ai/symptom-checker` | — |  | 18 |  | 120 |
+| `ai/symptom-timeline` | — |  | 8 |  | 115 |
+| `ai/triage` | — |  | 18 |  | 138 |
 | `appointments` | — |  | 57 | **y** | 58 |
-| `appointments/[appointmentId]` | — |  | 39 | **y** | 53 |
+| `appointments/[appointmentId]` | — |  | 39 |  | 53 |
 | `appointments/[appointmentId]/summary` | — |  | 12 |  | 99 |
 | `articles` | — |  | 25 | **y** | 117 |
-| `articles/[slug]` | — |  | 1 | **y** | 130 |
+| `articles/[slug]` | — |  | 1 |  | 130 |
 | `articles/bookmarks` | — |  | 25 | **y** | 98 |
 | `c/[[...category]]` | — |  | 15 | **y** | 372 |
 | `cart` | — |  | 31 | **y** | 106 |
 | `cart/checkout` | — |  | 24 | **y** | 44 |
 | `cart/prescription` | — |  | 37 | **y** | 84 |
-| `chat` | — |  | 32 | **y** | 75 |
-| `chat/[threadId]` | — |  | 38 | **y** | 98 |
+| `chat` | — |  | 27 |  | 75 |
+| `chat/[threadId]` | — |  | 33 |  | 98 |
 | `community` | — |  | 29 | **y** | 157 |
 | `community/[postId]` | — |  | 31 | **y** | 106 |
 | `condition/[slug]` | — |  | 32 | **y** | 109 |
 | `consultations` | — |  | 0 |  | 11 |
 | `consultations/appointments` | — |  | 0 |  | 11 |
-| `consultations/book/[doctorId]` | — |  | 10 | **y** | 60 |
+| `consultations/book/[doctorId]` | — |  | 10 |  | 60 |
 | `consultations/booking-status` | — |  | 2 |  | 56 |
-| `consultations/call-history` | — |  | 14 | **y** | 61 |
+| `consultations/call-history` | — |  | 14 |  | 61 |
 | `consultations/cancel-reschedule` | — |  | 2 |  | 86 |
 | `consultations/chat` | — |  | 7 |  | 57 |
 | `consultations/clinic-confirm` | — |  | 10 |  | 120 |
@@ -55,19 +55,19 @@ and it is the only one this file makes.
 | `consultations/doctors` | — |  | 33 | **y** | 131 |
 | `consultations/doctors/[doctorId]` | — |  | 23 | **y** | 154 |
 | `consultations/follow-up` | — |  | 34 |  | 120 |
-| `consultations/home-visit-tracking` | — |  | 13 | **y** | 54 |
+| `consultations/home-visit-tracking` | — |  | 13 |  | 54 |
 | `consultations/offers/[offerId]` | — |  | 0 |  | 9 |
 | `consultations/post-call-rating` | — |  | 6 | **y** | 30 |
 | `consultations/prescription` | — |  | 7 |  | 31 |
 | `consultations/share-report` | — |  | 14 | **y** | 60 |
 | `consultations/specialties` | — |  | 53 | **y** | 113 |
-| `consultations/video-call` | — |  | 8 | **y** | 32 |
+| `consultations/video-call` | — |  | 8 |  | 32 |
 | `consultations/virtual-waiting-room` | — |  | 9 |  | 64 |
 | `consultations/waiting-room` | — |  | 0 |  | 18 |
 | `dashboard` | — |  | 60 | **y** | 90 |
 | `delivery/address-select` | — |  | 7 |  | 42 |
 | `diagnostics` | — |  | 19 | **y** | 173 |
-| `diagnostics/[domain]/[bookingId]` | — |  | 24 | **y** | 44 |
+| `diagnostics/[domain]/[bookingId]` | — |  | 24 |  | 44 |
 | `diagnostics/book-sample` | — |  | 0 |  | 14 |
 | `diagnostics/booking-success` | — |  | 20 | **y** | 71 |
 | `diagnostics/bookings` | — |  | 12 |  | 55 |
@@ -78,7 +78,7 @@ and it is the only one this file makes.
 | `diagnostics/lab-comparison` | — |  | 20 |  | 74 |
 | `diagnostics/labs` | — |  | 34 | **y** | 114 |
 | `diagnostics/labs/[labId]` | — |  | 25 | **y** | 146 |
-| `diagnostics/labs/book` | — |  | 17 | **y** | 28 |
+| `diagnostics/labs/book` | — |  | 17 |  | 28 |
 | `diagnostics/packages` | — |  | 32 | **y** | 40 |
 | `diagnostics/packages/[packageId]` | — |  | 28 | **y** | 101 |
 | `diagnostics/radiology` | — |  | 36 | **y** | 119 |
@@ -106,9 +106,9 @@ and it is the only one this file makes.
 | `family/calendar` | — |  | 10 | **y** | 95 |
 | `family/chat` | — |  | 10 | **y** | 38 |
 | `family/emergency-contacts` | — |  | 16 | **y** | 96 |
-| `family/invite` | — |  | 7 | **y** | 35 |
-| `family/join` | — |  | 7 | **y** | 34 |
-| `family/permission-requests` | — |  | 10 | **y** | 55 |
+| `family/invite` | — |  | 7 |  | 35 |
+| `family/join` | — |  | 7 |  | 34 |
+| `family/permission-requests` | — |  | 10 |  | 55 |
 | `family/permissions` | — |  | 11 | **y** | 57 |
 | `family/scan` | — |  | 10 | **y** | 38 |
 | `forgot-password` | — |  | 0 |  | 11 |
@@ -116,39 +116,39 @@ and it is the only one this file makes.
 | `health/actionable-order` | — |  | 38 |  | 298 |
 | `health/add-family-member` | — |  | 0 |  | 14 |
 | `health/chronic-diseases` | — |  | 0 | **y** | 95 |
-| `health/chronic-medications` | — |  | 38 | **y** | 217 |
+| `health/chronic-medications` | — |  | 38 |  | 217 |
 | `health/conditions-allergies` | — |  | 12 |  | 129 |
 | `health/emergency-contacts` | — |  | 0 | **y** | 14 |
 | `health/health-id` | — |  | 0 |  | 11 |
 | `health/medications` | — |  | 27 |  | 213 |
 | `health/refills` | — |  | 17 |  | 157 |
-| `health/reports` | — |  | 35 | **y** | 207 |
-| `health/score` | — |  | 37 | **y** | 199 |
+| `health/reports` | — |  | 35 |  | 207 |
+| `health/score` | — |  | 36 |  | 199 |
 | `health/sleep` | — |  | 40 | **y** | 209 |
 | `health/smart-reminders` | — |  | 0 |  | 14 |
 | `health/timeline` | — |  | 22 | **y** | 161 |
 | `health/trends` | — |  | 40 | **y** | 210 |
-| `health/vitals` | — |  | 0 | **y** | 98 |
+| `health/vitals` | — |  | 0 |  | 98 |
 | `health/vitals/log` | — |  | 11 |  | 99 |
 | `health/wearables` | — |  | 18 |  | 141 |
 | `home-care` | — |  | 34 | **y** | 199 |
-| `home-care/providers` | — |  | 29 | **y** | 185 |
+| `home-care/providers` | — |  | 29 |  | 185 |
 | `home-care/services` | — |  | 26 | **y** | 208 |
 | `home-care/services/[serviceId]` | — |  | 33 | **y** | 209 |
 | `home-nursing` | — |  | 0 |  | 11 |
 | `home-nursing/[citySlug]` | — |  | 18 | **y** | 179 |
 | `insurance` | — |  | 24 | **y** | 148 |
-| `insurance/add-policy` | — |  | 9 | **y** | 51 |
+| `insurance/add-policy` | — |  | 9 |  | 51 |
 | `insurance/approval-pending` | — |  | 7 |  | 41 |
-| `insurance/benefits` | — |  | 13 | **y** | 45 |
+| `insurance/benefits` | — |  | 13 |  | 45 |
 | `insurance/claims` | — |  | 8 | **y** | 62 |
 | `insurance/copay` | — |  | 11 |  | 52 |
-| `insurance/coverage-check` | — |  | 11 | **y** | 51 |
-| `insurance/network-providers` | — |  | 9 | **y** | 70 |
+| `insurance/coverage-check` | — |  | 11 |  | 51 |
+| `insurance/network-providers` | — |  | 9 |  | 70 |
 | `insurance/payment-split` | — |  | 7 |  | 87 |
 | `insurance/policy-detail` | — |  | 11 |  | 59 |
 | `insurance/refunds` | — |  | 7 |  | 54 |
-| `insurance/requests/[requestId]` | — |  | 11 | **y** | 73 |
+| `insurance/requests/[requestId]` | — |  | 11 |  | 73 |
 | `insurance/submit-claim` | — |  | 9 | **y** | 36 |
 | `labs` | — |  | 0 | **y** | 114 |
 | `labs/[testSlug]/[citySlug]` | — |  | 26 | **y** | 222 |
@@ -163,7 +163,7 @@ and it is the only one this file makes.
 | `maternity/baby-development` | — |  | 0 |  | 14 |
 | `maternity/baby-growth` | — |  | 0 |  | 28 |
 | `maternity/maternity-setup` | — |  | 0 |  | 26 |
-| `maternity/ovulation` | — |  | 5 | **y** | 40 |
+| `maternity/ovulation` | — |  | 5 |  | 40 |
 | `maternity/tracker` | — |  | 0 | **y** | 80 |
 | `medicine` | — |  | 0 |  | 11 |
 | `medicine-catalog` | — |  | 0 | **y** | 164 |
@@ -172,7 +172,7 @@ and it is the only one this file makes.
 | `medicines/[medicineId]` | — |  | 0 |  | 47 |
 | `medicines/compare` | — |  | 0 | **y** | 59 |
 | `mental-health` | — |  | 0 | **y** | 105 |
-| `mental-health/breathing` | — |  | 0 | **y** | 87 |
+| `mental-health/breathing` | — |  | 0 |  | 87 |
 | `mental-health/crisis-contacts` | — |  | 0 | **y** | 78 |
 | `mental-health/meditation` | — |  | 0 | **y** | 84 |
 | `mental-health/mood` | — |  | 0 | **y** | 86 |
@@ -182,12 +182,12 @@ and it is the only one this file makes.
 | `notifications/settings` | — |  | 0 | **y** | 33 |
 | `nursing` | — |  | 0 |  | 11 |
 | `nursing/booking` | — |  | 0 |  | 11 |
-| `nursing/catalog` | — |  | 1 | **y** | 149 |
+| `nursing/catalog` | — |  | 1 |  | 149 |
 | `nursing/insurance-status` | — |  | 0 |  | 66 |
 | `nursing/nurses/[nurseId]` | — |  | 4 | **y** | 202 |
 | `nursing/service-info` | — |  | 0 |  | 16 |
 | `nursing/visits` | — |  | 5 | **y** | 85 |
-| `nursing/visits/[visitId]` | — |  | 12 | **y** | 86 |
+| `nursing/visits/[visitId]` | — |  | 12 |  | 86 |
 | `nutrition` | — |  | 0 | **y** | 170 |
 | `nutrition/ai-meal-planner` | — |  | 0 |  | 14 |
 | `nutrition/ai-plan-builder` | — |  | 0 |  | 14 |
@@ -209,7 +209,7 @@ and it is the only one this file makes.
 | `orders/[orderId]` | — |  | 0 | **y** | 53 |
 | `orders/[orderId]/offers` | — |  | 0 | **y** | 49 |
 | `orders/[orderId]/offers/negotiation` | — |  | 0 | **y** | 13 |
-| `orders/[orderId]/offers/negotiation/[threadId]` | — |  | 0 | **y** | 14 |
+| `orders/[orderId]/offers/negotiation/[threadId]` | — |  | 0 |  | 14 |
 | `orders/[orderId]/tracking` | — |  | 0 | **y** | 55 |
 | `otp` | — |  | 0 |  | 10 |
 | `p` | — |  | 0 |  | 11 |
@@ -224,35 +224,35 @@ and it is the only one this file makes.
 | `pharmacies/[citySlug]` | — |  | 21 | **y** | 208 |
 | `pharmacy` | — |  | 0 |  | 11 |
 | `pharmacy/[slug]` | — |  | 50 | **y** | 157 |
-| `pharmacy/barcode` | — |  | 13 | **y** | 37 |
-| `pharmacy/broadcast-status` | — |  | 13 | **y** | 40 |
-| `pharmacy/chat` | — |  | 13 | **y** | 40 |
+| `pharmacy/barcode` | — |  | 13 |  | 37 |
+| `pharmacy/broadcast-status` | — |  | 13 |  | 40 |
+| `pharmacy/chat` | — |  | 13 |  | 40 |
 | `pharmacy/custom-item` | — |  | 0 |  | 14 |
 | `pharmacy/drug-not-found` | — |  | 0 |  | 14 |
 | `pharmacy/filters` | — |  | 14 | **y** | 68 |
-| `pharmacy/final-quote` | — |  | 13 | **y** | 40 |
-| `pharmacy/insurance-decision` | — |  | 13 | **y** | 40 |
-| `pharmacy/interactions` | — |  | 13 | **y** | 38 |
+| `pharmacy/final-quote` | — |  | 13 |  | 40 |
+| `pharmacy/insurance-decision` | — |  | 13 |  | 40 |
+| `pharmacy/interactions` | — |  | 13 |  | 38 |
 | `pharmacy/manual-order` | — |  | 0 |  | 14 |
-| `pharmacy/order-confirm` | — |  | 32 | **y** | 73 |
-| `pharmacy/payment` | — |  | 13 | **y** | 40 |
-| `pharmacy/reorder` | — |  | 13 | **y** | 41 |
-| `pharmacy/request` | — |  | 0 | **y** | 33 |
-| `pharmacy/rx-order` | — |  | 37 | **y** | 112 |
+| `pharmacy/order-confirm` | — |  | 32 |  | 73 |
+| `pharmacy/payment` | — |  | 13 |  | 40 |
+| `pharmacy/reorder` | — |  | 13 |  | 41 |
+| `pharmacy/request` | — |  | 0 |  | 33 |
+| `pharmacy/rx-order` | — |  | 37 |  | 112 |
 | `pharmacy/scan-prescription` | — |  | 0 | **y** | 54 |
-| `pharmacy/waiting-for-pharmacy` | — |  | 13 | **y** | 40 |
-| `prescriptions` | — |  | 0 | **y** | 95 |
-| `prescriptions/[prescriptionId]` | — |  | 0 | **y** | 27 |
+| `pharmacy/waiting-for-pharmacy` | — |  | 13 |  | 40 |
+| `prescriptions` | — |  | 0 |  | 95 |
+| `prescriptions/[prescriptionId]` | — |  | 0 |  | 27 |
 | `privacy` | — |  | 0 |  | 19 |
 | `profile` | — |  | 12 | **y** | 61 |
-| `profile/addresses` | — |  | 0 | **y** | 82 |
+| `profile/addresses` | — |  | 0 |  | 82 |
 | `profile/edit` | — |  | 0 |  | 35 |
 | `profile/insurance` | — |  | 0 |  | 11 |
 | `programs` | — |  | 3 |  | 65 |
 | `programs/active` | — |  | 0 |  | 65 |
 | `provider-info` | — |  | 0 |  | 40 |
 | `radiology` | — |  | 0 |  | 11 |
-| `radiology/[serviceSlug]/[citySlug]` | — |  | 20 | **y** | 210 |
+| `radiology/[serviceSlug]/[citySlug]` | — |  | 20 |  | 210 |
 | `register` | — |  | 0 | **y** | 25 |
 | `reminders` | — |  | 0 | **y** | 115 |
 | `reminders/add` | — |  | 0 |  | 45 |
@@ -260,7 +260,7 @@ and it is the only one this file makes.
 | `reports/[reportId]` | — |  | 2 |  | 48 |
 | `reports/ai-analysis` | — |  | 0 |  | 16 |
 | `reports/passport` | — |  | 0 |  | 50 |
-| `reports/timeline` | — |  | 1 | **y** | 74 |
+| `reports/timeline` | — |  | 1 |  | 74 |
 | `returns` | — |  | 1 |  | 58 |
 | `returns/[returnId]` | — |  | 0 |  | 41 |
 | `returns/new-request` | — |  | 0 |  | 25 |
@@ -276,7 +276,7 @@ and it is the only one this file makes.
 | `settings/feedback` | — |  | 12 | **y** | 116 |
 | `settings/help` | — |  | 8 | **y** | 60 |
 | `settings/language` | — |  | 2 | **y** | 92 |
-| `settings/notifications` | — |  | 4 | **y** | 84 |
+| `settings/notifications` | — |  | 3 |  | 84 |
 | `settings/privacy` | — |  | 5 | **y** | 81 |
 | `settings/security` | — |  | 3 | **y** | 98 |
 | `support` | — |  | 0 | **y** | 101 |
@@ -285,7 +285,7 @@ and it is the only one this file makes.
 | `terms` | — |  | 0 |  | 19 |
 | `voice` | — |  | 0 | **y** | 127 |
 | `welcome` | — |  | 0 |  | 10 |
-| `wishlist` | — |  | 0 | **y** | 30 |
+| `wishlist` | — |  | 0 |  | 30 |
 
 ## patient-app — 250 screen(s), 0 documented
 
