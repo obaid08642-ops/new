@@ -6,7 +6,10 @@ import { isLocale, locales, type Locale } from "@/lib/i18n";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
-import { ArrowLeft, ArrowRight, Building2, MapPin, Pill, ShieldCheck, Truck, Clock } from "lucide-react";
+// 12.A11 — `arrowIcon` below was a component chosen by locale (`isRtl ? ArrowLeft
+// : ArrowRight`). It is a name now; the design system resolves it. Everything else
+// here is direct JSX and goes with it, so the file carries no icon import at all.
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { VectorPharmacy } from "@/components-next/vector-illustrations";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
@@ -71,7 +74,7 @@ export default async function PharmacyCanonicalPage({ params }: Props) {
   const name = locale === "ar" ? (ph.name_ar || ph.name_en || ph.name) : (ph.name_en || ph.name_ar || ph.name);
   const path = `/pharmacy/${encodeURIComponent(slug)}`;
   const isRtl = locale === "ar";
-  const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
+  const arrowIcon = isRtl ? "arrow-left" : "arrow-right";
 
   const jsonLd = [
     pharmacy({
@@ -103,10 +106,10 @@ export default async function PharmacyCanonicalPage({ params }: Props) {
         {/* Hero — Ultra-Premium V3: Forest Ink #1E332E, Warm Cream #FDFDFC, border #E8EDEE, radius 20, vector 48 */}
         <section style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, padding: 24, border: "1px solid #E8EDEE", borderRadius: 20, background: "linear-gradient(135deg, #FDFDFC 0%, #F0FDF9 60%, #E7FFF6 100%)", boxShadow: "0 12px 32px rgba(30,51,46,.07)", position: "relative", overflow: "hidden" }}>
           <div style={{ display: "grid", gap: 8, minWidth: 0, flex: 1 }}>
-            <p style={{ display: "inline-flex", alignItems: "center", gap: 6, margin: 0, color: "#1E332E", fontSize: 12, fontWeight: 800, overflowWrap: "anywhere" }}><ShieldCheck size={14} aria-hidden="true" />{isRtl ? "صيدلية نبض — مرخصة SFDA" : "Nabd Pharmacy — SFDA Licensed"}</p>
-            <h1 style={{ margin: 0, color: "#1E332E", fontSize: 22, fontWeight: 900, lineHeight: 1.25, overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{name} <ShieldCheck size={18} style={{ display: "inline", verticalAlign: "middle", color: "#00876F" }} aria-hidden="true" /></h1>
+            <p style={{ display: "inline-flex", alignItems: "center", gap: 6, margin: 0, color: "#1E332E", fontSize: 12, fontWeight: 800, overflowWrap: "anywhere" }}><Icon name="shield-check" size={14} aria-hidden="true" />{isRtl ? "صيدلية نبض — مرخصة SFDA" : "Nabd Pharmacy — SFDA Licensed"}</p>
+            <h1 style={{ margin: 0, color: "#1E332E", fontSize: 22, fontWeight: 900, lineHeight: 1.25, overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{name} <Icon name="shield-check" size={18} style={{ display: "inline", verticalAlign: "middle", color: "#00876F" }} aria-hidden="true" /></h1>
             <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#5A6B62", flexWrap: "wrap", overflowWrap: "anywhere" }}>
-              <MapPin size={14} aria-hidden="true" style={{ flexShrink: 0 }} />
+              <Icon name="pin" size={14} aria-hidden="true" style={{ flexShrink: 0 }} />
               <span style={{ overflowWrap: "anywhere" }}>{ph.city || "المملكة العربية السعودية"}</span>
               {ph.district && <span style={{ overflowWrap: "anywhere" }}>• {ph.district}</span>}
             </div>
@@ -117,27 +120,27 @@ export default async function PharmacyCanonicalPage({ params }: Props) {
         {/* Details Card — glass + Forest Ink */}
         <section style={{ display: "grid", gap: 16, padding: 20, border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", boxShadow: "0 8px 24px rgba(30,51,46,.07)" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-            <span style={{ display: "grid", placeItems: "center", width: 48, height: 48, borderRadius: 16, background: "rgba(95,217,179,.15)", border: "1px solid #E8EDEE", color: "#1E332E", flexShrink: 0 }}><Pill size={22} aria-hidden="true" /></span>
-            <span style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 12px", borderRadius: 999, fontSize: 12, fontWeight: 800, background: "rgba(95,217,179,.12)", color: "#1E332E", border: "1px solid #E8EDEE", overflowWrap: "anywhere" }}><ShieldCheck size={14} aria-hidden="true" />{isRtl ? "صيدلية مرخصة SFDA" : "SFDA Licensed Pharmacy"}</span>
+            <span style={{ display: "grid", placeItems: "center", width: 48, height: 48, borderRadius: 16, background: "rgba(95,217,179,.15)", border: "1px solid #E8EDEE", color: "#1E332E", flexShrink: 0 }}><Icon name="pill" size={22} aria-hidden="true" /></span>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 12px", borderRadius: 999, fontSize: 12, fontWeight: 800, background: "rgba(95,217,179,.12)", color: "#1E332E", border: "1px solid #E8EDEE", overflowWrap: "anywhere" }}><Icon name="shield-check" size={14} aria-hidden="true" />{isRtl ? "صيدلية مرخصة SFDA" : "SFDA Licensed Pharmacy"}</span>
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12, paddingTop: 16, borderTop: "1px solid #E8EDEE" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 12, padding: 12, border: "1px solid #E8EDEE", borderRadius: 16, background: "#FDFDFC", overflowWrap: "anywhere" }}>
-              <span style={{ display: "grid", placeItems: "center", width: 40, height: 40, borderRadius: 12, background: "rgba(95,217,179,.14)", color: "#1E332E", flexShrink: 0 }}><Truck size={18} aria-hidden="true" /></span>
+              <span style={{ display: "grid", placeItems: "center", width: 40, height: 40, borderRadius: 12, background: "rgba(95,217,179,.14)", color: "#1E332E", flexShrink: 0 }}><Icon name="truck" size={18} aria-hidden="true" /></span>
               <div style={{ display: "grid", gap: 2, minWidth: 0 }}>
                 <span style={{ fontSize: 11, color: "#5A6B62", fontWeight: 700, overflowWrap: "anywhere" }}>{isRtl ? "توصيل سريع" : "Express Delivery"}</span>
                 <span style={{ fontSize: 13, fontWeight: 800, color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{ph.estimated_delivery_time || (isRtl ? "خلال 60 دقيقة" : "Within 60 mins")}</span>
               </div>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 12, padding: 12, border: "1px solid #E8EDEE", borderRadius: 16, background: "#FDFDFC", overflowWrap: "anywhere" }}>
-              <span style={{ display: "grid", placeItems: "center", width: 40, height: 40, borderRadius: 12, background: "rgba(95,217,179,.14)", color: "#1E332E", flexShrink: 0 }}><Clock size={18} aria-hidden="true" /></span>
+              <span style={{ display: "grid", placeItems: "center", width: 40, height: 40, borderRadius: 12, background: "rgba(95,217,179,.14)", color: "#1E332E", flexShrink: 0 }}><Icon name="clock" size={18} aria-hidden="true" /></span>
               <div style={{ display: "grid", gap: 2, minWidth: 0 }}>
                 <span style={{ fontSize: 11, color: "#5A6B62", fontWeight: 700, overflowWrap: "anywhere" }}>{isRtl ? "ساعات العمل" : "Working Hours"}</span>
                 <span style={{ fontSize: 13, fontWeight: 800, color: "#1E332E", overflowWrap: "anywhere" }}>{isRtl ? "24/7 على مدار الساعة" : "24/7 Open"}</span>
               </div>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 12, padding: 12, border: "1px solid #E8EDEE", borderRadius: 16, background: "#FDFDFC", overflowWrap: "anywhere" }}>
-              <span style={{ display: "grid", placeItems: "center", width: 40, height: 40, borderRadius: 12, background: "rgba(95,217,179,.14)", color: "#1E332E", flexShrink: 0 }}><Building2 size={18} aria-hidden="true" /></span>
+              <span style={{ display: "grid", placeItems: "center", width: 40, height: 40, borderRadius: 12, background: "rgba(95,217,179,.14)", color: "#1E332E", flexShrink: 0 }}><Icon name="building-2" size={18} aria-hidden="true" /></span>
               <div style={{ display: "grid", gap: 2, minWidth: 0 }}>
                 <span style={{ fontSize: 11, color: "#5A6B62", fontWeight: 700, overflowWrap: "anywhere" }}>{isRtl ? "ترخيص الهيئة" : "SFDA License"}</span>
                 <span style={{ fontSize: 13, fontWeight: 800, color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{ph.sfda_license_number || ph.license_number || "SFDA-VERIFIED"}</span>
@@ -147,7 +150,7 @@ export default async function PharmacyCanonicalPage({ params }: Props) {
 
           <Link href={`/${locale}/pharmacy/scan-prescription?pharmacyId=${ph.id}`} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "12px 20px", borderRadius: 16, background: "#1E332E", color: "#FDFDFC", fontWeight: 800, fontSize: 14, textDecoration: "none", width: "fit-content", overflowWrap: "anywhere" }}>
             <span style={{ overflowWrap: "anywhere" }}>{isRtl ? "ارفع وصفتك الطبية للصرف" : "Upload Prescription"}</span>
-            <ArrowIcon size={16} aria-hidden="true" />
+            <Icon name={arrowIcon} size={16} aria-hidden="true" />
           </Link>
         </section>
       </main>

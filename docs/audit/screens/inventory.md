@@ -223,7 +223,7 @@ and it is the only one this file makes.
 | `pharmacies` | — |  | 0 |  | 11 |
 | `pharmacies/[citySlug]` | — |  | 21 | **y** | 208 |
 | `pharmacy` | — |  | 0 |  | 11 |
-| `pharmacy/[slug]` | — |  | 50 | **y** | 157 |
+| `pharmacy/[slug]` | — |  | 50 |  | 160 |
 | `pharmacy/barcode` | — |  | 13 |  | 37 |
 | `pharmacy/broadcast-status` | — |  | 13 |  | 40 |
 | `pharmacy/chat` | — |  | 13 |  | 40 |
