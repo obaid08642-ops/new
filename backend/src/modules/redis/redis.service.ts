@@ -128,6 +128,25 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     this.memKv.delete(key); this.memHash.delete(key); this.memSets.delete(key); this.memZset.delete(key);
   }
 
+  /**
+   * Atomically read and delete a key.
+   *
+   * Used for single-use tokens (step-up, OTP-adjacent flows). On a live Redis
+   * this is one `GETDEL`, so two workers cannot consume the same value. The
+   * in-process fallback is only reached when Redis itself is unavailable.
+   */
+  async take(key: string): Promise<string | null> {
+    if (this.ready) {
+      try {
+        const value = await (this.client as any).getdel(key);
+        return typeof value === 'string' ? value : null;
+      } catch { /* fall through */ }
+    }
+    const value = this.memGet(key);
+    this.memKv.delete(key);
+    return value;
+  }
+
   async ttl(key: string): Promise<number> {
     if (this.ready) { try { return await this.client.ttl(key); } catch { /* fall through */ } }
     const e = this.memKv.get(key);

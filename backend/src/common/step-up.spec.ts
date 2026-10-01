@@ -1,27 +1,20 @@
 import { ForbiddenException } from '@nestjs/common';
 import { StepUpService, StepUpGuard } from './step-up.guard';
+import { RedisService } from '../modules/redis/redis.service';
 
 describe('C4: Step-up re-authentication', () => {
   let service: StepUpService;
   let guard: StepUpGuard;
   let reflector: any;
 
-  // Whether the account has an enrolled passkey. Step-up is a SECOND factor, so
-  // the guard can only enforce it once one exists; with no factor there is
-  // nothing to re-present and demanding a token would lock the admin out of every
-  // sensitive action. Both branches are covered below.
-  let enrolledFactor: any;
-
   beforeEach(() => {
-    // StepUpService and StepUpGuard both take the PasskeyCredential model, and the
-    // guard queries it on every canActivate. A bare `{}` is not enough: the call is
-    // `findOne(...).lean().catch(...)`, and a missing method throws synchronously,
-    // which .catch() cannot absorb.
-    const passkeyModel: any = { findOne: () => ({ lean: async () => enrolledFactor }) };
-    service = new StepUpService(passkeyModel);
+    const passkeyModel: any = { findOne: jest.fn(), updateOne: jest.fn() };
+    // Same RedisService store for issue/verify inside one test. Cross-worker
+    // behavior is covered by step-up.redis.spec.ts with two service instances.
+    const redis = new RedisService();
+    service = new StepUpService(passkeyModel, redis);
     reflector = { getAllAndOverride: jest.fn() };
     guard = new StepUpGuard(reflector, service, passkeyModel);
-    enrolledFactor = { credential_id: 'cred-1' };
   });
 
   const ctx = (user: any, headers: Record<string, string> = {}, path = '/api/v1/admin/refunds') => ({
@@ -30,31 +23,28 @@ describe('C4: Step-up re-authentication', () => {
     getClass: () => ({}),
   });
 
-  it('issues and verifies a step-up token', () => {
-    const token = service.issue('u1', 'POST:/api/v1/admin/refunds');
-    expect(service.verify('u1', 'POST:/api/v1/admin/refunds', token)).toBe(true);
+  it('issues and verifies a step-up token', async () => {
+    const token = await service.issue('u1', 'POST:/api/v1/admin/refunds');
+    await expect(service.verify('u1', 'POST:/api/v1/admin/refunds', token)).resolves.toBe(true);
   });
 
-  it('rejects a used token (single-use)', () => {
-    const token = service.issue('u1', 'POST:/api/v1/admin/refunds');
-    expect(service.verify('u1', 'POST:/api/v1/admin/refunds', token)).toBe(true);
-    expect(service.verify('u1', 'POST:/api/v1/admin/refunds', token)).toBe(false);
+  it('rejects a used token (single-use)', async () => {
+    const token = await service.issue('u1', 'POST:/api/v1/admin/refunds');
+    await expect(service.verify('u1', 'POST:/api/v1/admin/refunds', token)).resolves.toBe(true);
+    await expect(service.verify('u1', 'POST:/api/v1/admin/refunds', token)).resolves.toBe(false);
   });
 
-  it('rejects token for different action', () => {
-    const token = service.issue('u1', 'POST:/api/v1/admin/refunds');
-    expect(service.verify('u1', 'POST:/api/v1/admin/payouts', token)).toBe(false);
+  it('rejects token for different action', async () => {
+    const token = await service.issue('u1', 'POST:/api/v1/admin/refunds');
+    await expect(service.verify('u1', 'POST:/api/v1/admin/payouts', token)).resolves.toBe(false);
   });
 
-  it('rejects token for different user', () => {
-    const token = service.issue('u1', 'POST:/api/v1/admin/refunds');
-    expect(service.verify('u2', 'POST:/api/v1/admin/refunds', token)).toBe(false);
+  it('rejects token for different user', async () => {
+    const token = await service.issue('u1', 'POST:/api/v1/admin/refunds');
+    await expect(service.verify('u2', 'POST:/api/v1/admin/refunds', token)).resolves.toBe(false);
   });
 
-  // canActivate became async when the guard started querying the passkey model to
-  // decide whether the admin has a second factor, so a synchronous toThrow() no
-  // longer observes the rejection — it has to be awaited.
-  it('guard rejects without token', async () => {
+  it('guard requires a token on step-up endpoints', async () => {
     reflector.getAllAndOverride.mockReturnValue(true);
     await expect(guard.canActivate(ctx({ id: 'u1' }) as any)).rejects.toThrow(ForbiddenException);
   });
@@ -66,18 +56,16 @@ describe('C4: Step-up re-authentication', () => {
 
   it('guard allows with valid token', async () => {
     reflector.getAllAndOverride.mockReturnValue(true);
-    const token = service.issue('u1', 'POST:/api/v1/admin/refunds');
+    const token = await service.issue('u1', 'POST:/api/v1/admin/refunds');
     const result = await guard.canActivate(ctx({ id: 'u1' }, { 'x-step-up-token': token }) as any);
     expect(result).toBe(true);
   });
 
-  it('guard allows a step-up endpoint when no second factor is enrolled yet', async () => {
-    // Documented bootstrap: the base authentication is the strongest factor that
-    // exists, so requiring a token the admin cannot present would be a lockout.
-    enrolledFactor = null;
+  it('guard rejects a step-up endpoint without a token even before enrollment', async () => {
+    // X4 keeps bootstrap sessions out of admin routes in JwtAuthGuard. This guard
+    // still requires the token on every @StepUp() route; it never bypasses it.
     reflector.getAllAndOverride.mockReturnValue(true);
-    const result = await guard.canActivate(ctx({ id: 'u1' }) as any);
-    expect(result).toBe(true);
+    await expect(guard.canActivate(ctx({ id: 'u1' }) as any)).rejects.toThrow(ForbiddenException);
   });
 
   it('guard skips non-step-up endpoints', async () => {

@@ -1,20 +1,24 @@
 import { StepUpService } from './step-up.guard';
-import { Reflector } from '@nestjs/core';
+import { RedisService } from '../modules/redis/redis.service';
 
 /**
  * X3: step-up tokens must survive across service instances (workers).
  * Production runs one Node worker per CPU; a token issued by worker A
- * must verify on worker B. With a process-local Map this fails randomly.
+ * must verify on worker B. The two services below share one Redis store,
+ * while keeping separate in-process state.
  */
 describe('StepUpService Redis storage (X3)', () => {
-  const makeService = () => {
-    const passkeyModel = { findOne: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue(null) }) } as any;
-    return new StepUpService(passkeyModel);
+  const makeServices = () => {
+    const passkeyModel: any = { findOne: jest.fn(), updateOne: jest.fn() };
+    const redis = new RedisService();
+    return {
+      issuer: new StepUpService(passkeyModel, redis),
+      verifier: new StepUpService(passkeyModel, redis),
+    };
   };
 
   it('a token issued by one instance verifies on another', async () => {
-    const issuer = makeService();
-    const verifier = makeService();
+    const { issuer, verifier } = makeServices();
 
     const token = await issuer.issue('admin-1', 'PUT:/api/v1/admin/loyalty/config');
 
@@ -24,8 +28,7 @@ describe('StepUpService Redis storage (X3)', () => {
   });
 
   it('a token is single-use: the second verify fails', async () => {
-    const issuer = makeService();
-    const verifier = makeService();
+    const { issuer, verifier } = makeServices();
 
     const token = await issuer.issue('admin-1', 'PUT:/api/v1/admin/loyalty/config');
 
@@ -34,8 +37,7 @@ describe('StepUpService Redis storage (X3)', () => {
   });
 
   it('a token for a different action fails', async () => {
-    const issuer = makeService();
-    const verifier = makeService();
+    const { issuer, verifier } = makeServices();
 
     const token = await issuer.issue('admin-1', 'PUT:/api/v1/admin/loyalty/config');
 
@@ -43,8 +45,7 @@ describe('StepUpService Redis storage (X3)', () => {
   });
 
   it('a token for a different user fails', async () => {
-    const issuer = makeService();
-    const verifier = makeService();
+    const { issuer, verifier } = makeServices();
 
     const token = await issuer.issue('admin-1', 'PUT:/api/v1/admin/loyalty/config');
 
