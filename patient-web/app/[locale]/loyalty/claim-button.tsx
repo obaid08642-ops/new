@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Check, LoaderCircle, Sparkles } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 
 type Labels = { claim: string; claiming: string; claimed: string; error: string };
 
@@ -57,11 +57,11 @@ export function ClaimButton({ rewardId, disabled, labels }: { rewardId: string; 
         }}
       >
         {isLoading ? (
-          <LoaderCircle size={15} style={{ animation: "spin 0.8s linear infinite" }} />
+          <Icon name="loader-circle" size={15} style={{ animation: "spin 0.8s linear infinite" } />
         ) : isSuccess ? (
-          <Check size={15} aria-hidden="true" />
+          <Icon name="check" size={15} />
         ) : (
-          <Sparkles size={15} aria-hidden="true" />
+          <Icon name="sparkle" size={15} />
         )}
         {isLoading ? labels.claiming : isSuccess ? labels.claimed : labels.claim}
       </button>

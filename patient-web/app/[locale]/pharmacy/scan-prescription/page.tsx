@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
-import { Camera, ShieldCheck } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { ScanPrescriptionForm } from "@/components-next/scan-prescription-form";
 import styles from "./scan.module.css";
 
@@ -21,11 +21,11 @@ export default async function ScanPrescriptionPage({ params }: Props) {
       <section className={styles.card}>
         <div className={styles.cardHead}>
           <span className={styles.iconWrap}>
-            <Camera size={26} aria-hidden="true" />
+            <Icon name="camera" size={26} />
           </span>
           <div>
             <p className={styles.eyebrow}>
-              <ShieldCheck size={15} aria-hidden="true" />
+              <Icon name="shield-check" size={15} />
               {t("eyebrow")}
             </p>
             <h1>{t("title")}</h1>

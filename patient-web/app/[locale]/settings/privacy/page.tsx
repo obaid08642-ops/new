@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Lock, ShieldCheck } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { callPatientApi } from "@/lib/api/upstream";
@@ -35,7 +35,7 @@ export default async function SettingsPrivacyPage({ params }: Props) {
     return (
       <main className={`main ${styles.page}`}>
         <section className={styles.state} role="alert">
-          <ShieldCheck size={20} aria-hidden="true" style={{ color: "#1E332E" }} />
+          <Icon name="shield-check" size={20} style={{ color: "#1E332E" } />
           <h1 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{ar ? "تعذر تحميل إعدادات الخصوصية" : "Could not load privacy settings"}</h1>
         </section>
       </main>
@@ -55,12 +55,12 @@ export default async function SettingsPrivacyPage({ params }: Props) {
       <Link href={`/${locale}/settings`} style={{ color: "#1E332E", fontWeight: 760, textDecoration: "none", overflowWrap: "anywhere" as any }}>{ar ? "الإعدادات" : "Settings"}</Link>
       <section className={styles.hero}>
         <p className={styles.eyebrow}>
-          <Lock size={15} aria-hidden="true" />
+          <Icon name="lock" size={15} />
           {ar ? "الخصوصية" : "Privacy"}
         </p>
         <h1 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{ar ? "إعدادات الخصوصية" : "Privacy settings"}</h1>
         <p style={{ overflowWrap: "anywhere" } as any}>{ar ? "بياناتك محمية ومشفرة. لا نبيع بياناتك لأي طرف خارجي." : "Your data is protected and encrypted. We never sell it."}</p>
-        <span style={{ display: "grid", placeItems: "center", width: 48, height: 48, borderRadius: 16, background: "rgba(255,255,255,.82)", border: "1px solid #E8EDEE", flexShrink: 0, backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}><Lock size={22} color="#1E332E" aria-hidden="true" /></span>
+        <span style={{ display: "grid", placeItems: "center", width: 48, height: 48, borderRadius: 16, background: "rgba(255,255,255,.82)", border: "1px solid #E8EDEE", flexShrink: 0, backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}><Icon name="lock" size={22} tone="primary" /></span>
       </section>
       <PrivacyToggles
         initial={initial}

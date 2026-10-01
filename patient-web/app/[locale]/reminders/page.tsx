@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { BellRing, Clock3, Pill } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { extractMedicationReminderSummaries } from "@/lib/api/reminders";
 import { ReminderActions } from "./reminder-actions";
 import { getPatientMedicationReminders } from "@/lib/api/reminders-server";
@@ -27,7 +27,7 @@ export default async function RemindersPage({ params }: Props) {
       <main className={`main ${styles.page}`}>
         <section className={styles.state} role="alert">
           <span className={styles.stateIcon}>
-            <BellRing size={25} aria-hidden="true" />
+            <Icon name="bell-ring" size={25} />
           </span>
           <h1>{t("unavailableTitle")}</h1>
           <p>{t("unavailable")}</p>
@@ -59,7 +59,7 @@ export default async function RemindersPage({ params }: Props) {
       {reminders.length ? (
         <section className={styles.summary} aria-label={t("title")}>
           <span className={styles.summaryIcon}>
-            <Clock3 size={22} aria-hidden="true" />
+            <Icon name="clock" size={22} />
           </span>
               <div>
                 <strong>{nextDose ? `${nextDose.timeKey} · ${nextDose.reminder.medicineName ?? t("medicineUnavailable")}` : t("empty")}</strong>
@@ -71,7 +71,7 @@ export default async function RemindersPage({ params }: Props) {
       {reminders.length === 0 ? (
         <section className={styles.state}>
           <span className={styles.stateIcon}>
-            <BellRing size={25} aria-hidden="true" />
+            <Icon name="bell-ring" size={25} />
           </span>
           <h2>{t("title")}</h2>
           <p>{t("empty")}</p>
@@ -81,7 +81,7 @@ export default async function RemindersPage({ params }: Props) {
           {reminders.map((reminder) => (
             <article className={styles.card} key={reminder.id}>
               <span className={styles.medicineIcon}>
-                <Pill size={20} aria-hidden="true" />
+                <Icon name="pill" size={20} />
               </span>
               <div className={styles.cardBody}>
                 <strong className={styles.medicine}>{reminder.medicineName || t("medicineUnavailable")}</strong>
@@ -90,7 +90,7 @@ export default async function RemindersPage({ params }: Props) {
                   <span className={styles.times}>
                     {reminder.times.map((time) => (
                       <span className={styles.time} key={time}>
-                        <Clock3 size={12} aria-hidden="true" />
+                        <Icon name="clock" size={12} />
                         {time}
                       </span>
                     ))}

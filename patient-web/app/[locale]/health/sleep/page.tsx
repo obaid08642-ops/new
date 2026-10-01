@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { Activity, CalendarDays, ChevronLeft, Moon, ShieldCheck } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getPatientSleepReadings } from "@/lib/api/sleep-server";
 import { parseSleepReadings } from "@/lib/api/sleep";
@@ -85,7 +85,7 @@ export default async function SleepPage({ params }: Props) {
           overflowWrap: "anywhere",
         } as any}
       >
-        <ChevronLeft size={16} aria-hidden="true" />
+        <Icon name="caret-left" size={16} />
         {t("back")}
       </Link>
       <section
@@ -102,7 +102,7 @@ export default async function SleepPage({ params }: Props) {
       >
         <div style={{ display: "grid", gap: 8, minWidth: 0 }}>
           <p className={styles.eyebrow} style={{ color: "#1E332E", display: "flex", alignItems: "center", gap: 8, overflowWrap: "anywhere" } as any}>
-            <Moon size={15} aria-hidden="true" />
+            <Icon name="moon" size={15} />
             <span style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2 as any, WebkitBoxOrient: "vertical" as any, overflow: "hidden" } as any}>
               {t("eyebrow")}
             </span>
@@ -164,7 +164,7 @@ export default async function SleepPage({ params }: Props) {
                     border: "1px solid #E8EDEE",
                   } as any}
                 >
-                  <Moon size={18} aria-hidden="true" />
+                  <Icon name="moon" size={18} />
                 </span>
               </div>
               <p className={styles.value} style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2 as any, WebkitBoxOrient: "vertical" as any, overflow: "hidden", color: "#1E332E" } as any}>
@@ -177,7 +177,7 @@ export default async function SleepPage({ params }: Props) {
               ) : null}
               {reading.measuredAt ? (
                 <p className={styles.date} style={{ overflowWrap: "anywhere", color: "#6B7C6E", display: "flex", alignItems: "center", gap: 8 } as any}>
-                  <CalendarDays size={14} aria-hidden="true" />
+                  <Icon name="calendar-days" size={14} />
                   <span style={{ overflowWrap: "anywhere" } as any}>
                     {new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(reading.measuredAt))}
                   </span>
@@ -201,7 +201,7 @@ export default async function SleepPage({ params }: Props) {
         className={styles.notice}
         style={{ color: "#6B7C6E", overflowWrap: "anywhere", border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,.82)", padding: "12px 16px", display: "flex", alignItems: "center", gap: 8 } as any}
       >
-        <ShieldCheck size={15} aria-hidden="true" /> {t("notice")}
+        <Icon name="shield-check" size={15} /> {t("notice")}
       </p>
     </main>
   );

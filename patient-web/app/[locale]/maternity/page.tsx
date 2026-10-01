@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Baby, CalendarDays, ChevronLeft, Heart, Sparkles, Stethoscope, Activity } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { callPatientApi } from "@/lib/api/upstream";
@@ -44,14 +44,14 @@ export default async function MaternityPage({ params }: Props) {
   return (
     <main className={`main ${styles.page}`}>
       <Link href={`/${locale}/dashboard`} className={styles.back}>
-        <ChevronLeft size={17} aria-hidden="true" />
+        <Icon name="caret-left" size={17} />
         {locale === "ar" ? "لوحة التحكم" : "Dashboard"}
       </Link>
 
       <section className={styles.hero}>
         <div>
           <p className={styles.eyebrow}>
-            <Heart size={15} aria-hidden="true" />
+            <Icon name="heart" size={15} />
             {locale === "ar" ? "رعاية الأم والجنين" : "Maternal & Fetal Care"}
           </p>
           <h1>{t("title")}</h1>
@@ -77,7 +77,7 @@ export default async function MaternityPage({ params }: Props) {
           <p>{t("empty")}</p>
           <div className={styles.quickNav} style={{ marginTop: "16px" }}>
             <Link href={`/${locale}/consultations/doctors`} className={styles.quickBtnPrimary}>
-              <Stethoscope size={18} aria-hidden="true" />
+              <Icon name="stethoscope" size={18} />
               {locale === "ar" ? "استشارة طبيبة نساء وولادة" : "Consult Obstetrician"}
             </Link>
           </div>
@@ -93,7 +93,7 @@ export default async function MaternityPage({ params }: Props) {
                 </div>
                 {trimester ? (
                   <span className={styles.trimesterBadge}>
-                    <Sparkles size={14} aria-hidden="true" />
+                    <Icon name="sparkle" size={14} />
                     {trimester}
                   </span>
                 ) : null}
@@ -116,7 +116,7 @@ export default async function MaternityPage({ params }: Props) {
                 <div className={styles.metricTop}>
                   <span>{t("dueDate")}</span>
                   <span className={styles.metricGlyph}>
-                    <CalendarDays size={18} aria-hidden="true" />
+                    <Icon name="calendar-days" size={18} />
                   </span>
                 </div>
                 <p className={styles.metricValue}>
@@ -133,7 +133,7 @@ export default async function MaternityPage({ params }: Props) {
                 <div className={styles.metricTop}>
                   <span>{t("mode")}</span>
                   <span className={styles.metricGlyph}>
-                    <Baby size={18} aria-hidden="true" />
+                    <Icon name="baby" size={18} />
                   </span>
                 </div>
                 <p className={styles.metricValue}>{mode}</p>
@@ -147,7 +147,7 @@ export default async function MaternityPage({ params }: Props) {
               <div className={styles.metricTop}>
                 <span>{locale === "ar" ? "سجل المتابعة" : "Tracker Log"}</span>
                 <span className={styles.metricGlyph}>
-                  <Activity size={18} aria-hidden="true" />
+                  <Icon name="pulse" size={18} />
                 </span>
               </div>
               <p className={styles.metricValue}>
@@ -163,15 +163,15 @@ export default async function MaternityPage({ params }: Props) {
 
           <nav className={styles.quickNav} aria-label={locale === "ar" ? "خدمات الأمومة" : "Maternity Services"}>
             <Link href={`/${locale}/maternity/tracker`} className={styles.quickBtnPrimary}>
-              <Activity size={18} aria-hidden="true" />
+              <Icon name="pulse" size={18} />
               {locale === "ar" ? "سجل متابعة الأعراض والحركة" : "Movement & Symptom Log"}
             </Link>
             <Link href={`/${locale}/consultations/doctors`} className={styles.quickBtn}>
-              <Stethoscope size={18} aria-hidden="true" />
+              <Icon name="stethoscope" size={18} />
               {locale === "ar" ? "حجز استشارة نساء وتوليد" : "Obstetrician Consultation"}
             </Link>
             <Link href={`/${locale}/diagnostics/radiology`} className={styles.quickBtn}>
-              <Sparkles size={18} aria-hidden="true" />
+              <Icon name="sparkle" size={18} />
               {locale === "ar" ? "فحص السونار والأشعة" : "Ultrasound & Scans"}
             </Link>
           </nav>

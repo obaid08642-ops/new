@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Gift } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { requirePatientAccess } from "@/lib/auth/session";
@@ -35,7 +35,7 @@ export default async function OffersPage({ params }: Props) {
   const response = await getOffers(token);
   const offers = response.ok ? extractOffers(await response.json().catch(() => null), locale) : [];
   return <main className={`main ${s.page}`}>
-    <div className={s.hero}><div><p className={s.eyebrow}>{t("title")}</p><h1>{t("title")}</h1><p>{t.has("subtitle") ? t("subtitle") : ""}</p></div><span className={s.heroIcon} aria-hidden="true"><Gift size={48} aria-hidden="true" /></span></div>
-    {!response.ok ? <p role="alert" className={s.meta}>{t("error")}</p> : offers.length === 0 ? <div className={s.state}><span className={s.heroIcon}><Gift size={48} aria-hidden="true" /></span><p>{t("empty")}</p></div> : <ul className={s.grid} style={{ listStyle: "none", padding: 0, margin: 0 }}>{offers.map((o) => <li key={o.id} className={s.card}><Link href={`/${locale}/offers/${encodeURIComponent(o.id)}`} style={{ display: "grid", gap: 6, textDecoration: "none", color: "inherit" }}><strong>{o.title}</strong>{o.description ? <p>{o.description}</p> : null}<span className={s.meta}>{[o.price ? `${o.price} ${t("sar")}` : null, o.originalPrice && o.originalPrice !== o.price ? o.originalPrice : null, o.provider ?? null].filter(Boolean).join(" · ")}</span></Link></li>)}</ul>}
+    <div className={s.hero}><div><p className={s.eyebrow}>{t("title")}</p><h1>{t("title")}</h1><p>{t.has("subtitle") ? t("subtitle") : ""}</p></div><span className={s.heroIcon} aria-hidden="true"><Icon name="gift" size={48} /></span></div>
+    {!response.ok ? <p role="alert" className={s.meta}>{t("error")}</p> : offers.length === 0 ? <div className={s.state}><span className={s.heroIcon}><Icon name="gift" size={48} /></span><p>{t("empty")}</p></div> : <ul className={s.grid} style={{ listStyle: "none", padding: 0, margin: 0 }}>{offers.map((o) => <li key={o.id} className={s.card}><Link href={`/${locale}/offers/${encodeURIComponent(o.id)}`} style={{ display: "grid", gap: 6, textDecoration: "none", color: "inherit" }}><strong>{o.title}</strong>{o.description ? <p>{o.description}</p> : null}<span className={s.meta}>{[o.price ? `${o.price} ${t("sar")}` : null, o.originalPrice && o.originalPrice !== o.price ? o.originalPrice : null, o.provider ?? null].filter(Boolean).join(" · ")}</span></Link></li>)}</ul>}
   </main>;
 }

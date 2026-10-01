@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { ShieldCheck, LockKeyhole, Fingerprint } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { getPatientSecuritySettings } from "@/lib/api/settings-server";
@@ -25,7 +25,7 @@ export default async function SettingsSecurityPage({ params }: Props) {
     return (
       <main className={`main ${styles.page}`}>
         <section className={styles.state} role="alert">
-          <ShieldCheck size={20} aria-hidden="true" style={{ color: "#1E332E" }} />
+          <Icon name="shield-check" size={20} style={{ color: "#1E332E" } />
           <h1 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>
             {t("unavailableTitle")}
           </h1>
@@ -49,7 +49,7 @@ export default async function SettingsSecurityPage({ params }: Props) {
       </Link>
       <section className={styles.hero}>
         <p className={styles.eyebrow}>
-          <ShieldCheck size={15} aria-hidden="true" />
+          <Icon name="shield-check" size={15} />
           {ar ? "الأمان" : "Security"}
         </p>
         <h1 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>
@@ -57,14 +57,14 @@ export default async function SettingsSecurityPage({ params }: Props) {
         </h1>
         <p style={{ overflowWrap: "anywhere" } as any}>{t("notice")}</p>
         <span className={styles.icon} style={{ backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any} aria-hidden="true">
-          <ShieldCheck size={22} color="#1E332E" />
+          <Icon name="shield-check" size={22} tone="primary" />
         </span>
       </section>
 
       <section className={styles.grid}>
         <article className={styles.card}>
           <span className={styles.icon} aria-hidden="true">
-            <Fingerprint size={20} />
+            <Icon name="fingerprint" size={20} />
           </span>
           <div style={{ minInlineSize: 0 }}>
             <h2>{t("biometric")}</h2>
@@ -77,7 +77,7 @@ export default async function SettingsSecurityPage({ params }: Props) {
 
         <article className={styles.card}>
           <span className={styles.icon} aria-hidden="true">
-            <LockKeyhole size={20} />
+            <Icon name="lock-keyhole" size={20} />
           </span>
           <div style={{ minInlineSize: 0 }}>
             <h2>{t("twoFactor")}</h2>

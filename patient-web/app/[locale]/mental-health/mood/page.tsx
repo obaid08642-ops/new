@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { CalendarDays, ChevronLeft, HeartPulse, ShieldCheck } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { parseMoodHistory } from "@/lib/api/mood";
 import { getPatientMoodHistory } from "@/lib/api/mood-server";
@@ -38,13 +38,13 @@ export default async function MoodHistoryPage({ params }: Props) {
   return (
     <main className={`main ${styles.page}`}>
       <Link className={styles.back} href={`/${locale}/mental-health`}>
-        <ChevronLeft size={17} aria-hidden="true" />
+        <Icon name="caret-left" size={17} />
         {t("moodBack")}
       </Link>
       <section className={styles.hero}>
         <div>
           <p className={styles.eyebrow}>
-            <ShieldCheck size={15} aria-hidden="true" />
+            <Icon name="shield-check" size={15} />
             {t("moodEyebrow")}
           </p>
           <h1>{t("moodHistoryTitle")}</h1>
@@ -60,7 +60,7 @@ export default async function MoodHistoryPage({ params }: Props) {
           {entries.map((entry) => (
             <article className={styles.card} key={entry.id}>
               <span className={styles.cardIcon} aria-hidden="true">
-                <HeartPulse size={20} />
+                <Icon name="heart-pulse" size={20} />
               </span>
               <strong>{entry.mood || t("moodUnavailable")}</strong>
               {entry.energy !== undefined ? <span>{t("energy")}: {entry.energy}</span> : null}
@@ -68,7 +68,7 @@ export default async function MoodHistoryPage({ params }: Props) {
               {entry.sleepHours !== undefined ? <span>{t("sleepHours")}: {entry.sleepHours}</span> : null}
               {entry.loggedAt ? (
                 <span>
-                  <CalendarDays size={13} aria-hidden="true" style={{ display: "inline", verticalAlign: "middle" }} /> {new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(entry.loggedAt))}
+                  <Icon name="calendar-days" size={13} style={{ display: "inline", verticalAlign: "middle" } /> {new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(entry.loggedAt))}
                 </span>
               ) : null}
             </article>

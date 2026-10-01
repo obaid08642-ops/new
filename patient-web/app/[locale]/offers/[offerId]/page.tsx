@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Gift } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { notFound, redirect } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { requirePatientAccess } from "@/lib/auth/session";
@@ -64,7 +64,7 @@ export default async function OfferDetailPage({ params }: Props) {
   return (
     <main className={`main ${s.page}`}>
       <Link href={`/${locale}/offers`} className={s.backLink}>{ar ? "العروض" : "Offers"}</Link>
-      <div className={s.hero}><div><h1>{title}</h1>{providerName ? <p style={{ color: "#6B7C6E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{providerName}</p> : null}{sponsored ? <p style={{ color: "#1E332E", fontSize: 12, fontWeight: 800 }}>{ar ? "ممول" : "Sponsored"}</p> : null}</div><span className={s.heroIcon} aria-hidden="true"><Gift size={48} aria-hidden="true" /></span></div>
+      <div className={s.hero}><div><h1>{title}</h1>{providerName ? <p style={{ color: "#6B7C6E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{providerName}</p> : null}{sponsored ? <p style={{ color: "#1E332E", fontSize: 12, fontWeight: 800 }}>{ar ? "ممول" : "Sponsored"}</p> : null}</div><span className={s.heroIcon} aria-hidden="true"><Icon name="gift" size={48} /></span></div>
       {original > discounted && discounted > 0 ? (
         <div className={s.card}><p style={{ margin: 0, overflowWrap: "anywhere" }}>{ar ? `وفّر ${original - discounted} ر.س` : `Save ${original - discounted} SAR`} — <strong className={s.price}>{discounted} {ar ? "ر.س" : "SAR"}</strong> <s style={{ color: "#6B7C6E" }}>{original}</s></p></div>
       ) : discounted > 0 ? (

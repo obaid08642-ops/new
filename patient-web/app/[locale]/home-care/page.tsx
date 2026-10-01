@@ -6,7 +6,7 @@ import { getPatientHomeCareBookings } from "@/lib/api/home-care-server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { RetryButton } from "@/components-next/retry-button";
-import { CalendarDays, Clock3, HousePlus, ShieldCheck } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { VectorNursing } from "@/components-next/vector-illustrations";
 import styles from "./home-care.module.css";
 
@@ -62,7 +62,7 @@ export default async function HomeCarePage({ params }: Props) {
       >
         <div className={styles.introText} style={{ display: "grid", gap: 8, minWidth: 0 } as any}>
           <p className={styles.eyebrow} style={{ color: "#1E332E", display: "flex", alignItems: "center", gap: 8, overflowWrap: "anywhere" } as any}>
-            <ShieldCheck size={15} aria-hidden="true" />
+            <Icon name="shield-check" size={15} />
             <span style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2 as any, WebkitBoxOrient: "vertical" as any, overflow: "hidden" } as any}>
               {t("eyebrow")}
             </span>
@@ -167,7 +167,7 @@ export default async function HomeCarePage({ params }: Props) {
                 </span>
                 {booking.scheduledAt ? (
                   <span className={styles.detail} style={{ display: "flex", alignItems: "center", gap: 8, color: "#6B7C6E", overflowWrap: "anywhere" } as any}>
-                    <CalendarDays size={14} aria-hidden="true" />
+                    <Icon name="calendar-days" size={14} />
                     {new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(booking.scheduledAt))}
                   </span>
                 ) : null}
@@ -178,7 +178,7 @@ export default async function HomeCarePage({ params }: Props) {
                 ) : null}
                 {booking.duration ? (
                   <span className={styles.detail} style={{ display: "flex", alignItems: "center", gap: 8, color: "#6B7C6E", overflowWrap: "anywhere" } as any}>
-                    <Clock3 size={14} aria-hidden="true" />
+                    <Icon name="clock" size={14} />
                     {booking.duration}
                   </span>
                 ) : null}

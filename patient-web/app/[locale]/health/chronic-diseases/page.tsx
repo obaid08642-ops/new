@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { Activity, ChevronLeft, HeartPulse, ShieldCheck } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getPatientChronicDiseases } from "@/lib/api/chronic-server";
 import { parseChronicDiseases } from "@/lib/api/chronic";
@@ -50,13 +50,13 @@ export default async function ChronicDiseasesPage({ params }: Props) {
   return (
     <main className={`main ${styles.page}`}>
       <Link className={styles.back} href={`/${locale}/health`}>
-        <ChevronLeft size={17} aria-hidden="true" />
+        <Icon name="caret-left" size={17} />
         {t("back")}
       </Link>
       <section className={styles.hero}>
         <div>
           <p className={styles.eyebrow}>
-            <ShieldCheck size={15} aria-hidden="true" />
+            <Icon name="shield-check" size={15} />
             {t("eyebrow")}
           </p>
           <h1>{t("title")}</h1>
@@ -72,7 +72,7 @@ export default async function ChronicDiseasesPage({ params }: Props) {
               <div className={styles.cardTop}>
                 <span>{t("recordedCondition")}</span>
                 <span className={styles.glyph}>
-                  <Activity size={18} aria-hidden="true" />
+                  <Icon name="pulse" size={18} />
                 </span>
               </div>
               <p className={styles.value}>{disease.name}</p>

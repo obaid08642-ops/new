@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { ChevronLeft, Phone, Siren, UserRound, UsersRound } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { getPatientFamilyEmergencyContacts } from "@/lib/api/family-server";
@@ -34,7 +34,7 @@ export default async function FamilyEmergencyContactsPage({ params }: Props) {
     return (
       <main className={`main ${styles.page}`} style={{ background: "#FDFDFC" }}>
         <section className={styles.state} role="alert" style={{ backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderColor: "#E8EDEE", borderRadius: 20 }}>
-          <Siren size={25} aria-hidden="true" />
+          <Icon name="siren" size={25} />
           <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as React.CSSProperties}>{ar ? "تعذر تحميل جهات الطوارئ" : "Could not load emergency contacts"}</h1>
           <RetryButton />
         </section>
@@ -46,13 +46,13 @@ export default async function FamilyEmergencyContactsPage({ params }: Props) {
   return (
     <main className={`main ${styles.page}`} style={{ background: "#FDFDFC" }}>
       <Link className={styles.back} href={`/${locale}/family`}>
-        <ChevronLeft size={16} aria-hidden="true" />
+        <Icon name="caret-left" size={16} />
         {ar ? "العائلة" : "Family"}
       </Link>
       <section className={styles.intro} style={{ backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderColor: "#E8EDEE", borderRadius: 20, background: "linear-gradient(135deg, #FDFDFC 0%, #F0FDF9 60%, #E7FFF6 100%)" }}>
         <div className={styles.introText}>
           <p className={styles.eyebrow} style={{ color: "#1E332E", overflowWrap: "anywhere" }}>
-            <Siren size={15} aria-hidden="true" />
+            <Icon name="siren" size={15} />
             {ar ? "جهات الطوارئ" : "Emergency contacts"}
           </p>
           <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as React.CSSProperties}>{ar ? `جهات الطوارئ (${contacts.length})` : `Emergency contacts (${contacts.length})`}</h1>
@@ -64,7 +64,7 @@ export default async function FamilyEmergencyContactsPage({ params }: Props) {
       </section>
       {contacts.length === 0 ? (
         <section className={styles.state}>
-          <UsersRound size={25} aria-hidden="true" />
+          <Icon name="users-round" size={25} />
           <p>{ar ? "لا يوجد أفراد في مجموعتك العائلية بعد — ادعُ عائلتك ليصبحوا جهات طوارئ." : "Nobody in your family group yet — invite them to become emergency contacts."}</p>
           <Link className={styles.notice} href={`/${locale}/family/invite`}>{ar ? "دعوة فرد للعائلة" : "Invite someone"}</Link>
         </section>
@@ -72,14 +72,14 @@ export default async function FamilyEmergencyContactsPage({ params }: Props) {
         <section className={styles.grid} aria-label={ar ? "جهات الطوارئ" : "Emergency contacts"}>
           {contacts.map((c) => (
             <article className={styles.card} key={c.user_id || c.phone || c.display_name} style={{ backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderColor: "#E8EDEE", borderRadius: 20 } as React.CSSProperties}>
-              <span className={styles.cardIcon}><UserRound size={19} aria-hidden="true" /></span>
+              <span className={styles.cardIcon}><Icon name="user-round" size={19} /></span>
               <div className={styles.cardBody}>
                 <strong className={styles.member} style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as React.CSSProperties}>{c.display_name || t("member")}</strong>
                 <span className={styles.role} style={{ overflowWrap: "anywhere" }}>{c.relation || c.phone || (ar ? "لا يوجد رقم مسجّل" : "No phone on file")}</span>
               </div>
               {c.phone ? (
                 <a className={styles.notice} href={`tel:${encodeURIComponent(c.phone)}`} style={{ borderRadius: 20, borderColor: "#E8EDEE" }}>
-                  <Phone size={15} aria-hidden="true" /> {ar ? "اتصال" : "Call"}
+                  <Icon name="phone" size={15} /> {ar ? "اتصال" : "Call"}
                 </a>
               ) : null}
             </article>

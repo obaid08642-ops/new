@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { CheckCircle2 } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { VectorLabs } from "@/components-next/vector-illustrations";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
@@ -44,7 +44,7 @@ export default async function DiagnosticsBookingSuccessPage({ params, searchPara
 
       <section style={{ display: "grid", gap: 16, padding: 16, border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", boxShadow: "0 8px 24px rgba(30,51,46,.07)" }}>
         <span style={{ display: "inline-flex", alignItems: "center", gap: 8, color: "#1E332E", fontWeight: 760, fontSize: ".9rem" }}>
-          <CheckCircle2 size={20} color="#1E332E" aria-hidden="true" />
+          <Icon name="check-circle2" size={20} tone="primary" />
           {ar ? `معرف الحجز: ${bookingId}` : `Booking ID: ${bookingId}`}
         </span>
         <nav style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>

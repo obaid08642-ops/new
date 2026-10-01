@@ -5,7 +5,7 @@ import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { callPatientApi } from "@/lib/api/upstream";
 import { FamilyPermissionsClient } from "@/components-next/family-permissions-client";
-import { ChevronLeft, ShieldCheck, UsersRound } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { VectorFamily } from "@/components-next/vector-illustrations";
 import styles from "../family.module.css";
 
@@ -37,17 +37,17 @@ export default async function FamilyPermissionsPage({ params }: Props) {
 
   return (
     <main className={`main ${styles.page}`} style={{ background: "#FDFDFC" }}>
-      <Link className={styles.back} href={`/${locale}/family`}><ChevronLeft size={16} aria-hidden="true" />{ar ? "العائلة" : "Family"}</Link>
+      <Link className={styles.back} href={`/${locale}/family`}><Icon name="caret-left" size={16} />{ar ? "العائلة" : "Family"}</Link>
       <section className={styles.intro} style={{ backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderColor: "#E8EDEE", borderRadius: 20, background: "linear-gradient(135deg, #FDFDFC 0%, #F0FDF9 60%, #E7FFF6 100%)" }}>
         <div className={styles.introText}>
-          <p className={styles.eyebrow} style={{ color: "#1E332E", overflowWrap: "anywhere" }}><ShieldCheck size={15} aria-hidden="true" />{ar ? "الخصوصية والموافقات" : "Permissions"}</p>
+          <p className={styles.eyebrow} style={{ color: "#1E332E", overflowWrap: "anywhere" }}><Icon name="shield-check" size={15} />{ar ? "الخصوصية والموافقات" : "Permissions"}</p>
           <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as React.CSSProperties}>{ar ? "أذونات الأعضاء" : "Member permissions"}</h1>
           <p style={{ overflowWrap: "anywhere" }}>{ar ? "تحكّم بمن يرى السجل الصحي والوصفات — تُحفظ الأذونات عبر الخادم فقط." : "Control who sees health records — persisted server-side only."}</p>
         </div>
         <div className={styles.introVector}><VectorFamily size={48} aria-hidden="true" /></div>
       </section>
       <section className={styles.detail} style={{ backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderColor: "#E8EDEE", borderRadius: 20, background: "rgba(255,255,255,0.82)" }}>
-        <h2 style={{ display: "flex", alignItems: "center", gap: 8, margin: "0 0 8px", overflowWrap: "anywhere", color: "#1E332E" } as React.CSSProperties}><UsersRound size={17} aria-hidden="true" />{ar ? "الأعضاء" : "Members"}</h2>
+        <h2 style={{ display: "flex", alignItems: "center", gap: 8, margin: "0 0 8px", overflowWrap: "anywhere", color: "#1E332E" } as React.CSSProperties}><Icon name="users-round" size={17} />{ar ? "الأعضاء" : "Members"}</h2>
         <FamilyPermissionsClient locale={locale} members={members} />
       </section>
       <Link className={styles.notice} href={`/${locale}/family/permission-requests`} style={{ overflowWrap: "anywhere", borderColor: "#E8EDEE", borderRadius: 20 } as React.CSSProperties}>{ar ? "طلبات الأذونات المعلقة ←" : "Pending permission requests →"}</Link>

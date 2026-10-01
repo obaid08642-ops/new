@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { Bookmark, ChevronLeft, FileText } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getPatientArticleBookmarks } from "@/lib/api/articles-server";
 import { parseArticleList } from "@/lib/api/articles";
@@ -57,7 +57,7 @@ export default async function ArticleBookmarksPage({ params }: Props) {
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
           <div style={{ display: "grid", gap: 8, minWidth: 0, flex: "1 1 220px" }}>
             <p className={styles.eyebrow} style={{ color: "#1E332E", gap: 8 } as any}>
-              <span style={{ display: "grid", placeItems: "center", width: 32, height: 32, borderRadius: 12, background: "rgba(95,217,179,.14)", border: "1px solid #E8EDEE", flex: "0 0 auto" }}><Bookmark size={16} aria-hidden="true" style={{ color: "#1E332E" } as any} /></span>
+              <span style={{ display: "grid", placeItems: "center", width: 32, height: 32, borderRadius: 12, background: "rgba(95,217,179,.14)", border: "1px solid #E8EDEE", flex: "0 0 auto" }}><Icon name="bookmark" size={16} style={{ color: "#1E332E" } /></span>
               <span style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{t("eyebrow")}</span>
             </p>
             <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{t("bookmarksTitle")}</h1>
@@ -72,13 +72,13 @@ export default async function ArticleBookmarksPage({ params }: Props) {
           {articles.map((article) => (
             <Link className={styles.card} key={article.slug} href={`/${locale}/articles/${article.slug}`} style={{ borderRadius: 20, border: "1px solid #E8EDEE", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>
               <span className={styles.icon} style={{ width: 48, height: 48, borderRadius: 16, background: "rgba(95,217,179,.14)", border: "1px solid #E8EDEE" } as any}>
-                <FileText size={20} aria-hidden="true" style={{ color: "#1E332E" } as any} />
+                <Icon name="file-text" size={20} style={{ color: "#1E332E" } />
               </span>
               <span className={styles.copy} style={{ gap: 8 } as any}>
                 <strong style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{locale === "ar" ? article.titleAr || article.titleEn : article.titleEn || article.titleAr || t("untitled")}</strong>
                 <span style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{article.category || t("categoryUnavailable")}</span>
               </span>
-              <ChevronLeft className={styles.arrow} size={18} aria-hidden="true" style={{ color: "#1E332E" } as any} />
+              <Icon name="caret-left" className={styles.arrow} size={18} style={{ color: "#1E332E" } />
             </Link>
           ))}
         </section>

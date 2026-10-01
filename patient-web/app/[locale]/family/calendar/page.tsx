@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { CalendarDays, ChevronLeft, ShieldCheck, Clock, UserRound } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { isLocale } from "@/lib/i18n";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { getPatientFamilyCalendar } from "@/lib/api/family-server";
@@ -26,14 +26,14 @@ export default async function FamilyCalendarPage({ params }: Props) {
   return (
     <main className={`main ${styles.page}`} style={{ background: "#FDFDFC" }}>
       <Link className={styles.back} href={`/${locale}/family`}>
-        <ChevronLeft size={16} aria-hidden="true" />
+        <Icon name="caret-left" size={16} />
         {AR ? "العودة للعائلة" : "Back to Family"}
       </Link>
 
       <section className={styles.intro} style={{ backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderColor: "#E8EDEE", borderRadius: 20, background: "linear-gradient(135deg, #FDFDFC 0%, #F0FDF9 60%, #E7FFF6 100%)" }}>
         <div className={styles.introText}>
           <p className={styles.eyebrow}>
-            <ShieldCheck size={15} aria-hidden="true" />
+            <Icon name="shield-check" size={15} />
             {AR ? "تقويم العائلة المشترك" : "Shared Care Calendar"}
           </p>
           <h1>{AR ? "مواعيد وأنشطة الرعاية" : "Family Health Events"}</h1>
@@ -51,7 +51,7 @@ export default async function FamilyCalendarPage({ params }: Props) {
       {events.length > 0 ? (
         <section className={styles.detail}>
           <h2>
-            <CalendarDays size={18} aria-hidden="true" />
+            <Icon name="calendar-days" size={18} />
             {AR ? "الأحداث المجدولة" : "Scheduled Events"} ({events.length})
           </h2>
           <ul>
@@ -63,13 +63,13 @@ export default async function FamilyCalendarPage({ params }: Props) {
                   </strong>
                   {event.member_name ? (
                     <span style={{ display: "inline-flex", alignItems: "center", gap: 8, color: "#5FD9B3", fontSize: "0.82rem", fontWeight: 700, overflowWrap: "anywhere" }}>
-                      <UserRound size={13} aria-hidden="true" />
+                      <Icon name="user-round" size={13} />
                       {event.member_name}
                     </span>
                   ) : null}
                 </div>
                 <div style={{ display: "inline-flex", alignItems: "center", gap: 8, color: "#64748B", fontSize: "0.82rem" }}>
-                  <Clock size={13} aria-hidden="true" />
+                  <Icon name="clock" size={13} />
                   {event.event_date
                     ? new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(event.event_date))
                     : "—"}
@@ -80,7 +80,7 @@ export default async function FamilyCalendarPage({ params }: Props) {
         </section>
       ) : (
         <section className={styles.state}>
-          <CalendarDays size={32} aria-hidden="true" />
+          <Icon name="calendar-days" size={32} />
           <h1>{AR ? "لا توجد أحداث مجدولة" : "No Scheduled Events"}</h1>
           <p>
             {AR

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { Brain, CalendarDays, ChevronLeft, Clock3, ShieldCheck } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { parseMeditationHistory } from "@/lib/api/meditation";
 import { getPatientMeditationHistory } from "@/lib/api/meditation-server";
@@ -34,13 +34,13 @@ export default async function MeditationHistoryPage({ params }: Props) {
   return (
     <main className={`main ${styles.page}`}>
       <Link className={styles.back} href={`/${locale}/mental-health`}>
-        <ChevronLeft size={17} aria-hidden="true" />
+        <Icon name="caret-left" size={17} />
         {t("meditationBack")}
       </Link>
       <section className={styles.hero}>
         <div>
           <p className={styles.eyebrow}>
-            <ShieldCheck size={15} aria-hidden="true" />
+            <Icon name="shield-check" size={15} />
             {t("meditationEyebrow")}
           </p>
           <h1>{t("meditationHistoryTitle")}</h1>
@@ -54,11 +54,11 @@ export default async function MeditationHistoryPage({ params }: Props) {
         <section className={styles.grid} aria-label={t("meditationHistoryTitle")}>
           {entries.map((entry) => (
             <article className={styles.card} key={entry.id}>
-              <Brain size={24} aria-hidden="true" />
+              <Icon name="brain" size={24} />
               <strong>{entry.type || t("meditationUnavailable")}</strong>
               {entry.durationMinutes !== undefined ? (
                 <span>
-                  <Clock3 size={13} aria-hidden="true" style={{ display: "inline", verticalAlign: "middle" }} /> {entry.durationMinutes} {t("minutes")}
+                  <Icon name="clock" size={13} style={{ display: "inline", verticalAlign: "middle" } /> {entry.durationMinutes} {t("minutes")}
                 </span>
               ) : null}
               {entry.completed !== undefined ? (
@@ -66,7 +66,7 @@ export default async function MeditationHistoryPage({ params }: Props) {
               ) : null}
               {entry.loggedAt ? (
                 <span>
-                  <CalendarDays size={13} aria-hidden="true" style={{ display: "inline", verticalAlign: "middle" }} /> {new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(entry.loggedAt))}
+                  <Icon name="calendar-days" size={13} style={{ display: "inline", verticalAlign: "middle" } /> {new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(entry.loggedAt))}
                 </span>
               ) : null}
             </article>

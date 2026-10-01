@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { RefreshCw } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { useRouter } from "next/navigation";
 
 export function PharmacyOffersLiveRefresh({ active, label, refreshLabel }: { active: boolean; label: string; refreshLabel: string }) {
@@ -19,7 +19,7 @@ export function PharmacyOffersLiveRefresh({ active, label, refreshLabel }: { act
   }, [active, router]);
   if (!active) return null;
   return <div role="status" aria-live="polite" style={{ display: "flex", alignItems: "center", gap: 10, margin: "16px 0" }}>
-    <RefreshCw size={16} aria-hidden="true" />
+    <Icon name="refresh-cw" size={16} />
     <span>{label} {seconds}s</span>
     <button type="button" onClick={() => { setSeconds(15); router.refresh(); }}>{refreshLabel}</button>
   </div>;

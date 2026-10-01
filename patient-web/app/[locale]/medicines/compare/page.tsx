@@ -6,7 +6,7 @@ import { callPatientApi } from "@/lib/api/upstream";
 import { isLocale } from "@/lib/i18n";
 import { hubMetadata } from "@/lib/seo";
 
-import { GitCompareArrows, ChevronLeft } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import styles from "./compare.module.css";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ ids?: string }> };
@@ -36,16 +36,16 @@ export default async function MedicineComparePage({ params, searchParams }: Prop
   const F = ["name", "active_ingredient", "price", "dosage_form", "manufacturer"] as const;
 
   return <main className={`main ${styles.page}`}>
-    <Link className={styles.back} href={`/${locale}/medicines`}><ChevronLeft size={17} aria-hidden="true" />{t("back")}</Link>
+    <Link className={styles.back} href={`/${locale}/medicines`}><Icon name="caret-left" size={17} />{t("back")}</Link>
     <section className={styles.hero}>
       <div className={styles.heroText}>
-        <h1><GitCompareArrows size={20} aria-hidden="true" /><span>{t("title")}</span></h1>
+        <h1><Icon name="git-compare-arrows" size={20} /><span>{t("title")}</span></h1>
         <p>{t("emptyBody")}</p>
       </div>
-      <span className={styles.heroIcon} aria-hidden="true"><GitCompareArrows size={22} /></span>
+      <span className={styles.heroIcon} aria-hidden="true"><Icon name="git-compare-arrows" size={22} /></span>
     </section>
     {items.length < 2 ? (
-      <section className={styles.empty}><span className={styles.emptyIcon} aria-hidden="true"><GitCompareArrows size={22} /></span><p>{t("emptyBody")}</p><Link className={styles.primary} href={`/${locale}/medicines`}>{t("browse")}</Link></section>
+      <section className={styles.empty}><span className={styles.emptyIcon} aria-hidden="true"><Icon name="git-compare-arrows" size={22} /></span><p>{t("emptyBody")}</p><Link className={styles.primary} href={`/${locale}/medicines`}>{t("browse")}</Link></section>
     ) : (
       <div className={styles.tableWrap}><table className={styles.table}>
         <thead><tr><th>{t("attribute")}</th>{items.map((m, i) => <th key={i}>{String(m.name ?? m.title ?? `#${i + 1}`)}</th>)}</tr></thead>

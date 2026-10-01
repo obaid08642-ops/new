@@ -4,7 +4,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { callPatientApi } from "@/lib/api/upstream";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
-import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { VectorInsurance } from "@/components-next/vector-illustrations";
 import styles from "./payment-result.module.css";
 
@@ -35,9 +35,9 @@ export default async function PaymentResultPage({ params, searchParams }: Props)
   return <main className={`main ${styles.page}`}>
     <section className={styles.card}>
       <VectorInsurance size={48} aria-hidden="true" />
-      {ok ? <CheckCircle2 size={48} className={styles.ok} aria-hidden="true" />
-        : failed ? <XCircle size={48} className={styles.fail} aria-hidden="true" />
-        : <Loader2 size={48} className={styles.pending} aria-hidden="true" />}
+      {ok ? <Icon name="check-circle2" size={48} className={styles.ok} />
+        : failed ? <Icon name="x-circle" size={48} className={styles.fail} />
+        : <Icon name="loader2" size={48} className={styles.pending} />}
       <h1>{ok ? t("successTitle") : failed ? t("failedTitle") : t("processingTitle")}</h1>
       <p>{ok ? t("successBody") : failed ? t("failedBody") : t("processingBody")}</p>
       {ref ? <p className={styles.ref}>{t("reference")}: {ref}</p> : null}

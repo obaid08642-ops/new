@@ -4,7 +4,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { callPatientApi } from "@/lib/api/upstream";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
-import { Baby, CalendarDays, ChevronLeft } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { VectorMaternity } from "@/components-next/vector-illustrations";
 import styles from "../maternity.module.css";
 
@@ -24,14 +24,14 @@ export default async function MaternityTrackerPage({ params }: Props) {
   return (
     <main className={`main ${styles.page}`}>
       <Link href={`/${locale}/maternity`} className={styles.back}>
-        <ChevronLeft size={17} aria-hidden="true" />
+        <Icon name="caret-left" size={17} />
         {t("back")}
       </Link>
 
       <section className={styles.hero}>
         <div>
           <p className={styles.eyebrow}>
-            <Baby size={15} aria-hidden="true" />
+            <Icon name="baby" size={15} />
             {t("title")}
           </p>
           <h1>{t("title")}</h1>
@@ -58,7 +58,7 @@ export default async function MaternityTrackerPage({ params }: Props) {
               <div className={styles.metricTop}>
                 <span>{String(item?.type ?? item?.kind ?? item?.category ?? t("title"))}</span>
                 <span className={styles.metricGlyph}>
-                  <Baby size={18} aria-hidden="true" />
+                  <Icon name="baby" size={18} />
                 </span>
               </div>
               <p className={styles.metricValue}>
@@ -66,7 +66,7 @@ export default async function MaternityTrackerPage({ params }: Props) {
               </p>
               {item?.created_at ? (
                 <p className={styles.metricSub}>
-                  <CalendarDays size={14} style={{ display: "inline", verticalAlign: "middle", marginInlineEnd: 4 }} />
+                  <Icon name="calendar-days" size={14} style={{ display: "inline", verticalAlign: "middle", marginInlineEnd: 4 } />
                   {String(item.created_at).slice(0, 10)}
                 </p>
               ) : null}
