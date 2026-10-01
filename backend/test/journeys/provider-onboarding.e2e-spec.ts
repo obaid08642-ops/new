@@ -45,13 +45,20 @@ jest.setTimeout(180_000);
 describe('Gate P2 provider onboarding journeys', () => {
   let app: INestApplication;
   const post = (url: string, token: string, body: any = {}) =>
-    request(app.getHttpServer()).post(url).set('Authorization', `Bearer ${token}`).send(body);
+    request(app.getHttpServer()).post(url).set('Authorization', `Bearer ${token}`).set('x-admin-device', 'test-device-0001').send(body);
   const get = (url: string, token: string) =>
-    request(app.getHttpServer()).get(url).set('Authorization', `Bearer ${token}`);
+    request(app.getHttpServer()).get(url).set('Authorization', `Bearer ${token}`).set('x-admin-device', 'test-device-0001');
 
   beforeAll(async () => {
     process.env.JWT_SECRET = TEST_JWT_SECRET;
     const db = makeDb();
+    // R8: enroll the test admin device so admin calls pass the C2 device check.
+    const { createHash } = require('crypto');
+    await db.collection('admin_devices').create({
+      user_id: 'admin-1',
+      device_hash: createHash('sha256').update('test-device-0001').digest('hex'),
+      revoked: false,
+    });
     const repo = (name: string) => {
       const m = db.model(name);
       return { findOne: m.findOne, find: m.find, create: m.create, updateOne: m.updateOne, updateMany: m.updateMany, countDocuments: m.countDocuments, model: m };
@@ -137,7 +144,10 @@ describe('Gate P2 provider onboarding journeys', () => {
 
       it('admin approve → login → me/kyc/availability = 200', async () => {
         // P2.1: account id === user id.
-        const ap = await post(`/api/v1/admin/providers/${userId}/approve`, admin, {});
+        // R1: approval requires documents; the test uses an override reason.
+        const ap = await post(`/api/v1/admin/providers/${userId}/approve`, admin, {
+          override_reason: 'Test override: documents verified manually in the test setup.',
+        });
         if (ap.status !== 201) console.log('APPROVE-BODY', ap.status, JSON.stringify(ap.body).slice(0, 300));
         expect([200, 201]).toContain(ap.status);
         const login = await post('/api/v1/provider/auth/login', '', { email: leg.email, password: 'Secret123' });
