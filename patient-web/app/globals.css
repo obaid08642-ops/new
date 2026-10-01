@@ -99,7 +99,14 @@ html, body, .shell { max-width: 100%; overflow-x: clip; }
    and cascade order was choosing the brand. One now, on the tokens, below. */
 body { background: radial-gradient(circle at 85% -15%, rgba(95,217,179,.16), transparent 31rem), radial-gradient(circle at 4% 80%, rgba(184,224,48,.12), transparent 25rem), var(--canvas); }
 .topbar { position: sticky; top: 0; z-index: 20; border-color: var(--nabd-color-border-subtle); background: var(--nabd-color-glass-bgStrong); backdrop-filter: saturate(165%) blur(var(--nabd-color-glass-blur)); }
-.brand-mark { border: 1px solid rgba(184,224,48,.4); box-shadow: 0 4px 14px rgba(184,224,48,.25); background: #1E332E; }
+.brand-mark {
+  /* 12.A1 — the tile around the Noon Dot. It was #1E332E with a lime ring
+     and a lime glow, left from a brand that predates the owner's palette, so the
+     mark the owner approved was sitting on a tile nobody approved. */
+  border: 1px solid var(--nabd-color-border-onGlass);
+  background: var(--nabd-color-brand-ink);
+  box-shadow: var(--nabd-shadow-card);
+}
 .brand-mark { overflow: hidden; }.pulse-shield-mark { width: 1.55rem; height: 1.55rem; color: #B8E030; filter: drop-shadow(0 1px 2px rgba(0,0,0,.25)); }
 .locale-option { border-radius: 999px; border-color: transparent; background: rgba(245,247,250,.86); transition: transform var(--nabd-motion-duration-enter) var(--nabd-motion-easing-enter), background var(--nabd-motion-duration-enter) var(--nabd-motion-easing-enter), color var(--nabd-motion-duration-enter) var(--nabd-motion-easing-enter); }.locale-option:hover { transform: translateY(-1px); background: var(--surface); box-shadow: 0 4px 12px rgba(20,26,42,.08); }.locale-option:focus-visible { outline: 3px solid rgba(184,224,48,.4); outline-offset: 2px; }.locale-option-active { background: var(--brand-soft); border-color: rgba(184,224,48,.5); color: #1E332E; }
 .button { gap: .5rem; min-height: 3rem; border-radius: 1rem; box-shadow: var(--nabd-shadow-glass); transition: transform var(--nabd-motion-duration-enter) var(--nabd-motion-easing-enter), box-shadow var(--nabd-motion-duration-enter) var(--nabd-motion-easing-enter), background var(--nabd-motion-duration-enter) var(--nabd-motion-easing-enter); }.button:hover { transform: translateY(-2px); }.button:active { transform: scale(.97); }.button:focus-visible { outline: 3px solid rgba(184,224,48,.4); outline-offset: 3px; }
