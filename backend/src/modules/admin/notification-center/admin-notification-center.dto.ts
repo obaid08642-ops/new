@@ -65,3 +65,53 @@ export class CreateCampaignDto {
   @IsArray()
   variants?: Array<Record<string, unknown>>;
 }
+
+export class RecurringRuleDto {
+  @IsOptional()
+  @IsString()
+  id?: string;
+
+  @IsDefined()
+  @IsString()
+  name: string;
+
+  @IsDefined()
+  @IsObject()
+  audience: { type: string; filters: any };
+
+  @IsDefined()
+  @IsString()
+  frequency: 'daily' | 'weekly' | 'monthly';
+
+  @IsDefined()
+  @IsString()
+  sendTime: string;
+
+  @IsDefined()
+  @IsDateString()
+  startDate: string;
+
+  @IsOptional()
+  @IsDateString()
+  endDate?: string;
+
+  @IsDefined()
+  @IsObject()
+  title: Record<string, string>;
+
+  @IsDefined()
+  @IsObject()
+  body: Record<string, string>;
+
+  @IsOptional()
+  @IsString()
+  image?: string;
+
+  @IsOptional()
+  @IsString()
+  deepLink?: string;
+
+  @IsDefined()
+  @IsBoolean()
+  enabled: boolean;
+}

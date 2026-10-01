@@ -30,7 +30,8 @@ describe('Admin notification campaign governance', () => {
 
   it('passes the authenticated admin to broadcast service calls', async () => {
     const svc: any = { broadcast: jest.fn().mockResolvedValue({ ok: true }) };
-    const controller = new AdminNotificationCenterController(svc);
+    const recurring: any = { listRules: jest.fn(), upsertRule: jest.fn(), toggleRule: jest.fn() };
+    const controller = new AdminNotificationCenterController(svc, recurring);
     await controller.broadcast({ id: 'admin-actual' }, { title: 'Notice', body: 'Body', segment: 'patients' });
     expect(svc.broadcast).toHaveBeenCalledWith('admin-actual', { title: 'Notice', body: 'Body', segment: 'patients' });
   });

@@ -13,10 +13,10 @@
  *    (PushLog = delivery, PushEngagement = received/opened/clicked)
  */
 import {
-  Module, Injectable, Controller, Post, Get, Delete, Body, Param, Query,
+  Module, Injectable, Controller, Post, Get, Delete, Patch, Body, Param, Query,
   UseGuards, Logger, NotFoundException, BadRequestException,
 } from '@nestjs/common';
-import { BroadcastDto, CreateCampaignDto } from './admin-notification-center.dto';
+import { BroadcastDto, CreateCampaignDto, RecurringRuleDto } from './admin-notification-center.dto';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
@@ -26,6 +26,7 @@ import { CurrentUser, JwtAuthGuard, Roles } from '../../../common/auth.guard';
 import { UserRole } from '../../../common/enums';
 import { PushModule, PushService } from '../../push/push.module';
 import { compileSegment } from '../enterprise/segments.engine';
+import { RecurringNotificationService } from './recurring.service';
 
 // ── Schema ────────────────────────────────────────────────────────────
 
@@ -402,7 +403,10 @@ export class AdminNotificationCenterService {
 @UseGuards(JwtAuthGuard)
 @Roles(UserRole.ADMIN)
 export class AdminNotificationCenterController {
-  constructor(private readonly svc: AdminNotificationCenterService) {}
+  constructor(
+    private readonly svc: AdminNotificationCenterService,
+    private readonly recurring: RecurringNotificationService,
+  ) {}
 
   /** Available segments + audience sizes */
   @Get('segments')
@@ -441,6 +445,22 @@ export class AdminNotificationCenterController {
   /** Manual retargeting run (also runs automatically every 6h) */
   @Post('retarget/run')
   retarget() { return this.svc.retargetIncompleteOrders(); }
+
+  /** List recurring notification rules */
+  @Get('recurring')
+  listRecurring() { return this.recurring.listRules(); }
+
+  /** Create or update a recurring rule */
+  @Post('recurring')
+  upsertRecurring(@CurrentUser() admin: any, @Body() body: RecurringRuleDto) {
+    return this.recurring.upsertRule(String(admin?.id), body);
+  }
+
+  /** Enable or disable a recurring rule */
+  @Patch('recurring/:id')
+  toggleRecurring(@Param('id') id: string, @Body() body: { enabled: boolean }) {
+    return this.recurring.toggleRule(id, body.enabled === true);
+  }
 }
 
 // ── Module ────────────────────────────────────────────────────────────

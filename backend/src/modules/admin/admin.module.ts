@@ -62,6 +62,7 @@ import {
   AdminNotificationCenterController,
   AdminNotificationCenterService,
 } from './notification-center/admin-notification-center.module';
+import { RecurringNotificationService } from './notification-center/recurring.service';
 // P5.3: merged from AdminWebCoreModule (web-core/ → admin/)
 import { FinanceEngineModule } from '../finance-engine/finance-engine.module';
 import { ProviderWithdrawalSchema } from '../provider-ops/provider-ops.module';
@@ -178,10 +179,12 @@ import { AuditIngestController } from './admin-audit-ingest.controller';
     AdminGovernanceService,
     // P5.3: merged from AdminNotificationCenterModule
     AdminNotificationCenterService,
+    RecurringNotificationService,
   ],
   exports: [
     AdminAuthorityService,
     AdminNotificationCenterService,
+    RecurringNotificationService,
     AdminAuditService,
     OrdersConsoleService,
     FinanceSuiteService,
