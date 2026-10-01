@@ -175,7 +175,6 @@ export default function OtpScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: resolveColor('var(--bg)', isDark) } ]}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <ScreenState loading={loading} error={null} empty={false} emptyTitle="لا توجد بيانات" onRetry={handleConfirm}>
         <ScrollView contentContainerStyle={{ paddingHorizontal: 28, paddingTop: 20, paddingBottom: 120, flexGrow: 1 }} keyboardShouldPersistTaps="handled">
           
           <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, { backgroundColor: resolveColor('var(--s)', isDark), borderColor: resolveColor('var(--bd)', isDark) } ]}>
@@ -237,7 +236,6 @@ export default function OtpScreen() {
           </TouchableOpacity>
 
         </ScrollView>
-        </ScreenState>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

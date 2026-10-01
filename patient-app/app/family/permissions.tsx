@@ -235,7 +235,6 @@ export default function FamilyPermissionsScreen() {
         <IconButton icon="back" onPress={() => router.back()} />
       </View>
 
-      <ScreenState loading={false} error={null} empty={false} emptyTitle="لا توجد صلاحيات">
       <ScrollView
         contentContainerStyle={{ padding: 16, gap: 14, paddingBottom: 160 }}
       >
@@ -314,7 +313,6 @@ export default function FamilyPermissionsScreen() {
           />
         </Card>
       </ScrollView>
-      </ScreenState>
 
       <View
         style={[

@@ -306,12 +306,22 @@ export class LabsService {
     return b.toObject();
   }
 
-  /** R7-3: real technicians — staff accounts linked to this lab, with live names. */
+  /**
+   * R7-3: real technicians. A lab's team is invited through `provider/operators`
+   * (`provider_operators.provider_account_id` = the lab account); hospital labs may also
+   * link staff accounts via `parent_provider_account_id`/`facility_id`.
+   */
   async listTechnicians(user: any) {
     const labId = String(user?.parent_provider_account_id || user?.facility_id || user?.id || '');
     const db: any = (this.bkgModel as any).db;
+    const operators: any[] = await db.collection('provider_operators').find({
+      provider_account_id: { $eq: labId },
+      status: 'active',
+      role: { $in: ['lab_technician', 'nurse', 'owner', 'admin'] },
+    }, { projection: { _id: 0, id: 1, full_name: 1, email: 1, role: 1, status: 1 } })
+      .limit(100).toArray().catch(() => []);
     const accounts: any[] = await db.collection('provider_accounts').find({
-      $or: [{ facility_id: labId }, { parent_provider_account_id: labId }],
+      $or: [{ facility_id: { $eq: labId } }, { parent_provider_account_id: { $eq: labId } }],
     }, { projection: { _id: 0, id: 1, user_id: 1, full_name: 1, email: 1, role: 1, status: 1 } })
       .limit(100).toArray().catch(() => []);
     const userIds = [...new Set(accounts.map((a: any) => String(a.user_id || a.id)).filter(Boolean))];
@@ -319,13 +329,18 @@ export class LabsService {
       ? await db.collection('users').find({ id: { $in: userIds } }, { projection: { _id: 0, id: 1, full_name: 1 } }).toArray().catch(() => [])
       : [];
     const names = new Map(users.map((u: any) => [String(u.id), u.full_name]));
-    return accounts.map((a: any) => ({
-      id: String(a.user_id || a.id),
-      account_id: String(a.id),
-      name: names.get(String(a.user_id || a.id)) || a.full_name || a.email || '—',
-      role: a.role,
-      status: a.status,
-    }));
+    return [
+      ...operators.map((o: any) => ({
+        id: String(o.id), account_id: String(o.id), name: o.full_name || o.email || '—', role: o.role, status: o.status,
+      })),
+      ...accounts.map((a: any) => ({
+        id: String(a.user_id || a.id),
+        account_id: String(a.id),
+        name: names.get(String(a.user_id || a.id)) || a.full_name || a.email || '—',
+        role: a.role,
+        status: a.status,
+      })),
+    ];
   }
 
   async mineFor(user: any) {

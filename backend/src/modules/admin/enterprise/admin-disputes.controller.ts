@@ -22,7 +22,14 @@ import { ResolveDto } from './admin-disputes.dto';
 @Roles(UserRole.ADMIN)
 export class AdminDisputesController {
   /** Hard cap per single dispute refund (safety rail, SAR). */
-  private readonly maxRefund = Number(process.env.DISPUTE_MAX_REFUND_SAR || 2000);
+  /** 7B-B4: the per-dispute refund cap is admin-editable (`system_configs.dispute_config.max_refund_sar`). */
+  private async maxRefund(): Promise<number> {
+    const doc: any = await this.conn.collection('system_configs').findOne({ key: 'dispute_config' }).catch(() => null);
+    const v = Number(doc?.value?.max_refund_sar);
+    if (Number.isFinite(v) && v > 0) return v;
+    const env = Number(process.env.DISPUTE_MAX_REFUND_SAR);
+    return Number.isFinite(env) && env > 0 ? env : 2000;
+  }
 
   constructor(
     @InjectConnection() private readonly conn: Connection,
@@ -152,14 +159,15 @@ export class AdminDisputesController {
     }
 
     let creditedAmount = 0;
+    const cap = isMoney ? await this.maxRefund() : 0;
     if (decision === 'refund_partial') {
       const amt = Math.round(Number(b?.amount) * 100) / 100;
       if (!Number.isFinite(amt) || amt <= 0) throw new BadRequestException('amount_required_positive');
-      if (amt > this.maxRefund) throw new BadRequestException(`amount_exceeds_cap_${this.maxRefund}`);
+      if (amt > cap) throw new BadRequestException(`amount_exceeds_cap_${cap}`);
       creditedAmount = amt;
     } else if (decision === 'refund_full') {
       const amt = Math.round(Number(b?.amount) * 100) / 100;
-      creditedAmount = Number.isFinite(amt) && amt > 0 ? Math.min(amt, this.maxRefund) : this.maxRefund;
+      creditedAmount = Number.isFinite(amt) && amt > 0 ? Math.min(amt, cap) : cap;
     }
 
     if (creditedAmount > 0) {

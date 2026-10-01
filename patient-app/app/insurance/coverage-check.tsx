@@ -171,7 +171,6 @@ function CoverageCheckScreenInner() {
         </View>
       </View>
 
-      <ScreenState loading={false} error={null} empty={false} emptyTitle="لا توجد بيانات" onRetry={handleCheck}>
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 100 }]} showsVerticalScrollIndicator={false}>
         <View style={[styles.card, { backgroundColor: isDark ? colors.surface : colors.white } ]}>
           <AppText variant="bodySM">نوع الخدمة المطلوبة</AppText>
@@ -207,7 +206,6 @@ function CoverageCheckScreenInner() {
           </View>
         </TouchableOpacity>
       </ScrollView>
-      </ScreenState>
     </View>
   );
 }

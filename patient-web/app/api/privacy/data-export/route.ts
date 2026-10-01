@@ -50,7 +50,8 @@ export async function DELETE(request: Request) {
 
   const upstream = await callPatientApi("/users/me", {
     method: "DELETE",
-    headers: { "content-type": "application/json" },
+    // The backend requires an idempotency key on erasure: a retried request must not run twice.
+    headers: { "content-type": "application/json", "idempotency-key": `erase-${crypto.randomUUID()}` },
     body: JSON.stringify(input.data),
   }, token);
   const data = await upstream.json().catch(() => null);

@@ -229,7 +229,6 @@ export default function LoginScreen() {
   return (
     <KeyboardAvoidingView style={[styles.container, { backgroundColor: resolveColor('var(--bg)', isDark) }]} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       
-      <ScreenState loading={loading} error={null} empty={false} emptyTitle="لا توجد بيانات" onRetry={handleLogin}>
       <ScrollView contentContainerStyle={{ paddingHorizontal: 28, paddingTop: insets.top + 20, paddingBottom: 120, flexGrow: 1 }} keyboardShouldPersistTaps="handled">
         <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, { backgroundColor: resolveColor('var(--s)', isDark), borderColor: resolveColor('var(--bd)', isDark) } ]}>
           <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 22, color: resolveColor('var(--n)', isDark) }}>
@@ -364,7 +363,6 @@ export default function LoginScreen() {
         </View>
 
       </ScrollView>
-      </ScreenState>
     </KeyboardAvoidingView>
   );
 }

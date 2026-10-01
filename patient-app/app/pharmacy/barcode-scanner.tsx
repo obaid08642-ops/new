@@ -99,7 +99,6 @@ export default function BarcodeScannerScreen() {
   };
 
   return (
-    <ScreenState loading={false} error={null} empty={false} emptyTitle="لا توجد بيانات">
     <View style={[st.c, { backgroundColor: '#000' } ]}>
       <StatusBar barStyle="light-content" />
 
@@ -221,7 +220,6 @@ export default function BarcodeScannerScreen() {
         </View>
       )}
     </View>
-    </ScreenState>
   );
 }
 

@@ -146,7 +146,6 @@ export default function Welcome() {
         </TouchableOpacity>
       </Modal>
 
-      <ScreenState loading={guestBusy} error={null} empty={false} emptyTitle="لا توجد بيانات" onRetry={continueAsGuest}>
       <Animated.View style={[styles.content, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
         <View style={{ marginBottom: 24, shadowColor: resolveColor('var(--p)'), shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.45, shadowRadius: 30, elevation: 12 }}>
           <NpLogo size={96} />
@@ -227,7 +226,6 @@ export default function Welcome() {
         </View>
       </View>
       </Animated.View>
-      </ScreenState>
     </SafeAreaView>
   );
 }

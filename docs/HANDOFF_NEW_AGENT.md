@@ -16,23 +16,23 @@ You are the **implementing agent**. A separate reviewer (another Claude session)
 ## 2. Read in this order before writing code
 1. `AGENTS.md`: the rules. They override your defaults.
 2. `docs/audit/02_AGENT_EXECUTION_PLAN.md`: the contract. Each task has **Do** and **Verify**.
-3. `REVIEW_P7_P8.md`: the latest review. **R7-1..R7-8 are mandatory before anything else.**
+3. `REVIEW_P7R_TO_P12.md`: the latest review (2026-10-01). **X1..X10 are mandatory before anything else.** Then `REVIEW_P7_P8.md` for the earlier items.
 4. `REVIEW_P6.md` and `REVIEW_P5.md`: earlier verdicts, and the process lessons in them.
 5. `docs/audit/04_DISCOVERY_ENGAGEMENT_AUDIT.md`: evidence for PHASE 7E and 7F.
 6. `docs/audit/03_LIVE_JOURNEY_FINDINGS.md` (LJ items; all were merged) and `AGENT_PROGRESS.md` (read the last 3 sections).
 
-## 3. Where the project is (2026-09-29)
+## 3. Where the project is (2026-10-01)
 | Phase | State |
 |---|---|
 | 0–8, R6 (Phase 6 review items), LJ-01..LJ-10 | Reviewed and merged to `main` (PRs #202–#208) |
-| **R7-1..R7-8** (`REVIEW_P7_P8.md`) | **Open. Do these first.** |
-| 7A (no patient wallet, loyalty caps) | Pushed as `59d6b31` and **not reviewed yet**. Finish it and make sure its Verify steps pass. |
-| 7B, 7C, 7D | Not started |
+| R7-1..R7-8, 7A, Phase 9 | Reviewed and merged 2026-10-01 (`REVIEW_P7R_TO_P12.md`) |
+| **X1..X10** (`REVIEW_P7R_TO_P12.md`): 7B, 7C, 7E, 7F, 10 gaps | **Open. Do these first, in order.** |
+| 7D | Not started (after X1–X5) |
 | **7E** (notifications, deep links) and **7F** (search engines, AI assistants) | New. Added by the reviewer on 2026-09-29. 7E includes the admin Notifications page: campaigns with an audience builder (N7), recurring rules (N8) and behaviour-triggered nudges (N10). 7F includes the importer keeping all 30+ fields (S16) and the real-data checks V1–V5. |
-| 9 | F50, F51, F53, F78 merged; F52 (Expo SDK upgrade) left |
-| 10, 11 | Not started (Phase 10 includes page speed F82) |
+| 10, 11 | Partly done; gaps in X9 (Tap adapter, payment and account-deletion journeys, F82) |
+| 12 | Started early; paused until X1–X10 are done (see the review) |
 
-**Order of work** (owner, 2026-09-29): R7 → finish 7A → 7B → 7C → 7D → 7E → 7F → **12** (design stamps come from a Claude design session first; you then rebuild screens together with Phase 8/9) → 8 → 9 → **13** → **14** → 10 → 11. See the "ORDER OF WORK" section of the plan and `docs/audit/05_OWNER_ADDITIONS_DESIGN_AND_GAPS.md`.
+**Order of work** (owner, 2026-10-01): X1–X10 → 7D → 7E → 7F → **12** (you build the design stamps first, ported exactly from `docs/design/canvas/`, then stop for review; screens follow 12.C5, the owner-approved information architecture) → 8 → **13** → **14** → 10 → 11. See the "ORDER OF WORK" section of the plan and `docs/audit/05_OWNER_ADDITIONS_DESIGN_AND_GAPS.md`.
 - One phase at a time.
 - After each phase, push and report, then **stop and wait** for the reviewer's verdict before starting the next phase.
 
@@ -64,7 +64,7 @@ cd backend && npm ci && npm run build
 DB_NAME=nabd_fresh node ../tools/live/seed_admin.js
 DB_NAME=nabd_fresh bash ../tools/live/start-backend.sh
 cd ../admin && npm ci && npx next build
-ADMIN_BACKEND_URL=http://127.0.0.1:8002 NODE_ENV=production nohup npx next start -p 3001 -H 127.0.0.1 >/tmp/admin.log 2>&1 &
+ADMIN_GATE_TOKEN=live-gate-token ADMIN_BACKEND_URL=http://127.0.0.1:8002 NODE_ENV=production nohup npx next start -p 3001 -H 127.0.0.1 >/tmp/admin.log 2>&1 &
 
 # Patient website (optional for the gate; needed for 7F SEO checks)
 cd ../patient-web && pnpm install && pnpm build && cd .. && bash tools/live/start-web.sh patient-web

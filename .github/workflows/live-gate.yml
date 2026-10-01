@@ -73,7 +73,7 @@ jobs:
         run: |
           npm ci
           npx next build
-          ADMIN_BACKEND_URL=http://127.0.0.1:8002 NODE_ENV=production nohup npx next start -p 3001 -H 127.0.0.1 > /tmp/admin.log 2>&1 &
+          ADMIN_GATE_TOKEN=live-gate-token ADMIN_BACKEND_URL=http://127.0.0.1:8002 NODE_ENV=production nohup npx next start -p 3001 -H 127.0.0.1 > /tmp/admin.log 2>&1 &
           for i in $(seq 1 60); do curl -s -o /dev/null http://127.0.0.1:3001/ && break; sleep 2; done
 
       - name: Journeys
