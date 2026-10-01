@@ -44,6 +44,18 @@ export function mapV14Row(row: any): Record<string, any> {
     const t = tr[src];
     if (t && typeof t === 'object') translations[db] = t;
   }
+  // Unknown future export fields ride along under attributes instead of being dropped.
+  const knownTop = new Set([
+    'productId', 'barcode', 'price', 'old_price', 'is_rx', 'available_online',
+    'active_ingredient', 'dosage_form', 'strength', 'size_volume', 'image_1',
+    'image_2', 'image_3', 'image_4', 'image_5', 'has_exclusive_online_label',
+    'drugs_com_link', 'sfda_link', 'skin_hair_type', 'color_shade',
+    'country_of_origin', 'translation_conflict', 'review_reason', 'sku', 'translations',
+  ]);
+  const attributes: Record<string, any> = {};
+  for (const [key, val] of Object.entries(row)) {
+    if (!knownTop.has(key)) attributes[key] = val;
+  }
   const ar = translations.ar || {};
   const en = translations.en || {};
   const images = [row.image_1, row.image_2, row.image_3, row.image_4, row.image_5].filter((u: any) => typeof u === 'string' && u.length > 4);
@@ -82,9 +94,19 @@ export function mapV14Row(row: any): Record<string, any> {
     usage_instructions_ar: strArr(ar.how_to_use).join('\n'), usage_instructions_en: strArr(en.how_to_use).join('\n'),
     storage_conditions_ar: str(ar.storage_conditions), storage_conditions_en: str(en.storage_conditions),
     more_info_ar: str(ar.more_information), more_info_en: str(en.more_information),
+    official_name_ar: str(ar.official_name), official_name_en: str(en.official_name),
+    search_aliases_ar: strArr(ar.search_aliases), search_aliases_en: strArr(en.search_aliases),
+    package_content_details_ar: str(ar.package_content_details),
+    package_content_details_en: str(en.package_content_details),
+    brand_benefits_ar: str(ar.brand_benefits), brand_benefits_en: str(en.brand_benefits),
+    drugs_com_link: str(row.drugs_com_link),
+    sfda_link: str(row.sfda_link),
+    skin_hair_type: str(row.skin_hair_type),
+    color_shade: str(row.color_shade),
     images,
     image_1: str(row.image_1), image_2: str(row.image_2), image_3: str(row.image_3), image_4: str(row.image_4), image_5: str(row.image_5),
     translations,
+    attributes: Object.keys(attributes).length ? attributes : undefined,
     // v14 is a reviewed, published retail catalog — full public governance flags
     verified: true,
     public_eligibility: true,
