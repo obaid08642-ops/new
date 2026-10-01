@@ -4,8 +4,20 @@
 
 ---
 
-## ORDER OF WORK (owner decision 2026-09-29, from `docs/audit/05_OWNER_ADDITIONS_DESIGN_AND_GAPS.md`)
-Phases 3 → 4 → 5 → 6 → 7 → 7A–7F → **12** (the implementer builds the stamps first, ported from the canvas, and stops for review; then 12.C5 information architecture is approved by the owner; then the screens are rebuilt together with Phase 8/9 and C3/C4, so each screen is touched once) → 8 → 9 → **13** → **14** (performance and capacity) → 10 → 11.
+## ORDER OF WORK (owner decisions 2026-09-29 and 2026-10-01)
+1. **X0** (urgent data leak), then **X11** and **X12**, then **X1–X10**. All are in `REVIEW_P7R_TO_P12.md`.
+2. **7D** (reviewer-led security review), then **16** (security hardening).
+3. **7E**, then **7F**.
+4. **15** (resilience foundations): one API client per app, error boundaries, no double actions, chaos tests. Done before the screen rebuild so the new screens use them.
+5. **12**:
+   - first the stamps, ported from the canvas, then stop for review;
+   - then the owner approves 12.C5 (information architecture);
+   - then the screens are rebuilt together with Phase 8/9, **17** (UX essentials and accessibility) and **18** (languages and copy), so each screen is touched once.
+6. **13**, then **14** (performance and capacity; X0, X11 and X12 are already done by then), then **20** (observability and operations).
+7. **19** (Saudi compliance and integrations), as the owner's legal and business decisions arrive. The owner-side steps can start now.
+8. **10** (the remaining gaps, X9), then **11** (final verification).
+
+The reviewer's re-audit of Phases 1–11 (**PHASE R**) runs in parallel, on the owner's go. Its FAIL items go to the front of this order.
 
 ---
 
@@ -333,6 +345,8 @@ These items were checked against the rest of this plan. Only work that no other 
 | N9 | patient-web: notification list items are links (same route map) with mark-read. Web push via the existing VAPID backend (service worker + `/push/web/subscribe`). | Live: click → target page; web push received in Chromium |
 | N10 | **Behaviour-triggered nudges (new).** When a user views or searches for something and leaves without ordering, send a relevant notification after a delay the admin sets.<br><br>**Tracking** (patient-app and patient-web; logged-in users only; respects consent):<br>• a `user_interest_events` collection with `user_id`, `kind`, `ref_id` or `query`, `locale` and `at`;<br>• `kind` is one of: medicine, category, doctor, specialty, lab test, radiology, nursing, pregnancy, ovulation, family, mental health, nutrition, or search query;<br>• one endpoint, `POST /engagement/events`, with a strict DTO and a rate limit;<br>• a TTL index (for example 30 days).<br><br>**Engine.** Each event schedules a delayed BullMQ job (the delay comes from the rule). When the job runs it **skips** the nudge if any of these holds:<br>• the user has since ordered or booked that kind (check the real collections);<br>• the user opted out;<br>• it is quiet hours;<br>• the user already had a nudge for this kind within the cooldown.<br><br>**Admin (Behaviour tab).** One rule per kind, with:<br>• enable/disable;<br>• a delay in minutes (for example 2, 5, 10 or 60);<br>• a cooldown and a daily cap per user;<br>• text and an image per locale, with variables (`{medicine}`, `{specialty}`, `{count}`, `{city}`);<br>• the deep link target: the viewed item, or its list.<br>Examples: "الأدوية اللي بتدور عليها متوفرة بعروض وتوصيل سريع"; "أطباء جلدية كثير متاحين 24 ساعة: أونلاين، زيارة منزلية أو في العيادة". `{count}` comes from real data (the available doctors in that specialty), never a made-up number.<br><br>**Report** per rule: triggered, skipped (with the reason), sent, opened, and converted (ordered within 24h). | • Unit tests: skipped when the user ordered, and for the cooldown, the daily cap, quiet hours and opt-out.<br>• Live journey: a patient views a medicine and does not order. After the rule's delay (1 minute in the test) exactly one push and one inbox row arrive, with a deep link to that medicine.<br>• The same flow with an order placed: nothing is sent.<br>• The admin changes the text: the next nudge uses it. |
 | N11 | **User notification settings.** In the patient-app and web settings, each category can be turned on or off:<br>• orders and bookings;<br>• reminders;<br>• offers and campaigns;<br>• suggestions from my browsing.<br>Users can also set quiet hours. Campaigns (N7), recurring rules (N8) and nudges (N10) respect these settings; transactional notices always go out. The provider app gets the same setting, for campaigns only. Implement together with N6. | • "Suggestions" off → no N10 nudge.<br>• "Offers" off → no N7 campaign.<br>• An order-status push still arrives. |
+| N12 | **Every notification in the user's language (6 locales).** Today the backend message dictionary (`i18n.service.ts`) has ar/en/ur only: **0 of 627 keys** exist in hi, bn and fil, and the default is Arabic. Hindi, Bengali and Filipino users therefore get Arabic pushes, emails and SMS.<br>Do:<br>• complete the dictionary for all 6 locales (18.1);<br>• fallback order: the user's chosen language → the device language if supported → English; Arabic only for users whose chosen or device language is Arabic (18.2);<br>• admin templates (N7/N8/N10) cannot be published while a locale is empty; an "AI draft" button (AI gateway, 13.R21) fills the missing locales as drafts for human review;<br>• SMS length rules per locale (GSM-7 or UCS-2). | • Key-coverage test: every key exists in 6 locales (fails today).<br>• A user with `locale=hi` gets the Hindi push; an unknown locale gets English.<br>• Publishing a template with an empty locale is blocked. |
+| N13 | **Huawei and other phones without Google services.** Expo push uses FCM, which these phones lack, and Expo has no built-in Huawei (HMS) support.<br>Do:<br>• detect Google services at registration and store `push_channel` per device;<br>• add HMS Push Kit through an Expo config plugin, and have the server send through HMS for those tokens;<br>• fallback for any device without push: the in-app inbox fetched on open/resume, plus SMS or WhatsApp for critical messages (OTP, appointment reminders, order ready, emergency);<br>• the same in the provider app (a new order must never be missed). | • Unit test on channel selection.<br>• On a Huawei device (device farm, 15.10): a booking reminder arrives (HMS push or SMS). |
 
 **D: Deep links**
 
@@ -344,6 +358,7 @@ These items were checked against the rest of this plan. Only work that no other 
 | D4 | One share-link helper: `https://nabd.plus/{locale}/…` canonical URLs (no `app.nabdahplus.com`, `nabdahplus.app`, `nabdahplus.com`). Fix the family-invite QR. Web `/s/{type}/{slug}` returns 404 today: add a route that 301s to the canonical page. | Unit test on the helper; `/ar/s/doctor/x` → 301 |
 | D5 | provider-app: associated domain `provider.nabd.plus` with its own AASA/assetlinks (today the SPA fallback returns HTML), a `linking` config, and handling for the operator-invite link (`/operators/accept?token=`). | Live: invite link opens the app to accept |
 | D6 | Smart app banner with the **current page URL** as `app-argument`; drop the non-standard `google-play-app` meta; add an "Open in app" button on entity pages. | Rendered head check |
+| D7 | **Deep links for every public page and every notification.** One coverage matrix (`docs/deeplinks/COVERAGE.md` plus a generated test), per entity type × 6 locales: web URL pattern → listed in the sitemap → app route (patient-app/provider-app) → claimed in AASA/assetlinks → which notification types open it.<br>Entity types:<br>• medicines: 20,990 × 6 = **125,940** product URLs;<br>• categories;<br>• doctors, and doctor × specialty × city;<br>• hospitals and clinics; pharmacies;<br>• labs and lab tests; radiology centres and scans; nursing services;<br>• offers; articles;<br>• health hubs: pregnancy, ovulation, family, mental health, nutrition, symptom checker;<br>• orders, bookings, chats, prescriptions, reports.<br>One mapper serves web links, push taps (N1) and the in-app inbox. | • Table test over every pattern: web 200 and the app route exists.<br>• Each release: 500 random real sitemap URLs opened on an Android emulator and an iOS simulator (`adb shell am start -d`, `xcrun simctl openurl`) land on the right screen and item.<br>• Every notification type in the N1 table opens its target (cold and warm start). |
 
 **Gate P7E:**
 - the notification route table test is green;
@@ -352,6 +367,9 @@ These items were checked against the rest of this plan. Only work that no other 
 - live: an admin campaign reaches exactly its segment.
 - live: a recurring rule sends once per period, and the admin toggle stops it (N8);
 - live: view → no order → a nudge after the admin-set delay; view → order → no nudge (N10);
+- N12: 100% key coverage in 6 locales, and the fallback tests are green;
+- N13: a Huawei device without Google services receives a booking reminder;
+- D7: the deep-link coverage matrix test is green, and the 500-URL simulator run passes;
 - the admin click test covers the three tabs of the Notifications page.
 
 ---
@@ -381,6 +399,8 @@ Not repeated here because another task covers it: **page speed (LCP) is Phase 10
 | S14 | **Public health tools and content hubs are indexable** (today several are disallowed or noindex): pregnancy week-by-week, due-date calculator, ovulation calculator, BMI/calorie and nutrition guides, mental-health info pages, and a symptom-checker landing page. Serve only public educational content (never user data), in 6 locales, with `MedicalWebPage` + `reviewedBy` + FAQ, and add them to the sitemap. The logged-in trackers stay private. | Anonymous GET → 200, `index`; listed in the sitemap |
 | S15 | **Automatic publishing.** When a provider (doctor, hospital, lab, radiology centre, pharmacy, nurse) is approved, or a catalog item, offer or price changes:<br>• its public page is live and in the sitemap within minutes;<br>• IndexNow is pinged;<br>• the product feed row is updated;<br>• unpublishing removes all of them.<br>This covers doctor × specialty × city pages for multi-specialty doctors, and hospital pages with their departments. | Live: approve a provider → page 200 + sitemap entry + IndexNow call; suspend → 404/410 and removed |
 | S16 | **The importer keeps every source field.** `scripts/import-catalog-v14.ts` reads about 13 translated keys and 22 top-level fields. The owner's export has 30+ fields per language, so any field it does not map is dropped silently. Do:<br>• build the field inventory from the real export file (every key, per locale, with its null rate);<br>• map every field into `medicines` (typed where known, the rest kept under `attributes`);<br>• null and empty stay null (no `""`, no `"null"` strings);<br>• the import report prints, per field and locale: imported, null, and dropped. Dropped must be 0.<br>• re-import idempotently (by `sku`/`barcode`), without losing admin edits. | Unit test on `mapV14Row` with a real row that has nulls. The import report on the full export shows 0 dropped fields, and the document count equals the export's row count (20,990). |
+| S17 | **On-page technical SEO on every public page:**<br>• exactly one `<h1>`;<br>• headings in order (h2 → h3, no skipped levels);<br>• localized `alt` text on every image;<br>• descriptive link text;<br>• no broken internal links, and redirect chains of at most one hop;<br>• `dateModified` shown and in the JSON-LD on articles and medical pages.<br>A weekly crawler job reports broken links (internal and external) and 404s with their referrers. | Crawler test over the sitemaps:<br>• 0 pages with more or fewer than one h1;<br>• 0 images without alt;<br>• 0 broken internal links;<br>• 0 redirect chains over one hop. |
+| S18 | **Authority and backlinks** (owner and marketing), with a guide in `docs/seo/AUTHORITY.md`:<br>• partner links from pharmacies, clinics and labs (the 13.R17 badge);<br>• health directories and Saudi business listings;<br>• Google Business Profile and Wikidata (C6.3);<br>• digital PR around real data (for example medicine-availability reports);<br>• no paid link schemes (search engines penalize them). | The guide is committed; the owner tracks referring domains in Search Console. |
 
 **A: AI assistants and agentic commerce**
 
@@ -425,25 +445,26 @@ Samples are not enough. The reviewer's 2026-09-29 test used 3 synthetic medicine
 - the V1–V5 reports on staging show 0 failures;
 - live: approving a provider publishes its page, sitemap entry and IndexNow ping (S15);
 - the Rich Results Test passes on 20 random medicines × 6 locales (owner runs it once the site is live) (S12);
-- C6.1–C6.4 Verify steps are green.
+- C6.1–C6.4 Verify steps are green;
+- the S17 crawler test is green.
 
 ---
 
 ## PHASE 8 — Patient journeys & web parity — F69–F74
 
-| Task | Do |
-|---|---|
-| F69 | Web settings/profile/reminders: add edit forms using the same endpoints as the app. |
-| F70 | Web family: on 404 show "create family" CTA → `POST /family/create`. |
-| F71 | Web search: wire to `/search/intent` + results list. |
-| F73 | Pharmacy draft: add `fulfillment: 'delivery'|'pickup'` and `payment_mode: 'cash'|'insurance'` fields end-to-end (app + web + backend DTO). Pickup → 15 km radius filter. |
-| F74 | Diagnostics checkout: create ONE parent order containing lab+radiology lines, pay once for the total; clear cart only after payment success; rollback bookings on failure (transaction). |
+| Task | Do | Verify |
+|---|---|---|
+| F69 | Web settings/profile/reminders: add edit forms using the same endpoints as the app. | — |
+| F70 | Web family: on 404 show "create family" CTA → `POST /family/create`. | — |
+| F71 | Web search: wire to `/search/intent` + results list. | — |
+| F73 | Pharmacy draft: add `fulfillment: 'delivery'\|'pickup'` and `payment_mode: 'cash'\|'insurance'` fields end-to-end (app + web + backend DTO). Pickup → 15 km radius filter. | — |
+| F74 | Diagnostics checkout: create ONE parent order containing lab+radiology lines, pay once for the total; clear cart only after payment success; rollback bookings on failure (transaction). | — |
 | F75 | `patient-app/app/(auth)/otp.tsx:198`: resend button → call the same send-OTP endpoint used on first send (`/auth/otp/request` or patient OTP route), then reset timer; disable while pending; show error on failure. | resend triggers backend call (network log) |
 | F76 | `patient-app/app/returns/new-request.tsx:212`: use `expo-image-picker` (camera + library) → upload via `/media/upload` → store returned URLs in `attachments[]` sent with the return request. | return request stored with real image URLs |
 | F77 | `consultations/prescription-from-doctor.tsx:167`: `addAllToReminders` → POST each medication to the reminders API (same endpoint used by the single "add reminder" flow). | reminders appear in reminders screen after reload |
 | F79 | `provider-app/src/screens/lab/LabDashboard.tsx:511`: hide cash-confirm button unless booking payment state allows it. | button absent in WAITING_COPAY |
-| Merge screens | Patient app: merge `health/family-hub` + `family/hub`; `profile/edit` + `health/edit-profile`; insurance `hub`+`claim-tracking`+`refund-status` into one screen with tabs. Delete the 59 redirect-stub screens after updating all links (`nav.py` must show 0 dead targets). |
-| States | Add loading/error/empty states to the 22 + 12 screens listed by `screens.py`. |
+| Merge screens | Patient app: merge `health/family-hub` + `family/hub`; `profile/edit` + `health/edit-profile`; insurance `hub`+`claim-tracking`+`refund-status` into one screen with tabs. Delete the 59 redirect-stub screens after updating all links (`nav.py` must show 0 dead targets). | — |
+| States | Add loading/error/empty states to the 22 + 12 screens listed by `screens.py`. | — |
 
 **Journey e2e tests (must all pass, both app API + web):**
 Pharmacy {cash, insurance} × {delivery, pickup} × {Rx, no-Rx}; Consultation {online, clinic, home} × {cash, insurance}; Lab {home, center} × {cash, insurance}; Radiology {cash, insurance}; Nursing {hour, shift}. Insurance flow = patient enters insurance → provider sees details → provider enters decision (full/partial/reject/pending + amount + copay + ref + attachment) → patient pays copay / self-pay / cancels. **No NPHIES integration.**
@@ -496,7 +517,7 @@ Full specification: `docs/audit/05_OWNER_ADDITIONS_DESIGN_AND_GAPS.md` **Part A*
 3. **Stop after the stamps.** When 12.A2, A5–A9 and C2 are done, push and stop. The screens (A11, C3, C4) start only after the reviewer approves the stamps.
 4. **Review every part after building it:** run its Verify, paste the real output, fill the C3 row table; no screen is "done" without loading/empty/error/success states and real API data.
 
-| Task | Built by | Do (spec in 05) | Verify || Task | Built by | Do (spec in 05) | Verify |
+| Task | Built by | Do (spec in 05) | Verify |
 |---|---|---|---|
 | 12.A0 | — | The principle: one central design system, no hard-coded color, size, radius, spacing, shadow, icon or animation in any screen of the 4 clients. | Enforced by the lints in 12.A2, 12.A6 and 12.C2 |
 | 12.A1 | Implementer (port from the canvas) | Logo "Noon Dot" in `packages/brand/` (SVG master, PNG sizes, favicon, maskable/adaptive icons, splash). The implementer replaces every old logo in the 4 clients, store metadata, emails, PDFs and OG images. | No old logo file referenced (grep); OG and email renders |
@@ -548,14 +569,24 @@ Full specification: `docs/audit/05_OWNER_ADDITIONS_DESIGN_AND_GAPS.md` **Part B*
 | 13.R18 | `nabd://` fallback and deferred deep links | 7E D1–D6 |
 | 13.R19 | One product id with 6 localized field sets, no per-language duplicates | 7F S13, S16 |
 | 13.R20 | Final report per requirement of `طلب.md` (PASS/PARTIAL/FAIL/MISSING/MOCK/BLOCKED + evidence) | Phase 11 |
+| 13.R21 | **AI gateway: test live and harden.** The gateway exists but was never tested live: `ai-gateway.service.ts` (7 providers, auto/manual mode, per-feature pin, daily quotas, usage log) and the admin page `ai-control`. A second service, `ai-provider.service.ts`, duplicates it.<br>Do:<br>• merge them into one service;<br>• limits per provider: requests per minute, requests per day, tokens per day (free tiers also limit per minute);<br>• on 429, 5xx or a timeout, move to the next provider with a cooldown, and return to the higher-priority provider when its window resets;<br>• manual pin, global and per feature, keeps working;<br>• the admin page shows live status, remaining quota, error rate, latency and usage per feature;<br>• API keys encrypted at rest (AES-GCM, key from env), masked in the UI, with a "test key" button;<br>• a timeout on every call;<br>• strip names, phone numbers and IDs before sending text to a provider;<br>• medical safety rules and disclaimers on health answers;<br>• cache identical requests (for example translations).<br>**Verify (live):** disable provider 1 → the next request uses provider 2; exhaust a quota → switch; pin → only that provider is used; no API ever returns a key. | AI features; Phase 10 medical safety |
 
 Each task's Do and Verify are in 05 Part B. **Gate P13:** every Verify green; the 13.R9 test proves the ranking is not frozen; 13.R6 propagation proven live on staging; 13.R13 reconciliation shows 0 drift.
 
 ---
 
-## PHASE 14 — Performance and capacity
+## PHASE 14 — Performance, capacity and resilience at scale
 
-Full specification: `docs/audit/05_OWNER_ADDITIONS_DESIGN_AND_GAPS.md` **Part C5** (current setup, assessment, P14.1–P14.6). Numbers come from load tests, not guesses.
+**Sources for this phase:**
+- Full specification: `docs/audit/05_OWNER_ADDITIONS_DESIGN_AND_GAPS.md` **Part C5** (14.1–14.6).
+- Research, layered design (L0–L12) and sources: **`docs/perf/SCALE_ARCHITECTURE.md`**.
+
+**The goals:**
+- anonymous browsing is served from the edge, so hundreds of thousands to millions of visitors barely touch the server;
+- transactions (cart, checkout, booking, payment, chat, calls) are measured and then scaled step by step;
+- nothing falls over under pressure: it degrades by priority.
+
+Numbers come from load tests, not guesses. **X0, X11 and X12 must be done first.**
 
 | Task | Summary | Extends |
 |---|---|---|
@@ -565,8 +596,180 @@ Full specification: `docs/audit/05_OWNER_ADDITIONS_DESIGN_AND_GAPS.md` **Part C5
 | 14.4 | Write-path resilience: idempotent API, queue for side effects, outbox | F33 queue |
 | 14.5 | Horizontal scaling runbook (`deploy/SCALING.md`); 2 backend nodes behind an LB on staging | — |
 | 14.6 | Cloudflare WAF, bot and rate-limit rules in the repo; alerting | — |
+| 14.7 | **Cache policy set per route, not by URL prefix** (follows X0).<br>• Default: `private, no-store`.<br>• `@PublicCache(ttl, tags)` on public read routes sends `public, s-maxage, stale-while-revalidate, stale-if-error` and a `Cache-Tag` header.<br>• Language-dependent responses carry the locale in the URL or `Vary: Accept-Language`.<br>**Verify:** a route-table test where every GET route is either private or explicitly public; CI fails if a public route reads the user. | X0 |
+| 14.8 | **Instant purge by tag on every change** (price, stock, provider status, content). One invalidation event updates:<br>• Cloudflare: purge by Cache-Tag, now on every plan, about 150 ms;<br>• Nginx: a short TTL or a purge;<br>• Redis tags;<br>• Next.js `revalidateTag`.<br>**Verify:** change a price → the product page and the API show it everywhere within 5 s. | 7F S15, 13.R6 |
+| 14.9 | **Edge-cached HTML for anonymous visitors.**<br>• Cloudflare Cache Rules cache public pages, with a bypass when the session cookie exists.<br>• Next.js 16 Cache Components/PPR keep the page shell static; personal parts (cart badge, name, insured prices) load on the client.<br>• `stale-if-error`, plus a branded "we're busy" page when the origin is down.<br>**Verify:** anonymous home, product and doctor pages are served with `cf-cache-status: HIT` ≥ 90% of the time; with the origin stopped, pages are still served. | 14.1, F82 |
+| 14.10 | **Next.js on more than one instance.**<br>• A shared Redis cache handler for ISR and `use cache`.<br>• Invalidation is consistent across instances.<br>• Check the known Cache-Control issue with shared handlers, and pin a version that works.<br>**Verify:** two web instances behind Nginx serve the same revalidated content with the same Cache-Control. | 14.5 |
+| 14.11 | **Safe Nginx micro-cache.**<br>• Only an allow-list of public routes is cached.<br>• `proxy_cache_lock`; `proxy_cache_use_stale updating error timeout http_500 http_502 http_503 http_504`; `proxy_cache_background_update on`.<br>• Public JSON is cached for 1–10 s, bypassed on `Authorization` or a session cookie.<br>• Static assets get long immutable caching.<br>• `limit_req`/`limit_conn` per route group: auth, OTP, search, checkout.<br>**Verify:** 1,000 identical requests in 1 s cause at most 2 upstream requests; the X0 leak test stays green. | X0, 14.6 |
+| 14.12 | **Fastify by default.** The code already supports `USE_FASTIFY=true`.<br>• Run the whole live gate, click tests and contract tests under Fastify, and fix what breaks.<br>• Measure with k6, then make Fastify the default; keep the Express flag for rollback.<br>**Verify:** the gate is 100% in both modes; the RPS gain is reported. | — |
+| 14.13 | **Cluster-safe by design** (follows X11). Any new shared state goes to Redis, and the gate runs in cluster mode in CI. | X11 |
+| 14.14 | **Two Redis roles** (follows X12), with these cache rules:<br>• TTL with jitter;<br>• singleflight (exists);<br>• stale-while-revalidate for hot keys;<br>• hot data precomputed: home sections, categories, ranking.<br>**Verify:** a cold-cache spike of 500 RPS on one key causes 1 database query per refresh. | X12, 14.3 |
+| 14.15 | **MongoDB.**<br>• Size the WiredTiger cache to the server: 0.5 GB today; start at 50–60% of the RAM left after the other services.<br>• Index every hot query, checked in CI with `explain()` on a production-size seed (21k medicines × 6 locales + 1M synthetic orders/bookings): 0 COLLSCAN on hot paths.<br>• `maxTimeMS` on every query; projections; pool size matched to the workers.<br>• Alert on the slow-query log.<br>• Dashboards and reports read precomputed collections (`$merge` jobs), never raw collections at peak.<br>• TTL indexes for events and logs.<br>**Verify:** the explain report is committed; the top 20 queries run in p95 < 20 ms on the seed. | 14.3 |
+| 14.16 | **Search engine: Meilisearch.**<br>• Arabic normalization, typo tolerance, synonyms from `search_aliases`.<br>• Filters by locale, category and availability.<br>• Fed from the outbox or a change stream; Mongo text search is the fallback when it is down.<br>**Verify:** the V3 query suite finds the right item in the top 3 ≥ 95% of the time in 6 locales; p95 < 50 ms; with Meilisearch stopped, search still answers. | 13.R7, 7F V3 |
+| 14.17 | **Load shedding by priority.**<br>• When event-loop delay or memory crosses a threshold, low-priority routes (recommendations, analytics events, nudges, admin reports) answer 503 + `Retry-After`.<br>• **Never shed:** auth, checkout and payment webhooks, SOS/ambulance, active calls, provider order acceptance.<br>• Clients honor `Retry-After` (15.1).<br>**Verify:** under a k6 stress test, checkout and SOS keep p95 < 1 s while low-priority routes are shed. | 15.1 |
+| 14.18 | **Kill switches and degraded modes.**<br>• Admin toggles per heavy feature (AI, recommendations, nudges, live map, analytics ingestion, search suggestions) take effect within seconds, without a deploy.<br>• A read-only/maintenance banner per app (exists from R6-5).<br>**Verify:** each toggle is tested live. | 7B-B4 |
+| 14.19 | **Waiting room for extreme spikes** (campaign launches, Ramadan offers).<br>• Cloudflare Waiting Room needs the Business plan.<br>• Otherwise, a lightweight edge queue (a Cloudflare Worker + token) in front of checkout only.<br>The owner decides the plan.<br>**Verify:** a spike above capacity queues users instead of failing them. | — |
+| 14.20 | **Media.**<br>• Images resized on the fly (self-hosted imgproxy, or Cloudflare image resizing), served as AVIF/WebP with `srcset`/`sizes`.<br>• Lazy loading below the fold; placeholders.<br>• Originals kept in object storage; EXIF/GPS stripped on upload (16.5).<br>**Verify:** product and doctor images ≤ 60 KB on mobile; the LCP image is preloaded. | F82 |
+| 14.21 | **Realtime at scale.**<br>• Socket.IO + Redis adapter (X11).<br>• Reconnect with backoff, and a full state resync on reconnect.<br>• A documented threshold (about 50–100k concurrent connections) for moving to Centrifugo (Go).<br>**Verify:** 10k simulated sockets on staging with < 1% message loss; a reconnect-resync test. | X11 |
+| 14.22 | **Calls.**<br>• LiveKit and coturn on their own server.<br>• Simulcast, dynacast and adaptive stream.<br>• Audio-only fallback when bandwidth drops, then chat.<br>• TURN over TLS 443 for strict networks.<br>• Measure per-node capacity with LiveKit's load tester; LiveKit Cloud as overflow (owner decision).<br>**Verify:** a capacity report; a call survives a switch from Wi-Fi to 4G and degrades to audio on a throttled link. | Phase 10 |
+| 14.23 | **Web performance.**<br>• Cache Components/PPR on entity pages; server components to cut client JS.<br>• `next/image` with `priority` and `sizes` for the LCP image.<br>• Fonts subset per script (Arabic/Latin/Devanagari/Bengali) with `font-display: swap`.<br>• Speculation Rules: prefetch on hover and prerender likely next pages, never cart or checkout links; pages safe for the back/forward cache.<br>• Third-party scripts load after interaction.<br>• CI budgets (size-limit + Lighthouse CI) on mobile: LCP ≤ 2.0 s, INP ≤ 200 ms, CLS ≤ 0.1, JS ≤ 170 KB gzip on entity pages.<br>• Real-user monitoring (web-vitals) per page type.<br>**Verify:** Lighthouse CI green on the 20 main pages; the RUM dashboard is live. | F82, 12 |
+| 14.24 | **App performance.**<br>• New Architecture + Hermes.<br>• FlashList v2 for every long list (medicines, doctors, orders).<br>• `expo-image` with memory/disk cache and placeholders.<br>• A persisted query cache, so the app opens with data; prefetch the next screen's data.<br>• Avoid re-renders (memoized selectors).<br>• Budgets: cold start ≤ 2 s on a mid-range Android; 60 fps scrolling; memory < 300 MB; bundle size tracked.<br>• Always measure release builds on a low-end device.<br>**Verify:** a performance report per release on a low-end Android. | 15.10 |
+| 14.25 | **Lean APIs.**<br>• Cursor pagination with caps on every list; field projection.<br>• One composite endpoint for the home screen instead of many calls.<br>• ETag/304 for cacheable resources.<br>• Compression at the edge or Nginx, not in Node.<br>• Keep-alive pools (`undici`) for outbound calls.<br>**Verify:** the home screen makes ≤ 3 API calls; no list endpoint lacks a cap. | 14.3 |
+| 14.26 | **Background work isolated.**<br>• Queue workers and cron jobs run as separate processes/containers, scaled on their own, never inside the API workers.<br>• Campaign fan-out is batched and rate-limited per channel (push, SMS, email, WhatsApp), so 1M recipients never slow the API.<br>**Verify:** a 100k-recipient campaign during a k6 load test leaves the API p95 unchanged. | N7, N8 |
+| 14.27 | **Capacity report** (extends 14.2).<br>• k6 load, stress, spike and soak scenarios over the real traffic mix: browse, search, product, doctor, add to cart, checkout + payment webhook, booking, chat, call join, campaign fan-out.<br>• Targets from `SCALE_ARCHITECTURE.md` §5.<br>• Publish the measured ceiling of each scenario, the first bottleneck and the next step.<br>• Re-run after each scale step. | 14.2 |
+| 14.28 | **Scale-out steps** (extends 14.5): the five steps and trigger metrics in `SCALE_ARCHITECTURE.md` §6, each with a runbook in `deploy/SCALING.md`, plus a staging rehearsal of step 3 (2 API nodes + a load balancer + a 3-node replica set). | 14.5 |
 
-**Gate P14:** load-test report committed with the measured ceilings; edge cache-hit ≥ 90%; Core Web Vitals pass on the 20 main pages.
+**Gate P14:**
+- the X0 leak test, the cluster-mode gate and the Redis split are green;
+- the load-test report is committed with the measured ceilings;
+- edge cache hit ≥ 90% on anonymous pages;
+- Core Web Vitals pass on the 20 main pages (lab tests + real users);
+- 1,000 identical requests reach the origin at most twice;
+- checkout and SOS keep p95 < 1 s under stress;
+- the app performance report on a low-end Android is attached.
+
+---
+
+## PHASE 15 — Resilience: expect the worst (owner decision 2026-10-01)
+
+Real users have weak or dropped networks, old and low-end phones, Huawei phones without Google services, slow servers, double taps and empty or broken data. One visible failure makes the whole product look broken. Every task needs a test or a live-harness step, not a claim.
+
+| Task | Do | Verify |
+|---|---|---|
+| 15.1 | **One API client per app** (patient-app, provider-app, patient-web BFF, admin BFF):<br>• a timeout on every request: 15 s by default, 60 s for uploads, 45 s for AI. Today the patient-app `apiFetch` has **no timeout**, so on a weak network it waits forever;<br>• retries only for safe requests or requests with an idempotency key, with exponential backoff + jitter, honoring `Retry-After`;<br>• the request is cancelled when the screen closes;<br>• offline detection;<br>• every error mapped to the error catalog (13.R5), with a localized message and a next step ("retry", "check your connection", "contact support"). | Unit tests per client:<br>• the timeout fires;<br>• a retry honors `Retry-After`;<br>• no retry for a non-idempotent POST without a key. |
+| 15.2 | **No double actions.**<br>• Every button that writes is disabled while sending and shows progress.<br>• Every write carries an idempotency key (idemcheck = 0) and the server deduplicates.<br>• One in-flight payment per order; one booking per slot per patient. | Live: tapping "pay", "book", "order" or "send" 10 times quickly creates exactly one record and one charge. |
+| 15.3 | **Optimistic UI only where it is safe.**<br>• Optimistic: cart add/remove/quantity, wishlist, reminders on/off, mark as read, likes. On failure, roll back and show a toast.<br>• **Never** optimistic: payment, booking, prescription, emergency. Show a clear "processing" state instead. | Tests:<br>• a forced 500 → the UI rolls back and explains;<br>• payment shows "processing" until the server confirms. |
+| 15.4 | **Weak and no network.**<br>• Cached data stays visible offline, with an "offline" banner and a "last updated" time.<br>• Safe actions are queued and replayed in order on reconnect (outbox; never payments).<br>• Uploads can resume.<br>• Lower image quality on slow networks.<br>• Calls fall back to audio, then to chat. | Live with network throttling (Playwright/Detox or `tc netem`) at 3G, 1% loss and offline: the app stays usable and recovers. |
+| 15.5 | **Nothing crashes to a blank screen.**<br>• Error boundaries at the app root and per screen (React Native), and `error.tsx`/`global-error.tsx` per route segment (web), each with "try again" and "contact support".<br>• Crash and error reporting (Sentry) for the backend, web and both apps, with releases and source maps.<br>• Target: ≥ 99.5% crash-free users. | A thrown render error shows the fallback, not a white screen, and Sentry receives it with the release. |
+| 15.6 | **Bad or empty data never breaks a page.**<br>• Every screen handles null, empty, very long, mixed RTL/LTR and unexpected values.<br>• The backend never returns 500 for bad input: fuzz the OpenAPI spec with Schemathesis in CI.<br>• Empty states everywhere (R7-6, 12.C3). | • The Schemathesis run finds 0 server errors.<br>• Screen snapshot tests with null-heavy fixtures. |
+| 15.7 | **Slow or failing dependencies.**<br>• A timeout and a circuit breaker on every external call: payment, SMS, email, WhatsApp, AI, maps, S3, LiveKit.<br>• Fallbacks: SMS → email or WhatsApp; AI → the next provider; maps → a typed address.<br>• The user always sees what happened and what to do next. | Chaos tests (15.11), one per dependency. |
+| 15.8 | **Recovery from interruptions.**<br>• If the app is killed or the phone switches off during checkout or payment, on reopening the user lands on the order's real state from the server (pending, paid, failed).<br>• When a payment returns with no network, the reconciliation (exists) runs and the UI updates once online.<br>• A push opened days later shows the current state. | Live: kill the app after "pay" → reopen → the correct state, and no duplicate charge. |
+| 15.9 | **Clocks and time zones.**<br>• Server time is used for OTP expiry, slots and reminders, so a wrong device clock changes nothing.<br>• Times are shown in the user's time zone; providers use Asia/Riyadh.<br>• Ramadan and holiday hours are supported in provider schedules. | Tests with the device clock ±1 day. |
+| 15.10 | **Devices and browsers.**<br>• The minimum OS is documented: iOS 16.4+ and Android 7+ (Expo SDK 57). Older devices get a clear message pointing to the website.<br>• A device-farm run per release (Firebase Test Lab, BrowserStack or AWS Device Farm), covering:<br>&nbsp;&nbsp;– small and large phones, and tablets;<br>&nbsp;&nbsp;– a low-end Android (2–3 GB RAM) and a Huawei without Google services;<br>&nbsp;&nbsp;– iPhone SE and Pro Max;<br>&nbsp;&nbsp;– dark mode, font scale 200%, Arabic and English.<br>• Web on Safari iOS 16+, Chrome Android, Samsung Internet and desktop browsers (Playwright WebKit/Firefox/Chromium in CI). | A device-farm report per release with 0 blocking issues. |
+| 15.11 | **Chaos and failure drills in the live gate.** Each failure has an asserted behavior (degrade, retry, message) and never loses data:<br>• Redis down;<br>• MongoDB primary step-down;<br>• a slow API (+2 s);<br>• payment gateway 500;<br>• SMS provider down;<br>• LiveKit down. | The gate steps are green. |
+| 15.12 | **Ship fixes fast and safely.**<br>• OTA updates for JS fixes (EAS Update), with staged rollout and instant rollback.<br>• Remote feature flags (kill switches, 14.18).<br>• Force-update (exists, R6-5) verified on both apps. | A test OTA rolls out to 5%, then rolls back. |
+
+**Gate P15:**
+- every Verify is green;
+- the throttled-network, rapid-tap and app-killed-during-payment journeys are in the live gate;
+- the device-farm report is attached.
+
+---
+
+## PHASE 16 — Security hardening (owner decision 2026-10-01; after 7D)
+
+| Task | Do | Verify |
+|---|---|---|
+| 16.1 | **Secrets.**<br>• `.gitignore` ignores every `.env` and `.env.*` (except `.env.example`) in every app. Today only `.env*.local` and `deploy/.env.production` are ignored.<br>• gitleaks on every PR.<br>• Rotate the TURN secret found in the history (Phase 11 notes).<br>• Secrets live only in env vars or a secret store.<br>• AI provider keys are encrypted at rest and masked (13.R21). | • gitleaks in CI is green on the full history.<br>• A `git check-ignore` test for `.env` in each app. |
+| 16.2 | **Passwords.**<br>• At least 10 characters, checked against a breached-password list (a k-anonymity API or a local top list); no low maximum.<br>• Review the argon2id or bcrypt cost.<br>• Progressive delays and a lockout after failed attempts.<br>• The same answer on login and "forgot password" whether or not the account exists (no account enumeration). | • Unit tests.<br>• Live: 10 wrong passwords → slowed or locked.<br>• A known and an unknown email get the same answer. |
+| 16.3 | **Bots, CAPTCHA and SMS fraud.**<br>• Cloudflare Turnstile (free) on register, login, OTP, password reset, contact, review and support forms on the web. The apps use App Attest / Play Integrity, or Turnstile in a WebView.<br>• **SMS pumping protection:**<br>&nbsp;&nbsp;– at most 3–5 OTPs per number per hour;<br>&nbsp;&nbsp;– at most 10–20 numbers per IP per hour;<br>&nbsp;&nbsp;– an allow-list of the country codes served;<br>&nbsp;&nbsp;– a daily SMS budget with an alert. | Live:<br>• the 6th OTP for a number within an hour → refused;<br>• a country code not on the list → refused;<br>• a web form without a Turnstile token → refused. |
+| 16.4 | **Transport and headers.**<br>• HSTS with preload; TLS rated A+ on SSL Labs.<br>• CSP (exists, F68) audited.<br>• `Permissions-Policy`, `Referrer-Policy`, `Cross-Origin-Opener-Policy`.<br>• Cookies `Secure; HttpOnly; SameSite`.<br>• `security.txt`.<br>• `autoindex off` set explicitly in Nginx (no directory listing). | • A header test on every host.<br>• SSL Labs A+. |
+| 16.5 | **Uploads.**<br>• Check the file type by its magic bytes; size limits per purpose.<br>• Re-encode images and strip EXIF/GPS: a photo of a prescription can reveal the patient's home location.<br>• Sanitize PDFs; scan documents with an antivirus (ClamAV).<br>• Random file names, private buckets, short signed URLs (as fixed in R7-2). | Tests:<br>• a renamed `.exe` → refused;<br>• an uploaded photo has no GPS tag afterwards. |
+| 16.6 | **Errors and logs.**<br>• Production errors return a generic message and an error id, never a stack trace or internal detail.<br>• Logs mask phone, email, national ID and medical data.<br>• A log retention policy.<br>• The admin audit log is append-only. | • A forced 500 shows only the error id.<br>• A log scan finds no unmasked phone or email. |
+| 16.7 | **Dependencies and supply chain.**<br>• Dependabot or Renovate weekly for every app.<br>• `npm audit`: 0 high/critical runtime issues, as a CI gate.<br>• Lockfiles enforced.<br>• GitHub Actions pinned by commit SHA.<br>• An SBOM (CycloneDX) per release.<br>• Docker images scanned with Trivy.<br>• CodeQL (exists). | The CI jobs are green. |
+| 16.8 | **Dynamic testing.**<br>• OWASP ZAP baseline against staging in CI.<br>• An external penetration test before launch (owner).<br>• Later, a bug bounty. | • A ZAP report with 0 high findings.<br>• The pentest report (owner). |
+| 16.9 | **Health data protection** (PDPL "sensitive" data).<br>• Field-level encryption at rest for diagnoses, reports, prescriptions and insurance documents.<br>• Encrypted backups.<br>• An access log of who viewed which medical record (patient, provider, admin), visible to the admin and, on request, to the patient.<br>• Retention and deletion schedules. | Tests:<br>• the raw DB field is ciphertext;<br>• every read of a medical record writes an access-log row. |
+| 16.10 | **Servers.**<br>• SSH keys only; fail2ban (exists); a firewall allow-list; automatic security updates.<br>• Containers run as non-root, with read-only file systems where possible.<br>• MongoDB and Redis are never exposed publicly (bind, auth, TLS between hosts); Redis ACLs. | A port scan of the server shows only 80/443 (plus the TURN ports). |
+| 16.11 | **Mobile apps.**<br>• Tokens only in SecureStore/Keychain; no secrets in the bundle.<br>• App Attest / Play Integrity on sensitive endpoints (OTP, payment).<br>• Screenshot protection on medical-record screens (Android `FLAG_SECURE`; blur on app switch on iOS). | A test per item. |
+| 16.12 | **Business-logic abuse.**<br>• Limits on coupon and loyalty abuse.<br>• Referral fraud checks: one device/phone per referral.<br>• Reviews only from completed orders or bookings.<br>• Server-side prices and totals (exists).<br>• Atomic stock reservation.<br>• Per-user rate limits on expensive actions (AI, search, uploads). | A test per rule. |
+
+**Gate P16:**
+- every Verify is green;
+- gitleaks, npm audit, Trivy and ZAP run in CI;
+- the OTP-abuse journey is in the live gate.
+
+---
+
+## PHASE 17 — UX essentials and accessibility (owner decision 2026-10-01; done with the Phase 12 screens)
+
+| Task | Do | Verify |
+|---|---|---|
+| 17.1 | **Navigation.**<br>• A sticky header (web) and a mobile menu.<br>• Breadcrumbs.<br>• A back-to-top button on long pages; a scroll progress bar on articles.<br>• A "skip to content" link.<br>• Clean 404, 500 and offline pages with search and popular links. | • A render test per item.<br>• Keyboard only: the main content is reached with one Tab. |
+| 17.2 | **Interaction feedback.**<br>• Hover, focus-visible and pressed states on every control.<br>• Loading skeletons (not spinners) for content.<br>• A confirmation dialog before every destructive action: cancel an order, delete an address, remove a family member, delete the account.<br>• A password visibility toggle.<br>• Copy-to-clipboard for order and booking numbers, coupons and referral codes.<br>• Toasts for results. | The click tests (R7-1 harness) cover each pattern. |
+| 17.3 | **Search everywhere.**<br>• Full-site search in the web header and at the top of the app home.<br>• Instant suggestions; recent and trending searches; barcode and voice where supported.<br>• A helpful no-results page: "did you mean", categories, "ask a pharmacist". | The V3 query suite plus a UI test. |
+| 17.4 | **Content helpers.**<br>• Expandable FAQ sections (with FAQPage schema).<br>• "Updated on" dates on articles and medical pages.<br>• A print stylesheet for prescriptions, invoices, orders and reports.<br>• Share buttons that use canonical URLs (D4). | • Render tests.<br>• A print-preview check. |
+| 17.5 | **Contact and engagement.**<br>• A floating contact/WhatsApp/support button that never covers a primary action and is hidden on checkout.<br>• Newsletter signup with consent and double opt-in.<br>• UTM parameters on every campaign link (N7), with orders attributed to campaigns. | • Tests.<br>• The campaign report shows the attributed orders. |
+| 17.6 | **Consent.**<br>• A simple cookie/consent banner, only if non-essential cookies or analytics are used (PDPL), with real choices.<br>• A privacy center (data export and deletion exist, Phase 10). | Without consent, no analytics request is sent. |
+| 17.7 | **Theme toggle:** a dark-mode toggle in settings and in the web header (12.A3). | Covered by 12.A3. |
+| 17.8 | **Accessibility (WCAG 2.2 AA).**<br>• Keyboard access and visible focus.<br>• A label on every control; alt text (S17).<br>• VoiceOver and TalkBack tested in Arabic and English.<br>• Text scaling to 200% without breaking layouts.<br>• Touch targets ≥ 44 px; contrast (12.A2); reduced motion (12.A9); captions on videos. | • axe-core in CI: 0 serious issues on the 20 main pages.<br>• A manual screen-reader pass per release. |
+| 17.9 | **Forms that are easy on a phone.**<br>• Correct `autocomplete`/`textContentType`.<br>• Numeric keypads for phone numbers, OTPs and amounts.<br>• OTP autofill: iOS one-time-code and Android SMS Retriever.<br>• Arabic and Latin digits both accepted.<br>• Inline validation with clear, localized messages.<br>• The input is kept after an error. | A test per form. |
+| 17.10 | **Trust signals.**<br>• Verified-provider badges and license numbers (SCFHS).<br>• Pharmacist availability.<br>• Secure-payment marks.<br>• Clear delivery and refund policies.<br>• Ratings only from real orders. | Render tests on the entity pages. |
+
+**Gate P17:**
+- axe-core is green;
+- the click tests cover 17.1–17.5;
+- the screen-reader pass is recorded.
+
+---
+
+## PHASE 18 — Languages, content and copy (owner decision 2026-10-01; done with the Phase 12 screens)
+
+| Task | Do | Verify |
+|---|---|---|
+| 18.1 | **100% translation coverage in the 6 locales**, for:<br>• every UI string on the web, in both apps, and in the user-facing parts of the admin;<br>• every backend message: push, in-app, email, SMS, PDF and error messages.<br>Today the backend dictionary has 0 of 627 keys in hi, bn and fil. | A key-coverage test in CI per app and for the backend: 0 missing keys, 0 raw keys rendered. |
+| 18.2 | **Language fallback rules:** the user's chosen language → the device language if supported → English. Arabic only when the user chose it or the device is in Arabic, so Urdu, Hindi, Bengali and Filipino users no longer get Arabic silently. This applies to the UI, notifications (N12), emails and SMS. | Tests per locale and for an unsupported locale. |
+| 18.3 | **Translation workflow.**<br>• Source strings in one place per app.<br>• A medical glossary per locale.<br>• Patient-facing medical text reviewed by a qualified person for each locale.<br>• AI translation only as a draft, through the AI gateway (13.R21), marked "needs review" until approved. | • The glossary is committed.<br>• The review flag is enforced in the admin content tools. |
+| 18.4 | **Locale formatting.**<br>• ICU MessageFormat for plurals and gender.<br>• Numbers in Arabic-Indic or Latin digits, by locale and the user's preference.<br>• Gregorian dates, with an optional Hijri display.<br>• Currency (SAR / ر.س) and phone numbers.<br>• Bidi isolation for Latin medicine names inside Arabic sentences. | Snapshot tests per locale. |
+| 18.5 | **Copy guide** (`docs/content/COPY_GUIDE.md`). Applied to home, product, doctor, service, checkout, onboarding, notifications and emails.<br>**Do:**<br>• benefit before feature;<br>• one idea per section, with 1–3 bullets;<br>• specific headlines; short, scannable paragraphs;<br>• a clear CTA = verb + outcome ("اطلب الآن ويصلك اليوم");<br>• answer objections before the CTA (delivery time, licensed pharmacist, refund, insurance);<br>• proof next to every claim (ratings count, license, delivery time from real data);<br>• the first screen says what it is, the price and how fast;<br>• write to one person.<br>**Never:**<br>• fabricated or superlative medical claims (SFDA);<br>• generic openers;<br>• em dashes, aphorisms or "not X but Y" formulas. | • A content lint in CI: banned phrases per locale, length limits per component.<br>• The owner reviews the key pages. |
+| 18.6 | **Content QA automation.**<br>• The S13 banned-claims list applied to all user-facing text, not only the catalog.<br>• Length checks per component.<br>• Screenshots per locale in the 12.A10 suite, to catch overflow in long languages. | CI is green. |
+
+**Gate P18:**
+- 100% coverage in the 6 locales;
+- the fallback tests are green;
+- the owner approves the copy guide.
+
+---
+
+## PHASE 19 — Saudi compliance and national integrations (owner decisions; implemented as each decision is made)
+
+| Task | Owner decision / Do | Verify |
+|---|---|---|
+| 19.1 | **Hosting location and PDPL** (owner + lawyer).<br>• Health data is "sensitive" under the PDPL.<br>• The PDPL does not require hosting inside Saudi Arabia by default. Moving personal data outside the Kingdom needs SDAIA's conditions: adequacy, or safeguards such as standard contractual clauses; a transfer risk assessment; only the minimum data.<br>• OVHcloud lists no Saudi region.<br>• **Decide:** keep OVH with the transfer safeguards, or move personal and health data to a Saudi cloud.<br>• Also: register with SDAIA where required, appoint a DPO, keep a records-of-processing register, and have a 72-hour breach notification procedure. | • The written decision and documents (owner).<br>• The implementer adds the processing register and the breach runbook. |
+| 19.2 | **Sector rules** (owner):<br>• MOH licensing for telemedicine and pharmacy e-commerce;<br>• the NCA cybersecurity controls, if they apply;<br>• SFDA rules for online medicine listings (no advertising of prescription drugs), and a link for adverse-event reporting. | The owner's checklist. |
+| 19.3 | **Professional license checks.** The SCFHS license number and status for doctors, nurses and pharmacists, checked at onboarding and periodically, and shown on profiles (17.10). | • An onboarding test.<br>• An expired license → the provider is hidden. |
+| 19.4 | **Nphies (CCHI) for insurance.** Eligibility, pre-authorization and claims through Nphies (HL7 FHIR R4), directly or through a licensed clearing house. The existing insurance flows (P8, R7-4) are mapped to Nphies messages. | • Sandbox certification (the owner registers).<br>• Integration tests. |
+| 19.5 | **Wasfaty e-prescriptions** (NUPCO) for partner pharmacies, if the owner wants government prescriptions dispensed through the platform. | Owner decision, then integration tests. |
+| 19.6 | **Nafath identity verification** for providers (KYC) and, where required, for patients (prescriptions, insurance). | Owner decision, then integration tests. |
+| 19.7 | **Saudi National Address (SPL).** Address capture by the short address code, with validation, used for delivery and nursing visits. | An integration test against the SPL API sandbox. |
+| 19.8 | **ZATCA e-invoicing Phase 2** (Fatoora integration), when the business is called to its wave. The Phase 1 QR exists. | The owner confirms the wave; integration tests. |
+| 19.9 | **Payment methods.**<br>• mada, Apple Pay and STC Pay through the gateway; check which ones Moyasar enables.<br>• Decide on BNPL (Tabby/Tamara) for eligible non-prescription items. | Owner decision; sandbox journeys (Phase 10). |
+| 19.10 | **App stores.**<br>• Apple's medical-app rules and privacy labels.<br>• Google Play's health-apps declaration and Data safety form.<br>• A Huawei AppGallery listing, for phones without Google services (N13). | The store submissions (owner). |
+
+**Gate P19:**
+- each owner decision is written down;
+- each chosen integration passes its sandbox tests.
+
+---
+
+## PHASE 20 — Observability, reliability and operations (owner decision 2026-10-01)
+
+| Task | Do | Verify |
+|---|---|---|
+| 20.1 | **Tracing.** OpenTelemetry across web/BFF → API → MongoDB/Redis/queues → external calls, with one request id end to end (extends 13.R13). | A trace of a checkout shows every hop. |
+| 20.2 | **Metrics and dashboards** (Prometheus + Grafana, or equivalent):<br>• RPS; p50/p95/p99; errors per route;<br>• event-loop delay and heap;<br>• MongoDB latency and cache hit; Redis memory and evictions;<br>• queue depth and age;<br>• edge and Nginx cache-hit ratios;<br>• open sockets; LiveKit rooms, CPU and bandwidth;<br>• push, SMS and email success rates. | The dashboards are kept in the repo as code. |
+| 20.3 | **Logs.** Structured JSON, collected centrally (for example Loki), searchable by request id, with PII masked (16.6) and a set retention. | A search by request id works. |
+| 20.4 | **Errors.** Sentry (or equivalent) for the backend, web and both apps, with releases and source maps (15.5). | A test error is visible with its stack and release. |
+| 20.5 | **SLOs and alerts.**<br>• API availability 99.9%, checkout success rate, and p95 per route group.<br>• Alerts to the owner (email + push/WhatsApp/Telegram), each with a runbook link. | Each alert fired once in a drill. |
+| 20.6 | **Uptime.** External checks from several regions, and a public status page. | The status page is live. |
+| 20.7 | **Synthetic journeys in production**, every 5–15 minutes: open home, search, open a product, add to cart (no payment), list doctor slots, log in as a test patient. | An alert fires when a journey fails twice. |
+| 20.8 | **Backups and disaster recovery.**<br>• Nightly backups (exist), plus point-in-time recovery from the oplog; encrypted and copied off-site.<br>• The weekly restore drill (exists).<br>• Targets: RPO ≤ 15 min, RTO ≤ 1 h.<br>• A written DR runbook. | The drill report meets the targets. |
+| 20.9 | **Safe deployments.**<br>• Zero-downtime rolling or blue-green deploys, with health checks and automatic rollback.<br>• Database migrations in expand/contract steps.<br>• Feature flags for risky changes. | A deploy during a k6 run shows 0 failed requests. |
+| 20.10 | **Capacity and cost reviews**, monthly, from the dashboards. A scale-out step is triggered by the metrics in `SCALE_ARCHITECTURE.md` §6. | A monthly note in `docs/perf/`. |
+
+**Gate P20:**
+- the dashboards, alerts, status page and synthetic journeys are live;
+- the DR drill meets the RPO/RTO targets.
+
+---
+
+## PHASE R — Reviewer re-audit of Phases 1–11 and the Phase 12 foundations (reviewer work, starts on the owner's go)
+
+The reviewer re-checks every task of Phases 1–11 against this plan, independently of earlier notes:
+- **For each task:** what the plan asks → the code that does it → the test that proves it → a live proof (a journey, a click test or a device check) → PASS or FAIL.
+- **Edge cases sampled in each phase:** empty and bad data, double taps, weak networks, roles and IDOR, cluster mode.
+- **The Phase 12 foundations** (tokens, components, icons, lints) checked against the canvas and the rules of 2026-10-01.
+
+The result is `REVIEW_REAUDIT_P1_P11.md`. Its FAIL items are mandatory for the implementer and go to the front of the order of work.
 
 ---
 
