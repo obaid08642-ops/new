@@ -133,13 +133,6 @@ export class StepUpGuard implements CanActivate {
     const user = req.user;
     if (!user) throw new ForbiddenException('authentication_required');
 
-    // Step-up is a SECOND authentication. When the account has no passkey
-    // registered there is no second factor to re-present, so the base
-    // authentication is already the strongest available — requiring a step-up
-    // the user cannot perform would lock them out of every sensitive action.
-    const hasFactor = await this.passkeyModel.findOne({ user_id: user.id || user.sub }).lean().catch(() => null);
-    if (!hasFactor) return true;
-
     const token = req.headers['x-step-up-token'];
     if (!token) throw new ForbiddenException('step_up_required');
     const action = `${req.method}:${req.path}`;
