@@ -152,8 +152,11 @@ for (const rel of files) {
   let unsafe = null;
 
   for (const n of names) {
-    const tag = new RegExp(`<${n}\\b([^>]*?)/>`, 'g');
-    src = src.replace(tag, (whole, attrs) => {
+    // Both shapes. `<Name />` and `<Name></Name>` are both legal JSX, and the
+    // first version matched only the first, so 20 screens were blocked by a regex
+    // rather than by anything about them.
+    const tag = new RegExp(`<${n}\\b([^>]*?)(?:\\/>|>([\\s\\S]*?)<\\/${n}>)`, 'g');
+    src = src.replace(tag, (whole, attrs, children) => {
       const pairs = [...attrs.matchAll(/([a-zA-Z-]+)\s*=\s*(?:"([^"]*)"|\{([^}]*)\})/g)];
       for (const [, key] of pairs) {
         if (!ALLOWED.has(key)) {
@@ -176,6 +179,11 @@ for (const rel of files) {
         out.push(`${key}=${str !== undefined ? `"${str}"` : `{${expr}}`}`);
       }
       changed++;
+      // The paired form is an accessible icon: `<Name title=" prescriptions" />`.
+      // The name moves onto the glyph and the children are preserved, so the
+      // accessible name survives the migration instead of being dropped.
+      const body = children === undefined ? '' : children.trim();
+      if (body) out.push(`title={${body}}`);
       return `<Icon ${out.join(' ')} />`;
     });
   }
@@ -199,9 +207,22 @@ for (const rel of files) {
   //
   // Valid output is not consumed input. The screen is only migrated if nothing
   // refers to the lucide names any more.
-  const stillReferences = names.filter((n) => new RegExp(`\\b${n}\\b`).test(src.replace(importMatch[0], '')));
-  if (stillReferences.length) {
-    skipped.push({ rel, why: `non-self-closing usages left: ${stillReferences.join(', ')}` });
+  // The reason has to name the real cause, because this list is the worklist.
+  // The first version said "non-self-closing usages left" for 20 screens, and the
+  // actual cause on the first of them was `const Arrow = rtl ? ArrowLeft :
+  // ArrowRight` — an aliased reference in a plain expression, aliased before it
+  // is ever used as `<Arrow />`. No regex over JSX will find it, and no JSX regex
+  // should: the correct migration is to alias the *token* name, and that is a
+  // per-screen judgement, not a rewrite.
+  const body = src.replace(importMatch[0], '');
+  const remaining = names.filter((n) => new RegExp(`\\b${n}\\b`).test(body));
+  if (remaining.length) {
+    const aliased = remaining.filter((n) => new RegExp(`=\\s*[^;\\n]*\\b${n}\\b|\\?\\s*${n}\\s*:`).test(body));
+    const inJsx = remaining.filter((n) => !aliased.includes(n));
+    const why = aliased.length
+      ? `aliased in an expression (needs a per-screen decision): ${aliased.join(', ')}`
+      : `non-self-closing usages left: ${inJsx.join(', ')}`;
+    skipped.push({ rel, why });
     continue;
   }
   if (!/\bIcon\b/.test(src.replace(importMatch[0], ''))) {
