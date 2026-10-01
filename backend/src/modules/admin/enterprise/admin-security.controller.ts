@@ -1,4 +1,5 @@
 import { BadRequestException, Body, Controller, Delete, ForbiddenException, Get, NotFoundException, Param, Patch, Post, Query, UseGuards, ConflictException } from '@nestjs/common';
+import { StepUp } from '../../../common/step-up.guard';
 import { CreateRoleDto, UpdateRoleDto, DeleteRoleDto, AssignUserRolesDto } from './admin-security.dto';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -122,6 +123,7 @@ export class AdminSecurityController {
     return docs.map(({ _id, ...r }: any) => ({ ...r, assigned_users: usageMap.get(r.key) || 0 }));
   }
 
+  @StepUp()
   @Post('rbac/roles')
   @RequirePermissions(Permission.RBAC_MANAGE)
   async createRole(@Body() b: CreateRoleDto, @CurrentUser() me: any) {
@@ -158,6 +160,7 @@ export class AdminSecurityController {
     return clean;
   }
 
+  @StepUp()
   @Patch('rbac/roles/:id')
   @RequirePermissions(Permission.RBAC_MANAGE)
   async updateRole(@Param('id') id: string, @Body() b: UpdateRoleDto, @CurrentUser() me: any) {
@@ -182,6 +185,7 @@ export class AdminSecurityController {
     return after;
   }
 
+  @StepUp()
   @Delete('rbac/roles/:id')
   @RequirePermissions(Permission.RBAC_MANAGE)
   async deleteRole(@Param('id') id: string, @Body() b: DeleteRoleDto, @CurrentUser() me: any) {
@@ -201,6 +205,7 @@ export class AdminSecurityController {
   }
 
   /** Assign/unassign custom roles to an admin account. */
+  @StepUp()
   @Post('rbac/users/:userId/roles')
   @RequirePermissions(Permission.USER_EDIT, Permission.RBAC_MANAGE)
   async assignUserRoles(@Param('userId') userId: string, @Body() b: AssignUserRolesDto, @CurrentUser() me: any) {

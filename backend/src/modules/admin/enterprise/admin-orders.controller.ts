@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Param, Post, Query, Res, UseGuards } from '@nestjs/common';
+import { StepUp } from '../../../common/step-up.guard';
 import type { Response } from 'express';
 import { JwtAuthGuard, Roles, CurrentUser } from '../../../common/auth.guard';
 import { Permission, RequirePermissions } from '../../../common/permissions';
@@ -65,6 +66,7 @@ export class AdminOrdersConsoleController {
     return this.svc.cancel(kind, id, b?.reason, me);
   }
 
+  @StepUp()
   @Post(':kind/:id/refund')
   @RequirePermissions(Permission.ORDER_REFUND)
   refund(@Param('kind') kind: string, @Param('id') id: string, @Body() b: RefundDto, @CurrentUser() me: any) {
