@@ -28,13 +28,13 @@ You are the **implementing agent**. A separate reviewer (another Claude session)
 | 0–8, R6 (Phase 6 review items), LJ-01..LJ-10 | Reviewed and merged to `main` (PRs #202–#208) |
 | R7-1..R7-8, 7A, Phase 9 | Reviewed and merged 2026-10-01 (`REVIEW_P7R_TO_P12.md`) |
 | **X0, X11, X12, X1..X10** (`REVIEW_P7R_TO_P12.md`) | **Open. Do these first, in this order.** X0 is a proven leak of private data through the Nginx cache. |
-| 15 (resilience), 16 (security hardening), 17 (UX essentials), 18 (languages, copy and the single brand name "نبض بلس"), 19 (Saudi compliance, insurance flow, legal documents), 20 (observability), 21 (accounts, guests, email OTP), 22 (mature-platform features), PHASE R (reviewer re-audit) | New on 2026-10-01. See the plan's ORDER OF WORK. |
+| 15 (resilience), 16 (security hardening), 17 (UX essentials), 18 (languages, copy and the single brand name "نبض بلس"), 19 (Saudi compliance, insurance flow, legal documents), 20 (observability), 21 (accounts, guests, email OTP), 22 (mature-platform features), 23 (audit trail and legal records), PHASE R (reviewer re-audit) | New on 2026-10-01. See the plan's ORDER OF WORK. |
 | 7D | Not started (after X1–X5) |
 | **7E** (notifications, deep links) and **7F** (search engines, AI assistants) | New. Added by the reviewer on 2026-09-29. 7E includes the admin Notifications page: campaigns with an audience builder (N7), recurring rules (N8) and behaviour-triggered nudges (N10). 7F includes the importer keeping all 30+ fields (S16) and the real-data checks V1–V5. |
 | 10, 11 | Partly done; gaps in X9 (Tap adapter, payment and account-deletion journeys, F82) |
 | 12 | Started early; paused until X1–X10 are done (see the review) |
 
-**Order of work** (owner, 2026-10-01): follow the "ORDER OF WORK" section at the top of `docs/audit/02_AGENT_EXECUTION_PLAN.md`. In short: X0 → X11 → X12 → X1–X10 → 7D → 16 (with C9, C10) → 7E → 7F → 21 → 15 → 12 (with 8/9, 17, 18) → 13 → 22 → 14 → 20 → 19 (as the owner decides) → 10 → 11.
+**Order of work** (owner, 2026-10-01): follow the "ORDER OF WORK" section at the top of `docs/audit/02_AGENT_EXECUTION_PLAN.md`. In short: X0 → X11 → X12 → X1–X10 → 7D → 16 (with C9, C10) → 7E → 7F → 21 → 15 → 12 (with 8/9, 17, 18) → 13 → 23 → 22 → 14 → 20 → 19 (as the owner decides) → 10 → 11.
 - One phase at a time.
 - After each phase, push and report, then **stop and wait** for the reviewer's verdict before starting the next phase.
 
