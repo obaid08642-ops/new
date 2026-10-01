@@ -1,4 +1,5 @@
 import { Body, Controller, Post, UseGuards, BadRequestException, ForbiddenException, UnauthorizedException } from '@nestjs/common';
+import { RecoveryStartDto, RecoveryRedeemDto } from './step-up.dto';
 import { Throttle } from '@nestjs/throttler';
 import { JwtAuthGuard, Public, CurrentUser } from '../../common/auth.guard';
 import { StepUp } from '../../common/step-up.guard';
@@ -37,7 +38,7 @@ export class AdminRecoveryController {
   @Public()
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Post('start')
-  async start(@Body() body: { email?: string }) {
+  async start(@Body() body: RecoveryStartDto) {
     const email = String(body?.email || '').trim().toLowerCase();
     if (!email) throw new BadRequestException('email_required');
     const u: any = await (this.auth as any).userModel.findOne({ email });
@@ -53,7 +54,7 @@ export class AdminRecoveryController {
   @Public()
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Post('redeem')
-  async redeem(@Body() body: { email?: string; email_code?: string; recovery_code?: string }) {
+  async redeem(@Body() body: RecoveryRedeemDto) {
     const email = String(body?.email || '').trim().toLowerCase();
     const emailCode = String(body?.email_code || '').trim();
     const recCode = String(body?.recovery_code || '').trim();

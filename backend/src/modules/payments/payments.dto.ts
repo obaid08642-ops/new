@@ -1,12 +1,21 @@
-import { IsPositive, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 
-export class RefundPaymentDto {
+export class WebhookBodyDto {
   @IsOptional()
-  @IsNumber()
-  @IsPositive()
-  amount?: number;
+  @IsString()
+  id?: string;
 
   @IsOptional()
   @IsString()
-  reason?: string;
+  type?: string;
+
+  @IsOptional()
+  @IsObject()
+  data?: Record<string, unknown>;
+}
+
+export class RefundPaymentDto {
+  @IsString() transaction_id: string;
+  @IsOptional() @IsNumber() amount?: number;
+  @IsOptional() @IsString() reason?: string;
 }
