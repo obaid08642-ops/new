@@ -97,7 +97,7 @@ export default function BookingStatusScreen() {
       <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
       <View style={[styles.content, { paddingTop: insets.top + 64, paddingBottom: insets.bottom + 24 }]}>
         <Animated.View style={[styles.badge, { transform: [{ scale: scaleAnim }] }]}>
-          <Icon name="check" size={32} color="#fff" />
+          <Icon name="check" size={32} color="var(--nabd-bg.surface-light)" />
         </Animated.View>
         <AppText variant="title" style={styles.title}>{AR ? "تم الحجز بنجاح" : "Booking confirmed"}</AppText>
         <AppText style={styles.sub}>
@@ -122,7 +122,7 @@ export default function BookingStatusScreen() {
       <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
       <View style={[styles.content, { paddingTop: insets.top + 48, paddingBottom: insets.bottom + 24 }]}>
         <AppText variant="title" style={styles.title}>{AR ? "حالة الموعد" : "Appointment status"}</AppText>
-        <View style={[styles.card, { backgroundColor: colors.card || "#fff" }]}>
+        <View style={[styles.card, { backgroundColor: colors.card || "var(--nabd-bg.surface-light)" }]}>
           <AppText style={styles.sub}>{AR ? "الحالة الحالية" : "Current status"}</AppText>
           <AppText variant="heading" style={{ color: brand.primary.limeDeep, marginTop: 4 }}>{status}</AppText>
           {!!error && <AppText style={{ color: brand.secondary.coral, marginTop: 8 }}>{error}</AppText>}

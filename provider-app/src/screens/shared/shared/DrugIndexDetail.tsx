@@ -187,10 +187,10 @@ export function DrugIndexDetail({ ctx }: any) {
            {/* Tab switcher */}
            <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.xs, marginBottom: SP.md }}>
              <TouchableOpacity onPress={() => setSuggestTab('fields')} style={{ flex: 1, paddingVertical: SP.sm, borderRadius: R.md, alignItems: 'center', backgroundColor: suggestTab === 'fields' ? theme.primary : theme.surface2, borderWidth: 1, borderColor: suggestTab === 'fields' ? theme.primary : theme.border }}>
-               <Text style={{ color: suggestTab === 'fields' ? '#FFF' : theme.text, fontWeight: FW.bold, fontSize: FS.sm }}>{AR ? 'تعديل بيانات' : 'Edit data'}</Text>
+               <Text style={{ color: suggestTab === 'fields' ? 'var(--nabd-bg.surface-light)' : theme.text, fontWeight: FW.bold, fontSize: FS.sm }}>{AR ? 'تعديل بيانات' : 'Edit data'}</Text>
              </TouchableOpacity>
              <TouchableOpacity onPress={() => setSuggestTab('image')} style={{ flex: 1, paddingVertical: SP.sm, borderRadius: R.md, alignItems: 'center', backgroundColor: suggestTab === 'image' ? theme.primary : theme.surface2, borderWidth: 1, borderColor: suggestTab === 'image' ? theme.primary : theme.border }}>
-               <Text style={{ color: suggestTab === 'image' ? '#FFF' : theme.text, fontWeight: FW.bold, fontSize: FS.sm }}>{AR ? 'اقتراح صورة' : 'Suggest image'}</Text>
+               <Text style={{ color: suggestTab === 'image' ? 'var(--nabd-bg.surface-light)' : theme.text, fontWeight: FW.bold, fontSize: FS.sm }}>{AR ? 'اقتراح صورة' : 'Suggest image'}</Text>
              </TouchableOpacity>
            </View>
 

@@ -77,14 +77,14 @@ export default function VirtualWaitingRoomScreen() {
   if (loading)
     return (
       <View style={styles.container}>
-        <ActivityIndicator color="#fff" size="large" />
+        <ActivityIndicator color="var(--nabd-bg.surface-light)" size="large" />
       </View>
     );
 
   if (!data)
     return (
       <View style={styles.container}>
-        <LocalizedText style={{ color: "#fff", fontSize: 18 }}>
+        <LocalizedText style={{ color: "var(--nabd-bg.surface-light)", fontSize: 18 }}>
           {isRTL ? "الموعد غير موجود" : "Appointment Not Found"}
         </LocalizedText>
       </View>
@@ -100,7 +100,7 @@ export default function VirtualWaitingRoomScreen() {
         <LocalizedText
           style={{
             fontFamily: "MaterialSymbolsRounded",
-            color: "#fff",
+            color: "var(--nabd-bg.surface-light)",
             fontSize: 22,
           }}
         >
@@ -162,7 +162,7 @@ export default function VirtualWaitingRoomScreen() {
         style={{
           fontSize: 20,
           fontWeight: "900",
-          color: "#fff",
+          color: "var(--nabd-bg.surface-light)",
           marginBottom: 6,
         }}
       >
@@ -188,7 +188,7 @@ export default function VirtualWaitingRoomScreen() {
         >
           دورك بعد
         </LocalizedText>
-        <LocalizedText style={{ fontSize: 40, fontWeight: "900", color: "#fff" }}>
+        <LocalizedText style={{ fontSize: 40, fontWeight: "900", color: "var(--nabd-bg.surface-light)" }}>
           {Number.isFinite(Number(data?.wait_time))
             ? new Intl.NumberFormat(localeTag, { minimumIntegerDigits: 2, useGrouping: false }).format(Number(data.wait_time))
             : '—'}
@@ -214,13 +214,13 @@ export default function VirtualWaitingRoomScreen() {
           style={{
             fontFamily: "MaterialSymbolsRounded",
             fontSize: 20,
-            color: "#fff",
+            color: "var(--nabd-bg.surface-light)",
             marginRight: 8,
           }}
         >
           videocam
         </LocalizedText>
-        <LocalizedText style={{ fontSize: 14, fontWeight: "800", color: "#fff" }}>
+        <LocalizedText style={{ fontSize: 14, fontWeight: "800", color: "var(--nabd-bg.surface-light)" }}>
           دخول المكالمة
         </LocalizedText>
       </TouchableOpacity>

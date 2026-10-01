@@ -92,7 +92,7 @@ export function FacilityFinancialScreen({ onBack }: { onBack: () => void }) {
  backgroundColor: period===k ? theme.primary : theme.surface2,
  borderColor: period===k ? theme.primary : theme.border,
  }]}>
- <Text style={{ color: period===k?'#FFF':theme.text, fontWeight: FW.semi }}>{l}</Text>
+ <Text style={{ color: period===k?'var(--nabd-bg.surface-light)':theme.text, fontWeight: FW.semi }}>{l}</Text>
  </TouchableOpacity>
  ))}
  </View>
@@ -100,21 +100,21 @@ export function FacilityFinancialScreen({ onBack }: { onBack: () => void }) {
  {/* KPIs */}
  <NCard style={[s.revCard, { backgroundColor: theme.primary }]}>
  <Text style={{ color:'rgba(255,255,255,0.8)', fontSize: FS.sm }}>{AR?'إجمالي الإيرادات':'Total Revenue'}</Text>
- <Text style={{ color:'#FFF', fontSize: FS['5xl'], fontWeight: FW.xbold, marginVertical: SP.sm }}>
+ <Text style={{ color:'var(--nabd-bg.surface-light)', fontSize: FS['5xl'], fontWeight: FW.xbold, marginVertical: SP.sm }}>
  {loadingLedger ? '…' : periodRev.toLocaleString()}
  </Text>
  <Text style={{ color:'rgba(255,255,255,0.8)' }}>{AR?'ريال سعودي':'Saudi Riyal'}</Text>
  <View style={{ flexDirection:AR?'row-reverse':'row', gap: SP.xxl, marginTop: SP.lg }}>
  <View style={{ alignItems:'center' }}>
- <Text style={{ color:'#FFF', fontSize: FS.lg, fontWeight: FW.bold }}>{loadingLedger ? '…' : periodOps}</Text>
+ <Text style={{ color:'var(--nabd-bg.surface-light)', fontSize: FS.lg, fontWeight: FW.bold }}>{loadingLedger ? '…' : periodOps}</Text>
  <Text style={{ color:'rgba(255,255,255,0.7)', fontSize: FS.xs }}>{AR?'عملية':'Operations'}</Text>
  </View>
  <View style={{ alignItems:'center' }}>
- <Text style={{ color:'#FFF', fontSize: FS.lg, fontWeight: FW.bold }}>{summary ? summary.pending.toLocaleString() : '—'}</Text>
+ <Text style={{ color:'var(--nabd-bg.surface-light)', fontSize: FS.lg, fontWeight: FW.bold }}>{summary ? summary.pending.toLocaleString() : '—'}</Text>
  <Text style={{ color:'rgba(255,255,255,0.7)', fontSize: FS.xs }}>{AR?'معلّق':'Pending'}</Text>
  </View>
  <View style={{ alignItems:'center' }}>
- <Text style={{ color:'#FFF', fontSize: FS.lg, fontWeight: FW.bold }}>{summary ? summary.balance.toLocaleString() : '—'}</Text>
+ <Text style={{ color:'var(--nabd-bg.surface-light)', fontSize: FS.lg, fontWeight: FW.bold }}>{summary ? summary.balance.toLocaleString() : '—'}</Text>
  <Text style={{ color:'rgba(255,255,255,0.7)', fontSize: FS.xs }}>{AR?'الرصيد':'Balance'}</Text>
  </View>
  </View>

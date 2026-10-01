@@ -186,7 +186,7 @@ export default function LabComparison() {
                 disabled={adding}
               >
                 <AppText
-                  style={{ fontSize: 13, fontWeight: "bold", color: "#fff" }}
+                  style={{ fontSize: 13, fontWeight: "bold", color: "var(--nabd-bg.surface-light)" }}
                 >
                   احجز الآن
                 </AppText>

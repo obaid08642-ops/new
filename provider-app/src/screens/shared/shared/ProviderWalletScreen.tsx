@@ -72,14 +72,14 @@ export function ProviderWalletScreen({ onBack, onNavigate }: { onBack: () => voi
       <NHeader title={AR ? 'المحفظة والإيرادات' : 'Wallet & Revenue'} onBack={onBack} />
       <ScrollView contentContainerStyle={{ padding: SP.lg }}>
         <NCard style={{ backgroundColor: theme.primary, alignItems: 'center', padding: SP.xxl, marginBottom: SP.lg }}>
-          <Text style={{ color: '#fff', opacity: 0.8, fontSize: FS.sm }}>{AR ? 'الرصيد المتاح للسحب' : 'Available Balance'}</Text>
-          <Text style={{ color: '#fff', fontSize: 36, fontWeight: FW.bold, marginVertical: SP.sm }}>
+          <Text style={{ color: 'var(--nabd-bg.surface-light)', opacity: 0.8, fontSize: FS.sm }}>{AR ? 'الرصيد المتاح للسحب' : 'Available Balance'}</Text>
+          <Text style={{ color: 'var(--nabd-bg.surface-light)', fontSize: 36, fontWeight: FW.bold, marginVertical: SP.sm }}>
             {balance} <Text style={{ fontSize: FS.md }}>{AR ? 'ريال' : 'SAR'}</Text>
           </Text>
           <NBtn 
             label={AR ? 'طلب سحب' : 'Request Withdrawal'} 
             onPress={() => onNavigate && onNavigate('withdrawal_workflow')} 
-            style={{ backgroundColor: '#fff', marginTop: SP.md }} 
+            style={{ backgroundColor: 'var(--nabd-bg.surface-light)', marginTop: SP.md }} 
             labelStyle={{ color: theme.primary }} 
           />
         </NCard>

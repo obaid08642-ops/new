@@ -141,7 +141,7 @@ export default function ChronicDiseaseScreen() {
 
                 <TouchableOpacity onPress={() => router.push('/(tabs)/consultations')}
                   style={[styles.bookCheckBtn, { backgroundColor: cond.color || colors.primary } ]}>
-                  <AppText variant="bodySM" color="#fff" style={{ fontWeight: 'bold' }}>احجز فحص دوري</AppText>
+                  <AppText variant="bodySM" color="var(--nabd-bg.surface-light)" style={{ fontWeight: 'bold' }}>احجز فحص دوري</AppText>
                 </TouchableOpacity>
               </View>
             )}

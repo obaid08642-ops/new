@@ -75,7 +75,7 @@ export default async function SkinAnalysisPage({ params }: Props) {
           style={{
             display: "inline-flex",
             padding: "10px 16px",
-            background: "#FFFFFF",
+            background: "var(--nabd-bg.surface-light)",
             color: "#1E332E",
             borderRadius: 20,
             border: "1px solid #E8EDEE",
@@ -91,7 +91,7 @@ export default async function SkinAnalysisPage({ params }: Props) {
           style={{
             display: "inline-flex",
             padding: "10px 16px",
-            background: "#FFFFFF",
+            background: "var(--nabd-bg.surface-light)",
             color: "#1E332E",
             borderRadius: 20,
             border: "1px solid #E8EDEE",

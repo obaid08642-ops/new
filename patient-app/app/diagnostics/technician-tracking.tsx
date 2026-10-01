@@ -113,7 +113,7 @@ export default function TechnicianTrackingScreen() {
                   </View>
                   {tracking?.techPhone && (
                     <TouchableOpacity style={[styles.callBtn, { backgroundColor: colors.primary }]} onPress={callTechnician}>
-                      <Icon name="phone" size={18} color="#fff" />
+                      <Icon name="phone" size={18} color="var(--nabd-bg.surface-light)" />
                     </TouchableOpacity>
                   )}
                 </View>

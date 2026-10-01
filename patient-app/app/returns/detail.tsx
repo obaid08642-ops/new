@@ -139,9 +139,9 @@ export default function ReturnDetailScreen() {
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <View style={styles.headerRow}>
           <TouchableOpacity onPress={() => router.back()} style={styles.hBtn}>
-            <Icon name="back" size={22} color="#fff" />
+            <Icon name="back" size={22} color="var(--nabd-bg.surface-light)" />
           </TouchableOpacity>
-          <AppText variant="bodySM" color="#fff" style={{ fontWeight: "bold" }}>
+          <AppText variant="bodySM" color="var(--nabd-bg.surface-light)" style={{ fontWeight: "bold" }}>
             تفاصيل الإرجاع #{returnId?.toString().substring(0, 8)}
           </AppText>
           <View style={{ width: 36 }} />
@@ -152,7 +152,7 @@ export default function ReturnDetailScreen() {
             { backgroundColor: "rgba(255,255,255,0.15)" },
           ]}
         >
-          <AppText variant="bodySM" color="#fff" style={{ fontWeight: "bold" }}>
+          <AppText variant="bodySM" color="var(--nabd-bg.surface-light)" style={{ fontWeight: "bold" }}>
             {STATUS_LABELS[data?.status || "processing"]}
           </AppText>
         </View>
@@ -234,7 +234,7 @@ export default function ReturnDetailScreen() {
                   {
                     backgroundColor: t.done ? "#7C3AED" : colors.border,
                     borderWidth: t.current ? 3 : 0,
-                    borderColor: "#fff",
+                    borderColor: "var(--nabd-bg.surface-light)",
                   },
                 ]}
               />

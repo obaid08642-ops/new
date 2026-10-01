@@ -518,7 +518,7 @@ const body = (
           <TouchableOpacity key={svc.id} onPress={() => toggle(svc.id)}
             style={[st.svcRow, { backgroundColor: active ? withAlpha(tokens.pink, 0.08) : theme.surface2, borderColor: active ? tokens.pink : theme.border, flexDirection: AR ? 'row-reverse' : 'row' }]}>
             <View style={{ width: 22, height: 22, borderRadius: R.sm, borderWidth: 2, borderColor: active ? tokens.pink : theme.border, backgroundColor: active ? tokens.pink : 'transparent', alignItems: 'center', justifyContent: 'center' }}>
-              {active && <I name="check" size={10} color="#FFF" />}
+              {active && <I name="check" size={10} color="var(--nabd-bg.surface-light)" />}
             </View>
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: FS.md, color: active ? tokens.pink : theme.text, fontWeight: active ? FW.bold : FW.reg, textAlign: AR ? 'right' : 'left' }}>{AR ? svc.ar : svc.en}</Text>
@@ -667,7 +667,7 @@ function NS5({ data, update, onNext, onBack, step, total, bare = false, submitRe
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: SP.sm }}>
           {[5, 10, 15, 20, 30, 50].map(r => (
             <TouchableOpacity key={r} onPress={() => update({ coverageRadius: r })} style={[st.chip, { backgroundColor: data.coverageRadius === r ? tokens.pink : theme.surface2, borderColor: data.coverageRadius === r ? tokens.pink : theme.border }]}>
-              <Text style={{ color: data.coverageRadius === r ? '#FFF' : theme.text, fontWeight: FW.semi }}>{r} {AR ? 'كم' : 'km'}</Text>
+              <Text style={{ color: data.coverageRadius === r ? 'var(--nabd-bg.surface-light)' : theme.text, fontWeight: FW.semi }}>{r} {AR ? 'كم' : 'km'}</Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -760,7 +760,7 @@ const body = (
               const a = data.workDays.includes(d.k);
               return (
                 <TouchableOpacity key={d.k} onPress={() => toggleDay(d.k)} style={[st.chip, { backgroundColor: a ? tokens.pink : theme.surface2, borderColor: a ? tokens.pink : theme.border }]}>
-                  <Text style={{ color: a ? '#FFF' : theme.text, fontSize: FS.sm, fontWeight: FW.semi }}>{AR ? d.ar : d.k}</Text>
+                  <Text style={{ color: a ? 'var(--nabd-bg.surface-light)' : theme.text, fontSize: FS.sm, fontWeight: FW.semi }}>{AR ? d.ar : d.k}</Text>
                 </TouchableOpacity>
               );
             })}
@@ -838,7 +838,7 @@ const body = (
                   <TouchableOpacity onPress={() => toggleCompany(co.id)} style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Text style={{ fontSize: FS.md, color: theme.text, fontWeight: FW.bold }}>{AR ? co.ar : co.en}</Text>
                     <View style={{ width: 22, height: 22, borderRadius: R.sm, borderWidth: 2, borderColor: isAccepted ? theme.primary : theme.border, backgroundColor: isAccepted ? theme.primary : 'transparent', alignItems: 'center', justifyContent: 'center' }}>
-                      {isAccepted && <I name="check" size={12} color="#FFF" />}
+                      {isAccepted && <I name="check" size={12} color="var(--nabd-bg.surface-light)" />}
                     </View>
                   </TouchableOpacity>
 
@@ -1138,7 +1138,7 @@ return (
         <View style={{ marginBottom: 20, gap: 10 }}>
           {data.signatureData ? (
              <View style={{ alignItems: 'center', marginVertical: 10 }}>
-               <Image source={{ uri: data.signatureData }} style={{ width: 200, height: 100, resizeMode: 'contain', backgroundColor: '#fff' }} />
+               <Image source={{ uri: data.signatureData }} style={{ width: 200, height: 100, resizeMode: 'contain', backgroundColor: 'var(--nabd-bg.surface-light)' }} />
                <TouchableOpacity onPress={() => setShowSigModal(true)} style={{ marginTop: 8 }}><Text style={{ color: theme.primary }}>{AR ? 'إعادة التوقيع' : 'Re-sign'}</Text></TouchableOpacity>
              </View>
           ) : (

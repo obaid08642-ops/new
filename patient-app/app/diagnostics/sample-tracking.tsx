@@ -157,7 +157,7 @@ export default function SampleTrackingScreen() {
                           },
                         ]}
                       >
-                        {step.done && <Icon name="check" size={12} color="#fff" />}
+                        {step.done && <Icon name="check" size={12} color="var(--nabd-bg.surface-light)" />}
                       </View>
                       {!isLast && (
                         <View

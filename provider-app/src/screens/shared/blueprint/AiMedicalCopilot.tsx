@@ -135,7 +135,7 @@ export function AiMedicalCopilot({ onBack }: { onBack: () => void }) {
  <TouchableOpacity key={pid} onPress={() => setSelectedPatient(p)}
  style={{ paddingHorizontal: SP.md, paddingVertical: 8, borderRadius: R.full, borderWidth: 1.5,
  backgroundColor: sel ? theme.primary : theme.surface2, borderColor: sel ? theme.primary : theme.border }}>
- <Text style={{ color: sel ? '#FFF' : theme.text, fontSize: FS.sm }}>{name}</Text>
+ <Text style={{ color: sel ? 'var(--nabd-bg.surface-light)' : theme.text, fontSize: FS.sm }}>{name}</Text>
  </TouchableOpacity>
  );
  })}

@@ -103,10 +103,10 @@ export function RegistrationSuccess({ onDone, email, providerType = 'provider' }
                 onPress={handleSendOtp}
                 disabled={loading}
                 style={{ backgroundColor: theme.primary, padding: 14, borderRadius: 12, alignItems: 'center', flexDirection: 'row', justifyContent: 'center' }}>
-                {loading ? <ActivityIndicator color="#fff" /> : (
+                {loading ? <ActivityIndicator color="var(--nabd-bg.surface-light)" /> : (
                   <>
-                    <Ionicons name="send" size={20} color="#fff" style={{ marginRight: 8 }} />
-                    <Text style={{ color: '#fff', fontSize: 16, fontWeight: '600' }}>
+                    <Ionicons name="send" size={20} color="var(--nabd-bg.surface-light)" style={{ marginRight: 8 }} />
+                    <Text style={{ color: 'var(--nabd-bg.surface-light)', fontSize: 16, fontWeight: '600' }}>
                       {AR ? 'إرسال رمز التفعيل' : 'Send Verification Code'}
                     </Text>
                   </>
@@ -129,8 +129,8 @@ export function RegistrationSuccess({ onDone, email, providerType = 'provider' }
                   onPress={handleVerify}
                   disabled={loading}
                   style={{ backgroundColor: theme.primary, padding: 14, borderRadius: 12, alignItems: 'center' }}>
-                  {loading ? <ActivityIndicator color="#fff" /> : (
-                    <Text style={{ color: '#fff', fontSize: 16, fontWeight: '600' }}>
+                  {loading ? <ActivityIndicator color="var(--nabd-bg.surface-light)" /> : (
+                    <Text style={{ color: 'var(--nabd-bg.surface-light)', fontSize: 16, fontWeight: '600' }}>
                       {AR ? 'تأكيد الرمز' : 'Verify Code'}
                     </Text>
                   )}
@@ -151,10 +151,10 @@ export function RegistrationSuccess({ onDone, email, providerType = 'provider' }
           onPress={downloadContract}
           disabled={contractLoading}
           style={{ width: '100%', backgroundColor: theme.primary, padding: 16, borderRadius: 12, alignItems: 'center', marginBottom: 12, flexDirection: 'row', justifyContent: 'center' }}>
-          {contractLoading ? <ActivityIndicator color="#fff" /> : (
+          {contractLoading ? <ActivityIndicator color="var(--nabd-bg.surface-light)" /> : (
             <>
-              <Ionicons name="document-text" size={20} color="#fff" style={{ marginRight: 8 }} />
-              <Text style={{ color: '#fff', fontSize: 16, fontWeight: '600' }}>
+              <Ionicons name="document-text" size={20} color="var(--nabd-bg.surface-light)" style={{ marginRight: 8 }} />
+              <Text style={{ color: 'var(--nabd-bg.surface-light)', fontSize: 16, fontWeight: '600' }}>
                 {AR ? 'تحميل عقد الشراكة الموقّع' : 'Download Signed Partnership Contract'}
               </Text>
             </>

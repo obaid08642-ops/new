@@ -97,7 +97,7 @@ export function SickLeaveScreen({ apt, onBack }:
  backgroundColor: days === d ? theme.primary : theme.surface2,
  borderColor: days === d ? theme.primary : theme.border,
  }]}>
- <Text style={{ color: days === d ? '#FFF' : theme.text, fontWeight: FW.bold }}>
+ <Text style={{ color: days === d ? 'var(--nabd-bg.surface-light)' : theme.text, fontWeight: FW.bold }}>
  {d} {AR ? (d==='1'?'يوم':'أيام') : (d==='1'?'day':'days')}
  </Text>
  </TouchableOpacity>

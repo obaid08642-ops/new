@@ -100,7 +100,7 @@ export default function OrderDetails() {
         <AppText style={{ color: colors.textPrimary, fontWeight: 'bold', fontSize: 16 }}>تعذر تحميل الطلب</AppText>
         <AppText style={{ color: colors.textSecondary, fontSize: 13 }}>تحقق من اتصالك ثم حاول مجدداً</AppText>
         <TouchableOpacity onPress={() => { setLoading(true); setKind(null); setOrder(null); setReload(r => r + 1); }} style={{ backgroundColor: colors.primary, borderRadius: 12, paddingHorizontal: 24, paddingVertical: 10 }}>
-          <AppText style={{ color: '#fff', fontWeight: 'bold' }}>إعادة المحاولة</AppText>
+          <AppText style={{ color: 'var(--nabd-bg.surface-light)', fontWeight: 'bold' }}>إعادة المحاولة</AppText>
         </TouchableOpacity>
       </View>
     );
@@ -194,7 +194,7 @@ export default function OrderDetails() {
               </View>
               {!!order.technician.phone && (
                 <TouchableOpacity style={[styles.callBtn, { backgroundColor: '#4CAF50' } ]} onPress={() => Linking.openURL(`tel:${order.technician.phone}`)}>
-                  <Icon name="phone" size={20} color="#fff" />
+                  <Icon name="phone" size={20} color="var(--nabd-bg.surface-light)" />
                 </TouchableOpacity>
               )}
             </View>

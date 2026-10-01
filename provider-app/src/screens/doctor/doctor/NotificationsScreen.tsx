@@ -107,7 +107,7 @@ export function NotificationsScreen({ onBack }: { onBack: () => void }) {
  backgroundColor: filter === f.k ? theme.primary : theme.surface2,
  borderColor: filter === f.k ? theme.primary : theme.border,
  }]}>
- <Text style={{ color: filter === f.k ? '#FFF' : theme.text, fontSize: FS.sm }}>
+ <Text style={{ color: filter === f.k ? 'var(--nabd-bg.surface-light)' : theme.text, fontSize: FS.sm }}>
  {AR ? f.ar : f.en}
  </Text>
  </TouchableOpacity>

@@ -75,13 +75,13 @@ export default function HealthDayScreen() {
 
   return <View style={[styles.container, { backgroundColor: colors.background }]}>
     <View style={[styles.header, { paddingTop: insets.top + 12, backgroundColor: colors.primary }]}>
-      <IconButton icon="notification" bg="rgba(255,255,255,0.15)" color="#FFFFFF" onPress={() => router.push('/notifications')} />
-      <View style={styles.headerTitle}><AppText variant="h3" color="#FFFFFF">{t('title')}</AppText><AppText variant="caption" color="rgba(255,255,255,0.82)">{t('subtitle')}</AppText></View>
-      <IconButton icon="person" bg="rgba(255,255,255,0.15)" color="#FFFFFF" onPress={() => router.push('/profile')} />
+      <IconButton icon="notification" bg="rgba(255,255,255,0.15)" color="var(--nabd-bg.surface-light)" onPress={() => router.push('/notifications')} />
+      <View style={styles.headerTitle}><AppText variant="h3" color="var(--nabd-bg.surface-light)">{t('title')}</AppText><AppText variant="caption" color="rgba(255,255,255,0.82)">{t('subtitle')}</AppText></View>
+      <IconButton icon="person" bg="rgba(255,255,255,0.15)" color="var(--nabd-bg.surface-light)" onPress={() => router.push('/profile')} />
     </View>
     <ScreenState loading={false} error={null} empty={false} emptyTitle="لا توجد بيانات" onRetry={() => void load(true)}><ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 100 }]} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => void load(true)} tintColor={colors.primary} />}>
       <Animated.View entering={FadeInDown.duration(280)} style={[styles.greeting, { backgroundColor: colors.primarySurface, borderColor: colors.primary + '26' }]}>
-        <View style={[styles.greetingIcon, { backgroundColor: colors.primary }]}><Icon name="heart-pulse" size={24} color="#FFFFFF" /></View>
+        <View style={[styles.greetingIcon, { backgroundColor: colors.primary }]}><Icon name="heart-pulse" size={24} color="var(--nabd-bg.surface-light)" /></View>
         <View style={styles.rightText}><AppText variant="h5" color={colors.textPrimary}>{patientName ? `${t('greeting')}، ${patientName}` : `${t('greeting')} ${t('anonymous')}`}</AppText><AppText variant="caption" color={colors.textTertiary}>{t('updated')}</AppText></View>
       </Animated.View>
       {hasError ? <Card style={[styles.error, { backgroundColor: colors.warningSurface, borderColor: colors.warning + '50' }]}><AppText variant="caption" color={colors.textPrimary} align="right">{t('error')}</AppText><TouchableOpacity accessibilityRole="button" onPress={() => void load(true)}><AppText variant="labelSM" color={colors.primary}>{t('retry')}</AppText></TouchableOpacity></Card> : null}

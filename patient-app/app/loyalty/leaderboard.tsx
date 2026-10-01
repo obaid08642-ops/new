@@ -108,7 +108,7 @@ export default function LeaderboardScreen() {
         <View style={styles.podium}>
           {/* 2nd */}
           <View style={[styles.podiumItem, { marginTop: 20 }]}>
-            <Icon name={top3[1].emoji as any} size={32} color="#fff" />
+            <Icon name={top3[1].emoji as any} size={32} color="var(--nabd-bg.surface-light)" />
             <View
               style={[
                 styles.podiumBase,
@@ -125,7 +125,7 @@ export default function LeaderboardScreen() {
           {/* 1st */}
           <View style={[styles.podiumItem, { marginTop: 0 }]}>
             <Icon name="workspace_premium" size={24} color="#F0A526" />
-            <Icon name={top3[0].emoji as any} size={40} color="#fff" />
+            <Icon name={top3[0].emoji as any} size={40} color="var(--nabd-bg.surface-light)" />
             <View
               style={[
                 styles.podiumBase,
@@ -141,7 +141,7 @@ export default function LeaderboardScreen() {
           </View>
           {/* 3rd */}
           <View style={[styles.podiumItem, { marginTop: 30 }]}>
-            <Icon name={top3[2].emoji as any} size={32} color="#fff" />
+            <Icon name={top3[2].emoji as any} size={32} color="var(--nabd-bg.surface-light)" />
             <View
               style={[
                 styles.podiumBase,
@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 20,
   },
-  headerTitle: { color: "#fff", fontSize: 18, fontWeight: "800" },
+  headerTitle: { color: "var(--nabd-bg.surface-light)", fontSize: 18, fontWeight: "800" },
   hBtn: {
     width: 36,
     height: 36,
@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  podiumRank: { color: "#fff", fontSize: 22, fontFamily: "Cairo-ExtraBold" },
+  podiumRank: { color: "var(--nabd-bg.surface-light)", fontSize: 22, fontFamily: "Cairo-ExtraBold" },
   podiumName: {
     color: "rgba(255,255,255,0.85)",
     fontSize: 11,

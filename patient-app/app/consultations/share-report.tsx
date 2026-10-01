@@ -318,7 +318,7 @@ export default function ShareReportScreen() {
                         },
                       ]}
                     >
-                      {sel && <Icon name="check" size={14} color="#fff" />}
+                      {sel && <Icon name="check" size={14} color="var(--nabd-bg.surface-light)" />}
                     </View>
                     <View
                       style={[

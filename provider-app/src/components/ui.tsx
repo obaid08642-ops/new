@@ -79,7 +79,7 @@ export function NBtn({
  const px = { xs:SP.md, sm:SP.lg, md:SP.xl, lg:SP.xxl }[size];
 
  const bg = disabled ? theme.surface2 : { primary:theme.primary, secondary:theme.surface2, danger:theme.danger, outline:'transparent', ghost:'transparent' }[variant];
- const fg = disabled ? theme.textOff : { primary:'#FFF', secondary:theme.text, danger:'#FFF', outline:theme.primary, ghost:theme.primary }[variant];
+ const fg = disabled ? theme.textOff : { primary:'var(--nabd-bg.surface-light)', secondary:theme.text, danger:'var(--nabd-bg.surface-light)', outline:theme.primary, ghost:theme.primary }[variant];
  const bd = disabled ? theme.border : { primary:'transparent', secondary:theme.border, danger:'transparent', outline:theme.primary, ghost:'transparent' }[variant];
 
  return (
@@ -265,7 +265,7 @@ export function NCheckbox({ label, value, onChange, style }:
  backgroundColor:value?theme.primary:'transparent',
  transform:[{scale:sc}],
  }]}>
- {value && <I name="check" size={11} color="#FFF" />}
+ {value && <I name="check" size={11} color="var(--nabd-bg.surface-light)" />}
  </Animated.View>
  {label && <Text style={{ flex:1, fontSize:FS.md, color:theme.text, textAlign:isRTL?'right':'left' }}>{label}</Text>}
  </TouchableOpacity>
@@ -305,7 +305,7 @@ export function NToggle({ label, sub, value, onChange, style }:
  <Text style={{ fontSize:FS.md, color:theme.text, fontWeight:FW.med, textAlign:isRTL?'right':'left' }}>{label}</Text>
  {sub && <Text style={{ fontSize:FS.sm, color:theme.textSub, marginTop:2, textAlign:isRTL?'right':'left' }}>{sub}</Text>}
  </View>
- <Switch value={value} onValueChange={onChange} trackColor={{ false:theme.border, true:theme.primary }} thumbColor="#FFF" />
+ <Switch value={value} onValueChange={onChange} trackColor={{ false:theme.border, true:theme.primary }} thumbColor="var(--nabd-bg.surface-light)" />
  </View>
  );
 }
@@ -778,7 +778,7 @@ const s = StyleSheet.create({
  navTab: { flex:1, alignItems:'center' },
  navIconWrap: { width:44, height:30, borderRadius:R.md, alignItems:'center', justifyContent:'center', marginBottom:2, position:'relative' },
  navBadge: { position:'absolute', top:-4, right:-4, minWidth:16, height:16, borderRadius:8, alignItems:'center', justifyContent:'center', paddingHorizontal:3 },
- navBadgeTxt: { color:'#FFF', fontSize:9, fontWeight:'700' },
+ navBadgeTxt: { color:'var(--nabd-bg.surface-light)', fontSize:9, fontWeight:'700' },
  priceSuffix: { paddingHorizontal:SP.md, height:'100%', justifyContent:'center', alignItems:'center' },
 });
 
@@ -793,7 +793,7 @@ export function NImageOptimizerWebView({ visible, onClose }: { visible: boolean;
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
       <View style={{ flex: 1, backgroundColor: '#000', paddingTop: insets.top }}>
         <View style={{ height: 60, backgroundColor: '#111', flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16 }}>
-          <Text style={{ color: '#FFF', fontSize: 16, fontWeight: 'bold' }}>
+          <Text style={{ color: 'var(--nabd-bg.surface-light)', fontSize: 16, fontWeight: 'bold' }}>
             {AR ? ' تحسين وتفريغ الصورة' : ' Remove Background'}
           </Text>
           <TouchableOpacity onPress={onClose} style={{ padding: 8 }}>
@@ -1170,7 +1170,7 @@ const st = StyleSheet.create({
  container: { marginTop: SP.sm, width: '100%' },
  helperTxt: { fontSize: FS.sm, lineHeight: 20 },
  actionBtn: { paddingVertical: SP.sm, paddingHorizontal: SP.lg, borderRadius: R.md, alignItems: 'center', justifyContent: 'center' },
- actionBtnTxt: { color: '#FFF', fontWeight: FW.bold, fontSize: FS.sm },
+ actionBtnTxt: { color: 'var(--nabd-bg.surface-light)', fontWeight: FW.bold, fontSize: FS.sm },
  statusRow: { flexDirection: 'row', alignItems: 'center', gap: SP.sm, marginTop: SP.md },
  statusTxt: { fontSize: FS.xs, fontWeight: FW.semi },
 });
@@ -1313,7 +1313,7 @@ export function NDatePickerSheet({
  <Text style={{
  fontSize: FS.sm,
  fontWeight: isSelected ? FW.bold : FW.reg,
- color: isSelected ? '#FFF' : theme.text,
+ color: isSelected ? 'var(--nabd-bg.surface-light)' : theme.text,
  }}>
  {day}
  </Text>

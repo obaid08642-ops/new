@@ -66,7 +66,7 @@ export function RequestTestScreen({ apt, onBack }:
  backgroundColor: type===t.k ? theme.primary : theme.surface2,
  borderColor: type===t.k ? theme.primary : theme.border,
  }]}>
- <Text style={{ color: type===t.k ? '#FFF' : theme.text, fontWeight: FW.semi, fontSize: FS.sm }}>
+ <Text style={{ color: type===t.k ? 'var(--nabd-bg.surface-light)' : theme.text, fontWeight: FW.semi, fontSize: FS.sm }}>
  {AR ? t.ar : t.en}
  </Text>
  </TouchableOpacity>
@@ -89,7 +89,7 @@ export function RequestTestScreen({ apt, onBack }:
  backgroundColor: selected.includes(item.id) ? theme.primary : 'transparent',
  borderColor: selected.includes(item.id) ? theme.primary : theme.border,
  }]}>
- {selected.includes(item.id) && <Text style={{ color:'#FFF',fontSize:11,fontWeight:'700' }}></Text>}
+ {selected.includes(item.id) && <Text style={{ color:'var(--nabd-bg.surface-light)',fontSize:11,fontWeight:'700' }}></Text>}
  </View>
  <View style={{ flex: 1 }}>
  <Text style={{ fontSize: FS.md, color: theme.text, fontWeight: FW.med,

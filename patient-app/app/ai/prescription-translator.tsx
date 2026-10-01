@@ -138,8 +138,8 @@ export default function PrescriptionTranslatorScreen() {
       <View style={[st.hdr, { paddingTop: insets.top + 12 } ]}>
         <View style={st.hdrRow}>
           <View style={{ width: 40 }}/>
-          <AppText variant="h4" color="#fff">مترجم الوصفات</AppText>
-          <IconButton icon="back" bg="rgba(255,255,255,0.18)" color="#fff" onPress={() => router.back()} />
+          <AppText variant="h4" color="var(--nabd-bg.surface-light)">مترجم الوصفات</AppText>
+          <IconButton icon="back" bg="rgba(255,255,255,0.18)" color="var(--nabd-bg.surface-light)" onPress={() => router.back()} />
         </View>
       </View>
 
@@ -263,8 +263,8 @@ export default function PrescriptionTranslatorScreen() {
             <TouchableOpacity onPress={() => router.push('/(tabs)/pharmacy')} style={{ borderRadius: 18, overflow: 'hidden' }}>
               <View style={st.orderAll}>
                 <View style={st.iconRow}>
-                  <Icon name="shopping_cart" size={20} color="#fff" />
-                  <AppText variant="h6" color="#fff">اطلب جميع الأدوية من الصيدلية</AppText>
+                  <Icon name="shopping_cart" size={20} color="var(--nabd-bg.surface-light)" />
+                  <AppText variant="h6" color="var(--nabd-bg.surface-light)">اطلب جميع الأدوية من الصيدلية</AppText>
                 </View>
               </View>
             </TouchableOpacity>

@@ -128,22 +128,22 @@ export default function ViewReportScreen() {
           <IconButton
             icon="share"
             bg="rgba(255,255,255,0.18)"
-            color="#fff"
+            color="var(--nabd-bg.surface-light)"
             onPress={handleShare}
           />
-          <AppText variant="h4" color="#fff">
+          <AppText variant="h4" color="var(--nabd-bg.surface-light)">
             التقرير
           </AppText>
           <IconButton
             icon="back"
             bg="rgba(255,255,255,0.18)"
-            color="#fff"
+            color="var(--nabd-bg.surface-light)"
             onPress={() => router.back()}
           />
         </View>
 
         <View style={st.reportMeta}>
-          <AppText variant="h5" color="#fff">
+          <AppText variant="h5" color="var(--nabd-bg.surface-light)">
             {pickLocalized(report.title_ar, report.title_en) || "تقرير طبي"}
           </AppText>
           <View style={{ flexDirection: "row-reverse", gap: 12, marginTop: 8, flexWrap: "wrap" }}>

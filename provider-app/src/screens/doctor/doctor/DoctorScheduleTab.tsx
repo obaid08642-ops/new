@@ -111,7 +111,7 @@ export function DoctorScheduleTab({ onNavigate }: { onNavigate: (s: string, p?: 
  borderColor: view === v ? theme.primary : theme.border,
  alignItems: 'center', justifyContent: 'center', height: 36
  }]}>
- <Text style={{ color: view === v ? '#FFF' : theme.text, fontSize: FS.sm }}>
+ <Text style={{ color: view === v ? 'var(--nabd-bg.surface-light)' : theme.text, fontSize: FS.sm }}>
  {v === 'day' ? (AR?'يوم':'Day') : v === 'week' ? (AR?'أسبوع':'Week') : (AR?'قائمة':'List')}
  </Text>
  </TouchableOpacity>
@@ -129,7 +129,7 @@ export function DoctorScheduleTab({ onNavigate }: { onNavigate: (s: string, p?: 
   borderColor: filter === f.k ? theme.primary : theme.border,
   alignItems: 'center', justifyContent: 'center', height: 32, paddingVertical: 0
   }]}>
- <Text style={{ color: filter === f.k ? '#FFF' : theme.text, fontSize: FS.sm }}>
+ <Text style={{ color: filter === f.k ? 'var(--nabd-bg.surface-light)' : theme.text, fontSize: FS.sm }}>
  {AR ? f.ar : f.en}
  </Text>
  </TouchableOpacity>

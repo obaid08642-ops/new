@@ -25,9 +25,9 @@ const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, backgroundColor: '#f8f9fa', justifyContent: 'center', alignItems: 'center' },
   title: { fontSize: 24, fontWeight: 'bold', color: '#1a1a1a', marginBottom: 10 },
   subtitle: { fontSize: 16, color: '#666', textAlign: 'center', marginBottom: 30 },
-  card: { backgroundColor: '#fff', padding: 30, borderRadius: 15, elevation: 2, alignItems: 'center', marginBottom: 30, width: '100%' },
+  card: { backgroundColor: 'var(--nabd-bg.surface-light)', padding: 30, borderRadius: 15, elevation: 2, alignItems: 'center', marginBottom: 30, width: '100%' },
   amount: { fontSize: 36, fontWeight: 'bold', color: '#4CAF50', marginBottom: 10 },
   code: { fontSize: 14, color: '#888' },
   payBtn: { backgroundColor: '#4CAF50', padding: 15, borderRadius: 10, width: '100%', alignItems: 'center' },
-  payText: { color: '#fff', fontSize: 18, fontWeight: 'bold' }
+  payText: { color: 'var(--nabd-bg.surface-light)', fontSize: 18, fontWeight: 'bold' }
 });

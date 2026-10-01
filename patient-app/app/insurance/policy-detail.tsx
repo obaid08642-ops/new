@@ -49,7 +49,7 @@ export default function PolicyDetailScreen() {
       >
         <View style={styles.headerRow}>
           <TouchableOpacity onPress={() => router.back()} style={styles.hBtn}>
-            <Icon name="back" size={22} color="#fff" />
+            <Icon name="back" size={22} color="var(--nabd-bg.surface-light)" />
           </TouchableOpacity>
           <AppText variant="bodySM">تفاصيل البوليصة</AppText>
           <View style={{ width: 36 }} />
@@ -57,7 +57,7 @@ export default function PolicyDetailScreen() {
         {policy && (
           <View style={[styles.activeBadge]}>
             <View style={[styles.greenDot, !policy.verified && { backgroundColor: '#F0A526' }]} />
-            <AppText variant="labelSM" color="#fff">
+            <AppText variant="labelSM" color="var(--nabd-bg.surface-light)">
               {policy.verified ? "موثّقة" : "قيد المراجعة"}
             </AppText>
           </View>
@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 10,
   },
-  title: { color: "#fff", fontSize: 17, fontWeight: "800" } as any,
+  title: { color: "var(--nabd-bg.surface-light)", fontSize: 17, fontWeight: "800" } as any,
   hBtn: {
     width: 36,
     height: 36,
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: "#4ADE80",
   },
-  active: { color: "#fff", fontSize: 13, fontWeight: "700" } as any,
+  active: { color: "var(--nabd-bg.surface-light)", fontSize: 13, fontWeight: "700" } as any,
   card: { borderRadius: 18, padding: 14 },
   row: {
     flexDirection: "row-reverse",

@@ -560,7 +560,7 @@ function VisitChecklist({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
  <TouchableOpacity key={item.id} onPress={()=>toggle(item.id)}
  style={[st.checkRow,{backgroundColor:item.done?theme.successBg:theme.surface2,borderColor:item.done?theme.success:theme.border,flexDirection:AR?'row-reverse':'row'}]}>
  <View style={{width:24,height:24,borderRadius:R.sm,borderWidth:2,borderColor:item.done?tokens.success:theme.border,backgroundColor:item.done?tokens.success:'transparent',alignItems:'center',justifyContent:'center'}}>
- {item.done && <I name="check" size={12} color="#FFF" />}
+ {item.done && <I name="check" size={12} color="var(--nabd-bg.surface-light)" />}
  </View>
  <Text style={{flex:1,fontSize:FS.md,color:item.done?theme.success:theme.text,textAlign:AR?'right':'left',textDecorationLine:item.done?'line-through':'none'}}>
  {AR?item.task:item.taskEn}
@@ -1399,7 +1399,7 @@ function NursingCoverageSettings({ onBack }:{ onBack:()=>void }) {
  backgroundColor: radius === k ? theme.primary : theme.surface2,
  borderColor: radius === k ? theme.primary : theme.border
  }]}>
- <Text style={{ color: radius === k ? '#FFF' : theme.text, fontWeight: FW.bold }}>{k} {AR ? 'كم' : 'KM'}</Text>
+ <Text style={{ color: radius === k ? 'var(--nabd-bg.surface-light)' : theme.text, fontWeight: FW.bold }}>{k} {AR ? 'كم' : 'KM'}</Text>
  </TouchableOpacity>
  ))}
  </View>
@@ -1599,7 +1599,7 @@ function NursingChatScreen({ order, onBack }: { order: any; onBack: () => void }
           const time = m.createdAt ? new Date(m.createdAt).toLocaleTimeString('ar-SA-u-ca-gregory', { hour: '2-digit', minute: '2-digit' }) : '';
           return (
           <View key={m.id || m._id} style={{ alignSelf: mine ? 'flex-end' : 'flex-start', backgroundColor: mine ? theme.primary : theme.surface, padding: SP.md, borderRadius: R.md, maxWidth: '80%' }}>
-            <Text style={{ color: mine ? '#FFF' : theme.text }}>{m.body}</Text>
+            <Text style={{ color: mine ? 'var(--nabd-bg.surface-light)' : theme.text }}>{m.body}</Text>
             <Text style={{ color: mine ? '#FFF8' : theme.textSub, fontSize: 10, marginTop: 4, textAlign: 'right' }}>{time}</Text>
           </View>
           );

@@ -108,7 +108,7 @@ export function SmartOutboundReferralNetwork({ onBack }: { onBack: () => void })
  <TouchableOpacity key={test.id} onPress={() => handleToggleTest(test.id)}
  style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, alignItems: 'center', paddingVertical: SP.sm }}>
  <View style={{ width: 20, height: 20, borderRadius: 4, borderWidth: 2, borderColor: sel ? theme.primary : theme.border, alignItems: 'center', justifyContent: 'center', backgroundColor: sel ? theme.primary : 'transparent' }}>
- {sel && <I name="check" size={10} color="#FFF" />}
+ {sel && <I name="check" size={10} color="var(--nabd-bg.surface-light)" />}
  </View>
  <Text style={{ fontSize: FS.sm, color: theme.text }}>{test.label}</Text>
  </TouchableOpacity>

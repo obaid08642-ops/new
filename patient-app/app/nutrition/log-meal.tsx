@@ -48,5 +48,5 @@ export default function LogMealScreen() {
   </View>;
 }
 
-function SectionHeading({ value, title, colors }: { value: string; title: string; colors: any }) { return <View style={styles.sectionHeading}><View style={[styles.step, { backgroundColor: colors.primary }]}><AppText variant="labelSM" color="#fff">{value}</AppText></View><AppText variant="h6">{title}</AppText></View>; }
+function SectionHeading({ value, title, colors }: { value: string; title: string; colors: any }) { return <View style={styles.sectionHeading}><View style={[styles.step, { backgroundColor: colors.primary }]}><AppText variant="labelSM" color="var(--nabd-bg.surface-light)">{value}</AppText></View><AppText variant="h6">{title}</AppText></View>; }
 const styles = StyleSheet.create({ container: { flex: 1 }, header: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingBottom: 10 }, titleWrap: { flex: 1, alignItems: 'center', gap: 3, paddingHorizontal: 8 }, content: { padding: 16, gap: 14 }, section: { gap: 12 }, sectionHeading: { flexDirection: 'row-reverse', alignItems: 'center', gap: 8 }, step: { width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }, error: { backgroundColor: '#FEE2E2', alignItems: 'flex-end' }, notice: { borderWidth: 1, alignItems: 'flex-end' } });

@@ -94,16 +94,16 @@ export default function Screen() {
           <IconButton
             icon="add"
             bg="rgba(255,255,255,0.18)"
-            color="#fff"
+            color="var(--nabd-bg.surface-light)"
             onPress={() => setShowComposer(true)}
           />
-          <AppText variant="h4" color="#fff">
+          <AppText variant="h4" color="var(--nabd-bg.surface-light)">
             المجتمع الصحي
           </AppText>
           <IconButton
             icon="back"
             bg="rgba(255,255,255,0.18)"
-            color="#fff"
+            color="var(--nabd-bg.surface-light)"
             onPress={() => router.back()}
           />
         </View>
@@ -149,7 +149,7 @@ export default function Screen() {
                         },
                       ]}
                     >
-                      <AppText variant="bodySM" color={isActive ? "#fff" : colors.textPrimary}>
+                      <AppText variant="bodySM" color={isActive ? "var(--nabd-bg.surface-light)" : colors.textPrimary}>
                         {cat.label}
                       </AppText>
                     </TouchableOpacity>
@@ -238,7 +238,7 @@ export default function Screen() {
                       onPress={() => setPostCategory(c.key)}
                       style={[st.catBadge, { backgroundColor: isActive ? colors.primary : colors.surfaceSecondary, borderColor: isActive ? colors.primary : colors.borderLight }]}
                     >
-                      <AppText variant="caption" color={isActive ? "#fff" : colors.textSecondary}>{c.label}</AppText>
+                      <AppText variant="caption" color={isActive ? "var(--nabd-bg.surface-light)" : colors.textSecondary}>{c.label}</AppText>
                     </TouchableOpacity>
                   );
                 })}

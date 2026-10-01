@@ -281,24 +281,24 @@ export function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: 
    <TouchableOpacity 
      onPress={() => onNavigate('medical_jobs')}
      style={{ flex: 1, backgroundColor: theme.primary, borderRadius: R.md, padding: SP.lg, alignItems: 'center' }}>
-     <I name="profile" size={32} color="#FFF" />
-     <Text style={{ color: '#FFF', fontWeight: FW.bold, marginTop: SP.sm, textAlign: 'center' }}>
+     <I name="profile" size={32} color="var(--nabd-bg.surface-light)" />
+     <Text style={{ color: 'var(--nabd-bg.surface-light)', fontWeight: FW.bold, marginTop: SP.sm, textAlign: 'center' }}>
        {AR ? 'الوظائف الطبية' : 'Medical Jobs'}
      </Text>
    </TouchableOpacity>
    <TouchableOpacity 
      onPress={() => onNavigate('drug_index')}
      style={{ flex: 1, backgroundColor: theme.info, borderRadius: R.md, padding: SP.lg, alignItems: 'center' }}>
-     <I name="document" size={32} color="#FFF" />
-     <Text style={{ color: '#FFF', fontWeight: FW.bold, marginTop: SP.sm, textAlign: 'center' }}>
+     <I name="document" size={32} color="var(--nabd-bg.surface-light)" />
+     <Text style={{ color: 'var(--nabd-bg.surface-light)', fontWeight: FW.bold, marginTop: SP.sm, textAlign: 'center' }}>
        {AR ? 'دليل الأدوية' : 'Drug Index'}
      </Text>
    </TouchableOpacity>
    <TouchableOpacity 
      onPress={() => onNavigate('inbound_reports')}
      style={{ width: '100%', backgroundColor: theme.success, borderRadius: R.md, padding: SP.lg, alignItems: 'center', marginTop: SP.sm }}>
-     <I name="folder" size={32} color="#FFF" />
-     <Text style={{ color: '#FFF', fontWeight: FW.bold, marginTop: SP.sm, textAlign: 'center' }}>
+     <I name="folder" size={32} color="var(--nabd-bg.surface-light)" />
+     <Text style={{ color: 'var(--nabd-bg.surface-light)', fontWeight: FW.bold, marginTop: SP.sm, textAlign: 'center' }}>
        {AR ? 'التقارير الطبية الواردة (نتائج الأشعة والتحاليل)' : 'Inbound Medical Reports (Radiology & Labs)'}
      </Text>
    </TouchableOpacity>
@@ -342,7 +342,7 @@ export function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: 
   <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm, marginBottom: SP.lg }}>
   {['كلية', 'جزئية', 'مرفوضة'].map(s => (
   <TouchableOpacity key={s} onPress={() => setApprovalStatus(s)} style={{ flex: 1, padding: SP.md, borderRadius: R.md, backgroundColor: approvalStatus === s ? theme.primary : theme.surface2, alignItems: 'center' }}>
-  <Text style={{ color: approvalStatus === s ? '#FFF' : theme.text }}>{s}</Text>
+  <Text style={{ color: approvalStatus === s ? 'var(--nabd-bg.surface-light)' : theme.text }}>{s}</Text>
   </TouchableOpacity>
   ))}
   </View>

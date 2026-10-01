@@ -155,16 +155,16 @@ export default function DiagnosticsHub() {
             style={[styles.toggleBtn, serviceType === 'home' && { backgroundColor: colors.primary, shadowColor: colors.primary, shadowOpacity: 0.3, shadowRadius: 8, elevation: 4 }]}
             onPress={() => setServiceType('home')}
           >
-            <Icon name="home-variant-outline" size={22} color={serviceType === 'home' ? '#fff' : colors.textSecondary} />
-            <AppText style={[styles.toggleText, { color: serviceType === 'home' ? '#fff' : colors.textSecondary } ]}>{mainTab === 'labs' ? 'سحب عينة منزلي' : 'أشعة منزلية'}</AppText>
+            <Icon name="home-variant-outline" size={22} color={serviceType === 'home' ? 'var(--nabd-bg.surface-light)' : colors.textSecondary} />
+            <AppText style={[styles.toggleText, { color: serviceType === 'home' ? 'var(--nabd-bg.surface-light)' : colors.textSecondary } ]}>{mainTab === 'labs' ? 'سحب عينة منزلي' : 'أشعة منزلية'}</AppText>
           </TouchableOpacity>
           
           <TouchableOpacity 
             style={[styles.toggleBtn, serviceType === 'clinic' && { backgroundColor: colors.primary, shadowColor: colors.primary, shadowOpacity: 0.3, shadowRadius: 8, elevation: 4 }]}
             onPress={() => setServiceType('clinic')}
           >
-            <Icon name="hospital-box-outline" size={22} color={serviceType === 'clinic' ? '#fff' : colors.textSecondary} />
-            <AppText style={[styles.toggleText, { color: serviceType === 'clinic' ? '#fff' : colors.textSecondary } ]}>{mainTab === 'labs' ? 'زيارة المختبر' : 'زيارة المركز'}</AppText>
+            <Icon name="hospital-box-outline" size={22} color={serviceType === 'clinic' ? 'var(--nabd-bg.surface-light)' : colors.textSecondary} />
+            <AppText style={[styles.toggleText, { color: serviceType === 'clinic' ? 'var(--nabd-bg.surface-light)' : colors.textSecondary } ]}>{mainTab === 'labs' ? 'زيارة المختبر' : 'زيارة المركز'}</AppText>
           </TouchableOpacity>
         </Animated.View>
 
@@ -197,7 +197,7 @@ export default function DiagnosticsHub() {
                 <Icon name="shield-check" size={32} color="#F5A623" />
               </View>
               <View style={styles.insuranceText}>
-                <AppText style={{ color: '#fff', fontWeight: '900', fontSize: 16, textAlign: 'right' }}>هل لديك تأمين طبي أو وصفة؟</AppText>
+                <AppText style={{ color: 'var(--nabd-bg.surface-light)', fontWeight: '900', fontSize: 16, textAlign: 'right' }}>هل لديك تأمين طبي أو وصفة؟</AppText>
                 <AppText style={{ color: 'rgba(255,255,255,0.95)', fontSize: 12, marginTop: 4, textAlign: 'right' }}>ارفع الوصفة لمعرفة التغطية واحجز موعدك فوراً</AppText>
               </View>
             </View>
@@ -221,7 +221,7 @@ export default function DiagnosticsHub() {
                     <TouchableOpacity style={[styles.pkgCard, { backgroundColor: colors.surface, borderColor: colors.border }]} onPress={() => (router.push as any)(`/diagnostics/package-detail?id=${pkg.id}&serviceType=${serviceType}`)}>
                       {pkg.isPopular && (
                         <View style={styles.popularBadge}>
-                          <AppText style={{ fontSize: 10, color: '#fff', fontWeight: 'bold' }}>الأكثر طلباً</AppText>
+                          <AppText style={{ fontSize: 10, color: 'var(--nabd-bg.surface-light)', fontWeight: 'bold' }}>الأكثر طلباً</AppText>
                         </View>
                       )}
                       <View style={[styles.pkgIcon, { backgroundColor: `${pkg.color}15`, overflow: 'hidden' }]} >
@@ -267,16 +267,16 @@ export default function DiagnosticsHub() {
 
                     {items.some(i => i.id === test.id) ? (
                       <View style={[styles.addBtnRed, { backgroundColor: '#4CAF50' } ]}>
-                        <Icon name="check-bold" size={18} color="#fff" />
-                        <AppText style={{ color: '#fff', fontWeight: 'bold', fontSize: 12, marginLeft: 4 }}>مضاف للسلة</AppText>
+                        <Icon name="check-bold" size={18} color="var(--nabd-bg.surface-light)" />
+                        <AppText style={{ color: 'var(--nabd-bg.surface-light)', fontWeight: 'bold', fontSize: 12, marginLeft: 4 }}>مضاف للسلة</AppText>
                       </View>
                     ) : (
                       <TouchableOpacity 
                         style={[styles.addBtnRed, { backgroundColor: '#E53935' }]} 
                         onPress={() => addItem({ id: test.id, name: test.name, price: typeof test.price === 'string' ? parseInt(test.price) : test.price, kind: 'lab' })}
                       >
-                        <Icon name="cart-plus" size={18} color="#fff" />
-                        <AppText style={{ color: '#fff', fontWeight: 'bold', fontSize: 12, marginLeft: 4 }}>أضف للسلة</AppText>
+                        <Icon name="cart-plus" size={18} color="var(--nabd-bg.surface-light)" />
+                        <AppText style={{ color: 'var(--nabd-bg.surface-light)', fontWeight: 'bold', fontSize: 12, marginLeft: 4 }}>أضف للسلة</AppText>
                       </TouchableOpacity>
                     )}
 
@@ -325,16 +325,16 @@ export default function DiagnosticsHub() {
 
                     {items.some(i => i.id === test.id) ? (
                       <View style={[styles.addBtnRed, { backgroundColor: '#4CAF50' } ]}>
-                        <Icon name="check-bold" size={18} color="#fff" />
-                        <AppText style={{ color: '#fff', fontWeight: 'bold', fontSize: 12, marginLeft: 4 }}>مضاف للسلة</AppText>
+                        <Icon name="check-bold" size={18} color="var(--nabd-bg.surface-light)" />
+                        <AppText style={{ color: 'var(--nabd-bg.surface-light)', fontWeight: 'bold', fontSize: 12, marginLeft: 4 }}>مضاف للسلة</AppText>
                       </View>
                     ) : (
                       <TouchableOpacity 
                         style={[styles.addBtnRed, { backgroundColor: '#E53935' }]} 
                         onPress={() => addItem({ id: test.id, name: test.name, price: parseInt(test.price), kind: 'lab' })}
                       >
-                        <Icon name="cart-plus" size={18} color="#fff" />
-                        <AppText style={{ color: '#fff', fontWeight: 'bold', fontSize: 12, marginLeft: 4 }}>أضف للسلة</AppText>
+                        <Icon name="cart-plus" size={18} color="var(--nabd-bg.surface-light)" />
+                        <AppText style={{ color: 'var(--nabd-bg.surface-light)', fontWeight: 'bold', fontSize: 12, marginLeft: 4 }}>أضف للسلة</AppText>
                       </TouchableOpacity>
                     )}
 
@@ -383,8 +383,8 @@ export default function DiagnosticsHub() {
                       (router.push as any)('/diagnostics/cart');
                     }}
                   >
-                    <Icon name="calendar-check" size={18} color="#fff" />
-                    <AppText style={{ color: '#fff', fontWeight: 'bold', fontSize: 12, marginLeft: 4 }}>احجز الآن</AppText>
+                    <Icon name="calendar-check" size={18} color="var(--nabd-bg.surface-light)" />
+                    <AppText style={{ color: 'var(--nabd-bg.surface-light)', fontWeight: 'bold', fontSize: 12, marginLeft: 4 }}>احجز الآن</AppText>
                   </TouchableOpacity>
                   
                 </TouchableOpacity>
@@ -407,9 +407,9 @@ export default function DiagnosticsHub() {
             <View style={[styles.floatingCartBadge, { backgroundColor: colors.surface } ]}>
               <AppText style={{ color: colors.primary, fontWeight: 'bold', fontSize: 14 }}>{itemCount}</AppText>
             </View>
-            <AppText style={{ color: '#fff', fontWeight: 'bold', fontSize: 16, marginLeft: I18nManager.isRTL ? 0 : 12, marginRight: I18nManager.isRTL ? 12 : 0 }}>إتمام الحجز والدفع</AppText>
+            <AppText style={{ color: 'var(--nabd-bg.surface-light)', fontWeight: 'bold', fontSize: 16, marginLeft: I18nManager.isRTL ? 0 : 12, marginRight: I18nManager.isRTL ? 12 : 0 }}>إتمام الحجز والدفع</AppText>
             <View style={{ flex: 1 }}/>
-            <Icon name="arrow-left-circle" size={24} color="#fff" />
+            <Icon name="arrow-left-circle" size={24} color="var(--nabd-bg.surface-light)" />
           </TouchableOpacity>
         </Animated.View>
       )}

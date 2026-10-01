@@ -84,7 +84,7 @@ export default function MoodJournalScreen() {
     <View style={styles.scaleGroup}>
       <AppText variant="caption" color={colors.textSecondary}>{t(label)}</AppText>
       <View style={styles.scaleRow}>
-        {[1, 2, 3, 4, 5].map((number) => <TouchableOpacity key={number} accessibilityRole="button" onPress={() => onChange(number)} style={[styles.scaleDot, { borderColor: selectedMoodColor }, value === number && { backgroundColor: selectedMoodColor }]}><AppText variant="caption" color={value === number ? '#FFFFFF' : colors.textSecondary}>{number}</AppText></TouchableOpacity>)}
+        {[1, 2, 3, 4, 5].map((number) => <TouchableOpacity key={number} accessibilityRole="button" onPress={() => onChange(number)} style={[styles.scaleDot, { borderColor: selectedMoodColor }, value === number && { backgroundColor: selectedMoodColor }]}><AppText variant="caption" color={value === number ? 'var(--nabd-bg.surface-light)' : colors.textSecondary}>{number}</AppText></TouchableOpacity>)}
       </View>
     </View>
   );
@@ -92,8 +92,8 @@ export default function MoodJournalScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={[styles.header, { backgroundColor: '#312E81', paddingTop: insets.top + 12 }]}>
-        <TouchableOpacity accessibilityRole="button" accessibilityLabel={t('cancel')} onPress={() => router.back()} style={styles.backButton}><Icon name="back" size={22} color="#FFFFFF" /></TouchableOpacity>
-        <AppText variant="h4" color="#FFFFFF">{t('moodJournal')}</AppText>
+        <TouchableOpacity accessibilityRole="button" accessibilityLabel={t('cancel')} onPress={() => router.back()} style={styles.backButton}><Icon name="back" size={22} color="var(--nabd-bg.surface-light)" /></TouchableOpacity>
+        <AppText variant="h4" color="var(--nabd-bg.surface-light)">{t('moodJournal')}</AppText>
         <AppText variant="caption" color="rgba(255,255,255,0.82)">{t('noDiagnosis')}</AppText>
       </View>
 
@@ -113,14 +113,14 @@ export default function MoodJournalScreen() {
 
         <View style={[styles.card, { backgroundColor: colors.surface }]}>
           <AppText variant="h6" color={colors.textPrimary}>{t('tags')}</AppText>
-          <View style={styles.tagWrap}>{tagOptions.map((option) => <TouchableOpacity key={option.value} accessibilityRole="button" onPress={() => toggleTag(option.value)} style={[styles.tag, { borderColor: colors.border }, selectedTags.includes(option.value) && { backgroundColor: '#7A6BEA', borderColor: '#7A6BEA' }]}><AppText variant="caption" color={selectedTags.includes(option.value) ? '#FFFFFF' : colors.textPrimary}>{t(option.key)}</AppText></TouchableOpacity>)}</View>
+          <View style={styles.tagWrap}>{tagOptions.map((option) => <TouchableOpacity key={option.value} accessibilityRole="button" onPress={() => toggleTag(option.value)} style={[styles.tag, { borderColor: colors.border }, selectedTags.includes(option.value) && { backgroundColor: '#7A6BEA', borderColor: '#7A6BEA' }]}><AppText variant="caption" color={selectedTags.includes(option.value) ? 'var(--nabd-bg.surface-light)' : colors.textPrimary}>{t(option.key)}</AppText></TouchableOpacity>)}</View>
           <AppText variant="caption" color={colors.textSecondary}>{t('note')}</AppText>
           <TextInput value={note} onChangeText={setNote} maxLength={500} multiline textAlignVertical="top" placeholder={t('notePlaceholder')} placeholderTextColor={colors.textTertiary} style={[styles.noteInput, { color: colors.textPrimary, borderColor: colors.border, backgroundColor: colors.backgroundSecondary }]} />
         </View>
 
         {saveError && <AppText variant="caption" color="#B91C1C" style={styles.message}>{t('saveError')}</AppText>}
         {saved && <View style={[styles.saved, { backgroundColor: '#DCFCE7' }]}><Icon name="success" size={18} color="#15803D" /><AppText variant="caption" color="#166534">{t('saved')}</AppText></View>}
-        <TouchableOpacity accessibilityRole="button" disabled={!selectedMood || saving} onPress={() => void submit()} style={[styles.saveButton, { backgroundColor: selectedMoodColor, opacity: !selectedMood || saving ? 0.55 : 1 }]}>{saving ? <ActivityIndicator color="#FFFFFF" /> : <AppText variant="h6" color="#FFFFFF">{t('save')}</AppText>}</TouchableOpacity>
+        <TouchableOpacity accessibilityRole="button" disabled={!selectedMood || saving} onPress={() => void submit()} style={[styles.saveButton, { backgroundColor: selectedMoodColor, opacity: !selectedMood || saving ? 0.55 : 1 }]}>{saving ? <ActivityIndicator color="var(--nabd-bg.surface-light)" /> : <AppText variant="h6" color="var(--nabd-bg.surface-light)">{t('save')}</AppText>}</TouchableOpacity>
 
         <AppText variant="h6" color={colors.textPrimary} style={styles.historyTitle}>{t('history')}</AppText>
         {loading ? <View style={styles.loading}><ActivityIndicator color="#7A6BEA" /><AppText variant="caption" color={colors.textSecondary}>{t('loading')}</AppText></View> : loadError ? <View style={styles.empty}><AppText variant="caption" color={colors.textSecondary}>{t('loadError')}</AppText><TouchableOpacity onPress={() => void loadHistory()}><AppText variant="caption" color="#5B21B6">{t('retry')}</AppText></TouchableOpacity></View> : entries.length === 0 ? <View style={styles.empty}><AppText variant="caption" color={colors.textSecondary} style={styles.centerText}>{t('noHistory')}</AppText></View> : entries.map((entry, index) => {

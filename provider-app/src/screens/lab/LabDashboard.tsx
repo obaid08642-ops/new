@@ -666,7 +666,7 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
             onBarcodeScanned={({ data }: any) => { if (data) { setBarcode(String(data)); setShowCam(false); } }}
           />
           <TouchableOpacity onPress={()=>setShowCam(false)} style={{ position: 'absolute', bottom: 60, alignSelf: 'center', backgroundColor: '#00000099', paddingHorizontal: 32, paddingVertical: 14, borderRadius: 28 }}>
-            <Text style={{ color: '#fff', fontWeight: FW.bold, fontSize: FS.md }}>{AR ? 'إلغاء' : 'Cancel'}</Text>
+            <Text style={{ color: 'var(--nabd-bg.surface-light)', fontWeight: FW.bold, fontSize: FS.md }}>{AR ? 'إلغاء' : 'Cancel'}</Text>
           </TouchableOpacity>
         </View>
       </Modal>
@@ -722,12 +722,12 @@ function SampleTracking({ onBack, onNav }:{ onBack:()=>void; onNav:(s:string,p?:
  {/* Stage filter */}
  <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{paddingHorizontal:SP.lg,paddingVertical:SP.md,gap:SP.sm}}>
  <TouchableOpacity onPress={()=>setFilter('all')} style={[s.chip,{backgroundColor:filter==='all'?tokens.purple:theme.surface2,borderColor:filter==='all'?tokens.purple:theme.border}]}>
- <Text style={{color:filter==='all'?'#FFF':theme.text,fontSize:FS.xs,fontWeight:FW.semi}}>{AR?'الكل':'All'} ({samples.length})</Text>
+ <Text style={{color:filter==='all'?'var(--nabd-bg.surface-light)':theme.text,fontSize:FS.xs,fontWeight:FW.semi}}>{AR?'الكل':'All'} ({samples.length})</Text>
  </TouchableOpacity>
  {SAMPLE_STAGES.map(st=>{
  const c=samples.filter(sm=>sm.stage===st.key).length;
  return <TouchableOpacity key={st.key} onPress={()=>setFilter(st.key)} style={[s.chip,{backgroundColor:filter===st.key?st.color:theme.surface2,borderColor:filter===st.key?st.color:theme.border}]}>
- <Text style={{color:filter===st.key?'#FFF':theme.text,fontSize:FS.xs,fontWeight:FW.semi}}>{AR?st.ar:st.en} ({c})</Text>
+ <Text style={{color:filter===st.key?'var(--nabd-bg.surface-light)':theme.text,fontSize:FS.xs,fontWeight:FW.semi}}>{AR?st.ar:st.en} ({c})</Text>
  </TouchableOpacity>;
  })}
  </ScrollView>
@@ -753,7 +753,7 @@ function SampleTracking({ onBack, onNav }:{ onBack:()=>void; onNav:(s:string,p?:
  {SAMPLE_STAGES.map((st2,i)=>(
  <React.Fragment key={st2.key}>
  <View style={{width:22,height:22,borderRadius:11,backgroundColor:i<=si?st2.color:theme.surface2,alignItems:'center',justifyContent:'center'}}>
- {i<=si && <I name="check" size={10} color="#FFF" />}
+ {i<=si && <I name="check" size={10} color="var(--nabd-bg.surface-light)" />}
  </View>
  {i<SAMPLE_STAGES.length-1 && <View style={{flex:1,height:2,backgroundColor:i<si?SAMPLE_STAGES[i+1].color:theme.border}} />}
  </React.Fragment>
@@ -1470,7 +1470,7 @@ const s = StyleSheet.create({
  navTab:{flex:1,alignItems:'center',gap:2},
  navIconWrap:{width:40,height:40,borderRadius:20,alignItems:'center',justifyContent:'center',position:'relative'},
  navBadge:{position:'absolute',top:-2,right:-2,backgroundColor:tokens.error,width:16,height:16,borderRadius:8,alignItems:'center',justifyContent:'center'},
- navBadgeText:{color:'#FFF',fontSize:9,fontWeight:'700'},
+ navBadgeText:{color:'var(--nabd-bg.surface-light)',fontSize:9,fontWeight:'700'},
  navLabel:{fontSize:10},
 });
 

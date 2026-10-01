@@ -185,7 +185,7 @@ export default function ChatWithDoctorScreen() {
         ) : (
           <View key={m.id} style={{ flexDirection: isRTL ? 'row' : 'row-reverse', marginBottom: 12, opacity: m.pending ? 0.6 : 1 }}>
             <View style={[styles.myBubble, { backgroundColor: m.failed ? '#B91C1C' : resolveColor('var(--p)'), borderTopRightRadius: isRTL ? 4 : 14, borderTopLeftRadius: isRTL ? 14 : 4 } ]}>
-              <LocalizedText style={{ fontSize: 12, color: '#fff', lineHeight: 18, textAlign: isRTL ? 'right' : 'left' }}>{m.text}</LocalizedText>
+              <LocalizedText style={{ fontSize: 12, color: 'var(--nabd-bg.surface-light)', lineHeight: 18, textAlign: isRTL ? 'right' : 'left' }}>{m.text}</LocalizedText>
               <LocalizedText style={{ fontSize: 8, color: 'rgba(255,255,255,0.7)', textAlign: isRTL ? 'right' : 'left', marginTop: 4 }}>
                 {m.failed ? 'فشل الإرسال' : m.pending ? 'جاري الإرسال...' : m.time}
               </LocalizedText>
@@ -206,7 +206,7 @@ export default function ChatWithDoctorScreen() {
           onSubmitEditing={send}
         />
         <TouchableOpacity disabled={!!blocked} style={[styles.micBtn, { backgroundColor: resolveColor('var(--p)'), opacity: blocked ? 0.5 : 1 }]} onPress={send}>
-          <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 21 }}>{msg ? 'send' : 'mic'}</LocalizedText>
+          <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: 'var(--nabd-bg.surface-light)', fontSize: 21 }}>{msg ? 'send' : 'mic'}</LocalizedText>
         </TouchableOpacity>
       </View>
     </View>

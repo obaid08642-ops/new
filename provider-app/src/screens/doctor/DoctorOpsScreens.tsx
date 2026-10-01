@@ -80,7 +80,7 @@ export function DoctorLeavesScreen({ onBack }: { onBack: () => void }) {
           {TYPES.map((t) => (
             <TouchableOpacity key={t.k} onPress={() => setType(t.k)}
               style={[s.chip, { backgroundColor: type === t.k ? theme.primary : theme.surface2, borderColor: type === t.k ? theme.primary : theme.border }]}>
-              <Text style={{ color: type === t.k ? '#FFF' : theme.text, fontWeight: FW.semi }}>{AR ? t.ar : t.en}</Text>
+              <Text style={{ color: type === t.k ? 'var(--nabd-bg.surface-light)' : theme.text, fontWeight: FW.semi }}>{AR ? t.ar : t.en}</Text>
             </TouchableOpacity>
           ))}
         </View>

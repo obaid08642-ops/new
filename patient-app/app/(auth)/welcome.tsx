@@ -101,7 +101,7 @@ export default function Welcome() {
         style={{ position: 'absolute', inset: 0, borderRadius: size * 0.3 }}
       />
       <Svg viewBox="0 0 100 100" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
-        <Path d="M18 52 H38 l5 -22 l9 44 l6 -30 l5 8 H82" fill="none" stroke="#fff" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
+        <Path d="M18 52 H38 l5 -22 l9 44 l6 -30 l5 8 H82" fill="none" stroke="var(--nabd-bg.surface-light)" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
       </Svg>
     </View>
   );
@@ -203,14 +203,14 @@ export default function Welcome() {
           
           <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'center', flexWrap: 'wrap', gap: 16 }}>
             {/* Google */}
-          <TouchableOpacity onPress={() => router.push('/(auth)/login')} style={[styles.modernSocialBtn, { backgroundColor: isDark ? '#1A2540' : '#FFFFFF' }]} activeOpacity={0.8}>
-            <FontAwesome name="google" size={20} color={isDark ? "#FFFFFF" : "#DB4437"} />
+          <TouchableOpacity onPress={() => router.push('/(auth)/login')} style={[styles.modernSocialBtn, { backgroundColor: isDark ? '#1A2540' : 'var(--nabd-bg.surface-light)' }]} activeOpacity={0.8}>
+            <FontAwesome name="google" size={20} color={isDark ? "var(--nabd-bg.surface-light)" : "#DB4437"} />
           </TouchableOpacity>
 
           {/* Apple */}
           {Platform.OS === 'ios' && (
-          <TouchableOpacity onPress={() => router.push('/(auth)/login')} style={[styles.modernSocialBtn, { backgroundColor: isDark ? '#FFFFFF' : '#000000' }]} activeOpacity={0.8}>
-            <FontAwesome name="apple" size={24} color={isDark ? "#000000" : "#FFFFFF"} />
+          <TouchableOpacity onPress={() => router.push('/(auth)/login')} style={[styles.modernSocialBtn, { backgroundColor: isDark ? 'var(--nabd-bg.surface-light)' : '#000000' }]} activeOpacity={0.8}>
+            <FontAwesome name="apple" size={24} color={isDark ? "#000000" : "var(--nabd-bg.surface-light)"} />
           </TouchableOpacity>
           )}
 
@@ -220,8 +220,8 @@ export default function Welcome() {
           </TouchableOpacity>
 
           {/* X (Twitter) */}
-          <TouchableOpacity onPress={() => router.push('/(auth)/login')} style={[styles.modernSocialBtn, { backgroundColor: isDark ? '#1A2540' : '#FFFFFF' }]} activeOpacity={0.8}>
-            <FontAwesome6 name="x-twitter" size={20} color={isDark ? "#FFFFFF" : "#000000"} />
+          <TouchableOpacity onPress={() => router.push('/(auth)/login')} style={[styles.modernSocialBtn, { backgroundColor: isDark ? '#1A2540' : 'var(--nabd-bg.surface-light)' }]} activeOpacity={0.8}>
+            <FontAwesome6 name="x-twitter" size={20} color={isDark ? "var(--nabd-bg.surface-light)" : "#000000"} />
           </TouchableOpacity>
         </View>
       </View>
@@ -264,7 +264,7 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   primaryBtnText: {
-    color: '#fff',
+    color: 'var(--nabd-bg.surface-light)',
     fontSize: 15,
     fontWeight: '800',
   },

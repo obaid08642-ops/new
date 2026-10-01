@@ -52,7 +52,7 @@ export function MedicalJobsPostTab({ ctx }: any) {
           <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: SP.sm }}>
             {[ { id: 'doctor', ar: 'طبيب', en: 'Doctor' }, { id: 'nurse', ar: 'تمريض', en: 'Nurse' }, { id: 'pharmacist', ar: 'صيدلي', en: 'Pharmacist' }, { id: 'lab', ar: 'مختبر', en: 'Lab' }, { id: 'radio', ar: 'أشعة', en: 'Radiology' } ].map((p) => (
               <TouchableOpacity key={p.id} onPress={() => setPostProf(p.id)} style={{ paddingHorizontal: SP.lg, paddingVertical: SP.sm, borderRadius: R.full, borderWidth: 1, borderColor: postProf === p.id ? theme.primary : theme.border, backgroundColor: postProf === p.id ? theme.primary : theme.surface }}>
-                <Text style={{ color: postProf === p.id ? '#FFF' : theme.text, fontSize: FS.sm }}>{AR ? p.ar : p.en}</Text>
+                <Text style={{ color: postProf === p.id ? 'var(--nabd-bg.surface-light)' : theme.text, fontSize: FS.sm }}>{AR ? p.ar : p.en}</Text>
               </TouchableOpacity>
             ))}
           </View>

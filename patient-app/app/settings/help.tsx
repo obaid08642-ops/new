@@ -53,7 +53,7 @@ export default function HelpCenterScreen() {
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <View style={styles.headerRow}>
           <TouchableOpacity onPress={() => router.back()} style={styles.hBtn}>
-            <Icon name="back" size={22} color="#fff" />
+            <Icon name="back" size={22} color="var(--nabd-bg.surface-light)" />
           </TouchableOpacity>
           <AppText variant="bodySM">مركز المساعدة </AppText>
           <View style={{ width: 36 }} />
@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 6,
   },
-  headerTitle: { color: "#fff", fontSize: 18, fontWeight: "800" },
+  headerTitle: { color: "var(--nabd-bg.surface-light)", fontSize: 18, fontWeight: "800" },
   headerSub: {
     color: "rgba(255,255,255,0.8)",
     fontSize: 13,
@@ -280,7 +280,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     padding: 16,
   },
-  stillTitle: { color: "#fff", fontSize: 15, fontWeight: "800" },
+  stillTitle: { color: "var(--nabd-bg.surface-light)", fontSize: 15, fontWeight: "800" },
   stillSub: {
     color: "rgba(255,255,255,0.8)",
     fontSize: 12,

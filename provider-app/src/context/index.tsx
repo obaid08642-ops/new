@@ -446,5 +446,5 @@ const tStyles = StyleSheet.create({
  shadowColor: '#000', shadowOffset:{width:0,height:6},
  shadowOpacity:0.35, shadowRadius:10, elevation:12,
  },
- toastTxt: { flex:1, color:'#FFF', fontSize:15, fontWeight:'500', lineHeight:20 },
+ toastTxt: { flex:1, color:'var(--nabd-bg.surface-light)', fontSize:15, fontWeight:'500', lineHeight:20 },
 });

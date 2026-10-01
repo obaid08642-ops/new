@@ -155,7 +155,7 @@ export default function CancelRescheduleScreen() {
           <Icon name="warning" size={40} color={colors.error} />
           <AppText variant="bodySM">{loadError || 'الموعد غير موجود'}</AppText>
           <TouchableOpacity onPress={loadAppointment} style={[styles.confirmCancelBtn, { backgroundColor: colors.primary, paddingHorizontal: 32 }]}>
-            <AppText variant="bodySM" color="#fff">إعادة المحاولة</AppText>
+            <AppText variant="bodySM" color="var(--nabd-bg.surface-light)">إعادة المحاولة</AppText>
           </TouchableOpacity>
         </View>
       </View>
@@ -233,7 +233,7 @@ export default function CancelRescheduleScreen() {
             onPress={handleAction}
             disabled={!selectedReason || isLoading}
             style={[styles.confirmCancelBtn, { opacity: !selectedReason || isLoading ? 0.5 : 1, backgroundColor: colors.error }]}>
-            <AppText variant="bodySM" color="#fff">{isLoading ? 'جاري الإلغاء...' : 'تأكيد الإلغاء'}</AppText>
+            <AppText variant="bodySM" color="var(--nabd-bg.surface-light)">{isLoading ? 'جاري الإلغاء...' : 'تأكيد الإلغاء'}</AppText>
           </TouchableOpacity>
         </View>
       </View>
@@ -265,7 +265,7 @@ export default function CancelRescheduleScreen() {
                 return (
                   <TouchableOpacity key={d} onPress={() => { setActiveDay(d); setSelectedSlot(null); }}
                     style={[styles.dayChip, activeDay === d && { backgroundColor: colors.primary }]}>
-                    <AppText variant="bodySM" color={activeDay === d ? '#fff' : undefined}>{label}</AppText>
+                    <AppText variant="bodySM" color={activeDay === d ? 'var(--nabd-bg.surface-light)' : undefined}>{label}</AppText>
                   </TouchableOpacity>
                 );
               })}
@@ -279,7 +279,7 @@ export default function CancelRescheduleScreen() {
                 return (
                   <TouchableOpacity key={`${start}-${i}`} onPress={() => setSelectedSlot(s)}
                     style={[styles.timeChip, selected && { backgroundColor: colors.primary }]}>
-                    <AppText variant="bodySM" color={selected ? '#fff' : undefined}>{label}</AppText>
+                    <AppText variant="bodySM" color={selected ? 'var(--nabd-bg.surface-light)' : undefined}>{label}</AppText>
                   </TouchableOpacity>
                 );
               })}
@@ -293,7 +293,7 @@ export default function CancelRescheduleScreen() {
           disabled={!selectedSlot || isLoading}
           style={[{ opacity: !selectedSlot || isLoading ? 0.5 : 1 }]}>
           <View style={[styles.rescheduleConfirmBtn, { backgroundColor: colors.primary }]}>
-            <AppText variant="bodySM" color="#fff">{isLoading ? 'جاري التأجيل...' : 'تأكيد الموعد الجديد'}</AppText>
+            <AppText variant="bodySM" color="var(--nabd-bg.surface-light)">{isLoading ? 'جاري التأجيل...' : 'تأكيد الموعد الجديد'}</AppText>
           </View>
         </TouchableOpacity>
       </View>

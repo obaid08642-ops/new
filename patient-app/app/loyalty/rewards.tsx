@@ -142,9 +142,9 @@ export default function LoyaltyRewardsScreen() {
                   st.claimBtn,
                   { backgroundColor: isAffordable ? colors.primary : colors.border } ]}>
                 {claiming ? (
-                  <ActivityIndicator size="small" color="#fff" />
+                  <ActivityIndicator size="small" color="var(--nabd-bg.surface-light)" />
                 ) : (
-                  <AppText variant="caption" color="#fff" style={{ fontWeight: '800' }}>
+                  <AppText variant="caption" color="var(--nabd-bg.surface-light)" style={{ fontWeight: '800' }}>
                     استبدال
                   </AppText>
                 )}

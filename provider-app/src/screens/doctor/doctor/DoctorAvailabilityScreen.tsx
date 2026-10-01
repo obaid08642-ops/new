@@ -357,7 +357,7 @@ export function DoctorAvailabilityScreen({ onBack, onNavigate }: { onBack: () =>
  {(['clinic', 'online', 'home'] as const).map(svc => (
  <TouchableOpacity key={svc} onPress={() => toggleService(c.id, svc)} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: 6, paddingVertical: 6 }}>
  <View style={{ width: 20, height: 20, borderRadius: 6, borderWidth: 1.5, borderColor: c[svc] ? theme.primary : theme.border, backgroundColor: c[svc] ? theme.primary : 'transparent', alignItems: 'center', justifyContent: 'center' }}>
- {c[svc] ? <Text style={{ color: '#fff', fontSize: 12 }}>✓</Text> : null}
+ {c[svc] ? <Text style={{ color: 'var(--nabd-bg.surface-light)', fontSize: 12 }}>✓</Text> : null}
  </View>
  <Text style={{ color: theme.text, fontSize: FS.sm }}>{svc === 'clinic' ? (AR ? 'عيادة' : 'Clinic') : svc === 'online' ? (AR ? 'عن بعد' : 'Online') : (AR ? 'منزلي' : 'Home')}</Text>
  </TouchableOpacity>

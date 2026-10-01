@@ -68,7 +68,7 @@ export default function BottomNavBar() {
                   testID={`bottom-nav-${item.icon}`}
                 >
                   <View style={[styles.fabInner, { backgroundColor: colors.p, borderColor: colors.bg }]}>
-                    <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 26 }}>
+                    <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: 'var(--nabd-bg.surface-light)', fontSize: 26 }}>
                       {item.icon}
                     </Text>
                   </View>

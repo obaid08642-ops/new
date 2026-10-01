@@ -34,7 +34,7 @@ const DSTokens = {
   colors: {
     primary: { main: '#0EA5E9' },
     error: { main: '#EF4444' },
-    base: { white: '#FFFFFF' },
+    base: { white: 'var(--nabd-bg.surface-light)' },
     text: { secondary: '#94A3B8' },
     background: { default: '#0F172A' },
   },

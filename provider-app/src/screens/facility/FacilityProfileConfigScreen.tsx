@@ -108,7 +108,7 @@ export function FacilityProfileConfigScreen({ onBack }: { onBack: () => void }) 
                 }}
               >
                 <Text style={{ fontSize: 16 }}>{sp.icon}</Text>
-                <Text style={{ color: isSelected ? '#FFF' : theme.text, fontSize: FS.xs, fontWeight: isSelected ? FW.bold : FW.reg }}>
+                <Text style={{ color: isSelected ? 'var(--nabd-bg.surface-light)' : theme.text, fontSize: FS.xs, fontWeight: isSelected ? FW.bold : FW.reg }}>
                   {AR ? sp.ar : sp.en}
                 </Text>
               </TouchableOpacity>

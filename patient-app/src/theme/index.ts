@@ -68,10 +68,10 @@ export const Colors = {
     infoSurface: '#DEF5F9',
 
     // Neutral
-    white: '#FFFFFF',
+    white: 'var(--nabd-bg.surface-light)',
     background: '#F2F4F7',
     backgroundSecondary: '#E5E8EE',
-    surface: '#FFFFFF',
+    surface: 'var(--nabd-bg.surface-light)',
     surfaceSecondary: '#F2F4F7',
     border: '#E5E8EE',
     borderLight: '#F2F4F7',
@@ -81,7 +81,7 @@ export const Colors = {
     textSecondary: '#4C5566',
     textTertiary: '#8C93A3',
     textDisabled: '#D1D5DB',
-    textInverse: '#FFFFFF',
+    textInverse: 'var(--nabd-bg.surface-light)',
 
     // Special
     emergency: BrandColors.emergency,
@@ -99,7 +99,7 @@ export const Colors = {
     // Navigation
     tabActive: BrandColors.primary,
     tabInactive: '#8C93A3',
-    navBackground: '#FFFFFF',
+    navBackground: 'var(--nabd-bg.surface-light)',
 
     // Effects
     shadowColor: '#141A2A',
@@ -142,7 +142,7 @@ export const Colors = {
     infoSurface: '#1A2234',
 
     // Neutral
-    white: '#FFFFFF',
+    white: 'var(--nabd-bg.surface-light)',
     background: '#0E1422',
     backgroundSecondary: '#2A3346',
     surface: '#1A2234',

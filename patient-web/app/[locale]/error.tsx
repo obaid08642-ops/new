@@ -16,7 +16,7 @@ export default function LocaleError({ reset }: { error: Error & { digest?: strin
         <p style={{ margin: 0, color: "#6B7C6E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t("errorBody")}</p>
         <div className="route-state-actions" style={{ gap: 8, marginTop: 8 }}>
           <button className="button button-primary" type="button" onClick={reset} style={{ background: "#5FD9B3", color: "#1E332E", borderRadius: 20, border: "none" }}>{t("retry")}</button>
-          <a className="button button-secondary" href={`/${locale}`} style={{ background: "#1E332E", color: "#fff", borderRadius: 20 }}>{t("returnHome")}</a>
+          <a className="button button-secondary" href={`/${locale}`} style={{ background: "#1E332E", color: "var(--nabd-bg.surface-light)", borderRadius: 20 }}>{t("returnHome")}</a>
         </div>
       </section>
     </main>

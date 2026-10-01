@@ -100,13 +100,13 @@ export default function ReportsHubScreen() {
       >
         <View style={st.hdrRow}>
           <View style={{ width: 40 }} />
-          <AppText variant="h4" color="#fff">
+          <AppText variant="h4" color="var(--nabd-bg.surface-light)">
             تقاريري الطبية
           </AppText>
           <IconButton
             icon="back"
             bg="rgba(255,255,255,0.18)"
-            color="#fff"
+            color="var(--nabd-bg.surface-light)"
             onPress={() => router.back()}
           />
         </View>

@@ -37,19 +37,19 @@ export function MedicalJobsDetail({ ctx }: any) {
           <View style={{ backgroundColor: selectedJob.type === 'offer' ? theme.primary : theme.success, padding: SP.lg, paddingBottom: SP.xl, borderBottomLeftRadius: 30, borderBottomRightRadius: 30, shadowColor: '#000', shadowOffset: {width:0, height:6}, shadowOpacity: 0.15, shadowRadius: 10, elevation: 5 }}>
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <TouchableOpacity onPress={() => setSelectedJob(null)} style={{ padding: SP.sm, backgroundColor: 'rgba(255,255,255,0.25)', borderRadius: R.full }}>
-                <I name={AR ? 'chevronRight' : 'chevronLeft'} size={24} color="#FFF" />
+                <I name={AR ? 'chevronRight' : 'chevronLeft'} size={24} color="var(--nabd-bg.surface-light)" />
               </TouchableOpacity>
-              <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: '#FFF' }}>
+              <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: 'var(--nabd-bg.surface-light)' }}>
                 {selectedJob.type === 'offer' ? (AR ? 'تفاصيل الوظيفة المطروحة' : 'Job Offer Details') : (AR ? 'تفاصيل طلب العمل' : 'Job Request Details')}
               </Text>
               <View style={{ width: 40 }} />
             </View>
 
             <View style={{ alignItems: 'center', marginTop: SP.xl, marginBottom: SP.sm }}>
-              <View style={{ width: 80, height: 80, borderRadius: 40, backgroundColor: '#FFF', alignItems: 'center', justifyContent: 'center', marginBottom: SP.md, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 10, elevation: 4 }}>
+              <View style={{ width: 80, height: 80, borderRadius: 40, backgroundColor: 'var(--nabd-bg.surface-light)', alignItems: 'center', justifyContent: 'center', marginBottom: SP.md, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 10, elevation: 4 }}>
                 <I name={selectedJob.type === 'offer' ? 'briefcase' : 'user'} size={36} color={selectedJob.type === 'offer' ? theme.primary : theme.success} />
               </View>
-              <Text style={{ fontSize: FS['2xl'], fontWeight: FW.xbold, color: '#FFF', textAlign: 'center' }}>
+              <Text style={{ fontSize: FS['2xl'], fontWeight: FW.xbold, color: 'var(--nabd-bg.surface-light)', textAlign: 'center' }}>
                 {AR ? selectedJob.title_ar : selectedJob.title_en}
               </Text>
               <Text style={{ fontSize: FS.md, color: 'rgba(255,255,255,0.9)', marginTop: SP.xs, fontWeight: FW.bold }}>
@@ -91,8 +91,8 @@ export function MedicalJobsDetail({ ctx }: any) {
 
           <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: SP.xl, backgroundColor: theme.surface, borderTopWidth: 1, borderTopColor: theme.border, shadowColor: '#000', shadowOffset:{width:0,height:-4}, shadowOpacity:0.05, elevation: 10 }}>
             <TouchableOpacity onPress={() => setApplyVisible(true)} style={{ backgroundColor: selectedJob.contact === 'whatsapp' ? tokens.success : theme.primary, padding: SP.lg, borderRadius: R.full, alignItems: 'center', flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'center', gap: SP.md }}>
-              <I name={selectedJob.contact === 'whatsapp' ? "phone" : "send"} size={24} color="#FFF" />
-              <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: '#FFF' }}>
+              <I name={selectedJob.contact === 'whatsapp' ? "phone" : "send"} size={24} color="var(--nabd-bg.surface-light)" />
+              <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: 'var(--nabd-bg.surface-light)' }}>
                 {selectedJob.contact === 'whatsapp' ? (AR ? 'تواصل واتساب مباشرة' : 'Direct WhatsApp') : (AR ? 'تقديم عبر صندوق التوظيف (CV)' : 'Submit CV via ATS Inbox')}
               </Text>
             </TouchableOpacity>

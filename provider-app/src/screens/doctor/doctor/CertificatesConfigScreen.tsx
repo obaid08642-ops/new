@@ -95,7 +95,7 @@ export function CertificatesConfigScreen({ onBack }: { onBack: () => void }) {
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: 6, marginBottom: SP.md }}>
  {DOC_TYPES.map((t) => (
  <TouchableOpacity key={t} onPress={() => setDocType(t)} style={{ paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, borderWidth: 1.5, borderColor: docType === t ? theme.primary : theme.border, backgroundColor: docType === t ? theme.primary : theme.surface2 }}>
- <Text style={{ color: docType === t ? '#FFF' : theme.text, fontSize: FS.xs }}>{t}</Text>
+ <Text style={{ color: docType === t ? 'var(--nabd-bg.surface-light)' : theme.text, fontSize: FS.xs }}>{t}</Text>
  </TouchableOpacity>
  ))}
  </View>
@@ -239,16 +239,16 @@ export function InboundMedicalReportsScreen({ onBack }: { onBack: () => void }) 
                     <TouchableOpacity 
                       onPress={() => Linking.openURL(report.dicomViewerUrl).catch(() => show(AR ? 'فشل فتح العارض' : 'Failed to open viewer', 'error'))}
                       style={{ flex: 1, backgroundColor: theme.info, padding: 8, borderRadius: 8, alignItems: 'center', flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'center', gap: 4 }}>
-                      <I name="eye" size={16} color="#FFF" />
-                      <Text style={{ color: '#FFF', fontWeight: 'bold', fontSize: 14 }}>{AR ? 'عرض صور الأشعة' : 'DICOM Viewer'}</Text>
+                      <I name="eye" size={16} color="var(--nabd-bg.surface-light)" />
+                      <Text style={{ color: 'var(--nabd-bg.surface-light)', fontWeight: 'bold', fontSize: 14 }}>{AR ? 'عرض صور الأشعة' : 'DICOM Viewer'}</Text>
                     </TouchableOpacity>
                   )}
                   {report.pdfUrl && (
                     <TouchableOpacity 
                       onPress={() => Linking.openURL(report.pdfUrl).catch(() => show(AR ? 'فشل فتح التقرير' : 'Failed to open report', 'error'))}
                       style={{ flex: 1, backgroundColor: theme.primary, padding: 8, borderRadius: 8, alignItems: 'center', flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'center', gap: 4 }}>
-                      <I name="fileText" size={16} color="#FFF" />
-                      <Text style={{ color: '#FFF', fontWeight: 'bold', fontSize: 14 }}>{AR ? 'تقرير PDF' : 'PDF Report'}</Text>
+                      <I name="fileText" size={16} color="var(--nabd-bg.surface-light)" />
+                      <Text style={{ color: 'var(--nabd-bg.surface-light)', fontWeight: 'bold', fontSize: 14 }}>{AR ? 'تقرير PDF' : 'PDF Report'}</Text>
                     </TouchableOpacity>
                   )}
                 </View>

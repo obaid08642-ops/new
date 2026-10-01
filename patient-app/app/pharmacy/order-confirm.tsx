@@ -25,4 +25,4 @@ export default function LegacyPharmacyOrderConfirmRoute() {
   }
   return <ScreenState loading={loading} error={error} empty={false} emptyTitle="لا توجد بيانات" onRetry={() => void openGovernedStep()}><View style={[styles.container, { backgroundColor: colors.bg, paddingTop: insets.top + 24 }]}><LocalizedText style={{ color: colors.t2, textAlign: 'center' }}>فتح خطوة طلبك الحاكمة…</LocalizedText></View></ScreenState>;
 }
-const styles = StyleSheet.create({ container: { flex: 1, gap: 14, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 28 }, title: { fontFamily: 'Cairo-Bold', fontSize: 18, textAlign: 'center' }, retry: { borderRadius: 12, paddingHorizontal: 22, paddingVertical: 13 }, retryText: { color: '#fff', fontFamily: 'Cairo-Bold' } });
+const styles = StyleSheet.create({ container: { flex: 1, gap: 14, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 28 }, title: { fontFamily: 'Cairo-Bold', fontSize: 18, textAlign: 'center' }, retry: { borderRadius: 12, paddingHorizontal: 22, paddingVertical: 13 }, retryText: { color: 'var(--nabd-bg.surface-light)', fontFamily: 'Cairo-Bold' } });

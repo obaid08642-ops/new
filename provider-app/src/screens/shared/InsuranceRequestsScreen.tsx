@@ -211,7 +211,7 @@ export function InsuranceRequestsScreen({ onBack }: { onBack: () => void }) {
                     borderWidth: 1, borderColor: mode === opt.k ? opt.color : theme.border,
                   }}
                 >
-                  <Text style={{ color: mode === opt.k ? '#FFF' : theme.text, fontWeight: FW.bold, fontSize: FS.sm }}>
+                  <Text style={{ color: mode === opt.k ? 'var(--nabd-bg.surface-light)' : theme.text, fontWeight: FW.bold, fontSize: FS.sm }}>
                     {AR ? opt.ar : opt.en}
                   </Text>
                 </TouchableOpacity>

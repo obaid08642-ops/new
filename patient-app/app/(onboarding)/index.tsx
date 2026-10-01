@@ -117,7 +117,7 @@ export default function OnboardingScreen() {
         <Animated.View style={[styles.emojiContainer, { transform: [{ scale }, { translateY }], opacity }]}>
           <View style={[styles.emojiBackground, { backgroundColor: 'rgba(255,255,255,0.15)' } ]}>
             <View style={[styles.emojiInner, { backgroundColor: 'rgba(255,255,255,0.2)' } ]}>
-              <Icon name={item.icon} size={64} color="#fff" />
+              <Icon name={item.icon} size={64} color="var(--nabd-bg.surface-light)" />
             </View>
           </View>
           {/* Floating accent dots */}
@@ -269,13 +269,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#00C9A7', borderRadius: 10, 
     width: 20, height: 20, justifyContent: 'center', alignItems: 'center',
   },
-  logoPlus: { color: '#fff', fontSize: 14, fontWeight: '900' } as any,
+  logoPlus: { color: 'var(--nabd-bg.surface-light)', fontSize: 14, fontWeight: '900' } as any,
   skipBtn: {
     backgroundColor: 'rgba(255,255,255,0.2)',
     paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20,
     borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)',
   },
-  skip: { color: '#fff', fontSize: 14, fontWeight: '600' } as any,
+  skip: { color: 'var(--nabd-bg.surface-light)', fontSize: 14, fontWeight: '600' } as any,
   bottomContent: {
     position: 'absolute', bottom: 0, left: 0, right: 0,
     paddingHorizontal: 28, paddingTop: 24,
@@ -289,7 +289,7 @@ const styles = StyleSheet.create({
   },
   textContent: { marginBottom: 24, alignItems: 'flex-end' },
   title: {
-    color: '#fff', fontSize: 26, fontWeight: '800',
+    color: 'var(--nabd-bg.surface-light)', fontSize: 26, fontWeight: '800',
     textAlign: 'right', marginBottom: 10, lineHeight: 36,
   },
   subtitle: {
@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
     paddingVertical: 18, paddingHorizontal: 28, gap: 8,
     backgroundColor: 'rgba(255,255,255,0.1)',
   },
-  nextBtnArrow: { color: '#fff', fontSize: 20 } as any,
+  nextBtnArrow: { color: 'var(--nabd-bg.surface-light)', fontSize: 20 } as any,
   stepCounter: {
     color: 'rgba(255,255,255,0.5)', textAlign: 'center',
     fontSize: 12, fontWeight: '400', marginTop: 4,

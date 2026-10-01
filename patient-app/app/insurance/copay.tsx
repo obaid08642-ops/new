@@ -67,7 +67,7 @@ export default function InsuranceCopayScreen() {
     return (
       <View style={[styles.container, { backgroundColor: colors.bg, justifyContent: 'center', alignItems: 'center' }]}>
         <View style={[styles.circle, { backgroundColor: colors.s, marginBottom: 20 }]}>
-          <Icon name="check" size={40} color="#fff" />
+          <Icon name="check" size={40} color="var(--nabd-bg.surface-light)" />
         </View>
         <LocalizedText style={[styles.title, { color: colors.t1 }]}>{isRTL ? 'تم الدفع بنجاح' : 'Payment Successful'}</LocalizedText>
         <LocalizedText style={[styles.subtitle, { color: colors.t3, textAlign: 'center', marginTop: 10 }]}>
@@ -129,6 +129,6 @@ const styles = StyleSheet.create({
     shadowColor: '#000', shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.2, shadowRadius: 12, elevation: 6
   },
-  payBtnText: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
+  payBtnText: { color: 'var(--nabd-bg.surface-light)', fontSize: 18, fontWeight: 'bold' },
   circle: { width: 80, height: 80, borderRadius: 40, justifyContent: 'center', alignItems: 'center' }
 });

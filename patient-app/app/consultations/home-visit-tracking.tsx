@@ -39,7 +39,7 @@ export default function HomeVisitTrackingScreen() {
         <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 50, color: colors.t3 }}>error_outline</LocalizedText>
         <LocalizedText style={{ fontFamily: 'Cairo-Bold', fontSize: 16, color: colors.n, marginTop: 10, textAlign: 'center' }}>البيانات غير متوفرة أو فشل الاتصال</LocalizedText>
         <TouchableOpacity style={{ marginTop: 20, paddingHorizontal: 20, paddingVertical: 10, backgroundColor: '#F0695C', borderRadius: 10 }} onPress={() => router.back()}>
-          <LocalizedText style={{ fontFamily: 'Cairo-Bold', color: '#fff' }}>رجوع</LocalizedText>
+          <LocalizedText style={{ fontFamily: 'Cairo-Bold', color: 'var(--nabd-bg.surface-light)' }}>رجوع</LocalizedText>
         </TouchableOpacity>
       </View>
     );
@@ -95,7 +95,7 @@ export default function HomeVisitTrackingScreen() {
                 <View style={[styles.trackLine, { backgroundColor: s.active ? resolveColor('var(--p)') : colors.bd, right: isRTL ? 15 : undefined, left: isRTL ? undefined : 15 }]} />
               )}
               <View style={[styles.stepIcon, { backgroundColor: s.active ? resolveColor('var(--p)') : colors.bd } ]}>
-                <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 17 }}>{s.icon}</LocalizedText>
+                <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: 'var(--nabd-bg.surface-light)', fontSize: 17 }}>{s.icon}</LocalizedText>
               </View>
               <View style={{ flex: 1, paddingTop: 5, alignItems: isRTL ? 'flex-end' : 'flex-start' }}>
                 <LocalizedText style={{ fontSize: 12, fontWeight: '700', color: s.active ? colors.n : colors.t3 }}>{s.label}</LocalizedText>
@@ -114,8 +114,8 @@ export default function HomeVisitTrackingScreen() {
             }
           }}
         >
-          <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 19, color: '#fff', marginRight: 8 }}>chat</LocalizedText>
-          <LocalizedText style={{ fontSize: 13, fontWeight: '800', color: '#fff' }}>مراسلة الطبيب</LocalizedText>
+          <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 19, color: 'var(--nabd-bg.surface-light)', marginRight: 8 }}>chat</LocalizedText>
+          <LocalizedText style={{ fontSize: 13, fontWeight: '800', color: 'var(--nabd-bg.surface-light)' }}>مراسلة الطبيب</LocalizedText>
         </TouchableOpacity>
       </View>
     </View>
@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingBottom: 12, borderBottomWidth: 1 },
   mapBox: { height: 240, borderRadius: 20, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
-  pinDot: { position: 'absolute', top: '30%', left: '30%', width: 16, height: 16, borderRadius: 8, backgroundColor: resolveColor('var(--cr)'), borderWidth: 3, borderColor: '#fff' },
+  pinDot: { position: 'absolute', top: '30%', left: '30%', width: 16, height: 16, borderRadius: 8, backgroundColor: resolveColor('var(--cr)'), borderWidth: 3, borderColor: 'var(--nabd-bg.surface-light)' },
   duoIcon: { width: 52, height: 52, borderRadius: 26, alignItems: 'center', justifyContent: 'center' },
   timeBox: { alignItems: 'center', paddingVertical: 8, paddingHorizontal: 14, borderRadius: 12 },
   trackLine: { position: 'absolute', top: 34, bottom: 0, width: 2, zIndex: 0 },

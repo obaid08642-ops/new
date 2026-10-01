@@ -101,13 +101,13 @@ export default function EmergencySOSScreen() {
       <View style={[st.hdr, { paddingTop: insets.top + 12 }]}>
         <View style={st.hdrRow}>
           <View style={{ width: 40 }} />
-          <AppText variant="h3" color="#fff">
+          <AppText variant="h3" color="var(--nabd-bg.surface-light)">
             الطوارئ
           </AppText>
           <IconButton
             icon="back"
             bg="rgba(255,255,255,0.18)"
-            color="#fff"
+            color="var(--nabd-bg.surface-light)"
             onPress={() => router.back()}
           />
         </View>
@@ -134,8 +134,8 @@ export default function EmergencySOSScreen() {
                 },
               ]}
             >
-              <Icon name="emergency" size={48} color="#fff" />
-              <AppText variant="h2" color="#fff">
+              <Icon name="emergency" size={48} color="var(--nabd-bg.surface-light)" />
+              <AppText variant="h2" color="var(--nabd-bg.surface-light)">
                 {isSending ? "جاري الإرسال..." : "SOS"}
               </AppText>
               <AppText variant="caption" color="rgba(255,255,255,0.8)">

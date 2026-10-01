@@ -102,8 +102,8 @@ export default function SosActiveScreen() {
       {/* Header */}
       <View style={[st.hdr, { paddingTop: insets.top + 8, backgroundColor: '#F0695C' } ]}>
         <View style={{ width: 40 }}/>
-        <AppText variant="h4" color="#fff">طوارئ نشطة SOS</AppText>
-        <IconButton icon="close" bg="rgba(255,255,255,0.25)" color="#fff" onPress={handleCancelSOS} />
+        <AppText variant="h4" color="var(--nabd-bg.surface-light)">طوارئ نشطة SOS</AppText>
+        <IconButton icon="close" bg="rgba(255,255,255,0.25)" color="var(--nabd-bg.surface-light)" onPress={handleCancelSOS} />
       </View>
 
       <ScreenState loading={loading} error={null} empty={false} emptyTitle="لا توجد بيانات">

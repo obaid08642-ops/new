@@ -384,7 +384,7 @@ export default function NursingMegaProfile() {
           disabled={processing || !selectedTime}
         >
           <View style={styles.payBtnGradient}>
-            {processing ? <ActivityIndicator color="#fff" /> : 
+            {processing ? <ActivityIndicator color="var(--nabd-bg.surface-light)" /> : 
               <LocalizedText style={styles.payBtnText}>
                 {flow === 'insurance' ? 'إرسال لطلب موافقة التأمين' : `تأكيد الحجز — ${totalServiceFee} ر.س تقديرياً`}
               </LocalizedText>
@@ -497,10 +497,10 @@ const styles = StyleSheet.create({
   glassFooter: { position: 'absolute', bottom: 0, left: 0, right: 0, padding: 24, paddingBottom: 40, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.7)' },
   payBtnWrap: { borderRadius: 100, overflow: 'hidden', shadowColor: '#1E293B', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.25, shadowRadius: 16, elevation: 6 },
   payBtnGradient: { paddingVertical: 20, alignItems: 'center' },
-  payBtnText: { fontFamily: 'Cairo-Bold', fontSize: 16, color: '#fff' },
+  payBtnText: { fontFamily: 'Cairo-Bold', fontSize: 16, color: 'var(--nabd-bg.surface-light)' },
 
   modalBg: { flex: 1, backgroundColor: 'rgba(15,23,42,0.5)', justifyContent: 'flex-end' },
-  modalContent: { backgroundColor: '#fff', borderTopLeftRadius: 32, borderTopRightRadius: 32, padding: 24, paddingBottom: 40 },
+  modalContent: { backgroundColor: 'var(--nabd-bg.surface-light)', borderTopLeftRadius: 32, borderTopRightRadius: 32, padding: 24, paddingBottom: 40 },
   modalHandle: { width: 40, height: 5, backgroundColor: '#E2E8F0', borderRadius: 3, alignSelf: 'center', marginBottom: 20 },
   modalTitle: { fontFamily: 'Cairo-Bold', fontSize: 20, color: '#0F172A', textAlign: 'right', marginBottom: 8 },
   modalSubtitle: { fontFamily: 'Cairo-Medium', fontSize: 14, color: '#64748B', textAlign: 'right', marginBottom: 20 },
@@ -516,5 +516,5 @@ const styles = StyleSheet.create({
   successTitle: { fontFamily: 'Cairo-Bold', fontSize: 24, color: '#0F172A', marginBottom: 12 },
   successDesc: { fontFamily: 'Cairo-Medium', fontSize: 15, color: '#64748B', textAlign: 'center', marginBottom: 40, lineHeight: 26 },
   successBtn: { backgroundColor: '#23B5CE', paddingVertical: 18, paddingHorizontal: 40, borderRadius: 100 },
-  successBtnText: { fontFamily: 'Cairo-Bold', fontSize: 16, color: '#fff' }
+  successBtnText: { fontFamily: 'Cairo-Bold', fontSize: 16, color: 'var(--nabd-bg.surface-light)' }
 });

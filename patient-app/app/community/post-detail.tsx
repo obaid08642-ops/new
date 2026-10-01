@@ -257,7 +257,7 @@ export default function PostDetailScreen() {
           onPress={sendComment}
           style={[styles.sendBtn, { backgroundColor: colors.primary }]}
         >
-          <Icon name="send" size={16} color="#fff" />
+          <Icon name="send" size={16} color="var(--nabd-bg.surface-light)" />
         </TouchableOpacity>
         <TextInput
           style={[

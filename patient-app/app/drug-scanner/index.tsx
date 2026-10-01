@@ -90,7 +90,7 @@ export default function DrugScannerScreen() {
         style={[styles.header, { paddingTop: insets.top + 8 } ]}>
         <View style={styles.headerRow}>
           <TouchableOpacity onPress={() => router.back()} style={styles.hBtn}>
-            <Icon name="back" size={22} color="#fff" />
+            <Icon name="back" size={22} color="var(--nabd-bg.surface-light)" />
           </TouchableOpacity>
           <AppText variant="bodySM">فاحص الأدوية</AppText>
           <View style={{ width: 36 }}/>
@@ -114,7 +114,7 @@ export default function DrugScannerScreen() {
                     backgroundColor: selectedMeds.includes(med.id) ? med.color : 'transparent',
                     borderColor: selectedMeds.includes(med.id) ? med.color : colors.border,
                   } ]}>
-                    {selectedMeds.includes(med.id) && <Icon name="check" size={12} color="#fff" />}
+                    {selectedMeds.includes(med.id) && <Icon name="check" size={12} color="var(--nabd-bg.surface-light)" />}
                   </View>
                   <View style={styles.medInfo}>
                     <AppText variant="bodySM">{med.name} {med.dose}</AppText>
@@ -216,14 +216,14 @@ export default function DrugScannerScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12, padding: 32 },
-  loadingTitle: { color: '#fff', fontSize: 20, fontWeight: '800' },
+  loadingTitle: { color: 'var(--nabd-bg.surface-light)', fontSize: 20, fontWeight: '800' },
   loadingSub: { color: 'rgba(255,255,255,0.6)', fontSize: 12, fontWeight: '400' },
   loadingStep: { flexDirection: 'row-reverse', alignItems: 'center', gap: 8 },
   loadingStepCheck: { fontSize: 14 },
   loadingStepText: { color: 'rgba(255,255,255,0.8)', fontSize: 13, fontWeight: '400' },
   header: { paddingHorizontal: 20, paddingBottom: 16 },
   headerRow: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 },
-  headerTitle: { color: '#fff', fontSize: 18, fontWeight: '800' },
+  headerTitle: { color: 'var(--nabd-bg.surface-light)', fontSize: 18, fontWeight: '800' },
   headerSub: { color: 'rgba(255,255,255,0.75)', fontSize: 12, fontWeight: '400', textAlign: 'center' },
   hBtn: { width: 36, height: 36, borderRadius: 11, backgroundColor: 'rgba(255,255,255,0.15)', justifyContent: 'center', alignItems: 'center' },
   card: { borderRadius: 20, padding: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 },
@@ -239,7 +239,7 @@ const styles = StyleSheet.create({
   drugChip: { borderRadius: 20, borderWidth: 1.5, paddingHorizontal: 12, paddingVertical: 7 },
   drugChipText: { fontSize: 12, fontWeight: '700' },
   scanBtn: { borderRadius: 18, padding: 18, alignItems: 'center', gap: 4 },
-  scanBtnText: { color: '#fff', fontSize: 17, fontWeight: '800' },
+  scanBtnText: { color: 'var(--nabd-bg.surface-light)', fontSize: 17, fontWeight: '800' },
   scanBtnSub: { color: 'rgba(255,255,255,0.75)', fontSize: 11, fontWeight: '400' },
   summaryCard: { borderRadius: 16, padding: 14 },
   summaryTitle: { color: '#DC2626', fontSize: 15, fontWeight: '800', textAlign: 'right', marginBottom: 4 },
@@ -260,5 +260,5 @@ const styles = StyleSheet.create({
   safeText: { fontSize: 13, fontWeight: '400', textAlign: 'right', lineHeight: 22 },
   actionsRow: { gap: 10 },
   actionBtn: { borderRadius: 16, height: 52, justifyContent: 'center', alignItems: 'center' },
-  actionBtnText: { color: '#fff', fontSize: 14, fontWeight: '800' },
+  actionBtnText: { color: 'var(--nabd-bg.surface-light)', fontSize: 14, fontWeight: '800' },
 });

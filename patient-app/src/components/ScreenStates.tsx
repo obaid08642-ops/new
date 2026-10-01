@@ -58,8 +58,8 @@ export function ScreenState({
         </AppText>
         {onRetry && (
           <TouchableOpacity style={[styles.retryBtn, { backgroundColor: colors.p }]} onPress={onRetry}>
-            <Icon name="refresh" size={18} color="#fff" />
-            <AppText variant="buttonMD" color="#fff">إعادة المحاولة</AppText>
+            <Icon name="refresh" size={18} color="var(--nabd-bg.surface-light)" />
+            <AppText variant="buttonMD" color="var(--nabd-bg.surface-light)">إعادة المحاولة</AppText>
           </TouchableOpacity>
         )}
       </View>
@@ -82,8 +82,8 @@ export function ScreenState({
         )}
         {onRetry && (
           <TouchableOpacity style={[styles.retryBtn, { backgroundColor: colors.p }]} onPress={onRetry}>
-            <Icon name="refresh" size={18} color="#fff" />
-            <AppText variant="buttonMD" color="#fff">تحديث</AppText>
+            <Icon name="refresh" size={18} color="var(--nabd-bg.surface-light)" />
+            <AppText variant="buttonMD" color="var(--nabd-bg.surface-light)">تحديث</AppText>
           </TouchableOpacity>
         )}
       </View>

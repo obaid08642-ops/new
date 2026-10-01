@@ -122,13 +122,13 @@ export default function ReturnsHubScreen() {
             onPress={() => router.push("/returns/new-request")}
             style={styles.hBtn}
           >
-            <Icon name="add" size={22} color="#fff" />
+            <Icon name="add" size={22} color="var(--nabd-bg.surface-light)" />
           </TouchableOpacity>
-          <AppText variant="bodySM" color="#fff" style={{ fontWeight: "bold" }}>
+          <AppText variant="bodySM" color="var(--nabd-bg.surface-light)" style={{ fontWeight: "bold" }}>
             الإرجاع والاسترداد
           </AppText>
           <TouchableOpacity onPress={() => router.back()} style={styles.hBtn}>
-            <Icon name="back" size={22} color="#fff" />
+            <Icon name="back" size={22} color="var(--nabd-bg.surface-light)" />
           </TouchableOpacity>
         </View>
         <View style={styles.summaryRow}>
@@ -148,7 +148,7 @@ export default function ReturnsHubScreen() {
             >
               <AppText
                 variant="bodySM"
-                color="#fff"
+                color="var(--nabd-bg.surface-light)"
                 style={{ fontWeight: "bold" }}
               >
                 {s.num}
@@ -205,7 +205,7 @@ export default function ReturnsHubScreen() {
           >
             <AppText
               variant="bodySM"
-              color={filter === key ? "#fff" : colors.textPrimary}
+              color={filter === key ? "var(--nabd-bg.surface-light)" : colors.textPrimary}
             >
               {label}
             </AppText>
@@ -306,8 +306,8 @@ export default function ReturnsHubScreen() {
           onPress={() => router.push("/returns/new-request")}
           style={styles.fabInner}
         >
-          <Icon name="add" size={24} color="#fff" />
-          <AppText variant="bodySM" color="#fff" style={{ fontWeight: "bold" }}>
+          <Icon name="add" size={24} color="var(--nabd-bg.surface-light)" />
+          <AppText variant="bodySM" color="var(--nabd-bg.surface-light)" style={{ fontWeight: "bold" }}>
             طلب إرجاع جديد
           </AppText>
         </TouchableOpacity>

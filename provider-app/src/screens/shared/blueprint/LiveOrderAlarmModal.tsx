@@ -85,10 +85,10 @@ export function LiveOrderAlarmModal({
  <Animated.View style={{ transform: [{ scale: pulseAnim }], alignItems: 'center', gap: SP.lg }}>
  
  <View style={{ width: 140, height: 140, borderRadius: 70, backgroundColor: theme.danger, alignItems: 'center', justifyContent: 'center', shadowColor: theme.danger, shadowRadius: 20, shadowOpacity: 0.8 }}>
- <Text style={{ color: '#FFF', fontSize: FS['4xl'], fontWeight: '800' }}>{timeLeft}s</Text>
+ <Text style={{ color: 'var(--nabd-bg.surface-light)', fontSize: FS['4xl'], fontWeight: '800' }}>{timeLeft}s</Text>
  </View>
 
- <Text style={{ color: '#FFF', fontSize: FS['3xl'], fontWeight: FW.bold, textAlign: 'center' }}>
+ <Text style={{ color: 'var(--nabd-bg.surface-light)', fontSize: FS['3xl'], fontWeight: FW.bold, textAlign: 'center' }}>
  {AR ? 'طلب كشف عاجل وارد!' : 'Incoming Urgent Request!'}
  </Text>
 
@@ -108,7 +108,7 @@ export function LiveOrderAlarmModal({
  </TouchableOpacity>
 
  <TouchableOpacity onPress={onAccept} style={{ flex: 1, backgroundColor: theme.primary, paddingVertical: SP.md, borderRadius: R.md, alignItems: 'center' }}>
- <Text style={{ color: '#FFF', fontWeight: FW.bold }}>{AR ? 'قبول الطلب' : 'Accept Request'}</Text>
+ <Text style={{ color: 'var(--nabd-bg.surface-light)', fontWeight: FW.bold }}>{AR ? 'قبول الطلب' : 'Accept Request'}</Text>
  </TouchableOpacity>
  </View>
  </View>

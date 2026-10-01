@@ -71,7 +71,7 @@ export default function AmbulanceTrackingScreen() {
       <View style={StyleSheet.absoluteFillObject} />
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <TouchableOpacity onPress={() => router.back()} style={styles.hBtn}>
-          <Icon name="back" size={22} color="#fff" />
+          <Icon name="back" size={22} color="var(--nabd-bg.surface-light)" />
         </TouchableOpacity>
         <AppText variant="bodySM">تتبع سيارة الإسعاف</AppText>
         <View style={{ width: 36 }} />
@@ -117,9 +117,9 @@ export default function AmbulanceTrackingScreen() {
             )}
             <View style={[styles.stepIcon, {
               backgroundColor: step.done ? 'rgba(239,68,68,0.3)' : 'rgba(255,255,255,0.1)',
-              borderWidth: step.current ? 2 : 0, borderColor: '#fff',
+              borderWidth: step.current ? 2 : 0, borderColor: 'var(--nabd-bg.surface-light)',
             }]}>
-              <Icon name={STEP_ICONS[step.key] || 'check_circle'} size={20} color="#fff" />
+              <Icon name={STEP_ICONS[step.key] || 'check_circle'} size={20} color="var(--nabd-bg.surface-light)" />
             </View>
             <AppText variant="bodySM">{step.title_ar}</AppText>
           </View>
@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingBottom: 10 },
   hBtn: { width: 36, height: 36, borderRadius: 11, backgroundColor: 'rgba(255,255,255,0.15)', justifyContent: 'center', alignItems: 'center' },
   etaSection: { alignItems: 'center', gap: 8, paddingVertical: 16 },
-  etaCircle: { width: 100, height: 100, borderRadius: 50, backgroundColor: 'rgba(255,255,255,0.15)', borderWidth: 3, borderColor: '#fff', justifyContent: 'center', alignItems: 'center' },
+  etaCircle: { width: 100, height: 100, borderRadius: 50, backgroundColor: 'rgba(255,255,255,0.15)', borderWidth: 3, borderColor: 'var(--nabd-bg.surface-light)', justifyContent: 'center', alignItems: 'center' },
   trackingStatus: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 8, marginHorizontal: 16, borderRadius: 20, overflow: 'hidden' },
   stepsCard: { backgroundColor: 'rgba(0,0,0,0.4)', paddingHorizontal: 20, paddingTop: 16, gap: 0 },
   stepRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: 12, paddingVertical: 10, position: 'relative' },

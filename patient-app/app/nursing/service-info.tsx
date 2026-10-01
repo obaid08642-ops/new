@@ -72,7 +72,7 @@ export default function NursingServiceInfo() {
         {/* Hero image */}
         <View>
           {img ? (
-            <Image source={{ uri: img }} style={{ width, height: width * 0.62, backgroundColor: '#fff' }} resizeMode="cover" />
+            <Image source={{ uri: img }} style={{ width, height: width * 0.62, backgroundColor: 'var(--nabd-bg.surface-light)' }} resizeMode="cover" />
           ) : (
             <View style={{ width, height: width * 0.62, backgroundColor: '#E8F8FA', alignItems: 'center', justifyContent: 'center' }}>
               <Icon name="mother-nurse" size={90} color="#23B5CE" />
@@ -142,7 +142,7 @@ export default function NursingServiceInfo() {
           <LocalizedText style={{ fontFamily: 'Cairo-Black', fontSize: 22, color: '#23B5CE' }}>{svc.price} <LocalizedText style={{ fontSize: 13 }}>ر.س</LocalizedText></LocalizedText>
         </View>
         <TouchableOpacity style={styles.bookBtn} onPress={goBook} activeOpacity={0.9}>
-          <Icon name="calendar-check" size={20} color="#fff" />
+          <Icon name="calendar-check" size={20} color="var(--nabd-bg.surface-light)" />
           <LocalizedText style={styles.bookBtnText}>احجز الآن</LocalizedText>
         </TouchableOpacity>
       </View>
@@ -163,5 +163,5 @@ const styles = StyleSheet.create({
   prepIconWrap: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#FF980015', alignItems: 'center', justifyContent: 'center', marginLeft: 8 },
   bottomBar: { position: 'absolute', bottom: 0, left: 0, right: 0, flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', padding: 20, borderTopWidth: 1, borderTopLeftRadius: 24, borderTopRightRadius: 24 },
   bookBtn: { flexDirection: 'row-reverse', alignItems: 'center', gap: 8, backgroundColor: '#23B5CE', paddingVertical: 14, paddingHorizontal: 32, borderRadius: 16 },
-  bookBtnText: { fontFamily: 'Cairo-Black', fontSize: 16, color: '#fff' },
+  bookBtnText: { fontFamily: 'Cairo-Black', fontSize: 16, color: 'var(--nabd-bg.surface-light)' },
 });

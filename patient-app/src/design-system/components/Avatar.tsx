@@ -123,7 +123,7 @@ export function DSAvatar({
             style={{
               fontSize,
               fontWeight: '700',
-              color: '#fff',
+              color: 'var(--nabd-bg.surface-light)',
               includeFontPadding: false,
             }}
             allowFontScaling={false}

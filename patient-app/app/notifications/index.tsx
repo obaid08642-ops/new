@@ -142,12 +142,12 @@ export default function NotificationsScreen() {
       <View style={{ paddingVertical: 12 }}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ flexDirection: 'row-reverse', gap: 10, paddingHorizontal: 16 }}>
           <TouchableOpacity onPress={() => setFilter('all')} style={[st.filterChip, filter === 'all' ? { backgroundColor: colors.primary, borderColor: colors.primary } : { backgroundColor: colors.surface, borderColor: colors.borderLight }]} >
-            <AppText variant="bodySM" color={filter === 'all' ? '#fff' : colors.textPrimary}>الكل</AppText>
+            <AppText variant="bodySM" color={filter === 'all' ? 'var(--nabd-bg.surface-light)' : colors.textPrimary}>الكل</AppText>
           </TouchableOpacity>
           {(Object.keys(GROUP_CONFIG) as CategoryGroup[]).map(g => (
             <TouchableOpacity key={g} onPress={() => setFilter(g)} style={[st.filterChip, filter === g ? { backgroundColor: GROUP_CONFIG[g].color, borderColor: GROUP_CONFIG[g].color } : { backgroundColor: colors.surface, borderColor: colors.borderLight }]}>
-              <Icon name={GROUP_CONFIG[g].icon} size={16} color={filter === g ? '#fff' : GROUP_CONFIG[g].color} />
-              <AppText variant="bodySM" color={filter === g ? '#fff' : colors.textPrimary}>{GROUP_CONFIG[g].label}</AppText>
+              <Icon name={GROUP_CONFIG[g].icon} size={16} color={filter === g ? 'var(--nabd-bg.surface-light)' : GROUP_CONFIG[g].color} />
+              <AppText variant="bodySM" color={filter === g ? 'var(--nabd-bg.surface-light)' : colors.textPrimary}>{GROUP_CONFIG[g].label}</AppText>
             </TouchableOpacity>
           ))}
         </ScrollView>
@@ -174,7 +174,7 @@ export default function NotificationsScreen() {
                 <Icon name="warning" size={44} color={colors.textTertiary} />
                 <AppText variant="bodyMD" color={colors.textSecondary}>تعذر تحميل الإشعارات</AppText>
                 <TouchableOpacity accessibilityRole="button" accessibilityLabel="إعادة المحاولة" onPress={() => load()} style={[st.filterChip, { backgroundColor: colors.primary, borderColor: colors.primary }]}>
-                  <AppText variant="bodySM" color="#fff">إعادة المحاولة</AppText>
+                  <AppText variant="bodySM" color="var(--nabd-bg.surface-light)">إعادة المحاولة</AppText>
                 </TouchableOpacity>
               </View>
             ) : (

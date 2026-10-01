@@ -44,13 +44,13 @@ export default function FamilyScanScreen() {
       <StatusBar barStyle="light-content" />
       <View style={[st.hdr, { paddingTop: insets.top + 8 }]}>
         <View style={{ width: 40 }} />
-        <AppText variant="h4" color="#fff">مسح دعوة العائلة</AppText>
-        <IconButton icon="back" bg="rgba(255,255,255,0.18)" color="#fff" onPress={() => router.back()} />
+        <AppText variant="h4" color="var(--nabd-bg.surface-light)">مسح دعوة العائلة</AppText>
+        <IconButton icon="back" bg="rgba(255,255,255,0.18)" color="var(--nabd-bg.surface-light)" onPress={() => router.back()} />
       </View>
 
       <View style={st.cameraArea}>
         {!permission ? (
-          <ActivityIndicator size="large" color="#fff" />
+          <ActivityIndicator size="large" color="var(--nabd-bg.surface-light)" />
         ) : !permission.granted ? (
           <>
             <AppText variant="bodySM" color="rgba(255,255,255,0.85)" align="center">

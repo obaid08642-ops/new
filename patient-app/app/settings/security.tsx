@@ -391,7 +391,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 4,
   },
-  savePassText: { color: "#fff", fontSize: 14, fontWeight: "800" },
+  savePassText: { color: "var(--nabd-bg.surface-light)", fontSize: 14, fontWeight: "800" },
   sessionRow: {
     flexDirection: "row-reverse",
     alignItems: "center",
@@ -416,7 +416,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     backgroundColor: "#5BA84F",
     borderWidth: 2,
-    borderColor: "#fff",
+    borderColor: "var(--nabd-bg.surface-light)",
   },
   sessionInfo: { flex: 1, alignItems: "flex-end", gap: 2 },
   sessionDevice: { fontSize: 13, fontWeight: "700" },

@@ -72,7 +72,7 @@ export function FacilityInternalChatScreen({ onBack }: { onBack: () => void }) {
               padding: SP.md, borderRadius: R.md, marginBottom: SP.sm, maxWidth: '80%'
             }}>
               {!msg.isMe && <Text style={{ fontSize: FS.xs, fontWeight: FW.bold, color: theme.textSub, marginBottom: 4, textAlign: AR ? 'right' : 'left' }}>{msg.sender}</Text>}
-              <Text style={{ fontSize: FS.sm, color: msg.isMe ? '#FFF' : theme.text, textAlign: AR ? 'right' : 'left' }}>{msg.text}</Text>
+              <Text style={{ fontSize: FS.sm, color: msg.isMe ? 'var(--nabd-bg.surface-light)' : theme.text, textAlign: AR ? 'right' : 'left' }}>{msg.text}</Text>
               <Text style={{ fontSize: 10, color: msg.isMe ? 'rgba(255,255,255,0.7)' : theme.textSub, marginTop: 4, textAlign: AR ? 'right' : 'left' }}>{msg.time}</Text>
             </View>
           ))}
@@ -86,7 +86,7 @@ export function FacilityInternalChatScreen({ onBack }: { onBack: () => void }) {
             onChangeText={setInputText}
           />
           <TouchableOpacity onPress={handleSend} style={{ width: 60, height: 44, borderRadius: R.full, backgroundColor: theme.primary, alignItems: 'center', justifyContent: 'center' }}>
-            <Text style={{ color: '#FFF', fontWeight: FW.bold }}>{AR ? 'إرسال' : 'Send'}</Text>
+            <Text style={{ color: 'var(--nabd-bg.surface-light)', fontWeight: FW.bold }}>{AR ? 'إرسال' : 'Send'}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -114,7 +114,7 @@ export function FacilityInternalChatScreen({ onBack }: { onBack: () => void }) {
               </View>
               {ch.unread > 0 && (
                 <View style={{ backgroundColor: theme.danger, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
-                  <Text style={{ color: '#FFF', fontSize: 12, fontWeight: FW.bold }}>{ch.unread}</Text>
+                  <Text style={{ color: 'var(--nabd-bg.surface-light)', fontSize: 12, fontWeight: FW.bold }}>{ch.unread}</Text>
                 </View>
               )}
             </NCard>

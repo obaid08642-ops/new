@@ -106,7 +106,7 @@ export default function ProfileScreen() {
               <Card padding={0} style={{ alignItems: 'center', paddingVertical: 16, gap: 8, overflow: 'visible' }}>
                 {item.badge && (
                   <View style={{ position: 'absolute', top: -6, right: -6, zIndex: 10 }}>
-                    <Badge label={item.badge} color="#fff" bg={item.color} style={{ paddingHorizontal: 4, paddingVertical: 2 }}/>
+                    <Badge label={item.badge} color="var(--nabd-bg.surface-light)" bg={item.color} style={{ paddingHorizontal: 4, paddingVertical: 2 }}/>
                   </View>
                 )}
                 <View style={[st.gridIcon, { backgroundColor: item.color + '18' } ]}>

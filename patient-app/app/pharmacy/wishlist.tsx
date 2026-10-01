@@ -133,7 +133,7 @@ export default function WishlistScreen() {
                 style={[styles.cartBtn, { backgroundColor: item.available === false ? colors.textDisabled : colors.secondary }]}
                 disabled={item.available === false || addingId === item.id}
               >
-                <Icon name="shopping_cart" size={16} color="#fff" />
+                <Icon name="shopping_cart" size={16} color="var(--nabd-bg.surface-light)" />
               </TouchableOpacity>
             </View>
             <View style={styles.wishInfo}>
@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     marginTop: 8,
   },
-  shopBtnText: { color: "#fff", fontSize: 15, fontWeight: "800" },
+  shopBtnText: { color: "var(--nabd-bg.surface-light)", fontSize: 15, fontWeight: "800" },
   wishCard: {
     borderRadius: 18,
     padding: 14,

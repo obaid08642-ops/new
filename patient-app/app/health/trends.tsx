@@ -118,7 +118,7 @@ const MiniLineChart = ({
             borderRadius: 5,
             backgroundColor: color,
             borderWidth: 2,
-            borderColor: "#fff",
+            borderColor: "var(--nabd-bg.surface-light)",
           }}
         />
       )}
@@ -540,7 +540,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 12,
   },
-  headerTitle: { color: "#fff", fontSize: 18, fontWeight: "800" },
+  headerTitle: { color: "var(--nabd-bg.surface-light)", fontSize: 18, fontWeight: "800" },
   hBtn: {
     width: 36,
     height: 36,

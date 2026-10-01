@@ -63,7 +63,7 @@ export default function GlobalCart() {
           <AppText style={{ fontSize: 20, fontWeight: 'bold', color: colors.textPrimary, marginTop: 16 }}>السلة فارغة</AppText>
           <AppText style={{ fontSize: 14, color: colors.textSecondary, marginTop: 8, textAlign: 'center' }}>قم بإضافة بعض التحاليل الفردية للسلة للمقارنة بين المختبرات.</AppText>
           <TouchableOpacity style={[styles.backBtn, { backgroundColor: colors.primary }]} onPress={() => router.back()}>
-            <AppText style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>العودة للتحاليل</AppText>
+            <AppText style={{ color: 'var(--nabd-bg.surface-light)', fontWeight: 'bold', fontSize: 16 }}>العودة للتحاليل</AppText>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -116,16 +116,16 @@ export default function GlobalCart() {
               style={[styles.toggleBtn, serviceType === 'home' && { backgroundColor: colors.primary, shadowColor: colors.primary, shadowOpacity: 0.3, shadowRadius: 8, elevation: 4 }]}
               onPress={() => setServiceType('home')}
             >
-              <Icon name="home-variant-outline" size={22} color={serviceType === 'home' ? '#fff' : colors.textSecondary} />
-              <AppText style={[styles.toggleText, { color: serviceType === 'home' ? '#fff' : colors.textSecondary } ]}>سحب منزلي</AppText>
+              <Icon name="home-variant-outline" size={22} color={serviceType === 'home' ? 'var(--nabd-bg.surface-light)' : colors.textSecondary} />
+              <AppText style={[styles.toggleText, { color: serviceType === 'home' ? 'var(--nabd-bg.surface-light)' : colors.textSecondary } ]}>سحب منزلي</AppText>
             </TouchableOpacity>
             
             <TouchableOpacity 
               style={[styles.toggleBtn, serviceType === 'clinic' && { backgroundColor: colors.primary, shadowColor: colors.primary, shadowOpacity: 0.3, shadowRadius: 8, elevation: 4 }]}
               onPress={() => setServiceType('clinic')}
             >
-              <Icon name="hospital-box-outline" size={22} color={serviceType === 'clinic' ? '#fff' : colors.textSecondary} />
-              <AppText style={[styles.toggleText, { color: serviceType === 'clinic' ? '#fff' : colors.textSecondary } ]}>زيارة المختبر</AppText>
+              <Icon name="hospital-box-outline" size={22} color={serviceType === 'clinic' ? 'var(--nabd-bg.surface-light)' : colors.textSecondary} />
+              <AppText style={[styles.toggleText, { color: serviceType === 'clinic' ? 'var(--nabd-bg.surface-light)' : colors.textSecondary } ]}>زيارة المختبر</AppText>
             </TouchableOpacity>
           </View>
         </Animated.View>
@@ -199,7 +199,7 @@ export default function GlobalCart() {
               (router.push as any)({ pathname: '/diagnostics/checkout', params: { serviceType, labName, labId: selectedLab } });
             }}
           >
-            <AppText style={{ color: '#fff', fontSize: 16, fontWeight: 'bold' }}>متابعة لاختيار الموعد</AppText>
+            <AppText style={{ color: 'var(--nabd-bg.surface-light)', fontSize: 16, fontWeight: 'bold' }}>متابعة لاختيار الموعد</AppText>
           </TouchableOpacity>
         </Animated.View>
       )}

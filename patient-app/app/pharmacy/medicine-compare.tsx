@@ -119,7 +119,7 @@ export default function MedicineCompareScreen() {
             <TouchableOpacity key={m.id} style={[styles.productCol, { paddingVertical: 12 }]}
               onPress={() => { /* Requires backend API integration */ }}>
               <View style={[styles.addBtn, { backgroundColor: colors.secondary } ]}>
-                <Icon name="shopping_cart" size={16} color="#fff" />
+                <Icon name="shopping_cart" size={16} color="var(--nabd-bg.surface-light)" />
                 <AppText variant="bodySM">أضف للسلة</AppText>
               </View>
             </TouchableOpacity>
@@ -147,5 +147,5 @@ const styles = StyleSheet.create({
   rowVal: { fontSize: 12, textAlign: 'center' },
   betterBadge: { fontSize: 9, color: '#00977D', fontWeight: '700' },
   addBtn: { flexDirection: 'row-reverse', gap: 4, alignItems: 'center', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 7 },
-  addBtnText: { color: '#fff', fontSize: 11, fontWeight: '800' },
+  addBtnText: { color: 'var(--nabd-bg.surface-light)', fontSize: 11, fontWeight: '800' },
 });

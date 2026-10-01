@@ -35,11 +35,11 @@ const Icons = {
       height="24"
       viewBox="0 0 24 24"
       fill={color}
-      stroke="#fff"
+      stroke="var(--nabd-bg.surface-light)"
       strokeWidth="1.5"
     >
       <Path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-      <Circle cx="12" cy="10" r="3" fill="#fff" />
+      <Circle cx="12" cy="10" r="3" fill="var(--nabd-bg.surface-light)" />
     </Svg>
   ),
   Phone: () => (
@@ -48,7 +48,7 @@ const Icons = {
       height="20"
       viewBox="0 0 24 24"
       fill="none"
-      stroke="#fff"
+      stroke="var(--nabd-bg.surface-light)"
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -62,7 +62,7 @@ const Icons = {
       height="20"
       viewBox="0 0 24 24"
       fill="none"
-      stroke="#fff"
+      stroke="var(--nabd-bg.surface-light)"
       strokeWidth="2.5"
     >
       <Polygon points="3 11 22 2 13 21 11 13 3 11" />
@@ -114,7 +114,7 @@ export default function NursingLiveTracking() {
           <LocalizedText style={{ fontFamily: 'Cairo-Bold', fontSize: 24, color: '#1E293B', marginBottom: 12 }}>اكتملت الزيارة بنجاح</LocalizedText>
           <LocalizedText style={{ fontFamily: 'Cairo-Medium', fontSize: 16, color: '#64748B', textAlign: 'center', marginBottom: 32 }}>تم رفع التقرير الطبي للزيارة. يمكنك الآن تقييم الممرض والاطلاع على السجل الطبي.</LocalizedText>
           
-          <View style={{ width: '100%', backgroundColor: '#fff', padding: 20, borderRadius: 16, borderWidth: 1, borderColor: '#E2E8F0', marginBottom: 24 }}>
+          <View style={{ width: '100%', backgroundColor: 'var(--nabd-bg.surface-light)', padding: 20, borderRadius: 16, borderWidth: 1, borderColor: '#E2E8F0', marginBottom: 24 }}>
             <LocalizedText style={{ fontFamily: 'Cairo-Bold', fontSize: 16, color: '#1E293B', marginBottom: 16, textAlign: 'right' }}>التقرير السريري للزيارة</LocalizedText>
             {trackingData.vitals || trackingData.notes ? (
               <>
@@ -137,7 +137,7 @@ export default function NursingLiveTracking() {
           </View>
 
           <TouchableOpacity style={{ backgroundColor: '#23B5CE', width: '100%', paddingVertical: 16, borderRadius: 12, alignItems: 'center', marginBottom: 12 }} onPress={() => router.push('/(tabs)')}>
-            <LocalizedText style={{ fontFamily: 'Cairo-Bold', fontSize: 16, color: '#fff' }}>تقييم الزيارة والعودة للرئيسية</LocalizedText>
+            <LocalizedText style={{ fontFamily: 'Cairo-Bold', fontSize: 16, color: 'var(--nabd-bg.surface-light)' }}>تقييم الزيارة والعودة للرئيسية</LocalizedText>
           </TouchableOpacity>
         </View>
       </View>
@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
     shadowRadius: 24,
     elevation: 10,
     borderWidth: 1,
-    borderColor: "#fff",
+    borderColor: "var(--nabd-bg.surface-light)",
   },
   sheetContent: { padding: 24, backgroundColor: "rgba(255,255,255,0.75)" },
   handle: {
@@ -364,10 +364,10 @@ const styles = StyleSheet.create({
   etaNum: {
     fontFamily: "Cairo-Bold",
     fontSize: 24,
-    color: "#fff",
+    color: "var(--nabd-bg.surface-light)",
     lineHeight: 28,
   },
-  etaMin: { fontFamily: "Cairo-Medium", fontSize: 12, color: "#fff" },
+  etaMin: { fontFamily: "Cairo-Medium", fontSize: 12, color: "var(--nabd-bg.surface-light)" },
   statusTitle: {
     fontFamily: "Cairo-Bold",
     fontSize: 17,

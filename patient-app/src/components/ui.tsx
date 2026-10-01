@@ -106,12 +106,12 @@ export function Button({
     gradient: 'transparent',
   };
   const fg: Record<BtnVariant, string> = {
-    primary: '#fff',
-    secondary: '#fff',
+    primary: 'var(--nabd-bg.surface-light)',
+    secondary: 'var(--nabd-bg.surface-light)',
     outline: colors.primary,
     ghost: colors.primary,
-    danger: '#fff',
-    gradient: '#fff',
+    danger: 'var(--nabd-bg.surface-light)',
+    gradient: 'var(--nabd-bg.surface-light)',
   };
 
   const content = (
@@ -240,12 +240,12 @@ export function ProductCard({ product, onPress, onAddToCart, qty, onQtyChange, s
           )}
           {discount > 0 && (
             <View style={[styles_pc.discountBadge, { backgroundColor: colors.error }]}>
-              <AppText variant="caption" color="#fff" style={{ fontWeight: '800' }}>-{discount}%</AppText>
+              <AppText variant="caption" color="var(--nabd-bg.surface-light)" style={{ fontWeight: '800' }}>-{discount}%</AppText>
             </View>
           )}
           {product.requiresRx && (
             <View style={[styles_pc.rxBadge, { backgroundColor: colors.warning }]}>
-              <Icon name="prescriptions" size={12} color="#fff" />
+              <Icon name="prescriptions" size={12} color="var(--nabd-bg.surface-light)" />
             </View>
           )}
         </View>
@@ -283,7 +283,7 @@ export function ProductCard({ product, onPress, onAddToCart, qty, onQtyChange, s
               style={[styles_pc.qtyBtn, { backgroundColor: displayColor }]}
               activeOpacity={0.8}
             >
-              <Icon name="add" size={14} color="#fff" />
+              <Icon name="add" size={14} color="var(--nabd-bg.surface-light)" />
             </TouchableOpacity>
             <AppText variant="h6" color={colors.textPrimary}>{qty}</AppText>
             <TouchableOpacity 
@@ -300,8 +300,8 @@ export function ProductCard({ product, onPress, onAddToCart, qty, onQtyChange, s
             activeOpacity={0.85} 
             style={[styles_pc.addBtn, { backgroundColor: product.requiresRx ? colors.warning : displayColor }]}
           >
-            <Icon name={product.requiresRx ? 'prescription' : 'cart'} size={14} color="#fff" />
-            <AppText variant="labelSM" color="#fff" style={{ fontWeight: '800' }}>
+            <Icon name={product.requiresRx ? 'prescription' : 'cart'} size={14} color="var(--nabd-bg.surface-light)" />
+            <AppText variant="labelSM" color="var(--nabd-bg.surface-light)" style={{ fontWeight: '800' }}>
               {product.requiresRx ? 'يتطلب وصفة' : 'أضف للسلة'}
             </AppText>
           </TouchableOpacity>
@@ -414,7 +414,7 @@ export function DoctorCard({ doctor, onPress, onBook, style }: DoctorCardProps) 
         <View style={[styles_dc.bottomBar, { backgroundColor: colors.primary }]}>
           <View style={{ alignItems: 'flex-start', gap: 2 }}>
             {doctor.rating != null && (
-              <AppText variant="labelSM" color="#fff" style={{ fontWeight:'800' }}> {doctor.rating}{doctor.reviews != null ? ` (${doctor.reviews})` : ''}</AppText>
+              <AppText variant="labelSM" color="var(--nabd-bg.surface-light)" style={{ fontWeight:'800' }}> {doctor.rating}{doctor.reviews != null ? ` (${doctor.reviews})` : ''}</AppText>
             )}
             {!!doctor.slot && <AppText variant="caption" color="rgba(255,255,255,0.85)" style={{ fontWeight:'400' }}> {doctor.slot}</AppText>}
           </View>
@@ -549,8 +549,8 @@ export function Chip({ label, active, onPress, icon }: ChipProps) {
         },
       ]}
     >
-      {icon && <Icon name={icon} size={15} color={active ? '#fff' : colors.textSecondary} />}
-      <AppText variant="labelMD" color={active ? '#fff' : colors.textSecondary} style={{ fontWeight: '700' }}>{translatedLabel}</AppText>
+      {icon && <Icon name={icon} size={15} color={active ? 'var(--nabd-bg.surface-light)' : colors.textSecondary} />}
+      <AppText variant="labelMD" color={active ? 'var(--nabd-bg.surface-light)' : colors.textSecondary} style={{ fontWeight: '700' }}>{translatedLabel}</AppText>
     </TouchableOpacity>
   );
 }

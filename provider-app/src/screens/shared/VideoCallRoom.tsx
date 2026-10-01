@@ -221,7 +221,7 @@ export function VideoCallRoom({ appointmentId, peerName, voiceOnly, onEnd }: Vid
   if (phase === 'connecting') {
     return (
       <View style={[st.box, { backgroundColor: '#111' }]}>
-        <ActivityIndicator size="large" color="#FFF" />
+        <ActivityIndicator size="large" color="var(--nabd-bg.surface-light)" />
         <Text style={st.dim}>{AR ? 'جاري الاتصال بغرفة الفيديو…' : 'Connecting to the video room…'}</Text>
       </View>
     );
@@ -253,7 +253,7 @@ export function VideoCallRoom({ appointmentId, peerName, voiceOnly, onEnd }: Vid
       ) : (
         <View style={st.remoteFallback}>
           <View style={[st.avatar, { backgroundColor: theme.primary }]}>
-            <I name="user" size={44} color="#FFF" />
+            <I name="user" size={44} color="var(--nabd-bg.surface-light)" />
           </View>
           <Text style={st.name}>{peerName || (AR ? 'المريض' : 'Patient')}</Text>
           <Text style={st.dim}>{AR ? 'في انتظار فيديو الطرف الآخر…' : 'Waiting for the remote video…'}</Text>
@@ -274,15 +274,15 @@ export function VideoCallRoom({ appointmentId, peerName, voiceOnly, onEnd }: Vid
       {/* Controls */}
       <View style={st.controls}>
         <TouchableOpacity style={st.ctrl} onPress={() => setMicOn(v => !v)} accessibilityLabel={AR ? 'كتم الصوت' : 'Mute'}>
-          <I name={micOn ? 'mic' : 'mic-off'} size={22} color="#FFF" />
+          <I name={micOn ? 'mic' : 'mic-off'} size={22} color="var(--nabd-bg.surface-light)" />
         </TouchableOpacity>
         {!voiceOnly && (
           <TouchableOpacity style={st.ctrl} onPress={() => setCamOn(v => !v)} accessibilityLabel={AR ? 'الكاميرا' : 'Camera'}>
-            <I name={camOn ? 'video' : 'video-off'} size={22} color="#FFF" />
+            <I name={camOn ? 'video' : 'video-off'} size={22} color="var(--nabd-bg.surface-light)" />
           </TouchableOpacity>
         )}
         <TouchableOpacity style={[st.ctrl, { backgroundColor: '#E53935' }]} onPress={handleEnd} accessibilityLabel={AR ? 'إنهاء المكالمة' : 'End call'}>
-          <I name="phone-off" size={22} color="#FFF" />
+          <I name="phone-off" size={22} color="var(--nabd-bg.surface-light)" />
         </TouchableOpacity>
       </View>
     </View>
@@ -292,7 +292,7 @@ export function VideoCallRoom({ appointmentId, peerName, voiceOnly, onEnd }: Vid
 const st = StyleSheet.create({
   box: { flex: 1, minHeight: 260, alignItems: 'center', justifyContent: 'center', borderRadius: R.lg, overflow: 'hidden' },
   dim: { color: 'rgba(255,255,255,0.75)', marginTop: SP.sm, textAlign: 'center', paddingHorizontal: SP.lg },
-  name: { color: '#FFF', fontSize: FS.lg, fontWeight: FW.bold, marginTop: SP.sm },
+  name: { color: 'var(--nabd-bg.surface-light)', fontSize: FS.lg, fontWeight: FW.bold, marginTop: SP.sm },
   avatar: { width: 88, height: 88, borderRadius: 44, alignItems: 'center', justifyContent: 'center' },
   remoteFallback: { alignItems: 'center', justifyContent: 'center' },
   pip: { position: 'absolute', bottom: 96, right: SP.md, width: 92, height: 128, borderRadius: R.md, overflow: 'hidden', borderWidth: 2, borderColor: '#444', backgroundColor: '#222' },

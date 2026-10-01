@@ -124,7 +124,7 @@ export function MediaConfigScreen({ onBack }: { onBack: () => void }) {
  onPress={() => handleDelete(img.id)}
  style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: 'rgba(244,67,54,0.9)', alignItems: 'center', justifyContent: 'center' }}
  >
- <I name="close" size={14} color="#FFF" />
+ <I name="close" size={14} color="var(--nabd-bg.surface-light)" />
  </TouchableOpacity>
  </View>
  <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>

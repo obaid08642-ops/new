@@ -15,11 +15,11 @@ export function VectorCatAll({ size = 36 }: IconProps) {
         </LinearGradient>
       </Defs>
       <Rect x="8" y="8" width="48" height="48" rx="16" fill="url(#cat_all_bg)" />
-      <Circle cx="24" cy="24" r="5" fill="#FFFFFF" fillOpacity={0.9} />
+      <Circle cx="24" cy="24" r="5" fill="var(--nabd-bg.surface-light)" fillOpacity={0.9} />
       <Circle cx="40" cy="24" r="5" fill="#5FD9B3" />
       <Circle cx="24" cy="40" r="5" fill="#5FD9B3" />
-      <Circle cx="40" cy="40" r="5" fill="#FFFFFF" fillOpacity={0.9} />
-      <Path d="M24 24L40 40M40 24L24 40" stroke="#FFFFFF" strokeWidth="2" strokeDasharray="2 2" strokeOpacity={0.4} />
+      <Circle cx="40" cy="40" r="5" fill="var(--nabd-bg.surface-light)" fillOpacity={0.9} />
+      <Path d="M24 24L40 40M40 24L24 40" stroke="var(--nabd-bg.surface-light)" strokeWidth="2" strokeDasharray="2 2" strokeOpacity={0.4} />
     </Svg>
   );
 }
@@ -40,10 +40,10 @@ export function VectorCatMeds({ size = 36 }: IconProps) {
       <G>
         <Rect x="22" y="10" width="20" height="8" rx="4" fill="url(#pharm_cap)" />
         <Rect x="16" y="18" width="32" height="38" rx="10" fill="url(#pharm_body)" />
-        <Rect x="20" y="26" width="24" height="22" rx="6" fill="#FFFFFF" fillOpacity={0.9} />
+        <Rect x="20" y="26" width="24" height="22" rx="6" fill="var(--nabd-bg.surface-light)" fillOpacity={0.9} />
         <Path d="M32 30V44M25 37H39" stroke="#00876F" strokeWidth="3" strokeLinecap="round" />
         <Rect x="40" y="42" width="16" height="8" rx="4" transform="rotate(-30 40 42)" fill="#B8E030" />
-        <Path d="M40 42L48 37.38" stroke="#FFFFFF" strokeWidth="1.5" />
+        <Path d="M40 42L48 37.38" stroke="var(--nabd-bg.surface-light)" strokeWidth="1.5" />
       </G>
     </Svg>
   );
@@ -58,13 +58,13 @@ export function VectorCatHairCare({ size = 36 }: IconProps) {
           <Stop offset="1" stopColor="#9333EA" />
         </LinearGradient>
       </Defs>
-      <Rect x="8" y="8" width="48" height="48" rx="16" fill="#FCE7F3" />
+      <Rect x="8" y="8" width="48" height="48" rx="16" fill="var(--nabd-service.mind.bg-light)" />
       <Rect x="24" y="24" width="16" height="26" rx="6" fill="url(#cat_hair_bg)" />
       <Rect x="28" y="16" width="8" height="8" rx="2" fill="#9333EA" />
       <Path d="M30 16V12H34V16" stroke="#EC4899" strokeWidth="2" strokeLinecap="round" />
       <Path d="M42 20C47 24 47 34 44 42C48 36 49 28 46 22" stroke="#F472B6" strokeWidth="2.5" strokeLinecap="round" />
       <Circle cx="20" cy="22" r="2" fill="#F472B6" />
-      <Path d="M28 32H36" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" />
+      <Path d="M28 32H36" stroke="var(--nabd-bg.surface-light)" strokeWidth="2" strokeLinecap="round" />
     </Svg>
   );
 }
@@ -120,7 +120,7 @@ export function VectorCatBabyCare({ size = 36 }: IconProps) {
       <Rect x="22" y="24" width="20" height="26" rx="5" fill="url(#cat_baby_bot)" />
       <Rect x="25" y="19" width="14" height="5" rx="2" fill="#FBBF24" />
       <Path d="M30 19V14C30 12.5 34 12.5 34 14V19" stroke="#F59E0B" strokeWidth="2.5" strokeLinecap="round" />
-      <Path d="M32 30H38M32 36H38M32 42H36" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" />
+      <Path d="M32 30H38M32 36H38M32 42H36" stroke="var(--nabd-bg.surface-light)" strokeWidth="2" strokeLinecap="round" />
       <Path d="M16 26C14 24 14 21 16 19C18 17 21 19 22 21C23 19 26 17 28 19C30 21 30 24 28 26L22 32L16 26Z" fill="#F43F5E" />
     </Svg>
   );
@@ -138,10 +138,10 @@ export function VectorCatVitamins({ size = 36 }: IconProps) {
       <Rect x="8" y="8" width="48" height="48" rx="16" fill="#FEF3C7" />
       <Circle cx="32" cy="32" r="16" fill="url(#cat_vit_orange)" />
       <Circle cx="32" cy="32" r="13" fill="#FDE68A" fillOpacity={0.3} />
-      <Path d="M32 20V44M20 32H44M23 23L41 41M41 23L23 41" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round" />
+      <Path d="M32 20V44M20 32H44M23 23L41 41M41 23L23 41" stroke="var(--nabd-bg.surface-light)" strokeWidth="1.5" strokeLinecap="round" />
       <Circle cx="44" cy="18" r="3" fill="#F59E0B" />
       <Circle cx="18" cy="42" r="2.5" fill="#FBBF24" />
-      <Circle cx="32" cy="32" r="3" fill="#FFFFFF" />
+      <Circle cx="32" cy="32" r="3" fill="var(--nabd-bg.surface-light)" />
     </Svg>
   );
 }
@@ -161,7 +161,7 @@ export function VectorCatPersonalCare({ size = 36 }: IconProps) {
       <Path d="M32 19V14H24M24 14L22 17" stroke="#10B981" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
       <Circle cx="44" cy="20" r="3.5" fill="#A7F3D0" />
       <Circle cx="48" cy="27" r="2" fill="#6EE7B7" />
-      <Path d="M28 34C32 32 36 36 36 34" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" />
+      <Path d="M28 34C32 32 36 36 36 34" stroke="var(--nabd-bg.surface-light)" strokeWidth="2" strokeLinecap="round" />
     </Svg>
   );
 }

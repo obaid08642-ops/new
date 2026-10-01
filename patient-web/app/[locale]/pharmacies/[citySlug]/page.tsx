@@ -145,7 +145,7 @@ export default async function PharmaciesCityPage({ params }: Props) {
         <section style={{ textAlign: "center", padding: "3rem 1rem", background: "#f8fafc", borderRadius: "12px", border: "1px dashed #cbd5e1" }}>
           <p style={{ fontSize: "1.1rem", color: "#334155" }}>{locale === "ar" ? `لا توجد صيدلية شريكة في ${decCity} حالياً.` : `No partner pharmacy in ${decCity} yet.`}</p>
           <p style={{ color: "#64748b", marginTop: "0.5rem" }}>{locale === "ar" ? "كن أول صيدلية — سجل الآن وستظهر خدمتك أوتوماتيك." : "Be the first — register and appear automatically."}</p>
-          <Link href={`/${locale}/consultations/doctors`} style={{ display: "inline-block", marginTop: "1rem", background: "#059669", color: "#fff", padding: "0.75rem 1.5rem", borderRadius: "8px", textDecoration: "none", fontWeight: 600 }}>{locale === "ar" ? "سجل كمزود" : "Register"}</Link>
+          <Link href={`/${locale}/consultations/doctors`} style={{ display: "inline-block", marginTop: "1rem", background: "#059669", color: "var(--nabd-bg.surface-light)", padding: "0.75rem 1.5rem", borderRadius: "8px", textDecoration: "none", fontWeight: 600 }}>{locale === "ar" ? "سجل كمزود" : "Register"}</Link>
         </section>
       ) : (
       <section>
@@ -160,7 +160,7 @@ export default async function PharmaciesCityPage({ params }: Props) {
                 border: "1px solid #e5e7eb",
                 borderRadius: "0.75rem",
                 padding: "1.25rem",
-                backgroundColor: "#fff",
+                backgroundColor: "var(--nabd-bg.surface-light)",
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "space-between",
@@ -186,7 +186,7 @@ export default async function PharmaciesCityPage({ params }: Props) {
                   display: "inline-block",
                   textAlign: "center",
                   backgroundColor: "#059669",
-                  color: "#fff",
+                  color: "var(--nabd-bg.surface-light)",
                   padding: "0.5rem 1rem",
                   borderRadius: "0.5rem",
                   textDecoration: "none",

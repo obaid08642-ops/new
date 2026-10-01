@@ -77,7 +77,7 @@ export function InsuranceClaimScreen({ apt, onBack }: { apt: any; onBack: () => 
  backgroundColor: company === c ? theme.primary : theme.surface2,
  borderColor: company === c ? theme.primary : theme.border,
  }]}>
- <Text style={{ color: company === c ? '#FFF' : theme.text, fontSize: FS.sm }}>{c}</Text>
+ <Text style={{ color: company === c ? 'var(--nabd-bg.surface-light)' : theme.text, fontSize: FS.sm }}>{c}</Text>
  </TouchableOpacity>
  ))}
  </View>
@@ -97,7 +97,7 @@ export function InsuranceClaimScreen({ apt, onBack }: { apt: any; onBack: () => 
  backgroundColor: plan === p ? theme.info : theme.surface2,
  borderColor: plan === p ? theme.info : theme.border,
  }]}>
- <Text style={{ color: plan === p ? '#FFF' : theme.text, fontWeight: FW.bold, fontSize: FS.sm }}>{p}</Text>
+ <Text style={{ color: plan === p ? 'var(--nabd-bg.surface-light)' : theme.text, fontWeight: FW.bold, fontSize: FS.sm }}>{p}</Text>
  </TouchableOpacity>
  ))}
  </View>

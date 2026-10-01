@@ -178,7 +178,7 @@ export default function DiagnosticsCheckoutScreen() {
         <View style={styles.row}>
           {days.map((d, i) => (
             <TouchableOpacity key={d.iso} onPress={() => setDayOffset(i)} style={[styles.chip, { borderColor: colors.bd, backgroundColor: dayOffset === i ? colors.p : colors.s }]}>
-              <AppText style={{ color: dayOffset === i ? '#fff' : colors.n, fontSize: 11 }}>{d.label}</AppText>
+              <AppText style={{ color: dayOffset === i ? 'var(--nabd-bg.surface-light)' : colors.n, fontSize: 11 }}>{d.label}</AppText>
             </TouchableOpacity>
           ))}
         </View>
@@ -186,7 +186,7 @@ export default function DiagnosticsCheckoutScreen() {
         <View style={styles.row}>
           {TIMES.map((t) => (
             <TouchableOpacity key={t} onPress={() => setTime(t)} style={[styles.chip, { borderColor: colors.bd, backgroundColor: time === t ? colors.p : colors.s }]}>
-              <AppText style={{ color: time === t ? '#fff' : colors.n }}>{t}</AppText>
+              <AppText style={{ color: time === t ? 'var(--nabd-bg.surface-light)' : colors.n }}>{t}</AppText>
             </TouchableOpacity>
           ))}
         </View>
@@ -194,7 +194,7 @@ export default function DiagnosticsCheckoutScreen() {
         <View style={styles.row}>
           {allowedMethods.map((pm) => (
             <TouchableOpacity key={pm} onPress={() => setMethod(pm as any)} style={[styles.chip, { borderColor: colors.bd, backgroundColor: method === pm ? colors.p : colors.s }]}>
-              <AppText style={{ color: method === pm ? '#fff' : colors.n }}>
+              <AppText style={{ color: method === pm ? 'var(--nabd-bg.surface-light)' : colors.n }}>
                 {pm === 'cash' ? 'نقدي' : pm === 'card' ? 'بطاقة' : 'تأمين'}
               </AppText>
             </TouchableOpacity>
@@ -207,7 +207,7 @@ export default function DiagnosticsCheckoutScreen() {
         )}
         {error ? <AppText style={{ color: colors.cr, textAlign: 'center' }}>{error}</AppText> : null}
         <TouchableOpacity disabled={submitting} onPress={() => void submit()} style={[styles.primary, { backgroundColor: submitting ? colors.bd : colors.p }]}>
-          {submitting ? <ActivityIndicator color="#fff" /> : <AppText style={styles.primaryText}>{method === 'insurance' ? 'متابعة لرفع التأمين' : 'تأكيد الحجز'}</AppText>}
+          {submitting ? <ActivityIndicator color="var(--nabd-bg.surface-light)" /> : <AppText style={styles.primaryText}>{method === 'insurance' ? 'متابعة لرفع التأمين' : 'تأكيد الحجز'}</AppText>}
         </TouchableOpacity>
       </ScrollView>
     </View>
@@ -222,5 +222,5 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: 8 },
   chip: { borderWidth: 1, borderRadius: 12, paddingVertical: 10, paddingHorizontal: 14 },
   primary: { borderRadius: 14, paddingVertical: 16, alignItems: 'center', marginTop: 4 },
-  primaryText: { color: '#fff', fontFamily: 'Cairo-Bold' },
+  primaryText: { color: 'var(--nabd-bg.surface-light)', fontFamily: 'Cairo-Bold' },
 });

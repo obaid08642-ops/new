@@ -70,7 +70,7 @@ export default function PackageDetail() {
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <Animated.View entering={FadeInUp.duration(400).delay(100)} style={[styles.headerCard, { backgroundColor: pkg.color ? `${pkg.color}15` : `${colors.primary}15` }]} >
           <View style={[styles.iconBox, { backgroundColor: pkg.color || colors.primary } ]}>
-            <Icon name={pkg.icon || 'shield-check-outline'} size={40} color="#fff" />
+            <Icon name={pkg.icon || 'shield-check-outline'} size={40} color="var(--nabd-bg.surface-light)" />
           </View>
           <AppText style={{ fontSize: 22, fontWeight: 'bold', color: colors.textPrimary, marginTop: 16, textAlign: 'center' }}>{pkg.name}</AppText>
           <AppText style={{ fontSize: 14, color: colors.textSecondary, marginTop: 8, textAlign: 'center', lineHeight: 22 }}>{pkg.desc}</AppText>
@@ -144,8 +144,8 @@ export default function PackageDetail() {
           onPress={() => addItem({ id, name: pkg.name, price: parseInt(pkg.price), kind: 'lab' })}
           disabled={inCart}
         >
-          <Icon name={inCart ? "check-circle" : "cart-plus"} size={22} color={inCart ? "#4CAF50" : "#fff"} />
-          <AppText style={{ color: inCart ? "#4CAF50" : "#fff", fontSize: 16, fontWeight: 'bold', marginLeft: I18nManager.isRTL ? 0 : 8, marginRight: I18nManager.isRTL ? 8 : 0 }}>
+          <Icon name={inCart ? "check-circle" : "cart-plus"} size={22} color={inCart ? "#4CAF50" : "var(--nabd-bg.surface-light)"} />
+          <AppText style={{ color: inCart ? "#4CAF50" : "var(--nabd-bg.surface-light)", fontSize: 16, fontWeight: 'bold', marginLeft: I18nManager.isRTL ? 0 : 8, marginRight: I18nManager.isRTL ? 8 : 0 }}>
             {inCart ? 'تم الإضافة للسلة' : 'أضف للسلة'}
           </AppText>
         </TouchableOpacity>

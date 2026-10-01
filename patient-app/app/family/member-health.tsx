@@ -148,7 +148,7 @@ export default function MemberHealthScreen() {
           <IconButton
             icon="settings"
             bg="rgba(255,255,255,0.18)"
-            color="#fff"
+            color="var(--nabd-bg.surface-light)"
             onPress={() =>
               router.push({
                 pathname: "/family/permissions",
@@ -160,13 +160,13 @@ export default function MemberHealthScreen() {
               })
             }
           />
-          <AppText variant="h4" color="#fff">
+          <AppText variant="h4" color="var(--nabd-bg.surface-light)">
             صحة الفرد
           </AppText>
           <IconButton
             icon="back"
             bg="rgba(255,255,255,0.18)"
-            color="#fff"
+            color="var(--nabd-bg.surface-light)"
             onPress={() => router.back()}
           />
         </View>
@@ -175,23 +175,23 @@ export default function MemberHealthScreen() {
             size={72}
             icon="user"
             bg="rgba(255,255,255,0.18)"
-            iconColor="#fff"
+            iconColor="var(--nabd-bg.surface-light)"
           />
-          <AppText variant="h3" color="#fff">
+          <AppText variant="h3" color="var(--nabd-bg.surface-light)">
             {member.name}
           </AppText>
           <View style={{ flexDirection: "row-reverse", gap: 8 }}>
             {!!member.relation && (
               <Badge
                 label={member.relation}
-                color="#fff"
+                color="var(--nabd-bg.surface-light)"
                 bg="rgba(255,255,255,0.2)"
               />
             )}
             {member.age != null && (
               <Badge
                 label={`${member.age} سنة`}
-                color="#fff"
+                color="var(--nabd-bg.surface-light)"
                 bg="rgba(255,255,255,0.2)"
               />
             )}

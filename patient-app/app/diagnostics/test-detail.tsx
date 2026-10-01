@@ -153,8 +153,8 @@ export default function TestDetail() {
               router.push('/diagnostics/cart' as any);
             }}
           >
-            <Icon name="calendar-check" size={22} color="#fff" />
-            <AppText style={{ color: '#fff', fontSize: 15, fontWeight: 'bold', marginLeft: I18nManager.isRTL ? 0 : 8, marginRight: I18nManager.isRTL ? 8 : 0 }}>
+            <Icon name="calendar-check" size={22} color="var(--nabd-bg.surface-light)" />
+            <AppText style={{ color: 'var(--nabd-bg.surface-light)', fontSize: 15, fontWeight: 'bold', marginLeft: I18nManager.isRTL ? 0 : 8, marginRight: I18nManager.isRTL ? 8 : 0 }}>
               احجز الآن
             </AppText>
           </TouchableOpacity>
@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
   headerBtn: { width: 40, height: 40, justifyContent: 'center', alignItems: 'center' },
   scrollContent: { padding: 20, paddingBottom: 150 },
   iconBox: { width: 96, height: 96, borderRadius: 48, alignItems: 'center', justifyContent: 'center' },
-  heroImgWrap: { width: width - 40, height: (width - 40) * 0.62, borderRadius: 24, overflow: 'hidden', borderWidth: 1, backgroundColor: '#fff' },
+  heroImgWrap: { width: width - 40, height: (width - 40) * 0.62, borderRadius: 24, overflow: 'hidden', borderWidth: 1, backgroundColor: 'var(--nabd-bg.surface-light)' },
   card: { padding: 20, borderRadius: 16, borderWidth: 1 },
   infoRow: { flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse', alignItems: 'center', justifyContent: 'space-between', padding: 16, borderRadius: 16, borderWidth: 1 },
   circleIcon: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },

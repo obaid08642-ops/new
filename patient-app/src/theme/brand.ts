@@ -18,9 +18,9 @@ export const brand = {
     sky: '#4FA8E0',       // الأزرق السماوي (روابط/معلومات)
   },
   surface: {
-    light: '#F5F5F7',     // خلفية أوف-وايت/رمادي فاتح بأسلوب iPhone
-    lightElevated: '#FFFFFF',
-    card: '#FFFFFF',
+    light: 'var(--nabd-bg.canvas-light)',     // خلفية أوف-وايت/رمادي فاتح بأسلوب iPhone
+    lightElevated: 'var(--nabd-bg.surface-light)',
+    card: 'var(--nabd-bg.surface-light)',
     dark: '#16213A',
   },
   radius: { sm: 8, md: 14, lg: 22, xl: 28 },   // حواف ناعمة بأسلوب 3D الناعم

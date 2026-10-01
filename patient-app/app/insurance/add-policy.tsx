@@ -200,5 +200,5 @@ const styles = StyleSheet.create({
   input: { flex: 1, fontSize: 14, fontWeight: '400' },
   bottomBar: { paddingHorizontal: 16, paddingTop: 12 },
   saveBtn: { height: 54, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
-  saveBtnText: { color: '#fff', fontSize: 16, fontWeight: '800' },
+  saveBtnText: { color: 'var(--nabd-bg.surface-light)', fontSize: 16, fontWeight: '800' },
 });

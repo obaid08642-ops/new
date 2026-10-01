@@ -50,7 +50,7 @@ export default function Header() {
     return (
       <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 100, paddingTop: Math.max(insets.top, StatusBar.currentHeight || 44), paddingHorizontal: 16 }}>
         <TouchableOpacity onPress={goBack} style={[styles.iconButton, { alignSelf: isRTL ? 'flex-end' : 'flex-start', backgroundColor: isDark ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.7)', borderRadius: 20, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 8 }]}>
-          <Text style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 24, color: isDark ? '#fff' : '#141A2A' }}>
+          <Text style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 24, color: isDark ? 'var(--nabd-bg.surface-light)' : '#141A2A' }}>
             {isRTL ? 'arrow_forward' : 'arrow_back'}
           </Text>
         </TouchableOpacity>
@@ -139,7 +139,7 @@ export default function Header() {
               colors={['#23B5CE', '#1594AC']}
               style={{ width: '100%', height: '100%', borderRadius: 17, alignItems: 'center', justifyContent: 'center' }}
             >
-              <Text style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 20, color: '#fff' }}>person</Text>
+              <Text style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 20, color: 'var(--nabd-bg.surface-light)' }}>person</Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>

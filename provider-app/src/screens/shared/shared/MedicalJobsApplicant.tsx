@@ -56,7 +56,7 @@ export function MedicalJobsApplicant({ ctx }: any) {
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: SP.sm }}>
               {['طبيب عام', 'مقيم', 'أخصائي', 'أخصائي أول', 'استشاري', 'غير مصنف'].map(c => (
                 <TouchableOpacity key={c} onPress={() => setApplyClass(c)} style={{ paddingHorizontal: SP.md, paddingVertical: SP.sm, borderRadius: R.full, borderWidth: 1, borderColor: applyClass === c ? theme.primary : theme.border, backgroundColor: applyClass === c ? theme.primary : theme.bg }}>
-                  <Text style={{ color: applyClass === c ? '#FFF' : theme.textSub, fontSize: FS.xs }}>{c}</Text>
+                  <Text style={{ color: applyClass === c ? 'var(--nabd-bg.surface-light)' : theme.textSub, fontSize: FS.xs }}>{c}</Text>
                 </TouchableOpacity>
               ))}
             </View>

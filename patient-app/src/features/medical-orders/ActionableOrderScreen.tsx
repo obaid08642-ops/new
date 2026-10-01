@@ -38,9 +38,9 @@ export function ActionableOrderScreen({ route, navigation }: any) {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, backgroundColor: '#f8f9fa' },
   header: { fontSize: 24, fontWeight: 'bold', marginBottom: 20, textAlign: 'center' },
-  section: { backgroundColor: '#fff', padding: 20, borderRadius: 12, marginBottom: 20, elevation: 1 },
+  section: { backgroundColor: 'var(--nabd-bg.surface-light)', padding: 20, borderRadius: 12, marginBottom: 20, elevation: 1 },
   sectionTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 15, color: '#333' },
   item: { fontSize: 16, color: '#555', marginBottom: 5 },
   actionBtn: { backgroundColor: '#4CAF50', padding: 15, borderRadius: 8, alignItems: 'center', marginTop: 15 },
-  btnText: { color: '#fff', fontWeight: 'bold', fontSize: 16 }
+  btnText: { color: 'var(--nabd-bg.surface-light)', fontWeight: 'bold', fontSize: 16 }
 });

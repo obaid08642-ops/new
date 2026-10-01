@@ -70,7 +70,7 @@ export default function FamilyInviteScreen() {
             تعذر إنشاء كود الدعوة. يجب أن تكون مالك مجموعة عائلية — أنشئ مجموعة أولاً أو حاول مجدداً.
           </AppText>
           <TouchableOpacity onPress={loadInviteCode} style={{ paddingHorizontal: 20, paddingVertical: 10, borderRadius: 20, backgroundColor: colors.primary }}>
-            <AppText variant="labelMD" color="#fff">إعادة المحاولة</AppText>
+            <AppText variant="labelMD" color="var(--nabd-bg.surface-light)">إعادة المحاولة</AppText>
           </TouchableOpacity>
         </View>
       ) : (
@@ -109,7 +109,7 @@ export default function FamilyInviteScreen() {
 
             {method === 'qr' && (
               <View style={{ marginTop: 16, alignItems: 'center', gap: 12 }}>
-                <View style={[st.qrBox, { backgroundColor: '#fff', borderColor: colors.border } ]}>
+                <View style={[st.qrBox, { backgroundColor: 'var(--nabd-bg.surface-light)', borderColor: colors.border } ]}>
                   {!!inviteCode && (
                     <QRCode value={`https://nabdahplus.app/join/${inviteCode}`} size={160} />
                   )}

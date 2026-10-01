@@ -184,7 +184,7 @@ export function DSStepIndicator({
               style={{
                 fontSize: 11,
                 fontWeight: '700',
-                color: isActive ? '#fff' : isDone ? activeColor : colors.textTertiary,
+                color: isActive ? 'var(--nabd-bg.surface-light)' : isDone ? activeColor : colors.textTertiary,
               }}
             >
               {i + 1}

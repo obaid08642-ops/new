@@ -285,5 +285,5 @@ const styles = StyleSheet.create({
     shadowRadius: 20,
     elevation: 8,
   },
-  primaryBtnText: { color: '#fff', fontSize: 15, fontWeight: '800' }
+  primaryBtnText: { color: 'var(--nabd-bg.surface-light)', fontSize: 15, fontWeight: '800' }
 });

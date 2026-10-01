@@ -302,7 +302,7 @@ export function MedicalJobsScreen({ onBack, onOpenChat }: { onBack: () => void, 
       <View style={{ backgroundColor: theme.bg, paddingBottom: SP.md, paddingTop: Math.max(insets.top, SP.sm), paddingHorizontal: SP.lg }}>
         <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', marginBottom: SP.lg }}>
           <TouchableOpacity onPress={onBack} style={{ padding: SP.sm, backgroundColor: theme.primary, borderRadius: R.full, width: 44, height: 44, alignItems: 'center', justifyContent: 'center', shadowColor: theme.primary, shadowOffset: {width:0,height:2}, shadowOpacity: 0.3, elevation: 4 }}>
-            <I name={AR ? 'chevronRight' : 'chevronLeft'} size={24} color="#FFF" />
+            <I name={AR ? 'chevronRight' : 'chevronLeft'} size={24} color="var(--nabd-bg.surface-light)" />
           </TouchableOpacity>
           <Text style={{ flex: 1, textAlign: 'center', fontSize: FS.xl, fontWeight: FW.xbold, color: theme.text }}>{AR ? 'الوظائف الطبية' : 'Medical Jobs'}</Text>
           <TouchableOpacity onPress={() => setShowFilters(true)} style={{ padding: SP.sm, backgroundColor: theme.primaryLight, borderRadius: R.full, width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}>

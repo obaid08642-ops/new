@@ -77,7 +77,7 @@ export function NotificationsCenter({ onBack }: { onBack: () => void }) {
  {[{ k: 'all', ar: 'الكل', en: 'All' }, { k: 'unread', ar: `غير مقروءة (${unreadCount})`, en: `Unread (${unreadCount})` }].map(f => (
  <TouchableOpacity key={f.k} onPress={() => setFilter(f.k as any)}
  style={[st.chip, { backgroundColor: filter === f.k ? theme.primary : theme.surface2, borderColor: filter === f.k ? theme.primary : theme.border, flex: 1 }]}>
- <Text style={{ color: filter === f.k ? '#FFF' : theme.text, fontSize: FS.sm, fontWeight: FW.semi, textAlign: 'center' }}>{AR ? f.ar : f.en}</Text>
+ <Text style={{ color: filter === f.k ? 'var(--nabd-bg.surface-light)' : theme.text, fontSize: FS.sm, fontWeight: FW.semi, textAlign: 'center' }}>{AR ? f.ar : f.en}</Text>
  </TouchableOpacity>
  ))}
  </View>

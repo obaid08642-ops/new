@@ -121,7 +121,7 @@ export default function ArticlesScreen() {
                   },
                 ]}
               >
-                <AppText variant="labelSM" color={active ? "#fff" : colors.textPrimary}>
+                <AppText variant="labelSM" color={active ? "var(--nabd-bg.surface-light)" : colors.textPrimary}>
                   {c}
                 </AppText>
               </TouchableOpacity>

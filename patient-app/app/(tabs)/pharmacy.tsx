@@ -253,10 +253,10 @@ export default function PharmacyTab() {
           onPress={() => router.push('/pharmacy/filters')}
           activeOpacity={0.7}
         >
-          <Icon name="tune" color={activeFilterCount > 0 ? '#fff' : colors.n} size={20} />
+          <Icon name="tune" color={activeFilterCount > 0 ? 'var(--nabd-bg.surface-light)' : colors.n} size={20} />
           {activeFilterCount > 0 && (
             <View style={styles.filterBadge}>
-              <LocalizedText style={{ fontSize: 9, color: '#fff', fontWeight: '900' }}>{activeFilterCount}</LocalizedText>
+              <LocalizedText style={{ fontSize: 9, color: 'var(--nabd-bg.surface-light)', fontWeight: '900' }}>{activeFilterCount}</LocalizedText>
             </View>
           )}
         </TouchableOpacity>
@@ -310,8 +310,8 @@ export default function PharmacyTab() {
                 onPress={() => router.push('/pharmacy/order-history')}
                 activeOpacity={0.85}
               >
-                <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 18 }}>history</LocalizedText>
-                <LocalizedText style={[styles.heroActionText, { color: '#fff' }]}>سجل طلباتي</LocalizedText>
+                <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: 'var(--nabd-bg.surface-light)', fontSize: 18 }}>history</LocalizedText>
+                <LocalizedText style={[styles.heroActionText, { color: 'var(--nabd-bg.surface-light)' }]}>سجل طلباتي</LocalizedText>
               </TouchableOpacity>
             </View>
           </View>
@@ -439,7 +439,7 @@ export default function PharmacyTab() {
                 }}
                 activeOpacity={0.85}
               >
-                <View style={[styles.gridImgWrap, { backgroundColor: gallery.length ? '#fff' : (m.iconBg || m.cs || '#DEF5F9'), overflow: 'hidden' }]}>
+                <View style={[styles.gridImgWrap, { backgroundColor: gallery.length ? 'var(--nabd-bg.surface-light)' : (m.iconBg || m.cs || '#DEF5F9'), overflow: 'hidden' }]}>
                   {gallery.length ? (
                     <RotatingCardImage images={gallery} style={{ width: '100%', height: '100%' }} iconSize={40} />
                   ) : (
@@ -502,7 +502,7 @@ export default function PharmacyTab() {
               }}
               activeOpacity={0.85}
             >
-              <View style={[styles.cardImgWrap, { backgroundColor: resolveGallery(m).length ? '#fff' : (m.iconBg || m.cs || '#DEF5F9'), overflow: 'hidden' }]}>
+              <View style={[styles.cardImgWrap, { backgroundColor: resolveGallery(m).length ? 'var(--nabd-bg.surface-light)' : (m.iconBg || m.cs || '#DEF5F9'), overflow: 'hidden' }]}>
                 {resolveGallery(m).length ? (
                   <RotatingCardImage images={resolveGallery(m)} style={{ width: '100%', height: '100%' }} iconSize={44} />
                 ) : (
@@ -578,8 +578,8 @@ export default function PharmacyTab() {
           },
         ]}
       >
-        <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 24, marginRight: 8 }}>receipt_long</LocalizedText>
-        <LocalizedText style={{ fontFamily: 'Cairo-Bold', color: '#fff', fontSize: 13, flex: 1, textAlign: 'left' }}>
+        <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: 'var(--nabd-bg.surface-light)', fontSize: 24, marginRight: 8 }}>receipt_long</LocalizedText>
+        <LocalizedText style={{ fontFamily: 'Cairo-Bold', color: 'var(--nabd-bg.surface-light)', fontSize: 13, flex: 1, textAlign: 'left' }}>
           هذا الدواء يتطلب وصفة طبية، يرجى إرفاقها عند الدفع
         </LocalizedText>
       </Animated.View>
@@ -613,7 +613,7 @@ const styles = StyleSheet.create({
   searchInput: { flex: 1, fontFamily: 'Cairo-Regular', fontSize: 14, marginHorizontal: 8 },
   scannerBtn: { width: 36, height: 36, borderRadius: 11, justifyContent: 'center', alignItems: 'center' },
   filterBtn: { width: 48, height: 48, borderRadius: 16, justifyContent: 'center', alignItems: 'center', borderWidth: 1, marginLeft: 8, position: 'relative' },
-  filterBadge: { position: 'absolute', top: -4, right: -4, width: 16, height: 16, borderRadius: 8, backgroundColor: '#EF4444', justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: '#fff' },
+  filterBadge: { position: 'absolute', top: -4, right: -4, width: 16, height: 16, borderRadius: 8, backgroundColor: '#EF4444', justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: 'var(--nabd-bg.surface-light)' },
 
   // Luxury Hero Banner
   heroContainer: { marginBottom: 20, borderRadius: 24, overflow: 'hidden', shadowColor: '#000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.2, shadowRadius: 16, elevation: 8 },
@@ -622,7 +622,7 @@ const styles = StyleSheet.create({
   heroContent: { zIndex: 2 },
   heroHeaderBadge: { alignSelf: 'flex-start', backgroundColor: 'rgba(0,229,153,0.15)', borderWidth: 1, borderColor: 'rgba(0,229,153,0.3)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 100, gap: 6, alignItems: 'center', marginBottom: 10 },
   heroBadgeText: { fontFamily: 'Cairo-Bold', fontSize: 11, color: '#00E599' },
-  heroTitle: { fontFamily: 'Cairo-Bold', fontSize: 20, color: '#FFFFFF', textAlign: 'right', marginBottom: 4 },
+  heroTitle: { fontFamily: 'Cairo-Bold', fontSize: 20, color: 'var(--nabd-bg.surface-light)', textAlign: 'right', marginBottom: 4 },
   heroSubtitle: { fontFamily: 'Cairo-Regular', fontSize: 12, color: 'rgba(255,255,255,0.8)', textAlign: 'right', marginBottom: 14, lineHeight: 18 },
   trustRow: { gap: 8, marginBottom: 16 },
   trustBadge: { flexDirection: 'row-reverse', alignItems: 'center', gap: 4, backgroundColor: 'rgba(255,255,255,0.08)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
@@ -679,7 +679,7 @@ const styles = StyleSheet.create({
   addBtnGrid: { width: 38, height: 38, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
   cardImgWrap: { width: 100, height: 100, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
   rxBadgeRow: { position: 'absolute', top: 6, left: 6, backgroundColor: '#F0695C', borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2 },
-  rxText: { fontFamily: 'Cairo-Bold', fontSize: 10, color: '#fff' },
+  rxText: { fontFamily: 'Cairo-Bold', fontSize: 10, color: 'var(--nabd-bg.surface-light)' },
   cardMid: { flex: 1, paddingHorizontal: 12, justifyContent: 'center' },
   medNameRow: { fontFamily: 'Cairo-Bold', fontSize: 14, lineHeight: 20, marginBottom: 4 },
   medDesc: { fontFamily: 'Cairo-Regular', fontSize: 11, lineHeight: 16, marginBottom: 8 },
@@ -696,7 +696,7 @@ const styles = StyleSheet.create({
   manualBtn: { marginTop: 18, paddingHorizontal: 24, paddingVertical: 12, borderRadius: 16 },
   fabWrap: { position: 'absolute', bottom: 100, right: 24 },
   fab: { width: 60, height: 60, borderRadius: 20, justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.3, shadowRadius: 12, elevation: 10 },
-  fabBadge: { position: 'absolute', top: -4, right: -4, backgroundColor: '#EF4444', width: 22, height: 22, borderRadius: 11, justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: '#fff' },
-  fabBadgeText: { fontFamily: 'Cairo-Bold', color: '#fff', fontSize: 11 },
+  fabBadge: { position: 'absolute', top: -4, right: -4, backgroundColor: '#EF4444', width: 22, height: 22, borderRadius: 11, justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: 'var(--nabd-bg.surface-light)' },
+  fabBadgeText: { fontFamily: 'Cairo-Bold', color: 'var(--nabd-bg.surface-light)', fontSize: 11 },
   toast: { position: 'absolute', bottom: 180, alignSelf: 'center', backgroundColor: '#F0695C', borderRadius: 16, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, width: '85%', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 6 },
 });

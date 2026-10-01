@@ -32,25 +32,25 @@ export default function InsuranceBenefitsView() {
       <View style={{ paddingTop: insets.top + 16, paddingBottom: 8, paddingHorizontal: 16 }}>
         <View style={styles.headerRow}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-            <Icon name="back" size={22} color="#fff" />
+            <Icon name="back" size={22} color="var(--nabd-bg.surface-light)" />
           </TouchableOpacity>
-          <AppText variant="h4" color="#fff">ملخص المزايا</AppText>
+          <AppText variant="h4" color="var(--nabd-bg.surface-light)">ملخص المزايا</AppText>
           <View style={{ width: 36 }}/>
         </View>
         <View style={styles.totalCard}>
           <View style={styles.totalRight}>
             <AppText variant="caption" color="rgba(255,255,255,0.7)">الحد السنوي الكلي</AppText>
-            <AppText variant="h5" color="#fff">{(totalLimit / 1000).toFixed(0)}k ريال</AppText>
+            <AppText variant="h5" color="var(--nabd-bg.surface-light)">{(totalLimit / 1000).toFixed(0)}k ريال</AppText>
           </View>
           <View style={styles.totalDivider} />
           <View style={styles.totalLeft}>
             <AppText variant="caption" color="rgba(255,255,255,0.7)">المتبقي</AppText>
-            <AppText variant="h5" color="#fff">{((totalLimit - totalUsed) / 1000).toFixed(0)}k</AppText>
+            <AppText variant="h5" color="var(--nabd-bg.surface-light)">{((totalLimit - totalUsed) / 1000).toFixed(0)}k</AppText>
           </View>
           <View style={styles.totalDivider} />
           <View style={styles.totalLeft}>
             <AppText variant="caption" color="rgba(255,255,255,0.7)">مستخدم</AppText>
-            <AppText variant="h5" color="#fff">{(totalUsed / 1000).toFixed(1)}k</AppText>
+            <AppText variant="h5" color="var(--nabd-bg.surface-light)">{(totalUsed / 1000).toFixed(1)}k</AppText>
           </View>
         </View>
         <View style={styles.masterBar}>
@@ -128,14 +128,14 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   header: { paddingHorizontal: 20, paddingBottom: 20 },
   headerRow: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 },
-  headerTitle: { color: '#fff', fontSize: 18, fontWeight: '800' },
+  headerTitle: { color: 'var(--nabd-bg.surface-light)', fontSize: 18, fontWeight: '800' },
   backBtn: { width: 36, height: 36, borderRadius: 11, backgroundColor: 'rgba(255,255,255,0.15)', justifyContent: 'center', alignItems: 'center' },
   totalCard: { flexDirection: 'row-reverse', backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 14, padding: 12, marginBottom: 10 },
   totalRight: { flex: 1, alignItems: 'center', gap: 2 },
   totalLeft: { flex: 1, alignItems: 'center', gap: 2 },
   totalDivider: { width: 1, backgroundColor: 'rgba(255,255,255,0.2)', marginHorizontal: 8 },
   totalLabel: { color: 'rgba(255,255,255,0.6)', fontSize: 9, fontWeight: '400' },
-  totalNum: { color: '#fff', fontSize: 16, fontFamily: 'ReadexPro-700' },
+  totalNum: { color: 'var(--nabd-bg.surface-light)', fontSize: 16, fontFamily: 'ReadexPro-700' },
   masterBar: { height: 8, backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 4, overflow: 'hidden' },
   masterFill: { height: '100%', backgroundColor: '#5BA84F', borderRadius: 4 },
   benefitCard: { borderRadius: 16, padding: 14, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 1, gap: 8 },

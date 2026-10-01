@@ -120,7 +120,7 @@ export function FacilityHomeTab({ onNavigate, wards, onTriggerAlarm, branches, s
                 backgroundColor: selectedBranch === b.id ? theme.primary : theme.surface2,
                 borderWidth: 1, borderColor: selectedBranch === b.id ? theme.primary : theme.border
               }}>
-              <Text style={{ fontSize: FS.xs, color: selectedBranch === b.id ? '#FFF' : theme.text, fontWeight: FW.bold }}>
+              <Text style={{ fontSize: FS.xs, color: selectedBranch === b.id ? 'var(--nabd-bg.surface-light)' : theme.text, fontWeight: FW.bold }}>
                 {AR ? b.name_ar : b.name_en}
               </Text>
             </TouchableOpacity>
