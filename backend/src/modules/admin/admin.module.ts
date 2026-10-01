@@ -58,6 +58,7 @@ import { B2BController } from './governance/b2b.controller';
 import { SystemConfigController, PublicSystemConfigController } from './governance/system-config.controller';
 // P5.3: merged from AdminNotificationCenterModule (notification-center/ → admin/)
 import { PushModule } from '../push/push.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 import {
   AdminNotificationCenterController,
   AdminNotificationCenterService,
@@ -92,6 +93,7 @@ import { AuditIngestController } from './admin-audit-ingest.controller';
     WorkflowEngineModule,
     FinanceEngineModule,
     PushModule,
+    NotificationsModule,
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: ProviderDelta.name, schema: ProviderDeltaSchema },
