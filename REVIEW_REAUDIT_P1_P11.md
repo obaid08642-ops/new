@@ -5,7 +5,7 @@ Method: no claim from `AGENT_PROGRESS.md` was taken on trust. Every result below
 local stack: Mongo replica set, Redis, moto S3, SMTP sink, fake Moyasar, admin BFF with the gate token, and a fresh
 database per run.
 
-**Verdict: CHANGES REQUIRED.** The FAIL list (R1–R20) is mandatory before Phase 12 screens (A11/C3/C4) continue.
+**Verdict: CHANGES REQUIRED.** The FAIL list (R1–R22) is mandatory before Phase 12 screens (A11/C3/C4) continue.
 The items marked *fixed by reviewer* are already in this PR. Do not revert them.
 
 ---
@@ -218,6 +218,51 @@ The owner reported that before the plan almost every admin screen had problems: 
 **R20 — i18n check gap.** `i18n-coverage.mjs` compares locales with `en.json` but not code with `en.json`, so missing namespaces reach users. Add a check that every `t()`/`getTranslations(namespace)` key used in code exists in `en.json`.
 
 Also under R4: `GET /home-care/packages` has three handlers and the served one returns `[]`, so the nursing tab's packages are always empty. After de-duplication it must list real, admin-managed packages.
+
+---
+
+## Round 3 — field-by-field trace of provider registration (owner's example)
+
+Method (`tools/live/field_trace.py`, new):
+- For each of the 7 provider types, replay the exact step2/step3 payloads of the registration screen, with a **unique value per field** (types and limits taken from `Step2Dto`/`Step3Dto` by `tools/audit/dto_fields.py`) and the **screen's own literals** for fixed choices.
+- Submit, then look for every value (a) in the stored records in Mongo, (b) in the admin API, and (c) **on the admin screen** (Chromium opens provider-moderation and the provider's file).
+
+Results (reviewer, live):
+
+| Type | Fields traced | Stored + in admin API | On the admin screen |
+|---|---|---|---|
+| Pharmacy | 33 | 33 | 18/20 (missing: MOH license no., SFDA license no.) |
+| Doctor | 42 | **0 with the screen's real values** (step 3 rejected); 42 with corrected values | 25/27 (missing: gender, clinic schedule) |
+| Lab | 38 | 38 | 29/33 (missing: equipment list, equipment text, MOH license no., radiation-safety license) |
+| Radiology | 32 | 32 | 27/28 (missing: MOH license no.) |
+| Nursing | 28 | 27 (services list: see R21c) | 17/21 (missing: gender, MOH license no., nursing services, SCFHS license no.) |
+| Hospital | 19 | 19 | 16/17 (missing: MOH license no.) |
+| Ambulance | 21 | 21 | 14/15 (missing: MOH license no.) |
+
+**R21 — registration values the backend rejects (critical: a real doctor cannot finish registration).**
+- a) The doctor screen sends `gender: 'M' | 'F'` (`DoctorRegistration.tsx:257-258, 1050`). The backend accepts only `male`/`female`; anything else gets a bare 400 `Bad Request`. Gender is required, so **every doctor's step 3 is rejected**, and with it specialty, degree, years, consultation modes, all prices, durations, all three schedules, insurance, national ID and vacation.
+- b) The doctor screen sends `insurance_clinic/online/home` as booleans (Switch); `Step3Dto` declares them `@IsString` → 400 for the whole step.
+- c) The nursing screen sends each service as `{ key: id, name_ar: id, price: 0 }`: the id as the name, and price always 0.
+- d) A bare `400 Bad Request` with no message must not exist; every rejection names the field.
+- e) `j_onboarding.py` used "valid" values (`male`), which is why the gate never caught (a). Journeys must use the screen's literal choice values.
+- **Verify:** `python3 tools/live/field_trace.py` → every type `submit 201`, 0 LOST.
+
+**R22 — the admin cannot see what the provider entered.**
+- The provider file in the admin (`ProviderFullDetail`) does not show:
+  - the MOH license number (6 types);
+  - the SFDA license number (pharmacy);
+  - the SCFHS license number, gender and nursing services (nursing);
+  - the equipment list, equipment text and radiation-safety license (lab);
+  - gender and clinic schedule (doctor).
+- The admin approves without seeing the licenses it is approving (see also R1).
+- **Verify:** `UI=1 python3 tools/live/field_trace.py` → every field `SHOWN`.
+
+**Method note for the agent.** Apply the same trace to every form in every client, not only registration:
+- provider settings and profile edits;
+- patient profile, medical profile, addresses, family, insurance, booking and checkout forms;
+- every admin form.
+
+The rule: every value a user can enter is stored, comes back on the screen that shows it, and is visible to whoever reviews it. Build it as a generic `tools/live/form_trace.py` driven by the same screen payload extraction (`clientbodies.js --types`) plus the DTOs.
 
 ---
 
