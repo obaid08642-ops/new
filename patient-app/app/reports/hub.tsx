@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { logError } from '../../src/utils/logger';
 // reports/hub.tsx — Reports hub (REAL data from /medical-reports/mine).
 // EPIC4/S21: the previous version rendered a hardcoded REPORTS array with
 // fabricated labs/dates/abnormal counts and passed a `reportId` param that

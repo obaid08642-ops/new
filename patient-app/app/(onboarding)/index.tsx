@@ -106,7 +106,7 @@ export default function OnboardingScreen() {
     return (
       <View style={styles.slide}>
         <View
-          style={StyleSheet.absoluteFillObject}
+          style={StyleSheet.absoluteFill}
         />
         {/* Decorative circles */}
         <View style={[styles.circle1, { borderColor: item.accent + '40' }]} />
@@ -153,7 +153,7 @@ export default function OnboardingScreen() {
           setCurrentIndex(index);
         }}
         renderItem={renderSlide}
-        style={StyleSheet.absoluteFillObject}
+        style={StyleSheet.absoluteFill}
       />
 
       {/* Top Bar */}

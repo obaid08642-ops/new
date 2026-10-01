@@ -12,6 +12,9 @@ For every route under <app>/app (static routes; dynamic [param] routes are repor
   - every distinct tappable element (tabindex=0) tapped (destructive labels skipped), result per element:
       WRITE(status, stored y/n) | NAVIGATE(to) | UI_CHANGE | NO_EFFECT | JS_ERROR
 Writes docs/review/evidence/rn_web_<app>_<date>.json
+  START/END bound the route range (shards run in parallel with SUFFIX per shard).
+  ONLY=route1,route2 (paths relative to <app>/app, without .tsx) re-tests just those routes, and SUFFIX=<name>
+  writes rn_web_<app>_<date>_<name>.json (used to verify fixes without overwriting the full run).
 """
 import datetime, hashlib, json, os, re, subprocess, sys, time, uuid
 
@@ -22,6 +25,30 @@ WEB = os.environ.get('WEB', 'http://localhost:8081')
 DB = os.environ.get('DB_NAME', 'nabd_form2')
 DANGER = re.compile(r'حذف|إلغاء الحساب|تسجيل الخروج|خروج|logout|sign out|delete|SOS|طوارئ|إسعاف|استغاثة|إيقاف|حظر|block', re.I)
 SUBMIT = re.compile(r'حفظ|إرسال|تأكيد|احجز|أضف|إضافة|متابعة|التالي|ادفع|اطلب|Save|Submit|Confirm|Book|Add|Continue|Next|Pay|Order|Send', re.I)
+
+# Every control a user can tap: RN-web renders Pressable/Touchable as tabindex=0 divs, but buttons from the
+# design system render as <button>/role=button (the first runs counted only tabindex=0 and missed those).
+TAPPABLE = '[tabindex="0"]:visible, button:visible, [role="button"]:visible, [role="switch"]:visible, [role="checkbox"]:visible, [role="radio"]:visible, [role="tab"]:visible, a[href]:visible'
+
+# Network-level guard for icon-only controls the label filter cannot see: these requests are answered locally
+# (never reach the backend) and the element is reported BLOCKED_DESTRUCTIVE; the session is then restored
+# from the localStorage snapshot taken just before the tap.
+BLOCK = re.compile(r'/auth/logout$|/users/me$|/users/me/account$|/account/delete|/emergency|/sos|/ambulance/requests?$', re.I)
+
+
+def install_guard(ctx, ev):
+    def handler(route):
+        req = route.request
+        path = re.sub(r'^https?://[^/]+(/api/v1)?', '', req.url.split('?')[0])
+        if req.method != 'GET' and BLOCK.search(path):
+            ev['blocked'].append(f'{req.method} {path}')
+            return route.fulfill(status=200, content_type='application/json', body='{}')
+        return route.continue_()
+    ctx.route('**/api/v1/**', handler)
+
+
+SNAP_JS = "() => JSON.stringify(Object.fromEntries(Object.keys(localStorage).map(k => [k, localStorage.getItem(k)])))"
+RESTORE_JS = "(s) => { const o = JSON.parse(s); localStorage.clear(); for (const k in o) localStorage.setItem(k, o[k]); }"
 
 
 def mongo(js):
@@ -59,7 +86,8 @@ def main():
     ctx = b.new_context(viewport={'width': 390, 'height': 844}, locale='ar-SA', storage_state=os.environ.get('STATE') or None)
     page = ctx.new_page()
     page.set_default_timeout(5000)
-    ev = {'js': [], 'resp': [], 'writes': []}
+    ev = {'js': [], 'resp': [], 'writes': [], 'blocked': []}
+    install_guard(ctx, ev)
     page.on('pageerror', lambda e: ev['js'].append(str(e)[:160]))
     page.on('dialog', lambda d: d.accept())
 
@@ -72,9 +100,10 @@ def main():
             ev['writes'].append({'status': r.status, 'method': r.request.method, 'url': rec[2], 'body': (r.request.post_data or '')[:1500]})
     page.on('response', on_resp)
     start = os.environ.get('START', '')
+    only = {x.strip() for x in os.environ.get('ONLY', '').split(',') if x.strip()}
     report = []
     for rel, url in routes():
-        if rel < start:
+        if rel < start or (os.environ.get('END') and rel >= os.environ['END']) or (only and rel not in only):
             continue
         if '[' in rel:
             report.append({'route': rel, 'status': 'NOT_TESTED_DYNAMIC'}); continue
@@ -108,15 +137,16 @@ def main():
             return n
         n_inputs = fill()
         labels = []
-        for idx, el in enumerate(page.locator('[tabindex="0"]:visible').all()[:60]):
+        for idx, el in enumerate(page.locator(TAPPABLE).all()[:60]):
             try:
                 t = (el.inner_text(timeout=300) or el.get_attribute('aria-label') or '').strip().split('\n')[0][:40]
             except Exception:
                 continue
-            if t and t not in [x for x, _ in labels]:
+            t = t or f'(icon #{idx})'   # icon-only control: no text, identified by its position
+            if t not in [x for x, _ in labels]:
                 labels.append((t, idx))
         elements = []
-        for t, idx in labels[:30]:
+        for t, idx in labels[:45]:
             if time.time() - t_route > 150:
                 elements.append({'label': '(time budget reached)', 'result': 'NOT_TESTED'}); break
             if DANGER.search(t):
@@ -126,16 +156,23 @@ def main():
                     page.goto(WEB + url, wait_until='load', timeout=45000); page.wait_for_timeout(2000)
                     if SUBMIT.search(t):
                         fill()
-                cands = page.locator('[tabindex="0"]:visible')
+                cands = page.locator(TAPPABLE)
                 target = cands.nth(idx) if idx < cands.count() else None
-                if target is None or (target.inner_text(timeout=300) or '').strip().split('\n')[0][:40] != t:
-                    target = page.locator('[tabindex="0"]:visible', has_text=t).first
+                if t.startswith('(icon #'):
+                    pass   # positional: no text to re-find it by
+                elif target is None or (target.inner_text(timeout=300) or '').strip().split('\n')[0][:40] != t:
+                    target = page.locator(TAPPABLE, has_text=t).first
                 before = hashlib.md5(page.inner_text('body').encode()).hexdigest()
-                ev['writes'].clear(); ev['js'].clear(); t0 = int(time.time() * 1000) - 50
+                ev['writes'].clear(); ev['js'].clear(); ev['blocked'].clear(); t0 = int(time.time() * 1000) - 50
+                snap = page.evaluate(SNAP_JS)
                 target.scroll_into_view_if_needed(timeout=1500)
                 target.click(timeout=2500, force=True)
                 page.wait_for_timeout(1500)
                 after_url = page.url.replace(WEB, '')
+                if ev['blocked']:
+                    res = {'result': 'BLOCKED_DESTRUCTIVE', 'request': ev['blocked'][0]}
+                    page.evaluate(RESTORE_JS, snap)
+                    elements.append({'label': t, **res}); continue
                 if ev['writes']:
                     stored = changed_since(t0)
                     w = ev['writes'][-1]
@@ -159,7 +196,8 @@ def main():
         for e in elements:
             c[e['result']] = c.get(e['result'], 0) + 1
         print(f"{rel[:42]:42s} -> {landed[:22]:22s} js {len(render['js'])} bad_reads {len(render['bad_reads'])} inputs {n_inputs:2d} {c}", flush=True)
-        outp = os.path.join(ROOT, 'docs/review/evidence', f'rn_web_{APP}_{datetime.date.today().isoformat()}.json')
+        suffix = f"_{os.environ['SUFFIX']}" if os.environ.get('SUFFIX') else ''
+        outp = os.path.join(ROOT, 'docs/review/evidence', f'rn_web_{APP}_{datetime.date.today().isoformat()}{suffix}.json')
         json.dump(report, open(outp, 'w'), ensure_ascii=False, indent=1)
     b.close(); pw.stop()
 

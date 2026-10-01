@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { logError } from '../../src/utils/logger';
 // view-report.tsx — REAL medical report viewer (/reports/:id → medicalreports).
 // EPIC4/S21: the previous version expected a lab-results shape that medical
 // reports don't have (so it rendered empty), and its PDF/share buttons were

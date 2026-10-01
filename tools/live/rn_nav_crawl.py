@@ -26,6 +26,30 @@ MAX_TAPS = int(os.environ.get('MAX_TAPS', '22'))
 DANGER = re.compile(r'حذف|تسجيل الخروج|خروج|logout|sign out|delete|إيقاف|حظر|block|إلغاء الحساب|تعطيل الحساب|EN$|English|العربية', re.I)
 SUBMIT = re.compile(r'حفظ|إرسال|تأكيد|أضف|إضافة|اعتماد|قبول|رفض|بدء|إنهاء|تحديث|Save|Submit|Confirm|Add|Accept|Reject|Start|Finish|Update', re.I)
 
+# Every control a user can tap: RN-web renders Pressable/Touchable as tabindex=0 divs, but buttons from the
+# design system render as <button>/role=button (the first runs counted only tabindex=0 and missed those).
+TAPPABLE = '[tabindex="0"]:visible, button:visible, [role="button"]:visible, [role="switch"]:visible, [role="checkbox"]:visible, [role="radio"]:visible, [role="tab"]:visible, a[href]:visible'
+
+# Network-level guard for icon-only controls the label filter cannot see: these requests are answered locally
+# (never reach the backend) and the element is reported BLOCKED_DESTRUCTIVE; the session is then restored
+# from the localStorage snapshot taken just before the tap.
+BLOCK = re.compile(r'/auth/logout$|/users/me$|/users/me/account$|/account/delete|/emergency|/sos|/ambulance/requests?$', re.I)
+
+
+def install_guard(ctx, ev):
+    def handler(route):
+        req = route.request
+        path = re.sub(r'^https?://[^/]+(/api/v1)?', '', req.url.split('?')[0])
+        if req.method != 'GET' and BLOCK.search(path):
+            ev['blocked'].append(f'{req.method} {path}')
+            return route.fulfill(status=200, content_type='application/json', body='{}')
+        return route.continue_()
+    ctx.route('**/api/v1/**', handler)
+
+
+SNAP_JS = "() => JSON.stringify(Object.fromEntries(Object.keys(localStorage).map(k => [k, localStorage.getItem(k)])))"
+RESTORE_JS = "(s) => { const o = JSON.parse(s); localStorage.clear(); for (const k in o) localStorage.setItem(k, o[k]); }"
+
 
 def mongo(js):
     return subprocess.run(['docker', 'exec', 'p5mongo', 'mongosh', '--quiet', DB, '--eval', js], capture_output=True, text=True).stdout
@@ -47,7 +71,8 @@ def main():
     ctx.route('https://1.1.1.1/**', lambda r: r.fulfill(status=200, body=''))
     page = ctx.new_page()
     page.set_default_timeout(5000)
-    ev = {'js': [], 'resp': [], 'writes': []}
+    ev = {'js': [], 'resp': [], 'writes': [], 'blocked': []}
+    install_guard(ctx, ev)
     page.on('pageerror', lambda e: ev['js'].append(str(e)[:160]))
     page.on('dialog', lambda d: d.accept())
 
@@ -62,28 +87,28 @@ def main():
 
     def tappables():
         out = []
-        for idx, el in enumerate(page.locator('[tabindex="0"]:visible').all()[:80]):
+        for idx, el in enumerate(page.locator(TAPPABLE).all()[:80]):
             try:
                 t = ((el.inner_text(timeout=300) or el.get_attribute('aria-label') or '').strip().split('\n')[0])[:40]
             except Exception:
                 continue
-            out.append((t, idx))
+            out.append((t or f'(icon #{idx})', idx))   # icon-only control: identified by position
         return out
 
     def signature():
-        labels = sorted({t for t, _ in tappables() if t and not re.fullmatch(r'[\d\s.,٠-٩]+', t)})
+        labels = sorted({t for t, _ in tappables() if t and not t.startswith('(icon #') and not re.fullmatch(r'[\d\s.,٠-٩]+', t)})
         head = re.sub(r'\d+', '#', (page.inner_text('body') or '')[:40])
         return hashlib.md5((head + '|' + '|'.join(labels)).encode()).hexdigest()[:10]
 
     def tap(label, idx):
-        cands = page.locator('[tabindex="0"]:visible')
+        cands = page.locator(TAPPABLE)
         target = cands.nth(idx) if idx < cands.count() else None
         try:
-            ok = target is not None and ((target.inner_text(timeout=300) or '').strip().split('\n')[0])[:40] == label
+            ok = target is not None and (label.startswith('(icon #') or ((target.inner_text(timeout=300) or '').strip().split('\n')[0])[:40] == label)
         except Exception:
             ok = False
         if not ok:
-            target = page.locator('[tabindex="0"]:visible', has_text=label).first if label else None
+            target = page.locator(TAPPABLE, has_text=label).first if label else None
         if target is None:
             raise RuntimeError('element gone')
         target.scroll_into_view_if_needed(timeout=1500)
@@ -91,10 +116,10 @@ def main():
 
     # sign in through the real Welcome -> Login screens
     page.goto(WEB + '/', wait_until='load', timeout=45000); page.wait_for_timeout(7000)
-    page.locator('[tabindex="0"]:visible', has_text='سجّل الدخول').last.click(force=True); page.wait_for_timeout(2000)
+    page.locator(TAPPABLE, has_text='سجّل الدخول').last.click(force=True); page.wait_for_timeout(2000)
     ins = page.locator('input:visible').all()
     ins[0].fill(os.environ['EMAIL']); ins[-1].fill(os.environ['PASSWORD'])
-    page.locator('[tabindex="0"]:visible', has_text='تسجيل الدخول').last.click(force=True); page.wait_for_timeout(8000)
+    page.locator(TAPPABLE, has_text='تسجيل الدخول').last.click(force=True); page.wait_for_timeout(8000)
     login_ok = any(m == 'POST' and u.endswith('/provider/auth/login') and s < 300 for s, m, u in ev['resp'])
     state_file = f'/tmp/pv_state_{PTYPE}.json'
     ctx.storage_state(path=state_file)
@@ -157,9 +182,14 @@ def main():
                     if SUBMIT.search(t):
                         fill()
                 before = hashlib.md5(page.inner_text('body').encode()).hexdigest()
-                ev['writes'].clear(); ev['js'].clear(); t0 = int(time.time() * 1000) - 50
+                ev['writes'].clear(); ev['js'].clear(); ev['blocked'].clear(); t0 = int(time.time() * 1000) - 50
+                snap = page.evaluate(SNAP_JS)
                 tap(t, idx)
                 page.wait_for_timeout(1800)
+                if ev['blocked']:
+                    res = {'result': 'BLOCKED_DESTRUCTIVE', 'request': ev['blocked'][0]}
+                    page.evaluate(RESTORE_JS, snap)
+                    elements.append({'label': t, **res}); continue
                 if ev['writes']:
                     stored = changed_since(t0)
                     w = ev['writes'][-1]

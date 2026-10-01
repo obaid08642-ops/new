@@ -304,7 +304,7 @@ function PaymentProcessingScreenInner() {
   return (
     <View style={styles.container}>
       <View
-        style={StyleSheet.absoluteFillObject}
+        style={StyleSheet.absoluteFill}
       />
 
       {/* Background orbs */}
@@ -525,7 +525,7 @@ const styles = StyleSheet.create({
   },
   webview: { flex: 1 },
   webviewLoading: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     justifyContent: 'center',
     alignItems: 'center',
     gap: 12,

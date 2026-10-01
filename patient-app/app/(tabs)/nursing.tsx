@@ -122,7 +122,7 @@ export default function NursingDirectoryHub() {
 
   return (
     <View style={styles.container}>
-      <View style={StyleSheet.absoluteFillObject} />
+      <View style={StyleSheet.absoluteFill} />
 
       <ScreenState loading={loading} error={error} empty={false} emptyTitle="لا توجد خدمات" onRetry={loadData}>
       <ScrollView contentContainerStyle={[styles.content, { paddingTop: insets.top + 16 }]} showsVerticalScrollIndicator={false}>

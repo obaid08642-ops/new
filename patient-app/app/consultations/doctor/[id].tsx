@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { logError } from '../../../src/utils/logger';
 import React, { useState } from 'react';
 import { View, Share, Text, Image, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Dimensions, Modal } from 'react-native';
 

@@ -354,6 +354,25 @@ Make one schema the single source, migrate the other, and point both admin pages
 
 **R41 — fixed by the reviewer in this PR (do not revert).** Nursing registration creates `home_care` accounts, but `App.tsx` routed only `nursing`/`nurse` to the nursing dashboard, so every home-care provider got the generic portal. `home_care` is now routed to `NursingDashboardNavigator`.
 
+**R42–R45, R49 — fixed by the reviewer in this PR (do not revert).** These were white screens and runtime crashes in the patient app:
+- 22 missing or wrong imports, and a variable read before its declaration;
+- insurance hub without a policy;
+- loyalty hub before its config loads;
+- nutrition goal labels;
+- `absoluteFillObject`, which does not exist on native.
+
+Details are in `docs/review/AUDIT_2026-10-01.md` §6.
+
+**R46 (High)** Remove `// @ts-nocheck` from all 186 patient-app files and fix the 265 type errors this exposes.
+- Add `python3 tools/audit/nocheck_tsc.py patient-app` and `provider-app` to your gate. It must exit 0 with 0 nocheck files.
+- **Verify:** paste its output.
+
+**R47 (High)** The insurance hub shows hard-coded coverage percentages, an annual limit of 500,000 and a deductible of 50.
+- Show only what the policy record or the insurer network actually holds. Otherwise show "not available"; never show invented numbers.
+- **Verify:** a patient whose policy has no coverage data sees no percentages.
+
+**R48 (Low)** Family permission request: handle "no group" with a message, not an unhandled rejection.
+
 **R40 (Low)** "Remember me" (تذكرني) on the provider login is written but never read. Implement it or remove it.
 
 **For every item:**

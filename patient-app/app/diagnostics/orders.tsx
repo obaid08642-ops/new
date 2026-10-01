@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { logError } from '../../src/utils/logger';
 import React, { useState, useEffect } from "react";
 import {
   View,

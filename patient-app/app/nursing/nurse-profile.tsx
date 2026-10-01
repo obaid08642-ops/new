@@ -235,7 +235,7 @@ export default function NursingMegaProfile() {
 
   return (
     <View style={styles.container}>
-      <View style={StyleSheet.absoluteFillObject} />
+      <View style={StyleSheet.absoluteFill} />
 
       {/* HEADER */}
       <BlurView intensity={90} tint="light" style={styles.glassHeader}>
