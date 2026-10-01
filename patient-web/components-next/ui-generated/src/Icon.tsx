@@ -96,6 +96,15 @@ const LINE: Record<SharedLineIconName, React.ComponentType<Record<string, unknow
   'caret-up': phosphor.CaretUp,
   'caret-left': phosphor.CaretLeft,
   'caret-right': phosphor.CaretRight,
+  'shield-check': phosphor.ShieldCheck,
+  'calendar-days': phosphor.CalendarDots,
+  'arrow-right': phosphor.ArrowRight,
+  'arrow-left': phosphor.ArrowLeft,
+  pill: phosphor.Pill,
+  activity: phosphor.Activity,
+  'file-text': phosphor.FileText,
+  sparkle: phosphor.Sparkle,
+  'message-circle': phosphor.ChatCircleDots,
 };
 
 export const LINE_ICON_NAMES = SHARED_LINE_NAMES;

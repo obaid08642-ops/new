@@ -64,6 +64,15 @@ export const LINE_ICON_COMPONENTS = {
   'caret-up': 'CaretUp',
   'caret-left': 'CaretLeft',
   'caret-right': 'CaretRight',
+  'shield-check': 'ShieldCheck',
+  'calendar-days': 'CalendarDots',
+  'arrow-right': 'ArrowRight',
+  'arrow-left': 'ArrowLeft',
+  pill: 'Pill',
+  activity: 'Activity',
+  'file-text': 'FileText',
+  sparkle: 'Sparkle',
+  'message-circle': 'ChatCircleDots',
 } as const;
 
 export type LineIconName = keyof typeof LINE_ICON_COMPONENTS;
