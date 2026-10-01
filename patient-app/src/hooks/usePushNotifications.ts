@@ -167,6 +167,10 @@ export function routeFromNotificationData(data: any): void {
           } else {
             router.push('/notifications/index' as any);
           }
+        } else {
+          // Unknown notification kind with no action target must still land
+          // somewhere safe: open the inbox rather than doing nothing.
+          router.push('/notifications/index' as any);
         }
       }
     }
