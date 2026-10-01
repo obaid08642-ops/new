@@ -105,25 +105,33 @@ export class OpsController {
     // Request pipelines by status (all-time counts + today's creations + late)
     const sinceToday = new Date(`${day}T00:00:00.000Z`);
     const lateBefore = new Date(Date.now() - 24 * 3600 * 1000);
-    const group = async (coll: string, pendingStates: string[]) => {
+    // field: the lifecycle field of that collection (bookings and emergencies use `state`).
+    // "late" = older than 24h and not in a final state (open states differ per domain and casing).
+    const FINAL = ['completed', 'COMPLETED', 'cancelled', 'CANCELLED', 'delivered', 'DELIVERED', 'rejected', 'REJECTED',
+      'resolved', 'RESOLVED', 'REPORTED', 'REPORT_READY', 'refunded', 'REFUNDED', 'expired', 'EXPIRED', 'false_alarm'];
+    const group = async (coll: string, final: string[] = FINAL, field: 'status' | 'state' = 'status') => {
       try {
         const c = this.conn.collection(coll);
         const [byStatus, today, late] = await Promise.all([
-          c.aggregate([{ $group: { _id: '$status', n: { $sum: 1 } } }]).toArray(),
+          c.aggregate([{ $group: { _id: `$${field}`, n: { $sum: 1 } } }]).toArray(),
           c.countDocuments({ createdAt: { $gte: sinceToday } }),
-          c.countDocuments({ status: { $in: pendingStates }, createdAt: { $lt: lateBefore } }),
+          c.countDocuments({ [field]: { $nin: final }, createdAt: { $lt: lateBefore } }),
         ]);
         const m: Record<string, number> = {};
         byStatus.forEach((r: any) => { m[String(r._id)] = r.n; });
         return { by_status: m, created_today: today, late: late };
       } catch { return { by_status: {}, created_today: 0, late: 0 }; }
     };
-    const [orders, appointments, emergency, procurement, pharmacyOrders] = await Promise.all([
-      group('orders', ['pending', 'processing', 'created', 'PENDING']),
-      group('appointments', ['PENDING', 'pending', 'CONFIRMED']),
-      group('emergency_requests', ['pending', 'PENDING', 'dispatched', 'accepted']),
-      group('procurementrequests', ['PENDING_ADMIN_REVIEW', 'QUOTATION_ISSUED']),
-      group('pharmacyorders', ['pending', 'PENDING', 'processing']),
+    // Canonical collections only: the legacy `orders` / `pharmacyorders` names are empty since the
+    // pharmacy flow moved to `pharmacy_orders`, which made the live board show 0 orders.
+    const [appointments, emergency, procurement, pharmacyOrders, labs, radiology, nursing] = await Promise.all([
+      group('appointments'),
+      group('emergency_requests', FINAL, 'state'),
+      group('procurementrequests'),
+      group('pharmacy_orders'),
+      group('labbookings', FINAL, 'state'),
+      group('radiologybookings', FINAL, 'state'),
+      group('homecarebookings', FINAL, 'state'),
     ]);
 
     // Recent platform activity — "من فعل ماذا" (system_events audit stream)
@@ -143,7 +151,7 @@ export class OpsController {
       },
       top_endpoints: topEndpoints,
       top_failing: topFailing,
-      pipelines: { orders, appointments, emergency, procurement, pharmacy_orders: pharmacyOrders },
+      pipelines: { orders: pharmacyOrders, pharmacy_orders: pharmacyOrders, appointments, emergency, procurement, labs, radiology, nursing },
       recent_activity: activity,
     };
   }

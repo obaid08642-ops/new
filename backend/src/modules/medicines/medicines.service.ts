@@ -1703,7 +1703,10 @@ export class MedicinesService {
   }
 
   async adminUpdateCatalog(medicineId: string, patch: any, adminId: string) {
-    const med: any = await this.getById(medicineId);
+    // getById returns a mongoose document: spreading it ({ ...med }) drops `id`, and the publication
+    // refresh below then ran with an undefined id -> 404 to the admin after the edit was already saved.
+    const found: any = await this.getById(medicineId);
+    const med: any = typeof found?.toObject === 'function' ? found.toObject() : found;
     if (!med) throw new NotFoundException('الصنف غير موجود');    const clean = this.pickEditable(patch);
     const extra: any = {};
     if (clean.price !== undefined && Number(clean.price) !== Number(med.price || 0)) {

@@ -35,7 +35,9 @@ import { PatientNurseProfileController } from './nurse-profile.controller';
       { name: 'ProviderProfile', schema: ProviderProfileSchema },
     ]),
   ],
-  controllers: [NursingController, HomeCareContractController, HomeCareTrackingController, HomeCareCompatController, NursingOpsController, ChatAliasController, HomeCarePackagesController, NursingCompatController, PatientHomeCareController, PatientNurseProfileController],
+  // HomeCareContractController (bookings/:bookingId) goes LAST: registered first it swallowed the static
+  // GET /home-care/bookings/my ("my" taken as a booking id -> 404 home_care_booking_not_found).
+  controllers: [NursingController, HomeCareTrackingController, HomeCareCompatController, NursingOpsController, ChatAliasController, HomeCarePackagesController, NursingCompatController, PatientHomeCareController, PatientNurseProfileController, HomeCareContractController],
   providers: [HomeCareSvc, { provide: 'CarePlanRepository', useClass: CarePlanRepository }, { provide: 'HomeCareBookingRepository', useClass: HomeCareBookingRepository }, { provide: 'HomeCareServiceRepository', useClass: HomeCareServiceRepository }, { provide: 'MedicalSupplyRequestRepository', useClass: MedicalSupplyRequestRepository }, { provide: 'NursingVisitReportRepository', useClass: NursingVisitReportRepository }],
   exports: [HomeCareSvc],
 })

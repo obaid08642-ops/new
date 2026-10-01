@@ -16,7 +16,7 @@ export class ReportsQueryDto {
   to?: string;
 
   @IsOptional()
-  @IsIn(['day', 'service', 'status', 'gateway', 'city', 'type'])
+  @IsIn(['day', 'service', 'status', 'state', 'gateway', 'city', 'type'])
   group_by?: string;
 
   @IsOptional()
@@ -54,6 +54,9 @@ export class AdminReportsController {
 
   private groupKey(groupBy: string | undefined, fallback: any = DAY): any {
     switch (groupBy) {
+      // 'day' must be explicit: reports whose fallback is not DAY (insurance -> $state) ignored it.
+      case 'day': return DAY;
+      case 'state': return '$state';
       case 'service': return '$booking_kind';
       case 'status': return '$status';
       case 'gateway': return '$gateway';
