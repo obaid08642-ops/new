@@ -101,7 +101,7 @@ const LINE: Record<SharedLineIconName, React.ComponentType<Record<string, unknow
   'arrow-right': phosphor.ArrowRight,
   'arrow-left': phosphor.ArrowLeft,
   pill: phosphor.Pill,
-  activity: phosphor.Activity,
+  activity: phosphor.Pulse,
   'file-text': phosphor.FileText,
   sparkle: phosphor.Sparkle,
   'message-circle': phosphor.ChatCircleDots,

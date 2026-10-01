@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
-import { ShieldCheck } from "lucide-react";
+// 12.A7 / 12.C2 — the screen takes its glyph from the curated set, so the icon is
+// a decision rather than a per-screen import, and it is the same glyph on native.
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { isLocale } from "@/lib/i18n";
 import styles from "../settings.module.css";
 
@@ -32,7 +34,7 @@ export default async function SettingsAboutPage({ params }: Props) {
 
       <section className={styles.hero}>
         <p className={styles.eyebrow}>
-          <ShieldCheck size={15} aria-hidden="true" />
+          <Icon name="shield-check" size={15} />
           {ar ? "نبض بلس" : "Nabd Plus"}
         </p>
         <h1
@@ -58,7 +60,7 @@ export default async function SettingsAboutPage({ params }: Props) {
           style={{ backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}
           aria-hidden="true"
         >
-          <ShieldCheck size={22} color="#1E332E" />
+          <Icon name="shield-check" size={22} tone="primary" />
         </span>
       </section>
 
@@ -66,7 +68,7 @@ export default async function SettingsAboutPage({ params }: Props) {
         {TEAMS.map((t) => (
           <section key={t.en} className={styles.card}>
             <span className={styles.icon} aria-hidden="true">
-              <ShieldCheck size={20} />
+              <Icon name="shield-check" size={20} />
             </span>
             <div style={{ minInlineSize: 0, display: "grid", gap: 8 }}>
               <h2

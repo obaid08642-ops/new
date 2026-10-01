@@ -56,7 +56,7 @@ export const LINE_ICON_COMPONENTS = {
   'arrow-right': 'ArrowRight',
   'arrow-left': 'ArrowLeft',
   pill: 'Pill',
-  activity: 'Activity',
+  activity: 'Pulse',
   'file-text': 'FileText',
   sparkle: 'Sparkle',
   'message-circle': 'ChatCircleDots',
