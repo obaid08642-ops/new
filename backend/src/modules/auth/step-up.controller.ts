@@ -20,7 +20,7 @@ export class StepUpController {
   @Public()
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Post('issue')
-  async issue(@Body() body: { identifier?: string; action?: string; response?: any }) {
+  async issue(@Body() body: { identifier?: string; action?: string; response?: Record<string, unknown> }) {
     const identifier = String(body?.identifier || '').trim().toLowerCase();
     const action = String(body?.action || '').trim();
     if (!identifier || !action) throw new BadRequestException('identifier_and_action_required');

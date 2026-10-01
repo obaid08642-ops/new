@@ -1,38 +1,30 @@
-import { IsDefined, IsIn, IsNumber, IsObject, IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsNumber, IsObject, IsOptional, IsString, Min } from 'class-validator';
 
-export class SlaDto {
-  @IsDefined()
+export class DisputeConfigDto {
   @IsNumber()
-  consultationDuration: number;
-
-  @IsDefined()
-  @IsNumber()
-  callRingingDuration: number;
-
-  @IsDefined()
-  @IsNumber()
-  jwtExpiry: number;
+  @Min(0)
+  max_refund_sar: number;
 
   @IsOptional()
   @IsString()
-  @IsIn(['online', 'degraded', 'maintenance'])
-  systemStatus?: string;
-
-  // Admin config-portal sends a change reason; it is written to the audit log.
-  @IsOptional()
-  @IsString()
-  @MaxLength(500)
   reason?: string;
 }
 
-/** P6.x-13: per-app force-update versions + maintenance flags. */
-export class AppVersionsDto {
-  @IsOptional()
-  @IsObject()
-  apps?: Record<string, { min_version?: string; latest_version?: string; maintenance?: boolean; message_ar?: string; message_en?: string }>;
+export class OrdersConsoleConfigDto {
+  @IsNumber()
+  @Min(0)
+  compensation_max_sar: number;
+}
 
-  @IsOptional()
-  @IsString()
-  @MaxLength(500)
-  reason?: string;
+export class SlaDto {
+  @IsOptional() @IsNumber() @Min(0) consultationDuration?: number;
+  @IsOptional() @IsNumber() @Min(0) callRingingDuration?: number;
+  @IsOptional() @IsNumber() @Min(0) jwtExpiry?: number;
+}
+
+export class AppVersionsDto {
+  @IsOptional() @IsString() ios?: string;
+  @IsOptional() @IsString() android?: string;
+  @IsOptional() @IsString() force_update?: string;
+  @IsOptional() @IsObject() apps?: Record<string, unknown>;
 }

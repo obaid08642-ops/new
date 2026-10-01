@@ -3,7 +3,7 @@ import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Transaction, TransactionSchema } from '../../schemas/transaction.schema';
-import { RefundPaymentDto } from './payments.dto';
+import { RefundPaymentDto, WebhookBodyDto } from './payments.dto';
 import { OrderSchema } from '../../schemas/order.schema';
 import { LabBookingSchema } from '../../schemas/lab.schema';
 import { DiagnosticOrder, DiagnosticOrderSchema } from '../../schemas/diagnostic-order.schema';
@@ -588,7 +588,7 @@ export class PaymentsWebhookController {
   @Public()
   @Post(':provider') @HttpCode(200) async webhook(
     @Param('provider') p: string,
-    @Body() b: Record<string, unknown>,
+    @Body() b: WebhookBodyDto,
     @Headers('moyasar-signature') signature: string,
     @Req() req: Request,
   ) {
