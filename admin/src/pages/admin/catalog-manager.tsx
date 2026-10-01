@@ -439,7 +439,7 @@ function MedicinesPanel() {
     try {
       const body = new FormData();
       body.append('file', file);
-      const res: any = await apiFetch('/api/admin/admin/bulk-upload', { method: 'POST', body });
+      const res: any = await apiFetch('/api/admin/bulk-upload', { method: 'POST', body });
       setMsg(`استيراد CSV: استلام ${res?.received || 0} — جديد ${res?.inserted || 0} — محدّث ${res?.updated || 0}`);
       await load();
     } catch (e: any) {
@@ -536,7 +536,7 @@ function InsurancePanel() {
   const saveCompany = async () => {
     if (!form?.name_ar?.trim()) { setMsg('اسم الشركة مطلوب'); return; }
     try {
-      if (form.id) await apiFetch(`/insurance/companies/${form.id}`, { method: 'PUT', body: JSON.stringify({ name_ar: form.name_ar, name_en: form.name_en }) });
+      if (form.id) await apiFetch(`/insurance/companies/${form.id}`, { method: 'PATCH', body: JSON.stringify({ name_ar: form.name_ar, name_en: form.name_en }) });
       else await apiFetch('/insurance/companies', { method: 'POST', body: JSON.stringify({ name_ar: form.name_ar, name_en: form.name_en, code: form.code }) });
       setForm(null);
       await load();

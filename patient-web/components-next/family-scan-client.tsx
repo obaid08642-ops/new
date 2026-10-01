@@ -34,7 +34,7 @@ export function FamilyScanClient({ locale }: { locale: string }) {
   return (
     <div style={{ display: "grid", gap: 16 }}>
       <p style={{ margin: 0, color: "#64748B", fontSize: ".94rem", lineHeight: 1.6, overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" as any }}>
-        {ar ? "امسح رمز QR للدعوة العائلية بكاميرا هاتفك، أو أدخل الرمز يدوياً — يتم التحقق عبر الخادم (callPatientApi)." : "Scan the family invite QR with your phone camera, or enter the code manually — verified server-side via callPatientApi."}
+        {ar ? "امسح رمز QR للدعوة العائلية بكاميرا هاتفك، أو أدخل الرمز يدوياً." : "Scan the family invite QR code with your phone camera, or enter the code manually."}
       </p>
       <form onSubmit={(e) => { e.preventDefault(); submit(); }} style={{ display: "grid", gap: 16 }}>
         <label style={{ display: "grid", gap: 8 }}>

@@ -9,6 +9,7 @@ import { Permission, PERMISSIONS_KEY, CHECK_OWNERSHIP_KEY, OwnershipOptions } fr
 import { roleSatisfies } from './rbac';
 export { roleSatisfies } from './rbac';
 import { ImpersonationSessionService } from './impersonation-session.service';
+import { adminGateSatisfied } from './admin-gate.guard';
 import { resolveEffectivePermissions } from './effective-permissions';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -164,6 +165,11 @@ export class JwtAuthGuard implements CanActivate {
       const isAdminRole = payload?.role === 'admin' || payload?.role === 'super_admin'
         || (Array.isArray(payload?.roles) && payload.roles.some((r: string) => /admin/i.test(r)));
       const isDeviceEndpoint = /\/admin\/devices(\/|$)/.test(path) || /\/auth\/(login|heartbeat)/.test(path);
+      if (isAdminRole && !isPublic) {
+        // C3: an admin token is only honoured when it came through the admin gate (the BFF),
+        // on EVERY path, not just /api/v1/admin/* (96 admin routes live elsewhere).
+        if (!adminGateSatisfied(req.headers as any)) throw new ForbiddenException('admin_gate_required');
+      }
       if (isAdminRole && !isDeviceEndpoint && !isPublic) {
         const uid = payload?.id || payload?.sub;
         if (uid) {
