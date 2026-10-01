@@ -165,8 +165,14 @@ def main():
                 before = hashlib.md5(page.inner_text('body').encode()).hexdigest()
                 ev['writes'].clear(); ev['js'].clear(); ev['blocked'].clear(); t0 = int(time.time() * 1000) - 50
                 snap = page.evaluate(SNAP_JS)
-                target.scroll_into_view_if_needed(timeout=1500)
-                target.click(timeout=2500, force=True)
+                try:
+                    target.scroll_into_view_if_needed(timeout=1500)
+                except Exception:
+                    pass   # animated or inside a horizontal scroller: click it where it is
+                try:
+                    target.click(timeout=2500, force=True)
+                except Exception:
+                    target.dispatch_event('click')   # last resort: the element's own press handler
                 page.wait_for_timeout(1500)
                 after_url = page.url.replace(WEB, '')
                 if ev['blocked']:

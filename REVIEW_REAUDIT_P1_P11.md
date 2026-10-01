@@ -373,6 +373,22 @@ Details are in `docs/review/AUDIT_2026-10-01.md` §6.
 
 **R48 (Low)** Family permission request: handle "no group" with a message, not an unhandled rejection.
 
+**R50 (High)** Notification preferences cannot be changed in the app or on the website.
+- Both send flat keys, while the server accepts only nested `channels`/`categories`.
+- Choose one shape, then make both clients and the DTO/service agree.
+- GET must return what the screens read.
+- The app must show the error instead of `.catch(() => {})`.
+- **Verify:** toggle each of the 9 settings in the app and on the website, then reopen: the value persists. Paste the DB document.
+
+**R51, R52 — fixed by the reviewer in this PR (do not revert):**
+- maternity `is_regular` is now `@IsBoolean`;
+- the active-programs empty state no longer crashes.
+
+**R53 (Low)** Website nutrition goals:
+- translate the goal/activity labels;
+- style the form;
+- name the rejected field in server errors.
+
 **R40 (Low)** "Remember me" (تذكرني) on the provider login is written but never read. Implement it or remove it.
 
 **For every item:**

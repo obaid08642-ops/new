@@ -105,8 +105,11 @@ def fill_visible(page, scope, tag):
                 if vals:
                     el.select_option(vals[min(1, len(vals) - 1)]); filled.append((label, None))
                 continue
-            if kind == 'number':
-                v = str(700 + n)
+            mode = (el.get_attribute('inputmode') or '').lower()
+            lo, hi = el.get_attribute('min'), el.get_attribute('max')
+            if kind == 'number' or mode in ('numeric', 'decimal'):
+                # a plausible value inside the field's own bounds (700+n made every bounded form fail validation)
+                v = str(int(float(lo)) + 1) if lo not in (None, '') else str(min(40 + n, int(float(hi))) if hi not in (None, '') else 40 + n)
             elif kind == 'email':
                 v = f'{tok.lower()}@ui.nabd.test'
             elif kind == 'date':
@@ -120,7 +123,7 @@ def fill_visible(page, scope, tag):
             else:
                 v = tok
             el.fill(v, timeout=800)
-            filled.append((label, v if kind not in ('number', 'date', 'time') else None))
+            filled.append((label, v if kind not in ('number', 'date', 'time') and mode not in ('numeric', 'decimal') else None))
         except Exception:
             continue
     return filled
@@ -139,7 +142,12 @@ def main():
     page.on('dialog', lambda d: d.accept('سبب اختبار تلقائي') if d.type == 'prompt' else d.accept())
     report = []
     start = os.environ.get('START', '')
-    for p in [x for x in pages() if x >= start]:
+    suffix = f"_{os.environ['SUFFIX']}" if os.environ.get('SUFFIX') else ''
+    outp = os.path.join(ROOT, 'docs/review/evidence', f'ui_form_fill_{SITE}_{datetime.date.today().isoformat()}{suffix}.json')
+    os.makedirs(os.path.dirname(outp), exist_ok=True)
+    only = {x.strip() for x in os.environ.get('ONLY', '').split(',') if x.strip()}
+    for p in [x for x in pages() if x >= start and (not only or x in only)]:
+        json.dump(report, open(outp, 'w'), ensure_ascii=False, indent=1)   # saved after every page (survives restarts)
         print('PAGE', p, flush=True)
         try:
             page.goto(BASE + p, wait_until='load', timeout=45000); page.wait_for_timeout(2000)
@@ -173,6 +181,10 @@ def main():
                     except Exception:
                         pass
                 stored = changed_since(t0) if reqs else ''
+                try:
+                    shown = [x.strip() for x in page.locator('[role=alert]:visible, [role=status]:visible, [aria-live]:visible').all_inner_texts() if x.strip()][:3]
+                except Exception:
+                    shown = []
                 status = 'NO_REQUEST' if not reqs else ('SAVED' if all((x['status'] or 0) < 400 for x in reqs) else
                                                         ('ERROR(%s)' % reqs[-1]['status'] if (reqs[-1]['status'] or 0) >= 500 else 'REJECTED(%s)' % reqs[-1]['status']))
                 fields = {}
@@ -181,13 +193,11 @@ def main():
                         continue
                     sent = any(tok in x['body'] for x in reqs)
                     fields[label or tok] = 'STORED' if tok in stored else ('SENT_NOT_STORED' if sent else 'NOT_SENT')
-                report.append({'page': p, 'form': opener or '(inline)', 'save': saves[0], 'status': status, 'requests': reqs, 'fields': fields})
+                report.append({'page': p, 'form': opener or '(inline)', 'save': saves[0], 'status': status, 'message_shown': shown, 'requests': reqs, 'fields': fields})
                 print(f"{p[:38]:38s} {str(opener or '(inline)')[:18]:18s} {status:14s} fields {len(fields):2d} not_sent {sum(1 for v in fields.values() if v == 'NOT_SENT'):2d} not_stored {sum(1 for v in fields.values() if v == 'SENT_NOT_STORED'):2d}", flush=True)
             except Exception as e:
                 report.append({'page': p, 'form': opener or '(inline)', 'status': 'TOOL_ERROR', 'error': str(e)[:160]})
     b.close(); pw.stop()
-    outp = os.path.join(ROOT, 'docs/review/evidence', f'ui_form_fill_{SITE}_{datetime.date.today().isoformat()}.json')
-    os.makedirs(os.path.dirname(outp), exist_ok=True)
     json.dump(report, open(outp, 'w'), ensure_ascii=False, indent=1)
     print('wrote', outp)
 

@@ -111,8 +111,14 @@ def main():
             target = page.locator(TAPPABLE, has_text=label).first if label else None
         if target is None:
             raise RuntimeError('element gone')
-        target.scroll_into_view_if_needed(timeout=1500)
-        target.click(timeout=2500, force=True)
+        try:
+            target.scroll_into_view_if_needed(timeout=1500)
+        except Exception:
+            pass   # animated or inside a horizontal scroller: click it where it is
+        try:
+            target.click(timeout=2500, force=True)
+        except Exception:
+            target.dispatch_event('click')   # last resort: the element's own press handler
 
     # sign in through the real Welcome -> Login screens
     page.goto(WEB + '/', wait_until='load', timeout=45000); page.wait_for_timeout(7000)
