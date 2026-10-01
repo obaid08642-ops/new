@@ -937,7 +937,8 @@
     "turnaround": "{value} گھنٹے",
     "fasting": "روزہ درکار ہو سکتا ہے",
     "preparationTitle": "تیاری",
-    "bookingUnavailableNotice": "اس سروس کی آن لائن بکنگ ابھی دستیاب نہیں۔"
+    "bookingUnavailableNotice": "اس سروس کی آن لائن بکنگ ابھی دستیاب نہیں۔",
+    "facilityVisit": "مرکز پر وزٹ"
   },
   "Wishlist": {
     "eyebrow": "نجی خواہشات کی فہرست",
@@ -1417,5 +1418,12 @@
       "title": "ادویات کا موازنہ",
       "description": "ادویات، قیمتوں اور متبادل کا موازنہ کریں۔"
     }
+  },
+  "NursingVisits": {
+    "eyebrow": "گھریلو نرسنگ",
+    "title": "نرسنگ وزٹس",
+    "subtitle": "آپ کے نرسنگ وزٹس اور ہر وزٹ کی حالت۔",
+    "empty": "ابھی کوئی نرسنگ وزٹ نہیں۔",
+    "visit": "نرسنگ وزٹ"
   }
 }

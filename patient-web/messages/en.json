@@ -937,7 +937,8 @@
     "turnaround": "{value} hours",
     "fasting": "Fasting may be required",
     "preparationTitle": "Preparation",
-    "bookingUnavailableNotice": "Online booking for this service is not available yet."
+    "bookingUnavailableNotice": "Online booking for this service is not available yet.",
+    "facilityVisit": "Center visit"
   },
   "Wishlist": {
     "eyebrow": "Private wishlist",
@@ -1417,5 +1418,12 @@
       "title": "Compare Medicines",
       "description": "Compare medicines, prices and alternatives."
     }
+  },
+  "NursingVisits": {
+    "eyebrow": "Home nursing",
+    "title": "Nursing visits",
+    "subtitle": "Your nursing visits and the status of each one.",
+    "empty": "No nursing visits yet.",
+    "visit": "Nursing visit"
   }
 }

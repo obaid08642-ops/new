@@ -29,7 +29,20 @@ export class AdminAnalyticsSuiteController {
   @RequirePermissions(Permission.ANALYTICS_READ)
   async online() {
     if (!this.presence) return { total: 0, by_platform: {}, by_role: {}, sample: [] };
-    return this.presence.countOnline();
+    const out: any = await this.presence.countOnline();
+    // "Who is online": the presence store holds ids only; resolve names for the admin view.
+    const ids = [...new Set((out?.sample || []).map((x: any) => x.user_id).filter(Boolean))];
+    if (ids.length) {
+      const users = await this.conn.collection('users')
+        .find({ id: { $in: ids } }, { projection: { _id: 0, id: 1, full_name: 1, phone: 1, email: 1 } })
+        .toArray().catch(() => []);
+      const byId = new Map<string, any>(users.map((u: any): [string, any] => [u.id, u]));
+      out.sample = out.sample.map((x: any) => {
+        const u: any = byId.get(x.user_id);
+        return { ...x, full_name: u?.full_name || null, contact: u?.phone || u?.email || null };
+      });
+    }
+    return out;
   }
 
   /** Email delivery stats: today + last 30d by provider, vs configured plan limits. */

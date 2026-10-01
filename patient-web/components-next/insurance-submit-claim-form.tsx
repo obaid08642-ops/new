@@ -57,7 +57,7 @@ export function InsuranceSubmitClaimForm({ locale }: { locale: string }) {
     setLoading(true);
     try {
       const [appts, orders, labs, rads, nursing] = await Promise.all([
-        fetchList("/care/appointments/mine"),
+        fetchList("/care/appointments"),
         fetchList("/orders/mine"),
         fetchList("/labs/bookings/mine"),
         fetchList("/radiology/bookings/mine"),

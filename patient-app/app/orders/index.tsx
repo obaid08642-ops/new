@@ -78,7 +78,7 @@ export default function OrderCenterScreen() {
       try { return await p; } catch (e) { failures++; return null; }
     };
     const [appts, orders, labs, rads, nursing, claims, returns, emergency] = await Promise.all([
-      safe(apiFetch('/care/appointments/mine')),
+      safe(apiFetch('/care/appointments')),
       safe(apiFetch('/orders/mine')),
       safe(apiFetch('/labs/bookings/mine')),
       safe(apiFetch('/radiology/bookings/mine')),
