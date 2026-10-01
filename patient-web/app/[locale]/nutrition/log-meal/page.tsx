@@ -34,7 +34,7 @@ export default async function NutritionLogMealPage({ params }: Props) {
             {ar ? "تسجيل وجبة" : "Log a meal"}
           </h1>
           <p style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
-            {ar ? "سجّل تفاصيل وجبتك وسيتم تحديث ملخصك اليومي عبر الخادم مباشرة." : "Log your meal — daily summary updates live via callPatientApi."}
+            {ar ? "سجّل تفاصيل وجبتك ويتحدّث ملخصك اليومي مباشرة." : "Log your meal and your daily summary updates right away."}
           </p>
         </div>
         <span className={styles.heroVector} style={{ inlineSize: 48, blockSize: 48, borderRadius: 20, background: "rgba(255,255,255,0.82)", backdropFilter: "blur(16px)", border: "1px solid #E8EDEE" }}>
@@ -74,7 +74,7 @@ export default async function NutritionLogMealPage({ params }: Props) {
             overflow: "hidden",
           }}
         >
-          {ar ? "لا تُستخدم بيانات وهمية — الحفظ عبر /api/nutrition/meals → callPatientApi فقط." : "No mock — saves via /api/nutrition/meals → callPatientApi only."}
+          {ar ? "تُحفظ وجباتك في ملفك ويتحدّث ملخصك اليومي تلقائياً." : "Your meals are saved to your profile and your daily summary updates automatically."}
         </p>
       </section>
     </main>

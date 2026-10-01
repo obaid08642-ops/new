@@ -3,11 +3,16 @@ import { NextResponse } from "next/server";
 export async function GET() {
   const packageName = process.env.ANDROID_PACKAGE_NAME || "com.patient.nabd";
   const providerPackage = process.env.ANDROID_PROVIDER_PACKAGE_NAME || "com.nabd.provider";
-  const rawFingerprint =
-    process.env.ANDROID_SHA256_FINGERPRINT ||
-    "FA:C6:17:45:DC:09:03:78:6F:B9:ED:E6:2A:96:2B:39:9F:73:48:F0:BB:6F:89:9B:83:32:66:75:91:03:3B:9C";
-
-  const fingerprints = rawFingerprint.split(",").map((f) => f.trim()).filter(Boolean);
+  // F35: only the real signing-key fingerprint(s) from the environment. Never a sample value:
+  // Android would cache a failed verification and open every link in the browser.
+  const fingerprints = (process.env.ANDROID_SHA256_FINGERPRINT || "")
+    .split(",").map((f) => f.trim()).filter(Boolean);
+  if (!fingerprints.length) {
+    return NextResponse.json({ error: "assetlinks_not_configured" }, {
+      status: 503,
+      headers: { "Cache-Control": "no-store" },
+    });
+  }
 
   const assetLinks = [
     {

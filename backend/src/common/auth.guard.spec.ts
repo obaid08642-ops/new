@@ -239,3 +239,48 @@ describe('hasEffectiveRole', () => {
     expect(hasEffectiveRole({ role: 'patient' }, 'pharmacy')).toBe(false);
   });
 });
+
+describe('C3: admin-role tokens need the admin gate on every path', () => {
+  const OLD = { gate: process.env.ADMIN_GATE_TOKEN, env: process.env.NODE_ENV, secret: process.env.JWT_SECRET };
+  let guard: JwtAuthGuard;
+  let jwtService: jest.Mocked<JwtService>;
+  beforeEach(() => {
+    process.env.ADMIN_GATE_TOKEN = 'unit-gate-secret';
+    process.env.NODE_ENV = 'test';
+    process.env.JWT_SECRET = 'unit-test-secret-min-32-chars-0123456789abcdef';
+    jwtService = { verifyAsync: jest.fn().mockResolvedValue({ id: 'admin-1', role: UserRole.ADMIN }) } as any;
+    const reflector = { getAllAndOverride: jest.fn().mockReturnValue(null) } as any;
+    const model = { findOne: jest.fn().mockReturnThis(), lean: jest.fn(), create: jest.fn() };
+    const connection = { model: jest.fn().mockReturnValue(model), collection: jest.fn().mockReturnValue({ findOne: jest.fn().mockResolvedValue(null) }) } as any;
+    guard = new JwtAuthGuard(jwtService, reflector, connection, { validate: jest.fn() } as any);
+  });
+  afterAll(() => {
+    for (const [k, v] of [['ADMIN_GATE_TOKEN', OLD.gate], ['NODE_ENV', OLD.env], ['JWT_SECRET', OLD.secret]] as const) {
+      if (v === undefined) delete process.env[k]; else process.env[k] = v;
+    }
+  });
+  const ctx = (path: string, headers: Record<string, string>): any => {
+    const req = { headers, params: {}, query: {}, body: {}, path, socket: { remoteAddress: '127.0.0.1' } };
+    return { switchToHttp: () => ({ getRequest: () => req }), getHandler: () => ({}), getClass: () => ({}) };
+  };
+
+  it('rejects an admin token outside /api/v1/admin without the gate header', async () => {
+    await expect(guard.canActivate(ctx('/api/v1/medicines/admin/catalog', { authorization: 'Bearer t' })))
+      .rejects.toThrow('admin_gate_required');
+  });
+
+  it('rejects a wrong gate header', async () => {
+    await expect(guard.canActivate(ctx('/api/v1/bulk-upload', { authorization: 'Bearer t', 'x-admin-gate-token': 'unit-gate-secreT' })))
+      .rejects.toThrow('admin_gate_required');
+  });
+
+  it('with the gate header the admin token moves on to the device check', async () => {
+    await expect(guard.canActivate(ctx('/api/v1/medicines/admin/catalog', { authorization: 'Bearer t', 'x-admin-gate-token': 'unit-gate-secret' })))
+      .rejects.toThrow('device_not_enrolled');
+  });
+
+  it('does not gate non-admin tokens', async () => {
+    jwtService.verifyAsync.mockResolvedValue({ id: 'u1', role: UserRole.PATIENT });
+    await expect(guard.canActivate(ctx('/api/v1/medicines/search', { authorization: 'Bearer t' }))).resolves.toBe(true);
+  });
+});

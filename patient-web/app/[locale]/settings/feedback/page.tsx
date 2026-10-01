@@ -93,7 +93,7 @@ export default async function SettingsFeedbackPage({ params }: Props) {
         className={styles.boundary}
         style={{ overflowWrap: "anywhere", border: "1px solid #E8EDEE", borderInlineStart: "3px solid #5FD9B3" } as any}
       >
-        {ar ? "لا تُعرض بيانات وهمية — الإرسال عبر /api/support/feedback → callPatientApi فقط." : "No mock — sends via /api/support/feedback → callPatientApi only."}
+        {ar ? "نقرأ كل ملاحظة ونرد عليك في أقرب وقت." : "We read every message and will get back to you soon."}
       </p>
 
       <nav style={{ display: "flex", gap: 8, flexWrap: "wrap" } as any}>
