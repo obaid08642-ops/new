@@ -111,6 +111,9 @@ def patient_rows(inv):
         if changed_after(s['file'], when):
             rows.append(('patient-app', '', s['route'], 'STALE', 'screen file changed after the crawl', os.path.basename(ev))); continue
         render = r.get('render') or {}
+        o = OVERRIDES.get('app:' + s['route'])
+        if o and render.get('bad_reads') and not render.get('js'):
+            rows.append(('patient-app', '', s['route'], o['status'], o['reason'] + ' — ' + str(render['bad_reads'][0])[:60], os.path.basename(ev))); continue
         if render.get('js') or render.get('bad_reads'):
             rows.append(('patient-app', '', s['route'], 'FAILED', 'render: ' + str((render.get('js') or render.get('bad_reads'))[0])[:80], os.path.basename(ev))); continue
         v, why = element_verdict(r.get('elements') or [])

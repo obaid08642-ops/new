@@ -102,5 +102,17 @@
  "/[locale]/insurance/approval-pending": {
   "status": "FAILED",
   "reason": "F2 cascade: insurance section 404/unavailable without the removed endpoints"
+ },
+ "app:/consultations/clinic/[id]": {
+  "status": "BLOCKED",
+  "reason": "no facility in the QA DB passes the public filter (public_eligibility)"
+ },
+ "app:/facility/[slug]": {
+  "status": "BLOCKED",
+  "reason": "no facility in the QA DB passes the public filter (public_eligibility)"
+ },
+ "app:/diagnostics/order/[id]": {
+  "status": "BLOCKED",
+  "reason": "the app test account has no lab/radiology booking; another patient's booking correctly answers 404 (ownership)"
  }
 }

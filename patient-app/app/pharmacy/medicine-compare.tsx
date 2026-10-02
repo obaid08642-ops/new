@@ -37,8 +37,11 @@ export default function MedicineCompareScreen() {
     setLoading(true);
     setError(null);
     try {
-      const ids = params.ids ? params.ids.split(',') : ['1', '2']; // Fallback to test ids if not provided
-      const data = await apiFetch('/medicines/compare', 'POST', { ids });
+      const ids = params.ids ? params.ids.split(',').filter(Boolean) : [];
+      // nothing selected: show the empty state instead of comparing invented ids
+      if (!ids.length) { setMedicines([]); return; }
+      // POST /medicines/compare { ids } (the old call passed 'POST' as apiFetch's options, so it went out as GET → 404)
+      const data = await apiFetch('/medicines/compare', { method: 'POST', body: JSON.stringify({ ids }) });
       if (data && Array.isArray(data)) setMedicines(data);
     } catch (err) {
       logError('pharmacy:medicine-compare', err);
