@@ -84,6 +84,11 @@ def main():
         if r.request.method in ('POST', 'PUT', 'PATCH', 'DELETE'):
             ev['writes'].append({'status': r.status, 'method': r.request.method, 'url': u, 'body': (r.request.post_data or '')[:1500]})
     page.on('response', on_resp)
+    # A request counts as settled once its response arrives: fire-and-forget beacons (the website's presence
+    # heartbeat never reads its body) never emit 'requestfinished' in Playwright, which kept pages "busy" for the
+    # whole timeout (measured: heartbeat answers in ~50 ms in-page).
+    page.on('response', lambda r: ev['inflight'].pop(id(r.request), None))
+
 
     def body_hash():
         try:

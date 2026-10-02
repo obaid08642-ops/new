@@ -117,6 +117,11 @@ def main():
         if r.request.method in ('POST', 'PUT', 'PATCH', 'DELETE') and 'heartbeat' not in u:
             ev['writes'].append({'status': r.status, 'method': r.request.method, 'url': u, 'body': (r.request.post_data or '')[:1500]})
     page.on('response', on_resp)
+    # A request counts as settled once its response arrives: fire-and-forget beacons (the website's presence
+    # heartbeat never reads its body) never emit 'requestfinished' in Playwright, which kept pages "busy" for the
+    # whole timeout (measured: heartbeat answers in ~50 ms in-page).
+    page.on('response', lambda r: ev['inflight'].pop(id(r.request), None))
+
 
     def body_hash():
         try:
@@ -277,6 +282,10 @@ def main():
         discovered[home['name']] = home.get('params'); queue.append((home['name'], ()))
     tested = set(); seen_sigs = set()
     MAX_UI_DEPTH = int(os.environ.get('MAX_UI_DEPTH', '2'))
+    # In-screen states per route are capped: list rows (one per medicine/order) open the same sheet, so exploring
+    # every row repeats the same controls. Routes themselves are never capped.
+    MAX_SUBSTATES = int(os.environ.get('MAX_SUBSTATES', '8'))
+    substates = {}
     tag_run = 'V' + uuid.uuid4().hex[:5].upper()
 
     def fill():
@@ -374,7 +383,8 @@ def main():
                         discovered[after['name']] = after.get('params'); queue.append((after['name'], ()))
                 elif body_hash() != before:
                     res = {'result': 'UI_CHANGE'}
-                    if len(ui_path) < MAX_UI_DEPTH and ui_sig(name) not in seen_sigs:
+                    if len(ui_path) < MAX_UI_DEPTH and ui_sig(name) not in seen_sigs and substates.get(name, 0) < MAX_SUBSTATES:
+                        substates[name] = substates.get(name, 0) + 1
                         queue.append((name, tuple(ui_path) + ((t, idx),)))
                 else:
                     res = {'result': 'NO_EFFECT', 'disabled': disabled}

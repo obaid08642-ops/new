@@ -1,0 +1,25 @@
+# QA defect register (full-ecosystem QA, started 2026-10-02)
+
+Continues the R1–R83 / F1–F10 registers in `REVIEW_REAUDIT_P1_P11.md`. IDs here are `Q<n>`.
+
+- **Code under test:** agent tip `214c1c5`, backend built at `38b1b04`; the backend difference is `05e9e27` (R1 only). The review fixes are on `review/qa-full`.
+- **Evidence:** `docs/review/evidence/`.
+- **Severity:** Critical (data loss / money / security / safety), High (a workflow is broken), Medium (degraded or misleading), Low (cosmetic or accessibility polish).
+
+| ID | Sev | App · screen · workflow | Reproduce | Expected | Actual | Root cause | Status |
+|---|---|---|---|---|---|---|---|
+| Q1 | Low | patient-app · mental health → crisis contacts · call a contact | screen reader / test query for the contact's call button | button announced, e.g. "Call سارة" | icon-only `TouchableOpacity`, no `accessibilityLabel` (the delete button has one) | missing label | Open → agent (part of Q9) |
+| Q2 | **High (safety)** | patient-app + API · crisis contacts · add contact | add contact with phone `abc` | refused | saved (201); dialling fails in an emergency | `AddCrisisContactDto.phone` was `@IsString()` only; the app did no check | **Fixed** `385e559`: DTO `@Matches` + app check; DTO spec (11 cases) + RNTL test |
+| Q3 | Low (env) | provider-app · drug index | open drug index | real categories only | categories `UE3C96A10`, `category-20703`, medicine `UC15A2204 (معدّل E2E)` visible | synthetic records left by earlier test runs in the **test DB** `nabd_form2` (not production) | Open: test-data hygiene; clean up with an owner-approved scope |
+| Q4 | Medium | provider-app (radiology) · `order_detail`, `reporting` | open the screen without its `order` param (web reload, deep link, restored state) | "order not found" + back | whole app white-screens: `Cannot read properties of undefined (reading 'safety_questionnaire' / 'report_storage_object_id')` | screens read `route.params.order.*` with no guard; no error boundary around navigators | Open → agent: guard params, fetch by id, add an error boundary per dashboard navigator |
+| Q5 | High (regression) | admin · financial ledger (`financial-ledger.tsx`) | open the page | ledger commissions load | `GET /admin/finance/commissions` → 400 `invalid_date_range` | agent R36 (`eaaefd3`) moved the legacy ledger to `/admin/finance/ledger/commissions` and updated `commissions.tsx` but not `financial-ledger.tsx:61` | Open → agent (F11) |
+| Q6 | — (tooling) | `tools/live/j_admin_ops.py` | run | — | `PUT /admin/finance/commissions` 404 | the journey was not updated for R36 (`/admin/legal/commissions-policy`) | Reviewer: update the journey |
+| Q7 | — (tooling) | crawlers | — | — | (a) the website's presence heartbeat never emits Playwright `requestfinished`, so every page timed out at 15 s; (b) re-entering a mounted RN route kept its filters, so controls went missing | harness | **Fixed** in `rn_nav_crawl2.py` / `web_crawl.py` (settle on response; fresh reload on re-entry) |
+| Q8 | — (correction) | gate | `python3 tools/audit/dtolint.py` on `main` | — | 8 `@Body() any` + 4 unvalidated bodies (exit 1) | pre-existing on `main`. My round-5 note "dtolint 0" was wrong; these files were not touched in round 5 | Recorded; existing agent item (P3 DTO rules) |
+| Q9 | Medium (a11y) | patient-app, provider-app | inventory (`ui_inventory.js`) | every control has a name | 128 patient-app and 41 provider-app buttons have no text or accessibility label | icon-only controls without `accessibilityLabel` | Open → agent: label all; list from `docs/review/inventory/*.json` (`label` empty) |
+
+## Not defects (investigated)
+- `GET /medicines/compare` 404 in the crawl: the route is `POST`.
+- `j_admin_sweep` `invalid_date_range` on analytics-suite: the sweep calls without the dates the page always sends.
+- The website heartbeat answers in about 50 ms in-page; the "pending" state was a harness artefact (Q7).
+- Journey failures with `ThrottlerException` 429 on admin login: test-harness login volume.
