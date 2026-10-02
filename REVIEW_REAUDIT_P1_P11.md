@@ -595,7 +595,7 @@ Mandatory, in this order:
 - The profile became `active`, `license_verified: true`, `public_eligibility: true` and is listed in public `GET /providers`, while the account stayed `pending_admin_approval`.
 - Delete this route or route it through `ProviderAdminService.approve`.
 - **Verify:** this call → 400 `required_documents_missing` (or 404 if deleted).
-- Clean up the probe accounts (emails `pharm…@nabd.test`, 2026-10-02).
+- The probe accounts were deleted by the reviewer after the test (10 accounts, profiles and users).
 
 **F5 (High) — the R1 override cannot be used, and the claims are not true.**
 - `ApproveDto` has no `override_reason`: live 400 `property override_reason should not exist`.
