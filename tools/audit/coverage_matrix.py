@@ -121,8 +121,13 @@ def patient_rows(inv):
 def page_rows(inv, app, key):
     crawl = newest(f'{key}_crawl_*.json')
     forms = newest(f'ui_form_fill_{"web" if app == "patient-web" else "admin"}_*.json')
-    pages_by_route, _ = merged(f'{key}_crawl_*.json', 'pages')
+    pages_by_route, srcs = merged(f'{key}_crawl_*.json', 'pages')
     cdata = {'pages': list(pages_by_route.values())}
+    # crash_sweep renders every static page and records a rendered not-found / unavailable state; it overrides crawl
+    # evidence that is older than the sweep (crawls before 2026-10-02 19:00 could not see that state)
+    sweep_f = newest(f'crash_sweep_{"website" if app == "patient-web" else "admin"}_*.json')
+    sweep = {x['route']: x for x in json.load(open(sweep_f))['pages']} if sweep_f else {}
+    sweep_t = os.path.getmtime(sweep_f) if sweep_f else 0
     fdata = json.load(open(forms)) if forms else []
     rows = []
     pages = inv[app]['pages']
@@ -134,8 +139,15 @@ def page_rows(inv, app, key):
             rows.append((app, '', route, 'NOT_TESTED', 'dynamic route: needs a real record id', '')); continue
         if not c and not f:
             rows.append((app, '', route, 'NOT_TESTED', 'no evidence', '')); continue
+        url = route.replace('/[locale]', '/ar', 1) if app == 'patient-web' else route
+        sw = sweep.get(url)
+        if c and sw and sw.get('not_found') and not (c.get('render') or {}).get('not_found') and os.path.getmtime(os.path.join(EV, srcs[route])) < sweep_t:
+            c = dict(c, render=dict(c.get('render') or {}, not_found=sw['not_found']), url=url)
         if c:
             render = c.get('render') or {}
+            if render.get('bad_reads') and not render.get('js') and OVERRIDES.get(route, {}).get('bad_reads'):
+                o = OVERRIDES[route]
+                rows.append((app, '', route, o['status'], o['reason'] + ' — ' + str(render['bad_reads'][0])[:60], os.path.basename(crawl))); continue
             if render.get('js') or render.get('bad_reads'):
                 rows.append((app, '', route, 'FAILED', 'render: ' + str((render.get('js') or render.get('bad_reads'))[0])[:80], os.path.basename(crawl))); continue
             if render.get('not_found'):

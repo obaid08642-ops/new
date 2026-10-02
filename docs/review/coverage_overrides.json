@@ -34,5 +34,73 @@
  "/[locale]/condition/[slug]": {
   "status": "BLOCKED",
   "reason": "crawled with /condition/undefined from the pre-Q17 sitemap; recheck with a real code"
+ },
+ "/[locale]/pharmacy/payment": {
+  "status": "PARTIAL",
+  "bad_reads": true,
+  "reason": "renders; capabilities answer 400 final_quote_acceptance_required for the only payable-state order in the QA data (correct gating)"
+ },
+ "/[locale]/pharmacy/insurance-decision": {
+  "status": "PARTIAL",
+  "bad_reads": true,
+  "reason": "renders; capabilities answer 400 copay_acceptance_required before the copay decision (correct gating)"
+ },
+ "/[locale]/pharmacy/broadcast-status": {
+  "status": "BLOCKED",
+  "bad_reads": true,
+  "reason": "crawled with a broadcast id; the page expects the order id in requestId (test input)"
+ },
+ "/[locale]/diagnostics/insurance-approval": {
+  "status": "BLOCKED",
+  "bad_reads": true,
+  "reason": "crawled with a pharmacy order id; the page expects a lab booking id (test input)"
+ },
+ "/[locale]/consultations/booking-status": {
+  "status": "BLOCKED",
+  "reason": "harvested appointment id no longer resolves; re-run with an own appointment"
+ },
+ "/[locale]/insurance": {
+  "status": "FAILED",
+  "reason": "F2: my-policy / benefits-summary 404 → notFound()"
+ },
+ "/[locale]/profile/insurance": {
+  "status": "FAILED",
+  "reason": "F2 cascade (insurance endpoints removed)"
+ },
+ "/[locale]/health/wearables": {
+  "status": "BLOCKED",
+  "reason": "feature flag NEXT_PUBLIC_WEARABLES_ENABLED off (by design)"
+ },
+ "/[locale]/family/permissions": {
+  "status": "BLOCKED",
+  "reason": "the QA patient has no family group (API 404 No family group found)"
+ },
+ "/[locale]/family/permission-requests": {
+  "status": "BLOCKED",
+  "reason": "the QA patient has no family group"
+ },
+ "/[locale]/insurance/policy-detail": {
+  "status": "FAILED",
+  "reason": "F2 cascade: insurance section 404/unavailable without the removed endpoints"
+ },
+ "/[locale]/insurance/copay": {
+  "status": "FAILED",
+  "reason": "F2 cascade: insurance section 404/unavailable without the removed endpoints"
+ },
+ "/[locale]/insurance/benefits": {
+  "status": "FAILED",
+  "reason": "F2 cascade: insurance section 404/unavailable without the removed endpoints"
+ },
+ "/[locale]/insurance/claims": {
+  "status": "FAILED",
+  "reason": "F2 cascade: insurance section 404/unavailable without the removed endpoints"
+ },
+ "/[locale]/insurance/payment-split": {
+  "status": "FAILED",
+  "reason": "F2 cascade: insurance section 404/unavailable without the removed endpoints"
+ },
+ "/[locale]/insurance/approval-pending": {
+  "status": "FAILED",
+  "reason": "F2 cascade: insurance section 404/unavailable without the removed endpoints"
  }
 }
