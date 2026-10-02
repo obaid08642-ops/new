@@ -31,9 +31,11 @@ export default function Screen() {
 
   const load = useCallback(async () => {
     const safe = async (p: Promise<any>) => { try { return await p; } catch { return null; } };
-    const [appts, orders, labs, rads, nursing] = await Promise.all([
+    const [appts, orders, pharmacyOrders, labs, rads, nursing] = await Promise.all([
       safe(apiFetch('/care/appointments')),
       safe(apiFetch('/orders/mine')),
+      // Pharmacy checkout orders live in pharmacy_orders; /orders/mine only returns legacy rows.
+      safe(apiFetch('/patient/pharmacy/orders')),
       safe(apiFetch('/labs/bookings/mine')),
       safe(apiFetch('/radiology/bookings/mine')),
       safe(apiFetch('/home-care/bookings/my')),
@@ -43,6 +45,7 @@ export default function Screen() {
     const out: Booking[] = [];
     for (const a of arr(appts)) if (paid(a)) out.push({ kind: 'consultation', id: a.id, title: a.doctor_name || 'استشارة طبية', amount: Number(a.total_price || a.price || 0), date: a.slot_start });
     for (const o of arr(orders)) if (paid(o)) out.push({ kind: 'pharmacy', id: o.id, title: `طلب صيدلية #${String(o.id).slice(0, 8)}`, amount: Number(o.total || 0), date: o.createdAt });
+    for (const o of arr(pharmacyOrders)) if (paid(o)) out.push({ kind: 'pharmacy', id: o.id, title: `طلب صيدلية #${String(o.id).slice(0, 8)}`, amount: Number(o.totals?.total ?? o.total_price ?? 0), date: o.createdAt });
     for (const b of arr(labs)) if (paid(b)) out.push({ kind: 'lab', id: b.id, title: `تحاليل #${String(b.id).slice(0, 8)}`, amount: Number(b.total || 0), date: b.scheduled_at });
     for (const b of arr(rads)) if (paid(b)) out.push({ kind: 'radiology', id: b.id, title: `أشعة #${String(b.id).slice(0, 8)}`, amount: Number(b.total || b.price || 0), date: b.scheduled_at });
     for (const b of arr(nursing)) if (paid(b)) out.push({ kind: 'nursing', id: b.id, title: `تمريض #${String(b.id).slice(0, 8)}`, amount: Number(b.total || b.price || 0), date: b.scheduled_at });

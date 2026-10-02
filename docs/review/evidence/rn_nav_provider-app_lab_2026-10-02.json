@@ -340,15 +340,23 @@
     },
     {
      "label": "الجدولة والسحب",
-     "result": "NO_EFFECT"
+     "result": "NAVIGATE",
+     "to": "الطلبات والمختبر | الواردة | الجدولة والسحب | "
     },
     {
      "label": "التحليل والعينات",
-     "result": "NO_EFFECT"
+     "result": "NAVIGATE",
+     "to": "الطلبات والمختبر | الواردة | الجدولة والسحب | "
     },
     {
      "label": "النتائج",
-     "result": "NO_EFFECT"
+     "result": "NAVIGATE",
+     "to": "الطلبات والمختبر | الواردة | الجدولة والسحب | "
+    },
+    {
+     "label": "Patient",
+     "result": "NAVIGATE",
+     "to": "→ | تفاصيل الطلب | م | — | — | Card | سحب منزلي | ال"
     },
     {
      "label": "الرئيسية",
@@ -509,7 +517,8 @@
     },
     {
      "label": "بنادول اكسترا 500 ملغ a33d6a",
-     "result": "NO_EFFECT"
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
     },
     {
      "label": "فيتامين سي 1000 ملغ 2dfd4a",
@@ -545,15 +554,6 @@
      "label": "الوظائف",
      "result": "NAVIGATE",
      "to": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | "
-    },
-    {
-     "label": "الأدوية",
-     "result": "NO_EFFECT"
-    },
-    {
-     "label": "الإعدادات",
-     "result": "NAVIGATE",
-     "to": "الإعدادات | معمل نبضة الطبي | نشط | إدارة المخ"
     }
    ]
   },
@@ -646,32 +646,32 @@
     {
      "label": "(icon #15)",
      "result": "TAP_FAILED",
-     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+     "error": "element not found: الإعدادات"
     },
     {
      "label": "الوظائف الطبية",
      "result": "TAP_FAILED",
-     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+     "error": "element not found: الإعدادات"
     },
     {
      "label": "دليل الأدوية الطبي",
      "result": "TAP_FAILED",
-     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+     "error": "element not found: الإعدادات"
     },
     {
      "label": "تغيير كلمة المرور",
      "result": "TAP_FAILED",
-     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+     "error": "element not found: الإعدادات"
     },
     {
      "label": "التحقق الثنائي",
      "result": "TAP_FAILED",
-     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+     "error": "element not found: الإعدادات"
     },
     {
      "label": "الأجهزة",
      "result": "TAP_FAILED",
-     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+     "error": "element not found: الإعدادات"
     },
     {
      "label": "تسجيل الخروج",
@@ -681,11 +681,27 @@
   },
   {
    "path": [
+    "الطلبات",
+    "الجدولة والسحب"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الطلبات"
+  },
+  {
+   "path": [
+    "الطلبات",
+    "Patient"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الطلبات"
+  },
+  {
+   "path": [
     "الوظائف",
     "(icon #1)"
    ],
    "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
+   "error": "element not found: الوظائف"
   },
   {
    "path": [
@@ -693,7 +709,7 @@
     "إضافة إعلان"
    ],
    "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
+   "error": "element not found: الوظائف"
   },
   {
    "path": [
@@ -701,7 +717,7 @@
     "pain (8)"
    ],
    "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
+   "error": "element not found: الأدوية"
   },
   {
    "path": [
@@ -709,7 +725,7 @@
     "UE3C96A10 (2)"
    ],
    "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
+   "error": "element not found: الأدوية"
   },
   {
    "path": [
@@ -717,7 +733,7 @@
     "category-20703 (1)"
    ],
    "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
+   "error": "element not found: الأدوية"
   },
   {
    "path": [
@@ -725,7 +741,7 @@
     "UE3C96A04"
    ],
    "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
+   "error": "element not found: الأدوية"
   },
   {
    "path": [
@@ -733,7 +749,7 @@
     "name_ar-20700"
    ],
    "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
+   "error": "element not found: الأدوية"
   },
   {
    "path": [
@@ -741,7 +757,7 @@
     "بنادول اكسترا 500 ملغ 18f732"
    ],
    "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
+   "error": "element not found: الأدوية"
   },
   {
    "path": [
@@ -749,7 +765,7 @@
     "بنادول اكسترا 500 ملغ 730a68"
    ],
    "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
+   "error": "element not found: الأدوية"
   },
   {
    "path": [
@@ -757,7 +773,15 @@
     "بنادول اكسترا 500 ملغ 81b23b"
    ],
    "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
+   "error": "element not found: الأدوية"
+  },
+  {
+   "path": [
+    "الأدوية",
+    "بنادول اكسترا 500 ملغ a33d6a"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الأدوية"
   },
   {
    "path": [
@@ -765,15 +789,7 @@
     "فيتامين سي 1000 ملغ 2dfd4a"
    ],
    "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
-  },
-  {
-   "path": [
-    "الأدوية",
-    "فيتامين سي 1000 ملغ 874ed2"
-   ],
-   "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
+   "error": "element not found: الأدوية"
   },
   {
    "path": [
@@ -781,7 +797,7 @@
     "فيتامين سي 1000 ملغ bca0db"
    ],
    "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
+   "error": "element not found: الأدوية"
   },
   {
    "path": [
@@ -789,15 +805,7 @@
     "فيتامين سي 1000 ملغ fc3790"
    ],
    "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
-  },
-  {
-   "path": [
-    "الأدوية",
-    "الطلبات"
-   ],
-   "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
+   "error": "element not found: الأدوية"
   },
   {
    "path": [
@@ -805,7 +813,7 @@
     "قائمة التحاليل والأسعار"
    ],
    "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
+   "error": "element not found: الإعدادات"
   },
   {
    "path": [
@@ -813,7 +821,7 @@
     "إعدادات الخدمة المنزلية"
    ],
    "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
+   "error": "element not found: الإعدادات"
   },
   {
    "path": [
@@ -821,7 +829,7 @@
     "مواعيد العمل"
    ],
    "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
+   "error": "element not found: الإعدادات"
   },
   {
    "path": [
@@ -829,7 +837,7 @@
     "إعدادات التأمين"
    ],
    "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
+   "error": "element not found: الإعدادات"
   },
   {
    "path": [
@@ -837,7 +845,7 @@
     "طلبات التأمين الواردة"
    ],
    "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
+   "error": "element not found: الإعدادات"
   },
   {
    "path": [
@@ -845,7 +853,7 @@
     "الرخص والمستندات الرسمية"
    ],
    "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
+   "error": "element not found: الإعدادات"
   },
   {
    "path": [
@@ -853,7 +861,7 @@
     "الصور والوسائط"
    ],
    "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
+   "error": "element not found: الإعدادات"
   },
   {
    "path": [
@@ -861,7 +869,7 @@
     "مركز العروض الترويجية"
    ],
    "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
+   "error": "element not found: الإعدادات"
   },
   {
    "path": [
@@ -869,7 +877,7 @@
     "إعدادات الصفحة العامة"
    ],
    "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
+   "error": "element not found: الإعدادات"
   },
   {
    "path": [
@@ -877,7 +885,7 @@
     "مستوى السمعة والتقييمات"
    ],
    "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
+   "error": "element not found: الإعدادات"
   },
   {
    "path": [
@@ -885,7 +893,7 @@
     "إدارة العملاء والأرباح"
    ],
    "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
+   "error": "element not found: الإعدادات"
   },
   {
    "path": [
@@ -893,7 +901,7 @@
     "ماسح باركود العينات (Vial)"
    ],
    "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
+   "error": "element not found: الإعدادات"
   },
   {
    "path": [
@@ -901,7 +909,7 @@
     "(icon #14)"
    ],
    "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
+   "error": "element not found: الإعدادات"
   }
  ],
  "unvisited_states": 0

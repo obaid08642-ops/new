@@ -5,7 +5,7 @@ Method: no claim from `AGENT_PROGRESS.md` was taken on trust. Every result below
 local stack: Mongo replica set, Redis, moto S3, SMTP sink, fake Moyasar, admin BFF with the gate token, and a fresh
 database per run.
 
-**Verdict: CHANGES REQUIRED.** The FAIL lists (R1–R22, round 4: R23–R65, round 5: R66–R77) are mandatory before Phase 12 screens (A11/C3/C4) continue.
+**Verdict: CHANGES REQUIRED.** The FAIL lists (R1–R22, round 4: R23–R65, round 5: R66–R83) are mandatory before Phase 12 screens (A11/C3/C4) continue.
 The items marked *fixed by reviewer* are already in this PR. Do not revert them.
 
 ---
@@ -490,6 +490,24 @@ The website result page uses it with `?id=`. Never trust the query `status`.
 **R76 (Medium)** The patient app home must render the admin home curation (`/content/home`) like the website.
 
 **R77 (Low)** Admin pages must show readable errors (broadcast 400, step-up).
+
+**Round 5 addendum — fixed by the reviewer (do not revert):**
+- R78: orders hub crash on address objects;
+- R79: loyalty claim and award are atomic (balance went to −280 with parallel claims);
+- R80: points history in the app (crash) and the website (empty);
+- R81: orders hub and insurance claim include `pharmacy_orders`, plus status labels;
+- R82: `apiFetch` returns null for an empty 2xx body.
+
+**R79b (High)** Loyalty duplicate and cap races.
+- `awardPoints` checks for a duplicate with find-then-create, and `loyalty_transactions` has no unique index. Two events for the same completion (`booking.completed` and `service.completed`) at the same time can both award.
+- The daily and monthly caps and the vitals 5-per-day check are count-then-insert.
+- Add a unique partial index on `(user_id, reason, ref_type, ref_id)` where `ref_id` exists, and handle the duplicate-key error as `duplicate: true`. Make the cap checks atomic (e.g. a per-user-per-day counter document with a conditional `$inc`).
+- **Verify:** 10 parallel awards with the same ref → 1 transaction; 10 parallel vitals awards → at most the cap.
+
+**R83 (Medium)** Persist the clinic name and address from doctor registration step 3.
+- Expose them on `/care/doctors/:id`, in the list, and through the location.
+- Show them on the website doctor page, on the patient app doctor screen, and in the booking confirmation.
+- **Verify:** register a doctor through the provider app with a clinic address → admin approves → the website and app doctor pages show it.
 
 ---
 

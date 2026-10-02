@@ -460,7 +460,7 @@
    "path": [
     "الأدوية"
    ],
-   "heading": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A10 (2) | category-2070",
+   "heading": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A10 (2) | UC15A2210 (1)",
    "status": "TESTED",
    "render": {
     "js": [],
@@ -492,9 +492,19 @@
      "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
     },
     {
+     "label": "UC15A2210 (1)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
      "label": "category-20703 (1)",
      "result": "NAVIGATE",
      "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "UC15A2204 (معدّل E2E)",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | UC15A2204 (معدّل E2"
     },
     {
      "label": "UE3C96A04",
@@ -564,11 +574,6 @@
     {
      "label": "الأدوية",
      "result": "NO_EFFECT"
-    },
-    {
-     "label": "الإعدادات",
-     "result": "NAVIGATE",
-     "to": "الإعدادات | نبضة للتمريض | نشط | الملف الشخصي | "
     }
    ]
   },
@@ -671,29 +676,318 @@
     {
      "label": "(icon #17)",
      "result": "TAP_FAILED",
-     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+     "error": "element not found: الإعدادات"
     },
     {
      "label": "الإشعارات",
      "result": "TAP_FAILED",
-     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+     "error": "element not found: الإعدادات"
     },
     {
      "label": "الوظائف الطبية",
      "result": "TAP_FAILED",
-     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+     "error": "element not found: الإعدادات"
     },
     {
      "label": "دليل الأدوية الطبي",
      "result": "TAP_FAILED",
-     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+     "error": "element not found: الإعدادات"
     },
     {
      "label": "تغيير كلمة المرور",
      "result": "TAP_FAILED",
-     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+     "error": "element not found: الإعدادات"
     }
    ]
+  },
+  {
+   "path": [
+    "قائمة",
+    "التحقق من هوية المريض"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: قائمة"
+  },
+  {
+   "path": [
+    "تقرير",
+    "انقر هنا لتوقيع المريض"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: تقرير"
+  },
+  {
+   "path": [
+    "الطلبات",
+    "مؤكدة"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الطلبات"
+  },
+  {
+   "path": [
+    "الطلبات",
+    "الأدوية"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الطلبات"
+  },
+  {
+   "path": [
+    "الوظائف",
+    "(icon #1)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الوظائف"
+  },
+  {
+   "path": [
+    "الوظائف",
+    "إضافة إعلان"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الوظائف"
+  },
+  {
+   "path": [
+    "الأدوية",
+    "pain (8)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الأدوية"
+  },
+  {
+   "path": [
+    "الأدوية",
+    "UE3C96A10 (2)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الأدوية"
+  },
+  {
+   "path": [
+    "الأدوية",
+    "UC15A2210 (1)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الأدوية"
+  },
+  {
+   "path": [
+    "الأدوية",
+    "category-20703 (1)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الأدوية"
+  },
+  {
+   "path": [
+    "الأدوية",
+    "UC15A2204 (معدّل E2E)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الأدوية"
+  },
+  {
+   "path": [
+    "الأدوية",
+    "UE3C96A04"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الأدوية"
+  },
+  {
+   "path": [
+    "الأدوية",
+    "name_ar-20700"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الأدوية"
+  },
+  {
+   "path": [
+    "الأدوية",
+    "بنادول اكسترا 500 ملغ 18f732"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الأدوية"
+  },
+  {
+   "path": [
+    "الأدوية",
+    "بنادول اكسترا 500 ملغ 730a68"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الأدوية"
+  },
+  {
+   "path": [
+    "الأدوية",
+    "بنادول اكسترا 500 ملغ 81b23b"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الأدوية"
+  },
+  {
+   "path": [
+    "الأدوية",
+    "فيتامين سي 1000 ملغ 2dfd4a"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الأدوية"
+  },
+  {
+   "path": [
+    "الأدوية",
+    "فيتامين سي 1000 ملغ 874ed2"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الأدوية"
+  },
+  {
+   "path": [
+    "الأدوية",
+    "فيتامين سي 1000 ملغ bca0db"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الأدوية"
+  },
+  {
+   "path": [
+    "الأدوية",
+    "فيتامين سي 1000 ملغ fc3790"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الأدوية"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "معلومات الحساب"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الإعدادات"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "الخدمات المقدمة"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الإعدادات"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "نموذج التسعير"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الإعدادات"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "نطاق التغطية"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الإعدادات"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "مواعيد العمل"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الإعدادات"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "التأمين الصحي"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الإعدادات"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "طلبات التأمين الواردة"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الإعدادات"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "الشهادات والمؤهلات"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الإعدادات"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "الصور والوسائط"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الإعدادات"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "إعدادات الصفحة العامة"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الإعدادات"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "الاشتراكات والإعلانات"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الإعدادات"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "مستوى السمعة والتقييمات"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الإعدادات"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "مراقبة حالات الطوارئ"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الإعدادات"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "وحدة تتبع زيارات التمريض (GPS)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الإعدادات"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "قائمة مهام العلامات الحيوية والرعاية"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الإعدادات"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "(icon #16)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الإعدادات"
   }
- ]
+ ],
+ "unvisited_states": 0
 }
