@@ -748,3 +748,41 @@ Still open from earlier rounds, re-confirmed live in this run:
 - **R17:** theme-control saves without CSRF and shows a fake "saved".
 - **R23:** step-up.
 - **F2:** insurance.
+
+### Round 7 — owner decisions (2026-10-02, delegated to the reviewer by the owner)
+
+These replace "agree with the owner" in the items above. Implement exactly this.
+
+**Q38 — notification key mapping.** The app keeps its switches; the client maps them to the API body below (no new flat keys in the DTO):
+
+| App switch | API field | Default |
+|---|---|---|
+| `general` | `channels.push` | on |
+| `appointments` | `categories.appointments` | on |
+| `orders` | `categories.orders` | on |
+| `medications` | `categories.health` | on |
+| `doctorMessages` | `categories.chat` | on |
+| `offers` | `categories.marketing` | **off** (explicit opt-in: marketing consent, PDPL) |
+| `emergency` | none: always on, shown as a locked switch with a one-line reason | on |
+| `sound`, `vibration` | none: device-local (stored on the device, applied to the local notification channel) | on |
+
+- On load, the screen reads `GET` settings and maps back with the same table.
+- On failure, the switch reverts and the error is shown.
+- **Verify:** flip each switch → reload → same state, for both the app and the website settings page. A Jest test covers the mapping both ways.
+
+**Q37 — slot list vs buffer.** Keep the doctor's 5-minute buffer.
+- The slot list and the booking check must call **one** shared availability function.
+- A slot that the booking check would refuse is listed `available: false`.
+- **Verify:** `tools/live/j_concurrency.py`, step "the previous slot is either not listed as available or bookable", passes. A unit test covers the slot directly before and after a booking.
+
+**Q42 — dispatch screens.** Do not widen API permissions; dispatch stays with ambulance operations.
+- Show `sos_dispatch` and `hospital_dispatch` only to the provider types whose API calls answer 2xx today.
+- **Verify:** a provider crawl of all 7 types shows no 403 from those screens.
+
+**Q3 / test data.**
+- The QA-window cleanup was applied: 5,350 documents, 130 test users (`docs/review/evidence/qa_cleanup_applied_20261002T224103.json`).
+- Older crawler records from before that window still need deleting: 4 insurance companies, 3 meal logs, 2 articles, 4 medicines with their price history. That delete was blocked by the session's permission rules and is left for the owner. The agent does not touch QA data.
+
+**Q18 — COD policy.** `platform-cod` is `active: true` again (re-enabled by the admin journey at 17:41). Nothing to do.
+
+**Native CI.** The reviewer recommends adopting `NATIVE_CI_PROPOSAL.md`, Android (Linux runner) first and iOS second. Nothing is enabled until the owner gives explicit approval for the CI change.
