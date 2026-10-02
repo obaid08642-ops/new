@@ -78,6 +78,9 @@ def main():
         return route.continue_()
     ctx.route('**/api/**', guard)
     page.on('pageerror', lambda e: ev['js'].append(str(e)[:200]))
+    # Next.js catches render errors itself (no 'pageerror'): it logs them and shows "Application error: a client-side
+    # exception has occurred". The 2026-10-02 admin crawl scored /admin/price-override-audit clean while it showed that.
+    page.on('console', lambda m: ev['js'].append('console: ' + m.text[:200]) if m.type == 'error' and ('client-side exception' in m.text or 'TypeError' in m.text or 'ReferenceError' in m.text) else None)
     page.on('dialog', lambda d: d.dismiss())          # never confirm a browser confirm() on its own
     # Track every same-site fetch/xhr, not only /api/: Next.js client navigation loads the next page with
     # `?_rsc=` fetches; ignoring them judged a link "ready" before it navigated (558 false NO_EFFECTs).
