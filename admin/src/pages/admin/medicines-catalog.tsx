@@ -142,7 +142,9 @@ export default function MedicinesCatalogPage() {
   };
 
   const saveForm = async () => {
-    const payload: any = { ...form };
+    // Only the form's own editable fields: openEdit() loads the whole stored document into the form, and sending
+    // it back (_id, id, deleted_at, verified, …) made every edit fail with 400 (forbidNonWhitelisted).
+    const payload: any = Object.fromEntries(Object.keys(EMPTY_FORM).filter((k) => k !== 'reason').map((k) => [k, form[k]]));
     for (const f of ['indications_ar','indications_en','contraindications_ar','contraindications_en','warnings_ar','warnings_en','side_effects_ar','side_effects_en','precautions_ar','precautions_en']) {
       payload[f] = toArr(form[f]);
     }

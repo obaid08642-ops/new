@@ -100,17 +100,26 @@ def main():
         head = re.sub(r'\d+', '#', (page.inner_text('body') or '')[:40])
         return hashlib.md5((head + '|' + '|'.join(labels)).encode()).hexdigest()[:10]
 
-    def tap(label, idx):
-        cands = page.locator(TAPPABLE)
-        target = cands.nth(idx) if idx < cands.count() else None
-        try:
-            ok = target is not None and (label.startswith('(icon #') or ((target.inner_text(timeout=300) or '').strip().split('\n')[0])[:40] == label)
-        except Exception:
-            ok = False
-        if not ok:
-            target = page.locator(TAPPABLE, has_text=label).first if label else None
+    def tap(label, idx, wait_s=0):
+        """Tap the control whose first text line is `label` (or, for icon-only controls, the one at `idx`).
+        On replay (wait_s > 0) the screen may still be loading and positions shift as data arrives, so poll for
+        the exact label instead of trusting the recorded index (replays used to fail on async screens)."""
+        deadline = time.time() + wait_s
+        while True:
+            target = None
+            if label.startswith('(icon #'):
+                cands = page.locator(TAPPABLE)
+                if idx < cands.count():
+                    target = cands.nth(idx)
+            else:
+                for t2, i2 in tappables():
+                    if t2 == label:
+                        target = page.locator(TAPPABLE).nth(i2); break
+            if target is not None or time.time() >= deadline:
+                break
+            page.wait_for_timeout(500)
         if target is None:
-            raise RuntimeError('element gone')
+            raise RuntimeError(f'element not found: {label}')
         try:
             target.scroll_into_view_if_needed(timeout=1500)
         except Exception:
@@ -133,7 +142,7 @@ def main():
     def enter(path):
         page.goto(WEB + '/', wait_until='load', timeout=45000); page.wait_for_timeout(5000)
         for label, idx in path:
-            tap(label, idx); page.wait_for_timeout(1800)
+            tap(label, idx, wait_s=10); page.wait_for_timeout(1800)
 
     home = signature()
     queue = [([], home)]
@@ -146,7 +155,14 @@ def main():
             ev['js'].clear(); ev['resp'].clear()
             enter(path)
         except Exception as e:
-            report['states'].append({'path': [p[0] for p in path], 'status': 'REPLAY_FAILED', 'error': str(e)[:100]}); continue
+            shot = os.path.join('/tmp', f'replay_fail_{PTYPE}_{len(report["states"])}.png')
+            try:
+                page.screenshot(path=shot)
+                seen_now = [t for t, _ in tappables()][:25]
+            except Exception:
+                seen_now = []
+            report['states'].append({'path': [p[0] for p in path], 'status': 'REPLAY_FAILED', 'error': str(e)[:100],
+                                     'url_now': page.url, 'controls_now': seen_now, 'screenshot': shot}); continue
         heading = (page.inner_text('body') or '')[:60].replace('\n', ' | ')
         render = {'js': list(ev['js']), 'bad_reads': sorted({f'{s} {m} {u}' for s, m, u in ev['resp'] if s >= 400 and m == 'GET'})}
         tag = 'V' + uuid.uuid4().hex[:5].upper()

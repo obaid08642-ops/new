@@ -1,5 +1,6 @@
 import { isProviderRole } from '../../common/enums';
 import { Controller, Post, Get, Patch, Delete, Body, Param, Query, Req, Inject } from '@nestjs/common';
+import { ServiceUnavailableException } from '@nestjs/common';
 import { DisableDto, EndConsultationDto, IssueSickLeaveDto, IssueMedicalReportDto, SetAvailDto, PreviewAdHocDto, DispatchDto, WithdrawAliasDto, UploadProfileImageDto, ReplaceImageDto, AssignStaffDto } from './provider.controllers.dto';
 import { RegisterDto, LoginDto, RefreshDto, LogoutDto, SendOtpDto, VerifyEmailDto, ForgotDto, VerifyResetCodeDto, ResetDto, AddPhoneDto, UploadDocDto, UploadDocDto2, UpsertBankDto, SubmitDeltaDto, SubmitDeltaDto2, InviteDto, AcceptDto, UpdateDto2, RejectDeltaDto, RejectDeltaDto2, ApproveDto, RejectDto, NeedsChangesDto, SuspendDto, ReactivateDto, AcceptDto2, RejectDto2, StartDto, CompleteDto, CancelDto, UpsertPharmaDto, UpsertLabDto, UpsertLabDto2, UpsertRadDto, UpsertRadDto2, UpsertDocDto, UpsertDocDto2, UpsertHcDto, UpsertHcDto2, UpsertDto, UpsertDto2 } from './provider.controllers.generated.dto';
 import { LedgerService } from '../finance-engine/finance-engine.module';
@@ -466,10 +467,17 @@ export class ProviderDashboardController {
   @Get('availability') getAvail(@CurrentUser() u: any) { return this.dash.getAvailability(u); }
   @SelfService()
   @Post('availability') setAvail(@CurrentUser() u: any, @Body() body: SetAvailDto) { return this.dash.setAvailability(u, body); }
+  // R71 / F17: demo data only in explicit test mode. Open in every environment, any provider (an ambulance
+  // included) could plant schedules that skip admin approval and pharmacy/lab/radiology/doctor capabilities.
+  private assertTestSeedAllowed() {
+    if (process.env.NODE_ENV !== 'test' || process.env.ALLOW_TEST_SEED !== 'true') {
+      throw new ServiceUnavailableException('test_seed_disabled');
+    }
+  }
   @SelfService()
-  @Post('seed') seed(@CurrentUser() u: any) { return this.seedSvc.seed(u); }
+  @Post('seed') seed(@CurrentUser() u: any) { this.assertTestSeedAllowed(); return this.seedSvc.seed(u); }
   @SelfService()
-  @Post('seed/reset') seedReset(@CurrentUser() u: any) { return this.seedSvc.resetSeed(u); }
+  @Post('seed/reset') seedReset(@CurrentUser() u: any) { this.assertTestSeedAllowed(); return this.seedSvc.resetSeed(u); }
 }
 
 

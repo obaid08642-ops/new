@@ -114,6 +114,37 @@ describe('LoyaltyService', () => {
 
       await expect(service.claimReward('user-1', 'rwd-1')).rejects.toThrow('Insufficient points');
     });
+
+    // R79: 6 parallel claims took a 350-point balance to -280. The debit and the stock reservation are now
+    // conditional updates; when one matches nothing the claim fails and nothing is recorded.
+    it('refuses when the conditional debit loses a race, and returns the reserved stock', async () => {
+      rewardModel.findOne.mockReturnValue({
+        lean: jest.fn().mockResolvedValue({ id: 'rwd-1', points_required: 210, active: true, stock: 5, reward_type: 'coupon' }),
+      });
+      accountModel.findOne.mockReturnValue({ lean: jest.fn().mockResolvedValue({ user_id: 'user-1', points: 350 }) });
+      rewardModel.updateOne.mockResolvedValue({ id: 'rwd-1', stock: 4 });
+      accountModel.updateOne.mockResolvedValue(null); // another claim already spent the balance
+
+      await expect(service.claimReward('user-1', 'rwd-1')).rejects.toThrow('Insufficient points');
+      expect(accountModel.updateOne).toHaveBeenCalledWith(
+        { user_id: 'user-1', points: { $gte: 210 } }, { $inc: { points: -210 } },
+      );
+      expect(rewardModel.updateOne).toHaveBeenLastCalledWith({ id: 'rwd-1' }, { $inc: { stock: 1 } });
+      expect(txModel.create).not.toHaveBeenCalled();
+      expect(claimModel.create).not.toHaveBeenCalled();
+    });
+
+    it('refuses when the stock is gone, without debiting', async () => {
+      rewardModel.findOne.mockReturnValue({
+        lean: jest.fn().mockResolvedValue({ id: 'rwd-1', points_required: 10, active: true, stock: 0, reward_type: 'coupon' }),
+      });
+      accountModel.findOne.mockReturnValue({ lean: jest.fn().mockResolvedValue({ user_id: 'user-1', points: 350 }) });
+      rewardModel.updateOne.mockResolvedValue(null);
+
+      await expect(service.claimReward('user-1', 'rwd-1')).rejects.toThrow('out of stock');
+      expect(accountModel.updateOne).not.toHaveBeenCalled();
+      expect(txModel.create).not.toHaveBeenCalled();
+    });
   });
 
   describe('getLeaderboard', () => {

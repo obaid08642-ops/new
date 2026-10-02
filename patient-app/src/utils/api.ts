@@ -102,8 +102,12 @@ export async function apiFetch<T = any>(endpoint: string, options: RequestInit =
     throw new Error(errorMsg);
   }
 
+  // A 2xx with no body (e.g. GET /emergency/my/active when nothing is active) means "no data", not a broken
+  // contract: treating it as an error made the orders hub report a failed section on every load.
+  const text = await response.text();
+  if (!text.trim()) return null as T;
   try {
-    return await response.json();
+    return JSON.parse(text);
   } catch {
     throw new ApiContractError('invalid_response');
   }

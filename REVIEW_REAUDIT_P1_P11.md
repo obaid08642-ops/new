@@ -5,7 +5,7 @@ Method: no claim from `AGENT_PROGRESS.md` was taken on trust. Every result below
 local stack: Mongo replica set, Redis, moto S3, SMTP sink, fake Moyasar, admin BFF with the gate token, and a fresh
 database per run.
 
-**Verdict: CHANGES REQUIRED.** The FAIL lists (R1–R22, and round 4: R23–R40) are mandatory before Phase 12 screens (A11/C3/C4) continue.
+**Verdict: CHANGES REQUIRED.** The FAIL lists (R1–R22, round 4: R23–R65, round 5: R66–R83) are mandatory before Phase 12 screens (A11/C3/C4) continue.
 The items marked *fixed by reviewer* are already in this PR. Do not revert them.
 
 ---
@@ -440,6 +440,74 @@ Add `python3 tools/audit/ctx_props.py` to your gate (exit 0): R58/R59 came from 
 - re-run the matching tool from `tools/live/` or `tools/audit/` and paste its real output.
 
 UI crawls (react-native-web exports, see `tools/live/rn_web_crawl.py` and `tools/live/rn_nav_crawl.py`) must show no JS_ERROR on the screens you touch.
+
+---
+
+## Round 5 — the remaining untested areas (2026-10-02)
+
+Full report: `docs/review/AUDIT_2026-10-02.md`.
+
+**Fixed by the reviewer in this PR (do not revert):**
+- R66: website booking route rejected every booking;
+- R70: the payment result page no longer trusts `?status=`;
+- R71: `/provider/seed` is test-mode only;
+- R72: admin medicine edit sent the whole document;
+- R73: no invented slots;
+- R74: doctor page notice (ar/en).
+
+**Mandatory (agent):**
+
+**R66b (Medium)** Booking for someone else.
+- The website collects the patient's name and phone; today they travel in the notes.
+- Add real fields if booking for a family member is intended, or remove the inputs. Do the same in the app.
+
+**R67 (High)** One clinic timezone (Asia/Riyadh) for slot generation, lead time, "today", reminders and display.
+- Store UTC instants; render in the clinic timezone on the website, the patient app, the provider app and the admin.
+- **Verify:** doctor opens 08:00–18:00 → first slot 08:00 Riyadh in all four clients; book 11:00 → all four show 11:00 (browser with `timezone_id=Asia/Riyadh`).
+
+**R68 (Medium)** The doctor must see the patient's booking notes:
+- in the queue item;
+- on the appointment and consultation screens.
+
+**R69 (Medium)** When the patient cancels: notify the provider, and store and show the reason (website + app).
+
+**R70 (High)** Add `POST /payments/verify-by-gateway/:gatewayId`:
+- resolve the gateway id to our transaction;
+- check ownership;
+- verify with the gateway.
+
+The website result page uses it with `?id=`. Never trust the query `status`.
+- **Verify:** pay on the website → the return page shows paid and the booking is CONFIRMED; a forged `?status=paid&id=pay_x` shows "processing".
+
+**R74 (Low)** Translate the corrected `Doctors.detailNotice` into bn/fil/hi/ur.
+
+**R75 (Low)** No raw codes for patients:
+- status labels;
+- specialty names;
+- local-time confirmation;
+- English payment labels.
+
+**R76 (Medium)** The patient app home must render the admin home curation (`/content/home`) like the website.
+
+**R77 (Low)** Admin pages must show readable errors (broadcast 400, step-up).
+
+**Round 5 addendum — fixed by the reviewer (do not revert):**
+- R78: orders hub crash on address objects;
+- R79: loyalty claim and award are atomic (balance went to −280 with parallel claims);
+- R80: points history in the app (crash) and the website (empty);
+- R81: orders hub and insurance claim include `pharmacy_orders`, plus status labels;
+- R82: `apiFetch` returns null for an empty 2xx body.
+
+**R79b (High)** Loyalty duplicate and cap races.
+- `awardPoints` checks for a duplicate with find-then-create, and `loyalty_transactions` has no unique index. Two events for the same completion (`booking.completed` and `service.completed`) at the same time can both award.
+- The daily and monthly caps and the vitals 5-per-day check are count-then-insert.
+- Add a unique partial index on `(user_id, reason, ref_type, ref_id)` where `ref_id` exists, and handle the duplicate-key error as `duplicate: true`. Make the cap checks atomic (e.g. a per-user-per-day counter document with a conditional `$inc`).
+- **Verify:** 10 parallel awards with the same ref → 1 transaction; 10 parallel vitals awards → at most the cap.
+
+**R83 (Medium)** Persist the clinic name and address from doctor registration step 3.
+- Expose them on `/care/doctors/:id`, in the list, and through the location.
+- Show them on the website doctor page, on the patient app doctor screen, and in the booking confirmation.
+- **Verify:** register a doctor through the provider app with a clinic address → admin approves → the website and app doctor pages show it.
 
 ---
 

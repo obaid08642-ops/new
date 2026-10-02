@@ -23,7 +23,7 @@ describe('apiFetch security contract', () => {
   });
 
   it('never reads an authorization token from the legacy AsyncStorage mirror', async () => {
-    (global.fetch as jest.Mock).mockResolvedValue({ ok: true, json: jest.fn().mockResolvedValue({ ok: true }) });
+    (global.fetch as jest.Mock).mockResolvedValue({ ok: true, text: jest.fn().mockResolvedValue('{"ok":true}') });
 
     await apiFetch('/public-data');
 
@@ -34,9 +34,17 @@ describe('apiFetch security contract', () => {
   });
 
   it('raises a typed contract error when a successful HTTP response is not JSON', async () => {
-    (global.fetch as jest.Mock).mockResolvedValue({ ok: true, json: jest.fn().mockRejectedValue(new Error('invalid json')) });
+    (global.fetch as jest.Mock).mockResolvedValue({ ok: true, text: jest.fn().mockResolvedValue('<html>not json') });
 
     await expect(apiFetch('/malformed')).rejects.toEqual(expect.objectContaining({ code: 'invalid_response' }));
+  });
+
+  it('returns null for a successful response with an empty body', async () => {
+    // GET /emergency/my/active answers 200 with no body when nothing is active; this used to throw and the orders
+    // hub reported a failed section on every load.
+    (global.fetch as jest.Mock).mockResolvedValue({ ok: true, text: jest.fn().mockResolvedValue('') });
+
+    await expect(apiFetch('/emergency/my/active')).resolves.toBeNull();
   });
 
   it('does not create or retry as a guest session after an authentication error', async () => {
@@ -54,7 +62,7 @@ describe('apiFetch security contract', () => {
   });
 
   it('adds an idempotency key to every mutation (routes with @RequireIdempotency reject calls without one)', async () => {
-    (global.fetch as jest.Mock).mockResolvedValue({ ok: true, json: jest.fn().mockResolvedValue({ ok: true }) });
+    (global.fetch as jest.Mock).mockResolvedValue({ ok: true, text: jest.fn().mockResolvedValue('{"ok":true}') });
     await apiFetch('/health/vitals', { method: 'POST', body: '{}' });
     await apiFetch('/health/reminders/1', { method: 'PATCH', body: '{}' });
     await apiFetch('/health/vitals');
@@ -66,7 +74,7 @@ describe('apiFetch security contract', () => {
   });
 
   it("keeps the caller's own idempotency key", async () => {
-    (global.fetch as jest.Mock).mockResolvedValue({ ok: true, json: jest.fn().mockResolvedValue({ ok: true }) });
+    (global.fetch as jest.Mock).mockResolvedValue({ ok: true, text: jest.fn().mockResolvedValue('{"ok":true}') });
     await apiFetch('/cart/checkout', { method: 'POST', body: '{}', headers: { 'idempotency-key': 'checkout-attempt-1' } });
     expect(new Headers((global.fetch as jest.Mock).mock.calls[0][1].headers).get('Idempotency-Key')).toBe('checkout-attempt-1');
   });

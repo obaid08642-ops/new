@@ -1,0 +1,287 @@
+{
+ "provider_type": "pharmacy",
+ "login_via_ui": true,
+ "states": [
+  {
+   "path": [],
+   "heading": "الرادار المباشر |  غير متصل | moon | أنت غير متصل | قم بتفعيل الاتصا",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/provider/ops/availability/toggle-instant",
+     "tokens_sent": 0,
+     "tokens_stored": 0
+    },
+    {
+     "label": "الطلبات",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "النواقص",
+     "result": "NAVIGATE",
+     "to": "→ | المستودع والإمداد | طلب توريد (B2B) | المر"
+    },
+    {
+     "label": "التوصيل",
+     "result": "NAVIGATE",
+     "to": "→ | التوصيل والتسليم | moon | لا توجد طلبات | ست"
+    },
+    {
+     "label": "الإعدادات",
+     "result": "NAVIGATE",
+     "to": "→ | إعدادات الصيدلية | خيارات التوصيل | نطاق ا"
+    }
+   ]
+  },
+  {
+   "path": [
+    "النواقص"
+   ],
+   "heading": "→ | المستودع والإمداد | طلب توريد (B2B) | المرتجعات (Returns) | الطل",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "الرادار المباشر |  غير متصل | moon | أنت غير م"
+    },
+    {
+     "label": "طلب توريد (B2B)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "المرتجعات (Returns)",
+     "result": "NAVIGATE",
+     "to": "→ | المستودع والإمداد | طلب توريد (B2B) | المر"
+    },
+    {
+     "label": "كتابة",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "صوت",
+     "result": "NAVIGATE",
+     "to": "→ | المستودع والإمداد | طلب توريد (B2B) | المر"
+    },
+    {
+     "label": "تصوير الرف",
+     "result": "NAVIGATE",
+     "to": "→ | المستودع والإمداد | طلب توريد (B2B) | المر"
+    },
+    {
+     "label": "إرسال الطلب",
+     "result": "WRITE",
+     "status": 503,
+     "method": "POST",
+     "url": "/pharmacy/procurement/analyze-file",
+     "tokens_sent": 1,
+     "tokens_stored": 0
+    },
+    {
+     "label": "الطلبات",
+     "result": "NAVIGATE",
+     "to": "الرادار المباشر |  غير متصل | moon | أنت غير م"
+    },
+    {
+     "label": "النواقص",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "التوصيل",
+     "result": "NAVIGATE",
+     "to": "→ | التوصيل والتسليم | moon | لا توجد طلبات | ست"
+    },
+    {
+     "label": "الإعدادات",
+     "result": "NAVIGATE",
+     "to": "→ | إعدادات الصيدلية | خيارات التوصيل | نطاق ا"
+    }
+   ]
+  },
+  {
+   "path": [
+    "التوصيل"
+   ],
+   "heading": "→ | التوصيل والتسليم | moon | لا توجد طلبات | ستظهر الطلبات المختارة",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "الرادار المباشر |  غير متصل | moon | أنت غير م"
+    },
+    {
+     "label": "الطلبات",
+     "result": "NAVIGATE",
+     "to": "الرادار المباشر |  غير متصل | moon | أنت غير م"
+    },
+    {
+     "label": "النواقص",
+     "result": "NAVIGATE",
+     "to": "→ | المستودع والإمداد | طلب توريد (B2B) | المر"
+    },
+    {
+     "label": "التوصيل",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الإعدادات",
+     "result": "NAVIGATE",
+     "to": "→ | إعدادات الصيدلية | خيارات التوصيل | نطاق ا"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الإعدادات"
+   ],
+   "heading": "→ | إعدادات الصيدلية | خيارات التوصيل | نطاق التوصيل (كم) | الحد الأ",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 9,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "الرادار المباشر |  غير متصل | moon | أنت غير م"
+    },
+    {
+     "label": "نطاق التوصيل (كم)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الحد الأدنى للطلب",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "رسوم التوصيل",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "طلبات التأمين الواردة (قرار يدوي)",
+     "result": "NAVIGATE",
+     "to": "→ | قرارات التأمين — الصيدلية | سجّل رد شركة"
+    },
+    {
+     "label": "(icon #5)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "(icon #6)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "(icon #7)",
+     "result": "WRITE",
+     "status": 200,
+     "method": "PUT",
+     "url": "/provider/pharmacy/inventory-tracking",
+     "tokens_sent": 0,
+     "tokens_stored": 0
+    },
+    {
+     "label": "(icon #8)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "(icon #9)",
+     "result": "NAVIGATE",
+     "to": "← | Pharmacy Settings | DELIVERY OPTIONS | Del"
+    },
+    {
+     "label": "(icon #10)",
+     "result": "TAP_FAILED",
+     "error": "element not found: الإعدادات"
+    },
+    {
+     "label": "حفظ إعدادات الصيدلية",
+     "result": "TAP_FAILED",
+     "error": "element not found: الإعدادات"
+    },
+    {
+     "label": "الطلبات",
+     "result": "TAP_FAILED",
+     "error": "element not found: الإعدادات"
+    },
+    {
+     "label": "النواقص",
+     "result": "TAP_FAILED",
+     "error": "element not found: الإعدادات"
+    },
+    {
+     "label": "التوصيل",
+     "result": "TAP_FAILED",
+     "error": "element not found: الإعدادات"
+    },
+    {
+     "label": "الإعدادات",
+     "result": "TAP_FAILED",
+     "error": "element not found: الإعدادات"
+    }
+   ]
+  },
+  {
+   "path": [
+    "النواقص",
+    "المرتجعات (Returns)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: النواقص"
+  },
+  {
+   "path": [
+    "النواقص",
+    "صوت"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: النواقص"
+  },
+  {
+   "path": [
+    "النواقص",
+    "تصوير الرف"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: النواقص"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "طلبات التأمين الواردة (قرار يدوي)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الإعدادات"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "(icon #9)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الإعدادات"
+  }
+ ],
+ "unvisited_states": 0
+}
