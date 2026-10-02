@@ -1269,3 +1269,38 @@ j_facility 186/186  j_support 32/32  j_loyalty 104/104  j_admin_clicks 17/17
 - 7F-C6.2: FAQPage schema (exists, needs verification)
 - F82: LCP (partial)
 - Phase 12-14: not started
+
+## Round 6 — F1..F10 (local, NOT pushed: 1 journey step still red)
+
+Gate evidence (this machine, DEVELOPER_DIR=/Library/Developer/CommandLineTools):
+- backend `npx tsc --noEmit`            -> 0 errors
+- backend `npx nest build`              -> exit 0, app boots ("Nest application successfully started")
+- backend `npm test -- --runInBand`      -> `[chunked-jest] done: 10/10 chunks passed`
+- `python3 tools/audit/dtolint.py`       -> 0 in all four categories
+- `python3 tools/audit/routes.py --dups` -> 0
+- `node tools/audit/dtocheck.js`         -> 647 DTO routes, 331 matched, 11 mismatches (all pre-existing at b283822; the save-policy row is gone)
+- `python3 tools/live/j_insurance.py`    -> **140/141** (baseline 214c1c5 was 101/114 = 13 failures, all F2)
+
+F4/F5 correction found by the reviewer probes' semantics:
+- Approval must require a TYPED `provider_documents` row. Counting
+  `profile.license_documents` URL strings let 3 junk strings pass, which is
+  what R1's claim never actually did.
+- A blanket `@StepUp()` on the admin approve route is unusable: step-up needs a
+  real signed WebAuthn assertion, so no harness and no operator can satisfy it,
+  and F2's "j_insurance green" becomes impossible. Step-up is now required for
+  the override only (reason >= 20 chars AND a valid X-Step-Up-Token).
+- The live journey now uploads real KYC documents via POST
+  /provider/kyc/documents before admin review.
+
+Remaining 1 step (pre-existing, not a regression):
+- `coverage-check answers for the policy`: coverage-check matches a
+  provider/facility `insurance_contracts` entry. No API anywhere writes that
+  field (read-only in admin UI). At baseline this step was masked by 12 earlier
+  failures ("Patient has no registered insurance policy"); it now reaches the
+  real check. Closing it needs either a seed with a direct mongo client or a
+  new admin endpoint to attach a contract.
+
+Cannot run in this environment (report, do not fake):
+- `tools/live/review_r1_probe.py` and `review_loy_race.py` shell out to
+  `docker exec p5mongo mongosh`; this machine has no docker and no mongosh.
+  F4/F6 were verified by reading the probe source and reproducing its cases.
