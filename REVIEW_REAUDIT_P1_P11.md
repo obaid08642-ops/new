@@ -539,3 +539,19 @@ app      patient-app tsc 0
 live     j_nursing 76/76 after the home-care route-order fix; catalog round-trip green for labs/packages/radiology/nursing
 ```
 
+
+
+## Round 6 — gate failure on the agent tip (2026-10-02)
+
+**FAIL (mandatory before anything else):**
+- The agent tip `22a5ced` does not pass `npx tsc --noEmit` (4 errors).
+- Commit `d5b36a4` ("[R4] remove duplicate routes — packages, shortage, seo, pharmacy stubs") removed `acceptOrder`, `submitBasket`, `evaluateInsurance` and `orderDispatch` from `ProviderPharmacyController`, but `src/modules/pharmacy/tests/pharmacy-governance.controllers.spec.ts` (lines 12–17) still references them.
+- This was pushed red, against the AGENTS.md gate.
+
+Fix:
+- If these routes were real duplicates, update the spec to test the surviving routes.
+- If the provider app still calls them, restore them. Check with `grep -rn "accept\|submit-basket\|dispatch" provider-app/src`.
+
+Paste the full gate output in AGENT_PROGRESS.md.
+
+The 18 commits `7560513..22a5ced` (R1–R8) are queued for the reviewer's per-commit review.
