@@ -32,7 +32,14 @@ import { AmbulanceDashboardNavigator } from './src/screens/ambulance/AmbulanceDa
 import { AmbulanceRegistration } from './src/screens/ambulance/AmbulanceRegistration';
 import { MedicalJobsScreen, MedicalDrugIndexScreen } from './src/screens/shared/SharedScreens';
 
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
+
+// E2E-only hook: in a test build (EXPO_PUBLIC_NABD_E2E=1, inlined at build time) the browser test harness reads
+// the focused screen and opens registered screens by name through this ref. Absent from production builds.
+const navigationRef = createNavigationContainerRef<any>();
+if (process.env.EXPO_PUBLIC_NABD_E2E === '1' && typeof window !== 'undefined') {
+  (window as any).__NABD_NAV__ = navigationRef;
+}
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { LinkingOptions } from '@react-navigation/native';
 
@@ -84,7 +91,7 @@ function AppNavigator() {
 
   if (appState === 'pending' || appState === 'suspended' || appState === 'rejected' || appState === 'offline') {
     return (
-      <NavigationContainer>
+      <NavigationContainer ref={navigationRef}>
         <Stack.Navigator id={undefined as any} screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.bg } }}>
           <Stack.Screen name="Pending">
             {({ navigation }) => <PendingDashboard providerType={pType} onExplore={() => navigation.navigate('GuestJobs' as never)} onLogout={async () => { await logout(); }} />}
@@ -101,7 +108,7 @@ function AppNavigator() {
   }
 
   return (
-    <NavigationContainer linking={linking}>
+    <NavigationContainer ref={navigationRef} linking={linking}>
       <Stack.Navigator id={undefined as any} screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.bg } }}>
         {appState === 'logged_in' ? (
           <Stack.Screen name="Dashboard">
