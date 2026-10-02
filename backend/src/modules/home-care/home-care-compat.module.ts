@@ -43,13 +43,7 @@ export class HomeCareCompatController {
   }
 
   // ---- Catalog ----
-  @Public()
-  @Get('services') servicesList(@Query() q: any) {
-    // Patients only see services that passed medical review (same rule as /nursing/catalog).
-    const filter: any = { active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' };
-    if (q?.category) filter.category = q.category;
-    return this.services.find(filter, { _id: 0, __v: 0 }).lean();
-  }
+  // R4: GET services removed (dup of patient-home-care). Canonical serves this path.
 
   @Public()
   @Get('services/:id') async serviceOne(@Param('id') id: string) {
@@ -59,9 +53,7 @@ export class HomeCareCompatController {
   }
 
   @Public()
-  @Get('packages') async packagesList() {
-    return this.services.find({ ...{ active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' }, is_package: true }, { _id: 0, __v: 0 }).lean();
-  }
+  // R4: GET packages removed (dup of patient-home-care).
 
   @Public()
   @Get('providers') async providers(@Query() q: any) {
@@ -127,38 +119,9 @@ export class HomeCareCompatController {
   @SelfService()
   @Header('Deprecation', 'true')
   @Header('Sunset', 'Sat, 01 Aug 2026 00:00:00 GMT')
-  @Post('bookings') async createBooking(@CurrentUser() u: any, @Body() body: CreateBookingDto) {
-    if (u?.role !== 'patient') throw new ForbiddenException('patient_only');
-    if (!body?.service_id) throw new BadRequestException('service_id is required');
-    if (!body?.scheduled_at) throw new BadRequestException('scheduled_at is required');
-    const svc: any = await this.services.findOne({ id: { $eq: body.service_id }, active: true }).lean();
-    if (!svc) throw new NotFoundException('service not found');
-    const address = body.address_id ? await this.savedAddress(u.id, body.address_id) : body.address;
-    const doc = await this.bookings.create({
-      patient_id: u.id,
-      service_id: svc?.id || body.service_id,
-      service_name_ar: svc?.name_ar || body.service_name_ar,
-      duration: svc.duration || 'hour',
-      total: svc.price,
-      total_price: svc.price,
-      scheduled_at: new Date(body.scheduled_at),
-      address,
-      notes: body.notes?.trim() || undefined,
-      payment_method: body.payment_method,
-      provider_id: undefined,
-      state: 'NEW_REQUEST',
-      state_history: [{ state: 'NEW_REQUEST', at: new Date(), by: u.id }],
-    });
-    try { this.emitter?.emit('homecare.booking_created', { booking_id: doc.id, patient_id: u.id }); } catch {}
-    return doc.toObject();
-  }
+  // R4: POST bookings removed (dup of patient-home-care).
 
-  @Header('Deprecation', 'true')
-  @Header('Sunset', 'Sat, 01 Aug 2026 00:00:00 GMT')
-  @Get('bookings/my') myBookings(@CurrentUser() u: any, @Query() q: any) {
-    const filter: any = u.role === 'patient' ? { patient_id: u.id } : { provider_id: u.id };
-    return this.bookings.find(filter, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(50).lean();
-  }
+  // R4: GET bookings/my removed (dup of patient-home-care).
 
   // Provider app: GET /home-care/bookings/nursing/all
   @Get('bookings/nursing/all') nursingQueue(@CurrentUser() u: any, @Query() q: any) {
