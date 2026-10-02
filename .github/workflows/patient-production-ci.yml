@@ -72,6 +72,8 @@ jobs:
         run: npx tsc --noEmit
       - name: Run unit and contract tests
         run: npm test -- --runInBand
+      - name: Run boot security and journey suites (R8)
+        run: npx jest --config jest.boot.config.js --runInBand test/security test/journeys
       - name: Build
         run: npm run build
 
