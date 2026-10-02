@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { logError } from '../../src/utils/logger';
 // EPIC4/S21: was a hardcoded REPORTS list + setTimeout "share" that did
 // nothing. Now loads the real /medical-reports/mine list and shares the
 // selected reports as a text bundle via the device share sheet (real action).
@@ -12,6 +13,7 @@ import {
   ActivityIndicator,
   Share,
   Alert,
+  TextInput,
 } from "react-native";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";

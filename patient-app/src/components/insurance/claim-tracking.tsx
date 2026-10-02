@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { apiFetch } from '../../utils/api';
 // app/insurance/claim-tracking.tsx
 import React from 'react';
 import { View, StyleSheet, FlatList, TouchableOpacity} from 'react-native';

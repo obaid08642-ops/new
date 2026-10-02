@@ -60,7 +60,7 @@ export default function NursingServiceDetails() {
 
   return (
     <View style={styles.container}>
-      <View style={StyleSheet.absoluteFillObject} />
+      <View style={StyleSheet.absoluteFill} />
 
       <BlurView intensity={80} tint="light" style={styles.glassHeader}>
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>

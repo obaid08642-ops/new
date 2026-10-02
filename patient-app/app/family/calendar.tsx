@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { logError } from '../../src/utils/logger';
 // app/family/calendar.tsx — Shared family calendar (real backend events)
 import React, { useState, useEffect } from "react";
 import {

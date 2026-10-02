@@ -753,7 +753,7 @@ const styles = StyleSheet.create({
   quickMeta: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
 
   // Sheet
-  overlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.42)' },
+  overlay: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(0,0,0,0.42)' },
   sheet: {
     position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 30,
     borderTopLeftRadius: 32, borderTopRightRadius: 32, paddingHorizontal: 20, paddingTop: 10,

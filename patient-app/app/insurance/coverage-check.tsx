@@ -48,7 +48,7 @@ function CoverageCheckScreenInner() {
   if (step === 'checking') {
     return (
       <View style={[styles.loadingContainer, { backgroundColor: colors.background } ]}>
-        <View style={[StyleSheet.absoluteFillObject, { backgroundColor: colors.primary }]} />
+        <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.primary }]} />
         <Icon name="search" size={20} color={colors.primary} />
         <AppText variant="bodySM">جاري فحص التغطية...</AppText>
         {['التحقق من وثيقتك', 'مطابقة شبكة المزود', 'حساب نسبة التحمل'].map((s, i) => (

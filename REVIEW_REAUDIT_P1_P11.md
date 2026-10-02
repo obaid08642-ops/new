@@ -5,7 +5,7 @@ Method: no claim from `AGENT_PROGRESS.md` was taken on trust. Every result below
 local stack: Mongo replica set, Redis, moto S3, SMTP sink, fake Moyasar, admin BFF with the gate token, and a fresh
 database per run.
 
-**Verdict: CHANGES REQUIRED.** The FAIL list (R1–R22) is mandatory before Phase 12 screens (A11/C3/C4) continue.
+**Verdict: CHANGES REQUIRED.** The FAIL lists (R1–R22, and round 4: R23–R40) are mandatory before Phase 12 screens (A11/C3/C4) continue.
 The items marked *fixed by reviewer* are already in this PR. Do not revert them.
 
 ---
@@ -263,6 +263,183 @@ Results (reviewer, live):
 - every admin form.
 
 The rule: every value a user can enter is stored, comes back on the screen that shows it, and is visible to whoever reviews it. Build it as a generic `tools/live/form_trace.py` driven by the same screen payload extraction (`clientbodies.js --types`) plus the DTOs.
+
+---
+
+## Round 4 — review of the agent's 20 commits + system-wide field/button audit (2026-10-01)
+
+Full report, inventory, coverage matrix and evidence: `docs/review/AUDIT_2026-10-01.md`, `docs/review/inventory/`, `docs/review/evidence/`.
+Agent tip reviewed: `fix/audit-2026-09` @ 0d8890b (20 commits since main).
+
+**Do these first, in this order. They are regressions introduced by the last commits.**
+
+**R23 (Critical, regression from ca16fa7 X4 + 6c78a80 X2) — admin sensitive actions are dead.**
+- The "no passkey → no step-up" exemption was removed, but the admin UI has no step-up flow: no `x-step-up-token` anywhere in `admin/src`.
+- So suspend/reactivate, refunds, payouts, commissions, RBAC, loyalty and dispute resolution all return 403 `step_up_required`.
+- Do one of:
+  - (a) build the step-up UI (passkey enrol + challenge, then retry with the header); or
+  - (b) restore the exemption until (a) exists.
+- **Verify:** `j_admin_ops` 100/100 on a fresh DB; `admin_buttons.py` shows no 403 on those pages.
+
+**R24 (Critical, regression from 9d87a78 X1) — 12 operations broken by invented DTO names.**
+Each DTO must match what the screen sends and what the service reads:
+- claims submit (app + web);
+- OCR: `image_base64` vs `image`;
+- web reschedule: `new_slot_id`;
+- admin SLA: `reason`;
+- insurance networks and coverage rules;
+- loyalty rewards/challenges/config: the service uses `title_ar` and `points_required`, not `name`/`points_cost`.
+- **Verify:**
+  - `python3 tools/audit/route_dto.py && python3 tools/audit/typecheck_contracts.py` → 0 TYPE mismatches on these routes;
+  - `dtocheck` → 0 mismatches;
+  - live replay of each screen payload → 2xx and stored.
+
+**R25 (High, process) — a red gate was pushed.**
+- Unit tests: `review-p3-dto-types.spec.ts` broken (refund `transaction_id`; SLA `reason`).
+- dtolint exit 1 (3 non-class bodies); dtocheck 12 mismatches.
+- Never push red. Paste the real gate output.
+
+**R26 (High)** Patient avatar is never saved: `UpdateProfileDto` lacks `avatar_url`.
+- **Verify:** upload a photo in the app, re-open the profile, and the photo is shown; `users.avatar_url` is set.
+
+**R27 (High)** Admin notification templates return 400: the page sends `title`/`body` strings, while the DTO expects per-locale objects.
+- Align one side with the other. **Verify:** create and edit a template from the admin page in a browser.
+
+**R29 (High)** Admin segments return 400: `rules[].operator/value` are forbidden by the DTO.
+- **Verify:** create a segment from the page; preview count works.
+
+**R30 (Medium)** Medicine `brand` and `storage_conditions` are silently dropped: they are missing from `schemas/medicine.schema.ts`.
+- Add them to the schema and the admin detail. **Verify:** create, then read back both.
+
+**R31 (Medium)** Drug-shortage reports with `DRUG_SHORTAGE` are stored as `GENERAL`.
+- Add the category to the enum and to the admin filter.
+
+**R32 (Medium)** Patient app: three API base-URL sources.
+- `services/HttpClient.ts` (19 call sites) reads only `EXPO_PUBLIC_API_URL`.
+- Use one config module. **Verify:** a build with only `EXPO_PUBLIC_API_BASE_URL` sends no request to another host.
+
+**R33 (Medium)** Tasks reported done but incomplete:
+- C6.4: no caller; behind auth + gate;
+- N8: no admin UI;
+- N10: no client events;
+- N1: dead routes remain;
+- X5-B2: generic link, not a drill-down;
+- S16: partial.
+
+Complete each one to its plan "Do" and "Verify".
+
+**R34 (Low)** Nginx cache bypass cookie `access_token` ≠ website cookie `nabd_access`.
+
+**R35 (Suspected)** Nursing check-in sends `{lat,lng}`; confirm against the DTO live and fix if it returns 400.
+
+**R36 (High)** Duplicate route `GET /admin/finance/commissions` (legal module + finance suite). The finance-suite page gets the legal document.
+- Give each a distinct path and update the callers.
+- **Verify:** the finance-suite page shows `config_used` and `by_vertical`.
+
+**R37 (High)** Commission settings have two schemas in one document:
+- the finance page writes `rates`/`vat_rate`;
+- every settlement path reads `service_types[x].percent`/`tax.vat_percent`.
+
+Make one schema the single source, migrate the other, and point both admin pages at it.
+- **Verify:** change the pharmacy rate on the finance page → `GET /finance/commission-for?service_type=pharmacy` returns the new value → the next settled order uses it.
+
+**R38 (High)** Provider app: the connectivity probe `HEAD https://1.1.1.1` decides "offline". When it fails, the app shows the **pending-review** screen.
+- Use `@react-native-community/netinfo` (or the backend `/config` response) for connectivity.
+- Add a real offline screen with retry; never show "under review" for a network problem.
+
+**R39 — fixed by the reviewer in this PR (do not revert).** `provider/auth/login` replaced `meta` with ip/ua, dropping the app's `device_identifier`.
+- Every session was bound to `unknown`.
+- The first refresh failed as "device mismatch" → the provider was signed out on every app start.
+- Fix: `provider.controllers.ts` login keeps `meta.device_identifier` (or the `X-Device-ID` header). Test: `provider-login-device.spec.ts`.
+
+**R41 — fixed by the reviewer in this PR (do not revert).** Nursing registration creates `home_care` accounts, but `App.tsx` routed only `nursing`/`nurse` to the nursing dashboard, so every home-care provider got the generic portal. `home_care` is now routed to `NursingDashboardNavigator`.
+
+**R42–R45, R49 — fixed by the reviewer in this PR (do not revert).** These were white screens and runtime crashes in the patient app:
+- 22 missing or wrong imports, and a variable read before its declaration;
+- insurance hub without a policy;
+- loyalty hub before its config loads;
+- nutrition goal labels;
+- `absoluteFillObject`, which does not exist on native.
+
+Details are in `docs/review/AUDIT_2026-10-01.md` §6.
+
+**R46 (High)** Remove `// @ts-nocheck` from all 186 patient-app files and fix the 265 type errors this exposes.
+- Add `python3 tools/audit/nocheck_tsc.py patient-app` and `provider-app` to your gate. It must exit 0 with 0 nocheck files.
+- **Verify:** paste its output.
+
+**R47 (High)** The insurance hub shows hard-coded coverage percentages, an annual limit of 500,000 and a deductible of 50.
+- Show only what the policy record or the insurer network actually holds. Otherwise show "not available"; never show invented numbers.
+- **Verify:** a patient whose policy has no coverage data sees no percentages.
+
+**R48 (Low)** Family permission request: handle "no group" with a message, not an unhandled rejection.
+
+**R50 (High)** Notification preferences cannot be changed in the app or on the website.
+- Both send flat keys, while the server accepts only nested `channels`/`categories`.
+- Choose one shape, then make both clients and the DTO/service agree.
+- GET must return what the screens read.
+- The app must show the error instead of `.catch(() => {})`.
+- **Verify:** toggle each of the 9 settings in the app and on the website, then reopen: the value persists. Paste the DB document.
+
+**R51, R52 — fixed by the reviewer in this PR (do not revert):**
+- maternity `is_regular` is now `@IsBoolean`;
+- the active-programs empty state no longer crashes.
+
+**R53 (Low)** Website nutrition goals:
+- translate the goal/activity labels;
+- style the form;
+- name the rejected field in server errors.
+
+**R54 (High)** Website addresses:
+- route the form through a real handler (`lib/api/addresses-server.ts` already exists);
+- use the backend fields `street/building/floor/notes/lat/lng`, with a map pin like the app;
+- never treat 405 as success.
+- **Verify:** add an address on the website, reopen, delete it; the app shows the same list.
+
+**R55 (High)** `POST /support/feedback` must store the rating/type/message (with a DTO) where the admin can read it, and the admin must have a screen for it. Remove the fake "thank you".
+- **Verify:** submit from the app and from the website; the admin sees both texts.
+
+**R56 (Medium)** `blood_type` must be one of A+/A-/B+/B-/AB+/AB-/O+/O- in the backend DTO and the website schema.
+
+**R57 (Low)** The app address list must not show `city` (not in the model), or the model must add it end to end.
+
+**R58, R59, R60, R62 — fixed by the reviewer in this PR (do not revert).** These were provider-app crashes:
+- drug suggest-change form;
+- doctor availability exceptions;
+- nursing checklist and supplies;
+- lab home-collection tile.
+
+Add `python3 tools/audit/ctx_props.py` to your gate (exit 0): R58/R59 came from the P9 screen split.
+
+**R61 (Medium)** Nursing supplies:
+- show the nurse's real requests, read back from the server, separately from the catalog;
+- never append local placeholder items.
+
+**R63 — fixed by the reviewer in this PR (do not revert).** Added the website routes `/api/diagnostics/orders`, `/api/payments/intent/diagnostics` and `DELETE /api/diagnostics/cart`; the checkout also clears the local cart.
+
+**R64 (High)** Diagnostics order (F74):
+- send and store the home-collection address (structured, like the app) and the insurance company;
+- the lab must see the address;
+- keep `location_type`, `payment_method` and each line's `booking_id/price/status` on the parent;
+- the parent stays unconfirmed until paid (card) or approved (insurance);
+- one price field on the child booking.
+- **Verify:** website checkout as home + card; the lab's order screen shows the address and the price.
+
+**R25 (addendum)** `main` itself fails dtolint on `auth/step-up.controller.ts:23` and `payments.module.ts:567` (inline body types, from f2dd8f9/832e84d). Give both real DTOs in your branch.
+
+**R65 (High, process)** Make CI green on `main`.
+- Rename the `wallet_payment_removed` error so the PAY-001 guard passes, or exempt that exact line in the guard.
+- Regenerate the brand, icon, token and renderer artefacts.
+- Align the two component renderers.
+- Bring LCP under 3 s on the three Lighthouse pages.
+- Do not weaken any check.
+
+**R40 (Low)** "Remember me" (تذكرني) on the provider login is written but never read. Implement it or remove it.
+
+**For every item:**
+- one commit `[R-<n>] <summary>`;
+- re-run the matching tool from `tools/live/` or `tools/audit/` and paste its real output.
+
+UI crawls (react-native-web exports, see `tools/live/rn_web_crawl.py` and `tools/live/rn_nav_crawl.py`) must show no JS_ERROR on the screens you touch.
 
 ---
 

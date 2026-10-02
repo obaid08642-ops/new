@@ -121,7 +121,7 @@ export default function NewReturnRequestScreen() {
   if (step === 'success') {
     return (
       <View style={styles.successContainer}>
-        <View style={StyleSheet.absoluteFillObject} />
+        <View style={StyleSheet.absoluteFill} />
         <Icon name="check_circle" size={20} color={colors.primary} />
         <AppText variant="bodySM">تم إرسال طلب الإرجاع!</AppText>
         <AppText variant="bodySM">رقم الطلب: RET-{Date.now().toString().slice(-6)}</AppText>

@@ -69,7 +69,7 @@ export default function DrugScannerScreen() {
   if (scanState === 'scanning') {
     return (
       <View style={styles.loadingContainer}>
-        <View style={StyleSheet.absoluteFillObject} />
+        <View style={StyleSheet.absoluteFill} />
         <Icon name="medication" size={20} color={colors.primary} />
         <AppText variant="bodySM">جاري فحص التفاعلات...</AppText>
         <AppText variant="bodySM">قاعدة بيانات 50,000+ تفاعل دوائي</AppText>

@@ -1,0 +1,593 @@
+[
+ {
+  "page": "/admin/catalog-manager",
+  "form": "(inline)",
+  "save": "+ إضافة صنف جديد",
+  "status": "NO_REQUEST",
+  "requests": [],
+  "fields": {
+   "بحث بالاسم أو الكود أو الفئة…": "NOT_SENT"
+  }
+ },
+ {
+  "page": "/admin/catalog-manager",
+  "form": "+ إضافة صنف جديد",
+  "status": "TIME_BUDGET"
+ },
+ {
+  "page": "/admin/commissions",
+  "form": "(inline)",
+  "save": "تحديث",
+  "status": "NO_REQUEST",
+  "requests": [],
+  "fields": {
+   "account/user id": "NOT_SENT",
+   "pharmacy/lab/…": "NOT_SENT"
+  }
+ },
+ {
+  "page": "/admin/config-portal",
+  "form": "(inline)",
+  "save": "حفظ التعديلات (Override Globally)",
+  "status": "NO_REQUEST",
+  "requests": [],
+  "fields": {}
+ },
+ {
+  "page": "/admin/content-growth",
+  "form": "(inline)",
+  "save": "حفظ وتدقيق",
+  "status": "SAVED",
+  "requests": [
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/cms/articles",
+    "status": 201,
+    "body": "{\"title_ar\":\"U26CC7601\",\"title_en\":\"U26CC7602\",\"excerpt_ar\":\"U26CC7605\",\"body_ar\":\"U26CC7606\",\"slug\":\"U26CC7603\",\"tags\":[\"U26CC7604\"],\"reason\":\"U26CC7608\"}"
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/cms/art_muq1a4g4q4yr/publish",
+    "status": 201,
+    "body": "{\"reason\":\"U26CC7608\"}"
+   }
+  ],
+  "fields": {
+   "العنوان العربي": "STORED",
+   "العنوان الإنجليزي": "STORED",
+   "slug": "SENT_NOT_STORED",
+   "وسوم مفصولة بفاصلة": "STORED",
+   "ملخص": "STORED",
+   "نص المقال": "STORED",
+   "سبب التعديل": "STORED"
+  }
+ },
+ {
+  "page": "/admin/crm",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "اسم أو جوال أو بريد أو معرّف"
+  ]
+ },
+ {
+  "page": "/admin/disputes",
+  "form": "(inline)",
+  "save": "تحديث",
+  "status": "NO_REQUEST",
+  "requests": [],
+  "fields": {
+   "بحث في العميل أو الموضوع": "NOT_SENT"
+  }
+ },
+ {
+  "page": "/admin/fraud-monitoring",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "بحث في التنبيهات والسجلات",
+   "كل درجات الخطورة\nhigh\nmedium\nlow"
+  ]
+ },
+ {
+  "page": "/admin/gdpr",
+  "form": "(inline)",
+  "save": "إنشاء الطلب",
+  "status": "SAVED",
+  "requests": [
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/gdpr/requests",
+    "status": 201,
+    "body": "{\"user_id\":\"UCC129801\",\"type\":\"delete\"}"
+   }
+  ],
+  "fields": {
+   "معرّف المستخدم": "STORED"
+  }
+ },
+ {
+  "page": "/admin/gdpr",
+  "form": "إنشاء الطلب",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "معرّف المستخدم",
+   "الطلب\nتصدير البيانات\nحذف/إخفاء البيانات"
+  ]
+ },
+ {
+  "page": "/admin/home-curation",
+  "form": "(inline)",
+  "save": "إضافة قسم",
+  "status": "NO_REQUEST",
+  "requests": [],
+  "fields": {
+   "سبب الحفظ": "NOT_SENT"
+  }
+ },
+ {
+  "page": "/admin/home-curation",
+  "form": "إضافة قسم",
+  "save": "إضافة عنصر",
+  "status": "NO_REQUEST",
+  "requests": [],
+  "fields": {
+   "معرّف القسم": "NOT_SENT",
+   "النوع": "NOT_SENT",
+   "العنوان": "NOT_SENT",
+   "سبب الحفظ": "NOT_SENT"
+  }
+ },
+ {
+  "page": "/admin/insurance-companies",
+  "form": "+ إضافة شركة",
+  "save": "حفظ الشركة",
+  "status": "SAVED",
+  "requests": [
+   {
+    "method": "POST",
+    "url": "/api/admin/insurance/companies",
+    "status": 201,
+    "body": "{\"code\":\"u0be49f01\",\"name_ar\":\"U0BE49F02\",\"name_en\":\"U0BE49F03\"}"
+   }
+  ],
+  "fields": {
+   "مثال: cigna": "NOT_SENT",
+   "سيجنا": "STORED",
+   "Cigna": "STORED"
+  }
+ },
+ {
+  "page": "/admin/insurance-companies",
+  "form": "تعديل",
+  "save": "+ إضافة شركة",
+  "status": "NO_REQUEST",
+  "requests": [],
+  "fields": {
+   "حفظ\nإلغاء": "NOT_SENT"
+  }
+ },
+ {
+  "page": "/admin/legal-policies",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "%",
+   "الحد الأدنى للسحب: ر.س"
+  ]
+ },
+ {
+  "page": "/admin/locations",
+  "form": "(inline)",
+  "save": "إضافة",
+  "status": "REJECTED(400)",
+  "requests": [
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/locations",
+    "status": 400,
+    "body": "{\"code\":\"UD16FF402\",\"name_ar\":\"UD16FF403\",\"name_en\":\"UD16FF404\",\"type\":\"city\",\"parent_code\":\"UD16FF405\"}"
+   }
+  ],
+  "fields": {
+   "الكود (مثال: sa-riyadh)": "SENT_NOT_STORED",
+   "الاسم بالعربية": "SENT_NOT_STORED",
+   "الاسم بالإنجليزية": "SENT_NOT_STORED",
+   "كود الأب (اختياري)": "SENT_NOT_STORED",
+   "بحث": "NOT_SENT"
+  }
+ },
+ {
+  "page": "/admin/locations",
+  "form": "إضافة",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "منطقة\nمدينة\nحي",
+   "الكود (مثال: sa-riyadh)",
+   "الاسم بالعربية",
+   "الاسم بالإنجليزية",
+   "كود الأب (اختياري)",
+   "مناطق\nمدن\nأحياء",
+   "بحث"
+  ]
+ },
+ {
+  "page": "/admin/loyalty-config",
+  "form": "(inline)",
+  "save": "حفظ الإعدادات",
+  "status": "REJECTED(403)",
+  "requests": [
+   {
+    "method": "PUT",
+    "url": "/api/admin/admin/loyalty/config",
+    "status": 403,
+    "body": "{\"points_per_order\":701,\"referral_points\":702,\"max_redeem_percent\":704,\"point_value_sar\":703,\"redeem_enabled\":true,\"earn_points\":{\"booking_completed\":706,\"order_delivered\":707,\"review_submitted\":708,\"referral_converted\":709,\"referral_welcome\":710,\"vitals_logged\":711},\"earn_caps\":{\"daily\":{\"review_submitted\":712,\"vitals_logged\":713,\"referral_converted\":714,\"referral_welcome\":715},\"monthly\":{\"review_submitted\":716,\"vitals_logged\":717,\"referral_converted\":718,\"referral_welcome\":719}}}"
+   }
+  ],
+  "fields": {
+   "الاسم بالعربية": "NOT_SENT",
+   "Name (EN)": "NOT_SENT",
+   "الإجراء": "NOT_SENT"
+  }
+ },
+ {
+  "page": "/admin/loyalty-config",
+  "form": "إضافة",
+  "save": "حفظ الإعدادات",
+  "status": "REJECTED(403)",
+  "requests": [
+   {
+    "method": "PUT",
+    "url": "/api/admin/admin/loyalty/config",
+    "status": 403,
+    "body": "{\"points_per_order\":701,\"referral_points\":702,\"max_redeem_percent\":704,\"point_value_sar\":703,\"redeem_enabled\":true,\"earn_points\":{\"booking_completed\":706,\"order_delivered\":707,\"review_submitted\":708,\"referral_converted\":709,\"referral_welcome\":710,\"vitals_logged\":711},\"earn_caps\":{\"daily\":{\"review_submitted\":712,\"vitals_logged\":713,\"referral_converted\":714,\"referral_welcome\":715},\"monthly\":{\"review_submitted\":716,\"vitals_logged\":717,\"referral_converted\":718,\"referral_welcome\":719}}}"
+   }
+  ],
+  "fields": {
+   "الاسم بالعربية": "NOT_SENT",
+   "Name (EN)": "NOT_SENT",
+   "الإجراء": "NOT_SENT"
+  }
+ },
+ {
+  "page": "/admin/loyalty-config",
+  "form": "إضافة تحدٍ",
+  "save": "حفظ الإعدادات",
+  "status": "REJECTED(403)",
+  "requests": [
+   {
+    "method": "PUT",
+    "url": "/api/admin/admin/loyalty/config",
+    "status": 403,
+    "body": "{\"points_per_order\":701,\"referral_points\":702,\"max_redeem_percent\":704,\"point_value_sar\":703,\"redeem_enabled\":true,\"earn_points\":{\"booking_completed\":706,\"order_delivered\":707,\"review_submitted\":708,\"referral_converted\":709,\"referral_welcome\":710,\"vitals_logged\":711},\"earn_caps\":{\"daily\":{\"review_submitted\":712,\"vitals_logged\":713,\"referral_converted\":714,\"referral_welcome\":715},\"monthly\":{\"review_submitted\":716,\"vitals_logged\":717,\"referral_converted\":718,\"referral_welcome\":719}}}"
+   }
+  ],
+  "fields": {
+   "الاسم بالعربية": "NOT_SENT",
+   "Name (EN)": "NOT_SENT",
+   "الإجراء": "NOT_SENT"
+  }
+ },
+ {
+  "page": "/admin/medicines-catalog",
+  "form": "(inline)",
+  "save": "+ إضافة صنف جديد",
+  "status": "NO_REQUEST",
+  "requests": [],
+  "fields": {
+   "بحث بالاسم / المادة الفعالة / الباركود / الشركة...": "NOT_SENT",
+   "الفئة (اختياري)": "NOT_SENT"
+  }
+ },
+ {
+  "page": "/admin/medicines-catalog",
+  "form": "+ إضافة صنف جديد",
+  "save": "حفظ",
+  "status": "SAVED",
+  "requests": [
+   {
+    "method": "POST",
+    "url": "/api/admin/medicines/admin/catalog",
+    "status": 201,
+    "body": "{\"name_ar\":\"UE3C96A04\",\"name_en\":\"UE3C96A05\",\"active_ingredient\":\"UE3C96A06\",\"generic_name\":\"UE3C96A07\",\"manufacturer\":\"UE3C96A08\",\"brand\":\"UE3C96A09\",\"category\":\"UE3C96A10\",\"sub_category\":\"UE3C96A11\",\"form\":\"UE3C96A12\",\"strength\":\"UE3C96A13\",\"package_size\":\"UE3C96A14\",\"barcode\":\"UE3C96A15\",\"price\":0,\"requires_prescription\":true,\"images\":[],\"image\":\"\",\"description_ar\":\"UE3C96A18\",\"description_en\":\"UE3C96A19\",\"usage_instructions_ar\":\"UE3C96A20\",\"usage_instructions_en\":\"UE3C96A21\",\"indications_ar\":[\"UE3C96A22\"],\"indications_en\":[\"UE3C96A23\"],\"contraindications_ar\":[\"UE3C96A24\"],\"contraindications_en\":[\"UE3C96A25\"],\"warnings_ar\":[\"UE3C96A26\"],\"warnings_en\":[\"UE3C96A27\"],\"side_effects_ar\":[\"UE3C96A28\"],\"side_effects_en\":[\"UE3C96A29\"],\"precautions_ar\":[],\"precautions_en\":[],\"reason\":\"إنشاء صنف جديد عبر واجهة الإدارة\",\"dosage_ar\":\"UE3C96A30\"}"
+   }
+  ],
+  "fields": {
+   "بحث بالاسم / المادة الفعالة / الباركود / الشركة...": "NOT_SENT",
+   "الفئة (اختياري)": "NOT_SENT",
+   "الاسم بالعربية *": "STORED",
+   "الاسم بالإنجليزية": "STORED",
+   "المادة الفعالة": "STORED",
+   "الاسم العلمي": "STORED",
+   "الشركة المصنعة": "STORED",
+   "العلامة التجارية": "SENT_NOT_STORED",
+   "الفئة (Category)": "STORED",
+   "الفئة الفرعية (Sub-category)": "STORED",
+   "الشكل الدوائي (أقراص/شراب...)": "STORED",
+   "التركيز (500mg...)": "STORED",
+   "حجم العبوة": "STORED",
+   "الباركود": "STORED",
+   "السعر (ر.س)": "NOT_SENT",
+   "الوصف بالعربية": "STORED",
+   "الوصف بالإنجليزية": "STORED",
+   "طريقة الاستخدام (عربي)": "STORED",
+   "طريقة الاستخدام (إنجليزي)": "STORED",
+   "دواعي الاستخدام (عربي — افصل بفاصلة)": "STORED",
+   "دواعي الاستخدام (إنجليزي)": "STORED",
+   "موانع الاستخدام (عربي)": "STORED",
+   "موانع الاستخدام (إنجليزي)": "STORED",
+   "التحذيرات (عربي)": "STORED",
+   "التحذيرات (إنجليزي)": "STORED",
+   "الأعراض الجانبية (عربي)": "STORED",
+   "الأعراض الجانبية (إنجليزي)": "STORED",
+   "الجرعة (عربي)": "STORED"
+  }
+ },
+ {
+  "page": "/admin/medicines-catalog",
+  "form": "تعديل",
+  "save": "+ إضافة صنف جديد",
+  "status": "NO_REQUEST",
+  "requests": [],
+  "fields": {
+   "بحث بالاسم / المادة الفعالة / الباركود / الشركة...": "NOT_SENT",
+   "الفئة (اختياري)": "NOT_SENT",
+   "الاسم بالعربية *": "NOT_SENT",
+   "الاسم بالإنجليزية": "NOT_SENT",
+   "المادة الفعالة": "NOT_SENT",
+   "الاسم العلمي": "NOT_SENT",
+   "الشركة المصنعة": "NOT_SENT",
+   "العلامة التجارية": "NOT_SENT",
+   "الفئة (Category)": "NOT_SENT",
+   "الفئة الفرعية (Sub-category)": "NOT_SENT",
+   "الشكل الدوائي (أقراص/شراب...)": "NOT_SENT",
+   "التركيز (500mg...)": "NOT_SENT",
+   "حجم العبوة": "NOT_SENT",
+   "الباركود": "NOT_SENT",
+   "السعر (ر.س)": "NOT_SENT",
+   "الوصف بالعربية": "NOT_SENT",
+   "الوصف بالإنجليزية": "NOT_SENT",
+   "طريقة الاستخدام (عربي)": "NOT_SENT",
+   "طريقة الاستخدام (إنجليزي)": "NOT_SENT",
+   "دواعي الاستخدام (عربي — افصل بفاصلة)": "NOT_SENT",
+   "دواعي الاستخدام (إنجليزي)": "NOT_SENT",
+   "موانع الاستخدام (عربي)": "NOT_SENT",
+   "موانع الاستخدام (إنجليزي)": "NOT_SENT",
+   "التحذيرات (عربي)": "NOT_SENT",
+   "التحذيرات (إنجليزي)": "NOT_SENT",
+   "الأعراض الجانبية (عربي)": "NOT_SENT",
+   "الأعراض الجانبية (إنجليزي)": "NOT_SENT",
+   "الجرعة (عربي)": "NOT_SENT"
+  }
+ },
+ {
+  "page": "/admin/notification-center",
+  "form": "(inline)",
+  "save": "إرسال الآن",
+  "status": "REJECTED(400)",
+  "requests": [
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/notification-center/broadcasts",
+    "status": 400,
+    "body": "{\"title\":\"U9E307001\",\"body\":\"U9E307003\",\"segment\":\"patients\",\"name\":\"U9E307001\",\"audience_confirmed\":true,\"deep_link\":{\"route\":\"U9E307004\"}}"
+   }
+  ],
+  "fields": {
+   "عنوان الإشعار": "SENT_NOT_STORED",
+   "محتوى الرسالة...": "SENT_NOT_STORED",
+   "/pharmacy/cart": "SENT_NOT_STORED",
+   "مفتاح القالب (مثال: appt.reminder)": "NOT_SENT",
+   "params JSON {\"name\":\"..\"}": "NOT_SENT",
+   "العنوان": "NOT_SENT",
+   "النص": "NOT_SENT"
+  }
+ },
+ {
+  "page": "/admin/orders",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "بحث بالمعرّف أو العميل",
+   "كل الأنواع\nصيدلية\nمختبر\nأشعة\nتمريض\nاستشا",
+   "الحالة",
+   "من",
+   "إلى",
+   "كل الأنواع\nصيدلية\nمختبر\nأشعة\nتمريض\nاستشا"
+  ]
+ },
+ {
+  "page": "/admin/provider-moderation",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "المنطقة\nالمنطقة الجنوبية\nالمنطقة الشرقية",
+   "المنطقة\nالمنطقة الجنوبية\nالمنطقة الشرقية",
+   "المنطقة\nالمنطقة الجنوبية\nالمنطقة الشرقية"
+  ]
+ },
+ {
+  "page": "/admin/rbac",
+  "form": "(inline)",
+  "save": "إنشاء الدور وتدقيقه",
+  "status": "NO_REQUEST",
+  "requests": [],
+  "fields": {
+   "support_ops": "NOT_SENT",
+   "الاسم العربي": "NOT_SENT"
+  }
+ },
+ {
+  "page": "/admin/rbac",
+  "form": "إنشاء الدور وتدقيقه",
+  "save": "حفظ الإسناد وتدقيقه",
+  "status": "NO_REQUEST",
+  "requests": [],
+  "fields": {
+   "support_ops": "NOT_SENT",
+   "الاسم العربي": "NOT_SENT"
+  }
+ },
+ {
+  "page": "/admin/reports",
+  "form": "(inline)",
+  "save": "تحديث",
+  "status": "NO_REQUEST",
+  "requests": [],
+  "fields": {}
+ },
+ {
+  "page": "/admin/scheduled-reports",
+  "form": "(inline)",
+  "save": "إضافة الجدولة",
+  "status": "NO_REQUEST",
+  "requests": [],
+  "fields": {
+   "ops@example.com, finance@example.com": "NOT_SENT"
+  }
+ },
+ {
+  "page": "/admin/scheduled-reports",
+  "form": "إضافة الجدولة",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "التقرير\nالإيرادات\nالعمولات\nمسارات التحوي",
+   "التواتر\nيومي\nأسبوعي\nشهري",
+   "الساعة UTC",
+   "الصيغة\nCSV\nJSON",
+   "ops@example.com, finance@example.com"
+  ]
+ },
+ {
+  "page": "/admin/search",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "id / جوال / اسم…"
+  ]
+ },
+ {
+  "page": "/admin/search-intelligence",
+  "form": "(inline)",
+  "save": "تحديث البيانات",
+  "status": "NO_REQUEST",
+  "requests": [],
+  "fields": {
+   "مثال: دكتور باطنة في الرياض حي الملز بوبا أو panadol extra riyadh": "NOT_SENT"
+  }
+ },
+ {
+  "page": "/admin/security",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "اسم الجهاز (مثال: iPhone 15 / MacBook)"
+  ]
+ },
+ {
+  "page": "/admin/segments",
+  "form": "(inline)",
+  "save": "إضافة قاعدة",
+  "status": "NO_REQUEST",
+  "requests": [],
+  "fields": {
+   "اسم الشريحة بالعربية": "NOT_SENT",
+   "وصف اختياري": "NOT_SENT",
+   "operator": "NOT_SENT",
+   "القيمة": "NOT_SENT",
+   "سبب الإنشاء": "NOT_SENT"
+  }
+ },
+ {
+  "page": "/admin/segments",
+  "form": "إضافة قاعدة",
+  "save": "حفظ وتدقيق",
+  "status": "REJECTED(400)",
+  "requests": [
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/segments",
+    "status": 400,
+    "body": "{\"name_ar\":\"UBE4E4601\",\"description_ar\":\"UBE4E4602\",\"definition\":{\"match\":\"any\",\"rules\":[{\"field\":\"\",\"operator\":\"UBE4E4605\",\"value\":\"UBE4E4606\"},{\"operator\":\"UBE4E4608\",\"value\":\"UBE4E4609\"}]},\"reason\":\"UBE4E4610\"}"
+   }
+  ],
+  "fields": {
+   "اسم الشريحة بالعربية": "SENT_NOT_STORED",
+   "وصف اختياري": "SENT_NOT_STORED",
+   "operator": "SENT_NOT_STORED",
+   "القيمة": "SENT_NOT_STORED",
+   "سبب الإنشاء": "SENT_NOT_STORED"
+  }
+ },
+ {
+  "page": "/admin/sos-monitor",
+  "form": "(inline)",
+  "save": "تحديث الآن",
+  "status": "NO_REQUEST",
+  "requests": [],
+  "fields": {
+   "معرّف المستشفى المستقبِل": "NOT_SENT"
+  }
+ },
+ {
+  "page": "/admin/users-management",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "بحث بالاسم أو الهاتف أو البريد...",
+   "كل الأدوار\nالمرضى\nالأطباء\nالصيدليات\nمعام",
+   "كل الأدوار\nالمرضى\nالأطباء\nالصيدليات\nمعام",
+   "المنطقة\nالمنطقة الجنوبية\nالمنطقة الشرقية",
+   "المنطقة\nالمنطقة الجنوبية\nالمنطقة الشرقية",
+   "المنطقة\nالمنطقة الجنوبية\nالمنطقة الشرقية"
+  ]
+ },
+ {
+  "page": "/articles",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "ابحث في المقالات الصحية…"
+  ]
+ },
+ {
+  "page": "/doctors",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "ابحث في الأطباء…"
+  ]
+ },
+ {
+  "page": "/facilities",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "ابحث في المنشآت الصحية…"
+  ]
+ },
+ {
+  "page": "/home-care-services",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "ابحث في الرعاية المنزلية…"
+  ]
+ },
+ {
+  "page": "/lab-services",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "ابحث في التحاليل المخبرية…"
+  ]
+ },
+ {
+  "page": "/medicines",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "ابحث في الأدوية والمنتجات…"
+  ]
+ }
+]

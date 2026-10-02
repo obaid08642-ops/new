@@ -94,7 +94,7 @@ export default function VirtualWaitingRoomScreen() {
     <ScreenState loading={false} error={error} empty={false} emptyTitle="لا توجد بيانات" onRetry={() => setError(null)}>
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
-      <View style={[StyleSheet.absoluteFillObject, { backgroundColor: '#222A3D' }]} />
+      <View style={[StyleSheet.absoluteFill, { backgroundColor: '#222A3D' }]} />
 
       <TouchableOpacity style={styles.closeBtn} onPress={() => router.back()}>
         <LocalizedText

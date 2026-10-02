@@ -1,4 +1,6 @@
 // @ts-nocheck
+import { apiFetch } from '../../src/utils/api';
+import { logError } from '../../src/utils/logger';
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, StatusBar, Alert } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';

@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { logError } from '../../src/utils/logger';
 // app/reports/passport.tsx
 import React from "react";
 import {

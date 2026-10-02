@@ -1020,8 +1020,17 @@ function HomeCollection({ order, onBack }:{ order:any; onBack:()=>void }) {
     void tick();
     int = setInterval(() => { void tick(); }, 15000);
     return () => clearInterval(int);
-  }, [tracking, order.id]);
+  }, [tracking, order?.id]);
 
+  // The dashboard tile opens this screen without an order (it crashed on order.id): tracking needs one booking.
+  if (!order) {
+    return (
+      <NScroll>
+        <NHeader title={AR ? 'سحب منزلي' : 'Home Collection'} onBack={onBack} />
+        <NEmpty title={AR ? 'اختر طلب سحب منزلي من قائمة الطلبات' : 'Choose a home-collection order from the orders list'} sub={AR ? 'يبدأ التتبع من صفحة الطلب' : 'Tracking starts from the order page'} />
+      </NScroll>
+    );
+  }
   if (order?.status === 'ASSIGNED' || tracking) {
     return (
       <NScroll>

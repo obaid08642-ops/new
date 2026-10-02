@@ -523,7 +523,11 @@ function NursingOrdersTab({ onNavigate }: any) {
 function VisitChecklist({ order, onBack, onNav }:{ order:any; onBack:()=>void; onNav?:(s:string,p?:any)=>void }) {
  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
  const [items, setItems] = useState<any[]>([]);
- useEffect(() => { client.get('/provider/nursing/checklist').then(r => setItems(r.data || [])).catch(() => {}); }, []);
+ useEffect(() => { client.get('/provider/nursing/checklist').then(r => {
+   // The API answers { category, items: [{ key, title_ar, title_en?, required }] } (an object: .filter crashed).
+   const list: any[] = Array.isArray(r.data) ? r.data : (Array.isArray(r.data?.items) ? r.data.items : []);
+   setItems(list.map((i: any) => ({ ...i, id: i.id ?? i.key, task: i.task ?? i.title_ar, taskEn: i.taskEn ?? i.title_en ?? i.title_ar })));
+ }).catch(() => {}); }, []);
  const toggle = (id:string) => {
    const next = items.map(i=>i.id===id?{...i,done:!i.done}:i);
    setItems(next);
@@ -974,7 +978,11 @@ function MedicalSupplies({ onBack }:{ onBack:()=>void }) {
  const [newItem, setNewItem] = useState('');
  const [newQty, setNewQty] = useState('');
  const [supplies, setSupplies] = useState<any[]>([]);
- useEffect(() => { client.get('/provider/nursing/supplies').then(r => setSupplies(r.data || [])).catch(() => {}); }, []);
+ useEffect(() => { client.get('/provider/nursing/supplies').then(r => {
+   // The API answers { items: [{ id, name_ar, name_en?, category, unit }] } (an object: .filter crashed).
+   const list: any[] = Array.isArray(r.data) ? r.data : (Array.isArray(r.data?.items) ? r.data.items : []);
+   setSupplies(list.map((i: any) => ({ ...i, name: i.name ?? i.name_ar, nameEn: i.nameEn ?? i.name_en ?? i.name_ar })));
+ }).catch(() => {}); }, []);
  const [loading, setLoading] = useState(false);
 
  const handleRequest = async () => {

@@ -1,0 +1,8011 @@
+[
+ {
+  "file": "admin/src/components/AdminGuard.tsx",
+  "elements": [
+   {
+    "kind": "link",
+    "tag": "Link",
+    "line": 228,
+    "label": "/admin/command-center mt-6 inline-block rounded-lg bg-slate-950 px-5 py-2.5 text",
+    "handler": "/admin/command-center",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "link",
+    "tag": "Link",
+    "line": 249,
+    "label": "border-r-4 border-teal-300 bg-slate-800 font-bold text-teal-200 text-slate-300 h",
+    "handler": "item.href",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 266,
+    "label": "bg-teal-600 text-white font-bold text-slate-400 hover:text-white gregory",
+    "handler": "() => { setAdminCalendar(cal); setCalendar(cal); router.reload(); }",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 277,
+    "label": "w-full rounded-lg px-3 py-2 text-right text-sm text-red-200 hover:bg-slate-900 ت",
+    "handler": "logout",
+    "binds": null,
+    "disabled": null
+   }
+  ],
+  "calls": [
+   {
+    "method": "POST",
+    "url": "/auth/heartbeat",
+    "line": 171
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/session",
+    "line": 182
+   },
+   {
+    "method": "POST",
+    "url": "/auth/logout",
+    "line": 210
+   }
+  ]
+ },
+ {
+  "file": "admin/src/components/GeoPicker.tsx",
+  "elements": [
+   {
+    "kind": "select",
+    "tag": "select",
+    "line": 26,
+    "label": "border rounded-lg px-3 py-2 المنطقة",
+    "handler": "e=>{setRegion(e.target.value); setCity(\"\"); setDistrict(\"\"); onChange({region:e.target.value, city:\"\", district:\"\"});}",
+    "binds": "region",
+    "disabled": null
+   },
+   {
+    "kind": "select",
+    "tag": "select",
+    "line": 29,
+    "label": "border rounded-lg px-3 py-2 المدينة",
+    "handler": "e=>{setCity(e.target.value); onChange({region, city:e.target.value, district});}",
+    "binds": "city",
+    "disabled": "!region"
+   },
+   {
+    "kind": "select",
+    "tag": "select",
+    "line": 32,
+    "label": "border rounded-lg px-3 py-2 الحي",
+    "handler": "e=>{setDistrict(e.target.value); onChange({region, city, district:e.target.value});}",
+    "binds": "district",
+    "disabled": "!city"
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/locations/regions",
+    "line": 18
+   },
+   {
+    "method": "GET",
+    "url": "/locations/cities",
+    "line": 19
+   },
+   {
+    "method": "GET",
+    "url": "/locations/districts",
+    "line": 22
+   }
+  ]
+ },
+ {
+  "file": "admin/src/components/ProviderFullDetail.tsx",
+  "elements": [
+   {
+    "kind": "link",
+    "tag": "a",
+    "line": 48,
+    "label": "_blank noreferrer ملف مرفوع",
+    "handler": "src",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "link",
+    "tag": "a",
+    "line": 65,
+    "label": "_blank noreferrer text-xs bg-blue-50 text-blue-700 border border-blue-200 rounde",
+    "handler": "href",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 186,
+    "label": "البريد الإلكتروني",
+    "handler": "",
+    "binds": "acc.email",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 187,
+    "label": "رقم الجوال",
+    "handler": "",
+    "binds": "acc.phone_e164",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 188,
+    "label": "نوع المزود",
+    "handler": "",
+    "binds": "acc.provider_type || ob.type",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 189,
+    "label": "حالة الحساب",
+    "handler": "",
+    "binds": "acc.status || ob.status",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 190,
+    "label": "البريد مؤكد",
+    "handler": "",
+    "binds": "acc.email_verified",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 191,
+    "label": "آخر تسجيل دخول",
+    "handler": "",
+    "binds": "acc.last_login_at ? String(acc.last_login_at).slice(0, 19).replace('T', ' ') : null",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 192,
+    "label": "تاريخ إنشاء الحساب",
+    "handler": "",
+    "binds": "(acc.createdAt || ob.createdAt) ? String(acc.createdAt || ob.createdAt).slice(0, 19).replace('T', ' ') : null",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 193,
+    "label": "تاريخ الاعتماد",
+    "handler": "",
+    "binds": "acc.approved_at ? String(acc.approved_at).slice(0, 19).replace('T', ' ') : null",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 194,
+    "label": "سبب الرفض",
+    "handler": "",
+    "binds": "acc.rejection_reason",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 216,
+    "label": "الاسم المعروض (عربي)",
+    "handler": "",
+    "binds": "prof.display_name_ar",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 217,
+    "label": "الاسم المعروض (إنجليزي)",
+    "handler": "",
+    "binds": "prof.display_name_en",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 218,
+    "label": "الاسم التجاري",
+    "handler": "",
+    "binds": "prof.business_name",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 219,
+    "label": "الاسم القانوني",
+    "handler": "",
+    "binds": "prof.legal_name",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 220,
+    "label": "رقم الترخيص الطبي",
+    "handler": "",
+    "binds": "prof.medical_license_number",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 221,
+    "label": "ترخيص المنشأة",
+    "handler": "",
+    "binds": "prof.facility_license_number",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 222,
+    "label": "السجل التجاري",
+    "handler": "",
+    "binds": "prof.commercial_registration_number",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 223,
+    "label": "الرقم الضريبي",
+    "handler": "",
+    "binds": "prof.tax_number",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 224,
+    "label": "سنة التأسيس",
+    "handler": "",
+    "binds": "prof.established_year",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 225,
+    "label": "سنوات الخبرة",
+    "handler": "",
+    "binds": "prof.years_of_experience",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 226,
+    "label": "الموقع الإلكتروني",
+    "handler": "",
+    "binds": "prof.website",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 227,
+    "label": "عمولة الكاش %",
+    "handler": "",
+    "binds": "prof.commission_cash_pct ?? prof.commission_rate",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 228,
+    "label": "عمولة التأمين %",
+    "handler": "",
+    "binds": "prof.commission_insurance_pct ?? prof.commission_rate",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 229,
+    "label": "اكتمال الملف %",
+    "handler": "",
+    "binds": "prof.profile_completeness",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 230,
+    "label": "الوحدات المفعّلة",
+    "handler": "",
+    "binds": "prof.enabled_modules",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 231,
+    "label": "الوصف (عربي)",
+    "handler": "",
+    "binds": "prof.description_ar",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 232,
+    "label": "الوصف (إنجليزي)",
+    "handler": "",
+    "binds": "prof.description_en",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 248,
+    "label": "العنوان التفصيلي",
+    "handler": "",
+    "binds": "prof.address",
+    "disabled": null
+   },
+   {
+    "kind": "link",
+    "tag": "a",
+    "line": 252,
+    "label": "text-teal-700 underline text-sm font-mono _blank noreferrer ,",
+    "handler": "`https://maps.google.com/?q=${prof.geo.lat},${prof.geo.lng}`",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 276,
+    "label": "الاسم (عربي)",
+    "handler": "",
+    "binds": "ob.name_ar",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 277,
+    "label": "الاسم (إنجليزي)",
+    "handler": "",
+    "binds": "ob.name_en",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 278,
+    "label": "الاسم الرسمي الكامل (الأوراق الرسمية)",
+    "handler": "",
+    "binds": "ob.legal_name",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 279,
+    "label": "الاسم المعروض للمستخدمين (عربي)",
+    "handler": "",
+    "binds": "ob.display_name_ar",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 280,
+    "label": "الاسم المعروض للمستخدمين (إنجليزي)",
+    "handler": "",
+    "binds": "ob.display_name_en",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 281,
+    "label": "الجنس",
+    "handler": "",
+    "binds": "ob.gender === 'male' ? 'ذكر' : ob.gender === 'female' ? 'أنثى' : ob.gender",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 282,
+    "label": "رقم الهوية الوطنية / الإقامة",
+    "handler": "",
+    "binds": "ob.national_id",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 283,
+    "label": "المدينة",
+    "handler": "",
+    "binds": "ob.city",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 284,
+    "label": "الحي",
+    "handler": "",
+    "binds": "ob.district",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 285,
+    "label": "العنوان",
+    "handler": "",
+    "binds": "ob.address",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 286,
+    "label": "رقم الترخيص",
+    "handler": "",
+    "binds": "ob.license_number || ob.moh_license_number || ob.scfhs_license_number || ob.sfda_license_number",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 287,
+    "label": "حالة الترخيص",
+    "handler": "",
+    "binds": "ob.license_status",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 288,
+    "label": "السجل التجاري",
+    "handler": "",
+    "binds": "ob.cr_number",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 289,
+    "label": "الرقم الضريبي",
+    "handler": "",
+    "binds": "ob.tax_number",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 290,
+    "label": "الترخيص موثّق",
+    "handler": "",
+    "binds": "ob.license_verified",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 291,
+    "label": "اكتمل التسجيل",
+    "handler": "",
+    "binds": "ob.onboarding_completed",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 292,
+    "label": "نبذة تعريفية",
+    "handler": "",
+    "binds": "ob.bio",
+    "disabled": null
+   },
+   {
+    "kind": "link",
+    "tag": "a",
+    "line": 296,
+    "label": "text-teal-700 underline text-sm font-mono _blank noreferrer ,",
+    "handler": "`https://maps.google.com/?q=${ob.location.lat},${ob.location.lng}`",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 306,
+    "label": "التخصص",
+    "handler": "",
+    "binds": "ob.specialty",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 307,
+    "label": "التخصصات الفرعية",
+    "handler": "",
+    "binds": "ob.sub_specialties",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 308,
+    "label": "الدرجة العلمية",
+    "handler": "",
+    "binds": "ob.academic_degree",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 309,
+    "label": "سنوات الخبرة",
+    "handler": "",
+    "binds": "ob.years_experience",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 310,
+    "label": "اللغات",
+    "handler": "",
+    "binds": "ob.languages",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 311,
+    "label": "تفضيل جنس المريض",
+    "handler": "",
+    "binds": "ob.gender_pref",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 312,
+    "label": "أنماط الاستشارة",
+    "handler": "",
+    "binds": "ob.consultation_modes",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 313,
+    "label": "سعر الكشف بالعيادة",
+    "handler": "",
+    "binds": "ob.price_clinic != null ? `${ob.price_clinic} ر.س` : null",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 314,
+    "label": "سعر الاستشارة عن بعد",
+    "handler": "",
+    "binds": "ob.price_online != null ? `${ob.price_online} ر.س` : null",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 315,
+    "label": "سعر الزيارة المنزلية",
+    "handler": "",
+    "binds": "ob.price_home != null ? `${ob.price_home} ر.س` : null",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 316,
+    "label": "يدعم الزيارة المنزلية",
+    "handler": "",
+    "binds": "ob.home_visit_supported ?? (Array.isArray(ob.consultation_modes) && ob.consultation_modes.includes('home'))",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 317,
+    "label": "نطاق الزيارة المنزلية (كم)",
+    "handler": "",
+    "binds": "ob.home_visit_radius_km",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 318,
+    "label": "مدة الكشف بالعيادة (دقيقة)",
+    "handler": "",
+    "binds": "ob.clinic_duration",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 319,
+    "label": "مدة الاستشارة عن بعد (دقيقة)",
+    "handler": "",
+    "binds": "ob.video_duration",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 320,
+    "label": "رسوم مواصلات الزيارة المنزلية",
+    "handler": "",
+    "binds": "ob.home_transport_fee",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 321,
+    "label": "سعر المواصلات",
+    "handler": "",
+    "binds": "ob.home_transport_price != null ? `${ob.home_transport_price} ر.س` : null",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 322,
+    "label": "إجازة حتى",
+    "handler": "",
+    "binds": "ob.vacation_date",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 323,
+    "label": "نطاق التغطية (كم)",
+    "handler": "",
+    "binds": "ob.coverage_radius_km",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 324,
+    "label": "يقبل الدفع النقدي",
+    "handler": "",
+    "binds": "ob.accepts_cash",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 325,
+    "label": "عمولة الكاش %",
+    "handler": "",
+    "binds": "ob.commission_cash_pct ?? ob.commission_rate",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 326,
+    "label": "عمولة التأمين %",
+    "handler": "",
+    "binds": "ob.commission_insurance_pct ?? ob.commission_rate",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 390,
+    "label": "يقبل التأمين",
+    "handler": "",
+    "binds": "ob.accepts_insurance",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 391,
+    "label": "لديه مسؤول تأمين",
+    "handler": "",
+    "binds": "ob.has_insurance_officer",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 392,
+    "label": "تأمين — عيادة",
+    "handler": "",
+    "binds": "ob.insurance_clinic",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 393,
+    "label": "تأمين — عن بعد",
+    "handler": "",
+    "binds": "ob.insurance_online",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 394,
+    "label": "تأمين — منزلي",
+    "handler": "",
+    "binds": "ob.insurance_home",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 426,
+    "label": "صرف أدوية وصفية (Rx)",
+    "handler": "",
+    "binds": "ob.rx_dispensing",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 427,
+    "label": "بيع أدوية بدون وصفة (OTC)",
+    "handler": "",
+    "binds": "ob.otc_selling",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 428,
+    "label": "توصيل خاص",
+    "handler": "",
+    "binds": "ob.has_own_delivery",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 429,
+    "label": "سائقون خاصون",
+    "handler": "",
+    "binds": "ob.has_own_drivers",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 430,
+    "label": "نمط التوصيل",
+    "handler": "",
+    "binds": "ob.delivery_mode",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 431,
+    "label": "أقصى نطاق توصيل (كم)",
+    "handler": "",
+    "binds": "ob.max_delivery_radius_km",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 432,
+    "label": "توصيل سريع",
+    "handler": "",
+    "binds": "ob.express_delivery",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 433,
+    "label": "فئات مفعّلة",
+    "handler": "",
+    "binds": "ob.enabled_categories",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 434,
+    "label": "فئات التحاليل",
+    "handler": "",
+    "binds": "ob.test_categories",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 435,
+    "label": "نماذج التسعير",
+    "handler": "",
+    "binds": "ob.pricingModel",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 436,
+    "label": "خدمات التمريض",
+    "handler": "",
+    "binds": "ob.nursing_services",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 437,
+    "label": "قائمة المعدات",
+    "handler": "",
+    "binds": "ob.equipment_list",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 457,
+    "label": "IBAN",
+    "handler": "",
+    "binds": "bank.iban || ob.iban",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 458,
+    "label": "اسم صاحب الحساب",
+    "handler": "",
+    "binds": "bank.holder_name || ob.bank_account_name",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 459,
+    "label": "اسم البنك",
+    "handler": "",
+    "binds": "bank.bank_name",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 460,
+    "label": "كود البنك",
+    "handler": "",
+    "binds": "bank.bank_code",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 461,
+    "label": "الرقم الضريبي (VAT)",
+    "handler": "",
+    "binds": "bank.vat_number",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 545,
+    "label": "bg-teal-700 hover:bg-teal-800 disabled:opacity-50 text-white text-xs font-bold p",
+    "handler": "downloadContract",
+    "binds": null,
+    "disabled": "contractBusy || !cid"
+   },
+   {
+    "kind": "toggle",
+    "tag": "input",
+    "line": 555,
+    "label": "",
+    "handler": "async (e) => {\n                const res = await fetchWithAdminGuard(`/api/admin/provider-onboarding/admin/contracts/${c",
+    "binds": "!!contractMeta.visible_to_provider",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "Field",
+    "line": 585,
+    "label": "k",
+    "handler": "",
+    "binds": "ob[k]",
+    "disabled": null
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/api/admin/storage/:x/signed-url",
+    "line": 18
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/storage/:x",
+    "line": 23
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/provider-onboarding/admin/contracts/:x",
+    "line": 157
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/provider-onboarding/admin/contracts/:x/visibility",
+    "line": 556
+   }
+  ]
+ },
+ {
+  "file": "admin/src/components/PublicDirectory.tsx",
+  "elements": [
+   {
+    "kind": "link",
+    "tag": "Link",
+    "line": 74,
+    "label": "/ text-xl font-black text-teal-700 نبض",
+    "handler": "/",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "link",
+    "tag": "Link",
+    "line": 75,
+    "label": "/ bg-teal-600 hover:bg-teal-700 text-white text-sm font-bold px-4 py-2 rounded-l",
+    "handler": "/",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 83,
+    "label": "`ابحث في ${config.title}…`",
+    "handler": "(e) => setQ(e.target.value)",
+    "binds": "q",
+    "disabled": null
+   },
+   {
+    "kind": "link",
+    "tag": "Link",
+    "line": 96,
+    "label": "bg-white rounded-2xl border border-slate-200 p-5 hover:border-teal-400 hover:sha",
+    "handler": "`/s/${config.type}/${slug}`",
+    "binds": null,
+    "disabled": null
+   }
+  ],
+  "calls": []
+ },
+ {
+  "file": "admin/src/pages/admin/ai-control.tsx",
+  "elements": [
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 60,
+    "label": "auto auto bg-teal-600 text-white تلقائي (Fallback + Round Robin)",
+    "handler": "() => setMode('auto')",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "select",
+    "tag": "select",
+    "line": 66,
+    "label": "manual manual manual يدوي — تثبيت مزود... تثبيت:",
+    "handler": "e => e.target.value && setMode('manual', e.target.value)",
+    "binds": "data.mode === 'manual' ? (data.pinned_provider || '') : ''",
+    "disabled": null
+   },
+   {
+    "kind": "select",
+    "tag": "select",
+    "line": 86,
+    "label": "border rounded px-2 py-1 text-sm flex-1 تلقائي",
+    "handler": "(e) => void setPurpose(f, e.target.value)",
+    "binds": "data.purpose_overrides?.[f] || ''",
+    "disabled": "busy === `purpose:${f}`"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 125,
+    "label": "bg-red-100 text-red-700 hover:bg-red-200 bg-teal-600 text-white hover:bg-teal-70",
+    "handler": "() => toggle(p.key, p.enabled)",
+    "binds": null,
+    "disabled": "busy === p.key"
+   },
+   {
+    "kind": "select",
+    "tag": "select",
+    "line": 140,
+    "label": "border rounded p-2 text-sm 24 ساعة 7 أيام 30 يوم",
+    "handler": "e => setDays(parseInt(e.target.value))",
+    "binds": "days",
+    "disabled": null
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/ai/admin/gateway",
+    "line": 23
+   },
+   {
+    "method": "GET",
+    "url": "/ai/admin/usage",
+    "line": 24
+   },
+   {
+    "method": "POST",
+    "url": "/ai/admin/gateway/provider/:x",
+    "line": 33
+   },
+   {
+    "method": "POST",
+    "url": "/ai/admin/gateway/mode",
+    "line": 39
+   },
+   {
+    "method": "POST",
+    "url": "/ai/admin/gateway/purpose",
+    "line": 46
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/ambulance-fleet.tsx",
+  "elements": [
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 97,
+    "label": "bg-slate-900 text-white bg-slate-100 text-slate-600",
+    "handler": "() => setTab(t)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 108,
+    "label": "px-4 py-2 bg-slate-900 text-white rounded-lg text-sm إعادة المحاولة",
+    "handler": "load",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "link",
+    "tag": "a",
+    "line": 135,
+    "label": "_blank noreferrer text-xs text-sky-600 underline مستند",
+    "handler": "d",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 145,
+    "label": "px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-semibold disabled:op",
+    "handler": "() => approve(v)",
+    "binds": null,
+    "disabled": "busyId === v.id"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 149,
+    "label": "px-4 py-2 bg-rose-100 text-rose-700 rounded-lg text-sm font-semibold رفض",
+    "handler": "() => { setRejectingId(rejectingId === v.id ? null : v.id); setRejectReason(''); }",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 158,
+    "label": "سبب الرفض (يظهر للمزود)",
+    "handler": "e => setRejectReason(e.target.value)",
+    "binds": "rejectReason",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 161,
+    "label": "px-4 py-2 bg-rose-600 text-white rounded-lg text-sm font-semibold disabled:opaci",
+    "handler": "() => reject(v)",
+    "binds": null,
+    "disabled": "busyId === v.id"
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/ambulance/fleet",
+    "line": 40
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/ambulance/fleet/:x/approve",
+    "line": 57
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/ambulance/fleet/:x/reject",
+    "line": 72
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/analytics-suite.tsx",
+  "elements": [
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 20,
+    "label": "",
+    "handler": "(e) => setFrom(e.target.value)",
+    "binds": "from",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 20,
+    "label": "",
+    "handler": "(e) => setTo(e.target.value)",
+    "binds": "to",
+    "disabled": null
+   },
+   {
+    "kind": "select",
+    "tag": "select",
+    "line": 20,
+    "label": "mt-1 w-full rounded-lg border p-2 text-sm الكل pharmacy الصيدلية المختبر الأشعة ",
+    "handler": "(e) => setDomain(e.target.value)",
+    "binds": "domain",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 20,
+    "label": "self-end rounded-lg bg-teal-700 px-4 py-2 text-sm font-bold text-white تحديث",
+    "handler": "() => void load()",
+    "binds": null,
+    "disabled": null
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/analytics-suite/funnels:x",
+    "line": 18
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/analytics-suite/cohorts:x",
+    "line": 18
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/analytics-suite/provider-league:x)}",
+    "line": 18
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/analytics-suite/search:x",
+    "line": 18
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/analytics-suite/nps:x",
+    "line": 18
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/analytics-suite/anomalies",
+    "line": 18
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/analytics.tsx",
+  "elements": [
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 63,
+    "label": "bg-blue-600 text-white bg-white border text-gray-700",
+    "handler": "() => setSection(s.key)",
+    "binds": null,
+    "disabled": null
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/analytics/overview",
+    "line": 19
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/analytics/:x",
+    "line": 24
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/appointments-oversight.tsx",
+  "elements": [
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 20,
+    "label": "text-sm text-teal-700 font-bold تحديث",
+    "handler": "()=>load()",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 26,
+    "label": "text-xs bg-red-600 text-white px-3 py-1 rounded-lg إلغاء",
+    "handler": "()=>cancel(a.id)",
+    "binds": null,
+    "disabled": null
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/appointments",
+    "line": 10
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/appointments/:x/cancel",
+    "line": 16
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/audit-logs.tsx",
+  "elements": [
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 71,
+    "label": "تصفية باسم الإجراء",
+    "handler": "(e) => { setAction(e.target.value); setPage(1); }",
+    "binds": "action",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 72,
+    "label": "معرّف المنفّذ",
+    "handler": "(e) => { setAdminId(e.target.value); setPage(1); }",
+    "binds": "adminId",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 73,
+    "label": "نوع المورد",
+    "handler": "(e) => { setTargetType(e.target.value); setPage(1); }",
+    "binds": "targetType",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 74,
+    "label": "معرّف المورد",
+    "handler": "(e) => { setTargetId(e.target.value); setPage(1); }",
+    "binds": "targetId",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 75,
+    "label": "",
+    "handler": "(e) => { setFrom(e.target.value); setPage(1); }",
+    "binds": "from",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 76,
+    "label": "",
+    "handler": "(e) => { setTo(e.target.value); setPage(1); }",
+    "binds": "to",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 77,
+    "label": "rounded-lg bg-teal-700 px-4 py-2 text-sm font-bold text-white تحديث",
+    "handler": "() => void load()",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 78,
+    "label": "rounded-lg border border-teal-700 px-4 py-2 text-sm font-bold text-teal-800 disa",
+    "handler": "exportCsv",
+    "binds": null,
+    "disabled": "!data.data.length"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 87,
+    "label": "rounded border px-3 py-1 disabled:opacity-40 السابق",
+    "handler": "() => setPage((value) => value - 1)",
+    "binds": null,
+    "disabled": "page <= 1 || loading"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 87,
+    "label": "rounded border px-3 py-1 disabled:opacity-40 التالي",
+    "handler": "() => setPage((value) => value + 1)",
+    "binds": null,
+    "disabled": "page >= (data.pages || 1) || loading"
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/audit:x",
+    "line": 34
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/broadcast-monitor.tsx",
+  "elements": [
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 17,
+    "label": "text-sm text-teal-700 font-bold تحديث",
+    "handler": "()=>load()",
+    "binds": null,
+    "disabled": null
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/pharmacy/broadcasts",
+    "line": 10
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/catalog-governance.tsx",
+  "elements": [
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 148,
+    "label": "catalog catalog bg-teal-700 text-white shadow-sm الكتالوج والنواقص",
+    "handler": "() => setActiveTab('catalog')",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 156,
+    "label": "overrides overrides bg-teal-700 text-white shadow-sm تدقيق تجاوز الأسعار ( )",
+    "handler": "() => setActiveTab('overrides')",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 220,
+    "label": "الاسم أو المادة الفعالة",
+    "handler": "(e) => setSearch(e.target.value)",
+    "binds": "search",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 229,
+    "label": "",
+    "handler": "(e) => void importCsv(e.target.files?.[0])",
+    "binds": null,
+    "disabled": "saving"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 273,
+    "label": "rounded border border-slate-300 hover:bg-slate-100 px-3 py-1 text-xs font-medium",
+    "handler": "() => void openHistory(item)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 304,
+    "label": "approve rounded bg-teal-700 hover:bg-teal-800 px-3 py-1 text-xs text-white اعتما",
+    "handler": "() => void decideShortage(row, 'approve')",
+    "binds": null,
+    "disabled": "saving"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 311,
+    "label": "reject rounded border border-rose-300 hover:bg-rose-50 px-3 py-1 text-xs text-ro",
+    "handler": "() => void decideShortage(row, 'reject')",
+    "binds": null,
+    "disabled": "saving"
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 333,
+    "label": "",
+    "handler": "(e) => setPrice(e.target.value)",
+    "binds": "price",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "textarea",
+    "line": 344,
+    "label": "",
+    "handler": "(e) => setReason(e.target.value)",
+    "binds": "reason",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 352,
+    "label": "w-full rounded bg-teal-700 hover:bg-teal-800 px-4 py-2 text-sm font-bold text-wh",
+    "handler": "() => void savePrice()",
+    "binds": null,
+    "disabled": "saving"
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/medicines/admin/catalog",
+    "line": 40
+   },
+   {
+    "method": "GET",
+    "url": "/medicines/admin/shortage-reports",
+    "line": 41
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/pharmacy/price-overrides",
+    "line": 42
+   },
+   {
+    "method": "GET",
+    "url": "/medicines/admin/catalog/:x/price-history",
+    "line": 63
+   },
+   {
+    "method": "PATCH",
+    "url": "/medicines/admin/catalog/:x",
+    "line": 78
+   },
+   {
+    "method": "POST",
+    "url": "/medicines/admin/import-csv",
+    "line": 101
+   },
+   {
+    "method": "POST",
+    "url": "/medicines/admin/shortage-reports/:x/:x",
+    "line": 122
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/catalog-manager.tsx",
+  "elements": [
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 215,
+    "label": "8px 18px none pointer",
+    "handler": "() => setTab(t.key)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 223,
+    "label": "pending nursing hour + إضافة صنف جديد",
+    "handler": "() => setEditing({ active: true, medical_review_status: 'pending', ...(tab === 'nursing' ? { duration: 'hour', category:",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 230,
+    "label": "بحث بالاسم أو الكود أو الفئة…",
+    "handler": "(e) => onSearch(e.target.value)",
+    "binds": "search",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 243,
+    "label": "الاسم (عربي)",
+    "handler": "(e) => setSpecNameAr(e.target.value)",
+    "binds": "specNameAr",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 244,
+    "label": "Name (en)",
+    "handler": "(e) => setSpecNameEn(e.target.value)",
+    "binds": "specNameEn",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 245,
+    "label": "px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-bold حفظ التخصص",
+    "handler": "() => void saveSpecialty()",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 251,
+    "label": "text-red-600 text-xs font-bold border border-red-200 rounded px-3 py-1 تعطيل",
+    "handler": "() => void removeSpecialty(item.code || item.id)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 263,
+    "label": "6px 14px none #16A34A اعتماد المحدد",
+    "handler": "() => void bulkDecide(true)",
+    "binds": null,
+    "disabled": "deciding"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 264,
+    "label": "6px 14px 1px solid #FECACA #fff رفض المحدد",
+    "handler": "() => void bulkDecide(false)",
+    "binds": null,
+    "disabled": "deciding"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 265,
+    "label": "6px 14px 1px solid #CBD5E1 #fff إلغاء التحديد",
+    "handler": "() => setSelected(new Set())",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "toggle",
+    "tag": "input",
+    "line": 272,
+    "label": "تحديد للاعتماد الجماعي",
+    "handler": "() => item.id && toggleSelect(item.id)",
+    "binds": "selected.has(item.id)",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 281,
+    "label": "6px 12px none #16A34A اعتماد",
+    "handler": "() => void decide(item.id, true)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 282,
+    "label": "6px 12px 1px solid #FED7AA #FFFBEB رفض",
+    "handler": "() => void decide(item.id, false)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 283,
+    "label": "6px 12px 1px solid #CBD5E1 #fff تعديل",
+    "handler": "() => setEditing({ ...item })",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 284,
+    "label": "6px 12px 1px solid #FECACA #FEF2F2 حذف",
+    "handler": "() => remove(item)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "div",
+    "line": 293,
+    "label": "fixed rgba(15,23,42,.5) flex — المراجعة الطبية والنشر إلغاء",
+    "handler": "() => setEditing(null)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "div",
+    "line": 295,
+    "label": "#fff min(640px, 92vw) 86vh — المراجعة الطبية والنشر إلغاء",
+    "handler": "(e) => e.stopPropagation()",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "select",
+    "tag": "select",
+    "line": 301,
+    "label": "pending 100% 1px solid #E2E8F0",
+    "handler": "(e) => setEditing({ ...editing, medical_review_status: e.target.value })",
+    "binds": "editing.medical_review_status || 'pending'",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "textarea",
+    "line": 310,
+    "label": "f.label",
+    "handler": "(e) => setEditing({ ...editing, [f.key]: e.target.value })",
+    "binds": "editing[f.key] || ''",
+    "disabled": null
+   },
+   {
+    "kind": "toggle",
+    "tag": "input",
+    "line": 313,
+    "label": "",
+    "handler": "(e) => setEditing({ ...editing, [f.key]: e.target.checked })",
+    "binds": "editing[f.key] !== false",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 315,
+    "label": "f.label",
+    "handler": "(e) => setEditing({ ...editing, [f.key]: e.target.value })",
+    "binds": "editing[f.key] ?? ''",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 323,
+    "label": "10px 20px 1px solid #E2E8F0 #fff إلغاء",
+    "handler": "() => setEditing(null)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 324,
+    "label": "10px 20px none #23B5CE",
+    "handler": "save",
+    "binds": null,
+    "disabled": "saving"
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 458,
+    "label": "بحث…",
+    "handler": "(e) => setQ(e.target.value)",
+    "binds": "q",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 459,
+    "label": "8px 18px none #0F172A + دواء جديد",
+    "handler": "() => setForm({ name_ar: '', requires_prescription: false, reason: '' })",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 462,
+    "label": "",
+    "handler": "(e) => { const f = e.target.files?.[0]; if (f) void uploadCsv(f); e.target.value = ''; }",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 473,
+    "label": "تعديل",
+    "handler": "() => setForm({ ...m, reason: '' })",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 474,
+    "label": "اعتماد",
+    "handler": "() => void decide(m.id, true)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 475,
+    "label": "استرجاع تعطيل",
+    "handler": "() => void toggleActive(m)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 476,
+    "label": "السجل السعري",
+    "handler": "() => void showHistory(m.id)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "div",
+    "line": 490,
+    "label": "fixed rgba(15,23,42,.5) flex يتطلب وصفة صورة: جارٍ رفع الصورة… إلغاء",
+    "handler": "() => setForm(null)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "div",
+    "line": 491,
+    "label": "#fff min(560px, 92vw) 86vh يتطلب وصفة صورة: جارٍ رفع الصورة… إلغاء",
+    "handler": "(e) => e.stopPropagation()",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 494,
+    "label": "الاسم (عربي)",
+    "handler": "(e) => set('name_ar', e.target.value)",
+    "binds": "form.name_ar || ''",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 495,
+    "label": "Name (en)",
+    "handler": "(e) => set('name_en', e.target.value)",
+    "binds": "form.name_en || ''",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 496,
+    "label": "المادة الفعالة",
+    "handler": "(e) => set('generic_name', e.target.value)",
+    "binds": "form.generic_name || ''",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 497,
+    "label": "الفئة",
+    "handler": "(e) => set('category', e.target.value)",
+    "binds": "form.category || ''",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 498,
+    "label": "السعر",
+    "handler": "(e) => set('price', e.target.value)",
+    "binds": "form.price ?? ''",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 499,
+    "label": "سبب الإنشاء/التغيير",
+    "handler": "(e) => set('reason', e.target.value)",
+    "binds": "form.reason || ''",
+    "disabled": null
+   },
+   {
+    "kind": "toggle",
+    "tag": "input",
+    "line": 500,
+    "label": "",
+    "handler": "(e) => set('requires_prescription', e.target.checked)",
+    "binds": "!!form.requires_prescription",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 501,
+    "label": "",
+    "handler": "async (e) => { const f = e.target.files?.[0]; if (!f) return; setImgBusy(true); try { set('image', await uploadImage(f))",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 506,
+    "label": "إلغاء",
+    "handler": "() => setForm(null)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 507,
+    "label": "جارٍ الحفظ… حفظ",
+    "handler": "save",
+    "binds": null,
+    "disabled": "saving"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 586,
+    "label": "8px 18px none #0F172A + شركة جديدة",
+    "handler": "() => setForm({ name_ar: '', name_en: '', code: '' })",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 587,
+    "label": "1 8px 18px 1px solid #CBD5E1 + شبكة/فئة",
+    "handler": "() => setNetForm({ companyId: '', code: '', name_ar: '', name_en: '', level: '1' })",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "link",
+    "tag": "a",
+    "line": 588,
+    "label": "/admin/insurance-companies 8px 18px #0E7490 قواعد التغطية التفصيلية ←",
+    "handler": "/admin/insurance-companies",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 598,
+    "label": "تعديل",
+    "handler": "() => setForm({ ...c })",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 599,
+    "label": "تفعيل تعطيل",
+    "handler": "() => void toggleActive(c)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 600,
+    "label": "1 + شبكة",
+    "handler": "() => setNetForm({ companyId: c.id || c._id, code: '', name_ar: '', name_en: '', level: '1' })",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 605,
+    "label": "#B91C1C none none حذف",
+    "handler": "() => void removeNetwork(c.id || c._id, t.id || t._id)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "div",
+    "line": 613,
+    "label": "fixed rgba(15,23,42,.5) flex إلغاء حفظ",
+    "handler": "() => setForm(null)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "div",
+    "line": 614,
+    "label": "#fff min(480px, 92vw) تعديل شركة إلغاء حفظ",
+    "handler": "(e) => e.stopPropagation()",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 616,
+    "label": "الاسم (عربي)",
+    "handler": "(e) => setForm({ ...form, name_ar: e.target.value })",
+    "binds": "form.name_ar || ''",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 617,
+    "label": "Name (en)",
+    "handler": "(e) => setForm({ ...form, name_en: e.target.value })",
+    "binds": "form.name_en || ''",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 618,
+    "label": "الكود",
+    "handler": "(e) => setForm({ ...form, code: e.target.value })",
+    "binds": "form.code || ''",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 620,
+    "label": "إلغاء",
+    "handler": "() => setForm(null)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 621,
+    "label": "حفظ",
+    "handler": "saveCompany",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "div",
+    "line": 627,
+    "label": "fixed rgba(15,23,42,.5) flex شبكة/فئة جديدة — الشركة — إلغاء حفظ",
+    "handler": "() => setNetForm(null)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "div",
+    "line": 628,
+    "label": "#fff min(480px, 92vw) شبكة/فئة جديدة — الشركة — إلغاء حفظ",
+    "handler": "(e) => e.stopPropagation()",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "select",
+    "tag": "select",
+    "line": 630,
+    "label": "100% 1px solid #E2E8F0 inherit — الشركة —",
+    "handler": "(e) => setNetForm({ ...netForm, companyId: e.target.value })",
+    "binds": "netForm.companyId",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 634,
+    "label": "الكود",
+    "handler": "(e) => setNetForm({ ...netForm, code: e.target.value })",
+    "binds": "netForm.code",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 635,
+    "label": "الاسم (عربي)",
+    "handler": "(e) => setNetForm({ ...netForm, name_ar: e.target.value })",
+    "binds": "netForm.name_ar",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 637,
+    "label": "إلغاء",
+    "handler": "() => setNetForm(null)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 638,
+    "label": "حفظ",
+    "handler": "saveNetwork",
+    "binds": null,
+    "disabled": null
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/medicines/admin/catalog",
+    "line": 352
+   },
+   {
+    "method": "POST",
+    "url": "/storage/upload",
+    "line": 369
+   },
+   {
+    "method": "GET",
+    "url": "/storage/:x/signed-url",
+    "line": 373
+   },
+   {
+    "method": "PATCH",
+    "url": "/medicines/admin/catalog/:x",
+    "line": 397
+   },
+   {
+    "method": "POST",
+    "url": "/medicines/admin/catalog",
+    "line": 398
+   },
+   {
+    "method": "POST",
+    "url": "/medicines/admin/catalog/:x/delete",
+    "line": 411
+   },
+   {
+    "method": "POST",
+    "url": "/medicines/admin/catalog/:x/approve",
+    "line": 420
+   },
+   {
+    "method": "GET",
+    "url": "/medicines/admin/catalog/:x/price-history",
+    "line": 430
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/bulk-upload",
+    "line": 442
+   },
+   {
+    "method": "GET",
+    "url": "/insurance/companies/all",
+    "line": 528
+   },
+   {
+    "method": "PATCH",
+    "url": "/insurance/companies/:x",
+    "line": 539
+   },
+   {
+    "method": "POST",
+    "url": "/insurance/companies",
+    "line": 540
+   },
+   {
+    "method": "PATCH",
+    "url": "/insurance/companies/:x",
+    "line": 550
+   },
+   {
+    "method": "POST",
+    "url": "/insurance/companies/:x/networks",
+    "line": 561
+   },
+   {
+    "method": "DELETE",
+    "url": "/insurance/companies/:x/networks/:x",
+    "line": 575
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/command-center.tsx",
+  "elements": [
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 33,
+    "label": "rounded border px-3 py-1 تحديث فوري",
+    "handler": "() => void load()",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "link",
+    "tag": "Link",
+    "line": 33,
+    "label": "",
+    "handler": "tile.href",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "link",
+    "tag": "Link",
+    "line": 33,
+    "label": "/admin/orders text-teal-700 فتح",
+    "handler": "/admin/orders",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "link",
+    "tag": "Link",
+    "line": 33,
+    "label": "/admin/finance-suite text-teal-700 فتح",
+    "handler": "/admin/finance-suite",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "link",
+    "tag": "Link",
+    "line": 33,
+    "label": "/admin/orders rounded-lg border px-4 py-2 text-sm إدارة دورة الطلبات",
+    "handler": "/admin/orders",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "link",
+    "tag": "Link",
+    "line": 33,
+    "label": "/admin/finance-suite rounded-lg border px-4 py-2 text-sm التسوية والدفعات",
+    "handler": "/admin/finance-suite",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "link",
+    "tag": "Link",
+    "line": 33,
+    "label": "/admin/system-ops rounded-lg border px-4 py-2 text-sm الطوابير والتشغيل",
+    "handler": "/admin/system-ops",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "link",
+    "tag": "Link",
+    "line": 33,
+    "label": "/admin/disputes rounded-lg border px-4 py-2 text-sm النزاعات المالية",
+    "handler": "/admin/disputes",
+    "binds": null,
+    "disabled": null
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/command-center-v2",
+    "line": 30
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/analytics-suite/online",
+    "line": 30
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/ops/overview",
+    "line": 30
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/ops/domain-metrics",
+    "line": 30
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/ops/live-map",
+    "line": 30
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/ops/alerts",
+    "line": 30
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/commissions.tsx",
+  "elements": [
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 82,
+    "label": "px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm font-mediu",
+    "handler": "load",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "select",
+    "tag": "select",
+    "line": 176,
+    "label": "mt-1 w-full border rounded p-2 provider مزود خدمة فئة حملة",
+    "handler": "(e) => setRule({ ...rule, scope: e.target.value })",
+    "binds": "rule.scope",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 182,
+    "label": "account/user id",
+    "handler": "(e) => setRule({ ...rule, scope_id: e.target.value })",
+    "binds": "rule.scope_id",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 185,
+    "label": "pharmacy/lab/…",
+    "handler": "(e) => setRule({ ...rule, service_type: e.target.value })",
+    "binds": "rule.service_type",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 188,
+    "label": "",
+    "handler": "(e) => setRule({ ...rule, percent: e.target.value })",
+    "binds": "rule.percent",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 191,
+    "label": "",
+    "handler": "(e) => setRule({ ...rule, effective_from: e.target.value })",
+    "binds": "rule.effective_from",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 194,
+    "label": "",
+    "handler": "(e) => setRule({ ...rule, effective_to: e.target.value })",
+    "binds": "rule.effective_to",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 197,
+    "label": "mt-4 px-5 py-2 bg-teal-600 text-white rounded-lg text-sm font-bold حفظ القاعدة",
+    "handler": "saveRule",
+    "binds": null,
+    "disabled": null
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/finance-engine/commission-rules/history",
+    "line": 31
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/finance-engine/commission-rules",
+    "line": 41
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/finance/ledger/summary",
+    "line": 60
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/finance/commissions",
+    "line": 61
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/community-moderation.tsx",
+  "elements": [
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 46,
+    "label": "text-sm text-teal-700 font-bold تحديث",
+    "handler": "() => load()",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 59,
+    "label": "published bg-green-600 text-white px-4 py-1.5 rounded-lg text-sm font-bold disab",
+    "handler": "() => moderate(p.id, 'published')",
+    "binds": null,
+    "disabled": "busy===p.id"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 60,
+    "label": "removed bg-red-600 text-white px-4 py-1.5 rounded-lg text-sm font-bold disabled:",
+    "handler": "() => moderate(p.id, 'removed')",
+    "binds": null,
+    "disabled": "busy===p.id"
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/community/admin/pending",
+    "line": 21
+   },
+   {
+    "method": "PUT",
+    "url": "/community/admin/:x/moderate",
+    "line": 34
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/config-portal.tsx",
+  "elements": [
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 190,
+    "label": "sla border-b-2 border-teal-500 text-teal-600 text-gray-500 تعديلات الـ SLA",
+    "handler": "() => setActiveTab('sla')",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 196,
+    "label": "maintenance border-b-2 border-red-500 text-red-600 text-gray-500 مفتاح الإيقاف ا",
+    "handler": "() => setActiveTab('maintenance')",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 203,
+    "label": "pricing border-b-2 border-teal-500 text-teal-600 text-gray-500 التسعير والذروة",
+    "handler": "() => { setActiveTab('pricing'); void loadPricing(); }",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 209,
+    "label": "apps border-b-2 border-teal-500 text-teal-600 text-gray-500 إصدارات التطبيقات",
+    "handler": "() => { setActiveTab('apps'); void loadAppVersions(); }",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 228,
+    "label": "",
+    "handler": "(e) => setConsultationDuration(Number(e.target.value))",
+    "binds": "consultationDuration",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 236,
+    "label": "",
+    "handler": "(e) => setCallRingingDuration(Number(e.target.value))",
+    "binds": "callRingingDuration",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 244,
+    "label": "",
+    "handler": "(e) => setJwtExpiry(Number(e.target.value))",
+    "binds": "jwtExpiry",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 254,
+    "label": "bg-teal-600 bg-gray-400 …",
+    "handler": "toggleCod",
+    "binds": null,
+    "disabled": "codActive === null || codSaving"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 261,
+    "label": "bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-8 rounded-lg shadow d",
+    "handler": "handleUpdateSLA",
+    "binds": null,
+    "disabled": "isSubmitting"
+   },
+   {
+    "kind": "toggle",
+    "tag": "input",
+    "line": 282,
+    "label": "",
+    "handler": "(e) => setKillSwitchChecked1(e.target.checked)",
+    "binds": "killSwitchChecked1",
+    "disabled": null
+   },
+   {
+    "kind": "toggle",
+    "tag": "input",
+    "line": 288,
+    "label": "",
+    "handler": "(e) => setKillSwitchChecked2(e.target.checked)",
+    "binds": "killSwitchChecked2",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 306,
+    "label": "bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg shadow",
+    "handler": "() => handleTriggerEmergencyKillSwitch(false)",
+    "binds": null,
+    "disabled": "isSubmitting"
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 325,
+    "label": "",
+    "handler": "(e) => setSurgeStart(Number(e.target.value))",
+    "binds": "surgeStart",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 328,
+    "label": "",
+    "handler": "(e) => setSurgeEnd(Number(e.target.value))",
+    "binds": "surgeEnd",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 331,
+    "label": "",
+    "handler": "(e) => setSurgeMult(Number(e.target.value))",
+    "binds": "surgeMult",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 334,
+    "label": "",
+    "handler": "(e) => setDeliveryFee(Number(e.target.value))",
+    "binds": "deliveryFee",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 337,
+    "label": "",
+    "handler": "(e) => setServiceFee(Number(e.target.value))",
+    "binds": "serviceFee",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 340,
+    "label": "mt-4 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-6 rounded-lg حفظ",
+    "handler": "() => void savePricing()",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 355,
+    "label": "1.0.0",
+    "handler": "(e) => setApp(app, { min_version: e.target.value })",
+    "binds": "appVersions[app]?.min_version || ''",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 358,
+    "label": "1.2.0",
+    "handler": "(e) => setApp(app, { latest_version: e.target.value })",
+    "binds": "appVersions[app]?.latest_version || ''",
+    "disabled": null
+   },
+   {
+    "kind": "toggle",
+    "tag": "input",
+    "line": 361,
+    "label": "",
+    "handler": "(e) => setApp(app, { maintenance: e.target.checked })",
+    "binds": "!!appVersions[app]?.maintenance",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 365,
+    "label": "رسالة الصيانة (عربي)",
+    "handler": "(e) => setApp(app, { message_ar: e.target.value })",
+    "binds": "appVersions[app]?.message_ar || ''",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 366,
+    "label": "Maintenance message",
+    "handler": "(e) => setApp(app, { message_en: e.target.value })",
+    "binds": "appVersions[app]?.message_en || ''",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 370,
+    "label": "mt-2 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-6 rounded-lg حفظ",
+    "handler": "() => void saveAppVersions()",
+    "binds": null,
+    "disabled": null
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/config/app-versions",
+    "line": 19
+   },
+   {
+    "method": "PUT",
+    "url": "/api/admin/admin/config/app-versions",
+    "line": 33
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/business-rules/config/pricing",
+    "line": 47
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/business-rules/config/surge",
+    "line": 65
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/business-rules/config/fees",
+    "line": 68
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/pharmacy/fulfillment-policies",
+    "line": 82
+   },
+   {
+    "method": "PUT",
+    "url": "/api/admin/admin/pharmacy/fulfillment-policies/cod",
+    "line": 91
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/config/sla",
+    "line": 99
+   },
+   {
+    "method": "PUT",
+    "url": "/api/admin/admin/config/sla",
+    "line": 132
+   },
+   {
+    "method": "PUT",
+    "url": "/api/admin/admin/governance/trigger-emergency-maintenance",
+    "line": 153
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/content-growth.tsx",
+  "elements": [
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 50,
+    "label": "faqs bg-teal-700 text-white border bg-white",
+    "handler": "() => { setTab(item); if (item === 'faqs') void loadFaqs(); }",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 50,
+    "label": "rounded bg-teal-700 px-3 py-1 text-xs text-white اعتماد ونشر",
+    "handler": "() => void decideArticle(row, true)",
+    "binds": null,
+    "disabled": "saving"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 50,
+    "label": "rounded border px-3 py-1 text-xs سحب",
+    "handler": "() => void decideArticle(row, false)",
+    "binds": null,
+    "disabled": "saving"
+   },
+   {
+    "kind": "form",
+    "tag": "form",
+    "line": 50,
+    "label": "space-y-3 rounded-2xl border bg-white p-6 shadow-sm text-xl font-bold إنشاء ونشر",
+    "handler": "saveArticle",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 50,
+    "label": "العنوان العربي",
+    "handler": "(e) => setArticle({ ...article, title_ar: e.target.value })",
+    "binds": "article.title_ar",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 50,
+    "label": "العنوان الإنجليزي",
+    "handler": "(e) => setArticle({ ...article, title_en: e.target.value })",
+    "binds": "article.title_en",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 50,
+    "label": "slug",
+    "handler": "(e) => setArticle({ ...article, slug: e.target.value })",
+    "binds": "article.slug",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 50,
+    "label": "وسوم مفصولة بفاصلة",
+    "handler": "(e) => setArticle({ ...article, tags: e.target.value })",
+    "binds": "article.tags",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "textarea",
+    "line": 50,
+    "label": "ملخص",
+    "handler": "(e) => setArticle({ ...article, excerpt_ar: e.target.value })",
+    "binds": "article.excerpt_ar",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "textarea",
+    "line": 50,
+    "label": "نص المقال",
+    "handler": "(e) => setArticle({ ...article, body_ar: e.target.value })",
+    "binds": "article.body_ar",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 50,
+    "label": "",
+    "handler": "(e) => setArticle({ ...article, scheduled_at: e.target.value })",
+    "binds": "article.scheduled_at",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "textarea",
+    "line": 50,
+    "label": "سبب التعديل",
+    "handler": "(e) => setArticle({ ...article, reason: e.target.value })",
+    "binds": "article.reason",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 50,
+    "label": "rounded border px-3 py-1 text-xs إيقاف تفعيل",
+    "handler": "() => void toggleCoupon(row)",
+    "binds": null,
+    "disabled": "saving"
+   },
+   {
+    "kind": "form",
+    "tag": "form",
+    "line": 50,
+    "label": "grid gap-3 rounded-2xl border bg-white p-6 shadow-sm md:grid-cols-2 col-span-ful",
+    "handler": "saveCoupon",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 50,
+    "label": "CODE",
+    "handler": "(e) => setCoupon({ ...coupon, code: e.target.value.toUpperCase() })",
+    "binds": "coupon.code",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 50,
+    "label": "العنوان",
+    "handler": "(e) => setCoupon({ ...coupon, title_ar: e.target.value })",
+    "binds": "coupon.title_ar",
+    "disabled": null
+   },
+   {
+    "kind": "select",
+    "tag": "select",
+    "line": 50,
+    "label": "rounded-lg border p-2 percent نسبة مبلغ",
+    "handler": "(e) => setCoupon({ ...coupon, discount_type: e.target.value })",
+    "binds": "coupon.discount_type",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 50,
+    "label": "القيمة",
+    "handler": "(e) => setCoupon({ ...coupon, value: e.target.value })",
+    "binds": "coupon.value",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 50,
+    "label": "حد السلة",
+    "handler": "(e) => setCoupon({ ...coupon, min_basket: e.target.value })",
+    "binds": "coupon.min_basket",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 50,
+    "label": "سقف الخصم",
+    "handler": "(e) => setCoupon({ ...coupon, max_discount_cap: e.target.value })",
+    "binds": "coupon.max_discount_cap",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 50,
+    "label": "حد الاستخدام الكلي",
+    "handler": "(e) => setCoupon({ ...coupon, usage_limit_total: e.target.value })",
+    "binds": "coupon.usage_limit_total",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 50,
+    "label": "",
+    "handler": "(e) => setCoupon({ ...coupon, expires_at: e.target.value })",
+    "binds": "coupon.expires_at",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "textarea",
+    "line": 50,
+    "label": "سبب الإنشاء",
+    "handler": "(e) => setCoupon({ ...coupon, reason: e.target.value })",
+    "binds": "coupon.reason",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 50,
+    "label": "rounded border px-3 py-1 text-xs تعديل",
+    "handler": "() => setFaq({ id: row.id, question_ar: row.question_ar, question_en: row.question_en || '', answer_ar: row.answer_ar, a",
+    "binds": null,
+    "disabled": "saving"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 50,
+    "label": "rounded border border-rose-300 px-3 py-1 text-xs text-rose-700 إخفاء",
+    "handler": "() => void removeFaq(row.id)",
+    "binds": null,
+    "disabled": "saving"
+   },
+   {
+    "kind": "form",
+    "tag": "form",
+    "line": 50,
+    "label": "space-y-3 rounded-2xl border bg-white p-6 shadow-sm text-xl font-bold إضافة / تع",
+    "handler": "saveFaq",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 50,
+    "label": "السؤال (عربي)",
+    "handler": "(e) => setFaq({ ...faq, question_ar: e.target.value })",
+    "binds": "faq.question_ar",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 50,
+    "label": "السؤال (إنجليزي)",
+    "handler": "(e) => setFaq({ ...faq, question_en: e.target.value })",
+    "binds": "faq.question_en",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "textarea",
+    "line": 50,
+    "label": "الجواب (عربي)",
+    "handler": "(e) => setFaq({ ...faq, answer_ar: e.target.value })",
+    "binds": "faq.answer_ar",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "textarea",
+    "line": 50,
+    "label": "الجواب (إنجليزي)",
+    "handler": "(e) => setFaq({ ...faq, answer_en: e.target.value })",
+    "binds": "faq.answer_en",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 50,
+    "label": "rounded bg-teal-700 px-3 py-1 text-xs text-white إرسال الآن",
+    "handler": "() => void sendCampaign(row)",
+    "binds": null,
+    "disabled": "saving"
+   },
+   {
+    "kind": "form",
+    "tag": "form",
+    "line": 50,
+    "label": "space-y-3 rounded-2xl border bg-white p-6 shadow-sm text-xl font-bold منشئ حملة ",
+    "handler": "saveCampaign",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 50,
+    "label": "اسم الحملة",
+    "handler": "(e) => setCampaign({ ...campaign, name: e.target.value })",
+    "binds": "campaign.name",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 50,
+    "label": "عنوان النسخة A",
+    "handler": "(e) => setCampaign({ ...campaign, title: e.target.value })",
+    "binds": "campaign.title",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "textarea",
+    "line": 50,
+    "label": "نص النسخة A",
+    "handler": "(e) => setCampaign({ ...campaign, body: e.target.value })",
+    "binds": "campaign.body",
+    "disabled": null
+   },
+   {
+    "kind": "select",
+    "tag": "select",
+    "line": 50,
+    "label": "w-full rounded-lg border p-2 patients المرضى المزودون كل المستخدمين",
+    "handler": "(e) => setCampaign({ ...campaign, segment: e.target.value })",
+    "binds": "campaign.segment",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 50,
+    "label": "مسار deep link اختياري يبدأ بـ /",
+    "handler": "(e) => setCampaign({ ...campaign, route: e.target.value })",
+    "binds": "campaign.route",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 50,
+    "label": "",
+    "handler": "(e) => setCampaign({ ...campaign, scheduled_at: e.target.value })",
+    "binds": "campaign.scheduled_at",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 50,
+    "label": "عنوان النسخة B",
+    "handler": "(e) => setCampaign({ ...campaign, variantBTitle: e.target.value })",
+    "binds": "campaign.variantBTitle",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "textarea",
+    "line": 50,
+    "label": "نص النسخة B",
+    "handler": "(e) => setCampaign({ ...campaign, variantBBody: e.target.value })",
+    "binds": "campaign.variantBBody",
+    "disabled": null
+   },
+   {
+    "kind": "toggle",
+    "tag": "input",
+    "line": 50,
+    "label": "",
+    "handler": "(e) => setCampaign({ ...campaign, confirmed: e.target.checked })",
+    "binds": "campaign.confirmed",
+    "disabled": null
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/support/admin/faqs",
+    "line": 15
+   },
+   {
+    "method": "POST",
+    "url": "/support/admin/faqs",
+    "line": 21
+   },
+   {
+    "method": "DELETE",
+    "url": "/support/admin/faqs/:x",
+    "line": 29
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/cms/articles",
+    "line": 32
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/coupons",
+    "line": 32
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/notification-center/campaigns",
+    "line": 32
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/notification-center/segments",
+    "line": 32
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/cms/articles",
+    "line": 34
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/cms/:x/schedule",
+    "line": 34
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/cms/:x/publish",
+    "line": 34
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/coupons",
+    "line": 35
+   },
+   {
+    "method": "PATCH",
+    "url": "/api/admin/admin/coupons/:x",
+    "line": 36
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/cms/:x/publish",
+    "line": 43
+   },
+   {
+    "method": "PATCH",
+    "url": "/api/admin/admin/cms/:x/unpublish",
+    "line": 44
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/notification-center/campaigns",
+    "line": 48
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/notification-center/campaigns/:x/send",
+    "line": 49
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/crm.tsx",
+  "elements": [
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 15,
+    "label": "اسم أو جوال أو بريد أو معرّف",
+    "handler": "(e) => { setQ(e.target.value); setPage(1); }",
+    "binds": "q",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 15,
+    "label": "rounded-lg bg-teal-700 px-3 text-sm font-bold text-white بحث",
+    "handler": "() => void load()",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 15,
+    "label": "bg-teal-50 mt-1 block text-xs text-slate-500 — · طلب",
+    "handler": "() => void openPatient(patient.id)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 15,
+    "label": "rounded border px-3 py-1 disabled:opacity-40 السابق",
+    "handler": "() => setPage((v) => v - 1)",
+    "binds": null,
+    "disabled": "page <= 1"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 15,
+    "label": "rounded border px-3 py-1 disabled:opacity-40 التالي",
+    "handler": "() => setPage((v) => v + 1)",
+    "binds": null,
+    "disabled": "page >= (patients.pages || 1)"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 15,
+    "label": "rounded-lg border border-amber-700 px-3 py-2 text-sm font-bold text-amber-800 تس",
+    "handler": "() => void requestImpersonation()",
+    "binds": null,
+    "disabled": null
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/crm/patients:x)}",
+    "line": 11
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/crm/patients/:x/360",
+    "line": 13
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/impersonation/start",
+    "line": 14
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/dashboard.tsx",
+  "elements": [
+   {
+    "kind": "button",
+    "tag": "tr",
+    "line": 185,
+    "label": "bg-red-50/40 p-3 font-mono text-teal-700 p-3 text-xs ر.س اتصال تفاصيل",
+    "handler": "() => { if (o.kind && o.id) window.location.href = `/admin/order-detail?kind=${encodeURIComponent(o.kind)}&id=${encodeUR",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "td",
+    "line": 196,
+    "label": "p-3 text-xs bg-teal-600 text-white px-2 py-1 rounded-lg اتصال تفاصيل",
+    "handler": "e=>e.stopPropagation()",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "link",
+    "tag": "a",
+    "line": 197,
+    "label": "text-xs bg-teal-600 text-white px-2 py-1 rounded-lg اتصال",
+    "handler": "`tel:${o.provider_phone}`",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "link",
+    "tag": "a",
+    "line": 197,
+    "label": "# text-xs bg-slate-100 border px-2 py-1 rounded-lg تفاصيل",
+    "handler": "o.kind && o.id ? `/admin/order-detail?kind=${encodeURIComponent(o.kind)}&id=${encodeURIComponent(o.id)}` : '#'",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 225,
+    "label": "absolute flex flex-col items-center justify-center transform -translate-x-1/2 -t",
+    "handler": "() => setSelectedCluster(cluster)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "div",
+    "line": 242,
+    "label": "fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4 bg-white rou",
+    "handler": "() => setSelectedCluster(null)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "div",
+    "line": 243,
+    "label": "bg-white rounded-2xl p-6 max-w-md w-full space-y-4 flex justify-between items-ce",
+    "handler": "e => e.stopPropagation()",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 246,
+    "label": "text-slate-400 hover:text-slate-700 text-xl leading-none ✕",
+    "handler": "() => setSelectedCluster(null)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 254,
+    "label": "w-full px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm fon",
+    "handler": "() => setSelectedCluster(null)",
+    "binds": null,
+    "disabled": null
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/api/admin/system-health/liveness",
+    "line": 33
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/system-health/readiness",
+    "line": 34
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/nabd-extensions/admin/analytics/heatmaps",
+    "line": 58
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/command-center",
+    "line": 87
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/disputes.tsx",
+  "elements": [
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 45,
+    "label": "بحث في العميل أو الموضوع",
+    "handler": "(event) => { setQuery(event.target.value); setPage(1); }",
+    "binds": "query",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 45,
+    "label": "rounded-lg bg-teal-700 px-4 py-2 text-sm font-bold text-white تحديث",
+    "handler": "() => void load()",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 47,
+    "label": "reject rounded bg-slate-900 px-3 py-1.5 text-xs font-bold text-white مراجعة",
+    "handler": "() => { setActive(item); setDecision('reject'); setReason(''); setAmount(''); }",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 48,
+    "label": "rounded border px-3 py-1 disabled:opacity-40 السابق",
+    "handler": "() => setPage((value) => value - 1)",
+    "binds": null,
+    "disabled": "page <= 1 || loading"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 48,
+    "label": "rounded border px-3 py-1 disabled:opacity-40 التالي",
+    "handler": "() => setPage((value) => value + 1)",
+    "binds": null,
+    "disabled": "page >= (result.pages || 1) || loading"
+   },
+   {
+    "kind": "select",
+    "tag": "select",
+    "line": 49,
+    "label": "mt-1 w-full rounded-lg border p-2 reject رفض الاعتراض إغلاق بلا إجراء مالي استرد",
+    "handler": "(event) => setDecision(event.target.value as Decision)",
+    "binds": "decision",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 49,
+    "label": "",
+    "handler": "(event) => setAmount(event.target.value)",
+    "binds": "amount",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "textarea",
+    "line": 49,
+    "label": "",
+    "handler": "(event) => setReason(event.target.value)",
+    "binds": "reason",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 49,
+    "label": "rounded border px-4 py-2 إلغاء",
+    "handler": "() => setActive(null)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 49,
+    "label": "rounded bg-teal-700 px-4 py-2 font-bold text-white disabled:opacity-50 جارٍ الحف",
+    "handler": "() => void resolve()",
+    "binds": null,
+    "disabled": "submitting"
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/disputes:x)}",
+    "line": 23
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/disputes/:x/resolve",
+    "line": 37
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/finance-suite.tsx",
+  "elements": [
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 31,
+    "label": "",
+    "handler": "(e) => setFrom(e.target.value)",
+    "binds": "from",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 31,
+    "label": "",
+    "handler": "(e) => setTo(e.target.value)",
+    "binds": "to",
+    "disabled": null
+   },
+   {
+    "kind": "select",
+    "tag": "select",
+    "line": 31,
+    "label": "mt-1 w-full rounded-lg border p-2 text-sm day يومي أسبوعي شهري",
+    "handler": "(e) => setGranularity(e.target.value)",
+    "binds": "granularity",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 31,
+    "label": "self-end rounded-lg bg-teal-700 px-4 py-2 text-sm font-bold text-white تحديث",
+    "handler": "() => void load()",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "form",
+    "tag": "form",
+    "line": 35,
+    "label": "mt-5 grid gap-3 rounded-xl bg-amber-50 p-4 md:grid-cols-2 text-sm نسب العمولات (",
+    "handler": "saveConfig",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "textarea",
+    "line": 35,
+    "label": "",
+    "handler": "(e) => setRatesText(e.target.value)",
+    "binds": "ratesText",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 35,
+    "label": "",
+    "handler": "(e) => setVatRate(e.target.value)",
+    "binds": "vatRate",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "textarea",
+    "line": 35,
+    "label": "",
+    "handler": "(e) => setReason(e.target.value)",
+    "binds": "reason",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 37,
+    "label": "approve rounded bg-teal-700 px-2 py-1 text-xs text-white اعتماد",
+    "handler": "() => void payoutDecision(row, 'approve')",
+    "binds": null,
+    "disabled": "saving"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 37,
+    "label": "reject rounded border px-2 py-1 text-xs رفض",
+    "handler": "() => void payoutDecision(row, 'reject')",
+    "binds": null,
+    "disabled": "saving"
+   },
+   {
+    "kind": "form",
+    "tag": "form",
+    "line": 38,
+    "label": "mt-3 flex flex-wrap gap-2 معرّف المزوّد ltr عرض الكشف",
+    "handler": "loadStatement",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 38,
+    "label": "معرّف المزوّد",
+    "handler": "(e) => setProviderId(e.target.value)",
+    "binds": "providerId",
+    "disabled": null
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/finance/revenue:x)}",
+    "line": 22
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/finance/commissions:x)}",
+    "line": 22
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/finance/reconciliation:x)}",
+    "line": 22
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/finance/payouts",
+    "line": 22
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/finance/commissions/config",
+    "line": 26
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/finance/payouts/:x/:x",
+    "line": 27
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/finance/providers/:x/statement:x)}",
+    "line": 28
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/financial-ledger.tsx",
+  "elements": [
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 165,
+    "label": "ledger bg-teal-600 text-white text-gray-600 hover:bg-gray-50 السجل المالي والمدف",
+    "handler": "() => setActiveTab('ledger')",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 168,
+    "label": "warehouse bg-teal-600 text-white text-gray-600 hover:bg-gray-50 تسعير المستودعات",
+    "handler": "() => setActiveTab('warehouse')",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 254,
+    "label": "bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded shadow ",
+    "handler": "() => handleExecutePayout(w.id)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 290,
+    "label": "bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-6 rounded shadow tran",
+    "handler": "() => handleIssueQuotation(order)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 312,
+    "label": "0.00",
+    "handler": "(e) => handleUpdateWarehousePrice(order.id, idx, Number(e.target.value))",
+    "binds": "item.unitPrice || ''",
+    "disabled": "order.status !== 'PENDING_ADMIN_REVIEW'"
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/finance-engine/reports/summary",
+    "line": 53
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/finance/commissions",
+    "line": 61
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/finance/withdrawals/pending",
+    "line": 68
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/extended-operations/procurement/pending",
+    "line": 79
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/finance/withdrawals/:x/execute",
+    "line": 111
+   },
+   {
+    "method": "PATCH",
+    "url": "/api/admin/admin/extended-operations/issue-quote/:x",
+    "line": 137
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/fraud-monitoring.tsx",
+  "elements": [
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 85,
+    "label": "بحث في التنبيهات والسجلات",
+    "handler": "(e) => { setQuery(e.target.value); setPage(1); }",
+    "binds": "query",
+    "disabled": null
+   },
+   {
+    "kind": "select",
+    "tag": "select",
+    "line": 86,
+    "label": "rounded-lg border border-gray-300 px-3 py-2 text-sm كل درجات الخطورة high high m",
+    "handler": "(e) => { setSeverity(e.target.value); setPage(1); }",
+    "binds": "severity",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 190,
+    "label": "px-3 py-1.5 rounded-lg border border-gray-300 text-sm font-bold disabled:opacity",
+    "handler": "() => setPage(p => Math.max(1, p - 1))",
+    "binds": null,
+    "disabled": "page <= 1"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 193,
+    "label": "px-3 py-1.5 rounded-lg border border-gray-300 text-sm font-bold disabled:opacity",
+    "handler": "() => setPage(p => Math.min(totalPages, p + 1))",
+    "binds": null,
+    "disabled": "page >= totalPages"
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/governance/fraud-alerts",
+    "line": 47
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/governance/audit-logs",
+    "line": 55
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/gdpr.tsx",
+  "elements": [
+   {
+    "kind": "form",
+    "tag": "form",
+    "line": 14,
+    "label": "flex flex-wrap items-end gap-3 rounded-2xl border bg-white p-5 shadow-sm text-sm",
+    "handler": "create",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 14,
+    "label": "",
+    "handler": "(e) => setUserId(e.target.value)",
+    "binds": "userId",
+    "disabled": null
+   },
+   {
+    "kind": "select",
+    "tag": "select",
+    "line": 14,
+    "label": "export delete mt-1 block rounded-lg border p-2 تصدير البيانات حذف/إخفاء البيانات",
+    "handler": "(e) => setType(e.target.value as 'export' | 'delete')",
+    "binds": "type",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 14,
+    "label": "bg-teal-700 text-white border الكل",
+    "handler": "() => { setStatus(''); setPage(1); }",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 14,
+    "label": "bg-teal-700 text-white border ( )",
+    "handler": "() => { setStatus(key); setPage(1); }",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 14,
+    "label": "start rounded border px-2 py-1 text-xs بدء المعالجة",
+    "handler": "() => void transition(row, 'start')",
+    "binds": null,
+    "disabled": "saving"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 14,
+    "label": "export/complete rounded bg-teal-700 px-2 py-1 text-xs text-white إكمال التصدير",
+    "handler": "() => void transition(row, 'export/complete')",
+    "binds": null,
+    "disabled": "saving"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 14,
+    "label": "delete/complete rounded bg-rose-700 px-2 py-1 text-xs text-white إكمال الحذف",
+    "handler": "() => void transition(row, 'delete/complete')",
+    "binds": null,
+    "disabled": "saving"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 14,
+    "label": "rounded border px-3 py-1 disabled:opacity-40 السابق",
+    "handler": "() => setPage((value) => value - 1)",
+    "binds": null,
+    "disabled": "page <= 1"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 14,
+    "label": "rounded border px-3 py-1 disabled:opacity-40 التالي",
+    "handler": "() => setPage((value) => value + 1)",
+    "binds": null,
+    "disabled": "page >= (result.pages || 1)"
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/gdpr/requests:x)}",
+    "line": 10
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/gdpr/requests",
+    "line": 12
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/gdpr/requests/:x/:x",
+    "line": 13
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/health-dashboard.tsx",
+  "elements": [],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/health-dashboard",
+    "line": 10
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/home-curation.tsx",
+  "elements": [
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 19,
+    "label": "rounded border px-3 py-1 disabled:opacity-40 أعلى",
+    "handler": "() => move(index, -1)",
+    "binds": null,
+    "disabled": "index === 0"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 19,
+    "label": "rounded border px-3 py-1 disabled:opacity-40 أسفل",
+    "handler": "() => move(index, 1)",
+    "binds": null,
+    "disabled": "index === curation.sections.length - 1"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 19,
+    "label": "rounded border border-rose-300 px-3 py-1 text-rose-700 حذف القسم",
+    "handler": "() => setCuration((current) => ({ ...current, sections: current.sections.filter((_, i) => i !== index).map((item, positi",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 19,
+    "label": "معرّف القسم",
+    "handler": "(e) => setSection(index, { id: e.target.value })",
+    "binds": "section.id",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 19,
+    "label": "النوع",
+    "handler": "(e) => setSection(index, { type: e.target.value })",
+    "binds": "section.type",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 19,
+    "label": "العنوان",
+    "handler": "(e) => setSection(index, { title_ar: e.target.value })",
+    "binds": "section.title_ar",
+    "disabled": null
+   },
+   {
+    "kind": "toggle",
+    "tag": "input",
+    "line": 19,
+    "label": "",
+    "handler": "(e) => setSection(index, { enabled: e.target.checked })",
+    "binds": "section.enabled",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 19,
+    "label": "معرّف",
+    "handler": "(e) => setItem(index, itemIndex, { id: e.target.value })",
+    "binds": "item.id",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 19,
+    "label": "العنوان",
+    "handler": "(e) => setItem(index, itemIndex, { title_ar: e.target.value })",
+    "binds": "item.title_ar",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 19,
+    "label": "رابط الصورة",
+    "handler": "(e) => setItem(index, itemIndex, { image_url: e.target.value })",
+    "binds": "item.image_url",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 19,
+    "label": "المسار",
+    "handler": "(e) => setItem(index, itemIndex, { deep_link: e.target.value })",
+    "binds": "item.deep_link",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 19,
+    "label": "rounded border px-2 text-sm حذف",
+    "handler": "() => setSection(index, { items: section.items.filter((_, i) => i !== itemIndex) })",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 19,
+    "label": "rounded border px-3 py-2 text-sm إضافة عنصر",
+    "handler": "() => setSection(index, { items: [...section.items, emptyItem()] })",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 19,
+    "label": "rounded border px-4 py-2 text-sm إضافة قسم",
+    "handler": "() => setCuration((current) => ({ ...current, sections: [...current.sections, { ...emptySection(), position: current.sec",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "textarea",
+    "line": 19,
+    "label": "",
+    "handler": "(e) => setReason(e.target.value)",
+    "binds": "reason",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 19,
+    "label": "mt-3 rounded bg-teal-700 px-5 py-2 font-bold text-white disabled:opacity-50 جارٍ",
+    "handler": "() => void save()",
+    "binds": null,
+    "disabled": "saving"
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/governance-controls/home-curation",
+    "line": 13
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/governance-controls/home-curation",
+    "line": 18
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/image-suggestions.tsx",
+  "elements": [
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 68,
+    "label": "bg-blue-600 text-white bg-white border text-gray-700",
+    "handler": "() => { setTab(t.key); setPage(1); }",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 108,
+    "label": "approve bg-green-600 text-white px-3 py-1 rounded text-xs hover:bg-green-700 dis",
+    "handler": "() => act(s.id, 'approve')",
+    "binds": null,
+    "disabled": "acting === s.id"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 112,
+    "label": "reject bg-red-100 text-red-700 px-3 py-1 rounded text-xs hover:bg-red-200 disabl",
+    "handler": "() => act(s.id, 'reject')",
+    "binds": null,
+    "disabled": "acting === s.id"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 125,
+    "label": "px-3 py-1 border rounded bg-white السابق",
+    "handler": "() => setPage(p => Math.max(1, p - 1))",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 127,
+    "label": "px-3 py-1 border rounded bg-white التالي",
+    "handler": "() => setPage(p => p + 1)",
+    "binds": null,
+    "disabled": null
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/medicines/admin/image-suggestions",
+    "line": 24
+   },
+   {
+    "method": "POST",
+    "url": "/medicines/admin/image-suggestions/:x/:x",
+    "line": 41
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/impersonation.tsx",
+  "elements": [
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 18,
+    "label": "mt-3 rounded border px-3 py-1 text-sm إخفاء الشريط",
+    "handler": "() => setActive(null)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 18,
+    "label": "ابحث بالاسم أو الهاتف أو البريد",
+    "handler": "(e) => setQuery(e.target.value)",
+    "binds": "query",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 18,
+    "label": "rounded border px-3 py-1 text-xs disabled:opacity-40 اختيار",
+    "handler": "() => setSelected(user)",
+    "binds": null,
+    "disabled": "user.suspended === true || user.active === false"
+   },
+   {
+    "kind": "field",
+    "tag": "textarea",
+    "line": 18,
+    "label": "سبب جلسة الدعم والتذكرة المرتبطة بها",
+    "handler": "(e) => setReason(e.target.value)",
+    "binds": "reason",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 18,
+    "label": "mt-3 rounded bg-teal-700 px-4 py-2 font-bold text-white disabled:opacity-50 إنشا",
+    "handler": "() => void start()",
+    "binds": null,
+    "disabled": "busy || !selected"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 18,
+    "label": "rounded border border-rose-300 px-2 py-1 text-xs text-rose-700 إبطال",
+    "handler": "() => void revoke(session.id)",
+    "binds": null,
+    "disabled": "busy"
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/users",
+    "line": 12
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/impersonation",
+    "line": 13
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/impersonation/start",
+    "line": 16
+   },
+   {
+    "method": "GET",
+    "url": "/support-session/context",
+    "line": 16
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/impersonation/:x/revoke",
+    "line": 17
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/insurance-companies.tsx",
+  "elements": [
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 196,
+    "label": "bg-teal-600 hover:bg-teal-700 text-white font-bold px-5 py-2.5 rounded-xl إلغاء ",
+    "handler": "() => setShowAdd(!showAdd)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 210,
+    "label": "مثال: cigna",
+    "handler": "e => setNewCode(e.target.value)",
+    "binds": "newCode",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 214,
+    "label": "سيجنا",
+    "handler": "e => setNewNameAr(e.target.value)",
+    "binds": "newNameAr",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 218,
+    "label": "Cigna",
+    "handler": "e => setNewNameEn(e.target.value)",
+    "binds": "newNameEn",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 220,
+    "label": "add bg-teal-600 text-white font-bold px-6 py-2 rounded-xl disabled:opacity-50 ad",
+    "handler": "addCompany",
+    "binds": null,
+    "disabled": "busy === 'add'"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 236,
+    "label": "text-slate-400 w-6 ▾ ◂",
+    "handler": "() => setExpanded(isOpen ? null : id)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 240,
+    "label": "",
+    "handler": "e => setEditNameAr(e.target.value)",
+    "binds": "editNameAr",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 241,
+    "label": "",
+    "handler": "e => setEditNameEn(e.target.value)",
+    "binds": "editNameEn",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 242,
+    "label": "bg-teal-600 text-white text-xs font-bold px-3 py-1 rounded حفظ",
+    "handler": "saveEdit",
+    "binds": null,
+    "disabled": "busy === id"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 243,
+    "label": "text-xs text-slate-500 px-2 إلغاء",
+    "handler": "() => setEditId(null)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 255,
+    "label": "text-slate-600 hover:text-slate-900 text-sm font-bold border border-slate-300 ro",
+    "handler": "() => { setEditId(id); setEditNameAr(c.name_ar || ''); setEditNameEn(c.name_en || ''); }",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 261,
+    "label": "bg-amber-500 hover:bg-amber-600 bg-green-600 hover:bg-green-700 ...",
+    "handler": "() => toggleActive(c)",
+    "binds": null,
+    "disabled": "busy === id"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 274,
+    "label": "text-teal-700 text-sm font-bold إلغاء + إضافة فئة",
+    "handler": "() => { setTierCompany(tierCompany === id ? null : id); setTierCode(''); setTierNameAr(''); setTierNameEn(''); }",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 284,
+    "label": "الكود: vip",
+    "handler": "e => setTierCode(e.target.value)",
+    "binds": "tierCode",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 285,
+    "label": "الاسم: VIP",
+    "handler": "e => setTierNameAr(e.target.value)",
+    "binds": "tierNameAr",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 286,
+    "label": "Name: VIP",
+    "handler": "e => setTierNameEn(e.target.value)",
+    "binds": "tierNameEn",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 287,
+    "label": "المستوى",
+    "handler": "e => setTierLevel(e.target.value.replace(/\\D/g, ''))",
+    "binds": "tierLevel",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 288,
+    "label": "bg-teal-600 text-white text-sm font-bold px-4 py-1.5 rounded disabled:opacity-50",
+    "handler": "addTier",
+    "binds": null,
+    "disabled": "busy === id"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 304,
+    "label": "text-teal-700 font-bold text-xs قواعد التحمل",
+    "handler": "() => { if (open) setRulesOpen(null); else { setRulesOpen(nid); void loadRules(nid); } }",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 305,
+    "label": "حذف الفئة",
+    "handler": "() => removeTier(id, t)",
+    "binds": null,
+    "disabled": "busy === nid"
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 316,
+    "label": "service_type",
+    "handler": "(e) => setRuleForm({ ...ruleForm, service_type: e.target.value })",
+    "binds": "ruleForm.service_type",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 317,
+    "label": "service_key?",
+    "handler": "(e) => setRuleForm({ ...ruleForm, service_key: e.target.value })",
+    "binds": "ruleForm.service_key",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 318,
+    "label": "copay%",
+    "handler": "(e) => setRuleForm({ ...ruleForm, copay_percent: e.target.value.replace(/[^0-9.]/g, '') })",
+    "binds": "ruleForm.copay_percent",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 319,
+    "label": "cap?",
+    "handler": "(e) => setRuleForm({ ...ruleForm, copay_flat_limit: e.target.value.replace(/[^0-9.]/g, '') })",
+    "binds": "ruleForm.copay_flat_limit",
+    "disabled": null
+   },
+   {
+    "kind": "toggle",
+    "tag": "input",
+    "line": 320,
+    "label": "",
+    "handler": "(e) => setRuleForm({ ...ruleForm, requires_preauth: e.target.checked })",
+    "binds": "ruleForm.requires_preauth",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 321,
+    "label": "bg-teal-600 text-white text-xs font-bold px-3 py-1 rounded disabled:opacity-50 ح",
+    "handler": "() => saveRule(nid)",
+    "binds": null,
+    "disabled": "busy === nid"
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/insurance/companies/all",
+    "line": 49
+   },
+   {
+    "method": "PATCH",
+    "url": "/insurance/companies/:x",
+    "line": 64
+   },
+   {
+    "method": "POST",
+    "url": "/insurance/companies",
+    "line": 83
+   },
+   {
+    "method": "PATCH",
+    "url": "/insurance/companies/:x",
+    "line": 101
+   },
+   {
+    "method": "POST",
+    "url": "/insurance/companies/:x/networks",
+    "line": 121
+   },
+   {
+    "method": "GET",
+    "url": "/insurance/networks/:x/rules",
+    "line": 142
+   },
+   {
+    "method": "POST",
+    "url": "/insurance/networks/:x/rules",
+    "line": 155
+   },
+   {
+    "method": "DELETE",
+    "url": "/insurance/companies/:x/networks/:x",
+    "line": 178
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/insurance-queue.tsx",
+  "elements": [
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 66,
+    "label": "border-teal-500 ring-2 ring-teal-100 border-slate-200 text-xs text-slate-500 ر.س",
+    "handler": "() => setStateFilter(stateFilter === key ? '' : key)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 95,
+    "label": "bg-white border border-b-white border-slate-200 text-teal-700 -mb-px text-slate-",
+    "handler": "() => setTab(t.k)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 104,
+    "label": "px-4 py-2 mb-1 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm تحديث",
+    "handler": "load",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "tr",
+    "line": 127,
+    "label": "hover:bg-teal-50 cursor-pointer p-3 font-medium p-3 text-xs · ر.س",
+    "handler": "() => setSelectedReq(r)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 167,
+    "label": "ملاحظة (اختياري)",
+    "handler": "(e) => setDecideNote(e.target.value)",
+    "binds": "decideNote",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 169,
+    "label": "flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm f",
+    "handler": "() => decideRefund(f.id, true)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 170,
+    "label": "flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-",
+    "handler": "() => decideRefund(f.id, false)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 171,
+    "label": "px-4 py-2 bg-slate-200 rounded-lg text-sm تراجع",
+    "handler": "() => { setDecidingId(null); setDecideNote(''); }",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 175,
+    "label": "mt-4 px-5 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm font-",
+    "handler": "() => setDecidingId(f.id)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "div",
+    "line": 186,
+    "label": "fixed inset-0 z-50 bg-black/50 flex justify-end bg-white w-full max-w-lg h-full ",
+    "handler": "() => setSelectedReq(null)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "div",
+    "line": 187,
+    "label": "bg-white w-full max-w-lg h-full overflow-y-auto p-6 space-y-4 flex justify-betwe",
+    "handler": "e => e.stopPropagation()",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 190,
+    "label": "text-slate-400 hover:text-slate-700 text-xl ✕",
+    "handler": "() => setSelectedReq(null)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 216,
+    "label": "w-full px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm fon",
+    "handler": "() => setSelectedReq(null)",
+    "binds": null,
+    "disabled": null
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/insurance/stats",
+    "line": 37
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/insurance/requests:x` : ''}",
+    "line": 38
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/finance/refunds/queue",
+    "line": 39
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/finance/refunds/:x/decide",
+    "line": 55
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/legal-policies.tsx",
+  "elements": [
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 64,
+    "label": "",
+    "handler": "",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 77,
+    "label": "",
+    "handler": "",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 103,
+    "label": "mt-3 w-full bg-blue-600 text-white py-2 rounded-lg text-sm font-bold hover:bg-bl",
+    "handler": "() => openEdit(p.key)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "div",
+    "line": 112,
+    "label": "fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-8 bg-white rou",
+    "handler": "() => setEditing(null)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "div",
+    "line": 113,
+    "label": "bg-white rounded-xl p-6 w-full max-w-3xl max-h-[85vh] overflow-auto rtl font-bol",
+    "handler": "e => e.stopPropagation()",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "textarea",
+    "line": 116,
+    "label": "",
+    "handler": "e => setEditContent(e.target.value)",
+    "binds": "editContent",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 123,
+    "label": "bg-teal-600 text-white px-6 py-2 rounded-lg font-bold disabled:opacity-50 جارٍ ا",
+    "handler": "save",
+    "binds": null,
+    "disabled": "saving"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 126,
+    "label": "bg-gray-100 px-6 py-2 rounded-lg إلغاء",
+    "handler": "() => setEditing(null)",
+    "binds": null,
+    "disabled": null
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/legal/policies",
+    "line": 14
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/finance/commissions",
+    "line": 15
+   },
+   {
+    "method": "GET",
+    "url": "/legal/policy/:x",
+    "line": 23
+   },
+   {
+    "method": "PUT",
+    "url": "/api/admin/admin/legal/policy/:x",
+    "line": 30
+   },
+   {
+    "method": "PUT",
+    "url": "/api/admin/admin/finance/commissions",
+    "line": 41
+   },
+   {
+    "method": "PUT",
+    "url": "/api/admin/admin/finance/commissions",
+    "line": 46
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/live-chat-console.tsx",
+  "elements": [],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/chat/admin/threads",
+    "line": 11
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/locations.tsx",
+  "elements": [
+   {
+    "kind": "select",
+    "tag": "select",
+    "line": 53,
+    "label": "border rounded px-3 py-2 region منطقة مدينة حي",
+    "handler": "(e) => setForm({ ...form, type: e.target.value })",
+    "binds": "form.type",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 54,
+    "label": "الكود (مثال: sa-riyadh)",
+    "handler": "(e) => setForm({ ...form, code: e.target.value })",
+    "binds": "form.code",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 55,
+    "label": "الاسم بالعربية",
+    "handler": "(e) => setForm({ ...form, name_ar: e.target.value })",
+    "binds": "form.name_ar",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 56,
+    "label": "الاسم بالإنجليزية",
+    "handler": "(e) => setForm({ ...form, name_en: e.target.value })",
+    "binds": "form.name_en",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 57,
+    "label": "كود الأب (اختياري)",
+    "handler": "(e) => setForm({ ...form, parent_code: e.target.value })",
+    "binds": "form.parent_code",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 59,
+    "label": "create bg-teal-600 text-white px-6 py-2 rounded-xl font-bold disabled:opacity-50",
+    "handler": "create",
+    "binds": null,
+    "disabled": "busy === 'create'"
+   },
+   {
+    "kind": "select",
+    "tag": "select",
+    "line": 62,
+    "label": "border rounded px-3 py-2 region مناطق مدن أحياء",
+    "handler": "(e) => setType(e.target.value)",
+    "binds": "type",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 63,
+    "label": "بحث",
+    "handler": "(e) => setQ(e.target.value)",
+    "binds": "q",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 67,
+    "label": "rounded border px-2 py-1 text-xs text-rose-700 تعطيل",
+    "handler": "() => void deactivate(r.code)",
+    "binds": null,
+    "disabled": "busy === r.code"
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/locations",
+    "line": 20
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/locations",
+    "line": 31
+   },
+   {
+    "method": "DELETE",
+    "url": "/api/admin/admin/locations/:x",
+    "line": 41
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/loyalty-config.tsx",
+  "elements": [
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 99,
+    "label": "",
+    "handler": "e => setConfig({ ...config, points_per_order: parseInt(e.target.value) || 0 })",
+    "binds": "config?.points_per_order ?? 10",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 100,
+    "label": "",
+    "handler": "e => setConfig({ ...config, referral_points: parseInt(e.target.value) || 0 })",
+    "binds": "config?.referral_points ?? 50",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 101,
+    "label": "",
+    "handler": "e => setConfig({ ...config, point_value_sar: parseFloat(e.target.value) || 0 })",
+    "binds": "config?.point_value_sar ?? 0.1",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 102,
+    "label": "",
+    "handler": "e => setConfig({ ...config, max_redeem_percent: parseInt(e.target.value) || 0 })",
+    "binds": "config?.max_redeem_percent ?? 10",
+    "disabled": null
+   },
+   {
+    "kind": "toggle",
+    "tag": "input",
+    "line": 103,
+    "label": "",
+    "handler": "e => setConfig({ ...config, redeem_enabled: e.target.checked })",
+    "binds": "config?.redeem_enabled !== false",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 110,
+    "label": "الافتراضي",
+    "handler": "e => setConfig({ ...config, earn_points: { ...(config?.earn_points || {}), [reason]: parseInt(e.target.value) || 0 } })",
+    "binds": "config?.earn_points?.[reason] ?? ''",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 123,
+    "label": "بلا سقف",
+    "handler": "e => setConfig({ ...config, earn_caps: { ...(config?.earn_caps || {}), [period]: { ...((config?.earn_caps || {})[period]",
+    "binds": "config?.earn_caps?.[period]?.[reason] ?? ''",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 130,
+    "label": "rounded-xl bg-teal-600 px-6 py-2 font-bold text-white disabled:opacity-50 ... حف",
+    "handler": "saveConfig",
+    "binds": null,
+    "disabled": "saving"
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 136,
+    "label": "الاسم بالعربية",
+    "handler": "e => setRewardDraft({ ...rewardDraft, title_ar: e.target.value })",
+    "binds": "rewardDraft.title_ar",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 137,
+    "label": "Name (EN)",
+    "handler": "e => setRewardDraft({ ...rewardDraft, title_en: e.target.value })",
+    "binds": "rewardDraft.title_en",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 138,
+    "label": "النقاط",
+    "handler": "e => setRewardDraft({ ...rewardDraft, points_required: parseInt(e.target.value) || 0 })",
+    "binds": "rewardDraft.points_required",
+    "disabled": null
+   },
+   {
+    "kind": "select",
+    "tag": "select",
+    "line": 139,
+    "label": "rounded border px-3 py-2 coupon كوبون كاشباك شارة هدية",
+    "handler": "e => setRewardDraft({ ...rewardDraft, reward_type: e.target.value })",
+    "binds": "rewardDraft.reward_type",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 142,
+    "label": "rounded bg-teal-600 px-4 py-2 font-bold text-white إضافة",
+    "handler": "createReward",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 148,
+    "label": "bg-emerald-100 text-emerald-800 bg-slate-200 text-slate-600 مفعّلة",
+    "handler": "() => toggleReward(r)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 158,
+    "label": "الاسم بالعربية",
+    "handler": "e => setChallengeDraft({ ...challengeDraft, title_ar: e.target.value })",
+    "binds": "challengeDraft.title_ar",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 159,
+    "label": "Name (EN)",
+    "handler": "e => setChallengeDraft({ ...challengeDraft, title_en: e.target.value })",
+    "binds": "challengeDraft.title_en",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 160,
+    "label": "الإجراء",
+    "handler": "e => setChallengeDraft({ ...challengeDraft, target_action: e.target.value })",
+    "binds": "challengeDraft.target_action",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 161,
+    "label": "الهدف",
+    "handler": "e => setChallengeDraft({ ...challengeDraft, target_count: parseInt(e.target.value) || 1 })",
+    "binds": "challengeDraft.target_count",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 162,
+    "label": "النقاط",
+    "handler": "e => setChallengeDraft({ ...challengeDraft, reward_points: parseInt(e.target.value) || 0 })",
+    "binds": "challengeDraft.reward_points",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 163,
+    "label": "",
+    "handler": "e => setChallengeDraft({ ...challengeDraft, start_date: e.target.value })",
+    "binds": "challengeDraft.start_date",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 164,
+    "label": "",
+    "handler": "e => setChallengeDraft({ ...challengeDraft, end_date: e.target.value })",
+    "binds": "challengeDraft.end_date",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 165,
+    "label": "rounded bg-teal-600 px-4 py-2 font-bold text-white إضافة تحدٍ",
+    "handler": "createChallenge",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 171,
+    "label": "bg-emerald-100 text-emerald-800 bg-slate-200 text-slate-600 مفعّل",
+    "handler": "() => toggleChallenge(c)",
+    "binds": null,
+    "disabled": null
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/loyalty/config",
+    "line": 22
+   },
+   {
+    "method": "GET",
+    "url": "/admin/loyalty/rewards",
+    "line": 23
+   },
+   {
+    "method": "GET",
+    "url": "/admin/loyalty/challenges",
+    "line": 24
+   },
+   {
+    "method": "PUT",
+    "url": "/admin/admin/loyalty/config",
+    "line": 43
+   },
+   {
+    "method": "POST",
+    "url": "/admin/admin/loyalty/rewards",
+    "line": 63
+   },
+   {
+    "method": "PATCH",
+    "url": "/admin/admin/loyalty/rewards/:x",
+    "line": 71
+   },
+   {
+    "method": "POST",
+    "url": "/admin/admin/loyalty/challenges",
+    "line": 78
+   },
+   {
+    "method": "PATCH",
+    "url": "/admin/admin/loyalty/challenges/:x",
+    "line": 86
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/medicines-catalog.tsx",
+  "elements": [
+   {
+    "kind": "field",
+    "tag": "textarea",
+    "line": 235,
+    "label": "",
+    "handler": "e => setForm({ ...form, [key]: e.target.value })",
+    "binds": "form[key] || ''",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 237,
+    "label": "",
+    "handler": "e => setForm({ ...form, [key]: e.target.value })",
+    "binds": "form[key] || ''",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 255,
+    "label": "bg-teal-600 text-white bg-white border border-slate-300 text-slate-600 catalog",
+    "handler": "() => setTab(t)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 268,
+    "label": "بحث بالاسم / المادة الفعالة / الباركود / الشركة...",
+    "handler": "e => { setQ(e.target.value); setPage(1); }",
+    "binds": "q",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 269,
+    "label": "الفئة (اختياري)",
+    "handler": "e => { setCategory(e.target.value); setPage(1); }",
+    "binds": "category",
+    "disabled": null
+   },
+   {
+    "kind": "toggle",
+    "tag": "input",
+    "line": 271,
+    "label": "",
+    "handler": "e => setIncludeDeleted(e.target.checked)",
+    "binds": "includeDeleted",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 273,
+    "label": "bg-teal-600 hover:bg-teal-700 text-white font-bold px-5 py-2 rounded-lg mr-auto ",
+    "handler": "openCreate",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "toggle",
+    "tag": "input",
+    "line": 295,
+    "label": "",
+    "handler": "e => setForm({ ...form, requires_prescription: e.target.checked })",
+    "binds": "!!form.requires_prescription",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 305,
+    "label": "button absolute top-1 left-1 bg-red-600 text-white rounded-full w-5 h-5 text-xs ",
+    "handler": "() => setImageUrls(imageUrls.filter((_, x) => x !== i))",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 313,
+    "label": "",
+    "handler": "async (e) => {\n                            const f = e.target.files?.[0];\n                            e.target.value = '",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 346,
+    "label": "مثال: تحديث تسعيرة المورد / عرض ترويجي",
+    "handler": "e => setForm({ ...form, reason: e.target.value })",
+    "binds": "form.reason || ''",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 350,
+    "label": "form bg-teal-600 text-white font-bold px-8 py-2 rounded-lg disabled:opacity-50 f",
+    "handler": "saveForm",
+    "binds": null,
+    "disabled": "busy === 'form'"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 353,
+    "label": "closed text-slate-500 font-bold px-4 إلغاء",
+    "handler": "() => setFormMode('closed')",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 387,
+    "label": "bg-amber-100 text-amber-700 border-amber-300 bg-slate-50 text-slate-400 border-s",
+    "handler": "() => toggleBadge(m)",
+    "binds": null,
+    "disabled": "busy === m.id"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 394,
+    "label": "text-teal-700 font-bold text-xs تعديل",
+    "handler": "() => openEdit(m)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 396,
+    "label": "text-amber-700 font-bold text-xs رفض",
+    "handler": "() => decideItem(m, false)",
+    "binds": null,
+    "disabled": "busy === m.id"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 398,
+    "label": "text-green-700 font-bold text-xs اعتماد",
+    "handler": "() => decideItem(m, true)",
+    "binds": null,
+    "disabled": "busy === m.id"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 401,
+    "label": "text-green-700 font-bold text-xs استرجاع",
+    "handler": "() => softDelete(m, true)",
+    "binds": null,
+    "disabled": "busy === m.id"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 403,
+    "label": "text-red-600 font-bold text-xs حذف",
+    "handler": "() => softDelete(m)",
+    "binds": null,
+    "disabled": "busy === m.id"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 416,
+    "label": "px-3 py-1 border rounded disabled:opacity-40 السابق",
+    "handler": "() => setPage(p => Math.max(1, p - 1))",
+    "binds": null,
+    "disabled": "page <= 1"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 417,
+    "label": "px-3 py-1 border rounded disabled:opacity-40 التالي",
+    "handler": "() => setPage(p => Math.min(pages, p + 1))",
+    "binds": null,
+    "disabled": "page >= pages"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 429,
+    "label": "bg-teal-600 text-white bg-white border text-slate-600 pending",
+    "handler": "() => setReqStatus(s)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "toggle",
+    "tag": "input",
+    "line": 468,
+    "label": "",
+    "handler": "(e) => setFieldSel(prev => ({ ...prev, [rid]: { ...(prev[rid] || {}), [k]: e.target.checked } }))",
+    "binds": "checked",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 475,
+    "label": "",
+    "handler": "(e) => setOverrides(prev => ({ ...prev, [rid]: { ...(prev[rid] || {}), [k]: e.target.value } }))",
+    "binds": "ov !== undefined ? String(ov) : (typeof v === 'object' ? JSON.stringify(v) : String(v))",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 496,
+    "label": "approve bg-emerald-600 text-white font-bold px-4 py-1.5 rounded-lg text-sm disab",
+    "handler": "() => decideRequest(r, 'approve')",
+    "binds": null,
+    "disabled": "busy === (r.id || r._id)"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 497,
+    "label": "reject bg-red-100 text-red-700 font-bold px-4 py-1.5 rounded-lg text-sm disabled",
+    "handler": "() => decideRequest(r, 'reject')",
+    "binds": null,
+    "disabled": "busy === (r.id || r._id)"
+   }
+  ],
+  "calls": [
+   {
+    "method": "POST",
+    "url": "/storage/upload",
+    "line": 46
+   },
+   {
+    "method": "GET",
+    "url": "/storage/:x/signed-url",
+    "line": 50
+   },
+   {
+    "method": "GET",
+    "url": "/medicines/admin/catalog",
+    "line": 96
+   },
+   {
+    "method": "GET",
+    "url": "/medicines/admin/change-requests",
+    "line": 109
+   },
+   {
+    "method": "GET",
+    "url": "/medicines/admin/reports",
+    "line": 116
+   },
+   {
+    "method": "POST",
+    "url": "/medicines/admin/catalog",
+    "line": 158
+   },
+   {
+    "method": "PATCH",
+    "url": "/medicines/admin/catalog/:x",
+    "line": 168
+   },
+   {
+    "method": "POST",
+    "url": "/medicines/admin/catalog/:x/delete",
+    "line": 181
+   },
+   {
+    "method": "POST",
+    "url": "/medicines/admin/catalog/:x/approve",
+    "line": 190
+   },
+   {
+    "method": "POST",
+    "url": "/medicines/admin/catalog/:x/availability",
+    "line": 198
+   },
+   {
+    "method": "POST",
+    "url": "/medicines/admin/change-requests/:x/:x",
+    "line": 223
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/notification-center.tsx",
+  "elements": [
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 217,
+    "label": "عنوان الإشعار",
+    "handler": "e => setTitle(e.target.value)",
+    "binds": "title",
+    "disabled": null
+   },
+   {
+    "kind": "select",
+    "tag": "select",
+    "line": 221,
+    "label": "w-full border rounded p-2 single مستخدم واحد (بالمعرف)",
+    "handler": "e => setSegment(e.target.value)",
+    "binds": "segment",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 229,
+    "label": "user_id",
+    "handler": "e => setSingleUser(e.target.value)",
+    "binds": "singleUser",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "textarea",
+    "line": 234,
+    "label": "محتوى الرسالة...",
+    "handler": "e => setBody(e.target.value)",
+    "binds": "body",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 238,
+    "label": "/pharmacy/cart",
+    "handler": "e => setDeepLink(e.target.value)",
+    "binds": "deepLink",
+    "disabled": null
+   },
+   {
+    "kind": "toggle",
+    "tag": "input",
+    "line": 243,
+    "label": "",
+    "handler": "e => setAsCampaign(e.target.checked)",
+    "binds": "asCampaign",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 247,
+    "label": "",
+    "handler": "e => setScheduledAt(e.target.value)",
+    "binds": "scheduledAt",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 252,
+    "label": "bg-blue-600 text-white px-6 py-2 rounded font-bold hover:bg-blue-700 disabled:op",
+    "handler": "send",
+    "binds": null,
+    "disabled": "sending"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 255,
+    "label": "bg-amber-500 text-white px-4 py-2 rounded hover:bg-amber-600 تشغيل إعادة الاستهد",
+    "handler": "runRetarget",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 269,
+    "label": "مفتاح القالب (مثال: appt.reminder)",
+    "handler": "(e) => setTplKey(e.target.value)",
+    "binds": "tplKey",
+    "disabled": null
+   },
+   {
+    "kind": "select",
+    "tag": "select",
+    "line": 270,
+    "label": "border rounded px-3 py-2 text-sm",
+    "handler": "(e) => setTplLang(e.target.value)",
+    "binds": "tplLang",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 273,
+    "label": "params JSON {\"name\":\"..\"}",
+    "handler": "(e) => setTplParams(e.target.value)",
+    "binds": "tplParams",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 274,
+    "label": "px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-bold حفظ القالب",
+    "handler": "saveTemplate",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 280,
+    "label": "العنوان",
+    "handler": "(e) => setTplTitle((p) => ({ ...p, [l]: e.target.value }))",
+    "binds": "tplTitle[l] || ''",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "textarea",
+    "line": 281,
+    "label": "النص",
+    "handler": "(e) => setTplBody((p) => ({ ...p, [l]: e.target.value }))",
+    "binds": "tplBody[l] || ''",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 296,
+    "label": "text-blue-600 hover:underline text-xs معاينة",
+    "handler": "() => previewTemplate(t.key)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 297,
+    "label": "text-green-600 hover:underline text-xs إرسال تجريبي",
+    "handler": "() => testSendTemplate(t.key)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 311,
+    "label": "px-3 py-1 border rounded السابق",
+    "handler": "() => setPage(p => Math.max(1, p - 1))",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 313,
+    "label": "px-3 py-1 border rounded التالي",
+    "handler": "() => setPage(p => p + 1)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 350,
+    "label": "text-green-600 hover:underline text-xs إرسال الآن",
+    "handler": "() => sendNow(c.id)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 351,
+    "label": "text-red-600 hover:underline text-xs إلغاء",
+    "handler": "() => cancel(c.id)",
+    "binds": null,
+    "disabled": null
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/api/admin/notifications/admin/templates",
+    "line": 49
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/notifications/admin/templates",
+    "line": 57
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/notifications/admin/templates/:x/preview",
+    "line": 69
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/notifications/admin/templates/:x/test-send",
+    "line": 80
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/notification-center/stats/overview",
+    "line": 91
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/notification-center/segments",
+    "line": 92
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/notification-center/campaigns",
+    "line": 93
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/analytics-suite/email-usage",
+    "line": 94
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/notification-center/campaigns",
+    "line": 129
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/notification-center/broadcasts",
+    "line": 132
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/notification-center/campaigns/:x/send",
+    "line": 146
+   },
+   {
+    "method": "DELETE",
+    "url": "/api/admin/admin/notification-center/campaigns/:x",
+    "line": 152
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/notification-center/retarget/run",
+    "line": 157
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/nursing-portal.tsx",
+  "elements": [
+   {
+    "kind": "select",
+    "tag": "select",
+    "line": 91,
+    "label": "ml-2 rounded border p-2 — اختر —",
+    "handler": "(e) => setSelected((prev) => ({ ...prev, [req.id]: e.target.value }))",
+    "binds": "selected[req.id] || ''",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 103,
+    "label": "reassign assign bg-indigo-600 text-white px-4 py-2 rounded font-bold hover:bg-in",
+    "handler": "() => void decide(req.id, req.provider_id ? 'reassign' : 'assign')",
+    "binds": null,
+    "disabled": "working === `assign:${req.id}` || working === `reassign:${req.id}`"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 110,
+    "label": "cancel border border-red-300 text-red-700 px-4 py-2 rounded font-bold disabled:o",
+    "handler": "() => void decide(req.id, 'cancel')",
+    "binds": null,
+    "disabled": "working === `cancel:${req.id}`"
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/nursing/requests",
+    "line": 24
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/nursing/requests/:x/eligible-providers",
+    "line": 38
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/nursing/requests/:x/:x",
+    "line": 54
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/order-detail.tsx",
+  "elements": [
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 30,
+    "label": "text-teal-700 font-bold text-sm → عودة لمركز القيادة",
+    "handler": "() => router.back()",
+    "binds": null,
+    "disabled": null
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/command-center/order/:x/:x",
+    "line": 19
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/orders/[kind]/[id].tsx",
+  "elements": [
+   {
+    "kind": "link",
+    "tag": "Link",
+    "line": 57,
+    "label": "/admin/orders text-sm text-teal-700 العودة إلى الطلبات",
+    "handler": "/admin/orders",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 57,
+    "label": "rounded-lg border px-4 py-2 text-sm تحديث",
+    "handler": "() => void load()",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 62,
+    "label": "rounded-lg border px-3 py-2 text-right text-sm font-medium hover:bg-slate-50",
+    "handler": "() => open(item)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 63,
+    "label": "",
+    "handler": "(e) => setAmount(e.target.value)",
+    "binds": "amount",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 63,
+    "label": "",
+    "handler": "(e) => setAmount(e.target.value)",
+    "binds": "amount",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 63,
+    "label": "",
+    "handler": "(e) => setProviderId(e.target.value)",
+    "binds": "providerId",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 63,
+    "label": "",
+    "handler": "(e) => setHours(e.target.value)",
+    "binds": "hours",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "textarea",
+    "line": 63,
+    "label": "",
+    "handler": "(e) => setNote(e.target.value)",
+    "binds": "note",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "textarea",
+    "line": 63,
+    "label": "",
+    "handler": "(e) => setReason(e.target.value)",
+    "binds": "reason",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 63,
+    "label": "rounded border px-4 py-2 إلغاء",
+    "handler": "() => setAction(null)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 63,
+    "label": "rounded bg-teal-700 px-4 py-2 font-bold text-white disabled:opacity-50 جارٍ التن",
+    "handler": "() => void submit()",
+    "binds": null,
+    "disabled": "submitting"
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/orders/:x/:x",
+    "line": 30
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/orders/:x/:x/:x",
+    "line": 50
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/orders/index.tsx",
+  "elements": [
+   {
+    "kind": "link",
+    "tag": "a",
+    "line": 39,
+    "label": "rounded-lg border border-teal-700 px-4 py-2 text-sm font-bold text-teal-800 تصدي",
+    "handler": "exportUrl()",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 40,
+    "label": "بحث بالمعرّف أو العميل",
+    "handler": "(e) => update('q', e.target.value)",
+    "binds": "filters.q",
+    "disabled": null
+   },
+   {
+    "kind": "select",
+    "tag": "select",
+    "line": 40,
+    "label": "kind rounded-lg border px-3 py-2 text-sm",
+    "handler": "(e) => update('kind', e.target.value)",
+    "binds": "filters.kind",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 40,
+    "label": "الحالة",
+    "handler": "(e) => update('status', e.target.value)",
+    "binds": "filters.status",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 40,
+    "label": "",
+    "handler": "(e) => update('from', e.target.value)",
+    "binds": "filters.from",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 40,
+    "label": "",
+    "handler": "(e) => update('to', e.target.value)",
+    "binds": "filters.to",
+    "disabled": null
+   },
+   {
+    "kind": "select",
+    "tag": "select",
+    "line": 40,
+    "label": "sort rounded-lg border px-3 py-2 text-sm newest الأحدث أولاً الأقدم أولاً القيمة",
+    "handler": "(e) => update('sort', e.target.value)",
+    "binds": "filters.sort",
+    "disabled": null
+   },
+   {
+    "kind": "link",
+    "tag": "Link",
+    "line": 42,
+    "label": "rounded bg-slate-900 px-3 py-1.5 text-xs font-bold text-white فتح التفاصيل",
+    "handler": "`/admin/orders/${encodeURIComponent(order.kind)}/${encodeURIComponent(order.id)}`",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 43,
+    "label": "rounded border px-3 py-1 disabled:opacity-40 السابق",
+    "handler": "() => setPage((value) => value - 1)",
+    "binds": null,
+    "disabled": "page <= 1 || loading"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 43,
+    "label": "rounded border px-3 py-1 disabled:opacity-40 التالي",
+    "handler": "() => setPage((value) => value + 1)",
+    "binds": null,
+    "disabled": "page >= (result.pages || 1) || loading"
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/orders:x)}",
+    "line": 29
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/payouts.tsx",
+  "elements": [
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 81,
+    "label": "px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg transition-colors ",
+    "handler": "fetchPayouts",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 91,
+    "label": "mt-3 px-4 py-2 bg-red-600 text-white rounded-lg text-sm إعادة المحاولة",
+    "handler": "fetchPayouts",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 129,
+    "label": "px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-xs font-bold ",
+    "handler": "() => handleExecutePayout(item.id)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 135,
+    "label": "px-4 py-2 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 rounded-",
+    "handler": "() => setRejectingId(rejectingId === item.id ? null : item.id)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 148,
+    "label": "سبب الرفض (يظهر للمزود)",
+    "handler": "(e) => setRejectReason(e.target.value)",
+    "binds": "rejectReason",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 154,
+    "label": "px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-bold تأكيد الرفض",
+    "handler": "() => handleReject(item.id)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 155,
+    "label": "px-4 py-2 bg-slate-200 rounded-lg text-sm تراجع",
+    "handler": "() => { setRejectingId(null); setRejectReason(''); }",
+    "binds": null,
+    "disabled": null
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/finance/withdrawals/pending",
+    "line": 35
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/finance/withdrawals/:x/execute",
+    "line": 49
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/finance/withdrawals/:x/reject",
+    "line": 63
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/pharmacy-procurement.tsx",
+  "elements": [
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 101,
+    "label": "px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-bold text-sm ",
+    "handler": "load",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "link",
+    "tag": "a",
+    "line": 130,
+    "label": "_blank noreferrer text-teal-700 text-sm font-bold underline الملف المرفق",
+    "handler": "r.uploaded_file_url",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 132,
+    "label": "bg-teal-600 text-white text-sm font-bold px-4 py-1.5 rounded-lg إغلاق مراجعة وإص",
+    "handler": "() => { setSelected(isOpen ? null : r); setItemPrices({}); setItemQties({}); setItemDiscounts({}); }",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 159,
+    "label": "1",
+    "handler": "e => setItemQties(prev => ({ ...prev, [i]: e.target.value.replace(/\\D/g, '') }))",
+    "binds": "itemQties[i] ?? String(it.requested_quantity || it.quantity || 1)",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 168,
+    "label": "0.00",
+    "handler": "e => setItemPrices(prev => ({ ...prev, [i]: e.target.value.replace(/[^\\d.]/g, '') }))",
+    "binds": "itemPrices[i] || ''",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 177,
+    "label": "0",
+    "handler": "e => {\n                                    const v = e.target.value.replace(/[^\\d.]/g, '');\n                            ",
+    "binds": "itemDiscounts[i] || ''",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 202,
+    "label": "bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2 rounded-lg di",
+    "handler": "issueQuote",
+    "binds": null,
+    "disabled": "busy"
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/extended-operations/procurement/pending",
+    "line": 47
+   },
+   {
+    "method": "PATCH",
+    "url": "/api/admin/admin/extended-operations/issue-quote/:x",
+    "line": 77
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/price-override-audit.tsx",
+  "elements": [
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 71,
+    "label": "بحث بالدواء أو الصيدلية…",
+    "handler": "(e) => {\n                setSearch(e.target.value);\n                setPage(1);\n              }",
+    "binds": "search",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 81,
+    "label": "rounded-lg bg-teal-700 px-4 py-2 text-sm font-bold text-white hover:bg-teal-800 ",
+    "handler": "() => void loadData()",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 181,
+    "label": "rounded border bg-white px-3 py-1 disabled:opacity-40 السابق",
+    "handler": "() => setPage((v) => v - 1)",
+    "binds": null,
+    "disabled": "page <= 1 || loading"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 191,
+    "label": "rounded border bg-white px-3 py-1 disabled:opacity-40 التالي",
+    "handler": "() => setPage((v) => v + 1)",
+    "binds": null,
+    "disabled": "page >= (data?.pages || 1) || loading"
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/governance-controls/medicine-price-history:x)}",
+    "line": 42
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/provider-audits.tsx",
+  "elements": [
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 115,
+    "label": "bg-emerald-600 text-white px-5 py-2 rounded-lg text-sm font-bold hover:bg-emeral",
+    "handler": "() => handleApprove(deltaId)",
+    "binds": null,
+    "disabled": "processingId === deltaId"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 122,
+    "label": "bg-rose-600 text-white px-5 py-2 rounded-lg text-sm font-bold hover:bg-rose-700 ",
+    "handler": "() => handleReject(deltaId)",
+    "binds": null,
+    "disabled": "processingId === deltaId"
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/providers/provider-deltas",
+    "line": 18
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/providers/provider-deltas/:x/approve",
+    "line": 30
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/providers/provider-deltas/:x/reject",
+    "line": 45
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/provider-moderation.tsx",
+  "elements": [
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 218,
+    "label": "onboarding bg-teal-600 text-white text-gray-600 hover:bg-gray-50 توثيق التسجيل (",
+    "handler": "() => { setActiveTab('onboarding'); setSelectedDelta(null); }",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 221,
+    "label": "deltas bg-teal-600 text-white text-gray-600 hover:bg-gray-50 تعديلات الحسابات (D",
+    "handler": "() => { setActiveTab('deltas'); setSelectedProvider(null); }",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "select",
+    "tag": "GeoPicker",
+    "line": 229,
+    "label": "",
+    "handler": "setGeo",
+    "binds": "geo",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "div",
+    "line": 240,
+    "label": "border-teal-500 bg-teal-50 shadow-md border-gray-200 hover:border-teal-300 font-",
+    "handler": "() => setSelectedProvider(p)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "div",
+    "line": 246,
+    "label": "border-amber-500 bg-amber-50 shadow-md border-gray-200 hover:border-amber-300 fo",
+    "handler": "() => setSelectedDelta(d)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 279,
+    "label": "flex-1 bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-lg shadow",
+    "handler": "() => handleApprove(selectedProvider.id, selectedProvider.type)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 282,
+    "label": "flex-1 bg-green-100 hover:bg-green-200 text-green-700 font-bold py-3 rounded-lg ",
+    "handler": "() => handleReactivate(selectedProvider.id)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 285,
+    "label": "flex-1 bg-red-100 hover:bg-red-200 text-red-700 font-bold py-3 rounded-lg shadow",
+    "handler": "() => setIsModalOpen(true)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 326,
+    "label": "flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 rounded-lg shad",
+    "handler": "() => handleCommitDelta(selectedDelta.id)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 329,
+    "label": "flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 rounded-lg sha",
+    "handler": "() => handleRejectDelta(selectedDelta.id)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "textarea",
+    "line": 348,
+    "label": "الرجاء إدخال سبب الإيقاف أو أكواد الرفض (Reason Codes)...",
+    "handler": "(e) => setSuspendReason(e.target.value)",
+    "binds": "suspendReason",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 355,
+    "label": "flex-1 bg-red-600 text-white font-bold py-2 rounded تأكيد الإيقاف الحرج",
+    "handler": "handleSuspend",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 356,
+    "label": "flex-1 bg-gray-200 text-gray-800 font-bold py-2 rounded تراجع",
+    "handler": "() => setIsModalOpen(false)",
+    "binds": null,
+    "disabled": null
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/providers/:x",
+    "line": 44
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/providers",
+    "line": 65
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/providers/provider-deltas",
+    "line": 81
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/providers/:x/approve",
+    "line": 117
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/providers/:x/reactivate",
+    "line": 137
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/providers/:x/suspend",
+    "line": 150
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/providers/provider-deltas/:x/approve",
+    "line": 175
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/providers/provider-deltas/:x/reject",
+    "line": 195
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/rbac.tsx",
+  "elements": [
+   {
+    "kind": "form",
+    "tag": "form",
+    "line": 67,
+    "label": "rounded-2xl border bg-white p-6 shadow-sm text-xl font-bold إنشاء دور مخصص سيُسج",
+    "handler": "createRole",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 67,
+    "label": "support_ops",
+    "handler": "(e) => setForm({ ...form, key: e.target.value.replace(/[^a-z0-9_]/gi, '_').toLowerCase() })",
+    "binds": "form.key",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 67,
+    "label": "",
+    "handler": "(e) => setForm({ ...form, name_ar: e.target.value })",
+    "binds": "form.name_ar",
+    "disabled": null
+   },
+   {
+    "kind": "toggle",
+    "tag": "input",
+    "line": 67,
+    "label": "",
+    "handler": "() => togglePermission(permission.key)",
+    "binds": "form.permissions.includes(permission.key)",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "textarea",
+    "line": 67,
+    "label": "",
+    "handler": "(e) => setForm({ ...form, reason: e.target.value })",
+    "binds": "form.reason",
+    "disabled": null
+   },
+   {
+    "kind": "form",
+    "tag": "form",
+    "line": 68,
+    "label": "rounded-2xl border bg-white p-6 shadow-sm text-xl font-bold إسناد أدوار لموظف لل",
+    "handler": "assignRoles",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 68,
+    "label": "user id",
+    "handler": "(e) => setAssignUser(e.target.value)",
+    "binds": "assignUser",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "textarea",
+    "line": 68,
+    "label": "",
+    "handler": "(e) => setAssignReason(e.target.value)",
+    "binds": "assignReason",
+    "disabled": null
+   },
+   {
+    "kind": "toggle",
+    "tag": "input",
+    "line": 68,
+    "label": "",
+    "handler": "() => toggleAssignKey(role.key)",
+    "binds": "assignKeys.includes(role.key)",
+    "disabled": null
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/rbac/catalog",
+    "line": 25
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/rbac/roles",
+    "line": 25
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/rbac/roles",
+    "line": 41
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/rbac/users/:x/roles",
+    "line": 53
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/reports.tsx",
+  "elements": [
+   {
+    "kind": "link",
+    "tag": "a",
+    "line": 100,
+    "label": "rounded-lg bg-teal-700 px-4 py-2 text-sm font-bold text-white تصدير CSV",
+    "handler": "csvHref",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "link",
+    "tag": "a",
+    "line": 101,
+    "label": "rounded-lg bg-emerald-700 px-4 py-2 text-sm font-bold text-white تصدير XLSX",
+    "handler": "xlsxHref",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "link",
+    "tag": "a",
+    "line": 102,
+    "label": "rounded-lg border px-4 py-2 text-sm font-bold text-slate-700",
+    "handler": "CONSOLES[tab]!.href",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 106,
+    "label": "bg-teal-700 text-white bg-white border",
+    "handler": "() => setTab(t.key)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 113,
+    "label": "",
+    "handler": "(e) => setFrom(e.target.value)",
+    "binds": "from",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 114,
+    "label": "",
+    "handler": "(e) => setTo(e.target.value)",
+    "binds": "to",
+    "disabled": null
+   },
+   {
+    "kind": "select",
+    "tag": "select",
+    "line": 116,
+    "label": "mt-1 w-full rounded-lg border p-2 text-sm",
+    "handler": "(e) => setGroupBy(e.target.value)",
+    "binds": "groupBy",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 120,
+    "label": "self-end rounded-lg bg-slate-900 px-4 py-2 text-sm font-bold text-white تحديث",
+    "handler": "() => void load()",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "link",
+    "tag": "a",
+    "line": 161,
+    "label": "text-teal-700 underline التفاصيل",
+    "handler": "detailHref",
+    "binds": null,
+    "disabled": null
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/reports/:x:x)}",
+    "line": 74
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/returns.tsx",
+  "elements": [
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 75,
+    "label": "button border-teal-700 bg-teal-700 text-white border-slate-300 bg-white text-sla",
+    "handler": "() => setStatus(value)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 106,
+    "label": "button approved rounded-lg bg-teal-700 px-4 py-2 text-sm font-semibold text-whit",
+    "handler": "() => void decide(row, 'approved')",
+    "binds": null,
+    "disabled": "workingId === row.id"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 108,
+    "label": "button rejected rounded-lg border border-red-300 px-4 py-2 text-sm font-semibold",
+    "handler": "() => void decide(row, 'rejected')",
+    "binds": null,
+    "disabled": "workingId === row.id"
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/returns",
+    "line": 35
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/returns/:x/decide",
+    "line": 52
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/scheduled-reports.tsx",
+  "elements": [
+   {
+    "kind": "form",
+    "tag": "form",
+    "line": 18,
+    "label": "grid gap-3 rounded-2xl border bg-white p-5 shadow-sm md:grid-cols-5 text-sm التق",
+    "handler": "create",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "select",
+    "tag": "select",
+    "line": 18,
+    "label": "mt-1 w-full rounded border p-2",
+    "handler": "(e) => setForm({ ...form, report: e.target.value })",
+    "binds": "form.report",
+    "disabled": null
+   },
+   {
+    "kind": "select",
+    "tag": "select",
+    "line": 18,
+    "label": "mt-1 w-full rounded border p-2 daily يومي أسبوعي شهري",
+    "handler": "(e) => setForm({ ...form, frequency: e.target.value })",
+    "binds": "form.frequency",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 18,
+    "label": "",
+    "handler": "(e) => setForm({ ...form, hour_utc: e.target.value })",
+    "binds": "form.hour_utc",
+    "disabled": null
+   },
+   {
+    "kind": "select",
+    "tag": "select",
+    "line": 18,
+    "label": "mt-1 w-full rounded border p-2 csv CSV JSON",
+    "handler": "(e) => setForm({ ...form, format: e.target.value })",
+    "binds": "form.format",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 18,
+    "label": "ops@example.com, finance@example.com",
+    "handler": "(e) => setForm({ ...form, recipients: e.target.value })",
+    "binds": "form.recipients",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 18,
+    "label": "rounded bg-teal-700 px-3 py-2 text-sm font-bold text-white تشغيل الآن",
+    "handler": "() => void runNow(report)",
+    "binds": null,
+    "disabled": "saving"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 18,
+    "label": "rounded border px-3 py-2 text-sm إيقاف تفعيل",
+    "handler": "() => void toggle(report)",
+    "binds": null,
+    "disabled": "saving"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 18,
+    "label": "rounded border px-3 py-2 text-sm سجل التسليم",
+    "handler": "() => void showRuns(report)",
+    "binds": null,
+    "disabled": "saving"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 18,
+    "label": "rounded border border-rose-300 px-3 py-2 text-sm text-rose-700 حذف",
+    "handler": "() => void remove(report)",
+    "binds": null,
+    "disabled": "saving"
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/scheduled-reports",
+    "line": 11
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/scheduled-reports",
+    "line": 13
+   },
+   {
+    "method": "PATCH",
+    "url": "/api/admin/admin/scheduled-reports/:x",
+    "line": 14
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/scheduled-reports/:x/run",
+    "line": 15
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/scheduled-reports/:x/runs",
+    "line": 16
+   },
+   {
+    "method": "DELETE",
+    "url": "/api/admin/admin/scheduled-reports/:x",
+    "line": 17
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/search-intelligence.tsx",
+  "elements": [
+   {
+    "kind": "select",
+    "tag": "select",
+    "line": 86,
+    "label": "تصفية حسب اللغة",
+    "handler": "(e) => setSelectedLocale(e.target.value)",
+    "binds": "selectedLocale",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 98,
+    "label": "rounded-lg bg-teal-700 px-4 py-2 text-sm font-bold text-white hover:bg-teal-800 ",
+    "handler": "() => void loadData()",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "form",
+    "tag": "form",
+    "line": 143,
+    "label": "flex gap-2 mb-4 text flex-1 rounded-lg border px-4 py-2 text-sm",
+    "handler": "handleTestIntent",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 144,
+    "label": "مثال: دكتور باطنة في الرياض حي الملز بوبا أو panadol extra riyadh",
+    "handler": "(e) => setTestQuery(e.target.value)",
+    "binds": "testQuery",
+    "disabled": null
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/governance-controls/search-intent-analytics",
+    "line": 40
+   },
+   {
+    "method": "POST",
+    "url": "/search/intent",
+    "line": 60
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/search.tsx",
+  "elements": [
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 47,
+    "label": "id / جوال / اسم…",
+    "handler": "(e) => setQ(e.target.value)",
+    "binds": "q",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 49,
+    "label": "rounded-lg bg-teal-700 px-4 py-2 text-sm font-bold text-white بحث",
+    "handler": "() => void run()",
+    "binds": null,
+    "disabled": "loading"
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/search",
+    "line": 24
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/security.tsx",
+  "elements": [
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 143,
+    "label": "اسم الجهاز (مثال: iPhone 15 / MacBook)",
+    "handler": "(e) => setDeviceName(e.target.value)",
+    "binds": "deviceName",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 152,
+    "label": "12px 22px none pointer",
+    "handler": "enroll",
+    "binds": null,
+    "disabled": "busy"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 191,
+    "label": "8px 16px pointer 1px solid rgba(240,86,122,0.4) حذف",
+    "handler": "() => remove(d.credential_id)",
+    "binds": null,
+    "disabled": "busy"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 219,
+    "label": "8px 18px pointer rgba(240,86,122,0.12)",
+    "handler": "() => void toggleLock(!deviceLock)",
+    "binds": null,
+    "disabled": "busy || deviceLock === null"
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/auth/passkey/eligibility",
+    "line": 35
+   },
+   {
+    "method": "GET",
+    "url": "/auth/passkey/devices",
+    "line": 38
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/devices",
+    "line": 44
+   },
+   {
+    "method": "GET",
+    "url": "/auth/me",
+    "line": 46
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/devices/lock",
+    "line": 58
+   },
+   {
+    "method": "POST",
+    "url": "/auth/passkey/enroll/options",
+    "line": 75
+   },
+   {
+    "method": "POST",
+    "url": "/auth/passkey/enroll/verify",
+    "line": 78
+   },
+   {
+    "method": "DELETE",
+    "url": "/auth/passkey/devices/:x",
+    "line": 99
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/segments.tsx",
+  "elements": [
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 19,
+    "label": "rounded border border-rose-300 px-3 py-1 text-xs text-rose-700 حذف",
+    "handler": "() => void remove(segment)",
+    "binds": null,
+    "disabled": "saving"
+   },
+   {
+    "kind": "form",
+    "tag": "form",
+    "line": 19,
+    "label": "rounded-2xl border bg-white p-6 shadow-sm text-xl font-bold إنشاء شريحة مطابقة ا",
+    "handler": "save",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 19,
+    "label": "اسم الشريحة بالعربية",
+    "handler": "(e) => setName(e.target.value)",
+    "binds": "name",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "textarea",
+    "line": 19,
+    "label": "وصف اختياري",
+    "handler": "(e) => setDescription(e.target.value)",
+    "binds": "description",
+    "disabled": null
+   },
+   {
+    "kind": "select",
+    "tag": "select",
+    "line": 19,
+    "label": "all any mt-1 w-full rounded-lg border p-2 كل القواعد أي قاعدة",
+    "handler": "(e) => setMatch(e.target.value as 'all' | 'any')",
+    "binds": "match",
+    "disabled": null
+   },
+   {
+    "kind": "select",
+    "tag": "select",
+    "line": 19,
+    "label": "rounded border p-2 text-sm",
+    "handler": "(e) => setRule(index, { field: e.target.value })",
+    "binds": "rule.field",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 19,
+    "label": "operator",
+    "handler": "(e) => setRule(index, { operator: e.target.value })",
+    "binds": "rule.operator",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 19,
+    "label": "القيمة",
+    "handler": "(e) => setRule(index, { value: e.target.value })",
+    "binds": "rule.value",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 19,
+    "label": "button rounded border px-2 text-sm disabled:opacity-40 حذف القاعدة",
+    "handler": "() => setRules((items) => items.filter((_, itemIndex) => itemIndex !== index))",
+    "binds": null,
+    "disabled": "rules.length === 1"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 19,
+    "label": "button eq rounded border px-3 py-2 text-sm إضافة قاعدة",
+    "handler": "() => setRules((items) => [...items, { field: fields.allowed_fields[0] ? ((fields.allowed_fields[0] as any).key || (fiel",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "textarea",
+    "line": 19,
+    "label": "",
+    "handler": "(e) => setReason(e.target.value)",
+    "binds": "reason",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 19,
+    "label": "button rounded border border-teal-700 px-4 py-2 text-sm font-bold text-teal-800 ",
+    "handler": "() => void runPreview()",
+    "binds": null,
+    "disabled": "saving"
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/segments",
+    "line": 12
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/segments/fields",
+    "line": 12
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/segments/preview",
+    "line": 16
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/segments",
+    "line": 17
+   },
+   {
+    "method": "DELETE",
+    "url": "/api/admin/admin/segments/:x",
+    "line": 18
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/shortage-reports.tsx",
+  "elements": [
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 75,
+    "label": "bg-blue-600 text-white bg-white border text-gray-700 all",
+    "handler": "() => { setTab(t.key); setPage(1); }",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 120,
+    "label": "approve bg-green-600 text-white px-3 py-1 rounded text-xs hover:bg-green-700 dis",
+    "handler": "() => act(r.id, 'approve')",
+    "binds": null,
+    "disabled": "acting === r.id"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 127,
+    "label": "reject bg-red-100 text-red-700 px-3 py-1 rounded text-xs hover:bg-red-200 disabl",
+    "handler": "() => act(r.id, 'reject')",
+    "binds": null,
+    "disabled": "acting === r.id"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 137,
+    "label": "bg-amber-100 text-amber-800 px-3 py-1 rounded text-xs hover:bg-amber-200 إزالة ا",
+    "handler": "() => clearBadge(r.medicine_id)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 153,
+    "label": "px-3 py-1 border rounded السابق",
+    "handler": "() => setPage(p => Math.max(1, p - 1))",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 155,
+    "label": "px-3 py-1 border rounded التالي",
+    "handler": "() => setPage(p => p + 1)",
+    "binds": null,
+    "disabled": null
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/medicines/admin/shortage-reports",
+    "line": 24
+   },
+   {
+    "method": "POST",
+    "url": "/medicines/admin/shortage-reports/:x/:x",
+    "line": 41
+   },
+   {
+    "method": "POST",
+    "url": "/medicines/admin/catalog/:x/clear-shortage-badge",
+    "line": 55
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/sos-monitor.tsx",
+  "elements": [
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 103,
+    "label": "px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm font-mediu",
+    "handler": "() => load(true)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 111,
+    "label": "mt-3 px-4 py-2 bg-red-600 text-white rounded-lg text-sm إعادة المحاولة",
+    "handler": "() => load(true)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "link",
+    "tag": "a",
+    "line": 150,
+    "label": "_blank noreferrer block text-center bg-indigo-50 hover:bg-indigo-100 text-indigo",
+    "handler": "`https://maps.google.com/?q=${lat},${lng}`",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 163,
+    "label": "معرّف المستشفى المستقبِل",
+    "handler": "(e) => setHospitalFor((p) => ({ ...p, [c.id]: e.target.value }))",
+    "binds": "hospitalFor[c.id] || ''",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 169,
+    "label": "px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-b",
+    "handler": "() => assign(c.id)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 176,
+    "label": "w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-",
+    "handler": "() => escalate997(c.id)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "textarea",
+    "line": 182,
+    "label": "ملاحظات الإنهاء (ماذا تم مع الحالة؟)",
+    "handler": "(e) => setResolveNotes(e.target.value)",
+    "binds": "resolveNotes",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 189,
+    "label": "flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm f",
+    "handler": "() => resolve(c.id)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 190,
+    "label": "px-4 py-2 bg-slate-200 rounded-lg text-sm تراجع",
+    "handler": "() => { setResolvingId(null); setResolveNotes(''); }",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 194,
+    "label": "w-full px-4 py-2 bg-green-50 hover:bg-green-100 text-green-700 border border-gre",
+    "handler": "() => setResolvingId(c.id)",
+    "binds": null,
+    "disabled": null
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/emergency/active",
+    "line": 45
+   },
+   {
+    "method": "POST",
+    "url": "/emergency/:x/assign",
+    "line": 66
+   },
+   {
+    "method": "POST",
+    "url": "/emergency/:x/resolve",
+    "line": 73
+   },
+   {
+    "method": "POST",
+    "url": "/emergency/:x/escalate-997",
+    "line": 85
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/support-tickets.tsx",
+  "elements": [
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 64,
+    "label": "bg-teal-600 text-white bg-white border border-slate-200 text-slate-600 hover:bg-",
+    "handler": "() => setFilter(s)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 73,
+    "label": "px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm تحديث",
+    "handler": "load",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 106,
+    "label": "IN_PROGRESS px-3 py-1.5 bg-amber-50 text-amber-700 border border-amber-200 round",
+    "handler": "() => setStatus(t.id, 'IN_PROGRESS')",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 109,
+    "label": "RESOLVED px-3 py-1.5 bg-green-50 text-green-700 border border-green-200 rounded-",
+    "handler": "() => setStatus(t.id, 'RESOLVED')",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 112,
+    "label": "إغلاق التذكرة نهائياً؟ لن يتمكن المريض من الرد بعد الإغلاق. CLOSED px-3 py-1.5 b",
+    "handler": "() => { if (window.confirm('إغلاق التذكرة نهائياً؟ لن يتمكن المريض من الرد بعد الإغلاق.')) void setStatus(t.id, 'CLOSED'",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 114,
+    "label": "px-3 py-1.5 bg-slate-100 rounded-lg text-xs font-bold إخفاء المحادثة والرد",
+    "handler": "() => setOpenId(isOpen ? null : t.id)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 131,
+    "label": "اكتب رد الدعم…",
+    "handler": "(e) => setReplyText(e.target.value)",
+    "binds": "replyText",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 138,
+    "label": "px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm font-bold ",
+    "handler": "() => sendReply(t.id)",
+    "binds": null,
+    "disabled": null
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/support/admin/requests:x` : ''}",
+    "line": 31
+   },
+   {
+    "method": "PATCH",
+    "url": "/support/admin/requests/:x",
+    "line": 44
+   },
+   {
+    "method": "POST",
+    "url": "/support/requests/:x/reply",
+    "line": 52
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/system-ops.tsx",
+  "elements": [
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 19,
+    "label": "bg-teal-700 text-white border bg-white queues",
+    "handler": "() => setTab(item)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 19,
+    "label": "mt-4 rounded bg-teal-700 px-3 py-2 text-sm font-bold text-white إعادة المحاولات ",
+    "handler": "() => void retryAll(queue)",
+    "binds": null,
+    "disabled": "saving"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 19,
+    "label": "rounded border px-2 py-1 text-xs إعادة المحاولة",
+    "handler": "() => void retryOne(queues[0], job)",
+    "binds": null,
+    "disabled": "saving"
+   },
+   {
+    "kind": "select",
+    "tag": "select",
+    "line": 19,
+    "label": "rounded border p-2 text-sm ar العربية English Urdu",
+    "handler": "(e) => setLang(e.target.value)",
+    "binds": "lang",
+    "disabled": null
+   },
+   {
+    "kind": "form",
+    "tag": "form",
+    "line": 19,
+    "label": "rounded-2xl border bg-white p-6 shadow-sm text-xl font-bold تعديل ترجمة حفظ التر",
+    "handler": "saveTranslation",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 19,
+    "label": "المفتاح",
+    "handler": "(e) => setTranslationKey(e.target.value)",
+    "binds": "translationKey",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "textarea",
+    "line": 19,
+    "label": "القيمة الجديدة",
+    "handler": "(e) => setTranslationValue(e.target.value)",
+    "binds": "translationValue",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 19,
+    "label": "rounded border px-2 py-1 text-xs حجب إتاحة",
+    "handler": "() => void saveSeo(row.route_key, !row.indexable)",
+    "binds": null,
+    "disabled": "saving"
+   },
+   {
+    "kind": "form",
+    "tag": "form",
+    "line": 19,
+    "label": "space-y-3 rounded-2xl border bg-white p-6 shadow-sm text-xl font-bold تعديل راية",
+    "handler": "saveFlag",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 19,
+    "label": "feature.key",
+    "handler": "(e) => setFlag({ ...flag, key: e.target.value })",
+    "binds": "flag.key",
+    "disabled": null
+   },
+   {
+    "kind": "toggle",
+    "tag": "input",
+    "line": 19,
+    "label": "",
+    "handler": "(e) => setFlag({ ...flag, enabled: e.target.checked })",
+    "binds": "flag.enabled",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 19,
+    "label": "",
+    "handler": "(e) => setFlag({ ...flag, rollout_percentage: e.target.value })",
+    "binds": "flag.rollout_percentage",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "textarea",
+    "line": 19,
+    "label": "سبب التغيير",
+    "handler": "(e) => setFlag({ ...flag, reason: e.target.value })",
+    "binds": "flag.reason",
+    "disabled": null
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/ops/queues",
+    "line": 12
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/ops/translations",
+    "line": 12
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/ops/seo/controls",
+    "line": 12
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/governance-controls/feature-flags",
+    "line": 12
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/ops/queues/:x/jobs",
+    "line": 12
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/ops/queues/:x/retry-failed",
+    "line": 14
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/ops/queues/:x/jobs/:x/retry",
+    "line": 15
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/ops/translations",
+    "line": 16
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/ops/seo/controls",
+    "line": 17
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/governance-controls/feature-flags",
+    "line": 18
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/theme-control.tsx",
+  "elements": [
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 69,
+    "label": "",
+    "handler": "(e) => setTokens({ ...tokens, [key]: e.target.value })",
+    "binds": "tokens[key]",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 84,
+    "label": "12px 20px none #1E332E حفظ وتطبيق على كل الشاشات",
+    "handler": "save",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 87,
+    "label": "12px 20px 1px solid #E8EDEE #fff إعادة الافتراضي",
+    "handler": "reset",
+    "binds": null,
+    "disabled": null
+   }
+  ],
+  "calls": [
+   {
+    "method": "POST",
+    "url": "/api/admin/theme",
+    "line": 41
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/admin/users-management.tsx",
+  "elements": [
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 219,
+    "label": "بحث بالاسم أو الهاتف أو البريد...",
+    "handler": "e => setSearchTerm(e.target.value)",
+    "binds": "searchTerm",
+    "disabled": null
+   },
+   {
+    "kind": "select",
+    "tag": "select",
+    "line": 226,
+    "label": "border border-gray-300 rounded px-3 py-2 bg-white",
+    "handler": "e => setRoleFilter(e.target.value)",
+    "binds": "roleFilter",
+    "disabled": null
+   },
+   {
+    "kind": "select",
+    "tag": "select",
+    "line": 233,
+    "label": "border border-gray-300 rounded px-3 py-2 bg-white كل الحالات active نشط بانتظار ",
+    "handler": "e => setStatusFilter(e.target.value)",
+    "binds": "statusFilter",
+    "disabled": null
+   },
+   {
+    "kind": "select",
+    "tag": "GeoPicker",
+    "line": 247,
+    "label": "",
+    "handler": "setGeo",
+    "binds": "geo",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 296,
+    "label": "text-teal-700 hover:text-teal-900 font-bold عرض الملف",
+    "handler": "() => openUserFile(u)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 303,
+    "label": "text-green-600 hover:text-green-900 font-bold disabled:opacity-50 إعادة تفعيل",
+    "handler": "() => handleReactivate(u)",
+    "binds": null,
+    "disabled": "actionBusy === id"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 311,
+    "label": "text-amber-600 hover:text-amber-900 font-bold disabled:opacity-50 تعليق / إيقاف",
+    "handler": "() => handleSuspend(u)",
+    "binds": null,
+    "disabled": "actionBusy === id"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 319,
+    "label": "text-red-600 hover:text-red-900 font-bold disabled:opacity-50 حذف نهائي",
+    "handler": "() => handleDelete(u)",
+    "binds": null,
+    "disabled": "actionBusy === id"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 352,
+    "label": "bg-slate-700 hover:bg-slate-600 text-white text-sm font-bold px-4 py-2 rounded-l",
+    "handler": "() => setViewUser(null)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 353,
+    "label": "bg-red-600 hover:bg-red-500 text-white text-sm font-bold px-4 py-2 rounded-lg ✕ ",
+    "handler": "() => setViewUser(null)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 366,
+    "label": "bg-teal-500 text-white bg-slate-600 text-slate-200 hover:bg-slate-500",
+    "handler": "() => reloadActivity(p.d)",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 476,
+    "label": "approve bg-green-600 hover:bg-green-700 text-white text-sm font-bold px-5 py-2 r",
+    "handler": "() => handleProviderAction('approve')",
+    "binds": null,
+    "disabled": "!!actionBusy"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 478,
+    "label": "reject bg-red-600 hover:bg-red-700 text-white text-sm font-bold px-5 py-2 rounde",
+    "handler": "() => handleProviderAction('reject')",
+    "binds": null,
+    "disabled": "!!actionBusy"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 480,
+    "label": "suspend bg-amber-600 hover:bg-amber-700 text-white text-sm font-bold px-5 py-2 r",
+    "handler": "() => handleProviderAction('suspend')",
+    "binds": null,
+    "disabled": "!!actionBusy"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 483,
+    "label": "reactivate bg-teal-600 hover:bg-teal-700 text-white text-sm font-bold px-5 py-2 ",
+    "handler": "() => handleProviderAction('reactivate')",
+    "binds": null,
+    "disabled": "!!actionBusy"
+   }
+  ],
+  "calls": [
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/users/:x/overview",
+    "line": 60
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/providers/by-user/:x",
+    "line": 66
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/users/:x/overview",
+    "line": 77
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/users",
+    "line": 91
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/users/:x/ban",
+    "line": 114
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/users/:x/unban",
+    "line": 128
+   },
+   {
+    "method": "GET",
+    "url": "/api/admin/admin/providers/by-user/:x",
+    "line": 135
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/providers/:x/reactivate",
+    "line": 137
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/admin/providers/:x/:x",
+    "line": 166
+   },
+   {
+    "method": "DELETE",
+    "url": "/api/admin/admin/users/:x",
+    "line": 184
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/index.tsx",
+  "elements": [
+   {
+    "kind": "link",
+    "tag": "Link",
+    "line": 52,
+    "label": "/login text-sm text-slate-500 hover:text-teal-700 دخول المزودين والإدارة",
+    "handler": "/login",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "link",
+    "tag": "a",
+    "line": 53,
+    "label": "#download bg-teal-600 hover:bg-teal-700 text-white text-sm font-bold px-4 py-2 r",
+    "handler": "#download",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "link",
+    "tag": "Link",
+    "line": 70,
+    "label": "bg-white rounded-2xl border border-slate-200 p-6 hover:border-teal-400 hover:sha",
+    "handler": "s.href",
+    "binds": null,
+    "disabled": null
+   }
+  ],
+  "calls": []
+ },
+ {
+  "file": "admin/src/pages/login.tsx",
+  "elements": [
+   {
+    "kind": "form",
+    "tag": "form",
+    "line": 150,
+    "label": "space-y-4 block text-sm text-slate-300 رقم الجوال أو البريد الإلكتروني كلمة المر",
+    "handler": "submitCredentials",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 151,
+    "label": "",
+    "handler": "(e) => setIdentifier(e.target.value)",
+    "binds": "identifier",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 152,
+    "label": "",
+    "handler": "(e) => setPassword(e.target.value)",
+    "binds": "password",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 154,
+    "label": "w-full text-sm text-slate-400 underline hover:text-white button reset-request نس",
+    "handler": "() => setStep('reset-request')",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "form",
+    "tag": "form",
+    "line": 157,
+    "label": "space-y-4 text-sm text-slate-300 أدخل رمز التحقق المكوّن من 6 أرقام. رجوع",
+    "handler": "submitOtp",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 159,
+    "label": "",
+    "handler": "(e) => setOtp(e.target.value.replace(/\\D/g, ''))",
+    "binds": "otp",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 161,
+    "label": "w-full text-sm text-slate-400 underline button credentials رجوع",
+    "handler": "() => setStep('credentials')",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 164,
+    "label": "button بانتظار المفتاح… تأكيد بمفتاح الأمان",
+    "handler": "submitPasskey",
+    "binds": null,
+    "disabled": "loading"
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 164,
+    "label": "w-full text-sm text-slate-400 underline credentials رجوع",
+    "handler": "() => setStep('credentials')",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "form",
+    "tag": "form",
+    "line": 166,
+    "label": "space-y-4 text-sm text-slate-300 أدخل بريدك أو رقمك المسجل لإرسال رمز الاستعادة.",
+    "handler": "requestReset",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 166,
+    "label": "",
+    "handler": "(e) => setIdentifier(e.target.value)",
+    "binds": "identifier",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 166,
+    "label": "w-full text-sm text-slate-400 underline button credentials رجوع",
+    "handler": "() => setStep('credentials')",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "form",
+    "tag": "form",
+    "line": 168,
+    "label": "space-y-4 رمز التحقق numeric رجوع",
+    "handler": "confirmReset",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 168,
+    "label": "رمز التحقق",
+    "handler": "(e) => setResetCode(e.target.value.replace(/\\D/g, ''))",
+    "binds": "resetCode",
+    "disabled": null
+   },
+   {
+    "kind": "field",
+    "tag": "input",
+    "line": 168,
+    "label": "كلمة المرور الجديدة",
+    "handler": "(e) => setNewPassword(e.target.value)",
+    "binds": "newPassword",
+    "disabled": null
+   },
+   {
+    "kind": "button",
+    "tag": "button",
+    "line": 168,
+    "label": "w-full text-sm text-slate-400 underline button credentials رجوع",
+    "handler": "() => setStep('credentials')",
+    "binds": null,
+    "disabled": null
+   }
+  ],
+  "calls": [
+   {
+    "method": "POST",
+    "url": "/api/admin/auth/public/:x",
+    "line": 10
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/auth/login",
+    "line": 50
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/auth/verify-2fa",
+    "line": 78
+   },
+   {
+    "method": "POST",
+    "url": "/api/admin/auth/passkey-verify",
+    "line": 96
+   }
+  ]
+ },
+ {
+  "file": "admin/src/pages/s/[type]/[slug].tsx",
+  "elements": [
+   {
+    "kind": "link",
+    "tag": "Link",
+    "line": 52,
+    "label": "/ text-teal-700 font-bold العودة للرئيسية",
+    "handler": "/",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "link",
+    "tag": "Link",
+    "line": 88,
+    "label": "/ text-xl font-black text-teal-700 نبض",
+    "handler": "/",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "link",
+    "tag": "a",
+    "line": 89,
+    "label": "bg-teal-600 hover:bg-teal-700 text-white text-sm font-bold px-4 py-2 rounded-lg ",
+    "handler": "`nabdplus://s/${type}/${meta.slug}`",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "link",
+    "tag": "Link",
+    "line": 94,
+    "label": "/ hover:text-teal-700 الرئيسية",
+    "handler": "/",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "link",
+    "tag": "Link",
+    "line": 96,
+    "label": "hover:text-teal-700",
+    "handler": "t.dir",
+    "binds": null,
+    "disabled": null
+   },
+   {
+    "kind": "link",
+    "tag": "a",
+    "line": 234,
+    "label": "inline-block mt-4 bg-white text-teal-700 font-bold px-6 py-2.5 rounded-lg فتح في",
+    "handler": "`nabdplus://s/${type}/${meta.slug}`",
+    "binds": null,
+    "disabled": null
+   }
+  ],
+  "calls": []
+ }
+]

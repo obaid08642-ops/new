@@ -22,11 +22,10 @@ export default function ChatWithDoctorScreen() {
 
   const { socket, onlineUsers, typingUsers, sendTyping, joinThread, leaveThread, isConnected } = useSocket();
 
-  // Real presence: is the doctor's user id currently online? (onlineUsers is a map: userId → bool)
-  const docOnline = !!(docData && onlineUsers && onlineUsers[docData.user_id || docData.account_id]);
-
   const [loading, setLoading] = useState(true);
   const [docData, setDocData] = useState<any>(null);
+  // Real presence: is the doctor's user id currently online? (onlineUsers is a map: userId → bool)
+  const docOnline = !!(docData && onlineUsers && onlineUsers[docData.user_id || docData.account_id]);
   const [messages, setMessages] = useState<any[]>([]);
   const [msg, setMsg] = useState('');
   const [blocked, setBlocked] = useState('');

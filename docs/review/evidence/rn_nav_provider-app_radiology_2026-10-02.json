@@ -1,0 +1,971 @@
+{
+ "provider_type": "radiology",
+ "login_via_ui": true,
+ "states": [
+  {
+   "path": [],
+   "heading": "لوحة الأشعة | ◎ | 0 | فحوصات اليوم | ◔ | 0 | جاري الفحص | check | 0 | مكتمل | ◈ | ",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الرئيسية",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الطلبات",
+     "result": "NAVIGATE",
+     "to": "إدارة الطلبات | جديد | تأمين | مجدول | جاري | docu"
+    },
+    {
+     "label": "الكتالوج",
+     "result": "NAVIGATE",
+     "to": "كتالوج الأشعة | الفحوصات المتاحة (0) | + إضا"
+    },
+    {
+     "label": "الجدول",
+     "result": "NAVIGATE",
+     "to": "جدول المواعيد والتوفر |  أيام العمل | الأحد | "
+    },
+    {
+     "label": "الإعدادات",
+     "result": "NAVIGATE",
+     "to": "الإعدادات | معلومات المركز | تعديل بيانات ال"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الطلبات"
+   ],
+   "heading": "إدارة الطلبات | جديد | تأمين | مجدول | جاري | document | لا توجد طلبات | ا",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "جديد",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "تأمين",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "مجدول",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "جاري",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الرئيسية",
+     "result": "NAVIGATE",
+     "to": "لوحة الأشعة | ◎ | 0 | فحوصات اليوم | ◔ | 0 | جاري ال"
+    },
+    {
+     "label": "الطلبات",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الكتالوج",
+     "result": "NAVIGATE",
+     "to": "كتالوج الأشعة | الفحوصات المتاحة (0) | + إضا"
+    },
+    {
+     "label": "الجدول",
+     "result": "NAVIGATE",
+     "to": "جدول المواعيد والتوفر |  أيام العمل | الأحد | "
+    },
+    {
+     "label": "الإعدادات",
+     "result": "NAVIGATE",
+     "to": "الإعدادات | معلومات المركز | تعديل بيانات ال"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الكتالوج"
+   ],
+   "heading": "كتالوج الأشعة | الفحوصات المتاحة (0) | + إضافة فحص | scan | لا توجد ",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "+ إضافة فحص",
+     "result": "NAVIGATE",
+     "to": "كتالوج الأشعة | الفحوصات المتاحة (0) | + إضا"
+    },
+    {
+     "label": "الرئيسية",
+     "result": "NAVIGATE",
+     "to": "لوحة الأشعة | ◎ | 0 | فحوصات اليوم | ◔ | 0 | جاري ال"
+    },
+    {
+     "label": "الطلبات",
+     "result": "NAVIGATE",
+     "to": "إدارة الطلبات | جديد | تأمين | مجدول | جاري | docu"
+    },
+    {
+     "label": "الكتالوج",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الجدول",
+     "result": "NAVIGATE",
+     "to": "جدول المواعيد والتوفر |  أيام العمل | الأحد | "
+    },
+    {
+     "label": "الإعدادات",
+     "result": "NAVIGATE",
+     "to": "الإعدادات | معلومات المركز | تعديل بيانات ال"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الجدول"
+   ],
+   "heading": "جدول المواعيد والتوفر |  أيام العمل | الأحد | الاثنين | الثلاثاء | الأ",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 5,
+   "elements": [
+    {
+     "label": "الأحد",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الاثنين",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الثلاثاء",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الأربعاء",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الخميس",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الجمعة",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "السبت",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "من",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "إلى",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "(icon #11)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "حفظ وإرسال للمراجعة",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/radiology/catalog/delta-request",
+     "tokens_sent": 4,
+     "tokens_stored": 0
+    },
+    {
+     "label": "الرئيسية",
+     "result": "NAVIGATE",
+     "to": "لوحة الأشعة | ◎ | 0 | فحوصات اليوم | ◔ | 0 | جاري ال"
+    },
+    {
+     "label": "الطلبات",
+     "result": "NAVIGATE",
+     "to": "إدارة الطلبات | جديد | تأمين | مجدول | جاري | docu"
+    },
+    {
+     "label": "الكتالوج",
+     "result": "NAVIGATE",
+     "to": "كتالوج الأشعة | الفحوصات المتاحة (0) | + إضا"
+    },
+    {
+     "label": "الجدول",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الإعدادات",
+     "result": "NAVIGATE",
+     "to": "الإعدادات | معلومات المركز | تعديل بيانات ال"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الإعدادات"
+   ],
+   "heading": "الإعدادات | معلومات المركز | تعديل بيانات المركز يتطلب مراجعة إد",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "طلبات التأمين الواردة (قرار يدوي)",
+     "result": "NAVIGATE",
+     "to": "→ | طلبات التأمين | مراجعة يدوية قبل تقديم ا"
+    },
+    {
+     "label": "دليل الأدوية الطبي",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "تسجيل الخروج",
+     "result": "SKIPPED_DESTRUCTIVE"
+    },
+    {
+     "label": "الرئيسية",
+     "result": "NAVIGATE",
+     "to": "لوحة الأشعة | ◎ | 0 | فحوصات اليوم | ◔ | 0 | جاري ال"
+    },
+    {
+     "label": "الطلبات",
+     "result": "NAVIGATE",
+     "to": "إدارة الطلبات | جديد | تأمين | مجدول | جاري | docu"
+    },
+    {
+     "label": "الكتالوج",
+     "result": "NAVIGATE",
+     "to": "كتالوج الأشعة | الفحوصات المتاحة (0) | + إضا"
+    },
+    {
+     "label": "الجدول",
+     "result": "NAVIGATE",
+     "to": "جدول المواعيد والتوفر |  أيام العمل | الأحد | "
+    },
+    {
+     "label": "الإعدادات",
+     "result": "NO_EFFECT"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الكتالوج",
+    "+ إضافة فحص"
+   ],
+   "heading": "كتالوج الأشعة | الفحوصات المتاحة (0) | + إضافة فحص | scan | لا توجد ",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 8,
+   "elements": [
+    {
+     "label": "+ إضافة فحص",
+     "result": "NAVIGATE",
+     "to": "كتالوج الأشعة | الفحوصات المتاحة (0) | + إضا"
+    },
+    {
+     "label": "الرئيسية",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الطلبات",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الكتالوج",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الجدول",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الإعدادات",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "(icon #6)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "MRI",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "CT",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "X-Ray",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "Ultrasound",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "Mammography",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "DEXA",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "Fluoroscopy",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "PET",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "اسم الفحص (عربي)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "اسم الفحص (إنجليزي)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "السعر كاش (ر.س)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "المدة المتوقعة (دقيقة)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "(icon #19)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "(icon #20)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "(icon #21)",
+     "result": "NO_EFFECT"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "طلبات التأمين الواردة (قرار يدوي)"
+   ],
+   "heading": "→ | طلبات التأمين | مراجعة يدوية قبل تقديم الخدمة | shield | لا توجد",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "الإعدادات | معلومات المركز | تعديل بيانات ال"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "دليل الأدوية الطبي"
+   ],
+   "heading": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A10 (2) | category-2070",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "الإعدادات | معلومات المركز | تعديل بيانات ال"
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الكل",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "pain (8)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "UE3C96A10 (2)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "category-20703 (1)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "UE3C96A04",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | UE3C96A04 | UE3C96A08"
+    },
+    {
+     "label": "name_ar-20700",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | name_ar-20700 | 804 ر"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 18f732",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 730a68",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 81b23b",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ a33d6a",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 2dfd4a",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 874ed2",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ bca0db",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ fc3790",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "دليل الأدوية الطبي",
+    "pain (8)"
+   ],
+   "heading": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A10 (2) | category-2070",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "الإعدادات | معلومات المركز | تعديل بيانات ال"
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "الكل",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "pain (8)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "UE3C96A10 (2)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "category-20703 (1)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 18f732",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 730a68",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 81b23b",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ a33d6a",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 2dfd4a",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 874ed2",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ bca0db",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ fc3790",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "دليل الأدوية الطبي",
+    "UE3C96A10 (2)"
+   ],
+   "heading": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A10 (2) | category-2070",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "الإعدادات | معلومات المركز | تعديل بيانات ال"
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "الكل",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "pain (8)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "UE3C96A10 (2)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "category-20703 (1)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "UE3C96A04",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | UE3C96A04 | UE3C96A08"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "دليل الأدوية الطبي",
+    "category-20703 (1)"
+   ],
+   "heading": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A10 (2) | category-2070",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "الإعدادات | معلومات المركز | تعديل بيانات ال"
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "الكل",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "pain (8)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "UE3C96A10 (2)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "category-20703 (1)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "name_ar-20700",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | name_ar-20700 | 804 ر"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "دليل الأدوية الطبي",
+    "UE3C96A04"
+   ],
+   "heading": "الملف الدوائي الكامل | UE3C96A04 | UE3C96A08 | 0 ريال سعودي | يتطلب ",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "الوصف",
+     "result": "UI_CHANGE"
+    },
+    {
+     "label": "دواعي الاستعمال",
+     "result": "UI_CHANGE"
+    },
+    {
+     "label": "الجرعة وطريقة الاستخدام",
+     "result": "UI_CHANGE"
+    },
+    {
+     "label": "إرشادات الاستخدام",
+     "result": "UI_CHANGE"
+    },
+    {
+     "label": "تحذيرات",
+     "result": "UI_CHANGE"
+    },
+    {
+     "label": "موانع الاستخدام",
+     "result": "UI_CHANGE"
+    },
+    {
+     "label": "الأعراض الجانبية",
+     "result": "UI_CHANGE"
+    },
+    {
+     "label": "UE3C96A04",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "اقتراح تعديل على هذا الدواء",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | UE3C96A04 | UE3C96A08"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "دليل الأدوية الطبي",
+    "name_ar-20700"
+   ],
+   "heading": "الملف الدوائي الكامل | name_ar-20700 | 804 ريال سعودي | يتطلب وصفة",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "اقتراح تعديل على هذا الدواء",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | name_ar-20700 | 804 ر"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "دليل الأدوية الطبي",
+    "بنادول اكسترا 500 ملغ 18f732"
+   ],
+   "heading": "الملف الدوائي الكامل | بنادول اكسترا 500 ملغ 18f732 | GSK | 12.5 ر",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "الوصف",
+     "result": "UI_CHANGE"
+    },
+    {
+     "label": "دواعي الاستعمال",
+     "result": "UI_CHANGE"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 730a68",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ bca0db",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ a33d6a",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ fc3790",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 2dfd4a",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 81b23b",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 874ed2",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
+    },
+    {
+     "label": "اقتراح تعديل على هذا الدواء",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "دليل الأدوية الطبي",
+    "بنادول اكسترا 500 ملغ 730a68"
+   ],
+   "heading": "الملف الدوائي الكامل | بنادول اكسترا 500 ملغ 730a68 | GSK | 12.5 ر",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "الوصف",
+     "result": "UI_CHANGE"
+    },
+    {
+     "label": "دواعي الاستعمال",
+     "result": "UI_CHANGE"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ bca0db",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ a33d6a",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ fc3790",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 18f732",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 2dfd4a",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 81b23b",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 874ed2",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
+    },
+    {
+     "label": "اقتراح تعديل على هذا الدواء",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "دليل الأدوية الطبي",
+    "بنادول اكسترا 500 ملغ 81b23b"
+   ],
+   "heading": "الملف الدوائي الكامل | بنادول اكسترا 500 ملغ 81b23b | GSK | 12.5 ر",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "الوصف",
+     "result": "UI_CHANGE"
+    },
+    {
+     "label": "دواعي الاستعمال",
+     "result": "UI_CHANGE"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 730a68",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ bca0db",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ a33d6a",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ fc3790",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 18f732",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 2dfd4a",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 874ed2",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
+    },
+    {
+     "label": "اقتراح تعديل على هذا الدواء",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
+    }
+   ]
+  }
+ ]
+}

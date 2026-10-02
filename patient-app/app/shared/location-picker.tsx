@@ -797,7 +797,7 @@ const styles = StyleSheet.create({
   },
   radioDot: { width: 12, height: 12, borderRadius: 6 },
 
-  mapFull: { ...StyleSheet.absoluteFillObject },
+  mapFull: { ...StyleSheet.absoluteFill },
   miniMapWrap: {
     height: 200,
     borderRadius: 18,
