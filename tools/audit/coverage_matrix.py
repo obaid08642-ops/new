@@ -15,12 +15,26 @@ import glob, json, os, re, subprocess, datetime
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 EV = os.path.join(ROOT, 'docs/review/evidence')
-GOOD = {'NAVIGATE', 'UI_CHANGE', 'BLOCKED_DESTRUCTIVE', 'SKIPPED_DESTRUCTIVE'}
+GOOD = {'NAVIGATE', 'UI_CHANGE', 'BLOCKED_DESTRUCTIVE', 'SKIPPED_DESTRUCTIVE', 'DISABLED'}
 
 
 def newest(pattern):
     fs = sorted(glob.glob(os.path.join(EV, pattern)), key=os.path.getmtime)
     return fs[-1] if fs else None
+
+
+def merged(pattern, key):
+    """All evidence files for an app, oldest first; a later run's entry for the same route replaces the earlier one
+    (rechecks and dynamic-route runs complement the full crawl instead of hiding it)."""
+    out, src = {}, {}
+    for f in sorted(glob.glob(os.path.join(EV, pattern)), key=os.path.getmtime):
+        d = json.load(open(f))
+        rows = d.get(key) if isinstance(d, dict) else d
+        for r in rows or []:
+            k = r.get('route')
+            if k:
+                out[k] = r; src[k] = os.path.basename(f)
+    return out, src
 
 
 def changed_after(path, when):
@@ -30,6 +44,8 @@ def changed_after(path, when):
 
 
 def element_verdict(els):
+    # the website's presence beacon fires on its own; a control whose only "write" is the heartbeat had no effect
+    els = [dict(e, result='NO_EFFECT') if e.get('result') == 'WRITE' and 'heartbeat' in str(e.get('url', '')) else e for e in els]
     if not els:
         return 'PARTIAL', 'no controls exercised'
     bad = [e for e in els if e['result'] in ('JS_ERROR', 'TAP_FAILED') or (e['result'] == 'WRITE' and (e.get('status', 0) >= 400 or (e.get('tokens_sent') and not e.get('tokens_stored'))))]
@@ -78,9 +94,8 @@ def provider_rows(inv):
 
 def patient_rows(inv):
     ev = newest('rn_web_patient-app_*.json')
-    data = json.load(open(ev)) if ev else {'routes': []}
     when = int(os.path.getmtime(ev)) if ev else 0
-    by_route = {r['route']: r for r in data.get('routes', [])}
+    by_route, srcs = merged('rn_web_patient-app_*.json', 'routes')
     rows = []
     for s in inv['patient-app']:
         rel = os.path.relpath(os.path.join(ROOT, s['file']), os.path.join(ROOT, 'patient-app/app'))[:-4]
@@ -102,7 +117,8 @@ def patient_rows(inv):
 def page_rows(inv, app, key):
     crawl = newest(f'{key}_crawl_*.json')
     forms = newest(f'ui_form_fill_{"web" if app == "patient-web" else "admin"}_*.json')
-    cdata = json.load(open(crawl)) if crawl else {'pages': []}
+    pages_by_route, _ = merged(f'{key}_crawl_*.json', 'pages')
+    cdata = {'pages': list(pages_by_route.values())}
     fdata = json.load(open(forms)) if forms else []
     rows = []
     pages = inv[app]['pages']

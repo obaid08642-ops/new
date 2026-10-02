@@ -75,7 +75,9 @@ def main():
     ctx.route('**/api/**', guard)
     page.on('pageerror', lambda e: ev['js'].append(str(e)[:200]))
     page.on('dialog', lambda d: d.dismiss())          # never confirm a browser confirm() on its own
-    page.on('request', lambda r: ev['inflight'].__setitem__(id(r), r.url) if '/api/' in r.url else None)
+    # Track every same-site fetch/xhr, not only /api/: Next.js client navigation loads the next page with
+    # `?_rsc=` fetches; ignoring them judged a link "ready" before it navigated (558 false NO_EFFECTs).
+    page.on('request', lambda r: ev['inflight'].__setitem__(id(r), r.url) if (r.resource_type in ('fetch', 'xhr', 'document') and BASE in r.url and 'heartbeat' not in r.url) else None)
     page.on('requestfinished', lambda r: ev['inflight'].pop(id(r), None))
     page.on('requestfailed', lambda r: ev['inflight'].pop(id(r), None) and ev['failed'].append(r.url[:100]))
 
@@ -84,7 +86,7 @@ def main():
             return
         u = r.url.split('?')[0].replace(BASE, '')
         ev['resp'].append((r.status, r.request.method, u))
-        if r.request.method in ('POST', 'PUT', 'PATCH', 'DELETE'):
+        if r.request.method in ('POST', 'PUT', 'PATCH', 'DELETE') and 'heartbeat' not in u:
             ev['writes'].append({'status': r.status, 'method': r.request.method, 'url': u, 'body': (r.request.post_data or '')[:1500]})
     page.on('response', on_resp)
     # A request counts as settled once its response arrives: fire-and-forget beacons (the website's presence
@@ -191,6 +193,11 @@ def main():
                 t0 = int(time.time() * 1000) - 50; tc = time.time()
                 before = body_hash()
                 el.click(timeout=3000)
+                # give a navigation or re-render up to 3 s to start before judging (event-driven, exits early)
+                for _ in range(30):
+                    if page.url.replace(BASE, '') != landed or body_hash() != before or ev['writes'] or ev['js']:
+                        break
+                    time.sleep(0.1)
                 ready2, _, why2 = wait_ready(8000)
                 rms = int((time.time() - tc) * 1000)
                 if ev['blocked']:

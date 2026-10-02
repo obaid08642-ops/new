@@ -206,6 +206,10 @@ def main():
                     target.click(timeout=2500, force=True)
                 except Exception:
                     target.dispatch_event('click')   # last resort: the element's own press handler
+                for _ in range(30):   # let a navigation / re-render start before judging (exits early)
+                    if page.url.replace(WEB, '') != landed or hashlib.md5(page.inner_text('body').encode()).hexdigest() != before or ev['writes'] or ev['js']:
+                        break
+                    time.sleep(0.1)
                 ready2, _, why2 = wait_ready(8000)
                 after_url = page.url.replace(WEB, '')
                 if ev['blocked']:
