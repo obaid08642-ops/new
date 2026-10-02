@@ -1,0 +1,2076 @@
+{
+ "app": "website",
+ "pages": [
+  {
+   "route": "/ar",
+   "status": 200,
+   "landed": "/ar",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "رعايتك الصحية الذكية المتكاملة في المملكة | منصة نبض بلس الطبية الشاملة |  | تصفح واطلب كافة الخدمات الطبية: صيدلية متكاملة، استشارات فورية، تمريض منزلي، تحاليل، وأشع"
+  },
+  {
+   "route": "/ar/provider-info",
+   "status": 200,
+   "landed": "/ar/provider-info",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "انضم كمقدم خدمة |  | الأطباء والصيدليات والمختبرات والممرضون: سجّلوا عبر تطبيق مزودي نبض بلس لإدارة خدماتكم واستقبال الطلبات. |  | الاستمرار كمريضتواصل للتسجيل كمقدم خد"
+  },
+  {
+   "route": "/ar/community",
+   "status": 200,
+   "landed": "/ar/community",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "مجتمع نبض بلس الطبي |  | المجتمع |  | مساحة آمنة لمشاركة التجارب الصحية، الاستفسارات، وقصص التعافي مع مجتمع المرضى والأطباء. |  | title-14950 |  | body-14951 |  | 01‏/10‏/2026"
+  },
+  {
+   "route": "/ar/ai",
+   "status": 200,
+   "landed": "/ar/ai",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "الفرز الطبي الذكي |  | الفرز الذكي للأعراض |  | صف أعراضك وسيقترح النظام الخطوة المناسبة. |  | أمثلة شائعة يمكنك اختيارها: |  | صداع مستمر منذ يومين | حمى وسعال جاف | ألم في المعدة"
+  },
+  {
+   "route": "/ar/ai/chat-doctor",
+   "status": 200,
+   "landed": "/ar/ai/chat-doctor",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "الطبيب الذكي |  | تحدث مع الطبيب الذكي |  | صف أعراضك وسيقترح النظام الخطوة المناسبة. |  | مرحباً — صف أعراضك وسأجيب كمساعد فرز أولي. النتيجة استرشادية فقط. |  | تنبيه: محادثة "
+  },
+  {
+   "route": "/ar/ai/skin-analysis",
+   "status": 200,
+   "landed": "/ar/ai/skin-analysis",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "تحليل البشرة الذكي |  | تحليل البشرة |  | نتيجة استرشادية لا تغني عن تشخيص الطبيب. |  | المنطقة |  | face | scalp | hands | body |  | الملاحظات |  | redness | itching | dryness | rash | swelling | non"
+  },
+  {
+   "route": "/ar/ai/symptom-checker",
+   "status": 200,
+   "landed": "/ar/ai/symptom-checker",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "فاحص الأعراض الذكي |  | صف أعراضك — تحليل فوري |  | صف أعراضك وسيقترح النظام الخطوة المناسبة. |  | أمثلة شائعة يمكنك اختيارها: |  | صداع مستمر منذ يومين | حمى وسعال جاف | ألم في ال"
+  },
+  {
+   "route": "/ar/ai/report",
+   "status": 200,
+   "landed": "/ar/ai/report",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "AI |  | تقريرك الصحي الذكي |  | هذا التحليل إرشادي ولا يغني عن استشارة الطبيب. |  | اختر التقارير الطبية لتحليلها |  | لا توجد تقارير طبية متاحة بعد. |  | تحليل"
+  },
+  {
+   "route": "/ar/ai/prescription-translator",
+   "status": 200,
+   "landed": "/ar/ai/prescription-translator",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "الذكاء الاصطناعي |  | مترجم الوصفات |  | ارفع صورة الوصفة لقراءتها — حد أقصى 8MB. |  | صورة الوصفةPNG أو JPG — حد أقصى 8MBاختر صورة | ← العودة"
+  },
+  {
+   "route": "/ar/ai/symptom-timeline",
+   "status": 200,
+   "landed": "/ar/ai/symptom-timeline",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "الجدول الزمني للأعراض |  | تتبع تطور أعراضك |  | صف أعراضك وسيقترح النظام الخطوة المناسبة. |  | أضف أعراضك إلى الجدول الزمني |  | حفظ في الجدول الزمني |  | الجدول الزمني · 0 |  | لا تو"
+  },
+  {
+   "route": "/ar/ai/monthly-report",
+   "status": 200,
+   "landed": "/ar/ai/monthly-report",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "المساعد الذكي |  | تقريرك الشهري — أكتوبر 2026 |  | لا توجد بيانات كافية بعد |  | تسجيل قياس الآن | هذا الشهر بنظرة | موعد: 0 | مكتمل: 0 | قادم: 0 | دواء مزمن: 0 | عرض المؤشرات التاريخ"
+  },
+  {
+   "route": "/ar/ai/triage",
+   "status": 200,
+   "landed": "/ar/ai/triage",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "الفرز الطبي الذكي |  | الفرز الذكي للأعراض |  | صف أعراضك وسيقترح النظام الخطوة المناسبة. |  | أمثلة شائعة يمكنك اختيارها: |  | صداع مستمر منذ يومين | حمى وسعال جاف | ألم في المعدة"
+  },
+  {
+   "route": "/ar/home-care",
+   "status": 200,
+   "landed": "/ar/home-care",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "رعاية منزلية خاصة |  | حجوزات الرعاية المنزلية | تصفح خدمات الرعاية المنزلية | الخدمة غير متاحة | الحالة غير متاحة | الخدمة غير متاحة | الحالة غير متاحة | 02‏/10‏/2026، 8:00 ص | "
+  },
+  {
+   "route": "/ar/home-care/providers",
+   "status": 200,
+   "landed": "/ar/home-care/providers",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "مقدمو الرعاية المنزلية المعتمدون |  | مقدمو التمريض |  | اعرض مقدمي التمريض المعتمدين من الكتالوج المحمي. |  | مسؤول home_care | مقدم معتمد | مسؤول home_care | مقدم معتمد | مسؤول h"
+  },
+  {
+   "route": "/ar/home-care/services",
+   "status": 200,
+   "landed": "/ar/home-care/services",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "الرعاية المنزلية |  | خدمات الرعاية المنزلية |  | تصفح الخدمات المتاحة من المصدر المعتمد. لا نعرض أسعارًا أو خدمة غير موجودة في الاستجابة. |  | البحث عن خدمة | قياس العلامات "
+  },
+  {
+   "route": "/ar/programs",
+   "status": 200,
+   "landed": "/ar/programs",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "برامجي الصحية |  | لا توجد برامج صحية نشطة حالياً"
+  },
+  {
+   "route": "/ar/programs/active",
+   "status": 200,
+   "landed": "/ar/programs/active",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "البرامج | البرامج العلاجية النشطة |  | تتبع التزامك بجلساتك وزياراتك. |  | لا توجد برامج نشطة"
+  },
+  {
+   "route": "/ar/mental-health",
+   "status": 200,
+   "landed": "/ar/mental-health",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "رفاه خاص |  | لوحة الرفاه |  | هذه إحصاءات وصفية مُبلّغ عنها ذاتياً وليست تشخيصاً أو درجة مخاطر أو توصية علاجية. |  | سجلات المزاج | 0 | متوسط المزاج | غير متاح | متوسط الطاقة | غير "
+  },
+  {
+   "route": "/ar/mental-health/breathing",
+   "status": 200,
+   "landed": "/ar/mental-health/breathing",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "العودة إلى الصحة النفسية |  | جلسات تنفس مسجلة |  | سجل التنفس |  | يعرض هذا العرض للقراءة فقط الجلسات التي أعادها الخادم المصرح به. بدء جلسة أو تسجيل جلسة جديدة غير متاح ه"
+  },
+  {
+   "route": "/ar/mental-health/mood",
+   "status": 200,
+   "landed": "/ar/mental-health/mood",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "العودة إلى الصحة النفسية |  | سجل مزاج مُبلّغ عنه ذاتيًا |  | سجل المزاج |  | يعرض هذا العرض للقراءة فقط إدخالات المزاج المبلّغ عنها ذاتيًا خلال آخر 30 يومًا. لا تُعرض المل"
+  },
+  {
+   "route": "/ar/mental-health/self-assessment",
+   "status": 200,
+   "landed": "/ar/mental-health/self-assessment",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "الصحة النفسية | التقييم الذاتي (توعوي — ليس تشخيصاً) |  | هذا التقييم لأغراض التوعية فقط ولا يغني عن استشارة مختص. إذا ظهرت لديك أعراض مقلقة، احجز استشارة نفسية أو تو"
+  },
+  {
+   "route": "/ar/mental-health/therapist-match",
+   "status": 200,
+   "landed": "/ar/mental-health/therapist-match",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "الصحة النفسية | مطابقة المعالج المناسب |  | اختر التخصص (نفسي/استشاري) وطريقة الجلسة (عيادة/فيديو/منزلية) من دليل الأطباء، ثم احجز مباشرة. |  | تصفح الأطباء النفسيين"
+  },
+  {
+   "route": "/ar/mental-health/meditation",
+   "status": 200,
+   "landed": "/ar/mental-health/meditation",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "العودة إلى الصحة النفسية |  | سجل ممارسات اليقظة الذهنية |  | سجل التأمل |  | يعرض هذا العرض للقراءة فقط جلسات اليقظة الذهنية المسجلة. لا ينشئ جلسات ولا يقدم ادعاءات علاجية"
+  },
+  {
+   "route": "/ar/mental-health/crisis-contacts",
+   "status": 200,
+   "landed": "/ar/mental-health/crisis-contacts",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "العودة إلى الصحة النفسية |  | جهات اتصال خاصة للأزمات |  | جهات اتصال الأزمات |  | تُعرض بيانات جهات الاتصال المملوكة للحساب فقط. أرقام الهاتف مقنعة، والاتصال أو الإضافة أو"
+  },
+  {
+   "route": "/ar/doctor",
+   "status": 200,
+   "landed": "/ar/consultations/doctors",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "الرعاية الطبية |  | ابحث عن طبيب |  | اعرض الأطباء الذين يعيدهم المصدر المعتمد فقط. لا نضيف تقييمات أو أسعارًا غير موجودة. |  | البحث عن طبيب | بحث | الأعلى تقييمًا | الأقل سعرًا"
+  },
+  {
+   "route": "/ar/reminders",
+   "status": 200,
+   "landed": "/ar/reminders",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "تذكيرات خاصة |  | تذكيرات الدواء |  | تُعرض التذكيرات المسجلة فقط. لا تُنشئ هذه الواجهة تنبيهاً محلياً أو عملية جدولة ولا تسجل تناول الجرعة أو التأجيل أو إعادة الصرف. ل"
+  },
+  {
+   "route": "/ar/reminders/add",
+   "status": 200,
+   "landed": "/ar/reminders/add",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "التذكيرات | تذكير دواء جديد | اسم الدواءالجرعةالأوقات (افصل بفاصلة)التكرار | يومي | أسبوعي | عند الحاجة | دواء مزمنحفظ التذكير"
+  },
+  {
+   "route": "/ar/forgot-password",
+   "status": 200,
+   "landed": "/ar/forgot-password",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "العودة إلى الدخول | استعادة كلمة المرور | Nabd Plus |  | أدخل بريدك الإلكتروني أو رقم جوالك. إذا كان الحساب مسجلاً، ستصلك تعليمات الاستعادة. |  | البريد الإلكتروني أو رقم ا"
+  },
+  {
+   "route": "/ar/prescriptions",
+   "status": 200,
+   "landed": "/ar/prescriptions",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "وصفات خاصة |  | الوصفات الطبية | وصفة الطبيب | عدد البنود: 1 | Paracetamol 500mg | 01‏/10‏/2026 | وصفة الطبيب | عدد البنود: 1 | Paracetamol 500mg | 01‏/10‏/2026 |  | قد تُعرض حالة الوص"
+  },
+  {
+   "route": "/ar/maternity",
+   "status": 200,
+   "landed": "/ar/maternity",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "لوحة التحكم |  | رعاية الأم والجنين |  | الأمومة والحمل |  | متابعة دقيقة لكل مراحل الحمل وتطور الجنين مع توجيهات طبية مخصصة وفحوصات دورية معتمدة. |  | سجل المتابعة |  | عرض الأحدا"
+  },
+  {
+   "route": "/ar/maternity/ovulation",
+   "status": 200,
+   "landed": "/ar/maternity/ovulation",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "الأمومة |  | الصحة الإنجابية |  | متتبع التبويض |  | التقدير هنا حسابي (آخر دورة + طول الدورة − 14 يوماً) ويُعرض مع شارة تقدير — أكّدي بياناتك من صفحة المتتبع الرئيسية. |  | ان"
+  },
+  {
+   "route": "/ar/maternity/tracker",
+   "status": 200,
+   "landed": "/ar/maternity/tracker",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "رجوع |  | متابعة الحمل |  | متابعة الحمل |  | سجل الأحداث اليومية وملاحظات متابعة الحمل وحركات الجنين المسجلة. |  | لا توجد بيانات بعد."
+  },
+  {
+   "route": "/ar/maternity/baby-development",
+   "status": 200,
+   "landed": "/ar/maternity",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "لوحة التحكم |  | رعاية الأم والجنين |  | الأمومة والحمل |  | متابعة دقيقة لكل مراحل الحمل وتطور الجنين مع توجيهات طبية مخصصة وفحوصات دورية معتمدة. |  | سجل المتابعة |  | عرض الأحدا"
+  },
+  {
+   "route": "/ar/maternity/maternity-setup",
+   "status": 200,
+   "landed": "/ar/maternity/maternity-setup",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "الأمومة | إعداد ملف الأمومة |  | اختر المسار المناسب لك. |  | تتبع الدورةمتابعة الحمل |  | أدخل تاريخ آخر دورة وطولها لمتابعة دورتك. |  | تاريخ آخر دورة (YYYY-MM-DD) طول الدورة ("
+  },
+  {
+   "route": "/ar/maternity/baby-growth",
+   "status": 200,
+   "landed": "/ar/maternity/baby-growth",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "الأمومة | نمو الجنين وتطور الطفل |  | محتوى توعوي أسبوعي مرتبط بملف الحمل في المتتبع — ليس بديلاً عن المتابعة الطبية. |  | فتح المتتبع الكامل"
+  },
+  {
+   "route": "/ar/radiology",
+   "status": 200,
+   "landed": "/ar/diagnostics/radiology",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "رعاية الأشعة |  | خدمات الأشعة |  | استكشف خدمات التصوير من كتالوج نبض الحي. |  | البحث في خدمات الأشعة | كل الأنواع | ULTRASOUND | XRAY | زيارة منزلية | الأعلى تقييماً | الأقل سعراً | ت"
+  },
+  {
+   "route": "/ar/doctors",
+   "status": 200,
+   "landed": "/ar/consultations/doctors",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "الرعاية الطبية |  | ابحث عن طبيب |  | اعرض الأطباء الذين يعيدهم المصدر المعتمد فقط. لا نضيف تقييمات أو أسعارًا غير موجودة. |  | البحث عن طبيب | بحث | الأعلى تقييمًا | الأقل سعرًا"
+  },
+  {
+   "route": "/ar/consultations",
+   "status": 200,
+   "landed": "/ar/consultations/doctors",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "الرعاية الطبية |  | ابحث عن طبيب |  | اعرض الأطباء الذين يعيدهم المصدر المعتمد فقط. لا نضيف تقييمات أو أسعارًا غير موجودة. |  | البحث عن طبيب | بحث | الأعلى تقييمًا | الأقل سعرًا"
+  },
+  {
+   "route": "/ar/consultations/video-call",
+   "status": 200,
+   "landed": "/ar/consultations/video-call",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "404",
+   "head": "404 | الصفحة غير متاحة |  | لا يمكن فتح هذا المسار أو أنك لا تملك صلاحية الوصول إليه. |  | العودة إلى البداية"
+  },
+  {
+   "route": "/ar/consultations/doctors",
+   "status": 200,
+   "landed": "/ar/consultations/doctors",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "الرعاية الطبية |  | ابحث عن طبيب |  | اعرض الأطباء الذين يعيدهم المصدر المعتمد فقط. لا نضيف تقييمات أو أسعارًا غير موجودة. |  | البحث عن طبيب | بحث | الأعلى تقييمًا | الأقل سعرًا"
+  },
+  {
+   "route": "/ar/consultations/waiting-room",
+   "status": 200,
+   "landed": "/ar/consultations/virtual-waiting-room",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "404",
+   "head": "404 | الصفحة غير متاحة |  | لا يمكن فتح هذا المسار أو أنك لا تملك صلاحية الوصول إليه. |  | العودة إلى البداية"
+  },
+  {
+   "route": "/ar/consultations/follow-up",
+   "status": 200,
+   "landed": "/ar/consultations/follow-up",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "404",
+   "head": "404 | الصفحة غير متاحة |  | لا يمكن فتح هذا المسار أو أنك لا تملك صلاحية الوصول إليه. |  | العودة إلى البداية"
+  },
+  {
+   "route": "/ar/consultations/specialties",
+   "status": 200,
+   "landed": "/ar/consultations/specialties",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "استكشاف الرعاية |  | التخصصات الطبية |  | اختر التخصص المناسب للانتقال إلى الأطباء المتاحين. النتائج المعروضة من الخدمة المعتمدة فقط. |  | البحث عن تخصص | قلب وأوعية دموية15 "
+  },
+  {
+   "route": "/ar/consultations/prescription",
+   "status": 200,
+   "landed": "/ar/consultations/prescription",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "مواعيدي | وصفة طبية | وصفة طبية |  | التشخيص: التهاب حلق فيروسي |  | اطلب من الصيدلية"
+  },
+  {
+   "route": "/ar/consultations/chat",
+   "status": 200,
+   "landed": "/ar/chat",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "محادثات خاصة |  | المحادثات | محادثة مرتبطة بحجز | 01‏/10‏/2026، 10:34 م | محادثة مباشرة | 01‏/10‏/2026، 10:34 م |  | تُعرض بيانات وصفية محدودة للمحادثات فقط. لا تُعرض أسماء ال"
+  },
+  {
+   "route": "/ar/consultations/home-visit-tracking",
+   "status": 200,
+   "landed": "/ar/consultations/home-visit-tracking",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "404",
+   "head": "404 | الصفحة غير متاحة |  | لا يمكن فتح هذا المسار أو أنك لا تملك صلاحية الوصول إليه. |  | العودة إلى البداية"
+  },
+  {
+   "route": "/ar/consultations/share-report",
+   "status": 200,
+   "landed": "/ar/consultations/share-report",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "مشاركة التقرير الطبي |  | مشاركة التقارير |  | اختر التقارير الطبية لمشاركتها بأمان |  | لا توجد تقارير للمشاركة"
+  },
+  {
+   "route": "/ar/consultations/clinic-location",
+   "status": 200,
+   "landed": "/ar/consultations/clinic-confirm?view=location",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "404",
+   "head": "404 | الصفحة غير متاحة |  | لا يمكن فتح هذا المسار أو أنك لا تملك صلاحية الوصول إليه. |  | العودة إلى البداية"
+  },
+  {
+   "route": "/ar/consultations/booking-status",
+   "status": 200,
+   "landed": "/ar/consultations/booking-status",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "404",
+   "head": "404 | الصفحة غير متاحة |  | لا يمكن فتح هذا المسار أو أنك لا تملك صلاحية الوصول إليه. |  | العودة إلى البداية"
+  },
+  {
+   "route": "/ar/consultations/cancel-reschedule",
+   "status": 200,
+   "landed": "/ar/consultations/cancel-reschedule",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "404",
+   "head": "404 | الصفحة غير متاحة |  | لا يمكن فتح هذا المسار أو أنك لا تملك صلاحية الوصول إليه. |  | العودة إلى البداية"
+  },
+  {
+   "route": "/ar/consultations/virtual-waiting-room",
+   "status": 200,
+   "landed": "/ar/consultations/virtual-waiting-room",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "404",
+   "head": "404 | الصفحة غير متاحة |  | لا يمكن فتح هذا المسار أو أنك لا تملك صلاحية الوصول إليه. |  | العودة إلى البداية"
+  },
+  {
+   "route": "/ar/consultations/doctor-profile",
+   "status": 200,
+   "landed": "/ar/consultations/doctors",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "الرعاية الطبية |  | ابحث عن طبيب |  | اعرض الأطباء الذين يعيدهم المصدر المعتمد فقط. لا نضيف تقييمات أو أسعارًا غير موجودة. |  | البحث عن طبيب | بحث | الأعلى تقييمًا | الأقل سعرًا"
+  },
+  {
+   "route": "/ar/consultations/post-call-rating",
+   "status": 200,
+   "landed": "/ar/consultations/post-call-rating",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "قيّم استشارتك |  | تقييمك يساعدنا على تحسين جودة الرعاية. |  | إرسال التقييم"
+  },
+  {
+   "route": "/ar/consultations/clinic-confirm",
+   "status": 200,
+   "landed": "/ar/consultations/clinic-confirm",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "404",
+   "head": "404 | الصفحة غير متاحة |  | لا يمكن فتح هذا المسار أو أنك لا تملك صلاحية الوصول إليه. |  | العودة إلى البداية"
+  },
+  {
+   "route": "/ar/consultations/appointments",
+   "status": 200,
+   "landed": "/ar/appointments",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "مواعيد خاصة |  | مواعيدي | استكشف التخصصات | القادمة | السابقة |  | تُعرض تفاصيل الموعد من الخلفية المصرح بها فقط. لا تُعرض بيانات انتظار ثابتة أو مصطنعة. |  | استشارة مرئية | CONF"
+  },
+  {
+   "route": "/ar/consultations/call-history",
+   "status": 200,
+   "landed": "/ar/consultations/call-history",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "مواعيدي | سجل المكالمات | طبيب | — COMPLETED | طبيب | — COMPLETED"
+  },
+  {
+   "route": "/ar/services",
+   "status": 200,
+   "landed": "/ar/consultations/doctors",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "الرعاية الطبية |  | ابحث عن طبيب |  | اعرض الأطباء الذين يعيدهم المصدر المعتمد فقط. لا نضيف تقييمات أو أسعارًا غير موجودة. |  | البحث عن طبيب | بحث | الأعلى تقييمًا | الأقل سعرًا"
+  },
+  {
+   "route": "/ar/delivery/address-select",
+   "status": 200,
+   "landed": "/ar/delivery/address-select",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "التوصيل |  | عنوان التوصيل | استخدم موقعي الحالي أو حدد على الخريطة | العناوين المحفوظة |  | لا توجد عناوين محفوظة |  | إضافة عنوان جديد على الخريطة | تأكيد العنوان"
+  },
+  {
+   "route": "/ar/orders",
+   "status": 200,
+   "landed": "/ar/orders",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "طلبات خاصة |  | طلباتي |  | تُعرض هذه التفاصيل من الخلفية المصرح بها فقط. |  | الكل | معلقة | مكتملة | ملغية | طلب | completed | عرض التفاصيل | طلب | cancelled | عرض التفاصيل | طلب | cancelled | ع"
+  },
+  {
+   "route": "/ar/medicine",
+   "status": 200,
+   "landed": "/ar/medicines",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "كتالوج خاص |  | الأدوية | ابحث بالاسم أو المادة الفعالة | بحث |  | لا توجد أدوية مطابقة للبحث الحالي."
+  },
+  {
+   "route": "/ar/voice",
+   "status": 200,
+   "landed": "/ar/voice",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "المساعد السريع |  | أوامر سريعة للوصول المباشر إلى كافة الخدمات الطبية |  | اختر الخدمة للانتقال الفوري إليها |  تحدث بالأمر | احجز موعد مع طبيب | استشارة طبية | اطلب دواء من ا"
+  },
+  {
+   "route": "/ar/articles",
+   "status": 200,
+   "landed": "/ar/articles",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "مكتبة الصحة |  | مقالات الصحة |  | تُعرض بيانات المقالات المنشورة ومقتطفاتها فقط عندما يعيدها الخادم العام. |  | بحث | لا توجد مقالات مطابقة |  | لا توجد مقالات منشورة متاحة."
+  },
+  {
+   "route": "/ar/articles/bookmarks",
+   "status": 200,
+   "landed": "/ar/articles/bookmarks",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "مكتبة الصحة |  | المقالات المحفوظة |  | تُحمّل مقالاتك المحفوظة من حسابك. تبقى تغييرات الحفظ غير متاحة حتى تثبيت عقد الكتابة. |  | لا توجد مقالات محفوظة |  | لا توجد مقالات منش"
+  },
+  {
+   "route": "/ar/profile",
+   "status": 200,
+   "landed": "/ar/profile",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "ملف خاص |  | ملفي الصحي |  | تُعرض الحقول المتاحة من الخلفية المصرح بها فقط، ولا تُنشأ قيم محلية عندما تكون البيانات ناقصة. |  | تعديل الملف الصحيعناوينيتأميني |  | ملخص الصحة | "
+  },
+  {
+   "route": "/ar/profile/edit",
+   "status": 200,
+   "landed": "/ar/profile/edit",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "الملف الشخصي | تعديل الملف الصحي | الطول بالسنتيمترالوزن بالكيلوغرامفصيلة الدمحفظ"
+  },
+  {
+   "route": "/ar/profile/insurance",
+   "status": 200,
+   "landed": "/ar/insurance",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "404",
+   "head": "404 | الصفحة غير متاحة |  | لا يمكن فتح هذا المسار أو أنك لا تملك صلاحية الوصول إليه. |  | العودة إلى البداية"
+  },
+  {
+   "route": "/ar/profile/addresses",
+   "status": 200,
+   "landed": "/ar/profile/addresses",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "العودة للملف الشخصي |  | العناوين ومواقع التوصيل |  | عناوين التوصيل |  | إدارة عناوين التوصيل الخاصة بك |  | المنزلشارع العليا 12الرياض | حذف | المنزلشارع العليا 12الرياض | حذف | المن"
+  },
+  {
+   "route": "/ar/insurance",
+   "status": 200,
+   "landed": "/ar/insurance",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "404",
+   "head": "404 | الصفحة غير متاحة |  | لا يمكن فتح هذا المسار أو أنك لا تملك صلاحية الوصول إليه. |  | العودة إلى البداية"
+  },
+  {
+   "route": "/ar/insurance/coverage-check",
+   "status": 200,
+   "landed": "/ar/insurance/coverage-check",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "التأمين |  | تأمين خاص |  | فحص التغطية التأمينية |  | تحقق حي من الخادم — القرار المحلي ليس اعتماداً من شركة التأمين. |  | فحص"
+  },
+  {
+   "route": "/ar/insurance/policy-detail",
+   "status": 200,
+   "landed": "/ar/insurance/policy-detail",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "404",
+   "head": "404 | الصفحة غير متاحة |  | لا يمكن فتح هذا المسار أو أنك لا تملك صلاحية الوصول إليه. |  | العودة إلى البداية"
+  },
+  {
+   "route": "/ar/insurance/network-providers",
+   "status": 200,
+   "landed": "/ar/insurance/network-providers",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "التأمين |  | تأمين خاص |  | مزودو شبكة التأمين | بحث |  | لم تُعرض بيانات تأمين بديلة. يرجى المحاولة لاحقاً."
+  },
+  {
+   "route": "/ar/insurance/copay",
+   "status": 200,
+   "landed": "/ar/insurance/copay",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "404",
+   "head": "404 | الصفحة غير متاحة |  | لا يمكن فتح هذا المسار أو أنك لا تملك صلاحية الوصول إليه. |  | العودة إلى البداية"
+  },
+  {
+   "route": "/ar/insurance/benefits",
+   "status": 200,
+   "landed": "/ar/insurance/benefits",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "404",
+   "head": "404 | الصفحة غير متاحة |  | لا يمكن فتح هذا المسار أو أنك لا تملك صلاحية الوصول إليه. |  | العودة إلى البداية"
+  },
+  {
+   "route": "/ar/insurance/refunds",
+   "status": 200,
+   "landed": "/ar/insurance/refunds",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "التأمين | حالة الاسترداد | — · 2026-10-01T22:34:47.127Z"
+  },
+  {
+   "route": "/ar/insurance/claims",
+   "status": 200,
+   "landed": "/ar/insurance/claims",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "404",
+   "head": "404 | الصفحة غير متاحة |  | لا يمكن فتح هذا المسار أو أنك لا تملك صلاحية الوصول إليه. |  | العودة إلى البداية"
+  },
+  {
+   "route": "/ar/insurance/approval-pending",
+   "status": 200,
+   "landed": "/ar/insurance/approval-pending",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "تعذر تحميل",
+   "head": "المطالبات | موافقة التأمين |  | تعذر تحميل حالة التأمين"
+  },
+  {
+   "route": "/ar/insurance/payment-split",
+   "status": 200,
+   "landed": "/ar/insurance/payment-split",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "404",
+   "head": "404 | الصفحة غير متاحة |  | لا يمكن فتح هذا المسار أو أنك لا تملك صلاحية الوصول إليه. |  | العودة إلى البداية"
+  },
+  {
+   "route": "/ar/insurance/add-policy",
+   "status": 200,
+   "landed": "/ar/insurance/add-policy",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "التأمين |  | تأمين خاص |  | إضافة وثيقة تأمين |  | تُحفظ الوثيقة في حسابك فقط بعد تحقق الخادم — لا نقبل أرقاماً وهمية. |  | شركة التأمين | اختر الشركة | name_ar-21850 | التعاونية للت"
+  },
+  {
+   "route": "/ar/insurance/submit-claim",
+   "status": 200,
+   "landed": "/ar/insurance/submit-claim",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "التأمين |  | سجل المطالبات |  | تقديم مطالبة تأمين |  | يتم عرض الخدمة والحالة والتاريخ التي يعيدها الخادم فقط. تبقى المبالغ والمعرّفات والمستندات وإجراءات الدفع مخفية. |  | ال"
+  },
+  {
+   "route": "/ar/offers",
+   "status": 200,
+   "landed": "/ar/offers",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "العروض |  | العروض |  | لا توجد عروض متاحة حالياً"
+  },
+  {
+   "route": "/ar/emergency",
+   "status": 200,
+   "landed": "/ar/emergency",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "طوارئ نبض الفورية | الطوارئ |  | اضغط زر الطوارئ فقط في الحالات الحرجة. سيتم إشعار فريق الاستجابة فوراً. |  | SOS | إرسال نداء طوارئ SOS | الهلال الأحمر السعودي | Red Crescent "
+  },
+  {
+   "route": "/ar/emergency/sos-active",
+   "status": 200,
+   "landed": "/ar/emergency/sos-active",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "طوارئ نشطة SOS | الطوارئ |  | يتم تحديث حالة النداء تلقائياً كل 10 ثوانٍ |  | - دقائق — الوقت المقدر (ETA) |  | جاري تخصيص سيارة الإسعاف… |  | المسعف: فريق الطوارئ |  | ابقَ في مكان "
+  },
+  {
+   "route": "/ar/emergency/sos",
+   "status": 200,
+   "landed": "/ar/emergency/sos",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "طلب إسعاف فوري | الطوارئ | SOSاضغط لطلب إسعاف فوري | اتصال سريع | إسعاف — 997 | شرطة — 999 | إطفاء — 998 | مرور — 993 | مركز السموم — 920016110 | تتبع الإسعاف"
+  },
+  {
+   "route": "/ar/emergency/tracking",
+   "status": 200,
+   "landed": "/ar/emergency/tracking",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "تتبع سيارة الإسعاف | الطوارئ |  | لا يوجد طلب إسعاف نشط |  | رجوع | طلب إسعاف"
+  },
+  {
+   "route": "/ar/reviews",
+   "status": 200,
+   "landed": "/ar/reviews",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "لوحتي | التقييمات |  | طبيب ممتاز |  | طبيب ممتاز |  | توصيل سريع |  | نتائج سريعة |  | خدمة ممتازة |  | ممرضة محترفة |  | طبيب ممتاز |  | توصيل سريع |  | توصيل سريع |  | توصيل سريع |  | نتائج سريعة |  | خدمة م"
+  },
+  {
+   "route": "/ar/search",
+   "status": 200,
+   "landed": "/ar/search",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "البحث"
+  },
+  {
+   "route": "/ar/register",
+   "status": 200,
+   "landed": "/ar/register",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "وصول خاص |  | إنشاء حساب |  | انضم إلى نبض بلس وابدأ رحلتك الصحية. |  | الاسم الكامل | البريد الإلكتروني أو رقم الهاتف | كلمة المرور | تأكيد كلمة المرور | أوافق على أوافق على الشرو"
+  },
+  {
+   "route": "/ar/loyalty",
+   "status": 200,
+   "landed": "/ar/loyalty",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "برنامج مكافآت نبض بلس |  | برنامج الولاء |  | اجمع النقاط مع كل استشارة، فحص، أو طلب دواء واستبدلها بخصومات وجلسات مجانية. |  | نقطة | 350 | المستوى: bronze | المكافآت المتاحة |  | ل"
+  },
+  {
+   "route": "/ar/loyalty/referrals",
+   "status": 200,
+   "landed": "/ar/loyalty/referrals",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "الولاء | برنامج المكافآت والإحالة |  | ادعُ أصدقاءك واكسبا نقاط نبض معاً |  | أهدِ صديقك 50 نقطة واكسب 100 نقطة عند أول حجز مكتمل له. |  | كود الإحالة الخاص بك |  | SEED-W6WO74 |  | "
+  },
+  {
+   "route": "/ar/loyalty/rewards",
+   "status": 200,
+   "landed": "/ar/loyalty/rewards",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "الولاء | استبدال النقاط |  | رصيد نقاطك الحالي: 350 |  | المكافآت المتاحة"
+  },
+  {
+   "route": "/ar/loyalty/challenges",
+   "status": 200,
+   "landed": "/ar/loyalty/challenges",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "الولاء | التحديات الصحية |  | 0 منضم · 0 مكتمل · 0 نقطة مكتسبة"
+  },
+  {
+   "route": "/ar/loyalty/leaderboard",
+   "status": 200,
+   "landed": "/ar/loyalty/leaderboard",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "الولاء | لوحة المتصدرين |  | لا توجد بيانات متصدرين بعد — اجمع النقاط لتظهر هنا"
+  },
+  {
+   "route": "/ar/chat",
+   "status": 200,
+   "landed": "/ar/chat",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "محادثات خاصة |  | المحادثات | محادثة مرتبطة بحجز | 01‏/10‏/2026، 10:34 م | محادثة مباشرة | 01‏/10‏/2026، 10:34 م |  | تُعرض بيانات وصفية محدودة للمحادثات فقط. لا تُعرض أسماء ال"
+  },
+  {
+   "route": "/ar/notifications",
+   "status": 200,
+   "landed": "/ar/notifications",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "إشعارات خاصة |  | الإشعارات | إعدادات الإشعارات | تم استرداد المبلغ |  | تم إرجاع 53 ر.س تم تسجيله نقدًا — return approved: منتج تالف |  | 01‏/10‏/2026، 10:34 م | pharmacy.alloc_"
+  },
+  {
+   "route": "/ar/notifications/settings",
+   "status": 200,
+   "landed": "/ar/notifications/settings",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "ضوابط الإشعارات |  | إعدادات الإشعارات |  | هذه القيم مصدرها إعدادات حسابك الحالية. هذه الصفحة للقراءة فقط حتى إغلاق عقد التحديث الآمن. |  | الإشعارات العامة | تحديثات عامة و"
+  },
+  {
+   "route": "/ar/settings",
+   "status": 200,
+   "landed": "/ar/settings",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "ضوابط الحساب |  | الخصوصية والأمان |  | تُقرأ هذه القيم من حسابك. هذه الصفحة للقراءة فقط حتى إغلاق عقود التحديث الآمن. |  | اللغةالإشعاراتالخصوصيةعن التطبيقالمساعدةرأيك | الخ"
+  },
+  {
+   "route": "/ar/settings/feedback",
+   "status": 200,
+   "landed": "/ar/settings/feedback",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "الإعدادات |  | رأيك يهمنا |  | شاركنا رأيك |  | ملاحظتك تصل للإدارة مباشرة — نراجعها ونحسّن الخدمة خلال 24 ساعة. |  | أرسل ملاحظة |  | اختر النوع، قيّم التجربة، واكتب رسالتك. تُرسل"
+  },
+  {
+   "route": "/ar/settings/notifications",
+   "status": 200,
+   "landed": "/ar/settings/notifications",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "الإعدادات |  | الإشعارات |  | إعدادات الإشعارات |  | فعّل أو عطّل كل فئة — تُحفظ فوراً. |  | عامة | ○ | المواعيد | ○ | الطلبات | ○ | العروض | ○ | الأدوية | ○ | رسائل الأطباء | ○ | الطوارئ | ○ | الصوت | ○ | ال"
+  },
+  {
+   "route": "/ar/settings/data",
+   "status": 200,
+   "landed": "/ar/settings/data",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "الإعدادات |  | البيانات |  | إدارة بياناتي |  | لك الحق في الوصول لبياناتك وتصحيحها ونقلها وحذفها وفق نظام حماية البيانات. |  | تخزين البيانات |  | 0.0 MB / 5 GB |  | الوصفات المرفوعة | "
+  },
+  {
+   "route": "/ar/settings/help",
+   "status": 200,
+   "landed": "/ar/settings/help",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "الإعدادات |  | مركز المساعدة |  | المساعدة |  | إرشادات سريعة وروابط مباشرة لأهم الخدمات. |  | الحجوزات |  | عرض التفاصيل |  | الصيدلية |  | عرض التفاصيل |  | التأمين |  | عرض التفاصيل |  | الإرجاع |  | ع"
+  },
+  {
+   "route": "/ar/settings/privacy",
+   "status": 200,
+   "landed": "/ar/settings/privacy",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "الإعدادات |  | الخصوصية |  | إعدادات الخصوصية |  | بياناتك محمية ومشفرة. لا نبيع بياناتك لأي طرف خارجي. |  | مشاركة الموقعلإيجاد أقرب المزودين الصحيين | ✓On | تحليلات الاستخداممساع"
+  },
+  {
+   "route": "/ar/settings/about",
+   "status": 200,
+   "landed": "/ar/settings/about",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "الإعدادات |  | نبض بلس |  | عن نبض بلس |  | منصة الرعاية الصحية المتكاملة — مبنية بمعايير طبية وتنظيمية عالمية. |  | فريق الهندسة |  | تطوير التطبيق والبنية التحتية |  | فريق المنتج |  | ا"
+  },
+  {
+   "route": "/ar/settings/language",
+   "status": 200,
+   "landed": "/ar/settings/language",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "الإعدادات |  | اللغة |  | لغة التطبيق |  | اختر لغتك المفضلة — تُحفظ على هذا الجهاز. |  | اختر اللغة |  | يتم تطبيق اللغة فوراً على هذا الجهاز. |  | العربية |  | تُحفظ اللغة محلياً فقط ولا"
+  },
+  {
+   "route": "/ar/settings/security",
+   "status": 200,
+   "landed": "/ar/settings/security",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "الإعدادات |  | الأمان |  | الأمان |  | تُقرأ هذه القيم من حسابك. هذه الصفحة للقراءة فقط حتى إغلاق عقود التحديث الآمن. |  | تسجيل الدخول الحيوي |  | تسجيل الدخول بالبصمة أو الوجه حس"
+  },
+  {
+   "route": "/ar/pharmacies",
+   "status": 200,
+   "landed": "/ar/c",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "بحث | صيدلية نبض المعتمدة | صيدلية رقمية متكاملة برعاية طبية فائقة |  | تسوق آلاف الأدوية والمستلزمات الطبية الأصلية 100% بأسعار رسمية معتمدة مع خدمة التوصيل الفوري واس"
+  },
+  {
+   "route": "/ar/p",
+   "status": 200,
+   "landed": "/ar/c",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "بحث | صيدلية نبض المعتمدة | صيدلية رقمية متكاملة برعاية طبية فائقة |  | تسوق آلاف الأدوية والمستلزمات الطبية الأصلية 100% بأسعار رسمية معتمدة مع خدمة التوصيل الفوري واس"
+  },
+  {
+   "route": "/ar/otp",
+   "status": 200,
+   "landed": "/ar/otp",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "العودة | تحقق من رقمك |  | افتح شاشة OTP من تسجيل الدخول أو التسجيل. |  | رمز التحقق | تأكيد الرمز | إعادة الإرسال خلال 00:298 |  | افتح شاشة OTP من تسجيل الدخول أو التسجيل."
+  },
+  {
+   "route": "/ar/returns",
+   "status": 200,
+   "landed": "/ar/returns",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "طلبات الإرجاع |  | طلب إرجاع جديد |  | منتج تالف | 01‏/10‏/2026 · 53.00 ر.س | completed"
+  },
+  {
+   "route": "/ar/returns/new-request",
+   "status": 200,
+   "landed": "/ar/returns/new-request",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "الإرجاع | طلب إرجاع جديد | نوع الخدمة | consultation | diagnostics | pharmacy | nursing | السببرقم الطلب (اختياري)تفاصيل (اختياري)إرسال طلب الإرجاع"
+  },
+  {
+   "route": "/ar/cart",
+   "status": 200,
+   "landed": "/ar/cart",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "سلة خاصة |  | سلتي |  | تُقرأ محتويات السلة والإجماليات من الخلفية المصرح بها فقط. لا يتم تنفيذ الدفع أو إتمام الطلب هنا. |  | سلتك فارغة. |  | سلتك فارغة حالياً. تصفح كتالوج ا"
+  },
+  {
+   "route": "/ar/cart/prescription",
+   "status": 200,
+   "landed": "/ar/cart/prescription",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "سلة خاصة |  | سلتي |  | تُقرأ محتويات السلة والإجماليات من الخلفية المصرح بها فقط. لا يتم تنفيذ الدفع أو إتمام الطلب هنا. |  | العناصر | 1 | Paracetamol 500mg | Cart.notAvailable"
+  },
+  {
+   "route": "/ar/cart/checkout",
+   "status": 200,
+   "landed": "/ar/cart/checkout",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "سلة خاصة |  | سلتي |  | تُقرأ محتويات السلة والإجماليات من الخلفية المصرح بها فقط. لا يتم تنفيذ الدفع أو إتمام الطلب هنا. |  | المجموع الفرعي | 0 ر.س | رسوم الزيارة المنزلية | 0 "
+  },
+  {
+   "route": "/ar/health",
+   "status": 200,
+   "landed": "/ar/health",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "صحة خاصة |  | ملخص العلامات الحيوية | وصفاتي | العائلة | تذكيراتي | محادثة | النوم | الحالات المزمنة | الأدوية المزمنة | الاتجاهات | سجل المؤشرات | أدويتي | إعادة الصرف | الحالات والحساسية"
+  },
+  {
+   "route": "/ar/health/add-family-member",
+   "status": 200,
+   "landed": "/ar/family/invite",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "العائلة |  | عائلة خاصة |  | دعوة فرد للعائلة |  | يُنشأ كود الدعوة من الخادم فقط — لا توجد أكواد وهمية. |  | سيُنشئ الخادم كودًا صالحًا للمشاركة مع فرد العائلة. |  | إنشاء كود دعو"
+  },
+  {
+   "route": "/ar/health/wearables",
+   "status": 200,
+   "landed": "/ar/health/wearables",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "404",
+   "head": "404 | الصفحة غير متاحة |  | لا يمكن فتح هذا المسار أو أنك لا تملك صلاحية الوصول إليه. |  | العودة إلى البداية"
+  },
+  {
+   "route": "/ar/health/conditions-allergies",
+   "status": 200,
+   "landed": "/ar/health/conditions-allergies",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "صحتي | الحالات والحساسية | الأمراض المزمنة | الأمراض المزمنة |  | لا يوجد بعد. |  | إضافة | الحساسية | الحساسية |  | لا يوجد بعد. |  | إضافة | العمليات | العمليات |  | لا يوجد بعد. |  | إضافة | أدوية "
+  },
+  {
+   "route": "/ar/health/health-id",
+   "status": 200,
+   "landed": "/ar/reports/passport",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "التقارير | جوازي الصحي |  | اعرض هذا الرمز لمقدم الرعاية لمشاركة ملفك: |  | eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlMzkwOTc3MC04NWUwLTQ3NWQtYTg1Ny00MjI4NWE5ODRhM"
+  },
+  {
+   "route": "/ar/health/chronic-diseases",
+   "status": 200,
+   "landed": "/ar/health/chronic-diseases",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "العودة إلى الصحة |  | حالات صحية مسجلة |  | الحالات المزمنة |  | لم يُرجع الخادم حالات مزمنة. |  | هذه إدخالات مسجلة في الملف الشخصي فقط. لا يتم تقديم تشخيص أو تقييم شدة أو سيط"
+  },
+  {
+   "route": "/ar/health/trends",
+   "status": 200,
+   "landed": "/ar/health/trends",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "العودة إلى الصحة |  | اتجاهات صحية مسجلة |  | اتجاهات الصحة |  | لم يُرجع الخادم بيانات اتجاهات. |  | تلخص هذه الصفحة القراءات المسجلة واتجاهها فقط. لا تمثل تشخيصًا أو تنبيهًا "
+  },
+  {
+   "route": "/ar/health/vitals",
+   "status": 200,
+   "landed": "/ar/health/vitals",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "العودة إلى الصحة |  | قراءاتك الحيوية المسجلة |  | سجل المؤشرات الحيوية |  | يعرض هذا العرض للقراءة فقط القراءات المحفوظة في ملفك الطبي. لا يحسب تشخيصًا أو حكمًا طبيًا. |  | تس"
+  },
+  {
+   "route": "/ar/health/vitals/log",
+   "status": 200,
+   "landed": "/ar/health/vitals/log",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "المؤشرات | تسجيل قراءة | ضغط الدم (mmHg)سكر الدم (mg/dL)نبض القلب (bpm)الوزن (kg)درجة الحرارة (°C)أكسجين الدم (%) | الانقباضيالانبساطي | حفظ القراءة"
+  },
+  {
+   "route": "/ar/health/chronic-medications",
+   "status": 200,
+   "landed": "/ar/health/chronic-medications",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "العودة إلى الصحة |  | سجلات الأدوية طويلة المدى |  | الأدوية المزمنة |  | لم يُرجع الخادم أدوية مزمنة. |  | تعرض هذه الصفحة جداول الأدوية وبيانات إعادة التعبئة المسجلة فقط. الإ"
+  },
+  {
+   "route": "/ar/health/timeline",
+   "status": 200,
+   "landed": "/ar/health/timeline",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "صحتي |  | السجل الصحي الزمني |  | السجل الصحي الزمني |  | حجز أشعة |  | 2026-10-02T14:00 |  | حجز تحاليل مخبرية |  | 2026-10-02T13:00 |  | حجز أشعة |  | 2026-10-02T13:00 |  | حجز تحاليل مخبرية |  | 20"
+  },
+  {
+   "route": "/ar/health/refills",
+   "status": 200,
+   "landed": "/ar/health/refills",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "أدويتي | إعادة صرف الأدوية | Paracetamol 500mg — 500mgطلب إعادة صرف | Paracetamol 500mg — 500mgطلب إعادة صرف | Paracetamol 500mg — 500mgطلب إعادة صرف | Paracetamol 500mg "
+  },
+  {
+   "route": "/ar/health/sleep",
+   "status": 200,
+   "landed": "/ar/health/sleep",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "العودة إلى الصحة |  | سجل النوم |  | قراءات النوم |  | لم يُرجع الخادم قراءات نوم. |  |  تعرض هذه الصفحة مقاييس النوم المحفوظة فقط للقراءة؛ الإضافة والتعديل والحذف والتوصيات ال"
+  },
+  {
+   "route": "/ar/health/emergency-contacts",
+   "status": 200,
+   "landed": "/ar/health/emergency-contacts",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "العودة إلى الصحة |  | جهات أمان خاصة |  | جهات الاتصال للطوارئ |  | لم يُرجع الخادم جهات اتصال للطوارئ. |  | تم إخفاء أرقام الهواتف. إضافة وحذف جهات الاتصال غير متاحين حتى تثبي"
+  },
+  {
+   "route": "/ar/health/smart-reminders",
+   "status": 200,
+   "landed": "/ar/reminders",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "تذكيرات خاصة |  | تذكيرات الدواء |  | تُعرض التذكيرات المسجلة فقط. لا تُنشئ هذه الواجهة تنبيهاً محلياً أو عملية جدولة ولا تسجل تناول الجرعة أو التأجيل أو إعادة الصرف. ل"
+  },
+  {
+   "route": "/ar/health/reports",
+   "status": 200,
+   "landed": "/ar/health/reports",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "العودة إلى الصحة |  | صحة خاصة |  | التقارير الصحية |  | يُعرض وصف التقرير المسجل فقط. يبقى محتوى التقرير والمرفقات محميين. |  | جوازي الصحي |  | لا توجد تقارير مسجلة حالياً."
+  },
+  {
+   "route": "/ar/health/medications",
+   "status": 200,
+   "landed": "/ar/health/medications",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "أدويتي | التذكيراتتذكير جديدإعادة الصرف | صحتي | Paracetamol 500mg — 500mg · 00:00, 08:00, 16:00 | Paracetamol 500mg — 500mg · 00:00, 08:00, 16:00 | Paracetamol 500mg — 5"
+  },
+  {
+   "route": "/ar/health/actionable-order",
+   "status": 200,
+   "landed": "/ar/health/actionable-order",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "أوامر طبية قابلة للتنفيذ |  | ✓ انتهت الاستشارة بنجاح |  | صحتي | الوصفة الطبية |  | لا توجد أدوية موصوفة"
+  },
+  {
+   "route": "/ar/health/score",
+   "status": 200,
+   "landed": "/ar/health/score",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "العودة إلى الصحة |  | صحة خاصة |  | درجة الصحة |  | هذا ملخص للبيانات الصحية المسجلة وليس تشخيصاً أو توصية علاجية. |  | بيانات غير كافية | حالة البيانات | insufficient_data"
+  },
+  {
+   "route": "/ar/drug-scanner",
+   "status": 200,
+   "landed": "/ar/pharmacy/interactions",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "صيدلية نبض — خدمة مميزة |  | فاحص تفاعلات الأدوية | الصيدلية |  | يفحص الخادم أدويتك الحالية مع المدخلة ويرجع التفاعلات المعروفة فقط. |  | إضافة | فحص التفاعلات |  | نتيجة استرشادي"
+  },
+  {
+   "route": "/ar/map",
+   "status": 200,
+   "landed": "/ar/map",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "استكشاف المنشآت |  | المراكز الطبية والصيدليات المعتمدة القريبة منك |  | الكل | عيادات وأطباء | مستشفيات | صيدليات | مختبرات | تمريض | صيدلية الاختبار الحي |  | الرياض |  | الاتجاهات | حجز م"
+  },
+  {
+   "route": "/ar/terms",
+   "status": 200,
+   "landed": "/ar/terms",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "الشروط والأحكام |  | شروط استخدام منصة نبض | التعريفات: منصة نبض وسيط تقني يربط المريض بمقدمي الخدمات الصحية المرخصين، وليست مقدم خدمة طبية. | الأهلية: يجب أن يكون المس"
+  },
+  {
+   "route": "/ar/support",
+   "status": 200,
+   "landed": "/ar/support",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "مركز العناية بالمريض |  | الدعم |  | فريق الدعم الفني والرعاية السريرية متاح لخدمتك على مدار الساعة للإجابة على استفساراتك ومساعدتك. |  | الأسئلة الشائعة | كيف أحجز موعد؟ | هل "
+  },
+  {
+   "route": "/ar/support/chat",
+   "status": 200,
+   "landed": "/ar/support/chat",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "الدعم | دعم نبض |  | متاح الآن • ردّ خلال دقيقة |  | مرحباً! أنا دعم نبض — كيف أقدر أساعدك؟ | إلغاء حجزمشكلة في طلباسترداد المبلغسؤال عن التأمينشكوى | +اكتب رسالتك...إرسال"
+  },
+  {
+   "route": "/ar/support/ticket",
+   "status": 200,
+   "landed": "/ar/support/ticket",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "رجوع |  | تذاكر الدعم الفني |  | تذاكر الدعم |  | متابعة التذاكر المفتوحة والتحديثات الواردة من فريق الدعم الفني. |  | سجل التذاكر | 5edc21fd-903f-42e9-87c9-c20c19d44c7f | OPEN | e7e"
+  },
+  {
+   "route": "/ar/s",
+   "status": 200,
+   "landed": "/ar/search",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "البحث"
+  },
+  {
+   "route": "/ar/login",
+   "status": 200,
+   "landed": "/ar/login",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "وصول خاص |  | دخول المريض |  | تُرسل بيانات الدخول إلى طبقة خادمية محمية. لا تُخزَّن التوكنات في localStorage. |  | نبض بلس | رعايتك أقرب | البريد الإلكتروني أو رقم الجوال | كلمة"
+  },
+  {
+   "route": "/ar/family",
+   "status": 200,
+   "landed": "/ar/family",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "إنشاء مجموعة عائلية |  | لا توجد مجموعة عائلية بعد — أنشئ واحدة لدعوة أفراد عائلتك ومشاركة الرعاية. |  | إنشاء المجموعة"
+  },
+  {
+   "route": "/ar/family/permissions",
+   "status": 200,
+   "landed": "/ar/family/permissions",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "404",
+   "head": "404 | الصفحة غير متاحة |  | لا يمكن فتح هذا المسار أو أنك لا تملك صلاحية الوصول إليه. |  | العودة إلى البداية"
+  },
+  {
+   "route": "/ar/family/permission-requests",
+   "status": 200,
+   "landed": "/ar/family/permission-requests",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "404",
+   "head": "404 | الصفحة غير متاحة |  | لا يمكن فتح هذا المسار أو أنك لا تملك صلاحية الوصول إليه. |  | العودة إلى البداية"
+  },
+  {
+   "route": "/ar/family/chat",
+   "status": 200,
+   "landed": "/ar/family/chat",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "العائلة |  | تواصل العائلة |  | محادثة العائلة |  | رسائل فورية بين أفراد المجموعة العائلية — يتم التحديث كل 5 ثوانٍ من الخادم. |  | المحادثة |  | لست عضواً في مجموعة عائلية بعد |  | أ"
+  },
+  {
+   "route": "/ar/family/emergency-contacts",
+   "status": 200,
+   "landed": "/ar/family/emergency-contacts",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "العائلة |  | جهات الطوارئ |  | جهات الطوارئ (0) |  | عند طلب SOS سيتم إشعار أفراد عائلتك فوراً مع موقعك الحالي. |  | لا يوجد أفراد في مجموعتك العائلية بعد — ادعُ عائلتك ليصبحوا"
+  },
+  {
+   "route": "/ar/family/scan",
+   "status": 200,
+   "landed": "/ar/family/scan",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "دعوة |  | دعوة العائلة |  | مسح دعوة العائلة |  | الصق كود الدعوة أو رابط QR للانضمام الفوري — يتم التحقق عبر الخادم. |  | المسح |  | امسح رمز QR للدعوة العائلية بكاميرا هاتفك، أو "
+  },
+  {
+   "route": "/ar/family/invite",
+   "status": 200,
+   "landed": "/ar/family/invite",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "العائلة |  | عائلة خاصة |  | دعوة فرد للعائلة |  | يُنشأ كود الدعوة من الخادم فقط — لا توجد أكواد وهمية. |  | سيُنشئ الخادم كودًا صالحًا للمشاركة مع فرد العائلة. |  | إنشاء كود دعو"
+  },
+  {
+   "route": "/ar/family/calendar",
+   "status": 200,
+   "landed": "/ar/family/calendar",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "العودة للعائلة |  | تقويم العائلة المشترك |  | مواعيد وأنشطة الرعاية |  | مزامنة موحدة لمواعيد أفراد الأسرة، الأدوية المجدولة، والمتابعات الدورية. |  | لا توجد أحداث مجدولة |  | لا"
+  },
+  {
+   "route": "/ar/family/join",
+   "status": 200,
+   "landed": "/ar/family/join",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "العائلة |  | عائلة خاصة |  | الانضمام لعائلة | كود الدعوةصلة القرابة (اختياري)انضمام للعائلة"
+  },
+  {
+   "route": "/ar/home-nursing",
+   "status": 200,
+   "landed": "/ar/nursing/catalog",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "خدمات تمريض موثقة |  | التمريض المنزلي |  | استعرض الخدمات المنشورة في كتالوج التمريض. |  | قياس العلامات الحيوية |  | قياس الضغط، السكر، النبض، الأكسجين والحرارة بدقة في المنز"
+  },
+  {
+   "route": "/ar/payments",
+   "status": 200,
+   "landed": "/ar/cart/checkout",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "سلة خاصة |  | سلتي |  | تُقرأ محتويات السلة والإجماليات من الخلفية المصرح بها فقط. لا يتم تنفيذ الدفع أو إتمام الطلب هنا. |  | المجموع الفرعي | 0 ر.س | رسوم الزيارة المنزلية | 0 "
+  },
+  {
+   "route": "/ar/payments/processing",
+   "status": 200,
+   "landed": "/ar/payments/result?status=processing",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "جارٍ معالجة الدفع |  | نتحقق من نتيجة الدفع مع مزوّد الخدمة. ستظهر النتيجة النهائية في طلباتك. |  | طلباتي"
+  },
+  {
+   "route": "/ar/payments/failed",
+   "status": 200,
+   "landed": "/ar/payments/result?status=failed",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "فشل الدفع |  | لم تكتمل عملية الدفع. لم يُخصم أي مبلغ مؤكد — يمكنك المحاولة مرة أخرى. |  | إعادة المحاولة | طلباتي"
+  },
+  {
+   "route": "/ar/payments/success",
+   "status": 200,
+   "landed": "/ar/payments/result?status=success",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "جارٍ معالجة الدفع |  | نتحقق من نتيجة الدفع مع مزوّد الخدمة. ستظهر النتيجة النهائية في طلباتك. |  | طلباتي"
+  },
+  {
+   "route": "/ar/payments/result",
+   "status": 200,
+   "landed": "/ar/payments/result",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "جارٍ معالجة الدفع |  | نتحقق من نتيجة الدفع مع مزوّد الخدمة. ستظهر النتيجة النهائية في طلباتك. |  | طلباتي"
+  },
+  {
+   "route": "/ar/labs",
+   "status": 200,
+   "landed": "/ar/diagnostics/labs",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "الرعاية المخبرية |  | خدمات المختبر |  | استعرض خدمات المختبر المتاحة من الكتالوج الحي. |  | بحث في خدمات المختبر | سحب عينة من المنزل | تطبيق | تحليل دم شامل (CBC) | CBC |  | فحص شامل"
+  },
+  {
+   "route": "/ar/nursing",
+   "status": 200,
+   "landed": "/ar/nursing/catalog",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "خدمات تمريض موثقة |  | التمريض المنزلي |  | استعرض الخدمات المنشورة في كتالوج التمريض. |  | قياس العلامات الحيوية |  | قياس الضغط، السكر، النبض، الأكسجين والحرارة بدقة في المنز"
+  },
+  {
+   "route": "/ar/nursing/catalog",
+   "status": 200,
+   "landed": "/ar/nursing/catalog",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "خدمات تمريض موثقة |  | التمريض المنزلي |  | استعرض الخدمات المنشورة في كتالوج التمريض. |  | قياس العلامات الحيوية |  | قياس الضغط، السكر، النبض، الأكسجين والحرارة بدقة في المنز"
+  },
+  {
+   "route": "/ar/nursing/service-info",
+   "status": 200,
+   "landed": "/ar/home-care/services",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "الرعاية المنزلية |  | خدمات الرعاية المنزلية |  | تصفح الخدمات المتاحة من المصدر المعتمد. لا نعرض أسعارًا أو خدمة غير موجودة في الاستجابة. |  | البحث عن خدمة | قياس العلامات "
+  },
+  {
+   "route": "/ar/nursing/booking",
+   "status": 200,
+   "landed": "/ar/nursing/catalog",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "خدمات تمريض موثقة |  | التمريض المنزلي |  | استعرض الخدمات المنشورة في كتالوج التمريض. |  | قياس العلامات الحيوية |  | قياس الضغط، السكر، النبض، الأكسجين والحرارة بدقة في المنز"
+  },
+  {
+   "route": "/ar/nursing/insurance-status",
+   "status": 200,
+   "landed": "/ar/nursing/insurance-status",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "زياراتي | حالة موافقة التأمين |  | CONFIRMED |  | ستصلك إشعارات عند تغيّر القرار، وتابع الزيارة لحظياً بعد التأكيد. |  | فتح التتبع الحي"
+  },
+  {
+   "route": "/ar/nursing/visits",
+   "status": 200,
+   "landed": "/ar/nursing/visits",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "التمريض المنزلي |  | زيارات التمريض |  | مواعيد زياراتك التمريضية وحالة كل زيارة. |  | لا توجد زيارات تمريض بعد. | استعرض خدمات التمريض"
+  },
+  {
+   "route": "/ar/welcome",
+   "status": 200,
+   "landed": "/ar/welcome",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "اللغة: AR | نبض بلس | رعايتك أقرب | رعايتك الصحية في مكان واحد |  | استشارات، صيدلية، تحاليل، ورعاية منزلية بتجربة واضحة وآمنة. |  | الاستمرار بدون تسجيل | إنشاء حساب | تسجيل الد"
+  },
+  {
+   "route": "/ar/onboarding",
+   "status": 200,
+   "landed": "/ar/onboarding",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "أهلاً بك في نبض | رعايتك الصحية المتكاملة في تطبيق واحد |  | استشارات، صيدلية، تحاليل، تمريض وأكثر. |  | ●○○ | السابقالتالي | متابعةتخطي"
+  },
+  {
+   "route": "/ar/onboarding/permissions",
+   "status": 200,
+   "landed": "/ar/onboarding/permissions",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "الأذونات |  | نطلب الحد الأدنى لتعمل الخدمة — يمكنك التخطي دائماً. |  | الموقع |  | نستخدم موقعك لاقتراح أقرب الأطباء والصيدليات وحساب التوصيل. |  | السماح بالموقع | الإشعارات |  | ت"
+  },
+  {
+   "route": "/ar/onboarding/language",
+   "status": 200,
+   "landed": "/ar/onboarding/language",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "اختر لغتك |  | اضبط لغة التطبيق — يمكنك تغييرها لاحقاً من الإعدادات. |  | العربية | متابعة"
+  },
+  {
+   "route": "/ar/reports",
+   "status": 200,
+   "landed": "/ar/reports",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "التقارير الطبية |  | لا توجد تقارير طبية بعد"
+  },
+  {
+   "route": "/ar/reports/timeline",
+   "status": 200,
+   "landed": "/ar/reports/timeline",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "التقارير |  الخط الزمني الصحي | الكلمواعيدتحاليلوصفاتقياسات | حجز أشعة | lab · 02‏/10‏/2026  | حجز تحاليل مخبرية | lab · 02‏/10‏/2026  | حجز أشعة | lab · 02‏/10‏/2026  | حجز تحال"
+  },
+  {
+   "route": "/ar/reports/ai-analysis",
+   "status": 200,
+   "landed": "/ar/ai/report",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "AI |  | تقريرك الصحي الذكي |  | هذا التحليل إرشادي ولا يغني عن استشارة الطبيب. |  | اختر التقارير الطبية لتحليلها |  | لا توجد تقارير طبية متاحة بعد. |  | تحليل"
+  },
+  {
+   "route": "/ar/reports/passport",
+   "status": 200,
+   "landed": "/ar/reports/passport",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "التقارير | جوازي الصحي |  | اعرض هذا الرمز لمقدم الرعاية لمشاركة ملفك: |  | eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlMzkwOTc3MC04NWUwLTQ3NWQtYTg1Ny00MjI4NWE5ODRhM"
+  },
+  {
+   "route": "/ar/privacy",
+   "status": 200,
+   "landed": "/ar/privacy",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "سياسة الخصوصية |  | سياسة خصوصية منصة نبض (PDPL) | نجمع: الاسم، الجوال، العنوان، السجل الصحي اللازم للخدمة فقط (تقليل البيانات). | نستخدم البيانات لتقديم الخدمة والتحقق"
+  },
+  {
+   "route": "/ar/appointments",
+   "status": 200,
+   "landed": "/ar/appointments",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "مواعيد خاصة |  | مواعيدي | استكشف التخصصات | القادمة | السابقة |  | تُعرض تفاصيل الموعد من الخلفية المصرح بها فقط. لا تُعرض بيانات انتظار ثابتة أو مصطنعة. |  | استشارة مرئية | CONF"
+  },
+  {
+   "route": "/ar/password-reset",
+   "status": 200,
+   "landed": "/ar/password-reset",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "العودة إلى الدخول | تعيين كلمة مرور جديدة | Nabd Plus |  | أدخل رمز الاستعادة الذي وصلك وكلمة المرور الجديدة. لا يُحفظ الرمز في المتصفح. |  | رمز الاستعادة | كلمة المرور الجد"
+  },
+  {
+   "route": "/ar/pharmacy",
+   "status": 200,
+   "landed": "/ar/c",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "بحث | صيدلية نبض المعتمدة | صيدلية رقمية متكاملة برعاية طبية فائقة |  | تسوق آلاف الأدوية والمستلزمات الطبية الأصلية 100% بأسعار رسمية معتمدة مع خدمة التوصيل الفوري واس"
+  },
+  {
+   "route": "/ar/pharmacy/reorder",
+   "status": 200,
+   "landed": "/ar/pharmacy/reorder",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "404",
+   "head": "404 | الصفحة غير متاحة |  | لا يمكن فتح هذا المسار أو أنك لا تملك صلاحية الوصول إليه. |  | العودة إلى البداية"
+  },
+  {
+   "route": "/ar/pharmacy/request",
+   "status": 200,
+   "landed": "/ar/pharmacy/request",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "طلب دواء غير متوفر |  | اكتب اسم الدواء وتفاصيله ليُبث طلبك إلى الصيدليات — بنفس مسار تطبيق الموبايل. |  | اسم الدواءتفاصيل تساعد الصيدلية (اختياري)بث الطلب وطلب عروض"
+  },
+  {
+   "route": "/ar/pharmacy/manual-order",
+   "status": 200,
+   "landed": "/ar/pharmacy/request",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "طلب دواء غير متوفر |  | اكتب اسم الدواء وتفاصيله ليُبث طلبك إلى الصيدليات — بنفس مسار تطبيق الموبايل. |  | اسم الدواءتفاصيل تساعد الصيدلية (اختياري)بث الطلب وطلب عروض"
+  },
+  {
+   "route": "/ar/pharmacy/scan-prescription",
+   "status": 200,
+   "landed": "/ar/pharmacy/scan-prescription",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "خدمة صيدلانية ذكية |  | مسح ورفع وصفة طبية |  | ارفع صورة وصفتك الطبية ليقوم الذكاء الاصطناعي باستخراج الأدوية وإرسالها للصيدليات لتقديم أفضل العروض. |  | اضغط لالتقاط أو ا"
+  },
+  {
+   "route": "/ar/pharmacy/insurance-decision",
+   "status": 200,
+   "landed": "/ar/pharmacy/insurance-decision",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "404",
+   "head": "404 | الصفحة غير متاحة |  | لا يمكن فتح هذا المسار أو أنك لا تملك صلاحية الوصول إليه. |  | العودة إلى البداية"
+  },
+  {
+   "route": "/ar/pharmacy/order-confirm",
+   "status": 200,
+   "landed": "/ar/pharmacy/order-confirm",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "صيدلية نبض |  | تأكيد الطلب | ← الصيدلية |  | يلزم رقم طلب الصيدلية — لا يمكن اعتماد سلة غير مكتملة."
+  },
+  {
+   "route": "/ar/pharmacy/chat",
+   "status": 200,
+   "landed": "/ar/pharmacy/chat",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "404",
+   "head": "404 | الصفحة غير متاحة |  | لا يمكن فتح هذا المسار أو أنك لا تملك صلاحية الوصول إليه. |  | العودة إلى البداية"
+  },
+  {
+   "route": "/ar/pharmacy/payment",
+   "status": 200,
+   "landed": "/ar/pharmacy/payment",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "404",
+   "head": "404 | الصفحة غير متاحة |  | لا يمكن فتح هذا المسار أو أنك لا تملك صلاحية الوصول إليه. |  | العودة إلى البداية"
+  },
+  {
+   "route": "/ar/pharmacy/barcode",
+   "status": 200,
+   "landed": "/ar/pharmacy/barcode",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "صيدلية نبض — خدمة مميزة |  | مسح الباركود | الصيدلية | أدخل رمز الباركودبحث |  | وجّه الكاميرا لرمز الباركود على العبوة، أو أدخله يدوياً. للتعرف بالصورة استخدم مسح الوصفة. | "
+  },
+  {
+   "route": "/ar/pharmacy/filters",
+   "status": 200,
+   "landed": "/ar/pharmacy/filters",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "صيدلية نبض — تصفية ذكية |  | تصفية النتائج | ← العودة للأدوية | خيارات التصفية الحية | تصفية النتائج | إعادة تعيين | ترتيب حسب | الأكثر صلةالسعر: من الأقل للأعلىالسعر: من الأعل"
+  },
+  {
+   "route": "/ar/pharmacy/rx-order",
+   "status": 200,
+   "landed": "/ar/pharmacy/rx-order",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "صيدلية نبض — وصفات |  | طلب أدوية الوصفة | ← الصيدلية |  | اختر وصفة نشطة لصرف أدويتها. |  | لا توجد وصفات نشطة"
+  },
+  {
+   "route": "/ar/pharmacy/custom-item",
+   "status": 200,
+   "landed": "/ar/pharmacy/request",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "طلب دواء غير متوفر |  | اكتب اسم الدواء وتفاصيله ليُبث طلبك إلى الصيدليات — بنفس مسار تطبيق الموبايل. |  | اسم الدواءتفاصيل تساعد الصيدلية (اختياري)بث الطلب وطلب عروض"
+  },
+  {
+   "route": "/ar/pharmacy/interactions",
+   "status": 200,
+   "landed": "/ar/pharmacy/interactions",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "صيدلية نبض — خدمة مميزة |  | فاحص تفاعلات الأدوية | الصيدلية |  | يفحص الخادم أدويتك الحالية مع المدخلة ويرجع التفاعلات المعروفة فقط. |  | إضافة | فحص التفاعلات |  | نتيجة استرشادي"
+  },
+  {
+   "route": "/ar/pharmacy/waiting-for-pharmacy",
+   "status": 200,
+   "landed": "/ar/pharmacy/waiting-for-pharmacy",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "404",
+   "head": "404 | الصفحة غير متاحة |  | لا يمكن فتح هذا المسار أو أنك لا تملك صلاحية الوصول إليه. |  | العودة إلى البداية"
+  },
+  {
+   "route": "/ar/pharmacy/drug-not-found",
+   "status": 200,
+   "landed": "/ar/pharmacy/request",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "طلب دواء غير متوفر |  | اكتب اسم الدواء وتفاصيله ليُبث طلبك إلى الصيدليات — بنفس مسار تطبيق الموبايل. |  | اسم الدواءتفاصيل تساعد الصيدلية (اختياري)بث الطلب وطلب عروض"
+  },
+  {
+   "route": "/ar/pharmacy/final-quote",
+   "status": 200,
+   "landed": "/ar/pharmacy/final-quote",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "404",
+   "head": "404 | الصفحة غير متاحة |  | لا يمكن فتح هذا المسار أو أنك لا تملك صلاحية الوصول إليه. |  | العودة إلى البداية"
+  },
+  {
+   "route": "/ar/pharmacy/broadcast-status",
+   "status": 200,
+   "landed": "/ar/pharmacy/broadcast-status",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "404",
+   "head": "404 | الصفحة غير متاحة |  | لا يمكن فتح هذا المسار أو أنك لا تملك صلاحية الوصول إليه. |  | العودة إلى البداية"
+  },
+  {
+   "route": "/ar/medicine-catalog",
+   "status": 200,
+   "landed": "/ar/medicine-catalog",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "معلومات كتالوج منشورة |  | كتالوج منشور |  | استعرض معلومات الكتالوج المنشورة فقط. لا تصنف هذه الصفحة كل عنصر دواءً ولا تقدم وصفة أو تشخيصاً أو توصية علاجية أو سعراً أو"
+  },
+  {
+   "route": "/ar/dashboard",
+   "status": 200,
+   "landed": "/ar/dashboard",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "بوابة خاصة | تم تأمين جلسة المريض. |  | تتوفر روابط للميزات التي اجتازت عقودها واختبارات تفويضها. لا تظهر أي بيانات قبل استلامها من الخلفية المصرح بها. |  | بوابة خاصة | تم"
+  },
+  {
+   "route": "/ar/wishlist",
+   "status": 200,
+   "landed": "/ar/wishlist",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "قائمة أمنيات خاصة |  | قائمة أمنياتي |  | قائمة الأمنيات فارغة. |  | قائمة الأمنيات فارغة. | ابدأ التسوق"
+  },
+  {
+   "route": "/ar/medicines",
+   "status": 200,
+   "landed": "/ar/medicines",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "كتالوج خاص |  | الأدوية | ابحث بالاسم أو المادة الفعالة | بحث |  | لا توجد أدوية مطابقة للبحث الحالي."
+  },
+  {
+   "route": "/ar/medicines/compare",
+   "status": 200,
+   "landed": "/ar/medicines/compare",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "الأدوية | مقارنة الأدوية |  | اختر دواءين على الأقل من الكتالوج للمقارنة بينهما. |  | اختر دواءين على الأقل من الكتالوج للمقارنة بينهما. |  | تصفح الأدوية"
+  },
+  {
+   "route": "/ar/diagnostics",
+   "status": 200,
+   "landed": "/ar/diagnostics",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "فحوصات خاصة |  | الفحوصات التشخيصية | حجوزاتينتائجي وتقاريريالباقاتالسلة | حجوزات المختبر | حجز مختبر | CONFIRMED | 02‏/10‏/2026، 10:00 ص | عرض التفاصيل | حجز مختبر | CONFIRMED | 02‏"
+  },
+  {
+   "route": "/ar/diagnostics/technician-tracking",
+   "status": 200,
+   "landed": "/ar/diagnostics/technician-tracking",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "404",
+   "head": "404 | الصفحة غير متاحة |  | لا يمكن فتح هذا المسار أو أنك لا تملك صلاحية الوصول إليه. |  | العودة إلى البداية"
+  },
+  {
+   "route": "/ar/diagnostics/packages",
+   "status": 200,
+   "landed": "/ar/diagnostics/packages",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "الرعاية المخبرية |  | باقات التحاليل |  | استعرض باقات المختبر المعتمدة من الكتالوج الحي. |  | البحث في الباقات | التصنيف | كل التصنيفات | package | blood | diabetes | hormones | cardiac"
+  },
+  {
+   "route": "/ar/diagnostics/radiology",
+   "status": 200,
+   "landed": "/ar/diagnostics/radiology",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "رعاية الأشعة |  | خدمات الأشعة |  | استكشف خدمات التصوير من كتالوج نبض الحي. |  | البحث في خدمات الأشعة | كل الأنواع | ULTRASOUND | XRAY | زيارة منزلية | الأعلى تقييماً | الأقل سعراً | ت"
+  },
+  {
+   "route": "/ar/diagnostics/booking-success",
+   "status": 200,
+   "landed": "/ar/diagnostics/booking-success",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "404",
+   "head": "404 | الصفحة غير متاحة |  | لا يمكن فتح هذا المسار أو أنك لا تملك صلاحية الوصول إليه. |  | العودة إلى البداية"
+  },
+  {
+   "route": "/ar/diagnostics/insurance-upload",
+   "status": 200,
+   "landed": "/ar/diagnostics/insurance-upload",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "404",
+   "head": "404 | الصفحة غير متاحة |  | لا يمكن فتح هذا المسار أو أنك لا تملك صلاحية الوصول إليه. |  | العودة إلى البداية"
+  },
+  {
+   "route": "/ar/diagnostics/test-detail",
+   "status": 200,
+   "landed": "/ar/diagnostics/test-detail",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "404",
+   "head": "404 | الصفحة غير متاحة |  | لا يمكن فتح هذا المسار أو أنك لا تملك صلاحية الوصول إليه. |  | العودة إلى البداية"
+  },
+  {
+   "route": "/ar/diagnostics/lab-comparison",
+   "status": 200,
+   "landed": "/ar/diagnostics/lab-comparison",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "التحاليل | مقارنة المختبرات |  | اختر المختبر الأنسب لنتائجك المعملية. |  | اختر تحاليل من السلة أولاً. |  | السلة"
+  },
+  {
+   "route": "/ar/diagnostics/upload-rx",
+   "status": 200,
+   "landed": "/ar/pharmacy/scan-prescription",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "خدمة صيدلانية ذكية |  | مسح ورفع وصفة طبية |  | ارفع صورة وصفتك الطبية ليقوم الذكاء الاصطناعي باستخراج الأدوية وإرسالها للصيدليات لتقديم أفضل العروض. |  | اضغط لالتقاط أو ا"
+  },
+  {
+   "route": "/ar/diagnostics/search",
+   "status": 200,
+   "landed": "/ar/diagnostics/search",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "البحث عن تحليل |  | ابحث بالاسم أو الفئة. |  | التحاليل | ابحث عن تحليل... |  | لا توجد نتائج"
+  },
+  {
+   "route": "/ar/diagnostics/checkout",
+   "status": 200,
+   "landed": "/ar/diagnostics/checkout",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "الدفع |  | إتمام الحجز |  | السلة فارغة أو المختبر غير محدد — ابدأ من السلة. |  | السلة | تصفح التحاليل"
+  },
+  {
+   "route": "/ar/diagnostics/results",
+   "status": 200,
+   "landed": "/ar/diagnostics/results",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "العودة إلى الفحوصات |  | فحوصات خاصة |  | نتائجي وتقاريري |  | نتائج المختبر وتقارير الأشعة من الخادم فقط. |  | حجوزات المختبر | 5d0415d1-e596-4f22-829c-88ab660363e08e6f697f-7a18"
+  },
+  {
+   "route": "/ar/diagnostics/cart",
+   "status": 200,
+   "landed": "/ar/diagnostics/cart",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "فحوصات خاصة |  | سلة التحاليل |  | راجع تحاليلك المحددة ثم اختر المختبر وأكمل الحجز. |  | العودة إلى الفحوصات |  | السلة فارغة — أضف تحاليل قبل الحجز. |  | تصفح التحاليل"
+  },
+  {
+   "route": "/ar/diagnostics/book-sample",
+   "status": 200,
+   "landed": "/ar/diagnostics/cart",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "فحوصات خاصة |  | سلة التحاليل |  | راجع تحاليلك المحددة ثم اختر المختبر وأكمل الحجز. |  | العودة إلى الفحوصات |  | السلة فارغة — أضف تحاليل قبل الحجز. |  | تصفح التحاليل"
+  },
+  {
+   "route": "/ar/diagnostics/labs",
+   "status": 200,
+   "landed": "/ar/diagnostics/labs",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "الرعاية المخبرية |  | خدمات المختبر |  | استعرض خدمات المختبر المتاحة من الكتالوج الحي. |  | بحث في خدمات المختبر | سحب عينة من المنزل | تطبيق | تحليل دم شامل (CBC) | CBC |  | فحص شامل"
+  },
+  {
+   "route": "/ar/diagnostics/labs/book",
+   "status": 200,
+   "landed": "/ar/diagnostics/labs/book",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "404",
+   "head": "404 | الصفحة غير متاحة |  | لا يمكن فتح هذا المسار أو أنك لا تملك صلاحية الوصول إليه. |  | العودة إلى البداية"
+  },
+  {
+   "route": "/ar/diagnostics/bookings",
+   "status": 200,
+   "landed": "/ar/diagnostics/bookings",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "العودة إلى الفحوصات |  | فحوصات خاصة |  | حجوزاتي التشخيصية |  | حجوزات المختبر والأشعة — بيانات حية من الخادم فقط. |  | 5d0415d1-e596-4f22-829c-88ab660363e0 · CONFIRMEDعرضرفع "
+  },
+  {
+   "route": "/ar/diagnostics/sample-tracking",
+   "status": 200,
+   "landed": "/ar/diagnostics/sample-tracking",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "404",
+   "head": "404 | الصفحة غير متاحة |  | لا يمكن فتح هذا المسار أو أنك لا تملك صلاحية الوصول إليه. |  | العودة إلى البداية"
+  },
+  {
+   "route": "/ar/diagnostics/insurance-approval",
+   "status": 200,
+   "landed": "/ar/diagnostics/insurance-approval",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "404",
+   "head": "404 | الصفحة غير متاحة |  | لا يمكن فتح هذا المسار أو أنك لا تملك صلاحية الوصول إليه. |  | العودة إلى البداية"
+  },
+  {
+   "route": "/ar/nutrition",
+   "status": 200,
+   "landed": "/ar/nutrition",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "لوحة التحكم |  | التغذية العلاجية واللياقة |  | التغذية |  | الجمعة، 2 أكتوبر 2026 |  | السعرات اليوم |  | 0سعرة |  | الهدف |  | —سعرة |  | الماء |  | 0مل |  | وجبات اليوم | تسجيل وجبةالمتتبع اليومي | خطة"
+  },
+  {
+   "route": "/ar/nutrition/ai-plan-builder",
+   "status": 200,
+   "landed": "/ar/nutrition",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "لوحة التحكم |  | التغذية العلاجية واللياقة |  | التغذية |  | الجمعة، 2 أكتوبر 2026 |  | السعرات اليوم |  | 0سعرة |  | الهدف |  | —سعرة |  | الماء |  | 0مل |  | وجبات اليوم | تسجيل وجبةالمتتبع اليومي | خطة"
+  },
+  {
+   "route": "/ar/nutrition/exercise-plan",
+   "status": 200,
+   "landed": "/ar/nutrition/daily-tracker",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "التغذية |  | المتتبع اليومي |  | المتتبع اليومي |  | ملخص استهلاكك اليومي من السعرات والمياه مع مقارنة بالهدف العلاجي. |  | الجمعة، 2 أكتوبر 2026 |  | السعرات اليوم |  | 0سعرة |  | الهدف |  | "
+  },
+  {
+   "route": "/ar/nutrition/food-scanner",
+   "status": 200,
+   "landed": "/ar/nutrition/log-meal",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "التغذية |  | التغذية العلاجية |  | تسجيل وجبة |  | سجّل تفاصيل وجبتك ويتحدّث ملخصك اليومي مباشرة. |  | نوع الوجبة | breakfast | lunch | dinner | snack | اسم الوجبةالسعرات (kcal)حفظ الوجب"
+  },
+  {
+   "route": "/ar/nutrition/calorie-analyzer",
+   "status": 200,
+   "landed": "/ar/nutrition/log-meal",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "التغذية |  | التغذية العلاجية |  | تسجيل وجبة |  | سجّل تفاصيل وجبتك ويتحدّث ملخصك اليومي مباشرة. |  | نوع الوجبة | breakfast | lunch | dinner | snack | اسم الوجبةالسعرات (kcal)حفظ الوجب"
+  },
+  {
+   "route": "/ar/nutrition/body-composition",
+   "status": 200,
+   "landed": "/ar/nutrition/body-target",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "التغذية | أهداف الجسم |  | حدد هدفك ونشاطك وقياساتك لحساب احتياجك اليومي. |  | هدفك | weight_loss | maintain | muscle_gain | healthy | sedentary | light | moderate | active | very_active | ا"
+  },
+  {
+   "route": "/ar/nutrition/body-target",
+   "status": 200,
+   "landed": "/ar/nutrition/body-target",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "التغذية | أهداف الجسم |  | حدد هدفك ونشاطك وقياساتك لحساب احتياجك اليومي. |  | هدفك | weight_loss | maintain | muscle_gain | healthy | sedentary | light | moderate | active | very_active | ا"
+  },
+  {
+   "route": "/ar/nutrition/plan",
+   "status": 200,
+   "landed": "/ar/nutrition/plan",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "رجوع |  | خطتي الغذائية |  | خطتي الغذائية |  | خطتك الغذائية المعتمدة والوجبات المقترحة لتحقيق أهدافك الصحية. |  | لا توجد بيانات بعد."
+  },
+  {
+   "route": "/ar/nutrition/log-meal",
+   "status": 200,
+   "landed": "/ar/nutrition/log-meal",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "التغذية |  | التغذية العلاجية |  | تسجيل وجبة |  | سجّل تفاصيل وجبتك ويتحدّث ملخصك اليومي مباشرة. |  | نوع الوجبة | breakfast | lunch | dinner | snack | اسم الوجبةالسعرات (kcal)حفظ الوجب"
+  },
+  {
+   "route": "/ar/nutrition/daily-tracker",
+   "status": 200,
+   "landed": "/ar/nutrition/daily-tracker",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "التغذية |  | المتتبع اليومي |  | المتتبع اليومي |  | ملخص استهلاكك اليومي من السعرات والمياه مع مقارنة بالهدف العلاجي. |  | الجمعة، 2 أكتوبر 2026 |  | السعرات اليوم |  | 0سعرة |  | الهدف |  | "
+  },
+  {
+   "route": "/ar/nutrition/water-tracker",
+   "status": 200,
+   "landed": "/ar/nutrition/daily-tracker",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "التغذية |  | المتتبع اليومي |  | المتتبع اليومي |  | ملخص استهلاكك اليومي من السعرات والمياه مع مقارنة بالهدف العلاجي. |  | الجمعة، 2 أكتوبر 2026 |  | السعرات اليوم |  | 0سعرة |  | الهدف |  | "
+  },
+  {
+   "route": "/ar/nutrition/ai-meal-planner",
+   "status": 200,
+   "landed": "/ar/nutrition/daily-tracker",
+   "crash_text": [],
+   "errors": [],
+   "not_found": "",
+   "head": "التغذية |  | المتتبع اليومي |  | المتتبع اليومي |  | ملخص استهلاكك اليومي من السعرات والمياه مع مقارنة بالهدف العلاجي. |  | الجمعة، 2 أكتوبر 2026 |  | السعرات اليوم |  | 0سعرة |  | الهدف |  | "
+  }
+ ],
+ "not_found": [
+  "/ar/consultations/video-call",
+  "/ar/consultations/waiting-room",
+  "/ar/consultations/follow-up",
+  "/ar/consultations/home-visit-tracking",
+  "/ar/consultations/clinic-location",
+  "/ar/consultations/booking-status",
+  "/ar/consultations/cancel-reschedule",
+  "/ar/consultations/virtual-waiting-room",
+  "/ar/consultations/clinic-confirm",
+  "/ar/profile/insurance",
+  "/ar/insurance",
+  "/ar/insurance/policy-detail",
+  "/ar/insurance/copay",
+  "/ar/insurance/benefits",
+  "/ar/insurance/claims",
+  "/ar/insurance/approval-pending",
+  "/ar/insurance/payment-split",
+  "/ar/health/wearables",
+  "/ar/family/permissions",
+  "/ar/family/permission-requests",
+  "/ar/pharmacy/reorder",
+  "/ar/pharmacy/insurance-decision",
+  "/ar/pharmacy/chat",
+  "/ar/pharmacy/payment",
+  "/ar/pharmacy/waiting-for-pharmacy",
+  "/ar/pharmacy/final-quote",
+  "/ar/pharmacy/broadcast-status",
+  "/ar/diagnostics/technician-tracking",
+  "/ar/diagnostics/booking-success",
+  "/ar/diagnostics/insurance-upload",
+  "/ar/diagnostics/test-detail",
+  "/ar/diagnostics/labs/book",
+  "/ar/diagnostics/sample-tracking",
+  "/ar/diagnostics/insurance-approval"
+ ],
+ "crashed": []
+}

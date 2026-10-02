@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { authCookieNames, clearSessionCookies, setSessionCookies } from "@/lib/auth/cookies";
 import { parseRefreshedTokens, refreshRequestBody } from "@/lib/auth/refresh";
-import { isAllowedPatientApiRequest } from "@/lib/api/patient-allowlist";
+import { isAllowedPatientApiTarget } from "@/lib/api/patient-allowlist";
 import { forwardApiResponse } from "@/lib/api/response";
 import { callPatientApi } from "@/lib/api/upstream";
 type Context = { params: Promise<{ path: string[] }> };
@@ -10,7 +10,7 @@ async function refreshSession() { const store = await cookies(); const refreshTo
 async function proxy(request: NextRequest, context: Context) {
   const { path: parts } = await context.params;
   const path = `/${parts.map(encodeURIComponent).join("/")}`;
-  if (!isAllowedPatientApiRequest(path, request.method)) return NextResponse.json({ message: "resource_not_found" }, { status: 404 });
+  if (!isAllowedPatientApiTarget(path, request.nextUrl.search, request.method)) return NextResponse.json({ message: "resource_not_found" }, { status: 404 });
 
   const isMutation = request.method === "POST" || request.method === "PATCH";
   const headers = new Headers();

@@ -30,8 +30,9 @@ export function AddressList({
     setRemoving(id);
     setError(null);
     try {
-      const res = await fetch(`/api/bff/users/me/addresses/${encodeURIComponent(id)}`, { method: "DELETE" });
-      if (!res.ok && res.status !== 405) {
+      // Q10: /api/bff never existed (every delete answered 404), and 405 was treated as success.
+      const res = await fetch(`/api/patient/users/me/addresses/${encodeURIComponent(id)}`, { method: "DELETE" });
+      if (!res.ok) {
         setError(t("removeFailed"));
       } else {
         window.location.reload();
@@ -91,12 +92,12 @@ export function AddAddressForm({ locale = "ar" }: { locale?: string } = {}) {
     setError(null);
     setOk(false);
     try {
-      const res = await fetch("/api/bff/users/me/addresses", {
+      const res = await fetch("/api/patient/users/me/addresses", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "Idempotency-Key": crypto.randomUUID() },
         body: JSON.stringify(form),
       });
-      if (res.ok || res.status === 405) {
+      if (res.ok) {
         setOk(true);
         window.location.reload();
       } else {

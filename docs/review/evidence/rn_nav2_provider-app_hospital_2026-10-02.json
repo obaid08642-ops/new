@@ -1,0 +1,6098 @@
+{
+ "provider_type": "hospital",
+ "login_via_ui": true,
+ "build": "rn-web E2E export (not native)",
+ "perf": {
+  "app_boot_to_ready_ms": 536,
+  "login_to_dashboard_ready_ms": 1367,
+  "dashboard_ready": true,
+  "dashboard_not_ready_reason": ""
+ },
+ "screens": [
+  {
+   "route": "MainTabs",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 397,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "مرحباً، | مستشفى نبضة الطبي | calendar | 0 | مواعيد اليوم | bed | 0/126 | "
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "qr_checkin",
+     "response_ms": 468
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NAVIGATE",
+     "to": "notifications",
+     "response_ms": 826
+    },
+    {
+     "label": "توسيع",
+     "result": "NAVIGATE",
+     "to": "hospital_dispatch",
+     "response_ms": 991
+    },
+    {
+     "label": "◈",
+     "result": "NAVIGATE",
+     "to": "financial",
+     "response_ms": 910
+    },
+    {
+     "label": "إدارة",
+     "result": "NAVIGATE",
+     "to": "subaccounts",
+     "response_ms": 942
+    },
+    {
+     "label": "طلبات",
+     "result": "NAVIGATE",
+     "to": "leave_requests",
+     "response_ms": 608
+    },
+    {
+     "label": "الأقسام",
+     "result": "NAVIGATE",
+     "to": "departments",
+     "response_ms": 928
+    },
+    {
+     "label": "جدول",
+     "result": "NAVIGATE",
+     "to": "surgery_sched",
+     "response_ms": 598
+    },
+    {
+     "label": "مطالبات",
+     "result": "NAVIGATE",
+     "to": "insurance_hub",
+     "response_ms": 551
+    },
+    {
+     "label": "الحضور",
+     "result": "NAVIGATE",
+     "to": "attendance",
+     "response_ms": 585
+    },
+    {
+     "label": "التوثيق",
+     "result": "NAVIGATE",
+     "to": "credentialing",
+     "response_ms": 577
+    },
+    {
+     "label": "تتبع",
+     "result": "NAVIGATE",
+     "to": "patient_tracker",
+     "response_ms": 587
+    },
+    {
+     "label": "لوحة",
+     "result": "NAVIGATE",
+     "to": "hospital_dispatch",
+     "response_ms": 920
+    },
+    {
+     "label": "التواصل",
+     "result": "NAVIGATE",
+     "to": "internal_chat",
+     "response_ms": 588
+    },
+    {
+     "label": "سجل",
+     "result": "NAVIGATE",
+     "to": "audit_logs",
+     "response_ms": 571
+    },
+    {
+     "label": "التعاميم",
+     "result": "NAVIGATE",
+     "to": "announcements",
+     "response_ms": 933
+    },
+    {
+     "label": "التفاصيل",
+     "result": "NAVIGATE",
+     "to": "beds",
+     "response_ms": 609
+    },
+    {
+     "label": "الكل",
+     "result": "NAVIGATE",
+     "to": "unified_sched",
+     "response_ms": 600
+    },
+    {
+     "label": "الرئيسية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 625
+    },
+    {
+     "label": "الطلبات",
+     "result": "UI_CHANGE",
+     "response_ms": 573
+    },
+    {
+     "label": "الوظائف",
+     "result": "UI_CHANGE",
+     "response_ms": 922
+    },
+    {
+     "label": "الأدوية",
+     "result": "UI_CHANGE",
+     "response_ms": 2076
+    },
+    {
+     "label": "الإعدادات",
+     "result": "UI_CHANGE",
+     "response_ms": 584
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 18,
+    "NO_EFFECT": 1,
+    "UI_CHANGE": 4
+   }
+  },
+  {
+   "route": "qr_checkin",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 396,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ |  تسجيل دخول المرضى QR | مسح QR | يدوي | السجل | وجّه الكاميرا نحو "
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 509
+    },
+    {
+     "label": "مسح QR",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 490
+    },
+    {
+     "label": "يدوي",
+     "result": "UI_CHANGE",
+     "response_ms": 469
+    },
+    {
+     "label": "السجل",
+     "result": "UI_CHANGE",
+     "response_ms": 494
+    },
+    {
+     "label": "تفعيل الكاميرا",
+     "result": "UI_CHANGE",
+     "response_ms": 861
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 1,
+    "UI_CHANGE": 3
+   }
+  },
+  {
+   "route": "notifications",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 741,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | مركز الإشعارات والتنبيهات | لا توجد إشعارات بعد | صلاحية الكام"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "qr_checkin",
+     "response_ms": 450
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "hospital_dispatch",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 744,
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "403 GET /home-care/bookings/nursing/all"
+    ],
+    "heading": "→ | لوحة توجيه التمريض والممرضين | لا توجد طلبات رعاية منزلية حا"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "qr_checkin",
+     "response_ms": 449
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "financial",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 403,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ |  التقارير المالية الموحدة | أسبوع | شهر | سنة | إجمالي الإيرادات | ٠"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "qr_checkin",
+     "response_ms": 468
+    },
+    {
+     "label": "أسبوع",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 474
+    },
+    {
+     "label": "شهر",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 433
+    },
+    {
+     "label": "سنة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 449
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 3
+   }
+  },
+  {
+   "route": "subaccounts",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 407,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ |  إدارة الكوادر | + | الكل | طبيب | منسق تأمين | استقبال | users | 0 | إجما"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "financial",
+     "response_ms": 496
+    },
+    {
+     "label": "+",
+     "result": "NAVIGATE",
+     "to": "add_subaccount",
+     "response_ms": 506
+    },
+    {
+     "label": "(icon #2)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 473
+    },
+    {
+     "label": "الكل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 450
+    },
+    {
+     "label": "طبيب",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 462
+    },
+    {
+     "label": "منسق تأمين",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 468
+    },
+    {
+     "label": "استقبال",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 458
+    },
+    {
+     "label": "+ طبيب",
+     "result": "NAVIGATE",
+     "to": "add_subaccount",
+     "response_ms": 496
+    },
+    {
+     "label": "+ منسق تأمين",
+     "result": "NAVIGATE",
+     "to": "add_subaccount",
+     "response_ms": 508
+    },
+    {
+     "label": "+ استقبال",
+     "result": "NAVIGATE",
+     "to": "add_subaccount",
+     "response_ms": 503
+    },
+    {
+     "label": "+ ممرض/ممرضة",
+     "result": "NAVIGATE",
+     "to": "add_subaccount",
+     "response_ms": 508
+    },
+    {
+     "label": "+ محلل مختبر",
+     "result": "NAVIGATE",
+     "to": "add_subaccount",
+     "response_ms": 527
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 7,
+    "NO_EFFECT": 5
+   }
+  },
+  {
+   "route": "leave_requests",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 398,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | إدارة الإجازات والأعذار | لا توجد طلبات إجازة"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "add_subaccount",
+     "response_ms": 441
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "departments",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 739,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ |  إدارة الأقسام | 0 | الأقسام | 0 | نشطة | 0 | الكوادر | لا توجد أقسام بع"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "add_subaccount",
+     "response_ms": 446
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "surgery_sched",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 394,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ |  جدول غرف العمليات | 3 | غرف | 0 | عمليات مجدولة | OR-1 | فارغة | لا توج"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "add_subaccount",
+     "response_ms": 450
+    },
+    {
+     "label": "+ جدولة عملية",
+     "result": "UI_CHANGE",
+     "response_ms": 493
+    },
+    {
+     "label": "+ جدولة عملية جديدة",
+     "result": "UI_CHANGE",
+     "response_ms": 474
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 2
+   }
+  },
+  {
+   "route": "insurance_hub",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 394,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ |  مطالبات التأمين | 0.0K | ر | مقبولة هذا الشهر | 0.0K | ر | قيد الانتظ"
+   },
+   "status": "TESTED",
+   "inputs_filled": 4,
+   "elements": [
+    {
+     "label": "→",
+     "result": "UI_CHANGE",
+     "response_ms": 505
+    },
+    {
+     "label": "الكل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 478
+    },
+    {
+     "label": "انتظار",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 482
+    },
+    {
+     "label": "مقبولة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 463
+    },
+    {
+     "label": "مرفوضة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 459
+    },
+    {
+     "label": "(icon #5)",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: (icon #5)"
+    },
+    {
+     "label": "معرف المريض (Patient ID) *",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: معرف المريض (Patient ID) *"
+    },
+    {
+     "label": "معرف الجراح الرئيسي *",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: معرف الجراح الرئيسي *"
+    },
+    {
+     "label": "التاريخ والوقت (YYYY-MM-DD HH:MM) *",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: التاريخ والوقت (YYYY-MM-DD HH:MM) *"
+    },
+    {
+     "label": "المدة بالدقائق *",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: المدة بالدقائق *"
+    },
+    {
+     "label": "تأكيد وحجز الغرفة",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: تأكيد وحجز الغرفة"
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 1,
+    "NO_EFFECT": 4,
+    "CRAWLER_TARGET_MISSING": 6
+   }
+  },
+  {
+   "route": "attendance",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 401,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ |  الحضور والانصراف | 0 | حاضر | 0 | غائب | users | 0 | الإجمالي | سجّل حضور"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "insurance_hub",
+     "response_ms": 488
+    },
+    {
+     "label": "تسجيل حضوري الآن",
+     "result": "UI_CHANGE",
+     "response_ms": 8638,
+     "slow": "1 loading indicator(s) visible"
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 1
+   }
+  },
+  {
+   "route": "credentialing",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 396,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ |  التوثيق المهني | تتبع تراخيص SCFHS، شهادات المؤهلات، تأمين "
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "attendance",
+     "response_ms": 8623,
+     "slow": "1 loading indicator(s) visible"
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "patient_tracker",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 394,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | تتبع المرضى (Patient Tracker) | مراقبة حية للمرضى المنومين و"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "attendance",
+     "response_ms": 8609,
+     "slow": "1 loading indicator(s) visible"
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "internal_chat",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 394,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | التواصل الداخلي | قنوات التواصل المباشر"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "attendance",
+     "response_ms": 8607,
+     "slow": "1 loading indicator(s) visible"
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "audit_logs",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 394,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | سجل التدقيق (Audit Logs) | تتبع وتوثيق كافة التعديلات والإجر"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "attendance",
+     "response_ms": 8588,
+     "slow": "1 loading indicator(s) visible"
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "announcements",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 744,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | التعاميم والإعلانات | إرسال تعميم جديد | نشر التعميم | التعاميم "
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "attendance",
+     "response_ms": 8604,
+     "slow": "1 loading indicator(s) visible"
+    },
+    {
+     "label": "نشر التعميم",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 475
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "beds",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 397,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ |  إدارة الأسرّة | bed | 126 | الإجمالي | user | 0 | مشغول | online | 126 | مت"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "announcements",
+     "response_ms": 482
+    },
+    {
+     "label": "+ إضافة جناح",
+     "result": "UI_CHANGE",
+     "response_ms": 518
+    },
+    {
+     "label": "إدارة الأسرّة",
+     "result": "UI_CHANGE",
+     "response_ms": 832
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 2
+   }
+  },
+  {
+   "route": "unified_sched",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 403,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | التقويم الموحد (Unified Calendar) | عرض جميع المواعيد المتقا"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "UI_CHANGE",
+     "response_ms": 676
+    },
+    {
+     "label": "(icon #1)",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: (icon #1)"
+    },
+    {
+     "label": "إدخل",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: إدخل"
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 1,
+    "CRAWLER_TARGET_MISSING": 2
+   }
+  },
+  {
+   "route": "MainTabs",
+   "ui_path": [
+    "الطلبات"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 789,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "الطلبات | طلبات جديدة (0) | مؤكدة | الإشعارات (0) | document | لا توجد"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "طلبات جديدة (0)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 446
+    },
+    {
+     "label": "مؤكدة",
+     "result": "UI_CHANGE",
+     "response_ms": 465
+    },
+    {
+     "label": "الإشعارات (0)",
+     "result": "UI_CHANGE",
+     "response_ms": 454
+    },
+    {
+     "label": "الرئيسية",
+     "result": "UI_CHANGE",
+     "response_ms": 808
+    },
+    {
+     "label": "الطلبات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 466
+    },
+    {
+     "label": "الوظائف",
+     "result": "UI_CHANGE",
+     "response_ms": 817
+    },
+    {
+     "label": "الأدوية",
+     "result": "UI_CHANGE",
+     "response_ms": 1911
+    },
+    {
+     "label": "الإعدادات",
+     "result": "UI_CHANGE",
+     "response_ms": 509
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 2,
+    "UI_CHANGE": 6
+   }
+  },
+  {
+   "route": "MainTabs",
+   "ui_path": [
+    "الوظائف"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 1131,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | الوارد (ATS) | الرئيسي"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "UI_CHANGE",
+     "response_ms": 796
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 444
+    },
+    {
+     "label": "تصفح الوظائف",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 462
+    },
+    {
+     "label": "إضافة إعلان",
+     "result": "UI_CHANGE",
+     "response_ms": 491
+    },
+    {
+     "label": "الوارد (ATS)",
+     "result": "UI_CHANGE",
+     "response_ms": 835
+    },
+    {
+     "label": "(icon #5)",
+     "result": "UI_CHANGE",
+     "response_ms": 797
+    },
+    {
+     "label": "الرئيسية",
+     "result": "UI_CHANGE",
+     "response_ms": 909
+    },
+    {
+     "label": "الطلبات",
+     "result": "UI_CHANGE",
+     "response_ms": 482
+    },
+    {
+     "label": "الوظائف",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 479
+    },
+    {
+     "label": "الأدوية",
+     "result": "UI_CHANGE",
+     "response_ms": 1961
+    },
+    {
+     "label": "الإعدادات",
+     "result": "UI_CHANGE",
+     "response_ms": 499
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 9,
+    "NO_EFFECT": 2
+   }
+  },
+  {
+   "route": "MainTabs",
+   "ui_path": [
+    "الأدوية"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 2251,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "دليل الأدوية الطبي | الكل | pain (14) | UE3C96A10 (2) | UC15A2210 (1"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "UI_CHANGE",
+     "response_ms": 809
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 428
+    },
+    {
+     "label": "الكل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 549
+    },
+    {
+     "label": "pain (14)",
+     "result": "UI_CHANGE",
+     "response_ms": 2044
+    },
+    {
+     "label": "UE3C96A10 (2)",
+     "result": "UI_CHANGE",
+     "response_ms": 2054
+    },
+    {
+     "label": "UC15A2210 (1)",
+     "result": "UI_CHANGE",
+     "response_ms": 2039
+    },
+    {
+     "label": "category-20703 (1)",
+     "result": "UI_CHANGE",
+     "response_ms": 2008
+    },
+    {
+     "label": "UC15A2204 (معدّل E2E)",
+     "result": "UI_CHANGE",
+     "response_ms": 921
+    },
+    {
+     "label": "UE3C96A04",
+     "result": "UI_CHANGE",
+     "response_ms": 920
+    },
+    {
+     "label": "name_ar-20700",
+     "result": "UI_CHANGE",
+     "response_ms": 912
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 0019c8",
+     "result": "UI_CHANGE",
+     "response_ms": 935
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 18f732",
+     "result": "UI_CHANGE",
+     "response_ms": 888
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 4a05f6",
+     "result": "UI_CHANGE",
+     "response_ms": 921
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 730a68",
+     "result": "UI_CHANGE",
+     "response_ms": 893
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 81b23b",
+     "result": "UI_CHANGE",
+     "response_ms": 906
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ a33d6a",
+     "result": "UI_CHANGE",
+     "response_ms": 934
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ c632fa",
+     "result": "UI_CHANGE",
+     "response_ms": 912
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 2dfd4a",
+     "result": "UI_CHANGE",
+     "response_ms": 915
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 39ce55",
+     "result": "UI_CHANGE",
+     "response_ms": 914
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 5e0bd1",
+     "result": "UI_CHANGE",
+     "response_ms": 906
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 72e0fb",
+     "result": "UI_CHANGE",
+     "response_ms": 910
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 874ed2",
+     "result": "UI_CHANGE",
+     "response_ms": 909
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ bca0db",
+     "result": "UI_CHANGE",
+     "response_ms": 915
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ fc3790",
+     "result": "UI_CHANGE",
+     "response_ms": 911
+    },
+    {
+     "label": "الرئيسية",
+     "result": "UI_CHANGE",
+     "response_ms": 904
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 23,
+    "NO_EFFECT": 2
+   }
+  },
+  {
+   "route": "MainTabs",
+   "ui_path": [
+    "الإعدادات"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 791,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": " إعدادات المنشأة | مستشفى نبضة الطبي | مستشفى |  حساب نشط | إدارة ال"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "معلومات المنشأة",
+     "result": "NAVIGATE",
+     "to": "facility_info",
+     "response_ms": 974
+    },
+    {
+     "label": "الأقسام والخدمات",
+     "result": "NAVIGATE",
+     "to": "departments",
+     "response_ms": 939
+    },
+    {
+     "label": "الأسعار والتعريفات",
+     "result": "UI_CHANGE",
+     "response_ms": 634
+    },
+    {
+     "label": "إعدادات التأمين",
+     "result": "NAVIGATE",
+     "to": "insurance_config",
+     "response_ms": 2061
+    },
+    {
+     "label": "طلبات التأمين الواردة",
+     "result": "NAVIGATE",
+     "to": "insurance_requests",
+     "response_ms": 957
+    },
+    {
+     "label": "الرخص والمستندات الرسمية",
+     "result": "NAVIGATE",
+     "to": "certificates_config",
+     "response_ms": 991
+    },
+    {
+     "label": "الصور والوسائط",
+     "result": "NAVIGATE",
+     "to": "media_config",
+     "response_ms": 938
+    },
+    {
+     "label": "إدارة الحسابات الفرعية",
+     "result": "NAVIGATE",
+     "to": "subaccounts",
+     "response_ms": 966
+    },
+    {
+     "label": "المواعيد والجداول",
+     "result": "NAVIGATE",
+     "to": "shifts",
+     "response_ms": 1003
+    },
+    {
+     "label": "إدارة الأسرّة",
+     "result": "NAVIGATE",
+     "to": "beds",
+     "response_ms": 582
+    },
+    {
+     "label": "نظام QR Check-in",
+     "result": "NAVIGATE",
+     "to": "qr_checkin",
+     "response_ms": 765
+    },
+    {
+     "label": "مركز العروض الترويجية",
+     "result": "NAVIGATE",
+     "to": "promotions",
+     "response_ms": 1080
+    },
+    {
+     "label": "إعدادات الصفحة العامة",
+     "result": "NAVIGATE",
+     "to": "web_config",
+     "response_ms": 1067
+    },
+    {
+     "label": "الاشتراكات والإعلانات",
+     "result": "NAVIGATE",
+     "to": "subscriptions_ads",
+     "response_ms": 789
+    },
+    {
+     "label": "مستوى السمعة والتقييمات",
+     "result": "NAVIGATE",
+     "to": "reputation",
+     "response_ms": 1097
+    },
+    {
+     "label": "إدارة العملاء والأرباح",
+     "result": "NAVIGATE",
+     "to": "crm",
+     "response_ms": 949
+    },
+    {
+     "label": "مراقبة الطوارئ وسيارات الإسعاف",
+     "result": "NAVIGATE",
+     "to": "sos_dispatch",
+     "response_ms": 926
+    },
+    {
+     "label": "أسطول إسعاف المنشأة",
+     "result": "NAVIGATE",
+     "to": "ambulance_fleet",
+     "response_ms": 917
+    },
+    {
+     "label": "(icon #18)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 467
+    },
+    {
+     "label": "اللغة: العربية",
+     "result": "SKIPPED_DESTRUCTIVE"
+    },
+    {
+     "label": "الإشعارات",
+     "result": "NAVIGATE",
+     "to": "notifications",
+     "response_ms": 973
+    },
+    {
+     "label": "التقارير التلقائية",
+     "result": "NAVIGATE",
+     "to": "auto_reports",
+     "response_ms": 959
+    },
+    {
+     "label": "الوظائف الطبية",
+     "result": "NAVIGATE",
+     "to": "medical_jobs",
+     "response_ms": 958
+    },
+    {
+     "label": "دليل الأدوية الطبي",
+     "result": "NAVIGATE",
+     "to": "drug_index",
+     "response_ms": 2054
+    },
+    {
+     "label": "تغيير كلمة المرور",
+     "result": "NAVIGATE",
+     "to": "security",
+     "response_ms": 590
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 22,
+    "UI_CHANGE": 1,
+    "NO_EFFECT": 1,
+    "SKIPPED_DESTRUCTIVE": 1
+   }
+  },
+  {
+   "route": "qr_checkin",
+   "ui_path": [
+    "يدوي"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 793,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ |  تسجيل دخول المرضى QR | مسح QR | يدوي | السجل | رقم الموعد أو هوية"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 480
+    },
+    {
+     "label": "مسح QR",
+     "result": "UI_CHANGE",
+     "response_ms": 463
+    },
+    {
+     "label": "يدوي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 457
+    },
+    {
+     "label": "السجل",
+     "result": "UI_CHANGE",
+     "response_ms": 467
+    },
+    {
+     "label": "رقم الموعد أو هوية المريض",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 447
+    },
+    {
+     "label": "تأكيد الوصول",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: تأكيد الوصول"
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 2,
+    "NO_EFFECT": 2,
+    "CRAWLER_TARGET_MISSING": 1
+   }
+  },
+  {
+   "route": "qr_checkin",
+   "ui_path": [
+    "السجل"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 785,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ |  تسجيل دخول المرضى QR | مسح QR | يدوي | السجل | سجل تسجيل الدخول ا"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 455
+    },
+    {
+     "label": "مسح QR",
+     "result": "UI_CHANGE",
+     "response_ms": 433
+    },
+    {
+     "label": "يدوي",
+     "result": "UI_CHANGE",
+     "response_ms": 434
+    },
+    {
+     "label": "السجل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 437
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 2,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "add_subaccount",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 391,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | دعوة مزود خدمة | أدخل رقم جوال المزود أو رقم تعريفه (Nabdah "
+   },
+   "status": "TESTED",
+   "inputs_filled": 11,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "qr_checkin",
+     "response_ms": 570
+    },
+    {
+     "label": "رقم الجوال أو Nabdah ID",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 589
+    },
+    {
+     "label": "(icon #2)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 436
+    },
+    {
+     "label": "(icon #3)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 435
+    },
+    {
+     "label": "(icon #4)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 433
+    },
+    {
+     "label": "(icon #5)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 435
+    },
+    {
+     "label": "(icon #6)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 429
+    },
+    {
+     "label": "(icon #7)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 424
+    },
+    {
+     "label": "(icon #8)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 434
+    },
+    {
+     "label": "(icon #9)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 440
+    },
+    {
+     "label": "(icon #10)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 425
+    },
+    {
+     "label": "(icon #11)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 429
+    },
+    {
+     "label": "إرسال الدعوة",
+     "result": "UI_CHANGE",
+     "response_ms": 547
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 11,
+    "UI_CHANGE": 1
+   }
+  },
+  {
+   "route": "surgery_sched",
+   "ui_path": [
+    "+ جدولة عملية"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 792,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ |  جدول غرف العمليات | 3 | غرف | 0 | عمليات مجدولة | OR-1 | فارغة | لا توج"
+   },
+   "status": "TESTED",
+   "inputs_filled": 4,
+   "elements": [
+    {
+     "label": "→",
+     "result": "UI_CHANGE",
+     "response_ms": 535
+    },
+    {
+     "label": "+ جدولة عملية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 516
+    },
+    {
+     "label": "+ جدولة عملية جديدة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 495
+    },
+    {
+     "label": "(icon #5)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 412
+    },
+    {
+     "label": "معرف المريض (Patient ID) *",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 478
+    },
+    {
+     "label": "معرف الجراح الرئيسي *",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 501
+    },
+    {
+     "label": "التاريخ والوقت (YYYY-MM-DD HH:MM) *",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 500
+    },
+    {
+     "label": "المدة بالدقائق *",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 530
+    },
+    {
+     "label": "تأكيد وحجز الغرفة",
+     "result": "UI_CHANGE",
+     "response_ms": 503
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 2,
+    "NO_EFFECT": 7
+   }
+  },
+  {
+   "route": "insurance_hub",
+   "ui_path": [
+    "→"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 787,
+   "status": "NOT_REACHABLE",
+   "reason": "navigation ended on MainTabs",
+   "screenshot": "/tmp/nav2_hospital_insurance_hub_nav.png",
+   "controls_now": [
+    "(icon #0)",
+    "(icon #1)",
+    "توسيع",
+    "◈",
+    "إدارة",
+    "طلبات",
+    "إدارة",
+    "الأقسام",
+    "إدارة",
+    "إدارة",
+    "جدول",
+    "مطالبات",
+    "الحضور",
+    "التوثيق",
+    "تتبع",
+    "لوحة",
+    "التواصل",
+    "سجل",
+    "التعاميم",
+    "التفاصيل",
+    "الكل",
+    "إدارة",
+    "الرئيسية",
+    "الطلبات",
+    "الوظائف"
+   ],
+   "route_now": {
+    "name": "MainTabs",
+    "params": null
+   },
+   "pending": [],
+   "failed_requests": [],
+   "js": [],
+   "bad_reads": []
+  },
+  {
+   "route": "attendance",
+   "ui_path": [
+    "تسجيل حضوري الآن"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 15624,
+   "status": "SLOW",
+   "reason": "1 loading indicator(s) visible",
+   "screenshot": "/tmp/nav2_hospital_attendance_ready.png",
+   "controls_now": [
+    "→"
+   ],
+   "route_now": {
+    "name": "attendance",
+    "params": {
+     "param": null
+    }
+   },
+   "pending": [],
+   "failed_requests": [],
+   "js": [],
+   "bad_reads": []
+  },
+  {
+   "route": "beds",
+   "ui_path": [
+    "+ إضافة جناح"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 794,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ |  إدارة الأسرّة | bed | 126 | الإجمالي | user | 0 | مشغول | online | 126 | مت"
+   },
+   "status": "TESTED",
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "→",
+     "result": "UI_CHANGE",
+     "response_ms": 492
+    },
+    {
+     "label": "+ إضافة جناح",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 500
+    },
+    {
+     "label": "إدارة الأسرّة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 492
+    },
+    {
+     "label": "(icon #5)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 442
+    },
+    {
+     "label": "اسم الجناح *",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 466
+    },
+    {
+     "label": "عدد الأسرّة *",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 478
+    },
+    {
+     "label": "إنشاء الجناح",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/facility/beds/wards",
+     "tokens_sent": 1,
+     "tokens_stored": 1,
+     "response_ms": 1342
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 1,
+    "NO_EFFECT": 5,
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "beds",
+   "ui_path": [
+    "إدارة الأسرّة"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 1140,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ |  إدارة الأسرّة | bed | 168 | الإجمالي | user | 0 | مشغول | online | 168 | مت"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "UI_CHANGE",
+     "response_ms": 696
+    },
+    {
+     "label": "+ إضافة جناح",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 710
+    },
+    {
+     "label": "إدارة الأسرّة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 657
+    },
+    {
+     "label": "(icon #6)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 440
+    },
+    {
+     "label": "إدخل",
+     "result": "UI_CHANGE",
+     "response_ms": 680
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 2,
+    "NO_EFFECT": 3
+   }
+  },
+  {
+   "route": "unified_sched",
+   "ui_path": [
+    "→"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 783,
+   "status": "NOT_REACHABLE",
+   "reason": "navigation ended on MainTabs",
+   "screenshot": "/tmp/nav2_hospital_unified_sched_nav.png",
+   "controls_now": [
+    "(icon #0)",
+    "(icon #1)",
+    "توسيع",
+    "◈",
+    "إدارة",
+    "طلبات",
+    "إدارة",
+    "الأقسام",
+    "إدارة",
+    "إدارة",
+    "جدول",
+    "مطالبات",
+    "الحضور",
+    "التوثيق",
+    "تتبع",
+    "لوحة",
+    "التواصل",
+    "سجل",
+    "التعاميم",
+    "التفاصيل",
+    "الكل",
+    "إدارة",
+    "الرئيسية",
+    "الطلبات",
+    "الوظائف"
+   ],
+   "route_now": {
+    "name": "MainTabs",
+    "params": null
+   },
+   "pending": [],
+   "failed_requests": [],
+   "js": [],
+   "bad_reads": []
+  },
+  {
+   "route": "MainTabs",
+   "ui_path": [
+    "الوظائف",
+    "(icon #1)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 1582,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | الوارد (ATS) | الرئيسي"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "UI_CHANGE",
+     "response_ms": 457
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 447
+    },
+    {
+     "label": "تصفح الوظائف",
+     "result": "UI_CHANGE",
+     "response_ms": 546
+    },
+    {
+     "label": "إضافة إعلان",
+     "result": "UI_CHANGE",
+     "response_ms": 549
+    },
+    {
+     "label": "الوارد (ATS)",
+     "result": "UI_CHANGE",
+     "response_ms": 540
+    },
+    {
+     "label": "(icon #5)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 444
+    },
+    {
+     "label": "الرئيسية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 514
+    },
+    {
+     "label": "الطلبات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 575
+    },
+    {
+     "label": "الوظائف",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 496
+    },
+    {
+     "label": "الأدوية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 513
+    },
+    {
+     "label": "الإعدادات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 537
+    },
+    {
+     "label": "(icon #11)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 439
+    },
+    {
+     "label": "طبيب",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 514
+    },
+    {
+     "label": "صيدلي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 509
+    },
+    {
+     "label": "تمريض",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 507
+    },
+    {
+     "label": "مختبر",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 505
+    },
+    {
+     "label": "أشعة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 511
+    },
+    {
+     "label": "الرياض",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 517
+    },
+    {
+     "label": "جدة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 515
+    },
+    {
+     "label": "الدمام",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 532
+    },
+    {
+     "label": "مكة المكرمة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 533
+    },
+    {
+     "label": "المدينة المنورة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 541
+    },
+    {
+     "label": "تطبيق الفرز",
+     "result": "UI_CHANGE",
+     "response_ms": 535
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 6,
+    "NO_EFFECT": 17
+   }
+  },
+  {
+   "route": "facility_info",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 740,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | ملف المنشأة | — | التفاصيل العامة | الوصف (عربي) | الوصف (إنجليزي)"
+   },
+   "status": "TESTED",
+   "inputs_filled": 4,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 557
+    },
+    {
+     "label": "الوصف (عربي)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 566
+    },
+    {
+     "label": "الوصف (إنجليزي)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 554
+    },
+    {
+     "label": "الموقع الإلكتروني",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 551
+    },
+    {
+     "label": "رقم الواتساب",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 559
+    },
+    {
+     "label": "قلب وأوعية دموية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 589
+    },
+    {
+     "label": "جلدية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 557
+    },
+    {
+     "label": "طب أطفال",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 567
+    },
+    {
+     "label": "نساء وولادة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 550
+    },
+    {
+     "label": "عظام",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 609
+    },
+    {
+     "label": "أعصاب",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 530
+    },
+    {
+     "label": "طب نفسي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 562
+    },
+    {
+     "label": "أسنان",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 542
+    },
+    {
+     "label": "عيون",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 543
+    },
+    {
+     "label": "أنف وأذن وحنجرة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 539
+    },
+    {
+     "label": "باطنية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 570
+    },
+    {
+     "label": "طب أسرة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 558
+    },
+    {
+     "label": "مسالك بولية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 555
+    },
+    {
+     "label": "جهاز هضمي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 566
+    },
+    {
+     "label": "غدد صماء وسكري",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 541
+    },
+    {
+     "label": "صدرية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 551
+    },
+    {
+     "label": "كلى",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 564
+    },
+    {
+     "label": "أورام",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 574
+    },
+    {
+     "label": "روماتيزم",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 567
+    },
+    {
+     "label": "جراحة عامة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 563
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 24
+   }
+  },
+  {
+   "route": "insurance_config",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 1868,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | التأمين الصحي | حدد شركات التأمين المقبولة لديك ونسب التحمل "
+   },
+   "status": "TESTED",
+   "inputs_filled": 25,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "facility_info",
+     "response_ms": 1107
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 484
+    },
+    {
+     "label": "(icon #2)",
+     "result": "UI_CHANGE",
+     "response_ms": 491
+    },
+    {
+     "label": "(icon #3)",
+     "result": "UI_CHANGE",
+     "response_ms": 530
+    },
+    {
+     "label": "(icon #4)",
+     "result": "UI_CHANGE",
+     "response_ms": 481
+    },
+    {
+     "label": "(icon #5)",
+     "result": "UI_CHANGE",
+     "response_ms": 488
+    },
+    {
+     "label": "(icon #6)",
+     "result": "UI_CHANGE",
+     "response_ms": 512
+    },
+    {
+     "label": "(icon #7)",
+     "result": "UI_CHANGE",
+     "response_ms": 489
+    },
+    {
+     "label": "(icon #8)",
+     "result": "UI_CHANGE",
+     "response_ms": 502
+    },
+    {
+     "label": "(icon #9)",
+     "result": "UI_CHANGE",
+     "response_ms": 480
+    },
+    {
+     "label": "(icon #10)",
+     "result": "UI_CHANGE",
+     "response_ms": 482
+    },
+    {
+     "label": "(icon #11)",
+     "result": "UI_CHANGE",
+     "response_ms": 482
+    },
+    {
+     "label": "(icon #12)",
+     "result": "UI_CHANGE",
+     "response_ms": 478
+    },
+    {
+     "label": "(icon #13)",
+     "result": "UI_CHANGE",
+     "response_ms": 484
+    },
+    {
+     "label": "(icon #14)",
+     "result": "UI_CHANGE",
+     "response_ms": 523
+    },
+    {
+     "label": "(icon #15)",
+     "result": "UI_CHANGE",
+     "response_ms": 501
+    },
+    {
+     "label": "(icon #16)",
+     "result": "UI_CHANGE",
+     "response_ms": 506
+    },
+    {
+     "label": "(icon #17)",
+     "result": "UI_CHANGE",
+     "response_ms": 573
+    },
+    {
+     "label": "(icon #18)",
+     "result": "UI_CHANGE",
+     "response_ms": 572
+    },
+    {
+     "label": "(icon #19)",
+     "result": "UI_CHANGE",
+     "response_ms": 532
+    },
+    {
+     "label": "(icon #20)",
+     "result": "UI_CHANGE",
+     "response_ms": 539
+    },
+    {
+     "label": "(icon #21)",
+     "result": "UI_CHANGE",
+     "response_ms": 568
+    },
+    {
+     "label": "(icon #22)",
+     "result": "UI_CHANGE",
+     "response_ms": 546
+    },
+    {
+     "label": "(icon #23)",
+     "result": "UI_CHANGE",
+     "response_ms": 568
+    },
+    {
+     "label": "(icon #24)",
+     "result": "UI_CHANGE",
+     "response_ms": 583
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 24
+   }
+  },
+  {
+   "route": "insurance_requests",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 742,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | طلبات التأمين | مراجعة يدوية قبل تقديم الخدمة | shield | لا توجد"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "insurance_config",
+     "response_ms": 449
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "certificates_config",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 740,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | الشهادات والمؤهلات | المستندات الرسمية المرتبطة بملفك المهني"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "insurance_config",
+     "response_ms": 488
+    },
+    {
+     "label": "رفع المستند",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 537
+    },
+    {
+     "label": "رفع وثيقة أو شهادة جديدة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 483
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 2
+   }
+  },
+  {
+   "route": "media_config",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 744,
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "404 GET /storage/%D9%82%D9%8A%D9%85%D8%A9/signed-url"
+    ],
+    "heading": "→ | الصور والوسائط | الصور المعروضة في صفحتك العامة للمرضى (العي"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "certificates_config",
+     "response_ms": 473
+    },
+    {
+     "label": "إضافة صورة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 461
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "shifts",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 741,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ |  إدارة المناوبات | اليوم | الأسبوع | مناوبات اليوم | calendar | لا ت"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "media_config",
+     "response_ms": 453
+    },
+    {
+     "label": "اليوم",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 458
+    },
+    {
+     "label": "الأسبوع",
+     "result": "UI_CHANGE",
+     "response_ms": 449
+    },
+    {
+     "label": "+ إضافة مناوبة",
+     "result": "UI_CHANGE",
+     "response_ms": 467
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 1,
+    "UI_CHANGE": 2
+   }
+  },
+  {
+   "route": "promotions",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 738,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "مركز العروض الترويجية | العروض النشطة والمستمرة | لا توجد عروض ت"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "shifts",
+     "response_ms": 444
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NAVIGATE",
+     "to": "create_promo",
+     "response_ms": 465
+    },
+    {
+     "label": "إنشاء عرض جديد",
+     "result": "NAVIGATE",
+     "to": "create_promo",
+     "response_ms": 497
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 3
+   }
+  },
+  {
+   "route": "web_config",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 743,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | موقع مزود الخدمة العام | تفعيل الصفحة العامة للمريض | تمكين حج"
+   },
+   "status": "TESTED",
+   "inputs_filled": 3,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "create_promo",
+     "response_ms": 498
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 456
+    },
+    {
+     "label": "النبذة التعريفية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 451
+    },
+    {
+     "label": "حسابات التواصل الاجتماعي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 464
+    },
+    {
+     "label": "مشاركة",
+     "result": "UI_CHANGE",
+     "response_ms": 457
+    },
+    {
+     "label": "حفظ التعديلات",
+     "result": "WRITE",
+     "status": 200,
+     "method": "PATCH",
+     "url": "/provider/profile",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 829
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 3,
+    "UI_CHANGE": 1,
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "subscriptions_ads",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 392,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | الاشتراكات والترويج المدفوع | الباقة الحالية: — | شراء إعلانات"
+   },
+   "status": "TESTED",
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 473
+    },
+    {
+     "label": "الميزانية الإجمالية (ريال)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 471
+    },
+    {
+     "label": "مدة الإعلان (أيام)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 477
+    },
+    {
+     "label": "تأكيد ودفع رسوم الإعلان",
+     "result": "UI_CHANGE",
+     "response_ms": 477
+    },
+    {
+     "label": "برنامج المسوقين والشركاء (Affiliate)",
+     "result": "NAVIGATE",
+     "to": "affiliate",
+     "response_ms": 821
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 2,
+    "NO_EFFECT": 2,
+    "UI_CHANGE": 1
+   }
+  },
+  {
+   "route": "reputation",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 743,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | لوحة السمعة والتقييمات | star | لا توجد تقييمات بعد | ستظهر تقيي"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "affiliate",
+     "response_ms": 435
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "crm",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 737,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | ذكاء الأعمال وإدارة العملاء | 0 | مرضى مسجلون | 0 | VIP | روستر المت"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "affiliate",
+     "response_ms": 811
+    },
+    {
+     "label": "تفاصيل الإيرادات والتقارير",
+     "result": "NAVIGATE",
+     "to": "revenue_insights",
+     "response_ms": 834
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 2
+   }
+  },
+  {
+   "route": "sos_dispatch",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 740,
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "403 GET /emergency/active"
+    ],
+    "heading": "→ | منصة الاستغاثة والطوارئ | هل تواجه حالة طوارئ؟ | إرسال نداء اس"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "revenue_insights",
+     "response_ms": 449
+    },
+    {
+     "label": "إرسال نداء استغاثة (SOS)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 457
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "ambulance_fleet",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 743,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ |  أسطول الإسعاف | المركبات تخدم بعد اعتماد الإدارة | كل مركبة ج"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "sos_dispatch",
+     "response_ms": 458
+    },
+    {
+     "label": "إضافة مركبة",
+     "result": "UI_CHANGE",
+     "response_ms": 486
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 1
+   }
+  },
+  {
+   "route": "auto_reports",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 741,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | تفاصيل الإيرادات والتحليلات | صافي أرباح الشهر الحالي | ٠ ريال"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "ambulance_fleet",
+     "response_ms": 441
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "medical_jobs",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 398,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | الوارد (ATS)"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "ambulance_fleet",
+     "response_ms": 457
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 454
+    },
+    {
+     "label": "تصفح الوظائف",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 479
+    },
+    {
+     "label": "إضافة إعلان",
+     "result": "UI_CHANGE",
+     "response_ms": 503
+    },
+    {
+     "label": "الوارد (ATS)",
+     "result": "UI_CHANGE",
+     "response_ms": 835
+    },
+    {
+     "label": "(icon #5)",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: (icon #5)"
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 3,
+    "NO_EFFECT": 1,
+    "CRAWLER_TARGET_MISSING": 1
+   }
+  },
+  {
+   "route": "drug_index",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 1867,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "دليل الأدوية الطبي | الكل | pain (14) | UE3C96A10 (2) | UC15A2210 (1"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "medical_jobs",
+     "response_ms": 461
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 439
+    },
+    {
+     "label": "الكل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 529
+    },
+    {
+     "label": "pain (14)",
+     "result": "UI_CHANGE",
+     "response_ms": 2050
+    },
+    {
+     "label": "UE3C96A10 (2)",
+     "result": "UI_CHANGE",
+     "response_ms": 2048
+    },
+    {
+     "label": "UC15A2210 (1)",
+     "result": "UI_CHANGE",
+     "response_ms": 2068
+    },
+    {
+     "label": "category-20703 (1)",
+     "result": "UI_CHANGE",
+     "response_ms": 2064
+    },
+    {
+     "label": "UC15A2204 (معدّل E2E)",
+     "result": "UI_CHANGE",
+     "response_ms": 942
+    },
+    {
+     "label": "UE3C96A04",
+     "result": "UI_CHANGE",
+     "response_ms": 620
+    },
+    {
+     "label": "name_ar-20700",
+     "result": "UI_CHANGE",
+     "response_ms": 945
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 0019c8",
+     "result": "UI_CHANGE",
+     "response_ms": 950
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 18f732",
+     "result": "UI_CHANGE",
+     "response_ms": 942
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 4a05f6",
+     "result": "UI_CHANGE",
+     "response_ms": 954
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 730a68",
+     "result": "UI_CHANGE",
+     "response_ms": 918
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 81b23b",
+     "result": "UI_CHANGE",
+     "response_ms": 945
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ a33d6a",
+     "result": "UI_CHANGE",
+     "response_ms": 940
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ c632fa",
+     "result": "UI_CHANGE",
+     "response_ms": 965
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 2dfd4a",
+     "result": "UI_CHANGE",
+     "response_ms": 941
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 39ce55",
+     "result": "UI_CHANGE",
+     "response_ms": 1009
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 5e0bd1",
+     "result": "UI_CHANGE",
+     "response_ms": 940
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 72e0fb",
+     "result": "UI_CHANGE",
+     "response_ms": 930
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 874ed2",
+     "result": "UI_CHANGE",
+     "response_ms": 942
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ bca0db",
+     "result": "UI_CHANGE",
+     "response_ms": 924
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ fc3790",
+     "result": "UI_CHANGE",
+     "response_ms": 941
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 2,
+    "UI_CHANGE": 21
+   }
+  },
+  {
+   "route": "security",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 398,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | الأمان والحماية 2FA | تغيير كلمة المرور | تحديث كلمة المرور"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "drug_index",
+     "response_ms": 504
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 442
+    },
+    {
+     "label": "(icon #2)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 453
+    },
+    {
+     "label": "(icon #3)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 429
+    },
+    {
+     "label": "(icon #4)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 425
+    },
+    {
+     "label": "تحديث كلمة المرور",
+     "result": "UI_CHANGE",
+     "response_ms": 494
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 4,
+    "UI_CHANGE": 1
+   }
+  },
+  {
+   "route": "beds",
+   "ui_path": [
+    "إدارة الأسرّة",
+    "إدخل"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 1556,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ |  إدارة الأسرّة | bed | 168 | الإجمالي | user | 0 | مشغول | online | 168 | مت"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "→",
+     "result": "UI_CHANGE",
+     "response_ms": 730
+    },
+    {
+     "label": "+ إضافة جناح",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 760
+    },
+    {
+     "label": "إدارة الأسرّة",
+     "result": "WRITE",
+     "status": 404,
+     "method": "POST",
+     "url": "/facility/beds/admission",
+     "tokens_sent": 1,
+     "tokens_stored": 0,
+     "response_ms": 1095
+    },
+    {
+     "label": "(icon #6)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 433
+    },
+    {
+     "label": "إدخل",
+     "result": "UI_CHANGE",
+     "response_ms": 1581
+    },
+    {
+     "label": "(icon #49)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 431
+    },
+    {
+     "label": "معرف المريض (Patient ID) *",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 773
+    },
+    {
+     "label": "تأكيد الحجز وتسكين المريض",
+     "result": "WRITE",
+     "status": 404,
+     "method": "POST",
+     "url": "/facility/beds/admission",
+     "tokens_sent": 1,
+     "tokens_stored": 0,
+     "response_ms": 1172
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 2,
+    "NO_EFFECT": 4,
+    "WRITE": 2
+   }
+  },
+  {
+   "route": "insurance_config",
+   "ui_path": [
+    "(icon #1)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 2258,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | التأمين الصحي | حدد شركات التأمين المقبولة لديك ونسب التحمل "
+   },
+   "status": "TESTED",
+   "inputs_filled": 25,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 1106
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 471
+    },
+    {
+     "label": "نسبة التحمل %",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1117
+    },
+    {
+     "label": "فئة VIP",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1121
+    },
+    {
+     "label": "الفئة الذهبية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1086
+    },
+    {
+     "label": "الفئة الفضية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1089
+    },
+    {
+     "label": "الفئة البرونزية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1155
+    },
+    {
+     "label": "(icon #7)",
+     "result": "UI_CHANGE",
+     "response_ms": 477
+    },
+    {
+     "label": "(icon #8)",
+     "result": "UI_CHANGE",
+     "response_ms": 483
+    },
+    {
+     "label": "(icon #9)",
+     "result": "UI_CHANGE",
+     "response_ms": 454
+    },
+    {
+     "label": "(icon #10)",
+     "result": "UI_CHANGE",
+     "response_ms": 458
+    },
+    {
+     "label": "(icon #11)",
+     "result": "UI_CHANGE",
+     "response_ms": 460
+    },
+    {
+     "label": "(icon #12)",
+     "result": "UI_CHANGE",
+     "response_ms": 473
+    },
+    {
+     "label": "(icon #13)",
+     "result": "UI_CHANGE",
+     "response_ms": 462
+    },
+    {
+     "label": "(icon #14)",
+     "result": "UI_CHANGE",
+     "response_ms": 479
+    },
+    {
+     "label": "(icon #15)",
+     "result": "UI_CHANGE",
+     "response_ms": 489
+    },
+    {
+     "label": "(icon #16)",
+     "result": "UI_CHANGE",
+     "response_ms": 456
+    },
+    {
+     "label": "(icon #17)",
+     "result": "UI_CHANGE",
+     "response_ms": 454
+    },
+    {
+     "label": "(icon #18)",
+     "result": "UI_CHANGE",
+     "response_ms": 456
+    },
+    {
+     "label": "(icon #19)",
+     "result": "UI_CHANGE",
+     "response_ms": 463
+    },
+    {
+     "label": "(icon #20)",
+     "result": "UI_CHANGE",
+     "response_ms": 468
+    },
+    {
+     "label": "(icon #21)",
+     "result": "UI_CHANGE",
+     "response_ms": 462
+    },
+    {
+     "label": "(icon #22)",
+     "result": "UI_CHANGE",
+     "response_ms": 455
+    },
+    {
+     "label": "(icon #23)",
+     "result": "UI_CHANGE",
+     "response_ms": 465
+    },
+    {
+     "label": "(icon #24)",
+     "result": "UI_CHANGE",
+     "response_ms": 460
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 19,
+    "NO_EFFECT": 5
+   }
+  },
+  {
+   "route": "insurance_config",
+   "ui_path": [
+    "(icon #2)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 2261,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | التأمين الصحي | حدد شركات التأمين المقبولة لديك ونسب التحمل "
+   },
+   "status": "TESTED",
+   "inputs_filled": 25,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 1056
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 477
+    },
+    {
+     "label": "(icon #2)",
+     "result": "UI_CHANGE",
+     "response_ms": 478
+    },
+    {
+     "label": "نسبة التحمل %",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1142
+    },
+    {
+     "label": "VIP",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1065
+    },
+    {
+     "label": "ذهبية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1104
+    },
+    {
+     "label": "فضية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1074
+    },
+    {
+     "label": "(icon #7)",
+     "result": "UI_CHANGE",
+     "response_ms": 447
+    },
+    {
+     "label": "(icon #8)",
+     "result": "UI_CHANGE",
+     "response_ms": 454
+    },
+    {
+     "label": "(icon #9)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 441
+    },
+    {
+     "label": "(icon #10)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 460
+    },
+    {
+     "label": "(icon #11)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 440
+    },
+    {
+     "label": "(icon #12)",
+     "result": "UI_CHANGE",
+     "response_ms": 481
+    },
+    {
+     "label": "(icon #13)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 446
+    },
+    {
+     "label": "(icon #14)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 448
+    },
+    {
+     "label": "(icon #15)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 460
+    },
+    {
+     "label": "(icon #16)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 452
+    },
+    {
+     "label": "(icon #17)",
+     "result": "UI_CHANGE",
+     "response_ms": 465
+    },
+    {
+     "label": "(icon #18)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 448
+    },
+    {
+     "label": "(icon #19)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 444
+    },
+    {
+     "label": "(icon #20)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 452
+    },
+    {
+     "label": "(icon #21)",
+     "result": "UI_CHANGE",
+     "response_ms": 454
+    },
+    {
+     "label": "(icon #22)",
+     "result": "UI_CHANGE",
+     "response_ms": 478
+    },
+    {
+     "label": "(icon #23)",
+     "result": "UI_CHANGE",
+     "response_ms": 464
+    },
+    {
+     "label": "(icon #24)",
+     "result": "UI_CHANGE",
+     "response_ms": 461
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 10,
+    "NO_EFFECT": 14
+   }
+  },
+  {
+   "route": "insurance_config",
+   "ui_path": [
+    "(icon #3)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 2256,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | التأمين الصحي | حدد شركات التأمين المقبولة لديك ونسب التحمل "
+   },
+   "status": "TESTED",
+   "inputs_filled": 25,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 1062
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 454
+    },
+    {
+     "label": "(icon #2)",
+     "result": "UI_CHANGE",
+     "response_ms": 455
+    },
+    {
+     "label": "(icon #3)",
+     "result": "UI_CHANGE",
+     "response_ms": 471
+    },
+    {
+     "label": "نسبة التحمل %",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1086
+    },
+    {
+     "label": "فئة A",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1070
+    },
+    {
+     "label": "فئة B",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1061
+    },
+    {
+     "label": "فئة C",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1044
+    },
+    {
+     "label": "(icon #8)",
+     "result": "UI_CHANGE",
+     "response_ms": 497
+    },
+    {
+     "label": "(icon #9)",
+     "result": "UI_CHANGE",
+     "response_ms": 477
+    },
+    {
+     "label": "(icon #10)",
+     "result": "UI_CHANGE",
+     "response_ms": 464
+    },
+    {
+     "label": "(icon #11)",
+     "result": "UI_CHANGE",
+     "response_ms": 479
+    },
+    {
+     "label": "(icon #12)",
+     "result": "UI_CHANGE",
+     "response_ms": 457
+    },
+    {
+     "label": "(icon #13)",
+     "result": "UI_CHANGE",
+     "response_ms": 480
+    },
+    {
+     "label": "(icon #14)",
+     "result": "UI_CHANGE",
+     "response_ms": 484
+    },
+    {
+     "label": "(icon #15)",
+     "result": "UI_CHANGE",
+     "response_ms": 470
+    },
+    {
+     "label": "(icon #16)",
+     "result": "UI_CHANGE",
+     "response_ms": 464
+    },
+    {
+     "label": "(icon #17)",
+     "result": "UI_CHANGE",
+     "response_ms": 475
+    },
+    {
+     "label": "(icon #18)",
+     "result": "UI_CHANGE",
+     "response_ms": 466
+    },
+    {
+     "label": "(icon #19)",
+     "result": "UI_CHANGE",
+     "response_ms": 467
+    },
+    {
+     "label": "(icon #20)",
+     "result": "UI_CHANGE",
+     "response_ms": 471
+    },
+    {
+     "label": "(icon #21)",
+     "result": "UI_CHANGE",
+     "response_ms": 456
+    },
+    {
+     "label": "(icon #22)",
+     "result": "UI_CHANGE",
+     "response_ms": 469
+    },
+    {
+     "label": "(icon #23)",
+     "result": "UI_CHANGE",
+     "response_ms": 466
+    },
+    {
+     "label": "(icon #24)",
+     "result": "UI_CHANGE",
+     "response_ms": 478
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 20,
+    "NO_EFFECT": 4
+   }
+  },
+  {
+   "route": "insurance_config",
+   "ui_path": [
+    "(icon #4)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 2263,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | التأمين الصحي | حدد شركات التأمين المقبولة لديك ونسب التحمل "
+   },
+   "status": "TESTED",
+   "inputs_filled": 25,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 1047
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 469
+    },
+    {
+     "label": "(icon #2)",
+     "result": "UI_CHANGE",
+     "response_ms": 468
+    },
+    {
+     "label": "(icon #3)",
+     "result": "UI_CHANGE",
+     "response_ms": 468
+    },
+    {
+     "label": "(icon #4)",
+     "result": "UI_CHANGE",
+     "response_ms": 459
+    },
+    {
+     "label": "نسبة التحمل %",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1157
+    },
+    {
+     "label": "ذهبية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1136
+    },
+    {
+     "label": "فضية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1172
+    },
+    {
+     "label": "(icon #8)",
+     "result": "UI_CHANGE",
+     "response_ms": 460
+    },
+    {
+     "label": "(icon #9)",
+     "result": "UI_CHANGE",
+     "response_ms": 464
+    },
+    {
+     "label": "(icon #10)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 464
+    },
+    {
+     "label": "(icon #11)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 467
+    },
+    {
+     "label": "(icon #12)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 466
+    },
+    {
+     "label": "(icon #13)",
+     "result": "UI_CHANGE",
+     "response_ms": 499
+    },
+    {
+     "label": "(icon #14)",
+     "result": "UI_CHANGE",
+     "response_ms": 471
+    },
+    {
+     "label": "(icon #15)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 451
+    },
+    {
+     "label": "(icon #16)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 465
+    },
+    {
+     "label": "(icon #17)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 449
+    },
+    {
+     "label": "(icon #18)",
+     "result": "UI_CHANGE",
+     "response_ms": 463
+    },
+    {
+     "label": "(icon #19)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 456
+    },
+    {
+     "label": "(icon #20)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 462
+    },
+    {
+     "label": "(icon #21)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 469
+    },
+    {
+     "label": "(icon #22)",
+     "result": "UI_CHANGE",
+     "response_ms": 474
+    },
+    {
+     "label": "(icon #23)",
+     "result": "UI_CHANGE",
+     "response_ms": 475
+    },
+    {
+     "label": "(icon #24)",
+     "result": "UI_CHANGE",
+     "response_ms": 459
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 12,
+    "NO_EFFECT": 12
+   }
+  },
+  {
+   "route": "insurance_config",
+   "ui_path": [
+    "(icon #7)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 2260,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | التأمين الصحي | حدد شركات التأمين المقبولة لديك ونسب التحمل "
+   },
+   "status": "TESTED",
+   "inputs_filled": 25,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 1100
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 473
+    },
+    {
+     "label": "(icon #2)",
+     "result": "UI_CHANGE",
+     "response_ms": 495
+    },
+    {
+     "label": "(icon #3)",
+     "result": "UI_CHANGE",
+     "response_ms": 480
+    },
+    {
+     "label": "(icon #4)",
+     "result": "UI_CHANGE",
+     "response_ms": 472
+    },
+    {
+     "label": "(icon #5)",
+     "result": "UI_CHANGE",
+     "response_ms": 476
+    },
+    {
+     "label": "(icon #6)",
+     "result": "UI_CHANGE",
+     "response_ms": 456
+    },
+    {
+     "label": "(icon #7)",
+     "result": "UI_CHANGE",
+     "response_ms": 446
+    },
+    {
+     "label": "نسبة التحمل %",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1089
+    },
+    {
+     "label": "شاملة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1041
+    },
+    {
+     "label": "أساسية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1045
+    },
+    {
+     "label": "(icon #11)",
+     "result": "UI_CHANGE",
+     "response_ms": 453
+    },
+    {
+     "label": "(icon #12)",
+     "result": "UI_CHANGE",
+     "response_ms": 474
+    },
+    {
+     "label": "(icon #13)",
+     "result": "UI_CHANGE",
+     "response_ms": 463
+    },
+    {
+     "label": "(icon #14)",
+     "result": "UI_CHANGE",
+     "response_ms": 469
+    },
+    {
+     "label": "(icon #15)",
+     "result": "UI_CHANGE",
+     "response_ms": 474
+    },
+    {
+     "label": "(icon #16)",
+     "result": "UI_CHANGE",
+     "response_ms": 475
+    },
+    {
+     "label": "(icon #17)",
+     "result": "UI_CHANGE",
+     "response_ms": 465
+    },
+    {
+     "label": "(icon #18)",
+     "result": "UI_CHANGE",
+     "response_ms": 481
+    },
+    {
+     "label": "(icon #19)",
+     "result": "UI_CHANGE",
+     "response_ms": 458
+    },
+    {
+     "label": "(icon #20)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 443
+    },
+    {
+     "label": "(icon #21)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 455
+    },
+    {
+     "label": "(icon #22)",
+     "result": "UI_CHANGE",
+     "response_ms": 485
+    },
+    {
+     "label": "(icon #23)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 442
+    },
+    {
+     "label": "(icon #24)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 461
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 17,
+    "NO_EFFECT": 7
+   }
+  },
+  {
+   "route": "insurance_config",
+   "ui_path": [
+    "(icon #8)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 2261,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | التأمين الصحي | حدد شركات التأمين المقبولة لديك ونسب التحمل "
+   },
+   "status": "TESTED",
+   "inputs_filled": 25,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 1148
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 489
+    },
+    {
+     "label": "(icon #2)",
+     "result": "UI_CHANGE",
+     "response_ms": 472
+    },
+    {
+     "label": "(icon #3)",
+     "result": "UI_CHANGE",
+     "response_ms": 459
+    },
+    {
+     "label": "(icon #4)",
+     "result": "UI_CHANGE",
+     "response_ms": 475
+    },
+    {
+     "label": "(icon #5)",
+     "result": "UI_CHANGE",
+     "response_ms": 467
+    },
+    {
+     "label": "(icon #6)",
+     "result": "UI_CHANGE",
+     "response_ms": 463
+    },
+    {
+     "label": "(icon #7)",
+     "result": "UI_CHANGE",
+     "response_ms": 483
+    },
+    {
+     "label": "(icon #8)",
+     "result": "UI_CHANGE",
+     "response_ms": 453
+    },
+    {
+     "label": "نسبة التحمل %",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1106
+    },
+    {
+     "label": "VIP",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1092
+    },
+    {
+     "label": "ذهبية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1108
+    },
+    {
+     "label": "(icon #12)",
+     "result": "UI_CHANGE",
+     "response_ms": 503
+    },
+    {
+     "label": "(icon #13)",
+     "result": "UI_CHANGE",
+     "response_ms": 478
+    },
+    {
+     "label": "(icon #14)",
+     "result": "UI_CHANGE",
+     "response_ms": 495
+    },
+    {
+     "label": "(icon #15)",
+     "result": "UI_CHANGE",
+     "response_ms": 484
+    },
+    {
+     "label": "(icon #16)",
+     "result": "UI_CHANGE",
+     "response_ms": 480
+    },
+    {
+     "label": "(icon #17)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 453
+    },
+    {
+     "label": "(icon #18)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 443
+    },
+    {
+     "label": "(icon #19)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 448
+    },
+    {
+     "label": "(icon #20)",
+     "result": "UI_CHANGE",
+     "response_ms": 468
+    },
+    {
+     "label": "(icon #21)",
+     "result": "UI_CHANGE",
+     "response_ms": 463
+    },
+    {
+     "label": "(icon #22)",
+     "result": "UI_CHANGE",
+     "response_ms": 471
+    },
+    {
+     "label": "(icon #23)",
+     "result": "UI_CHANGE",
+     "response_ms": 452
+    },
+    {
+     "label": "(icon #24)",
+     "result": "UI_CHANGE",
+     "response_ms": 482
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 18,
+    "NO_EFFECT": 6
+   }
+  },
+  {
+   "route": "shifts",
+   "ui_path": [
+    "+ إضافة مناوبة"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 1135,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ |  إدارة المناوبات | اليوم | الأسبوع | مناوبات اليوم | calendar | لا ت"
+   },
+   "status": "TESTED",
+   "inputs_filled": 3,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 520
+    },
+    {
+     "label": "اليوم",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 502
+    },
+    {
+     "label": "الأسبوع",
+     "result": "UI_CHANGE",
+     "response_ms": 513
+    },
+    {
+     "label": "الأحد",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 486
+    },
+    {
+     "label": "الاثنين",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 499
+    },
+    {
+     "label": "الثلاثاء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 518
+    },
+    {
+     "label": "الأربعاء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 502
+    },
+    {
+     "label": "الخميس",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 479
+    },
+    {
+     "label": "الجمعة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 503
+    },
+    {
+     "label": "السبت",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 494
+    },
+    {
+     "label": "من (HH:MM)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 481
+    },
+    {
+     "label": "إلى (HH:MM)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 489
+    },
+    {
+     "label": "القسم (اختياري)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 481
+    },
+    {
+     "label": "إلغاء",
+     "result": "UI_CHANGE",
+     "response_ms": 520
+    },
+    {
+     "label": "حفظ",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 500
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 12,
+    "UI_CHANGE": 2
+   }
+  },
+  {
+   "route": "create_promo",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 392,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | إنشاء حملة ترويجية | عنوان الحملة * | السعر الأصلي | ريال | السعر "
+   },
+   "status": "TESTED",
+   "inputs_filled": 5,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "shifts",
+     "response_ms": 500
+    },
+    {
+     "label": "عنوان الحملة *",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 472
+    },
+    {
+     "label": "السعر الأصلي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 490
+    },
+    {
+     "label": "السعر بعد الخصم",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 459
+    },
+    {
+     "label": "تاريخ البدء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 464
+    },
+    {
+     "label": "تاريخ الانتهاء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 453
+    },
+    {
+     "label": "إرسال للموافقة",
+     "result": "UI_CHANGE",
+     "response_ms": 479
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 5,
+    "UI_CHANGE": 1
+   }
+  },
+  {
+   "route": "affiliate",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 740,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | بوابة التسويق بالعمولة | ادعُ مقدم خدمة واحصل على مكافآت الإ"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "create_promo",
+     "response_ms": 456
+    },
+    {
+     "label": "مشاركة الكود",
+     "result": "UI_CHANGE",
+     "response_ms": 500
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 1
+   }
+  },
+  {
+   "route": "revenue_insights",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 738,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | تفاصيل الإيرادات والتحليلات | صافي أرباح الشهر الحالي | ٠ ريال"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "affiliate",
+     "response_ms": 448
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "ambulance_fleet",
+   "ui_path": [
+    "إضافة مركبة"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 1130,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ |  أسطول الإسعاف | المركبات تخدم بعد اعتماد الإدارة | كل مركبة ج"
+   },
+   "status": "TESTED",
+   "inputs_filled": 7,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 505
+    },
+    {
+     "label": "رقم اللوحة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 503
+    },
+    {
+     "label": "الموديل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 504
+    },
+    {
+     "label": "سنة الصنع",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 504
+    },
+    {
+     "label": "عدد المسعفين",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 501
+    },
+    {
+     "label": "مدينة التمركز",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 513
+    },
+    {
+     "label": "التجهيزات (افصل بفاصلة)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 466
+    },
+    {
+     "label": "(icon #7)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 447
+    },
+    {
+     "label": "حفظ",
+     "result": "UI_CHANGE",
+     "response_ms": 492
+    },
+    {
+     "label": "إلغاء",
+     "result": "UI_CHANGE",
+     "response_ms": 466
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 7,
+    "UI_CHANGE": 2
+   }
+  },
+  {
+   "route": "medical_jobs",
+   "ui_path": [
+    "(icon #1)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 1144,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | الوارد (ATS) | تصفية و"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "UI_CHANGE",
+     "response_ms": 518
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 455
+    },
+    {
+     "label": "تصفح الوظائف",
+     "result": "UI_CHANGE",
+     "response_ms": 556
+    },
+    {
+     "label": "إضافة إعلان",
+     "result": "UI_CHANGE",
+     "response_ms": 628
+    },
+    {
+     "label": "الوارد (ATS)",
+     "result": "UI_CHANGE",
+     "response_ms": 524
+    },
+    {
+     "label": "(icon #5)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 436
+    },
+    {
+     "label": "(icon #6)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 651
+    },
+    {
+     "label": "طبيب",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 634
+    },
+    {
+     "label": "صيدلي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 521
+    },
+    {
+     "label": "تمريض",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 550
+    },
+    {
+     "label": "مختبر",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 554
+    },
+    {
+     "label": "أشعة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 526
+    },
+    {
+     "label": "الرياض",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 547
+    },
+    {
+     "label": "جدة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 547
+    },
+    {
+     "label": "الدمام",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 552
+    },
+    {
+     "label": "مكة المكرمة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 537
+    },
+    {
+     "label": "المدينة المنورة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 535
+    },
+    {
+     "label": "تطبيق الفرز",
+     "result": "UI_CHANGE",
+     "response_ms": 565
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 6,
+    "NO_EFFECT": 12
+   }
+  },
+  {
+   "route": "medical_jobs",
+   "ui_path": [
+    "إضافة إعلان"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 1653,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | الوارد (ATS) | أنا صاح"
+   },
+   "status": "TESTED",
+   "inputs_filled": 7,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 481
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 473
+    },
+    {
+     "label": "تصفح الوظائف",
+     "result": "UI_CHANGE",
+     "response_ms": 586
+    },
+    {
+     "label": "إضافة إعلان",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 666
+    },
+    {
+     "label": "الوارد (ATS)",
+     "result": "UI_CHANGE",
+     "response_ms": 976
+    },
+    {
+     "label": "أنا صاحب عمل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 569
+    },
+    {
+     "label": "أنا باحث عن عمل",
+     "result": "UI_CHANGE",
+     "response_ms": 602
+    },
+    {
+     "label": "المسمى الوظيفي المطلوب *",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 554
+    },
+    {
+     "label": "اسم المنشأة أو المستشفى (اختياري)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 561
+    },
+    {
+     "label": "طبيب",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 580
+    },
+    {
+     "label": "تمريض",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 604
+    },
+    {
+     "label": "صيدلي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 583
+    },
+    {
+     "label": "مختبر",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 568
+    },
+    {
+     "label": "أشعة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 553
+    },
+    {
+     "label": "طبيب عام",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 565
+    },
+    {
+     "label": "مقيم",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 577
+    },
+    {
+     "label": "أخصائي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 562
+    },
+    {
+     "label": "أخصائي أول",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 550
+    },
+    {
+     "label": "استشاري",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 565
+    },
+    {
+     "label": "غير مصنف",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 603
+    },
+    {
+     "label": "المدينة *",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 610
+    },
+    {
+     "label": "الجنسية المطلوبة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 648
+    },
+    {
+     "label": "سنوات الخبرة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 576
+    },
+    {
+     "label": "دوام كامل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 568
+    },
+    {
+     "label": "دوام جزئي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 620
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 4,
+    "NO_EFFECT": 20
+   }
+  },
+  {
+   "route": "drug_index",
+   "ui_path": [
+    "pain (14)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 3743,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "دليل الأدوية الطبي | الكل | pain (14) | UE3C96A10 (2) | category-207"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 460
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 1908
+    },
+    {
+     "label": "الكل",
+     "result": "UI_CHANGE",
+     "response_ms": 2160
+    },
+    {
+     "label": "pain (14)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 530
+    },
+    {
+     "label": "UE3C96A10 (2)",
+     "result": "UI_CHANGE",
+     "response_ms": 2035
+    },
+    {
+     "label": "category-20703 (1)",
+     "result": "UI_CHANGE",
+     "response_ms": 1997
+    },
+    {
+     "label": "UC15A2210 (1)",
+     "result": "UI_CHANGE",
+     "response_ms": 2002
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 0019c8",
+     "result": "UI_CHANGE",
+     "response_ms": 936
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 18f732",
+     "result": "UI_CHANGE",
+     "response_ms": 887
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 4a05f6",
+     "result": "UI_CHANGE",
+     "response_ms": 629
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 730a68",
+     "result": "UI_CHANGE",
+     "response_ms": 910
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 81b23b",
+     "result": "UI_CHANGE",
+     "response_ms": 906
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ a33d6a",
+     "result": "UI_CHANGE",
+     "response_ms": 937
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ c632fa",
+     "result": "UI_CHANGE",
+     "response_ms": 953
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 2dfd4a",
+     "result": "UI_CHANGE",
+     "response_ms": 912
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 39ce55",
+     "result": "UI_CHANGE",
+     "response_ms": 916
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 5e0bd1",
+     "result": "UI_CHANGE",
+     "response_ms": 885
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 72e0fb",
+     "result": "UI_CHANGE",
+     "response_ms": 877
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 874ed2",
+     "result": "UI_CHANGE",
+     "response_ms": 939
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ bca0db",
+     "result": "UI_CHANGE",
+     "response_ms": 888
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ fc3790",
+     "result": "UI_CHANGE",
+     "response_ms": 949
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 19,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "drug_index",
+   "ui_path": [
+    "UE3C96A10 (2)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 3729,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "دليل الأدوية الطبي | الكل | pain (14) | UE3C96A10 (2) | UC15A2210 (1"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 446
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 1895
+    },
+    {
+     "label": "الكل",
+     "result": "UI_CHANGE",
+     "response_ms": 1935
+    },
+    {
+     "label": "pain (14)",
+     "result": "UI_CHANGE",
+     "response_ms": 1941
+    },
+    {
+     "label": "UE3C96A10 (2)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 464
+    },
+    {
+     "label": "UC15A2210 (1)",
+     "result": "UI_CHANGE",
+     "response_ms": 1926
+    },
+    {
+     "label": "category-20703 (1)",
+     "result": "UI_CHANGE",
+     "response_ms": 1928
+    },
+    {
+     "label": "UE3C96A04",
+     "result": "UI_CHANGE",
+     "response_ms": 832
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 6,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "drug_index",
+   "ui_path": [
+    "UC15A2210 (1)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 3724,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "دليل الأدوية الطبي | الكل | pain (14) | UE3C96A10 (2) | UC15A2210 (1"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 441
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 1897
+    },
+    {
+     "label": "الكل",
+     "result": "UI_CHANGE",
+     "response_ms": 1919
+    },
+    {
+     "label": "pain (14)",
+     "result": "UI_CHANGE",
+     "response_ms": 1920
+    },
+    {
+     "label": "UE3C96A10 (2)",
+     "result": "UI_CHANGE",
+     "response_ms": 1921
+    },
+    {
+     "label": "UC15A2210 (1)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 451
+    },
+    {
+     "label": "category-20703 (1)",
+     "result": "UI_CHANGE",
+     "response_ms": 1917
+    },
+    {
+     "label": "UC15A2204 (معدّل E2E)",
+     "result": "UI_CHANGE",
+     "response_ms": 809
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 6,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "drug_index",
+   "ui_path": [
+    "category-20703 (1)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 3723,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "دليل الأدوية الطبي | الكل | pain (14) | UE3C96A10 (2) | UC15A2210 (1"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 433
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 1897
+    },
+    {
+     "label": "الكل",
+     "result": "UI_CHANGE",
+     "response_ms": 1911
+    },
+    {
+     "label": "pain (14)",
+     "result": "UI_CHANGE",
+     "response_ms": 1922
+    },
+    {
+     "label": "UE3C96A10 (2)",
+     "result": "UI_CHANGE",
+     "response_ms": 1937
+    },
+    {
+     "label": "UC15A2210 (1)",
+     "result": "UI_CHANGE",
+     "response_ms": 1949
+    },
+    {
+     "label": "category-20703 (1)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 462
+    },
+    {
+     "label": "name_ar-20700",
+     "result": "UI_CHANGE",
+     "response_ms": 825
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 6,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "drug_index",
+   "ui_path": [
+    "UC15A2204 (معدّل E2E)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 2611,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "الملف الدوائي الكامل | UC15A2204 (معدّل E2E) | UC15A2208 | 0 ريال "
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "UI_CHANGE",
+     "response_ms": 816
+    },
+    {
+     "label": "الوصف",
+     "result": "UI_CHANGE",
+     "response_ms": 478
+    },
+    {
+     "label": "دواعي الاستعمال",
+     "result": "UI_CHANGE",
+     "response_ms": 486
+    },
+    {
+     "label": "الجرعة وطريقة الاستخدام",
+     "result": "UI_CHANGE",
+     "response_ms": 467
+    },
+    {
+     "label": "إرشادات الاستخدام",
+     "result": "UI_CHANGE",
+     "response_ms": 473
+    },
+    {
+     "label": "تحذيرات",
+     "result": "UI_CHANGE",
+     "response_ms": 496
+    },
+    {
+     "label": "موانع الاستخدام",
+     "result": "UI_CHANGE",
+     "response_ms": 468
+    },
+    {
+     "label": "الأعراض الجانبية",
+     "result": "UI_CHANGE",
+     "response_ms": 455
+    },
+    {
+     "label": "اقتراح تعديل على هذا الدواء",
+     "result": "UI_CHANGE",
+     "response_ms": 520
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 9
+   }
+  },
+  {
+   "route": "drug_index",
+   "ui_path": [
+    "UE3C96A04"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 2627,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "الملف الدوائي الكامل | UE3C96A04 | UE3C96A08 | 0 ريال سعودي | يتطلب "
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "UI_CHANGE",
+     "response_ms": 831
+    },
+    {
+     "label": "الوصف",
+     "result": "UI_CHANGE",
+     "response_ms": 482
+    },
+    {
+     "label": "دواعي الاستعمال",
+     "result": "UI_CHANGE",
+     "response_ms": 468
+    },
+    {
+     "label": "الجرعة وطريقة الاستخدام",
+     "result": "UI_CHANGE",
+     "response_ms": 483
+    },
+    {
+     "label": "إرشادات الاستخدام",
+     "result": "UI_CHANGE",
+     "response_ms": 474
+    },
+    {
+     "label": "تحذيرات",
+     "result": "UI_CHANGE",
+     "response_ms": 480
+    },
+    {
+     "label": "موانع الاستخدام",
+     "result": "UI_CHANGE",
+     "response_ms": 471
+    },
+    {
+     "label": "الأعراض الجانبية",
+     "result": "UI_CHANGE",
+     "response_ms": 473
+    },
+    {
+     "label": "UE3C96A04",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 484
+    },
+    {
+     "label": "اقتراح تعديل على هذا الدواء",
+     "result": "UI_CHANGE",
+     "response_ms": 526
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 9,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "drug_index",
+   "ui_path": [
+    "name_ar-20700"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 2613,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "الملف الدوائي الكامل | name_ar-20700 | 804 ريال سعودي | يتطلب وصفة"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "UI_CHANGE",
+     "response_ms": 815
+    },
+    {
+     "label": "اقتراح تعديل على هذا الدواء",
+     "result": "UI_CHANGE",
+     "response_ms": 501
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 2
+   }
+  },
+  {
+   "route": "drug_index",
+   "ui_path": [
+    "بنادول اكسترا 500 ملغ 0019c8"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 2612,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "الملف الدوائي الكامل | بنادول اكسترا 500 ملغ 0019c8 | GSK | 12.5 ر"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "UI_CHANGE",
+     "response_ms": 820
+    },
+    {
+     "label": "الوصف",
+     "result": "UI_CHANGE",
+     "response_ms": 504
+    },
+    {
+     "label": "دواعي الاستعمال",
+     "result": "UI_CHANGE",
+     "response_ms": 516
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 730a68",
+     "result": "UI_CHANGE",
+     "response_ms": 881
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ bca0db",
+     "result": "UI_CHANGE",
+     "response_ms": 878
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ a33d6a",
+     "result": "UI_CHANGE",
+     "response_ms": 881
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ fc3790",
+     "result": "UI_CHANGE",
+     "response_ms": 867
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 18f732",
+     "result": "UI_CHANGE",
+     "response_ms": 544
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 2dfd4a",
+     "result": "UI_CHANGE",
+     "response_ms": 881
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 81b23b",
+     "result": "UI_CHANGE",
+     "response_ms": 535
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 874ed2",
+     "result": "UI_CHANGE",
+     "response_ms": 879
+    },
+    {
+     "label": "اقتراح تعديل على هذا الدواء",
+     "result": "UI_CHANGE",
+     "response_ms": 558
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 12
+   }
+  },
+  {
+   "route": "medical_jobs",
+   "ui_path": [
+    "إضافة إعلان",
+    "(icon #1)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 1521,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | الوارد (ATS) | أنا صاح"
+   },
+   "status": "TESTED",
+   "inputs_filled": 7,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "UI_CHANGE",
+     "response_ms": 444
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 469
+    },
+    {
+     "label": "تصفح الوظائف",
+     "result": "UI_CHANGE",
+     "response_ms": 667
+    },
+    {
+     "label": "إضافة إعلان",
+     "result": "UI_CHANGE",
+     "response_ms": 660
+    },
+    {
+     "label": "الوارد (ATS)",
+     "result": "UI_CHANGE",
+     "response_ms": 650
+    },
+    {
+     "label": "أنا صاحب عمل",
+     "result": "UI_CHANGE",
+     "response_ms": 651
+    },
+    {
+     "label": "أنا باحث عن عمل",
+     "result": "UI_CHANGE",
+     "response_ms": 641
+    },
+    {
+     "label": "المسمى الوظيفي المطلوب *",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 629
+    },
+    {
+     "label": "اسم المنشأة أو المستشفى (اختياري)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 603
+    },
+    {
+     "label": "طبيب",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 642
+    },
+    {
+     "label": "تمريض",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 628
+    },
+    {
+     "label": "صيدلي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 668
+    },
+    {
+     "label": "مختبر",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 761
+    },
+    {
+     "label": "أشعة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 694
+    },
+    {
+     "label": "طبيب عام",
+     "result": "UI_CHANGE",
+     "response_ms": 641
+    },
+    {
+     "label": "مقيم",
+     "result": "UI_CHANGE",
+     "response_ms": 831
+    },
+    {
+     "label": "أخصائي",
+     "result": "UI_CHANGE",
+     "response_ms": 803
+    },
+    {
+     "label": "أخصائي أول",
+     "result": "UI_CHANGE",
+     "response_ms": 682
+    },
+    {
+     "label": "استشاري",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 647
+    },
+    {
+     "label": "غير مصنف",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 644
+    },
+    {
+     "label": "المدينة *",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 605
+    },
+    {
+     "label": "الجنسية المطلوبة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 619
+    },
+    {
+     "label": "سنوات الخبرة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 623
+    },
+    {
+     "label": "دوام كامل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 632
+    },
+    {
+     "label": "دوام جزئي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 619
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 11,
+    "NO_EFFECT": 14
+   }
+  },
+  {
+   "route": "medical_jobs",
+   "ui_path": [
+    "إضافة إعلان",
+    "أنا باحث عن عمل"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 1539,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | الوارد (ATS) | أنا صاح"
+   },
+   "status": "TESTED",
+   "inputs_filled": 8,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 466
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 443
+    },
+    {
+     "label": "تصفح الوظائف",
+     "result": "UI_CHANGE",
+     "response_ms": 568
+    },
+    {
+     "label": "إضافة إعلان",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 558
+    },
+    {
+     "label": "الوارد (ATS)",
+     "result": "UI_CHANGE",
+     "response_ms": 934
+    },
+    {
+     "label": "أنا صاحب عمل",
+     "result": "UI_CHANGE",
+     "response_ms": 565
+    },
+    {
+     "label": "أنا باحث عن عمل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 551
+    },
+    {
+     "label": "الوظيفة التي تبحث عنها *",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 565
+    },
+    {
+     "label": "جهة العمل الحالية (اختياري)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 545
+    },
+    {
+     "label": "طبيب",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 552
+    },
+    {
+     "label": "تمريض",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 551
+    },
+    {
+     "label": "صيدلي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 552
+    },
+    {
+     "label": "مختبر",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 543
+    },
+    {
+     "label": "أشعة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 550
+    },
+    {
+     "label": "طبيب عام",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 551
+    },
+    {
+     "label": "مقيم",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 548
+    },
+    {
+     "label": "أخصائي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 568
+    },
+    {
+     "label": "أخصائي أول",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 541
+    },
+    {
+     "label": "استشاري",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 574
+    },
+    {
+     "label": "غير مصنف",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 583
+    },
+    {
+     "label": "المدينة *",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 552
+    },
+    {
+     "label": "الجنسية المطلوبة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 531
+    },
+    {
+     "label": "سنوات الخبرة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 547
+    },
+    {
+     "label": "دوام كامل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 544
+    },
+    {
+     "label": "دوام جزئي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 738
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 4,
+    "NO_EFFECT": 20
+   }
+  },
+  {
+   "route": "resources",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 741,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | إدارة الموارد | الكل | غرف العمليات | العيادات | المعدات والأجهزة | "
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "medical_jobs",
+     "response_ms": 474
+    },
+    {
+     "label": "الكل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 478
+    },
+    {
+     "label": "غرف العمليات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 465
+    },
+    {
+     "label": "العيادات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 468
+    },
+    {
+     "label": "المعدات والأجهزة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 455
+    },
+    {
+     "label": "+ إضافة مورد",
+     "result": "UI_CHANGE",
+     "response_ms": 467
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 4,
+    "UI_CHANGE": 1
+   }
+  },
+  {
+   "route": "resources",
+   "ui_path": [
+    "+ إضافة مورد"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 1133,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | إدارة الموارد | الكل | غرف العمليات | العيادات | المعدات والأجهزة | "
+   },
+   "status": "TESTED",
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 517
+    },
+    {
+     "label": "الكل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 464
+    },
+    {
+     "label": "غرف العمليات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 481
+    },
+    {
+     "label": "العيادات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 469
+    },
+    {
+     "label": "المعدات والأجهزة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 476
+    },
+    {
+     "label": "إلغاء",
+     "result": "UI_CHANGE",
+     "response_ms": 471
+    },
+    {
+     "label": "الاسم بالعربية",
+     "result": "SKIPPED_DESTRUCTIVE"
+    },
+    {
+     "label": "الاسم بالإنجليزية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 490
+    },
+    {
+     "label": "حفظ المورد",
+     "result": "UI_CHANGE",
+     "response_ms": 482
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 5,
+    "UI_CHANGE": 2,
+    "SKIPPED_DESTRUCTIVE": 1
+   }
+  },
+  {
+   "route": "prescription",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 397,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ |  الوصفة الطبية الإلكترونية | م | — | ٢١‏/٤‏/١٤٤٨ هـ |  نماذج الوصف"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "resources",
+     "response_ms": 488
+    },
+    {
+     "label": "نماذج الوصفات",
+     "result": "UI_CHANGE",
+     "response_ms": 495
+    },
+    {
+     "label": "حفظ كنموذج",
+     "result": "UI_CHANGE",
+     "response_ms": 486
+    },
+    {
+     "label": "+ إضافة دواء",
+     "result": "UI_CHANGE",
+     "response_ms": 471
+    },
+    {
+     "label": "تعليمات إضافية للمريض",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 491
+    },
+    {
+     "label": "المريض مباشرة (WhatsApp / SMS)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 488
+    },
+    {
+     "label": "صيدلية في نبض بلس",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 491
+    },
+    {
+     "label": "طباعة PDF",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 525
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 3,
+    "NO_EFFECT": 4
+   }
+  },
+  {
+   "route": "discharge_summary",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 738,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | ملخص الخروج (Discharge) | اختر المريض المقيم: | لا يوجد مرضى م"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 457
+    },
+    {
+     "label": "(icon #1)",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: (icon #1)"
+    },
+    {
+     "label": "(icon #2)",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: (icon #2)"
+    },
+    {
+     "label": "✍️",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: ✍️"
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "CRAWLER_TARGET_MISSING": 3
+   }
+  },
+  {
+   "route": "support",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 393,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | الدعم الفني والخدمة | إنشاء تذكرة دعم جديدة | إرسال التذكرة | ال"
+   },
+   "status": "TESTED",
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "discharge_summary",
+     "response_ms": 500
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 445
+    },
+    {
+     "label": "(icon #2)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 436
+    },
+    {
+     "label": "إرسال التذكرة",
+     "result": "UI_CHANGE",
+     "response_ms": 480
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 2,
+    "UI_CHANGE": 1
+   }
+  },
+  {
+   "route": "order_detail",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 391,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | تفاصيل الطلب | Patient | Service | رفض الطلب | قبول وتأكيد | يرجى مل"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "support",
+     "response_ms": 436
+    },
+    {
+     "label": "رفض الطلب",
+     "result": "UI_CHANGE",
+     "response_ms": 462
+    },
+    {
+     "label": "قبول وتأكيد",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 460
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 1,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "wallet",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 1250,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | المحفظة والإيرادات | الرصيد المتاح للسحب | 0 ريال | طلب سحب | tren"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "order_detail",
+     "response_ms": 442
+    },
+    {
+     "label": "طلب سحب",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 450
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "gps_router",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 398,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | خرائط الملاحة والطوارئ | ابدأ الرحلة لتفعيل الملاحة الحية | بي"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "wallet",
+     "response_ms": 449
+    },
+    {
+     "label": "بدء التحرك (Start Trip)",
+     "result": "UI_CHANGE",
+     "response_ms": 478
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 1
+   }
+  }
+ ],
+ "registered": [
+  "MainTabs",
+  "subaccounts",
+  "add_subaccount",
+  "departments",
+  "shifts",
+  "resources",
+  "leave_requests",
+  "unified_sched",
+  "beds",
+  "qr_checkin",
+  "insurance_hub",
+  "financial",
+  "internal_chat",
+  "audit_logs",
+  "announcements",
+  "patient_tracker",
+  "prescription",
+  "discharge_summary",
+  "attendance",
+  "surgery_sched",
+  "credentialing",
+  "hospital_dispatch",
+  "facility_info",
+  "auto_reports",
+  "notifications",
+  "support",
+  "security",
+  "order_detail",
+  "wallet",
+  "promotions",
+  "create_promo",
+  "web_config",
+  "subscriptions_ads",
+  "affiliate",
+  "reputation",
+  "crm",
+  "revenue_insights",
+  "sos_dispatch",
+  "ambulance_fleet",
+  "gps_router",
+  "medical_jobs",
+  "drug_index",
+  "insurance_requests",
+  "insurance_config",
+  "certificates_config",
+  "media_config"
+ ],
+ "reloads": 400,
+ "coverage": {
+  "registered": 46,
+  "tested_routes": 46,
+  "states_tested": 78,
+  "by_status": {
+   "NOT_REACHABLE": 2,
+   "SLOW": 1,
+   "TESTED": 78
+  },
+  "routes_tested": [
+   "MainTabs",
+   "add_subaccount",
+   "affiliate",
+   "ambulance_fleet",
+   "announcements",
+   "attendance",
+   "audit_logs",
+   "auto_reports",
+   "beds",
+   "certificates_config",
+   "create_promo",
+   "credentialing",
+   "crm",
+   "departments",
+   "discharge_summary",
+   "drug_index",
+   "facility_info",
+   "financial",
+   "gps_router",
+   "hospital_dispatch",
+   "insurance_config",
+   "insurance_hub",
+   "insurance_requests",
+   "internal_chat",
+   "leave_requests",
+   "media_config",
+   "medical_jobs",
+   "notifications",
+   "order_detail",
+   "patient_tracker",
+   "prescription",
+   "promotions",
+   "qr_checkin",
+   "reputation",
+   "resources",
+   "revenue_insights",
+   "security",
+   "shifts",
+   "sos_dispatch",
+   "subaccounts",
+   "subscriptions_ads",
+   "support",
+   "surgery_sched",
+   "unified_sched",
+   "wallet",
+   "web_config"
+  ],
+  "not_visited": []
+ }
+}

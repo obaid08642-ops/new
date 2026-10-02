@@ -69,11 +69,11 @@ def run(pat, pharm, admin, oid, admin_api=None):
     r = pat.post('/pharmacy/returns', {'serviceType': 'pharmacy', 'reason': 'x', 'orderId': 'not-my-order', 'refundMethod': 'wallet'})
     step('a return on an unknown order is refused', r.status in (400, 403, 404), r)
     r = pat.get('/pharmacy/returns')
-    step('returns hub lists it', r.ok and rid in str(r.body), r)
+    step('returns hub lists it', r.ok and bool(rid) and rid in str(r.body), r)
     r = pat.get(f'/pharmacy/returns/{rid}')
     step('return detail opens', r.ok, r)
     r = pharm.get('/pharmacy/returns/provider/list')
-    step('the pharmacy sees the return against its order', r.ok and rid in str(r.body), r)
+    step('the pharmacy sees the return against its order', r.ok and bool(rid) and rid in str(r.body), r)
 
     journey('returns: services other than pharmacy (new-request types consultation/diagnostics/nursing)')
     r = pat.post('/pharmacy/returns', {'serviceType': 'consultation', 'reason': 'لم يحضر الطبيب', 'orderId': oid, 'refundMethod': 'original'})
@@ -82,7 +82,7 @@ def run(pat, pharm, admin, oid, admin_api=None):
     journey('returns: admin decides and the refund is executed')
     # Admin returns live behind /api/v1/admin/returns (BFF 1:1 → /api/admin/admin/returns).
     r = admin.get('/admin/admin/returns')
-    step('admin panel can list return requests', r.ok and rid in str(r.body), r)
+    step('admin panel can list return requests', r.ok and bool(rid) and rid in str(r.body), r)
     r = admin.post(f'/admin/admin/returns/{rid}/decide', {'decision': 'approved', 'note': 'مقبول'})
     step('admin panel can decide a return', r.ok, r)
     if not r.ok and admin_api:

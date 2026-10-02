@@ -136,8 +136,22 @@ export function isAllowedPatientApiPath(path: string) {
   return patientReadRoutes.some((route) => route.test(path));
 }
 
+// Q10: the website address book (components-next/addresses.tsx) adds and removes the patient's own addresses.
+const addressMutationRoutes: Array<{ method: "POST" | "DELETE"; route: RegExp }> = [
+  { method: "POST", route: new RegExp("^/users/me/addresses$") },
+  { method: "DELETE", route: new RegExp(`^/users/me/addresses/${orderId}$`, "i") },
+];
+
 export function isAllowedPatientApiRequest(path: string, method: string) {
   return (method === "GET" && isAllowedPatientApiPath(path))
+    || addressMutationRoutes.some((candidate) => candidate.method === method && candidate.route.test(path))
     || diagnosticsMutationRoutes.some((candidate) => candidate.method === method && candidate.route.test(path))
     || pharmacyMutationRoutes.some((candidate) => candidate.method === method && candidate.route.test(path));
+}
+
+// The proxy receives the path and the query separately. Most entries are bare paths (any query passes through);
+// a few pin an exact query (`/home/search?q=…`, `/pharmacy/chat/threads?order_id=<uuid>`), so the target is also
+// checked with its query, otherwise those entries can never match.
+export function isAllowedPatientApiTarget(path: string, search: string, method: string) {
+  return isAllowedPatientApiRequest(path, method) || (search !== "" && isAllowedPatientApiRequest(`${path}${search}`, method));
 }

@@ -1,0 +1,4899 @@
+{
+ "provider_type": "doctor",
+ "login_via_ui": true,
+ "build": "rn-web E2E export (not native)",
+ "perf": {
+  "app_boot_to_ready_ms": 791,
+  "login_to_dashboard_ready_ms": 1894,
+  "dashboard_ready": true,
+  "dashboard_not_ready_reason": ""
+ },
+ "screens": [
+  {
+   "route": "MainTabs",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 395,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "الرئيسية | 0 | مواعيد اليوم | 0 | طلبات جديدة | طلبات جديدة | عرض الكل | ل"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "عرض الكل",
+     "result": "UI_CHANGE",
+     "response_ms": 509
+    },
+    {
+     "label": "الجميع",
+     "result": "UI_CHANGE",
+     "response_ms": 533
+    },
+    {
+     "label": "الوظائف الطبية",
+     "result": "NAVIGATE",
+     "to": "medical_jobs",
+     "response_ms": 830
+    },
+    {
+     "label": "دليل الأدوية",
+     "result": "NAVIGATE",
+     "to": "drug_index",
+     "response_ms": 1996
+    },
+    {
+     "label": "التقارير الطبية الواردة (نتائج الأشعة وا",
+     "result": "NAVIGATE",
+     "to": "inbound_reports",
+     "response_ms": 831
+    },
+    {
+     "label": "الرئيسية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 476
+    },
+    {
+     "label": "المواعيد",
+     "result": "UI_CHANGE",
+     "response_ms": 484
+    },
+    {
+     "label": "المحادثات",
+     "result": "UI_CHANGE",
+     "response_ms": 845
+    },
+    {
+     "label": "المحفظة",
+     "result": "UI_CHANGE",
+     "response_ms": 860
+    },
+    {
+     "label": "الإعدادات",
+     "result": "UI_CHANGE",
+     "response_ms": 528
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 6,
+    "NAVIGATE": 3,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "MainTabs",
+   "ui_path": [
+    "عرض الكل"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 787,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": " المواعيد | يوم | أسبوع | قائمة | الكل | فيديو | عيادة | منزلية | calendar | ل"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "virtual_waiting_room",
+     "response_ms": 771
+    },
+    {
+     "label": "يوم",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 508
+    },
+    {
+     "label": "أسبوع",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 482
+    },
+    {
+     "label": "قائمة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 508
+    },
+    {
+     "label": "الكل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 482
+    },
+    {
+     "label": "فيديو",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 503
+    },
+    {
+     "label": "عيادة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 462
+    },
+    {
+     "label": "منزلية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 469
+    },
+    {
+     "label": "الرئيسية",
+     "result": "UI_CHANGE",
+     "response_ms": 1407
+    },
+    {
+     "label": "المواعيد",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 458
+    },
+    {
+     "label": "المحادثات",
+     "result": "UI_CHANGE",
+     "response_ms": 813
+    },
+    {
+     "label": "المحفظة",
+     "result": "UI_CHANGE",
+     "response_ms": 858
+    },
+    {
+     "label": "الإعدادات",
+     "result": "UI_CHANGE",
+     "response_ms": 512
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 8,
+    "UI_CHANGE": 4
+   }
+  },
+  {
+   "route": "medical_jobs",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 737,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | الوارد (ATS)"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 440
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 458
+    },
+    {
+     "label": "تصفح الوظائف",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 466
+    },
+    {
+     "label": "إضافة إعلان",
+     "result": "UI_CHANGE",
+     "response_ms": 526
+    },
+    {
+     "label": "الوارد (ATS)",
+     "result": "UI_CHANGE",
+     "response_ms": 828
+    },
+    {
+     "label": "(icon #5)",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: (icon #5)"
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 3,
+    "NO_EFFECT": 1,
+    "CRAWLER_TARGET_MISSING": 1
+   }
+  },
+  {
+   "route": "drug_index",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 1883,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "دليل الأدوية الطبي | الكل | pain (14) | UE3C96A10 (2) | category-207"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "medical_jobs",
+     "response_ms": 453
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 458
+    },
+    {
+     "label": "الكل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 554
+    },
+    {
+     "label": "pain (14)",
+     "result": "UI_CHANGE",
+     "response_ms": 2003
+    },
+    {
+     "label": "UE3C96A10 (2)",
+     "result": "UI_CHANGE",
+     "response_ms": 2052
+    },
+    {
+     "label": "category-20703 (1)",
+     "result": "UI_CHANGE",
+     "response_ms": 2037
+    },
+    {
+     "label": "UC15A2210 (1)",
+     "result": "UI_CHANGE",
+     "response_ms": 2049
+    },
+    {
+     "label": "UC15A2204 (معدّل E2E)",
+     "result": "UI_CHANGE",
+     "response_ms": 935
+    },
+    {
+     "label": "UE3C96A04",
+     "result": "UI_CHANGE",
+     "response_ms": 913
+    },
+    {
+     "label": "name_ar-20700",
+     "result": "UI_CHANGE",
+     "response_ms": 913
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 0019c8",
+     "result": "UI_CHANGE",
+     "response_ms": 935
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 18f732",
+     "result": "UI_CHANGE",
+     "response_ms": 946
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 4a05f6",
+     "result": "UI_CHANGE",
+     "response_ms": 950
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 730a68",
+     "result": "UI_CHANGE",
+     "response_ms": 906
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 81b23b",
+     "result": "UI_CHANGE",
+     "response_ms": 908
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ a33d6a",
+     "result": "UI_CHANGE",
+     "response_ms": 1002
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ c632fa",
+     "result": "UI_CHANGE",
+     "response_ms": 938
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 2dfd4a",
+     "result": "UI_CHANGE",
+     "response_ms": 953
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 39ce55",
+     "result": "UI_CHANGE",
+     "response_ms": 933
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 5e0bd1",
+     "result": "UI_CHANGE",
+     "response_ms": 929
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 72e0fb",
+     "result": "UI_CHANGE",
+     "response_ms": 940
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 874ed2",
+     "result": "UI_CHANGE",
+     "response_ms": 911
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ bca0db",
+     "result": "UI_CHANGE",
+     "response_ms": 596
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ fc3790",
+     "result": "UI_CHANGE",
+     "response_ms": 946
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 2,
+    "UI_CHANGE": 21
+   }
+  },
+  {
+   "route": "inbound_reports",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 747,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | التقارير الطبية الواردة | folder | لا توجد تقارير | لا توجد نتائ"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "drug_index",
+     "response_ms": 442
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "MainTabs",
+   "ui_path": [
+    "المحادثات"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 1126,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "المحادثات | الرئيسية | المواعيد | المحادثات | المحفظة | الإعدادات"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "UI_CHANGE",
+     "response_ms": 1303
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 1299
+    },
+    {
+     "label": "الرئيسية",
+     "result": "UI_CHANGE",
+     "response_ms": 1315
+    },
+    {
+     "label": "المواعيد",
+     "result": "UI_CHANGE",
+     "response_ms": 459
+    },
+    {
+     "label": "المحادثات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 437
+    },
+    {
+     "label": "المحفظة",
+     "result": "UI_CHANGE",
+     "response_ms": 802
+    },
+    {
+     "label": "الإعدادات",
+     "result": "UI_CHANGE",
+     "response_ms": 474
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 6,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "MainTabs",
+   "ui_path": [
+    "المحفظة"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 1127,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "المحفظة والإيرادات | wallet | 0 SAR | الرصيد المتاح للسحب | shield | 0"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "طلب سحب رصيد",
+     "result": "NAVIGATE",
+     "to": "withdrawal_workflow",
+     "response_ms": 1323
+    },
+    {
+     "label": "التقارير والإحصائيات",
+     "result": "NAVIGATE",
+     "to": "revenue_insights",
+     "response_ms": 824
+    },
+    {
+     "label": "الرئيسية",
+     "result": "UI_CHANGE",
+     "response_ms": 1307
+    },
+    {
+     "label": "المواعيد",
+     "result": "UI_CHANGE",
+     "response_ms": 471
+    },
+    {
+     "label": "المحادثات",
+     "result": "UI_CHANGE",
+     "response_ms": 788
+    },
+    {
+     "label": "المحفظة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 468
+    },
+    {
+     "label": "الإعدادات",
+     "result": "UI_CHANGE",
+     "response_ms": 512
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 2,
+    "UI_CHANGE": 4,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "MainTabs",
+   "ui_path": [
+    "الإعدادات"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 793,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "الإعدادات | دعوات المنشآت (0) | ‹ | المظهر واللغة | الوضع النهاري | ال"
+   },
+   "status": "TESTED",
+   "inputs_filled": 10,
+   "elements": [
+    {
+     "label": "دعوات المنشآت (0)",
+     "result": "NAVIGATE",
+     "to": "facility_invitations",
+     "response_ms": 953
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 446
+    },
+    {
+     "label": "EN",
+     "result": "SKIPPED_DESTRUCTIVE"
+    },
+    {
+     "label": "(icon #3)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 433
+    },
+    {
+     "label": "(icon #4)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 433
+    },
+    {
+     "label": "(icon #5)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 437
+    },
+    {
+     "label": "(icon #6)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 445
+    },
+    {
+     "label": "(icon #7)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 453
+    },
+    {
+     "label": "(icon #8)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 412
+    },
+    {
+     "label": "حفظ التعديلات",
+     "result": "WRITE",
+     "status": 200,
+     "method": "PUT",
+     "url": "/provider/settings/pricing",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 1425
+    },
+    {
+     "label": "تعديل الملف الشخصي",
+     "result": "NAVIGATE",
+     "to": "profile_edit",
+     "response_ms": 997
+    },
+    {
+     "label": "الموقع ونطاق التغطية",
+     "result": "JS_ERROR",
+     "error": "(0 , r(...).codegenNativeComponent) is not a function",
+     "response_ms": 656
+    },
+    {
+     "label": "مواعيد العمل (Scheduler)",
+     "result": "NAVIGATE",
+     "to": "availability_engine",
+     "response_ms": 1471
+    },
+    {
+     "label": "شركات التأمين",
+     "result": "NAVIGATE",
+     "to": "insurance_config",
+     "response_ms": 2087
+    },
+    {
+     "label": "طلبات التأمين الواردة",
+     "result": "NAVIGATE",
+     "to": "insurance_requests",
+     "response_ms": 969
+    },
+    {
+     "label": "(icon #15)",
+     "result": "UI_CHANGE",
+     "response_ms": 462
+    },
+    {
+     "label": "(icon #16)",
+     "result": "UI_CHANGE",
+     "response_ms": 447
+    },
+    {
+     "label": "(icon #17)",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: الإعدادات"
+    },
+    {
+     "label": "تسجيل الخروج",
+     "result": "SKIPPED_DESTRUCTIVE"
+    },
+    {
+     "label": "الرئيسية",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: الإعدادات"
+    },
+    {
+     "label": "المواعيد",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: الإعدادات"
+    },
+    {
+     "label": "المحادثات",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: الإعدادات"
+    },
+    {
+     "label": "المحفظة",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: الإعدادات"
+    },
+    {
+     "label": "الإعدادات",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: الإعدادات"
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 5,
+    "UI_CHANGE": 3,
+    "SKIPPED_DESTRUCTIVE": 2,
+    "NO_EFFECT": 6,
+    "WRITE": 1,
+    "JS_ERROR": 1,
+    "CRAWLER_TARGET_MISSING": 6
+   }
+  },
+  {
+   "route": "virtual_waiting_room",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 746,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Virtual Waiting Room | video | No patients waiting for a video"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 499
+    },
+    {
+     "label": "Refresh",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 800
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "MainTabs",
+   "ui_path": [
+    "عرض الكل",
+    "المحادثات"
+   ],
+   "reached_by": "TAP_PATH",
+   "status": "CRAWLER_TARGET_MISSING",
+   "reason": "control not found: عرض الكل",
+   "screenshot": "/tmp/nav2_doctor_MainTabs_ui.png",
+   "controls_now": [
+    "View All",
+    "All",
+    "Medical Jobs",
+    "Drug Index",
+    "Inbound Medical Reports (Radiology & Lab",
+    "Home",
+    "Schedule",
+    "Chats",
+    "Wallet",
+    "Settings"
+   ],
+   "route_now": {
+    "name": "MainTabs",
+    "params": null
+   },
+   "pending": [],
+   "failed_requests": [],
+   "js": [],
+   "bad_reads": []
+  },
+  {
+   "route": "MainTabs",
+   "ui_path": [
+    "عرض الكل",
+    "المحفظة"
+   ],
+   "reached_by": "TAP_PATH",
+   "status": "CRAWLER_TARGET_MISSING",
+   "reason": "control not found: عرض الكل",
+   "screenshot": "/tmp/nav2_doctor_MainTabs_ui.png",
+   "controls_now": [
+    "View All",
+    "All",
+    "Medical Jobs",
+    "Drug Index",
+    "Inbound Medical Reports (Radiology & Lab",
+    "Home",
+    "Schedule",
+    "Chats",
+    "Wallet",
+    "Settings"
+   ],
+   "route_now": {
+    "name": "MainTabs",
+    "params": null
+   },
+   "pending": [],
+   "failed_requests": [],
+   "js": [],
+   "bad_reads": []
+  },
+  {
+   "route": "medical_jobs",
+   "ui_path": [
+    "(icon #1)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 1139,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "Medical Jobs | Browse | Post Ad | Inbox | Advanced Filters | Professio"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "UI_CHANGE",
+     "response_ms": 445
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 464
+    },
+    {
+     "label": "Browse",
+     "result": "UI_CHANGE",
+     "response_ms": 520
+    },
+    {
+     "label": "Post Ad",
+     "result": "UI_CHANGE",
+     "response_ms": 522
+    },
+    {
+     "label": "Inbox",
+     "result": "UI_CHANGE",
+     "response_ms": 557
+    },
+    {
+     "label": "(icon #5)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 434
+    },
+    {
+     "label": "(icon #6)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 660
+    },
+    {
+     "label": "Doctor",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 499
+    },
+    {
+     "label": "Pharmacist",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 513
+    },
+    {
+     "label": "Nurse",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 546
+    },
+    {
+     "label": "Lab",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 558
+    },
+    {
+     "label": "Radiology",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 542
+    },
+    {
+     "label": "الرياض",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 618
+    },
+    {
+     "label": "جدة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 561
+    },
+    {
+     "label": "الدمام",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 534
+    },
+    {
+     "label": "مكة المكرمة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 534
+    },
+    {
+     "label": "المدينة المنورة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 545
+    },
+    {
+     "label": "Apply Filter",
+     "result": "UI_CHANGE",
+     "response_ms": 523
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 6,
+    "NO_EFFECT": 12
+   }
+  },
+  {
+   "route": "medical_jobs",
+   "ui_path": [
+    "إضافة إعلان"
+   ],
+   "reached_by": "TAP_PATH",
+   "status": "CRAWLER_TARGET_MISSING",
+   "reason": "control not found: إضافة إعلان",
+   "screenshot": "/tmp/nav2_doctor_medical_jobs_ui.png",
+   "controls_now": [
+    "(icon #0)",
+    "(icon #1)",
+    "Browse",
+    "Post Ad",
+    "Inbox"
+   ],
+   "route_now": {
+    "name": "medical_jobs",
+    "params": {
+     "param": null
+    }
+   },
+   "pending": [],
+   "failed_requests": [],
+   "js": [],
+   "bad_reads": []
+  },
+  {
+   "route": "drug_index",
+   "ui_path": [
+    "pain (14)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 3721,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "Medical Drug Index | All | pain (14) | UE3C96A10 (2) | category-2070"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 443
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 1897
+    },
+    {
+     "label": "All",
+     "result": "UI_CHANGE",
+     "response_ms": 2014
+    },
+    {
+     "label": "pain (14)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 515
+    },
+    {
+     "label": "UE3C96A10 (2)",
+     "result": "UI_CHANGE",
+     "response_ms": 1980
+    },
+    {
+     "label": "category-20703 (1)",
+     "result": "UI_CHANGE",
+     "response_ms": 2016
+    },
+    {
+     "label": "UC15A2210 (1)",
+     "result": "UI_CHANGE",
+     "response_ms": 2022
+    },
+    {
+     "label": "Panadol Extra 500mg 0019c8",
+     "result": "UI_CHANGE",
+     "response_ms": 1032
+    },
+    {
+     "label": "Panadol Extra 500mg 18f732",
+     "result": "UI_CHANGE",
+     "response_ms": 878
+    },
+    {
+     "label": "Panadol Extra 500mg 4a05f6",
+     "result": "UI_CHANGE",
+     "response_ms": 885
+    },
+    {
+     "label": "Panadol Extra 500mg 730a68",
+     "result": "UI_CHANGE",
+     "response_ms": 903
+    },
+    {
+     "label": "Panadol Extra 500mg 81b23b",
+     "result": "UI_CHANGE",
+     "response_ms": 897
+    },
+    {
+     "label": "Panadol Extra 500mg a33d6a",
+     "result": "UI_CHANGE",
+     "response_ms": 868
+    },
+    {
+     "label": "Panadol Extra 500mg c632fa",
+     "result": "UI_CHANGE",
+     "response_ms": 918
+    },
+    {
+     "label": "Vitamin C 1000mg 2dfd4a",
+     "result": "UI_CHANGE",
+     "response_ms": 876
+    },
+    {
+     "label": "Vitamin C 1000mg 39ce55",
+     "result": "UI_CHANGE",
+     "response_ms": 918
+    },
+    {
+     "label": "Vitamin C 1000mg 5e0bd1",
+     "result": "UI_CHANGE",
+     "response_ms": 907
+    },
+    {
+     "label": "Vitamin C 1000mg 72e0fb",
+     "result": "UI_CHANGE",
+     "response_ms": 883
+    },
+    {
+     "label": "Vitamin C 1000mg 874ed2",
+     "result": "UI_CHANGE",
+     "response_ms": 891
+    },
+    {
+     "label": "Vitamin C 1000mg bca0db",
+     "result": "UI_CHANGE",
+     "response_ms": 872
+    },
+    {
+     "label": "Vitamin C 1000mg fc3790",
+     "result": "UI_CHANGE",
+     "response_ms": 935
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 19,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "drug_index",
+   "ui_path": [
+    "UE3C96A10 (2)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 3754,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "Medical Drug Index | All | pain (14) | UE3C96A10 (2) | UC15A2210 (1)"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 429
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 1912
+    },
+    {
+     "label": "All",
+     "result": "UI_CHANGE",
+     "response_ms": 1935
+    },
+    {
+     "label": "pain (14)",
+     "result": "UI_CHANGE",
+     "response_ms": 1930
+    },
+    {
+     "label": "UE3C96A10 (2)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 474
+    },
+    {
+     "label": "UC15A2210 (1)",
+     "result": "UI_CHANGE",
+     "response_ms": 1964
+    },
+    {
+     "label": "category-20703 (1)",
+     "result": "UI_CHANGE",
+     "response_ms": 1980
+    },
+    {
+     "label": "UE3C96A05",
+     "result": "UI_CHANGE",
+     "response_ms": 817
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 6,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "drug_index",
+   "ui_path": [
+    "category-20703 (1)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 3713,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "Medical Drug Index | All | pain (14) | UE3C96A10 (2) | UC15A2210 (1)"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 441
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 1899
+    },
+    {
+     "label": "All",
+     "result": "UI_CHANGE",
+     "response_ms": 1936
+    },
+    {
+     "label": "pain (14)",
+     "result": "UI_CHANGE",
+     "response_ms": 1924
+    },
+    {
+     "label": "UE3C96A10 (2)",
+     "result": "UI_CHANGE",
+     "response_ms": 1941
+    },
+    {
+     "label": "UC15A2210 (1)",
+     "result": "UI_CHANGE",
+     "response_ms": 1927
+    },
+    {
+     "label": "category-20703 (1)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 467
+    },
+    {
+     "label": "name_en-20701",
+     "result": "UI_CHANGE",
+     "response_ms": 841
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 6,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "drug_index",
+   "ui_path": [
+    "UC15A2210 (1)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 3720,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "Medical Drug Index | All | pain (14) | UE3C96A10 (2) | category-2070"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 447
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 1885
+    },
+    {
+     "label": "All",
+     "result": "UI_CHANGE",
+     "response_ms": 1943
+    },
+    {
+     "label": "pain (14)",
+     "result": "UI_CHANGE",
+     "response_ms": 1938
+    },
+    {
+     "label": "UE3C96A10 (2)",
+     "result": "UI_CHANGE",
+     "response_ms": 1935
+    },
+    {
+     "label": "category-20703 (1)",
+     "result": "UI_CHANGE",
+     "response_ms": 1940
+    },
+    {
+     "label": "UC15A2210 (1)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 448
+    },
+    {
+     "label": "UC15A2205",
+     "result": "UI_CHANGE",
+     "response_ms": 813
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 6,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "drug_index",
+   "ui_path": [
+    "UC15A2204 (معدّل E2E)"
+   ],
+   "reached_by": "TAP_PATH",
+   "status": "CRAWLER_TARGET_MISSING",
+   "reason": "control not found: UC15A2204 (معدّل E2E)",
+   "screenshot": "/tmp/nav2_doctor_drug_index_ui.png",
+   "controls_now": [
+    "(icon #0)",
+    "All",
+    "pain (14)",
+    "UE3C96A10 (2)",
+    "category-20703 (1)",
+    "UC15A2210 (1)",
+    "UC15A2205",
+    "UE3C96A05",
+    "UE3C96A05",
+    "name_en-20701",
+    "Panadol Extra 500mg 0019c8",
+    "Panadol Extra 500mg 18f732",
+    "Panadol Extra 500mg 4a05f6",
+    "Panadol Extra 500mg 730a68",
+    "Panadol Extra 500mg 81b23b",
+    "Panadol Extra 500mg a33d6a",
+    "Panadol Extra 500mg c632fa",
+    "Vitamin C 1000mg 2dfd4a",
+    "Vitamin C 1000mg 39ce55",
+    "Vitamin C 1000mg 5e0bd1",
+    "Vitamin C 1000mg 72e0fb",
+    "Vitamin C 1000mg 874ed2",
+    "Vitamin C 1000mg bca0db",
+    "Vitamin C 1000mg fc3790"
+   ],
+   "route_now": {
+    "name": "drug_index",
+    "params": {
+     "param": null
+    }
+   },
+   "pending": [],
+   "failed_requests": [],
+   "js": [],
+   "bad_reads": []
+  },
+  {
+   "route": "drug_index",
+   "ui_path": [
+    "UE3C96A04"
+   ],
+   "reached_by": "TAP_PATH",
+   "status": "CRAWLER_TARGET_MISSING",
+   "reason": "control not found: UE3C96A04",
+   "screenshot": "/tmp/nav2_doctor_drug_index_ui.png",
+   "controls_now": [
+    "(icon #0)",
+    "All",
+    "pain (14)",
+    "UE3C96A10 (2)",
+    "category-20703 (1)",
+    "UC15A2210 (1)",
+    "UC15A2205",
+    "UE3C96A05",
+    "UE3C96A05",
+    "name_en-20701",
+    "Panadol Extra 500mg 0019c8",
+    "Panadol Extra 500mg 18f732",
+    "Panadol Extra 500mg 4a05f6",
+    "Panadol Extra 500mg 730a68",
+    "Panadol Extra 500mg 81b23b",
+    "Panadol Extra 500mg a33d6a",
+    "Panadol Extra 500mg c632fa",
+    "Vitamin C 1000mg 2dfd4a",
+    "Vitamin C 1000mg 39ce55",
+    "Vitamin C 1000mg 5e0bd1",
+    "Vitamin C 1000mg 72e0fb",
+    "Vitamin C 1000mg 874ed2",
+    "Vitamin C 1000mg bca0db",
+    "Vitamin C 1000mg fc3790"
+   ],
+   "route_now": {
+    "name": "drug_index",
+    "params": {
+     "param": null
+    }
+   },
+   "pending": [],
+   "failed_requests": [],
+   "js": [],
+   "bad_reads": []
+  },
+  {
+   "route": "drug_index",
+   "ui_path": [
+    "name_ar-20700"
+   ],
+   "reached_by": "TAP_PATH",
+   "status": "CRAWLER_TARGET_MISSING",
+   "reason": "control not found: name_ar-20700",
+   "screenshot": "/tmp/nav2_doctor_drug_index_ui.png",
+   "controls_now": [
+    "(icon #0)",
+    "All",
+    "pain (14)",
+    "UE3C96A10 (2)",
+    "UC15A2210 (1)",
+    "category-20703 (1)",
+    "UC15A2205",
+    "UE3C96A05",
+    "UE3C96A05",
+    "name_en-20701",
+    "Panadol Extra 500mg 0019c8",
+    "Panadol Extra 500mg 18f732",
+    "Panadol Extra 500mg 4a05f6",
+    "Panadol Extra 500mg 730a68",
+    "Panadol Extra 500mg 81b23b",
+    "Panadol Extra 500mg a33d6a",
+    "Panadol Extra 500mg c632fa",
+    "Vitamin C 1000mg 2dfd4a",
+    "Vitamin C 1000mg 39ce55",
+    "Vitamin C 1000mg 5e0bd1",
+    "Vitamin C 1000mg 72e0fb",
+    "Vitamin C 1000mg 874ed2",
+    "Vitamin C 1000mg bca0db",
+    "Vitamin C 1000mg fc3790"
+   ],
+   "route_now": {
+    "name": "drug_index",
+    "params": {
+     "param": null
+    }
+   },
+   "pending": [],
+   "failed_requests": [],
+   "js": [],
+   "bad_reads": []
+  },
+  {
+   "route": "drug_index",
+   "ui_path": [
+    "بنادول اكسترا 500 ملغ 0019c8"
+   ],
+   "reached_by": "TAP_PATH",
+   "status": "CRAWLER_TARGET_MISSING",
+   "reason": "control not found: بنادول اكسترا 500 ملغ 0019c8",
+   "screenshot": "/tmp/nav2_doctor_drug_index_ui.png",
+   "controls_now": [
+    "(icon #0)",
+    "All",
+    "pain (14)",
+    "UE3C96A10 (2)",
+    "UC15A2210 (1)",
+    "category-20703 (1)",
+    "UC15A2205",
+    "UE3C96A05",
+    "UE3C96A05",
+    "name_en-20701",
+    "Panadol Extra 500mg 0019c8",
+    "Panadol Extra 500mg 18f732",
+    "Panadol Extra 500mg 4a05f6",
+    "Panadol Extra 500mg 730a68",
+    "Panadol Extra 500mg 81b23b",
+    "Panadol Extra 500mg a33d6a",
+    "Panadol Extra 500mg c632fa",
+    "Vitamin C 1000mg 2dfd4a",
+    "Vitamin C 1000mg 39ce55",
+    "Vitamin C 1000mg 5e0bd1",
+    "Vitamin C 1000mg 72e0fb",
+    "Vitamin C 1000mg 874ed2",
+    "Vitamin C 1000mg bca0db",
+    "Vitamin C 1000mg fc3790"
+   ],
+   "route_now": {
+    "name": "drug_index",
+    "params": {
+     "param": null
+    }
+   },
+   "pending": [],
+   "failed_requests": [],
+   "js": [],
+   "bad_reads": []
+  },
+  {
+   "route": "withdrawal_workflow",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 1253,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Withdraw Funds | Available for withdrawal: 0.00 SAR | BANK ACC"
+   },
+   "status": "TESTED",
+   "inputs_filled": 3,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "drug_index",
+     "response_ms": 586
+    },
+    {
+     "label": "Al Rajhi Bank",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 507
+    },
+    {
+     "label": "Saudi National Bank (SNB)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 495
+    },
+    {
+     "label": "Riyad Bank",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 502
+    },
+    {
+     "label": "SAB (Saudi Awwal Bank)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 515
+    },
+    {
+     "label": "Alinma Bank",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 492
+    },
+    {
+     "label": "Banque Saudi Fransi (BSF)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 484
+    },
+    {
+     "label": "Bank AlJazira",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 508
+    },
+    {
+     "label": "Arab National Bank (ANB)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 512
+    },
+    {
+     "label": "Bank AlBilad",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 498
+    },
+    {
+     "label": "Emirates NBD",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 517
+    },
+    {
+     "label": "Gulf International Bank",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 486
+    },
+    {
+     "label": "NBK",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 501
+    },
+    {
+     "label": "Other",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 492
+    },
+    {
+     "label": "Account holder name (as registered) *",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 495
+    },
+    {
+     "label": "IBAN *",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 490
+    },
+    {
+     "label": "Withdrawal Amount (min 100 SAR) *",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 497
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 16
+   }
+  },
+  {
+   "route": "revenue_insights",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 743,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Revenue Insights | Net earnings this month | ٠ SAR | TOP EARNING"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "withdrawal_workflow",
+     "response_ms": 446
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "facility_invitations",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 736,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Facility Invitations | No pending invitations"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "withdrawal_workflow",
+     "response_ms": 439
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "profile_edit",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 741,
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "404 GET /provider/profile/image/status"
+    ],
+    "heading": "← | Edit Profile | V |  For a professional look and patient trust,"
+   },
+   "status": "TESTED",
+   "inputs_filled": 8,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "withdrawal_workflow",
+     "response_ms": 486
+    },
+    {
+     "label": "Upload Photo",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 490
+    },
+    {
+     "label": "Improve Photo",
+     "result": "UI_CHANGE",
+     "response_ms": 467
+    },
+    {
+     "label": "Full Name (Arabic) *",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 554
+    },
+    {
+     "label": "Full Name (English) *",
+     "result": "SKIPPED_DESTRUCTIVE"
+    },
+    {
+     "label": "Bio (Arabic)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 470
+    },
+    {
+     "label": "Bio (English)",
+     "result": "SKIPPED_DESTRUCTIVE"
+    },
+    {
+     "label": "Years of Experience",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 465
+    },
+    {
+     "label": "Website",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 472
+    },
+    {
+     "label": "Specialty",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 469
+    },
+    {
+     "label": "Degree / Title",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 456
+    },
+    {
+     "label": "Add Image",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 479
+    },
+    {
+     "label": "Save Changes",
+     "result": "WRITE",
+     "status": 200,
+     "method": "PATCH",
+     "url": "/provider/profile",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 828
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 8,
+    "UI_CHANGE": 1,
+    "SKIPPED_DESTRUCTIVE": 2,
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "availability_engine",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 2469,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← |  Availability Settings | ️ Temporary Vacation (Offline) | Enab"
+   },
+   "status": "TESTED",
+   "inputs_filled": 25,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 1158
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 518
+    },
+    {
+     "label": "Accepted Insurers & Tiers",
+     "result": "NAVIGATE",
+     "to": "insurance_config",
+     "response_ms": 2023
+    },
+    {
+     "label": "Save Weekly Calendar",
+     "result": "WRITE",
+     "status": 200,
+     "method": "PATCH",
+     "url": "/provider/profile/availability",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 1446
+    },
+    {
+     "label": "(icon #4)",
+     "result": "UI_CHANGE",
+     "response_ms": 475
+    },
+    {
+     "label": "(icon #5)",
+     "result": "UI_CHANGE",
+     "response_ms": 491
+    },
+    {
+     "label": "(icon #6)",
+     "result": "UI_CHANGE",
+     "response_ms": 499
+    },
+    {
+     "label": "(icon #7)",
+     "result": "UI_CHANGE",
+     "response_ms": 467
+    },
+    {
+     "label": "(icon #8)",
+     "result": "UI_CHANGE",
+     "response_ms": 474
+    },
+    {
+     "label": "(icon #9)",
+     "result": "UI_CHANGE",
+     "response_ms": 481
+    },
+    {
+     "label": "(icon #10)",
+     "result": "UI_CHANGE",
+     "response_ms": 547
+    },
+    {
+     "label": "(icon #11)",
+     "result": "UI_CHANGE",
+     "response_ms": 490
+    },
+    {
+     "label": "(icon #12)",
+     "result": "UI_CHANGE",
+     "response_ms": 493
+    },
+    {
+     "label": "(icon #13)",
+     "result": "UI_CHANGE",
+     "response_ms": 476
+    },
+    {
+     "label": "(icon #14)",
+     "result": "UI_CHANGE",
+     "response_ms": 469
+    },
+    {
+     "label": "(icon #15)",
+     "result": "UI_CHANGE",
+     "response_ms": 503
+    },
+    {
+     "label": "(icon #16)",
+     "result": "UI_CHANGE",
+     "response_ms": 468
+    },
+    {
+     "label": "(icon #17)",
+     "result": "UI_CHANGE",
+     "response_ms": 471
+    },
+    {
+     "label": "(icon #18)",
+     "result": "UI_CHANGE",
+     "response_ms": 469
+    },
+    {
+     "label": "(icon #19)",
+     "result": "UI_CHANGE",
+     "response_ms": 483
+    },
+    {
+     "label": "(icon #20)",
+     "result": "UI_CHANGE",
+     "response_ms": 479
+    },
+    {
+     "label": "(icon #21)",
+     "result": "UI_CHANGE",
+     "response_ms": 486
+    },
+    {
+     "label": "(icon #22)",
+     "result": "UI_CHANGE",
+     "response_ms": 461
+    },
+    {
+     "label": "(icon #23)",
+     "result": "UI_CHANGE",
+     "response_ms": 482
+    },
+    {
+     "label": "(icon #24)",
+     "result": "UI_CHANGE",
+     "response_ms": 482
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 2,
+    "UI_CHANGE": 22,
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "insurance_config",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 742,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Health Insurance | Select which insurance providers you acce"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "availability_engine",
+     "response_ms": 460
+    },
+    {
+     "label": "Save Settings",
+     "result": "WRITE",
+     "status": 200,
+     "method": "PUT",
+     "url": "/provider/insurance-matrix",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 1938
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "insurance_requests",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 755,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Insurance Requests | Manual review before service | shield | No "
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 428
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "medical_jobs",
+   "ui_path": [
+    "(icon #1)",
+    "(icon #0)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 1532,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "Medical Jobs | Browse | Post Ad | Inbox"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 447
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 450
+    },
+    {
+     "label": "Browse",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 469
+    },
+    {
+     "label": "Post Ad",
+     "result": "UI_CHANGE",
+     "response_ms": 484
+    },
+    {
+     "label": "Inbox",
+     "result": "UI_CHANGE",
+     "response_ms": 844
+    },
+    {
+     "label": "(icon #5)",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: (icon #5)"
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 3,
+    "NO_EFFECT": 1,
+    "CRAWLER_TARGET_MISSING": 1
+   }
+  },
+  {
+   "route": "profile_edit",
+   "ui_path": [
+    "Improve Photo"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 1130,
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "404 GET /provider/profile/image/status"
+    ],
+    "heading": "← | Edit Profile | V |  For a professional look and patient trust,"
+   },
+   "status": "TESTED",
+   "inputs_filled": 8,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 472
+    },
+    {
+     "label": "Upload Photo",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 472
+    },
+    {
+     "label": "Improve Photo",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 474
+    },
+    {
+     "label": "Full Name (Arabic) *",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 467
+    },
+    {
+     "label": "Full Name (English) *",
+     "result": "SKIPPED_DESTRUCTIVE"
+    },
+    {
+     "label": "Bio (Arabic)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 473
+    },
+    {
+     "label": "Bio (English)",
+     "result": "SKIPPED_DESTRUCTIVE"
+    },
+    {
+     "label": "Years of Experience",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 494
+    },
+    {
+     "label": "Website",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 485
+    },
+    {
+     "label": "Specialty",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 461
+    },
+    {
+     "label": "Degree / Title",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 469
+    },
+    {
+     "label": "Add Image",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 470
+    },
+    {
+     "label": "Save Changes",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 461
+    },
+    {
+     "label": "Close",
+     "result": "UI_CHANGE",
+     "response_ms": 1311
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 11,
+    "SKIPPED_DESTRUCTIVE": 2,
+    "UI_CHANGE": 1
+   }
+  },
+  {
+   "route": "availability_engine",
+   "ui_path": [
+    "(icon #1)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 1657,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← |  Availability Settings | ️ Temporary Vacation (Offline) | Enab"
+   },
+   "status": "TESTED",
+   "inputs_filled": 25,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 1944
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 503
+    },
+    {
+     "label": "Accepted Insurers & Tiers",
+     "result": "NAVIGATE",
+     "to": "insurance_config",
+     "response_ms": 1969
+    },
+    {
+     "label": "(icon #3)",
+     "result": "UI_CHANGE",
+     "response_ms": 467
+    },
+    {
+     "label": "(icon #4)",
+     "result": "UI_CHANGE",
+     "response_ms": 486
+    },
+    {
+     "label": "(icon #5)",
+     "result": "UI_CHANGE",
+     "response_ms": 467
+    },
+    {
+     "label": "(icon #6)",
+     "result": "UI_CHANGE",
+     "response_ms": 471
+    },
+    {
+     "label": "(icon #7)",
+     "result": "UI_CHANGE",
+     "response_ms": 514
+    },
+    {
+     "label": "(icon #8)",
+     "result": "UI_CHANGE",
+     "response_ms": 466
+    },
+    {
+     "label": "(icon #9)",
+     "result": "UI_CHANGE",
+     "response_ms": 480
+    },
+    {
+     "label": "(icon #10)",
+     "result": "UI_CHANGE",
+     "response_ms": 545
+    },
+    {
+     "label": "(icon #11)",
+     "result": "UI_CHANGE",
+     "response_ms": 479
+    },
+    {
+     "label": "(icon #12)",
+     "result": "UI_CHANGE",
+     "response_ms": 497
+    },
+    {
+     "label": "(icon #13)",
+     "result": "UI_CHANGE",
+     "response_ms": 495
+    },
+    {
+     "label": "(icon #14)",
+     "result": "UI_CHANGE",
+     "response_ms": 470
+    },
+    {
+     "label": "(icon #15)",
+     "result": "UI_CHANGE",
+     "response_ms": 542
+    },
+    {
+     "label": "(icon #16)",
+     "result": "UI_CHANGE",
+     "response_ms": 479
+    },
+    {
+     "label": "(icon #17)",
+     "result": "UI_CHANGE",
+     "response_ms": 487
+    },
+    {
+     "label": "(icon #18)",
+     "result": "UI_CHANGE",
+     "response_ms": 469
+    },
+    {
+     "label": "(icon #19)",
+     "result": "UI_CHANGE",
+     "response_ms": 523
+    },
+    {
+     "label": "(icon #20)",
+     "result": "UI_CHANGE",
+     "response_ms": 455
+    },
+    {
+     "label": "(icon #21)",
+     "result": "UI_CHANGE",
+     "response_ms": 520
+    },
+    {
+     "label": "(icon #22)",
+     "result": "UI_CHANGE",
+     "response_ms": 515
+    },
+    {
+     "label": "(icon #23)",
+     "result": "UI_CHANGE",
+     "response_ms": 469
+    },
+    {
+     "label": "(icon #24)",
+     "result": "UI_CHANGE",
+     "response_ms": 473
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 2,
+    "UI_CHANGE": 23
+   }
+  },
+  {
+   "route": "availability_engine",
+   "ui_path": [
+    "(icon #4)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 1649,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← |  Availability Settings | ️ Temporary Vacation (Offline) | Enab"
+   },
+   "status": "TESTED",
+   "inputs_filled": 25,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 1066
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 481
+    },
+    {
+     "label": "Accepted Insurers & Tiers",
+     "result": "NAVIGATE",
+     "to": "insurance_config",
+     "response_ms": 1984
+    },
+    {
+     "label": "Save Weekly Calendar",
+     "result": "WRITE",
+     "status": 200,
+     "method": "PATCH",
+     "url": "/provider/profile/availability",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 1434
+    },
+    {
+     "label": "(icon #4)",
+     "result": "UI_CHANGE",
+     "response_ms": 442
+    },
+    {
+     "label": "Copay %",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1039
+    },
+    {
+     "label": "Tier",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1065
+    },
+    {
+     "label": "✓",
+     "result": "UI_CHANGE",
+     "response_ms": 1041
+    },
+    {
+     "label": "Online",
+     "result": "UI_CHANGE",
+     "response_ms": 1143
+    },
+    {
+     "label": "Home",
+     "result": "UI_CHANGE",
+     "response_ms": 1151
+    },
+    {
+     "label": "(icon #10)",
+     "result": "UI_CHANGE",
+     "response_ms": 463
+    },
+    {
+     "label": "(icon #11)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 445
+    },
+    {
+     "label": "(icon #12)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 442
+    },
+    {
+     "label": "(icon #13)",
+     "result": "UI_CHANGE",
+     "response_ms": 456
+    },
+    {
+     "label": "(icon #14)",
+     "result": "UI_CHANGE",
+     "response_ms": 468
+    },
+    {
+     "label": "(icon #15)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 429
+    },
+    {
+     "label": "(icon #16)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 456
+    },
+    {
+     "label": "(icon #17)",
+     "result": "UI_CHANGE",
+     "response_ms": 434
+    },
+    {
+     "label": "(icon #18)",
+     "result": "UI_CHANGE",
+     "response_ms": 488
+    },
+    {
+     "label": "(icon #19)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 439
+    },
+    {
+     "label": "(icon #20)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 428
+    },
+    {
+     "label": "(icon #21)",
+     "result": "UI_CHANGE",
+     "response_ms": 448
+    },
+    {
+     "label": "(icon #22)",
+     "result": "UI_CHANGE",
+     "response_ms": 470
+    },
+    {
+     "label": "(icon #23)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 433
+    },
+    {
+     "label": "(icon #24)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 465
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 2,
+    "UI_CHANGE": 12,
+    "WRITE": 1,
+    "NO_EFFECT": 10
+   }
+  },
+  {
+   "route": "appointment_detail",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 395,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Appointment Details | م | — | — yrs | — | AI Triage Summary | No serve"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "availability_engine",
+     "response_ms": 471
+    },
+    {
+     "label": "Open consultation",
+     "result": "NAVIGATE",
+     "to": "consultation",
+     "response_ms": 513
+    },
+    {
+     "label": "Confirm",
+     "result": "UI_CHANGE",
+     "response_ms": 472
+    },
+    {
+     "label": "Cancel",
+     "result": "UI_CHANGE",
+     "response_ms": 454
+    },
+    {
+     "label": "Reschedule",
+     "result": "UI_CHANGE",
+     "response_ms": 489
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 2,
+    "UI_CHANGE": 3
+   }
+  },
+  {
+   "route": "consultation",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 393,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Consultation | Cannot open session — verify the appointment"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "appointment_detail",
+     "response_ms": 434
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "appointment_detail",
+   "ui_path": [
+    "Cancel"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 797,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Appointment Details | م | — | — yrs | — | AI Triage Summary | No serve"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 479
+    },
+    {
+     "label": "Open consultation",
+     "result": "NAVIGATE",
+     "to": "consultation",
+     "response_ms": 473
+    },
+    {
+     "label": "Confirm",
+     "result": "UI_CHANGE",
+     "response_ms": 512
+    },
+    {
+     "label": "Cancel",
+     "result": "UI_CHANGE",
+     "response_ms": 497
+    },
+    {
+     "label": "Reschedule",
+     "result": "UI_CHANGE",
+     "response_ms": 485
+    },
+    {
+     "label": "(icon #5)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 459
+    },
+    {
+     "label": "Confirm cancellation",
+     "result": "UI_CHANGE",
+     "response_ms": 470
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 2,
+    "UI_CHANGE": 4,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "appointment_detail",
+   "ui_path": [
+    "Reschedule"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 789,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Appointment Details | م | — | — yrs | — | AI Triage Summary | No serve"
+   },
+   "status": "TESTED",
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 489
+    },
+    {
+     "label": "Open consultation",
+     "result": "NAVIGATE",
+     "to": "consultation",
+     "response_ms": 501
+    },
+    {
+     "label": "Confirm",
+     "result": "UI_CHANGE",
+     "response_ms": 494
+    },
+    {
+     "label": "Cancel",
+     "result": "UI_CHANGE",
+     "response_ms": 504
+    },
+    {
+     "label": "Reschedule",
+     "result": "UI_CHANGE",
+     "response_ms": 548
+    },
+    {
+     "label": "(icon #5)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 458
+    },
+    {
+     "label": "(icon #6)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 428
+    },
+    {
+     "label": "Confirm new slot",
+     "result": "UI_CHANGE",
+     "response_ms": 476
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 2,
+    "UI_CHANGE": 4,
+    "NO_EFFECT": 2
+   }
+  },
+  {
+   "route": "appointment_detail",
+   "ui_path": [
+    "Cancel",
+    "Reschedule"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 1179,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Appointment Details | م | — | — yrs | — | AI Triage Summary | No serve"
+   },
+   "status": "TESTED",
+   "inputs_filled": 3,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 498
+    },
+    {
+     "label": "Open consultation",
+     "result": "NAVIGATE",
+     "to": "consultation",
+     "response_ms": 510
+    },
+    {
+     "label": "Confirm",
+     "result": "UI_CHANGE",
+     "response_ms": 522
+    },
+    {
+     "label": "Cancel",
+     "result": "UI_CHANGE",
+     "response_ms": 519
+    },
+    {
+     "label": "Reschedule",
+     "result": "UI_CHANGE",
+     "response_ms": 532
+    },
+    {
+     "label": "(icon #5)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 453
+    },
+    {
+     "label": "Confirm cancellation",
+     "result": "UI_CHANGE",
+     "response_ms": 513
+    },
+    {
+     "label": "(icon #7)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 452
+    },
+    {
+     "label": "(icon #8)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 472
+    },
+    {
+     "label": "Confirm new slot",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 508
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 2,
+    "UI_CHANGE": 4,
+    "NO_EFFECT": 4
+   }
+  },
+  {
+   "route": "prescription",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 392,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← |  E-Prescription | م | — | ٢١‏/٤‏/١٤٤٨ هـ |  Prescription Templates"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "appointment_detail",
+     "response_ms": 489
+    },
+    {
+     "label": "Prescription Templates",
+     "result": "UI_CHANGE",
+     "response_ms": 492
+    },
+    {
+     "label": "Save as Template",
+     "result": "UI_CHANGE",
+     "response_ms": 478
+    },
+    {
+     "label": "+ Add Medication",
+     "result": "UI_CHANGE",
+     "response_ms": 473
+    },
+    {
+     "label": "Additional Patient Instructions",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 479
+    },
+    {
+     "label": "Patient directly (WhatsApp / SMS)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 471
+    },
+    {
+     "label": "Pharmacy on Nabd Plus",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 464
+    },
+    {
+     "label": "Print / PDF",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 463
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 3,
+    "NO_EFFECT": 4
+   }
+  },
+  {
+   "route": "sick_leave",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 390,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← |  Digital Sick Leave | م | — | Today: 2026-10-02 | Diagnosis * | Star"
+   },
+   "status": "TESTED",
+   "inputs_filled": 3,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 486
+    },
+    {
+     "label": "Diagnosis *",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 493
+    },
+    {
+     "label": "Start Date",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 521
+    },
+    {
+     "label": "1 day",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 533
+    },
+    {
+     "label": "2 days",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 460
+    },
+    {
+     "label": "3 days",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 451
+    },
+    {
+     "label": "5 days",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 456
+    },
+    {
+     "label": "7 days",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 443
+    },
+    {
+     "label": "10 days",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 473
+    },
+    {
+     "label": "14 days",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 453
+    },
+    {
+     "label": "Issue & Send Sick Leave",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: Issue & Send Sick Leave"
+    },
+    {
+     "label": "(icon #11)",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: (icon #11)"
+    },
+    {
+     "label": "(icon #12)",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: (icon #12)"
+    },
+    {
+     "label": "✍️",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: ✍️"
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 9,
+    "CRAWLER_TARGET_MISSING": 4
+   }
+  },
+  {
+   "route": "medical_report",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 392,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← |  Medical Report | م | — | ٢١‏/٤‏/١٤٤٨ هـ | Report Type * | General M"
+   },
+   "status": "TESTED",
+   "inputs_filled": 3,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "sick_leave",
+     "response_ms": 491
+    },
+    {
+     "label": "General Medical Report",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 484
+    },
+    {
+     "label": "Work / Study Report",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 466
+    },
+    {
+     "label": "Travel Insurance Report",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 451
+    },
+    {
+     "label": "Chronic Follow-up",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 469
+    },
+    {
+     "label": "Detailed Clinical Report",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 467
+    },
+    {
+     "label": "Clinical Findings *",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 443
+    },
+    {
+     "label": "Conclusion & Diagnosis",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 448
+    },
+    {
+     "label": "Recommendations & Treatment",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 461
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 8
+   }
+  },
+  {
+   "route": "referral",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 737,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← |  Patient Referral | Create Referral | Track Referrals | م | — | ٢١‏/"
+   },
+   "status": "TESTED",
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "medical_report",
+     "response_ms": 516
+    },
+    {
+     "label": "Create Referral",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 511
+    },
+    {
+     "label": "Track Referrals",
+     "result": "UI_CHANGE",
+     "response_ms": 495
+    },
+    {
+     "label": "cardiology",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 514
+    },
+    {
+     "label": "dermatology",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 499
+    },
+    {
+     "label": "pediatrics",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 493
+    },
+    {
+     "label": "obgyn",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 482
+    },
+    {
+     "label": "orthopedics",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 496
+    },
+    {
+     "label": "neurology",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 493
+    },
+    {
+     "label": "psychiatry",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 485
+    },
+    {
+     "label": "dentistry",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 507
+    },
+    {
+     "label": "ophthalmology",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 489
+    },
+    {
+     "label": "ent",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 503
+    },
+    {
+     "label": "internal",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 492
+    },
+    {
+     "label": "family",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 488
+    },
+    {
+     "label": "Reason for Referral *",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 490
+    },
+    {
+     "label": "(icon #16)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 440
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 15,
+    "UI_CHANGE": 1
+   }
+  },
+  {
+   "route": "referral",
+   "ui_path": [
+    "Track Referrals"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 1133,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← |  Patient Referral | Create Referral | Track Referrals | send | No "
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 445
+    },
+    {
+     "label": "Create Referral",
+     "result": "UI_CHANGE",
+     "response_ms": 453
+    },
+    {
+     "label": "Track Referrals",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 433
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 1,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "request_test",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 749,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | 🩺 Request Medical Services |  Lab Tests |  Radiology |  Nursing | "
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "referral",
+     "response_ms": 994
+    },
+    {
+     "label": "Lab Tests",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1024
+    },
+    {
+     "label": "Radiology",
+     "result": "UI_CHANGE",
+     "response_ms": 1376
+    },
+    {
+     "label": "Nursing",
+     "result": "UI_CHANGE",
+     "response_ms": 1374
+    },
+    {
+     "label": "Complete Blood Count",
+     "result": "UI_CHANGE",
+     "response_ms": 1012
+    },
+    {
+     "label": "General Wellness Package",
+     "result": "UI_CHANGE",
+     "response_ms": 895
+    },
+    {
+     "label": "Vitamin D (25-OH)",
+     "result": "UI_CHANGE",
+     "response_ms": 946
+    },
+    {
+     "label": "Comprehensive Health Package",
+     "result": "UI_CHANGE",
+     "response_ms": 986
+    },
+    {
+     "label": "Glycated Hemoglobin (HbA1c)",
+     "result": "UI_CHANGE",
+     "response_ms": 906
+    },
+    {
+     "label": "Fasting Blood Sugar",
+     "result": "UI_CHANGE",
+     "response_ms": 1084
+    },
+    {
+     "label": "Vitamin D",
+     "result": "UI_CHANGE",
+     "response_ms": 968
+    },
+    {
+     "label": "Thyroid Stimulating Hormone",
+     "result": "UI_CHANGE",
+     "response_ms": 945
+    },
+    {
+     "label": "Diabetes Care Package",
+     "result": "UI_CHANGE",
+     "response_ms": 899
+    },
+    {
+     "label": "Lipid Profile",
+     "result": "UI_CHANGE",
+     "response_ms": 937
+    },
+    {
+     "label": "Vitamins & Minerals Package",
+     "result": "UI_CHANGE",
+     "response_ms": 904
+    },
+    {
+     "label": "Complete Urine Analysis",
+     "result": "UI_CHANGE",
+     "response_ms": 935
+    },
+    {
+     "label": "HbA1c",
+     "result": "UI_CHANGE",
+     "response_ms": 925
+    },
+    {
+     "label": "Kidney Function (Creatinine + Urea)",
+     "result": "UI_CHANGE",
+     "response_ms": 863
+    },
+    {
+     "label": "Ferritin",
+     "result": "UI_CHANGE",
+     "response_ms": 853
+    },
+    {
+     "label": "Liver Enzymes (ALT + AST)",
+     "result": "UI_CHANGE",
+     "response_ms": 876
+    },
+    {
+     "label": "Premarital Package",
+     "result": "UI_CHANGE",
+     "response_ms": 905
+    },
+    {
+     "label": "Urine Complete",
+     "result": "UI_CHANGE",
+     "response_ms": 872
+    },
+    {
+     "label": "Pregnancy Hormone (Beta-hCG)",
+     "result": "UI_CHANGE",
+     "response_ms": 925
+    },
+    {
+     "label": "Fatigue Package",
+     "result": "UI_CHANGE",
+     "response_ms": 915
+    },
+    {
+     "label": "Pregnancy Advanced Package",
+     "result": "UI_CHANGE",
+     "response_ms": 1027
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 1,
+    "UI_CHANGE": 23
+   }
+  },
+  {
+   "route": "request_test",
+   "ui_path": [
+    "Radiology"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 1480,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | 🩺 Request Medical Services |  Lab Tests |  Radiology |  Nursing | "
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 595
+    },
+    {
+     "label": "Lab Tests",
+     "result": "UI_CHANGE",
+     "response_ms": 634
+    },
+    {
+     "label": "Radiology",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 573
+    },
+    {
+     "label": "Nursing",
+     "result": "UI_CHANGE",
+     "response_ms": 929
+    },
+    {
+     "label": "Chest X-Ray",
+     "result": "UI_CHANGE",
+     "response_ms": 587
+    },
+    {
+     "label": "Abdominal & Pelvic Ultrasound",
+     "result": "UI_CHANGE",
+     "response_ms": 594
+    },
+    {
+     "label": "Pregnancy Ultrasound",
+     "result": "UI_CHANGE",
+     "response_ms": 577
+    },
+    {
+     "label": "Abdomen Ultrasound",
+     "result": "UI_CHANGE",
+     "response_ms": 578
+    },
+    {
+     "label": "Spine X-Ray",
+     "result": "UI_CHANGE",
+     "response_ms": 583
+    },
+    {
+     "label": "Knee X-Ray",
+     "result": "UI_CHANGE",
+     "response_ms": 587
+    },
+    {
+     "label": "Echocardiogram",
+     "result": "UI_CHANGE",
+     "response_ms": 581
+    },
+    {
+     "label": "Abdomen X-Ray",
+     "result": "UI_CHANGE",
+     "response_ms": 570
+    },
+    {
+     "label": "Kidney & Bladder Ultrasound",
+     "result": "UI_CHANGE",
+     "response_ms": 598
+    },
+    {
+     "label": "Lumbar Spine MRI",
+     "result": "UI_CHANGE",
+     "response_ms": 621
+    },
+    {
+     "label": "Breast Ultrasound",
+     "result": "UI_CHANGE",
+     "response_ms": 574
+    },
+    {
+     "label": "Brain CT Scan",
+     "result": "UI_CHANGE",
+     "response_ms": 602
+    },
+    {
+     "label": "Pelvic (Gyn) Ultrasound",
+     "result": "UI_CHANGE",
+     "response_ms": 591
+    },
+    {
+     "label": "Thyroid Ultrasound",
+     "result": "UI_CHANGE",
+     "response_ms": 632
+    },
+    {
+     "label": "Dental Panoramic",
+     "result": "UI_CHANGE",
+     "response_ms": 609
+    },
+    {
+     "label": "Leg Veins Doppler",
+     "result": "UI_CHANGE",
+     "response_ms": 600
+    },
+    {
+     "label": "Brain MRI",
+     "result": "UI_CHANGE",
+     "response_ms": 592
+    },
+    {
+     "label": "Pelvis X-Ray",
+     "result": "UI_CHANGE",
+     "response_ms": 649
+    },
+    {
+     "label": "Chest CT Scan",
+     "result": "UI_CHANGE",
+     "response_ms": 592
+    },
+    {
+     "label": "Knee MRI",
+     "result": "UI_CHANGE",
+     "response_ms": 595
+    },
+    {
+     "label": "Abdomen CT with Contrast",
+     "result": "UI_CHANGE",
+     "response_ms": 596
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 23,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "request_test",
+   "ui_path": [
+    "Nursing"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 1484,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | 🩺 Request Medical Services |  Lab Tests |  Radiology |  Nursing | "
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 685
+    },
+    {
+     "label": "Lab Tests",
+     "result": "UI_CHANGE",
+     "response_ms": 819
+    },
+    {
+     "label": "Radiology",
+     "result": "UI_CHANGE",
+     "response_ms": 1072
+    },
+    {
+     "label": "Nursing",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 714
+    },
+    {
+     "label": "Vital Signs Monitoring",
+     "result": "UI_CHANGE",
+     "response_ms": 710
+    },
+    {
+     "label": "Blood Draw for Labs",
+     "result": "UI_CHANGE",
+     "response_ms": 685
+    },
+    {
+     "label": "Medical Injections (IV/IM)",
+     "result": "UI_CHANGE",
+     "response_ms": 695
+    },
+    {
+     "label": "IV Drip Therapy",
+     "result": "UI_CHANGE",
+     "response_ms": 718
+    },
+    {
+     "label": "Advanced Wound & Diabetic Foot Care",
+     "result": "UI_CHANGE",
+     "response_ms": 679
+    },
+    {
+     "label": "Urinary Catheter Care",
+     "result": "UI_CHANGE",
+     "response_ms": 692
+    },
+    {
+     "label": "Tracheostomy Care",
+     "result": "UI_CHANGE",
+     "response_ms": 688
+    },
+    {
+     "label": "Home Oxygen Therapy",
+     "result": "UI_CHANGE",
+     "response_ms": 805
+    },
+    {
+     "label": "Post-Surgery Care",
+     "result": "UI_CHANGE",
+     "response_ms": 695
+    },
+    {
+     "label": "Elderly Companion & Care",
+     "result": "UI_CHANGE",
+     "response_ms": 730
+    },
+    {
+     "label": "Mother & Newborn Care",
+     "result": "UI_CHANGE",
+     "response_ms": 740
+    },
+    {
+     "label": "Home ICU Care",
+     "result": "UI_CHANGE",
+     "response_ms": 688
+    },
+    {
+     "label": "Home Dialysis Session",
+     "result": "UI_CHANGE",
+     "response_ms": 703
+    },
+    {
+     "label": "Speech Therapy",
+     "result": "UI_CHANGE",
+     "response_ms": 706
+    },
+    {
+     "label": "Lactation Consultant",
+     "result": "UI_CHANGE",
+     "response_ms": 752
+    },
+    {
+     "label": "Intramuscular Injection",
+     "result": "UI_CHANGE",
+     "response_ms": 712
+    },
+    {
+     "label": "Intravenous Injection / Cannula",
+     "result": "UI_CHANGE",
+     "response_ms": 787
+    },
+    {
+     "label": "IV Drip / Fluids & Vitamins",
+     "result": "UI_CHANGE",
+     "response_ms": 721
+    },
+    {
+     "label": "Antibiotic IV Course",
+     "result": "UI_CHANGE",
+     "response_ms": 660
+    },
+    {
+     "label": "Wound Dressing",
+     "result": "UI_CHANGE",
+     "response_ms": 703
+    },
+    {
+     "label": "Bedsore Care",
+     "result": "UI_CHANGE",
+     "response_ms": 806
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 23,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "request_test",
+   "ui_path": [
+    "Radiology",
+    "Chest X-Ray"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 1886,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | 🩺 Request Medical Services |  Lab Tests |  Radiology |  Nursing | "
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 560
+    },
+    {
+     "label": "Lab Tests",
+     "result": "UI_CHANGE",
+     "response_ms": 613
+    },
+    {
+     "label": "Radiology",
+     "result": "UI_CHANGE",
+     "response_ms": 583
+    },
+    {
+     "label": "Nursing",
+     "result": "UI_CHANGE",
+     "response_ms": 1011
+    },
+    {
+     "label": "Chest X-Ray",
+     "result": "UI_CHANGE",
+     "response_ms": 579
+    },
+    {
+     "label": "Abdominal & Pelvic Ultrasound",
+     "result": "UI_CHANGE",
+     "response_ms": 666
+    },
+    {
+     "label": "Pregnancy Ultrasound",
+     "result": "UI_CHANGE",
+     "response_ms": 640
+    },
+    {
+     "label": "Abdomen Ultrasound",
+     "result": "UI_CHANGE",
+     "response_ms": 593
+    },
+    {
+     "label": "Spine X-Ray",
+     "result": "UI_CHANGE",
+     "response_ms": 683
+    },
+    {
+     "label": "Knee X-Ray",
+     "result": "UI_CHANGE",
+     "response_ms": 596
+    },
+    {
+     "label": "Echocardiogram",
+     "result": "UI_CHANGE",
+     "response_ms": 677
+    },
+    {
+     "label": "Abdomen X-Ray",
+     "result": "UI_CHANGE",
+     "response_ms": 667
+    },
+    {
+     "label": "Kidney & Bladder Ultrasound",
+     "result": "UI_CHANGE",
+     "response_ms": 583
+    },
+    {
+     "label": "Lumbar Spine MRI",
+     "result": "UI_CHANGE",
+     "response_ms": 598
+    },
+    {
+     "label": "Breast Ultrasound",
+     "result": "UI_CHANGE",
+     "response_ms": 605
+    },
+    {
+     "label": "Brain CT Scan",
+     "result": "UI_CHANGE",
+     "response_ms": 625
+    },
+    {
+     "label": "Pelvic (Gyn) Ultrasound",
+     "result": "UI_CHANGE",
+     "response_ms": 586
+    },
+    {
+     "label": "Thyroid Ultrasound",
+     "result": "UI_CHANGE",
+     "response_ms": 576
+    },
+    {
+     "label": "Dental Panoramic",
+     "result": "UI_CHANGE",
+     "response_ms": 614
+    },
+    {
+     "label": "Leg Veins Doppler",
+     "result": "UI_CHANGE",
+     "response_ms": 589
+    },
+    {
+     "label": "Brain MRI",
+     "result": "UI_CHANGE",
+     "response_ms": 620
+    },
+    {
+     "label": "Pelvis X-Ray",
+     "result": "UI_CHANGE",
+     "response_ms": 637
+    },
+    {
+     "label": "Chest CT Scan",
+     "result": "UI_CHANGE",
+     "response_ms": 640
+    },
+    {
+     "label": "Knee MRI",
+     "result": "UI_CHANGE",
+     "response_ms": 602
+    },
+    {
+     "label": "Abdomen CT with Contrast",
+     "result": "UI_CHANGE",
+     "response_ms": 607
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 24
+   }
+  },
+  {
+   "route": "patient_file",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 401,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← |  Patient File | م | Patient | — | Overview | Client CRM | Visits | Rx | La"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "request_test",
+     "response_ms": 499
+    },
+    {
+     "label": "Overview",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 486
+    },
+    {
+     "label": "Client CRM",
+     "result": "UI_CHANGE",
+     "response_ms": 508
+    },
+    {
+     "label": "Visits",
+     "result": "UI_CHANGE",
+     "response_ms": 491
+    },
+    {
+     "label": "Rx",
+     "result": "UI_CHANGE",
+     "response_ms": 481
+    },
+    {
+     "label": "Labs",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 454
+    },
+    {
+     "label": "Allergies",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 489
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 3,
+    "UI_CHANGE": 3
+   }
+  },
+  {
+   "route": "patient_file",
+   "ui_path": [
+    "Client CRM"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 787,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← |  Patient File | م | Patient | — | Overview | Client CRM | Visits | Rx | La"
+   },
+   "status": "TESTED",
+   "inputs_filled": 5,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 547
+    },
+    {
+     "label": "Overview",
+     "result": "UI_CHANGE",
+     "response_ms": 545
+    },
+    {
+     "label": "Client CRM",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 542
+    },
+    {
+     "label": "Visits",
+     "result": "UI_CHANGE",
+     "response_ms": 522
+    },
+    {
+     "label": "Rx",
+     "result": "UI_CHANGE",
+     "response_ms": 526
+    },
+    {
+     "label": "Labs",
+     "result": "UI_CHANGE",
+     "response_ms": 535
+    },
+    {
+     "label": "Allergies",
+     "result": "UI_CHANGE",
+     "response_ms": 537
+    },
+    {
+     "label": "(icon #7)",
+     "result": "UI_CHANGE",
+     "response_ms": 459
+    },
+    {
+     "label": "(icon #8)",
+     "result": "UI_CHANGE",
+     "response_ms": 456
+    },
+    {
+     "label": "(icon #9)",
+     "result": "UI_CHANGE",
+     "response_ms": 459
+    },
+    {
+     "label": "(icon #10)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 467
+    },
+    {
+     "label": "+",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 566
+    },
+    {
+     "label": "(icon #12)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 423
+    },
+    {
+     "label": "Save Note",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: Save Note"
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 8,
+    "NO_EFFECT": 4,
+    "CRAWLER_TARGET_MISSING": 1
+   }
+  },
+  {
+   "route": "service_management",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 743,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← |  Service Management | Available Services |  Add Service"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "patient_file",
+     "response_ms": 457
+    },
+    {
+     "label": "Add Service",
+     "result": "UI_CHANGE",
+     "response_ms": 495
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 1
+   }
+  },
+  {
+   "route": "service_management",
+   "ui_path": [
+    "Add Service"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 1133,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← |  Service Management | Available Services |  Add Service |  Add C"
+   },
+   "status": "TESTED",
+   "inputs_filled": 6,
+   "elements": [
+    {
+     "label": "←",
+     "result": "UI_CHANGE",
+     "response_ms": 545
+    },
+    {
+     "label": "Add Service",
+     "result": "UI_CHANGE",
+     "response_ms": 488
+    },
+    {
+     "label": "(icon #2)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 446
+    },
+    {
+     "label": "Service Name (Arabic) *",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 688
+    },
+    {
+     "label": "Service Name (English) *",
+     "result": "SKIPPED_DESTRUCTIVE"
+    },
+    {
+     "label": "Service Price (SAR) *",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 460
+    },
+    {
+     "label": "Duration (min)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 475
+    },
+    {
+     "label": "Description (Arabic)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 464
+    },
+    {
+     "label": "Description (English)",
+     "result": "SKIPPED_DESTRUCTIVE"
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 2,
+    "NO_EFFECT": 5,
+    "SKIPPED_DESTRUCTIVE": 2
+   }
+  },
+  {
+   "route": "promotions",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 738,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "Promotions Center | ACTIVE PROMOTIONS | No promotions available | "
+   },
+   "status": "TESTED",
+   "inputs_filled": 6,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "UI_CHANGE",
+     "response_ms": 446
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NAVIGATE",
+     "to": "create_promo",
+     "response_ms": 476
+    },
+    {
+     "label": "Create New Promotion",
+     "result": "NAVIGATE",
+     "to": "create_promo",
+     "response_ms": 487
+    },
+    {
+     "label": "(icon #3)",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: (icon #3)"
+    },
+    {
+     "label": "Service Name (Arabic) *",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: Service Name (Arabic) *"
+    },
+    {
+     "label": "Service Name (English) *",
+     "result": "SKIPPED_DESTRUCTIVE"
+    },
+    {
+     "label": "Service Price (SAR) *",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: Service Price (SAR) *"
+    },
+    {
+     "label": "Duration (min)",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: Duration (min)"
+    },
+    {
+     "label": "Description (Arabic)",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: Description (Arabic)"
+    },
+    {
+     "label": "Description (English)",
+     "result": "SKIPPED_DESTRUCTIVE"
+    },
+    {
+     "label": "Add Service",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: Add Service"
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 1,
+    "NAVIGATE": 2,
+    "CRAWLER_TARGET_MISSING": 6,
+    "SKIPPED_DESTRUCTIVE": 2
+   }
+  },
+  {
+   "route": "promotions",
+   "ui_path": [
+    "(icon #0)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 1131,
+   "status": "NOT_REACHABLE",
+   "reason": "navigation ended on MainTabs",
+   "screenshot": "/tmp/nav2_doctor_promotions_nav.png",
+   "controls_now": [
+    "View All",
+    "All",
+    "Medical Jobs",
+    "Drug Index",
+    "Inbound Medical Reports (Radiology & Lab",
+    "Home",
+    "Schedule",
+    "Chats",
+    "Wallet",
+    "Settings"
+   ],
+   "route_now": {
+    "name": "MainTabs",
+    "params": null
+   },
+   "pending": [],
+   "failed_requests": [],
+   "js": [],
+   "bad_reads": []
+  },
+  {
+   "route": "create_promo",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 391,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Create Campaign | Campaign Title * | Original Price | ريال | Disco"
+   },
+   "status": "TESTED",
+   "inputs_filled": 5,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 473
+    },
+    {
+     "label": "Campaign Title *",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 478
+    },
+    {
+     "label": "Original Price",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 487
+    },
+    {
+     "label": "Discounted Price",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 480
+    },
+    {
+     "label": "Start Date",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 474
+    },
+    {
+     "label": "End Date",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 455
+    },
+    {
+     "label": "Submit for Approval",
+     "result": "UI_CHANGE",
+     "response_ms": 446
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 5,
+    "UI_CHANGE": 1
+   }
+  },
+  {
+   "route": "web_config",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 737,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Public Mini-Website | Active Public Website | Allow patients t"
+   },
+   "status": "TESTED",
+   "inputs_filled": 3,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "create_promo",
+     "response_ms": 496
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 449
+    },
+    {
+     "label": "Doctor/Clinic Bio",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 458
+    },
+    {
+     "label": "Social Media Link",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 451
+    },
+    {
+     "label": "Share",
+     "result": "UI_CHANGE",
+     "response_ms": 453
+    },
+    {
+     "label": "Save Settings",
+     "result": "WRITE",
+     "status": 200,
+     "method": "PATCH",
+     "url": "/provider/profile",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 810
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 3,
+    "UI_CHANGE": 1,
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "subscriptions_ads",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 390,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Subscriptions & Ads Purchases | Current Plan: — | PURCHASE FEA"
+   },
+   "status": "TESTED",
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 458
+    },
+    {
+     "label": "Ad Budget (SAR)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 456
+    },
+    {
+     "label": "Ad Duration (Days)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 446
+    },
+    {
+     "label": "Pay & Launch Ad",
+     "result": "UI_CHANGE",
+     "response_ms": 453
+    },
+    {
+     "label": "B2B Affiliate Portal",
+     "result": "NAVIGATE",
+     "to": "affiliate",
+     "response_ms": 823
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 2,
+    "NO_EFFECT": 2,
+    "UI_CHANGE": 1
+   }
+  },
+  {
+   "route": "affiliate",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 393,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Affiliate Portal | Invite a provider & earn referral rewards"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "subscriptions_ads",
+     "response_ms": 435
+    },
+    {
+     "label": "Share Code",
+     "result": "UI_CHANGE",
+     "response_ms": 469
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 1
+   }
+  },
+  {
+   "route": "reputation",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 736,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Reputation & Ratings | star | No reviews yet | Patient reviews w"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "affiliate",
+     "response_ms": 436
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "crm",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 736,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | CRM & Revenue Intelligence | 0 | CRM Patients | 0 | VIP | QUICK CUST"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "affiliate",
+     "response_ms": 440
+    },
+    {
+     "label": "Revenue Insights",
+     "result": "NAVIGATE",
+     "to": "revenue_insights",
+     "response_ms": 816
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 2
+   }
+  },
+  {
+   "route": "ai_copilot",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 394,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": " EMR & AI Copilot |  Get AI suggestion from notes | Patient (fro"
+   },
+   "status": "TESTED",
+   "inputs_filled": 4,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "revenue_insights",
+     "response_ms": 442
+    },
+    {
+     "label": "Get AI suggestion from notes",
+     "result": "UI_CHANGE",
+     "response_ms": 468
+    },
+    {
+     "label": "Save EMR Entry",
+     "result": "UI_CHANGE",
+     "response_ms": 461
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 2
+   }
+  },
+  {
+   "route": "outbound_referral",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 741,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Smart Outbound Referral | Patient Name / ID | ACCREDITED CENTE"
+   },
+   "status": "TESTED",
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 997
+    },
+    {
+     "label": "Patient Name / ID",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 909
+    },
+    {
+     "label": "(icon #2)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 472
+    },
+    {
+     "label": "Complete Blood Count",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 892
+    },
+    {
+     "label": "General Wellness Package",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 873
+    },
+    {
+     "label": "Vitamin D (25-OH)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 933
+    },
+    {
+     "label": "Comprehensive Health Package",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 868
+    },
+    {
+     "label": "Glycated Hemoglobin (HbA1c)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 880
+    },
+    {
+     "label": "Fasting Blood Sugar",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 892
+    },
+    {
+     "label": "Vitamin D",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 939
+    },
+    {
+     "label": "Thyroid Stimulating Hormone",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 872
+    },
+    {
+     "label": "Diabetes Care Package",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 900
+    },
+    {
+     "label": "Lipid Profile",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 907
+    },
+    {
+     "label": "Vitamins & Minerals Package",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 987
+    },
+    {
+     "label": "Complete Urine Analysis",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 906
+    },
+    {
+     "label": "HbA1c",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 912
+    },
+    {
+     "label": "Kidney Function (Creatinine + Urea)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 927
+    },
+    {
+     "label": "Ferritin",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 913
+    },
+    {
+     "label": "Liver Enzymes (ALT + AST)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 883
+    },
+    {
+     "label": "Premarital Package",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 917
+    },
+    {
+     "label": "Urine Complete",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 911
+    },
+    {
+     "label": "Pregnancy Hormone (Beta-hCG)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 926
+    },
+    {
+     "label": "Fatigue Package",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1015
+    },
+    {
+     "label": "Pregnancy Advanced Package",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 935
+    },
+    {
+     "label": "Vitamin B12",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 911
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 24
+   }
+  },
+  {
+   "route": "sos_dispatch",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 741,
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "403 GET /emergency/active"
+    ],
+    "heading": "← | Emergency & SOS | Facing an emergency? | Send SOS Alert | Active"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "outbound_referral",
+     "response_ms": 459
+    },
+    {
+     "label": "Send SOS Alert",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 471
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "gps_router",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 393,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Emergency GPS Router | Start the trip to enable live routing"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "sos_dispatch",
+     "response_ms": 435
+    },
+    {
+     "label": "Start Trip",
+     "result": "UI_CHANGE",
+     "response_ms": 454
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 1
+   }
+  },
+  {
+   "route": "certificates_config",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 746,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Qualifications | No documents yet | UPLOAD NEW DOCUMENT | medica"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "gps_router",
+     "response_ms": 478
+    },
+    {
+     "label": "medical_license",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 485
+    },
+    {
+     "label": "professional_cv",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 446
+    },
+    {
+     "label": "national_id",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 451
+    },
+    {
+     "label": "commercial_registration",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 458
+    },
+    {
+     "label": "facility_license",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 463
+    },
+    {
+     "label": "iban_letter",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 461
+    },
+    {
+     "label": "vat_certificate",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 454
+    },
+    {
+     "label": "other",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 467
+    },
+    {
+     "label": "Pick file & upload",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 455
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 9
+   }
+  },
+  {
+   "route": "media_config",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 391,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Photos & Media | Photos displayed on your public profile for"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "certificates_config",
+     "response_ms": 430
+    },
+    {
+     "label": "Add Photo",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 447
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "pre_visit_chat",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 391,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Pre-visit Chat | Opens 15 mins early for document uploads | Se"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 458
+    },
+    {
+     "label": "Send",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: Send"
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "CRAWLER_TARGET_MISSING": 1
+   }
+  },
+  {
+   "route": "location_config",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "status": "NEEDS_PARAMS",
+   "screenshot": "/tmp/nav2_doctor_location_config_crash.png",
+   "controls_now": [],
+   "route_now": null,
+   "pending": [],
+   "failed_requests": [],
+   "js": [
+    "(0 , r(...).codegenNativeComponent) is not a function"
+   ],
+   "bad_reads": []
+  },
+  {
+   "route": "video_call",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 393,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "video | Unable to start call | The appointment identifier is req"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [],
+   "summary": {}
+  }
+ ],
+ "registered": [
+  "MainTabs",
+  "appointment_detail",
+  "consultation",
+  "prescription",
+  "sick_leave",
+  "medical_report",
+  "referral",
+  "request_test",
+  "patient_file",
+  "withdrawal_workflow",
+  "revenue_insights",
+  "availability_engine",
+  "service_management",
+  "promotions",
+  "create_promo",
+  "web_config",
+  "subscriptions_ads",
+  "affiliate",
+  "reputation",
+  "crm",
+  "ai_copilot",
+  "outbound_referral",
+  "sos_dispatch",
+  "gps_router",
+  "profile_edit",
+  "insurance_config",
+  "insurance_requests",
+  "certificates_config",
+  "media_config",
+  "virtual_waiting_room",
+  "pre_visit_chat",
+  "medical_jobs",
+  "drug_index",
+  "facility_invitations",
+  "location_config",
+  "inbound_reports",
+  "video_call"
+ ],
+ "reloads": 328,
+ "coverage": {
+  "registered": 37,
+  "tested_routes": 36,
+  "states_tested": 58,
+  "by_status": {
+   "CRAWLER_TARGET_MISSING": 7,
+   "NEEDS_PARAMS": 1,
+   "NOT_REACHABLE": 1,
+   "TESTED": 58
+  },
+  "routes_tested": [
+   "MainTabs",
+   "affiliate",
+   "ai_copilot",
+   "appointment_detail",
+   "availability_engine",
+   "certificates_config",
+   "consultation",
+   "create_promo",
+   "crm",
+   "drug_index",
+   "facility_invitations",
+   "gps_router",
+   "inbound_reports",
+   "insurance_config",
+   "insurance_requests",
+   "media_config",
+   "medical_jobs",
+   "medical_report",
+   "outbound_referral",
+   "patient_file",
+   "pre_visit_chat",
+   "prescription",
+   "profile_edit",
+   "promotions",
+   "referral",
+   "reputation",
+   "request_test",
+   "revenue_insights",
+   "service_management",
+   "sick_leave",
+   "sos_dispatch",
+   "subscriptions_ads",
+   "video_call",
+   "virtual_waiting_room",
+   "web_config",
+   "withdrawal_workflow"
+  ],
+  "not_visited": []
+ }
+}

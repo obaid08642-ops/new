@@ -1,0 +1,1493 @@
+{
+ "provider_type": "radiology",
+ "login_via_ui": true,
+ "build": "rn-web E2E export (not native)",
+ "perf": {
+  "app_boot_to_ready_ms": 535,
+  "login_to_dashboard_ready_ms": 1543,
+  "dashboard_ready": true,
+  "dashboard_not_ready_reason": ""
+ },
+ "screens": [
+  {
+   "route": "MainTabs",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 395,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "لوحة الأشعة | ◎ | 0 | فحوصات اليوم | ◔ | 0 | جاري الفحص | check | 0 | مكتمل | ◈ | "
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الرئيسية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 472
+    },
+    {
+     "label": "الطلبات",
+     "result": "UI_CHANGE",
+     "response_ms": 797
+    },
+    {
+     "label": "الكتالوج",
+     "result": "UI_CHANGE",
+     "response_ms": 818
+    },
+    {
+     "label": "الجدول",
+     "result": "UI_CHANGE",
+     "response_ms": 487
+    },
+    {
+     "label": "الإعدادات",
+     "result": "UI_CHANGE",
+     "response_ms": 475
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1,
+    "UI_CHANGE": 4
+   }
+  },
+  {
+   "route": "MainTabs",
+   "ui_path": [
+    "الطلبات"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 1130,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "إدارة الطلبات | جديد | تأمين | مجدول | جاري | document | لا توجد طلبات | ا"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "جديد",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 467
+    },
+    {
+     "label": "تأمين",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 468
+    },
+    {
+     "label": "مجدول",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 465
+    },
+    {
+     "label": "جاري",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 465
+    },
+    {
+     "label": "الرئيسية",
+     "result": "UI_CHANGE",
+     "response_ms": 1330
+    },
+    {
+     "label": "الطلبات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 456
+    },
+    {
+     "label": "الكتالوج",
+     "result": "UI_CHANGE",
+     "response_ms": 813
+    },
+    {
+     "label": "الجدول",
+     "result": "UI_CHANGE",
+     "response_ms": 467
+    },
+    {
+     "label": "الإعدادات",
+     "result": "UI_CHANGE",
+     "response_ms": 477
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 5,
+    "UI_CHANGE": 4
+   }
+  },
+  {
+   "route": "MainTabs",
+   "ui_path": [
+    "الكتالوج"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 1132,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "كتالوج الأشعة | الفحوصات المتاحة (0) | + إضافة فحص | scan | لا توجد "
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "+ إضافة فحص",
+     "result": "UI_CHANGE",
+     "response_ms": 492
+    },
+    {
+     "label": "الرئيسية",
+     "result": "UI_CHANGE",
+     "response_ms": 801
+    },
+    {
+     "label": "الطلبات",
+     "result": "UI_CHANGE",
+     "response_ms": 807
+    },
+    {
+     "label": "الكتالوج",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 448
+    },
+    {
+     "label": "الجدول",
+     "result": "UI_CHANGE",
+     "response_ms": 463
+    },
+    {
+     "label": "الإعدادات",
+     "result": "UI_CHANGE",
+     "response_ms": 455
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 5,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "MainTabs",
+   "ui_path": [
+    "الجدول"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 783,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "جدول المواعيد والتوفر |  أيام العمل | الأحد | الاثنين | الثلاثاء | الأ"
+   },
+   "status": "TESTED",
+   "inputs_filled": 5,
+   "elements": [
+    {
+     "label": "الأحد",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 516
+    },
+    {
+     "label": "الاثنين",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 493
+    },
+    {
+     "label": "الثلاثاء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 491
+    },
+    {
+     "label": "الأربعاء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 490
+    },
+    {
+     "label": "الخميس",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 541
+    },
+    {
+     "label": "الجمعة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 484
+    },
+    {
+     "label": "السبت",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 496
+    },
+    {
+     "label": "من",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 505
+    },
+    {
+     "label": "إلى",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 498
+    },
+    {
+     "label": "(icon #11)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 447
+    },
+    {
+     "label": "حفظ وإرسال للمراجعة",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/radiology/catalog/delta-request",
+     "tokens_sent": 4,
+     "tokens_stored": 0,
+     "response_ms": 844
+    },
+    {
+     "label": "الرئيسية",
+     "result": "UI_CHANGE",
+     "response_ms": 843
+    },
+    {
+     "label": "الطلبات",
+     "result": "UI_CHANGE",
+     "response_ms": 855
+    },
+    {
+     "label": "الكتالوج",
+     "result": "UI_CHANGE",
+     "response_ms": 866
+    },
+    {
+     "label": "الجدول",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 483
+    },
+    {
+     "label": "الإعدادات",
+     "result": "UI_CHANGE",
+     "response_ms": 524
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 11,
+    "WRITE": 1,
+    "UI_CHANGE": 4
+   }
+  },
+  {
+   "route": "MainTabs",
+   "ui_path": [
+    "الإعدادات"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 784,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "الإعدادات | معلومات المركز | تعديل بيانات المركز يتطلب مراجعة إد"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "طلبات التأمين الواردة (قرار يدوي)",
+     "result": "NAVIGATE",
+     "to": "insurance_requests",
+     "response_ms": 794
+    },
+    {
+     "label": "دليل الأدوية الطبي",
+     "result": "NAVIGATE",
+     "to": "drug_index",
+     "response_ms": 1921
+    },
+    {
+     "label": "تسجيل الخروج",
+     "result": "SKIPPED_DESTRUCTIVE"
+    },
+    {
+     "label": "الرئيسية",
+     "result": "UI_CHANGE",
+     "response_ms": 798
+    },
+    {
+     "label": "الطلبات",
+     "result": "UI_CHANGE",
+     "response_ms": 840
+    },
+    {
+     "label": "الكتالوج",
+     "result": "UI_CHANGE",
+     "response_ms": 824
+    },
+    {
+     "label": "الجدول",
+     "result": "UI_CHANGE",
+     "response_ms": 481
+    },
+    {
+     "label": "الإعدادات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 472
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 2,
+    "SKIPPED_DESTRUCTIVE": 1,
+    "UI_CHANGE": 4,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "MainTabs",
+   "ui_path": [
+    "الكتالوج",
+    "+ إضافة فحص"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 1548,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "كتالوج الأشعة | الفحوصات المتاحة (0) | + إضافة فحص | scan | لا توجد "
+   },
+   "status": "TESTED",
+   "inputs_filled": 8,
+   "elements": [
+    {
+     "label": "+ إضافة فحص",
+     "result": "UI_CHANGE",
+     "response_ms": 578
+    },
+    {
+     "label": "الرئيسية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 587
+    },
+    {
+     "label": "الطلبات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 575
+    },
+    {
+     "label": "الكتالوج",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 547
+    },
+    {
+     "label": "الجدول",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 575
+    },
+    {
+     "label": "الإعدادات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 559
+    },
+    {
+     "label": "(icon #6)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 434
+    },
+    {
+     "label": "MRI",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 562
+    },
+    {
+     "label": "CT",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 653
+    },
+    {
+     "label": "X-Ray",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 601
+    },
+    {
+     "label": "Ultrasound",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 600
+    },
+    {
+     "label": "Mammography",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 606
+    },
+    {
+     "label": "DEXA",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 571
+    },
+    {
+     "label": "Fluoroscopy",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 560
+    },
+    {
+     "label": "PET",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 567
+    },
+    {
+     "label": "اسم الفحص (عربي)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 568
+    },
+    {
+     "label": "اسم الفحص (إنجليزي)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 585
+    },
+    {
+     "label": "السعر كاش (ر.س)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 586
+    },
+    {
+     "label": "المدة المتوقعة (دقيقة)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 600
+    },
+    {
+     "label": "(icon #19)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 442
+    },
+    {
+     "label": "(icon #20)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 448
+    },
+    {
+     "label": "(icon #21)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 467
+    },
+    {
+     "label": "(icon #22)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 453
+    },
+    {
+     "label": "صيام 6 ساعات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 649
+    },
+    {
+     "label": "شرب لتر ماء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 615
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 1,
+    "NO_EFFECT": 24
+   }
+  },
+  {
+   "route": "insurance_requests",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 736,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | طلبات التأمين | مراجعة يدوية قبل تقديم الخدمة | shield | لا توجد"
+   },
+   "status": "TESTED",
+   "inputs_filled": 8,
+   "elements": [
+    {
+     "label": "→",
+     "result": "UI_CHANGE",
+     "response_ms": 549
+    },
+    {
+     "label": "(icon #1)",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: (icon #1)"
+    },
+    {
+     "label": "MRI",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: MRI"
+    },
+    {
+     "label": "CT",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: CT"
+    },
+    {
+     "label": "X-Ray",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: X-Ray"
+    },
+    {
+     "label": "Ultrasound",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: Ultrasound"
+    },
+    {
+     "label": "Mammography",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: Mammography"
+    },
+    {
+     "label": "DEXA",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: DEXA"
+    },
+    {
+     "label": "Fluoroscopy",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: Fluoroscopy"
+    },
+    {
+     "label": "PET",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: PET"
+    },
+    {
+     "label": "اسم الفحص (عربي)",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: اسم الفحص (عربي)"
+    },
+    {
+     "label": "اسم الفحص (إنجليزي)",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: اسم الفحص (إنجليزي)"
+    },
+    {
+     "label": "السعر كاش (ر.س)",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: السعر كاش (ر.س)"
+    },
+    {
+     "label": "المدة المتوقعة (دقيقة)",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: المدة المتوقعة (دقيقة)"
+    },
+    {
+     "label": "(icon #14)",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: (icon #14)"
+    },
+    {
+     "label": "(icon #15)",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: (icon #15)"
+    },
+    {
+     "label": "(icon #16)",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: (icon #16)"
+    },
+    {
+     "label": "(icon #17)",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: (icon #17)"
+    },
+    {
+     "label": "صيام 6 ساعات",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: صيام 6 ساعات"
+    },
+    {
+     "label": "(time budget reached)",
+     "result": "NOT_TESTED"
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 1,
+    "CRAWLER_TARGET_MISSING": 18,
+    "NOT_TESTED": 1
+   }
+  },
+  {
+   "route": "drug_index",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 1887,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A10 (2) | UC15A2210 (1)"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "insurance_requests",
+     "response_ms": 466
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 445
+    },
+    {
+     "label": "الكل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 507
+    },
+    {
+     "label": "pain (8)",
+     "result": "UI_CHANGE",
+     "response_ms": 2042
+    },
+    {
+     "label": "UE3C96A10 (2)",
+     "result": "UI_CHANGE",
+     "response_ms": 1991
+    },
+    {
+     "label": "UC15A2210 (1)",
+     "result": "UI_CHANGE",
+     "response_ms": 2007
+    },
+    {
+     "label": "category-20703 (1)",
+     "result": "UI_CHANGE",
+     "response_ms": 2006
+    },
+    {
+     "label": "UC15A2204 (معدّل E2E)",
+     "result": "UI_CHANGE",
+     "response_ms": 880
+    },
+    {
+     "label": "UE3C96A04",
+     "result": "UI_CHANGE",
+     "response_ms": 894
+    },
+    {
+     "label": "name_ar-20700",
+     "result": "UI_CHANGE",
+     "response_ms": 870
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 18f732",
+     "result": "UI_CHANGE",
+     "response_ms": 887
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 730a68",
+     "result": "UI_CHANGE",
+     "response_ms": 877
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 81b23b",
+     "result": "UI_CHANGE",
+     "response_ms": 875
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ a33d6a",
+     "result": "UI_CHANGE",
+     "response_ms": 895
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 2dfd4a",
+     "result": "UI_CHANGE",
+     "response_ms": 872
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 874ed2",
+     "result": "UI_CHANGE",
+     "response_ms": 896
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ bca0db",
+     "result": "UI_CHANGE",
+     "response_ms": 877
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ fc3790",
+     "result": "UI_CHANGE",
+     "response_ms": 919
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 2,
+    "UI_CHANGE": 15
+   }
+  },
+  {
+   "route": "insurance_requests",
+   "ui_path": [
+    "→"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 1135,
+   "status": "NOT_REACHABLE",
+   "reason": "navigation ended on MainTabs",
+   "screenshot": "/tmp/nav2_radiology_insurance_requests_nav.png",
+   "controls_now": [
+    "الرئيسية",
+    "الطلبات",
+    "الكتالوج",
+    "الجدول",
+    "الإعدادات"
+   ],
+   "route_now": {
+    "name": "MainTabs",
+    "params": null
+   },
+   "pending": [],
+   "failed_requests": [],
+   "js": [],
+   "bad_reads": []
+  },
+  {
+   "route": "drug_index",
+   "ui_path": [
+    "pain (8)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 3728,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A10 (2) | UC15A2210 (1)"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 444
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 1943
+    },
+    {
+     "label": "الكل",
+     "result": "UI_CHANGE",
+     "response_ms": 2009
+    },
+    {
+     "label": "pain (8)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 495
+    },
+    {
+     "label": "UE3C96A10 (2)",
+     "result": "UI_CHANGE",
+     "response_ms": 2050
+    },
+    {
+     "label": "UC15A2210 (1)",
+     "result": "UI_CHANGE",
+     "response_ms": 1970
+    },
+    {
+     "label": "category-20703 (1)",
+     "result": "UI_CHANGE",
+     "response_ms": 1958
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 18f732",
+     "result": "UI_CHANGE",
+     "response_ms": 858
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 730a68",
+     "result": "UI_CHANGE",
+     "response_ms": 864
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 81b23b",
+     "result": "UI_CHANGE",
+     "response_ms": 849
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ a33d6a",
+     "result": "UI_CHANGE",
+     "response_ms": 858
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 2dfd4a",
+     "result": "UI_CHANGE",
+     "response_ms": 878
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 874ed2",
+     "result": "UI_CHANGE",
+     "response_ms": 849
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ bca0db",
+     "result": "UI_CHANGE",
+     "response_ms": 839
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ fc3790",
+     "result": "UI_CHANGE",
+     "response_ms": 887
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 13,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "drug_index",
+   "ui_path": [
+    "UE3C96A10 (2)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 3724,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A10 (2) | category-2070"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 445
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 1891
+    },
+    {
+     "label": "الكل",
+     "result": "UI_CHANGE",
+     "response_ms": 1929
+    },
+    {
+     "label": "pain (8)",
+     "result": "UI_CHANGE",
+     "response_ms": 1938
+    },
+    {
+     "label": "UE3C96A10 (2)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 458
+    },
+    {
+     "label": "category-20703 (1)",
+     "result": "UI_CHANGE",
+     "response_ms": 1977
+    },
+    {
+     "label": "UC15A2210 (1)",
+     "result": "UI_CHANGE",
+     "response_ms": 1925
+    },
+    {
+     "label": "UE3C96A04",
+     "result": "UI_CHANGE",
+     "response_ms": 1368
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 6,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "drug_index",
+   "ui_path": [
+    "UC15A2210 (1)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 3729,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A10 (2) | UC15A2210 (1)"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 464
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 1935
+    },
+    {
+     "label": "الكل",
+     "result": "UI_CHANGE",
+     "response_ms": 2557
+    },
+    {
+     "label": "pain (8)",
+     "result": "UI_CHANGE",
+     "response_ms": 1963
+    },
+    {
+     "label": "UE3C96A10 (2)",
+     "result": "UI_CHANGE",
+     "response_ms": 1952
+    },
+    {
+     "label": "UC15A2210 (1)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 456
+    },
+    {
+     "label": "category-20703 (1)",
+     "result": "UI_CHANGE",
+     "response_ms": 1919
+    },
+    {
+     "label": "UC15A2204 (معدّل E2E)",
+     "result": "UI_CHANGE",
+     "response_ms": 808
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 6,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "drug_index",
+   "ui_path": [
+    "category-20703 (1)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 3723,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A10 (2) | UC15A2210 (1)"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 457
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 1898
+    },
+    {
+     "label": "الكل",
+     "result": "UI_CHANGE",
+     "response_ms": 1928
+    },
+    {
+     "label": "pain (8)",
+     "result": "UI_CHANGE",
+     "response_ms": 1938
+    },
+    {
+     "label": "UE3C96A10 (2)",
+     "result": "UI_CHANGE",
+     "response_ms": 1940
+    },
+    {
+     "label": "UC15A2210 (1)",
+     "result": "UI_CHANGE",
+     "response_ms": 1911
+    },
+    {
+     "label": "category-20703 (1)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 453
+    },
+    {
+     "label": "name_ar-20700",
+     "result": "UI_CHANGE",
+     "response_ms": 1351
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 6,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "drug_index",
+   "ui_path": [
+    "UC15A2204 (معدّل E2E)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 3110,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "الملف الدوائي الكامل | UC15A2204 (معدّل E2E) | UC15A2208 | 0 ريال "
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "UI_CHANGE",
+     "response_ms": 841
+    },
+    {
+     "label": "الوصف",
+     "result": "UI_CHANGE",
+     "response_ms": 522
+    },
+    {
+     "label": "دواعي الاستعمال",
+     "result": "UI_CHANGE",
+     "response_ms": 473
+    },
+    {
+     "label": "الجرعة وطريقة الاستخدام",
+     "result": "UI_CHANGE",
+     "response_ms": 481
+    },
+    {
+     "label": "إرشادات الاستخدام",
+     "result": "UI_CHANGE",
+     "response_ms": 481
+    },
+    {
+     "label": "تحذيرات",
+     "result": "UI_CHANGE",
+     "response_ms": 500
+    },
+    {
+     "label": "موانع الاستخدام",
+     "result": "UI_CHANGE",
+     "response_ms": 494
+    },
+    {
+     "label": "الأعراض الجانبية",
+     "result": "UI_CHANGE",
+     "response_ms": 497
+    },
+    {
+     "label": "اقتراح تعديل على هذا الدواء",
+     "result": "UI_CHANGE",
+     "response_ms": 530
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 9
+   }
+  },
+  {
+   "route": "drug_index",
+   "ui_path": [
+    "UE3C96A04"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 2626,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "الملف الدوائي الكامل | UE3C96A04 | UE3C96A08 | 0 ريال سعودي | يتطلب "
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "UI_CHANGE",
+     "response_ms": 808
+    },
+    {
+     "label": "الوصف",
+     "result": "UI_CHANGE",
+     "response_ms": 530
+    },
+    {
+     "label": "دواعي الاستعمال",
+     "result": "UI_CHANGE",
+     "response_ms": 494
+    },
+    {
+     "label": "الجرعة وطريقة الاستخدام",
+     "result": "UI_CHANGE",
+     "response_ms": 483
+    },
+    {
+     "label": "إرشادات الاستخدام",
+     "result": "UI_CHANGE",
+     "response_ms": 485
+    },
+    {
+     "label": "تحذيرات",
+     "result": "UI_CHANGE",
+     "response_ms": 470
+    },
+    {
+     "label": "موانع الاستخدام",
+     "result": "UI_CHANGE",
+     "response_ms": 473
+    },
+    {
+     "label": "الأعراض الجانبية",
+     "result": "UI_CHANGE",
+     "response_ms": 476
+    },
+    {
+     "label": "UE3C96A04",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 515
+    },
+    {
+     "label": "اقتراح تعديل على هذا الدواء",
+     "result": "UI_CHANGE",
+     "response_ms": 585
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 9,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "drug_index",
+   "ui_path": [
+    "name_ar-20700"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 2270,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "الملف الدوائي الكامل | name_ar-20700 | 804 ريال سعودي | يتطلب وصفة"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "UI_CHANGE",
+     "response_ms": 825
+    },
+    {
+     "label": "اقتراح تعديل على هذا الدواء",
+     "result": "UI_CHANGE",
+     "response_ms": 485
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 2
+   }
+  },
+  {
+   "route": "drug_index",
+   "ui_path": [
+    "بنادول اكسترا 500 ملغ 18f732"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 2617,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "الملف الدوائي الكامل | بنادول اكسترا 500 ملغ 18f732 | GSK | 12.5 ر"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "UI_CHANGE",
+     "response_ms": 813
+    },
+    {
+     "label": "الوصف",
+     "result": "UI_CHANGE",
+     "response_ms": 522
+    },
+    {
+     "label": "دواعي الاستعمال",
+     "result": "UI_CHANGE",
+     "response_ms": 504
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 730a68",
+     "result": "UI_CHANGE",
+     "response_ms": 866
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ bca0db",
+     "result": "UI_CHANGE",
+     "response_ms": 917
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ a33d6a",
+     "result": "UI_CHANGE",
+     "response_ms": 890
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ fc3790",
+     "result": "UI_CHANGE",
+     "response_ms": 853
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 2dfd4a",
+     "result": "UI_CHANGE",
+     "response_ms": 925
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 81b23b",
+     "result": "UI_CHANGE",
+     "response_ms": 879
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 874ed2",
+     "result": "UI_CHANGE",
+     "response_ms": 867
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 0019c8",
+     "result": "UI_CHANGE",
+     "response_ms": 885
+    },
+    {
+     "label": "اقتراح تعديل على هذا الدواء",
+     "result": "UI_CHANGE",
+     "response_ms": 572
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 12
+   }
+  },
+  {
+   "route": "order_detail",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "status": "NEEDS_PARAMS",
+   "screenshot": "/tmp/nav2_radiology_order_detail_crash.png",
+   "controls_now": [],
+   "route_now": null,
+   "pending": [],
+   "failed_requests": [],
+   "js": [
+    "Cannot read properties of undefined (reading 'safety_questionnaire')"
+   ],
+   "bad_reads": []
+  },
+  {
+   "route": "reporting",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "status": "NEEDS_PARAMS",
+   "screenshot": "/tmp/nav2_radiology_reporting_crash.png",
+   "controls_now": [],
+   "route_now": null,
+   "pending": [],
+   "failed_requests": [],
+   "js": [
+    "Cannot read properties of undefined (reading 'report_storage_object_id')"
+   ],
+   "bad_reads": []
+  },
+  {
+   "route": "home_visit",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 394,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | خرائط الملاحة والطوارئ | ابدأ الرحلة لتفعيل الملاحة الحية | بي"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 470
+    },
+    {
+     "label": "بدء التحرك (Start Trip)",
+     "result": "UI_CHANGE",
+     "response_ms": 466
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 1
+   }
+  },
+  {
+   "route": "wallet",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 1253,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | المحفظة والإيرادات | الرصيد المتاح للسحب | 0 ريال | طلب سحب | tren"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "home_visit",
+     "response_ms": 448
+    },
+    {
+     "label": "طلب سحب",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 470
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 1
+   }
+  }
+ ],
+ "registered": [
+  "MainTabs",
+  "order_detail",
+  "reporting",
+  "insurance_requests",
+  "home_visit",
+  "wallet",
+  "drug_index"
+ ],
+ "reloads": 117,
+ "coverage": {
+  "registered": 7,
+  "tested_routes": 5,
+  "states_tested": 18,
+  "by_status": {
+   "NEEDS_PARAMS": 2,
+   "NOT_REACHABLE": 1,
+   "TESTED": 18
+  },
+  "routes_tested": [
+   "MainTabs",
+   "drug_index",
+   "home_visit",
+   "insurance_requests",
+   "wallet"
+  ],
+  "not_visited": []
+ }
+}
