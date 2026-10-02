@@ -212,7 +212,7 @@ def register_type(ptype, overrides=None):
         body = {**body, **{k: v for k, v in (overrides or {}).items() if k in body or k in sent}}
         # R1: approval requires license evidence — upload real files, not [].
         if body.get('license_documents') == '__UPLOAD_DOCS__':
-            body['license_documents'] = [upload(c, n) for n in ('national_id.jpg', 'medical_license.jpg', 'iban_letter.jpg')]
+            body['license_documents'] = [upload(c, n) for n in ('national_id.jpg', 'medical_license.jpg', 'professional_cv.pdf', 'iban_letter.jpg')]
         r = c.post(url, body)
         step(f"{url.split('/')[-1]} as sent by {at.split('/')[-1]}", r.ok, f'{r} body_keys={sorted(body)}')
     sig = upload(c, 'signature.png', 'image/png')
