@@ -691,27 +691,8 @@ export class InsuranceFlowController {
   constructor(private readonly svc: InsuranceFlowService) {}
 
   // ---- patient ----
-  @Get('companies') companies() { return this.svc.companiesList(); }
-  @SelfService()
-  @Post('save-policy') savePolicy(@CurrentUser() u: any, @Body() b: SavePolicyDto) { return this.svc.savePolicy(u, b); }
-  @Get('my-policy') myPolicy(@CurrentUser() u: any) { return this.svc.myPolicy(u); }
-
-  @Get('coverage-check') async coverageCheck(@CurrentUser() u: any, @Query() q: any) {
-    const { has_policy, policy } = await this.svc.myPolicy(u);
-    return {
-      eligible: has_policy,
-      policy,
-      service_type: q?.service_type || 'consultation',
-      note_ar: has_policy
-        ? 'التغطية النهائية يحددها مزود الخدمة عند مراجعة الطلب'
-        : 'لا توجد وثيقة تأمين في ملفك — أضفها أولًا',
-    };
-  }
-
-  @Get('benefits-summary') async benefits(@CurrentUser() u: any) {
-    const { has_policy, policy } = await this.svc.myPolicy(u);
-    return { has_policy, policy, benefits: has_policy ? [{ key: 'manual_review', note_ar: 'تخضع الموافقة لمراجعة مزود الخدمة لوثيقتك' }] : [] };
-  }
+  // R4: GET companies removed (dup of insurance.module).
+  // R4: POST save-policy removed (dup of insurance.module).
 
   @SelfService()
   @Post('requests') createRequest(@CurrentUser() u: any, @Body() b: CreateRequestDto) { return this.svc.createRequest(u, b); }
