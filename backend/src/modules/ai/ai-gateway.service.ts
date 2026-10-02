@@ -262,6 +262,11 @@ export class AiGatewayService {
 
   async updateProvider(key: AiProviderName, patch: Partial<Pick<ProviderConfig, 'enabled' | 'api_key' | 'model' | 'vision_model' | 'daily_quota' | 'priority'>>) {
     await this.ensureRegistry();
+    const exists = await this.providers.findOne({ key });
+    if (!exists) {
+      const { NotFoundException } = await import('@nestjs/common');
+      throw new NotFoundException('ai_provider_not_found');
+    }
     await this.providers.updateOne({ key }, { $set: { ...patch, updatedAt: new Date() } });
     this.registryCache = null;
     return { ok: true, key, patch };

@@ -389,7 +389,10 @@ export class LiveKitService {
 
   async removeParticipant(roomName: string, participantId: string) {
     const svc = this.roomService();
-    if (!svc) return { success: false, reason: 'livekit_not_configured' };
+    if (!svc) {
+      const { NotFoundException } = await import('@nestjs/common');
+      throw new NotFoundException('livekit_not_configured');
+    }
     await svc.removeParticipant(roomName, participantId).catch(() => null);
     return { success: true };
   }

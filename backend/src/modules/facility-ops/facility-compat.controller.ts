@@ -37,8 +37,12 @@ export class FacilityInboxController {
   @Post('inbox/:id/read')
   async markRead(@Param('id') id: string, @CurrentUser() user: any) {
     const fid = await facilityIdOf(this.conn, uid(user));
-    await this.conn.collection('facilityinbox')
+    const res: any = await this.conn.collection('facilityinbox')
       .updateOne({ ...(byStringOrObjectId(id) as any), facility_id: fid } as any, { $set: { read: true } });
+    if (!res?.modifiedCount) {
+      const { NotFoundException } = await import('@nestjs/common');
+      throw new NotFoundException('inbox_message_not_found');
+    }
     return { ok: true };
   }
 }
