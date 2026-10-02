@@ -11,6 +11,7 @@ import { NABDAH_ACCESS_TOKEN_SECURITY_SCHEME } from '../../config/openapi.config
 import { CreateCompanyDto, UpdateCompanyDto, OcrExtractDto, UploadPolicyDto, NphiesEligibilityDto, SavePolicyDto, SubmitClaimDto, CreateInsuranceNetworkDto, CreateCoverageRuleDto, InsuranceDecideDto } from './insurance.dto';
 import { InjectModel, InjectConnection, MongooseModule } from '@nestjs/mongoose';
 import { Model, Connection } from 'mongoose';
+import { RedisService } from '../redis/redis.service';
 import { Optional } from '@nestjs/common';
 import { RefundExecutor } from '../finance-engine/finance-engine.module';
 import { FinanceEngineModule } from '../finance-engine/finance-engine.module';
@@ -42,6 +43,7 @@ export class InsuranceService {
     @InjectModel('InsuranceClaim') private claimModel: Model<InsuranceClaimDocument>,
     private readonly ai: AiGatewayService,
     @Optional() @InjectConnection() private readonly conn?: Connection,
+    @Optional() private readonly redis?: RedisService,
     @Optional() private readonly refundExec?: RefundExecutor,
   ) {}
 
@@ -89,7 +91,10 @@ export class InsuranceService {
     const code = data.code?.toLowerCase();
     const existing = await this.companyModel.findOne({ code: { $eq: code } });
     if (existing) throw new BadRequestException('Company code already exists');
-    return this.companyModel.create({ ...data, code });
+    // R12: new companies are hidden (pending) until an admin approves them.
+    const created = await this.companyModel.create({ ...data, code, is_active: data.is_active ?? false, catalog_status: data.catalog_status || 'pending_review' });
+    await this.bustInsuranceCache();
+    return created;
   }
 
   /** Admin: all companies (incl. disabled) with their tier networks embedded. */
@@ -116,6 +121,29 @@ export class InsuranceService {
     if (!Object.keys(allowed).length) throw new BadRequestException('nothing_to_update');
     const res = await this.companyModel.findOneAndUpdate({ id: { $eq: id } }, { $set: allowed }, { new: true }).lean();
     if (!res) throw new NotFoundException('Company not found');
+    await this.bustInsuranceCache();
+    return res;
+  }
+
+  /** R12: bust public insurance catalog cache so edits apply immediately. */
+  private async bustInsuranceCache(): Promise<void> {
+    try {
+      const client: any = (this.redis as any)?.getClient?.();
+      if (!client) return;
+      const keys: string[] = await client.keys('http_cache:*insurance*').catch(() => []);
+      if (keys.length) await client.del(...keys).catch(() => null);
+    } catch { /* cache bust is best-effort */ }
+  }
+
+  /** R12: admin deactivate (soft-delete) or reactivate a company. */
+  async setCompanyActive(id: string, active: boolean): Promise<any> {
+    const res = await this.companyModel.findOneAndUpdate(
+      { id: { $eq: id } },
+      { $set: { is_active: active, catalog_status: active ? 'approved' : 'disabled', updatedAt: new Date() } },
+      { new: true },
+    ).lean();
+    if (!res) throw new NotFoundException('Company not found');
+    await this.bustInsuranceCache();
     return res;
   }
 
@@ -590,6 +618,20 @@ export class InsuranceController {
     }
     if (typeof b?.is_active === 'boolean') allowed.is_active = b.is_active;
     return this.svc.updateCompany(id, allowed);
+  }
+
+  /** R12: admin deactivate (soft-delete) a company — hidden from patients, kept for history. */
+  @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
+  @Delete('companies/:id')
+  deleteCompany(@Param('id') id: string) {
+    return this.svc.setCompanyActive(id, false);
+  }
+
+  /** R12: admin reactivate a disabled company. */
+  @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
+  @Post('companies/:id/reactivate')
+  reactivateCompany(@Param('id') id: string) {
+    return this.svc.setCompanyActive(id, true);
   }
 
   /** Admin: delete a tier (network) from a company. */
