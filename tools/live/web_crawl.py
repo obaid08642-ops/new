@@ -22,7 +22,11 @@ DB = os.environ.get('DB_NAME', 'nabd_form2')
 DANGER = re.compile(r'حذف|تسجيل الخروج|خروج|logout|sign ?out|delete|remove|إيقاف|حظر|block|suspend|ban|تعليق|إلغاء الحساب|تعطيل|disable|reset|إعادة تعيين|purge|broadcast|بث|إرسال للجميع|refund|استرداد|approve all|reject|رفض|English|العربية|EN$', re.I)
 CLICKABLE = 'main button:visible, main [role="button"]:visible, main a[href]:visible, main [role="tab"]:visible, main [role="switch"]:visible, main input[type="checkbox"]:visible, main summary:visible'
 LOADING = '[aria-busy="true"]:visible, [role="progressbar"]:visible, .animate-spin:visible, [data-loading="true"]:visible'
-BLOCK = re.compile(r'logout|/delete|/purge|/ban|/suspend|/refund|/broadcast|/bulk|/reset|account$|/emergency|/sos', re.I)
+# platform-wide settings (payment policies, commissions, flags) are shared by every journey: a crawler toggle there
+# silently breaks other tests (the 2026-10-02 run switched the COD policy off), so their writes are answered locally.
+BLOCK = re.compile(r'logout|/delete|/purge|/ban|/suspend|/refund|/broadcast|/bulk|/reset|account$|/emergency|/sos'
+                   r'|fulfillment-policies|/admin/finance/commissions|feature-flags|/admin/[^?]*(settings|config)|maintenance|kill-switch', re.I)
+STUCK_S = 10
 
 
 def mongo(js):
@@ -77,7 +81,7 @@ def main():
     page.on('dialog', lambda d: d.dismiss())          # never confirm a browser confirm() on its own
     # Track every same-site fetch/xhr, not only /api/: Next.js client navigation loads the next page with
     # `?_rsc=` fetches; ignoring them judged a link "ready" before it navigated (558 false NO_EFFECTs).
-    page.on('request', lambda r: ev['inflight'].__setitem__(id(r), r.url) if (r.resource_type in ('fetch', 'xhr', 'document') and BASE in r.url and 'heartbeat' not in r.url) else None)
+    page.on('request', lambda r: ev['inflight'].__setitem__(id(r), (r.url, time.time())) if (r.resource_type in ('fetch', 'xhr', 'document') and BASE in r.url and 'heartbeat' not in r.url) else None)
     page.on('requestfinished', lambda r: ev['inflight'].pop(id(r), None))
     page.on('requestfailed', lambda r: ev['inflight'].pop(id(r), None) and ev['failed'].append(r.url[:100]))
 
@@ -104,14 +108,18 @@ def main():
     def wait_ready(timeout_ms=15000):
         t0 = time.time(); last = None; stable = 0; delay = 0.15
         while True:
-            busy = len(ev['inflight'])
+            # a request pending > STUCK_S is reported, not waited on: a hung call is a finding (SLOW), not a reason
+            # to burn the whole timeout on every later page (2026-10-02: 9 leaked entries made each page 15 s)
+            now = time.time()
+            stuck = [u for u, t in ev['inflight'].values() if now - t > STUCK_S]
+            busy = len(ev['inflight']) - len(stuck)
             try:
                 loading = page.locator(LOADING).count()
             except Exception:
                 loading = 0
             h = body_hash(); stable = stable + 1 if (h == last and h) else 0; last = h
             if busy == 0 and loading == 0 and stable >= 2:
-                return True, int((time.time() - t0) * 1000), ''
+                return True, int((time.time() - t0) * 1000), (f'stuck >{STUCK_S}s: ' + ', '.join(x.replace(BASE, '')[:60] for x in stuck[:3])) if stuck else ''
             if (time.time() - t0) * 1000 >= timeout_ms:
                 return False, int((time.time() - t0) * 1000), f'{busy} in flight, {loading} loading, stable={stable}'
             time.sleep(delay); delay = min(delay * 1.5, 0.6)
@@ -154,7 +162,8 @@ def main():
     for item in inv_routes:
         pattern, route = (item if isinstance(item, tuple) else (None, item))
         url = BASE + route
-        ev['js'].clear(); ev['resp'].clear(); ev['failed'].clear(); ev['writes'].clear(); ev['blocked'].clear()
+        # a request of the previous page that never answered (aborted by the navigation) must not keep this one busy
+        ev['js'].clear(); ev['resp'].clear(); ev['failed'].clear(); ev['writes'].clear(); ev['blocked'].clear(); ev['inflight'].clear()
         try:
             page.goto(url, wait_until='domcontentloaded', timeout=45000)
         except Exception as e:
