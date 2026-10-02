@@ -6,7 +6,7 @@ import { isLocale, locales, type Locale } from "@/lib/i18n";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { ArrowLeft, ArrowRight, BadgeCheck, Building2, Clock3, Star } from "lucide-react";
+import { ArrowLeft, ArrowRight, BadgeCheck, Building2, Clock3, MapPin, Star } from "lucide-react";
 import { VectorDoctor } from "@/components-next/vector-illustrations";
 
 type Props = { params: Promise<{ locale: string; slug: string; city?: string }> };
@@ -71,6 +71,8 @@ export default async function DoctorCanonicalPage({ params }: Props) {
 
   const doctorName = locale === "ar" ? (doctor.name_ar || doctor.name_en) : (doctor.name_en || doctor.name_ar);
   const facilityName = facility ? (locale === "ar" ? (facility.name_ar || facility.name_en) : (facility.name_en || facility.name_ar)) : null;
+  // F7/R83: clinic name + address registered by the doctor.
+  const clinicLabel = [doctor.clinic_name, doctor.clinic_address].filter(Boolean).join(" · ") || "";
   const cityName = city ? decodeURIComponent(city) : null;
   const doctorPath = `/doctor/${slug}${city ? `/${encodeURIComponent(city)}` : ""}`;
 
@@ -130,6 +132,13 @@ export default async function DoctorCanonicalPage({ params }: Props) {
                 <span style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
                   <Building2 size={16} />
                   <span style={{overflowWrap:"anywhere", display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical", overflow:"hidden"}}>{facilityName}</span>
+                </span>
+              ) : null}
+              {/* F7/R83: the clinic the doctor registered in step 3 (name + address). */}
+              {clinicLabel ? (
+                <span style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
+                  <MapPin size={16} />
+                  <span style={{overflowWrap:"anywhere", display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical", overflow:"hidden"}}>{clinicLabel}</span>
                 </span>
               ) : null}
             </div>
