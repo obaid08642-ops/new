@@ -1,4 +1,4 @@
-import { IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import { IsNumber, IsObject, IsOptional, IsString, Min } from 'class-validator';
 
 export class WebhookBodyDto {
   @IsOptional()
@@ -15,7 +15,10 @@ export class WebhookBodyDto {
 }
 
 export class RefundPaymentDto {
-  @IsString() transaction_id: string;
-  @IsOptional() @IsNumber() amount?: number;
+  // The transaction id comes from the route (:txn), not the body. Requiring it
+  // here rejected every real refund payload with 400.
+  @IsOptional() @IsString() transaction_id?: string;
+  // A refund of 0 or a negative amount is never valid.
+  @IsOptional() @IsNumber() @Min(0.01) amount?: number;
   @IsOptional() @IsString() reason?: string;
 }

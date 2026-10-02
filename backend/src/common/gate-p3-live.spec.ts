@@ -110,7 +110,7 @@ import { CheckoutDto } from '../modules/cart/cart.dto';
 import { RcDto } from '../modules/health/health.dto';
 import { SavePolicyDto } from '../modules/insurance-engine/insurance-engine.dto';
 import { CreateBookingDto } from '../modules/home-care/home-care-compat.dto';
-import { HomeCareCompatController } from '../modules/home-care/home-care-compat.module';
+import { PatientHomeCareController } from '../modules/home-care/patient-home-care.controller';
 import mongoose from 'mongoose';
 import { PatientProfileSchema } from '../schemas/patient-profile.schema';
 
@@ -146,15 +146,26 @@ describe('Gate P3 live: the accepted fields are stored, not dropped', () => {
   });
 
   it('nursing booking resolves address_id to the caller\'s own saved address and keeps notes', async () => {
+    // F3: the compat createBooking was removed as a duplicate; the address
+    // resolution now lives in the surviving patient-home-care handler.
     let created: any;
-    const bookings: any = { create: async (d: any) => { created = d; return { id: 'b1', toObject: () => d }; } };
-    const services: any = { findOne: () => ({ lean: async () => ({ id: 's1', name_ar: 'تمريض', price: 100 }) }) };
-    const conn: any = { collection: () => ({ findOne: async (q: any) => (q.user_id.$eq === 'p1' ? { addresses: [{ id: 'a1', line1: 'شارع', city: 'الرياض', lat: 24.7, lng: 46.6 }] } : null) }) };
-    const c = new (HomeCareCompatController as any)(bookings, services, {} as any, {} as any, undefined, conn);
-    await c.createBooking({ id: 'p1', role: 'patient' }, { service_id: 's1', scheduled_at: '2027-01-01T10:00:00Z', address_id: 'a1', notes: ' الدور 2 ' } as any);
+    const conn: any = {
+      collection: () => ({
+        findOne: async (q: any) => (q?.user_id?.$eq === 'p1'
+          ? { addresses: [{ id: 'a1', line1: 'شارع', city: 'الرياض', lat: 24.7, lng: 46.6 }] }
+          : null),
+      }),
+      db: { collection: () => ({ find: () => ({ sort: () => ({ limit: () => ({ toArray: async () => [] }) }) }) }) },
+    };
+    const homeSvc: any = { book: async (_u: any, payload: any) => { created = payload; return { id: 'b1' }; } };
+    const c = new (PatientHomeCareController as any)(conn, homeSvc);
+    await c.book({ id: 'p1', role: 'patient' }, { service_id: 's1', scheduled_at: '2027-01-01T10:00:00Z', address_id: 'a1', notes: ' الدور 2 ' } as any);
     expect(created.address).toMatchObject({ address: 'شارع', city: 'الرياض', lat: 24.7 });
     expect(created.notes).toBe('الدور 2');
-    await expect(c.createBooking({ id: 'p2', role: 'patient' }, { service_id: 's1', scheduled_at: '2027-01-01T10:00:00Z', address_id: 'a1' } as any)).rejects.toThrow('address_not_found');
+    // Another patient's address id must be refused.
+    await expect(
+      c.book({ id: 'p2', role: 'patient' }, { service_id: 's1', scheduled_at: '2027-01-01T10:00:00Z', address_id: 'a1' } as any),
+    ).rejects.toThrow('address_not_found');
   });
 });
 

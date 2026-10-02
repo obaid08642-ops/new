@@ -1,4 +1,4 @@
-import { IsNumber, IsObject, IsOptional, IsString, Min } from 'class-validator';
+import { IsNumber, IsObject, IsOptional, IsString, Min, MinLength } from 'class-validator';
 
 export class DisputeConfigDto {
   @IsNumber()
@@ -20,6 +20,8 @@ export class SlaDto {
   @IsOptional() @IsNumber() @Min(0) consultationDuration?: number;
   @IsOptional() @IsNumber() @Min(0) callRingingDuration?: number;
   @IsOptional() @IsNumber() @Min(0) jwtExpiry?: number;
+  /** config-portal asks for a reason and stores it in the audit log. */
+  @IsOptional() @IsString() @MinLength(5) reason?: string;
 }
 
 export class AppVersionsDto {
