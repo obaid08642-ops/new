@@ -1174,7 +1174,7 @@ export class MedicinesService {
 
   /** Admin: clear the badge when stock normalizes. */
   async clearShortageBadge(medicineId: string, adminId: string) {
-    let res: any;
+    let res: any = null;
     try {
       res = await this.model.updateOne(
         { id: medicineId },
@@ -1184,7 +1184,7 @@ export class MedicinesService {
       const { NotFoundException } = await import('@nestjs/common');
       throw new NotFoundException('medicine_not_found');
     }
-    if (!res.modifiedCount) {
+    if (!res?.modifiedCount) {
       let exists: any = null;
       try {
         exists = await this.model.findOne({ id: medicineId });
