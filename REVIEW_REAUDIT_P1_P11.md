@@ -634,3 +634,59 @@ Mandatory, in this order:
 - R11: `/care/specialties` count equals the DB.
 - R12: deactivate/reactivate routes added; new companies are pending.
 - R83: backend.
+
+## Round 7 — full-ecosystem QA (2026-10-02)
+
+Register with reproduction, evidence and root cause: `docs/review/QA_DEFECTS.md` (Q1–Q29). Performance: `docs/review/PERFORMANCE.md`. Coverage: `docs/review/COVERAGE_MATRIX.md`.
+- Reviewer-fixed on `review/qa-full` (do not revert): Q2, Q10, Q11, Q12, Q13, Q14, Q17, Q20, the icon font (PERFORMANCE §1 A), and tooling Q6, Q7, Q18, Q19, Q26, Q27.
+- Still open from Round 6, and still the largest live blockers:
+  - **F2**: insurance; 36 journey steps fail on it across `j_insurance` / `j_lab` / `j_radiology` / `j_consultation`.
+  - **R23**: step-up; 10 steps across `j_admin_ops` / `j_loyalty` / `j_nursing`, and every sensitive admin button.
+- Do those first, then the items below, one commit each: `[Q<n>] <summary>`.
+
+**Q25 (High) — admin price-override audit crashes, and real overrides are invisible.**
+- Add an admin endpoint over `pharmacy_price_override_audit` (paging, search, catalog vs override price, computed difference, pharmacy, reason, time).
+- Map `price-override-audit.tsx` to it, with null-safe numbers.
+- **Verify:** `crash_sweep.py` APP=admin shows 0 crashes; a journey that submits an offer with an override sees it on the page.
+
+**Q16 (High) — reorder is legacy-only (404 for every current order).**
+- Implement a governed reorder: a new draft from the previous `pharmacy_orders` items through the patient draft flow. Wire it on the website and in the app, or hide the button.
+- **Verify:** reorder on a delivered governed order → a draft with the same items.
+
+**Q5 (High) — `financial-ledger.tsx:61`.**
+- Call `/admin/finance/ledger/commissions` (R36) or send `from` / `to`.
+- **Verify:** the page loads with no 400.
+
+**Q29 (Medium) — pharmacy unique indexes exist only in manual scripts.**
+- Create them idempotently at startup or in `deploy/mongo/init-indexes.js`.
+- Fail the health check when one is missing.
+- **Verify:** fresh DB → `getIndexes()` lists the 6 named indexes; recipient upsert uses IXSCAN.
+
+**Q21 (High, performance) — `packages/ui-native/src/Icon.tsx` `import * as phosphor`.**
+- This bundles every icon: 5.74 MB, 42 % of the app entry.
+- Use per-icon imports from `phosphor-react-native/src/icons/<Name>`. The prototype measured 16.19 → 10.39 MB.
+- Coordinate with the design (phase 12) track, which owns `ui-native`.
+- **Verify:** entry JS gzip ≤ 2.4 MB; icon screenshots unchanged.
+
+**Q22 (Medium, performance) — livekit bundled twice (ESM + UMD) and loaded at start.**
+- Use one import style and lazy-load the call screens.
+- **Verify:** a single livekit source in the source map, and not in the entry chunk.
+
+**Q23 (Medium) — signed-out home calls 7 private endpoints and shows a load-error banner.**
+- Skip private calls without a session and show the guest state; treat 401 as signed out.
+- **Verify:** signed-out home makes no 401 calls and shows no banner.
+
+**Q4 (Medium) — radiology `order_detail` / `reporting` white-screen without their param.**
+- Guard the params, fetch by id, and add an error boundary per dashboard navigator.
+- **Verify:** opening either screen without the param shows "not found" + back.
+
+**Q15 (Medium) — website prescriptions list rows do not link to `/prescriptions/[id]` (orphan page).**
+- **Verify:** a row opens its detail.
+
+**Q24 (Low) — admin public directory pages are always empty** (relative `fetch` in `getServerSideProps`).
+- Remove them from the admin app (the website owns them), or use `API_BASE`.
+
+**Q9 + Q1 + Q28 (Medium, accessibility).**
+- 128 patient-app and 41 provider-app icon-only controls have no accessible name.
+- Admin `medicines-catalog` labels are not bound to their inputs.
+- **Verify:** `ui_inventory.js` shows 0 unlabeled controls; Playwright `getByLabel` finds every medicine field.
