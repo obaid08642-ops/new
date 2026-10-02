@@ -12,7 +12,7 @@ export class HomeCarePackagesController {
   async list() {
     const services = await this.conn
       .collection(CATALOG_COLLECTIONS.nursing_services)
-      .find({ $or: [{ active: true }, { is_active: true }, { status: 'active' }] } as any)
+      .find({ $or: [{ active: true }, { is_active: true }, { status: 'active' }], kind: 'package' } as any)
       .limit(100)
       .toArray();
     const data = services.map((s: any) => ({

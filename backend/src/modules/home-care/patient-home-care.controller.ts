@@ -28,16 +28,7 @@ export class PatientHomeCareController {
     return { data: docs.map(({ _id, ...d }: any) => d) };
   }
 
-  @Get('packages')
-  async packages(@Query('limit') limit = '50') {
-    const lim = Math.min(Math.max(parseInt(limit, 10) || 50, 1), 200);
-    const docs = await this.conn.db
-      .collection(CATALOG_COLLECTIONS.nursing_services)
-      .find({ is_active: { $ne: false }, kind: 'package' } as any)
-      .limit(lim)
-      .toArray();
-    return { data: docs.map(({ _id, ...d }: any) => d) };
-  }
+  // R4: GET packages removed (dup of home-care-packages.controller).
 
   // P5.3d: alias of canonical POST /nursing/bookings — same single
   // implementation (HomeCareSvc.book). Kept because live clients call it.

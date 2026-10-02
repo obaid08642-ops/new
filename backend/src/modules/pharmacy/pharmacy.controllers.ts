@@ -100,23 +100,13 @@ export class ProviderPharmacyController {
   // =========================================================================
   // Legacy parent-order actions are intentionally disabled. They accepted client prices,
   // co-pays and state changes, bypassing the offer selection and payment/insurance gates.
-  @Post('orders/:id/accept')
-  acceptOrder() { throw new ServiceUnavailableException('legacy_order_acceptance_disabled_use_patient_selected_offer'); }
-
-  @Post('orders/:id/submit-basket')
-  submitBasket() { throw new ServiceUnavailableException('legacy_basket_submission_disabled_use_versioned_offer'); }
-
-  @Post('orders/:id/insurance')
-  evaluateInsurance() { throw new ServiceUnavailableException('legacy_insurance_evaluation_disabled_use_governed_insurance_decision'); }
-
   @Post('orders/:id/preparing')
   orderPreparing() { throw new ServiceUnavailableException('legacy_order_transition_disabled_use_selected_allocation'); }
 
   @Post('orders/:id/ready')
   orderReady() { throw new ServiceUnavailableException('legacy_order_transition_disabled_use_selected_allocation'); }
 
-  @Post('orders/:id/dispatch')
-  orderDispatch() { throw new ServiceUnavailableException('legacy_order_dispatch_disabled_delivery_proof_required'); }
+  // R4: accept/submit-basket/insurance/dispatch stubs removed (dup of pharmacy_ops).
 }
 
 // =========================================================================
