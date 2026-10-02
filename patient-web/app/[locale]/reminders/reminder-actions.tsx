@@ -3,21 +3,22 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { reminderLogRequest } from "@/lib/api/reminder-log-request";
 
 /** F69: per-reminder actions (same endpoints as the app). */
 export function ReminderActions({ locale, id, nextTimeKey }: { locale: string; id: string; nextTimeKey?: string }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
+  const [failed, setFailed] = useState(false);
 
   const logTaken = async () => {
-    setBusy(true);
+    setBusy(true); setFailed(false);
     try {
-      await fetch(`/api/health/reminders/${encodeURIComponent(id)}/log`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ status: "taken", time_key: nextTimeKey || "" }),
-      });
+      const res = await fetch(...reminderLogRequest(id, nextTimeKey));
+      if (!res.ok) { setFailed(true); return; }
       router.refresh();
+    } catch {
+      setFailed(true);
     } finally {
       setBusy(false);
     }
@@ -25,10 +26,14 @@ export function ReminderActions({ locale, id, nextTimeKey }: { locale: string; i
 
   const remove = async () => {
     if (!window.confirm(locale === "ar" ? "حذف هذا التذكير؟" : "Delete this reminder?")) return;
-    setBusy(true);
+    setBusy(true); setFailed(false);
     try {
-      await fetch(`/api/health/reminders/${encodeURIComponent(id)}`, { method: "DELETE" });
+      // The backend DELETE is @RequireIdempotency too: without a key every delete answered 400 (Q11).
+      const res = await fetch(`/api/health/reminders/${encodeURIComponent(id)}`, { method: "DELETE", headers: { "idempotency-key": crypto.randomUUID() } });
+      if (!res.ok) { setFailed(true); return; }
       router.refresh();
+    } catch {
+      setFailed(true);
     } finally {
       setBusy(false);
     }
@@ -36,9 +41,10 @@ export function ReminderActions({ locale, id, nextTimeKey }: { locale: string; i
 
   return (
     <span style={{ display: "flex", gap: 8 }}>
-      <button type="button" onClick={() => void logTaken()} disabled={busy}>✓</button>
+      <button type="button" onClick={() => void logTaken()} disabled={busy} aria-label={locale === "ar" ? "تم أخذ الجرعة" : "Mark dose taken"}>✓</button>
       <Link href={`/${locale}/reminders/add?edit=${encodeURIComponent(id)}`}>✎</Link>
-      <button type="button" onClick={() => void remove()} disabled={busy}>×</button>
+      <button type="button" onClick={() => void remove()} disabled={busy} aria-label={locale === "ar" ? "حذف التذكير" : "Delete reminder"}>×</button>
+      {failed ? <span role="alert">{locale === "ar" ? "تعذّر الحفظ، حاول مرة أخرى" : "Could not save, try again"}</span> : null}
     </span>
   );
 }

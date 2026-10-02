@@ -136,8 +136,15 @@ export function isAllowedPatientApiPath(path: string) {
   return patientReadRoutes.some((route) => route.test(path));
 }
 
+// Q10: the website address book (components-next/addresses.tsx) adds and removes the patient's own addresses.
+const addressMutationRoutes: Array<{ method: "POST" | "DELETE"; route: RegExp }> = [
+  { method: "POST", route: new RegExp("^/users/me/addresses$") },
+  { method: "DELETE", route: new RegExp(`^/users/me/addresses/${orderId}$`, "i") },
+];
+
 export function isAllowedPatientApiRequest(path: string, method: string) {
   return (method === "GET" && isAllowedPatientApiPath(path))
+    || addressMutationRoutes.some((candidate) => candidate.method === method && candidate.route.test(path))
     || diagnosticsMutationRoutes.some((candidate) => candidate.method === method && candidate.route.test(path))
     || pharmacyMutationRoutes.some((candidate) => candidate.method === method && candidate.route.test(path));
 }
