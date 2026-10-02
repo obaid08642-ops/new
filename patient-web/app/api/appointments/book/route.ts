@@ -11,6 +11,10 @@ const bodySchema = z.object({
   slot_start: z.string().datetime({ offset: true }),
   payment_method: z.enum(["cash", "card", "insurance"]),
   patient_notes: z.string().trim().max(2000).optional(),
+  // The booking form collects who the visit is for; the backend has no fields for them yet (R66), so they are
+  // passed to the doctor inside the visit notes instead of failing the whole booking (.strict() rejected them).
+  patient_name: z.string().trim().max(120).optional(),
+  patient_phone: z.string().trim().max(32).optional(),
   slot_lock_id: z.string().uuid().optional(),
   visit_location: z.object({
     lat: z.number().min(-90).max(90),
@@ -28,7 +32,11 @@ export async function POST(request: Request) {
   const store = await cookies(); const accessToken = store.get(authCookieNames.access)?.value;
   if (!accessToken) return NextResponse.json({ message: "authentication_required" }, { status: 401 });
   const deviceId = store.get(authCookieNames.device)?.value;
-  const upstream = await callPatientApi("/care/appointments", { method: "POST", headers: { "content-type": "application/json", "idempotency-key": idempotencyKey, ...(deviceId ? { "x-device-id": deviceId } : {}) }, body: JSON.stringify(input.data) }, accessToken);
+  const { patient_name, patient_phone, ...booking } = input.data;
+  const who = [patient_name ? `الاسم: ${patient_name}` : "", patient_phone ? `الجوال: ${patient_phone}` : ""].filter(Boolean).join(" — ");
+  const notes = [who, booking.patient_notes || ""].filter(Boolean).join("\n").slice(0, 2000);
+  const payload = { ...booking, ...(notes ? { patient_notes: notes } : {}) };
+  const upstream = await callPatientApi("/care/appointments", { method: "POST", headers: { "content-type": "application/json", "idempotency-key": idempotencyKey, ...(deviceId ? { "x-device-id": deviceId } : {}) }, body: JSON.stringify(payload) }, accessToken);
   const data = await upstream.json().catch(() => null);
   if (!upstream.ok) return boundedUpstreamError(data, "appointment_booking_failed", upstream.status);
   const result = resultSchema.safeParse(data);

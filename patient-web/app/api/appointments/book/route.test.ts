@@ -37,4 +37,11 @@ describe("governed appointment booking BFF", () => {
     const response = await POST(request(valid));
     expect(response.status).toBe(502); expect(await response.json()).toEqual({ message: "unexpected_appointment_response" });
   });
+  it("accepts the booking form's patient name and phone and hands them to the doctor in the notes (R66)", async () => {
+    state.callPatientApi.mockResolvedValue(new Response(JSON.stringify({ id: "22222222-2222-4222-8222-222222222222", status: "PENDING" }), { status: 201 }));
+    const response = await POST(request({ ...valid, patient_name: "مريض اختبار", patient_phone: "0551234567", patient_notes: "صداع" }));
+    expect(response.status).toBe(201);
+    const sent = JSON.parse(state.callPatientApi.mock.calls[0][1].body);
+    expect(sent).toEqual({ ...valid, patient_notes: "الاسم: مريض اختبار — الجوال: 0551234567\nصداع" });
+  });
 });
