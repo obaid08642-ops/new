@@ -40,7 +40,8 @@ export default function CrisisContactsView() {
 
   const call = (number: string) => { void Linking.openURL(`tel:${number.replace(/[^0-9+]/g, '')}`); };
   const saveContact = async () => {
-    if (!name.trim() || !phone.trim() || saving) { setFormError(true); return; }
+    // Same rule as the backend DTO: the number must be dialable in an emergency.
+    if (!name.trim() || !/^\+?\d[\d\s-]{5,18}\d$/.test(phone.trim()) || saving) { setFormError(true); return; }
     setSaving(true); setFormError(false);
     try {
       await apiFetch('/mental-health/crisis-contacts', { method: 'POST', body: JSON.stringify({ contact_name: name.trim(), phone: phone.trim(), ...(relationship.trim() ? { relationship: relationship.trim() } : {}) }) });

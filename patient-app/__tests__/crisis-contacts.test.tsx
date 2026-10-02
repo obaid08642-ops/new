@@ -54,6 +54,18 @@ describe('CrisisContactsView (patient app, mental health → crisis contacts)', 
     expect(await screen.findByText('سارة')).toBeTruthy();
   });
 
+  it('refuses a phone that cannot be dialled (Q2) without calling the API', async () => {
+    mockApiFetch.mockResolvedValueOnce({ user_contacts: [] });
+    await render(<CrisisContactsView />);
+    await screen.findByText(t('noContacts'));
+    await fireEvent.press(screen.getByText(t('addContact')));
+    await fireEvent.changeText(screen.getByPlaceholderText(t('contactName')), 'سارة');
+    await fireEvent.changeText(screen.getByPlaceholderText(t('contactPhone')), 'abc');
+    await fireEvent.press(screen.getByText(t('add')));
+    expect(screen.getByText(t('contactError'))).toBeTruthy();
+    expect(mockApiFetch).toHaveBeenCalledTimes(1);   // only the initial list load
+  });
+
   it('keeps the form open with an error when the save fails', async () => {
     mockApiFetch.mockResolvedValueOnce({ user_contacts: [] });
     await render(<CrisisContactsView />);
