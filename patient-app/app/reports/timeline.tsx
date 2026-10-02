@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { logError } from '../../src/utils/logger';
 // app/reports/timeline.tsx
 import React, { useState } from "react";
 import {

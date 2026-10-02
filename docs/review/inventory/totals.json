@@ -1,0 +1,46 @@
+{
+ "patient-app": {
+  "files": 526,
+  "files_with_ui": 210,
+  "buttons": 1053,
+  "fields": 99,
+  "toggles": 9,
+  "selects": 17,
+  "links": 2,
+  "forms": 0,
+  "api_calls": 394
+ },
+ "provider-app": {
+  "files": 165,
+  "files_with_ui": 123,
+  "buttons": 897,
+  "fields": 488,
+  "toggles": 100,
+  "selects": 37,
+  "links": 0,
+  "forms": 0,
+  "api_calls": 401
+ },
+ "admin": {
+  "files": 86,
+  "files_with_ui": 61,
+  "buttons": 291,
+  "fields": 291,
+  "toggles": 18,
+  "selects": 36,
+  "links": 38,
+  "forms": 18,
+  "api_calls": 269
+ },
+ "patient-web": {
+  "files": 642,
+  "files_with_ui": 318,
+  "buttons": 228,
+  "fields": 121,
+  "toggles": 18,
+  "selects": 29,
+  "links": 472,
+  "forms": 30,
+  "api_calls": 369
+ }
+}

@@ -319,7 +319,8 @@ export default function InsuranceHubScreen() {
           ))}
         </View>
 
-        {/* Coverage Summary */}
+        {/* Coverage Summary (only with a policy: a patient without insurance has nothing to summarise) */}
+        {defaultPolicy ? (
         <View style={[styles.section, { backgroundColor: isDark ? colors.surface : colors.white } ]}>
           <View style={styles.sectionHeader}>
             <TouchableOpacity onPress={() => router.push('/insurance/benefits-summary')}>
@@ -350,6 +351,7 @@ export default function InsuranceHubScreen() {
             ))}
           </View>
         </View>
+        ) : null}
 
         {/* Deductible Card */}
         <View style={[styles.deductCard, { backgroundColor: isDark ? colors.surface : colors.white } ]}>
@@ -367,11 +369,11 @@ export default function InsuranceHubScreen() {
           </View>
           <View style={{ flexDirection: 'row-reverse', marginBottom: 10, gap: 8 }}>
             <View style={[styles.deductItem, { backgroundColor: isDark ? colors.surfaceSecondary : '#F0FDF4' } ]}>
-              <AppText variant="h4" style={{ fontFamily: 'Cairo-ExtraBold' }}>{defaultPolicy.deductible.amount}</AppText>
+              <AppText variant="h4" style={{ fontFamily: 'Cairo-ExtraBold' }}>{defaultPolicy?.deductible?.amount ?? '—'}</AppText>
               <AppText variant="caption" color={colors.textSecondary}>ريال / زيارة</AppText>
             </View>
             <View style={[styles.deductItem, { backgroundColor: isDark ? colors.surfaceSecondary : '#EFF6FF' } ]}>
-              <AppText variant="h4" style={{ fontFamily: 'Cairo-ExtraBold' }}>{defaultPolicy.deductible.used}</AppText>
+              <AppText variant="h4" style={{ fontFamily: 'Cairo-ExtraBold' }}>{defaultPolicy?.deductible?.used ?? '—'}</AppText>
               <AppText variant="caption" color={colors.textSecondary}>ريال مدفوع</AppText>
             </View>
           </View>

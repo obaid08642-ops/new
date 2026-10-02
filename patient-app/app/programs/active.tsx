@@ -111,6 +111,8 @@ export default function ActiveProgramsScreen() {
       </View>
 
       <ScreenState loading={loading} error={error} empty={!loading && !error && programs.length === 0} emptyTitle="لا توجد برامج نشطة" onRetry={loadPrograms}>
+      {/* ScreenState gets its children already built: render them only when a program exists (empty state crashed). */}
+      {selectedProg ? (
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 16, gap: 16, paddingBottom: insets.bottom + 60 }}>
         {/* Progress Card */}
         <Card style={st.progressCard}>
@@ -192,6 +194,7 @@ export default function ActiveProgramsScreen() {
           );
         })}
       </ScrollView>
+      ) : null}
       </ScreenState>
     </View>
   );

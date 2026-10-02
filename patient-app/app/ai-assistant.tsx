@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { logError } from '../src/utils/logger';
 import React, { useState, useRef } from 'react';
 import { View, StyleSheet, FlatList, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
@@ -6,7 +7,8 @@ import { DSText, DSInput, DSChip, DSAvatar, Spacing, BorderRadius } from '@/desi
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { HttpClient } from '@/services/HttpClient';
 import { useAppSelector } from '@/store/hooks';
-import { useThemeColors, IconButton } from '../src/components/ui';
+import { IconButton } from '../src/components/ui';
+import { useThemeColors } from '../src/context/AppContext';
 import { ScreenState } from '../src/components/ScreenStates';
 
 interface Message {

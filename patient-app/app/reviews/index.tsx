@@ -85,7 +85,7 @@ export default function ReviewsScreen() {
   if (submitted) {
     return (
       <View style={styles.successContainer}>
-        <View style={StyleSheet.absoluteFillObject} />
+        <View style={StyleSheet.absoluteFill} />
         <Icon name="star" size={20} color={colors.primary} />
         <AppText variant="bodySM">شكراً على تقييمك!</AppText>
         <AppText variant="bodySM">تقييمك يساعد في تحسين الخدمة للجميع</AppText>

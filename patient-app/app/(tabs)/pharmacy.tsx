@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { logError } from '../../src/utils/logger';
 /**
  * app/(tabs)/pharmacy.tsx
  * Main pharmacy browsing screen with:

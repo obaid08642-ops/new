@@ -213,7 +213,9 @@ export function DoctorAvailabilityScreen({ onBack, onNavigate }: { onBack: () =>
  };
 
 
-  const ctx: any = { theme, AR, exceptions, showAddException, setShowAddException, exStart, setExStart, exEnd, setExEnd, handleAddException, handleDeleteException };
+  const ctx: any = { theme, AR, exceptions, showAddException, setShowAddException, exStart, setExStart, exEnd, setExEnd, handleAddException, handleDeleteException,
+    // the exception form edits its date and type (lost in the P9 split: typing or choosing a type crashed)
+    exDate, setExDate, exType, setExType };
  return (
  <View style={{ flex: 1, backgroundColor: theme.bg }}>
  <NHeader title={AR ? ' جدول المواعيد والتوفر' : ' Availability Settings'} onBack={onBack} />

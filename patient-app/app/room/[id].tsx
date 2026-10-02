@@ -40,7 +40,7 @@ const DSTokens = {
   },
 };
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useAppSelector } from '@/store';
+import { useAppSelector } from '@/store/hooks';
 import { logError } from '../../src/utils/logger';
 import { ScreenState } from '../../src/components/ScreenStates';
 
@@ -83,7 +83,7 @@ const ActiveCallView = ({ onEndCall }: { onEndCall: () => void }) => {
         {remoteVideoTracks.length > 0 ? (
           <VideoTrack 
             trackRef={remoteVideoTracks[0]} 
-            style={StyleSheet.absoluteFillObject} 
+            style={StyleSheet.absoluteFill} 
           />
         ) : (
           <View style={styles.waitingContainer}>
@@ -100,7 +100,7 @@ const ActiveCallView = ({ onEndCall }: { onEndCall: () => void }) => {
         {localVideoTrack && !isCameraOff ? (
           <VideoTrack 
             trackRef={localVideoTrack} 
-            style={StyleSheet.absoluteFillObject} 
+            style={StyleSheet.absoluteFill} 
           />
         ) : (
           <View style={styles.cameraOffPlaceholder}>

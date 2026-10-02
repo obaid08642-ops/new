@@ -68,7 +68,7 @@ export default function AmbulanceTrackingScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={StyleSheet.absoluteFillObject} />
+      <View style={StyleSheet.absoluteFill} />
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <TouchableOpacity onPress={() => router.back()} style={styles.hBtn}>
           <Icon name="back" size={22} color="#fff" />
@@ -91,7 +91,7 @@ export default function AmbulanceTrackingScreen() {
 
       {/* Live status only — a visual route map requires an explicit authorized route contract. */}
       <View style={styles.trackingStatus}>
-        <View style={StyleSheet.absoluteFillObject} />
+        <View style={StyleSheet.absoluteFill} />
         <Icon name="emergency" size={20} color={colors.primary} />
         {unit ? (
           <>

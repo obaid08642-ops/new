@@ -152,7 +152,7 @@ export default function NursingLiveTracking() {
         {trackingData?.current_lat != null && trackingData?.current_lng != null ? (
           <MapView
             provider={PROVIDER_DEFAULT}
-            style={StyleSheet.absoluteFillObject}
+            style={StyleSheet.absoluteFill}
             region={{
               latitude: trackingData.current_lat,
               longitude: trackingData.current_lng,
@@ -174,7 +174,7 @@ export default function NursingLiveTracking() {
             )}
           </MapView>
         ) : (
-          <View style={[StyleSheet.absoluteFillObject, { justifyContent: 'center', alignItems: 'center', gap: 8, backgroundColor: '#F1F5F9' }]}>
+          <View style={[StyleSheet.absoluteFill, { justifyContent: 'center', alignItems: 'center', gap: 8, backgroundColor: '#F1F5F9' }]}>
             <Icons.MapPin color="#94A3B8" />
             <LocalizedText style={{ fontFamily: 'Cairo-Medium', fontSize: 14, color: '#64748B', textAlign: 'center', paddingHorizontal: 32 }}>
               {trackingData ? 'لم يبدأ مشاركة الموقع الحي بعد — سيظهر المسار هنا فور انطلاقه' : 'جاري تحميل بيانات التتبع...'}
@@ -290,7 +290,7 @@ export default function NursingLiveTracking() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#F8FAFC" },
-  mapBg: { ...StyleSheet.absoluteFillObject },
+  mapBg: { ...StyleSheet.absoluteFill },
   pinLabel: {
     backgroundColor: "transparent",
     paddingHorizontal: 10,

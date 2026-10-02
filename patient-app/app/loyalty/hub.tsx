@@ -40,10 +40,15 @@ export default function LoyaltyHubScreen() {
   const [activeTab, setActiveTab] = useState<'earn' | 'redeem' | 'activity'>('earn');
   const progressAnim = useRef(new Animated.Value(0)).current;
 
-  const currentTier = tiers.find(t => t.id === tierName) || tiers[0];
-  const nextTierIndex = tiers.findIndex(t => t.id === currentTier.id) + 1;
-  const nextTier = nextTierIndex < tiers.length ? tiers[nextTierIndex] : tiers[tiers.length - 1];
-  const pointsToNext = nextTier.minPts > points ? nextTier.minPts - points : 0;
+  // Tiers come from /loyalty/config; until it answers (or when it fails) there is no tier, and the
+  // screen renders its loading / unavailable state below instead of reading fields of undefined.
+  const tierPair = (list: any[], name: string) => {
+    const cur = list.find(t => t.id === name) || list[0];
+    const i = cur ? list.findIndex(t => t.id === cur.id) + 1 : 0;
+    return { cur, next: list.length ? (i < list.length ? list[i] : list[list.length - 1]) : undefined };
+  };
+  const { cur: currentTier, next: nextTier } = tierPair(tiers, tierName);
+  const pointsToNext = nextTier && nextTier.minPts > points ? nextTier.minPts - points : 0;
 
   useEffect(() => {
     loadLoyaltyData();
@@ -73,7 +78,11 @@ export default function LoyaltyHubScreen() {
         setRewards(rewardsRes);
       }
       
-      const pct = (acc.points - currentTier.minPts) / (nextTier.minPts - currentTier.minPts);
+      // Use the tiers just loaded (state from this render is still empty).
+      const loaded = tierPair(Array.isArray(configRes?.tiers) ? configRes.tiers : [], acc.tier || 'bronze');
+      const pct = loaded.cur && loaded.next
+        ? ((acc.points || 0) - loaded.cur.minPts) / (loaded.next.minPts - loaded.cur.minPts)
+        : 0;
       Animated.timing(progressAnim, {
         toValue: isNaN(pct) || pct < 0 ? 0 : pct > 1 ? 1 : pct,
         duration: 1200,
