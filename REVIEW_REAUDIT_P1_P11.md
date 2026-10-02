@@ -555,3 +555,82 @@ Fix:
 Paste the full gate output in AGENT_PROGRESS.md.
 
 The 18 commits `7560513..22a5ced` (R1–R8) are queued for the reviewer's per-commit review.
+
+### Round 6 — per-commit review of `7560513..38b1b04` (28 commits, tip `38b1b04`), tested live
+
+**Verdict: CHANGES REQUIRED.** Two working patient features were deleted (insurance policy, nursing address), and a document-free approval path is still open.
+
+**Gate at the tip** (AGENTS.md gate; pushed red):
+- tsc: 4 errors (`pharmacy-governance.controllers.spec.ts`).
+- Unit tests: 3 failing tests plus 1 suite that does not compile, out of 2,180. New since `b283822`: pharmacy governance (compile), medicines publication, specialties delete, Gate P3 nursing address. Already red at `b283822`: REVIEW-P3 refund, REVIEW-P4 SLA.
+- Boot suites: `f01-wallet` 3 failing (it still expects the deleted wallet routes).
+- `dtolint`: 4 (already 4 at `b283822`).
+- `dtocheck`: 14 mismatches. 12 already existed at `b283822`; the 2 new ones are `save-policy` (F2).
+
+Mandatory, in this order:
+
+**F1 — Gate green (every item above).**
+- Do not change a test's expectation unless the behaviour change was requested.
+- Requested changes (update the test): R9c (an admin edit publishes), R6 (wallet routes deleted: assert 404), R4 pharmacy stubs (assert the canonical 503 on the surviving routes).
+
+**F2 (Critical regression) — R4 `53b43dc` deleted the working insurance handlers.**
+- It removed `POST /insurance/save-policy`, `GET /insurance/my-policy` and `GET /insurance/benefits-summary` from insurance-engine and kept the strict `insurance.module` `SavePolicyDto`.
+- Live results:
+  - the app payload (`provider`, `expiry_date`, `member_name`, `verified`, `ocr_extracted`) → 400;
+  - the website payload (`member_name`, `expiry_date`) → 400;
+  - `my-policy` and `benefits-summary` → 404.
+- Clients still calling them: `patient-web/lib/api/insurance-server.ts` (both), `patient-app/src/components/views/InsuranceBenefitsView.tsx`, the add-policy screens.
+- `j_insurance.py` would catch this.
+- Fix: keep one handler that accepts what the clients send and serves `my-policy` and `benefits-summary`.
+- **Verify:** `j_insurance` green; `dtocheck` has no `save-policy` row.
+
+**F3 (High regression) — R4 `dbb1ace` deleted the home-care compat `createBooking`.**
+- That handler resolved `address_id` to the patient's own saved address (line, city, lat/lng) and refused another user's id.
+- The surviving `patient-home-care.controller.ts:48` stores `{address:{address_id}}` only, so the nurse gets no address and no coordinates.
+- The website nursing route (`patient-web/app/api/nursing/bookings/route.ts`) sends `address_id`.
+- **Verify:** `gate-p3-live.spec.ts` "nursing booking resolves address_id…" passes against the surviving handler.
+
+**F4 (High, security) — R1 is incomplete: a second approve route skips the document check.**
+- Live: `POST /api/v1/providers/:id/approve` on a pharmacy with **0 documents** → 201.
+- The profile became `active`, `license_verified: true`, `public_eligibility: true` and is listed in public `GET /providers`, while the account stayed `pending_admin_approval`.
+- Delete this route or route it through `ProviderAdminService.approve`.
+- **Verify:** this call → 400 `required_documents_missing` (or 404 if deleted).
+- Clean up the probe accounts (emails `pharm…@nabd.test`, 2026-10-02).
+
+**F5 (High) — the R1 override cannot be used, and the claims are not true.**
+- `ApproveDto` has no `override_reason`: live 400 `property override_reason should not exist`.
+- No `@StepUp()` is on `POST admin/providers/:id/approve`, although the comment and commit say it is.
+- `provider-admin.approve.spec.ts` tests 2 and 3 use `.catch(() => ({ ok: true }))` plus `toBeDefined()`, so they pass even when `approve` throws. Make them assert the real outcome.
+- **Verify** at the HTTP level:
+  - override without step-up → 403 `step_up_required`;
+  - with step-up and a reason of 20+ characters → 201 and an audit row;
+  - a short reason → 400.
+
+**F6 (Medium) — R79b is half done.**
+- Done: the unique index `uniq_user_reason_ref` exists in the DB.
+- Not done: the daily/monthly cap and vitals 5-per-day races. There is no regression test.
+- **Verify** as written in R79b: 10 parallel awards → 1 row; 10 parallel vitals → at most the cap.
+
+**F7 (Medium) — R83 is partial.**
+- Done: the backend persists and exposes the clinic address; the app clinic-confirm reads `clinic_address`.
+- Not done: the website doctor page does not show it.
+
+**F8 (Medium) — R9c permission.**
+- An edit publishes for any admin with `CATALOG_UPDATE` and `CATALOG_PRICE_WRITE`.
+- R9c said only an admin who **holds the catalog approve permission**; other edits must still go to review.
+
+**F9 (Low) — R11: delete the constants.**
+- `care.service.ts:58` still falls back to `SPECIALTY_MASTER`; the same applies to insurers and degrees.
+
+**F10 (Low) — R7 is not "everywhere".**
+- About 70 user-visible "Nabdah"/"نبضة" brand strings remain in `patient-app/src/i18n/*`, `patient-app/app/(auth)/provider-info.tsx` and provider-app doctor screens.
+- Keep the generic word "نبضة" (pulse) where it is not the brand.
+
+**Passed this round (verified live or in code):**
+- R2: unknown ids → 404 (articles, medicines, radiology services, catalog items).
+- R4 pharmacy stubs: still 503 via the governed controller.
+- R5 and R6: removed routes have no client callers.
+- R9a: the medicines list returns only public items.
+- R11: `/care/specialties` count equals the DB.
+- R12: deactivate/reactivate routes added; new companies are pending.
+- R83: backend.
