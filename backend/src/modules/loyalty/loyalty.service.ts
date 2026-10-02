@@ -168,15 +168,26 @@ export class LoyaltyService {
     const newTier = calculateTier(newLifetime);
     if (newTier !== (updated?.tier ?? previousTier)) await this.accountM.updateOne({ user_id: userId }, { tier: newTier });
 
-    await this.txM.create({
-      id: uuidv4(),
-      user_id: userId,
-      points_delta: pts,
-      reason,
-      ref_type: refType,
-      ref_id: refId,
-      expires_at: new Date(Date.now() + POINTS_TTL_DAYS * 24 * 3600 * 1000),
-    });
+    try {
+      await this.txM.create({
+        id: uuidv4(),
+        user_id: userId,
+        points_delta: pts,
+        reason,
+        ref_type: refType,
+        ref_id: refId,
+        expires_at: new Date(Date.now() + POINTS_TTL_DAYS * 24 * 3600 * 1000),
+      });
+    } catch (e: any) {
+      // R79b: parallel awards for the same ref race the find-then-create above.
+      // The unique index wins; the loser reports duplicate without touching the balance.
+      if (String(e?.code) === '11000' || /duplicate key/i.test(String(e?.message || ''))) {
+        // Roll back the $inc balance change since no transaction was recorded
+        await this.accountM.updateOne({ user_id: userId }, { $inc: { points: -pts, lifetime_points: -pts } }).catch(() => null);
+        return { ok: true, points_awarded: 0, duplicate: true };
+      }
+      throw e;
+    }
 
     // Update challenge progress for this action
     await this.updateChallengeProgress(userId, reason);

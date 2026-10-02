@@ -29,6 +29,11 @@ export class LoyaltyTransaction extends Document {
   @Prop() ref_id?: string;
 }
 export const LoyaltyTransactionSchema = SchemaFactory.createForClass(LoyaltyTransaction);
+// R79b: the same (user, reason, ref) can never be awarded twice — guards parallel duplicate events.
+LoyaltyTransactionSchema.index(
+  { user_id: 1, reason: 1, ref_type: 1, ref_id: 1 },
+  { unique: true, partialFilterExpression: { ref_id: { $exists: true } }, name: 'uniq_user_reason_ref' },
+);
 
 // ─── LoyaltyChallenge ─────────────────────────────────────────────────────────
 @Schema({ timestamps: true, collection: 'loyalty_challenges' })
