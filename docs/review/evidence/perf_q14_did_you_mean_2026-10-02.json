@@ -1,0 +1,46 @@
+{
+ "test": "GET /medicines/search/did-you-mean (Q14)",
+ "dataset": "200,000 synthetic search_queries spread over 400 days (tagged qa_perf, deleted after)",
+ "env": "review container, local backend, not production hardware",
+ "before (backend 38b1b04)": [
+  {
+   "concurrency": 1,
+   "requests": 20,
+   "p50_ms": 164,
+   "p95_ms": 191,
+   "max_ms": 198,
+   "rps": 5.9
+  },
+  {
+   "concurrency": 10,
+   "requests": 100,
+   "p50_ms": 710,
+   "p95_ms": 867,
+   "max_ms": 961,
+   "rps": 13.8
+  }
+ ],
+ "after (agent tip + review/qa-full)": [
+  {
+   "concurrency": 1,
+   "requests": 20,
+   "p50_ms": 5,
+   "p95_ms": 10,
+   "max_ms": 11,
+   "rps": 165.8
+  },
+  {
+   "concurrency": 10,
+   "requests": 100,
+   "p50_ms": 35,
+   "p95_ms": 42,
+   "max_ms": 44,
+   "rps": 282.0
+  }
+ ],
+ "after cache-miss single request ms": [
+  111,
+  112,
+  117
+ ]
+}

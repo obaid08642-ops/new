@@ -275,14 +275,12 @@ export class MedicinesService {
       return dp[n];
     };
 
-    // Candidate pool: frequent past search terms + top product names
-    const [terms, names] = await Promise.all([
-      this.conn.collection('search_queries').aggregate([
-        { $group: { _id: '$term_lc', n: { $sum: 1 } } }, { $sort: { n: -1 } }, { $limit: 300 },
-      ]).toArray(),
-      this.model.find({ is_deleted: { $ne: true }, usage_count: { $gt: 0 } }, { _id: 0, name_en: 1, name_ar: 1 } as any)
-        .sort({ usage_count: -1 }).limit(300),
-    ]);
+    // Candidate pool: frequent past search terms + top product names. Q14: the pool does not depend on the
+    // typed term, but it was rebuilt on every request by grouping the WHOLE search history (full collection scan,
+    // no index). It is now built from the last 90 days (indexed on createdAt) and cached for 10 minutes.
+    const pool = await this.didYouMeanPool();
+    const terms = pool.terms;
+    const names = pool.names;
 
     let best: { term: string; d: number } | null = null;
     const consider = (cand: string) => {
@@ -303,6 +301,26 @@ export class MedicinesService {
       alternatives: best ? [best.term] : [],
       query: term,
     };
+  }
+
+  private async didYouMeanPool(): Promise<{ terms: { _id: string }[]; names: { name_en?: string; name_ar?: string }[] }> {
+    const cacheKey = 'med:dym:pool';
+    const cached = await this.redis.getJson<{ terms: { _id: string }[]; names: { name_en?: string; name_ar?: string }[] }>(cacheKey);
+    if (cached) return cached;
+    const queries = this.conn.collection('search_queries');
+    await queries.createIndex({ createdAt: -1 }, { name: 'createdAt_desc' }).catch(() => null);
+    const since = new Date(Date.now() - 90 * 24 * 3600 * 1000);
+    const [terms, names] = await Promise.all([
+      queries.aggregate([
+        { $match: { createdAt: { $gte: since } } },
+        { $group: { _id: '$term_lc', n: { $sum: 1 } } }, { $sort: { n: -1 } }, { $limit: 300 },
+      ]).toArray(),
+      this.model.find({ is_deleted: { $ne: true }, usage_count: { $gt: 0 } }, { _id: 0, name_en: 1, name_ar: 1 } as any)
+        .sort({ usage_count: -1 }).limit(300).lean(),
+    ]);
+    const pool = { terms: terms.map((x: any) => ({ _id: x._id })), names: (names as any[]).map((x) => ({ name_en: x.name_en, name_ar: x.name_ar })) };
+    await this.redis.setJson(cacheKey, pool, 600);
+    return pool;
   }
 
   /** Trending searches (last 7 days) — powers the "trending now" row in apps. */

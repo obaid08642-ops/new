@@ -1,0 +1,1614 @@
+{
+ "app": "patient-app",
+ "build": "react-native-web export (not native)",
+ "routes": [
+  {
+   "route": "diagnostics/upload-rx",
+   "url": "/diagnostics/upload-rx",
+   "landed": "/pharmacy/scan-prescription",
+   "status": "TESTED",
+   "time_to_ready_ms": 2113,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "التقاط صورة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3600
+    },
+    {
+     "label": "اختيار من الصور",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3576
+    }
+   ]
+  },
+  {
+   "route": "doctor/[slug]",
+   "status": "NOT_TESTED_DYNAMIC"
+  },
+  {
+   "route": "drug-scanner/index",
+   "url": "/drug-scanner",
+   "landed": "/drug-scanner",
+   "status": "TESTED",
+   "time_to_ready_ms": 1992,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3604
+    },
+    {
+     "label": "بنادول",
+     "result": "UI_CHANGE",
+     "response_ms": 432
+    },
+    {
+     "label": "إيبوبروفين",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3581
+    },
+    {
+     "label": "أموكسيسيلين",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3554
+    },
+    {
+     "label": "كلاريثروميسين",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3546
+    },
+    {
+     "label": "أوميبرازول",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3566
+    },
+    {
+     "label": "لوسارتان",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3560
+    },
+    {
+     "label": "فيتامين D",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3566
+    },
+    {
+     "label": "أوميغا 3",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3555
+    },
+    {
+     "label": "󰙔",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/ai/drug-interactions",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 1849
+    }
+   ]
+  },
+  {
+   "route": "emergency/index",
+   "url": "/emergency",
+   "landed": "/emergency/sos",
+   "status": "TESTED",
+   "time_to_ready_ms": 1987,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3620
+    },
+    {
+     "label": "󰀯",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3574
+    },
+    {
+     "label": "󰒘",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3605
+    },
+    {
+     "label": "󰈸",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3551
+    },
+    {
+     "label": "󰄋",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3549
+    },
+    {
+     "label": "󰍎",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3553
+    },
+    {
+     "label": "󰋼",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3563
+    }
+   ]
+  },
+  {
+   "route": "emergency/sos",
+   "url": "/emergency/sos",
+   "landed": "/emergency/sos",
+   "status": "TESTED",
+   "time_to_ready_ms": 2604,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3621
+    },
+    {
+     "label": "󰀯",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3583
+    },
+    {
+     "label": "󰒘",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3534
+    },
+    {
+     "label": "󰈸",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3575
+    },
+    {
+     "label": "󰄋",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3545
+    },
+    {
+     "label": "󰍎",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3570
+    },
+    {
+     "label": "󰋼",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3592
+    }
+   ]
+  },
+  {
+   "route": "emergency/sos-active",
+   "url": "/emergency/sos-active",
+   "landed": "/emergency/sos-active",
+   "status": "TESTED",
+   "time_to_ready_ms": 2641,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰅖",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3607
+    },
+    {
+     "label": "󰏲",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3603
+    },
+    {
+     "label": "اتصال بغرفة العمليات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3619
+    },
+    {
+     "label": "إلغاء الطلب",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3569
+    }
+   ]
+  },
+  {
+   "route": "emergency/tracking",
+   "url": "/emergency/tracking",
+   "landed": "/emergency/tracking",
+   "status": "TESTED",
+   "time_to_ready_ms": 2630,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3580
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3550
+    }
+   ]
+  },
+  {
+   "route": "facility/[slug]",
+   "status": "NOT_TESTED_DYNAMIC"
+  },
+  {
+   "route": "family/calendar",
+   "url": "/family/calendar",
+   "landed": "/family/calendar",
+   "status": "TESTED",
+   "time_to_ready_ms": 2607,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "404 GET /family/calendar",
+     "404 GET /family/members"
+    ]
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3583
+    },
+    {
+     "label": "إضافة حدث",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3553
+    },
+    {
+     "label": "إعادة المحاولة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3557
+    }
+   ]
+  },
+  {
+   "route": "family/chat",
+   "url": "/family/chat",
+   "landed": "/family/chat",
+   "status": "TESTED",
+   "time_to_ready_ms": 3195,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "403 GET /family/chat/messages",
+     "404 GET /family/members"
+    ]
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3556
+    },
+    {
+     "label": "إعادة المحاولة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3549
+    }
+   ]
+  },
+  {
+   "route": "family/emergency-contacts",
+   "url": "/family/emergency-contacts",
+   "landed": "/family/emergency-contacts",
+   "status": "TESTED",
+   "time_to_ready_ms": 2577,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰐕",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3570
+    },
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3542
+    },
+    {
+     "label": "󰀯",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3553
+    }
+   ]
+  },
+  {
+   "route": "family/index",
+   "url": "/family",
+   "landed": "/health/family-hub",
+   "status": "TESTED",
+   "time_to_ready_ms": 2595,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "404 GET /family/my-group"
+    ]
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3574
+    },
+    {
+     "label": "إنشاء مجموعة عائلية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3559
+    },
+    {
+     "label": "انضم لعائلة حالية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3556
+    }
+   ]
+  },
+  {
+   "route": "family/invite",
+   "url": "/family/invite",
+   "landed": "/family/invite",
+   "status": "TESTED",
+   "time_to_ready_ms": 2599,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3579
+    },
+    {
+     "label": "إعادة المحاولة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3552
+    }
+   ]
+  },
+  {
+   "route": "family/join",
+   "url": "/family/join",
+   "landed": "/family/join",
+   "status": "TESTED",
+   "time_to_ready_ms": 1328,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3588
+    },
+    {
+     "label": "زوج/ة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3557
+    },
+    {
+     "label": "ابن/ة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3546
+    },
+    {
+     "label": "والد/ة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3556
+    },
+    {
+     "label": "أخ/أخت",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3548
+    },
+    {
+     "label": "مقدم رعاية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3549
+    },
+    {
+     "label": "أخرى",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3558
+    },
+    {
+     "label": "󰡉",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3573
+    },
+    {
+     "label": "󰐲",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3560
+    }
+   ]
+  },
+  {
+   "route": "family/member-health",
+   "url": "/family/member-health",
+   "landed": "/family/member-health",
+   "status": "TESTED",
+   "time_to_ready_ms": 2576,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "404 GET /family/member-records/"
+    ]
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰒓",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3561
+    },
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3549
+    },
+    {
+     "label": "󰭹",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3568
+    },
+    {
+     "label": "󰃯",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3587
+    }
+   ]
+  },
+  {
+   "route": "family/permission-request",
+   "url": "/family/permission-request",
+   "landed": "/family/permission-request",
+   "status": "TESTED",
+   "time_to_ready_ms": 2643,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [
+     "No group found"
+    ],
+    "bad_reads": [
+     "404 GET /family/permissions/pending"
+    ]
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3584
+    },
+    {
+     "label": "󰗠",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3549
+    },
+    {
+     "label": "󰅖",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3580
+    }
+   ]
+  },
+  {
+   "route": "family/permissions",
+   "url": "/family/permissions",
+   "landed": "/family/permissions",
+   "status": "TESTED",
+   "time_to_ready_ms": 1989,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "404 GET /family/my-group"
+    ]
+   },
+   "inputs_filled": 9,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3575
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3566
+    },
+    {
+     "label": "(icon #2)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3575
+    },
+    {
+     "label": "(icon #3)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3597
+    },
+    {
+     "label": "(icon #4)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3547
+    },
+    {
+     "label": "(icon #5)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3555
+    },
+    {
+     "label": "(icon #6)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3545
+    },
+    {
+     "label": "(icon #7)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3561
+    },
+    {
+     "label": "(icon #8)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3558
+    },
+    {
+     "label": "(icon #9)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3555
+    },
+    {
+     "label": "󰆴",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3581
+    },
+    {
+     "label": "󰗠",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3567
+    }
+   ]
+  },
+  {
+   "route": "family/scan",
+   "url": "/family/scan",
+   "landed": "/family/scan",
+   "status": "TESTED",
+   "time_to_ready_ms": 1375,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3590
+    },
+    {
+     "label": "?",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3577
+    }
+   ]
+  },
+  {
+   "route": "family/shared-calendar",
+   "url": "/family/shared-calendar",
+   "landed": "/family/calendar",
+   "status": "TESTED",
+   "time_to_ready_ms": 2621,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "404 GET /family/calendar",
+     "404 GET /family/members"
+    ]
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3561
+    },
+    {
+     "label": "إضافة حدث",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3552
+    },
+    {
+     "label": "إعادة المحاولة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3574
+    }
+   ]
+  },
+  {
+   "route": "health/actionable-order",
+   "url": "/health/actionable-order",
+   "landed": "/health/actionable-order",
+   "status": "TESTED",
+   "time_to_ready_ms": 1968,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3596
+    }
+   ]
+  },
+  {
+   "route": "health/add-family-member",
+   "url": "/health/add-family-member",
+   "landed": "/family/invite",
+   "status": "TESTED",
+   "time_to_ready_ms": 1946,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3576
+    },
+    {
+     "label": "إعادة المحاولة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3559
+    }
+   ]
+  },
+  {
+   "route": "health/chronic-disease",
+   "url": "/health/chronic-disease",
+   "landed": "/health/chronic-disease",
+   "status": "TESTED",
+   "time_to_ready_ms": 1996,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰐕",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3564
+    },
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3588
+    }
+   ]
+  },
+  {
+   "route": "health/chronic-medications",
+   "url": "/health/chronic-medications",
+   "landed": "/health/chronic-medications",
+   "status": "TESTED",
+   "time_to_ready_ms": 2562,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰐕",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3589
+    },
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3574
+    }
+   ]
+  },
+  {
+   "route": "health/conditions-allergies",
+   "url": "/health/conditions-allergies",
+   "landed": "/health/conditions-allergies",
+   "status": "TESTED",
+   "time_to_ready_ms": 2563,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3592
+    },
+    {
+     "label": "إضافة مرض",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3555
+    },
+    {
+     "label": "إضافة حساسية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3554
+    }
+   ]
+  },
+  {
+   "route": "health/edit-profile",
+   "url": "/health/edit-profile",
+   "landed": "/health/edit-profile",
+   "status": "TESTED",
+   "time_to_ready_ms": 2100,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3603
+    },
+    {
+     "label": "تغيير الصورة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3564
+    },
+    {
+     "label": "غير معروف",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3543
+    },
+    {
+     "label": "A+",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3628
+    },
+    {
+     "label": "A-",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3579
+    },
+    {
+     "label": "B+",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3570
+    },
+    {
+     "label": "B-",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3564
+    },
+    {
+     "label": "AB+",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3597
+    },
+    {
+     "label": "AB-",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3546
+    },
+    {
+     "label": "O+",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3659
+    },
+    {
+     "label": "O-",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3582
+    },
+    {
+     "label": "لا أريد التحديد",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3559
+    },
+    {
+     "label": "أنثى",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3577
+    },
+    {
+     "label": "ذكر",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3580
+    },
+    {
+     "label": "لا",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3558
+    },
+    {
+     "label": "نعم",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3547
+    },
+    {
+     "label": "الأمراض والحساسية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3560
+    },
+    {
+     "label": "󰗠",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3546
+    }
+   ]
+  },
+  {
+   "route": "health/emergency-contacts",
+   "url": "/health/emergency-contacts",
+   "landed": "/health/emergency-contacts",
+   "status": "TESTED",
+   "time_to_ready_ms": 1968,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "+ إضافة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3581
+    },
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3558
+    }
+   ]
+  },
+  {
+   "route": "health/family-calendar",
+   "url": "/health/family-calendar",
+   "landed": "/family/calendar",
+   "status": "TESTED",
+   "time_to_ready_ms": 2611,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "404 GET /family/calendar",
+     "404 GET /family/members"
+    ]
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3567
+    },
+    {
+     "label": "إضافة حدث",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3590
+    },
+    {
+     "label": "إعادة المحاولة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3555
+    }
+   ]
+  },
+  {
+   "route": "health/family-chat",
+   "url": "/health/family-chat",
+   "landed": "/family/chat",
+   "status": "TESTED",
+   "time_to_ready_ms": 3359,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "403 GET /family/chat/messages",
+     "404 GET /family/members"
+    ]
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3591
+    },
+    {
+     "label": "إعادة المحاولة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3539
+    }
+   ]
+  },
+  {
+   "route": "health/family-hub",
+   "url": "/health/family-hub",
+   "landed": "/health/family-hub",
+   "status": "TESTED",
+   "time_to_ready_ms": 2654,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "404 GET /family/my-group"
+    ]
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3576
+    },
+    {
+     "label": "إنشاء مجموعة عائلية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3537
+    },
+    {
+     "label": "انضم لعائلة حالية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3566
+    }
+   ]
+  },
+  {
+   "route": "health/family-member-detail",
+   "url": "/health/family-member-detail",
+   "landed": "/family/member-health",
+   "status": "TESTED",
+   "time_to_ready_ms": 1997,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "404 GET /family/member-records/"
+    ]
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰒓",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3600
+    },
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3551
+    },
+    {
+     "label": "󰭹",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3580
+    },
+    {
+     "label": "󰃯",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3558
+    }
+   ]
+  },
+  {
+   "route": "health/health-id",
+   "url": "/health/health-id",
+   "landed": "/health/health-id",
+   "status": "TESTED",
+   "time_to_ready_ms": 2590,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰒗",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3568
+    },
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3609
+    },
+    {
+     "label": "إدارة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3545
+    },
+    {
+     "label": "󰋼",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3536
+    }
+   ]
+  },
+  {
+   "route": "health/medication-reminder-add",
+   "url": "/health/medication-reminder-add",
+   "landed": "/health/medication-reminder-add",
+   "status": "TESTED",
+   "time_to_ready_ms": 2030,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 6,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3590
+    },
+    {
+     "label": "06:00",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3542
+    },
+    {
+     "label": "08:00",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3582
+    },
+    {
+     "label": "12:00",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3559
+    },
+    {
+     "label": "14:00",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3566
+    },
+    {
+     "label": "18:00",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3578
+    },
+    {
+     "label": "20:00",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3566
+    },
+    {
+     "label": "22:00",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3554
+    },
+    {
+     "label": "يومياً",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3584
+    },
+    {
+     "label": "أسبوعياً",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3572
+    },
+    {
+     "label": "عند الحاجة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3581
+    },
+    {
+     "label": "مدة محددة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3559
+    },
+    {
+     "label": "دواء مزمن",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3563
+    },
+    {
+     "label": "تنبيه عادي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3577
+    },
+    {
+     "label": "تنبيه مهم",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3558
+    },
+    {
+     "label": "󰗠",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3546
+    }
+   ]
+  },
+  {
+   "route": "health/medication-reminder-list",
+   "url": "/health/medication-reminder-list",
+   "landed": "/health/medication-reminder-list",
+   "status": "TESTED",
+   "time_to_ready_ms": 2579,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰐕",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3628
+    },
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3575
+    }
+   ]
+  },
+  {
+   "route": "health/medications",
+   "url": "/health/medications",
+   "landed": "/health/medications",
+   "status": "TESTED",
+   "time_to_ready_ms": 2568,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰐕",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3590
+    },
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3548
+    },
+    {
+     "label": "عرض التذكيرات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3581
+    },
+    {
+     "label": "مزامنة التنبيهات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3563
+    },
+    {
+     "label": "إضافة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3572
+    },
+    {
+     "label": "إدارة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3546
+    },
+    {
+     "label": "عرض الوصفات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3593
+    }
+   ]
+  },
+  {
+   "route": "health/prescriptions",
+   "url": "/health/prescriptions",
+   "landed": "/health/prescriptions",
+   "status": "TESTED",
+   "time_to_ready_ms": 2718,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰄀",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3587
+    },
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3537
+    },
+    {
+     "label": "󰑐",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3558
+    }
+   ]
+  },
+  {
+   "route": "health/refills",
+   "url": "/health/refills",
+   "landed": "/health/refills",
+   "status": "TESTED",
+   "time_to_ready_ms": 2591,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3597
+    }
+   ]
+  },
+  {
+   "route": "health/reminders",
+   "url": "/health/reminders",
+   "landed": "/health/medication-reminder-list",
+   "status": "TESTED",
+   "time_to_ready_ms": 2595,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰐕",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3580
+    },
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3560
+    }
+   ]
+  },
+  {
+   "route": "health/reports",
+   "url": "/health/reports",
+   "landed": "/health/reports",
+   "status": "TESTED",
+   "time_to_ready_ms": 1975,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3591
+    }
+   ]
+  },
+  {
+   "route": "health/sleep-score",
+   "url": "/health/sleep-score",
+   "landed": "/health/sleep-score",
+   "status": "TESTED",
+   "time_to_ready_ms": 2605,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3587
+    },
+    {
+     "label": "?",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3589
+    }
+   ]
+  },
+  {
+   "route": "health/sleep-tracker",
+   "url": "/health/sleep-tracker",
+   "landed": "/health/sleep-tracker",
+   "status": "TESTED",
+   "time_to_ready_ms": 1965,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3589
+    },
+    {
+     "label": "󰗠",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3558
+    }
+   ]
+  }
+ ]
+}

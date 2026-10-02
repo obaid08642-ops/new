@@ -1,0 +1,141 @@
+
+=== admin: login with email 2FA (admin panel)
+  PASS  credentials -> 202 requires_2fa
+  PASS  2FA code emailed to the admin
+  PASS  verify-2fa -> session
+  PASS  session cookie set (httpOnly)
+  PASS  BFF call with the session (dashboard: command-center)
+  PASS  wrong admin password rejected (401, or 429 once the login throttle trips)
+  PASS  admin device enrolled for the gate run (C2)
+
+=== onboarding: doctor registers in the provider app
+  PASS  start
+  PASS  wizard sign-in
+  PASS  upload national_id.jpg
+  PASS  upload medical_license.jpg
+  PASS  upload professional_cv.pdf
+  PASS  upload iban_letter.jpg
+  PASS  step2 as sent by DoctorRegistration.tsx:349
+  PASS  step3 as sent by DoctorRegistration.tsx:1022
+  PASS  step2 as sent by DoctorRegistration.tsx:1095
+  PASS  step2 as sent by DoctorRegistration.tsx:1119
+  PASS  upload signature.png
+  PASS  email verified
+  PASS  submit for review
+
+=== onboarding: admin reviews the doctor
+  PASS  pending list (provider-moderation) shows the new provider
+  PASS  provider detail opens
+  PASS  approve with commissions
+  PASS  no longer pending
+
+=== onboarding: approved doctor signs in
+  PASS  provider login
+
+=== consultation: doctor opens clinic hours (admin approves)
+  PASS  doctor submits clinic hours
+  PASS  admin sees the pending schedule change
+  PASS  admin approves the slots change
+  PASS  the hours are live on the doctor schedule
+
+=== payouts: live env releases the escrow hold
+  PASS  settlement hold set to 0 for the live env
+
+=== payouts: provider bank account verified (WithdrawalWorkflow)
+  PASS  provider submits the bank account
+  PASS  provider account id resolves
+  PASS  admin approves the bank account
+  PASS  the account reads back approved
+  PASS  ops-patient: send-otp (email, register)
+  PASS  ops-patient: OTP email delivered
+  PASS  ops-patient: verify-otp
+  PASS  ops-patient: register returns token + user
+
+=== consultation: patient finds the doctor and a slot
+  PASS  specialties load
+  PASS  doctor search lists the approved doctor
+  PASS  doctor profile opens
+  PASS  the doctor has free clinic slots tomorrow
+
+=== consultation: patient books and pays by card
+  PASS  slot held (10 min lock)
+  PASS  appointment created
+  PASS  the same slot cannot be booked twice
+  PASS  card is offered for this consultation
+  PASS  checkout link is https
+  PASS  payment verified
+  PASS  booking-status shows it paid
+
+=== consultation: the doctor runs the visit
+  PASS  the appointment reaches the doctor (incoming or already confirmed)
+  PASS  appointment check-in
+  PASS  appointment start
+  PASS  doctor writes a prescription during the visit
+  PASS  doctor finishes the visit with the summary
+
+=== consultation: the patient after the visit
+  PASS  appointment COMPLETED
+  PASS  visit summary opens
+  PASS  prescription-from-doctor lists the prescription
+  PASS  add to reminders creates the reminder
+  PASS  the reminder shows in my reminders
+  PASS  patient rates the doctor
+
+=== doctor screens: every tab loads
+  PASS  GET /provider/profile
+  PASS  GET /provider/profile/availability
+  PASS  GET /provider/jobs/queue?status=incoming&kind=consultation
+  PASS  GET /provider/jobs/queue?status=active&kind=consultation
+  PASS  GET /provider/jobs/queue?status=active
+  PASS  GET /calls/provider/waiting-room
+  PASS  GET /provider/schedule-slots
+  PASS  GET /provider/capabilities/doctor-sessions
+  PASS  GET /provider/settings/pricing
+  PASS  GET /provider/wallet
+  PASS  GET /provider/wallet/transactions
+  PASS  GET /provider/notifications
+  PASS  GET /provider/kyc/documents
+  PASS  GET /provider/referrals/mine
+  PASS  GET /provider/reports/inbound
+  PASS  GET /provider/ops/doctor/templates
+  PASS  GET /provider/ops/doctor/diagnoses
+  PASS  GET /provider/ops/doctor/leave
+  PASS  GET /provider/ops/doctor/blacklist
+  PASS  GET /provider/stats/today
+  PASS  GET /provider/stats/period?period=week
+  PASS  GET /provider/directory
+  PASS  GET /hospital/invitations/inbox
+  PASS  GET /provider/dashboard/stats
+  PASS  GET /provider/crm
+
+=== consultation: admin orders console
+  PASS  console lists it with status and amount
+
+=== payouts: provider asks, admin executes (payouts.tsx)
+  PASS  provider balance reflects the completed consultation
+  PASS  provider requests the payout
+  PASS  asking for more than the balance is refused
+  PASS  admin payouts page lists it
+  PASS  admin executes it
+  PASS  provider sees it paid
+
+=== users: admin suspends and restores a patient (users-management.tsx)
+  PASS  admin finds the patient
+  PASS  user overview opens
+  FAIL  admin bans the patient  ->  403 {"message": "step_up_required", "error": "Forbidden", "statusCode": 403}
+  FAIL  the banned patient is locked out  ->  200 {"wishlist": [], "user_id": "26f5b25b-b997-4a65-95cb-1ca51f8ec7e6", "allergies": [], "chronic_diseases": [], "current_medications": [], "is_deleted": false, "deleted_at": null, "created_by": null, "updated_by": null, "id": "c6116b17-096f-48b0-8f64-3446464522bc", "emergency_contacts": [], "addresses": [], "createdAt": "2026-10-02T18:13:29.646Z", "updatedAt": "2026-10-02T18:13:29.646Z", "chronic
+  FAIL  admin restores the patient  ->  403 {"message": "step_up_required", "error": "Forbidden", "statusCode": 403}
+
+=== legal policies and commissions (legal-policies.tsx, commissions.tsx)
+  PASS  admin publishes a privacy policy change
+  PASS  the public policy shows the new text
+  PASS  policies list includes it
+  PASS  commissions load
+  PASS  admin changes the pharmacy commission
+  PASS  the change is saved
+  PASS  ledger summary loads
+
+##### 101/104 steps passed, 3 failed
+  FAIL [users: admin suspends and restores a patient (users-management.tsx)] admin bans the patient: 403 {"message": "step_up_required", "error": "Forbidden", "statusCode": 403}
+  FAIL [users: admin suspends and restores a patient (users-management.tsx)] the banned patient is locked out: 200 {"wishlist": [], "user_id": "26f5b25b-b997-4a65-95cb-1ca51f8ec7e6", "allergies": [], "chronic_diseases": [], "current_medications": [], "is_deleted": false, "deleted_at": null, "created_by": null, "updated_by": null, "id": "c6116b17-096f-48b0-8f64-3446464522bc", "emergency_contacts": [], "addres
+  FAIL [users: admin suspends and restores a patient (users-management.tsx)] admin restores the patient: 403 {"message": "step_up_required", "error": "Forbidden", "statusCode": 403}

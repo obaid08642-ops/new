@@ -172,6 +172,9 @@ export class AdminGdprController {
     const type = String(b?.type || '');
     if (!userId) throw new BadRequestException('user_id_required');
     if (!['export', 'delete'].includes(type)) throw new BadRequestException('invalid_type');
+    // Q13: a request for an id that is not a user was accepted and sat in the queue forever.
+    const subject = await this.conn.collection('users').findOne({ id: userId }, { projection: { _id: 1 } });
+    if (!subject) throw new NotFoundException('user_not_found');
     const exists = await this.conn.collection('gdpr_requests').findOne({ user_id: userId, type, status: { $in: ['requested', 'processing'] } });
     if (exists) throw new ConflictException('request_already_open');
 

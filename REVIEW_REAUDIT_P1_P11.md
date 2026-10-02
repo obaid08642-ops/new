@@ -634,3 +634,117 @@ Mandatory, in this order:
 - R11: `/care/specialties` count equals the DB.
 - R12: deactivate/reactivate routes added; new companies are pending.
 - R83: backend.
+
+## Round 7 — full-ecosystem QA (2026-10-02)
+
+Register with reproduction, evidence and root cause: `docs/review/QA_DEFECTS.md` (Q1–Q29). Performance: `docs/review/PERFORMANCE.md`. Coverage: `docs/review/COVERAGE_MATRIX.md`.
+- Reviewer-fixed on `review/qa-full` (do not revert): Q2, Q10, Q11, Q12, Q13, Q14, Q17, Q20, the icon font (PERFORMANCE §1 A), and tooling Q6, Q7, Q18, Q19, Q26, Q27.
+- Still open from Round 6, and still the largest live blockers:
+  - **F2**: insurance; 36 journey steps fail on it across `j_insurance` / `j_lab` / `j_radiology` / `j_consultation`.
+  - **R23**: step-up; 10 steps across `j_admin_ops` / `j_loyalty` / `j_nursing`, and every sensitive admin button.
+- Do those first, then the items below, one commit each: `[Q<n>] <summary>`.
+
+**Q25 (High) — admin price-override audit crashes, and real overrides are invisible.**
+- Add an admin endpoint over `pharmacy_price_override_audit` (paging, search, catalog vs override price, computed difference, pharmacy, reason, time).
+- Map `price-override-audit.tsx` to it, with null-safe numbers.
+- **Verify:** `crash_sweep.py` APP=admin shows 0 crashes; a journey that submits an offer with an override sees it on the page.
+
+**Q16 (High) — reorder is legacy-only (404 for every current order).**
+- Implement a governed reorder: a new draft from the previous `pharmacy_orders` items through the patient draft flow. Wire it on the website and in the app, or hide the button.
+- **Verify:** reorder on a delivered governed order → a draft with the same items.
+
+**Q5 (High) — `financial-ledger.tsx:61`.**
+- Call `/admin/finance/ledger/commissions` (R36) or send `from` / `to`.
+- **Verify:** the page loads with no 400.
+
+**Q29 (Medium) — pharmacy unique indexes exist only in manual scripts.**
+- Create them idempotently at startup or in `deploy/mongo/init-indexes.js`.
+- Fail the health check when one is missing.
+- **Verify:** fresh DB → `getIndexes()` lists the 6 named indexes; recipient upsert uses IXSCAN.
+
+**Q21 (High, performance) — `packages/ui-native/src/Icon.tsx` `import * as phosphor`.**
+- This bundles every icon: 5.74 MB, 42 % of the app entry.
+- Use per-icon imports from `phosphor-react-native/src/icons/<Name>`. The prototype measured 16.19 → 10.39 MB.
+- Coordinate with the design (phase 12) track, which owns `ui-native`.
+- **Verify:** entry JS gzip ≤ 2.4 MB; icon screenshots unchanged.
+
+**Q22 (Medium, performance) — livekit bundled twice (ESM + UMD) and loaded at start.**
+- Use one import style and lazy-load the call screens.
+- **Verify:** a single livekit source in the source map, and not in the entry chunk.
+
+**Q23 (Medium) — signed-out home calls 7 private endpoints and shows a load-error banner.**
+- Skip private calls without a session and show the guest state; treat 401 as signed out.
+- **Verify:** signed-out home makes no 401 calls and shows no banner.
+
+**Q4 (Medium) — radiology `order_detail` / `reporting` white-screen without their param.**
+- Guard the params, fetch by id, and add an error boundary per dashboard navigator.
+- **Verify:** opening either screen without the param shows "not found" + back.
+
+**Q15 (Medium) — website prescriptions list rows do not link to `/prescriptions/[id]` (orphan page).**
+- **Verify:** a row opens its detail.
+
+**Q24 (Low) — admin public directory pages are always empty** (relative `fetch` in `getServerSideProps`).
+- Remove them from the admin app (the website owns them), or use `API_BASE`.
+
+**Q9 + Q1 + Q28 (Medium, accessibility).**
+- 128 patient-app and 41 provider-app icon-only controls have no accessible name.
+- Admin `medicines-catalog` labels are not bound to their inputs.
+- **Verify:** `ui_inventory.js` shows 0 unlabeled controls; Playwright `getByLabel` finds every medicine field.
+
+### Round 7 — addendum (same QA run, later findings)
+
+Also reviewer-fixed on `review/qa-full` (do not revert):
+- Q32: website article pages always 404.
+- Q35: website search and pharmacy chat blocked by the proxy allowlist.
+- Q40: app medicine compare sent GET and invented ids.
+
+Mandatory, one commit each:
+
+**Q36 (High) — a slot hold does not protect the slot.**
+- Refuse a booking while another patient holds an unexpired lock on that provider and slot.
+- **Verify:** `tools/live/j_concurrency.py` A–D all pass.
+
+**Q30 (High) — website order tracking 404s for every governed pharmacy order.**
+- Same cause as Q16: it reads the legacy `orders` collection.
+- Track from `pharmacy_orders`, and keep the `?pay=1` hand-off.
+
+**Q38 (High) — app notification switches never save.**
+- The app sends a flat body; the API takes nested `channels` / `categories`. Agree the key mapping with the owner (including marketing consent).
+- Revert the switch and show the error on failure.
+- **Verify:** flip → reload → same state.
+
+**Q45 (Medium) — ambulance profile save always 400.**
+- `contact_phone` and `coverage_cities` are not in the service's `allowed` list.
+
+**Q42 (Medium) — screens offered to roles the API refuses.**
+- `sos_dispatch` (doctor, hospital, home_care) and `hospital_dispatch` answer 403.
+- Show them only where the API allows.
+
+**Q44 (Medium) — provider pharmacy `chronic` calls the retired `/pharmacy/orders/refills` (503).**
+
+**Q37 (Medium, product decision first) — slot list vs 5-minute buffer.**
+- The slot just before any booking is offered but cannot be booked.
+- Use one shared availability function for the list and the booking check.
+
+**Q31 (Medium) — website map lab and hospital cards link to 404.**
+- The map uses provider-profile ids; the detail pages read other collections.
+
+**Q33 (Medium) — services sitemap.**
+- 13,500 URLs; most render the 404 page, and riyadh renders a generic list.
+- Emit only real service × city pairs, and return a real 404 when empty.
+
+**Q41 (Medium, performance) — doctor list N+1 next-availability.**
+- p50 1.1 s at 25 users.
+- **Verify:** p50 ≤ 20 ms at c=1 (`tools/perf/api_load.py`).
+
+**Q39 (Medium) — `@ts-nocheck` in 186 patient-app files.**
+- Remove it file by file, starting with screens that call `apiFetch`, and fail the gate on new ones.
+
+**Q34 + Q43 (Low).**
+- Missing `.catch`; undefined-param calls; profile-image 404 treated as an error.
+
+Still open from earlier rounds, re-confirmed live in this run:
+- **R29:** segments DTO forbids `operator` / `value`.
+- **R17:** theme-control saves without CSRF and shows a fake "saved".
+- **R23:** step-up.
+- **F2:** insurance.

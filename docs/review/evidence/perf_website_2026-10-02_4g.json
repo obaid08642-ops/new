@@ -1,0 +1,36 @@
+{
+ "app": "website",
+ "throttle": "4g",
+ "runs": 1,
+ "note": "Chromium on the review container; not a phone",
+ "routes": {
+  "/ar": {
+   "ttfb_ms": 32,
+   "dcl_ms": 883,
+   "load_ms": 2455,
+   "requests": 60,
+   "transfer_kb": 352,
+   "js_kb": 188,
+   "fcp_ms": 1192,
+   "lcp_ms": 1192,
+   "long_tasks_ms": 487,
+   "api_calls": 0,
+   "api_max_ms": 0,
+   "api_errors": 0
+  },
+  "/ar/doctors": {
+   "ttfb_ms": 185,
+   "dcl_ms": 1115,
+   "load_ms": 2500,
+   "requests": 64,
+   "transfer_kb": 330,
+   "js_kb": 164,
+   "fcp_ms": 1168,
+   "lcp_ms": 1472,
+   "long_tasks_ms": 352,
+   "api_calls": 0,
+   "api_max_ms": 0,
+   "api_errors": 0
+  }
+ }
+}

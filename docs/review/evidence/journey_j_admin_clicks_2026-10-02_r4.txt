@@ -1,0 +1,33 @@
+
+=== admin clicks: login through the browser (2FA)
+  PASS  admin browser login lands on a console page
+
+=== admin: login with email 2FA (admin panel)
+  PASS  credentials -> 202 requires_2fa
+  PASS  2FA code emailed to the admin
+  PASS  verify-2fa -> session
+  PASS  session cookie set (httpOnly)
+  PASS  BFF call with the session (dashboard: command-center)
+  PASS  wrong admin password rejected (401, or 429 once the login throttle trips)
+  PASS  admin device enrolled for the gate run (C2)
+
+=== admin clicks: catalog-manager specialties (create/assert/delete)
+  PASS  specialty created and listed
+  PASS  backend holds the specialty
+
+=== admin clicks: catalog-manager labs (create/approve/delete)
+  PASS  lab item created and listed
+
+=== admin clicks: nursing-portal assign (live data only)
+  PASS  SKIP nursing assign (no assignable bookings)
+
+=== admin clicks: reports CSV/XLSX download
+  PASS  reports csv downloads
+  PASS  reports xlsx downloads
+
+=== admin clicks: medicines-catalog (create/delete)
+  PASS  medicine created and listed
+  PASS  backend holds the medicine
+  PASS  medicine soft-deleted
+
+##### 17/17 steps passed, 0 failed

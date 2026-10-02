@@ -36,9 +36,9 @@ export default async function AddressesPage({ params }: Props) {
   const token = await requirePatientAccess(locale);
   const response = await getPatientAddresses(token);
   if (response.status === 401) redirect(`/${locale}/login`);
-  const addresses = response.ok
-    ? ((await response.json().catch(() => null))?.addresses ?? [])
-    : [];
+  // Q10: GET /users/me/addresses answers a plain array; reading `.addresses` showed an empty list to every patient.
+  const payload = response.ok ? await response.json().catch(() => null) : null;
+  const addresses = Array.isArray(payload) ? payload : (payload?.addresses ?? payload?.data ?? []);
   const isAr = locale === "ar";
 
   return (

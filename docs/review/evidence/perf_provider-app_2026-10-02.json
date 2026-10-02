@@ -1,0 +1,22 @@
+{
+ "app": "provider-app",
+ "throttle": "none (local)",
+ "runs": 3,
+ "note": "Chromium on the review container; not a phone",
+ "routes": {
+  "/": {
+   "ttfb_ms": 6,
+   "dcl_ms": 450,
+   "load_ms": 452,
+   "requests": 9,
+   "transfer_kb": 5909,
+   "js_kb": 5907,
+   "fcp_ms": 496,
+   "lcp_ms": 616,
+   "long_tasks_ms": 302,
+   "api_calls": 4,
+   "api_max_ms": 41,
+   "api_errors": 1
+  }
+ }
+}

@@ -483,13 +483,14 @@ export class SeoSearchService {
   /** Condition slugs for sitemaps. */
   async publicConditionSitemap() {
     const rows = await this.conn.collection('conditions')
-      .find({ is_deleted: { $ne: true } }, { projection: { _id: 0, slug: 1, id: 1, updatedAt: 1 } })
+      .find({ is_deleted: { $ne: true } }, { projection: { _id: 0, slug: 1, code: 1, id: 1, updatedAt: 1 } })
       .limit(5000)
       .toArray();
-    return rows.map((c: any) => ({
-      slug: c.slug || c.id,
-      lastmod: c.updatedAt ? new Date(c.updatedAt).toISOString().slice(0, 10) : undefined,
-    }));
+    // Q17: condition records carry `code` (headache, fever…), which is the public slug /condition/:slug resolves;
+    // reading only slug/id emitted /condition/undefined for every condition in the sitemap.
+    return rows
+      .map((c: any) => ({ slug: c.slug || c.code || c.id, lastmod: c.updatedAt ? new Date(c.updatedAt).toISOString().slice(0, 10) : undefined }))
+      .filter((c: { slug?: string }) => typeof c.slug === 'string' && c.slug.length > 0);
   }
 
   /** Location paths for sitemaps. */

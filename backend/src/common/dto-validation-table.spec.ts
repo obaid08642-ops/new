@@ -168,6 +168,15 @@ function dummyFor(ctor: DtoConstructor, prop: string, depth: number): unknown {
   if (types.has('isMongoId')) return MONGO_ID;
   if (types.has('isDateString')) return new Date().toISOString();
   if (types.has('isEmail')) return 'patient@example.com';
+  if (types.has('matches')) {
+    // @Matches(pattern): use a realistic sample that satisfies the declared pattern (phone, HH:MM, slug, code);
+    // the assertion stays the same, the generator just stops proposing values every pattern rejects.
+    const pattern = argsOf('matches')[0];
+    const re = pattern instanceof RegExp ? pattern : typeof pattern === 'string' ? new RegExp(pattern) : null;
+    const samples = ['+966501234567', '0501234567', '09:00', 'abc-123', 'ABC123', 'abc', 'x'];
+    const hit = re ? samples.find((v) => re.test(v)) : undefined;
+    if (hit !== undefined) return hit;
+  }
   if (types.has('isIn')) {
     const vals = argsOf('isIn')[0];
     if (Array.isArray(vals) && vals.length) return vals[0];
