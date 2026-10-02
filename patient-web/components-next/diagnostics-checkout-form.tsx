@@ -129,6 +129,8 @@ export function DiagnosticsCheckoutForm({
 
       // Clear cart only after payment success (or immediately for cash/insurance)
       await fetch("/api/diagnostics/cart", { method: "DELETE" }).catch(() => null);
+      // The website cart lives in localStorage (diagnostics-cart-client.tsx): clear it too, or the ordered tests stay in the cart.
+      try { localStorage.removeItem("nabd-diagnostics-cart"); } catch { /* storage unavailable */ }
       router.push(`/${locale}/diagnostics/orders/${encodeURIComponent(orderId)}`);
       router.refresh();
     } catch {

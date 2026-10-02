@@ -414,6 +414,18 @@ Add `python3 tools/audit/ctx_props.py` to your gate (exit 0): R58/R59 came from 
 - show the nurse's real requests, read back from the server, separately from the catalog;
 - never append local placeholder items.
 
+**R63 — fixed by the reviewer in this PR (do not revert).** Added the website routes `/api/diagnostics/orders`, `/api/payments/intent/diagnostics` and `DELETE /api/diagnostics/cart`; the checkout also clears the local cart.
+
+**R64 (High)** Diagnostics order (F74):
+- send and store the home-collection address (structured, like the app) and the insurance company;
+- the lab must see the address;
+- keep `location_type`, `payment_method` and each line's `booking_id/price/status` on the parent;
+- the parent stays unconfirmed until paid (card) or approved (insurance);
+- one price field on the child booking.
+- **Verify:** website checkout as home + card; the lab's order screen shows the address and the price.
+
+**R25 (addendum)** `main` itself fails dtolint on `auth/step-up.controller.ts:23` and `payments.module.ts:567` (inline body types, from f2dd8f9/832e84d). Give both real DTOs in your branch.
+
 **R40 (Low)** "Remember me" (تذكرني) on the provider login is written but never read. Implement it or remove it.
 
 **For every item:**
