@@ -1,0 +1,22 @@
+{
+ "app": "patient-app",
+ "throttle": "none (local)",
+ "runs": 3,
+ "note": "Chromium on the review container; not a phone",
+ "routes": {
+  "/": {
+   "ttfb_ms": 4,
+   "dcl_ms": 588,
+   "load_ms": 590,
+   "requests": 16,
+   "transfer_kb": 31440,
+   "js_kb": 15811,
+   "fcp_ms": 1032,
+   "lcp_ms": 0,
+   "long_tasks_ms": 472,
+   "api_calls": 3,
+   "api_max_ms": 22,
+   "api_errors": 1
+  }
+ }
+}

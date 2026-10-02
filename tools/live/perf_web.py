@@ -15,7 +15,7 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 APP = os.environ.get('APP', 'website')
 RUNS = int(os.environ.get('RUNS', '3'))
 THROTTLE = os.environ.get('THROTTLE', '')
-BASE = {'website': 'http://127.0.0.1:3000', 'admin': 'http://127.0.0.1:3001', 'patient-app': 'http://localhost:8081', 'provider-app': 'http://localhost:8082'}[APP]
+BASE = os.environ.get('BASE') or {'website': 'http://127.0.0.1:3000', 'admin': 'http://127.0.0.1:3001', 'patient-app': 'http://localhost:8081', 'provider-app': 'http://localhost:8082'}[APP]
 STATE = os.environ.get('STATE')        # storage_state for signed-in pages
 OBS = """() => { window.__perf = { lcp: 0, fcp: 0, long: 0 };
   new PerformanceObserver(l => { for (const e of l.getEntries()) window.__perf.lcp = Math.max(window.__perf.lcp, e.startTime); }).observe({ type: 'largest-contentful-paint', buffered: true });
