@@ -20,8 +20,6 @@ const AI_REFERRERS = [
   'claude.ai',
 ];
 
-@Controller('admin/ai-referrals')
-@UseGuards(JwtAuthGuard)
 /** F1/R25: real DTO for the AI-referral beacon body. */
 export class AiReferralDto {
   @IsOptional() @IsString() @MaxLength(512) referrer?: string;
@@ -29,6 +27,8 @@ export class AiReferralDto {
   @IsOptional() @IsString() @MaxLength(512) user_agent?: string;
 }
 
+@Controller('admin/ai-referrals')
+@UseGuards(JwtAuthGuard)
 export class AiReferralController {
   constructor(@InjectConnection() private readonly conn: Connection) {}
 
