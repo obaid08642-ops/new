@@ -7,13 +7,15 @@ exception has occurred" and logs the TypeError to the console. web_crawl.py (bef
 these; this sweep checks every page for the error text, console TypeErrors/ReferenceErrors and pageerrors.
 Signed in as the seeded patient (website) or the admin (j_admin.login, reusing LIVE_ADMIN_SESSION when set).
 """
-import datetime, json, os, sys
+import datetime, json, os, re, sys
 
 sys.path.insert(0, os.path.dirname(__file__))
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 APP = os.environ.get('APP', 'website')
 BASE = {'website': 'http://127.0.0.1:3000', 'admin': 'http://127.0.0.1:3001'}[APP]
 CRASH_TEXT = ('Application error', 'client-side exception', 'Unhandled Runtime Error', 'Internal Server Error')
+# rendered (not raw HTML: next-intl ships the 404 text in every page) not-found / unavailable states
+NOT_FOUND = re.compile(r'^\s*404\b|الصفحة غير متاحة|غير متاح حالياً|تعذر تحميل|This page could not be found')
 
 
 def routes():
@@ -50,16 +52,19 @@ def main():
             status = resp.status if resp else None
             page.wait_for_timeout(2500)
             body = page.inner_text('body', timeout=5000)
+            main = page.inner_text('main', timeout=3000) if page.locator('main').count() else body
         except Exception as e:
-            body = ''
+            body = main = ''
             errs.append('load: ' + str(e)[:150])
         crash = [t for t in CRASH_TEXT if t in body]
-        row = {'route': r, 'status': status, 'landed': page.url.replace(BASE, ''), 'crash_text': crash, 'errors': list(dict.fromkeys(errs))[:5]}
+        nf = NOT_FOUND.search(main[:600])
+        row = {'route': r, 'status': status, 'landed': page.url.replace(BASE, ''), 'crash_text': crash, 'errors': list(dict.fromkeys(errs))[:5],
+               'not_found': nf.group(0).strip() if nf else '', 'head': main[:160].replace('\n', ' | ')}
         out.append(row)
-        flag = 'CRASH' if (crash or errs or (status or 0) >= 500) else 'ok'
+        flag = 'CRASH' if (crash or errs or (status or 0) >= 500) else ('NOTFOUND' if row['not_found'] else 'ok')
         print(f'{flag:5s} {r[:50]:50s} {status} {crash or ""} {row["errors"][:1]}', flush=True)
     path = os.path.join(ROOT, 'docs/review/evidence', f'crash_sweep_{APP}_{datetime.date.today().isoformat()}.json')
-    json.dump({'app': APP, 'pages': out, 'crashed': [x['route'] for x in out if x['crash_text'] or x['errors'] or (x['status'] or 0) >= 500]},
+    json.dump({'app': APP, 'pages': out, 'not_found': [x['route'] for x in out if x['not_found']], 'crashed': [x['route'] for x in out if x['crash_text'] or x['errors'] or (x['status'] or 0) >= 500]},
               open(path, 'w'), ensure_ascii=False, indent=1)
     print('crashed:', sum(1 for x in out if x['crash_text'] or x['errors'] or (x['status'] or 0) >= 500), 'of', len(out))
     b.close(); pw.stop()
