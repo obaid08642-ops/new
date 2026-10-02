@@ -124,7 +124,10 @@ export class EventReliabilityService {
   /** Replay a single event by its system-event id. */
   async replayOne(eventId: string) {
     const evt: any = await this.events.findOne({ id: eventId }, { _id: 0, __v: 0 }).lean();
-    if (!evt) return { ok: false, error: 'event_not_found' };
+    if (!evt) {
+      const { NotFoundException } = await import('@nestjs/common');
+      throw new NotFoundException('event_not_found');
+    }
     try {
       await this.bus.emitAsync(evt.type, evt);
       return { ok: true, replayed: evt.type };

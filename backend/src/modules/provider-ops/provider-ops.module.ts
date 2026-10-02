@@ -130,10 +130,14 @@ export class ProviderOpsService {
   }
 
   async cancelLeave(doctorId: string, leaveId: string) {
-    await this.conn.collection('doctor_leaves').updateOne(
+    const res: any = await this.conn.collection('doctor_leaves').updateOne(
       { id: leaveId, doctor_id: doctorId },
       { $set: { status: 'cancelled', updatedAt: new Date() } },
     );
+    if (!res?.modifiedCount) {
+      const { NotFoundException } = await import('@nestjs/common');
+      throw new NotFoundException('leave_not_found');
+    }
     // withdrawn before the facility decided: drop it from the facility queue
     await this.conn.collection('leaverequests').deleteOne({ id: leaveId, provider_account_id: doctorId, status: 'pending' });
     return { ok: true };
@@ -163,7 +167,11 @@ export class ProviderOpsService {
   }
 
   async deleteTemplate(doctorId: string, id: string) {
-    await this.conn.collection('prescription_templates').deleteOne({ id, doctor_id: doctorId });
+    const res: any = await this.conn.collection('prescription_templates').deleteOne({ id, doctor_id: doctorId });
+    if (!res?.deletedCount) {
+      const { NotFoundException } = await import('@nestjs/common');
+      throw new NotFoundException('template_not_found');
+    }
     return { ok: true };
   }
 
@@ -182,6 +190,11 @@ export class ProviderOpsService {
 
   async blacklistPatient(doctorId: string, patientId: string, reason?: string) {
     if (!patientId) throw new BadRequestException('patient_id required');
+    const patient: any = await this.conn.collection('users').findOne({ id: patientId });
+    if (!patient) {
+      const { NotFoundException } = await import('@nestjs/common');
+      throw new NotFoundException('patient_not_found');
+    }
     await this.conn.collection('doctor_blacklist').updateOne(
       { doctor_id: doctorId, patient_id: patientId },
       { $set: { doctor_id: doctorId, patient_id: patientId, reason: reason || null, active: true, createdAt: new Date() } },
@@ -191,10 +204,14 @@ export class ProviderOpsService {
   }
 
   async unblacklistPatient(doctorId: string, patientId: string) {
-    await this.conn.collection('doctor_blacklist').updateOne(
+    const res: any = await this.conn.collection('doctor_blacklist').updateOne(
       { doctor_id: doctorId, patient_id: patientId },
       { $set: { active: false, updatedAt: new Date() } },
     );
+    if (!res?.modifiedCount) {
+      const { NotFoundException } = await import('@nestjs/common');
+      throw new NotFoundException('blacklist_entry_not_found');
+    }
     return { ok: true };
   }
 
@@ -204,6 +221,11 @@ export class ProviderOpsService {
 
   // ═══ DOCTOR: per-patient CRM (tags / notes / vip / favorite) ═══
   async getPatientCrm(doctorId: string, patientId: string): Promise<any> {
+    const patient: any = await this.conn.collection('users').findOne({ id: patientId });
+    if (!patient) {
+      const { NotFoundException } = await import('@nestjs/common');
+      throw new NotFoundException('patient_not_found');
+    }
     const doc: any = await this.conn.collection('doctor_patient_crm').findOne(
       { doctor_id: doctorId, patient_id: patientId },
       { projection: { _id: 0 } },
@@ -212,6 +234,11 @@ export class ProviderOpsService {
   }
 
   async putPatientCrm(doctorId: string, patientId: string, data: any): Promise<any> {
+    const patient: any = await this.conn.collection('users').findOne({ id: patientId });
+    if (!patient) {
+      const { NotFoundException } = await import('@nestjs/common');
+      throw new NotFoundException('patient_not_found');
+    }
     const clean = {
       tags: Array.isArray(data?.tags) ? data.tags.slice(0, 50).map((t: any) => String(t).slice(0, 60)) : [],
       notes: Array.isArray(data?.notes)
