@@ -32,7 +32,9 @@ export class FinanceController {
     private readonly approvals: ApprovalService,
   ) {}
 
-  @Get('commissions')
+  // R36: moved from admin/finance/commissions (dup of enterprise finance suite).
+  // Legacy ledger list for the commissions page.
+  @Get('ledger/commissions')
   async getCommissions() {
     const data = await this.commissionModel.find().exec();
     return { data };

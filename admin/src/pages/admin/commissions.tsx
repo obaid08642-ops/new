@@ -58,7 +58,7 @@ export default function CommissionsPage() {
     try {
       const [s, c] = await Promise.all([
         apiFetch('/api/admin/admin/finance/ledger/summary').catch(() => null),
-        apiFetch('/api/admin/admin/finance/commissions').catch(() => ({ data: [] })),
+        apiFetch('/api/admin/admin/finance/ledger/commissions').catch(() => ({ data: [] })),
       ]);
       setSummary(s);
       setLegacy(c?.data || []);
