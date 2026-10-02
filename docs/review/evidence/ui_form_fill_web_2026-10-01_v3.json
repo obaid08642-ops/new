@@ -1,0 +1,247 @@
+[
+ {
+  "page": "/ar/drug-scanner",
+  "form": "(inline)",
+  "save": "إضافة",
+  "status": "NO_REQUEST",
+  "message_shown": [],
+  "requests": [],
+  "fields": {
+   "اسم الدواء": "NOT_SENT"
+  }
+ },
+ {
+  "page": "/ar/drug-scanner",
+  "form": "إضافة",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "اسم الدواء"
+  ]
+ },
+ {
+  "page": "/ar/forgot-password",
+  "form": "(inline)",
+  "save": "إرسال التعليمات",
+  "status": "SAVED",
+  "message_shown": [
+   "تم طلب التعليمات. تحقق من وسيلة التواصل المسجلة."
+  ],
+  "requests": [
+   {
+    "method": "POST",
+    "url": "/api/auth/password/forgot",
+    "status": 201,
+    "body": "{\"identifier\":\"UFEE0E801\"}"
+   }
+  ],
+  "fields": {
+   "البريد الإلكتروني أو رقم الجوال": "SENT_NOT_STORED"
+  }
+ },
+ {
+  "page": "/ar/health/conditions-allergies",
+  "form": "(inline)",
+  "save": "إضافة",
+  "status": "SAVED",
+  "message_shown": [],
+  "requests": [
+   {
+    "method": "POST",
+    "url": "/api/medical-profile/chronic-diseases",
+    "status": 200,
+    "body": "{\"name\":\"U1C39C501\"}"
+   }
+  ],
+  "fields": {
+   "الاسم": "NOT_SENT"
+  }
+ },
+ {
+  "page": "/ar/health/conditions-allergies",
+  "form": "إضافة",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "الاسم",
+   "الاسم",
+   "الاسم",
+   "الاسم"
+  ]
+ },
+ {
+  "page": "/ar/maternity/maternity-setup",
+  "form": "(inline)",
+  "save": "حفظ الملف",
+  "status": "REJECTED(400)",
+  "message_shown": [
+   "تعذر حفظ الملف"
+  ],
+  "requests": [
+   {
+    "method": "POST",
+    "url": "/api/patient/maternity/profile",
+    "status": 400,
+    "body": "{\"is_pregnant\":false,\"last_period_date\":\"U56636A01\",\"cycle_length\":42,\"is_regular\":true}"
+   }
+  ],
+  "fields": {
+   "2026-01-01": "SENT_NOT_STORED"
+  }
+ },
+ {
+  "page": "/ar/nutrition/body-target",
+  "form": "(inline)",
+  "save": "حفظ الأهداف",
+  "status": "REJECTED(400)",
+  "message_shown": [
+   "تعذر حفظ الأهداف"
+  ],
+  "requests": [
+   {
+    "method": "POST",
+    "url": "/api/patient/nutrition/profile",
+    "status": 400,
+    "body": "{\"goal\":\"healthy\",\"activity_level\":\"moderate\",\"height_cm\":41,\"weight_kg\":42,\"target_weight_kg\":43,\"daily_calorie_target\":44,\"daily_water_target_ml\":45,\"dietary_restrictions\":[\"UAD3E1106\"],\"allergies\":[\"UAD3E1107\"]}"
+   }
+  ],
+  "fields": {
+   "قيود غذائية (افصل بفاصلة)": "SENT_NOT_STORED",
+   "حساسية (افصل بفاصلة)": "SENT_NOT_STORED"
+  }
+ },
+ {
+  "page": "/ar/pharmacy/interactions",
+  "form": "(inline)",
+  "save": "إضافة",
+  "status": "NO_REQUEST",
+  "message_shown": [],
+  "requests": [],
+  "fields": {
+   "اسم الدواء": "NOT_SENT"
+  }
+ },
+ {
+  "page": "/ar/pharmacy/interactions",
+  "form": "إضافة",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "اسم الدواء"
+  ]
+ },
+ {
+  "page": "/ar/profile/addresses",
+  "form": "(inline)",
+  "save": "حفظ العنوان",
+  "status": "REJECTED(404)",
+  "message_shown": [
+   "تعذر الحفظ، حاول مجددًا"
+  ],
+  "requests": [
+   {
+    "method": "POST",
+    "url": "/api/bff/users/me/addresses",
+    "status": 404,
+    "body": "{\"label\":\"UC43E9101\",\"line1\":\"UC43E9102\",\"line2\":\"UC43E9103\",\"city\":\"\",\"district\":\"\",\"region\":\"\",\"notes\":\"UC43E9105\"}"
+   }
+  ],
+  "fields": {
+   "اسم العنوان": "SENT_NOT_STORED",
+   "العنوان (سطر 1)": "SENT_NOT_STORED",
+   "العنوان (سطر 2)": "SENT_NOT_STORED",
+   "ملاحظات": "SENT_NOT_STORED"
+  }
+ },
+ {
+  "page": "/ar/profile/edit",
+  "form": "(inline)",
+  "save": "حفظ",
+  "status": "SAVED",
+  "message_shown": [],
+  "requests": [
+   {
+    "method": "PATCH",
+    "url": "/api/medical-profile",
+    "status": 200,
+    "body": "{\"height_cm\":41,\"weight_kg\":42,\"blood_type\":\"U0FBE820\"}"
+   }
+  ],
+  "fields": {
+   "O+": "NOT_SENT"
+  }
+ },
+ {
+  "page": "/ar/register",
+  "form": "(inline)",
+  "save": "إنشاء الحساب",
+  "status": "NO_REQUEST",
+  "message_shown": [],
+  "requests": [],
+  "fields": {
+   "الاسم الكامل": "NOT_SENT",
+   "البريد الإلكتروني أو رقم الهاتف": "NOT_SENT"
+  }
+ },
+ {
+  "page": "/ar/register",
+  "form": "إنشاء الحساب",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "الاسم الكامل",
+   "البريد الإلكتروني أو رقم الهاتف"
+  ]
+ },
+ {
+  "page": "/ar/settings/feedback",
+  "form": "(inline)",
+  "save": "إرسال",
+  "status": "SAVED",
+  "message_shown": [
+   "وصل اقتراحك للإدارة وسيُطبَّق بعد الاعتماد. شكراً لك."
+  ],
+  "requests": [
+   {
+    "method": "POST",
+    "url": "/api/support/feedback",
+    "status": 200,
+    "body": "{\"rating\":0,\"type\":\"مشكلة\",\"message\":\"U20CF1D02\"}"
+   }
+  ],
+  "fields": {
+   "رسالتك": "SENT_NOT_STORED"
+  }
+ },
+ {
+  "page": "/ar/support",
+  "form": "(inline)",
+  "save": "إرسال الطلب",
+  "status": "SAVED",
+  "message_shown": [
+   "تم إرسال طلبك بنجاح"
+  ],
+  "requests": [
+   {
+    "method": "POST",
+    "url": "/api/patient/support/requests",
+    "status": 201,
+    "body": "{\"subject\":\"UD54E0401\",\"message\":\"UD54E0402\",\"category\":\"GENERAL\"}"
+   }
+  ],
+  "fields": {
+   "موضوع الطلب": "STORED",
+   "اشرح مشكلتك بالتفصيل…": "STORED"
+  }
+ },
+ {
+  "page": "/ar/welcome",
+  "form": "إنشاء حساب",
+  "save": "إنشاء الحساب",
+  "status": "NO_REQUEST",
+  "message_shown": [
+   "إنشاء حساب"
+  ],
+  "requests": [],
+  "fields": {
+   "الاسم الكامل": "NOT_SENT",
+   "البريد الإلكتروني أو رقم الهاتف": "NOT_SENT"
+  }
+ }
+]

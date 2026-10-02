@@ -4,7 +4,7 @@
  "states": [
   {
    "path": [],
-   "heading": "بوابة المزود الموحدة | H | home_care89102019355e6@nabd.test | home",
+   "heading": "تمريض منزلي | نبضة للتمريض | غير متاح | ! | 0 | طلبات جديدة | ◔ | 0 | زيارات",
    "status": "TESTED",
    "render": {
     "js": [],
@@ -20,8 +20,779 @@
      "url": "/provider/ops/availability/toggle-instant",
      "tokens_sent": 0,
      "tokens_stored": 0
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "المحفظة",
+     "result": "NAVIGATE",
+     "to": "→ | المحفظة والإيرادات | الرصيد المتاح للسحب"
+    },
+    {
+     "label": "تسجيل",
+     "result": "NAVIGATE",
+     "to": "→ | تتبع الرحلة والوصول | — | — | — | بانتظار بدء "
+    },
+    {
+     "label": "قائمة",
+     "result": "JS_ERROR",
+     "error": "x.filter is not a function"
+    },
+    {
+     "label": "خطة",
+     "result": "NAVIGATE",
+     "to": "→ | خطة الرعاية المستمرة | — | — | مريض مزمن | خطط"
+    },
+    {
+     "label": "ملاحظات",
+     "result": "NAVIGATE",
+     "to": "→ | ملاحظات يومية | — | — | إضافة ملاحظة جديدة | ا"
+    },
+    {
+     "label": "تقرير",
+     "result": "NAVIGATE",
+     "to": "→ | تقرير الزيارة والعلامات الحيوية | — | — | ٢٠"
+    },
+    {
+     "label": "مستلزمات",
+     "result": "JS_ERROR",
+     "error": "h.filter is not a function"
+    },
+    {
+     "label": "الرئيسية",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الطلبات",
+     "result": "NAVIGATE",
+     "to": "الطلبات | طلبات جديدة | مؤكدة | document | لا تو"
+    },
+    {
+     "label": "الوظائف",
+     "result": "NAVIGATE",
+     "to": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | "
+    },
+    {
+     "label": "الأدوية",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "الإعدادات",
+     "result": "NAVIGATE",
+     "to": "الإعدادات | نبضة للتمريض | نشط | الملف الشخصي | "
     }
    ]
+  },
+  {
+   "path": [
+    "المحفظة"
+   ],
+   "heading": "→ | المحفظة والإيرادات | الرصيد المتاح للسحب | 0 ريال | طلب سحب | tren",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "تمريض منزلي | نبضة للتمريض | غير متاح | ! | 0 | طل"
+    },
+    {
+     "label": "طلب سحب",
+     "result": "NO_EFFECT"
+    }
+   ]
+  },
+  {
+   "path": [
+    "تسجيل"
+   ],
+   "heading": "→ | تتبع الرحلة والوصول | — | — | — | بانتظار بدء الرحلة | يتم تحديث موق",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "تمريض منزلي | نبضة للتمريض | غير متاح | ! | 0 | طل"
+    },
+    {
+     "label": "بدء الرحلة (Start Trip)",
+     "result": "NO_EFFECT"
+    }
+   ]
+  },
+  {
+   "path": [
+    "خطة"
+   ],
+   "heading": "→ | خطة الرعاية المستمرة | — | — | مريض مزمن | خطط الرعاية | لا توجد خطط",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "تمريض منزلي | نبضة للتمريض | غير متاح | ! | 0 | طل"
+    },
+    {
+     "label": "عنوان الخطة",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "المهام (سطر لكل مهمة)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "إنشاء الخطة",
+     "result": "UI_CHANGE"
+    }
+   ]
+  },
+  {
+   "path": [
+    "ملاحظات"
+   ],
+   "heading": "→ | ملاحظات يومية | — | — | إضافة ملاحظة جديدة | العلامات الحيوية | الضغ",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 6,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "تمريض منزلي | نبضة للتمريض | غير متاح | ! | 0 | طل"
+    },
+    {
+     "label": "الضغط",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "النبض",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الحرارة",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "SpO2",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "السكر",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الملاحظات السريرية",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "حفظ الملاحظة",
+     "result": "UI_CHANGE"
+    }
+   ]
+  },
+  {
+   "path": [
+    "تقرير"
+   ],
+   "heading": "→ | تقرير الزيارة والعلامات الحيوية | — | — | ٢٠‏/٤‏/١٤٤٨ هـ | تسجيل ا",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 6,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "تمريض منزلي | نبضة للتمريض | غير متاح | ! | 0 | طل"
+    },
+    {
+     "label": "ضغط الدم (BP)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "مستوى السكر (Glucose)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "درجة الحرارة (Temp)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "النبض (Pulse)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "ملخص الزيارة *",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "التوصيات والمتابعة",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "انقر هنا لتوقيع المريض",
+     "result": "NAVIGATE",
+     "to": "→ | تقرير الزيارة والعلامات الحيوية | — | — | ٢٠"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الطلبات"
+   ],
+   "heading": "الطلبات | طلبات جديدة | مؤكدة | document | لا توجد طلبات | الرئيسية | ال",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "طلبات جديدة",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "مؤكدة",
+     "result": "NAVIGATE",
+     "to": "الطلبات | طلبات جديدة | مؤكدة | calendar | لا يو"
+    },
+    {
+     "label": "الرئيسية",
+     "result": "NAVIGATE",
+     "to": "تمريض منزلي | نبضة للتمريض | غير متاح | ! | 0 | طل"
+    },
+    {
+     "label": "الطلبات",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الوظائف",
+     "result": "NAVIGATE",
+     "to": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | "
+    },
+    {
+     "label": "الأدوية",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "الإعدادات",
+     "result": "NAVIGATE",
+     "to": "الإعدادات | نبضة للتمريض | نشط | الملف الشخصي | "
+    }
+   ]
+  },
+  {
+   "path": [
+    "الوظائف"
+   ],
+   "heading": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | الوارد (ATS) | الرئيسي",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "تمريض منزلي | نبضة للتمريض | غير متاح | ! | 0 | طل"
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NAVIGATE",
+     "to": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | "
+    },
+    {
+     "label": "تصفح الوظائف",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "إضافة إعلان",
+     "result": "NAVIGATE",
+     "to": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | "
+    },
+    {
+     "label": "الوارد (ATS)",
+     "result": "UI_CHANGE"
+    },
+    {
+     "label": "(icon #5)",
+     "result": "NAVIGATE",
+     "to": "تمريض منزلي | نبضة للتمريض | غير متاح | ! | 0 | طل"
+    },
+    {
+     "label": "الرئيسية",
+     "result": "NAVIGATE",
+     "to": "تمريض منزلي | نبضة للتمريض | غير متاح | ! | 0 | طل"
+    },
+    {
+     "label": "الطلبات",
+     "result": "NAVIGATE",
+     "to": "الطلبات | طلبات جديدة | مؤكدة | document | لا تو"
+    },
+    {
+     "label": "الوظائف",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الأدوية",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "الإعدادات",
+     "result": "NAVIGATE",
+     "to": "الإعدادات | نبضة للتمريض | نشط | الملف الشخصي | "
+    }
+   ]
+  },
+  {
+   "path": [
+    "الأدوية"
+   ],
+   "heading": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A10 (2) | category-2070",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "تمريض منزلي | نبضة للتمريض | غير متاح | ! | 0 | طل"
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الكل",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "pain (8)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "UE3C96A10 (2)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "category-20703 (1)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "UE3C96A04",
+     "result": "JS_ERROR",
+     "error": "Cannot read properties of undefined (reading 'map')"
+    },
+    {
+     "label": "name_ar-20700",
+     "result": "JS_ERROR",
+     "error": "Cannot read properties of undefined (reading 'map')"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 18f732",
+     "result": "JS_ERROR",
+     "error": "Cannot read properties of undefined (reading 'map')"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 730a68",
+     "result": "JS_ERROR",
+     "error": "Cannot read properties of undefined (reading 'map')"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 81b23b",
+     "result": "JS_ERROR",
+     "error": "Cannot read properties of undefined (reading 'map')"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ a33d6a",
+     "result": "JS_ERROR",
+     "error": "Cannot read properties of undefined (reading 'map')"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 2dfd4a",
+     "result": "JS_ERROR",
+     "error": "Cannot read properties of undefined (reading 'map')"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 874ed2",
+     "result": "JS_ERROR",
+     "error": "Cannot read properties of undefined (reading 'map')"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ bca0db",
+     "result": "JS_ERROR",
+     "error": "Cannot read properties of undefined (reading 'map')"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ fc3790",
+     "result": "JS_ERROR",
+     "error": "Cannot read properties of undefined (reading 'map')"
+    },
+    {
+     "label": "الرئيسية",
+     "result": "NAVIGATE",
+     "to": "تمريض منزلي | نبضة للتمريض | غير متاح | ! | 0 | طل"
+    },
+    {
+     "label": "الطلبات",
+     "result": "NAVIGATE",
+     "to": "الطلبات | طلبات جديدة | مؤكدة | document | لا تو"
+    },
+    {
+     "label": "الوظائف",
+     "result": "NAVIGATE",
+     "to": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | "
+    },
+    {
+     "label": "الأدوية",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الإعدادات",
+     "result": "NAVIGATE",
+     "to": "الإعدادات | نبضة للتمريض | نشط | الملف الشخصي | "
+    }
+   ]
+  },
+  {
+   "path": [
+    "الإعدادات"
+   ],
+   "heading": "الإعدادات | نبضة للتمريض | نشط | الملف الشخصي | معلومات الحساب | ‹ | الخ",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 3,
+   "elements": [
+    {
+     "label": "معلومات الحساب",
+     "result": "NAVIGATE",
+     "to": "→ | معلومات الحساب | H |  لتحسين مظهر البروفاي"
+    },
+    {
+     "label": "الخدمات المقدمة",
+     "result": "NAVIGATE",
+     "to": "→ | الخدمات المقدمة والمستلزمات | تنبيه المس"
+    },
+    {
+     "label": "نموذج التسعير",
+     "result": "NAVIGATE",
+     "to": "→ | إعدادات نموذج التسعير للتمريض | حدد باقا"
+    },
+    {
+     "label": "نطاق التغطية",
+     "result": "NAVIGATE",
+     "to": "→ | نطاق تغطية خدمة التمريض | 15 KM | التحقق م"
+    },
+    {
+     "label": "مواعيد العمل",
+     "result": "NAVIGATE",
+     "to": "→ | مواعيد العمل | الورديات (SHIFTS) | الفترة "
+    },
+    {
+     "label": "التأمين الصحي",
+     "result": "NAVIGATE",
+     "to": "→ | التأمين الصحي | حدد شركات التأمين المقبو"
+    },
+    {
+     "label": "طلبات التأمين الواردة",
+     "result": "NAVIGATE",
+     "to": "→ | طلبات التأمين | مراجعة يدوية قبل تقديم ا"
+    },
+    {
+     "label": "الشهادات والمؤهلات",
+     "result": "NAVIGATE",
+     "to": "→ | الشهادات والمؤهلات | المستندات الرسمية ا"
+    },
+    {
+     "label": "الصور والوسائط",
+     "result": "NAVIGATE",
+     "to": "→ | الصور والوسائط | الصور المعروضة في صفحتك"
+    },
+    {
+     "label": "إعدادات الصفحة العامة",
+     "result": "NAVIGATE",
+     "to": "→ | موقع مزود الخدمة العام | تفعيل الصفحة ال"
+    },
+    {
+     "label": "الاشتراكات والإعلانات",
+     "result": "NAVIGATE",
+     "to": "→ | الاشتراكات والترويج المدفوع | الباقة الح"
+    },
+    {
+     "label": "مستوى السمعة والتقييمات",
+     "result": "NAVIGATE",
+     "to": "→ | لوحة السمعة والتقييمات | star | لا توجد تق"
+    },
+    {
+     "label": "مراقبة حالات الطوارئ",
+     "result": "NAVIGATE",
+     "to": "→ | منصة الاستغاثة والطوارئ | هل تواجه حالة "
+    },
+    {
+     "label": "وحدة تتبع زيارات التمريض (GPS)",
+     "result": "NAVIGATE",
+     "to": "→ | Nurse Visit Console | Start Checklist"
+    },
+    {
+     "label": "قائمة مهام العلامات الحيوية والرعاية",
+     "result": "NAVIGATE",
+     "to": "→ | قائمة مهام التمريض | checklist | لا توجد م"
+    },
+    {
+     "label": "(icon #15)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "(icon #16)",
+     "result": "NAVIGATE",
+     "to": "Settings | Nabdah Nursing | Active | PROFILE | A"
+    },
+    {
+     "label": "(icon #17)",
+     "result": "TAP_FAILED",
+     "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiti"
+    },
+    {
+     "label": "الإشعارات",
+     "result": "TAP_FAILED",
+     "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiti"
+    },
+    {
+     "label": "الوظائف الطبية",
+     "result": "TAP_FAILED",
+     "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiti"
+    },
+    {
+     "label": "دليل الأدوية الطبي",
+     "result": "TAP_FAILED",
+     "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiti"
+    },
+    {
+     "label": "تغيير كلمة المرور",
+     "result": "TAP_FAILED",
+     "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiti"
+    }
+   ]
+  },
+  {
+   "path": [
+    "تقرير",
+    "انقر هنا لتوقيع المريض"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الطلبات",
+    "مؤكدة"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الوظائف",
+    "(icon #1)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الوظائف",
+    "إضافة إعلان"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الأدوية",
+    "pain (8)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الأدوية",
+    "UE3C96A10 (2)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الأدوية",
+    "category-20703 (1)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "معلومات الحساب"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "الخدمات المقدمة"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "نموذج التسعير"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "نطاق التغطية"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "مواعيد العمل"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "التأمين الصحي"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "طلبات التأمين الواردة"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "الشهادات والمؤهلات"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "الصور والوسائط"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "إعدادات الصفحة العامة"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "الاشتراكات والإعلانات"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "مستوى السمعة والتقييمات"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "مراقبة حالات الطوارئ"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "وحدة تتبع زيارات التمريض (GPS)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "قائمة مهام العلامات الحيوية والرعاية"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "(icon #16)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
   }
  ],
  "unvisited_states": 0

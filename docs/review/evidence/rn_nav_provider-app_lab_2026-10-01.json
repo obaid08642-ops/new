@@ -22,7 +22,7 @@
      "tokens_stored": 0
     },
     {
-     "label": "",
+     "label": "(icon #1)",
      "result": "NO_EFFECT"
     },
     {
@@ -92,7 +92,7 @@
     {
      "label": "الأدوية",
      "result": "NAVIGATE",
-     "to": "دليل الأدوية الطبي | الكل | UE3C96A10 (2) | ca"
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
     },
     {
      "label": "الإعدادات",
@@ -137,7 +137,7 @@
    "inputs_filled": 0,
    "elements": [
     {
-     "label": "",
+     "label": "(icon #0)",
      "result": "NAVIGATE",
      "to": "معمل تحاليل | معمل نبضة الطبي | غير متاح | ⊥ | 0"
     },
@@ -223,6 +223,588 @@
      "to": "معمل تحاليل | معمل نبضة الطبي | غير متاح | ⊥ | 0"
     }
    ]
+  },
+  {
+   "path": [
+    "فحص مخصص"
+   ],
+   "heading": "→ | إضافة فحص مخصص | الفحوصات المخصصة تنتظر موافقة إدارة نبضة بل",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 8,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "معمل تحاليل | معمل نبضة الطبي | غير متاح | ⊥ | 0"
+    },
+    {
+     "label": "اسم الفحص بالعربي *",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "اسم الفحص بالإنجليزي *",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "السعر *",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "وقت النتيجة (ساعة)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الحد الأدنى",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الحد الأعلى",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الوحدة",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "(icon #8)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "إرسال للمراجعة والموافقة",
+     "result": "WRITE",
+     "status": 400,
+     "method": "POST",
+     "url": "/approval-workflow/requests",
+     "tokens_sent": 3,
+     "tokens_stored": 0
+    }
+   ]
+  },
+  {
+   "path": [
+    "مطالبات تأمين"
+   ],
+   "heading": "→ | مطالبات التأمين | ◔ | 0 | انتظار | 0 | معالجة | لا توجد مطالبات تأمين",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "معمل تحاليل | معمل نبضة الطبي | غير متاح | ⊥ | 0"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الطلبات"
+   ],
+   "heading": "الطلبات والمختبر | الواردة | الجدولة والسحب | التحليل والعينات | الن",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الواردة",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الجدولة والسحب",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "التحليل والعينات",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "النتائج",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الرئيسية",
+     "result": "NAVIGATE",
+     "to": "معمل تحاليل | معمل نبضة الطبي | غير متاح | ⊥ | 0"
+    },
+    {
+     "label": "الطلبات",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الوظائف",
+     "result": "NAVIGATE",
+     "to": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | "
+    },
+    {
+     "label": "الأدوية",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "الإعدادات",
+     "result": "NAVIGATE",
+     "to": "الإعدادات | معمل نبضة الطبي | نشط | إدارة المخ"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الوظائف"
+   ],
+   "heading": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | الوارد (ATS) | الرئيسي",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "معمل تحاليل | معمل نبضة الطبي | غير متاح | ⊥ | 0"
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NAVIGATE",
+     "to": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | "
+    },
+    {
+     "label": "تصفح الوظائف",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "إضافة إعلان",
+     "result": "NAVIGATE",
+     "to": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | "
+    },
+    {
+     "label": "الوارد (ATS)",
+     "result": "UI_CHANGE"
+    },
+    {
+     "label": "(icon #5)",
+     "result": "NAVIGATE",
+     "to": "معمل تحاليل | معمل نبضة الطبي | غير متاح | ⊥ | 0"
+    },
+    {
+     "label": "الرئيسية",
+     "result": "NAVIGATE",
+     "to": "معمل تحاليل | معمل نبضة الطبي | غير متاح | ⊥ | 0"
+    },
+    {
+     "label": "الطلبات",
+     "result": "NAVIGATE",
+     "to": "الطلبات والمختبر | الواردة | الجدولة والسحب | "
+    },
+    {
+     "label": "الوظائف",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الأدوية",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "الإعدادات",
+     "result": "NAVIGATE",
+     "to": "الإعدادات | معمل نبضة الطبي | نشط | إدارة المخ"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الأدوية"
+   ],
+   "heading": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A10 (2) | category-2070",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "معمل تحاليل | معمل نبضة الطبي | غير متاح | ⊥ | 0"
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الكل",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "pain (8)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "UE3C96A10 (2)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "category-20703 (1)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "UE3C96A04",
+     "result": "JS_ERROR",
+     "error": "Cannot read properties of undefined (reading 'map')"
+    },
+    {
+     "label": "name_ar-20700",
+     "result": "JS_ERROR",
+     "error": "Cannot read properties of undefined (reading 'map')"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 18f732",
+     "result": "JS_ERROR",
+     "error": "Cannot read properties of undefined (reading 'map')"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 730a68",
+     "result": "JS_ERROR",
+     "error": "Cannot read properties of undefined (reading 'map')"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 81b23b",
+     "result": "JS_ERROR",
+     "error": "Cannot read properties of undefined (reading 'map')"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ a33d6a",
+     "result": "JS_ERROR",
+     "error": "Cannot read properties of undefined (reading 'map')"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 2dfd4a",
+     "result": "JS_ERROR",
+     "error": "Cannot read properties of undefined (reading 'map')"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 874ed2",
+     "result": "JS_ERROR",
+     "error": "Cannot read properties of undefined (reading 'map')"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ bca0db",
+     "result": "JS_ERROR",
+     "error": "Cannot read properties of undefined (reading 'map')"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ fc3790",
+     "result": "JS_ERROR",
+     "error": "Cannot read properties of undefined (reading 'map')"
+    },
+    {
+     "label": "الرئيسية",
+     "result": "NAVIGATE",
+     "to": "معمل تحاليل | معمل نبضة الطبي | غير متاح | ⊥ | 0"
+    },
+    {
+     "label": "الطلبات",
+     "result": "NAVIGATE",
+     "to": "الطلبات والمختبر | الواردة | الجدولة والسحب | "
+    },
+    {
+     "label": "الوظائف",
+     "result": "NAVIGATE",
+     "to": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | "
+    },
+    {
+     "label": "الأدوية",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الإعدادات",
+     "result": "NAVIGATE",
+     "to": "الإعدادات | معمل نبضة الطبي | نشط | إدارة المخ"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الإعدادات"
+   ],
+   "heading": "الإعدادات | معمل نبضة الطبي | نشط | إدارة المختبر | قائمة التحاليل و",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 3,
+   "elements": [
+    {
+     "label": "قائمة التحاليل والأسعار",
+     "result": "NAVIGATE",
+     "to": "→ | التحاليل والأسعار | التحاليل المتاحة | + إ"
+    },
+    {
+     "label": "إدارة الحزم",
+     "result": "NAVIGATE",
+     "to": "→ | كتالوج الفحوصات والباقات | 🧪 | لا توجد فحو"
+    },
+    {
+     "label": "إعدادات الخدمة المنزلية",
+     "result": "NAVIGATE",
+     "to": "→ | نطاق خدمة سحب العينات المنزلي | 📍 | لم تُح"
+    },
+    {
+     "label": "مواعيد العمل",
+     "result": "NAVIGATE",
+     "to": "→ | إدارة أوقات العمل | الأحد | مغلق | الإثنين | م"
+    },
+    {
+     "label": "إعدادات التأمين",
+     "result": "NAVIGATE",
+     "to": "→ | التأمين الصحي | حدد شركات التأمين المقبو"
+    },
+    {
+     "label": "طلبات التأمين الواردة",
+     "result": "NAVIGATE",
+     "to": "→ | طلبات التأمين | مراجعة يدوية قبل تقديم ا"
+    },
+    {
+     "label": "الرخص والمستندات الرسمية",
+     "result": "NAVIGATE",
+     "to": "→ | الشهادات والمؤهلات | المستندات الرسمية ا"
+    },
+    {
+     "label": "الصور والوسائط",
+     "result": "NAVIGATE",
+     "to": "→ | الصور والوسائط | الصور المعروضة في صفحتك"
+    },
+    {
+     "label": "مركز العروض الترويجية",
+     "result": "NAVIGATE",
+     "to": "مركز العروض الترويجية | العروض النشطة والم"
+    },
+    {
+     "label": "إعدادات الصفحة العامة",
+     "result": "NAVIGATE",
+     "to": "→ | موقع مزود الخدمة العام | تفعيل الصفحة ال"
+    },
+    {
+     "label": "مستوى السمعة والتقييمات",
+     "result": "NAVIGATE",
+     "to": "→ | لوحة السمعة والتقييمات | star | لا توجد تق"
+    },
+    {
+     "label": "إدارة العملاء والأرباح",
+     "result": "NAVIGATE",
+     "to": "→ | ذكاء الأعمال وإدارة العملاء | 0 | مرضى مسج"
+    },
+    {
+     "label": "ماسح باركود العينات (Vial)",
+     "result": "NAVIGATE",
+     "to": "→ | ماسح العينات (باركود) | أدخل رقم الباركو"
+    },
+    {
+     "label": "(icon #13)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "(icon #14)",
+     "result": "NAVIGATE",
+     "to": "Settings | Nabdah Medical Lab | Active | LAB M"
+    },
+    {
+     "label": "(icon #15)",
+     "result": "TAP_FAILED",
+     "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiti"
+    },
+    {
+     "label": "الوظائف الطبية",
+     "result": "TAP_FAILED",
+     "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiti"
+    },
+    {
+     "label": "دليل الأدوية الطبي",
+     "result": "TAP_FAILED",
+     "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiti"
+    },
+    {
+     "label": "تغيير كلمة المرور",
+     "result": "TAP_FAILED",
+     "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiti"
+    },
+    {
+     "label": "التحقق الثنائي",
+     "result": "TAP_FAILED",
+     "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiti"
+    },
+    {
+     "label": "الأجهزة",
+     "result": "TAP_FAILED",
+     "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiti"
+    },
+    {
+     "label": "تسجيل الخروج",
+     "result": "SKIPPED_DESTRUCTIVE"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الوظائف",
+    "(icon #1)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الوظائف",
+    "إضافة إعلان"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الأدوية",
+    "pain (8)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الأدوية",
+    "UE3C96A10 (2)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الأدوية",
+    "category-20703 (1)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "قائمة التحاليل والأسعار"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "إعدادات الخدمة المنزلية"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "مواعيد العمل"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "إعدادات التأمين"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "طلبات التأمين الواردة"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "الرخص والمستندات الرسمية"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "الصور والوسائط"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "مركز العروض الترويجية"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "إعدادات الصفحة العامة"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "مستوى السمعة والتقييمات"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "إدارة العملاء والأرباح"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "ماسح باركود العينات (Vial)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "(icon #14)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
   }
- ]
+ ],
+ "unvisited_states": 0
 }

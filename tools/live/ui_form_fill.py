@@ -138,7 +138,8 @@ def main():
     page.set_default_timeout(5000)
     login(page)
     writes = []
-    page.on('requestfinished', lambda r: writes.append(r) if r.method in ('POST', 'PUT', 'PATCH', 'DELETE') and '/api/' in r.url and 'heartbeat' not in r.url else None)
+    # 'response' (not 'requestfinished', which did not fire for some fetches: false NO_REQUEST results)
+    page.on('response', lambda resp: writes.append(resp.request) if resp.request.method in ('POST', 'PUT', 'PATCH', 'DELETE') and '/api/' in resp.url and 'heartbeat' not in resp.url else None)
     page.on('dialog', lambda d: d.accept('سبب اختبار تلقائي') if d.type == 'prompt' else d.accept())
     report = []
     start = os.environ.get('START', '')

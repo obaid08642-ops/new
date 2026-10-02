@@ -13,6 +13,15 @@
    "inputs_filled": 1,
    "elements": [
     {
+     "label": "(icon #0)",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/provider/ops/availability/toggle-instant",
+     "tokens_sent": 0,
+     "tokens_stored": 0
+    },
+    {
      "label": "الطلبات",
      "result": "NO_EFFECT"
     },
@@ -176,32 +185,60 @@
      "to": "→ | قرارات التأمين — الصيدلية | سجّل رد شركة"
     },
     {
-     "label": "حفظ إعدادات الصيدلية",
+     "label": "(icon #5)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "(icon #6)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "(icon #7)",
      "result": "WRITE",
-     "status": 201,
-     "method": "POST",
-     "url": "/provider/settings/delta",
+     "status": 200,
+     "method": "PUT",
+     "url": "/provider/pharmacy/inventory-tracking",
      "tokens_sent": 0,
      "tokens_stored": 0
     },
     {
-     "label": "الطلبات",
+     "label": "(icon #8)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "(icon #9)",
      "result": "NAVIGATE",
-     "to": "الرادار المباشر |  غير متصل | moon | أنت غير م"
+     "to": "← | Pharmacy Settings | DELIVERY OPTIONS | Del"
+    },
+    {
+     "label": "(icon #10)",
+     "result": "TAP_FAILED",
+     "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiti"
+    },
+    {
+     "label": "حفظ إعدادات الصيدلية",
+     "result": "TAP_FAILED",
+     "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiti"
+    },
+    {
+     "label": "الطلبات",
+     "result": "TAP_FAILED",
+     "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiti"
     },
     {
      "label": "النواقص",
-     "result": "NAVIGATE",
-     "to": "→ | المستودع والإمداد | طلب توريد (B2B) | المر"
+     "result": "TAP_FAILED",
+     "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiti"
     },
     {
      "label": "التوصيل",
-     "result": "NAVIGATE",
-     "to": "→ | التوصيل والتسليم | moon | لا توجد طلبات | ست"
+     "result": "TAP_FAILED",
+     "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiti"
     },
     {
      "label": "الإعدادات",
-     "result": "NO_EFFECT"
+     "result": "TAP_FAILED",
+     "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiti"
     }
    ]
   },
@@ -210,48 +247,41 @@
     "النواقص",
     "المرتجعات (Returns)"
    ],
-   "heading": "→ | المستودع والإمداد | طلب توريد (B2B) | المرتجعات (Returns) | مرتج",
-   "status": "TESTED",
-   "render": {
-    "js": [],
-    "bad_reads": []
-   },
-   "inputs_filled": 0,
-   "elements": [
-    {
-     "label": "→",
-     "result": "NAVIGATE",
-     "to": "الرادار المباشر |  غير متصل | moon | أنت غير م"
-    },
-    {
-     "label": "طلب توريد (B2B)",
-     "result": "NAVIGATE",
-     "to": "→ | المستودع والإمداد | طلب توريد (B2B) | المر"
-    },
-    {
-     "label": "المرتجعات (Returns)",
-     "result": "NO_EFFECT"
-    },
-    {
-     "label": "الطلبات",
-     "result": "NAVIGATE",
-     "to": "الرادار المباشر |  غير متصل | moon | أنت غير م"
-    },
-    {
-     "label": "النواقص",
-     "result": "NO_EFFECT"
-    },
-    {
-     "label": "التوصيل",
-     "result": "NAVIGATE",
-     "to": "→ | التوصيل والتسليم | moon | لا توجد طلبات | ست"
-    },
-    {
-     "label": "الإعدادات",
-     "result": "NAVIGATE",
-     "to": "→ | إعدادات الصيدلية | خيارات التوصيل | نطاق ا"
-    }
-   ]
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "النواقص",
+    "صوت"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "النواقص",
+    "تصوير الرف"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "طلبات التأمين الواردة (قرار يدوي)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "(icon #9)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
   }
- ]
+ ],
+ "unvisited_states": 0
 }

@@ -389,6 +389,31 @@ Details are in `docs/review/AUDIT_2026-10-01.md` §6.
 - style the form;
 - name the rejected field in server errors.
 
+**R54 (High)** Website addresses:
+- route the form through a real handler (`lib/api/addresses-server.ts` already exists);
+- use the backend fields `street/building/floor/notes/lat/lng`, with a map pin like the app;
+- never treat 405 as success.
+- **Verify:** add an address on the website, reopen, delete it; the app shows the same list.
+
+**R55 (High)** `POST /support/feedback` must store the rating/type/message (with a DTO) where the admin can read it, and the admin must have a screen for it. Remove the fake "thank you".
+- **Verify:** submit from the app and from the website; the admin sees both texts.
+
+**R56 (Medium)** `blood_type` must be one of A+/A-/B+/B-/AB+/AB-/O+/O- in the backend DTO and the website schema.
+
+**R57 (Low)** The app address list must not show `city` (not in the model), or the model must add it end to end.
+
+**R58, R59, R60, R62 — fixed by the reviewer in this PR (do not revert).** These were provider-app crashes:
+- drug suggest-change form;
+- doctor availability exceptions;
+- nursing checklist and supplies;
+- lab home-collection tile.
+
+Add `python3 tools/audit/ctx_props.py` to your gate (exit 0): R58/R59 came from the P9 screen split.
+
+**R61 (Medium)** Nursing supplies:
+- show the nurse's real requests, read back from the server, separately from the catalog;
+- never append local placeholder items.
+
 **R40 (Low)** "Remember me" (تذكرني) on the provider login is written but never read. Implement it or remove it.
 
 **For every item:**
