@@ -48,13 +48,22 @@ export class CareService {
       { $group: { _id: '$specialty', count: { $sum: 1 } } },
     ]);
     const liveMap = new Map<string, number>(live.map((x) => [x._id, x.count]));
-    return SPECIALTY_MASTER.map((s) => {
+    // R11: read admin-managed specialties collection (not hard-coded SPECIALTY_MASTER).
+    // An admin-added specialty reaches patients immediately.
+    let catalog: any[] = [];
+    try {
+      catalog = await (this.providerModel as any).db?.collection('specialties')
+        ?.find({ active: { $ne: false } }, { projection: { _id: 0 } }).toArray() || [];
+    } catch { catalog = []; }
+    const source = catalog.length > 0 ? catalog : SPECIALTY_MASTER;
+    return source.map((s: any) => {
       // Profiles store the canonical specialty slug; Arabic/English fallbacks
       // retain compatibility with older imported records without counting
       // unpublished providers.
-      const publishedProviderCount = liveMap.get(s.slug) || liveMap.get(s.name_ar) || liveMap.get(s.name_en) || 0;
+      const slug = s.slug || s.code;
+      const publishedProviderCount = liveMap.get(slug) || liveMap.get(s.name_ar) || liveMap.get(s.name_en) || 0;
       return {
-        slug: s.slug,
+        slug,
         specialty: s.name_ar,
         name_ar: s.name_ar,
         name_en: s.name_en,
@@ -64,13 +73,23 @@ export class CareService {
     });
   }
 
-  /** ===== Insurance companies ===== */
-  insuranceCompanies() {
+  /** ===== Insurance companies — R11: read admin-managed DB, not hard-coded ===== */
+  async insuranceCompanies() {
+    try {
+      const rows: any[] = await (this.providerModel as any).db?.collection('insurance_companies')
+        ?.find({ active: { $ne: false } }, { projection: { _id: 0 } }).toArray() || [];
+      if (rows.length > 0) return rows;
+    } catch { /* fall back to constant */ }
     return INSURANCE_COMPANIES.map((slug) => ({ slug }));
   }
 
-  /** ===== Academic degrees ===== */
-  academicDegrees() {
+  /** ===== Academic degrees — R11: read DB if present, else constant ===== */
+  async academicDegrees() {
+    try {
+      const rows: any[] = await (this.providerModel as any).db?.collection('academic_degrees')
+        ?.find({ active: { $ne: false } }, { projection: { _id: 0 } }).toArray() || [];
+      if (rows.length > 0) return rows;
+    } catch { /* fall back */ }
     return ACADEMIC_DEGREES_LIST.map((slug) => ({ slug }));
   }
 
