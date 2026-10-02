@@ -3,7 +3,7 @@ import { Model } from 'mongoose';
 import { ProviderProfile, ProviderProfileDocument } from '../../schemas/provider-profile.schema';
 import { User, UserDocument } from '../../schemas/user.schema';
 import { Facility, FacilityDocument } from '../../schemas/facility.schema';
-import { ProviderType, ProviderStatus, SPECIALTY_MASTER, INSURANCE_COMPANIES, ACADEMIC_DEGREES_LIST } from '../../common/enums';
+import { ProviderType, ProviderStatus } from '../../common/enums';
 import { SlotService } from './slot.service';
 import { ProviderProfileRepository } from "./repositories/providerprofile.repository";
 import { UserRepository } from "./repositories/user.repository";
@@ -48,14 +48,14 @@ export class CareService {
       { $group: { _id: '$specialty', count: { $sum: 1 } } },
     ]);
     const liveMap = new Map<string, number>(live.map((x) => [x._id, x.count]));
-    // R11: read admin-managed specialties collection (not hard-coded SPECIALTY_MASTER).
-    // An admin-added specialty reaches patients immediately.
-    let catalog: any[] = [];
+    // F9/R11: the admin-managed specialties collection is the single source.
+    // The hard-coded SPECIALTY_MASTER fallback is gone: an admin-added specialty
+    // reaches patients, and a removed one disappears.
+    let source: any[] = [];
     try {
-      catalog = await (this.providerModel as any).db?.collection('specialties')
+      source = await (this.providerModel as any).db?.collection('specialties')
         ?.find({ active: { $ne: false } }, { projection: { _id: 0 } }).toArray() || [];
-    } catch { catalog = []; }
-    const source = catalog.length > 0 ? catalog : SPECIALTY_MASTER;
+    } catch { source = []; }
     return source.map((s: any) => {
       // Profiles store the canonical specialty slug; Arabic/English fallbacks
       // retain compatibility with older imported records without counting
@@ -73,24 +73,22 @@ export class CareService {
     });
   }
 
-  /** ===== Insurance companies — R11: read admin-managed DB, not hard-coded ===== */
+  /** ===== Insurance companies — F9/R11: DB is the single source ===== */
   async insuranceCompanies() {
     try {
       const rows: any[] = await (this.providerModel as any).db?.collection('insurance_companies')
         ?.find({ active: { $ne: false } }, { projection: { _id: 0 } }).toArray() || [];
-      if (rows.length > 0) return rows;
-    } catch { /* fall back to constant */ }
-    return INSURANCE_COMPANIES.map((slug) => ({ slug }));
+      return rows;
+    } catch { return []; }
   }
 
-  /** ===== Academic degrees — R11: read DB if present, else constant ===== */
+  /** ===== Academic degrees — F9/R11: DB is the single source ===== */
   async academicDegrees() {
     try {
       const rows: any[] = await (this.providerModel as any).db?.collection('academic_degrees')
         ?.find({ active: { $ne: false } }, { projection: { _id: 0 } }).toArray() || [];
-      if (rows.length > 0) return rows;
-    } catch { /* fall back */ }
-    return ACADEMIC_DEGREES_LIST.map((slug) => ({ slug }));
+      return rows;
+    } catch { return []; }
   }
 
   /** ===== Doctor listing with filters ===== */

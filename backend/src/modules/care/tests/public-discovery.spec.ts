@@ -16,7 +16,19 @@ describe('CareService public discovery contract', () => {
       countDocuments: jest.fn().mockResolvedValue(1),
       findOne: jest.fn(),
       find: jest.fn(),
-      db: { collection: jest.fn(() => ({ find: jest.fn(() => ({ sort: jest.fn(() => ({ limit: jest.fn(() => ({ toArray: jest.fn().mockResolvedValue([]) })) })) })) })) },
+      // F9: /care/specialties reads the admin-managed specialties collection.
+      // The chain is tolerant: sort/limit are optional so both the specialties
+      // read and the reviews read work with the same double.
+      db: {
+        collection: jest.fn(() => {
+          const cursor: any = {
+            sort: jest.fn(() => cursor),
+            limit: jest.fn(() => cursor),
+            toArray: jest.fn().mockResolvedValue([]),
+          };
+          return { find: jest.fn(() => cursor) };
+        }),
+      },
     };
     facilities = { findOne: jest.fn(), find: jest.fn() };
     slots = { nextAvailable: jest.fn().mockResolvedValue('2026-09-01T09:00:00.000Z'), hasSlotsToday: jest.fn().mockResolvedValue(true), slotsForDate: jest.fn() };
@@ -76,6 +88,13 @@ describe('CareService public discovery contract', () => {
 
   it('reports published provider counts using the canonical specialty slug only', async () => {
     providers.aggregate.mockResolvedValue([{ _id: 'cardiology', count: 2 }, { _id: 'internal_medicine', count: 1 }]);
+    // F9: the specialty list now comes from the DB, not a hard-coded registry.
+    providers.db.collection = jest.fn(() => ({
+      find: jest.fn(() => ({ toArray: jest.fn().mockResolvedValue([
+        { code: 'cardiology', name_ar: 'قلب', name_en: 'Cardiology' },
+        { code: 'internal_medicine', name_ar: 'باطنية', name_en: 'Internal Medicine' },
+      ]) })),
+    }));
 
     const result = await service.specialties();
 

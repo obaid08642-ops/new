@@ -196,62 +196,8 @@ export enum AcademicDegree {
   RESIDENT = 'resident',
   GENERAL_PRACTITIONER = 'general_practitioner',
 }
-export const ACADEMIC_DEGREES_LIST = Object.values(AcademicDegree);
 
-// Saudi-market insurance companies. Keep slugs stable; localized labels handled by i18n.
-export const INSURANCE_COMPANIES = [
-  'bupa', 'tawuniya', 'medgulf', 'medgulf_a', 'medgulf_b', 'medgulf_c',
-  'axa', 'rajhi_takaful', 'al_rajhi_takaful', 'walaa', 'malath', 'salama',
-  'gulf_union', 'allianz', 'arabian_shield', 'saico', 'alsagr', 'amana',
-  'tawuniya_corporate', 'cigna', 'globemed', 'nextcare', 'medivisa', 'mednet',
-];
 
-// Master specialties registry — slug + Arabic name. Used for /care/specialties even when
-// no doctor is currently assigned (greys out + count from doctors collection).
-export const SPECIALTY_MASTER: { slug: string; name_ar: string; name_en: string }[] = [
-  { slug: 'general_practice', name_ar: 'طب عام', name_en: 'General Practice' },
-  { slug: 'family_medicine', name_ar: 'طب الأسرة', name_en: 'Family Medicine' },
-  { slug: 'internal_medicine', name_ar: 'باطنة', name_en: 'Internal Medicine' },
-  { slug: 'pediatrics', name_ar: 'أطفال', name_en: 'Pediatrics' },
-  { slug: 'pediatric_surgery', name_ar: 'جراحة أطفال', name_en: 'Pediatric Surgery' },
-  { slug: 'cardiology', name_ar: 'قلب وأوعية', name_en: 'Cardiology' },
-  { slug: 'cardiac_surgery', name_ar: 'جراحة قلب', name_en: 'Cardiac Surgery' },
-  { slug: 'dermatology', name_ar: 'جلدية', name_en: 'Dermatology' },
-  { slug: 'dentistry', name_ar: 'أسنان', name_en: 'Dentistry' },
-  { slug: 'ent', name_ar: 'أنف وأذن وحنجرة', name_en: 'ENT' },
-  { slug: 'audiology', name_ar: 'سمعيات', name_en: 'Audiology' },
-  { slug: 'speech_therapy', name_ar: 'تخاطب', name_en: 'Speech Therapy' },
-  { slug: 'ophthalmology', name_ar: 'عيون', name_en: 'Ophthalmology' },
-  { slug: 'neurology', name_ar: 'مخ وأعصاب', name_en: 'Neurology' },
-  { slug: 'orthopedics', name_ar: 'عظام', name_en: 'Orthopedics' },
-  { slug: 'spine_surgery', name_ar: 'جراحة عمود فقري', name_en: 'Spine Surgery' },
-  { slug: 'urology', name_ar: 'مسالك بولية', name_en: 'Urology' },
-  { slug: 'andrology', name_ar: 'ذكورة وعقم', name_en: 'Andrology & Infertility' },
-  { slug: 'nephrology', name_ar: 'كلى', name_en: 'Nephrology' },
-  { slug: 'gastroenterology', name_ar: 'جهاز هضمي', name_en: 'Gastroenterology' },
-  { slug: 'hepatology', name_ar: 'كبد', name_en: 'Hepatology' },
-  { slug: 'endoscopy', name_ar: 'مناظير', name_en: 'Endoscopy' },
-  { slug: 'pulmonology', name_ar: 'صدر وجهاز تنفسي', name_en: 'Pulmonology' },
-  { slug: 'allergy_immunology', name_ar: 'حساسية ومناعة', name_en: 'Allergy & Immunology' },
-  { slug: 'hematology', name_ar: 'أمراض دم', name_en: 'Hematology' },
-  { slug: 'oncology', name_ar: 'أورام', name_en: 'Oncology' },
-  { slug: 'oncology_surgery', name_ar: 'جراحة أورام', name_en: 'Surgical Oncology' },
-  { slug: 'endocrinology', name_ar: 'سكر وغدد', name_en: 'Endocrinology & Diabetes' },
-  { slug: 'rheumatology', name_ar: 'روماتيزم', name_en: 'Rheumatology' },
-  { slug: 'gynecology', name_ar: 'نساء وولادة', name_en: 'Gynecology & Obstetrics' },
-  { slug: 'ivf', name_ar: 'حقن مجهري وأطفال أنابيب', name_en: 'IVF' },
-  { slug: 'psychiatry', name_ar: 'نفسي', name_en: 'Psychiatry' },
-  { slug: 'psychology', name_ar: 'علاج نفسي', name_en: 'Psychology' },
-  { slug: 'general_surgery', name_ar: 'جراحة عامة', name_en: 'General Surgery' },
-  { slug: 'vascular_surgery', name_ar: 'جراحة أوعية دموية', name_en: 'Vascular Surgery' },
-  { slug: 'plastic_surgery', name_ar: 'جراحة تجميل', name_en: 'Plastic Surgery' },
-  { slug: 'bariatric_surgery', name_ar: 'جراحة سمنة', name_en: 'Bariatric Surgery' },
-  { slug: 'physiotherapy', name_ar: 'علاج طبيعي', name_en: 'Physiotherapy' },
-  { slug: 'nutrition', name_ar: 'تغذية', name_en: 'Nutrition' },
-  { slug: 'geriatrics', name_ar: 'كبار السن', name_en: 'Geriatrics' },
-  { slug: 'laboratory', name_ar: 'معامل تحاليل', name_en: 'Laboratory' },
-  { slug: 'radiology', name_ar: 'مراكز أشعة', name_en: 'Radiology' },
-];
 
 // Facility types
 export enum FacilityType {
