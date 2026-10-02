@@ -148,3 +148,10 @@ export function isAllowedPatientApiRequest(path: string, method: string) {
     || diagnosticsMutationRoutes.some((candidate) => candidate.method === method && candidate.route.test(path))
     || pharmacyMutationRoutes.some((candidate) => candidate.method === method && candidate.route.test(path));
 }
+
+// The proxy receives the path and the query separately. Most entries are bare paths (any query passes through);
+// a few pin an exact query (`/home/search?q=…`, `/pharmacy/chat/threads?order_id=<uuid>`), so the target is also
+// checked with its query, otherwise those entries can never match.
+export function isAllowedPatientApiTarget(path: string, search: string, method: string) {
+  return isAllowedPatientApiRequest(path, method) || (search !== "" && isAllowedPatientApiRequest(`${path}${search}`, method));
+}
