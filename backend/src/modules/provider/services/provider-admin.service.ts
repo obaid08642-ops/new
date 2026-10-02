@@ -149,9 +149,10 @@ export class ProviderAdminService {
       let urls = (prof as any)?.license_documents;
       if (!Array.isArray(urls) || urls.length === 0) {
         try {
-          const onboardingProf: any = await (this.accounts as any)?.model?.db?.collection('provider_profiles')?.findOne({ $or: [{ account_id: id }, { user_id: (a as any)?.user_id }] });
+          const onboardingCol = (this.accounts as any)?.model?.db?.collection?.('provider_profiles');
+          const onboardingProf: any = await onboardingCol?.findOne({ $or: [{ account_id: id }, { user_id: (a as any)?.user_id }] });
           urls = (onboardingProf as any)?.license_documents;
-        } catch { /* ignore */ }
+        } catch { /* collection unavailable */ }
       }
       if (Array.isArray(urls)) profileDocs = (urls as any[]).filter((u: any) => typeof u === 'string' && (u as string).length > 0).length;
     } catch { profileDocs = 0; }

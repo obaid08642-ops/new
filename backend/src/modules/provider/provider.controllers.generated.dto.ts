@@ -352,6 +352,11 @@ export class ApproveDto {
   @IsString()
   reason?: string;
 
+  // F5/R1: explicit override when required documents are missing (>= 20 chars).
+  @IsOptional()
+  @IsString()
+  override_reason?: string;
+
   @IsOptional()
   @IsNumber()
   commission_cash?: number;

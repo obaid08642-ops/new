@@ -8,15 +8,28 @@ import { BadRequestException } from '@nestjs/common';
  */
 describe('ProviderAdminService.approve (R1)', () => {
   const makeService = (docs: any[] = []) => {
+    const col = () => ({
+      findOne: jest.fn().mockResolvedValue(null),
+      updateOne: jest.fn().mockResolvedValue({}),
+      updateMany: jest.fn().mockResolvedValue({}),
+    });
     const accounts: any = {
       findOne: jest.fn().mockResolvedValue({
         id: 'prov-1', provider_type: 'pharmacy', status: 'PENDING_ADMIN_APPROVAL',
         status_history: [], save: jest.fn().mockResolvedValue(undefined),
+        // approve() reads translation gaps and returns the saved account.
+        toObject: function () { return { id: 'prov-1', provider_type: 'pharmacy' }; },
       }),
+      // F5: approve() writes users.token_version and reads provider_profiles for
+      // the onboarding licence evidence; the double must expose both.
+      model: { db: { collection: jest.fn(() => col()) } },
     };
     const svc = new ProviderAdminService(
-      accounts, {} as any, { find: jest.fn().mockResolvedValue(docs) } as any,
-      {} as any, { create: jest.fn().mockResolvedValue({}) } as any,
+      // constructor order: accounts, profiles, docs, banks, audit, seo, events
+      accounts, {} as any,
+      { find: jest.fn().mockResolvedValue(docs), updateMany: jest.fn().mockResolvedValue({}) } as any,
+      { updateMany: jest.fn().mockResolvedValue({}) } as any,
+      { create: jest.fn().mockResolvedValue({}) } as any,
       {} as any, {} as any,
     );
     (svc as any).assertAdmin = jest.fn();
@@ -31,24 +44,34 @@ describe('ProviderAdminService.approve (R1)', () => {
 
   it('approves when all required documents exist and are not rejected', async () => {
     const svc = makeService([
+      // F5: the pharmacy required list is commercial_registration + facility_license
+      // + iban_letter (provider.enums). The old fixture listed moh/sfda, which never
+      // satisfied the check — the .catch() hid it.
       { doc_type: 'commercial_registration', review_status: 'APPROVED' },
-      { doc_type: 'moh_license', review_status: 'APPROVED' },
-      { doc_type: 'sfda_license', review_status: 'APPROVED' },
+      { doc_type: 'facility_license', review_status: 'APPROVED' },
+      { doc_type: 'iban_letter', review_status: 'APPROVED' },
     ]);
     // Mock the rest of approve() to avoid DB writes
     (svc as any).transition = jest.fn().mockResolvedValue(undefined);
-    const result = await svc.approve({ id: 'admin-1' }, 'prov-1', {}).catch(() => ({ ok: true }));
-    expect(result).toBeDefined();
+    (svc as any).audit = { create: jest.fn().mockResolvedValue({}) };
+    // F5: assert the real outcome — no .catch() swallowing the error.
+    await expect(svc.approve({ id: 'admin-1' }, 'prov-1', {})).resolves.toBeDefined();
   });
 
-  it('allows override with a written reason (≥20 chars)', async () => {
+  it('allows override with a written reason (≥20 chars) and writes an audit row', async () => {
     const svc = makeService([]);
     (svc as any).transition = jest.fn().mockResolvedValue(undefined);
-    const result = await svc.approve(
-      { id: 'admin-1' }, 'prov-1',
-      { override_reason: 'Emergency approval: documents verified manually at the site visit.' },
-    ).catch(() => ({ ok: true }));
-    expect(result).toBeDefined();
+    const auditCreate = jest.fn().mockResolvedValue({});
+    (svc as any).audit = { create: auditCreate };
+    await expect(
+      svc.approve(
+        { id: 'admin-1' }, 'prov-1',
+        { override_reason: 'Emergency approval: documents verified manually at the site visit.' },
+      ),
+    ).resolves.toBeDefined();
+    expect(auditCreate).toHaveBeenCalledWith(
+      expect.objectContaining({ action: 'admin.provider_approved_override' }),
+    );
   });
 
   it('rejects an override reason shorter than 20 chars', async () => {
