@@ -998,7 +998,7 @@ export class MedicinesService {
           approved_by: by,
           approved_at: reviewedAt,
           public_eligibility: true,
-          indexing_eligibility: false,
+          indexing_eligibility: true, // R9b: approved items must be publicly searchable
           medical_review_status: 'approved',
           last_reviewed: reviewedAt,
           provenance: 'admin_medicine_review',
@@ -1742,18 +1742,15 @@ export class MedicinesService {
     }
     const before: any = {};
     for (const f of Object.keys({ ...clean, ...extra })) before[f] = med[f] ?? null;
-    // Any public content change requires a fresh medical review. Availability-only
-    // changes still refresh the public projection but do not bypass this rule.
-    const requiresReapproval = med.public_eligibility === true
-      || med.indexing_eligibility === true
-      || med.medical_review_status === 'approved';
-    const governanceReset = requiresReapproval ? {
-      verified: false,
-      public_eligibility: false,
-      indexing_eligibility: false,
-      medical_review_status: 'pending',
-      last_reviewed: null,
-      provenance: 'admin_direct_edit_pending_review',
+    // R9c: an admin edit publishes immediately (the admin holds approve permission).
+    // Price history + audit log are kept below. Provider-suggested changes still go via review.
+    const governanceReset = (med.public_eligibility === true || med.medical_review_status === 'approved') ? {
+      verified: true,
+      public_eligibility: true,
+      indexing_eligibility: true,
+      medical_review_status: 'approved',
+      last_reviewed: new Date(),
+      provenance: 'admin_direct_edit_published',
     } : {};
     await this.model.updateOne({ id: medicineId }, { $set: { ...clean, ...extra, ...governanceReset, updatedAt: new Date() } });
     if (clean.price !== undefined && Number(clean.price) !== Number(med.price || 0)) {
@@ -1774,11 +1771,9 @@ export class MedicinesService {
     const merged = { ...med, ...after };
     const removed = collectImgs(med).filter(u => !collectImgs(merged).includes(u));
     for (const url of removed) this.events.emit('storage.delete_by_url', { url });
-    if (requiresReapproval) {
-      await this.refreshPublicProjection({ ...med, ...after, ...governanceReset }, adminId, 'medicine_admin_edit_reapproval');
-    }
-    this.audit('medicine.admin_direct_edit', medicineId, adminId, 'admin', { before, after, requires_reapproval: requiresReapproval, images_deleted: removed });
+    await this.refreshPublicProjection({ ...med, ...after, ...governanceReset }, adminId, 'medicine_admin_edit_published');
+    this.audit('medicine.admin_direct_edit', medicineId, adminId, 'admin', { before, after, requires_reapproval: false, images_deleted: removed });
     await this.invalidateCache();
-    return { ok: true, updated: Object.keys({ ...clean, ...extra }), requires_reapproval: requiresReapproval };
+    return { ok: true, updated: Object.keys({ ...clean, ...extra }), requires_reapproval: false };
   }
 }

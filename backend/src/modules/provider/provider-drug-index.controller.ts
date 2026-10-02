@@ -70,7 +70,10 @@ export class ProviderDrugIndexController {
   @Get(':id')
   async one(@Param('id') id: string): Promise<any> {
     const m: any = await this.col.findOne({ id, is_deleted: { $ne: true } }, { projection: { _id: 0 } });
-    if (!m) return { error: 'not_found' };
+    if (!m) {
+      const { NotFoundException } = await import('@nestjs/common');
+      throw new NotFoundException('drug_not_found');
+    }
     const alternatives = m.active_ingredient
       ? await this.col.find(
           { active_ingredient: m.active_ingredient, id: { $ne: id }, is_deleted: { $ne: true } },
