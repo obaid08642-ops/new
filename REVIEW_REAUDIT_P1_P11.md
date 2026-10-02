@@ -426,6 +426,13 @@ Add `python3 tools/audit/ctx_props.py` to your gate (exit 0): R58/R59 came from 
 
 **R25 (addendum)** `main` itself fails dtolint on `auth/step-up.controller.ts:23` and `payments.module.ts:567` (inline body types, from f2dd8f9/832e84d). Give both real DTOs in your branch.
 
+**R65 (High, process)** Make CI green on `main`.
+- Rename the `wallet_payment_removed` error so the PAY-001 guard passes, or exempt that exact line in the guard.
+- Regenerate the brand, icon, token and renderer artefacts.
+- Align the two component renderers.
+- Bring LCP under 3 s on the three Lighthouse pages.
+- Do not weaken any check.
+
 **R40 (Low)** "Remember me" (تذكرني) on the provider login is written but never read. Implement it or remove it.
 
 **For every item:**
