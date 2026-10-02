@@ -144,8 +144,16 @@ export class ProviderAdminService {
     let profileDocs = 0;
     try {
       const prof: any = await this.profiles.findOne({ account_id: id });
-      const urls = (prof as any)?.license_documents;
-      if (Array.isArray(urls)) profileDocs = urls.filter((u: any) => typeof u === 'string' && u.length > 0).length;
+      // Onboarding step2 writes to provider_profiles (by user_id), not account_profiles.
+      // Check both collections for license evidence.
+      let urls = (prof as any)?.license_documents;
+      if (!Array.isArray(urls) || urls.length === 0) {
+        try {
+          const onboardingProf: any = await (this.accounts as any)?.model?.db?.collection('provider_profiles')?.findOne({ $or: [{ account_id: id }, { user_id: (a as any)?.user_id }] });
+          urls = (onboardingProf as any)?.license_documents;
+        } catch { /* ignore */ }
+      }
+      if (Array.isArray(urls)) profileDocs = (urls as any[]).filter((u: any) => typeof u === 'string' && (u as string).length > 0).length;
     } catch { profileDocs = 0; }
     const missing = (profileDocs >= required.length && required.length > 0)
       ? []
