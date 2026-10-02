@@ -189,7 +189,7 @@ def screen_payloads(ptype):
         if 'location' in (c.get('kinds') or {}):
             body['location'] = {'lat': 24.7, 'lng': 46.7}
         if c['url'].endswith('step2') and 'license_documents' in (c.get('kinds') or {}):
-            body['license_documents'] = []
+            body['license_documents'] = '__UPLOAD_DOCS__'
         out.append((c['url'], body, c['at']))
     return out
 
@@ -210,6 +210,9 @@ def register_type(ptype, overrides=None):
     for url, body, at in screen_payloads(ptype):
         sent = {k for c in _calls() if c['at'] == at for k in (c.get('kinds') or {})}
         body = {**body, **{k: v for k, v in (overrides or {}).items() if k in body or k in sent}}
+        # R1: approval requires license evidence — upload real files, not [].
+        if body.get('license_documents') == '__UPLOAD_DOCS__':
+            body['license_documents'] = [upload(c, n) for n in ('national_id.jpg', 'medical_license.jpg', 'iban_letter.jpg')]
         r = c.post(url, body)
         step(f"{url.split('/')[-1]} as sent by {at.split('/')[-1]}", r.ok, f'{r} body_keys={sorted(body)}')
     sig = upload(c, 'signature.png', 'image/png')

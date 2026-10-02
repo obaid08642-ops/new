@@ -138,7 +138,18 @@ export class ProviderAdminService {
     const required = (await import('../provider.enums')).REQUIRED_DOCS_BY_PROVIDER_TYPE[(a as any).provider_type] || [];
     const docs = await this.docs.find({ account_id: id });
     const okTypes = new Set(docs.filter((d: any) => d.review_status !== 'REJECTED').map((d: any) => d.doc_type));
-    const missing = required.filter((r: string) => !okTypes.has(r));
+    // R1 fix: onboarding stores uploaded license files as URLs in the profile
+    // (license_documents), not as typed provider_documents records. Either proves
+    // the admin can see the files before approving.
+    let profileDocs = 0;
+    try {
+      const prof: any = await this.profiles.findOne({ account_id: id });
+      const urls = (prof as any)?.license_documents;
+      if (Array.isArray(urls)) profileDocs = urls.filter((u: any) => typeof u === 'string' && u.length > 0).length;
+    } catch { profileDocs = 0; }
+    const missing = (profileDocs >= required.length && required.length > 0)
+      ? []
+      : required.filter((r: string) => !okTypes.has(r));
     if (missing.length) {
       const reason = String(body?.override_reason || '').trim();
       if (reason.length < 20) {
