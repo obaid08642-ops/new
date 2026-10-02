@@ -110,6 +110,55 @@ export class LoyaltyService {
     return table;
   }
 
+  /**
+   * F6/R79b: reserve `pts` against a hard cap atomically.
+   * The previous implementation counted rows and then inserted, so N parallel
+   * awards each saw "under the cap" and all of them paid out. This reserves on a
+   * single counter document with a conditional $inc, so the cap holds under
+   * concurrency. Returns the amount actually reserved.
+   */
+  private capStoreAvailable(): boolean {
+    const col: any = (this as any).conn?.collection?.('loyalty_cap_counters');
+    return !!col && typeof col.findOneAndUpdate === 'function';
+  }
+
+  private async reserveCapped(userId: string, reason: string, period: 'daily' | 'monthly', cap: number, pts: number): Promise<number> {
+    const col: any = (this as any).conn?.collection?.('loyalty_cap_counters');
+    // Without a real counter collection (or a configured cap) keep the
+    // previous non-reserving behaviour rather than failing the award.
+    if (!col || typeof col.findOneAndUpdate !== 'function' || !Number.isFinite(cap) || cap < 0) return pts;
+    const now = new Date();
+    const periodKey = period === 'daily'
+      ? `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`
+      : `${now.getFullYear()}-${now.getMonth() + 1}`;
+    const _id = `${userId}|${reason}|${period}|${periodKey}`;
+    // Grow only when the WHOLE award still fits, so the counter can never
+    // overshoot the cap (a plain $lt guard would allow cap-1 + pts > cap).
+    const grown: any = await col.findOneAndUpdate(
+      { _id, count: { $lte: cap - pts } },
+      { $inc: { count: pts } },
+      { new: true },
+    );
+    if (grown) return pts;
+    // No counter yet: create it atomically. A duplicate key means someone else
+    // created it first, so re-run the conditional update.
+    const existing: any = await col.findOne({ _id });
+    if (!existing) {
+      try {
+        await col.insertOne({ _id, user_id: userId, reason, period, period_key: periodKey, count: pts, updatedAt: new Date() });
+        return pts;
+      } catch (e: any) {
+        if (String(e?.code) !== '11000') return pts;
+      }
+    }
+    const after: any = await col.findOneAndUpdate(
+      { _id, count: { $lte: cap - pts } },
+      { $inc: { count: pts } },
+      { new: true },
+    );
+    return after ? pts : 0;
+  }
+
   /** A5: points already earned for a reason since a cutoff (for daily/monthly caps). */
   private async earnedSince(userId: string, reason: string, since: Date): Promise<number> {
     const rows: any[] = await this.txM.find({ user_id: userId, reason, createdAt: { $gte: since } }).lean().catch(() => []);
@@ -132,17 +181,38 @@ export class LoyaltyService {
         const doc: any = await (this as any).conn?.collection('loyalty_config')?.findOne({ key: 'global' });
         if (doc?.value?.earn_caps && typeof doc.value.earn_caps === 'object') caps = doc.value.earn_caps;
       } catch { /* no caps */ }
+      // F6/R79b: reserve against each configured cap atomically instead of
+      // counting rows first (which let parallel awards all pass the check).
+      // When no counter store is available we keep the count-based clamp, so the
+      // cap is still enforced (only the atomicity is lost).
+      const hasCounters = this.capStoreAvailable();
+      let capped = false;
       const now = new Date();
       const dayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-      const [dayEarned, monthEarned] = await Promise.all([
-        this.earnedSince(userId, reason, dayStart),
-        this.earnedSince(userId, reason, monthStart),
-      ]);
       const dayCap = Number(caps.daily?.[reason]);
+      if (Number.isFinite(dayCap) && dayCap >= 0) {
+        if (hasCounters) {
+          const reserved = await this.reserveCapped(userId, reason, 'daily', dayCap, pts);
+          if (reserved < pts) { pts = reserved; capped = true; }
+        } else {
+          const dayEarned = await this.earnedSince(userId, reason, dayStart);
+          if (dayEarned >= dayCap) return { ok: true, points_awarded: 0, capped: true };
+          const room = dayCap - dayEarned;
+          if (pts > room) { pts = Math.max(0, room); capped = true; }
+        }
+      }
       const monthCap = Number(caps.monthly?.[reason]);
-      if (Number.isFinite(dayCap) && dayCap >= 0) pts = Math.max(0, Math.min(pts, dayCap - dayEarned));
-      if (Number.isFinite(monthCap) && monthCap >= 0) pts = Math.max(0, Math.min(pts, monthCap - monthEarned));
+      if (pts > 0 && Number.isFinite(monthCap) && monthCap >= 0) {
+        if (hasCounters) {
+          const reserved = await this.reserveCapped(userId, reason, 'monthly', monthCap, pts);
+          if (reserved < pts) { pts = reserved; capped = true; }
+        } else {
+          const monthEarned = await this.earnedSince(userId, reason, monthStart);
+          const room = monthCap - monthEarned;
+          if (pts > room) { pts = Math.max(0, room); capped = true; }
+        }
+      }
       if (pts <= 0) return { ok: true, points_awarded: 0, capped: true };
     }
 
@@ -272,12 +342,10 @@ export class LoyaltyService {
   @OnEvent('health.vitals_logged')
   async onVitalsLogged(payload: { user_id: string }) {
     if (!payload?.user_id) return;
-    // Anti-farming: at most 5 vitals awards per user per day
-    const dayStart = new Date(); dayStart.setHours(0, 0, 0, 0);
-    const todayCount = await this.txM.countDocuments({
-      user_id: payload.user_id, reason: 'vitals_logged', createdAt: { $gte: dayStart },
-    } as any);
-    if (todayCount >= 5) return;
+    // F6/R79b: at most 5 vitals awards per user per day, reserved atomically.
+    // A countDocuments-then-award check let parallel events all pass it.
+    const reserved = await this.reserveCapped(payload.user_id, 'vitals_logged', 'daily', 5, 1);
+    if (reserved < 1) return;
     await this.awardPoints(payload.user_id, 'vitals_logged', 'health');
   }
 
