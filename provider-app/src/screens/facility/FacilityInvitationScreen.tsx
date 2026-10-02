@@ -45,7 +45,7 @@ export function FacilityInvitationScreen({ onBack, preRole }: { onBack: () => vo
 
   const handleInvite = async () => {
     if (!identifier.trim()) {
-      show(AR ? 'يرجى إدخال رقم جوال أو Nabdah ID' : 'Please enter Phone or Nabdah ID', 'warning');
+      show(AR ? 'يرجى إدخال رقم جوال أو Nabd+ ID' : 'Please enter Phone or Nabd+ ID', 'warning');
       return;
     }
     setLoading(true);
@@ -96,14 +96,14 @@ export function FacilityInvitationScreen({ onBack, preRole }: { onBack: () => vo
       <NCard style={{ backgroundColor: theme.infoBg, marginBottom: SP.xl }}>
         <Text style={{ fontSize: FS.sm, color: theme.info, lineHeight: 22, textAlign: AR ? 'right' : 'left' }}>
           {AR
-            ? 'أدخل رقم جوال المزود أو رقم تعريفه (Nabdah ID). سيتم إرسال دعوة له للارتباط بالمنشأة، ولن يتم إضافته إلا بعد موافقته.'
-            : 'Enter the provider\'s phone number or Nabdah ID. An invitation will be sent to them, and they will only be linked after approval.'}
+            ? 'أدخل رقم جوال المزود أو رقم تعريفه (Nabd+ ID). سيتم إرسال دعوة له للارتباط بالمنشأة، ولن يتم إضافته إلا بعد موافقته.'
+            : 'Enter the provider\'s phone number or Nabd+ ID. An invitation will be sent to them, and they will only be linked after approval.'}
         </Text>
       </NCard>
 
       <NSecHeader title={AR ? 'بيانات المزود' : 'Provider Details'} />
       <NInput
-        label={AR ? 'رقم الجوال أو Nabdah ID' : 'Phone or Nabdah ID'}
+        label={AR ? 'رقم الجوال أو Nabd+ ID' : 'Phone or Nabd+ ID'}
         placeholder={AR ? 'مثال: +966500000000 أو NBD-1234' : 'e.g., +966500000000 or NBD-1234'}
         value={identifier}
         onChange={setIdentifier}

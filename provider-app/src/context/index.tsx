@@ -340,7 +340,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { ok: false, err: 'يرجى تسجيل الدخول وإعداد البصمة أولاً' };
       }
       
-      const { success } = await LocalAuth.authenticateAsync({ promptMessage: 'Unlock Nabdah Plus' });
+      const { success } = await LocalAuth.authenticateAsync({ promptMessage: 'Unlock Nabd+ Plus' });
       if (!success) return { ok: false, err: 'فشل التحقق من البصمة' };
 
       const ok = await tryRefresh();

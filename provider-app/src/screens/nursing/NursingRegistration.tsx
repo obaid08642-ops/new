@@ -247,8 +247,8 @@ function NS1({ data, update, onNext, onBack, step, total, bare = false, submitRe
         {errs.mode && <Text style={{ fontSize: FS.xs, color: theme.danger, marginTop: SP.xs }}>{errs.mode}</Text>}
       </View>
 
-      <NInput innerRef={nameArRef} label={AR ? 'الاسم الكامل بالعربي' : 'Name (Arabic)'} placeholder={AR ? (data.mode === 'company' ? 'شركة نبضة للتمريض' : 'ممرض/ة محمد أحمد') : (data.mode === 'company' ? 'Nabdah Nursing Co.' : 'Nurse Mohamed')} value={data.nameAr} onChange={v => update({ nameAr: v })} required error={errs.name} caps="words" returnKey="next" onSubmit={() => nameEnRef.current?.focus()} />
-      <NInput innerRef={nameEnRef} label={AR ? 'الاسم الكامل بالإنجليزي' : 'Name (English)'} placeholder="Nabdah Nursing" value={data.nameEn} onChange={v => update({ nameEn: v })} caps="words" returnKey="next" onSubmit={() => mgrNameRef.current?.focus()} />
+      <NInput innerRef={nameArRef} label={AR ? 'الاسم الكامل بالعربي' : 'Name (Arabic)'} placeholder={AR ? (data.mode === 'company' ? 'شركة نبضة للتمريض' : 'ممرض/ة محمد أحمد') : (data.mode === 'company' ? 'Nabd+ Nursing Co.' : 'Nurse Mohamed')} value={data.nameAr} onChange={v => update({ nameAr: v })} required error={errs.name} caps="words" returnKey="next" onSubmit={() => nameEnRef.current?.focus()} />
+      <NInput innerRef={nameEnRef} label={AR ? 'الاسم الكامل بالإنجليزي' : 'Name (English)'} placeholder="Nabd+ Nursing" value={data.nameEn} onChange={v => update({ nameEn: v })} caps="words" returnKey="next" onSubmit={() => mgrNameRef.current?.focus()} />
       
       {data.mode === 'individual' && (
         <View style={{ marginBottom: SP.lg }}>
@@ -1150,7 +1150,7 @@ return (
 
 
         <NCard style={{ marginBottom: SP.lg, backgroundColor: theme.surface2 }}>
-          <NCheckbox label={AR ? 'أوافق على شروط وأحكام نبضة بلس وسياسة الخصوصية.' : 'I agree to Nabdah Plus Terms & Privacy Policy.'} value={agreed} onChange={setAgreed} />
+          <NCheckbox label={AR ? 'أوافق على شروط وأحكام نبضة بلس وسياسة الخصوصية.' : 'I agree to Nabd+ Plus Terms & Privacy Policy.'} value={agreed} onChange={setAgreed} />
         </NCard>
 
         <NBtn label={AR ? 'إرسال الطلب للمراجعة' : 'Submit Application'} onPress={submit} loading={loading} disabled={!agreed} style={{ marginBottom: 50, backgroundColor: theme.success }} />

@@ -74,7 +74,7 @@ export function DoctorScheduleTab({ onNavigate }: { onNavigate: (s: string, p?: 
  setLoadError(null);
  setApts((res.data || []).map((x: any) => ({
  id: x.id,
- patient: x.patient_name || (AR ? 'مريض نبض' : 'Nabdah Patient'),
+ patient: x.patient_name || (AR ? 'مريض نبض' : 'Nabd+ Patient'),
  time: x.scheduled_at ? new Date(x.scheduled_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
  type: x.service_type || 'video',
  status: x.domain_state === 'IN_PROGRESS' || x.universal_state === AppointmentStatus.IN_PROGRESS ? AppointmentStatus.IN_PROGRESS : 'confirmed',

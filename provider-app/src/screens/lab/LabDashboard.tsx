@@ -306,7 +306,7 @@ function LabHome({ onNav, onTriggerAlarm }:{ onNav:(s:string,p?:any)=>void; onTr
  <IBg name="lab" size={18} color={tokens.purple} bg={withAlpha(tokens.purple, 0.12)} />
  <View>
  <Text style={{fontSize:FS.sm,color:theme.textSub}}>{AR?'معمل تحاليل':'Laboratory'}</Text>
- <Text style={{fontSize:FS.md,fontWeight:FW.bold,color:theme.text}}>{AR?'معمل نبضة الطبي':'Nabdah Medical Lab'}</Text>
+ <Text style={{fontSize:FS.md,fontWeight:FW.bold,color:theme.text}}>{AR?'معمل نبضة الطبي':'Nabd+ Medical Lab'}</Text>
  </View>
  </View>
  <View style={{flexDirection:'row',gap:SP.sm,alignItems:'center'}}>
@@ -740,9 +740,9 @@ function SampleTracking({ onBack, onNav }:{ onBack:()=>void; onNav:(s:string,p?:
  <NCard style={{marginBottom:SP.md}} accent={sc?.color}>
  <View style={{flexDirection:AR?'row-reverse':'row',justifyContent:'space-between',marginBottom:SP.md}}>
  <View style={{flexDirection:AR?'row-reverse':'row',alignItems:'center',gap:SP.md}}>
- <NAvatar name={sam.patient_name || (AR ? 'مريض نبض' : 'Nabdah Patient')} size={42} />
+ <NAvatar name={sam.patient_name || (AR ? 'مريض نبض' : 'Nabd+ Patient')} size={42} />
  <View>
- <Text style={{fontSize:FS.md,fontWeight:FW.bold,color:theme.text}}>{sam.patient_name || (AR ? 'مريض نبض' : 'Nabdah Patient')}</Text>
+ <Text style={{fontSize:FS.md,fontWeight:FW.bold,color:theme.text}}>{sam.patient_name || (AR ? 'مريض نبض' : 'Nabd+ Patient')}</Text>
  <Text style={{fontSize:FS.xs,color:theme.textSub}}>{sam.barcode}</Text>
  </View>
  </View>
@@ -822,8 +822,8 @@ function ResultReview({ sample, onBack }:{ sample:any; onBack:()=>void }) {
  <NHeader title={AR?'مراجعة النتيجة':'Review Result'} onBack={onBack} />
  <NCard style={{marginBottom:SP.xl}}>
  <View style={{flexDirection:AR?'row-reverse':'row',gap:SP.md,alignItems:'center',marginBottom:SP.lg}}>
- <NAvatar name={sample?.patient_name || (AR ? 'مريض نبض' : 'Nabdah Patient')} size={48} />
- <View><Text style={{fontSize:FS.lg,fontWeight:FW.bold,color:theme.text}}>{sample?.patient_name || (AR ? 'مريض نبض' : 'Nabdah Patient')}</Text><Text style={{fontSize:FS.xs,color:theme.textSub}}>{sample?.barcode??'—'}</Text></View>
+ <NAvatar name={sample?.patient_name || (AR ? 'مريض نبض' : 'Nabd+ Patient')} size={48} />
+ <View><Text style={{fontSize:FS.lg,fontWeight:FW.bold,color:theme.text}}>{sample?.patient_name || (AR ? 'مريض نبض' : 'Nabd+ Patient')}</Text><Text style={{fontSize:FS.xs,color:theme.textSub}}>{sample?.barcode??'—'}</Text></View>
  </View>
  <NCard style={{ marginBottom: SP.lg }}>
  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>{AR ? 'إضافة نتيجة مخبرية' : 'Add laboratory result'}</Text>
@@ -923,7 +923,7 @@ function AddCustomTest({ onBack }:{ onBack:()=>void }) {
  <NCard style={{backgroundColor:theme.warnBg,marginBottom:SP.xl}}>
  <Text style={{fontSize:FS.sm,color:theme.warn,lineHeight:20,textAlign:AR?'right':'left'}}>
  {AR?'الفحوصات المخصصة تنتظر موافقة إدارة نبضة بلس قبل ظهورها للمرضى (24 ساعة).'
- :'Custom tests await Nabdah admin approval before visible to patients (24h).'}
+ :'Custom tests await Nabd+ admin approval before visible to patients (24h).'}
  </Text>
  </NCard>
  <NInput label={AR?'اسم الفحص بالعربي':'Name (Arabic)'} placeholder={AR?'فحص الفيريتين المتقدم':'Advanced Ferritin'} value={nameAr} onChange={setNameAr} required />
@@ -1371,7 +1371,7 @@ function LabSettings({ onLogout, onNavigate }:{ onLogout:()=>void; onNavigate:(s
  <NCard style={{marginBottom:SP.xl,flexDirection:AR?'row-reverse':'row',gap:SP.lg,alignItems:'center'}}>
  <IBg name="lab" size={22} color={tokens.purple} bg={withAlpha(tokens.purple, 0.12)} />
  <View style={{flex:1}}>
- <Text style={{fontSize:FS.xl,fontWeight:FW.bold,color:theme.text,textAlign:AR?'right':'left'}}>{AR?'معمل نبضة الطبي':'Nabdah Medical Lab'}</Text>
+ <Text style={{fontSize:FS.xl,fontWeight:FW.bold,color:theme.text,textAlign:AR?'right':'left'}}>{AR?'معمل نبضة الطبي':'Nabd+ Medical Lab'}</Text>
  <NBadge label={AR?'نشط':'Active'} variant="success" size="xs" style={{marginTop:SP.xs}} />
  </View>
  </NCard>

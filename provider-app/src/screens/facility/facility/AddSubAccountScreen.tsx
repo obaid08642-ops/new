@@ -129,7 +129,7 @@ export function AddSubAccountScreen({ onBack, preRole }: { onBack: () => void; p
  marginBottom: SP.xl
  }}>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: theme.border, paddingBottom: SP.md, marginBottom: SP.md }}>
- <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.primary }}> {AR ? 'مستشفى نبضة الطبي' : 'Nabdah Medical Hospital'}</Text>
+ <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.primary }}> {AR ? 'مستشفى نبضة الطبي' : 'Nabd+ Medical Hospital'}</Text>
  <NBadge label={AR ? createdCreds.role : createdCreds.roleEn} variant="primary" size="sm" />
  </View>
 

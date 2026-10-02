@@ -93,7 +93,7 @@ export function FacilityHomeTab({ onNavigate, wards, onTriggerAlarm, branches, s
  {AR ? 'مرحباً،' : 'Hello,'}
  </Text>
  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>
- {AR ? 'مستشفى نبضة الطبي' : 'Nabdah Medical Hospital'}
+ {AR ? 'مستشفى نبضة الطبي' : 'Nabd+ Medical Hospital'}
  </Text>
  </View>
  </View>
