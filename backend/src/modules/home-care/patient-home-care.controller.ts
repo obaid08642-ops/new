@@ -40,12 +40,21 @@ export class PatientHomeCareController {
     if (body.package_id && !body.service_id) {
       throw new BadRequestException('package_booking_not_supported_use_service');
     }
+    // F3: resolve address_id against the caller's OWN saved addresses (refuse
+    // another user's id) and pass line/city/lat/lng so the nurse sees the address.
+    let address: any;
+    if (body.address_id) {
+      const profile: any = await this.conn?.collection('patient_profiles')?.findOne({ user_id: { $eq: userId } }, { projection: { addresses: 1 } });
+      const a: any = (profile?.addresses || []).find((x: any) => x?.id === body.address_id);
+      if (!a) throw new BadRequestException('address_not_found');
+      address = { address_id: body.address_id, address: a.line1 || a.street || undefined, city: a.city || undefined, district: a.district || undefined, lat: a.lat, lng: a.lng };
+    }
     const booking = await this.homeSvc.book(u, {
       service_id: body.service_id,
       scheduled_at: body.scheduled_at,
       notes: body.notes,
       payment_method: body.payment_method,
-      ...(body.address_id ? { address: { address_id: body.address_id } } : {}),
+      ...(address ? { address } : {}),
     });
     const { _id, ...out } = booking as any;
     return { data: out };
