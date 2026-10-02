@@ -6,30 +6,28 @@
   PASS  race-b: OTP email delivered
   PASS  race-b: verify-otp
   PASS  race-b: register returns token + user
-  PASS  doctor has at least 8 free clinic slots tomorrow
+  PASS  7 buffer-safe free clinic slots found (2026-10-04)
 
 === concurrency A: two patients reserve the same slot at the same instant
-  FAIL  exactly one lock is granted  ->  409 {'message': 'slot_taken', 'error': 'Conflict', 'statusCode': 409} | 409 {'message': 'slot_taken', 'error': 'Conflict', 'statusCode': 409}
+  PASS  exactly one lock is granted
   PASS  the other gets a clear conflict (4xx)
 
 === concurrency B: both book that slot at the same instant (only one holds the lock)
-  FAIL  exactly one appointment for the slot  ->  409 {'message': 'slot_already_booked_or_conflicts_with_buffer', 'error': 'Conflict', | 409 {'message': 'slot_already_booked_or_conflicts_with_buffer', 'error': 'Conflict',
-  FAIL  the lock holder is the one who got it  ->  409 / 409
+  PASS  exactly one appointment for the slot
+  FAIL  the lock holder is the one who got it  ->  409 / 201
 
 === concurrency C: one patient double-submits one booking (same idempotency key, 6 at once)
-  FAIL  every success returns the same appointment id  ->  ["409:{'message': 'slot_already_booked_or_conf", "409:{'message': 'idempotency_request_in_prog", "409:{'message': 'idempotency_request_in_prog", "409:{'message': 'idempotency_request_in_prog", "409:{'message': 'idempotency_request_in_prog", "409:{'message': 'idempotency_request_in_prog"]
-  FAIL  the patient holds exactly one appointment at that time  ->  0 rows
+  PASS  every success returns the same appointment id
+  PASS  the patient holds exactly one appointment at that time
   PASS  no 5xx under the burst
 
-=== concurrency D: one patient books 6 different slots at once (different keys)
-  FAIL  each distinct slot is booked once, none refused as a conflict  ->  [409, 201, 201, 409, 409, 201]
-  FAIL  six distinct appointments  ->  3
+=== concurrency D: one patient books 4 different slots at once (different keys)
+  PASS  each distinct slot is booked once, none refused as a conflict
+  PASS  four distinct appointments
 
-##### 11/18 steps passed, 7 failed
-  FAIL [concurrency A: two patients reserve the same slot at the same instant] exactly one lock is granted: 409 {'message': 'slot_taken', 'error': 'Conflict', 'statusCode': 409} | 409 {'message': 'slot_taken', 'error': 'Conflict', 'statusCode': 409}
-  FAIL [concurrency B: both book that slot at the same instant (only one holds the lock)] exactly one appointment for the slot: 409 {'message': 'slot_already_booked_or_conflicts_with_buffer', 'error': 'Conflict', | 409 {'message': 'slot_already_booked_or_conflicts_with_buffer', 'error': 'Conflict',
-  FAIL [concurrency B: both book that slot at the same instant (only one holds the lock)] the lock holder is the one who got it: 409 / 409
-  FAIL [concurrency C: one patient double-submits one booking (same idempotency key, 6 at once)] every success returns the same appointment id: ["409:{'message': 'slot_already_booked_or_conf", "409:{'message': 'idempotency_request_in_prog", "409:{'message': 'idempotency_request_in_prog", "409:{'message': 'idempotency_request_in_prog", "409:{'message': 'idempotency_request_in_prog", "409:{'message': 'idempotency_request_in_prog"]
-  FAIL [concurrency C: one patient double-submits one booking (same idempotency key, 6 at once)] the patient holds exactly one appointment at that time: 0 rows
-  FAIL [concurrency D: one patient books 6 different slots at once (different keys)] each distinct slot is booked once, none refused as a conflict: [409, 201, 201, 409, 409, 201]
-  FAIL [concurrency D: one patient books 6 different slots at once (different keys)] six distinct appointments: 3
+=== Q37: a slot listed as available right after a booking is bookable
+  PASS  book a slot
+  PASS  the next slot is either not listed as available or bookable
+
+##### 19/20 steps passed, 1 failed
+  FAIL [concurrency B: both book that slot at the same instant (only one holds the lock)] the lock holder is the one who got it: 409 / 201

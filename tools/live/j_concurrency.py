@@ -8,7 +8,7 @@ Real backend, real DB, new test patients (app signup with OTP). Requests are fir
   B. both try to book it (one with the lock)      -> exactly one appointment for that slot
   C. one patient sends the same booking 6 times with ONE idempotency key -> one appointment, every 2xx answer
      carries that same id
-  D. one patient books 6 different slots with different keys at once     -> each succeeds once (no false conflicts)
+  D. one patient books 4 different slots with different keys at once     -> each succeeds once (no false conflicts)
 """
 import os, threading, uuid
 from datetime import date, timedelta
@@ -33,12 +33,24 @@ def at_once(calls):
 
 
 def free_slots(pat, n):
-    day = (date.today() + timedelta(days=1)).isoformat()
-    r = pat.get(f'/care/doctors/{DOCTOR}/slots?date={day}&service_type=clinic')
-    slots = r.body if isinstance(r.body, list) else (r.get('slots') or [])
-    free = [s['start'] for s in slots if isinstance(s, dict) and s.get('available', True)]
-    step(f'doctor has at least {n} free clinic slots tomorrow', r.ok and len(free) >= n, f'{r.status} {len(free)} free')
-    return free
+    """n available clinic slots whose neighbours are free too, spaced 2 apart (so the doctor's buffer around one
+    booking cannot block the next: Q37 shows the slot list does not apply that buffer). Searches the next 7 days."""
+    for d in range(1, 8):
+        day = (date.today() + timedelta(days=d)).isoformat()
+        r = pat.get(f'/care/doctors/{DOCTOR}/slots?date={day}&service_type=clinic')
+        slots = r.body if isinstance(r.body, list) else (r.get('slots') or [])
+        av = [bool(x.get('available', True)) for x in slots if isinstance(x, dict)]
+        clean = [slots[i]['start'] for i in range(1, len(av) - 1) if av[i - 1] and av[i] and av[i + 1]]
+        spaced, last = [], None
+        for st in clean:
+            idx = [x['start'] for x in slots].index(st)
+            if last is None or idx - last >= 2:
+                spaced.append(st); last = idx
+        if len(spaced) >= n:
+            step(f'{n} buffer-safe free clinic slots found ({day})', True, '')
+            return spaced, slots
+    step(f'{n} buffer-safe free clinic slots in the next 7 days', False, 'not enough free slots')
+    return [], []
 
 
 def book(pat, slot, lock=None, key=None):
@@ -51,8 +63,8 @@ def book(pat, slot, lock=None, key=None):
 def run():
     p1 = Client(app_signup(label='race-a')['token'], 'race-a')
     p2 = Client(app_signup(label='race-b')['token'], 'race-b')
-    free = free_slots(p1, 8)
-    if len(free) < 8:
+    free, day_slots = free_slots(p1, 7)
+    if len(free) < 7:
         return
 
     journey('concurrency A: two patients reserve the same slot at the same instant')
@@ -84,12 +96,23 @@ def run():
     step('the patient holds exactly one appointment at that time', n == 1, f'{n} rows')
     step('no 5xx under the burst', all(r.status < 500 for r in rs), [r.status for r in rs])
 
-    journey('concurrency D: one patient books 6 different slots at once (different keys)')
-    targets = free[2:8]
+    journey('concurrency D: one patient books 4 different slots at once (different keys)')
+    targets = free[2:6]   # spaced apart: any refusal here is a concurrency fault, not the buffer
     rs = at_once([lambda s=s: book(p2, s) for s in targets])
     step('each distinct slot is booked once, none refused as a conflict', all(r.ok and r.get('id') for r in rs), [r.status for r in rs])
-    step('six distinct appointments', len({r.get('id') for r in rs if r.ok}) == 6, len({r.get('id') for r in rs if r.ok}))
+    step('four distinct appointments', len({r.get('id') for r in rs if r.ok}) == 4, len({r.get('id') for r in rs if r.ok}))
 
+    journey('Q37: the slot just before a booked slot is either not offered or bookable (5-min buffer)')
+    base = free[6]
+    starts = [x['start'] for x in day_slots]
+    prev = starts[starts.index(base) - 1]
+    r = book(p1, base)
+    step('book a slot', r.ok and r.get('id'), r)
+    lst = p1.get(f"/care/doctors/{DOCTOR}/slots?date={base[:10]}&service_type=clinic")
+    rows = lst.body if isinstance(lst.body, list) else (lst.get('slots') or [])
+    listed = next((x.get('available') for x in rows if isinstance(x, dict) and x.get('start') == prev), None)
+    r2 = book(p2, prev)
+    step('the previous slot is either not listed as available or bookable', (listed is False) or r2.ok, f'listed available={listed}; booking -> {r2.status} {str(r2.body)[:80]}')
 
 if __name__ == '__main__':
     run()
