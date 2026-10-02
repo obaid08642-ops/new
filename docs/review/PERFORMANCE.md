@@ -66,7 +66,13 @@ Evidence:
   | Throughput | 13.8 rps | 282 rps |
 
   A cache miss after the fix takes about 111 ms. Evidence: `evidence/perf_q14_did_you_mean_2026-10-02.json`.
-- The Mongo profiler (`slowms` 50) was on during the QA runs. Its review is in the final report.
+- **Mongo profiler review.** Level 1 was on during the QA runs; a container restart reset it to level 0, which left 58 slow entries.
+  - Almost all are indexed point reads or inserts (1–7 documents) taking 50–400 ms while three crawlers and the journeys shared the container. That is contention, not query plans.
+  - Plan problems found:
+    1. `pharmacy_broadcast_recipients` upsert by `{broadcast_id, pharmacy_account_id}` is a COLLSCAN: the collection has only `_id`, see **Q29**. It grows with every order × nearby pharmacy, so it degrades linearly, and the missing unique index also removes the duplicate guard the code relies on.
+    2. The admin `topSearched` aggregation groups the whole `search_queries` collection (COLLSCAN). This is the same pattern as Q14; recommendation: a 90-day window plus the `createdAt` index that Q14 added.
+    3. `lab_services` list (101 docs, COLLSCAN): a catalog, fine at this size.
+  - The profiler is off now (level 0); nothing to clean up.
 
 ## 3. Website and admin
 
