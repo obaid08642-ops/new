@@ -8,6 +8,8 @@ Inputs: docs/review/inventory/screens.json (tools/audit/screen_inventory.py) and
   patient-web   docs/review/evidence/ui_form_fill_web_*.json + web_crawl_*.json
   admin         docs/review/evidence/ui_form_fill_admin_*.json + admin_crawl_*.json
 Statuses: PASSED, FAILED, PARTIAL, NOT_TESTED, BLOCKED, STALE (file changed after the evidence), N/A.
+Ordering: later evidence wins per route, by file mtime. Run it where the evidence was produced (or copy with `cp -p`);
+a fresh git checkout gives every file the same mtime, so the committed COVERAGE_MATRIX.md is the reference.
 A screen is PASSED only when it rendered without JS errors or failed reads AND every control it exposes produced an
 observable, correct effect (navigate / UI change / stored write / guarded destructive). Rendering alone is never PASSED.
 """

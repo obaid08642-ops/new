@@ -1,10 +1,10 @@
 {
- "provider_type": "lab",
+ "provider_type": "home_care",
  "login_via_ui": true,
  "build": "rn-web E2E export (not native)",
  "perf": {
-  "app_boot_to_ready_ms": 1315,
-  "login_to_dashboard_ready_ms": 1568,
+  "app_boot_to_ready_ms": 534,
+  "login_to_dashboard_ready_ms": 1006,
   "dashboard_ready": true,
   "dashboard_not_ready_reason": ""
  },
@@ -18,7 +18,7 @@
    "render": {
     "js": [],
     "bad_reads": [],
-    "heading": "معمل تحاليل | معمل نبضة الطبي | غير متاح | ⊥ | 0 | طلبات اليوم | ◔ | 0 | تحت"
+    "heading": "تمريض منزلي | نبضة للتمريض | غير متاح | ! | 0 | طلبات جديدة | ◔ | 0 | زيارات"
    },
    "status": "TESTED",
    "inputs_filled": 0,
@@ -31,105 +31,87 @@
      "url": "/provider/ops/availability/toggle-instant",
      "tokens_sent": 0,
      "tokens_stored": 0,
-     "response_ms": 1384
+     "response_ms": 529
     },
     {
      "label": "(icon #1)",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 454
+     "response_ms": 459
     },
     {
-     "label": "المحفظة والإيرادات",
+     "label": "المحفظة",
      "result": "NAVIGATE",
      "to": "wallet",
-     "response_ms": 1392
+     "response_ms": 1387
     },
     {
-     "label": "تتبع العينات",
+     "label": "تسجيل",
      "result": "NAVIGATE",
-     "to": "sample_tracking",
-     "response_ms": 549
+     "to": "checkin",
+     "response_ms": 546
     },
     {
-     "label": "إدخال نتائج",
+     "label": "قائمة",
      "result": "NAVIGATE",
-     "to": "sample_tracking",
-     "response_ms": 521
+     "to": "checklist",
+     "response_ms": 869
     },
     {
-     "label": "وقت النتائج",
+     "label": "خطة",
      "result": "NAVIGATE",
-     "to": "tat_tracker",
-     "response_ms": 881
+     "to": "care_plan",
+     "response_ms": 538
     },
     {
-     "label": "سحب منزلي",
+     "label": "ملاحظات",
      "result": "NAVIGATE",
-     "to": "home_collection",
-     "response_ms": 522
+     "to": "progress",
+     "response_ms": 519
     },
     {
-     "label": "ملصق QR",
+     "label": "تقرير",
      "result": "NAVIGATE",
-     "to": "qr_label",
-     "response_ms": 529
+     "to": "visit_report",
+     "response_ms": 535
     },
     {
-     "label": "إدارة الحزم",
+     "label": "مستلزمات",
      "result": "NAVIGATE",
-     "to": "bundles",
-     "response_ms": 909
-    },
-    {
-     "label": "فحص مخصص",
-     "result": "NAVIGATE",
-     "to": "add_test",
-     "response_ms": 574
-    },
-    {
-     "label": "مطالبات تأمين",
-     "result": "NAVIGATE",
-     "to": "insurance",
-     "response_ms": 870
-    },
-    {
-     "label": "الكل",
-     "result": "NAVIGATE",
-     "to": "sample_tracking",
-     "response_ms": 527
+     "to": "supplies",
+     "response_ms": 908
     },
     {
      "label": "الرئيسية",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 506
+     "response_ms": 519
     },
     {
      "label": "الطلبات",
      "result": "UI_CHANGE",
-     "response_ms": 838
+     "response_ms": 510
     },
     {
      "label": "الوظائف",
      "result": "UI_CHANGE",
-     "response_ms": 868
+     "response_ms": 878
     },
     {
      "label": "الأدوية",
      "result": "UI_CHANGE",
-     "response_ms": 1973
+     "response_ms": 1967
     },
     {
      "label": "الإعدادات",
      "result": "UI_CHANGE",
-     "response_ms": 522
+     "response_ms": 875
     }
    ],
    "summary": {
     "WRITE": 1,
     "NO_EFFECT": 2,
-    "NAVIGATE": 10,
+    "NAVIGATE": 7,
     "UI_CHANGE": 4
    }
   },
@@ -140,7 +122,7 @@
    "params": {
     "param": null
    },
-   "time_to_ready_ms": 1249,
+   "time_to_ready_ms": 1263,
    "render": {
     "js": [],
     "bad_reads": [],
@@ -153,13 +135,13 @@
      "label": "→",
      "result": "NAVIGATE",
      "to": "MainTabs",
-     "response_ms": 445
+     "response_ms": 471
     },
     {
      "label": "طلب سحب",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 452
+     "response_ms": 447
     }
    ],
    "summary": {
@@ -168,285 +150,313 @@
    }
   },
   {
-   "route": "sample_tracking",
+   "route": "checkin",
    "ui_path": [],
    "reached_by": "TAP_PATH",
    "params": {
     "param": null
    },
-   "time_to_ready_ms": 395,
+   "time_to_ready_ms": 394,
    "render": {
     "js": [],
     "bad_reads": [],
-    "heading": "تتبع العينات | الكل (0) | مستلمة (0) | قيد التحليل (0) | النتيجة جاه"
+    "heading": "→ | تتبع الرحلة والوصول | — | — | — | بانتظار بدء الرحلة | يتم تحديث موق"
    },
    "status": "TESTED",
    "inputs_filled": 0,
    "elements": [
     {
-     "label": "(icon #0)",
+     "label": "→",
      "result": "NAVIGATE",
      "to": "wallet",
-     "response_ms": 448
-    },
-    {
-     "label": "الكل (0)",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 464
-    },
-    {
-     "label": "مستلمة (0)",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 445
-    },
-    {
-     "label": "قيد التحليل (0)",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 440
-    },
-    {
-     "label": "النتيجة جاهزة (0)",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 454
-    },
-    {
-     "label": "مُرسلة (0)",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 467
-    }
-   ],
-   "summary": {
-    "NAVIGATE": 1,
-    "NO_EFFECT": 5
-   }
-  },
-  {
-   "route": "tat_tracker",
-   "ui_path": [],
-   "reached_by": "TAP_PATH",
-   "params": {
-    "param": null
-   },
-   "time_to_ready_ms": 741,
-   "render": {
-    "js": [],
-    "bad_reads": [],
-    "heading": "→ | تتبع زمن الإنجاز | flask | لا توجد عينات بعد"
-   },
-   "status": "TESTED",
-   "inputs_filled": 0,
-   "elements": [
-    {
-     "label": "→",
-     "result": "NAVIGATE",
-     "to": "sample_tracking",
-     "response_ms": 445
-    }
-   ],
-   "summary": {
-    "NAVIGATE": 1
-   }
-  },
-  {
-   "route": "home_collection",
-   "ui_path": [],
-   "reached_by": "TAP_PATH",
-   "params": {
-    "param": null
-   },
-   "time_to_ready_ms": 395,
-   "render": {
-    "js": [],
-    "bad_reads": [],
-    "heading": "→ | سحب منزلي | اختر طلب سحب منزلي من قائمة الطلبات | يبدأ التتبع "
-   },
-   "status": "TESTED",
-   "inputs_filled": 0,
-   "elements": [
-    {
-     "label": "→",
-     "result": "NAVIGATE",
-     "to": "sample_tracking",
-     "response_ms": 455
-    }
-   ],
-   "summary": {
-    "NAVIGATE": 1
-   }
-  },
-  {
-   "route": "qr_label",
-   "ui_path": [],
-   "reached_by": "TAP_PATH",
-   "params": {
-    "param": null
-   },
-   "time_to_ready_ms": 402,
-   "render": {
-    "js": [],
-    "bad_reads": [],
-    "heading": "→ | ملصق QR للعينة | SMP-2025-XXX | — | تحليل دم شامل (CBC) | اطبع الم"
-   },
-   "status": "TESTED",
-   "inputs_filled": 0,
-   "elements": [
-    {
-     "label": "→",
-     "result": "NAVIGATE",
-     "to": "sample_tracking",
      "response_ms": 456
     },
     {
-     "label": "حفظ كصورة",
-     "result": "UI_CHANGE",
-     "response_ms": 463
+     "label": "بدء الرحلة (Start Trip)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 451
     }
    ],
    "summary": {
     "NAVIGATE": 1,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "checklist",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 740,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | قائمة مهام الزيارة | — | — | — | 0% | 0 / 6 مهمة مكتملة | التحقق من هو"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "checkin",
+     "response_ms": 456
+    },
+    {
+     "label": "التحقق من هوية المريض",
+     "result": "UI_CHANGE",
+     "response_ms": 485
+    },
+    {
+     "label": "قياس العلامات الحيوية الأساسية",
+     "result": "UI_CHANGE",
+     "response_ms": 460
+    },
+    {
+     "label": "مراجعة الأدوية والحساسية",
+     "result": "UI_CHANGE",
+     "response_ms": 462
+    },
+    {
+     "label": "أخذ الموافقة المستنيرة",
+     "result": "UI_CHANGE",
+     "response_ms": 461
+    },
+    {
+     "label": "تجهيز حقل معقم",
+     "result": "UI_CHANGE",
+     "response_ms": 440
+    },
+    {
+     "label": "توثيق الإجراء في التقرير",
+     "result": "UI_CHANGE",
+     "response_ms": 457
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 6
+   }
+  },
+  {
+   "route": "care_plan",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 391,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | خطة الرعاية المستمرة | — | — | مريض مزمن | خطط الرعاية | لا توجد خطط"
+   },
+   "status": "TESTED",
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "checklist",
+     "response_ms": 463
+    },
+    {
+     "label": "عنوان الخطة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 445
+    },
+    {
+     "label": "المهام (سطر لكل مهمة)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 442
+    },
+    {
+     "label": "إنشاء الخطة",
+     "result": "UI_CHANGE",
+     "response_ms": 457
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 2,
     "UI_CHANGE": 1
    }
   },
   {
-   "route": "bundles",
+   "route": "progress",
    "ui_path": [],
    "reached_by": "TAP_PATH",
    "params": {
     "param": null
    },
-   "time_to_ready_ms": 841,
+   "time_to_ready_ms": 394,
    "render": {
     "js": [],
     "bad_reads": [],
-    "heading": "→ | كتالوج الفحوصات والباقات | 🧪 | لا توجد فحوصات في الكتالوج بعد | "
+    "heading": "→ | ملاحظات يومية | — | — | إضافة ملاحظة جديدة | العلامات الحيوية | الضغ"
    },
    "status": "TESTED",
-   "inputs_filled": 0,
+   "inputs_filled": 6,
    "elements": [
     {
      "label": "→",
      "result": "NAVIGATE",
-     "to": "qr_label",
-     "response_ms": 449
-    }
-   ],
-   "summary": {
-    "NAVIGATE": 1
-   }
-  },
-  {
-   "route": "add_test",
-   "ui_path": [],
-   "reached_by": "TAP_PATH",
-   "params": {
-    "param": null
-   },
-   "time_to_ready_ms": 399,
-   "render": {
-    "js": [],
-    "bad_reads": [],
-    "heading": "→ | إضافة فحص مخصص | الفحوصات المخصصة تنتظر موافقة إدارة نبضة بل"
-   },
-   "status": "TESTED",
-   "inputs_filled": 8,
-   "elements": [
-    {
-     "label": "→",
-     "result": "NAVIGATE",
-     "to": "MainTabs",
-     "response_ms": 512
+     "to": "care_plan",
+     "response_ms": 491
     },
     {
-     "label": "اسم الفحص بالعربي *",
+     "label": "الضغط",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 487
+     "response_ms": 467
     },
     {
-     "label": "اسم الفحص بالإنجليزي *",
+     "label": "النبض",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 470
+     "response_ms": 472
     },
     {
-     "label": "السعر *",
+     "label": "الحرارة",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 487
+     "response_ms": 458
     },
     {
-     "label": "وقت النتيجة (ساعة)",
+     "label": "SpO2",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 454
+     "response_ms": 455
     },
     {
-     "label": "الحد الأدنى",
+     "label": "السكر",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 476
+     "response_ms": 448
     },
     {
-     "label": "الحد الأعلى",
+     "label": "الملاحظات السريرية",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 461
+     "response_ms": 455
     },
     {
-     "label": "الوحدة",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 475
-    },
-    {
-     "label": "(icon #8)",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 434
-    },
-    {
-     "label": "إرسال للمراجعة والموافقة",
-     "result": "CRAWLER_TARGET_MISSING",
-     "error": "control not found: إرسال للمراجعة والموافقة"
+     "label": "حفظ الملاحظة",
+     "result": "UI_CHANGE",
+     "response_ms": 486
     }
    ],
    "summary": {
     "NAVIGATE": 1,
-    "NO_EFFECT": 8,
-    "CRAWLER_TARGET_MISSING": 1
+    "NO_EFFECT": 6,
+    "UI_CHANGE": 1
    }
   },
   {
-   "route": "insurance",
+   "route": "visit_report",
    "ui_path": [],
    "reached_by": "TAP_PATH",
    "params": {
     "param": null
    },
-   "time_to_ready_ms": 1295,
+   "time_to_ready_ms": 394,
    "render": {
     "js": [],
     "bad_reads": [],
-    "heading": "→ | مطالبات التأمين | ◔ | 0 | انتظار | 0 | معالجة | لا توجد مطالبات تأمين"
+    "heading": "→ | تقرير الزيارة والعلامات الحيوية | — | — | ٢١‏/٤‏/١٤٤٨ هـ | تسجيل ا"
    },
    "status": "TESTED",
-   "inputs_filled": 0,
+   "inputs_filled": 6,
    "elements": [
     {
      "label": "→",
      "result": "NAVIGATE",
-     "to": "add_test",
-     "response_ms": 520
+     "to": "progress",
+     "response_ms": 511
+    },
+    {
+     "label": "ضغط الدم (BP)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 479
+    },
+    {
+     "label": "مستوى السكر (Glucose)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 448
+    },
+    {
+     "label": "درجة الحرارة (Temp)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 457
+    },
+    {
+     "label": "النبض (Pulse)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 450
+    },
+    {
+     "label": "ملخص الزيارة *",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 457
+    },
+    {
+     "label": "التوصيات والمتابعة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 450
+    },
+    {
+     "label": "انقر هنا لتوقيع المريض",
+     "result": "UI_CHANGE",
+     "response_ms": 8622,
+     "slow": "1 loading indicator(s) visible"
     }
    ],
    "summary": {
-    "NAVIGATE": 1
+    "NAVIGATE": 1,
+    "NO_EFFECT": 6,
+    "UI_CHANGE": 1
    }
+  },
+  {
+   "route": "supplies",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 15226,
+   "status": "SLOW",
+   "reason": "1 loading indicator(s) visible",
+   "screenshot": "/tmp/nav2_home_care_supplies_ready.png",
+   "controls_now": [
+    "→",
+    "اسم المستلزم",
+    "الكمية",
+    "(icon #3)",
+    "مسح",
+    "حفظ التوقيع"
+   ],
+   "route_now": {
+    "name": "supplies",
+    "params": {
+     "param": null
+    }
+   },
+   "pending": [],
+   "failed_requests": [],
+   "js": [],
+   "bad_reads": []
   },
   {
    "route": "MainTabs",
@@ -455,73 +465,56 @@
    ],
    "reached_by": "TAP_PATH",
    "params": null,
-   "time_to_ready_ms": 1224,
+   "time_to_ready_ms": 795,
    "render": {
     "js": [],
     "bad_reads": [],
-    "heading": "الطلبات والمختبر | الواردة | الجدولة والسحب | التحليل والعينات | الن"
+    "heading": "الطلبات | طلبات جديدة | مؤكدة | document | لا توجد طلبات | الرئيسية | ال"
    },
    "status": "TESTED",
    "inputs_filled": 0,
    "elements": [
     {
-     "label": "الواردة",
+     "label": "طلبات جديدة",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 465
+     "response_ms": 438
     },
     {
-     "label": "الجدولة والسحب",
+     "label": "مؤكدة",
      "result": "UI_CHANGE",
-     "response_ms": 634
-    },
-    {
-     "label": "التحليل والعينات",
-     "result": "UI_CHANGE",
-     "response_ms": 533
-    },
-    {
-     "label": "النتائج",
-     "result": "UI_CHANGE",
-     "response_ms": 534
-    },
-    {
-     "label": "Patient",
-     "result": "NAVIGATE",
-     "to": "order_detail",
-     "response_ms": 534
+     "response_ms": 452
     },
     {
      "label": "الرئيسية",
      "result": "UI_CHANGE",
-     "response_ms": 868
+     "response_ms": 461
     },
     {
      "label": "الطلبات",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 469
+     "response_ms": 453
     },
     {
      "label": "الوظائف",
      "result": "UI_CHANGE",
-     "response_ms": 820
+     "response_ms": 794
     },
     {
      "label": "الأدوية",
      "result": "UI_CHANGE",
-     "response_ms": 1955
+     "response_ms": 1921
     },
     {
      "label": "الإعدادات",
      "result": "UI_CHANGE",
-     "response_ms": 495
+     "response_ms": 836
     }
    ],
    "summary": {
     "NO_EFFECT": 2,
-    "UI_CHANGE": 7,
-    "NAVIGATE": 1
+    "UI_CHANGE": 5
    }
   },
   {
@@ -531,7 +524,7 @@
    ],
    "reached_by": "TAP_PATH",
    "params": null,
-   "time_to_ready_ms": 1651,
+   "time_to_ready_ms": 1130,
    "render": {
     "js": [],
     "bad_reads": [],
@@ -543,59 +536,59 @@
     {
      "label": "(icon #0)",
      "result": "UI_CHANGE",
-     "response_ms": 796
+     "response_ms": 440
     },
     {
      "label": "(icon #1)",
      "result": "UI_CHANGE",
-     "response_ms": 448
+     "response_ms": 457
     },
     {
      "label": "تصفح الوظائف",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 472
+     "response_ms": 467
     },
     {
      "label": "إضافة إعلان",
      "result": "UI_CHANGE",
-     "response_ms": 584
+     "response_ms": 511
     },
     {
      "label": "الوارد (ATS)",
      "result": "UI_CHANGE",
-     "response_ms": 816
+     "response_ms": 833
     },
     {
      "label": "(icon #5)",
      "result": "UI_CHANGE",
-     "response_ms": 801
+     "response_ms": 451
     },
     {
      "label": "الرئيسية",
      "result": "UI_CHANGE",
-     "response_ms": 876
+     "response_ms": 515
     },
     {
      "label": "الطلبات",
      "result": "UI_CHANGE",
-     "response_ms": 814
+     "response_ms": 521
     },
     {
      "label": "الوظائف",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 530
+     "response_ms": 458
     },
     {
      "label": "الأدوية",
      "result": "UI_CHANGE",
-     "response_ms": 2048
+     "response_ms": 1949
     },
     {
      "label": "الإعدادات",
      "result": "UI_CHANGE",
-     "response_ms": 532
+     "response_ms": 885
     }
    ],
    "summary": {
@@ -610,11 +603,11 @@
    ],
    "reached_by": "TAP_PATH",
    "params": null,
-   "time_to_ready_ms": 2264,
+   "time_to_ready_ms": 2249,
    "render": {
     "js": [],
     "bad_reads": [],
-    "heading": "دليل الأدوية الطبي | الكل | pain (10) | UE3C96A10 (2) | category-207"
+    "heading": "دليل الأدوية الطبي | الكل | pain (14) | UE3C96A10 (2) | UC15A2210 (1"
    },
    "status": "TESTED",
    "inputs_filled": 1,
@@ -622,135 +615,134 @@
     {
      "label": "(icon #0)",
      "result": "UI_CHANGE",
-     "response_ms": 796
+     "response_ms": 488
     },
     {
      "label": "(icon #1)",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 417
+     "response_ms": 434
     },
     {
      "label": "الكل",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 520
+     "response_ms": 552
     },
     {
-     "label": "pain (10)",
+     "label": "pain (14)",
      "result": "UI_CHANGE",
-     "response_ms": 2009
+     "response_ms": 2020
     },
     {
      "label": "UE3C96A10 (2)",
      "result": "UI_CHANGE",
-     "response_ms": 2048
-    },
-    {
-     "label": "category-20703 (1)",
-     "result": "UI_CHANGE",
-     "response_ms": 1987
+     "response_ms": 2042
     },
     {
      "label": "UC15A2210 (1)",
      "result": "UI_CHANGE",
-     "response_ms": 2023
+     "response_ms": 2031
+    },
+    {
+     "label": "category-20703 (1)",
+     "result": "UI_CHANGE",
+     "response_ms": 2032
     },
     {
      "label": "UC15A2204 (معدّل E2E)",
      "result": "UI_CHANGE",
-     "response_ms": 902
+     "response_ms": 929
     },
     {
      "label": "UE3C96A04",
      "result": "UI_CHANGE",
-     "response_ms": 918
+     "response_ms": 898
     },
     {
      "label": "name_ar-20700",
      "result": "UI_CHANGE",
-     "response_ms": 970
+     "response_ms": 968
     },
     {
      "label": "بنادول اكسترا 500 ملغ 0019c8",
      "result": "UI_CHANGE",
-     "response_ms": 603
+     "response_ms": 968
     },
     {
      "label": "بنادول اكسترا 500 ملغ 18f732",
      "result": "UI_CHANGE",
-     "response_ms": 950
+     "response_ms": 912
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 4a05f6",
+     "result": "UI_CHANGE",
+     "response_ms": 929
     },
     {
      "label": "بنادول اكسترا 500 ملغ 730a68",
      "result": "UI_CHANGE",
-     "response_ms": 910
+     "response_ms": 951
     },
     {
      "label": "بنادول اكسترا 500 ملغ 81b23b",
      "result": "UI_CHANGE",
-     "response_ms": 1431
+     "response_ms": 942
     },
     {
      "label": "بنادول اكسترا 500 ملغ a33d6a",
      "result": "UI_CHANGE",
-     "response_ms": 940
+     "response_ms": 932
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ c632fa",
+     "result": "UI_CHANGE",
+     "response_ms": 934
     },
     {
      "label": "فيتامين سي 1000 ملغ 2dfd4a",
      "result": "UI_CHANGE",
-     "response_ms": 904
+     "response_ms": 963
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 39ce55",
+     "result": "UI_CHANGE",
+     "response_ms": 1001
     },
     {
      "label": "فيتامين سي 1000 ملغ 5e0bd1",
      "result": "UI_CHANGE",
-     "response_ms": 895
+     "response_ms": 922
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 72e0fb",
+     "result": "UI_CHANGE",
+     "response_ms": 1018
     },
     {
      "label": "فيتامين سي 1000 ملغ 874ed2",
      "result": "UI_CHANGE",
-     "response_ms": 902
+     "response_ms": 916
     },
     {
      "label": "فيتامين سي 1000 ملغ bca0db",
      "result": "UI_CHANGE",
-     "response_ms": 889
+     "response_ms": 938
     },
     {
      "label": "فيتامين سي 1000 ملغ fc3790",
      "result": "UI_CHANGE",
-     "response_ms": 577
+     "response_ms": 643
     },
     {
      "label": "الرئيسية",
      "result": "UI_CHANGE",
-     "response_ms": 916
-    },
-    {
-     "label": "الطلبات",
-     "result": "UI_CHANGE",
-     "response_ms": 903
-    },
-    {
-     "label": "الوظائف",
-     "result": "UI_CHANGE",
-     "response_ms": 964
-    },
-    {
-     "label": "الأدوية",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 537
-    },
-    {
-     "label": "الإعدادات",
-     "result": "UI_CHANGE",
-     "response_ms": 566
+     "response_ms": 595
     }
    ],
    "summary": {
-    "UI_CHANGE": 22,
-    "NO_EFFECT": 3
+    "UI_CHANGE": 23,
+    "NO_EFFECT": 2
    }
   },
   {
@@ -760,106 +752,123 @@
    ],
    "reached_by": "TAP_PATH",
    "params": null,
-   "time_to_ready_ms": 786,
+   "time_to_ready_ms": 1147,
    "render": {
     "js": [],
     "bad_reads": [],
-    "heading": "الإعدادات | معمل نبضة الطبي | نشط | إدارة المختبر | قائمة التحاليل و"
+    "heading": "الإعدادات | نبضة للتمريض | نشط | الملف الشخصي | معلومات الحساب | ‹ | الخ"
    },
    "status": "TESTED",
    "inputs_filled": 3,
    "elements": [
     {
-     "label": "قائمة التحاليل والأسعار",
+     "label": "معلومات الحساب",
      "result": "NAVIGATE",
-     "to": "test_menu",
-     "response_ms": 934
+     "to": "profile_edit",
+     "response_ms": 982
     },
     {
-     "label": "إدارة الحزم",
+     "label": "الخدمات المقدمة",
      "result": "NAVIGATE",
-     "to": "bundles",
-     "response_ms": 953
+     "to": "nursing_services",
+     "response_ms": 610
     },
     {
-     "label": "إعدادات الخدمة المنزلية",
+     "label": "نموذج التسعير",
      "result": "NAVIGATE",
-     "to": "home_service",
-     "response_ms": 1012
+     "to": "nursing_pricing",
+     "response_ms": 590
+    },
+    {
+     "label": "نطاق التغطية",
+     "result": "NAVIGATE",
+     "to": "nursing_coverage",
+     "response_ms": 612
     },
     {
      "label": "مواعيد العمل",
      "result": "NAVIGATE",
      "to": "working_hours",
-     "response_ms": 1203
+     "response_ms": 613
     },
     {
-     "label": "إعدادات التأمين",
+     "label": "التأمين الصحي",
      "result": "NAVIGATE",
      "to": "insurance_config",
-     "response_ms": 2133
+     "response_ms": 2150
     },
     {
      "label": "طلبات التأمين الواردة",
      "result": "NAVIGATE",
      "to": "insurance_requests",
-     "response_ms": 985
+     "response_ms": 928
     },
     {
-     "label": "الرخص والمستندات الرسمية",
+     "label": "الشهادات والمؤهلات",
      "result": "NAVIGATE",
      "to": "certificates_config",
-     "response_ms": 1031
+     "response_ms": 923
     },
     {
      "label": "الصور والوسائط",
      "result": "NAVIGATE",
      "to": "media_config",
-     "response_ms": 956
-    },
-    {
-     "label": "مركز العروض الترويجية",
-     "result": "NAVIGATE",
-     "to": "promotions",
-     "response_ms": 1413
+     "response_ms": 587
     },
     {
      "label": "إعدادات الصفحة العامة",
      "result": "NAVIGATE",
      "to": "web_config",
-     "response_ms": 682
+     "response_ms": 1031
+    },
+    {
+     "label": "الاشتراكات والإعلانات",
+     "result": "NAVIGATE",
+     "to": "subscriptions_ads",
+     "response_ms": 612
     },
     {
      "label": "مستوى السمعة والتقييمات",
      "result": "NAVIGATE",
      "to": "reputation",
-     "response_ms": 994
+     "response_ms": 943
     },
     {
-     "label": "إدارة العملاء والأرباح",
+     "label": "مراقبة حالات الطوارئ",
      "result": "NAVIGATE",
-     "to": "crm",
+     "to": "sos_dispatch",
      "response_ms": 964
     },
     {
-     "label": "ماسح باركود العينات (Vial)",
+     "label": "وحدة تتبع زيارات التمريض (GPS)",
      "result": "NAVIGATE",
-     "to": "lab_scanner",
-     "response_ms": 924
+     "to": "nurse_visit",
+     "response_ms": 603
     },
     {
-     "label": "(icon #13)",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 481
-    },
-    {
-     "label": "(icon #14)",
-     "result": "UI_CHANGE",
-     "response_ms": 498
+     "label": "قائمة مهام العلامات الحيوية والرعاية",
+     "result": "NAVIGATE",
+     "to": "nurse_checklist",
+     "response_ms": 958
     },
     {
      "label": "(icon #15)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 457
+    },
+    {
+     "label": "(icon #16)",
+     "result": "UI_CHANGE",
+     "response_ms": 440
+    },
+    {
+     "label": "(icon #17)",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: الإعدادات"
+    },
+    {
+     "label": "الإشعارات",
      "result": "CRAWLER_TARGET_MISSING",
      "error": "control not found: الإعدادات"
     },
@@ -891,214 +900,30 @@
     {
      "label": "تسجيل الخروج",
      "result": "SKIPPED_DESTRUCTIVE"
-    },
-    {
-     "label": "الرئيسية",
-     "result": "CRAWLER_TARGET_MISSING",
-     "error": "control not found: الإعدادات"
-    },
-    {
-     "label": "الطلبات",
-     "result": "CRAWLER_TARGET_MISSING",
-     "error": "control not found: الإعدادات"
-    },
-    {
-     "label": "الوظائف",
-     "result": "CRAWLER_TARGET_MISSING",
-     "error": "control not found: الإعدادات"
     }
    ],
    "summary": {
-    "NAVIGATE": 13,
+    "NAVIGATE": 15,
     "NO_EFFECT": 1,
     "UI_CHANGE": 1,
-    "CRAWLER_TARGET_MISSING": 9,
+    "CRAWLER_TARGET_MISSING": 7,
     "SKIPPED_DESTRUCTIVE": 1
    }
   },
   {
-   "route": "MainTabs",
+   "route": "checklist",
    "ui_path": [
-    "الطلبات",
-    "الجدولة والسحب"
+    "توثيق الإجراء في التقرير"
    ],
-   "reached_by": "TAP_PATH",
-   "status": "CRAWLER_TARGET_MISSING",
-   "reason": "control not found: الطلبات",
-   "screenshot": "/tmp/nav2_lab_MainTabs_ui.png",
-   "controls_now": [
-    "Offline",
-    "(icon #1)",
-    "Wallet & Revenue",
-    "Track Samples",
-    "Enter Results",
-    "TAT Tracker",
-    "Home Collection",
-    "QR Label",
-    "Bundles",
-    "Custom Test",
-    "Insurance",
-    "All",
-    "Home",
-    "Orders",
-    "Jobs",
-    "Drugs",
-    "Settings"
-   ],
-   "route_now": {
-    "name": "MainTabs",
-    "params": null
-   },
-   "pending": [],
-   "failed_requests": [],
-   "js": [],
-   "bad_reads": []
-  },
-  {
-   "route": "MainTabs",
-   "ui_path": [
-    "الطلبات",
-    "التحليل والعينات"
-   ],
-   "reached_by": "TAP_PATH",
-   "status": "CRAWLER_TARGET_MISSING",
-   "reason": "control not found: الطلبات",
-   "screenshot": "/tmp/nav2_lab_MainTabs_ui.png",
-   "controls_now": [
-    "Offline",
-    "(icon #1)",
-    "Wallet & Revenue",
-    "Track Samples",
-    "Enter Results",
-    "TAT Tracker",
-    "Home Collection",
-    "QR Label",
-    "Bundles",
-    "Custom Test",
-    "Insurance",
-    "All",
-    "Home",
-    "Orders",
-    "Jobs",
-    "Drugs",
-    "Settings"
-   ],
-   "route_now": {
-    "name": "MainTabs",
-    "params": null
-   },
-   "pending": [],
-   "failed_requests": [],
-   "js": [],
-   "bad_reads": []
-  },
-  {
-   "route": "MainTabs",
-   "ui_path": [
-    "الطلبات",
-    "النتائج"
-   ],
-   "reached_by": "TAP_PATH",
-   "status": "CRAWLER_TARGET_MISSING",
-   "reason": "control not found: الطلبات",
-   "screenshot": "/tmp/nav2_lab_MainTabs_ui.png",
-   "controls_now": [
-    "Offline",
-    "(icon #1)",
-    "Wallet & Revenue",
-    "Track Samples",
-    "Enter Results",
-    "TAT Tracker",
-    "Home Collection",
-    "QR Label",
-    "Bundles",
-    "Custom Test",
-    "Insurance",
-    "All",
-    "Home",
-    "Orders",
-    "Jobs",
-    "Drugs",
-    "Settings"
-   ],
-   "route_now": {
-    "name": "MainTabs",
-    "params": null
-   },
-   "pending": [],
-   "failed_requests": [],
-   "js": [],
-   "bad_reads": []
-  },
-  {
-   "route": "order_detail",
-   "ui_path": [],
    "reached_by": "TAP_PATH",
    "params": {
-    "param": {
-     "patient_id": "cdb5917d-5c7b-40ce-a004-79f3c42790d1",
-     "patient_phone": "+966521776554",
-     "items": [
-      {
-       "service_id": "7485e699-8da6-440c-b25a-11e5a2c19ea3",
-       "name_ar": "تحليل دم شامل CBC",
-       "name_en": "Complete Blood Count",
-       "price": 35,
-       "sample_type": "blood",
-       "fasting_required": false
-      }
-     ],
-     "total": 35,
-     "service_fee": 0,
-     "home_visit_fee": 0,
-     "transportation_fee": 0,
-     "total_price": 0,
-     "location_type": "home",
-     "scheduled_at": "2026-10-03T09:00:00.000Z",
-     "state": "NEW_REQUEST",
-     "state_history": [
-      {
-       "from": "",
-       "to": "NEW_REQUEST",
-       "by_user_id": "cdb5917d-5c7b-40ce-a004-79f3c42790d1",
-       "by_role": "patient",
-       "at": "2026-10-02T06:16:25.026Z"
-      }
-     ],
-     "reports": [],
-     "payment_method": "card",
-     "insurance_status": "none",
-     "insurance_copay": 0,
-     "documents": [],
-     "medical_referral_required": false,
-     "prescriptionFiles": [],
-     "medicalReports": [],
-     "referralFiles": [],
-     "provider_account_id": "be5cc3b8-ccd2-4f66-b732-07173befb05d",
-     "is_deleted": false,
-     "deleted_at": null,
-     "created_by": null,
-     "updated_by": null,
-     "id": "503e1b27-b23a-4768-8076-936d563db11b",
-     "tracking_id": "LAB-2610-DX7AN",
-     "createdAt": "2026-10-02T06:16:25.028Z",
-     "updatedAt": "2026-10-02T06:16:25.028Z",
-     "status": "NEW_REQUEST",
-     "patient": null,
-     "is_insurance": false,
-     "insurance": "Card",
-     "homeCollection": true,
-     "tests": [
-      "7485e699-8da6-440c-b25a-11e5a2c19ea3"
-     ],
-     "tech_name": null
-    }
+    "param": null
    },
-   "time_to_ready_ms": 393,
+   "time_to_ready_ms": 1138,
    "render": {
     "js": [],
     "bad_reads": [],
-    "heading": "← | Order Details | م | — | — | Card | Home | Requested Tests | Complete B"
+    "heading": "← | Visit Checklist | — | — | — | 17% | 1 / 6 tasks done | التحقق من هوية "
    },
    "status": "TESTED",
    "inputs_filled": 0,
@@ -1107,29 +932,73 @@
      "label": "←",
      "result": "NAVIGATE",
      "to": "MainTabs",
-     "response_ms": 475
+     "response_ms": 458
     },
     {
-     "label": "Confirm Direct Order (Cash)",
-     "result": "WRITE",
-     "status": 400,
-     "method": "PATCH",
-     "url": "/labs/bookings/503e1b27-b23a-4768-8076-936d563db11b/state",
-     "tokens_sent": 0,
-     "tokens_stored": 0,
-     "response_ms": 802
-    },
-    {
-     "label": "Reject Order",
+     "label": "التحقق من هوية المريض",
      "result": "UI_CHANGE",
-     "response_ms": 447
+     "response_ms": 448
+    },
+    {
+     "label": "قياس العلامات الحيوية الأساسية",
+     "result": "UI_CHANGE",
+     "response_ms": 467
+    },
+    {
+     "label": "مراجعة الأدوية والحساسية",
+     "result": "UI_CHANGE",
+     "response_ms": 457
+    },
+    {
+     "label": "أخذ الموافقة المستنيرة",
+     "result": "UI_CHANGE",
+     "response_ms": 463
+    },
+    {
+     "label": "تجهيز حقل معقم",
+     "result": "UI_CHANGE",
+     "response_ms": 468
+    },
+    {
+     "label": "توثيق الإجراء في التقرير",
+     "result": "UI_CHANGE",
+     "response_ms": 455
     }
    ],
    "summary": {
     "NAVIGATE": 1,
-    "WRITE": 1,
-    "UI_CHANGE": 1
+    "UI_CHANGE": 6
    }
+  },
+  {
+   "route": "visit_report",
+   "ui_path": [
+    "انقر هنا لتوقيع المريض"
+   ],
+   "reached_by": "TAP_PATH",
+   "status": "CRAWLER_TARGET_MISSING",
+   "reason": "control not found: انقر هنا لتوقيع المريض",
+   "screenshot": "/tmp/nav2_home_care_visit_report_ui.png",
+   "controls_now": [
+    "←",
+    "Blood Pressure (BP)",
+    "Blood Glucose",
+    "Temperature (C)",
+    "Pulse Rate",
+    "Visit Summary *",
+    "Recommendations & Follow-up",
+    "Click here to sign"
+   ],
+   "route_now": {
+    "name": "visit_report",
+    "params": {
+     "param": null
+    }
+   },
+   "pending": [],
+   "failed_requests": [],
+   "js": [],
+   "bad_reads": []
   },
   {
    "route": "MainTabs",
@@ -1140,20 +1009,17 @@
    "reached_by": "TAP_PATH",
    "status": "CRAWLER_TARGET_MISSING",
    "reason": "control not found: الطلبات",
-   "screenshot": "/tmp/nav2_lab_MainTabs_ui.png",
+   "screenshot": "/tmp/nav2_home_care_MainTabs_ui.png",
    "controls_now": [
     "Offline",
     "(icon #1)",
-    "Wallet & Revenue",
-    "Track Samples",
-    "Enter Results",
-    "TAT Tracker",
-    "Home Collection",
-    "QR Label",
-    "Bundles",
-    "Custom Test",
-    "Insurance",
-    "All",
+    "Wallet &",
+    "GPS",
+    "Visit",
+    "Care",
+    "Progress",
+    "Visit",
+    "Medical",
     "Home",
     "Orders",
     "Jobs",
@@ -1170,7 +1036,112 @@
    "bad_reads": []
   },
   {
-   "route": "test_menu",
+   "route": "MainTabs",
+   "ui_path": [
+    "الطلبات",
+    "الأدوية"
+   ],
+   "reached_by": "TAP_PATH",
+   "status": "CRAWLER_TARGET_MISSING",
+   "reason": "control not found: الطلبات",
+   "screenshot": "/tmp/nav2_home_care_MainTabs_ui.png",
+   "controls_now": [
+    "Offline",
+    "(icon #1)",
+    "Wallet &",
+    "GPS",
+    "Visit",
+    "Care",
+    "Progress",
+    "Visit",
+    "Medical",
+    "Home",
+    "Orders",
+    "Jobs",
+    "Drugs",
+    "Settings"
+   ],
+   "route_now": {
+    "name": "MainTabs",
+    "params": null
+   },
+   "pending": [],
+   "failed_requests": [],
+   "js": [],
+   "bad_reads": []
+  },
+  {
+   "route": "MainTabs",
+   "ui_path": [
+    "الطلبات",
+    "الإعدادات"
+   ],
+   "reached_by": "TAP_PATH",
+   "status": "CRAWLER_TARGET_MISSING",
+   "reason": "control not found: الطلبات",
+   "screenshot": "/tmp/nav2_home_care_MainTabs_ui.png",
+   "controls_now": [
+    "Offline",
+    "(icon #1)",
+    "Wallet &",
+    "GPS",
+    "Visit",
+    "Care",
+    "Progress",
+    "Visit",
+    "Medical",
+    "Home",
+    "Orders",
+    "Jobs",
+    "Drugs",
+    "Settings"
+   ],
+   "route_now": {
+    "name": "MainTabs",
+    "params": null
+   },
+   "pending": [],
+   "failed_requests": [],
+   "js": [],
+   "bad_reads": []
+  },
+  {
+   "route": "MainTabs",
+   "ui_path": [
+    "الوظائف",
+    "(icon #1)"
+   ],
+   "reached_by": "TAP_PATH",
+   "status": "CRAWLER_TARGET_MISSING",
+   "reason": "control not found: الوظائف",
+   "screenshot": "/tmp/nav2_home_care_MainTabs_ui.png",
+   "controls_now": [
+    "Offline",
+    "(icon #1)",
+    "Wallet &",
+    "GPS",
+    "Visit",
+    "Care",
+    "Progress",
+    "Visit",
+    "Medical",
+    "Home",
+    "Orders",
+    "Jobs",
+    "Drugs",
+    "Settings"
+   ],
+   "route_now": {
+    "name": "MainTabs",
+    "params": null
+   },
+   "pending": [],
+   "failed_requests": [],
+   "js": [],
+   "bad_reads": []
+  },
+  {
+   "route": "profile_edit",
    "ui_path": [],
    "reached_by": "TAP_PATH",
    "params": {
@@ -1179,8 +1150,283 @@
    "time_to_ready_ms": 750,
    "render": {
     "js": [],
+    "bad_reads": [
+     "404 GET /provider/profile/image/status"
+    ],
+    "heading": "← | Account Info | H |  For a professional look and patient trust,"
+   },
+   "status": "TESTED",
+   "inputs_filled": 5,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 519
+    },
+    {
+     "label": "Upload Photo",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 488
+    },
+    {
+     "label": "Improve Photo",
+     "result": "UI_CHANGE",
+     "response_ms": 465
+    },
+    {
+     "label": "Full Name (Arabic) *",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 496
+    },
+    {
+     "label": "Full Name (English) *",
+     "result": "SKIPPED_DESTRUCTIVE"
+    },
+    {
+     "label": "Bio (Arabic)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 467
+    },
+    {
+     "label": "Bio (English)",
+     "result": "SKIPPED_DESTRUCTIVE"
+    },
+    {
+     "label": "Website",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 462
+    },
+    {
+     "label": "Save Changes",
+     "result": "WRITE",
+     "status": 200,
+     "method": "PATCH",
+     "url": "/provider/profile",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 828
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 4,
+    "UI_CHANGE": 1,
+    "SKIPPED_DESTRUCTIVE": 2,
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "nursing_services",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 395,
+   "render": {
+    "js": [],
     "bad_reads": [],
-    "heading": "← | Test Menu & Pricing | Available Tests | + Add Test | Complete Bl"
+    "heading": "← | Services Offered & Supplies | Important Clinical Supplies Ki"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 611
+    },
+    {
+     "label": "Wound Dressing",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 613
+    },
+    {
+     "label": "Ins.",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 583
+    },
+    {
+     "label": "(icon #3)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 440
+    },
+    {
+     "label": "Vital Signs Monitoring",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 594
+    },
+    {
+     "label": "(icon #6)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 438
+    },
+    {
+     "label": "Injection Administration",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 564
+    },
+    {
+     "label": "(icon #9)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 432
+    },
+    {
+     "label": "Catheterization",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 532
+    },
+    {
+     "label": "(icon #12)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 431
+    },
+    {
+     "label": "Elderly Care",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 570
+    },
+    {
+     "label": "(icon #15)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 434
+    },
+    {
+     "label": "Postpartum Care",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 563
+    },
+    {
+     "label": "(icon #18)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 447
+    },
+    {
+     "label": "(icon #19)",
+     "result": "UI_CHANGE",
+     "response_ms": 459
+    },
+    {
+     "label": "Save Services & Options",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/provider/settings/delta",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 934
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 13,
+    "UI_CHANGE": 1,
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "nursing_pricing",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 393,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Nursing Pricing Models | Configure pricing packages for home"
+   },
+   "status": "TESTED",
+   "inputs_filled": 6,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 491
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 443
+    },
+    {
+     "label": "Hourly Fee (SAR)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 496
+    },
+    {
+     "label": "(icon #3)",
+     "result": "UI_CHANGE",
+     "response_ms": 433
+    },
+    {
+     "label": "Daily Fee (SAR)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 528
+    },
+    {
+     "label": "(icon #5)",
+     "result": "UI_CHANGE",
+     "response_ms": 437
+    },
+    {
+     "label": "(icon #6)",
+     "result": "UI_CHANGE",
+     "response_ms": 452
+    },
+    {
+     "label": "Save Pricing Models",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/provider/settings/delta",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 854
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 4,
+    "NO_EFFECT": 2,
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "nursing_coverage",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 393,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Nursing Coverage Area | 15 KM | GPS Base Location Verification"
    },
    "status": "TESTED",
    "inputs_filled": 0,
@@ -1189,49 +1435,53 @@
      "label": "←",
      "result": "NAVIGATE",
      "to": "MainTabs",
-     "response_ms": 1017
+     "response_ms": 456
     },
     {
-     "label": "+ Add Test",
-     "result": "UI_CHANGE",
-     "response_ms": 1059
+     "label": "Verify Current GPS Location",
+     "result": "WRITE",
+     "status": 400,
+     "method": "POST",
+     "url": "/nursing/coverage/verify-gps",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 836
     },
     {
-     "label": "Edit Price",
+     "label": "5 KM",
      "result": "UI_CHANGE",
-     "response_ms": 929
+     "response_ms": 459
+    },
+    {
+     "label": "10 KM",
+     "result": "UI_CHANGE",
+     "response_ms": 457
+    },
+    {
+     "label": "15 KM",
+     "result": "UI_CHANGE",
+     "response_ms": 465
+    },
+    {
+     "label": "20 KM",
+     "result": "UI_CHANGE",
+     "response_ms": 829
+    },
+    {
+     "label": "30 KM",
+     "result": "UI_CHANGE",
+     "response_ms": 485
+    },
+    {
+     "label": "50 KM",
+     "result": "UI_CHANGE",
+     "response_ms": 465
     }
    ],
    "summary": {
     "NAVIGATE": 1,
-    "UI_CHANGE": 2
-   }
-  },
-  {
-   "route": "home_service",
-   "ui_path": [],
-   "reached_by": "TAP_PATH",
-   "params": {
-    "param": null
-   },
-   "time_to_ready_ms": 753,
-   "render": {
-    "js": [],
-    "bad_reads": [],
-    "heading": "← | Home Collection Coverage | 📍 | No coverage zones defined yet | D"
-   },
-   "status": "TESTED",
-   "inputs_filled": 0,
-   "elements": [
-    {
-     "label": "←",
-     "result": "NAVIGATE",
-     "to": "test_menu",
-     "response_ms": 512
-    }
-   ],
-   "summary": {
-    "NAVIGATE": 1
+    "WRITE": 1,
+    "UI_CHANGE": 6
    }
   },
   {
@@ -1241,87 +1491,65 @@
    "params": {
     "param": null
    },
-   "time_to_ready_ms": 746,
+   "time_to_ready_ms": 397,
    "render": {
     "js": [],
     "bad_reads": [],
-    "heading": "← | Working Hours Management | Sunday | 08:00 - 22:00 | From (HH:MM)"
+    "heading": "← | Working Hours | SHIFTS | Morning (08:00 - 16:00) | Evening (16:0"
    },
    "status": "TESTED",
-   "inputs_filled": 13,
+   "inputs_filled": 5,
    "elements": [
     {
      "label": "←",
      "result": "NAVIGATE",
-     "to": "test_menu",
-     "response_ms": 641
+     "to": "nursing_coverage",
+     "response_ms": 510
     },
     {
      "label": "(icon #1)",
-     "result": "UI_CHANGE",
-     "response_ms": 464
-    },
-    {
-     "label": "From (HH:MM)",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 551
+     "response_ms": 460
     },
     {
-     "label": "To (HH:MM)",
+     "label": "(icon #2)",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 495
+     "response_ms": 426
     },
     {
-     "label": "(icon #4)",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 419
-    },
-    {
-     "label": "(icon #7)",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 432
-    },
-    {
-     "label": "(icon #10)",
-     "result": "UI_CHANGE",
-     "response_ms": 434
-    },
-    {
-     "label": "(icon #11)",
+     "label": "(icon #3)",
      "result": "NO_EFFECT",
      "disabled": false,
      "response_ms": 434
     },
     {
-     "label": "(icon #12)",
+     "label": "Max Daily Visits",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 447
+     "response_ms": 491
     },
     {
-     "label": "(icon #13)",
-     "result": "UI_CHANGE",
-     "response_ms": 440
+     "label": "(icon #5)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 434
     },
     {
-     "label": "Save Working Hours",
+     "label": "Save Schedule",
      "result": "WRITE",
-     "status": 200,
-     "method": "PUT",
-     "url": "/provider/working-hours",
+     "status": 201,
+     "method": "POST",
+     "url": "/provider/schedule/settings",
      "tokens_sent": 0,
      "tokens_stored": 0,
-     "response_ms": 905
+     "response_ms": 812
     }
    ],
    "summary": {
     "NAVIGATE": 1,
-    "UI_CHANGE": 3,
-    "NO_EFFECT": 6,
+    "NO_EFFECT": 5,
     "WRITE": 1
    }
   },
@@ -1332,7 +1560,7 @@
    "params": {
     "param": null
    },
-   "time_to_ready_ms": 3079,
+   "time_to_ready_ms": 3074,
    "render": {
     "js": [],
     "bad_reads": [],
@@ -1345,127 +1573,127 @@
      "label": "←",
      "result": "NAVIGATE",
      "to": "MainTabs",
-     "response_ms": 1043
+     "response_ms": 1145
     },
     {
      "label": "(icon #1)",
      "result": "UI_CHANGE",
-     "response_ms": 565
+     "response_ms": 483
     },
     {
      "label": "(icon #2)",
      "result": "UI_CHANGE",
-     "response_ms": 524
+     "response_ms": 502
     },
     {
      "label": "(icon #3)",
      "result": "UI_CHANGE",
-     "response_ms": 496
+     "response_ms": 500
     },
     {
      "label": "(icon #4)",
      "result": "UI_CHANGE",
-     "response_ms": 493
+     "response_ms": 516
     },
     {
      "label": "(icon #5)",
      "result": "UI_CHANGE",
-     "response_ms": 527
+     "response_ms": 487
     },
     {
      "label": "(icon #6)",
      "result": "UI_CHANGE",
-     "response_ms": 522
+     "response_ms": 475
     },
     {
      "label": "(icon #7)",
      "result": "UI_CHANGE",
-     "response_ms": 486
+     "response_ms": 493
     },
     {
      "label": "(icon #8)",
      "result": "UI_CHANGE",
-     "response_ms": 546
+     "response_ms": 495
     },
     {
      "label": "(icon #9)",
      "result": "UI_CHANGE",
-     "response_ms": 485
+     "response_ms": 498
     },
     {
      "label": "(icon #10)",
      "result": "UI_CHANGE",
-     "response_ms": 551
+     "response_ms": 526
     },
     {
      "label": "(icon #11)",
      "result": "UI_CHANGE",
-     "response_ms": 473
+     "response_ms": 499
     },
     {
      "label": "(icon #12)",
      "result": "UI_CHANGE",
-     "response_ms": 471
+     "response_ms": 486
     },
     {
      "label": "(icon #13)",
      "result": "UI_CHANGE",
-     "response_ms": 494
+     "response_ms": 506
     },
     {
      "label": "(icon #14)",
      "result": "UI_CHANGE",
-     "response_ms": 486
+     "response_ms": 497
     },
     {
      "label": "(icon #15)",
      "result": "UI_CHANGE",
-     "response_ms": 492
+     "response_ms": 489
     },
     {
      "label": "(icon #16)",
      "result": "UI_CHANGE",
-     "response_ms": 517
+     "response_ms": 480
     },
     {
      "label": "(icon #17)",
      "result": "UI_CHANGE",
-     "response_ms": 476
+     "response_ms": 494
     },
     {
      "label": "(icon #18)",
      "result": "UI_CHANGE",
-     "response_ms": 490
+     "response_ms": 492
     },
     {
      "label": "(icon #19)",
      "result": "UI_CHANGE",
-     "response_ms": 494
+     "response_ms": 498
     },
     {
      "label": "(icon #20)",
      "result": "UI_CHANGE",
-     "response_ms": 495
+     "response_ms": 481
     },
     {
      "label": "(icon #21)",
      "result": "UI_CHANGE",
-     "response_ms": 483
+     "response_ms": 536
     },
     {
      "label": "(icon #22)",
      "result": "UI_CHANGE",
-     "response_ms": 483
+     "response_ms": 550
     },
     {
      "label": "(icon #23)",
      "result": "UI_CHANGE",
-     "response_ms": 462
+     "response_ms": 483
     },
     {
      "label": "(icon #24)",
      "result": "UI_CHANGE",
-     "response_ms": 510
+     "response_ms": 498
     }
    ],
    "summary": {
@@ -1480,7 +1708,7 @@
    "params": {
     "param": null
    },
-   "time_to_ready_ms": 1256,
+   "time_to_ready_ms": 739,
    "render": {
     "js": [],
     "bad_reads": [],
@@ -1493,7 +1721,7 @@
      "label": "←",
      "result": "NAVIGATE",
      "to": "insurance_config",
-     "response_ms": 459
+     "response_ms": 458
     }
    ],
    "summary": {
@@ -1507,7 +1735,7 @@
    "params": {
     "param": null
    },
-   "time_to_ready_ms": 741,
+   "time_to_ready_ms": 748,
    "render": {
     "js": [],
     "bad_reads": [],
@@ -1520,19 +1748,19 @@
      "label": "←",
      "result": "NAVIGATE",
      "to": "insurance_config",
-     "response_ms": 478
+     "response_ms": 477
     },
     {
      "label": "Upload Document",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 492
+     "response_ms": 501
     },
     {
      "label": "Upload New Certificate",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 496
+     "response_ms": 584
     }
    ],
    "summary": {
@@ -1547,7 +1775,7 @@
    "params": {
     "param": null
    },
-   "time_to_ready_ms": 396,
+   "time_to_ready_ms": 395,
    "render": {
     "js": [],
     "bad_reads": [],
@@ -1560,57 +1788,18 @@
      "label": "←",
      "result": "NAVIGATE",
      "to": "certificates_config",
-     "response_ms": 493
+     "response_ms": 446
     },
     {
      "label": "Add Photo",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 486
+     "response_ms": 459
     }
    ],
    "summary": {
     "NAVIGATE": 1,
     "NO_EFFECT": 1
-   }
-  },
-  {
-   "route": "promotions",
-   "ui_path": [],
-   "reached_by": "TAP_PATH",
-   "params": {
-    "param": null
-   },
-   "time_to_ready_ms": 775,
-   "render": {
-    "js": [],
-    "bad_reads": [],
-    "heading": "Promotions Center | ACTIVE PROMOTIONS | No promotions available | "
-   },
-   "status": "TESTED",
-   "inputs_filled": 0,
-   "elements": [
-    {
-     "label": "(icon #0)",
-     "result": "NAVIGATE",
-     "to": "media_config",
-     "response_ms": 449
-    },
-    {
-     "label": "(icon #1)",
-     "result": "NAVIGATE",
-     "to": "create_promo",
-     "response_ms": 517
-    },
-    {
-     "label": "Create New Promotion",
-     "result": "NAVIGATE",
-     "to": "create_promo",
-     "response_ms": 514
-    }
-   ],
-   "summary": {
-    "NAVIGATE": 3
    }
   },
   {
@@ -1620,7 +1809,7 @@
    "params": {
     "param": null
    },
-   "time_to_ready_ms": 416,
+   "time_to_ready_ms": 740,
    "render": {
     "js": [],
     "bad_reads": [],
@@ -1632,31 +1821,31 @@
     {
      "label": "←",
      "result": "NAVIGATE",
-     "to": "create_promo",
-     "response_ms": 514
+     "to": "media_config",
+     "response_ms": 470
     },
     {
      "label": "(icon #1)",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 448
+     "response_ms": 440
     },
     {
      "label": "Doctor/Clinic Bio",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 471
+     "response_ms": 445
     },
     {
      "label": "Social Media Link",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 459
+     "response_ms": 448
     },
     {
      "label": "Share",
      "result": "UI_CHANGE",
-     "response_ms": 476
+     "response_ms": 468
     },
     {
      "label": "Save Settings",
@@ -1666,7 +1855,7 @@
      "url": "/provider/profile",
      "tokens_sent": 0,
      "tokens_stored": 0,
-     "response_ms": 834
+     "response_ms": 822
     }
    ],
    "summary": {
@@ -1677,13 +1866,65 @@
    }
   },
   {
+   "route": "subscriptions_ads",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 392,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Subscriptions & Ads Purchases | Current Plan: — | PURCHASE FEA"
+   },
+   "status": "TESTED",
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 495
+    },
+    {
+     "label": "Ad Budget (SAR)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 475
+    },
+    {
+     "label": "Ad Duration (Days)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 443
+    },
+    {
+     "label": "Pay & Launch Ad",
+     "result": "UI_CHANGE",
+     "response_ms": 456
+    },
+    {
+     "label": "B2B Affiliate Portal",
+     "result": "NAVIGATE",
+     "to": "affiliate",
+     "response_ms": 827
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 2,
+    "NO_EFFECT": 2,
+    "UI_CHANGE": 1
+   }
+  },
+  {
    "route": "reputation",
    "ui_path": [],
    "reached_by": "TAP_PATH",
    "params": {
     "param": null
    },
-   "time_to_ready_ms": 1271,
+   "time_to_ready_ms": 741,
    "render": {
     "js": [],
     "bad_reads": [],
@@ -1695,8 +1936,8 @@
     {
      "label": "←",
      "result": "NAVIGATE",
-     "to": "MainTabs",
-     "response_ms": 1318
+     "to": "affiliate",
+     "response_ms": 447
     }
    ],
    "summary": {
@@ -1704,17 +1945,19 @@
    }
   },
   {
-   "route": "crm",
+   "route": "sos_dispatch",
    "ui_path": [],
    "reached_by": "TAP_PATH",
    "params": {
     "param": null
    },
-   "time_to_ready_ms": 1250,
+   "time_to_ready_ms": 743,
    "render": {
     "js": [],
-    "bad_reads": [],
-    "heading": "← | CRM & Revenue Intelligence | 1 | CRM Patients | 0 | VIP | QUICK CUST"
+    "bad_reads": [
+     "403 GET /emergency/active"
+    ],
+    "heading": "← | Emergency & SOS | Facing an emergency? | Send SOS Alert | Active"
    },
    "status": "TESTED",
    "inputs_filled": 0,
@@ -1722,58 +1965,14 @@
     {
      "label": "←",
      "result": "NAVIGATE",
-     "to": "MainTabs",
-     "response_ms": 468
+     "to": "affiliate",
+     "response_ms": 804
     },
     {
-     "label": "اW",
-     "result": "UI_CHANGE",
-     "response_ms": 956
-    },
-    {
-     "label": "CRM Profile",
-     "result": "UI_CHANGE",
-     "response_ms": 550
-    },
-    {
-     "label": "Revenue Insights",
-     "result": "NAVIGATE",
-     "to": "revenue_insights",
-     "response_ms": 840
-    }
-   ],
-   "summary": {
-    "NAVIGATE": 2,
-    "UI_CHANGE": 2
-   }
-  },
-  {
-   "route": "lab_scanner",
-   "ui_path": [],
-   "reached_by": "TAP_PATH",
-   "params": {
-    "param": null
-   },
-   "time_to_ready_ms": 755,
-   "render": {
-    "js": [],
-    "bad_reads": [],
-    "heading": "← | Sample Barcode Scanner | Enter barcode or sample ID | No match"
-   },
-   "status": "TESTED",
-   "inputs_filled": 1,
-   "elements": [
-    {
-     "label": "←",
-     "result": "NAVIGATE",
-     "to": "revenue_insights",
-     "response_ms": 505
-    },
-    {
-     "label": "Enter barcode or sample ID",
+     "label": "Send SOS Alert",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 550
+     "response_ms": 475
     }
    ],
    "summary": {
@@ -1782,115 +1981,572 @@
    }
   },
   {
-   "route": "order_detail",
-   "ui_path": [
-    "Reject Order"
-   ],
+   "route": "nurse_visit",
+   "ui_path": [],
    "reached_by": "TAP_PATH",
    "params": {
-    "param": {
-     "patient_id": "cdb5917d-5c7b-40ce-a004-79f3c42790d1",
-     "patient_phone": "+966521776554",
-     "items": [
-      {
-       "service_id": "7485e699-8da6-440c-b25a-11e5a2c19ea3",
-       "name_ar": "تحليل دم شامل CBC",
-       "name_en": "Complete Blood Count",
-       "price": 35,
-       "sample_type": "blood",
-       "fasting_required": false
-      }
-     ],
-     "total": 35,
-     "service_fee": 0,
-     "home_visit_fee": 0,
-     "transportation_fee": 0,
-     "total_price": 0,
-     "location_type": "home",
-     "scheduled_at": "2026-10-03T09:00:00.000Z",
-     "state": "NEW_REQUEST",
-     "state_history": [
-      {
-       "from": "",
-       "to": "NEW_REQUEST",
-       "by_user_id": "cdb5917d-5c7b-40ce-a004-79f3c42790d1",
-       "by_role": "patient",
-       "at": "2026-10-02T06:16:25.026Z"
-      }
-     ],
-     "reports": [],
-     "payment_method": "card",
-     "insurance_status": "none",
-     "insurance_copay": 0,
-     "documents": [],
-     "medical_referral_required": false,
-     "prescriptionFiles": [],
-     "medicalReports": [],
-     "referralFiles": [],
-     "provider_account_id": "be5cc3b8-ccd2-4f66-b732-07173befb05d",
-     "is_deleted": false,
-     "deleted_at": null,
-     "created_by": null,
-     "updated_by": null,
-     "id": "503e1b27-b23a-4768-8076-936d563db11b",
-     "tracking_id": "LAB-2610-DX7AN",
-     "createdAt": "2026-10-02T06:16:25.028Z",
-     "updatedAt": "2026-10-02T06:16:25.028Z",
-     "status": "NEW_REQUEST",
-     "patient": null,
-     "is_insurance": false,
-     "insurance": "Card",
-     "homeCollection": true,
-     "tests": [
-      "7485e699-8da6-440c-b25a-11e5a2c19ea3"
-     ],
-     "tech_name": null
-    }
+    "param": null
    },
-   "time_to_ready_ms": 840,
+   "time_to_ready_ms": 391,
    "render": {
     "js": [],
     "bad_reads": [],
-    "heading": "← | Order Details | م | — | — | Card | Home | Requested Tests | Complete B"
+    "heading": "← | Nurse Visit Console | Start Checklist"
    },
    "status": "TESTED",
-   "inputs_filled": 1,
+   "inputs_filled": 0,
    "elements": [
     {
      "label": "←",
-     "result": "UI_CHANGE",
-     "response_ms": 475
+     "result": "NAVIGATE",
+     "to": "sos_dispatch",
+     "response_ms": 438
     },
     {
-     "label": "Confirm Direct Order (Cash)",
-     "result": "UI_CHANGE",
-     "response_ms": 493
+     "label": "Start Checklist",
+     "result": "NAVIGATE",
+     "to": "nurse_checklist",
+     "response_ms": 805
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 2
+   }
+  },
+  {
+   "route": "nurse_checklist",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 397,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Nurse Checklist Console | checklist | No tasks | Checklist is em"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "nurse_visit",
+     "response_ms": 450
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "profile_edit",
+   "ui_path": [
+    "Improve Photo"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 1132,
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "404 GET /provider/profile/image/status"
+    ],
+    "heading": "← | Account Info | H |  For a professional look and patient trust,"
+   },
+   "status": "TESTED",
+   "inputs_filled": 5,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 457
     },
     {
-     "label": "Reject Order",
+     "label": "Upload Photo",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 462
+    },
+    {
+     "label": "Improve Photo",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 460
+    },
+    {
+     "label": "Full Name (Arabic) *",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 565
+    },
+    {
+     "label": "Full Name (English) *",
+     "result": "SKIPPED_DESTRUCTIVE"
+    },
+    {
+     "label": "Bio (Arabic)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 458
+    },
+    {
+     "label": "Bio (English)",
+     "result": "SKIPPED_DESTRUCTIVE"
+    },
+    {
+     "label": "Website",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 448
+    },
+    {
+     "label": "Save Changes",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 447
+    },
+    {
+     "label": "Close",
      "result": "UI_CHANGE",
-     "response_ms": 495
+     "response_ms": 1319
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 7,
+    "SKIPPED_DESTRUCTIVE": 2,
+    "UI_CHANGE": 1
+   }
+  },
+  {
+   "route": "nursing_services",
+   "ui_path": [
+    "(icon #19)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 784,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Services Offered & Supplies | Important Clinical Supplies Ki"
+   },
+   "status": "TESTED",
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 579
+    },
+    {
+     "label": "Wound Dressing",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 561
+    },
+    {
+     "label": "Ins.",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 569
+    },
+    {
+     "label": "(icon #3)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 440
+    },
+    {
+     "label": "Vital Signs Monitoring",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 543
+    },
+    {
+     "label": "(icon #6)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 444
+    },
+    {
+     "label": "Injection Administration",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 557
+    },
+    {
+     "label": "(icon #9)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 427
+    },
+    {
+     "label": "Catheterization",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 602
+    },
+    {
+     "label": "(icon #12)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 444
+    },
+    {
+     "label": "Elderly Care",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 565
+    },
+    {
+     "label": "(icon #15)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 435
+    },
+    {
+     "label": "Postpartum Care",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 579
+    },
+    {
+     "label": "(icon #18)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 425
+    },
+    {
+     "label": "(icon #19)",
+     "result": "UI_CHANGE",
+     "response_ms": 446
+    },
+    {
+     "label": "Extra Supplies Kit Fee",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 559
+    },
+    {
+     "label": "Save Services & Options",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/provider/settings/delta",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 933
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 14,
+    "UI_CHANGE": 1,
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "nursing_pricing",
+   "ui_path": [
+    "(icon #1)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 786,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Nursing Pricing Models | Configure pricing packages for home"
+   },
+   "status": "TESTED",
+   "inputs_filled": 5,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 497
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 446
+    },
+    {
+     "label": "(icon #2)",
+     "result": "UI_CHANGE",
+     "response_ms": 440
+    },
+    {
+     "label": "Daily Fee (SAR)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 507
+    },
+    {
+     "label": "(icon #4)",
+     "result": "UI_CHANGE",
+     "response_ms": 437
+    },
+    {
+     "label": "(icon #5)",
+     "result": "UI_CHANGE",
+     "response_ms": 434
+    },
+    {
+     "label": "Save Pricing Models",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/provider/settings/delta",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 860
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 4,
+    "NO_EFFECT": 1,
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "nursing_pricing",
+   "ui_path": [
+    "(icon #3)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 785,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Nursing Pricing Models | Configure pricing packages for home"
+   },
+   "status": "TESTED",
+   "inputs_filled": 5,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 483
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 431
+    },
+    {
+     "label": "Hourly Fee (SAR)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 485
     },
     {
      "label": "(icon #3)",
      "result": "UI_CHANGE",
-     "response_ms": 479
+     "response_ms": 438
     },
     {
-     "label": "Reason",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 1341
-    },
-    {
-     "label": "Confirm rejection",
+     "label": "(icon #4)",
      "result": "UI_CHANGE",
-     "response_ms": 488
+     "response_ms": 420
+    },
+    {
+     "label": "(icon #5)",
+     "result": "UI_CHANGE",
+     "response_ms": 441
+    },
+    {
+     "label": "Save Pricing Models",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/provider/settings/delta",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 824
     }
    ],
    "summary": {
-    "UI_CHANGE": 5,
-    "NO_EFFECT": 1
+    "NAVIGATE": 1,
+    "UI_CHANGE": 4,
+    "NO_EFFECT": 1,
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "nursing_pricing",
+   "ui_path": [
+    "(icon #5)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 783,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Nursing Pricing Models | Configure pricing packages for home"
+   },
+   "status": "TESTED",
+   "inputs_filled": 7,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 500
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 432
+    },
+    {
+     "label": "Hourly Fee (SAR)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 503
+    },
+    {
+     "label": "(icon #3)",
+     "result": "UI_CHANGE",
+     "response_ms": 436
+    },
+    {
+     "label": "Daily Fee (SAR)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 481
+    },
+    {
+     "label": "(icon #5)",
+     "result": "UI_CHANGE",
+     "response_ms": 425
+    },
+    {
+     "label": "Weekly Price (SAR)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 510
+    },
+    {
+     "label": "(icon #7)",
+     "result": "UI_CHANGE",
+     "response_ms": 453
+    },
+    {
+     "label": "Save Pricing Models",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/provider/settings/delta",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 845
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 4,
+    "NO_EFFECT": 3,
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "nursing_pricing",
+   "ui_path": [
+    "(icon #6)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 792,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Nursing Pricing Models | Configure pricing packages for home"
+   },
+   "status": "TESTED",
+   "inputs_filled": 7,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 509
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 433
+    },
+    {
+     "label": "Hourly Fee (SAR)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 493
+    },
+    {
+     "label": "(icon #3)",
+     "result": "UI_CHANGE",
+     "response_ms": 464
+    },
+    {
+     "label": "Daily Fee (SAR)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 481
+    },
+    {
+     "label": "(icon #5)",
+     "result": "UI_CHANGE",
+     "response_ms": 446
+    },
+    {
+     "label": "(icon #6)",
+     "result": "UI_CHANGE",
+     "response_ms": 431
+    },
+    {
+     "label": "Monthly Price (SAR)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 516
+    },
+    {
+     "label": "Save Pricing Models",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/provider/settings/delta",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 839
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 4,
+    "NO_EFFECT": 3,
+    "WRITE": 1
    }
   },
   {
@@ -1902,7 +2558,7 @@
    "params": {
     "param": null
    },
-   "time_to_ready_ms": 2275,
+   "time_to_ready_ms": 2270,
    "render": {
     "js": [],
     "bad_reads": [],
@@ -1915,62 +2571,62 @@
      "label": "←",
      "result": "NAVIGATE",
      "to": "MainTabs",
-     "response_ms": 1023
+     "response_ms": 1122
     },
     {
      "label": "(icon #1)",
      "result": "UI_CHANGE",
-     "response_ms": 455
+     "response_ms": 472
     },
     {
      "label": "Copay %",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 1045
+     "response_ms": 1257
     },
     {
      "label": "فئة VIP",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 1049
+     "response_ms": 1058
     },
     {
      "label": "الفئة الذهبية",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 1082
+     "response_ms": 1085
     },
     {
      "label": "الفئة الفضية",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 1072
+     "response_ms": 1102
     },
     {
      "label": "الفئة البرونزية",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 1063
+     "response_ms": 1042
     },
     {
      "label": "(icon #7)",
      "result": "UI_CHANGE",
-     "response_ms": 470
+     "response_ms": 458
     },
     {
      "label": "(icon #8)",
      "result": "UI_CHANGE",
-     "response_ms": 472
+     "response_ms": 452
     },
     {
      "label": "(icon #9)",
      "result": "UI_CHANGE",
-     "response_ms": 453
+     "response_ms": 461
     },
     {
      "label": "(icon #10)",
      "result": "UI_CHANGE",
-     "response_ms": 475
+     "response_ms": 468
     },
     {
      "label": "(icon #11)",
@@ -1980,67 +2636,67 @@
     {
      "label": "(icon #12)",
      "result": "UI_CHANGE",
-     "response_ms": 447
+     "response_ms": 457
     },
     {
      "label": "(icon #13)",
      "result": "UI_CHANGE",
-     "response_ms": 461
+     "response_ms": 460
     },
     {
      "label": "(icon #14)",
      "result": "UI_CHANGE",
-     "response_ms": 464
+     "response_ms": 514
     },
     {
      "label": "(icon #15)",
      "result": "UI_CHANGE",
-     "response_ms": 453
+     "response_ms": 489
     },
     {
      "label": "(icon #16)",
      "result": "UI_CHANGE",
-     "response_ms": 479
+     "response_ms": 512
     },
     {
      "label": "(icon #17)",
      "result": "UI_CHANGE",
-     "response_ms": 483
+     "response_ms": 473
     },
     {
      "label": "(icon #18)",
      "result": "UI_CHANGE",
-     "response_ms": 451
+     "response_ms": 457
     },
     {
      "label": "(icon #19)",
      "result": "UI_CHANGE",
-     "response_ms": 635
+     "response_ms": 460
     },
     {
      "label": "(icon #20)",
      "result": "UI_CHANGE",
-     "response_ms": 459
+     "response_ms": 473
     },
     {
      "label": "(icon #21)",
      "result": "UI_CHANGE",
-     "response_ms": 483
+     "response_ms": 457
     },
     {
      "label": "(icon #22)",
      "result": "UI_CHANGE",
-     "response_ms": 460
+     "response_ms": 462
     },
     {
      "label": "(icon #23)",
      "result": "UI_CHANGE",
-     "response_ms": 451
+     "response_ms": 446
     },
     {
      "label": "(icon #24)",
      "result": "UI_CHANGE",
-     "response_ms": 456
+     "response_ms": 472
     }
    ],
    "summary": {
@@ -2058,7 +2714,7 @@
    "params": {
     "param": null
    },
-   "time_to_ready_ms": 2255,
+   "time_to_ready_ms": 2316,
    "render": {
     "js": [],
     "bad_reads": [],
@@ -2071,141 +2727,141 @@
      "label": "←",
      "result": "NAVIGATE",
      "to": "MainTabs",
-     "response_ms": 1357
+     "response_ms": 1136
     },
     {
      "label": "(icon #1)",
      "result": "UI_CHANGE",
-     "response_ms": 515
+     "response_ms": 461
     },
     {
      "label": "(icon #2)",
      "result": "UI_CHANGE",
-     "response_ms": 451
+     "response_ms": 463
     },
     {
      "label": "Copay %",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 1087
+     "response_ms": 1157
     },
     {
      "label": "VIP",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 1139
+     "response_ms": 1071
     },
     {
      "label": "ذهبية",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 1074
+     "response_ms": 1046
     },
     {
      "label": "فضية",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 1027
+     "response_ms": 1242
     },
     {
      "label": "(icon #7)",
      "result": "UI_CHANGE",
-     "response_ms": 457
+     "response_ms": 464
     },
     {
      "label": "(icon #8)",
      "result": "UI_CHANGE",
-     "response_ms": 474
+     "response_ms": 458
     },
     {
      "label": "(icon #9)",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 440
+     "response_ms": 441
     },
     {
      "label": "(icon #10)",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 462
+     "response_ms": 461
     },
     {
      "label": "(icon #11)",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 456
+     "response_ms": 458
     },
     {
      "label": "(icon #12)",
      "result": "UI_CHANGE",
-     "response_ms": 477
+     "response_ms": 470
     },
     {
      "label": "(icon #13)",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 449
+     "response_ms": 438
     },
     {
      "label": "(icon #14)",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 484
+     "response_ms": 455
     },
     {
      "label": "(icon #15)",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 456
+     "response_ms": 462
     },
     {
      "label": "(icon #16)",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 461
+     "response_ms": 459
     },
     {
      "label": "(icon #17)",
      "result": "UI_CHANGE",
-     "response_ms": 486
+     "response_ms": 501
     },
     {
      "label": "(icon #18)",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 449
+     "response_ms": 455
     },
     {
      "label": "(icon #19)",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 462
+     "response_ms": 443
     },
     {
      "label": "(icon #20)",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 453
+     "response_ms": 447
     },
     {
      "label": "(icon #21)",
      "result": "UI_CHANGE",
-     "response_ms": 465
+     "response_ms": 466
     },
     {
      "label": "(icon #22)",
      "result": "UI_CHANGE",
-     "response_ms": 463
+     "response_ms": 456
     },
     {
      "label": "(icon #23)",
      "result": "UI_CHANGE",
-     "response_ms": 495
+     "response_ms": 457
     },
     {
      "label": "(icon #24)",
      "result": "UI_CHANGE",
-     "response_ms": 475
+     "response_ms": 468
     }
    ],
    "summary": {
@@ -2218,6 +2874,324 @@
    "route": "insurance_config",
    "ui_path": [
     "(icon #3)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 2270,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Health Insurance | Select which insurance providers you acce"
+   },
+   "status": "TESTED",
+   "inputs_filled": 25,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 1161
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 469
+    },
+    {
+     "label": "(icon #2)",
+     "result": "UI_CHANGE",
+     "response_ms": 467
+    },
+    {
+     "label": "(icon #3)",
+     "result": "UI_CHANGE",
+     "response_ms": 450
+    },
+    {
+     "label": "Copay %",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1126
+    },
+    {
+     "label": "فئة A",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1102
+    },
+    {
+     "label": "فئة B",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1005
+    },
+    {
+     "label": "فئة C",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1078
+    },
+    {
+     "label": "(icon #8)",
+     "result": "UI_CHANGE",
+     "response_ms": 455
+    },
+    {
+     "label": "(icon #9)",
+     "result": "UI_CHANGE",
+     "response_ms": 466
+    },
+    {
+     "label": "(icon #10)",
+     "result": "UI_CHANGE",
+     "response_ms": 468
+    },
+    {
+     "label": "(icon #11)",
+     "result": "UI_CHANGE",
+     "response_ms": 478
+    },
+    {
+     "label": "(icon #12)",
+     "result": "UI_CHANGE",
+     "response_ms": 488
+    },
+    {
+     "label": "(icon #13)",
+     "result": "UI_CHANGE",
+     "response_ms": 514
+    },
+    {
+     "label": "(icon #14)",
+     "result": "UI_CHANGE",
+     "response_ms": 453
+    },
+    {
+     "label": "(icon #15)",
+     "result": "UI_CHANGE",
+     "response_ms": 454
+    },
+    {
+     "label": "(icon #16)",
+     "result": "UI_CHANGE",
+     "response_ms": 471
+    },
+    {
+     "label": "(icon #17)",
+     "result": "UI_CHANGE",
+     "response_ms": 458
+    },
+    {
+     "label": "(icon #18)",
+     "result": "UI_CHANGE",
+     "response_ms": 466
+    },
+    {
+     "label": "(icon #19)",
+     "result": "UI_CHANGE",
+     "response_ms": 522
+    },
+    {
+     "label": "(icon #20)",
+     "result": "UI_CHANGE",
+     "response_ms": 468
+    },
+    {
+     "label": "(icon #21)",
+     "result": "UI_CHANGE",
+     "response_ms": 484
+    },
+    {
+     "label": "(icon #22)",
+     "result": "UI_CHANGE",
+     "response_ms": 480
+    },
+    {
+     "label": "(icon #23)",
+     "result": "UI_CHANGE",
+     "response_ms": 471
+    },
+    {
+     "label": "(icon #24)",
+     "result": "UI_CHANGE",
+     "response_ms": 462
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 20,
+    "NO_EFFECT": 4
+   }
+  },
+  {
+   "route": "insurance_config",
+   "ui_path": [
+    "(icon #4)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 2261,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Health Insurance | Select which insurance providers you acce"
+   },
+   "status": "TESTED",
+   "inputs_filled": 25,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 1053
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 494
+    },
+    {
+     "label": "(icon #2)",
+     "result": "UI_CHANGE",
+     "response_ms": 479
+    },
+    {
+     "label": "(icon #3)",
+     "result": "UI_CHANGE",
+     "response_ms": 535
+    },
+    {
+     "label": "(icon #4)",
+     "result": "UI_CHANGE",
+     "response_ms": 475
+    },
+    {
+     "label": "Copay %",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1160
+    },
+    {
+     "label": "ذهبية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1086
+    },
+    {
+     "label": "فضية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1115
+    },
+    {
+     "label": "(icon #8)",
+     "result": "UI_CHANGE",
+     "response_ms": 472
+    },
+    {
+     "label": "(icon #9)",
+     "result": "UI_CHANGE",
+     "response_ms": 477
+    },
+    {
+     "label": "(icon #10)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 445
+    },
+    {
+     "label": "(icon #11)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 457
+    },
+    {
+     "label": "(icon #12)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 458
+    },
+    {
+     "label": "(icon #13)",
+     "result": "UI_CHANGE",
+     "response_ms": 463
+    },
+    {
+     "label": "(icon #14)",
+     "result": "UI_CHANGE",
+     "response_ms": 464
+    },
+    {
+     "label": "(icon #15)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 462
+    },
+    {
+     "label": "(icon #16)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 468
+    },
+    {
+     "label": "(icon #17)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 460
+    },
+    {
+     "label": "(icon #18)",
+     "result": "UI_CHANGE",
+     "response_ms": 449
+    },
+    {
+     "label": "(icon #19)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 454
+    },
+    {
+     "label": "(icon #20)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 458
+    },
+    {
+     "label": "(icon #21)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 453
+    },
+    {
+     "label": "(icon #22)",
+     "result": "UI_CHANGE",
+     "response_ms": 480
+    },
+    {
+     "label": "(icon #23)",
+     "result": "UI_CHANGE",
+     "response_ms": 447
+    },
+    {
+     "label": "(icon #24)",
+     "result": "UI_CHANGE",
+     "response_ms": 487
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 12,
+    "NO_EFFECT": 12
+   }
+  },
+  {
+   "route": "insurance_config",
+   "ui_path": [
+    "(icon #7)"
    ],
    "reached_by": "TAP_PATH",
    "params": {
@@ -2236,452 +3210,134 @@
      "label": "←",
      "result": "NAVIGATE",
      "to": "MainTabs",
-     "response_ms": 1080
+     "response_ms": 1138
     },
     {
      "label": "(icon #1)",
      "result": "UI_CHANGE",
-     "response_ms": 454
+     "response_ms": 507
     },
     {
      "label": "(icon #2)",
      "result": "UI_CHANGE",
-     "response_ms": 458
+     "response_ms": 464
     },
     {
      "label": "(icon #3)",
      "result": "UI_CHANGE",
-     "response_ms": 438
-    },
-    {
-     "label": "Copay %",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 1198
-    },
-    {
-     "label": "فئة A",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 1073
-    },
-    {
-     "label": "فئة B",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 1067
-    },
-    {
-     "label": "فئة C",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 1134
-    },
-    {
-     "label": "(icon #8)",
-     "result": "UI_CHANGE",
-     "response_ms": 491
-    },
-    {
-     "label": "(icon #9)",
-     "result": "UI_CHANGE",
-     "response_ms": 522
-    },
-    {
-     "label": "(icon #10)",
-     "result": "UI_CHANGE",
-     "response_ms": 469
-    },
-    {
-     "label": "(icon #11)",
-     "result": "UI_CHANGE",
-     "response_ms": 453
-    },
-    {
-     "label": "(icon #12)",
-     "result": "UI_CHANGE",
-     "response_ms": 477
-    },
-    {
-     "label": "(icon #13)",
-     "result": "UI_CHANGE",
-     "response_ms": 454
-    },
-    {
-     "label": "(icon #14)",
-     "result": "UI_CHANGE",
-     "response_ms": 457
-    },
-    {
-     "label": "(icon #15)",
-     "result": "UI_CHANGE",
-     "response_ms": 460
-    },
-    {
-     "label": "(icon #16)",
-     "result": "UI_CHANGE",
-     "response_ms": 460
-    },
-    {
-     "label": "(icon #17)",
-     "result": "UI_CHANGE",
-     "response_ms": 476
-    },
-    {
-     "label": "(icon #18)",
-     "result": "UI_CHANGE",
-     "response_ms": 452
-    },
-    {
-     "label": "(icon #19)",
-     "result": "UI_CHANGE",
-     "response_ms": 491
-    },
-    {
-     "label": "(icon #20)",
-     "result": "UI_CHANGE",
-     "response_ms": 445
-    },
-    {
-     "label": "(icon #21)",
-     "result": "UI_CHANGE",
-     "response_ms": 455
-    },
-    {
-     "label": "(icon #22)",
-     "result": "UI_CHANGE",
-     "response_ms": 455
-    },
-    {
-     "label": "(icon #23)",
-     "result": "UI_CHANGE",
-     "response_ms": 471
-    },
-    {
-     "label": "(icon #24)",
-     "result": "UI_CHANGE",
-     "response_ms": 455
-    }
-   ],
-   "summary": {
-    "NAVIGATE": 1,
-    "UI_CHANGE": 20,
-    "NO_EFFECT": 4
-   }
-  },
-  {
-   "route": "insurance_config",
-   "ui_path": [
-    "(icon #4)"
-   ],
-   "reached_by": "TAP_PATH",
-   "params": {
-    "param": null
-   },
-   "time_to_ready_ms": 2247,
-   "render": {
-    "js": [],
-    "bad_reads": [],
-    "heading": "← | Health Insurance | Select which insurance providers you acce"
-   },
-   "status": "TESTED",
-   "inputs_filled": 25,
-   "elements": [
-    {
-     "label": "←",
-     "result": "NAVIGATE",
-     "to": "MainTabs",
-     "response_ms": 977
-    },
-    {
-     "label": "(icon #1)",
-     "result": "UI_CHANGE",
-     "response_ms": 460
-    },
-    {
-     "label": "(icon #2)",
-     "result": "UI_CHANGE",
-     "response_ms": 465
-    },
-    {
-     "label": "(icon #3)",
-     "result": "UI_CHANGE",
-     "response_ms": 448
+     "response_ms": 478
     },
     {
      "label": "(icon #4)",
      "result": "UI_CHANGE",
-     "response_ms": 447
-    },
-    {
-     "label": "Copay %",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 1066
-    },
-    {
-     "label": "ذهبية",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 1178
-    },
-    {
-     "label": "فضية",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 1045
-    },
-    {
-     "label": "(icon #8)",
-     "result": "UI_CHANGE",
-     "response_ms": 459
-    },
-    {
-     "label": "(icon #9)",
-     "result": "UI_CHANGE",
-     "response_ms": 462
-    },
-    {
-     "label": "(icon #10)",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 448
-    },
-    {
-     "label": "(icon #11)",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 454
-    },
-    {
-     "label": "(icon #12)",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 441
-    },
-    {
-     "label": "(icon #13)",
-     "result": "UI_CHANGE",
-     "response_ms": 463
-    },
-    {
-     "label": "(icon #14)",
-     "result": "UI_CHANGE",
-     "response_ms": 462
-    },
-    {
-     "label": "(icon #15)",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 438
-    },
-    {
-     "label": "(icon #16)",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 448
-    },
-    {
-     "label": "(icon #17)",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 442
-    },
-    {
-     "label": "(icon #18)",
-     "result": "UI_CHANGE",
-     "response_ms": 467
-    },
-    {
-     "label": "(icon #19)",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 435
-    },
-    {
-     "label": "(icon #20)",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 484
-    },
-    {
-     "label": "(icon #21)",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 446
-    },
-    {
-     "label": "(icon #22)",
-     "result": "UI_CHANGE",
-     "response_ms": 442
-    },
-    {
-     "label": "(icon #23)",
-     "result": "UI_CHANGE",
-     "response_ms": 444
-    },
-    {
-     "label": "(icon #24)",
-     "result": "UI_CHANGE",
      "response_ms": 465
-    }
-   ],
-   "summary": {
-    "NAVIGATE": 1,
-    "UI_CHANGE": 12,
-    "NO_EFFECT": 12
-   }
-  },
-  {
-   "route": "insurance_config",
-   "ui_path": [
-    "(icon #7)"
-   ],
-   "reached_by": "TAP_PATH",
-   "params": {
-    "param": null
-   },
-   "time_to_ready_ms": 2268,
-   "render": {
-    "js": [],
-    "bad_reads": [],
-    "heading": "← | Health Insurance | Select which insurance providers you acce"
-   },
-   "status": "TESTED",
-   "inputs_filled": 25,
-   "elements": [
-    {
-     "label": "←",
-     "result": "NAVIGATE",
-     "to": "MainTabs",
-     "response_ms": 1011
-    },
-    {
-     "label": "(icon #1)",
-     "result": "UI_CHANGE",
-     "response_ms": 465
-    },
-    {
-     "label": "(icon #2)",
-     "result": "UI_CHANGE",
-     "response_ms": 447
-    },
-    {
-     "label": "(icon #3)",
-     "result": "UI_CHANGE",
-     "response_ms": 465
-    },
-    {
-     "label": "(icon #4)",
-     "result": "UI_CHANGE",
-     "response_ms": 454
     },
     {
      "label": "(icon #5)",
      "result": "UI_CHANGE",
-     "response_ms": 467
+     "response_ms": 479
     },
     {
      "label": "(icon #6)",
      "result": "UI_CHANGE",
-     "response_ms": 461
+     "response_ms": 451
     },
     {
      "label": "(icon #7)",
      "result": "UI_CHANGE",
-     "response_ms": 486
+     "response_ms": 439
     },
     {
      "label": "Copay %",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 1075
+     "response_ms": 1106
     },
     {
      "label": "شاملة",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 1169
+     "response_ms": 1118
     },
     {
      "label": "أساسية",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 1206
+     "response_ms": 1109
     },
     {
      "label": "(icon #11)",
      "result": "UI_CHANGE",
-     "response_ms": 468
+     "response_ms": 459
     },
     {
      "label": "(icon #12)",
      "result": "UI_CHANGE",
-     "response_ms": 473
+     "response_ms": 476
     },
     {
      "label": "(icon #13)",
      "result": "UI_CHANGE",
-     "response_ms": 479
+     "response_ms": 485
     },
     {
      "label": "(icon #14)",
      "result": "UI_CHANGE",
-     "response_ms": 474
+     "response_ms": 467
     },
     {
      "label": "(icon #15)",
      "result": "UI_CHANGE",
-     "response_ms": 477
+     "response_ms": 516
     },
     {
      "label": "(icon #16)",
      "result": "UI_CHANGE",
-     "response_ms": 512
+     "response_ms": 468
     },
     {
      "label": "(icon #17)",
      "result": "UI_CHANGE",
-     "response_ms": 483
+     "response_ms": 492
     },
     {
      "label": "(icon #18)",
      "result": "UI_CHANGE",
-     "response_ms": 461
+     "response_ms": 495
     },
     {
      "label": "(icon #19)",
      "result": "UI_CHANGE",
-     "response_ms": 479
+     "response_ms": 485
     },
     {
      "label": "(icon #20)",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 475
+     "response_ms": 447
     },
     {
      "label": "(icon #21)",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 455
+     "response_ms": 447
     },
     {
      "label": "(icon #22)",
      "result": "UI_CHANGE",
-     "response_ms": 474
+     "response_ms": 446
     },
     {
      "label": "(icon #23)",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 435
+     "response_ms": 441
     },
     {
      "label": "(icon #24)",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 509
+     "response_ms": 464
     }
    ],
    "summary": {
@@ -2699,7 +3355,7 @@
    "params": {
     "param": null
    },
-   "time_to_ready_ms": 2281,
+   "time_to_ready_ms": 2253,
    "render": {
     "js": [],
     "bad_reads": [],
@@ -2712,140 +3368,440 @@
      "label": "←",
      "result": "NAVIGATE",
      "to": "MainTabs",
-     "response_ms": 1290
+     "response_ms": 1149
     },
     {
      "label": "(icon #1)",
      "result": "UI_CHANGE",
-     "response_ms": 485
+     "response_ms": 473
     },
     {
      "label": "(icon #2)",
-     "result": "CRAWLER_TARGET_MISSING",
-     "error": "control not found: (icon #8)"
+     "result": "UI_CHANGE",
+     "response_ms": 456
     },
     {
      "label": "(icon #3)",
-     "result": "CRAWLER_TARGET_MISSING",
-     "error": "control not found: (icon #8)"
+     "result": "UI_CHANGE",
+     "response_ms": 483
     },
     {
      "label": "(icon #4)",
      "result": "UI_CHANGE",
-     "response_ms": 459
+     "response_ms": 511
     },
     {
      "label": "(icon #5)",
      "result": "UI_CHANGE",
-     "response_ms": 544
+     "response_ms": 479
     },
     {
      "label": "(icon #6)",
      "result": "UI_CHANGE",
-     "response_ms": 502
+     "response_ms": 473
     },
     {
      "label": "(icon #7)",
      "result": "UI_CHANGE",
-     "response_ms": 480
+     "response_ms": 474
     },
     {
      "label": "(icon #8)",
      "result": "UI_CHANGE",
-     "response_ms": 476
+     "response_ms": 470
     },
     {
      "label": "Copay %",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 1400
+     "response_ms": 1115
     },
     {
      "label": "VIP",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 1515
+     "response_ms": 1093
     },
     {
      "label": "ذهبية",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 1481
+     "response_ms": 1144
     },
     {
      "label": "(icon #12)",
      "result": "UI_CHANGE",
-     "response_ms": 521
+     "response_ms": 471
     },
     {
      "label": "(icon #13)",
      "result": "UI_CHANGE",
-     "response_ms": 503
+     "response_ms": 482
     },
     {
      "label": "(icon #14)",
      "result": "UI_CHANGE",
-     "response_ms": 477
+     "response_ms": 456
     },
     {
      "label": "(icon #15)",
      "result": "UI_CHANGE",
-     "response_ms": 499
+     "response_ms": 470
     },
     {
      "label": "(icon #16)",
      "result": "UI_CHANGE",
-     "response_ms": 621
+     "response_ms": 479
     },
     {
      "label": "(icon #17)",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 693
+     "response_ms": 449
     },
     {
      "label": "(icon #18)",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 489
+     "response_ms": 465
     },
     {
      "label": "(icon #19)",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 510
+     "response_ms": 461
     },
     {
      "label": "(icon #20)",
      "result": "UI_CHANGE",
-     "response_ms": 509
+     "response_ms": 468
     },
     {
      "label": "(icon #21)",
      "result": "UI_CHANGE",
-     "response_ms": 543
+     "response_ms": 473
     },
     {
      "label": "(icon #22)",
      "result": "UI_CHANGE",
-     "response_ms": 488
+     "response_ms": 455
     },
     {
      "label": "(icon #23)",
      "result": "UI_CHANGE",
-     "response_ms": 467
+     "response_ms": 486
     },
     {
      "label": "(icon #24)",
      "result": "UI_CHANGE",
-     "response_ms": 474
+     "response_ms": 472
     }
    ],
    "summary": {
     "NAVIGATE": 1,
-    "UI_CHANGE": 16,
-    "CRAWLER_TARGET_MISSING": 2,
+    "UI_CHANGE": 18,
     "NO_EFFECT": 6
+   }
+  },
+  {
+   "route": "affiliate",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 741,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Affiliate Portal | Invite a provider & earn referral rewards"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "insurance_config",
+     "response_ms": 469
+    },
+    {
+     "label": "Share Code",
+     "result": "UI_CHANGE",
+     "response_ms": 470
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 1
+   }
+  },
+  {
+   "route": "nursing_pricing",
+   "ui_path": [
+    "(icon #1)",
+    "(icon #2)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 1200,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Nursing Pricing Models | Configure pricing packages for home"
+   },
+   "status": "TESTED",
+   "inputs_filled": 4,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 507
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 431
+    },
+    {
+     "label": "(icon #2)",
+     "result": "UI_CHANGE",
+     "response_ms": 439
+    },
+    {
+     "label": "(icon #3)",
+     "result": "UI_CHANGE",
+     "response_ms": 459
+    },
+    {
+     "label": "(icon #4)",
+     "result": "UI_CHANGE",
+     "response_ms": 433
+    },
+    {
+     "label": "Save Pricing Models",
+     "result": "UI_CHANGE",
+     "response_ms": 485
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 5
+   }
+  },
+  {
+   "route": "nursing_pricing",
+   "ui_path": [
+    "(icon #1)",
+    "(icon #4)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 1179,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Nursing Pricing Models | Configure pricing packages for home"
+   },
+   "status": "TESTED",
+   "inputs_filled": 6,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 477
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 442
+    },
+    {
+     "label": "(icon #2)",
+     "result": "UI_CHANGE",
+     "response_ms": 445
+    },
+    {
+     "label": "Daily Fee (SAR)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 479
+    },
+    {
+     "label": "(icon #4)",
+     "result": "UI_CHANGE",
+     "response_ms": 453
+    },
+    {
+     "label": "Weekly Price (SAR)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 482
+    },
+    {
+     "label": "(icon #6)",
+     "result": "UI_CHANGE",
+     "response_ms": 435
+    },
+    {
+     "label": "Save Pricing Models",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/provider/settings/delta",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 845
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 4,
+    "NO_EFFECT": 2,
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "nursing_pricing",
+   "ui_path": [
+    "(icon #1)",
+    "(icon #5)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 1181,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Nursing Pricing Models | Configure pricing packages for home"
+   },
+   "status": "TESTED",
+   "inputs_filled": 6,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 494
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 449
+    },
+    {
+     "label": "(icon #2)",
+     "result": "UI_CHANGE",
+     "response_ms": 436
+    },
+    {
+     "label": "Daily Fee (SAR)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 499
+    },
+    {
+     "label": "(icon #4)",
+     "result": "UI_CHANGE",
+     "response_ms": 437
+    },
+    {
+     "label": "(icon #5)",
+     "result": "UI_CHANGE",
+     "response_ms": 429
+    },
+    {
+     "label": "Monthly Price (SAR)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 481
+    },
+    {
+     "label": "Save Pricing Models",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/provider/settings/delta",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 842
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 4,
+    "NO_EFFECT": 2,
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "order_detail",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 393,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Field Operations | Visit unavailable"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "nursing_pricing",
+     "response_ms": 498
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "promotions",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 736,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "Promotions Center | ACTIVE PROMOTIONS | No promotions available | "
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "nursing_pricing",
+     "response_ms": 433
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NAVIGATE",
+     "to": "create_promo",
+     "response_ms": 456
+    },
+    {
+     "label": "Create New Promotion",
+     "result": "NAVIGATE",
+     "to": "create_promo",
+     "response_ms": 491
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 3
    }
   },
   {
@@ -2855,7 +3811,7 @@
    "params": {
     "param": null
    },
-   "time_to_ready_ms": 455,
+   "time_to_ready_ms": 390,
    "render": {
     "js": [],
     "bad_reads": [],
@@ -2867,43 +3823,43 @@
     {
      "label": "←",
      "result": "NAVIGATE",
-     "to": "insurance_config",
-     "response_ms": 522
+     "to": "promotions",
+     "response_ms": 510
     },
     {
      "label": "Campaign Title *",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 472
+     "response_ms": 502
     },
     {
      "label": "Original Price",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 448
+     "response_ms": 472
     },
     {
      "label": "Discounted Price",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 528
+     "response_ms": 468
     },
     {
      "label": "Start Date",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 465
+     "response_ms": 462
     },
     {
      "label": "End Date",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 480
+     "response_ms": 504
     },
     {
      "label": "Submit for Approval",
      "result": "UI_CHANGE",
-     "response_ms": 455
+     "response_ms": 528
     }
    ],
    "summary": {
@@ -2914,90 +3870,33 @@
   },
   {
    "route": "crm",
-   "ui_path": [
-    "اW"
-   ],
-   "reached_by": "TAP_PATH",
-   "params": {
-    "param": null
-   },
-   "time_to_ready_ms": 1481,
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 745,
    "render": {
     "js": [],
-    "bad_reads": [
-     "404 GET /provider/crm/cdb5917d-5c7b-40ce-a004-79f3c42790d1"
-    ],
-    "heading": "← | CRM & Revenue Intelligence | 1 | CRM Patients | 0 | VIP | QUICK CUST"
+    "bad_reads": [],
+    "heading": "← | CRM & Revenue Intelligence | 0 | CRM Patients | 0 | VIP | QUICK CUST"
    },
    "status": "TESTED",
-   "inputs_filled": 4,
+   "inputs_filled": 0,
    "elements": [
     {
      "label": "←",
-     "result": "UI_CHANGE",
-     "response_ms": 539
-    },
-    {
-     "label": "اW",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 527
-    },
-    {
-     "label": "CRM Profile",
-     "result": "NO_EFFECT",
-     "disabled": false,
+     "result": "NAVIGATE",
+     "to": "create_promo",
      "response_ms": 494
     },
     {
      "label": "Revenue Insights",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 527
-    },
-    {
-     "label": "(icon #4)",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 426
-    },
-    {
-     "label": "(icon #5)",
-     "result": "UI_CHANGE",
-     "response_ms": 1303
-    },
-    {
-     "label": "(icon #6)",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 429
-    },
-    {
-     "label": "(icon #7)",
-     "result": "UI_CHANGE",
-     "response_ms": 442
-    },
-    {
-     "label": "Add New Note",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 709
-    },
-    {
-     "label": "Save CRM Settings",
-     "result": "WRITE",
-     "status": 200,
-     "method": "PUT",
-     "url": "/provider/crm/cdb5917d-5c7b-40ce-a004-79f3c42790d1",
-     "tokens_sent": 1,
-     "tokens_stored": 1,
-     "response_ms": 849
+     "result": "NAVIGATE",
+     "to": "revenue_insights",
+     "response_ms": 857
     }
    ],
    "summary": {
-    "UI_CHANGE": 3,
-    "NO_EFFECT": 6,
-    "WRITE": 1
+    "NAVIGATE": 2
    }
   },
   {
@@ -3007,298 +3906,55 @@
    "params": {
     "param": null
    },
-   "time_to_ready_ms": 740,
+   "time_to_ready_ms": 395,
    "render": {
     "js": [],
     "bad_reads": [],
     "heading": "← | Revenue Insights | Net earnings this month | ٠ SAR | TOP EARNING"
    },
    "status": "TESTED",
-   "inputs_filled": 4,
-   "elements": [
-    {
-     "label": "←",
-     "result": "UI_CHANGE",
-     "response_ms": 503
-    },
-    {
-     "label": "(icon #1)",
-     "result": "CRAWLER_TARGET_MISSING",
-     "error": "control not found: (icon #1)"
-    },
-    {
-     "label": "(icon #2)",
-     "result": "CRAWLER_TARGET_MISSING",
-     "error": "control not found: (icon #2)"
-    },
-    {
-     "label": "(icon #3)",
-     "result": "CRAWLER_TARGET_MISSING",
-     "error": "control not found: (icon #3)"
-    },
-    {
-     "label": "(icon #4)",
-     "result": "CRAWLER_TARGET_MISSING",
-     "error": "control not found: (icon #4)"
-    },
-    {
-     "label": "Add New Note",
-     "result": "CRAWLER_TARGET_MISSING",
-     "error": "control not found: Add New Note"
-    },
-    {
-     "label": "Save CRM Settings",
-     "result": "CRAWLER_TARGET_MISSING",
-     "error": "control not found: Save CRM Settings"
-    }
-   ],
-   "summary": {
-    "UI_CHANGE": 1,
-    "CRAWLER_TARGET_MISSING": 6
-   }
-  },
-  {
-   "route": "crm",
-   "ui_path": [
-    "اW",
-    "(icon #7)"
-   ],
-   "reached_by": "TAP_PATH",
-   "params": {
-    "param": null
-   },
-   "time_to_ready_ms": 1899,
-   "render": {
-    "js": [],
-    "bad_reads": [],
-    "heading": "← | CRM & Revenue Intelligence | 1 | CRM Patients | 0 | VIP | QUICK CUST"
-   },
-   "status": "TESTED",
-   "inputs_filled": 5,
-   "elements": [
-    {
-     "label": "←",
-     "result": "UI_CHANGE",
-     "response_ms": 522
-    },
-    {
-     "label": "اW",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 677
-    },
-    {
-     "label": "CRM Profile",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 509
-    },
-    {
-     "label": "Revenue Insights",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 518
-    },
-    {
-     "label": "(icon #4)",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 431
-    },
-    {
-     "label": "(icon #5)",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 452
-    },
-    {
-     "label": "(icon #6)",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 456
-    },
-    {
-     "label": "(icon #7)",
-     "result": "UI_CHANGE",
-     "response_ms": 432
-    },
-    {
-     "label": "Block Reason",
-     "result": "SKIPPED_DESTRUCTIVE"
-    },
-    {
-     "label": "Add New Note",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 566
-    },
-    {
-     "label": "Save CRM Settings",
-     "result": "WRITE",
-     "status": 200,
-     "method": "PUT",
-     "url": "/provider/crm/cdb5917d-5c7b-40ce-a004-79f3c42790d1",
-     "tokens_sent": 2,
-     "tokens_stored": 2,
-     "response_ms": 870
-    }
-   ],
-   "summary": {
-    "UI_CHANGE": 2,
-    "NO_EFFECT": 7,
-    "SKIPPED_DESTRUCTIVE": 1,
-    "WRITE": 1
-   }
-  },
-  {
-   "route": "revenue_insights",
-   "ui_path": [
-    "←"
-   ],
-   "reached_by": "TAP_PATH",
-   "params": {
-    "param": null
-   },
-   "time_to_ready_ms": 1142,
-   "status": "NOT_REACHABLE",
-   "reason": "navigation ended on MainTabs",
-   "screenshot": "/tmp/nav2_lab_revenue_insights_nav.png",
-   "controls_now": [
-    "Offline",
-    "(icon #1)",
-    "Wallet & Revenue",
-    "Track Samples",
-    "Enter Results",
-    "TAT Tracker",
-    "Home Collection",
-    "QR Label",
-    "Bundles",
-    "Custom Test",
-    "Insurance",
-    "All",
-    "Home",
-    "Orders",
-    "Jobs",
-    "Drugs",
-    "Settings"
-   ],
-   "route_now": {
-    "name": "MainTabs",
-    "params": null
-   },
-   "pending": [],
-   "failed_requests": [],
-   "js": [],
-   "bad_reads": []
-  },
-  {
-   "route": "result_review",
-   "ui_path": [],
-   "reached_by": "DIRECT",
-   "params": null,
-   "time_to_ready_ms": 390,
-   "render": {
-    "js": [],
-    "bad_reads": [],
-    "heading": "← | Review Result | NP | Nabdah Patient | — | Add laboratory result | An"
-   },
-   "status": "TESTED",
-   "inputs_filled": 5,
+   "inputs_filled": 0,
    "elements": [
     {
      "label": "←",
      "result": "NAVIGATE",
-     "to": "MainTabs",
-     "response_ms": 545
-    },
-    {
-     "label": "Analyte *",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 520
-    },
-    {
-     "label": "Result *",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 513
-    },
-    {
-     "label": "Unit",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 530
-    },
-    {
-     "label": "Reference range",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 473
-    },
-    {
-     "label": "(icon #5)",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 441
-    },
-    {
-     "label": "Add result",
-     "result": "UI_CHANGE",
-     "response_ms": 571
-    },
-    {
-     "label": "Patient Only",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 480
-    },
-    {
-     "label": "Patient + Doctor",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 493
-    },
-    {
-     "label": "Confirm & Send Result",
-     "result": "UI_CHANGE",
-     "response_ms": 500
+     "to": "crm",
+     "response_ms": 458
     }
    ],
    "summary": {
-    "NAVIGATE": 1,
-    "NO_EFFECT": 7,
-    "UI_CHANGE": 2
+    "NAVIGATE": 1
    }
   },
   {
-   "route": "chat",
+   "route": "gps_router",
    "ui_path": [],
    "reached_by": "DIRECT",
    "params": null,
-   "time_to_ready_ms": 757,
+   "time_to_ready_ms": 397,
    "render": {
     "js": [],
     "bad_reads": [],
-    "heading": "Messages | Add at least one result before sending"
+    "heading": "← | Emergency GPS Router | Start the trip to enable live routing"
    },
    "status": "TESTED",
-   "inputs_filled": 1,
+   "inputs_filled": 0,
    "elements": [
     {
-     "label": "(icon #0)",
+     "label": "←",
      "result": "NAVIGATE",
-     "to": "result_review",
-     "response_ms": 470
+     "to": "crm",
+     "response_ms": 626
     },
     {
-     "label": "(icon #1)",
-     "result": "CRAWLER_TARGET_MISSING",
-     "error": "control not found: (icon #1)"
+     "label": "Start Trip",
+     "result": "UI_CHANGE",
+     "response_ms": 479
     }
    ],
    "summary": {
     "NAVIGATE": 1,
-    "CRAWLER_TARGET_MISSING": 1
+    "UI_CHANGE": 1
    }
   },
   {
@@ -3306,11 +3962,11 @@
    "ui_path": [],
    "reached_by": "DIRECT",
    "params": null,
-   "time_to_ready_ms": 743,
+   "time_to_ready_ms": 742,
    "render": {
     "js": [],
     "bad_reads": [],
-    "heading": "Medical Jobs | Browse | Post Ad | Inbox"
+    "heading": "Medical Jobs | Browse | Post Ad | Inbox | No assigned emergency — cl"
    },
    "status": "TESTED",
    "inputs_filled": 1,
@@ -3318,29 +3974,29 @@
     {
      "label": "(icon #0)",
      "result": "NAVIGATE",
-     "to": "chat",
-     "response_ms": 450
+     "to": "gps_router",
+     "response_ms": 486
     },
     {
      "label": "(icon #1)",
      "result": "UI_CHANGE",
-     "response_ms": 478
+     "response_ms": 483
     },
     {
      "label": "Browse",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 499
+     "response_ms": 471
     },
     {
      "label": "Post Ad",
      "result": "UI_CHANGE",
-     "response_ms": 487
+     "response_ms": 474
     },
     {
      "label": "Inbox",
      "result": "UI_CHANGE",
-     "response_ms": 820
+     "response_ms": 863
     },
     {
      "label": "(icon #5)",
@@ -3362,7 +4018,7 @@
    ],
    "reached_by": "TAP_PATH",
    "params": null,
-   "time_to_ready_ms": 1128,
+   "time_to_ready_ms": 1195,
    "render": {
     "js": [],
     "bad_reads": [],
@@ -3374,104 +4030,104 @@
     {
      "label": "(icon #0)",
      "result": "UI_CHANGE",
-     "response_ms": 432
+     "response_ms": 479
     },
     {
      "label": "(icon #1)",
      "result": "UI_CHANGE",
-     "response_ms": 441
+     "response_ms": 453
     },
     {
      "label": "Browse",
      "result": "UI_CHANGE",
-     "response_ms": 527
+     "response_ms": 548
     },
     {
      "label": "Post Ad",
      "result": "UI_CHANGE",
-     "response_ms": 572
+     "response_ms": 558
     },
     {
      "label": "Inbox",
      "result": "UI_CHANGE",
-     "response_ms": 533
+     "response_ms": 634
     },
     {
      "label": "(icon #5)",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 464
+     "response_ms": 452
     },
     {
      "label": "(icon #6)",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 641
+     "response_ms": 644
     },
     {
      "label": "Doctor",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 500
+     "response_ms": 513
     },
     {
      "label": "Pharmacist",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 525
+     "response_ms": 560
     },
     {
      "label": "Nurse",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 503
+     "response_ms": 514
     },
     {
      "label": "Lab",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 494
+     "response_ms": 506
     },
     {
      "label": "Radiology",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 545
+     "response_ms": 512
     },
     {
      "label": "الرياض",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 512
+     "response_ms": 491
     },
     {
      "label": "جدة",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 511
+     "response_ms": 513
     },
     {
      "label": "الدمام",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 538
+     "response_ms": 501
     },
     {
      "label": "مكة المكرمة",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 607
+     "response_ms": 528
     },
     {
      "label": "المدينة المنورة",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 508
+     "response_ms": 510
     },
     {
      "label": "Apply Filter",
      "result": "UI_CHANGE",
-     "response_ms": 501
+     "response_ms": 606
     }
    ],
    "summary": {
@@ -3486,7 +4142,7 @@
    ],
    "reached_by": "TAP_PATH",
    "params": null,
-   "time_to_ready_ms": 1149,
+   "time_to_ready_ms": 1134,
    "render": {
     "js": [],
     "bad_reads": [],
@@ -3499,81 +4155,81 @@
      "label": "(icon #0)",
      "result": "NAVIGATE",
      "to": "MainTabs",
-     "response_ms": 480
+     "response_ms": 459
     },
     {
      "label": "(icon #1)",
      "result": "UI_CHANGE",
-     "response_ms": 439
+     "response_ms": 454
     },
     {
      "label": "Browse",
      "result": "UI_CHANGE",
-     "response_ms": 603
+     "response_ms": 579
     },
     {
      "label": "Post Ad",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 565
+     "response_ms": 555
     },
     {
      "label": "Inbox",
      "result": "UI_CHANGE",
-     "response_ms": 908
+     "response_ms": 948
     },
     {
      "label": "Employer",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 692
+     "response_ms": 554
     },
     {
      "label": "Job Seeker",
      "result": "UI_CHANGE",
-     "response_ms": 586
+     "response_ms": 587
     },
     {
      "label": "Job Title *",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 564
+     "response_ms": 567
     },
     {
      "label": "Facility Name",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 543
+     "response_ms": 568
     },
     {
      "label": "Doctor",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 550
+     "response_ms": 581
     },
     {
      "label": "Nurse",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 553
+     "response_ms": 575
     },
     {
      "label": "Pharmacist",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 587
+     "response_ms": 565
     },
     {
      "label": "Lab",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 575
+     "response_ms": 558
     },
     {
      "label": "Radiology",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 563
+     "response_ms": 550
     },
     {
      "label": "طبيب عام",
@@ -3585,61 +4241,61 @@
      "label": "مقيم",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 578
+     "response_ms": 569
     },
     {
      "label": "أخصائي",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 624
+     "response_ms": 586
     },
     {
      "label": "أخصائي أول",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 595
+     "response_ms": 623
     },
     {
      "label": "استشاري",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 596
+     "response_ms": 590
     },
     {
      "label": "غير مصنف",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 550
+     "response_ms": 605
     },
     {
      "label": "City *",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 561
+     "response_ms": 549
     },
     {
      "label": "Nationality",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 600
+     "response_ms": 571
     },
     {
      "label": "Experience",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 552
+     "response_ms": 529
     },
     {
      "label": "Full Time",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 531
+     "response_ms": 537
     },
     {
      "label": "Part Time",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 555
+     "response_ms": 574
     }
    ],
    "summary": {
@@ -3656,7 +4312,7 @@
    ],
    "reached_by": "TAP_PATH",
    "params": null,
-   "time_to_ready_ms": 1541,
+   "time_to_ready_ms": 1535,
    "render": {
     "js": [],
     "bad_reads": [],
@@ -3668,139 +4324,139 @@
     {
      "label": "(icon #0)",
      "result": "UI_CHANGE",
-     "response_ms": 426
+     "response_ms": 438
     },
     {
      "label": "(icon #1)",
      "result": "UI_CHANGE",
-     "response_ms": 458
+     "response_ms": 454
     },
     {
      "label": "Browse",
      "result": "UI_CHANGE",
-     "response_ms": 743
+     "response_ms": 675
     },
     {
      "label": "Post Ad",
      "result": "UI_CHANGE",
-     "response_ms": 807
+     "response_ms": 715
     },
     {
      "label": "Inbox",
      "result": "UI_CHANGE",
-     "response_ms": 655
+     "response_ms": 716
     },
     {
      "label": "Employer",
      "result": "UI_CHANGE",
-     "response_ms": 917
+     "response_ms": 812
     },
     {
      "label": "Job Seeker",
      "result": "UI_CHANGE",
-     "response_ms": 695
+     "response_ms": 662
     },
     {
      "label": "Job Title *",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 711
+     "response_ms": 683
     },
     {
      "label": "Facility Name",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 792
+     "response_ms": 624
     },
     {
      "label": "Doctor",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 626
+     "response_ms": 609
     },
     {
      "label": "Nurse",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 712
+     "response_ms": 610
     },
     {
      "label": "Pharmacist",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 640
+     "response_ms": 601
     },
     {
      "label": "Lab",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 698
+     "response_ms": 639
     },
     {
      "label": "Radiology",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 585
+     "response_ms": 635
     },
     {
      "label": "طبيب عام",
      "result": "UI_CHANGE",
-     "response_ms": 670
+     "response_ms": 623
     },
     {
      "label": "مقيم",
      "result": "UI_CHANGE",
-     "response_ms": 641
+     "response_ms": 639
     },
     {
      "label": "أخصائي",
      "result": "UI_CHANGE",
-     "response_ms": 742
+     "response_ms": 713
     },
     {
      "label": "أخصائي أول",
      "result": "UI_CHANGE",
-     "response_ms": 637
+     "response_ms": 655
     },
     {
      "label": "استشاري",
      "result": "UI_CHANGE",
-     "response_ms": 629
+     "response_ms": 706
     },
     {
      "label": "غير مصنف",
      "result": "UI_CHANGE",
-     "response_ms": 688
+     "response_ms": 649
     },
     {
      "label": "City *",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 687
+     "response_ms": 638
     },
     {
      "label": "Nationality",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 653
+     "response_ms": 612
     },
     {
      "label": "Experience",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 621
+     "response_ms": 639
     },
     {
      "label": "Full Time",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 734
+     "response_ms": 638
     },
     {
      "label": "Part Time",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 670
+     "response_ms": 634
     }
    ],
    "summary": {
@@ -3816,7 +4472,7 @@
    ],
    "reached_by": "TAP_PATH",
    "params": null,
-   "time_to_ready_ms": 1541,
+   "time_to_ready_ms": 1534,
    "render": {
     "js": [],
     "bad_reads": [],
@@ -3829,147 +4485,147 @@
      "label": "(icon #0)",
      "result": "NAVIGATE",
      "to": "MainTabs",
-     "response_ms": 451
+     "response_ms": 459
     },
     {
      "label": "(icon #1)",
      "result": "UI_CHANGE",
-     "response_ms": 430
+     "response_ms": 435
     },
     {
      "label": "Browse",
      "result": "UI_CHANGE",
-     "response_ms": 572
+     "response_ms": 546
     },
     {
      "label": "Post Ad",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 564
+     "response_ms": 551
     },
     {
      "label": "Inbox",
      "result": "UI_CHANGE",
-     "response_ms": 995
+     "response_ms": 962
     },
     {
      "label": "Employer",
      "result": "UI_CHANGE",
-     "response_ms": 677
+     "response_ms": 580
     },
     {
      "label": "Job Seeker",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 612
+     "response_ms": 566
     },
     {
      "label": "Desired Title *",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 535
+     "response_ms": 557
     },
     {
      "label": "Current Facility",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 656
+     "response_ms": 596
     },
     {
      "label": "Doctor",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 599
+     "response_ms": 575
     },
     {
      "label": "Nurse",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 675
+     "response_ms": 564
     },
     {
      "label": "Pharmacist",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 556
+     "response_ms": 578
     },
     {
      "label": "Lab",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 548
+     "response_ms": 570
     },
     {
      "label": "Radiology",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 583
+     "response_ms": 563
     },
     {
      "label": "طبيب عام",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 560
+     "response_ms": 559
     },
     {
      "label": "مقيم",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 614
+     "response_ms": 561
     },
     {
      "label": "أخصائي",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 545
+     "response_ms": 549
     },
     {
      "label": "أخصائي أول",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 552
+     "response_ms": 578
     },
     {
      "label": "استشاري",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 540
+     "response_ms": 619
     },
     {
      "label": "غير مصنف",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 603
+     "response_ms": 594
     },
     {
      "label": "City *",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 568
+     "response_ms": 573
     },
     {
      "label": "Nationality",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 547
+     "response_ms": 563
     },
     {
      "label": "Experience",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 555
+     "response_ms": 559
     },
     {
      "label": "Full Time",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 539
+     "response_ms": 540
     },
     {
      "label": "Part Time",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 579
+     "response_ms": 582
     }
    ],
    "summary": {
@@ -3983,11 +4639,11 @@
    "ui_path": [],
    "reached_by": "DIRECT",
    "params": null,
-   "time_to_ready_ms": 1858,
+   "time_to_ready_ms": 1864,
    "render": {
     "js": [],
     "bad_reads": [],
-    "heading": "Medical Drug Index | All | pain (14) | UE3C96A10 (2) | category-2070"
+    "heading": "Medical Drug Index | All | pain (14) | UE3C96A10 (2) | UC15A2210 (1)"
    },
    "status": "TESTED",
    "inputs_filled": 1,
@@ -3996,130 +4652,131 @@
      "label": "(icon #0)",
      "result": "NAVIGATE",
      "to": "medical_jobs",
-     "response_ms": 464
+     "response_ms": 444
     },
     {
      "label": "(icon #1)",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 473
+     "response_ms": 470
     },
     {
      "label": "All",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 522
+     "response_ms": 533
     },
     {
      "label": "pain (14)",
      "result": "UI_CHANGE",
-     "response_ms": 2040
+     "response_ms": 2065
     },
     {
      "label": "UE3C96A10 (2)",
      "result": "UI_CHANGE",
-     "response_ms": 2036
-    },
-    {
-     "label": "category-20703 (1)",
-     "result": "UI_CHANGE",
-     "response_ms": 2053
+     "response_ms": 2095
     },
     {
      "label": "UC15A2210 (1)",
      "result": "UI_CHANGE",
-     "response_ms": 2045
+     "response_ms": 2049
+    },
+    {
+     "label": "category-20703 (1)",
+     "result": "UI_CHANGE",
+     "response_ms": 2086
     },
     {
      "label": "UC15A2205",
      "result": "UI_CHANGE",
-     "response_ms": 923
+     "response_ms": 1002
     },
     {
      "label": "UE3C96A05",
      "result": "UI_CHANGE",
-     "response_ms": 896
+     "response_ms": 1128
     },
     {
      "label": "name_en-20701",
      "result": "UI_CHANGE",
-     "response_ms": 946
+     "response_ms": 1016
     },
     {
      "label": "Panadol Extra 500mg 0019c8",
      "result": "UI_CHANGE",
-     "response_ms": 905
+     "response_ms": 985
     },
     {
      "label": "Panadol Extra 500mg 18f732",
      "result": "UI_CHANGE",
-     "response_ms": 911
+     "response_ms": 975
     },
     {
      "label": "Panadol Extra 500mg 4a05f6",
      "result": "UI_CHANGE",
-     "response_ms": 920
+     "response_ms": 933
     },
     {
      "label": "Panadol Extra 500mg 730a68",
      "result": "UI_CHANGE",
-     "response_ms": 928
+     "response_ms": 1004
     },
     {
      "label": "Panadol Extra 500mg 81b23b",
      "result": "UI_CHANGE",
-     "response_ms": 921
+     "response_ms": 962
     },
     {
      "label": "Panadol Extra 500mg a33d6a",
-     "result": "UI_CHANGE",
-     "response_ms": 915
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 722
     },
     {
      "label": "Panadol Extra 500mg c632fa",
      "result": "UI_CHANGE",
-     "response_ms": 968
+     "response_ms": 963
     },
     {
      "label": "Vitamin C 1000mg 2dfd4a",
      "result": "UI_CHANGE",
-     "response_ms": 935
+     "response_ms": 933
     },
     {
      "label": "Vitamin C 1000mg 39ce55",
      "result": "UI_CHANGE",
-     "response_ms": 939
+     "response_ms": 941
     },
     {
      "label": "Vitamin C 1000mg 5e0bd1",
      "result": "UI_CHANGE",
-     "response_ms": 912
+     "response_ms": 579
     },
     {
      "label": "Vitamin C 1000mg 72e0fb",
      "result": "UI_CHANGE",
-     "response_ms": 893
+     "response_ms": 917
     },
     {
      "label": "Vitamin C 1000mg 874ed2",
      "result": "UI_CHANGE",
-     "response_ms": 914
+     "response_ms": 967
     },
     {
      "label": "Vitamin C 1000mg bca0db",
      "result": "UI_CHANGE",
-     "response_ms": 914
+     "response_ms": 944
     },
     {
      "label": "Vitamin C 1000mg fc3790",
      "result": "UI_CHANGE",
-     "response_ms": 909
+     "response_ms": 952
     }
    ],
    "summary": {
     "NAVIGATE": 1,
-    "NO_EFFECT": 2,
-    "UI_CHANGE": 21
+    "NO_EFFECT": 3,
+    "UI_CHANGE": 20
    }
   },
   {
@@ -4129,7 +4786,7 @@
    ],
    "reached_by": "TAP_PATH",
    "params": null,
-   "time_to_ready_ms": 3727,
+   "time_to_ready_ms": 3751,
    "render": {
     "js": [],
     "bad_reads": [],
@@ -4142,108 +4799,108 @@
      "label": "(icon #0)",
      "result": "NAVIGATE",
      "to": "MainTabs",
-     "response_ms": 462
+     "response_ms": 458
     },
     {
      "label": "(icon #1)",
      "result": "UI_CHANGE",
-     "response_ms": 1903
+     "response_ms": 1916
     },
     {
      "label": "All",
      "result": "UI_CHANGE",
-     "response_ms": 1988
+     "response_ms": 1990
     },
     {
      "label": "pain (14)",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 519
+     "response_ms": 525
     },
     {
      "label": "UE3C96A10 (2)",
      "result": "UI_CHANGE",
-     "response_ms": 2016
+     "response_ms": 2018
     },
     {
      "label": "UC15A2210 (1)",
      "result": "UI_CHANGE",
-     "response_ms": 2004
+     "response_ms": 2016
     },
     {
      "label": "category-20703 (1)",
      "result": "UI_CHANGE",
-     "response_ms": 2000
+     "response_ms": 2011
     },
     {
      "label": "Panadol Extra 500mg 0019c8",
      "result": "UI_CHANGE",
-     "response_ms": 863
+     "response_ms": 899
     },
     {
      "label": "Panadol Extra 500mg 18f732",
      "result": "UI_CHANGE",
-     "response_ms": 866
+     "response_ms": 879
     },
     {
      "label": "Panadol Extra 500mg 4a05f6",
      "result": "UI_CHANGE",
-     "response_ms": 870
+     "response_ms": 890
     },
     {
      "label": "Panadol Extra 500mg 730a68",
      "result": "UI_CHANGE",
-     "response_ms": 893
+     "response_ms": 877
     },
     {
      "label": "Panadol Extra 500mg 81b23b",
      "result": "UI_CHANGE",
-     "response_ms": 890
+     "response_ms": 900
     },
     {
      "label": "Panadol Extra 500mg a33d6a",
      "result": "UI_CHANGE",
-     "response_ms": 890
+     "response_ms": 930
     },
     {
      "label": "Panadol Extra 500mg c632fa",
      "result": "UI_CHANGE",
-     "response_ms": 940
+     "response_ms": 878
     },
     {
      "label": "Vitamin C 1000mg 2dfd4a",
      "result": "UI_CHANGE",
-     "response_ms": 913
+     "response_ms": 875
     },
     {
      "label": "Vitamin C 1000mg 39ce55",
      "result": "UI_CHANGE",
-     "response_ms": 927
+     "response_ms": 885
     },
     {
      "label": "Vitamin C 1000mg 5e0bd1",
      "result": "UI_CHANGE",
-     "response_ms": 874
+     "response_ms": 899
     },
     {
      "label": "Vitamin C 1000mg 72e0fb",
      "result": "UI_CHANGE",
-     "response_ms": 888
+     "response_ms": 873
     },
     {
      "label": "Vitamin C 1000mg 874ed2",
      "result": "UI_CHANGE",
-     "response_ms": 873
+     "response_ms": 896
     },
     {
      "label": "Vitamin C 1000mg bca0db",
      "result": "UI_CHANGE",
-     "response_ms": 863
+     "response_ms": 879
     },
     {
      "label": "Vitamin C 1000mg fc3790",
      "result": "UI_CHANGE",
-     "response_ms": 857
+     "response_ms": 925
     }
    ],
    "summary": {
@@ -4259,7 +4916,7 @@
    ],
    "reached_by": "TAP_PATH",
    "params": null,
-   "time_to_ready_ms": 3731,
+   "time_to_ready_ms": 3749,
    "render": {
     "js": [],
     "bad_reads": [],
@@ -4272,43 +4929,108 @@
      "label": "(icon #0)",
      "result": "NAVIGATE",
      "to": "MainTabs",
-     "response_ms": 436
+     "response_ms": 496
     },
     {
      "label": "(icon #1)",
      "result": "UI_CHANGE",
-     "response_ms": 1892
+     "response_ms": 1895
     },
     {
      "label": "All",
      "result": "UI_CHANGE",
-     "response_ms": 1931
+     "response_ms": 1935
     },
     {
      "label": "pain (14)",
      "result": "UI_CHANGE",
-     "response_ms": 1916
+     "response_ms": 1994
     },
     {
      "label": "UE3C96A10 (2)",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 442
+     "response_ms": 462
     },
     {
      "label": "category-20703 (1)",
      "result": "UI_CHANGE",
-     "response_ms": 1916
+     "response_ms": 1915
     },
     {
      "label": "UC15A2210 (1)",
      "result": "UI_CHANGE",
-     "response_ms": 1924
+     "response_ms": 1941
     },
     {
      "label": "UE3C96A05",
      "result": "UI_CHANGE",
-     "response_ms": 838
+     "response_ms": 856
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 6,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "drug_index",
+   "ui_path": [
+    "UC15A2210 (1)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 3732,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "Medical Drug Index | All | pain (14) | UE3C96A10 (2) | category-2070"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 427
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 1905
+    },
+    {
+     "label": "All",
+     "result": "UI_CHANGE",
+     "response_ms": 1940
+    },
+    {
+     "label": "pain (14)",
+     "result": "UI_CHANGE",
+     "response_ms": 1926
+    },
+    {
+     "label": "UE3C96A10 (2)",
+     "result": "UI_CHANGE",
+     "response_ms": 1929
+    },
+    {
+     "label": "category-20703 (1)",
+     "result": "UI_CHANGE",
+     "response_ms": 1939
+    },
+    {
+     "label": "UC15A2210 (1)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 496
+    },
+    {
+     "label": "UC15A2205",
+     "result": "UI_CHANGE",
+     "response_ms": 869
     }
    ],
    "summary": {
@@ -4337,108 +5059,43 @@
      "label": "(icon #0)",
      "result": "NAVIGATE",
      "to": "MainTabs",
-     "response_ms": 438
+     "response_ms": 441
     },
     {
      "label": "(icon #1)",
      "result": "UI_CHANGE",
-     "response_ms": 1928
+     "response_ms": 1907
     },
     {
      "label": "All",
      "result": "UI_CHANGE",
-     "response_ms": 2002
+     "response_ms": 1930
     },
     {
      "label": "pain (14)",
      "result": "UI_CHANGE",
-     "response_ms": 1931
+     "response_ms": 1935
     },
     {
      "label": "UE3C96A10 (2)",
      "result": "UI_CHANGE",
-     "response_ms": 1927
+     "response_ms": 1916
     },
     {
      "label": "UC15A2210 (1)",
      "result": "UI_CHANGE",
-     "response_ms": 1918
+     "response_ms": 1958
     },
     {
      "label": "category-20703 (1)",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 452
+     "response_ms": 457
     },
     {
      "label": "name_en-20701",
      "result": "UI_CHANGE",
-     "response_ms": 834
-    }
-   ],
-   "summary": {
-    "NAVIGATE": 1,
-    "UI_CHANGE": 6,
-    "NO_EFFECT": 1
-   }
-  },
-  {
-   "route": "drug_index",
-   "ui_path": [
-    "UC15A2210 (1)"
-   ],
-   "reached_by": "TAP_PATH",
-   "params": null,
-   "time_to_ready_ms": 3715,
-   "render": {
-    "js": [],
-    "bad_reads": [],
-    "heading": "Medical Drug Index | All | pain (14) | UE3C96A10 (2) | UC15A2210 (1)"
-   },
-   "status": "TESTED",
-   "inputs_filled": 1,
-   "elements": [
-    {
-     "label": "(icon #0)",
-     "result": "NAVIGATE",
-     "to": "MainTabs",
-     "response_ms": 432
-    },
-    {
-     "label": "(icon #1)",
-     "result": "UI_CHANGE",
-     "response_ms": 1895
-    },
-    {
-     "label": "All",
-     "result": "UI_CHANGE",
-     "response_ms": 1917
-    },
-    {
-     "label": "pain (14)",
-     "result": "UI_CHANGE",
-     "response_ms": 1921
-    },
-    {
-     "label": "UE3C96A10 (2)",
-     "result": "UI_CHANGE",
-     "response_ms": 1909
-    },
-    {
-     "label": "UC15A2210 (1)",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 467
-    },
-    {
-     "label": "category-20703 (1)",
-     "result": "UI_CHANGE",
-     "response_ms": 1928
-    },
-    {
-     "label": "UC15A2205",
-     "result": "UI_CHANGE",
-     "response_ms": 833
+     "response_ms": 823
     }
    ],
    "summary": {
@@ -4454,7 +5111,7 @@
    ],
    "reached_by": "TAP_PATH",
    "params": null,
-   "time_to_ready_ms": 2591,
+   "time_to_ready_ms": 2603,
    "render": {
     "js": [],
     "bad_reads": [],
@@ -4466,47 +5123,47 @@
     {
      "label": "(icon #0)",
      "result": "UI_CHANGE",
-     "response_ms": 795
+     "response_ms": 819
     },
     {
      "label": "Description",
      "result": "UI_CHANGE",
-     "response_ms": 466
+     "response_ms": 478
     },
     {
      "label": "Indications",
      "result": "UI_CHANGE",
-     "response_ms": 483
+     "response_ms": 474
     },
     {
      "label": "Dosage & Usage",
      "result": "UI_CHANGE",
-     "response_ms": 451
+     "response_ms": 471
     },
     {
      "label": "Usage Instructions",
      "result": "UI_CHANGE",
-     "response_ms": 460
+     "response_ms": 463
     },
     {
      "label": "Warnings",
      "result": "UI_CHANGE",
-     "response_ms": 452
+     "response_ms": 478
     },
     {
      "label": "Contraindications",
      "result": "UI_CHANGE",
-     "response_ms": 464
+     "response_ms": 472
     },
     {
      "label": "Side Effects",
      "result": "UI_CHANGE",
-     "response_ms": 467
+     "response_ms": 456
     },
     {
      "label": "Suggest an edit for this drug",
      "result": "UI_CHANGE",
-     "response_ms": 491
+     "response_ms": 521
     }
    ],
    "summary": {
@@ -4520,7 +5177,7 @@
    ],
    "reached_by": "TAP_PATH",
    "params": null,
-   "time_to_ready_ms": 2595,
+   "time_to_ready_ms": 2614,
    "render": {
     "js": [],
     "bad_reads": [],
@@ -4532,53 +5189,53 @@
     {
      "label": "(icon #0)",
      "result": "UI_CHANGE",
-     "response_ms": 793
+     "response_ms": 811
     },
     {
      "label": "Description",
      "result": "UI_CHANGE",
-     "response_ms": 456
+     "response_ms": 476
     },
     {
      "label": "Indications",
      "result": "UI_CHANGE",
-     "response_ms": 477
+     "response_ms": 497
     },
     {
      "label": "Dosage & Usage",
      "result": "UI_CHANGE",
-     "response_ms": 471
+     "response_ms": 488
     },
     {
      "label": "Usage Instructions",
      "result": "UI_CHANGE",
-     "response_ms": 458
+     "response_ms": 495
     },
     {
      "label": "Warnings",
      "result": "UI_CHANGE",
-     "response_ms": 455
+     "response_ms": 480
     },
     {
      "label": "Contraindications",
      "result": "UI_CHANGE",
-     "response_ms": 472
+     "response_ms": 495
     },
     {
      "label": "Side Effects",
      "result": "UI_CHANGE",
-     "response_ms": 464
+     "response_ms": 473
     },
     {
      "label": "UE3C96A05",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 481
+     "response_ms": 501
     },
     {
      "label": "Suggest an edit for this drug",
      "result": "UI_CHANGE",
-     "response_ms": 497
+     "response_ms": 499
     }
    ],
    "summary": {
@@ -4593,7 +5250,7 @@
    ],
    "reached_by": "TAP_PATH",
    "params": null,
-   "time_to_ready_ms": 2268,
+   "time_to_ready_ms": 2611,
    "render": {
     "js": [],
     "bad_reads": [],
@@ -4605,12 +5262,12 @@
     {
      "label": "(icon #0)",
      "result": "UI_CHANGE",
-     "response_ms": 793
+     "response_ms": 794
     },
     {
      "label": "Suggest an edit for this drug",
      "result": "UI_CHANGE",
-     "response_ms": 472
+     "response_ms": 478
     }
    ],
    "summary": {
@@ -4624,7 +5281,7 @@
    ],
    "reached_by": "TAP_PATH",
    "params": null,
-   "time_to_ready_ms": 2598,
+   "time_to_ready_ms": 2602,
    "render": {
     "js": [],
     "bad_reads": [],
@@ -4636,62 +5293,62 @@
     {
      "label": "(icon #0)",
      "result": "UI_CHANGE",
-     "response_ms": 805
+     "response_ms": 834
     },
     {
      "label": "Description",
      "result": "UI_CHANGE",
-     "response_ms": 480
+     "response_ms": 521
     },
     {
      "label": "Indications",
      "result": "UI_CHANGE",
-     "response_ms": 498
+     "response_ms": 519
     },
     {
      "label": "Panadol Extra 500mg 730a68",
      "result": "UI_CHANGE",
-     "response_ms": 837
+     "response_ms": 877
     },
     {
      "label": "Vitamin C 1000mg bca0db",
      "result": "UI_CHANGE",
-     "response_ms": 867
+     "response_ms": 875
     },
     {
      "label": "Panadol Extra 500mg a33d6a",
      "result": "UI_CHANGE",
-     "response_ms": 869
+     "response_ms": 858
     },
     {
      "label": "Vitamin C 1000mg fc3790",
      "result": "UI_CHANGE",
-     "response_ms": 556
+     "response_ms": 872
     },
     {
      "label": "Panadol Extra 500mg 18f732",
      "result": "UI_CHANGE",
-     "response_ms": 884
+     "response_ms": 898
     },
     {
      "label": "Vitamin C 1000mg 2dfd4a",
      "result": "UI_CHANGE",
-     "response_ms": 872
+     "response_ms": 909
     },
     {
      "label": "Panadol Extra 500mg 81b23b",
      "result": "UI_CHANGE",
-     "response_ms": 859
+     "response_ms": 855
     },
     {
      "label": "Vitamin C 1000mg 874ed2",
      "result": "UI_CHANGE",
-     "response_ms": 870
+     "response_ms": 867
     },
     {
      "label": "Suggest an edit for this drug",
      "result": "UI_CHANGE",
-     "response_ms": 550
+     "response_ms": 585
     }
    ],
    "summary": {
@@ -4699,57 +5356,34 @@
    }
   },
   {
-   "route": "password",
+   "route": "chat",
    "ui_path": [],
    "reached_by": "DIRECT",
    "params": null,
-   "time_to_ready_ms": 395,
+   "time_to_ready_ms": 741,
    "render": {
     "js": [],
     "bad_reads": [],
-    "heading": "← | Security & 2FA | Change Password | Update Password | Suggest a d"
+    "heading": "← | Pre-Visit Chat | This chat is for arrival logistics (Gate co"
    },
    "status": "TESTED",
-   "inputs_filled": 23,
+   "inputs_filled": 24,
    "elements": [
     {
      "label": "←",
      "result": "UI_CHANGE",
-     "response_ms": 632
+     "response_ms": 567
     },
     {
-     "label": "(icon #1)",
+     "label": "Send",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 443
+     "response_ms": 474
     },
     {
      "label": "(icon #2)",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 452
-    },
-    {
-     "label": "(icon #3)",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 459
-    },
-    {
-     "label": "(icon #4)",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 442
-    },
-    {
-     "label": "Update Password",
-     "result": "UI_CHANGE",
-     "response_ms": 501
-    },
-    {
-     "label": "(icon #6)",
      "result": "CRAWLER_TARGET_MISSING",
-     "error": "control not found: (icon #6)"
+     "error": "control not found: (icon #2)"
     },
     {
      "label": "Edit data",
@@ -4842,36 +5476,33 @@
     }
    ],
    "summary": {
-    "UI_CHANGE": 2,
-    "NO_EFFECT": 4,
+    "UI_CHANGE": 1,
+    "NO_EFFECT": 1,
     "CRAWLER_TARGET_MISSING": 18,
     "NOT_TESTED": 1
    }
   },
   {
-   "route": "password",
+   "route": "chat",
    "ui_path": [
     "←"
    ],
    "reached_by": "TAP_PATH",
    "params": null,
-   "time_to_ready_ms": 807,
+   "time_to_ready_ms": 1127,
    "status": "NOT_REACHABLE",
    "reason": "navigation ended on MainTabs",
-   "screenshot": "/tmp/nav2_lab_password_nav.png",
+   "screenshot": "/tmp/nav2_home_care_chat_nav.png",
    "controls_now": [
     "Offline",
     "(icon #1)",
-    "Wallet & Revenue",
-    "Track Samples",
-    "Enter Results",
-    "TAT Tracker",
-    "Home Collection",
-    "QR Label",
-    "Bundles",
-    "Custom Test",
-    "Insurance",
-    "All",
+    "Wallet &",
+    "GPS",
+    "Visit",
+    "Care",
+    "Progress",
+    "Visit",
+    "Medical",
     "Home",
     "Orders",
     "Jobs",
@@ -4885,20 +5516,20 @@
    "pending": [],
    "failed_requests": [],
    "js": [],
-   "bad_reads": []
+   "bad_reads": [
+    "400 POST /chats/threads/booking"
+   ]
   },
   {
-   "route": "password",
-   "ui_path": [
-    "Update Password"
-   ],
-   "reached_by": "TAP_PATH",
+   "route": "notifications",
+   "ui_path": [],
+   "reached_by": "DIRECT",
    "params": null,
-   "time_to_ready_ms": 784,
+   "time_to_ready_ms": 735,
    "render": {
     "js": [],
     "bad_reads": [],
-    "heading": "← | Security & 2FA | Change Password | Update Password | Please fill"
+    "heading": "← | Notifications Center | No notifications yet | Could not open c"
    },
    "status": "TESTED",
    "inputs_filled": 0,
@@ -4907,42 +5538,67 @@
      "label": "←",
      "result": "NAVIGATE",
      "to": "MainTabs",
-     "response_ms": 494
+     "response_ms": 463
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "password",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 390,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Security & 2FA | Change Password | Update Password | Could not o"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 839
     },
     {
      "label": "(icon #1)",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 446
+     "response_ms": 451
     },
     {
      "label": "(icon #2)",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 425
+     "response_ms": 439
     },
     {
      "label": "(icon #3)",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 433
+     "response_ms": 427
     },
     {
      "label": "(icon #4)",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 430
+     "response_ms": 432
     },
     {
      "label": "Update Password",
-     "result": "NO_EFFECT",
-     "disabled": false,
-     "response_ms": 481
+     "result": "UI_CHANGE",
+     "response_ms": 505
     }
    ],
    "summary": {
     "NAVIGATE": 1,
-    "NO_EFFECT": 5
+    "NO_EFFECT": 4,
+    "UI_CHANGE": 1
    }
   },
   {
@@ -4950,7 +5606,7 @@
    "ui_path": [],
    "reached_by": "DIRECT",
    "params": null,
-   "time_to_ready_ms": 405,
+   "time_to_ready_ms": 392,
    "render": {
     "js": [],
     "bad_reads": [],
@@ -4963,25 +5619,25 @@
      "label": "←",
      "result": "NAVIGATE",
      "to": "password",
-     "response_ms": 478
+     "response_ms": 493
     },
     {
      "label": "(icon #1)",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 447
+     "response_ms": 440
     },
     {
      "label": "(icon #2)",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 426
+     "response_ms": 432
     },
     {
      "label": "(icon #3)",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 440
+     "response_ms": 429
     },
     {
      "label": "(icon #4)",
@@ -4992,7 +5648,7 @@
     {
      "label": "Update Password",
      "result": "UI_CHANGE",
-     "response_ms": 488
+     "response_ms": 484
     }
    ],
    "summary": {
@@ -5006,7 +5662,7 @@
    "ui_path": [],
    "reached_by": "DIRECT",
    "params": null,
-   "time_to_ready_ms": 396,
+   "time_to_ready_ms": 394,
    "render": {
     "js": [],
     "bad_reads": [],
@@ -5019,36 +5675,36 @@
      "label": "←",
      "result": "NAVIGATE",
      "to": "2fa",
-     "response_ms": 481
+     "response_ms": 491
     },
     {
      "label": "(icon #1)",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 453
+     "response_ms": 455
     },
     {
      "label": "(icon #2)",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 438
+     "response_ms": 424
     },
     {
      "label": "(icon #3)",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 414
+     "response_ms": 429
     },
     {
      "label": "(icon #4)",
      "result": "NO_EFFECT",
      "disabled": false,
-     "response_ms": 433
+     "response_ms": 423
     },
     {
      "label": "Update Password",
      "result": "UI_CHANGE",
-     "response_ms": 475
+     "response_ms": 503
     }
    ],
    "summary": {
@@ -5061,75 +5717,87 @@
  "registered": [
   "MainTabs",
   "order_detail",
-  "sample_tracking",
-  "result_review",
-  "bundles",
-  "add_test",
-  "home_collection",
-  "qr_label",
-  "wallet",
-  "chat",
-  "tat_tracker",
-  "insurance",
+  "checklist",
+  "checkin",
+  "care_plan",
+  "progress",
+  "visit_report",
+  "supplies",
+  "nursing_services",
+  "nursing_pricing",
+  "nursing_coverage",
   "promotions",
   "create_promo",
   "web_config",
+  "subscriptions_ads",
+  "affiliate",
   "reputation",
   "crm",
   "revenue_insights",
-  "lab_scanner",
+  "sos_dispatch",
+  "gps_router",
+  "nurse_visit",
+  "nurse_checklist",
+  "profile_edit",
   "medical_jobs",
   "drug_index",
   "insurance_config",
   "certificates_config",
   "media_config",
-  "test_menu",
-  "home_service",
+  "wallet",
+  "chat",
   "insurance_requests",
   "working_hours",
+  "notifications",
   "password",
   "2fa",
   "devices"
  ],
- "reloads": 380,
+ "reloads": 409,
  "coverage": {
-  "registered": 31,
-  "tested_routes": 31,
-  "states_tested": 57,
+  "registered": 37,
+  "tested_routes": 36,
+  "states_tested": 68,
   "by_status": {
-   "CRAWLER_TARGET_MISSING": 4,
-   "NOT_REACHABLE": 2,
-   "TESTED": 57
+   "CRAWLER_TARGET_MISSING": 5,
+   "NOT_REACHABLE": 1,
+   "SLOW": 1,
+   "TESTED": 68
   },
   "routes_tested": [
    "2fa",
    "MainTabs",
-   "add_test",
-   "bundles",
+   "affiliate",
+   "care_plan",
    "certificates_config",
    "chat",
+   "checkin",
+   "checklist",
    "create_promo",
    "crm",
    "devices",
    "drug_index",
-   "home_collection",
-   "home_service",
-   "insurance",
+   "gps_router",
    "insurance_config",
    "insurance_requests",
-   "lab_scanner",
    "media_config",
    "medical_jobs",
+   "notifications",
+   "nurse_checklist",
+   "nurse_visit",
+   "nursing_coverage",
+   "nursing_pricing",
+   "nursing_services",
    "order_detail",
    "password",
+   "profile_edit",
+   "progress",
    "promotions",
-   "qr_label",
    "reputation",
-   "result_review",
    "revenue_insights",
-   "sample_tracking",
-   "tat_tracker",
-   "test_menu",
+   "sos_dispatch",
+   "subscriptions_ads",
+   "visit_report",
    "wallet",
    "web_config",
    "working_hours"

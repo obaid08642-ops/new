@@ -1,0 +1,2128 @@
+{
+ "app": "patient-app",
+ "build": "react-native-web export (not native)",
+ "routes": [
+  {
+   "route": "(auth)/forgot-password",
+   "url": "/forgot-password",
+   "landed": "/forgot-password",
+   "status": "TESTED",
+   "time_to_ready_ms": 2249,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "arrow_forward",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3571
+    },
+    {
+     "label": "إرسال رمز التحقق",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/auth/send-otp",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 1775
+    },
+    {
+     "label": "العودة لتسجيل الدخول",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3581
+    }
+   ]
+  },
+  {
+   "route": "(auth)/login",
+   "url": "/login",
+   "landed": "/login",
+   "status": "TESTED",
+   "time_to_ready_ms": 1349,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "arrow_forward",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3583
+    },
+    {
+     "label": "visibility",
+     "result": "UI_CHANGE",
+     "response_ms": 445
+    },
+    {
+     "label": "نسيت كلمة المرور؟",
+     "result": "NAVIGATE",
+     "to": "/forgot-password",
+     "response_ms": 851
+    },
+    {
+     "label": "تسجيل الدخول",
+     "result": "UI_CHANGE",
+     "response_ms": 455
+    },
+    {
+     "label": "الدخول برمز التحقق (OTP)",
+     "result": "NAVIGATE",
+     "to": "/otp?phone=%2B966&mode=login",
+     "response_ms": 437
+    },
+    {
+     "label": "",
+     "result": "UI_CHANGE",
+     "response_ms": 467
+    },
+    {
+     "label": "",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3579
+    },
+    {
+     "label": "",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3551
+    },
+    {
+     "label": "سجل الآن",
+     "result": "NAVIGATE",
+     "to": "/register",
+     "response_ms": 473
+    }
+   ]
+  },
+  {
+   "route": "(auth)/otp",
+   "url": "/otp",
+   "landed": "/otp",
+   "status": "TESTED",
+   "time_to_ready_ms": 15295,
+   "ready": false,
+   "not_ready_reason": "0 request(s) in flight, 0 loading, stable=1",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 6,
+   "elements": [
+    {
+     "label": "arrow_forward",
+     "result": "UI_CHANGE",
+     "response_ms": 1398
+    },
+    {
+     "label": "تأكيد الرمز",
+     "result": "WRITE",
+     "status": 400,
+     "method": "POST",
+     "url": "/auth/verify-otp",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 9527,
+     "slow": "0 request(s) in flight, 0 loading, stable=0"
+    }
+   ]
+  },
+  {
+   "route": "(auth)/privacy",
+   "url": "/privacy",
+   "landed": "/privacy",
+   "status": "TESTED",
+   "time_to_ready_ms": 1974,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "arrow_forward",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3620
+    },
+    {
+     "label": "󰑐",
+     "result": "UI_CHANGE",
+     "response_ms": 446
+    }
+   ]
+  },
+  {
+   "route": "(auth)/provider-info",
+   "url": "/provider-info",
+   "landed": "/provider-info",
+   "status": "TESTED",
+   "time_to_ready_ms": 1428,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الاستمرار كمريض",
+     "result": "NAVIGATE",
+     "to": "/",
+     "response_ms": 912
+    },
+    {
+     "label": "تسجيل الخروج",
+     "result": "SKIPPED_DESTRUCTIVE"
+    }
+   ]
+  },
+  {
+   "route": "(auth)/register",
+   "url": "/register",
+   "landed": "/register",
+   "status": "TESTED",
+   "time_to_ready_ms": 1962,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 5,
+   "elements": [
+    {
+     "label": "arrow_forward",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3558
+    },
+    {
+     "label": "visibility",
+     "result": "UI_CHANGE",
+     "response_ms": 428
+    },
+    {
+     "label": "(icon #3)",
+     "result": "UI_CHANGE",
+     "response_ms": 433
+    },
+    {
+     "label": "إنشاء الحساب",
+     "result": "UI_CHANGE",
+     "response_ms": 446
+    },
+    {
+     "label": "",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3569
+    },
+    {
+     "label": "",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3567
+    },
+    {
+     "label": "",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3535
+    },
+    {
+     "label": "تسجيل الدخول",
+     "result": "NAVIGATE",
+     "to": "/login",
+     "response_ms": 456
+    }
+   ]
+  },
+  {
+   "route": "(auth)/reset-password",
+   "url": "/reset-password",
+   "landed": "/reset-password",
+   "status": "TESTED",
+   "time_to_ready_ms": 1365,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 3,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3554
+    },
+    {
+     "label": "󰈈",
+     "result": "UI_CHANGE",
+     "response_ms": 439
+    },
+    {
+     "label": "حفظ كلمة المرور",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3556
+    }
+   ]
+  },
+  {
+   "route": "(auth)/terms",
+   "url": "/terms",
+   "landed": "/terms",
+   "status": "TESTED",
+   "time_to_ready_ms": 2619,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3571
+    },
+    {
+     "label": "󰑐",
+     "result": "UI_CHANGE",
+     "response_ms": 433
+    }
+   ]
+  },
+  {
+   "route": "(auth)/welcome",
+   "url": "/welcome",
+   "landed": "/welcome",
+   "status": "TESTED",
+   "time_to_ready_ms": 1972,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3575
+    },
+    {
+     "label": "language",
+     "result": "UI_CHANGE",
+     "response_ms": 447
+    },
+    {
+     "label": "تسجيل",
+     "result": "UI_CHANGE",
+     "response_ms": 1314
+    },
+    {
+     "label": "تسجيل دخول",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "المتابعة كضيف (بدون حساب)",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "",
+     "result": "NAVIGATE",
+     "to": "/login",
+     "response_ms": 489
+    },
+    {
+     "label": "",
+     "result": "NAVIGATE",
+     "to": "/login",
+     "response_ms": 557
+    },
+    {
+     "label": "",
+     "result": "NAVIGATE",
+     "to": "/login",
+     "response_ms": 523
+    }
+   ]
+  },
+  {
+   "route": "(onboarding)/index",
+   "url": "/",
+   "landed": "/",
+   "status": "TESTED",
+   "time_to_ready_ms": 1406,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": []
+  },
+  {
+   "route": "(onboarding)/language",
+   "url": "/language",
+   "landed": "/language",
+   "status": "TESTED",
+   "time_to_ready_ms": 1980,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "अरबी",
+     "result": "UI_CHANGE",
+     "response_ms": 484
+    },
+    {
+     "label": "English",
+     "result": "UI_CHANGE",
+     "response_ms": 441
+    },
+    {
+     "label": "उर्दू",
+     "result": "UI_CHANGE",
+     "response_ms": 433
+    },
+    {
+     "label": "󰗠",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3552
+    },
+    {
+     "label": "বাংলা",
+     "result": "UI_CHANGE",
+     "response_ms": 435
+    },
+    {
+     "label": "Filipino",
+     "result": "UI_CHANGE",
+     "response_ms": 440
+    },
+    {
+     "label": "जारी रखें",
+     "result": "NAVIGATE",
+     "to": "/welcome",
+     "response_ms": 862
+    }
+   ]
+  },
+  {
+   "route": "(onboarding)/permissions",
+   "url": "/permissions",
+   "landed": "/permissions",
+   "status": "TESTED",
+   "time_to_ready_ms": 1337,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰂚",
+     "result": "UI_CHANGE",
+     "response_ms": 461
+    },
+    {
+     "label": "󰄀",
+     "result": "UI_CHANGE",
+     "response_ms": 435
+    },
+    {
+     "label": "󰍎",
+     "result": "UI_CHANGE",
+     "response_ms": 441
+    },
+    {
+     "label": "󰗶",
+     "result": "UI_CHANGE",
+     "response_ms": 450
+    },
+    {
+     "label": "Ituloy",
+     "result": "NAVIGATE",
+     "to": "/welcome",
+     "response_ms": 887
+    },
+    {
+     "label": "تخطي الآن",
+     "result": "NAVIGATE",
+     "to": "/welcome",
+     "response_ms": 834
+    }
+   ]
+  },
+  {
+   "route": "(tabs)/consultations/index",
+   "url": "/consultations",
+   "landed": "/consultations",
+   "status": "TESTED",
+   "time_to_ready_ms": 1965,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "tune",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3585
+    },
+    {
+     "label": "meeting_room",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3608
+    },
+    {
+     "label": "videocam",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3577
+    },
+    {
+     "label": "home",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3541
+    },
+    {
+     "label": "All",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3560
+    },
+    {
+     "label": "Cash",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3571
+    },
+    {
+     "label": "Insurance",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3573
+    },
+    {
+     "label": "View All",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3554
+    },
+    {
+     "label": "apps",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3541
+    },
+    {
+     "label": "medical_services",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3560
+    },
+    {
+     "label": "prescriptions",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3560
+    },
+    {
+     "label": "stethoscope",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3539
+    },
+    {
+     "label": "science",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3552
+    },
+    {
+     "label": "healing",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3553
+    },
+    {
+     "label": "Start Now",
+     "result": "UI_CHANGE",
+     "response_ms": 764
+    }
+   ]
+  },
+  {
+   "route": "(tabs)/diagnostics",
+   "url": "/diagnostics",
+   "landed": "/diagnostics",
+   "status": "TESTED",
+   "time_to_ready_ms": 8077,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "󰧮",
+     "result": "NAVIGATE",
+     "to": "/diagnostics/orders",
+     "response_ms": 926
+    },
+    {
+     "label": "󰅙",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "󰘮",
+     "result": "UI_CHANGE",
+     "response_ms": 549
+    },
+    {
+     "label": "󰂖",
+     "result": "UI_CHANGE",
+     "response_ms": 524
+    },
+    {
+     "label": "󱓆",
+     "result": "UI_CHANGE",
+     "response_ms": 468
+    },
+    {
+     "label": "󰮧",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3588
+    },
+    {
+     "label": "󰿷",
+     "result": "UI_CHANGE",
+     "response_ms": 5013
+    },
+    {
+     "label": "Piliin",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "󰕥",
+     "result": "NAVIGATE",
+     "to": "/diagnostics/insurance-upload",
+     "response_ms": 466
+    },
+    {
+     "label": "View All",
+     "result": "NAVIGATE",
+     "to": "/diagnostics/packages",
+     "response_ms": 906
+    },
+    {
+     "label": "Pinaka-hiniling",
+     "result": "NAVIGATE",
+     "to": "/diagnostics/package-detail?id=834c1dc5-9fbd-4341-82a5-e12863446ffa&serviceType=home",
+     "response_ms": 1378
+    },
+    {
+     "label": "Thyroid Package",
+     "result": "NAVIGATE",
+     "to": "/diagnostics/package-detail?id=PKG_THYROID&serviceType=home",
+     "response_ms": 1376
+    },
+    {
+     "label": "Seniors Package",
+     "result": "NAVIGATE",
+     "to": "/diagnostics/package-detail?id=PKG_SENIORS&serviceType=home",
+     "response_ms": 1382
+    },
+    {
+     "label": "Women Hormones Package",
+     "result": "NAVIGATE",
+     "to": "/diagnostics/package-detail?id=e8d1fb4f-1b9b-4ca7-9f3a-33e4d571f354&serviceType=home",
+     "response_ms": 1380
+    },
+    {
+     "label": "Heart Health Package",
+     "result": "NAVIGATE",
+     "to": "/diagnostics/package-detail?id=PKG_HEART&serviceType=home",
+     "response_ms": 1343
+    },
+    {
+     "label": "Women Health Package",
+     "result": "NAVIGATE",
+     "to": "/diagnostics/package-detail?id=PKG_WOMEN&serviceType=home",
+     "response_ms": 1369
+    },
+    {
+     "label": "Cardiac Package",
+     "result": "NAVIGATE",
+     "to": "/diagnostics/package-detail?id=593eff7e-c5f8-4bb6-8b78-09a63eca7043&serviceType=home",
+     "response_ms": 1387
+    },
+    {
+     "label": "Men Health Package",
+     "result": "NAVIGATE",
+     "to": "/diagnostics/package-detail?id=PKG_WOMEN&serviceType=home",
+     "response_ms": 1370
+    },
+    {
+     "label": "Complete Blood Count",
+     "result": "NAVIGATE",
+     "to": "/diagnostics/test-detail?id=2f227444-b928-40ee-8308-8cc8cc3ac9fb",
+     "response_ms": 1359
+    },
+    {
+     "label": "(time budget reached)",
+     "result": "NOT_TESTED"
+    }
+   ]
+  },
+  {
+   "route": "(tabs)/health",
+   "url": "/health",
+   "landed": "/health",
+   "status": "TESTED",
+   "time_to_ready_ms": 2554,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰐲",
+     "result": "NAVIGATE",
+     "to": "/health/health-id",
+     "response_ms": 845
+    },
+    {
+     "label": "󰏫",
+     "result": "NAVIGATE",
+     "to": "/health/edit-profile",
+     "response_ms": 809
+    },
+    {
+     "label": "󰗶",
+     "result": "NAVIGATE",
+     "to": "/health/vitals",
+     "response_ms": 833
+    },
+    {
+     "label": "󰐂",
+     "result": "NAVIGATE",
+     "to": "/health/medications",
+     "response_ms": 1951
+    },
+    {
+     "label": "󰈙",
+     "result": "NAVIGATE",
+     "to": "/health/reports",
+     "response_ms": 807
+    },
+    {
+     "label": "󰡉",
+     "result": "NAVIGATE",
+     "to": "/health/family-hub",
+     "response_ms": 800
+    },
+    {
+     "label": "󰭹",
+     "result": "NAVIGATE",
+     "to": "/family/chat",
+     "response_ms": 1940
+    },
+    {
+     "label": "󰂚",
+     "result": "NAVIGATE",
+     "to": "/health/medication-reminder-list",
+     "response_ms": 839
+    },
+    {
+     "label": "󰔸",
+     "result": "NAVIGATE",
+     "to": "/loyalty/hub",
+     "response_ms": 2564
+    },
+    {
+     "label": "Iskor ng kalusugan",
+     "result": "NAVIGATE",
+     "to": "/health/vitals",
+     "response_ms": 805
+    },
+    {
+     "label": "View All",
+     "result": "NAVIGATE",
+     "to": "/health/vitals",
+     "response_ms": 811
+    },
+    {
+     "label": "󰅁",
+     "result": "NAVIGATE",
+     "to": "/nursing",
+     "response_ms": 821
+    },
+    {
+     "label": "home",
+     "result": "NAVIGATE",
+     "to": "/",
+     "response_ms": 844
+    },
+    {
+     "label": "prescriptions",
+     "result": "NAVIGATE",
+     "to": "/pharmacy",
+     "response_ms": 826
+    },
+    {
+     "label": "stethoscope",
+     "result": "NAVIGATE",
+     "to": "/consultations",
+     "response_ms": 844
+    },
+    {
+     "label": "science",
+     "result": "NAVIGATE",
+     "to": "/diagnostics",
+     "response_ms": 6980
+    },
+    {
+     "label": "healing",
+     "result": "NAVIGATE",
+     "to": "/nursing",
+     "response_ms": 845
+    }
+   ]
+  },
+  {
+   "route": "(tabs)/index",
+   "url": "/",
+   "landed": "/",
+   "status": "TESTED",
+   "time_to_ready_ms": 1374,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": []
+  },
+  {
+   "route": "(tabs)/nursing",
+   "url": "/nursing",
+   "landed": "/nursing",
+   "status": "TESTED",
+   "time_to_ready_ms": 2730,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "UI_CHANGE",
+     "response_ms": 490
+    },
+    {
+     "label": "زياراتي وتتبع الممرض",
+     "result": "UI_CHANGE",
+     "response_ms": 753
+    },
+    {
+     "label": "Seguro sa kalusugan",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3558
+    },
+    {
+     "label": "Walang insurance / Cash",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3536
+    },
+    {
+     "label": "home",
+     "result": "NAVIGATE",
+     "to": "/",
+     "response_ms": 819
+    },
+    {
+     "label": "prescriptions",
+     "result": "NAVIGATE",
+     "to": "/pharmacy",
+     "response_ms": 822
+    },
+    {
+     "label": "stethoscope",
+     "result": "NAVIGATE",
+     "to": "/consultations",
+     "response_ms": 858
+    },
+    {
+     "label": "science",
+     "result": "NAVIGATE",
+     "to": "/diagnostics",
+     "response_ms": 7082
+    },
+    {
+     "label": "healing",
+     "result": "UI_CHANGE",
+     "response_ms": 460
+    }
+   ]
+  },
+  {
+   "route": "(tabs)/pharmacy",
+   "url": "/pharmacy",
+   "landed": "/pharmacy",
+   "status": "TESTED",
+   "time_to_ready_ms": 2558,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "home",
+     "result": "NAVIGATE",
+     "to": "/",
+     "response_ms": 849
+    },
+    {
+     "label": "prescriptions",
+     "result": "UI_CHANGE",
+     "response_ms": 482
+    },
+    {
+     "label": "stethoscope",
+     "result": "NAVIGATE",
+     "to": "/consultations",
+     "response_ms": 833
+    },
+    {
+     "label": "science",
+     "result": "NAVIGATE",
+     "to": "/diagnostics",
+     "response_ms": 6968
+    },
+    {
+     "label": "healing",
+     "result": "NAVIGATE",
+     "to": "/nursing",
+     "response_ms": 859
+    }
+   ]
+  },
+  {
+   "route": "(tabs)/services",
+   "url": "/services",
+   "landed": "/services",
+   "status": "TESTED",
+   "time_to_ready_ms": 1334,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁍",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3581
+    },
+    {
+     "label": "󰓙",
+     "result": "NAVIGATE",
+     "to": "/consultations",
+     "response_ms": 881
+    },
+    {
+     "label": "󰂓",
+     "result": "NAVIGATE",
+     "to": "/diagnostics",
+     "response_ms": 7081
+    },
+    {
+     "label": "󱓆",
+     "result": "NAVIGATE",
+     "to": "/diagnostics",
+     "response_ms": 7110
+    },
+    {
+     "label": "󰴡",
+     "result": "NAVIGATE",
+     "to": "/nursing",
+     "response_ms": 850
+    },
+    {
+     "label": "󰀯",
+     "result": "NAVIGATE",
+     "to": "/emergency/sos",
+     "response_ms": 1988
+    },
+    {
+     "label": "󰐂",
+     "result": "NAVIGATE",
+     "to": "/pharmacy",
+     "response_ms": 853
+    },
+    {
+     "label": "󰗶",
+     "result": "NAVIGATE",
+     "to": "/health",
+     "response_ms": 1348
+    },
+    {
+     "label": "󰂚",
+     "result": "NAVIGATE",
+     "to": "/health/medication-reminder-list",
+     "response_ms": 852
+    },
+    {
+     "label": "󰈙",
+     "result": "NAVIGATE",
+     "to": "/reports/view-report",
+     "response_ms": 463
+    },
+    {
+     "label": "󰚩",
+     "result": "NAVIGATE",
+     "to": "/ai/triage",
+     "response_ms": 482
+    },
+    {
+     "label": "󰗊",
+     "result": "NAVIGATE",
+     "to": "/ai/prescription-translator",
+     "response_ms": 480
+    },
+    {
+     "label": "󰄪",
+     "result": "NAVIGATE",
+     "to": "/ai/monthly-report",
+     "response_ms": 885
+    },
+    {
+     "label": "󰉛",
+     "result": "NAVIGATE",
+     "to": "/nutrition/hub",
+     "response_ms": 1368
+    },
+    {
+     "label": "󰗏",
+     "result": "NAVIGATE",
+     "to": "/maternity/hub",
+     "response_ms": 838
+    },
+    {
+     "label": "󰧑",
+     "result": "NAVIGATE",
+     "to": "/mental-health/hub",
+     "response_ms": 469
+    },
+    {
+     "label": "󰡉",
+     "result": "NAVIGATE",
+     "to": "/community/hub",
+     "response_ms": 846
+    },
+    {
+     "label": "󰠧",
+     "result": "NAVIGATE",
+     "to": "/health/family-hub",
+     "response_ms": 809
+    },
+    {
+     "label": "󰠤",
+     "result": "NAVIGATE",
+     "to": "/orders",
+     "response_ms": 826
+    },
+    {
+     "label": "󰒘",
+     "result": "NAVIGATE",
+     "to": "/insurance/hub",
+     "response_ms": 521
+    },
+    {
+     "label": "󰹄",
+     "result": "NAVIGATE",
+     "to": "/loyalty/hub",
+     "response_ms": 2611
+    },
+    {
+     "label": "󰓹",
+     "result": "NAVIGATE",
+     "to": "/offers",
+     "response_ms": 858
+    },
+    {
+     "label": "󰍍",
+     "result": "NAVIGATE",
+     "to": "/map",
+     "response_ms": 491
+    }
+   ]
+  },
+  {
+   "route": "ai-assistant",
+   "url": "/ai-assistant",
+   "landed": "/ai-assistant",
+   "status": "TESTED",
+   "time_to_ready_ms": 2078,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "تشخيص الأعراض",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3646
+    },
+    {
+     "label": "قراءة روشتة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3575
+    },
+    {
+     "label": "معلومات دواء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3545
+    },
+    {
+     "label": "󰄀",
+     "result": "NAVIGATE",
+     "to": "/ai/prescription-translator",
+     "response_ms": 470
+    },
+    {
+     "label": "󰒊",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3589
+    }
+   ]
+  },
+  {
+   "route": "ai/chat-doctor",
+   "url": "/ai/chat-doctor",
+   "landed": "/ai/triage",
+   "status": "TESTED",
+   "time_to_ready_ms": 1359,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "󰁍",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3616
+    },
+    {
+     "label": "Pananakit o bigat sa dibdib",
+     "result": "UI_CHANGE",
+     "response_ms": 443
+    },
+    {
+     "label": "Hirap sa paghinga",
+     "result": "UI_CHANGE",
+     "response_ms": 442
+    },
+    {
+     "label": "Himatay o hindi tumutugon",
+     "result": "UI_CHANGE",
+     "response_ms": 455
+    },
+    {
+     "label": "Malakas na pagdurugo",
+     "result": "UI_CHANGE",
+     "response_ms": 435
+    },
+    {
+     "label": "Bago o biglang pagkalito",
+     "result": "UI_CHANGE",
+     "response_ms": 451
+    },
+    {
+     "label": "Palatandaan ng matinding allergy",
+     "result": "UI_CHANGE",
+     "response_ms": 444
+    },
+    {
+     "label": "Malubhang pinsala",
+     "result": "UI_CHANGE",
+     "response_ms": 430
+    },
+    {
+     "label": "Wala sa mga ito",
+     "result": "UI_CHANGE",
+     "response_ms": 432
+    },
+    {
+     "label": "Ipakita ang gabay",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/ai/triage",
+     "tokens_sent": 1,
+     "tokens_stored": 1,
+     "response_ms": 2015
+    }
+   ]
+  },
+  {
+   "route": "ai/monthly-report",
+   "url": "/ai/monthly-report",
+   "landed": "/ai/monthly-report",
+   "status": "TESTED",
+   "time_to_ready_ms": 2634,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁍",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3626
+    },
+    {
+     "label": "I-record ang sukat ngayon",
+     "result": "NAVIGATE",
+     "to": "/health/vitals-log",
+     "response_ms": 503
+    },
+    {
+     "label": "Tingnan ang historikal na indikador",
+     "result": "NAVIGATE",
+     "to": "/health/trends",
+     "response_ms": 830
+    },
+    {
+     "label": "Mag-book ng follow-up sa doktor",
+     "result": "NAVIGATE",
+     "to": "/consultations",
+     "response_ms": 912
+    }
+   ]
+  },
+  {
+   "route": "ai/prescription-translator",
+   "url": "/ai/prescription-translator",
+   "landed": "/ai/prescription-translator",
+   "status": "TESTED",
+   "time_to_ready_ms": 1531,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁍",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3602
+    },
+    {
+     "label": "󰈙",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3541
+    },
+    {
+     "label": "󰚩",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3531
+    }
+   ]
+  },
+  {
+   "route": "ai/skin-analysis",
+   "url": "/ai/skin-analysis",
+   "landed": "/ai/skin-analysis",
+   "status": "TESTED",
+   "time_to_ready_ms": 2010,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "󰁍",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3619
+    },
+    {
+     "label": "Mukha",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3568
+    },
+    {
+     "label": "Mga kamay",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3687
+    },
+    {
+     "label": "Likod",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3578
+    },
+    {
+     "label": "Katawan",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3592
+    },
+    {
+     "label": "Ibang lugar",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3594
+    },
+    {
+     "label": "Bagong marka o pagbabago sa dati nang ma",
+     "result": "UI_CHANGE",
+     "response_ms": 440
+    },
+    {
+     "label": "Paglaki o pagbabago ng kulay o texture",
+     "result": "UI_CHANGE",
+     "response_ms": 469
+    },
+    {
+     "label": "Sakit o pangangati",
+     "result": "UI_CHANGE",
+     "response_ms": 434
+    },
+    {
+     "label": "Pagdurugo o langib",
+     "result": "UI_CHANGE",
+     "response_ms": 443
+    },
+    {
+     "label": "Marka o sugat na hindi naghihilom nang h",
+     "result": "UI_CHANGE",
+     "response_ms": 449
+    },
+    {
+     "label": "Wala sa mga ito",
+     "result": "UI_CHANGE",
+     "response_ms": 452
+    },
+    {
+     "label": "Nauunawaan kong hindi nagdi-diagnose o n",
+     "result": "UI_CHANGE",
+     "response_ms": 480
+    },
+    {
+     "label": "Ipakita ang gabay",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/ai/skin-analysis",
+     "tokens_sent": 1,
+     "tokens_stored": 1,
+     "response_ms": 2016
+    }
+   ]
+  },
+  {
+   "route": "ai/symptom-checker",
+   "url": "/ai/symptom-checker",
+   "landed": "/ai/triage",
+   "status": "TESTED",
+   "time_to_ready_ms": 2026,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "󰁍",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3593
+    },
+    {
+     "label": "Pananakit o bigat sa dibdib",
+     "result": "UI_CHANGE",
+     "response_ms": 439
+    },
+    {
+     "label": "Hirap sa paghinga",
+     "result": "UI_CHANGE",
+     "response_ms": 437
+    },
+    {
+     "label": "Himatay o hindi tumutugon",
+     "result": "UI_CHANGE",
+     "response_ms": 446
+    },
+    {
+     "label": "Malakas na pagdurugo",
+     "result": "UI_CHANGE",
+     "response_ms": 444
+    },
+    {
+     "label": "Bago o biglang pagkalito",
+     "result": "UI_CHANGE",
+     "response_ms": 448
+    },
+    {
+     "label": "Palatandaan ng matinding allergy",
+     "result": "UI_CHANGE",
+     "response_ms": 486
+    },
+    {
+     "label": "Malubhang pinsala",
+     "result": "UI_CHANGE",
+     "response_ms": 443
+    },
+    {
+     "label": "Wala sa mga ito",
+     "result": "UI_CHANGE",
+     "response_ms": 450
+    },
+    {
+     "label": "Ipakita ang gabay",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/ai/triage",
+     "tokens_sent": 1,
+     "tokens_stored": 1,
+     "response_ms": 1854
+    }
+   ]
+  },
+  {
+   "route": "ai/symptom-timeline",
+   "url": "/ai/symptom-timeline",
+   "landed": "/ai/triage",
+   "status": "TESTED",
+   "time_to_ready_ms": 1372,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "󰁍",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3642
+    },
+    {
+     "label": "Pananakit o bigat sa dibdib",
+     "result": "UI_CHANGE",
+     "response_ms": 463
+    },
+    {
+     "label": "Hirap sa paghinga",
+     "result": "UI_CHANGE",
+     "response_ms": 430
+    },
+    {
+     "label": "Himatay o hindi tumutugon",
+     "result": "UI_CHANGE",
+     "response_ms": 436
+    },
+    {
+     "label": "Malakas na pagdurugo",
+     "result": "UI_CHANGE",
+     "response_ms": 458
+    },
+    {
+     "label": "Bago o biglang pagkalito",
+     "result": "UI_CHANGE",
+     "response_ms": 447
+    },
+    {
+     "label": "Palatandaan ng matinding allergy",
+     "result": "UI_CHANGE",
+     "response_ms": 447
+    },
+    {
+     "label": "Malubhang pinsala",
+     "result": "UI_CHANGE",
+     "response_ms": 457
+    },
+    {
+     "label": "Wala sa mga ito",
+     "result": "UI_CHANGE",
+     "response_ms": 428
+    },
+    {
+     "label": "Ipakita ang gabay",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/ai/triage",
+     "tokens_sent": 1,
+     "tokens_stored": 1,
+     "response_ms": 1454
+    }
+   ]
+  },
+  {
+   "route": "ai/triage",
+   "url": "/ai/triage",
+   "landed": "/ai/triage",
+   "status": "TESTED",
+   "time_to_ready_ms": 1335,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "󰁍",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3601
+    },
+    {
+     "label": "Pananakit o bigat sa dibdib",
+     "result": "UI_CHANGE",
+     "response_ms": 438
+    },
+    {
+     "label": "Hirap sa paghinga",
+     "result": "UI_CHANGE",
+     "response_ms": 436
+    },
+    {
+     "label": "Himatay o hindi tumutugon",
+     "result": "UI_CHANGE",
+     "response_ms": 435
+    },
+    {
+     "label": "Malakas na pagdurugo",
+     "result": "UI_CHANGE",
+     "response_ms": 446
+    },
+    {
+     "label": "Bago o biglang pagkalito",
+     "result": "UI_CHANGE",
+     "response_ms": 439
+    },
+    {
+     "label": "Palatandaan ng matinding allergy",
+     "result": "UI_CHANGE",
+     "response_ms": 432
+    },
+    {
+     "label": "Malubhang pinsala",
+     "result": "UI_CHANGE",
+     "response_ms": 433
+    },
+    {
+     "label": "Wala sa mga ito",
+     "result": "UI_CHANGE",
+     "response_ms": 436
+    },
+    {
+     "label": "Ipakita ang gabay",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/ai/triage",
+     "tokens_sent": 1,
+     "tokens_stored": 1,
+     "response_ms": 1846
+    }
+   ]
+  },
+  {
+   "route": "articles/[slug]",
+   "status": "NOT_TESTED_DYNAMIC"
+  },
+  {
+   "route": "articles/bookmarks",
+   "url": "/articles/bookmarks",
+   "landed": "/articles/bookmarks",
+   "status": "TESTED",
+   "time_to_ready_ms": 1956,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁍",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3609
+    },
+    {
+     "label": "󰈙",
+     "result": "NAVIGATE",
+     "to": "/articles",
+     "response_ms": 785
+    }
+   ]
+  },
+  {
+   "route": "articles/index",
+   "url": "/articles",
+   "landed": "/articles",
+   "status": "TESTED",
+   "time_to_ready_ms": 2604,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "󰁍",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3616
+    },
+    {
+     "label": "󰃀",
+     "result": "NAVIGATE",
+     "to": "/articles/bookmarks",
+     "response_ms": 786
+    },
+    {
+     "label": "WE591F02",
+     "result": "NAVIGATE",
+     "to": "/articles/we591f03",
+     "response_ms": 1340
+    },
+    {
+     "label": "W3C31602",
+     "result": "NAVIGATE",
+     "to": "/articles/w3c31603",
+     "response_ms": 1314
+    },
+    {
+     "label": "U1593E902",
+     "result": "NAVIGATE",
+     "to": "/articles/u1593e903",
+     "response_ms": 827
+    },
+    {
+     "label": "U26CC7602",
+     "result": "NAVIGATE",
+     "to": "/articles/u26cc7603",
+     "response_ms": 1321
+    }
+   ]
+  },
+  {
+   "route": "community/hub",
+   "url": "/community/hub",
+   "landed": "/community/hub",
+   "status": "TESTED",
+   "time_to_ready_ms": 2565,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰐕",
+     "result": "UI_CHANGE",
+     "response_ms": 465
+    },
+    {
+     "label": "󰁍",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3573
+    },
+    {
+     "label": "All",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3548
+    },
+    {
+     "label": "Mga artikulong medikal",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3555
+    },
+    {
+     "label": "Mga karanasan ng pasyente",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3540
+    },
+    {
+     "label": "Mga tanong at sagot",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3536
+    },
+    {
+     "label": "category-14952",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3574
+    }
+   ]
+  },
+  {
+   "route": "community/post-detail",
+   "url": "/community/post-detail",
+   "landed": "/community/post-detail",
+   "status": "TESTED",
+   "time_to_ready_ms": 1382,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "󰁍",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3577
+    },
+    {
+     "label": "󰒗",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3648
+    },
+    {
+     "label": "󰭹",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3547
+    },
+    {
+     "label": "󰋑",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3552
+    },
+    {
+     "label": "󰒊",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3553
+    }
+   ]
+  },
+  {
+   "route": "consultations/appointment-detail",
+   "url": "/consultations/appointment-detail",
+   "landed": "/consultations/appointment-detail",
+   "status": "TESTED",
+   "time_to_ready_ms": 15342,
+   "ready": false,
+   "not_ready_reason": "0 request(s) in flight, 1 loading, stable=27",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": []
+  },
+  {
+   "route": "consultations/appointments",
+   "url": "/consultations/appointments",
+   "landed": "/consultations/appointments",
+   "status": "TESTED",
+   "time_to_ready_ms": 1980,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁍",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3577
+    },
+    {
+     "label": "Paparating",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3559
+    },
+    {
+     "label": "Nakaraan",
+     "result": "UI_CHANGE",
+     "response_ms": 424
+    },
+    {
+     "label": "Mag-book ng appointment ngayon",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    }
+   ]
+  },
+  {
+   "route": "consultations/book/[id]",
+   "status": "NOT_TESTED_DYNAMIC"
+  },
+  {
+   "route": "consultations/booking-confirm",
+   "url": "/consultations/booking-confirm",
+   "landed": "/consultations/booking-status",
+   "status": "TESTED",
+   "time_to_ready_ms": 2018,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁍",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3579
+    },
+    {
+     "label": "󰕧",
+     "result": "UI_CHANGE",
+     "response_ms": 430
+    },
+    {
+     "label": "󰋡",
+     "result": "UI_CHANGE",
+     "response_ms": 430
+    },
+    {
+     "label": "󰋜",
+     "result": "UI_CHANGE",
+     "response_ms": 434
+    },
+    {
+     "label": "󰿯",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3575
+    },
+    {
+     "label": "󰄖",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "󰒘",
+     "result": "UI_CHANGE",
+     "response_ms": 439
+    },
+    {
+     "label": "󰗠",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    }
+   ]
+  },
+  {
+   "route": "consultations/booking-pending",
+   "url": "/consultations/booking-pending",
+   "landed": "/consultations/booking-status",
+   "status": "TESTED",
+   "time_to_ready_ms": 1347,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁍",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3577
+    },
+    {
+     "label": "󰕧",
+     "result": "UI_CHANGE",
+     "response_ms": 439
+    },
+    {
+     "label": "󰋡",
+     "result": "UI_CHANGE",
+     "response_ms": 454
+    },
+    {
+     "label": "󰋜",
+     "result": "UI_CHANGE",
+     "response_ms": 423
+    },
+    {
+     "label": "󰿯",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3546
+    },
+    {
+     "label": "󰄖",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "󰒘",
+     "result": "UI_CHANGE",
+     "response_ms": 445
+    },
+    {
+     "label": "󰗠",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    }
+   ]
+  },
+  {
+   "route": "consultations/booking-status",
+   "url": "/consultations/booking-status",
+   "landed": "/consultations/booking-status",
+   "status": "TESTED",
+   "time_to_ready_ms": 1377,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁍",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3572
+    },
+    {
+     "label": "󰕧",
+     "result": "UI_CHANGE",
+     "response_ms": 440
+    },
+    {
+     "label": "󰋡",
+     "result": "UI_CHANGE",
+     "response_ms": 439
+    },
+    {
+     "label": "󰋜",
+     "result": "UI_CHANGE",
+     "response_ms": 436
+    },
+    {
+     "label": "󰿯",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3564
+    },
+    {
+     "label": "󰄖",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "󰒘",
+     "result": "UI_CHANGE",
+     "response_ms": 443
+    },
+    {
+     "label": "󰗠",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    }
+   ]
+  },
+  {
+   "route": "consultations/booking-success",
+   "url": "/consultations/booking-success",
+   "landed": "/consultations/booking-status",
+   "status": "TESTED",
+   "time_to_ready_ms": 1349,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁍",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3604
+    },
+    {
+     "label": "󰕧",
+     "result": "UI_CHANGE",
+     "response_ms": 445
+    },
+    {
+     "label": "󰋡",
+     "result": "UI_CHANGE",
+     "response_ms": 437
+    },
+    {
+     "label": "󰋜",
+     "result": "UI_CHANGE",
+     "response_ms": 445
+    },
+    {
+     "label": "󰿯",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3555
+    },
+    {
+     "label": "󰄖",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "󰒘",
+     "result": "UI_CHANGE",
+     "response_ms": 449
+    },
+    {
+     "label": "󰗠",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    }
+   ]
+  },
+  {
+   "route": "consultations/call-history",
+   "url": "/consultations/call-history",
+   "landed": "/consultations/call-history",
+   "status": "TESTED",
+   "time_to_ready_ms": 2602,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁍",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3574
+    }
+   ]
+  }
+ ]
+}
