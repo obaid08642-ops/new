@@ -286,6 +286,8 @@ export class CareService {
       insurance_home: Boolean(d.insurance_home),
       accepted_insurance: Array.isArray(d.accepted_insurance) ? d.accepted_insurance : [],
       clinicPhotos: Array.isArray(d.clinic_images) ? d.clinic_images : [],
+      clinic_name: d.clinic_name || null, // R83: from registration step 3
+      clinic_address: d.clinic_address || d.address || null, // R83
       next_available_at: nextAvailableAt,
     };
     if (typeof distanceKm === 'number' && Number.isFinite(distanceKm)) publicDoctor.distance_km = Math.round(distanceKm * 10) / 10;
