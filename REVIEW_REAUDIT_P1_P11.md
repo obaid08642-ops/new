@@ -690,3 +690,61 @@ Register with reproduction, evidence and root cause: `docs/review/QA_DEFECTS.md`
 - 128 patient-app and 41 provider-app icon-only controls have no accessible name.
 - Admin `medicines-catalog` labels are not bound to their inputs.
 - **Verify:** `ui_inventory.js` shows 0 unlabeled controls; Playwright `getByLabel` finds every medicine field.
+
+### Round 7 — addendum (same QA run, later findings)
+
+Also reviewer-fixed on `review/qa-full` (do not revert):
+- Q32: website article pages always 404.
+- Q35: website search and pharmacy chat blocked by the proxy allowlist.
+- Q40: app medicine compare sent GET and invented ids.
+
+Mandatory, one commit each:
+
+**Q36 (High) — a slot hold does not protect the slot.**
+- Refuse a booking while another patient holds an unexpired lock on that provider and slot.
+- **Verify:** `tools/live/j_concurrency.py` A–D all pass.
+
+**Q30 (High) — website order tracking 404s for every governed pharmacy order.**
+- Same cause as Q16: it reads the legacy `orders` collection.
+- Track from `pharmacy_orders`, and keep the `?pay=1` hand-off.
+
+**Q38 (High) — app notification switches never save.**
+- The app sends a flat body; the API takes nested `channels` / `categories`. Agree the key mapping with the owner (including marketing consent).
+- Revert the switch and show the error on failure.
+- **Verify:** flip → reload → same state.
+
+**Q45 (Medium) — ambulance profile save always 400.**
+- `contact_phone` and `coverage_cities` are not in the service's `allowed` list.
+
+**Q42 (Medium) — screens offered to roles the API refuses.**
+- `sos_dispatch` (doctor, hospital, home_care) and `hospital_dispatch` answer 403.
+- Show them only where the API allows.
+
+**Q44 (Medium) — provider pharmacy `chronic` calls the retired `/pharmacy/orders/refills` (503).**
+
+**Q37 (Medium, product decision first) — slot list vs 5-minute buffer.**
+- The slot just before any booking is offered but cannot be booked.
+- Use one shared availability function for the list and the booking check.
+
+**Q31 (Medium) — website map lab and hospital cards link to 404.**
+- The map uses provider-profile ids; the detail pages read other collections.
+
+**Q33 (Medium) — services sitemap.**
+- 13,500 URLs; most render the 404 page, and riyadh renders a generic list.
+- Emit only real service × city pairs, and return a real 404 when empty.
+
+**Q41 (Medium, performance) — doctor list N+1 next-availability.**
+- p50 1.1 s at 25 users.
+- **Verify:** p50 ≤ 20 ms at c=1 (`tools/perf/api_load.py`).
+
+**Q39 (Medium) — `@ts-nocheck` in 186 patient-app files.**
+- Remove it file by file, starting with screens that call `apiFetch`, and fail the gate on new ones.
+
+**Q34 + Q43 (Low).**
+- Missing `.catch`; undefined-param calls; profile-image 404 treated as an error.
+
+Still open from earlier rounds, re-confirmed live in this run:
+- **R29:** segments DTO forbids `operator` / `value`.
+- **R17:** theme-control saves without CSRF and shows a fake "saved".
+- **R23:** step-up.
+- **F2:** insurance.
