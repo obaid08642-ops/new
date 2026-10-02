@@ -1,0 +1,22 @@
+{
+ "app": "admin",
+ "throttle": "none (local)",
+ "runs": 3,
+ "note": "Chromium on the review container; not a phone",
+ "routes": {
+  "/login": {
+   "ttfb_ms": 6,
+   "dcl_ms": 139,
+   "load_ms": 140,
+   "requests": 15,
+   "transfer_kb": 143,
+   "js_kb": 131,
+   "fcp_ms": 124,
+   "lcp_ms": 124,
+   "long_tasks_ms": 0,
+   "api_calls": 0,
+   "api_max_ms": 0,
+   "api_errors": 0
+  }
+ }
+}

@@ -17,6 +17,9 @@ Tools:
 | Website: page ready, p50, local | ≤ 1.5 s | ~0.9 s (crawl v2 `time_to_ready_ms`) | within |
 | Public search API (`did-you-mean`), p50 at concurrency 10 | ≤ 100 ms | 710 ms → 35 ms | **fixed** (Q14) |
 | Main-thread long tasks on the first load, local | ≤ 500 ms | 472 ms | at the limit |
+| Website / admin: FCP on 4G | ≤ 1.5 s | 1.17–1.19 s / 0.70 s | within |
+| Provider app web: JS gzip | ≤ 1.0 MB | 1.54 MB | over (recommendation: per-provider-type lazy screens) |
+| API list/search reads: p95 at 25 concurrent users | ≤ 150 ms (production hardware) | 55–340 ms locally; doctor list 1.43 s | doctor list over (Q41) |
 
 ## 1. Patient app, first load (web build; the same assets ship in the native binaries)
 
@@ -91,6 +94,22 @@ Evidence:
     2. The admin `topSearched` aggregation groups the whole `search_queries` collection (COLLSCAN). This is the same pattern as Q14; recommendation: a 90-day window plus the `createdAt` index that Q14 added.
     3. `lab_services` list (101 docs, COLLSCAN): a catalog, fine at this size.
   - The profiler is off now (level 0); nothing to clean up.
+
+## 2b. Page load per app (Chromium, cold load, median of 3 local / 1 on 4G)
+
+| App · route | Local: FCP / LCP / long tasks | 4G (CDP): FCP / load | JS transferred |
+|---|---|---|---|
+| Website `/ar` | 272 / 272 / 0 ms | 1.19 s / 2.46 s | 188 KB |
+| Website `/ar/doctors` | 224 / 224 / 53 ms | 1.17 s / 2.50 s | 164 KB |
+| Website `/ar/articles`, `/ar/consultations`, `/ar/pharmacy` | 236–256 ms FCP | — | 159–166 KB |
+| Admin `/login` | 124 / 124 / 0 ms | 0.70 s / 1.38 s | 131 KB |
+| Provider app `/` (web build) | 496 / 616 / 302 ms | 32.4 s / 32.2 s (uncompressed) | 5.9 MB raw, **1.54 MB gzip** |
+| Patient app `/` (web build) | see §1 | see §1 | 16.2 MB raw → 10.4 MB with the fixes |
+
+- The two Next.js apps are within budget: FCP ≤ 1.5 s on 4G and JS ≤ 300 KB.
+- Both Expo apps are dominated by the single JS entry. That matters on the web, and for native start-up and parse time.
+- The provider app does not bundle phosphor; its 1.54 MB gzip is its own code plus React Native Web. A bundle split (lazy screens per provider type: a pharmacy user never needs the radiology screens) is the next step, as a recommendation.
+- Evidence: `evidence/perf_{website,admin,provider-app}_2026-10-02[_4g].json`.
 
 ## 3. Website and admin
 
