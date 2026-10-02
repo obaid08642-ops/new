@@ -6,7 +6,7 @@ PASSED = rendered cleanly **and** every exposed control had a verified effect. R
 | App | PASSED | PARTIAL | FAILED | NOT_TESTED | BLOCKED | STALE | Total |
 |---|---|---|---|---|---|---|---|
 | provider-app | 72 | 109 | 18 | 0 | 3 | 0 | 202 |
-| patient-app | 10 | 186 | 39 | 5 | 3 | 1 | 244 |
+| patient-app | 9 | 187 | 40 | 5 | 3 | 0 | 244 |
 | patient-web | 102 | 139 | 17 | 6 | 6 | 0 | 270 |
 | admin | 13 | 41 | 9 | 2 | 0 | 0 | 65 |
 
@@ -214,250 +214,250 @@ PASSED = rendered cleanly **and** every exposed control had a verified effect. R
 | provider-app | ambulance | `insurance_requests` | PASSED | 1 state(s); 1 controls verified | rn_nav2_provider-app_ambulance_2026-10-02.json |
 | provider-app | ambulance | `profile` | FAILED | 1 state(s); 1 failing control(s): حفظ الملف=WRITE | rn_nav2_provider-app_ambulance_2026-10-02.json |
 | provider-app | ambulance | `availability` | PARTIAL | 1 state(s); 1/4 control(s) without verified effect | rn_nav2_provider-app_ambulance_2026-10-02.json |
-| patient-app |  | `/ai-assistant` | PARTIAL | 4/5 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/` | PARTIAL | no controls exercised | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/room/[id]` | NOT_TESTED | dynamic route: needs a real record id | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/shared/location-picker` | PARTIAL | 3/5 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/community/post-detail` | PARTIAL | 5/5 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/community/hub` | PARTIAL | 6/7 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/ai/symptom-checker` | PARTIAL | 1/10 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/ai/triage` | PARTIAL | 1/10 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/ai/symptom-timeline` | PARTIAL | 1/10 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/ai/chat-doctor` | PARTIAL | 1/10 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/ai/monthly-report` | PARTIAL | 1/4 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/ai/prescription-translator` | PARTIAL | 3/3 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/ai/skin-analysis` | PARTIAL | 6/14 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/programs/active` | PARTIAL | 2/3 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/mental-health/therapist-match` | PARTIAL | 15/15 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/mental-health/self-assessment` | PARTIAL | 4/4 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/mental-health/breathing` | PARTIAL | 1/4 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/mental-health/meditation` | PARTIAL | 4/4 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/mental-health/hub` | PARTIAL | 4/4 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/mental-health/crisis-support` | PARTIAL | 4/4 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/mental-health` | PARTIAL | 4/4 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/mental-health/mood-journal` | PARTIAL | 18/18 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/doctor/[slug]` | PARTIAL | 12/18 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/wearables/hub` | PARTIAL | no controls exercised | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/maternity/baby-development` | PARTIAL | 1/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/maternity/baby-growth` | PARTIAL | 1/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/maternity/pregnancy-tracker` | PARTIAL | 1/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/maternity/maternity-setup` | FAILED | 3 failing control(s): الدورة منتظمة=TAP_FAILED, الدورة غير منتظمة=TAP_FAILED, 󰗠=WRITE | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/maternity/ovulation-tracker` | PARTIAL | 1/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/maternity/hub` | PARTIAL | 1/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/consultations/appointments` | FAILED | 1 failing control(s): Mag-book ng appoin=TAP_FAILED | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/consultations/specialty-select` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/consultations/doctor-search` | PARTIAL | 4/4 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/consultations/prescription-from-doctor` | PARTIAL | 3/3 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/consultations/incoming-call` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/consultations/home-visit-tracking` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/consultations/booking-confirm` | FAILED | 2 failing control(s): 󰄖=TAP_FAILED, 󰗠=TAP_FAILED | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/consultations/summary` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/consultations/clinic-confirm` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/consultations/waiting-room` | PARTIAL | no controls exercised | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/consultations/booking-status` | FAILED | 2 failing control(s): 󰄖=TAP_FAILED, 󰗠=TAP_FAILED | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/consultations/call-history` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/consultations/virtual-waiting-room` | PARTIAL | no controls exercised | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/consultations/doctor-profile` | PARTIAL | 4/4 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/consultations/chat-with-doctor` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/consultations/clinic-location` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/consultations/share-report` | PARTIAL | 1/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/consultations/appointment-detail` | PARTIAL | no controls exercised | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/consultations/booking-success` | FAILED | 2 failing control(s): 󰄖=TAP_FAILED, 󰗠=TAP_FAILED | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/consultations/cancel-reschedule` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/consultations/video-call` | PASSED | 1 controls verified | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/consultations/booking-pending` | FAILED | 2 failing control(s): 󰄖=TAP_FAILED, 󰗠=TAP_FAILED | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/consultations/follow-up` | PARTIAL | 3/3 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/consultations/post-call-rating` | PARTIAL | 6/8 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/consultations/doctor/[id]` | PARTIAL | 12/18 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/consultations/book/[id]` | PARTIAL | 9/12 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/consultations/clinic/[id]` | BLOCKED | no facility in the QA DB passes the public filter (public_eligibility) — 404 GET /care/facilities/king-faisal-specialist | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/consultations/offer/[id]` | NOT_TESTED | dynamic route: needs a real record id | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/services` | PARTIAL | 1/23 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/permissions` | PASSED | 6 controls verified | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/language` | PARTIAL | 1/7 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/` | PARTIAL | no controls exercised | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/delivery/address-select` | PARTIAL | 2/4 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/orders` | PARTIAL | 12/13 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/medicine/[slug]` | NOT_TESTED | dynamic route: needs a real record id | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/facility/[slug]` | BLOCKED | no facility in the QA DB passes the public filter (public_eligibility) — 404 GET /care/facilities/king-faisal-specialist | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/voice` | PARTIAL | 1/6 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/articles/[slug]` | PARTIAL | 2/3 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/articles/bookmarks` | PARTIAL | 1/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/articles` | PARTIAL | 1/6 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/profile/addresses` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/profile/insurance` | PARTIAL | 1/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/profile` | PARTIAL | 1/13 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/insurance/payment-split` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/insurance/policy-detail` | PARTIAL | 1/3 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/insurance/coverage-check` | PARTIAL | 5/5 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/insurance/submit-claim` | PARTIAL | 3/3 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/insurance/benefits-summary` | FAILED | render: 404 GET /insurance/benefits-summary | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/insurance/approval-pending` | PASSED | 1 controls verified | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/insurance/hub` | PARTIAL | 2/12 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/insurance/add-policy` | PARTIAL | 42/42 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/insurance/copay` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/insurance/network-providers` | PARTIAL | 6/7 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/insurance` | PARTIAL | 2/12 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/offers/[id]` | NOT_TESTED | dynamic route: needs a real record id | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/offers` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/emergency/sos-active` | PARTIAL | 4/4 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/emergency/tracking` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/emergency/sos` | PARTIAL | 7/7 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/emergency` | PARTIAL | 7/7 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/reviews` | PARTIAL | 1/3 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/search` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/loyalty/leaderboard` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/loyalty/rewards` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/loyalty/challenges` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/loyalty/hub` | PARTIAL | 2/6 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/loyalty/referrals` | FAILED | 1 failing control(s): 󰗠=WRITE | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/forgot-password` | PARTIAL | 2/3 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/register` | PARTIAL | 4/8 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/welcome` | FAILED | 2 failing control(s): تسجيل دخول=TAP_FAILED, المتابعة كضيف (بدو=TAP_FAILED | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/otp` | FAILED | 1 failing control(s): تأكيد الرمز=WRITE | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/login` | PARTIAL | 3/9 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/reset-password` | PARTIAL | 2/3 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/terms` | PARTIAL | 1/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/provider-info` | PASSED | 2 controls verified | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/privacy` | PARTIAL | 1/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/notifications` | PARTIAL | 5/5 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/settings/support-chat` | PARTIAL | 3/8 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/settings/language` | FAILED | 1 failing control(s): اردو=TAP_FAILED | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/settings/notifications-settings` | PASSED | 1 controls verified | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/settings/help` | FAILED | 1 failing control(s): 󰋼=TAP_FAILED | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/settings/terms` | PASSED | 1 controls verified | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/settings/data` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/settings/feedback` | FAILED | 1 failing control(s): 󰕒=WRITE | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/settings/security` | PARTIAL | 2/5 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/settings/about` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/settings/privacy` | PARTIAL | 2/8 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/settings` | PARTIAL | 3/6 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/settings/notifications` | FAILED | 8 failing control(s): (icon #1)=WRITE, (icon #2)=WRITE, (icon #3)=WRITE | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/p/[slug]` | NOT_TESTED | dynamic route: needs a real record id | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/returns/detail` | PARTIAL | no controls exercised | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/returns/new-request` | PARTIAL | 1/6 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/returns/hub` | PARTIAL | 6/7 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/health/add-family-member` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/health/reports` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/health/chronic-medications` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/health/prescriptions` | PARTIAL | 3/3 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/health/health-id` | PARTIAL | 4/4 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/health/trends` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/health/conditions-allergies` | PARTIAL | 3/3 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/health/medications` | PARTIAL | 7/7 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/health/family-chat` | FAILED | render: 403 GET /family/chat/messages | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/health/edit-profile` | PARTIAL | 18/18 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/health/family-hub` | FAILED | render: 404 GET /family/my-group | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/health/actionable-order` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/health/family-member-detail` | FAILED | render: 404 GET /family/member-records/ | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/health/sleep-score` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/health/wearables` | PARTIAL | no controls exercised | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/health/smart-reminders` | PARTIAL | 1/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/health/family-calendar` | FAILED | render: 404 GET /family/calendar | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/health/medication-reminder-list` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/health/vitals-log` | PARTIAL | 8/9 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/health/chronic-disease` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/health/reminders` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/health/sleep-tracker` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/health/refills` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/health/emergency-contacts` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/health/medication-reminder-add` | PARTIAL | 16/16 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/health/vitals` | PARTIAL | 1/3 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/drug-scanner` | PARTIAL | 8/10 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/map` | PARTIAL | no controls exercised | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/support/ticket` | PARTIAL | 1/3 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/support/chat` | PARTIAL | 3/8 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/s/[type]/[slug]` | PARTIAL | 12/18 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/family/permissions` | FAILED | render: 404 GET /family/my-group | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/family/permission-request` | FAILED | render: No group found | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/family/scan` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/family/member-health` | FAILED | render: 404 GET /family/member-records/ | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/family/calendar` | FAILED | render: 404 GET /family/calendar | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/family/shared-calendar` | FAILED | render: 404 GET /family/calendar | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/family/join` | PARTIAL | 9/9 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/family/chat` | FAILED | render: 403 GET /family/chat/messages | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/family/emergency-contacts` | PARTIAL | 3/3 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/family/invite` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/family` | FAILED | render: 404 GET /family/my-group | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/payments/failed` | PARTIAL | 1/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/payments/result` | PARTIAL | no controls exercised | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/payments/success` | PARTIAL | 1/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/payments/processing` | PARTIAL | no controls exercised | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/nursing/insurance-status` | PARTIAL | 3/3 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/nursing/live-tracking` | PARTIAL | no controls exercised | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/nursing/visits` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/nursing/service-details` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/nursing/service-info` | FAILED | render: 404 GET /home-care/services/undefined | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/nursing/nurse-profile` | FAILED | render: 404 GET /home-care/providers/undefined | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/reports/timeline` | PARTIAL | 6/7 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/reports/ai-analysis` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/reports/passport` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/reports/hub` | PARTIAL | 5/5 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/reports/view-report` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/pharmacy/insurance-decision` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/pharmacy/checkout` | PARTIAL | 4/5 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/pharmacy/order-history` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/pharmacy/cart` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/pharmacy/waiting-for-pharmacy` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/pharmacy/filters` | PARTIAL | 6/10 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/pharmacy/manual-order` | FAILED | 1 failing control(s): بث الطلب وطلب عروض=TAP_FAILED | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/pharmacy/order-confirm` | PARTIAL | no controls exercised | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/pharmacy/order-tracking` | PARTIAL | 1/3 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/pharmacy/payment` | PARTIAL | 1/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/pharmacy/barcode-scanner` | PARTIAL | 2/3 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/pharmacy/medicine-compare` | STALE | screen file changed after the crawl | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/pharmacy/custom-item` | FAILED | 1 failing control(s): بث الطلب وطلب عروض=TAP_FAILED | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/pharmacy/wishlist` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/pharmacy/scan-prescription` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/pharmacy/pharmacist-chat` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/pharmacy/rx-order` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/pharmacy/drug-not-found` | FAILED | 1 failing control(s): بث الطلب وطلب عروض=TAP_FAILED | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/pharmacy/product-search` | PASSED | 1 controls verified | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/pharmacy/reorder` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/pharmacy/broadcast-status` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/pharmacy/request` | FAILED | 1 failing control(s): بث الطلب وطلب عروض=TAP_FAILED | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/pharmacy/product-detail` | FAILED | render: 404 GET /medicines/undefined/details | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/pharmacy/final-quote` | PARTIAL | 1/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/diagnostics/orders` | PARTIAL | 3/3 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/diagnostics/checkout` | PASSED | 1 controls verified | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/diagnostics/insurance-approval` | PARTIAL | no controls exercised | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/diagnostics/sample-tracking` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/diagnostics/cart` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/diagnostics/booking-confirm` | FAILED | 2 failing control(s): 󰅙=TAP_FAILED, اختيار=TAP_FAILED | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/diagnostics/package-detail` | FAILED | render: 404 GET /labs/packages/undefined | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/diagnostics/lab-comparison` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/diagnostics/search` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/diagnostics/insurance-upload` | PARTIAL | 1/3 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/diagnostics/my-results` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/diagnostics/upload-rx` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/diagnostics/booking-success` | PARTIAL | 3/3 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/diagnostics/results-history` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/diagnostics/book-sample` | PARTIAL | 1/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/diagnostics/technician-tracking` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/diagnostics/test-detail` | FAILED | render: 404 GET /labs/services/undefined | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/diagnostics/packages` | FAILED | 1 failing control(s): =TAP_FAILED | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/diagnostics/lab/[id]` | PARTIAL | 2/4 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/diagnostics/order/[id]` | BLOCKED | the app test account has no lab/radiology booking; another patient's booking correctly answers 404 (ownership) — 404 GET /labs/bookings/5d0415d1-e596-4f22-829c-88ab660363e0 | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/diagnostics` | FAILED | 2 failing control(s): 󰅙=TAP_FAILED, Piliin=TAP_FAILED | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/health` | PASSED | 17 controls verified | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/nursing` | PARTIAL | 2/9 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/services` | PARTIAL | 1/23 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/pharmacy` | PASSED | 5 controls verified | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/` | PARTIAL | no controls exercised | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/consultations` | PARTIAL | 14/15 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/nutrition/body-composition` | FAILED | 1 failing control(s): 󰗠=WRITE | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/nutrition/ai-plan-builder` | PARTIAL | 1/5 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/nutrition/exercise-plan` | PARTIAL | 1/5 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/nutrition/daily-tracker` | PARTIAL | 1/5 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/nutrition/log-meal` | PARTIAL | 5/6 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/nutrition/nutrition-plan` | PARTIAL | 1/5 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/nutrition/ai-meal-planner` | PARTIAL | 1/5 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/nutrition/hub` | PARTIAL | 1/5 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/nutrition/calorie-analyzer` | PARTIAL | 5/6 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/nutrition/body-target` | FAILED | 1 failing control(s): 󰗠=WRITE | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/nutrition` | PARTIAL | 1/5 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/nutrition/water-tracker` | PARTIAL | 1/5 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
-| patient-app |  | `/nutrition/food-scanner` | PARTIAL | 5/6 control(s) without verified effect | rn_web_patient-app_2026-10-02_dyn.json |
+| patient-app |  | `/ai-assistant` | PARTIAL | 4/5 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/` | PARTIAL | no controls exercised | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/room/[id]` | NOT_TESTED | dynamic route: needs a real record id | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/shared/location-picker` | PARTIAL | 3/5 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/community/post-detail` | PARTIAL | 5/5 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/community/hub` | PARTIAL | 6/7 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/ai/symptom-checker` | PARTIAL | 1/10 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/ai/triage` | PARTIAL | 1/10 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/ai/symptom-timeline` | PARTIAL | 1/10 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/ai/chat-doctor` | PARTIAL | 1/10 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/ai/monthly-report` | PARTIAL | 1/4 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/ai/prescription-translator` | PARTIAL | 3/3 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/ai/skin-analysis` | PARTIAL | 6/14 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/programs/active` | PARTIAL | 2/3 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/mental-health/therapist-match` | PARTIAL | 15/15 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/mental-health/self-assessment` | PARTIAL | 4/4 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/mental-health/breathing` | PARTIAL | 1/4 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/mental-health/meditation` | PARTIAL | 4/4 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/mental-health/hub` | PARTIAL | 4/4 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/mental-health/crisis-support` | PARTIAL | 4/4 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/mental-health` | PARTIAL | 4/4 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/mental-health/mood-journal` | PARTIAL | 18/18 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/doctor/[slug]` | PARTIAL | 12/18 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/wearables/hub` | PARTIAL | no controls exercised | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/maternity/baby-development` | PARTIAL | 1/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/maternity/baby-growth` | PARTIAL | 1/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/maternity/pregnancy-tracker` | PARTIAL | 1/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/maternity/maternity-setup` | FAILED | 3 failing control(s): الدورة منتظمة=TAP_FAILED, الدورة غير منتظمة=TAP_FAILED, 󰗠=WRITE | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/maternity/ovulation-tracker` | PARTIAL | 1/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/maternity/hub` | PARTIAL | 1/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/consultations/appointments` | FAILED | 1 failing control(s): Mag-book ng appoin=TAP_FAILED | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/consultations/specialty-select` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/consultations/doctor-search` | PARTIAL | 4/4 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/consultations/prescription-from-doctor` | PARTIAL | 3/3 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/consultations/incoming-call` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/consultations/home-visit-tracking` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/consultations/booking-confirm` | FAILED | 2 failing control(s): 󰄖=TAP_FAILED, 󰗠=TAP_FAILED | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/consultations/summary` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/consultations/clinic-confirm` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/consultations/waiting-room` | PARTIAL | no controls exercised | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/consultations/booking-status` | FAILED | 2 failing control(s): 󰄖=TAP_FAILED, 󰗠=TAP_FAILED | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/consultations/call-history` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/consultations/virtual-waiting-room` | PARTIAL | no controls exercised | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/consultations/doctor-profile` | PARTIAL | 4/4 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/consultations/chat-with-doctor` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/consultations/clinic-location` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/consultations/share-report` | PARTIAL | 1/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/consultations/appointment-detail` | PARTIAL | no controls exercised | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/consultations/booking-success` | FAILED | 2 failing control(s): 󰄖=TAP_FAILED, 󰗠=TAP_FAILED | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/consultations/cancel-reschedule` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/consultations/video-call` | PASSED | 1 controls verified | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/consultations/booking-pending` | FAILED | 2 failing control(s): 󰄖=TAP_FAILED, 󰗠=TAP_FAILED | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/consultations/follow-up` | PARTIAL | 3/3 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/consultations/post-call-rating` | PARTIAL | 6/8 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/consultations/doctor/[id]` | PARTIAL | 12/18 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/consultations/book/[id]` | PARTIAL | 9/12 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/consultations/clinic/[id]` | BLOCKED | no facility in the QA DB passes the public filter (public_eligibility) — 404 GET /care/facilities/king-faisal-specialist | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/consultations/offer/[id]` | NOT_TESTED | dynamic route: needs a real record id | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/services` | PARTIAL | 1/23 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/permissions` | PASSED | 6 controls verified | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/language` | PARTIAL | 1/7 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/` | PARTIAL | no controls exercised | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/delivery/address-select` | PARTIAL | 2/4 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/orders` | PARTIAL | 12/13 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/medicine/[slug]` | NOT_TESTED | dynamic route: needs a real record id | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/facility/[slug]` | BLOCKED | no facility in the QA DB passes the public filter (public_eligibility) — 404 GET /care/facilities/king-faisal-specialist | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/voice` | PARTIAL | 1/6 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/articles/[slug]` | PARTIAL | 2/3 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/articles/bookmarks` | PARTIAL | 1/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/articles` | PARTIAL | 1/6 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/profile/addresses` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/profile/insurance` | PARTIAL | 1/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/profile` | PARTIAL | 1/13 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/insurance/payment-split` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/insurance/policy-detail` | PARTIAL | 1/3 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/insurance/coverage-check` | PARTIAL | 5/5 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/insurance/submit-claim` | PARTIAL | 3/3 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/insurance/benefits-summary` | FAILED | render: 404 GET /insurance/benefits-summary | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/insurance/approval-pending` | PASSED | 1 controls verified | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/insurance/hub` | PARTIAL | 2/12 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/insurance/add-policy` | PARTIAL | 42/42 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/insurance/copay` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/insurance/network-providers` | PARTIAL | 6/7 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/insurance` | PARTIAL | 2/12 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/offers/[id]` | NOT_TESTED | dynamic route: needs a real record id | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/offers` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/emergency/sos-active` | PARTIAL | 4/4 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/emergency/tracking` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/emergency/sos` | PARTIAL | 7/7 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/emergency` | PARTIAL | 7/7 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/reviews` | PARTIAL | 1/3 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/search` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/loyalty/leaderboard` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/loyalty/rewards` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/loyalty/challenges` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/loyalty/hub` | PARTIAL | 2/6 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/loyalty/referrals` | FAILED | 1 failing control(s): 󰗠=WRITE | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/forgot-password` | PARTIAL | 2/3 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/register` | PARTIAL | 4/8 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/welcome` | FAILED | 2 failing control(s): تسجيل دخول=TAP_FAILED, المتابعة كضيف (بدو=TAP_FAILED | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/otp` | FAILED | 1 failing control(s): تأكيد الرمز=WRITE | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/login` | PARTIAL | 3/9 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/reset-password` | PARTIAL | 2/3 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/terms` | PARTIAL | 1/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/provider-info` | PASSED | 2 controls verified | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/privacy` | PARTIAL | 1/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/notifications` | PARTIAL | 5/5 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/settings/support-chat` | PARTIAL | 3/8 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/settings/language` | FAILED | 1 failing control(s): اردو=TAP_FAILED | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/settings/notifications-settings` | FAILED | 8 failing control(s): (icon #1)=WRITE, (icon #2)=WRITE, (icon #3)=WRITE | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/settings/help` | FAILED | 1 failing control(s): 󰋼=TAP_FAILED | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/settings/terms` | PASSED | 1 controls verified | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/settings/data` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/settings/feedback` | FAILED | 1 failing control(s): 󰕒=WRITE | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/settings/security` | PARTIAL | 2/5 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/settings/about` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/settings/privacy` | PARTIAL | 2/8 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/settings` | PARTIAL | 3/6 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/settings/notifications` | FAILED | 8 failing control(s): (icon #1)=WRITE, (icon #2)=WRITE, (icon #3)=WRITE | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/p/[slug]` | NOT_TESTED | dynamic route: needs a real record id | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/returns/detail` | PARTIAL | no controls exercised | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/returns/new-request` | PARTIAL | 1/6 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/returns/hub` | PARTIAL | 6/7 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/health/add-family-member` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/health/reports` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/health/chronic-medications` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/health/prescriptions` | PARTIAL | 3/3 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/health/health-id` | PARTIAL | 4/4 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/health/trends` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/health/conditions-allergies` | PARTIAL | 3/3 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/health/medications` | PARTIAL | 7/7 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/health/family-chat` | FAILED | render: 403 GET /family/chat/messages | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/health/edit-profile` | PARTIAL | 18/18 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/health/family-hub` | FAILED | render: 404 GET /family/my-group | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/health/actionable-order` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/health/family-member-detail` | FAILED | render: 404 GET /family/member-records/ | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/health/sleep-score` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/health/wearables` | PARTIAL | no controls exercised | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/health/smart-reminders` | PARTIAL | 1/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/health/family-calendar` | FAILED | render: 404 GET /family/calendar | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/health/medication-reminder-list` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/health/vitals-log` | PARTIAL | 8/9 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/health/chronic-disease` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/health/reminders` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/health/sleep-tracker` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/health/refills` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/health/emergency-contacts` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/health/medication-reminder-add` | PARTIAL | 16/16 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/health/vitals` | PARTIAL | 1/3 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/drug-scanner` | PARTIAL | 8/10 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/map` | PARTIAL | no controls exercised | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/support/ticket` | PARTIAL | 1/3 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/support/chat` | PARTIAL | 3/8 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/s/[type]/[slug]` | PARTIAL | 12/18 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/family/permissions` | FAILED | render: 404 GET /family/my-group | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/family/permission-request` | FAILED | render: No group found | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/family/scan` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/family/member-health` | FAILED | render: 404 GET /family/member-records/ | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/family/calendar` | FAILED | render: 404 GET /family/calendar | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/family/shared-calendar` | FAILED | render: 404 GET /family/calendar | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/family/join` | PARTIAL | 9/9 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/family/chat` | FAILED | render: 403 GET /family/chat/messages | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/family/emergency-contacts` | PARTIAL | 3/3 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/family/invite` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/family` | FAILED | render: 404 GET /family/my-group | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/payments/failed` | PARTIAL | 1/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/payments/result` | PARTIAL | no controls exercised | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/payments/success` | PARTIAL | 1/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/payments/processing` | PARTIAL | no controls exercised | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/nursing/insurance-status` | PARTIAL | 3/3 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/nursing/live-tracking` | PARTIAL | no controls exercised | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/nursing/visits` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/nursing/service-details` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/nursing/service-info` | FAILED | render: 404 GET /home-care/services/undefined | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/nursing/nurse-profile` | FAILED | render: 404 GET /home-care/providers/undefined | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/reports/timeline` | PARTIAL | 6/7 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/reports/ai-analysis` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/reports/passport` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/reports/hub` | PARTIAL | 5/5 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/reports/view-report` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/pharmacy/insurance-decision` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/pharmacy/checkout` | PARTIAL | 4/5 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/pharmacy/order-history` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/pharmacy/cart` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/pharmacy/waiting-for-pharmacy` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/pharmacy/filters` | PARTIAL | 6/10 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/pharmacy/manual-order` | FAILED | 1 failing control(s): بث الطلب وطلب عروض=TAP_FAILED | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/pharmacy/order-confirm` | PARTIAL | no controls exercised | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/pharmacy/order-tracking` | PARTIAL | 1/3 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/pharmacy/payment` | PARTIAL | 1/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/pharmacy/barcode-scanner` | PARTIAL | 2/3 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/pharmacy/medicine-compare` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/pharmacy/custom-item` | FAILED | 1 failing control(s): بث الطلب وطلب عروض=TAP_FAILED | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/pharmacy/wishlist` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/pharmacy/scan-prescription` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/pharmacy/pharmacist-chat` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/pharmacy/rx-order` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/pharmacy/drug-not-found` | FAILED | 1 failing control(s): بث الطلب وطلب عروض=TAP_FAILED | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/pharmacy/product-search` | PASSED | 1 controls verified | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/pharmacy/reorder` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/pharmacy/broadcast-status` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/pharmacy/request` | FAILED | 1 failing control(s): بث الطلب وطلب عروض=TAP_FAILED | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/pharmacy/product-detail` | FAILED | render: 404 GET /medicines/undefined/details | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/pharmacy/final-quote` | PARTIAL | 1/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/diagnostics/orders` | PARTIAL | 3/3 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/diagnostics/checkout` | PASSED | 1 controls verified | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/diagnostics/insurance-approval` | PARTIAL | no controls exercised | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/diagnostics/sample-tracking` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/diagnostics/cart` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/diagnostics/booking-confirm` | FAILED | 2 failing control(s): 󰅙=TAP_FAILED, اختيار=TAP_FAILED | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/diagnostics/package-detail` | FAILED | render: 404 GET /labs/packages/undefined | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/diagnostics/lab-comparison` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/diagnostics/search` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/diagnostics/insurance-upload` | PARTIAL | 1/3 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/diagnostics/my-results` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/diagnostics/upload-rx` | PARTIAL | 2/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/diagnostics/booking-success` | PARTIAL | 3/3 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/diagnostics/results-history` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/diagnostics/book-sample` | PARTIAL | 1/2 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/diagnostics/technician-tracking` | PARTIAL | 1/1 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/diagnostics/test-detail` | FAILED | render: 404 GET /labs/services/undefined | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/diagnostics/packages` | FAILED | 1 failing control(s): =TAP_FAILED | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/diagnostics/lab/[id]` | PARTIAL | 2/4 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/diagnostics/order/[id]` | BLOCKED | the app test account has no lab/radiology booking; another patient's booking correctly answers 404 (ownership) — 404 GET /labs/bookings/5d0415d1-e596-4f22-829c-88ab660363e0 | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/diagnostics` | FAILED | 2 failing control(s): 󰅙=TAP_FAILED, Piliin=TAP_FAILED | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/health` | PASSED | 17 controls verified | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/nursing` | PARTIAL | 2/9 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/services` | PARTIAL | 1/23 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/pharmacy` | PASSED | 5 controls verified | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/` | PARTIAL | no controls exercised | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/consultations` | PARTIAL | 14/15 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/nutrition/body-composition` | FAILED | 1 failing control(s): 󰗠=WRITE | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/nutrition/ai-plan-builder` | PARTIAL | 1/5 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/nutrition/exercise-plan` | PARTIAL | 1/5 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/nutrition/daily-tracker` | PARTIAL | 1/5 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/nutrition/log-meal` | PARTIAL | 5/6 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/nutrition/nutrition-plan` | PARTIAL | 1/5 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/nutrition/ai-meal-planner` | PARTIAL | 1/5 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/nutrition/hub` | PARTIAL | 1/5 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/nutrition/calorie-analyzer` | PARTIAL | 5/6 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/nutrition/body-target` | FAILED | 1 failing control(s): 󰗠=WRITE | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/nutrition` | PARTIAL | 1/5 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/nutrition/water-tracker` | PARTIAL | 1/5 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
+| patient-app |  | `/nutrition/food-scanner` | PARTIAL | 5/6 control(s) without verified effect | rn_web_patient-app_2026-10-02_recheck_pa7.json |
 | patient-web |  | `/[locale]` | PASSED | 14 controls verified | web_crawl_2026-10-02_flow2.json |
 | patient-web |  | `/[locale]/room/[id]` | NOT_TESTED | dynamic route: needs a real record id |  |
 | patient-web |  | `/[locale]/provider-info` | PASSED | 2 controls verified | web_crawl_2026-10-02_flow2.json |

@@ -1,0 +1,472 @@
+{
+ "app": "patient-app",
+ "build": "react-native-web export (not native)",
+ "routes": [
+  {
+   "route": "(tabs)/services",
+   "url": "/services",
+   "landed": "/services",
+   "status": "TESTED",
+   "time_to_ready_ms": 1483,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3590
+    },
+    {
+     "label": "󰓙",
+     "result": "NAVIGATE",
+     "to": "/consultations",
+     "response_ms": 881
+    },
+    {
+     "label": "󰂓",
+     "result": "NAVIGATE",
+     "to": "/diagnostics",
+     "response_ms": 7087
+    },
+    {
+     "label": "󱓆",
+     "result": "NAVIGATE",
+     "to": "/diagnostics",
+     "response_ms": 6942
+    },
+    {
+     "label": "󰴡",
+     "result": "NAVIGATE",
+     "to": "/nursing",
+     "response_ms": 828
+    },
+    {
+     "label": "󰀯",
+     "result": "NAVIGATE",
+     "to": "/emergency/sos",
+     "response_ms": 1933
+    },
+    {
+     "label": "󰐂",
+     "result": "NAVIGATE",
+     "to": "/pharmacy",
+     "response_ms": 809
+    },
+    {
+     "label": "󰗶",
+     "result": "NAVIGATE",
+     "to": "/health",
+     "response_ms": 1345
+    },
+    {
+     "label": "󰂚",
+     "result": "NAVIGATE",
+     "to": "/health/medication-reminder-list",
+     "response_ms": 823
+    },
+    {
+     "label": "󰈙",
+     "result": "NAVIGATE",
+     "to": "/reports/view-report",
+     "response_ms": 466
+    },
+    {
+     "label": "󰚩",
+     "result": "NAVIGATE",
+     "to": "/ai/triage",
+     "response_ms": 474
+    },
+    {
+     "label": "󰗊",
+     "result": "NAVIGATE",
+     "to": "/ai/prescription-translator",
+     "response_ms": 463
+    },
+    {
+     "label": "󰄪",
+     "result": "NAVIGATE",
+     "to": "/ai/monthly-report",
+     "response_ms": 844
+    },
+    {
+     "label": "󰉛",
+     "result": "NAVIGATE",
+     "to": "/nutrition/hub",
+     "response_ms": 1322
+    },
+    {
+     "label": "󰗏",
+     "result": "NAVIGATE",
+     "to": "/maternity/hub",
+     "response_ms": 811
+    },
+    {
+     "label": "󰧑",
+     "result": "NAVIGATE",
+     "to": "/mental-health/hub",
+     "response_ms": 477
+    },
+    {
+     "label": "󰡉",
+     "result": "NAVIGATE",
+     "to": "/community/hub",
+     "response_ms": 831
+    },
+    {
+     "label": "󰠧",
+     "result": "NAVIGATE",
+     "to": "/health/family-hub",
+     "response_ms": 825
+    },
+    {
+     "label": "󰠤",
+     "result": "NAVIGATE",
+     "to": "/orders",
+     "response_ms": 832
+    },
+    {
+     "label": "󰒘",
+     "result": "NAVIGATE",
+     "to": "/insurance/hub",
+     "response_ms": 835
+    },
+    {
+     "label": "󰹄",
+     "result": "NAVIGATE",
+     "to": "/loyalty/hub",
+     "response_ms": 2532
+    },
+    {
+     "label": "󰓹",
+     "result": "NAVIGATE",
+     "to": "/offers",
+     "response_ms": 840
+    },
+    {
+     "label": "󰍍",
+     "result": "NAVIGATE",
+     "to": "/map",
+     "response_ms": 459
+    }
+   ]
+  },
+  {
+   "route": "insurance/submit-claim",
+   "url": "/insurance/submit-claim",
+   "landed": "/insurance/submit-claim",
+   "status": "TESTED",
+   "time_to_ready_ms": 1927,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3582
+    },
+    {
+     "label": "󰄀",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3554
+    },
+    {
+     "label": "تقديم المطالبة",
+     "result": "NO_EFFECT",
+     "disabled": true,
+     "response_ms": 3540
+    }
+   ]
+  },
+  {
+   "route": "loyalty/hub",
+   "url": "/loyalty/hub",
+   "landed": "/loyalty/hub",
+   "status": "TESTED",
+   "time_to_ready_ms": 3751,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰋼",
+     "result": "NAVIGATE",
+     "to": "/loyalty/leaderboard",
+     "response_ms": 823
+    },
+    {
+     "label": "󰹄",
+     "result": "NAVIGATE",
+     "to": "/loyalty/rewards",
+     "response_ms": 1337
+    },
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3572
+    },
+    {
+     "label": "اكسب نقاطاً",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3558
+    },
+    {
+     "label": "استبدال",
+     "result": "UI_CHANGE",
+     "response_ms": 432
+    },
+    {
+     "label": "السجل",
+     "result": "UI_CHANGE",
+     "response_ms": 430
+    }
+   ]
+  },
+  {
+   "route": "orders/index",
+   "url": "/orders",
+   "landed": "/orders",
+   "status": "TESTED",
+   "time_to_ready_ms": 1948,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3561
+    },
+    {
+     "label": "الكل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3541
+    },
+    {
+     "label": "معلقة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3567
+    },
+    {
+     "label": "مكتملة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3547
+    },
+    {
+     "label": "ملغية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3546
+    },
+    {
+     "label": "أطباء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3555
+    },
+    {
+     "label": "أدوية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3613
+    },
+    {
+     "label": "تحاليل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3552
+    },
+    {
+     "label": "أشعة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3545
+    },
+    {
+     "label": "تمريض",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3538
+    },
+    {
+     "label": "إسعاف",
+     "result": "SKIPPED_DESTRUCTIVE"
+    },
+    {
+     "label": "تأمين",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3538
+    },
+    {
+     "label": "مرتجعات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3539
+    }
+   ]
+  },
+  {
+   "route": "pharmacy/medicine-compare",
+   "url": "/pharmacy/medicine-compare",
+   "landed": "/pharmacy/medicine-compare",
+   "status": "TESTED",
+   "time_to_ready_ms": 1340,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3564
+    },
+    {
+     "label": "󰑐",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3542
+    }
+   ]
+  },
+  {
+   "route": "settings/notifications-settings",
+   "url": "/settings/notifications-settings",
+   "landed": "/settings/notifications-settings",
+   "status": "TESTED",
+   "time_to_ready_ms": 3153,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 8,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3594
+    },
+    {
+     "label": "(icon #1)",
+     "result": "WRITE",
+     "status": 400,
+     "method": "PATCH",
+     "url": "/users/me/notification-settings",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 2674
+    },
+    {
+     "label": "(icon #2)",
+     "result": "WRITE",
+     "status": 400,
+     "method": "PATCH",
+     "url": "/users/me/notification-settings",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 1475
+    },
+    {
+     "label": "(icon #3)",
+     "result": "WRITE",
+     "status": 400,
+     "method": "PATCH",
+     "url": "/users/me/notification-settings",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 1453
+    },
+    {
+     "label": "(icon #4)",
+     "result": "WRITE",
+     "status": 400,
+     "method": "PATCH",
+     "url": "/users/me/notification-settings",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 1374
+    },
+    {
+     "label": "(icon #5)",
+     "result": "WRITE",
+     "status": 400,
+     "method": "PATCH",
+     "url": "/users/me/notification-settings",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 1512
+    },
+    {
+     "label": "(icon #6)",
+     "result": "WRITE",
+     "status": 400,
+     "method": "PATCH",
+     "url": "/users/me/notification-settings",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 1535
+    },
+    {
+     "label": "(icon #7)",
+     "result": "NO_EFFECT",
+     "disabled": true,
+     "response_ms": 3565
+    },
+    {
+     "label": "(icon #8)",
+     "result": "WRITE",
+     "status": 400,
+     "method": "PATCH",
+     "url": "/users/me/notification-settings",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 1457
+    },
+    {
+     "label": "(icon #9)",
+     "result": "WRITE",
+     "status": 400,
+     "method": "PATCH",
+     "url": "/users/me/notification-settings",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 1438
+    }
+   ]
+  }
+ ]
+}

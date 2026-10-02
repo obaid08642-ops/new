@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-02T20:00:39",
+ "generated": "2026-10-02T21:44:27",
  "commit": "214c1c5",
  "totals": {
   "provider-app": {
@@ -9,12 +9,11 @@
    "BLOCKED": 3
   },
   "patient-app": {
-   "PARTIAL": 186,
+   "PARTIAL": 187,
    "NOT_TESTED": 5,
-   "FAILED": 39,
-   "PASSED": 10,
-   "BLOCKED": 3,
-   "STALE": 1
+   "FAILED": 40,
+   "PASSED": 9,
+   "BLOCKED": 3
   },
   "patient-web": {
    "PASSED": 102,
@@ -1653,7 +1652,7 @@
    "item": "/ai-assistant",
    "status": "PARTIAL",
    "detail": "4/5 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -1661,7 +1660,7 @@
    "item": "/",
    "status": "PARTIAL",
    "detail": "no controls exercised",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -1669,7 +1668,7 @@
    "item": "/room/[id]",
    "status": "NOT_TESTED",
    "detail": "dynamic route: needs a real record id",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -1677,7 +1676,7 @@
    "item": "/shared/location-picker",
    "status": "PARTIAL",
    "detail": "3/5 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -1685,7 +1684,7 @@
    "item": "/community/post-detail",
    "status": "PARTIAL",
    "detail": "5/5 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -1693,7 +1692,7 @@
    "item": "/community/hub",
    "status": "PARTIAL",
    "detail": "6/7 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -1701,7 +1700,7 @@
    "item": "/ai/symptom-checker",
    "status": "PARTIAL",
    "detail": "1/10 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -1709,7 +1708,7 @@
    "item": "/ai/triage",
    "status": "PARTIAL",
    "detail": "1/10 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -1717,7 +1716,7 @@
    "item": "/ai/symptom-timeline",
    "status": "PARTIAL",
    "detail": "1/10 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -1725,7 +1724,7 @@
    "item": "/ai/chat-doctor",
    "status": "PARTIAL",
    "detail": "1/10 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -1733,7 +1732,7 @@
    "item": "/ai/monthly-report",
    "status": "PARTIAL",
    "detail": "1/4 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -1741,7 +1740,7 @@
    "item": "/ai/prescription-translator",
    "status": "PARTIAL",
    "detail": "3/3 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -1749,7 +1748,7 @@
    "item": "/ai/skin-analysis",
    "status": "PARTIAL",
    "detail": "6/14 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -1757,7 +1756,7 @@
    "item": "/programs/active",
    "status": "PARTIAL",
    "detail": "2/3 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -1765,7 +1764,7 @@
    "item": "/mental-health/therapist-match",
    "status": "PARTIAL",
    "detail": "15/15 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -1773,7 +1772,7 @@
    "item": "/mental-health/self-assessment",
    "status": "PARTIAL",
    "detail": "4/4 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -1781,7 +1780,7 @@
    "item": "/mental-health/breathing",
    "status": "PARTIAL",
    "detail": "1/4 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -1789,7 +1788,7 @@
    "item": "/mental-health/meditation",
    "status": "PARTIAL",
    "detail": "4/4 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -1797,7 +1796,7 @@
    "item": "/mental-health/hub",
    "status": "PARTIAL",
    "detail": "4/4 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -1805,7 +1804,7 @@
    "item": "/mental-health/crisis-support",
    "status": "PARTIAL",
    "detail": "4/4 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -1813,7 +1812,7 @@
    "item": "/mental-health",
    "status": "PARTIAL",
    "detail": "4/4 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -1821,7 +1820,7 @@
    "item": "/mental-health/mood-journal",
    "status": "PARTIAL",
    "detail": "18/18 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -1829,7 +1828,7 @@
    "item": "/doctor/[slug]",
    "status": "PARTIAL",
    "detail": "12/18 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -1837,7 +1836,7 @@
    "item": "/wearables/hub",
    "status": "PARTIAL",
    "detail": "no controls exercised",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -1845,7 +1844,7 @@
    "item": "/maternity/baby-development",
    "status": "PARTIAL",
    "detail": "1/2 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -1853,7 +1852,7 @@
    "item": "/maternity/baby-growth",
    "status": "PARTIAL",
    "detail": "1/2 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -1861,7 +1860,7 @@
    "item": "/maternity/pregnancy-tracker",
    "status": "PARTIAL",
    "detail": "1/2 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -1869,7 +1868,7 @@
    "item": "/maternity/maternity-setup",
    "status": "FAILED",
    "detail": "3 failing control(s): الدورة منتظمة=TAP_FAILED, الدورة غير منتظمة=TAP_FAILED, 󰗠=WRITE",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -1877,7 +1876,7 @@
    "item": "/maternity/ovulation-tracker",
    "status": "PARTIAL",
    "detail": "1/2 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -1885,7 +1884,7 @@
    "item": "/maternity/hub",
    "status": "PARTIAL",
    "detail": "1/2 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -1893,7 +1892,7 @@
    "item": "/consultations/appointments",
    "status": "FAILED",
    "detail": "1 failing control(s): Mag-book ng appoin=TAP_FAILED",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -1901,7 +1900,7 @@
    "item": "/consultations/specialty-select",
    "status": "PARTIAL",
    "detail": "1/1 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -1909,7 +1908,7 @@
    "item": "/consultations/doctor-search",
    "status": "PARTIAL",
    "detail": "4/4 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -1917,7 +1916,7 @@
    "item": "/consultations/prescription-from-doctor",
    "status": "PARTIAL",
    "detail": "3/3 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -1925,7 +1924,7 @@
    "item": "/consultations/incoming-call",
    "status": "PARTIAL",
    "detail": "1/1 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -1933,7 +1932,7 @@
    "item": "/consultations/home-visit-tracking",
    "status": "PARTIAL",
    "detail": "1/1 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -1941,7 +1940,7 @@
    "item": "/consultations/booking-confirm",
    "status": "FAILED",
    "detail": "2 failing control(s): 󰄖=TAP_FAILED, 󰗠=TAP_FAILED",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -1949,7 +1948,7 @@
    "item": "/consultations/summary",
    "status": "PARTIAL",
    "detail": "1/1 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -1957,7 +1956,7 @@
    "item": "/consultations/clinic-confirm",
    "status": "PARTIAL",
    "detail": "1/1 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -1965,7 +1964,7 @@
    "item": "/consultations/waiting-room",
    "status": "PARTIAL",
    "detail": "no controls exercised",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -1973,7 +1972,7 @@
    "item": "/consultations/booking-status",
    "status": "FAILED",
    "detail": "2 failing control(s): 󰄖=TAP_FAILED, 󰗠=TAP_FAILED",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -1981,7 +1980,7 @@
    "item": "/consultations/call-history",
    "status": "PARTIAL",
    "detail": "1/1 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -1989,7 +1988,7 @@
    "item": "/consultations/virtual-waiting-room",
    "status": "PARTIAL",
    "detail": "no controls exercised",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -1997,7 +1996,7 @@
    "item": "/consultations/doctor-profile",
    "status": "PARTIAL",
    "detail": "4/4 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2005,7 +2004,7 @@
    "item": "/consultations/chat-with-doctor",
    "status": "PARTIAL",
    "detail": "1/1 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2013,7 +2012,7 @@
    "item": "/consultations/clinic-location",
    "status": "PARTIAL",
    "detail": "2/2 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2021,7 +2020,7 @@
    "item": "/consultations/share-report",
    "status": "PARTIAL",
    "detail": "1/2 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2029,7 +2028,7 @@
    "item": "/consultations/appointment-detail",
    "status": "PARTIAL",
    "detail": "no controls exercised",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2037,7 +2036,7 @@
    "item": "/consultations/booking-success",
    "status": "FAILED",
    "detail": "2 failing control(s): 󰄖=TAP_FAILED, 󰗠=TAP_FAILED",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2045,7 +2044,7 @@
    "item": "/consultations/cancel-reschedule",
    "status": "PARTIAL",
    "detail": "2/2 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2053,7 +2052,7 @@
    "item": "/consultations/video-call",
    "status": "PASSED",
    "detail": "1 controls verified",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2061,7 +2060,7 @@
    "item": "/consultations/booking-pending",
    "status": "FAILED",
    "detail": "2 failing control(s): 󰄖=TAP_FAILED, 󰗠=TAP_FAILED",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2069,7 +2068,7 @@
    "item": "/consultations/follow-up",
    "status": "PARTIAL",
    "detail": "3/3 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2077,7 +2076,7 @@
    "item": "/consultations/post-call-rating",
    "status": "PARTIAL",
    "detail": "6/8 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2085,7 +2084,7 @@
    "item": "/consultations/doctor/[id]",
    "status": "PARTIAL",
    "detail": "12/18 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2093,7 +2092,7 @@
    "item": "/consultations/book/[id]",
    "status": "PARTIAL",
    "detail": "9/12 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2101,7 +2100,7 @@
    "item": "/consultations/clinic/[id]",
    "status": "BLOCKED",
    "detail": "no facility in the QA DB passes the public filter (public_eligibility) — 404 GET /care/facilities/king-faisal-specialist",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2109,7 +2108,7 @@
    "item": "/consultations/offer/[id]",
    "status": "NOT_TESTED",
    "detail": "dynamic route: needs a real record id",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2117,7 +2116,7 @@
    "item": "/services",
    "status": "PARTIAL",
    "detail": "1/23 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2125,7 +2124,7 @@
    "item": "/permissions",
    "status": "PASSED",
    "detail": "6 controls verified",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2133,7 +2132,7 @@
    "item": "/language",
    "status": "PARTIAL",
    "detail": "1/7 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2141,7 +2140,7 @@
    "item": "/",
    "status": "PARTIAL",
    "detail": "no controls exercised",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2149,7 +2148,7 @@
    "item": "/delivery/address-select",
    "status": "PARTIAL",
    "detail": "2/4 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2157,7 +2156,7 @@
    "item": "/orders",
    "status": "PARTIAL",
    "detail": "12/13 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2165,7 +2164,7 @@
    "item": "/medicine/[slug]",
    "status": "NOT_TESTED",
    "detail": "dynamic route: needs a real record id",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2173,7 +2172,7 @@
    "item": "/facility/[slug]",
    "status": "BLOCKED",
    "detail": "no facility in the QA DB passes the public filter (public_eligibility) — 404 GET /care/facilities/king-faisal-specialist",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2181,7 +2180,7 @@
    "item": "/voice",
    "status": "PARTIAL",
    "detail": "1/6 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2189,7 +2188,7 @@
    "item": "/articles/[slug]",
    "status": "PARTIAL",
    "detail": "2/3 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2197,7 +2196,7 @@
    "item": "/articles/bookmarks",
    "status": "PARTIAL",
    "detail": "1/2 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2205,7 +2204,7 @@
    "item": "/articles",
    "status": "PARTIAL",
    "detail": "1/6 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2213,7 +2212,7 @@
    "item": "/profile/addresses",
    "status": "PARTIAL",
    "detail": "2/2 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2221,7 +2220,7 @@
    "item": "/profile/insurance",
    "status": "PARTIAL",
    "detail": "1/2 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2229,7 +2228,7 @@
    "item": "/profile",
    "status": "PARTIAL",
    "detail": "1/13 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2237,7 +2236,7 @@
    "item": "/insurance/payment-split",
    "status": "PARTIAL",
    "detail": "2/2 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2245,7 +2244,7 @@
    "item": "/insurance/policy-detail",
    "status": "PARTIAL",
    "detail": "1/3 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2253,7 +2252,7 @@
    "item": "/insurance/coverage-check",
    "status": "PARTIAL",
    "detail": "5/5 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2261,7 +2260,7 @@
    "item": "/insurance/submit-claim",
    "status": "PARTIAL",
    "detail": "3/3 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2269,7 +2268,7 @@
    "item": "/insurance/benefits-summary",
    "status": "FAILED",
    "detail": "render: 404 GET /insurance/benefits-summary",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2277,7 +2276,7 @@
    "item": "/insurance/approval-pending",
    "status": "PASSED",
    "detail": "1 controls verified",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2285,7 +2284,7 @@
    "item": "/insurance/hub",
    "status": "PARTIAL",
    "detail": "2/12 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2293,7 +2292,7 @@
    "item": "/insurance/add-policy",
    "status": "PARTIAL",
    "detail": "42/42 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2301,7 +2300,7 @@
    "item": "/insurance/copay",
    "status": "PARTIAL",
    "detail": "1/1 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2309,7 +2308,7 @@
    "item": "/insurance/network-providers",
    "status": "PARTIAL",
    "detail": "6/7 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2317,7 +2316,7 @@
    "item": "/insurance",
    "status": "PARTIAL",
    "detail": "2/12 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2325,7 +2324,7 @@
    "item": "/offers/[id]",
    "status": "NOT_TESTED",
    "detail": "dynamic route: needs a real record id",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2333,7 +2332,7 @@
    "item": "/offers",
    "status": "PARTIAL",
    "detail": "1/1 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2341,7 +2340,7 @@
    "item": "/emergency/sos-active",
    "status": "PARTIAL",
    "detail": "4/4 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2349,7 +2348,7 @@
    "item": "/emergency/tracking",
    "status": "PARTIAL",
    "detail": "2/2 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2357,7 +2356,7 @@
    "item": "/emergency/sos",
    "status": "PARTIAL",
    "detail": "7/7 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2365,7 +2364,7 @@
    "item": "/emergency",
    "status": "PARTIAL",
    "detail": "7/7 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2373,7 +2372,7 @@
    "item": "/reviews",
    "status": "PARTIAL",
    "detail": "1/3 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2381,7 +2380,7 @@
    "item": "/search",
    "status": "PARTIAL",
    "detail": "1/1 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2389,7 +2388,7 @@
    "item": "/loyalty/leaderboard",
    "status": "PARTIAL",
    "detail": "1/1 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2397,7 +2396,7 @@
    "item": "/loyalty/rewards",
    "status": "PARTIAL",
    "detail": "2/2 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2405,7 +2404,7 @@
    "item": "/loyalty/challenges",
    "status": "PARTIAL",
    "detail": "2/2 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2413,7 +2412,7 @@
    "item": "/loyalty/hub",
    "status": "PARTIAL",
    "detail": "2/6 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2421,7 +2420,7 @@
    "item": "/loyalty/referrals",
    "status": "FAILED",
    "detail": "1 failing control(s): 󰗠=WRITE",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2429,7 +2428,7 @@
    "item": "/forgot-password",
    "status": "PARTIAL",
    "detail": "2/3 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2437,7 +2436,7 @@
    "item": "/register",
    "status": "PARTIAL",
    "detail": "4/8 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2445,7 +2444,7 @@
    "item": "/welcome",
    "status": "FAILED",
    "detail": "2 failing control(s): تسجيل دخول=TAP_FAILED, المتابعة كضيف (بدو=TAP_FAILED",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2453,7 +2452,7 @@
    "item": "/otp",
    "status": "FAILED",
    "detail": "1 failing control(s): تأكيد الرمز=WRITE",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2461,7 +2460,7 @@
    "item": "/login",
    "status": "PARTIAL",
    "detail": "3/9 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2469,7 +2468,7 @@
    "item": "/reset-password",
    "status": "PARTIAL",
    "detail": "2/3 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2477,7 +2476,7 @@
    "item": "/terms",
    "status": "PARTIAL",
    "detail": "1/2 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2485,7 +2484,7 @@
    "item": "/provider-info",
    "status": "PASSED",
    "detail": "2 controls verified",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2493,7 +2492,7 @@
    "item": "/privacy",
    "status": "PARTIAL",
    "detail": "1/2 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2501,7 +2500,7 @@
    "item": "/notifications",
    "status": "PARTIAL",
    "detail": "5/5 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2509,7 +2508,7 @@
    "item": "/settings/support-chat",
    "status": "PARTIAL",
    "detail": "3/8 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2517,15 +2516,15 @@
    "item": "/settings/language",
    "status": "FAILED",
    "detail": "1 failing control(s): اردو=TAP_FAILED",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
    "group": "",
    "item": "/settings/notifications-settings",
-   "status": "PASSED",
-   "detail": "1 controls verified",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "status": "FAILED",
+   "detail": "8 failing control(s): (icon #1)=WRITE, (icon #2)=WRITE, (icon #3)=WRITE",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2533,7 +2532,7 @@
    "item": "/settings/help",
    "status": "FAILED",
    "detail": "1 failing control(s): 󰋼=TAP_FAILED",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2541,7 +2540,7 @@
    "item": "/settings/terms",
    "status": "PASSED",
    "detail": "1 controls verified",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2549,7 +2548,7 @@
    "item": "/settings/data",
    "status": "PARTIAL",
    "detail": "2/2 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2557,7 +2556,7 @@
    "item": "/settings/feedback",
    "status": "FAILED",
    "detail": "1 failing control(s): 󰕒=WRITE",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2565,7 +2564,7 @@
    "item": "/settings/security",
    "status": "PARTIAL",
    "detail": "2/5 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2573,7 +2572,7 @@
    "item": "/settings/about",
    "status": "PARTIAL",
    "detail": "2/2 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2581,7 +2580,7 @@
    "item": "/settings/privacy",
    "status": "PARTIAL",
    "detail": "2/8 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2589,7 +2588,7 @@
    "item": "/settings",
    "status": "PARTIAL",
    "detail": "3/6 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2597,7 +2596,7 @@
    "item": "/settings/notifications",
    "status": "FAILED",
    "detail": "8 failing control(s): (icon #1)=WRITE, (icon #2)=WRITE, (icon #3)=WRITE",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2605,7 +2604,7 @@
    "item": "/p/[slug]",
    "status": "NOT_TESTED",
    "detail": "dynamic route: needs a real record id",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2613,7 +2612,7 @@
    "item": "/returns/detail",
    "status": "PARTIAL",
    "detail": "no controls exercised",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2621,7 +2620,7 @@
    "item": "/returns/new-request",
    "status": "PARTIAL",
    "detail": "1/6 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2629,7 +2628,7 @@
    "item": "/returns/hub",
    "status": "PARTIAL",
    "detail": "6/7 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2637,7 +2636,7 @@
    "item": "/health/add-family-member",
    "status": "PARTIAL",
    "detail": "2/2 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2645,7 +2644,7 @@
    "item": "/health/reports",
    "status": "PARTIAL",
    "detail": "1/1 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2653,7 +2652,7 @@
    "item": "/health/chronic-medications",
    "status": "PARTIAL",
    "detail": "2/2 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2661,7 +2660,7 @@
    "item": "/health/prescriptions",
    "status": "PARTIAL",
    "detail": "3/3 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2669,7 +2668,7 @@
    "item": "/health/health-id",
    "status": "PARTIAL",
    "detail": "4/4 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2677,7 +2676,7 @@
    "item": "/health/trends",
    "status": "PARTIAL",
    "detail": "1/1 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2685,7 +2684,7 @@
    "item": "/health/conditions-allergies",
    "status": "PARTIAL",
    "detail": "3/3 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2693,7 +2692,7 @@
    "item": "/health/medications",
    "status": "PARTIAL",
    "detail": "7/7 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2701,7 +2700,7 @@
    "item": "/health/family-chat",
    "status": "FAILED",
    "detail": "render: 403 GET /family/chat/messages",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2709,7 +2708,7 @@
    "item": "/health/edit-profile",
    "status": "PARTIAL",
    "detail": "18/18 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2717,7 +2716,7 @@
    "item": "/health/family-hub",
    "status": "FAILED",
    "detail": "render: 404 GET /family/my-group",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2725,7 +2724,7 @@
    "item": "/health/actionable-order",
    "status": "PARTIAL",
    "detail": "1/1 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2733,7 +2732,7 @@
    "item": "/health/family-member-detail",
    "status": "FAILED",
    "detail": "render: 404 GET /family/member-records/",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2741,7 +2740,7 @@
    "item": "/health/sleep-score",
    "status": "PARTIAL",
    "detail": "2/2 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2749,7 +2748,7 @@
    "item": "/health/wearables",
    "status": "PARTIAL",
    "detail": "no controls exercised",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2757,7 +2756,7 @@
    "item": "/health/smart-reminders",
    "status": "PARTIAL",
    "detail": "1/2 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2765,7 +2764,7 @@
    "item": "/health/family-calendar",
    "status": "FAILED",
    "detail": "render: 404 GET /family/calendar",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2773,7 +2772,7 @@
    "item": "/health/medication-reminder-list",
    "status": "PARTIAL",
    "detail": "2/2 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2781,7 +2780,7 @@
    "item": "/health/vitals-log",
    "status": "PARTIAL",
    "detail": "8/9 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2789,7 +2788,7 @@
    "item": "/health/chronic-disease",
    "status": "PARTIAL",
    "detail": "2/2 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2797,7 +2796,7 @@
    "item": "/health/reminders",
    "status": "PARTIAL",
    "detail": "2/2 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2805,7 +2804,7 @@
    "item": "/health/sleep-tracker",
    "status": "PARTIAL",
    "detail": "2/2 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2813,7 +2812,7 @@
    "item": "/health/refills",
    "status": "PARTIAL",
    "detail": "1/1 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2821,7 +2820,7 @@
    "item": "/health/emergency-contacts",
    "status": "PARTIAL",
    "detail": "2/2 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2829,7 +2828,7 @@
    "item": "/health/medication-reminder-add",
    "status": "PARTIAL",
    "detail": "16/16 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2837,7 +2836,7 @@
    "item": "/health/vitals",
    "status": "PARTIAL",
    "detail": "1/3 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2845,7 +2844,7 @@
    "item": "/drug-scanner",
    "status": "PARTIAL",
    "detail": "8/10 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2853,7 +2852,7 @@
    "item": "/map",
    "status": "PARTIAL",
    "detail": "no controls exercised",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2861,7 +2860,7 @@
    "item": "/support/ticket",
    "status": "PARTIAL",
    "detail": "1/3 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2869,7 +2868,7 @@
    "item": "/support/chat",
    "status": "PARTIAL",
    "detail": "3/8 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2877,7 +2876,7 @@
    "item": "/s/[type]/[slug]",
    "status": "PARTIAL",
    "detail": "12/18 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2885,7 +2884,7 @@
    "item": "/family/permissions",
    "status": "FAILED",
    "detail": "render: 404 GET /family/my-group",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2893,7 +2892,7 @@
    "item": "/family/permission-request",
    "status": "FAILED",
    "detail": "render: No group found",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2901,7 +2900,7 @@
    "item": "/family/scan",
    "status": "PARTIAL",
    "detail": "2/2 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2909,7 +2908,7 @@
    "item": "/family/member-health",
    "status": "FAILED",
    "detail": "render: 404 GET /family/member-records/",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2917,7 +2916,7 @@
    "item": "/family/calendar",
    "status": "FAILED",
    "detail": "render: 404 GET /family/calendar",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2925,7 +2924,7 @@
    "item": "/family/shared-calendar",
    "status": "FAILED",
    "detail": "render: 404 GET /family/calendar",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2933,7 +2932,7 @@
    "item": "/family/join",
    "status": "PARTIAL",
    "detail": "9/9 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2941,7 +2940,7 @@
    "item": "/family/chat",
    "status": "FAILED",
    "detail": "render: 403 GET /family/chat/messages",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2949,7 +2948,7 @@
    "item": "/family/emergency-contacts",
    "status": "PARTIAL",
    "detail": "3/3 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2957,7 +2956,7 @@
    "item": "/family/invite",
    "status": "PARTIAL",
    "detail": "2/2 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2965,7 +2964,7 @@
    "item": "/family",
    "status": "FAILED",
    "detail": "render: 404 GET /family/my-group",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2973,7 +2972,7 @@
    "item": "/payments/failed",
    "status": "PARTIAL",
    "detail": "1/2 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2981,7 +2980,7 @@
    "item": "/payments/result",
    "status": "PARTIAL",
    "detail": "no controls exercised",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2989,7 +2988,7 @@
    "item": "/payments/success",
    "status": "PARTIAL",
    "detail": "1/2 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -2997,7 +2996,7 @@
    "item": "/payments/processing",
    "status": "PARTIAL",
    "detail": "no controls exercised",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3005,7 +3004,7 @@
    "item": "/nursing/insurance-status",
    "status": "PARTIAL",
    "detail": "3/3 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3013,7 +3012,7 @@
    "item": "/nursing/live-tracking",
    "status": "PARTIAL",
    "detail": "no controls exercised",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3021,7 +3020,7 @@
    "item": "/nursing/visits",
    "status": "PARTIAL",
    "detail": "2/2 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3029,7 +3028,7 @@
    "item": "/nursing/service-details",
    "status": "PARTIAL",
    "detail": "2/2 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3037,7 +3036,7 @@
    "item": "/nursing/service-info",
    "status": "FAILED",
    "detail": "render: 404 GET /home-care/services/undefined",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3045,7 +3044,7 @@
    "item": "/nursing/nurse-profile",
    "status": "FAILED",
    "detail": "render: 404 GET /home-care/providers/undefined",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3053,7 +3052,7 @@
    "item": "/reports/timeline",
    "status": "PARTIAL",
    "detail": "6/7 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3061,7 +3060,7 @@
    "item": "/reports/ai-analysis",
    "status": "PARTIAL",
    "detail": "1/1 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3069,7 +3068,7 @@
    "item": "/reports/passport",
    "status": "PARTIAL",
    "detail": "2/2 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3077,7 +3076,7 @@
    "item": "/reports/hub",
    "status": "PARTIAL",
    "detail": "5/5 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3085,7 +3084,7 @@
    "item": "/reports/view-report",
    "status": "PARTIAL",
    "detail": "1/1 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3093,7 +3092,7 @@
    "item": "/pharmacy/insurance-decision",
    "status": "PARTIAL",
    "detail": "1/1 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3101,7 +3100,7 @@
    "item": "/pharmacy/checkout",
    "status": "PARTIAL",
    "detail": "4/5 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3109,7 +3108,7 @@
    "item": "/pharmacy/order-history",
    "status": "PARTIAL",
    "detail": "1/1 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3117,7 +3116,7 @@
    "item": "/pharmacy/cart",
    "status": "PARTIAL",
    "detail": "1/1 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3125,7 +3124,7 @@
    "item": "/pharmacy/waiting-for-pharmacy",
    "status": "PARTIAL",
    "detail": "1/1 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3133,7 +3132,7 @@
    "item": "/pharmacy/filters",
    "status": "PARTIAL",
    "detail": "6/10 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3141,7 +3140,7 @@
    "item": "/pharmacy/manual-order",
    "status": "FAILED",
    "detail": "1 failing control(s): بث الطلب وطلب عروض=TAP_FAILED",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3149,7 +3148,7 @@
    "item": "/pharmacy/order-confirm",
    "status": "PARTIAL",
    "detail": "no controls exercised",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3157,7 +3156,7 @@
    "item": "/pharmacy/order-tracking",
    "status": "PARTIAL",
    "detail": "1/3 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3165,7 +3164,7 @@
    "item": "/pharmacy/payment",
    "status": "PARTIAL",
    "detail": "1/2 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3173,15 +3172,15 @@
    "item": "/pharmacy/barcode-scanner",
    "status": "PARTIAL",
    "detail": "2/3 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
    "group": "",
    "item": "/pharmacy/medicine-compare",
-   "status": "STALE",
-   "detail": "screen file changed after the crawl",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3189,7 +3188,7 @@
    "item": "/pharmacy/custom-item",
    "status": "FAILED",
    "detail": "1 failing control(s): بث الطلب وطلب عروض=TAP_FAILED",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3197,7 +3196,7 @@
    "item": "/pharmacy/wishlist",
    "status": "PARTIAL",
    "detail": "2/2 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3205,7 +3204,7 @@
    "item": "/pharmacy/scan-prescription",
    "status": "PARTIAL",
    "detail": "2/2 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3213,7 +3212,7 @@
    "item": "/pharmacy/pharmacist-chat",
    "status": "PARTIAL",
    "detail": "2/2 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3221,7 +3220,7 @@
    "item": "/pharmacy/rx-order",
    "status": "PARTIAL",
    "detail": "1/1 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3229,7 +3228,7 @@
    "item": "/pharmacy/drug-not-found",
    "status": "FAILED",
    "detail": "1 failing control(s): بث الطلب وطلب عروض=TAP_FAILED",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3237,7 +3236,7 @@
    "item": "/pharmacy/product-search",
    "status": "PASSED",
    "detail": "1 controls verified",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3245,7 +3244,7 @@
    "item": "/pharmacy/reorder",
    "status": "PARTIAL",
    "detail": "1/1 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3253,7 +3252,7 @@
    "item": "/pharmacy/broadcast-status",
    "status": "PARTIAL",
    "detail": "1/1 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3261,7 +3260,7 @@
    "item": "/pharmacy/request",
    "status": "FAILED",
    "detail": "1 failing control(s): بث الطلب وطلب عروض=TAP_FAILED",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3269,7 +3268,7 @@
    "item": "/pharmacy/product-detail",
    "status": "FAILED",
    "detail": "render: 404 GET /medicines/undefined/details",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3277,7 +3276,7 @@
    "item": "/pharmacy/final-quote",
    "status": "PARTIAL",
    "detail": "1/2 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3285,7 +3284,7 @@
    "item": "/diagnostics/orders",
    "status": "PARTIAL",
    "detail": "3/3 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3293,7 +3292,7 @@
    "item": "/diagnostics/checkout",
    "status": "PASSED",
    "detail": "1 controls verified",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3301,7 +3300,7 @@
    "item": "/diagnostics/insurance-approval",
    "status": "PARTIAL",
    "detail": "no controls exercised",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3309,7 +3308,7 @@
    "item": "/diagnostics/sample-tracking",
    "status": "PARTIAL",
    "detail": "1/1 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3317,7 +3316,7 @@
    "item": "/diagnostics/cart",
    "status": "PARTIAL",
    "detail": "2/2 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3325,7 +3324,7 @@
    "item": "/diagnostics/booking-confirm",
    "status": "FAILED",
    "detail": "2 failing control(s): 󰅙=TAP_FAILED, اختيار=TAP_FAILED",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3333,7 +3332,7 @@
    "item": "/diagnostics/package-detail",
    "status": "FAILED",
    "detail": "render: 404 GET /labs/packages/undefined",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3341,7 +3340,7 @@
    "item": "/diagnostics/lab-comparison",
    "status": "PARTIAL",
    "detail": "1/1 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3349,7 +3348,7 @@
    "item": "/diagnostics/search",
    "status": "PARTIAL",
    "detail": "1/1 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3357,7 +3356,7 @@
    "item": "/diagnostics/insurance-upload",
    "status": "PARTIAL",
    "detail": "1/3 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3365,7 +3364,7 @@
    "item": "/diagnostics/my-results",
    "status": "PARTIAL",
    "detail": "1/1 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3373,7 +3372,7 @@
    "item": "/diagnostics/upload-rx",
    "status": "PARTIAL",
    "detail": "2/2 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3381,7 +3380,7 @@
    "item": "/diagnostics/booking-success",
    "status": "PARTIAL",
    "detail": "3/3 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3389,7 +3388,7 @@
    "item": "/diagnostics/results-history",
    "status": "PARTIAL",
    "detail": "1/1 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3397,7 +3396,7 @@
    "item": "/diagnostics/book-sample",
    "status": "PARTIAL",
    "detail": "1/2 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3405,7 +3404,7 @@
    "item": "/diagnostics/technician-tracking",
    "status": "PARTIAL",
    "detail": "1/1 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3413,7 +3412,7 @@
    "item": "/diagnostics/test-detail",
    "status": "FAILED",
    "detail": "render: 404 GET /labs/services/undefined",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3421,7 +3420,7 @@
    "item": "/diagnostics/packages",
    "status": "FAILED",
    "detail": "1 failing control(s): =TAP_FAILED",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3429,7 +3428,7 @@
    "item": "/diagnostics/lab/[id]",
    "status": "PARTIAL",
    "detail": "2/4 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3437,7 +3436,7 @@
    "item": "/diagnostics/order/[id]",
    "status": "BLOCKED",
    "detail": "the app test account has no lab/radiology booking; another patient's booking correctly answers 404 (ownership) — 404 GET /labs/bookings/5d0415d1-e596-4f22-829c-88ab660363e0",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3445,7 +3444,7 @@
    "item": "/diagnostics",
    "status": "FAILED",
    "detail": "2 failing control(s): 󰅙=TAP_FAILED, Piliin=TAP_FAILED",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3453,7 +3452,7 @@
    "item": "/health",
    "status": "PASSED",
    "detail": "17 controls verified",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3461,7 +3460,7 @@
    "item": "/nursing",
    "status": "PARTIAL",
    "detail": "2/9 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3469,7 +3468,7 @@
    "item": "/services",
    "status": "PARTIAL",
    "detail": "1/23 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3477,7 +3476,7 @@
    "item": "/pharmacy",
    "status": "PASSED",
    "detail": "5 controls verified",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3485,7 +3484,7 @@
    "item": "/",
    "status": "PARTIAL",
    "detail": "no controls exercised",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3493,7 +3492,7 @@
    "item": "/consultations",
    "status": "PARTIAL",
    "detail": "14/15 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3501,7 +3500,7 @@
    "item": "/nutrition/body-composition",
    "status": "FAILED",
    "detail": "1 failing control(s): 󰗠=WRITE",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3509,7 +3508,7 @@
    "item": "/nutrition/ai-plan-builder",
    "status": "PARTIAL",
    "detail": "1/5 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3517,7 +3516,7 @@
    "item": "/nutrition/exercise-plan",
    "status": "PARTIAL",
    "detail": "1/5 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3525,7 +3524,7 @@
    "item": "/nutrition/daily-tracker",
    "status": "PARTIAL",
    "detail": "1/5 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3533,7 +3532,7 @@
    "item": "/nutrition/log-meal",
    "status": "PARTIAL",
    "detail": "5/6 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3541,7 +3540,7 @@
    "item": "/nutrition/nutrition-plan",
    "status": "PARTIAL",
    "detail": "1/5 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3549,7 +3548,7 @@
    "item": "/nutrition/ai-meal-planner",
    "status": "PARTIAL",
    "detail": "1/5 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3557,7 +3556,7 @@
    "item": "/nutrition/hub",
    "status": "PARTIAL",
    "detail": "1/5 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3565,7 +3564,7 @@
    "item": "/nutrition/calorie-analyzer",
    "status": "PARTIAL",
    "detail": "5/6 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3573,7 +3572,7 @@
    "item": "/nutrition/body-target",
    "status": "FAILED",
    "detail": "1 failing control(s): 󰗠=WRITE",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3581,7 +3580,7 @@
    "item": "/nutrition",
    "status": "PARTIAL",
    "detail": "1/5 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3589,7 +3588,7 @@
    "item": "/nutrition/water-tracker",
    "status": "PARTIAL",
    "detail": "1/5 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-app",
@@ -3597,7 +3596,7 @@
    "item": "/nutrition/food-scanner",
    "status": "PARTIAL",
    "detail": "5/6 control(s) without verified effect",
-   "evidence": "rn_web_patient-app_2026-10-02_dyn.json"
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
   },
   {
    "app": "patient-web",
