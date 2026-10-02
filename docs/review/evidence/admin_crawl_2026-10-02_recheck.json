@@ -1,0 +1,175 @@
+{
+ "app": "admin",
+ "signed_in": true,
+ "pages": [
+  {
+   "route": "/admin/audit-logs",
+   "url": "/admin/audit-logs",
+   "landed": "/admin/audit-logs",
+   "time_to_ready_ms": 1462,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 6,
+   "elements": [
+    {
+     "label": "تحديث",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 824
+    },
+    {
+     "label": "تصدير CSV (الصفحة الحالية)",
+     "result": "DISABLED"
+    },
+    {
+     "label": "السابق",
+     "result": "DISABLED"
+    },
+    {
+     "label": "التالي",
+     "result": "DISABLED"
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1,
+    "DISABLED": 3
+   }
+  },
+  {
+   "route": "/admin/catalog-governance",
+   "url": "/admin/catalog-governance",
+   "landed": "/admin/catalog-governance",
+   "time_to_ready_ms": 2010,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "الكتالوج والنواقص",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 431
+    },
+    {
+     "label": "تدقيق تجاوز الأسعار (0)",
+     "result": "UI_CHANGE",
+     "response_ms": 555
+    },
+    {
+     "label": "السعر والتاريخ",
+     "result": "UI_CHANGE",
+     "response_ms": 1310
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1,
+    "UI_CHANGE": 2
+   }
+  },
+  {
+   "route": "/admin/crm",
+   "url": "/admin/crm",
+   "landed": "/admin/crm",
+   "time_to_ready_ms": 1362,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "بحث",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 865
+    },
+    {
+     "label": "السابق",
+     "result": "DISABLED"
+    },
+    {
+     "label": "التالي",
+     "result": "DISABLED"
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1,
+    "DISABLED": 2
+   }
+  },
+  {
+   "route": "/admin/disputes",
+   "url": "/admin/disputes",
+   "landed": "/admin/disputes",
+   "time_to_ready_ms": 1355,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "تحديث",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 776
+    },
+    {
+     "label": "السابق",
+     "result": "DISABLED"
+    },
+    {
+     "label": "التالي",
+     "result": "DISABLED"
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1,
+    "DISABLED": 2
+   }
+  },
+  {
+   "route": "/admin/fraud-monitoring",
+   "url": "/admin/fraud-monitoring",
+   "landed": "/admin/fraud-monitoring",
+   "time_to_ready_ms": 2596,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "السابق",
+     "result": "DISABLED"
+    },
+    {
+     "label": "التالي",
+     "result": "DISABLED"
+    }
+   ],
+   "summary": {
+    "DISABLED": 2
+   }
+  }
+ ]
+}

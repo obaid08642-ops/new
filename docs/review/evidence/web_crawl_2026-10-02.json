@@ -1,0 +1,9373 @@
+{
+ "app": "website",
+ "signed_in": true,
+ "pages": [
+  {
+   "route": "/[locale]",
+   "url": "/ar",
+   "landed": "/ar",
+   "time_to_ready_ms": 890,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "تسوق الصيدلية",
+     "result": "NAVIGATE",
+     "to": "/ar/c",
+     "response_ms": 1356
+    },
+    {
+     "label": "احجز استشارة طبيب",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors",
+     "response_ms": 1414
+    },
+    {
+     "label": "التأمين الطبي",
+     "result": "NAVIGATE",
+     "to": "/ar/insurance",
+     "response_ms": 833
+    },
+    {
+     "label": "توصيل 30 دقيقة",
+     "result": "NAVIGATE",
+     "to": "/ar/c",
+     "response_ms": 1335
+    },
+    {
+     "label": "أطباء معتمدون",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors",
+     "response_ms": 1342
+    },
+    {
+     "label": "سحب منزلي ومراكز",
+     "result": "NAVIGATE",
+     "to": "/ar/diagnostics",
+     "response_ms": 6460
+    },
+    {
+     "label": "زيارة فورية",
+     "result": "NAVIGATE",
+     "to": "/ar/nursing/catalog",
+     "response_ms": 3871
+    },
+    {
+     "label": "متابعة الحمل",
+     "result": "NAVIGATE",
+     "to": "/ar/maternity",
+     "response_ms": 1330
+    },
+    {
+     "label": "التغذية والحميات",
+     "result": "NAVIGATE",
+     "to": "/ar/nutrition",
+     "response_ms": 1338
+    },
+    {
+     "label": "الصحة النفسية",
+     "result": "NAVIGATE",
+     "to": "/ar/mental-health",
+     "response_ms": 1334
+    },
+    {
+     "label": "الرعاية المزمنة",
+     "result": "NAVIGATE",
+     "to": "/ar/health/chronic-medications",
+     "response_ms": 1318
+    },
+    {
+     "label": "عرض جميع الأطباء",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors",
+     "response_ms": 1355
+    },
+    {
+     "label": "مسؤول doctor",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors/edfe236d-4e17-40ec-9905-f0caa0c8ba86",
+     "response_ms": 1312
+    },
+    {
+     "label": "VCD75701",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors/5872b442-374a-4bb9-8a7d-3ecf11824978",
+     "response_ms": 1346
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 14
+   }
+  },
+  {
+   "route": "/[locale]/provider-info",
+   "url": "/ar/provider-info",
+   "landed": "/ar/provider-info",
+   "time_to_ready_ms": 805,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الاستمرار كمريض",
+     "result": "NAVIGATE",
+     "to": "/ar/login",
+     "response_ms": 1341
+    },
+    {
+     "label": "تواصل للتسجيل كمقدم خدمة",
+     "result": "NAVIGATE",
+     "to": "/ar/support",
+     "response_ms": 1298
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 2
+   }
+  },
+  {
+   "route": "/[locale]/community",
+   "url": "/ar/community",
+   "landed": "/ar/community",
+   "time_to_ready_ms": 463,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "title-14950",
+     "result": "NAVIGATE",
+     "to": "/ar/community/9a9c115a-22d9-4946-b9ac-78b1d6d39f0f",
+     "response_ms": 787
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "/[locale]/ai",
+   "url": "/ar/ai",
+   "landed": "/ar/ai",
+   "time_to_ready_ms": 870,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "صداع مستمر منذ يومين",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 430
+    },
+    {
+     "label": "حمى وسعال جاف",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 425
+    },
+    {
+     "label": "ألم في المعدة وغثيان",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 412
+    },
+    {
+     "label": "طفح جلدي وحكة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 424
+    },
+    {
+     "label": "تحليل الأعراض",
+     "result": "WRITE",
+     "status": 200,
+     "method": "POST",
+     "url": "/api/patient/ai/triage",
+     "tokens_sent": 1,
+     "tokens_stored": 1,
+     "response_ms": 769
+    },
+    {
+     "label": "تحليل البشرة",
+     "result": "NAVIGATE",
+     "to": "/ar/ai/skin-analysis",
+     "response_ms": 803
+    },
+    {
+     "label": "مترجم الوصفات",
+     "result": "NAVIGATE",
+     "to": "/ar/ai/prescription-translator",
+     "response_ms": 799
+    },
+    {
+     "label": "تقريري",
+     "result": "NAVIGATE",
+     "to": "/ar/ai/report",
+     "response_ms": 784
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 4,
+    "WRITE": 1,
+    "NAVIGATE": 3
+   }
+  },
+  {
+   "route": "/[locale]/ai/chat-doctor",
+   "url": "/ar/ai/chat-doctor",
+   "landed": "/ar/ai/chat-doctor",
+   "time_to_ready_ms": 882,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "إرسال",
+     "result": "WRITE",
+     "status": 200,
+     "method": "POST",
+     "url": "/api/patient/ai/triage",
+     "tokens_sent": 1,
+     "tokens_stored": 1,
+     "response_ms": 793
+    }
+   ],
+   "summary": {
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "/[locale]/ai/skin-analysis",
+   "url": "/ar/ai/skin-analysis",
+   "landed": "/ar/ai/skin-analysis",
+   "time_to_ready_ms": 894,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "face",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 459
+    },
+    {
+     "label": "scalp",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 429
+    },
+    {
+     "label": "hands",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 431
+    },
+    {
+     "label": "body",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 433
+    },
+    {
+     "label": "redness",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 420
+    },
+    {
+     "label": "itching",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 419
+    },
+    {
+     "label": "dryness",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 418
+    },
+    {
+     "label": "rash",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 421
+    },
+    {
+     "label": "swelling",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 427
+    },
+    {
+     "label": "none",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 413
+    },
+    {
+     "label": "(icon #10)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 421
+    },
+    {
+     "label": "تحليل",
+     "result": "WRITE",
+     "status": 400,
+     "method": "POST",
+     "url": "/api/patient/ai/skin-analysis",
+     "tokens_sent": 1,
+     "tokens_stored": 0,
+     "response_ms": 773
+    },
+    {
+     "label": "الفرز الطبي",
+     "result": "NAVIGATE",
+     "to": "/ar/ai/triage",
+     "response_ms": 800
+    },
+    {
+     "label": "مترجم الوصفات",
+     "result": "NAVIGATE",
+     "to": "/ar/ai/prescription-translator",
+     "response_ms": 793
+    },
+    {
+     "label": "← العودة للمساعد الذكي",
+     "result": "NAVIGATE",
+     "to": "/ar/ai",
+     "response_ms": 854
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 11,
+    "WRITE": 1,
+    "NAVIGATE": 3
+   }
+  },
+  {
+   "route": "/[locale]/ai/symptom-checker",
+   "url": "/ar/ai/symptom-checker",
+   "landed": "/ar/ai/symptom-checker",
+   "time_to_ready_ms": 860,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "صداع مستمر منذ يومين",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 440
+    },
+    {
+     "label": "حمى وسعال جاف",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 419
+    },
+    {
+     "label": "ألم في المعدة وغثيان",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 418
+    },
+    {
+     "label": "طفح جلدي وحكة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 409
+    },
+    {
+     "label": "تحليل الأعراض",
+     "result": "WRITE",
+     "status": 200,
+     "method": "POST",
+     "url": "/api/patient/ai/triage",
+     "tokens_sent": 1,
+     "tokens_stored": 1,
+     "response_ms": 772
+    },
+    {
+     "label": "الفرز الطبي",
+     "result": "NAVIGATE",
+     "to": "/ar/ai/triage",
+     "response_ms": 809
+    },
+    {
+     "label": "تقريري",
+     "result": "NAVIGATE",
+     "to": "/ar/ai/report",
+     "response_ms": 807
+    },
+    {
+     "label": "تقريري الشهري",
+     "result": "NAVIGATE",
+     "to": "/ar/ai/monthly-report",
+     "response_ms": 800
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 4,
+    "WRITE": 1,
+    "NAVIGATE": 3
+   }
+  },
+  {
+   "route": "/[locale]/ai/report",
+   "url": "/ar/ai/report",
+   "landed": "/ar/ai/report",
+   "time_to_ready_ms": 1371,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "تحليل",
+     "result": "TAP_FAILED",
+     "error": "Locator.click: Timeout 3000ms exceeded.\nCall log:\n  - waiting for locator(\"main "
+    }
+   ],
+   "summary": {
+    "TAP_FAILED": 1
+   }
+  },
+  {
+   "route": "/[locale]/ai/prescription-translator",
+   "url": "/ar/ai/prescription-translator",
+   "landed": "/ar/ai/prescription-translator",
+   "time_to_ready_ms": 836,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "← العودة",
+     "result": "NAVIGATE",
+     "to": "/ar/ai",
+     "response_ms": 799
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "/[locale]/ai/symptom-timeline",
+   "url": "/ar/ai/symptom-timeline",
+   "landed": "/ar/ai/symptom-timeline",
+   "time_to_ready_ms": 891,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "حفظ في الجدول الزمني",
+     "result": "WRITE",
+     "status": 200,
+     "method": "POST",
+     "url": "/api/patient/ai/triage",
+     "tokens_sent": 1,
+     "tokens_stored": 1,
+     "response_ms": 792
+    }
+   ],
+   "summary": {
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "/[locale]/ai/monthly-report",
+   "url": "/ar/ai/monthly-report",
+   "landed": "/ar/ai/monthly-report",
+   "time_to_ready_ms": 889,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "تسجيل قياس الآن",
+     "result": "NAVIGATE",
+     "to": "/ar/health/vitals/log",
+     "response_ms": 1284
+    },
+    {
+     "label": "عرض المؤشرات التاريخية",
+     "result": "NAVIGATE",
+     "to": "/ar/health/trends",
+     "response_ms": 1283
+    },
+    {
+     "label": "احجز متابعة مع الطبيب",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors",
+     "response_ms": 1949
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 3
+   }
+  },
+  {
+   "route": "/[locale]/ai/triage",
+   "url": "/ar/ai/triage",
+   "landed": "/ar/ai/triage",
+   "time_to_ready_ms": 921,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "صداع مستمر منذ يومين",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 454
+    },
+    {
+     "label": "حمى وسعال جاف",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 417
+    },
+    {
+     "label": "ألم في المعدة وغثيان",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 427
+    },
+    {
+     "label": "طفح جلدي وحكة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 432
+    },
+    {
+     "label": "تحليل الأعراض",
+     "result": "WRITE",
+     "status": 200,
+     "method": "POST",
+     "url": "/api/patient/ai/triage",
+     "tokens_sent": 1,
+     "tokens_stored": 1,
+     "response_ms": 770
+    },
+    {
+     "label": "تحليل البشرة",
+     "result": "NAVIGATE",
+     "to": "/ar/ai/skin-analysis",
+     "response_ms": 831
+    },
+    {
+     "label": "مترجم الوصفات",
+     "result": "NAVIGATE",
+     "to": "/ar/ai/prescription-translator",
+     "response_ms": 804
+    },
+    {
+     "label": "تقريري",
+     "result": "NAVIGATE",
+     "to": "/ar/ai/report",
+     "response_ms": 836
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 4,
+    "WRITE": 1,
+    "NAVIGATE": 3
+   }
+  },
+  {
+   "route": "/[locale]/home-care",
+   "url": "/ar/home-care",
+   "landed": "/ar/home-care",
+   "time_to_ready_ms": 879,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "تصفح خدمات الرعاية المنزلية",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services",
+     "response_ms": 886
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "/[locale]/home-care/providers",
+   "url": "/ar/home-care/providers",
+   "landed": "/ar/home-care/providers",
+   "time_to_ready_ms": 873,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [],
+   "summary": {}
+  },
+  {
+   "route": "/[locale]/home-care/services",
+   "url": "/ar/home-care/services",
+   "landed": "/ar/home-care/services",
+   "time_to_ready_ms": 980,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "قياس العلامات الحيوية",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/57449b18-7b24-4c4c-a8b2-d5ffdb0c6cba",
+     "response_ms": 795
+    },
+    {
+     "label": "سحب دم للتحاليل",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/b325ba16-18fd-48e0-86e9-8e48009b9463",
+     "response_ms": 799
+    },
+    {
+     "label": "الحقن الطبية والمضادات",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/f6d068bb-80a3-4bd2-aee6-0bbe00a4a094",
+     "response_ms": 811
+    },
+    {
+     "label": "تركيب محلول وريدي",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/fc8c01ef-fb3a-42f3-b8c5-b5488f60913a",
+     "response_ms": 812
+    },
+    {
+     "label": "العناية بالجروح العميقة والسكري",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/b671d64b-c7e3-46a1-8c3e-f490b441b51f",
+     "response_ms": 806
+    },
+    {
+     "label": "العناية بالقسطرة البولية",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/b2d14d83-202c-4e79-a823-eceb9966a35c",
+     "response_ms": 796
+    },
+    {
+     "label": "العناية بفتحة القصبة الهوائية",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/dd90d27e-7296-4f3e-9f11-6dcba4997bd7",
+     "response_ms": 793
+    },
+    {
+     "label": "جلسات أكسجين منزلي",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/521b93a3-37d8-4657-be7e-df34a41ba2a0",
+     "response_ms": 801
+    },
+    {
+     "label": "رعاية ما بعد العمليات الجراحية",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/d760e096-5bac-4026-9a0d-823afd9bce56",
+     "response_ms": 1315
+    },
+    {
+     "label": "مرافقة ورعاية كبار السن",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/9bffdf35-abdf-4f1a-85a8-5d565d485d60",
+     "response_ms": 485
+    },
+    {
+     "label": "العناية بالأم وحديثي الولادة",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/9b5327c9-6fbd-47df-a457-3a66c9008394",
+     "response_ms": 808
+    },
+    {
+     "label": "العناية المركزة بالمنزل (ICU)",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/4cd6847d-a810-4318-beb0-bdbe1e76b03d",
+     "response_ms": 797
+    },
+    {
+     "label": "غسيل كلى منزلي",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/dialysis_home",
+     "response_ms": 849
+    },
+    {
+     "label": "علاج النطق والتخاطب",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/speech_therapy",
+     "response_ms": 810
+    },
+    {
+     "label": "استشارة الرضاعة الطبيعية",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/lactation",
+     "response_ms": 583
+    },
+    {
+     "label": "حقنة عضلية بالمنزل",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/intramuscular_injection",
+     "response_ms": 867
+    },
+    {
+     "label": "حقنة وريدية / تركيب كانولا",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/intravenous_injection_cannula",
+     "response_ms": 873
+    },
+    {
+     "label": "محاليل وريدية وفيتامينات بالمنزل",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/iv_drip_fluids_vitamins",
+     "response_ms": 820
+    },
+    {
+     "label": "جرعات مضاد حيوي وريدي",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/antibiotic_iv_course",
+     "response_ms": 801
+    },
+    {
+     "label": "تغيير على الجروح",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/wound_dressing",
+     "response_ms": 850
+    },
+    {
+     "label": "العناية بقرح الفراش",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/bedsore_care",
+     "response_ms": 823
+    },
+    {
+     "label": "العناية بالقدم السكرية",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/diabetic_foot_care",
+     "response_ms": 888
+    },
+    {
+     "label": "إزالة الغرز الجراحية",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/suture_removal",
+     "response_ms": 819
+    },
+    {
+     "label": "تركيب / تغيير قسطرة بولية",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/urinary_catheterization",
+     "response_ms": 799
+    },
+    {
+     "label": "العناية بأنبوب التغذية (NG)",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/feeding_tube_care",
+     "response_ms": 806
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 25
+   }
+  },
+  {
+   "route": "/[locale]/programs",
+   "url": "/ar/programs",
+   "landed": "/ar/programs",
+   "time_to_ready_ms": 1073,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [],
+   "summary": {}
+  },
+  {
+   "route": "/[locale]/programs/active",
+   "url": "/ar/programs/active",
+   "landed": "/ar/programs/active",
+   "time_to_ready_ms": 870,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "البرامج",
+     "result": "NAVIGATE",
+     "to": "/ar/programs",
+     "response_ms": 777
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "/[locale]/mental-health",
+   "url": "/ar/mental-health",
+   "landed": "/ar/mental-health",
+   "time_to_ready_ms": 873,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "سجل التنفس",
+     "result": "NAVIGATE",
+     "to": "/ar/mental-health/breathing",
+     "response_ms": 778
+    },
+    {
+     "label": "سجل المزاج",
+     "result": "NAVIGATE",
+     "to": "/ar/mental-health/mood",
+     "response_ms": 785
+    },
+    {
+     "label": "سجل التأمل",
+     "result": "NAVIGATE",
+     "to": "/ar/mental-health/meditation",
+     "response_ms": 780
+    },
+    {
+     "label": "جهات اتصال الأزمات",
+     "result": "NAVIGATE",
+     "to": "/ar/mental-health/crisis-contacts",
+     "response_ms": 773
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 4
+   }
+  },
+  {
+   "route": "/[locale]/mental-health/breathing",
+   "url": "/ar/mental-health/breathing",
+   "landed": "/ar/mental-health/breathing",
+   "time_to_ready_ms": 879,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى الصحة النفسية",
+     "result": "NAVIGATE",
+     "to": "/ar/mental-health",
+     "response_ms": 869
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "/[locale]/mental-health/mood",
+   "url": "/ar/mental-health/mood",
+   "landed": "/ar/mental-health/mood",
+   "time_to_ready_ms": 881,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى الصحة النفسية",
+     "result": "NAVIGATE",
+     "to": "/ar/mental-health",
+     "response_ms": 771
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "/[locale]/mental-health/self-assessment",
+   "url": "/ar/mental-health/self-assessment",
+   "landed": "/ar/mental-health/self-assessment",
+   "time_to_ready_ms": 854,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الصحة النفسية",
+     "result": "NAVIGATE",
+     "to": "/ar/mental-health",
+     "response_ms": 774
+    },
+    {
+     "label": "يوميات المزاج",
+     "result": "NAVIGATE",
+     "to": "/ar/mental-health/mood",
+     "response_ms": 764
+    },
+    {
+     "label": "حجز استشارة نفسية",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors",
+     "response_ms": 1363
+    },
+    {
+     "label": "جهات الدعم العاجل",
+     "result": "NAVIGATE",
+     "to": "/ar/mental-health/crisis-contacts",
+     "response_ms": 789
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 4
+   }
+  },
+  {
+   "route": "/[locale]/mental-health/therapist-match",
+   "url": "/ar/mental-health/therapist-match",
+   "landed": "/ar/mental-health/therapist-match",
+   "time_to_ready_ms": 906,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الصحة النفسية",
+     "result": "NAVIGATE",
+     "to": "/ar/mental-health",
+     "response_ms": 793
+    },
+    {
+     "label": "تصفح الأطباء النفسيين",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors",
+     "response_ms": 1326
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 2
+   }
+  },
+  {
+   "route": "/[locale]/mental-health/meditation",
+   "url": "/ar/mental-health/meditation",
+   "landed": "/ar/mental-health/meditation",
+   "time_to_ready_ms": 952,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى الصحة النفسية",
+     "result": "NAVIGATE",
+     "to": "/ar/mental-health",
+     "response_ms": 775
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "/[locale]/mental-health/crisis-contacts",
+   "url": "/ar/mental-health/crisis-contacts",
+   "landed": "/ar/mental-health/crisis-contacts",
+   "time_to_ready_ms": 868,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى الصحة النفسية",
+     "result": "NAVIGATE",
+     "to": "/ar/mental-health",
+     "response_ms": 765
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "/[locale]/doctor",
+   "url": "/ar/doctor",
+   "landed": "/ar/consultations/doctors",
+   "time_to_ready_ms": 904,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "بحث",
+     "result": "WRITE",
+     "status": 200,
+     "method": "POST",
+     "url": "/api/auth/heartbeat",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 1623
+    },
+    {
+     "label": "الأعلى تقييمًا",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors?sort=rating",
+     "response_ms": 475
+    },
+    {
+     "label": "الأقل سعرًا",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors?sort=price",
+     "response_ms": 491
+    },
+    {
+     "label": "الأقل انتظارًا",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors?sort=wait",
+     "response_ms": 478
+    },
+    {
+     "label": "مسؤول doctor",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors/edfe236d-4e17-40ec-9905-f0caa0c8ba86",
+     "response_ms": 874
+    },
+    {
+     "label": "VCD75701",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors/5872b442-374a-4bb9-8a7d-3ecf11824978",
+     "response_ms": 871
+    }
+   ],
+   "summary": {
+    "WRITE": 1,
+    "NAVIGATE": 5
+   }
+  },
+  {
+   "route": "/[locale]/reminders",
+   "url": "/ar/reminders",
+   "landed": "/ar/reminders",
+   "time_to_ready_ms": 461,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "✓",
+     "result": "WRITE",
+     "status": 400,
+     "method": "POST",
+     "url": "/api/health/reminders/aa3324d7-f7dc-4ffa-8c14-738de745a050/log",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 433
+    },
+    {
+     "label": "✎",
+     "result": "NAVIGATE",
+     "to": "/ar/reminders/add?edit=aa3324d7-f7dc-4ffa-8c14-738de745a050",
+     "response_ms": 779
+    },
+    {
+     "label": "×",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 479
+    },
+    {
+     "label": "تذكير جديد",
+     "result": "NAVIGATE",
+     "to": "/ar/reminders/add",
+     "response_ms": 773
+    }
+   ],
+   "summary": {
+    "WRITE": 1,
+    "NAVIGATE": 2,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/reminders/add",
+   "url": "/ar/reminders/add",
+   "landed": "/ar/reminders/add",
+   "time_to_ready_ms": 870,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 3,
+   "elements": [
+    {
+     "label": "التذكيرات",
+     "result": "NAVIGATE",
+     "to": "/ar/reminders",
+     "response_ms": 788
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 433
+    },
+    {
+     "label": "حفظ التذكير",
+     "result": "WRITE",
+     "status": 400,
+     "method": "POST",
+     "url": "/api/health/reminders",
+     "tokens_sent": 3,
+     "tokens_stored": 0,
+     "response_ms": 779
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 1,
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "/[locale]/forgot-password",
+   "url": "/ar/forgot-password",
+   "landed": "/ar/forgot-password",
+   "time_to_ready_ms": 907,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "العودة إلى الدخول",
+     "result": "NAVIGATE",
+     "to": "/ar/login",
+     "response_ms": 1298
+    },
+    {
+     "label": "إرسال التعليمات",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/api/auth/password/forgot",
+     "tokens_sent": 1,
+     "tokens_stored": 0,
+     "response_ms": 790
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "/[locale]/prescriptions",
+   "url": "/ar/prescriptions",
+   "landed": "/ar/prescriptions",
+   "time_to_ready_ms": 868,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [],
+   "summary": {}
+  },
+  {
+   "route": "/[locale]/maternity",
+   "url": "/ar/maternity",
+   "landed": "/ar/maternity",
+   "time_to_ready_ms": 1046,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "لوحة التحكم",
+     "result": "NAVIGATE",
+     "to": "/ar/dashboard",
+     "response_ms": 1325
+    },
+    {
+     "label": "عرض الأحداث",
+     "result": "NAVIGATE",
+     "to": "/ar/maternity/tracker",
+     "response_ms": 779
+    },
+    {
+     "label": "سجل متابعة الأعراض والحركة",
+     "result": "NAVIGATE",
+     "to": "/ar/maternity/tracker",
+     "response_ms": 779
+    },
+    {
+     "label": "حجز استشارة نساء وتوليد",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors",
+     "response_ms": 1332
+    },
+    {
+     "label": "فحص السونار والأشعة",
+     "result": "NAVIGATE",
+     "to": "/ar/diagnostics/radiology",
+     "response_ms": 1329
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 5
+   }
+  },
+  {
+   "route": "/[locale]/maternity/ovulation",
+   "url": "/ar/maternity/ovulation",
+   "landed": "/ar/maternity/ovulation",
+   "time_to_ready_ms": 904,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الأمومة",
+     "result": "NAVIGATE",
+     "to": "/ar/maternity",
+     "response_ms": 783
+    },
+    {
+     "label": "فتح المتتبع الكامل",
+     "result": "NAVIGATE",
+     "to": "/ar/maternity/tracker",
+     "response_ms": 766
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 2
+   }
+  },
+  {
+   "route": "/[locale]/maternity/tracker",
+   "url": "/ar/maternity/tracker",
+   "landed": "/ar/maternity/tracker",
+   "time_to_ready_ms": 862,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "NAVIGATE",
+     "to": "/ar/maternity",
+     "response_ms": 765
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "/[locale]/maternity/baby-development",
+   "url": "/ar/maternity/baby-development",
+   "landed": "/ar/maternity",
+   "time_to_ready_ms": 1525,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "لوحة التحكم",
+     "result": "NAVIGATE",
+     "to": "/ar/dashboard",
+     "response_ms": 1398
+    },
+    {
+     "label": "عرض الأحداث",
+     "result": "NAVIGATE",
+     "to": "/ar/maternity/tracker",
+     "response_ms": 796
+    },
+    {
+     "label": "سجل متابعة الأعراض والحركة",
+     "result": "NAVIGATE",
+     "to": "/ar/maternity/tracker",
+     "response_ms": 787
+    },
+    {
+     "label": "حجز استشارة نساء وتوليد",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors",
+     "response_ms": 1317
+    },
+    {
+     "label": "فحص السونار والأشعة",
+     "result": "NAVIGATE",
+     "to": "/ar/diagnostics/radiology",
+     "response_ms": 1308
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 5
+   }
+  },
+  {
+   "route": "/[locale]/maternity/maternity-setup",
+   "url": "/ar/maternity/maternity-setup",
+   "landed": "/ar/maternity/maternity-setup",
+   "time_to_ready_ms": 846,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "الأمومة",
+     "result": "NAVIGATE",
+     "to": "/ar/maternity",
+     "response_ms": 778
+    },
+    {
+     "label": "تتبع الدورة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 449
+    },
+    {
+     "label": "متابعة الحمل",
+     "result": "UI_CHANGE",
+     "response_ms": 424
+    },
+    {
+     "label": "منتظمة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 421
+    },
+    {
+     "label": "غير منتظمة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 408
+    },
+    {
+     "label": "حفظ الملف",
+     "result": "WRITE",
+     "status": 400,
+     "method": "POST",
+     "url": "/api/patient/maternity/profile",
+     "tokens_sent": 1,
+     "tokens_stored": 0,
+     "response_ms": 783
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 3,
+    "UI_CHANGE": 1,
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "/[locale]/maternity/baby-growth",
+   "url": "/ar/maternity/baby-growth",
+   "landed": "/ar/maternity/baby-growth",
+   "time_to_ready_ms": 872,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الأمومة",
+     "result": "NAVIGATE",
+     "to": "/ar/maternity",
+     "response_ms": 780
+    },
+    {
+     "label": "فتح المتتبع الكامل",
+     "result": "NAVIGATE",
+     "to": "/ar/maternity/tracker",
+     "response_ms": 778
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 2
+   }
+  },
+  {
+   "route": "/[locale]/radiology",
+   "url": "/ar/radiology",
+   "landed": "/ar/diagnostics/radiology",
+   "time_to_ready_ms": 545,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 428
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 430
+    },
+    {
+     "label": "(icon #2)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 424
+    },
+    {
+     "label": "تطبيق الفلاتر",
+     "result": "WRITE",
+     "status": 200,
+     "method": "POST",
+     "url": "/api/auth/heartbeat",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 1446
+    },
+    {
+     "label": "أشعة سينية - صدر",
+     "result": "NAVIGATE",
+     "to": "/ar/diagnostics/radiology/6abec503f8f8d68cde114d00",
+     "response_ms": 1306
+    },
+    {
+     "label": "سونار بطن وحوض",
+     "result": "NAVIGATE",
+     "to": "/ar/diagnostics/radiology/6abec503f8f8d68cde114d0c",
+     "response_ms": 1310
+    },
+    {
+     "label": "سونار حمل",
+     "result": "NAVIGATE",
+     "to": "/ar/diagnostics/radiology/6abec503f8f8d68cde114d15",
+     "response_ms": 1356
+    },
+    {
+     "label": "موجات صوتية - حمل",
+     "result": "NAVIGATE",
+     "to": "/ar/diagnostics/radiology/6abec502f8f8d68cde114aa4",
+     "response_ms": 1304
+    },
+    {
+     "label": "أشعة سينية - عمود فقري",
+     "result": "NAVIGATE",
+     "to": "/ar/diagnostics/radiology/6abec504f8f8d68cde114d1b",
+     "response_ms": 1318
+    },
+    {
+     "label": "أشعة سينية - ركبة",
+     "result": "NAVIGATE",
+     "to": "/ar/diagnostics/radiology/6abec504f8f8d68cde114d28",
+     "response_ms": 1431
+    },
+    {
+     "label": "أشعة سينية - بطن",
+     "result": "NAVIGATE",
+     "to": "/ar/diagnostics/radiology/6abec504f8f8d68cde114d3a",
+     "response_ms": 1334
+    },
+    {
+     "label": "سونار كلى ومثانة",
+     "result": "NAVIGATE",
+     "to": "/ar/diagnostics/radiology/6abec504f8f8d68cde114d40",
+     "response_ms": 813
+    },
+    {
+     "label": "رنين مغناطيسي - قطني",
+     "result": "NAVIGATE",
+     "to": "/ar/diagnostics/radiology/6abec504f8f8d68cde114d48",
+     "response_ms": 845
+    },
+    {
+     "label": "سونار ثدي",
+     "result": "NAVIGATE",
+     "to": "/ar/diagnostics/radiology/6abec504f8f8d68cde114d53",
+     "response_ms": 1354
+    },
+    {
+     "label": "أشعة مقطعية - مخ",
+     "result": "NAVIGATE",
+     "to": "/ar/diagnostics/radiology/6abec504f8f8d68cde114d5a",
+     "response_ms": 1332
+    },
+    {
+     "label": "سونار نسائي",
+     "result": "NAVIGATE",
+     "to": "/ar/diagnostics/radiology/6abec504f8f8d68cde114d5d",
+     "response_ms": 1338
+    },
+    {
+     "label": "سونار غدة درقية",
+     "result": "NAVIGATE",
+     "to": "/ar/diagnostics/radiology/6abec504f8f8d68cde114d7a",
+     "response_ms": 1335
+    },
+    {
+     "label": "بانوراما الأسنان",
+     "result": "NAVIGATE",
+     "to": "/ar/diagnostics/radiology/6abec504f8f8d68cde114e01",
+     "response_ms": 1419
+    },
+    {
+     "label": "دوبلر أوردة الساقين",
+     "result": "NAVIGATE",
+     "to": "/ar/diagnostics/radiology/6abec504f8f8d68cde114d8a",
+     "response_ms": 800
+    },
+    {
+     "label": "رنين مغناطيسي - مخ",
+     "result": "NAVIGATE",
+     "to": "/ar/diagnostics/radiology/6abec504f8f8d68cde114d93",
+     "response_ms": 1354
+    },
+    {
+     "label": "أشعة سينية - حوض",
+     "result": "NAVIGATE",
+     "to": "/ar/diagnostics/radiology/6abec504f8f8d68cde114da8",
+     "response_ms": 1388
+    },
+    {
+     "label": "أشعة مقطعية - صدر",
+     "result": "NAVIGATE",
+     "to": "/ar/diagnostics/radiology/6abec504f8f8d68cde114daf",
+     "response_ms": 1390
+    },
+    {
+     "label": "رنين مغناطيسي - ركبة",
+     "result": "NAVIGATE",
+     "to": "/ar/diagnostics/radiology/6abec504f8f8d68cde114db3",
+     "response_ms": 860
+    },
+    {
+     "label": "أشعة مقطعية - بطن بالصبغة",
+     "result": "NAVIGATE",
+     "to": "/ar/diagnostics/radiology/6abec504f8f8d68cde114dbd",
+     "response_ms": 1389
+    },
+    {
+     "label": "أشعة سينية - جيوب أنفية",
+     "result": "NAVIGATE",
+     "to": "/ar/diagnostics/radiology/6abec504f8f8d68cde114dce",
+     "response_ms": 832
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 3,
+    "WRITE": 1,
+    "NAVIGATE": 21
+   }
+  },
+  {
+   "route": "/[locale]/doctors",
+   "url": "/ar/doctors",
+   "landed": "/ar/consultations/doctors",
+   "time_to_ready_ms": 910,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "بحث",
+     "result": "WRITE",
+     "status": 200,
+     "method": "POST",
+     "url": "/api/auth/heartbeat",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 1547
+    },
+    {
+     "label": "الأعلى تقييمًا",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors?sort=rating",
+     "response_ms": 500
+    },
+    {
+     "label": "الأقل سعرًا",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors?sort=price",
+     "response_ms": 594
+    },
+    {
+     "label": "الأقل انتظارًا",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors?sort=wait",
+     "response_ms": 487
+    },
+    {
+     "label": "مسؤول doctor",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors/edfe236d-4e17-40ec-9905-f0caa0c8ba86",
+     "response_ms": 837
+    },
+    {
+     "label": "VCD75701",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors/5872b442-374a-4bb9-8a7d-3ecf11824978",
+     "response_ms": 877
+    }
+   ],
+   "summary": {
+    "WRITE": 1,
+    "NAVIGATE": 5
+   }
+  },
+  {
+   "route": "/[locale]/consultations",
+   "url": "/ar/consultations",
+   "landed": "/ar/consultations/doctors",
+   "time_to_ready_ms": 2157,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "بحث",
+     "result": "WRITE",
+     "status": 200,
+     "method": "POST",
+     "url": "/api/auth/heartbeat",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 1485
+    },
+    {
+     "label": "الأعلى تقييمًا",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors?sort=rating",
+     "response_ms": 528
+    },
+    {
+     "label": "الأقل سعرًا",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors?sort=price",
+     "response_ms": 532
+    },
+    {
+     "label": "الأقل انتظارًا",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors?sort=wait",
+     "response_ms": 506
+    },
+    {
+     "label": "مسؤول doctor",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors/edfe236d-4e17-40ec-9905-f0caa0c8ba86",
+     "response_ms": 881
+    },
+    {
+     "label": "VCD75701",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors/5872b442-374a-4bb9-8a7d-3ecf11824978",
+     "response_ms": 898
+    }
+   ],
+   "summary": {
+    "WRITE": 1,
+    "NAVIGATE": 5
+   }
+  },
+  {
+   "route": "/[locale]/consultations/video-call",
+   "url": "/ar/consultations/video-call",
+   "landed": "/ar/consultations/video-call",
+   "time_to_ready_ms": 930,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى البداية",
+     "result": "NAVIGATE",
+     "to": "/ar",
+     "response_ms": 1381
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "/[locale]/consultations/doctors",
+   "url": "/ar/consultations/doctors",
+   "landed": "/ar/consultations/doctors",
+   "time_to_ready_ms": 540,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "بحث",
+     "result": "WRITE",
+     "status": 200,
+     "method": "POST",
+     "url": "/api/auth/heartbeat",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 1210
+    },
+    {
+     "label": "الأعلى تقييمًا",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors?sort=rating",
+     "response_ms": 529
+    },
+    {
+     "label": "الأقل سعرًا",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors?sort=price",
+     "response_ms": 546
+    },
+    {
+     "label": "الأقل انتظارًا",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors?sort=wait",
+     "response_ms": 475
+    },
+    {
+     "label": "مسؤول doctor",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors/edfe236d-4e17-40ec-9905-f0caa0c8ba86",
+     "response_ms": 851
+    },
+    {
+     "label": "VCD75701",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors/5872b442-374a-4bb9-8a7d-3ecf11824978",
+     "response_ms": 824
+    }
+   ],
+   "summary": {
+    "WRITE": 1,
+    "NAVIGATE": 5
+   }
+  },
+  {
+   "route": "/[locale]/consultations/waiting-room",
+   "url": "/ar/consultations/waiting-room",
+   "landed": "/ar/consultations/virtual-waiting-room",
+   "time_to_ready_ms": 1499,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى البداية",
+     "result": "NAVIGATE",
+     "to": "/ar",
+     "response_ms": 1319
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "/[locale]/consultations/follow-up",
+   "url": "/ar/consultations/follow-up",
+   "landed": "/ar/consultations/follow-up",
+   "time_to_ready_ms": 886,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى البداية",
+     "result": "NAVIGATE",
+     "to": "/ar",
+     "response_ms": 1540
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "/[locale]/consultations/specialties",
+   "url": "/ar/consultations/specialties",
+   "landed": "/ar/consultations/specialties",
+   "time_to_ready_ms": 875,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "قلب وأوعية دموية7 طبيب متاح",
+     "result": "NAVIGATE",
+     "to": "/ar/appointments?specialty=%D9%82%D9%84%D8%A8%20%D9%88%D8%A3%D9%88%D8%B9%D9%8A%D",
+     "response_ms": 1340
+    },
+    {
+     "label": "جلدية0 طبيب متاح",
+     "result": "NAVIGATE",
+     "to": "/ar/appointments?specialty=%D8%AC%D9%84%D8%AF%D9%8A%D8%A9",
+     "response_ms": 1306
+    },
+    {
+     "label": "طب أطفال0 طبيب متاح",
+     "result": "NAVIGATE",
+     "to": "/ar/appointments?specialty=%D8%B7%D8%A8%20%D8%A3%D8%B7%D9%81%D8%A7%D9%84",
+     "response_ms": 1351
+    },
+    {
+     "label": "نساء وولادة0 طبيب متاح",
+     "result": "NAVIGATE",
+     "to": "/ar/appointments?specialty=%D9%86%D8%B3%D8%A7%D8%A1%20%D9%88%D9%88%D9%84%D8%A7%D",
+     "response_ms": 1311
+    },
+    {
+     "label": "عظام0 طبيب متاح",
+     "result": "NAVIGATE",
+     "to": "/ar/appointments?specialty=%D8%B9%D8%B8%D8%A7%D9%85",
+     "response_ms": 1330
+    },
+    {
+     "label": "أعصاب0 طبيب متاح",
+     "result": "NAVIGATE",
+     "to": "/ar/appointments?specialty=%D8%A3%D8%B9%D8%B5%D8%A7%D8%A8",
+     "response_ms": 1340
+    },
+    {
+     "label": "طب نفسي0 طبيب متاح",
+     "result": "NAVIGATE",
+     "to": "/ar/appointments?specialty=%D8%B7%D8%A8%20%D9%86%D9%81%D8%B3%D9%8A",
+     "response_ms": 1321
+    },
+    {
+     "label": "أسنان0 طبيب متاح",
+     "result": "NAVIGATE",
+     "to": "/ar/appointments?specialty=%D8%A3%D8%B3%D9%86%D8%A7%D9%86",
+     "response_ms": 1332
+    },
+    {
+     "label": "عيون0 طبيب متاح",
+     "result": "NAVIGATE",
+     "to": "/ar/appointments?specialty=%D8%B9%D9%8A%D9%88%D9%86",
+     "response_ms": 1325
+    },
+    {
+     "label": "أنف وأذن وحنجرة0 طبيب متاح",
+     "result": "NAVIGATE",
+     "to": "/ar/appointments?specialty=%D8%A3%D9%86%D9%81%20%D9%88%D8%A3%D8%B0%D9%86%20%D9%8",
+     "response_ms": 1314
+    },
+    {
+     "label": "باطنية0 طبيب متاح",
+     "result": "NAVIGATE",
+     "to": "/ar/appointments?specialty=%D8%A8%D8%A7%D8%B7%D9%86%D9%8A%D8%A9",
+     "response_ms": 1314
+    },
+    {
+     "label": "طب أسرة0 طبيب متاح",
+     "result": "NAVIGATE",
+     "to": "/ar/appointments?specialty=%D8%B7%D8%A8%20%D8%A3%D8%B3%D8%B1%D8%A9",
+     "response_ms": 1386
+    },
+    {
+     "label": "مسالك بولية0 طبيب متاح",
+     "result": "NAVIGATE",
+     "to": "/ar/appointments?specialty=%D9%85%D8%B3%D8%A7%D9%84%D9%83%20%D8%A8%D9%88%D9%84%D",
+     "response_ms": 1341
+    },
+    {
+     "label": "جهاز هضمي0 طبيب متاح",
+     "result": "NAVIGATE",
+     "to": "/ar/appointments?specialty=%D8%AC%D9%87%D8%A7%D8%B2%20%D9%87%D8%B6%D9%85%D9%8A",
+     "response_ms": 1373
+    },
+    {
+     "label": "غدد صماء وسكري0 طبيب متاح",
+     "result": "NAVIGATE",
+     "to": "/ar/appointments?specialty=%D8%BA%D8%AF%D8%AF%20%D8%B5%D9%85%D8%A7%D8%A1%20%D9%8",
+     "response_ms": 1298
+    },
+    {
+     "label": "صدرية0 طبيب متاح",
+     "result": "NAVIGATE",
+     "to": "/ar/appointments?specialty=%D8%B5%D8%AF%D8%B1%D9%8A%D8%A9",
+     "response_ms": 1319
+    },
+    {
+     "label": "كلى0 طبيب متاح",
+     "result": "NAVIGATE",
+     "to": "/ar/appointments?specialty=%D9%83%D9%84%D9%89",
+     "response_ms": 1332
+    },
+    {
+     "label": "أورام0 طبيب متاح",
+     "result": "NAVIGATE",
+     "to": "/ar/appointments?specialty=%D8%A3%D9%88%D8%B1%D8%A7%D9%85",
+     "response_ms": 1308
+    },
+    {
+     "label": "روماتيزم0 طبيب متاح",
+     "result": "NAVIGATE",
+     "to": "/ar/appointments?specialty=%D8%B1%D9%88%D9%85%D8%A7%D8%AA%D9%8A%D8%B2%D9%85",
+     "response_ms": 1342
+    },
+    {
+     "label": "جراحة عامة0 طبيب متاح",
+     "result": "NAVIGATE",
+     "to": "/ar/appointments?specialty=%D8%AC%D8%B1%D8%A7%D8%AD%D8%A9%20%D8%B9%D8%A7%D9%85%D",
+     "response_ms": 1340
+    },
+    {
+     "label": "علاج طبيعي0 طبيب متاح",
+     "result": "NAVIGATE",
+     "to": "/ar/appointments?specialty=%D8%B9%D9%84%D8%A7%D8%AC%20%D8%B7%D8%A8%D9%8A%D8%B9%D",
+     "response_ms": 1297
+    },
+    {
+     "label": "تغذية0 طبيب متاح",
+     "result": "NAVIGATE",
+     "to": "/ar/appointments?specialty=%D8%AA%D8%BA%D8%B0%D9%8A%D8%A9",
+     "response_ms": 1311
+    },
+    {
+     "label": "طوارئ0 طبيب متاح",
+     "result": "NAVIGATE",
+     "to": "/ar/appointments?specialty=%D8%B7%D9%88%D8%A7%D8%B1%D8%A6",
+     "response_ms": 1347
+    },
+    {
+     "label": "كيف أحجز استشارة؟",
+     "result": "UI_CHANGE",
+     "response_ms": 435
+    },
+    {
+     "label": "ما أنواع الاستشارات المتاحة؟",
+     "result": "UI_CHANGE",
+     "response_ms": 430
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 23,
+    "UI_CHANGE": 2
+   }
+  },
+  {
+   "route": "/[locale]/consultations/prescription",
+   "url": "/ar/consultations/prescription",
+   "landed": "/ar/consultations/prescription",
+   "time_to_ready_ms": 1383,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "مواعيدي",
+     "result": "NAVIGATE",
+     "to": "/ar/appointments",
+     "response_ms": 1333
+    },
+    {
+     "label": "اطلب من الصيدلية",
+     "result": "NAVIGATE",
+     "to": "/ar/pharmacy/rx-order?prescriptionId=a89a00cb-910b-4321-8dbb-76bc24acf1cf",
+     "response_ms": 1296
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 2
+   }
+  },
+  {
+   "route": "/[locale]/consultations/chat",
+   "url": "/ar/consultations/chat",
+   "landed": "/ar/chat",
+   "time_to_ready_ms": 1562,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [],
+   "summary": {}
+  },
+  {
+   "route": "/[locale]/consultations/home-visit-tracking",
+   "url": "/ar/consultations/home-visit-tracking",
+   "landed": "/ar/consultations/home-visit-tracking",
+   "time_to_ready_ms": 864,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى البداية",
+     "result": "NAVIGATE",
+     "to": "/ar",
+     "response_ms": 1330
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "/[locale]/consultations/share-report",
+   "url": "/ar/consultations/share-report",
+   "landed": "/ar/consultations/share-report",
+   "time_to_ready_ms": 918,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [],
+   "summary": {}
+  },
+  {
+   "route": "/[locale]/consultations/clinic-location",
+   "url": "/ar/consultations/clinic-location",
+   "landed": "/ar/consultations/clinic-confirm?view=location",
+   "time_to_ready_ms": 1460,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى البداية",
+     "result": "NAVIGATE",
+     "to": "/ar",
+     "response_ms": 1314
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "/[locale]/consultations/booking-status",
+   "url": "/ar/consultations/booking-status",
+   "landed": "/ar/consultations/booking-status",
+   "time_to_ready_ms": 840,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى البداية",
+     "result": "NAVIGATE",
+     "to": "/ar",
+     "response_ms": 1324
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "/[locale]/consultations/cancel-reschedule",
+   "url": "/ar/consultations/cancel-reschedule",
+   "landed": "/ar/consultations/cancel-reschedule",
+   "time_to_ready_ms": 918,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى البداية",
+     "result": "NAVIGATE",
+     "to": "/ar",
+     "response_ms": 1309
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "/[locale]/consultations/virtual-waiting-room",
+   "url": "/ar/consultations/virtual-waiting-room",
+   "landed": "/ar/consultations/virtual-waiting-room",
+   "time_to_ready_ms": 924,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى البداية",
+     "result": "NAVIGATE",
+     "to": "/ar",
+     "response_ms": 1335
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "/[locale]/consultations/doctor-profile",
+   "url": "/ar/consultations/doctor-profile",
+   "landed": "/ar/consultations/doctors",
+   "time_to_ready_ms": 2170,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "بحث",
+     "result": "WRITE",
+     "status": 200,
+     "method": "POST",
+     "url": "/api/auth/heartbeat",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 1592
+    },
+    {
+     "label": "الأعلى تقييمًا",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors?sort=rating",
+     "response_ms": 457
+    },
+    {
+     "label": "الأقل سعرًا",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors?sort=price",
+     "response_ms": 540
+    },
+    {
+     "label": "الأقل انتظارًا",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors?sort=wait",
+     "response_ms": 526
+    },
+    {
+     "label": "مسؤول doctor",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors/edfe236d-4e17-40ec-9905-f0caa0c8ba86",
+     "response_ms": 859
+    },
+    {
+     "label": "VCD75701",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors/5872b442-374a-4bb9-8a7d-3ecf11824978",
+     "response_ms": 850
+    }
+   ],
+   "summary": {
+    "WRITE": 1,
+    "NAVIGATE": 5
+   }
+  },
+  {
+   "route": "/[locale]/consultations/post-call-rating",
+   "url": "/ar/consultations/post-call-rating",
+   "landed": "/ar/consultations/post-call-rating",
+   "time_to_ready_ms": 842,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 429
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 438
+    },
+    {
+     "label": "(icon #2)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 425
+    },
+    {
+     "label": "(icon #3)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 413
+    },
+    {
+     "label": "(icon #4)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 422
+    },
+    {
+     "label": "إرسال التقييم",
+     "result": "WRITE",
+     "status": 400,
+     "method": "POST",
+     "url": "/api/patient-ux/review",
+     "tokens_sent": 1,
+     "tokens_stored": 0,
+     "response_ms": 778
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 5,
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "/[locale]/consultations/clinic-confirm",
+   "url": "/ar/consultations/clinic-confirm",
+   "landed": "/ar/consultations/clinic-confirm",
+   "time_to_ready_ms": 910,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى البداية",
+     "result": "NAVIGATE",
+     "to": "/ar",
+     "response_ms": 1384
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "/[locale]/consultations/appointments",
+   "url": "/ar/consultations/appointments",
+   "landed": "/ar/appointments",
+   "time_to_ready_ms": 1569,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "استكشف التخصصات",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/specialties",
+     "response_ms": 790
+    },
+    {
+     "label": "القادمة",
+     "result": "NAVIGATE",
+     "to": "/ar/appointments?tab=upcoming",
+     "response_ms": 419
+    },
+    {
+     "label": "السابقة",
+     "result": "NAVIGATE",
+     "to": "/ar/appointments?tab=past",
+     "response_ms": 782
+    },
+    {
+     "label": "استشارة مرئية",
+     "result": "NAVIGATE",
+     "to": "/ar/appointments/8839f097-fef9-4049-aa0c-c3014c04078b",
+     "response_ms": 1294
+    },
+    {
+     "label": "زيارة عيادة",
+     "result": "NAVIGATE",
+     "to": "/ar/appointments/b63736af-69be-479c-a41d-68c22ecaf37d",
+     "response_ms": 801
+    },
+    {
+     "label": "زيارة منزلية",
+     "result": "NAVIGATE",
+     "to": "/ar/appointments/b5ece051-5a82-4bb7-b325-b9e4987bbec5",
+     "response_ms": 770
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 6
+   }
+  },
+  {
+   "route": "/[locale]/consultations/call-history",
+   "url": "/ar/consultations/call-history",
+   "landed": "/ar/consultations/call-history",
+   "time_to_ready_ms": 893,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "مواعيدي",
+     "result": "NAVIGATE",
+     "to": "/ar/appointments",
+     "response_ms": 1324
+    },
+    {
+     "label": "طبيب",
+     "result": "NAVIGATE",
+     "to": "/ar/appointments/eb2fd5d7-1d36-4b83-887d-f47ab221ad46",
+     "response_ms": 1290
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 2
+   }
+  },
+  {
+   "route": "/[locale]/services",
+   "url": "/ar/services",
+   "landed": "/ar/consultations/doctors",
+   "time_to_ready_ms": 2171,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "بحث",
+     "result": "WRITE",
+     "status": 200,
+     "method": "POST",
+     "url": "/api/auth/heartbeat",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 1563
+    },
+    {
+     "label": "الأعلى تقييمًا",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors?sort=rating",
+     "response_ms": 536
+    },
+    {
+     "label": "الأقل سعرًا",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors?sort=price",
+     "response_ms": 487
+    },
+    {
+     "label": "الأقل انتظارًا",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors?sort=wait",
+     "response_ms": 507
+    },
+    {
+     "label": "مسؤول doctor",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors/edfe236d-4e17-40ec-9905-f0caa0c8ba86",
+     "response_ms": 827
+    },
+    {
+     "label": "VCD75701",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors/5872b442-374a-4bb9-8a7d-3ecf11824978",
+     "response_ms": 811
+    }
+   ],
+   "summary": {
+    "WRITE": 1,
+    "NAVIGATE": 5
+   }
+  },
+  {
+   "route": "/[locale]/delivery/address-select",
+   "url": "/ar/delivery/address-select",
+   "landed": "/ar/delivery/address-select",
+   "time_to_ready_ms": 882,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "استخدم موقعي الحالي أو حدد على الخريطة",
+     "result": "NAVIGATE",
+     "to": "/ar/map",
+     "response_ms": 1907
+    },
+    {
+     "label": "إضافة عنوان جديد على الخريطة",
+     "result": "NAVIGATE",
+     "to": "/ar/map",
+     "response_ms": 1907
+    },
+    {
+     "label": "تأكيد العنوان",
+     "result": "TAP_FAILED",
+     "error": "Locator.click: Timeout 3000ms exceeded.\nCall log:\n  - waiting for locator(\"main "
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 2,
+    "TAP_FAILED": 1
+   }
+  },
+  {
+   "route": "/[locale]/orders",
+   "url": "/ar/orders",
+   "landed": "/ar/orders",
+   "time_to_ready_ms": 916,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الكل",
+     "result": "NAVIGATE",
+     "to": "/ar/orders?tab=all",
+     "response_ms": 484
+    },
+    {
+     "label": "معلقة",
+     "result": "NAVIGATE",
+     "to": "/ar/orders?tab=pending",
+     "response_ms": 810
+    },
+    {
+     "label": "مكتملة",
+     "result": "NAVIGATE",
+     "to": "/ar/orders?tab=completed",
+     "response_ms": 785
+    },
+    {
+     "label": "ملغية",
+     "result": "NAVIGATE",
+     "to": "/ar/orders?tab=cancelled",
+     "response_ms": 797
+    },
+    {
+     "label": "طلب",
+     "result": "NAVIGATE",
+     "to": "/ar/orders/ddff8606-7567-4d6b-9625-615d28dbc245",
+     "response_ms": 794
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 5
+   }
+  },
+  {
+   "route": "/[locale]/medicine",
+   "url": "/ar/medicine",
+   "landed": "/ar/medicines",
+   "time_to_ready_ms": 975,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "بحث",
+     "result": "WRITE",
+     "status": 200,
+     "method": "POST",
+     "url": "/api/auth/heartbeat",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 952
+    }
+   ],
+   "summary": {
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "/[locale]/voice",
+   "url": "/ar/voice",
+   "landed": "/ar/voice",
+   "time_to_ready_ms": 863,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "تحدث بالأمر",
+     "result": "UI_CHANGE",
+     "response_ms": 813
+    },
+    {
+     "label": "احجز موعد مع طبيب",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors",
+     "response_ms": 1347
+    },
+    {
+     "label": "اطلب دواء من الصيدلية",
+     "result": "NAVIGATE",
+     "to": "/ar/medicines",
+     "response_ms": 1313
+    },
+    {
+     "label": "احجز تحليل مخبري",
+     "result": "NAVIGATE",
+     "to": "/ar/diagnostics/labs",
+     "response_ms": 1405
+    },
+    {
+     "label": "احجز ممرض منزلي",
+     "result": "NAVIGATE",
+     "to": "/ar/nursing/catalog",
+     "response_ms": 3831
+    },
+    {
+     "label": "عرض مواعيدي القادمة",
+     "result": "NAVIGATE",
+     "to": "/ar/appointments",
+     "response_ms": 1340
+    },
+    {
+     "label": "الفرز الطبي الذكي (AI)",
+     "result": "NAVIGATE",
+     "to": "/ar/ai",
+     "response_ms": 1368
+    },
+    {
+     "label": "طوارئ — طلب إسعاف فوري",
+     "result": "NAVIGATE",
+     "to": "/ar/emergency",
+     "response_ms": 1317
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 1,
+    "NAVIGATE": 7
+   }
+  },
+  {
+   "route": "/[locale]/articles",
+   "url": "/ar/articles",
+   "landed": "/ar/articles",
+   "time_to_ready_ms": 892,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "بحث",
+     "result": "WRITE",
+     "status": 200,
+     "method": "POST",
+     "url": "/api/auth/heartbeat",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 1471
+    }
+   ],
+   "summary": {
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "/[locale]/articles/bookmarks",
+   "url": "/ar/articles/bookmarks",
+   "landed": "/ar/articles/bookmarks",
+   "time_to_ready_ms": 908,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "تصفح المقالات",
+     "result": "NAVIGATE",
+     "to": "/ar/articles",
+     "response_ms": 798
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "/[locale]/profile",
+   "url": "/ar/profile",
+   "landed": "/ar/profile",
+   "time_to_ready_ms": 980,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "تعديل الملف الصحي",
+     "result": "NAVIGATE",
+     "to": "/ar/profile/edit",
+     "response_ms": 823
+    },
+    {
+     "label": "عناويني",
+     "result": "NAVIGATE",
+     "to": "/ar/profile/addresses",
+     "response_ms": 1320
+    },
+    {
+     "label": "تأميني",
+     "result": "NAVIGATE",
+     "to": "/ar/insurance",
+     "response_ms": 1347
+    },
+    {
+     "label": "ملخص الصحة",
+     "result": "NAVIGATE",
+     "to": "/ar/health",
+     "response_ms": 1335
+    },
+    {
+     "label": "مواعيدي",
+     "result": "NAVIGATE",
+     "to": "/ar/appointments",
+     "response_ms": 1374
+    },
+    {
+     "label": "طلباتي",
+     "result": "NAVIGATE",
+     "to": "/ar/orders",
+     "response_ms": 1344
+    },
+    {
+     "label": "الوصفات الطبية",
+     "result": "NAVIGATE",
+     "to": "/ar/prescriptions",
+     "response_ms": 1300
+    },
+    {
+     "label": "الأدوية",
+     "result": "NAVIGATE",
+     "to": "/ar/medicines",
+     "response_ms": 1378
+    },
+    {
+     "label": "العائلة",
+     "result": "NAVIGATE",
+     "to": "/ar/family",
+     "response_ms": 1328
+    },
+    {
+     "label": "الإشعارات",
+     "result": "NAVIGATE",
+     "to": "/ar/notifications",
+     "response_ms": 1373
+    },
+    {
+     "label": "الإعدادات",
+     "result": "NAVIGATE",
+     "to": "/ar/settings",
+     "response_ms": 1320
+    },
+    {
+     "label": "مقالات الصحة",
+     "result": "NAVIGATE",
+     "to": "/ar/articles",
+     "response_ms": 1307
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 12
+   }
+  },
+  {
+   "route": "/[locale]/profile/edit",
+   "url": "/ar/profile/edit",
+   "landed": "/ar/profile/edit",
+   "time_to_ready_ms": 865,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 3,
+   "elements": [
+    {
+     "label": "الملف الشخصي",
+     "result": "NAVIGATE",
+     "to": "/ar/profile",
+     "response_ms": 818
+    },
+    {
+     "label": "حفظ",
+     "result": "UI_CHANGE",
+     "response_ms": 435
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 1
+   }
+  },
+  {
+   "route": "/[locale]/profile/insurance",
+   "url": "/ar/profile/insurance",
+   "landed": "/ar/insurance",
+   "time_to_ready_ms": 1504,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى البداية",
+     "result": "NAVIGATE",
+     "to": "/ar",
+     "response_ms": 1423
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "/[locale]/profile/addresses",
+   "url": "/ar/profile/addresses",
+   "landed": "/ar/profile/addresses",
+   "time_to_ready_ms": 1428,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 4,
+   "elements": [
+    {
+     "label": "العودة للملف الشخصي",
+     "result": "NAVIGATE",
+     "to": "/ar/profile",
+     "response_ms": 1086
+    },
+    {
+     "label": "حفظ العنوان",
+     "result": "WRITE",
+     "status": 404,
+     "method": "POST",
+     "url": "/api/bff/users/me/addresses",
+     "tokens_sent": 4,
+     "tokens_stored": 0,
+     "response_ms": 785
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "/[locale]/insurance",
+   "url": "/ar/insurance",
+   "landed": "/ar/insurance",
+   "time_to_ready_ms": 921,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى البداية",
+     "result": "NAVIGATE",
+     "to": "/ar",
+     "response_ms": 1386
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "/[locale]/insurance/coverage-check",
+   "url": "/ar/insurance/coverage-check",
+   "landed": "/ar/insurance/coverage-check",
+   "time_to_ready_ms": 914,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "التأمين",
+     "result": "NAVIGATE",
+     "to": "/ar/insurance",
+     "response_ms": 887
+    },
+    {
+     "label": "فحص",
+     "result": "WRITE",
+     "status": 200,
+     "method": "POST",
+     "url": "/api/auth/heartbeat",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 1526
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "/[locale]/insurance/policy-detail",
+   "url": "/ar/insurance/policy-detail",
+   "landed": "/ar/insurance/policy-detail",
+   "time_to_ready_ms": 879,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى البداية",
+     "result": "NAVIGATE",
+     "to": "/ar",
+     "response_ms": 1559
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "/[locale]/insurance/network-providers",
+   "url": "/ar/insurance/network-providers",
+   "landed": "/ar/insurance/network-providers",
+   "time_to_ready_ms": 891,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "التأمين",
+     "result": "NAVIGATE",
+     "to": "/ar/insurance",
+     "response_ms": 805
+    },
+    {
+     "label": "بحث",
+     "result": "WRITE",
+     "status": 200,
+     "method": "POST",
+     "url": "/api/auth/heartbeat",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 1433
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "/[locale]/insurance/copay",
+   "url": "/ar/insurance/copay",
+   "landed": "/ar/insurance/copay",
+   "time_to_ready_ms": 895,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى البداية",
+     "result": "NAVIGATE",
+     "to": "/ar",
+     "response_ms": 1396
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "/[locale]/insurance/benefits",
+   "url": "/ar/insurance/benefits",
+   "landed": "/ar/insurance/benefits",
+   "time_to_ready_ms": 1027,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى البداية",
+     "result": "NAVIGATE",
+     "to": "/ar",
+     "response_ms": 1336
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "/[locale]/insurance/refunds",
+   "url": "/ar/insurance/refunds",
+   "landed": "/ar/insurance/refunds",
+   "time_to_ready_ms": 892,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "التأمين",
+     "result": "NAVIGATE",
+     "to": "/ar/insurance",
+     "response_ms": 791
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "/[locale]/insurance/claims",
+   "url": "/ar/insurance/claims",
+   "landed": "/ar/insurance/claims",
+   "time_to_ready_ms": 1059,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى البداية",
+     "result": "NAVIGATE",
+     "to": "/ar",
+     "response_ms": 1364
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "/[locale]/insurance/approval-pending",
+   "url": "/ar/insurance/approval-pending",
+   "landed": "/ar/insurance/approval-pending",
+   "time_to_ready_ms": 1403,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "المطالبات",
+     "result": "NAVIGATE",
+     "to": "/ar/insurance/claims",
+     "response_ms": 808
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "/[locale]/insurance/payment-split",
+   "url": "/ar/insurance/payment-split",
+   "landed": "/ar/insurance/payment-split",
+   "time_to_ready_ms": 918,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى البداية",
+     "result": "NAVIGATE",
+     "to": "/ar",
+     "response_ms": 1314
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "/[locale]/insurance/add-policy",
+   "url": "/ar/insurance/add-policy",
+   "landed": "/ar/insurance/add-policy",
+   "time_to_ready_ms": 956,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 4,
+   "elements": [
+    {
+     "label": "التأمين",
+     "result": "NAVIGATE",
+     "to": "/ar/insurance",
+     "response_ms": 832
+    },
+    {
+     "label": "حفظ الوثيقة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 515
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/insurance/submit-claim",
+   "url": "/ar/insurance/submit-claim",
+   "landed": "/ar/insurance/submit-claim",
+   "time_to_ready_ms": 1445,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "التأمين",
+     "result": "NAVIGATE",
+     "to": "/ar/insurance",
+     "response_ms": 812
+    },
+    {
+     "label": "تقديم المطالبة",
+     "result": "TAP_FAILED",
+     "error": "Locator.click: Timeout 3000ms exceeded.\nCall log:\n  - waiting for locator(\"main "
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "TAP_FAILED": 1
+   }
+  },
+  {
+   "route": "/[locale]/offers",
+   "url": "/ar/offers",
+   "landed": "/ar/offers",
+   "time_to_ready_ms": 945,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [],
+   "summary": {}
+  },
+  {
+   "route": "/[locale]/emergency",
+   "url": "/ar/emergency",
+   "landed": "/ar/emergency",
+   "time_to_ready_ms": 989,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "SOS",
+     "result": "UI_CHANGE",
+     "response_ms": 452
+    },
+    {
+     "label": "الهلال الأحمر السعودي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 478
+    },
+    {
+     "label": "طوارئ العمليات الموحدة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 433
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 1,
+    "NO_EFFECT": 2
+   }
+  },
+  {
+   "route": "/[locale]/emergency/sos-active",
+   "url": "/ar/emergency/sos-active",
+   "landed": "/ar/emergency/sos-active",
+   "time_to_ready_ms": 1382,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الطوارئ",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 416
+    },
+    {
+     "label": "اتصال بغرفة العمليات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 422
+    },
+    {
+     "label": "إلغاء الطلب",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 435
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 3
+   }
+  },
+  {
+   "route": "/[locale]/emergency/sos",
+   "url": "/ar/emergency/sos",
+   "landed": "/ar/emergency/sos",
+   "time_to_ready_ms": 885,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الطوارئ",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 419
+    },
+    {
+     "label": "SOSاضغط لطلب إسعاف فوري",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 418
+    },
+    {
+     "label": "إسعاف — 997",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 419
+    },
+    {
+     "label": "شرطة — 999",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 409
+    },
+    {
+     "label": "إطفاء — 998",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 413
+    },
+    {
+     "label": "مرور — 993",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 427
+    },
+    {
+     "label": "مركز السموم — 920016110",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 418
+    },
+    {
+     "label": "تتبع الإسعاف",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 417
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 8
+   }
+  },
+  {
+   "route": "/[locale]/emergency/tracking",
+   "url": "/ar/emergency/tracking",
+   "landed": "/ar/emergency/tracking",
+   "time_to_ready_ms": 1397,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الطوارئ",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 415
+    },
+    {
+     "label": "رجوع",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 534
+    },
+    {
+     "label": "طلب إسعاف",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 421
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 3
+   }
+  },
+  {
+   "route": "/[locale]/reviews",
+   "url": "/ar/reviews",
+   "landed": "/ar/reviews",
+   "time_to_ready_ms": 893,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "لوحتي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 421
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/search",
+   "url": "/ar/search",
+   "landed": "/ar/search",
+   "time_to_ready_ms": 527,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [],
+   "summary": {}
+  },
+  {
+   "route": "/[locale]/register",
+   "url": "/ar/register",
+   "landed": "/ar/register",
+   "time_to_ready_ms": 1124,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "Show password",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 434
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 412
+    },
+    {
+     "label": "أوافق على الشروط والأحكام",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 438
+    },
+    {
+     "label": "سياسة الخصوصية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 445
+    },
+    {
+     "label": "إنشاء الحساب",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 419
+    },
+    {
+     "label": "لديك حساب؟ دخول",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 409
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 6
+   }
+  },
+  {
+   "route": "/[locale]/loyalty",
+   "url": "/ar/loyalty",
+   "landed": "/ar/loyalty",
+   "time_to_ready_ms": 941,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [],
+   "summary": {}
+  },
+  {
+   "route": "/[locale]/loyalty/referrals",
+   "url": "/ar/loyalty/referrals",
+   "landed": "/ar/loyalty/referrals",
+   "time_to_ready_ms": 871,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "الولاء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 416
+    },
+    {
+     "label": "نسخ الكود",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 435
+    },
+    {
+     "label": "مشاركة الكود",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 451
+    },
+    {
+     "label": "تطبيق الكود",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 437
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 4
+   }
+  },
+  {
+   "route": "/[locale]/loyalty/rewards",
+   "url": "/ar/loyalty/rewards",
+   "landed": "/ar/loyalty/rewards",
+   "time_to_ready_ms": 519,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الولاء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 429
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/loyalty/challenges",
+   "url": "/ar/loyalty/challenges",
+   "landed": "/ar/loyalty/challenges",
+   "time_to_ready_ms": 878,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الولاء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 411
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/loyalty/leaderboard",
+   "url": "/ar/loyalty/leaderboard",
+   "landed": "/ar/loyalty/leaderboard",
+   "time_to_ready_ms": 840,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الولاء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 411
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/chat",
+   "url": "/ar/chat",
+   "landed": "/ar/chat",
+   "time_to_ready_ms": 864,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [],
+   "summary": {}
+  },
+  {
+   "route": "/[locale]/notifications",
+   "url": "/ar/notifications",
+   "landed": "/ar/notifications",
+   "time_to_ready_ms": 657,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "إعدادات الإشعارات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 437
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/notifications/settings",
+   "url": "/ar/notifications/settings",
+   "landed": "/ar/notifications/settings",
+   "time_to_ready_ms": 444,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [],
+   "summary": {}
+  },
+  {
+   "route": "/[locale]/settings",
+   "url": "/ar/settings",
+   "landed": "/ar/settings",
+   "time_to_ready_ms": 881,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "اللغة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 439
+    },
+    {
+     "label": "الإشعارات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 417
+    },
+    {
+     "label": "الخصوصية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 412
+    },
+    {
+     "label": "عن التطبيق",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 420
+    },
+    {
+     "label": "المساعدة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 427
+    },
+    {
+     "label": "رأيك",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 413
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 6
+   }
+  },
+  {
+   "route": "/[locale]/settings/feedback",
+   "url": "/ar/settings/feedback",
+   "landed": "/ar/settings/feedback",
+   "time_to_ready_ms": 582,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "الإعدادات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 470
+    },
+    {
+     "label": "1★",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 433
+    },
+    {
+     "label": "2★",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 473
+    },
+    {
+     "label": "3★",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 417
+    },
+    {
+     "label": "4★",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 416
+    },
+    {
+     "label": "5★",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 426
+    },
+    {
+     "label": "إرسال",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 419
+    },
+    {
+     "label": "الدعم",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 426
+    },
+    {
+     "label": "العودة للإعدادات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 420
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 9
+   }
+  },
+  {
+   "route": "/[locale]/settings/notifications",
+   "url": "/ar/settings/notifications",
+   "landed": "/ar/settings/notifications",
+   "time_to_ready_ms": 955,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الإعدادات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 412
+    },
+    {
+     "label": "○",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 410
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 2
+   }
+  },
+  {
+   "route": "/[locale]/settings/data",
+   "url": "/ar/settings/data",
+   "landed": "/ar/settings/data",
+   "time_to_ready_ms": 858,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الإعدادات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 439
+    },
+    {
+     "label": "طلب عبر الدعم",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 409
+    },
+    {
+     "label": "سياسة الخصوصية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 420
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 3
+   }
+  },
+  {
+   "route": "/[locale]/settings/help",
+   "url": "/ar/settings/help",
+   "landed": "/ar/settings/help",
+   "time_to_ready_ms": 570,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الإعدادات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 417
+    },
+    {
+     "label": "الحجوزات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 424
+    },
+    {
+     "label": "الصيدلية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 418
+    },
+    {
+     "label": "التأمين",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 420
+    },
+    {
+     "label": "الإرجاع",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 421
+    },
+    {
+     "label": "محادثة فورية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 409
+    },
+    {
+     "label": "شاركنا رأيك",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 422
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 7
+   }
+  },
+  {
+   "route": "/[locale]/settings/privacy",
+   "url": "/ar/settings/privacy",
+   "landed": "/ar/settings/privacy",
+   "time_to_ready_ms": 1266,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الإعدادات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 444
+    },
+    {
+     "label": "✓On",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 429
+    },
+    {
+     "label": "○Off",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 418
+    },
+    {
+     "label": "تصدير كل بياناتي (JSON)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 415
+    },
+    {
+     "label": "حذف حسابي نهائياً",
+     "result": "SKIPPED_DESTRUCTIVE"
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 4,
+    "SKIPPED_DESTRUCTIVE": 1
+   }
+  },
+  {
+   "route": "/[locale]/settings/about",
+   "url": "/ar/settings/about",
+   "landed": "/ar/settings/about",
+   "time_to_ready_ms": 917,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الإعدادات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 433
+    },
+    {
+     "label": "الشروط",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 424
+    },
+    {
+     "label": "الخصوصية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 445
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 3
+   }
+  },
+  {
+   "route": "/[locale]/settings/language",
+   "url": "/ar/settings/language",
+   "landed": "/ar/settings/language",
+   "time_to_ready_ms": 932,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الإعدادات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 417
+    },
+    {
+     "label": "العربية",
+     "result": "SKIPPED_DESTRUCTIVE"
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1,
+    "SKIPPED_DESTRUCTIVE": 1
+   }
+  },
+  {
+   "route": "/[locale]/settings/security",
+   "url": "/ar/settings/security",
+   "landed": "/ar/settings/security",
+   "time_to_ready_ms": 907,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الإعدادات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 417
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/pharmacies",
+   "url": "/ar/pharmacies",
+   "landed": "/ar/c",
+   "time_to_ready_ms": 1132,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "بحث",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 431
+    },
+    {
+     "label": "الكل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 424
+    },
+    {
+     "label": "أدوية وعلاجات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 419
+    },
+    {
+     "label": "عناية بالشعر",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 411
+    },
+    {
+     "label": "مكياج وإكسسوارات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 418
+    },
+    {
+     "label": "العناية بالبشرة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 421
+    },
+    {
+     "label": "الأم والطفل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 422
+    },
+    {
+     "label": "فيتامينات ومكملات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 439
+    },
+    {
+     "label": "عناية شخصية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 431
+    },
+    {
+     "label": "استعراض جميع الأدوية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 421
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 10
+   }
+  },
+  {
+   "route": "/[locale]/p",
+   "url": "/ar/p",
+   "landed": "/ar/c",
+   "time_to_ready_ms": 911,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "بحث",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 485
+    },
+    {
+     "label": "الكل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 413
+    },
+    {
+     "label": "أدوية وعلاجات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 414
+    },
+    {
+     "label": "عناية بالشعر",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 437
+    },
+    {
+     "label": "مكياج وإكسسوارات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 420
+    },
+    {
+     "label": "العناية بالبشرة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 424
+    },
+    {
+     "label": "الأم والطفل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 416
+    },
+    {
+     "label": "فيتامينات ومكملات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 413
+    },
+    {
+     "label": "عناية شخصية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 416
+    },
+    {
+     "label": "استعراض جميع الأدوية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 428
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 10
+   }
+  },
+  {
+   "route": "/[locale]/otp",
+   "url": "/ar/otp",
+   "landed": "/ar/otp",
+   "time_to_ready_ms": 851,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة",
+     "result": "UI_CHANGE",
+     "response_ms": 8580,
+     "slow": "0 in flight, 0 loading, stable=0"
+    },
+    {
+     "label": "تأكيد الرمز",
+     "result": "TAP_FAILED",
+     "error": "Locator.click: Timeout 3000ms exceeded.\nCall log:\n  - waiting for locator(\"main "
+    },
+    {
+     "label": "إعادة الإرسال خلال 00:300",
+     "result": "TAP_FAILED",
+     "error": "Locator.click: Timeout 3000ms exceeded.\nCall log:\n  - waiting for locator(\"main "
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 1,
+    "TAP_FAILED": 2
+   }
+  },
+  {
+   "route": "/[locale]/returns",
+   "url": "/ar/returns",
+   "landed": "/ar/returns",
+   "time_to_ready_ms": 852,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "طلب إرجاع جديد",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 418
+    },
+    {
+     "label": "منتج تالف",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 430
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 2
+   }
+  },
+  {
+   "route": "/[locale]/returns/new-request",
+   "url": "/ar/returns/new-request",
+   "landed": "/ar/returns/new-request",
+   "time_to_ready_ms": 475,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 3,
+   "elements": [
+    {
+     "label": "الإرجاع",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 425
+    },
+    {
+     "label": "إرسال طلب الإرجاع",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 428
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 2
+   }
+  },
+  {
+   "route": "/[locale]/cart",
+   "url": "/ar/cart",
+   "landed": "/ar/cart",
+   "time_to_ready_ms": 908,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "تصفح كتالوج الأدوية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 485
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/cart/prescription",
+   "url": "/ar/cart/prescription",
+   "landed": "/ar/cart/prescription",
+   "time_to_ready_ms": 918,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى الأدوية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 423
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/cart/checkout",
+   "url": "/ar/cart/checkout",
+   "landed": "/ar/cart/checkout",
+   "time_to_ready_ms": 938,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "تصفح الصيدلية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 423
+    },
+    {
+     "label": "العودة إلى الأدوية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 428
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 2
+   }
+  },
+  {
+   "route": "/[locale]/health",
+   "url": "/ar/health",
+   "landed": "/ar/health",
+   "time_to_ready_ms": 1010,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "وصفاتي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 455
+    },
+    {
+     "label": "العائلة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 429
+    },
+    {
+     "label": "تذكيراتي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 428
+    },
+    {
+     "label": "محادثة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 411
+    },
+    {
+     "label": "النوم",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 422
+    },
+    {
+     "label": "الحالات المزمنة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 409
+    },
+    {
+     "label": "الأدوية المزمنة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 422
+    },
+    {
+     "label": "الاتجاهات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 429
+    },
+    {
+     "label": "سجل المؤشرات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 427
+    },
+    {
+     "label": "أدويتي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 414
+    },
+    {
+     "label": "إعادة الصرف",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 428
+    },
+    {
+     "label": "الحالات والحساسية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 424
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 12
+   }
+  },
+  {
+   "route": "/[locale]/health/add-family-member",
+   "url": "/ar/health/add-family-member",
+   "landed": "/ar/family/invite",
+   "time_to_ready_ms": 1551,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العائلة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 449
+    },
+    {
+     "label": "إنشاء كود دعوة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 418
+    },
+    {
+     "label": "لديك كود؟ انضم من هنا",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 422
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 3
+   }
+  },
+  {
+   "route": "/[locale]/health/wearables",
+   "url": "/ar/health/wearables",
+   "landed": "/ar/health/wearables",
+   "time_to_ready_ms": 881,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى البداية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 428
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/health/conditions-allergies",
+   "url": "/ar/health/conditions-allergies",
+   "landed": "/ar/health/conditions-allergies",
+   "time_to_ready_ms": 893,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 4,
+   "elements": [
+    {
+     "label": "صحتي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 459
+    },
+    {
+     "label": "إضافة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 409
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 2
+   }
+  },
+  {
+   "route": "/[locale]/health/health-id",
+   "url": "/ar/health/health-id",
+   "landed": "/ar/reports/passport",
+   "time_to_ready_ms": 1565,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "التقارير",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 424
+    },
+    {
+     "label": "نسخ",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 412
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 2
+   }
+  },
+  {
+   "route": "/[locale]/health/chronic-diseases",
+   "url": "/ar/health/chronic-diseases",
+   "landed": "/ar/health/chronic-diseases",
+   "time_to_ready_ms": 1003,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى الصحة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 423
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/health/trends",
+   "url": "/ar/health/trends",
+   "landed": "/ar/health/trends",
+   "time_to_ready_ms": 913,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى الصحة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 407
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/health/vitals",
+   "url": "/ar/health/vitals",
+   "landed": "/ar/health/vitals",
+   "time_to_ready_ms": 663,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى الصحة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 431
+    },
+    {
+     "label": "تسجيل قراءة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 407
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 2
+   }
+  },
+  {
+   "route": "/[locale]/health/vitals/log",
+   "url": "/ar/health/vitals/log",
+   "landed": "/ar/health/vitals/log",
+   "time_to_ready_ms": 897,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "المؤشرات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 416
+    },
+    {
+     "label": "ضغط الدم (mmHg)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 426
+    },
+    {
+     "label": "سكر الدم (mg/dL)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 445
+    },
+    {
+     "label": "نبض القلب (bpm)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 424
+    },
+    {
+     "label": "الوزن (kg)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 430
+    },
+    {
+     "label": "درجة الحرارة (°C)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 438
+    },
+    {
+     "label": "أكسجين الدم (%)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 411
+    },
+    {
+     "label": "حفظ القراءة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 412
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 8
+   }
+  },
+  {
+   "route": "/[locale]/health/chronic-medications",
+   "url": "/ar/health/chronic-medications",
+   "landed": "/ar/health/chronic-medications",
+   "time_to_ready_ms": 976,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى الصحة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 426
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/health/timeline",
+   "url": "/ar/health/timeline",
+   "landed": "/ar/health/timeline",
+   "time_to_ready_ms": 874,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "صحتي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 426
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/health/refills",
+   "url": "/ar/health/refills",
+   "landed": "/ar/health/refills",
+   "time_to_ready_ms": 522,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "أدويتي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 432
+    },
+    {
+     "label": "طلب إعادة صرف",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 418
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 2
+   }
+  },
+  {
+   "route": "/[locale]/health/sleep",
+   "url": "/ar/health/sleep",
+   "landed": "/ar/health/sleep",
+   "time_to_ready_ms": 908,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى الصحة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 415
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/health/emergency-contacts",
+   "url": "/ar/health/emergency-contacts",
+   "landed": "/ar/health/emergency-contacts",
+   "time_to_ready_ms": 854,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى الصحة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 431
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/health/smart-reminders",
+   "url": "/ar/health/smart-reminders",
+   "landed": "/ar/reminders",
+   "time_to_ready_ms": 1682,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "✓",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 424
+    },
+    {
+     "label": "✎",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 427
+    },
+    {
+     "label": "×",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 412
+    },
+    {
+     "label": "تذكير جديد",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 429
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 4
+   }
+  },
+  {
+   "route": "/[locale]/health/reports",
+   "url": "/ar/health/reports",
+   "landed": "/ar/health/reports",
+   "time_to_ready_ms": 880,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى الصحة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 423
+    },
+    {
+     "label": "جوازي الصحي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 410
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 2
+   }
+  },
+  {
+   "route": "/[locale]/health/medications",
+   "url": "/ar/health/medications",
+   "landed": "/ar/health/medications",
+   "time_to_ready_ms": 855,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "التذكيرات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 435
+    },
+    {
+     "label": "تذكير جديد",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 466
+    },
+    {
+     "label": "إعادة الصرف",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 423
+    },
+    {
+     "label": "صحتي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 459
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 4
+   }
+  },
+  {
+   "route": "/[locale]/health/actionable-order",
+   "url": "/ar/health/actionable-order",
+   "landed": "/ar/health/actionable-order",
+   "time_to_ready_ms": 903,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "صحتي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 423
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/health/score",
+   "url": "/ar/health/score",
+   "landed": "/ar/health/score",
+   "time_to_ready_ms": 854,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى الصحة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 422
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/drug-scanner",
+   "url": "/ar/drug-scanner",
+   "landed": "/ar/pharmacy/interactions",
+   "time_to_ready_ms": 1742,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "الصيدلية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 422
+    },
+    {
+     "label": "إضافة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 420
+    },
+    {
+     "label": "فحص التفاعلات",
+     "result": "TAP_FAILED",
+     "error": "Locator.click: Timeout 3000ms exceeded.\nCall log:\n  - waiting for locator(\"main "
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 2,
+    "TAP_FAILED": 1
+   }
+  },
+  {
+   "route": "/[locale]/map",
+   "url": "/ar/map",
+   "landed": "/ar/map",
+   "time_to_ready_ms": 1437,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "الكل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 430
+    },
+    {
+     "label": "عيادات وأطباء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 417
+    },
+    {
+     "label": "مستشفيات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 425
+    },
+    {
+     "label": "صيدليات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 417
+    },
+    {
+     "label": "مختبرات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 425
+    },
+    {
+     "label": "تمريض",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 414
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 6
+   }
+  },
+  {
+   "route": "/[locale]/terms",
+   "url": "/ar/terms",
+   "landed": "/ar/terms",
+   "time_to_ready_ms": 938,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى إنشاء الحساب",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 426
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/support",
+   "url": "/ar/support",
+   "landed": "/ar/support",
+   "time_to_ready_ms": 886,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "كيف أحجز موعد؟",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 427
+    },
+    {
+     "label": "هل التأمين مغطى؟",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 448
+    },
+    {
+     "label": "إرسال الطلب",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 406
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 3
+   }
+  },
+  {
+   "route": "/[locale]/support/chat",
+   "url": "/ar/support/chat",
+   "landed": "/ar/support/chat",
+   "time_to_ready_ms": 1407,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "الدعم",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 469
+    },
+    {
+     "label": "إلغاء حجز",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 410
+    },
+    {
+     "label": "مشكلة في طلب",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 417
+    },
+    {
+     "label": "استرداد المبلغ",
+     "result": "SKIPPED_DESTRUCTIVE"
+    },
+    {
+     "label": "سؤال عن التأمين",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 408
+    },
+    {
+     "label": "شكوى",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 423
+    },
+    {
+     "label": "+",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 422
+    },
+    {
+     "label": "إرسال",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 422
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 7,
+    "SKIPPED_DESTRUCTIVE": 1
+   }
+  },
+  {
+   "route": "/[locale]/support/ticket",
+   "url": "/ar/support/ticket",
+   "landed": "/ar/support/ticket",
+   "time_to_ready_ms": 851,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 413
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/s",
+   "url": "/ar/s",
+   "landed": "/ar/search",
+   "time_to_ready_ms": 883,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [],
+   "summary": {}
+  },
+  {
+   "route": "/[locale]/login",
+   "url": "/ar/login",
+   "landed": "/ar/login",
+   "time_to_ready_ms": 820,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "Show password",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 450
+    },
+    {
+     "label": "استخدام رمز لمرة واحدة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 420
+    },
+    {
+     "label": "نسيت كلمة المرور؟",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 424
+    },
+    {
+     "label": "دخول آمن",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 425
+    },
+    {
+     "label": "المتابعة كضيف (بدون حساب)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 433
+    },
+    {
+     "label": "سجل الآن",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 415
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 6
+   }
+  },
+  {
+   "route": "/[locale]/family",
+   "url": "/ar/family",
+   "landed": "/ar/family",
+   "time_to_ready_ms": 1047,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "إنشاء المجموعة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 429
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/family/permissions",
+   "url": "/ar/family/permissions",
+   "landed": "/ar/family/permissions",
+   "time_to_ready_ms": 861,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى البداية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 427
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/family/permission-requests",
+   "url": "/ar/family/permission-requests",
+   "landed": "/ar/family/permission-requests",
+   "time_to_ready_ms": 863,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى البداية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 419
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/family/chat",
+   "url": "/ar/family/chat",
+   "landed": "/ar/family/chat",
+   "time_to_ready_ms": 1966,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "403 GET /api/patient/family/chat/messages"
+    ]
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العائلة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 423
+    },
+    {
+     "label": "الانضمام بدعوة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 425
+    },
+    {
+     "label": "العودة للعائلة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 406
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 3
+   }
+  },
+  {
+   "route": "/[locale]/family/emergency-contacts",
+   "url": "/ar/family/emergency-contacts",
+   "landed": "/ar/family/emergency-contacts",
+   "time_to_ready_ms": 884,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العائلة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 412
+    },
+    {
+     "label": "دعوة فرد للعائلة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 420
+    },
+    {
+     "label": "طلب طوارئ SOS",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 411
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 3
+   }
+  },
+  {
+   "route": "/[locale]/family/scan",
+   "url": "/ar/family/scan",
+   "landed": "/ar/family/scan",
+   "time_to_ready_ms": 951,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "دعوة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 426
+    },
+    {
+     "label": "متابعة للانضمام",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 417
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 2
+   }
+  },
+  {
+   "route": "/[locale]/family/invite",
+   "url": "/ar/family/invite",
+   "landed": "/ar/family/invite",
+   "time_to_ready_ms": 431,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العائلة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 410
+    },
+    {
+     "label": "إنشاء كود دعوة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 406
+    },
+    {
+     "label": "لديك كود؟ انضم من هنا",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 426
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 3
+   }
+  },
+  {
+   "route": "/[locale]/family/calendar",
+   "url": "/ar/family/calendar",
+   "landed": "/ar/family/calendar",
+   "time_to_ready_ms": 898,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة للعائلة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 411
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/family/join",
+   "url": "/ar/family/join",
+   "landed": "/ar/family/join",
+   "time_to_ready_ms": 983,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "العائلة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 422
+    },
+    {
+     "label": "انضمام للعائلة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 411
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 2
+   }
+  },
+  {
+   "route": "/[locale]/home-nursing",
+   "url": "/ar/home-nursing",
+   "landed": "/ar/nursing/catalog",
+   "time_to_ready_ms": 3950,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "احجز الآن",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 432
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/payments",
+   "url": "/ar/payments",
+   "landed": "/ar/cart/checkout",
+   "time_to_ready_ms": 929,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "تصفح الصيدلية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 424
+    },
+    {
+     "label": "العودة إلى الأدوية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 407
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 2
+   }
+  },
+  {
+   "route": "/[locale]/payments/processing",
+   "url": "/ar/payments/processing",
+   "landed": "/ar/payments/result?status=processing",
+   "time_to_ready_ms": 1567,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "طلباتي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 411
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/payments/failed",
+   "url": "/ar/payments/failed",
+   "landed": "/ar/payments/result?status=failed",
+   "time_to_ready_ms": 1567,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "إعادة المحاولة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 424
+    },
+    {
+     "label": "طلباتي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 412
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 2
+   }
+  },
+  {
+   "route": "/[locale]/payments/success",
+   "url": "/ar/payments/success",
+   "landed": "/ar/payments/result?status=success",
+   "time_to_ready_ms": 1469,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "طلباتي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 412
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/payments/result",
+   "url": "/ar/payments/result",
+   "landed": "/ar/payments/result",
+   "time_to_ready_ms": 879,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "طلباتي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 410
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/labs",
+   "url": "/ar/labs",
+   "landed": "/ar/diagnostics/labs",
+   "time_to_ready_ms": 724,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 444
+    },
+    {
+     "label": "تطبيق",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 441
+    },
+    {
+     "label": "تحليل دم شامل (CBC)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 428
+    },
+    {
+     "label": "باقة الصحة العامة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 453
+    },
+    {
+     "label": "فيتامين د (25-OH)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 419
+    },
+    {
+     "label": "باقة الفحص الشامل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 430
+    },
+    {
+     "label": "تحليل دم شامل CBC",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 436
+    },
+    {
+     "label": "سكر تراكمي (HbA1c)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 443
+    },
+    {
+     "label": "سكر صائم (FBS)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 440
+    },
+    {
+     "label": "فيتامين D",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 430
+    },
+    {
+     "label": "هرمون الغدة الدرقية (TSH)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 507
+    },
+    {
+     "label": "باقة متابعة السكري",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 428
+    },
+    {
+     "label": "دهنيات الدم (Lipid Profile)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 451
+    },
+    {
+     "label": "سكر صائم FBS",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 441
+    },
+    {
+     "label": "باقة السكري الشاملة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 443
+    },
+    {
+     "label": "باقة الفيتامينات والمعادن",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 430
+    },
+    {
+     "label": "تحليل بول كامل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 439
+    },
+    {
+     "label": "سكر تراكمي HbA1c",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 457
+    },
+    {
+     "label": "وظائف كلى (كرياتينين + يوريا)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 441
+    },
+    {
+     "label": "الفيريتين (مخزون الحديد)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 441
+    },
+    {
+     "label": "ملف الدهون Lipid",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 430
+    },
+    {
+     "label": "وظائف كبد (ALT + AST)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 434
+    },
+    {
+     "label": "باقة ما قبل الزواج",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 448
+    },
+    {
+     "label": "هرمون الحمل (Beta-hCG)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 436
+    },
+    {
+     "label": "باقة التعب والإرهاق",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 435
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 25
+   }
+  },
+  {
+   "route": "/[locale]/nursing",
+   "url": "/ar/nursing",
+   "landed": "/ar/nursing/catalog",
+   "time_to_ready_ms": 4556,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "احجز الآن",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 441
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/nursing/catalog",
+   "url": "/ar/nursing/catalog",
+   "landed": "/ar/nursing/catalog",
+   "time_to_ready_ms": 4028,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "احجز الآن",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 445
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/nursing/service-info",
+   "url": "/ar/nursing/service-info",
+   "landed": "/ar/home-care/services",
+   "time_to_ready_ms": 2195,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "قياس العلامات الحيوية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 421
+    },
+    {
+     "label": "سحب دم للتحاليل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 421
+    },
+    {
+     "label": "الحقن الطبية والمضادات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 428
+    },
+    {
+     "label": "تركيب محلول وريدي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 433
+    },
+    {
+     "label": "العناية بالجروح العميقة والسكري",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 434
+    },
+    {
+     "label": "العناية بالقسطرة البولية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 421
+    },
+    {
+     "label": "العناية بفتحة القصبة الهوائية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 430
+    },
+    {
+     "label": "جلسات أكسجين منزلي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 422
+    },
+    {
+     "label": "رعاية ما بعد العمليات الجراحية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 426
+    },
+    {
+     "label": "مرافقة ورعاية كبار السن",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 430
+    },
+    {
+     "label": "العناية بالأم وحديثي الولادة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 425
+    },
+    {
+     "label": "العناية المركزة بالمنزل (ICU)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 418
+    },
+    {
+     "label": "غسيل كلى منزلي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 419
+    },
+    {
+     "label": "علاج النطق والتخاطب",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 428
+    },
+    {
+     "label": "استشارة الرضاعة الطبيعية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 418
+    },
+    {
+     "label": "حقنة عضلية بالمنزل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 437
+    },
+    {
+     "label": "حقنة وريدية / تركيب كانولا",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 428
+    },
+    {
+     "label": "محاليل وريدية وفيتامينات بالمنزل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 437
+    },
+    {
+     "label": "جرعات مضاد حيوي وريدي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 427
+    },
+    {
+     "label": "تغيير على الجروح",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 419
+    },
+    {
+     "label": "العناية بقرح الفراش",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 425
+    },
+    {
+     "label": "العناية بالقدم السكرية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 435
+    },
+    {
+     "label": "إزالة الغرز الجراحية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 414
+    },
+    {
+     "label": "تركيب / تغيير قسطرة بولية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 418
+    },
+    {
+     "label": "العناية بأنبوب التغذية (NG)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 435
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 25
+   }
+  },
+  {
+   "route": "/[locale]/nursing/booking",
+   "url": "/ar/nursing/booking",
+   "landed": "/ar/nursing/catalog",
+   "time_to_ready_ms": 4031,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "احجز الآن",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 436
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/nursing/insurance-status",
+   "url": "/ar/nursing/insurance-status",
+   "landed": "/ar/nursing/insurance-status",
+   "time_to_ready_ms": 946,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "زياراتي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 418
+    },
+    {
+     "label": "فتح التتبع الحي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 420
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 2
+   }
+  },
+  {
+   "route": "/[locale]/nursing/visits",
+   "url": "/ar/nursing/visits",
+   "landed": "/ar/nursing/visits",
+   "time_to_ready_ms": 1306,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "استعرض خدمات التمريض",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 438
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/welcome",
+   "url": "/ar/welcome",
+   "landed": "/ar/welcome",
+   "time_to_ready_ms": 497,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "Toggle theme",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 430
+    },
+    {
+     "label": "اللغة: AR",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 439
+    },
+    {
+     "label": "الاستمرار بدون تسجيل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 428
+    },
+    {
+     "label": "إنشاء حساب",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 422
+    },
+    {
+     "label": "تسجيل الدخول",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 415
+    },
+    {
+     "label": "G",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 470
+    },
+    {
+     "label": "A",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 422
+    },
+    {
+     "label": "S",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 420
+    },
+    {
+     "label": "X",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 417
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 9
+   }
+  },
+  {
+   "route": "/[locale]/onboarding",
+   "url": "/ar/onboarding",
+   "landed": "/ar/onboarding",
+   "time_to_ready_ms": 884,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "●",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 423
+    },
+    {
+     "label": "○",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 450
+    },
+    {
+     "label": "السابق",
+     "result": "TAP_FAILED",
+     "error": "Locator.click: Timeout 3000ms exceeded.\nCall log:\n  - waiting for locator(\"main "
+    },
+    {
+     "label": "التالي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 433
+    },
+    {
+     "label": "متابعة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 421
+    },
+    {
+     "label": "تخطي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 422
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 5,
+    "TAP_FAILED": 1
+   }
+  },
+  {
+   "route": "/[locale]/onboarding/permissions",
+   "url": "/ar/onboarding/permissions",
+   "landed": "/ar/onboarding/permissions",
+   "time_to_ready_ms": 854,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "السماح بالموقع",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 408
+    },
+    {
+     "label": "السماح بالإشعارات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 426
+    },
+    {
+     "label": "ابدأ",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 404
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 3
+   }
+  },
+  {
+   "route": "/[locale]/onboarding/language",
+   "url": "/ar/onboarding/language",
+   "landed": "/ar/onboarding/language",
+   "time_to_ready_ms": 854,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العربية",
+     "result": "SKIPPED_DESTRUCTIVE"
+    },
+    {
+     "label": "متابعة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 427
+    }
+   ],
+   "summary": {
+    "SKIPPED_DESTRUCTIVE": 1,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/reports",
+   "url": "/ar/reports",
+   "landed": "/ar/reports",
+   "time_to_ready_ms": 879,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [],
+   "summary": {}
+  },
+  {
+   "route": "/[locale]/reports/timeline",
+   "url": "/ar/reports/timeline",
+   "landed": "/ar/reports/timeline",
+   "time_to_ready_ms": 921,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "التقارير",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 422
+    },
+    {
+     "label": "الكل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 431
+    },
+    {
+     "label": "مواعيد",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 420
+    },
+    {
+     "label": "تحاليل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 430
+    },
+    {
+     "label": "وصفات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 417
+    },
+    {
+     "label": "قياسات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 425
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 6
+   }
+  },
+  {
+   "route": "/[locale]/reports/ai-analysis",
+   "url": "/ar/reports/ai-analysis",
+   "landed": "/ar/ai/report",
+   "time_to_ready_ms": 1462,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "تحليل",
+     "result": "TAP_FAILED",
+     "error": "Locator.click: Timeout 3000ms exceeded.\nCall log:\n  - waiting for locator(\"main "
+    }
+   ],
+   "summary": {
+    "TAP_FAILED": 1
+   }
+  },
+  {
+   "route": "/[locale]/reports/passport",
+   "url": "/ar/reports/passport",
+   "landed": "/ar/reports/passport",
+   "time_to_ready_ms": 902,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "التقارير",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 426
+    },
+    {
+     "label": "نسخ",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 425
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 2
+   }
+  },
+  {
+   "route": "/[locale]/privacy",
+   "url": "/ar/privacy",
+   "landed": "/ar/privacy",
+   "time_to_ready_ms": 831,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 441
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/appointments",
+   "url": "/ar/appointments",
+   "landed": "/ar/appointments",
+   "time_to_ready_ms": 517,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "استكشف التخصصات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 439
+    },
+    {
+     "label": "القادمة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 442
+    },
+    {
+     "label": "السابقة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 436
+    },
+    {
+     "label": "استشارة مرئية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 430
+    },
+    {
+     "label": "زيارة عيادة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 426
+    },
+    {
+     "label": "زيارة منزلية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 426
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 6
+   }
+  },
+  {
+   "route": "/[locale]/password-reset",
+   "url": "/ar/password-reset",
+   "landed": "/ar/password-reset",
+   "time_to_ready_ms": 876,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "العودة إلى الدخول",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 436
+    },
+    {
+     "label": "تعيين كلمة المرور",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 409
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 2
+   }
+  },
+  {
+   "route": "/[locale]/pharmacy",
+   "url": "/ar/pharmacy",
+   "landed": "/ar/c",
+   "time_to_ready_ms": 2240,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "بحث",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 428
+    },
+    {
+     "label": "الكل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 425
+    },
+    {
+     "label": "أدوية وعلاجات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 415
+    },
+    {
+     "label": "عناية بالشعر",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 417
+    },
+    {
+     "label": "مكياج وإكسسوارات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 416
+    },
+    {
+     "label": "العناية بالبشرة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 415
+    },
+    {
+     "label": "الأم والطفل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 479
+    },
+    {
+     "label": "فيتامينات ومكملات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 420
+    },
+    {
+     "label": "عناية شخصية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 425
+    },
+    {
+     "label": "استعراض جميع الأدوية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 431
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 10
+   }
+  },
+  {
+   "route": "/[locale]/pharmacy/reorder",
+   "url": "/ar/pharmacy/reorder",
+   "landed": "/ar/pharmacy/reorder",
+   "time_to_ready_ms": 864,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى البداية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 432
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/pharmacy/request",
+   "url": "/ar/pharmacy/request",
+   "landed": "/ar/pharmacy/request",
+   "time_to_ready_ms": 845,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "بث الطلب وطلب عروض",
+     "result": "SKIPPED_DESTRUCTIVE"
+    }
+   ],
+   "summary": {
+    "SKIPPED_DESTRUCTIVE": 1
+   }
+  },
+  {
+   "route": "/[locale]/pharmacy/manual-order",
+   "url": "/ar/pharmacy/manual-order",
+   "landed": "/ar/pharmacy/request",
+   "time_to_ready_ms": 1580,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "بث الطلب وطلب عروض",
+     "result": "SKIPPED_DESTRUCTIVE"
+    }
+   ],
+   "summary": {
+    "SKIPPED_DESTRUCTIVE": 1
+   }
+  },
+  {
+   "route": "/[locale]/pharmacy/scan-prescription",
+   "url": "/ar/pharmacy/scan-prescription",
+   "landed": "/ar/pharmacy/scan-prescription",
+   "time_to_ready_ms": 903,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [],
+   "summary": {}
+  },
+  {
+   "route": "/[locale]/pharmacy/insurance-decision",
+   "url": "/ar/pharmacy/insurance-decision",
+   "landed": "/ar/pharmacy/insurance-decision",
+   "time_to_ready_ms": 855,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى البداية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 427
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/pharmacy/order-confirm",
+   "url": "/ar/pharmacy/order-confirm",
+   "landed": "/ar/pharmacy/order-confirm",
+   "time_to_ready_ms": 856,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "← الصيدلية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 443
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/pharmacy/chat",
+   "url": "/ar/pharmacy/chat",
+   "landed": "/ar/pharmacy/chat",
+   "time_to_ready_ms": 971,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى البداية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 437
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/pharmacy/payment",
+   "url": "/ar/pharmacy/payment",
+   "landed": "/ar/pharmacy/payment",
+   "time_to_ready_ms": 898,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى البداية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 422
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/pharmacy/barcode",
+   "url": "/ar/pharmacy/barcode",
+   "landed": "/ar/pharmacy/barcode",
+   "time_to_ready_ms": 888,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "الصيدلية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 431
+    },
+    {
+     "label": "بحث",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 431
+    },
+    {
+     "label": "صوّر عبوة الدواء للتعرف عليها",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 420
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 3
+   }
+  },
+  {
+   "route": "/[locale]/pharmacy/filters",
+   "url": "/ar/pharmacy/filters",
+   "landed": "/ar/pharmacy/filters",
+   "time_to_ready_ms": 929,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "← العودة للأدوية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 419
+    },
+    {
+     "label": "إعادة تعيين",
+     "result": "SKIPPED_DESTRUCTIVE"
+    },
+    {
+     "label": "الأكثر صلة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 426
+    },
+    {
+     "label": "السعر: من الأقل للأعلى",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 420
+    },
+    {
+     "label": "السعر: من الأعلى للأقل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 418
+    },
+    {
+     "label": "الأحدث إضافةً",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 433
+    },
+    {
+     "label": "الكل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 612
+    },
+    {
+     "label": "(icon #7)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 417
+    },
+    {
+     "label": "أقراص",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 423
+    },
+    {
+     "label": "كبسولات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 431
+    },
+    {
+     "label": "شراب",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 420
+    },
+    {
+     "label": "حقن",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 423
+    },
+    {
+     "label": "كريم / مرهم",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 425
+    },
+    {
+     "label": "نقط",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 420
+    },
+    {
+     "label": "تطبيق الفلاتر (1)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 435
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 14,
+    "SKIPPED_DESTRUCTIVE": 1
+   }
+  },
+  {
+   "route": "/[locale]/pharmacy/rx-order",
+   "url": "/ar/pharmacy/rx-order",
+   "landed": "/ar/pharmacy/rx-order",
+   "time_to_ready_ms": 869,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "← الصيدلية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 424
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/pharmacy/custom-item",
+   "url": "/ar/pharmacy/custom-item",
+   "landed": "/ar/pharmacy/request",
+   "time_to_ready_ms": 1575,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "بث الطلب وطلب عروض",
+     "result": "SKIPPED_DESTRUCTIVE"
+    }
+   ],
+   "summary": {
+    "SKIPPED_DESTRUCTIVE": 1
+   }
+  },
+  {
+   "route": "/[locale]/pharmacy/interactions",
+   "url": "/ar/pharmacy/interactions",
+   "landed": "/ar/pharmacy/interactions",
+   "time_to_ready_ms": 1054,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "الصيدلية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 435
+    },
+    {
+     "label": "إضافة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 441
+    },
+    {
+     "label": "فحص التفاعلات",
+     "result": "TAP_FAILED",
+     "error": "Locator.click: Timeout 3000ms exceeded.\nCall log:\n  - waiting for locator(\"main "
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 2,
+    "TAP_FAILED": 1
+   }
+  },
+  {
+   "route": "/[locale]/pharmacy/waiting-for-pharmacy",
+   "url": "/ar/pharmacy/waiting-for-pharmacy",
+   "landed": "/ar/pharmacy/waiting-for-pharmacy",
+   "time_to_ready_ms": 850,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى البداية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 418
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/pharmacy/drug-not-found",
+   "url": "/ar/pharmacy/drug-not-found",
+   "landed": "/ar/pharmacy/request",
+   "time_to_ready_ms": 1551,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "بث الطلب وطلب عروض",
+     "result": "SKIPPED_DESTRUCTIVE"
+    }
+   ],
+   "summary": {
+    "SKIPPED_DESTRUCTIVE": 1
+   }
+  },
+  {
+   "route": "/[locale]/pharmacy/final-quote",
+   "url": "/ar/pharmacy/final-quote",
+   "landed": "/ar/pharmacy/final-quote",
+   "time_to_ready_ms": 1140,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى البداية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 419
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/pharmacy/broadcast-status",
+   "url": "/ar/pharmacy/broadcast-status",
+   "landed": "/ar/pharmacy/broadcast-status",
+   "time_to_ready_ms": 890,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى البداية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 420
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/medicine-catalog",
+   "url": "/ar/medicine-catalog",
+   "landed": "/ar/medicine-catalog",
+   "time_to_ready_ms": 869,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "فاحص تفاعلات الأدوية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 443
+    },
+    {
+     "label": "بحث",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 456
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 2
+   }
+  },
+  {
+   "route": "/[locale]/dashboard",
+   "url": "/ar/dashboard",
+   "landed": "/ar/dashboard",
+   "time_to_ready_ms": 884,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الإشعارات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 427
+    },
+    {
+     "label": "ملفي الصحي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 436
+    },
+    {
+     "label": "مواعيدي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 435
+    },
+    {
+     "label": "الأدوية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 428
+    },
+    {
+     "label": "الفحوصات التشخيصية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 412
+    },
+    {
+     "label": "طلباتي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 419
+    },
+    {
+     "label": "ملخص الصحة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 410
+    },
+    {
+     "label": "الرعاية المنزلية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 418
+    },
+    {
+     "label": "تذكيرات الدواء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 417
+    },
+    {
+     "label": "الوصفات الطبية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 425
+    },
+    {
+     "label": "العائلة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 421
+    },
+    {
+     "label": "المحادثات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 428
+    },
+    {
+     "label": "بحث",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 424
+    },
+    {
+     "label": "العروض",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 430
+    },
+    {
+     "label": "البرامج الصحية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 431
+    },
+    {
+     "label": "الإرجاع",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 430
+    },
+    {
+     "label": "المجتمع",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 415
+    },
+    {
+     "label": "التغذية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 426
+    },
+    {
+     "label": "الأمومة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 444
+    },
+    {
+     "label": "الفرز الذكي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 427
+    },
+    {
+     "label": "التقارير",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 412
+    },
+    {
+     "label": "الولاء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 410
+    },
+    {
+     "label": "الدعم",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 434
+    },
+    {
+     "label": "الطوارئ",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 411
+    },
+    {
+     "label": "الإعدادات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 417
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 25
+   }
+  },
+  {
+   "route": "/[locale]/wishlist",
+   "url": "/ar/wishlist",
+   "landed": "/ar/wishlist",
+   "time_to_ready_ms": 821,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "ابدأ التسوق",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 415
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/medicines",
+   "url": "/ar/medicines",
+   "landed": "/ar/medicines",
+   "time_to_ready_ms": 842,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "بحث",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 440
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/medicines/compare",
+   "url": "/ar/medicines/compare",
+   "landed": "/ar/medicines/compare",
+   "time_to_ready_ms": 533,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الأدوية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 419
+    },
+    {
+     "label": "تصفح الأدوية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 416
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 2
+   }
+  },
+  {
+   "route": "/[locale]/diagnostics",
+   "url": "/ar/diagnostics",
+   "landed": "/ar/diagnostics",
+   "time_to_ready_ms": 5897,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "حجوزاتي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 505
+    },
+    {
+     "label": "نتائجي وتقاريري",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 419
+    },
+    {
+     "label": "الباقات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 422
+    },
+    {
+     "label": "السلة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 416
+    },
+    {
+     "label": "حجز مختبر",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 427
+    },
+    {
+     "label": "أشعة سينية - صدر",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 422
+    },
+    {
+     "label": "أشعة الباريوم",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 441
+    },
+    {
+     "label": "التحاليل الطبية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 419
+    },
+    {
+     "label": "الأشعة التشخيصية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 425
+    },
+    {
+     "label": "طلباتي ونتائجي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 434
+    },
+    {
+     "label": "تحقق من التغطية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 449
+    },
+    {
+     "label": "Clear search",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 431
+    },
+    {
+     "label": "سحب عينة منزلي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 423
+    },
+    {
+     "label": "زيارة المختبر",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 430
+    },
+    {
+     "label": "الكل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 423
+    },
+    {
+     "label": "فيتامين د",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 411
+    },
+    {
+     "label": "سكر الدم والتراكمي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 423
+    },
+    {
+     "label": "الغدة الدرقية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 428
+    },
+    {
+     "label": "الدهون والكوليسترول",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 422
+    },
+    {
+     "label": "صورة الدم CBC",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 429
+    },
+    {
+     "label": "فحص الحمل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 429
+    },
+    {
+     "label": "وظائف الكبد والكلى",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 427
+    },
+    {
+     "label": "عرض جميع الفحوصات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 424
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 23
+   }
+  },
+  {
+   "route": "/[locale]/diagnostics/technician-tracking",
+   "url": "/ar/diagnostics/technician-tracking",
+   "landed": "/ar/diagnostics/technician-tracking",
+   "time_to_ready_ms": 895,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى البداية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 413
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/diagnostics/packages",
+   "url": "/ar/diagnostics/packages",
+   "landed": "/ar/diagnostics/packages",
+   "time_to_ready_ms": 898,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "تطبيق",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 433
+    },
+    {
+     "label": "باقة الصحة العامة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 422
+    },
+    {
+     "label": "باقة الفحص الشامل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 408
+    },
+    {
+     "label": "باقة متابعة السكري",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 415
+    },
+    {
+     "label": "باقة السكري الشاملة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 418
+    },
+    {
+     "label": "باقة الفيتامينات والمعادن",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 420
+    },
+    {
+     "label": "باقة ما قبل الزواج",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 410
+    },
+    {
+     "label": "باقة التعب والإرهاق",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 473
+    },
+    {
+     "label": "باقة الحمل المتقدمة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 418
+    },
+    {
+     "label": "باقة الغدة الدرقية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 408
+    },
+    {
+     "label": "باقة كبار السن",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 430
+    },
+    {
+     "label": "باقة هرمونات المرأة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 427
+    },
+    {
+     "label": "باقة صحة القلب",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 437
+    },
+    {
+     "label": "باقة صحة المرأة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 424
+    },
+    {
+     "label": "باقة القلب",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 419
+    },
+    {
+     "label": "باقة صحة الرجل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 437
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 16
+   }
+  },
+  {
+   "route": "/[locale]/diagnostics/radiology",
+   "url": "/ar/diagnostics/radiology",
+   "landed": "/ar/diagnostics/radiology",
+   "time_to_ready_ms": 834,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 438
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 420
+    },
+    {
+     "label": "(icon #2)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 424
+    },
+    {
+     "label": "تطبيق الفلاتر",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 432
+    },
+    {
+     "label": "أشعة سينية - صدر",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 426
+    },
+    {
+     "label": "سونار بطن وحوض",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 417
+    },
+    {
+     "label": "سونار حمل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 432
+    },
+    {
+     "label": "موجات صوتية - حمل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 434
+    },
+    {
+     "label": "أشعة سينية - عمود فقري",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 437
+    },
+    {
+     "label": "أشعة سينية - ركبة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 454
+    },
+    {
+     "label": "أشعة سينية - بطن",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 429
+    },
+    {
+     "label": "سونار كلى ومثانة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 437
+    },
+    {
+     "label": "رنين مغناطيسي - قطني",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 428
+    },
+    {
+     "label": "سونار ثدي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 460
+    },
+    {
+     "label": "أشعة مقطعية - مخ",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 417
+    },
+    {
+     "label": "سونار نسائي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 421
+    },
+    {
+     "label": "سونار غدة درقية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 422
+    },
+    {
+     "label": "بانوراما الأسنان",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 442
+    },
+    {
+     "label": "دوبلر أوردة الساقين",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 427
+    },
+    {
+     "label": "رنين مغناطيسي - مخ",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 411
+    },
+    {
+     "label": "أشعة سينية - حوض",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 427
+    },
+    {
+     "label": "أشعة مقطعية - صدر",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 437
+    },
+    {
+     "label": "رنين مغناطيسي - ركبة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 417
+    },
+    {
+     "label": "أشعة مقطعية - بطن بالصبغة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 422
+    },
+    {
+     "label": "أشعة سينية - جيوب أنفية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 430
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 25
+   }
+  },
+  {
+   "route": "/[locale]/diagnostics/booking-success",
+   "url": "/ar/diagnostics/booking-success",
+   "landed": "/ar/diagnostics/booking-success",
+   "time_to_ready_ms": 881,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى البداية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 432
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/diagnostics/insurance-upload",
+   "url": "/ar/diagnostics/insurance-upload",
+   "landed": "/ar/diagnostics/insurance-upload",
+   "time_to_ready_ms": 863,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى البداية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 430
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/diagnostics/test-detail",
+   "url": "/ar/diagnostics/test-detail",
+   "landed": "/ar/diagnostics/test-detail",
+   "time_to_ready_ms": 885,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى البداية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 413
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/diagnostics/lab-comparison",
+   "url": "/ar/diagnostics/lab-comparison",
+   "landed": "/ar/diagnostics/lab-comparison",
+   "time_to_ready_ms": 459,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "التحاليل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 430
+    },
+    {
+     "label": "السلة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 413
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 2
+   }
+  },
+  {
+   "route": "/[locale]/diagnostics/upload-rx",
+   "url": "/ar/diagnostics/upload-rx",
+   "landed": "/ar/pharmacy/scan-prescription",
+   "time_to_ready_ms": 1453,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [],
+   "summary": {}
+  },
+  {
+   "route": "/[locale]/diagnostics/search",
+   "url": "/ar/diagnostics/search",
+   "landed": "/ar/diagnostics/search",
+   "time_to_ready_ms": 965,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "التحاليل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 434
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/diagnostics/checkout",
+   "url": "/ar/diagnostics/checkout",
+   "landed": "/ar/diagnostics/checkout",
+   "time_to_ready_ms": 581,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "السلة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 430
+    },
+    {
+     "label": "تصفح التحاليل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 418
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 2
+   }
+  },
+  {
+   "route": "/[locale]/diagnostics/results",
+   "url": "/ar/diagnostics/results",
+   "landed": "/ar/diagnostics/results",
+   "time_to_ready_ms": 595,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى الفحوصات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 415
+    },
+    {
+     "label": "5d0415d1-e596-4f22-829c-88ab660363e0",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 418
+    },
+    {
+     "label": "8e6f697f-7a18-449e-a01f-8647749ea80b",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 426
+    },
+    {
+     "label": "d1c96b65-6aa5-4374-8a92-c8fbc7269f4a",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 418
+    },
+    {
+     "label": "796818f7-e91c-4b1a-8dbe-ff544eacf3de",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 423
+    },
+    {
+     "label": "4c16aebd-38b3-49ec-a9e2-212efb6c8c85",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 437
+    },
+    {
+     "label": "7a500662-c669-4d7b-a4da-6292bf6ea413",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 421
+    },
+    {
+     "label": "4e9a90ea-4099-4afc-8fdb-6c297115a6da",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 425
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 8
+   }
+  },
+  {
+   "route": "/[locale]/diagnostics/cart",
+   "url": "/ar/diagnostics/cart",
+   "landed": "/ar/diagnostics/cart",
+   "time_to_ready_ms": 883,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى الفحوصات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 407
+    },
+    {
+     "label": "تصفح التحاليل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 411
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 2
+   }
+  },
+  {
+   "route": "/[locale]/diagnostics/book-sample",
+   "url": "/ar/diagnostics/book-sample",
+   "landed": "/ar/diagnostics/cart",
+   "time_to_ready_ms": 1509,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى الفحوصات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 439
+    },
+    {
+     "label": "تصفح التحاليل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 430
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 2
+   }
+  },
+  {
+   "route": "/[locale]/diagnostics/labs",
+   "url": "/ar/diagnostics/labs",
+   "landed": "/ar/diagnostics/labs",
+   "time_to_ready_ms": 631,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 468
+    },
+    {
+     "label": "تطبيق",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 439
+    },
+    {
+     "label": "تحليل دم شامل (CBC)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 450
+    },
+    {
+     "label": "باقة الصحة العامة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 443
+    },
+    {
+     "label": "فيتامين د (25-OH)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 442
+    },
+    {
+     "label": "باقة الفحص الشامل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 462
+    },
+    {
+     "label": "تحليل دم شامل CBC",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 487
+    },
+    {
+     "label": "سكر تراكمي (HbA1c)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 437
+    },
+    {
+     "label": "سكر صائم (FBS)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 437
+    },
+    {
+     "label": "فيتامين D",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 430
+    },
+    {
+     "label": "هرمون الغدة الدرقية (TSH)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 430
+    },
+    {
+     "label": "باقة متابعة السكري",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 450
+    },
+    {
+     "label": "دهنيات الدم (Lipid Profile)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 445
+    },
+    {
+     "label": "سكر صائم FBS",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 440
+    },
+    {
+     "label": "باقة السكري الشاملة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 438
+    },
+    {
+     "label": "باقة الفيتامينات والمعادن",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 442
+    },
+    {
+     "label": "تحليل بول كامل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 434
+    },
+    {
+     "label": "سكر تراكمي HbA1c",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 442
+    },
+    {
+     "label": "وظائف كلى (كرياتينين + يوريا)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 427
+    },
+    {
+     "label": "الفيريتين (مخزون الحديد)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 488
+    },
+    {
+     "label": "ملف الدهون Lipid",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 459
+    },
+    {
+     "label": "وظائف كبد (ALT + AST)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 434
+    },
+    {
+     "label": "باقة ما قبل الزواج",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 462
+    },
+    {
+     "label": "هرمون الحمل (Beta-hCG)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 437
+    },
+    {
+     "label": "باقة التعب والإرهاق",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 457
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 25
+   }
+  },
+  {
+   "route": "/[locale]/diagnostics/labs/book",
+   "url": "/ar/diagnostics/labs/book",
+   "landed": "/ar/diagnostics/labs/book",
+   "time_to_ready_ms": 1001,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى البداية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 430
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/diagnostics/bookings",
+   "url": "/ar/diagnostics/bookings",
+   "landed": "/ar/diagnostics/bookings",
+   "time_to_ready_ms": 969,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى الفحوصات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 429
+    },
+    {
+     "label": "عرض",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 424
+    },
+    {
+     "label": "رفع تأمين",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 429
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 3
+   }
+  },
+  {
+   "route": "/[locale]/diagnostics/sample-tracking",
+   "url": "/ar/diagnostics/sample-tracking",
+   "landed": "/ar/diagnostics/sample-tracking",
+   "time_to_ready_ms": 857,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى البداية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 418
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/diagnostics/insurance-approval",
+   "url": "/ar/diagnostics/insurance-approval",
+   "landed": "/ar/diagnostics/insurance-approval",
+   "time_to_ready_ms": 843,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى البداية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 416
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/nutrition",
+   "url": "/ar/nutrition",
+   "landed": "/ar/nutrition",
+   "time_to_ready_ms": 840,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "لوحة التحكم",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 429
+    },
+    {
+     "label": "تسجيل وجبة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 431
+    },
+    {
+     "label": "المتتبع اليومي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 422
+    },
+    {
+     "label": "خطة الوجبات الصحية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 432
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 4
+   }
+  },
+  {
+   "route": "/[locale]/nutrition/ai-plan-builder",
+   "url": "/ar/nutrition/ai-plan-builder",
+   "landed": "/ar/nutrition",
+   "time_to_ready_ms": 2137,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "لوحة التحكم",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 428
+    },
+    {
+     "label": "تسجيل وجبة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 412
+    },
+    {
+     "label": "المتتبع اليومي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 428
+    },
+    {
+     "label": "خطة الوجبات الصحية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 420
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 4
+   }
+  },
+  {
+   "route": "/[locale]/nutrition/exercise-plan",
+   "url": "/ar/nutrition/exercise-plan",
+   "landed": "/ar/nutrition/daily-tracker",
+   "time_to_ready_ms": 1477,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "التغذية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 441
+    },
+    {
+     "label": "تسجيل وجبة جديدة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 433
+    },
+    {
+     "label": "خطة الوجبات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 413
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 3
+   }
+  },
+  {
+   "route": "/[locale]/nutrition/food-scanner",
+   "url": "/ar/nutrition/food-scanner",
+   "landed": "/ar/nutrition/log-meal",
+   "time_to_ready_ms": 1611,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "التغذية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 521
+    },
+    {
+     "label": "حفظ الوجبة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 424
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 2
+   }
+  },
+  {
+   "route": "/[locale]/nutrition/calorie-analyzer",
+   "url": "/ar/nutrition/calorie-analyzer",
+   "landed": "/ar/nutrition/log-meal",
+   "time_to_ready_ms": 1528,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "التغذية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 438
+    },
+    {
+     "label": "حفظ الوجبة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 436
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 2
+   }
+  },
+  {
+   "route": "/[locale]/nutrition/body-composition",
+   "url": "/ar/nutrition/body-composition",
+   "landed": "/ar/nutrition/body-target",
+   "time_to_ready_ms": 2234,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 7,
+   "elements": [
+    {
+     "label": "التغذية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 412
+    },
+    {
+     "label": "weight_loss",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 410
+    },
+    {
+     "label": "maintain",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 442
+    },
+    {
+     "label": "muscle_gain",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 430
+    },
+    {
+     "label": "healthy",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 432
+    },
+    {
+     "label": "sedentary",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 431
+    },
+    {
+     "label": "light",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 444
+    },
+    {
+     "label": "moderate",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 438
+    },
+    {
+     "label": "active",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 416
+    },
+    {
+     "label": "very_active",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 439
+    },
+    {
+     "label": "حفظ الأهداف",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 433
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 11
+   }
+  },
+  {
+   "route": "/[locale]/nutrition/body-target",
+   "url": "/ar/nutrition/body-target",
+   "landed": "/ar/nutrition/body-target",
+   "time_to_ready_ms": 1434,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 7,
+   "elements": [
+    {
+     "label": "التغذية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 460
+    },
+    {
+     "label": "weight_loss",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 430
+    },
+    {
+     "label": "maintain",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 433
+    },
+    {
+     "label": "muscle_gain",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 418
+    },
+    {
+     "label": "healthy",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 418
+    },
+    {
+     "label": "sedentary",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 435
+    },
+    {
+     "label": "light",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 420
+    },
+    {
+     "label": "moderate",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 414
+    },
+    {
+     "label": "active",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 418
+    },
+    {
+     "label": "very_active",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 432
+    },
+    {
+     "label": "حفظ الأهداف",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 420
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 11
+   }
+  },
+  {
+   "route": "/[locale]/nutrition/plan",
+   "url": "/ar/nutrition/plan",
+   "landed": "/ar/nutrition/plan",
+   "time_to_ready_ms": 929,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 435
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/nutrition/log-meal",
+   "url": "/ar/nutrition/log-meal",
+   "landed": "/ar/nutrition/log-meal",
+   "time_to_ready_ms": 918,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "التغذية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 440
+    },
+    {
+     "label": "حفظ الوجبة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 437
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 2
+   }
+  },
+  {
+   "route": "/[locale]/nutrition/daily-tracker",
+   "url": "/ar/nutrition/daily-tracker",
+   "landed": "/ar/nutrition/daily-tracker",
+   "time_to_ready_ms": 903,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "التغذية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 443
+    },
+    {
+     "label": "تسجيل وجبة جديدة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 426
+    },
+    {
+     "label": "خطة الوجبات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 410
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 3
+   }
+  },
+  {
+   "route": "/[locale]/nutrition/water-tracker",
+   "url": "/ar/nutrition/water-tracker",
+   "landed": "/ar/nutrition/daily-tracker",
+   "time_to_ready_ms": 1656,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "التغذية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 442
+    },
+    {
+     "label": "تسجيل وجبة جديدة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 427
+    },
+    {
+     "label": "خطة الوجبات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 413
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 3
+   }
+  },
+  {
+   "route": "/[locale]/nutrition/ai-meal-planner",
+   "url": "/ar/nutrition/ai-meal-planner",
+   "landed": "/ar/nutrition/daily-tracker",
+   "time_to_ready_ms": 2137,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "التغذية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 414
+    },
+    {
+     "label": "تسجيل وجبة جديدة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 447
+    },
+    {
+     "label": "خطة الوجبات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 417
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 3
+   }
+  }
+ ]
+}

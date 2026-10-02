@@ -1,0 +1,1812 @@
+{
+ "app": "patient-app",
+ "build": "react-native-web export (not native)",
+ "routes": [
+  {
+   "route": "(auth)/forgot-password",
+   "url": "/forgot-password",
+   "landed": "/forgot-password",
+   "status": "TESTED",
+   "time_to_ready_ms": 663,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": []
+  },
+  {
+   "route": "(auth)/login",
+   "url": "/login",
+   "landed": "/login",
+   "status": "TESTED",
+   "time_to_ready_ms": 1980,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "arrow_forward",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 482
+    },
+    {
+     "label": "visibility",
+     "result": "UI_CHANGE",
+     "response_ms": 435
+    },
+    {
+     "label": "نسيت كلمة المرور؟",
+     "result": "NAVIGATE",
+     "to": "/forgot-password",
+     "response_ms": 853
+    },
+    {
+     "label": "تسجيل الدخول",
+     "result": "UI_CHANGE",
+     "response_ms": 456
+    },
+    {
+     "label": "الدخول برمز التحقق (OTP)",
+     "result": "NAVIGATE",
+     "to": "/otp?phone=%2B966&mode=login",
+     "response_ms": 446
+    },
+    {
+     "label": "",
+     "result": "UI_CHANGE",
+     "response_ms": 532
+    },
+    {
+     "label": "",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 536
+    },
+    {
+     "label": "",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 502
+    },
+    {
+     "label": "سجل الآن",
+     "result": "NAVIGATE",
+     "to": "/register",
+     "response_ms": 501
+    }
+   ]
+  },
+  {
+   "route": "(auth)/otp",
+   "url": "/otp",
+   "landed": "/otp",
+   "status": "TESTED",
+   "time_to_ready_ms": 15388,
+   "ready": false,
+   "not_ready_reason": "0 request(s) in flight, 0 loading, stable=0",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 6,
+   "elements": [
+    {
+     "label": "arrow_forward",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 455
+    },
+    {
+     "label": "تأكيد الرمز",
+     "result": "WRITE",
+     "status": 400,
+     "method": "POST",
+     "url": "/auth/verify-otp",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 9785,
+     "slow": "0 request(s) in flight, 0 loading, stable=1"
+    }
+   ]
+  },
+  {
+   "route": "(auth)/privacy",
+   "url": "/privacy",
+   "landed": "/privacy",
+   "status": "TESTED",
+   "time_to_ready_ms": 2597,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "arrow_forward",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 457
+    },
+    {
+     "label": "󰑐",
+     "result": "UI_CHANGE",
+     "response_ms": 435
+    }
+   ]
+  },
+  {
+   "route": "(auth)/provider-info",
+   "url": "/provider-info",
+   "landed": "/provider-info",
+   "status": "TESTED",
+   "time_to_ready_ms": 2031,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الاستمرار كمريض",
+     "result": "NAVIGATE",
+     "to": "/",
+     "response_ms": 934
+    },
+    {
+     "label": "تسجيل الخروج",
+     "result": "SKIPPED_DESTRUCTIVE"
+    }
+   ]
+  },
+  {
+   "route": "(auth)/register",
+   "url": "/register",
+   "landed": "/register",
+   "status": "TESTED",
+   "time_to_ready_ms": 1989,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 5,
+   "elements": [
+    {
+     "label": "arrow_forward",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 479
+    },
+    {
+     "label": "visibility",
+     "result": "UI_CHANGE",
+     "response_ms": 445
+    },
+    {
+     "label": "(icon #3)",
+     "result": "UI_CHANGE",
+     "response_ms": 457
+    },
+    {
+     "label": "إنشاء الحساب",
+     "result": "UI_CHANGE",
+     "response_ms": 442
+    },
+    {
+     "label": "",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 514
+    },
+    {
+     "label": "",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 437
+    },
+    {
+     "label": "",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 447
+    },
+    {
+     "label": "تسجيل الدخول",
+     "result": "NAVIGATE",
+     "to": "/login",
+     "response_ms": 463
+    }
+   ]
+  },
+  {
+   "route": "(auth)/reset-password",
+   "url": "/reset-password",
+   "landed": "/reset-password",
+   "status": "TESTED",
+   "time_to_ready_ms": 1406,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 3,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 465
+    },
+    {
+     "label": "󰈈",
+     "result": "UI_CHANGE",
+     "response_ms": 455
+    },
+    {
+     "label": "حفظ كلمة المرور",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 436
+    }
+   ]
+  },
+  {
+   "route": "(auth)/terms",
+   "url": "/terms",
+   "landed": "/terms",
+   "status": "TESTED",
+   "time_to_ready_ms": 2620,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 447
+    },
+    {
+     "label": "󰑐",
+     "result": "UI_CHANGE",
+     "response_ms": 458
+    }
+   ]
+  },
+  {
+   "route": "(auth)/welcome",
+   "url": "/welcome",
+   "landed": "/welcome",
+   "status": "TESTED",
+   "time_to_ready_ms": 2048,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 463
+    },
+    {
+     "label": "language",
+     "result": "UI_CHANGE",
+     "response_ms": 477
+    },
+    {
+     "label": "تسجيل",
+     "result": "UI_CHANGE",
+     "response_ms": 1326
+    },
+    {
+     "label": "تسجيل دخول",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "المتابعة كضيف (بدون حساب)",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "",
+     "result": "NAVIGATE",
+     "to": "/login",
+     "response_ms": 527
+    },
+    {
+     "label": "",
+     "result": "NAVIGATE",
+     "to": "/login",
+     "response_ms": 519
+    },
+    {
+     "label": "",
+     "result": "NAVIGATE",
+     "to": "/login",
+     "response_ms": 506
+    }
+   ]
+  },
+  {
+   "route": "(onboarding)/index",
+   "url": "/",
+   "landed": "/",
+   "status": "TESTED",
+   "time_to_ready_ms": 2546,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": []
+  },
+  {
+   "route": "(onboarding)/language",
+   "url": "/language",
+   "landed": "/language",
+   "status": "TESTED",
+   "time_to_ready_ms": 568,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": []
+  },
+  {
+   "route": "(onboarding)/permissions",
+   "url": "/permissions",
+   "landed": "/permissions",
+   "status": "TESTED",
+   "time_to_ready_ms": 1369,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰂚",
+     "result": "UI_CHANGE",
+     "response_ms": 468
+    },
+    {
+     "label": "󰄀",
+     "result": "UI_CHANGE",
+     "response_ms": 449
+    },
+    {
+     "label": "󰍎",
+     "result": "UI_CHANGE",
+     "response_ms": 449
+    },
+    {
+     "label": "󰗶",
+     "result": "UI_CHANGE",
+     "response_ms": 754
+    },
+    {
+     "label": "जारी रखें",
+     "result": "NAVIGATE",
+     "to": "/welcome",
+     "response_ms": 2235
+    },
+    {
+     "label": "تخطي الآن",
+     "result": "NAVIGATE",
+     "to": "/welcome",
+     "response_ms": 852
+    }
+   ]
+  },
+  {
+   "route": "(tabs)/consultations/index",
+   "url": "/consultations",
+   "landed": "/consultations",
+   "status": "TESTED",
+   "time_to_ready_ms": 500,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": []
+  },
+  {
+   "route": "(tabs)/diagnostics",
+   "url": "/diagnostics",
+   "landed": "/diagnostics",
+   "status": "TESTED",
+   "time_to_ready_ms": 7315,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "󰧮",
+     "result": "NAVIGATE",
+     "to": "/diagnostics/orders",
+     "response_ms": 2890
+    },
+    {
+     "label": "󰅙",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "󰘮",
+     "result": "UI_CHANGE",
+     "response_ms": 539
+    },
+    {
+     "label": "󰂖",
+     "result": "UI_CHANGE",
+     "response_ms": 516
+    },
+    {
+     "label": "󱓆",
+     "result": "UI_CHANGE",
+     "response_ms": 466
+    },
+    {
+     "label": "󰮧",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 434
+    },
+    {
+     "label": "󰿷",
+     "result": "UI_CHANGE",
+     "response_ms": 4492
+    },
+    {
+     "label": "بدلیں",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "󰕥",
+     "result": "NAVIGATE",
+     "to": "/diagnostics/insurance-upload",
+     "response_ms": 831
+    },
+    {
+     "label": "सभी देखें",
+     "result": "NAVIGATE",
+     "to": "/diagnostics/packages",
+     "response_ms": 916
+    },
+    {
+     "label": "सबसे अधिक अनुरोधित",
+     "result": "NAVIGATE",
+     "to": "/diagnostics/package-detail?id=834c1dc5-9fbd-4341-82a5-e12863446ffa&serviceType=home",
+     "response_ms": 1751
+    },
+    {
+     "label": "Thyroid Package",
+     "result": "NAVIGATE",
+     "to": "/diagnostics/package-detail?id=PKG_THYROID&serviceType=home",
+     "response_ms": 1420
+    },
+    {
+     "label": "Seniors Package",
+     "result": "NAVIGATE",
+     "to": "/diagnostics/package-detail?id=PKG_SENIORS&serviceType=home",
+     "response_ms": 1554
+    },
+    {
+     "label": "Women Hormones Package",
+     "result": "NAVIGATE",
+     "to": "/diagnostics/package-detail?id=e8d1fb4f-1b9b-4ca7-9f3a-33e4d571f354&serviceType=home",
+     "response_ms": 1477
+    },
+    {
+     "label": "Heart Health Package",
+     "result": "NAVIGATE",
+     "to": "/diagnostics/package-detail?id=PKG_HEART&serviceType=home",
+     "response_ms": 1445
+    },
+    {
+     "label": "Women Health Package",
+     "result": "NAVIGATE",
+     "to": "/diagnostics/package-detail?id=PKG_WOMEN&serviceType=home",
+     "response_ms": 1726
+    },
+    {
+     "label": "Cardiac Package",
+     "result": "NAVIGATE",
+     "to": "/diagnostics/package-detail?id=593eff7e-c5f8-4bb6-8b78-09a63eca7043&serviceType=home",
+     "response_ms": 1434
+    },
+    {
+     "label": "Men Health Package",
+     "result": "NAVIGATE",
+     "to": "/diagnostics/package-detail?id=PKG_WOMEN&serviceType=home",
+     "response_ms": 1433
+    },
+    {
+     "label": "Complete Blood Count",
+     "result": "NAVIGATE",
+     "to": "/diagnostics/test-detail?id=2f227444-b928-40ee-8308-8cc8cc3ac9fb",
+     "response_ms": 1383
+    },
+    {
+     "label": "󰄒",
+     "result": "NAVIGATE",
+     "to": "/diagnostics/test-detail?id=2f227444-b928-40ee-8308-8cc8cc3ac9fb",
+     "response_ms": 1466
+    },
+    {
+     "label": "General Wellness Package",
+     "result": "NAVIGATE",
+     "to": "/diagnostics/package-detail?id=PKG_GENERAL&serviceType=home",
+     "response_ms": 1978
+    },
+    {
+     "label": "Vitamin D (25-OH)",
+     "result": "NAVIGATE",
+     "to": "/diagnostics/test-detail?id=b0677806-b8c5-48db-bd46-03de16742ce7",
+     "response_ms": 1376
+    },
+    {
+     "label": "Comprehensive Health Package",
+     "result": "NAVIGATE",
+     "to": "/diagnostics/package-detail?id=834c1dc5-9fbd-4341-82a5-e12863446ffa&serviceType=home",
+     "response_ms": 1424
+    },
+    {
+     "label": "(time budget reached)",
+     "result": "NOT_TESTED"
+    }
+   ]
+  },
+  {
+   "route": "(tabs)/health",
+   "url": "/health",
+   "landed": "/health",
+   "status": "TESTED",
+   "time_to_ready_ms": 3217,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰐲",
+     "result": "NAVIGATE",
+     "to": "/health/health-id",
+     "response_ms": 846
+    },
+    {
+     "label": "󰏫",
+     "result": "NAVIGATE",
+     "to": "/health/edit-profile",
+     "response_ms": 841
+    },
+    {
+     "label": "󰗶",
+     "result": "NAVIGATE",
+     "to": "/health/vitals",
+     "response_ms": 835
+    },
+    {
+     "label": "󰐂",
+     "result": "NAVIGATE",
+     "to": "/health/medications",
+     "response_ms": 1374
+    },
+    {
+     "label": "󰈙",
+     "result": "NAVIGATE",
+     "to": "/health/reports",
+     "response_ms": 827
+    },
+    {
+     "label": "󰡉",
+     "result": "NAVIGATE",
+     "to": "/health/family-hub",
+     "response_ms": 1377
+    },
+    {
+     "label": "󰭹",
+     "result": "NAVIGATE",
+     "to": "/family/chat",
+     "response_ms": 1449
+    },
+    {
+     "label": "󰂚",
+     "result": "NAVIGATE",
+     "to": "/health/medication-reminder-list",
+     "response_ms": 1368
+    },
+    {
+     "label": "󰔸",
+     "result": "NAVIGATE",
+     "to": "/loyalty/hub",
+     "response_ms": 2668
+    },
+    {
+     "label": "स्वास्थ्य स्कोर",
+     "result": "NAVIGATE",
+     "to": "/health/vitals",
+     "response_ms": 856
+    },
+    {
+     "label": "सभी देखें",
+     "result": "NAVIGATE",
+     "to": "/health/vitals",
+     "response_ms": 856
+    },
+    {
+     "label": "󰅁",
+     "result": "NAVIGATE",
+     "to": "/nursing",
+     "response_ms": 854
+    },
+    {
+     "label": "सभी",
+     "result": "NAVIGATE",
+     "to": "/consultations/appointments",
+     "response_ms": 520
+    },
+    {
+     "label": "󰩂",
+     "result": "NAVIGATE",
+     "to": "/consultations",
+     "response_ms": 947
+    },
+    {
+     "label": "home",
+     "result": "NAVIGATE",
+     "to": "/",
+     "response_ms": 1519
+    },
+    {
+     "label": "prescriptions",
+     "result": "NAVIGATE",
+     "to": "/pharmacy",
+     "response_ms": 1921
+    },
+    {
+     "label": "stethoscope",
+     "result": "NAVIGATE",
+     "to": "/consultations",
+     "response_ms": 2149
+    },
+    {
+     "label": "science",
+     "result": "NAVIGATE",
+     "to": "/diagnostics",
+     "response_ms": 7574
+    },
+    {
+     "label": "healing",
+     "result": "NAVIGATE",
+     "to": "/nursing",
+     "response_ms": 20629
+    }
+   ]
+  },
+  {
+   "route": "(tabs)/index",
+   "url": "/",
+   "landed": "/",
+   "status": "TESTED",
+   "time_to_ready_ms": 600,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": []
+  },
+  {
+   "route": "(tabs)/nursing",
+   "url": "/nursing",
+   "landed": "/nursing",
+   "status": "TESTED",
+   "time_to_ready_ms": 509,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": []
+  },
+  {
+   "route": "(tabs)/pharmacy",
+   "url": "/pharmacy",
+   "landed": "/pharmacy",
+   "status": "TESTED",
+   "time_to_ready_ms": 571,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": []
+  },
+  {
+   "route": "(tabs)/services",
+   "url": "/services",
+   "landed": "/services",
+   "status": "TESTED",
+   "time_to_ready_ms": 581,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": []
+  },
+  {
+   "route": "ai-assistant",
+   "url": "/ai-assistant",
+   "landed": "/ai-assistant",
+   "status": "TESTED",
+   "time_to_ready_ms": 552,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": []
+  },
+  {
+   "route": "ai/chat-doctor",
+   "url": "/ai/chat-doctor",
+   "landed": "/ai/triage",
+   "status": "TESTED",
+   "time_to_ready_ms": 3264,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "󰁍",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 475
+    },
+    {
+     "label": "छाती में दर्द या दबाव",
+     "result": "UI_CHANGE",
+     "response_ms": 428
+    },
+    {
+     "label": "सांस लेने में कठिनाई",
+     "result": "UI_CHANGE",
+     "response_ms": 444
+    },
+    {
+     "label": "बेहोशी या प्रतिक्रिया न देना",
+     "result": "UI_CHANGE",
+     "response_ms": 452
+    },
+    {
+     "label": "बहुत अधिक रक्तस्राव",
+     "result": "UI_CHANGE",
+     "response_ms": 438
+    },
+    {
+     "label": "नई या अचानक उलझन",
+     "result": "UI_CHANGE",
+     "response_ms": 446
+    },
+    {
+     "label": "गंभीर एलर्जी के संकेत",
+     "result": "UI_CHANGE",
+     "response_ms": 450
+    },
+    {
+     "label": "गंभीर चोट",
+     "result": "UI_CHANGE",
+     "response_ms": 461
+    },
+    {
+     "label": "इनमें से कोई नहीं",
+     "result": "UI_CHANGE",
+     "response_ms": 447
+    },
+    {
+     "label": "मार्गदर्शन देखें",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/ai/triage",
+     "tokens_sent": 1,
+     "tokens_stored": 1,
+     "response_ms": 2313
+    }
+   ]
+  },
+  {
+   "route": "ai/monthly-report",
+   "url": "/ai/monthly-report",
+   "landed": "/ai/monthly-report",
+   "status": "TESTED",
+   "time_to_ready_ms": 509,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": []
+  },
+  {
+   "route": "ai/prescription-translator",
+   "url": "/ai/prescription-translator",
+   "landed": "/ai/prescription-translator",
+   "status": "TESTED",
+   "time_to_ready_ms": 524,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": []
+  },
+  {
+   "route": "ai/skin-analysis",
+   "url": "/ai/skin-analysis",
+   "landed": "/ai/skin-analysis",
+   "status": "TESTED",
+   "time_to_ready_ms": 590,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": []
+  },
+  {
+   "route": "ai/symptom-checker",
+   "url": "/ai/symptom-checker",
+   "landed": "/ai/triage",
+   "status": "TESTED",
+   "time_to_ready_ms": 1979,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "󰁍",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 468
+    },
+    {
+     "label": "छाती में दर्द या दबाव",
+     "result": "UI_CHANGE",
+     "response_ms": 451
+    },
+    {
+     "label": "सांस लेने में कठिनाई",
+     "result": "UI_CHANGE",
+     "response_ms": 440
+    },
+    {
+     "label": "बेहोशी या प्रतिक्रिया न देना",
+     "result": "UI_CHANGE",
+     "response_ms": 438
+    },
+    {
+     "label": "बहुत अधिक रक्तस्राव",
+     "result": "UI_CHANGE",
+     "response_ms": 456
+    },
+    {
+     "label": "नई या अचानक उलझन",
+     "result": "UI_CHANGE",
+     "response_ms": 435
+    },
+    {
+     "label": "गंभीर एलर्जी के संकेत",
+     "result": "UI_CHANGE",
+     "response_ms": 431
+    },
+    {
+     "label": "गंभीर चोट",
+     "result": "UI_CHANGE",
+     "response_ms": 441
+    },
+    {
+     "label": "इनमें से कोई नहीं",
+     "result": "UI_CHANGE",
+     "response_ms": 457
+    },
+    {
+     "label": "मार्गदर्शन देखें",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/ai/triage",
+     "tokens_sent": 1,
+     "tokens_stored": 1,
+     "response_ms": 2659
+    }
+   ]
+  },
+  {
+   "route": "ai/symptom-timeline",
+   "url": "/ai/symptom-timeline",
+   "landed": "/ai/symptom-timeline",
+   "status": "TESTED",
+   "time_to_ready_ms": 493,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": []
+  },
+  {
+   "route": "ai/triage",
+   "url": "/ai/triage",
+   "landed": "/ai/triage",
+   "status": "TESTED",
+   "time_to_ready_ms": 562,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": []
+  },
+  {
+   "route": "articles/[slug]",
+   "status": "NOT_TESTED_DYNAMIC"
+  },
+  {
+   "route": "articles/bookmarks",
+   "url": "/articles/bookmarks",
+   "landed": "/articles/bookmarks",
+   "status": "TESTED",
+   "time_to_ready_ms": 2604,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁍",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 457
+    },
+    {
+     "label": "󰈙",
+     "result": "NAVIGATE",
+     "to": "/articles",
+     "response_ms": 1515
+    }
+   ]
+  },
+  {
+   "route": "articles/index",
+   "url": "/articles",
+   "landed": "/articles",
+   "status": "TESTED",
+   "time_to_ready_ms": 2624,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "󰁍",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 476
+    },
+    {
+     "label": "󰃀",
+     "result": "NAVIGATE",
+     "to": "/articles/bookmarks",
+     "response_ms": 803
+    },
+    {
+     "label": "W3C31602",
+     "result": "NAVIGATE",
+     "to": "/articles/w3c31603",
+     "response_ms": 1429
+    },
+    {
+     "label": "U1593E902",
+     "result": "NAVIGATE",
+     "to": "/articles/u1593e903",
+     "response_ms": 2847
+    },
+    {
+     "label": "U26CC7602",
+     "result": "NAVIGATE",
+     "to": "/articles/u26cc7603",
+     "response_ms": 2567
+    }
+   ]
+  },
+  {
+   "route": "community/hub",
+   "url": "/community/hub",
+   "landed": "/community/hub",
+   "status": "TESTED",
+   "time_to_ready_ms": 2627,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰐕",
+     "result": "UI_CHANGE",
+     "response_ms": 541
+    },
+    {
+     "label": "󰁍",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 451
+    },
+    {
+     "label": "सभी",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 470
+    },
+    {
+     "label": "चिकित्सा लेख",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 486
+    },
+    {
+     "label": "रोगी अनुभव",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 462
+    },
+    {
+     "label": "प्रश्न व उत्तर",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 454
+    },
+    {
+     "label": "category-14952",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 437
+    }
+   ]
+  },
+  {
+   "route": "community/post-detail",
+   "url": "/community/post-detail",
+   "landed": "/community/post-detail",
+   "status": "TESTED",
+   "time_to_ready_ms": 604,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": []
+  },
+  {
+   "route": "consultations/appointment-detail",
+   "url": "/consultations/appointment-detail",
+   "landed": "/consultations/appointment-detail",
+   "status": "TESTED",
+   "time_to_ready_ms": 530,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": []
+  },
+  {
+   "route": "consultations/appointments",
+   "url": "/consultations/appointments",
+   "landed": "/consultations/appointments",
+   "status": "TESTED",
+   "time_to_ready_ms": 593,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": []
+  },
+  {
+   "route": "consultations/book/[id]",
+   "status": "NOT_TESTED_DYNAMIC"
+  },
+  {
+   "route": "consultations/booking-confirm",
+   "url": "/consultations/booking-confirm",
+   "landed": "/consultations/booking-confirm",
+   "status": "TESTED",
+   "time_to_ready_ms": 558,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": []
+  },
+  {
+   "route": "consultations/booking-pending",
+   "url": "/consultations/booking-pending",
+   "landed": "/consultations/booking-pending",
+   "status": "TESTED",
+   "time_to_ready_ms": 646,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": []
+  },
+  {
+   "route": "consultations/booking-status",
+   "url": "/consultations/booking-status",
+   "landed": "/consultations/booking-status",
+   "status": "TESTED",
+   "time_to_ready_ms": 551,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": []
+  },
+  {
+   "route": "consultations/booking-success",
+   "url": "/consultations/booking-success",
+   "landed": "/consultations/booking-status",
+   "status": "TESTED",
+   "time_to_ready_ms": 1556,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁍",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 486
+    },
+    {
+     "label": "󰕧",
+     "result": "UI_CHANGE",
+     "response_ms": 463
+    },
+    {
+     "label": "󰋡",
+     "result": "UI_CHANGE",
+     "response_ms": 446
+    },
+    {
+     "label": "󰋜",
+     "result": "UI_CHANGE",
+     "response_ms": 452
+    },
+    {
+     "label": "󰿯",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 458
+    },
+    {
+     "label": "󰄖",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "󰒘",
+     "result": "UI_CHANGE",
+     "response_ms": 819
+    },
+    {
+     "label": "󰗠",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    }
+   ]
+  },
+  {
+   "route": "consultations/call-history",
+   "url": "/consultations/call-history",
+   "landed": "/consultations/call-history",
+   "status": "TESTED",
+   "time_to_ready_ms": 553,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": []
+  },
+  {
+   "route": "consultations/cancel-reschedule",
+   "url": "/consultations/cancel-reschedule",
+   "landed": "/consultations/cancel-reschedule",
+   "status": "TESTED",
+   "time_to_ready_ms": 1940,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁍",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 448
+    },
+    {
+     "label": "पुनः प्रयास करें",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 431
+    }
+   ]
+  },
+  {
+   "route": "consultations/chat-with-doctor",
+   "url": "/consultations/chat-with-doctor",
+   "landed": "/consultations/chat-with-doctor",
+   "status": "TESTED",
+   "time_to_ready_ms": 2220,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "arrow_forward",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 454
+    }
+   ]
+  },
+  {
+   "route": "consultations/clinic-confirm",
+   "url": "/consultations/clinic-confirm",
+   "landed": "/consultations/clinic-confirm",
+   "status": "TESTED",
+   "time_to_ready_ms": 2641,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰑐",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 462
+    }
+   ]
+  },
+  {
+   "route": "consultations/clinic-location",
+   "url": "/consultations/clinic-location",
+   "landed": "/consultations/clinic-confirm?view=location",
+   "status": "TESTED",
+   "time_to_ready_ms": 1989,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "arrow_forward",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 492
+    },
+    {
+     "label": "directions_car",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 433
+    }
+   ]
+  },
+  {
+   "route": "consultations/clinic/[id]",
+   "status": "NOT_TESTED_DYNAMIC"
+  },
+  {
+   "route": "consultations/doctor-profile",
+   "url": "/consultations/doctor-profile",
+   "landed": "/consultations/doctor-profile",
+   "status": "TESTED",
+   "time_to_ready_ms": 474,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": []
+  },
+  {
+   "route": "consultations/doctor-search",
+   "url": "/consultations/doctor-search",
+   "landed": "/search?view=doctors",
+   "status": "TESTED",
+   "time_to_ready_ms": 2654,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "󰁍",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 463
+    },
+    {
+     "label": "शीर्ष रेटेड",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 434
+    },
+    {
+     "label": "न्यूनतम मूल्य",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 785
+    },
+    {
+     "label": "الأقل انتظاراً",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 772
+    }
+   ]
+  },
+  {
+   "route": "consultations/doctor/[id]",
+   "status": "NOT_TESTED_DYNAMIC"
+  },
+  {
+   "route": "consultations/follow-up",
+   "url": "/consultations/follow-up",
+   "landed": "/consultations/follow-up",
+   "status": "TESTED",
+   "time_to_ready_ms": 1980,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁍",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 464
+    },
+    {
+     "label": "󰑐",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 434
+    },
+    {
+     "label": "वापस",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 436
+    }
+   ]
+  },
+  {
+   "route": "consultations/home-visit-tracking",
+   "url": "/consultations/home-visit-tracking",
+   "landed": "/consultations/home-visit-tracking",
+   "status": "TESTED",
+   "time_to_ready_ms": 1995,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "वापस",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 466
+    }
+   ]
+  },
+  {
+   "route": "consultations/incoming-call",
+   "url": "/consultations/incoming-call",
+   "landed": "/consultations/incoming-call",
+   "status": "TESTED",
+   "time_to_ready_ms": 1989,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰏲",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 461
+    }
+   ]
+  },
+  {
+   "route": "consultations/offer/[id]",
+   "status": "NOT_TESTED_DYNAMIC"
+  },
+  {
+   "route": "consultations/post-call-rating",
+   "url": "/consultations/post-call-rating",
+   "landed": "/consultations/post-call-rating",
+   "status": "TESTED",
+   "time_to_ready_ms": 1371,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "close",
+     "result": "NAVIGATE",
+     "to": "/consultations",
+     "response_ms": 859
+    },
+    {
+     "label": "star",
+     "result": "UI_CHANGE",
+     "response_ms": 459
+    },
+    {
+     "label": "उत्कृष्ट",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 428
+    },
+    {
+     "label": "तेज़",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 434
+    },
+    {
+     "label": "व्यावसायिक",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 432
+    },
+    {
+     "label": "साफ",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 433
+    },
+    {
+     "label": "सहयोगी",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 432
+    },
+    {
+     "label": "अनुशंसित",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 439
+    }
+   ]
+  },
+  {
+   "route": "consultations/prescription-from-doctor",
+   "url": "/consultations/prescription-from-doctor",
+   "landed": "/consultations/prescription-from-doctor",
+   "status": "TESTED",
+   "time_to_ready_ms": 2601,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁍",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 459
+    },
+    {
+     "label": "إضافة الكل للتذكير",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/health/reminders",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 1956
+    },
+    {
+     "label": "󰂚",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "󰃭",
+     "result": "NAVIGATE",
+     "to": "/consultations/follow-up",
+     "response_ms": 465
+    },
+    {
+     "label": "󰄐",
+     "result": "NAVIGATE",
+     "to": "/pharmacy/rx-order?prescriptionId=a89a00cb-910b-4321-8dbb-76bc24acf1cf",
+     "response_ms": 965
+    },
+    {
+     "label": "󰇚",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 474
+    }
+   ]
+  },
+  {
+   "route": "consultations/share-report",
+   "url": "/consultations/share-report",
+   "landed": "/consultations/share-report",
+   "status": "TESTED",
+   "time_to_ready_ms": 2153,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁍",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 459
+    },
+    {
+     "label": "रिपोर्ट्स पर वापस जाएँ",
+     "result": "NAVIGATE",
+     "to": "/reports/hub",
+     "response_ms": 812
+    }
+   ]
+  },
+  {
+   "route": "consultations/specialty-select",
+   "url": "/consultations/specialty-select",
+   "landed": "/consultations/specialty-select",
+   "status": "TESTED",
+   "time_to_ready_ms": 2069,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "󰁍",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 463
+    }
+   ]
+  },
+  {
+   "route": "consultations/summary",
+   "url": "/consultations/summary",
+   "landed": "/consultations/summary",
+   "status": "TESTED",
+   "time_to_ready_ms": 2005,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰑐",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 472
+    }
+   ]
+  },
+  {
+   "route": "consultations/video-call",
+   "url": "/consultations/video-call",
+   "landed": "/consultations/video-call",
+   "status": "TESTED",
+   "time_to_ready_ms": 1607,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰑐",
+     "result": "UI_CHANGE",
+     "response_ms": 513
+    }
+   ]
+  },
+  {
+   "route": "consultations/virtual-waiting-room",
+   "url": "/consultations/virtual-waiting-room",
+   "landed": "/consultations/virtual-waiting-room",
+   "status": "TESTED",
+   "time_to_ready_ms": 2134,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": []
+  },
+  {
+   "route": "consultations/waiting-room",
+   "url": "/consultations/waiting-room",
+   "landed": "/consultations/virtual-waiting-room",
+   "status": "TESTED",
+   "time_to_ready_ms": 1545,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": []
+  }
+ ]
+}

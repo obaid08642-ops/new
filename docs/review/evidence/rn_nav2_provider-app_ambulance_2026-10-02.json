@@ -1,0 +1,515 @@
+{
+ "provider_type": "ambulance",
+ "login_via_ui": true,
+ "build": "rn-web E2E export (not native)",
+ "perf": {
+  "app_boot_to_ready_ms": 824,
+  "login_to_dashboard_ready_ms": 1379,
+  "dashboard_ready": true,
+  "dashboard_not_ready_reason": ""
+ },
+ "screens": [
+  {
+   "route": "home",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 398,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": " مركز مهام الإسعاف | نداءات مفتوحة (0) | لا نداءات حالياً | ابقَ م"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "أسطول الإسعاف",
+     "result": "NAVIGATE",
+     "to": "fleet",
+     "response_ms": 828
+    },
+    {
+     "label": "طلبات التأمين الواردة",
+     "result": "NAVIGATE",
+     "to": "insurance_requests",
+     "response_ms": 829
+    },
+    {
+     "label": "الملف ونطاق التغطية",
+     "result": "NAVIGATE",
+     "to": "profile",
+     "response_ms": 831
+    },
+    {
+     "label": "التوفر الفوري",
+     "result": "NAVIGATE",
+     "to": "availability",
+     "response_ms": 813
+    },
+    {
+     "label": "سجل المهام المكتملة",
+     "result": "NAVIGATE",
+     "to": "history",
+     "response_ms": 813
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 5
+   }
+  },
+  {
+   "route": "fleet",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 739,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ |  أسطول الإسعاف | المركبات تخدم بعد اعتماد الإدارة | كل مركبة ج"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "history",
+     "response_ms": 449
+    },
+    {
+     "label": "إضافة مركبة",
+     "result": "UI_CHANGE",
+     "response_ms": 474
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 1
+   }
+  },
+  {
+   "route": "insurance_requests",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 739,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | طلبات التأمين | مراجعة يدوية قبل تقديم الخدمة | shield | لا توجد"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "fleet",
+     "response_ms": 457
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "profile",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 744,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | الملف ونطاق التغطية | هاتف التواصل | مدن التغطية (افصل بفاصلة)"
+   },
+   "status": "TESTED",
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "fleet",
+     "response_ms": 467
+    },
+    {
+     "label": "هاتف التواصل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 465
+    },
+    {
+     "label": "مدن التغطية (افصل بفاصلة)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 444
+    },
+    {
+     "label": "حفظ الملف",
+     "result": "WRITE",
+     "status": 400,
+     "method": "PATCH",
+     "url": "/provider/profile",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 796
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 2,
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "availability",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 738,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | التوفر الفوري | متاح فورياً للنداءات | 🟢 | مهلة الاستجابة (دقائق"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "profile",
+     "response_ms": 493
+    },
+    {
+     "label": "متاح فورياً للنداءات",
+     "result": "UI_CHANGE",
+     "response_ms": 468
+    },
+    {
+     "label": "مهلة الاستجابة (دقائق)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 463
+    },
+    {
+     "label": "حفظ التوفر",
+     "result": "WRITE",
+     "status": 200,
+     "method": "PATCH",
+     "url": "/provider/profile/availability",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 798
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 1,
+    "NO_EFFECT": 1,
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "history",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 748,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ |  سجل المهام | لا مهام مكتملة بعد | مهامك المنتهية وملخصاتها تظ"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "availability",
+     "response_ms": 452
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "fleet",
+   "ui_path": [
+    "إضافة مركبة"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 1136,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ |  أسطول الإسعاف | المركبات تخدم بعد اعتماد الإدارة | كل مركبة ج"
+   },
+   "status": "TESTED",
+   "inputs_filled": 7,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "home",
+     "response_ms": 513
+    },
+    {
+     "label": "رقم اللوحة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 487
+    },
+    {
+     "label": "الموديل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 473
+    },
+    {
+     "label": "سنة الصنع",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 478
+    },
+    {
+     "label": "عدد المسعفين",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 498
+    },
+    {
+     "label": "مدينة التمركز",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 517
+    },
+    {
+     "label": "التجهيزات (افصل بفاصلة)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 476
+    },
+    {
+     "label": "(icon #7)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 436
+    },
+    {
+     "label": "حفظ",
+     "result": "UI_CHANGE",
+     "response_ms": 489
+    },
+    {
+     "label": "إلغاء",
+     "result": "UI_CHANGE",
+     "response_ms": 492
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 7,
+    "UI_CHANGE": 2
+   }
+  },
+  {
+   "route": "mission",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 407,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "alertTriangle | تعذر تحميل المهمة | لم تُنشأ مهمة محلية بديلة. ع"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى القائمة",
+     "result": "NAVIGATE",
+     "to": "fleet",
+     "response_ms": 438
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "handover",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 399,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ |  تسليم المريض للمستشفى | يتحقق الخادم من معرّف المستشفى المع"
+   },
+   "status": "TESTED",
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "fleet",
+     "response_ms": 465
+    },
+    {
+     "label": "معرّف حساب المستشفى المعتمد *",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 471
+    },
+    {
+     "label": "ملاحظات التسليم",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 449
+    },
+    {
+     "label": "تأكيد التسليم",
+     "result": "UI_CHANGE",
+     "response_ms": 450
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 2,
+    "UI_CHANGE": 1
+   }
+  },
+  {
+   "route": "complete",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 395,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ |  تقرير إنجاز المهمة | نتيجة المهمة * | نُقل للطوارئ | عولج في ال"
+   },
+   "status": "TESTED",
+   "inputs_filled": 4,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "handover",
+     "response_ms": 504
+    },
+    {
+     "label": "نُقل للطوارئ",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 492
+    },
+    {
+     "label": "عولج في الموقع",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 479
+    },
+    {
+     "label": "رفض النقل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 464
+    },
+    {
+     "label": "حالة مستقرة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 463
+    },
+    {
+     "label": "ملخص الحالة والإجراءات *",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 462
+    },
+    {
+     "label": "BP",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 464
+    },
+    {
+     "label": "HR",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 492
+    },
+    {
+     "label": "SpO2",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 487
+    },
+    {
+     "label": "إنهاء المهمة واعتماد التقرير",
+     "result": "UI_CHANGE",
+     "response_ms": 489
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 8,
+    "UI_CHANGE": 1
+   }
+  }
+ ],
+ "registered": [
+  "home",
+  "mission",
+  "handover",
+  "complete",
+  "history",
+  "fleet",
+  "insurance_requests",
+  "profile",
+  "availability"
+ ],
+ "reloads": 11,
+ "coverage": {
+  "registered": 9,
+  "tested_routes": 9,
+  "states_tested": 10,
+  "by_status": {
+   "TESTED": 10
+  },
+  "routes_tested": [
+   "availability",
+   "complete",
+   "fleet",
+   "handover",
+   "history",
+   "home",
+   "insurance_requests",
+   "mission",
+   "profile"
+  ],
+  "not_visited": []
+ }
+}

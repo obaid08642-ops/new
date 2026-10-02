@@ -1,0 +1,240 @@
+{
+ "app": "website",
+ "signed_in": true,
+ "pages": [
+  {
+   "route": "/[locale]/ai/report",
+   "url": "/ar/ai/report",
+   "landed": "/ar/ai/report",
+   "time_to_ready_ms": 843,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "تحليل",
+     "result": "DISABLED"
+    }
+   ],
+   "summary": {
+    "DISABLED": 1
+   }
+  },
+  {
+   "route": "/[locale]/ai/skin-analysis",
+   "url": "/ar/ai/skin-analysis",
+   "landed": "/ar/ai/skin-analysis",
+   "time_to_ready_ms": 995,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "face",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 433
+    },
+    {
+     "label": "scalp",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 418
+    },
+    {
+     "label": "hands",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 462
+    },
+    {
+     "label": "body",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 416
+    },
+    {
+     "label": "redness",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 450
+    },
+    {
+     "label": "itching",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 458
+    },
+    {
+     "label": "dryness",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 456
+    },
+    {
+     "label": "rash",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 471
+    },
+    {
+     "label": "swelling",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 419
+    },
+    {
+     "label": "none",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 411
+    },
+    {
+     "label": "(icon #10)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 453
+    },
+    {
+     "label": "تحليل",
+     "result": "WRITE",
+     "status": 400,
+     "method": "POST",
+     "url": "/api/patient/ai/skin-analysis",
+     "tokens_sent": 1,
+     "tokens_stored": 0,
+     "response_ms": 770
+    },
+    {
+     "label": "الفرز الطبي",
+     "result": "NAVIGATE",
+     "to": "/ar/ai/triage",
+     "response_ms": 876
+    },
+    {
+     "label": "مترجم الوصفات",
+     "result": "NAVIGATE",
+     "to": "/ar/ai/prescription-translator",
+     "response_ms": 804
+    },
+    {
+     "label": "← العودة للمساعد الذكي",
+     "result": "NAVIGATE",
+     "to": "/ar/ai",
+     "response_ms": 803
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 11,
+    "WRITE": 1,
+    "NAVIGATE": 3
+   }
+  },
+  {
+   "route": "/[locale]/consultations/post-call-rating",
+   "url": "/ar/consultations/post-call-rating",
+   "landed": "/ar/consultations/post-call-rating",
+   "time_to_ready_ms": 642,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 490
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 432
+    },
+    {
+     "label": "(icon #2)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 415
+    },
+    {
+     "label": "(icon #3)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 434
+    },
+    {
+     "label": "(icon #4)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 440
+    },
+    {
+     "label": "إرسال التقييم",
+     "result": "WRITE",
+     "status": 400,
+     "method": "POST",
+     "url": "/api/patient-ux/review",
+     "tokens_sent": 1,
+     "tokens_stored": 0,
+     "response_ms": 778
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 5,
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "/[locale]/delivery/address-select",
+   "url": "/ar/delivery/address-select",
+   "landed": "/ar/delivery/address-select",
+   "time_to_ready_ms": 688,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "استخدم موقعي الحالي أو حدد على الخريطة",
+     "result": "NAVIGATE",
+     "to": "/ar/map",
+     "response_ms": 2079
+    },
+    {
+     "label": "إضافة عنوان جديد على الخريطة",
+     "result": "NAVIGATE",
+     "to": "/ar/map",
+     "response_ms": 1913
+    },
+    {
+     "label": "تأكيد العنوان",
+     "result": "DISABLED"
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 2,
+    "DISABLED": 1
+   }
+  }
+ ]
+}
