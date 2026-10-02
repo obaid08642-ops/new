@@ -160,14 +160,13 @@ export class LoyaltyService {
     }
 
     const previousTier = account.tier ?? 'bronze';
-    const newPoints = (account.points ?? 0) + pts;
-    const newLifetime = (account.lifetime_points ?? 0) + pts;
+    // R79: $inc, not a read-modify-write $set, so two awards (or an award and a claim) at the same time do not
+    // overwrite each other's balance.
+    const updated: any = await this.accountM.updateOne({ user_id: userId }, { $inc: { points: pts, lifetime_points: pts } });
+    const newPoints = Number(updated?.points ?? (account.points ?? 0) + pts);
+    const newLifetime = Number(updated?.lifetime_points ?? (account.lifetime_points ?? 0) + pts);
     const newTier = calculateTier(newLifetime);
-
-    await this.accountM.updateOne(
-      { user_id: userId },
-      { points: newPoints, lifetime_points: newLifetime, tier: newTier },
-    );
+    if (newTier !== (updated?.tier ?? previousTier)) await this.accountM.updateOne({ user_id: userId }, { tier: newTier });
 
     await this.txM.create({
       id: uuidv4(),
@@ -384,8 +383,18 @@ export class LoyaltyService {
       throw new BadRequestException(`Insufficient points. Required: ${reward.points_required}`);
     }
 
-    // Deduct points
-    await this.accountM.updateOne({ user_id: userId }, { $inc: { points: -reward.points_required } });
+    // R79: reserve one unit of stock and debit the balance with conditional atomic updates, so concurrent claims
+    // can never overspend the balance (it went to -280 with 6 parallel claims) or oversell the stock.
+    const reserved = await this.rewardM.updateOne({ id: rewardId, active: true, stock: { $gt: 0 } }, { $inc: { stock: -1 } });
+    if (!reserved) throw new BadRequestException('Reward out of stock');
+    const debited = await this.accountM.updateOne(
+      { user_id: userId, points: { $gte: reward.points_required } },
+      { $inc: { points: -reward.points_required } },
+    );
+    if (!debited) {
+      await this.rewardM.updateOne({ id: rewardId }, { $inc: { stock: 1 } });
+      throw new BadRequestException(`Insufficient points. Required: ${reward.points_required}`);
+    }
     await this.txM.create({
       id: uuidv4(),
       user_id: userId,
@@ -394,9 +403,6 @@ export class LoyaltyService {
       ref_type: 'reward',
       ref_id: rewardId,
     });
-
-    // Reduce stock
-    await this.rewardM.updateOne({ id: rewardId }, { $inc: { stock: -1 } });
 
     // Create claim record
     const couponCode = reward.reward_type === 'coupon'

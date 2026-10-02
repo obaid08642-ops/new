@@ -26,10 +26,14 @@ const STATUS_AR: Record<string, string> = {
   SCHEDULED: 'مجدول', PROCESSING: 'قيد المعالجة', SAMPLE_COLLECTED: 'تم سحب العينة',
   RESULT_READY: 'النتيجة جاهزة', approved: 'مقبولة', rejected: 'مرفوضة',
   pending: 'قيد المراجعة', submitted: 'مقدّمة', active: 'نشط', resolved: 'تمت المعالجة',
+  REPORT_READY: 'التقرير جاهز', REPORTED: 'صدر التقرير', WAITING_COPAY: 'بانتظار دفع نسبة التحمل',
+  CASH_CARD_PAYMENT_PENDING: 'بانتظار الدفع', PAYMENT_PENDING: 'بانتظار الدفع',
 };
+/** Status keys come upper-case from bookings and lower-case from governed pharmacy orders. */
+const statusLabel = (s: string) => STATUS_AR[s] || STATUS_AR[String(s || '').toUpperCase()] || s;
 
 const PENDING_STATES = new Set(['PENDING', 'NEW_REQUEST', 'CONFIRMED', 'ACCEPTED', 'PREPARING', 'READY', 'PROVIDER_ASSIGNED', 'EN_ROUTE', 'OUT_FOR_DELIVERY', 'SCHEDULED', 'PROCESSING', 'CHECKED_IN', 'IN_PROGRESS', 'pending', 'submitted', 'active', 'SAMPLE_COLLECTED']);
-const COMPLETED_STATES = new Set(['COMPLETED', 'DELIVERED', 'RESULT_READY', 'approved', 'resolved']);
+const COMPLETED_STATES = new Set(['COMPLETED', 'DELIVERED', 'RESULT_READY', 'REPORT_READY', 'REPORTED', 'approved', 'resolved']);
 const CANCELLED_STATES = new Set(['CANCELLED', 'REJECTED', 'NO_SHOW', 'rejected', 'REFUNDED']);
 
 const KIND_META: Record<string, { label: string; icon: string; color: string }> = {
@@ -50,8 +54,9 @@ const TABS: Array<[string, string]> = [
 ];
 
 function statusBucket(status: string): 'pending' | 'completed' | 'cancelled' {
-  if (COMPLETED_STATES.has(status)) return 'completed';
-  if (CANCELLED_STATES.has(status)) return 'cancelled';
+  const up = String(status || '').toUpperCase();
+  if (COMPLETED_STATES.has(status) || COMPLETED_STATES.has(up)) return 'completed';
+  if (CANCELLED_STATES.has(status) || CANCELLED_STATES.has(up)) return 'cancelled';
   return 'pending';
 }
 
@@ -60,6 +65,14 @@ function fmtDate(d: any): string {
   try {
     return new Date(d).toLocaleDateString(dateLocale(), { day: 'numeric', month: 'short', year: 'numeric' });
   } catch { return '—'; }
+}
+
+// Bookings carry the address as a string or as a structured object ({ address, lat, lng, … }); rendering the
+// object as text crashed the whole "My orders" screen (React #31) for any patient with a nursing visit.
+function addressText(a: any): string {
+  if (!a) return '';
+  if (typeof a === 'string') return a;
+  return String(a.address || a.formatted_address || a.street || a.line1 || a.label || '');
 }
 
 export default function OrderCenterScreen() {
@@ -77,9 +90,11 @@ export default function OrderCenterScreen() {
     const safe = async (p: Promise<any>) => {
       try { return await p; } catch (e) { failures++; return null; }
     };
-    const [appts, orders, labs, rads, nursing, claims, returns, emergency] = await Promise.all([
+    const [appts, orders, pharmacyOrders, labs, rads, nursing, claims, returns, emergency] = await Promise.all([
       safe(apiFetch('/care/appointments')),
       safe(apiFetch('/orders/mine')),
+      // Orders placed through the pharmacy checkout live in pharmacy_orders; /orders/mine only has legacy rows.
+      safe(apiFetch('/patient/pharmacy/orders')),
       safe(apiFetch('/labs/bookings/mine')),
       safe(apiFetch('/radiology/bookings/mine')),
       safe(apiFetch('/home-care/bookings/my')),
@@ -110,6 +125,15 @@ export default function OrderCenterScreen() {
         route: { pathname: '/pharmacy/order-tracking', params: { orderId: o.id } },
       });
     }
+    for (const o of arr(pharmacyOrders)) {
+      unified.push({
+        id: o.id, kind: 'pharmacy',
+        title: `طلب صيدلية ${o.id ? '#' + String(o.id).slice(-6) : ''}`,
+        subtitle: o.items?.length ? `${o.items.length} صنف` : '',
+        status: o.status || 'PENDING', date: o.createdAt,
+        route: { pathname: '/pharmacy/order-tracking', params: { orderId: o.id } },
+      });
+    }
     for (const b of arr(labs)) {
       unified.push({
         id: b.id, kind: 'labs',
@@ -132,7 +156,7 @@ export default function OrderCenterScreen() {
       unified.push({
         id: b.id, kind: 'nursing',
         title: pickLocalized(b.service_name_ar, b.service_name_en) || 'زيارة تمريض',
-        subtitle: b.address || '',
+        subtitle: addressText(b.address),
         status: b.state || 'NEW_REQUEST', date: b.scheduled_at || b.createdAt,
         route: { pathname: '/nursing/live-tracking', params: { bookingId: b.id, type: 'nurse' } },
       });
@@ -160,7 +184,7 @@ export default function OrderCenterScreen() {
       unified.push({
         id: em.id, kind: 'ambulance',
         title: 'طلب إسعاف نشط',
-        subtitle: em.address || '',
+        subtitle: addressText(em.address),
         status: 'active', date: em.createdAt,
         route: { pathname: '/emergency/tracking' },
       });
@@ -255,12 +279,12 @@ export default function OrderCenterScreen() {
             return (
               <TouchableOpacity
                 accessibilityRole="button"
-                accessibilityLabel={`${it.title} — ${STATUS_AR[it.status] || it.status}`}
+                accessibilityLabel={`${it.title} — ${statusLabel(it.status)}`}
                 onPress={() => it.route && router.push(it.route)}
                 style={[styles.card, { backgroundColor: isDark ? colors.surface : colors.white }]}
               >
                 <View style={[styles.chip, { backgroundColor: chipBg }]}>
-                  <AppText variant="caption" color={chipColor}>{STATUS_AR[it.status] || it.status}</AppText>
+                  <AppText variant="caption" color={chipColor}>{statusLabel(it.status)}</AppText>
                 </View>
                 <View style={{ flex: 1, alignItems: 'flex-end', gap: 3 }}>
                   <AppText variant="bodySM">{it.title}</AppText>

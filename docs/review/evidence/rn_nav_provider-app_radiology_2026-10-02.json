@@ -189,12 +189,7 @@
     },
     {
      "label": "حفظ وإرسال للمراجعة",
-     "result": "WRITE",
-     "status": 201,
-     "method": "POST",
-     "url": "/radiology/catalog/delta-request",
-     "tokens_sent": 4,
-     "tokens_stored": 0
+     "result": "UI_CHANGE"
     },
     {
      "label": "الرئيسية",
@@ -440,6 +435,16 @@
      "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
     },
     {
+     "label": "UC15A2210 (1)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "UC15A2204",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | UC15A2204 | UC15A2208"
+    },
+    {
      "label": "UE3C96A04",
      "result": "NAVIGATE",
      "to": "الملف الدوائي الكامل | UE3C96A04 | UE3C96A08"
@@ -497,7 +502,7 @@
     "دليل الأدوية الطبي",
     "pain (8)"
    ],
-   "heading": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A10 (2) | category-2070",
+   "heading": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A10 (2) | UC15A2210 (1)",
    "status": "TESTED",
    "render": {
     "js": [],
@@ -526,6 +531,11 @@
     },
     {
      "label": "UE3C96A10 (2)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "UC15A2210 (1)",
      "result": "NAVIGATE",
      "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
     },
@@ -620,6 +630,11 @@
      "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
     },
     {
+     "label": "UC15A2210 (1)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
      "label": "UE3C96A04",
      "result": "NAVIGATE",
      "to": "الملف الدوائي الكامل | UE3C96A04 | UE3C96A08"
@@ -632,7 +647,7 @@
     "دليل الأدوية الطبي",
     "category-20703 (1)"
    ],
-   "heading": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A10 (2) | category-2070",
+   "heading": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A10 (2) | UC15A2210 (1)",
    "status": "TESTED",
    "render": {
     "js": [],
@@ -666,6 +681,11 @@
      "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
     },
     {
+     "label": "UC15A2210 (1)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
      "label": "category-20703 (1)",
      "result": "NO_EFFECT"
     },
@@ -675,6 +695,70 @@
      "to": "الملف الدوائي الكامل | name_ar-20700 | 804 ر"
     }
    ]
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "دليل الأدوية الطبي",
+    "UC15A2210 (1)"
+   ],
+   "heading": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A10 (2) | UC15A2210 (1)",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "الإعدادات | معلومات المركز | تعديل بيانات ال"
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "الكل",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "pain (8)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "UE3C96A10 (2)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "UC15A2210 (1)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "category-20703 (1)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "UC15A2204 (معدّل E2E)",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | UC15A2204 (معدّل E2"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "دليل الأدوية الطبي",
+    "UC15A2204"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: UC15A2204"
   },
   {
    "path": [
@@ -919,7 +1003,8 @@
     },
     {
      "label": "الوصف",
-     "result": "UI_CHANGE"
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
     },
     {
      "label": "دواعي الاستعمال",
@@ -964,6 +1049,630 @@
      "label": "اقتراح تعديل على هذا الدواء",
      "result": "NAVIGATE",
      "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "دليل الأدوية الطبي",
+    "بنادول اكسترا 500 ملغ a33d6a"
+   ],
+   "heading": "الملف الدوائي الكامل | بنادول اكسترا 500 ملغ a33d6a | GSK | 12.5 ر",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "الوصف",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
+    },
+    {
+     "label": "دواعي الاستعمال",
+     "result": "UI_CHANGE"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 730a68",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ bca0db",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ fc3790",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 18f732",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 2dfd4a",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 81b23b",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 874ed2",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
+    },
+    {
+     "label": "اقتراح تعديل على هذا الدواء",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "دليل الأدوية الطبي",
+    "فيتامين سي 1000 ملغ 2dfd4a"
+   ],
+   "heading": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ 2dfd4a | GSK | 25 ريال ",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "الوصف",
+     "result": "UI_CHANGE"
+    },
+    {
+     "label": "دواعي الاستعمال",
+     "result": "UI_CHANGE"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 730a68",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ bca0db",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ a33d6a",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ fc3790",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 18f732",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 81b23b",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 874ed2",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
+    },
+    {
+     "label": "اقتراح تعديل على هذا الدواء",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "دليل الأدوية الطبي",
+    "فيتامين سي 1000 ملغ 874ed2"
+   ],
+   "heading": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ 874ed2 | GSK | 25 ريال ",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "الوصف",
+     "result": "UI_CHANGE"
+    },
+    {
+     "label": "دواعي الاستعمال",
+     "result": "UI_CHANGE"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 730a68",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ bca0db",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ a33d6a",
+     "result": "TAP_FAILED",
+     "error": "element not found: فيتامين سي 1000 ملغ 874ed2"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ fc3790",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 18f732",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 2dfd4a",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 81b23b",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
+    },
+    {
+     "label": "اقتراح تعديل على هذا الدواء",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "دليل الأدوية الطبي",
+    "فيتامين سي 1000 ملغ bca0db"
+   ],
+   "heading": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ bca0db | GSK | 25 ريال ",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "الوصف",
+     "result": "UI_CHANGE"
+    },
+    {
+     "label": "دواعي الاستعمال",
+     "result": "UI_CHANGE"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 730a68",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ a33d6a",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ fc3790",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 18f732",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 2dfd4a",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 81b23b",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 874ed2",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
+    },
+    {
+     "label": "اقتراح تعديل على هذا الدواء",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "دليل الأدوية الطبي",
+    "فيتامين سي 1000 ملغ fc3790"
+   ],
+   "heading": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ fc3790 | GSK | 25 ريال ",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "الوصف",
+     "result": "UI_CHANGE"
+    },
+    {
+     "label": "دواعي الاستعمال",
+     "result": "UI_CHANGE"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 730a68",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ bca0db",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ a33d6a",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 18f732",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 2dfd4a",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 81b23b",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 874ed2",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
+    },
+    {
+     "label": "اقتراح تعديل على هذا الدواء",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "دليل الأدوية الطبي",
+    "pain (8)",
+    "(icon #1)"
+   ],
+   "heading": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A10 (2) | category-2070",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "الإعدادات | معلومات المركز | تعديل بيانات ال"
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الكل",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "pain (8)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "UE3C96A10 (2)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "category-20703 (1)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "UC15A2210 (1)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "UC15A2204 (معدّل E2E)",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | UC15A2204 (معدّل E2"
+    },
+    {
+     "label": "UE3C96A04",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | UE3C96A04 | UE3C96A08"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "دليل الأدوية الطبي",
+    "pain (8)",
+    "UC15A2210 (1)"
+   ],
+   "heading": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A10 (2) | category-2070",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "الإعدادات | معلومات المركز | تعديل بيانات ال"
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "الكل",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "pain (8)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "UE3C96A10 (2)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "category-20703 (1)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "UC15A2210 (1)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "UC15A2204 (معدّل E2E)",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | UC15A2204 (معدّل E2"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "دليل الأدوية الطبي",
+    "UC15A2210 (1)",
+    "UC15A2204 (معدّل E2E)"
+   ],
+   "heading": "الملف الدوائي الكامل | UC15A2204 (معدّل E2E) | UC15A2208 | 0 ريال ",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "الوصف",
+     "result": "UI_CHANGE"
+    },
+    {
+     "label": "دواعي الاستعمال",
+     "result": "UI_CHANGE"
+    },
+    {
+     "label": "الجرعة وطريقة الاستخدام",
+     "result": "UI_CHANGE"
+    },
+    {
+     "label": "إرشادات الاستخدام",
+     "result": "UI_CHANGE"
+    },
+    {
+     "label": "تحذيرات",
+     "result": "UI_CHANGE"
+    },
+    {
+     "label": "موانع الاستخدام",
+     "result": "UI_CHANGE"
+    },
+    {
+     "label": "الأعراض الجانبية",
+     "result": "UI_CHANGE"
+    },
+    {
+     "label": "اقتراح تعديل على هذا الدواء",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | UC15A2204 (معدّل E2"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "دليل الأدوية الطبي",
+    "UE3C96A04",
+    "اقتراح تعديل على هذا الدواء"
+   ],
+   "heading": "الملف الدوائي الكامل | UE3C96A04 | UE3C96A08 | 0 ريال سعودي | يتطلب ",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 23,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | UE3C96A04 | UE3C96A08"
+    },
+    {
+     "label": "الوصف",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "دواعي الاستعمال",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الجرعة وطريقة الاستخدام",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "إرشادات الاستخدام",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "تحذيرات",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "موانع الاستخدام",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الأعراض الجانبية",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "UE3C96A04",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "اقتراح تعديل على هذا الدواء",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "(icon #11)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "تعديل بيانات",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "اقتراح صورة",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | UE3C96A04 | UE3C96A08"
+    },
+    {
+     "label": "اسم الدواء (عربي)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "اسم الدواء (إنجليزي)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "المادة الفعالة",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الاسم العلمي",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الشركة المصنعة",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الفئة",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الفئة الفرعية",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الشكل الدوائي",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "التركيز",
+     "result": "NO_EFFECT"
     }
    ]
   }

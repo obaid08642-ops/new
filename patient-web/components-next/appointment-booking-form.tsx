@@ -120,14 +120,9 @@ export function AppointmentBookingForm({
     );
   }
 
-  const effectiveSlots = slots.length > 0 ? slots : [
-    { start: "09:30 AM", label: "09:30 AM", available: true },
-    { start: "11:00 AM", label: "11:00 AM", available: true },
-    { start: "02:00 PM", label: "02:00 PM", available: true },
-    { start: "04:30 PM", label: "04:30 PM", available: true },
-    { start: "06:00 PM", label: "06:00 PM", available: true },
-    { start: "08:30 PM", label: "08:30 PM", available: true },
-  ];
+  // Only real slots from the doctor's schedule: the old fallback showed six invented "available" times
+  // when the doctor had none (and none of them could be booked).
+  const effectiveSlots = slots;
   const available = effectiveSlots.filter((slot) => slot.available);
 
   return (

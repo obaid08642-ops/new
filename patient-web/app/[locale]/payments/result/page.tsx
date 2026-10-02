@@ -8,13 +8,15 @@ import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { VectorInsurance } from "@/components-next/vector-illustrations";
 import styles from "./payment-result.module.css";
 
-type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ status?: string; ref?: string }> };
+type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ status?: string; ref?: string; id?: string }> };
 
 export default async function PaymentResultPage({ params, searchParams }: Props) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
-  const { status = "processing", ref = "" } = await searchParams;
+  // Moyasar returns ?id=pay_…&status=…; our own links use ?ref=. The query status is never proof of payment.
+  const { status = "processing", ref: refParam = "", id: gatewayId = "" } = await searchParams;
+  const ref = refParam || gatewayId;
   const t = await getTranslations("Payments");
   const token = await requirePatientAccess(locale);
 
@@ -28,7 +30,9 @@ export default async function PaymentResultPage({ params, searchParams }: Props)
       if (typeof s === "string") verified = s.toLowerCase();
     }
   }
-  const finalStatus = verified ?? status;
+  // R70: success is shown only after the server verified the payment. Without verification an address with
+  // ?status=paid used to show "payment confirmed and linked to your order" (even for an unknown payment id).
+  const finalStatus = verified ?? (["failed", "failure", "declined", "cancelled"].includes(status) ? status : "processing");
   const ok = ["success", "paid", "completed", "succeeded"].includes(finalStatus);
   const failed = ["failed", "failure", "declined", "cancelled"].includes(finalStatus);
 

@@ -172,7 +172,7 @@
     {
      "label": "(icon #5)",
      "result": "TAP_FAILED",
-     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+     "error": "element not found: (icon #5)"
     }
    ]
   },
@@ -217,6 +217,16 @@
      "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
     },
     {
+     "label": "UC15A2210 (1)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "UC15A2204 (معدّل E2E)",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | UC15A2204 (معدّل E2"
+    },
+    {
      "label": "UE3C96A04",
      "result": "NAVIGATE",
      "to": "الملف الدوائي الكامل | UE3C96A04 | UE3C96A08"
@@ -240,31 +250,6 @@
      "label": "بنادول اكسترا 500 ملغ 81b23b",
      "result": "NAVIGATE",
      "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
-    },
-    {
-     "label": "بنادول اكسترا 500 ملغ a33d6a",
-     "result": "NAVIGATE",
-     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
-    },
-    {
-     "label": "فيتامين سي 1000 ملغ 2dfd4a",
-     "result": "NAVIGATE",
-     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
-    },
-    {
-     "label": "فيتامين سي 1000 ملغ 874ed2",
-     "result": "NAVIGATE",
-     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
-    },
-    {
-     "label": "فيتامين سي 1000 ملغ bca0db",
-     "result": "NAVIGATE",
-     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
-    },
-    {
-     "label": "فيتامين سي 1000 ملغ fc3790",
-     "result": "NAVIGATE",
-     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
     }
    ]
   },
@@ -393,7 +378,7 @@
     "js": [],
     "bad_reads": []
    },
-   "inputs_filled": 10,
+   "inputs_filled": 7,
    "elements": [
     {
      "label": "دعوات المنشآت (0)",
@@ -478,7 +463,7 @@
     {
      "label": "(icon #17)",
      "result": "TAP_FAILED",
-     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+     "error": "element not found: الإعدادات"
     },
     {
      "label": "تسجيل الخروج",
@@ -487,17 +472,17 @@
     {
      "label": "الرئيسية",
      "result": "TAP_FAILED",
-     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+     "error": "element not found: الإعدادات"
     },
     {
      "label": "المواعيد",
      "result": "TAP_FAILED",
-     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+     "error": "element not found: الإعدادات"
     },
     {
      "label": "المحادثات",
      "result": "TAP_FAILED",
-     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+     "error": "element not found: الإعدادات"
     }
    ]
   },
@@ -507,7 +492,21 @@
     "(icon #0)"
    ],
    "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
+   "error": "element not found: عرض الكل",
+   "url_now": "http://localhost:8082/MainTabs",
+   "controls_now": [
+    "View All",
+    "All",
+    "Medical Jobs",
+    "Drug Index",
+    "Inbound Medical Reports (Radiology & Lab",
+    "Home",
+    "Schedule",
+    "Chats",
+    "Wallet",
+    "Settings"
+   ],
+   "screenshot": "/tmp/replay_fail_doctor_8.png"
   },
   {
    "path": [
@@ -515,7 +514,21 @@
     "(icon #1)"
    ],
    "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
+   "error": "element not found: الوظائف الطبية",
+   "url_now": "http://localhost:8082/MainTabs",
+   "controls_now": [
+    "View All",
+    "All",
+    "Medical Jobs",
+    "Drug Index",
+    "Inbound Medical Reports (Radiology & Lab",
+    "Home",
+    "Schedule",
+    "Chats",
+    "Wallet",
+    "Settings"
+   ],
+   "screenshot": "/tmp/replay_fail_doctor_9.png"
   },
   {
    "path": [
@@ -523,7 +536,21 @@
     "إضافة إعلان"
    ],
    "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
+   "error": "element not found: الوظائف الطبية",
+   "url_now": "http://localhost:8082/MainTabs",
+   "controls_now": [
+    "View All",
+    "All",
+    "Medical Jobs",
+    "Drug Index",
+    "Inbound Medical Reports (Radiology & Lab",
+    "Home",
+    "Schedule",
+    "Chats",
+    "Wallet",
+    "Settings"
+   ],
+   "screenshot": "/tmp/replay_fail_doctor_10.png"
   },
   {
    "path": [
@@ -531,7 +558,21 @@
     "pain (8)"
    ],
    "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
+   "error": "element not found: دليل الأدوية",
+   "url_now": "http://localhost:8082/MainTabs",
+   "controls_now": [
+    "View All",
+    "All",
+    "Medical Jobs",
+    "Drug Index",
+    "Inbound Medical Reports (Radiology & Lab",
+    "Home",
+    "Schedule",
+    "Chats",
+    "Wallet",
+    "Settings"
+   ],
+   "screenshot": "/tmp/replay_fail_doctor_11.png"
   },
   {
    "path": [
@@ -539,7 +580,21 @@
     "UE3C96A10 (2)"
    ],
    "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
+   "error": "element not found: دليل الأدوية",
+   "url_now": "http://localhost:8082/MainTabs",
+   "controls_now": [
+    "View All",
+    "All",
+    "Medical Jobs",
+    "Drug Index",
+    "Inbound Medical Reports (Radiology & Lab",
+    "Home",
+    "Schedule",
+    "Chats",
+    "Wallet",
+    "Settings"
+   ],
+   "screenshot": "/tmp/replay_fail_doctor_12.png"
   },
   {
    "path": [
@@ -547,7 +602,65 @@
     "category-20703 (1)"
    ],
    "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
+   "error": "element not found: دليل الأدوية",
+   "url_now": "http://localhost:8082/MainTabs",
+   "controls_now": [
+    "View All",
+    "All",
+    "Medical Jobs",
+    "Drug Index",
+    "Inbound Medical Reports (Radiology & Lab",
+    "Home",
+    "Schedule",
+    "Chats",
+    "Wallet",
+    "Settings"
+   ],
+   "screenshot": "/tmp/replay_fail_doctor_13.png"
+  },
+  {
+   "path": [
+    "دليل الأدوية",
+    "UC15A2210 (1)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: دليل الأدوية",
+   "url_now": "http://localhost:8082/MainTabs",
+   "controls_now": [
+    "View All",
+    "All",
+    "Medical Jobs",
+    "Drug Index",
+    "Inbound Medical Reports (Radiology & Lab",
+    "Home",
+    "Schedule",
+    "Chats",
+    "Wallet",
+    "Settings"
+   ],
+   "screenshot": "/tmp/replay_fail_doctor_14.png"
+  },
+  {
+   "path": [
+    "دليل الأدوية",
+    "UC15A2204 (معدّل E2E)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: دليل الأدوية",
+   "url_now": "http://localhost:8082/MainTabs",
+   "controls_now": [
+    "View All",
+    "All",
+    "Medical Jobs",
+    "Drug Index",
+    "Inbound Medical Reports (Radiology & Lab",
+    "Home",
+    "Schedule",
+    "Chats",
+    "Wallet",
+    "Settings"
+   ],
+   "screenshot": "/tmp/replay_fail_doctor_15.png"
   },
   {
    "path": [
@@ -555,7 +668,21 @@
     "UE3C96A04"
    ],
    "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
+   "error": "element not found: دليل الأدوية",
+   "url_now": "http://localhost:8082/MainTabs",
+   "controls_now": [
+    "View All",
+    "All",
+    "Medical Jobs",
+    "Drug Index",
+    "Inbound Medical Reports (Radiology & Lab",
+    "Home",
+    "Schedule",
+    "Chats",
+    "Wallet",
+    "Settings"
+   ],
+   "screenshot": "/tmp/replay_fail_doctor_16.png"
   },
   {
    "path": [
@@ -563,7 +690,21 @@
     "name_ar-20700"
    ],
    "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
+   "error": "element not found: دليل الأدوية",
+   "url_now": "http://localhost:8082/MainTabs",
+   "controls_now": [
+    "View All",
+    "All",
+    "Medical Jobs",
+    "Drug Index",
+    "Inbound Medical Reports (Radiology & Lab",
+    "Home",
+    "Schedule",
+    "Chats",
+    "Wallet",
+    "Settings"
+   ],
+   "screenshot": "/tmp/replay_fail_doctor_17.png"
   },
   {
    "path": [
@@ -571,7 +712,21 @@
     "بنادول اكسترا 500 ملغ 18f732"
    ],
    "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
+   "error": "element not found: دليل الأدوية",
+   "url_now": "http://localhost:8082/MainTabs",
+   "controls_now": [
+    "View All",
+    "All",
+    "Medical Jobs",
+    "Drug Index",
+    "Inbound Medical Reports (Radiology & Lab",
+    "Home",
+    "Schedule",
+    "Chats",
+    "Wallet",
+    "Settings"
+   ],
+   "screenshot": "/tmp/replay_fail_doctor_18.png"
   },
   {
    "path": [
@@ -579,7 +734,21 @@
     "بنادول اكسترا 500 ملغ 730a68"
    ],
    "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
+   "error": "element not found: دليل الأدوية",
+   "url_now": "http://localhost:8082/MainTabs",
+   "controls_now": [
+    "View All",
+    "All",
+    "Medical Jobs",
+    "Drug Index",
+    "Inbound Medical Reports (Radiology & Lab",
+    "Home",
+    "Schedule",
+    "Chats",
+    "Wallet",
+    "Settings"
+   ],
+   "screenshot": "/tmp/replay_fail_doctor_19.png"
   },
   {
    "path": [
@@ -587,39 +756,21 @@
     "بنادول اكسترا 500 ملغ 81b23b"
    ],
    "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
-  },
-  {
-   "path": [
-    "دليل الأدوية",
-    "بنادول اكسترا 500 ملغ a33d6a"
+   "error": "element not found: دليل الأدوية",
+   "url_now": "http://localhost:8082/MainTabs",
+   "controls_now": [
+    "View All",
+    "All",
+    "Medical Jobs",
+    "Drug Index",
+    "Inbound Medical Reports (Radiology & Lab",
+    "Home",
+    "Schedule",
+    "Chats",
+    "Wallet",
+    "Settings"
    ],
-   "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
-  },
-  {
-   "path": [
-    "دليل الأدوية",
-    "فيتامين سي 1000 ملغ 2dfd4a"
-   ],
-   "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
-  },
-  {
-   "path": [
-    "دليل الأدوية",
-    "فيتامين سي 1000 ملغ bca0db"
-   ],
-   "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
-  },
-  {
-   "path": [
-    "دليل الأدوية",
-    "فيتامين سي 1000 ملغ fc3790"
-   ],
-   "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
+   "screenshot": "/tmp/replay_fail_doctor_20.png"
   },
   {
    "path": [
@@ -627,7 +778,21 @@
     "طلب سحب رصيد"
    ],
    "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
+   "error": "element not found: المحفظة",
+   "url_now": "http://localhost:8082/MainTabs",
+   "controls_now": [
+    "View All",
+    "All",
+    "Medical Jobs",
+    "Drug Index",
+    "Inbound Medical Reports (Radiology & Lab",
+    "Home",
+    "Schedule",
+    "Chats",
+    "Wallet",
+    "Settings"
+   ],
+   "screenshot": "/tmp/replay_fail_doctor_21.png"
   },
   {
    "path": [
@@ -635,7 +800,21 @@
     "التقارير والإحصائيات"
    ],
    "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
+   "error": "element not found: المحفظة",
+   "url_now": "http://localhost:8082/MainTabs",
+   "controls_now": [
+    "View All",
+    "All",
+    "Medical Jobs",
+    "Drug Index",
+    "Inbound Medical Reports (Radiology & Lab",
+    "Home",
+    "Schedule",
+    "Chats",
+    "Wallet",
+    "Settings"
+   ],
+   "screenshot": "/tmp/replay_fail_doctor_22.png"
   },
   {
    "path": [
@@ -643,7 +822,21 @@
     "دعوات المنشآت (0)"
    ],
    "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
+   "error": "element not found: الإعدادات",
+   "url_now": "http://localhost:8082/MainTabs",
+   "controls_now": [
+    "View All",
+    "All",
+    "Medical Jobs",
+    "Drug Index",
+    "Inbound Medical Reports (Radiology & Lab",
+    "Home",
+    "Schedule",
+    "Chats",
+    "Wallet",
+    "Settings"
+   ],
+   "screenshot": "/tmp/replay_fail_doctor_23.png"
   },
   {
    "path": [
@@ -651,7 +844,21 @@
     "تعديل الملف الشخصي"
    ],
    "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
+   "error": "element not found: الإعدادات",
+   "url_now": "http://localhost:8082/MainTabs",
+   "controls_now": [
+    "View All",
+    "All",
+    "Medical Jobs",
+    "Drug Index",
+    "Inbound Medical Reports (Radiology & Lab",
+    "Home",
+    "Schedule",
+    "Chats",
+    "Wallet",
+    "Settings"
+   ],
+   "screenshot": "/tmp/replay_fail_doctor_24.png"
   },
   {
    "path": [
@@ -659,7 +866,21 @@
     "مواعيد العمل (Scheduler)"
    ],
    "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
+   "error": "element not found: الإعدادات",
+   "url_now": "http://localhost:8082/MainTabs",
+   "controls_now": [
+    "View All",
+    "All",
+    "Medical Jobs",
+    "Drug Index",
+    "Inbound Medical Reports (Radiology & Lab",
+    "Home",
+    "Schedule",
+    "Chats",
+    "Wallet",
+    "Settings"
+   ],
+   "screenshot": "/tmp/replay_fail_doctor_25.png"
   },
   {
    "path": [
@@ -667,7 +888,21 @@
     "شركات التأمين"
    ],
    "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
+   "error": "element not found: الإعدادات",
+   "url_now": "http://localhost:8082/MainTabs",
+   "controls_now": [
+    "View All",
+    "All",
+    "Medical Jobs",
+    "Drug Index",
+    "Inbound Medical Reports (Radiology & Lab",
+    "Home",
+    "Schedule",
+    "Chats",
+    "Wallet",
+    "Settings"
+   ],
+   "screenshot": "/tmp/replay_fail_doctor_26.png"
   },
   {
    "path": [
@@ -675,7 +910,21 @@
     "طلبات التأمين الواردة"
    ],
    "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
+   "error": "element not found: الإعدادات",
+   "url_now": "http://localhost:8082/MainTabs",
+   "controls_now": [
+    "View All",
+    "All",
+    "Medical Jobs",
+    "Drug Index",
+    "Inbound Medical Reports (Radiology & Lab",
+    "Home",
+    "Schedule",
+    "Chats",
+    "Wallet",
+    "Settings"
+   ],
+   "screenshot": "/tmp/replay_fail_doctor_27.png"
   },
   {
    "path": [
@@ -683,7 +932,21 @@
     "(icon #16)"
    ],
    "status": "REPLAY_FAILED",
-   "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"[tabindex=\\\"0\\\"]"
+   "error": "element not found: الإعدادات",
+   "url_now": "http://localhost:8082/MainTabs",
+   "controls_now": [
+    "View All",
+    "All",
+    "Medical Jobs",
+    "Drug Index",
+    "Inbound Medical Reports (Radiology & Lab",
+    "Home",
+    "Schedule",
+    "Chats",
+    "Wallet",
+    "Settings"
+   ],
+   "screenshot": "/tmp/replay_fail_doctor_28.png"
   }
  ],
  "unvisited_states": 0

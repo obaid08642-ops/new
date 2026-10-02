@@ -47,7 +47,7 @@ export default async function LoyaltyPage({ params }: Props) {
   const txns: Txn[] = txnsList.flatMap((value) => {
     const r = rec(value);
     if (!r) return [];
-    const pts = Number(r.points ?? r.amount ?? 0);
+    const pts = Number(r.points_delta ?? r.points ?? r.amount ?? 0);
     if (!Number.isFinite(pts) || pts === 0) return [];
     return [{ id: String(r.id ?? `${pts}-${r.createdAt ?? ""}`), points: pts, reason: typeof r.reason === "string" ? r.reason : typeof r.type === "string" ? r.type : undefined, createdAt: typeof r.createdAt === "string" ? r.createdAt : undefined }];
   });

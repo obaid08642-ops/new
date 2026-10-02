@@ -23,6 +23,16 @@ const { width } = Dimensions.get('window');
 // loads the screen stays on the loader; on failure it shows unavailable.
 const DEFAULT_EARN_WAYS: Array<{ action: string; pts: string; icon: string; color: string }> = [];
 
+const REASON_LABELS: Record<string, string> = {
+  booking_completed: 'إكمال موعد',
+  order_delivered: 'توصيل طلب',
+  review_submitted: 'إضافة تقييم',
+  vitals_logged: 'تسجيل قراءة صحية',
+  reward_claimed: 'استبدال مكافأة',
+  points_expired: 'انتهاء صلاحية نقاط',
+  referral_converted: 'دعوة صديق',
+};
+
 export default function LoyaltyHubScreen() {
   const insets = useSafeAreaInsets();
   const { colors, isDark } = useApp();
@@ -62,7 +72,10 @@ export default function LoyaltyHubScreen() {
       setTierName(acc.tier || 'bronze');
       
       const txRes = await apiFetch('/loyalty/transactions?page=1');
-      setActivities(txRes.transactions || []);
+      setActivities((txRes.transactions || []).map((t: any) => {
+        const pts = Number(t.points_delta ?? t.points ?? 0) || 0;
+        return { ...t, points: pts, type: pts >= 0 ? 'earn' : 'redeem', description: t.description || REASON_LABELS[t.reason] || t.reason || '' };
+      }));
       
       const configRes = await apiFetch('/loyalty/config').catch(() => null);
       if (configRes && Array.isArray(configRes.tiers) && configRes.tiers.length) {
