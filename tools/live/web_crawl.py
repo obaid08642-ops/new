@@ -37,6 +37,9 @@ def changed_since(ms):
 
 
 def routes():
+    # URLS=<file>: JSON list of [route_pattern, concrete_url] for dynamic routes, harvested from real links
+    if os.environ.get('URLS'):
+        return [tuple(x) for x in json.load(open(os.environ['URLS']))]
     inv = json.load(open(os.path.join(ROOT, 'docs/review/inventory/screens.json')))
     rs = [p['route'] for p in inv[INV_KEY]['pages'] if not p['dynamic']]
     if APP == 'website':
@@ -146,17 +149,18 @@ def main():
     report = {'app': APP, 'signed_in': signed_in, 'pages': []}
     outp = os.path.join(ROOT, 'docs/review/evidence', f"{'web' if APP == 'website' else 'admin'}_crawl_{datetime.date.today().isoformat()}{('_' + os.environ['SUFFIX']) if os.environ.get('SUFFIX') else ''}.json")
     inv_routes = routes()
-    for route in inv_routes:
+    for item in inv_routes:
+        pattern, route = (item if isinstance(item, tuple) else (None, item))
         url = BASE + route
         ev['js'].clear(); ev['resp'].clear(); ev['failed'].clear(); ev['writes'].clear(); ev['blocked'].clear()
         try:
             page.goto(url, wait_until='domcontentloaded', timeout=45000)
         except Exception as e:
-            report['pages'].append({'route': route.replace('/ar', '/[locale]', 1) if APP == 'website' else route, 'status': 'LOAD_FAILED', 'error': str(e)[:120]}); continue
+            report['pages'].append({'route': pattern or (route.replace('/ar', '/[locale]', 1) if APP == 'website' else route), 'url': route, 'status': 'LOAD_FAILED', 'error': str(e)[:120]}); continue
         ready, ms, why = wait_ready()
         landed = page.url.replace(BASE, '')
         render = {'js': list(ev['js']), 'bad_reads': sorted({f'{s} {m} {u}' for s, m, u in ev['resp'] if s >= 400 and m == 'GET'})}
-        entry = {'route': route.replace('/ar', '/[locale]', 1) if APP == 'website' else route, 'url': route, 'landed': landed,
+        entry = {'route': pattern or (route.replace('/ar', '/[locale]', 1) if APP == 'website' else route), 'url': route, 'landed': landed,
                  'time_to_ready_ms': ms, 'ready': ready, 'not_ready_reason': why, 'render': render}
         n_inputs = fill()
         els, t0s = [], time.time()
@@ -175,7 +179,14 @@ def main():
                         el = page.locator(CLICKABLE).nth(i2); break
                 if el is None:
                     els.append({'label': label, 'result': 'CRAWLER_TARGET_MISSING'}); continue
-                disabled = (el.get_attribute('disabled') is not None) or el.get_attribute('aria-disabled') == 'true'
+                try:
+                    disabled = el.is_disabled(timeout=1500) or el.get_attribute('aria-disabled', timeout=1500) == 'true'
+                except Exception:
+                    disabled = False
+                if disabled:
+                    # A disabled control is a state, not a failure: pagination at page 1, submit before the form is
+                    # valid, an action waiting for a file. Recorded so a never-enabled control can be reviewed.
+                    els.append({'label': label, 'result': 'DISABLED'}); continue
                 ev['writes'].clear(); ev['js'].clear(); ev['blocked'].clear()
                 t0 = int(time.time() * 1000) - 50; tc = time.time()
                 before = body_hash()

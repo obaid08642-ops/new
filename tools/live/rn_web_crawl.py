@@ -86,8 +86,34 @@ def main():
     ctx = b.new_context(viewport={'width': 390, 'height': 844}, locale='ar-SA', storage_state=os.environ.get('STATE') or None)
     page = ctx.new_page()
     page.set_default_timeout(5000)
-    ev = {'js': [], 'resp': [], 'writes': [], 'blocked': []}
+    ev = {'js': [], 'resp': [], 'writes': [], 'blocked': [], 'inflight': {}}
     install_guard(ctx, ev)
+    # Condition-based readiness (replaces fixed sleeps): no backend request without a response, no visible
+    # loading indicator, and the page text unchanged over two polls. Same rule as rn_nav_crawl2.py.
+    page.on('request', lambda r: ev['inflight'].__setitem__(id(r), r.url) if ':8002/' in r.url else None)
+    page.on('response', lambda r: ev['inflight'].pop(id(r.request), None))
+    page.on('requestfailed', lambda r: ev['inflight'].pop(id(r), None))
+
+    def body_hash():
+        try:
+            return hashlib.md5((page.inner_text('body', timeout=2000) or '').encode()).hexdigest()
+        except Exception:
+            return ''
+
+    def wait_ready(timeout_ms=int(os.environ.get('READY_TIMEOUT_MS', '15000'))):
+        t0 = time.time(); last = None; stable = 0; delay = 0.15
+        while True:
+            busy = len(ev['inflight'])
+            try:
+                loading = page.locator('[role="progressbar"]:visible').count()
+            except Exception:
+                loading = 0
+            h = body_hash(); stable = stable + 1 if (h == last and h) else 0; last = h
+            if busy == 0 and loading == 0 and stable >= 2:
+                return True, int((time.time() - t0) * 1000), ''
+            if (time.time() - t0) * 1000 >= timeout_ms:
+                return False, int((time.time() - t0) * 1000), f'{busy} request(s) in flight, {loading} loading, stable={stable}'
+            time.sleep(delay); delay = min(delay * 1.5, 0.6)
     page.on('pageerror', lambda e: ev['js'].append(str(e)[:160]))
     page.on('dialog', lambda d: d.accept())
 
@@ -102,15 +128,17 @@ def main():
     start = os.environ.get('START', '')
     only = {x.strip() for x in os.environ.get('ONLY', '').split(',') if x.strip()}
     report = []
-    for rel, url in routes():
+    targets = [tuple(x) for x in json.load(open(os.environ['URLS']))] if os.environ.get('URLS') else routes()
+    for rel, url in targets:
         if rel < start or (os.environ.get('END') and rel >= os.environ['END']) or (only and rel not in only):
             continue
-        if '[' in rel:
+        if '[' in url:
             report.append({'route': rel, 'status': 'NOT_TESTED_DYNAMIC'}); continue
         t_route = time.time()
         ev['js'].clear(); ev['resp'].clear()
         try:
-            page.goto(WEB + url, wait_until='load', timeout=45000); page.wait_for_timeout(3500)
+            page.goto(WEB + url, wait_until='load', timeout=45000)
+            ready, ready_ms, not_ready = wait_ready()
         except Exception as e:
             report.append({'route': rel, 'status': 'OPEN_FAILED', 'error': str(e)[:120]}); continue
         landed = page.url.replace(WEB, '')
@@ -153,7 +181,7 @@ def main():
                 elements.append({'label': t, 'result': 'SKIPPED_DESTRUCTIVE'}); continue
             try:
                 if page.url.replace(WEB, '') != landed:
-                    page.goto(WEB + url, wait_until='load', timeout=45000); page.wait_for_timeout(2000)
+                    page.goto(WEB + url, wait_until='load', timeout=45000); wait_ready()
                     if SUBMIT.search(t):
                         fill()
                 cands = page.locator(TAPPABLE)
@@ -163,6 +191,11 @@ def main():
                 elif target is None or (target.inner_text(timeout=300) or '').strip().split('\n')[0][:40] != t:
                     target = page.locator(TAPPABLE, has_text=t).first
                 before = hashlib.md5(page.inner_text('body').encode()).hexdigest()
+                try:
+                    disabled = target.get_attribute('aria-disabled') == 'true' or target.get_attribute('disabled') is not None
+                except Exception:
+                    disabled = None
+                tc = time.time()
                 ev['writes'].clear(); ev['js'].clear(); ev['blocked'].clear(); t0 = int(time.time() * 1000) - 50
                 snap = page.evaluate(SNAP_JS)
                 try:
@@ -173,7 +206,7 @@ def main():
                     target.click(timeout=2500, force=True)
                 except Exception:
                     target.dispatch_event('click')   # last resort: the element's own press handler
-                page.wait_for_timeout(1500)
+                ready2, _, why2 = wait_ready(8000)
                 after_url = page.url.replace(WEB, '')
                 if ev['blocked']:
                     res = {'result': 'BLOCKED_DESTRUCTIVE', 'request': ev['blocked'][0]}
@@ -192,11 +225,15 @@ def main():
                 elif hashlib.md5(page.inner_text('body').encode()).hexdigest() != before:
                     res = {'result': 'UI_CHANGE'}
                 else:
-                    res = {'result': 'NO_EFFECT'}
+                    res = {'result': 'NO_EFFECT', 'disabled': disabled}
+                res['response_ms'] = int((time.time() - tc) * 1000)
+                if not ready2:
+                    res['slow'] = why2
                 elements.append({'label': t, **res})
             except Exception as e:
                 elements.append({'label': t, 'result': 'TAP_FAILED', 'error': str(e)[:80]})
-        rec = {'route': rel, 'url': url, 'landed': landed, 'status': 'TESTED', 'render': render, 'inputs_filled': n_inputs, 'elements': elements}
+        rec = {'route': rel, 'url': url, 'landed': landed, 'status': 'TESTED', 'time_to_ready_ms': ready_ms, 'ready': ready,
+               'not_ready_reason': not_ready, 'render': render, 'inputs_filled': n_inputs, 'elements': elements}
         report.append(rec)
         c = {}
         for e in elements:
@@ -204,7 +241,7 @@ def main():
         print(f"{rel[:42]:42s} -> {landed[:22]:22s} js {len(render['js'])} bad_reads {len(render['bad_reads'])} inputs {n_inputs:2d} {c}", flush=True)
         suffix = f"_{os.environ['SUFFIX']}" if os.environ.get('SUFFIX') else ''
         outp = os.path.join(ROOT, 'docs/review/evidence', f'rn_web_{APP}_{datetime.date.today().isoformat()}{suffix}.json')
-        json.dump(report, open(outp, 'w'), ensure_ascii=False, indent=1)
+        json.dump({'app': APP, 'build': 'react-native-web export (not native)', 'routes': report}, open(outp, 'w'), ensure_ascii=False, indent=1)
     b.close(); pw.stop()
 
 
