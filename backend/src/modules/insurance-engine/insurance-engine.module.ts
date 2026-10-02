@@ -692,7 +692,13 @@ export class InsuranceFlowController {
 
   // ---- patient ----
   // R4: GET companies removed (dup of insurance.module).
-  // R4: POST save-policy removed (dup of insurance.module).
+  // F2: save-policy/my-policy/benefits-summary restored — clients call them.
+  @SelfService()
+  @Post('save-policy') savePolicy(@CurrentUser() u: any, @Body() b: any) { return this.svc.savePolicy(u, b); }
+  @SelfService()
+  @Get('my-policy') myPolicy(@CurrentUser() u: any) { return this.svc.myPolicy(u); }
+  @SelfService()
+  @Get('benefits-summary') benefitsSummary(@CurrentUser() u: any) { return this.svc.myPolicy(u); }
 
   @SelfService()
   @Post('requests') createRequest(@CurrentUser() u: any, @Body() b: CreateRequestDto) { return this.svc.createRequest(u, b); }
