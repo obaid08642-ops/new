@@ -3,6 +3,14 @@ import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { StepUpService } from '../../common/step-up.guard';
 import { JwtAuthGuard, Public } from '../../common/auth.guard';
+import { IsObject, IsOptional, IsString, MaxLength } from 'class-validator';
+
+/** F1/R25: real DTO for the step-up issue body. */
+export class StepUpIssueDto {
+  @IsOptional() @IsString() @MaxLength(320) identifier?: string;
+  @IsOptional() @IsString() @MaxLength(320) action?: string;
+  @IsOptional() @IsObject() response?: Record<string, unknown>;
+}
 
 /**
  * C4: step-up re-authentication.
@@ -20,7 +28,7 @@ export class StepUpController {
   @Public()
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Post('issue')
-  async issue(@Body() body: { identifier?: string; action?: string; response?: Record<string, unknown> }) {
+  async issue(@Body() body: StepUpIssueDto) {
     const identifier = String(body?.identifier || '').trim().toLowerCase();
     const action = String(body?.action || '').trim();
     if (!identifier || !action) throw new BadRequestException('identifier_and_action_required');

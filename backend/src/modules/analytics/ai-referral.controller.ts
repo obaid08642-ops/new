@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { IsOptional, IsString, MaxLength } from 'class-validator';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { JwtAuthGuard, Roles, CurrentUser } from '../../common/auth.guard';
@@ -21,6 +22,13 @@ const AI_REFERRERS = [
 
 @Controller('admin/ai-referrals')
 @UseGuards(JwtAuthGuard)
+/** F1/R25: real DTO for the AI-referral beacon body. */
+export class AiReferralDto {
+  @IsOptional() @IsString() @MaxLength(512) referrer?: string;
+  @IsOptional() @IsString() @MaxLength(512) path?: string;
+  @IsOptional() @IsString() @MaxLength(512) user_agent?: string;
+}
+
 export class AiReferralController {
   constructor(@InjectConnection() private readonly conn: Connection) {}
 
@@ -29,7 +37,7 @@ export class AiReferralController {
   }
 
   @Post()
-  async record(@Body() body: { referrer?: string; path?: string; user_agent?: string }) {
+  async record(@Body() body: AiReferralDto) {
     const referrer = String(body?.referrer || '');
     const isAi = AI_REFERRERS.some((r) => referrer.toLowerCase().includes(r));
     if (!isAi) return { ok: false, reason: 'not_ai_referrer' };

@@ -3,7 +3,7 @@ import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Transaction, TransactionSchema } from '../../schemas/transaction.schema';
-import { RefundPaymentDto, WebhookBodyDto } from './payments.dto';
+import { RefundPaymentDto, WebhookBodyDto, DiagnosticsIntentDto } from './payments.dto';
 import { OrderSchema } from '../../schemas/order.schema';
 import { LabBookingSchema } from '../../schemas/lab.schema';
 import { DiagnosticOrder, DiagnosticOrderSchema } from '../../schemas/diagnostic-order.schema';
@@ -564,7 +564,7 @@ export class PaymentsController {
   @SelfService()
   @Post('intent/diagnostics')
   @UseInterceptors(IdempotencyInterceptor)
-  diagnosticsIntent(@CurrentUser() u: any, @Body() b: { order_id?: string; method?: string }, @Headers('idempotency-key') key: string) {
+  diagnosticsIntent(@CurrentUser() u: any, @Body() b: DiagnosticsIntentDto, @Headers('idempotency-key') key: string) {
     return this.svc.createPaymentIntent(u, 'diagnostics', b.order_id, key);
   }
   @SelfService()

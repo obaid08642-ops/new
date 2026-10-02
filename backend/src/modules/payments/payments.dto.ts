@@ -22,3 +22,9 @@ export class RefundPaymentDto {
   @IsOptional() @IsNumber() @Min(0.01) amount?: number;
   @IsOptional() @IsString() reason?: string;
 }
+
+/** F1/R25: real DTO for the diagnostics payment-intent body. */
+export class DiagnosticsIntentDto {
+  @IsOptional() @IsString() order_id?: string;
+  @IsOptional() @IsString() method?: string;
+}

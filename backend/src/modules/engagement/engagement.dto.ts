@@ -6,6 +6,8 @@ export class EngagementEventDto {
     'radiology', 'nursing', 'pregnancy', 'ovulation', 'family',
     'mental_health', 'nutrition', 'search_query',
   ])
+  // dtolint only inspects the decorator immediately above the property.
+  @IsString()
   kind: string;
 
   @IsOptional()

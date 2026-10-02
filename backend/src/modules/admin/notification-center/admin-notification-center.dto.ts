@@ -115,3 +115,8 @@ export class RecurringRuleDto {
   @IsBoolean()
   enabled: boolean;
 }
+
+/** F1/R25: real DTO for the recurring-rule enable toggle. */
+export class RecurringToggleDto {
+  @IsBoolean() enabled: boolean;
+}

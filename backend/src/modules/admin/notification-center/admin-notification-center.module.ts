@@ -16,7 +16,7 @@ import {
   Module, Injectable, Controller, Post, Get, Delete, Patch, Body, Param, Query,
   UseGuards, Logger, NotFoundException, BadRequestException,
 } from '@nestjs/common';
-import { BroadcastDto, CreateCampaignDto, RecurringRuleDto } from './admin-notification-center.dto';
+import { BroadcastDto, CreateCampaignDto, RecurringRuleDto, RecurringToggleDto } from './admin-notification-center.dto';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
@@ -458,7 +458,7 @@ export class AdminNotificationCenterController {
 
   /** Enable or disable a recurring rule */
   @Patch('recurring/:id')
-  toggleRecurring(@Param('id') id: string, @Body() body: { enabled: boolean }) {
+  toggleRecurring(@Param('id') id: string, @Body() body: RecurringToggleDto) {
     return this.recurring.toggleRule(id, body.enabled === true);
   }
 }

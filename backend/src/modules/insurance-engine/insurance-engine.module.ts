@@ -694,7 +694,7 @@ export class InsuranceFlowController {
   // R4: GET companies removed (dup of insurance.module).
   // F2: save-policy/my-policy/benefits-summary restored — clients call them.
   @SelfService()
-  @Post('save-policy') savePolicy(@CurrentUser() u: any, @Body() b: any) { return this.svc.savePolicy(u, b); }
+  @Post('save-policy') savePolicy(@CurrentUser() u: any, @Body() b: SavePolicyDto) { return this.svc.savePolicy(u, b); }
   @SelfService()
   @Get('my-policy') myPolicy(@CurrentUser() u: any) { return this.svc.myPolicy(u); }
   @SelfService()
