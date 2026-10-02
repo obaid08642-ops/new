@@ -76,17 +76,9 @@ export class NabdExtensionsController {
     return this.svc.enrollProgram(user.id, body.programType);
   }
 
-  @Get('medical/programs/active')
-  async getActivePrograms(@CurrentUser() user: any) {
-    return this.svc.getActivePrograms(user.id);
-  }
+  // R4: GET medical/programs/active removed (dup of medical-programs).
 
-  @SelfService()
-  @Post('medical/programs/complete-session')
-  async completeSession(@CurrentUser() user: any, @Body() body: CompleteSessionDto) {
-    if (!body.programType || !body.sessionId) throw new BadRequestException('programType and sessionId are required');
-    return this.svc.completeProgramSession(user.id, body.programType, body.sessionId);
-  }
+  // R4: POST medical/programs/complete-session removed (dup of medical-programs).
 
   // ==========================================
   // MODULE 3: PROVIDER PERFORMANCE & MATCHING

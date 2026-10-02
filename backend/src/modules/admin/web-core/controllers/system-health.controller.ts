@@ -1,6 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
 
-@Controller('system-health')
+// R4: SystemHealthController removed (dup of system-health). Canonical serves this path.
+// @Controller('system-health')
 export class SystemHealthController {
   
   @Get('liveness')
