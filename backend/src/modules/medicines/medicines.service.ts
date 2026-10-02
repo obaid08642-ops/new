@@ -1738,6 +1738,20 @@ export class MedicinesService {
     };
   }
 
+  /** F8: does this admin hold the catalog approve permission (directly or via role)? */
+  private async holdsCatalogApprove(adminId: string): Promise<boolean> {
+    try {
+      const { resolveEffectivePermissions } = await import('../../common/effective-permissions');
+      const conn: any = (this.model as any).db;
+      const user: any = await conn?.collection?.('users')?.findOne({ id: adminId });
+      if (!user) return false;
+      const perms = await resolveEffectivePermissions(conn, user);
+      return perms.includes('catalog.approve');
+    } catch {
+      return false;
+    }
+  }
+
   async adminUpdateCatalog(medicineId: string, patch: any, adminId: string) {
     // getById returns a mongoose document: spreading it ({ ...med }) drops `id`, and the publication
     // refresh below then ran with an undefined id -> 404 to the admin after the edit was already saved.
@@ -1760,16 +1774,26 @@ export class MedicinesService {
     }
     const before: any = {};
     for (const f of Object.keys({ ...clean, ...extra })) before[f] = med[f] ?? null;
-    // R9c: an admin edit publishes immediately (the admin holds approve permission).
-    // Price history + audit log are kept below. Provider-suggested changes still go via review.
-    const governanceReset = (med.public_eligibility === true || med.medical_review_status === 'approved') ? {
+    // F8/R9c: publishing an item by editing it requires the catalog APPROVE
+    // permission. An admin who only holds CATALOG_UPDATE/CATALOG_PRICE_WRITE
+    // sends the item back to medical review instead of publishing it.
+    // Price history + audit log are kept below in both cases.
+    const canPublish = await this.holdsCatalogApprove(adminId);
+    const wasPublic = med.public_eligibility === true || med.medical_review_status === 'approved';
+    const governanceReset = wasPublic && canPublish ? {
       verified: true,
       public_eligibility: true,
       indexing_eligibility: true,
       medical_review_status: 'approved',
       last_reviewed: new Date(),
       provenance: 'admin_direct_edit_published',
-    } : {};
+    } : (wasPublic ? {
+      // Keep the item visible but flag it for a fresh medical review decision.
+      verified: false,
+      medical_review_status: 'pending',
+      last_reviewed: null,
+      provenance: 'admin_direct_edit_pending_review',
+    } : {});
     await this.model.updateOne({ id: medicineId }, { $set: { ...clean, ...extra, ...governanceReset, updatedAt: new Date() } });
     if (clean.price !== undefined && Number(clean.price) !== Number(med.price || 0)) {
       await this.priceHistory.insertOne({ id: `mph_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`, medicine_id: medicineId, before_price: Number(med.price || 0), after_price: Number(clean.price), reason: String(patch.reason).trim(), changed_by: adminId, createdAt: new Date() });
@@ -1790,8 +1814,9 @@ export class MedicinesService {
     const removed = collectImgs(med).filter(u => !collectImgs(merged).includes(u));
     for (const url of removed) this.events.emit('storage.delete_by_url', { url });
     await this.refreshPublicProjection({ ...med, ...after, ...governanceReset }, adminId, 'medicine_admin_edit_published');
-    this.audit('medicine.admin_direct_edit', medicineId, adminId, 'admin', { before, after, requires_reapproval: false, images_deleted: removed });
+    const requiresReapproval = wasPublic && !canPublish;
+    this.audit('medicine.admin_direct_edit', medicineId, adminId, 'admin', { before, after, requires_reapproval: requiresReapproval, catalog_approve: canPublish, images_deleted: removed });
     await this.invalidateCache();
-    return { ok: true, updated: Object.keys({ ...clean, ...extra }), requires_reapproval: false };
+    return { ok: true, updated: Object.keys({ ...clean, ...extra }), requires_reapproval: requiresReapproval };
   }
 }
