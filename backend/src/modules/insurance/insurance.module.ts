@@ -686,6 +686,9 @@ export class InsuranceController {
   @SelfService()
   @Post('claims/submit')
   submitClaim(@CurrentUser() u: any, @Body() body: SubmitClaimDto) {
+    // The claim form sends booking_kind; coverage rules are keyed by service_type.
+    if (!body?.service_type && body?.booking_kind) body.service_type = body.booking_kind;
+    if (!body?.service_type) throw new BadRequestException('service_type_or_booking_kind_required');
     return this.svc.submitClaim(u.id, body);
   }
 

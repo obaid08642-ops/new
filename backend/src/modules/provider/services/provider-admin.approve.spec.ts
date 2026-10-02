@@ -25,12 +25,14 @@ describe('ProviderAdminService.approve (R1)', () => {
       model: { db: { collection: jest.fn(() => col()) } },
     };
     const svc = new ProviderAdminService(
-      // constructor order: accounts, profiles, docs, banks, audit, seo, events
+      // constructor order: accounts, profiles, docs, banks, audit, seo, events, stepUp
       accounts, {} as any,
       { find: jest.fn().mockResolvedValue(docs), updateMany: jest.fn().mockResolvedValue({}) } as any,
       { updateMany: jest.fn().mockResolvedValue({}) } as any,
       { create: jest.fn().mockResolvedValue({}) } as any,
       {} as any, {} as any,
+      // F5: the override path calls stepUp.verify(); the default double refuses.
+      { verify: jest.fn().mockResolvedValue(false) } as any,
     );
     (svc as any).assertAdmin = jest.fn();
     return svc;
@@ -58,20 +60,37 @@ describe('ProviderAdminService.approve (R1)', () => {
     await expect(svc.approve({ id: 'admin-1' }, 'prov-1', {})).resolves.toBeDefined();
   });
 
-  it('allows override with a written reason (≥20 chars) and writes an audit row', async () => {
+  it('allows override with a written reason (≥20 chars) AND step-up, and writes an audit row', async () => {
     const svc = makeService([]);
     (svc as any).transition = jest.fn().mockResolvedValue(undefined);
     const auditCreate = jest.fn().mockResolvedValue({});
     (svc as any).audit = { create: auditCreate };
+    // F5: the override is the privileged act, so a fresh passkey assertion is
+    // required on top of the written reason.
+    (svc as any).stepUp = { verify: jest.fn().mockResolvedValue(true) };
     await expect(
       svc.approve(
         { id: 'admin-1' }, 'prov-1',
         { override_reason: 'Emergency approval: documents verified manually at the site visit.' },
+        'stepup-token',
       ),
     ).resolves.toBeDefined();
     expect(auditCreate).toHaveBeenCalledWith(
       expect.objectContaining({ action: 'admin.provider_approved_override' }),
     );
+  });
+
+  it('refuses the override with a valid reason but no step-up (403)', async () => {
+    const svc = makeService([]);
+    (svc as any).transition = jest.fn().mockResolvedValue(undefined);
+    (svc as any).audit = { create: jest.fn().mockResolvedValue({}) };
+    (svc as any).stepUp = { verify: jest.fn().mockResolvedValue(false) };
+    await expect(
+      svc.approve(
+        { id: 'admin-1' }, 'prov-1',
+        { override_reason: 'Emergency approval: documents verified manually at the site visit.' },
+      ),
+    ).rejects.toThrow('step_up_required');
   });
 
   it('rejects an override reason shorter than 20 chars', async () => {

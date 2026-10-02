@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class InsuranceDecideDto {
   @IsBoolean()
@@ -58,7 +58,16 @@ export class SavePolicyDto {
 
 export class SubmitClaimDto {
   @IsString() booking_id: string;
-  @IsString() service_type: string;
+  // The claim form (patient-web) sends booking_kind; service_type is the older
+  // name for the same thing. One of the two is required.
+  @IsOptional() @IsString() service_type?: string;
+  @IsOptional() @IsIn(['consultation', 'pharmacy', 'lab', 'radiology', 'nursing', 'home_care', 'physiotherapy'])
+  booking_kind?: string;
+  @IsOptional() @IsString() claim_type?: string;
+  @IsOptional() @IsNumber() amount?: number;
+  @IsOptional() @IsString() service_date?: string;
+  @IsOptional() @IsString() attachment_url?: string;
+  @IsOptional() @IsString() note?: string;
   @IsOptional() @IsString() reason?: string;
   @IsOptional() @IsArray() documents?: string[];
 }

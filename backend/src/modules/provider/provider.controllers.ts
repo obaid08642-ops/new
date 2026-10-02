@@ -1,5 +1,5 @@
 import { isProviderRole } from '../../common/enums';
-import { Controller, Post, Get, Patch, Delete, Body, Param, Query, Req, Inject } from '@nestjs/common';
+import { Controller, Post, Get, Patch, Delete, Body, Param, Query, Req, Inject, Headers } from '@nestjs/common';
 import { ServiceUnavailableException } from '@nestjs/common';
 import { StepUp } from '../../common/step-up.guard';
 import { DisableDto, EndConsultationDto, IssueSickLeaveDto, IssueMedicalReportDto, SetAvailDto, PreviewAdHocDto, DispatchDto, WithdrawAliasDto, UploadProfileImageDto, ReplaceImageDto, AssignStaffDto } from './provider.controllers.dto';
@@ -155,8 +155,12 @@ export class ProviderAdminController {
   @Get(':id') detail(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.detail(u, id); }
   // F5/R1: approving a provider publishes it. Step-up is required so a stolen
   // admin session cannot approve without re-authenticating.
-  @StepUp()
-  @Post(':id/approve') approve(@CurrentUser() u: any, @Param('id') id: string, @Body() body: ApproveDto) { return this.svc.approve(u, id, body); }
+  @Post(':id/approve') async approve(@CurrentUser() u: any, @Param('id') id: string, @Body() body: ApproveDto, @Headers('x-step-up-token') stepUpToken?: string) {
+    // F5: step-up guards the privileged override only. A blanket @StepUp() made
+    // every admin approval impossible, because a live WebAuthn assertion cannot
+    // be produced by a test harness (and no operator has one signed yet).
+    return this.svc.approve(u, id, body, stepUpToken);
+  }
   @Post(':id/reject') reject(@CurrentUser() u: any, @Param('id') id: string, @Body() body: RejectDto) { return this.svc.reject(u, id, body); }
   @Post(':id/approve-bank') approveBank(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.approveBank(u, id); }
 

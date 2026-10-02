@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { Injectable, BadRequestException, NotFoundException, ForbiddenException, Inject } from '@nestjs/common';
+import { StepUpService } from '../../../common/step-up.guard';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Model } from 'mongoose';
 import { ProviderAccount, ProviderProfile, ProviderDocument, ProviderBankAccount, ProviderAuditLog, DocumentReviewStatus, BankReviewStatus } from '../schemas';
@@ -22,6 +23,7 @@ export class ProviderAdminService {
     @Inject('ProviderAuditLogRepository') private audit: ProviderAuditLogRepository,
     private seoPipeline: AutoEntitySeoPipelineService,
     private events: EventEmitter2,
+    private stepUp: StepUpService,
   ) {}
 
 
@@ -129,7 +131,7 @@ export class ProviderAdminService {
     account.status = to;
   }
 
-  async approve(user: any, id: string, body: any) {
+  async approve(user: any, id: string, body: any, stepUpToken?: string) {
     this.assertAdmin(user);
     const a = await this.accounts.findOne({ id }); if (!a) throw new NotFoundException();
     // R1: approval requires every required document to exist and not be rejected.
@@ -138,31 +140,19 @@ export class ProviderAdminService {
     const required = (await import('../provider.enums')).REQUIRED_DOCS_BY_PROVIDER_TYPE[(a as any).provider_type] || [];
     const docs = await this.docs.find({ account_id: id });
     const okTypes = new Set(docs.filter((d: any) => d.review_status !== 'REJECTED').map((d: any) => d.doc_type));
-    // R1 fix: onboarding stores uploaded license files as URLs in the profile
-    // (license_documents), not as typed provider_documents records. Either proves
-    // the admin can see the files before approving.
-    let profileDocs = 0;
-    try {
-      const prof: any = await this.profiles.findOne({ account_id: id });
-      // Onboarding step2 writes to provider_profiles (by user_id), not account_profiles.
-      // Check both collections for license evidence.
-      let urls = (prof as any)?.license_documents;
-      if (!Array.isArray(urls) || urls.length === 0) {
-        try {
-          const onboardingCol = (this.accounts as any)?.model?.db?.collection?.('provider_profiles');
-          const onboardingProf: any = await onboardingCol?.findOne({ $or: [{ account_id: id }, { user_id: (a as any)?.user_id }] });
-          urls = (onboardingProf as any)?.license_documents;
-        } catch { /* collection unavailable */ }
-      }
-      if (Array.isArray(urls)) profileDocs = (urls as any[]).filter((u: any) => typeof u === 'string' && (u as string).length > 0).length;
-    } catch { profileDocs = 0; }
-    const missing = (profileDocs >= required.length && required.length > 0)
-      ? []
-      : required.filter((r: string) => !okTypes.has(r));
+    // F4/F5: only a typed provider_documents row proves a document exists.
+    // Counting profile.license_documents URLs let three junk strings through,
+    // which is what the reviewer probe A caught.
+    const missing = required.filter((r: string) => !okTypes.has(r));
     if (missing.length) {
       const reason = String(body?.override_reason || '').trim();
       if (reason.length < 20) {
         throw new BadRequestException(`required_documents_missing: ${missing.join(', ')}`);
+      }
+      // F5: the override is the privileged act, so it needs a fresh passkey
+      // assertion (step-up) in addition to the written reason.
+      if (!stepUpToken || !(await this.stepUp.verify(user.id || user.sub, 'provider_admin_approve_override', stepUpToken))) {
+        throw new ForbiddenException('step_up_required');
       }
       await this.audit.create({ provider_account_id: id, actor_id: user.id, actor_role: 'admin', action: 'admin.provider_approved_override', after: { missing, override_reason: reason } });
     }
