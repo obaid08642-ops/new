@@ -66,6 +66,24 @@ Evidence:
   | Throughput | 13.8 rps | 282 rps |
 
   A cache miss after the fix takes about 111 ms. Evidence: `evidence/perf_q14_did_you_mean_2026-10-02.json`.
+- **API load baseline** (`tools/perf/api_load.py`, 200 requests per endpoint per level, keep-alive, signed in as the seeded patient; single backend process on the review container while one provider crawler was running; `evidence/api_load_2026-10-02.json`). Every one of 6,000 requests answered 2xx; no 429 was seen (the local stack runs without the production rate limit).
+
+| Endpoint | c=1 p50 / p95 ms | c=10 p50 / p95 ms | c=25 p50 / p95 / p99 ms | max req/s |
+|---|---|---|---|---|
+| `/care/specialties` | 4.4 / 7.6 | 26.7 / 59.0 | 47.1 / 139.7 / 268.9 | 373.9 |
+| `/care/doctors` (q) | 83.2 / 143.0 | 456.8 / 561.7 | 1128.9 / 1429.5 / 1652.3 | 21.9 |
+| `/care/doctors/:id/slots` | 8.6 / 16.0 | 56.6 / 77.5 | 132.4 / 249.7 / 458.7 | 170.3 |
+| `/articles` (q) | 3.0 / 6.4 | 23.4 / 37.3 | 33.5 / 197.2 / 361.8 | 382.8 |
+| `/medicines/search/did-you-mean` (q) | 1.8 / 4.8 | 11.6 / 26.9 | 18.6 / 54.8 / 105.7 | 827.1 |
+| `/content/home` | 4.1 / 6.2 | 31.1 / 133.4 | 51.4 / 146.7 / 308.3 | 344.8 |
+| `/users/me/profile` | 5.6 / 8.5 | 37.6 / 49.5 | 88.9 / 190.8 / 405.1 | 250.6 |
+| `/home/search` (q) | 8.4 / 13.4 | 60.9 / 145.7 | 133.8 / 303.4 / 583.4 | 150.8 |
+| `/patient/pharmacy/orders` | 6.6 / 11.4 | 41.9 / 62.7 | 98.8 / 231.0 / 437.0 | 217.0 |
+| `/care/appointments` | 8.0 / 13.2 | 56.0 / 72.5 | 144.7 / 339.7 / 689.8 | 166.6 |
+
+  - The outlier is the doctor list: about 22 req/s at most, and p50 1.1 s at 25 concurrent users, against 140–830 req/s for every other read. Cause: N+1 next-availability per doctor (**Q41**).
+  - Budget proposal for the search/list reads: p95 ≤ 150 ms at 25 concurrent users on production hardware.
+  - Under that load, `content/home`, `home/search`, `care/appointments` and `patient/pharmacy/orders` have p99 between 300 and 700 ms. Re-measure on the production instance size before deciding.
 - **Mongo profiler review.** Level 1 was on during the QA runs; a container restart reset it to level 0, which left 58 slow entries.
   - Almost all are indexed point reads or inserts (1–7 documents) taking 50–400 ms while three crawlers and the journeys shared the container. That is contention, not query plans.
   - Plan problems found:
