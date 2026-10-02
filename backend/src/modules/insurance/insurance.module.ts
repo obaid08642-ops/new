@@ -8,7 +8,7 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { NABDAH_ACCESS_TOKEN_SECURITY_SCHEME } from '../../config/openapi.config';
-import { CreateCompanyDto, UpdateCompanyDto, OcrExtractDto, UploadPolicyDto, NphiesEligibilityDto, SavePolicyDto, SubmitClaimDto, CreateInsuranceNetworkDto, CreateCoverageRuleDto, InsuranceDecideDto } from './insurance.dto';
+import { CreateCompanyDto, UpdateCompanyDto, OcrExtractDto, UploadPolicyDto, NphiesEligibilityDto, SubmitClaimDto, CreateInsuranceNetworkDto, CreateCoverageRuleDto, InsuranceDecideDto } from './insurance.dto';
 import { InjectModel, InjectConnection, MongooseModule } from '@nestjs/mongoose';
 import { Model, Connection } from 'mongoose';
 import { RedisService } from '../redis/redis.service';
@@ -382,29 +382,6 @@ Use null for any field not clearly visible. Do not guess.`;
     };
   }
 
-  async savePolicy(patientId: string, policyData: any) {
-    let patient = await this.patientModel.findOne({ user_id: { $eq: patientId } });
-    if (!patient) {
-      patient = await this.patientModel.create({ user_id: patientId });
-    }
-    patient.insurance = {
-      company_id: policyData.company_id || policyData.provider,
-      provider: policyData.provider,
-      policy_number: policyData.policy_number,
-      network: policyData.network,
-      class: policyData.class,
-      expiry_date: policyData.expiry_date,
-      member_name: policyData.member_name,
-      national_id: policyData.national_id,
-      verified: policyData.verified ?? false,
-      pdf_url: policyData.pdf_url,
-      ocr_extracted: policyData.ocr_extracted ?? false,
-      nphies_eligible: policyData.nphies_eligible ?? false,
-    };
-    await patient.save();
-    return { success: true, insurance: patient.insurance };
-  }
-
   /** LJ-02: a claim is filed against a real paid booking; the server sets the
    * status/date and ignores any client-supplied status or submitted_at. */
   async submitClaim(patientId: string, claimData: any) {
@@ -703,11 +680,8 @@ export class InsuranceController {
     return this.svc.nphiesEligibility(body.national_id, body.insurance_company_code, body.member_id);
   }
 
-  @SelfService()
-  @Post('save-policy')
-  savePolicy(@CurrentUser() u: any, @Body() body: SavePolicyDto) {
-    return this.svc.savePolicy(u.id, body);
-  }
+  // F2: POST save-policy is served by insurance-engine, which accepts every
+  // field the clients send. This strict duplicate rejected the app payload.
 
   @SelfService()
   @Post('claims/submit')

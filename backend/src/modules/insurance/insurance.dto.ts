@@ -49,8 +49,11 @@ export class SavePolicyDto {
   @IsString() company_id: string;
   @IsString() member_id: string;
   @IsOptional() @IsString() policy_number?: string;
-  @IsOptional() @IsString() expiry?: string;
+  // R24: screen sends member_name + expiry_date (not provider/expiry/verified/ocr_extracted)
+  @IsOptional() @IsString() member_name?: string;
+  @IsOptional() @IsString() expiry_date?: string;
   @IsOptional() @IsString() national_id?: string;
+  @IsOptional() @IsString() expiry?: string; // legacy alias
 }
 
 export class SubmitClaimDto {

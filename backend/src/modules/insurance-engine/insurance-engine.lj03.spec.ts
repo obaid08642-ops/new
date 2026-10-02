@@ -85,3 +85,48 @@ describe('confirmServiceBooking projects a paid lab booking to CONFIRMED (LJ-03)
     );
   });
 });
+
+/**
+ * F2: POST /insurance/save-policy is served here (the strict duplicate in the
+ * insurance module was removed). The behaviour the old spec asserted is kept.
+ */
+describe('InsuranceFlowService.savePolicy (F2 canonical handler)', () => {
+  const setupSave = () => {
+    const service: any = Object.create(InsuranceFlowService.prototype);
+    const updates: any[] = [];
+    service.companies = {
+      findOne: jest.fn().mockReturnValue({
+        lean: jest.fn().mockResolvedValue({ id: 'c-bupa', code: 'bupa', name_ar: 'بوبا', is_active: true }),
+      }),
+    };
+    service.patients = {
+      updateOne: jest.fn().mockImplementation(async (...args: any[]) => { updates.push(args); return {}; }),
+    };
+    return { service, updates };
+  };
+
+  it('saves the policy on the patient profile and never trusts a client "verified"', async () => {
+    const { service, updates } = setupSave();
+    const res = await service.savePolicy(
+      { id: 'p1' },
+      {
+        company_id: 'bupa',
+        policy_number: 'BPA-1111',
+        network: 'gold',
+        plan_class: 'A',
+        expiry_date: '2027-12-31',
+        member_name: 'Ahmed',
+        national_id: '11111',
+        verified: true,
+      },
+    );
+
+    expect(res.ok).toBe(true);
+    const [, update] = updates[0];
+    // Verification is a server-side decision, never the client's.
+    expect(update.$set.insurance.policy_number).toBe('BPA-1111');
+    expect(update.$set.insurance.verified).toBe(false);
+    expect(update.$set.insurance.member_name).toBe('Ahmed');
+    expect(update.$set.insurance.expiry_date).toBe('2027-12-31');
+  });
+});

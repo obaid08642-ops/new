@@ -284,33 +284,4 @@ describe('InsuranceService', () => {
     });
   });
 
-  describe('savePolicy', () => {
-    it('should save/update insurance policy on patient profile', async () => {
-      const mockPatient = {
-        user_id: 'p1',
-        insurance: null,
-        save: jest.fn().mockResolvedValue(true),
-      };
-      patientModel.findOne.mockResolvedValue(mockPatient);
-
-      const policyData = {
-        provider: 'bupa',
-        policy_number: 'BPA-1111',
-        network: 'gold',
-        class: 'A',
-        expiry_date: '2027-12-31',
-        member_name: 'Ahmed',
-        national_id: '11111',
-        verified: true,
-      };
-
-      const res = await service.savePolicy('p1', policyData);
-      expect(res.success).toBe(true);
-      expect(mockPatient.insurance).toEqual(expect.objectContaining({
-        provider: 'bupa',
-        policy_number: 'BPA-1111',
-        verified: true,
-      }));
-    });
-  });
 });
