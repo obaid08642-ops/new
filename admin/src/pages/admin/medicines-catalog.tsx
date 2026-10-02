@@ -18,7 +18,10 @@ import { dateLocale } from '../../utils/dates';
  */
 
 const EMPTY_FORM: any = {
-  name_ar: '', name_en: '', active_ingredient: '', generic_name: '',
+  name_ar: '', name_en: '',
+  // R10: all 6 locales editable (ur/hi/bn/fil map to translations.{locale}.name on save)
+  name_ur: '', name_hi: '', name_bn: '', name_fil: '',
+  active_ingredient: '', generic_name: '',
   manufacturer: '', brand: '', category: '', sub_category: '',
   form: '', strength: '', package_size: '', barcode: '',
   price: '', requires_prescription: false,
@@ -127,6 +130,11 @@ export default function MedicinesCatalogPage() {
   const openEdit = (m: any) => {
     setForm({
       ...EMPTY_FORM, ...m,
+      // R10: populate locale names from translations map
+      name_ur: m?.translations?.ur?.name || '',
+      name_hi: m?.translations?.hi?.name || '',
+      name_bn: m?.translations?.bn?.name || '',
+      name_fil: m?.translations?.fil?.name || m?.translations?.tl?.name || '',
       images: fromArr(m.images), image: m.image || '',
       indications_ar: fromArr(m.indications_ar), indications_en: fromArr(m.indications_en),
       contraindications_ar: fromArr(m.contraindications_ar), contraindications_en: fromArr(m.contraindications_en),
@@ -145,6 +153,15 @@ export default function MedicinesCatalogPage() {
     // Only the form's own editable fields: openEdit() loads the whole stored document into the form, and sending
     // it back (_id, id, deleted_at, verified, …) made every edit fail with 400 (forbidNonWhitelisted).
     const payload: any = Object.fromEntries(Object.keys(EMPTY_FORM).filter((k) => k !== 'reason').map((k) => [k, form[k]]));
+    // R10: map locale name fields into translations.{locale}.name; drop top-level keys
+    payload.translations = {
+      ...(form.translations || {}),
+      ur: { ...((form.translations || {}).ur || {}), ...(form.name_ur?.trim() ? { name: form.name_ur.trim() } : {}) },
+      hi: { ...((form.translations || {}).hi || {}), ...(form.name_hi?.trim() ? { name: form.name_hi.trim() } : {}) },
+      bn: { ...((form.translations || {}).bn || {}), ...(form.name_bn?.trim() ? { name: form.name_bn.trim() } : {}) },
+      fil: { ...((form.translations || {}).fil || (form.translations || {}).tl || {}), ...(form.name_fil?.trim() ? { name: form.name_fil.trim() } : {}) },
+    };
+    delete payload.name_ur; delete payload.name_hi; delete payload.name_bn; delete payload.name_fil;
     for (const f of ['indications_ar','indications_en','contraindications_ar','contraindications_en','warnings_ar','warnings_en','side_effects_ar','side_effects_en','precautions_ar','precautions_en']) {
       payload[f] = toArr(form[f]);
     }
@@ -281,6 +298,10 @@ export default function MedicinesCatalogPage() {
                 <div className="grid grid-cols-2 gap-3">
                   {F('name_ar', 'الاسم بالعربية *')}
                   {F('name_en', 'الاسم بالإنجليزية', { ltr: true })}
+                  {F('name_ur', 'الاسم بالأردية', { ltr: true })}
+                  {F('name_hi', 'الاسم بالهندية', { ltr: true })}
+                  {F('name_bn', 'الاسم بالبنغالية', { ltr: true })}
+                  {F('name_fil', 'الاسم بالفلبينية', { ltr: true })}
                   {F('active_ingredient', 'المادة الفعالة', { ltr: true })}
                   {F('generic_name', 'الاسم العلمي', { ltr: true })}
                   {F('manufacturer', 'الشركة المصنعة')}

@@ -87,6 +87,8 @@ export class CatalogMedicineFieldsDto {
   @IsOptional() @IsArray() @IsString({ each: true }) precautions_ar?: string[];
   @IsOptional() @IsArray() @IsString({ each: true }) precautions_en?: string[];
   @IsOptional() @IsArray() @IsString({ each: true }) interactions?: string[];
+  // R10: 6-locale translations map (ur/hi/bn/fil names editable from admin)
+  @IsOptional() translations?: Record<string, Record<string, unknown>>;
   // audit note (price history / change log)
   @IsOptional() @IsString() @MaxLength(500) reason?: string;
 }
