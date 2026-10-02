@@ -15,6 +15,10 @@ import glob, json, os, re, subprocess, datetime
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 EV = os.path.join(ROOT, 'docs/review/evidence')
+# Manual triage for pages that rendered a not-found state because the QA data has no record to show
+# (route -> {status, reason}); anything not listed stays FAILED.
+_OV = os.path.join(ROOT, 'docs/review/coverage_overrides.json')
+OVERRIDES = json.load(open(_OV)) if os.path.exists(_OV) else {}
 GOOD = {'NAVIGATE', 'UI_CHANGE', 'BLOCKED_DESTRUCTIVE', 'SKIPPED_DESTRUCTIVE', 'DISABLED'}
 
 
@@ -134,6 +138,9 @@ def page_rows(inv, app, key):
             render = c.get('render') or {}
             if render.get('js') or render.get('bad_reads'):
                 rows.append((app, '', route, 'FAILED', 'render: ' + str((render.get('js') or render.get('bad_reads'))[0])[:80], os.path.basename(crawl))); continue
+            if render.get('not_found'):
+                o = OVERRIDES.get(route)
+                rows.append((app, '', route, o['status'] if o else 'FAILED', (o['reason'] if o else 'renders its not-found state') + f" ({c.get('url', '')[:60]})", os.path.basename(crawl))); continue
             v, why = element_verdict(c.get('elements') or [])
         else:
             st = [x['status'] for x in f]

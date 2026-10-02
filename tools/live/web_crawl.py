@@ -174,6 +174,15 @@ def main():
         ready, ms, why = wait_ready()
         landed = page.url.replace(BASE, '')
         render = {'js': list(ev['js']), 'bad_reads': sorted({f'{s} {m} {u}' for s, m, u in ev['resp'] if s >= 400 and m == 'GET'})}
+        # a page that renders its 404 / "unavailable" state still has a working back link; without this the crawl scored
+        # it PASSED (2026-10-02: every /articles/[slug] page, order tracking, map lab/hospital links)
+        try:
+            head = (page.inner_text('main', timeout=1500) if page.locator('main').count() else page.inner_text('body', timeout=1500))[:400]
+        except Exception:
+            head = ''
+        nf = re.search(r'^\s*404\b|الصفحة غير متاحة|غير متاح حالياً|تعذر تحميل بيانات|This page could not be found|Page not found', head)
+        if nf:
+            render['not_found'] = nf.group(0).strip()
         entry = {'route': pattern or (route.replace('/ar', '/[locale]', 1) if APP == 'website' else route), 'url': route, 'landed': landed,
                  'time_to_ready_ms': ms, 'ready': ready, 'not_ready_reason': why, 'render': render}
         n_inputs = fill()

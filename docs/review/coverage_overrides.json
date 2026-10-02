@@ -1,0 +1,38 @@
+{
+ "/[locale]/medicine/[slug]": {
+  "status": "BLOCKED",
+  "reason": "no approved public medicine in the QA DB (19 pending drafts)"
+ },
+ "/[locale]/medicines/[medicineId]": {
+  "status": "BLOCKED",
+  "reason": "no approved public medicine in the QA DB"
+ },
+ "/[locale]/p/[slug]": {
+  "status": "BLOCKED",
+  "reason": "no approved public medicine in the QA DB"
+ },
+ "/[locale]/doctors/[specialty]/[city]": {
+  "status": "BLOCKED",
+  "reason": "entity-graph/explore has no doctor for any tried specialty/city pair"
+ },
+ "/[locale]/doctors/[specialty]/[city]/[neighborhood]": {
+  "status": "BLOCKED",
+  "reason": "no doctor data for the tried specialty/city/neighborhood"
+ },
+ "/[locale]/offers/[offerId]": {
+  "status": "BLOCKED",
+  "reason": "no promotional offer in the QA DB (the id tried was a pharmacy offer)"
+ },
+ "/[locale]/pharmacy/[slug]": {
+  "status": "BLOCKED",
+  "reason": "no page links to it with a facility slug; provider slug is not a facility"
+ },
+ "/[locale]/nursing/nurses/[nurseId]": {
+  "status": "BLOCKED",
+  "reason": "no page links to a nurse profile; the provider id tried is not a nurse entity"
+ },
+ "/[locale]/condition/[slug]": {
+  "status": "BLOCKED",
+  "reason": "crawled with /condition/undefined from the pre-Q17 sitemap; recheck with a real code"
+ }
+}
