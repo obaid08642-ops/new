@@ -16,7 +16,6 @@ import {
   Sparkles,
   FileCheck2
 } from "lucide-react";
-import { SAUDI_INSURANCE_COMPANIES } from "@/lib/data/insurance-companies";
 import { useCentralInsurance } from "@/lib/data/use-central-insurance";
 import styles from "./service-booking-modal.module.css";
 
@@ -58,10 +57,10 @@ export function ServiceBookingModal({
   const [confirmedData, setConfirmedData] = useState<any | null>(null);
   const [error, setError] = useState("");
 
-  const INSURANCE_CATALOG = useCentralInsurance();
+  const { companies: INSURANCE_CATALOG, loading: INSURANCE_LOADING, error: INSURANCE_ERROR, reload: INSURANCE_RELOAD } = useCentralInsurance();
+  // Q50: no invented split. The final insurance/co-pay split is computed by the
+  // server from the coverage rules — the client only names the company.
   const selectedInsCompany = INSURANCE_CATALOG.find(c => c.id === insuranceCompany) || INSURANCE_CATALOG[0];
-  const patientCoPay = Math.min(servicePrice * selectedInsCompany.defaultCoPay, selectedInsCompany.maxCoPaySar);
-  const insuranceCovered = servicePrice - patientCoPay;
 
   const defaultBtnText = buttonLabel || (isAr ? "احجز الخدمة الآن" : "Book Service Now");
 
@@ -106,13 +105,12 @@ export function ServiceBookingModal({
         phone,
         visitType: visitType === "home" ? (isAr ? "زيارة منزلية" : "Home Visit") : (isAr ? "في المركز الطبي" : "Clinic Visit"),
         address: address || (isAr ? "مركز نبض الطبي - الرياض" : "Nabd Medical Center"),
-        price: paymentMethod === "insurance" ? patientCoPay : servicePrice,
+        price: servicePrice,
         paymentMethod,
-        insuranceDetails: paymentMethod === "insurance" ? {
+        insuranceDetails: paymentMethod === "insurance" && selectedInsCompany ? {
           company: isAr ? selectedInsCompany.nameAr : selectedInsCompany.nameEn,
-          policyNumber,
-          covered: insuranceCovered,
-          copay: patientCoPay
+          companyCode: selectedInsCompany.code,
+          policyNumber
         } : null
       });
       setIsSubmitting(false);
@@ -397,10 +395,21 @@ export function ServiceBookingModal({
                       </div>
                     </div>
 
-                    <div style={{ marginTop: "8px", display: "flex", justifyContent: "space-between", fontSize: "0.82rem", color: "#00876F", fontWeight: "bold" }}>
-                      <span>{isAr ? `تغطية التأمين: ${insuranceCovered.toFixed(2)} ر.س` : `Covered: ${insuranceCovered.toFixed(2)} SAR`}</span>
-                      <span style={{ color: "#B45309" }}>{isAr ? `مبلغ التحمل: ${patientCoPay.toFixed(2)} ر.س` : `Co-pay: ${patientCoPay.toFixed(2)} SAR`}</span>
-                    </div>
+                    {INSURANCE_LOADING && (
+                      <div style={{ marginTop: "8px", fontSize: "0.82rem", color: "#64748B" }}>{isAr ? "جاري تحميل شركات التأمين…" : "Loading insurers…"}</div>
+                    )}
+                    {INSURANCE_ERROR && (
+                      <div style={{ marginTop: "8px", fontSize: "0.82rem", color: "#B91C1C" }}>
+                        {isAr ? "تعذّر تحميل شركات التأمين. " : "Could not load insurers. "}
+                        <button type="button" onClick={INSURANCE_RELOAD} style={{ textDecoration: "underline" }}>{isAr ? "إعادة المحاولة" : "Retry"}</button>
+                      </div>
+                    )}
+                    {!INSURANCE_LOADING && !INSURANCE_ERROR && !INSURANCE_CATALOG.length && (
+                      <div style={{ marginTop: "8px", fontSize: "0.82rem", color: "#B45309" }}>{isAr ? "لا توجد شركات تأمين متاحة حاليًا." : "No insurers available right now."}</div>
+                    )}
+                    {!INSURANCE_LOADING && !INSURANCE_ERROR && selectedInsCompany && (
+                      <div style={{ marginTop: "8px", fontSize: "0.82rem", color: "#00876F" }}>{isAr ? "يُحتسب مبلغ التغطية والتحمل عند تأكيد الحجز حسب وثيقتك." : "Coverage and co-pay are confirmed at booking per your policy."}</div>
+                    )}
                   </div>
                 )}
 
@@ -410,7 +419,7 @@ export function ServiceBookingModal({
                   {isSubmitting 
                     ? (isAr ? "جارٍ تأكيد الحجز…" : "Confirming…")
                     : paymentMethod === "insurance"
-                    ? (isAr ? `تأكيد الحجز بموافقة التأمين (${patientCoPay.toFixed(2)} ر.س)` : `Confirm Booking with Insurance (${patientCoPay.toFixed(2)} SAR)`)
+                    ? (isAr ? `تأكيد الحجز بموافقة التأمين` : `Confirm Booking with Insurance`)
                     : (isAr ? `تأكيد حجز الموعد (${servicePrice} ر.س)` : `Confirm Booking (${servicePrice} SAR)`)}
                 </button>
               </form>
