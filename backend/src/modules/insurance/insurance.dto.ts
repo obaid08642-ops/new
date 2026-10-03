@@ -26,7 +26,11 @@ export class UpdateCompanyDto {
 }
 
 export class OcrExtractDto {
-  @IsString() image: string;
+  // add-policy.tsx uploads the camera shot as image_base64 + mime_type; the
+  // old DTO demanded a field no client ever sends.
+  @IsOptional() @IsString() image?: string;
+  @IsOptional() @IsString() image_base64?: string;
+  @IsOptional() @IsString() mime_type?: string;
 }
 
 export class UploadPolicyDto {
@@ -73,14 +77,32 @@ export class SubmitClaimDto {
 }
 
 export class CreateInsuranceNetworkDto {
-  @IsString() company_id: string;
-  @IsString() provider_id: string;
+  // company_id comes from the path (companies/:companyId/networks); the admin
+  // form sends the network's own fields, which the old DTO rejected outright.
+  @IsString() code: string;
+  @IsString() name_ar: string;
+  @IsString() name_en: string;
   @IsOptional() @IsString() network_type?: string;
+  @IsOptional() @IsNumber() tier_level?: number;
+  @IsOptional() @IsString() provider_id?: string;
 }
 
 export class CreateCoverageRuleDto {
-  @IsString() company_id: string;
-  @IsString() service_type: string;
+  // company_id also comes from the path (networks/:networkId/rules). The admin
+  // form labels the field service_type; coverage lookup accepts either name.
+  @IsOptional() @IsString() service_key?: string;
+  @IsOptional() @IsString() service_type?: string;
   @IsOptional() @IsNumber() copay_percent?: number;
-  @IsOptional() @IsBoolean() covered?: boolean;
+  @IsOptional() @IsNumber() copay_flat_limit?: number;
+  @IsOptional() @IsBoolean() requires_preauth?: boolean;
+  @IsOptional() @IsNumber() max_annual_limit?: number;
+}
+
+/** Attach/refresh one insurance network contract on a provider or facility. */
+export class AttachInsuranceContractDto {
+  @IsString() company_id: string;
+  @IsString() network_id: string;
+  @IsOptional() @IsArray() @IsString({ each: true }) covered_classes?: string[];
+  @IsOptional() @IsNumber() copay_percent?: number;
+  @IsOptional() @IsNumber() copay_flat?: number;
 }

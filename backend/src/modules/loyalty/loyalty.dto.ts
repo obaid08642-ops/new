@@ -1,48 +1,52 @@
 import { IsBoolean, IsNumber, IsObject, IsOptional, IsString, Min } from 'class-validator';
 
 export class RewardDto {
-  @IsObject()
-  name: Record<string, string>;
+  // The admin form (loyalty-config.tsx) sends title_ar/title_en/points_required/
+  // reward_type/stock; the old DTO demanded name/points_cost, so every save
+  // and toggle was rejected. Both shapes are accepted and normalized.
+  @IsOptional() @IsObject() name?: Record<string, string>;
+  @IsOptional() @IsString() title_ar?: string;
+  @IsOptional() @IsString() title_en?: string;
 
-  @IsOptional()
-  @IsObject()
-  description?: Record<string, string>;
+  @IsOptional() @IsObject() description?: Record<string, string>;
 
-  @IsNumber()
-  @Min(0)
-  points_cost: number;
+  @IsOptional() @IsNumber() @Min(0) points_cost?: number;
+  @IsOptional() @IsNumber() @Min(0) points_required?: number;
 
-  @IsOptional()
-  @IsString()
-  image?: string;
+  @IsOptional() @IsString() reward_type?: string;
+  @IsOptional() @IsNumber() @Min(0) stock?: number;
 
-  @IsOptional()
-  @IsBoolean()
-  active?: boolean;
+  @IsOptional() @IsString() image?: string;
+
+  @IsOptional() @IsBoolean() active?: boolean;
 }
 
 export class ChallengeDto {
-  @IsObject()
-  name: Record<string, string>;
+  @IsOptional() @IsObject() name?: Record<string, string>;
+  @IsOptional() @IsString() title_ar?: string;
+  @IsOptional() @IsString() title_en?: string;
 
-  @IsOptional()
-  @IsObject()
-  description?: Record<string, string>;
+  @IsOptional() @IsObject() description?: Record<string, string>;
 
-  @IsNumber()
-  @Min(0)
-  points_reward: number;
+  @IsOptional() @IsNumber() @Min(0) points_reward?: number;
+  @IsOptional() @IsNumber() @Min(0) reward_points?: number;
 
-  @IsOptional()
-  @IsNumber()
-  duration_days?: number;
+  @IsOptional() @IsString() target_action?: string;
+  @IsOptional() @IsNumber() @Min(0) target_count?: number;
+  @IsOptional() @IsString() start_date?: string;
+  @IsOptional() @IsString() end_date?: string;
 
-  @IsOptional()
-  @IsBoolean()
-  active?: boolean;
+  @IsOptional() @IsNumber() duration_days?: number;
+
+  @IsOptional() @IsBoolean() active?: boolean;
 }
 
 export class LoyaltyConfigDto {
+  // The admin config form also sends these two; the old DTO rejected the
+  // whole save because of them.
+  @IsOptional() @IsNumber() @Min(0) points_per_order?: number;
+  @IsOptional() @IsNumber() @Min(0) referral_points?: number;
+
   @IsOptional()
   @IsNumber()
   @Min(0)

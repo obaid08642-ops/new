@@ -27,7 +27,7 @@ def admin_adds_company(admin):
     return code
 
 
-def add_policy(pat, code=None):
+def add_policy(pat, code=None, admin=None, provider_id=None):
     journey('insurance: patient adds a policy (add-policy.tsx)')
     r = pat.get('/insurance/companies')
     comps = rows(r)
@@ -38,9 +38,23 @@ def add_policy(pat, code=None):
         return None
     c = comps[0]
     # add-policy.tsx sends company_id: compObj.code and provider: the localized name
+    # A network, so the policy carries company + network and coverage-check can match.
+    net_code = f'net{uuid.uuid4().hex[:5]}'
+    if admin is not None and c.get('id'):
+        rn = admin.post(f"/insurance/companies/{c.get('id')}/networks",
+                        {'code': net_code, 'name_ar': f'شبكة {net_code}', 'name_en': f'Net {net_code}', 'tier_level': 1})
+        step('admin creates a network for the company', rn.ok, rn)
+        net_id = (rn.body or {}).get('id') if isinstance(rn.body, dict) else None
+        if net_id and provider_id:
+            ra = admin.post(f"/insurance/providers/{provider_id}/insurance-contract",
+                            {'company_id': c.get('id'), 'network_id': net_id,
+                             'covered_classes': ['A', 'B', 'VIP'], 'copay_percent': 10})
+            step('the provider accepts that network', ra.ok, ra)
+
     r = pat.post('/insurance/save-policy', {'provider': c.get('name_ar') or c.get('name_en') or c.get('code'), 'company_id': c.get('code'),
                                             'policy_number': f'POL-{uuid.uuid4().hex[:8].upper()}', 'expiry_date': '2027-12-31',
-                                            'member_name': 'مريض تأمين', 'national_id': '1098765432', 'verified': False, 'ocr_extracted': False})
+                                            'member_name': 'مريض تأمين', 'national_id': '1098765432', 'verified': False, 'ocr_extracted': False,
+                                            'network': net_code, 'class': 'A'})
     step('save-policy with the add-policy payload', r.ok, r)
     r = pat.get('/insurance/my-policy')
     pol = r.get('policy') or {}
@@ -51,8 +65,8 @@ def add_policy(pat, code=None):
     step('profile.insurance is what BookingConfirmForm reads', r.ok and (r.get('insurance') or {}).get('policy_number'), r)
     r = pat.get('/users/me/insurance')
     step('hub shows the policy', r.ok and 'POL-' in str(r.body), r)
-    r = pat.get('/insurance/coverage-check?service_type=consultation')
-    step('coverage-check answers for the policy', r.ok and r.get('eligible'), r)
+    r = pat.get('/insurance/coverage-check?service_type=consultation' + (f'&provider_id={provider_id}' if provider_id else ''))
+    step('coverage-check answers for the policy', r.ok and r.get('covered'), r)
     return c
 
 
@@ -187,7 +201,8 @@ def insured_lab(pat, lab, other_lab, location='facility'):
 
 
 def run(pat, doctor, admin, labs=None):
-    add_policy(pat, admin_adds_company(admin))
+    prof_id = doctor.get('/provider-onboarding/my-profile').get('id') if doctor else None
+    add_policy(pat, admin_adds_company(admin), admin=admin, provider_id=prof_id)
     for path in PATIENT_GETS:
         r = pat.get(path)
         step(f'GET {path}', r.ok, r)
