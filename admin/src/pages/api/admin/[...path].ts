@@ -5,7 +5,7 @@ const ACCESS_COOKIE = 'admin_access';
 const REFRESH_COOKIE = 'admin_refresh';
 const CSRF_COOKIE = 'admin_csrf';
 const WRITE_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
-const FORWARDED_HEADERS = ['accept', 'content-type', 'if-match', 'if-none-match'];
+const FORWARDED_HEADERS = ['accept', 'content-type', 'if-match', 'if-none-match', 'x-step-up-token'];
 
 function upstreamBase() {
   const value = process.env.ADMIN_BACKEND_URL;
