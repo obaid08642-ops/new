@@ -6,7 +6,7 @@ Scope: the owner's "Centralized data catalogs" brief. This is gap-only: Round 2 
 
 | Catalog | Authoritative collection | Count | Brief's reference |
 |---|---|---|---|
-| Medicines | `medicines` | 8 | ~21,000 (the import was never run on the QA DB; count on staging) |
+| Medicines | `medicines` | 0 (the 8 that were here were admin-test drafts and are deleted) | 20,990 in **production** (the live `llms.txt` count). The QA DB never had the import, and the export file is not in the repo |
 | Insurance companies / networks (plans) | `insurance_companies` / `insurance_networks` | 34 / 59 | 30–35 |
 | Lab tests | `lab_services` | 103 | ~90 |
 | Radiology / imaging | `radiology_services` | 48 | ~50 |
@@ -27,6 +27,12 @@ Scope: the owner's "Centralized data catalogs" brief. This is gap-only: Round 2 
 | Q49 | Medium | backend · `labs/bookings/catalog` (`labs-engine.controller.ts:116/122`) | A second per-lab catalog in `labcatalogs` (0 documents). No client calls it. Either wire it as the per-lab price list on top of `lab_services` ids, or remove it. | grep: no client caller |
 
 Not a defect: `GET /home-care/bookings/my` merges the canonical store with the legacy `home_care_bookings` (read-only compatibility).
+
+| Q50 | High | website · insurance (`lib/data/insurance-companies.ts`, used by `checkout-flow.tsx`, `service-booking-modal.tsx`, `use-central-insurance.ts`) | A static list of companies is the initial value **and** the fallback, and every company gets an invented co-pay (`defaultCoPay 0.2`, `maxCoPaySar 50/75`). That is a second source plus made-up business numbers. | file |
+| Q51 | Medium | provider-app · doctor `InsuranceClaimScreen.tsx:74` | Five insurers hard-coded (`Bupa, Tawuniya, MedGulf, Malath, AXA`) | file |
+| Q52 | Medium | provider-app · radiology registration (`constants/index.ts` `RAD_SCANS`) | Eleven scans with preparation notes and durations hard-coded; the catalog `radiology_services` has 48 | file |
+
+Backend: 90 reads go through the central constant `CATALOG_COLLECTIONS` (medicines 47, nursing 19, labs 11, radiology 9, insurance 4). The exceptions are Q47–Q49 above, 3 direct `collection('medicines')` calls (same collection; should use the constant), and the derived `hot_medicines` / `public_catalog_projections` (must be rebuilt from the canonical records).
 
 ## 3. Still to do in this audit
 - The full consumer map (every screen → endpoint → collection) for each catalog.
