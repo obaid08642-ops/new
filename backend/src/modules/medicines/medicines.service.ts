@@ -1583,6 +1583,13 @@ export class MedicinesService {
     } else if (r.type === 'new_item') {
       const data = { ...this.pickEditable(r.changes), ...overrides };
       const created = await this.createCatalog({ ...data, verified: true }, adminId);
+      // Q60: the admin just medically approved this item — publish it instead of
+      // leaving it as an invisible draft (createCatalog alone never grants indexability).
+      const approvedAt = new Date();
+      await this.model.updateOne(
+        { id: created.id },
+        { $set: { verified: true, public_eligibility: true, indexing_eligibility: true, medical_review_status: 'approved', last_reviewed: approvedAt, approved_by: adminId, approved_at: approvedAt, provenance: 'admin_change_request_approved', updatedAt: new Date() } },
+      );
       applied = { new_medicine_id: created.id };
     }
     // 'other' → informational; approval just acknowledges it.
@@ -1689,11 +1696,15 @@ export class MedicinesService {
   async adminApproveCatalog(medicineId: string, approve: boolean, adminId: string) {
     const med: any = await this.model.findOne({ id: medicineId }, { _id: 0, __v: 0 }).lean();
     if (!med) throw new NotFoundException('الصنف غير موجود');
+    // Q60: the public catalog/search/detail filter requires indexing_eligibility:true,
+    // so medical approval must grant it here — otherwise an approved item stays 404.
+    const reviewedAt = new Date();
     await this.model.updateOne(
       { id: medicineId },
-      { $set: { medical_review_status: approve ? 'approved' : 'rejected', public_eligibility: !!approve, verified: approve ? true : med.verified, last_reviewed: new Date(), updated_by: adminId, updatedAt: new Date() } },
+      { $set: { medical_review_status: approve ? 'approved' : 'rejected', public_eligibility: !!approve, indexing_eligibility: !!approve, verified: approve ? true : med.verified, last_reviewed: reviewedAt, updated_by: adminId, updatedAt: new Date() } },
     );
     this.audit(approve ? 'medicine.admin_approved' : 'medicine.admin_rejected', medicineId, adminId, 'admin', {});
+    await this.refreshPublicProjection({ ...med, medical_review_status: approve ? 'approved' : 'rejected', public_eligibility: !!approve, indexing_eligibility: !!approve, last_reviewed: reviewedAt }, adminId, approve ? 'medicine_admin_approved' : 'medicine_admin_rejected');
     await this.invalidateCache();
     return { ok: true, id: medicineId, medical_review_status: approve ? 'approved' : 'rejected' };
   }
