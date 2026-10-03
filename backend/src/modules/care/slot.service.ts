@@ -95,10 +95,33 @@ export class SlotService {
       doctor_id: doctor.id,
       slot_start: { $gte: startOfDay, $lt: endOfDay },
       status: { $in: ['PENDING', 'CONFIRMED', 'RESCHEDULED', 'CHECKED_IN', 'IN_PROGRESS'] },
-    }).select({ slot_start: 1 }).lean();
+    }).select({ slot_start: 1, slot_end: 1, duration_minutes: 1 }).lean();
     const bookedSet = new Set(booked.map((b: any) => new Date(b.slot_start).toISOString()));
+    // Q37 — apply create()'s 5-min buffer HERE, not just exact-start matches.
+    // Canon: appointments.service.ts APPOINTMENT_SLOT_BUFFER_MINUTES +
+    // "existing.slot_start < paddedEnd && existing.slot_end > slotStart".
+    // Mirrored inline (not imported) because appointments.service.ts already
+    // depends on this SlotService — importing back would be circular.
+    const BUFFER_MS = 5 * 60_000;
+    const ranges = (booked as any[]).map((b: any) => {
+      const s = new Date(b.slot_start).getTime();
+      const e = b.slot_end ? new Date(b.slot_end).getTime()
+        : s + (Number(b.duration_minutes) || duration_minutes) * 60_000;
+      return { s, e };
+    });
     for (const s of slots) {
-      if (bookedSet.has(s.start)) s.available = false;
+      if (bookedSet.has(s.start)) {
+        s.available = false;
+        continue;
+      }
+      const startMs = new Date(s.start).getTime();
+      const paddedEnd = startMs + duration_minutes * 60_000 + BUFFER_MS;
+      for (const r of ranges) {
+        if (r.s < paddedEnd && r.e > startMs) {
+          s.available = false;
+          break;
+        }
+      }
     }
     return { date: dateStr, service_type, slots };
   }
