@@ -8,8 +8,14 @@ export class LabCatalog {
   @Prop({ type: String, required: true, index: true })
   lab_id: string; // The lab this catalog belongs to
 
-  @Prop({ required: true, unique: true, index: true })
+  // Q49: per-lab price list — test_code is unique per lab (not globally),
+  // and service_id keys the entry to the canonical `lab_services` record
+  // (LabService.id; falls back to short_code === test_code when unset).
+  @Prop({ type: String, required: true, index: true })
   test_code: string; // e.g., 'LAB-CBC'
+
+  @Prop({ type: String, required: false, index: true })
+  service_id?: string; // LabService.id in `lab_services`
 
   @Prop({ required: true })
   test_name_ar: string; // e.g., 'صورة دم كاملة (CBC)'
@@ -39,3 +45,6 @@ export class LabCatalog {
 }
 
 export const LabCatalogSchema = SchemaFactory.createForClass(LabCatalog);
+// Q49: the same test_code exists in every lab's price list — uniqueness is
+// per (lab_id, test_code), never global.
+LabCatalogSchema.index({ lab_id: 1, test_code: 1 }, { unique: true });
