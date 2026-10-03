@@ -20,6 +20,51 @@ const PLATFORM_FEES = {
 };
 
 /**
+ * Q37 — slot-listing buffer parity (listed-available implies bookable).
+ * create()/reschedule() pad the NEW appointment by 5 minutes and refuse when an
+ * existing blocking appointment satisfies:
+ *   existing.slot_start < paddedEnd && existing.slot_end > slotStart
+ * The slot-listing path must apply this IDENTICAL rule when it builds
+ * `available: true/false`; otherwise a slot (e.g. 16:30 with a 17:00 booking
+ * right after it) is listed available but POST /care/appointments 409s with
+ * slot_already_booked_or_conflicts_with_buffer.
+ * These pure helpers are the single definition of that rule for the listing
+ * path — create()/reschedule()/assertNoForeignSlotHold() (Q36) below are
+ * intentionally untouched.
+ */
+export const APPOINTMENT_SLOT_BUFFER_MINUTES = 5;
+
+/** Blocking statuses mirrored from create()'s overlap query (Q37 parity). */
+export const APPOINTMENT_LISTING_BLOCKING_STATUSES = [
+  APPT_STATES.PENDING,
+  APPT_STATES.CONFIRMED,
+  APPT_STATES.CHECKED_IN,
+  APPT_STATES.IN_PROGRESS,
+] as const;
+
+/** paddedEnd for a candidate slot — identical to create()'s `paddedEnd`. */
+export function slotPaddedEnd(slotStart: Date, durationMinutes = 30): Date {
+  return new Date(slotStart.getTime() + durationMinutes * 60_000 + APPOINTMENT_SLOT_BUFFER_MINUTES * 60_000);
+}
+
+/**
+ * Identical to create()'s overlap predicate: the candidate (plus its 5-min
+ * buffer) conflicts with an existing booking iff the booking starts before the
+ * candidate's padded end and ends after the candidate's start. Strict
+ * inequalities match the booking query exactly (a booking starting exactly at
+ * paddedEnd does NOT conflict).
+ */
+export function slotCandidateConflictsWithBooking(
+  candidateStart: Date,
+  candidateEnd: Date,
+  bookingStart: Date,
+  bookingEnd: Date,
+): boolean {
+  const paddedEnd = new Date(candidateEnd.getTime() + APPOINTMENT_SLOT_BUFFER_MINUTES * 60_000);
+  return bookingStart.getTime() < paddedEnd.getTime() && bookingEnd.getTime() > candidateStart.getTime();
+}
+
+/**
  * Appointment lifecycle service.
  * - State machine: PENDING → CONFIRMED → CHECKED_IN → IN_PROGRESS → COMPLETED
  * - Card payments: stay PENDING until payment.completed webhook confirms.
@@ -91,6 +136,40 @@ export class AppointmentsService {
       return;
     }
     if (blocking) throw new ConflictException('slot_held');
+  }
+
+  /**
+   * Q37 — slot-listing path: `available` for one candidate slot under the
+   * IDENTICAL 5-min buffer rule create() enforces, so listed-available implies
+   * bookable. Pure read over caller-supplied blocking bookings (no DB); the
+   * caller must pass bookings in create()'s blocking statuses.
+   */
+  isSlotListAvailable(
+    candidateStart: Date | string,
+    bookings: { slot_start: Date | string; slot_end: Date | string }[],
+    durationMinutes = 30,
+  ): boolean {
+    const start = new Date(candidateStart);
+    const end = new Date(start.getTime() + durationMinutes * 60_000);
+    return !bookings.some((b) =>
+      slotCandidateConflictsWithBooking(start, end, new Date(b.slot_start), new Date(b.slot_end)),
+    );
+  }
+
+  /**
+   * Q37 — batch version of the listing path: builds the `available` flag for
+   * each candidate slot with the same buffer rule as booking.
+   */
+  markSlotsAvailability(
+    candidates: { start: Date | string; durationMinutes?: number }[],
+    bookings: { slot_start: Date | string; slot_end: Date | string }[],
+    defaultDurationMinutes = 30,
+  ): { start: string; available: boolean }[] {
+    return candidates.map((c) => {
+      const start = new Date(c.start);
+      const dur = c.durationMinutes ?? defaultDurationMinutes;
+      return { start: start.toISOString(), available: this.isSlotListAvailable(start, bookings, dur) };
+    });
   }
 
   /** ===== Create ===== */
