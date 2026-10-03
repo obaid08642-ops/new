@@ -16,7 +16,6 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { Connection } from 'mongoose';
 
 import { AdminEnterpriseModule } from '../src/modules/admin/enterprise/admin-enterprise.module';
-import { WalletModule } from '../src/modules/wallet/wallet.module';
 import { MailModule } from '../src/modules/mail/mail.module';
 import { WalletSchema } from '../src/schemas/wallet.schema';
 import { RedisService } from '../src/modules/redis/redis.service';
@@ -76,7 +75,6 @@ beforeAll(async () => {
       ScheduleModule.forRoot(),
       RedisModule,
       MailModule,
-      WalletModule,
       AdminEnterpriseModule,
       ClientConfigModule,
     ],
