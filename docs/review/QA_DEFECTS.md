@@ -64,6 +64,8 @@ Continues the R1–R83 / F1–F10 registers in `REVIEW_REAUDIT_P1_P11.md`. IDs h
 | Q54 | High (security) | deploy · coturn | relay to an internal address | refused | only 10/8, 172.16/12 and 192.168/16 are denied | `deploy/coturn/turnserver.conf` | Open → agent: also deny 0.0.0.0/8, 127.0.0.0/8, 169.254.0.0/16, 100.64.0.0/10, ::1, fc00::/7, fe80::/10; drop `verbose` in production |
 | Q55 | High (verify on the server) | deploy · LiveKit `node_ip` / coturn `external-ip` | call from an IPv4-only network | connects | both advertise only an IPv6 address | config | Owner/agent: confirm the VPS IPv4 and advertise both; test a call on an IPv4-only network |
 | Q56 | Low | `backend/infra/livekit.yaml`, `backend/infra/turnserver.conf` | — | one config | stale copies with placeholders (`turn.example.com`, `1.2.3.4`, `change_this…`) | duplicates of `deploy/` | Open → agent: delete them |
+| Q57 | Medium | provider-app · doctor/facility registration | choose an academic degree | the backend list (`GET /care/degrees`) | a hard-coded `DEGREES` list | `constants/index.ts` | Open → agent: load `/care/degrees` |
+| Q58 | High (build) | provider-app · install | `npm ci` in `provider-app` (what CI and EAS run) | clean install | `ERESOLVE`: devDependency `react-test-renderer@^19.2.8` needs react ≥ 19.2.8, react is pinned to 19.2.3; no `.npmrc` (patient-app has `legacy-peer-deps=true`) | dependency conflict | Open → agent: pin `react-test-renderer` to `19.2.3` (matching react) or align react; a plain `npm ci` must pass. Evidence: native-e2e run 37084021857, job build (provider-app) |
 
 ## Not defects (investigated)
 - `GET /medicines/compare` 404 in the crawl: the route is `POST`.

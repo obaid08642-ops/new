@@ -34,6 +34,20 @@ Not a defect: `GET /home-care/bookings/my` merges the canonical store with the l
 
 Backend: 90 reads go through the central constant `CATALOG_COLLECTIONS` (medicines 47, nursing 19, labs 11, radiology 9, insurance 4). The exceptions are Q47–Q49 above, 3 direct `collection('medicines')` calls (same collection; should use the constant), and the derived `hot_medicines` / `public_catalog_projections` (must be rebuilt from the canonical records).
 
+| Q57 | Medium | provider-app · doctor and facility registration (`constants/index.ts` `DEGREES`, used in `DoctorRegistration.tsx:453`, `FacilityRegistration.tsx:631`) | Academic degrees are hard-coded although the backend serves `GET /care/degrees` | `tools/audit/catalog_sources.py` |
+
+### Scanner: `tools/audit/catalog_sources.py` (first run, 2026-10-03)
+
+- **Client literal catalog arrays (5):**
+  - `SAUDI_INSURANCE_COMPANIES` (Q50), `RAD_SCANS` (Q52) and `DEGREES` (Q57) are second sources;
+  - `LANGS` (UI languages) and the `DoctorScheduleTab` filters are not catalogs.
+- **Client literals equal to a catalog record name (136):**
+  - most are icon or colour maps keyed by the name the API returns (for example `SPEC_ICONS` in the consultations tab, where the data comes from `/care/specialties`), or generic words ("emergency", "surgery");
+  - not a second source, but brittle (keyed by Arabic display names). Recommendation: an `icon` field on the specialty record instead of a client map.
+- **Backend reads by collection name (14):**
+  - same collection, so not a second source. They should use `CATALOG_COLLECTIONS` (style and rename safety).
+  - The real disconnects among them are `nurses` (Q47) and `labs_catalog` (Q48).
+
 ## 3. Still to do in this audit
 - The full consumer map (every screen → endpoint → collection) for each catalog.
 - The admin CRUD matrix per field group.
