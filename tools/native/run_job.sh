@@ -10,6 +10,7 @@ adb wait-for-device
 adb install -r "$APK"   # no -g: runtime permission prompts must really appear (the crawler records and answers them)
 adb shell cmd locale set-app-locales "$PKG" --locales ar-SA || true
 adb shell settings put system screen_off_timeout 1800000
+adb shell settings put global window_animation_scale 0; adb shell settings put global transition_animation_scale 0; adb shell settings put global animator_duration_scale 0
 
 ACC=/tmp/native/accounts.json
 if [ "$TARGET" = patient ]; then

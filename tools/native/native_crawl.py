@@ -136,6 +136,16 @@ class Device:
     def handle_system(self, ns):
         """Permission dialogs and other apps: record them, then get back into the app."""
         pkg = self.fg_pkg(ns)
+        texts = ' '.join(n['text'] for n in ns if n['text'])
+        if pkg == 'android' and re.search(r"isn.t responding|keeps stopping|لا يستجيب|يتوقف", texts):
+            # System ANR / crash dialog. Our own app's dialog is a finding; another app's (the emulator's
+            # launcher under load) is noise: answer "Wait" and carry on.
+            ours = re.search(r'(نبض|Nabd)', texts, re.I) is not None
+            btn = next((n for n in ns if re.match(r'^(Wait|انتظار|Close app|إغلاق التطبيق)$', n['text'] or '')), None)
+            if btn:
+                self.tap(btn)
+                time.sleep(1)
+            return f'APP_NOT_RESPONDING({texts[:80]})' if ours else None
         if pkg in PERMISSION_PKGS:
             text = ' / '.join(n['text'] for n in ns if n['text'] and len(n['text']) > 12)[:160]
             allow = next((n for n in ns if ALLOW.match(n['text'] or '')), None)
@@ -264,8 +274,11 @@ def run_patient(args):
         dev.log_mark()
         dev.open_link(path)
         ns, ms, ready = dev.wait_ready()
-        sysres = dev.handle_system(ns)
-        if sysres:
+        for _ in range(3):  # system dialogs (ANR of another app) can stack; answer and re-read
+            before = dev.fg_pkg(ns)
+            sysres = dev.handle_system(ns)
+            if before not in ('android',) and not sysres:
+                break
             ns, ms2, ready = dev.wait_ready()
             ms += ms2
         rec = explore_screen(dev, r['route'], lambda: (dev.open_link(path), dev.wait_ready()), ns, ms, ready)
