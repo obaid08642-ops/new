@@ -2,7 +2,8 @@ import { Body, Controller, Post, UseGuards, BadRequestException, ForbiddenExcept
 import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { StepUpService } from '../../common/step-up.guard';
-import { JwtAuthGuard, Public } from '../../common/auth.guard';
+import { JwtAuthGuard, Public, Roles, CurrentUser } from '../../common/auth.guard';
+import { UserRole } from '../../common/enums';
 import { IsObject, IsOptional, IsString, MaxLength } from 'class-validator';
 
 /** F1/R25: real DTO for the step-up issue body. */
@@ -41,5 +42,37 @@ export class StepUpController {
     // The assertion must be a real, freshly-signed WebAuthn response.
     const token = await this.stepUp.issueFromAssertion(u.id, action, body.response);
     return { ok: true, token, action, expires_in: 120 };
+  }
+
+  /**
+   * R23 — mint the WebAuthn challenge for a step-up ceremony. The admin UI calls
+   * this (with its session; no body needed), runs startAuthentication with the
+   * returned options, then POSTs the assertion to issue. Admin-only: the issue
+   * endpoint re-checks role, but options must not leak credential ids to
+   * non-admins, so this route is guarded rather than public.
+   */
+  @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.ADMIN)
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @Post('options')
+  async options(@CurrentUser() user: any) {
+    const userId = String(user?.id || user?.sub || '');
+    if (!userId) throw new ForbiddenException('authentication_required');
+    const creds = await this.stepUp.credentialIds(userId);
+    if (!creds.length) throw new ForbiddenException('no_passkey');
+    const challenge = await this.stepUp.storeChallenge(userId);
+    return {
+      options: {
+        challenge,
+        rpId: (this.stepUp as any).rpID || undefined,
+        allowCredentials: creds.map((c) => ({
+          id: c.id,
+          type: 'public-key',
+          ...(c.transports ? { transports: c.transports } : {}),
+        })),
+        userVerification: 'preferred',
+        timeout: 60000,
+      },
+    };
   }
 }

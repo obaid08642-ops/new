@@ -47,6 +47,25 @@ export class StepUpService {
     return (await this.stepUpStore()).get(key);
   }
 
+  /**
+   * R23 — mint the WebAuthn challenge the options endpoint hands to the admin's
+   * authenticator. Stored in shared Redis (not process-local) under the exact
+   * key issueFromAssertion reads, so verify works on any worker. Without this,
+   * takeChallenge always returned null and every step-up ceremony died with
+   * challenge_expired before the user even touched their key.
+   */
+  async storeChallenge(userId: string, ttlSeconds = 300): Promise<string> {
+    const challenge = randomBytes(32).toString('base64url');
+    await (await this.stepUpStore()).set(`webauthn_stepup:${userId}`, challenge, ttlSeconds);
+    return challenge;
+  }
+
+  /** Credential ids for the allowCredentials list of a step-up ceremony. */
+  async credentialIds(userId: string): Promise<{ id: string; transports?: string[] }[]> {
+    const creds: any[] = await this.passkeyModel.find({ user_id: userId }, { credential_id: 1, transports: 1 }).lean();
+    return (creds || []).map((c) => ({ id: String(c.credential_id), transports: c.transports }));
+  }
+
   async issue(userId: string, action: string): Promise<string> {
     const token = randomBytes(32).toString('base64url');
     const hash = createHash('sha256').update(token).digest('hex');

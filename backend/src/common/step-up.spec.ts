@@ -74,3 +74,50 @@ describe('C4: Step-up re-authentication', () => {
     expect(result).toBe(true);
   });
 });
+
+describe('R23: step-up options ceremony', () => {
+  // The UI calls POST options (empty body, admin session) to get a WebAuthn
+  // challenge, runs the ceremony, then POSTs the assertion to issue. Before
+  // this, no route minted the webauthn_stepup:{userId} challenge that
+  // issueFromAssertion verifies, so every ceremony died with
+  // challenge_expired before the user touched their key.
+  const store = new Map<string, string>();
+  const redis: any = {
+    get: jest.fn(async (k: string) => store.get(k) ?? null),
+    set: jest.fn(async (k: string, v: string) => { store.set(k, v); }),
+  };
+  const passkeyModel: any = {
+    find: jest.fn(() => ({ lean: async () => [{ credential_id: 'cred-1', transports: ['usb'] }] })),
+  };
+  const svc = () => new StepUpService(passkeyModel, redis);
+
+  it('mints a challenge the issue path can read back', async () => {
+    const service = svc();
+    const challenge = await service.storeChallenge('u1');
+    expect(challenge).toBeTruthy();
+    expect(await service['takeChallenge']('webauthn_stepup:u1')).toBe(challenge);
+  });
+
+  it('lists enrolled credential ids for allowCredentials', async () => {
+    const service = svc();
+    const ids = await service.credentialIds('u1');
+    expect(ids).toEqual([{ id: 'cred-1', transports: ['usb'] }]);
+  });
+
+  it('options returns WebAuthn options for an admin with a passkey', async () => {
+    const { StepUpController } = require('../modules/auth/step-up.controller');
+    const controller = new StepUpController({} as any, svc());
+    const res: any = await controller.options({ id: 'u1' });
+    expect(res.options.challenge).toBeTruthy();
+    expect(res.options.allowCredentials).toEqual([{ id: 'cred-1', type: 'public-key', transports: ['usb'] }]);
+    expect(res.options.userVerification).toBe('preferred');
+  });
+
+  it('options refuses an admin with no passkey enrolled', async () => {
+    const { StepUpController } = require('../modules/auth/step-up.controller');
+    const emptyModel: any = { find: jest.fn(() => ({ lean: async () => [] })) };
+    const service = new StepUpService(emptyModel, redis);
+    const controller = new StepUpController({} as any, service);
+    await expect(controller.options({ id: 'u9' })).rejects.toThrow('no_passkey');
+  });
+});
