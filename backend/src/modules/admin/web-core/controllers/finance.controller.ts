@@ -5,6 +5,8 @@ import { CommissionLedger } from '../schemas/commission-ledger.schema';
 import { WithdrawalRequest } from '../schemas/withdrawal-request.schema';
 import { LedgerService, ApprovalService } from '../../../finance-engine/finance-engine.module';
 import { CurrentUser, Roles } from '../../../../common/auth.guard';
+import { StepUp } from '../../../../common/step-up.guard';
+import { Permission, RequirePermissions } from '../../../../common/permissions';
 import { UserRole } from '../../../../common/enums';
 import { RejectPayoutDto } from './finance.dto';
 
@@ -73,7 +75,9 @@ export class FinanceController {
     return { data: normalized };
   }
 
+  @StepUp()
   @Post('withdrawals/:id/execute')
+  @RequirePermissions(Permission.FINANCE_PAYOUT_APPROVE)
   async executePayout(@Param('id') id: string, @CurrentUser() admin: any) {
     // Resolve the withdrawal WITHOUT mutating it first — we must validate
     // the provider's real balance and large-payout approval before paying.
