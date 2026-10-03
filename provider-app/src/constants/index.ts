@@ -116,20 +116,8 @@ export const DEGREES = [
 // ─── Lab Tests ────────────────────────────────────────────────────────────────
 
 // ─── Radiology Scans ──────────────────────────────────────────────────────────
-export const RAD_SCANS = [
- { id:'xray', ar:'أشعة سينية X-Ray', en:'X-Ray', prep:false, hours:0.5 },
- { id:'us', ar:'موجات فوق صوتية Ultrasound', en:'Ultrasound', prep:true, hours:1, noteAr:'اشرب الماء ولا تتبول قبل الفحص' },
- { id:'mri', ar:'رنين مغناطيسي MRI', en:'MRI Scan', prep:true, hours:24, noteAr:'أزل جميع المعادن، صيام 4 ساعات' },
- { id:'ct', ar:'أشعة مقطعية CT Scan', en:'CT Scan', prep:true, hours:4, noteAr:'صيام 4 ساعات، تنبيه حساسية الصبغة' },
- { id:'echo', ar:'إيكو قلب Echocardiography', en:'Echocardiography', prep:false, hours:1 },
- { id:'ecg', ar:'تخطيط قلب ECG / EKG', en:'ECG / EKG', prep:false, hours:0.25},
- { id:'dexa', ar:'كثافة العظام DEXA', en:'DEXA Bone Density', prep:false, hours:1 },
- { id:'mammo', ar:'ماموجرام Mammogram', en:'Mammogram', prep:true, hours:2, noteAr:'لا تستخدمي مزيل التعرق' },
- { id:'doppler', ar:'دوبلر الأوعية Doppler', en:'Doppler Ultrasound', prep:false, hours:1 },
- { id:'pet', ar:'PET Scan', en:'PET Scan', prep:true, hours:4, noteAr:'صيام 6 ساعات' },
- { id:'fluoro', ar:'تنظير فلوري Fluoroscopy', en:'Fluoroscopy', prep:true, hours:2 },
- { id:'angio', ar:'تصوير أوعية Angiography', en:'Angiography', prep:true, hours:4 },
-] as const;
+// Q52: RAD_SCANS deleted — radiology scans come only from the radiology_services catalog.
+
 
 // ─── Nursing Services ─────────────────────────────────────────────────────────
 

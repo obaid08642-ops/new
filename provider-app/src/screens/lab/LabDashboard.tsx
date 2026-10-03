@@ -19,7 +19,7 @@ import {
  NDivider, NPriceInput
 } from '../../components/ui';
 import { I, IBg, RatingStars } from '../../components/icons';
-import { SP, R, FS, FW, RAD_SCANS, C } from '../../constants';
+import { SP, R, FS, FW, C } from '../../constants';
 import { fetchCentralCatalog } from '../../api/central-catalog';
 // Central catalog lookup (labs + radiology live DB, admin-managed).
 // Hydrated async once at module load; display-only, never blocks rendering.
