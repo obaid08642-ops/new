@@ -1,0 +1,52 @@
+
+=== admin: login with email 2FA (admin panel)
+  PASS  credentials -> 202 requires_2fa
+  PASS  2FA code emailed to the admin
+  PASS  verify-2fa -> session
+  PASS  session cookie set (httpOnly)
+  PASS  BFF call with the session (dashboard: command-center)
+  PASS  wrong admin password rejected (401, or 429 once the login throttle trips)
+  PASS  admin device enrolled for the gate run (C2)
+
+=== drug index: a guest reads the public medicine
+  PASS  guest reads the medicine (no account)
+
+=== drug index: guest proposes a correction
+  PASS  suggestion stored as pending
+  PASS  the catalog is unchanged before review
+
+=== drug index: invalid suggestions are refused
+  PASS  unknown type -> 400
+  PASS  non-editable field only -> 400
+  PASS  unknown medicine -> 404
+
+=== drug index: guest proposes a new medicine
+  FAIL  new-item suggestion stored as pending  ->  400 {"message": ["property name_ar should not exist", "property name_en should not exist"], "error": "Bad Request", "statusCode": 400}
+  PASS  the new item is not public before review
+
+=== admin: review inbox
+  FAIL  both suggestions are in the admin inbox  ->  200 20 rows
+  PASS  the inbox shows old -> new values
+
+=== admin: approve the correction -> visible to everyone
+  PASS  approve
+  PASS  the public medicine shows the approved value
+  PASS  approving twice is refused
+
+=== admin: approve the new item -> it exists in the catalog
+  FAIL  approve new item creates a catalog record  ->  404 {"message": "Request not found", "error": "Not Found", "statusCode": 404}
+  FAIL  the new record is in the admin catalog  ->  0 rows
+
+=== admin: reject a suggestion -> catalog unchanged
+  PASS  reject
+  PASS  rejected value never reaches the catalog
+
+=== abuse: a guest floods suggestions
+  FAIL  15 guest suggestions in a row are limited (expect a 429 or a duplicate guard)  ->  statuses: [201] (rate limiter disabled locally: DISABLE_RATE_LIMIT=true; production relies on the global throttler only)
+
+##### 20/25 steps passed, 5 failed
+  FAIL [drug index: guest proposes a new medicine] new-item suggestion stored as pending: 400 {"message": ["property name_ar should not exist", "property name_en should not exist"], "error": "Bad Request", "statusCode": 400}
+  FAIL [admin: review inbox] both suggestions are in the admin inbox: 200 20 rows
+  FAIL [admin: approve the new item -> it exists in the catalog] approve new item creates a catalog record: 404 {"message": "Request not found", "error": "Not Found", "statusCode": 404}
+  FAIL [admin: approve the new item -> it exists in the catalog] the new record is in the admin catalog: 0 rows
+  FAIL [abuse: a guest floods suggestions] 15 guest suggestions in a row are limited (expect a 429 or a duplicate guard): statuses: [201] (rate limiter disabled locally: DISABLE_RATE_LIMIT=true; production relies on the global throttler only)

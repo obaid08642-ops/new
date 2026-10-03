@@ -11,7 +11,8 @@ export const CDN_URL = process.env.EXPO_PUBLIC_CDN_URL ?? 'https://cdn.nabd.plus
 export const GOOGLE_MAPS_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY ?? '';
 
 export const STORAGE_KEYS = {
-  AUTH_TOKEN: '@nabdah_auth_token',
+  // expo-secure-store keys may only contain [A-Za-z0-9._-]; '@' made every native save throw (Q71).
+  AUTH_TOKEN: 'nabdah_auth_token',
   REFRESH_TOKEN: '@nabdah_refresh_token',
   USER_DATA: '@nabdah_user_data',
   THEME: '@nabdah_theme',
