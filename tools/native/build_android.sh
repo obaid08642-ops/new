@@ -24,8 +24,6 @@ export EXPO_PUBLIC_BACKEND_URL=http://10.0.2.2:8002
 export EXPO_PUBLIC_SOCKET_URL=ws://10.0.2.2:8002
 export EXPO_PUBLIC_APP_ENV=development
 export SENTRY_DISABLE_AUTO_UPLOAD=true
-export NODE_ENV=production
-
 # provider-app has no .npmrc and its test-only devDependency react-test-renderer@^19.2.8 conflicts with the
 # pinned react 19.2.3, so a plain `npm ci` fails (Q58). patient-app already sets legacy-peer-deps in .npmrc.
 npm ci --no-audit --no-fund --legacy-peer-deps
@@ -34,6 +32,13 @@ npm ci --no-audit --no-fund --legacy-peer-deps
 JC=$(grep -l "jcenter()" node_modules/*/android/build.gradle node_modules/@*/*/android/build.gradle 2>/dev/null || true)
 echo "jcenter() users: ${JC:-none}" | tee /tmp/native/jcenter_${APP}.txt
 [ -n "$JC" ] && sed -i 's/jcenter()/mavenCentral()/g' $JC
+# Q62: react-native-callkeep 3.1.x also uses androidx LocalBroadcastManager without declaring it.
+CK=node_modules/react-native-callkeep/android/build.gradle
+if [ -f "$CK" ] && ! grep -q localbroadcastmanager "$CK"; then
+  sed -i '0,/^dependencies *{/s//dependencies {\n    implementation "androidx.localbroadcastmanager:localbroadcastmanager:1.1.0"/' "$CK"
+  echo "callkeep: added androidx.localbroadcastmanager (test build only)" | tee -a /tmp/native/jcenter_${APP}.txt
+fi
+export NODE_ENV=production   # after the install: npm must not drop devDependencies (Metro resolves some of them)
 npx expo prebuild -p android --clean --no-install
 
 MAN=android/app/src/main/AndroidManifest.xml
