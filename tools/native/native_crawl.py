@@ -197,10 +197,11 @@ class Device:
         time.sleep(0.4)
         sh("input text '" + val.replace(' ', '%s') + "'")  # adb input text: %s is a space
         time.sleep(0.4)
-        after = [m for m in self.nodes(self.dump()) if m['editable'] and m['bounds'] == n['bounds']]
+        # the keyboard moves the layout, so look for the typed value in any field, not at the old bounds
+        after = [m for m in self.nodes(self.dump()) if m['editable'] and (val in (m['text'] or '') or val.replace(' ', '') in (m['text'] or '').replace(' ', ''))]
         if 'mInputShown=true' in sh('dumpsys input_method | grep mInputShown'):
             self.back()  # close the keyboard only; a back press without it would leave the screen
-        return 'ACCEPTS_INPUT' if after and after[0]['text'] and after[0]['text'] != n['text'] else 'INPUT_NOT_ACCEPTED'
+        return 'ACCEPTS_INPUT' if after else 'INPUT_NOT_ACCEPTED'
 
 
 def classify(dev, before_sig, ns_after, errs, alive):
