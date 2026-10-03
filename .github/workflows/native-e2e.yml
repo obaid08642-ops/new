@@ -1,0 +1,159 @@
+name: Native E2E (Android)
+
+# Real Android builds of patient-app and provider-app on an emulator, against the real test stack
+# (backend, MongoDB, Redis, S3/SMTP/payment test doubles). Each screen is opened and every control is tapped
+# (tools/native/native_crawl.py); sign-in uses Maestro flows (tools/native/flows). Results and screenshots
+# are uploaded as artifacts; the report job merges them (tools/native/report.py).
+# Owner-approved 2026-10-03 (Android first). Manual or on pushes to review/maestro* branches only.
+on:
+  workflow_dispatch:
+  push:
+    branches: ['review/maestro**']
+    paths: ['tools/native/**', '.github/workflows/native-e2e.yml']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [patient-app, provider-app]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Free disk space
+        run: sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/share/boost /opt/hostedtoolcache/CodeQL /usr/local/lib/node_modules/@aws-amplify && df -h /
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: ${{ matrix.app }}/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Build release APK (x86_64, test backend)
+        run: bash tools/native/build_android.sh ${{ matrix.app }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: apk-${{ matrix.app }}
+          path: /tmp/native/${{ matrix.app }}.apk
+          retention-days: 7
+
+  crawl:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { target: patient, arg: '0/6' }
+          - { target: patient, arg: '1/6' }
+          - { target: patient, arg: '2/6' }
+          - { target: patient, arg: '3/6' }
+          - { target: patient, arg: '4/6' }
+          - { target: patient, arg: '5/6' }
+          - { target: provider, arg: pharmacy }
+          - { target: provider, arg: doctor }
+          - { target: provider, arg: lab }
+          - { target: provider, arg: radiology }
+          - { target: provider, arg: home_care }
+          - { target: provider, arg: hospital }
+          - { target: provider, arg: ambulance }
+    services:
+      redis:
+        image: redis:7
+        ports: ['6379:6379']
+    steps:
+      - uses: actions/checkout@v4
+      - name: Free disk space
+        run: sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/share/boost /opt/hostedtoolcache/CodeQL && df -h /
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            admin/package-lock.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: actions/download-artifact@v4
+        with:
+          name: apk-${{ matrix.target }}-app
+          path: /tmp/native
+      - name: Test stack (backend, DB, test doubles, admin BFF)
+        run: bash tools/native/ci_stack.sh
+      - name: Seed real test data (live journeys) and accounts
+        run: |
+          pip install -q requests
+          python3 tools/native/seed.py /tmp/native/accounts.json > /tmp/native/seed.log 2>&1 || (tail -n 80 /tmp/native/seed.log; exit 1)
+          tail -n 5 /tmp/native/seed.log
+          python3 tools/native/routes.py > /tmp/native/routes.json
+      - name: Maestro
+        run: |
+          curl -Ls "https://get.maestro.mobile.dev" | bash
+          "$HOME/.maestro/bin/maestro" --version
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Emulator + crawl
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          ram-size: 4096M
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          script: bash tools/native/run_job.sh ${{ matrix.target }} ${{ matrix.arg }}
+      - name: Collect logs
+        if: always()
+        run: |
+          mkdir -p /tmp/native/out
+          cp /tmp/native/seed.log /tmp/nabd-backend.log /tmp/native/out/ 2>/dev/null || true
+      - id: name
+        if: always()
+        run: echo "n=crawl-${{ matrix.target }}-$(echo '${{ matrix.arg }}' | tr '/' 'of')" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ${{ steps.name.outputs.n }}
+          path: /tmp/native/out
+          retention-days: 14
+
+  report:
+    needs: crawl
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: crawl-*
+          path: /tmp/native/all
+      - name: Merge
+        run: |
+          python3 tools/native/report.py /tmp/native/all > /tmp/native/all/NATIVE_REPORT.md
+          head -c 900000 /tmp/native/all/NATIVE_REPORT.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: native-report
+          path: /tmp/native/all
+          retention-days: 30

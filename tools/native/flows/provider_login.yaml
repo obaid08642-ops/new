@@ -1,0 +1,34 @@
+# Provider sign-in on the real Android build. EMAIL / PASSWORD of the provider type under test (tools/native/seed.py).
+appId: com.nabd.provider
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "سجّل الدخول|تسجيل الدخول|Log In"
+    timeout: 60000
+- tapOn: "سجّل الدخول|Log In"
+- runFlow:
+    when:
+      visible: "تسجيل الدخول \\(Sign In\\)|Sign In"
+    commands:
+      - tapOn: "تسجيل الدخول \\(Sign In\\)|Sign In"
+- extendedWaitUntil:
+    visible: "example@email\\.com.*"
+    timeout: 20000
+- tapOn: "example@email\\.com.*"
+- inputText: ${EMAIL}
+- tapOn: "••••••••"
+- inputText: ${PASSWORD}
+- hideKeyboard
+- tapOn:
+    text: "تسجيل الدخول|Log In"
+    below: "تذكرني|Remember Me"
+- runFlow:
+    when:
+      visible: "ليس الآن|Maybe Later"
+    commands:
+      - tapOn: "ليس الآن|Maybe Later"
+- extendedWaitUntil:
+    notVisible: "example@email\\.com.*"
+    timeout: 40000
+- takeScreenshot: provider_after_login

@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# Build a release APK of patient-app or provider-app for the Android emulator (CI only).
+#   bash tools/native/build_android.sh patient-app|provider-app   -> /tmp/native/<app>.apk
+# Test-build-only changes, applied to the CI checkout and never committed:
+#  - the app talks to the local test backend (http://10.0.2.2:8002), so cleartext HTTP is allowed in the
+#    generated AndroidManifest;
+#  - patient-app's app.json points at google-services.json, which is not in the repository (the real file
+#    is provided to store builds); it is dropped here, so FCM push is not part of this run;
+#  - only the emulator ABI (x86_64) is compiled.
+set -euo pipefail
+APP="$1"
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+cd "$ROOT/$APP"
+mkdir -p /tmp/native
+
+node -e '
+const fs=require("fs"); const j=JSON.parse(fs.readFileSync("app.json","utf8")); const a=j.expo.android||{};
+delete a.googleServicesFile; if (j.expo.ios) delete j.expo.ios.googleServicesFile;
+fs.writeFileSync("app.json", JSON.stringify(j,null,2));'
+
+export EXPO_PUBLIC_API_URL=http://10.0.2.2:8002
+export EXPO_PUBLIC_API_BASE_URL=http://10.0.2.2:8002/api/v1
+export EXPO_PUBLIC_BACKEND_URL=http://10.0.2.2:8002
+export EXPO_PUBLIC_SOCKET_URL=ws://10.0.2.2:8002
+export EXPO_PUBLIC_APP_ENV=development
+export SENTRY_DISABLE_AUTO_UPLOAD=true
+export NODE_ENV=production
+
+npm ci --no-audit --no-fund
+npx expo prebuild -p android --clean --no-install
+
+MAN=android/app/src/main/AndroidManifest.xml
+sed -i 's/android:usesCleartextTraffic="[a-z]*"//' "$MAN"
+sed -i '0,/<application /s//<application android:usesCleartextTraffic="true" /' "$MAN"
+grep -o 'usesCleartextTraffic="true"' "$MAN"
+
+cd android
+./gradlew --no-daemon assembleRelease -PreactNativeArchitectures=x86_64 -Dorg.gradle.jvmargs="-Xmx6g -XX:MaxMetaspaceSize=1g"
+cp app/build/outputs/apk/release/app-release.apk "/tmp/native/$APP.apk"
+ls -la "/tmp/native/$APP.apk"
