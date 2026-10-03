@@ -48,6 +48,30 @@ Backend: 90 reads go through the central constant `CATALOG_COLLECTIONS` (medicin
   - same collection, so not a second source. They should use `CATALOG_COLLECTIONS` (style and rename safety).
   - The real disconnects among them are `nurses` (Q47) and `labs_catalog` (Q48).
 
+## 2b. Workflows tested live (2026-10-03, local stack, fresh test DB)
+
+**Drug-index suggestions** (`tools/live/j_catalog_suggest.py`, evidence `evidence/j_catalog_suggest_2026-10-03.txt`).
+- **Works end to end:**
+  - a guest reads a public medicine and proposes a correction;
+  - it is stored as pending and the catalog is unchanged;
+  - the admin inbox shows old → new;
+  - after approval the public read shows the new value, and approving twice is refused;
+  - rejection leaves the catalog unchanged;
+  - invalid type, a non-editable field and an unknown medicine are refused.
+- **Broken:**
+  - new-item suggestions (Q59);
+  - an admin-created and approved medicine never becomes public (Q60).
+- **Abuse protection:** only the global throttler; no duplicate guard for guests. The local stack runs with the limiter off, so this is not proven either way.
+
+**Jobs** (`tools/live/j_jobs.py`, evidence `evidence/j_jobs_2026-10-03.txt`). Guest flow green:
+- a guest post is a draft, not public, and visible to its own device only;
+- non-medical roles are refused;
+- the admin publishes (API only, Q61) and the job becomes public;
+- a guest application is stored, and a second one from the same device is refused;
+- the admin reads applicants; a patient cannot.
+
+The facility-post part needs an approved hospital (the harness fix is on `review/maestro`).
+
 ## 3. Still to do in this audit
 - The full consumer map (every screen → endpoint → collection) for each catalog.
 - The admin CRUD matrix per field group.
