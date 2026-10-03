@@ -131,11 +131,19 @@ export class HealthService {
   }
 
   async latestVitals(user: any) {
+    // Perf (rank 8): the per-type lookups are independent — fan out over
+    // VALID_TYPES in one round instead of ~6 sequential findOne calls per
+    // dashboard load. Filter, sort and "first truthy wins per type" selection
+    // are unchanged, so return values are identical.
+    const rows = await Promise.all(
+      VALID_TYPES.map((t) =>
+        this.vitals.findOne({ patient_id: user.id, type: t, deleted_at: null }, { _id: 0, __v: 0 }).sort({ measured_at: -1 }),
+      ),
+    );
     const out: any = {};
-    for (const t of VALID_TYPES) {
-      const r = await this.vitals.findOne({ patient_id: user.id, type: t, deleted_at: null }, { _id: 0, __v: 0 }).sort({ measured_at: -1 });
-      if (r) out[t] = r;
-    }
+    VALID_TYPES.forEach((t, i) => {
+      if (rows[i]) out[t] = rows[i];
+    });
     return out;
   }
 
