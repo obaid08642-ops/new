@@ -105,6 +105,13 @@ export class Medicine {
   @Prop() country_of_origin?: string;
   @Prop({ default: false }) translation_conflict: boolean; // source flagged a translation inconsistency
   @Prop() review_reason?: string;
+  /**
+   * S16 (recovered from the 2026-10-01 WIP stash): every source-export field
+   * the importer does not map to a typed column lands here (per-locale maps
+   * under attributes.translations). Nothing from the owner's export is ever
+   * dropped silently.
+   */
+  @Prop({ type: Object, default: {} }) attributes: Record<string, unknown>;
 }
 export type MedicineDocument = Medicine & Document;
 export const MedicineSchema = SchemaFactory.createForClass(Medicine);

@@ -4,7 +4,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Connection } from 'mongoose';
 import * as ExcelJS from 'exceljs';
 import { AiGatewayService } from './ai-gateway.service';
-import { AiContentReviewService } from './ai-content-review.service';
+import { AiContentReviewService, MEDICAL_DISCLAIMER } from './ai-content-review.service';
 
 /**
  * AI features service — ALL generation goes through the AI Gateway,
@@ -106,6 +106,10 @@ export class AiService {
       notice: careLevel === 'emergency'
         ? 'selected_emergency_signs_require_local_emergency_services'
         : 'this_is_guidance_not_a_diagnosis_consult_a_clinician_if_symptoms_persist_or_worsen',
+      // 7B-B4 (recovered from stash): the triage payload carries the disclaimer
+      // so no patient can read it as a diagnosis. Skin/nutrition surfaces still
+      // need the same wiring — tracked, not silently assumed.
+      disclaimer: MEDICAL_DISCLAIMER,
       diagnosis: null,
       treatment: null,
     };
