@@ -124,6 +124,7 @@ export class AdminSecurityController {
   }
 
   @StepUp()
+  @RequirePermissions(Permission.RBAC_MANAGE)
   @Post('rbac/roles')
   @RequirePermissions(Permission.RBAC_MANAGE)
   async createRole(@Body() b: CreateRoleDto, @CurrentUser() me: any) {
@@ -161,6 +162,7 @@ export class AdminSecurityController {
   }
 
   @StepUp()
+  @RequirePermissions(Permission.RBAC_MANAGE)
   @Patch('rbac/roles/:id')
   @RequirePermissions(Permission.RBAC_MANAGE)
   async updateRole(@Param('id') id: string, @Body() b: UpdateRoleDto, @CurrentUser() me: any) {
@@ -186,6 +188,7 @@ export class AdminSecurityController {
   }
 
   @StepUp()
+  @RequirePermissions(Permission.RBAC_MANAGE)
   @Delete('rbac/roles/:id')
   @RequirePermissions(Permission.RBAC_MANAGE)
   async deleteRole(@Param('id') id: string, @Body() b: DeleteRoleDto, @CurrentUser() me: any) {
@@ -206,6 +209,7 @@ export class AdminSecurityController {
 
   /** Assign/unassign custom roles to an admin account. */
   @StepUp()
+  @RequirePermissions(Permission.RBAC_MANAGE)
   @Post('rbac/users/:userId/roles')
   @RequirePermissions(Permission.USER_EDIT, Permission.RBAC_MANAGE)
   async assignUserRoles(@Param('userId') userId: string, @Body() b: AssignUserRolesDto, @CurrentUser() me: any) {
