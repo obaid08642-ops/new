@@ -210,6 +210,10 @@ def register_type(ptype, overrides=None):
     for url, body, at in screen_payloads(ptype):
         sent = {k for c in _calls() if c['at'] == at for k in (c.get('kinds') or {})}
         body = {**body, **{k: v for k, v in (overrides or {}).items() if k in body or k in sent}}
+        if url.endswith('step2') and 'license_documents' in body and not body['license_documents']:
+            # The registration screens upload the licence files first and send their references
+            # (the admin approval refuses a provider without its required documents).
+            body['license_documents'] = [upload(c, f'{ptype}_doc{i}.jpg') for i in range(4)]
         r = c.post(url, body)
         step(f"{url.split('/')[-1]} as sent by {at.split('/')[-1]}", r.ok, f'{r} body_keys={sorted(body)}')
     sig = upload(c, 'signature.png', 'image/png')

@@ -29,6 +29,11 @@ export NODE_ENV=production
 # provider-app has no .npmrc and its test-only devDependency react-test-renderer@^19.2.8 conflicts with the
 # pinned react 19.2.3, so a plain `npm ci` fails (Q58). patient-app already sets legacy-peer-deps in .npmrc.
 npm ci --no-audit --no-fund --legacy-peer-deps
+# Q62: libraries that still call jcenter(), removed in Gradle 9 (the Gradle of Expo 57 / RN 0.86); the
+# store build fails on them. Test build only: point them at mavenCentral() and list them as evidence.
+JC=$(grep -l "jcenter()" node_modules/*/android/build.gradle node_modules/@*/*/android/build.gradle 2>/dev/null || true)
+echo "jcenter() users: ${JC:-none}" | tee /tmp/native/jcenter_${APP}.txt
+[ -n "$JC" ] && sed -i 's/jcenter()/mavenCentral()/g' $JC
 npx expo prebuild -p android --clean --no-install
 
 MAN=android/app/src/main/AndroidManifest.xml
