@@ -1,0 +1,59 @@
+
+=== admin: login with email 2FA (admin panel)
+  PASS  credentials -> 202 requires_2fa
+  PASS  2FA code emailed to the admin
+  PASS  verify-2fa -> session
+  PASS  session cookie set (httpOnly)
+  PASS  BFF call with the session (dashboard: command-center)
+  PASS  wrong admin password rejected (401, or 429 once the login throttle trips)
+  PASS  admin device enrolled for the gate run (C2)
+
+=== jobs: a guest posts a job (no account)
+  PASS  guest post stored as a draft pending review
+  PASS  the draft is not public
+  PASS  the guest sees their own submission by device id
+  PASS  another device does not see it
+  PASS  non-medical role refused
+
+=== jobs: admin moderates the guest post
+  PASS  admin finds the draft
+  PASS  admin publishes it (API; there is no admin screen for jobs)
+  PASS  published job is public
+
+=== jobs: a guest applies
+  PASS  guest application stored
+  PASS  second application from the same device refused
+
+=== jobs: a facility posts and reviews applicants
+
+=== onboarding: hospital registers in the provider app
+  PASS  start
+  PASS  wizard sign-in
+  PASS  step2 as sent by FacilityRegistration.tsx:423
+  PASS  step3 as sent by FacilityRegistration.tsx:1020
+  PASS  step2 as sent by FacilityRegistration.tsx:1189
+  PASS  upload signature.png
+  PASS  email verified
+  PASS  submit for review
+
+=== onboarding: admin reviews the hospital
+  PASS  pending list (provider-moderation) shows the new provider
+  PASS  provider detail opens
+  FAIL  approve with commissions  ->  400 {"message": "required_documents_missing: commercial_registration, facility_license, vat_certificate, iban_letter", "error": "Bad Request", "statusCode": 400}
+  FAIL  no longer pending  ->  200 {"items": [{"_id": "6ac053c8b0816dea723e35c8", "id": "2e687198-3033-4631-9397-ad6c8b7f51fa", "user_id": "2e687198-3033-4631-9397-ad6c8b7f51fa", "email": "hospital98924258211fc@nabd.test", "phone_e164": "+966589242582", "provider_type": "hospital", "display_name_ar": "مسؤول hospital", "display_name_en": "مسؤول hospital", "legal_name": "مسؤول hospital", "status": "pending_admin_approval", "email
+
+=== onboarding: approved hospital signs in
+  PASS  provider login
+  FAIL  facility posts a job  ->  403 {"message": "provider_approval_required", "error": "Forbidden", "statusCode": 403}
+  PASS  a facility cannot read another poster's applicants (guest phones)
+  PASS  job-seeker: send-otp (email, register)
+  PASS  job-seeker: OTP email delivered
+  PASS  job-seeker: verify-otp
+  PASS  job-seeker: register returns token + user
+  PASS  a patient cannot read applicants
+  PASS  admin reads the guest-post applicants
+
+##### 35/38 steps passed, 3 failed
+  FAIL [onboarding: admin reviews the hospital] approve with commissions: 400 {"message": "required_documents_missing: commercial_registration, facility_license, vat_certificate, iban_letter", "error": "Bad Request", "statusCode": 400}
+  FAIL [onboarding: admin reviews the hospital] no longer pending: 200 {"items": [{"_id": "6ac053c8b0816dea723e35c8", "id": "2e687198-3033-4631-9397-ad6c8b7f51fa", "user_id": "2e687198-3033-4631-9397-ad6c8b7f51fa", "email": "hospital98924258211fc@nabd.test", "phone_e164": "+966589242582", "provider_type": "hospital", "display_name_ar": "مسؤول hospital", "display_na
+  FAIL [onboarding: approved hospital signs in] facility posts a job: 403 {"message": "provider_approval_required", "error": "Forbidden", "statusCode": 403}
