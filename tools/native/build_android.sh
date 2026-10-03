@@ -39,6 +39,14 @@ if [ -f "$CK" ] && ! grep -q localbroadcastmanager "$CK"; then
   echo "callkeep: added androidx.localbroadcastmanager (test build only)" | tee -a /tmp/native/jcenter_${APP}.txt
 fi
 export NODE_ENV=production   # after the install: npm must not drop devDependencies (Metro resolves some of them)
+# Q67: patient-app lists react-native-webrtc (org.jitsi:webrtc 124) next to @livekit/react-native-webrtc
+# (io.github.webrtc-sdk 144): duplicate org.webrtc classes stop the release build. No source file imports
+# react-native-webrtc, so the test build leaves it out.
+if [ -d node_modules/react-native-webrtc ] && [ -d node_modules/@livekit/react-native-webrtc ]; then
+  node -e 'const fs=require("fs");const p=JSON.parse(fs.readFileSync("package.json"));delete p.dependencies["react-native-webrtc"];fs.writeFileSync("package.json",JSON.stringify(p,null,2))'
+  rm -rf node_modules/react-native-webrtc
+  echo "react-native-webrtc removed for the test build (Q67)" | tee -a /tmp/native/jcenter_${APP}.txt
+fi
 npx expo prebuild -p android --clean --no-install
 
 MAN=android/app/src/main/AndroidManifest.xml
