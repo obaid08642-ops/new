@@ -22,15 +22,20 @@ async function fetchDoctorsByNeighborhood(specialty: string, city: string, neigh
     );
     if (!res.ok) return null;
     const json = await res.json();
+    // Crash-sweep: backend collections may be missing or non-arrays — never
+    // call .filter/.map/.length on possibly-undefined values.
+    const base = json && typeof json === "object" ? json : {};
+    const rawFacilities = Array.isArray((base as any).facilities) ? (base as any).facilities : [];
     // Filter facilities and doctors in or near the neighborhood
     const normNeigh = decodeURIComponent(neighborhood).toLowerCase();
-    const filteredFacs = (json.facilities || []).filter((f: any) =>
-      (f.district && f.district.toLowerCase().includes(normNeigh)) ||
-      (f.address && f.address.toLowerCase().includes(normNeigh))
-    );
+    const filteredFacs = rawFacilities.filter((f: any) => {
+      const district = typeof f?.district === "string" ? f.district.toLowerCase() : "";
+      const address = typeof f?.address === "string" ? f.address.toLowerCase() : "";
+      return (district && district.includes(normNeigh)) || (address && address.includes(normNeigh));
+    });
     return {
-      ...json,
-      facilities: filteredFacs.length ? filteredFacs : json.facilities,
+      ...base,
+      facilities: filteredFacs.length ? filteredFacs : rawFacilities,
       neighborhood: decodeURIComponent(neighborhood),
     };
   } catch {
@@ -98,8 +103,8 @@ export default async function DoctorsSpecialtyCityNeighborhoodPage({ params }: P
     notFound();
   }
 
-  const doctors = data.doctors || [];
-  const facilities = data.facilities || [];
+  const doctors = Array.isArray(data.doctors) ? data.doctors : [];
+  const facilities = Array.isArray(data.facilities) ? data.facilities : [];
   const decSpec = decodeURIComponent(specialty);
   const decCity = decodeURIComponent(city);
   const decNeigh = decodeURIComponent(neighborhood);
@@ -148,19 +153,24 @@ export default async function DoctorsSpecialtyCityNeighborhoodPage({ params }: P
             <span style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{locale === "ar" ? "الأطباء المعتمدون" : "Verified Doctors"}</span>
           </h2>
           <div className={styles.grid} style={{ gap: 16 } as any}>
-            {doctors.map((doc: any) => (
-              <article key={doc.id} className={styles.card} style={{ gap: 8, padding: 16, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.72)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>
-                <h3 className={styles.cardTitle} style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{doc.name_ar || doc.name_en || doc.name}</h3>
-                <p className={styles.facilityMeta} style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{doc.specialty}</p>
+            {doctors.map((doc: any, i: number) => {
+              const d = doc && typeof doc === "object" ? doc : {};
+              const docId = typeof d.id === "string" || typeof d.id === "number" ? d.id : `doc-${i}`;
+              const docName = d.name_ar || d.name_en || d.name || (locale === "ar" ? "طبيب معتمد" : "Verified doctor");
+              return (
+              <article key={docId} className={styles.card} style={{ gap: 8, padding: 16, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.72)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>
+                <h3 className={styles.cardTitle} style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{docName}</h3>
+                <p className={styles.facilityMeta} style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{typeof d.specialty === "string" ? d.specialty : ""}</p>
                 <span className={styles.rating} style={{ overflowWrap: "anywhere" } as any}>
                   <Star size={14} fill="#d97706" color="#b45309" aria-hidden="true" />
-                  {doc.rating || 4.9}
+                  {typeof d.rating === "number" && Number.isFinite(d.rating) ? d.rating : 4.9}
                 </span>
-                <Link href={`/${locale}/consultations/book/${doc.id}`} className={styles.primaryBtn} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "10px 16px", borderRadius: 20, border: "1px solid #E8EDEE", background: "#5FD9B3", color: "#1E332E", fontWeight: 760, overflowWrap: "anywhere" } as any}>
+                <Link href={`/${locale}/consultations/book/${encodeURIComponent(String(docId))}`} className={styles.primaryBtn} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "10px 16px", borderRadius: 20, border: "1px solid #E8EDEE", background: "#5FD9B3", color: "#1E332E", fontWeight: 760, overflowWrap: "anywhere" } as any}>
                   {locale === "ar" ? "احجز استشارة" : "Book Consultation"}
                 </Link>
               </article>
-            ))}
+              );
+            })}
           </div>
         </section>
       )}
@@ -172,22 +182,42 @@ export default async function DoctorsSpecialtyCityNeighborhoodPage({ params }: P
             {locale === "ar" ? "المراكز والمستشفيات في الحي والمنطقة" : "Clinics & Hospitals in Neighborhood"}
           </h2>
           <div className={styles.grid}>
-            {facilities.map((fac: any) => (
-              <article key={fac.id} className={styles.card}>
-                <h3 className={styles.cardTitle}>{fac.name_ar || fac.name_en}</h3>
+            {facilities.map((fac: any, i: number) => {
+              const f = fac && typeof fac === "object" ? fac : {};
+              const facId = typeof f.id === "string" || typeof f.id === "number" ? f.id : `fac-${i}`;
+              const facName = f.name_ar || f.name_en || f.name || (locale === "ar" ? "منشأة معتمدة" : "Verified facility");
+              const district = typeof f.district === "string" ? f.district : "";
+              const cityName = typeof f.city === "string" ? f.city : "";
+              const insurance = Array.isArray(f.accepted_insurance) ? f.accepted_insurance.filter((x: unknown): x is string => typeof x === "string" && x.trim().length > 0) : [];
+              return (
+              <article key={facId} className={styles.card}>
+                <h3 className={styles.cardTitle}>{facName}</h3>
                 <p className={styles.facilityMeta}>
                   <MapPin size={14} aria-hidden="true" />
-                  <span>{fac.district ? `${fac.district}, ${fac.city}` : fac.city}</span>
+                  <span>{district ? `${district}, ${cityName}` : cityName}</span>
                 </p>
-                {fac.accepted_insurance?.length > 0 && (
+                {insurance.length > 0 && (
                   <p className={styles.facilityMeta} style={{ color: "#059669" } as any}>
                     <ShieldCheck size={14} aria-hidden="true" />
-                    <span>{fac.accepted_insurance.join(", ")}</span>
+                    <span>{insurance.join(", ")}</span>
                   </p>
                 )}
               </article>
-            ))}
+              );
+            })}
           </div>
+        </section>
+      )}
+      {doctors.length === 0 && facilities.length === 0 && (
+        <section className={styles.section} aria-label={locale === "ar" ? "لا توجد نتائج" : "No results"} style={{ gap: 16, padding: 24, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)" } as any}>
+          <p role="status" style={{ overflowWrap: "anywhere" } as any}>
+            {locale === "ar"
+              ? `لا توجد أطباء أو مراكز معتمدة في حي ${decNeigh} حالياً.`
+              : `No verified doctors or clinics in ${decNeigh} yet.`}
+          </p>
+          <Link href={`/${locale}/doctors/${encodeURIComponent(specialty)}/${encodeURIComponent(city)}`} className={styles.primaryBtn} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "10px 16px", borderRadius: 20, border: "1px solid #E8EDEE", background: "#5FD9B3", color: "#1E332E", fontWeight: 760, overflowWrap: "anywhere" } as any}>
+            {locale === "ar" ? `عرض أطباء ${decCity}` : `Browse doctors in ${decCity}`}
+          </Link>
         </section>
       )}
     </main>

@@ -95,6 +95,13 @@ export default async function PublicProductPage({ params }: Props) {
 
   const availabilityLabel = product.available ? t("available") : t("limited");
 
+  // Crash-sweep: backend price fields are cast without validation — never call
+  // .toFixed on a possibly-undefined/non-numeric value.
+  const price = typeof product.price === "number" && Number.isFinite(product.price) ? product.price : null;
+  const oldPrice = typeof product.old_price === "number" && Number.isFinite(product.old_price) ? product.old_price : null;
+  const currency = product.currency || "SAR";
+  const priceUnavailable = locale === "ar" ? "السعر غير متوفر" : "Price unavailable";
+
   const howTo = howToJsonLd(product);
   const jsonLd: Array<Record<string, unknown>> = [
     {
@@ -124,8 +131,8 @@ export default async function PublicProductPage({ params }: Props) {
       speakable: speakable,
       offers: {
         "@type": "Offer",
-        price: product.price,
-        priceCurrency: product.currency || "SAR",
+        price: price ?? undefined,
+        priceCurrency: currency,
         url: canonical,
         availability: product.available ? "https://schema.org/InStock" : "https://schema.org/LimitedAvailability",
         itemCondition: "https://schema.org/NewCondition",
@@ -240,9 +247,13 @@ export default async function PublicProductPage({ params }: Props) {
           <h1>{name}</h1>
           <div className={styles.priceCard}>
             <div className={styles.priceRow}>
-              <strong className={styles.price}>{product.price.toFixed(2)} {product.currency}</strong>
-              {product.old_price && product.old_price > product.price ? (
-                <s className={styles.oldPrice}>{product.old_price.toFixed(2)} {product.currency}</s>
+              {price !== null ? (
+                <strong className={styles.price}>{price.toFixed(2)} {currency}</strong>
+              ) : (
+                <strong className={styles.price}>{priceUnavailable}</strong>
+              )}
+              {oldPrice !== null && price !== null && oldPrice > price ? (
+                <s className={styles.oldPrice}>{oldPrice.toFixed(2)} {currency}</s>
               ) : null}
             </div>
             <p className={styles.subline}>{[product.form, product.strength, product.package_size].filter(Boolean).join(" · ")}</p>
@@ -250,20 +261,24 @@ export default async function PublicProductPage({ params }: Props) {
 
           {/* Add to Cart Actions */}
           <div className={styles.actionWrap}>
-            <ProductCartActions
-              locale={locale}
-              product={{
-                id: product.id,
-                name,
-                price: product.price,
-                rx: product.is_rx,
-                image: images[0] || null,
-                slug: product.slug,
-                activeIngredient: product.active_ingredient,
-                form: product.form,
-                strength: product.strength,
-              }}
-            />
+            {price !== null ? (
+              <ProductCartActions
+                locale={locale}
+                product={{
+                  id: product.id,
+                  name,
+                  price,
+                  rx: product.is_rx,
+                  image: images[0] || null,
+                  slug: product.slug,
+                  activeIngredient: product.active_ingredient,
+                  form: product.form,
+                  strength: product.strength,
+                }}
+              />
+            ) : (
+              <p role="status">{priceUnavailable}</p>
+            )}
           </div>
         </div>
       </section>
