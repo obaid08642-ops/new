@@ -74,8 +74,29 @@ export class EmergencyService {
     const critical = String(o.severity || '').toLowerCase() === 'critical';
     const pLat = o.location?.lat, pLng = o.location?.lng;
     const profiles = this.conn.db.collection('provider_profiles');
-    const users = this.conn.db.collection('users');
     const activeStates = { $nin: [EmergencyState.RESOLVED, EmergencyState.CLOSED, EmergencyState.CANCELLED] };
+
+    // Batched candidate lookup (perf): 1 × $in query for provider profiles +
+    // 1 × grouped aggregation for per-unit workloads, joined in memory.
+    // Scoring below is byte-identical to the old per-vehicle loop — same
+    // vehicle wins for the same input; only the data-access shape changed.
+    const providerIds = [...new Set(candidates.map((v: any) => (v as any).provider_account_id).filter(Boolean))];
+    const profByAccount = new Map<string, any>();
+    if (providerIds.length) {
+      const profDocs: any[] = await profiles.find(
+        { account_id: { $in: providerIds } },
+        { projection: { account_id: 1, rating_avg: 1, type: 1 } },
+      ).toArray();
+      for (const p of profDocs || []) profByAccount.set((p as any).account_id, p);
+    }
+    const workloadByVehicle = new Map<string, number>();
+    if (candidates.length) {
+      const rows: any[] = await this.model.aggregate([
+        { $match: { assigned_ambulance_id: { $in: candidates.map((v: any) => (v as any).id) }, state: activeStates } },
+        { $group: { _id: '$assigned_ambulance_id', n: { $sum: 1 } } },
+      ]);
+      for (const r of rows || []) workloadByVehicle.set((r as any)._id, (r as any).n);
+    }
 
     let best: { v: any; score: number } | null = null;
     for (const v of candidates) {
@@ -94,14 +115,14 @@ export class EmergencyService {
         score += DISPATCH_WEIGHTS.sameCity;
       }
       // 3) provider rating (provider_profiles.rating_avg, 0..5)
-      const prof = await profiles.findOne({ account_id: (v as any).provider_account_id }, { projection: { rating_avg: 1, type: 1 } });
+      const prof = profByAccount.get((v as any).provider_account_id);
       score += Math.min(DISPATCH_WEIGHTS.ratingMax, (prof?.rating_avg || 0) * 2);
       // 4) hospital priority (if configured)
       if (DISPATCH_WEIGHTS.hospitalBonus && (prof?.type === 'hospital' || prof?.type === 'clinic')) {
         score += DISPATCH_WEIGHTS.hospitalBonus;
       }
       // 5) workload: active missions already held by this unit
-      const active = await this.model.countDocuments({ assigned_ambulance_id: (v as any).id, state: activeStates } as any);
+      const active = workloadByVehicle.get((v as any).id) || 0;
       score -= active * DISPATCH_WEIGHTS.workloadPenalty;
 
       if (!best || score > best.score) best = { v, score };
