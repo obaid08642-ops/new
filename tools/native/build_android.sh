@@ -39,6 +39,13 @@ if [ -f "$CK" ] && ! grep -q localbroadcastmanager "$CK"; then
   echo "callkeep: added androidx.localbroadcastmanager (test build only)" | tee -a /tmp/native/jcenter_${APP}.txt
 fi
 export NODE_ENV=production   # after the install: npm must not drop devDependencies (Metro resolves some of them)
+# Q68: provider-app pins expo-image-manipulator ~14.0.8 (SDK 54) on Expo 57; on Android the app crashes at
+# launch (NoClassDefFoundError expo.modules.kotlin.types.AnyTypeProvider). Test build: the SDK-57 version.
+node -e 'const b=require("expo/bundledNativeModules.json");const p=require("./package.json");for(const k of Object.keys(p.dependencies||{})){if(b[k]){let v;try{v=require(k+"/package.json").version}catch(e){continue}if(v.split(".")[0]!==b[k].replace(/[~^]/,"").split(".")[0])console.log(k+"@"+b[k])}}' > /tmp/native/sdk_mismatch_${APP}.txt
+if [ -s /tmp/native/sdk_mismatch_${APP}.txt ]; then
+  echo "SDK version mismatches (Q68): $(tr '\n' ' ' < /tmp/native/sdk_mismatch_${APP}.txt)" | tee -a /tmp/native/jcenter_${APP}.txt
+  npm install --no-save --no-audit --no-fund --legacy-peer-deps $(cat /tmp/native/sdk_mismatch_${APP}.txt)
+fi
 npx expo prebuild -p android --clean --no-install
 
 MAN=android/app/src/main/AndroidManifest.xml
