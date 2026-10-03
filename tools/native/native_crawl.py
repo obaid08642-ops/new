@@ -185,7 +185,7 @@ class Device:
                '5' if re.search(r'(age|عمر|qty|كمية|number|رقم|amount|مبلغ|weight|وزن|height|طول)', hint) else 'test note')
         self.tap(n)
         time.sleep(0.4)
-        sh(f"input text '{val}'")
+        sh("input text '" + val.replace(' ', '%s') + "'")  # adb input text: %s is a space
         time.sleep(0.4)
         after = [m for m in self.nodes(self.dump()) if m['editable'] and m['bounds'] == n['bounds']]
         if 'mInputShown=true' in sh('dumpsys input_method | grep mInputShown'):

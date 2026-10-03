@@ -39,6 +39,14 @@ if [ -f "$CK" ] && ! grep -q localbroadcastmanager "$CK"; then
   echo "callkeep: added androidx.localbroadcastmanager (test build only)" | tee -a /tmp/native/jcenter_${APP}.txt
 fi
 export NODE_ENV=production   # after the install: npm must not drop devDependencies (Metro resolves some of them)
+# Q67: patient-app lists react-native-webrtc (org.jitsi:webrtc 124) next to @livekit/react-native-webrtc
+# (io.github.webrtc-sdk 144): duplicate org.webrtc classes stop the release build. No source file imports
+# react-native-webrtc, so the test build leaves it out.
+if [ -d node_modules/react-native-webrtc ] && [ -d node_modules/@livekit/react-native-webrtc ]; then
+  node -e 'const fs=require("fs");const p=JSON.parse(fs.readFileSync("package.json"));delete p.dependencies["react-native-webrtc"];fs.writeFileSync("package.json",JSON.stringify(p,null,2))'
+  rm -rf node_modules/react-native-webrtc
+  echo "react-native-webrtc removed for the test build (Q67)" | tee -a /tmp/native/jcenter_${APP}.txt
+fi
 # Q68: provider-app pins expo-image-manipulator ~14.0.8 (SDK 54) on Expo 57; on Android the app crashes at
 # launch (NoClassDefFoundError expo.modules.kotlin.types.AnyTypeProvider). Test build: the SDK-57 version.
 node -e 'const b=require("expo/bundledNativeModules.json");const p=require("./package.json");for(const k of Object.keys(p.dependencies||{})){if(b[k]){let v;try{v=require(k+"/package.json").version}catch(e){continue}if(v.split(".")[0]!==b[k].replace(/[~^]/,"").split(".")[0])console.log(k+"@"+b[k])}}' > /tmp/native/sdk_mismatch_${APP}.txt

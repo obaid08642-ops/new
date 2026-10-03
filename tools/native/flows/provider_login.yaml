@@ -4,9 +4,14 @@ appId: com.nabd.provider
 - launchApp:
     clearState: true
 - extendedWaitUntil:
-    visible: "سجّل الدخول|تسجيل الدخول|Log In"
+    visible: "Nabd Plus|نبض بلس"
     timeout: 60000
-- tapOn: "سجّل الدخول|Log In"
+# the welcome screen lists the provider types first; the sign-in entry is below them
+- scrollUntilVisible:
+    element: "سجّل الدخول|تسجيل الدخول|Log In|Sign In"
+    direction: DOWN
+    timeout: 30000
+- tapOn: "سجّل الدخول|تسجيل الدخول|Log In|Sign In"
 - runFlow:
     when:
       visible: "تسجيل الدخول \\(Sign In\\)|Sign In"
