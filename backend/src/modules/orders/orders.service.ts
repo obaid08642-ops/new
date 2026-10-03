@@ -754,37 +754,66 @@ export class OrdersService {
   async getTracking(id: string, user: any) {
     const qOrder = this.orderModel.findOne({ id });
     const order = typeof (qOrder as any)?.lean === 'function' ? await (qOrder as any).lean() : await qOrder;
-    if (!order) throw new NotFoundException();
-    const isOwner = order.patient_id === user?.id || order.pharmacy_id === user?.id;
-    if (!isOwner && !['admin', 'super_admin'].includes(user?.role)) {
+    if (order) {
+      const isOwner = order.patient_id === user?.id || order.pharmacy_id === user?.id;
+      if (!isOwner && !['admin', 'super_admin'].includes(user?.role)) {
+        throw new ForbiddenException();
+      }
+
+      let delivery = null;
+      if (order.delivery_id) {
+        const qDel = this.delModel.findOne({ id: order.delivery_id });
+        const del = typeof (qDel as any)?.lean === 'function' ? await (qDel as any).lean() : await qDel;
+        if (del) {
+          delivery = {
+            state: del.state,
+            eta_minutes: del.eta_minutes,
+            driver_id: del.driver_id,
+            location: del.current_location,
+          };
+        }
+      }
+
+      const pharmacy = order.pharmacy_id
+        ? await this.conn.collection('provider_profiles').findOne({ id: order.pharmacy_id }, { projection: { name_ar: 1, name_en: 1 } })
+        : null;
+      return {
+        order_id: order.id,
+        state: order.state,
+        updated_at: order.updatedAt,
+        delivery_mode: order.delivery_mode || 'DELIVERY',
+        total: order.total,
+        pharmacy_name: pharmacy?.name_ar || pharmacy?.name_en || null,
+        delivery,
+      };
+    }
+
+    // Q30: current governed orders live in `pharmacy_orders` — resolve them
+    // here and return the same timeline shape as legacy orders.
+    const governed: any = await this.conn.collection('pharmacy_orders').findOne({ id } as any);
+    if (!governed) throw new NotFoundException();
+    const isGovernedOwner = governed.patient_account_id === user?.id;
+    let allocation: any = null;
+    if (!isGovernedOwner && governed.selected_allocation_id) {
+      allocation = await this.conn.collection('pharmacy_allocations').findOne({ id: governed.selected_allocation_id } as any);
+    }
+    const isGovernedPharmacyParty = !!allocation && allocation.pharmacy_account_id === user?.id;
+    if (!isGovernedOwner && !isGovernedPharmacyParty && !['admin', 'super_admin'].includes(user?.role)) {
       throw new ForbiddenException();
     }
-
-    let delivery = null;
-    if (order.delivery_id) {
-      const qDel = this.delModel.findOne({ id: order.delivery_id });
-      const del = typeof (qDel as any)?.lean === 'function' ? await (qDel as any).lean() : await qDel;
-      if (del) {
-        delivery = {
-          state: del.state,
-          eta_minutes: del.eta_minutes,
-          driver_id: del.driver_id,
-          location: del.current_location,
-        };
-      }
-    }
-
-    const pharmacy = order.pharmacy_id
-      ? await this.conn.collection('provider_profiles').findOne({ id: order.pharmacy_id }, { projection: { name_ar: 1, name_en: 1 } })
+    const governedPharmacyId = allocation?.pharmacy_account_id || governed.pharmacy_id || null;
+    const governedPharmacy = governedPharmacyId
+      ? await this.conn.collection('provider_profiles').findOne({ id: governedPharmacyId }, { projection: { name_ar: 1, name_en: 1 } } as any)
       : null;
+    const governedDeliveryMethod = governed.delivery?.method || (governed.fulfillment === 'pickup' ? 'pickup' : 'delivery');
     return {
-      order_id: order.id,
-      state: order.state,
-      updated_at: order.updatedAt,
-      delivery_mode: order.delivery_mode || 'DELIVERY',
-      total: order.total,
-      pharmacy_name: pharmacy?.name_ar || pharmacy?.name_en || null,
-      delivery,
+      order_id: governed.id,
+      state: governed.status,
+      updated_at: governed.updatedAt,
+      delivery_mode: String(governedDeliveryMethod).toUpperCase() === 'PICKUP' ? 'PICKUP' : 'DELIVERY',
+      total: governed.totals?.total ?? governed.total_price ?? governed.total ?? 0,
+      pharmacy_name: governedPharmacy?.name_ar || governedPharmacy?.name_en || null,
+      delivery: null,
     };
   }
 
