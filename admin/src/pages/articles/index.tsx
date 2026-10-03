@@ -1,6 +1,8 @@
 import { GetServerSideProps } from 'next';
 import { PublicDirectory, fetchDirectory } from '../../components/PublicDirectory';
 
+const API_BASE = (process.env.ADMIN_BACKEND_URL || '').replace(/\/$/, '');
+
 export default function ArticlesPage({ items }: { items: any[] }) {
   return (
     <PublicDirectory
@@ -17,7 +19,7 @@ export default function ArticlesPage({ items }: { items: any[] }) {
 }
 
 export const getServerSideProps: GetServerSideProps = async ({ res }) => {
-  const items = await fetchDirectory('/articles?limit=50');
+  const items = await fetchDirectory(`${API_BASE}/api/v1/articles?limit=50`);
   res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
   return { props: { items } };
 };
