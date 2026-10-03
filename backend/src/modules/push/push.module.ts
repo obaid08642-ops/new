@@ -680,37 +680,41 @@ export class PushService implements OnModuleInit {
   @OnEvent('booking.*')
   async onBooking(evt: any) {
     if (!evt?.patient_id) return;
-    const msgs: Record<string, { t: string; b: string }> = {
-      MATCHING: { t: 'جاري البحث', b: 'نبحث عن أفضل مزوّد لك...' },
-      ASSIGNED: { t: 'تم إسناد المزوّد', b: `${evt.provider_name || 'المزوّد'} يعالج طلبك الآن` },
-      CONFIRMED: { t: 'تم التأكيد', b: 'تم تأكيد حجزك بنجاح' },
-      IN_PROGRESS: { t: 'بدأ التنفيذ', b: 'الخدمة قيد التنفيذ الآن' },
-      COMPLETED: { t: 'مكتمل', b: 'تم إنجاز الخدمة بنجاح' },
-      CANCELLED: { t: 'تم الإلغاء', b: 'تم إلغاء حجزك' },
-    };
-    const m = msgs[evt.universal_state] || msgs[evt.state];
-    if (!m) return;
-    await this.queueNotification(evt.patient_id, m.t, m.b, { kind: evt.kind, id: evt.id, type: 'booking' });
+    const stateKey = String(evt.universal_state || evt.state || '').toUpperCase();
+    const key = `push.booking.${stateKey.toLowerCase()}`;
+    await this.queueTemplated(
+      evt.patient_id,
+      `${key}.title`,
+      `${key}.body`,
+      { kind: evt.kind, id: evt.id, type: 'booking', state: stateKey },
+      { provider_name: evt.provider_name, amount: evt.amount },
+    );
   }
 
   @OnEvent('chat.message_sent')
   async onChatMessage(evt: any) {
     if (!evt?.meta?.participant_ids) return;
     const recipients = (evt.meta.participant_ids as string[]).filter(id => id !== evt.actor_account_id);
-    const senderName = evt.meta.sender_name || 'رسالة جديدة';
     for (const uid of recipients) {
-      await this.queueNotification(uid, senderName, evt.meta.body || 'أرسل لك رسالة', { type: 'chat', thread_id: evt.meta.thread_id });
+      await this.queueTemplated(
+        uid,
+        'push.chat.message.title',
+        'push.chat.message.body',
+        { type: 'chat', thread_id: evt.meta.thread_id },
+        { sender_name: evt.meta.sender_name, body: evt.meta.body },
+      );
     }
   }
 
   @OnEvent('call.incoming')
   async onCallIncoming(evt: any) {
     if (!evt?.callee_id) return;
-    await this.queueNotification(
+    await this.queueTemplated(
       evt.callee_id,
-      'مكالمة واردة',
-      `${evt.caller_name || 'شخص ما'} يتصل بك`,
+      'push.call.incoming.title',
+      'push.call.incoming.body',
       { type: 'call', session_id: evt.session_id, call_type: evt.call_type, caller_id: evt.caller_id },
+      { caller_name: evt.caller_name },
       'high',
     );
   }
@@ -718,11 +722,12 @@ export class PushService implements OnModuleInit {
   @OnEvent('emergency.assigned')
   async onEmergencyAssigned(evt: any) {
     if (!evt?.provider_account_id) return; // hospital assignment carries no crew
-    await this.queueNotification(
+    await this.queueTemplated(
       evt.provider_account_id,
-      'مهمة إسعاف جديدة',
-      'تم إسناد بلاغ طوارئ إلى سيارتك — افتح التطبيق للتوجه',
+      'push.emergency.assigned.title',
+      'push.emergency.assigned.body',
       { type: 'emergency', emergency_id: evt.emergency_id, vehicle_id: evt.vehicle_id },
+      {},
       'high',
     );
   }
@@ -730,11 +735,12 @@ export class PushService implements OnModuleInit {
   @OnEvent('call.missed')
   async onCallMissed(evt: any) {
     if (!evt?.callee_id) return;
-    await this.queueNotification(
+    await this.queueTemplated(
       evt.callee_id,
-      'مكالمة فائتة',
-      `لديك مكالمة فائتة من شخص ما`,
+      'push.call.missed.title',
+      'push.call.missed.body',
       { type: 'call_missed', session_id: evt.session_id },
+      {},
       'normal',
     );
   }
@@ -742,19 +748,37 @@ export class PushService implements OnModuleInit {
   @OnEvent('payment.completed')
   async onPaymentCompleted(evt: any) {
     if (!evt?.patient_id) return;
-    await this.queueNotification(evt.patient_id, 'تم الدفع بنجاح', `تم تأكيد دفع ${evt.amount} ريال`, { type: 'payment', booking_id: evt.booking_id });
+    await this.queueTemplated(
+      evt.patient_id,
+      'push.payment.completed.title',
+      'push.payment.completed.body',
+      { type: 'payment', booking_id: evt.booking_id },
+      { amount: evt.amount },
+    );
   }
 
   @OnEvent('payment.failed')
   async onPaymentFailed(evt: any) {
     if (!evt?.patient_id) return;
-    await this.queueNotification(evt.patient_id, 'فشل الدفع', 'تعذّر إتمام عملية الدفع، الرجاء المحاولة مرة أخرى', { type: 'payment_failed', booking_id: evt.booking_id });
+    await this.queueTemplated(
+      evt.patient_id,
+      'push.payment.failed.title',
+      'push.payment.failed.body',
+      { type: 'payment_failed', booking_id: evt.booking_id },
+      {},
+    );
   }
 
   @OnEvent('report.ready')
   async onReportReady(evt: any) {
     if (!evt?.patient_id) return;
-    await this.queueNotification(evt.patient_id, 'التقرير جاهز', 'تقريرك الطبي أصبح جاهزاً للتنزيل', { type: 'report', booking_id: evt.booking_id });
+    await this.queueTemplated(
+      evt.patient_id,
+      'push.report.ready.title',
+      'push.report.ready.body',
+      { type: 'report', booking_id: evt.booking_id },
+      {},
+    );
   }
 }
 
