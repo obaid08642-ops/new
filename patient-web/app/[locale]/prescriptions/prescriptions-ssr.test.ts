@@ -32,7 +32,9 @@ describe("prescriptions SSR boundary", () => {
     expect(html).toContain("stateCreatedByDoctor");
     expect(html).not.toContain("CREATED_BY_DOCTOR");
     expect(html).toContain("private-medicine");
-    for (const secret of [serverToken, prescriptionId, "private-dose", "private-instructions", "private-patient", "private-diagnosis", "private-notes", fileUrl]) expect(html).not.toContain(secret);
+    // Q15: each list row links to its detail page.
+    expect(html).toContain(`/en/prescriptions/${prescriptionId}`);
+    for (const secret of [serverToken, "private-dose", "private-instructions", "private-patient", "private-diagnosis", "private-notes", fileUrl]) expect(html).not.toContain(secret);
     expect(html).not.toMatch(/href="[^"]*private-prescription/i);
   });
 });
