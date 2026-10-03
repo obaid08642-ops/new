@@ -16,9 +16,9 @@ config.resolver.nodeModulesPaths = [
   path.resolve(projectRoot, 'node_modules'),
   path.resolve(workspaceRoot, 'node_modules'),
 ];
-// The packages must not resolve their dependencies by walking up into a
-// different node_modules than the app's.
-config.resolver.disableHierarchicalLookup = true;
+// Hierarchical lookup stays enabled (default) so nested node_modules
+// resolve their own versions (e.g. simple-swizzle -> is-arrayish@^0.3.1).
+// nodeModulesPaths above already covers the app + workspace roots.
 
 config.resolver.sourceExts = [...config.resolver.sourceExts, 'mjs', 'cjs'];
 config.resolver.assetExts = [...config.resolver.assetExts, 'ttf', 'wav', 'mp3'];
