@@ -56,6 +56,43 @@ export class AppointmentsService {
     }
   }
 
+  /**
+   * Q36 — refuse booking a slot another patient actively holds.
+   * Matches holds on the same provider whose [slot_start, slot_end) range
+   * overlaps the requested appointment, with status 'held' and
+   * expires_at in the future (expired holds never block). Holds owned by
+   * the booker (or the on-behalf patient) are excluded so the holder can
+   * still book inside their own hold.
+   */
+  private async assertNoForeignSlotHold(
+    providerId: string,
+    slotStart: Date,
+    slotEnd: Date,
+    user: any,
+    patientId: string,
+  ): Promise<void> {
+    const now = new Date();
+    const selfIds = [user?.id, patientId].filter(Boolean);
+    let blocking: any = null;
+    try {
+      const model = (this.connection as any)?.model?.('SlotLock');
+      if (!model?.findOne) return;
+      const q = model.findOne({
+        provider_id: providerId,
+        status: 'held',
+        expires_at: { $gt: now },
+        slot_start: { $lt: slotEnd },
+        slot_end: { $gt: slotStart },
+        patient_id: { $nin: selfIds },
+      });
+      blocking = typeof q?.lean === 'function' ? await q.lean() : await q;
+    } catch (e) {
+      this.logger.warn(`slot-hold check unavailable, allowing booking to proceed: ${(e as any)?.message}`);
+      return;
+    }
+    if (blocking) throw new ConflictException('slot_held');
+  }
+
   /** ===== Create ===== */
   async create(user: any, body: {
     doctor_id: string;
@@ -122,6 +159,15 @@ export class AppointmentsService {
     if (overlapping) {
       throw new ConflictException('slot_already_booked_or_conflicts_with_buffer');
     }
+
+    // Q36 — booking integrity vs slot holds: refuse when a DIFFERENT patient
+    // actively holds this provider+slot (status 'held', unexpired). The
+    // holder's own booking stays allowed (their lock is excluded below, or
+    // consumed via slot_lock_id). Pure read through the shared connection so
+    // no other module's contract changes; expired holds never match because
+    // the query requires expires_at > now. Lookup failures fail open (logged)
+    // — the overlap check + unique index above remain the hard backstop.
+    await this.assertNoForeignSlotHold(doctor.id, slotStart, slotEnd, user, patientId);
 
     // Optional slot hold (POST /slot-locks/reserve): validated before any
     // write so a mismatched/expired lock fails fast without side effects.
