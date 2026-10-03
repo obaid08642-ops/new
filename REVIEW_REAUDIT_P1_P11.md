@@ -905,3 +905,44 @@ iOS: a smoke run of the core journeys before each store release.
 **Video calls (self-hosted LiveKit and coturn on the OVH VPS).**
 - The config was code-checked (Q53–Q56).
 - A live check (token, ICE servers, TURN relay on UDP/TCP/TLS, a two-party call, reconnect) needs staging or server access.
+
+### Round 9 — addendum: everything told to the owner on 2026-10-03, so nothing lives only in chat
+
+**Agent tasks (one commit each, with Verify):**
+- **R9-A — testIDs.**
+  - Add a stable `testID` and `accessibilityLabel` to every pressable and input in both apps. This extends Q9 and is needed for native E2E.
+  - **Verify:** `ui_inventory.js` reports 0 controls without an id.
+- **R9-B — navigation speed.**
+  - Prefetch the next screen's data.
+  - Client cache (stale-while-revalidate) for catalogs and lists.
+  - Skeletons instead of spinners.
+  - `@PublicCache` on public catalog reads (14.7).
+  - **Verify:**
+    - in-app navigation on cached data ≤ 250 ms (p90), measured with `perf_web.py` on the web builds and with Maestro timings on Android;
+    - first load ≤ 1.5 s on 4G (CDP).
+- **R9-C — capacity target.**
+  - k6 load test on staging, as in plan 14.x: 2,000 req/s of the read mix with p95 ≤ 150 ms and 0 % 5xx, plus a booking/order write mix.
+  - **Verify:** the k6 report is committed. The doctor list (Q41) and indexes (Q29) are fixed first.
+- **R9-D — security testing on staging.** OWASP ZAP baseline plus an authenticated scan. Every High is fixed or explained.
+- **R9-E — iOS store specifics.**
+  - Every permission has a usage string in `app.json` (`ios.infoPlist`).
+  - Sign in with Apple stays available wherever Google sign-in is shown (present in `login.tsx` / `register.tsx`; keep it working).
+  - The medical AI features carry a disclaimer.
+  - **Verify:** the iOS smoke flow passes.
+
+**Reviewer tasks:**
+- Finish `CATALOG_AUDIT.md` §3, then write `tools/audit/catalog_sources.py`.
+- R8-2: native features in code. R8-3: sensitive admin operations in code.
+- **Maestro:**
+  - build the pipeline now;
+  - a baseline Android smoke now, for native-only crashes;
+  - the full run after the agent closes the High items and Rounds 8–9, then on every agent push as a regression gate.
+- Video calls live (token, ICE, TURN relay, a two-party call, reconnect), once staging or server access exists.
+- Re-test against the real 20,990-medicine catalog on staging, or with the owner's export: search, pages, 6 locales, admin edit propagation.
+
+**Owner actions (not code):**
+- Rotate the LiveKit key (Q53).
+- Make the repository private.
+- Provide staging access: a Cloudflare Access service token in the environment secrets, and `staging.nabd.plus` in the allowed hosts.
+- Provide the medicine catalog: staging copy, or the export file in the environment.
+- Cloudflare: the message to the Cloudflare session (origin lock, Full strict, rate-limit paths, no challenge on `/api`, `/api/v1/admin` rule, DNSSEC).
