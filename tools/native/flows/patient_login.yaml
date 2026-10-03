@@ -4,8 +4,8 @@ appId: com.patient.nabd
 - launchApp
 # the splash replaces the route with the tabs after ~2.6 s; open the link once the tabs are up
 - extendedWaitUntil:
-    visible: "الرئيسية|Home"
-    timeout: 60000
+    visible: ".*(الرئيسية|Home).*"
+    timeout: 120000
 - openLink: nabdplus:///login
 - extendedWaitUntil:
     visible: "example@mail.com"

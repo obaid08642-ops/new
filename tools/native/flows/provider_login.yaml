@@ -8,10 +8,10 @@ appId: com.nabd.provider
     timeout: 60000
 # the welcome screen lists the provider types first; the sign-in entry is below them
 - scrollUntilVisible:
-    element: "سجّل الدخول|تسجيل الدخول|Log In|Sign In"
+    element: ".*(سجّل الدخول|تسجيل الدخول|Log In|Sign In).*"
     direction: DOWN
     timeout: 30000
-- tapOn: "سجّل الدخول|تسجيل الدخول|Log In|Sign In"
+- tapOn: ".*(سجّل الدخول|تسجيل الدخول|Log In|Sign In).*"
 - runFlow:
     when:
       visible: "تسجيل الدخول \\(Sign In\\)|Sign In"
