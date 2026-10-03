@@ -860,3 +860,48 @@ Owner rule: anything that was **not** proven by a real click or call (failed, pa
   - 3 placeholder records (`saved_diagnoses`, `facility_resources`, `provider_capabilities_pharmacy`).
 - Restored from its seed: the Bupa insurance company, whose names a test had overwritten.
 - Still present in the QA DB, waiting on owner approval for the delete: generated values in about 60 documents across 23 collections. Evidence: `evidence/qa_cleanup_*`.
+
+## Round 9 — single source for every catalog, video calls, code hygiene (owner decisions, 2026-10-03)
+
+**Owner rule (mandatory):** every read of insurance companies/plans, lab tests, radiology, nursing, specialties, medicines, doctors and providers, anywhere in the four clients, comes from **one** backend source (one collection behind one module, through `CATALOG_COLLECTIONS`). No static lists, no fallback arrays, no second collection, no invented numbers. When the API fails, the screen shows an error or empty state.
+
+**Do, one commit each:**
+- **Q53 first (security).** Remove the committed LiveKit secret, and add gitleaks to CI. The owner rotates the key.
+- **Q47, Q48, Q49** (website nurse and lab pages read empty collections; parallel lab catalog).
+- **Q50, Q51, Q52** (hard-coded insurance and radiology lists).
+- **Q54, Q55, Q56** (TURN hardening, IPv4, stale configs).
+- Replace the 3 direct `collection('medicines')` reads with `CATALOG_COLLECTIONS.medicines`.
+
+**Verify:**
+- `tools/audit/catalog_sources.py` (reviewer, next): 0 static catalog lists in client code, and every catalog read on the backend goes through `CATALOG_COLLECTIONS`.
+- An admin edit to each catalog is visible on the website, the patient app and the provider app (`j_catalog_sync.py`).
+
+**Code hygiene (store-readiness).** One commit per app. Run, commit the reports, and act on them:
+- `knip` (dead files and exports) and `depcheck` (unused packages). The estimate: patient-web 56 of 69 dependencies look unused (an unused UI kit), patient-app 19 of 78, provider-app 20 of 52, backend 6 of 64. Confirm each with the tools before removing it.
+- `jscpd` (duplicated code).
+- `gitleaks` (secrets in the code and in history).
+- `semgrep` (security patterns).
+- Remove process comments from shipping code: about 173 files carry `// P6.x-…`, `R12:`, `Gate P4`. Remove the stale configs.
+- Q39 (`@ts-nocheck` in 186 patient-app files).
+
+**Store-readiness checklist** (what Apple and Google actually reject):
+- placeholder or demo content;
+- buttons that do nothing;
+- "coming soon";
+- test accounts in the build;
+- crashes;
+- missing permission usage strings;
+- for medical and AI features: a disclaimer, and no diagnosis claims.
+
+**Native E2E (owner approved Maestro, Android first).** The reviewer builds it:
+- a GitHub Actions workflow, built and run on Linux runners with the Android emulator;
+- a generated smoke flow per screen from `inventory/screens.json`;
+- hand-written journeys, including multi-actor ones (patient on the emulator, the pharmacies/providers driven by the API journey scripts in the same run);
+- screenshots for every step, and a report;
+- a failed step fails that flow only; other flows continue.
+
+iOS: a smoke run of the core journeys before each store release.
+
+**Video calls (self-hosted LiveKit and coturn on the OVH VPS).**
+- The config was code-checked (Q53–Q56).
+- A live check (token, ICE servers, TURN relay on UDP/TCP/TLS, a two-party call, reconnect) needs staging or server access.
