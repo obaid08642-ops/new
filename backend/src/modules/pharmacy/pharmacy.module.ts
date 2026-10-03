@@ -71,6 +71,7 @@ import { OffersDetailController } from './offers-detail.controller';
 import { PromotionsOffersController } from './promotions-offers.controller';
 import { PharmacyCompatController } from './pharmacy-compat.controller';
 import { B2BVoiceController } from './pharmacy-b2b-voice.controller';
+import { PharmacyIndexesService } from './pharmacy-indexes';
 
 @Module({
   imports: [
@@ -108,6 +109,7 @@ import { B2BVoiceController } from './pharmacy-b2b-voice.controller';
   ],
   providers: [
     PharmacyOrderService,
+    PharmacyIndexesService, // Q29: idempotent ensure + fail-fast verify of required unique indexes
     // P5.3: merged from PharmacyOpsModule (pharmacy_ops/ → pharmacy/)
     PharmacyOpsService,
     PharmacyAllocationService,
