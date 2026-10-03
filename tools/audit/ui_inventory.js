@@ -6,6 +6,8 @@
  *     NInput... with value/onChange*), toggles (Switch/checkbox), selects/pickers, links (href);
  *     with tag, visible label (text child / label / title / placeholder / aria-label), handler, line;
  *   - API calls: apiFetch/adminFetch/client.<verb>/fetch/callPatientApi/... with method + url literal.
+ *   - R9-A: per-control testID / accessibilityLabel, and per-app counters
+ *     controls + controls_without_id, so the 'no control without an id' gate is measurable.
  * Writes <outDir>/<app>.json and prints totals per app.
  */
 const fs = require('fs');
@@ -79,8 +81,14 @@ function analyse(file) {
       if (!kind && (tag === 'Link' || tag === 'a') && attr(open, 'href')) kind = 'link';
       if (!kind && tag === 'form' && attr(open, 'onSubmit')) kind = 'form';
       if (kind) {
+        const testId = attrText(open, 'testID', sf) || attrText(open, 'testId', sf) || attrText(open, 'data-testid', sf);
+        const a11y = attrText(open, 'accessibilityLabel', sf) || attrText(open, 'aria-label', sf);
         elements.push({
           kind, tag, line: line(n), label: (label || '').slice(0, 80),
+          // R9-A: native E2E needs a stable id on every pressable and input.
+          testID: testId || null,
+          accessibilityLabel: a11y || null,
+          has_accessible_name: Boolean(label && label.trim()),
           handler: (press || change || attrText(open, 'onSubmit', sf) || attrText(open, 'href', sf) || '').slice(0, 120),
           binds: attrText(open, 'value', sf) || attrText(open, 'checked', sf) || attrText(open, 'selectedValue', sf) || null,
           disabled: attrText(open, 'disabled', sf) || null,
@@ -116,13 +124,23 @@ for (const [app, dirs] of Object.entries(APPS)) {
   const files = [];
   for (const d of dirs) walk(path.join(ROOT, d), files);
   const screens = [];
-  const t = { files: 0, files_with_ui: 0, buttons: 0, fields: 0, toggles: 0, selects: 0, links: 0, forms: 0, api_calls: 0 };
+  const t = { files: 0, files_with_ui: 0, buttons: 0, fields: 0, toggles: 0, selects: 0, links: 0, forms: 0, api_calls: 0, controls: 0, controls_without_id: 0, controls_without_id_breakdown: {} };
   for (const f of files.sort()) {
     const { elements, calls } = analyse(f);
     t.files++;
     if (!elements.length && !calls.length) continue;
     if (elements.length) t.files_with_ui++;
-    for (const e of elements) t[e.kind + 's'] = (t[e.kind + 's'] || 0) + 1;
+    for (const e of elements) {
+      t[e.kind + 's'] = (t[e.kind + 's'] || 0) + 1;
+      // R9-A verify: every pressable and input needs a stable testID.
+      if (e.kind === 'button' || e.kind === 'field' || e.kind === 'toggle' || e.kind === 'select') {
+        t.controls++;
+        if (!e.testID) {
+          t.controls_without_id++;
+          t.controls_without_id_breakdown[e.kind] = (t.controls_without_id_breakdown[e.kind] || 0) + 1;
+        }
+      }
+    }
     t.api_calls += calls.length;
     screens.push({ file: path.relative(ROOT, f), elements, calls });
   }
