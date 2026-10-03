@@ -22,7 +22,10 @@ out/
 # check` in the package fails if it drifts from the source geometry.
 !packages/ui/dist/
 
-# Environment and secrets
+# Environment and secrets (all .env variants ignored repo-wide; only .env.example is committed)
+.env
+.env.*
+!.env.example
 .env*.local
 *.pem
 *.key
