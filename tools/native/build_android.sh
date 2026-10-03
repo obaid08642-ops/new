@@ -44,7 +44,12 @@ export NODE_ENV=production   # after the install: npm must not drop devDependenc
 node -e 'const b=require("expo/bundledNativeModules.json");const p=require("./package.json");for(const k of Object.keys(p.dependencies||{})){if(b[k]){let v;try{v=require(k+"/package.json").version}catch(e){continue}if(v.split(".")[0]!==b[k].replace(/[~^]/,"").split(".")[0])console.log(k+"@"+b[k])}}' > /tmp/native/sdk_mismatch_${APP}.txt
 if [ -s /tmp/native/sdk_mismatch_${APP}.txt ]; then
   echo "SDK version mismatches (Q68): $(tr '\n' ' ' < /tmp/native/sdk_mismatch_${APP}.txt)" | tee -a /tmp/native/jcenter_${APP}.txt
-  npm install --no-save --no-audit --no-fund --legacy-peer-deps $(cat /tmp/native/sdk_mismatch_${APP}.txt)
+  # swap only those packages in place (npm install would re-resolve the tree and drop packages Metro needs, Q63)
+  for spec in $(cat /tmp/native/sdk_mismatch_${APP}.txt); do
+    name="${spec%@*}"; tgz=$(npm pack --silent "$spec" --pack-destination /tmp/native | tail -1)
+    rm -rf "node_modules/$name" && mkdir -p "node_modules/$name" && tar -xzf "/tmp/native/$tgz" -C "node_modules/$name" --strip-components=1
+    echo "swapped $name -> $(node -p "require('$name/package.json').version")"
+  done
 fi
 npx expo prebuild -p android --clean --no-install
 
