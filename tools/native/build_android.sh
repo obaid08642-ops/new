@@ -26,7 +26,9 @@ export EXPO_PUBLIC_APP_ENV=development
 export SENTRY_DISABLE_AUTO_UPLOAD=true
 export NODE_ENV=production
 
-npm ci --no-audit --no-fund
+# provider-app has no .npmrc and its test-only devDependency react-test-renderer@^19.2.8 conflicts with the
+# pinned react 19.2.3, so a plain `npm ci` fails (Q58). patient-app already sets legacy-peer-deps in .npmrc.
+npm ci --no-audit --no-fund --legacy-peer-deps
 npx expo prebuild -p android --clean --no-install
 
 MAN=android/app/src/main/AndroidManifest.xml

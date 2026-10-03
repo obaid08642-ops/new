@@ -50,6 +50,7 @@ jobs:
 
   crawl:
     needs: build
+    if: ${{ !cancelled() }}   # one app's build failing must not hide the other app's crawl
     runs-on: ubuntu-latest
     timeout-minutes: 180
     strategy:
