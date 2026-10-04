@@ -1,12 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { upstreamRequest } from '@/lib/http/upstream';
 
 const SUPPORT_COOKIE = 'admin_support_session';
-
-function base() {
-  const value = process.env.ADMIN_BACKEND_URL;
-  if (!value) throw new Error('ADMIN_BACKEND_URL is required');
-  return value.replace(/\/$/, '');
-}
 
 function expiredCookie() {
   return `${SUPPORT_COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`;
@@ -22,7 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!supportToken) return res.status(401).json({ code: 'support_session_required' });
 
   try {
-    const upstream = await fetch(`${base()}/api/v1/support-session/context`, {
+    const upstream = await upstreamRequest('/api/v1/support-session/context', {
       method: 'GET',
       headers: {
         authorization: `Bearer ${supportToken}`,

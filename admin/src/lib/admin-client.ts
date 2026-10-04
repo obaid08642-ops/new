@@ -1,7 +1,9 @@
+import { httpJson, httpRequest, isAdminApiError, AdminApiError } from './http/client';
+import type { SupportedLocale } from './http/error-catalog';
+
 export interface AdminSession {
   user: {
     id: string;
-    role: string;
     full_name?: string;
     email?: string;
   };
@@ -9,14 +11,8 @@ export interface AdminSession {
   impersonator?: { id: string; full_name?: string } | null;
 }
 
-export class AdminApiError extends Error {
-  constructor(
-    public readonly status: number,
-    public readonly payload: unknown,
-  ) {
-    super(`Admin API request failed with status ${status}`);
-  }
-}
+export { AdminApiError, isAdminApiError };
+export type { SupportedLocale as AdminLocale };
 
 const writeMethods = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 
@@ -34,47 +30,101 @@ function bffPath(path: string): string {
   return `/api/admin/${path}`;
 }
 
-export async function adminFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const method = (options.method || 'GET').toUpperCase();
-  const headers = new Headers(options.headers);
-  if (options.body && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json');
+/** The admin UI is Arabic-first; `NEXT_PUBLIC_ADMIN_LOCALE=en` switches it. */
+function locale(): SupportedLocale {
+  return process.env.NEXT_PUBLIC_ADMIN_LOCALE === 'en' ? 'en' : 'ar';
+}
+
+export interface AdminFetchOptions extends RequestInit {
+  locale?: SupportedLocale;
+  /** Override the upload/AI/default timeout budget instead of auto-detecting. */
+  kind?: 'default' | 'upload' | 'ai';
+}
+
+/**
+ * 15.1 — every admin page reaches the backend through here. The timeout,
+ * safe-retry, abort and catalogue mapping live in `./http/client`, so all call
+ * sites inherit the policy without changing a single one of them.
+ */
+export async function adminFetch<T>(path: string, options: AdminFetchOptions = {}): Promise<T> {
+  const { locale: localeOverride, kind, ...init } = options;
+  const method = (init.method || 'GET').toUpperCase();
+  const headers = new Headers(init.headers);
+  if (init.body && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json');
   if (writeMethods.has(method)) {
     const token = csrfToken();
-    if (!token) throw new AdminApiError(403, { code: 'missing_csrf_token' });
+    if (!token) {
+      throw new AdminApiError({
+        status: 403,
+        payload: { code: 'missing_csrf_token' },
+        code: 'INSUFFICIENT_PERMISSION',
+        locale: localeOverride ?? locale(),
+      });
+    }
     headers.set('x-admin-csrf', token);
   }
 
-  const response = await fetch(bffPath(path), {
-    ...options,
+  return httpJson<T>(bffPath(path), {
+    ...init,
     method,
     headers,
+    kind,
+    locale: localeOverride ?? locale(),
     credentials: 'same-origin',
   });
-
-  const contentType = response.headers.get('content-type') || '';
-  const payload = contentType.includes('application/json')
-    ? await response.json().catch(() => null)
-    : await response.text().catch(() => '');
-
-  if (!response.ok) throw new AdminApiError(response.status, payload);
-  return payload as T;
 }
 
-export function adminMutation<T>(path: string, method: 'POST' | 'PATCH' | 'PUT' | 'DELETE', body?: unknown) {
+export function adminMutation<T>(
+  path: string,
+  method: 'POST' | 'PATCH' | 'PUT' | 'DELETE',
+  body?: unknown,
+) {
   return adminFetch<T>(path, {
     method,
     body: body === undefined ? undefined : JSON.stringify(body),
   });
 }
 
+/** Raw-response variant for call sites that need the status or headers. */
+export async function adminRequest(path: string, options: AdminFetchOptions = {}): Promise<Response> {
+  const { locale: localeOverride, kind, ...init } = options;
+  const method = (init.method || 'GET').toUpperCase();
+  const headers = new Headers(init.headers);
+  if (init.body && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json');
+  if (writeMethods.has(method)) {
+    const token = csrfToken();
+    if (!token) {
+      throw new AdminApiError({
+        status: 403,
+        payload: { code: 'missing_csrf_token' },
+        code: 'INSUFFICIENT_PERMISSION',
+        locale: localeOverride ?? locale(),
+      });
+    }
+    headers.set('x-admin-csrf', token);
+  }
+
+  return httpRequest(bffPath(path), {
+    ...init,
+    method,
+    headers,
+    kind,
+    locale: localeOverride ?? locale(),
+    credentials: 'same-origin',
+  });
+}
+
 export function apiErrorMessage(error: unknown, fallback = 'تعذر تنفيذ الطلب. حاول لاحقاً.') {
-  if (error instanceof AdminApiError) {
+  if (isAdminApiError(error)) {
     const payload = error.payload as { message?: string | string[]; error?: string } | null;
     if (Array.isArray(payload?.message)) return payload.message.join('، ');
     if (typeof payload?.message === 'string') return payload.message;
     if (typeof payload?.error === 'string') return payload.error;
     if (error.status === 401) return 'انتهت جلسة الإدارة. سجّل الدخول مرة أخرى.';
     if (error.status === 403) return 'ليس لديك الإذن اللازم لتنفيذ هذه العملية.';
+    // 15.1: a transport failure has no server message — the catalogue text and
+    // its next step are what the operator gets.
+    if (error.isTransportFailure) return `${error.catalogMessage} ${error.nextStep}`;
   }
   return fallback;
 }
