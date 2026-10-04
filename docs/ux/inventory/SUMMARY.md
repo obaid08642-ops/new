@@ -4,6 +4,26 @@ GENERATED alongside `docs/ux/inventory/*.csv` by `docs/ux/inventory-generator.mj
 Every number below is that script's output; the commands are in the commit message.
 Read-only: no product code was changed.
 
+## Corrections to the first hand-off
+
+Four of the five gaps reported with this inventory were **my own verification
+errors, not defects in the data.** Recording them because they are the same failure
+mode as the phase-12 blocker:
+
+- The column header row is **line 11**, not 12. `slice(12)` dropped one row and made
+  `patient-app` read 249 against the generator's 250.
+- `l.split(',').pop()` cannot find the last column when earlier fields are quoted,
+  and `purpose` and `batch` both contain commas. That made a correct file read as
+  **0 rows**.
+- `awk -F,` reported `parity` as `AI & support"` for 145 rows — the batch name's
+  comma shifting every column. The CSV was fine; the measurement was not.
+
+Corrected counts, quote-aware parse: **270 + 250 + 129 + 68 = 717.**
+
+So the real remaining gaps are **two**, not five: `parity` is unmeasured for every
+patient route (above), and `admin`'s mobile-responsiveness has no column because
+nothing here takes a viewport.
+
 ## Totals per app
 
 | app | screens | crawled | interactive | not wired | a11y unnamed | mock data | missing >=3 states | visual issues | merge candidates | hours |
@@ -61,6 +81,26 @@ Batch is assigned by route prefix; the rules are printed in the generator. Hours
     `admin/analytics` unwired=1 unnamed=0
     ... and 62 more in the CSV
 
+## Corrections to the first hand-off
+
+Four of the five gaps reported with this inventory were **my own verification
+errors, not defects in the data.** Recording them because they are the same failure
+mode as the phase-12 blocker:
+
+- The column header row is **line 11**, not 12. `slice(12)` dropped one row and made
+  `patient-app` read 249 against the generator's 250.
+- `l.split(',').pop()` cannot find the last column when earlier fields are quoted,
+  and `purpose` and `batch` both contain commas. That made a correct file read as
+  **0 rows**.
+- `awk -F,` reported `parity` as `AI & support"` for 145 rows — the batch name's
+  comma shifting every column. The CSV was fine; the measurement was not.
+
+Corrected counts, quote-aware parse: **270 + 250 + 129 + 68 = 717.**
+
+So the real remaining gaps are **two**, not five: `parity` is unmeasured for every
+patient route (above), and `admin`'s mobile-responsiveness has no column because
+nothing here takes a viewport.
+
 ## Total
 
 - all four apps at the formula rate: **1950 h**
@@ -74,9 +114,15 @@ Batch is assigned by route prefix; the rules are printed in the generator. Hours
    with `interactive = 0` means *not crawled*, not *no controls* — and the size
    formula reads that 0 as S. **This inflates S.**
 
-2. **`parity` is mostly `unrecorded`.** It is linked from
-   `audit/FINDINGS/parity-matrix.md`, which does not cover every route. An empty
-   parity cell means *not stated*, and must not be read as *same*.
+2. **`parity` is empty for every patient route — the link failed, and the cell now
+   says so.** `audit/FINDINGS/parity-matrix.md` has **no route column at all**: 13
+   rows keyed by Arabic workflow name (`دفع الصيدلية`, `حجز الاستشارات`), not by
+   path. There was nothing to match a route against, so every patient row landed on
+   `unrecorded`. The cell now reads `UNLINKED: ...` rather than a plausible value,
+   because a blank or an optimistic `same` would have been read downstream as
+   "verified equivalent" — the exact failure this file exists to prevent.
+   **Parity between the two patient clients is therefore entirely unmeasured here**,
+   and it is the largest single gap in this inventory.
 
 3. **`not wired` is a weak signal** — it counts elements with no bind AND no
    handler in the crawl's view. An element that calls a real API through a

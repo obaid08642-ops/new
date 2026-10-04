@@ -105,16 +105,23 @@ function qaRefs(route) {
 function parityVerdict(appKey, route) {
   if (appKey === 'provider-app' || appKey === 'admin') return 'n/a (not a patient client)';
   const leaf = (route.split('/').filter(Boolean).pop() || '').toLowerCase();
-  if (!parityText || !leaf) return 'unrecorded';
+  // `parity-matrix.md` has no route column at all — 13 rows keyed by Arabic
+  // workflow name ("دفع الصيدلية", "حجز الاستشارات"), not by path. So there is
+  // nothing to match a route against, and every row landed on `unrecorded`.
+  //
+  // Saying so in the cell is the point. A blank or optimistic `same` would have
+  // been read as "verified equivalent" by every reader downstream, which is the
+  // exact failure this whole file is meant to prevent.
+  if (!parityText || !leaf) return 'UNLINKED: parity-matrix.md has no route key';
   const line = parityText
     .split('\n')
     .find((l) => l.toLowerCase().includes(leaf) && l.includes('|'));
-  if (!line) return 'unrecorded';
+  if (!line) return 'UNLINKED: not named in parity-matrix.md';
   const cells = line.split('|').map((c) => c.trim().toLowerCase());
   if (cells.some((c) => c.includes('web only') || c === 'missing on app')) return 'missing';
   if (cells.some((c) => c.includes('app only') || c === 'missing on web')) return 'different';
   if (cells.some((c) => c.includes('both') || c.includes('same'))) return 'same';
-  return 'unrecorded';
+  return 'UNLINKED: not named in parity-matrix.md';
 }
 
 /* --------------------------------------------------------- measured greps */
