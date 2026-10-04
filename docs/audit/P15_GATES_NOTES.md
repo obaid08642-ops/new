@@ -61,3 +61,49 @@ DEFERRED-OUT-OF-SCOPE: (a) server-side latency-injection flag (e.g.
 proxy covers the drill until then. (b) a fake/SMS failure-injection double
 for the SMS provider — backend agent owns it; the drill proves the
 email-fallback path that exists today.
+
+## Gate P15 — throttled-network, rapid-tap, app-killed-during-payment
+
+Added and wired (`JOURNEYS` append in both `run_gate.sh` and `gate_run.sh`,
+list append only):
+- `tools/live/j_rapid_tap.py` — 10 barrier-fired same-key sends for each of
+  pay (`POST /payments/intent/lab/<bid>` -> one txn id, then one paid charge
+  counted via `GET /moyasar/payments/me`), book (`POST /care/appointments`
+  via the `j_concurrency` slot helpers -> one appointment id and one held
+  slot), order (`POST /patient/pharmacy/orders` with one catalog med seeded
+  through the admin screen payload -> one order id), send
+  (`POST /chat/threads/<tid>/messages` with one `client_message_id` ->
+  exactly one copy in the thread). Every burst also asserts no 5xx.
+- `tools/live/j_app_killed_payment.py` — intent, gateway checkout, then STOP
+  (no verify = dead app); reopen reads `GET /payments/booking/lab/<bid>`
+  (pending, present, nothing paid); one verify pays; re-verify returns the
+  same txn; exactly one paid row; the `/notifications` payment entry exists
+  and the server truth it resolves to is paid.
+- `tools/live/j_throttled_network.py` — Playwright CDP (the mechanism
+  `tools/live/perf_web.py` already uses; `tc netem` cannot shape the
+  journeys' loopback path and no proxy exists, so CDP is the one the repo
+  can support): 3G loads slow-not-blank with the delay observed; 1% loss is
+  injected at the Playwright route layer (CDP has no loss parameter — stated
+  in the file); offline keeps cached content + asserts the banner and
+  last-updated text; reconnect reloads and clears the banner.
+- Fixture honesty: lab onboarding/approval and the medicines seed are
+  admin-app actions no patient screen performs — the journeys say so in
+  their docstrings and use the admin screen payloads verbatim. Everything
+  patient-side is copied from the patient screens.
+
+Run: `bash tools/live/run_gate.sh` on a docker host; each file also runs
+alone (`python3 tools/live/j_rapid_tap.py`, ...). The throttled journey
+needs patient-web at `NABD_PATIENT_WEB` (default http://127.0.0.1:3000)
+plus python-playwright + Chromium, else it SKIPs explicitly.
+Checks run here: `python3 -m py_compile tools/live/j_rapid_tap.py
+tools/live/j_app_killed_payment.py tools/live/j_throttled_network.py` ->
+`PY_OK`; `bash -n` on both runners -> `SH_OK`.
+No-weakening proof: both runners show a `JOURNEYS=(...)` one-line append
+each; no other line touched.
+DEFERRED-OUT-OF-SCOPE (owning changes in app/backend source, other agents):
+patient-web offline banner + last-updated time + action outbox with
+replay-order and payments-never-queued (15.4 — the banner/last-updated steps
+FAIL honestly until this lands; the replay step SKIPs until an outbox UI
+contract exists to drive); real L2 1%-loss via `tc netem`/device farm;
+FCM/APNs push delivery for the days-later half of 15.8 (the gate proves the
+server-side notification payload instead).
