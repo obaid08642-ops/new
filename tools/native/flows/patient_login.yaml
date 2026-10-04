@@ -3,6 +3,12 @@ appId: com.patient.nabd
 ---
 - launchApp
 # the splash replaces the route with the tabs after ~2.6 s; open the link once the tabs are up
+# The emulator's own launcher can freeze under load and cover the app with "isn't responding"; answer Wait.
+- runFlow:
+    when:
+      visible: ".*isn.t responding.*"
+    commands:
+      - tapOn: "Wait"
 - extendedWaitUntil:
     visible: ".*(الرئيسية|Home).*"
     timeout: 120000

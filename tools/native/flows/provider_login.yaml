@@ -3,8 +3,14 @@ appId: com.nabd.provider
 ---
 - launchApp:
     clearState: true
+# The emulator's own launcher can freeze under load and cover the app with "isn't responding"; answer Wait.
+- runFlow:
+    when:
+      visible: ".*isn.t responding.*"
+    commands:
+      - tapOn: "Wait"
 - extendedWaitUntil:
-    visible: "Nabd Plus|نبض بلس"
+    visible: ".*(Nabd Plus|نبض بلس).*"
     timeout: 60000
 # the welcome screen lists the provider types first; the sign-in entry is below them
 - scrollUntilVisible:
