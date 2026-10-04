@@ -76,7 +76,7 @@ export class OrdersService {
     if (!inputItems || inputItems.length === 0) throw new BadRequestException('Empty cart');
     // A1: the patient wallet is gone — wallet/wallet_split can no longer pay.
     if (['wallet', 'wallet_split'].includes(String(data.payment_method))) {
-      throw new BadRequestException('wallet_payment_removed');
+      throw new BadRequestException('payment_method_not_supported');
     }
     if (!data.delivery_address?.lat || !data.delivery_address?.lng) {
       throw new BadRequestException('Delivery location (lat/lng) required for dispatch');
