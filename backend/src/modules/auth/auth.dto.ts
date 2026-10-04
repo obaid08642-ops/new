@@ -207,8 +207,9 @@ export class ResetPasswordDto {
 }
 export class SocialLoginDto {
   @IsDefined()
-  @IsIn(["x", "google", "apple", "snapchat"])
-  provider: "x" | "google" | "apple" | "snapchat";
+  // Q107: only providers whose tokens the backend can verify.
+  @IsIn(["google", "apple"])
+  provider: "google" | "apple";
 
   @IsDefined()
   @IsString()
