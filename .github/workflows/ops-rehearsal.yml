@@ -1,0 +1,94 @@
+name: ops-rehearsal
+# Rehearses production ops scripts (tools/ops/tasks) on a copy of the server layout before they are
+# ever run on production (incident 2026-10-04). No secrets, no access to the real server.
+on:
+  workflow_dispatch:
+  push:
+    branches: ['review/server-inspect', 'review/ops-*']
+    paths: ['tools/ops/**', '.github/workflows/ops-rehearsal.yml']
+jobs:
+  livekit-rotate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the server copy at /opt/nabdah
+        run: |
+          set -e
+          D=/opt/nabdah/deploy
+          sudo mkdir -p $D /opt/nabdah/backups
+          sudo cp -r tools/ops/rehearsal/. $D/
+          OLDK=nabd_8b99567485c4; OLDS=$(openssl rand -hex 48)
+          echo "OLDK=$OLDK" >> $GITHUB_ENV
+          # same shape as production: the old key plus the literal "${...}" line
+          sudo tee $D/livekit/livekit.yaml >/dev/null <<EOF
+          port: 7880
+          rtc:
+            tcp_port: 7881
+            port_range_start: 50000
+            port_range_end: 50020
+            use_external_ip: false
+          keys:
+            $OLDK: $OLDS
+            \${LIVEKIT_API_KEY}: \${LIVEKIT_API_SECRET}
+          turn:
+            enabled: false
+          EOF
+          sudo sed -i 's/^          //' $D/livekit/livekit.yaml
+          # env file with a multi-line value like FCM_PRIVATE_KEY in production
+          sudo tee $D/.env.production >/dev/null <<EOF
+          APP_NAME=nabd
+          LIVEKIT_API_KEY=$OLDK
+          LIVEKIT_API_SECRET=$OLDS
+          LIVEKIT_URL=wss://live.nabd.plus
+          FCM_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nAAAA\nBBBB\n-----END PRIVATE KEY-----\n"
+          CLUSTER_MODE=false
+          EOF
+          sudo sed -i 's/^          //' $D/.env.production
+          sudo chmod 600 $D/.env.production
+          sudo mkdir -p $D/certs
+          sudo openssl req -x509 -newkey rsa:2048 -nodes -days 1 -subj /CN=api.nabd.plus -keyout $D/certs/key.pem -out $D/certs/cert.pem 2>/dev/null
+          sudo docker build -q -t nabdah-prod-backend:latest $D/backend
+          sudo docker compose -f $D/docker-compose.production.yml --project-directory $D --env-file $D/.env.production up -d --no-build
+          for i in $(seq 1 40); do [ "$(sudo docker inspect -f '{{.State.Health.Status}}' nabdah-backend)" = healthy ] && break; sleep 5; done
+          sudo docker ps --format '{{.Names}} {{.Status}}'
+          test "$(curl -sk -o /dev/null -w '%{http_code}' -H 'Host: api.nabd.plus' https://127.0.0.1/api/v1/health/liveness)" = 200
+          echo "baseline: api 200 with the old key"
+      - name: "Scenario 1: forced failure at LiveKit -> full rollback"
+        run: |
+          set +e
+          REHEARSE_FAIL_AT=livekit bash tools/ops/tasks/35-livekit-rotate.sh; rc=$?
+          D=/opt/nabdah/deploy
+          echo "exit=$rc"; test $rc = 1
+          sudo grep -q "^LIVEKIT_API_KEY=$OLDK$" $D/.env.production && echo "env: old key back" || exit 1
+          sudo grep -q "^  $OLDK: " $D/livekit/livekit.yaml && echo "yaml: old key back" || exit 1
+          test "$(curl -sk -o /dev/null -w '%{http_code}' -H 'Host: api.nabd.plus' https://127.0.0.1/api/v1/health/liveness)" = 200 && echo "api 200"
+      - name: "Scenario 2: forced failure after the backend recreate -> full rollback"
+        run: |
+          set +e
+          REHEARSE_FAIL_AT=backend bash tools/ops/tasks/35-livekit-rotate.sh; rc=$?
+          D=/opt/nabdah/deploy
+          echo "exit=$rc"; test $rc = 1
+          sudo grep -q "^LIVEKIT_API_KEY=$OLDK$" $D/.env.production || exit 1
+          sudo docker exec nabdah-backend sh -c "[ \"\$LIVEKIT_API_KEY\" = \"$OLDK\" ]" && echo "backend: old key back" || exit 1
+          test "$(curl -sk -o /dev/null -w '%{http_code}' -H 'Host: api.nabd.plus' https://127.0.0.1/api/v1/health/liveness)" = 200 && echo "api 200"
+      - name: "Scenario 3: real rotation"
+        run: |
+          set +e
+          D=/opt/nabdah/deploy
+          IMG=$(sudo docker inspect -f '{{.Image}}' nabdah-backend)
+          bash tools/ops/tasks/35-livekit-rotate.sh; rc=$?
+          echo "exit=$rc"; test $rc = 0 || exit 1
+          NEWK=$(sudo grep '^LIVEKIT_API_KEY=' $D/.env.production | cut -d= -f2)
+          test "$NEWK" != "$OLDK" && echo "env: new key" || exit 1
+          n=$(sudo awk '/^keys:/{f=1;next} f&&/^  [^ ]/{n++} f&&!/^  /{f=0} END{print n+0}' $D/livekit/livekit.yaml)
+          test "$n" = 1 && sudo grep -q "^  $NEWK: " $D/livekit/livekit.yaml && echo "yaml: only the new key" || exit 1
+          ! sudo grep -q "$OLDK" $D/livekit/livekit.yaml && echo "yaml: old key gone" || exit 1
+          test "$(sudo docker inspect -f '{{.Image}}' nabdah-backend)" = "$IMG" && echo "backend: same image" || exit 1
+          sudo grep -q 'BEGIN PRIVATE KEY' $D/.env.production && echo "env: multi-line value intact" || exit 1
+          test "$(curl -sk -o /dev/null -w '%{http_code}' -H 'Host: api.nabd.plus' https://127.0.0.1/api/v1/health/liveness)" = 200 && echo "api 200 (backend authenticates to LiveKit with the new key)"
+      - name: Logs on failure
+        if: failure()
+        run: |
+          sudo docker ps -a
+          for c in nabdah-backend nabdah-livekit nabdah-nginx; do echo "== $c"; sudo docker logs --tail 30 $c 2>&1 | grep -v -i secret; done
