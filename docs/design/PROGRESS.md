@@ -7,7 +7,7 @@
 >
 > Sources: `DESIGN_HANDOFF_FINAL.md`, `SPEC_PRODUCT_DOCTOR_DETAIL.md`, `DEVICE_STANDARD.md`, `canvas/`. How the folder works: `README.md`.
 
-_Last updated: 2026-10-04 (#259, #260 and #261 are approved from the design side and waiting for the reviewer; next step: web shells on `design/shells-web`)._
+_Last updated: 2026-10-04 (#259–#261 approved from the design side; web shells #263 in review; next step: shared components)._
 
 ## Snapshot
 
@@ -18,7 +18,8 @@ _Last updated: 2026-10-04 (#259, #260 and #261 are approved from the design side
 | Foundation: tokens | **In review** ([#259](https://github.com/obaid08642-ops/new/pull/259)) | Service tones and service map; 97 contrast checks pass |
 | Foundation: Readex Pro on the web | **In review** ([#260](https://github.com/obaid08642-ops/new/pull/260)) | Self-hosted with `next/font/local`; on main the web had no font at all (CSP blocked Google) |
 | Foundation: native shells | **In review** ([#261](https://github.com/obaid08642-ops/new/pull/261), stacked on #259) | `Screen`, `AppHeader`, `StickyFooter`, `TabBar` in `packages/ui-native` |
-| Foundation: web shells, shared components, lint gates | Not started | See `WIRING_REPORT.md` §1 for the measured gaps |
+| Foundation: web shells | **In review** ([#263](https://github.com/obaid08642-ops/new/pull/263), stacked on #259) | `AppShell`, `StickyFooter` in `packages/ui`, mirrored into patient-web |
+| Foundation: shared components, lint gates | Not started | See `WIRING_REPORT.md` §1 for the measured gaps |
 | Screen batches 0–13 | Not started | 410 screens to design (104 more routes only redirect) |
 
 ### Screens per batch (from `SCREEN_INVENTORY.md`; redirect-only routes excluded)
@@ -77,6 +78,12 @@ _Last updated: 2026-10-04 (#259, #260 and #261 are approved from the design side
   - Screenshots are react-native-web renders with iPhone 15 Pro insets.
   - No screen uses the shells yet. Screens are migrated batch by batch.
   - Approved from the design side. Merge #259 first.
+- **Web shells, PR [#263](https://github.com/obaid08642-ops/new/pull/263)** (branch `design/shells-web`, stacked on #259), waiting for review.
+  - `packages/ui/shells`: `AppShell` (top bar, side rail at 768–1023, side nav from 1024, tab bar under 768, a `footer` slot that keeps the CTA above the tab bar) and `StickyFooter`.
+  - `shells.css` uses `100dvh`, safe-area insets, logical properties and tokens only.
+  - Mirrored into patient-web, and `app/layout.tsx` imports the CSS once. No page uses the shell yet.
+  - `layout.maxContent` changes from 1180 to 1200 (DEVICE_STANDARD §1), and `maxContentAdmin` (1600) is new.
+  - 8 vitest tests. 12 screenshots, all with 0 px horizontal overflow.
 
 ## Next (in this order)
 
@@ -87,7 +94,8 @@ The foundation comes before any screen (DEVICE_STANDARD §4, handoff §3). Each 
    - The primary-button gradient (`#E8384A → #D42A38`) and the segmented track (`#EAEAEF`) are added with their components (step 5), where the dark boards define them.
 2. ~~**Font on patient-web**~~: PR #260 is in review. patient-app already loads Readex Pro from `assets/fonts`.
 3. ~~**Native shells**~~: PR #261 is in review.
-4. **Web shells** (`packages/ui`): `AppShell` (using `100dvh`) and `StickyFooter`, as in DEVICE_STANDARD §1.
+4. ~~**Web shells**~~: PR #263 is in review.
+   - `globals.css` still has its own `--nabd-layout-max: 1180px` and an old `.shell` layout. Pages switch to `AppShell` batch by batch, and the old `.shell` rules are removed when the last page moves.
 5. **Shared components** (handoff §3), in both packages. Still missing: FIcon, ListRow, SectionHeader, Segmented, StatusChip, Toggle, Radio, PrimaryButton, OutlineButton, SearchField, StickyFooter, TabBar, DoctorCard, ProductCard, OfferCard, Timeline, ProgressRing, OfflineState.
 6. **Lint gates** still missing from `tools/design` (handoff §6, DEVICE_STANDARD §5): `no-left-right`, `no-100vh`, `no-rn-safeareaview`. They currently fail on:
    - `patient-app/app/room/[id].tsx` (`SafeAreaView` imported from `react-native`);
@@ -137,6 +145,7 @@ The foundation comes before any screen (DEVICE_STANDARD §4, handoff §3). Each 
 | Date | Branch | What happened | Tip |
 |---|---|---|---|
 | 2026-10-04 | `claude/progress-md-workflow-vqhj8x` | Set up the workflow, imported the design sources, and generated the inventory and the wiring report. | PR [#256](https://github.com/obaid08642-ops/new/pull/256) |
+| 2026-10-04 | `design/shells-web` | Web shells (`AppShell`, `StickyFooter`), `layout.maxContent` 1200, mirror and tests, 12 screenshots. | PR [#263](https://github.com/obaid08642-ops/new/pull/263), tip `c0b0090` |
 | 2026-10-04 | `design/tokens` | Solid chip correction from the design session (8 values, `icon.onSolid`, 20 contrast pairs). Merged into `design/shells-native`. | PR [#259](https://github.com/obaid08642-ops/new/pull/259), tip `c399fe7` |
 | 2026-10-04 | `design/shells-native` | Native shells (`Screen`, `AppHeader`, `StickyFooter`, `TabBar`), with tests and react-native-web screenshots; added the fab, gradient and shadow tokens to #259. | PR [#261](https://github.com/obaid08642-ops/new/pull/261), tip `55a5e23` |
 | 2026-10-04 | `design/font-web` | Self-hosted Readex Pro and Noto on patient-web; found that the web had no font loading at all on main. | PR [#260](https://github.com/obaid08642-ops/new/pull/260), tip `f0a82b8` |
