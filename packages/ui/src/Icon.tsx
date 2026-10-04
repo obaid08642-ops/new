@@ -184,6 +184,19 @@ const TONE_VAR: Record<string, string> = {
 export interface IconProps {
   name: IconName;
   size?: IconSize | number;
+  /**
+   * Draw the filled variant (Phosphor `weight="fill"`).
+   *
+   * Approved by the reviewer, 2026-10-04, in response to `<Star fill="currentColor">`
+   * appearing in four screens with nowhere to go. A filled star and an outlined star
+   * are different glyphs, not the same glyph with a CSS property set — which is why
+   * this is a prop on the component and not a `fill` passed through to the SVG. CSS
+   * `fill` on a stroked Phosphor outline produces a shape the design never drew.
+   *
+   * Applies to the line set only; the illustrated family has no filled variant and
+   * ignores it.
+   */
+  filled?: boolean;
   /** Which family to draw from. Defaults to the line set. */
   weight?: 'line' | 'illustrated';
   /** A colour token name, or the tint of an illustrated icon. */
@@ -310,6 +323,7 @@ export function Icon({
   name,
   size = 'md',
   weight = 'line',
+  filled = false,
   tone = 'primary',
   title,
   className,
@@ -344,7 +358,7 @@ export function Icon({
     <Glyph
       className={['nabd-icon', 'nabd-icon--line', className].filter(Boolean).join(' ')}
       size={px}
-      weight="regular"
+      weight={filled ? 'fill' : 'regular'}
       color={colour}
       aria-hidden={title ? undefined : true}
       aria-label={title}
