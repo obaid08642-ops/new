@@ -11,7 +11,7 @@ concurrency: { group: server-inspect, cancel-in-progress: false }
 jobs:
   inspect:
     runs-on: ubuntu-latest
-    environment: staging
+    environment: production
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
