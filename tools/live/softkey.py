@@ -8,10 +8,21 @@ and an assertion signed for each step-up ceremony (options -> sign -> issue).
 """
 import base64, hashlib, json, struct, time
 
+_last_counter = [0]
+
+
+def _next_counter():
+    # Strictly increasing, as the verifier requires: centiseconds since
+    # 2026-01-01 (fits 32 bits for ~16 months), never repeating inside one
+    # process even when two ceremonies land in the same tick.
+    c = max(int((time.time() - 1767225600) * 100), _last_counter[0] + 1)
+    _last_counter[0] = c
+    return c
+
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import ec
 
-ORIGIN = 'http://localhost:3001'   # backend PASSKEY_ORIGIN default (tools/live/start-backend.sh sets none)
+ORIGIN = 'http://localhost:3001'   # WEBAUTHN_ORIGIN set by tools/live/start-backend.sh
 RP_ID = 'localhost'
 _SEED = hashlib.sha256(b'nabd-live-gate-synthetic-passkey-v1').digest()
 _KEY = ec.derive_private_key(int.from_bytes(_SEED, 'big') % (2**256 - 2**224 - 1) or 1, ec.SECP256R1())
@@ -61,7 +72,7 @@ def registration(options):
 
 def assertion(options):
     """AuthenticationResponseJSON for a step-up (or passkey login) challenge."""
-    counter = int(time.time())  # strictly increasing across runs, as the verifier requires
+    counter = _next_counter()
     auth = hashlib.sha256(RP_ID.encode()).digest() + bytes([0x05]) + struct.pack('>I', counter)
     cd = _client_data('webauthn.get', options['challenge'])
     sig = _KEY.sign(auth + hashlib.sha256(cd).digest(), ec.ECDSA(hashes.SHA256()))

@@ -2,7 +2,7 @@ import { Body, Controller, Post, UseGuards, BadRequestException, ForbiddenExcept
 import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { StepUpService } from '../../common/step-up.guard';
-import { JwtAuthGuard, CurrentUser, isPlatformStaffRole } from '../../common/auth.guard';
+import { JwtAuthGuard, CurrentUser, SelfService, isPlatformStaffRole } from '../../common/auth.guard';
 import { IsObject, IsOptional, IsString, MaxLength } from 'class-validator';
 
 /** F1/R25: real DTO for the step-up issue body. */
@@ -21,6 +21,9 @@ export class StepUpIssueDto {
  * stored public key and returns a short-lived, single-use, action-bound token.
  * The sensitive endpoint then requires that token via @StepUp().
  */
+// The signed-in staff member steps up for themselves; both handlers check the
+// staff role. Without a declaration the global WriteGuard refuses every write.
+@SelfService()
 @Controller('auth/step-up')
 export class StepUpController {
   constructor(private auth: AuthService, private stepUp: StepUpService) {}

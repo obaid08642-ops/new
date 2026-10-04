@@ -7,6 +7,7 @@ import { verifyAuthenticationResponse } from '@simplewebauthn/server';
 import type { AuthenticatorTransportFuture } from '@simplewebauthn/server';
 import { RedisService } from '../modules/redis/redis.service';
 import { PasskeyCredential } from '../modules/auth/schemas/passkey-credential.schema';
+import { passkeyPublicKeyBytes } from './passkey-bytes';
 
 export const STEP_UP_KEY = 'stepUp';
 export const StepUp = () => SetMetadata(STEP_UP_KEY, true);
@@ -31,11 +32,13 @@ export class StepUpService {
     @Optional() private readonly redis?: RedisService,
   ) {}
 
-  private get origin() {
-    return process.env.PASSKEY_ORIGIN || process.env.APP_ORIGIN || 'http://localhost:3001';
+  // The same WebAuthn settings as PasskeyService (enrollment and login): a
+  // step-up assertion comes from the same authenticator on the same origin.
+  private get origin(): string[] {
+    return (process.env.WEBAUTHN_ORIGIN || 'https://admin.nabd.plus').split(',').map((s) => s.trim()).filter(Boolean);
   }
   private get rpID() {
-    return process.env.PASSKEY_RP_ID || new URL(this.origin).hostname;
+    return process.env.WEBAUTHN_RP_ID || 'nabd.plus';
   }
 
   private async stepUpStore(): Promise<RedisService> {
@@ -104,7 +107,7 @@ export class StepUpService {
         requireUserVerification: true,
         credential: {
           id: cred.credential_id,
-          publicKey: new Uint8Array(cred.public_key),
+          publicKey: passkeyPublicKeyBytes(cred.public_key),
           counter: cred.counter || 0,
           transports: (cred.transports || []) as AuthenticatorTransportFuture[],
         },
