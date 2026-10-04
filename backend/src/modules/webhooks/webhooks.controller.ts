@@ -7,29 +7,10 @@ import { Public } from '../../common/auth.guard';
 
 @UseGuards(JwtAuthGuard)
 @Controller('webhooks')
-@Public() // Public endpoint, authenticated via headers signature
+@Public() // Public endpoint, authenticated per provider (SMS token, LiveKit JWT)
+// Q104: payment webhooks live only at POST /payments/webhook/moyasar.
 export class WebhooksController {
   constructor(private readonly service: WebhooksService) {}
-
-  @Post('moyasar')
-  async moyasar(
-    @Body() body: Record<string, unknown>,
-    @Headers('moyasar-signature') signature: string,
-    @Req() req: Request
-  ) {
-    const rawBody = (req as any).rawBody || JSON.stringify(body);
-    return this.service.handleMoyasarWebhook(body, signature, rawBody);
-  }
-
-  @Post('paytabs')
-  async paytabs(
-    @Body() body: Record<string, unknown>,
-    @Headers('signature') signature: string,
-    @Req() req: Request
-  ) {
-    const rawBody = (req as any).rawBody || JSON.stringify(body);
-    return this.service.handlePayTabsWebhook(body, signature, rawBody);
-  }
 
   @Post('sms')
   async sms(

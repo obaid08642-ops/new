@@ -1,9 +1,9 @@
-import { Module, Injectable, Controller, Post, Get, Body, Param, Logger, BadRequestException, BadGatewayException, NotFoundException, ServiceUnavailableException, UseGuards, UseInterceptors, Req, HttpCode, Headers } from '@nestjs/common';
+import { Module, Injectable, Controller, Post, Get, Body, Param, Logger, BadRequestException, BadGatewayException, NotFoundException, ServiceUnavailableException, UnauthorizedException, UseGuards, UseInterceptors, Req, HttpCode, Headers } from '@nestjs/common';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Transaction, TransactionSchema } from '../../schemas/transaction.schema';
-import { RefundPaymentDto, WebhookBodyDto, DiagnosticsIntentDto } from './payments.dto';
+import { RefundPaymentDto, MoyasarWebhookDto, DiagnosticsIntentDto } from './payments.dto';
 import { OrderSchema } from '../../schemas/order.schema';
 import { LabBookingSchema } from '../../schemas/lab.schema';
 import { DiagnosticOrder, DiagnosticOrderSchema } from '../../schemas/diagnostic-order.schema';
@@ -528,28 +528,26 @@ export class PaymentsService {
     return this.txns.find({ booking_kind: kind, booking_id: id }).sort({ createdAt: -1 }).lean();
   }
 
-  async handleWebhook(provider: string, payload: any, signature?: string, rawBody?: string) {
-    if (!this.verifyWebhookSignature(provider, signature, rawBody ?? JSON.stringify(payload))) {
-      throw new BadRequestException('invalid_webhook_signature');
+  /**
+   * Q86/Q99/Q104: the one Moyasar webhook receiver. Moyasar authenticates with
+   * secret_token in the body (no signature header). No secret configured means
+   * the webhook is off in every environment. The body only names the payment
+   * (data.id); its status always comes from the gateway via verifyPayment.
+   */
+  async handleMoyasarWebhook(payload: any) {
+    const secret = process.env.MOYASAR_WEBHOOK_SECRET;
+    if (!secret) throw new ServiceUnavailableException('webhook_not_configured');
+    const sent = Buffer.from(String(payload?.secret_token ?? ''), 'utf8');
+    const expected = Buffer.from(secret, 'utf8');
+    if (sent.length !== expected.length || !crypto.timingSafeEqual(sent, expected)) {
+      throw new UnauthorizedException('invalid_webhook_token');
     }
-    // Look up by gateway_intent_id or gateway_charge_id present in payload
-    const intentId = payload.data?.object?.id || payload.id || payload.payment_intent;
-    if (!intentId) return { ok: false, reason: 'no_intent_id' };
-    const t = await this.txns.findOne({ gateway_intent_id: { $eq: intentId } });
+    const paymentId = String(payload?.data?.id ?? '').trim();
+    if (!paymentId) return { ok: false, reason: 'no_payment_id' };
+    const t = await this.txns.findOne({ $or: [{ gateway_intent_id: { $eq: paymentId } }, { gateway_charge_id: { $eq: paymentId } }] });
     if (!t) return { ok: false, reason: 'no_match' };
     await this.verifyPayment({ id: t.patient_id, role: 'system' }, t.id);
     return { ok: true };
-  }
-
-  /** Only a configured Moyasar HMAC over the raw request body may trigger payment mutation. */
-  private verifyWebhookSignature(provider: string, signature: string | undefined, rawBody: string): boolean {
-    if (provider !== 'moyasar') return false;
-    const secret = process.env.MOYASAR_WEBHOOK_SECRET;
-    if (!secret || !signature) return false;
-    const expected = crypto.createHmac('sha256', secret).update(rawBody).digest('hex');
-    const received = Buffer.from(signature, 'utf8');
-    const expectedBuffer = Buffer.from(expected, 'utf8');
-    return received.length === expectedBuffer.length && crypto.timingSafeEqual(received, expectedBuffer);
   }
 }
 
@@ -585,15 +583,10 @@ export class PaymentsController {
 @Controller('payments/webhook')
 export class PaymentsWebhookController {
   constructor(private svc: PaymentsService) {}
+  /** Q104: the only payment webhook (Moyasar dashboard → POST /api/v1/payments/webhook/moyasar). */
   @Public()
-  @Post(':provider') @HttpCode(200) async webhook(
-    @Param('provider') p: string,
-    @Body() b: WebhookBodyDto,
-    @Headers('moyasar-signature') signature: string,
-    @Req() req: Request,
-  ) {
-    const rawBody = (req as any).rawBody || JSON.stringify(b);
-    return this.svc.handleWebhook(p, b, signature, rawBody);
+  @Post('moyasar') @HttpCode(200) webhook(@Body() b: MoyasarWebhookDto) {
+    return this.svc.handleMoyasarWebhook(b);
   }
 }
 
