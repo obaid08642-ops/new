@@ -1,11 +1,8 @@
 /**
- * F60 (plan item) — the active payment processor is chosen by PAYMENT_PROVIDER.
- *
- * Before this, selectAdapter() returned whichever adapter matched the first
- * API key it found (STRIPE_SECRET_KEY beat TAP_API_KEY beat MOYASAR_API_KEY).
- * A deployment carrying two keys therefore charged through a processor nobody
- * chose, and no configuration recorded the intent. These tests pin the new rule,
- * including the two cases that must never silently fall back.
+ * F60 + Q104 — one payment processor. Moyasar is the only gateway (owner
+ * decision 2026-10-04: one payment system, the one the patient app and web use
+ * with Moyasar). Stripe and Tap adapters were removed; asking for them fails
+ * loudly, and no key means fail-closed, never a silent fallback.
  */
 import { DisabledGatewayAdapter, isProviderConfigured, selectGateway } from '../src/modules/payments/payment-gateway';
 
@@ -16,13 +13,9 @@ class FakeGateway {
   async refund(): Promise<any> { return { refunded: true }; }
 }
 
-const factories: any = {
-  stripe: () => new FakeGateway('stripe'),
-  tap: () => new FakeGateway('tap'),
-  moyasar: () => new FakeGateway('moyasar'),
-};
+const factories: any = { moyasar: () => new FakeGateway('moyasar') };
 
-describe('F60 — PAYMENT_PROVIDER selects the gateway', () => {
+describe('F60 — Moyasar is the only payment gateway', () => {
   const original = { ...process.env };
   beforeEach(() => {
     delete process.env.PAYMENT_PROVIDER;
@@ -32,43 +25,31 @@ describe('F60 — PAYMENT_PROVIDER selects the gateway', () => {
   });
   afterAll(() => { process.env = { ...original }; });
 
-  it('honours PAYMENT_PROVIDER=moyasar even when a Stripe key is also present', () => {
+  it('selects Moyasar when its key is set, whatever other keys exist', () => {
     process.env.STRIPE_SECRET_KEY = 'sk_live_x';
+    process.env.TAP_API_KEY = 'sk_test_x';
     process.env.MOYASAR_API_KEY = 'sk_test_x';
+    expect(selectGateway(factories).name).toBe('moyasar');
     process.env.PAYMENT_PROVIDER = 'moyasar';
     expect(selectGateway(factories).name).toBe('moyasar');
   });
 
-  it('honours PAYMENT_PROVIDER=tap when several keys are set', () => {
-    process.env.STRIPE_SECRET_KEY = 'sk_live_x';
-    process.env.TAP_API_KEY = 'sk_test_x';
-    process.env.PAYMENT_PROVIDER = 'tap';
-    expect(selectGateway(factories).name).toBe('tap');
+  it('rejects stripe, tap or any other PAYMENT_PROVIDER value', () => {
+    for (const p of ['stripe', 'tap', 'hyperpay', 'paypal']) {
+      process.env.PAYMENT_PROVIDER = p;
+      expect(() => selectGateway(factories)).toThrow(/payment_provider_unknown/);
+    }
   });
 
-  it('refuses an explicitly requested provider whose key is missing, and does not fall back', () => {
-    process.env.MOYASAR_API_KEY = 'sk_test_x';
-    process.env.PAYMENT_PROVIDER = 'tap';
+  it('refuses PAYMENT_PROVIDER=moyasar without its key, and does not fall back', () => {
+    process.env.STRIPE_SECRET_KEY = 'sk_live_x';
+    process.env.PAYMENT_PROVIDER = 'moyasar';
     expect(() => selectGateway(factories)).toThrow(/payment_gateway_not_configured/);
   });
 
-  it('rejects an unknown PAYMENT_PROVIDER value', () => {
-    process.env.PAYMENT_PROVIDER = 'paypal';
-    expect(() => selectGateway(factories)).toThrow(/payment_provider_unknown/);
-  });
-
-  it('rejects a provider that is configured but has no adapter', () => {
-    process.env.HYPERPAY_API_KEY = 'hp_x';
-    process.env.PAYMENT_PROVIDER = 'hyperpay';
-    expect(() => selectGateway(factories)).toThrow(/payment_provider_not_implemented/);
-  });
-
-  it('falls back to the first configured provider when PAYMENT_PROVIDER is unset', () => {
-    process.env.MOYASAR_API_KEY = 'sk_test_x';
-    expect(selectGateway(factories).name).toBe('moyasar');
-  });
-
-  it('is fail-closed with no keys at all', () => {
+  it('is fail-closed without a Moyasar key, even when Stripe or Tap keys are present', () => {
+    process.env.STRIPE_SECRET_KEY = 'sk_live_x';
+    process.env.TAP_API_KEY = 'sk_test_x';
     expect(selectGateway(factories)).toBeInstanceOf(DisabledGatewayAdapter);
   });
 
@@ -79,10 +60,10 @@ describe('F60 — PAYMENT_PROVIDER selects the gateway', () => {
     await expect(g.refund()).rejects.toThrow(/payment_gateway_not_configured/);
   });
 
-  it('isProviderConfigured is false for disabled and true only with the key', () => {
+  it('isProviderConfigured is true only for Moyasar with its key', () => {
     expect(isProviderConfigured('disabled')).toBe(false);
-    expect(isProviderConfigured('tap')).toBe(false);
-    process.env.TAP_API_KEY = 'sk_test_x';
-    expect(isProviderConfigured('tap')).toBe(true);
+    expect(isProviderConfigured('moyasar')).toBe(false);
+    process.env.MOYASAR_API_KEY = 'sk_test_x';
+    expect(isProviderConfigured('moyasar')).toBe(true);
   });
 });
