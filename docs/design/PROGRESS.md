@@ -7,7 +7,7 @@
 >
 > Sources: `DESIGN_HANDOFF_FINAL.md`, `SPEC_PRODUCT_DOCTOR_DETAIL.md`, `DEVICE_STANDARD.md`, `canvas/`. How the folder works: `README.md`.
 
-_Last updated: 2026-10-04 (#259–#261 approved from the design side; #264 review fixes pushed with board side-by-side images; next step: side-by-side images for #263 and #261, then components part 2)._
+_Last updated: 2026-10-04 (#259–#261 approved from the design side; #264 review fixes pushed with board side-by-side images; board side-by-side images posted on #261, #263 and #264; next step: components part 2)._
 
 ## Snapshot
 
@@ -94,6 +94,16 @@ _Last updated: 2026-10-04 (#259–#261 approved from the design side; #264 revie
     - Avatar: there is no illustrated or cartoon variant. It shows a real photo (`src`), otherwise initials, otherwise the neutral user icon. The ring follows HomeApp, using the new `color.avatar.{bg,ring}` tokens.
     - Rating: one filled star, the value and `(count)`, per the DoctorCard board. It renders nothing when there is no rating or the count is 0. Star tokens are `color.icon.ratingStar` and `ratingStarOnBrand`; 151 contrast checks pass.
     - New `packages/ui/build-compare.mjs` writes board crop (left) vs real component (right) images to `docs/design/compare/`. **Every component PR from now on includes these images.**
+- **Board side-by-side for the shells (design review item 5):**
+  - #263 (`1962644`): `build-compare.mjs` puts the board's own content inside the shell, so only the chrome differs: StickyFooter vs Cart, and the AppShell top bar vs HomeWeb at 1440. Fixed what it showed:
+    - the CTA glass is now canvas-tinted (canvas at 86%, as on Cart, CheckoutV2, RxUpload and BookingConfirm);
+    - the desktop top bar is inset 64px, as on HomeWeb.
+    - The 12 screenshots were re-shot.
+  - #261 (`e5f9f7a`): `tools/design/compare-native.mjs` renders the native shells through react-native-web next to board strips: TabBar vs HomeApp (light and dark), StickyFooter vs Cart, AppHeader vs Settings. Fixed:
+    - the raised Consultations button sat 7px high;
+    - the StickyFooter now uses canvas glass (`shellTokens.glassCanvas`).
+  - #264 (`7c4428c`): board crops re-cut after the `support.js` fix below.
+  - `canvas/support.js` (#256) built HTML elements from the upper-case `tagName`, so board `<a>` and `<button>` lost their native layout. It now uses `localName`.
 - **Fix pushed to #259 (`e33d728`), and merged into #261 and #263:** `packages/ui/dist/preview.html` embeds the token sheet and had gone stale. CI missed it because that job fails earlier on a missing module.
 
 ## Next (in this order)
@@ -107,9 +117,7 @@ The foundation comes before any screen (DEVICE_STANDARD §4, handoff §3). Each 
 3. ~~**Native shells**~~: PR #261 is in review.
 4. ~~**Web shells**~~: PR #263 is in review.
    - `globals.css` still has its own `--nabd-layout-max: 1180px` and an old `.shell` layout. Pages switch to `AppShell` batch by batch, and the old `.shell` rules are removed when the last page moves.
-4b. **Board side-by-side images for the shells (design review item 5)**, before components 2/4:
-   - #263: `StickyFooter` vs the Cart sticky bar, and the `AppShell` top bar vs the HomeWeb header. Copy `build-compare.mjs` to `design/shells-web`.
-   - #261: native `TabBar` (to the HomeApp spec above, with real fill icons) and `AppHeader` vs the HomeApp nav and the Settings header, rendered with react-native-web.
+4b. ~~**Board side-by-side images for the shells**~~: done on #263 ([comment](https://github.com/obaid08642-ops/new/pull/263#issuecomment-5984644359)) and #261 ([comment](https://github.com/obaid08642-ops/new/pull/261#issuecomment-5984692867)).
 5. **Shared components** (handoff §3), in both packages, through the existing contract (`packages/ui/components/contract.ts`):
    - ~~1/4: FIcon, SectionHeader, ServiceTile, ListItem/ListRow~~ (#264).
    - 2/4 (next, branch `design/components-controls`): Button (gradient primary and outline), IconButton, Segmented (track `#EAEAEF`), Toggle, Radio, Chip/StatusChip, SearchField (`Search`), Stepper.
@@ -165,6 +173,7 @@ The foundation comes before any screen (DEVICE_STANDARD §4, handoff §3). Each 
 
 | Date | Branch | What happened | Tip |
 |---|---|---|---|
+| 2026-10-04 | `design/shells-native`, `design/shells-web` | Board side-by-side images for the shells, with fixes for the raised tab offset, the CTA canvas glass and the desktop top-bar inset. | PR [#261](https://github.com/obaid08642-ops/new/pull/261) `e5f9f7a`, PR [#263](https://github.com/obaid08642-ops/new/pull/263) `1962644` |
 | 2026-10-04 | `design/components-icons` | #264 design review fixes: one-card ServiceTile, Avatar without illustrated art, single-star Rating hidden without ratings, `build-compare.mjs` board side-by-side images. | PR [#264](https://github.com/obaid08642-ops/new/pull/264), tip `b0e4c17` |
 | 2026-10-04 | `claude/progress-md-workflow-vqhj8x` | Added `canvas/support.js` (board runtime) so boards open in a browser and can be compared with components. | PR [#256](https://github.com/obaid08642-ops/new/pull/256) |
 | 2026-10-04 | `claude/progress-md-workflow-vqhj8x` | Set up the workflow, imported the design sources, and generated the inventory and the wiring report. | PR [#256](https://github.com/obaid08642-ops/new/pull/256) |
