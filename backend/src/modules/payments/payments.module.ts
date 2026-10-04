@@ -553,20 +553,33 @@ export class PaymentsService {
     // a sabotage vector (griefing patients' paid bookings). Providers escalate
     // to admin; patients use the approval flow (/refunds/request).
     if (user.role !== 'admin') throw new BadRequestException('not_authorized');
+    const { txn } = await this.refundTransactionAsSystem(transactionId, amount, reason);
+    return this.publicTxn(txn);
+  }
+
+  /**
+   * Money back to the card at the gateway for one paid transaction. Callers decide who may refund:
+   * the admin endpoint above, and RefundExecutor (approved refund requests, cancellation policy),
+   * which before this only wrote a ledger row for card payments kept in `transactions`.
+   */
+  async refundTransactionAsSystem(transactionId: string, amount?: number, reason?: string): Promise<{ txn: any; gateway_refund_id?: string }> {
     const t = await this.txns.findOne({ id: transactionId });
     if (!t) throw new NotFoundException();
     if (t.status !== 'paid' && t.status !== 'partially_refunded') throw new BadRequestException('cannot_refund');
-    const r = await this.adapter.refund(t.gateway_charge_id, amount);
+    const refundable = Math.max(0, Number(t.amount || 0) - Number(t.refunded_amount || 0));
+    const value = amount === undefined ? refundable : Math.round(Number(amount) * 100) / 100;
+    if (!(value > 0) || value > refundable + 0.001) throw new BadRequestException('refund_exceeds_paid');
+    const r = await this.adapter.refund(t.gateway_charge_id || t.gateway_intent_id, value);
     if (!r.refunded) throw new BadRequestException('refund_failed');
-    const full = !amount || amount >= t.amount;
-    t.status = full ? 'refunded' : 'partially_refunded';
-    t.refunded_amount = (t.refunded_amount || 0) + (amount || t.amount);
+    t.refunded_amount = Math.round((Number(t.refunded_amount || 0) + value) * 100) / 100;
+    t.status = t.refunded_amount >= Number(t.amount || 0) - 0.001 ? 'refunded' : 'partially_refunded';
     t.refunded_at = new Date();
     t.refund_reason = reason;
     await t.save();
-    await this.modelFor(t.booking_kind).updateOne({ id: t.booking_id }, { $set: { payment_status: 'refunded' } });
+    if (t.status === 'refunded') await this.modelFor(t.booking_kind).updateOne({ id: { $eq: t.booking_id } }, { $set: { payment_status: 'refunded' } });
     this.realtime.emitToUser(t.patient_id, 'payment.updated', { transaction_id: t.id, status: t.status });
-    return this.publicTxn(t);
+    const raw: any = (r as any).raw || {};
+    return { txn: t, gateway_refund_id: raw?.id || raw?.refund_id };
   }
 
   /**
