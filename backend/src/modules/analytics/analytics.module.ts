@@ -9,6 +9,8 @@ import { Connection } from 'mongoose';
 import { JwtAuthGuard, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { AiReferralController } from './ai-referral.controller';
+import { CampaignAttributionService } from './services/campaign-attribution.service';
+import { CampaignReportService } from './services/campaign-report.service';
 
 @Injectable()
 export class AdminAnalyticsService {
@@ -143,8 +145,77 @@ export class AdminAnalyticsController {
   topServices(@Query('limit') limit?: string) { return this.svc.topServices(parseInt(limit || '20')); }
 }
 
+// ─── Campaign Attribution Controller ───
+
+import { IsOptional, IsString } from 'class-validator';
+
+export class CampaignFiltersDto {
+  @IsOptional() @IsString() dateFrom?: string;
+  @IsOptional() @IsString() dateTo?: string;
+  @IsOptional() @IsString() utm_source?: string;
+  @IsOptional() @IsString() utm_medium?: string;
+  @IsOptional() @IsString() utm_campaign?: string;
+}
+
+@Controller('admin/analytics/campaigns')
+@UseGuards(JwtAuthGuard)
+@Roles(UserRole.ADMIN)
+export class CampaignAnalyticsController {
+  constructor(
+    private readonly attribution: CampaignAttributionService,
+    private readonly report: CampaignReportService,
+  ) {}
+
+  @Get()
+  async getCampaignReport(@Query() filters: CampaignFiltersDto) {
+    const parsedFilters: any = {};
+    if (filters.dateFrom) parsedFilters.dateFrom = new Date(filters.dateFrom);
+    if (filters.dateTo) parsedFilters.dateTo = new Date(filters.dateTo);
+    if (filters.utm_source) parsedFilters.utm_source = filters.utm_source;
+    if (filters.utm_medium) parsedFilters.utm_medium = filters.utm_medium;
+    if (filters.utm_campaign) parsedFilters.utm_campaign = filters.utm_campaign;
+
+    const [report, sources, mediums, campaigns] = await Promise.all([
+      this.report.generateReport(parsedFilters),
+      this.attribution.getUniqueUtmSources(),
+      this.attribution.getUniqueUtmMediums(),
+      this.attribution.getUniqueUtmCampaigns(),
+    ]);
+
+    return {
+      report,
+      filters: { sources, mediums, campaigns },
+    };
+  }
+
+  @Get(':campaign/orders')
+  async getCampaignOrders(
+    @Query('campaign') campaign: string,
+    @Query() filters: CampaignFiltersDto,
+  ) {
+    const parsedFilters: any = {};
+    if (filters.dateFrom) parsedFilters.dateFrom = new Date(filters.dateFrom);
+    if (filters.dateTo) parsedFilters.dateTo = new Date(filters.dateTo);
+    if (filters.utm_source) parsedFilters.utm_source = filters.utm_source;
+    if (filters.utm_medium) parsedFilters.utm_medium = filters.utm_medium;
+
+    const orders = await this.report.getOrdersForCampaign(campaign, parsedFilters);
+    return { orders };
+  }
+
+  @Get('filters/options')
+  async getFilterOptions() {
+    const [sources, mediums, campaigns] = await Promise.all([
+      this.attribution.getUniqueUtmSources(),
+      this.attribution.getUniqueUtmMediums(),
+      this.attribution.getUniqueUtmCampaigns(),
+    ]);
+    return { sources, mediums, campaigns };
+  }
+}
+
 @Module({
-  controllers: [AdminAnalyticsController, AiReferralController],
-  providers: [AdminAnalyticsService],
+  controllers: [AdminAnalyticsController, AiReferralController, CampaignAnalyticsController],
+  providers: [AdminAnalyticsService, CampaignAttributionService, CampaignReportService],
 })
 export class AnalyticsModule {}

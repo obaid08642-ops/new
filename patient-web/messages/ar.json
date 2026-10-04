@@ -668,6 +668,19 @@
     "expiresIn": "تنتهي خلال {value} يومًا",
     "sessionsSummary": "يُعرض أول {shown} من أصل {total} جلسة نشطة."
   },
+  "Appearance": {
+    "eyebrow": "المظهر",
+    "title": "إعدادات المظهر",
+    "description": "اختر كيف يظهر تطبيق نبض بلس على جهازك. تفضيلك محفوظ ومتزامـن عبر الجلسات.",
+    "themeTitle": "السمة",
+    "light": "فاتح",
+    "dark": "داكن",
+    "system": "النظام",
+    "hint": "التغييرات تُطبّق فوراً. خيار النظام يتبع إعدادات نظام التشغيل.",
+    "reducedMotionTitle": "تقليل الحركة",
+    "reducedMotionDescription": "عند تفعيله في إعدادات النظام، تُقلّل الحركات والانتقالات أو تُعطّل.",
+    "reducedMotionNotice": "يتحكم بهذا الإعداد إعدادات تسهيل الوصول في نظام التشغيل لديك."
+  },
   "NotificationSettings": {
     "eyebrow": "ضوابط الإشعارات",
     "title": "إعدادات الإشعارات",
@@ -1483,5 +1496,31 @@
     "subtitle": "مواعيد زياراتك التمريضية وحالة كل زيارة.",
     "empty": "لا توجد زيارات تمريض بعد.",
     "visit": "زيارة تمريض"
+  },
+  "AdminAnalytics": {
+    "title": "إحالة الحملات",
+    "campaign_attribution": "إحالة الحملات",
+    "campaign_attribution_desc": "تتبع الطلبات والإيرادات حسب حملة UTM والمصدر والوسيط",
+    "filters": "المرشحات",
+    "date_from": "من تاريخ",
+    "date_to": "إلى تاريخ",
+    "source": "المصدر",
+    "medium": "الوسيط",
+    "campaign": "الحملة",
+    "all_sources": "جميع المصادر",
+    "all_mediums": "جميع الوسائط",
+    "apply": "تطبيق",
+    "export_csv": "تصدير CSV",
+    "total_orders": "إجمالي الطلبات",
+    "total_revenue": "إجمالي الإيرادات",
+    "conversion_rate": "معدل التحويل",
+    "campaigns": "الحملات",
+    "by_source": "حسب المصدر",
+    "by_medium": "حسب الوسيط",
+    "no_data": "لا توجد بيانات حملات للمرشحات المحددة",
+    "failed_to_load_report": "فشل تحميل التقرير",
+    "export_success": "تم تصدير التقرير بنجاح",
+    "export_failed": "فشل التصدير",
+    "select_date": "اختر التاريخ"
   }
 }

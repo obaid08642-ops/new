@@ -2,14 +2,24 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { buildPatientPharmacyDraft, extractPatientPharmacyOrderId, type PatientPharmacyDraftItem } from "@/lib/api/pharmacy-draft";
+import { buildPatientPharmacyDraft, extractPatientPharmacyOrderId, type PatientPharmacyDraftItem, type UtmData } from "@/lib/api/pharmacy-draft";
+import { useUtmTracking } from "@/components-next/contact/utm-tracking";
 
 type Props = { locale: string; items: PatientPharmacyDraftItem[]; labels: { submit: string; loading: string; error: string } };
 export function PharmacyBroadcastSubmit({ locale, items, labels }: Props) {
-  const router = useRouter(); const createKey = useRef<string | null>(null); const submitKey = useRef<string | null>(null); const [state, setState] = useState<"idle" | "loading" | "error">("idle"); const [error, setError] = useState(""); const [fulfillment, setFulfillment] = useState<"delivery" | "pickup">("delivery");
+  const router = useRouter();
+  const { getStoredUtm } = useUtmTracking();
+  const createKey = useRef<string | null>(null); 
+  const submitKey = useRef<string | null>(null); 
+  const [state, setState] = useState<"idle" | "loading" | "error">("idle"); 
+  const [error, setError] = useState(""); 
+  const [fulfillment, setFulfillment] = useState<"delivery" | "pickup">("delivery");
+  
   async function submit() {
     if (state === "loading") return;
-    const draft = buildPatientPharmacyDraft(items, { fulfillment }); if (!draft) { setState("error"); setError(labels.error); return; }
+    const utmData: UtmData | null = getStoredUtm();
+    const draft = buildPatientPharmacyDraft(items, { fulfillment, utm_data: utmData || undefined }); 
+    if (!draft) { setState("error"); setError(labels.error); return; }
     createKey.current ??= crypto.randomUUID(); submitKey.current ??= crypto.randomUUID(); setState("loading"); setError("");
     try {
       const created = await fetch("/api/patient/pharmacy/orders", { method: "POST", headers: { "content-type": "application/json", "idempotency-key": createKey.current }, body: JSON.stringify(draft) });

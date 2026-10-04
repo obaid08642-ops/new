@@ -28,6 +28,7 @@ import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { v4 as uuid } from 'uuid';
 import { JwtAuthGuard, CurrentUser, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
+import { CouponAbuseGuard } from '../../common/guards/abuse-prevention.guard';
 import { moyasarBase } from '../../common/moyasar-base';
 
 export const LEDGER_TYPES = [
@@ -988,6 +989,7 @@ export class FinanceEngineController {
   ) {}
 
   /** Validate a coupon against a cart (patient checkout). */
+  @UseGuards(CouponAbuseGuard)
   @Post('coupons/validate')
   async validateCoupon(@CurrentUser() u: any, @Body() b: ValidateCouponDto) {
     const orderTotal = Number(b?.order_total);

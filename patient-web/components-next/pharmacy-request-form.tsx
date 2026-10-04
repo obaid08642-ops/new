@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useUtmTracking } from "@/components-next/contact/utm-tracking";
 
 type Labels = { name: string; namePh: string; details: string; detailsPh: string; submit: string; submitting: string; error: string; success: string };
 
 export function PharmacyRequestForm({ locale, labels }: { locale: string; labels: Labels }) {
   const router = useRouter();
+  const { getStoredUtm } = useUtmTracking();
   const [name, setName] = useState("");
   const [details, setDetails] = useState("");
   const [busy, setBusy] = useState(false);
@@ -16,7 +18,12 @@ export function PharmacyRequestForm({ locale, labels }: { locale: string; labels
     if (name.trim().length < 3 || busy) return;
     setBusy(true); setErr(null);
     try {
-      const body = { manual_request: { name: name.trim(), details: details.trim() || null }, payment_method: "cash" };
+      const utmData = getStoredUtm();
+      const body = { 
+        manual_request: { name: name.trim(), details: details.trim() || null }, 
+        payment_method: "cash",
+        utm_data: utmData,
+      };
       const res = await fetch("/api/patient/pharmacy/orders", {
         method: "POST",
         headers: { "content-type": "application/json", "idempotency-key": crypto.randomUUID() },

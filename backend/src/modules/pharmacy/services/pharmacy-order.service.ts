@@ -11,6 +11,7 @@ import { WorkflowEngineService } from '../../workflow-engine/workflow-engine.mod
 import { PharmacyAllocationState } from '../schemas/pharmacy.schema';
 import { PharmacyOrderRepository } from "./repositories/pharmacyorder.repository";
 import { PharmacyAllocationRepository } from "./repositories/pharmacyallocation.repository";
+import { CampaignAttributionService } from '../../analytics/services/campaign-attribution.service';
 
 function assertPatient(u: any) { if (!u || u.role !== 'patient') throw new ForbiddenException('patient_scope_required'); }
 
@@ -24,6 +25,7 @@ export class PharmacyOrderService {
     private broadcast: PharmacyBroadcastService,
     private bus: EventBusService,
     private engine: WorkflowEngineService,
+    private campaignAttribution: CampaignAttributionService,
   ) {}
 
   async create(user: any, body: any) {
@@ -76,6 +78,12 @@ export class PharmacyOrderService {
       totals: { subtotal: 0, delivery_fee: 0, total: 0, currency: 'SAR' },
       timeline: [{ ts: new Date(), event: 'created' }],
     });
+
+    // Attach UTM data from request body (sent by frontend from localStorage)
+    if (body.utm_data) {
+      await this.campaignAttribution.attachUtmToOrder(order.id, body.utm_data);
+    }
+
     await this.engine.announceCreated({ kind: 'pharmacy', entity_id: order.id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: user.id, meta: { items: items.length, intake_source: 'broadcast' } });
     return order.toObject();
   }

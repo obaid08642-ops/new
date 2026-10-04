@@ -231,6 +231,16 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     for (const [f, v] of Object.entries(data)) h.set(f, v);
   }
 
+  async hincrby(key: string, field: string, increment: number): Promise<number> {
+    if (this.ready) { try { return await this.client.hincrby(key, field, increment); } catch { /* fall through */ } }
+    let h = this.memHashOf(key);
+    if (!h) { h = new Map() as Map<string, string> & { exp?: number }; this.memHash.set(key, h); }
+    const current = parseInt(h.get(field) || '0', 10);
+    const next = current + increment;
+    h.set(field, String(next));
+    return next;
+  }
+
   // ── Set operations ───────────────────────────────────────────
   private memSetOf(key: string): (Set<string> & { exp?: number }) | null {
     const s = this.memSets.get(key);
@@ -260,6 +270,12 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   async sismember(key: string, member: string): Promise<boolean> {
     if (this.ready) { try { return (await this.client.sismember(key, member)) === 1; } catch { /* fall through */ } }
     return this.memSetOf(key)?.has(member) ?? false;
+  }
+
+  async scard(key: string): Promise<number> {
+    if (this.ready) { try { return await this.client.scard(key); } catch { /* fall through */ } }
+    const s = this.memSetOf(key);
+    return s ? s.size : 0;
   }
 
   // ── Sorted set operations ─────────────────────────────────────
@@ -532,6 +548,15 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
         const next = arr.filter((m) => !members.includes(m));
         self.memSet(key, JSON.stringify(next));
         return arr.length - next.length;
+      },
+      async hincrby(key: string, field: string, increment: number) {
+        const cur = self.memGet(key);
+        const obj: Record<string, string> = cur ? JSON.parse(cur) : {};
+        const current = parseInt(obj[field] || '0', 10);
+        const next = current + increment;
+        obj[field] = String(next);
+        self.memSet(key, JSON.stringify(obj));
+        return next;
       },
       async lpush(key: string, ...values: string[]) {
         const cur = self.memGet(key);

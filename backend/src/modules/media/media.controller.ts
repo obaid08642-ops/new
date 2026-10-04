@@ -8,6 +8,7 @@ import { UserRole } from '../../common/enums';
 import { MediaService } from './media.service';
 import { UploadMediaDto, PresignedUrlDto } from './media.dto';
 import { MediaAsset, MediaAssetDocument, MEDIA_PURPOSES, MediaPurpose } from './media.schema';
+import { UploadRateLimitGuard } from '../../common/guards/abuse-prevention.guard';
 
 @Controller('media')
 @SelfService()
@@ -20,6 +21,7 @@ export class MediaController {
   ) {}
 
   @Post('upload')
+  @UseGuards(UploadRateLimitGuard)
   @UseInterceptors(
     FileInterceptor('file', {
       limits: { fileSize: 15 * 1024 * 1024 }, // 15MB limit
@@ -68,6 +70,7 @@ export class MediaController {
   }
 
   @Post('presigned')
+  @UseGuards(UploadRateLimitGuard)
   async getPresignedUrl(
     @CurrentUser() user: any,
     @Body() body: PresignedUrlDto,

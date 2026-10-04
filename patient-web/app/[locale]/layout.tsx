@@ -20,8 +20,9 @@ import { ShieldCheck } from "lucide-react";
 import { authCookieNames } from "@/lib/auth/cookies";
 import { getDirection, isLocale, locales, type Locale } from "@/lib/i18n";
 import { WebMcpProvider } from "@/components-next/web-mcp-provider";
-import { ThemeToggle } from "@/components-next/theme-toggle";
+import { ThemeProvider, ThemeToggle } from "@/components-next/theme-toggle";
 import { THEME_INIT_SCRIPT } from "@/app/theme";
+import { UtmTracker } from "@/components-next/contact/utm-tracking";
 import { ServiceWorkerRegister } from "@/components-next/service-worker-register";
 import { SkipLink, MainContent } from "@/components-next/skip-link";
 import { MobileMenu } from "@/components-next/mobile-menu";
@@ -78,16 +79,17 @@ export default async function LocaleLayout({ children, params }: Props) {
     <NextIntlClientProvider messages={messages}>
       <WebMcpProvider locale={typedLocale} />
       <ToastProvider>
-        <LayoutExtras />
-        <div className={`shell ${tajawal.variable}`} lang={typedLocale} dir={getDirection(typedLocale)}>
-          {/*
-            12.A3 — the theme has to be known before the first pixel, or every
-            navigation flashes the wrong theme. This is a synchronous inline script
-            at the top of the body for that reason; see app/theme.ts for why it
-            sets BOTH data-theme and .dark.
-          */}
-          <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
-          <SkipLink targetId="main-content" label={t("skipToContent") || "Skip to main content"} />
+        <ThemeProvider>
+          <LayoutExtras />
+          <div className={`shell ${tajawal.variable}`} lang={typedLocale} dir={getDirection(typedLocale)}>
+            {/*
+              12.A3 — the theme has to be known before the first pixel, or every
+              navigation flashes the wrong theme. This is a synchronous inline script
+              at the top of the body for that reason; see app/theme.ts for why it
+              sets BOTH data-theme and .dark.
+            */}
+            <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+            <SkipLink targetId="main-content" label={t("skipToContent") || "Skip to main content"} />
           <header className="topbar">
             <Link className="brand" href={`/${typedLocale}`}>
               <span className="brand-mark">
@@ -116,6 +118,8 @@ export default async function LocaleLayout({ children, params }: Props) {
             />
           </header>
           {hasAccessToken ? <PresenceBeacon /> : null}
+          <UtmTracker />
+          <ServiceWorkerRegister />
           <MainContent id="main-content">{children}</MainContent>
           <footer style={{ borderTop: "1px solid #E8EDEE", marginTop: 48, padding: "24px 16px", background: "#FDFDFC" }}>
             <nav aria-label={t("brand")} style={{ display: "flex", flexWrap: "wrap", gap: "12px 24px", rowGap: 12, columnGap: 24 }}>
@@ -127,6 +131,7 @@ export default async function LocaleLayout({ children, params }: Props) {
             </nav>
           </footer>
         </div>
+        </ThemeProvider>
       </ToastProvider>
     </NextIntlClientProvider>
   );

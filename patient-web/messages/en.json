@@ -668,6 +668,19 @@
     "expiresIn": "Expires in {value} days",
     "sessionsSummary": "Showing the first {shown} of {total} active sessions."
   },
+  "Appearance": {
+    "eyebrow": "Appearance",
+    "title": "Appearance settings",
+    "description": "Choose how Nabd Plus looks on your device. Your preference is saved and synced across sessions.",
+    "themeTitle": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "hint": "Changes apply immediately. System follows your OS setting.",
+    "reducedMotionTitle": "Reduced motion",
+    "reducedMotionDescription": "When enabled in your system settings, animations and transitions are reduced or disabled.",
+    "reducedMotionNotice": "This setting is controlled by your operating system's accessibility preferences."
+  },
   "NotificationSettings": {
     "eyebrow": "Notification controls",
     "title": "Notification settings",
@@ -1483,5 +1496,31 @@
     "subtitle": "Your nursing visits and the status of each one.",
     "empty": "No nursing visits yet.",
     "visit": "Nursing visit"
+  },
+  "AdminAnalytics": {
+    "title": "Campaign Attribution",
+    "campaign_attribution": "Campaign Attribution",
+    "campaign_attribution_desc": "Track orders and revenue by UTM campaign, source, and medium",
+    "filters": "Filters",
+    "date_from": "Date From",
+    "date_to": "Date To",
+    "source": "Source",
+    "medium": "Medium",
+    "campaign": "Campaign",
+    "all_sources": "All Sources",
+    "all_mediums": "All Mediums",
+    "apply": "Apply",
+    "export_csv": "Export CSV",
+    "total_orders": "Total Orders",
+    "total_revenue": "Total Revenue",
+    "conversion_rate": "Conversion Rate",
+    "campaigns": "Campaigns",
+    "by_source": "By Source",
+    "by_medium": "By Medium",
+    "no_data": "No campaign data found for the selected filters",
+    "failed_to_load_report": "Failed to load report",
+    "export_success": "Report exported successfully",
+    "export_failed": "Export failed",
+    "select_date": "Select date"
   }
 }

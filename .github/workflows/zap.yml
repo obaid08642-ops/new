@@ -1,0 +1,95 @@
+name: OWASP ZAP Baseline Scan
+
+on:
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 2 * * 1'  # Weekly on Monday at 2 AM UTC
+  workflow_dispatch:
+    inputs:
+      target_url:
+        description: 'Target URL to scan (overrides ZAP_TARGET_URL env var)'
+        required: false
+        type: string
+      fail_on_severity:
+        description: 'Fail on findings of this severity or higher (LOW, MEDIUM, HIGH, CRITICAL)'
+        required: false
+        default: 'MEDIUM'
+        type: choice
+        options:
+          - LOW
+          - MEDIUM
+          - HIGH
+          - CRITICAL
+
+env:
+  ZAP_TARGET_URL: https://staging.nabd.plus
+  FAIL_ON_SEVERITY: MEDIUM
+
+jobs:
+  zap-baseline-scan:
+    name: ZAP Baseline Scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+
+      - name: Set target URL from workflow_dispatch input
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.target_url != ''
+        run: |
+          echo "ZAP_TARGET_URL=${{ github.event.inputs.target_url }}" >> $GITHUB_ENV
+
+      - name: Set fail severity from workflow_dispatch input
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.fail_on_severity != ''
+        run: |
+          echo "FAIL_ON_SEVERITY=${{ github.event.inputs.fail_on_severity }}" >> $GITHUB_ENV
+
+      - name: Run ZAP Baseline Scan
+        id: zap_scan
+        uses: zaproxy/action-baseline@3e5b73e15060c63a7d9e7e0c2a7c5c3b3f4d5e6f7  # v0.12.0
+        with:
+          target: '${{ env.ZAP_TARGET_URL }}'
+          rules_file_name: '.zap/rules.tsv'
+          cmd_options: '-a'
+          fail_action: true
+          issue_title: 'ZAP Baseline Scan Results'
+          artifact_name: 'zap-report'
+
+      - name: Upload SARIF to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@4814a4fcb4d6518c6a2e0e3e4c7b5b7a1b8c9d0e  # v3.28.0
+        if: always() && hashFiles('zap-report/*.sarif') != ''
+        with:
+          sarif_file: zap-report/*.sarif
+          category: zap-baseline
+
+      - name: Upload HTML Report
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e9274886a00c6d4c00  # v4.6.2
+        if: always()
+        with:
+          name: zap-html-report
+          path: zap-report/*.html
+          retention-days: 30
+
+      - name: Upload Markdown Report
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e9274886a00c6d4c00  # v4.6.2
+        if: always()
+        with:
+          name: zap-markdown-report
+          path: zap-report/*.md
+          retention-days: 30
+
+      - name: Print ZAP Summary
+        if: always()
+        run: |
+          echo "ZAP Baseline Scan completed"
+          echo "Target: ${{ env.ZAP_TARGET_URL }}"
+          echo "Fail on severity: ${{ env.FAIL_ON_SEVERITY }}"
+          if [ -f zap-report/report.md ]; then
+            echo "## ZAP Scan Summary" >> $GITHUB_STEP_SUMMARY
+            cat zap-report/report.md >> $GITHUB_STEP_SUMMARY
+          fi

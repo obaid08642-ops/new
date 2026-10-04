@@ -610,6 +610,19 @@
     "expiresIn": "Mag-e-expire sa loob ng {value} araw",
     "sessionsSummary": "Ipinapakita ang unang {shown} sa {total} aktibong session."
   },
+  "Appearance": {
+    "eyebrow": "Itsura",
+    "title": "Mga setting ng itsura",
+    "description": "Pumili kung paano mukha ang Nabd Plus sa device mo. Nasa-save at na-sync ang gusto mo sa mga session.",
+    "themeTitle": "Tema",
+    "light": "Maliwanag",
+    "dark": "Madilim",
+    "system": "Sistema",
+    "hint": "Agad na nangyayari ang pagbabago. Sinusunod ng sistema ang setting ng OS mo.",
+    "reducedMotionTitle": "Binabawas na galaw",
+    "reducedMotionDescription": "Kapag naka-enable sa system settings, binabawasan o pinapawalan ang mga animation at transition.",
+    "reducedMotionNotice": "Kontrolado ng operating system's accessibility preferences ang setting na ito."
+  },
   "NotificationSettings": {
     "eyebrow": "Mga kontrol ng notification",
     "title": "Mga setting ng notification",
