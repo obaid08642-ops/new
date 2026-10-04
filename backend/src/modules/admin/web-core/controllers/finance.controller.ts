@@ -140,6 +140,8 @@ export class FinanceController {
     return { success: true, message: 'Payout executed successfully', amount, provider_id: providerId, available_after: (await this.ledger.providerBalance(providerId)).available, source: legacyDoc ? 'legacy' : 'provider_ops' };
   }
 
+  @StepUp()
+  @RequirePermissions(Permission.FINANCE_PAYOUT_APPROVE)
   @Post('withdrawals/:id/reject')
   async rejectPayout(@Param('id') id: string, @Body() body: RejectPayoutDto) {
     // Legacy withdrawals are keyed by Mongo `_id`; provider-ops withdrawals

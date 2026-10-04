@@ -1,3 +1,4 @@
+import { Permission, RequirePermissions } from '../../common/permissions';
 import { StepUp } from '../../common/step-up.guard';
 import { JwtAuthGuard, SelfService, Roles, CurrentUser } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
@@ -77,20 +78,27 @@ export class AdminLoyaltyController {
 
   @Get('rewards') rewards() { return this.loyaltyService.adminListRewards(); }
   @StepUp()
+  @RequirePermissions(Permission.COUPONS_MANAGE)
   @Post('rewards') createReward(@Body() body: RewardDto) { return this.loyaltyService.adminCreateReward(body); }
   @StepUp()
+  @RequirePermissions(Permission.COUPONS_MANAGE)
   @Patch('rewards/:id') updateReward(@Param('id') id: string, @Body() body: RewardDto) { return this.loyaltyService.adminUpdateReward(id, body); }
   @StepUp()
+  @RequirePermissions(Permission.COUPONS_MANAGE)
   @Delete('rewards/:id') deleteReward(@Param('id') id: string) { return this.loyaltyService.adminDeleteReward(id); }
 
   @Get('challenges') challenges() { return this.loyaltyService.adminListChallenges(); }
   @StepUp()
+  @RequirePermissions(Permission.COUPONS_MANAGE)
   @Post('challenges') createChallenge(@Body() body: ChallengeDto) { return this.loyaltyService.adminCreateChallenge(body); }
   @StepUp()
+  @RequirePermissions(Permission.COUPONS_MANAGE)
   @Patch('challenges/:id') updateChallenge(@Param('id') id: string, @Body() body: ChallengeDto) { return this.loyaltyService.adminUpdateChallenge(id, body); }
   @StepUp()
+  @RequirePermissions(Permission.COUPONS_MANAGE)
   @Delete('challenges/:id') deleteChallenge(@Param('id') id: string) { return this.loyaltyService.adminDeleteChallenge(id); }
 
   @StepUp()
+  @RequirePermissions(Permission.COUPONS_MANAGE)
   @Put('config') updateConfig(@CurrentUser() u: any, @Body() body: LoyaltyConfigDto) { return this.loyaltyService.adminUpdateConfig(body, u); }
 }

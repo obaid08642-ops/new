@@ -1,3 +1,5 @@
+import { Permission, RequirePermissions } from '../../common/permissions';
+import { StepUp } from '../../common/step-up.guard';
 /**
  * ╔════════════════════════════════════════════════════════════════╗
  * ║   CENTRALIZED BUSINESS RULES ENGINE                            ║
@@ -288,6 +290,8 @@ export class BusinessRulesController {
   getSurge() { return this.svc.getSurgeConfig(); }
 
   @Roles(UserRole.ADMIN)
+  @StepUp()
+  @RequirePermissions(Permission.FINANCE_CONFIG_EDIT)
   @Post('config/surge')
   updateSurge(@Body() body: UpdateSurgeDto) { return this.svc.updateSurgeConfig(body); }
 
@@ -297,6 +301,8 @@ export class BusinessRulesController {
   pricing() { return this.svc.pricing(); }
 
   @Roles(UserRole.ADMIN)
+  @StepUp()
+  @RequirePermissions(Permission.FINANCE_CONFIG_EDIT)
   @Post('config/fees')
   updateFees(@Body() body: UpdateFeesDto) { return this.svc.updateFees(body); }
 
