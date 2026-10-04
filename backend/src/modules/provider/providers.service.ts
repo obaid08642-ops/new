@@ -1,3 +1,4 @@
+import { PROVIDER_PUBLIC_PROJECTION } from '../provider-onboarding/provider-private-fields';
 import { randomBytes } from 'crypto';
 import { Injectable, NotFoundException, BadRequestException, ConflictException, ForbiddenException, Inject } from '@nestjs/common';
 import { Model, Types } from 'mongoose';
@@ -310,7 +311,7 @@ export class ProvidersService {
     const company = String(insurance_company || '').trim();
     if (company) q.accepted_insurance = { $in: [...new Set([company, company.toLowerCase()])] };
 
-    return this.providerModel.find(q, { _id: 0, __v: 0 }).sort({ rating: -1, createdAt: -1 }).limit(200).lean();
+    return this.providerModel.find(q, PROVIDER_PUBLIC_PROJECTION).sort({ rating: -1, createdAt: -1 }).limit(200).lean();
   }
   /** Map providers: ACTIVE only, must have real stored coordinates. */
   async mapProviders(type?: string, lat?: number, lng?: number, radiusKm?: number) {
@@ -346,7 +347,7 @@ export class ProvidersService {
   }
 
   async getPublicById(id: string) {
-    const p = await this.providerModel.findOne({ id, ...this.publicDiscoveryFilter() }, { _id: 0, __v: 0 });
+    const p = await this.providerModel.findOne({ id, ...this.publicDiscoveryFilter() }, PROVIDER_PUBLIC_PROJECTION);
     if (!p) throw new NotFoundException();
     return p;
   }

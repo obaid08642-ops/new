@@ -61,4 +61,13 @@ describe('InsuranceFlowService.benefitsSummary (F2: decided insurance requests p
     const [row]: any[] = await service.benefitsSummary({ id: 'pat-1' });
     expect(row).toMatchObject({ service: 'consultation', requests: 2, approved: 1, partially_approved: 1, rejected: 1, pending: 0, copay_paid: 60, copay_due: 300 });
   });
+
+  it('a provider-request decision (approval code note) counts under its real service', async () => {
+    await patients.collection.insertOne({ user_id: 'pat-1', insurance: policy });
+    const at = new Date();
+    await requests.collection.insertOne(req({ booking_kind: 'provider_request', service_type: 'lab', state: 'COPAY_PENDING', copay_amount: 30, copay_percent: 15,
+      history: [{ state: 'PENDING_PROVIDER_REVIEW', at, by: 'pat-1' }, { state: 'COPAY_PENDING', at, by: 'prov-1', note: 'APR-778' }] }));
+    const out: any[] = await service.benefitsSummary({ id: 'pat-1' });
+    expect(out).toEqual([expect.objectContaining({ service: 'lab', requests: 1, approved: 1, partially_approved: 1, copay_due: 30, icon: 'flask' })]);
+  });
 });

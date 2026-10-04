@@ -200,7 +200,6 @@ export class InsuranceService {
     patientId: string,
     query: {
       provider_id?: string;
-      facility_id?: string;
       service_type: string; // consultation, pharmacy, lab, radiology, nursing
     }
   ) {
@@ -215,10 +214,12 @@ export class InsuranceService {
       return { ...base, has_policy: true, covered: false, reason: 'insurance_company_not_in_catalog' };
     }
 
-    if (query.provider_id || query.facility_id) {
-      const target = (query.provider_id
-        ? await this.providerModel.findOne({ $or: [{ id: { $eq: query.provider_id } }, { user_id: { $eq: query.provider_id } }, { account_id: { $eq: query.provider_id } }] }).lean()
-        : await this.facilityModel.findOne({ id: { $eq: query.facility_id } }).lean()) as { id?: string; name_ar?: string; name_en?: string; accepted_insurance?: unknown } | null;
+    if (query.provider_id) {
+      // Only providers patients can see: public, active and medically approved.
+      const target = (await this.providerModel.findOne({
+        $or: [{ id: { $eq: query.provider_id } }, { user_id: { $eq: query.provider_id } }, { account_id: { $eq: query.provider_id } }],
+        status: ProviderStatus.ACTIVE, public_eligibility: true, medical_review_status: 'approved',
+      }).lean()) as { id?: string; name_ar?: string; name_en?: string; accepted_insurance?: unknown } | null;
       if (!target) throw new NotFoundException('provider_not_found');
       const accepted = acceptsCompany(target.accepted_insurance, company);
       return {
@@ -623,13 +624,11 @@ export class InsuranceController {
   coverageCheck(
     @CurrentUser() u: any,
     @Query('provider_id') providerId?: string,
-    @Query('facility_id') facilityId?: string,
     @Query('service_type') serviceType?: string,
   ) {
     if (!serviceType) throw new BadRequestException('service_type is required');
     return this.svc.checkCoverage(u.id, {
       provider_id: providerId,
-      facility_id: facilityId,
       service_type: serviceType,
     });
   }
