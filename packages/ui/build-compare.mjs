@@ -63,7 +63,12 @@ const shellsCss = existsSync(join(HERE, 'shells/shells.css')) ? readFileSync(joi
  * render    the component, with the board's text
  * frame     'canvas' (default) or 'card' (the component sits in a white card on the board)
  * needs     component names that must exist in this build (else the entry is skipped)
+ * viewport  page width for both sides (default 430; desktop boards use 1440)
+ * inject    true: render(C, inner) also gets the board element's own children (HTML), so a
+ *           shell is compared with the board's content inside it — only the chrome differs
+ * pick      selector of the part of the component render to cut out (default: all of it)
  */
+const raw = (html, style) => h('div', { style, dangerouslySetInnerHTML: { __html: html } });
 const COMPARISONS = [
   {
     id: 'ficon-soft', board: 'FIcon', query: 'icon=pill&tone=coral&chip=soft&size=52', xpath: '//*[@id="dc-root"]/div', themes: ['light', 'dark'],
@@ -96,9 +101,16 @@ const COMPARISONS = [
     note: 'board placeholders [N.N] ([العدد]); the component renders real numbers',
   },
   {
-    id: 'stickyfooter', board: 'Cart', xpath: "//button[contains(@style,'#E8384A 0%')]/parent::div", themes: ['light'],
-    render: (C) => h(C.StickyFooter, null, h('div', { style: { display: 'flex', gap: 12, alignItems: 'center' } }, h('div', { style: { display: 'grid' } }, h('span', { style: { fontSize: 11.5, color: 'var(--nabd-color-text-secondary)' } }, 'التقديري'), h('span', { style: { fontSize: 18, fontWeight: 700 } }, '[المبلغ] ر.س')), h('div', { style: { flex: 1 } }, h(C.Button, { label: 'متابعة', variant: 'primary', size: 'lg' })))),
-    needs: ['StickyFooter', 'Button'], note: 'the button is today\'s Button; it gets the board gradient in components 2/4',
+    id: 'stickyfooter', board: 'Cart', xpath: "//button[contains(@style,'#E8384A 0%')]/parent::div", themes: ['light'], inject: true,
+    render: (C, inner) => h(C.StickyFooter, null, raw(inner, { display: 'flex', gap: 10, alignItems: 'center' })),
+    needs: ['StickyFooter'],
+    note: 'StickyFooter chrome (glass, hairline, padding) around the board\'s own price and button. The board draws the iPhone 34px home-indicator inset; the component uses max(16px, env(safe-area-inset-bottom)), which is 34px on that iPhone and 16px in this desktop browser. Light only: Cart has no dark board.',
+  },
+  {
+    id: 'appshell-topbar', board: 'HomeWeb', xpath: "//*[@id='dc-root']/div/div/div[1]", themes: ['light'], viewport: 1440, inject: true,
+    render: (C, inner) => h(C.AppShell, { topBar: raw(inner, { display: 'flex', alignItems: 'center', gap: 28, flex: 1 }) }, null),
+    pick: '.nabd-shell__top', needs: ['AppShell'],
+    note: 'AppShell top bar (height, padding, glass, hairline) around the board\'s own logo, nav and actions at 1440. Light only: HomeWeb has no dark board.',
   },
 ];
 
@@ -141,7 +153,7 @@ for (const c of COMPARISONS) {
     continue;
   }
   for (const theme of c.themes) {
-    const page = await browser.newPage({ viewport: { width: 430, height: 1200 }, deviceScaleFactor: 2 });
+    const page = await browser.newPage({ viewport: { width: c.viewport || 430, height: 1200 }, deviceScaleFactor: c.viewport > 1000 ? 1 : 2 });
     await page.route('**/fonts.googleapis.com/**', (r) => r.fulfill({ contentType: 'text/css', body: fontFaces }));
     const q = [c.query, theme === 'dark' ? 'theme=dark' : ''].filter(Boolean).join('&');
     await page.goto(`http://localhost:${PORT}/${c.board}.dc.html${q ? `?${q}` : ''}`);
@@ -156,9 +168,10 @@ for (const c of COMPARISONS) {
     }
     const box = await el.boundingBox();
     const boardPng = (await el.screenshot()).toString('base64');
+    const inner = c.inject ? await el.evaluate((n) => n.innerHTML) : '';
     const boardBg = await page.evaluate(() => getComputedStyle(document.querySelector('#dc-root > *') || document.body).backgroundColor);
 
-    const body = renderToStaticMarkup(c.render(ui));
+    const body = renderToStaticMarkup(c.render(ui, inner));
     const frame =
       c.frame === 'card'
         ? `<div style="border-radius:24px;background:var(--nabd-color-bg-surface);border:1px solid var(--nabd-color-border-hairline);overflow:hidden">${body}</div>`
@@ -171,11 +184,11 @@ for (const c of COMPARISONS) {
       #c{display:inline-block;padding:0;inline-size:${Math.ceil(box.width)}px}</style><body><div id="c">${frame}</div></body></html>`,
     );
     await page.evaluate(() => document.fonts.ready);
-    const compPng = (await page.locator('#c').screenshot()).toString('base64');
+    const compPng = (await page.locator(c.pick ? `#c ${c.pick}` : '#c').first().screenshot()).toString('base64');
 
     // side by side: board | component, labelled
     await page.setContent(`<!doctype html><meta charset="utf-8"><style>body{margin:0;font:13px system-ui;background:#888}
-      .row{display:flex;gap:24px;padding:20px;align-items:flex-start}.col{display:grid;gap:8px;justify-items:start}
+      .row{display:flex;flex-direction:${box.width > 700 ? 'column' : 'row'};gap:24px;padding:20px;align-items:flex-start}.col{display:grid;gap:8px;justify-items:start}
       .col b{color:#fff}.col div{padding:16px;background:${boardBg};border-radius:8px}.col img{display:block;max-width:none}
       em{color:#eee;padding:0 20px 16px;display:block}</style>
       <div class="row"><div class="col"><b>Board: ${c.board} (${theme})</b><div><img src="data:image/png;base64,${boardPng}" style="width:${box.width}px"></div></div>
