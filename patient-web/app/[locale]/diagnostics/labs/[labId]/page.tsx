@@ -71,7 +71,7 @@ export default async function LabDetailPage({ params }: Props) {
       <article className={styles.detail} style={{ gap: 16, padding: 24, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>
         <div className={styles.heroBanner}>
           {lab.image ? (
-            <img src={lab.image} alt={lab.name} className={styles.coverImage} />
+            <img src={lab.image} alt={lab.name} className={styles.coverImage} loading="eager" fetchPriority="high" decoding="async" sizes="(max-width: 640px) 100vw, 800px" />
           ) : (
             <div className={styles.placeholderBanner}>
               <VectorLabs size={48} aria-hidden="true" />

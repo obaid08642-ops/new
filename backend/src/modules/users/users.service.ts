@@ -61,8 +61,9 @@ export class UsersService {
       profile.wishlist.splice(idx, 1);
     } else {
       // Snapshot the medicine so the wishlist is useful even if it is later delisted.
-      let medicine: any = null;
-      try { medicine = await this.conn.collection('medicines').findOne({ id: itemId } as any); } catch { /* keep bare id */ }
+      const medicine: any = await this.conn.collection('medicines').findOne({ id: { $eq: String(itemId) } } as any);
+      // R2: never report success for an item that does not exist.
+      if (!medicine) throw new NotFoundException('item_not_found');
       if (!profile.wishlist) profile.wishlist = [];
       profile.wishlist.push({
         id: itemId,

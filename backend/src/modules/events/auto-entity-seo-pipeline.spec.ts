@@ -524,12 +524,26 @@ describe('Fully Automatic Entity / Content / SEO / AEO / GEO Pipeline (20 Test S
 
   // 20. Dynamic sitemap verification
   it('Scenario 20: Verify sitemap reflects newly added/removed public entities', async () => {
+    // 13.R8: a projection link needs a real source edge (entity_id + a live source row).
+    mockCollections.provider_profiles.push({ id: 'pharm-live-1', slug: 'nabd-care-pharmacy-1', type: 'pharmacy', is_deleted: false });
+    mockCollections.provider_profiles.push({ id: 'pharm-gone-2', slug: 'closed-pharmacy-2', type: 'pharmacy', is_deleted: true });
     mockCollections.public_catalog_projections = [
       {
         entity_type: 'pharmacy',
+        entity_id: 'pharm-live-1',
         slug: 'nabd-care-pharmacy-1',
         canonical_path: '/pharmacy/nabd-care-pharmacy-1',
         canonical_url: 'https://nabd.plus/ar/pharmacy/nabd-care-pharmacy-1',
+        indexable: true,
+        sitemap: { included: true },
+        updated_at: new Date('2026-09-04'),
+      },
+      {
+        entity_type: 'pharmacy',
+        entity_id: 'pharm-gone-2',
+        slug: 'closed-pharmacy-2',
+        canonical_path: '/pharmacy/closed-pharmacy-2',
+        canonical_url: 'https://nabd.plus/ar/pharmacy/closed-pharmacy-2',
         indexable: true,
         sitemap: { included: true },
         updated_at: new Date('2026-09-04'),
@@ -539,6 +553,8 @@ describe('Fully Automatic Entity / Content / SEO / AEO / GEO Pipeline (20 Test S
     const sitemap = await seoService.sitemap();
 
     expect(sitemap).toContain('https://nabd.plus/ar/pharmacy/nabd-care-pharmacy-1');
+    // removed: the source row is deleted, so the stale link is dropped
+    expect(sitemap).not.toContain('closed-pharmacy-2');
   });
 });
 

@@ -13,6 +13,7 @@ import { ProviderProfileRepository } from "./repositories/providerprofile.reposi
 import { InjectModel } from '@nestjs/mongoose';
 import { CatalogPublicationService } from '../events/catalog-publication.service';
 import { escapeRegex } from '../../common/slug.util';
+import { missingRequiredDocuments } from './required-documents';
 
 /**
  * Fields a provider may edit on their own profile (and, via the
@@ -205,22 +206,16 @@ export class ProvidersService {
     return { ok: true, user: this.publicUser(user), profile: profile.toObject(), generated_password: data.password ? undefined : password };
   }
 
-  /** F4/R1: refuse approval unless every required document exists (typed record
-   * or an uploaded onboarding file). The admin override lives on the canonical
+  /** F4/R1/Q80: refuse approval unless every required document exists as a typed
+   * record that is not rejected or flagged for replacement (same rule as
+   * ProviderAdminService.approve). The admin override lives on the canonical
    * admin route, which requires step-up. */
   private async assertRequiredDocuments(profile: any): Promise<void> {
-    const { REQUIRED_DOCS_BY_PROVIDER_TYPE } = await import('./provider.enums');
-    const required = REQUIRED_DOCS_BY_PROVIDER_TYPE[(profile?.type || profile?.provider_type) as any] || [];
-    if (!required.length) return;
     const col: any = (this.providerModel as any).model?.db?.collection?.('provider_documents');
-    let typed = new Set<string>();
-    if (col) {
-      const rows: any[] = await col.find({ $or: [{ account_id: profile.account_id }, { profile_id: profile.id }, { user_id: profile.user_id }] }).toArray().catch(() => []);
-      typed = new Set(rows.filter((d: any) => d.review_status !== 'REJECTED').map((d: any) => d.doc_type));
-    }
-    // Onboarding uploads licence files as URLs on the profile.
-    const urls = Array.isArray(profile.license_documents) ? profile.license_documents.filter((u: any) => typeof u === 'string' && u.length > 0).length : 0;
-    const missing = (urls >= required.length) ? [] : required.filter((r: string) => !typed.has(r));
+    const rows: Array<{ doc_type?: string; review_status?: string }> = col
+      ? await col.find({ $or: [{ account_id: profile.account_id }, { profile_id: profile.id }, { user_id: profile.user_id }] }).toArray()
+      : [];
+    const missing = missingRequiredDocuments(profile?.type || profile?.provider_type, rows);
     if (missing.length) throw new BadRequestException(`required_documents_missing: ${missing.join(', ')}`);
   }
 

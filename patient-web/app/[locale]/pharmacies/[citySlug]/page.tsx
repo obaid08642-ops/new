@@ -56,7 +56,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     ? `صيدليات ${decCity} المعتمدة | توصيل فوري للأدوية والبدائل العلاجية`
     : `Verified Pharmacies in ${decCity} | Fast Medicine Delivery`;
   const desc = locale === "ar"
-    ? `ابحث عن الأدوية والبدائل في صيدليات ${decCity} المعتمدة مع خدمة البث الجغرافي الفوري والتوصيل السريع عبر نبضة بلس.`
+    ? `ابحث عن الأدوية والبدائل في صيدليات ${decCity} المعتمدة مع خدمة البث الجغرافي الفوري والتوصيل السريع عبر نبض بلس.`
     : `Find prescription and OTC medicines in ${decCity} with instant geo-broadcast delivery via Nabd Plus.`;
 
   return {

@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { randomUUID } from 'crypto';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { Cron, CronExpression } from '@nestjs/schedule';
@@ -46,19 +47,22 @@ export class RecurringNotificationService {
     deepLink?: string;
     enabled: boolean;
   }) {
+    // A new rule gets an id: toggleRule and later upserts match on it (it was inserted without one).
+    const id = rule.id ? String(rule.id) : randomUUID();
     const doc = {
       ...rule,
+      id,
       updated_by: adminId,
       updated_at: new Date(),
     };
     if (rule.id) {
-      await this.rules.updateOne({ id: rule.id }, { $set: doc }, { upsert: true });
+      await this.rules.updateOne({ id: { $eq: id } }, { $set: doc }, { upsert: true });
     } else {
       (doc as any).created_by = adminId;
       (doc as any).created_at = new Date();
       await this.rules.insertOne(doc);
     }
-    return doc;
+    return { ok: true, id };
   }
 
   /** List all rules. */

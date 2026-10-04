@@ -160,6 +160,8 @@ export const translations: Record<LangCode, TranslationKeys> = {
 export const autoTranslations: Record<string, Record<LangCode, string>> = {
   ...(phase5AutoTranslations.translations as unknown as Record<string, Record<LangCode, string>>),
   // General & Common UI
+  // Q69: shown when an Android build has no Google Maps key (MapPrimitives.native.tsx).
+  "الخريطة غير متاحة حالياً": { ar: "الخريطة غير متاحة حالياً", en: "The map is not available right now", ur: "نقشہ اس وقت دستیاب نہیں", hi: "नक्शा अभी उपलब्ध नहीं है", bn: "মানচিত্র এখন উপলব্ধ নেই", fil: "Hindi available ang mapa sa ngayon" },
   "طبيعي": { ar: "طبيعي", en: "Normal", ur: "نارمل", hi: "सामान्य", bn: "স্বাভাবিক", fil: "Normal" },
   "متوسط": { ar: "متوسط", en: "Moderate", ur: "اعتدال", hi: "मध्यम", bn: "মাঝারি", fil: "Moderate" },
   "الكل": { ar: "الكل", en: "All", ur: "سب", hi: "सभी", bn: "সব", fil: "All" },

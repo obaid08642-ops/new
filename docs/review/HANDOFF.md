@@ -25,11 +25,15 @@ Read this first in a new reviewer session, together with `AGENTS.md`. It replace
 
 **Reviewer (this role)**
 - Tests everything live and never trusts claims.
-- Fixes small, low-risk defects with a regression test on a `review/*` branch → PR → merge commit into `main`.
-- Delegates larger defects to the agent in `REVIEW_REAUDIT_P1_P11.md` and `docs/review/QA_DEFECTS.md`, each with Verify criteria.
-- After every merge, merges `main` into `fix/audit-2026-09`. Never force-push; no other commits on that branch.
+- **Verifies every finding personally.** Sub-agent or helper results are leads, not verdicts: before a finding is reported to the owner or the agent, the reviewer reads the code and reproduces it (test or live run). Report only what was reproduced; mark anything else "not reproduced yet".
+- **Fixes small defects personally, in `main` code and in the agent's unmerged code alike** (owner decision 2026-10-04). Small means: local to a few files, the correct behaviour is unambiguous, and no schema, API contract, product or design decision is involved. Examples: a missing guard or filter, a wrong id passed, a missing translation key, a red test caused by a one-line bug.
+  - Defect in `main` code: `review/*` branch from `main` → PR → merge commit into `main`.
+  - Defect in agent code not yet in `main`: `review/fix-*` branch from the tip of `fix/audit-2026-09` → PR into `fix/audit-2026-09` → merge commit. Commit tag `[REVIEW-FIX] <Q/F-id> <summary>`, with a regression test that fails before the fix. Update the row in `REVIEW_P13.md` / `REVIEW_P14.md` and `QA_DEFECTS.md` to "fixed by reviewer, <sha>".
+- **Delegates only the larger defects** to the agent in `REVIEW_REAUDIT_P1_P11.md` and `docs/review/QA_DEFECTS.md`, each with Verify criteria.
+- After every merge into `main`, merges `main` into `fix/audit-2026-09`. Never force-push, never rewrite the agent's history, never revert agent commits; the only reviewer commits on that branch are these merges and `[REVIEW-FIX]` merges.
+- **Merging the agent branch into `main`**: once the reviewer's own fixes are in and every remaining row is PASS or an accepted BLOCKED, with the full gate, CI, live gate and native run green. Never merge red.
 
-**Agent**: works only on `fix/audit-2026-09` and follows `AGENTS.md`. Last agent commit: `6ca29c4` (2026-10-04). **152 agent commits are not in `main` and have not been reviewed** (Phases 12–14 waves, Q/R/X fixes, `[perf]`, `[sec]`, `[15.7]`, `[16.1]`, `[20]`, `[21]`). Only the gitleaks check ran on that branch. The native baseline (§7b) was built from `main`, so it did not test any of them.
+**Agent**: works only on `fix/audit-2026-09` and follows `AGENTS.md`. Last agent commit: `6ca29c4` (2026-10-04). **The 152 unmerged agent commits were reviewed on 2026-10-04 (tip `bb97c87`), one nine-point row each: 3 PASS, 149 FAIL** (`REVIEW_P13.md`, `REVIEW_P14.md`). Phases 13 and 14: NOT APPROVED. Nothing merged into `main`. The agent's work list is **Round 10** in `REVIEW_REAUDIT_P1_P11.md`; new defects Q78–Q90 in `QA_DEFECTS.md`. Review copy for CI: draft PR #237 (`review/agent-tip-ci`, never merge). Native on the agent code: `review/maestro-agent-tip` (strict, workarounds off) and `review/maestro-agent-tip-q58` (only Q58 on).
 
 **Owner**
 - Reports go to the owner in **Arabic** (Egyptian-friendly, plain).
@@ -181,6 +185,8 @@ All 13 jobs green: 6 patient shards and 7 provider types, every one signed in.
 
 ## 8. Reviewer next steps (in order)
 
+**Status 2026-10-04:** step 0 done for `bb97c87` (verdict above). Next: wait for the agent's Round 10 pushes, then repeat step 0 on every new commit (nine checks, gate, CI copy, live gate, native strict). Only when Round 10 is closed: merge to `main`, sync, tell the owner it is ready for staging.
+
 0. **Review the 152 unmerged agent commits first** (`git log origin/main..origin/fix/audit-2026-09 --no-merges`):
    - run the full `AGENTS.md` gate on the branch tip, and open a draft PR from a `review/*` copy so the whole CI runs;
    - run `native-e2e` on the agent code (merge the tip into a `review/maestro-*` branch; the paths filter needs a `tools/native/README.md` touch);
@@ -188,6 +194,17 @@ All 13 jobs green: 6 patient shards and 7 provider types, every one signed in.
    - Phases 13 and 14 started without a written APPROVED review of the phase before; record the verdict per phase (`REVIEW_P13.md`, `REVIEW_P14.md`);
    - check every Q/R/X fix commit against its Verify line in `QA_DEFECTS.md` / `REVIEW_REAUDIT_P1_P11.md`, live where the local stack allows;
    - only then merge to `main`, sync, and tell the owner it is ready to deploy to staging.
+   - **Per-commit checklist (owner requirement: check everything, trust nothing the agent wrote).** For every one of the 152 commits, record the result in `REVIEW_P13.md` / `REVIEW_P14.md` (one row per sha):
+     1. read the **whole diff**, line by line, not the message or `AGENT_PROGRESS.md`;
+     2. message vs diff: does the code do what the message and the plan task's "Do" say, completely? List anything claimed but missing, and anything changed that the task did not ask for;
+     3. wiring: is the new code actually called from a real route, screen or job? `grep` every new export for callers. A helper nobody calls is NOT done;
+     4. tests: do they assert the real behaviour (not mocks of the thing under test, not `expect(true)`)? Run them, and break the code on purpose once to see they fail;
+     5. live proof: exercise the behaviour on the local stack (`tools/live`) or in the native run, and paste the real output;
+     6. regressions: run the full gate plus the journeys touched by the files changed; compare with the previous results;
+     7. hygiene: no mock data, fallbacks, hard-coded lists, `any`, TODOs, skipped tests, secrets, leftover debug code, or a second copy of an existing function;
+     8. security and data: authorization on every new route, input validation (DTO rules), no PII in logs, no new public cache of private data;
+     9. any agent result in `AGENT_PROGRESS.md` that cannot be reproduced counts as false and is reported as a defect.
+     A commit passes only when all nine hold. Otherwise it goes back to the agent as a FAIL item with the evidence.
 1. Re-run `native-e2e` after each agent push. Remove a test-build workaround when its defect is fixed, and add every real new defect to `QA_DEFECTS.md` with evidence. Never count crawler artifacts as app defects.
 2. **Catalog audit §3** (`CATALOG_AUDIT.md`):
    - consumer map per catalog;

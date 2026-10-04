@@ -1,5 +1,5 @@
 import { OnEvent } from '@nestjs/event-emitter';
-import { Logger } from '@nestjs/common';
+import { Logger, Optional } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import {
   ConnectedSocket, MessageBody, OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit,
@@ -13,6 +13,7 @@ import { Appointment, AppointmentDocument } from '../../schemas/appointment.sche
 import { getWebSocketCorsOptions } from '../../config/websocket-cors';
 import { ChatService } from '../chat/chat.service';
 import { LiveKitService } from '../livekit/livekit.service';
+import { RedisService } from '../redis/redis.service';
 
 @WebSocketGateway({ cors: getWebSocketCorsOptions(), namespace: '/', transports: ['websocket', 'polling'] })
 export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
@@ -25,17 +26,120 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
   // doctor_id -> array of appointmentIds in queue
   private doctorQueues = new Map<string, string[]>();
 
+  // ── 14.13: Socket.IO Redis adapter (DOCUMENTED ONLY — NOT installed) ──
+  // Verified 2026-10-04: `@socket.io/redis-adapter` is absent from
+  // backend/package.json (present: `socket.io`, `@nestjs/platform-socket.io`,
+  // `ioredis`) — so NO package was installed per task constraints and NO
+  // `server.adapter(...)` call is made below. Single-worker broadcast via
+  // `this.server` works unchanged.
+  // To enable cross-worker *emit* fan-out when scaling horizontally:
+  //   npm i @socket.io/redis-adapter
+  //   import { createAdapter } from '@socket.io/redis-adapter';
+  //   import Redis from 'ioredis';
+  //   const pub = new Redis(redisUrlFromEnv());
+  //   const sub = pub.duplicate();
+  //   server.adapter(createAdapter(pub, sub));
+  // Presence/queue *state* below is ALREADY cross-worker via RedisService;
+  // the adapter only adds cross-worker emit fan-out (room broadcast).
+
+  // ── 14.13: Redis-backed presence/queue state ───────────────────
+  // connectedUsers / userSockets / doctorQueues are mirrored to Redis so all
+  // workers see the same state. The in-memory Maps above remain as the
+  // fallback used ONLY when Redis is unavailable (or RedisService was not
+  // injected, e.g. unit tests), preserving pre-14.13 single-process behavior.
+  // Emit logic, room names and queue ordering semantics are unchanged.
+  private static readonly SOCKET_KEY = (socketId: string) => `rt:socket:${socketId}`;
+  private static readonly USER_SOCKETS_KEY = (userId: string) => `rt:user_sockets:${userId}`;
+  private static readonly DOCTOR_QUEUE_KEY = (doctorId: string) => `rt:doctor_queue:${doctorId}`;
+
+  /** True when RedisService can serve cross-worker state right now. */
+  private redisLive(): boolean {
+    try {
+      if (!this.redisStore) return false;
+      const client: any = (this.redisStore as any).getClient?.();
+      // Real RedisService returns an ioredis client when ready and a
+      // `{ status: 'fallback' }` shim when Redis is down.
+      if (client && client.status === 'fallback') return false;
+      return true;
+    } catch { return false; }
+  }
+
+  private async trackSocket(socketId: string, userId: string, payload: any): Promise<void> {
+    if (!this.userSockets.has(userId)) this.userSockets.set(userId, new Set());
+    this.userSockets.get(userId)!.add(socketId);
+    this.connectedUsers.set(socketId, payload);
+    if (!this.redisStore) return;
+    try {
+      await this.redisStore.setJson(RealtimeGateway.SOCKET_KEY(socketId), payload);
+    } catch { /* memory mirror above remains authoritative */ }
+    try {
+      await this.redisStore.sadd(RealtimeGateway.USER_SOCKETS_KEY(userId), socketId);
+    } catch { /* memory mirror above remains authoritative */ }
+  }
+
+  private async untrackSocket(socketId: string, userId: string): Promise<void> {
+    const sockets = this.userSockets.get(userId);
+    if (sockets) {
+      sockets.delete(socketId);
+      if (sockets.size === 0) this.userSockets.delete(userId);
+    }
+    this.connectedUsers.delete(socketId);
+    if (!this.redisStore) return;
+    try { await this.redisStore.del(RealtimeGateway.SOCKET_KEY(socketId)); } catch { /* mirror kept */ }
+    try { await this.redisStore.srem(RealtimeGateway.USER_SOCKETS_KEY(userId), socketId); } catch { /* mirror kept */ }
+  }
+
+  /** Remaining socket ids for a user — Redis first (cross-worker), memory fallback. */
+  private async remainingSockets(userId: string): Promise<string[]> {
+    if (this.redisStore) {
+      try {
+        return await this.redisStore.smembers(RealtimeGateway.USER_SOCKETS_KEY(userId));
+      } catch { /* fall through to memory mirror */ }
+    }
+    return Array.from(this.userSockets.get(userId) ?? []);
+  }
+
+  /** Doctor queue — Redis first (cross-worker), memory fallback. Order preserved. */
+  private async readQueue(doctorId: string): Promise<string[]> {
+    if (this.redisStore) {
+      try {
+        const stored = await this.redisStore.getJson<string[]>(RealtimeGateway.DOCTOR_QUEUE_KEY(doctorId));
+        if (Array.isArray(stored)) return stored;
+        // Key absent in Redis but a local mirror exists (e.g. written while
+        // Redis was down): keep serving the mirror rather than dropping it.
+        if (stored === null && this.doctorQueues.has(doctorId)) return [...this.doctorQueues.get(doctorId)!];
+        return stored ?? [];
+      } catch { /* fall through to memory mirror */ }
+    }
+    return [...(this.doctorQueues.get(doctorId) ?? [])];
+  }
+
+  private async writeQueue(doctorId: string, queue: string[]): Promise<void> {
+    this.doctorQueues.set(doctorId, [...queue]);
+    if (!this.redisStore) return;
+    try {
+      await this.redisStore.setJson(RealtimeGateway.DOCTOR_QUEUE_KEY(doctorId), queue);
+    } catch { /* memory mirror above remains authoritative */ }
+  }
+
   constructor(
     private readonly jwt: JwtService,
     private readonly realtime: RealtimeService,
     @InjectModel(Appointment.name) private readonly apptModel: Model<AppointmentDocument>,
     private readonly chat: ChatService,
     private readonly livekit: LiveKitService,
+    @Optional() private readonly redisStore?: RedisService,
   ) {}
 
   afterInit(server: Server) {
     this.realtime.setServer(server);
     this.logger.log('WebSocket Gateway initialized');
+    // 14.13: Redis adapter intentionally NOT attached — the
+    // `@socket.io/redis-adapter` package is not installed (see note above).
+    // Logged once so operators know horizontal emit fan-out needs the adapter.
+    if (!this.redisLive()) {
+      this.logger.log('Socket.IO Redis adapter skipped (package not installed / Redis unavailable); presence/queues use RedisService with in-memory fallback');
+    }
   }
 
   async handleConnection(client: Socket) {
@@ -50,10 +154,8 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
       client.join(`user:${payload.id}`);
       client.join(`role:${payload.role}`);
 
-      // Track connections
-      if (!this.userSockets.has(payload.id)) this.userSockets.set(payload.id, new Set());
-      this.userSockets.get(payload.id)!.add(client.id);
-      this.connectedUsers.set(client.id, payload);
+      // Track connections (Redis-shared with in-memory fallback)
+      await this.trackSocket(client.id, payload.id, payload);
 
       // Mark online via presence (fire-and-forget) with declared client platform.
       const platform = (client.handshake.auth as any)?.client || (client.handshake.query as any)?.client;
@@ -96,12 +198,7 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
     const user = client.data?.user;
     if (!user) return;
 
-    const sockets = this.userSockets.get(user.id);
-    if (sockets) {
-      sockets.delete(client.id);
-      if (sockets.size === 0) this.userSockets.delete(user.id);
-    }
-    this.connectedUsers.delete(client.id);
+    await this.untrackSocket(client.id, user.id);
 
     // Clean up waiting room queue if socket was waiting
     const apptId = client.data?.appointmentId;
@@ -109,7 +206,7 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
       try {
         const appt = await this.apptModel.findOne({ id: apptId }).lean();
         if (appt) {
-          this.removeFromQueue(appt.doctor_id, apptId);
+          await this.removeFromQueue(appt.doctor_id, apptId);
         }
       } catch (err) {
         this.logger.warn(`Failed to clean up queue for appointment ${apptId}: ${err.message}`);
@@ -119,7 +216,9 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
     // Mark offline if no more sockets
     this.realtime.setUserOffline(user.id, client.id).catch(() => null);
 
-    if (!this.userSockets.has(user.id)) {
+    // Cross-worker check: only broadcast offline when NO worker holds a socket.
+    const remaining = await this.remainingSockets(user.id);
+    if (remaining.length === 0) {
       this.server.emit('user:offline', { user_id: user.id, timestamp: Date.now() });
     }
     this.logger.log(`Disconnected: ${user.id} socket=${client.id}`);
@@ -340,13 +439,10 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
       client.data.appointmentId = data.appointmentId;
 
       const doctorId = appt.doctor_id;
-      if (!this.doctorQueues.has(doctorId)) {
-        this.doctorQueues.set(doctorId, []);
-      }
-
-      const queue = this.doctorQueues.get(doctorId)!;
+      const queue = await this.readQueue(doctorId);
       if (!queue.includes(data.appointmentId)) {
         queue.push(data.appointmentId);
+        await this.writeQueue(doctorId, queue);
       }
 
       await this.broadcastQueueUpdates(doctorId);
@@ -373,7 +469,7 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
 
       client.leave(`appointment:${data.appointmentId}`);
       if (client.data?.appointmentId === data.appointmentId) delete client.data.appointmentId;
-      this.removeFromQueue(appt.doctor_id, data.appointmentId);
+      await this.removeFromQueue(appt.doctor_id, data.appointmentId);
       return { ok: true };
     } catch (err) {
       return { ok: false, error: 'internal_error' };
@@ -391,7 +487,7 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
   }
 
   private async broadcastQueueUpdates(doctorId: string) {
-    const queue = this.doctorQueues.get(doctorId) || [];
+    const queue = await this.readQueue(doctorId);
     const totalInQueue = queue.length;
 
     for (let i = 0; i < queue.length; i++) {
@@ -413,14 +509,13 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
     }
   }
 
-  private removeFromQueue(doctorId: string, appointmentId: string) {
-    const queue = this.doctorQueues.get(doctorId);
-    if (queue) {
-      const idx = queue.indexOf(appointmentId);
-      if (idx !== -1) {
-        queue.splice(idx, 1);
-        this.broadcastQueueUpdates(doctorId);
-      }
+  private async removeFromQueue(doctorId: string, appointmentId: string) {
+    const queue = await this.readQueue(doctorId);
+    const idx = queue.indexOf(appointmentId);
+    if (idx !== -1) {
+      queue.splice(idx, 1);
+      await this.writeQueue(doctorId, queue);
+      await this.broadcastQueueUpdates(doctorId);
     }
   }
 
@@ -477,7 +572,7 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
         appointmentId: payload.id,
       });
       if (fullAppt) {
-        this.removeFromQueue(fullAppt.doctor_id, payload.id);
+        await this.removeFromQueue(fullAppt.doctor_id, payload.id);
       }
     }
   }
@@ -501,7 +596,9 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
     if (payload.caller_id) this.realtime.emitToUser(payload.caller_id, 'call_event', payload);
   }
 
-  // Admin stats
+  // Admin stats (14.13: reads the local mirrors, which are updated on every
+  // track/untrack alongside Redis, so single-worker counts are unchanged;
+  // cross-worker totals would need async Redis aggregation — out of scope).
   getStats() {
     return {
       connected_sockets: this.connectedUsers.size,

@@ -72,7 +72,7 @@ export default function SearchIntelligencePage() {
   return (
     <>
       <Head>
-        <title>ذكاء وتحليلات البحث | نبضة بلس</title>
+        <title>ذكاء وتحليلات البحث | نبض بلس</title>
       </Head>
       <section dir="rtl" className="p-6 md:p-8">
         <div className="mb-6 flex flex-wrap items-end justify-between gap-4">

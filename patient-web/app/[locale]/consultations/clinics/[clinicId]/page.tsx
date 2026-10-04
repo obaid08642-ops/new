@@ -71,7 +71,7 @@ export default async function ClinicDetailPage({ params }: Props) {
       <article className={styles.detail} style={{ gap: 16, borderRadius: 20, border: "1px solid #E8EDEE", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>
         <div className={styles.heroBanner} style={{ borderRadius: 20, overflow: "hidden", border: "1px solid #E8EDEE" } as any}>
           {clinic.image ? (
-            <img src={clinic.image} alt={clinic.name} className={styles.coverImage} />
+            <img src={clinic.image} alt={clinic.name} className={styles.coverImage} loading="eager" fetchPriority="high" decoding="async" sizes="(max-width: 640px) 100vw, 800px" />
           ) : (
             <div className={styles.placeholderBanner} style={{ borderRadius: 20 } as any}>
               <VectorMap size={48} aria-hidden="true" />

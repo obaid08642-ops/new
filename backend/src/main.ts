@@ -15,6 +15,8 @@ const useFastify = process.env.USE_FASTIFY === 'true';
 let FastifyAdapter: any = null;
 let fastifyCookie: any = null;
 let fastifyMultipart: any = null;
+let fastifyCompress: any = null;
+let fastifyHelmet: any = null;
 if (useFastify) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   FastifyAdapter = require('@nestjs/platform-fastify').FastifyAdapter;
@@ -22,6 +24,10 @@ if (useFastify) {
   fastifyCookie = require('@fastify/cookie');
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   fastifyMultipart = require('@fastify/multipart');
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  fastifyCompress = require('@fastify/compress');
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  fastifyHelmet = require('@fastify/helmet');
 }
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const cluster = require('node:cluster');
@@ -116,6 +122,60 @@ async function bootstrap() {
   if (useFastify) {
     await (app as any).register(fastifyCookie);
     await (app as any).register(fastifyMultipart, { limits: { fileSize: 10 * 1024 * 1024 } });
+    // P0 14.12: Fastify-native replacements for Express-only middleware.
+    await (app as any).register(fastifyCompress);
+    await (app as any).register(fastifyHelmet, {
+      // Explicit per-request CSP is set below via onRequest hook (with nonce).
+      contentSecurityPolicy: false,
+      crossOriginEmbedderPolicy: false,
+    });
+    // P0 14.12: webhook rawBody chain under Fastify — content parsers preserve
+    // req.rawBody (webhooks depend on it) on the Fastify path, mirroring the
+    // Express `verify` callback used below.
+    const fastifyInstance: any = app.getHttpAdapter().getInstance();
+    fastifyInstance.addContentTypeParser(
+      'application/json',
+      { parseAs: 'buffer' },
+      (req: any, body: any, done: any) => {
+        try {
+          const buf = Buffer.isBuffer(body) ? body : Buffer.from(body || '');
+          req.rawBody = buf.toString();
+          done(null, buf.length ? JSON.parse(buf.toString()) : {});
+        } catch (err) {
+          (done as any)(err as Error, undefined);
+        }
+      },
+    );
+    fastifyInstance.addContentTypeParser(
+      'application/x-www-form-urlencoded',
+      { parseAs: 'buffer' },
+      (req: any, body: any, done: any) => {
+        try {
+          const buf = Buffer.isBuffer(body) ? body : Buffer.from(body || '');
+          req.rawBody = buf.toString();
+          // eslint-disable-next-line @typescript-eslint/no-var-requires
+          const querystring = require('node:querystring');
+          done(null, querystring.parse(buf.toString()));
+        } catch (err) {
+          (done as any)(err as Error, undefined);
+        }
+      },
+    );
+    // P0 14.12: Fastify-compatible CSP — onRequest hook sets reply.header
+    // (Express (req,res,next) signature does not run cleanly under Fastify).
+    // Keeps the same explicit nonce-based policy as the Express path.
+    fastifyInstance.addHook('onRequest', async (req: any, reply: any) => {
+      const nonce = newCspNonce();
+      req.cspNonce = nonce;
+      reply.header(
+        'Content-Security-Policy',
+        contentSecurityPolicy({
+          nonce,
+          isProduction: process.env.NODE_ENV === 'production',
+          allowedOrigins: Array.isArray(allowedOrigins) ? allowedOrigins : configuredOrigins ?? [],
+        }),
+      );
+    });
     logger.log('Fastify adapter enabled (USE_FASTIFY=true)');
   } else {
     const trustProxyHops = Number.parseInt(process.env.TRUST_PROXY_HOPS || '2', 10);
@@ -137,38 +197,47 @@ async function bootstrap() {
   // policy allowed 'unsafe-inline' for scripts, so an injected <script> still ran.
   // A per-request nonce is issued and attached to the request (no controller
   // renders inline script today, so strict CSP is safe to adopt).
-  app.use((req: any, res: any, next: any) => {
-    const nonce = newCspNonce();
-    req.cspNonce = nonce;
-    res.setHeader(
-      'Content-Security-Policy',
-      contentSecurityPolicy({
-        nonce,
-        isProduction: process.env.NODE_ENV === 'production',
-        // `allowedOrigins` is `true` when nothing was configured (reflect the
-        // request origin); the CSP only needs the explicit list.
-        allowedOrigins: Array.isArray(allowedOrigins) ? allowedOrigins : configuredOrigins ?? [],
-      }),
-    );
-    next();
-  });
-  app.use(helmet({
-    // The policy above is set explicitly, per request, with a nonce.
-    contentSecurityPolicy: false,
-    crossOriginEmbedderPolicy: false,
-  }));
-  app.use(compression());
-  app.use(cookieParser());
+  // P0 14.12: Express-only middleware is gated to !useFastify so the Fastify
+  // path stays clean (Fastify uses @fastify/cookie, @fastify/compress,
+  // @fastify/helmet + content parsers registered above).
+  if (!useFastify) {
+    app.use((req: any, res: any, next: any) => {
+      const nonce = newCspNonce();
+      req.cspNonce = nonce;
+      res.setHeader(
+        'Content-Security-Policy',
+        contentSecurityPolicy({
+          nonce,
+          isProduction: process.env.NODE_ENV === 'production',
+          // `allowedOrigins` is `true` when nothing was configured (reflect the
+          // request origin); the CSP only needs the explicit list.
+          allowedOrigins: Array.isArray(allowedOrigins) ? allowedOrigins : configuredOrigins ?? [],
+        }),
+      );
+      next();
+    });
+    app.use(helmet({
+      // The policy above is set explicitly, per request, with a nonce.
+      contentSecurityPolicy: false,
+      crossOriginEmbedderPolicy: false,
+    }));
+    app.use(compression());
+    app.use(cookieParser());
+  }
   app.useWebSocketAdapter(new ConfiguredIoAdapter(app, allowedOrigins));
   app.useGlobalFilters(new SentryExceptionFilter(app.getHttpAdapter()));
 
-  app.use(require('express').json({
-    limit: '25mb',
-    verify: (req: any, res: any, buf: any) => {
-      req.rawBody = buf.toString();
-    }
-  }));
-  app.use(require('express').urlencoded({ limit: '25mb', extended: true }));
+  // P0 14.12: Express body-parser (with rawBody verify for webhooks) only on
+  // the Express path; Fastify uses addContentTypeParser above (same rawBody).
+  if (!useFastify) {
+    app.use(require('express').json({
+      limit: '25mb',
+      verify: (req: any, res: any, buf: any) => {
+        req.rawBody = buf.toString();
+      }
+    }));
+    app.use(require('express').urlencoded({ limit: '25mb', extended: true }));
+  }
   app.setGlobalPrefix('api');
   app.enableVersioning({
     type: VersioningType.URI,

@@ -146,7 +146,7 @@ export const ProviderHome = ({ onLogout }: { onLogout?: () => void }) => {
         {/* Status Notice */}
         <NCard style={[styles.noticeCard, { borderColor: theme.border }]}>
           <Text style={[styles.noticeTitle, { color: theme.text, textAlign: AR ? 'right' : 'left' }]}>
-            {AR ? 'منظومة نبضة بلس للحوكمة والامتثال' : 'Nabd+ Plus Compliance & Audit Hub'}
+            {AR ? 'منظومة نبض بلس للحوكمة والامتثال' : 'Nabd+ Compliance & Audit Hub'}
           </Text>
           <Text style={[styles.noticeBody, { color: theme.textSub, textAlign: AR ? 'right' : 'left' }]}>
             {AR

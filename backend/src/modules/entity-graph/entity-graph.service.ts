@@ -128,8 +128,10 @@ export class EntityGraphService implements OnModuleInit {
 
   private async getRelatedDoctor(identifier: string): Promise<RelatedGraphResponse> {
     const docCol = this.connection.collection('provider_profiles');
+    // Public read: only an approved, public doctor resolves.
     const doctor = await docCol.findOne({
       $or: [{ id: identifier }, { slug: identifier }],
+      type: 'doctor', status: 'active', public_eligibility: true,
     });
 
     if (!doctor) {
@@ -165,7 +167,7 @@ export class EntityGraphService implements OnModuleInit {
         name_ar: doctor.name_ar || doctor.full_name,
         name_en: doctor.name_en,
         specialty: doctor.specialty,
-        rating: doctor.rating || 4.8,
+        rating: typeof doctor.rating === 'number' ? doctor.rating : null,
         experience_years: doctor.experience_years,
         city: doctor.city,
       },

@@ -56,7 +56,7 @@ export function CartView({ locale, labels }: Props) {
             <div className={styles.itemMedia}>
               {item.image ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={item.image} alt={item.name} className={styles.itemImg} />
+                <img src={item.image} alt={item.name} className={styles.itemImg} loading="lazy" decoding="async" sizes="72px" />
               ) : (
                 <div className={styles.itemPlaceholder}>
                   <Pill size={24} />

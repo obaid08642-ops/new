@@ -386,10 +386,10 @@ export class AuthService {
     await this.redisService.setJson(this.passwordResetKey(resetToken), { user_id: user.id }, this.PATIENT_EXCHANGE_TTL_SECONDS);
     try {
       if (normalized.includes('@')) {
-        await this.mail?.send(normalized, 'Password reset', `Your Nabdah Plus password-reset token is ${resetToken}. It expires in 60 seconds.`);
+        await this.mail?.send(normalized, 'Password reset', `Your Nabd+ password-reset token is ${resetToken}. It expires in 60 seconds.`);
       } else if (user.email) {
         // SMS retired: reset link goes by email (Resend→SES).
-        await this.mail?.send(user.email, 'Password reset', `Your Nabdah Plus password-reset token is ${resetToken}. It expires in 60 seconds.`);
+        await this.mail?.send(user.email, 'Password reset', `Your Nabd+ password-reset token is ${resetToken}. It expires in 60 seconds.`);
       }
     } catch {
       // Do not disclose account state or the raw token in the HTTP response.

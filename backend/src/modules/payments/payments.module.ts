@@ -321,7 +321,7 @@ export class PaymentsService {
     }
     if (!booking) {
       const M = this.modelFor(type);
-      booking = await M.findOne({ id }).lean();
+      booking = await M.findOne({ id: { $eq: String(id) } }).lean();
     }
     if (!booking) throw new NotFoundException('booking_not_found');
     if (governedPharmacy) {
@@ -350,7 +350,7 @@ export class PaymentsService {
       amount = Math.max(0, Math.round((amount - Number(booking.wallet_applied)) * 100) / 100);
     }
     if (amount <= 0) throw new BadRequestException('invalid_amount');
-    const existing: any = await this.txns.findOne({ booking_kind: kind, booking_id: id, status: { $in: ['initiating', 'pending', 'authorized'] } }).lean();
+    const existing: any = await this.txns.findOne({ booking_kind: kind, booking_id: { $eq: String(id) }, status: { $in: ['initiating', 'pending', 'authorized'] } }).lean();
     if (existing) return existing;
 
     // Persist an active reservation before calling the PSP. The partial unique
@@ -361,7 +361,7 @@ export class PaymentsService {
       txn = await this.txns.create({ booking_kind: kind, booking_id: id, patient_id: booking.patient_id || booking.patient_account_id, amount, gateway: this.adapter.name, method: booking.payment_method || 'card', status: 'initiating', idempotency_key: requestKey });
     } catch (error: any) {
       if (error?.code === 11000) {
-        const active: any = await this.txns.findOne({ booking_kind: kind, booking_id: id, status: { $in: ['initiating', 'pending', 'authorized'] } }).lean();
+        const active: any = await this.txns.findOne({ booking_kind: kind, booking_id: { $eq: String(id) }, status: { $in: ['initiating', 'pending', 'authorized'] } }).lean();
         if (active) return active;
       }
       throw error;

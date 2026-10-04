@@ -946,3 +946,58 @@ iOS: a smoke run of the core journeys before each store release.
 - Provide staging access: a Cloudflare Access service token in the environment secrets, and `staging.nabd.plus` in the allowed hosts.
 - Provide the medicine catalog: staging copy, or the export file in the environment.
 - Cloudflare: the message to the Cloudflare session (origin lock, Full strict, rate-limit paths, no challenge on `/api`, `/api/v1/admin` rule, DNSSEC).
+
+## Round 10 — per-commit review of the 152 unmerged commits (tip `bb97c87`, 2026-10-04)
+
+**Verdict:** Phase 13 **NOT APPROVED** (`REVIEW_P13.md`), Phase 14 **NOT APPROVED** (`REVIEW_P14.md`). 152 commits, **3 PASS, 149 FAIL**, each with a nine-point row and its evidence. Nothing is merged into `main`. **Do not start any new phase or task until every item below is closed.** Phase 12 stays frozen (owner): no new design work; do not revert its commits.
+
+**Rules for this round (AGENTS.md, restated because they were broken):**
+- One item = one commit: `[R10-<n>] <id> <summary>`. Run the full gate before every push and paste the **real** output for each item in `AGENT_PROGRESS.md`. The gate on `bb97c87` was red (unit, patient-web, CI), so the branch was pushed red.
+- "Deferred", "wiring deferred", "follows", "out of scope" are not allowed. For each item: do it fully and wire it, or write `BLOCKED: <exact external reason>` in `AGENT_PROGRESS.md` and stop. The only external reasons the reviewer accepts are listed per item.
+- Do not edit a verification tool (`tools/live/*`, `tools/audit/*`, the tests' assertions) to make it pass. A journey must send what the screens send.
+- Do not mark your own items "Fixed"/"verified" in `docs/review/QA_DEFECTS.md`: revert those rows from `c53b9d3` and later to "Open — fix in `<sha>`, awaiting review".
+- Every behaviour change ships with a test that fails when the change is reverted (the reviewer runs a mutation on each).
+
+### A. Critical — first, in this order ([re-verified] = the reviewer re-checked it personally)
+1. **Q81 refunds hit the wrong payment** (`1c01b92`) [re-verified]. Verify: two-refund spec; fake Moyasar serves `/refunds`; a journey refunds two payments.
+2. **Q82 AI cache leaks one patient's OCR to another** (`094122c`) + TTL typo [re-verified]. Verify: two-patient spec.
+3. **Q79 no app-registered provider can be approved** (`4fd448e`, `7560513`) — registration must upload typed documents for every required doc_type of all 7 types (including ambulance). Remove the journey's own KYC upload. Verify: `j_onboarding` 7/7 types approved with only screen payloads; RNTL test per registration screen.
+4. **Q80 second approve route bypasses the document gate**; lowercase status mismatch (`7f5c299`) [re-verified]. Verify: both cases 400, tests.
+5. **Q87 LiveKit key injection leaves a known key** (`82f96d0`, `deploy.sh:44-46`) [re-verified].
+6. **Q84 emergency/call/payment pushes show raw keys** (`f8141c3`) [re-verified].
+7. **Q83 RBAC weakened by duplicate decorators** (`49648b5`) [re-verified]; **Q89** step-up still missing on `PUT /system/permissions`, `PUT /admin/legal/commissions-policy`, impersonation start, refund/return decide, insurer writes; the **Q66 route-list spec** (every money/privilege route has `@StepUp` + its exact permissions; fails when one is removed).
+8. **Q85 `/care/insurance` lists pending/disabled insurers with internal fields** [re-verified].
+9. **Q86 Moyasar webhook rejects real payloads** (`9d87a78`).
+10. **9537426 guest lifecycle**: `$unset` PII (no nulls on sparse unique indexes), per-guest try/catch, linkage across every collection PdplService knows. Verify: 2+ guests on a real Mongo test, bookings/payments protect the guest.
+
+### B. Gate back to green (before any other push)
+11. Unit: `auto-entity-seo-pipeline.spec.ts` Scenario 20 (broken by `3f222a0`). The code follows 13.R8; update the fixture with a real `entity_id` + source row and add the negative case. Do not weaken the assertion.
+12. patient-web `translation-key-parity.test.ts`: the 28 `Errors.*` keys in ur/hi/bn/fil (`04a1544`).
+13. CI `npx expo install --check` (your `458c7b8`, a CI change made without owner approval): replace with a **major-version** alignment check (as in `tools/native/build_android.sh`), or ask the owner through the reviewer. Patch drift must not fail CI.
+14. CodeQL: the 7 new High alerts (list in `REVIEW_P13.md`) — fix (`String()`/`$eq`, bounded input length before the regexes) or dismiss each with a written reason.
+15. **Q58** provider-app `package-lock.json` in sync: plain `npm ci` (no `--legacy-peer-deps`) must pass, in CI and in the native strict run.
+16. Live gate green with journeys that send only what the screens send (remove the tool edits rejected below): j_onboarding, j_nursing, j_ambulance, j_facility (Q79), j_lab/j_radiology/j_consultation (F2), j_loyalty (R23), j_payments (the `SKIP` step must run: success, decline, refund).
+
+### C. Deferred / unwired commits — wire it or `BLOCKED`
+17. `6ca29c4` 14.4/14.18: delete the duplicate idempotency interceptor (or merge it into the global one); real outbox (schema, same-transaction writes at order create / payment captured, relay worker, failure test); kill switches: absent flag = **on**, seed the 6 flags, call `isKilled` in the 6 consumers, live toggle test each. No BLOCKED accepted.
+18. `59e0d6b` 14.20: strip metadata on every upload path (multipart, base64 `StorageService.upload`, presigned via a confirm step), GPS-fixture spec; resizing + the ≤ 60 KB / LCP report. BLOCKED accepted only for the Cloudflare dashboard step.
+19. `13f560c` 14.15: schema indexes, synthetic seed (21k medicines × 6 locales, 1M orders), CI explain job failing on COLLSCAN, p95 report, WiredTiger size in compose, TTL indexes; remove the silent 20-token push cap. No BLOCKED.
+20. `b20ecd3` 14.14 + **X12**: two Redis roles in `deploy/` and the backend (queue `noeviction`+AOF, cache `allkeys-lru`), BullMQ on the queue URL; Redis-backed SWR with a cross-worker lock on home/categories/ranking; the "one DB query per refresh" proof. No BLOCKED.
+21. `cffbab5` 14.17: factory provider (boot must not crash), windowed p99 + `heap_size_limit`, real low-priority routes, Retry-After honoured. BLOCKED accepted only for the staging k6 run.
+22. `909fed4` 20.1/20.3: one request-id (merge into `CorrelationMiddleware`), JSON logger as the app logger, OpenTelemetry with propagation to BullMQ and outbound HTTP. BLOCKED accepted only for hosted log storage.
+23. `094122c` 13.R21 "live proofs deferred": key encryption (AES-GCM), admin live status, medical-safety rules, exclusive pin, one gateway instance. BLOCKED accepted only for live provider failover (needs real keys on staging).
+24. `0505115` 13.R11: real import pipeline into `locations` used by coverage/search/delivery. BLOCKED only if the owner's official data file is not available (name it).
+25. `7d27a4e` 13.R18: wire the `nabd` scheme into the apps and web, with a test. BLOCKED only for the device/simulator proof.
+26. `3c1eb45` + `105e0e0` 13.R13: persisted failed-propagation log, retries, admin list, scheduled reconcile with a 0-drift report. No BLOCKED.
+27. Other unwired Phase 13 code (no "deferred" in the message, same rule): R9 `recordEvent` has 0 callers and `GET /medicines/ranking-r9` is shadowed by `@Get(':id')`; R10 nothing writes `analytics_events`; R6 nothing emits `provider.reactivated`; R17 component has 0 importers; R3 CSV has no UI; R5 client helpers unused. Each: wire it and prove it live.
+
+### D. Every other FAIL row
+28. Each FAIL row in `REVIEW_P13.md` / `REVIEW_P14.md` has an "agent must do" cell. Close every one, one commit per row (or per group of rows on the same file), with the row's sha in the commit message. Notables: R12 `permanentRedirect` inside try/catch and multi-hop 301 → 404; R5 error filter drops `statusCode`/`details` and maps 404 to `UNKNOWN_ERROR`; Q90 `tl` vs `fil`; R15 false "Pending human review" badge and developer text shown to users; R3 CSV formula injection; R2 substitution accept/reject do not change totals/items; Q88 `/home-care/services` 401; Q47/Q48 public 401 and profile over-exposure; Q50 website modal crash and fake booking; Q69 maps must survive a missing key; R7 brand leftovers ("Nabdah Plus" in password-reset email and OTP SMS, PDFs, provider-app terms, admin titles, web meta); `bece53a` `.env.*` ignores the tracked `*.example` templates; `1c01b92` breakers + fallbacks for mail, WhatsApp, S3, LiveKit, AI, maps with one chaos spec each; `5d1528c` `@PublicCache` on the public catalog reads + `stale-if-error` + a strict route-table gate; X0 nginx-in-Docker CI leak job (needs owner approval as a CI change — propose it through the reviewer).
+
+### Reviewer decisions on the agent's tool edits
+- `tools/live/gate_ids.py` ALLOW_2XX: the eight own-sub-item DELETE / mark-read / lock-release entries are **accepted**. `POST /users/me/wishlist/:itemId` is **rejected**: fix the route (404 for an unknown item) and remove the entry.
+- `tools/live/j_onboarding.py` `upload_required_docs`: **rejected** (hides Q79). Remove it with the Q79 fix.
+- `tools/live/j_insurance.py`: the admin network/contract setup is accepted as test setup **only** once the app's add-policy screen sends network and class (or coverage works without them); the assertion change `eligible` → `covered` is accepted. Make every caller (j_lab, j_radiology, j_consultation) pass the same setup.
+
+### Verify for the whole round
+- The reviewer re-runs the nine-point review on every new commit, the full gate, the full CI on a review copy, the live gate, and the native strict run (`review/maestro-*`, workarounds off). Round 10 closes only when all of them are green and every row above is PASS or an accepted BLOCKED.
