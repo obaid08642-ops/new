@@ -330,3 +330,116 @@ route table still lists every `/api/admin/*` BFF route).
   ever sent to real Sentry from here. Wiring, release injection, source-map
   upload config and tests are all in this task.
 - DEFERRED-OUT-OF-SCOPE: none — everything touched is under `admin/`.
+
+---
+
+## 15.12 — Ship fixes fast and safely (admin-side control surface)
+
+### What the API actually returns today (verified by reading, not by calling)
+
+The backend is unreachable from here (no docker, BFF cannot start against a live
+backend), so every claim below comes from reading the controllers, not from a
+live call:
+
+- `FeatureFlagsService.isEnabled()` (`backend/src/modules/feature-flags/
+  feature-flags.service.ts:10-13`): `flag ? flag.enabled : false` — an absent
+  row evaluates to `false`. The backend fix is another agent's; this task does
+  not touch `backend/`.
+- Admin list endpoint (`admin-governance-controls.controller.ts:62-80`): `GET
+  governance-controls/feature-flags` merges the `feature_flags` + `featureflags`
+  collections and returns `{ data: [...rows that exist...], stores }`. An absent
+  key is simply missing from `data` — the response never says "this key does not
+  exist", so a UI that only lists rows cannot distinguish absent from off.
+- Force-update (`admin-config.controller.ts:126-167`): `GET app-versions`
+  returns `doc?.value || { apps: {} }` (absent doc looks exactly like "nothing
+  configured"); `PUT app-versions` allow-lists `patient/provider/driver/pharmacy/
+  web`, slices strings, and writes an `app_versions_update` audit row. No format
+  validation server-side.
+
+### What changed (all under `admin/`)
+
+New pure module `src/lib/ops-control.ts` + `src/lib/__tests__/ops-control.test.ts`
+(11 tests):
+
+- `resolveFlagState(key, rows)` → `enabled` / `disabled` / `absent`. Absent
+  resolves to an explicit third state whose note says the key has no record and
+  that clients evaluate it as disabled today — never the "off" wording used for
+  stored rows.
+- `effectiveAppEnforcement(app, entry)` → `configured` flag + Arabic summary.
+  An absent/empty entry reports "غير مضبوط — لا يفرض العملاء أي تحديث إجباري
+  ولا وضع صيانة", never "up to date".
+- `checkVersionFormat()` — conservative `X.Y.Z` (+ optional prerelease) warning.
+  Deliberately a warning, not a block: the backend validates nothing and mobile
+  comparators belong to another agent, so the operator stays in charge.
+- `canSaveAppVersions(loaded, saving)` — the save guard.
+
+Wired into the two pages that own the control surface:
+
+- `system-ops.tsx` flags tab: honest header ("unlisted keys are not off") plus a
+  "check a key" lookup (`flag-lookup-input/submit/result`, result carries
+  `data-flag-status`) resolving through `resolveFlagState` against the listed rows.
+- `config-portal.tsx` apps tab: `appsLoaded`/`appsError` state; the save button
+  is disabled until the first successful GET and the in-handler guard returns
+  early otherwise — this closes a real wipe hazard found while reading the old
+  code (failed load left the form empty and saving it would PUT `{ apps: {} }`,
+  erasing the force-update config); load errors show with a retry; each app
+  shows its effective-enforcement summary and semver warnings.
+
+Page-level tests (moved to `src/__tests__/` — see build note):
+`system-ops.flags.test.tsx` (3 tests: list + warning, absent lookup, enabled
+lookup) and `config-portal.apps.test.tsx` (3 tests: failed load → error + save
+disabled + zero PUTs, retry recovers; empty config → unconfigured summaries +
+save enabled; stored versions → enforcement text + `X.Y.Z` warning).
+
+### Verify — run for real
+
+```
+$ cd admin && npm test
+ Test Files  8 passed (8)
+      Tests  84 passed (84)
+$ node node_modules/typescript/bin/tsc --noEmit
+tsc exit=0
+$ npx --no-install next build
+✓ Compiled successfully in 11.8s
+build exit=0
+```
+
+Build note: the first build with this task failed type-check because the two
+page tests lived under `src/pages/admin/__tests__/` and Next validates every
+module under `pages/` as a route (`PagesPageConfig`). Moved to `src/__tests__/`;
+`tsc --noEmit` was clean either way. Route table still lists every
+`/api/admin/*` BFF route.
+
+### Mutation proof (break the production code, see red, restore)
+
+**Mutation A — absent flags presented as off** (`resolveFlagState`: absent branch
+→ `{ status: 'disabled', note: 'معطلة' }`):
+
+```
+   × resolves a missing key as absent and says clients evaluate it as disabled today
+   × resolves absent against an empty list instead of claiming off
+   × flags tab: shows an absent key as absent with the honest client-evaluation note
+      Tests  3 failed | 11 passed (14)
+```
+
+**Mutation B — save guard always true** (`canSaveAppVersions` → `return true`):
+
+```
+   × forbids saving before the first successful load and while saving
+   × force-update tab: disables the save and shows a retry after a failed load
+      Tests  2 failed | 12 passed (14)
+```
+
+Both restored; suite back to `84 passed (84)`.
+
+### BLOCKED / DEFERRED
+
+- `BLOCKED: live backend unreachable from here (no docker)` for verifying what
+  the API returns over the wire — shapes above are code-read, and the admin UI
+  now degrades honestly (error + retry, no blind save) if the wire disagrees.
+- `BLOCKED: EAS/OTA end-to-end needs an owner account` — mobile app config and
+  staged rollout belong to other agents; the admin side owns no OTA surface.
+- Force-update verification on both apps is therefore code-verified + locally
+  tested on the admin side only; the device-side check is another agent's.
+- DEFERRED-OUT-OF-SCOPE: the `FeatureFlagsService.isEnabled()` absent==disabled
+  inversion itself (backend-owned); the admin handles it honestly instead.

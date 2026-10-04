@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { fetchWithAdminGuard } from '@/utils/api';
+import { canSaveAppVersions, checkVersionFormat, effectiveAppEnforcement } from '@/lib/ops-control';
 
 export default function ConfigPortal() {
   const [activeTab, setActiveTab] = useState<'sla' | 'maintenance' | 'pricing' | 'apps'>('sla');
@@ -13,14 +14,27 @@ export default function ConfigPortal() {
   const APPS = ['patient', 'provider', 'driver', 'pharmacy', 'web'];
   const [appVersions, setAppVersions] = useState<Record<string, { min_version?: string; latest_version?: string; maintenance?: boolean; message_ar?: string; message_en?: string }>>({});
   const [appsMsg, setAppsMsg] = useState('');
+  // 15.12: an empty form is ambiguous — "nothing configured" and "load failed"
+  // look identical. `appsLoaded` is only true after one successful GET, and the
+  // save stays disabled until then: saving the empty form would PUT
+  // `{ apps: {} }` and wipe the force-update config the apps enforce.
+  const [appsLoaded, setAppsLoaded] = useState(false);
+  const [appsError, setAppsError] = useState('');
 
   const loadAppVersions = async () => {
+    setAppsError('');
     try {
       const res = await fetchWithAdminGuard('/api/admin/admin/config/app-versions');
-      if (!res.ok) return;
+      if (!res.ok) {
+        setAppsError(`تعذر تحميل إصدارات التطبيقات (HTTP ${res.status}) — الحفظ معطّل حتى ينجح التحميل.`);
+        return;
+      }
       const data = await res.json();
       if (data?.apps && typeof data.apps === 'object') setAppVersions(data.apps);
-    } catch { /* optional */ }
+      setAppsLoaded(true);
+    } catch {
+      setAppsError('تعذر تحميل إصدارات التطبيقات (انقطع الاتصال؟) — الحفظ معطّل حتى ينجح التحميل.');
+    }
   };
 
   const setApp = (app: string, patch: Record<string, unknown>) => {
@@ -29,6 +43,10 @@ export default function ConfigPortal() {
 
   const saveAppVersions = async () => {
     setAppsMsg('');
+    if (!canSaveAppVersions(appsLoaded, false)) {
+      setAppsMsg('الحفظ معطّل: لم ينجح تحميل الإصدارات بعد.');
+      return;
+    }
     try {
       const res = await fetchWithAdminGuard('/api/admin/admin/config/app-versions', { method: 'PUT', body: JSON.stringify({ apps: appVersions }) });
       setAppsMsg(res.ok ? 'تم حفظ إصدارات التطبيقات' : 'فشل الحفظ');
@@ -347,6 +365,8 @@ export default function ConfigPortal() {
             <div className="bg-white p-6 rounded border border-gray-200">
               <h2 className="text-xl font-bold mb-1">إصدارات التطبيقات والصيانة</h2>
               <p className="text-sm text-gray-500 mb-4">min_version يفرض التحديث الإجباري · maintenance يفعّل وضع الصيانة لذلك التطبيق.</p>
+              {appsError ? <div className="mb-4"><p role="alert" data-testid="app-versions-error" className="rounded-lg bg-rose-50 p-3 text-sm font-bold text-rose-700">{appsError}</p><button onClick={() => void loadAppVersions()} className="mt-2 rounded border px-4 py-2 text-sm font-bold" data-testid="app-versions-retry">إعادة التحميل</button></div> : null}
+              {!appsLoaded && !appsError ? <p className="mb-4 text-sm text-gray-500">جارٍ تحميل الإصدارات…</p> : null}
               {APPS.map((app) => (
                 <div key={app} className="border rounded-lg p-4 mb-3">
                   <div className="font-bold mb-2" dir="ltr">{app}</div>
@@ -365,9 +385,12 @@ export default function ConfigPortal() {
                     <input value={appVersions[app]?.message_ar || ''} onChange={(e) => setApp(app, { message_ar: e.target.value })} className="border rounded p-2 text-sm" placeholder="رسالة الصيانة (عربي)" />
                     <input value={appVersions[app]?.message_en || ''} onChange={(e) => setApp(app, { message_en: e.target.value })} dir="ltr" className="border rounded p-2 text-sm" placeholder="Maintenance message" />
                   </div>
+                  <p data-testid={`app-enforcement-${app}`} className="mt-2 text-xs text-slate-600">{effectiveAppEnforcement(app, appVersions[app]).summary}</p>
+                  {checkVersionFormat(appVersions[app]?.min_version) === 'invalid' ? <p data-testid={`app-version-warn-${app}-min`} className="mt-1 text-xs font-bold text-amber-700">تحذير: صيغة min_version غير قياسية (المتوقع X.Y.Z مثل 1.4.0).</p> : null}
+                  {checkVersionFormat(appVersions[app]?.latest_version) === 'invalid' ? <p data-testid={`app-version-warn-${app}-latest`} className="mt-1 text-xs font-bold text-amber-700">تحذير: صيغة latest_version غير قياسية (المتوقع X.Y.Z مثل 1.6.0).</p> : null}
                 </div>
               ))}
-              <button onClick={() => void saveAppVersions()} className="mt-2 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-6 rounded-lg">حفظ الإصدارات</button>
+              <button onClick={() => void saveAppVersions()} disabled={!canSaveAppVersions(appsLoaded, false)} title={appsLoaded ? undefined : 'الحفظ معطّل حتى ينجح تحميل الإصدارات'} className="mt-2 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-6 rounded-lg disabled:opacity-50" data-testid="app-versions-save">حفظ الإصدارات</button>
               {appsMsg && <p className="mt-2 text-sm font-bold">{appsMsg}</p>}
             </div>
           </div>
