@@ -60,6 +60,10 @@
   "Network": {
     "dismiss": "بند کریں",
     "offline": "آپ لگتے ہیں کہ آپ آف لائن ہیں۔",
+    "oldBrowser": {
+      "title": "آپ کا براؤزر پرانا ہے",
+      "body": "نبض بلس کو Safari 16.4+، Chrome 109+، Samsung Internet 20+، Firefox 109+، یا iOS 16.4+ / Android 7+ درکار ہے۔ جاری رکھنے کے لیے اپ ڈیٹ کریں۔"
+    },
     "queuedTitle": "ڈیوائس پر محفوظ ہو گیا",
     "timeout": "سرور کے جواب دینے میں بہت وقت لگ گیا۔",
     "serverError": "سروس عارضی طور پر دستیاب نہیں۔",

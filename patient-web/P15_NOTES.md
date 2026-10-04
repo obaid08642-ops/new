@@ -488,3 +488,55 @@ $ # restored → 11 passed
 - `DEFERRED-OUT-OF-SCOPE: server-side enforcement of server time (OTP expiry,
   slots, reminders) lives in backend/` — another agent's scope; patient-web
   only displays and guards against its own clock.
+
+---
+
+## 15.10 — Devices and browsers (patient-web, code part only)
+
+### Changed files
+
+- new: `lib/device-support.ts` (+ `device-support.test.ts`, 9 tests) —
+  `parseUserAgent` + `isSupportedBrowser` with era-matched floors: iOS 16.4+
+  (OS version is the WebKit engine, incl. desktop-mode iPads and iOS
+  Chrome/Firefox), Android 7+, Chrome/Edge 109+, Samsung Internet 20+,
+  Firefox 109+, desktop Safari 16.4+. Trident/MSIE rejected by name (cannot
+  run the stack); unknown, empty, and bot agents PASS (fail open — crawlers
+  and future browsers are never locked out).
+- new: `components-next/old-browser-notice.tsx` (+
+  `tests/old-browser-notice.test.tsx`) — evaluated once after mount (never SSR:
+  no navigator there, no hydration flash), dismissible, localized
+  `Network.oldBrowser.title/body` in all 6 locales. Mounted in the locale
+  layout next to the offline banner.
+- new: `docs/MINIMUM_BROWSERS.md` — the documented minimums plus the BLOCKED /
+  DEFERRED lines below.
+
+### Real output
+
+```
+$ node node_modules/typescript/bin/tsc --noEmit; echo "tsc exit: $?"
+tsc exit: 0
+$ node node_modules/vitest/vitest.mjs run lib/device-support.test.ts \
+    tests/old-browser-notice.test.tsx
+ Test Files  2 passed (2)
+      Tests  11 passed (11)
+```
+
+### Mutation proof (rule 6)
+
+```
+$ # iOS floor disabled
+ FAIL ... rejects iOS 15, accepts 16.4 and 17
+      Tests  1 failed | 8 passed (9)
+$ # restored → 11 passed
+```
+
+### BLOCKED / DEFERRED
+
+- `BLOCKED: device farm is a paid external service with no account configured`
+  — no Firebase Test Lab / BrowserStack / AWS Device Farm run is possible from
+  this worktree; no report is attached and none is fabricated.
+- `DEFERRED-OUT-OF-SCOPE: .github/ is owned by another agent` — the CI change
+  this needs: a Playwright workflow running the web suite on WebKit (Safari
+  iOS 16+ equivalent), Firefox, and Chromium, plus a Samsung Internet
+  user-agent pass on Chromium, gating releases. Full text in
+  `docs/MINIMUM_BROWSERS.md`.

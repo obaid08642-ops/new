@@ -60,6 +60,10 @@
   "Network": {
     "dismiss": "Isara",
     "offline": "Mukhang offline ka.",
+    "oldBrowser": {
+      "title": "Luma na ang iyong browser",
+      "body": "Kailangan ng Nabd Plus ang Safari 16.4+, Chrome 109+, Samsung Internet 20+, Firefox 109+, o iOS 16.4+ / Android 7+. Mangyaring mag-update upang magpatuloy."
+    },
     "queuedTitle": "Nai-save sa device",
     "timeout": "Masyadong tumagal ang server na sumagot.",
     "serverError": "Pansamantalaang hindi available ang serbisyo.",
