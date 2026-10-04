@@ -48,4 +48,17 @@ describe('InsuranceFlowService.benefitsSummary (F2: decided insurance requests p
     expect(byService.nursing).toMatchObject({ requests: 1, approved: 1, partially_approved: 1, copay_paid: 0, copay_due: 40, icon: 'heart' });
     expect(out).toHaveLength(2);
   });
+
+  it('a rejection the patient then chose to self-pay still counts as rejected (the provider\'s decision)', async () => {
+    await patients.collection.insertOne({ user_id: 'pat-1', insurance: policy });
+    const at = new Date();
+    await requests.collection.insertMany([
+      req({ booking_kind: 'consultation', state: 'COPAY_PENDING', copay_percent: 100, copay_amount: 300,
+        history: [{ state: 'PENDING_PROVIDER_REVIEW', at, by: 'pat-1' }, { state: 'REJECTED', at, by: 'doc', note: 'not covered' }, { state: 'COPAY_PENDING', at, by: 'pat-1', note: 'patient accepted full self-pay' }] }),
+      req({ booking_kind: 'consultation', state: 'COPAY_PAID', copay_percent: 20, copay_amount: 60,
+        history: [{ state: 'PENDING_PROVIDER_REVIEW', at, by: 'pat-1' }, { state: 'COPAY_PENDING', at, by: 'doc', note: 'patient copay 20%' }, { state: 'COPAY_PAID', at, by: 'system', note: 'verified payment p1' }] }),
+    ]);
+    const [row]: any[] = await service.benefitsSummary({ id: 'pat-1' });
+    expect(row).toMatchObject({ service: 'consultation', requests: 2, approved: 1, partially_approved: 1, rejected: 1, pending: 0, copay_paid: 60, copay_due: 300 });
+  });
 });
