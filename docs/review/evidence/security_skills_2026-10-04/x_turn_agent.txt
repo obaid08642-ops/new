@@ -1,0 +1,3 @@
+[agent] guest -> 201
+[agent] guest GET /calls/ice/credentials -> 200 ttl 86400 user 1791203926:640f1aa1-fbba-4525-88ba-436df73cadf2
+[agent]   credential == HMAC-SHA1("change_this_secret", username): True
