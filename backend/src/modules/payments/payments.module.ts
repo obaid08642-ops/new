@@ -345,6 +345,9 @@ export class PaymentsService {
     // Gateway verification can mutate booking and ledger state. Only the owning
     // patient, an admin, or the signature-authenticated internal webhook path may trigger it.
     this.assertTransactionVerifier(user, t);
+    // R11 §5: a settled transaction is never rewritten by a later gateway read
+    // (a refund must not turn back into "paid", nor a payment re-run its effects).
+    if (['paid', 'refunded', 'partially_refunded', 'cancelled'].includes(String(t.status))) return t.toObject();
     const result = await this.adapter.verify(t.gateway_intent_id);
     t.status = result.status;
     if (result.charge_id) t.gateway_charge_id = result.charge_id;
