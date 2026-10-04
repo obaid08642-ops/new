@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { staffRoleOf } from '../../../../lib/admin-session';
+import { enrollLoginDevice } from '../../../../lib/admin-login-device';
 import { randomBytes } from 'node:crypto';
 
 function backendBase() {
@@ -35,7 +36,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // R11 §5: only staff accounts get an admin session.
     if (!staffRoleOf(token)) return res.status(403).json({ code: 'admin_role_required' });
     const csrf = randomBytes(32).toString('base64url');
-    const cookies = [cookie('admin_access', token), cookie('admin_csrf', csrf, false)];
+    const deviceCookie = await enrollLoginDevice(backendBase(), token, req.cookies?.['admin_device']);
+    const cookies = [cookie('admin_access', token), cookie('admin_csrf', csrf, false), deviceCookie];
     if (refresh) cookies.push(cookie('admin_refresh', refresh));
     res.setHeader('set-cookie', cookies);
     return res.status(200).json({ user: (payload as any).user || null });
