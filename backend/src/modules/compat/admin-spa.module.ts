@@ -640,6 +640,8 @@ class AdminCouponsController extends AdminController {
 @UseGuards(JwtAuthGuard)
 @Roles(UserRole.ADMIN)
 export class AdminLoyaltyController extends AdminController {
+  @StepUp()
+  @RequirePermissions(Permission.COUPONS_MANAGE)
   @Put('config')
   async putConfig(@CurrentUser() user: any, @Body(new FreeformConfigObjectPipe()) body: Record<string, unknown>) {
     // PRODUCT.md: loyalty points are capped at 10% of the order.
@@ -655,6 +657,8 @@ export class AdminLoyaltyController extends AdminController {
     return { ok: true };
   }
 
+  @StepUp()
+  @RequirePermissions(Permission.COUPONS_MANAGE)
   @Put('earn-rules/:id')
   async updateEarnRule(@Param('id') id: string, @CurrentUser() user: any, @Body() body: LoyaltyEarnRuleUpdateDto) {
     const allowed = ['name_ar', 'name_en', 'event', 'points', 'multiplier', 'active', 'conditions'];
@@ -665,6 +669,8 @@ export class AdminLoyaltyController extends AdminController {
     return { ok: true };
   }
 
+  @StepUp()
+  @RequirePermissions(Permission.COUPONS_MANAGE)
   @Post('earn-rules/:id/toggle')
   async toggleEarnRule(@Param('id') id: string) {
     const doc: any = await this.conn.collection('loyalty_earn_rules').findOne(byId(id) as any);
@@ -702,6 +708,8 @@ export class AdminLoyaltyController extends AdminController {
     return { ok: true, balance: acc?.balance ?? 0 };
   }
 
+  @StepUp()
+  @RequirePermissions(Permission.ORDER_COMPENSATE)
   @Post('manual-adjust')
   async manualAdjust(@CurrentUser() user: any, @Body() body: ManualAdjustDto) {
     if (!body?.user_id || !Number.isFinite(Number(body?.points)) || Number(body.points) === 0) {

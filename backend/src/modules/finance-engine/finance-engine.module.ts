@@ -1,3 +1,5 @@
+import { Permission, RequirePermissions } from '../../common/permissions';
+import { StepUp } from '../../common/step-up.guard';
 /**
  * EPIC 1 — FINANCE & MARKETPLACE ENGINE
  * Enterprise-grade financial core for the Nabd marketplace:
@@ -1038,6 +1040,8 @@ export class AdminFinanceEngineController {
   }
 
   /** Commission rules with overrides + effective dates + versioning (S11). */
+  @StepUp()
+  @RequirePermissions(Permission.FINANCE_CONFIG_EDIT)
   @Post('commission-rules')
   setCommissionRule(@CurrentUser() u: any, @Body() b: SetCommissionRuleDto) {
     return this.commissions.setRule(u.id, { ...b });
@@ -1066,6 +1070,8 @@ export class AdminFinanceEngineController {
     return this.approvals.request(b?.type, b?.payload || {}, u.id, b?.reason);
   }
 
+  @StepUp()
+  @RequirePermissions(Permission.FINANCE_PAYOUT_APPROVE)
   @Post('approvals/:id/decide')
   async decideApproval(@CurrentUser() u: any, @Param('id') id: string, @Body() b: DecideApprovalDto) {
     const executors: Record<string, (payload: any) => Promise<any>> = {
@@ -1094,6 +1100,8 @@ export class AdminFinanceEngineController {
   }
 
   /** Execute an APPROVED refund request (S4/S14). Large amounts need maker-checker. */
+  @StepUp()
+  @RequirePermissions(Permission.ORDER_REFUND)
   @Post('refunds/:id/execute')
   async executeRefund(@CurrentUser() u: any, @Param('id') id: string) {
     const req: any = await this.conn.collection('refundrequests').findOne({ id } as any);

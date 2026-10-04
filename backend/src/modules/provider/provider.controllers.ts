@@ -1,3 +1,4 @@
+import { Permission, RequirePermissions } from '../../common/permissions';
 import { isProviderRole } from '../../common/enums';
 import { Controller, Post, Get, Patch, Delete, Body, Param, Query, Req, Inject, Headers } from '@nestjs/common';
 import { ServiceUnavailableException } from '@nestjs/common';
@@ -184,6 +185,8 @@ export class ProviderAdminController {
     return this.processor.getImageLogs(id);
   }
   @Post(':id/request-changes') needsChanges(@CurrentUser() u: any, @Param('id') id: string, @Body() body: NeedsChangesDto) { return this.svc.requestChanges(u, id, body); }
+  @StepUp()
+  @RequirePermissions(Permission.USER_EDIT)
   @Post(':id/suspend') suspend(@CurrentUser() u: any, @Param('id') id: string, @Body() body: SuspendDto) { return this.svc.suspend(u, id, body); }
   @Post(':id/reactivate') reactivate(@CurrentUser() u: any, @Param('id') id: string, @Body() body: ReactivateDto) { return this.svc.reactivate(u, id, body); }
 }

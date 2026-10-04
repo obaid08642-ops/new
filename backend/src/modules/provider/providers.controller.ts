@@ -1,3 +1,5 @@
+import { Permission, RequirePermissions } from '../../common/permissions';
+import { StepUp } from '../../common/step-up.guard';
 import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { ProvidersService } from './providers.service';
 import { CurrentUser, JwtAuthGuard, Public, Roles } from '../../common/auth.guard';
@@ -87,6 +89,8 @@ export class ProvidersController {
     return this.svc.reject(id, admin, body?.reason || '');
   }
 
+  @StepUp()
+  @RequirePermissions(Permission.USER_EDIT)
   @Post(':id/suspend')
   @Roles(UserRole.ADMIN)
   suspend(@Param('id') id: string, @CurrentUser() admin: any, @Body() body: SuspendDto) {
