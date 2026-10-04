@@ -148,3 +148,53 @@ BLOCKED: device farm is a paid external service with no account configured
 additionally needs an XCUITest bundle next to the .ipa (FTL has no iOS
 Robo). Samsung Internet has no Playwright build: engine covered by the
 Chromium leg, shell by the Galaxy farm device (stated in both files).
+
+## 15.12 — ship fixes fast (CI/config side)
+
+Added:
+- `tools/live/ota/ota-channels.json` — channel/branch/percent contract
+  (staging 100%, production-5pct canary 5%, production-full 100%) plus the
+  staged procedure. Contract check done first: neither
+  `patient-app/eas.json` nor `provider-app/eas.json` declares an `updates`
+  channel today (verified by read — both end at `submit.production`), so
+  wiring the channel into the builds is an app-source change owned by the
+  app agents; this file is the contract those edits must satisfy (slugs
+  verified by read: `patient-app/app.json` = `nabdah-plus`,
+  `provider-app/app.json` = `nabd-plus-provider`).
+- `tools/live/ota/rollout-5-percent.sh` — staged rollout (staging group ->
+  identical canary on production-5pct, 24h watch, then promote the same
+  group id). `tools/live/ota/rollback.sh` — instant rollback to the
+  last-good group (prefers `eas update:republish` when the installed
+  eas-cli offers it, else prints the manual channel-edit runbook and exits
+  non-zero). Both use only long-stable `eas update` verbs; nothing about
+  the CLI surface is assumed.
+- `tools/live/j_killswitches.py` — one toggle test per 14.18 kill switch
+  (keys from `backend/src/common/killswitches/killswitches.helper.ts`
+  KILLSWITCH_FEATURES, verified in this worktree): OFF must reach
+  `GET /config` as false, ON as true, then restore the pre-run value —
+  each toggle provably changes client-visible behaviour. Plus the
+  force-update (R6-5) verification: `/config` serves `app_versions`, and
+  admin `GET`+`PUT /api/v1/admin/config/app-versions` (verified in
+  `admin-config.controller.ts`) is exercised by writing back the exact
+  value just read — write path proven operable with zero net change to the
+  shared DB. Wired into both runners (`j_killswitches` append).
+- Backend truth (another agent owns the fix): `FeatureFlagsService.
+  isEnabled()` returns `false` for an absent row (verified in
+  `feature-flags.service.ts:10-12`) and nothing seeds the six rows, so the
+  journey's `seeded by default` step FAILS honestly until the seeding /
+  fail-open-default fix lands. Said plainly: the propagation toggles pass,
+  the baseline step does not — that is the intended honest signal, not a
+  vacuous pass.
+
+Run: `python3 tools/live/j_killswitches.py` on a docker host (after
+`run_gate.sh`'s admin seed); OTA scripts need `EXPO_TOKEN` + real binaries.
+Checks run here: `python3 -m py_compile tools/live/j_killswitches.py` ->
+`PY_OK`; `bash -n` on both runners + both OTA scripts -> `SH_OK`;
+`python3 -c 'import json; json.load(open("tools/live/ota/ota-channels.json"))'`
+-> `JSON_OK`.
+No-weakening proof: runners show a one-word `j_killswitches` append each.
+BLOCKED: a test OTA to 5% + rollback is not runnable here (needs an Expo
+account owning the project and a real channel-enabled binary).
+DEFERRED-OUT-OF-SCOPE: `updates.channel` in both apps' `eas.json` +
+corresponding `app.json` runtime config (app agents); the absent-flag
+default / row seeding fix in `backend/` (backend agent).
