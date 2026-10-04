@@ -257,8 +257,9 @@ export class ReferralFraudService {
       this.logger.log(`Referral recorded: referrer=${referrerId}, referred=${referredUserId}, device=${deviceHash.substring(0,8)}`);
 
       return { success: true, referralId: uuidv4() };
-    } catch (error: any) {
-      this.logger.error(`Referral recording failed: ${error.message}`, error.stack);
+    } catch (error: unknown) {
+      const err = error as Error;
+      this.logger.error(`Referral recording failed: ${err.message}`, err.stack);
       // Fallback non-atomic
       return this.recordReferralFallback(referrerId, referredUserId, deviceHash, phoneHash, metadata);
     }

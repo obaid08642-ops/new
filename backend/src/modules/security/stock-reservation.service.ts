@@ -135,8 +135,9 @@ export class StockReservationService {
           error: `Insufficient stock for ${medicineId}: ${available} available`,
         };
       }
-    } catch (error: any) {
-      this.logger.error(`Stock reservation failed: ${error.message}`, error.stack);
+    } catch (error: unknown) {
+      const err = error as Error;
+      this.logger.error(`Stock reservation failed: ${err.message}`, err.stack);
       // Fallback to non-atomic if Lua script fails
       return this.reserveStockFallback(pharmacyId, items, ttl, reservationId);
     }
@@ -236,8 +237,9 @@ export class StockReservationService {
           error: message,
         };
       }
-    } catch (error: any) {
-      this.logger.error(`Stock release failed: ${error.message}`, error.stack);
+    } catch (error: unknown) {
+      const err = error as Error;
+      this.logger.error(`Stock release failed: ${err.message}`, err.stack);
       return this.releaseReservationFallback(pharmacyId, reservationId);
     }
   }
@@ -315,10 +317,21 @@ export class StockReservationService {
     this.logger.log(`Initialized stock for pharmacy ${pharmacyId}: ${items.length} items`);
   }
 
+  interface ReservationItem {
+    medicineId: string;
+    qty: number;
+  }
+
+  interface ActiveReservation {
+    reservationId: string;
+    items: ReservationItem[];
+    ttl: number;
+  }
+
   /**
    * Get all reserved items for a pharmacy (for monitoring).
    */
-  async getActiveReservations(pharmacyId: string): Promise<{ reservationId: string; items: any[]; ttl: number }[]> {
+  async getActiveReservations(pharmacyId: string): Promise<ActiveReservation[]> {
     const pattern = `stock:reservation:${pharmacyId}:*`;
     const keys = await this.redisService.keys(pattern);
     const reservations = [];
