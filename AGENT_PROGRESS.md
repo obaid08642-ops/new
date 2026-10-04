@@ -63,7 +63,7 @@ is.
 
 - **62 screens still import `lucide-react`.** 32 are the table above; 16 hold an
   icon in a local alias (`isRtl ? ArrowLeft : ArrowRight`) and are migrated by hand;
-  11 are blocked by a colour literal; 4 are blocked by `fill`, now added in `fb96580`
+  11 are blocked by a colour literal; 4 are blocked by `fill`, now added in the Icon `filled` prop
   and awaiting use.
 - **`#1e332e`, 726 uses: no automatic migration.** Decided per context during the
   screen rebuild, per the reviewer.
