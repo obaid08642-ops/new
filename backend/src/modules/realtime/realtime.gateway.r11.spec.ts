@@ -21,3 +21,32 @@ describe('RealtimeGateway accepts only access tokens (R11 §5)', () => {
     expect(s.join).not.toHaveBeenCalled();
   });
 });
+
+describe('RealtimeGateway runs the REST auth guard on the handshake (R11 independent check)', () => {
+  const socket = () => ({ id: 's2', handshake: { auth: { token: 't' }, query: {}, headers: {}, address: '10.0.0.9' }, data: {} as Record<string, unknown>, join: jest.fn(), disconnect: jest.fn() });
+  const build = (guard: unknown) => new RealtimeGateway(
+    { verifyAsync: jest.fn().mockResolvedValue({ id: 'adm', role: 'admin', tv: 0 }) } as never,
+    { setServer: jest.fn(), setUserOnline: jest.fn().mockResolvedValue(undefined), setUserOffline: jest.fn() } as never,
+    {} as never, {} as never, {} as never, undefined, guard as never,
+  );
+
+  it('an admin token without the gate / enrolled device never joins role:admin', async () => {
+    const s = socket();
+    await build({ canActivate: jest.fn(async () => { throw new Error('admin_gate_required'); }) }).handleConnection(s as never);
+    expect(s.disconnect).toHaveBeenCalled();
+    expect(s.join).not.toHaveBeenCalled();
+  });
+
+  it('a token the guard accepts joins with the guard\'s user', async () => {
+    const s = socket();
+    const guard = { canActivate: jest.fn(async (ctx: any) => { ctx.switchToHttp().getRequest().user = { id: 'p1', role: 'patient' }; return true; }) };
+    const gw = build(guard);
+    (gw as any).trackSocket = jest.fn();
+    (gw as any).replayOfflineQueue = jest.fn();
+    (gw as any).server = undefined;
+    Object.assign(s, { broadcast: { emit: jest.fn() } });
+    await gw.handleConnection(s as never);
+    expect(s.join).toHaveBeenCalledWith('user:p1');
+    expect(s.join).toHaveBeenCalledWith('role:patient');
+  });
+});

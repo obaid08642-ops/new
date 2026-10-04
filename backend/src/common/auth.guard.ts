@@ -86,6 +86,30 @@ export function isPlatformStaffRole(role: unknown): boolean {
   return typeof role === 'string' && PLATFORM_STAFF_ROLES.includes(role.toLowerCase());
 }
 
+/**
+ * R11: authenticate a socket handshake with the same JwtAuthGuard pipeline as
+ * REST (access-token kind, token_version, provider status, staff gate and
+ * device lock, impersonation session). Returns the user, or null if refused.
+ */
+export async function authenticateSocketToken(guard: { canActivate(ctx: ExecutionContext): Promise<boolean> | boolean }, token: string, headers: Record<string, unknown> = {}, remoteAddress = ''): Promise<any | null> {
+  const req: any = {
+    headers: { ...headers, authorization: `Bearer ${token}` },
+    path: '/socket.io', url: '/socket.io', originalUrl: '/socket.io',
+    params: {}, query: {}, body: {}, ip: remoteAddress, socket: { remoteAddress },
+  };
+  const ctx: any = {
+    switchToHttp: () => ({ getRequest: () => req, getResponse: () => ({}) }),
+    getHandler: () => authenticateSocketToken,
+    getClass: () => Object,
+    getType: () => 'http',
+  };
+  try {
+    return (await guard.canActivate(ctx)) && req.user ? req.user : null;
+  } catch {
+    return null;
+  }
+}
+
 export function isAccessTokenPayload(payload: any): boolean {
   if (!payload || typeof payload !== 'object') return false;
   if (payload.type === 'refresh' || payload.type === 'qr') return false;

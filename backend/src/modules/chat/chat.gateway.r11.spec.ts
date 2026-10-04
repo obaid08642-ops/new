@@ -55,3 +55,19 @@ describe('ChatGateway token kinds and room membership (R11 §5)', () => {
     expect(s.to).toHaveBeenCalledWith('thread_mine');
   });
 });
+
+describe('ChatGateway runs the REST auth guard for access tokens (R11 independent check)', () => {
+  const secret = 'gateway-unit-secret-2';
+  const env = process.env.JWT_SECRET;
+  beforeAll(() => { process.env.JWT_SECRET = secret; });
+  afterAll(() => { process.env.JWT_SECRET = env; });
+
+  it('a revoked or ungated access token is refused', async () => {
+    const guard = { canActivate: jest.fn(async () => { throw new Error('session_revoked'); }) };
+    const gw = new ChatGateway({} as never, guard as never);
+    const s = { id: 'sx', handshake: { auth: { token: jwt.sign({ id: 'u1', role: 'patient', tv: 0 }, secret) }, headers: {} }, join: jest.fn(), disconnect: jest.fn(), rooms: new Set<string>() };
+    await gw.handleConnection(s as never);
+    expect(s.disconnect).toHaveBeenCalled();
+    expect(s.join).not.toHaveBeenCalled();
+  });
+});
