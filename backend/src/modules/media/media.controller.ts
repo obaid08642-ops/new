@@ -1,5 +1,6 @@
 import { Controller, Get, Post, Delete, Body, Param, UseGuards, UseInterceptors, UploadedFile, BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import type { MultipartFile } from '@fastify/multipart';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
 import { JwtAuthGuard, Roles, CurrentUser, SelfService } from '../../common/auth.guard';
@@ -22,9 +23,10 @@ export class MediaController {
   @UseInterceptors(
     FileInterceptor('file', {
       limits: { fileSize: 15 * 1024 * 1024 }, // 15MB limit
-      fileFilter: (req, file, callback) => {
+      fileFilter: (req, file: any, callback) => {
+        const name = file?.originalname ?? file?.filename ?? '';
         const allowedExtensions = /\.(jpg|jpeg|png|gif|webp|pdf|mp3|m4a|wav|doc|docx|xls|xlsx)$/i;
-        if (!file.originalname.match(allowedExtensions)) {
+        if (!String(name).match(allowedExtensions)) {
           return callback(new BadRequestException('Only approved image, PDF, audio, and document files are allowed!'), false);
         }
         callback(null, true);
@@ -33,24 +35,36 @@ export class MediaController {
   )
   async uploadFile(
     @CurrentUser() user: any,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() file: MultipartFile,
     @Body() body: UploadMediaDto,
   ) {
     const purpose = body.purpose;
     const threadId = body.thread_id;
     if (!file) throw new BadRequestException('file_required');
     await this.assertUploadAllowed(user, purpose, threadId);
-    const uploaded = await this.mediaService.uploadBuffer(file.buffer, file.originalname, file.mimetype, `${purpose}/${user.id}`);
+    const originalname = (file as any)?.originalname ?? file.filename;
+    const mimetype = file.mimetype;
+    const buffer = await MediaController.toBuffer(file.file);
+    const uploaded = await this.mediaService.uploadBuffer(buffer, originalname, mimetype, `${purpose}/${user.id}`);
     try {
       const asset: any = await this.assets.create({
         key: uploaded.key, owner_id: user.id, purpose, thread_id: threadId,
-        original_name: file.originalname, mime_type: file.mimetype, size_bytes: file.size,
+        original_name: originalname, mime_type: mimetype, size_bytes: buffer.length,
       });
       return { id: asset.id, purpose: asset.purpose, thread_id: asset.thread_id || null };
     } catch (error) {
       await this.mediaService.deleteFile(uploaded.key).catch(() => null);
       throw error;
     }
+  }
+
+  private static toBuffer(stream: NodeJS.ReadableStream): Promise<Buffer> {
+    return new Promise<Buffer>((resolve, reject) => {
+      const chunks: Buffer[] = [];
+      stream.on('data', (c) => chunks.push(Buffer.isBuffer(c) ? c : Buffer.from(c)));
+      stream.on('end', () => resolve(Buffer.concat(chunks)));
+      stream.on('error', reject);
+    });
   }
 
   @Post('presigned')

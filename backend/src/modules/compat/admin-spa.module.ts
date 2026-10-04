@@ -31,6 +31,7 @@ import { CreateDto, CreateRuleDto, CreateAutoRuleDto, ExpandDto, DispatchDto, Re
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { FileInterceptor } from '@nestjs/platform-express';
+import type { MultipartFile } from '@fastify/multipart';
 import { v4 as uuid } from 'uuid';
 import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
@@ -1080,12 +1081,31 @@ class AdminMedicinesController extends AdminController {
 @UseGuards(JwtAuthGuard)
 @Roles(UserRole.ADMIN)
 class AdminBulkUploadController extends AdminController {
+  private static toBuffer(stream: NodeJS.ReadableStream): Promise<Buffer> {
+    return new Promise<Buffer>((resolve, reject) => {
+      const chunks: Buffer[] = [];
+      stream.on('data', (c) => chunks.push(Buffer.isBuffer(c) ? c : Buffer.from(c)));
+      stream.on('end', () => resolve(Buffer.concat(chunks)));
+      stream.on('error', reject);
+    });
+  }
+
   @Post()
-  @UseInterceptors(FileInterceptor('file'))
-  async upload(@CurrentUser() user: any, @UploadedFile() file: any, @Body() body: UploadDto) {
+  @UseInterceptors(FileInterceptor('file', {
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB CSV limit
+    fileFilter: (req, file: any, callback) => {
+      const name = file?.originalname ?? file?.filename ?? '';
+      if (name && !String(name).match(/\.csv$/i)) {
+        return callback(new BadRequestException('Only CSV files are allowed!'), false);
+      }
+      callback(null, true);
+    },
+  }))
+  async upload(@CurrentUser() user: any, @UploadedFile() file: MultipartFile, @Body() body: UploadDto) {
     let rows: any[] = [];
-    if (file?.buffer) {
-      const text = file.buffer.toString('utf8');
+    const buffer = file?.file ? await AdminBulkUploadController.toBuffer(file.file) : (file as any)?.buffer;
+    if (buffer) {
+      const text = buffer.toString('utf8');
       const lines = text.split(/\r?\n/).filter((l: string) => l.trim());
       const headers = lines.shift()?.split(',').map((h: string) => h.trim().toLowerCase()) || [];
       for (const line of lines.slice(0, 1000)) {

@@ -58,7 +58,7 @@ export class BansService implements OnModuleInit {
     if (this.redis) {
       try {
         await this.redis.del(BANS_REDIS_KEY);
-        if (this.activeBans.size) await this.redis.sadd(BANS_REDIS_KEY, [...this.activeBans]);
+        if (this.activeBans.size) for (const id of this.activeBans) await this.redis.sadd(BANS_REDIS_KEY, id);
       } catch { /* local-only fallback */ }
     }
   }
