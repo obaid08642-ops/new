@@ -5,7 +5,7 @@
  * free. Only staff access tokens may enter the admin session. The backend still
  * verifies the signature and RBAC; this only decides what the BFF forwards.
  */
-export const STAFF_ROLES = new Set(['admin', 'super_admin', 'support_agent']);
+export const STAFF_ROLES = new Set(['admin', 'super_admin', 'support_agent', 'finance']);
 
 /** The staff role in an access token's payload, or null for any other token. */
 export function staffRoleOf(token: string | null | undefined): string | null {

@@ -37,4 +37,11 @@ describe('staff tokens go through the admin gate and device lock (R11 §5 lead 3
     await expect(guard.canActivate(ctx('/api/v1/users/search', { authorization: 'Bearer t', 'x-admin-gate-token': 'unit-gate-secret' })))
       .rejects.toThrow('device_not_enrolled');
   });
+
+  it('a finance token (DATA_EXPORT, payouts) is gated too, in any letter case', async () => {
+    for (const role of ['finance', 'Finance']) {
+      (guard as any).jwt.verifyAsync = jest.fn().mockResolvedValue({ id: 'fin-1', role });
+      await expect(guard.canActivate(ctx('/api/v1/export/patients', { authorization: 'Bearer t' }))).rejects.toThrow('admin_gate_required');
+    }
+  });
 });
