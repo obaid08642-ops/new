@@ -105,6 +105,7 @@ const colors = {
     "DEFAULT": "#FFFFFF"
   },
   "icon-favorite": "#D42A38",
+  "icon-onSolid": "#FFFFFF",
   "action-primary-bg": {
     "light": "#D42A38",
     "dark": "#FF6B73",
@@ -232,7 +233,7 @@ const colors = {
     "dark": "rgba(255,107,115,0.16)",
     "DEFAULT": "#FFE8EA"
   },
-  "service-coral-solid-from": "#FF6B73",
+  "service-coral-solid-from": "#FF5C65",
   "service-coral-solid-to": "#E8384A",
   "service-blue-fg": {
     "light": "#2D4FD6",
@@ -256,7 +257,7 @@ const colors = {
     "dark": "rgba(79,210,168,0.15)",
     "DEFAULT": "#E1F6EE"
   },
-  "service-mint-solid-from": "#2DBF92",
+  "service-mint-solid-from": "#27A67F",
   "service-mint-solid-to": "#16956F",
   "service-violet-fg": {
     "light": "#6A3FD1",
@@ -280,8 +281,8 @@ const colors = {
     "dark": "rgba(255,181,71,0.15)",
     "DEFAULT": "#FFF1DB"
   },
-  "service-amber-solid-from": "#FFB547",
-  "service-amber-solid-to": "#E08A00",
+  "service-amber-solid-from": "#D68000",
+  "service-amber-solid-to": "#D38200",
   "service-pink-fg": {
     "light": "#C2296E",
     "dark": "#FF9CC6",
@@ -292,7 +293,7 @@ const colors = {
     "dark": "rgba(255,128,180,0.15)",
     "DEFAULT": "#FFE7F1"
   },
-  "service-pink-solid-from": "#F573A6",
+  "service-pink-solid-from": "#F4609A",
   "service-pink-solid-to": "#D63B80",
   "service-lime-fg": {
     "light": "#4A7A00",
@@ -304,7 +305,7 @@ const colors = {
     "dark": "rgba(168,217,74,0.15)",
     "DEFAULT": "#EDF8D6"
   },
-  "service-lime-solid-from": "#8CC63F",
+  "service-lime-solid-from": "#71A230",
   "service-lime-solid-to": "#5E9A00",
   "service-peach-fg": {
     "light": "#B74B1C",
@@ -316,7 +317,7 @@ const colors = {
     "dark": "rgba(255,156,114,0.15)",
     "DEFAULT": "#FFEDE3"
   },
-  "service-peach-solid-from": "#FF8A5C",
+  "service-peach-solid-from": "#FF6021",
   "service-peach-solid-to": "#E0632C",
   "service-teal-fg": {
     "light": "#0A778C",
@@ -328,7 +329,7 @@ const colors = {
     "dark": "rgba(35,181,206,0.15)",
     "DEFAULT": "#E0F5F8"
   },
-  "service-teal-solid-from": "#23B5CE",
+  "service-teal-solid-from": "#1FA2B8",
   "service-teal-solid-to": "#0E97AE",
   "service-ink-fg": {
     "light": "#0B1B2B",
