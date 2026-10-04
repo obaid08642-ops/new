@@ -2,6 +2,7 @@ import { Controller, Get, Param, NotFoundException, UseGuards } from '@nestjs/co
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { JwtAuthGuard, Public } from '../../common/auth.guard';
+import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 
 @Controller('nursing')
 @UseGuards(JwtAuthGuard)
@@ -22,6 +23,18 @@ export class PatientNurseProfileController {
       public_eligibility: true,
     } as any);
     if (!p) throw new NotFoundException('nurse_not_found');
+    // The website books from this page: list the nurse's services from the
+    // approved catalog (name, price, duration), the same rule HomeCareSvc.book applies.
+    const keys = (p.nursing_services || []).map((x: any) => String(x?.key || '')).filter(Boolean);
+    const rows: any[] = keys.length
+      ? await this.conn.db.collection(CATALOG_COLLECTIONS.nursing_services).find({
+        id: { $in: keys }, active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved',
+      } as any).toArray()
+      : [];
+    const services = rows.map((s) => ({
+      id: s.id, name_ar: s.name_ar, name_en: s.name_en, name: s.name_ar || s.name_en,
+      price: typeof s.price === 'number' ? s.price : null, duration: s.duration ?? null,
+    }));
     return {
       data: {
         id: p.account_id, profile_id: p.id,
@@ -31,7 +44,7 @@ export class PatientNurseProfileController {
         rating: p.rating_count > 0 ? p.rating_avg : null, reviews_count: p.rating_count || 0, reviews: [],
         years_experience: p.years_experience || null, profile_photo: p.profile_photo || null,
         available_now: Boolean(p.availability?.accepting ?? true),
-        services: (p.nursing_services || []).map((x: any) => x.key),
+        services,
       },
     };
   }

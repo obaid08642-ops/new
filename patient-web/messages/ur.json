@@ -873,7 +873,10 @@
     "durationLabel": "مدت",
     "insurance": "انشورنس دستیاب",
     "bookingNotice": "خدمت کی تفصیلات یہاں صرف مطالعے کے لیے ہیں۔ اس صفحے سے بکنگ نہیں بنتی۔",
-    "back": "خدمات پر واپس"
+    "back": "خدمات پر واپس",
+    "nursesTitle": "نرس منتخب کریں",
+    "nursesEmpty": "اس وقت یہ سروس کوئی نرس فراہم نہیں کر رہی۔",
+    "nursesError": "نرسیں لوڈ نہیں ہو سکیں۔ دوبارہ کوشش کریں۔"
   },
   "Doctors": {
     "eyebrow": "طبی نگہداشت",
@@ -1402,9 +1405,7 @@
     "years": "years",
     "experienceLabel": "Field Experience",
     "ratingLabel": "Patient Rating",
-    "homeCareLabel": "Home Care",
     "aboutTitle": "Professional Bio",
-    "defaultBio": "A licensed healthcare nurse dedicated to delivering compassionate home care.",
     "servicesTitle": "Available Nursing Services",
     "price": "{value} SAR",
     "requestNurse": "Request Nursing Visit"

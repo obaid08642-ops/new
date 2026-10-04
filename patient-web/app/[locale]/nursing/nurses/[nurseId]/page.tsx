@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { ArrowLeft, ArrowRight, Award, Clock, MapPin, ShieldCheck, Star } from "lucide-react";
+import { ArrowLeft, ArrowRight, Award, MapPin, ShieldCheck, Star } from "lucide-react";
 import { getPublicNurse, extractNurse } from "@/lib/api/nursing-server";
 import { getPatientAddresses } from "@/lib/api/addresses-server";
 import { requirePatientAccess } from "@/lib/auth/session";
@@ -71,9 +71,9 @@ async function NursingBookingSection({
     addresses = [];
   }
   return (
-    <section aria-label={t("requestNurse")}>
+    <section id="book" aria-label={t("requestNurse")}>
       <h2>{t("requestNurse")}</h2>
-      <NursingBookingForm locale={locale} services={services} addresses={addresses} />
+      <NursingBookingForm locale={locale} nurseId={nurse.id} services={services} addresses={addresses} />
     </section>
   );
 }
@@ -130,13 +130,17 @@ export default async function NurseDetailPage({ params }: Props) {
                 <ShieldCheck size={14} aria-hidden="true" />
                 {t("verified")}
               </span>
-              <span className={styles.ratingBadge}>
-                <Star size={14} fill="#F59E0B" color="#F59E0B" aria-hidden="true" />
-                <strong>{nurse.rating?.toFixed(1)}</strong>
-              </span>
+              {nurse.rating !== undefined ? (
+                <span className={styles.ratingBadge}>
+                  <Star size={14} fill="#F59E0B" color="#F59E0B" aria-hidden="true" />
+                  <strong>{nurse.rating.toFixed(1)}</strong>
+                </span>
+              ) : null}
             </div>
             <h1>{locale === "ar" ? nurse.name_ar || nurse.name : nurse.name_en || nurse.name}</h1>
-            <p className={styles.specialty}>{locale === "ar" ? nurse.specialty_ar || nurse.specialty : nurse.specialty_en || nurse.specialty}</p>
+            {nurse.specialty ? (
+              <p className={styles.specialty}>{locale === "ar" ? nurse.specialty_ar || nurse.specialty : nurse.specialty_en || nurse.specialty}</p>
+            ) : null}
             {nurse.city ? (
               <p className={styles.location}>
                 <MapPin size={14} aria-hidden="true" />
@@ -146,28 +150,31 @@ export default async function NurseDetailPage({ params }: Props) {
           </div>
         </div>
 
-        <div className={styles.statsRow}>
-          <div className={styles.statCard}>
-            <Award size={20} aria-hidden="true" />
-            <strong>{nurse.experience_years} {t("years")}</strong>
-            <small>{t("experienceLabel")}</small>
+        {nurse.experience_years !== undefined || nurse.rating !== undefined ? (
+          <div className={styles.statsRow}>
+            {nurse.experience_years !== undefined ? (
+              <div className={styles.statCard}>
+                <Award size={20} aria-hidden="true" />
+                <strong>{nurse.experience_years} {t("years")}</strong>
+                <small>{t("experienceLabel")}</small>
+              </div>
+            ) : null}
+            {nurse.rating !== undefined ? (
+              <div className={styles.statCard}>
+                <Star size={20} fill="#F59E0B" color="#F59E0B" aria-hidden="true" />
+                <strong>{nurse.rating.toFixed(1)}</strong>
+                <small>{t("ratingLabel")}</small>
+              </div>
+            ) : null}
           </div>
-          <div className={styles.statCard}>
-            <Star size={20} fill="#F59E0B" color="#F59E0B" aria-hidden="true" />
-            <strong>{nurse.rating?.toFixed(1)}</strong>
-            <small>{t("ratingLabel")}</small>
-          </div>
-          <div className={styles.statCard}>
-            <Clock size={20} aria-hidden="true" />
-            <strong>24/7</strong>
-            <small>{t("homeCareLabel")}</small>
-          </div>
-        </div>
+        ) : null}
 
-        <section className={styles.section}>
-          <h2>{t("aboutTitle")}</h2>
-          <p className={styles.aboutText}>{nurse.bio || t("defaultBio")}</p>
-        </section>
+        {nurse.bio ? (
+          <section className={styles.section}>
+            <h2>{t("aboutTitle")}</h2>
+            <p className={styles.aboutText}>{nurse.bio}</p>
+          </section>
+        ) : null}
 
         {nurse.services && nurse.services.length > 0 ? (
           <section className={styles.section}>
@@ -189,9 +196,9 @@ export default async function NurseDetailPage({ params }: Props) {
         ) : null}
 
         <div className={styles.actionRow}>
-          <Link href={`/${locale}/nursing/booking`} className={styles.bookButton}>
+          <a href="#book" className={styles.bookButton}>
             {t("requestNurse")}
-          </Link>
+          </a>
         </div>
 
         <NursingBookingSection locale={locale} nurse={nurse} />

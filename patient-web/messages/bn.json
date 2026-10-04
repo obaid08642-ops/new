@@ -873,7 +873,10 @@
     "durationLabel": "সময়কাল",
     "insurance": "বীমা উপলভ্য",
     "bookingNotice": "সেবার বিবরণ এখানে শুধু পড়ার জন্য। এই পৃষ্ঠা থেকে বুকিং তৈরি হয় না।",
-    "back": "সেবায় ফিরে যান"
+    "back": "সেবায় ফিরে যান",
+    "nursesTitle": "একজন নার্স বেছে নিন",
+    "nursesEmpty": "এই মুহূর্তে কোনো নার্স এই সেবা দিচ্ছেন না।",
+    "nursesError": "নার্সদের লোড করা যায়নি। আবার চেষ্টা করুন।"
   },
   "Doctors": {
     "eyebrow": "চিকিৎসা সেবা",
@@ -1402,9 +1405,7 @@
     "years": "years",
     "experienceLabel": "Field Experience",
     "ratingLabel": "Patient Rating",
-    "homeCareLabel": "Home Care",
     "aboutTitle": "Professional Bio",
-    "defaultBio": "A licensed healthcare nurse dedicated to delivering compassionate home care.",
     "servicesTitle": "Available Nursing Services",
     "price": "{value} SAR",
     "requestNurse": "Request Nursing Visit"

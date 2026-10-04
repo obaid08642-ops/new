@@ -873,7 +873,10 @@
     "durationLabel": "Tagal",
     "insurance": "May insurance",
     "bookingNotice": "Read-only ang detalye ng serbisyo rito. Walang booking na ginagawa sa pahinang ito.",
-    "back": "Bumalik sa mga serbisyo"
+    "back": "Bumalik sa mga serbisyo",
+    "nursesTitle": "Pumili ng nurse",
+    "nursesEmpty": "Walang nurse na nag-aalok ng serbisyong ito ngayon.",
+    "nursesError": "Hindi ma-load ang mga nurse. Subukan muli."
   },
   "Doctors": {
     "eyebrow": "Pangangalagang medikal",
@@ -1402,9 +1405,7 @@
     "years": "years",
     "experienceLabel": "Field Experience",
     "ratingLabel": "Patient Rating",
-    "homeCareLabel": "Home Care",
     "aboutTitle": "Professional Bio",
-    "defaultBio": "A licensed healthcare nurse dedicated to delivering compassionate home care.",
     "servicesTitle": "Available Nursing Services",
     "price": "{value} SAR",
     "requestNurse": "Request Nursing Visit"

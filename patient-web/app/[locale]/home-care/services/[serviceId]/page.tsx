@@ -4,6 +4,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ArrowLeft, ArrowRight, Clock3, ShieldCheck } from "lucide-react";
 import { extractHomeCareService } from "@/lib/api/home-care-services";
 import { getPatientHomeCareService } from "@/lib/api/home-care-services-server";
+import { getNursesForService } from "@/lib/api/nursing-server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { VectorNursing } from "@/components-next/vector-illustrations";
@@ -61,6 +62,8 @@ export default async function HomeCareServicePage({ params }: Props) {
   const rtl = locale === "ar" || locale === "ur";
   const Arrow = rtl ? ArrowLeft : ArrowRight;
   const name = rtl ? (service.nameAr ?? service.nameEn) : (service.nameEn ?? service.nameAr);
+  // The patient picks the nurse, then books on the nurse's page (same flow as the app).
+  const nurses = await getNursesForService(serviceId);
   const description = rtl ? (service.descriptionAr ?? service.descriptionEn) : (service.descriptionEn ?? service.descriptionAr);
   return (
     <main className={`main ${styles.page}`} style={{ background: "#FDFDFC", gap: 16 } as any}>
@@ -202,6 +205,28 @@ export default async function HomeCareServicePage({ params }: Props) {
         >
           {t("bookingNotice")}
         </p>
+        <section aria-labelledby="service-nurses" style={{ display: "grid", gap: 12 }}>
+          <h2 id="service-nurses" style={{ color: "#1E332E", fontSize: 18 }}>{t("nursesTitle")}</h2>
+          {nurses === null ? (
+            <p role="alert" style={{ color: "#6B7C6E" }}>{t("nursesError")}</p>
+          ) : nurses.length === 0 ? (
+            <p style={{ color: "#6B7C6E" }}>{t("nursesEmpty")}</p>
+          ) : (
+            <ul style={{ display: "grid", gap: 8, listStyle: "none", padding: 0, margin: 0 }}>
+              {nurses.map((n) => (
+                <li key={n.id}>
+                  <Link
+                    href={`/${locale}/nursing/nurses/${encodeURIComponent(n.id)}`}
+                    style={{ display: "flex", justifyContent: "space-between", gap: 12, padding: "12px 16px", border: "1px solid #E8EDEE", borderRadius: 16, color: "#1E332E", textDecoration: "none", overflowWrap: "anywhere" } as any}
+                  >
+                    <strong>{rtl ? (n.name_ar ?? n.name) : (n.name_en ?? n.name)}</strong>
+                    {n.rating !== undefined ? <span>{n.rating.toFixed(1)}</span> : null}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
       </article>
     </main>
   );

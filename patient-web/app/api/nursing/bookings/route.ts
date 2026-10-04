@@ -7,10 +7,13 @@ import { boundedUpstreamError } from "@/lib/api/error-response";
 
 const schema = z.object({
   service_id: z.string().min(1).max(128),
+  // The nurse the patient picked; the API refuses a booking without one.
+  provider_id: z.string().regex(/^[A-Za-z0-9_-]{1,128}$/),
   scheduled_at: z.string().min(1).max(64),
   address_id: z.string().max(128).optional().default(""),
   notes: z.string().max(2000).optional().default(""),
-  payment_method: z.enum(["cash", "card", "insurance"]).optional().default("cash"),
+  // Home visits are paid by card or insurance only (HomeCareSvc.book).
+  payment_method: z.enum(["card", "insurance"]).optional().default("card"),
 });
 
 export async function POST(request: Request) {

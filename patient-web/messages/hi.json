@@ -873,7 +873,10 @@
     "durationLabel": "अवधि",
     "insurance": "बीमा उपलब्ध",
     "bookingNotice": "सेवा विवरण यहाँ केवल पढ़ने के लिए हैं। इस पृष्ठ से बुकिंग नहीं बनाई जाती।",
-    "back": "सेवाओं पर वापस"
+    "back": "सेवाओं पर वापस",
+    "nursesTitle": "नर्स चुनें",
+    "nursesEmpty": "अभी कोई नर्स यह सेवा नहीं दे रही है।",
+    "nursesError": "नर्सें लोड नहीं हो सकीं। फिर से कोशिश करें।"
   },
   "Doctors": {
     "eyebrow": "चिकित्सा देखभाल",
@@ -1402,9 +1405,7 @@
     "years": "years",
     "experienceLabel": "Field Experience",
     "ratingLabel": "Patient Rating",
-    "homeCareLabel": "Home Care",
     "aboutTitle": "Professional Bio",
-    "defaultBio": "A licensed healthcare nurse dedicated to delivering compassionate home care.",
     "servicesTitle": "Available Nursing Services",
     "price": "{value} SAR",
     "requestNurse": "Request Nursing Visit"

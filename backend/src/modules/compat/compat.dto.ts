@@ -106,6 +106,11 @@ export class BookDto {
   @IsString()
   address_id?: string;
 
+  // The nurse the patient picked (provider account id); HomeCareSvc.book requires it.
+  @IsOptional()
+  @IsString()
+  provider_id?: string;
+
   @IsOptional()
   @IsString()
   notes?: string;

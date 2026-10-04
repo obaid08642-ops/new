@@ -53,6 +53,7 @@ export class PatientHomeCareController {
     }
     const booking = await this.homeSvc.book(u, {
       service_id: body.service_id,
+      provider_id: body.provider_id,
       scheduled_at: body.scheduled_at,
       // F3: keep the trimming the removed compat handler applied.
       notes: body.notes?.trim() || undefined,

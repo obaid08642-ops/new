@@ -873,7 +873,10 @@
     "durationLabel": "Duration",
     "insurance": "Insurance available",
     "bookingNotice": "Service details are read-only here. No booking is created from this page.",
-    "back": "Back to services"
+    "back": "Back to services",
+    "nursesTitle": "Choose a nurse",
+    "nursesEmpty": "No nurses offer this service right now.",
+    "nursesError": "Could not load nurses. Please try again."
   },
   "Doctors": {
     "eyebrow": "Medical care",
@@ -1402,9 +1405,7 @@
     "years": "years",
     "experienceLabel": "Field Experience",
     "ratingLabel": "Patient Rating",
-    "homeCareLabel": "Home Care",
     "aboutTitle": "Professional Bio",
-    "defaultBio": "A licensed healthcare nurse dedicated to delivering compassionate home care.",
     "servicesTitle": "Available Nursing Services",
     "price": "{value} SAR",
     "requestNurse": "Request Nursing Visit"

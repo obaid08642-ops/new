@@ -31,10 +31,13 @@ const TIMES = ["09:00", "10:30", "12:00", "14:00", "15:30", "17:00"];
 
 export function NursingBookingForm({
   locale,
+  nurseId,
   services,
   addresses,
 }: {
   locale: string;
+  /** Provider account id of the nurse the patient picked. */
+  nurseId: string;
   services: BookingService[];
   addresses: BookingAddress[];
 }) {
@@ -45,7 +48,8 @@ export function NursingBookingForm({
   const [time, setTime] = useState<string | null>(null);
   const [addressId, setAddressId] = useState(addresses.find((a) => a)?.id || "");
   const [notes, setNotes] = useState("");
-  const [method, setMethod] = useState<"cash" | "card" | "insurance">("cash");
+  // Home visits are paid by card or insurance only.
+  const [method, setMethod] = useState<"card" | "insurance">("card");
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const ar = locale === "ar";
@@ -76,6 +80,7 @@ export function NursingBookingForm({
         },
         body: JSON.stringify({
           service_id: serviceId,
+          provider_id: nurseId,
           scheduled_at: scheduled.toISOString(),
           address_id: addressId || undefined,
           notes: notes.trim() || undefined,
@@ -89,6 +94,22 @@ export function NursingBookingForm({
       }
       const booking = (data as { data?: { id?: string }; id?: string })?.data ?? data;
       const bookingId = (booking as { id?: string })?.id;
+      if (method === "card" && bookingId) {
+        const payRes = await fetch(`/api/nursing/bookings/${encodeURIComponent(bookingId)}/payment-intent`, {
+          method: "POST",
+          headers: { "content-type": "application/json", "idempotency-key": `web-nursing-pay-${bookingId}` },
+          body: JSON.stringify({ method: "card" }),
+        });
+        const payData = await payRes.json().catch(() => null);
+        const checkoutUrl = (payData as { checkoutUrl?: string } | null)?.checkoutUrl;
+        if (payRes.ok && checkoutUrl) {
+          window.location.href = checkoutUrl;
+          return;
+        }
+        // The booking is kept; submitting again replays it (3-minute idempotency) and retries the payment.
+        setError((payData as { message?: string } | null)?.message || (ar ? "تعذر بدء الدفع" : "Could not start payment"));
+        return;
+      }
       if (method === "insurance") {
         router.push(`/${locale}/nursing/visits${bookingId ? `/${encodeURIComponent(bookingId)}` : ""}`);
       } else if (bookingId) {
@@ -147,9 +168,9 @@ export function NursingBookingForm({
         <textarea value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={2000} rows={3} />
       </label>
       <div style={{ display: "flex", gap: 8 }}>
-        {(["cash", "card", "insurance"] as const).map((m) => (
+        {(["card", "insurance"] as const).map((m) => (
           <button key={m} type="button" onClick={() => setMethod(m)} style={{ fontWeight: method === m ? 800 : 400 }}>
-            {m === "cash" ? (ar ? "نقدي" : "Cash") : m === "card" ? (ar ? "بطاقة" : "Card") : (ar ? "تأمين" : "Insurance")}
+            {m === "card" ? (ar ? "بطاقة" : "Card") : (ar ? "تأمين" : "Insurance")}
           </button>
         ))}
       </div>
