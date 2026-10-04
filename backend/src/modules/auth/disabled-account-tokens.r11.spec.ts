@@ -26,3 +26,14 @@ describe('disabled accounts never get a token (R11 second review)', () => {
     expect(consume).not.toHaveBeenCalled();
   });
 });
+
+describe('admin recovery start does not send a code to a disabled admin (third review)', () => {
+  it('answers like a sent code but sends nothing', async () => {
+    const sendOtp = jest.fn();
+    const auth = { userModel: { findOne: async () => ({ id: 'u1', email: 'a@nabd.test', role: 'admin', active: false }) }, sendOtp };
+    const ctrl = Object.create(AdminRecoveryController.prototype) as Record<string, unknown>;
+    Object.assign(ctrl, { auth, recovery: {} });
+    await expect((ctrl as unknown as AdminRecoveryController).start({ email: 'a@nabd.test' } as never)).resolves.toEqual({ ok: true, channel: 'email' });
+    expect(sendOtp).not.toHaveBeenCalled();
+  });
+});

@@ -80,4 +80,57 @@ describe('nursing pool claim and decline (R11 §5 lead 9)', () => {
     expect(row.provider_id).toBeNull();
     expect(row.state).toBe('NEW_REQUEST');
   });
+
+  // Third review: a visit accepted here (CONFIRMED) left the dispatch "active"
+  // list and could no longer be cancelled by its nurse.
+  it('an accepted visit stays in the active list and its nurse can still cancel it', async () => {
+    await controller.respond(nurseA, 'req-1', { accept: true } as never);
+    const active = await controller.nursingQueue(nurseA, { status: 'active' });
+    expect(active.map((b: any) => b.id)).toContain('req-1');
+    await controller.respond(nurseA, 'req-1', { accept: false } as never);
+    expect(((await bookings.findOne({ id: 'req-1' }).lean()) as any).state).toBe('CANCELLED');
+  });
+
+  it('the claim itself re-checks payment (no window between the read and the claim)', async () => {
+    const orig = bookings.findOne.bind(bookings);
+    // The read sees a paid card booking; the stored row is unpaid by the time of the claim.
+    (bookings as any).findOne = (q: any, p?: any) => (p ? { lean: async () => ({ provider_id: null, state: 'NEW_REQUEST', payment_method: 'card', payment_status: 'paid' }) } : orig(q));
+    await bookings.updateOne({ id: 'req-1' }, { $set: { payment_status: 'pending' } });
+    await expect(controller.respond(nurseA, 'req-1', { accept: true } as never)).rejects.toBeInstanceOf(ConflictException);
+    (bookings as any).findOne = orig;
+    expect(((await bookings.findOne({ id: 'req-1' }).lean()) as any).provider_id).toBeNull();
+  });
+
+  it('a booking assigned to the nurse is re-checked on the stored row before accepting', async () => {
+    await bookings.updateOne({ id: 'req-1' }, { $set: { provider_id: 'nurse-A', state: 'PROVIDER_ASSIGNED', payment_status: 'pending' } });
+    const orig = bookings.findOne.bind(bookings);
+    (bookings as any).findOne = (q: any, p?: any) => (p ? { lean: async () => ({ provider_id: 'nurse-A', state: 'PROVIDER_ASSIGNED', payment_method: 'card', payment_status: 'paid' }) } : orig(q));
+    await expect(controller.respond(nurseA, 'req-1', { accept: true } as never)).rejects.toThrow('card_payment_not_completed');
+    (bookings as any).findOne = orig;
+    expect(((await bookings.findOne({ id: 'req-1' }).lean()) as any).state).toBe('PROVIDER_ASSIGNED');
+  });
+
+  // Fifth review: an insurance booking assigned to the nurse is refused with the
+  // insurance reason, and the accept itself is one conditional write.
+  it('an assigned insurance booking is refused with the coverage-decision reason', async () => {
+    await bookings.updateOne({ id: 'req-1' }, { $set: { provider_id: 'nurse-A', state: 'PROVIDER_ASSIGNED', payment_method: 'insurance' } });
+    const orig = bookings.findOne.bind(bookings);
+    (bookings as any).findOne = (q: any, p?: any) => (p ? { lean: async () => ({ provider_id: 'nurse-A', state: 'PROVIDER_ASSIGNED', payment_method: 'card', payment_status: 'paid' }) } : orig(q));
+    await expect(controller.respond(nurseA, 'req-1', { accept: true } as never)).rejects.toThrow('insurance_booking_requires_coverage_decision');
+    (bookings as any).findOne = orig;
+  });
+
+  // Independent check (round 6): transition() read the booking and saved it
+  // back, so a decline working from a stale read overwrote a CONFIRMED that
+  // the atomic accept had just written. The state change is now conditional
+  // on the state that was read.
+  it('a transition working from a stale read does not overwrite a newer state', async () => {
+    await bookings.collection.updateOne({ id: 'req-1' }, { $set: { provider_id: 'nurse-A', state: 'PROVIDER_ASSIGNED' } });
+    const stale = await bookings.findOne({ id: 'req-1' });
+    await bookings.collection.updateOne({ id: 'req-1' }, { $set: { state: 'CONFIRMED' } });
+    jest.spyOn(controller as any, 'getBookingForAccess').mockResolvedValueOnce(stale);
+    await expect((controller as any).transition(nurseA, 'req-1', 'CANCELLED', { meta: { reason: 'x' } })).rejects.toThrow('invalid_transition');
+    const row: any = await bookings.findOne({ id: 'req-1' }).lean();
+    expect(row.state).toBe('CONFIRMED');
+  });
 });

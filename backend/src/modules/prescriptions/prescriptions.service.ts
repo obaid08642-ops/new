@@ -290,11 +290,9 @@ export class PrescriptionsService {
     // The selected pharmacy holds a live allocation for the order. Once one
     // exists, only that pharmacy may claim; a rejected, cancelled or expired
     // allocation does not count. Before any selection, a broadcast recipient may.
-    const live: any[] = await db.collection('pharmacy_allocations').find(
-      { order_id: { $in: orderIds }, status: { $nin: ['rejected', 'cancelled', 'expired'] } },
-      { projection: { pharmacy_account_id: 1 } },
-    ).toArray();
-    if (live.length) return live.some((a) => String(a.pharmacy_account_id) === String(pharmacyId));
+    const liveFilter = { order_id: { $in: orderIds }, status: { $nin: ['rejected', 'cancelled', 'expired'] } };
+    if (await db.collection('pharmacy_allocations').findOne({ ...liveFilter, pharmacy_account_id: { $eq: pharmacyId } })) return true;
+    if (await db.collection('pharmacy_allocations').findOne(liveFilter)) return false;
     return !!(await db.collection('pharmacy_broadcast_recipients').findOne({ order_id: { $in: orderIds }, pharmacy_account_id: { $eq: pharmacyId } }));
   }
 
