@@ -266,13 +266,28 @@ export class PrescriptionsService {
     const isPharmacy = getEffectiveRoles(by).includes(UserRole.PHARMACY);
     if (!isAdmin && !isPharmacy) throw new NotFoundException();
     const assigned = rx.pharmacy_id && String(rx.pharmacy_id) === String(by?.id);
-    const claimable = !rx.pharmacy_id && [PrescriptionState.UPLOADED_BY_PATIENT, PrescriptionState.SENT_TO_PHARMACY].includes(rx.state);
+    const claimable = !rx.pharmacy_id && [PrescriptionState.UPLOADED_BY_PATIENT, PrescriptionState.SENT_TO_PHARMACY].includes(rx.state)
+      && (isAdmin || await this.pharmacyReceivedOrderFor(String(rx.id), String(by?.id)));
     if (!isAdmin && !assigned && !claimable) throw new NotFoundException();
     if (!rx.pharmacy_id) rx.pharmacy_id = String(by.id);
     rx.verified_by = String(by.id);
     rx.verified_at = new Date();
     await rx.save();
     return this.transition(id, PrescriptionState.VERIFIED_BY_PHARMACIST, by);
+  }
+
+  /**
+   * R11 §5: a pharmacy may claim an unassigned prescription only when it got
+   * the patient's order carrying it — as a broadcast recipient or as the
+   * selected pharmacy. Otherwise every pharmacy could read every upload.
+   */
+  private async pharmacyReceivedOrderFor(prescriptionId: string, pharmacyId: string): Promise<boolean> {
+    const db: any = (this.providers as any)?.db;
+    if (!db || !pharmacyId) return false;
+    const order: any = await db.collection('pharmacy_orders').findOne({ prescription_id: { $eq: prescriptionId } }, { projection: { id: 1, selected_pharmacy_account_id: 1 } });
+    if (!order) return false;
+    if (order.selected_pharmacy_account_id && String(order.selected_pharmacy_account_id) === pharmacyId) return true;
+    return !!(await db.collection('pharmacy_broadcast_recipients').findOne({ order_id: { $eq: String(order.id) }, pharmacy_account_id: { $eq: pharmacyId } }));
   }
 
   async sendToPharmacy(id: string, pharmacy_id: string, by: any) {    const rx: any = await this.model.findOne({ id });
