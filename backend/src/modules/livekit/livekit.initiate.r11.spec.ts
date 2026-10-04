@@ -42,4 +42,14 @@ describe('calls/initiate only around a live appointment (R11 §5)', () => {
     expect(sessions.insertOne).not.toHaveBeenCalled();
     expect(events.emit).not.toHaveBeenCalled();
   });
+
+  it('the booking call-token path refuses PENDING and NO_SHOW appointments too (independent check)', async () => {
+    for (const status of ['PENDING', 'NO_SHOW']) {
+      const svc: any = Object.create(LiveKitService.prototype);
+      svc.appointments = { findOne: () => ({ lean: async () => ({ id: 'a1', patient_id: 'p1', doctor_user_id: 'd1', service_type: 'video', status, slot_start: new Date() }) }) };
+      svc.createBookingToken = jest.fn(async () => 'tok');
+      await expect(svc.issueBookingCallToken('a1', { id: 'p1' })).rejects.toThrow('call_token_not_available_for_booking_state');
+      expect(svc.createBookingToken).not.toHaveBeenCalled();
+    }
+  });
 });
