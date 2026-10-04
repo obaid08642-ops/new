@@ -293,7 +293,7 @@ export class PrescriptionsService {
     const live: any[] = await db.collection('pharmacy_allocations').find(
       { order_id: { $in: orderIds }, status: { $nin: ['rejected', 'cancelled', 'expired'] } },
       { projection: { pharmacy_account_id: 1 } },
-    ).toArray();
+    ).limit(50).toArray();
     if (live.length) return live.some((a) => String(a.pharmacy_account_id) === String(pharmacyId));
     return !!(await db.collection('pharmacy_broadcast_recipients').findOne({ order_id: { $in: orderIds }, pharmacy_account_id: { $eq: pharmacyId } }));
   }

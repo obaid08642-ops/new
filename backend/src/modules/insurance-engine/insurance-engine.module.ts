@@ -895,7 +895,11 @@ export class RefundService {
       : null;
     // LabBooking keeps its price in `total` and defaults `total_price` to 0;
     // radiology sets total_price. Take the first positive value.
-    const childPrice = [booking.total_price, booking.total, booking.price].map(Number).find((v) => v > 0) ?? 0;
+    // An insured child: the patient paid only the copay (insurance_copay), not the full price.
+    const insured = String(booking.payment_method || '') === 'insurance';
+    const childPrice = insured
+      ? Number(booking.insurance_copay ?? booking.copay_amount ?? 0)
+      : [booking.total_price, booking.total, booking.price].map(Number).find((v) => v > 0) ?? 0;
     const paid = parentTx ? Math.min(childPrice, Number(parentTx.amount || 0)) : Number(tx?.amount ?? mp?.amount ?? 0);
     if (!(paid > 0)) throw new BadRequestException('booking_not_paid');
     const payTx = tx || parentTx;

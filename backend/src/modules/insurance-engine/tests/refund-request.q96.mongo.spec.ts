@@ -98,4 +98,15 @@ describe('RefundService.request is bound to a real, owned, paid booking (Q96)', 
     expect(r.amount_paid).toBe(120);
     await db.collection('labbookings').deleteMany({});
   });
+
+  // Third review: an insured lab child stores the full price in `total`, but
+  // the patient paid only the copay; refunding `total` paid back more.
+  it('an insured diagnostics child refunds the copay the patient paid, not the full price', async () => {
+    const db = conn.db!;
+    await db.collection('labbookings').insertOne({ id: 'lab-3', patient_id: 'pat-A', total: 200, total_price: 0, payment_method: 'insurance', insurance_status: 'approved', insurance_copay: 40, payment_status: 'paid', transaction_id: 'tx-diag3', scheduled_date: inHours(48) });
+    await db.collection('transactions').insertOne({ id: 'tx-diag3', booking_kind: 'diagnostics', booking_id: 'diag-order-3', status: 'paid', amount: 90, gateway_payment_id: 'pay_diag3' });
+    const r = await service.request({ id: 'pat-A' }, { booking_kind: 'lab', booking_id: 'lab-3', reason: 'cannot attend' });
+    expect(r.amount_paid).toBe(40);
+    await db.collection('labbookings').deleteMany({});
+  });
 });

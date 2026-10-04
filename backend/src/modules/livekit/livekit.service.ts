@@ -237,7 +237,13 @@ export class LiveKitService {
       const appt: any = await this.appointments.findOne({ id: session.appointment_id }).lean();
       if (!appt) throw new NotFoundException('Appointment not found');
       try {
-        this.assertLiveAppointmentWindow(appt);
+        // A call already in progress (ACTIVE) can be rejoined after the window
+        // (app reopened mid-call); the appointment must still be live.
+        if (String(session.status) === 'ACTIVE') {
+          if (!['CONFIRMED', 'CHECKED_IN', 'IN_PROGRESS'].includes(String(appt.status))) throw new BadRequestException('appointment_not_active');
+        } else {
+          this.assertLiveAppointmentWindow(appt);
+        }
       } catch (e) {
         if ((e as Error).message === 'appointment_not_active') {
           await this.callSessions.updateOne(

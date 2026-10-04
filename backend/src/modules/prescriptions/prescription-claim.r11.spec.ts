@@ -18,11 +18,11 @@ describe('claiming an unassigned prescription (R11 §5)', () => {
       pharmacy_orders: { find: jest.fn(() => ({ limit: () => ({ toArray: async () => orders }) })) },
       pharmacy_broadcast_recipients: { findOne: jest.fn(async (q: any) => (linked.recipient && match(q, { order_id: 'order-1', pharmacy_account_id: linked.recipient }) ? { order_id: 'order-1' } : null)) },
       pharmacy_allocations: {
-        find: jest.fn((q: any) => ({
+        find: jest.fn((q: any) => ({ limit: () => ({
           toArray: async () => (linked.allocations ?? (linked.selected ? [{ pharmacy_account_id: linked.selected, status: 'confirmed' }] : []))
             .map((a) => ({ order_id: 'order-1', ...a }))
             .filter((a) => q.order_id.$in.includes(a.order_id) && !q.status.$nin.includes(a.status)),
-        })),
+        }) })),
       },
     };
     const providers = { db: { collection: (n: string) => collections[n] } };
