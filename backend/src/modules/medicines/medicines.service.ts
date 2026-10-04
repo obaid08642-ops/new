@@ -1002,8 +1002,25 @@ export class MedicinesService {
 
   // RULE: Manual entries from patient/doctor/pharmacy are operational immediately.
   // Admin async review later.
+  // R19: manual entries merge into the single-id doc (sku/source/barcode) — locale
+  // fields fold into translations, never a sibling per-language record.
   async createManualEntry(data: Partial<Medicine>, byUserId: string, byRole: string) {
     const editable = this.pickEditable(data);
+    const incomingTranslations = this.normalizeTranslationsMap((data as any)?.translations);
+    const identity = this.identityFilterFor({ ...(data as any), ...editable });
+    if (identity) {
+      const existing: any = await this.model.findOne({ ...identity, is_deleted: { $ne: true } });
+      if (existing) {
+        const merged = this.mergeTranslations(existing.translations, incomingTranslations);
+        const m = await this.model.findOneAndUpdate(
+          { id: existing.id },
+          { $set: { translations: merged, updatedAt: new Date() } },
+          { new: true, projection: { _id: 0, __v: 0 } },
+        );
+        await this.invalidateCache();
+        return m;
+      }
+    }
     const manualId = require('crypto').randomUUID();
     // R12: new docs carry their canonical slug from birth (pre-save also covers Model.create).
     if (!editable.slug) {
@@ -1013,6 +1030,7 @@ export class MedicinesService {
     const m = await this.model.create({
       ...editable,
       id: (editable as any).id || manualId,
+      translations: incomingTranslations,
       verified: false,
       source: byRole,
       created_by_user_id: byUserId,
@@ -1419,6 +1437,10 @@ export class MedicinesService {
       try {
         const name_ar = String(r.name_ar || r['name ar'] || r['اسم عربي'] || '').trim();
         if (!name_ar) { failed.push({ row: r, error: 'missing name_ar' }); continue; }
+        // R19: stable identity is sku → source_product_id → barcode (never the display name).
+        const skuNum = Number(r.sku ?? r['sku']);
+        const srcNum = Number(r.source_product_id ?? r.sourceProductId ?? r['source_product_id'] ?? r.productId ?? r.product_id);
+        const barcodeStr = String(r.barcode ?? r['barcode'] ?? '').trim();
         const doc: any = {
           name_ar,
           name_en: String(r.name_en || r['name en'] || r['english name'] || '').trim() || undefined,
@@ -1430,6 +1452,11 @@ export class MedicinesService {
           description_en: r.description_en || undefined,
           requires_prescription: !!(r.requires_prescription === true || String(r.requires_prescription || '').toLowerCase() === 'true' || r['rx'] === '1'),
           image: r.image || undefined,
+          barcode: barcodeStr || undefined,
+          sku: Number.isFinite(skuNum) && String(r.sku ?? r['sku'] ?? '').trim() !== '' ? skuNum : undefined,
+          source_product_id: Number.isFinite(srcNum) && String(r.source_product_id ?? r.sourceProductId ?? r['source_product_id'] ?? r.productId ?? r.product_id ?? '').trim() !== '' ? srcNum : undefined,
+          // R19: locale payloads fold into the translations map of the single doc.
+          translations: this.normalizeTranslationsMap(r.translations),
           source: 'bulk_import',
           created_by_user_id: byUserId,
           created_by_role: byRole,
@@ -1446,12 +1473,19 @@ export class MedicinesService {
         if (!doc.slug) {
           try { doc.slug = buildSlug(name_ar, String(r.sku ?? r.barcode ?? r.source_product_id ?? name_ar)); } catch { /* keep unset */ }
         }
-        // Upsert by name_ar to avoid duplicates (R19 replaces this with sku/source/barcode identity).
+        // R19: single-id upsert — sku → source_product_id → barcode; name_ar only as a last resort.
+        const identityFilter = this.identityFilterFor({ sku: doc.sku, source_product_id: doc.source_product_id, barcode: doc.barcode }) || { name_ar: doc.name_ar };
         const m = await this.model.findOneAndUpdate(
-          { name_ar: doc.name_ar },
+          identityFilter as any,
           { $setOnInsert: doc },
           { upsert: true, new: true, projection: { _id: 0, __v: 0 } },
         );
+        // R19: repeat imports merge locale maps into the same id instead of forking siblings.
+        if (doc.translations && Object.keys(doc.translations).length) {
+          const merged = this.mergeTranslations((m as any)?.translations, doc.translations);
+          await this.model.updateOne({ id: (m as any).id }, { $set: { translations: merged, updatedAt: new Date() } });
+          (m as any).translations = merged;
+        }
         // R12: wire the slug-history writer on the import path (no-op when slug unchanged).
         await this.recordSlugHistory((m as any)?.id, null, (m as any)?.slug || doc.slug);
         created.push(m);
@@ -1519,6 +1553,53 @@ export class MedicinesService {
       if (obj && obj[f] !== undefined) out[f] = obj[f];
     }
     return out;
+  }
+
+  /** R19: single-id identity — one doc per product keyed by sku → source_product_id → barcode. */
+  private identityFilterFor(input: any): Record<string, unknown> | null {
+    const skuRaw = input?.sku ?? input?.SKU ?? input?.['sku '];
+    const skuNum = typeof skuRaw === 'number' ? skuRaw : Number(String(skuRaw ?? '').trim());
+    if (Number.isFinite(skuNum) && String(skuRaw ?? '').trim() !== '') return { sku: skuNum };
+    const srcRaw = input?.source_product_id ?? input?.sourceProductId ?? input?.['source_product_id'];
+    const srcNum = typeof srcRaw === 'number' ? srcRaw : Number(String(srcRaw ?? '').trim());
+    if (Number.isFinite(srcNum) && String(srcRaw ?? '').trim() !== '') return { source_product_id: srcNum };
+    const code = String(input?.barcode ?? input?.['barcode'] ?? '').trim();
+    if (code) return { barcode: code };
+    return null;
+  }
+
+  /** R19: allowed per-locale translation keys merged into ONE doc (never a sibling per locale). */
+  private static readonly TRANSLATION_LOCALES = ['ur', 'hi', 'bn', 'fil', 'tl', 'en', 'ar'];
+
+  private normalizeTranslationsMap(input: unknown): Record<string, Record<string, string>> {
+    if (!input || typeof input !== 'object' || Array.isArray(input)) return {};
+    const out: Record<string, Record<string, string>> = {};
+    for (const [locale, map] of Object.entries(input as Record<string, unknown>)) {
+      if (!MedicinesService.TRANSLATION_LOCALES.includes(locale)) continue;
+      if (!map || typeof map !== 'object' || Array.isArray(map)) continue;
+      const clean: Record<string, string> = {};
+      for (const [k, v] of Object.entries(map as Record<string, unknown>)) {
+        if (typeof v !== 'string') continue;
+        const val = v.trim().slice(0, 5000);
+        if (val) clean[String(k).slice(0, 80)] = val;
+      }
+      if (Object.keys(clean).length) out[locale] = clean;
+    }
+    // Canonical Filipino key is `fil`; fold the legacy `tl` alias so fil vs tl never forks.
+    if (out.tl && !out.fil) out.fil = out.tl;
+    if (out.tl && out.fil) delete out.tl;
+    return out;
+  }
+
+  private mergeTranslations(
+    existing: unknown,
+    incoming: unknown,
+  ): Record<string, Record<string, string>> {
+    const base = this.normalizeTranslationsMap(existing);
+    const next = this.normalizeTranslationsMap(incoming);
+    const merged: Record<string, Record<string, string>> = { ...base };
+    for (const [locale, map] of Object.entries(next)) merged[locale] = { ...(merged[locale] || {}), ...map };
+    return merged;
   }
 
   private notifyAdmin(title: string, body: string, data: any) {
@@ -1699,6 +1780,18 @@ export class MedicinesService {
   async adminCreateCatalog(body: any, adminId: string) {
     const clean = this.pickEditable(body);
     if (!clean.name_ar && !clean.name_en) throw new BadRequestException('name_ar أو name_en مطلوب');
+    // R19: admin creates merge into the single-id doc — same sku/barcode/source never forks a sibling.
+    const incomingTranslations = this.mergeTranslations({}, (body as any)?.translations);
+    const createIdentity = this.identityFilterFor({ ...(body as any), ...clean });
+    if (createIdentity) {
+      const dupe: any = await this.model.findOne({ ...createIdentity, is_deleted: { $ne: true } });
+      if (dupe) {
+        const merged = this.mergeTranslations(dupe.translations, incomingTranslations);
+        await this.model.updateOne({ id: dupe.id }, { $set: { translations: merged, updatedAt: new Date() } });
+        await this.invalidateCache();
+        return { ok: true, id: dupe.id, merged: true };
+      }
+    }
     const id = require('crypto').randomUUID();
     // R12: canonical slug from birth when the caller did not provide one.
     if (!(clean as any).slug) {
@@ -1707,6 +1800,7 @@ export class MedicinesService {
     const doc = {
       id,
       ...clean,
+      translations: incomingTranslations,
       categories: clean.category ? [clean.category, ...(clean.sub_category ? [clean.sub_category] : [])] : [],
       images: Array.isArray(clean.images) ? clean.images : (clean.image ? [clean.image] : []),
       price: Number(clean.price) || 0,
@@ -1840,6 +1934,11 @@ export class MedicinesService {
     if (adminNextName && adminNextName !== (med.name_ar || med.name_en)) {
       const adminNextSlug = buildSlug(String(adminNextName), String(medicineId));
       if (adminNextSlug && adminNextSlug !== med.slug) extra.slug = adminNextSlug;
+    }
+    // R19: locale edits merge into the SAME id's translations map (validated + tl→fil normalized).
+    const incomingAdminTranslations = this.normalizeTranslationsMap((patch as any)?.translations);
+    if (Object.keys(incomingAdminTranslations).length) {
+      extra.translations = this.mergeTranslations(med.translations, incomingAdminTranslations);
     }
     if (Object.keys(clean).length === 0 && Object.keys(extra).length === 0) {
       throw new BadRequestException('patch must include at least one editable field');
