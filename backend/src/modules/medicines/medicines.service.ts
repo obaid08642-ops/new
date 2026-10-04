@@ -59,6 +59,10 @@ export class MedicinesService {
         { $set: { entity_type: 'medicine', entity_id: String(entityId), old_slug: from, new_slug: to, at: new Date() } },
         { upsert: true },
       );
+      // Collapse chains (A→B then B→C): every older slug of this medicine points at the current one,
+      // and a rename back to an old slug drops that slug's row (it would redirect to itself).
+      await this.slugHistory.deleteMany({ entity_type: 'medicine', old_slug: to });
+      await this.slugHistory.updateMany({ entity_type: 'medicine', entity_id: String(entityId) }, { $set: { new_slug: to, at: new Date() } });
     } catch { /* history must never break the write */ }
   }
 
