@@ -29,7 +29,7 @@ export SENTRY_DISABLE_AUTO_UPLOAD=true
 # STRICT (agent-fix verification run): the Q58/Q62/Q67/Q68 workarounds below only REPORT, so the build
 # proves the agent's fixes. Set NATIVE_WORKAROUNDS=1 to restore the old test-build patches.
 WA="${NATIVE_WORKAROUNDS:-0}"
-if [ "$WA" = 1 ]; then npm ci --no-audit --no-fund --legacy-peer-deps; else npm ci --no-audit --no-fund; fi
+if [ "$WA" = 1 ] || [ "${NATIVE_Q58_ONLY:-1}" = 1 ]; then npm ci --no-audit --no-fund --legacy-peer-deps; else npm ci --no-audit --no-fund; fi
 # Q62: libraries that still call jcenter(), removed in Gradle 9 (the Gradle of Expo 57 / RN 0.86); the
 # store build fails on them. Test build only: point them at mavenCentral() and list them as evidence.
 JC=$(grep -l "jcenter()" node_modules/*/android/build.gradle node_modules/@*/*/android/build.gradle 2>/dev/null || true)

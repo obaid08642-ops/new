@@ -10,3 +10,4 @@ remove them as the agent fixes those defects, so the run proves the real build.
 # native verification of Q71 (second cause) 2026-10-03
 
 - 2026-10-04: run on the agent tip bb97c87 with the Q58/Q62/Q67/Q68 workarounds off (STRICT).
+- same tip, only the Q58 install workaround on (provider-app lock out of sync in the strict run 37196225499).
