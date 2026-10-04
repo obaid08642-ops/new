@@ -13,6 +13,11 @@ import {
 import * as LocalAuth from 'expo-local-authentication';
 import { getTheme, TR, type ThemeMode, type Theme, type Lang, type TKey, API_BASE } from '../constants';
 import { Vault, Tokens, SessionMgr, RateLimiter, Audit, SK, Validate, Biometric, buildHeaders, DeviceId } from '../security/Security';
+import apiClient from '../api/client';
+import { isOnline } from '../api/online';
+
+/** Localized message + next step for one catalog code. */
+export type CatalogEntry = { message: string; nextStep: string };
 
 // ═══════════════════════════════════════
 // THEME
@@ -124,104 +129,22 @@ interface ToastCtxType {
 }
 const ToastCtx = createContext<ToastCtxType | null>(null);
 
-// ─── 13.R5 backend error catalog (mirrors backend/src/common/errors.i18n.json) ─
-// Toast never invents strings for covered codes; unknown/snake codes fall back
-// to UNKNOWN_ERROR while preserving the raw code for support.
-type CatalogEntry = { message: string; nextStep: string };
-export const BACKEND_ERROR_CATALOG: Record<string, { ar: CatalogEntry; en: CatalogEntry }> = {
-  AUTHENTICATION_REQUIRED: {
-    en: { message: 'You need to sign in to continue.', nextStep: 'Sign in and try again.' },
-    ar: { message: 'يجب تسجيل الدخول للمتابعة.', nextStep: 'سجّل الدخول ثم حاول مرة أخرى.' },
-  },
-  INSUFFICIENT_PERMISSION: {
-    en: { message: "You don't have permission to do this.", nextStep: 'Contact support if you think this is a mistake.' },
-    ar: { message: 'ليس لديك صلاحية لتنفيذ هذا الإجراء.', nextStep: 'تواصل مع الدعم إذا كنت تعتقد أن هذا خطأ.' },
-  },
-  PRESCRIPTION_REQUIRED: {
-    en: { message: 'This item needs a valid prescription.', nextStep: 'Upload your prescription to continue.' },
-    ar: { message: 'هذا الصنف يتطلب وصفة طبية سارية.', nextStep: 'ارفع الوصفة الطبية للمتابعة.' },
-  },
-  NO_AVAILABILITY: {
-    en: { message: 'No availability right now.', nextStep: 'Try another time or date.' },
-    ar: { message: 'لا يوجد توفر حالياً.', nextStep: 'جرّب وقتاً أو تاريخاً آخر.' },
-  },
-  SERVICE_UNAVAILABLE: {
-    en: { message: 'This service is temporarily unavailable.', nextStep: 'Please try again in a little while.' },
-    ar: { message: 'هذه الخدمة غير متاحة مؤقتاً.', nextStep: 'يرجى المحاولة مرة أخرى بعد قليل.' },
-  },
-  PROVIDER_NOT_AVAILABLE: {
-    en: { message: 'No provider is available for this request.', nextStep: 'Try again later or choose another provider.' },
-    ar: { message: 'لا يوجد مقدم خدمة متاح لهذا الطلب.', nextStep: 'حاول لاحقاً أو اختر مقدم خدمة آخر.' },
-  },
-  PRODUCT_OUT_OF_STOCK: {
-    en: { message: 'This product is out of stock.', nextStep: 'Try an alternative or check back later.' },
-    ar: { message: 'هذا المنتج غير متوفر حالياً.', nextStep: 'جرّب بديلاً أو تحقق لاحقاً.' },
-  },
-  PAYMENT_REQUIRED: {
-    en: { message: 'Payment is required to complete this.', nextStep: 'Complete the payment to continue.' },
-    ar: { message: 'يلزم الدفع لإتمام هذا الإجراء.', nextStep: 'أكمل الدفع للمتابعة.' },
-  },
-  INSURANCE_NOT_SUPPORTED: {
-    en: { message: "Your insurance doesn't cover this.", nextStep: 'Continue with self-payment or contact your insurer.' },
-    ar: { message: 'التأمين الخاص بك لا يغطي هذه الخدمة.', nextStep: 'تابع بالدفع الذاتي أو تواصل مع شركة التأمين.' },
-  },
-  LOCATION_NOT_SUPPORTED: {
-    en: { message: "We don't serve this location yet.", nextStep: 'Try another address or pickup instead.' },
-    ar: { message: 'لا نغطي هذا الموقع بعد.', nextStep: 'جرّب عنواناً آخر أو اختر الاستلام.' },
-  },
-  DUPLICATE_TRANSACTION: {
-    en: { message: 'This was already submitted.', nextStep: 'Check your orders before trying again.' },
-    ar: { message: 'تم إرسال هذا الطلب مسبقاً.', nextStep: 'تحقق من طلباتك قبل إعادة المحاولة.' },
-  },
-  INVALID_INPUT: {
-    en: { message: 'Some details look incorrect.', nextStep: 'Review the highlighted fields and try again.' },
-    ar: { message: 'بعض البيانات تبدو غير صحيحة.', nextStep: 'راجع الحقول المطلوبة وحاول مرة أخرى.' },
-  },
-  RATE_LIMITED: {
-    en: { message: 'Too many attempts. Please slow down.', nextStep: 'Wait a moment, then try again.' },
-    ar: { message: 'محاولات كثيرة جداً. يرجى التمهل.', nextStep: 'انتظر قليلاً ثم حاول مرة أخرى.' },
-  },
-  UNKNOWN_ERROR: {
-    en: { message: 'Something went wrong. Please try again.', nextStep: 'If it keeps happening, contact support.' },
-    ar: { message: 'حدث خطأ ما. يرجى المحاولة مرة أخرى.', nextStep: 'إذا استمرت المشكلة، تواصل مع الدعم.' },
-  },
-};
+// ─── 13.R5 backend error catalog ───────────────────────────────────────────
+// P15.1: the table moved to `src/api/errorCatalog.ts` so the single HTTP client
+// and the toast resolve codes through exactly the same source. Re-exported here
+// because existing screens import these names from this module.
+import {
+  CATALOG as BACKEND_ERROR_CATALOG_TABLE,
+  extractCatalogCode as extractToastBackendCode,
+  lookupCatalogError,
+  normalizeCatalogCode as normalizeToastBackendCode,
+} from '../api/errorCatalog';
 
-export function normalizeToastBackendCode(raw: unknown): string | null {
-  if (typeof raw !== 'string') return null;
-  const trimmed = raw.trim();
-  if (!/^[A-Za-z0-9_.-]{1,80}$/.test(trimmed)) return null;
-  return trimmed.toUpperCase();
-}
-
-/** Pull a backend `code` out of normalized client errors, raw payloads, or messages. */
-export function extractToastBackendCode(input: unknown): string | null {
-  if (!input || typeof input !== 'object') {
-    return normalizeToastBackendCode(input);
-  }
-  const rec = input as Record<string, unknown>;
-  const direct = normalizeToastBackendCode(rec.code ?? rec.error_code);
-  if (direct) return direct;
-  const nested: unknown[] = [];
-  if (rec.response && typeof rec.response === 'object') {
-    nested.push((rec.response as Record<string, unknown>).data);
-  }
-  if (rec.data && typeof rec.data === 'object') nested.push(rec.data);
-  for (const n of nested) {
-    if (n && typeof n === 'object') {
-      const hit = normalizeToastBackendCode(
-        (n as Record<string, unknown>).code ?? (n as Record<string, unknown>).error_code,
-      );
-      if (hit) return hit;
-    }
-  }
-  return null;
-}
+export const BACKEND_ERROR_CATALOG = BACKEND_ERROR_CATALOG_TABLE;
 
 export function resolveBackendErrorText(code: unknown, lang: Lang = 'ar'): CatalogEntry {
-  const normalized = normalizeToastBackendCode(code);
-  const table = BACKEND_ERROR_CATALOG[normalized ?? ''] ?? BACKEND_ERROR_CATALOG.UNKNOWN_ERROR;
-  return lang === 'en' ? table.en : table.ar;
+  const resolved = lookupCatalogError(code, lang === 'en' ? 'en' : 'ar');
+  return { message: resolved.message, nextStep: resolved.nextStep };
 }
 
 function ToastItem({ msg, type, onDone }: { msg: string; type: ToastType; onDone: () => void }) {
@@ -326,12 +249,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshSession = async () => {
     try {
-      const isOnline = await fetch('https://1.1.1.1', { method: 'HEAD' }).then(() => true).catch(() => false);
-      if (!isOnline) {
-        setAppState('offline');
-        setLoading(false);
-        return;
-      }
       const isBio = await Vault.get(SK.BIOENABLED);
       if (isBio === 'true') {
         const refresh = await Tokens.getRefresh();
@@ -346,6 +263,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!refreshed) { await logout(); return; }
     } catch (e) {
       if (__DEV__) console.warn('[Auth] refreshSession error', e);
+      // P15.1: a transport failure means the device is offline — the client records
+      // this, and the app shows the offline state instead of a logged-out spinner.
+      if (!isOnline()) {
+        setAppState('offline');
+        setLoading(false);
+        return;
+      }
       setAppState('logged_out');
     } finally {
       setLoading(false);
@@ -382,23 +306,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!refresh || !sessionId) return false;
     try {
       const deviceId = await DeviceId.get();
-      const headers = await buildHeaders(false);
-      const customIp = await Vault.get(SK.CUSTOM_API_IP);
-      const baseUrl = customIp ? `http://${customIp}:8002/api/v1` : API_BASE;
-      const res = await fetch(`${baseUrl}/provider/auth/refresh`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ refresh_token: refresh, session_id: sessionId, device_identifier: deviceId })
+      const data: any = await apiClient.post('/provider/auth/refresh', {
+        refresh_token: refresh,
+        session_id: sessionId,
+        device_identifier: deviceId,
       });
-      if (!res.ok) throw new Error('Refresh failed');
-      const data = await res.json();
       await Tokens.save(data.access_token, data.refresh_token, sessionId, data.provider_id, data.provider_type);
       const u = mapBackendResponseToUser(data);
       if (!checkAppStatus(u.status)) return false;
       setUser(u);
       return true;
-    } catch { 
-      return false; 
+    } catch {
+      return false;
     }
   };
 
@@ -410,25 +329,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     try {
       const deviceId = await DeviceId.get();
-      const headers = await buildHeaders(false);
-      const customIp = await Vault.get(SK.CUSTOM_API_IP);
-      const baseUrl = customIp ? `http://${customIp}:8002/api/v1` : API_BASE;
-      const res = await fetch(`${baseUrl}/provider/auth/login`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ email: identifier, password, meta: { device_identifier: deviceId } })
+      // P15.1: the client supplies the device id in its secure headers, and rejects
+      // with a catalog-mapped error that already carries message + next step.
+      const data: any = await apiClient.post('/provider/auth/login', {
+        email: identifier,
+        password,
+        meta: { device_identifier: deviceId },
       });
-      const data = await res.json();
-      if (!res.ok) {
-        // 13.R5: keep the backend code so the caller surfaces catalog text.
-        const code = extractToastBackendCode(data);
-        const err: { code?: string; message: string } = {
-          message: data.message || 'فشل تسجيل الدخول',
-        };
-        if (code) err.code = code;
-        throw err;
-      }
-      
+
       await Tokens.save(data.access_token, data.refresh_token, data.session_id, data.provider_id, data.provider_type);
       const u = mapBackendResponseToUser(data);
       if (!checkAppStatus(u.status)) return { ok: false, err: 'الحساب موقوف' };
@@ -438,13 +346,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { ok: true };
     } catch (e: any) {
       Audit.log('login_fail', false, { identifier });
-      // 13.R5: prefer catalog message + next step over raw backend strings.
-      const code = extractToastBackendCode(e);
-      if (code) {
-        const entry = resolveBackendErrorText(code, lang);
-        return { ok: false, err: `${entry.message} ${entry.nextStep}` };
-      }
-      return { ok: false, err: e?.message || t('serverErr') };
+      // 13.R5: the client already mapped this to a catalog code with localized text.
+      return { ok: false, err: `${e?.message || ''} ${e?.nextStep || ''}`.trim() || t('serverErr') };
     }
   };
 
@@ -482,12 +385,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const logout = async () => {
+const logout = async () => {
     try {
       const sessionId = await Tokens.getSessionId();
       if (sessionId) {
-        const headers = await buildHeaders(false);
-        await fetch(`${API_BASE}/provider/auth/logout`, { method: 'POST', headers, body: JSON.stringify({ session_id: sessionId }) });
+        // P15.1: through the single client. Best-effort — a failed logout must not
+        // strand the user in a signed-in state, so the rejection is swallowed.
+        await apiClient.post('/provider/auth/logout', { session_id: sessionId });
       }
     } catch (e) {}
     Audit.log('logout', true);
@@ -505,20 +409,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
  });
  };
 
-  const toggleOnline = async () => {
+const toggleOnline = async () => {
   const next = !user?.isOnline;
   // Optimistic update
   updateUser({ isOnline: next });
   Audit.log('toggle_online', next);
   try {
-  const headers = await buildHeaders(true);
-  const res = await fetch(`${API_BASE}/provider/ops/availability/toggle-instant`, {
- method: 'POST',
- headers
- });
- if (!res.ok) throw new Error('Toggle failed');
- const data = await res.json();
- updateUser({ isOnline: data.instant_available });
+  const data: any = await apiClient.post('/provider/ops/availability/toggle-instant');
+  updateUser({ isOnline: data.instant_available });
   } catch (err) {
   // Revert optimistic update on failure
   updateUser({ isOnline: !next });
