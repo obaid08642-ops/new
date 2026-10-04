@@ -95,6 +95,8 @@ export class PushService implements OnModuleInit {
   private worker: Worker;
   private readonly EXPO_URL = 'https://exp.host/--/api/v2/push/send';
   private readonly FCM_URL = 'https://fcm.googleapis.com/v1/projects/';
+  /** Per-call HTTP timeout for push provider calls (ms). Env-overridable for tests. */
+  private get httpTimeoutMs() { return Number(process.env.PUSH_TIMEOUT_MS) || 8000; }
 
   private fcmTokenCache: Record<string, { token: string; expiry: number }> = {};
 
@@ -151,6 +153,7 @@ export class PushService implements OnModuleInit {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${assertion}`,
+        signal: AbortSignal.timeout(this.httpTimeoutMs),
       });
 
       if (resp.ok) {
@@ -521,6 +524,7 @@ export class PushService implements OnModuleInit {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'Accept-Encoding': 'gzip, deflate' },
             body: JSON.stringify(messages),
+            signal: AbortSignal.timeout(this.httpTimeoutMs),
           });
           if (resp.ok) {
             const json: any = await resp.json();
@@ -565,6 +569,7 @@ export class PushService implements OnModuleInit {
                 Authorization: `Bearer ${accessToken}`,
                 'Content-Type': 'application/json',
               },
+              signal: AbortSignal.timeout(this.httpTimeoutMs),
               body: JSON.stringify({
                 message: {
                   token,
@@ -612,6 +617,7 @@ export class PushService implements OnModuleInit {
                   method: 'POST',
                   headers: { Authorization: `Bearer ${altToken}`, 'Content-Type': 'application/json' },
                   body: payloadStr,
+                  signal: AbortSignal.timeout(this.httpTimeoutMs),
                 });
               }
             }
@@ -623,6 +629,7 @@ export class PushService implements OnModuleInit {
                 Authorization: `key=${process.env.FCM_SERVER_KEY}`,
                 'Content-Type': 'application/json',
               },
+              signal: AbortSignal.timeout(this.httpTimeoutMs),
               body: JSON.stringify({
                 to: token,
                 notification: { title, body },

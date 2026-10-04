@@ -36,6 +36,19 @@ export class MediaService {
     if (!this.configured) throw new ServiceUnavailableException('media_storage_not_configured');
   }
 
+  /** Per-call timeout for R2/S3 calls (ms). Env-overridable for tests. */
+  private get opTimeoutMs() { return Number(process.env.S3_TIMEOUT_MS) || 30000; }
+
+  /** Rejects after ms so a hung object-store call fails fast (callers fail closed). */
+  private withTimeout(p: Promise<any>, ms: number): Promise<any> {
+    let t: any;
+    const gate = new Promise<never>((_, rej) => {
+      t = setTimeout(() => rej(new Error('media_s3_timeout')), ms);
+      (t as any)?.unref?.();
+    });
+    return Promise.race([p, gate]).finally(() => clearTimeout(t)) as Promise<any>;
+  }
+
   async uploadBuffer(buffer: Buffer, originalName: string, mimeType: string, folder = 'general'): Promise<{ key: string }> {
     this.assertConfigured();
     const extension = originalName.split('.').pop() || '';
@@ -48,7 +61,7 @@ export class MediaService {
         Body: buffer,
         ContentType: mimeType,
       });
-      await this.s3Client.send(command);
+      await this.withTimeout(this.s3Client.send(command), this.opTimeoutMs);
       return { key };
     } catch (error) {
       this.logger.error(`Failed to upload private file to R2: ${error.message}`, error.stack);
@@ -89,7 +102,7 @@ export class MediaService {
         Key: key,
       });
 
-      await this.s3Client.send(command);
+      await this.withTimeout(this.s3Client.send(command), Math.min(this.opTimeoutMs, 15000));
     } catch (error) {
       this.logger.error(`Failed to delete file from R2: ${error.message}`, error.stack);
       throw new BadRequestException(`File deletion failed: ${error.message}`);

@@ -17,6 +17,19 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import axios from 'axios';
 
+/** Per-call HTTP timeout for outbound notification channels (ms). Env-overridable for tests. */
+const notifyTimeoutMs = () => Number(process.env.NOTIFY_TIMEOUT_MS) || 8000;
+
+/** Rejects after ms so a hung channel SDK/call fails fast into the per-channel fallback. */
+function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
+  let t: any;
+  const gate = new Promise<never>((_, rej) => {
+    t = setTimeout(() => rej(new Error('notify_channel_timeout')), ms);
+    (t as any)?.unref?.();
+  });
+  return Promise.race([p, gate]).finally(() => clearTimeout(t)) as Promise<T>;
+}
+
 @Injectable()
 export class NotificationsService {
   private logger = new Logger('Notifications');
@@ -328,11 +341,14 @@ export class NotificationsService {
       data: dataPayload,
     };
     if (tokens && tokens.length > 0) {
-      const res = await getMessaging().sendEachForMulticast({ tokens, ...payload });
+      const res = await withTimeout(
+        getMessaging().sendEachForMulticast({ tokens, ...payload }),
+        notifyTimeoutMs(),
+      );
       return res.successCount > 0;
     }
     if (topic) {
-      await getMessaging().send({ topic, ...payload });
+      await withTimeout(getMessaging().send({ topic, ...payload }), notifyTimeoutMs());
       return true;
     }
     return false;
@@ -349,6 +365,7 @@ export class NotificationsService {
       }));
       const res = await axios.post('https://exp.host/--/api/v2/push/send', messages, {
         headers: { 'Content-Type': 'application/json' },
+        timeout: notifyTimeoutMs(),
       });
       const receipts = Array.isArray(res.data?.data) ? res.data.data : [];
       return receipts.some((r: any) => r.status === 'ok');
@@ -392,7 +409,7 @@ export class NotificationsService {
           to: phone,
           content: { templateName: n.title_key, templateData: { body: { placeholders: [n.body_key] } }, language: 'ar' }
         }]
-      }, { headers: { Authorization: `App ${process.env.INFOBIP_API_KEY}` } });
+      }, { headers: { Authorization: `App ${process.env.INFOBIP_API_KEY}` }, timeout: notifyTimeoutMs() });
     } catch(e) {
       this.logger.error('Failed to send WhatsApp', e.message);
     }

@@ -1,9 +1,25 @@
-import { BadRequestException, Injectable, Logger, ServiceUnavailableException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, Optional, ServiceUnavailableException, UnauthorizedException } from '@nestjs/common';
+import { CircuitBreakerService } from '../../common/circuit-breaker.service';
 import axios from 'axios';
+
+/** Per-call HTTP timeout for Paymob gateway calls (ms). Env-overridable for tests. */
+const paymobTimeoutMs = () => Number(process.env.PAYMOB_TIMEOUT_MS) || 8000;
+
+/** Rejects after ms so hung gateway calls fail fast into the breaker/fallback. */
+function withTimeout<T>(p: Promise<T>, ms: number, label: string): Promise<T> {
+  let t: any;
+  const gate = new Promise<never>((_, rej) => {
+    t = setTimeout(() => rej(new ServiceUnavailableException(`${label}_timeout`)), ms);
+    (t as any)?.unref?.();
+  });
+  return Promise.race([p, gate]).finally(() => clearTimeout(t)) as Promise<T>;
+}
 
 @Injectable()
 export class PaymobService {
   private readonly logger = new Logger(PaymobService.name);
+
+  constructor(@Optional() private readonly breakers?: CircuitBreakerService) {}
 
   async getMethods() {
     // Ideally this would query a SystemConfig or PaymentMethod model
@@ -19,24 +35,42 @@ export class PaymobService {
   
   async initiate(payload: any): Promise<any> {
     if (!process.env.PAYMOB_API_KEY) throw new ServiceUnavailableException('PAYMOB_NOT_CONFIGURED');
-    
+
+    // Circuit breaker: fail fast with 503 when the gateway is unhealthy
+    // instead of queueing hung calls behind it. No business-logic change —
+    // the happy path runs the exact same three gateway steps. The breaker
+    // function is args-driven (never a per-call closure) because breakers
+    // are cached by name and reused across calls.
+    const ms = paymobTimeoutMs();
+    if (!this.breakers) return this.doInitiate(payload);
+    const breaker = this.breakers.create(
+      'paymob:initiate',
+      (p: any) => this.doInitiate(p),
+      { timeout: ms },
+      () => { throw new ServiceUnavailableException('PAYMOB_CIRCUIT_OPEN'); },
+    );
+    return breaker.fire(payload);
+  }
+
+  private async doInitiate(payload: any): Promise<any> {
+    const ms = paymobTimeoutMs();
     // 1. Authentication Request
-    const authRes = await axios.post('https://accept.paymob.com/api/auth/tokens', {
+    const authRes = await withTimeout(axios.post('https://accept.paymob.com/api/auth/tokens', {
       api_key: process.env.PAYMOB_API_KEY
-    });
+    }, { timeout: ms }), ms, 'PAYMOB_AUTH');
     const token = authRes.data.token;
 
     // 2. Order Registration
-    const orderRes = await axios.post('https://accept.paymob.com/api/ecommerce/orders', {
+    const orderRes = await withTimeout(axios.post('https://accept.paymob.com/api/ecommerce/orders', {
       auth_token: token,
       delivery_needed: 'false',
       amount_cents: payload.amount * 100,
       currency: 'SAR',
       items: []
-    });
+    }, { timeout: ms }), ms, 'PAYMOB_ORDER');
 
     // 3. Payment Key Generation
-    const keyRes = await axios.post('https://accept.paymob.com/api/acceptance/payment_keys', {
+    const keyRes = await withTimeout(axios.post('https://accept.paymob.com/api/acceptance/payment_keys', {
       auth_token: token,
       amount_cents: payload.amount * 100,
       expiration: 3600,
@@ -44,7 +78,7 @@ export class PaymobService {
       billing_data: payload.billing_data,
       currency: 'SAR',
       integration_id: process.env.PAYMOB_INTEGRATION_ID
-    });
+    }, { timeout: ms }), ms, 'PAYMOB_KEY');
 
     return {
       client_secret: keyRes.data.token,

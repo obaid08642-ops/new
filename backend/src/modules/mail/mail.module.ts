@@ -23,6 +23,19 @@ export interface MailResult {
   error?: string;
 }
 
+/** Per-call timeout for the primary mail provider (ms). Env-overridable for tests. */
+const mailTimeoutMs = () => Number(process.env.MAIL_TIMEOUT_MS) || 10000;
+
+/** Rejects after ms so a hung mail provider fails fast into the SES fallback. */
+function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
+  let t: any;
+  const gate = new Promise<never>((_, rej) => {
+    t = setTimeout(() => rej(new Error('mail_provider_timeout')), ms);
+    (t as any)?.unref?.();
+  });
+  return Promise.race([p, gate]).finally(() => clearTimeout(t)) as Promise<T>;
+}
+
 @Injectable()
 export class MailService {
   private readonly logger = new Logger('MailService');
@@ -51,31 +64,39 @@ export class MailService {
 
   private async sendViaResend(to: string, subject: string, html: string, text?: string): Promise<void> {
     if (!this.resend) throw new ServiceUnavailableException('resend_not_configured');
-    const { error } = await this.resend.emails.send({
+    const { error } = await withTimeout(this.resend.emails.send({
       from: this.fromAddress,
       to,
       subject,
       html,
       ...(text ? { text } : {}),
-    });
+    }), mailTimeoutMs());
     if (error) throw new BadGatewayException(error.message || 'resend_error');
   }
 
-  private async sendViaSes(to: string, subject: string, html: string, text?: string): Promise<void> {
-    if (!this.sesConfigured()) throw new ServiceUnavailableException('ses_not_configured');
-    const transporter = nodemailer.createTransport({
+  private sesTransport() {
+    const ms = mailTimeoutMs();
+    return nodemailer.createTransport({
       host: process.env.SES_SMTP_HOST,
       port: parseInt(process.env.SES_SMTP_PORT || '587', 10),
       secure: process.env.SES_SMTP_PORT === '465',
       auth: { user: process.env.SES_SMTP_USER, pass: process.env.SES_SMTP_PASS },
+      connectionTimeout: ms,
+      greetingTimeout: ms,
+      socketTimeout: ms,
     });
-    await transporter.sendMail({
+  }
+
+  private async sendViaSes(to: string, subject: string, html: string, text?: string): Promise<void> {
+    if (!this.sesConfigured()) throw new ServiceUnavailableException('ses_not_configured');
+    const transporter = this.sesTransport();
+    await withTimeout(transporter.sendMail({
       from: process.env.SES_FROM || this.fromAddress,
       to,
       subject,
       html,
       ...(text ? { text } : {}),
-    });
+    }), mailTimeoutMs());
   }
 
   /** Resend first → automatic SES fallback. Never throws. */
@@ -94,14 +115,14 @@ export class MailService {
     // 1) Primary: Resend
     try {
       if (!this.resend) throw new ServiceUnavailableException('resend_not_configured');
-      const { error } = await this.resend.emails.send({
+      const { error } = await withTimeout(this.resend.emails.send({
         from: this.fromAddress,
         to: opts.to,
         subject: opts.subject,
         html: opts.html,
         ...(opts.text ? { text: opts.text } : {}),
         ...(attachment ? { attachments: [{ filename: attachment.filename!, content: Buffer.from(attachment.content, 'utf-8').toString('base64') }] } : {}),
-      });
+      }), mailTimeoutMs());
       if (error) throw new BadGatewayException(error.message || 'resend_error');
       this.events.emit('mail.sent', { to: opts.to, subject: opts.subject, provider: 'resend', fallback_used: false });
       await this.logMail(opts.to, opts.subject, true, 'resend', false);
@@ -135,20 +156,15 @@ export class MailService {
     attachment: { filename: string; content: string } | null,
   ): Promise<void> {
     if (!this.sesConfigured()) throw new ServiceUnavailableException('ses_not_configured');
-    const transporter = nodemailer.createTransport({
-      host: process.env.SES_SMTP_HOST,
-      port: parseInt(process.env.SES_SMTP_PORT || '587', 10),
-      secure: process.env.SES_SMTP_PORT === '465',
-      auth: { user: process.env.SES_SMTP_USER, pass: process.env.SES_SMTP_PASS },
-    });
-    await transporter.sendMail({
+    const transporter = this.sesTransport();
+    await withTimeout(transporter.sendMail({
       from: process.env.SES_FROM || this.fromAddress,
       to: opts.to,
       subject: opts.subject,
       html: opts.html,
       ...(opts.text ? { text: opts.text } : {}),
       ...(attachment ? { attachments: [{ filename: attachment.filename, content: Buffer.from(attachment.content, 'utf-8') }] } : {}),
-    });
+    }), mailTimeoutMs());
   }
 
   /** Shared OTP template (Arabic, RTL) — used by auth + notifications. */
