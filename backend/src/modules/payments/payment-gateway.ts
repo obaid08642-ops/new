@@ -11,13 +11,12 @@ import { ServiceUnavailableException } from '@nestjs/common';
  * configuration said which one was meant. `PAYMENT_PROVIDER` makes the choice
  * explicit and lets an operator switch processors by configuration alone.
  *
- * The three adapters themselves (Stripe, Tap, Moyasar) are the real HTTP
- * implementations that already existed; this file only names the contract they
- * satisfy and resolves which one is active. HyperPay is not implemented and is
- * therefore not selectable — asking for it fails loudly instead of pretending.
+ * Q104: Moyasar is the only processor (the Stripe and Tap adapters were
+ * removed: no client could complete their flows). Any other PAYMENT_PROVIDER
+ * value fails loudly instead of pretending.
  */
 /** `disabled` is the fail-closed state, not a real processor. */
-export type PaymentProvider = 'stripe' | 'tap' | 'moyasar' | 'hyperpay' | 'disabled';
+export type PaymentProvider = 'moyasar' | 'disabled';
 
 export interface CreateIntentRequest {
   amount: number;
@@ -67,11 +66,9 @@ export class DisabledGatewayAdapter implements PaymentGateway {
 }
 
 /** The key each provider needs before it can be selected. */
+// Q104: one payment system (owner decision 2026-10-04) — Moyasar only.
 const REQUIRED_KEY: Partial<Record<PaymentProvider, string>> = {
-  stripe: 'STRIPE_SECRET_KEY',
-  tap: 'TAP_API_KEY',
   moyasar: 'MOYASAR_API_KEY',
-  hyperpay: 'HYPERPAY_API_KEY',
 };
 
 export function isProviderConfigured(provider: PaymentProvider): boolean {

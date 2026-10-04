@@ -35,55 +35,6 @@ import {
  * PAYMENT_PROVIDER. The adapter classes below are the real HTTP
  * implementations; payment-gateway.ts owns the contract and the selection.
  */
-class StripeAdapter implements PaymentGateway {
-  readonly name = 'stripe' as const;
-  private base = 'https://api.stripe.com/v1';
-  private headers() { return { Authorization: `Bearer ${process.env.STRIPE_SECRET_KEY}`, 'Content-Type': 'application/x-www-form-urlencoded' }; }
-  async createIntent(o: CreateIntentRequest) {
-    const body = new URLSearchParams({ amount: String(Math.round(o.amount * 100)), currency: (o.currency || 'sar').toLowerCase(), description: o.description || 'Nabd booking', 'automatic_payment_methods[enabled]': 'true' });
-    const r = await fetch(`${this.base}/payment_intents`, { method: 'POST', headers: this.headers(), body });
-    const j: any = await r.json();
-    if (!r.ok) throw new BadGatewayException(j.error?.message || 'stripe_intent_failed');
-    return { intent_id: j.id, client_secret: j.client_secret };
-  }
-  async verify(id: string) {
-    const r = await fetch(`${this.base}/payment_intents/${id}`, { headers: this.headers() });
-    const j: any = await r.json();
-    const map: any = { succeeded: 'paid', requires_payment_method: 'failed', canceled: 'cancelled', processing: 'pending' };
-    return { status: (map[j.status] || 'pending') as VerifyResult['status'], charge_id: j.latest_charge, raw: j };
-  }
-  async refund(chargeId: string, amount?: number) {
-    const body = new URLSearchParams({ charge: chargeId, ...(amount ? { amount: String(Math.round(amount * 100)) } : {}) });
-    const r = await fetch(`${this.base}/refunds`, { method: 'POST', headers: this.headers(), body });
-    const j: any = await r.json();
-    return { refunded: r.ok, raw: j };
-  }
-}
-
-class TapAdapter implements PaymentGateway {
-  readonly name = 'tap' as const;
-  private base = 'https://api.tap.company/v2';
-  private headers() { return { Authorization: `Bearer ${process.env.TAP_API_KEY}`, 'Content-Type': 'application/json' }; }
-  async createIntent(o: CreateIntentRequest) {
-    const body = JSON.stringify({ amount: o.amount, currency: o.currency || 'SAR', description: o.description, source: { id: 'src_all' }, redirect: { url: process.env.PUBLIC_APP_URL || 'https://example.com/payment/return' } });
-    const r = await fetch(`${this.base}/charges`, { method: 'POST', headers: this.headers(), body });
-    const j: any = await r.json();
-    if (!r.ok) throw new BadGatewayException(j.errors?.[0]?.description || 'tap_intent_failed');
-    return { intent_id: j.id, checkout_url: j.transaction?.url };
-  }
-  async verify(id: string) {
-    const r = await fetch(`${this.base}/charges/${id}`, { headers: this.headers() });
-    const j: any = await r.json();
-    const map: any = { CAPTURED: 'paid', INITIATED: 'pending', FAILED: 'failed', CANCELLED: 'cancelled' };
-    return { status: (map[j.status] || 'pending') as VerifyResult['status'], charge_id: j.id, raw: j };
-  }
-  async refund(id: string, amount?: number) {
-    const r = await fetch(`${this.base}/refunds`, { method: 'POST', headers: this.headers(), body: JSON.stringify({ charge_id: id, amount }) });
-    const j: any = await r.json();
-    return { refunded: r.ok, raw: j };
-  }
-}
-
 class MoyasarAdapter implements PaymentGateway {
   readonly name = 'moyasar' as const;
   private get base() { return moyasarBase(); }
@@ -113,8 +64,6 @@ class MoyasarAdapter implements PaymentGateway {
 }
 
 const GATEWAY_FACTORIES: Partial<Record<PaymentProvider, () => PaymentGateway>> = {
-  stripe: () => new StripeAdapter(),
-  tap: () => new TapAdapter(),
   moyasar: () => new MoyasarAdapter(),
 };
 
@@ -148,7 +97,7 @@ export class PaymentsService {
   ) {
     this.adapter = selectAdapter();
     if (this.adapter.name === 'disabled') {
-      this.logger.warn('No payment gateway configured (no STRIPE_SECRET_KEY / TAP_API_KEY / MOYASAR_API_KEY) — payment endpoints will return 503 payment_gateway_not_configured');
+      this.logger.warn('No payment gateway configured (no MOYASAR_API_KEY) — payment endpoints will return 503 payment_gateway_not_configured');
     } else {
       this.logger.log(`Payment adapter: ${this.adapter.name} (PAYMENT_PROVIDER=${process.env.PAYMENT_PROVIDER || 'auto'})`);
     }
@@ -215,7 +164,7 @@ export class PaymentsService {
     if (order.patient_account_id !== user?.id && user?.role !== 'admin') throw new BadRequestException('not_authorized');
     if (!order.selected_offer_id || !order.pricing_snapshot?.hash) throw new BadRequestException('selected_quote_required');
     const amount = this.pharmacyDueAmount(order);
-    const configured = !!(process.env.MOYASAR_API_KEY || process.env.STRIPE_SECRET_KEY || process.env.TAP_API_KEY);
+    const configured = !!process.env.MOYASAR_API_KEY;
     const methods = configured
       ? [{ id: 'card', kind: 'online' }, { id: 'apple-pay', kind: 'online' }, { id: 'google-pay', kind: 'online' }]
       : [];
@@ -239,7 +188,7 @@ export class PaymentsService {
     if (appt.payment_method && appt.payment_method !== 'card') throw new BadRequestException('card_payment_not_applicable');
     const amount = Math.round(Number(appt.total_price ?? 0) * 100) / 100;
     if (!Number.isFinite(amount) || amount <= 0) throw new BadRequestException('invalid_booking_amount');
-    const configured = !!(process.env.MOYASAR_API_KEY || process.env.STRIPE_SECRET_KEY || process.env.TAP_API_KEY);
+    const configured = !!process.env.MOYASAR_API_KEY;
     const methods = configured
       ? [{ id: 'card', kind: 'online' }, { id: 'apple-pay', kind: 'online' }, { id: 'google-pay', kind: 'online' }]
       : [];
