@@ -157,11 +157,18 @@ export class HomeCareCompatController {
     if (!this.isAdmin(u) && allowed[newState] && !allowed[newState].includes(String(b.state))) {
       throw new BadRequestException('invalid_transition');
     }
-    b.state = newState;
-    b.state_history = [...(b.state_history || []), { state: newState, at: new Date(), by: u.id, ...extra.meta }];
+    // Conditional on the state that was read: a concurrent change (e.g. the
+    // atomic accept in respondAs) is never overwritten by a stale read.
+    const done = await this.bookings.updateOne(
+      { id: { $eq: id }, state: { $eq: String(b.state) } },
+      {
+        $set: { ...(extra.fields || {}), state: newState },
+        $push: { state_history: { state: newState, at: new Date(), by: u.id, ...extra.meta } },
+      },
+    );
+    if (!done.modifiedCount) throw new BadRequestException('invalid_transition');
     Object.assign(b, extra.fields || {});
-    b.markModified('state_history');
-    await b.save();
+    b.state = newState;
     // Fan out so the patient gets notified at every step of the visit
     try { this.emitter?.emit('homecare.booking_state_changed', { booking_id: id, patient_id: b.patient_id, state: newState, provider_id: b.provider_id }); } catch {}
     return { ok: true, id, state: newState };
