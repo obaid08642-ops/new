@@ -17,7 +17,7 @@
 | --- | --- | --- | --- |
 | `side-tab` | 31 | **P1** | **Real.** The owner confirmed side-tab is **not** in `docs/design/canvas/`. Every instance is a thick coloured border on one side of a card/notice. |
 | `layout-transition` | 1 | P2 | Real. |
-| `bounce-easing` | 1 | P2 | Real. |
+| `bounce-easing` | 1 | — | **IGNORED — approved press token** (`patient-web/app/design-tokens/tokens.css:165`, `--nabd-motion-easing-press: cubic-bezier(0.34, 1.56, 0.64, 1)`; DESIGN.md §7). |
 
 **Zero `locale` findings.** An early count of 22 was a false positive: `grep "\[locale\]"` matched the `[locale]` segment in every file path, not the rule tag. Filtering on `line N: [locale]` returns 0.
 
@@ -43,7 +43,7 @@ Files: `appointments/[appointmentId]/appointment-detail.module.css:21`, `article
 
 | Finding | Severity | Evidence |
 | --- | --- | --- |
-| Raw hex colours in inline styles | **P2** | 1,699 occurrences in `.tsx` files. Sample: `patient-web/app/[locale]/labs/[testSlug]/[citySlug]/page.tsx:133` — `style={{ color: "#6B7C6E", fontSize: "1rem" }}`. Violates DESIGN.md §2 ("no raw hex in components"). |
+| Raw hex colours in components | **P1** (blocks dark mode: a literal colour cannot follow the theme) | **2,909 hex literals in 203 `.tsx` files; 1,405 of them on inline `style={{…}}` lines.** Sample: `patient-web/app/[locale]/labs/[testSlug]/[citySlug]/page.tsx:133` — `style={{ color: "#6B7C6E", fontSize: "1rem" }}`. Violates DESIGN.md §2 ("no raw hex in components"). |
 | Emoji in UI | — | **0 found.** Compliant with DESIGN.md §5. |
 
 ---
@@ -52,9 +52,17 @@ Files: `appointments/[appointmentId]/appointment-detail.module.css:21`, `article
 
 The detector returned **0 findings** for `patient-app/` because it scans CSS and the app is React Native (`StyleSheet`). This is a **coverage gap, not a clean bill of health.**
 
-The checklists (safe areas/notch, hard-coded colours vs tokens, emoji, touch targets <44 px, missing states, RTL, font scaling, reduce-motion) were **not applied** — the budget of ~15 representative screens per app was consumed by the patient-web detector verification and the raw-hex sweep.
+Targeted manual checks (code search, verified):
 
-**This is the largest gap in this report and is recorded as such rather than assumed clean.**
+| Finding | Severity | Evidence |
+| --- | --- | --- |
+| `SafeAreaView` imported from `react-native` (iOS-only; no insets on Android) | **P1** | `patient-app/app/room/[id].tsx:3` (used at :179). Fix: import from `react-native-safe-area-context`. |
+| Raw hex colours | **P1** (blocks dark mode) | 2,204 hex literals in 162 files (design-session count). Reviewer reproduction with `#[0-9A-Fa-f]{3,8}` over `.tsx` only: 2,018 in 190 files; the method differs, the conclusion does not. |
+| Reduce-motion respected only in `src/components/NabdLogo.tsx` | P2 | No other file reads `useReducedMotion` / `isReduceMotionEnabled`. |
+| Emoji in UI | — | **0** (emoji appear only in code comments). |
+| Safe-area handling | — | Present in 185 files (`useSafeAreaInsets` / `SafeAreaView` / `SafeAreaProvider`). |
+
+**Still pending:** the full manual React Native checklist (touch targets < 44 px, missing loading/empty/error states, RTL, font scaling, per-screen safe areas) has **not** been run. Until it is, patient-app is not assessed as clean.
 
 ---
 
@@ -69,14 +77,15 @@ None of the 33 detector findings conflict with DESIGN.md. The side-tab rule is a
 | Severity | Count | |
 | --- | --- | --- |
 | **P0 blocker** | 0 | |
-| **P1** | 31 | side-tab (all confirmed real) |
-| **P2** | 3 | layout-transition, bounce-easing, raw-hex-in-inline-styles |
-| **Total** | 34 | |
+| **P1** | 34 | side-tab ×31 (web), raw hex (web), raw hex (app), `SafeAreaView` from `react-native` (app) |
+| **P2** | 2 | layout-transition (web), reduce-motion only in NabdLogo (app) |
+| Ignored | 1 | bounce-easing: approved press token |
+| **Total** | 36 | |
 
 ---
 
 ## What this report does not claim
 
-- It does not claim patient-app is clean — the detector cannot see it and the manual checklist was not run.
-- It does not claim the 1,699 raw-hex occurrences are all in rendered style values; they are in `.tsx` files and a sample confirms inline styles, but the count includes any hex literal.
+- It does not claim patient-app is clean — the detector cannot see it and only the targeted checks above were run; the full manual RN checklist is still pending.
+- It does not claim every one of the 2,909 web hex literals is a rendered style value; 1,405 sit on inline-style lines, the rest include constants and props.
 - It does not run `/impeccable audit`, `critique`, `harden` or `adapt`. Those are LLM-driven commands that require the skill loaded in an agent session; they are not CLI commands and were not faked here.
