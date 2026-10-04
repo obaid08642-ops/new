@@ -1,3 +1,4 @@
+import { isAccessTokenPayload } from '../../common/auth.guard';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Logger, Optional } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -147,6 +148,8 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
       const token = client.handshake.auth?.token || client.handshake.query?.token as string;
       if (!token) { client.disconnect(); return; }
       const payload = await this.jwt.verifyAsync(token, { secret: process.env.JWT_SECRET });
+      // R11 §5: refresh / QR / chat_rt / other non-access tokens never open a socket.
+      if (!isAccessTokenPayload(payload)) { client.disconnect(); return; }
       client.data.user = payload;
       client.data.connectedAt = Date.now();
 

@@ -71,6 +71,19 @@ export function getEffectiveRoles(user: any): string[] {
   ].filter(Boolean)));
 }
 
+/**
+ * R11 §5: only access tokens authenticate (REST and sockets). Every other token
+ * signed with JWT_SECRET carries a marker (refresh `type`, QR `type`/`scope`,
+ * `purpose`) or lacks the subject id and role an access token always has.
+ */
+export function isAccessTokenPayload(payload: any): boolean {
+  if (!payload || typeof payload !== 'object') return false;
+  if (payload.type === 'refresh' || payload.type === 'qr') return false;
+  if (payload.purpose !== undefined && payload.purpose !== null) return false;
+  if (payload.scope === 'health_passport') return false;
+  return !!(payload.id || payload.sub) && typeof payload.role === 'string' && payload.role.length > 0;
+}
+
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
   constructor(
@@ -109,6 +122,13 @@ export class JwtAuthGuard implements CanActivate {
       if (!secret) throw new UnauthorizedException('JWT secret is not configured');
       payload = await this.jwt.verifyAsync(token, { secret });
     } catch (e) {
+      if (isPublic) return true;
+      throw new UnauthorizedException('Invalid token');
+    }
+
+    // R11 §5: refresh, QR, chat-realtime and other non-access tokens share
+    // JWT_SECRET; none of them may authenticate a request.
+    if (!isAccessTokenPayload(payload)) {
       if (isPublic) return true;
       throw new UnauthorizedException('Invalid token');
     }
