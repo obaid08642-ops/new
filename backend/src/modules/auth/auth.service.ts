@@ -813,16 +813,21 @@ export class AuthService {
       const existingId = await client.get(`guest_device:${deviceId}`);
       if (existingId) {
         const existing = await this.userModel.findOne({ id: existingId });
-        if (existing) {
+        // Only a real guest row may be re-issued from an unauthenticated device id.
+        // Once a guest converts, the binding must not mint tokens for that account.
+        if (existing && existing.is_guest === true) {
           return { user: this.publicUser(existing), token: this.signToken(existing, deviceId) };
         }
       }
     }
 
     // 2) Create (or reuse by phone) the guest account
-    const guestPhone = phone || `guest-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
-    let u = await this.userModel.findOne({ phone: guestPhone });
+    // The phone is unverified input: reuse a row by phone only when it is a guest
+    // row, and never attach a phone that already belongs to a registered account.
+    const byPhone = phone ? await this.userModel.findOne({ phone }) : null;
+    let u = byPhone && byPhone.is_guest === true ? byPhone : null;
     if (!u) {
+      const guestPhone = phone && !byPhone ? phone : `guest-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
       u = await this.userModel.create({
         full_name: 'Guest',
         phone: guestPhone,
@@ -885,27 +890,16 @@ export class AuthService {
       throw new ConflictException('Phone already registered');
     }
 
-    let existingUser = guestUser;
+    const existingUser = guestUser;
     
     if (data.email) {
       const existsEmail = await this.userModel.findOne({ email: data.email });
-      if (existsEmail) {
-        if (existsEmail.id !== guestUserId) {
-          // MERGE: move every piece of guest data to the existing account — zero loss
-          await this.migrateGuestData(guestUserId, existsEmail.id);
-          try {
-            await this.patientModel.findOneAndUpdate(
-              { user_id: existsEmail.id },
-              { $set: { phone: data.phone, full_name: data.full_name } }
-            );
-          } catch (err) {
-            // Ignore
-          }
-
-          this.events.emit(EVENTS.USER_GUEST_CONVERTED, { old_id: guestUserId, new_id: existsEmail.id });
-          await this.userModel.deleteOne({ id: guestUserId });
-          existingUser = existsEmail;
-        }
+      if (existsEmail && existsEmail.id !== guestUserId) {
+        // Knowing an email is not proof of owning the account: issuing its token
+        // here was an account takeover. Merging guest data into an existing
+        // account must first authenticate as that account, so refuse like the
+        // phone check above.
+        throw new ConflictException('Email already registered');
       }
     }
 
