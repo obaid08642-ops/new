@@ -11,7 +11,7 @@ API="${NABD_BACKEND:-http://127.0.0.1:8002}"
 run_step() {
   if command -v timeout >/dev/null 2>&1; then timeout "$@"; else shift; "$@"; fi
 }
-JOURNEYS=(j_accounts j_onboarding j_pharmacy j_lab j_radiology j_nursing j_consultation j_ambulance j_facility j_support j_loyalty j_payments)
+JOURNEYS=(j_accounts j_onboarding j_pharmacy j_lab j_radiology j_nursing j_consultation j_ambulance j_facility j_support j_loyalty j_payments j_chaos)
 fail=0
 restarts=0
 # The journeys log in as admin@nabd.test and nothing else seeds it, so on a fresh
