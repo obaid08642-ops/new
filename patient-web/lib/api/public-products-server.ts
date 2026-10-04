@@ -10,6 +10,7 @@ export type PublicProduct = {
   name: string | null;
   official_name: string | null;
   slug: string;
+  moved_from?: string | null;
   slugs: Record<string, string | null>;
   description: string | null;
   indications: string[];

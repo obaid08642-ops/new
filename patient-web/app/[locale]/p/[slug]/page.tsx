@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { cdnImage, getPublicProduct, type PublicProduct } from "@/lib/api/public-products-server";
 import { JsonLd } from "@/components-next/json-ld";
@@ -84,6 +84,19 @@ export default async function PublicProductPage({ params }: Props) {
   const t = await getTranslations("PublicProduct");
   const fetchedProduct = await getPublicProduct(locale, slug);
   if (!fetchedProduct) notFound();
+  // R12: retired slugs 301 to the canonical slug instead of 404ing (proxy covers
+  // most cases; this is the render-path fallback when the proxy is bypassed).
+  try {
+    const requested = decodeURIComponent(slug);
+    if (
+      (typeof fetchedProduct.moved_from === "string" && fetchedProduct.moved_from) ||
+      (typeof fetchedProduct.slug === "string" && fetchedProduct.slug && fetchedProduct.slug !== requested && fetchedProduct.slug !== slug)
+    ) {
+      permanentRedirect(`/${locale}/p/${encodeURIComponent(fetchedProduct.slug)}`);
+    }
+  } catch {
+    /* decode edge → render the fetched product */
+  }
   const product: PublicProduct = fetchedProduct;
   const name = product.name || product.official_name || t("products");
   const canonical = localizedUrl(locale, `/p/${encodeURIComponent(product.slug)}`);

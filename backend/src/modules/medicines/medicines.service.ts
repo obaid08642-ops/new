@@ -13,7 +13,7 @@ import { AutoEntitySeoPipelineService } from '../events/auto-entity-seo-pipeline
 import { localizeMedicineStructured, DbLang, missingPublicMedicineTranslations, PUBLIC_CATALOG_LOCALES } from './med-i18n';
 import { ProductRankingService } from '../product-ranking/product-ranking.service';
 import { ManualBoostsService } from '../product-ranking/manual-boosts.service';
-import { escapeRegex } from '../../common/slug.util';
+import { buildSlug, escapeRegex } from '../../common/slug.util';
 
 @Injectable()
 export class MedicinesService {
@@ -46,6 +46,21 @@ export class MedicinesService {
   private get shortageReports() { return this.conn.collection('pharmacy_shortage_reports'); }
   private get notifications() { return this.conn.collection('notifications'); }
   private get priceHistory() { return this.conn.collection('medicine_price_history'); }
+  private get slugHistory() { return this.conn.collection('slug_history'); }
+
+  /** R12: persist old→new slug so a rename 301s instead of 404ing. Best-effort, never breaks writes. */
+  private async recordSlugHistory(entityId: string, oldSlug: unknown, newSlug: unknown): Promise<void> {
+    const from = typeof oldSlug === 'string' ? oldSlug.trim() : '';
+    const to = typeof newSlug === 'string' ? newSlug.trim() : '';
+    if (!entityId || !from || !to || from === to) return;
+    try {
+      await this.slugHistory.updateOne(
+        { entity_type: 'medicine', old_slug: from },
+        { $set: { entity_type: 'medicine', entity_id: String(entityId), old_slug: from, new_slug: to, at: new Date() } },
+        { upsert: true },
+      );
+    } catch { /* history must never break the write */ }
+  }
 
   private async refreshPublicProjection(medicine: any, actorId: string, reason: string) {
     const reviewedAt = medicine?.last_reviewed || medicine?.approved_at || medicine?.updatedAt || new Date();
@@ -988,13 +1003,23 @@ export class MedicinesService {
   // RULE: Manual entries from patient/doctor/pharmacy are operational immediately.
   // Admin async review later.
   async createManualEntry(data: Partial<Medicine>, byUserId: string, byRole: string) {
+    const editable = this.pickEditable(data);
+    const manualId = require('crypto').randomUUID();
+    // R12: new docs carry their canonical slug from birth (pre-save also covers Model.create).
+    if (!editable.slug) {
+      const manualName = (editable as any).name_ar || (editable as any).name_en || 'item';
+      try { (editable as any).slug = buildSlug(String(manualName), manualId); } catch { /* keep unset */ }
+    }
     const m = await this.model.create({
-      ...this.pickEditable(data),
+      ...editable,
+      id: (editable as any).id || manualId,
       verified: false,
       source: byRole,
       created_by_user_id: byUserId,
       created_by_role: byRole,
     });
+    // R12: create path records history (no-op when no prior slug) to keep the writer wired everywhere.
+    await this.recordSlugHistory((m as any).id, null, (m as any).slug);
     this.events.emit(EVENTS.MEDICINE_PENDING_REVIEW, { medicine_id: m.id, by_role: byRole });
     await this.invalidateCache();
     return m;
@@ -1057,13 +1082,22 @@ export class MedicinesService {
 
   async update(id: string, data: Partial<Medicine>) {
     // If the image is being REPLACED, remove the old object from S3/R2
+    const oldDoc: any = await this.model.findOne({ id });
     if (data.image) {
-      const old: any = await this.model.findOne({ id });
-      if (old?.image && old.image !== data.image) {
-        this.events.emit('storage.delete_by_url', { url: old.image });
+      if (oldDoc?.image && oldDoc.image !== data.image) {
+        this.events.emit('storage.delete_by_url', { url: oldDoc.image });
       }
     }
+    // R12: renames recompute the canonical slug (findOneAndUpdate skips the schema pre-save hook).
+    const nextName = (data as any)?.name_ar || (data as any)?.name_en;
+    if (nextName && oldDoc && nextName !== (oldDoc.name_ar || oldDoc.name_en)) {
+      const oldSlug = oldDoc.slug;
+      const nextSlug = buildSlug(String(nextName), String(id));
+      if (nextSlug && nextSlug !== oldSlug) (data as any).slug = nextSlug;
+    }
     const m = await this.model.findOneAndUpdate({ id }, { $set: data }, { new: true, projection: { _id: 0, __v: 0 } });
+    // R12: record rename history for 301s (no-op when slug unchanged).
+    if ((data as any)?.slug) await this.recordSlugHistory(id, oldDoc?.slug, (data as any).slug);
     await this.invalidateCache();
     return m;
   }
@@ -1074,8 +1108,15 @@ export class MedicinesService {
 
   // ============ ADMIN CATALOG CRUD ============
   async createCatalog(data: any, byUserId: string) {
+    const catalogId = data?.id || require('crypto').randomUUID();
+    // R12: canonical slug from birth when the caller did not provide one.
+    if (!data?.slug) {
+      const catalogName = data?.name_ar || data?.name_en || 'item';
+      try { data = { ...data, slug: buildSlug(String(catalogName), String(catalogId)) }; } catch { /* keep as-is */ }
+    }
     const m = await this.model.create({
       ...data,
+      id: catalogId,
       verified: true,
       public_eligibility: false,
       indexing_eligibility: false,
@@ -1087,6 +1128,8 @@ export class MedicinesService {
       approved_by: byUserId,
       approved_at: new Date()
     });
+    // R12: wire the slug-history writer on the create path (no-op for brand-new slugs).
+    await this.recordSlugHistory((m as any).id, null, (m as any).slug);
     this.events.emit(EVENTS.MEDICINE_APPROVED, { medicine_id: m.id, by: byUserId });
     await this.invalidateCache();
     return m;
@@ -1399,12 +1442,18 @@ export class MedicinesService {
           approved_at: autoApprove ? new Date() : undefined,
           approved_by: autoApprove ? byUserId : undefined,
         };
-        // Upsert by name_ar to avoid duplicates
+        // R12: stamp the canonical slug on inserts (findOneAndUpdate skips pre-save).
+        if (!doc.slug) {
+          try { doc.slug = buildSlug(name_ar, String(r.sku ?? r.barcode ?? r.source_product_id ?? name_ar)); } catch { /* keep unset */ }
+        }
+        // Upsert by name_ar to avoid duplicates (R19 replaces this with sku/source/barcode identity).
         const m = await this.model.findOneAndUpdate(
           { name_ar: doc.name_ar },
           { $setOnInsert: doc },
           { upsert: true, new: true, projection: { _id: 0, __v: 0 } },
         );
+        // R12: wire the slug-history writer on the import path (no-op when slug unchanged).
+        await this.recordSlugHistory((m as any)?.id, null, (m as any)?.slug || doc.slug);
         created.push(m);
         if (!autoApprove) this.events.emit(EVENTS.MEDICINE_PENDING_REVIEW, { medicine_id: m.id, by_role: byRole });
       } catch (e: any) {
@@ -1651,6 +1700,10 @@ export class MedicinesService {
     const clean = this.pickEditable(body);
     if (!clean.name_ar && !clean.name_en) throw new BadRequestException('name_ar أو name_en مطلوب');
     const id = require('crypto').randomUUID();
+    // R12: canonical slug from birth when the caller did not provide one.
+    if (!(clean as any).slug) {
+      try { (clean as any).slug = buildSlug(String(clean.name_ar || clean.name_en || 'item'), id); } catch { /* keep unset */ }
+    }
     const doc = {
       id,
       ...clean,
@@ -1673,6 +1726,8 @@ export class MedicinesService {
       updatedAt: new Date(),
     };
     await this.model.create(doc as any);
+    // R12: wire the slug-history writer on the admin-create path (no-op for brand-new slugs).
+    await this.recordSlugHistory(id, null, (doc as any).slug);
     await this.priceHistory.insertOne({ id: `mph_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`, medicine_id: id, before_price: null, after_price: doc.price, reason: String(body?.reason || 'إنشاء صنف جديد'), changed_by: adminId, createdAt: new Date() });
     this.audit('medicine.admin_create', id, adminId, 'admin', { after: clean });
     await this.invalidateCache();
@@ -1780,6 +1835,12 @@ export class MedicinesService {
       extra.availability_status = patch.availability_status;
     }
     if (patch?.image !== undefined) extra.image = patch.image;
+    // R12: renames recompute the canonical slug (updateOne skips the schema pre-save hook).
+    const adminNextName = clean.name_ar || clean.name_en;
+    if (adminNextName && adminNextName !== (med.name_ar || med.name_en)) {
+      const adminNextSlug = buildSlug(String(adminNextName), String(medicineId));
+      if (adminNextSlug && adminNextSlug !== med.slug) extra.slug = adminNextSlug;
+    }
     if (Object.keys(clean).length === 0 && Object.keys(extra).length === 0) {
       throw new BadRequestException('patch must include at least one editable field');
     }
@@ -1824,6 +1885,8 @@ export class MedicinesService {
     const merged = { ...med, ...after };
     const removed = collectImgs(med).filter(u => !collectImgs(merged).includes(u));
     for (const url of removed) this.events.emit('storage.delete_by_url', { url });
+    // R12: record rename history for 301s (no-op when slug unchanged).
+    if ((extra as any)?.slug) await this.recordSlugHistory(medicineId, med.slug, (extra as any).slug);
     await this.refreshPublicProjection({ ...med, ...after, ...governanceReset }, adminId, 'medicine_admin_edit_published');
     const requiresReapproval = wasPublic && !canPublish;
     this.audit('medicine.admin_direct_edit', medicineId, adminId, 'admin', { before, after, requires_reapproval: requiresReapproval, catalog_approve: canPublish, images_deleted: removed });

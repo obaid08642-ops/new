@@ -21,6 +21,7 @@ function isPublicIndexable(pathname: string) {
 }
 
 const LEGACY_MEDICINE = new RegExp(`^\\/(${LOCALE})\\/medicines\\/([A-Za-z0-9_-]{1,64})\\/?$`);
+const PRODUCT_PAGE = new RegExp(`^\\/(${LOCALE})\\/p\\/([^/]{1,180})\\/?$`);
 const API_BASE = (process.env.NABD_API_BASE_URL || "https://api.nabd.plus/api/v1").replace(/\/$/, "");
 
 /** True 308 for legacy catalogue URLs so engines transfer ranking to /{lang}/p/{slug}. */
@@ -39,6 +40,34 @@ async function legacyMedicineRedirect(request: NextRequest): Promise<NextRespons
     target.pathname = `/${locale}/p/${encodeURIComponent(data.slug)}`;
     target.search = "";
     return NextResponse.redirect(target, 308);
+  } catch {
+    return null;
+  }
+}
+
+/** R12: renamed product slugs 301 to the canonical slug (backend reports moved_from). */
+async function productSlugRedirect(request: NextRequest): Promise<NextResponse | null> {
+  const match = PRODUCT_PAGE.exec(request.nextUrl.pathname);
+  if (!match) return null;
+  const [, locale, slug] = match;
+  let decoded = slug;
+  try { decoded = decodeURIComponent(slug); } catch { /* keep raw */ }
+  try {
+    const res = await fetch(`${API_BASE}/public/product/${locale}/${encodeURIComponent(decoded)}`, {
+      headers: { Accept: "application/json" },
+    });
+    if (!res.ok) return null;
+    const data = await res.json().catch(() => null);
+    const canonical = typeof data?.slug === "string" ? data.slug : null;
+    const movedFrom = typeof data?.moved_from === "string" ? data.moved_from : null;
+    if (!canonical || canonical === decoded) return null;
+    // Only 301 when the backend confirms the requested slug is a retired alias.
+    if (!movedFrom && canonical === slug) return null;
+    if (movedFrom && movedFrom !== decoded && movedFrom !== slug) return null;
+    const target = request.nextUrl.clone();
+    target.pathname = `/${locale}/p/${encodeURIComponent(canonical)}`;
+    target.search = "";
+    return NextResponse.redirect(target, 301);
   } catch {
     return null;
   }
@@ -72,6 +101,10 @@ export async function proxy(request: NextRequest) {
 
   const legacyRedirect = await legacyMedicineRedirect(request);
   if (legacyRedirect) return legacyRedirect;
+
+  // R12: old product slugs 301 before i18n routing renders the page.
+  const slugRedirect = await productSlugRedirect(request);
+  if (slugRedirect) return slugRedirect;
 
   if (request.headers.get("accept")?.toLowerCase().includes("text/markdown") && isMarkdownEligible(pathname)) {
     const markdownUrl = request.nextUrl.clone();
