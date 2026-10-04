@@ -568,8 +568,9 @@ export class RefundExecutor {
       { booking_id: opts.booking_id, status: { $in: ['paid', 'refunded'] } } as any,
       { sort: { createdAt: -1 } } as any,
     );
-    const paidTransaction: any = await this.conn.collection('transactions').findOne({
-      booking_kind: opts.booking_kind, booking_id: opts.booking_id, status: 'paid',
+    // R11 §5: a partially refunded card payment is still refundable up to its amount.
+    let paidTransaction: any = await this.conn.collection('transactions').findOne({
+      booking_kind: opts.booking_kind, booking_id: opts.booking_id, status: { $in: ['paid', 'partially_refunded'] },
     } as any);
     const bookingCollections: Record<string, string> = {
       pharmacy: 'orders', order: 'orders', consultation: 'appointments', appointment: 'appointments',
@@ -588,6 +589,13 @@ export class RefundExecutor {
       const owner = String(booking.patient_id || booking.patient_account_id || booking.user_id || '');
       if (owner && owner !== String(opts.patient_id)) throw new ForbiddenException('refund_patient_mismatch');
     }
+    // A lab/radiology booking paid through the diagnostics checkout carries the
+    // parent transaction's id; that transaction is the card payment to refund.
+    let viaParent = false;
+    if (!paidTransaction && booking?.transaction_id) {
+      paidTransaction = await this.conn.collection('transactions').findOne({ id: String(booking.transaction_id), status: { $in: ['paid', 'partially_refunded'] } } as any);
+      viaParent = !!paidTransaction;
+    }
     const originalMethod = String(paidTransaction?.method || booking?.payment_method || '').toLowerCase();
     const bookingState = String(booking?.status || '').toLowerCase();
     const cashLike = originalMethod === 'cash' || originalMethod === 'cod' || originalMethod === 'cash_on_delivery';
@@ -599,7 +607,7 @@ export class RefundExecutor {
     );
     // A paid transactions row is payment evidence too (card payments live there;
     // moyasar_payments only exists for the legacy gateway flow).
-    const cardPaidTx = paidTransaction?.status === 'paid';
+    const cardPaidTx = ['paid', 'partially_refunded'].includes(String(paidTransaction?.status));
     if (!paidPayment && !cashCollected && !cardPaidTx) throw new BadRequestException('original_payment_not_found');
     if (paidPayment && (!paidPayment.moyasar_id || String(paidPayment.moyasar_id).startsWith('sandbox_'))) {
       throw new BadRequestException('original_card_refund_unavailable');
@@ -611,7 +619,9 @@ export class RefundExecutor {
       : 0;
     let paidTotal = paidPayment
       ? Number(paidPayment.amount || 0)
-      : Number(paidTransaction?.amount || booking?.total_price || booking?.total || booking?.price || booking?.collection_proof?.amount_collected || itemsTotal || 0);
+      : viaParent
+        ? Math.min(Number(booking?.total_price || booking?.total || booking?.price || 0), Number(paidTransaction.amount || 0))
+        : Number(paidTransaction?.amount || booking?.total_price || booking?.total || booking?.price || booking?.collection_proof?.amount_collected || itemsTotal || 0);
     if (!(paidTotal > 0)) {
       // Cash-like with no recorded totals (e.g. governed pharmacy_orders carry no
       // prices): cap by the originating return request's server-computed items.
@@ -654,6 +664,47 @@ export class RefundExecutor {
         { _id: paidPayment._id } as any,
         { $set: { refunded_amount: newRefunded, status: newRefunded >= Number(paidPayment.amount || 0) - 0.001 ? 'refunded' : 'paid', refunded_at: new Date() } },
       );
+    }
+    // 1b) R11 §5: a card payment on the current flow (a paid `transactions`
+    // row) goes back to the card through Moyasar too. The refunded amount is
+    // reserved atomically first, so concurrent refunds cannot pass what was
+    // paid, and released again if the gateway refuses.
+    const txMethod = String(paidTransaction?.method || '').toLowerCase();
+    const cardTransaction = !paidPayment && cardPaidTx && !['cash', 'cod', 'cash_on_delivery'].includes(txMethod);
+    if (cardTransaction) {
+      const gatewayId = String(paidTransaction.gateway_charge_id || paidTransaction.gateway_intent_id || '');
+      if (!gatewayId) throw new BadRequestException('original_card_refund_unavailable');
+      const cap = Number(paidTransaction.amount || 0);
+      const txns = this.conn.collection('transactions');
+      const reserved = await txns.updateOne(
+        { _id: paidTransaction._id, $expr: { $lte: [{ $add: [{ $ifNull: ['$refunded_amount', 0] }, amount] }, cap + 0.001] } } as any,
+        { $inc: { refunded_amount: amount } } as any,
+      );
+      if (!reserved.modifiedCount) throw new BadRequestException(`refund_exceeds_paid: paid ${cap}`);
+      let data: any = {};
+      let ok = false;
+      try {
+        const key = this.moyasarKey();
+        const resp = await fetch(`${moyasarBase()}/payments/${encodeURIComponent(gatewayId)}/refund`, {
+          method: 'POST',
+          headers: { Authorization: `Basic ${Buffer.from(`${key}:`).toString('base64')}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount: Math.round(amount * 100), reason: opts.reason?.slice(0, 255) || 'refund' }),
+        });
+        data = await resp.json().catch(() => ({}));
+        ok = resp.ok;
+      } catch (err: any) {
+        data = { message: err?.message || 'gateway_unreachable' };
+      }
+      if (!ok) {
+        await txns.updateOne({ _id: paidTransaction._id } as any, { $inc: { refunded_amount: -amount } } as any);
+        this.logger.error(`Moyasar refund failed for ${gatewayId}: ${data?.message || 'error'}`);
+        throw new BadRequestException(`gateway_refund_failed: ${data?.message || 'error'}`);
+      }
+      method = 'gateway';
+      gatewayRefundId = data?.id;
+      const after: any = await txns.findOne({ _id: paidTransaction._id } as any);
+      const fully = Number(after?.refunded_amount || 0) >= cap - 0.001;
+      await txns.updateOne({ _id: paidTransaction._id } as any, { $set: { status: fully ? 'refunded' : 'partially_refunded', refunded_at: new Date() } } as any);
     }
     // 2) Cash: the money never entered the platform — record the refund in the
     // ledger only. No patient wallet is created, credited, or read here.
