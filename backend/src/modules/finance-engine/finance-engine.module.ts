@@ -351,7 +351,8 @@ export class LoyaltyRedeemService {
     const v = doc?.value || {};
     return {
       enabled: v.redeem_enabled !== false,
-      max_redeem_percent: Number(v.max_redeem_percent ?? DEFAULTS.loyalty_max_redeem_percent),
+      // PRODUCT.md: never more than 10% of the order, whatever is stored.
+      max_redeem_percent: Math.min(10, Math.max(0, Number(v.max_redeem_percent ?? DEFAULTS.loyalty_max_redeem_percent) || 0)),
       point_value_sar: Number(v.point_value_sar ?? DEFAULTS.loyalty_point_value_sar),
     };
   }

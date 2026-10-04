@@ -76,6 +76,40 @@ export function getEffectiveRoles(user: any): string[] {
  * signed with JWT_SECRET carries a marker (refresh `type`, QR `type`/`scope`,
  * `purpose`) or lacks the subject id and role an access token always has.
  */
+/**
+ * R11 §5: platform staff roles (admin console accounts). Every one of them is
+ * honoured only through the admin gate and from an enrolled device. finance
+ * holds DATA_EXPORT and payout approval; support_agent can impersonate.
+ */
+export const PLATFORM_STAFF_ROLES = ['admin', 'super_admin', 'support_agent', 'finance'];
+export function isPlatformStaffRole(role: unknown): boolean {
+  return typeof role === 'string' && PLATFORM_STAFF_ROLES.includes(role.toLowerCase());
+}
+
+/**
+ * R11: authenticate a socket handshake with the same JwtAuthGuard pipeline as
+ * REST (access-token kind, token_version, provider status, staff gate and
+ * device lock, impersonation session). Returns the user, or null if refused.
+ */
+export async function authenticateSocketToken(guard: { canActivate(ctx: ExecutionContext): Promise<boolean> | boolean }, token: string, headers: Record<string, unknown> = {}, remoteAddress = ''): Promise<any | null> {
+  const req: any = {
+    headers: { ...headers, authorization: `Bearer ${token}` },
+    path: '/socket.io', url: '/socket.io', originalUrl: '/socket.io',
+    params: {}, query: {}, body: {}, ip: remoteAddress, socket: { remoteAddress },
+  };
+  const ctx: any = {
+    switchToHttp: () => ({ getRequest: () => req, getResponse: () => ({}) }),
+    getHandler: () => authenticateSocketToken,
+    getClass: () => Object,
+    getType: () => 'http',
+  };
+  try {
+    return (await guard.canActivate(ctx)) && req.user ? req.user : null;
+  } catch {
+    return null;
+  }
+}
+
 export function isAccessTokenPayload(payload: any): boolean {
   if (!payload || typeof payload !== 'object') return false;
   if (payload.type === 'refresh' || payload.type === 'qr') return false;
@@ -184,7 +218,7 @@ export class JwtAuthGuard implements CanActivate {
       const path = String((req as any).path || (req as any).originalUrl || (req as any).url || '').split('?')[0];
       // R11 §5: every platform staff role (support_agent can impersonate) is
       // gated and device-locked, not only admin / super_admin.
-      const isAdminRole = payload?.role === 'admin' || payload?.role === 'super_admin' || payload?.role === 'support_agent'
+      const isAdminRole = isPlatformStaffRole(payload?.role)
         || (Array.isArray(payload?.roles) && payload.roles.some((r: string) => /admin/i.test(r)));
       const isDeviceEndpoint = /\/admin\/devices(\/|$)/.test(path) || /\/auth\/(login|heartbeat)/.test(path);
       if (isAdminRole && !isPublic) {

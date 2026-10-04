@@ -17,7 +17,7 @@ const appleToken = (payload: Record<string, unknown>) => new JwtService().sign(p
   algorithm: 'RS256', keyid: 'apple-kid', issuer: 'https://appleid.apple.com', audience: 'plus.nabd.web', expiresIn: 300,
 });
 
-function service(users: Record<string, { id: string; role: string; email: string }>) {
+function service(users: Record<string, { id: string; role: string; email: string; active?: boolean }>) {
   const svc = Object.create(AuthService.prototype) as Record<string, unknown>;
   svc.userModel = {
     findOne: jest.fn(async ({ email }: { email: string }) => (users[email] ? { ...users[email], save: jest.fn() } : null)),
@@ -71,5 +71,11 @@ describe('social login verifies the provider token (Q107)', () => {
   it('without configured client ids social login is off', async () => {
     delete process.env.GOOGLE_OAUTH_CLIENT_IDS;
     await expect(service({}).socialLogin({ provider: 'google', token: 'ya29.token' })).rejects.toThrow('social_login_not_configured');
+  });
+
+  it('a banned patient cannot sign back in through Google', async () => {
+    jest.spyOn(global, 'fetch').mockResolvedValue(new Response(JSON.stringify({ aud: 'web-client.apps.googleusercontent.com', email: 'banned@example.test', email_verified: 'true', expires_in: '3000' })));
+    const svc = service({ 'banned@example.test': { id: 'p9', role: 'patient', email: 'banned@example.test', active: false } });
+    await expect(svc.socialLogin({ provider: 'google', token: 'ya29.token' })).rejects.toBeInstanceOf(ForbiddenException);
   });
 });

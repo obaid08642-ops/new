@@ -5,6 +5,7 @@ import { GUARDS_METADATA } from '@nestjs/common/constants';
 import { AiController } from './ai.controller';
 import { AiUserQuotaGuard } from './ai-user-quota.guard';
 import { NoGuestsGuard } from '../../common/auth.guard';
+import { InsuranceController } from '../insurance/insurance.module';
 
 const PAID = ['voice', 'ocr', 'copilotSuggest', 'ocrTranslate', 'medicineImageSearch', 'barcodeLookup', 'analyzeMeal', 'generateExercisePlan', 'generateDietPlan'];
 
@@ -31,5 +32,10 @@ describe('AI routes: members only, per-user quota, copilot for doctors (R11 §5)
     for (let i = 0; i < 3; i += 1) await expect(guard.canActivate(ctx)).resolves.toBe(true);
     await expect(guard.canActivate(ctx)).rejects.toBeInstanceOf(HttpException);
     delete process.env.AI_USER_DAILY_LIMIT;
+  });
+
+  it('insurance OCR (an LLM call) is members-only with the same quota (independent check)', () => {
+    const guards = Reflect.getMetadata(GUARDS_METADATA, InsuranceController.prototype.ocrExtract) as unknown[];
+    expect(guards).toEqual(expect.arrayContaining([NoGuestsGuard, AiUserQuotaGuard]));
   });
 });

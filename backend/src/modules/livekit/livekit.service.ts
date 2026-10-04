@@ -4,7 +4,6 @@ import { randomUUID } from 'crypto';
 import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { Model, Connection, Types } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { APPT_STATES } from '../../schemas/appointment.schema';
 
 @Injectable()
 export class LiveKitService {
@@ -54,7 +53,8 @@ export class LiveKitService {
     const isParticipant = appt && [String(appt.patient_id), String(appt.doctor_user_id)].includes(String(user?.id));
     if (!isParticipant) throw new NotFoundException('booking_not_found');
     if (appt.service_type !== 'video') throw new BadRequestException('call_token_only_available_for_video_booking');
-    if ([APPT_STATES.CANCELLED, APPT_STATES.COMPLETED, APPT_STATES.RESCHEDULED].includes(appt.status)) {
+    // R11: the same live states as /calls/initiate — never PENDING or NO_SHOW.
+    if (!['CONFIRMED', 'CHECKED_IN', 'IN_PROGRESS'].includes(String(appt.status))) {
       throw new BadRequestException('call_token_not_available_for_booking_state');
     }
     const slotStart = new Date(appt.slot_start).getTime();

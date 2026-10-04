@@ -6,7 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { FontAwesome5, FontAwesome6 } from '@expo/vector-icons';
+import { FontAwesome5 } from '@expo/vector-icons';
 import * as SecureStore from 'expo-secure-store';
 
 import { useApp } from '../../src/context/AppContext';
@@ -21,7 +21,6 @@ import { STORAGE_KEYS } from '../../src/constants';
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
 import * as AppleAuthentication from 'expo-apple-authentication';
-import * as AuthSession from 'expo-auth-session';
 import { LocalizedText } from '../../src/components/LocalizedText';
 import { loginCredentials } from '../../src/utils/login-credentials';
 
@@ -59,35 +58,6 @@ export default function LoginScreen() {
     }
   }, [response]);
 
-  const [reqX, resX, promptAsyncX] = AuthSession.useAuthRequest(
-    {
-      clientId: process.env.EXPO_PUBLIC_X_CLIENT_ID || '',
-      scopes: ['tweet.read', 'users.read', 'offline.access'],
-      redirectUri: AuthSession.makeRedirectUri({ scheme: 'nabdplus' }),
-    },
-    { authorizationEndpoint: 'https://twitter.com/i/oauth2/authorize', tokenEndpoint: 'https://api.twitter.com/2/oauth2/token' }
-  );
-
-  const [reqSnap, resSnap, promptAsyncSnap] = AuthSession.useAuthRequest(
-    {
-      clientId: process.env.EXPO_PUBLIC_SNAPCHAT_CLIENT_ID || '',
-      scopes: ['https://auth.snapchat.com/oauth2/api/user.display_name'],
-      redirectUri: AuthSession.makeRedirectUri({ scheme: 'nabdplus' }),
-    },
-    { authorizationEndpoint: 'https://accounts.snapchat.com/accounts/oauth2/auth', tokenEndpoint: 'https://accounts.snapchat.com/accounts/oauth2/token' }
-  );
-
-  React.useEffect(() => {
-    if (resX?.type === 'success' && resX.authentication?.accessToken) {
-      handleOAuthBackend('x', resX.authentication.accessToken);
-    }
-  }, [resX]);
-
-  React.useEffect(() => {
-    if (resSnap?.type === 'success' && resSnap.authentication?.accessToken) {
-      handleOAuthBackend('snapchat', resSnap.authentication.accessToken);
-    }
-  }, [resSnap]);
 
   const handleOAuthBackend = async (provider: string, token: string) => {
     try {
@@ -207,10 +177,6 @@ export default function LoginScreen() {
       promptAsync();
     } else if (provider === 'apple') {
       handleAppleLogin();
-    } else if (provider === 'x' || provider === 'twitter') {
-      promptAsyncX();
-    } else if (provider === 'snapchat') {
-      promptAsyncSnap();
     } else {
       setErrorMessage('مزود تسجيل الدخول غير مدعوم حالياً.');
     }
@@ -344,15 +310,6 @@ export default function LoginScreen() {
           </TouchableOpacity>
           )}
 
-          {/* Snapchat */}
-          <TouchableOpacity onPress={() => handleSocialLogin('snapchat')} style={[styles.modernSocialBtn, { backgroundColor: '#FFFC00' }]} activeOpacity={0.8}>
-            <FontAwesome5 name="snapchat-ghost" size={24} color="#000000" />
-          </TouchableOpacity>
-
-          {/* X (Twitter) */}
-          <TouchableOpacity onPress={() => handleSocialLogin('twitter')} style={[styles.modernSocialBtn, { backgroundColor: isDark ? '#1A2540' : '#FFFFFF' }]} activeOpacity={0.8}>
-            <FontAwesome6 name="x-twitter" size={20} color={isDark ? "#FFFFFF" : "#000000"} />
-          </TouchableOpacity>
         </View>
         
         <View style={{ flexDirection: 'row-reverse', justifyContent: 'center', marginTop: 32 }}>

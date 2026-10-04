@@ -50,7 +50,7 @@ export class LoyaltyConfigDto {
   @IsOptional()
   @IsNumber()
   @Min(0)
-  @Max(100)
+  @Max(10) // PRODUCT.md: loyalty points are capped at 10% of the order.
   max_redeem_percent?: number;
 
   @IsOptional()

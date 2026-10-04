@@ -7,6 +7,7 @@ import { ProviderPrivacyInterceptor } from './provider-privacy';
 import { LabsController } from '../modules/labs/labs.controller';
 import { RadiologyController } from '../modules/radiology/radiology.controller';
 import { HomeCareCompatController } from '../modules/home-care/home-care-compat.module';
+import { NursingController } from '../modules/home-care/home-care.controller';
 
 const booking = (state: string) => ({
   id: 'b1', patient_id: 'pat-1', state, patient_name: 'Patient', patient_phone: '+966500000001',
@@ -45,8 +46,16 @@ describe('provider privacy before acceptance (R11 §5 lead 9)', () => {
   });
 
   it('is applied to the lab, radiology and home-care controllers', () => {
-    for (const c of [LabsController, RadiologyController, HomeCareCompatController]) {
+    for (const c of [LabsController, RadiologyController, HomeCareCompatController, NursingController]) {
       expect(Reflect.getMetadata(INTERCEPTORS_METADATA, c) || []).toContain(ProviderPrivacyInterceptor);
     }
+  });
+
+  it('a nurse the patient picked (PROVIDER_ASSIGNED) sees only the area until accepting, incl. patient_location', async () => {
+    const row = { ...booking('PROVIDER_ASSIGNED'), patient_location: { lat: 24.7, lng: 46.6 } };
+    const out = (await run({ id: 'n1', role: 'nurse' }, row)) as Record<string, any>;
+    expect(out.patient_phone).toBeUndefined();
+    expect(out.patient_location).toBeUndefined();
+    expect(out.address).toEqual({ district: 'Al Olaya', city: 'Riyadh' });
   });
 });
