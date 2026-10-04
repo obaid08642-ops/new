@@ -7,6 +7,7 @@ import {
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, useLang, useAuth, useToast } from '../../../context';
+import { providerDisplayName } from '../../../utils/provider-display-name';
 import {
  NBtn, NCard, NInput, NPhoneInput, NStatCard, NAvatar,
  NBadge, NHeader, NScroll, NSheet, NSearch, NToggle,
@@ -93,7 +94,7 @@ export function FacilityHomeTab({ onNavigate, wards, onTriggerAlarm, branches, s
  {AR ? 'مرحباً،' : 'Hello,'}
  </Text>
  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>
- {AR ? 'مستشفى نبضة الطبي' : 'Nabd+ Medical Hospital'}
+ {providerDisplayName(user, AR)}
  </Text>
  </View>
  </View>

@@ -8,6 +8,7 @@ import {
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, useLang, useAuth, useToast } from '../../../context';
+import { providerDisplayName } from '../../../utils/provider-display-name';
 import {
  NBtn, NCard, NInput, NPhoneInput, NStatCard, NAvatar,
  NBadge, NHeader, NScroll, NSheet, NSearch, NToggle,
@@ -47,6 +48,7 @@ import { tokens } from '../../../theme/tokens';
 export function AddSubAccountScreen({ onBack, preRole }: { onBack: () => void; preRole?: string }) {
  const { theme } = useTheme();
  const { lang } = useLang();
+ const { user } = useAuth();
  const specialties = useSpecialtiesCatalog();
  const { show } = useToast();
  const AR = lang === 'ar';
@@ -129,7 +131,7 @@ export function AddSubAccountScreen({ onBack, preRole }: { onBack: () => void; p
  marginBottom: SP.xl
  }}>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: theme.border, paddingBottom: SP.md, marginBottom: SP.md }}>
- <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.primary }}> {AR ? 'مستشفى نبضة الطبي' : 'Nabd+ Medical Hospital'}</Text>
+ <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.primary }}> {providerDisplayName(user, AR)}</Text>
  <NBadge label={AR ? createdCreds.role : createdCreds.roleEn} variant="primary" size="sm" />
  </View>
 

@@ -195,7 +195,7 @@ export function DoctorSettingsTab({ onLogout, onNavigate }: { onLogout: () => vo
           <View style={{ gap: SP.md, opacity: isPricingLocked ? 0.6 : 1 }} pointerEvents={isPricingLocked ? 'none' : 'auto'}>
             {isPricingLocked && (
               <Text style={{ fontSize: FS.xs, color: theme.danger, marginBottom: SP.xs, textAlign: AR ? 'right' : 'left' }}>
-                {AR ? 'الأسعار والخدمات مقفلة ومتحكم بها من قبل المنشأة (مستشفى نبضة الطبي)' : 'Pricing and services are locked and managed by the facility'}
+                {AR ? 'الأسعار والخدمات مقفلة ومتحكم بها من قبل المنشأة التابع لها' : 'Pricing and services are locked and managed by your facility'}
               </Text>
             )}
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'space-between' }}>

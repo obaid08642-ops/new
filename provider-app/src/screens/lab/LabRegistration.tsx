@@ -265,7 +265,7 @@ function LStep1({ data, update, onNext, onBack, step, total, bare = false, submi
       <NInput
         innerRef={nameArRef}
         label={AR ? 'اسم المركز بالعربي' : 'Center Name (Arabic)'}
-        placeholder={AR ? 'معمل نبضة للتحاليل الطبية' : 'Nabd+ Medical Lab'}
+        placeholder={AR ? 'الاسم التجاري كما في السجل' : 'Trade name as registered'}
         value={data.nameAr} onChange={v => update({ nameAr: v })}
         icon="⊥" required error={errs.name} caps="words"
         returnKey="next" onSubmit={() => nameEnRef.current?.focus()}
@@ -273,7 +273,7 @@ function LStep1({ data, update, onNext, onBack, step, total, bare = false, submi
       <NInput
         innerRef={nameEnRef}
         label={AR ? 'اسم المركز بالإنجليزي' : 'Center Name (English)'}
-        placeholder="Nabd+ Medical Lab"
+        placeholder={AR ? 'الاسم التجاري بالإنجليزي' : 'Trade name in English'}
         value={data.nameEn} onChange={v => update({ nameEn: v })}
         caps="words"
         returnKey="next" onSubmit={() => mgrNameRef.current?.focus()}

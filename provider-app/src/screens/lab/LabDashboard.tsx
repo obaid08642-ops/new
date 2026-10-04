@@ -9,6 +9,7 @@ import {
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, useLang, useAuth, useToast } from '../../context';
+import { providerDisplayName } from '../../utils/provider-display-name';
 import client from '../../api/client';
 import { InsuranceRequestsScreen } from '../shared/InsuranceRequestsScreen';
 import { LabQcActions } from './LabQcActions';
@@ -306,7 +307,7 @@ function LabHome({ onNav, onTriggerAlarm }:{ onNav:(s:string,p?:any)=>void; onTr
  <IBg name="lab" size={18} color={tokens.purple} bg={withAlpha(tokens.purple, 0.12)} />
  <View>
  <Text style={{fontSize:FS.sm,color:theme.textSub}}>{AR?'معمل تحاليل':'Laboratory'}</Text>
- <Text style={{fontSize:FS.md,fontWeight:FW.bold,color:theme.text}}>{AR?'معمل نبضة الطبي':'Nabd+ Medical Lab'}</Text>
+ <Text style={{fontSize:FS.md,fontWeight:FW.bold,color:theme.text}}>{providerDisplayName(user, AR)}</Text>
  </View>
  </View>
  <View style={{flexDirection:'row',gap:SP.sm,alignItems:'center'}}>
@@ -1362,6 +1363,7 @@ function LabSettings({ onLogout, onNavigate }:{ onLogout:()=>void; onNavigate:(s
  const insets = useSafeAreaInsets();
  const { theme, toggle:toggleT, mode } = useTheme(); const { lang, toggle:toggleL } = useLang();
  const { show } = useToast(); const AR = lang==='ar'; const [showLO, setShowLO] = useState(false);
+ const { user } = useAuth();
  return (
  <View style={{flex:1,backgroundColor:theme.bg}}>
  <View style={[s.topBar,{backgroundColor:theme.surface,borderBottomColor:theme.border, paddingTop: Math.max(insets.top, 16) }]}>
@@ -1371,7 +1373,7 @@ function LabSettings({ onLogout, onNavigate }:{ onLogout:()=>void; onNavigate:(s
  <NCard style={{marginBottom:SP.xl,flexDirection:AR?'row-reverse':'row',gap:SP.lg,alignItems:'center'}}>
  <IBg name="lab" size={22} color={tokens.purple} bg={withAlpha(tokens.purple, 0.12)} />
  <View style={{flex:1}}>
- <Text style={{fontSize:FS.xl,fontWeight:FW.bold,color:theme.text,textAlign:AR?'right':'left'}}>{AR?'معمل نبضة الطبي':'Nabd+ Medical Lab'}</Text>
+ <Text style={{fontSize:FS.xl,fontWeight:FW.bold,color:theme.text,textAlign:AR?'right':'left'}}>{providerDisplayName(user, AR)}</Text>
  <NBadge label={AR?'نشط':'Active'} variant="success" size="xs" style={{marginTop:SP.xs}} />
  </View>
  </NCard>

@@ -291,7 +291,7 @@ export const useToast = (): ToastCtxType => {
 export type AppStateStatusType = 'checking' | 'logged_out' | 'logged_in' | 'suspended' | 'pending' | 'rejected' | 'offline';
 
 interface User {
- id: string; name: string; displayName: string;
+ id: string; name: string; displayName: string; nameAr: string; nameEn: string;
  email: string; phone: string; providerType: string;
  status: string; avatar?: string; isOnline: boolean;
  subId?: string; role?: string; permissions?: string[];
@@ -354,8 +354,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const mapBackendResponseToUser = (data: any): User => ({
     id: data.provider_id,
-    name: data.profile?.display_name_en || data.profile?.display_name_ar || data.account?.email || 'Nabd Provider',
-    displayName: data.profile?.display_name_en || data.profile?.display_name_ar || data.account?.email || 'Nabd Provider',
+    name: data.profile?.display_name_en || data.profile?.display_name_ar || data.account?.email || '',
+    displayName: data.profile?.display_name_en || data.profile?.display_name_ar || data.account?.email || '',
+    nameAr: data.profile?.display_name_ar || '',
+    nameEn: data.profile?.display_name_en || '',
     email: data.account?.email || '',
     phone: data.profile?.phones?.[0]?.number || '',
     providerType: data.provider_type,

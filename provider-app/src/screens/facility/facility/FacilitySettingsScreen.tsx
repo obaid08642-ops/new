@@ -7,6 +7,7 @@ import {
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, useLang, useAuth, useToast } from '../../../context';
+import { providerDisplayName } from '../../../utils/provider-display-name';
 import {
  NBtn, NCard, NInput, NPhoneInput, NStatCard, NAvatar,
  NBadge, NHeader, NScroll, NSheet, NSearch, NToggle,
@@ -47,6 +48,7 @@ export function FacilitySettingsScreen({ onLogout, onNavigate }: { onLogout: () 
  const insets = useSafeAreaInsets();
  const { theme, toggle: toggleTheme, mode } = useTheme();
  const { lang, toggle: toggleLang } = useLang();
+ const { user } = useAuth();
  const { show } = useToast();
  const AR = lang === 'ar';
  const [showLogout, setLogout] = useState(false);
@@ -104,7 +106,7 @@ return (
  </View>
  <View style={{ flex:1 }}>
  <Text style={{ fontSize:FS.xl, fontWeight:FW.bold, color:theme.text,
- textAlign:AR?'right':'left' }}>{AR?'مستشفى نبضة الطبي':'Nabd+ Medical Hospital'}</Text>
+ textAlign:AR?'right':'left' }}>{providerDisplayName(user, AR)}</Text>
  <Text style={{ fontSize:FS.sm, color:theme.textSub }}>{AR?'مستشفى':'Hospital'}</Text>
  <NBadge label={AR?' حساب نشط':' Active'} variant="success" size="xs" style={{ marginTop:SP.xs }} />
  </View>
