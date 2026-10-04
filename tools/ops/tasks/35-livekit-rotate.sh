@@ -60,7 +60,7 @@ awk -v k="$NEWK" -v s="$NEWS" '
   /^keys:/ {print; print "  " k ": " s; skip=1; next}
   skip && /^[[:space:]]+[^[:space:]]/ {next}
   {skip=0; print}' $TL > $TL.new
-okenv=$(grep -c "^LIVEKIT_API_KEY=$NEWK\$" $TE); lines_e=$(($(sudo -n wc -l < $ENVF) - $(wc -l < $TE)))
+okenv=$(grep -c "^LIVEKIT_API_KEY=$NEWK\$" $TE); lines_e=$(( $(sudo -n cat $ENVF | wc -l) - $(wc -l < $TE) ))
 okyaml=$(awk '/^keys:/{f=1;next} f&&/^  [^ ]/{n++} f&&!/^  /{f=0} END{print n+0}' $TL.new)
 if [ "$okenv" = 1 ] && [ "$lines_e" = 0 ] && [ "$okyaml" = 1 ] && grep -q "^  $NEWK: " $TL.new && [ -s $TL.new ]; then
   sudo -n sh -c "cat $TE > $ENVF"; sudo -n sh -c "cat $TL.new > $LK"
