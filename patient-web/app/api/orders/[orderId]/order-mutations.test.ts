@@ -21,7 +21,9 @@ describe("order mutation BFF", () => {
   });
   it("forwards reorder and cancel with idempotency and bounded success", async () => {
     state.callPatientApi.mockResolvedValue(new Response(JSON.stringify({ order_id: id, patient_id: "private" }), { status: 201 }));
-    expect((await reorder(req(), context)).status).toBe(201);
+    const reordered = await reorder(req(), context);
+    expect(reordered.status).toBe(201);
+    expect(await reordered.json()).toEqual({ id });
     expect(state.callPatientApi).toHaveBeenCalledWith(`/orders/${id}/reorder`, expect.objectContaining({ method: "POST", headers: expect.objectContaining({ "idempotency-key": "order-mutation-key-123456" }) }), "server-access");
     state.callPatientApi.mockResolvedValue(new Response(JSON.stringify({ status: "cancelled" }), { status: 200 }));
     const response = await cancel(req({ reason: "changed" }), context);

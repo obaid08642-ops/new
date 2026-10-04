@@ -7,6 +7,7 @@ import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { RetryButton } from "@/components-next/retry-button";
 import { ReorderButton } from "./reorder-button";
+import { SubmitDraftButton } from "./submit-draft-button";
 import { VectorOrders } from "@/components-next/vector-illustrations";
 import { ChevronLeft, Hash, PackageCheck, ShieldCheck } from "lucide-react";
 import styles from "./order-detail.module.css";
@@ -41,11 +42,12 @@ export default async function OrderDetailPage({ params }: Props) {
         <div className={styles.item}><dt>{t("status")}</dt><dd>{status}</dd></div>
         <div className={styles.item}><dt><Hash size={15} aria-hidden="true" />{t("secureId")}</dt><dd>{orderId}</dd></div>
       </dl>
-      <p className={styles.notice}>{t("detailNotice")}</p>
+      <p className={styles.notice}>{status === "draft" ? t("draftNotice") : t("detailNotice")}</p>
       <nav className={styles.actions} aria-label={t("title")}>
         {canOpenOffers && <Link className={styles.primary} href={`/${locale}/orders/${orderId}/offers`}>{offersLabel}</Link>}
         <Link className={styles.primary} href={`/${locale}/orders/${orderId}/tracking`}>{t("open")}</Link>
-        <ReorderButton orderId={orderId} locale={locale} />
+        {status === "draft" && <SubmitDraftButton orderId={orderId} labels={{ submit: t("submitDraft"), submitting: t("submitting"), failed: t("submitFailed") }} />}
+        <ReorderButton orderId={orderId} locale={locale} labels={{ reorder: t("reorder"), reordering: t("reordering"), failed: t("reorderFailed"), notFound: t("reorderNotFound") }} />
       </nav>
     </section>
   </main>;

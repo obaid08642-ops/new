@@ -241,7 +241,15 @@
     "total": "Kabuuan",
     "notAvailable": "Hindi magagamit",
     "unavailableTitle": "Hindi na-load ang order",
-    "unavailableBody": "Walang kapalit na data na ipinakita. Subukang muli mamaya."
+    "unavailableBody": "Walang kapalit na data na ipinakita. Subukang muli mamaya.",
+    "reorder": "Umorder muli",
+    "reordering": "Inoorder muli…",
+    "reorderFailed": "Hindi maiorder muli. Subukan ulit.",
+    "reorderNotFound": "Hindi nahanap ang order, kaya hindi ito maiorder muli.",
+    "submitDraft": "Ipadala sa mga botika",
+    "submitting": "Ipinapadala…",
+    "submitFailed": "Hindi maipadala ang order. Subukan ulit.",
+    "draftNotice": "Draft pa ang order na ito at hindi pa naipapadala. Suriin ang mga item, saka ipadala sa mga botika."
   },
   "Cart": {
     "eyebrow": "Pribadong cart",

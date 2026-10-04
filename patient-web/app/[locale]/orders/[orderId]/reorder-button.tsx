@@ -26,11 +26,12 @@ function extractDraftId(payload: unknown): string | null {
 // Colocated with the order detail page: calls the governed reorder proxy
 // (/api/orders/:id/reorder -> POST /orders/:id/reorder, never the legacy path),
 // navigates to the new draft on success, and shows a graceful error on 404/4xx.
-export function ReorderButton({ orderId, locale }: { orderId: string; locale: string }) {
+type Labels = { reorder: string; reordering: string; failed: string; notFound: string };
+
+export function ReorderButton({ orderId, locale, labels }: { orderId: string; locale: string; labels: Labels }) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const ar = locale === "ar";
 
   async function onClick() {
     if (saving) return;
@@ -47,7 +48,7 @@ export function ReorderButton({ orderId, locale }: { orderId: string; locale: st
       });
       const data = await res.json().catch(() => null);
       if (res.status === 404) {
-        setError(ar ? "الطلب غير موجود — لا يمكن إعادة الطلب" : "Order not found — cannot reorder");
+        setError(labels.notFound);
         return;
       }
       if (!res.ok) {
@@ -55,17 +56,20 @@ export function ReorderButton({ orderId, locale }: { orderId: string; locale: st
         setError(
           typeof message === "string" && message.trim()
             ? message
-            : ar ? "تعذر إعادة الطلب" : "Could not reorder",
+            : labels.failed,
         );
         return;
       }
       const nextId = extractDraftId(data);
-      // New draft id -> open it directly; the proxy strips the body ({ ok: true })
-      // -> fall back to the orders list, where the new draft is listed.
-      router.push(nextId ? `/${locale}/orders/${encodeURIComponent(nextId)}` : `/${locale}/orders`);
+      // The proxy returns the new draft id: open it, where it can be submitted.
+      if (!nextId) {
+        setError(labels.failed);
+        return;
+      }
+      router.push(`/${locale}/orders/${encodeURIComponent(nextId)}`);
       router.refresh();
     } catch {
-      setError(ar ? "تعذر الاتصال — حاول مجدداً" : "Connection unavailable — try again");
+      setError(labels.failed);
     } finally {
       setSaving(false);
     }
@@ -74,7 +78,7 @@ export function ReorderButton({ orderId, locale }: { orderId: string; locale: st
   return (
     <span style={{ display: "inline-grid", gap: 6 }}>
       <button type="button" onClick={onClick} disabled={saving}>
-        {saving ? (ar ? "جارٍ إعادة الطلب…" : "Reordering…") : (ar ? "إعادة الطلب" : "Reorder")}
+        {saving ? labels.reordering : labels.reorder}
       </button>
       {error ? <span role="alert">{error}</span> : null}
     </span>

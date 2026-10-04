@@ -8,6 +8,7 @@ import { callPatientApi } from "@/lib/api/upstream";
 type Context = { params: Promise<{ orderId: string }> };
 const idSchema = z.string().uuid();
 
+/** 7cf3e9f: submit a pharmacy draft (a reorder opens one) — POST /patient/pharmacy/orders/:id/submit. */
 export async function POST(request: Request, context: Context) {
   const { orderId } = await context.params;
   if (!idSchema.safeParse(orderId).success) return NextResponse.json({ message: "resource_not_found" }, { status: 404 });
@@ -15,14 +16,8 @@ export async function POST(request: Request, context: Context) {
   if (key.length < 16 || key.length > 128) return NextResponse.json({ message: "idempotency_key_required" }, { status: 400 });
   const token = (await cookies()).get(authCookieNames.access)?.value;
   if (!token) return NextResponse.json({ message: "authentication_required" }, { status: 401 });
-  const upstream = await callPatientApi(`/orders/${encodeURIComponent(orderId)}/reorder`, { method: "POST", headers: { "content-type": "application/json", "idempotency-key": key }, body: "{}" }, token);
+  const upstream = await callPatientApi(`/patient/pharmacy/orders/${encodeURIComponent(orderId)}/submit`, { method: "POST", headers: { "content-type": "application/json", "idempotency-key": key }, body: "{}" }, token);
   const data = await upstream.json().catch(() => null);
-  if (!upstream.ok) return boundedUpstreamError(data, "reorder_failed", upstream.status);
-  // 7cf3e9f: hand back the new draft id so the page can open it and submit it.
-  const root = data && typeof data === "object" ? (data as Record<string, unknown>) : {};
-  const inner = root.data && typeof root.data === "object" ? (root.data as Record<string, unknown>) : root;
-  const candidate = typeof inner.id === "string" ? inner.id : typeof inner.order_id === "string" ? inner.order_id : null;
-  const id = candidate && idSchema.safeParse(candidate).success ? candidate : null;
-  if (!id) return NextResponse.json({ message: "reorder_failed" }, { status: 502 });
-  return NextResponse.json({ id }, { status: upstream.status, headers: { "cache-control": "no-store" } });
+  if (!upstream.ok) return boundedUpstreamError(data, "submit_failed", upstream.status);
+  return NextResponse.json(data ?? {}, { status: upstream.status, headers: { "cache-control": "no-store" } });
 }
