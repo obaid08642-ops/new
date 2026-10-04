@@ -540,3 +540,22 @@ $ # restored → 11 passed
   iOS 16+ equivalent), Firefox, and Chromium, plus a Samsung Internet
   user-agent pass on Chromium, gating releases. Full text in
   `docs/MINIMUM_BROWSERS.md`.
+
+---
+
+## Final verification (all six tasks)
+
+```
+$ node node_modules/vitest/vitest.mjs run --silent
+ Test Files  188 passed | 14 skipped (202)
+      Tests  579 passed | 23 skipped (602)
+$ node node_modules/typescript/bin/tsc --noEmit; echo "tsc exit: $?"
+tsc exit: 0
+```
+
+Before → after: files 167 passed/1 failed → 188 passed/0 failed (14 skipped
+both ways — frozen debt, untouched); tests 420 passed/1 failed → 579 passed/
+0 failed (23 skipped both ways). The pre-existing
+`translation-key-parity` failure is fixed (Errors.* filled for ur/hi/bn/fil),
+not skipped or weakened. Working tree clean; no file outside `patient-web/`
+touched; no `git push` performed.
