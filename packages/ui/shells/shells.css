@@ -120,7 +120,8 @@
   padding-block-start: var(--nabd-space-xs);
   padding-block-end: max(var(--nabd-space-sm), env(safe-area-inset-bottom));
   padding-inline: var(--nabd-shell-gutter, var(--nabd-space-sm));
-  background: var(--nabd-color-glass-bgStrong);
+  /* canvas-tinted glass, as the handoff CTA bars (Cart, CheckoutV2, RxUpload, BookingConfirm: canvas at 86%) */
+  background: color-mix(in srgb, var(--nabd-color-bg-canvas) 86%, transparent);
   -webkit-backdrop-filter: blur(var(--nabd-color-glass-blur));
   backdrop-filter: blur(var(--nabd-color-glass-blur));
   border-block-start: 1px solid var(--nabd-color-border-hairline);
@@ -177,6 +178,10 @@
 @media (min-width: 1024px) {
   .nabd-shell {
     --nabd-shell-top-h: calc(76px + env(safe-area-inset-top));
+  }
+  /* HomeWeb: the desktop top bar is inset 64px from the window edges */
+  .nabd-shell__top {
+    padding-inline: max(var(--nabd-space-5xl), var(--nabd-shell-gutter));
   }
   .nabd-shell[data-has-side="true"][data-side-collapsed="true"] .nabd-shell__side {
     inline-size: var(--nabd-shell-side);
