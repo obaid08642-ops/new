@@ -3,7 +3,7 @@ import { LruCacheService } from './lru-cache.service';
 import { SingleFlightService } from './single-flight.service';
 import { CircuitBreakerService } from './circuit-breaker.service';
 import { AdaptiveConcurrencyInterceptor } from './adaptive-concurrency.interceptor';
-import { CacheControlInterceptor } from './cache-control.interceptor';
+import { RouteCachePolicyInterceptor } from './cache/route-cache-policy.interceptor';
 
 @Global()
 @Module({
@@ -12,14 +12,14 @@ import { CacheControlInterceptor } from './cache-control.interceptor';
     SingleFlightService,
     CircuitBreakerService,
     AdaptiveConcurrencyInterceptor,
-    CacheControlInterceptor,
+    RouteCachePolicyInterceptor,
   ],
   exports: [
     LruCacheService,
     SingleFlightService,
     CircuitBreakerService,
     AdaptiveConcurrencyInterceptor,
-    CacheControlInterceptor,
+    RouteCachePolicyInterceptor,
   ],
 })
 export class CommonModule {}

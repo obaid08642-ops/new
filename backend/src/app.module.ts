@@ -110,7 +110,7 @@ import { JwtAuthGuard } from './common/auth.guard';
 import { AuditLogInterceptor } from './common/audit-log.interceptor';
 import { IdempotencyInterceptor } from './common/idempotency.interceptor';
 import { AdaptiveConcurrencyInterceptor } from './common/adaptive-concurrency.interceptor';
-import { CacheControlInterceptor } from './common/cache-control.interceptor';
+import { RouteCachePolicyInterceptor } from './common/cache/route-cache-policy.interceptor';
 
 import { MaternityModule } from './modules/maternity/maternity.module';
 import { NabdExtensionsModule } from './modules/nabd-extensions/nabd-extensions.module';
@@ -280,7 +280,7 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     { provide: APP_INTERCEPTOR, useClass: AuditLogInterceptor },
     { provide: APP_INTERCEPTOR, useClass: IdempotencyInterceptor },
     { provide: APP_INTERCEPTOR, useClass: AdaptiveConcurrencyInterceptor },
-    { provide: APP_INTERCEPTOR, useClass: CacheControlInterceptor },
+    { provide: APP_INTERCEPTOR, useClass: RouteCachePolicyInterceptor }, // 14.7 hardened successor of CacheControlInterceptor
   ],
 })
 export class AppModule implements NestModule {
