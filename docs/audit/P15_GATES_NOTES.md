@@ -198,3 +198,50 @@ account owning the project and a real channel-enabled binary).
 DEFERRED-OUT-OF-SCOPE: `updates.channel` in both apps' `eas.json` +
 corresponding `app.json` runtime config (app agents); the absent-flag
 default / row seeding fix in `backend/` (backend agent).
+
+## 15.6 — Schemathesis in CI
+
+Added: `.github/workflows/schemathesis.yml` — brings up the live-gate stack
+(Mongo rs0, redis service, moto S3 double, built backend via
+`tools/live/start-backend.sh`, admin seed), installs the pinned fuzzer
+itself (`schemathesis==4.*`, `hypothesis==6.*` — nothing assumed on the
+image), then runs the backend-owned harness. Triggers on `backend/**`
+changes, itself, or manual dispatch.
+Contract check done first: this worktree has NO fuzz harness under
+`backend/` (verified: `grep -rln schemathesis backend/` is empty apart from
+this workflow; only `backend/package.json: "openapi:generate"` +
+`scripts/generate-openapi.ts` exist). Per the task, no mismatch is
+invented — the job fails loudly with the contract text when the harness is
+absent.
+Interface contract (DEFERRED-OUT-OF-SCOPE, backend agent owns it):
+- path: `backend/scripts/schemathesis_fuzz.sh` (executable);
+- CLI: `bash backend/scripts/schemathesis_fuzz.sh --base-url
+  http://127.0.0.1:8002 --spec backend/openapi.json [--seed <int>]`;
+- behaviour: exit 0 iff the run finds ZERO 5xx responses (auth is the
+  harness's business — it may reuse `tools/live/seed_admin.js` — but the
+  run must be self-sufficient given a backend started exactly as this
+  workflow starts it, against the freshly built `backend/openapi.json`).
+Checks run here: YAML parse via `python3 -c 'import yaml;
+yaml.safe_load(...)'` (PyYAML) -> `YML_OK schemathesis`. The fuzz run
+itself is not runnable here (no docker -> no backend under test).
+
+## Global statements
+
+- No live journey was executed on this machine. There is no `docker` here,
+  so Mongo/Redis/moto/SMTP/fake-Moyasar cannot run and neither
+  `tools/live/run_gate.sh` nor any `j_*.py` was launched. Every `.py` is
+  `py_compile`-clean, every `.sh` passes `bash -n`, every YAML/JSON file
+  parses, `node --check` passes on the smoke script. Nothing here is
+  "verified"/"green" beyond those static checks — the live gate must run
+  in CI / on a docker host.
+- No-weakening proof: the ONLY edits to pre-existing files on this branch
+  are (a) a failure-mode addition to `tools/live/fake_moyasar.py`
+  (`MODE` dict, `GET/POST /__mode`, one 500 branch guarded by the switch,
+  docstring lines — all default-off), and (b) one-word `JOURNEYS` appends
+  in `tools/live/run_gate.sh` and `tools/live/gate_run.sh` as each new
+  journey landed. No existing assertion, step name or check was altered.
+  Prove it: `git diff --stat <base> HEAD` (base = parent of the first
+  P15 commit) lists only added files plus those three files; `git diff
+  <base> HEAD -- tools/live/fake_moyasar.py tools/live/run_gate.sh
+  tools/live/gate_run.sh` shows additions only.
+- Changed paths are confined to `tools/`, `.github/` and this file.
