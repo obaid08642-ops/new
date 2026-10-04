@@ -182,7 +182,9 @@ export class JwtAuthGuard implements CanActivate {
     // login are exempt so the owner can enroll devices.
     try {
       const path = String((req as any).path || (req as any).originalUrl || (req as any).url || '').split('?')[0];
-      const isAdminRole = payload?.role === 'admin' || payload?.role === 'super_admin'
+      // R11 §5: every platform staff role (support_agent can impersonate) is
+      // gated and device-locked, not only admin / super_admin.
+      const isAdminRole = payload?.role === 'admin' || payload?.role === 'super_admin' || payload?.role === 'support_agent'
         || (Array.isArray(payload?.roles) && payload.roles.some((r: string) => /admin/i.test(r)));
       const isDeviceEndpoint = /\/admin\/devices(\/|$)/.test(path) || /\/auth\/(login|heartbeat)/.test(path);
       if (isAdminRole && !isPublic) {
