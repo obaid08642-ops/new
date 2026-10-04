@@ -11,7 +11,7 @@ import { resolveDirection, shellTokens, type Direction, type ThemeName } from '.
  * glass only on the top bar, sticky CTA and sheets).
  *
  * `background` lets an app draw a real blur (e.g. expo-blur's BlurView) behind
- * the content; without it the translucent glass token is used.
+ * the content; without it the canvas-tinted glass of the handoff CTA bars is used.
  */
 
 export interface StickyFooterProps {
@@ -36,7 +36,7 @@ export function StickyFooter({ children, background, theme = 'light', direction,
           paddingBottom: Math.max(insets.bottom, t.space.sm),
           paddingStart: t.space.sm + (dir === 'rtl' ? insets.right : insets.left),
           paddingEnd: t.space.sm + (dir === 'rtl' ? insets.left : insets.right),
-          backgroundColor: background ? 'transparent' : t.glass,
+          backgroundColor: background ? 'transparent' : t.glassCanvas,
           borderTopWidth: 1,
           borderTopColor: t.hairline,
           zIndex: t.zSticky,

@@ -24,6 +24,12 @@ export const SHELL_FONT = { regular: 'ReadexPro-400', medium: 'ReadexPro-500', b
 /** Minimum touch target: 44 pt iOS / 48 dp Android are both met by 48 where space allows (DEVICE_STANDARD §3.3). */
 export const HIT = 44;
 
+/** A 6-digit hex token colour at `alpha`, as rgba() (what CSS color-mix does on the web). */
+export const withAlpha = (hex: string, alpha: number): string => {
+  const n = parseInt(hex.replace('#', ''), 16);
+  return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${alpha})`;
+};
+
 export function resolveDirection(direction?: Direction): Direction {
   return direction ?? (I18nManager.isRTL ? 'rtl' : 'ltr');
 }
@@ -38,6 +44,8 @@ export function shellTokens(theme: ThemeName = 'light') {
     hairline: t.color.border.subtle,
     glass: t.color.glass.bg,
     glassStrong: t.color.glass.bgStrong,
+    /** canvas-tinted glass of the handoff CTA bars (Cart, CheckoutV2, RxUpload, BookingConfirm: canvas at 86%) */
+    glassCanvas: withAlpha(t.color.bg.canvas, 0.86),
     selectedBg: t.color.action.selected.bg,
     selectedFg: t.color.action.selected.fg,
     fabFrom: t.color.action.fab.from,

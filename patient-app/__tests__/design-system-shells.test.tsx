@@ -66,7 +66,9 @@ describe('native shells (DEVICE_STANDARD §1)', () => {
   it('StickyFooter is content + max(bottom inset, 16)', () => {
     expect(flat(byTestId(mount(<StickyFooter testID="f"><Text>cta</Text></StickyFooter>), 'f').props.style).paddingBottom).toBe(34);
     expect(flat(byTestId(mount(<StickyFooter testID="f"><Text>cta</Text></StickyFooter>, NO_INSETS), 'f').props.style).paddingBottom).toBe(16);
-    expect(flat(byTestId(mount(<StickyFooter testID="f"><Text>cta</Text></StickyFooter>), 'f').props.style).backgroundColor).toBe(light.glass);
+    expect(flat(byTestId(mount(<StickyFooter testID="f"><Text>cta</Text></StickyFooter>), 'f').props.style).backgroundColor).toBe(light.glassCanvas);
+    // the handoff CTA bars (Cart, CheckoutV2, RxUpload, BookingConfirm): the canvas colour at 86%
+    expect(light.glassCanvas).toBe('rgba(245,245,247,0.86)');
   });
 
   it('AppHeader: 44pt back button with a name, chevron mirrored for RTL, glass only when scrolled', () => {

@@ -95,7 +95,8 @@ export function TabBar({ items, value, onChange, label = 'Main navigation', back
               accessibilityLabel={item.label}
               accessibilityState={{ selected }}
               onPress={() => onChange(item.key)}
-              style={({ pressed }) => ({ width: ITEM, height: ITEM, alignItems: 'center', transform: [{ scale: pressed ? t.pressScale : 1 }] })}
+              // centred like the board's 52 slot, so the -34 lift lands where HomeApp draws it
+              style={({ pressed }) => ({ width: ITEM, height: ITEM, alignItems: 'center', justifyContent: 'center', transform: [{ scale: pressed ? t.pressScale : 1 }] })}
             >
               <View
                 style={{
