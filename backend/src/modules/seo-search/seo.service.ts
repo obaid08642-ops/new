@@ -9,6 +9,7 @@ import { LabServiceRepository } from "./seo-repositories/labservice.repository";
 import { HomeCareServiceRepository } from "./seo-repositories/homecareservice.repository";
 import { FacilityRepository } from "./seo-repositories/facility.repository";
 import { ProviderProfileRepository } from "./seo-repositories/providerprofile.repository";
+import { decideInternalLink, preferredSlug, isSupportedInternalLinkType } from './internal-link-edge.util';
 
 export type EntityType = 'medicine' | 'doctor' | 'lab-service' | 'home-care-service' | 'facility' | 'article';
 
@@ -57,6 +58,80 @@ export class SeoService {
       case 'facility': return this.facilityM;
       case 'article': return this.articleM;
       default: return null;
+    }
+  }
+
+  /**
+   * 13.R8 — real-edge gate for materialized projection links.
+   * A projection emits only when its source entity still exists in the
+   * store under a public/indexable edge. Renames emit only via
+   * slug_history (old → canonical new); otherwise the link is dropped
+   * instead of guessing a URL. Link-generation only; entity data untouched.
+   */
+  private projectionSourceCollection(type: string): string | null {
+    switch (type) {
+      case 'medicine': return 'medicines';
+      case 'doctor':
+      case 'pharmacy':
+      case 'nursing': return 'provider_profiles';
+      case 'hospital':
+      case 'clinic':
+      case 'lab':
+      case 'radiology':
+      case 'facility': return 'facilities';
+      case 'service': return 'nursing_services';
+      case 'lab_test':
+      case 'lab-service': return 'lab_services';
+      case 'radiology_service': return 'radiology_services';
+      case 'home-care-service': return 'nursing_services';
+      case 'article': return 'articles';
+      default: return null;
+    }
+  }
+
+  private async hasRealProjectionEdge(p: any): Promise<{ ok: boolean; slugToUse: string | null }> {
+    const type = String(p?.entity_type || '');
+    const id = String(p?.entity_id || '');
+    if (!isSupportedInternalLinkType(type) || !id) return { ok: false, slugToUse: null };
+    if (p?.indexable !== true || p?.sitemap?.included !== true) return { ok: false, slugToUse: null };
+    const slug = typeof p?.slug === 'string' ? p.slug.trim() : '';
+    if (!slug) return { ok: false, slugToUse: null };
+    try {
+      const col = this.projectionSourceCollection(type);
+      if (col) {
+        const src: any = await this.conn.collection(col).findOne(
+          { $or: [{ id }, { slug }] } as any,
+          { projection: { _id: 0, id: 1, slug: 1, is_deleted: 1 } } as any,
+        );
+        if (src && (src as any).is_deleted !== true) {
+          // Renamed slug with history → canonical wins; stale slug never emitted.
+          try {
+            const hist: any = await this.conn.collection('slug_history').findOne({ entity_type: type, old_slug: slug });
+            if (hist?.new_slug && hist.new_slug !== slug) return { ok: true, slugToUse: hist.new_slug };
+          } catch { /* history best-effort */ }
+          return { ok: true, slugToUse: slug };
+        }
+        // Source gone: emit only when history points at a live canonical slug.
+        try {
+          const hist: any = await this.conn.collection('slug_history').findOne({ entity_type: type, old_slug: slug });
+          if (hist?.new_slug) {
+            const moved: any = await this.conn.collection(col).findOne(
+              { $or: [{ id: hist.entity_id || id }, { slug: hist.new_slug }] } as any,
+              { projection: { _id: 0, id: 1, slug: 1, is_deleted: 1 } } as any,
+            );
+            if (moved && (moved as any).is_deleted !== true) return { ok: true, slugToUse: hist.new_slug };
+          }
+        } catch { /* history best-effort */ }
+        return { ok: false, slugToUse: null };
+      }
+      // Fallback to the pure sync decision (mockable in specs).
+      const d = decideInternalLink(
+        { entity_type: type, entity_id: id, slug, indexable: p?.indexable, sitemapIncluded: p?.sitemap?.included },
+        { sourceExists: () => false },
+      );
+      return { ok: false, slugToUse: d.slugToUse };
+    } catch {
+      return { ok: false, slugToUse: null };
     }
   }
 
@@ -277,12 +352,13 @@ export class SeoService {
     ) => {
       try {
         const docs = await model
-          .find(query, { id: 1, name_ar: 1, name_en: 1, full_name: 1, title_ar: 1, title_en: 1, updatedAt: 1 })
+          .find(query, { id: 1, slug: 1, name_ar: 1, name_en: 1, full_name: 1, title_ar: 1, title_en: 1, updatedAt: 1 })
           .lean()
           .limit(5000); // safety cap per sitemap
         for (const d of docs as any[]) {
+          // 13.R8: stored canonical slug wins; rebuild only when nothing stored (no guessed URLs).
           const name = d.name_ar || d.name_en || d.full_name || d.title_ar || d.title_en || 'item';
-          const slug = buildSlug(name, d.id);
+          const slug = preferredSlug(d.slug, name, d.id);
           const lastmod = d.updatedAt ? new Date(d.updatedAt).toISOString() : now;
           addUrl(`${PUBLIC_BASE}/s/${type}/${slug}`, lastmod, changefreq, priority);
         }
@@ -300,6 +376,8 @@ export class SeoService {
     if (isTypeIndexable('article', controls)) await pushEntities('article', this.articleM, this.publicQuery('article', true), 0.6, 'weekly');
 
     // Dynamically include all materialized projections from the AutoEntitySeoPipeline
+    // 13.R8: every projection link is gated on a real edge — source must
+    // still exist; renames emit only via slug_history; dead links dropped.
     try {
       const projections = await this.conn.collection('public_catalog_projections')
         .find({ indexable: true, 'sitemap.included': true })
@@ -307,8 +385,17 @@ export class SeoService {
         .toArray();
 
       for (const p of projections) {
-        const path = p.canonical_path ? (p.canonical_path.startsWith('/') ? p.canonical_path : `/${p.canonical_path}`) : `/s/${p.entity_type}/${p.slug}`;
-        const loc = p.canonical_url || `${PUBLIC_BASE}/ar${path}`;
+        const edge = await this.hasRealProjectionEdge(p);
+        if (!edge.ok || !edge.slugToUse) continue;
+        const slugToUse = edge.slugToUse;
+        const path = p.canonical_path
+          ? (p.canonical_path.startsWith('/') ? p.canonical_path : `/${p.canonical_path}`)
+          : `/s/${p.entity_type}/${slugToUse}`;
+        // Prefer the stored canonical URL only when it carries the gated slug;
+        // otherwise rebuild from the gated slug (never emit a stale/guessed URL).
+        const loc = p.canonical_url && p.canonical_url.includes(slugToUse)
+          ? p.canonical_url
+          : `${PUBLIC_BASE}/ar${path.startsWith('/') ? path : `/${path}`}`;
         const lastmod = p.updated_at ? new Date(p.updated_at).toISOString() : now;
         addUrl(loc, lastmod, 'weekly', 0.8);
       }
@@ -363,9 +450,10 @@ export class SeoService {
     lines.push('');
 
     // ── Doctors (live top-rated sample) ──────────────────────────
+    // 13.R8: live docs only (public/indexable edge); stored slug wins.
     try {
       const doctors = await this.providerM
-        .find(this.publicQuery('doctor', true), { id: 1, name_ar: 1, name_en: 1, full_name: 1, specialty: 1, city: 1, rating_avg: 1 })
+        .find(this.publicQuery('doctor', true), { id: 1, slug: 1, name_ar: 1, name_en: 1, full_name: 1, specialty: 1, city: 1, rating_avg: 1 })
         .sort({ rating_avg: -1 })
         .limit(30)
         .lean();
@@ -374,7 +462,7 @@ export class SeoService {
         lines.push('');
         for (const d of doctors as any[]) {
           const name = d.name_ar || d.name_en || d.full_name || 'Doctor';
-          const slug = buildSlug(name, d.id);
+          const slug = preferredSlug(d.slug, name, d.id);
           const meta = [d.specialty, d.city].filter(Boolean).join(' · ');
           lines.push(`- [${name}](${PUBLIC_BASE}/s/doctor/${slug})${meta ? `: ${meta}` : ''}`);
         }
@@ -383,6 +471,7 @@ export class SeoService {
     } catch { /* best-effort */ }
 
     // ── Pharmacies ───────────────────────────────────────────────
+    // 13.R8: live docs only; stored slug wins (no guessed URLs).
     try {
       const pharmacies = await this.conn.collection('provider_profiles')
         .find({ ...this.publicQuery('doctor', true), type: 'pharmacy' }, { projection: { id: 1, name_ar: 1, name_en: 1, city: 1, slug: 1 } })
@@ -393,7 +482,7 @@ export class SeoService {
         lines.push('');
         for (const p of pharmacies) {
           const name = p.name_ar || p.name_en || 'Pharmacy';
-          const slug = p.slug || buildSlug(name, p.id);
+          const slug = preferredSlug(p.slug, name, p.id);
           lines.push(`- [${name}](${PUBLIC_BASE}/ar/pharmacy/${slug})${p.city ? `: ${p.city}` : ''}`);
         }
         lines.push('');
@@ -401,9 +490,10 @@ export class SeoService {
     } catch { /* best-effort */ }
 
     // ── Hospitals & Clinics ──────────────────────────────────────
+    // 13.R8: live docs only; stored slug wins.
     try {
       const facilities = await this.facilityM
-        .find(this.publicQuery('facility', true), { id: 1, name_ar: 1, name_en: 1, city: 1, type: 1 })
+        .find(this.publicQuery('facility', true), { id: 1, slug: 1, name_ar: 1, name_en: 1, city: 1, type: 1 })
         .limit(20)
         .lean();
       if (facilities.length) {
@@ -411,7 +501,7 @@ export class SeoService {
         lines.push('');
         for (const f of facilities as any[]) {
           const name = f.name_ar || f.name_en || 'Facility';
-          const slug = buildSlug(name, f.id);
+          const slug = preferredSlug(f.slug, name, f.id);
           lines.push(`- [${name}](${PUBLIC_BASE}/s/facility/${slug})${f.city ? `: ${f.city}` : ''}`);
         }
         lines.push('');
@@ -419,9 +509,10 @@ export class SeoService {
     } catch { /* best-effort */ }
 
     // ── Medicines ────────────────────────────────────────────────
+    // 13.R8: live docs only; stored slug wins.
     try {
       const meds = await this.medM
-        .find(this.publicQuery('medicine', true), { id: 1, name_ar: 1, name_en: 1, category: 1 })
+        .find(this.publicQuery('medicine', true), { id: 1, slug: 1, name_ar: 1, name_en: 1, category: 1 })
         .limit(30)
         .lean();
       if (meds.length) {
@@ -429,7 +520,7 @@ export class SeoService {
         lines.push('');
         for (const m of meds as any[]) {
           const name = m.name_ar || m.name_en || 'Medicine';
-          const slug = buildSlug(name, m.id);
+          const slug = preferredSlug(m.slug, name, m.id);
           lines.push(`- [${name}](${PUBLIC_BASE}/s/medicine/${slug})${m.category ? `: ${m.category}` : ''}`);
         }
         lines.push('');
@@ -437,9 +528,10 @@ export class SeoService {
     } catch { /* best-effort */ }
 
     // ── Services: labs, radiology, home care ─────────────────────
+    // 13.R8: live docs only; stored slug wins.
     try {
       const labSvcs = await this.labSvcM
-        .find(this.publicQuery('lab-service', true), { id: 1, name_ar: 1, name_en: 1 })
+        .find(this.publicQuery('lab-service', true), { id: 1, slug: 1, name_ar: 1, name_en: 1 })
         .limit(15)
         .lean();
       if (labSvcs.length) {
@@ -447,7 +539,7 @@ export class SeoService {
         lines.push('');
         for (const s of labSvcs as any[]) {
           const name = s.name_ar || s.name_en || 'Lab service';
-          lines.push(`- [${name}](${PUBLIC_BASE}/s/lab-service/${buildSlug(name, s.id)})`);
+          lines.push(`- [${name}](${PUBLIC_BASE}/s/lab-service/${preferredSlug(s.slug, name, s.id)})`);
         }
         lines.push('');
       }
@@ -455,7 +547,7 @@ export class SeoService {
 
     try {
       const hcSvcs = await this.hcSvcM
-        .find(this.publicQuery('home-care-service', true), { id: 1, name_ar: 1, name_en: 1 })
+        .find(this.publicQuery('home-care-service', true), { id: 1, slug: 1, name_ar: 1, name_en: 1 })
         .limit(15)
         .lean();
       if (hcSvcs.length) {
@@ -463,16 +555,17 @@ export class SeoService {
         lines.push('');
         for (const s of hcSvcs as any[]) {
           const name = s.name_ar || s.name_en || 'Home-care service';
-          lines.push(`- [${name}](${PUBLIC_BASE}/s/home-care-service/${buildSlug(name, s.id)})`);
+          lines.push(`- [${name}](${PUBLIC_BASE}/s/home-care-service/${preferredSlug(s.slug, name, s.id)})`);
         }
         lines.push('');
       }
     } catch { /* best-effort */ }
 
     // ── Articles (health content hub) ────────────────────────────
+    // 13.R8: live docs only; stored slug wins.
     try {
       const articles = await this.articleM
-        .find(this.publicQuery('article', true), { id: 1, title_ar: 1, title_en: 1, category: 1 })
+        .find(this.publicQuery('article', true), { id: 1, slug: 1, title_ar: 1, title_en: 1, category: 1 })
         .limit(20)
         .lean();
       if (articles.length) {
@@ -480,7 +573,7 @@ export class SeoService {
         lines.push('');
         for (const a of articles as any[]) {
           const title = a.title_ar || a.title_en || 'Article';
-          lines.push(`- [${title}](${PUBLIC_BASE}/s/article/${buildSlug(title, a.id)})${a.category ? `: ${a.category}` : ''}`);
+          lines.push(`- [${title}](${PUBLIC_BASE}/s/article/${preferredSlug(a.slug, title, a.id)})${a.category ? `: ${a.category}` : ''}`);
         }
         lines.push('');
       }
