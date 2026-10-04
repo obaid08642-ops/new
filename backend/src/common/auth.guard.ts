@@ -279,7 +279,8 @@ export class JwtAuthGuard implements CanActivate {
       // gated and device-locked, not only admin / super_admin.
       const isAdminRole = isPlatformStaffRole(payload?.role)
         || (Array.isArray(payload?.roles) && payload.roles.some((r: string) => /admin/i.test(r)));
-      const isDeviceEndpoint = /\/admin\/devices(\/|$)/.test(path) || /\/auth\/(login|heartbeat)/.test(path);
+      // X4: anchored, so a path that merely contains these segments is not exempt.
+      const isDeviceEndpoint = /^\/api\/v1\/admin\/devices(\/|$)/.test(path) || /^\/api\/v1\/auth\/(login|heartbeat)(\/|$)/.test(path);
       if (isAdminRole && !isPublic) {
         // C3: an admin token is only honoured when it came through the admin gate (the BFF),
         // on EVERY path, not just /api/v1/admin/* (96 admin routes live elsewhere).
@@ -305,7 +306,8 @@ export class JwtAuthGuard implements CanActivate {
           // enrollment and device endpoints. Every other admin route gets 403.
           // Only enforced when ADMIN_PASSKEY_ENFORCED=true (production); the
           // live gate and development use password+OTP without a passkey.
-          const isPasskeyEndpoint = /\/auth\/passkey\//.test(path) || /\/admin\/devices/.test(path);
+          // X4: only the real enrollment endpoints (anchored), never any path that merely contains them.
+          const isPasskeyEndpoint = /^\/api\/v1\/auth\/passkey\//.test(path) || /^\/api\/v1\/admin\/devices(\/|$)/.test(path);
           if (!isPasskeyEndpoint && process.env.ADMIN_PASSKEY_ENFORCED === 'true') {
             const hasPasskey = await this.connection.collection('passkey_credentials').findOne(
               { user_id: uid },

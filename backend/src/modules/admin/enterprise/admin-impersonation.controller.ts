@@ -1,3 +1,4 @@
+import { StepUp } from '../../../common/step-up.guard';
 import { BadRequestException, Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import { InjectConnection } from '@nestjs/mongoose';
@@ -21,6 +22,7 @@ export class AdminImpersonationController {
   ) {}
 
   @Post('start')
+  @StepUp()
   @RequirePermissions(Permission.USER_IMPERSONATE)
   async start(@Body() body: StartDto, @CurrentUser() me: any, @Req() req: any) {
     const reason = validateReason(body?.reason);

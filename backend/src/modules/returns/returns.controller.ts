@@ -1,3 +1,6 @@
+import { Permission } from '../../common/permissions';
+import { RequirePermissions } from '../../common/permissions';
+import { StepUp } from '../../common/step-up.guard';
 import { Controller, Get, Post, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { ReturnsService } from './returns.service';
 import { JwtAuthGuard, CurrentUser, Roles, SelfService } from '../../common/auth.guard';
@@ -44,6 +47,7 @@ export class ReturnsController {
 
   @Post(':id/decide')
   @Roles(UserRole.ADMIN)
+  @StepUp() @RequirePermissions(Permission.ORDER_REFUND)
   async decide(
     @Param('id') id: string,
     @Body() body: DecideDto,
@@ -65,6 +69,7 @@ export class AdminReturnsController {
   }
 
   @Post(':id/decide')
+  @StepUp() @RequirePermissions(Permission.ORDER_REFUND)
   decide(@Param('id') id: string, @Body() body: DecideDto, @CurrentUser() adminUser: any) {
     return this.returnsService.adminDecide(id, body.decision, body.note || '', adminUser);
   }

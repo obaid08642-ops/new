@@ -1,3 +1,6 @@
+import { Permission } from '../../common/permissions';
+import { RequirePermissions } from '../../common/permissions';
+import { StepUp } from '../../common/step-up.guard';
 import { Module, Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards, Injectable, BadRequestException, NotFoundException, ServiceUnavailableException, Logger, Req } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -628,6 +631,7 @@ export class InsuranceController {
   @Roles(UserRole.ADMIN)
   @Post('companies')
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
+  @StepUp() @RequirePermissions(Permission.CATALOG_CREATE)
   createCompany(@Body() b: CreateCompanyDto) {
     return this.svc.createCompany(b);
   }
@@ -636,6 +640,7 @@ export class InsuranceController {
   @Roles(UserRole.ADMIN)
   @Patch('companies/:id')
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
+  @StepUp() @RequirePermissions(Permission.CATALOG_UPDATE)
   updateCompany(@Param('id') id: string, @Body() b: UpdateCompanyDto) {
     const allowed: any = {};
     for (const k of [
@@ -661,6 +666,7 @@ export class InsuranceController {
   /** R12: admin deactivate (soft-delete) a company — hidden from patients, kept for history. */
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
   @Delete('companies/:id')
+  @StepUp() @RequirePermissions(Permission.CATALOG_DELETE_RESTORE)
   deleteCompany(@Param('id') id: string) {
     return this.svc.setCompanyActive(id, false);
   }
@@ -668,6 +674,7 @@ export class InsuranceController {
   /** R12: admin reactivate a disabled company. */
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
   @Post('companies/:id/reactivate')
+  @StepUp() @RequirePermissions(Permission.CATALOG_DELETE_RESTORE)
   reactivateCompany(@Param('id') id: string) {
     return this.svc.setCompanyActive(id, true);
   }
