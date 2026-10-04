@@ -7,7 +7,7 @@
 >
 > Sources: `DESIGN_HANDOFF_FINAL.md`, `SPEC_PRODUCT_DOCTOR_DETAIL.md`, `DEVICE_STANDARD.md`, `canvas/`. How the folder works: `README.md`.
 
-_Last updated: 2026-10-04 (tokens PR #259 open for review; next step: Readex Pro on the web)._
+_Last updated: 2026-10-04 (tokens #259 and web font #260 in review; next step: native shells on `design/shells-native`)._
 
 ## Snapshot
 
@@ -16,7 +16,8 @@ _Last updated: 2026-10-04 (tokens PR #259 open for review; next step: Readex Pro
 | Workflow, inventory, wiring report | **Done** ([#256](https://github.com/obaid08642-ops/new/pull/256)) | `PROGRESS.md`, `SCREEN_INVENTORY.md`, `WIRING_REPORT.md`, `screen-status.json`, `tools/design/screen-inventory.mjs` |
 | Design sources in the repo | **Done** ([#256](https://github.com/obaid08642-ops/new/pull/256)) | Handoff, spec, device standard and 40 boards in `canvas/` |
 | Foundation: tokens | **In review** ([#259](https://github.com/obaid08642-ops/new/pull/259)) | Service tones and service map; 97 contrast checks pass |
-| Foundation: font, shells, shared components, lint gates | Not started | See `WIRING_REPORT.md` §1 for the measured gaps |
+| Foundation: Readex Pro on the web | **In review** ([#260](https://github.com/obaid08642-ops/new/pull/260)) | Self-hosted with `next/font/local`; on main the web had no font at all (CSP blocked Google) |
+| Foundation: shells, shared components, lint gates | Not started | See `WIRING_REPORT.md` §1 for the measured gaps |
 | Screen batches 0–13 | Not started | 410 screens to design (104 more routes only redirect) |
 
 ### Screens per batch (from `SCREEN_INVENTORY.md`; redirect-only routes excluded)
@@ -57,6 +58,12 @@ _Last updated: 2026-10-04 (tokens PR #259 open for review; next step: Readex Pro
   - Before/after swatch screenshots are in `docs/design/screenshots/tokens/` on that branch.
   - Also fixes the check that was red on main: the `OtpModal.test.tsx` `#000000` stub now uses `#0B1B2B` (separate commit).
   - Not covered by screenshots: screen-level shots, because this environment has no installed apps and no backend.
+- **Readex Pro on the web, PR [#260](https://github.com/obaid08642-ops/new/pull/260)** (branch `design/font-web`), waiting for review.
+  - What was wrong on main: Tajawal was loaded but unused, and the Google Fonts `@import` was blocked by the CSP, so the site rendered in a system font.
+  - `app/fonts.ts` loads Readex Pro and the 4 Noto faces with `next/font/local`, using variable woff2 files with their OFL licences. Each Noto face is limited to its script with `unicode-range`.
+  - `globals.css` applies the per-locale order from `tokens.json`. Urdu headings and paragraphs get a taller line height for Nastaliq.
+  - The web copy of `fonts.css` drops the Google import.
+  - Screenshots: `docs/design/screenshots/font-web/` on that branch.
 
 ## Next (in this order)
 
@@ -65,7 +72,7 @@ The foundation comes before any screen (DEVICE_STANDARD §4, handoff §3). Each 
 1. ~~**Tokens**~~: PR #259 is in review.
    - Canvas, card, text, secondary text, action and coral already match handoff §1.
    - The primary-button gradient (`#E8384A → #D42A38`) and the segmented track (`#EAEAEF`) are added with their components (step 5), where the dark boards define them.
-2. **Font on patient-web:** replace Tajawal (`app/[locale]/layout.tsx`, `globals.css`) with Readex Pro, self-hosted through `next/font/local`, with Noto fallbacks for ur/hi/bn. patient-app already loads Readex Pro.
+2. ~~**Font on patient-web**~~: PR #260 is in review. patient-app already loads Readex Pro from `assets/fonts`.
 3. **Native shells** (`packages/ui-native`): `Screen`, `AppHeader`, `StickyFooter`, `TabBar`, built on `react-native-safe-area-context`, as in DEVICE_STANDARD §1.
 4. **Web shells** (`packages/ui`): `AppShell` (using `100dvh`) and `StickyFooter`, as in DEVICE_STANDARD §1.
 5. **Shared components** (handoff §3), in both packages. Still missing: FIcon, ListRow, SectionHeader, Segmented, StatusChip, Toggle, Radio, PrimaryButton, OutlineButton, SearchField, StickyFooter, TabBar, DoctorCard, ProductCard, OfferCard, Timeline, ProgressRing, OfflineState.
@@ -89,6 +96,11 @@ The foundation comes before any screen (DEVICE_STANDARD §4, handoff §3). Each 
 - **Doctor fields:** the reviewer session will add `scfhs_license_no`, `years_experience` and `qualifications[]` to the backend. The doctor enters them at registration and the admin approves them. Until they exist and are filled, those rows stay hidden, with no default or invented value.
 - **Screens without a board** (chat, call, emergency, map): keep their current layout. Only apply the tokens, the font and the shared components until they get a design.
 
+## Found while working (fix in the batch named)
+
+- **Batch 0, web `/login` in dark mode:** the card stays light while its text turns light, and the "continue as guest" button label is invisible. It is the same on main (see `docs/design/screenshots/font-web/before-ar-390-dark.png` on #260).
+- **Dev only:** `next dev` rejects the inline theme script (`app/theme.ts`) under the CSP nonce, so the page ignores the stored or system theme. Screenshot scripts set `data-theme` themselves. Check whether production has the same problem when doing the web shell (step 4).
+
 ## Blockers
 
 - **Fixed by the reviewer in PR #257:** pharmacy submit (web `/cart/checkout`) and lab opt-in-cash (web `/diagnostics/insurance-approval`). Pull `main` after #257 merges and re-run `node tools/design/screen-inventory.mjs`.
@@ -103,5 +115,6 @@ The foundation comes before any screen (DEVICE_STANDARD §4, handoff §3). Each 
 | Date | Branch | What happened | Tip |
 |---|---|---|---|
 | 2026-10-04 | `claude/progress-md-workflow-vqhj8x` | Set up the workflow, imported the design sources, and generated the inventory and the wiring report. | PR [#256](https://github.com/obaid08642-ops/new/pull/256) |
+| 2026-10-04 | `design/font-web` | Self-hosted Readex Pro and Noto on patient-web; found that the web had no font loading at all on main. | PR [#260](https://github.com/obaid08642-ops/new/pull/260), tip `f0a82b8` |
 | 2026-10-04 | `design/tokens` | Tokens step: service tones and service map, contrast pairs, regenerated outputs, before/after swatches. | PR [#259](https://github.com/obaid08642-ops/new/pull/259), tip `1a5a783` |
 | 2026-10-04 | `claude/progress-md-workflow-vqhj8x` | Recorded the owner decisions (branches, one call product, doctor fields, screens without a board, endpoints to hide). Imported the updated `DoctorFull` board. | PR [#256](https://github.com/obaid08642-ops/new/pull/256) |
