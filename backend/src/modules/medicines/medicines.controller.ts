@@ -282,7 +282,7 @@ export class MedicinesController {
   /** P6.0: bulk medical-review decision (max 200 ids). */
   @Post('admin/catalog/bulk-approve')
   @Roles(UserRole.ADMIN)
-  @RequirePermissions(Permission.CATALOG_UPDATE)
+  @RequirePermissions(Permission.CATALOG_APPROVE) // F8: bulk publishing needs the approve permission too
   async adminBulkApprove(@Body() body: AdminBulkApproveCatalogDto, @CurrentUser('id') by: string) {
     const list = (Array.isArray(body?.ids) ? body.ids : []).filter((x) => typeof x === 'string' && x).slice(0, 200);
     if (!list.length) throw new BadRequestException('ids_required');
