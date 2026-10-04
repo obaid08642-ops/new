@@ -60,7 +60,7 @@ Readex Pro for Arabic and Latin; Noto fallbacks per locale. Use the type-scale t
 - Every screen has loading (skeleton), empty (illustration plus one action), error (retry) and success states.
 
 ## 7. Motion
-Staggered entrance, 40–60 ms apart, 180–240 ms ease-out, translateY 8 px with a fade; total ≤ 500 ms. Press feedback in 120 ms. The logo dot pulses at 60 bpm as the loader. The success celebration lasts ≤ 1.5 s. Animate transform and opacity only. Respect reduce-motion.
+Staggered entrance, 40–60 ms apart, 180–240 ms ease-out, translateY 8 px with a fade; total ≤ 500 ms. Press feedback in 120 ms. The logo dot pulses at 60 bpm as the loader. The success celebration lasts ≤ 1.5 s. Animate transform and opacity only. Respect reduce-motion. Press easing cubic-bezier(0.34,1.56,0.64,1) is approved (subtle overshoot on the 0.97 press).
 
 ## 8. Layout and Responsiveness
 Mobile-first, with breakpoints at 320/375/414/768/1024/1280/1440/1920/2560. No horizontal scroll. Safe areas, notch and Dynamic Island are handled. Tablets get two columns. Desktop gets a side nav and a max content width. Full RTL mirroring; icons with direction (back, next) mirror in RTL.
