@@ -2,8 +2,7 @@ import { Body, Controller, Post, UseGuards, BadRequestException, ForbiddenExcept
 import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { StepUpService } from '../../common/step-up.guard';
-import { JwtAuthGuard, Public, Roles, CurrentUser } from '../../common/auth.guard';
-import { UserRole } from '../../common/enums';
+import { JwtAuthGuard, CurrentUser, isPlatformStaffRole } from '../../common/auth.guard';
 import { IsObject, IsOptional, IsString, MaxLength } from 'class-validator';
 
 /** F1/R25: real DTO for the step-up issue body. */
@@ -26,21 +25,22 @@ export class StepUpIssueDto {
 export class StepUpController {
   constructor(private auth: AuthService, private stepUp: StepUpService) {}
 
-  @Public()
+  /**
+   * R23: the step-up is for the signed-in staff member (the session), never
+   * for whatever email the body names. `identifier` is accepted and ignored
+   * so older dashboard builds keep working.
+   */
+  @UseGuards(JwtAuthGuard)
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Post('issue')
-  async issue(@Body() body: StepUpIssueDto) {
-    const identifier = String(body?.identifier || '').trim().toLowerCase();
+  async issue(@CurrentUser() user: any, @Body() body: StepUpIssueDto) {
+    const userId = String(user?.id || user?.sub || '');
+    if (!userId || !isPlatformStaffRole(user?.role)) throw new ForbiddenException('staff_only');
     const action = String(body?.action || '').trim();
-    if (!identifier || !action) throw new BadRequestException('identifier_and_action_required');
+    if (!action) throw new BadRequestException('action_required');
     if (!body?.response) throw new BadRequestException('response_required');
-
-    const u: any = await (this.auth as any).userModel.findOne({ email: identifier });
-    if (!u || (u.role !== 'admin' && u.role !== 'super_admin')) {
-      throw new ForbiddenException('admin_only');
-    }
     // The assertion must be a real, freshly-signed WebAuthn response.
-    const token = await this.stepUp.issueFromAssertion(u.id, action, body.response);
+    const token = await this.stepUp.issueFromAssertion(userId, action, body.response);
     return { ok: true, token, action, expires_in: 120 };
   }
 
@@ -52,12 +52,12 @@ export class StepUpController {
    * non-admins, so this route is guarded rather than public.
    */
   @UseGuards(JwtAuthGuard)
-  @Roles(UserRole.ADMIN)
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Post('options')
   async options(@CurrentUser() user: any) {
     const userId = String(user?.id || user?.sub || '');
-    if (!userId) throw new ForbiddenException('authentication_required');
+    // Every staff role that can reach a @StepUp route (finance approves payouts).
+    if (!userId || !isPlatformStaffRole(user?.role)) throw new ForbiddenException('staff_only');
     const creds = await this.stepUp.credentialIds(userId);
     if (!creds.length) throw new ForbiddenException('no_passkey');
     const challenge = await this.stepUp.storeChallenge(userId);

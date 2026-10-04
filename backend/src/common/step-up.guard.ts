@@ -43,8 +43,9 @@ export class StepUpService {
     return this.redis;
   }
 
+  /** R23: the challenge is consumed on read, so one assertion mints at most one token. */
   private async takeChallenge(key: string): Promise<string | null> {
-    return (await this.stepUpStore()).get(key);
+    return (await this.stepUpStore()).take(key);
   }
 
   /**

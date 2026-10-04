@@ -147,8 +147,8 @@ export class PasskeyService {
         requireUserVerification: true,
       });
     } catch (e: any) {
-      // TEMP-DIAG: surface the real simplewebauthn failure reason in container logs
-      console.error('PASSKEY_ENROLL_VERIFY_FAIL', e?.message, JSON.stringify({ rpID: this.rpID, origin: this.origin }));
+      // The verifier's reason (wrong origin / RP ID is the usual cause) for the operator.
+      this.logger.warn(`passkey enrollment verification failed: ${e?.message} (rpID=${this.rpID}, origin=${this.origin})`);
       throw new UnauthorizedException('passkey_verification_failed');
     }
     if (!verification.verified || !verification.registrationInfo) {

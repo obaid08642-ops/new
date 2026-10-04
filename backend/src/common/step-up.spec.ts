@@ -84,6 +84,8 @@ describe('R23: step-up options ceremony', () => {
   const store = new Map<string, string>();
   const redis: any = {
     get: jest.fn(async (k: string) => store.get(k) ?? null),
+    // R23: the challenge is consumed on read.
+    take: jest.fn(async (k: string) => { const v = store.get(k) ?? null; store.delete(k); return v; }),
     set: jest.fn(async (k: string, v: string) => { store.set(k, v); }),
   };
   const passkeyModel: any = {
@@ -107,7 +109,7 @@ describe('R23: step-up options ceremony', () => {
   it('options returns WebAuthn options for an admin with a passkey', async () => {
     const { StepUpController } = require('../modules/auth/step-up.controller');
     const controller = new StepUpController({} as any, svc());
-    const res: any = await controller.options({ id: 'u1' });
+    const res: any = await controller.options({ id: 'u1', role: 'admin' });
     expect(res.options.challenge).toBeTruthy();
     expect(res.options.allowCredentials).toEqual([{ id: 'cred-1', type: 'public-key', transports: ['usb'] }]);
     expect(res.options.userVerification).toBe('preferred');
@@ -118,6 +120,6 @@ describe('R23: step-up options ceremony', () => {
     const emptyModel: any = { find: jest.fn(() => ({ lean: async () => [] })) };
     const service = new StepUpService(emptyModel, redis);
     const controller = new StepUpController({} as any, service);
-    await expect(controller.options({ id: 'u9' })).rejects.toThrow('no_passkey');
+    await expect(controller.options({ id: 'u9', role: 'admin' })).rejects.toThrow('no_passkey');
   });
 });

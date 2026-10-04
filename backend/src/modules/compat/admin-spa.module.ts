@@ -1,3 +1,6 @@
+import { Permission } from '../../common/permissions';
+import { RequirePermissions } from '../../common/permissions';
+import { StepUp } from '../../common/step-up.guard';
 /**
  * AdminSpaModule — REST surface expected by the admin console SPA
  * (Napd-admin/frontend/src/api/endpoints.js), discovered by the screen↔API
@@ -1190,7 +1193,7 @@ const DEFAULT_AI_CONFIG = {
 @Controller('system')
 @UseGuards(JwtAuthGuard)
 @Roles(UserRole.ADMIN)
-class AdminSystemController extends AdminController {
+export class AdminSystemController extends AdminController {
   private async getConfig(key: string, fallback: any) {
     const doc = await this.conn.collection('system_config').findOne({ key } as any);
     return doc?.value ?? fallback;
@@ -1208,6 +1211,8 @@ class AdminSystemController extends AdminController {
   @Put('theme') putTheme(@CurrentUser() u: any, @Body() b: ThemeConfigDto) { return this.putConfig('theme', b, u); }
 
   @Get('permissions') permissions() { return this.getConfig('permissions', DEFAULT_PERMISSIONS); }
+  // Q89: replacing the permission list is a sensitive admin action.
+  @StepUp() @RequirePermissions(Permission.RBAC_MANAGE)
   @Put('permissions') putPermissions(@CurrentUser() u: any, @Body(new ParseArrayPipe({ items: PermissionEntryDto })) b: PermissionEntryDto[]) { return this.putConfig('permissions', b, u); }
 
   @Get('workflows') workflows() { return this.getConfig('workflows', DEFAULT_WORKFLOWS); }

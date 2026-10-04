@@ -1,3 +1,6 @@
+import { Permission } from '../../common/permissions';
+import { RequirePermissions } from '../../common/permissions';
+import { StepUp } from '../../common/step-up.guard';
 /**
  * Legal & Compliance Layer — versioned, admin-editable, multi-language policies.
  * legal_policies: version + effective_date + change_log + content_ar/en (EN fallback)
@@ -198,6 +201,7 @@ export class LegalController {
   @Put('admin/legal/commissions-policy')
   @UseGuards(JwtAuthGuard)
   @Roles(UserRole.ADMIN)
+  @StepUp() @RequirePermissions(Permission.FINANCE_CONFIG_EDIT)
   updateCommissions(@CurrentUser('id') adminId: string, @Body() body: UpdateCommissionsDto) {
     return this.svc.updateCommissions(adminId, body);
   }

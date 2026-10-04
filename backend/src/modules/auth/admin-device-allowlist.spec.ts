@@ -106,4 +106,28 @@ describe('C2: Admin device allow-list enforcement', () => {
     const result = await guard.canActivate(ctx as any);
     expect(result).toBe(true);
   });
+
+  // X4 (ca16fa7): the bootstrap exemption matched any path containing
+  // "/admin/devices", so /api/v1/admin/<anything>/admin/devices slipped past
+  // passkey enforcement.
+  it('passkey enforcement exempts only the real passkey and device endpoints', async () => {
+    const prev = process.env.ADMIN_PASSKEY_ENFORCED;
+    process.env.ADMIN_PASSKEY_ENFORCED = 'true';
+    connection.collection = jest.fn((name: string) => {
+      if (name === 'users') return { findOne: jest.fn().mockResolvedValue({ id: 'u1', token_version: 1 }) };
+      if (name === 'admin_devices') return { findOne: jest.fn().mockResolvedValue({ user_id: 'u1', device_hash: 'x'.repeat(64) }) };
+      return { findOne: jest.fn().mockResolvedValue(null) }; // no passkey_credentials
+    });
+    const at = (path: string) => ({
+      switchToHttp: () => ({ getRequest: () => ({ headers: { authorization: 'Bearer valid', 'x-admin-device': 'a'.repeat(32) }, path, ip: '127.0.0.1' }) }),
+      getHandler: () => ({}), getClass: () => ({}),
+    });
+    try {
+      await expect(guard.canActivate(at('/api/v1/admin/users/admin/devices') as any)).rejects.toThrow('passkey_enrollment_required');
+      await expect(guard.canActivate(at('/api/v1/admin/users') as any)).rejects.toThrow('passkey_enrollment_required');
+      await expect(guard.canActivate(at('/api/v1/auth/passkey/enroll/options') as any)).resolves.toBe(true);
+    } finally {
+      process.env.ADMIN_PASSKEY_ENFORCED = prev;
+    }
+  });
 });
