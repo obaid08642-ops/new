@@ -101,27 +101,54 @@ function qaRefs(route) {
   return [...ids].sort();
 }
 
-/** A parity verdict for this route from the existing matrix, if it states one. */
+/**
+ * Parity verdict, taken from `audit/FINDINGS/parity-matrix.md` — not recomputed.
+ *
+ * That file has no route column, so the first version of this function matched
+ * nothing and all 519 patient rows read `unrecorded`. It does, however, carry a
+ * **region table with a verdict per region**, and a list of confirmed web gaps.
+ * So the route is classified into a region and the matrix's own verdict is quoted.
+ *
+ * The verdict is the matrix's wording, translated, with the counts it states. A
+ * reader can go to the source and disagree; they cannot be told "same" by a cell
+ * that never looked.
+ */
+const REGIONS = [
+  { re: /consult|doctor|clinic|specialt|booking|appointment|follow-up|prescription|call/i, v: 'GAP partial — matrix: web 26 vs app 28' },
+  { re: /health|vital|sleep|chronic|medication-reminder|wearable/i, v: 'GAP partial — matrix: web 19 vs app 26' },
+  { re: /pharmac|order|medicine|cart|checkout|delivery|refill|rx|drug/i, v: 'MATCH functionally — matrix: web 19 vs app 24' },
+  { re: /diagnostic|lab|report|result|radiology|scan|test/i, v: 'web wider — matrix: web 24 vs app 20' },
+  { re: /nutrition|diet|meal/i, v: 'MATCH — matrix: web 12 vs app 13' },
+  { re: /insurance|copay/i, v: 'MATCH — matrix: web 13 vs app 13' },
+  { re: /settings|account|profile|auth|login|register|otp|password|privacy|security|language|notification/i, v: 'GAP partial — matrix: web 8 vs app 12' },
+  { re: /family|member|emergency-contact|calendar/i, v: 'GAP partial — matrix: web 9 vs app 12' },
+  { re: /mental|therapy|therapist|crisis/i, v: 'MATCH — matrix: web 7 vs app 8' },
+  { re: /nursing|home-care|home-visit/i, v: 'web wider — matrix: web 8 vs app 6' },
+  { re: /maternity|loyalty|payment|emergency|return|article|support|offer|wallet/i, v: 'MATCH — matrix: <=6 both' },
+  { re: /voice|search|map|review|program|compare/i, v: 'MATCH — matrix: present both' },
+];
+
+/** Confirmed web gaps, quoted from the matrix's own list. */
+const WEB_GAPS = [
+  [/appointment-detail/, 'confirmed web gap #1 — matrix'],
+  [/incoming-call/, 'confirmed web gap #2 — platform limitation, documented'],
+  [/summary/, 'confirmed web gap #3 — matrix'],
+  [/notifications-settings/, 'confirmed web gap #4 — matrix (merge or gap, unverified)'],
+  [/privacy/, 'confirmed web gap #5 — matrix'],
+  [/emergency-contacts/, 'confirmed web gap #6 — matrix'],
+  [/member-health/, 'candidate — matrix: verify vs [memberRef]'],
+  [/shared-calendar/, 'candidate — matrix: verify vs family/calendar'],
+  [/medication-reminder-add/, 'candidate — matrix: verify vs reminders/add'],
+  [/sleep-score|sleep-tracker/, 'candidate — matrix: verify vs health/sleep'],
+  [/timeline/, 'candidate — matrix: verify vs reports/timeline'],
+  [/product-search/, 'candidate — matrix: verify vs search/medicines'],
+];
+
 function parityVerdict(appKey, route) {
   if (appKey === 'provider-app' || appKey === 'admin') return 'n/a (not a patient client)';
-  const leaf = (route.split('/').filter(Boolean).pop() || '').toLowerCase();
-  // `parity-matrix.md` has no route column at all — 13 rows keyed by Arabic
-  // workflow name ("دفع الصيدلية", "حجز الاستشارات"), not by path. So there is
-  // nothing to match a route against, and every row landed on `unrecorded`.
-  //
-  // Saying so in the cell is the point. A blank or optimistic `same` would have
-  // been read as "verified equivalent" by every reader downstream, which is the
-  // exact failure this whole file is meant to prevent.
-  if (!parityText || !leaf) return 'UNLINKED: parity-matrix.md has no route key';
-  const line = parityText
-    .split('\n')
-    .find((l) => l.toLowerCase().includes(leaf) && l.includes('|'));
-  if (!line) return 'UNLINKED: not named in parity-matrix.md';
-  const cells = line.split('|').map((c) => c.trim().toLowerCase());
-  if (cells.some((c) => c.includes('web only') || c === 'missing on app')) return 'missing';
-  if (cells.some((c) => c.includes('app only') || c === 'missing on web')) return 'different';
-  if (cells.some((c) => c.includes('both') || c.includes('same'))) return 'same';
-  return 'UNLINKED: not named in parity-matrix.md';
+  for (const g of WEB_GAPS) if (g[0].test(route)) return g[1];
+  for (const r of REGIONS) if (r.re.test(route)) return r.v;
+  return 'unclassified — no region in the matrix matches this route';
 }
 
 /* --------------------------------------------------------- measured greps */
