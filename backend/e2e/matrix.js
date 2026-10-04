@@ -435,18 +435,17 @@ async function main() {
   });
 
   // ══ P. REFUNDS (policy windows) ══
-  await t('P1 refund request 4-24h → 50%', async () => {
-    const r = await axios.post(`${base}/refunds/request`, { booking_id: 'bk-mx-' + Date.now(), booking_kind: 'appointment', amount_paid: 300, scheduled_at: new Date(Date.now() + 10 * 3600000).toISOString(), reason: 'ظرف طارئ للمريض' }, auth(patient.token)).catch((e) => e.response);
-    if (r.status === 404) doSkip('endpoint not found');
-    const pct = r.data?.refund_percent ?? r.data?.refund_percentage;
-    if (pct !== 50) throw new Error('pct=' + JSON.stringify(r.data).slice(0, 120));
-    return '50%';
+  // Q96: a refund must be bound to a real, owned, paid booking; the amount,
+  // payment and schedule come from the records, never from the body.
+  await t('P1 refund on a booking that does not exist → 404', async () => {
+    const r = await axios.post(`${base}/refunds/request`, { booking_id: 'bk-mx-' + Date.now(), booking_kind: 'appointment', amount_paid: 300, reason: 'ظرف طارئ للمريض' }, auth(patient.token)).then(() => 'OPEN', (e) => e.response?.status);
+    if (r !== 404) throw new Error('refund on a made-up booking: ' + r);
+    return 'blocked=404';
   });
-  await t('P2 refund request >24h → 100%', async () => {
-    const r = await axios.post(`${base}/refunds/request`, { booking_id: 'bk-mx2-' + Date.now(), booking_kind: 'appointment', amount_paid: 300, scheduled_at: new Date(Date.now() + 48 * 3600000).toISOString(), reason: 'تغيير خطط' }, auth(patient.token)).catch((e) => e.response);
-    const pct = r.data?.refund_percent ?? r.data?.refund_percentage;
-    if (pct !== 100) throw new Error('pct=' + JSON.stringify(r.data).slice(0, 120));
-    return '100%';
+  await t('P2 refund with an unknown booking kind → 400', async () => {
+    const r = await axios.post(`${base}/refunds/request`, { booking_id: 'bk-mx2-' + Date.now(), booking_kind: 'spaceship', reason: 'تغيير خطط' }, auth(patient.token)).then(() => 'OPEN', (e) => e.response?.status);
+    if (r !== 400) throw new Error('unknown kind: ' + r);
+    return 'blocked=400';
   });
   await t('P3 refund without reason → 400', async () => {
     const r = await axios.post(`${base}/refunds/request`, { booking_id: 'bk-mx3-' + Date.now(), booking_kind: 'appointment', amount_paid: 300 }, auth(patient.token)).then(() => 'OPEN', (e) => e.response?.status);

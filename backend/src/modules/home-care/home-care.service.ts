@@ -265,24 +265,6 @@ export class HomeCareSvc {
     return { ok: true };
   }
 
-  async createCarePlan(user: any, patientId: string, body: { title: string; description?: string; tasks: string[] }) {
-    if (!['admin', 'nurse', 'doctor', 'hospital'].includes(user.role)) throw new ForbiddenException();
-    return this.carePlanModel.create({
-      id: require('uuid').v4(),
-      patient_id: patientId,
-      doctor_id: hasEffectiveRole(user, 'doctor') ? user.id : undefined,
-      nurse_id: hasEffectiveRole(user, 'nurse', 'nursing', 'home_care') ? user.id : undefined,
-      title: body.title,
-      description: body.description,
-      tasks: body.tasks || [],
-      status: 'active'
-    });
-  }
-
-  async getCarePlans(patientId: string) {
-    return this.carePlanModel.find({ patient_id: patientId }).sort({ createdAt: -1 }).lean();
-  }
-
   async requestSupplies(user: any, visitReportId: string, items: Array<{ name: string; qty: number; unit: string }>) {
     if (!['admin', 'nurse', 'hospital'].includes(user.role)) throw new ForbiddenException();
     return this.supplyModel.create({

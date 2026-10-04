@@ -220,6 +220,12 @@ export class HomeCareCompatController {
     if (!this.isAdmin(u) && !['doctor', 'hospital'].includes(String(u?.role || '').toLowerCase())) {
       const assigned = await this.bookings.findOne({ patient_id: patientId, provider_id: u.id });
       if (!assigned) throw new ForbiddenException('patient_not_assigned');
+    } else if (!this.isAdmin(u)) {
+      // Q95: a doctor writes a care plan only for a patient with an appointment with them.
+      const appt = await this.conn?.collection('appointments').findOne(
+        { patient_id: { $eq: patientId }, doctor_user_id: { $eq: String(u.id) } } as any, { projection: { _id: 1 } },
+      );
+      if (!appt) throw new ForbiddenException('patient_not_assigned');
     }
     if (!body?.title || typeof body.title !== 'string') throw new BadRequestException('title is required');
     const tasks = Array.isArray(body?.tasks) ? body.tasks.filter((t: any) => typeof t === 'string' && t.trim()).slice(0, 50) : [];

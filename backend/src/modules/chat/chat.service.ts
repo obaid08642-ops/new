@@ -85,6 +85,13 @@ export class ChatService {
 
   async createGroupThread(creatorId: string, name: string, participantIds: string[]): Promise<ChatThread> {
     const all = [...new Set([creatorId, ...participantIds])];
+    // Q97: LJ-06 applies to groups too — every member must be family of, or
+    // share a booking with, the creator.
+    for (const id of all) {
+      if (id !== creatorId && !(await this.hasDirectRelationship(creatorId, id))) {
+        throw new ForbiddenException('group_chat_requires_existing_relationship');
+      }
+    }
     const counts: Record<string, number> = {};
     all.forEach(id => counts[id] = 0);
     const thread = await this.threads.create({ type: 'group', participant_ids: all, name, created_by: creatorId, unread_counts: counts });
@@ -466,7 +473,10 @@ export class ChatService {
     const thread = await this.threads.findOne({ id: { $eq: threadId } });
     if (!thread) throw new NotFoundException('thread_not_found');
     this.assertParticipant(thread, actorId);
-    if (thread.type !== 'group' && thread.type !== 'direct') throw new ForbiddenException('participant_management_not_allowed');
+    // Q97: only groups change members (a direct thread is exactly two people),
+    // and the new member must be related to whoever adds them.
+    if (thread.type !== 'group') throw new ForbiddenException('participant_management_not_allowed');
+    if (!(await this.hasDirectRelationship(actorId, userId))) throw new ForbiddenException('group_chat_requires_existing_relationship');
     await this.threads.updateOne({ id: { $eq: threadId } }, {
       $addToSet: { participant_ids: userId },
       $set: { [`unread_counts.${userId}`]: 0 },
@@ -477,7 +487,11 @@ export class ChatService {
     const thread = await this.threads.findOne({ id: { $eq: threadId } });
     if (!thread) throw new NotFoundException('thread_not_found');
     this.assertParticipant(thread, actorId);
-    if (thread.type !== 'group' && thread.type !== 'direct') throw new ForbiddenException('participant_management_not_allowed');
+    if (thread.type !== 'group') throw new ForbiddenException('participant_management_not_allowed');
+    // A member may leave; only the group's creator removes other members.
+    if (String(userId) !== String(actorId) && String(thread.created_by) !== String(actorId)) {
+      throw new ForbiddenException('only_group_creator_can_remove_members');
+    }
     await this.threads.updateOne({ id: { $eq: threadId } }, { $pull: { participant_ids: userId } });
   }
 }

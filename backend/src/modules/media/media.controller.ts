@@ -5,8 +5,9 @@ import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
 import { JwtAuthGuard, Roles, CurrentUser, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
+import { verifyUpload } from './media-types';
 import { MediaService } from './media.service';
-import { UploadMediaDto, PresignedUrlDto } from './media.dto';
+import { UploadMediaDto } from './media.dto';
 import { MediaAsset, MediaAssetDocument, MEDIA_PURPOSES, MediaPurpose } from './media.schema';
 
 @Controller('media')
@@ -43,9 +44,13 @@ export class MediaController {
     if (!file) throw new BadRequestException('file_required');
     await this.assertUploadAllowed(user, purpose, threadId);
     const originalname = (file as any)?.originalname ?? file.filename;
-    const mimetype = file.mimetype;
     // Q92: Express/multer (the default adapter) hands a buffer; only Fastify gives a stream.
     const buffer: Buffer = (file as any)?.buffer ?? await MediaController.toBuffer(file.file);
+    // Q98: the declared type must belong to the extension and the bytes must be
+    // that kind of file; the canonical type is stored, never the client's claim.
+    const verdict = verifyUpload(originalname, file.mimetype, buffer.subarray(0, 32));
+    if ('reason' in verdict) throw new BadRequestException(verdict.reason);
+    const mimetype = verdict.mime;
     const uploaded = await this.mediaService.uploadBuffer(buffer, originalname, mimetype, `${purpose}/${user.id}`);
     try {
       const asset: any = await this.assets.create({
@@ -66,24 +71,6 @@ export class MediaController {
       stream.on('end', () => resolve(Buffer.concat(chunks)));
       stream.on('error', reject);
     });
-  }
-
-  @Post('presigned')
-  async getPresignedUrl(
-    @CurrentUser() user: any,
-    @Body() body: PresignedUrlDto,
-  ) {
-    const { filename, mimetype, purpose, thread_id: threadId } = body;
-    if (!filename || !mimetype) throw new BadRequestException('filename_and_mimetype_required');
-    const allowedExtensions = /\.(jpg|jpeg|png|gif|webp|pdf|mp3|m4a|wav|doc|docx|xls|xlsx)$/i;
-    if (!filename.match(allowedExtensions)) throw new BadRequestException('unsupported_media_extension');
-    await this.assertUploadAllowed(user, purpose, threadId);
-    const upload = await this.mediaService.generatePresignedUploadUrl(filename, mimetype, `${purpose}/${user.id}`);
-    const asset: any = await this.assets.create({
-      key: upload.key, owner_id: user.id, purpose, thread_id: threadId,
-      original_name: filename, mime_type: mimetype,
-    });
-    return { id: asset.id, upload_url: upload.uploadUrl, expires_in: 900 };
   }
 
   @Get(':id/url')

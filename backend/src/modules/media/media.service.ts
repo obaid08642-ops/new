@@ -1,6 +1,7 @@
 import { Injectable, Logger, BadRequestException, ServiceUnavailableException } from '@nestjs/common';
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { canonicalMimeFor } from './media-types';
 import { v4 as uuid } from 'uuid';
 import sharp from 'sharp';
 
@@ -104,30 +105,15 @@ export class MediaService {
   async generatePresignedDownloadUrl(key: string, expiresIn = 15 * 60): Promise<string> {
     this.assertConfigured();
     try {
-      return await getSignedUrl(this.s3Client, new GetObjectCommand({ Bucket: this.bucketName, Key: key }), { expiresIn });
+      // Q98: always an attachment with the type its extension allows, so the
+      // bucket can never serve a stored file back as HTML.
+      return await getSignedUrl(this.s3Client, new GetObjectCommand({
+        Bucket: this.bucketName, Key: key,
+        ResponseContentType: canonicalMimeFor(key), ResponseContentDisposition: 'attachment',
+      }), { expiresIn });
     } catch (error) {
       this.logger.error(`Failed to generate private download URL: ${error.message}`, error.stack);
       throw new BadRequestException('media_url_generation_failed');
-    }
-  }
-
-  async generatePresignedUploadUrl(originalName: string, mimeType: string, folder = 'general', expiresIn = 15 * 60): Promise<{ uploadUrl: string; key: string }> {
-    this.assertConfigured();
-    const extension = originalName.split('.').pop() || '';
-    const key = `${folder}/${uuid()}.${extension}`;
-    // 14.20 hook point: presigned PUTs stream bytes straight to R2, bypassing the
-    // server-side stripExif() above (no new deps added for this path by design).
-    // EXIF/GPS hygiene for this path must happen client-side before PUT
-    // (patient-app/provider-app strip on capture) or via an R2-triggered worker;
-    // imgproxy responsive variants are infra and out of scope here.
-
-    try {
-      const command = new PutObjectCommand({ Bucket: this.bucketName, Key: key, ContentType: mimeType });
-      const uploadUrl = await getSignedUrl(this.s3Client, command, { expiresIn: Math.min(Math.max(expiresIn, 60), 15 * 60) });
-      return { uploadUrl, key };
-    } catch (error) {
-      this.logger.error(`Failed to generate private presigned upload URL: ${error.message}`, error.stack);
-      throw new BadRequestException('media_upload_url_generation_failed');
     }
   }
 
