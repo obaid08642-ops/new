@@ -281,7 +281,7 @@ export default async function LandingPage({ params }: Props) {
           <div className={styles.grid || ""}>
             {(section.items || []).map((item) => (
               <Link key={item.id || item.title_ar} href={item.deep_link || `/${locale}`} className={styles.card || ""}>
-                {item.image_url ? <Image src={item.image_url} alt={isAr ? item.title_ar || "" : item.title_en || ""} width={440} height={220} /> : null}
+                {item.image_url ? <Image src={item.image_url} alt={isAr ? item.title_ar || "" : item.title_en || ""} width={440} height={220} loading="lazy" sizes="(max-width: 640px) 100vw, 440px" /> : null}
                 <span>{isAr ? item.title_ar || item.title_en : item.title_en || item.title_ar}</span>
               </Link>
             ))}
@@ -336,7 +336,7 @@ export default async function LandingPage({ params }: Props) {
               <Link key={doc.id} href={`/${locale}/consultations/doctors/${doc.id}`} className={styles.doctorCard}>
                 <div className={styles.doctorCardHeader}>
                   <div className={styles.doctorAvatar} style={{ position: "relative" }}>
-                    <Image src={doc.image || `/images/doctors/${doc.id}.jpg`} alt={doc.name || ""} fill sizes="58px" style={{ objectFit: "cover" }} />
+                    <Image src={doc.image || `/images/doctors/${doc.id}.jpg`} alt={doc.name || ""} fill sizes="58px" style={{ objectFit: "cover" }} loading="lazy" />
                   </div>
                   <div className={styles.doctorMeta}>
                     <strong>{doc.name}</strong>

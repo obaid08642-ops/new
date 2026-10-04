@@ -83,11 +83,13 @@ export default async function DoctorsPage({ params, searchParams }: Props) {
         </section>
       ) : (
         <section className={styles.grid} aria-label={t("title")} style={{ gap: 16 } as any}>
-          {doctors.map((doctor) => (
+          {doctors.map((doctor, idx) => (
             <Link key={doctor.id} href={`/${locale}/consultations/doctors/${doctor.id}`} className={styles.card} style={{ borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", gap: 16, padding: 16 } as any}>
               <div className={styles.cardTop} style={{ gap: 16 } as any}>
                 <span className={styles.avatar} style={{ width: 48, height: 48, borderRadius: 16, overflow: "hidden", border: "1px solid #E8EDEE", flexShrink: 0, display: "grid", placeItems: "center", position: "relative", background: "rgba(95,217,179,.12)" }}>
-                  <Image src={(doctor as any).image || `/images/doctors/${doctor.id}.jpg`} alt={doctor.name || ""} fill sizes="48px" style={{ objectFit: "cover" }} />
+                  {/* 14.20 responsive avatars: first two cards are above the fold
+                      (eager + preload), the rest lazy-load below the fold. */}
+                  <Image src={(doctor as any).image || `/images/doctors/${doctor.id}.jpg`} alt={doctor.name || ""} fill sizes="48px" style={{ objectFit: "cover" }} priority={idx < 2} loading={idx < 2 ? "eager" : "lazy"} fetchPriority={idx < 2 ? "high" : "auto"} />
                 </span>
                 <div className={styles.copy} style={{ gap: 8 } as any}>
                   <span className={styles.doctorName} style={{ overflowWrap: "anywhere" } as any}>

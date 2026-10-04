@@ -2,6 +2,7 @@ import { Injectable, Logger, BadRequestException, ServiceUnavailableException } 
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { v4 as uuid } from 'uuid';
+import sharp from 'sharp';
 
 @Injectable()
 export class MediaService {
@@ -49,16 +50,47 @@ export class MediaService {
     return Promise.race([p, gate]).finally(() => clearTimeout(t)) as Promise<any>;
   }
 
+  /**
+   * 14.20 EXIF/GPS strip (code part; imgproxy responsive variants are infra, out of scope).
+   * Uses the existing `sharp` dependency (no new deps). sharp drops ALL metadata
+   * (EXIF/XMP/IPTC/GPS) unless `.withMetadata()` is called, so re-encoding without
+   * it both applies EXIF orientation via `.rotate()` and removes location tags.
+   * Scope is still JPEG/PNG/WebP only: GIFs are skipped to preserve animation frames.
+   * Fail-closed: an in-scope image sharp cannot parse is rejected, never stored raw.
+   */
+  private async stripExif(buffer: Buffer, mimeType: string, originalName: string): Promise<Buffer> {
+    const ext = (originalName.split('.').pop() || '').toLowerCase();
+    const mime = (mimeType || '').toLowerCase();
+    const pipeline =
+      mime === 'image/jpeg' || ext === 'jpg' || ext === 'jpeg'
+        ? sharp(buffer).rotate().jpeg({ quality: 92, mozjpeg: true })
+        : mime === 'image/png' || ext === 'png'
+          ? sharp(buffer).rotate().png({ compressionLevel: 6 })
+          : mime === 'image/webp' || ext === 'webp'
+            ? sharp(buffer).rotate().webp({ quality: 90 })
+            : null;
+    if (!pipeline) return buffer;
+    try {
+      return await pipeline.toBuffer();
+    } catch (error: any) {
+      this.logger.warn(`Rejected image upload that failed EXIF-strip parse: ${error?.message || error}`);
+      throw new BadRequestException('media_upload_failed');
+    }
+  }
+
   async uploadBuffer(buffer: Buffer, originalName: string, mimeType: string, folder = 'general'): Promise<{ key: string }> {
     this.assertConfigured();
     const extension = originalName.split('.').pop() || '';
     const key = `${folder}/${uuid()}.${extension}`;
+    // 14.20: strip EXIF/GPS metadata from still images before persisting.
+    // Non-image uploads (pdf/audio/docs) and animated GIFs pass through untouched.
+    const safeBuffer = await this.stripExif(buffer, mimeType, originalName);
 
     try {
       const command = new PutObjectCommand({
         Bucket: this.bucketName,
         Key: key,
-        Body: buffer,
+        Body: safeBuffer,
         ContentType: mimeType,
       });
       await this.withTimeout(this.s3Client.send(command), this.opTimeoutMs);
@@ -83,6 +115,11 @@ export class MediaService {
     this.assertConfigured();
     const extension = originalName.split('.').pop() || '';
     const key = `${folder}/${uuid()}.${extension}`;
+    // 14.20 hook point: presigned PUTs stream bytes straight to R2, bypassing the
+    // server-side stripExif() above (no new deps added for this path by design).
+    // EXIF/GPS hygiene for this path must happen client-side before PUT
+    // (patient-app/provider-app strip on capture) or via an R2-triggered worker;
+    // imgproxy responsive variants are infra and out of scope here.
 
     try {
       const command = new PutObjectCommand({ Bucket: this.bucketName, Key: key, ContentType: mimeType });
