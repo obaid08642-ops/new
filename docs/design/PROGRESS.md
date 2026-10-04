@@ -7,7 +7,7 @@
 >
 > Sources: `DESIGN_HANDOFF_FINAL.md`, `SPEC_PRODUCT_DOCTOR_DETAIL.md`, `DEVICE_STANDARD.md`, `canvas/`. How the folder works: `README.md`.
 
-_Last updated: 2026-10-04 (#259–#261 approved from the design side; web shells #263 in review; next step: shared components)._
+_Last updated: 2026-10-04 (#259–#261 approved from the design side; #263 web shells and #264 components part 1 are in review; next step: components part 2)._
 
 ## Snapshot
 
@@ -19,7 +19,8 @@ _Last updated: 2026-10-04 (#259–#261 approved from the design side; web shells
 | Foundation: Readex Pro on the web | **In review** ([#260](https://github.com/obaid08642-ops/new/pull/260)) | Self-hosted with `next/font/local`; on main the web had no font at all (CSP blocked Google) |
 | Foundation: native shells | **In review** ([#261](https://github.com/obaid08642-ops/new/pull/261), stacked on #259) | `Screen`, `AppHeader`, `StickyFooter`, `TabBar` in `packages/ui-native` |
 | Foundation: web shells | **In review** ([#263](https://github.com/obaid08642-ops/new/pull/263), stacked on #259) | `AppShell`, `StickyFooter` in `packages/ui`, mirrored into patient-web |
-| Foundation: shared components, lint gates | Not started | See `WIRING_REPORT.md` §1 for the measured gaps |
+| Foundation: shared components | **1 of 4 in review** ([#264](https://github.com/obaid08642-ops/new/pull/264)) | FIcon, SectionHeader, ServiceTile, ListItem |
+| Foundation: lint gates | Not started | See `WIRING_REPORT.md` §1 for the measured gaps |
 | Screen batches 0–13 | Not started | 410 screens to design (104 more routes only redirect) |
 
 ### Screens per batch (from `SCREEN_INVENTORY.md`; redirect-only routes excluded)
@@ -84,6 +85,11 @@ _Last updated: 2026-10-04 (#259–#261 approved from the design side; web shells
   - Mirrored into patient-web, and `app/layout.tsx` imports the CSS once. No page uses the shell yet.
   - `layout.maxContent` changes from 1180 to 1200 (DEVICE_STANDARD §1), and `maxContentAdmin` (1600) is new.
   - 8 vitest tests. 12 screenshots, all with 0 px horizontal overflow.
+- **Components 1/4, PR [#264](https://github.com/obaid08642-ops/new/pull/264)** (branch `design/components-icons`, stacked on #259), waiting for review.
+  - `packages/ui/icons/fill.ts` is ported from `canvas/FIcon.dc.html` by `tools/design/extract-ficon.mjs` (78 glyphs, with the service map and tones).
+  - New contract components `FIcon` and `SectionHeader`. `ServiceTile` (now takes a service name) and `ListItem` (now takes a `leading` FIcon) are restyled from the boards. The roster grows from 28 to 30.
+  - The 12.A7 tile tests now follow the handoff (filled FIcon instead of the illustrated art); this is flagged in the PR.
+- **Fix pushed to #259 (`e33d728`), and merged into #261 and #263:** `packages/ui/dist/preview.html` embeds the token sheet and had gone stale. CI missed it because that job fails earlier on a missing module.
 
 ## Next (in this order)
 
@@ -96,7 +102,12 @@ The foundation comes before any screen (DEVICE_STANDARD §4, handoff §3). Each 
 3. ~~**Native shells**~~: PR #261 is in review.
 4. ~~**Web shells**~~: PR #263 is in review.
    - `globals.css` still has its own `--nabd-layout-max: 1180px` and an old `.shell` layout. Pages switch to `AppShell` batch by batch, and the old `.shell` rules are removed when the last page moves.
-5. **Shared components** (handoff §3), in both packages. Still missing: FIcon, ListRow, SectionHeader, Segmented, StatusChip, Toggle, Radio, PrimaryButton, OutlineButton, SearchField, StickyFooter, TabBar, DoctorCard, ProductCard, OfferCard, Timeline, ProgressRing, OfflineState.
+5. **Shared components** (handoff §3), in both packages, through the existing contract (`packages/ui/components/contract.ts`):
+   - ~~1/4: FIcon, SectionHeader, ServiceTile, ListItem/ListRow~~ (#264).
+   - 2/4 (next, branch `design/components-controls`): Button (gradient primary and outline), IconButton, Segmented (track `#EAEAEF`), Toggle, Radio, Chip/StatusChip, SearchField (`Search`), Stepper.
+   - 3/4: Card, DoctorCard, ProductCard, OfferCard, Timeline, ProgressRing.
+   - 4/4: EmptyState, ErrorState, OfflineState, and the web TabBar (`BottomTabBar`, restyled as the floating glass pill).
+   - Whenever tokens change, re-run `node packages/ui/build-preview.mjs`.
 6. **Lint gates** still missing from `tools/design` (handoff §6, DEVICE_STANDARD §5): `no-left-right`, `no-100vh`, `no-rn-safeareaview`. They currently fail on:
    - `patient-app/app/room/[id].tsx` (`SafeAreaView` imported from `react-native`);
    - 4 web files that use `100vh` (listed in `WIRING_REPORT.md` §1).
@@ -145,6 +156,7 @@ The foundation comes before any screen (DEVICE_STANDARD §4, handoff §3). Each 
 | Date | Branch | What happened | Tip |
 |---|---|---|---|
 | 2026-10-04 | `claude/progress-md-workflow-vqhj8x` | Set up the workflow, imported the design sources, and generated the inventory and the wiring report. | PR [#256](https://github.com/obaid08642-ops/new/pull/256) |
+| 2026-10-04 | `design/components-icons` | Components 1/4 (FIcon, SectionHeader, ServiceTile, ListItem); preview regeneration fixed on #259, #261 and #263. | PR [#264](https://github.com/obaid08642-ops/new/pull/264), tip `59a960f` |
 | 2026-10-04 | `design/shells-web` | Web shells (`AppShell`, `StickyFooter`), `layout.maxContent` 1200, mirror and tests, 12 screenshots. | PR [#263](https://github.com/obaid08642-ops/new/pull/263), tip `c0b0090` |
 | 2026-10-04 | `design/tokens` | Solid chip correction from the design session (8 values, `icon.onSolid`, 20 contrast pairs). Merged into `design/shells-native`. | PR [#259](https://github.com/obaid08642-ops/new/pull/259), tip `c399fe7` |
 | 2026-10-04 | `design/shells-native` | Native shells (`Screen`, `AppHeader`, `StickyFooter`, `TabBar`), with tests and react-native-web screenshots; added the fab, gradient and shadow tokens to #259. | PR [#261](https://github.com/obaid08642-ops/new/pull/261), tip `55a5e23` |
