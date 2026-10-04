@@ -160,7 +160,9 @@ export class HomeCareCompatController {
     // Conditional on the state that was read: a concurrent change (e.g. the
     // atomic accept in respondAs) is never overwritten by a stale read.
     const done = await this.bookings.updateOne(
-      { id: { $eq: id }, state: { $eq: String(b.state) } },
+      // A nurse also only while still the assigned one (an admin reassignment
+      // keeps the state, so the state check alone would not catch it).
+      { id: { $eq: id }, state: { $eq: String(b.state) }, ...(this.isAdmin(u) ? {} : { provider_id: { $eq: String(b.provider_id ?? '') } }) },
       {
         $set: { ...(extra.fields || {}), state: newState },
         $push: { state_history: { state: newState, at: new Date(), by: u.id, ...extra.meta } },
