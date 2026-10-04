@@ -13,8 +13,8 @@ export const GOOGLE_MAPS_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY ?
 export const STORAGE_KEYS = {
   // expo-secure-store keys may only contain [A-Za-z0-9._-]; '@' made every native save throw (Q71).
   AUTH_TOKEN: 'nabdah_auth_token',
-  REFRESH_TOKEN: '@nabdah_refresh_token',
-  USER_DATA: '@nabdah_user_data',
+  REFRESH_TOKEN: 'nabdah_refresh_token',
+  USER_DATA: 'nabdah_user_data',
   THEME: '@nabdah_theme',
   LANGUAGE: '@nabdah_language',
   ONBOARDING_DONE: '@nabdah_onboarding_done',
