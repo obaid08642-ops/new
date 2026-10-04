@@ -1,0 +1,5 @@
+[main] victim id=62f67b96-4be7-40ee-b4c9-8841d3d0efaf email=victim2116340426c3ca@nabd.test
+[main] guest created -> 201 id=1178126f-2278-4c5b-ba43-9d3be9bf1af8
+[main] POST /auth/convert-guest {email: victim} -> 201 user.id=62f67b96-4be7-40ee-b4c9-8841d3d0efaf
+[main] GET /auth/me with returned token -> 200 id=62f67b96-4be7-40ee-b4c9-8841d3d0efaf email=victim2116340426c3ca@nabd.test
+[main] victim can still log in with own password -> 201

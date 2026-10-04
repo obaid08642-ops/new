@@ -1,0 +1,5 @@
+[agent] victim id=79ba40b3-18f5-4939-a34f-f01b90826f65 email=victim2116342726b772@nabd.test
+[agent] guest created -> 201 id=a5b2ff98-2305-4a73-94db-3f7d39396c51
+[agent] POST /auth/convert-guest {email: victim} -> 201 user.id=79ba40b3-18f5-4939-a34f-f01b90826f65
+[agent] GET /auth/me with returned token -> 200 id=79ba40b3-18f5-4939-a34f-f01b90826f65 email=victim2116342726b772@nabd.test
+[agent] victim can still log in with own password -> 201

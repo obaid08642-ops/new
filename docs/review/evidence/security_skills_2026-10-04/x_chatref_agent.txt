@@ -1,0 +1,7 @@
+[agent] chat: stranger A -> direct thread to unrelated B: 403 {'code': 'INSUFFICIENT_PERMISSION', 'message': 'direct_chat_requires_existing_relationship'}
+[agent] chat: stranger A -> group thread with B: 201 id=cac5573f-e9c9-446c-bb7c-7f0620bb896a
+[agent] chat: A sends message: 201
+[agent] chat: thread appears in B inbox: 200 True
+[agent] refund: A requests refund for booking-of-A-cb56ca2d: 201 patient_id=cb56ca2d-8dd1-439e-b64e-504a61df124a
+[agent] refund: B requests same booking id: 201 -> returns patient_id=cb56ca2d-8dd1-439e-b64e-504a61df124a reason='synthetic A reason (private)' amount_paid=250
+[agent] refund: B files for a booking that does not exist: 201 refund_percent=100 refund_amount=99999
