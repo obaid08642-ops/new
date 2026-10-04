@@ -8,6 +8,7 @@ import { useApp } from '../../src/context/AppContext';
 import { Icon, IconName } from '../../src/components/Icon';
 import { AppText, Card, IconButton } from '../../src/components/ui';
 import { apiFetch } from '../../src/utils/api';
+import { useRequestSignal } from '../../src/hooks/useRequestSignal';
 import { translateBackendRoute } from '../../src/hooks/usePushNotifications';
 import { dateLocale } from '@/utils/dates';
 
@@ -82,12 +83,15 @@ export default function NotificationsScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(false);
+  // 15.1: leaving the screen aborts the feed request instead of letting it
+  // resolve into an unmounted tree.
+  const request = useRequestSignal();
 
   const load = useCallback(async (silent = false) => {
     if (!silent) setLoading(true);
     setError(false);
     try {
-      const rows = await apiFetch<any[]>('/notifications');
+      const rows = await apiFetch<any[]>('/notifications', { signal: request.signal });
       setNotifs((Array.isArray(rows) ? rows : []).map(mapNotification));
     } catch {
       setError(true);
@@ -95,7 +99,7 @@ export default function NotificationsScreen() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, []);
+  }, [request]);
 
   useEffect(() => { load(); }, [load]);
 
