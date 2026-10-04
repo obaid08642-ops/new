@@ -1,4 +1,4 @@
 # tasks run in order by .github/workflows/server-inspect.yml
-10-inspect-deep
 20-x0-nginx-hotfix
 cf-purge-api
+10-inspect-deep

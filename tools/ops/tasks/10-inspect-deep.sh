@@ -5,17 +5,18 @@ set +e
 sec() { echo; echo "## $1"; }
 mask() { sed -E 's#(://)[^:@/ ]+:[^@/ ]+@#\1***:***@#g; s#(SECRET|PASSWORD|TOKEN|KEY|PASS)([A-Z_]*)=[^ ]+#\1\2=***#g'; }
 D=/opt/nabdah/deploy
+T() { timeout 25 "$@"; }
 
-sec "memory per container"; sudo -n docker stats --no-stream --format '{{.Name}}\t{{.MemUsage}}\t{{.CPUPerc}}' 2>&1
-sec "top processes by memory"; ps -eo pid,user,rss,etime,comm --sort=-rss | head -20
-sec "logged-in users"; who
-sec "docker disk"; sudo -n docker system df 2>&1
-sec "images"; sudo -n docker images --format '{{.Repository}}:{{.Tag}}\t{{.ID}}\t{{.Size}}\t{{.CreatedSince}}' 2>&1
-sec "all containers (incl. stopped)"; sudo -n docker ps -a --format '{{.Names}}\t{{.Image}}\t{{.Status}}' 2>&1
-sec "volumes"; sudo -n docker volume ls 2>&1; sudo -n docker system df -v 2>/dev/null | sed -n '/VOLUME NAME/,/^$/p'
-sec "sizes"; sudo -n du -sh /opt/nabdah/* /opt/nabdah/backups/* /var/lib/docker /var/log /tmp 2>/dev/null | sort -h | tail -40
-sec "journal"; journalctl --disk-usage 2>&1
-sec "nginx api cache size"; sudo -n docker exec nabdah-nginx sh -c 'du -sh /var/cache/nginx/api 2>/dev/null; ls /var/cache/nginx' 2>&1
+sec "memory per container"; T sudo -n docker stats --no-stream --format '{{.Name}}\t{{.MemUsage}}\t{{.CPUPerc}}' 2>&1
+sec "top processes by memory"; T ps -eo pid,user,rss,etime,comm --sort=-rss | head -20
+sec "logged-in users"; T who
+sec "docker disk"; T sudo -n docker system df 2>&1
+sec "images"; T sudo -n docker images --format '{{.Repository}}:{{.Tag}}\t{{.ID}}\t{{.Size}}\t{{.CreatedSince}}' 2>&1
+sec "all containers (incl. stopped)"; T sudo -n docker ps -a --format '{{.Names}}\t{{.Image}}\t{{.Status}}' 2>&1
+sec "volumes"; T sudo -n docker volume ls 2>&1
+sec "sizes"; T sudo -n du -sh --max-depth=0 /opt/nabdah/backups /opt/nabdah/deploy /var/log 2>/dev/null; T sudo -n ls -la /opt/nabdah/backups | tail -15
+sec "journal"; T journalctl --disk-usage 2>&1
+sec "nginx api cache size"; T sudo -n docker exec nabdah-nginx sh -c 'du -sh /var/cache/nginx/api 2>/dev/null; ls /var/cache/nginx' 2>&1
 
 sec "compose file in use (masked)"; mask < $D/docker-compose.production.yml
 sec "compose overrides"; ls -la $D/*.yml $D/*.yaml 2>/dev/null
@@ -23,7 +24,7 @@ sec "dockerfiles"; ls -la $D/docker 2>&1
 
 sec "source dirs: git?"
 for d in /opt/nabdah/nabdah-backend /opt/nabdah/patient-web /opt/nabdah/nabdah-patient-web /opt/nabdah/nabdah-admin /opt/nabdah/Napd-admin; do
-  echo "-- $d: $( [ -d $d/.git ] && git -C $d log -1 --format='%h %ci %s' || echo 'no git') ; newest file: $(find $d -path '*/node_modules' -prune -o -type f -printf '%T+ %p\n' 2>/dev/null | sort | tail -1)"
+  echo "-- $d: $( [ -d $d/.git ] && git -C $d log -1 --format='%h %ci %s' || echo 'no git')"
   [ -f $d/package.json ] && grep -E '"(name|version)"' $d/package.json | head -2
 done
 
@@ -35,10 +36,10 @@ for c in nabdah-backend nabdah-staging-backend nabdah-patient-web nabdah-admin-w
   sudo -n docker inspect $c --format '{{range .Config.Env}}{{println .}}{{end}}' 2>/dev/null | grep -E '^(DB_NAME|NODE_ENV|PORT|APP_ENV|MONGO_URL)=' | mask
   sudo -n docker inspect $c --format '{{json .State.Health.Log}}' 2>/dev/null | tail -c 600; echo
 done
-sec "staging backend: recent logs (last 15 lines, masked)"; sudo -n docker logs --tail 15 nabdah-staging-backend 2>&1 | mask | cut -c1-300
+sec "staging backend: recent logs (last 15 lines, masked)"; T sudo -n docker logs --tail 15 nabdah-staging-backend 2>&1 | mask | cut -c1-300
 
-sec "nginx files actually loaded"; sudo -n docker exec nabdah-nginx nginx -T 2>/dev/null | grep -E '^# configuration file'
-sec "nginx mounts"; sudo -n docker inspect nabdah-nginx --format '{{range .Mounts}}{{println .Source "->" .Destination}}{{end}}'
+sec "nginx files actually loaded"; T sudo -n docker exec nabdah-nginx nginx -T 2>/dev/null | grep -E '^# configuration file'
+sec "nginx mounts"; T sudo -n docker inspect nabdah-nginx --format '{{range .Mounts}}{{println .Source "->" .Destination}}{{end}}'
 sec "nabd.plus.conf lines 50-125"; sed -n '50,125p' $D/nginx/conf.d/nabd.plus.conf
 sec "mcp.conf"; sed -n '1,60p' $D/nginx/conf.d/mcp.conf
 sec "staging.conf upstream"; grep -nE 'proxy_pass|upstream|server ' $D/nginx/conf.d/staging.conf
