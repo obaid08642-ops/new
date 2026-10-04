@@ -82,7 +82,7 @@ export default async function LabsServicesPage({ params, searchParams }: Props) 
                 <span className={styles.icon} style={{ overflow: "hidden", position: "relative", width: 48, height: 48, borderRadius: 16, border: "1px solid #E8EDEE", background: "rgba(95,217,179,.12)", display: "grid", placeItems: "center", flex: "0 0 auto" }}>
                   {service.imageUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={service.imageUrl} alt={name || ""} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "inherit" }} />
+                    <img src={service.imageUrl} alt={name || ""} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "inherit" }} loading="lazy" decoding="async" sizes="48px" />
                   ) : (
                     <VectorLabs size={48} aria-hidden="true" />
                   )}
