@@ -1,4 +1,3 @@
 # tasks run in order by .github/workflows/server-inspect.yml
-20-x0-nginx-hotfix
-cf-purge-api
-10-inspect-deep
+30-free-memory
+35-livekit-rotate

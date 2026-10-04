@@ -32,7 +32,7 @@ sec "running containers: image, created, compose labels, env NAMES"
 for c in nabdah-backend nabdah-staging-backend nabdah-patient-web nabdah-admin-web; do
   echo "-- $c"
   sudo -n docker inspect $c --format 'image={{.Config.Image}} created={{.Created}} wd={{index .Config.Labels "com.docker.compose.project.working_dir"}} svc={{index .Config.Labels "com.docker.compose.service"}} files={{index .Config.Labels "com.docker.compose.project.config_files"}}' 2>&1
-  sudo -n docker inspect $c --format '{{range .Config.Env}}{{println .}}{{end}}' 2>/dev/null | cut -d= -f1 | sort | tr '\n' ' '; echo
+  sudo -n docker inspect $c --format '{{range .Config.Env}}{{println .}}{{end}}' 2>/dev/null | grep -oE '^[A-Z_][A-Z0-9_]*=' | tr -d = | sort | tr '\n' ' '; echo
   sudo -n docker inspect $c --format '{{range .Config.Env}}{{println .}}{{end}}' 2>/dev/null | grep -E '^(DB_NAME|NODE_ENV|PORT|APP_ENV|MONGO_URL)=' | mask
   sudo -n docker inspect $c --format '{{json .State.Health.Log}}' 2>/dev/null | tail -c 600; echo
 done
