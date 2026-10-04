@@ -11,7 +11,7 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { NABDAH_ACCESS_TOKEN_SECURITY_SCHEME } from '../../config/openapi.config';
-import { CreateCompanyDto, UpdateCompanyDto, OcrExtractDto, UploadPolicyDto, NphiesEligibilityDto, SubmitClaimDto, AttachInsuranceContractDto, CreateInsuranceNetworkDto, CreateCoverageRuleDto, InsuranceDecideDto } from './insurance.dto';
+import { CreateCompanyDto, UpdateCompanyDto, OcrExtractDto, UploadPolicyDto, NphiesEligibilityDto, SubmitClaimDto, CreateInsuranceNetworkDto, CreateCoverageRuleDto, InsuranceDecideDto } from './insurance.dto';
 import { InjectModel, InjectConnection, MongooseModule } from '@nestjs/mongoose';
 import { Model, Connection } from 'mongoose';
 import { RedisService } from '../redis/redis.service';
@@ -25,7 +25,6 @@ import {
   InsuranceCompany, InsuranceCompanyDocument, InsuranceCompanySchema,
   InsuranceNetwork, InsuranceNetworkDocument, InsuranceNetworkSchema,
   CoverageRule, CoverageRuleDocument, CoverageRuleSchema,
-  InsuranceNetworkContract,
   InsuranceClaim, InsuranceClaimDocument, InsuranceClaimSchema
 } from '../../schemas/insurance.schema';
 import { ProviderProfile, ProviderProfileDocument, ProviderProfileSchema } from '../../schemas/provider-profile.schema';
@@ -33,6 +32,8 @@ import { Facility, FacilityDocument, FacilitySchema } from '../../schemas/facili
 import { PatientProfile, PatientProfileSchema } from '../../schemas/patient-profile.schema';
 import { AiModule } from '../ai/ai.module';
 import { AiGatewayService } from '../ai/ai-gateway.service';
+import { ProviderStatus } from '../../common/enums';
+import { SERVICE_PROVIDER_TYPES, acceptedKeys, acceptsCompany, resolvePolicyCompany } from './insurance-acceptance';
 
 @Injectable()
 export class InsuranceService {
@@ -188,129 +189,66 @@ export class InsuranceService {
     return this.ruleModel.create({ ...data, network_id: networkId });
   }
 
-  // Check Coverage
+  /**
+   * F2 (PRODUCT.md): Nabd+ does not approve claims or set the copay. This
+   * answers what Nabd+ actually knows: whether a provider (or, without one,
+   * how many approved public providers of the service) accepts the patient's
+   * insurance company. Approval and the copay come from the provider, who
+   * records approved / partial / rejected on the insurance request.
+   */
   async checkCoverage(
     patientId: string,
     query: {
       provider_id?: string;
       facility_id?: string;
       service_type: string; // consultation, pharmacy, lab, radiology, nursing
-      service_key?: string; // e.g. cardiology, cbc-test
     }
   ) {
-    const patient = (await this.patientModel.findOne({ user_id: { $eq: patientId } }).lean()) as any;
-    if (!patient || !patient.insurance || !patient.insurance.provider) {
+    const base = { final_decision_by: 'provider' as const };
+    const patient = (await this.patientModel.findOne({ user_id: { $eq: patientId } }).lean()) as { insurance?: Record<string, unknown> } | null;
+    const policy = patient?.insurance;
+    if (!policy || !(policy.company_id || policy.provider)) {
+      return { ...base, has_policy: false, covered: false, reason: 'no_insurance_policy' };
+    }
+    const company = await resolvePolicyCompany(this.companyModel, policy);
+    if (!company) {
+      return { ...base, has_policy: true, covered: false, reason: 'insurance_company_not_in_catalog' };
+    }
+
+    if (query.provider_id || query.facility_id) {
+      const target = (query.provider_id
+        ? await this.providerModel.findOne({ $or: [{ id: { $eq: query.provider_id } }, { user_id: { $eq: query.provider_id } }, { account_id: { $eq: query.provider_id } }] }).lean()
+        : await this.facilityModel.findOne({ id: { $eq: query.facility_id } }).lean()) as { id?: string; name_ar?: string; name_en?: string; accepted_insurance?: unknown } | null;
+      if (!target) throw new NotFoundException('provider_not_found');
+      const accepted = acceptsCompany(target.accepted_insurance, company);
       return {
-        covered: false,
-        reason: 'Patient has no registered insurance policy',
-        copay_percent: 100,
-        copay_flat: 0,
-        requires_preauth: false,
+        ...base,
+        has_policy: true,
+        company,
+        provider_id: target.id,
+        provider_name_ar: target.name_ar,
+        provider_name_en: target.name_en,
+        covered: accepted,
+        ...(accepted ? {} : { reason: 'provider_does_not_accept_company' }),
       };
     }
 
-    const patientIns = patient.insurance; // { provider: 'bupa', network: 'gold', policy_number: '...', class: 'A' }
-    
-    // LOCAL eligibility check — provider enters approval result manually in their system
-    // No direct NPHIES integration. Insurance data collected from patient and sent with booking request.
-    // Provider performs approval on their clinic/hospital system and enters result in provider app.
-
-    // Find provider or facility contracts for copay details
-    let contracts: InsuranceNetworkContract[] = [];
-    let name = '';
-
-    if (query.provider_id) {
-      const provider = await this.providerModel.findOne({ id: { $eq: query.provider_id } }).lean();
-      if (provider) {
-        contracts = provider.insurance_contracts || [];
-        name = provider.name_ar;
-      }
-    } else if (query.facility_id) {
-      const facility = await this.facilityModel.findOne({ id: { $eq: query.facility_id } }).lean();
-      if (facility) {
-        contracts = facility.insurance_contracts || [];
-        name = facility.name_ar;
-      }
-    }
-
-    // The claim form stores whatever the patient typed (localized company name,
-    // network code), while a contract stores ids. Resolve both sides to ids so
-    // a real policy can actually match a real contract.
-    const eq = (a: any, b: any) => String(a ?? '').trim().toLowerCase() === String(b ?? '').trim().toLowerCase();
-    const companyAliases = new Set<string>();
-    const networkAliases = new Set<string>();
-    if (patientIns.company_id) companyAliases.add(String(patientIns.company_id).trim().toLowerCase());
-    if (patientIns.company_code) companyAliases.add(String(patientIns.company_code).trim().toLowerCase());
-    if (patientIns.provider) {
-      companyAliases.add(String(patientIns.provider).trim().toLowerCase());
-      const c: any = await this.companyModel?.findOne?.({ $or: [
-        { id: patientIns.provider }, { code: patientIns.provider },
-        { name_ar: patientIns.provider }, { name_en: patientIns.provider },
-      ] })?.lean?.() ?? null;
-      if (c) { companyAliases.add(String(c.id).toLowerCase()); companyAliases.add(String(c.code).toLowerCase()); }
-    }
-    if (patientIns.network) {
-      networkAliases.add(String(patientIns.network).trim().toLowerCase());
-      const n: any = await this.networkModel?.findOne?.({ $or: [
-        { id: patientIns.network }, { code: patientIns.network },
-        { name_ar: patientIns.network }, { name_en: patientIns.network },
-      ] })?.lean?.() ?? null;
-      if (n) networkAliases.add(String(n.id).toLowerCase());
-    }
-
-    // Match patient insurance company & network code
-    const matchingContract = contracts.find(c =>
-      (companyAliases.has(String(c.company_id ?? '').toLowerCase()) || companyAliases.has(String((c as any).company_name_ar ?? '').toLowerCase()) || companyAliases.has(String((c as any).company_name_en ?? '').toLowerCase())) &&
-      (networkAliases.has(String(c.network_id ?? '').toLowerCase()) || networkAliases.has(String((c as any).network_name_ar ?? '').toLowerCase()) || networkAliases.has(String((c as any).network_name_en ?? '').toLowerCase())) &&
-      ((c.covered_classes || []).length === 0 || (c.covered_classes || []).includes(patientIns.class ?? patientIns.plan_class))
-    );
-
-    if (!matchingContract) {
-      return {
-        covered: false,
-        reason: `Provider/Facility does not accept patient's insurance network (${patientIns.provider} - ${patientIns.network})`,
-        copay_percent: 100,
-        copay_flat: 0,
-        requires_preauth: false,
-        patient_policy: patientIns,
-        nphies_live: false,
-        manual_approval_required: true,
-      };
-    }
-
-    // Now check if there is a coverage rule for this service
-    // Find network
-    const network = await this.networkModel.findOne({ 
-      company_id: matchingContract.company_id, 
-      code: matchingContract.network_id 
-    }).lean();
-
-    let rule: CoverageRule | null = null;
-    if (network) {
-      // Find rules matching network
-      const rules = await this.ruleModel.find({ network_id: network.id, service_type: query.service_type }).lean();
-      // Look for specific key first, then fallback to general service_type
-      rule = rules.find(r => r.service_key === query.service_key) || rules.find(r => !r.service_key) || null;
-    }
-
-    const copayPercent = rule ? rule.copay_percent : matchingContract.copay_percent;
-    const copayFlat = rule ? Math.min(rule.copay_flat_limit, matchingContract.copay_flat) : matchingContract.copay_flat;
-    const requiresPreauth = rule ? rule.requires_preauth : false;
-
+    const types = SERVICE_PROVIDER_TYPES[query.service_type];
+    if (!types) throw new BadRequestException('service_type must be consultation|pharmacy|lab|radiology|nursing');
+    const accepting = await this.providerModel.countDocuments({
+      status: ProviderStatus.ACTIVE,
+      public_eligibility: true,
+      medical_review_status: 'approved',
+      type: { $in: types },
+      accepted_insurance: { $in: acceptedKeys(company) },
+    });
     return {
-      covered: true,
-      provider_name: name,
-      company_id: matchingContract.company_id,
-      company_name_ar: matchingContract.company_name_ar,
-      network_id: matchingContract.network_id,
-      network_name_ar: matchingContract.network_name_ar,
-      class: patientIns.class,
-      copay_percent: copayPercent,
-      copay_flat: copayFlat,
-      requires_preauth: requiresPreauth,
-      patient_policy: patientIns,
-      nphies_live: false,
-      manual_approval_required: true,
+      ...base,
+      has_policy: true,
+      company,
+      accepting_providers: accepting,
+      covered: accepting > 0,
+      ...(accepting > 0 ? {} : { reason: 'no_provider_accepts_company' }),
     };
   }
 
@@ -413,41 +351,6 @@ Use null for any field not clearly visible. Do not guess.`;
 
   /** LJ-02: a claim is filed against a real paid booking; the server sets the
    * status/date and ignores any client-supplied status or submitted_at. */
-  /** Attach (or replace) one insurance contract on a provider profile.
-   * `insurance_contracts` had no write path anywhere, so coverage-check could
-   * never return covered for a real provider. */
-  async attachContract(providerId: string, body: any) {
-    const company = await this.companyModel.findOne({ $or: [{ id: body.company_id }, { code: body.company_id }] }).lean();
-    if (!company) throw new NotFoundException('insurance_company_not_found');
-    const network = await this.networkModel.findOne({ $or: [{ id: body.network_id }, { code: body.network_id }] }).lean();
-    if (!network) throw new NotFoundException('insurance_network_not_found');
-
-    const contract = {
-      company_id: String((company as any).id),
-      company_name_ar: (company as any).name_ar,
-      company_name_en: (company as any).name_en,
-      network_id: String((network as any).id),
-      network_name_ar: (network as any).name_ar,
-      network_name_en: (network as any).name_en,
-      covered_classes: Array.isArray(body.covered_classes) ? body.covered_classes : [],
-      copay_percent: Number(body.copay_percent || 0),
-      copay_flat: Number(body.copay_flat || 0),
-    };
-
-    const prof = await this.providerModel.findOneAndUpdate(
-      { $or: [{ id: providerId }, { account_id: providerId }, { user_id: providerId }] },
-      { $pull: { insurance_contracts: { company_id: contract.company_id, network_id: contract.network_id } } },
-      { new: false },
-    ).lean();
-    if (!prof) throw new NotFoundException('provider_not_found');
-    const updated = await this.providerModel.updateOne(
-      { _id: (prof as any)._id },
-      { $push: { insurance_contracts: contract } },
-    );
-    if (!updated.matchedCount) throw new NotFoundException('provider_not_found');
-    return { ok: true, provider_id: (prof as any).id, contract };
-  }
-
   async submitClaim(patientId: string, claimData: any) {
     const bookingKind = String(claimData?.booking_kind || '').trim().toLowerCase();
     const bookingId = String(claimData?.booking_id || '').trim();
@@ -722,14 +625,12 @@ export class InsuranceController {
     @Query('provider_id') providerId?: string,
     @Query('facility_id') facilityId?: string,
     @Query('service_type') serviceType?: string,
-    @Query('service_key') serviceKey?: string
   ) {
     if (!serviceType) throw new BadRequestException('service_type is required');
     return this.svc.checkCoverage(u.id, {
       provider_id: providerId,
       facility_id: facilityId,
       service_type: serviceType,
-      service_key: serviceKey,
     });
   }
 
@@ -755,12 +656,6 @@ export class InsuranceController {
 
   // F2: POST save-policy is served by insurance-engine, which accepts every
   // field the clients send. This strict duplicate rejected the app payload.
-
-  @Roles(UserRole.ADMIN)
-  @Post('providers/:providerId/insurance-contract')
-  attachContract(@Param('providerId') providerId: string, @Body() b: AttachInsuranceContractDto) {
-    return this.svc.attachContract(providerId, b);
-  }
 
   @SelfService()
   @Post('claims/submit')

@@ -351,9 +351,17 @@ export default function NursingMegaProfile() {
                 <Icons.Shield />
                 <LocalizedText style={styles.insuranceTitle}>تم جلب التأمين تلقائياً</LocalizedText>
               </View>
-              <LocalizedText style={styles.insuranceText}>الشركة: {insuranceData?.provider}</LocalizedText>
-              <LocalizedText style={styles.insuranceText}>البوليصة: {insuranceData?.policy}</LocalizedText>
-              <LocalizedText style={styles.insuranceWarning}>* سيتم إرسال الطلب لشركة التأمين للحصول على الموافقة الطبية أولاً.</LocalizedText>
+              {insuranceData ? (
+                <>
+                  {!!insuranceData.company?.name_ar && <LocalizedText style={styles.insuranceText}>الشركة: {insuranceData.company.name_ar}</LocalizedText>}
+                  <LocalizedText style={styles.insuranceText}>
+                    {insuranceData.covered ? 'هذا الممرض يقبل شركة تأمينك' : insuranceData.reason === 'no_insurance_policy' ? 'لا توجد وثيقة تأمين مسجلة في ملفك' : 'هذا الممرض لا يقبل شركة تأمينك'}
+                  </LocalizedText>
+                </>
+              ) : (
+                <LocalizedText style={styles.insuranceText}>تعذر التحقق من قبول التأمين</LocalizedText>
+              )}
+              <LocalizedText style={styles.insuranceWarning}>* مقدم الخدمة يطلب موافقة شركة التأمين من نظامه، ثم تدفع نسبة التحمل إن وُجدت.</LocalizedText>
             </View>
           ) : (
             <View style={styles.billBox}>

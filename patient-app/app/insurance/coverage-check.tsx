@@ -1,7 +1,7 @@
 // @ts-nocheck
 // app/insurance/coverage-check.tsx — Connected to GET /insurance/coverage-check
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, TextInput, StatusBar, Alert } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, StatusBar } from 'react-native';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';
@@ -15,7 +15,7 @@ import { ScreenState } from '../../src/components/ScreenStates';
 
 const SERVICE_TYPES: any[] = [
   { id:'consultation', icon:'', label:'استشارة طبيب', examples:'قلب، باطنة، أطفال' },
-  { id:'labs', icon:'', label:'تحاليل مخبرية', examples:'فحص شامل، فيتامينات' },
+  { id:'lab', icon:'', label:'تحاليل مخبرية', examples:'فحص شامل، فيتامينات' },
   { id:'radiology', icon:'', label:'أشعة وتشخيص', examples:'سينية، رنين، مقطعية' },
   { id:'nursing', icon:'', label:'تمريض منزلي', examples:'مغذي، غيار جروح' },
 ];
@@ -27,7 +27,6 @@ function CoverageCheckScreenInner() {
   const { colors, isDark } = useApp();
   const [step, setStep] = useState<'form' | 'checking' | 'result'>('form');
   const [serviceType, setServiceType] = useState('');
-  const [providerName, setProviderName] = useState('');
   const [result, setResult] = useState<any>(null);
 
   const handleCheck = async () => {
@@ -35,7 +34,7 @@ function CoverageCheckScreenInner() {
     setStep('checking');
     try {
       const data = await apiFetch(
-        `/insurance/coverage-check?service_type=${serviceType}${providerName ? `&service_key=${providerName}` : ''}`
+        `/insurance/coverage-check?service_type=${encodeURIComponent(serviceType)}`
       );
       setResult(data);
       setStep('result');
@@ -51,30 +50,23 @@ function CoverageCheckScreenInner() {
         <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.primary }]} />
         <Icon name="search" size={20} color={colors.primary} />
         <AppText variant="bodySM">جاري فحص التغطية...</AppText>
-        {['التحقق من وثيقتك', 'مطابقة شبكة المزود', 'حساب نسبة التحمل'].map((s, i) => (
-          <View key={i} style={styles.loadingStep}>
-            <Icon name="check_circle" size={20} color={colors.primary} />
-            <AppText variant="bodySM">{s}</AppText>
-          </View>
-        ))}
       </View>
     );
   }
 
   if (step === 'result') {
-    // E2: render ONLY what the API really returns (covered / copay_percent / copay_flat / requires_preauth / names).
-    // The previous version fabricated riyal amounts, deductibles, coinsurance and annual limits that no endpoint provides.
-    const covered = result?.covered ?? result?.eligible ?? false;
-    const copayPct = typeof result?.copay_percent === 'number' ? result.copay_percent : null;
-    const companyPct = copayPct != null ? 100 - copayPct : null;
-    const copayFlat = typeof result?.copay_flat === 'number' && result.copay_flat > 0 ? result.copay_flat : null;
-    const preAuth = result?.requires_preauth ?? result?.preAuthRequired ?? false;
-    const bannerSub = [
-      result?.provider_name,
-      result?.network_name_ar,
-      result?.company_name_ar,
-      result?.class ? `الفئة ${result.class}` : null,
-    ].filter(Boolean).join(' • ');
+    // F2 (PRODUCT.md): the server answers only whether providers accept the
+    // patient's insurer. Approval and the copay come from the provider.
+    const covered = result?.covered === true;
+    const company = result?.company?.name_ar || result?.company?.name_en || '';
+    const count = typeof result?.accepting_providers === 'number' ? result.accepting_providers : null;
+    const REASONS: Record<string, string> = {
+      no_insurance_policy: 'لا توجد وثيقة تأمين مسجلة في ملفك',
+      insurance_company_not_in_catalog: 'شركة التأمين في وثيقتك غير موجودة في قائمة الشركات',
+      no_provider_accepts_company: 'لا يوجد حالياً مقدم خدمة لهذه الخدمة يقبل تأمينك',
+      provider_does_not_accept_company: 'مقدم الخدمة لا يقبل شركة تأمينك',
+    };
+    const reason = result?.reason ? (REASONS[result.reason] || result.reason) : '';
     const svcLabel = SERVICE_TYPES.find(s => s.id === serviceType)?.label || 'خدمة طبية';
 
     return (
@@ -90,61 +82,31 @@ function CoverageCheckScreenInner() {
         </View>
 
         <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 100 }]} showsVerticalScrollIndicator={false}>
-          {/* Coverage status */}
           <View style={[styles.networkBanner, { backgroundColor: covered ? '#16A34A' : '#DC2626' }]}>
             <Icon name={covered ? 'check_circle' : 'warning'} size={28} color="#fff" />
             <View style={styles.networkInfo}>
               <AppText variant="bodySM" color="#fff">
-                {covered ? `${svcLabel} مغطاة ضمن وثيقتك` : 'الخدمة غير مغطاة'}
+                {covered
+                  ? (count != null ? `${count} مقدم خدمة يقبل تأمينك في ${svcLabel}` : `مقدم الخدمة يقبل تأمينك`)
+                  : 'لا يوجد قبول لتأمينك'}
               </AppText>
-              {!!bannerSub && <AppText variant="bodySM" color="rgba(255,255,255,0.9)">{bannerSub}</AppText>}
-              {!covered && !!result?.reason && <AppText variant="bodySM" color="rgba(255,255,255,0.9)">{result.reason}</AppText>}
-              {!!result?.note_ar && <AppText variant="bodySM" color="rgba(255,255,255,0.9)">{result.note_ar}</AppText>}
+              {!!company && <AppText variant="bodySM" color="rgba(255,255,255,0.9)">{company}</AppText>}
+              {!covered && !!reason && <AppText variant="bodySM" color="rgba(255,255,255,0.9)">{reason}</AppText>}
             </View>
           </View>
 
-          {/* Real copay split — percentages come from the coverage engine */}
-          {covered && copayPct != null && (
-            <View style={[styles.card, { backgroundColor: isDark ? colors.surface : colors.white } ]}>
-              <AppText variant="bodySM">نسبة التحمل</AppText>
-              <View style={styles.coverageSplit}>
-                <View style={styles.splitItem}>
-                  <AppText variant="bodySM">{companyPct}%</AppText>
-                  <AppText variant="bodySM">تدفعها الشركة</AppText>
-                </View>
-                <View style={styles.splitDivider}>
-                  <AppText variant="bodySM">VS</AppText>
-                </View>
-                <View style={styles.splitItem}>
-                  <AppText variant="bodySM">{copayPct}%</AppText>
-                  <AppText variant="bodySM">تدفعها أنت</AppText>
-                </View>
-              </View>
-              {copayFlat != null && (
-                <View style={[styles.breakRow, { borderBottomColor: colors.border, borderBottomWidth: 0 } ]}>
-                  <AppText variant="bodySM">{copayFlat} ريال</AppText>
-                  <AppText variant="bodySM">حد أقصى ثابت للتحمل</AppText>
-                </View>
-              )}
-              <AppText variant="bodySM" color={colors.textTertiary} style={{ textAlign: 'center', marginTop: 8 }}>
-                المبلغ النهائي يُحتسب من سعر مقدم الخدمة الفعلي عند الحجز
-              </AppText>
-            </View>
-          )}
+          <View style={[styles.card, { backgroundColor: isDark ? colors.surface : colors.white } ]}>
+            <AppText variant="bodySM">
+              نبض+ لا يعتمد المطالبات. مقدم الخدمة يطلب موافقة شركة التأمين من نظامه ويسجّل النتيجة (موافقة كاملة أو جزئية أو رفض)، وبعدها تدفع نسبة التحمل إن وُجدت من التطبيق.
+            </AppText>
+          </View>
 
-          {/* Pre-auth */}
-          {preAuth && (
-            <View style={[styles.preAuthCard, { backgroundColor: isDark ? colors.surfaceSecondary : '#FEF3C7' } ]}>
-              <AppText variant="bodySM">
-                 هذه الخدمة تحتاج موافقة مسبقة من شركة التأمين قبل تنفيذها
-              </AppText>
-              <TouchableOpacity
-                style={[styles.preAuthBtn, { backgroundColor: colors.warning }]}
-                onPress={() => router.push('/support/chat')}
-              >
-                <AppText variant="bodySM">طلب موافقة مسبقة عبر الدعم</AppText>
-              </TouchableOpacity>
-            </View>
+          {covered && count != null && (
+            <TouchableOpacity onPress={() => router.push('/insurance/network-providers')} activeOpacity={0.85}>
+              <View style={[styles.checkBtn, { backgroundColor: colors.primary }]}>
+                <AppText variant="bodySM">عرض مقدمي الخدمة الذين يقبلون تأمينك</AppText>
+              </View>
+            </TouchableOpacity>
           )}
 
           {/* Re-check */}
@@ -183,19 +145,6 @@ function CoverageCheckScreenInner() {
                 <AppText variant="bodySM">{s.examples}</AppText>
               </TouchableOpacity>
             ))}
-          </View>
-        </View>
-
-        <View style={[styles.card, { backgroundColor: isDark ? colors.surface : colors.white } ]}>
-          <AppText variant="bodySM">اسم المزود (اختياري)</AppText>
-          <View style={[styles.inputRow, { backgroundColor: isDark ? colors.background : colors.backgroundSecondary, borderColor: colors.border } ]}>
-            <Icon name="search" size={16} color={colors.textTertiary} />
-            <TextInput
-              style={[styles.input, { color: colors.textPrimary }]}
-              value={providerName} onChangeText={setProviderName}
-              placeholder="اسم الطبيب أو المستشفى أو الصيدلية"
-              placeholderTextColor={colors.textTertiary} textAlign="right"
-            />
           </View>
         </View>
 
@@ -251,10 +200,6 @@ const styles = StyleSheet.create({
   finalAmount: { borderRadius: 12, padding: 12, flexDirection: 'row-reverse', justifyContent: 'space-between', alignItems: 'center', marginTop: 10 },
   finalAmountLabel: { fontSize: 13, fontWeight: '800' },
   finalAmountNum: { fontSize: 22, fontFamily: 'Cairo-ExtraBold' },
-  preAuthCard: { borderRadius: 16, padding: 14, gap: 10 },
-  preAuthText: { color: '#92400E', fontSize: 13, fontWeight: '400', textAlign: 'right', lineHeight: 20 },
-  preAuthBtn: { borderRadius: 12, paddingVertical: 10, alignItems: 'center' },
-  preAuthBtnText: { color: '#fff', fontSize: 13, fontWeight: '800' },
   limitInfo: { flexDirection: 'row-reverse', justifyContent: 'space-between', marginBottom: 8 },
   limitRemaining: { fontSize: 16, fontWeight: '800' },
   limitUsed: { fontSize: 12, fontWeight: '400' },

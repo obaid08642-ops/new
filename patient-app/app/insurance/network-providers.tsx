@@ -57,9 +57,9 @@ export default function NetworkProvidersScreen() {
           return;
         }
         const qs = new URLSearchParams();
+        // F2: providers list the catalog company codes they accept; the policy
+        // stores that code in company_id (add-policy).
         qs.set("insurance_company", ins.company_id || ins.provider);
-        if (ins.network) qs.set("insurance_network", ins.network);
-        if (ins.class) qs.set("insurance_class", ins.class);
         const res = await apiFetch(`/providers?${qs.toString()}`).catch(() => []);
         setProviders(Array.isArray(res) ? res : res?.data || []);
       } finally {

@@ -79,7 +79,7 @@ const QUICK_ACTIONS = [
   { icon: 'search', label: 'فحص التغطية', color: '#23B5CE', bg: '#EBF3FF', route: '/insurance/coverage-check' },
   { icon: 'document', label: 'رفع مطالبة', color: '#7A6BEA', bg: '#EDE9FE', route: '/insurance/submit-claim' },
   { icon: 'hospital', label: 'مزودو الخدمة', color: '#5BA84F', bg: '#DCFCE7', route: '/insurance/network-providers' },
-  { icon: 'wallet', label: 'المزايا المتبقية', color: '#F0A526', bg: '#FEF3C7', route: '/insurance/benefits-summary' },
+  { icon: 'wallet', label: 'طلبات التأمين', color: '#F0A526', bg: '#FEF3C7', route: '/insurance/benefits-summary' },
 ];
 
 export default function InsuranceHubScreen() {
@@ -107,21 +107,20 @@ export default function InsuranceHubScreen() {
       try {
         const ins = await apiFetch('/users/me/insurance');
         if (ins && ins.provider) {
+          // Only what the saved policy really holds (add-policy): no invented
+          // coverage percentages, limits, deductible or member id.
+          const expiry = ins.expiry_date ? new Date(ins.expiry_date) : null;
           setPolicies([{
             id: '1',
             company: ins.provider,
             logo: 'shield',
-            color: '#E30613', // could map based on provider
+            color: '#E30613',
             policyNumber: ins.policy_number,
-            memberId: ins.national_id || 'M-000',
-            type: 'شامل طبي',
-            endDate: ins.expiry_date || 'غير محدد',
-            isActive: true,
+            memberId: ins.national_id || '—',
+            endDate: ins.expiry_date || '—',
+            isActive: !expiry || isNaN(expiry.getTime()) || expiry.getTime() >= Date.now(),
             isDefault: true,
-            coverage: { consultations: 90, medicines: 80, diagnostics: 85, nursing: 70, hospitalization: 95, dental: 50, optical: 60 },
-            limits: { annual: 500000, used: 0, remaining: 500000 },
-            deductible: { amount: 50, used: 0 },
-            network: ins.network,
+            network: ins.network || '—',
           }]);
         }
       } catch (err) {
@@ -143,7 +142,6 @@ export default function InsuranceHubScreen() {
   }, []);
 
   const defaultPolicy = policies.find(p => p.isDefault) || policies[0];
-  const usedPct = defaultPolicy ? Math.round((defaultPolicy.limits.used / defaultPolicy.limits.annual) * 100) : 0;
 
   // ── CHI WebView scraper state ─────────────────────────────────────────────
   const [chiVisible, setChiVisible] = useState(false);
@@ -247,14 +245,14 @@ export default function InsuranceHubScreen() {
           <View style={styles.policyShimmer} />
           <View style={styles.policyTop}>
             <View style={styles.policyBadge}>
-              <View style={styles.activeDot} />
-              <AppText variant="caption" color="#4ADE80">نشط</AppText>
+              <View style={[styles.activeDot, !defaultPolicy.isActive && { backgroundColor: '#F0695C' }]} />
+              <AppText variant="caption" color={defaultPolicy.isActive ? '#4ADE80' : '#F0695C'}>{defaultPolicy.isActive ? 'سارية' : 'منتهية'}</AppText>
             </View>
             <View style={styles.policyCompany}>
               <Icon name={defaultPolicy.logo as any} size={32} color="#fff" />
               <View style={{ alignItems: 'flex-end' }}>
                 <AppText variant="h6" color="#fff">{defaultPolicy.company}</AppText>
-                <AppText variant="caption" color="rgba(255,255,255,0.75)">{defaultPolicy.type}</AppText>
+                <AppText variant="caption" color="rgba(255,255,255,0.75)">{defaultPolicy.policyNumber}</AppText>
               </View>
             </View>
           </View>
@@ -272,18 +270,6 @@ export default function InsuranceHubScreen() {
             ))}
           </View>
 
-          <View style={styles.limitSection}>
-            <View style={styles.limitRow}>
-              <AppText variant="caption" color="rgba(255,255,255,0.7)">تم استخدام {(defaultPolicy.limits.used / 1000).toFixed(1)}k ريال ({usedPct}%)</AppText>
-              <AppText variant="caption" color="rgba(255,255,255,0.7)">الحد السنوي: {(defaultPolicy.limits.annual / 1000).toFixed(0)}k ريال</AppText>
-            </View>
-            <View style={styles.limitBar}>
-              <View style={[styles.limitFill, { width: `${usedPct}%` as any }]} />
-            </View>
-            <AppText variant="caption" color="#4ADE80" style={{ textAlign: 'left' }}>
-              {(defaultPolicy.limits.remaining / 1000).toFixed(0)}k ريال متبقي
-            </AppText>
-          </View>
         </View>
         ) : (
           <View style={[styles.policyCard, { backgroundColor: 'rgba(255,255,255,0.1)', justifyContent: 'center', alignItems: 'center', paddingVertical: 40 } ]}>
@@ -319,70 +305,18 @@ export default function InsuranceHubScreen() {
           ))}
         </View>
 
-        {/* Coverage Summary (only with a policy: a patient without insurance has nothing to summarise) */}
-        {defaultPolicy ? (
-        <View style={[styles.section, { backgroundColor: isDark ? colors.surface : colors.white } ]}>
+        {/* F2: Nabd+ holds no coverage percentages or deductible; the
+            provider decides each request. */}
+        <TouchableOpacity onPress={() => router.push('/insurance/benefits-summary')} activeOpacity={0.85}
+          style={[styles.section, { backgroundColor: isDark ? colors.surface : colors.white } ]}>
           <View style={styles.sectionHeader}>
-            <TouchableOpacity onPress={() => router.push('/insurance/benefits-summary')}>
-              <AppText variant="caption" color={colors.primary} style={{ fontWeight: '700' }}>تفاصيل</AppText>
-            </TouchableOpacity>
-            <AppText variant="h6">ملخص التغطية</AppText>
+            <AppText variant="caption" color={colors.primary} style={{ fontWeight: '700' }}>عرض</AppText>
+            <AppText variant="h6">طلبات التأمين وقرارات مقدمي الخدمة</AppText>
           </View>
-          <View style={styles.coverageGrid}>
-            {[
-              { label: 'استشارات', pct: defaultPolicy.coverage.consultations, icon: 'consultations' },
-              { label: 'أدوية', pct: defaultPolicy.coverage.medicines, icon: 'medication' },
-              { label: 'تحاليل', pct: defaultPolicy.coverage.diagnostics, icon: 'science' },
-              { label: 'تنويم', pct: defaultPolicy.coverage.hospitalization, icon: 'hospital' },
-              { label: 'أسنان', pct: defaultPolicy.coverage.dental, icon: 'tooth' },
-              { label: 'نظارات', pct: defaultPolicy.coverage.optical, icon: 'eye' },
-            ].map((cov, i) => (
-              <View key={i} style={[styles.covCard, { backgroundColor: isDark ? colors.background : colors.backgroundSecondary } ]}>
-                <Icon name={cov.icon as any} size={18} color={cov.pct >= 80 ? '#5BA84F' : cov.pct >= 50 ? '#F0A526' : '#F0695C'} />
-                <AppText variant="h6" style={{ fontFamily: 'Cairo-ExtraBold' }}>{cov.pct}%</AppText>
-                <AppText variant="caption">{cov.label}</AppText>
-                <View style={[styles.covBar, { backgroundColor: colors.border } ]}>
-                  <View style={[styles.covFill, {
-                    width: `${cov.pct}%` as any,
-                    backgroundColor: cov.pct >= 80 ? '#5BA84F' : cov.pct >= 50 ? '#F0A526' : '#F0695C'
-                  }]} />
-                </View>
-              </View>
-            ))}
-          </View>
-        </View>
-        ) : null}
-
-        {/* Deductible Card */}
-        <View style={[styles.deductCard, { backgroundColor: isDark ? colors.surface : colors.white } ]}>
-          <View style={styles.sectionHeader}>
-            <TouchableOpacity onPress={() => {
-              if (defaultPolicy?.id) {
-                router.push({ pathname: '/insurance/policy-detail', params: { policyId: defaultPolicy.id } });
-              } else {
-                router.push('/insurance/add-policy');
-              }
-            }}>
-              <AppText variant="caption" color={colors.primary} style={{ fontWeight: '700' }}>تفاصيل</AppText>
-            </TouchableOpacity>
-            <AppText variant="h6">التحمّل</AppText>
-          </View>
-          <View style={{ flexDirection: 'row-reverse', marginBottom: 10, gap: 8 }}>
-            <View style={[styles.deductItem, { backgroundColor: isDark ? colors.surfaceSecondary : '#F0FDF4' } ]}>
-              <AppText variant="h4" style={{ fontFamily: 'Cairo-ExtraBold' }}>{defaultPolicy?.deductible?.amount ?? '—'}</AppText>
-              <AppText variant="caption" color={colors.textSecondary}>ريال / زيارة</AppText>
-            </View>
-            <View style={[styles.deductItem, { backgroundColor: isDark ? colors.surfaceSecondary : '#EFF6FF' } ]}>
-              <AppText variant="h4" style={{ fontFamily: 'Cairo-ExtraBold' }}>{defaultPolicy?.deductible?.used ?? '—'}</AppText>
-              <AppText variant="caption" color={colors.textSecondary}>ريال مدفوع</AppText>
-            </View>
-          </View>
-          <View style={[{ backgroundColor: isDark ? colors.surfaceSecondary : '#EBF3FF', borderRadius: 12, padding: 10 } ]}>
-            <AppText variant="caption" style={{ textAlign: 'right', lineHeight: 18 }}>
-              التحمّل هو المبلغ الذي تدفعه أنت من كل فاتورة قبل أن تبدأ التغطية
-            </AppText>
-          </View>
-        </View>
+          <AppText variant="caption" color={colors.textSecondary} style={{ textAlign: 'right', lineHeight: 18 }}>
+            مقدم الخدمة يطلب موافقة شركة التأمين من نظامه ويسجّل القرار، وبعدها تدفع نسبة التحمل إن وُجدت.
+          </AppText>
+        </TouchableOpacity>
 
         {/* My Policies List */}
         <View style={{ marginBottom: 14 }}>
@@ -409,10 +343,10 @@ export default function InsuranceHubScreen() {
               </View>
               <View style={{ flex: 1, alignItems: 'flex-end', gap: 2 }}>
                 <AppText variant="h6">{policy.company}</AppText>
-                <AppText variant="caption" color={colors.textSecondary}>{policy.type}</AppText>
+                <AppText variant="caption" color={colors.textSecondary}>{policy.isActive ? 'سارية' : 'منتهية'}</AppText>
                 <AppText variant="caption" color={colors.textTertiary}>{policy.policyNumber}</AppText>
               </View>
-              <AppText style={{ fontSize: 28 }}>{policy.logo}</AppText>
+              <Icon name={policy.logo as any} size={28} color={colors.primary} />
             </TouchableOpacity>
           ))}
         </View>
