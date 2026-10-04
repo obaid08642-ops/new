@@ -1,5 +1,6 @@
 import { Injectable, CanActivate, ExecutionContext, HttpException, HttpStatus } from '@nestjs/common';
 import { RedisService } from '../../modules/redis/redis.service';
+import { ERROR_CODES } from '../errors';
 
 @Injectable()
 export class DeviceLimitGuard implements CanActivate {
@@ -13,8 +14,8 @@ export class DeviceLimitGuard implements CanActivate {
     if (!deviceId) {
       // If device fingerprint is missing on registration, reject
       throw new HttpException({
-        status: HttpStatus.BAD_REQUEST,
-        error: 'Device Fingerprint missing. Registration rejected.',
+        code: ERROR_CODES.INVALID_INPUT,
+        message: 'Device Fingerprint missing. Registration rejected.',
       }, HttpStatus.BAD_REQUEST);
     }
 
@@ -32,8 +33,8 @@ export class DeviceLimitGuard implements CanActivate {
 
     if (accountCount > MAX_ACCOUNTS) {
       throw new HttpException({
-        status: HttpStatus.FORBIDDEN,
-        error: 'Fraud Prevention: Max 3 unique accounts allowed per device.',
+        code: ERROR_CODES.INSUFFICIENT_PERMISSION,
+        message: 'Fraud Prevention: Max 3 unique accounts allowed per device.',
       }, HttpStatus.FORBIDDEN);
     }
 
