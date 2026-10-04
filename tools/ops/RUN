@@ -1,2 +1,1 @@
-# tasks run in order by .github/workflows/server-inspect.yml
-90-recover
+91-diagnose-crash
