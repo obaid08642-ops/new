@@ -14,6 +14,7 @@ import * as bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import { escapeRegex } from '../../common/slug.util';
 import { StartDto, SubmitDto, AdminContractVisibilityDto } from './provider-onboarding.dto';
+import { PROVIDER_PUBLIC_PROJECTION } from './provider-private-fields';
 
 /**
  * Unified Provider Onboarding Wizard.
@@ -464,7 +465,7 @@ export class ProviderOnboardingService {
         { 'nursing_services.name_en': re },
       ];
     }
-    const list = await this.providerModel.find(filter, { _id: 0, __v: 0, license_documents: 0 }).sort({ rating: -1 }).limit(80).lean();
+    const list = await this.providerModel.find(filter, PROVIDER_PUBLIC_PROJECTION).sort({ rating: -1 }).limit(80).lean();
     return list.map((p: any) => ({
       ...p,
       matched_capabilities: this.summarizeCaps(p, q.service),
