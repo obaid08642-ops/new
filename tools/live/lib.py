@@ -25,6 +25,9 @@ def enroll_admin_device(admin):
     """Enroll the gate run's device id for the admin user (C2). Idempotent."""
     r = admin.post('/admin/devices/enroll', {'device_id': ADMIN_DEVICE_ID, 'name': 'gate-run-owner-macbook'})
     step('admin device enrolled for the gate run (C2)', r.ok, r)
+    # R23: sensitive actions need a fresh passkey assertion; enroll the synthetic key once.
+    import softkey
+    step('synthetic passkey enrolled for step-up (R23)', softkey.ensure_enrolled(admin.post, admin.get), 'enroll failed')
     return r.ok
 RESULTS = []  # {journey, step, ok, detail}
 _journey = ['?']
@@ -122,6 +125,18 @@ class Client:
             parsed = json.loads(txt) if txt else None
         except ValueError:
             parsed = txt
+        # R23: a @StepUp route answers 403 step_up_required; do the passkey
+        # ceremony with the synthetic key (softkey.py) and retry once, like the dashboard.
+        if (self.is_admin and status == 403 and 'step_up_' in txt and not path.startswith('http')
+                and 'x-step-up-token' not in (headers or {}) and not getattr(self, '_stepping', False)):
+            import softkey
+            self._stepping = True
+            try:
+                tok = softkey.step_up_token(lambda p, b: self.req('POST', p, b), f"{method}:/api/v1{path.split('?')[0]}")
+            finally:
+                self._stepping = False
+            if tok:
+                return self.req(method, path, body, {**(headers or {}), 'x-step-up-token': tok}, idem)
         return Resp(status, parsed, hdrs)
 
     def get(self, p, **kw): return self.req('GET', p, **kw)
@@ -229,4 +244,16 @@ class AdminWeb(WebClient):
             path = '/api/admin/' + path[len('/admin/'):]
         elif not path.startswith('/api/') and not path.startswith('http'):
             path = '/api/admin' + path
-        return super().req(method, path, body, h, idem)
+        r = super().req(method, path, body, h, idem)
+        # R23: same as the dashboard's GlobalStepUp: passkey ceremony, then one retry.
+        if (r.status == 403 and path.startswith('/api/admin/') and 'x-step-up-token' not in h
+                and 'step_up_' in json.dumps(r.body, ensure_ascii=False) and not getattr(self, '_stepping', False)):
+            import softkey
+            self._stepping = True
+            try:
+                tok = softkey.step_up_token(lambda p, b: self.req('POST', '/api/admin' + p, b), f"{method}:/api/v1/{path[len('/api/admin/'):].split('?')[0]}")
+            finally:
+                self._stepping = False
+            if tok:
+                r = super().req(method, path, body, {**h, 'x-step-up-token': tok}, idem)
+        return r
