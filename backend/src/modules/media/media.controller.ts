@@ -44,7 +44,8 @@ export class MediaController {
     await this.assertUploadAllowed(user, purpose, threadId);
     const originalname = (file as any)?.originalname ?? file.filename;
     const mimetype = file.mimetype;
-    const buffer = await MediaController.toBuffer(file.file);
+    // Q92: Express/multer (the default adapter) hands a buffer; only Fastify gives a stream.
+    const buffer: Buffer = (file as any)?.buffer ?? await MediaController.toBuffer(file.file);
     const uploaded = await this.mediaService.uploadBuffer(buffer, originalname, mimetype, `${purpose}/${user.id}`);
     try {
       const asset: any = await this.assets.create({
