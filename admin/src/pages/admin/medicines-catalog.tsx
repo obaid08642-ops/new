@@ -153,14 +153,37 @@ export default function MedicinesCatalogPage() {
     // Only the form's own editable fields: openEdit() loads the whole stored document into the form, and sending
     // it back (_id, id, deleted_at, verified, …) made every edit fail with 400 (forbidNonWhitelisted).
     const payload: any = Object.fromEntries(Object.keys(EMPTY_FORM).filter((k) => k !== 'reason').map((k) => [k, form[k]]));
-    // R10: map locale name fields into translations.{locale}.name; drop top-level keys
-    payload.translations = {
-      ...(form.translations || {}),
-      ur: { ...((form.translations || {}).ur || {}), ...(form.name_ur?.trim() ? { name: form.name_ur.trim() } : {}) },
-      hi: { ...((form.translations || {}).hi || {}), ...(form.name_hi?.trim() ? { name: form.name_hi.trim() } : {}) },
-      bn: { ...((form.translations || {}).bn || {}), ...(form.name_bn?.trim() ? { name: form.name_bn.trim() } : {}) },
-      fil: { ...((form.translations || {}).fil || (form.translations || {}).tl || {}), ...(form.name_fil?.trim() ? { name: form.name_fil.trim() } : {}) },
+    // R19: merge locale names into the EXISTING item's translations map.
+    // Edit path MUST PATCH /medicines/admin/catalog/:id only — never POST a
+    // sibling record per locale (that forks one medicine into ar/en/ur/... rows).
+    // Null-safe: existing map + per-locale objects may be null/undefined.
+    const existingTranslations: any = (form as any)?.translations ?? {};
+    const mergeLocaleName = (prev: any, raw: any) => {
+      const base = (prev && typeof prev === 'object' ? prev : {});
+      const name = typeof raw === 'string' ? raw.trim() : '';
+      if (name) return { ...base, name };
+      return base;
     };
+    const mergedTranslations: any = { ...(existingTranslations && typeof existingTranslations === 'object' ? existingTranslations : {}) };
+    // Normalize legacy `tl` alias into canonical `fil` so we never fork fil vs tl.
+    const legacyTl = (existingTranslations as any)?.tl;
+    if (legacyTl && typeof legacyTl === 'object' && !(mergedTranslations as any)?.fil) {
+      mergedTranslations.fil = { ...legacyTl };
+    }
+    mergedTranslations.ur = mergeLocaleName((existingTranslations as any)?.ur, (form as any)?.name_ur);
+    mergedTranslations.hi = mergeLocaleName((existingTranslations as any)?.hi, (form as any)?.name_hi);
+    mergedTranslations.bn = mergeLocaleName((existingTranslations as any)?.bn, (form as any)?.name_bn);
+    mergedTranslations.fil = mergeLocaleName((mergedTranslations as any)?.fil ?? (existingTranslations as any)?.tl, (form as any)?.name_fil);
+    // Prune empty locale objects so PATCH never wipes stored translations with `{}`.
+    for (const loc of ['ur', 'hi', 'bn', 'fil']) {
+      if (mergedTranslations[loc] && typeof mergedTranslations[loc] === 'object' && Object.keys(mergedTranslations[loc]).length === 0) {
+        if ((existingTranslations as any)?.[loc] == null && loc !== 'fil') delete mergedTranslations[loc];
+        else if (loc === 'fil' && (existingTranslations as any)?.fil == null && (existingTranslations as any)?.tl == null) delete mergedTranslations[loc];
+      }
+    }
+    // Drop legacy alias from the outgoing map; backend canonical key is `fil`.
+    if (mergedTranslations.tl !== undefined && (form as any)?.name_fil?.trim?.()) delete mergedTranslations.tl;
+    payload.translations = mergedTranslations;
     delete payload.name_ur; delete payload.name_hi; delete payload.name_bn; delete payload.name_fil;
     for (const f of ['indications_ar','indications_en','contraindications_ar','contraindications_en','warnings_ar','warnings_en','side_effects_ar','side_effects_en','precautions_ar','precautions_en']) {
       payload[f] = toArr(form[f]);
@@ -176,6 +199,7 @@ export default function MedicinesCatalogPage() {
       if (formMode === 'create') {
         await apiFetch('/medicines/admin/catalog', { method: 'POST', body: JSON.stringify(payload) });
       } else if (editId) {
+        // R19: translation edits merge into the existing id via PATCH only — never POST a sibling.
         // Enforce reason when price differs to avoid 400 price_change_reason_required
         const original = items.find((x: any) => x.id === editId);
         const priceChanged = original && Number(original.price || 0) !== Number(payload.price || 0);
