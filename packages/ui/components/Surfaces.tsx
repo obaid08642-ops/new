@@ -20,7 +20,7 @@ import type {
 } from './contract';
 import { Icon, IllustratedIconView } from '../src/Icon';
 import { FIcon } from './FIcon';
-import { SERVICE_ICONS } from '../icons/fill';
+import { FILL_ICON_PATHS, SERVICE_ICONS } from '../icons/fill';
 
 /**
  * The layout and navigation surfaces — 12.A7, web.
@@ -309,13 +309,23 @@ export function SectionHeader({ title, actionLabel, level = 2, testID, action }:
 }
 SectionHeader.displayName = 'SectionHeader';
 
-export function Avatar({ name, size = 'md', illustratedName, status = 'none', testID }: AvatarProps) {
+export function Avatar({ name, size = 'md', src, status = 'none', testID }: AvatarProps) {
   const box = size === 'sm' ? 32 : size === 'md' ? 44 : 64;
   const initials = name
     .split(/\s+/)
     .slice(0, 2)
     .map((w) => w[0] ?? '')
     .join('');
+  // canvas/HomeApp.dc.html: tinted disc, 2px surface gap, 2px coral ring
+  const ring: React.CSSProperties = {
+    boxSizing: 'border-box',
+    width: box,
+    height: box,
+    borderRadius: 'var(--nabd-radius-pill)',
+    background: 'var(--nabd-color-avatar-bg)',
+    border: '2px solid var(--nabd-color-bg-surface)',
+    boxShadow: '0 0 0 2px var(--nabd-color-avatar-ring)',
+  };
 
   return (
     <span
@@ -324,25 +334,15 @@ export function Avatar({ name, size = 'md', illustratedName, status = 'none', te
       aria-label={name}
       style={{ position: 'relative', display: 'inline-grid', placeItems: 'center', width: box, height: box }}
     >
-      {illustratedName ? (
-        <IllustratedIconView name={illustratedName as never} size={Math.round(box * 0.86)} />
+      {src ? (
+        // a real photo; the name is already the accessible name of the wrapper
+        <img src={src} alt="" aria-hidden width={box} height={box} style={{ ...ring, objectFit: 'cover' }} />
       ) : (
         <span
           aria-hidden
-          style={{
-            display: 'grid',
-            placeItems: 'center',
-            width: box,
-            height: box,
-            borderRadius: 'var(--nabd-radius-pill)',
-            background: 'var(--nabd-color-bg-sunken)',
-            boxShadow: 'var(--nabd-shadow-avatar)',
-            fontSize: 'var(--nabd-font-size-label)',
-            fontWeight: 700,
-            color: 'var(--nabd-color-text-primary)',
-          }}
+          style={{ ...ring, display: 'grid', placeItems: 'center', fontSize: Math.round(box * 0.36), fontWeight: 700, color: 'var(--nabd-color-text-primary)' }}
         >
-          {initials}
+          {initials || <Icon name="user" size={Math.round(box * 0.5)} tone="secondary" />}
         </span>
       )}
       {status !== 'none' ? (
@@ -390,34 +390,29 @@ export function PriceTag({ amount, currency, was, note, testID }: PriceTagProps)
  * is what turns a row of glyphs into information. `formatLabel` is supplied by
  * the app so the sentence is localised there, not here.
  */
-export function Rating({ value, count, max = 5, size = 'sm', formatLabel, testID }: RatingProps) {
-  const px = size === 'sm' ? 14 : 18;
-
+/**
+ * DoctorCard board rating: one filled star, the value (14/700) and the count in
+ * brackets (12/400). Nothing at all when there are no real ratings.
+ */
+export function Rating({ value, count, max = 5, size = 'sm', surface = 'default', formatLabel, testID }: RatingProps) {
+  if (value == null || !(count > 0)) return null;
+  const px = size === 'sm' ? 16 : 20;
+  const shown = value.toFixed(1);
+  const onBrand = surface === 'onBrand';
   return (
     <span
       data-testid={testID}
       role="img"
-      aria-label={formatLabel ? formatLabel(value, count) : `${value} out of ${max}${count ? ` from ${count}` : ''}`}
-      style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--nabd-space-3xs)' }}
+      aria-label={formatLabel ? formatLabel(value, count) : `${shown} out of ${max}, ${count} ratings`}
+      style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: onBrand ? 'var(--nabd-color-action-primary-fg)' : 'var(--nabd-color-text-primary)' }}
     >
-      <span aria-hidden style={{ display: 'inline-flex', gap: 2 }}>
-        {Array.from({ length: max }).map((_, i) => (
-          <span
-            key={i}
-            style={{
-              color: i < Math.round(value) ? 'var(--nabd-color-icon-favorite)' : 'var(--nabd-color-border-strong)',
-              display: 'grid',
-            }}
-          >
-            <Icon name="star" size={px} />
-          </span>
-        ))}
+      <svg aria-hidden="true" width={px} height={px} viewBox="0 0 256 256">
+        <path d={FILL_ICON_PATHS.star} fill={onBrand ? 'var(--nabd-color-icon-ratingStarOnBrand)' : 'var(--nabd-color-icon-ratingStar)'} />
+      </svg>
+      <span aria-hidden style={{ fontSize: size === 'sm' ? 'var(--nabd-font-size-caption)' : 'var(--nabd-font-size-body)', fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>
+        {shown}
       </span>
-      {count !== undefined ? (
-        <span aria-hidden style={{ fontSize: 'var(--nabd-font-size-caption)', color: 'var(--nabd-color-text-secondary)' }}>
-          {count}
-        </span>
-      ) : null}
+      <span aria-hidden style={{ fontSize: 'var(--nabd-font-size-label)', fontWeight: 400, opacity: 0.85 }}>({count})</span>
     </span>
   );
 }

@@ -5,7 +5,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
 import {
-  Badge, Button, Card, Chip, EmptyState, ErrorState, FIcon, IconButton, ListItem, Rating,
+  Avatar, Badge, Button, Card, Chip, EmptyState, ErrorState, FIcon, IconButton, ListItem, Rating,
   SectionHeader, Select, ServiceTile, SERVICE_ICONS, SERVICE_TONES, Stepper, Tabs,
 } from "@nabd/ui";
 import { CONTRACT_NAMES } from "@nabd/ui/components/contract";
@@ -226,6 +226,35 @@ describe("12.A7 — a rating always says what it is out of", () => {
   it("the app supplies the sentence, so it is localised where the strings live", () => {
     const html = renderRating({ formatLabel: () => "٤٫٥ من ٥ بناءً على ١٢ تقييم" });
     expect(html).toContain("١٢ تقييم");
+  });
+});
+
+describe("design review — ratings are real or absent, people are real or neutral", () => {
+  it("Rating is the DoctorCard form: one filled star, the value and (count)", () => {
+    const html = markup(Rating, { value: 4.8, count: 128 });
+    expect(html.match(/<svg/g)).toHaveLength(1);
+    expect(html).toContain('fill="var(--nabd-color-icon-ratingStar)"');
+    expect(html).toContain(">4.8<");
+    expect(html).toContain(">(128)<");
+    expect(markup(Rating, { value: 4.8, count: 128, surface: "onBrand" })).toContain('fill="var(--nabd-color-icon-ratingStarOnBrand)"');
+  });
+
+  it("Rating renders nothing without real ratings: no empty stars, no bare count", () => {
+    expect(markup(Rating, { value: null, count: 0 })).toBe("");
+    expect(markup(Rating, { value: 4.2, count: 0 })).toBe("");
+    expect(markup(Rating, { value: null, count: 5 })).toBe("");
+  });
+
+  it("Avatar is a real photo, else initials, else the neutral user icon; never an illustrated person", () => {
+    const photo = markup(Avatar, { name: "د. أحمد", src: "https://cdn.nabd.plus/doctors/1.jpg" });
+    expect(photo).toContain('<img src="https://cdn.nabd.plus/doctors/1.jpg"');
+    expect(photo).toContain('aria-label="د. أحمد"');
+    expect(markup(Avatar, { name: "Amina Haddad" })).toContain(">AH<");
+    expect(markup(Avatar, { name: "" })).toContain('data-icon="user"');
+    const contract = readFileSync(resolve(process.cwd(), "../packages/ui/components/contract.ts"), "utf8");
+    const gallery = readFileSync(resolve(process.cwd(), "../packages/ui/build-preview.mjs"), "utf8");
+    expect(contract).not.toContain("illustratedName");
+    expect(gallery).not.toContain("illustratedName");
   });
 });
 

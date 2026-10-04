@@ -279,11 +279,15 @@ export interface SectionHeaderProps extends A11yProps {
 }
 
 export interface AvatarProps extends A11yProps {
-  /** A person or family member name. */
+  /** A person or family member name. Empty draws the neutral user icon. */
   name: string;
   size?: Size;
-  /** An illustrated role, when the person is a provider rather than a user. */
-  illustratedName?: string;
+  /**
+   * A real photo URL (e.g. a doctor's `photo_url`). Without one the avatar shows the
+   * initials, or the neutral user icon when there is no name. No cartoon or
+   * illustrated people (handoff §1).
+   */
+  src?: string;
   /** Shows a small state marker: verified, offline, needs attention. */
   status?: 'none' | 'online' | 'offline' | 'alert';
 }
@@ -301,13 +305,21 @@ export interface PriceTagProps extends A11yProps {
  * there is no "seed" or "sample" mode, because a rating with no count is a lie
  * rendered as a star row.
  */
+/**
+ * A compact rating as on the DoctorCard board: ONE filled star, the value, and the
+ * count in brackets. It renders nothing unless there are real ratings
+ * (`count > 0` and a value), so a screen can never show an empty-star row or a
+ * bare count (handoff §1: no fake ratings).
+ */
 export interface RatingProps extends A11yProps {
-  value: number;
-  count?: number;
+  value: number | null;
+  count: number;
   max?: number;
   size?: 'sm' | 'md';
+  /** `onBrand` on the coral DoctorCard footer; `default` on a surface. */
+  surface?: 'default' | 'onBrand';
   /** Supplied by the caller so the sentence is localised by the app, not here. */
-  formatLabel?: (value: number, count?: number) => string;
+  formatLabel?: (value: number, count: number) => string;
 }
 
 /* ------------------------------------------------------------- navigation */

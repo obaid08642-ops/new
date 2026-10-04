@@ -1,5 +1,6 @@
 import * as React from 'react';
 import {
+  Image,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -9,6 +10,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 
+import Svg, { Path } from 'react-native-svg';
 import type {
   AvatarProps,
   BadgeProps,
@@ -29,7 +31,7 @@ import type {
 } from '../../../ui/components/contract';
 import { Icon, IllustratedIconView } from '../Icon';
 import { FIcon } from './FIcon';
-import { SERVICE_ICONS } from '../../../ui/icons/fill';
+import { FILL_ICON_PATHS, SERVICE_ICONS } from '../../../ui/icons/fill';
 import { tokens } from '../../../design-tokens/dist/ts/tokens';
 
 /**
@@ -325,10 +327,21 @@ export function SectionHeader({ title, actionLabel, testID, theme = 'light', onA
   );
 }
 
-export function Avatar({ name, size = 'md', illustratedName, status = 'none', testID, theme = 'light' }: AvatarProps & { theme?: 'light' | 'dark' }) {
+export function Avatar({ name, size = 'md', src, status = 'none', testID, theme = 'light' }: AvatarProps & { theme?: 'light' | 'dark' }) {
+  const t = tokens(theme);
   const box = size === 'sm' ? 32 : size === 'md' ? 44 : 64;
   const dark = theme === 'dark';
   const initials = name.split(/\s+/).slice(0, 2).map((w) => w[0] ?? '').join('');
+  // canvas/HomeApp.dc.html: tinted disc, 2pt surface gap, 2pt coral ring
+  const ring = {
+    width: box,
+    height: box,
+    borderRadius: box / 2,
+    backgroundColor: t.color.avatar.bg,
+    borderWidth: 2,
+    borderColor: t.color.bg.surface,
+    boxShadow: `0 0 0 2px ${t.color.avatar.ring}`,
+  };
 
   return (
     <View
@@ -337,22 +350,25 @@ export function Avatar({ name, size = 'md', illustratedName, status = 'none', te
       accessibilityLabel={name}
       style={{ width: box, height: box }}
     >
-      {illustratedName ? (
-        <IllustratedIconView name={illustratedName as never} size={Math.round(box * 0.86)} />
+      {src ? (
+        // a real photo; the wrapper carries the name
+        <Image
+          source={{ uri: src }}
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+          style={ring}
+        />
       ) : (
         <View
           accessibilityElementsHidden
           importantForAccessibility="no-hide-descendants"
-          style={{
-            width: box,
-            height: box,
-            borderRadius: box / 2,
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: dark ? '#2A3A4D' : '#F4F6F8',
-          }}
+          style={[ring, { alignItems: 'center', justifyContent: 'center' }]}
         >
-          <Text style={{ fontSize: 12, fontWeight: '700', color: dark ? '#F5F5F7' : '#0B1B2B' }}>{initials}</Text>
+          {initials ? (
+            <Text style={{ fontSize: Math.round(box * 0.36), fontWeight: '700', color: t.color.text.primary }}>{initials}</Text>
+          ) : (
+            <Icon name="user" size={Math.round(box * 0.5)} theme={theme} tone="secondary" />
+          )}
         </View>
       )}
       {status !== 'none' ? (
@@ -390,27 +406,27 @@ export function PriceTag({ amount, currency, was, note, testID, theme = 'light' 
   );
 }
 
-export function Rating({ value, count, max = 5, size = 'sm', formatLabel, testID, theme = 'light' }: RatingProps & { theme?: 'light' | 'dark' }) {
-  const px = size === 'sm' ? 14 : 18;
-  const dark = theme === 'dark';
+/** DoctorCard board rating: one filled star, value, (count). Nothing without real ratings. */
+export function Rating({ value, count, max = 5, size = 'sm', surface = 'default', formatLabel, testID, theme = 'light' }: RatingProps & { theme?: 'light' | 'dark' }) {
+  if (value == null || !(count > 0)) return null;
+  const t = tokens(theme);
+  const px = size === 'sm' ? 16 : 20;
+  const shown = value.toFixed(1);
+  const onBrand = surface === 'onBrand';
+  const ink = onBrand ? t.color.action.primary.fg : t.color.text.primary;
   return (
     <View
       testID={testID}
       accessible
       accessibilityRole="image"
-      // A rating with no count is a claim the product cannot back, so the label
-      // says what it is out of and how many rated it.
-      accessibilityLabel={formatLabel ? formatLabel(value, count) : `${value} out of ${max}${count ? ` from ${count}` : ''}`}
+      accessibilityLabel={formatLabel ? formatLabel(value, count) : `${shown} out of ${max}, ${count} ratings`}
       style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
     >
-      <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={{ flexDirection: 'row', gap: 2 }}>
-        {Array.from({ length: max }).map((_, i) => (
-          <Icon key={i} name="star" size={px} theme={theme} tone={i < Math.round(value) ? 'favorite' : 'secondary'} />
-        ))}
-      </View>
-      {count !== undefined ? (
-        <Text accessibilityElementsHidden style={{ fontSize: 11, color: dark ? '#C2CBD6' : '#5B6673' }}>{count}</Text>
-      ) : null}
+      <Svg width={px} height={px} viewBox="0 0 256 256">
+        <Path d={FILL_ICON_PATHS.star} fill={onBrand ? t.color.icon.ratingStarOnBrand : t.color.icon.ratingStar} />
+      </Svg>
+      <Text style={{ fontSize: size === 'sm' ? 14 : 16, fontWeight: '700', color: ink }}>{shown}</Text>
+      <Text style={{ fontSize: 12, color: ink, opacity: 0.85 }}>{`(${count})`}</Text>
     </View>
   );
 }

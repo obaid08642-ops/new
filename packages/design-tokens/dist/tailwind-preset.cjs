@@ -106,6 +106,12 @@ const colors = {
   },
   "icon-favorite": "#D42A38",
   "icon-onSolid": "#FFFFFF",
+  "icon-ratingStar": {
+    "light": "#A65A00",
+    "dark": "#FFD166",
+    "DEFAULT": "#A65A00"
+  },
+  "icon-ratingStarOnBrand": "#FFD166",
   "action-primary-bg": {
     "light": "#D42A38",
     "dark": "#FF6B73",
@@ -483,6 +489,12 @@ const colors = {
     "dark": "#FFC56E",
     "DEFAULT": "#A65A00"
   },
+  "avatar-bg": {
+    "light": "#FFE3E5",
+    "dark": "#1A3148",
+    "DEFAULT": "#FFE3E5"
+  },
+  "avatar-ring": "#FF4B55",
   "glass-bg": {
     "light": "rgba(255,255,255,0.78)",
     "dark": "rgba(18,38,58,0.72)",

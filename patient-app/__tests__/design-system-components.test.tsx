@@ -3,6 +3,7 @@ import type { ReactTestRendererJSON } from 'react-test-renderer';
 
 import {
   Button,
+  Avatar,
   Card,
   Chip,
   EmptyState,
@@ -132,6 +133,23 @@ describe('12.A7 — the native renderer keeps the contract semantics', () => {
     expect(r.props.accessibilityRole).toBe('image');
     expect(r.props.accessibilityLabel).toContain('4.5');
     expect(r.props.accessibilityLabel).toContain('5');
+  });
+
+  it('a Rating is one filled star, the value and (count), and nothing without real ratings', () => {
+    const json = labelled(render(<Rating value={4.8} count={128} />));
+    expect(json.match(/RNSVGPath/g)).toHaveLength(1);
+    expect(json).toContain('4.8');
+    expect(json).toContain('(128)');
+    expect(render(<Rating value={null} count={0} />)).toEqual([]);
+    expect(render(<Rating value={4.2} count={0} />)).toEqual([]);
+  });
+
+  it('an Avatar is a photo, initials or the neutral user icon, named by the person', () => {
+    const [photo] = render(<Avatar name="د. أحمد" src="https://cdn.nabd.plus/doctors/1.jpg" />);
+    expect(photo.props.accessibilityLabel).toBe('د. أحمد');
+    expect(labelled([photo])).toContain('https://cdn.nabd.plus/doctors/1.jpg');
+    expect(labelled(render(<Avatar name="Amina Haddad" />))).toContain('AH');
+    expect(labelled(render(<Avatar name="" />))).toContain('RNSVG');
   });
 
   it('the app localises the rating sentence, not the design system', () => {
