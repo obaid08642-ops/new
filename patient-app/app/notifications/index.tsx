@@ -8,6 +8,9 @@ import { useApp } from '../../src/context/AppContext';
 import { Icon, IconName } from '../../src/components/Icon';
 import { AppText, Card, IconButton } from '../../src/components/ui';
 import { apiFetch } from '../../src/utils/api';
+import { useRequestSignal } from '../../src/hooks/useRequestSignal';
+import { useOptimisticMutation } from '../../src/hooks/useOptimisticMutation';
+import { outbox } from '../../src/services/offline/outbox';
 import { translateBackendRoute } from '../../src/hooks/usePushNotifications';
 import { dateLocale } from '@/utils/dates';
 
@@ -82,12 +85,15 @@ export default function NotificationsScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(false);
+  // 15.1: leaving the screen aborts the feed request instead of letting it
+  // resolve into an unmounted tree.
+  const request = useRequestSignal();
 
   const load = useCallback(async (silent = false) => {
     if (!silent) setLoading(true);
     setError(false);
     try {
-      const rows = await apiFetch<any[]>('/notifications');
+      const rows = await apiFetch<any[]>('/notifications', { signal: request.signal });
       setNotifs((Array.isArray(rows) ? rows : []).map(mapNotification));
     } catch {
       setError(true);
@@ -95,23 +101,55 @@ export default function NotificationsScreen() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, []);
+  }, [request]);
 
   useEffect(() => { load(); }, [load]);
+
+  const markingIdRef = React.useRef<string | null>(null);
 
   const filtered = filter === 'all' ? notifs : notifs.filter(n => n.group === filter);
   const unreadCount = notifs.filter(n => !n.read).length;
 
+  // 15.3: marking as read is safe to apply immediately. On refusal the unread
+  // state is restored and a toast explains why, instead of a silent re-fetch.
+  const markAllReadMutation = useOptimisticMutation<Notif[]>({
+    kind: 'mark-read',
+    read: () => notifs,
+    write: setNotifs,
+    apply: (current) => current.map(n => ({ ...n, read: true })),
+    locale: 'ar',
+  });
+
+  const markOneReadMutation = useOptimisticMutation<Notif[]>({
+    kind: 'mark-read',
+    read: () => notifs,
+    write: setNotifs,
+    apply: (current) => current.map(x => (x.id === markingIdRef.current ? { ...x, read: true } : x)),
+    locale: 'ar',
+  });
+
+  // 15.4: with no connection the action goes into the outbox and is replayed in
+  // order on reconnect — it is a safe action, so queuing it loses nothing.
   const markAllRead = async () => {
-    setNotifs(p => p.map(n => ({ ...n, read: true })));
-    try { await apiFetch('/notifications/read-all', { method: 'POST' }); }
-    catch { load(true); } // revert by reloading on failure
+    await markAllReadMutation.run(() =>
+      outbox
+        .submit({ kind: 'mark-read', method: 'POST', endpoint: '/notifications/read-all' })
+        .then(() => undefined),
+    );
   };
 
   const openNotif = async (n: Notif) => {
     if (!n.read) {
-      setNotifs(p => p.map(x => x.id === n.id ? { ...x, read: true } : x));
-      apiFetch(`/notifications/${n.id}/read`, { method: 'POST' }).catch(() => {});
+      markingIdRef.current = n.id;
+      void markOneReadMutation.run(() =>
+        outbox.submit({
+          kind: 'mark-read',
+          method: 'POST',
+          endpoint: `/notifications/${n.id}/read`,
+        }).then(() => undefined),
+      ).finally(() => {
+        markingIdRef.current = null;
+      });
     }
     // Backend routes use the server vocabulary (/tracking/lab/:id, /orders/:id …) —
     // translate to real app paths; pushing raw would hit an unmatched-route blank screen.
@@ -126,7 +164,7 @@ export default function NotificationsScreen() {
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
       <View style={[st.hdr, { paddingTop: insets.top + 8, backgroundColor: colors.surface, borderBottomColor: colors.borderLight } ]}>
         {unreadCount > 0 ? (
-          <TouchableOpacity onPress={markAllRead}><AppText variant="labelMD" color={colors.primary}>قراءة الكل</AppText></TouchableOpacity>
+          <TouchableOpacity disabled={markAllReadMutation.pending} onPress={markAllRead}><AppText variant="labelMD" color={colors.primary}>قراءة الكل</AppText></TouchableOpacity>
         ) : <View style={{ width: 60 }}/>}
         <View style={{ alignItems: 'center' }}>
           <AppText variant="h4">الإشعارات</AppText>

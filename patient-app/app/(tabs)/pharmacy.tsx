@@ -442,7 +442,7 @@ export default function PharmacyTab() {
               >
                 <View style={[styles.gridImgWrap, { backgroundColor: gallery.length ? '#fff' : (m.iconBg || m.cs || '#DEF5F9'), overflow: 'hidden' }]}>
                   {gallery.length ? (
-                    <RotatingCardImage images={gallery} style={{ width: '100%', height: '100%' }} iconSize={40} />
+                    <RotatingCardImage images={gallery} style={{ width: '100%', height: '100%' }} iconSize={40} networkBudget="respect" />
                   ) : (
                     <Icon name={m.icon || m.ic || 'pill'} size={40} color={m.iconColor || m.c || '#23B5CE'} />
                   )}
@@ -505,7 +505,7 @@ export default function PharmacyTab() {
             >
               <View style={[styles.cardImgWrap, { backgroundColor: resolveGallery(m).length ? '#fff' : (m.iconBg || m.cs || '#DEF5F9'), overflow: 'hidden' }]}>
                 {resolveGallery(m).length ? (
-                  <RotatingCardImage images={resolveGallery(m)} style={{ width: '100%', height: '100%' }} iconSize={44} />
+                  <RotatingCardImage images={resolveGallery(m)} style={{ width: '100%', height: '100%' }} iconSize={44} networkBudget="respect" />
                 ) : (
                   <Icon name={m.icon || m.ic || 'pill'} size={44} color={m.iconColor || m.c || '#23B5CE'} />
                 )}
