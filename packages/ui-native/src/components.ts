@@ -37,6 +37,8 @@ export interface ComponentProps {
   Card: C.CardProps;
   ListItem: C.ListItemProps;
   ServiceTile: C.ServiceTileProps;
+  FIcon: C.FIconProps;
+  SectionHeader: C.SectionHeaderProps;
   Avatar: C.AvatarProps;
   PriceTag: C.PriceTagProps;
   Rating: C.RatingProps;

@@ -392,7 +392,12 @@ function componentsGallery() {
   out.push('<h3>Surfaces</h3><div class="row">');
   out.push(specimen('Card', render(h(C.Card, { title: 'Order #4821', subtitle: 'Confirmed · 12 Oct', footer: 'Pay at the clinic' }))));
   out.push(specimen('ListItem', render(h(C.ListItem, { title: 'Dr. Amina Haddad', subtitle: 'Endocrinology', meta: '4.9', startIcon: 'star' }))));
-  for (const size of ['sm', 'md', 'lg']) {
+  out.push(specimen('ListItem leading', render(h(C.ListItem, { title: 'Addresses', subtitle: '2 saved', leading: { icon: 'map-pin-line', tone: 'coral' } }))));
+  out.push(specimen('SectionHeader', render(h(C.SectionHeader, { title: 'Offers and packages', actionLabel: 'See all' }))));
+  for (const tile of F.SERVICE_TILES) {
+    out.push(specimen(`ServiceTile ${tile.name}`, render(h(C.ServiceTile, { name: tile.name, label: tile.label }))));
+  }
+  for (const size of ['sm', 'lg']) {
     out.push(specimen(`ServiceTile ${size}`, render(h(C.ServiceTile, { name: 'pharmacy', label: 'Pharmacy', size }))));
   }
   out.push(specimen('ServiceTile badge', render(h(C.ServiceTile, { name: 'consult', label: 'Consult', badge: 3 }))));
@@ -401,6 +406,15 @@ function componentsGallery() {
   out.push(specimen('PriceTag', render(h(C.PriceTag, { amount: '240', currency: 'SAR', was: '300', note: '20% off' }))));
   out.push(specimen('Rating', render(h(C.Rating, { value: 4.5, count: 128 }))));
   out.push(specimen('MapPinCard', render(h(C.MapPinCard, { title: 'Nabd+ Olaya', address: 'King Fahd Rd', distance: '1.2 km', actionLabel: 'Directions' }))));
+  out.push('</div>');
+
+  out.push('<h3>FIcon (handoff §1): soft, solid and none, every tone</h3><div class="row">');
+  for (const tone of C.SERVICE_TONES) {
+    out.push(specimen(`FIcon ${tone}`, render(h(C.FIcon, { icon: 'pill', tone, size: 52 }))));
+    out.push(specimen(`FIcon ${tone} solid`, render(h(C.FIcon, { icon: 'pill', tone, size: 52, chip: 'solid' }))));
+  }
+  out.push(specimen('FIcon none', render(h(C.FIcon, { icon: 'heartbeat', tone: 'coral', size: 32, chip: 'none' }))));
+  out.push(specimen('FIcon empty-state size', render(h(C.FIcon, { icon: 'package', tone: 'ink', size: 96 }))));
   out.push('</div>');
 
   out.push('<h3>Navigation</h3><div class="row">');

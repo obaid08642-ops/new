@@ -11,6 +11,7 @@ import type {
   NavBarProps,
   PriceTagProps,
   RatingProps,
+  SectionHeaderProps,
   ServiceTileProps,
   SidebarProps,
   TabItem,
@@ -18,6 +19,8 @@ import type {
   Tone,
 } from './contract';
 import { Icon, IllustratedIconView } from '../src/Icon';
+import { FIcon } from './FIcon';
+import { SERVICE_ICONS } from '../icons/fill';
 
 /**
  * The layout and navigation surfaces — 12.A7, web.
@@ -196,6 +199,7 @@ export function ListItem({
   selected = false,
   disabled = false,
   loading = false,
+  leading,
   testID,
 }: ListItemProps) {
   return (
@@ -214,9 +218,9 @@ export function ListItem({
         borderRadius: 'var(--nabd-radius-md)',
       }}
     >
-      {startIcon ? <Icon name={startIcon} size={20} tone="secondary" /> : null}
+      {leading ? <FIcon icon={leading.icon} tone={leading.tone} size={40} /> : startIcon ? <Icon name={startIcon} size={20} tone="secondary" /> : null}
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 'var(--nabd-font-size-body)', color: 'var(--nabd-color-text-primary)' }}>{title}</div>
+        <div style={{ fontSize: 'var(--nabd-font-size-body)', fontWeight: 600, color: 'var(--nabd-color-text-primary)', overflowWrap: 'anywhere' }}>{title}</div>
         {subtitle ? (
           <div style={{ fontSize: 'var(--nabd-font-size-caption)', color: 'var(--nabd-color-text-secondary)' }}>
             {subtitle}
@@ -241,12 +245,12 @@ export function ListItem({
 }
 
 /**
- * The home-screen service tile: illustrated artwork at the canvas 76px inside a
- * 128px tile, a real text label beneath it, and an optional badge. The label is
- * what names the tile; the artwork is `aria-hidden` by the icon wrapper, so the
- * tile is read once, as its name.
+ * The home-screen service tile (canvas/HomeApp.dc.html): a 108px surface card,
+ * radius 22, with the service's <FIcon> (soft chip, from the handoff service map)
+ * over a 13/600 label. The label is what names the tile; the icon is aria-hidden,
+ * so the tile is read once, as its name.
  */
-const TILE_BOX = { sm: 76, md: 96, lg: 128 } as const;
+const TILE_CHIP = { sm: 44, md: 50, lg: 56 } as const;
 
 export function ServiceTile({
   name,
@@ -256,45 +260,54 @@ export function ServiceTile({
   disabled = false,
   testID,
 }: ServiceTileProps) {
-  const box = TILE_BOX[size];
-  const art = Math.round(box * 0.6);
-
+  const { icon, tone } = SERVICE_ICONS[name];
   return (
     <div
       data-testid={testID}
+      data-service={name}
       style={{
-        display: 'grid',
-        justifyItems: 'center',
-        gap: 'var(--nabd-space-3xs)',
-        width: box + 24,
+        position: 'relative',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 10,
+        minBlockSize: 108,
+        paddingInline: 'var(--nabd-space-2xs)',
+        borderRadius: 22,
+        background: 'var(--nabd-color-bg-surface)',
+        border: '1px solid var(--nabd-color-border-hairline)',
+        boxShadow: 'var(--nabd-shadow-card)',
+        color: 'var(--nabd-color-text-primary)',
         opacity: disabled ? 0.5 : 1,
       }}
     >
-      <div
-        style={{
-          position: 'relative',
-          display: 'grid',
-          placeItems: 'center',
-          width: box,
-          height: box,
-          borderRadius: 'var(--nabd-radius-2xl)',
-          background: 'var(--nabd-color-bg-sunken)',
-          boxShadow: 'var(--nabd-shadow-tile)',
-        }}
-      >
-        <IllustratedIconView name={name as never} size={art} />
-        {badge ? (
-          <span style={{ position: 'absolute', top: 4, insetInlineEnd: 4 }}>
-            <Badge content={badge} />
-          </span>
-        ) : null}
-      </div>
-      <span style={{ fontSize: 'var(--nabd-font-size-label)', color: 'var(--nabd-color-text-primary)', textAlign: 'center' }}>
-        {label}
-      </span>
+      <FIcon icon={icon} tone={tone} size={TILE_CHIP[size]} />
+      <span style={{ fontSize: 'var(--nabd-font-size-caption)', fontWeight: 600, textAlign: 'center', overflowWrap: 'anywhere' }}>{label}</span>
+      {badge ? (
+        <span style={{ position: 'absolute', insetBlockStart: 8, insetInlineEnd: 8 }}>
+          <Badge content={badge} />
+        </span>
+      ) : null}
     </div>
   );
 }
+
+/**
+ * A section title with an optional trailing action (canvas/HomeApp.dc.html:
+ * 18/700 heading, 13/500 link in text.link). The action is rendered by the screen
+ * as a link or button through `action`; `actionLabel` alone renders its text.
+ */
+export function SectionHeader({ title, actionLabel, level = 2, testID, action }: SectionHeaderProps & { action?: React.ReactNode }) {
+  const H = level === 3 ? 'h3' : 'h2';
+  return (
+    <div data-testid={testID} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 'var(--nabd-space-xs)' }}>
+      <H style={{ margin: 0, fontSize: 'var(--nabd-font-size-h4)', fontWeight: 700, color: 'var(--nabd-color-text-primary)' }}>{title}</H>
+      {action ?? (actionLabel ? <span style={{ fontSize: 'var(--nabd-font-size-caption)', fontWeight: 500, color: 'var(--nabd-color-text-link)' }}>{actionLabel}</span> : null)}
+    </div>
+  );
+}
+SectionHeader.displayName = 'SectionHeader';
 
 export function Avatar({ name, size = 'md', illustratedName, status = 'none', testID }: AvatarProps) {
   const box = size === 'sm' ? 32 : size === 'md' ? 44 : 64;

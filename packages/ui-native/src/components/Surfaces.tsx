@@ -20,6 +20,7 @@ import type {
   NavBarProps,
   PriceTagProps,
   RatingProps,
+  SectionHeaderProps,
   ServiceTileProps,
   SidebarProps,
   TabItem,
@@ -27,6 +28,9 @@ import type {
   Tone,
 } from '../../../ui/components/contract';
 import { Icon, IllustratedIconView } from '../Icon';
+import { FIcon } from './FIcon';
+import { SERVICE_ICONS } from '../../../ui/icons/fill';
+import { tokens } from '../../../design-tokens/dist/ts/tokens';
 
 /**
  * The layout and navigation surfaces — 12.A7, React Native.
@@ -193,6 +197,7 @@ export function ListItem({
   selected = false,
   disabled = false,
   loading = false,
+  leading,
   testID,
   theme = 'light',
 }: ListItemProps & { theme?: 'light' | 'dark' }) {
@@ -216,7 +221,11 @@ export function ListItem({
         opacity: disabled ? 0.5 : 1,
       }}
     >
-      {startIcon ? <Icon name={startIcon} size={20} theme={theme} tone="secondary" /> : null}
+      {leading ? (
+        <FIcon icon={leading.icon} tone={leading.tone} size={40} theme={theme} />
+      ) : startIcon ? (
+        <Icon name={startIcon} size={20} theme={theme} tone="secondary" />
+      ) : null}
       <View style={{ flex: 1 }}>
         <Text style={{ fontSize: 15, color: selected ? (dark ? '#0B1B2B' : '#F5F5F7') : dark ? '#F5F5F7' : '#0B1B2B' }}>
           {title}
@@ -252,7 +261,8 @@ export function ListItem({
   );
 }
 
-const TILE_BOX = { sm: 76, md: 96, lg: 128 } as const;
+/** canvas/HomeApp.dc.html: a 108pt surface card, radius 22, the service's <FIcon> over a 13/600 label. */
+const TILE_CHIP = { sm: 44, md: 50, lg: 56 } as const;
 
 export function ServiceTile({
   name,
@@ -263,8 +273,8 @@ export function ServiceTile({
   testID,
   theme = 'light',
 }: ServiceTileProps & { theme?: 'light' | 'dark' }) {
-  const box = TILE_BOX[size];
-  const dark = theme === 'dark';
+  const t = tokens(theme);
+  const { icon, tone } = SERVICE_ICONS[name];
 
   return (
     <Pressable
@@ -273,27 +283,45 @@ export function ServiceTile({
       accessibilityState={{ disabled }}
       disabled={disabled}
       testID={testID}
-      style={{ width: box + 24, alignItems: 'center', gap: 4, opacity: disabled ? 0.5 : 1 }}
+      style={{
+        minHeight: 108,
+        paddingHorizontal: 8,
+        borderRadius: 22,
+        borderWidth: 1,
+        borderColor: t.color.border.hairline,
+        backgroundColor: t.color.bg.surface,
+        boxShadow: t.shadow.card,
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 10,
+        opacity: disabled ? 0.5 : 1,
+      }}
     >
-      <View
-        style={{
-          width: box,
-          height: box,
-          borderRadius: 24,
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: dark ? '#12263A' : '#F4F6F8',
-        }}
-      >
-        <IllustratedIconView name={name as never} size={Math.round(box * 0.6)} />
-        {badge ? (
-          <View style={{ position: 'absolute', top: 4, insetInlineEnd: 4 }}>
-            <Badge content={badge} theme={theme} />
-          </View>
-        ) : null}
-      </View>
-      <Text style={{ fontSize: 12, color: dark ? '#F5F5F7' : '#0B1B2B', textAlign: 'center' }}>{label}</Text>
+      <FIcon icon={icon} tone={tone} size={TILE_CHIP[size]} theme={theme} />
+      <Text style={{ fontSize: 13, fontWeight: '600', color: t.color.text.primary, textAlign: 'center' }}>{label}</Text>
+      {badge ? (
+        <View style={{ position: 'absolute', top: 8, end: 8 }}>
+          <Badge content={badge} theme={theme} />
+        </View>
+      ) : null}
     </Pressable>
+  );
+}
+
+/** Section title with an optional trailing action (canvas/HomeApp.dc.html: 18/700, link 13/500). */
+export function SectionHeader({ title, actionLabel, testID, theme = 'light', onActionPress }: SectionHeaderProps & { theme?: 'light' | 'dark'; onActionPress?: () => void }) {
+  const t = tokens(theme);
+  return (
+    <View testID={testID} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', gap: 12 }}>
+      <Text accessibilityRole="header" style={{ fontSize: 18, fontWeight: '700', color: t.color.text.primary, flexShrink: 1 }}>
+        {title}
+      </Text>
+      {actionLabel ? (
+        <Pressable accessibilityRole="link" accessibilityLabel={actionLabel} onPress={onActionPress} hitSlop={12}>
+          <Text style={{ fontSize: 13, fontWeight: '500', color: t.color.text.link }}>{actionLabel}</Text>
+        </Pressable>
+      ) : null}
+    </View>
   );
 }
 
