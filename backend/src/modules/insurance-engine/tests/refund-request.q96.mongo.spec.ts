@@ -87,4 +87,15 @@ describe('RefundService.request is bound to a real, owned, paid booking (Q96)', 
     expect(r.moyasar_payment_id).toBe('pay_diag');
     await db.collection('labbookings').deleteMany({});
   });
+
+  // Second review: LabBooking stores its price in `total`; `total_price` has a
+  // schema default of 0, so reading total_price first refused every real lab booking.
+  it('refunds a real lab booking shape (total set, total_price defaulted to 0)', async () => {
+    const db = conn.db!;
+    await db.collection('labbookings').insertOne({ id: 'lab-2', patient_id: 'pat-A', total: 120, total_price: 0, payment_status: 'paid', transaction_id: 'tx-diag2', scheduled_date: inHours(48) });
+    await db.collection('transactions').insertOne({ id: 'tx-diag2', booking_kind: 'diagnostics', booking_id: 'diag-order-2', status: 'paid', amount: 400, gateway_payment_id: 'pay_diag2' });
+    const r = await service.request({ id: 'pat-A' }, { booking_kind: 'lab', booking_id: 'lab-2', reason: 'cannot attend' });
+    expect(r.amount_paid).toBe(120);
+    await db.collection('labbookings').deleteMany({});
+  });
 });

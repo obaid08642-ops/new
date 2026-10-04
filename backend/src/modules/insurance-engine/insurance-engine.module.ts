@@ -893,7 +893,9 @@ export class RefundService {
     const parentTx: any = (!tx && !mp && booking.transaction_id && String(booking.payment_status || '').toLowerCase() === 'paid')
       ? await this.conn.collection('transactions').findOne({ id: { $eq: String(booking.transaction_id) }, status: 'paid' } as any)
       : null;
-    const childPrice = Number(booking.total_price ?? booking.price ?? booking.total ?? 0);
+    // LabBooking keeps its price in `total` and defaults `total_price` to 0;
+    // radiology sets total_price. Take the first positive value.
+    const childPrice = [booking.total_price, booking.total, booking.price].map(Number).find((v) => v > 0) ?? 0;
     const paid = parentTx ? Math.min(childPrice, Number(parentTx.amount || 0)) : Number(tx?.amount ?? mp?.amount ?? 0);
     if (!(paid > 0)) throw new BadRequestException('booking_not_paid');
     const payTx = tx || parentTx;
