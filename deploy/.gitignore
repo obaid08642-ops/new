@@ -1,4 +1,5 @@
 # Environment and secrets (only .env.example is committed)
 .env
 .env.*
+!.env*.example
 !.env.example

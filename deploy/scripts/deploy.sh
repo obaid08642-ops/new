@@ -41,9 +41,8 @@ echo "Public IP: $EXTERNAL_IP"
 sed -i "s|external-ip=.*|external-ip=$EXTERNAL_IP|" coturn/turnserver.conf
 sed -i "s|^static-auth-secret=.*|static-auth-secret=$COTURN_SECRET|" coturn/turnserver.conf
 sed -i "s|node_ip: .*|node_ip: $EXTERNAL_IP|" livekit/livekit.yaml
-sed -i "s|^  ${LIVEKIT_API_KEY}:.*|  ${LIVEKIT_API_KEY}: ${LIVEKIT_API_SECRET}|" livekit/livekit.yaml
-# Ensure the key line exists even after placeholder state
-grep -q "$LIVEKIT_API_KEY" livekit/livekit.yaml || sed -i "s|^keys:.*|keys:\n  ${LIVEKIT_API_KEY}: ${LIVEKIT_API_SECRET}|" livekit/livekit.yaml
+# Q87: exactly one key, the real one; fails if the ${...} template line would survive.
+bash scripts/render-livekit-keys.sh livekit/livekit.yaml
 
 # Bootstrap self-signed TURN cert until Let's Encrypt issues the real one
 mkdir -p certs/turn/turn.nabd.plus

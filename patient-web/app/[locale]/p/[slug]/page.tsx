@@ -86,16 +86,18 @@ export default async function PublicProductPage({ params }: Props) {
   if (!fetchedProduct) notFound();
   // R12: retired slugs 301 to the canonical slug instead of 404ing (proxy covers
   // most cases; this is the render-path fallback when the proxy is bypassed).
+  // permanentRedirect works by throwing, so it must stay outside the try (only the decode can fail).
+  let requested = slug;
   try {
-    const requested = decodeURIComponent(slug);
-    if (
-      (typeof fetchedProduct.moved_from === "string" && fetchedProduct.moved_from) ||
-      (typeof fetchedProduct.slug === "string" && fetchedProduct.slug && fetchedProduct.slug !== requested && fetchedProduct.slug !== slug)
-    ) {
-      permanentRedirect(`/${locale}/p/${encodeURIComponent(fetchedProduct.slug)}`);
-    }
+    requested = decodeURIComponent(slug);
   } catch {
-    /* decode edge → render the fetched product */
+    /* malformed escape → compare the raw slug */
+  }
+  if (
+    (typeof fetchedProduct.moved_from === "string" && fetchedProduct.moved_from) ||
+    (typeof fetchedProduct.slug === "string" && fetchedProduct.slug && fetchedProduct.slug !== requested && fetchedProduct.slug !== slug)
+  ) {
+    permanentRedirect(`/${locale}/p/${encodeURIComponent(fetchedProduct.slug)}`);
   }
   const product: PublicProduct = fetchedProduct;
   const name = product.name || product.official_name || t("products");

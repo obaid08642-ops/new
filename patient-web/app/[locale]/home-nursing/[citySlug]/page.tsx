@@ -56,7 +56,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     ? `تمريض منزلي في ${decCity} | رعاية صحية منزلية مرخصة 24/7`
     : `Home Nursing Services in ${decCity} | Licensed Care 24/7`;
   const desc = locale === "ar"
-    ? `احجز خدمات تمريض منزلي ورعاية كبار السن والمصابين في ${decCity} عبر طاقم تمريضي مرخص وموثق من نبضة بلس.`
+    ? `احجز خدمات تمريض منزلي ورعاية كبار السن والمصابين في ${decCity} عبر طاقم تمريضي مرخص وموثق من نبض بلس.`
     : `Verified and licensed home nursing care in ${decCity}. Senior care, post-op, and daily assistance via Nabd Plus.`;
 
   return {

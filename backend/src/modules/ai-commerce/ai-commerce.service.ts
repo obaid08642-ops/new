@@ -124,11 +124,12 @@ export class AiCommerceService {
       this.connection.collection('facilities'),
     ];
 
-    const docFilter: Record<string, any> = { is_active: { $ne: false } };
+    // Public feed: approved, public doctors only (not every provider_profiles row).
+    const docFilter: Record<string, any> = { type: 'doctor', status: 'active', public_eligibility: true, is_deleted: { $ne: true } };
     if (query.specialty) docFilter.specialty = query.specialty;
     if (query.city) docFilter.city = { $regex: query.city, $options: 'i' };
 
-    const facFilter: Record<string, any> = { is_active: { $ne: false } };
+    const facFilter: Record<string, any> = { is_active: { $ne: false }, public_eligibility: true, is_deleted: { $ne: true } };
     if (query.city) facFilter.city = { $regex: query.city, $options: 'i' };
 
     const [doctors, facilities] = await Promise.all([
@@ -147,8 +148,9 @@ export class AiCommerceService {
         name: locale === 'en' ? (doc.name_en || doc.name_ar) : (doc.name_ar || doc.name_en),
         specialty: doc.specialty,
         city: doc.city,
-        priceRange: '150 SAR',
-        acceptedInsurance: doc.accepted_insurance || ['bupa', 'tawuniya', 'medgulf'],
+        // Real data only: the doctor's own clinic fee, and only the insurers it accepts.
+        priceRange: typeof doc.price_clinic === 'number' && doc.price_clinic > 0 ? `${doc.price_clinic} SAR` : undefined,
+        acceptedInsurance: Array.isArray(doc.accepted_insurance) ? doc.accepted_insurance : [],
         url: `https://nabd.plus/${locale}/doctor/${doc.slug || doc.id}`,
         deepLink: `nabdplus://doctor/${doc.slug || doc.id}`,
       });

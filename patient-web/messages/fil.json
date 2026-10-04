@@ -1,4 +1,62 @@
 {
+  "Errors": {
+    "AUTHENTICATION_REQUIRED": {
+      "message": "Kailangan mong mag-sign in para magpatuloy.",
+      "nextStep": "Mag-sign in at subukan ulit."
+    },
+    "INSUFFICIENT_PERMISSION": {
+      "message": "Wala kang pahintulot na gawin ito.",
+      "nextStep": "Makipag-ugnayan sa support kung sa tingin mo ay mali ito."
+    },
+    "PRESCRIPTION_REQUIRED": {
+      "message": "Kailangan ng balidong reseta para sa item na ito.",
+      "nextStep": "I-upload ang iyong reseta para magpatuloy."
+    },
+    "NO_AVAILABILITY": {
+      "message": "Walang bakanteng oras sa ngayon.",
+      "nextStep": "Subukan ang ibang oras o petsa."
+    },
+    "SERVICE_UNAVAILABLE": {
+      "message": "Pansamantalang hindi available ang serbisyong ito.",
+      "nextStep": "Pakisubukan ulit mamaya."
+    },
+    "PROVIDER_NOT_AVAILABLE": {
+      "message": "Walang available na provider para sa kahilingang ito.",
+      "nextStep": "Subukan mamaya o pumili ng ibang provider."
+    },
+    "PRODUCT_OUT_OF_STOCK": {
+      "message": "Wala nang stock ang produktong ito.",
+      "nextStep": "Subukan ang kapalit o bumalik mamaya."
+    },
+    "PAYMENT_REQUIRED": {
+      "message": "Kailangan ng bayad para matapos ito.",
+      "nextStep": "Kumpletuhin ang bayad para magpatuloy."
+    },
+    "INSURANCE_NOT_SUPPORTED": {
+      "message": "Hindi ito sakop ng iyong insurance.",
+      "nextStep": "Magpatuloy sa sariling bayad o makipag-ugnayan sa iyong insurer."
+    },
+    "LOCATION_NOT_SUPPORTED": {
+      "message": "Hindi pa namin naseserbisyuhan ang lokasyong ito.",
+      "nextStep": "Subukan ang ibang address o piliin ang pickup."
+    },
+    "DUPLICATE_TRANSACTION": {
+      "message": "Naipadala na ito dati.",
+      "nextStep": "Tingnan ang iyong mga order bago subukan ulit."
+    },
+    "INVALID_INPUT": {
+      "message": "May mga detalyeng mukhang mali.",
+      "nextStep": "Suriin ang mga kinakailangang field at subukan ulit."
+    },
+    "RATE_LIMITED": {
+      "message": "Masyadong maraming pagsubok. Dahan-dahan lang.",
+      "nextStep": "Maghintay sandali, saka subukan ulit."
+    },
+    "UNKNOWN_ERROR": {
+      "message": "May nangyaring mali. Pakisubukan ulit.",
+      "nextStep": "Kung paulit-ulit itong nangyayari, makipag-ugnayan sa support."
+    }
+  },
   "Shared": {
     "brand": "Nabd Plus",
     "patientSignIn": "Mag-sign in ang pasyente",

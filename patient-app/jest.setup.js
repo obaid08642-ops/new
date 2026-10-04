@@ -15,3 +15,8 @@ jest.mock('expo-notifications', () => ({
   addNotificationReceivedListener: jest.fn(() => ({ remove: jest.fn() })),
   addNotificationResponseReceivedListener: jest.fn(() => ({ remove: jest.fn() })),
 }));
+
+// react-native-localize is a native TurboModule; Jest has no native binary. The
+// library ships this mock for tests. Without it, any test that imports the app
+// context (HttpClient -> ErrorHandler -> AppContext since 04a1544) fails to load.
+jest.mock('react-native-localize', () => require('react-native-localize/mock/jest'));

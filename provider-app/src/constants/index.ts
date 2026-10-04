@@ -209,6 +209,7 @@ export type Lang = 'ar' | 'en';
 
 export const TR = {
  ar: {
+ mapUnavailable:'الخريطة غير متاحة حالياً',
  // App
  appName:'نبض بلس', appSub:'مزودو الخدمة الطبية',
  // Auth
@@ -269,6 +270,7 @@ export const TR = {
  optional:'اختياري', minutes:'دقيقة', hours:'ساعة', days:'أيام', km:'كم',
  },
  en: {
+ mapUnavailable:'The map is not available right now',
  appName:'Nabd Plus', appSub:'Healthcare Provider App',
  welcome:'Welcome to Nabd Plus', chooseType:'Choose your account type to get started',
  haveAccount:"Already have an account? Log In",

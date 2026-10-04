@@ -567,7 +567,7 @@ export class OrdersService {
       }
 
       // Footer
-      doc.fontSize(10).fillColor('#999999').text('Generated securely by Nabdah Systems.', 50, 750, { align: 'center' });
+      doc.fontSize(10).fillColor('#999999').text('Generated securely by Nabd+.', 50, 750, { align: 'center' });
         doc.end();
       } catch (error) {
         reject(error);

@@ -1,9 +1,7 @@
-import { Controller, Get, Param, ForbiddenException, NotFoundException, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, NotFoundException, UseGuards } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
-import { CurrentUser, JwtAuthGuard } from '../../common/auth.guard';
-
-const uid = (u: any) => u?.id || u?._id || u?.user_id;
+import { JwtAuthGuard, Public } from '../../common/auth.guard';
 
 @Controller('nursing')
 @UseGuards(JwtAuthGuard)
@@ -12,9 +10,10 @@ export class PatientNurseProfileController {
   // Q47: the `nurses` collection is empty and nothing writes it, so every
   // website nurse page was not found. Serve from `provider_profiles` — the same
   // real source (and the same view shape) as GET /home-care/providers/:id.
+  // Q47: the website opens nurse pages without a session; the view below holds public fields only.
+  @Public()
   @Get('nurses/:id')
-  async one(@CurrentUser() u: any, @Param('id') id: string) {
-    if (!uid(u)) throw new ForbiddenException('authenticated_user_required');
+  async one(_u: unknown, @Param('id') id: string) {
     const key = String(id);
     const p: any = await this.conn.db.collection('provider_profiles').findOne({
       $or: [{ account_id: { $eq: key } }, { id: { $eq: key } }],

@@ -1930,8 +1930,8 @@ function LStep8Signature({ data, update, onDone, onBack, step, total }: {
         <NCard style={{ marginBottom: SP.lg, backgroundColor: theme.surface2 }}>
           <NCheckbox
             label={AR
-              ? 'أوافق على شروط وأحكام نبضة بلس وسياسة الخصوصية، وأؤكد صحة جميع البيانات المدخلة.'
-              : 'I agree to Nabd+ Plus Terms & Conditions and Privacy Policy, and confirm all data is accurate.'}
+              ? 'أوافق على شروط وأحكام نبض بلس وسياسة الخصوصية، وأؤكد صحة جميع البيانات المدخلة.'
+              : 'I agree to Nabd+ Terms & Conditions and Privacy Policy, and confirm all data is accurate.'}
             value={agreed} onChange={setAgreed}
           />
         </NCard>

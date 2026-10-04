@@ -31,50 +31,54 @@ import { User, UserDocument } from '../../schemas/user.schema';
  *  - Erasure anonymises rather than blindly dropping rows, because invoices
  *    and audit logs are legal records that must survive the person leaving.
  */
+/** Collections holding personal data, with the fields that own a patient
+ * (shared with GuestLifecycleService so both use one list). */
+export const PDPL_OWNED_COLLECTIONS: ReadonlyArray<{ collection: string; fields: string[] }> = [
+  { collection: 'patientprofiles', fields: ['user_id', 'patient_id', 'account_id'] },
+  { collection: 'appointments', fields: ['patient_id', 'patient_account_id', 'user_id'] },
+  { collection: 'labbookings', fields: ['patient_id', 'patient_account_id', 'user_id'] },
+  { collection: 'radiologybookings', fields: ['patient_id', 'patient_account_id', 'user_id'] },
+  { collection: 'homecarebookings', fields: ['patient_id', 'patient_account_id', 'user_id'] },
+  { collection: 'nursingbookings', fields: ['patient_id', 'patient_account_id', 'user_id'] },
+  { collection: 'pharmacy_orders', fields: ['patient_account_id', 'patient_id', 'user_id'] },
+  { collection: 'prescriptions', fields: ['patient_id', 'patient_account_id', 'user_id'] },
+  { collection: 'labresults', fields: ['patient_id', 'patient_account_id', 'user_id'] },
+  { collection: 'medicalprofiles', fields: ['patient_id', 'user_id', 'owner_id'] },
+  { collection: 'medicalreports', fields: ['patient_id', 'user_id', 'owner_id'] },
+  { collection: 'healthpassports', fields: ['user_id', 'patient_id', 'owner_id'] },
+  { collection: 'healthrecords', fields: ['patient_id', 'user_id', 'owner_id'] },
+  { collection: 'vitals', fields: ['patient_id', 'user_id', 'owner_id'] },
+  { collection: 'allergies', fields: ['patient_id', 'user_id', 'owner_id'] },
+  { collection: 'medications', fields: ['patient_id', 'user_id', 'owner_id'] },
+  { collection: 'insurancepolicies', fields: ['patient_id', 'user_id', 'owner_id'] },
+  { collection: 'insurance_requests', fields: ['patient_id', 'user_id', 'owner_id'] },
+  { collection: 'claims', fields: ['patient_id', 'user_id', 'owner_id'] },
+  { collection: 'loyalty', fields: ['user_id', 'account_id', 'patient_id'] },
+  { collection: 'loyaltytransactions', fields: ['user_id', 'account_id', 'patient_id'] },
+  { collection: 'notifications', fields: ['user_id', 'patient_id'] },
+  { collection: 'pushtokens', fields: ['user_id'] },
+  { collection: 'wishlists', fields: ['user_id'] },
+  { collection: 'addresses', fields: ['user_id', 'account_id'] },
+  { collection: 'reviews', fields: ['patient_id', 'user_id', 'author_id'] },
+  { collection: 'chatsessions', fields: ['patient_id', 'user_id', 'patient_account_id'] },
+  { collection: 'chatmessages', fields: ['sender_id', 'user_id'] },
+  { collection: 'supporttickets', fields: ['patient_id', 'user_id', 'requester_id'] },
+  { collection: 'supportmessages', fields: ['sender_id', 'user_id'] },
+  { collection: 'emergencyrequests', fields: ['patient_id', 'user_id'] },
+  { collection: 'return_requests', fields: ['patient_id', 'patient_account_id', 'user_id'] },
+  { collection: 'refund_requests', fields: ['patient_id', 'patient_account_id', 'user_id'] },
+  { collection: 'transactions', fields: ['patient_id', 'patient_account_id', 'user_id'] },
+  { collection: 'consentrecords', fields: ['user_id', 'patient_id'] },
+  { collection: 'devices', fields: ['user_id'] },
+  { collection: 'refreshsessions', fields: ['user_id'] },
+];
+
 @Injectable()
 export class PdplService {
   private readonly logger = new Logger(PdplService.name);
 
   /** Collections holding personal data, with the fields that own a patient. */
-  private readonly OWNED: Array<{ collection: string; fields: string[] }> = [
-    { collection: 'patientprofiles', fields: ['user_id', 'patient_id', 'account_id'] },
-    { collection: 'appointments', fields: ['patient_id', 'patient_account_id', 'user_id'] },
-    { collection: 'labbookings', fields: ['patient_id', 'patient_account_id', 'user_id'] },
-    { collection: 'radiologybookings', fields: ['patient_id', 'patient_account_id', 'user_id'] },
-    { collection: 'homecarebookings', fields: ['patient_id', 'patient_account_id', 'user_id'] },
-    { collection: 'nursingbookings', fields: ['patient_id', 'patient_account_id', 'user_id'] },
-    { collection: 'pharmacy_orders', fields: ['patient_account_id', 'patient_id', 'user_id'] },
-    { collection: 'prescriptions', fields: ['patient_id', 'patient_account_id', 'user_id'] },
-    { collection: 'labresults', fields: ['patient_id', 'patient_account_id', 'user_id'] },
-    { collection: 'medicalprofiles', fields: ['patient_id', 'user_id', 'owner_id'] },
-    { collection: 'medicalreports', fields: ['patient_id', 'user_id', 'owner_id'] },
-    { collection: 'healthpassports', fields: ['user_id', 'patient_id', 'owner_id'] },
-    { collection: 'healthrecords', fields: ['patient_id', 'user_id', 'owner_id'] },
-    { collection: 'vitals', fields: ['patient_id', 'user_id', 'owner_id'] },
-    { collection: 'allergies', fields: ['patient_id', 'user_id', 'owner_id'] },
-    { collection: 'medications', fields: ['patient_id', 'user_id', 'owner_id'] },
-    { collection: 'insurancepolicies', fields: ['patient_id', 'user_id', 'owner_id'] },
-    { collection: 'insurance_requests', fields: ['patient_id', 'user_id', 'owner_id'] },
-    { collection: 'claims', fields: ['patient_id', 'user_id', 'owner_id'] },
-    { collection: 'loyalty', fields: ['user_id', 'account_id', 'patient_id'] },
-    { collection: 'loyaltytransactions', fields: ['user_id', 'account_id', 'patient_id'] },
-    { collection: 'notifications', fields: ['user_id', 'patient_id'] },
-    { collection: 'pushtokens', fields: ['user_id'] },
-    { collection: 'wishlists', fields: ['user_id'] },
-    { collection: 'addresses', fields: ['user_id', 'account_id'] },
-    { collection: 'reviews', fields: ['patient_id', 'user_id', 'author_id'] },
-    { collection: 'chatsessions', fields: ['patient_id', 'user_id', 'patient_account_id'] },
-    { collection: 'chatmessages', fields: ['sender_id', 'user_id'] },
-    { collection: 'supporttickets', fields: ['patient_id', 'user_id', 'requester_id'] },
-    { collection: 'supportmessages', fields: ['sender_id', 'user_id'] },
-    { collection: 'emergencyrequests', fields: ['patient_id', 'user_id'] },
-    { collection: 'return_requests', fields: ['patient_id', 'patient_account_id', 'user_id'] },
-    { collection: 'refund_requests', fields: ['patient_id', 'patient_account_id', 'user_id'] },
-    { collection: 'transactions', fields: ['patient_id', 'patient_account_id', 'user_id'] },
-    { collection: 'consentrecords', fields: ['user_id', 'patient_id'] },
-    { collection: 'devices', fields: ['user_id'] },
-    { collection: 'refreshsessions', fields: ['user_id'] },
-  ];
+  private readonly OWNED = PDPL_OWNED_COLLECTIONS;
 
   /** Never leaves the server, even in an export. */
   private static readonly REDACT = new Set([

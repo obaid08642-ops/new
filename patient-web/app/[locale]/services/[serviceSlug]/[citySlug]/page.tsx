@@ -139,7 +139,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     : `${name} in ${cityName} | Book now`;
   const kind = found.item.specialty || found.item.serviceType || found.item.facilityType;
   const desc = locale === "ar"
-    ? `${name}${kind ? ` — ${kind}` : ""} في ${cityName}. احجز عبر منصة نبضة بلس.`
+    ? `${name}${kind ? ` — ${kind}` : ""} في ${cityName}. احجز عبر منصة نبض بلس.`
     : `${name}${kind ? ` — ${kind}` : ""} in ${cityName}. Book via Nabd Plus.`;
 
   return {
@@ -203,7 +203,7 @@ export default async function ServiceCityPage({ params }: Props) {
         <h1 style={{ fontSize: "1.875rem", fontWeight: 700, margin: "0 0 0.5rem 0", color: "#111827" }}>{pageTitle}</h1>
         <p style={{ color: "#4b5563", fontSize: "1rem", margin: 0 }}>
           {locale === "ar"
-            ? `${kind ? `${kind} — ` : ""}احجز ${name} في ${cityName} عبر منصة نبضة بلس.`
+            ? `${kind ? `${kind} — ` : ""}احجز ${name} في ${cityName} عبر منصة نبض بلس.`
             : `${kind ? `${kind} — ` : ""}Book ${name} in ${cityName} via Nabd Plus.`}
         </p>
       </header>
