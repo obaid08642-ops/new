@@ -515,6 +515,24 @@ export class PaymentsService {
     return t.toObject();
   }
 
+  /**
+   * Q104: the patient's view of one payment, by transaction id or gateway
+   * payment id (Moyasar redirects with ?id=<payment id>). A still-open
+   * transaction is reconciled with the gateway first (F60), so a patient who
+   * returns from the hosted page sees the real outcome.
+   */
+  async paymentStatus(user: any, ref: string) {
+    const key = String(ref || '').trim();
+    const t: any = key ? await this.txns.findOne({ $or: [{ id: { $eq: key } }, { gateway_intent_id: { $eq: key } }, { gateway_charge_id: { $eq: key } }] }).lean() : null;
+    if (!t || (t.patient_id !== user?.id && user?.role !== 'admin')) throw new NotFoundException('payment_not_found');
+    let current: any = t;
+    if (['initiating', 'pending', 'authorized'].includes(String(t.status)) && t.gateway_intent_id) {
+      // A gateway outage leaves the stored (still open) status; it never invents one.
+      current = await this.verifyPayment(user, t.id).catch(() => t);
+    }
+    return { status: current.status, transaction_id: t.id, booking_kind: t.booking_kind, booking_id: t.booking_id, amount: t.amount };
+  }
+
   async listForBooking(user: any, type: string, id: string) {
     const kind = normalizeKind(type);
     // E5-F2 IDOR fix: transactions expose payment metadata — only the booking
@@ -577,6 +595,8 @@ export class PaymentsController {
   @Post('capture/:txn') capture(@CurrentUser() u: any, @Param('txn') txn: string) { return this.svc.capturePayment(u, txn); }
   @Get('pharmacy/:orderId/capabilities') pharmacyCapabilities(@CurrentUser() u: any, @Param('orderId') orderId: string) { return this.svc.getPharmacyCapabilities(u, orderId); }
   @Get('consultation/:id/capabilities') consultationCapabilities(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.getConsultationCapabilities(u, id); }
+  @SelfService()
+  @Get('status/:ref') status(@CurrentUser() u: any, @Param('ref') ref: string) { return this.svc.paymentStatus(u, ref); }
   @Get('booking/:type/:id') list(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string) { return this.svc.listForBooking(u, t, id); }
 }
 
