@@ -54,6 +54,9 @@ export class ApiError extends Error {
   readonly locale: string;
   readonly userMessage: string;
   readonly nextStep: string;
+  /** What the server itself said, kept so the message can be re-resolved in another locale. */
+  readonly serverMessage?: string;
+  readonly serverNextStep?: string;
   readonly details?: Record<string, unknown>;
   readonly originalError?: unknown;
   readonly transportFailure: boolean;
@@ -70,6 +73,8 @@ export class ApiError extends Error {
     this.originalError = init.originalError;
     this.transportFailure = init.transportFailure === true;
 
+    this.serverMessage = init.serverMessage;
+    this.serverNextStep = init.serverNextStep;
     const entry = lookupCatalogEntry(init.catalogCode, this.locale, {
       message: init.serverMessage,
       nextStep: init.serverNextStep,
@@ -258,7 +263,19 @@ export function cancelledError(locale?: string | null, originalError?: unknown):
  * next step" means in practice.
  */
 export function describeError(error: unknown, locale?: string | null): { message: string; nextStep: string } {
-  if (isApiError(error)) return { message: error.userMessage, nextStep: error.nextStep };
+  if (isApiError(error)) {
+    // The screen's active language wins over the locale the request happened to
+    // carry, so the same failure reads correctly if the user switched language
+    // between the throw and the render.
+    if (!locale || locale === error.locale) {
+      return { message: error.userMessage, nextStep: error.nextStep };
+    }
+    const reResolved = lookupCatalogEntry(error.catalogCode, locale, {
+      message: error.serverMessage,
+      nextStep: error.serverNextStep,
+    });
+    return { message: reResolved.message, nextStep: reResolved.nextStep };
+  }
   const envelope = readServerErrorEnvelope(error);
   if (envelope.catalogCode) {
     const entry = lookupCatalogEntry(envelope.catalogCode, locale ?? 'ar', {

@@ -21,6 +21,7 @@ import { DiagnosticsCartProvider } from '../src/context/DiagnosticsCartContext';
 import { ConsultationsProvider } from '../src/context/ConsultationsContext';
 import NotificationHandler from '../src/components/NotificationHandler';
 import OfflineBanner from '../src/components/OfflineBanner';
+import { ToastProvider } from '../src/design-system';
 import AppGate from '../src/components/AppGate';
 import { initSentry } from '../src/utils/sentry';
 import { SyncManager } from '../src/data/sync/SyncManager';
@@ -81,6 +82,9 @@ function RootLayout() {
   return (
     <Provider store={store}>
       <AppProvider>
+        {/* 15.3: optimistic rollbacks and failure explanations are shown as a
+            toast, so the toast host has to exist for the whole tree. */}
+        <ToastProvider>
           <SocketProvider>
             <GestureHandlerRootView style={{ flex: 1 }}>
               <SafeAreaProvider>
@@ -109,7 +113,8 @@ function RootLayout() {
               </SafeAreaProvider>
             </GestureHandlerRootView>
           </SocketProvider>
-        </AppProvider>
+          </ToastProvider>
+      </AppProvider>
     </Provider>
   );
 }
