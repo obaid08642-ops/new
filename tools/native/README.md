@@ -10,3 +10,4 @@ remove them as the agent fixes those defects, so the run proves the real build.
 # native verification of Q71 (second cause) 2026-10-03
 
 - 2026-10-04: run on the agent tip bb97c87 with the Q58/Q62/Q67/Q68 workarounds off (STRICT).
+- 2026-10-04: strict run on fix/audit-2026-09 1b12107 (reviewer fixes incl. Q58 lock, Q69 map guard), all workarounds off.
