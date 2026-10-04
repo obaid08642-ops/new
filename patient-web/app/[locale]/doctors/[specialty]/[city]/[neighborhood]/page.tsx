@@ -64,7 +64,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     ? `أطباء ${decSpec} في حي ${decNeigh}، ${decCity} | احجز الآن`
     : `${decSpec} Doctors in ${decNeigh}, ${decCity} | Book Appointment`;
   const desc = locale === "ar"
-    ? `أفضل أطباء ${decSpec} والمراكز الطبية المعتمدة في حي ${decNeigh} بمدينة ${decCity}. استشارات عيادية وتطبيب عن بعد مع نبض بلس.`
+    ? `أطباء ${decSpec} والمراكز الطبية المعتمدة في حي ${decNeigh} بمدينة ${decCity}. استشارات عيادية وتطبيب عن بعد مع نبض بلس.`
     : `Verified ${decSpec} doctors in ${decNeigh}, ${decCity}. Book consultations via Nabd Plus.`;
 
   return {
@@ -184,10 +184,10 @@ export default async function DoctorsSpecialtyCityNeighborhoodPage({ params }: P
             {locale === "ar" ? "المراكز والمستشفيات في الحي والمنطقة" : "Clinics & Hospitals in Neighborhood"}
           </h2>
           <div className={styles.grid}>
-            {facilities.map((fac: any, i: number) => {
+            {facilities.filter((fac: any) => fac && typeof fac === "object" && (fac.name_ar || fac.name_en || fac.name)).map((fac: any, i: number) => {
               const f = fac && typeof fac === "object" ? fac : {};
               const facId = typeof f.id === "string" || typeof f.id === "number" ? f.id : `fac-${i}`;
-              const facName = f.name_ar || f.name_en || f.name || (locale === "ar" ? "منشأة معتمدة" : "Verified facility");
+              const facName = f.name_ar || f.name_en || f.name;
               const district = typeof f.district === "string" ? f.district : "";
               const cityName = typeof f.city === "string" ? f.city : "";
               const insurance = Array.isArray(f.accepted_insurance) ? f.accepted_insurance.filter((x: unknown): x is string => typeof x === "string" && x.trim().length > 0) : [];
