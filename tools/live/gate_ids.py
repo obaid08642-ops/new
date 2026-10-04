@@ -31,7 +31,6 @@ ALLOW_2XX = {
     'DELETE /medical-profile/allergies/:id': 'own sub-item — idempotent remove',
     'DELETE /medical-profile/surgeries/:id': 'own sub-item — idempotent remove',
     'DELETE /medical-profile/long-term-medications/:id': 'own sub-item — idempotent remove',
-    'POST /users/me/wishlist/:itemId': 'own wishlist toggle — idempotent',
     'POST /notifications/:id/read': 'own notification — mark-read is idempotent',
     'PATCH /notifications/:id/read': 'own notification — mark-read is idempotent',
     'POST /slot-locks/:id/release': 'own lock — release is idempotent',
