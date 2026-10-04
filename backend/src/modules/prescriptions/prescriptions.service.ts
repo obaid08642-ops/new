@@ -287,11 +287,15 @@ export class PrescriptionsService {
     const orders: any[] = await db.collection('pharmacy_orders').find({ prescription_id: { $eq: prescriptionId } }, { projection: { id: 1 } }).limit(50).toArray();
     const orderIds = orders.map((o) => String(o.id)).filter(Boolean);
     if (!orderIds.length) return false;
-    const q = { order_id: { $in: orderIds }, pharmacy_account_id: { $eq: pharmacyId } };
-    // The selected pharmacy holds an allocation for the order; a broadcast
-    // recipient was offered it.
-    if (await db.collection('pharmacy_allocations').findOne(q)) return true;
-    return !!(await db.collection('pharmacy_broadcast_recipients').findOne(q));
+    // The selected pharmacy holds a live allocation for the order. Once one
+    // exists, only that pharmacy may claim; a rejected, cancelled or expired
+    // allocation does not count. Before any selection, a broadcast recipient may.
+    const live: any[] = await db.collection('pharmacy_allocations').find(
+      { order_id: { $in: orderIds }, status: { $nin: ['rejected', 'cancelled', 'expired'] } },
+      { projection: { pharmacy_account_id: 1 } },
+    ).toArray();
+    if (live.length) return live.some((a) => String(a.pharmacy_account_id) === String(pharmacyId));
+    return !!(await db.collection('pharmacy_broadcast_recipients').findOne({ order_id: { $in: orderIds }, pharmacy_account_id: { $eq: pharmacyId } }));
   }
 
   async sendToPharmacy(id: string, pharmacy_id: string, by: any) {    const rx: any = await this.model.findOne({ id });

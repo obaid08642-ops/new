@@ -62,6 +62,28 @@ def run(pat=None, admin=None):
             if txn.get('gateway_intent_id'):
                 from j_nursing import fake_pay
                 fake_pay(txn['gateway_intent_id'])
+                # Q86/Q104: the one Moyasar webhook settles the payment on its own;
+                # its secret_token must match MOYASAR_WEBHOOK_SECRET.
+                import os, datetime
+                event = {'id': f"evt_{txn['gateway_intent_id']}", 'type': 'payment_paid',
+                         'created_at': datetime.datetime.utcnow().isoformat() + 'Z',
+                         'data': {'id': txn['gateway_intent_id'], 'status': 'paid'}}
+                anon = Client(None, 'anon')
+                w = anon.post('/payments/webhook/moyasar', {**event, 'secret_token': 'wrong-secret'})
+                step('webhook with a wrong secret is refused (401)', w.status == 401, w)
+                # Stored transactions, read without gateway reconciliation (unlike /payments/status).
+                def stored_status():
+                    rows = pat.get(f'/payments/booking/lab/{bid}')
+                    lst = rows.body if isinstance(rows.body, list) else []
+                    return next((x.get('status') for x in lst if x.get('id') == txn['id']), None), rows
+                s0, rows = stored_status()
+                step('a refused webhook leaves the payment open', s0 not in (None, 'paid'), rows)
+                w = anon.post('/payments/webhook/moyasar', {**event, 'secret_token': os.environ.get('MOYASAR_WEBHOOK_SECRET', 'live-webhook-secret')})
+                step('webhook with the shared secret is accepted', w.ok and w.get('ok') is True, w)
+                s1, rows = stored_status()
+                step('the webhook alone marked the payment paid', s1 == 'paid', rows)
+                st = pat.get(f"/payments/status/{txn['id']}")
+                step('payment status reports paid', st.ok and st.get('status') == 'paid', st)
                 v = pat.post(f"/payments/verify/{txn['id']}", {})
                 step('payment succeeds end-to-end (sandbox)', v.ok and v.get('status') == 'paid', v)
                 # 3. Admin refund reaches the gateway for THIS payment (Q81/Q91)

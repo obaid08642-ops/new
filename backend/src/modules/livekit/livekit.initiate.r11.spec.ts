@@ -52,4 +52,35 @@ describe('calls/initiate only around a live appointment (R11 §5)', () => {
       expect(svc.createBookingToken).not.toHaveBeenCalled();
     }
   });
+
+  // Second review: joinCall refused only listed dead states, any closed
+  // session could be re-joined, and there was no time window.
+  describe('joinCall', () => {
+    function joinSvc(session: Record<string, unknown>, appt: Record<string, unknown>) {
+      const sessions = { findOne: jest.fn().mockResolvedValue({ id: 'call_1', room_name: 'room-1', patient_id: 'pat-1', provider_id: 'doc-1', appointment_id: 'appt-1', status: 'INITIATED', ...session }), updateOne: jest.fn().mockResolvedValue({}) };
+      const conn = { collection: jest.fn(() => sessions) };
+      const appointments = { findOne: jest.fn(() => ({ lean: jest.fn().mockResolvedValue(appt), catch: undefined })) };
+      return new LiveKitService(appointments as never, conn as never, { emit: jest.fn() } as never);
+    }
+    const live = { ...base, status: 'CONFIRMED', slot_start: minutes(-5), slot_end: minutes(25) };
+
+    it('joins a live appointment inside its slot', async () => {
+      await expect(joinSvc({}, live).joinCall('call_1', 'pat-1', 'P')).resolves.toEqual(expect.objectContaining({ room_name: 'room-1' }));
+    });
+
+    it('refuses a PENDING appointment (not only the listed dead states)', async () => {
+      await expect(joinSvc({}, { ...live, status: 'PENDING' }).joinCall('call_1', 'pat-1', 'P')).rejects.toThrow('appointment_not_active');
+    });
+
+    it('refuses an ended, failed or rejected session', async () => {
+      for (const status of ['ENDED', 'FAILED', 'REJECTED']) {
+        await expect(joinSvc({ status }, live).joinCall('call_1', 'pat-1', 'P')).rejects.toThrow('call_session_closed');
+      }
+    });
+
+    it('refuses outside the appointment window', async () => {
+      await expect(joinSvc({}, { ...live, slot_start: minutes(-180), slot_end: minutes(-150) }).joinCall('call_1', 'pat-1', 'P')).rejects.toThrow('call_outside_appointment_window');
+      await expect(joinSvc({}, { ...live, slot_start: minutes(120), slot_end: minutes(150) }).joinCall('call_1', 'pat-1', 'P')).rejects.toThrow('call_outside_appointment_window');
+    });
+  });
 });

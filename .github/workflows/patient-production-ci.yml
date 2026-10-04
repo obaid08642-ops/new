@@ -339,9 +339,13 @@ jobs:
       - name: Install frozen dependencies
         run: npm ci
       # Q68: an SDK-mismatched native module crashes the app at launch without
-      # touching JS. Fail the build if any native package is misaligned.
+      # touching JS. Fail only on an SDK major mismatch, a native package on a
+      # different major, or a missing native module; patch drift never fails
+      # (owner decision 2026-10-04, replaces `npx expo install --check`).
       - name: Verify native module alignment
-        run: npx expo install --check
+        run: |
+          node --test ../tools/native/check_expo_alignment.test.mjs
+          node ../tools/native/check_expo_alignment.mjs .
       # patient-app imports the design system sources from ../packages (12.A6/A7);
       # their own dependencies must be present for tsc, jest and the export.
       - name: Install the shared design packages
@@ -381,7 +385,7 @@ jobs:
         run: npm ci --legacy-peer-deps
       # Q68: see patient-app above.
       - name: Verify native module alignment
-        run: npx expo install --check
+        run: node ../tools/native/check_expo_alignment.mjs .
       - name: Type check
         run: npx tsc --noEmit
       - name: Run tests

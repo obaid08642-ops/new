@@ -11,4 +11,10 @@ describe('patient app offers only verifiable social sign-in (Q107)', () => {
       expect(src).toMatch(/handleOAuthBackend\('google'/);
     });
   }
+
+  // Second review: the welcome screen still showed X and Snapchat buttons.
+  it('welcome.tsx shows no X or Snapchat button', () => {
+    const src = fs.readFileSync(path.join(__dirname, '..', '..', 'app', '(auth)', 'welcome.tsx'), 'utf8');
+    expect(src).not.toMatch(/snapchat-ghost|x-twitter/);
+  });
 });

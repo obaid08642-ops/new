@@ -6,7 +6,7 @@ import { NotFoundException } from '@nestjs/common';
 import { PrescriptionsService } from './prescriptions.service';
 
 describe('claiming an unassigned prescription (R11 §5)', () => {
-  function service(linked: { recipient?: string; selected?: string }) {
+  function service(linked: { recipient?: string; selected?: string; allocations?: Array<{ pharmacy_account_id: string; status: string }> }) {
     const rx = { id: 'rx-1', state: 'UPLOADED_BY_PATIENT', pharmacy_id: undefined as string | undefined, save: jest.fn(), toObject: () => ({}) };
     const model = { findOne: jest.fn(async () => rx) };
     // Independent check: the selected pharmacy is recorded on its allocation
@@ -17,7 +17,13 @@ describe('claiming an unassigned prescription (R11 §5)', () => {
     const collections: Record<string, any> = {
       pharmacy_orders: { find: jest.fn(() => ({ limit: () => ({ toArray: async () => orders }) })) },
       pharmacy_broadcast_recipients: { findOne: jest.fn(async (q: any) => (linked.recipient && match(q, { order_id: 'order-1', pharmacy_account_id: linked.recipient }) ? { order_id: 'order-1' } : null)) },
-      pharmacy_allocations: { findOne: jest.fn(async (q: any) => (linked.selected && match(q, { order_id: 'order-1', pharmacy_account_id: linked.selected }) ? { order_id: 'order-1' } : null)) },
+      pharmacy_allocations: {
+        find: jest.fn((q: any) => ({
+          toArray: async () => (linked.allocations ?? (linked.selected ? [{ pharmacy_account_id: linked.selected, status: 'confirmed' }] : []))
+            .map((a) => ({ order_id: 'order-1', ...a }))
+            .filter((a) => q.order_id.$in.includes(a.order_id) && !q.status.$nin.includes(a.status)),
+        })),
+      },
     };
     const providers = { db: { collection: (n: string) => collections[n] } };
     const svc = new PrescriptionsService(model as never, {} as never, { emit: jest.fn() } as never, {} as never, providers as never);
@@ -36,6 +42,24 @@ describe('claiming an unassigned prescription (R11 §5)', () => {
     await a.svc.verifyByPharmacist('rx-1', { id: 'pharm-A', role: 'pharmacy' });
     expect(a.rx.pharmacy_id).toBe('pharm-A');
     const b = service({ selected: 'pharm-B' });
+    await b.svc.verifyByPharmacist('rx-1', { id: 'pharm-B', role: 'pharmacy' });
+    expect(b.rx.pharmacy_id).toBe('pharm-B');
+  });
+
+  // Second review: an allocation that was rejected, cancelled or expired still
+  // let that pharmacy claim, and a broadcast recipient could claim ahead of
+  // the pharmacy the patient selected.
+  it('a rejected, cancelled or expired allocation does not count', async () => {
+    for (const status of ['rejected', 'cancelled', 'expired']) {
+      const { svc } = service({ allocations: [{ pharmacy_account_id: 'pharm-B', status }] });
+      await expect(svc.verifyByPharmacist('rx-1', { id: 'pharm-B', role: 'pharmacy' })).rejects.toBeInstanceOf(NotFoundException);
+    }
+  });
+
+  it('once a pharmacy is selected, only it may claim (not the other broadcast recipients)', async () => {
+    const { svc } = service({ recipient: 'pharm-A', allocations: [{ pharmacy_account_id: 'pharm-B', status: 'preparing' }] });
+    await expect(svc.verifyByPharmacist('rx-1', { id: 'pharm-A', role: 'pharmacy' })).rejects.toBeInstanceOf(NotFoundException);
+    const b = service({ recipient: 'pharm-A', allocations: [{ pharmacy_account_id: 'pharm-B', status: 'preparing' }] });
     await b.svc.verifyByPharmacist('rx-1', { id: 'pharm-B', role: 'pharmacy' });
     expect(b.rx.pharmacy_id).toBe('pharm-B');
   });
