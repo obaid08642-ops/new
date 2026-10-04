@@ -1,0 +1,20 @@
+[main] /medicines/search/recent
+   anon-before 401 None
+   A           403 None cc=None {'message': 'Insufficient role', 'error': 'Forbidden', 'statusCode': 403}
+   anon-after  401 None {'message': 'Missing token', 'error': 'Unauthorized', 'statusCode': 401}
+   B           403 None {'message': 'Insufficient role', 'error': 'Forbidden', 'statusCode': 403}
+[main] /medicines/me/recently-viewed
+   anon-before 401 None
+   A           403 None cc=None {'message': 'Insufficient role', 'error': 'Forbidden', 'statusCode': 403}
+   anon-after  401 None {'message': 'Missing token', 'error': 'Unauthorized', 'statusCode': 401}
+   B           403 None {'message': 'Insufficient role', 'error': 'Forbidden', 'statusCode': 403}
+[main] /radiology/bookings/mine
+   anon-before 401 None
+   A           200 MISS cc=public, max-age=300, s-maxage=300, stale-while-revalidate=60 []
+   anon-after  200 HIT []
+   B           200 HIT []
+[main] /radiology/reports/mine
+   anon-before 401 None
+   A           200 MISS cc=public, max-age=300, s-maxage=300, stale-while-revalidate=60 []
+   anon-after  200 HIT []
+   B           200 HIT []

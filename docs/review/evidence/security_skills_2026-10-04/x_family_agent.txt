@@ -1,0 +1,4 @@
+[agent] A sets blood type + allergy: 200 201
+[agent] B creates own family group: 201
+[agent] A and B share no group; B GET /family/member-health/<A id>:
+    200 {'_id': '6ac2456b54d212bdd4fe432e', 'patient_id': 'f30f6fe0-621e-4050-a125-08f7af578041', '__v': 1, 'allergies': [{'name': 'SyntheticPenicillinAllergy', 'id': '626ca7d6-9260-45e5-90e3-4c1aadc402d7', 'added_at': '2026-10-04T12:24:11.461Z'}], 'blood_type': 'AB-', 'chronic_diseases': [], 'createdAt': '

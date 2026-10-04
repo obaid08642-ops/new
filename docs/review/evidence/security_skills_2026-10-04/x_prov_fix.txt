@@ -1,0 +1,5 @@
+[fix] start -> 201 ['ok', 'user_id', 'profile_id', 'type', 'step']
+[fix] provider login -> 201
+[fix] step2 (provider enters IBAN) -> 201 {'_id': '6ac24733f2858705eb6cb8fb', 'user_id': 'a35b66e2-1eec-4e58-a09a-4481be580365', 'account_id': 'a35b66e2-1eec-4e58-a09a-4481be580365', 'type': '
+[fix] anonymous GET /search/providers?type=doctor -> 200 rows 1
+    {'iban': None, 'bank_account_name': None, 'national_id': None, 'phone': None, 'email': None, 'commission_rate': None, 'status': 'active'}

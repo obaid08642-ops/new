@@ -167,6 +167,11 @@ export class FamilyService {
   async getMemberHealth(requesterId: string, targetMemberId: string) {
     const group = await this.findGroupByOwnerOrMember(requesterId);
     if (!group) throw new NotFoundException('Not part of a family group');
+    // The target must belong to the requester's own group (as in getMemberRecords);
+    // owning *a* group is not permission to read any patient's medical profile.
+    const inGroup = (group as any).owner_id === targetMemberId
+      || (group as any).members?.some((m: any) => m.user_id === targetMemberId);
+    if (!inGroup) throw new NotFoundException('Member not found in your family group');
     // Accept the granular permission keys the patient app actually grants
     // (vitals/meds/reports/appointments/emergency) plus legacy view_health.
     const HEALTH_KEYS = ['view_health', 'vitals', 'meds', 'reports', 'appointments', 'emergency'];
