@@ -1,5 +1,7 @@
-import { BadRequestException, ForbiddenException } from '@nestjs/common';
-import { InsuranceFlowService } from './insurance-engine.module';
+import { BadRequestException, ForbiddenException, RequestMethod } from '@nestjs/common';
+import { METHOD_METADATA, PATH_METADATA } from '@nestjs/common/constants';
+import { InsuranceController } from '../insurance/insurance.module';
+import { InsuranceFlowController, InsuranceFlowService } from './insurance-engine.module';
 
 const USER = { id: 'lab-account-1', role: 'lab' };
 
@@ -128,5 +130,23 @@ describe('InsuranceFlowService.savePolicy (F2 canonical handler)', () => {
     expect(update.$set.insurance.verified).toBe(false);
     expect(update.$set.insurance.member_name).toBe('Ahmed');
     expect(update.$set.insurance.expiry_date).toBe('2027-12-31');
+  });
+});
+
+/**
+ * 9b38bf7 review: renaming the route survived every test. Pin the wiring: one
+ * POST /insurance/save-policy, on InsuranceFlowController, nowhere else.
+ */
+describe('POST /insurance/save-policy route wiring (F2)', () => {
+  const routesOf = (ctrl: Function) => Object.getOwnPropertyNames(ctrl.prototype)
+    .filter((k) => k !== 'constructor')
+    .map((k) => ({ path: Reflect.getMetadata(PATH_METADATA, ctrl.prototype[k]), method: Reflect.getMetadata(METHOD_METADATA, ctrl.prototype[k]) }))
+    .filter((r) => r.path !== undefined);
+
+  it('is served once, by the canonical handler', () => {
+    expect(Reflect.getMetadata(PATH_METADATA, InsuranceFlowController)).toBe('insurance');
+    expect(routesOf(InsuranceFlowController)).toContainEqual({ path: 'save-policy', method: RequestMethod.POST });
+    expect(Reflect.getMetadata(PATH_METADATA, InsuranceController)).toBe('insurance');
+    expect(routesOf(InsuranceController).filter((r) => r.path === 'save-policy')).toEqual([]);
   });
 });

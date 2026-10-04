@@ -103,4 +103,22 @@ describe('MedicinesService medical approval indexing (Q60)', () => {
       }),
     );
   });
+  // 300ce0c review: change-request approvals changed the medicine but never
+  // refreshed the public projection, so a new item stayed out of public search
+  // and a medicine removed as a duplicate stayed in it.
+  it('approving a new_item refreshes the public projection of the created medicine', async () => {
+    const { service, publication } = createService(null, {
+      id: 'ccr_2', type: 'new_item', status: 'pending', medicine_id: null, changes: { name_ar: 'دواء جديد' },
+    });
+    const result: any = await service.approveChangeRequest('ccr_2', 'admin-1', {});
+    expect(publication.refresh).toHaveBeenCalledWith(expect.objectContaining({ entityType: 'medicine', entityId: result.applied.new_medicine_id }));
+  });
+
+  it('approving a duplicate_remove refreshes the projection so the deleted copy leaves public search', async () => {
+    const { service, publication } = createService({ ...draft, public_eligibility: true, indexing_eligibility: true, medical_review_status: 'approved' }, {
+      id: 'ccr_3', type: 'duplicate_remove', status: 'pending', medicine_id: 'med-q60', changes: {},
+    });
+    await service.approveChangeRequest('ccr_3', 'admin-1', {});
+    expect(publication.refresh).toHaveBeenCalledWith(expect.objectContaining({ entityType: 'medicine', entityId: 'med-q60' }));
+  });
 });

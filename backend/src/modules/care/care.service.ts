@@ -82,11 +82,9 @@ export class CareService {
     // F9/R11: the admin-managed specialties collection is the single source.
     // The hard-coded SPECIALTY_MASTER fallback is gone: an admin-added specialty
     // reaches patients, and a removed one disappears.
-    let source: any[] = [];
-    try {
-      source = await (this.providerModel as any).db?.collection('specialties')
-        ?.find({ active: { $ne: false } }, { projection: { _id: 0 } }).toArray() || [];
-    } catch { source = []; }
+    // A read failure surfaces as an error, never as "no specialties".
+    const source: any[] = await (this.providerModel as any).db?.collection('specialties')
+      ?.find({ active: { $ne: false } }, { projection: { _id: 0 } }).toArray() || [];
     return source.map((s: any) => {
       // Profiles store the canonical specialty slug; Arabic/English fallbacks
       // retain compatibility with older imported records without counting

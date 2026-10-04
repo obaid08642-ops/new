@@ -1728,6 +1728,14 @@ export class MedicinesService {
     }
     // 'other' → informational; approval just acknowledges it.
 
+    // The public projection follows every applied change (a new item goes in,
+    // a removed duplicate goes out); before this it kept the old state.
+    const touchedId: string | null = applied.new_medicine_id || (r.type !== 'other' ? r.medicine_id : null);
+    if (touchedId) {
+      const fresh = await this.model.findOne({ id: touchedId }).lean();
+      await this.refreshPublicProjection({ ...(fresh || {}), id: touchedId }, adminId, 'medicine_change_request_approved');
+    }
+
     await this.changeRequests.updateOne(
       { id: requestId },
       { $set: { status: rejectedFields.length ? 'partially_approved' : 'approved', reviewed_by: adminId, reviewed_at: new Date(), applied, rejected_fields: rejectedFields, updatedAt: new Date() } },
