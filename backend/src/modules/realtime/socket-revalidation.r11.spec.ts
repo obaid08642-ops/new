@@ -132,4 +132,47 @@ describe('socket auth fails closed and is re-checked (R11 second review)', () =>
     await gw.handleConnection(s);
     expect(s.data.user).toEqual(expect.objectContaining({ id: 'u7', tv: 0 }));
   });
+
+  // Fifth review: the impersonator's permission, the gateway storing the
+  // device hash, staff via a roles array, and a staff socket with no hash.
+  describe('fifth review', () => {
+    const store: Record<string, any> = {};
+    const conn = { collection: (name: string) => ({
+      findOne: async (q: any) => store[`${name}:${q.id ?? q.user_id ?? q.key}`] ?? null,
+      find: () => ({ toArray: async () => [] }),
+    }) };
+    const [j, r, , c, l] = realtimeDeps();
+    const build = () => new RealtimeGateway(j as never, r as never, { db: conn } as never, c as never, l as never, undefined, { canActivate: async () => true } as never);
+    beforeEach(() => { for (const k of Object.keys(store)) delete store[k]; });
+
+    it('drops an impersonation socket once the impersonator no longer holds user.impersonate', async () => {
+      store['users:pat-1'] = { token_version: 0 };
+      store['users:agent-1'] = { id: 'agent-1', role: 'patient', active: true }; // a role without user.impersonate
+      store['impersonation_sessions:s1'] = { status: 'active', expiresAt: new Date(Date.now() + 60_000), impersonator_id: 'agent-1' };
+      const s1 = { id: 'a', data: { user: { id: 'pat-1', role: 'patient', scope: 'impersonation', impersonation_session_id: 's1' } }, disconnect: jest.fn() };
+      const gw = build();
+      (gw as any).server = { sockets: new Map([['a', s1]]) };
+      expect(await gw.revalidateSockets()).toBe(1);
+    });
+
+    it('a staff socket (role or roles array) with no stored device hash is dropped', async () => {
+      store['users:adm'] = { token_version: 0 };
+      store['users:hadm'] = { token_version: 0 };
+      const noHash = { id: 'a', data: { user: { id: 'adm', role: 'admin', tv: 0 } }, disconnect: jest.fn() };
+      const viaRoles = { id: 'b', data: { user: { id: 'hadm', role: 'patient', roles: ['super_admin'], tv: 0 } }, disconnect: jest.fn() };
+      const gw = build();
+      (gw as any).server = { sockets: new Map([['a', noHash], ['b', viaRoles]]) };
+      expect(await gw.revalidateSockets()).toBe(2);
+    });
+  });
+
+  it('the realtime gateway stores the staff device hash at connect', async () => {
+    const guard = { canActivate: jest.fn(async (ctx: any) => { ctx.switchToHttp().getRequest().user = { id: 'adm', role: 'admin', tv: 0 }; return true; }) };
+    const [j, r, a, c, l] = realtimeDeps();
+    const gw = new RealtimeGateway(j as never, r as never, a as never, c as never, l as never, undefined, guard as never);
+    (gw as any).trackSocket = jest.fn(); (gw as any).replayOfflineQueue = jest.fn();
+    const s = { id: 's9', handshake: { auth: { token: 't' }, query: {}, headers: { 'x-admin-device': 'd'.repeat(32) }, address: '' }, data: {} as Record<string, unknown>, join: jest.fn(), disconnect: jest.fn(), broadcast: { emit: jest.fn() } };
+    await gw.handleConnection(s as never);
+    expect(s.data.adminDeviceHash).toBe(require('crypto').createHash('sha256').update('d'.repeat(32)).digest('hex'));
+  });
 });

@@ -109,4 +109,14 @@ describe('nursing pool claim and decline (R11 §5 lead 9)', () => {
     (bookings as any).findOne = orig;
     expect(((await bookings.findOne({ id: 'req-1' }).lean()) as any).state).toBe('PROVIDER_ASSIGNED');
   });
+
+  // Fifth review: an insurance booking assigned to the nurse is refused with the
+  // insurance reason, and the accept itself is one conditional write.
+  it('an assigned insurance booking is refused with the coverage-decision reason', async () => {
+    await bookings.updateOne({ id: 'req-1' }, { $set: { provider_id: 'nurse-A', state: 'PROVIDER_ASSIGNED', payment_method: 'insurance' } });
+    const orig = bookings.findOne.bind(bookings);
+    (bookings as any).findOne = (q: any, p?: any) => (p ? { lean: async () => ({ provider_id: 'nurse-A', state: 'PROVIDER_ASSIGNED', payment_method: 'card', payment_status: 'paid' }) } : orig(q));
+    await expect(controller.respond(nurseA, 'req-1', { accept: true } as never)).rejects.toThrow('insurance_booking_requires_coverage_decision');
+    (bookings as any).findOne = orig;
+  });
 });

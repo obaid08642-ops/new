@@ -120,4 +120,17 @@ describe('RefundService.request is bound to a real, owned, paid booking (Q96)', 
     expect(r.moyasar_payment_id).toBe('pay_copay4');
     await db.collection('labbookings').deleteMany({});
   });
+
+  // Fifth review: consultations and nursing never store insurance_request_id;
+  // their copay is found through the insurance request's booking_id. Real
+  // transactions carry gateway_charge_id / gateway_intent_id.
+  it('a consultation copay paid on its insurance request is refundable, with the real gateway id', async () => {
+    const db = conn.db!;
+    await db.collection('appointments').insertOne({ id: 'appt-C', patient_id: 'pat-A', slot_start: inHours(30), total_price: 300, payment_method: 'insurance', status: 'confirmed' });
+    await db.collection('insuranceservicerequests').insertOne({ id: 'ir-C', booking_id: 'appt-C', booking_kind: 'consultation', copay_amount: 60 });
+    await db.collection('transactions').insertOne({ id: 'tx-copayC', booking_kind: 'insurance', booking_id: 'ir-C', status: 'paid', amount: 60, gateway_charge_id: 'pay_copayC' });
+    const r = await service.request({ id: 'pat-A' }, { booking_kind: 'consultation', booking_id: 'appt-C', reason: 'cannot attend' });
+    expect(r.amount_paid).toBe(60);
+    expect(r.moyasar_payment_id).toBe('pay_copayC');
+  });
 });

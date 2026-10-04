@@ -10,7 +10,7 @@ import { roleSatisfies } from './rbac';
 export { roleSatisfies } from './rbac';
 import { ImpersonationSessionService } from './impersonation-session.service';
 import { adminGateSatisfied } from './admin-gate.guard';
-import { resolveEffectivePermissions } from './effective-permissions';
+import { hasEffectivePermission, resolveEffectivePermissions } from './effective-permissions';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 
@@ -129,11 +129,17 @@ export async function socketSessionRevoked(conn: { collection(name: string): any
       const session: any = await conn.collection('impersonation_sessions').findOne({ id: sid }, { projection: { status: 1, expiresAt: 1, impersonator_id: 1 } });
       if (!session || session.status !== 'active') return true;
       if (new Date(session.expiresAt).getTime() <= Date.now()) return true;
-      const actor: any = await conn.collection('users').findOne({ id: String(session.impersonator_id) }, { projection: { active: 1, suspended: 1 } });
+      const actor: any = await conn.collection('users').findOne({ id: String(session.impersonator_id) }, { projection: { id: 1, role: 1, active: 1, suspended: 1, custom_role_keys: 1, permissions: 1 } });
       if (!actor || actor.active === false || actor.suspended === true) return true;
+      // Same rule as ImpersonationSessionService.validate on every request.
+      if (!(await hasEffectivePermission(conn as never, actor, Permission.USER_IMPERSONATE))) return true;
     }
-    // A staff socket stays tied to the enrolled device it connected from.
-    if (isPlatformStaffRole(payload?.role) && opts.adminDeviceHash) {
+    // A staff socket (role, or an admin entry in roles[], as the REST guard
+    // reads it) stays tied to the enrolled device it connected from; with no
+    // device recorded at connect it is not kept.
+    const staff = isPlatformStaffRole(payload?.role) || (Array.isArray(payload?.roles) && payload.roles.some((r: string) => /admin/i.test(r)));
+    if (staff && !opts.adminDeviceHash) return true;
+    if (staff && opts.adminDeviceHash) {
       const dev: any = await conn.collection('admin_devices').findOne({ user_id: String(id), device_hash: opts.adminDeviceHash }, { projection: { revoked: 1 } });
       if (!dev || dev.revoked === true) return true;
     }

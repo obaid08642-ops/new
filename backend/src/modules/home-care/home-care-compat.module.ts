@@ -194,9 +194,23 @@ export class HomeCareCompatController {
         if (!claimed.modifiedCount) throw new ConflictException('booking_already_claimed');
       } else if (accept && b.provider_id !== u.id) {
         throw new ConflictException('booking_already_claimed');
-      } else if (accept && !(await this.bookings.countDocuments({ id: { $eq: id }, provider_id: u.id, ...PAYABLE }))) {
-        // A booking assigned to this nurse: re-check the payment rule on the stored row too.
-        throw new BadRequestException('card_payment_not_completed');
+      } else if (accept) {
+        // A booking assigned to this nurse: the accept is one conditional write
+        // on the stored row (state + payment rule), not a read then a save.
+        const now = new Date();
+        const done = await this.bookings.updateOne(
+          { id: { $eq: id }, provider_id: u.id, state: { $in: ['NEW_REQUEST', 'PROVIDER_ASSIGNED'] }, ...PAYABLE },
+          { $set: { state: 'CONFIRMED' }, $push: { state_history: { state: 'CONFIRMED', at: now, by: u.id, reason } } },
+        );
+        if (!done.modifiedCount) {
+          const cur: any = await this.bookings.findOne({ id: { $eq: id } }).lean();
+          if (cur?.payment_method === 'insurance') throw new BadRequestException('insurance_booking_requires_coverage_decision');
+          if (cur?.payment_method === 'card' && cur?.payment_status !== 'paid') throw new BadRequestException('card_payment_not_completed');
+          throw new BadRequestException('invalid_transition');
+        }
+        const row: any = await this.bookings.findOne({ id: { $eq: id } }, { patient_id: 1 }).lean();
+        try { this.emitter?.emit('homecare.booking_state_changed', { booking_id: id, patient_id: row?.patient_id, state: 'CONFIRMED', provider_id: u.id }); } catch {}
+        return { ok: true, id, state: 'CONFIRMED' };
       }
     }
     // Accepting confirms the visit (as provider-jobs does): PROVIDER_ASSIGNED is
