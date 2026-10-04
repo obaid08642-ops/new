@@ -156,14 +156,22 @@ PR bodies end with the Claude Code line and the session link.
   - the emulator launcher's ANR dialog;
   - Maestro whole-label matching.
 
+### 7b. Native baseline (run 37187173460, 2026-10-04)
+
+All 13 jobs green: 6 patient shards and 7 provider types, every one signed in.
+
+| App | Screens | Controls exercised | Crashes |
+|---|---|---|---|
+| Patient app | 227 | ~1,160 | 17 = Q69 maps, plus Q76 |
+| Provider app, 7 types | 118 | ~600 | 1 = Q72 |
+
+- Verified on Android: Q71 (sessions persist).
+- Other findings from this baseline: Q75 (data export), Q73 (family chat polling 403), Q74 (hard-coded legal text), Q77 (raw payment error), and Q38 confirmed (notification settings 400).
+- Provider depth is limited by the crawler (2 levels, 45 screens). Deeper provider flows are covered by the API journeys.
+
 ## 8. Reviewer next steps (in order)
 
-1. When run 37109973667 finishes:
-   - download `native-report`;
-   - confirm the patient app now stays signed in (Q71);
-   - triage the signed-in screens and the provider types (login now scrolls to "Already have an account? Log In");
-   - add every real defect to `QA_DEFECTS.md` with evidence;
-   - never count crawler artifacts as app defects.
+1. Re-run `native-e2e` after each agent push. Remove a test-build workaround when its defect is fixed, and add every real new defect to `QA_DEFECTS.md` with evidence. Never count crawler artifacts as app defects.
 2. **Catalog audit §3** (`CATALOG_AUDIT.md`):
    - consumer map per catalog;
    - admin CRUD matrix;
