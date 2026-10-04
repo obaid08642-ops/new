@@ -288,15 +288,36 @@ export class InsuranceFlowService {
   async benefitsSummary(user: { id: string }) {
     const { has_policy } = await this.myPolicy(user);
     if (!has_policy) return [];
-    type RequestRow = { booking_kind?: string; service_type?: string; state?: string; copay_amount?: number; copay_percent?: number; payment_status?: string };
-    const rows = (await this.requests.find({ patient_id: { $eq: String(user.id) } }, { _id: 0, booking_kind: 1, service_type: 1, state: 1, copay_amount: 1, copay_percent: 1, payment_status: 1 }).lean()) as unknown as RequestRow[];
+    type RequestRow = { booking_kind?: string; service_type?: string; state?: string; copay_amount?: number; copay_percent?: number; payment_status?: string; history?: Array<{ state?: string; note?: string }> };
+    const rows = (await this.requests.find({ patient_id: { $eq: String(user.id) } }, { _id: 0, booking_kind: 1, service_type: 1, state: 1, copay_amount: 1, copay_percent: 1, payment_status: 1, history: 1 }).lean()) as unknown as RequestRow[];
     const SERVICE: Record<string, string> = { home_care: 'nursing', 'home-care': 'nursing', appointment: 'consultation', order: 'pharmacy' };
     const ICONS: Record<string, string> = {
       consultation: 'stethoscope', pharmacy: 'pill', lab: 'flask',
       radiology: 'radiology-box-outline', nursing: 'heart',
     };
-    const APPROVED = new Set(['APPROVED_FULL', 'APPROVED_PARTIAL', 'COPAY_PENDING', 'COPAY_PAID']);
     const PENDING = new Set(['PENDING_PROVIDER_REVIEW', 'APPEAL_PENDING']);
+    // The provider's last decision from the request history (decide() pushes
+    // APPROVED_FULL, COPAY_PENDING "patient copay N%" or REJECTED; a
+    // resubmission or appeal reopens it). A patient choosing to self-pay after
+    // a rejection does not turn it into an approval. Rows without history fall
+    // back to the current state.
+    const providerDecision = (r: RequestRow): 'full' | 'partial' | 'rejected' | null => {
+      let decision: 'full' | 'partial' | 'rejected' | null = null;
+      const history = Array.isArray(r.history) ? r.history : [];
+      for (const h of history) {
+        const st = String(h?.state || '');
+        if (st === 'APPROVED_FULL') decision = 'full';
+        else if (st === 'APPROVED_PARTIAL' || (st === 'COPAY_PENDING' && String(h?.note || '').startsWith('patient copay'))) decision = 'partial';
+        else if (st === 'REJECTED') decision = 'rejected';
+        else if (PENDING.has(st)) decision = null;
+      }
+      if (history.length) return decision;
+      const st = String(r.state || '');
+      if (st === 'REJECTED') return 'rejected';
+      if (st === 'APPROVED_FULL') return 'full';
+      if (['APPROVED_PARTIAL', 'COPAY_PENDING', 'COPAY_PAID'].includes(st)) return (Number(r.copay_amount) > 0 || Number(r.copay_percent) > 0 || st === 'APPROVED_PARTIAL') ? 'partial' : 'full';
+      return null;
+    };
     const out = new Map<string, { service: string; icon: string; requests: number; approved: number; partially_approved: number; rejected: number; pending: number; copay_paid: number; copay_due: number }>();
     for (const r of rows) {
       const raw = String(r.booking_kind || r.service_type || '').toLowerCase();
@@ -305,14 +326,15 @@ export class InsuranceFlowService {
       const s = out.get(service) || { service, icon: ICONS[service] || 'shield', requests: 0, approved: 0, partially_approved: 0, rejected: 0, pending: 0, copay_paid: 0, copay_due: 0 };
       const state = String(r.state || '');
       const copay = Number(r.copay_amount) || 0;
+      const decision = providerDecision(r);
       s.requests += 1;
-      if (APPROVED.has(state)) {
+      if (decision === 'full' || decision === 'partial') {
         s.approved += 1;
-        if (state !== 'APPROVED_FULL' && (copay > 0 || Number(r.copay_percent) > 0 || state === 'APPROVED_PARTIAL')) s.partially_approved += 1;
-        const paid = state === 'COPAY_PAID' || ['paid', 'partially_refunded'].includes(String(r.payment_status || ''));
-        if (paid) s.copay_paid += copay; else if (state === 'COPAY_PENDING') s.copay_due += copay;
-      } else if (state === 'REJECTED') s.rejected += 1;
+        if (decision === 'partial') s.partially_approved += 1;
+      } else if (decision === 'rejected') s.rejected += 1;
       else if (PENDING.has(state)) s.pending += 1;
+      const paid = state === 'COPAY_PAID' || ['paid', 'partially_refunded'].includes(String(r.payment_status || ''));
+      if (paid) s.copay_paid += copay; else if (state === 'COPAY_PENDING') s.copay_due += copay;
       out.set(service, s);
     }
     return [...out.values()];
