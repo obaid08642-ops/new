@@ -33,6 +33,7 @@ jobs:
           U: ${{ secrets.DEPLOY_USER }}
           PORT: ${{ secrets.DEPLOY_PORT }}
         run: |
+          set +e   # a failing task must never stop the report from being saved
           PORT=${PORT:-22}
           : > report.txt
           for t in $(grep -vE '^\s*(#|$)' tools/ops/RUN); do

@@ -1,3 +1,2 @@
 # tasks run in order by .github/workflows/server-inspect.yml
-30-free-memory
-35-livekit-rotate
+90-recover

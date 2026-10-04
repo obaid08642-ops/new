@@ -23,6 +23,7 @@ restore() {
   sudo -n sh -c "cat $B/livekit.yaml.pre-rotate.$TS > $LK"
   $DK restart nabdah-livekit >/dev/null
   cd $D && $DK compose -f docker-compose.production.yml --env-file .env.production up -d --no-deps --no-build --force-recreate backend >/dev/null 2>&1
+  wait_healthy nabdah-backend 36; sudo -n docker exec nabdah-nginx nginx -s reload  # new container IP
   echo "rotate: restored previous key"; exit 1
 }
 wait_healthy() { for i in $(seq 1 $2); do s=$($DK inspect -f '{{.State.Health.Status}}' $1 2>/dev/null); [ "$s" = healthy ] && return 0; sleep 5; done; return 1; }
@@ -54,6 +55,7 @@ $DK tag "$RUNIMG" nabdah-prod-backend:prev-$TS
 echo "rotate: backend image pinned (same image as before: ${RUNIMG:7:12})"
 cd $D && $DK compose -f docker-compose.production.yml --env-file .env.production up -d --no-deps --no-build --force-recreate backend >/dev/null 2>&1 || restore "backend recreate"
 wait_healthy nabdah-backend 36 || restore "backend health"
+sudo -n docker exec nabdah-nginx nginx -s reload && echo "rotate: nginx reloaded (backend has a new container IP)"
 code=$(curl -sk -o /dev/null -w '%{http_code}' --max-time 10 -H 'Host: api.nabd.plus' https://127.0.0.1/api/v1/health/liveness)
 echo "rotate: backend healthy; api liveness via nginx: $code"
 [ "$($DK inspect -f '{{.Image}}' nabdah-backend)" = "$RUNIMG" ] && echo "rotate: backend runs the same image as before"
