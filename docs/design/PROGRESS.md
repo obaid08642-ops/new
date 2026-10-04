@@ -7,7 +7,7 @@
 >
 > Sources: `DESIGN_HANDOFF_FINAL.md`, `SPEC_PRODUCT_DOCTOR_DETAIL.md`, `DEVICE_STANDARD.md`, `canvas/`. How the folder works: `README.md`.
 
-_Last updated: 2026-10-04 (tokens #259 and web font #260 in review; next step: native shells on `design/shells-native`)._
+_Last updated: 2026-10-04 (#259 tokens, #260 web font and #261 native shells are in review; next step: web shells on `design/shells-web`)._
 
 ## Snapshot
 
@@ -17,7 +17,8 @@ _Last updated: 2026-10-04 (tokens #259 and web font #260 in review; next step: n
 | Design sources in the repo | **Done** ([#256](https://github.com/obaid08642-ops/new/pull/256)) | Handoff, spec, device standard and 40 boards in `canvas/` |
 | Foundation: tokens | **In review** ([#259](https://github.com/obaid08642-ops/new/pull/259)) | Service tones and service map; 97 contrast checks pass |
 | Foundation: Readex Pro on the web | **In review** ([#260](https://github.com/obaid08642-ops/new/pull/260)) | Self-hosted with `next/font/local`; on main the web had no font at all (CSP blocked Google) |
-| Foundation: shells, shared components, lint gates | Not started | See `WIRING_REPORT.md` §1 for the measured gaps |
+| Foundation: native shells | **In review** ([#261](https://github.com/obaid08642-ops/new/pull/261), stacked on #259) | `Screen`, `AppHeader`, `StickyFooter`, `TabBar` in `packages/ui-native` |
+| Foundation: web shells, shared components, lint gates | Not started | See `WIRING_REPORT.md` §1 for the measured gaps |
 | Screen batches 0–13 | Not started | 410 screens to design (104 more routes only redirect) |
 
 ### Screens per batch (from `SCREEN_INVENTORY.md`; redirect-only routes excluded)
@@ -64,6 +65,12 @@ _Last updated: 2026-10-04 (tokens #259 and web font #260 in review; next step: n
   - `globals.css` applies the per-locale order from `tokens.json`. Urdu headings and paragraphs get a taller line height for Nastaliq.
   - The web copy of `fonts.css` drops the Google import.
   - Screenshots: `docs/design/screenshots/font-web/` on that branch.
+- **Native shells, PR [#261](https://github.com/obaid08642-ops/new/pull/261)** (branch `design/shells-native`), waiting for review.
+  - Stacked on #259: it needs the `action.fab` and `shadow.*` tokens, which were added to #259 in commit `87cc899`.
+  - `packages/ui-native/src/shells` adds `Screen`, `AppHeader`, `StickyFooter` and `TabBar` (with `useTabBarHeight`), all built on `react-native-safe-area-context` and the tokens.
+  - 6 jest tests in `patient-app/__tests__/design-system-shells.test.tsx`.
+  - Screenshots are react-native-web renders with iPhone 15 Pro insets.
+  - No screen uses the shells yet. Screens are migrated batch by batch.
 
 ## Next (in this order)
 
@@ -73,7 +80,7 @@ The foundation comes before any screen (DEVICE_STANDARD §4, handoff §3). Each 
    - Canvas, card, text, secondary text, action and coral already match handoff §1.
    - The primary-button gradient (`#E8384A → #D42A38`) and the segmented track (`#EAEAEF`) are added with their components (step 5), where the dark boards define them.
 2. ~~**Font on patient-web**~~: PR #260 is in review. patient-app already loads Readex Pro from `assets/fonts`.
-3. **Native shells** (`packages/ui-native`): `Screen`, `AppHeader`, `StickyFooter`, `TabBar`, built on `react-native-safe-area-context`, as in DEVICE_STANDARD §1.
+3. ~~**Native shells**~~: PR #261 is in review.
 4. **Web shells** (`packages/ui`): `AppShell` (using `100dvh`) and `StickyFooter`, as in DEVICE_STANDARD §1.
 5. **Shared components** (handoff §3), in both packages. Still missing: FIcon, ListRow, SectionHeader, Segmented, StatusChip, Toggle, Radio, PrimaryButton, OutlineButton, SearchField, StickyFooter, TabBar, DoctorCard, ProductCard, OfferCard, Timeline, ProgressRing, OfflineState.
 6. **Lint gates** still missing from `tools/design` (handoff §6, DEVICE_STANDARD §5): `no-left-right`, `no-100vh`, `no-rn-safeareaview`. They currently fail on:
@@ -103,6 +110,15 @@ The foundation comes before any screen (DEVICE_STANDARD §4, handoff §3). Each 
 
 ## Blockers
 
+- **CI is red on the base branch, in 5 jobs. This is for the reviewer.** Every PR shows these, including the docs-only #256:
+  - The design-tokens job runs `tools/design/sync-ui-components.mjs` from `packages/design-tokens`, so the script is not found.
+  - The PAY-001 grep matches `backend/src/modules/orders/orders.service.ts:79`.
+  - The conformance job does not install `packages/ui-native` before `packages/ui` tsc.
+  - The brand assets job has no `sharp`.
+  - `packages/ui/build-preview.mjs:81` cannot resolve a module.
+
+  Because each job stops at its first failure, CI skips the later contrast and ratchet steps. Design PRs run them locally and paste the output.
+
 - **Fixed by the reviewer in PR #257:** pharmacy submit (web `/cart/checkout`) and lab opt-in-cash (web `/diagnostics/insurance-approval`). Pull `main` after #257 merges and re-run `node tools/design/screen-inventory.mjs`.
 - **Endpoints the reviewer session will add.** Do not add backend endpoints or mock data for these. Until the endpoints exist, the screen hides that part or shows a "غير متاح حالياً" (not available right now) state:
   - Batch 1, web `/payments/result`: `GET /payments/status/:ref`.
@@ -115,6 +131,7 @@ The foundation comes before any screen (DEVICE_STANDARD §4, handoff §3). Each 
 | Date | Branch | What happened | Tip |
 |---|---|---|---|
 | 2026-10-04 | `claude/progress-md-workflow-vqhj8x` | Set up the workflow, imported the design sources, and generated the inventory and the wiring report. | PR [#256](https://github.com/obaid08642-ops/new/pull/256) |
+| 2026-10-04 | `design/shells-native` | Native shells (`Screen`, `AppHeader`, `StickyFooter`, `TabBar`), with tests and react-native-web screenshots; added the fab, gradient and shadow tokens to #259. | PR [#261](https://github.com/obaid08642-ops/new/pull/261), tip `55a5e23` |
 | 2026-10-04 | `design/font-web` | Self-hosted Readex Pro and Noto on patient-web; found that the web had no font loading at all on main. | PR [#260](https://github.com/obaid08642-ops/new/pull/260), tip `f0a82b8` |
 | 2026-10-04 | `design/tokens` | Tokens step: service tones and service map, contrast pairs, regenerated outputs, before/after swatches. | PR [#259](https://github.com/obaid08642-ops/new/pull/259), tip `1a5a783` |
 | 2026-10-04 | `claude/progress-md-workflow-vqhj8x` | Recorded the owner decisions (branches, one call product, doctor fields, screens without a board, endpoints to hide). Imported the updated `DoctorFull` board. | PR [#256](https://github.com/obaid08642-ops/new/pull/256) |
