@@ -1,0 +1,81 @@
+name: server-inspect
+# Read-only inspection of the server (owner-approved 2026-10-04). Changes nothing on the server.
+# The repo is public, so the report is encrypted to tools/ops/report_pubkey.pem before upload,
+# and the log prints only pass/fail lines.
+on:
+  workflow_dispatch:
+  push:
+    branches: ['review/server-inspect']
+    paths: ['tools/ops/**', '.github/workflows/server-inspect.yml']
+concurrency: { group: server-inspect, cancel-in-progress: false }
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    environment: staging
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check secrets are present (names only)
+        env:
+          H: ${{ secrets.DEPLOY_HOST }}
+          U: ${{ secrets.DEPLOY_USER }}
+          K: ${{ secrets.DEPLOY_SSH_KEY }}
+          P: ${{ secrets.DEPLOY_PASSWORD }}
+          CF: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          Z: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+        run: |
+          for n in H U CF Z; do [ -n "${!n}" ] && echo "$n: set" || echo "$n: MISSING"; done
+          [ -n "$K" ] && echo "ssh key: set" || echo "ssh key: missing"
+          [ -n "$P" ] && echo "password: set" || echo "password: missing"
+          case "$H" in *:*) echo "::error::DEPLOY_HOST looks like IPv6; GitHub runners need the IPv4 address"; exit 1;; esac
+          if [ -n "$K" ]; then printf '%s\n' "$K" | head -1 | grep -q 'PRIVATE KEY' && echo "ssh key format: private key (ok)" || echo "::warning::DEPLOY_SSH_KEY does not start with a PRIVATE KEY header"; fi
+      - name: SSH and run the read-only inspection
+        env:
+          H: ${{ secrets.DEPLOY_HOST }}
+          U: ${{ secrets.DEPLOY_USER }}
+          PORT: ${{ secrets.DEPLOY_PORT }}
+          K: ${{ secrets.DEPLOY_SSH_KEY }}
+          SSHPASS: ${{ secrets.DEPLOY_PASSWORD }}
+        run: |
+          PORT=${PORT:-22}
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          ssh-keyscan -p "$PORT" -T 15 "$H" > ~/.ssh/known_hosts 2>/dev/null || true
+          if [ -s ~/.ssh/known_hosts ]; then echo "server reachable on port $PORT"; else echo "::error::cannot reach the server on port $PORT"; exit 1; fi
+          OPTS="-p $PORT -o BatchMode=yes -o ConnectTimeout=20 -o StrictHostKeyChecking=yes"
+          ok=""
+          if [ -n "$K" ]; then
+            printf '%s\n' "$K" > ~/.ssh/id_deploy && chmod 600 ~/.ssh/id_deploy
+            if ssh $OPTS -i ~/.ssh/id_deploy "$U@$H" true 2>/tmp/ssh_err; then ok=key; echo "login with ssh key: OK"
+            else echo "login with ssh key: FAILED ($(tail -1 /tmp/ssh_err | sed -E 's/[0-9]{1,3}(\.[0-9]{1,3}){3}/<ip>/g'))"; fi
+          fi
+          if [ -z "$ok" ] && [ -n "$SSHPASS" ]; then
+            sudo apt-get install -y -qq sshpass >/dev/null
+            if sshpass -e ssh -p "$PORT" -o ConnectTimeout=20 -o StrictHostKeyChecking=yes -o PubkeyAuthentication=no "$U@$H" true 2>/tmp/ssh_err; then ok=password; echo "login with password: OK"
+            else echo "login with password: FAILED"; fi
+          fi
+          [ -n "$ok" ] || { echo "::error::SSH login failed"; exit 1; }
+          if [ "$ok" = key ]; then
+            ssh $OPTS -i ~/.ssh/id_deploy "$U@$H" 'bash -s' < tools/ops/inspect_server.sh > report.txt 2>&1 || true
+          else
+            sshpass -e ssh -p "$PORT" -o StrictHostKeyChecking=yes -o PubkeyAuthentication=no "$U@$H" 'bash -s' < tools/ops/inspect_server.sh > report.txt 2>&1 || true
+          fi
+          echo "report lines: $(wc -l < report.txt)"
+          openssl rand -hex 32 > k.txt
+          openssl enc -aes-256-cbc -pbkdf2 -salt -in report.txt -out report.enc -pass file:k.txt
+          openssl pkeyutl -encrypt -pubin -inkey tools/ops/report_pubkey.pem -pkeyopt rsa_padding_mode:oaep -in k.txt -out k.enc
+          rm -f report.txt k.txt ~/.ssh/id_deploy
+      - uses: actions/upload-artifact@v4
+        with:
+          name: inspect-encrypted
+          path: |
+            report.enc
+            k.enc
+          retention-days: 3
+      - name: Cloudflare token check (read only)
+        if: ${{ !cancelled() }}
+        env:
+          CF: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          Z: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+        run: |
+          echo "token valid: $(curl -s -H "Authorization: Bearer $CF" https://api.cloudflare.com/client/v4/user/tokens/verify | jq -r '.success')"
+          curl -s -H "Authorization: Bearer $CF" "https://api.cloudflare.com/client/v4/zones/$Z" | jq -r '"zone read: \(.success) name=\(.result.name // "-")"'
