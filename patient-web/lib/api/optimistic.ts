@@ -66,7 +66,8 @@ export type OptimisticRun<T> = {
 export type OptimisticOutcome<T> =
   | { status: "committed"; optimistic: boolean; value: T }
   | { status: "rolled_back"; optimistic: true; error: unknown }
-  | { status: "failed"; optimistic: false; error: unknown };
+  | { status: "failed"; optimistic: false; error: unknown }
+  | { status: "queued"; optimistic: true; error?: undefined };
 
 /**
  * The single runner. `apply` happens synchronously only when the kind allows it;
@@ -109,4 +110,13 @@ export async function runOptimistic<T>(run: OptimisticRun<T>): Promise<Optimisti
 export function isOfflineFailure(error: unknown): boolean {
   const reason = (error as { reason?: string } | null)?.reason;
   return reason === "offline" || reason === "network";
+}
+
+/**
+ * P15.4 — queue instead of sending when there is no network to send on.
+ * Only safe kinds ever queue: a payment must fail loudly now, never replay
+ * silently later.
+ */
+export function shouldQueueOffline(kind: string, offline: boolean): boolean {
+  return offline && isSafeOptimistic(kind);
 }

@@ -60,6 +60,7 @@
   "Network": {
     "dismiss": "Isara",
     "offline": "Mukhang offline ka.",
+    "queuedTitle": "Nai-save sa device",
     "timeout": "Masyadong tumagal ang server na sumagot.",
     "serverError": "Pansamantalaang hindi available ang serbisyo.",
     "banner": {

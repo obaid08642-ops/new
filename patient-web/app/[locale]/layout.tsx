@@ -24,6 +24,7 @@ import { ThemeToggle } from "@/components-next/theme-toggle";
 import { THEME_INIT_SCRIPT } from "@/app/theme";
 import { ServiceWorkerRegister } from "@/components-next/service-worker-register";
 import { NetworkPolicy } from "@/components-next/network-policy";
+import { OfflineBanner } from "@/components-next/network/offline-banner";
 import { ToastViewport } from "@/components-next/network/toast-viewport";
 
 type Props = Readonly<{ children: React.ReactNode; params: Promise<{ locale: string }> }>;
@@ -87,6 +88,8 @@ export default async function LocaleLayout({ children, params }: Props) {
             sets BOTH data-theme and .dark.
           */}
           <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+          {/* P15.4: cached data stays visible offline, with banner + last-updated time. */}
+          <OfflineBanner />
           <header className="topbar">
             <Link className="brand" href={`/${typedLocale}`}>
               <span className="brand-mark">

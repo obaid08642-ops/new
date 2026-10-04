@@ -75,6 +75,21 @@ function isFormDataBody(body: BodyInit | null | undefined): boolean {
 }
 
 /**
+ * A base64 photo of a prescription inside a JSON envelope is megabytes on the
+ * wire, exactly like a multipart upload — and on a weak network 15 s is not a
+ * deadline, it is a guaranteed failure. Anything over this size uploads.
+ */
+export const LARGE_BODY_BYTES = 1_000_000;
+
+function bodyByteLength(body: BodyInit | null | undefined): number | null {
+  if (typeof body === "string") return body.length;
+  if (body instanceof URLSearchParams) return body.toString().length;
+  if (typeof ArrayBuffer !== "undefined" && body instanceof ArrayBuffer) return body.byteLength;
+  if (typeof Blob !== "undefined" && body instanceof Blob) return body.size;
+  return null;
+}
+
+/**
  * The cost class of a request. Order matters: an explicit declaration wins, then
  * the body/content-type (an upload is the expensive case), then the path.
  */
@@ -85,6 +100,11 @@ export function requestKind(url: string, init?: RequestInit): RequestKind {
   const contentType = readHeader(init, "content-type")?.toLowerCase() ?? "";
   if (isFormDataBody(init?.body)) return "upload";
   if (contentType.startsWith("multipart/form-data") || contentType.startsWith("application/octet-stream")) return "upload";
+  // P15.4: single-shot base64 uploads (prescription photos as JSON) get the
+  // upload deadline too, so they do not time out on the networks that need
+  // them most.
+  const bodyLength = bodyByteLength(init?.body);
+  if (bodyLength !== null && bodyLength >= LARGE_BODY_BYTES) return "upload";
 
   return AI_PATH.test(url) ? "ai" : "default";
 }

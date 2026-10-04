@@ -21,6 +21,10 @@ export function ReminderActions({ locale, id, nextTimeKey }: { locale: string; i
   const logTaken = () => {
     if (dosePending) return;
     setFailed(false);
+    // One key per tap, shared by the live commit and the offline queue entry,
+    // so a retried tap can never log the dose twice.
+    const key = crypto.randomUUID();
+    const [url, init] = reminderLogRequest(id, nextTimeKey, key);
     void runDose("reminder", {
       apply: () => setTaken(true),
       rollback: () => {
@@ -28,11 +32,21 @@ export function ReminderActions({ locale, id, nextTimeKey }: { locale: string; i
         setFailed(true);
       },
       commit: async () => {
-        const res = await fetch(...reminderLogRequest(id, nextTimeKey));
+        const res = await fetch(url, init);
         if (!res.ok) throw new Error(`reminder_log_${res.status}`);
         return res;
       },
       onCommitted: () => router.refresh(),
+    },
+    {
+      // P15.4: offline taps queue and replay in order on reconnect.
+      outbox: {
+        kind: "reminder",
+        url,
+        method: "POST",
+        headers: { "content-type": "application/json", "idempotency-key": key },
+        body: typeof init.body === "string" ? init.body : null,
+      },
     });
   };
 

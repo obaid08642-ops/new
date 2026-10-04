@@ -270,3 +270,108 @@ $ # restored
   server mutation exists for these in patient-web (localStorage-only cart,
   read-only wishlist loaders). If the backend adds such endpoints, the
   `runOptimistic` runner and kind lists already cover them.
+
+---
+
+## 15.4 — Weak and no network
+
+### Changed files
+
+- new: `lib/api/net/outbox.ts` (+ `outbox.test.ts`, 15 tests) — FIFO queue for
+  safe kinds only (`reminder/notification/cart/wishlist/like`); `payment`,
+  `booking`, `prescription`, `emergency` and unknown kinds are rejected with
+  `outbox_rejects_<kind>`. Mutations auto-get an idempotency key when the
+  caller did not supply one; first failure stops the drain with the remainder
+  untouched; persisted behind an injected store (guarded localStorage in
+  production, memory in tests); capped at 50 actions; corrupt persisted entries
+  are dropped, never choked on.
+- `lib/api/optimistic.ts`: `OptimisticOutcome` gains `{status:"queued"}`;
+  `shouldQueueOffline(kind, offline)` — safe kinds only.
+- `lib/api/use-optimistic-action.ts` (+ `use-optimistic-action.test.tsx`,
+  5 tests): `run(kind, actions, {outbox})` — offline + queueable action queues
+  instead of sending (applies instantly, enqueues, info toast, returns
+  `queued`); payments fail loudly now, never queue silently. Tested through the
+  real hook, real outbox singleton, real toast store.
+- `components-next/network-policy.tsx`: drains the outbox on the browser
+  `online` event (success toast `Network.replayed`, failure toast
+  `Network.outboxFailed`).
+- `app/.../reminder-actions.tsx`, `app/.../notification-toggle.tsx`: pass
+  replayable outbox entries; the dose-tap key is minted once per tap and shared
+  by the live commit and the queue entry, so a retried tap can never log twice.
+- new: `components-next/network/offline-banner.tsx` (+
+  `tests/offline-banner.test.tsx`) — mounted in the locale layout; shows
+  `Network.banner.offline` plus the `lastUpdated` time from the 15.1
+  last-settled-response stamp (persisted, so it survives the outage).
+- new: `lib/api/net/connection.ts` (+ test) — `navigator.connection` guarded
+  for SSR/Safari/Firefox; `imageQualityFor` (75/50), `shouldStartAudioOnly`.
+- new: `components-next/network/adaptive-image.tsx` (+ test) — drop-in
+  next/image replacement; migrated `premium-product-card.tsx` and
+  `product-gallery-modal.tsx`. `next.config.ts` declares `qualities: [50, 75]`
+  (Next.js refuses unlisted qualities — found by the test run, see below).
+- new: `lib/api/net/call-fallback.ts` (+ test) — `video→audio→chat`, chat is
+  terminal. `video-room-client.tsx`: slow links join audio-only (camera off,
+  mic on) with an audio-only notice; ended calls offer `chatHref` chat link
+  instead of a dead end. Both call pages (`video-call`, `room/[id]`) supply the
+  new labels + href.
+- `lib/api/net/policy.ts` (+ `policy-upload.test.ts`): bodies ≥ 1 MB
+  (`LARGE_BODY_BYTES`) classify as `upload` → 60 s deadline, so single-shot
+  base64 prescription photos do not time out on weak networks.
+- `scan-prescription-form.tsx` (+ `tests/scan-upload-resume.test.ts`): OCR +
+  save idempotency keys minted once per chosen photo (ref, reset on new photo
+  and on success) — a retry after interruption resumes the SAME logical upload.
+- `messages/*/Network`: `queuedTitle` added in all 6 locales (parity holds).
+
+### Real output
+
+```
+$ node node_modules/typescript/bin/tsc --noEmit; echo "tsc exit: $?"
+tsc exit: 0
+$ node node_modules/vitest/vitest.mjs run lib/api/net/connection.test.ts \
+    lib/api/net/call-fallback.test.ts lib/api/net/policy-upload.test.ts \
+    lib/api/net/outbox.test.ts tests/offline-banner.test.tsx \
+    tests/adaptive-image.test.tsx tests/video-room-fallback.test.tsx \
+    tests/scan-upload-resume.test.ts lib/api/use-optimistic-action.test.tsx
+ Test Files  9 passed (9)
+      Tests  47 passed (47)
+```
+
+### Findings during testing (not fabricated — the tests caught these)
+
+1. `next/image` in this node environment never reads `next.config.ts`, so the
+   downgrade test initially failed with Next.js's own warning: quality "50" not
+   configured in `images.qualities [75]`, falling back to 75. Production would
+   have done the same. Fixed by declaring `qualities: [50, 75]` in
+   `next.config.ts`; the test mocks `next/image` with a transparent stub (the
+   selection logic is mine; Next's quality handling is Next's) and asserts the
+   selected value.
+2. `renderToStaticMarkup` uses the `getServerSnapshot` branch of
+   `useSyncExternalStore`, so the banner's hardcoded `() => true` server
+   snapshot made offline states unrenderable. Changed to `getOnlineSnapshot`,
+   which is deterministically online on real SSR (no navigator) and mockable.
+3. React renders `dateTime`, not `datetime` — assertion fixed to the real output.
+
+### Mutation proof (rule 6)
+
+```
+$ # outbox payment guard disabled: if (false && !isSafeOptimistic(...))
+$ node node_modules/vitest/vitest.mjs run lib/api/net/outbox.test.ts \
+    lib/api/use-optimistic-action.test.tsx
+ FAIL ... rejects payment / booking / prescription / emergency / unknown kinds
+ Test Files  1 failed | 1 passed (2)
+      Tests  5 failed | 15 passed (20)
+$ # restored → 20 passed, tsc clean
+```
+
+### BLOCKED / DEFERRED
+
+- The live throttled-network journey (3G / 1% loss / offline, Playwright or
+  `tc netem`) was NOT run: no docker/browser here. Covered by unit tests
+  instead — queue order, replay, payment exclusion, offline banner, quality
+  downgrade — as the plan allows for this slice.
+- True byte-resume for uploads (chunk endpoints with offsets) needs a backend
+  chunk protocol in `backend/` — another agent's scope. What patient-web does
+  instead, all shipped: 60 s upload deadline for large bodies, same-key retry
+  within a submission (15.1 client retries idempotent POSTs), same-key
+  resubmission after interruption (scan form), and at-most-once replay keys in
+  the outbox. Stated plainly: an interrupted upload re-sends whole, never
+  duplicated — it does not resume mid-byte.

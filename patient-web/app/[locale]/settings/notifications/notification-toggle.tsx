@@ -31,6 +31,16 @@ export function NotificationToggle({ initial, settingKey, label }: { initial: bo
         return res;
       },
       onCommitted: () => router.refresh(),
+    },
+    {
+      // P15.4: offline taps queue and replay in order on reconnect.
+      outbox: {
+        kind: "notification",
+        url: "/api/patient/users/me/notification-settings",
+        method: "PATCH",
+        headers: { "content-type": "application/json", "idempotency-key": crypto.randomUUID() },
+        body: JSON.stringify({ [settingKey]: next }),
+      },
     });
   };
 

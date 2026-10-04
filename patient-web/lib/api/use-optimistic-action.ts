@@ -2,8 +2,10 @@
 
 import { useCallback, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { runOptimistic, pendingMode, type OptimisticOutcome } from "./optimistic";
+import { runOptimistic, pendingMode, shouldQueueOffline, type OptimisticOutcome } from "./optimistic";
 import { showToast } from "./net/toast";
+import { browserIsOffline } from "./net/online";
+import { outbox, type OutboxEnqueueInput } from "./net/outbox";
 import { useErrorCopy } from "./net/use-error-copy";
 
 /**
@@ -24,10 +26,25 @@ export function useOptimisticAction<T>() {
     async (
       kind: string,
       actions: { apply: () => void; rollback: () => void; commit: () => Promise<T>; onCommitted?: (value: T) => void },
+      opts: { outbox?: OutboxEnqueueInput } = {},
     ): Promise<OptimisticOutcome<T>> => {
       // No double actions: the button is already disabled, and this is
       // the second line of defence for a fast double tap.
       if (inFlight.current) return { status: "failed", optimistic: false, error: new Error("action_in_flight") };
+      // P15.4: offline + a queueable action + a replayable request = queued,
+      // not lost. The change still applies instantly (optimistic) and the
+      // outbox replays it on reconnect.
+      if (opts.outbox && shouldQueueOffline(kind, browserIsOffline())) {
+        actions.apply();
+        try {
+          outbox.enqueue(opts.outbox);
+        } catch (error) {
+          actions.rollback();
+          return { status: "failed", optimistic: false, error };
+        }
+        showToast({ kind: "info", title: network("queuedTitle"), message: network("queued") });
+        return { status: "queued", optimistic: true };
+      }
       inFlight.current = true;
       setPending(true);
       try {

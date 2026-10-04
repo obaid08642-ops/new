@@ -42,12 +42,15 @@ export default async function CallRoomPage({ params }: Props) {
       <VideoRoomClient
         token={roomToken}
         room={room}
+        chatHref={`/${locale}/chat`}
         labels={{
           connecting: ar ? "جاري تحضير غرفة الاستشارة…" : "Preparing the consultation room…",
           ended: ar ? "انتهت المكالمة" : "Call ended",
           leave: ar ? "مغادرة" : "Leave",
           mute: ar ? "كتم" : "Mute",
           camera: ar ? "الكاميرا" : "Camera",
+          audioOnly: ar ? "الاتصال ضعيف — بدأت المكالمة صوتاً فقط." : "Weak connection — the call started audio-only.",
+          chatFallback: ar ? "المتابعة عبر المحادثة" : "Continue in chat",
         }}
       />
     </main>
