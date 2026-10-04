@@ -7,6 +7,8 @@ import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
 import SignatureCanvas from 'react-native-signature-canvas';
 import { ProviderApi, sanitizeWizardData } from '../../api/provider';
+import { KycDocButton } from '../../components/KycDocButton';
+import { typedDocuments } from '../../utils/onboardingDocuments';
 import { useInsuranceCatalog, useServicesCatalog } from '../../api/catalogs';
 import { useTheme, useLang, useToast } from '../../context';
 import {
@@ -60,6 +62,7 @@ interface NurseRegData {
   password: string; confirmPass: string;
   // KYC
   scfhsNumber: string; scfhsExpiry: string; nationalId: string;
+  idUri: string; idMime?: string; ibanLetterUri: string; ibanLetterMime?: string;
   crNumber: string; mohLicense: string; iban: string; accountHolderName: string;
   scfhsUri: string; crUri: string; mohUri: string; photoUri: string;
   // Services
@@ -83,7 +86,7 @@ interface NurseRegData {
 const INIT: NurseRegData = {
   mode: 'individual', nameAr: '', nameEn: '', gender: '', managerName: '', managerPhone: '', managerEmail: '', password: '', confirmPass: '',
   scfhsNumber: '', scfhsExpiry: '', nationalId: '', crNumber: '', languages: [], mohLicense: '', iban: '', accountHolderName: '',
-  scfhsUri: '', crUri: '', mohUri: '', photoUri: '',
+  scfhsUri: '', crUri: '', mohUri: '', photoUri: '', idUri: '', ibanLetterUri: '',
   enabledServices: [],
   pricingModels: [], priceVisit: '', priceHour: '', priceDay: '', priceMonth: '',
   city: '', location: { lat: 0, lng: 0 }, district: '', address: '', coverageRadius: 0,
@@ -200,14 +203,16 @@ function NS1({ data, update, onNext, onBack, step, total, bare = false, submitRe
         password: data.password,
         full_name: data.managerName,
         email: data.managerEmail,
-        type: 'home_care',
+        // Q79: an independent nurse is a 'nursing' provider (national ID, license, IBAN letter);
+        // a company is 'home_care' (commercial registration, facility license, IBAN letter).
+        type: data.mode === 'individual' ? 'nursing' : 'home_care',
       });
-      await ProviderApi.onboardingLogin(data.managerEmail, data.password, 'home_care');
+      await ProviderApi.onboardingLogin(data.managerEmail, data.password, data.mode === 'individual' ? 'nursing' : 'home_care');
       if (!bare) onNext();
       return true;
     } catch (e: any) {
       try {
-        await ProviderApi.onboardingLogin(data.managerEmail, data.password, 'home_care');
+        await ProviderApi.onboardingLogin(data.managerEmail, data.password, data.mode === 'individual' ? 'nursing' : 'home_care');
         if (!bare) onNext();
         return true;
       } catch (loginErr: any) {
@@ -313,6 +318,8 @@ function NS2({ data, update, onNext, onBack, step, total, bare = false, submitRe
     if (isIndiv && !data.scfhsNumber.trim()) e.scfhs = AR ? 'رقم SCFHS مطلوب' : 'SCFHS required';
     if (!isIndiv && !Validate.cr(data.crNumber)) e.cr = AR ? 'السجل التجاري 10 أرقام' : 'CR 10 digits';
     if (!Validate.iban(data.iban)) e.iban = AR ? 'الآيبان غير صحيح' : 'Invalid IBAN';
+    if (isIndiv && !data.idUri) e.idDoc = AR ? 'أرفق صورة الهوية الوطنية' : 'Attach your national ID';
+    if (!data.ibanLetterUri) e.ibanLetter = AR ? 'أرفق خطاب الآيبان من البنك' : 'Attach the bank IBAN letter';
     setErrs(e); return Object.keys(e).length === 0;
   };
 
@@ -370,17 +377,26 @@ function NS2({ data, update, onNext, onBack, step, total, bare = false, submitRe
     setLoading(true);
     try {
       const urls: string[] = [];
+      let documents: Array<{ doc_type: string; file_id: string }> = [];
+      const ibanLetterId = await ProviderApi.uploadFile(data.ibanLetterUri, data.ibanLetterMime || 'image/jpeg', 'iban_letter');
       if (isIndiv) {
-        urls.push(await ProviderApi.uploadFile(data.scfhsUri, 'image/jpeg', 'scfhs.jpg'));
+        const scfhsId = await ProviderApi.uploadFile(data.scfhsUri, 'image/jpeg', 'scfhs.jpg');
+        urls.push(scfhsId);
         urls.push(await ProviderApi.uploadFile(data.photoUri, 'image/jpeg', 'photo.jpg'));
+        const idId = await ProviderApi.uploadFile(data.idUri, data.idMime || 'image/jpeg', 'national_id');
+        documents = typedDocuments([['national_id', idId], ['medical_license', scfhsId], ['iban_letter', ibanLetterId]]);
       } else {
-        urls.push(await ProviderApi.uploadFile(data.crUri, 'image/jpeg', 'cr.jpg'));
-        urls.push(await ProviderApi.uploadFile(data.mohUri, 'image/jpeg', 'moh.jpg'));
+        const crId = await ProviderApi.uploadFile(data.crUri, 'image/jpeg', 'cr.jpg');
+        const mohId = await ProviderApi.uploadFile(data.mohUri, 'image/jpeg', 'moh.jpg');
+        urls.push(crId, mohId);
+        documents = typedDocuments([['commercial_registration', crId], ['facility_license', mohId], ['iban_letter', ibanLetterId]]);
       }
 
       await ProviderApi.step2({
         license_number: isIndiv ? data.scfhsNumber : data.crNumber,
         license_documents: urls.filter(Boolean),
+        // Q79: typed KYC documents (approval counts these).
+        documents,
         national_id: isIndiv ? data.nationalId : undefined,
         scfhs_license_number: isIndiv ? data.scfhsNumber : undefined,
         cr_number: !isIndiv ? data.crNumber : undefined,
@@ -429,6 +445,8 @@ function NS2({ data, update, onNext, onBack, step, total, bare = false, submitRe
       )}
 
       <NInput label={AR ? 'رقم الآيبان IBAN' : 'Bank IBAN'} placeholder="SA0000000000000000000000" value={data.iban} onChange={v => update({ iban: v.toUpperCase().replace(/\s/g, '') })} required error={errs.iban} maxLen={24} />
+      <KycDocButton testID="kyc-iban-letter" label={AR ? 'خطاب الآيبان من البنك' : 'Bank IBAN letter'} uri={data.ibanLetterUri} error={errs.ibanLetter} onPicked={(uri, mime) => update({ ibanLetterUri: uri, ibanLetterMime: mime })} />
+      {isIndiv ? <KycDocButton testID="kyc-national-id" label={AR ? 'صورة الهوية الوطنية' : 'National ID'} uri={data.idUri} error={errs.idDoc} onPicked={(uri, mime) => update({ idUri: uri, idMime: mime })} /> : null}
 
       <Text style={[st.secTitle, { color: theme.text, textAlign: AR ? 'right' : 'left', marginTop: SP.md }]}>{AR ? 'رفع الوثائق الرسمية' : 'Upload Documents'}</Text>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: SP.md, marginBottom: SP.xl }}>
@@ -975,9 +993,12 @@ function NS8Signature({ data, update, onDone, onBack, step, total }: any) {
     setLoading(true);
     try {
       const docs: string[] = [];
-      if (data.crUri) docs.push(await ProviderApi.uploadFile(data.crUri, 'application/pdf', 'cr_document'));
-      if (data.mohUri) docs.push(await ProviderApi.uploadFile(data.mohUri, 'application/pdf', 'moh_license'));
-      if (data.scfhsUri) docs.push(await ProviderApi.uploadFile(data.scfhsUri, 'application/pdf', 'scfhs_license'));
+      const crId = data.crUri ? await ProviderApi.uploadFile(data.crUri, 'application/pdf', 'cr_document') : null;
+      const mohId = data.mohUri ? await ProviderApi.uploadFile(data.mohUri, 'application/pdf', 'moh_license') : null;
+      const scfhsId = data.scfhsUri ? await ProviderApi.uploadFile(data.scfhsUri, 'application/pdf', 'scfhs_license') : null;
+      const idId = data.idUri ? await ProviderApi.uploadFile(data.idUri, data.idMime || 'image/jpeg', 'national_id') : null;
+      const ibanLetterId = data.ibanLetterUri ? await ProviderApi.uploadFile(data.ibanLetterUri, data.ibanLetterMime || 'image/jpeg', 'iban_letter') : null;
+      for (const id of [crId, mohId, scfhsId]) if (id) docs.push(id);
       
       const images: string[] = [];
       if (data.photoUri) images.push(await ProviderApi.uploadFile(data.photoUri, 'image/jpeg', 'nursing_logo_photo'));
@@ -1022,6 +1043,10 @@ function NS8Signature({ data, update, onDone, onBack, step, total }: any) {
         scfhs_license_number: data.scfhsNumber,
         scfhs_expiry: data.scfhsExpiry || undefined,
         license_documents: docs,
+        // Q79: typed KYC documents (approval counts these).
+        documents: data.mode === 'individual'
+          ? typedDocuments([['national_id', idId], ['medical_license', scfhsId], ['iban_letter', ibanLetterId]])
+          : typedDocuments([['commercial_registration', crId], ['facility_license', mohId], ['iban_letter', ibanLetterId]]),
         profile_photo: data.photoUri ? images[0] : undefined,
       });
 

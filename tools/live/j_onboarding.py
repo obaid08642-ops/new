@@ -2,6 +2,7 @@
 (admin/src/pages/admin/provider-moderation.tsx) -> provider login -> visible to patients."""
 import base64, time
 from lib import Client, journey, step, mail_code, uniq, phone
+import re
 
 # A real (valid) 8x8 PNG, built here: stands in for photographed documents / the drawn signature.
 def _png():
@@ -48,7 +49,11 @@ def register_pharmacy():
     step('start with an existing phone and a wrong password is refused', r.status == 409, r)
     c = provider_client(tok)
     docs = [upload(c, n) for n in ('cr.jpg', 'moh.jpg', 'sfda.jpg')]
-    r = c.post('/provider-onboarding/step2', {'license_number': '1010123456', 'license_documents': docs})
+    iban_letter = upload(c, 'iban_letter.jpg')
+    # PharmacyRegistration.tsx PStep2Legal: typed documents with step2 (Q79).
+    typed = [{'doc_type': 'commercial_registration', 'file_id': docs[0]}, {'doc_type': 'facility_license', 'file_id': docs[1]},
+             {'doc_type': 'iban_letter', 'file_id': iban_letter}, {'doc_type': 'other', 'file_id': docs[2]}]
+    r = c.post('/provider-onboarding/step2', {'license_number': '1010123456', 'license_documents': docs, 'documents': typed})
     step('step2: licenses', r.ok, r)
     hours = [{'day': d, 'open': '09:00', 'close': '23:00', 'open_evening': None, 'close_evening': None, 'closed': False} for d in ('sun', 'mon', 'tue', 'wed', 'thu')]
     r = c.post('/provider-onboarding/step3', {
@@ -83,33 +88,29 @@ def register_pharmacy():
     return {'email': email, 'password': pw, 'token': tok, 'type': 'pharmacy', 'name': 'صيدلية الاختبار الحي'}
 
 
-# F4: approval only accepts a TYPED provider_documents row (the reviewer probe
-# showed three junk URL strings must not pass), so the journey uploads the real
-# KYC documents a genuine provider would upload before admin review.
+# Q79: approval needs one typed provider_documents row per required doc_type.
+# The journey no longer uploads them itself: it sends only what the registration
+# screens send (step2 `documents`, built with typedDocuments in each screen).
 REQUIRED_DOCS = {
     'pharmacy': ['commercial_registration', 'facility_license', 'iban_letter'],
-    # The onboarding API accepts the short form; provider_type stores 'laboratory'.
     'lab': ['commercial_registration', 'facility_license', 'iban_letter'],
-    'laboratory': ['commercial_registration', 'facility_license', 'iban_letter'],
     'radiology': ['commercial_registration', 'facility_license', 'iban_letter'],
-    'doctor': ['national_id', 'medical_license', 'professional_cv', 'iban_letter'],
+    'hospital': ['commercial_registration', 'facility_license', 'vat_certificate', 'iban_letter'],
+    'ambulance': ['commercial_registration', 'facility_license', 'iban_letter'],
+    'home_care': ['commercial_registration', 'facility_license', 'iban_letter'],
     'nursing': ['national_id', 'medical_license', 'iban_letter'],
+    'doctor': ['national_id', 'medical_license', 'professional_cv', 'iban_letter'],
 }
 
-_PNG = ('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmM'
-        'IQAAAABJRU5ErkJggg==')
 
-
-def upload_required_docs(prov):
-    """Upload every required KYC document with the provider's own token."""
-    c = provider_client(prov['token'])
-    for doc_type in REQUIRED_DOCS.get(prov.get('type', ''), []):
-        r = c.post('/provider/kyc/documents', {
-            'doc_type': doc_type,
-            'file': {'data_base64': _PNG, 'mime': 'image/png', 'original_name': f'{doc_type}.png'},
-        })
-        if not r.ok:
-            print(f'   ! kyc upload {doc_type} -> {r.status} {str(r.body)[:120]}')
+def screen_documents(c, ptype, at):
+    """The typed documents the screen's step2 call at `at` sends for this provider type."""
+    rel, line = at.rsplit(':', 1)
+    root = _os.path.abspath(_os.path.join(_os.path.dirname(__file__), '../..'))
+    src = open(_os.path.join(root, rel), encoding='utf8').read().split('\n')
+    window = '\n'.join(src[max(0, int(line) - 25):int(line) + 12])
+    types = [t for t in dict.fromkeys(re.findall(r"\['(\w+)',\s*[\w.]+\]", window)) if t in REQUIRED_DOCS.get(ptype, [])]
+    return [{'doc_type': t, 'file_id': upload(c, f'{t}.jpg')} for t in types]
 
 
 def admin_review(admin, prov):
@@ -124,7 +125,6 @@ def admin_review(admin, prov):
         return None
     r = admin.get(f"/admin/admin/providers/{mine['id']}")
     step('provider detail opens', r.ok, r)
-    upload_required_docs(prov)
     r = admin.post(f"/admin/admin/providers/{mine['id']}/approve", {'reason': 'مستندات مكتملة', 'commission_cash': 10, 'commission_insurance': 8})
     step('approve with commissions', r.ok, r)
     r = admin.get('/admin/admin/providers?status=pending&limit=100')
@@ -149,7 +149,7 @@ import json as _json, os as _os, subprocess as _sp
 
 SCREENS = {  # provider type -> registration screen (provider-app/src/screens)
     'doctor': 'doctor/DoctorRegistration.tsx', 'lab': 'lab/LabRegistration.tsx', 'radiology': 'radiology/RadiologyRegistration.tsx',
-    'home_care': 'nursing/NursingRegistration.tsx', 'hospital': 'facility/FacilityRegistration.tsx', 'ambulance': 'ambulance/AmbulanceRegistration.tsx',
+    'home_care': 'nursing/NursingRegistration.tsx', 'nursing': 'nursing/NursingRegistration.tsx', 'hospital': 'facility/FacilityRegistration.tsx', 'ambulance': 'ambulance/AmbulanceRegistration.tsx',
 }
 _CT = []
 
@@ -220,6 +220,8 @@ def screen_payloads(ptype):
             body['location'] = {'lat': 24.7, 'lng': 46.7}
         if c['url'].endswith('step2') and 'license_documents' in (c.get('kinds') or {}):
             body['license_documents'] = '__UPLOAD_DOCS__'
+        if c['url'].endswith('step2') and 'documents' in (c.get('kinds') or {}):
+            body['documents'] = '__TYPED_DOCS__'
         out.append((c['url'], body, c['at']))
     return out
 
@@ -243,6 +245,8 @@ def register_type(ptype, overrides=None):
         # R1: approval requires license evidence — upload real files, not [].
         if body.get('license_documents') == '__UPLOAD_DOCS__':
             body['license_documents'] = [upload(c, n) for n in ('national_id.jpg', 'medical_license.jpg', 'professional_cv.pdf', 'iban_letter.jpg')]
+        if body.get('documents') == '__TYPED_DOCS__':
+            body['documents'] = screen_documents(c, ptype, at)
         r = c.post(url, body)
         step(f"{url.split('/')[-1]} as sent by {at.split('/')[-1]}", r.ok, f'{r} body_keys={sorted(body)}')
     sig = upload(c, 'signature.png', 'image/png')

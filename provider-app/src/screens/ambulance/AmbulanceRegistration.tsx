@@ -16,6 +16,8 @@ import { OtpModal } from '../../components/OtpModal';
 import { SignatureCanvasModal } from '../../components/SignatureCanvasModal';
 import { sendEmailOtp, verifyEmailOtp } from '../../api/otp';
 import { useInsuranceCatalog } from '../../api/catalogs';
+import { KycDocButton } from '../../components/KycDocButton';
+import { typedDocuments } from '../../utils/onboardingDocuments';
 
 interface AmbRegData {
   managerName: string; managerPhone: string; managerEmail: string;
@@ -26,7 +28,7 @@ interface AmbRegData {
   vehiclesCount: string; paramedicCount: string; hasIcu: boolean; is24x7: boolean;
   equipmentText: string; coverageRadius: string;
   location: { lat: number; lng: number };
-  mohUri: string; crUri: string; signatureData: string;
+  mohUri: string; crUri: string; signatureData: string; ibanLetterUri: string; ibanLetterMime?: string;
   acceptsCash: boolean; cashOnly: boolean; acceptedInsurance: { companyId: string; plans: string[] }[];
   iban: string; accountHolderName: string;
 }
@@ -38,7 +40,7 @@ const INITIAL: AmbRegData = {
   vehiclesCount: '', paramedicCount: '', hasIcu: false, is24x7: true,
   equipmentText: '', coverageRadius: '',
   location: { lat: 0, lng: 0 },
-  mohUri: '', crUri: '', signatureData: '',
+  mohUri: '', crUri: '', signatureData: '', ibanLetterUri: '',
   acceptsCash: true, cashOnly: false, acceptedInsurance: [],
   iban: '', accountHolderName: '',
 };
@@ -256,6 +258,7 @@ function AS4BankSubmit({ data, update, onDone, onBack, step, total }: any) {
     const e: any = {};
     if (!/^SA\d{22}$/.test(data.iban.replace(/\s/g, ''))) e.iban = AR ? 'آيبان سعودي غير صالح (SA + 22 رقم)' : 'Invalid Saudi IBAN';
     if (!data.accountHolderName.trim()) e.accountHolderName = AR ? 'اسم صاحب الحساب مطلوب' : 'Account holder required';
+    if (!data.ibanLetterUri) e.ibanLetter = AR ? 'أرفق خطاب الآيبان من البنك' : 'Attach the bank IBAN letter';
     setErrs(e);
     if (Object.keys(e).length) return;
 
@@ -264,6 +267,7 @@ function AS4BankSubmit({ data, update, onDone, onBack, step, total }: any) {
     try {
       const mohUrl = await ProviderApi.uploadFile(data.mohUri, 'image/jpeg', 'moh.jpg');
       const crUrl = await ProviderApi.uploadFile(data.crUri, 'image/jpeg', 'cr.jpg');
+      const ibanLetterId = await ProviderApi.uploadFile(data.ibanLetterUri, data.ibanLetterMime || 'image/jpeg', 'iban_letter');
       let sigUrl = data.signatureData || undefined;
       if (sigUrl && !sigUrl.startsWith('http')) sigUrl = await ProviderApi.uploadSignature(sigUrl);
       await ProviderApi.step2({
@@ -276,6 +280,8 @@ function AS4BankSubmit({ data, update, onDone, onBack, step, total }: any) {
         moh_license_number: data.mohLicense,
         license_number: data.crNumber,
         license_documents: [crUrl, mohUrl],
+        // Q79: typed KYC documents (approval counts these).
+        documents: typedDocuments([['commercial_registration', crUrl], ['facility_license', mohUrl], ['iban_letter', ibanLetterId]]),
         languages: data.languages,
         coverage_radius_km: parseFloat(data.coverageRadius) || 0,
         accepts_cash: data.acceptsCash,
@@ -327,6 +333,7 @@ function AS4BankSubmit({ data, update, onDone, onBack, step, total }: any) {
       <NCard>
         <NInput label={AR ? 'الآيبان (IBAN)' : 'IBAN'} value={data.iban} onChange={(v: string) => update({ iban: v })} caps="characters" error={errs.iban} />
         <NInput label={AR ? 'اسم صاحب الحساب' : 'Account holder name'} value={data.accountHolderName} onChange={(v: string) => update({ accountHolderName: v })} error={errs.accountHolderName} />
+        <KycDocButton testID="kyc-iban-letter" label={AR ? 'خطاب الآيبان من البنك' : 'Bank IBAN letter'} uri={data.ibanLetterUri} error={errs.ibanLetter} onPicked={(uri, mime) => update({ ibanLetterUri: uri, ibanLetterMime: mime })} />
       </NCard>
       <NCard style={{ backgroundColor: theme.infoBg }}>
         <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'flex-start', gap: SP.md }}>
