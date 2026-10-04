@@ -24,6 +24,7 @@ import OfflineBanner from '../src/components/OfflineBanner';
 import { ToastProvider } from '../src/design-system';
 import AppGate from '../src/components/AppGate';
 import { initSentry } from '../src/utils/sentry';
+import { ErrorBoundary, ScreenErrorBoundary } from '../src/components/ErrorBoundary';
 import { SyncManager } from '../src/data/sync/SyncManager';
 import { BackgroundSynchronizer } from '../src/data/sync/BackgroundSynchronizer';
 import { DatabaseManager } from '../src/data/database/core/DatabaseManager';
@@ -80,6 +81,9 @@ function RootLayout() {
   if (!loaded && !error) return null;
 
   return (
+    // 15.5: the root boundary catches anything thrown by a provider or a layout,
+    // which no per-screen boundary can see.
+    <ErrorBoundary scope="root">
     <Provider store={store}>
       <AppProvider>
         {/* 15.3: optimistic rollbacks and failure explanations are shown as a
@@ -116,10 +120,23 @@ function RootLayout() {
           </ToastProvider>
       </AppProvider>
     </Provider>
+    </ErrorBoundary>
   );
 }
 
 import Constants, { ExecutionEnvironment } from 'expo-constants';
+
+/**
+ * 15.5 — per-screen error boundaries.
+ *
+ * expo-router wraps every route beneath this layout in its own instance of the
+ * given component, so a crash in one screen shows a fallback inside that screen
+ * and the rest of the app keeps working. One declaration here covers all routes,
+ * including any added later.
+ */
+export const unstable_settings = {
+  screenErrorBoundary: ScreenErrorBoundary,
+};
 
 let RootComponent = RootLayout;
 const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
