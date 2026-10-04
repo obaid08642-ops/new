@@ -36,6 +36,16 @@ const params = Promise.resolve({ locale: "en", slug: "abilify-aripiprazole-15-mg
 describe("public product page (catalog v14)", () => {
   beforeEach(() => state.getPublicProduct.mockReset());
 
+  it("R12: a retired slug answers a permanent redirect to the canonical slug", async () => {
+    // The backend resolves the old slug through slug_history and returns the product
+    // with its current slug; Next's permanentRedirect works by throwing NEXT_REDIRECT.
+    state.getPublicProduct.mockResolvedValue({ ...product, moved_from: "old-abilify-slug" });
+    const oldParams = Promise.resolve({ locale: "en", slug: "old-abilify-slug" });
+    await expect(PublicProductPage({ params: oldParams })).rejects.toMatchObject({
+      digest: expect.stringContaining("/en/p/abilify-aripiprazole-15-mg-28-tablets"),
+    });
+  });
+
   it("renders the localized product with buy-ready price and structured data", async () => {
     state.getPublicProduct.mockResolvedValue(product);
     const html = renderToStaticMarkup(await PublicProductPage({ params }));
