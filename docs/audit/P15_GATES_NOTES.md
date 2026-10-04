@@ -107,3 +107,44 @@ FAIL honestly until this lands; the replay step SKIPs until an outbox UI
 contract exists to drive); real L2 1%-loss via `tc netem`/device farm;
 FCM/APNs push delivery for the days-later half of 15.8 (the gate proves the
 server-side notification payload instead).
+
+## 15.10 — device farm + browsers (CI side only)
+
+Added:
+- `.github/workflows/p15-web-browsers.yml` — new CI job (Chromium/Firefox/
+  WebKit matrix) that builds patient-web, starts the standalone server and
+  runs the committed `tools/live/web_browsers_smoke.mjs` per browser (key
+  routes render non-blank, zero pageerrors, zero own-origin 5xx). Playwright
+  is NOT assumed on the image: the job installs the pinned build itself
+  (`npx --yes playwright@1.63.0 install --with-deps ...`, same pin style as
+  `patient-production-ci.yml`). Naming/runners/caching match the existing
+  workflows (`ubuntu-latest`, `pnpm/action-setup@v4` 10.4.1, node 22, pnpm
+  cache on `patient-web/pnpm-lock.yaml`). Triggers on `patient-web/**`
+  changes, the smoke script, or itself — plus manual dispatch.
+- `tools/live/device_farm.yml` — committed, runnable farm matrix (Firebase
+  Test Lab; choice justified in the file: `NATIVE_CI_PROPOSAL.md` already
+  narrows to FTL-or-BrowserStack, and FTL takes EAS APK/IPA with a Robo
+  crawl, gcloud CI auth and per-run billing). Covers small/large phones,
+  tablet, low-end Android class, a Galaxy-class Samsung shell host, iPhone
+  SE + Pro Max classes, ar_SA + en_US. Gaps stated in the file: no Huawei
+  without GMS on any farm (physical-device manual pass per release) and
+  model IDs are re-validated against the live catalog at run time.
+- `tools/live/run_device_farm.sh` — runnable runner (`--apk`, optional
+  `--ipa`): validates models vs the live catalog, runs the Robo matrix,
+  writes a JSON report (default `/tmp/ftl-report.json`), exits non-zero on
+  any failed model (0 blocking issues required per release).
+- `.github/workflows/device-farm.yml` — manual per-release workflow that
+  stops at an explicit BLOCKED step when farm secrets are absent.
+
+Run: browsers run automatically in CI; the farm runs per release via the
+dispatch workflow with `GCP_SA_KEY`/`GCLOUD_PROJECT`/`RESULTS_BUCKET`
+secrets plus EAS-built binaries.
+Checks run here: YAML parse via `python3 -c 'import yaml;
+yaml.safe_load(...)'` (PyYAML on this machine) -> `YML_OK` for all three
+files; `bash -n tools/live/run_device_farm.sh` -> `SH_OK`;
+`node --check tools/live/web_browsers_smoke.mjs` -> `MJS_OK`.
+BLOCKED: device farm is a paid external service with no account configured
+(no GCP project/secrets, no EAS-built binaries here); the iOS leg
+additionally needs an XCUITest bundle next to the .ipa (FTL has no iOS
+Robo). Samsung Internet has no Playwright build: engine covered by the
+Chromium leg, shell by the Galaxy farm device (stated in both files).
