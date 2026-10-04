@@ -85,9 +85,15 @@ describe('MedicinesService medical approval indexing (Q60)', () => {
 
     const result = await service.approveChangeRequest('ccr_1', 'admin-1', {});
 
-    expect(result).toEqual(expect.objectContaining({ ok: true, applied: { new_medicine_id: 'med-new' } }));
+    // R19 gives new items identity-based ids (UUID here — the fixture has no
+    // sku/source/barcode), so pin the returned id instead of the mock's.
+    // What matters is that THE SAME medicine gets published with all flags.
+    const newId: string = (result as any)?.applied?.new_medicine_id;
+    expect(result).toEqual(expect.objectContaining({ ok: true }));
+    expect(typeof newId).toBe('string');
+    expect(newId.length).toBeGreaterThan(0);
     expect(model.updateOne).toHaveBeenCalledWith(
-      { id: 'med-new' },
+      { id: newId },
       expect.objectContaining({
         $set: expect.objectContaining({
           medical_review_status: 'approved',
