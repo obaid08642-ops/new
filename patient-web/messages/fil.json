@@ -514,7 +514,8 @@
     "stateVerifiedByPharmacist": "Na-verify ng parmasyutiko",
     "stateApproved": "Naaprubahan",
     "stateDispensed": "Naibigay",
-    "stateArchived": "Naka-archive"
+    "stateArchived": "Naka-archive",
+    "timesPerDay": "Ilang beses bawat araw"
   },
   "Chat": {
     "eyebrow": "Pribadong chat",

@@ -460,7 +460,7 @@
     "frequencyHours": "Every hours",
     "durationDays": "Duration in days",
     "instructions": "Instructions",
-    "detailNotice": "Only medication details returned by the authorized backend are shown. Diagnosis, upload, renewal, dispensing, and order actions are not available.",
+    "detailNotice": "Only the medication details returned by your authorized record are shown. Diagnosis, upload, renewal and dispensing are not available here.",
     "contractPending": "Blocked pending an authorized prescription-detail contract.",
     "stateCreatedByDoctor": "From your doctor",
     "stateUploadedByPatient": "Uploaded by you",
@@ -469,7 +469,8 @@
     "stateVerifiedByPharmacist": "Verified by pharmacist",
     "stateApproved": "Approved",
     "stateDispensed": "Dispensed",
-    "stateArchived": "Archived"
+    "stateArchived": "Archived",
+    "timesPerDay": "Times per day"
   },
   "Chat": {
     "eyebrow": "Private chats",

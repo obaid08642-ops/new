@@ -460,7 +460,7 @@
     "frequencyHours": "كل عدد ساعات",
     "durationDays": "المدة بالأيام",
     "instructions": "التعليمات",
-    "detailNotice": "تُعرض فقط تفاصيل الأدوية التي أعادها الخادم المصرح به. التشخيص والرفع والتجديد والصرف وإجراءات الطلب غير متاحة.",
+    "detailNotice": "تفاصيل الأدوية التي أعادها سجلك المصرّح به فقط. التشخيص والرفع والتجديد والصرف غير متاحة هنا.",
     "contractPending": "محجوب بانتظار عقد تفاصيل الوصفة المصرح به.",
     "stateCreatedByDoctor": "وصفة الطبيب",
     "stateUploadedByPatient": "مرفوعة من المريض",
@@ -469,7 +469,8 @@
     "stateVerifiedByPharmacist": "تحققت منها الصيدلية",
     "stateApproved": "معتمدة",
     "stateDispensed": "مصروفة",
-    "stateArchived": "مؤرشفة"
+    "stateArchived": "مؤرشفة",
+    "timesPerDay": "مرات في اليوم"
   },
   "Chat": {
     "eyebrow": "محادثات خاصة",

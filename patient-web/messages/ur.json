@@ -514,7 +514,8 @@
     "stateVerifiedByPharmacist": "فارماسسٹ سے تصدیق شدہ",
     "stateApproved": "منظور شدہ",
     "stateDispensed": "فراہم کردہ",
-    "stateArchived": "محفوظ شدہ"
+    "stateArchived": "محفوظ شدہ",
+    "timesPerDay": "دن میں بار"
   },
   "Chat": {
     "eyebrow": "نجی گفتگو",

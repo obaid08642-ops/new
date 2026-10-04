@@ -514,7 +514,8 @@
     "stateVerifiedByPharmacist": "फार्मासिस्ट द्वारा सत्यापित",
     "stateApproved": "अनुमोदित",
     "stateDispensed": "वितरित",
-    "stateArchived": "संग्रहीत"
+    "stateArchived": "संग्रहीत",
+    "timesPerDay": "दिन में बार"
   },
   "Chat": {
     "eyebrow": "निजी चैट",
