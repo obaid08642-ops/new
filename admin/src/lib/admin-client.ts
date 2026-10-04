@@ -1,3 +1,4 @@
+import { sendWithStepUp } from './step-up-registry';
 export interface AdminSession {
   user: {
     id: string;
@@ -44,12 +45,14 @@ export async function adminFetch<T>(path: string, options: RequestInit = {}): Pr
     headers.set('x-admin-csrf', token);
   }
 
-  const response = await fetch(bffPath(path), {
+  const target = bffPath(path);
+  // R23: step-up 403 → registered passkey prompt → one retry with the token.
+  const response = await sendWithStepUp(method, target, headers, (sendHeaders) => fetch(target, {
     ...options,
     method,
-    headers,
+    headers: sendHeaders,
     credentials: 'same-origin',
-  });
+  }));
 
   const contentType = response.headers.get('content-type') || '';
   const payload = contentType.includes('application/json')
