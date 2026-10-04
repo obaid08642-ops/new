@@ -38,6 +38,10 @@ Visual source: `docs/design/canvas/ProductFull.dc.html` (mobile), `ProductWeb.dc
 
 ## B. Doctor page — field → UI slot (`modules/doctors/doctors.schemas.ts`)
 
+> **Owner decisions, 2026-10-04 (these override the table below; `DoctorFull.dc.html` was updated to match):**
+> - **One call product.** There is no separate voice consultation. A call is one LiveKit call, and the doctor and the patient can each turn their camera on or off. It has one price: the backend charges `video_consultation_fee || consultation_fee` (`doctors.module.ts` fee map), and the UI shows that same value. The consult types are therefore clinic, call and home visit (3 columns). `voice_consultation_fee` is removed from the design. The call screen gets a camera on/off button.
+> - **`scfhs_license_no`, `years_experience` and `qualifications[]`** will be added to the backend by the reviewer session. The doctor enters them at registration and the admin approves them. They stay hidden until filled, with no default or invented values.
+
 | UI slot | Field(s) | Rule |
 |---|---|---|
 | Avatar + online dot | `photo_url`, `is_online` | No photo → doctor illustration |

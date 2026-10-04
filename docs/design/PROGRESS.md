@@ -7,7 +7,7 @@
 >
 > Sources: `DESIGN_HANDOFF_FINAL.md`, `SPEC_PRODUCT_DOCTOR_DETAIL.md`, `DEVICE_STANDARD.md`, `canvas/`. How the folder works: `README.md`.
 
-_Last updated: 2026-10-04, by the session that set up this workflow (branch `claude/progress-md-workflow-vqhj8x`)._
+_Last updated: 2026-10-04 (owner decisions recorded; next step: tokens on `design/tokens`)._
 
 ## Snapshot
 
@@ -53,7 +53,7 @@ Nothing.
 
 ## Next (in this order)
 
-The foundation comes before any screen (DEVICE_STANDARD §4, handoff §3). Plan one PR per package.
+The foundation comes before any screen (DEVICE_STANDARD §4, handoff §3). Each step is its own PR on its own `design/<step>` branch from `main`, with screenshots before and after.
 
 1. **Tokens** (`packages/design-tokens`):
    - Add `color.service.<tone>.{fg,bg,fgDark,bgDark}` for the 10 tones, copied exactly from `canvas/FIcon.dc.html`.
@@ -71,26 +71,30 @@ The foundation comes before any screen (DEVICE_STANDARD §4, handoff §3). Plan 
    - send the owner screenshots at 390, 768 and 1440, in light and dark;
    - wait for approval before starting the next batch (handoff §4).
 
-## Blockers and owner decisions
+## Owner decisions (2026-10-04)
 
-- **Backend fields missing for the doctor page** (`WIRING_REPORT.md` §2): `years_experience`, `scfhs_license_no`, `qualifications[]`, `voice_consultation_fee`. These UI rows stay hidden until the owner decides. Never invent values.
-- **Endpoints that are not wired.** These were found by the script and each one was checked by hand in the code. Fix each in its batch:
-  - Batch 1, web `/cart/checkout`: the broadcast submit posts to `/api/patient/pharmacy/orders/:id/submit`. The proxy allowlist and the backend only serve `/patient/pharmacy/orders/:id/submit`, so the second step of web checkout gets a 404.
-  - Batch 1, web `/payments/result`: `GET /payments/status/:ref` has no backend route.
-  - Batch 3, web `/diagnostics/insurance-approval`: `PATCH /labs/bookings/:id/items/:itemId/opt-in-cash`. The backend route exists (`labs.controller.ts:74`), but the proxy allowlist only has the `/orders/...` form, so the call gets a 404.
-  - Batch 7, web `/insurance/claims`: `GET /insurance/claims/my` has no backend route. The backend serves `GET /insurance/claims`.
-  - Batch 8, web `/nutrition/plan`: `GET /nutrition/plan` has no backend route.
-- **No board exists for these screen kinds.** The owner or a design session needs to supply a board, or approve a template:
-  - chat (11 routes);
-  - video and voice call (7);
-  - emergency (7);
-  - map and location picker (3).
+- **Branches:** every step or batch gets its own `design/<batch>` branch from `main`, and one PR to `main` per batch. Each PR includes screenshots before and after and is reviewed before merge. Design work never goes on `fix/audit-2026-09`. This is recorded in `/AGENTS.md`.
+- **Order:** tokens → Readex Pro on the web → shared layouts (shells) → shared components → lint → Batch 0. Each step is its own PR.
+- **Calls:** there is one call product, not a separate voice consultation.
+  - The doctor and the patient can each turn their camera on or off.
+  - It has one price, the same as the backend fee map: `video_consultation_fee || consultation_fee`.
+  - `voice_consultation_fee` is removed from the design. `canvas/DoctorFull.dc.html` was updated (consult types: clinic, call, home visit).
+  - When the call screens are restyled (batch 2), add a camera on/off button.
+- **Doctor fields:** the reviewer session will add `scfhs_license_no`, `years_experience` and `qualifications[]` to the backend. The doctor enters them at registration and the admin approves them. Until they exist and are filled, those rows stay hidden, with no default or invented value.
+- **Screens without a board** (chat, call, emergency, map): keep their current layout. Only apply the tokens, the font and the shared components until they get a design.
 
-  The routes are listed in `SCREEN_INVENTORY.md` with board `none: <kind>`.
-- **Branch for design PRs:** `/AGENTS.md` sends implementation work to `fix/audit-2026-09`, which is the audit stream. This workflow PR went to the branch assigned to its session. The owner needs to confirm which branch future design PRs should target.
+## Blockers
+
+- **Fixed by the reviewer in PR #257:** pharmacy submit (web `/cart/checkout`) and lab opt-in-cash (web `/diagnostics/insurance-approval`). Pull `main` after #257 merges and re-run `node tools/design/screen-inventory.mjs`.
+- **Endpoints the reviewer session will add.** Do not add backend endpoints or mock data for these. Until the endpoints exist, the screen hides that part or shows a "غير متاح حالياً" (not available right now) state:
+  - Batch 1, web `/payments/result`: `GET /payments/status/:ref`.
+  - Batch 7, web `/insurance/claims`: `GET /insurance/claims/my`. The backend serves `GET /insurance/claims`.
+  - Batch 8, web `/nutrition/plan`: `GET /nutrition/plan`.
+- **Doctor fields pending in the backend:** `scfhs_license_no`, `years_experience`, `qualifications[]` (see Owner decisions).
 
 ## Session log
 
 | Date | Branch | What happened | Tip |
 |---|---|---|---|
 | 2026-10-04 | `claude/progress-md-workflow-vqhj8x` | Set up the workflow, imported the design sources, and generated the inventory and the wiring report. | PR [#256](https://github.com/obaid08642-ops/new/pull/256) |
+| 2026-10-04 | `claude/progress-md-workflow-vqhj8x` | Recorded the owner decisions (branches, one call product, doctor fields, screens without a board, endpoints to hide). Imported the updated `DoctorFull` board. | PR [#256](https://github.com/obaid08642-ops/new/pull/256) |

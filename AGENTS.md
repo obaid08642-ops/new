@@ -4,6 +4,7 @@ Read this file fully at the start of EVERY session. These rules override any def
 
 ## Design rebuild sessions (patient-app + patient-web redesign)
 For design-rebuild work (`docs/design/DESIGN_HANDOFF_FINAL.md`):
+- **Branches (owner, 2026-10-04):** each step or batch goes on its own `design/<batch>` branch from `main`, with one PR to `main` per batch, screenshots before and after, and a review before merge. The `fix/audit-2026-09` rules below are for the implementing agent only, not for design sessions.
 - **Start every session** by reading `docs/design/PROGRESS.md`, `docs/design/SCREEN_INVENTORY.md` and `docs/design/WIRING_REPORT.md`, then continue from the "Next" section of `PROGRESS.md`.
 - **After every PR**, update `docs/design/PROGRESS.md` (done / in progress / next / blockers, with PR links). Follow the steps in `docs/design/README.md`.
 - **When context runs low:** commit, push, update `PROGRESS.md`, push again, and stop.

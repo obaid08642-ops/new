@@ -875,7 +875,6 @@ function fieldGaps() {
     ['doctor', 'years_experience', 'backend/src/modules/doctors'],
     ['doctor', 'scfhs_license_no', 'backend/src/modules/doctors'],
     ['doctor', 'qualifications', 'backend/src/modules/doctors'],
-    ['doctor', 'voice_consultation_fee', 'backend/src/modules/doctors'],
     ['doctor', 'voice_enabled', 'backend/src/modules/doctors'],
     ['doctor', 'insurance_supported', 'backend/src/modules/doctors'],
     ['doctor', 'clinic_images', 'backend/src/modules/doctors'],
@@ -971,7 +970,7 @@ function renderWiring(rows, meta, found, gaps) {
   L.push('');
   L.push('## 2. Backend fields the detail specs need (`SPEC_PRODUCT_DOCTOR_DETAIL.md`)');
   L.push('');
-  L.push('`MISSING` = the field name does not appear in the backend module/schema. The UI hides that row until the owner decides; never invent a value.');
+  L.push('`MISSING` = the field name does not appear in the backend module/schema. The UI hides that row until the field exists and is filled; never invent a value. Owner, 2026-10-04: the reviewer session adds `scfhs_license_no`, `years_experience` and `qualifications[]` (entered at registration, approved by the admin). `voice_consultation_fee` is removed from the design: there is one call, priced `video_consultation_fee || consultation_fee`.');
   L.push('');
   L.push('| Entity | Field | State | Where checked |');
   L.push('|---|---|---|---|');
