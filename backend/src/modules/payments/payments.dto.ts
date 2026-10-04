@@ -1,17 +1,18 @@
-import { IsNumber, IsObject, IsOptional, IsString, Min } from 'class-validator';
+import { IsBoolean, IsDateString, IsNumber, IsObject, IsOptional, IsString, Min } from 'class-validator';
 
-export class WebhookBodyDto {
-  @IsOptional()
-  @IsString()
-  id?: string;
-
-  @IsOptional()
-  @IsString()
-  type?: string;
-
-  @IsOptional()
-  @IsObject()
-  data?: Record<string, unknown>;
+/**
+ * Q86: the body Moyasar actually posts to a webhook (Moyasar dashboard →
+ * webhooks). Moyasar authenticates it with secret_token, not a header.
+ */
+export class MoyasarWebhookDto {
+  @IsString() id: string;
+  @IsString() type: string;
+  @IsDateString() created_at: string;
+  @IsString() secret_token: string;
+  @IsOptional() @IsString() account_name?: string;
+  @IsOptional() @IsBoolean() live?: boolean;
+  // free-form: Moyasar's payment object; only data.id is read, and the status is re-fetched from the gateway.
+  @IsObject() data: Record<string, unknown>;
 }
 
 export class RefundPaymentDto {

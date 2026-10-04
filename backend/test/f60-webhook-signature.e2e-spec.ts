@@ -1,75 +1,50 @@
 /**
- * F60 — payment webhooks and the hosted-checkout callback must never be trusted
- * or inert.
+ * F60 — the payment webhook must never be trusted without its secret.
  *
- * Two real defects are covered here:
- *   1. The webhook signature was accepted when MOYASAR_WEBHOOK_SECRET was unset
- *      outside production, so a staging deployment with no secret would mark
- *      orders paid from a forged POST.
- *   2. The callback answered `{ ok: true }` without reconciling with the
- *      gateway, so a completed card payment only reached the platform if the
- *      patient happened to reopen the app.
+ * Q86/Q104: the only receiver is PaymentsService.handleMoyasarWebhook
+ * (POST /payments/webhook/moyasar). Moyasar authenticates with secret_token in
+ * the body. A missing secret fails closed in every environment, and a rotated
+ * secret refuses a replayed body.
  */
-import { MoyasarService } from '../src/modules/moyasar/moyasar.module';
+import { ServiceUnavailableException, UnauthorizedException } from '@nestjs/common';
+import { PaymentsService } from '../src/modules/payments/payments.module';
 
-function makeService(overrides: Record<string, any> = {}) {
-  const svc: any = new MoyasarService(
-    { findOne: jest.fn(async () => null) } as any, {} as any, { emit: jest.fn() } as any,
-  );
-  Object.assign(svc, overrides);
+function makeService() {
+  const svc: any = Object.create(PaymentsService.prototype);
+  svc.txns = { findOne: jest.fn(async () => null) };
+  svc.verifyPayment = jest.fn();
   return svc;
 }
 
-describe('F60 — Moyasar webhook signature is required in every environment', () => {
-  const BODY = JSON.stringify({ id: 'pay_1', status: 'paid' });
-  const SECRET = 'whsec_test';
-
+describe('F60 — the Moyasar webhook secret is required in every environment', () => {
+  const BODY = { id: 'evt_1', type: 'payment_paid', created_at: '2026-10-04T00:00:00Z', secret_token: 'whsec_test', live: false, data: { id: 'pay_1' } };
   const originalEnv = { ...process.env };
-  afterEach(() => {
-    process.env = { ...originalEnv };
-    jest.restoreAllMocks();
-  });
+  afterEach(() => { process.env = { ...originalEnv }; });
 
-  it('rejects a webhook when no secret is configured, even in development', () => {
+  it('rejects a webhook when no secret is configured, even in development', async () => {
     delete process.env.MOYASAR_WEBHOOK_SECRET;
     process.env.NODE_ENV = 'development';
-    const svc = makeService();
-    expect(svc.verifyWebhookSignature(BODY, 'deadbeef')).toBe(false);
+    await expect(makeService().handleMoyasarWebhook(BODY)).rejects.toBeInstanceOf(ServiceUnavailableException);
   });
 
-  it('rejects a webhook when no secret is configured in production', () => {
+  it('rejects a webhook when no secret is configured in production', async () => {
     delete process.env.MOYASAR_WEBHOOK_SECRET;
     process.env.NODE_ENV = 'production';
-    const svc = makeService();
-    expect(svc.verifyWebhookSignature(BODY, 'deadbeef')).toBe(false);
+    await expect(makeService().handleMoyasarWebhook(BODY)).rejects.toBeInstanceOf(ServiceUnavailableException);
   });
 
-  it('rejects a webhook with no signature header even when a secret is set', () => {
-    process.env.MOYASAR_WEBHOOK_SECRET = SECRET;
-    const svc = makeService();
-    expect(svc.verifyWebhookSignature(BODY, undefined)).toBe(false);
+  it('rejects a webhook with no secret_token even when a secret is set', async () => {
+    process.env.MOYASAR_WEBHOOK_SECRET = 'whsec_test';
+    await expect(makeService().handleMoyasarWebhook({ ...BODY, secret_token: undefined })).rejects.toBeInstanceOf(UnauthorizedException);
   });
 
-  it('rejects a webhook whose signature does not match the body', () => {
-    process.env.MOYASAR_WEBHOOK_SECRET = SECRET;
-    const svc = makeService();
-    expect(svc.verifyWebhookSignature(BODY, 'f'.repeat(64))).toBe(false);
+  it('accepts the configured secret_token', async () => {
+    process.env.MOYASAR_WEBHOOK_SECRET = 'whsec_test';
+    await expect(makeService().handleMoyasarWebhook(BODY)).resolves.toEqual({ ok: false, reason: 'no_match' });
   });
 
-  it('accepts a correctly signed webhook', () => {
-    process.env.MOYASAR_WEBHOOK_SECRET = SECRET;
-    const crypto = require('crypto');
-    const sig = crypto.createHmac('sha256', SECRET).update(BODY).digest('hex');
-    const svc = makeService();
-    expect(svc.verifyWebhookSignature(BODY, sig)).toBe(true);
-  });
-
-  it('rejects a replayed body once the secret rotates', () => {
-    process.env.MOYASAR_WEBHOOK_SECRET = SECRET;
-    const crypto = require('crypto');
-    const sig = crypto.createHmac('sha256', SECRET).update(BODY).digest('hex');
+  it('rejects a replayed body once the secret rotates', async () => {
     process.env.MOYASAR_WEBHOOK_SECRET = 'whsec_rotated';
-    const svc = makeService();
-    expect(svc.verifyWebhookSignature(BODY, sig)).toBe(false);
+    await expect(makeService().handleMoyasarWebhook(BODY)).rejects.toBeInstanceOf(UnauthorizedException);
   });
 });
