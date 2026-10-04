@@ -5,6 +5,9 @@ const state = vi.hoisted(() => ({ getPatientMedicationReminders: vi.fn(), requir
 
 vi.mock("next/navigation", () => ({ notFound: vi.fn(), redirect: vi.fn(), useRouter: () => ({ refresh: vi.fn() }) }));
 vi.mock("next-intl/server", () => ({ getTranslations: async () => (key: string) => key, setRequestLocale: vi.fn() }));
+// P15.3: ReminderActions resolves rollback copy through the client provider,
+// which the locale layout supplies in production.
+vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 vi.mock("@/lib/i18n", () => ({ isLocale: () => true }));
 vi.mock("@/lib/auth/session", () => ({ requirePatientAccess: state.requirePatientAccess }));
 vi.mock("@/lib/api/reminders-server", () => ({ getPatientMedicationReminders: state.getPatientMedicationReminders }));

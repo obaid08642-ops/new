@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { isPastSlot } from "@/lib/datetime";
 
 export type BookingService = { id: string; name: string; price?: number };
 export type BookingAddress = { id: string; label: string };
@@ -62,7 +63,9 @@ export function NursingBookingForm({
       return;
     }
     const scheduled = new Date(`${day}T${time}:00`);
-    if (Number.isNaN(scheduled.getTime()) || scheduled.getTime() < Date.now()) {
+    // P15.9: answered against the server-anchored clock, so a device set ±1
+    // day cannot hide future slots or admit past ones.
+    if (isPastSlot(scheduled.getTime())) {
       setError(ar ? "الموعد في الماضي — اختر وقتاً لاحقاً" : "Time is in the past — choose a later time");
       return;
     }

@@ -1,11 +1,19 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { LoaderCircle, PhoneOff, Mic, MicOff, Video, VideoOff } from "lucide-react";
-type Labels = { connecting: string; ended: string; leave: string; mute: string; camera: string };
-export function VideoRoomClient({ token, room, labels }: { token: string; room: string; labels: Labels }) {
+import { shouldStartAudioOnly } from "@/lib/api/net/connection";
+type Labels = { connecting: string; ended: string; leave: string; mute: string; camera: string; audioOnly: string; chatFallback: string };
+/**
+ * P15.4 — calls fall back to audio, then to chat.
+ * On a slow/data-saver connection the room joins audio-only (camera off) so a
+ * call that could never sustain video still connects as voice; when the call
+ * ends or never connects, the patient is offered chat instead of a dead end.
+ */
+export function VideoRoomClient({ token, room, labels, chatHref }: { token: string; room: string; labels: Labels; chatHref: string }) {
   const container = useRef<HTMLDivElement>(null);
   const [state, setState] = useState<"connecting" | "live" | "ended">("connecting");
-  const [micOn, setMicOn] = useState(true); const [camOn, setCamOn] = useState(true);
+  const [audioOnlyStart] = useState(() => shouldStartAudioOnly());
+  const [micOn, setMicOn] = useState(true); const [camOn, setCamOn] = useState(() => !shouldStartAudioOnly());
   const roomRef = useRef<any>(null);
   useEffect(() => {
     let cancelled = false;
@@ -17,7 +25,8 @@ export function VideoRoomClient({ token, room, labels }: { token: string; room: 
         const r = new Room(); roomRef.current = r;
         const url = process.env.NEXT_PUBLIC_LIVEKIT_URL || "wss://live.nabd.plus";
         await r.connect(url, token);
-        await r.localParticipant.enableCameraAndMicrophone();
+        if (shouldStartAudioOnly()) await r.localParticipant.setMicrophoneEnabled(true);
+        else await r.localParticipant.enableCameraAndMicrophone();
         r.on(RoomEvent.Disconnected, () => !cancelled && setState("ended"));
         (r.remoteParticipants as Map<string, any>).forEach((p: any) => (p.trackPublications as Map<string, any>).forEach((t: any) => t.track && container.current?.appendChild(t.track.attach())));
         r.on(RoomEvent.TrackSubscribed, (track: any) => container.current?.appendChild(track.attach()));
@@ -31,7 +40,8 @@ export function VideoRoomClient({ token, room, labels }: { token: string; room: 
   function leave() { roomRef.current?.disconnect(); setState("ended"); }
   return <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
     {state === "connecting" ? <p role="status" style={{ overflowWrap: "anywhere" } as any}><LoaderCircle className="spinner" size={18} aria-hidden="true" /> {labels.connecting}</p> : null}
-    {state === "ended" ? <p role="status" style={{ overflowWrap: "anywhere" } as any}>{labels.ended}</p> : null}
+    {state === "live" && audioOnlyStart && !camOn ? <p role="status" style={{ overflowWrap: "anywhere" } as any}>{labels.audioOnly}</p> : null}
+    {state === "ended" ? <><p role="status" style={{ overflowWrap: "anywhere" } as any}>{labels.ended}</p><a href={chatHref} style={{ color: "#1E332E", textDecoration: "underline" }}>{labels.chatFallback}</a></> : null}
     <div ref={container} style={{ display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", minHeight: 320, background: "rgba(253,253,252,0.92)", border: "1px solid #E8EDEE", borderRadius: 20, backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", padding: 16, overflow: "hidden" } as any} />
     {state === "live" ? <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
       <button type="button" onClick={toggleMic} style={{ background: "#5FD9B3", color: "#1E332E", border: "1px solid #E8EDEE", borderRadius: 20, padding: "8px 16px", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>{micOn ? <Mic size={16} /> : <MicOff size={16} />} {labels.mute}</button>

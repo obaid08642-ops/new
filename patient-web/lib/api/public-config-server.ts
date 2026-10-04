@@ -1,4 +1,4 @@
-import { patientApiUrl } from "@/lib/api/upstream";
+import { patientUpstreamFetch } from "@/lib/api/upstream";
 
 export type HomeSectionItem = { id?: string; title_ar?: string; title_en?: string; image_url?: string; deep_link?: string };
 export type HomeSection = { id?: string; title_ar?: string; title_en?: string; enabled?: boolean; position?: number; items?: HomeSectionItem[] };
@@ -25,7 +25,7 @@ export function selectHomeSections(payload: any): HomeSection[] {
 /** Public config only: no credential is ever sent. */
 export async function getPublicConfig(): Promise<any | null> {
   try {
-    const res = await fetch(patientApiUrl("/config"), { headers: { Accept: "application/json" }, cache: "no-store" });
+    const res = await patientUpstreamFetch("/config", { headers: { Accept: "application/json" }, cache: "no-store" });
     if (!res.ok) return null;
     return await res.json().catch(() => null);
   } catch {
@@ -36,7 +36,7 @@ export async function getPublicConfig(): Promise<any | null> {
 /** Public home curation only: no credential is ever sent. */
 export async function getHomeContent(): Promise<any | null> {
   try {
-    const res = await fetch(patientApiUrl("/content/home"), { headers: { Accept: "application/json" }, cache: "no-store" });
+    const res = await patientUpstreamFetch("/content/home", { headers: { Accept: "application/json" }, cache: "no-store" });
     if (!res.ok) return null;
     return await res.json().catch(() => null);
   } catch {
