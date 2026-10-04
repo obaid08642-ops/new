@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { httpRequest } from '@/lib/http/client';
 
 type ThemeTokens = {
   main: string;
@@ -38,10 +39,12 @@ export default function ThemeControl() {
   const save = () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(tokens));
     // Also update the canonical tokens.json via API if available
-    fetch('/api/admin/theme', {
+    httpRequest('/api/admin/theme', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(tokens),
+      idempotent: false,
+      credentials: 'same-origin',
     }).catch(() => {});
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);

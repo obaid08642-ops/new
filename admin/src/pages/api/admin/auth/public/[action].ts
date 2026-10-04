@@ -1,12 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { upstreamRequest } from '@/lib/http/upstream';
 
 const ALLOWED_ACTIONS = new Set(['send-otp', 'reset-password']);
-
-function backendBase() {
-  const value = process.env.ADMIN_BACKEND_URL;
-  if (!value) throw new Error('ADMIN_BACKEND_URL is required');
-  return value.replace(/\/$/, '');
-}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).json({ code: 'method_not_allowed' });
@@ -14,10 +9,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!action || !ALLOWED_ACTIONS.has(action)) return res.status(404).json({ code: 'not_found' });
 
   try {
-    const upstream = await fetch(`${backendBase()}/api/v1/auth/${action}`, {
+    // 15.1: send-otp and reset-password are rate-limited, non-idempotent
+    // writes — a timeout must not turn into a second SMS or a second token.
+    const upstream = await upstreamRequest(`/api/v1/auth/${action}`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', accept: 'application/json' },
       body: JSON.stringify(req.body || {}),
+      idempotent: false,
     });
     const payload = await upstream.json().catch(() => ({}));
     return res.status(upstream.status).json(payload);

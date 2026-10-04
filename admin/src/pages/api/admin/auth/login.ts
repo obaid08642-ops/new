@@ -1,15 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { randomBytes } from 'node:crypto';
+import { upstreamRequest } from '@/lib/http/upstream';
 
 const ACCESS_COOKIE = 'admin_access';
 const REFRESH_COOKIE = 'admin_refresh';
 const CSRF_COOKIE = 'admin_csrf';
-
-function backendBase() {
-  const value = process.env.ADMIN_BACKEND_URL;
-  if (!value) throw new Error('ADMIN_BACKEND_URL is required');
-  return value.replace(/\/$/, '');
-}
 
 function cookie(name: string, value: string, options: { httpOnly?: boolean; maxAge?: number } = {}) {
   const parts = [`${name}=${encodeURIComponent(value)}`, 'Path=/', 'SameSite=Lax'];
@@ -25,7 +20,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!body.identifier || !body.password) return res.status(400).json({ code: 'identifier_and_password_required' });
 
   try {
-    const upstream = await fetch(`${backendBase()}/api/v1/auth/login`, {
+    // 15.1: a login POST is never retried — the backend counts attempts per
+    // identifier, and replaying it would lock a legitimate operator out.
+    const upstream = await upstreamRequest('/api/v1/auth/login', {
       method: 'POST',
       headers: { 'content-type': 'application/json', accept: 'application/json' },
       body: JSON.stringify({
@@ -33,6 +30,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         password: String(body.password),
         ...(body.code ? { code: String(body.code) } : {}),
       }),
+      idempotent: false,
     });
     const payload = await upstream.json().catch(() => ({}));
     if (!upstream.ok) return res.status(upstream.status).json(payload);

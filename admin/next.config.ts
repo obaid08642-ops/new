@@ -1,4 +1,6 @@
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs/config";
+import { resolveRelease } from "./src/lib/observability/error-reporter";
 
 /**
  * F68 — Content-Security-Policy for the admin dashboard.
@@ -53,4 +55,19 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+// 15.5: the release every crash report is filed against. `withSentryConfig`
+// uploads the matching source maps at build time, which is what turns a minified
+// production stack trace back into readable source.
+const release = resolveRelease({ ...process.env, SENTRY_RELEASE: process.env.SENTRY_RELEASE });
+
+const withSentry = withSentryConfig(nextConfig, {
+  release: { name: release },
+  // The admin CSP is defined above; Sentry must not loosen it.
+  silent: true,
+  sourcemaps: { disable: false },
+  // No Replay integration is added on purpose: an admin session replays patient
+  // and finance records, so session replay must never be switched on here.
+  errorHandler: (error) => error,
+});
+
+export default withSentry;
