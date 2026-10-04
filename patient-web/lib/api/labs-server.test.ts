@@ -1,8 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+// Hoisted above the imports so `@/lib/api/upstream` reads this origin when it
+// computes its base URL. P15.1: the real client stays in the loop (deadline,
+// retries, header shaping) and only the origin is redirected.
+vi.hoisted(() => {
+  process.env.NABD_API_BASE_URL = "https://api.test";
+});
+
 const fetchMock = vi.fn();
 vi.stubGlobal("fetch", fetchMock);
-vi.mock("@/lib/api/upstream", () => ({ patientApiUrl: (path: string) => `https://api.test${path}` }));
 
 import { getPublicLabServices } from "./labs-server";
 

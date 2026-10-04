@@ -1,4 +1,4 @@
-import { patientApiUrl } from "@/lib/api/upstream";
+import { patientUpstreamFetch } from "@/lib/api/upstream";
 import { parseLabServiceId } from "./labs";
 
 const allowedSortFlags = new Set(["highest_rated", "nearest", "lowest_price"]);
@@ -11,7 +11,7 @@ function validQuery(value: string | undefined) {
 export async function getPublicLabPackage(packageId: string): Promise<Response | null> {
   if (!parseLabServiceId(packageId).success) throw new Error("invalid_lab_package_id");
   try {
-    return await fetch(patientApiUrl(`/labs/packages/${encodeURIComponent(packageId)}`), {
+    return await patientUpstreamFetch(`/labs/packages/${encodeURIComponent(packageId)}`, {
       headers: { Accept: "application/json" },
       cache: "no-store",
     });
@@ -23,7 +23,7 @@ export async function getPublicLabPackage(packageId: string): Promise<Response |
 export async function getPublicLabService(serviceId: string): Promise<Response | null> {
   if (!parseLabServiceId(serviceId).success) throw new Error("invalid_lab_service_id");
   try {
-    return await fetch(patientApiUrl(`/labs/services/${encodeURIComponent(serviceId)}`), {
+    return await patientUpstreamFetch(`/labs/services/${encodeURIComponent(serviceId)}`, {
       headers: { Accept: "application/json" },
       cache: "no-store",
     });
@@ -57,7 +57,7 @@ export async function getPublicLabServices(
   }
   const path = `/labs/services${query.toString() ? `?${query.toString()}` : ""}`;
   try {
-    return await fetch(patientApiUrl(path), {
+    return await patientUpstreamFetch(path, {
       headers: { Accept: "application/json" },
       cache: "no-store",
     });
@@ -91,7 +91,7 @@ export type LabDetail = {
 export async function getPublicLab(labId: string): Promise<Response | null> {
   if (!/^[A-Za-z0-9_-]{1,128}$/.test(labId)) throw new Error("invalid_lab_id");
   try {
-    return await fetch(patientApiUrl(`/labs/${encodeURIComponent(labId)}`), {
+    return await patientUpstreamFetch(`/labs/${encodeURIComponent(labId)}`, {
       headers: { Accept: "application/json" },
       cache: "no-store",
     });
