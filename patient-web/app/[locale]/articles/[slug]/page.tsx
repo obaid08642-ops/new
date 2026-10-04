@@ -76,7 +76,7 @@ export default async function ArticlePage({ params }: Props) {
             "@type": "Article",
             headline: title,
             ...(excerpt ? { description: excerpt } : {}),
-            url: `${path}`,
+            url: localizedUrl(locale, path),
             inLanguage: locale,
             ...(publishedAt ? { datePublished: publishedAt } : {}),
             ...(authorName ? { author: { "@type": "Person", name: authorName, ...(authorTitle ? { jobTitle: authorTitle } : {}) } } : {}),
@@ -114,7 +114,7 @@ export default async function ArticlePage({ params }: Props) {
       </section>
       <CiteThis
         title={title}
-        uri={`https://www.nabd.plus/${locale}/articles/${encodeURIComponent(slug)}`}
+        uri={localizedUrl(locale, `/articles/${encodeURIComponent(slug)}`)}
         author={authorName}
         authorTitle={authorTitle}
         publishedAt={publishedAt}

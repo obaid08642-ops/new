@@ -17,13 +17,16 @@ export function CiteThis({ title, uri, author, authorTitle, publishedAt, locale 
 }) {
   const [copied, setCopied] = useState("");
   const isAr = locale === "ar";
-  const year = publishedAt ? new Date(publishedAt).getFullYear() : new Date().getFullYear();
+  const now = new Date();
+  const year = publishedAt ? new Date(publishedAt).getFullYear() : now.getFullYear();
+  const accessedIso = now.toISOString().slice(0, 10);
+  const accessed = now.toLocaleDateString(isAr ? "ar-SA" : "en-US");
   const key = `nabd-${year}-${title.slice(0, 12).replace(/\s+/g, "")}`;
   // Decode for human display — don't show %8B%9A
   let displayUri = uri;
   try { displayUri = decodeURIComponent(uri); } catch {}
-  const bibtex = `@misc{${key},\n  title = {${title}},\n  author = {${author || "Nabd Plus"}},\n  year = {${year}},\n  url = {${uri}},\n  note = {${isAr ? "منصة نبض بلس الصحية" : "Nabd Plus healthcare platform"}}\n}`;
-  const plain = `${author ? `${author}. ` : ""}"${title}." Nabd Plus${publishedAt ? `, ${new Date(publishedAt).toLocaleDateString(isAr ? "ar-SA" : "en-US")}` : ""}. ${displayUri}`;
+  const bibtex = `@misc{${key},\n  title = {${title}},\n  author = {${author || "Nabd Plus"}},\n  year = {${year}},\n  url = {${uri}},\n  urldate = {${accessedIso}},\n  note = {${isAr ? "منصة نبض بلس الصحية" : "Nabd Plus healthcare platform"}}\n}`;
+  const plain = `${author ? `${author}. ` : ""}"${title}." Nabd Plus${publishedAt ? `, ${new Date(publishedAt).toLocaleDateString(isAr ? "ar-SA" : "en-US")}` : ""}. ${displayUri}. ${isAr ? `تاريخ الوصول ${accessed}.` : `Accessed ${accessed}.`}`;
   const copy = async (text: string, which: string) => {
     try {
       await navigator.clipboard.writeText(text);

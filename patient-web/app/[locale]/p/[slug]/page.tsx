@@ -139,41 +139,20 @@ export default async function PublicProductPage({ params }: Props) {
         product.form ? { "@type": "PropertyValue", name: "form", value: product.form } : null,
       ].filter(Boolean) as any,
       inLanguage: locale,
-      isAccessibleForFree: true,
-      isFamilyFriendly: true,
       speakable: speakable,
+      // R16: offers carries ONLY page-backed data (finite price, displayed
+      // currency, availability from product.available). No fabricated
+      // validity-window / shipping / return-policy fields.
       offers: {
         "@type": "Offer",
         price: price ?? undefined,
         priceCurrency: currency,
         url: canonical,
         availability: product.available ? "https://schema.org/InStock" : "https://schema.org/LimitedAvailability",
-        itemCondition: "https://schema.org/NewCondition",
-        priceValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
         seller: {
           "@type": "Organization",
           name: "Nabd Plus",
           url: "https://nabd.plus",
-        },
-        shippingDetails: {
-          "@type": "OfferShippingDetails",
-          shippingRate: {
-            "@type": "MonetaryAmount",
-            value: "15.00",
-            currency: "SAR",
-          },
-          shippingDestination: {
-            "@type": "DefinedRegion",
-            addressCountry: "SA",
-          },
-        },
-        hasMerchantReturnPolicy: {
-          "@type": "MerchantReturnPolicy",
-          applicableCountry: "SA",
-          returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
-          merchantReturnDays: 7,
-          returnMethod: "https://schema.org/ReturnByMail",
-          returnFees: "https://schema.org/FreeReturn",
         },
       },
     },
