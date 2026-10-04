@@ -133,4 +133,14 @@ describe('nursing pool claim and decline (R11 §5 lead 9)', () => {
     const row: any = await bookings.findOne({ id: 'req-1' }).lean();
     expect(row.state).toBe('CONFIRMED');
   });
+
+  it('a nurse working from a stale read cannot act after an admin reassigned the booking', async () => {
+    await bookings.collection.updateOne({ id: 'req-1' }, { $set: { provider_id: 'nurse-A', state: 'PROVIDER_ASSIGNED' } });
+    const stale = await bookings.findOne({ id: 'req-1' });
+    await bookings.collection.updateOne({ id: 'req-1' }, { $set: { provider_id: 'nurse-B' } });
+    jest.spyOn(controller as any, 'getBookingForAccess').mockResolvedValueOnce(stale);
+    await expect((controller as any).transition(nurseA, 'req-1', 'CANCELLED', { meta: { reason: 'x' } })).rejects.toThrow('invalid_transition');
+    const row: any = await bookings.findOne({ id: 'req-1' }).lean();
+    expect(row).toMatchObject({ state: 'PROVIDER_ASSIGNED', provider_id: 'nurse-B' });
+  });
 });
