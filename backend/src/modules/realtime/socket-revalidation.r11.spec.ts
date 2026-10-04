@@ -37,28 +37,54 @@ describe('socket auth fails closed and is re-checked (R11 second review)', () =>
     expect(s.disconnect).toHaveBeenCalled();
   });
 
-  it('a re-check disconnects a socket whose token the guard now refuses, and keeps the rest', async () => {
-    let revoked = false;
-    const guard = { canActivate: jest.fn(async (ctx: any) => {
-      const req = ctx.switchToHttp().getRequest();
-      if (revoked && req.headers.authorization === 'Bearer banned') throw new Error('token_revoked');
-      req.user = { id: req.headers.authorization === 'Bearer banned' ? 'u-banned' : 'u-ok', role: 'patient' };
-      return true;
-    }) };
-    const [j, r, a, c, l] = realtimeDeps();
-    const gw = new RealtimeGateway(j as never, r as never, a as never, c as never, l as never, undefined, guard as never);
-    (gw as any).trackSocket = jest.fn();
-    (gw as any).replayOfflineQueue = jest.fn();
-    const mk = (token: string) => ({ id: token, handshake: { auth: { token }, query: {}, headers: {}, address: '10.0.0.1' }, data: {} as Record<string, unknown>, join: jest.fn(), disconnect: jest.fn(), broadcast: { emit: jest.fn() } });
-    const banned = mk('banned');
-    const ok = mk('fine');
-    await gw.handleConnection(banned as never);
-    await gw.handleConnection(ok as never);
-    expect(banned.disconnect).not.toHaveBeenCalled();
-    (gw as any).server = { sockets: { sockets: new Map([[banned.id, banned], [ok.id, ok]]) } };
-    revoked = true;
-    await gw.revalidateSockets();
-    expect(banned.disconnect).toHaveBeenCalledWith(true);
-    expect(ok.disconnect).not.toHaveBeenCalled();
+  // Second review of the re-check: (1) a gateway on namespace '/' gets a
+  // Namespace, whose `.sockets` is already the Map, so `.sockets.sockets` saw
+  // nothing; (2) re-running the guard on the token captured at connect would
+  // drop every socket once that 1-hour token expired; (3) a lookup error read
+  // as "revoked". The re-check now asks only "was this session revoked?".
+  describe('periodic re-check', () => {
+    const store: Record<string, any> = {};
+    const conn = { collection: (name: string) => ({ findOne: async (q: any) => {
+      if (store.__throw) throw new Error('mongo blip');
+      return store[`${name}:${q.id}`] ?? null;
+    } }) };
+    const build = () => {
+      const [j, r, , c, l] = realtimeDeps();
+      const gw = new RealtimeGateway(j as never, r as never, { db: conn } as never, c as never, l as never, undefined, { canActivate: async () => true } as never);
+      return gw;
+    };
+    const sock = (id: string, user: Record<string, unknown>) => ({ id, data: { user }, disconnect: jest.fn() });
+    beforeEach(() => { for (const k of Object.keys(store)) delete store[k]; });
+
+    it('reads the namespace socket map and drops a revoked session only', async () => {
+      store['users:u-banned'] = { token_version: 2 };
+      store['users:u-ok'] = { token_version: 0 };
+      const banned = sock('a', { id: 'u-banned', role: 'patient', tv: 1 });
+      const ok = sock('b', { id: 'u-ok', role: 'patient', tv: 0, exp: Math.floor(Date.now() / 1000) - 3600 });
+      const gw = build();
+      (gw as any).server = { sockets: new Map([['a', banned], ['b', ok]]) }; // a Namespace
+      expect(await gw.revalidateSockets()).toBe(1);
+      expect(banned.disconnect).toHaveBeenCalledWith(true);
+      expect(ok.disconnect).not.toHaveBeenCalled(); // an expired token is not a revoke
+    });
+
+    it('drops a deactivated user and a provider no longer approved', async () => {
+      store['users:u-off'] = { token_version: 0, active: false };
+      store['provider_accounts:p1'] = { token_version: 0, status: 'suspended' };
+      const off = sock('a', { id: 'u-off', role: 'patient', tv: 0 });
+      const prov = sock('b', { id: 'p1', role: 'provider', scope: 'provider', tv: 0 });
+      const gw = build();
+      (gw as any).server = { sockets: new Map([['a', off], ['b', prov]]) };
+      expect(await gw.revalidateSockets()).toBe(2);
+    });
+
+    it('a lookup error keeps the socket', async () => {
+      store.__throw = true;
+      const s1 = sock('a', { id: 'u1', role: 'patient', tv: 3 });
+      const gw = build();
+      (gw as any).server = { sockets: new Map([['a', s1]]) };
+      expect(await gw.revalidateSockets()).toBe(0);
+      expect(s1.disconnect).not.toHaveBeenCalled();
+    });
   });
 });
