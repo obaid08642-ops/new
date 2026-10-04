@@ -50,12 +50,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         } else if (!isAccessTokenPayload(payload)) {
           // R11 §5: refresh / QR / other non-access tokens never open a socket.
           throw new Error('not_an_access_token');
-        } else if (this.authGuard) {
+        } else {
           // R11: an access token goes through the same JwtAuthGuard as REST
           // (token_version, staff gate and device lock, impersonation session).
-          const user = await authenticateSocketToken(this.authGuard, token, socket.handshake.headers as Record<string, unknown>, String(socket.handshake.address || ''));
+          // Fails closed when the guard is not available.
+          if (!this.authGuard) throw new Error('auth_guard_unavailable');
+          const socketAuth = { token, headers: socket.handshake.headers as Record<string, unknown>, address: String(socket.handshake.address || '') };
+          const user = await authenticateSocketToken(this.authGuard, token, socketAuth.headers, socketAuth.address);
           if (!user) throw new Error('auth_guard_refused');
           userId = user.id || user.sub || userId;
+          // RealtimeGateway re-checks it with the other sockets on this namespace.
+          (socket as any).data = { ...((socket as any).data || {}), socketAuth };
         }
       } catch {
         userId = null;

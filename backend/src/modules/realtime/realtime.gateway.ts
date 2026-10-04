@@ -1,4 +1,4 @@
-import { isAccessTokenPayload, authenticateSocketToken, JwtAuthGuard } from '../../common/auth.guard';
+import { isAccessTokenPayload, authenticateSocketToken, revalidateOpenSockets, JwtAuthGuard } from '../../common/auth.guard';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Logger, Optional } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -133,8 +133,28 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
     @Optional() private readonly authGuard?: JwtAuthGuard,
   ) {}
 
+  private revalidateTimer?: ReturnType<typeof setInterval>;
+
+  /**
+   * Re-checks every open socket on the default namespace (this gateway's and
+   * ChatGateway's: they share it) through the REST guard, so a ban or revoke
+   * after connect closes the socket within one interval.
+   */
+  async revalidateSockets(): Promise<number> {
+    const sockets = (this.server as any)?.sockets?.sockets;
+    if (!this.authGuard || !sockets?.values) return 0;
+    return revalidateOpenSockets(this.authGuard, Array.from(sockets.values()));
+  }
+
+  onModuleDestroy() {
+    if (this.revalidateTimer) clearInterval(this.revalidateTimer);
+  }
+
   afterInit(server: Server) {
     this.realtime.setServer(server);
+    const every = Number(process.env.SOCKET_REVALIDATE_MS) || 120_000;
+    this.revalidateTimer = setInterval(() => { this.revalidateSockets().catch((e) => this.logger.warn(`Socket re-check failed: ${e?.message}`)); }, every);
+    this.revalidateTimer.unref?.();
     this.logger.log('WebSocket Gateway initialized');
     // 14.13: Redis adapter intentionally NOT attached — the
     // `@socket.io/redis-adapter` package is not installed (see note above).
@@ -150,12 +170,14 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
       if (!token) { client.disconnect(); return; }
       // R11: the same JwtAuthGuard as REST (token kind, token_version, staff
       // gate and device lock, impersonation session) decides who connects.
-      const payload: any = this.authGuard
-        ? await authenticateSocketToken(this.authGuard, String(token), client.handshake.headers as Record<string, unknown>, String(client.handshake.address || ''))
-        : await this.jwt.verifyAsync(token, { secret: process.env.JWT_SECRET });
+      // Fails closed: without the guard no socket connects (never a bare JWT check).
+      if (!this.authGuard) { this.logger.error('Socket rejected: auth guard not available'); client.disconnect(); return; }
+      const socketAuth = { token: String(token), headers: client.handshake.headers as Record<string, unknown>, address: String(client.handshake.address || '') };
+      const payload: any = await authenticateSocketToken(this.authGuard, socketAuth.token, socketAuth.headers, socketAuth.address);
       // R11 §5: refresh / QR / chat_rt / other non-access tokens never open a socket.
       if (!payload || !isAccessTokenPayload(payload)) { client.disconnect(); return; }
       client.data.user = payload;
+      client.data.socketAuth = socketAuth;
       client.data.connectedAt = Date.now();
 
       // Join personal and role rooms
