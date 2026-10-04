@@ -460,18 +460,28 @@ describe('15.7 chaos — maps (no external call; typed address is the fallback)'
   it('ranks pharmacies nearest-first with zero external calls', async () => {
     delete process.env.GOOGLE_MAPS_API_KEY;
     delete process.env.MAPS_API_KEY;
-    const fetchSpy = jest.spyOn(globalThis as any, 'fetch').mockRejectedValue(new Error('must not call network'));
-    const svc = svcWith([
-      { account_id: 'acc-near', provider_type: 'pharmacy', name: 'far-jeddah', geo: { lat: 21.4858, lng: 39.1925 } },
-      { account_id: 'acc-near', provider_type: 'pharmacy', name: 'near-riyadh', geo: { lat: 24.7136, lng: 46.6753 } },
-      { account_id: 'acc-other', provider_type: 'pharmacy', name: 'unapproved', geo: { lat: 24.7137, lng: 46.6754 } },
-    ]);
+    // Node <18 / this jest env has no global fetch: stub it outright instead
+    // of spyOn (which throws "property does not exist"). Either way the
+    // service must never touch the network.
+    const hadFetch = typeof (globalThis as any).fetch === 'function';
+    const fetchSpy = hadFetch
+      ? jest.spyOn(globalThis as any, 'fetch').mockRejectedValue(new Error('must not call network'))
+      : ((globalThis as any).fetch = jest.fn().mockRejectedValue(new Error('must not call network')));
+    try {
+      const svc = svcWith([
+        { account_id: 'acc-near', provider_type: 'pharmacy', name: 'far-jeddah', geo: { lat: 21.4858, lng: 39.1925 } },
+        { account_id: 'acc-near', provider_type: 'pharmacy', name: 'near-riyadh', geo: { lat: 24.7136, lng: 46.6753 } },
+        { account_id: 'acc-other', provider_type: 'pharmacy', name: 'unapproved', geo: { lat: 24.7137, lng: 46.6754 } },
+      ]);
 
-    const matches = await svc.matchPharmacy(24.7136, 46.6753, '');
-    expect(matches.map((m: any) => m.provider.name)).toEqual(['near-riyadh', 'far-jeddah']);
-    expect(matches[0].distanceKm).toBeLessThan(1);
-    expect(matches[1].distanceKm).toBeGreaterThan(500);
-    expect(fetchSpy).not.toHaveBeenCalled();
+      const matches = await svc.matchPharmacy(24.7136, 46.6753, '');
+      expect(matches.map((m: any) => m.provider.name)).toEqual(['near-riyadh', 'far-jeddah']);
+      expect(matches[0].distanceKm).toBeLessThan(1);
+      expect(matches[1].distanceKm).toBeGreaterThan(500);
+      expect(fetchSpy).not.toHaveBeenCalled();
+    } finally {
+      if (!hadFetch) delete (globalThis as any).fetch;
+    }
   });
 
   it('keeps a typed-address-only pharmacy listed (degraded, never lost)', async () => {
