@@ -15,6 +15,7 @@ import type {
 import { PasskeyCredential } from './schemas/passkey-credential.schema';
 import { User } from '../../schemas/user.schema';
 import { RedisService } from '../redis/redis.service';
+import { passkeyPublicKeyBytes } from '../../common/passkey-bytes';
 
 const ENROLL_CHAL_TTL = 300; // 5 minutes
 const LOGIN_CHAL_TTL = 300;
@@ -236,7 +237,7 @@ export class PasskeyService {
         requireUserVerification: true,
         credential: {
           id: cred.credential_id,
-          publicKey: new Uint8Array(cred.public_key),
+          publicKey: passkeyPublicKeyBytes(cred.public_key),
           counter: storedCounter,
           transports: (cred.transports || []) as AuthenticatorTransportFuture[],
         },

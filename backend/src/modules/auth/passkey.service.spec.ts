@@ -1,3 +1,4 @@
+import { mongo } from 'mongoose';
 import { PasskeyService } from './passkey.service';
 import { createFakeAuthenticator, storedCredential } from './passkey.fake-authenticator';
 
@@ -67,6 +68,18 @@ describe('PasskeyService.finishLogin (real assertions)', () => {
     expect(ownerId).toBe(USER_ID);
     // The counter must be persisted so the next assertion is not treated as a clone.
     expect(store[0].counter).toBe(auth.counter);
+  });
+
+  it('accepts the assertion when the stored key is read back as a BSON Binary (.lean())', async () => {
+    const auth = createFakeAuthenticator();
+    const cred: any = storedCredential(auth, USER_ID);
+    cred.counter = 0;
+    cred.public_key = new mongo.Binary(Buffer.from(auth.cosePublicKey));
+    const { service } = makeService([cred]);
+    await service['setChallenge'](`webauthn_login:${USER_ID}`, 'Y2hhbGxlbmdl', 300);
+
+    const assertion = auth.assertion({ challenge: 'Y2hhbGxlbmdl', origin: ORIGIN, rpId: RP_ID, userHandle: USER_ID });
+    await expect(service.finishLogin(assertion)).resolves.toBe(USER_ID);
   });
 
   it('rejects an assertion replayed against a consumed challenge', async () => {
