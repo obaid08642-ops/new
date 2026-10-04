@@ -107,4 +107,12 @@ describe('AiCommerceService checkout batching', () => {
     expect(docHandle.find).toHaveBeenCalledTimes(1);
     expect(medHandle.find).not.toHaveBeenCalled();
   });
+
+  // 6fa7fce review: the query coerces the key with Number() (as before the
+  // batching) but the map was keyed by String(sku), so "0101" found sku 101 in
+  // the database and then missed it in the map (404).
+  it('resolves a sku key the same way the query matched it', async () => {
+    const session = await service.createCheckoutSession({ items: [{ type: 'medicine', id: '0101', quantity: 1 }] });
+    expect(session.items[0]).toEqual(expect.objectContaining({ id: 'med-1', sku: 101 }));
+  });
 });

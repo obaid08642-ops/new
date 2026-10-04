@@ -248,7 +248,7 @@ export class AiCommerceService {
       if (doc.slug !== undefined && !docBySlug.has(String(doc.slug))) docBySlug.set(String(doc.slug), doc);
     }
     const resolveMed = (key: string) =>
-      medById.get(key) ?? medBySlug.get(key) ?? medBySku.get(key) ?? null;
+      medById.get(key) ?? medBySlug.get(key) ?? medBySku.get(String(Number(key) || -1)) ?? null;
     const resolveDoc = (key: string) => docById.get(key) ?? docBySlug.get(key) ?? null;
 
     for (const item of dto.items) {
