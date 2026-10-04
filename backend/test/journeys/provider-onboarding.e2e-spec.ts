@@ -33,7 +33,6 @@ import { ProviderProfileController } from '../../src/modules/provider/provider.c
 import { ProviderProfileService } from '../../src/modules/provider/services/provider-profile.service';
 import { ProviderDashboardController } from '../../src/modules/provider/provider.controllers';
 import { ProviderDashboardService } from '../../src/modules/provider/services/provider-dashboard.service';
-import { ProviderSeedService } from '../../src/modules/provider/services/provider-seed.service';
 import { ProviderProductionController } from '../../src/modules/provider-production/provider-production.module';
 import { ProviderProductionService } from '../../src/modules/provider-production/provider-production.module';
 import { TEST_JWT_SECRET, signToken, tokenFor } from '../security/harness';
@@ -84,7 +83,6 @@ describe('Gate P2 provider onboarding journeys', () => {
         ProviderProfileService,
         ProviderProductionService,
         ProviderDashboardService,
-        { provide: ProviderSeedService, useValue: {} },
         { provide: getModelToken('User'), useValue: db.model('users') },
         { provide: getModelToken('ProviderProfile'), useValue: db.model('provider_profiles') },
         { provide: 'UserRepository', useValue: repo('users') },

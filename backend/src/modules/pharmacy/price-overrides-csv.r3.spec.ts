@@ -10,7 +10,7 @@ describe('admin price-override CSV export (R3)', () => {
   ];
   const col = { find: () => ({ sort: () => ({ limit: () => ({ toArray: async () => rows }) }) }) };
   const allocs = { orders: { db: { collection: () => col } } };
-  const ctrl = new AdminPharmacyController({} as never, {} as never, allocs as never, {} as never);
+  const ctrl = new AdminPharmacyController({} as never, allocs as never, {} as never);
 
   it('no cell starts with a formula character', async () => {
     let body = '';

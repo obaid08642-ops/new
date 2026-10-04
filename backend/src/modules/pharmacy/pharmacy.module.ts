@@ -22,14 +22,13 @@ import { PharmacyOrderService } from './services/pharmacy-order.service';
 import { PharmacyAllocationService } from './services/pharmacy-allocation.service';
 import { SmartSplitService } from './services/smart-split.service';
 import { PharmacyInventoryExtService } from './services/pharmacy-inventory-ext.service';
-import { PharmacySeedService } from './services/pharmacy-seed.service';
 import { PharmacyNotificationService } from './services/pharmacy-notification.service';
 import { PharmacyBroadcastService } from './services/pharmacy-broadcast.service';
 import { PharmacyChatService } from './services/pharmacy-chat.service';
 import { PharmacyShortageService } from './services/pharmacy-shortage.service';
 import {
   PatientPharmacyController, ProviderPharmacyController,
-  ProviderInventoryExtController, AdminPharmacyController, AdminPharmacySeedController,
+  ProviderInventoryExtController, AdminPharmacyController,
     ProviderBroadcastController, AdminBroadcastController, AdminFulfillmentPolicyController, AdminPharmacyInsuranceController,
     PharmacyChatController, AdminPharmacyChatController,
   ProviderShortageController, AdminShortageController, PatientShortageController,
@@ -115,7 +114,6 @@ import { PharmacyIndexesService } from './pharmacy-indexes';
     PharmacyAllocationService,
     SmartSplitService,
     PharmacyInventoryExtService,
-    PharmacySeedService,
     PharmacyNotificationService,
     PharmacyBroadcastService,
     PharmacyChatService,
@@ -152,7 +150,6 @@ import { PharmacyIndexesService } from './pharmacy-indexes';
     ProviderInventoryExtController,
     AdminPharmacyController,
     // F17: demo seeders exist ONLY in explicit test mode (404 elsewhere).
-    ...(process.env.NODE_ENV === 'test' && process.env.ALLOW_TEST_SEED === 'true' ? [AdminPharmacySeedController] : []),
       ProviderBroadcastController, AdminBroadcastController, AdminFulfillmentPolicyController, AdminPharmacyInsuranceController,
   PharmacyChatController, AdminPharmacyChatController,
     ProviderShortageController,

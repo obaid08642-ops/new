@@ -14,7 +14,6 @@ import { ProviderRequestEngineService } from './services/provider-request-engine
 import { ProviderNotificationsService } from './services/provider-notifications.service';
 import { ProviderScheduleService } from './services/provider-schedule.service';
 import { ProviderDashboardService } from './services/provider-dashboard.service';
-import { ProviderSeedService } from './services/provider-seed.service';
 import { ServiceCapabilityService } from './services/service-capability.service';
 import { SchedulingEngineService } from './services/scheduling-engine.service';
 import { ProviderScoringService } from './services/provider-scoring.service';
@@ -465,7 +464,6 @@ export class ProviderScheduleController {
 export class ProviderDashboardController {
   constructor(
     private readonly dash: ProviderDashboardService,
-    private readonly seedSvc: ProviderSeedService,
   ) {}
   @Get('me') me(@CurrentUser() u: any) { return this.dash.me(u); }
   @Get('dashboard/stats') stats(@CurrentUser() u: any) { return this.dash.stats(u); }
@@ -475,17 +473,6 @@ export class ProviderDashboardController {
   @Get('availability') getAvail(@CurrentUser() u: any) { return this.dash.getAvailability(u); }
   @SelfService()
   @Post('availability') setAvail(@CurrentUser() u: any, @Body() body: SetAvailDto) { return this.dash.setAvailability(u, body); }
-  // R71 / F17: demo data only in explicit test mode. Open in every environment, any provider (an ambulance
-  // included) could plant schedules that skip admin approval and pharmacy/lab/radiology/doctor capabilities.
-  private assertTestSeedAllowed() {
-    if (process.env.NODE_ENV !== 'test' || process.env.ALLOW_TEST_SEED !== 'true') {
-      throw new ServiceUnavailableException('test_seed_disabled');
-    }
-  }
-  @SelfService()
-  @Post('seed') seed(@CurrentUser() u: any) { this.assertTestSeedAllowed(); return this.seedSvc.seed(u); }
-  @SelfService()
-  @Post('seed/reset') seedReset(@CurrentUser() u: any) { this.assertTestSeedAllowed(); return this.seedSvc.resetSeed(u); }
 }
 
 

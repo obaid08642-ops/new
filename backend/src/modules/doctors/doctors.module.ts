@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, ForbiddenException, Get, Injectable, Module, NotFoundException, OnModuleInit, Param, Patch, Post, Query, UseGuards, BadRequestException } from '@nestjs/common';
+import { Body, Controller, Delete, ForbiddenException, Get, Injectable, Module, NotFoundException, Param, Patch, Post, Query, UseGuards, BadRequestException } from '@nestjs/common';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
@@ -8,15 +8,6 @@ import { Doctor, DoctorSchema, DoctorAppointment, DoctorAppointmentSchema, Docto
 import { EventBusService } from '../events/event-bus.service';
 import { escapeRegex } from '../../common/slug.util';
 import { BookDto, TrDto, PostMsgDto, AvailDto, ConsultationNoteDto } from './doctors.dto';
-
-const SEED_DOCTORS = [
-  { name_ar: 'د. أحمد السالم', name_en: 'Dr. Ahmed Al-Salem', specialty: 'general_medicine', specialty_ar: 'طب عام', gender: 'male', languages: ['ar', 'en'], consultation_fee: 80, home_visit_fee: 180, video_consultation_fee: 60, home_visit_enabled: true, video_enabled: true, voice_enabled: true, rating: 4.7, reviews_count: 128, insurance_supported: ['بوبا', 'التعاونية'], biography: 'استشاري طب أسرة بخبرة 15 سنة في الأمراض الشائعة والمزمنة.', tags: ['family', 'general'], clinic_location: { city: 'الرياض', name: 'مجمع نبض الطبي', lat: 24.7136, lng: 46.6753 } },
-  { name_ar: 'د. سارة المطيري', specialty: 'pediatrics', specialty_ar: 'أطفال', gender: 'female', languages: ['ar', 'en'], consultation_fee: 120, video_consultation_fee: 90, home_visit_enabled: false, video_enabled: true, voice_enabled: true, rating: 4.9, reviews_count: 256, insurance_supported: ['بوبا', 'ميدغلف', 'التعاونية'], biography: 'استشارية أطفال وحديثي الولادة.', tags: ['kids', 'newborn'], clinic_location: { city: 'الرياض', name: 'مستشفى الأطفال' } },
-  { name_ar: 'د. خالد الزهراني', specialty: 'cardiology', specialty_ar: 'قلب', gender: 'male', languages: ['ar'], consultation_fee: 200, home_visit_fee: 350, home_visit_enabled: true, video_enabled: false, voice_enabled: false, rating: 4.8, reviews_count: 89, insurance_supported: ['التعاونية'], biography: 'استشاري قلب وقسطرة.', tags: ['heart'], clinic_location: { city: 'جدة', name: 'مركز القلب' } },
-  { name_ar: 'د. ليلى السبيعي', specialty: 'dermatology', specialty_ar: 'جلدية', gender: 'female', languages: ['ar', 'en'], consultation_fee: 150, video_consultation_fee: 100, home_visit_enabled: false, video_enabled: true, voice_enabled: false, rating: 4.6, reviews_count: 312, insurance_supported: ['بوبا', 'ميدغلف'], biography: 'استشارية جلدية وتجميل غير جراحي.', tags: ['skin', 'cosmetics'], clinic_location: { city: 'الرياض' } },
-  { name_ar: 'د. عبدالعزيز الفهد', specialty: 'orthopedics', specialty_ar: 'عظام', gender: 'male', languages: ['ar'], consultation_fee: 180, home_visit_enabled: false, video_enabled: false, voice_enabled: true, rating: 4.5, reviews_count: 76, insurance_supported: ['التعاونية', 'سند'], biography: 'استشاري عظام ومفاصل.', tags: ['ortho'], clinic_location: { city: 'الدمام' } },
-  { name_ar: 'د. نور القحطاني', specialty: 'gynecology', specialty_ar: 'نسائية وتوليد', gender: 'female', languages: ['ar', 'en'], consultation_fee: 160, video_consultation_fee: 110, home_visit_enabled: false, video_enabled: true, voice_enabled: true, rating: 4.9, reviews_count: 421, insurance_supported: ['بوبا', 'ميدغلف', 'التعاونية'], biography: 'استشارية نسائية وتوليد.', tags: ['women'], clinic_location: { city: 'الرياض' } },
-];
 
 const DEFAULT_SCHEDULE = {
   sun: [{ start: '09:00', end: '17:00', breaks: [{ start: '12:00', end: '13:00' }] }],
@@ -31,7 +22,7 @@ function toHM(d: Date) { return `${String(d.getHours()).padStart(2,'0')}:${Strin
 function fromHM(date: Date, hm: string) { const [h, m] = hm.split(':').map(Number); const r = new Date(date); r.setHours(h, m, 0, 0); return r; }
 
 @Injectable()
-export class DoctorsService implements OnModuleInit {
+export class DoctorsService {
   constructor(
     @InjectModel('Doctor') private doctors: Model<Doctor>,
     @InjectModel('DoctorAppointment') private appts: Model<DoctorAppointment>,
@@ -40,30 +31,6 @@ export class DoctorsService implements OnModuleInit {
     @InjectModel('NotificationItem') private notifs: Model<NotificationItem>,
     private bus: EventBusService,
   ) {}
-
-  async onModuleInit() {
-    // Demo doctors are seeded ONLY when explicitly enabled — never in production.
-    // Run in background so boot is never blocked; use $setOnInsert to honor admin edits.
-    if (process.env.SEED_DEMO_DATA !== 'true') return;
-    setImmediate(() =>
-      this.seedDemoDoctors().catch(() => null),
-    );
-  }
-
-  private async seedDemoDoctors() {
-    const count = await this.doctors.countDocuments();
-    if (count === 0) {
-      for (const d of SEED_DOCTORS) {
-        await this.doctors
-          .updateOne(
-            { name_en: (d as any).name_en, specialty: (d as any).specialty },
-            { $setOnInsert: { ...d, weekly_schedule: DEFAULT_SCHEDULE } },
-            { upsert: true },
-          )
-          .catch(() => null);
-      }
-    }
-  }
 
   async pushNotification(recipient_account_id: string, recipient_role: string, type: string, title: string, body?: string, entity_type?: string, entity_id?: string, deep_link?: string) {
     try { await this.notifs.create({ recipient_account_id, recipient_role, type, title, body, entity_type, entity_id, deep_link }); } catch {}
