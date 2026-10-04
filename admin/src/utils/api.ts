@@ -1,3 +1,4 @@
+import { sendWithStepUp } from '../lib/step-up-registry';
 const WRITE_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 
 function csrfToken(): string | null {
@@ -6,7 +7,7 @@ function csrfToken(): string | null {
   return entry ? decodeURIComponent(entry.slice('admin_csrf='.length)) : null;
 }
 
-function toBffUrl(url: string) {
+export function toBffUrl(url: string) {
   if (url.startsWith('/api/admin/')) return url;
   if (url.startsWith('/')) {
     if (url.startsWith('/api/v1/admin/')) return `/api/admin/${url.slice('/api/v1/admin/'.length)}`;
@@ -42,14 +43,17 @@ export const fetchWithAdminGuard = async (url: string, options: RequestInit = {}
     headers.set('x-admin-csrf', csrf);
   }
 
-  const response = await fetch(toBffUrl(url), {
+  const target = toBffUrl(url);
+  // R23: a @StepUp route answers 403 step_up_required; the registered prompt
+  // (GlobalStepUp) asks for a passkey and the request is retried once.
+  const response = await sendWithStepUp(method, target, headers, (sendHeaders) => fetch(target, {
     ...options,
     method,
-    headers,
+    headers: sendHeaders,
     credentials: 'same-origin',
     // R7-1: admin lists must never render a cached GET after a mutation.
     cache: 'no-store',
-  });
+  }));
 
   if (response.status === 401 && typeof window !== 'undefined') {
     const returnTo = encodeURIComponent(window.location.pathname);

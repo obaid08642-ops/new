@@ -1,6 +1,7 @@
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import { AdminGuard } from "@/components/AdminGuard";
+import { GlobalStepUp } from "@/components/GlobalStepUp";
 
 export default function App({ Component, pageProps, router }: AppProps) {
   // If the route is under /admin, wrap it with the AdminGuard
@@ -8,6 +9,7 @@ export default function App({ Component, pageProps, router }: AppProps) {
     return (
       <AdminGuard>
         <Component {...pageProps} />
+        <GlobalStepUp />
       </AdminGuard>
     );
   }
