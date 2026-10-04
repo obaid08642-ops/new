@@ -61,6 +61,6 @@
 
 ## Still open
 
-- **Q53:** the LiveKit key from the public repo is still active on the server. The rotation will be rehearsed and then re-run.
+- **Q53: done.** The rehearsed rotation v2 ran on production at 19:14–19:17 UTC (run 37227381453): new key on the server only, old keys removed from livekit.yaml, backend on the same image, API 200, live.nabd.plus 200.
 - **Medicines list is slower:** about 5.7 s on a cold request, because the API cache is off. The agent branch's X0 fix brings caching back for public routes only. It ships with the next reviewed deploy.
 - **Staging:** it should run on a separate server, not on the production server.
