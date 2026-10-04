@@ -1,84 +1,58 @@
-import { BadRequestException, CallHandler, ConflictException, ExecutionContext, Injectable, NestInterceptor, SetMetadata } from '@nestjs/common';
-import { Observable, of } from 'rxjs';
-import { catchError, mergeMap } from 'rxjs/operators';
-import { createHash } from 'crypto';
+import { BadRequestException, CallHandler, ExecutionContext, Injectable, NestInterceptor, SetMetadata } from '@nestjs/common';
+import { Observable } from 'rxjs';
 import { RedisService } from '../modules/redis/redis.service';
 import { Reflector } from '@nestjs/core';
+import { IdempotencyKeyInterceptor } from './idempotency/idempotency-key.interceptor';
+import { IdempotencyKeyStore, IDEMPOTENCY_MAX_KEY_LENGTH } from './idempotency/idempotency-key.store';
 
 export const REQUIRE_IDEMPOTENCY = 'require_idempotency';
 export const RequireIdempotency = () => SetMetadata(REQUIRE_IDEMPOTENCY, true);
 
+/**
+ * 15.2 merge: this global APP_INTERCEPTOR (also applied explicitly via
+ * @UseInterceptors on payments, moyasar, health and medical-programs) is now
+ * a thin contract layer over IdempotencyKeyInterceptor — the SINGLE Redis
+ * protocol (key shape, lock NX 120s, response TTL 24h, replay flag).
+ *
+ * The two historical implementations used the same Redis key but different
+ * per-request markers, so a request passing through BOTH (global + explicit
+ * wiring) saw the first instance's lock as a conflict and answered 409 on
+ * every keyed write. The base class now honours and sets both markers, so any
+ * mix of wiring processes a request exactly once. This subclass adds only:
+ * the @RequireIdempotency() enforcement (400 when a contract-required
+ * mutation carries no key) and the strict key-shape rejection. Neither guard
+ * is weakened: every keyed mutation still gets lock/replay/hash-match
+ * deduplication from the base.
+ */
 @Injectable()
-export class IdempotencyInterceptor implements NestInterceptor {
-  constructor(private readonly redis: RedisService, private readonly reflector: Reflector) {}
+export class IdempotencyInterceptor extends IdempotencyKeyInterceptor implements NestInterceptor {
+  constructor(
+    private readonly redis: RedisService,
+    private readonly reflector: Reflector,
+  ) {
+    // The client is resolved per call, not captured: RedisService.getClient()
+    // flips between the live client and the in-memory fallback as connectivity
+    // changes, and the previous implementation resolved it per request too.
+    super(new IdempotencyKeyStore({
+      get: (key: string) => redis.getClient().get(key),
+      set: (key: string, value: string, ...args: Array<string | number>) =>
+        redis.getClient().set(key, value, ...args),
+      del: (key: string) => redis.getClient().del(key),
+    }));
+  }
 
   async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<any>> {
     const request = context.switchToHttp().getRequest();
-    const idempotencyKey = request.headers['idempotency-key'];
-    const isMutation = ['POST', 'PATCH', 'DELETE'].includes(request.method);
+    const isMutation = request.method === 'POST' || request.method === 'PATCH' || request.method === 'DELETE';
     const required = this.reflector.get<boolean>(REQUIRE_IDEMPOTENCY, context.getHandler()) === true;
-    // This interceptor is registered BOTH globally and explicitly via
-    // @UseInterceptors on some controllers (payments, moyasar, health,
-    // medical-programs). Only the FIRST instance that sees a request may
-    // process it; a second instance would find the first one's Redis lock
-    // and self-conflict (409 on every keyed call). The per-request marker
-    // keeps exactly-once processing while preserving replay protection for
-    // every keyed mutation — including payment intent/retry, which rely on
-    // the client-supplied key without carrying @RequireIdempotency().
-    if (request.__idempotencyHandled) return next.handle();
-    request.__idempotencyHandled = true;
-    if (!idempotencyKey) {
-      if (required && isMutation) throw new BadRequestException('idempotency_key_required');
-      return next.handle();
+    const rawKey = request.headers?.['idempotency-key'];
+    if (isMutation && required && !rawKey) {
+      throw new BadRequestException('idempotency_key_required');
     }
-    if (!isMutation) return next.handle();
-
-    if (typeof idempotencyKey !== 'string' || idempotencyKey.length > 128) {
+    if (isMutation && typeof rawKey !== 'undefined'
+      && (typeof rawKey !== 'string' || rawKey.length > IDEMPOTENCY_MAX_KEY_LENGTH)) {
       throw new BadRequestException('invalid_idempotency_key');
     }
-    // Controllers using this interceptor are authenticated payment mutations.
-    // Fail open only for routes without an authenticated identity rather than
-    // allowing a cross-user cache key.
-    if (!request.user?.id) return next.handle();
-
-    const requestPath = request.originalUrl || request.url || '';
-    const scope = `${request.user.id}:${request.method}:${requestPath}`;
-    const cacheKey = `idempotency:${scope}:${idempotencyKey}`;
-    const requestHash = createHash('sha256').update(JSON.stringify(request.body || {})).digest('hex');
-    const redis = this.redis.getClient();
-    const cachedResponse = await this.redis.getClient().get(cacheKey);
-
-    if (cachedResponse) {
-      const cached = JSON.parse(cachedResponse);
-      // Compatibility with records written by the former interceptor is kept
-      // only inside the new user/path scope; new records always carry a hash.
-      if (cached?.request_hash && cached.request_hash !== requestHash) {
-        throw new BadRequestException('idempotency_key_reused_with_different_request');
-      }
-      const response = cached?.response ?? cached;
-      return of(response && typeof response === 'object' ? { ...response, idempotent_replay: true } : response);
-    }
-
-    const lockKey = `${cacheKey}:lock`;
-    const lockAcquired = await redis.set(lockKey, '1', 'EX', 120, 'NX');
-    if (!lockAcquired) {
-      // A parallel request with the same user/method/path/key must not execute
-      // a second financial mutation before the first response is persisted.
-      throw new ConflictException('idempotency_request_in_progress');
-    }
-
-    return next.handle().pipe(
-      mergeMap(async (response) => {
-        await redis.set(cacheKey, JSON.stringify({ request_hash: requestHash, response }), 'EX', 86400);
-        await redis.del(lockKey);
-        return response;
-      }),
-      catchError((error) => {
-        // Errors are not cached and must release the in-flight key for a retry.
-        return new Observable((subscriber) => {
-          redis.del(lockKey).finally(() => subscriber.error(error));
-        });
-      }),
-    );
+    return super.intercept(context, next);
   }
 }
