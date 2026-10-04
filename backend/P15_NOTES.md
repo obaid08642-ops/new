@@ -1,0 +1,220 @@
+# P15 backend notes (branch `p15-backend`)
+
+Worktree: `/var/folders/f1/j1zvgjbj0m16m2rwky7f5zqr0000gn/T/opencode/p15/backend`
+(only `backend/` touched; repo-root-relative paths below).
+Test runner: `cd backend && node node_modules/jest/bin/jest.js --silent --runInBand <path>`
+Typecheck: `cd backend && node node_modules/typescript/bin/tsc --noEmit` (clean at start, clean at end).
+Never pushed (hard rule). `node_modules` never committed.
+
+## Commits (oldest → newest)
+
+- `cbc8a1f03fb24695b6891bd401ba1ce4908e36d4` [P15.15.7] fix Q81: breaker cached by name discarded the caller's work function
+  (pre-existing on this branch when the session started; verified + probe-owned this session — see 15.7)
+- `cf5b93635406da9ef148060d49324efda5dc6605` [P15.15.7] timeout+breaker+fallback on all 8 external deps; chaos suite
+  (pre-existing on this branch; verified + repaired one env failure — see 15.7)
+- `6e15d07f1c9f44654adc712788e0eefd70a0ca58` [P15.15.7] fix chaos maps test fetch stub for envs without global fetch (mine)
+- `246c19d7a42d08c57ad60bfdc6e4bc456797fe80` [P15.15.2] merge duplicate idempotency interceptors into one protocol; concurrency proofs (mine)
+- `cb17572c3b6e1c7ae520cc5732b0e25c6b6b6dfa` [P15.15.6] schemathesis fuzz harness; NaN pagination guards (no 500 on bad input) (mine)
+- `b3e500775f6335c93746b0b9261a313884a75b1f` [P15.15.9] server-clock OTP/slots/reminders; Riyadh tz; Ramadan+holiday hours (mine)
+
+## 15.7 — Slow or failing dependencies (Q81 + 8-dep audit + chaos)
+
+Pre-existing work (cbc8a1f, cf5b936) found in the branch at session start and
+audited file-by-file before building on it:
+
+- `src/common/circuit-breaker.service.ts` — breaker cached BY NAME; the shared
+  opossum instance now runs a `dispatch(fn, ...args)` action so the per-call
+  work function travels WITH the fire args (no shared mutable slot).
+  `create()`/`fire()` both bind `fn` per call. Moyasar refund passes
+  `{paymentId, body}` as fire args (same args-driven shape as the sync breaker).
+- 8-dep audit (from cf5b936 diff): payment (Moyasar/Stripe/Tap adapters with
+  breaker+timeout in `payments.module.ts`), SMS (breaker, degrade false→OTP
+  email fallback), email (`mail.module.ts`), WhatsApp, AI gateway (provider
+  chain fallback), maps (no external call — local haversine; typed address is
+  the primary path), S3/storage, LiveKit — each with timeout + breaker +
+  specified fallback, pinned by `src/common/resilience-chaos.p15.spec.ts`.
+- Q81 regression spec `src/modules/moyasar/moyasar-refund-q81.spec.ts` refunds
+  TWO different payments and asserts per-payment `/refunds` URLs.
+
+What I changed: `resilience-chaos.p15.spec.ts` maps test called
+`jest.spyOn(globalThis, 'fetch')` but this jest env has no global `fetch`
+→ committed suite was RED (1 failed, 27 passed). Fixed with a
+stub-or-spy + finally-restore (6e15d07). No behaviour weakened.
+
+Real terminal output (tail):
+- Before fix: `FAIL src/common/resilience-chaos.p15.spec.ts … Property 'fetch'
+  does not exist in the provided object … Tests: 1 failed, 40 passed, 41 total`
+  (trio run with breaker + Q81 specs).
+- After fix: `PASS src/common/resilience-chaos.p15.spec.ts (41.372 s)` /
+  `Tests: 28 passed, 28 total`.
+
+Mutation proofs (all restored after, `grep MUTATION-PROBE` clean):
+- Q81 (mine, this session): hardcoded `paymentId: 'pay_FIRST0001'` at the
+  refund fire site → `moyasar-refund-q81.spec.ts -t interleaves` RED
+  (`Expected 5 urls, Received 5 [all first-id]`), restored → green.
+- (Breaker dispatch/lock probes for the pre-existing 15.7 code were not
+  re-run; the Q81 fire-arg probe above covers the load-bearing Q81 behaviour.)
+
+## 15.2 — No double actions (246c19d)
+
+Fact 2 resolved by MERGE (nothing weakened):
+- `src/common/idempotency/idempotency-key.interceptor.ts` is now the single
+  write-path protocol: honours AND sets BOTH per-request markers
+  (`__idempotencyHandled` + `__idempotencyKeyHandled`), Redis lock NX 120 s,
+  response TTL 24 h, replay with `idempotent_replay: true`, hash-mismatch →
+  400, NEW legacy pre-shape replay (`findLegacyResponse` — `{response}`
+  records without `request_hash` replay instead of double-executing).
+- `src/common/idempotency.interceptor.ts` (global APP_INTERCEPTOR) is now a
+  thin subclass adding only `@RequireIdempotency()` 400 + key-shape 400.
+- One in-flight payment per order: `PaymentsService.createPaymentIntent`
+  persists `initiating` under a partial unique index; 11000 loser returns the
+  winner (pre-existing, pinned). One booking per slot per patient:
+  `AppointmentsService.create` overlap check + unique index; 11000 → 409
+  `slot_already_booked` (pre-existing, pinned).
+- New specs: `idempotency-merge.p15.spec.ts` (mixed global+explicit wiring both
+  orders, legacy replay, 10× concurrent → 1 execution + 9×409 + replay),
+  `payments-concurrency.p15.spec.ts` (2 racers → 1 txn, 1 PSP call, shared
+  winner), `appointments-concurrency.p15.spec.ts` (2 racers → 1 row + 1×409).
+  Also fixed the appointments spec mock to expose `toObject()` like a real
+  mongoose doc (winner was throwing `refreshed?.toObject is not a function`).
+
+Real terminal output (tail):
+- `Test Suites: 3 passed, 3 total / Tests: 6 passed, 6 total` (merge +
+  appointments + payments).
+- Live rapid-tap journey NOT run (no docker): `BLOCKED: live rapid-tap journey
+  needs a running server (tools/live/run_gate.sh requires docker/Mongo/Redis,
+  unavailable on this machine); concurrency is proven by the mocked 10× test.`
+
+Mutation proofs (restored after):
+- `acquireLock → always true`: 10× test RED (`Expected: 1, Received: 10`
+  executions).
+- `appointments.service.ts 11000 → 'NEVER'`: concurrency test RED (loser
+  throws raw duplicate instead of 409).
+- `payments.module.ts 11000 → 'NEVER'`: concurrency test RED (loser throws
+  instead of sharing the winner).
+
+## 15.6 — Bad or empty data (cb17572)
+
+- Harness: `backend/scripts/schemathesis_fuzz.sh` (executable) with EXACT CLI
+  `--base-url <url> --spec <path-or-url>` (+ optional `--auth-token`,
+  `--checks` default `not_a_server_error`, `--workers`, `--max-examples`,
+  `--dry-run`, `--help`). Exit 0 = no 5xx; 1 = usage/missing runner/spec;
+  2 = 5xx found (fail-closed). Prefers `st`, falls back to `schemathesis`,
+  override via `SCHEMATHESIS_BIN`. Verified: `--help`→0, `--dry-run`→0
+  (works with no runner installed), missing `--spec`→1, bad spec path→1, no
+  runner→1, `bash -n` SYNTAX_OK.
+  - Fuzz run NOT executed: `BLOCKED: no schemathesis runner installed and no
+    live server can start here (no docker); bring up staging plus
+    'pip install "schemathesis>=3"' then run the script.`
+- Production fix (real 500-class hole found by grep): `GET /medicines`
+  parsed `?page=/ ?limit=` with bare `parseInt` (no `|| default`, unlike the
+  rest of the codebase), and `paginate()`/`cursorPage()` propagated NaN into
+  `skip()/limit()` and back out as `{page: NaN, total_pages: NaN}`. Fixed at
+  both layers: controller coerces (`|| 30` / `|| 1` / `|| 500`, + radix) and
+  services guard with `Number.isFinite … : default` (covers all callers).
+  Cursor decode + JWT-decode paths were already try/caught (verified by read).
+  Global `SentryExceptionFilter.translateMongoError` (CastError/BSONError →
+  404, ValidationError → 400, 11000 → 409) already has unit coverage
+  (`sentry.filter.spec.ts`, 7 tests incl. idFilter routing).
+- New spec `medicines-pagination-guard.p15.spec.ts`: 7 tests (NaN → 1/30
+  finite metadata, clamp negatives/huge, garbage cursor → first page, valid
+  cursor still predicates, list(NaN) safe, controller coercions). All green.
+- `DEFERRED-OUT-OF-SCOPE: .github/ is owned by another agent — required
+  workflow step: scheduled/manual job that runs
+  'backend/scripts/schemathesis_fuzz.sh --base-url <staging-url> --spec
+  backend/openapi.json' (plus '--auth-token $STAGING_TOKEN' if staging needs
+  auth) with 'pip install "schemathesis>=3"' and fails the gate on exit ≠ 0.`
+
+Mutation proofs (restored after):
+- Service guard reverted → `paginate(NaN,NaN)` test RED (`Expected: 1,
+  Received: NaN`).
+- Controller `|| 30` removed → controller test RED (`Expected: 30,
+  Received: NaN`).
+
+## 15.9 — Clocks and time zones (b3e5007)
+
+- New `src/common/riyadh-clock.ts` (pure): `RIYADH_TZ`, `riyadhParts()`
+  (Riyadh dow/hh/mm/ymd via Intl, no Date-local getters), `isRamadan()`
+  (Umm al-Qura month 9 in Riyadh, false when unsupported).
+- `SchedulingEngineService.checkAvailability/isOnDuty` used
+  `getDay()/getHours()` = PROCESS timezone (UTC in containers) — a Riyadh
+  09:00 opening was evaluated as 09:00 UTC. Now resolved in Riyadh.
+- `SlotService.hoursFor()` takes optional `dateStr`, precedence:
+  `special_hours` (exact date; malformed entries fall through, never strand)
+  > approved slots > `ramadan_hours` (weekly shape, in-Ramadan only) >
+  per-mode > legacy. `hasSlotsToday`/`nextAvailable` anchor on the Riyadh
+  calendar day. `CareService` batched list mirror (`batchWindowsFor`) threads
+  the same precedence (projection is exclusion-based, new fields flow through).
+- Schema: `ProviderProfile.ramadan_hours` + `special_hours` (both
+  `@Prop(type: [Object], default: [])`).
+- OTP: verified server-side by read — both paths store bcrypt hash under
+  Redis EX TTL and verify from the store; requests carry no timestamps.
+  Recurring reminders already ran on server Riyadh time (pinned, not changed).
+- New specs (24 tests, all green): `riyadh-clock.p15.spec.ts` (4),
+  `schedule-ramadan.p15.spec.ts` (7: Ramadan/normal/holiday/catch-up/
+  malformed/no-field-fallback/±1d stability/list mirror),
+  `scheduling-engine-riyadh.p15.spec.ts` (4),
+  `otp-server-clock.p15.spec.ts` (6: live verify, −1d ok, +6min expired,
+  +1d expired, absent → expired, 300 s TTL issuance),
+  `recurring-riyadh.p15.spec.ts` (3: fires 05:00Z, silent 06:00Z, no resend).
+- Real terminal output (tail): `Test Suites: 5 passed, 5 total / Tests:
+  24 passed, 24 total`; `tsc --noEmit` clean.
+
+Mutation proofs (restored after):
+- Engine reverted to getDay/getHours, run with `TZ=UTC` (container reality;
+  dev machine is Asia/Riyadh where the bug hides): 2 RED
+  (06:00Z wrongly refused; Monday-boundary wrong). Fixed code also passes
+  under `TZ=UTC` (4/4) — true TZ-independence.
+- Ramadan branch disabled → Ramadan test RED (`Expected "T10:30…", Received
+  "2027-02-15T09:00…"`).
+- `batchWindowsFor` dateStr threading removed → list Eid test RED (doc-eid
+  leaks back in).
+- Recurring tz → UTC → 05:00Z fire test RED (0 sends). (Line pre-existed;
+  test pins it.)
+- OTP absent-entry branch disabled → no-entry test RED.
+
+## Test counts
+
+- Baseline (session start): `tsc --noEmit` clean (verified). Known red per
+  prompt: `auto-entity-seo-pipeline.spec.ts` Scenario 20 (still red — verified
+  this session: `✕ Scenario 20 … 1 failed, 22 skipped`; files untouched by my
+  commits). No full-suite baseline was taken (jest per-test 5 s timeouts under
+  load; mongod-dependent suites cannot run here).
+- Final: `tsc --noEmit` clean (verified after every commit). New specs added:
+  6 (15.2) + 7 (15.6) + 24 (15.9) + Q81/chaos pre-existing 41 (28 chaos + Q81
+  + breaker, all green after my fetch fix) = all focused suites green.
+- Neighbouring suites re-run: slot-leave ✓, appointments-slot-buffer ✓,
+  sentry.filter ✓, patient-web-auth.contract ✓, medicines guard ✓.
+- Pre-existing failure observed (NOT mine, NOT fixed, files untouched):
+  `doctor-list-perf.spec.ts` "filters available_today…" fails only in the
+  ~22:45–24:00 UTC window — open-all-day (00:00–23:59) provider has no slots
+  ≥ now+15 min that late; deterministic time-flake, passes the rest of the
+  day. Left as-is per rule 5 (no weakening/fixing others' tests unasked).
+
+## Incident (self-caused, fully remediated)
+
+Mid-session I ran `git stash push -- <wrong-relative-paths>` (paths relative
+to repo root while cwd was `backend/`); the push failed AND the trailing
+`; git stash pop` popped a STALE pre-existing entry (`stash@{0}: WIP on
+fix/audit-2026-09`, another session's work) causing conflicts across ~55
+files including patient-app/. Remediation: restored every pop-introduced path
+to HEAD via `git checkout HEAD --` (my 4 modified files excluded by filter),
+deleted 2 pop-restored untracked files that predated my session
+(`admin-config.controller.spec.ts`, `import-catalog-v14.spec.ts`, both
+preserved inside the untouched `stash@{0}`), verified final
+`git status --porcelain` shows only my intended files, and left `stash@{0}`
+in place. No other agent's work was lost or committed. Lesson: never
+`git stash` in a shared worktree; use in-place edit/restore probes only
+(which is what all mutation proofs above used).
+
+## BLOCKED / DEFERRED lines
+
+- `BLOCKED: live rapid-tap journey needs a running server
+  (tools/live/run_gate.sh requires docker/Mongo/Redis, unavailable).`
+- `BLOCKED: schemathesis fuzz run needs a live server + runner
+  (pip install "schemathesis>=3"); harness provided and arg-checked.`
+- `DEFERRED-OUT-OF-SCOPE: .github/ is owned by another agent — required
+  workflow step runs backend/scripts/schemathesis_fuzz.sh --base-url
+  <staging-url> --spec backend/openapi.json and fails on exit ≠ 0.`
+- Nothing else was impossible; no other scope notes needed (all touched files
+  are under `backend/`).
