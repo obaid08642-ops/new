@@ -7,7 +7,7 @@
 >
 > Sources: `DESIGN_HANDOFF_FINAL.md`, `SPEC_PRODUCT_DOCTOR_DETAIL.md`, `DEVICE_STANDARD.md`, `canvas/`. How the folder works: `README.md`.
 
-_Last updated: 2026-10-04 (#259 tokens, #260 web font and #261 native shells are in review; next step: web shells on `design/shells-web`)._
+_Last updated: 2026-10-04 (#259, #260 and #261 are approved from the design side and waiting for the reviewer; next step: web shells on `design/shells-web`)._
 
 ## Snapshot
 
@@ -58,6 +58,10 @@ _Last updated: 2026-10-04 (#259 tokens, #260 web font and #261 native shells are
   - Owner decision: the light glyph of coral, mint, amber, peach and teal is darkened slightly to reach 4.5:1.
   - Before/after swatch screenshots are in `docs/design/screenshots/tokens/` on that branch.
   - Also fixes the check that was red on main: the `OtpModal.test.tsx` `#000000` stub now uses `#0B1B2B` (separate commit).
+  - Design-session correction (commit `c399fe7`): the solid chip gradients (white glyph) now reach 3:1 at both ends.
+    - Changed: coral.from `#FF6B73→#FF5C65`, mint.from `#2DBF92→#27A67F`, amber.from `#FFB547→#D68000`, amber.to `#E08A00→#D38200`, pink.from `#F573A6→#F4609A`, lime.from `#8CC63F→#71A230`, peach.from `#FF8A5C→#FF6021`, teal.from `#23B5CE→#1FA2B8`.
+    - New token `color.icon.onSolid`, with contrast pairs for every tone. 145 checks pass.
+  - Approved from the design side; waiting for the reviewer to merge.
   - Not covered by screenshots: screen-level shots, because this environment has no installed apps and no backend.
 - **Readex Pro on the web, PR [#260](https://github.com/obaid08642-ops/new/pull/260)** (branch `design/font-web`), waiting for review.
   - What was wrong on main: Tajawal was loaded but unused, and the Google Fonts `@import` was blocked by the CSP, so the site rendered in a system font.
@@ -65,12 +69,14 @@ _Last updated: 2026-10-04 (#259 tokens, #260 web font and #261 native shells are
   - `globals.css` applies the per-locale order from `tokens.json`. Urdu headings and paragraphs get a taller line height for Nastaliq.
   - The web copy of `fonts.css` drops the Google import.
   - Screenshots: `docs/design/screenshots/font-web/` on that branch.
+  - Approved from the design side.
 - **Native shells, PR [#261](https://github.com/obaid08642-ops/new/pull/261)** (branch `design/shells-native`), waiting for review.
   - Stacked on #259: it needs the `action.fab` and `shadow.*` tokens, which were added to #259 in commit `87cc899`.
   - `packages/ui-native/src/shells` adds `Screen`, `AppHeader`, `StickyFooter` and `TabBar` (with `useTabBarHeight`), all built on `react-native-safe-area-context` and the tokens.
   - 6 jest tests in `patient-app/__tests__/design-system-shells.test.tsx`.
   - Screenshots are react-native-web renders with iPhone 15 Pro insets.
   - No screen uses the shells yet. Screens are migrated batch by batch.
+  - Approved from the design side. Merge #259 first.
 
 ## Next (in this order)
 
@@ -131,6 +137,7 @@ The foundation comes before any screen (DEVICE_STANDARD §4, handoff §3). Each 
 | Date | Branch | What happened | Tip |
 |---|---|---|---|
 | 2026-10-04 | `claude/progress-md-workflow-vqhj8x` | Set up the workflow, imported the design sources, and generated the inventory and the wiring report. | PR [#256](https://github.com/obaid08642-ops/new/pull/256) |
+| 2026-10-04 | `design/tokens` | Solid chip correction from the design session (8 values, `icon.onSolid`, 20 contrast pairs). Merged into `design/shells-native`. | PR [#259](https://github.com/obaid08642-ops/new/pull/259), tip `c399fe7` |
 | 2026-10-04 | `design/shells-native` | Native shells (`Screen`, `AppHeader`, `StickyFooter`, `TabBar`), with tests and react-native-web screenshots; added the fab, gradient and shadow tokens to #259. | PR [#261](https://github.com/obaid08642-ops/new/pull/261), tip `55a5e23` |
 | 2026-10-04 | `design/font-web` | Self-hosted Readex Pro and Noto on patient-web; found that the web had no font loading at all on main. | PR [#260](https://github.com/obaid08642-ops/new/pull/260), tip `f0a82b8` |
 | 2026-10-04 | `design/tokens` | Tokens step: service tones and service map, contrast pairs, regenerated outputs, before/after swatches. | PR [#259](https://github.com/obaid08642-ops/new/pull/259), tip `1a5a783` |
