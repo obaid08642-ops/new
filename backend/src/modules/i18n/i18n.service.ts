@@ -770,9 +770,15 @@ export const DICTIONARY: Record<string, Partial<Record<Lang, string>>> = {
 // namespace). Alias preserved so any old caller still resolves.
 DICTIONARY['book.error_slot_taken'] = DICTIONARY['err.slot_taken'];
 
+/** Q90: users, push and the web use `fil`; the dictionary keys Filipino as `tl`. */
+function dictLang(lang: Lang | 'fil'): Lang {
+  return lang === 'fil' ? 'tl' : lang;
+}
+
 @Injectable()
 export class I18nService {
   t(key: string, lang: Lang = DEFAULT, params?: Record<string, any>): string {
+    lang = dictLang(lang);
     const entry = DICTIONARY[key];
     if (!entry) return key;
     let v = entry[lang] ?? entry[DEFAULT] ?? entry.en ?? key;
@@ -780,6 +786,7 @@ export class I18nService {
     return v;
   }
   all(lang: Lang = DEFAULT) {
+    lang = dictLang(lang);
     const out: Record<string, string> = {};
     for (const k of Object.keys(DICTIONARY)) out[k] = DICTIONARY[k][lang] ?? DICTIONARY[k][DEFAULT] ?? DICTIONARY[k].en ?? k;
     return out;

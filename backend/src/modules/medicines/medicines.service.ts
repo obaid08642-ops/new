@@ -1585,9 +1585,9 @@ export class MedicinesService {
       }
       if (Object.keys(clean).length) out[locale] = clean;
     }
-    // Canonical Filipino key is `fil`; fold the legacy `tl` alias so fil vs tl never forks.
-    if (out.tl && !out.fil) out.fil = out.tl;
-    if (out.tl && out.fil) delete out.tl;
+    // Q90: medicines store Filipino under `tl` (importer, med-i18n, every reader);
+    // fold the product code `fil` into it so an admin edit lands where readers look.
+    if (out.fil) { out.tl = { ...(out.tl || {}), ...out.fil }; delete out.fil; }
     return out;
   }
 
@@ -1935,7 +1935,7 @@ export class MedicinesService {
       const adminNextSlug = buildSlug(String(adminNextName), String(medicineId));
       if (adminNextSlug && adminNextSlug !== med.slug) extra.slug = adminNextSlug;
     }
-    // R19: locale edits merge into the SAME id's translations map (validated + tl→fil normalized).
+    // R19: locale edits merge into the SAME id's translations map (validated; fil stored as tl, Q90).
     const incomingAdminTranslations = this.normalizeTranslationsMap((patch as any)?.translations);
     if (Object.keys(incomingAdminTranslations).length) {
       extra.translations = this.mergeTranslations(med.translations, incomingAdminTranslations);
