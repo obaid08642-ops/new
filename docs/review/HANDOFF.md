@@ -1,4 +1,4 @@
-# Reviewer handoff (state on 2026-10-03)
+# Reviewer handoff (state on 2026-10-04)
 
 Read this first in a new reviewer session, together with `AGENTS.md`. It replaces the conversation history: everything needed is in the repository. Older state is in git history (`git log -p docs/review/HANDOFF.md`).
 
@@ -29,7 +29,7 @@ Read this first in a new reviewer session, together with `AGENTS.md`. It replace
 - Delegates larger defects to the agent in `REVIEW_REAUDIT_P1_P11.md` and `docs/review/QA_DEFECTS.md`, each with Verify criteria.
 - After every merge, merges `main` into `fix/audit-2026-09`. Never force-push; no other commits on that branch.
 
-**Agent**: works only on `fix/audit-2026-09` and follows `AGENTS.md`. Last agent commit: `214c1c5`; nothing new since.
+**Agent**: works only on `fix/audit-2026-09` and follows `AGENTS.md`. Last agent commit: `6ca29c4` (2026-10-04). **152 agent commits are not in `main` and have not been reviewed** (Phases 12–14 waves, Q/R/X fixes, `[perf]`, `[sec]`, `[15.7]`, `[16.1]`, `[20]`, `[21]`). Only the gitleaks check ran on that branch. The native baseline (§7b) was built from `main`, so it did not test any of them.
 
 **Owner**
 - Reports go to the owner in **Arabic** (Egyptian-friendly, plain).
@@ -57,7 +57,7 @@ PR bodies end with the Claude Code line and the session link.
 |---|---|
 | Audit plan and findings | `docs/audit/02_AGENT_EXECUTION_PLAN.md`, `docs/audit/01_FINAL_AUDIT_REPORT.md` |
 | Agent work list, all rounds | `REVIEW_REAUDIT_P1_P11.md` (Rounds 1–9; latest: Round 9 plus its addendum) |
-| QA defect register | `docs/review/QA_DEFECTS.md` (Q1–Q71) |
+| QA defect register | `docs/review/QA_DEFECTS.md` (Q1–Q77) |
 | Final QA report, coverage, performance | `docs/review/QA_FINAL_REPORT.md`, `COVERAGE_MATRIX.md`, `PERFORMANCE.md` |
 | Unproven controls (code-check list for the agent, R8-1) | `docs/review/UNVERIFIED_CONTROLS.md` / `.json` |
 | Catalog audit (single source of truth) | `docs/review/CATALOG_AUDIT.md` |
@@ -77,7 +77,7 @@ PR bodies end with the Claude Code line and the session link.
 | Q71 | patient-app session token never saved on native: SecureStore key had `@` | **fixed by the reviewer, PR #229** |
 
 **Other critical**
-- Q53: LiveKit API key and secret committed in `deploy/livekit/livekit.yaml` (repo is public). The owner must rotate the key; the agent removes the line and adds gitleaks.
+- Q53: LiveKit API key and secret committed in `deploy/livekit/livekit.yaml` (repo is public). The agent removed the line on its branch (the file now reads only `${LIVEKIT_API_KEY}: ${LIVEKIT_API_SECRET}`, injected by `deploy.sh`), but `main` and the git history still hold it. The owner must rotate the key on the VPS; deleting the line alone is not enough.
 
 **High**
 - Q5, Q16, Q21, Q25, Q30, Q36, Q38;
@@ -124,11 +124,21 @@ PR bodies end with the Claude Code line and the session link.
   - a WAF rule for `/api/v1/admin`;
   - no extra security headers (the site already sends them).
 
+- **Phase 12 (design) is frozen** until the owner settles on one design (2026-10-04). Do not revert the P12 commits already on the agent branch (they are tooling and docs: `c6d7451` import rule, `5a59b6a` `docs/ux/ia.md`); just do not ask for or accept new P12 work. The five design CI checks that fail on every PR stay known-red and do not block a merge.
+- **Order of work (owner, 2026-10-04)**: review the agent commits → merge to `main` → the owner deploys to **staging** → real tests on staging. Never test-then-deploy unreviewed code, and never production first.
+- **Server access**: the reviewer needs HTTPS access to staging (API, admin, website) through a Cloudflare Access service token, not an SSH shell. Outbound traffic from the cloud container goes through an HTTPS proxy, so SSH is not the right channel. Deploys stay with the owner.
+- **Maps (Q69)**: recommendation given, owner to confirm: keep Google Maps for display (the key comes from the build environment, never the repo), make every map screen survive a missing key, and keep paid calls (Places, Geocoding, Directions) to a minimum with caching. OpenStreetMap/MapLibre is free but weaker for Arabic addresses in Saudi Arabia and is a larger rework.
+
 ## 6. Waiting on the owner
 
 1. Rotate the LiveKit key (Q53).
 2. Make the repository **private**. Recommended; GitHub's free Linux minutes cover the Android runs.
-3. Staging access for real tests: a Cloudflare Access **service token** in the environment secrets (never in chat), plus `staging.nabd.plus` in the allowed hosts.
+3. Staging access for real tests, all in the cloud environment settings (never in chat):
+   - environment variables `CF_ACCESS_CLIENT_ID` and `CF_ACCESS_CLIENT_SECRET` (a Cloudflare Access service token scoped to staging only);
+   - `STAGING_API_URL`, `STAGING_ADMIN_URL`, `STAGING_WEB_URL`;
+   - a synthetic staging admin account: `STAGING_ADMIN_EMAIL`, `STAGING_ADMIN_PASSWORD` (with its 2FA mailbox reachable, or a documented test path);
+   - the staging hostnames added under Network access → Allowed domains;
+   - optional: authorize the Cloudflare connector in claude.ai connector settings for read-only checks of DNS, WAF and rate-limit rules.
 4. The medicine catalog for QA: a staging copy, or the export file in the environment.
 5. A server or staging check of video calls (LiveKit and coturn on OVH).
 
@@ -171,6 +181,13 @@ All 13 jobs green: 6 patient shards and 7 provider types, every one signed in.
 
 ## 8. Reviewer next steps (in order)
 
+0. **Review the 152 unmerged agent commits first** (`git log origin/main..origin/fix/audit-2026-09 --no-merges`):
+   - run the full `AGENTS.md` gate on the branch tip, and open a draft PR from a `review/*` copy so the whole CI runs;
+   - run `native-e2e` on the agent code (merge the tip into a `review/maestro-*` branch; the paths filter needs a `tools/native/README.md` touch);
+   - **9 commits say "deferred"** (`59e0d6b`, `13f560c`, `b20ecd3`, `cffbab5`, `0505115`, `7d27a4e`, `3c1eb45`, `909fed4`, `094122c`) and `6ca29c4` adds code nothing calls. `AGENTS.md` forbids deferring: send each back to the agent (wire it or `BLOCKED: <reason>`) in a new review round. Unwired code is not "done";
+   - Phases 13 and 14 started without a written APPROVED review of the phase before; record the verdict per phase (`REVIEW_P13.md`, `REVIEW_P14.md`);
+   - check every Q/R/X fix commit against its Verify line in `QA_DEFECTS.md` / `REVIEW_REAUDIT_P1_P11.md`, live where the local stack allows;
+   - only then merge to `main`, sync, and tell the owner it is ready to deploy to staging.
 1. Re-run `native-e2e` after each agent push. Remove a test-build workaround when its defect is fixed, and add every real new defect to `QA_DEFECTS.md` with evidence. Never count crawler artifacts as app defects.
 2. **Catalog audit §3** (`CATALOG_AUDIT.md`):
    - consumer map per catalog;
