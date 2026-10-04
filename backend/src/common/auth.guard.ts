@@ -10,7 +10,7 @@ import { roleSatisfies } from './rbac';
 export { roleSatisfies } from './rbac';
 import { ImpersonationSessionService } from './impersonation-session.service';
 import { adminGateSatisfied } from './admin-gate.guard';
-import { resolveEffectivePermissions } from './effective-permissions';
+import { hasEffectivePermission, resolveEffectivePermissions } from './effective-permissions';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 
@@ -111,17 +111,60 @@ export async function authenticateSocketToken(guard: { canActivate(ctx: Executio
 }
 
 /**
- * Re-runs the guard for every open socket that connected with an access token
- * (socket.data.socketAuth) and disconnects the ones it now refuses: a ban,
- * a session revoke (token_version bump) or a staff device revoke after connect.
+ * True only when the store positively shows this session was revoked after
+ * the socket connected: token_version bumped (ban, suspend, password or role
+ * change, revoke), the user deactivated, or the provider account no longer
+ * approved. Token expiry is not a revoke (the socket was authenticated at
+ * connect), and a lookup error keeps the socket (unknown is not revoked).
  */
-export async function revalidateOpenSockets(guard: { canActivate(ctx: ExecutionContext): Promise<boolean> | boolean }, sockets: Iterable<any>): Promise<number> {
+export async function socketSessionRevoked(conn: { collection(name: string): any }, payload: any, opts: { adminDeviceHash?: string } = {}): Promise<boolean> {
+  const id = payload?.id || payload?.sub;
+  if (!id) return false;
+  try {
+    // Impersonation tokens carry no tv: the durable session decides (as
+    // ImpersonationSessionService.validate does on every request).
+    if (payload?.scope === 'impersonation') {
+      const sid = String(payload?.impersonation_session_id || '');
+      if (!sid) return true;
+      const session: any = await conn.collection('impersonation_sessions').findOne({ id: sid }, { projection: { status: 1, expiresAt: 1, impersonator_id: 1 } });
+      if (!session || session.status !== 'active') return true;
+      if (new Date(session.expiresAt).getTime() <= Date.now()) return true;
+      const actor: any = await conn.collection('users').findOne({ id: String(session.impersonator_id) }, { projection: { id: 1, role: 1, active: 1, suspended: 1, custom_role_keys: 1, permissions: 1 } });
+      if (!actor || actor.active === false || actor.suspended === true) return true;
+      // Same rule as ImpersonationSessionService.validate on every request.
+      if (!(await hasEffectivePermission(conn as never, actor, Permission.USER_IMPERSONATE))) return true;
+    }
+    // A staff socket (role, or an admin entry in roles[], as the REST guard
+    // reads it) stays tied to the enrolled device it connected from; with no
+    // device recorded at connect it is not kept.
+    const staff = isPlatformStaffRole(payload?.role) || (Array.isArray(payload?.roles) && payload.roles.some((r: string) => /admin/i.test(r)));
+    if (staff && !opts.adminDeviceHash) return true;
+    if (staff && opts.adminDeviceHash) {
+      const dev: any = await conn.collection('admin_devices').findOne({ user_id: String(id), device_hash: opts.adminDeviceHash }, { projection: { revoked: 1 } });
+      if (!dev || dev.revoked === true) return true;
+    }
+    if (payload?.scope === 'provider') {
+      const acc: any = await conn.collection('provider_accounts').findOne({ id: String(id) }, { projection: { token_version: 1, status: 1 } });
+      if (!acc) return true;
+      if (payload.tv !== undefined && payload.tv !== null && Number(acc.token_version ?? 0) !== Number(payload.tv)) return true;
+      return String(acc.status || '').toLowerCase() !== 'approved';
+    }
+    const user: any = await conn.collection('users').findOne({ id: String(id) }, { projection: { token_version: 1, active: 1 } });
+    if (!user) return payload?.tv !== undefined && payload?.tv !== null;
+    if (user.active === false) return true;
+    return payload?.tv !== undefined && payload?.tv !== null && Number(user.token_version ?? 0) !== Number(payload.tv);
+  } catch {
+    return false;
+  }
+}
+
+/** Disconnects every open socket whose session was revoked (see socketSessionRevoked). */
+export async function revalidateOpenSockets(conn: { collection(name: string): any }, sockets: Iterable<any>): Promise<number> {
   let dropped = 0;
   for (const socket of sockets) {
-    const auth = socket?.data?.socketAuth;
-    if (!auth?.token) continue;
-    const user = await authenticateSocketToken(guard, auth.token, auth.headers, auth.address);
-    if (!user) { socket.disconnect(true); dropped += 1; }
+    const user = socket?.data?.user;
+    if (!user) continue;
+    if (await socketSessionRevoked(conn, user, { adminDeviceHash: socket?.data?.adminDeviceHash })) { socket.disconnect(true); dropped += 1; }
   }
   return dropped;
 }
