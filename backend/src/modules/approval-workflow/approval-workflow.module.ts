@@ -37,7 +37,7 @@ const FACILITY_FIELDS = [
   'name_ar', 'name_en', 'type', 'description_ar', 'description_en',
   'city', 'district', 'address', 'location', 'logo_url', 'images',
   'phone', 'whatsapp', 'website', 'email', 'departments',
-  'accepted_insurance', 'accepts_insurance', 'insurance_contracts', 'working_hours',
+  'accepted_insurance', 'accepts_insurance', 'working_hours',
 ];
 const LAB_SERVICE_FIELDS = [
   'type', 'name_ar', 'name_en', 'short_code', 'description_ar', 'description_en',

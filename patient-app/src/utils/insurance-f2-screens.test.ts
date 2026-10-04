@@ -18,7 +18,11 @@ describe('insurance screens follow F2 and show only server data', () => {
   it('has no hardcoded coverage, limits, deductible, renewal date or member id', () => {
     for (const src of [hub, benefits]) {
       expect(src).not.toMatch(/500000|M-000|شامل طبي|deductible:\s*\{|coverage:\s*\{\s*consultations|31 ديسمبر/);
+      // No limit/coverage/deductible fields at all: the server has none.
+      expect(src).not.toMatch(/\.limits\b|\.deductible\b|\.coverage\.|annualLimit|usedAmount|remaining/);
     }
+    // add-policy saves no network, so the hub must not show one.
+    expect(hub).not.toContain("label: 'الشبكة'");
   });
 
   it('coverage-check sends a service type the server accepts and nothing it ignores', () => {
@@ -36,7 +40,7 @@ describe('insurance screens follow F2 and show only server data', () => {
   });
 
   it('benefits view renders the per-service request summary with empty and error states', () => {
-    expect(benefits).toMatch(/approved|partially_approved|rejected|pending/);
+    for (const f of ['b.requests', 'b.approved', 'b.partially_approved', 'b.rejected', 'b.pending', 'b.copay_paid', 'b.copay_due']) expect(benefits).toContain(f);
     expect(benefits).not.toMatch(/annualLimit|usedAmount/);
     expect(benefits).toContain('<ScreenState');
   });

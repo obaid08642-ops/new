@@ -120,7 +120,6 @@ export default function InsuranceHubScreen() {
             endDate: ins.expiry_date || '—',
             isActive: !expiry || isNaN(expiry.getTime()) || expiry.getTime() >= Date.now(),
             isDefault: true,
-            network: ins.network || '—',
           }]);
         }
       } catch (err) {
@@ -261,7 +260,6 @@ export default function InsuranceHubScreen() {
             {[
               { label: 'رقم العضوية', val: defaultPolicy.memberId },
               { label: 'ينتهي في', val: defaultPolicy.endDate },
-              { label: 'الشبكة', val: defaultPolicy.network },
             ].map((m, i) => (
               <View key={i} style={{ alignItems: 'center' }}>
                 <AppText variant="caption" color="rgba(255,255,255,0.6)">{m.label}</AppText>

@@ -393,7 +393,6 @@ export interface InsurancePolicy {
   startDate: string;
   endDate: string;
   isActive: boolean;
-  coverage: InsuranceCoverage;
   beneficiaries: FamilyMember[];
   isDefault: boolean;
 }
@@ -404,17 +403,6 @@ export interface InsuranceCompany {
   logo?: string;
   shortName: string;
   color?: string;
-}
-
-export interface InsuranceCoverage {
-  consultations: number; // percentage
-  medicines: number;
-  diagnostics: number;
-  nursing: number;
-  annualLimit: number;
-  usedAmount: number;
-  deductible: number;
-  deductibleUsed: number;
 }
 
 export interface InsuranceClaim {

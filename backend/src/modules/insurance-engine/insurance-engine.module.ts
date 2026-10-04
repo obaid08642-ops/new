@@ -217,6 +217,9 @@ export class QuoteController {
 // Insurance flow service + controllers (BR-2)
 // ============================================================================
 
+/** History note acceptSelfPay writes; benefitsSummary tells it apart from a provider decision. */
+const SELF_PAY_NOTE = 'patient accepted full self-pay';
+
 @Injectable()
 export class InsuranceFlowService {
   private readonly logger = new Logger('InsuranceFlowService');
@@ -296,8 +299,9 @@ export class InsuranceFlowService {
       radiology: 'radiology-box-outline', nursing: 'heart',
     };
     const PENDING = new Set(['PENDING_PROVIDER_REVIEW', 'APPEAL_PENDING']);
-    // The provider's last decision from the request history (decide() pushes
-    // APPROVED_FULL, COPAY_PENDING "patient copay N%" or REJECTED; a
+    // The provider's last decision from the request history (decide() and the
+    // provider-request copay route push APPROVED_FULL, COPAY_PENDING or
+    // REJECTED; acceptSelfPay pushes COPAY_PENDING with SELF_PAY_NOTE; a
     // resubmission or appeal reopens it). A patient choosing to self-pay after
     // a rejection does not turn it into an approval. Rows without history fall
     // back to the current state.
@@ -307,7 +311,7 @@ export class InsuranceFlowService {
       for (const h of history) {
         const st = String(h?.state || '');
         if (st === 'APPROVED_FULL') decision = 'full';
-        else if (st === 'APPROVED_PARTIAL' || (st === 'COPAY_PENDING' && String(h?.note || '').startsWith('patient copay'))) decision = 'partial';
+        else if (st === 'APPROVED_PARTIAL' || (st === 'COPAY_PENDING' && String(h?.note || '') !== SELF_PAY_NOTE)) decision = 'partial';
         else if (st === 'REJECTED') decision = 'rejected';
         else if (PENDING.has(st)) decision = null;
       }
@@ -320,7 +324,8 @@ export class InsuranceFlowService {
     };
     const out = new Map<string, { service: string; icon: string; requests: number; approved: number; partially_approved: number; rejected: number; pending: number; copay_paid: number; copay_due: number }>();
     for (const r of rows) {
-      const raw = String(r.booking_kind || r.service_type || '').toLowerCase();
+      // provider_request rows carry the real service in service_type.
+      const raw = String((r.booking_kind === 'provider_request' ? r.service_type : r.booking_kind) || r.service_type || '').toLowerCase();
       if (!raw) continue;
       const service = SERVICE[raw] || raw;
       const s = out.get(service) || { service, icon: ICONS[service] || 'shield', requests: 0, approved: 0, partially_approved: 0, rejected: 0, pending: 0, copay_paid: 0, copay_due: 0 };
@@ -578,7 +583,7 @@ export class InsuranceFlowService {
     if (!['REJECTED', 'APPROVED_PARTIAL'].includes(req.state)) throw new BadRequestException(`self-pay not available in state ${req.state}`);
     const price = Number(req.price) || 0;
     if (price <= 0) throw new BadRequestException('invalid request price');
-    this.push(req, 'COPAY_PENDING', user.id, 'patient accepted full self-pay');
+    this.push(req, 'COPAY_PENDING', user.id, SELF_PAY_NOTE);
     req.copay_percent = 100; req.copay_amount = Math.round(price * 100) / 100;
     await req.save();
     return req.toObject();

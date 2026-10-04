@@ -8,6 +8,7 @@ import mongoose, { Connection, Model } from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { NotFoundException } from '@nestjs/common';
 import { InsuranceService } from './insurance.module';
+import { ProviderProductionService } from '../provider-production/provider-production.module';
 import { InsuranceCompanySchema } from '../../schemas/insurance.schema';
 import { ProviderProfileSchema } from '../../schemas/provider-profile.schema';
 import { FacilitySchema } from '../../schemas/facility.schema';
@@ -64,10 +65,10 @@ describe('coverage-check answers whether the provider accepts the patient\'s ins
     expect(r).toMatchObject({ covered: false, reason: 'provider_does_not_accept_company' });
   });
 
-  it('a nurse is found by account id and a facility by id', async () => {
+  it('a nurse is found by account id; a provider that is not public and approved is not found', async () => {
     await withPolicy({ provider: 'Bupa Arabia' });
     expect((await service.checkCoverage('pat-1', { provider_id: 'nurse-acc-1', service_type: 'home_nursing' }) as any).covered).toBe(true);
-    expect((await service.checkCoverage('pat-1', { facility_id: 'fac-1', service_type: 'consultation' }) as any).covered).toBe(true);
+    await expect(service.checkCoverage('pat-1', { provider_id: 'doc-hidden', service_type: 'consultation' })).rejects.toBeInstanceOf(NotFoundException);
     await expect(service.checkCoverage('pat-1', { provider_id: 'nobody', service_type: 'consultation' })).rejects.toBeInstanceOf(NotFoundException);
   });
 
@@ -85,5 +86,19 @@ describe('coverage-check answers whether the provider accepts the patient\'s ins
     await patients.deleteMany({});
     await withPolicy({ provider: 'شركة غير موجودة', company_id: 'unknown-co' });
     expect(await service.checkCoverage('pat-1', { provider_id: 'doc-yes', service_type: 'consultation' })).toMatchObject({ has_policy: true, covered: false, reason: 'insurance_company_not_in_catalog' });
+  });
+
+  it('end to end: what the doctor saves on DoctorAvailabilityScreen is what coverage-check reads', async () => {
+    await withPolicy(appPolicy);
+    await conn.collection('provider_accounts').insertOne({ id: 'acc-doc-2', provider_type: 'doctor', status: 'approved', availability: {} });
+    await conn.collection('provider_profiles').insertOne({ id: 'doc-2', user_id: 'acc-doc-2', name_ar: 'د. جديد', ...publicDoctor, accepted_insurance: [] });
+    expect((await service.checkCoverage('pat-1', { provider_id: 'doc-2', service_type: 'consultation' }) as any).covered).toBe(false);
+    const production = new ProviderProductionService(conn);
+    await production.patchAvailability({ id: 'acc-doc-2', role: 'doctor' }, { accepted_insurance: [
+      { company_id: 'bupa', active: true, copay_pct: 20, services: { clinic: true, online: true, home: false } },
+      { company_id: 'tawuniya', active: false, services: { clinic: true, online: false, home: false } },
+    ] });
+    expect((await service.checkCoverage('pat-1', { provider_id: 'doc-2', service_type: 'consultation' }) as any).covered).toBe(true);
+    await conn.collection('provider_profiles').deleteOne({ id: 'doc-2' });
   });
 });
