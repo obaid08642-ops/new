@@ -99,10 +99,3 @@ export class CreateCoverageRuleDto {
 }
 
 /** Attach/refresh one insurance network contract on a provider or facility. */
-export class AttachInsuranceContractDto {
-  @IsString() company_id: string;
-  @IsString() network_id: string;
-  @IsOptional() @IsArray() @IsString({ each: true }) covered_classes?: string[];
-  @IsOptional() @IsNumber() copay_percent?: number;
-  @IsOptional() @IsNumber() copay_flat?: number;
-}

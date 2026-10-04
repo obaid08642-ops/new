@@ -346,8 +346,6 @@ export class WorkflowEngineService {
     specialty?: string;
     insurance?: string;
     insurance_company?: string;
-    insurance_network?: string;
-    insurance_class?: string;
     accepts_insurance?: boolean;
     facility_accepts_insurance?: boolean;
     home_visit?: boolean;
@@ -372,54 +370,22 @@ export class WorkflowEngineService {
       .lean();
 
     const scoredPromises = candidates.map(async (p: any) => {
-      // 1) Evaluate Insurance & Facility Filters
+      // 1) Insurance & facility filters (F2): a provider accepts an insurer
+      // when its saved accepted_insurance lists the company code. Approval and
+      // the copay are the provider's, so network/class are not matched here.
+      const listsCompany = (accepted: unknown, company: string) =>
+        Array.isArray(accepted) && accepted.some((x) => typeof x === 'string' && x.toLowerCase() === company.toLowerCase());
       let insuranceMatch = true;
-      let hasCompany = true;
-      let hasNetwork = true;
-      let hasClass = true;
-
-      const contracts = p.insurance_contracts || [];
-      
-      if (criteria.insurance_company) {
-        hasCompany = (p.accepted_insurance || []).map((x: string) => x.toLowerCase()).includes(criteria.insurance_company.toLowerCase()) || 
-                     contracts.some(c => c.company_id.toLowerCase() === criteria.insurance_company.toLowerCase());
-      }
-      
-      if (criteria.insurance_network) {
-        hasNetwork = contracts.some(c => c.network_id.toLowerCase() === criteria.insurance_network.toLowerCase());
-      }
-
-      if (criteria.insurance_class && criteria.insurance_network) {
-        hasClass = contracts.some(c => 
-          c.network_id.toLowerCase() === criteria.insurance_network.toLowerCase() &&
-          (c.covered_classes.length === 0 || c.covered_classes.map((x: string) => x.toLowerCase()).includes(criteria.insurance_class.toLowerCase()))
-        );
-      }
-
-      if (criteria.accepts_insurance) {
-        const accepts = p.accepts_insurance || (p.accepted_insurance || []).length > 0 || contracts.length > 0;
-        if (!accepts) insuranceMatch = false;
-      }
-
-      if (criteria.insurance_company || criteria.insurance_network || criteria.insurance_class) {
-        insuranceMatch = insuranceMatch && hasCompany && hasNetwork && hasClass;
-      }
+      if (criteria.accepts_insurance && !(p.accepts_insurance || (p.accepted_insurance || []).length > 0)) insuranceMatch = false;
+      if (criteria.insurance_company && !listsCompany(p.accepted_insurance, criteria.insurance_company)) insuranceMatch = false;
 
       let facilityMatch = true;
       if (criteria.facility_accepts_insurance && p.facility_id) {
         const fac = await this.facilityModel.findOne({ id: p.facility_id }).lean();
-        if (!fac) {
+        if (!fac || !(fac.accepts_insurance || (fac.accepted_insurance || []).length > 0)) {
           facilityMatch = false;
-        } else {
-          const facContracts = fac.insurance_contracts || [];
-          const facAccepts = fac.accepts_insurance || (fac.accepted_insurance || []).length > 0 || facContracts.length > 0;
-          if (!facAccepts) {
-            facilityMatch = false;
-          } else if (criteria.insurance_company) {
-            const facCompanyMatch = (fac.accepted_insurance || []).map((x: string) => x.toLowerCase()).includes(criteria.insurance_company.toLowerCase()) ||
-                                    facContracts.some(c => c.company_id.toLowerCase() === criteria.insurance_company.toLowerCase());
-            if (!facCompanyMatch) facilityMatch = false;
-          }
+        } else if (criteria.insurance_company && !listsCompany(fac.accepted_insurance, criteria.insurance_company)) {
+          facilityMatch = false;
         }
       }
 
@@ -583,8 +549,6 @@ export class WorkflowController {
       specialty: b.specialty,
       insurance: b.insurance,
       insurance_company: b.insurance_company,
-      insurance_network: b.insurance_network,
-      insurance_class: b.insurance_class,
       accepts_insurance: b.accepts_insurance,
       facility_accepts_insurance: b.facility_accepts_insurance,
       home_visit: b.home_visit,

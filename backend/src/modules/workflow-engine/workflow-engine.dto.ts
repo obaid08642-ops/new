@@ -27,14 +27,6 @@ export class MatchDto {
   insurance_company?: string;
 
   @IsOptional()
-  @IsString()
-  insurance_network?: string;
-
-  @IsOptional()
-  @IsString()
-  insurance_class?: string;
-
-  @IsOptional()
   @IsBoolean()
   accepts_insurance?: boolean;
 
