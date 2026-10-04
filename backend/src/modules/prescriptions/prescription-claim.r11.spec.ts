@@ -18,11 +18,10 @@ describe('claiming an unassigned prescription (R11 §5)', () => {
       pharmacy_orders: { find: jest.fn(() => ({ limit: () => ({ toArray: async () => orders }) })) },
       pharmacy_broadcast_recipients: { findOne: jest.fn(async (q: any) => (linked.recipient && match(q, { order_id: 'order-1', pharmacy_account_id: linked.recipient }) ? { order_id: 'order-1' } : null)) },
       pharmacy_allocations: {
-        find: jest.fn((q: any) => ({
-          toArray: async () => (linked.allocations ?? (linked.selected ? [{ pharmacy_account_id: linked.selected, status: 'confirmed' }] : []))
-            .map((a) => ({ order_id: 'order-1', ...a }))
-            .filter((a) => q.order_id.$in.includes(a.order_id) && !q.status.$nin.includes(a.status)),
-        })),
+        findOne: jest.fn(async (q: any) => (linked.allocations ?? (linked.selected ? [{ pharmacy_account_id: linked.selected, status: 'confirmed' }] : []))
+          .map((a) => ({ order_id: 'order-1', ...a }))
+          .find((a) => q.order_id.$in.includes(a.order_id) && !q.status.$nin.includes(a.status)
+            && (!q.pharmacy_account_id || q.pharmacy_account_id.$eq === a.pharmacy_account_id)) ?? null),
       },
     };
     const providers = { db: { collection: (n: string) => collections[n] } };
@@ -60,6 +59,15 @@ describe('claiming an unassigned prescription (R11 §5)', () => {
     const { svc } = service({ recipient: 'pharm-A', allocations: [{ pharmacy_account_id: 'pharm-B', status: 'preparing' }] });
     await expect(svc.verifyByPharmacist('rx-1', { id: 'pharm-A', role: 'pharmacy' })).rejects.toBeInstanceOf(NotFoundException);
     const b = service({ recipient: 'pharm-A', allocations: [{ pharmacy_account_id: 'pharm-B', status: 'preparing' }] });
+    await b.svc.verifyByPharmacist('rx-1', { id: 'pharm-B', role: 'pharmacy' });
+    expect(b.rx.pharmacy_id).toBe('pharm-B');
+  });
+
+  // Fourth review: the pharmacy is matched in the query, so many live
+  // allocations (a split order) never push the right one out of a page.
+  it('the selected pharmacy is found among more than 50 live allocations', async () => {
+    const many = Array.from({ length: 60 }, (_, k) => ({ pharmacy_account_id: `pharm-${k}`, status: 'preparing' }));
+    const b = service({ allocations: [...many, { pharmacy_account_id: 'pharm-B', status: 'preparing' }] });
     await b.svc.verifyByPharmacist('rx-1', { id: 'pharm-B', role: 'pharmacy' });
     expect(b.rx.pharmacy_id).toBe('pharm-B');
   });
