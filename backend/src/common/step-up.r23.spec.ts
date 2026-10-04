@@ -30,4 +30,25 @@ describe('step-up ceremony (R23)', () => {
     expect(Reflect.getMetadata(PUBLIC_KEY, StepUpController.prototype.issue)).toBeFalsy();
     await expect(ctrl.issue({ id: 'p1', role: 'patient' } as never, { action: 'POST:/api/v1/x', response: {} } as never)).rejects.toBeInstanceOf(ForbiddenException);
   });
+
+  // The step-up ceremony must check the same origin and RP ID as passkey
+  // enrollment and login (WEBAUTHN_ORIGIN / WEBAUTHN_RP_ID); it read other
+  // variables and defaulted to localhost, so no production step-up could pass.
+  it('verifies against the same WebAuthn origin and RP ID as passkey enrollment', async () => {
+    const { verifyAuthenticationResponse } = require('@simplewebauthn/server');
+    const env = { ...process.env };
+    try {
+      delete process.env.WEBAUTHN_ORIGIN; delete process.env.WEBAUTHN_RP_ID; delete process.env.PASSKEY_ORIGIN; delete process.env.PASSKEY_RP_ID;
+      const svc = new StepUpService(passkeyModel as never, new RedisService());
+      await svc.storeChallenge('adm');
+      await svc.issueFromAssertion('adm', 'POST:/api/v1/x', { id: 'cred-1' });
+      expect(verifyAuthenticationResponse).toHaveBeenLastCalledWith(expect.objectContaining({ expectedOrigin: ['https://admin.nabd.plus'], expectedRPID: 'nabd.plus' }));
+      process.env.WEBAUTHN_ORIGIN = 'http://localhost:3001'; process.env.WEBAUTHN_RP_ID = 'localhost';
+      await svc.storeChallenge('adm');
+      await svc.issueFromAssertion('adm', 'POST:/api/v1/x', { id: 'cred-1' });
+      expect(verifyAuthenticationResponse).toHaveBeenLastCalledWith(expect.objectContaining({ expectedOrigin: ['http://localhost:3001'], expectedRPID: 'localhost' }));
+    } finally {
+      process.env = env;
+    }
+  });
 });
