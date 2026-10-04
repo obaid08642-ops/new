@@ -64,7 +64,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     ? `أطباء ${decSpec} في حي ${decNeigh}، ${decCity} | احجز الآن`
     : `${decSpec} Doctors in ${decNeigh}, ${decCity} | Book Appointment`;
   const desc = locale === "ar"
-    ? `أفضل أطباء ${decSpec} والمراكز الطبية المعتمدة في حي ${decNeigh} بمدينة ${decCity}. استشارات عيادية وتطبيب عن بعد مع نبضة بلس.`
+    ? `أفضل أطباء ${decSpec} والمراكز الطبية المعتمدة في حي ${decNeigh} بمدينة ${decCity}. استشارات عيادية وتطبيب عن بعد مع نبض بلس.`
     : `Verified ${decSpec} doctors in ${decNeigh}, ${decCity}. Book consultations via Nabd Plus.`;
 
   return {

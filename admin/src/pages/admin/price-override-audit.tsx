@@ -125,7 +125,7 @@ export default function PriceOverrideAuditPage() {
   return (
     <>
       <Head>
-        <title>تدقيق أسعار الصيدليات | نبضة بلس</title>
+        <title>تدقيق أسعار الصيدليات | نبض بلس</title>
       </Head>
       <section dir="rtl" className="p-6 md:p-8">
         <div className="mb-6 flex flex-wrap items-end justify-between gap-4">

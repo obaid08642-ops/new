@@ -1229,7 +1229,7 @@ function Step7Signature({ data, update, onDone, onBack, step, total }: any) {
 
           <Text style={{ fontSize: FS.md, fontWeight: 'bold', color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm }}>{AR ? 'إقرار وتوقيع' : 'Declaration & Signature'}</Text>
           <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: AR ? 'right' : 'left', lineHeight: 22 }}>
-            {AR ? 'بالتوقيع أدناه، أقر بأن جميع البيانات المدخلة صحيحة وأتحمل مسؤوليتها القانونية، وأوافق على شروط نبض بلس لاستخدام المنصة.' : 'By signing below, I acknowledge that all provided data is correct, and I agree to Nabd+ Plus terms of use.'}
+            {AR ? 'بالتوقيع أدناه، أقر بأن جميع البيانات المدخلة صحيحة وأتحمل مسؤوليتها القانونية، وأوافق على شروط نبض بلس لاستخدام المنصة.' : 'By signing below, I acknowledge that all provided data is correct, and I agree to Nabd+ terms of use.'}
           </Text>
         </View>
 
