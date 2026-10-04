@@ -27,13 +27,15 @@ export class MedicinesController {
     const term = search || q; // 'q' is a legacy alias used by older clients
     const userId = this.optionalUserId(auth);
     // Cursor mode (O(1) deep browsing) takes precedence when ?cursor= is present
+    // 15.6: parseInt('abc') is NaN — coerce to defaults here (services guard
+    // too) so malformed ?page=/ ?limit= can never become a driver 500.
     if (cursor !== undefined) {
-      return this.svc.cursorPage(term, category, cursor || undefined, parseInt(limit || '30'));
+      return this.svc.cursorPage(term, category, cursor || undefined, parseInt(limit || '30', 10) || 30);
     }
     if (page !== undefined) {
-      return this.svc.paginate(term, category, parseInt(page || '1'), parseInt(limit || '30'), false, sort || 'smart_ranking', pharmacyId); // R9a: public must filter unapproved
+      return this.svc.paginate(term, category, parseInt(page || '1', 10) || 1, parseInt(limit || '30', 10) || 30, false, sort || 'smart_ranking', pharmacyId); // R9a: public must filter unapproved
     }
-    return this.svc.list(term, category, false, limit ? parseInt(limit) : undefined, userId, sort || 'smart_ranking', pharmacyId);
+    return this.svc.list(term, category, false, limit ? parseInt(limit, 10) || 500 : undefined, userId, sort || 'smart_ranking', pharmacyId);
   }
 
   /** Decode (not verify) JWT for analytics attribution — never a security gate. */
