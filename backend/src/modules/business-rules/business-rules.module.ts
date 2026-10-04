@@ -291,7 +291,7 @@ export class BusinessRulesController {
 
   @Roles(UserRole.ADMIN)
   @StepUp()
-  @RequirePermissions(Permission.FINANCE_CONFIG_EDIT)
+  @RequirePermissions(Permission.OPS_QUEUES_MANAGE)
   @Post('config/surge')
   updateSurge(@Body() body: UpdateSurgeDto) { return this.svc.updateSurgeConfig(body); }
 
@@ -302,7 +302,7 @@ export class BusinessRulesController {
 
   @Roles(UserRole.ADMIN)
   @StepUp()
-  @RequirePermissions(Permission.FINANCE_CONFIG_EDIT)
+  @RequirePermissions(Permission.OPS_QUEUES_MANAGE)
   @Post('config/fees')
   updateFees(@Body() body: UpdateFeesDto) { return this.svc.updateFees(body); }
 
