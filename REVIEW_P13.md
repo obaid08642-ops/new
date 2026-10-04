@@ -2,11 +2,197 @@
 
 **Verdict: NOT APPROVED.** 134 commits reviewed here (plus 18 in `REVIEW_P14.md` = all 152 agent commits not in `main`). **3 PASS, 131 FAIL.** Nothing from `fix/audit-2026-09` is merged into `main`. The mandatory work list is **Round 10** in `REVIEW_REAUDIT_P1_P11.md`; new defects are Q78–Q90 in `docs/review/QA_DEFECTS.md`.
 
+**Round 2 (2026-10-04, after PR #239):** every row re-checked personally by the reviewer, see "Round 2" below: 38 rows reproduced and fixed by the reviewer, 76 reproduced and back to the agent, 16 with behaviour confirmed (process FAIL stands), 2 partly and 1 not reproduced (not counted), 1 frozen (P12). Still NOT APPROVED.
+
 - Code under review: agent tip `bb97c87` (last agent commit `6ca29c4`, 2026-10-04). Review date 2026-10-04.
 - Method (owner requirement, `docs/review/HANDOFF.md` §8 step 0): for each commit, the nine checks below. Nothing in a commit message or `AGENT_PROGRESS.md` was taken on trust; a claim that could not be reproduced counts as false.
   1. whole diff; 2. message vs diff vs plan "Do"/"Verify"; 3. wiring (callers); 4. tests run **and** mutation (code broken on purpose, test must fail); 5. live proof on the local stack; 6. regressions; 7. hygiene; 8. security/data; 9. agent claims reproduced.
 - Who did what: seven independent review passes, one per commit group, each in its own worktree at `bb97c87` (mutations restored after each run; all worktrees verified clean afterwards), against one shared live stack. The reviewer re-checked the most serious findings personally (marked **[re-verified]** in Round 10). The brief they followed: `docs/review/evidence/agent-tip-bb97c87/REVIEW_BRIEF.md`.
 - Cells: `ok`, `FAIL`, or `n/p` = not provable locally (reason in the evidence cell). A commit PASSes only when all nine hold.
+
+## Round 2 — reviewer's personal re-check and fixes (2026-10-04, after PR #239)
+
+**Verdict unchanged: NOT APPROVED.** `fix/audit-2026-09` is not merged into `main`: large agent items remain open (Round 10 below and in `REVIEW_REAUDIT_P1_P11.md`), so not every row is PASS or an accepted BLOCKED.
+
+Owner rule (HANDOFF §2, after PR #239): no result the reviewer did not confirm personally; small defects in the agent's code are fixed by the reviewer (`review/fix-*` → PR into `fix/audit-2026-09` → `[REVIEW-FIX]` merge, with a test that fails before the fix); only large items (design, API, DB schema, product decision) go back to the agent. This section records that work. The original nine-point rows below stay as the first-pass record; **where they disagree, this section wins.**
+
+How each row was re-checked: the reviewer read the code at the tip and reproduced the finding personally (a spec run, a mutation, a live call on the local stack, `git show`, or a grep with the exact location quoted). A claim that could not be reproduced is marked "not reproduced" and is **not counted**.
+
+### Tally (134 rows in this file)
+
+| personal re-check | rows |
+|---|---|
+| reproduced, fixed by the reviewer (sha in the row) | 38 |
+| reproduced, back to the agent (Round 10) | 76 |
+| behaviour confirmed PASS (the process FAIL — no `AGENT_PROGRESS.md` entry, no test — stands) | 16 |
+| partly not reproduced (the reproduced part is counted, the rest is not) | 2 |
+| not reproduced (not counted) | 1 |
+| not re-tested: Phase 12 is frozen (owner) | 1 |
+
+### Reviewer fixes
+
+**Batch 1** — PR #240, merged into `fix/audit-2026-09` as `1b12107`:
+`27a709a` Moyasar refund path and breaker id (Q81, Q100) · `f9dfef6` AI cache never holds image/PHI answers, TTL 5 min (Q82) · `1695362` both approve paths count typed, non-rejected documents only (Q80) · `089922e` duplicate `@RequirePermissions` removed (Q83) · `7388102` `/care/insurance` lists only active insurers with a public projection (Q85) · `eb1026d` 14 push keys in 6 languages (Q84) · `e717d1b` `fil` alias for `tl` (Q90) · `37f54f2` Scenario 20 fixture · `d949b6d` LiveKit key rendered once, deploy fails on a leftover `${` (Q87) · `66578b5` patient-web `Errors.*` parity in ur/hi/bn/fil · `6f6b876` media upload 500 under Express (Q101) · `9559886`+`5546104` guest lifecycle (real-Mongo spec) · `be87e77` medical-review filter on `GET /home-care/services` (Q88 part) · `12163e1` public lab and nurse profiles with an allow-list (Q47/Q48) · `622a5b6` + `169bf09` slug redirects (R12) · `c6a253f` CSV formula injection (R3) · `049cd52` `.env*.example` no longer ignored · `9df7b9e` provider-app lock file (Q58) · `422744b` recurring rule id · `1f625c2` linear e-mail regex (ReDoS) · `c35a221` `$eq` on credential lookups · `4ffed4e` j_payments harness (success and refund now run) · `d47c599` + `0605147` map fallback without a Maps key (Q69) · `6a203e7` patient-app jest mock (2 suites failed to load) · `25f07e8` no invented ratings, prices or insurers in feeds and web · `a270d79` race test no longer skipped · `9131ad5` loyalty cap · `18cfd73` deep links return a string · `b817669` orphan Deprecation headers · `4999f10` wishlist unknown item 404 · `af6cca1` bulk-approve needs `CATALOG_APPROVE` (F8) · `7edc44e` brand name (R7).
+
+**Batch 2** — PR #248 into `fix/audit-2026-09`:
+`0ecba09` COD collection evidence gets its own gateway key (**Q105**, found by the live gate re-run: the second cash delivery on the platform got 409) · `6a537a0` slot-hold check fails closed and also guards reschedule (Q36) · `5099682` specialties read failure is an error; no-fallback pinned (F9) · `194503f` save-policy route wiring pinned (F2) · `cb8e40b` ambulance profile says the edit waits for approval (Q45) · `2c25088` change-request approvals refresh the public projection (Q60) · `b56c571` wallet leftovers removed (R6) · `71c16aa` negotiation resolution and `archived` translated (R3) · `17106d8` checkout sku lookup key (6fa7fce).
+
+**On `main`** — PR #244 (`7a23146`, Q78 medicine route roles) and the Q106 PR (`05d65c6`: the public AI checkout invented prices — 20 SAR for a medicine without a price, a flat 150 SAR for any consultation — and sold unreviewed items). Both reach this branch through the main → agent sync.
+
+### Results on the reviewer-fixed tip
+
+- Evidence: `docs/review/evidence/round2-2026-10-04/`.
+- **Gate** (batch-2 tip `71c16aa`): tsc 0 · nest build 0 · unit 12/12 chunks · boot 15 suites / 66 tests · dtolint 0 · dtocheck 649 routes, 0 mismatches.
+- **CI** (PR #240 on `1b12107`): Backend, Patient Web, Admin, CodeQL green. Patient Mobile and Provider App fail only on the agent's `npx expo install --check` step (patch-level drift; needs the owner's decision, see Round 10). The five frozen design checks and lighthouse were red before this branch.
+- **Live gate** (local stack, backend built at `194503f`): j_accounts 42/42 · j_onboarding 143/149 · j_pharmacy **144/144** (138/144 before `0ecba09` on the same DB) · j_lab 149/150 · j_radiology 121/122 · j_nursing 36/41 · j_consultation 114/115 · j_ambulance, j_facility traceback · j_support 32/32 · j_loyalty 102/106 · j_payments **42/42** (success and refund now really run) · j_admin_clicks not run (Python Playwright not installed here). Every remaining failure is an agent item: Q79 (no registration screen creates typed documents, so three provider types cannot be approved), F2 (coverage-check `covered:false`), and step-up, which the harness cannot pass (R23).
+- **Android** (run `37203970270`, branch `review/maestro-fixtip-strict`, `1b12107`, **every test-build workaround off**): patient-app and provider-app release builds **succeed**, including a plain `npm ci` for provider-app (Q58 proven in CI), with no Q62/Q67/Q68 patch. Crawl results: see the native note in `docs/review/HANDOFF.md`.
+
+### Corrections to the first pass (not counted)
+
+- `9f0dcab`: "dtolint still exit 1 at this commit" is **not reproduced**: `git archive 9f0dcab` + dtolint (that commit's version and the current one) → exit 0.
+- `213dee3`: MedicalDrug and FAQPage existed before this commit; only Physician/MedicalBusiness are missing.
+- `703a1f4`: manual entry is admin-only; the security claim is withdrawn.
+- `dbb1ace`: the signed-out web services page is not broken (it falls back to `/nursing/catalog`); the real defect was the missing medical-review filter (fixed `be87e77`).
+- `04a1544`: provider `showBackendError` has one caller (it passes `new Error('Toggle failed')`), not zero.
+
+### Per-row personal re-check
+
+| sha | personal re-check | evidence (what I ran or read) and next step |
+|---|---|---|
+| ecf52ff | confirmed PASS on behaviour (process FAIL stands) | PASS |
+| 3f70180 | confirmed PASS on behaviour (process FAIL stands) | PASS |
+| 56ee30d | confirmed PASS on behaviour (process FAIL stands) | PASS |
+| 5285f44 | reproduced, agent | REPRODUCED — diff test-only (1 file spec); offer/alloc order+pharmacy indexes non-unique (pharmacy.schema.ts:297,436) |
+| cc6e7bb | reproduced, agent | REPRODUCED — acceptSubstitute updates alloc item only, no order/offer total (pharmacy-chat.service.ts:103-132); 'rejected' leaves item (only 'removed' filters) |
+| ee5b1f7 | reproduced, fixed by reviewer | REPRODUCED+FIXED(c6a253f injection) — CSV route 0 callers in admin (grep); formula injection spec |
+| 8c9c30e | reproduced, agent | REPRODUCED — 5-line backend-only change to patient offer; 0 client readers of pharmacy_district (grep) |
+| d576b7b | reproduced, agent | REPRODUCED — buildPlatformError/lookupError 0 callers outside own file (grep) |
+| 886e17f | reproduced, agent | REPRODUCED — live 404 -> {code:UNKNOWN_ERROR,message:"Not Found"} (curl /medicines/ranking-r9) |
+| 04a1544 | reproduced, fixed by reviewer | REPRODUCED+FIXED(66578b5 parity) — vitest parity fail; provider showBackendError has 1 caller but passes new Error('Toggle failed') (G1 said 0: corrected) |
+| 0a3366b | reproduced, agent | REPRODUCED — no emit of provider.reactivated anywhere (grep) |
+| fd19e21 | reproduced, agent | REPRODUCED — live POST /search/intent {بنادول, category:doctor} -> entity_type medicine |
+| 3f222a0 | reproduced, fixed by reviewer | REPRODUCED+FIXED(37f54f2) — wt1: passes at 3f222a0^ (23/23), fails at tip |
+| 91681c2 | reproduced, agent | REPRODUCED — live GET /medicines/ranking-r9 404; route log: medicines/:id mapped (l.543) before ranking-r9 (l.1355); r9 recordEvent 0 callers (callers use old ProductRankingEventService) |
+| 1a6a8eb | reproduced, agent | REPRODUCED — rename fix of red push; inherits 91681c2 |
+| 7982518 | reproduced, agent | REPRODUCED — no writer of analytics_events (grep insert/create/update) |
+| 0505115 | reproduced, agent | REPRODUCED — geo-hierarchy 0 refs outside own files |
+| 5ce5bc4 | reproduced, fixed by reviewer | REPRODUCED+FIXED(622a5b6 try/catch, 169bf09 chain) — vitest redirect swallowed; real-Mongo A->B->C 404 |
+| 3c1eb45 | reproduced, agent | REPRODUCED — FailedPropagationLog 0 refs outside observation (grep) |
+| 105e0e0 | reproduced, agent | REPRODUCED — ObservationModule 0 importers (grep) |
+| a9619a7 | reproduced, agent | REPRODUCED — 2-line link change only (stat) |
+| a556e62 | reproduced, agent | REPRODUCED — static "Pending human review" articles/[slug]/page.tsx:150 |
+| 213dee3 | partly not reproduced | PARTLY — MedicalDrug+FAQPage already existed before (G1 wrong on those); Physician/MedicalBusiness absent; no validator test |
+| d2b9874 | reproduced, agent | REPRODUCED — badge 0 importers |
+| 7d27a4e | reproduced, agent | REPRODUCED — nabd-links 0 importers |
+| 703a1f4 | partly not reproduced | NOT the security claim (G1 corrected itself): manual-entry admin-only; rest (any, @IsObject w/o comment) per row |
+| d0efd74 | reproduced, agent | REPRODUCED — 12 new `any`/`as any` lines in diff |
+| e4474a0 | reproduced, agent | REPRODUCED — assertion loosened med-new -> any string (diff) |
+| 094122c | reproduced, fixed by reviewer | REPRODUCED+FIXED(f9dfef6,1f625c2) — spec B got A's card; TTL; ReDoS 43s |
+| 74fb0a2 | reproduced, agent | REPRODUCED — 34 BLANK statuses; R20 absent |
+| fbc1fec | reproduced, agent | REPRODUCED — doctors/[specialty]/[city]/[neighborhood]/page.tsx:159 "طبيب معتمد"/"Verified doctor" fallback, :166 rating 4.9 fallback (fake data) -> agent |
+| ce1ac05 | reproduced, agent | REPRODUCED — slot.service.ts:103 "Mirrored inline (not imported)" = copy, not one shared function (owner rule) |
+| be1a01f | reproduced, agent | REPRODUCED — slotPaddedEnd/slotCandidateConflictsWithBooking/markSlotsAvailability 0 non-spec callers; isSlotListAvailable only inside markSlotsAvailability |
+| 4e94366 | reproduced, agent | REPRODUCED — 3 new `: any` in diff |
+| 9bf9f75 | reproduced, agent | REPRODUCED — jobs.tsx:14-15 "deliberately offers no delete action"; no /admin/jobs in admin components nav |
+| d0c841d | reproduced, fixed by reviewer | REPRODUCED(partly fixed by build) — SCHEDULE_EXACT_ALARM still app.json:2424; callkeep 4.3.16 builds (native strict success) |
+| 300ce0c | reproduced, fixed by reviewer | REPRODUCED + FIXED 2c25088 — approveChangeRequest never refreshed the projection (new_item, duplicate_remove...): 2 spec cases fail before |
+| f6d1a92 | reproduced, agent | REPRODUCED — queries insurance_network_contracts; DB has only insurance_networks |
+| 357ebf5 | reproduced, agent | REPRODUCED — 0 client callers of labs/bookings/catalog |
+| cc2f1b8 | reproduced, agent | REPRODUCED — provider-profile.service.ts:63 requestChange -> pending delta; AmbulanceDashboard.tsx:481 toasts "تم حفظ الملف" though response pending_review:true -> reviewer fix (batch 2) |
+| c53b9d3 | reproduced, fixed by reviewer | REPRODUCED — Q47/Q48 claimed fixed but anon 401 (live); Q50 crash; Q66 incomplete |
+| 070de6a | reproduced, agent | REPRODUCED — takeChallenge uses store.get (not consumed) step-up.guard.ts:46-47 |
+| ef56e00 | reproduced, agent | REPRODUCED — useStepUp in only 5 admin pages |
+| 973d08c | reproduced, agent | REPRODUCED (minor) — InsuranceClaimScreen.tsx:45 insurers=useInsuranceCatalog(), no loading/empty/error state on chips; no test |
+| 35b44c2 | reproduced, fixed by reviewer | REPRODUCED+FIXED(12163e1) |
+| bdcdcb6 | reproduced, fixed by reviewer | REPRODUCED — modal builds insuranceDetails w/o copay, renders copay.toFixed; whole modal fake since main 1b76511 -> Q93 agent |
+| 49648b5 | reproduced, fixed by reviewer | REPRODUCED+FIXED(089922e) |
+| af3623b | reproduced, agent | REPRODUCED — client notifications-settings.tsx last changed 648e423 (unchanged) |
+| da2145c | confirmed PASS on behaviour (process FAIL stands) | ok (DTO); FAIL only for no spec |
+| 458c7b8 | reproduced, fixed by reviewer | REPRODUCED+FIXED(d47c599 patient, 0605147 provider) — no guard; expo --check red (CI) -> owner decision |
+| 1ca7a00 | confirmed PASS on behaviour (process FAIL stands) | NOW PROVEN — patient-app strict release build success without react-native-webrtc |
+| cc35308 | reproduced, agent | REPRODUCED — impersonation start has no @StepUp (admin-impersonation.controller.ts:23) |
+| 82f96d0 | reproduced, fixed by reviewer | REPRODUCED+FIXED(d949b6d) — secret not in tree; deploy injection broken |
+| c6f098a | reproduced, fixed by reviewer | REPRODUCED+FIXED partly(25f07e8 feed public+no fake) — sitemap sid=item.id raw (services.xml route:68); feed fake insurers/price |
+| 31b1a1e | reproduced, agent | REPRODUCED — care.service.ts:585 starts.find(s=>!booked.has(s)) no 5-min buffer vs slot.service.ts:105 BUFFER_MS; second engine -> agent (one shared availability function = design) |
+| 0d3ab16 | reproduced, agent | REPRODUCED — admin directory pages fetch /home-care/services without session -> 401 (still auth-only after my medical-review fix); Q24 remove pages -> agent |
+| 55342cd | reproduced, fixed by reviewer | REPRODUCED — + NEW live: COD evidence rows collide on (null,null,null) in payment_evidence_gateway_event_unique -> 2nd cash delivery 409; fixed 0ecba09 — health check not wired ("Follow-up (health owner...)" pharmacy-indexes.ts:22); checkPharmacyIndexes no readiness caller |
+| dd9c105 | reproduced, agent | REPRODUCED — [prescriptionId]/page.tsx:22 renders only t("contractPending") |
+| ea7d96a | reproduced, agent | REPRODUCED — raw insertOne into pharmacy_orders (orders.service.ts:667) = 2nd copy of create |
+| 7cf3e9f | reproduced, agent | REPRODUCED — proxy returns {ok:true} (reorder/route.ts:21) |
+| d010143 | reproduced, agent | REPRODUCED — tracking response has no timeline for governed orders |
+| 9d880a9 | reproduced, agent | REPRODUCED — same |
+| b380c7e | reproduced, fixed by reviewer | REPRODUCED+FIXED(25f07e8) — fabricated reason fallback |
+| 8de589a | reproduced, agent | REPRODUCED — catch -> warn + return (fail-open) appointments.service.ts:134-136; reschedule() has no hold check -> reviewer fix (batch 2) |
+| a7fe6f6 | reproduced, agent | REPRODUCED — commit has no spec file (git show --stat) |
+| fe4a2e6 | reproduced, fixed by reviewer | REPRODUCED+FIXED(9df7b9e) — npm ci EUSAGE |
+| 8e1e303 | reproduced, agent | REPRODUCED — ui_inventory: patient-app 1176, provider-app 1522 controls without id |
+| f8141c3 | reproduced, fixed by reviewer | REPRODUCED+FIXED(eb1026d) |
+| f16d72b | reproduced, agent | REPRODUCED — AGENT_PROGRESS:1273 "F1..F10 COMPLETE" vs open F2/F4/F7/F8 findings |
+| e45a20a | reproduced, fixed by reviewer | REPRODUCED+FIXED(a270d79) — local Smart Collision under describeRace (skip) |
+| 7d06307 | confirmed PASS on behaviour (process FAIL stands) | ok (harness) |
+| 0febbcc | reproduced, agent | REPRODUCED — app add-policy never sends network/class; journey does; live coverage false even with contract (j_consultation) |
+| 52cf0fc | confirmed PASS on behaviour (process FAIL stands) | superseded |
+| 05e9e27 | reproduced, fixed by reviewer | REPRODUCED+FIXED(1695362) — URL counting on path 2 |
+| 38b1b04 | reproduced, agent | REPRODUCED — REQUIRED_DOCS lacks home_care/hospital/ambulance -> live 400 |
+| ee95276 | reproduced, fixed by reviewer | REPRODUCED (introduced URL evidence) -> fixed 1695362 |
+| 4fd448e | reproduced, agent | REPRODUCED — Q79 registration screens send only URL strings; approval 400 live for 3 types |
+| bb66925 | confirmed PASS on behaviour (process FAIL stands) | ok (fix of red push) — process FAIL |
+| 9b38bf7 | reproduced, fixed by reviewer | REPRODUCED + FIXED 194503f — rename mutation survived; route-wiring spec added, mutation now killed |
+| 8880c6b | reproduced, agent | REPRODUCED — engagement.dto.ts:9 comment "dtolint only inspects the decorator immediately above" |
+| a6d94b2 | confirmed PASS on behaviour (process FAIL stands) | ok-ish |
+| b4d1d98 | reproduced, agent | REPRODUCED — 6 hard-coded 'نبضة الطبي' facility names in provider-app |
+| e69bb72 | reproduced, fixed by reviewer | REPRODUCED + FIXED 5099682 — catch{source=[]} care.service.ts:89; no-fallback pinned, read failure rejects |
+| e64ec70 | reproduced, agent | REPRODUCED — edit w/o approve keeps public_eligibility/indexing true (medicines.service.ts ~1957-1966) -> agent (product) |
+| 44f7ef0 | reproduced, fixed by reviewer | REPRODUCED — entity-graph doctor response has no clinic_name/clinic_address; also invented rating 4.8 (fixed 25f07e8) |
+| 83e550f | reproduced, fixed by reviewer | REPRODUCED+FIXED(see ledger) — real-Mongo: first award 80 > cap 50 granted; write error granted 10 |
+| af3df87 | confirmed PASS on behaviour (process FAIL stands) | PASS unit / live NOT RUN — override_reason in ApproveDto, spec asserts outcomes; 4fd448e moved step-up onto the override (StepUpService) not removed; HTTP path needs passkey step-up -> not testable in live harness |
+| 7f5c299 | reproduced, fixed by reviewer | REPRODUCED+FIXED(1695362) |
+| a6bc32b | confirmed PASS on behaviour (process FAIL stands) | PASS code / live NOT RUN — resolver ok (spec+mutation); duplicate resolver home-care-compat.module.ts:38-43 (nit); live booking blocked by Q79 (nurse never approved) |
+| f7bb5c6 | confirmed PASS on behaviour (process FAIL stands) | superseded |
+| b8fcdf9 | reproduced, agent | REPRODUCED — its interceptor/decorator were deleted at tip (files absent); nginx job/purge missing (per dd2a5ab) |
+| 9d87a78 | reproduced, agent | REPRODUCED (Q86 live 400 on real Moyasar body) — -> agent (Q86/Q97) |
+| 9f0dcab | not reproduced | NOT REPRODUCED (dtolint part) — git archive 9f0dcab: dtolint (own + current version) exit 0; P14 "exit 1" claim not counted. Rest: no bad-email test (true) |
+| 6c78a80 | reproduced, agent | REPRODUCED — PUT admin/legal/commissions-policy and PUT system/permissions have no @StepUp (legal.module.ts:198, admin-spa.module.ts:1206) -> agent with R23 UI |
+| 7da237c | reproduced, fixed by reviewer | REPRODUCED — at 7da237c: async verify() called without await in guard (step-up.guard.ts:146) = bypass; fixed later by ba9c347 |
+| ba9c347 | confirmed PASS on behaviour (process FAIL stands) | ok (fix); process FAIL |
+| ca16fa7 | reproduced, agent | REPRODUCED — ADMIN_PASSKEY_ENFORCED only read in auth.guard.ts:194, set in no deploy file |
+| dde013a | reproduced, fixed by reviewer | REPRODUCED+FIXED(4ffed4e harness) — j_payments always SKIP (lab id never read) -> fixed; live 42/42 with refund |
+| 7790744 | reproduced, agent | REPRODUCED — admin reports.tsx:150 CONSOLES[tab]?.href same link on every row |
+| b7eed48 | reproduced, fixed by reviewer | REPRODUCED — usePushNotifications.ts and navigation/DeepLinking.ts still exist; push-router test failed to load (fixed 6a203e7 mock) |
+| 54cca5f | reproduced, fixed by reviewer | REPRODUCED+FIXED(422744b) — rule without id |
+| 2ef3a3e | reproduced, agent | REPRODUCED live — POST /engagement/events 403 role_declaration_missing -> agent (processor checks broken, not fixed alone) |
+| b1797d1 | confirmed PASS on behaviour (process FAIL stands) | ok |
+| 99376ac | reproduced, fixed by reviewer | REPRODUCED+FIXED(18cfd73) — returned {path}; Expo expects string |
+| ccde4f0 | reproduced, agent | REPRODUCED — ai-referrals recording under admin/ controller (ai-referral.controller.ts:30) -> agent |
+| a7596c8 | reproduced, agent | REPRODUCED — diff: +22 scripts/import-catalog-v14.ts, -212 src copy; no field inventory/report/doc-count run -> agent (needs real export) |
+| c6d7451 | reproduced, agent | REPRODUCED — node tools/design/import-rule.mjs exit 1 (lucide-react import) - P12 frozen, known-red design check |
+| 5a59b6a | reproduced, agent | REPRODUCED (doc only, P12 frozen, not counted for agent work) — admin pages 55 at tip (doc 54), patient-web 270 page.tsx (doc 65 routes) |
+| 2e5f0e9 | reproduced, agent | REPRODUCED — p12-export.sh:41 sort -r (alphabetical) - P12 frozen |
+| e9e541f | not re-tested (P12 frozen) | P12 frozen - not re-tested, not counted |
+| 7560513 | reproduced, fixed by reviewer | REPRODUCED+FIXED(1695362 status case/URL path) — Q79 registration typed docs -> agent |
+| 2676aed | reproduced, fixed by reviewer | REPRODUCED+FIXED(4999f10) — live wishlist unknown -> 201; allow-list removed |
+| 875a99d | reproduced, agent | REPRODUCED no tests (git show --stat: no spec); c3b4fb6 title names users/articles/recurring/support/bans, diff = 4 other files (confirmed); live 404 re-curl: see live404 line |
+| 905662b | reproduced, agent | REPRODUCED no tests (git show --stat: no spec); c3b4fb6 title names users/articles/recurring/support/bans, diff = 4 other files (confirmed); live 404 re-curl: see live404 line |
+| c3b4fb6 | reproduced, agent | REPRODUCED no tests (git show --stat: no spec); c3b4fb6 title names users/articles/recurring/support/bans, diff = 4 other files (confirmed); live 404 re-curl: see live404 line |
+| 98a0744 | reproduced, agent | REPRODUCED no tests (git show --stat: no spec); c3b4fb6 title names users/articles/recurring/support/bans, diff = 4 other files (confirmed); live 404 re-curl: see live404 line |
+| eaaefd3 | reproduced, agent | REPRODUCED — PUT /admin/legal/commissions-policy no @StepUp (legal.module.ts:198) -> agent with R23 UI |
+| 099d36b | reproduced, agent | REPRODUCED — patient-web orders/[orderId]/offers/negotiation/page.tsx:13 renders raw thread.resolution |
+| dbb1ace | reproduced, fixed by reviewer | REPRODUCED+FIXED(be87e77 medical-review filter, b817669 orphan headers); web signed-out page NOT broken (falls back to /nursing/catalog) -> claim partly not reproduced |
+| de40031 | reproduced, agent | 53b43dc REPRODUCED: diff deletes GET my-policy + benefits-summary (git show), restored later by F2; de40031/d5b36a4 PASS (dead copies) |
+| 53b43dc | reproduced, agent | 53b43dc REPRODUCED: diff deletes GET my-policy + benefits-summary (git show), restored later by F2; de40031/d5b36a4 PASS (dead copies) |
+| d5b36a4 | reproduced, agent | 53b43dc REPRODUCED: diff deletes GET my-policy + benefits-summary (git show), restored later by F2; de40031/d5b36a4 PASS (dead copies) |
+| 9464055 | reproduced, agent | REPRODUCED — live GET /doctors/<real care doctor id> -> 404 (legacy doctors collection) -> agent |
+| a537647 | reproduced, agent | REPRODUCED — auditAdminWalletAdjustment/getWalletBalance no caller (only mocked in f01-wallet spec); Credit/DebitWalletDto imported, unused |
+| 697839a | confirmed PASS on behaviour (process FAIL stands) | PASS live (G7: 2 concurrent finish -> 1 tx) / REPRODUCED no test in commit |
+| 8f5a9df | reproduced, fixed by reviewer | REPRODUCED+FIXED(7edc44e brand) — 21 files with old brand |
+| d0b9ce9 | reproduced, agent | REPRODUCED — DTO has clinic_address (provider-onboarding.dto.ts:141,235); DoctorRegistration.tsx:1047 sends clinic_name only; no spec -> agent (R83 needs the registration field + web/app/confirmation) |
+| 22a5ced | reproduced, agent | REPRODUCED — PR #237 job: "Run boot security and journey suites (R8): skipped" (after red unit step) |
+| 9d331ed | reproduced, agent | REPRODUCED — diff = provider-onboarding.e2e-spec.ts only (msg claims 3 suites); approval via override_reason bypasses R1 |
+| 7351f2b | reproduced, fixed by reviewer | REPRODUCED+FIXED(af6cca1) — bulk-approve CATALOG_UPDATE only |
+| 4ce3e81 | confirmed PASS on behaviour (process FAIL stands) | PASS (nit) — medicines tab gone, medicines-catalog.tsx exists; MedicinesRedirect defined once, never rendered (dead code) |
+| f99c8c7 | reproduced, fixed by reviewer | REPRODUCED+FIXED(e717d1b) — fil stored where no reader looks |
+| 77fd5c2 | reproduced, fixed by reviewer | REPRODUCED+FIXED(7388102) — /care/insurance pending/disabled + internal fields; also /care/degrees returns [] live (open -> agent) |
+| 34deef0 | reproduced, agent | REPRODUCED — insurer write routes: only @Roles, no permission/step-up (insurance.module.ts:627-669) |
 
 ## Gate on the tip (reviewer, real output in `docs/review/evidence/agent-tip-bb97c87/`)
 
