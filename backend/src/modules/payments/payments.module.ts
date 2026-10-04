@@ -286,7 +286,8 @@ export class PaymentsService {
     // insurance copay intents charge the patient's copay share, not the full price
     let amount = governedPharmacy
       ? this.pharmacyDueAmount(booking)
-      : kind === 'insurance' ? (booking.copay_amount || 0) : (booking.total || booking.totals?.total || booking.price || 0);
+      // R11 §5: total_price carries the service/visit/transport fees the patient saw.
+      : kind === 'insurance' ? (booking.copay_amount || 0) : (booking.total || booking.totals?.total || booking.total_price || booking.price || 0);
     // Pharmacy insurance orders: after provider approval the patient pays only the
     // provider-set copay — never the full order total (E1 S1/S2).
     if (kind === 'pharmacy' && booking.payment_method === 'insurance'
