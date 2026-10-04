@@ -31,6 +31,53 @@ export const ERROR_CODES = {
 
 export type ErrorCode = (typeof ERROR_CODES)[keyof typeof ERROR_CODES];
 
-export function platformError(code: ErrorCode, message?: string, details?: Record<string, unknown>) {
-  return { error_code: code, message: message || code, ...(details ? { details } : {}) };
+/**
+ * 13.R5 — the 13 platform error codes from the owner error catalog (05 Part B, R5).
+ * All clients (Web/Mobile/Provider/Admin/AI/MCP) surface these codes with a
+ * localized message per code; see `error-catalog.ts` + `errors.i18n.json`.
+ */
+export const R5_ERROR_CODES = [
+  ERROR_CODES.AUTHENTICATION_REQUIRED,
+  ERROR_CODES.INSUFFICIENT_PERMISSION,
+  ERROR_CODES.PRESCRIPTION_REQUIRED,
+  ERROR_CODES.NO_AVAILABILITY,
+  ERROR_CODES.SERVICE_UNAVAILABLE,
+  ERROR_CODES.PROVIDER_NOT_AVAILABLE,
+  ERROR_CODES.PRODUCT_OUT_OF_STOCK,
+  ERROR_CODES.PAYMENT_REQUIRED,
+  ERROR_CODES.INSURANCE_NOT_SUPPORTED,
+  ERROR_CODES.LOCATION_NOT_SUPPORTED,
+  ERROR_CODES.DUPLICATE_TRANSACTION,
+  ERROR_CODES.INVALID_INPUT,
+  ERROR_CODES.RATE_LIMITED,
+] as const;
+
+export type R5ErrorCode = (typeof R5_ERROR_CODES)[number];
+
+export function isErrorCode(value: unknown): value is ErrorCode {
+  return typeof value === 'string' && (Object.values(ERROR_CODES) as string[]).includes(value);
+}
+
+export interface PlatformErrorShape {
+  code: string;
+  message: string;
+  details?: Record<string, unknown>;
+  nextStep?: string;
+  /** Legacy alias of `code` kept for older readers; new code must use `code`. */
+  error_code?: string;
+}
+
+export function platformError(
+  code: ErrorCode,
+  message?: string,
+  details?: Record<string, unknown>,
+  nextStep?: string,
+): PlatformErrorShape {
+  return {
+    code,
+    error_code: code,
+    message: message || code,
+    ...(details ? { details } : {}),
+    ...(nextStep ? { nextStep } : {}),
+  };
 }
