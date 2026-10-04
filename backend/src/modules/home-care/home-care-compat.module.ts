@@ -144,7 +144,8 @@ export class HomeCareCompatController {
     if (!this.isAdmin(u) && !this.isNursingProvider(u)) throw new ForbiddenException('provider_role_required');
     const allowed: Record<string, string[]> = {
       PROVIDER_ASSIGNED: ['NEW_REQUEST'],
-      ARRIVED: ['PROVIDER_ASSIGNED', 'ACCEPTED', 'EN_ROUTE'],
+      CONFIRMED: ['NEW_REQUEST', 'PROVIDER_ASSIGNED'],
+      ARRIVED: ['CONFIRMED', 'IN_TRANSIT', 'PROVIDER_ASSIGNED', 'ACCEPTED', 'EN_ROUTE'],
       CARE_IN_PROGRESS: ['ARRIVED'],
       COMPLETED: ['CARE_IN_PROGRESS', 'ARRIVED'],
       CANCELLED: ['NEW_REQUEST', 'PROVIDER_ASSIGNED', 'ACCEPTED', 'EN_ROUTE', 'ARRIVED', 'CARE_IN_PROGRESS'],
@@ -172,8 +173,12 @@ export class HomeCareCompatController {
     // R11 §5: on an open (unassigned) request, declining only hides it from
     // this nurse, and claiming is atomic so a second nurse gets 409.
     if (!this.isAdmin(u) && this.isNursingProvider(u) && u?.role !== 'patient') {
-      const b: any = await this.bookings.findOne({ id: { $eq: id } }, { provider_id: 1, state: 1 }).lean();
+      const b: any = await this.bookings.findOne({ id: { $eq: id } }, { provider_id: 1, state: 1, payment_method: 1, payment_status: 1 }).lean();
       if (!b) throw new NotFoundException('booking not found');
+      // Same rule as provider-jobs accept: a card visit must be paid; insurance
+      // goes through the coverage decision. Checked before any claim.
+      if (accept && b.payment_method === 'insurance') throw new BadRequestException('insurance_booking_requires_coverage_decision');
+      if (accept && b.payment_method === 'card' && b.payment_status !== 'paid') throw new BadRequestException('card_payment_not_completed');
       if (!b.provider_id) {
         const open = { id: { $eq: id }, state: 'NEW_REQUEST', $or: [{ provider_id: { $exists: false } }, { provider_id: null }] };
         if (!accept) {
@@ -186,9 +191,10 @@ export class HomeCareCompatController {
         throw new ConflictException('booking_already_claimed');
       }
     }
-    // NursingBookingState has no ACCEPTED/REJECTED — accepting nurse takes the
-    // job (PROVIDER_ASSIGNED + provider_id), declining their own request cancels it.
-    return this.transition(u, id, accept ? 'PROVIDER_ASSIGNED' : 'CANCELLED', {
+    // Accepting confirms the visit (as provider-jobs does): PROVIDER_ASSIGNED is
+    // the pre-acceptance state in which the nurse sees only the area. Declining
+    // their own request cancels it.
+    return this.transition(u, id, accept ? 'CONFIRMED' : 'CANCELLED', {
       fields: accept && !this.isAdmin(u) ? { provider_id: u.id } : {},
       meta: { reason },
     });
