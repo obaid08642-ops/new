@@ -11,7 +11,7 @@ import base64, hashlib, json, struct, time
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import ec
 
-ORIGIN = 'http://localhost:3001'   # backend PASSKEY_ORIGIN default (tools/live/start-backend.sh sets none)
+ORIGIN = 'http://localhost:3001'   # WEBAUTHN_ORIGIN set by tools/live/start-backend.sh
 RP_ID = 'localhost'
 _SEED = hashlib.sha256(b'nabd-live-gate-synthetic-passkey-v1').digest()
 _KEY = ec.derive_private_key(int.from_bytes(_SEED, 'big') % (2**256 - 2**224 - 1) or 1, ec.SECP256R1())

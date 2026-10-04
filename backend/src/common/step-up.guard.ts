@@ -31,11 +31,13 @@ export class StepUpService {
     @Optional() private readonly redis?: RedisService,
   ) {}
 
-  private get origin() {
-    return process.env.PASSKEY_ORIGIN || process.env.APP_ORIGIN || 'http://localhost:3001';
+  // The same WebAuthn settings as PasskeyService (enrollment and login): a
+  // step-up assertion comes from the same authenticator on the same origin.
+  private get origin(): string[] {
+    return (process.env.WEBAUTHN_ORIGIN || 'https://admin.nabd.plus').split(',').map((s) => s.trim()).filter(Boolean);
   }
   private get rpID() {
-    return process.env.PASSKEY_RP_ID || new URL(this.origin).hostname;
+    return process.env.WEBAUTHN_RP_ID || 'nabd.plus';
   }
 
   private async stepUpStore(): Promise<RedisService> {

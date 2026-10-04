@@ -36,6 +36,10 @@ export OTP_ISSUE_LIMIT="${OTP_ISSUE_LIMIT:-1000}"
 export MOYASAR_API_KEY="${MOYASAR_API_KEY:-sk_test_live_journeys}" MOYASAR_API_BASE="${MOYASAR_API_BASE:-http://127.0.0.1:9100/v1}"
 # Q86/Q104: the single Moyasar webhook checks this shared secret (j_payments sends it).
 export MOYASAR_WEBHOOK_SECRET="${MOYASAR_WEBHOOK_SECRET:-live-webhook-secret}"
+# R23: passkeys (enrollment, login, step-up) for the local admin BFF origin; tools/live/softkey.py
+# signs for this origin and RP ID. Only the live admin may enroll (production: the owner).
+export WEBAUTHN_ORIGIN="${WEBAUTHN_ORIGIN:-http://localhost:3001}" WEBAUTHN_RP_ID="${WEBAUTHN_RP_ID:-localhost}"
+export ADMIN_PASSKEY_EMAIL="${ADMIN_PASSKEY_EMAIL:-${LIVE_ADMIN_EMAIL:-admin@nabd.test}}"
 # 7C-C3: the backend network-gate check requires this header on /api/v1/admin/*.
 # The harness sends it (NABD_ADMIN_GATE_TOKEN, same default); keep both in sync.
 export ADMIN_GATE_TOKEN="${ADMIN_GATE_TOKEN:-live-gate-token}"

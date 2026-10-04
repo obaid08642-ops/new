@@ -93,8 +93,8 @@ describe('C4 — step-up issuance', () => {
     };
     svc.takeChallenge = jest.fn().mockResolvedValue('challenge');
     // origin/rpID are prototype getters reading env — set the env, do not assign.
-    process.env.PASSKEY_ORIGIN = 'http://localhost:3001';
-    process.env.PASSKEY_RP_ID = 'localhost';
+    process.env.WEBAUTHN_ORIGIN = 'http://localhost:3001';
+    process.env.WEBAUTHN_RP_ID = 'localhost';
 
     await expect(svc.issueFromAssertion('admin-1', 'POST:/x', { id: 'c1' }))
       .rejects.toThrow('passkey_verification_failed');
