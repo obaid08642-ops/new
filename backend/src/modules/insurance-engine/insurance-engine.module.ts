@@ -1,4 +1,4 @@
-import { findCopayTransaction, gatewayPaymentIdOf } from '../../common/copay-transaction';
+import { copayRefundable, findCopayTransaction, gatewayPaymentIdOf } from '../../common/copay-transaction';
 /**
  * M3 — Insurance Engine (BR-2) + Unified Booking Quote (BR-1) + Financial Core.
  *
@@ -900,7 +900,7 @@ export class RefundService {
     // payment method, so the child's full price is what was paid for it.
     const childPrice = [booking.total_price, booking.total, booking.price].map(Number).find((v) => v > 0) ?? 0;
     const copayTx: any = (!tx && !mp && !parentTx) ? await findCopayTransaction(this.conn, booking, bookingId) : null;
-    const paid = parentTx ? Math.min(childPrice, Number(parentTx.amount || 0)) : Number(tx?.amount ?? mp?.amount ?? copayTx?.amount ?? 0);
+    const paid = parentTx ? Math.min(childPrice, Number(parentTx.amount || 0)) : (copayTx ? copayRefundable(copayTx) : Number(tx?.amount ?? mp?.amount ?? 0));
     if (!(paid > 0)) throw new BadRequestException('booking_not_paid');
     const payTx = tx || parentTx || copayTx;
     const paymentId = gatewayPaymentIdOf(payTx) || mp?.moyasar_id || undefined;

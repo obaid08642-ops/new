@@ -119,4 +119,18 @@ describe('nursing pool claim and decline (R11 §5 lead 9)', () => {
     await expect(controller.respond(nurseA, 'req-1', { accept: true } as never)).rejects.toThrow('insurance_booking_requires_coverage_decision');
     (bookings as any).findOne = orig;
   });
+
+  // Independent check (round 6): transition() read the booking and saved it
+  // back, so a decline working from a stale read overwrote a CONFIRMED that
+  // the atomic accept had just written. The state change is now conditional
+  // on the state that was read.
+  it('a transition working from a stale read does not overwrite a newer state', async () => {
+    await bookings.collection.updateOne({ id: 'req-1' }, { $set: { provider_id: 'nurse-A', state: 'PROVIDER_ASSIGNED' } });
+    const stale = await bookings.findOne({ id: 'req-1' });
+    await bookings.collection.updateOne({ id: 'req-1' }, { $set: { state: 'CONFIRMED' } });
+    jest.spyOn(controller as any, 'getBookingForAccess').mockResolvedValueOnce(stale);
+    await expect((controller as any).transition(nurseA, 'req-1', 'CANCELLED', { meta: { reason: 'x' } })).rejects.toThrow('invalid_transition');
+    const row: any = await bookings.findOne({ id: 'req-1' }).lean();
+    expect(row.state).toBe('CONFIRMED');
+  });
 });

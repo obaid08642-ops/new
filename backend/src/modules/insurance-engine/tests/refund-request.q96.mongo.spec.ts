@@ -114,7 +114,7 @@ describe('RefundService.request is bound to a real, owned, paid booking (Q96)', 
   it('a copay paid on the insurance request is refundable for the amount paid', async () => {
     const db = conn.db!;
     await db.collection('labbookings').insertOne({ id: 'lab-4', patient_id: 'pat-A', total: 200, payment_method: 'insurance', insurance_status: 'approved', insurance_copay: 40, insurance_request_id: 'ir-4', scheduled_date: inHours(48) });
-    await db.collection('transactions').insertOne({ id: 'tx-copay4', booking_kind: 'insurance', booking_id: 'ir-4', status: 'paid', amount: 40, gateway_payment_id: 'pay_copay4' });
+    await db.collection('transactions').insertOne({ id: 'tx-copay4', booking_kind: 'insurance', booking_id: 'ir-4', patient_id: 'pat-A', status: 'paid', amount: 40, gateway_payment_id: 'pay_copay4' });
     const r = await service.request({ id: 'pat-A' }, { booking_kind: 'lab', booking_id: 'lab-4', reason: 'cannot attend' });
     expect(r.amount_paid).toBe(40);
     expect(r.moyasar_payment_id).toBe('pay_copay4');
@@ -127,10 +127,30 @@ describe('RefundService.request is bound to a real, owned, paid booking (Q96)', 
   it('a consultation copay paid on its insurance request is refundable, with the real gateway id', async () => {
     const db = conn.db!;
     await db.collection('appointments').insertOne({ id: 'appt-C', patient_id: 'pat-A', slot_start: inHours(30), total_price: 300, payment_method: 'insurance', status: 'confirmed' });
-    await db.collection('insuranceservicerequests').insertOne({ id: 'ir-C', booking_id: 'appt-C', booking_kind: 'consultation', copay_amount: 60 });
-    await db.collection('transactions').insertOne({ id: 'tx-copayC', booking_kind: 'insurance', booking_id: 'ir-C', status: 'paid', amount: 60, gateway_charge_id: 'pay_copayC' });
+    await db.collection('insuranceservicerequests').insertOne({ id: 'ir-C', booking_id: 'appt-C', booking_kind: 'consultation', patient_id: 'pat-A', copay_amount: 60 });
+    await db.collection('transactions').insertOne({ id: 'tx-copayC', booking_kind: 'insurance', booking_id: 'ir-C', patient_id: 'pat-A', status: 'paid', amount: 60, gateway_charge_id: 'pay_copayC' });
     const r = await service.request({ id: 'pat-A' }, { booking_kind: 'consultation', booking_id: 'appt-C', reason: 'cannot attend' });
     expect(r.amount_paid).toBe(60);
     expect(r.moyasar_payment_id).toBe('pay_copayC');
+  });
+
+  // Independent check (round 6): a copay already partly refunded can only be
+  // refunded for what is left, and another patient's request or transaction
+  // that happens to point at the same booking id is never used.
+  it('a partly refunded copay is refundable only for the remaining amount', async () => {
+    const db = conn.db!;
+    await db.collection('appointments').insertOne({ id: 'appt-P', patient_id: 'pat-A', slot_start: inHours(30), total_price: 300, payment_method: 'insurance', status: 'confirmed' });
+    await db.collection('insuranceservicerequests').insertOne({ id: 'ir-P', booking_id: 'appt-P', booking_kind: 'consultation', patient_id: 'pat-A', copay_amount: 60 });
+    await db.collection('transactions').insertOne({ id: 'tx-copayP', booking_kind: 'insurance', booking_id: 'ir-P', patient_id: 'pat-A', status: 'partially_refunded', amount: 60, refunded_amount: 30, gateway_charge_id: 'pay_copayP' });
+    const r = await service.request({ id: 'pat-A' }, { booking_kind: 'consultation', booking_id: 'appt-P', reason: 'cannot attend' });
+    expect(r.amount_paid).toBe(30);
+  });
+
+  it('ignores another patient\'s insurance request and copay transaction for the same booking id', async () => {
+    const db = conn.db!;
+    await db.collection('appointments').insertOne({ id: 'appt-X', patient_id: 'pat-A', slot_start: inHours(30), total_price: 300, payment_method: 'insurance', status: 'confirmed' });
+    await db.collection('insuranceservicerequests').insertOne({ id: 'ir-X', booking_id: 'appt-X', booking_kind: 'consultation', patient_id: 'pat-B', copay_amount: 60 });
+    await db.collection('transactions').insertOne({ id: 'tx-copayX', booking_kind: 'insurance', booking_id: 'ir-X', patient_id: 'pat-B', status: 'paid', amount: 60, gateway_charge_id: 'pay_copayX' });
+    await expect(service.request({ id: 'pat-A' }, { booking_kind: 'consultation', booking_id: 'appt-X', reason: 'x' })).rejects.toThrow('booking_not_paid');
   });
 });
