@@ -1,0 +1,22 @@
+.bookLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #5FD9B3;
+  color: #1E332E;
+  font-weight: 800;
+  padding: 12px 24px;
+  border-radius: 20px;
+  border: 1px solid #E8EDEE;
+  font-size: 15px;
+  text-decoration: none;
+  box-shadow: 0 6px 20px rgba(95, 217, 179, 0.25);
+  transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.bookLink:hover {
+  background: #4ECBA4;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(95, 217, 179, 0.35);
+}

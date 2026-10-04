@@ -11,7 +11,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { parseRadiologyService } from "@/lib/api/radiology";
 import { getPublicRadiologyServiceDetail } from "@/lib/api/radiology-server";
 import styles from "../../labs/labs.module.css";
-import { ServiceBookingModal } from "@/components-next/service-booking-modal";
+import { ServiceBookLink } from "@/components-next/service-book-link";
 import { VectorRadiology } from "@/components-next/vector-illustrations";
 
 type Props = { params: Promise<{ locale: string; serviceId: string }> };
@@ -72,15 +72,7 @@ export default async function RadiologyServiceDetailPage({ params }: Props) {
           <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{name}</h1>
           <p className={styles.subtitle} style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{description ?? t("detailDescriptionUnavailable")}</p>
           <div style={{ marginTop: 8 } as any}>
-            <ServiceBookingModal
-              locale={locale}
-              serviceId={serviceId}
-              serviceName={name ?? t("title")}
-              servicePrice={service.price || 450}
-              serviceType="radiology"
-              homeVisitSupported={Boolean(service.homeVisitSupported)}
-              buttonLabel={rtl ? "احجز موعد الأشعة الآن" : "Book Radiology Appointment"}
-            />
+            <ServiceBookLink locale={locale} serviceId={serviceId} serviceName={name ?? t("title")} serviceType="radiology" label={rtl ? "احجز موعد الأشعة الآن" : "Book Radiology Appointment"} />
           </div>
         </div>
         <span style={{ display: "grid", placeItems: "center", width: 48, height: 48, borderRadius: 16, background: "rgba(95,217,179,.12)", border: "1px solid #E8EDEE", flex: "0 0 auto", overflow: "hidden" } as any}><VectorRadiology size={48} aria-hidden="true" /></span>
