@@ -217,8 +217,8 @@ export default function InsuranceUpload() {
                 style={[styles.consultBtn, { backgroundColor: colors.secondary }]}
                 onPress={() => (router.push as any)('/consultations')}
               >
-                <AppText style={{ color: 'var(--nabd-bg.surface-light)', fontWeight: 'bold' }}>تحدث مع طبيب عام</AppText>
-                <Icon name="stethoscope" size={20} color="var(--nabd-bg.surface-light)" style={{ marginLeft: 8 }}/>
+                <AppText style={{ color: '#fff', fontWeight: 'bold' }}>تحدث مع طبيب عام</AppText>
+                <Icon name="stethoscope" size={20} color="#fff" style={{ marginLeft: 8 }}/>
               </TouchableOpacity>
             </View>
           </Animated.View>
@@ -456,8 +456,8 @@ export default function InsuranceUpload() {
               }
             }}
           >
-            <AppText style={{ color: 'var(--nabd-bg.surface-light)', fontSize: 16, fontWeight: 'bold' }}>إرسال الطلب للمختبر للاعتماد</AppText>
-            <Icon name="send" size={20} color="var(--nabd-bg.surface-light)" style={{ marginLeft: I18nManager.isRTL ? 0 : 8, marginRight: I18nManager.isRTL ? 8 : 0 }}/>
+            <AppText style={{ color: '#fff', fontSize: 16, fontWeight: 'bold' }}>إرسال الطلب للمختبر للاعتماد</AppText>
+            <Icon name="send" size={20} color="#fff" style={{ marginLeft: I18nManager.isRTL ? 0 : 8, marginRight: I18nManager.isRTL ? 8 : 0 }}/>
           </TouchableOpacity>
         </Animated.View>
       )}

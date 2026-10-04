@@ -184,7 +184,7 @@ export default function CallHistoryScreen() {
               { backgroundColor: colors.primary || "#4F46E5" },
             ]}
           >
-            <Icon name="call" size={18} color="var(--nabd-bg.surface-light)" />
+            <Icon name="call" size={18} color="#fff" />
           </TouchableOpacity>
         </View>
 

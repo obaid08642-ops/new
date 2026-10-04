@@ -52,11 +52,11 @@ export function SplashScreen({ onDone }: { onDone: () => void }) {
  alignItems: 'center', justifyContent: 'center',
  marginBottom: SP.xl,
  }}>
- <I name="heart" size={54} color="var(--nabd-bg.surface-light)" />
+ <I name="heart" size={54} color="#FFF" />
  </View>
  </Animated.View>
  <Animated.View style={{ opacity: op2, alignItems: 'center' }}>
- <Text style={{ fontSize: FS['4xl'], fontWeight: FW.xbold, color: 'var(--nabd-bg.surface-light)', letterSpacing: 1 }}>
+ <Text style={{ fontSize: FS['4xl'], fontWeight: FW.xbold, color: '#FFF', letterSpacing: 1 }}>
  Nabd Plus
  </Text>
  <Text style={{ fontSize: FS.md, color: 'rgba(255,255,255,0.75)', marginTop: SP.xs }}>
@@ -803,7 +803,7 @@ export function PendingScreen({
  alignItems: 'center', justifyContent: 'center',
  marginBottom: SP.xl,
  }}>
- <I name="heart" size={48} color="var(--nabd-bg.surface-light)" />
+ <I name="heart" size={48} color="#FFF" />
  </Animated.View>
  <Text style={{ fontSize: FS['3xl'], fontWeight: FW.bold, color: theme.text, textAlign: 'center', marginBottom: SP.md }}>
  {AR ? 'ملفك قيد المراجعة' : 'Your File is Under Review'}

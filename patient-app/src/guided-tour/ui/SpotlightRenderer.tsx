@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
   tooltip: {
     position: 'absolute',
     alignSelf: 'center',
-    backgroundColor: 'var(--nabd-bg.surface-light)',
+    backgroundColor: '#fff',
     padding: 20,
     borderRadius: 16,
     width: '90%',

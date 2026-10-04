@@ -114,7 +114,7 @@ export function AvailabilityPulseScreen({ onBack }: { onBack: () => void }) {
  backgroundColor: minutes === m ? theme.primary : theme.surface2,
  borderColor: minutes === m ? theme.primary : theme.border,
  }]}>
- <Text style={{ color: minutes === m ? 'var(--nabd-bg.surface-light)' : theme.text, fontWeight: FW.semi }}>
+ <Text style={{ color: minutes === m ? '#FFF' : theme.text, fontWeight: FW.semi }}>
  {m} {AR ? 'دق' : 'min'}
  </Text>
  </TouchableOpacity>

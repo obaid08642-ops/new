@@ -133,7 +133,7 @@ export default function SupportChatScreen() {
             <AppText variant="bodySM">دعم نبض</AppText>
           </View>
           <TouchableOpacity onPress={() => router.back()} style={styles.hBtn}>
-            <Icon name="back" size={22} color="var(--nabd-bg.surface-light)" />
+            <Icon name="back" size={22} color="#fff" />
           </TouchableOpacity>
         </View>
       </View>
@@ -233,7 +233,7 @@ export default function SupportChatScreen() {
             style={[styles.sendBtn, { backgroundColor: "#23B5CE" }]}
             onPress={() => sendMessage(inputText)}
           >
-            <Icon name="send" size={18} color="var(--nabd-bg.surface-light)" />
+            <Icon name="send" size={18} color="#fff" />
           </TouchableOpacity>
           <TextInput
             style={[
@@ -305,7 +305,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   agentInfo: { alignItems: "center" },
-  agentName: { color: "var(--nabd-bg.surface-light)", fontSize: 16, fontWeight: "800" },
+  agentName: { color: "#fff", fontSize: 16, fontWeight: "800" },
   agentStatus: { flexDirection: "row-reverse", alignItems: "center", gap: 5 },
   agentSub: {
     color: "rgba(255,255,255,0.75)",

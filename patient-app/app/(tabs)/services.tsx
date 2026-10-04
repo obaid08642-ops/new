@@ -102,7 +102,7 @@ export default function ServicesScreen() {
     <View style={[st.c, { backgroundColor: colors.background }]}>
       <StatusBar barStyle="light-content" />
       <View style={[st.hdr, { paddingTop: insets.top + 12 }]}>
-        <AppText variant="h3" color="var(--nabd-bg.surface-light)">
+        <AppText variant="h3" color="#fff">
           الخدمات
         </AppText>
         <AppText variant="bodySM" color="rgba(255,255,255,0.85)">
@@ -142,7 +142,7 @@ export default function ServicesScreen() {
                     <View
                       style={[st.badge, { backgroundColor: colors.success }]}
                     >
-                      <AppText variant="caption" color="var(--nabd-bg.surface-light)">
+                      <AppText variant="caption" color="#fff">
                         {srv.badge}
                       </AppText>
                     </View>

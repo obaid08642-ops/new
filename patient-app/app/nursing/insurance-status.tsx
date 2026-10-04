@@ -117,5 +117,5 @@ const styles = StyleSheet.create({
   back: { minWidth: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 12 },
   card: { gap: 10, padding: 20, borderRadius: 20, borderWidth: 1 },
   primary: { borderRadius: 14, paddingVertical: 16, alignItems: 'center', marginTop: 4 },
-  primaryText: { color: 'var(--nabd-bg.surface-light)', fontFamily: 'Cairo-Bold' },
+  primaryText: { color: '#fff', fontFamily: 'Cairo-Bold' },
 });

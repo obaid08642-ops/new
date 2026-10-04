@@ -81,7 +81,7 @@ export function DSBadge({
     >
       <DSText
         variant={size === 'sm' ? 'caption' : 'labelSM'}
-        color="var(--nabd-bg.surface-light)"
+        color="#fff"
         noScale
       >
         {displayCount}

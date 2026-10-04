@@ -128,9 +128,9 @@ export function DSButton({
             loading={loading}
             icon={icon}
             iconPosition={iconPosition}
-            iconColor="var(--nabd-bg.surface-light)"
+            iconColor="#fff"
             iconSize={iconSize}
-            textColor="var(--nabd-bg.surface-light)"
+            textColor="#fff"
             textVariant={TEXT_VARIANT[size]}
             labelStyle={labelStyle}
           />
@@ -217,7 +217,7 @@ function getVariantStyles(
     case 'primary':
       return {
         container: { backgroundColor: colors.primary },
-        textColor: 'var(--nabd-bg.surface-light)',
+        textColor: '#fff',
       };
     case 'secondary':
       return {
@@ -241,12 +241,12 @@ function getVariantStyles(
     case 'danger':
       return {
         container: { backgroundColor: colors.error },
-        textColor: 'var(--nabd-bg.surface-light)',
+        textColor: '#fff',
       };
     case 'success':
       return {
         container: { backgroundColor: colors.success },
-        textColor: 'var(--nabd-bg.surface-light)',
+        textColor: '#fff',
       };
     case 'glass':
       return {
@@ -260,7 +260,7 @@ function getVariantStyles(
     default:
       return {
         container: { backgroundColor: colors.primary },
-        textColor: 'var(--nabd-bg.surface-light)',
+        textColor: '#fff',
       };
   }
 }

@@ -57,7 +57,7 @@ describe('Nabd+ brand assets shipped by the app', () => {
       m[1].toUpperCase(),
     );
     expect(colours.length).toBeGreaterThan(0);
-    expect(new Set(colours)).toEqual(new Set(['var(--nabd-bg.surface-light)']));
+    expect(new Set(colours)).toEqual(new Set(['#FFFFFF']));
     // No opacity, gradient or fill-rule trickery that would tint the mask.
     expect(markup).not.toMatch(/opacity|Gradient/i);
     // The one transparent value allowed is the "no fill" of the bowl path.
@@ -95,9 +95,9 @@ describe('Nabd+ brand assets shipped by the app', () => {
 
   it('app.json paints the splash and the adaptive icon in brand colours', () => {
     const expo = JSON.parse(readText(join(__dirname, 'app.json'))).expo;
-    // var(--nabd-bg.canvas-light) = brand.canvas, var(--nabd-brand.coral-light) = brand.coral, var(--nabd-action.primary.bg-light) = action.primary.
-    expect(expo.splash.backgroundColor).toBe('var(--nabd-bg.canvas-light)');
-    expect(expo.android.adaptiveIcon.backgroundColor).toBe('var(--nabd-brand.coral-light)');
+    // #F5F5F7 = brand.canvas, #FF4B55 = brand.coral, #D42A38 = action.primary.
+    expect(expo.splash.backgroundColor).toBe('#F5F5F7');
+    expect(expo.android.adaptiveIcon.backgroundColor).toBe('#FF4B55');
     // The retired pre-2026-09-29 brand blue must not survive anywhere.
     expect(JSON.stringify(expo)).not.toContain('#0066CC');
   });

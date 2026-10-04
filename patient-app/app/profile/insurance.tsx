@@ -218,7 +218,7 @@ export default function InsuranceScreen() {
                 >
                   <AppText
                     variant="bodySM"
-                    color={sel ? "var(--nabd-bg.surface-light)" : colors.textPrimary}
+                    color={sel ? "#fff" : colors.textPrimary}
                   >
                     {c.name_ar || c.name_en}
                   </AppText>
@@ -247,7 +247,7 @@ export default function InsuranceScreen() {
                         },
                       ]}
                     >
-                      <AppText variant="bodySM" color={sel ? "var(--nabd-bg.surface-light)" : colors.textPrimary}>
+                      <AppText variant="bodySM" color={sel ? "#fff" : colors.textPrimary}>
                         {n.name_ar || n.name_en}
                       </AppText>
                     </TouchableOpacity>

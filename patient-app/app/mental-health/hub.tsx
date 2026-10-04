@@ -24,9 +24,9 @@ export default function MentalHealthHubScreen() {
       <StatusBar barStyle="light-content" />
       <View style={[styles.header, { backgroundColor: '#312E81', paddingTop: insets.top + 14 }]}>
         <TouchableOpacity accessibilityRole="button" accessibilityLabel={t('cancel')} onPress={() => router.back()} style={styles.backButton}>
-          <Icon name="back" size={22} color="var(--nabd-bg.surface-light)" />
+          <Icon name="back" size={22} color="#FFFFFF" />
         </TouchableOpacity>
-        <AppText variant="h4" color="var(--nabd-bg.surface-light)">{t('title')}</AppText>
+        <AppText variant="h4" color="#FFFFFF">{t('title')}</AppText>
         <AppText variant="caption" color="rgba(255,255,255,0.82)">{t('subtitle')}</AppText>
       </View>
 

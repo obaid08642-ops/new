@@ -84,9 +84,9 @@ export default function MonthlyReportScreen() {
       <View style={[styles.header, { paddingTop: insets.top, paddingBottom: 12 }]}>
         <View style={styles.headerRow}>
           <TouchableOpacity onPress={() => router.back()} style={styles.hBtn} accessibilityLabel="رجوع">
-            <Icon name="back" size={20} color="var(--nabd-bg.surface-light)" />
+            <Icon name="back" size={20} color="#fff" />
           </TouchableOpacity>
-          <AppText variant="h6" color="var(--nabd-bg.surface-light)">تقريرك الشهري</AppText>
+          <AppText variant="h6" color="#fff">تقريرك الشهري</AppText>
           <View style={{ width: 32 }} />
         </View>
         <View style={{ alignItems: 'center', marginTop: 8 }}>
@@ -102,7 +102,7 @@ export default function MonthlyReportScreen() {
             <Icon name="warning" size={44} color={colors.error} />
             <AppText variant="h6" style={{ marginTop: 10 }}>تعذر تحميل التقرير الشهري</AppText>
             <AppText variant="bodySM" color={colors.textSecondary} align="center" style={{ marginTop: 6, lineHeight: 20 }}>لم تُحوّل الاستجابة إلى بيانات فارغة. أعد المحاولة عند استقرار الاتصال.</AppText>
-            <TouchableOpacity onPress={() => router.replace('/ai/monthly-report')} style={[styles.primaryBtn, { backgroundColor: colors.primary }]}><AppText variant="bodySM" color="var(--nabd-bg.surface-light)">إعادة المحاولة</AppText></TouchableOpacity>
+            <TouchableOpacity onPress={() => router.replace('/ai/monthly-report')} style={[styles.primaryBtn, { backgroundColor: colors.primary }]}><AppText variant="bodySM" color="#fff">إعادة المحاولة</AppText></TouchableOpacity>
           </View>
         )}
         {!loadError && !hasAnyData && (
@@ -113,7 +113,7 @@ export default function MonthlyReportScreen() {
               سجّل قياساتك الحيوية واحجز مواعيدك من التطبيق، وسيُبنى تقريرك الشهري تلقائياً من بياناتك الحقيقية.
             </AppText>
             <TouchableOpacity onPress={() => router.push('/health/vitals-log')} style={[styles.primaryBtn, { backgroundColor: colors.primary }]}>
-              <AppText variant="bodySM" color="var(--nabd-bg.surface-light)">تسجيل قياس الآن</AppText>
+              <AppText variant="bodySM" color="#fff">تسجيل قياس الآن</AppText>
             </TouchableOpacity>
           </View>
         )}
@@ -227,7 +227,7 @@ export default function MonthlyReportScreen() {
         {/* Actions */}
         <View style={{ paddingHorizontal: 16, marginTop: 16, gap: 10 }}>
           <TouchableOpacity onPress={() => router.push('/health/trends')} style={[styles.primaryBtn, { backgroundColor: colors.primary }]}>
-            <AppText variant="bodySM" color="var(--nabd-bg.surface-light)">عرض المؤشرات التاريخية</AppText>
+            <AppText variant="bodySM" color="#fff">عرض المؤشرات التاريخية</AppText>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => router.push('/(tabs)/consultations')}
             style={[styles.secondaryBtn, { borderColor: colors.border }]}>

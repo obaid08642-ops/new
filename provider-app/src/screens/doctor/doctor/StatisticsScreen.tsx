@@ -96,7 +96,7 @@ export function StatisticsScreen({ onBack }: { onBack: () => void }) {
  backgroundColor: period===p.k ? theme.primary : theme.surface2,
  borderColor: period===p.k ? theme.primary : theme.border,
  }]}>
- <Text style={{ color: period===p.k ? 'var(--nabd-bg.surface-light)' : theme.text, fontWeight: FW.semi }}>
+ <Text style={{ color: period===p.k ? '#FFF' : theme.text, fontWeight: FW.semi }}>
  {AR ? p.ar : p.en}
  </Text>
  </TouchableOpacity>
@@ -230,7 +230,7 @@ export function DoctorServiceSlotsCard() {
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: 6, flexWrap: 'wrap', marginBottom: SP.md }}>
  {TYPES.map((t) => (
  <TouchableOpacity key={t} onPress={() => setServiceType(t)} style={{ paddingHorizontal: SP.md, paddingVertical: 6, borderRadius: R.full, borderWidth: 1.5, borderColor: serviceType === t ? theme.primary : theme.border, backgroundColor: serviceType === t ? theme.primary : theme.surface2 }}>
- <Text style={{ color: serviceType === t ? 'var(--nabd-bg.surface-light)' : theme.text, fontSize: FS.xs }}>{t}</Text>
+ <Text style={{ color: serviceType === t ? '#FFF' : theme.text, fontSize: FS.xs }}>{t}</Text>
  </TouchableOpacity>
  ))}
  </View>

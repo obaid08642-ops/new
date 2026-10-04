@@ -114,9 +114,9 @@ export default function InsuranceApprovalPendingScreen() {
       <StatusBar barStyle="light-content" />
       <View style={{ paddingTop: insets.top + 16, paddingBottom: 8, paddingHorizontal: 16 }}>
         <View style={[st.iconWrap, { backgroundColor: 'rgba(255,255,255,0.2)' } ]}>
-          <Icon name="check_circle" size={48} color="var(--nabd-bg.surface-light)" />
+          <Icon name="check_circle" size={48} color="#fff" />
         </View>
-        <AppText variant="h3" color="var(--nabd-bg.surface-light)" align="center">تمت الموافقة!</AppText>
+        <AppText variant="h3" color="#fff" align="center">تمت الموافقة!</AppText>
         <AppText variant="bodySM" color="rgba(255,255,255,0.85)" align="center">التأمين يغطي هذه الخدمة</AppText>
       </View>
 

@@ -225,7 +225,7 @@ export default function InsuranceHubScreen() {
         {(['policies', 'claims', 'refunds'] as const).map((t) => (
           <TouchableOpacity key={t} onPress={() => setHubTab(t)}
             style={{ flex: 1, paddingVertical: 10, borderRadius: 12, alignItems: 'center', backgroundColor: hubTab === t ? colors.primary : colors.surfaceSecondary }}>
-            <AppText variant="body" color={hubTab === t ? 'var(--nabd-bg.surface-light)' : colors.textPrimary}>
+            <AppText variant="body" color={hubTab === t ? '#fff' : colors.textPrimary}>
               {t === 'policies' ? 'الوثائق' : t === 'claims' ? 'المطالبات' : 'الاسترداد'}
             </AppText>
           </TouchableOpacity>
@@ -240,7 +240,7 @@ export default function InsuranceHubScreen() {
 
         {/* Active Policy Card */}
         {loadingPolicies ? (
-          <ActivityIndicator size="large" color="var(--nabd-bg.surface-light)" style={{ marginVertical: 40 }}/>
+          <ActivityIndicator size="large" color="#fff" style={{ marginVertical: 40 }}/>
         ) : defaultPolicy ? (
         <View
           style={[styles.policyCard, { backgroundColor: defaultPolicy.color } ]}>
@@ -251,9 +251,9 @@ export default function InsuranceHubScreen() {
               <AppText variant="caption" color="#4ADE80">نشط</AppText>
             </View>
             <View style={styles.policyCompany}>
-              <Icon name={defaultPolicy.logo as any} size={32} color="var(--nabd-bg.surface-light)" />
+              <Icon name={defaultPolicy.logo as any} size={32} color="#fff" />
               <View style={{ alignItems: 'flex-end' }}>
-                <AppText variant="h6" color="var(--nabd-bg.surface-light)">{defaultPolicy.company}</AppText>
+                <AppText variant="h6" color="#fff">{defaultPolicy.company}</AppText>
                 <AppText variant="caption" color="rgba(255,255,255,0.75)">{defaultPolicy.type}</AppText>
               </View>
             </View>
@@ -267,7 +267,7 @@ export default function InsuranceHubScreen() {
             ].map((m, i) => (
               <View key={i} style={{ alignItems: 'center' }}>
                 <AppText variant="caption" color="rgba(255,255,255,0.6)">{m.label}</AppText>
-                <AppText variant="bodySM" color="var(--nabd-bg.surface-light)" style={{ fontWeight: '700' }}>{m.val}</AppText>
+                <AppText variant="bodySM" color="#fff" style={{ fontWeight: '700' }}>{m.val}</AppText>
               </View>
             ))}
           </View>
@@ -287,7 +287,7 @@ export default function InsuranceHubScreen() {
         </View>
         ) : (
           <View style={[styles.policyCard, { backgroundColor: 'rgba(255,255,255,0.1)', justifyContent: 'center', alignItems: 'center', paddingVertical: 40 } ]}>
-            <AppText variant="h6" color="var(--nabd-bg.surface-light)">لا توجد بوليصة تأمين نشطة</AppText>
+            <AppText variant="h6" color="#fff">لا توجد بوليصة تأمين نشطة</AppText>
             <AppText variant="bodySM" color="rgba(255,255,255,0.7)">أضف بوليصتك للاستفادة من التغطية</AppText>
           </View>
         )}
@@ -297,8 +297,8 @@ export default function InsuranceHubScreen() {
           onPress={() => { setChiVisible(true); setChiLoading(true); setChiScraped(false); }} style={styles.chiBtn}
           activeOpacity={0.85}
         >
-          <Icon name="search" size={16} color="var(--nabd-bg.surface-light)" />
-          <AppText variant="bodySM" color="var(--nabd-bg.surface-light)" style={{ fontWeight: '800', marginRight: 6 }}>
+          <Icon name="search" size={16} color="#fff" />
+          <AppText variant="bodySM" color="#fff" style={{ fontWeight: '800', marginRight: 6 }}>
             استعلام تلقائي عن تأميني (بوابة الضمان الصحي)
           </AppText>
         </TouchableOpacity>
@@ -400,7 +400,7 @@ export default function InsuranceHubScreen() {
               <View style={{ alignItems: 'center', gap: 6 }}>
                 {policy.isDefault && (
                   <View style={[styles.defaultBadge]} >
-                    <AppText variant="caption" color="var(--nabd-bg.surface-light)" style={{ fontSize: 9 }}>افتراضي</AppText>
+                    <AppText variant="caption" color="#fff" style={{ fontSize: 9 }}>افتراضي</AppText>
                   </View>
                 )}
                 <View style={[styles.policyStatusDot, { backgroundColor: policy.isActive ? '#5BA84F' : '#F0695C' }]} />
@@ -461,9 +461,9 @@ export default function InsuranceHubScreen() {
           <View
             style={[styles.chiModalHeader, { paddingTop: insets.top + 8 } ]}>
             <TouchableOpacity onPress={() => setChiVisible(false)} style={styles.chiCloseBtn}>
-              <Icon name="close" size={20} color="var(--nabd-bg.surface-light)" />
+              <Icon name="close" size={20} color="#fff" />
             </TouchableOpacity>
-            <AppText variant="h6" color="var(--nabd-bg.surface-light)">بوابة الضمان الصحي</AppText>
+            <AppText variant="h6" color="#fff">بوابة الضمان الصحي</AppText>
             <View style={{ width: 36 }}/>
           </View>
 
@@ -485,8 +485,8 @@ export default function InsuranceHubScreen() {
 
           {chiSaving && (
             <View style={[styles.chiSavingOverlay]} >
-              <ActivityIndicator size="large" color="var(--nabd-bg.surface-light)" />
-              <AppText variant="h6" color="var(--nabd-bg.surface-light)" style={{ marginTop: 12 }}>جاري حفظ بيانات التأمين...</AppText>
+              <ActivityIndicator size="large" color="#fff" />
+              <AppText variant="h6" color="#fff" style={{ marginTop: 12 }}>جاري حفظ بيانات التأمين...</AppText>
             </View>
           )}
 

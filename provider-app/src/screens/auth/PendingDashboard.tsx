@@ -67,7 +67,7 @@ export function PendingDashboard({ onExplore, onLogout, providerType }: { onExpl
             alignItems: 'center', justifyContent: 'center',
             marginBottom: SP.lg,
           }}>
-            <I name="hourglass" size={36} color="var(--nabd-bg.surface-light)" />
+            <I name="hourglass" size={36} color="#FFF" />
           </View>
           <Text style={{ fontSize: FS['3xl'], fontWeight: FW.bold, color: theme.text, textAlign: 'center', marginBottom: SP.sm }}>
             {AR ? 'حسابك قيد المراجعة' : 'Account Under Review'}

@@ -492,7 +492,7 @@ function PStep3Location({ data, update, onNext, onBack, step, total, bare = fals
             <View style={{ flexDirection:'row', flexWrap:'wrap', gap:SP.sm, marginBottom:SP.md }}>
               {[2, 4, 6, 8, 10, 15, 20, 50].map(r => (
                 <TouchableOpacity key={r} onPress={() => update({ deliveryRadius:r })} style={[s.radiusChip, { backgroundColor: data.deliveryRadius===r ? theme.primary : theme.surface2, borderColor: data.deliveryRadius===r ? theme.primary : theme.border }]}>
-                  <Text style={{ color:data.deliveryRadius===r?'var(--nabd-bg.surface-light)':theme.text, fontWeight:FW.semi }}>{r} {AR?'كم':'km'}</Text>
+                  <Text style={{ color:data.deliveryRadius===r?'#FFF':theme.text, fontWeight:FW.semi }}>{r} {AR?'كم':'km'}</Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -573,7 +573,7 @@ function PStep4Hours({ data, update, onNext, onBack, step, total, bare = false, 
               const active = data.workDays.includes(d.k);
               return (
                 <TouchableOpacity key={d.k} onPress={() => toggleDay(d.k)} style={[s.dayChip, { backgroundColor: active ? theme.primary : theme.surface2, borderColor: active ? theme.primary : theme.border }]}>
-                  <Text style={{ color:active?'var(--nabd-bg.surface-light)':theme.text, fontSize:FS.sm, fontWeight:FW.semi }}>{AR?d.ar:d.k}</Text>
+                  <Text style={{ color:active?'#FFF':theme.text, fontSize:FS.sm, fontWeight:FW.semi }}>{AR?d.ar:d.k}</Text>
                 </TouchableOpacity>
               );
             })}
@@ -780,7 +780,7 @@ function PStep6Delivery({ data, update, onNext, onBack, step, total, bare = fals
                   <TouchableOpacity onPress={() => toggleCompany(co.id)} style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Text style={{ fontSize: FS.md, color: theme.text, fontWeight: FW.bold }}>{AR ? co.ar : co.en}</Text>
                     <View style={{ width: 22, height: 22, borderRadius: R.sm, borderWidth: 2, borderColor: isAccepted ? theme.primary : theme.border, backgroundColor: isAccepted ? theme.primary : 'transparent', alignItems: 'center', justifyContent: 'center' }}>
-                      {isAccepted && <I name="check" size={12} color="var(--nabd-bg.surface-light)" />}
+                      {isAccepted && <I name="check" size={12} color="#FFF" />}
                     </View>
                   </TouchableOpacity>
 
@@ -1060,7 +1060,7 @@ function PStep7Submit({ data, update, onDone, onBack, step, total }: any) {
         <View style={{ marginBottom: 20, gap: 10 }}>
           {data.signatureData ? (
              <View style={{ alignItems: 'center', marginVertical: 10 }}>
-               <Image source={{ uri: data.signatureData }} style={{ width: 200, height: 100, resizeMode: 'contain', backgroundColor: 'var(--nabd-bg.surface-light)' }} />
+               <Image source={{ uri: data.signatureData }} style={{ width: 200, height: 100, resizeMode: 'contain', backgroundColor: '#fff' }} />
                <TouchableOpacity onPress={() => setShowSigModal(true)} style={{ marginTop: 8 }}><Text style={{ color: theme.primary }}>{AR ? 'إعادة التوقيع' : 'Re-sign'}</Text></TouchableOpacity>
              </View>
           ) : (

@@ -46,7 +46,7 @@ export default async function ReviewsPage({ params, searchParams }: Props) {
       </div>
 
       {list.length === 0 ? (
-        <div style={{ background: "var(--nabd-bg.surface-light)", borderRadius: 20, padding: 36, textAlign: "center", border: "1px dashed var(--line)", color: "var(--muted)" }}>
+        <div style={{ background: "#FFFFFF", borderRadius: 20, padding: 36, textAlign: "center", border: "1px dashed var(--line)", color: "var(--muted)" }}>
           <Star size={36} color="var(--muted)" style={{ margin: "0 auto 12px" }} />
           <p style={{ margin: 0 }}>{t("empty")}</p>
         </div>
@@ -58,7 +58,7 @@ export default async function ReviewsPage({ params, searchParams }: Props) {
               <li
                 key={String(r?.id ?? i)}
                 style={{
-                  background: "var(--nabd-bg.surface-light)",
+                  background: "#FFFFFF",
                   borderRadius: 18,
                   padding: "18px 20px",
                   boxShadow: "var(--shadow-sm)",

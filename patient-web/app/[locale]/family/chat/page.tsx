@@ -28,7 +28,7 @@ export default async function FamilyChatPage({ params }: Props) {
         </div>
         <div className={styles.introVector}><VectorFamily size={48} aria-hidden="true" /></div>
       </section>
-      <section className={styles.detail} style={{ padding: 16, backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderColor: "#E8EDEE", borderRadius: 20, background: "var(--nabd-bg.surface-light)" }}>
+      <section className={styles.detail} style={{ padding: 16, backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderColor: "#E8EDEE", borderRadius: 20, background: "#FFFFFF" }}>
         <h2 style={{ display: "flex", alignItems: "center", gap: 8, margin: "0 0 8px", overflowWrap: "anywhere", color: "#1E332E" } as React.CSSProperties}><MessagesSquare size={17} aria-hidden="true" />{ar ? "المحادثة" : "Conversation"}</h2>
         <FamilyChatClient locale={locale} />
       </section>

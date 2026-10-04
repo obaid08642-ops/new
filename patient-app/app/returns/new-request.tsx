@@ -176,7 +176,7 @@ export default function NewReturnRequestScreen() {
                 <View style={styles.typeCardLeft}>
                   {serviceType === t.id && (
                     <View style={[styles.selectedCheck, { backgroundColor: t.color } ]}>
-                      <Icon name="check" size={14} color="var(--nabd-bg.surface-light)" />
+                      <Icon name="check" size={14} color="#fff" />
                     </View>
                   )}
                 </View>
@@ -322,7 +322,7 @@ export default function NewReturnRequestScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   successContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12, padding: 32 },
-  successTitle: { color: 'var(--nabd-bg.surface-light)', fontSize: 24, fontWeight: '800', textAlign: 'center' },
+  successTitle: { color: '#fff', fontSize: 24, fontWeight: '800', textAlign: 'center' },
   successRef: { color: 'rgba(255,255,255,0.7)', fontSize: 14, fontWeight: '700' },
   successNote: { color: 'rgba(255,255,255,0.75)', fontSize: 13, fontWeight: '400', textAlign: 'center', lineHeight: 20 },
   doneBtn: { backgroundColor: 'transparent', borderRadius: 16, paddingHorizontal: 32, paddingVertical: 13, marginTop: 8 },
@@ -333,7 +333,7 @@ const styles = StyleSheet.create({
   progressBar: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'center', paddingVertical: 12, paddingHorizontal: 20, borderBottomWidth: 1, borderBottomColor: 'rgba(0,0,0,0.06)' },
   progressStep: { flexDirection: 'row-reverse', alignItems: 'center', gap: 6 },
   progressDot: { width: 24, height: 24, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
-  progressDotText: { color: 'var(--nabd-bg.surface-light)', fontSize: 11, fontWeight: '800' },
+  progressDotText: { color: '#fff', fontSize: 11, fontWeight: '800' },
   progressLabel: { fontSize: 10, fontWeight: '400' },
   progressLine: { width: 30, height: 2, borderRadius: 1, marginHorizontal: 4 },
   stepTitle: { fontSize: 15, fontWeight: '800', textAlign: 'right' },
@@ -345,7 +345,7 @@ const styles = StyleSheet.create({
   typeCardLeft: { alignItems: 'center' },
   selectedCheck: { width: 24, height: 24, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
   nextBtn: { height: 54, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
-  nextBtnText: { color: 'var(--nabd-bg.surface-light)', fontSize: 16, fontWeight: '800' },
+  nextBtnText: { color: '#fff', fontSize: 16, fontWeight: '800' },
   card: { borderRadius: 18, padding: 14, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 },
   cardLabel: { fontSize: 13, fontWeight: '700', textAlign: 'right', marginBottom: 10 },
   inputRow: { flexDirection: 'row-reverse', alignItems: 'center', borderRadius: 12, borderWidth: 1, height: 46, paddingHorizontal: 12 },
@@ -371,5 +371,5 @@ const styles = StyleSheet.create({
   policyNote: { borderRadius: 12, padding: 12 },
   policyNoteText: { color: '#6D28D9', fontSize: 12, fontWeight: '400', textAlign: 'right', lineHeight: 18 },
   submitBtn: { height: 54, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
-  submitBtnText: { color: 'var(--nabd-bg.surface-light)', fontSize: 16, fontWeight: '800' },
+  submitBtnText: { color: '#fff', fontSize: 16, fontWeight: '800' },
 });

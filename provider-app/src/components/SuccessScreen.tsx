@@ -45,7 +45,7 @@ export const SuccessScreen = ({ onDone, title, message }: SuccessScreenProps) =>
           onPress={onDone}
           style={{ width: width - SP.xl * 2, backgroundColor: theme.primary, paddingVertical: 16, borderRadius: R.md, alignItems: 'center', position: 'absolute', bottom: SP.xxl }}
         >
-          <Text style={{ color: 'var(--nabd-bg.surface-light)', fontSize: FS.md, fontWeight: FW.bold }}>
+          <Text style={{ color: '#FFF', fontSize: FS.md, fontWeight: FW.bold }}>
             {AR ? 'العودة للرئيسية' : 'Back to Home'}
           </Text>
         </TouchableOpacity>

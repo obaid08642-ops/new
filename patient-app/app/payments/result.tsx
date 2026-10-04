@@ -264,7 +264,7 @@ function PaymentProcessingScreenInner() {
         >
           <View style={styles.webviewHeaderContent}>
             <Icon name="lock" size={14} color="#5BA84F" />
-            <AppText variant="bodySM" style={{ color: 'var(--nabd-bg.surface-light)' }}>
+            <AppText variant="bodySM" style={{ color: '#fff' }}>
               دفع آمن - Moyasar
             </AppText>
             <Icon name="card" size={14} color={colors.primary} />
@@ -330,7 +330,7 @@ function PaymentProcessingScreenInner() {
         </Animated.View>
 
         {/* Status text */}
-        <AppText variant="bodySM" style={{ color: 'var(--nabd-bg.surface-light)', textAlign: 'center' }}>
+        <AppText variant="bodySM" style={{ color: '#fff', textAlign: 'center' }}>
           {statusText}
         </AppText>
         <AppText
@@ -368,7 +368,7 @@ function PaymentProcessingScreenInner() {
         {/* Amount badge */}
         {amount && (
           <View style={styles.amountBadge}>
-            <AppText variant="bodySM" style={{ color: 'var(--nabd-bg.surface-light)' }}>
+            <AppText variant="bodySM" style={{ color: '#fff' }}>
               {amount} ريال
             </AppText>
           </View>

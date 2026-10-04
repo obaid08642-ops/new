@@ -53,7 +53,7 @@ export function ChronicDiseaseProgramScreen({ onBack }: { onBack: () => void }) 
       <NHeader title={AR ? 'برنامج رعاية الأمراض المزمنة' : 'Chronic Disease Care Program'} onBack={onBack} />
       <NScroll pad>
         <NCard style={{ marginBottom: SP.md, backgroundColor: theme.primary, padding: SP.lg }}>
-          <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: 'var(--nabd-bg.surface-light)', textAlign: AR ? 'right' : 'left' }}>
+          <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: '#fff', textAlign: AR ? 'right' : 'left' }}>
              {AR?'برنامج صرف الأدوية الشهرية التلقائي':'Monthly Auto-Refill Program'}
           </Text>
           <Text style={{ fontSize: FS.xs, color: '#e0f2fe', marginTop: 4, textAlign: AR ? 'right' : 'left' }}>

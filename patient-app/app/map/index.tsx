@@ -111,7 +111,7 @@ const HologramMarker3D = ({
             ],
           },
         ]}>
-        <Icon name={provider.icon} size={isSelected ? 22 : 18} color="var(--nabd-bg.surface-light)" />
+        <Icon name={provider.icon} size={isSelected ? 22 : 18} color="#fff" />
       </View>
 
       {/* — open / closed dot (hidden when availability unknown) — */}
@@ -133,7 +133,7 @@ const HologramMarker3D = ({
           style={[
             styles.markerLabel,
             { backgroundColor: provider.color, bottom: lift * -1 + 12 },]} >
-          <AppText variant="bodySM" color="var(--nabd-bg.surface-light)" style={{ fontSize: 9, fontWeight: '700' }}>
+          <AppText variant="bodySM" color="#fff" style={{ fontSize: 9, fontWeight: '700' }}>
             {provider.name}
           </AppText>
         </View>
@@ -396,7 +396,7 @@ export default function MapScreen() {
         <TouchableOpacity
           style={[styles.locBtn, {
             top: insets.top + 148,
-            backgroundColor: isDark ? colors.surface : 'var(--nabd-bg.surface-light)',
+            backgroundColor: isDark ? colors.surface : '#fff',
             shadowColor: '#000',
           }]}
           onPress={goToMyLocation}
@@ -424,7 +424,7 @@ export default function MapScreen() {
             <Icon name="back" size={22} color={colors.textPrimary} />
           </TouchableOpacity>
 
-          <View style={[styles.searchWrap, { backgroundColor: isDark ? colors.surface : 'var(--nabd-bg.surface-light)', borderColor: colors.border } ]}>
+          <View style={[styles.searchWrap, { backgroundColor: isDark ? colors.surface : '#fff', borderColor: colors.border } ]}>
             <Icon name="search" size={18} color={colors.textTertiary} />
             <TextInput
               ref={searchInputRef}
@@ -448,7 +448,7 @@ export default function MapScreen() {
         {/* Search results dropdown */}
         {showResults && searchResults.length > 0 && (
           <View
-            style={[styles.searchDropdown, { backgroundColor: isDark ? colors.surface : 'var(--nabd-bg.surface-light)', borderColor: colors.border }]}
+            style={[styles.searchDropdown, { backgroundColor: isDark ? colors.surface : '#fff', borderColor: colors.border }]}
             pointerEvents="auto"
           >
             {searchResults.map((item, idx) => (
@@ -487,11 +487,11 @@ export default function MapScreen() {
               onPress={() => { setSelectedType(type.id); Keyboard.dismiss(); setShowResults(false); }} style={[
                 styles.filterChip,
                 {
-                  backgroundColor: selectedType === type.id ? type.color : isDark ? colors.surface : 'var(--nabd-bg.surface-light)',
+                  backgroundColor: selectedType === type.id ? type.color : isDark ? colors.surface : '#fff',
                   borderColor: selectedType === type.id ? type.color : colors.border,
                 },]} >
-              <Icon name={type.icon} size={16} color={selectedType === type.id ? 'var(--nabd-bg.surface-light)' : type.color} />
-              <AppText variant="bodySM" color={selectedType === type.id ? 'var(--nabd-bg.surface-light)' : colors.textPrimary}>
+              <Icon name={type.icon} size={16} color={selectedType === type.id ? '#fff' : type.color} />
+              <AppText variant="bodySM" color={selectedType === type.id ? '#fff' : colors.textPrimary}>
                 {type.label}
               </AppText>
             </TouchableOpacity>
@@ -515,7 +515,7 @@ export default function MapScreen() {
                 activeOpacity={0.85}
                 style={[
                   styles.quickCard,
-                  { backgroundColor: isDark ? colors.surface : 'var(--nabd-bg.surface-light)', borderColor: colors.border },]} >
+                  { backgroundColor: isDark ? colors.surface : '#fff', borderColor: colors.border },]} >
                 <View style={[styles.quickTop, { backgroundColor: prov.color + '18' } ]}>
                   <Icon name={prov.icon} size={20} color={prov.color} />
                   {prov.isOpen != null && (
@@ -559,7 +559,7 @@ export default function MapScreen() {
               {
                 paddingBottom: insets.bottom + 8,
                 transform: [{ translateY: sheetTranslateY }],
-                backgroundColor: isDark ? colors.surface : 'var(--nabd-bg.surface-light)',
+                backgroundColor: isDark ? colors.surface : '#fff',
               },
             ]}>
             {/* handle */}
@@ -572,7 +572,7 @@ export default function MapScreen() {
               <View style={styles.avatarWrap}>
                 <Animated.Image source={{ uri: selectedProvider.image }} style={styles.avatar} />
                 <View style={[styles.typeBadge, { backgroundColor: selectedProvider.color } ]}>
-                  <Icon name={selectedProvider.icon} size={11} color="var(--nabd-bg.surface-light)" />
+                  <Icon name={selectedProvider.icon} size={11} color="#fff" />
                 </View>
               </View>
               <View style={styles.provTitles}>
@@ -660,7 +660,7 @@ export default function MapScreen() {
                 <View
                   style={styles.bookGrad}
                 >
-                  <AppText variant="h6" color="var(--nabd-bg.surface-light)">
+                  <AppText variant="h6" color="#fff">
                     {selectedProvider.type === 'pharmacy' ? 'تسوق المنتجات'
                      : selectedProvider.type === 'lab'      ? 'احجز فحص'
                      : selectedProvider.type === 'nursing'  ? 'اطلب تمريض'
@@ -697,7 +697,7 @@ const styles = StyleSheet.create({
   },
   availDot: {
     position: 'absolute', right: 22, width: 11, height: 11,
-    borderRadius: 6, borderWidth: 2, borderColor: 'var(--nabd-bg.surface-light)',
+    borderRadius: 6, borderWidth: 2, borderColor: '#fff',
   },
   markerLabel: {
     position: 'absolute', borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2,
@@ -766,7 +766,7 @@ const styles = StyleSheet.create({
   avatar: { width: '100%', height: '100%', borderRadius: 30, backgroundColor: '#E2E8F0' },
   typeBadge: {
     position: 'absolute', bottom: -4, right: -4, width: 22, height: 22, borderRadius: 11,
-    justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: 'var(--nabd-bg.surface-light)',
+    justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: '#fff',
   },
   provTitles: { flex: 1, alignItems: 'flex-end', gap: 4 },
   statsRow: { flexDirection: 'row-reverse', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 18 },

@@ -287,7 +287,7 @@ export default function AppointmentsScreen() {
                         { backgroundColor: colors.primary },
                       ]}
                     >
-                      <AppText variant="labelSM" color="var(--nabd-bg.surface-light)">
+                      <AppText variant="labelSM" color="#fff">
                         انضم الآن
                       </AppText>
                     </TouchableOpacity>
@@ -360,7 +360,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     marginTop: 8,
   },
-  bookNowText: { color: "var(--nabd-bg.surface-light)", fontSize: 15, fontWeight: "800" },
+  bookNowText: { color: "#fff", fontSize: 15, fontWeight: "800" },
   apptCard: {
     borderRadius: 20,
     overflow: "hidden",
@@ -424,7 +424,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  joinBtnText: { color: "var(--nabd-bg.surface-light)", fontSize: 13, fontWeight: "800" },
+  joinBtnText: { color: "#fff", fontSize: 13, fontWeight: "800" },
   rebookBtn: {
     marginHorizontal: 16,
     marginBottom: 14,

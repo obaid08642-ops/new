@@ -48,7 +48,7 @@ export function ClaimButton({ rewardId, disabled, labels }: { rewardId: string; 
             : isSuccess
             ? "#00876F"
             : "linear-gradient(135deg, #F59E0B, #D97706)",
-          color: "var(--nabd-bg.surface-light)",
+          color: "#fff",
           fontSize: "0.86rem",
           fontWeight: 700,
           cursor: disabled || isSuccess ? "default" : "pointer",

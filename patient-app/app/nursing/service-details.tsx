@@ -206,7 +206,7 @@ export default function NursingServiceDetails() {
       {/* PRE-BOOKING LOCK MODAL (Injections) */}
       <Modal visible={lockVisible} transparent animationType="fade">
         <View style={{ flex: 1, backgroundColor: 'rgba(15,23,42,0.7)', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
-          <View style={{ backgroundColor: 'var(--nabd-bg.surface-light)', borderRadius: 24, padding: 24, width: '100%', alignItems: 'center' }}>
+          <View style={{ backgroundColor: '#fff', borderRadius: 24, padding: 24, width: '100%', alignItems: 'center' }}>
             <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: '#FEF2F2', justifyContent: 'center', alignItems: 'center', marginBottom: 16 }}>
               <Svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#EF4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><Path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><Line x1="12" y1="9" x2="12" y2="13"/><Line x1="12" y1="17" x2="12.01" y2="17"/></Svg>
             </View>
@@ -223,7 +223,7 @@ export default function NursingServiceDetails() {
                   router.push({ pathname: '/nursing/nurse-profile', params: { nurseId: selectedNurseForLock, flow, serviceId } });
                 }}
               >
-                <LocalizedText style={{ fontFamily: 'Cairo-Bold', color: 'var(--nabd-bg.surface-light)', fontSize: 15 }}>أوافق وأمتلك وصفة</LocalizedText>
+                <LocalizedText style={{ fontFamily: 'Cairo-Bold', color: '#fff', fontSize: 15 }}>أوافق وأمتلك وصفة</LocalizedText>
               </TouchableOpacity>
               <TouchableOpacity 
                 style={{ flex: 1, backgroundColor: '#F1F5F9', paddingVertical: 14, borderRadius: 12, alignItems: 'center' }}
@@ -250,7 +250,7 @@ const styles = StyleSheet.create({
   heroIconWrap: { width: 64, height: 64, borderRadius: 20, backgroundColor: 'rgba(56,189,248,0.15)', justifyContent: 'center', alignItems: 'center', marginBottom: 16 },
   heroDesc: { fontFamily: 'Cairo-Bold', fontSize: 15, color: '#E2E8F0', textAlign: 'center', marginBottom: 20, lineHeight: 26 },
   heroMeta: { flexDirection: 'row-reverse', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.1)', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 100 },
-  heroMetaText: { fontFamily: 'Cairo-Medium', fontSize: 13, color: 'var(--nabd-bg.surface-light)' },
+  heroMetaText: { fontFamily: 'Cairo-Medium', fontSize: 13, color: '#fff' },
   dot: { width: 4, height: 4, borderRadius: 2, backgroundColor: 'rgba(255,255,255,0.4)', marginHorizontal: 12 },
   
   listHeaderRow: { flexDirection: 'row-reverse', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, marginBottom: 20 },
@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
   card: { backgroundColor: 'transparent', marginHorizontal: 20, marginBottom: 20, borderRadius: 24, padding: 20, borderWidth: 1, borderColor: '#E2E8F0', shadowColor: '#94A3B8', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.08, shadowRadius: 16, elevation: 4 },
   cardRow: { flexDirection: 'row-reverse', alignItems: 'center', paddingBottom: 16, borderBottomWidth: 1, borderBottomColor: '#F1F5F9' },
   avatarBox: { width: 68, height: 68, borderRadius: 34, backgroundColor: '#F8FAFC', justifyContent: 'center', alignItems: 'center', marginLeft: 16, borderWidth: 1.5, borderColor: '#F1F5F9' },
-  onlineBadge: { position: 'absolute', bottom: 2, left: 2, width: 16, height: 16, borderRadius: 8, borderWidth: 2, borderColor: 'var(--nabd-bg.surface-light)' },
+  onlineBadge: { position: 'absolute', bottom: 2, left: 2, width: 16, height: 16, borderRadius: 8, borderWidth: 2, borderColor: '#fff' },
   
   infoCol: { flex: 1, alignItems: 'flex-end' },
   nurseName: { fontFamily: 'Cairo-Bold', fontSize: 17, color: '#1E293B', marginBottom: 6 },
@@ -277,10 +277,10 @@ const styles = StyleSheet.create({
   currency: { fontSize: 14, color: '#64748B' },
   selectBtn: { width: 140, height: 48, borderRadius: 16, overflow: 'hidden', shadowColor: '#23B5CE', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.3, shadowRadius: 12, elevation: 4 },
   selectBtnGradient: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  selectBtnText: { fontFamily: 'Cairo-Bold', fontSize: 15, color: 'var(--nabd-bg.surface-light)' },
+  selectBtnText: { fontFamily: 'Cairo-Bold', fontSize: 15, color: '#fff' },
 
   modalBg: { flex: 1, backgroundColor: 'rgba(15,23,42,0.5)', justifyContent: 'flex-end' },
-  modalContent: { backgroundColor: 'var(--nabd-bg.surface-light)', borderTopLeftRadius: 32, borderTopRightRadius: 32, padding: 24, paddingBottom: 40 },
+  modalContent: { backgroundColor: '#fff', borderTopLeftRadius: 32, borderTopRightRadius: 32, padding: 24, paddingBottom: 40 },
   modalHandle: { width: 40, height: 5, backgroundColor: '#E2E8F0', borderRadius: 3, alignSelf: 'center', marginBottom: 24 },
   modalHeaderRow: { flexDirection: 'row-reverse', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
   modalTitle: { fontFamily: 'Cairo-Bold', fontSize: 20, color: '#0F172A' },

@@ -145,7 +145,7 @@ function SearchInner() {
                 borderWidth: searchCat === i ? 0 : 1.5,
                 borderColor: colors.bd
               } ]}>
-              <LocalizedText style={{ fontSize: 11.5, fontWeight: '600', color: searchCat === i ? 'var(--nabd-bg.surface-light)' : colors.t3 }}>
+              <LocalizedText style={{ fontSize: 11.5, fontWeight: '600', color: searchCat === i ? '#fff' : colors.t3 }}>
                 {ct}
               </LocalizedText>
             </TouchableOpacity>

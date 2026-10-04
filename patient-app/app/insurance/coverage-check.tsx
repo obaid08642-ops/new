@@ -82,7 +82,7 @@ function CoverageCheckScreenInner() {
         <View style={{ paddingTop: insets.top + 16, paddingBottom: 8, paddingHorizontal: 16 }}>
           <View style={styles.headerRow}>
             <TouchableOpacity onPress={() => setStep('form')} style={styles.backBtn}>
-              <Icon name="back" size={22} color="var(--nabd-bg.surface-light)" />
+              <Icon name="back" size={22} color="#fff" />
             </TouchableOpacity>
             <AppText variant="bodySM">نتيجة الفحص</AppText>
             <View style={{ width: 36 }}/>
@@ -92,9 +92,9 @@ function CoverageCheckScreenInner() {
         <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 100 }]} showsVerticalScrollIndicator={false}>
           {/* Coverage status */}
           <View style={[styles.networkBanner, { backgroundColor: covered ? '#16A34A' : '#DC2626' }]}>
-            <Icon name={covered ? 'check_circle' : 'warning'} size={28} color="var(--nabd-bg.surface-light)" />
+            <Icon name={covered ? 'check_circle' : 'warning'} size={28} color="#fff" />
             <View style={styles.networkInfo}>
-              <AppText variant="bodySM" color="var(--nabd-bg.surface-light)">
+              <AppText variant="bodySM" color="#fff">
                 {covered ? `${svcLabel} مغطاة ضمن وثيقتك` : 'الخدمة غير مغطاة'}
               </AppText>
               {!!bannerSub && <AppText variant="bodySM" color="rgba(255,255,255,0.9)">{bannerSub}</AppText>}
@@ -164,7 +164,7 @@ function CoverageCheckScreenInner() {
       <View style={{ paddingTop: insets.top + 16, paddingBottom: 8, paddingHorizontal: 16 }}>
         <View style={styles.headerRow}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-            <Icon name="back" size={22} color="var(--nabd-bg.surface-light)" />
+            <Icon name="back" size={22} color="#fff" />
           </TouchableOpacity>
           <AppText variant="bodySM">فحص التغطية</AppText>
           <View style={{ width: 36 }}/>
@@ -213,13 +213,13 @@ function CoverageCheckScreenInner() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12, padding: 32 },
-  loadingTitle: { color: 'var(--nabd-bg.surface-light)', fontSize: 22, fontWeight: '800' },
+  loadingTitle: { color: '#fff', fontSize: 22, fontWeight: '800' },
   loadingStep: { flexDirection: 'row-reverse', alignItems: 'center', gap: 8 },
   loadingStepIcon: { fontSize: 14 },
   loadingStepText: { color: 'rgba(255,255,255,0.8)', fontSize: 13, fontWeight: '400' },
   header: { paddingHorizontal: 20, paddingBottom: 16 },
   headerRow: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between' },
-  headerTitle: { color: 'var(--nabd-bg.surface-light)', fontSize: 17, fontWeight: '800', flex: 1, textAlign: 'center' },
+  headerTitle: { color: '#fff', fontSize: 17, fontWeight: '800', flex: 1, textAlign: 'center' },
   backBtn: { width: 36, height: 36, borderRadius: 11, backgroundColor: 'rgba(255,255,255,0.15)', justifyContent: 'center', alignItems: 'center' },
   content: { padding: 16, gap: 12 },
   card: { borderRadius: 20, padding: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 },
@@ -232,11 +232,11 @@ const styles = StyleSheet.create({
   inputRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: 10, borderRadius: 12, borderWidth: 1, height: 46, paddingHorizontal: 12 },
   input: { flex: 1, fontSize: 14, fontWeight: '400' },
   checkBtn: { height: 54, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
-  checkBtnText: { color: 'var(--nabd-bg.surface-light)', fontSize: 16, fontWeight: '800' },
+  checkBtnText: { color: '#fff', fontSize: 16, fontWeight: '800' },
   networkBanner: { borderRadius: 18, padding: 16, flexDirection: 'row-reverse', alignItems: 'center', gap: 12 },
   networkIcon: { fontSize: 32 },
   networkInfo: { flex: 1, alignItems: 'flex-end', gap: 4 },
-  networkTitle: { color: 'var(--nabd-bg.surface-light)', fontSize: 15, fontWeight: '800' },
+  networkTitle: { color: '#fff', fontSize: 15, fontWeight: '800' },
   networkSub: { color: 'rgba(255,255,255,0.85)', fontSize: 12, fontWeight: '400' },
   coverageSplit: { flexDirection: 'row-reverse', alignItems: 'center', marginBottom: 16 },
   splitItem: { flex: 1, alignItems: 'center', gap: 4 },
@@ -254,7 +254,7 @@ const styles = StyleSheet.create({
   preAuthCard: { borderRadius: 16, padding: 14, gap: 10 },
   preAuthText: { color: '#92400E', fontSize: 13, fontWeight: '400', textAlign: 'right', lineHeight: 20 },
   preAuthBtn: { borderRadius: 12, paddingVertical: 10, alignItems: 'center' },
-  preAuthBtnText: { color: 'var(--nabd-bg.surface-light)', fontSize: 13, fontWeight: '800' },
+  preAuthBtnText: { color: '#fff', fontSize: 13, fontWeight: '800' },
   limitInfo: { flexDirection: 'row-reverse', justifyContent: 'space-between', marginBottom: 8 },
   limitRemaining: { fontSize: 16, fontWeight: '800' },
   limitUsed: { fontSize: 12, fontWeight: '400' },
@@ -262,7 +262,7 @@ const styles = StyleSheet.create({
   limitFill: { height: '100%', backgroundColor: '#5BA84F', borderRadius: 4 },
   bottomBar: { paddingHorizontal: 16, paddingTop: 12, shadowColor: '#000', shadowOffset: { width: 0, height: -3 }, shadowOpacity: 0.07, shadowRadius: 10, elevation: 8 },
   proceedBtn: { height: 56, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
-  proceedText: { color: 'var(--nabd-bg.surface-light)', fontSize: 16, fontWeight: '800' },
+  proceedText: { color: '#fff', fontSize: 16, fontWeight: '800' },
 });
 
 // __RouteGuard: Phase 2 unified-screen host (view=benefits)

@@ -271,7 +271,7 @@ export default function BookAppointmentScreen() {
                   }]}
                 >
                   <AppText variant="caption" color={active ? 'rgba(255,255,255,0.85)' : colors.textTertiary}>{d.label}</AppText>
-                  <AppText variant="h4" color={active ? 'var(--nabd-bg.surface-light)' : colors.textPrimary}>{d.dateNum}</AppText>
+                  <AppText variant="h4" color={active ? '#fff' : colors.textPrimary}>{d.dateNum}</AppText>
                   <AppText variant="caption" color={active ? 'rgba(255,255,255,0.85)' : colors.textTertiary}>{d.month}</AppText>
                 </TouchableOpacity>
               );
@@ -305,7 +305,7 @@ export default function BookAppointmentScreen() {
                       opacity: disabled ? 0.35 : 1,
                     }]}
                   >
-                    <AppText variant="labelSM" color={active ? 'var(--nabd-bg.surface-light)' : colors.textPrimary}>
+                    <AppText variant="labelSM" color={active ? '#fff' : colors.textPrimary}>
                       {new Date(s.start).toLocaleTimeString(dateLocale(), { hour: '2-digit', minute: '2-digit' })}
                     </AppText>
                   </TouchableOpacity>

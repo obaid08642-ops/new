@@ -64,9 +64,9 @@ export default function AppGate({ children }: { children: React.ReactNode }) {
 }
 
 const styles = StyleSheet.create({
-  center: { flex: 1, backgroundColor: 'var(--nabd-bg.surface-light)', alignItems: 'center', justifyContent: 'center', padding: 24, gap: 12 },
+  center: { flex: 1, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center', padding: 24, gap: 12 },
   title: { fontSize: 20, fontWeight: '800', color: '#101828', textAlign: 'center' },
   body: { fontSize: 14, color: '#475467', textAlign: 'center', lineHeight: 22 },
   retry: { backgroundColor: '#0E7C7B', borderRadius: 12, paddingHorizontal: 24, paddingVertical: 12, marginTop: 8 },
-  retryText: { color: 'var(--nabd-bg.surface-light)', fontSize: 15, fontWeight: '700' },
+  retryText: { color: '#FFFFFF', fontSize: 15, fontWeight: '700' },
 });

@@ -98,13 +98,13 @@ export default function OfferDetailsScreen() {
             </View>
           )}
           <View style={[st.topActions, { paddingTop: insets.top + 8 }]}>
-            <IconButton icon="share" bg="rgba(255,255,255,0.25)" color="var(--nabd-bg.surface-light)" onPress={handleShare} />
-            <IconButton icon="back" bg="rgba(255,255,255,0.25)" color="var(--nabd-bg.surface-light)" onPress={() => router.back()} />
+            <IconButton icon="share" bg="rgba(255,255,255,0.25)" color="#fff" onPress={handleShare} />
+            <IconButton icon="back" bg="rgba(255,255,255,0.25)" color="#fff" onPress={() => router.back()} />
           </View>
 
           <View style={st.overlayTitle}>
-            {!!target.sponsored && <Badge label="ممول" color="var(--nabd-bg.surface-light)" bg="rgba(239,68,68,0.9)" style={{ marginBottom: 6 }} />}
-            <AppText variant="h2" color="var(--nabd-bg.surface-light)" style={st.titleText}>{title}</AppText>
+            {!!target.sponsored && <Badge label="ممول" color="#fff" bg="rgba(239,68,68,0.9)" style={{ marginBottom: 6 }} />}
+            <AppText variant="h2" color="#fff" style={st.titleText}>{title}</AppText>
             {!!providerName && (
               <View style={st.providerRow}>
                 <Icon name="hospital" size={16} color="rgba(255,255,255,0.8)" />

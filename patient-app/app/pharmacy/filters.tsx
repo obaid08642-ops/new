@@ -147,7 +147,7 @@ export default function PharmacyFiltersScreen() {
             <LocalizedText style={{ fontSize: 17, fontFamily: 'Cairo-Bold', color: colors.n }}>تصفية النتائج</LocalizedText>
             {activeCount > 0 && (
               <View style={[st.countBadge, { backgroundColor: p } ]}>
-                <LocalizedText style={{ fontSize: 11, color: 'var(--nabd-bg.surface-light)', fontWeight: '700' }}>{activeCount} فلتر نشط</LocalizedText>
+                <LocalizedText style={{ fontSize: 11, color: '#fff', fontWeight: '700' }}>{activeCount} فلتر نشط</LocalizedText>
               </View>
             )}
           </View>
@@ -177,8 +177,8 @@ export default function PharmacyFiltersScreen() {
                     borderColor: active ? p : colors.bd,
                     flexDirection: 'row-reverse', gap: 6,
                   } ]}>
-                  <Icon name={opt.icon} size={15} color={active ? 'var(--nabd-bg.surface-light)' : colors.t2} />
-                  <LocalizedText style={{ fontSize: 13, fontFamily: 'Cairo-SemiBold', color: active ? 'var(--nabd-bg.surface-light)' : colors.t2 }}>{opt.label}</LocalizedText>
+                  <Icon name={opt.icon} size={15} color={active ? '#fff' : colors.t2} />
+                  <LocalizedText style={{ fontSize: 13, fontFamily: 'Cairo-SemiBold', color: active ? '#fff' : colors.t2 }}>{opt.label}</LocalizedText>
                 </TouchableOpacity>
               );
             })}
@@ -322,8 +322,8 @@ export default function PharmacyFiltersScreen() {
       <View style={[st.footer, { paddingBottom: insets.bottom + 16, backgroundColor: colors.bg, borderTopColor: colors.bd } ]}>
         <TouchableOpacity onPress={handleApply} activeOpacity={0.88} style={{ borderRadius: 20, overflow: 'hidden' }}>
           <View style={[st.applyBtn, { backgroundColor: '#23C5E0' }]}>
-            <Icon name="tune" size={20} color="var(--nabd-bg.surface-light)" />
-            <LocalizedText style={{ fontSize: 16, fontFamily: 'Cairo-Bold', color: 'var(--nabd-bg.surface-light)' }}>
+            <Icon name="tune" size={20} color="#fff" />
+            <LocalizedText style={{ fontSize: 16, fontFamily: 'Cairo-Bold', color: '#fff' }}>
               تطبيق الفلاتر{activeCount > 0 ? ` (${activeCount})` : ''}
             </LocalizedText>
           </View>
@@ -356,7 +356,7 @@ const st = StyleSheet.create({
     width: 48, height: 26, borderRadius: 13, padding: 3,
     justifyContent: 'center',
   },
-  toggleThumb: { width: 20, height: 20, borderRadius: 10, backgroundColor: 'var(--nabd-bg.surface-light)' },
+  toggleThumb: { width: 20, height: 20, borderRadius: 10, backgroundColor: '#fff' },
 
   priceInput: {
     flex: 1, height: 50, borderRadius: 14, borderWidth: 1,

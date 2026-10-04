@@ -92,7 +92,7 @@ export default function AIAssistantScreen() {
         <View style={[styles.bubble, isUser
           ? [styles.bubbleUser, { backgroundColor: colors.primary }]
           : [styles.bubbleAssistant, { backgroundColor: colors.surface, borderColor: colors.border }]]}>
-          <DSText variant="bodyMD" color={isUser ? 'var(--nabd-bg.surface-light)' : colors.textPrimary}>
+          <DSText variant="bodyMD" color={isUser ? '#FFFFFF' : colors.textPrimary}>
             {item.content}
           </DSText>
           <DSText
@@ -156,7 +156,7 @@ export default function AIAssistantScreen() {
             icon="send"
             accessibilityLabel="إرسال"
             bg={colors.primary}
-            color="var(--nabd-bg.surface-light)"
+            color="#FFFFFF"
             size={48}
             onPress={sendMessage}
           />

@@ -266,7 +266,7 @@ export default function InsuranceApproval() {
                   });
                 }}
               >
-                <AppText style={{ color: 'var(--nabd-bg.surface-light)', fontSize: 15, fontWeight: 'bold' }}>تنفيذ الطلب على حسابي الخاص</AppText>
+                <AppText style={{ color: '#fff', fontSize: 15, fontWeight: 'bold' }}>تنفيذ الطلب على حسابي الخاص</AppText>
               </TouchableOpacity>
               <TouchableOpacity 
                 style={[styles.confirmBtn, { backgroundColor: colors.background, borderWidth: 1, borderColor: colors.primary }]} 
@@ -291,8 +291,8 @@ export default function InsuranceApproval() {
                 });
               }}
             >
-              <AppText style={{ color: 'var(--nabd-bg.surface-light)', fontSize: 16, fontWeight: 'bold' }}>المتابعة للدفع وحجز الموعد</AppText>
-              <Icon name="arrow-left" size={20} color="var(--nabd-bg.surface-light)" style={{ marginLeft: I18nManager.isRTL ? 0 : 8, marginRight: I18nManager.isRTL ? 8 : 0 }}/>
+              <AppText style={{ color: '#fff', fontSize: 16, fontWeight: 'bold' }}>المتابعة للدفع وحجز الموعد</AppText>
+              <Icon name="arrow-left" size={20} color="#fff" style={{ marginLeft: I18nManager.isRTL ? 0 : 8, marginRight: I18nManager.isRTL ? 8 : 0 }}/>
             </TouchableOpacity>
           )}
         </Animated.View>

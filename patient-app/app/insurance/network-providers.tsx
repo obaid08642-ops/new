@@ -144,11 +144,11 @@ export default function NetworkProvidersScreen() {
               <Icon
                 name={t.icon as any}
                 size={13}
-                color={active ? "var(--nabd-bg.surface-light)" : colors.textSecondary}
+                color={active ? "#fff" : colors.textSecondary}
               />
               <AppText
                 variant="labelSM"
-                color={active ? "var(--nabd-bg.surface-light)" : colors.textSecondary}
+                color={active ? "#fff" : colors.textSecondary}
               >
                 {t.label}
               </AppText>

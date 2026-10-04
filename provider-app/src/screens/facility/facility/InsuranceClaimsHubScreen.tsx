@@ -90,7 +90,7 @@ export function InsuranceClaimsHubScreen({ onBack }: { onBack: () => void }) {
  backgroundColor: statusFilter===f.k ? theme.primary : theme.surface2,
  borderColor: statusFilter===f.k ? theme.primary : theme.border,
  }]}>
- <Text style={{ color: statusFilter===f.k?'var(--nabd-bg.surface-light)':theme.text, fontSize: FS.sm }}>
+ <Text style={{ color: statusFilter===f.k?'#FFF':theme.text, fontSize: FS.sm }}>
  {AR ? f.ar : f.en}
  </Text>
  </TouchableOpacity>

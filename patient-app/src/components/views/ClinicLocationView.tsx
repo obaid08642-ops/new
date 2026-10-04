@@ -92,8 +92,8 @@ export default function ClinicLocationView() {
         </View>
 
         <TouchableOpacity style={[styles.directionsBtn, { backgroundColor: colors.n, marginTop: 24 }]} onPress={openDirections}>
-          <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 19, color: 'var(--nabd-bg.surface-light)', marginRight: 8 }}>directions_car</LocalizedText>
-          <LocalizedText style={{ fontSize: 13, fontWeight: '800', color: 'var(--nabd-bg.surface-light)' }}>فتح الاتجاهات</LocalizedText>
+          <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 19, color: '#fff', marginRight: 8 }}>directions_car</LocalizedText>
+          <LocalizedText style={{ fontSize: 13, fontWeight: '800', color: '#fff' }}>فتح الاتجاهات</LocalizedText>
         </TouchableOpacity>
       </View>
     </View>

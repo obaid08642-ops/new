@@ -180,7 +180,7 @@ export function PatientFileScreen({ patient, onBack }:
  backgroundColor: activeSection === sec.k ? theme.primary : theme.surface2,
  borderColor: activeSection === sec.k ? theme.primary : theme.border,
  }]}>
- <Text style={{ color: activeSection === sec.k ? 'var(--nabd-bg.surface-light)' : theme.text, fontSize: FS.sm, fontWeight: FW.semi }}>
+ <Text style={{ color: activeSection === sec.k ? '#FFF' : theme.text, fontSize: FS.sm, fontWeight: FW.semi }}>
  {AR ? sec.ar : sec.en}
  </Text>
  </TouchableOpacity>
@@ -300,7 +300,7 @@ export function PatientFileScreen({ patient, onBack }:
  justifyContent: 'center'
  }}
  >
- <Text style={{ color: 'var(--nabd-bg.surface-light)', fontSize: 24, fontWeight: FW.bold }}>+</Text>
+ <Text style={{ color: '#FFF', fontSize: 24, fontWeight: FW.bold }}>+</Text>
  </TouchableOpacity>
  </View>
  </NCard>

@@ -79,8 +79,8 @@ export default function AppointmentDetailScreen() {
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 100 } ]}>
         {/* Status Banner */}
         <View colors={[colors.primary, colors.secondary]} style={styles.statusBanner} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
-          <View style={[styles.statusIcon, { backgroundColor: 'rgba(255,255,255,0.2)' } ]}><Icon name="check_circle" size={24} color="var(--nabd-bg.surface-light)" /></View>
-          <AppText variant="h4" color="var(--nabd-bg.surface-light)">موعد مؤكد</AppText>
+          <View style={[styles.statusIcon, { backgroundColor: 'rgba(255,255,255,0.2)' } ]}><Icon name="check_circle" size={24} color="#fff" /></View>
+          <AppText variant="h4" color="#fff">موعد مؤكد</AppText>
           <AppText variant="bodySM" color="rgba(255,255,255,0.85)">{formattedDate} في {formattedTime}</AppText>
         </View>
 
@@ -213,7 +213,7 @@ export default function AppointmentDetailScreen() {
             style={styles.joinBtn}
           >
             <View colors={[colors.primary, colors.secondary]} style={styles.joinBtnInner} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
-              <AppText variant="labelMD" color="var(--nabd-bg.surface-light)">انضم لغرفة الانتظار</AppText>
+              <AppText variant="labelMD" color="#fff">انضم لغرفة الانتظار</AppText>
             </View>
           </TouchableOpacity>
         )}
@@ -223,7 +223,7 @@ export default function AppointmentDetailScreen() {
             style={styles.joinBtn}
           >
             <View colors={[colors.primary, colors.secondary]} style={styles.joinBtnInner} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
-              <AppText variant="labelMD" color="var(--nabd-bg.surface-light)">موقع العيادة</AppText>
+              <AppText variant="labelMD" color="#fff">موقع العيادة</AppText>
             </View>
           </TouchableOpacity>
         )}
@@ -233,7 +233,7 @@ export default function AppointmentDetailScreen() {
             style={styles.joinBtn}
           >
             <View colors={[colors.primary, colors.secondary]} style={styles.joinBtnInner} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
-              <AppText variant="labelMD" color="var(--nabd-bg.surface-light)">تتبع الطبيب</AppText>
+              <AppText variant="labelMD" color="#fff">تتبع الطبيب</AppText>
             </View>
           </TouchableOpacity>
         )}
@@ -250,7 +250,7 @@ const styles = StyleSheet.create({
   content: { padding: 16, gap: 12 },
   statusBanner: { borderRadius: 20, padding: 20, alignItems: 'center', gap: 6 },
   statusIcon: { width: 56, height: 56, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.2)', justifyContent: 'center', alignItems: 'center' },
-  statusTitle: { color: 'var(--nabd-bg.surface-light)', fontSize: 20, fontWeight: '800' },
+  statusTitle: { color: '#fff', fontSize: 20, fontWeight: '800' },
   statusSub: { color: 'rgba(255,255,255,0.85)', fontSize: 13, fontWeight: '400' },
   card: { borderRadius: 20, padding: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 },
   cardTitle: { fontSize: 15, fontWeight: '800', textAlign: 'right', marginBottom: 12 },
@@ -279,5 +279,5 @@ const styles = StyleSheet.create({
   cancelBtnText: { fontSize: 14, fontWeight: '700' },
   joinBtn: { flex: 1, borderRadius: 14, overflow: 'hidden' },
   joinBtnInner: { height: 50, justifyContent: 'center', alignItems: 'center' },
-  joinBtnText: { color: 'var(--nabd-bg.surface-light)', fontSize: 15, fontWeight: '800' },
+  joinBtnText: { color: '#fff', fontSize: 15, fontWeight: '800' },
 });

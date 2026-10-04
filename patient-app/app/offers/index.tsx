@@ -63,7 +63,7 @@ export default function OffersListScreen() {
                     <AppText variant="h5">{o.t}</AppText>
                     <AppText variant="caption" color={colors.textTertiary}>{o.prov}</AppText>
                   </View>
-                  <Badge label={`خصم ${o.disc}`} color="var(--nabd-bg.surface-light)" bg="var(--nabd-brand.coral-light)" />
+                  <Badge label={`خصم ${o.disc}`} color="#fff" bg="#FF4B55" />
                 </View>
                 <View style={{ flexDirection: 'row-reverse', alignItems: 'baseline', gap: 8 }}>
                   <AppText variant="h3" color={colors.primary}>{o.price} ر.س</AppText>

@@ -271,7 +271,7 @@ export default function RegisterScreen() {
         <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'flex-start', marginVertical: 6, marginBottom: 24 }}>
           <TouchableOpacity onPress={() => setAgreed(!agreed)} style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'flex-start', flexShrink: 0 }} activeOpacity={0.8}>
             <View style={{ width: 20, height: 20, borderRadius: 6, backgroundColor: agreed ? resolveColor('var(--p)', isDark) : 'transparent', borderWidth: agreed ? 0 : 1.5, borderColor: resolveColor('var(--bd)', isDark), alignItems: 'center', justifyContent: 'center', marginLeft: isRTL ? 8 : 0, marginRight: isRTL ? 8 : 0 }}>
-              {agreed && <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 14, color: 'var(--nabd-bg.surface-light)' }}>check</LocalizedText>}
+              {agreed && <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 14, color: '#fff' }}>check</LocalizedText>}
             </View>
           </TouchableOpacity>
           <LocalizedText style={{ fontSize: 11, color: resolveColor('var(--t2)', isDark), lineHeight: 18, textAlign: isRTL ? 'right' : 'left', flex: 1, fontWeight: '600' }}>
@@ -302,14 +302,14 @@ export default function RegisterScreen() {
 
         <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'center', flexWrap: 'wrap', gap: 16, marginBottom: 12 }}>
           {/* Google */}
-          <TouchableOpacity onPress={() => handleSocialLogin('google')} style={[styles.modernSocialBtn, { backgroundColor: isDark ? '#1A2540' : 'var(--nabd-bg.surface-light)' }]} activeOpacity={0.8}>
-            <FontAwesome5 name="google" size={20} color={isDark ? "var(--nabd-bg.surface-light)" : "#DB4437"} />
+          <TouchableOpacity onPress={() => handleSocialLogin('google')} style={[styles.modernSocialBtn, { backgroundColor: isDark ? '#1A2540' : '#FFFFFF' }]} activeOpacity={0.8}>
+            <FontAwesome5 name="google" size={20} color={isDark ? "#FFFFFF" : "#DB4437"} />
           </TouchableOpacity>
 
           {/* Apple */}
           {Platform.OS === 'ios' && (
-          <TouchableOpacity onPress={() => handleSocialLogin('apple')} style={[styles.modernSocialBtn, { backgroundColor: isDark ? 'var(--nabd-bg.surface-light)' : '#000000' }]} activeOpacity={0.8}>
-            <FontAwesome5 name="apple" size={24} color={isDark ? "#000000" : "var(--nabd-bg.surface-light)"} />
+          <TouchableOpacity onPress={() => handleSocialLogin('apple')} style={[styles.modernSocialBtn, { backgroundColor: isDark ? '#FFFFFF' : '#000000' }]} activeOpacity={0.8}>
+            <FontAwesome5 name="apple" size={24} color={isDark ? "#000000" : "#FFFFFF"} />
           </TouchableOpacity>
           )}
 
@@ -319,8 +319,8 @@ export default function RegisterScreen() {
           </TouchableOpacity>
 
           {/* X (Twitter) */}
-          <TouchableOpacity onPress={() => handleSocialLogin('twitter')} style={[styles.modernSocialBtn, { backgroundColor: isDark ? '#1A2540' : 'var(--nabd-bg.surface-light)' }]} activeOpacity={0.8}>
-            <FontAwesome6 name="x-twitter" size={20} color={isDark ? "var(--nabd-bg.surface-light)" : "#000000"} />
+          <TouchableOpacity onPress={() => handleSocialLogin('twitter')} style={[styles.modernSocialBtn, { backgroundColor: isDark ? '#1A2540' : '#FFFFFF' }]} activeOpacity={0.8}>
+            <FontAwesome6 name="x-twitter" size={20} color={isDark ? "#FFFFFF" : "#000000"} />
           </TouchableOpacity>
         </View>
 
@@ -384,5 +384,5 @@ const styles = StyleSheet.create({
     shadowRadius: 20,
     elevation: 8,
   },
-  primaryBtnText: { color: 'var(--nabd-bg.surface-light)', fontSize: 15, fontWeight: '800' }
+  primaryBtnText: { color: '#fff', fontSize: 15, fontWeight: '800' }
 });

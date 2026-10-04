@@ -221,7 +221,7 @@ export default function LoginScreen() {
       <View 
         style={{ position: 'absolute', inset: 0, borderRadius: size * 0.3 }}/>
       <Svg viewBox="0 0 100 100" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' } as any}>
-        <Path d="M18 52 H38 l5 -22 l9 44 l6 -30 l5 8 H82" fill="none" stroke="var(--nabd-bg.surface-light)" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
+        <Path d="M18 52 H38 l5 -22 l9 44 l6 -30 l5 8 H82" fill="none" stroke="#fff" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
       </Svg>
     </View>
   );
@@ -333,14 +333,14 @@ export default function LoginScreen() {
         {/* Social Logins */}
         <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'center', flexWrap: 'wrap', gap: 16, marginBottom: 12 }}>
           {/* Google */}
-          <TouchableOpacity onPress={() => handleSocialLogin('google')} style={[styles.modernSocialBtn, { backgroundColor: isDark ? '#1A2540' : 'var(--nabd-bg.surface-light)' }]} activeOpacity={0.8}>
-            <FontAwesome5 name="google" size={20} color={isDark ? "var(--nabd-bg.surface-light)" : "#DB4437"} />
+          <TouchableOpacity onPress={() => handleSocialLogin('google')} style={[styles.modernSocialBtn, { backgroundColor: isDark ? '#1A2540' : '#FFFFFF' }]} activeOpacity={0.8}>
+            <FontAwesome5 name="google" size={20} color={isDark ? "#FFFFFF" : "#DB4437"} />
           </TouchableOpacity>
 
           {/* Apple */}
           {Platform.OS === 'ios' && (
-          <TouchableOpacity onPress={() => handleSocialLogin('apple')} style={[styles.modernSocialBtn, { backgroundColor: isDark ? 'var(--nabd-bg.surface-light)' : '#000000' }]} activeOpacity={0.8}>
-            <FontAwesome5 name="apple" size={24} color={isDark ? "#000000" : "var(--nabd-bg.surface-light)"} />
+          <TouchableOpacity onPress={() => handleSocialLogin('apple')} style={[styles.modernSocialBtn, { backgroundColor: isDark ? '#FFFFFF' : '#000000' }]} activeOpacity={0.8}>
+            <FontAwesome5 name="apple" size={24} color={isDark ? "#000000" : "#FFFFFF"} />
           </TouchableOpacity>
           )}
 
@@ -350,8 +350,8 @@ export default function LoginScreen() {
           </TouchableOpacity>
 
           {/* X (Twitter) */}
-          <TouchableOpacity onPress={() => handleSocialLogin('twitter')} style={[styles.modernSocialBtn, { backgroundColor: isDark ? '#1A2540' : 'var(--nabd-bg.surface-light)' }]} activeOpacity={0.8}>
-            <FontAwesome6 name="x-twitter" size={20} color={isDark ? "var(--nabd-bg.surface-light)" : "#000000"} />
+          <TouchableOpacity onPress={() => handleSocialLogin('twitter')} style={[styles.modernSocialBtn, { backgroundColor: isDark ? '#1A2540' : '#FFFFFF' }]} activeOpacity={0.8}>
+            <FontAwesome6 name="x-twitter" size={20} color={isDark ? "#FFFFFF" : "#000000"} />
           </TouchableOpacity>
         </View>
         
@@ -415,7 +415,7 @@ const styles = StyleSheet.create({
     shadowRadius: 20,
     elevation: 8,
   },
-  primaryBtnText: { color: 'var(--nabd-bg.surface-light)', fontSize: 15, fontWeight: '800' },
+  primaryBtnText: { color: '#fff', fontSize: 15, fontWeight: '800' },
   secondaryBtn: {
     width: '100%',
     paddingVertical: 18,

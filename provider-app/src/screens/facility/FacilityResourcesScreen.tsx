@@ -78,7 +78,7 @@ export function FacilityResourcesScreen({ onBack }: { onBack: () => void }) {
                 paddingHorizontal: SP.md, paddingVertical: 6, borderRadius: R.full, marginRight: SP.sm,
                 backgroundColor: filterType === f.id ? theme.primary : theme.surface2,
               }}>
-              <Text style={{ fontSize: FS.xs, color: filterType === f.id ? 'var(--nabd-bg.surface-light)' : theme.text }}>
+              <Text style={{ fontSize: FS.xs, color: filterType === f.id ? '#FFF' : theme.text }}>
                 {AR ? f.ar : f.en}
               </Text>
             </TouchableOpacity>
@@ -103,7 +103,7 @@ export function FacilityResourcesScreen({ onBack }: { onBack: () => void }) {
                 {TYPES.filter(t => t.id !== 'all').map(t => (
                   <TouchableOpacity key={t.id} onPress={() => setAddType(t.id)}
                     style={{ paddingHorizontal: SP.md, paddingVertical: 6, borderRadius: R.full, backgroundColor: addType === t.id ? theme.primary : theme.surface2 }}>
-                    <Text style={{ fontSize: FS.xs, color: addType === t.id ? 'var(--nabd-bg.surface-light)' : theme.text }}>{AR ? t.ar : t.en}</Text>
+                    <Text style={{ fontSize: FS.xs, color: addType === t.id ? '#FFF' : theme.text }}>{AR ? t.ar : t.en}</Text>
                   </TouchableOpacity>
                 ))}
               </View>

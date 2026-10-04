@@ -98,7 +98,7 @@ export default function ReviewsScreen() {
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <View style={styles.headerRow}>
           <TouchableOpacity onPress={() => router.back()} style={styles.hBtn}>
-            <Icon name="back" size={22} color="var(--nabd-bg.surface-light)" />
+            <Icon name="back" size={22} color="#fff" />
           </TouchableOpacity>
           <AppText variant="bodySM">تقييم الخدمة </AppText>
           <View style={{ width: 36 }} />
@@ -210,7 +210,7 @@ export default function ReviewsScreen() {
                 },
               ]}
             >
-              {anonymous && <Icon name="check" size={12} color="var(--nabd-bg.surface-light)" />}
+              {anonymous && <Icon name="check" size={12} color="#fff" />}
             </View>
             <AppText variant="bodySM">نشر التقييم بشكل مجهول</AppText>
           </TouchableOpacity>
@@ -224,8 +224,8 @@ export default function ReviewsScreen() {
         >
           <View style={[styles.submitBtn, { backgroundColor: colors.primary }]}>
             {submitting
-              ? <ActivityIndicator color="var(--nabd-bg.surface-light)" />
-              : <AppText variant="bodySM" color="var(--nabd-bg.surface-light)">إرسال التقييم</AppText>}
+              ? <ActivityIndicator color="#fff" />
+              : <AppText variant="bodySM" color="#fff">إرسال التقييم</AppText>}
           </View>
         </TouchableOpacity>
       </ScrollView>
@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 12,
   },
-  successTitle: { color: "var(--nabd-bg.surface-light)", fontSize: 24, fontWeight: "800" },
+  successTitle: { color: "#fff", fontSize: 24, fontWeight: "800" },
   successSub: {
     color: "rgba(255,255,255,0.8)",
     fontSize: 14,
@@ -254,7 +254,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 6,
   },
-  headerTitle: { color: "var(--nabd-bg.surface-light)", fontSize: 18, fontWeight: "800" },
+  headerTitle: { color: "#fff", fontSize: 18, fontWeight: "800" },
   headerSub: {
     color: "rgba(255,255,255,0.85)",
     fontSize: 14,
@@ -330,5 +330,5 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  submitBtnText: { color: "var(--nabd-bg.surface-light)", fontSize: 16, fontWeight: "800" },
+  submitBtnText: { color: "#fff", fontSize: 16, fontWeight: "800" },
 });

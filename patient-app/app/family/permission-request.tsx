@@ -84,8 +84,8 @@ export default function PermissionRequestScreen() {
       <View style={{ paddingTop: insets.top + 16, paddingBottom: 8, paddingHorizontal: 16 }}>
         <View style={st.hdrRow}>
           <View style={{ width: 40 }}/>
-          <AppText variant="h4" color="var(--nabd-bg.surface-light)">طلب صلاحيات</AppText>
-          <IconButton icon="back" bg="rgba(255,255,255,0.18)" color="var(--nabd-bg.surface-light)" onPress={() => router.back()} />
+          <AppText variant="h4" color="#fff">طلب صلاحيات</AppText>
+          <IconButton icon="back" bg="rgba(255,255,255,0.18)" color="#fff" onPress={() => router.back()} />
         </View>
       </View>
 

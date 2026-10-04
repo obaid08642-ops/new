@@ -251,7 +251,7 @@ export default function LocationPickerScreen() {
                       ? colors.primary
                       : isDark
                         ? colors.surface
-                        : "var(--nabd-bg.surface-light)",
+                        : "#fff",
                   borderColor:
                     mode === tab.key ? colors.primary : colors.border,
                 },
@@ -260,11 +260,11 @@ export default function LocationPickerScreen() {
               <Icon
                 name={tab.icon}
                 size={16}
-                color={mode === tab.key ? "var(--nabd-bg.surface-light)" : colors.textTertiary}
+                color={mode === tab.key ? "#fff" : colors.textTertiary}
               />
               <AppText
                 variant="bodySM"
-                color={mode === tab.key ? "var(--nabd-bg.surface-light)" : colors.textPrimary}
+                color={mode === tab.key ? "#fff" : colors.textPrimary}
               >
                 {tab.label}
               </AppText>
@@ -329,8 +329,8 @@ export default function LocationPickerScreen() {
                 style={[styles.addNewBtn, { backgroundColor: colors.primary }]}
                 onPress={() => setMode("new")}
               >
-                <Icon name="add" size={18} color="var(--nabd-bg.surface-light)" />
-                <AppText variant="labelMD" color="var(--nabd-bg.surface-light)">
+                <Icon name="add" size={18} color="#fff" />
+                <AppText variant="labelMD" color="#fff">
                   إضافة عنوان
                 </AppText>
               </TouchableOpacity>
@@ -483,7 +483,7 @@ export default function LocationPickerScreen() {
               style={[
                 styles.reverseLabel,
                 {
-                  backgroundColor: isDark ? colors.surface : "var(--nabd-bg.surface-light)",
+                  backgroundColor: isDark ? colors.surface : "#fff",
                   borderColor: colors.border,
                 },
               ]}
@@ -504,7 +504,7 @@ export default function LocationPickerScreen() {
             style={[
               styles.mapLocBtn,
               {
-                backgroundColor: isDark ? colors.surface : "var(--nabd-bg.surface-light)",
+                backgroundColor: isDark ? colors.surface : "#fff",
                 top: insets.top + 130,
               },
             ]}
@@ -553,7 +553,7 @@ export default function LocationPickerScreen() {
             <TouchableOpacity
               style={[
                 styles.mapLocBtn,
-                { top: 10, backgroundColor: isDark ? colors.surface : "var(--nabd-bg.surface-light)" },
+                { top: 10, backgroundColor: isDark ? colors.surface : "#fff" },
               ]}
               onPress={goToMyLocation}
             >
@@ -638,7 +638,7 @@ export default function LocationPickerScreen() {
           styles.bottomBar,
           {
             paddingBottom: insets.bottom + 12,
-            backgroundColor: isDark ? colors.surface : "var(--nabd-bg.surface-light)",
+            backgroundColor: isDark ? colors.surface : "#fff",
             borderTopColor: colors.border,
           },
         ]}
@@ -657,8 +657,8 @@ export default function LocationPickerScreen() {
             ]}
             activeOpacity={0.85}
           >
-            <Icon name="check_circle" size={20} color="var(--nabd-bg.surface-light)" />
-            <AppText variant="h6" color="var(--nabd-bg.surface-light)">
+            <Icon name="check_circle" size={20} color="#fff" />
+            <AppText variant="h6" color="#fff">
               تأكيد العنوان
             </AppText>
           </TouchableOpacity>
@@ -669,8 +669,8 @@ export default function LocationPickerScreen() {
             style={[styles.ctaBtn, { backgroundColor: colors.primary }]}
             activeOpacity={0.85}
           >
-            <Icon name="check_circle" size={20} color="var(--nabd-bg.surface-light)" />
-            <AppText variant="h6" color="var(--nabd-bg.surface-light)">
+            <Icon name="check_circle" size={20} color="#fff" />
+            <AppText variant="h6" color="#fff">
               تأكيد الموقع
             </AppText>
           </TouchableOpacity>
@@ -686,11 +686,11 @@ export default function LocationPickerScreen() {
             activeOpacity={0.85}
           >
             {saving ? (
-              <ActivityIndicator color="var(--nabd-bg.surface-light)" />
+              <ActivityIndicator color="#fff" />
             ) : (
               <>
-                <Icon name="check_circle" size={20} color="var(--nabd-bg.surface-light)" />
-                <AppText variant="h6" color="var(--nabd-bg.surface-light)">
+                <Icon name="check_circle" size={20} color="#fff" />
+                <AppText variant="h6" color="#fff">
                   حفظ وتأكيد
                 </AppText>
               </>

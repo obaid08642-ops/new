@@ -154,7 +154,7 @@ export function InsuranceConfigScreen({ onBack }: { onBack: () => void }) {
    const on = item.selectedPlans.includes(p);
    return (
    <TouchableOpacity key={p} onPress={() => togglePlan(item.id, p)} style={{ paddingHorizontal: SP.md, paddingVertical: SP.xs, borderRadius: R.full, borderWidth: 1.5, backgroundColor: on ? theme.primary : theme.surface2, borderColor: on ? theme.primary : theme.border }}>
-   <Text style={{ color: on ? 'var(--nabd-bg.surface-light)' : theme.text, fontSize: FS.xs, fontWeight: FW.semi }}>{p}</Text>
+   <Text style={{ color: on ? '#FFF' : theme.text, fontSize: FS.xs, fontWeight: FW.semi }}>{p}</Text>
    </TouchableOpacity>
    );
  })}

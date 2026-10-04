@@ -235,5 +235,5 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  sendBtnText: { color: "var(--nabd-bg.surface-light)", fontSize: 15, fontWeight: "800" },
+  sendBtnText: { color: "#fff", fontSize: 15, fontWeight: "800" },
 });

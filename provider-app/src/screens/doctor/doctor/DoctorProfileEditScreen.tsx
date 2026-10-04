@@ -162,7 +162,7 @@ export function DoctorProfileEditScreen({ onBack }: { onBack: () => void }) {
    {clinicImages.map((id) => (
      <View key={id} style={{ width: 100, height: 100, borderRadius: R.md, backgroundColor: theme.surface2, marginRight: SP.md, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' }}>
        <TouchableOpacity onPress={() => setClinicImages((prev) => prev.filter((x) => x !== id))} style={{ position: 'absolute', top: 4, right: 4, zIndex: 10, width: 24, height: 24, borderRadius: 12, backgroundColor: 'rgba(244,67,54,0.9)', alignItems: 'center', justifyContent: 'center' }}>
-         <I name="close" size={12} color="var(--nabd-bg.surface-light)" />
+         <I name="close" size={12} color="#FFF" />
        </TouchableOpacity>
        <IBg name="image" size={32} color={theme.textSub} bg="transparent" />
      </View>

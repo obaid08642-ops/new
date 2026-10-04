@@ -207,7 +207,7 @@ export function DSSearchBar({
           <Icon
             name="filter_list"
             size={20}
-            color={filterActive ? 'var(--nabd-bg.surface-light)' : colors.textSecondary}
+            color={filterActive ? '#fff' : colors.textSecondary}
           />
         </TouchableOpacity>
       )}

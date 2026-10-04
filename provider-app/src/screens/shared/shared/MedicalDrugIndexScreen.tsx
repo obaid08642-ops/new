@@ -283,7 +283,7 @@ export function MedicalDrugIndexScreen({ onBack }: { onBack: () => void }) {
  style={[{ paddingHorizontal: SP.md, paddingVertical: SP.xs, borderRadius: R.full, borderWidth: 1.5 }, {
  backgroundColor: selectedCat === cat.key ? theme.primary : theme.surface2, borderColor: selectedCat === cat.key ? theme.primary : theme.border
  }]}>
- <Text style={{ color: selectedCat === cat.key ? 'var(--nabd-bg.surface-light)' : theme.text, fontSize: FS.sm, fontWeight: FW.semi }}>
+ <Text style={{ color: selectedCat === cat.key ? '#FFF' : theme.text, fontSize: FS.sm, fontWeight: FW.semi }}>
  {cat.key === 'all' ? (AR ? 'الكل' : 'All') : cat.key}{cat.count ? ` (${cat.count})` : ''}
  </Text>
  </TouchableOpacity>

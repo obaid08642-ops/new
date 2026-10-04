@@ -201,7 +201,7 @@ export default function EmergencyContactsScreen() {
                   disabled={saving}
                   style={[styles.saveBtn, { backgroundColor: colors.primary, opacity: saving ? 0.6 : 1 }]}
                 >
-                  {saving ? <ActivityIndicator color="var(--nabd-bg.surface-light)" size="small" /> : <AppText variant="bodySM" color="var(--nabd-bg.surface-light)">حفظ</AppText>}
+                  {saving ? <ActivityIndicator color="#fff" size="small" /> : <AppText variant="bodySM" color="#fff">حفظ</AppText>}
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => setShowAdd(false)} style={[styles.saveBtn, { backgroundColor: colors.borderLight }]}>
                   <AppText variant="bodySM">إلغاء</AppText>

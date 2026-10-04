@@ -59,7 +59,7 @@ export function SupportCenter({ onBack }: { onBack: () => void }) {
  style={[{ flex: 1, paddingVertical: SP.md, borderRadius: R.lg, borderWidth: 1.5, alignItems: 'center' }, {
  backgroundColor: tab === t.k ? theme.primary : theme.surface2, borderColor: tab === t.k ? theme.primary : theme.border
  }]}>
- <Text style={{ color: tab === t.k ? 'var(--nabd-bg.surface-light)' : theme.text, fontSize: FS.sm, fontWeight: FW.semi }}>{AR ? t.ar : t.en}</Text>
+ <Text style={{ color: tab === t.k ? '#FFF' : theme.text, fontSize: FS.sm, fontWeight: FW.semi }}>{AR ? t.ar : t.en}</Text>
  </TouchableOpacity>
  ))}
  </View>

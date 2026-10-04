@@ -79,9 +79,9 @@ export default function PermissionsScreen() {
       <StatusBar barStyle="light-content" />
       <View style={[st.hdr, { paddingTop: insets.top + 20 }]}>
         <View style={st.iconWrap}>
-          <Icon name="shield" size={36} color="var(--nabd-bg.surface-light)" />
+          <Icon name="shield" size={36} color="#fff" />
         </View>
-        <AppText variant="h2" color="var(--nabd-bg.surface-light)" align="center">
+        <AppText variant="h2" color="#fff" align="center">
           الصلاحيات المطلوبة
         </AppText>
         <AppText variant="bodySM" color="rgba(255,255,255,0.85)" align="center">
@@ -146,7 +146,7 @@ export default function PermissionsScreen() {
                       },
                     ]}
                   >
-                    {isGranted && <Icon name="check" size={14} color="var(--nabd-bg.surface-light)" />}
+                    {isGranted && <Icon name="check" size={14} color="#fff" />}
                   </View>
                 </View>
               </Card>

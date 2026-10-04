@@ -39,7 +39,7 @@ function RemoteVideoView({ participant, st }: { participant: Participant; st: an
       <View style={st.doctorAvatar}>
         <Icon name="doctor" size={64} color="rgba(255,255,255,0.6)" />
       </View>
-      <AppText variant="h4" color="var(--nabd-bg.surface-light)">{participant.identity}</AppText>
+      <AppText variant="h4" color="#fff">{participant.identity}</AppText>
       <AppText variant="bodySM" color="rgba(255,255,255,0.6)">الكاميرا مغلقة لدى الطبيب</AppText>
     </View>
   );
@@ -109,7 +109,7 @@ function ActiveCall({
           <View style={st.doctorAvatar}>
             <Icon name="doctor" size={64} color="rgba(255,255,255,0.6)" />
           </View>
-          <AppText variant="h4" color="var(--nabd-bg.surface-light)">
+          <AppText variant="h4" color="#fff">
             {remoteParticipant?.identity || 'د. محمد أحمد الكردي'}
           </AppText>
           <AppText variant="bodySM" color="rgba(255,255,255,0.6)">
@@ -131,7 +131,7 @@ function ActiveCall({
       <View style={[st.callInfo, { top: insets.top + 16 }]}>
         <View style={st.callBadge}>
           <View style={st.liveDot} />
-          <AppText variant="labelMD" color="var(--nabd-bg.surface-light)">
+          <AppText variant="labelMD" color="#fff">
             {formatTime(callDuration)}
           </AppText>
         </View>
@@ -161,7 +161,7 @@ function ActiveCall({
           />
         </View>
         <TouchableOpacity onPress={onEndCall} style={st.endBtn}>
-          <Icon name="call" size={30} color="var(--nabd-bg.surface-light)" />
+          <Icon name="call" size={30} color="#fff" />
         </TouchableOpacity>
       </View>
     </View>

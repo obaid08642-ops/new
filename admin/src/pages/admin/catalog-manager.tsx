@@ -214,13 +214,13 @@ export default function CatalogManagerPage() {
         {TABS.map((t) => (
           <button key={t.key} onClick={() => setTab(t.key)}
             style={{ padding: '8px 18px', borderRadius: 12, border: 'none', cursor: 'pointer', fontWeight: 700,
-              background: tab === t.key ? '#23B5CE' : '#F1F5F9', color: tab === t.key ? 'var(--nabd-bg.surface-light)' : '#334155' }}>
+              background: tab === t.key ? '#23B5CE' : '#F1F5F9', color: tab === t.key ? '#fff' : '#334155' }}>
             {t.label}
           </button>
         ))}
         <div style={{ flex: 1 }} />
         {tab !== 'specialties' && !isCustomTab && (
-        <button onClick={() => setEditing({ active: true, medical_review_status: 'pending', ...(tab === 'nursing' ? { duration: 'hour', category: 'nursing' } : {}), ...(tab === 'radiology' ? { modality: '', body_part: '' } : {}) })} style={{ padding: '8px 18px', borderRadius: 12, border: 'none', cursor: 'pointer', fontWeight: 700, background: '#0F172A', color: 'var(--nabd-bg.surface-light)' }}>
+        <button onClick={() => setEditing({ active: true, medical_review_status: 'pending', ...(tab === 'nursing' ? { duration: 'hour', category: 'nursing' } : {}), ...(tab === 'radiology' ? { modality: '', body_part: '' } : {}) })} style={{ padding: '8px 18px', borderRadius: 12, border: 'none', cursor: 'pointer', fontWeight: 700, background: '#0F172A', color: '#fff' }}>
           + إضافة صنف جديد
         </button>
         )}
@@ -260,15 +260,15 @@ export default function CatalogManagerPage() {
       {selected.size > 0 && (
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 12, padding: 10, borderRadius: 12, background: '#EFF6FF', border: '1px solid #BFDBFE' }}>
           <span style={{ fontSize: 13, fontWeight: 700, color: '#1E40AF' }}>محدد: {selected.size}</span>
-          <button onClick={() => void bulkDecide(true)} disabled={deciding} style={{ padding: '6px 14px', borderRadius: 10, border: 'none', background: '#16A34A', color: 'var(--nabd-bg.surface-light)', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>اعتماد المحدد</button>
-          <button onClick={() => void bulkDecide(false)} disabled={deciding} style={{ padding: '6px 14px', borderRadius: 10, border: '1px solid #FECACA', background: 'var(--nabd-bg.surface-light)', color: '#B91C1C', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>رفض المحدد</button>
-          <button onClick={() => setSelected(new Set())} style={{ padding: '6px 14px', borderRadius: 10, border: '1px solid #CBD5E1', background: 'var(--nabd-bg.surface-light)', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>إلغاء التحديد</button>
+          <button onClick={() => void bulkDecide(true)} disabled={deciding} style={{ padding: '6px 14px', borderRadius: 10, border: 'none', background: '#16A34A', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>اعتماد المحدد</button>
+          <button onClick={() => void bulkDecide(false)} disabled={deciding} style={{ padding: '6px 14px', borderRadius: 10, border: '1px solid #FECACA', background: '#fff', color: '#B91C1C', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>رفض المحدد</button>
+          <button onClick={() => setSelected(new Set())} style={{ padding: '6px 14px', borderRadius: 10, border: '1px solid #CBD5E1', background: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>إلغاء التحديد</button>
         </div>
       )}
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 12 }}>
         {filtered.map((item) => (
-          <div key={item.id || item._id} style={{ border: '1px solid #E2E8F0', borderRadius: 16, padding: 14, display: 'flex', gap: 12, background: 'var(--nabd-bg.surface-light)', opacity: item.active === false ? 0.55 : 1 }}>
+          <div key={item.id || item._id} style={{ border: '1px solid #E2E8F0', borderRadius: 16, padding: 14, display: 'flex', gap: 12, background: '#fff', opacity: item.active === false ? 0.55 : 1 }}>
             <input type="checkbox" checked={selected.has(item.id)} onChange={() => item.id && toggleSelect(item.id)} title="تحديد للاعتماد الجماعي" style={{ flexShrink: 0, width: 18, height: 18, marginTop: 4 }} />
             {item.image_url && <img src={item.image_url} alt="" style={{ width: 56, height: 56, borderRadius: 12, objectFit: 'cover', flexShrink: 0 }} />}
             <div style={{ flex: 1, minWidth: 0 }}>
@@ -278,9 +278,9 @@ export default function CatalogManagerPage() {
               {(() => { const r = REVIEW[item.medical_review_status || 'pending'] || REVIEW.pending; return <span style={{ display: 'inline-block', marginTop: 6, padding: '2px 8px', borderRadius: 8, fontSize: 11, fontWeight: 700, color: r.color, background: r.bg }}>{r.label}</span>; })()}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <button onClick={() => void decide(item.id, true)} style={{ padding: '6px 12px', borderRadius: 10, border: 'none', background: '#16A34A', color: 'var(--nabd-bg.surface-light)', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>اعتماد</button>
+              <button onClick={() => void decide(item.id, true)} style={{ padding: '6px 12px', borderRadius: 10, border: 'none', background: '#16A34A', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>اعتماد</button>
               <button onClick={() => void decide(item.id, false)} style={{ padding: '6px 12px', borderRadius: 10, border: '1px solid #FED7AA', background: '#FFFBEB', color: '#B45309', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>رفض</button>
-              <button onClick={() => setEditing({ ...item })} style={{ padding: '6px 12px', borderRadius: 10, border: '1px solid #CBD5E1', background: 'var(--nabd-bg.surface-light)', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>تعديل</button>
+              <button onClick={() => setEditing({ ...item })} style={{ padding: '6px 12px', borderRadius: 10, border: '1px solid #CBD5E1', background: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>تعديل</button>
               <button onClick={() => remove(item)} style={{ padding: '6px 12px', borderRadius: 10, border: '1px solid #FECACA', background: '#FEF2F2', color: '#B91C1C', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>حذف</button>
             </div>
           </div>
@@ -292,7 +292,7 @@ export default function CatalogManagerPage() {
       {editing && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}
           onClick={() => setEditing(null)}>
-          <div style={{ background: 'var(--nabd-bg.surface-light)', borderRadius: 20, padding: 24, width: 'min(640px, 92vw)', maxHeight: '86vh', overflowY: 'auto' }}
+          <div style={{ background: '#fff', borderRadius: 20, padding: 24, width: 'min(640px, 92vw)', maxHeight: '86vh', overflowY: 'auto' }}
             onClick={(e) => e.stopPropagation()}>
             <h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 16 }}>{editing.id ? 'تعديل الصنف' : 'إضافة صنف جديد'} — {tabCfg.label}</h2>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
@@ -320,8 +320,8 @@ export default function CatalogManagerPage() {
             </div>
             {editing.image_url && <img src={editing.image_url} alt="" style={{ width: 72, height: 72, borderRadius: 12, objectFit: 'cover', marginTop: 12 }} />}
             <div style={{ display: 'flex', gap: 10, marginTop: 20, justifyContent: 'flex-end' }}>
-              <button onClick={() => setEditing(null)} style={{ padding: '10px 20px', borderRadius: 12, border: '1px solid #E2E8F0', background: 'var(--nabd-bg.surface-light)', cursor: 'pointer', fontWeight: 700 }}>إلغاء</button>
-              <button onClick={save} disabled={saving} style={{ padding: '10px 20px', borderRadius: 12, border: 'none', background: '#23B5CE', color: 'var(--nabd-bg.surface-light)', cursor: 'pointer', fontWeight: 700 }}>
+              <button onClick={() => setEditing(null)} style={{ padding: '10px 20px', borderRadius: 12, border: '1px solid #E2E8F0', background: '#fff', cursor: 'pointer', fontWeight: 700 }}>إلغاء</button>
+              <button onClick={save} disabled={saving} style={{ padding: '10px 20px', borderRadius: 12, border: 'none', background: '#23B5CE', color: '#fff', cursor: 'pointer', fontWeight: 700 }}>
                 {saving ? 'جارٍ الحفظ…' : 'حفظ'}
               </button>
             </div>
@@ -456,8 +456,8 @@ function MedicinesPanel() {
     <div>
       <div style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
         <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="بحث…" style={{ flex: 1, minWidth: 200, padding: '10px 14px', borderRadius: 12, border: '1px solid #E2E8F0', fontFamily: 'inherit' }} />
-        <button onClick={() => setForm({ name_ar: '', requires_prescription: false, reason: '' })} style={{ padding: '8px 18px', borderRadius: 12, border: 'none', background: '#0F172A', color: 'var(--nabd-bg.surface-light)', cursor: 'pointer', fontWeight: 700 }}>+ دواء جديد</button>
-        <label style={{ padding: '8px 18px', borderRadius: 12, border: '1px solid #CBD5E1', background: 'var(--nabd-bg.surface-light)', cursor: 'pointer', fontWeight: 700 }}>
+        <button onClick={() => setForm({ name_ar: '', requires_prescription: false, reason: '' })} style={{ padding: '8px 18px', borderRadius: 12, border: 'none', background: '#0F172A', color: '#fff', cursor: 'pointer', fontWeight: 700 }}>+ دواء جديد</button>
+        <label style={{ padding: '8px 18px', borderRadius: 12, border: '1px solid #CBD5E1', background: '#fff', cursor: 'pointer', fontWeight: 700 }}>
           {csvBusy ? 'جارٍ الاستيراد…' : 'استيراد CSV'}
           <input type="file" accept=".csv" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) void uploadCsv(f); e.target.value = ''; }} />
         </label>
@@ -466,7 +466,7 @@ function MedicinesPanel() {
       {loading && <p>جارٍ التحميل…</p>}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 12 }}>
         {items.map((m: any) => (
-          <div key={m.id} style={{ border: '1px solid #E2E8F0', borderRadius: 16, padding: 14, background: 'var(--nabd-bg.surface-light)', opacity: m.deleted ? 0.55 : 1 }}>
+          <div key={m.id} style={{ border: '1px solid #E2E8F0', borderRadius: 16, padding: 14, background: '#fff', opacity: m.deleted ? 0.55 : 1 }}>
             <div style={{ fontWeight: 800 }}>{m.name_ar} <span style={{ fontWeight: 400, color: '#64748B' }}>{m.name_en}</span></div>
             <div style={{ fontSize: 12, color: '#64748B' }}>{m.category || ''} · {m.price} ر.س{m.requires_prescription ? ' · وصفة' : ''}</div>
             <div style={{ display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
@@ -488,7 +488,7 @@ function MedicinesPanel() {
       </div>
       {form && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }} onClick={() => setForm(null)}>
-          <div style={{ background: 'var(--nabd-bg.surface-light)', borderRadius: 20, padding: 24, width: 'min(560px, 92vw)', maxHeight: '86vh', overflowY: 'auto' }} onClick={(e) => e.stopPropagation()}>
+          <div style={{ background: '#fff', borderRadius: 20, padding: 24, width: 'min(560px, 92vw)', maxHeight: '86vh', overflowY: 'auto' }} onClick={(e) => e.stopPropagation()}>
             <h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 12 }}>{form.id ? 'تعديل دواء' : 'دواء جديد'}</h2>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
               <input value={form.name_ar || ''} onChange={(e) => set('name_ar', e.target.value)} placeholder="الاسم (عربي)" style={fld} />
@@ -513,8 +513,8 @@ function MedicinesPanel() {
   );
 }
 
-const btn: React.CSSProperties = { padding: '6px 12px', borderRadius: 10, border: '1px solid #CBD5E1', background: 'var(--nabd-bg.surface-light)', cursor: 'pointer', fontSize: 12, fontWeight: 700 };
-const btnOk: React.CSSProperties = { padding: '6px 12px', borderRadius: 10, border: 'none', background: '#16A34A', color: 'var(--nabd-bg.surface-light)', cursor: 'pointer', fontSize: 12, fontWeight: 700 };
+const btn: React.CSSProperties = { padding: '6px 12px', borderRadius: 10, border: '1px solid #CBD5E1', background: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 700 };
+const btnOk: React.CSSProperties = { padding: '6px 12px', borderRadius: 10, border: 'none', background: '#16A34A', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 700 };
 
 /* ── R6-6: insurance tab (companies + networks, same page) ─────────────── */
 function InsurancePanel() {
@@ -583,13 +583,13 @@ function InsurancePanel() {
     <div>
       {msg && <div style={{ padding: 12, borderRadius: 12, background: '#F0FDF4', color: '#166534', marginBottom: 12, fontWeight: 600 }}>{msg}</div>}
       <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-        <button onClick={() => setForm({ name_ar: '', name_en: '', code: '' })} style={{ padding: '8px 18px', borderRadius: 12, border: 'none', background: '#0F172A', color: 'var(--nabd-bg.surface-light)', cursor: 'pointer', fontWeight: 700 }}>+ شركة جديدة</button>
-        <button onClick={() => setNetForm({ companyId: '', code: '', name_ar: '', name_en: '', level: '1' })} style={{ padding: '8px 18px', borderRadius: 12, border: '1px solid #CBD5E1', background: 'var(--nabd-bg.surface-light)', cursor: 'pointer', fontWeight: 700 }}>+ شبكة/فئة</button>
+        <button onClick={() => setForm({ name_ar: '', name_en: '', code: '' })} style={{ padding: '8px 18px', borderRadius: 12, border: 'none', background: '#0F172A', color: '#fff', cursor: 'pointer', fontWeight: 700 }}>+ شركة جديدة</button>
+        <button onClick={() => setNetForm({ companyId: '', code: '', name_ar: '', name_en: '', level: '1' })} style={{ padding: '8px 18px', borderRadius: 12, border: '1px solid #CBD5E1', background: '#fff', cursor: 'pointer', fontWeight: 700 }}>+ شبكة/فئة</button>
         <a href="/admin/insurance-companies" style={{ padding: '8px 18px', borderRadius: 12, color: '#0E7490', fontWeight: 700 }}>قواعد التغطية التفصيلية ←</a>
       </div>
       <div style={{ display: 'grid', gap: 12 }}>
         {companies.map((c: any) => (
-          <div key={c.id || c._id} style={{ border: '1px solid #E2E8F0', borderRadius: 16, padding: 14, background: 'var(--nabd-bg.surface-light)', opacity: c.is_active === false ? 0.55 : 1 }}>
+          <div key={c.id || c._id} style={{ border: '1px solid #E2E8F0', borderRadius: 16, padding: 14, background: '#fff', opacity: c.is_active === false ? 0.55 : 1 }}>
             <div style={{ fontWeight: 800 }}>{c.name_ar} <span style={{ fontWeight: 400, color: '#64748B' }}>{c.name_en} · {c.code}</span></div>
             <div style={{ fontSize: 12, color: '#64748B', marginTop: 4 }}>
               الشبكات/الفئات: {(c.tiers || c.networks || []).map((t: any) => t.code || t.name_ar).join('، ') || '—'}
@@ -611,7 +611,7 @@ function InsurancePanel() {
       </div>
       {form && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }} onClick={() => setForm(null)}>
-          <div style={{ background: 'var(--nabd-bg.surface-light)', borderRadius: 20, padding: 24, width: 'min(480px, 92vw)' }} onClick={(e) => e.stopPropagation()}>
+          <div style={{ background: '#fff', borderRadius: 20, padding: 24, width: 'min(480px, 92vw)' }} onClick={(e) => e.stopPropagation()}>
             <h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 12 }}>{form.id || form._id ? 'تعديل شركة' : 'شركة جديدة'}</h2>
             <input value={form.name_ar || ''} onChange={(e) => setForm({ ...form, name_ar: e.target.value })} placeholder="الاسم (عربي)" style={{ width: '100%', padding: 10, borderRadius: 10, border: '1px solid #E2E8F0', marginBottom: 8, fontFamily: 'inherit' }} />
             <input value={form.name_en || ''} onChange={(e) => setForm({ ...form, name_en: e.target.value })} placeholder="Name (en)" style={{ width: '100%', padding: 10, borderRadius: 10, border: '1px solid #E2E8F0', marginBottom: 8, fontFamily: 'inherit' }} />
@@ -625,7 +625,7 @@ function InsurancePanel() {
       )}
       {netForm && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }} onClick={() => setNetForm(null)}>
-          <div style={{ background: 'var(--nabd-bg.surface-light)', borderRadius: 20, padding: 24, width: 'min(480px, 92vw)' }} onClick={(e) => e.stopPropagation()}>
+          <div style={{ background: '#fff', borderRadius: 20, padding: 24, width: 'min(480px, 92vw)' }} onClick={(e) => e.stopPropagation()}>
             <h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 12 }}>شبكة/فئة جديدة</h2>
             <select value={netForm.companyId} onChange={(e) => setNetForm({ ...netForm, companyId: e.target.value })} style={{ width: '100%', padding: 10, borderRadius: 10, border: '1px solid #E2E8F0', marginBottom: 8, fontFamily: 'inherit' }}>
               <option value="">— الشركة —</option>

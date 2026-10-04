@@ -171,13 +171,13 @@ export default function WearablesHubScreen() {
       <View style={[st.hdr, { paddingTop: insets.top + 12 }]}>
         <View style={st.hdrRow}>
           <View style={{ width: 40 }} />
-          <AppText variant="h4" color="var(--nabd-bg.surface-light)">
+          <AppText variant="h4" color="#fff">
             تسجيل القراءات الحيوية
           </AppText>
           <IconButton
             icon="back"
             bg="rgba(255,255,255,0.18)"
-            color="var(--nabd-bg.surface-light)"
+            color="#fff"
             onPress={() => router.back()}
           />
         </View>

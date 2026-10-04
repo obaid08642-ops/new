@@ -146,7 +146,7 @@ export default function OrderTrackingScreen() {
           {steps.map((step, idx) => {
             const isLast = idx === steps.length - 1;
             const nodeBg = step.done ? '#2BB89C' : step.active ? '#23B5CE' : colors.s;
-            const nodeColor = (step.done || step.active) ? 'var(--nabd-bg.surface-light)' : colors.bd;
+            const nodeColor = (step.done || step.active) ? '#fff' : colors.bd;
             const lineColor = step.done ? '#2BB89C' : colors.bd;
 
             return (
@@ -155,7 +155,7 @@ export default function OrderTrackingScreen() {
                 <View style={styles.nodeCol}>
                   <View style={[styles.node, { backgroundColor: nodeBg, borderColor: nodeColor } ]}>
                     {step.done
-                      ? <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: 'var(--nabd-bg.surface-light)', fontSize: 14 }}>check</LocalizedText>
+                      ? <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 14 }}>check</LocalizedText>
                       : step.active
                         ? <View style={styles.activeDot} />
                         : null
@@ -196,8 +196,8 @@ export default function OrderTrackingScreen() {
           <LocalizedText style={{ fontFamily: 'Cairo-Bold', fontSize: 14, color: colors.n }}>الحالة الحاكمة: {governedState}</LocalizedText>
           <LocalizedText style={{ fontFamily: 'Cairo-Regular', fontSize: 12, color: colors.t2, marginTop: 6 }}>اختيار العرض والتفاوض والسعر النهائي والتأمين والدفع تتبع حالة الخادم؛ لا يجري التطبيق أي دفع أو انتقال تلقائي.</LocalizedText>
         </View>}
-        {['OFFER_SELECTED', 'FINAL_QUOTE_READY', 'FINAL_QUOTE_ACCEPTED', 'COD_REGISTERED'].includes(governedState) && <TouchableOpacity onPress={() => router.push({ pathname: '/pharmacy/final-quote', params: { orderId: orderIdStr } })} activeOpacity={0.8} style={[styles.refresh, { borderColor: colors.bd, backgroundColor: colors.p }]}><LocalizedText style={{ fontFamily: 'Cairo-Bold', color: 'var(--nabd-bg.surface-light)', fontSize: 13 }}>مراجعة السعر النهائي والدفع</LocalizedText></TouchableOpacity>}
-        {['INSURANCE_PROCESSING', 'INSURANCE_DECISION_READY'].includes(governedState) || (governedState === 'CONFIRMED' && orderData?.payment_status === 'covered_by_insurance') ? <TouchableOpacity onPress={() => router.push({ pathname: '/pharmacy/insurance-decision', params: { orderId: orderIdStr } })} activeOpacity={0.8} style={[styles.refresh, { borderColor: colors.bd, backgroundColor: colors.p }]}><LocalizedText style={{ fontFamily: 'Cairo-Bold', color: 'var(--nabd-bg.surface-light)', fontSize: 13 }}>قرار التأمين ونسبة التحمل</LocalizedText></TouchableOpacity> : null}
+        {['OFFER_SELECTED', 'FINAL_QUOTE_READY', 'FINAL_QUOTE_ACCEPTED', 'COD_REGISTERED'].includes(governedState) && <TouchableOpacity onPress={() => router.push({ pathname: '/pharmacy/final-quote', params: { orderId: orderIdStr } })} activeOpacity={0.8} style={[styles.refresh, { borderColor: colors.bd, backgroundColor: colors.p }]}><LocalizedText style={{ fontFamily: 'Cairo-Bold', color: '#fff', fontSize: 13 }}>مراجعة السعر النهائي والدفع</LocalizedText></TouchableOpacity>}
+        {['INSURANCE_PROCESSING', 'INSURANCE_DECISION_READY'].includes(governedState) || (governedState === 'CONFIRMED' && orderData?.payment_status === 'covered_by_insurance') ? <TouchableOpacity onPress={() => router.push({ pathname: '/pharmacy/insurance-decision', params: { orderId: orderIdStr } })} activeOpacity={0.8} style={[styles.refresh, { borderColor: colors.bd, backgroundColor: colors.p }]}><LocalizedText style={{ fontFamily: 'Cairo-Bold', color: '#fff', fontSize: 13 }}>قرار التأمين ونسبة التحمل</LocalizedText></TouchableOpacity> : null}
 
         {/* Order Summary */}
         <View style={[styles.summaryCard, { backgroundColor: colors.s, borderColor: colors.bd } ]}>
@@ -240,13 +240,13 @@ const styles = StyleSheet.create({
   headerTitle: { fontFamily: 'Cairo-Black', fontSize: 17 },
   iconBtn: { width: 44, height: 44, borderRadius: 22, justifyContent: 'center', alignItems: 'center' },
   pharmacyCard: { padding: 16, borderRadius: 20, alignItems: 'center', marginBottom: 28 },
-  pharIcon: { width: 54, height: 54, borderRadius: 18, backgroundColor: 'var(--nabd-bg.surface-light)', justifyContent: 'center', alignItems: 'center' },
-  chatBtn: { width: 48, height: 48, borderRadius: 16, backgroundColor: 'var(--nabd-bg.surface-light)', justifyContent: 'center', alignItems: 'center' },
+  pharIcon: { width: 54, height: 54, borderRadius: 18, backgroundColor: '#fff', justifyContent: 'center', alignItems: 'center' },
+  chatBtn: { width: 48, height: 48, borderRadius: 16, backgroundColor: '#fff', justifyContent: 'center', alignItems: 'center' },
   timeline: { paddingLeft: 4 },
   stepRow: { alignItems: 'flex-start' },
   nodeCol: { alignItems: 'center', marginRight: 16, width: 28 },
   node: { width: 28, height: 28, borderRadius: 14, borderWidth: 2, justifyContent: 'center', alignItems: 'center', zIndex: 10 },
-  activeDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: 'var(--nabd-bg.surface-light)' },
+  activeDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: '#fff' },
   line: { width: 2, flex: 1, minHeight: 20, marginTop: 2 },
   summaryCard: { padding: 18, borderRadius: 20, borderWidth: 1 },
   detailRow: { justifyContent: 'space-between', paddingVertical: 7 },
@@ -259,7 +259,7 @@ export function ErrorBoundary({ error, retry }: any) {
       <LocalizedText style={{ fontFamily: 'Cairo-Black', fontSize: 18, color: '#F0695C', marginBottom: 10 }}>حدث خطأ غير متوقع</LocalizedText>
       <LocalizedText style={{ fontFamily: 'Cairo-Regular', fontSize: 14, color: '#4C5566', textAlign: 'center', marginBottom: 20 }}>{error?.message || 'تعذر تحميل الصفحة'}</LocalizedText>
       <TouchableOpacity onPress={retry} style={{ backgroundColor: '#23B5CE', paddingHorizontal: 20, paddingVertical: 10, borderRadius: 12 }}>
-        <LocalizedText style={{ fontFamily: 'Cairo-Bold', color: 'var(--nabd-bg.surface-light)', fontSize: 15 }}>إعادة المحاولة</LocalizedText>
+        <LocalizedText style={{ fontFamily: 'Cairo-Bold', color: '#fff', fontSize: 15 }}>إعادة المحاولة</LocalizedText>
       </TouchableOpacity>
     </View>
   );

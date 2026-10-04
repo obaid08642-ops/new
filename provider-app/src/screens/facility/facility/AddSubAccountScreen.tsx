@@ -236,8 +236,8 @@ export function AddSubAccountScreen({ onBack, preRole }: { onBack: () => void; p
  backgroundColor: spec === sp.id ? theme.primary : theme.surface2,
  borderColor: spec === sp.id ? theme.primary : theme.border,
  }]}>
- {hasIcon(sp.icon) ? <I name={sp.icon} size={14} color={spec === sp.id ? 'var(--nabd-bg.surface-light)' : theme.textSub} /> : null}
- <Text style={{ color: spec === sp.id ? 'var(--nabd-bg.surface-light)' : theme.text, fontSize: FS.xs }}>
+ {hasIcon(sp.icon) ? <I name={sp.icon} size={14} color={spec === sp.id ? '#FFF' : theme.textSub} /> : null}
+ <Text style={{ color: spec === sp.id ? '#FFF' : theme.text, fontSize: FS.xs }}>
  {AR ? sp.ar : sp.en}
  </Text>
  </TouchableOpacity>

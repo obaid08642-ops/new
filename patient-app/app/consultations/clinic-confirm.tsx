@@ -114,7 +114,7 @@ function ClinicConfirmScreenInner() {
         {/* QR / Barcode card */}
         <Card style={{ alignItems: 'center', gap: 10 }}>
           <AppText variant="h5">{AR ? 'أظهر هذا الرمز عند الاستقبال' : 'Show this code at reception'}</AppText>
-          <View style={{ backgroundColor: 'var(--nabd-bg.surface-light)', padding: 16, borderRadius: 16 }}>
+          <View style={{ backgroundColor: '#FFF', padding: 16, borderRadius: 16 }}>
             <QRCode value={`NABDAH:APPT:${bookingCode}`} size={170} />
           </View>
           <AppText variant="labelMD" color={colors.textSecondary} style={{ letterSpacing: 2 }}>{bookingCode.slice(0, 8)}</AppText>

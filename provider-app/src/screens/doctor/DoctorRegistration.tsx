@@ -419,8 +419,8 @@ function Step3Profile({ data, update, onNext, onBack, step, total, bare = false,
       </View>
       <View style={{ alignItems: 'center', marginBottom: SP.xl, paddingHorizontal: SP.md }}>
         <TouchableOpacity onPress={() => setShowRemoveBg(true)} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: 8, backgroundColor: theme.primary, paddingHorizontal: SP.xl, paddingVertical: SP.md, borderRadius: R.full, elevation: 2, shadowColor: theme.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 4, marginBottom: SP.sm }}>
-          <I name="image" size={20} color="var(--nabd-bg.surface-light)" />
-          <Text style={{ fontSize: FS.md, color: 'var(--nabd-bg.surface-light)', fontWeight: FW.bold }}>{AR ? 'تحسين جودة الصورة (إزالة الخلفية)' : 'Improve Quality (Remove BG)'}</Text>
+          <I name="image" size={20} color="#fff" />
+          <Text style={{ fontSize: FS.md, color: '#fff', fontWeight: FW.bold }}>{AR ? 'تحسين جودة الصورة (إزالة الخلفية)' : 'Improve Quality (Remove BG)'}</Text>
         </TouchableOpacity>
         <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: 'center', lineHeight: 22, marginTop: SP.xs }}>
           {AR ? 'عند الضغط على هذا الزر ستفتح صفحة.. قم برفع صورتك وانتظر حتى يتم تحليلها وتحسينها وإزالة الخلفية، ثم قم بتحميلها وإعادة رفعها هنا' : 'Clicking this button will open a page.. upload your photo, wait for it to be analyzed and background removed, then download it and re-upload it here.'}
@@ -430,7 +430,7 @@ function Step3Profile({ data, update, onNext, onBack, step, total, bare = false,
       <Modal visible={showRemoveBg} animationType="slide" presentationStyle="pageSheet" onRequestClose={() => setShowRemoveBg(false)}>
         <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }}>
           <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', padding: SP.md, backgroundColor: '#111' }}>
-            <Text style={{ color: 'var(--nabd-bg.surface-light)', fontWeight: FW.bold }}>{AR ? 'أداة إزالة الخلفية' : 'Background Removal Tool'}</Text>
+            <Text style={{ color: '#FFF', fontWeight: FW.bold }}>{AR ? 'أداة إزالة الخلفية' : 'Background Removal Tool'}</Text>
             <TouchableOpacity onPress={() => setShowRemoveBg(false)} style={{ padding: SP.xs }}>
               <Text style={{ color: theme.danger, fontWeight: FW.bold }}>{AR ? 'إغلاق' : 'Close'}</Text>
             </TouchableOpacity>
@@ -476,7 +476,7 @@ function Step3Profile({ data, update, onNext, onBack, step, total, bare = false,
             <View key={i} style={{ width: 80, height: 80, borderRadius: R.md, overflow: 'hidden' }}>
               <Image source={{ uri }} style={{ width: '100%', height: '100%' }} />
               <TouchableOpacity onPress={() => update({ clinicImagesUris: data.clinicImagesUris.filter((_:any, idx:number) => idx !== i) })} style={{ position: 'absolute', top: 4, right: 4, backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: 12, padding: 2 }}>
-                <I name="close" size={16} color="var(--nabd-bg.surface-light)" />
+                <I name="close" size={16} color="#fff" />
               </TouchableOpacity>
             </View>
           ))}
@@ -918,7 +918,7 @@ function Step6Insurance({ data, update, onNext, onBack, step, total, bare = fals
                 <TouchableOpacity onPress={() => toggleCompany(co.id)} style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Text style={{ fontSize: FS.md, color: theme.text, fontWeight: FW.bold }}>{AR ? co.ar : co.en}</Text>
                   <View style={{ width: 22, height: 22, borderRadius: R.sm, borderWidth: 2, borderColor: isAccepted ? theme.primary : theme.border, backgroundColor: isAccepted ? theme.primary : 'transparent', alignItems: 'center', justifyContent: 'center' }}>
-                    {isAccepted && <I name="check" size={12} color="var(--nabd-bg.surface-light)" />}
+                    {isAccepted && <I name="check" size={12} color="#FFF" />}
                   </View>
                 </TouchableOpacity>
 
@@ -1248,7 +1248,7 @@ function Step7Signature({ data, update, onDone, onBack, step, total }: any) {
 
           {data.signatureData ? (
              <View style={{ alignItems: 'center', marginVertical: SP.md }}>
-               <Image source={{ uri: data.signatureData }} style={{ width: 200, height: 100, resizeMode: 'contain', backgroundColor: 'var(--nabd-bg.surface-light)' }} />
+               <Image source={{ uri: data.signatureData }} style={{ width: 200, height: 100, resizeMode: 'contain', backgroundColor: '#fff' }} />
                <TouchableOpacity onPress={() => setShowSigModal(true)} style={{ marginTop: SP.sm }}><Text style={{ color: theme.primary }}>{AR ? 'إعادة التوقيع' : 'Re-sign'}</Text></TouchableOpacity>
              </View>
           ) : (

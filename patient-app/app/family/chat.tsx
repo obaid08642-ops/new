@@ -114,7 +114,7 @@ export default function FamilyChatScreen() {
         borderBottomLeftRadius: item.isMe ? 4 : 18,
         borderBottomRightRadius: item.isMe ? 18 : 4,
       } ]}>
-        <AppText variant="bodySM" color={item.isMe ? 'var(--nabd-bg.surface-light)' : colors.textPrimary}>{item.text}</AppText>
+        <AppText variant="bodySM" color={item.isMe ? '#fff' : colors.textPrimary}>{item.text}</AppText>
         {!!item.time && (
           <AppText variant="caption" color={item.isMe ? 'rgba(255,255,255,0.6)' : colors.textTertiary} style={{ marginTop: 4 }}>{item.time}</AppText>
         )}
@@ -169,7 +169,7 @@ export default function FamilyChatScreen() {
       {!loadError && (
         <View style={[st.inputBar, { paddingBottom: insets.bottom + 8, backgroundColor: colors.surface, borderTopColor: colors.borderLight } ]}>
           <TouchableOpacity onPress={send} disabled={sending || !msg.trim()} style={[st.sendBtn, { backgroundColor: colors.primary, opacity: sending || !msg.trim() ? 0.5 : 1 } ]}>
-            <Icon name="send" size={20} color="var(--nabd-bg.surface-light)" />
+            <Icon name="send" size={20} color="#fff" />
           </TouchableOpacity>
           <TextInput value={msg} onChangeText={setMsg} placeholder="اكتب رسالة..." placeholderTextColor={colors.textTertiary} style={[st.input, { backgroundColor: colors.surfaceSecondary, color: colors.textPrimary }]} onSubmitEditing={send} />
         </View>

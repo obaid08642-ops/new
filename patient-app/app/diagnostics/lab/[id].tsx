@@ -115,8 +115,8 @@ export default function LabProfile() {
                 Linking.openURL(url).catch(() => showLocalizedAlert('تعذّر فتح الخرائط'));
               }}
             >
-              <Icon name="directions" size={20} color="var(--nabd-bg.surface-light)" />
-              <AppText style={{ color: 'var(--nabd-bg.surface-light)', fontWeight: 'bold', fontSize: 14, marginLeft: 8 }}>الاتجاهات للمختبر</AppText>
+              <Icon name="directions" size={20} color="#fff" />
+              <AppText style={{ color: '#fff', fontWeight: 'bold', fontSize: 14, marginLeft: 8 }}>الاتجاهات للمختبر</AppText>
             </TouchableOpacity>
           ) : null}
         </Animated.View>
@@ -151,16 +151,16 @@ export default function LabProfile() {
 
                {isAdded ? (
                  <View style={[styles.addBtn, { backgroundColor: '#4CAF50' } ]}>
-                   <Icon name="check-bold" size={18} color="var(--nabd-bg.surface-light)" />
-                   <AppText style={{ color: 'var(--nabd-bg.surface-light)', fontSize: 12, fontWeight: 'bold', marginLeft: 4 }}>مضاف للسلة</AppText>
+                   <Icon name="check-bold" size={18} color="#fff" />
+                   <AppText style={{ color: '#fff', fontSize: 12, fontWeight: 'bold', marginLeft: 4 }}>مضاف للسلة</AppText>
                  </View>
                ) : (
                  <TouchableOpacity 
                    style={[styles.addBtn, { backgroundColor: '#E53935' }]}
                    onPress={() => addItem({ id: test.id, name: test.name, price: test.price, kind: 'lab', lockedProviderId: id as string })}
                  >
-                   <Icon name="cart-plus" size={18} color="var(--nabd-bg.surface-light)" />
-                   <AppText style={{ color: 'var(--nabd-bg.surface-light)', fontSize: 12, fontWeight: 'bold', marginLeft: 4 }}>أضف للسلة</AppText>
+                   <Icon name="cart-plus" size={18} color="#fff" />
+                   <AppText style={{ color: '#fff', fontSize: 12, fontWeight: 'bold', marginLeft: 4 }}>أضف للسلة</AppText>
                  </TouchableOpacity>
                )}
 

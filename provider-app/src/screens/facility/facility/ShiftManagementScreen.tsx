@@ -116,7 +116,7 @@ export function ShiftManagementScreen({ onBack }: { onBack: () => void }) {
  backgroundColor: view===v ? theme.primary : theme.surface2,
  borderColor: view===v ? theme.primary : theme.border,
  }]}>
- <Text style={{ color: view===v?'var(--nabd-bg.surface-light)':theme.text, fontWeight: FW.semi }}>
+ <Text style={{ color: view===v?'#FFF':theme.text, fontWeight: FW.semi }}>
  {v === 'today' ? (AR?'اليوم':'Today') : (AR?'الأسبوع':'Week')}
  </Text>
  </TouchableOpacity>

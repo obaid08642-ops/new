@@ -137,7 +137,7 @@ export default function ActiveProgramsScreen() {
         <Card style={[st.nextSessionCard, { backgroundColor: colors.primarySurface, borderColor: colors.primary + '30' } ]}>
           <View style={{ flexDirection: 'row-reverse', gap: 10, alignItems: 'center' }}>
             <View style={[st.iconCircle, { backgroundColor: colors.primary } ]}>
-              <Icon name="clock" size={20} color="var(--nabd-bg.surface-light)" />
+              <Icon name="clock" size={20} color="#fff" />
             </View>
             <View style={{ flex: 1, alignItems: 'flex-end' }}>
               <AppText variant="h6" color={colors.primary}>الجلسة القادمة المجدولة</AppText>

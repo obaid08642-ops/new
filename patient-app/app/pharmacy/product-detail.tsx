@@ -273,7 +273,7 @@ export default function ProductDetailScreen() {
           <TouchableOpacity style={styles.iconBtn} onPress={() => router.push('/pharmacy/cart')}>
             <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#141A2A', fontSize: 26 }}>shopping_cart</LocalizedText>
             {items.length > 0 && (
-              <View style={styles.cartBadge}><LocalizedText style={{ fontFamily: 'Cairo-Bold', color: 'var(--nabd-bg.surface-light)', fontSize: 10 }}>{items.length}</LocalizedText></View>
+              <View style={styles.cartBadge}><LocalizedText style={{ fontFamily: 'Cairo-Bold', color: '#fff', fontSize: 10 }}>{items.length}</LocalizedText></View>
             )}
           </TouchableOpacity>
         </View>
@@ -291,7 +291,7 @@ export default function ProductDetailScreen() {
             >
               {images.map((img, i) => (
                 <TouchableOpacity key={i} activeOpacity={0.9} onPress={() => { setActiveImage(i); setIsZoomVisible(true); }}>
-                  <ProductImage uri={img} style={{ width, height: width, backgroundColor: 'var(--nabd-bg.surface-light)' }} iconSize={90} />
+                  <ProductImage uri={img} style={{ width, height: width, backgroundColor: '#fff' }} iconSize={90} />
                 </TouchableOpacity>
               ))}
             </ScrollView>
@@ -307,7 +307,7 @@ export default function ProductDetailScreen() {
           )}
           {discount > 0 && (
             <View style={styles.discountBadge}>
-              <LocalizedText style={{ fontFamily: 'Cairo-Black', color: 'var(--nabd-bg.surface-light)', fontSize: 14 }}>-{discount}%</LocalizedText>
+              <LocalizedText style={{ fontFamily: 'Cairo-Black', color: '#fff', fontSize: 14 }}>-{discount}%</LocalizedText>
             </View>
           )}
         </View>
@@ -487,7 +487,7 @@ export default function ProductDetailScreen() {
             <TextInput value={suggestNote} onChangeText={setSuggestNote} placeholder={isRTL ? 'ملاحظة إضافية (اختياري)' : 'Extra note (optional)'} placeholderTextColor={colors.t3} style={{ borderWidth: 1, borderColor: colors.bd, borderRadius: 10, padding: 10, marginTop: 10, color: colors.n, fontFamily: 'Cairo-Regular', textAlign: isRTL ? 'right' : 'left' }} />
             <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', marginTop: 14, gap: 10 }}>
               <TouchableOpacity onPress={submitSuggestion} disabled={suggestSending} style={{ flex: 1, backgroundColor: '#23B5CE', borderRadius: 12, paddingVertical: 12, alignItems: 'center', opacity: suggestSending ? 0.6 : 1 }}>
-                <LocalizedText style={{ fontFamily: 'Cairo-Black', color: 'var(--nabd-bg.surface-light)', fontSize: 15 }}>{suggestSending ? (isRTL ? 'جارٍ الإرسال…' : 'Sending…') : (isRTL ? 'إرسال الاقتراح' : 'Send suggestion')}</LocalizedText>
+                <LocalizedText style={{ fontFamily: 'Cairo-Black', color: '#fff', fontSize: 15 }}>{suggestSending ? (isRTL ? 'جارٍ الإرسال…' : 'Sending…') : (isRTL ? 'إرسال الاقتراح' : 'Send suggestion')}</LocalizedText>
               </TouchableOpacity>
               <TouchableOpacity onPress={() => setSuggestVisible(false)} style={{ paddingVertical: 12, paddingHorizontal: 18, borderRadius: 12, borderWidth: 1, borderColor: colors.bd }}>
                 <LocalizedText style={{ fontFamily: 'Cairo-Bold', color: colors.t2, fontSize: 14 }}>{isRTL ? 'إلغاء' : 'Cancel'}</LocalizedText>
@@ -512,8 +512,8 @@ export default function ProductDetailScreen() {
         ) : (
           <Animated.View style={[styles.addCartBtnWrap, { transform: [{ scale: scaleAnim }] }]}>
             <TouchableOpacity style={[styles.addCartBtn, { backgroundColor: '#23B5CE' }]} onPress={handleAdd} activeOpacity={0.85}>
-              <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: 'var(--nabd-bg.surface-light)', fontSize: 22, marginRight: 10 }}>add_shopping_cart</LocalizedText>
-              <LocalizedText style={{ fontFamily: 'Cairo-Black', color: 'var(--nabd-bg.surface-light)', fontSize: 16 }}>{t('pd.add_to_cart')}</LocalizedText>
+              <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 22, marginRight: 10 }}>add_shopping_cart</LocalizedText>
+              <LocalizedText style={{ fontFamily: 'Cairo-Black', color: '#fff', fontSize: 16 }}>{t('pd.add_to_cart')}</LocalizedText>
             </TouchableOpacity>
           </Animated.View>
         )}
@@ -523,7 +523,7 @@ export default function ProductDetailScreen() {
       <Modal visible={isZoomVisible} transparent={true} animationType="fade">
         <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.95)', justifyContent: 'center', alignItems: 'center' }}>
           <TouchableOpacity style={{ position: 'absolute', top: Math.max(insets.top, 20), right: 20, zIndex: 10, padding: 8, backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 20 }} onPress={() => setIsZoomVisible(false)}>
-            <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: 'var(--nabd-bg.surface-light)', fontSize: 28 }}>close</LocalizedText>
+            <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 28 }}>close</LocalizedText>
           </TouchableOpacity>
           <ScrollView
             maximumZoomScale={4} minimumZoomScale={1}
@@ -535,11 +535,11 @@ export default function ProductDetailScreen() {
           {images.length > 1 && (
             <View style={{ position: 'absolute', bottom: 40, flexDirection: 'row', gap: 16 }}>
               <TouchableOpacity disabled={activeImage === 0} onPress={() => setActiveImage(i => Math.max(0, i - 1))} style={[styles.zoomNav, { opacity: activeImage === 0 ? 0.3 : 1 }]}>
-                <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: 'var(--nabd-bg.surface-light)', fontSize: 30 }}>chevron_left</LocalizedText>
+                <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 30 }}>chevron_left</LocalizedText>
               </TouchableOpacity>
-              <LocalizedText style={{ color: 'var(--nabd-bg.surface-light)', fontFamily: 'Cairo-Bold', alignSelf: 'center' }}>{activeImage + 1} / {images.length}</LocalizedText>
+              <LocalizedText style={{ color: '#fff', fontFamily: 'Cairo-Bold', alignSelf: 'center' }}>{activeImage + 1} / {images.length}</LocalizedText>
               <TouchableOpacity disabled={activeImage === images.length - 1} onPress={() => setActiveImage(i => Math.min(images.length - 1, i + 1))} style={[styles.zoomNav, { opacity: activeImage === images.length - 1 ? 0.3 : 1 }]}>
-                <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: 'var(--nabd-bg.surface-light)', fontSize: 30 }}>chevron_right</LocalizedText>
+                <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 30 }}>chevron_right</LocalizedText>
               </TouchableOpacity>
             </View>
           )}
@@ -553,8 +553,8 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   headerOverlay: { position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10, flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 20, paddingBottom: 10 },
   iconBtn: { width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(255,255,255,0.85)', justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 4, elevation: 3 },
-  cartBadge: { position: 'absolute', top: -4, right: -4, width: 18, height: 18, borderRadius: 9, backgroundColor: '#F0695C', justifyContent: 'center', alignItems: 'center', borderWidth: 1.5, borderColor: 'var(--nabd-bg.surface-light)' },
-  galleryContainer: { width, height: width, backgroundColor: 'var(--nabd-bg.surface-light)', position: 'relative', borderBottomLeftRadius: 28, borderBottomRightRadius: 28, overflow: 'hidden' },
+  cartBadge: { position: 'absolute', top: -4, right: -4, width: 18, height: 18, borderRadius: 9, backgroundColor: '#F0695C', justifyContent: 'center', alignItems: 'center', borderWidth: 1.5, borderColor: '#fff' },
+  galleryContainer: { width, height: width, backgroundColor: '#fff', position: 'relative', borderBottomLeftRadius: 28, borderBottomRightRadius: 28, overflow: 'hidden' },
   placeholderHero: { justifyContent: 'center', alignItems: 'center' },
   pagination: { position: 'absolute', bottom: 16, width: '100%', flexDirection: 'row', justifyContent: 'center', gap: 6 },
   dot: { height: 8, width: 8, borderRadius: 4 },
@@ -585,7 +585,7 @@ const styles = StyleSheet.create({
   sectionTitle: { fontFamily: 'Cairo-Black', fontSize: 18, marginBottom: 14 },
   altScroll: { paddingBottom: 8 },
   altCard: { width: 140, padding: 14, borderRadius: 18, borderWidth: 1, marginRight: 12, alignItems: 'center' },
-  altImgWrap: { width: 72, height: 72, borderRadius: 14, backgroundColor: 'var(--nabd-bg.surface-light)', justifyContent: 'center', alignItems: 'center', marginBottom: 10, overflow: 'hidden' },
+  altImgWrap: { width: 72, height: 72, borderRadius: 14, backgroundColor: '#fff', justifyContent: 'center', alignItems: 'center', marginBottom: 10, overflow: 'hidden' },
   altName: { fontFamily: 'Cairo-Bold', fontSize: 13, marginBottom: 4, textAlign: 'center' },
   altCompany: { fontFamily: 'Cairo-Regular', fontSize: 11, marginBottom: 8, textAlign: 'center' },
   altPrice: { fontFamily: 'Cairo-Black', fontSize: 15 },
@@ -593,6 +593,6 @@ const styles = StyleSheet.create({
   addCartBtnWrap: {},
   addCartBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 18, borderRadius: 20, shadowColor: '#23B5CE', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 6 },
   qtyControlFull: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 8, paddingHorizontal: 12, borderRadius: 20, borderWidth: 1 },
-  qtyBtnFull: { width: 50, height: 50, borderRadius: 16, backgroundColor: 'var(--nabd-bg.surface-light)', justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 2 },
+  qtyBtnFull: { width: 50, height: 50, borderRadius: 16, backgroundColor: '#fff', justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 2 },
   zoomNav: { backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 22, padding: 4 },
 });

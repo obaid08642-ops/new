@@ -222,7 +222,7 @@ export default function PrivacySettingsScreen() {
         </View>
 
         {/* ── PDPL: the data subject acts here, not by mailing support ── */}
-        <View style={[styles.dataCard, { backgroundColor: isDark ? colors.surface : colors.white, borderColor: isDark ? "#2A2A2E" : "var(--nabd-border.subtle-light)" }]}>
+        <View style={[styles.dataCard, { backgroundColor: isDark ? colors.surface : colors.white, borderColor: isDark ? "#2A2A2E" : "#E5E5EA" }]}>
           <AppText variant="titleSM">بياناتي</AppText>
           <AppText variant="bodySM" style={{ opacity: 0.7, marginTop: 4 }}>
            PDPL Art. 20 (نقل البيانات) و Art. 23 (الحذف) — حقك القانوني متاح من هنا مباشرة.

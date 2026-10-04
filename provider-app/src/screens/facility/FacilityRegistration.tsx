@@ -112,7 +112,7 @@ export function FacilityRegistration({ onBack, onDone }: { onBack: () => void; o
       {screens[step] ?? null}
       <Modal visible={data.loading} transparent animationType="fade">
         <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' }}>
-          <View style={{ padding: 20, backgroundColor: 'var(--nabd-bg.surface-light)', borderRadius: 12, alignItems: 'center' }}>
+          <View style={{ padding: 20, backgroundColor: '#FFF', borderRadius: 12, alignItems: 'center' }}>
             <Text style={{ marginTop: 10, fontSize: 16 }}>جاري معالجة البيانات...</Text>
           </View>
         </View>
@@ -356,7 +356,7 @@ const body = (
             <View key={i} style={{ width: 80, height: 80, borderRadius: R.md, overflow: 'hidden' }}>
               <Image source={{ uri }} style={{ width: '100%', height: '100%' }} />
               <TouchableOpacity onPress={() => update({ facilityImagesUris: data.facilityImagesUris.filter((_:any, idx:number) => idx !== i) })} style={{ position: 'absolute', top: 4, right: 4, backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: 12, padding: 2 }}>
-                <I name="close" size={16} color="var(--nabd-bg.surface-light)" />
+                <I name="close" size={16} color="#fff" />
               </TouchableOpacity>
             </View>
           ))}
@@ -903,7 +903,7 @@ function Step4SubProviders({ data, update, onNext, onBack, step, total }: any) {
                   <View key={i} style={{ width: 80, height: 80, borderRadius: R.md, overflow: 'hidden' }}>
                     <Image source={{ uri }} style={{ width: '100%', height: '100%' }} />
                     <TouchableOpacity onPress={() => setTempSub({ ...tempSub, clinicImagesUris: tempSub.clinicImagesUris.filter((_:any, idx:number) => idx !== i) })} style={{ position: 'absolute', top: 4, right: 4, backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: 12, padding: 2 }}>
-                      <I name="close" size={16} color="var(--nabd-bg.surface-light)" />
+                      <I name="close" size={16} color="#fff" />
                     </TouchableOpacity>
                   </View>
                 ))}
@@ -1091,7 +1091,7 @@ function Step5Insurance({ data, update, onNext, onBack, step, total, bare = fals
                 <TouchableOpacity onPress={() => toggleCompany(co.id)} style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Text style={{ fontSize: FS.md, color: theme.text, fontWeight: FW.bold }}>{AR ? co.ar : co.en}</Text>
                   <View style={{ width: 22, height: 22, borderRadius: R.sm, borderWidth: 2, borderColor: isAccepted ? theme.primary : theme.border, backgroundColor: isAccepted ? theme.primary : 'transparent', alignItems: 'center', justifyContent: 'center' }}>
-                    {isAccepted && <I name="check" size={12} color="var(--nabd-bg.surface-light)" />}
+                    {isAccepted && <I name="check" size={12} color="#FFF" />}
                   </View>
                 </TouchableOpacity>
 
@@ -1275,7 +1275,7 @@ function Step7Signature({ data, update, onDone, onBack, step, total }: any) {
         <View style={{ marginBottom: 20, gap: 10 }}>
           {data.signatureData ? (
              <View style={{ alignItems: 'center', marginVertical: 10 }}>
-               <Image source={{ uri: data.signatureData }} style={{ width: 200, height: 100, resizeMode: 'contain', backgroundColor: 'var(--nabd-bg.surface-light)' }} />
+               <Image source={{ uri: data.signatureData }} style={{ width: 200, height: 100, resizeMode: 'contain', backgroundColor: '#fff' }} />
                <TouchableOpacity onPress={() => setShowSigModal(true)} style={{ marginTop: 8 }}><Text style={{ color: theme.primary }}>{AR ? 'إعادة التوقيع' : 'Re-sign'}</Text></TouchableOpacity>
              </View>
           ) : (

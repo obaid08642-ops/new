@@ -82,7 +82,7 @@ export default function IncomingCallScreen() {
         <View style={st.avatarWrap}>
           <Icon name="doctor" size={72} color="rgba(255,255,255,0.7)" />
         </View>
-        <AppText variant="h3" color="var(--nabd-bg.surface-light)" style={st.name}>
+        <AppText variant="h3" color="#fff" style={st.name}>
           {callerName}
         </AppText>
         <AppText variant="bodyMD" color="rgba(255,255,255,0.5)">
@@ -97,12 +97,12 @@ export default function IncomingCallScreen() {
         <View style={st.buttonsRow}>
           {/* Reject Button */}
           <TouchableOpacity onPress={handleReject} style={[st.btn, st.reject]}>
-            <Icon name="call" size={32} color="var(--nabd-bg.surface-light)" style={st.rejectIcon} />
+            <Icon name="call" size={32} color="#fff" style={st.rejectIcon} />
           </TouchableOpacity>
 
           {/* Accept Button */}
           <TouchableOpacity onPress={handleAccept} style={[st.btn, st.accept]}>
-            <Icon name="call" size={32} color="var(--nabd-bg.surface-light)" />
+            <Icon name="call" size={32} color="#fff" />
           </TouchableOpacity>
         </View>
         <View style={st.labelsRow}>

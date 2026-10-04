@@ -78,7 +78,7 @@ export default function ActionableOrderScreen() {
               </View>
             ))}
             <TouchableOpacity style={styles.actionBtn} onPress={handleOrderMeds} disabled={loading}>
-              <I name="shopping_cart" size={20} color="var(--nabd-bg.surface-light)" />
+              <I name="shopping_cart" size={20} color="#fff" />
               <LocalizedText style={styles.actionBtnText}>اطلب الأدوية الآن (صيدلية نبض)</LocalizedText>
             </TouchableOpacity>
           </View>
@@ -107,7 +107,7 @@ export default function ActionableOrderScreen() {
               </View>
             ))}
             <TouchableOpacity style={[styles.actionBtn, { backgroundColor: theme.warning }]} onPress={handleBookLabs} disabled={loading}>
-              <I name="home" size={20} color="var(--nabd-bg.surface-light)" />
+              <I name="home" size={20} color="#fff" />
               <LocalizedText style={styles.actionBtnText}>حجز زيارة منزلية لسحب الدم</LocalizedText>
             </TouchableOpacity>
           </View>
@@ -129,7 +129,7 @@ export default function ActionableOrderScreen() {
               </View>
             ))}
             <TouchableOpacity style={[styles.actionBtn, { backgroundColor: theme.info }]} onPress={() => router.push('/diagnostics/search')}>
-              <I name="location" size={20} color="var(--nabd-bg.surface-light)" />
+              <I name="location" size={20} color="#fff" />
               <LocalizedText style={styles.actionBtnText}>استعراض مراكز الأشعة</LocalizedText>
             </TouchableOpacity>
           </View>
@@ -156,5 +156,5 @@ const styles = StyleSheet.create({
   itemText: { fontSize: 14, fontWeight: 'bold', color: theme.text, textAlign: 'right' },
   itemSub: { fontSize: 12, color: theme.textSub, textAlign: 'right', marginTop: 2 },
   actionBtn: { flexDirection: 'row-reverse', backgroundColor: theme.primary, padding: SP.md, borderRadius: R.md, alignItems: 'center', justifyContent: 'center', gap: SP.sm, marginTop: SP.lg },
-  actionBtnText: { color: 'var(--nabd-bg.surface-light)', fontSize: 16, fontWeight: 'bold' }
+  actionBtnText: { color: '#FFF', fontSize: 16, fontWeight: 'bold' }
 });

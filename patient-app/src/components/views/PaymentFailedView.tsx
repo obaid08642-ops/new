@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: "rgba(255,255,255,0.3)",
   },
-  failedTitle: { color: "var(--nabd-bg.surface-light)", fontSize: 26, fontWeight: "800" },
+  failedTitle: { color: "#fff", fontSize: 26, fontWeight: "800" },
   failedAmount: {
     color: "rgba(255,255,255,0.8)",
     fontSize: 20,
@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  retryBtnText: { color: "var(--nabd-bg.surface-light)", fontSize: 16, fontWeight: "800" },
+  retryBtnText: { color: "#fff", fontSize: 16, fontWeight: "800" },
   walletBtn: {
     height: 50,
     borderRadius: 14,

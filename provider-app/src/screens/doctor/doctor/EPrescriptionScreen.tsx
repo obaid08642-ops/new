@@ -214,7 +214,7 @@ export function EPrescriptionScreen({ apt, onBack }:
  backgroundColor: drug.freq === f ? theme.primary : theme.surface2,
  borderColor: drug.freq === f ? theme.primary : theme.border,
  }]}>
- <Text style={{ color: drug.freq === f ? 'var(--nabd-bg.surface-light)' : theme.text, fontSize: FS.xs }}>{f}</Text>
+ <Text style={{ color: drug.freq === f ? '#FFF' : theme.text, fontSize: FS.xs }}>{f}</Text>
  </TouchableOpacity>
  ))}
  </View>
@@ -231,7 +231,7 @@ export function EPrescriptionScreen({ apt, onBack }:
  backgroundColor: drug.duration === d ? theme.info : theme.surface2,
  borderColor: drug.duration === d ? theme.info : theme.border,
  }]}>
- <Text style={{ color: drug.duration === d ? 'var(--nabd-bg.surface-light)' : theme.text, fontSize: FS.xs }}>{d}</Text>
+ <Text style={{ color: drug.duration === d ? '#FFF' : theme.text, fontSize: FS.xs }}>{d}</Text>
  </TouchableOpacity>
  ))}
  </View>

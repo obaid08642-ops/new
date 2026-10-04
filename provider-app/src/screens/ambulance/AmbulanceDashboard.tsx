@@ -355,7 +355,7 @@ function CompletionReportScreen({ mission, onBack }: { mission: any; onBack: () 
           {OUTCOMES.map((o) => (
             <TouchableOpacity key={o} onPress={() => setOutcome(o)}
               style={[s.chip, { backgroundColor: outcome === o ? theme.primary : theme.surface2, borderColor: outcome === o ? theme.primary : theme.border }]}>
-              <Text style={{ color: outcome === o ? 'var(--nabd-bg.surface-light)' : theme.text, fontWeight: FW.semi }}>{o}</Text>
+              <Text style={{ color: outcome === o ? '#FFF' : theme.text, fontWeight: FW.semi }}>{o}</Text>
             </TouchableOpacity>
           ))}
         </View>

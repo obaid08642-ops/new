@@ -45,7 +45,7 @@ export const SignatureCanvasModal = ({ visible, onClose, onOK }: SignatureCanvas
               </TouchableOpacity>
             </View>
 
-            <View style={{ flex: 1, backgroundColor: 'var(--nabd-bg.surface-light)' }}>
+            <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
               <SignatureScreen
                 ref={ref}
                 onOK={handleOK}
@@ -77,7 +77,7 @@ export const SignatureCanvasModal = ({ visible, onClose, onOK }: SignatureCanvas
                 onPress={handleConfirm} 
                 style={{ paddingVertical: SP.sm, paddingHorizontal: SP.xl, borderRadius: R.md, backgroundColor: theme.primary }}
               >
-                <Text style={{ color: 'var(--nabd-bg.surface-light)', fontWeight: FW.bold, fontSize: FS.md }}>{AR ? 'حفظ التوقيع' : 'Save Signature'}</Text>
+                <Text style={{ color: '#FFF', fontWeight: FW.bold, fontSize: FS.md }}>{AR ? 'حفظ التوقيع' : 'Save Signature'}</Text>
               </TouchableOpacity>
             </View>
 

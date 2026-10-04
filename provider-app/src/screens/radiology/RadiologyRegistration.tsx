@@ -747,7 +747,7 @@ function LStep3({ data, update, onNext, onBack, step, total, bare = false, submi
                     borderColor: data.homeRadius === r ? theme.primary : theme.border,
                   }]}>
                   <Text style={{
-                    color: data.homeRadius === r ? 'var(--nabd-bg.surface-light)' : theme.text,
+                    color: data.homeRadius === r ? '#FFF' : theme.text,
                     fontWeight: FW.semi, fontSize: FS.sm,
                   }}>
                     {r} {AR ? 'كم' : 'km'}
@@ -767,7 +767,7 @@ function LStep3({ data, update, onNext, onBack, step, total, bare = false, submi
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: 12, marginBottom: 24 }}>
               {['all', 'male', 'female'].map(g => (
                 <TouchableOpacity key={g} onPress={() => update({ targetGenders: g })}
-                  style={{ flex: 1, padding: 12, borderWidth: 1, borderColor: data.targetGenders === g ? theme.primary : theme.border, backgroundColor: data.targetGenders === g ? withAlpha(tokens.purple, 0.10) : 'var(--nabd-bg.surface-light)', borderRadius: 8, alignItems: 'center' }}>
+                  style={{ flex: 1, padding: 12, borderWidth: 1, borderColor: data.targetGenders === g ? theme.primary : theme.border, backgroundColor: data.targetGenders === g ? withAlpha(tokens.purple, 0.10) : '#FFF', borderRadius: 8, alignItems: 'center' }}>
                   <Text style={{ color: data.targetGenders === g ? theme.primary : theme.text }}>
                     {g === 'all' ? (AR ? 'كلاهما' : 'Both') : g === 'male' ? (AR ? 'رجال' : 'Male') : (AR ? 'نساء' : 'Female')}
                   </Text>
@@ -909,8 +909,8 @@ function LStep4({ data, update, onNext, onBack, step, total, bare = false, submi
                 borderColor: tab === 'lab' ? tokens.purple : theme.border,
                 flex: 1,
               }]}>
-              <Icon name="test_tube" size={16} color={tab === 'lab' ? 'var(--nabd-bg.surface-light)' : theme.text} />
-              <Text style={{ color: tab === 'lab' ? 'var(--nabd-bg.surface-light)' : theme.text, fontWeight: FW.semi }}>
+              <Icon name="test_tube" size={16} color={tab === 'lab' ? '#FFF' : theme.text} />
+              <Text style={{ color: tab === 'lab' ? '#FFF' : theme.text, fontWeight: FW.semi }}>
                 {AR ? 'التحاليل' : 'Radiology Tests'}
               </Text>
             </TouchableOpacity>
@@ -922,8 +922,8 @@ function LStep4({ data, update, onNext, onBack, step, total, bare = false, submi
                 borderColor: tab === 'rad' ? tokens.mintDeep : theme.border,
                 flex: 1,
               }]}>
-              <Icon name="scan" size={16} color={tab === 'rad' ? 'var(--nabd-bg.surface-light)' : theme.text} />
-              <Text style={{ color: tab === 'rad' ? 'var(--nabd-bg.surface-light)' : theme.text, fontWeight: FW.semi }}>
+              <Icon name="scan" size={16} color={tab === 'rad' ? '#FFF' : theme.text} />
+              <Text style={{ color: tab === 'rad' ? '#FFF' : theme.text, fontWeight: FW.semi }}>
                 {AR ? 'الأشعة' : 'Radiology'}
               </Text>
             </TouchableOpacity>
@@ -994,7 +994,7 @@ function LStep4({ data, update, onNext, onBack, step, total, bare = false, submi
                 backgroundColor: enabled ? tokens.purple : 'transparent',
                 borderColor: enabled ? tokens.purple : theme.border,
               }]}>
-                {enabled && <Icon name="check" size={10} color="var(--nabd-bg.surface-light)" />}
+                {enabled && <Icon name="check" size={10} color="#FFF" />}
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={{
@@ -1069,7 +1069,7 @@ function LStep4({ data, update, onNext, onBack, step, total, bare = false, submi
                 backgroundColor: enabled ? tokens.mintDeep : 'transparent',
                 borderColor: enabled ? tokens.mintDeep : theme.border,
               }]}>
-                {enabled && <Icon name="check" size={10} color="var(--nabd-bg.surface-light)" />}
+                {enabled && <Icon name="check" size={10} color="#FFF" />}
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={{
@@ -1312,7 +1312,7 @@ function LStep5({ data, update, onNext, onBack, step, total }: {
                     backgroundColor: active ? theme.primary : theme.surface2,
                     borderColor: active ? theme.primary : theme.border,
                   }]}>
-                  <Text style={{ fontSize: FS.xs, color: active ? 'var(--nabd-bg.surface-light)' : theme.text }}>
+                  <Text style={{ fontSize: FS.xs, color: active ? '#FFF' : theme.text }}>
                     {AR ? item.nameAr : item.nameEn}
                   </Text>
                 </TouchableOpacity>
@@ -1429,7 +1429,7 @@ function LStep6({ data, update, onNext, onBack, step, total, bare = false, submi
                   backgroundColor: active ? theme.primary : theme.surface2,
                   borderColor: active ? theme.primary : theme.border,
                 }]}>
-                <Text style={{ color: active ? 'var(--nabd-bg.surface-light)' : theme.text, fontSize: FS.sm, fontWeight: FW.semi }}>
+                <Text style={{ color: active ? '#FFF' : theme.text, fontSize: FS.sm, fontWeight: FW.semi }}>
                   {AR ? d.ar : d.en}
                 </Text>
               </TouchableOpacity>
@@ -1495,7 +1495,7 @@ function LStep6({ data, update, onNext, onBack, step, total, bare = false, submi
                     backgroundColor: active ? theme.primary : theme.surface2,
                     borderColor: active ? theme.primary : theme.border,
                   }]}>
-                  <Text style={{ color: active ? 'var(--nabd-bg.surface-light)' : theme.text, fontSize: FS.sm, fontWeight: FW.semi }}>
+                  <Text style={{ color: active ? '#FFF' : theme.text, fontSize: FS.sm, fontWeight: FW.semi }}>
                     {AR ? d.ar : d.en}
                   </Text>
                 </TouchableOpacity>
@@ -1558,7 +1558,7 @@ function LStep6({ data, update, onNext, onBack, step, total, bare = false, submi
                       backgroundColor: isAccepted ? theme.primary : 'transparent',
                       borderColor: isAccepted ? theme.primary : theme.border,
                     }]}>
-                      {isAccepted && <Icon name="check" size={10} color="var(--nabd-bg.surface-light)" />}
+                      {isAccepted && <Icon name="check" size={10} color="#FFF" />}
                     </View>
                     <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>
                       {AR ? co.ar : co.en}
@@ -1886,7 +1886,7 @@ function LStep8Signature({ data, update, onDone, onBack, step, total }: {
         <View style={{ marginBottom: 20, gap: 10 }}>
           {data.signatureData ? (
              <View style={{ alignItems: 'center', marginVertical: 10 }}>
-               <Image source={{ uri: data.signatureData }} style={{ width: 200, height: 100, resizeMode: 'contain', backgroundColor: 'var(--nabd-bg.surface-light)' }} />
+               <Image source={{ uri: data.signatureData }} style={{ width: 200, height: 100, resizeMode: 'contain', backgroundColor: '#fff' }} />
                <TouchableOpacity onPress={() => setShowSigModal(true)} style={{ marginTop: 8 }}><Text style={{ color: theme.primary }}>{AR ? 'إعادة التوقيع' : 'Re-sign'}</Text></TouchableOpacity>
              </View>
           ) : (
@@ -1920,7 +1920,7 @@ function LStep8Signature({ data, update, onDone, onBack, step, total }: {
                 width: 20, height: 20, borderRadius: 10, backgroundColor: theme.info,
                 alignItems: 'center', justifyContent: 'center',
               }}>
-                <Text style={{ color: 'var(--nabd-bg.surface-light)', fontSize: FS.xs, fontWeight: FW.bold }}>{s.n}</Text>
+                <Text style={{ color: '#FFF', fontSize: FS.xs, fontWeight: FW.bold }}>{s.n}</Text>
               </View>
               <Text style={{ flex: 1, fontSize: FS.sm, color: theme.info, lineHeight: 20, textAlign: AR ? 'right' : 'left' }}>
                 {AR ? s.ar : s.en}

@@ -76,7 +76,7 @@ export default function LoyaltyChallengesScreen() {
       <View style={[styles.header, { paddingTop: insets.top + 8 } ]}>
         <View style={styles.headerRow}>
           <TouchableOpacity onPress={() => router.back()} style={styles.hBtn}>
-            <Icon name="back" size={22} color="var(--nabd-bg.surface-light)" />
+            <Icon name="back" size={22} color="#fff" />
           </TouchableOpacity>
           <AppText variant="bodySM">التحديات الصحية</AppText>
           <View style={{ width: 36 }}/>
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
   stats: { flexDirection: 'row-reverse', backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 14, padding: 12 },
   statItem: { flex: 1, alignItems: 'center', gap: 2 },
   statDiv: { width: 1, backgroundColor: 'rgba(255,255,255,0.2)' },
-  statNum: { color: 'var(--nabd-bg.surface-light)', fontSize: 18, fontFamily: 'Cairo-ExtraBold' } as any,
+  statNum: { color: '#fff', fontSize: 18, fontFamily: 'Cairo-ExtraBold' } as any,
   statLabel: { color: 'rgba(255,255,255,0.7)', fontSize: 10, fontWeight: '400' } as any,
   challengeCard: { borderRadius: 20, padding: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.07, shadowRadius: 8, elevation: 2, gap: 12 },
   challengeHeader: { flexDirection: 'row-reverse', justifyContent: 'space-between', alignItems: 'flex-start' },
@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
   statusBadge: { borderRadius: 10, paddingHorizontal: 10, paddingVertical: 5 },
   status: { fontSize: 10, fontWeight: '700' } as any,
   joinBtn: { borderRadius: 10, paddingHorizontal: 14, paddingVertical: 7 },
-  joinBtnAlt: { color: 'var(--nabd-bg.surface-light)', fontSize: 12, fontWeight: '800' } as any,
+  joinBtnAlt: { color: '#fff', fontSize: 12, fontWeight: '800' } as any,
   progressSection: { gap: 4 },
   progressHeader: { flexDirection: 'row-reverse', justifyContent: 'space-between' },
   progressPct: { fontSize: 12, fontWeight: '800' } as any,

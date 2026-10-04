@@ -86,7 +86,7 @@ export default async function AiSymptomCheckerPage({ params }: Props) {
           style={{
             display: "inline-flex",
             padding: "10px 16px",
-            background: "var(--nabd-bg.surface-light)",
+            background: "#FFFFFF",
             color: "#1E332E",
             borderRadius: 20,
             border: "1px solid #E8EDEE",
@@ -102,7 +102,7 @@ export default async function AiSymptomCheckerPage({ params }: Props) {
           style={{
             display: "inline-flex",
             padding: "10px 16px",
-            background: "var(--nabd-bg.surface-light)",
+            background: "#FFFFFF",
             color: "#1E332E",
             borderRadius: 20,
             border: "1px solid #E8EDEE",

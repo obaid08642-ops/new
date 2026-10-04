@@ -215,7 +215,7 @@ export function DoctorServiceManagementScreen({ onBack }: { onBack: () => void }
  {AR ? 'الخدمات المتاحة' : 'Available Services'}
  </Text>
  <TouchableOpacity onPress={() => setShowAddSheet(true)} style={{ backgroundColor: theme.primary, paddingHorizontal: SP.lg, paddingVertical: SP.sm, borderRadius: R.md }}>
- <Text style={{ color: 'var(--nabd-bg.surface-light)', fontWeight: FW.bold }}> {AR ? 'إضافة خدمة' : 'Add Service'}</Text>
+ <Text style={{ color: '#FFF', fontWeight: FW.bold }}> {AR ? 'إضافة خدمة' : 'Add Service'}</Text>
  </TouchableOpacity>
  </View>
 

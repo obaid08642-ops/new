@@ -97,7 +97,7 @@ export function SosActions({ active, labels }: { active: ActiveSos | null; label
           </button>
         </div>
       ) : (
-        <div className={styles.activeAlert} style={{ background: "var(--nabd-bg.surface-light)" }}>
+        <div className={styles.activeAlert} style={{ background: "#fff" }}>
           <p style={{ margin: 0, fontWeight: 800, fontSize: "clamp(1rem,2.5vw,1.15rem)", color: "#1E332E", overflowWrap: "anywhere" }}>
             {labels.trigger}؟
           </p>
@@ -114,7 +114,7 @@ export function SosActions({ active, labels }: { active: ActiveSos | null; label
                 borderRadius: 14,
                 border: 0,
                 background: "linear-gradient(135deg, #ef4444, #b91c1c)",
-                color: "var(--nabd-bg.surface-light)",
+                color: "#fff",
                 fontWeight: 800,
                 fontSize: 15,
                 cursor: "pointer",

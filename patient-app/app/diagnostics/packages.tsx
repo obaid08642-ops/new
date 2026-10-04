@@ -91,7 +91,7 @@ export default function DiagnosticsPackages() {
                 style={{
                   fontSize: 13,
                   fontWeight: "bold",
-                  color: activeCat === c ? "var(--nabd-bg.surface-light)" : theme.colors.textPrimary,
+                  color: activeCat === c ? "#fff" : theme.colors.textPrimary,
                 }}
               >
                 {c}

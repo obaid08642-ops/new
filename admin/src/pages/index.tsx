@@ -75,7 +75,7 @@ export default function Home() {
             ))}
             <div id="download" className="bg-teal-700 rounded-2xl p-6 text-white flex flex-col justify-between">
               <div>
-                <EmptyIcon name="phone" size={36} color="var(--nabd-bg.surface-light)" className="mb-3" />
+                <EmptyIcon name="phone" size={36} color="#FFFFFF" className="mb-3" />
                 <h2 className="font-bold text-lg">حمّل تطبيق نبض</h2>
                 <p className="text-sm text-teal-100 mt-1 leading-6">تجربة كاملة على iOS وأندرويد — إشعارات فورية وتتبع حي لطلباتك.</p>
               </div>

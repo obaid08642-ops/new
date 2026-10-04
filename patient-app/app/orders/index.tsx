@@ -211,7 +211,7 @@ export default function OrderCenterScreen() {
                 borderColor: active ? colors.primary : colors.border,
               }]}
             >
-              <AppText variant="bodySM" color={active ? 'var(--nabd-bg.surface-light)' : colors.textPrimary}>
+              <AppText variant="bodySM" color={active ? '#fff' : colors.textPrimary}>
                 {label}{n > 0 ? ` (${n})` : ''}
               </AppText>
             </TouchableOpacity>

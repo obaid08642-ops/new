@@ -46,7 +46,7 @@ export default function ClaimTrackingScreen() {
     <View style={[styles.container, { backgroundColor: colors.background } ]}>
       <View style={[styles.header, { paddingTop: insets.top + 8, backgroundColor: isDark ? colors.surface : colors.white } ]}>
         <TouchableOpacity onPress={() => router.push('/insurance/submit-claim')} style={[styles.newClaimBtn, { backgroundColor: '#1a1a2e' } ]}>
-          <Icon name="add" size={16} color="var(--nabd-bg.surface-light)" />
+          <Icon name="add" size={16} color="#fff" />
           <AppText variant="bodySM">مطالبة جديدة</AppText>
         </TouchableOpacity>
         <AppText variant="bodySM">مطالباتي</AppText>
@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingBottom: 14 },
   title: { fontSize: 17, fontWeight: '800' },
   newClaimBtn: { flexDirection: 'row-reverse', alignItems: 'center', gap: 4, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 7 },
-  newClaimText: { color: 'var(--nabd-bg.surface-light)', fontSize: 12, fontWeight: '800' },
+  newClaimText: { color: '#fff', fontSize: 12, fontWeight: '800' },
   statsStrip: { flexDirection: 'row-reverse', paddingVertical: 12, paddingHorizontal: 20, marginBottom: 2 },
   statItem: { flex: 1, alignItems: 'center', gap: 2 },
   statDiv: { width: 1, marginHorizontal: 6 },

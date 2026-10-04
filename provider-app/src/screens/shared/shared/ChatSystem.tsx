@@ -101,7 +101,7 @@ export function ChatSystem({ onBack }: { onBack: () => void }) {
               </View>
               {conv.unread > 0 && (
                 <View style={[st.unreadBadge, { backgroundColor: theme.primary }]}>
-                  <Text style={{ color: 'var(--nabd-bg.surface-light)', fontSize: 10, fontWeight: '700' }}>{conv.unread}</Text>
+                  <Text style={{ color: '#FFF', fontSize: 10, fontWeight: '700' }}>{conv.unread}</Text>
                 </View>
               )}
             </TouchableOpacity>
@@ -216,7 +216,7 @@ function ChatRoom({ conv, onBack }: { conv: any; onBack: () => void }) {
  borderBottomRightRadius: isMe ? 4 : R.xl,
  borderBottomLeftRadius: isMe ? R.xl : 4,
  }]}>
- <Text style={{ fontSize: FS.md, color: isMe ? 'var(--nabd-bg.surface-light)' : theme.text, lineHeight: 22, textAlign: AR ? 'right' : 'left' }}>
+ <Text style={{ fontSize: FS.md, color: isMe ? '#FFF' : theme.text, lineHeight: 22, textAlign: AR ? 'right' : 'left' }}>
  {m.text}
  </Text>
  </View>
@@ -242,7 +242,7 @@ function ChatRoom({ conv, onBack }: { conv: any; onBack: () => void }) {
 
  <TouchableOpacity onPress={sendMsg} disabled={!msg.trim()}
  style={[st.sendBtn, { backgroundColor: msg.trim() ? theme.primary : theme.surface2 }]}>
- <I name="forward" size={18} color={msg.trim() ? 'var(--nabd-bg.surface-light)' : theme.textSub} />
+ <I name="forward" size={18} color={msg.trim() ? '#FFF' : theme.textSub} />
  </TouchableOpacity>
  </View>
 

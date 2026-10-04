@@ -123,7 +123,7 @@ export function QRCheckinScreen({ onBack }: { onBack: () => void }) {
  backgroundColor: mode===m.k ? theme.primary : theme.surface2,
  borderColor: mode===m.k ? theme.primary : theme.border,
  }]}>
- <Text style={{ color: mode===m.k?'var(--nabd-bg.surface-light)':theme.text, fontWeight: FW.semi, fontSize: FS.sm }}>
+ <Text style={{ color: mode===m.k?'#FFF':theme.text, fontWeight: FW.semi, fontSize: FS.sm }}>
  {AR ? m.ar : m.en}
  </Text>
  </TouchableOpacity>
@@ -198,7 +198,7 @@ export function QRCheckinScreen({ onBack }: { onBack: () => void }) {
  onBarcodeScanned={({ data }: any) => { if (data) { setShowCam(false); doCheckin(extractApptId(String(data))); } }}
  />
  <TouchableOpacity onPress={()=>setShowCam(false)} style={{ position: 'absolute', bottom: 60, alignSelf: 'center', backgroundColor: '#00000099', paddingHorizontal: 32, paddingVertical: 14, borderRadius: 28 }}>
- <Text style={{ color: 'var(--nabd-bg.surface-light)', fontWeight: FW.bold, fontSize: FS.md }}>{AR ? 'إلغاء' : 'Cancel'}</Text>
+ <Text style={{ color: '#fff', fontWeight: FW.bold, fontSize: FS.md }}>{AR ? 'إلغاء' : 'Cancel'}</Text>
  </TouchableOpacity>
  </View>
  </Modal>

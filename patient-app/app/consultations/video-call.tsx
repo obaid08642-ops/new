@@ -168,7 +168,7 @@ export default function VideoCallScreen() {
   if (loading)
     return (
       <View style={styles.container}>
-        <ActivityIndicator color="var(--nabd-bg.surface-light)" size="large" style={{ marginTop: "50%" }} />
+        <ActivityIndicator color="#fff" size="large" style={{ marginTop: "50%" }} />
       </View>
     );
 
@@ -204,17 +204,17 @@ export default function VideoCallScreen() {
       {/* Controls Overlay */}
       <View style={styles.bottomControls}>
         <TouchableOpacity style={styles.controlBtn} onPress={() => setMicOn(!micOn)}>
-          <LocalizedText style={{ fontFamily: "MaterialSymbolsRounded", color: "var(--nabd-bg.surface-light)", fontSize: 26 }}>
+          <LocalizedText style={{ fontFamily: "MaterialSymbolsRounded", color: "#fff", fontSize: 26 }}>
             {micOn ? "mic" : "mic_off"}
           </LocalizedText>
         </TouchableOpacity>
         
         <TouchableOpacity style={[styles.endBtn, { backgroundColor: resolveColor("var(--cr)") }]} onPress={handleEndCall}>
-          <LocalizedText style={{ fontFamily: "MaterialSymbolsRounded", color: "var(--nabd-bg.surface-light)", fontSize: 30 }}>call_end</LocalizedText>
+          <LocalizedText style={{ fontFamily: "MaterialSymbolsRounded", color: "#fff", fontSize: 30 }}>call_end</LocalizedText>
         </TouchableOpacity>
         
         <TouchableOpacity style={styles.controlBtn} onPress={() => setCamOn(!camOn)}>
-          <LocalizedText style={{ fontFamily: "MaterialSymbolsRounded", color: "var(--nabd-bg.surface-light)", fontSize: 26 }}>
+          <LocalizedText style={{ fontFamily: "MaterialSymbolsRounded", color: "#fff", fontSize: 26 }}>
             {camOn ? "videocam" : "videocam_off"}
           </LocalizedText>
         </TouchableOpacity>
@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
     width: 120, height: 120, borderRadius: 60,
     alignItems: "center", justifyContent: "center", marginBottom: 14,
   },
-  docName: { fontSize: 16, fontWeight: "700", color: "var(--nabd-bg.surface-light)" },
+  docName: { fontSize: 16, fontWeight: "700", color: "#fff" },
   statusText: { fontSize: 11, color: "rgba(255,255,255,.5)", marginTop: 4 },
   myCam: {
     position: "absolute", top: 50, left: 20, width: 90, height: 120,

@@ -59,7 +59,7 @@ export default function InsuranceRefundScreen() {
       >
         <View style={styles.headerRow}>
           <TouchableOpacity onPress={() => router.back()} style={styles.hBtn}>
-            <Icon name="back" size={22} color="var(--nabd-bg.surface-light)" />
+            <Icon name="back" size={22} color="#fff" />
           </TouchableOpacity>
           <AppText variant="bodySM">استرداد التأمين</AppText>
           <View style={{ width: 36 }} />
@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
   },
-  title: { color: "var(--nabd-bg.surface-light)", fontSize: 17, fontWeight: "800" } as any,
+  title: { color: "#fff", fontSize: 17, fontWeight: "800" } as any,
   hBtn: {
     width: 36,
     height: 36,

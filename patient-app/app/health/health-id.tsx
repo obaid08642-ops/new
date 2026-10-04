@@ -109,10 +109,10 @@ export default function HealthIDScreen() {
 
           <View style={styles.cardContent}>
             <View style={styles.cardAvatar}>
-              <Icon name="user" size={32} color="var(--nabd-bg.surface-light)" />
+              <Icon name="user" size={32} color="#fff" />
             </View>
             <View style={styles.cardUserInfo}>
-              <AppText variant="h4" color="var(--nabd-bg.surface-light)" style={{ fontWeight: '800' }}>{name || 'أكمل ملفك الصحي'}</AppText>
+              <AppText variant="h4" color="#fff" style={{ fontWeight: '800' }}>{name || 'أكمل ملفك الصحي'}</AppText>
               <View style={{ flexDirection: 'row-reverse', alignItems: 'center', gap: 6 }}>
                 <Icon name="calendar" size={16} color="#00C9A7" />
                 <AppText variant="caption" color="rgba(255,255,255,0.7)">

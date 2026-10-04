@@ -88,7 +88,7 @@ export default function PaymentSuccessView() {
           }}
           style={{ borderRadius: 16, overflow: 'hidden' }}>
             <View style={styles.homeBtn}>
-              <AppText variant="bodySM" color="var(--nabd-bg.surface-light)">{params.visitType === 'clinic' ? 'عرض موقع العيادة' : params.visitType === 'home' ? 'تتبع الطبيب' : 'غرفة الانتظار'}</AppText>
+              <AppText variant="bodySM" color="#fff">{params.visitType === 'clinic' ? 'عرض موقع العيادة' : params.visitType === 'home' ? 'تتبع الطبيب' : 'غرفة الانتظار'}</AppText>
             </View>
           </TouchableOpacity>
         )}
@@ -97,13 +97,13 @@ export default function PaymentSuccessView() {
             onPress={() => router.replace({ pathname: '/pharmacy/order-tracking', params: { orderId: (params.bookingId || '') as string } })}
             style={{ borderRadius: 16, overflow: 'hidden' }}>
             <View style={styles.homeBtn}>
-              <AppText variant="bodySM" color="var(--nabd-bg.surface-light)">تتبع الطلب</AppText>
+              <AppText variant="bodySM" color="#fff">تتبع الطلب</AppText>
             </View>
           </TouchableOpacity>
         )}
         <TouchableOpacity onPress={() => router.replace('/(tabs)')} style={{ borderRadius: 16, overflow: 'hidden' }}>
           <View style={styles.homeBtn}>
-            <AppText variant="bodySM" color="var(--nabd-bg.surface-light)">العودة للرئيسية</AppText>
+            <AppText variant="bodySM" color="#fff">العودة للرئيسية</AppText>
           </View>
         </TouchableOpacity>
       </View>
@@ -117,8 +117,8 @@ const styles = StyleSheet.create({
   heroOrb1: { position: 'absolute', width: 200, height: 200, borderRadius: 100, backgroundColor: 'rgba(255,255,255,0.05)', top: -60, right: -40 },
   heroOrb2: { position: 'absolute', width: 150, height: 150, borderRadius: 75, backgroundColor: 'rgba(34,197,94,0.15)', bottom: -20, left: -30 },
   successIcon: { width: 110, height: 110, borderRadius: 34, backgroundColor: 'rgba(255,255,255,0.15)', justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: 'rgba(255,255,255,0.3)' },
-  successTitle: { color: 'var(--nabd-bg.surface-light)', fontSize: 26, fontWeight: '800' },
-  successAmount: { color: 'var(--nabd-bg.surface-light)', fontSize: 36, fontFamily: 'ReadexPro-700' },
+  successTitle: { color: '#fff', fontSize: 26, fontWeight: '800' },
+  successAmount: { color: '#fff', fontSize: 36, fontFamily: 'ReadexPro-700' },
   successSub: { color: 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: '400' },
   detailsSection: { margin: 16, borderRadius: 20, padding: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 },
   detailRow: { flexDirection: 'row-reverse', justifyContent: 'space-between', paddingVertical: 11, borderBottomWidth: 1 },
@@ -128,5 +128,5 @@ const styles = StyleSheet.create({
   receiptBtn: { borderRadius: 14, borderWidth: 1.5, height: 48, justifyContent: 'center', alignItems: 'center' },
   receiptBtnText: { fontSize: 14, fontWeight: '700' },
   homeBtn: { height: 54, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
-  homeBtnText: { color: 'var(--nabd-bg.surface-light)', fontSize: 16, fontWeight: '800' },
+  homeBtnText: { color: '#fff', fontSize: 16, fontWeight: '800' },
 });

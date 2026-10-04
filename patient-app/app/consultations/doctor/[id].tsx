@@ -177,7 +177,7 @@ export default function DoctorProfile() {
         <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 64, color: colors.t3, marginBottom: 10 }}>person_off</LocalizedText>
         <LocalizedText style={{ fontFamily: 'Cairo-Bold', fontSize: 18, color: colors.n, textAlign: 'center' }}>الطبيب غير متاح حالياً أو غير موجود</LocalizedText>
         <TouchableOpacity style={{ marginTop: 20, paddingHorizontal: 24, paddingVertical: 12, backgroundColor: resolveColor('var(--p)'), borderRadius: 12 }} onPress={() => router.back()}>
-          <LocalizedText style={{ fontFamily: 'Cairo-Bold', color: 'var(--nabd-bg.surface-light)', fontSize: 16 }}>العودة للقائمة</LocalizedText>
+          <LocalizedText style={{ fontFamily: 'Cairo-Bold', color: '#fff', fontSize: 16 }}>العودة للقائمة</LocalizedText>
         </TouchableOpacity>
       </View>
     );
@@ -274,7 +274,7 @@ export default function DoctorProfile() {
           {/* Top Left cut */}
           <View style={{ position: 'absolute', top: 0, left: isRTL ? undefined : 0, right: isRTL ? 0 : undefined, width: 72, height: 72 + Math.max(insets.top, 20), backgroundColor: colors.bg, borderBottomRightRadius: isRTL ? 0 : 28, borderBottomLeftRadius: isRTL ? 28 : 0, zIndex: 10, flexDirection: 'row', alignItems: 'flex-end', padding: 12, gap: 4 }}>
             <TouchableOpacity onPress={() => router.back()} style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: resolveColor('var(--n)'), alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOffset: {width:0,height:3}, shadowOpacity: 0.15, shadowRadius: 10 }}>
-              <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: 'var(--nabd-bg.surface-light)', fontSize: 18 }}>{isRTL ? 'arrow_forward' : 'arrow_back'}</LocalizedText>
+              <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 18 }}>{isRTL ? 'arrow_forward' : 'arrow_back'}</LocalizedText>
             </TouchableOpacity>
           </View>
           {/* Smooth curves for Top Cut using Borders */}
@@ -308,7 +308,7 @@ export default function DoctorProfile() {
           {/* Visit Types — only the modes this doctor actually supports */}
           <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: 8, marginTop: 14 }}>
             {[
-              { id: 'clinic', n: 'عيادة', ic: 'meeting_room', p: getPrice('clinic'), c: 'var(--n)', bg: 'var(--n)', tc: 'var(--nabd-bg.surface-light)' },
+              { id: 'clinic', n: 'عيادة', ic: 'meeting_room', p: getPrice('clinic'), c: 'var(--n)', bg: 'var(--n)', tc: '#fff' },
               { id: 'video', n: 'أونلاين', ic: 'videocam', p: getPrice('video'), c: 'var(--p)', bg: 'var(--s)', tc: 'var(--t)' },
               { id: 'home', n: 'منزلي', ic: 'home', p: getPrice('home'), c: 'var(--p)', bg: 'var(--s)', tc: 'var(--t)' }
             ].filter(vt => !Array.isArray(doc?.consultation_modes) || doc.consultation_modes.length === 0 || doc.consultation_modes.includes(vt.id))
@@ -317,10 +317,10 @@ export default function DoctorProfile() {
               return (
                 <TouchableOpacity key={vt.id} onPress={() => setActiveVt(vt.id)} style={{ flex: 1, flexDirection: 'column', alignItems: 'center', gap: 8, paddingVertical: 16, borderRadius: 18, backgroundColor: isActive ? resolveColor('var(--n)') : colors.s, borderWidth: isActive ? 0 : 1.5, borderColor: colors.bd, shadowColor: isActive ? '#141A2A' : undefined, shadowOffset: {width:0,height:6}, shadowOpacity: 0.2, shadowRadius: 20 }}>
                   <View style={{ width: 28, height: 28, backgroundColor: isActive ? 'rgba(255,255,255,0.2)' : resolveColor('var(--p)')+'18', borderRadius: 6, alignItems: 'center', justifyContent: 'center' }}>
-                    <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: isActive ? 'var(--nabd-bg.surface-light)' : resolveColor('var(--p)'), fontSize: 18 }}>{vt.ic}</LocalizedText>
+                    <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: isActive ? '#fff' : resolveColor('var(--p)'), fontSize: 18 }}>{vt.ic}</LocalizedText>
                   </View>
-                  <LocalizedText style={{ fontSize: 10, fontWeight: '700', color: isActive ? 'var(--nabd-bg.surface-light)' : colors.t }}>{vt.n}</LocalizedText>
-                  <LocalizedText style={{ fontSize: 17, fontWeight: '900', color: isActive ? 'var(--nabd-bg.surface-light)' : colors.n }}>{vt.p ?? '—'}</LocalizedText>
+                  <LocalizedText style={{ fontSize: 10, fontWeight: '700', color: isActive ? '#fff' : colors.t }}>{vt.n}</LocalizedText>
+                  <LocalizedText style={{ fontSize: 17, fontWeight: '900', color: isActive ? '#fff' : colors.n }}>{vt.p ?? '—'}</LocalizedText>
                 </TouchableOpacity>
               );
             })}
@@ -339,7 +339,7 @@ export default function DoctorProfile() {
                   <TouchableOpacity key={i} onPress={() => setDay(i)} style={[styles.dayCard, { backgroundColor: isActive ? colors.n : colors.s, borderColor: isActive ? undefined : colors.bd, marginRight: 7, transform: [{ scaleX: isRTL ? -1 : 1 }] }]}>
                     <LocalizedText style={{ fontSize: 9.5, color: isActive ? 'rgba(255,255,255,0.5)' : colors.t3, marginBottom: 3 }}>{d}</LocalizedText>
                     <View style={[styles.dayNumWrap, { backgroundColor: isActive ? resolveColor('var(--p)') : colors.s, borderColor: isActive ? undefined : colors.bd } ]}>
-                      <LocalizedText style={{ fontSize: 13, fontWeight: '800', color: isActive ? 'var(--nabd-bg.surface-light)' : colors.n }}>{dnumsArr[i]}</LocalizedText>
+                      <LocalizedText style={{ fontSize: 13, fontWeight: '800', color: isActive ? '#fff' : colors.n }}>{dnumsArr[i]}</LocalizedText>
                     </View>
                     <LocalizedText style={{ fontSize: 8, color: isActive ? 'rgba(255,255,255,0.4)' : colors.t3, marginTop: 2 }}>{dmonArr[i]}</LocalizedText>
                   </TouchableOpacity>
@@ -367,7 +367,7 @@ export default function DoctorProfile() {
                     const isActive = selectedSlot === s.start;
                     return (
                       <TouchableOpacity key={s.start} disabled={!s.available} onPress={() => setSelectedSlot(s.start)} style={[styles.timeBtn, { backgroundColor: isActive ? resolveColor('var(--p)') : colors.s, borderColor: isActive ? undefined : colors.bd, marginRight: 6, marginBottom: 6, opacity: s.available ? 1 : 0.35 } ]}>
-                        <LocalizedText style={{ fontSize: 12, fontWeight: '600', color: isActive ? 'var(--nabd-bg.surface-light)' : colors.t2 }}>
+                        <LocalizedText style={{ fontSize: 12, fontWeight: '600', color: isActive ? '#fff' : colors.t2 }}>
                           {new Date(s.start).toLocaleTimeString(lang === 'ar' ? dateLocale() : 'en-US', { hour: '2-digit', minute: '2-digit' })}
                         </LocalizedText>
                       </TouchableOpacity>
@@ -537,19 +537,19 @@ export default function DoctorProfile() {
             }
           }}
           style={{ width: '100%', padding: 16, borderRadius: 18, backgroundColor: resolveColor('var(--n)'), shadowColor: '#141A2A', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.3, shadowRadius: 30, elevation: 10, flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-          <LocalizedText style={{ fontSize: 14, fontWeight: '800', color: 'var(--nabd-bg.surface-light)' }}>{
+          <LocalizedText style={{ fontSize: 14, fontWeight: '800', color: '#fff' }}>{
             selectedSlot
               ? `تأكيد الحجز${getPrice(activeVt) != null ? ` — ${getPrice(activeVt)} ر.س` : ''}`
               : (lang === 'ar' ? 'احجز موعداً' : 'Book Appointment')
           }</LocalizedText>
-          <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: 'var(--nabd-bg.surface-light)', fontSize: 19 }}>{isRTL ? 'arrow_back' : 'arrow_forward'}</LocalizedText>
+          <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 19 }}>{isRTL ? 'arrow_back' : 'arrow_forward'}</LocalizedText>
         </TouchableOpacity>
       </View>
 
       <Modal visible={isImgModalVisible} transparent={true} animationType="fade" onRequestClose={() => setIsImgModalVisible(false)}>
         <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.9)', justifyContent: 'center', alignItems: 'center' }}>
           <TouchableOpacity onPress={() => setIsImgModalVisible(false)} style={{ position: 'absolute', top: 50, right: 20, zIndex: 100 }}>
-            <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: 'var(--nabd-bg.surface-light)', fontSize: 32 }}>close</LocalizedText>
+            <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 32 }}>close</LocalizedText>
           </TouchableOpacity>
           <Image source={{ uri: doc.img || doc.photo_url }} style={{ width: '100%', height: 400 }} resizeMode="contain" />
         </View>

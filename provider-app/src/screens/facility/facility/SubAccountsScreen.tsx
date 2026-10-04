@@ -121,7 +121,7 @@ export function SubAccountsScreen({ onBack, onNavigate }: {
  <TouchableOpacity onPress={() => onNavigate('add_subaccount', null)}>
  <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.primary,
  alignItems: 'center', justifyContent: 'center' }}>
- <Text style={{ color: 'var(--nabd-bg.surface-light)', fontSize: FS.lg, fontWeight: FW.bold }}>+</Text>
+ <Text style={{ color: '#FFF', fontSize: FS.lg, fontWeight: FW.bold }}>+</Text>
  </View>
  </TouchableOpacity>
  </View>
@@ -139,7 +139,7 @@ export function SubAccountsScreen({ onBack, onNavigate }: {
  backgroundColor: roleFilter === r ? theme.primary : theme.surface2,
  borderColor: roleFilter === r ? theme.primary : theme.border,
  }]}>
- <Text style={{ color: roleFilter === r ? 'var(--nabd-bg.surface-light)' : theme.text, fontSize: FS.sm }}>
+ <Text style={{ color: roleFilter === r ? '#FFF' : theme.text, fontSize: FS.sm }}>
  {r === 'all' ? (AR ? 'الكل' : 'All')
  : AR ? ROLE_LABELS[r]?.ar : ROLE_LABELS[r]?.en}
  </Text>

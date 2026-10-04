@@ -73,13 +73,13 @@ export default function VoiceAssistantScreen() {
       >
         <View style={styles.headerRow}>
           <View style={{ width: 40 }} />
-          <AppText variant="h4" color="var(--nabd-bg.surface-light)">
+          <AppText variant="h4" color="#fff">
             المساعد السريع
           </AppText>
           <IconButton
             icon="back"
             bg="rgba(255,255,255,0.18)"
-            color="var(--nabd-bg.surface-light)"
+            color="#fff"
             onPress={() => router.back()}
           />
         </View>

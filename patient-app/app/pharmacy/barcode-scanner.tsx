@@ -105,14 +105,14 @@ export default function BarcodeScannerScreen() {
       {/* Header overlay */}
       <View style={[st.hdr, { paddingTop: insets.top + 8 } ]}>
         <View style={{ width: 40 }}/>
-        <AppText variant="h4" color="var(--nabd-bg.surface-light)">مسح الباركود</AppText>
-        <IconButton icon="back" bg="rgba(255,255,255,0.18)" color="var(--nabd-bg.surface-light)" onPress={() => router.back()} />
+        <AppText variant="h4" color="#fff">مسح الباركود</AppText>
+        <IconButton icon="back" bg="rgba(255,255,255,0.18)" color="#fff" onPress={() => router.back()} />
       </View>
 
       {!result && !notFound ? (
         <View style={st.cameraArea}>
           {!permission ? (
-            <ActivityIndicator size="large" color="var(--nabd-bg.surface-light)" />
+            <ActivityIndicator size="large" color="#fff" />
           ) : !permission.granted ? (
             <>
               <AppText variant="bodySM" color="rgba(255,255,255,0.85)" align="center">
@@ -137,7 +137,7 @@ export default function BarcodeScannerScreen() {
                 <View style={[st.corner, st.bl]} />
                 <View style={[st.corner, st.br]} />
               </View>
-              {lookingUp && <ActivityIndicator size="small" color="var(--nabd-bg.surface-light)" style={{ marginTop: 16 }} />}
+              {lookingUp && <ActivityIndicator size="small" color="#fff" style={{ marginTop: 16 }} />}
               <AppText variant="bodySM" color="rgba(255,255,255,0.8)" align="center" style={{ marginTop: 24 }}>
                 وجّه الكاميرا نحو باركود أو QR code الدواء
               </AppText>
