@@ -327,6 +327,8 @@ export function CheckoutFlow({ locale }: Props) {
                 placeholder={isAr ? "مثال: عبد الله السعيد" : "e.g. Abdullah Al-Saeed"}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                autoComplete="name"
+                inputMode="text"
               />
             </div>
 
@@ -341,7 +343,10 @@ export function CheckoutFlow({ locale }: Props) {
                 required
                 placeholder="05XXXXXXXX"
                 value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                onChange={(e) => setPhone(e.target.value.replace(/[^\d٠-٩]/g, ""))}
+                autoComplete="tel"
+                inputMode="tel"
+                maxLength={15}
               />
             </div>
 
@@ -550,7 +555,10 @@ export function CheckoutFlow({ locale }: Props) {
                     required
                     placeholder={isAr ? "مثال: 902384112" : "e.g. 902384112"}
                     value={policyNumber}
-                    onChange={(e) => setPolicyNumber(e.target.value)}
+                    onChange={(e) => setPolicyNumber(e.target.value.replace(/[^\d٠-٩]/g, ""))}
+                    autoComplete="off"
+                    inputMode="numeric"
+                    maxLength={20}
                   />
                 </div>
 
@@ -565,7 +573,9 @@ export function CheckoutFlow({ locale }: Props) {
                     maxLength={10}
                     placeholder="10XXXXXXXX / 2XXXXXXXXX"
                     value={nationalId}
-                    onChange={(e) => setNationalId(e.target.value)}
+                    onChange={(e) => setNationalId(e.target.value.replace(/[^\d٠-٩]/g, ""))}
+                    autoComplete="off"
+                    inputMode="numeric"
                   />
                 </div>
               </div>

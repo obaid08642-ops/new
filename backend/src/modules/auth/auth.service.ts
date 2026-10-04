@@ -19,6 +19,8 @@ import { PasskeyService } from './passkey.service';
 import { DeviceTrustService } from './device-trust.service';
 import { AdminSessionService } from './admin-session.service';
 import { revokeAllCredentialSessions, revokeRedisRefreshSessions, RevocationResult } from '../../common/credential-revocation';
+import { PasswordSecurityService } from './password-security.service';
+import { HttpService } from '@nestjs/axios';
 
 @Injectable()
 export class AuthService {
@@ -38,6 +40,8 @@ export class AuthService {
     private jwt: JwtService,
     private events: EventEmitter2,
     private redisService: RedisService,
+    private passwordSecurity: PasswordSecurityService,
+    private httpService: HttpService,
     @Optional() private passkeys?: PasskeyService,
     @Optional() private deviceTrust?: DeviceTrustService,
     @Optional() private adminDevices?: any,
@@ -400,7 +404,13 @@ export class AuthService {
   async resetPatientPassword(resetToken: string, newPassword: string) {
     AuthService.assertString(resetToken, 'reset_token');
     AuthService.assertString(newPassword, 'new_password');
-    if (newPassword.length < 8) throw new BadRequestException({ message: 'password_too_short', code: 'password_too_short', statusCode: HttpStatus.BAD_REQUEST });
+
+    // Validate password strength and check for breached passwords
+    const passwordValidation = await this.passwordSecurity.validatePasswordStrength(newPassword);
+    if (!passwordValidation.valid) {
+      throw new BadRequestException({ message: 'password_policy_violation', code: 'password_policy_violation', errors: passwordValidation.errors, statusCode: HttpStatus.BAD_REQUEST });
+    }
+
     const key = this.passwordResetKey(resetToken);
     const redis = this.redisService.getClient();
     const claimed = await redis.set(`${key}:claim`, '1', 'EX', this.PATIENT_EXCHANGE_TTL_SECONDS, 'NX');
@@ -413,7 +423,7 @@ export class AuthService {
     await this.redisService.del(key);
     const user = await this.userModel.findOne({ id: entry.user_id });
     if (!user || user.active === false) throw new UnauthorizedException({ message: 'reset_token_invalid', code: 'reset_token_invalid', statusCode: HttpStatus.UNAUTHORIZED });
-    user.password_hash = await bcrypt.hash(newPassword, 12);
+    user.password_hash = await this.passwordSecurity.hashPassword(newPassword);
     await user.save();
     // P3.0a: reset ends every session (access + refresh, patient + provider).
     await this.revokeAfterCredentialChange(user.id);
@@ -462,10 +472,16 @@ export class AuthService {
       throw new ConflictException({ message: 'identifier_already_registered', code: 'identifier_already_registered', statusCode: HttpStatus.CONFLICT });
     }
 
+    // Validate password strength and check for breached passwords
+    const passwordValidation = await this.passwordSecurity.validatePasswordStrength(data.password);
+    if (!passwordValidation.valid) {
+      throw new BadRequestException({ message: 'password_policy_violation', code: 'password_policy_violation', errors: passwordValidation.errors, statusCode: HttpStatus.BAD_REQUEST });
+    }
+
     const user = await this.userModel.create({
       full_name: data.name.trim(),
       ...(isEmail ? { email: identifier } : { phone: identifier }),
-      password_hash: await bcrypt.hash(data.password, 12),
+      password_hash: await this.passwordSecurity.hashPassword(data.password),
       role: UserRole.PATIENT,
       preferred_lang: data.locale.trim(),
       legal_consents: consents,
@@ -524,7 +540,14 @@ export class AuthService {
     if (!ownershipProven) {
       throw new BadRequestException({ message: 'otp_required', code: 'otp_required', statusCode: HttpStatus.BAD_REQUEST });
     }
-    const hash = await bcrypt.hash(data.password, 12);
+
+    // Validate password strength and check for breached passwords
+    const passwordValidation = await this.passwordSecurity.validatePasswordStrength(data.password);
+    if (!passwordValidation.valid) {
+      throw new BadRequestException({ message: 'password_policy_violation', code: 'password_policy_violation', errors: passwordValidation.errors, statusCode: HttpStatus.BAD_REQUEST });
+    }
+
+    const hash = await this.passwordSecurity.hashPassword(data.password);
     // S6 privilege-escalation fix: public registration may ONLY create patient or
     // independently-onboarding provider accounts (which stay unverified until admin
     // approval). Staff/privileged roles (admin, finance, support, reception…) are
@@ -556,18 +579,56 @@ export class AuthService {
   async login(identifier: string, password: string, ctx?: { deviceToken?: string; ua?: string; ip?: string }) {
     AuthService.assertString(identifier, 'identifier');
     AuthService.assertString(password, 'password');
+    const normalized = this.normalizeOtpIdentifier(identifier);
+
+    // Check for account lockout due to failed attempts
+    const lockStatus = await this.passwordSecurity.isLocked(this.redisService.getClient(), normalized);
+    if (lockStatus.locked) {
+      const delay = this.passwordSecurity.calculateProgressiveDelay(this.passwordSecurity.getLockoutConfig().maxAttempts);
+      await new Promise(resolve => setTimeout(resolve, delay));
+      throw new HttpException({
+        message: 'account_locked',
+        code: 'account_locked',
+        lockout_expires_at: lockStatus.lockoutExpiresAt,
+        retry_after_seconds: Math.ceil((lockStatus.lockoutExpiresAt! - Date.now()) / 1000)
+      }, HttpStatus.TOO_MANY_REQUESTS);
+    }
+
     const isEmail = identifier.includes('@');
     const query = isEmail ? { email: identifier.trim().toLowerCase() } : { phone: identifier };
     const u = await this.userModel.findOne(query);
+
+    // Record failed attempt for both existing and non-existing accounts (anti-enumeration)
+    const recordFailure = async () => {
+      const result = await this.passwordSecurity.recordFailedAttempt(this.redisService.getClient(), normalized);
+      const delay = this.passwordSecurity.calculateProgressiveDelay(result.attempts);
+      if (delay > 0) {
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+      if (result.locked) {
+        throw new HttpException({
+          message: 'account_locked',
+          code: 'account_locked',
+          lockout_expires_at: result.lockoutExpiresAt,
+          retry_after_seconds: Math.ceil((result.lockoutExpiresAt! - Date.now()) / 1000)
+        }, HttpStatus.TOO_MANY_REQUESTS);
+      }
+    };
+
     if (!u || !u.password_hash) {
-      if (u) await this.adminLoginAlert(u, false, ctx); // C5: known account, bad secret
+      await recordFailure();
       throw new UnauthorizedException('Invalid credentials');
     }
     const ok = await bcrypt.compare(password, u.password_hash);
     if (!ok) {
+      await recordFailure();
       await this.adminLoginAlert(u, false, ctx); // C5: failed admin login attempt
       throw new UnauthorizedException('Invalid credentials');
     }
+
+    // Successful login - clear failed attempts
+    await this.passwordSecurity.clearFailedAttempts(this.redisService.getClient(), normalized);
+
     if (u.active === false) throw new UnauthorizedException('Account disabled');
 
     // Check 2FA requirement
@@ -910,7 +971,13 @@ export class AuthService {
     }
 
     if (existingUser.id === guestUserId) {
-      const hash = await bcrypt.hash(data.password, 12);
+      // Validate password strength and check for breached passwords
+      const passwordValidation = await this.passwordSecurity.validatePasswordStrength(data.password);
+      if (!passwordValidation.valid) {
+        throw new BadRequestException({ message: 'password_policy_violation', code: 'password_policy_violation', errors: passwordValidation.errors, statusCode: HttpStatus.BAD_REQUEST });
+      }
+
+      const hash = await this.passwordSecurity.hashPassword(data.password);
       existingUser.full_name = data.full_name;
       existingUser.phone = data.phone;
       existingUser.email = data.email;
@@ -1052,13 +1119,19 @@ export class AuthService {
     AuthService.assertString(identifier, 'identifier');
     AuthService.assertString(newPassword, 'password');
     AuthService.assertString(code, 'code');
+
+    // Validate password strength and check for breached passwords
+    const passwordValidation = await this.passwordSecurity.validatePasswordStrength(newPassword);
+    if (!passwordValidation.valid) {
+      throw new BadRequestException({ message: 'password_policy_violation', code: 'password_policy_violation', errors: passwordValidation.errors, statusCode: HttpStatus.BAD_REQUEST });
+    }
+
     const isEmail = identifier.includes('@');
     const u = await this.userModel.findOne(isEmail ? { email: identifier } : { phone: identifier });
     if (!u) throw new UnauthorizedException('User not found');
     // Verify the OTP against the contact that actually received it.
     await this.verifyOtp(this.otpContact(u, identifier), code); // throws if invalid
-    const hash = await bcrypt.hash(newPassword, 12);
-    u.password_hash = hash;
+    u.password_hash = await this.passwordSecurity.hashPassword(newPassword);
     await u.save();
     // P3.0a: a reset must not leave stolen access/refresh tokens alive.
     await this.revokeAfterCredentialChange(u.id);

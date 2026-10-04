@@ -1,0 +1,185 @@
+name: Supply Chain Security
+
+on:
+  pull_request:
+    branches: ['**']
+  push:
+    branches: [main, 'release/**']
+  schedule:
+    - cron: '0 4 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+  packages: read
+  attestations: write
+  id-token: write
+
+concurrency:
+  group: supply-chain-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '22'
+  TRIVY_VERSION: '0.58.1'
+  CYCLONEDX_VERSION: '8.4.0'
+
+jobs:
+  npm-audit:
+    name: npm audit gate
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        app:
+          - backend
+          - patient-web
+          - patient-app
+          - provider-app
+          - admin
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: ${{ matrix.app }}/package-lock.json
+      - name: Install frozen dependencies
+        working-directory: ${{ matrix.app }}
+        run: |
+          if [ -f pnpm-lock.yaml ]; then
+            corepack enable && pnpm install --frozen-lockfile
+          else
+            npm ci
+          fi
+      - name: Run npm audit (fail on high/critical)
+        working-directory: ${{ matrix.app }}
+        run: |
+          if [ -f pnpm-lock.yaml ]; then
+            pnpm audit --prod --audit-level=high
+          else
+            npm audit --audit-level=high --omit=dev
+          fi
+
+  sbom:
+    name: Generate SBOM (CycloneDX)
+    runs-on: ubuntu-latest
+    needs: npm-audit
+    strategy:
+      matrix:
+        app:
+          - backend
+          - patient-web
+          - patient-app
+          - provider-app
+          - admin
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: ${{ matrix.app }}/package-lock.json
+      - name: Install dependencies
+        working-directory: ${{ matrix.app }}
+        run: |
+          if [ -f pnpm-lock.yaml ]; then
+            corepack enable && pnpm install --frozen-lockfile
+          else
+            npm ci
+          fi
+      - name: Generate SBOM with CycloneDX
+        uses: CycloneDX/cyclonedx-github-action@b5c8c8e4c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8
+        with:
+          path: ${{ matrix.app }}
+          output-file: sbom-${{ matrix.app }}.json
+          format: json
+          schema-version: '1.6'
+          include-dev: false
+          include-bom-ref: true
+      - name: Upload SBOM artifact
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0d0fb45cf08
+        with:
+          name: sbom-${{ matrix.app }}
+          path: ${{ matrix.app }}/sbom-${{ matrix.app }}.json
+          retention-days: 90
+      - name: Attest SBOM
+        uses: actions/attest-build-provenance@b1c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c
+        with:
+          subject-path: ${{ matrix.app }}/sbom-${{ matrix.app }}.json
+
+  trivy-scan:
+    name: Trivy Container Scan
+    runs-on: ubuntu-latest
+    needs: sbom
+    strategy:
+      matrix:
+        dockerfile:
+          - deploy/docker/Dockerfile.backend
+          - deploy/docker/Dockerfile.patient-web
+          - deploy/docker/Dockerfile.admin-web
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+      - name: Install Trivy
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'HIGH,CRITICAL'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+      - name: Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@192325c86100d080feab897ff886c34abd4c83a3
+        if: always()
+        with:
+          sarif_file: trivy-results.sarif
+          category: ${{ matrix.dockerfile }}
+
+  trivy-image-scan:
+    name: Trivy Image Scan (built images)
+    runs-on: ubuntu-latest
+    needs: trivy-scan
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/release/')
+    strategy:
+      matrix:
+        image:
+          - ghcr.io/${{ github.repository }}/backend:latest
+          - ghcr.io/${{ github.repository }}/patient-web:latest
+          - ghcr.io/${{ github.repository }}/admin-web:latest
+    steps:
+      - name: Install Trivy
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: 'image'
+          scan-ref: ${{ matrix.image }}
+          format: 'sarif'
+          output: 'trivy-image-results.sarif'
+          severity: 'HIGH,CRITICAL'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+      - name: Upload Trivy image results
+        uses: github/codeql-action/upload-sarif@192325c86100d080feab897ff886c34abd4c83a3
+        if: always()
+        with:
+          sarif_file: trivy-image-results.sarif
+          category: image-${{ matrix.image }}
+
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Review dependencies
+        uses: actions/dependency-review-action@b5c8c8e4c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8
+        with:
+          config-file: '.github/dependency-review-config.yml'
+          fail-on-severity: high

@@ -1,0 +1,186 @@
+.container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.inline {
+  gap: var(--space-3);
+}
+
+.compact {
+  gap: var(--space-1);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  font-family: inherit;
+  color: white;
+  border: none;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  background: var(--platform-color);
+  transition: transform var(--transition-fast), opacity var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-brand-focus);
+}
+
+.btn svg {
+  flex-shrink: 0;
+}
+
+.btn .checkmark {
+  display: none;
+}
+
+.btn.copied .checkmark {
+  display: inline-flex;
+}
+
+.btn.copied span:first-child {
+  display: none;
+}
+
+/* Platform-specific hover colors */
+.btn.whatsapp:hover { background: #1ea652; }
+.btn.twitter:hover { background: #333; }
+.btn.facebook:hover { background: #166fe5; }
+.btn.linkedin:hover { background: #094d9e; }
+.btn.email:hover { background: #d33a2c; }
+.btn.copy:hover { background: #4f46e5; }
+.btn.native:hover { background: #0ea57a; }
+
+/* Floating variant */
+.floating {
+  position: fixed;
+  bottom: var(--space-6);
+  left: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  z-index: 50;
+}
+
+.floating.rtl {
+  left: auto;
+  right: var(--space-6);
+}
+
+.floatingBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  width: 52px;
+  height: 52px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  background: var(--platform-color);
+  color: white;
+  box-shadow: var(--shadow-lg);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  overflow: hidden;
+}
+
+.floatingBtn:hover {
+  transform: translateX(-4px) scale(1.05);
+  box-shadow: var(--shadow-xl);
+}
+
+.floating.rtl .floatingBtn:hover {
+  transform: translateX(4px) scale(1.05);
+}
+
+.floatingLabel {
+  display: none;
+  white-space: nowrap;
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.floatingBtn:hover .floatingLabel {
+  display: inline;
+}
+
+.floatingBtn.copied .floatingLabel {
+  display: inline;
+}
+
+.checkmark {
+  font-size: var(--text-lg);
+  font-weight: bold;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .btn,
+  .floatingBtn {
+    transition: none;
+  }
+}
+
+/* High contrast */
+@media (prefers-contrast: more) {
+  .btn {
+    border: 2px solid currentColor;
+  }
+  
+  .floatingBtn {
+    border: 2px solid white;
+  }
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .inline .btn span {
+    display: none;
+  }
+  
+  .inline .btn {
+    padding: var(--space-2);
+    min-width: 44px;
+  }
+  
+  .floating {
+    bottom: var(--space-4);
+    left: var(--space-4);
+    right: var(--space-4);
+    flex-direction: row;
+    justify-content: center;
+  }
+  
+  .floating.rtl {
+    left: var(--space-4);
+    right: var(--space-4);
+  }
+  
+  .floatingBtn {
+    width: 48px;
+    height: 48px;
+  }
+  
+  .floatingBtn:hover .floatingLabel {
+    display: none;
+  }
+}

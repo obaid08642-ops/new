@@ -23,6 +23,10 @@ import { WebMcpProvider } from "@/components-next/web-mcp-provider";
 import { ThemeToggle } from "@/components-next/theme-toggle";
 import { THEME_INIT_SCRIPT } from "@/app/theme";
 import { ServiceWorkerRegister } from "@/components-next/service-worker-register";
+import { SkipLink, MainContent } from "@/components-next/skip-link";
+import { MobileMenu } from "@/components-next/mobile-menu";
+import { ToastProvider } from "@/components-next/toast";
+import { LayoutExtras } from "@/components-next/layout-extras";
 
 type Props = Readonly<{ children: React.ReactNode; params: Promise<{ locale: string }> }>;
 
@@ -51,8 +55,6 @@ export async function generateMetadata({ params }: Omit<Props, "children">): Pro
       "ai-catalog": "/.well-known/ai-catalog.json",
       "a2a-agent-card": "/.well-known/agent-card.json",
       "mcp-server-card": "/.well-known/mcp/server-card.json",
-      // Smart App Banners render only when store IDs are configured via env.
-      // No placeholder IDs are invented: absent env = no banner (never a dead banner).
       ...(process.env.NEXT_PUBLIC_IOS_APP_ID
         ? { "apple-itunes-app": `app-id=${process.env.NEXT_PUBLIC_IOS_APP_ID}, app-argument=${process.env.NEXT_PUBLIC_SITE_ORIGIN || "https://nabd.plus"}` }
         : {}),
@@ -75,46 +77,57 @@ export default async function LocaleLayout({ children, params }: Props) {
   return (
     <NextIntlClientProvider messages={messages}>
       <WebMcpProvider locale={typedLocale} />
-      <div className={`shell ${tajawal.variable}`} lang={typedLocale} dir={getDirection(typedLocale)}>
-        {/*
-          12.A3 — the theme has to be known before the first pixel, or every
-          navigation flashes the wrong theme. This is a synchronous inline script
-          at the top of the body for that reason; see app/theme.ts for why it
-          sets BOTH data-theme and .dark.
-        */}
-        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
-        <header className="topbar">
-          <Link className="brand" href={`/${typedLocale}`}>
-            <span className="brand-mark">
-              <NabdMark size={26} />
-            </span>
-            <span className="brand-wordmark">{t("brand")}</span>
-          </Link>
-          <div className="nav-actions">
-            <LocaleSelector current={typedLocale} label={t("language")} />
-            <ThemeToggle label={t("theme")} />
-            {hasAccessToken ? (
-              <SessionActions locale={typedLocale} accountLabel={t("account")} signOutLabel={t("signOut")} />
-            ) : (
-              <Link className="button button-primary header-login" href={`/${typedLocale}/login`}>
-                <ShieldCheck size={16} aria-hidden="true" />
-                <span>{t("patientSignIn")}</span>
-              </Link>
-            )}
-          </div>
-        </header>
-        {hasAccessToken ? <PresenceBeacon /> : null}
-        {children}
-        <footer style={{ borderTop: "1px solid #E8EDEE", marginTop: 48, padding: "24px 16px", background: "#FDFDFC" }}>
-          <nav aria-label={t("brand")} style={{ display: "flex", flexWrap: "wrap", gap: "12px 24px", rowGap: 12, columnGap: 24 }}>
-            <Link href={`/${typedLocale}/terms`} style={{ padding: "4px 0", whiteSpace: "nowrap" }}>{typedLocale === "ar" ? "الشروط" : "Terms"}</Link>
-            <Link href={`/${typedLocale}/privacy`} style={{ padding: "4px 0", whiteSpace: "nowrap" }}>{typedLocale === "ar" ? "الخصوصية" : "Privacy"}</Link>
-            <Link href={`/${typedLocale}/support`} style={{ padding: "4px 0", whiteSpace: "nowrap" }}>{typedLocale === "ar" ? "الدعم" : "Support"}</Link>
-            <Link href={`/${typedLocale}/articles`} style={{ padding: "4px 0", whiteSpace: "nowrap" }}>{typedLocale === "ar" ? "المقالات" : "Articles"}</Link>
-            <Link href={`/${typedLocale}/map`} style={{ padding: "4px 0", whiteSpace: "nowrap" }}>{typedLocale === "ar" ? "الخريطة" : "Map"}</Link>
-          </nav>
-        </footer>
-      </div>
+      <ToastProvider>
+        <LayoutExtras />
+        <div className={`shell ${tajawal.variable}`} lang={typedLocale} dir={getDirection(typedLocale)}>
+          {/*
+            12.A3 — the theme has to be known before the first pixel, or every
+            navigation flashes the wrong theme. This is a synchronous inline script
+            at the top of the body for that reason; see app/theme.ts for why it
+            sets BOTH data-theme and .dark.
+          */}
+          <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+          <SkipLink targetId="main-content" label={t("skipToContent") || "Skip to main content"} />
+          <header className="topbar">
+            <Link className="brand" href={`/${typedLocale}`}>
+              <span className="brand-mark">
+                <NabdMark size={26} />
+              </span>
+              <span className="brand-wordmark">{t("brand")}</span>
+            </Link>
+            <div className="nav-actions">
+              <LocaleSelector current={typedLocale} label={t("language")} />
+              <ThemeToggle label={t("theme")} />
+              {hasAccessToken ? (
+                <SessionActions locale={typedLocale} accountLabel={t("account")} signOutLabel={t("signOut")} />
+              ) : (
+                <Link className="button button-primary header-login" href={`/${typedLocale}/login`}>
+                  <ShieldCheck size={16} aria-hidden="true" />
+                  <span>{t("patientSignIn")}</span>
+                </Link>
+              )}
+            </div>
+            <MobileMenu
+              locale={typedLocale}
+              hasAccessToken={hasAccessToken}
+              accountLabel={t("account")}
+              signOutLabel={t("signOut")}
+              signInLabel={t("patientSignIn")}
+            />
+          </header>
+          {hasAccessToken ? <PresenceBeacon /> : null}
+          <MainContent id="main-content">{children}</MainContent>
+          <footer style={{ borderTop: "1px solid #E8EDEE", marginTop: 48, padding: "24px 16px", background: "#FDFDFC" }}>
+            <nav aria-label={t("brand")} style={{ display: "flex", flexWrap: "wrap", gap: "12px 24px", rowGap: 12, columnGap: 24 }}>
+              <Link href={`/${typedLocale}/terms`} style={{ padding: "4px 0", whiteSpace: "nowrap" }}>{typedLocale === "ar" ? "الشروط" : "Terms"}</Link>
+              <Link href={`/${typedLocale}/privacy`} style={{ padding: "4px 0", whiteSpace: "nowrap" }}>{typedLocale === "ar" ? "الخصوصية" : "Privacy"}</Link>
+              <Link href={`/${typedLocale}/support`} style={{ padding: "4px 0", whiteSpace: "nowrap" }}>{typedLocale === "ar" ? "الدعم" : "Support"}</Link>
+              <Link href={`/${typedLocale}/articles`} style={{ padding: "4px 0", whiteSpace: "nowrap" }}>{typedLocale === "ar" ? "المقالات" : "Articles"}</Link>
+              <Link href={`/${typedLocale}/map`} style={{ padding: "4px 0", whiteSpace: "nowrap" }}>{typedLocale === "ar" ? "الخريطة" : "Map"}</Link>
+            </nav>
+          </footer>
+        </div>
+      </ToastProvider>
     </NextIntlClientProvider>
   );
 }

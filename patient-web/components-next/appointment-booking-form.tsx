@@ -171,7 +171,10 @@ export function AppointmentBookingForm({
                 type="tel"
                 placeholder="05XXXXXXXX"
                 value={patientPhone}
-                onChange={(e) => setPatientPhone(e.target.value)}
+                onChange={(e) => setPatientPhone(e.target.value.replace(/[^\d٠-٩]/g, ""))}
+                autoComplete="tel"
+                inputMode="tel"
+                maxLength={15}
                 style={{ height: 42, borderRadius: 10, border: "1px solid #CBD5E1", padding: "0 12px", background: "#F8FAFC" }}
               />
             </label>

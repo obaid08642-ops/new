@@ -1,0 +1,20 @@
+name: Dependency Review Config
+# Fail PRs that introduce vulnerable dependencies at HIGH or CRITICAL severity
+
+fail-on-severity: high
+
+# Allow specific vulnerabilities with justification
+allow-ghsas:
+  # Example: GHSA-xxxx-xxxx-xxxx - Justification: mitigated by WAF rule
+  # - GHSA-xxxx-xxxx-xxxx
+
+# External licenses that are not allowed
+deny-licenses:
+  - GPL-3.0-only
+  - AGPL-3.0-only
+  - SSPL-1.0
+
+# Scopes to ignore
+ignore-scope-types:
+  - dev
+  - test

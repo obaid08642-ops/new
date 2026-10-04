@@ -3,6 +3,8 @@ import { AuthLoginDto, AuthVerify2faDto, RefreshDto, RecordConsentDto, SendOtpDt
 import { PresenceService } from '../presence/presence.service';
 import { Throttle } from '@nestjs/throttler';
 import { Request, Response } from 'express';
+import { TurnstileService } from './turnstile.service';
+import { SmsFraudProtectionService } from './sms-fraud-protection.service';
 
 const DEVICE_COOKIE = 'nabd_admin_device';
 const PATIENT_ACCESS_COOKIE = 'nabd_patient_access';
@@ -42,6 +44,7 @@ class RegisterDto {
   @IsOptional() @IsString() role?: UserRole;
   /** F63: OTP code proving ownership of the phone/email (else a prior verified marker is required). */
   @IsOptional() @IsString() otp?: string;
+  @IsOptional() @IsString() turnstileToken?: string;
 
   // Patient Contract V1 payload.
   @IsOptional() @IsString() name?: string;
@@ -52,6 +55,7 @@ class RegisterDto {
 class LoginDto {
   @IsString() phone: string;
   @IsString() password: string;
+  @IsOptional() @IsString() turnstileToken?: string;
 }
 class GuestDto {
   @IsOptional() @IsString() phone?: string;
@@ -59,17 +63,20 @@ class GuestDto {
 }
 class PatientOtpRequestDto {
   @IsString() identifier: string;
+  @IsOptional() @IsString() turnstileToken?: string;
 }
 class PatientOtpVerifyDto {
   @IsString() identifier: string;
   @IsString() code: string;
   @IsOptional() @IsString() device_id?: string;
+  @IsOptional() @IsString() turnstileToken?: string;
 }
 class PatientSessionExchangeDto {
   @IsString() exchange_token: string;
 }
 class PatientForgotPasswordDto {
   @IsString() identifier: string;
+  @IsOptional() @IsString() turnstileToken?: string;
 }
 class PatientResetPasswordDto {
   @IsString() reset_token: string;
@@ -80,6 +87,7 @@ class ConvertGuestDto {
   @IsString() phone: string;
   @IsString() @MinLength(6) password: string;
   @IsOptional() @IsString() email?: string;
+  @IsOptional() @IsString() turnstileToken?: string;
 }
 
 @Controller('auth')
@@ -87,13 +95,30 @@ class ConvertGuestDto {
 @UseGuards(JwtAuthGuard)
 export class AuthController {
   private readonly log = new Logger(AuthController.name);
-  constructor(private auth: AuthService, @Optional() private presence?: PresenceService) {}
+  constructor(
+    private auth: AuthService,
+    @Optional() private presence?: PresenceService,
+    private turnstile: TurnstileService,
+    private smsFraud: SmsFraudProtectionService,
+  ) {}
 
   /** Patient-web bridge: opaque request response prevents account enumeration. */
   @Public()
   @Throttle({ default: { limit: 3, ttl: 600000 } })
   @Post('otp/request')
-  patientOtpRequest(@Body() dto: PatientOtpRequestDto) {
+  async patientOtpRequest(@Body() dto: PatientOtpRequestDto, @Req() req: Request) {
+    // Verify Turnstile token
+    if (dto.turnstileToken) {
+      const turnstileResult = await this.turnstile.verify(dto.turnstileToken, clientIp(req));
+      if (!turnstileResult.success) {
+        throw new BadRequestException('Turnstile verification failed');
+      }
+    }
+    // SMS fraud protection
+    const smsCheck = await this.smsFraud.checkAndRecord(dto.identifier, clientIp(req) || 'unknown');
+    if (!smsCheck.allowed) {
+      throw new BadRequestException(smsCheck.reason);
+    }
     return this.auth.requestPatientOtp(dto.identifier);
   }
 
@@ -101,7 +126,14 @@ export class AuthController {
   @Public()
   @Throttle({ default: { limit: 5, ttl: 900000 } })
   @Post('otp/verify')
-  patientOtpVerify(@Body() dto: PatientOtpVerifyDto) {
+  async patientOtpVerify(@Body() dto: PatientOtpVerifyDto, @Req() req: Request) {
+    // Verify Turnstile token
+    if (dto.turnstileToken) {
+      const turnstileResult = await this.turnstile.verify(dto.turnstileToken, clientIp(req));
+      if (!turnstileResult.success) {
+        throw new BadRequestException('Turnstile verification failed');
+      }
+    }
     return this.auth.verifyPatientOtp(dto.identifier, dto.code, dto.device_id);
   }
 
@@ -118,20 +150,38 @@ export class AuthController {
   @Public()
   @Throttle({ default: { limit: 3, ttl: 600000 } })
   @Post('password/forgot')
-  patientForgotPassword(@Body() dto: PatientForgotPasswordDto) {
+  async patientForgotPassword(@Body() dto: PatientForgotPasswordDto, @Req() req: Request) {
+    if (dto.turnstileToken) {
+      const turnstileResult = await this.turnstile.verify(dto.turnstileToken, clientIp(req));
+      if (!turnstileResult.success) {
+        throw new BadRequestException('Turnstile verification failed');
+      }
+    }
     return this.auth.forgotPatientPassword(dto.identifier);
   }
 
   @Public()
   @Post('password/reset')
-  patientResetPassword(@Body() dto: PatientResetPasswordDto) {
+  async patientResetPassword(@Body() dto: PatientResetPasswordDto, @Req() req: Request) {
+    if (dto.turnstileToken) {
+      const turnstileResult = await this.turnstile.verify(dto.turnstileToken, clientIp(req));
+      if (!turnstileResult.success) {
+        throw new BadRequestException('Turnstile verification failed');
+      }
+    }
     return this.auth.resetPatientPassword(dto.reset_token, dto.new_password);
   }
 
   @Public()
   @Throttle({ default: { limit: 10, ttl: 60000 } }) // E5-F4 anti brute-force
   @Post('register')
-  register(@Body() dto: RegisterDto) {
+  async register(@Body() dto: RegisterDto, @Req() req: Request) {
+    if (dto.turnstileToken) {
+      const turnstileResult = await this.turnstile.verify(dto.turnstileToken, clientIp(req));
+      if (!turnstileResult.success) {
+        throw new BadRequestException('Turnstile verification failed');
+      }
+    }
     const isPatientContract = dto.name !== undefined || dto.identifier !== undefined || dto.locale !== undefined || dto.consents !== undefined;
     if (isPatientContract) {
       return this.auth.registerPatientContract({
@@ -150,6 +200,13 @@ export class AuthController {
   @Throttle({ default: { limit: 10, ttl: 60000 } }) // E5-F4 credential brute-force guard
   @Post('login')
   async login(@Body() dto: AuthLoginDto, @Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    // Verify Turnstile token
+    if (dto.turnstileToken) {
+      const turnstileResult = await this.turnstile.verify(dto.turnstileToken, clientIp(req));
+      if (!turnstileResult.success) {
+        throw new BadRequestException('Turnstile verification failed');
+      }
+    }
     // Accept email OR phone as a single identifier; backwards-compatible with old { phone }.
     const id = dto?.identifier || dto?.email || dto?.phone || '';
     const result: any = await this.auth.login(id, dto?.password, {
@@ -180,7 +237,13 @@ export class AuthController {
   }
 
   @Post('convert-guest')
-  convertGuest(@CurrentUser('id') guestUserId: string, @Body() dto: ConvertGuestDto) {
+  async convertGuest(@CurrentUser('id') guestUserId: string, @Body() dto: ConvertGuestDto, @Req() req: Request) {
+    if (dto.turnstileToken) {
+      const turnstileResult = await this.turnstile.verify(dto.turnstileToken, clientIp(req));
+      if (!turnstileResult.success) {
+        throw new BadRequestException('Turnstile verification failed');
+      }
+    }
     return this.auth.convertGuest(guestUserId, dto);
   }
 
@@ -188,6 +251,12 @@ export class AuthController {
   @Throttle({ default: { limit: 10, ttl: 60000 } }) // E5-F4
   @Post('login/verify-2fa')
   async verify2fa(@Body() dto: AuthVerify2faDto, @Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    if (dto.turnstileToken) {
+      const turnstileResult = await this.turnstile.verify(dto.turnstileToken, clientIp(req));
+      if (!turnstileResult.success) {
+        throw new BadRequestException('Turnstile verification failed');
+      }
+    }
     const id = dto?.identifier || dto?.email || dto?.phone || '';
     const result: any = await this.auth.verify2fa(id, dto?.code, {
       ua: req.headers['user-agent'],
@@ -291,8 +360,14 @@ export class AuthController {
   @Header('Deprecation', 'true')
   @Throttle({ default: { limit: 5, ttl: 60000 } }) // E5-F4 SMS-bombing guard
   @Post('send-otp')
-  sendOtp(@Body() body: SendOtpDto) {
+  async sendOtp(@Body() body: SendOtpDto, @Req() req: Request) {
     this.log.warn('deprecated auth alias called: send-otp (canonical: otp/request)');
+    if (body.turnstileToken) {
+      const turnstileResult = await this.turnstile.verify(body.turnstileToken, clientIp(req));
+      if (!turnstileResult.success) {
+        throw new BadRequestException('Turnstile verification failed');
+      }
+    }
     const id = body.identifier || body.email || body.phone || '';
     return this.auth.sendOtp(id, body.purpose);
   }
@@ -301,8 +376,14 @@ export class AuthController {
   @Header('Deprecation', 'true')
   @Throttle({ default: { limit: 10, ttl: 60000 } }) // E5-F4 OTP guessing guard
   @Post('verify-otp')
-  verifyOtp(@Body() body: VerifyOtpDto) {
+  async verifyOtp(@Body() body: VerifyOtpDto, @Req() req: Request) {
     this.log.warn('deprecated auth alias called: verify-otp (canonical: otp/verify)');
+    if (body.turnstileToken) {
+      const turnstileResult = await this.turnstile.verify(body.turnstileToken, clientIp(req));
+      if (!turnstileResult.success) {
+        throw new BadRequestException('Turnstile verification failed');
+      }
+    }
     const id = body.identifier || body.email || body.phone || '';
     return this.auth.verifyOtp(id, body.code);
   }
@@ -311,8 +392,14 @@ export class AuthController {
   @Header('Deprecation', 'true')
   @Throttle({ default: { limit: 5, ttl: 60000 } }) // E5-F4
   @Post('reset-password')
-  resetPassword(@Body() body: ResetPasswordDto) {
+  async resetPassword(@Body() body: ResetPasswordDto, @Req() req: Request) {
     this.log.warn('deprecated auth alias called: reset-password (canonical: password/reset)');
+    if (body.turnstileToken) {
+      const turnstileResult = await this.turnstile.verify(body.turnstileToken, clientIp(req));
+      if (!turnstileResult.success) {
+        throw new BadRequestException('Turnstile verification failed');
+      }
+    }
     const id = body.identifier || body.email || body.phone || '';
     if (!body?.code) throw new BadRequestException('code_required');
     return this.auth.resetPassword(id, body.password, body.code);
@@ -321,7 +408,13 @@ export class AuthController {
   @Public()
   @Throttle({ default: { limit: 20, ttl: 60000 } })
   @Post('social-login')
-  socialLogin(@Body() body: SocialLoginDto) {
+  async socialLogin(@Body() body: SocialLoginDto, @Req() req: Request) {
+    if (body.turnstileToken) {
+      const turnstileResult = await this.turnstile.verify(body.turnstileToken, clientIp(req));
+      if (!turnstileResult.success) {
+        throw new BadRequestException('Turnstile verification failed');
+      }
+    }
     return this.auth.socialLogin(body);
   }
 }

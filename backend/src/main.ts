@@ -209,17 +209,50 @@ async function bootstrap() {
         contentSecurityPolicy({
           nonce,
           isProduction: process.env.NODE_ENV === 'production',
-          // `allowedOrigins` is `true` when nothing was configured (reflect the
-          // request origin); the CSP only needs the explicit list.
           allowedOrigins: Array.isArray(allowedOrigins) ? allowedOrigins : configuredOrigins ?? [],
         }),
       );
       next();
     });
     app.use(helmet({
-      // The policy above is set explicitly, per request, with a nonce.
       contentSecurityPolicy: false,
       crossOriginEmbedderPolicy: false,
+      hsts: {
+        maxAge: 31536000,
+        includeSubDomains: true,
+        preload: true,
+      },
+      referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+      crossOriginOpenerPolicy: { policy: 'same-origin' },
+      crossOriginResourcePolicy: { policy: 'same-origin' },
+      permissionsPolicy: {
+        accelerometer: [],
+        camera: [],
+        geolocation: [],
+        gyroscope: [],
+        magnetometer: [],
+        microphone: [],
+        payment: [],
+        usb: [],
+        displayCapture: [],
+        'document-domain': [],
+        'encrypted-media': [],
+        'fullscreen': ['self'],
+        'gamepad': [],
+        'hid': [],
+        'idle-detection': [],
+        'interest-cohort': [],
+        'local-fonts': [],
+        'otp-credentials': [],
+        'picture-in-picture': [],
+        'publickey-credentials-get': ['self'],
+        'screen-wake-lock': [],
+        'serial': [],
+        'speaker-selection': [],
+        'storage-access': [],
+        'web-share': [],
+        'window-management': [],
+      },
     }));
     app.use(compression());
     app.use(cookieParser());

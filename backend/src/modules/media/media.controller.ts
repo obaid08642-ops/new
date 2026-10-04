@@ -45,13 +45,13 @@ export class MediaController {
     const originalname = (file as any)?.originalname ?? file.filename;
     const mimetype = file.mimetype;
     const buffer = await MediaController.toBuffer(file.file);
-    const uploaded = await this.mediaService.uploadBuffer(buffer, originalname, mimetype, `${purpose}/${user.id}`);
+    const uploaded = await this.mediaService.uploadBuffer(buffer, originalname, mimetype, `${purpose}/${user.id}`, purpose);
     try {
       const asset: any = await this.assets.create({
         key: uploaded.key, owner_id: user.id, purpose, thread_id: threadId,
         original_name: originalname, mime_type: mimetype, size_bytes: buffer.length,
       });
-      return { id: asset.id, purpose: asset.purpose, thread_id: asset.thread_id || null };
+      return { id: asset.id, purpose: asset.purpose, thread_id: asset.thread_id || null, security: uploaded.security };
     } catch (error) {
       await this.mediaService.deleteFile(uploaded.key).catch(() => null);
       throw error;
@@ -77,7 +77,7 @@ export class MediaController {
     const allowedExtensions = /\.(jpg|jpeg|png|gif|webp|pdf|mp3|m4a|wav|doc|docx|xls|xlsx)$/i;
     if (!filename.match(allowedExtensions)) throw new BadRequestException('unsupported_media_extension');
     await this.assertUploadAllowed(user, purpose, threadId);
-    const upload = await this.mediaService.generatePresignedUploadUrl(filename, mimetype, `${purpose}/${user.id}`);
+    const upload = await this.mediaService.generatePresignedUploadUrl(filename, mimetype, `${purpose}/${user.id}`, purpose);
     const asset: any = await this.assets.create({
       key: upload.key, owner_id: user.id, purpose, thread_id: threadId,
       original_name: filename, mime_type: mimetype,

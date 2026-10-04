@@ -83,8 +83,8 @@ export function PharmacyFiltersClient({ options, initial, locale }: {
       </section>
       <section aria-label={ar ? "نطاق السعر (ر.س)" : "Price range (SAR)"}>
         <h3>{ar ? "نطاق السعر (ر.س)" : "Price range (SAR)"}</h3>
-        <label>{ar ? "الحد الأدنى" : "Min"} <input type="number" inputMode="numeric" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} /></label>{" "}
-        <label>{ar ? "الحد الأقصى" : "Max"} <input type="number" inputMode="numeric" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} /></label>
+        <label>{ar ? "الحد الأدنى" : "Min"} <input type="number" inputMode="numeric" value={minPrice} onChange={(e) => setMinPrice(e.target.value.replace(/[^\d٠-٩]/g, ""))} autoComplete="off" /></label>{" "}
+        <label>{ar ? "الحد الأقصى" : "Max"} <input type="number" inputMode="numeric" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value.replace(/[^\d٠-٩]/g, ""))} autoComplete="off" /></label>
       </section>
       <section aria-label={ar ? "الشكل الدوائي" : "Dosage form"}>
         <h3>{ar ? "الشكل الدوائي" : "Dosage form"}</h3>

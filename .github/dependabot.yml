@@ -1,7 +1,12 @@
 version: 2
 updates:
   - package-ecosystem: npm
-    directories: [/backend, /patient-web, /patient-app, /provider-app]
+    directories:
+      - /backend
+      - /patient-web
+      - /patient-app
+      - /provider-app
+      - /admin
     schedule:
       interval: weekly
       day: saturday
@@ -11,6 +16,11 @@ updates:
     labels: [dependencies, security]
     commit-message:
       prefix: chore
+    # Ensure lockfiles are updated
+    allow:
+      - dependency-type: direct
+      - dependency-type: indirect
+
   - package-ecosystem: github-actions
     directory: /
     schedule:
@@ -18,3 +28,5 @@ updates:
       day: saturday
     open-pull-requests-limit: 3
     labels: [dependencies, ci]
+    commit-message:
+      prefix: ci

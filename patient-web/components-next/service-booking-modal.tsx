@@ -255,7 +255,10 @@ export function ServiceBookingModal({
                       required
                       placeholder="05XXXXXXXX"
                       value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
+                      onChange={(e) => setPhone(e.target.value.replace(/[^\d٠-٩]/g, ""))}
+                      autoComplete="tel"
+                      inputMode="tel"
+                      maxLength={15}
                     />
                   </div>
 
