@@ -74,9 +74,11 @@ export function ConsentBanner({
       // If analytics enabled, initialize analytics
       if (newPrefs.analytics && typeof window !== 'undefined') {
         // Initialize analytics here (e.g., gtag, plausible, etc.)
+        // eslint-disable-next-line no-console
         console.log('Analytics consent granted');
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Failed to save consent preferences:', error);
     } finally {
       setIsSaving(false);

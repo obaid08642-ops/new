@@ -102,6 +102,7 @@ export function CampaignReport() {
         setFilters(data);
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Failed to fetch filter options:', error);
     }
   }, []);
@@ -124,6 +125,7 @@ export function CampaignReport() {
         setToast({ type: 'error', message: t('failed_to_load_report') || 'Failed to load report' });
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Failed to fetch report:', error);
       setToast({ type: 'error', message: t('failed_to_load_report') || 'Failed to load report' });
     } finally {
@@ -177,6 +179,7 @@ export function CampaignReport() {
       link.click();
       setToast({ type: 'success', message: t('export_success') || 'Report exported successfully' });
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Export failed:', error);
       setToast({ type: 'error', message: t('export_failed') || 'Export failed' });
     } finally {
