@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { staffRoleOf } from '../../../../lib/admin-session';
+import { enrollLoginDevice } from '../../../../lib/admin-login-device';
 import { randomBytes } from 'node:crypto';
 
 function backendBase() {
@@ -35,23 +36,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // R11 §5: only staff accounts get an admin session.
     if (!staffRoleOf(token)) return res.status(403).json({ code: 'admin_role_required' });
     const csrf = randomBytes(32).toString('base64url');
-    // 7C-C2: enroll this browser's device id so the mandatory allow-list accepts it.
-    let deviceId = req.cookies?.['admin_device'];
-    if (!deviceId || deviceId.length < 16) {
-      deviceId = [...randomBytes(32)].map((b) => b.toString(16).padStart(2, '0')).join('');
-    }
-    try {
-      const enrollHeaders: Record<string, string> = { 'content-type': 'application/json', authorization: `Bearer ${token}`, 'x-admin-device': deviceId };
-      if (process.env.ADMIN_GATE_TOKEN) enrollHeaders['x-admin-gate-token'] = process.env.ADMIN_GATE_TOKEN;
-      await fetch(`${backendBase()}/api/v1/admin/devices/enroll`, {
-        method: 'POST',
-        headers: enrollHeaders,
-        body: JSON.stringify({ device_id: deviceId, name: 'admin-browser' }),
-      }).catch(() => null);
-    } catch { /* enrollment failure surfaces as device_not_enrolled on next call */ }
-    const secure = process.env.NODE_ENV === 'production' ? '; Secure' : '';
-    const cookies = [cookie('admin_access', token), cookie('admin_csrf', csrf, false),
-      `admin_device=${encodeURIComponent(deviceId)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${60 * 60 * 24 * 365}${secure}`];
+    const deviceCookie = await enrollLoginDevice(backendBase(), token, req.cookies?.['admin_device']);
+    const cookies = [cookie('admin_access', token), cookie('admin_csrf', csrf, false), deviceCookie];
     if (refresh) cookies.push(cookie('admin_refresh', refresh));
     res.setHeader('set-cookie', cookies);
     return res.status(200).json({ user: (payload as any).user || null, requires_2fa: false });
