@@ -1,4 +1,5 @@
 import { Injectable, BadRequestException, UnauthorizedException, ConflictException, GoneException, ForbiddenException, Inject, HttpException, HttpStatus, ServiceUnavailableException } from '@nestjs/common';
+import { escapeHtml } from '../../common/html-escape';
 import { Model } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
@@ -731,9 +732,9 @@ export class AuthService {
           <h2 style="color:#0E8FA3">تنبيه أمني — لوحة تحكم نبض</h2>
           <p>تم تسجيل الدخول إلى حساب الأدمن واعتماد جهاز جديد:</p>
           <ul>
-            <li><b>الجهاز:</b> ${device?.name || 'غير معروف'}</li>
-            <li><b>المتصفح/النظام:</b> ${device?.user_agent || '-'}</li>
-            <li><b>عنوان IP:</b> ${ip || '-'}</li>
+            <li><b>الجهاز:</b> ${escapeHtml(device?.name || 'غير معروف')}</li>
+            <li><b>المتصفح/النظام:</b> ${escapeHtml(device?.user_agent || '-')}</li>
+            <li><b>عنوان IP:</b> ${escapeHtml(ip || '-')}</li>
             <li><b>الوقت:</b> ${when}</li>
           </ul>
           <p>إذا لم يكن هذا أنت، ادخل فورًا إلى <b>الأمان ومفاتيح الدخول</b> واحذف الجهاز وغيّر كلمة المرور.</p>
@@ -759,9 +760,9 @@ export class AuthService {
       const html = `<div dir="rtl" style="font-family:Tahoma,Arial,sans-serif;line-height:1.9">
           <h2 style="color:#0E8FA3">${ok ? 'تسجيل دخول — لوحة تحكم نبض' : 'محاولة دخول فاشلة — لوحة تحكم نبض'}</h2>
           <ul>
-            <li><b>الحساب:</b> ${u.email || '-'}</li>
-            <li><b>الجهاز:</b> ${ctx?.deviceName || 'غير معروف'}</li>
-            <li><b>عنوان IP:</b> ${ctx?.ip || '-'}</li>
+            <li><b>الحساب:</b> ${escapeHtml(u.email || '-')}</li>
+            <li><b>الجهاز:</b> ${escapeHtml(ctx?.deviceName || 'غير معروف')}</li>
+            <li><b>عنوان IP:</b> ${escapeHtml(ctx?.ip || '-')}</li>
             <li><b>الوقت:</b> ${when}</li>
           </ul>
           ${ok ? '' : '<p>إذا لم يكن هذا أنت، غيّر كلمة المرور فورًا.</p>'}
