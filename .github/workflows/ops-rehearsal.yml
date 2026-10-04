@@ -16,7 +16,7 @@ jobs:
         run: |
           set -e
           D=/opt/nabdah/deploy
-          sudo mkdir -p $D /opt/nabdah/backups
+          sudo mkdir -p $D/livekit $D/certs /opt/nabdah/backups
           sudo cp -r tools/ops/rehearsal/. $D/
           OLDK=nabd_8b99567485c4; OLDS=$(openssl rand -hex 48)
           echo "OLDK=$OLDK" >> $GITHUB_ENV
