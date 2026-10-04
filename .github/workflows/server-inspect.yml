@@ -1,6 +1,6 @@
 name: server-inspect
 # Read-only inspection of the server (owner-approved 2026-10-04). Changes nothing on the server.
-# The repo is public, so the report is encrypted to tools/ops/report_pubkey.pem before upload,
+# The repo is public, so the report is encrypted to tools/ops/report_pubkey.pub before upload,
 # and the log prints only pass/fail lines.
 on:
   workflow_dispatch:
@@ -62,7 +62,7 @@ jobs:
           echo "report lines: $(wc -l < report.txt)"
           openssl rand -hex 32 > k.txt
           openssl enc -aes-256-cbc -pbkdf2 -salt -in report.txt -out report.enc -pass file:k.txt
-          openssl pkeyutl -encrypt -pubin -inkey tools/ops/report_pubkey.pem -pkeyopt rsa_padding_mode:oaep -in k.txt -out k.enc
+          openssl pkeyutl -encrypt -pubin -inkey tools/ops/report_pubkey.pub -pkeyopt rsa_padding_mode:oaep -in k.txt -out k.enc
           rm -f report.txt k.txt ~/.ssh/id_deploy
       - uses: actions/upload-artifact@v4
         with:
