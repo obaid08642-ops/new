@@ -19,7 +19,7 @@ describe('GuestLifecycleService', () => {
     service.logger = { log: jest.fn() };
     // Linkage is answered per guest from the filter's id (any collection, any owner field).
     const linkedFor = (filter: any) => {
-      const ids = JSON.stringify(filter).match(/"\$eq":"([^"]+)"/g) || [];
+      const ids: string[] = JSON.stringify(filter).match(/"\$eq":"([^"]+)"/g) ?? [];
       return ids.some((m) => linkedIds.has(m.slice(7, -1))) ? 1 : 0;
     };
     service.users = {
