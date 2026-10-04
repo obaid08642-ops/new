@@ -173,6 +173,12 @@ PR bodies end with the Claude Code line and the session link.
   - the emulator launcher's ANR dialog;
   - Maestro whole-label matching.
 
+### 7c. Native on the agent code (Round 2, 2026-10-04)
+
+- Run `37196546443` (agent tip, only the Q58 install workaround on): both builds and all 13 crawls succeeded. Provider doctor: 8 screens alive, no `FATAL EXCEPTION` in logcat, so **Q68 launch is proven**. Patient shard 0: 38/38 screens alive.
+- **Q69 is not proven on the emulator.** The crawler's `/map` deep link lands on Home (the screenshot shows Home with the language menu open), and the provider crawl never reaches `DoctorLocationScreen`, so no map rendered with or without the fix. The Q69 guard is proven by unit tests only (`map-primitives-missing-key.test.tsx`, `PlatformMap.missing-key.test.tsx`). To prove it on a device, add a crawler step that opens a real map screen (patient nearby pharmacies, provider doctor location).
+- Run `37203970270` (`1b12107`, **every workaround off**): patient-app and provider-app release builds succeeded, including plain `npm ci` for provider-app (Q58, Q62, Q67, Q68 proven at build level). The crawl was still running when this was written.
+
 ### 7b. Native baseline (run 37187173460, 2026-10-04)
 
 All 13 jobs green: 6 patient shards and 7 provider types, every one signed in.
