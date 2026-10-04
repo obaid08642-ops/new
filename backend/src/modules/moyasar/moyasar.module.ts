@@ -104,13 +104,21 @@ export class MoyasarService {
   /**
    * Run a mutating gateway call behind the shared circuit breaker. The
    * breaker function is args-driven (never a per-call closure) because
-   * breakers are cached by name and reused across calls.
+   * breakers are cached by name and reused across calls: the payment id and
+   * the request body are passed as arguments so the shared breaker can never
+   * serve one caller's captured values to another. The generic argument type
+   * makes that a compile-time rule at every call site.
    */
-  private moyasarBreaker<T>(name: string, fn: (arg: any) => Promise<T>, openError: string) {
-    if (!this.breakers) return { fire: (arg: any) => fn(arg) };
-    return this.breakers.create(name, fn, { timeout: this.httpTimeoutMs }, () => {
-      throw new BadRequestException(openError);
-    });
+  private moyasarBreaker<A, T>(name: string, fn: (arg: A) => Promise<T>, openError: string): { fire: (arg: A) => Promise<T> } {
+    if (!this.breakers) return { fire: (arg: A) => fn(arg) };
+    return this.breakers.create(
+      name,
+      fn as (...args: any[]) => Promise<T>,
+      { timeout: this.httpTimeoutMs },
+      () => {
+        throw new BadRequestException(openError);
+      },
+    );
   }
 
   /**
@@ -342,16 +350,28 @@ export class MoyasarService {
 
     try {
       const amountHalalas = amount ? Math.round(amount * 100) : undefined;
+      // Q81: the payment id must travel as an ARGUMENT, never be captured from
+      // the enclosing scope. The breaker is cached by name, so a closure over
+      // `moyasarId` sent every refund to the FIRST payment's /refunds endpoint
+      // while marking each later payment refunded locally. Same args-driven
+      // shape as the sync breaker above.
       const refundBreaker = this.moyasarBreaker(
         'moyasar:payments:refund',
-        (b: any) => this.gatewayFetch(`${this.baseUrl}/payments/${encodeURIComponent(moyasarId)}/refunds`, {
-          method: 'POST',
-          headers: this.authHeaders(),
-          body: JSON.stringify(b),
-        }),
+        (arg: { paymentId: string; body: Record<string, unknown> }) =>
+          this.gatewayFetch(
+            `${this.baseUrl}/payments/${encodeURIComponent(arg.paymentId)}/refunds`,
+            {
+              method: 'POST',
+              headers: this.authHeaders(),
+              body: JSON.stringify(arg.body),
+            },
+          ),
         'moyasar_circuit_open',
       );
-      const resp = await refundBreaker.fire(amountHalalas ? { amount: amountHalalas } : {});
+      const resp = await refundBreaker.fire({
+        paymentId: moyasarId,
+        body: amountHalalas ? { amount: amountHalalas } : {},
+      });
       const data: any = await resp.json();
       if (!resp.ok) throw new BadRequestException(data?.message || 'refund_failed');
 
