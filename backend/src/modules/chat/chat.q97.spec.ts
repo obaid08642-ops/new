@@ -47,4 +47,16 @@ describe('group chat follows the relationship rule (Q97)', () => {
     await expect(service.removeParticipant('t2', 'pat-A', 'doc-1')).rejects.toBeInstanceOf(ForbiddenException);
     expect(threads.updateOne).not.toHaveBeenCalled();
   });
+
+  // Independent review follow-up: any member could remove anyone, the creator included.
+  it('only the creator removes others; anyone may leave', async () => {
+    const group = { id: 't3', type: 'group', created_by: 'pat-A', participant_ids: ['pat-A', 'mother', 'doc-1'] };
+    const { service, threads } = serviceFor({}, group);
+    await expect(service.removeParticipant('t3', 'mother', 'pat-A')).rejects.toBeInstanceOf(ForbiddenException);
+    await expect(service.removeParticipant('t3', 'mother', 'doc-1')).rejects.toBeInstanceOf(ForbiddenException);
+    expect(threads.updateOne).not.toHaveBeenCalled();
+    await service.removeParticipant('t3', 'mother', 'mother');
+    await service.removeParticipant('t3', 'pat-A', 'doc-1');
+    expect(threads.updateOne).toHaveBeenCalledTimes(2);
+  });
 });

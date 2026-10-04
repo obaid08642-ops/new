@@ -41,7 +41,7 @@ export class MedicalReportsService {
    * id must be that relationship; without one, any relationship of the caller's
    * kind with this patient counts. Returns the author fields from the caller.
    */
-  private async careRelation(user: any, body: any): Promise<{ doctor_id?: string; doctor_name?: string }> {
+  private async careRelation(user: any, body: any): Promise<{ doctor_id?: string; doctor_name?: string; facility_id?: string; facility_name?: string; patient_name?: string }> {
     const patientId = String(body.patient_id);
     const db = this.connection.collection.bind(this.connection);
     const exists = async (collection: string, filter: Record<string, unknown>) =>
@@ -54,9 +54,11 @@ export class MedicalReportsService {
     if (user.role === 'admin') return {};
     const role = String(user.role);
     const callerIds = [String(user.id)];
+    let hospitalFacility = String(user.id);
     if (role === 'hospital') {
       const acc: any = await db('provider_accounts').findOne({ $or: [{ id: user.id }, { user_id: user.id }] } as any);
       for (const v of [acc?.facility_id, acc?.id]) if (v && !callerIds.includes(String(v))) callerIds.push(String(v));
+      hospitalFacility = String(acc?.facility_id || acc?.id || user.id);
     }
     // Every referenced id must name a booking of this patient with this caller.
     for (const [field, collection, providerField] of refs) {
@@ -72,9 +74,26 @@ export class MedicalReportsService {
         : role === 'hospital' ? await exists('facility_admissions', { facility_id: { $in: callerIds } })
         : false;
     if (!related) throw new ForbiddenException('no_care_relationship_with_patient');
-    if (!hasEffectiveRole(user, 'doctor')) return {};
+    // A referenced prescription must be this patient's, written by this doctor.
+    if (body.prescription_id !== undefined && body.prescription_id !== null && body.prescription_id !== '') {
+      if (!(await exists('prescriptions', { id: { $eq: String(body.prescription_id) }, doctor_id: { $eq: String(user.id) } }))) {
+        throw new ForbiddenException('prescription_id_not_yours');
+      }
+    }
+    // Identity fields come from the records, never from the body.
+    const patient: any = await db('users').findOne({ id: { $eq: patientId } } as any, { projection: { full_name: 1, name: 1 } });
     const prof: any = await db('provider_profiles').findOne({ $or: [{ user_id: user.id }, { account_id: user.id }] } as any, { projection: { id: 1, name_ar: 1, name_en: 1 } });
-    return { doctor_id: prof?.id || user.id, doctor_name: prof?.name_ar || prof?.name_en || user.full_name };
+    const out: { doctor_id?: string; doctor_name?: string; facility_id?: string; facility_name?: string; patient_name?: string } = {
+      patient_name: patient?.full_name || patient?.name || undefined,
+    };
+    if (hasEffectiveRole(user, 'doctor')) {
+      out.doctor_id = prof?.id || user.id;
+      out.doctor_name = prof?.name_ar || prof?.name_en || user.full_name;
+    } else {
+      out.facility_id = role === 'hospital' ? hospitalFacility : (prof?.id || String(user.id));
+      out.facility_name = prof?.name_ar || prof?.name_en || undefined;
+    }
+    return out;
   }
 
   async create(user: any, body: any) {
@@ -84,7 +103,7 @@ export class MedicalReportsService {
     const author = await this.careRelation(user, body);
     const r = await this.model.create({
       patient_id: body.patient_id,
-      patient_name: body.patient_name,
+      patient_name: user.role === 'admin' ? body.patient_name : author.patient_name,
       title_ar: body.title_ar,
       title_en: body.title_en,
       report_type: body.report_type || MedicalReportType.CLINIC_NOTE,
@@ -100,8 +119,8 @@ export class MedicalReportsService {
       // Q95: the author is the caller (an admin may still name the doctor).
       doctor_id: user.role === 'admin' ? body.doctor_id : author.doctor_id,
       doctor_name: user.role === 'admin' ? body.doctor_name : author.doctor_name,
-      facility_id: body.facility_id,
-      facility_name: body.facility_name,
+      facility_id: user.role === 'admin' ? body.facility_id : author.facility_id,
+      facility_name: user.role === 'admin' ? body.facility_name : author.facility_name,
       attachments: body.attachments || [],
       issued_at: body.issued_at ? new Date(body.issued_at) : new Date(),
     });

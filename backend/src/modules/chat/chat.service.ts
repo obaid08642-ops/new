@@ -488,6 +488,10 @@ export class ChatService {
     if (!thread) throw new NotFoundException('thread_not_found');
     this.assertParticipant(thread, actorId);
     if (thread.type !== 'group') throw new ForbiddenException('participant_management_not_allowed');
+    // A member may leave; only the group's creator removes other members.
+    if (String(userId) !== String(actorId) && String(thread.created_by) !== String(actorId)) {
+      throw new ForbiddenException('only_group_creator_can_remove_members');
+    }
     await this.threads.updateOne({ id: { $eq: threadId } }, { $pull: { participant_ids: userId } });
   }
 }

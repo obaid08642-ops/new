@@ -29,6 +29,10 @@ describe('MedicalReportsService.create requires a care relationship (Q95)', () =
     await db.collection('radiologybookings').insertOne({ id: 'rad-1', patient_id: 'pat-P', provider_account_id: 'rad-acc' });
     await db.collection('facility_admissions').insertOne({ id: 'adm-1', patient_id: 'pat-P', facility_id: 'hosp-acc', status: 'active' });
     await db.collection('provider_profiles').insertOne({ id: 'docprof-1', user_id: 'doc-treating', type: 'doctor', name_ar: 'د. مُعالج' });
+    await db.collection('provider_profiles').insertOne({ id: 'labprof-1', account_id: 'lab-acc', type: 'lab', name_ar: 'مختبر حقيقي' });
+    await db.collection('users').insertOne({ id: 'pat-P', full_name: 'Real Patient' });
+    await db.collection('prescriptions').insertOne({ id: 'rx-own', patient_id: 'pat-P', doctor_id: 'doc-treating' });
+    await db.collection('prescriptions').insertOne({ id: 'rx-other', patient_id: 'pat-P', doctor_id: 'doc-someone' });
   });
   afterAll(async () => { await conn.close(); await mongo.stop(); });
   beforeEach(() => { created.length = 0; model.create.mockClear(); });
@@ -64,5 +68,13 @@ describe('MedicalReportsService.create requires a care relationship (Q95)', () =
   it('an admin may write for any patient', async () => {
     await service.create({ id: 'adm', role: 'admin' }, report());
     expect(created).toHaveLength(1);
+  });
+
+  // Independent review follow-up: identity fields must not come from the body.
+  it('facility, patient name and prescription come from the records, not the body', async () => {
+    await service.create({ id: 'lab-acc', role: 'lab' }, report({ lab_booking_id: 'lab-1', facility_id: 'forged-fac', facility_name: 'Forged Hospital', patient_name: 'Forged' }));
+    expect(created[0]).toEqual(expect.objectContaining({ facility_id: 'labprof-1', facility_name: 'مختبر حقيقي', patient_name: 'Real Patient' }));
+    await service.create({ id: 'doc-treating', role: 'doctor' }, report({ prescription_id: 'rx-own' }));
+    await expect(service.create({ id: 'doc-treating', role: 'doctor' }, report({ prescription_id: 'rx-other' }))).rejects.toBeInstanceOf(ForbiddenException);
   });
 });

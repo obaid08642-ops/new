@@ -887,9 +887,17 @@ export class RefundService {
       { booking_id: { $eq: bookingId }, status: 'paid' } as any,
       { sort: { createdAt: -1 } } as any,
     );
-    const paid = Number(tx?.amount ?? mp?.amount ?? 0);
+    // A lab/radiology booking paid through the diagnostics checkout has no paid
+    // row of its own: the child carries the parent's transaction_id. Refund the
+    // child's own price only, never the whole parent order.
+    const parentTx: any = (!tx && !mp && booking.transaction_id && String(booking.payment_status || '').toLowerCase() === 'paid')
+      ? await this.conn.collection('transactions').findOne({ id: { $eq: String(booking.transaction_id) }, status: 'paid' } as any)
+      : null;
+    const childPrice = Number(booking.total_price ?? booking.price ?? booking.total ?? 0);
+    const paid = parentTx ? Math.min(childPrice, Number(parentTx.amount || 0)) : Number(tx?.amount ?? mp?.amount ?? 0);
     if (!(paid > 0)) throw new BadRequestException('booking_not_paid');
-    const paymentId = tx?.gateway_payment_id || tx?.moyasar_payment_id || tx?.payment_id || mp?.moyasar_id || undefined;
+    const payTx = tx || parentTx;
+    const paymentId = payTx?.gateway_payment_id || payTx?.moyasar_payment_id || payTx?.payment_id || mp?.moyasar_id || undefined;
 
     const dup = await this.refunds.findOne({ booking_id: { $eq: bookingId }, patient_id: { $eq: String(user.id) }, state: { $ne: 'REJECTED' } });
     if (dup) return dup.toObject();

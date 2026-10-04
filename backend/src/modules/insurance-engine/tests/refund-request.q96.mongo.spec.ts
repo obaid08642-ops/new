@@ -74,4 +74,17 @@ describe('RefundService.request is bound to a real, owned, paid booking (Q96)', 
     const again = await service.request({ id: 'pat-A' }, { booking_kind: 'consultation', booking_id: 'appt-A', reason: 'again' });
     expect(again.reason).toBe('mine');
   });
+
+  // Independent review follow-up: a lab booking paid through the diagnostics
+  // checkout has no paid row of its own; the child carries the parent's
+  // transaction_id. It must be refundable for the child's own price only.
+  it('refunds a diagnostics-paid lab booking for its own price', async () => {
+    const db = conn.db!;
+    await db.collection('labbookings').insertOne({ id: 'lab-1', patient_id: 'pat-A', total_price: 120, payment_status: 'paid', transaction_id: 'tx-diag', scheduled_date: inHours(48) });
+    await db.collection('transactions').insertOne({ id: 'tx-diag', booking_kind: 'diagnostics', booking_id: 'diag-order-1', status: 'paid', amount: 400, gateway_payment_id: 'pay_diag' });
+    const r = await service.request({ id: 'pat-A' }, { booking_kind: 'lab', booking_id: 'lab-1', reason: 'cannot attend' });
+    expect(r.amount_paid).toBe(120);
+    expect(r.moyasar_payment_id).toBe('pay_diag');
+    await db.collection('labbookings').deleteMany({});
+  });
 });
