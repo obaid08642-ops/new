@@ -641,6 +641,8 @@ export class AuthService {
     const query = isEmail ? { email: identifier.trim().toLowerCase() } : { phone: identifier };
     const u = await this.userModel.findOne(query);
     if (!u) throw new UnauthorizedException('User not found');
+    // A banned or deactivated account never gets a token (as in password login).
+    if (u.active === false) throw new UnauthorizedException('Account disabled');
 
     // Verify using the same identifier that received the OTP during login.
     // Login may be initiated with email while the OTP is sent to the user's phone

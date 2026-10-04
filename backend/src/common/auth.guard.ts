@@ -110,6 +110,22 @@ export async function authenticateSocketToken(guard: { canActivate(ctx: Executio
   }
 }
 
+/**
+ * Re-runs the guard for every open socket that connected with an access token
+ * (socket.data.socketAuth) and disconnects the ones it now refuses: a ban,
+ * a session revoke (token_version bump) or a staff device revoke after connect.
+ */
+export async function revalidateOpenSockets(guard: { canActivate(ctx: ExecutionContext): Promise<boolean> | boolean }, sockets: Iterable<any>): Promise<number> {
+  let dropped = 0;
+  for (const socket of sockets) {
+    const auth = socket?.data?.socketAuth;
+    if (!auth?.token) continue;
+    const user = await authenticateSocketToken(guard, auth.token, auth.headers, auth.address);
+    if (!user) { socket.disconnect(true); dropped += 1; }
+  }
+  return dropped;
+}
+
 export function isAccessTokenPayload(payload: any): boolean {
   if (!payload || typeof payload !== 'object') return false;
   if (payload.type === 'refresh' || payload.type === 'qr') return false;
