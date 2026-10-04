@@ -9,8 +9,9 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { Logger, ForbiddenException } from '@nestjs/common';
+import { Optional } from '@nestjs/common';
 import { ChatService } from './chat.service';
-import { isAccessTokenPayload } from '../../common/auth.guard';
+import { isAccessTokenPayload, authenticateSocketToken, JwtAuthGuard } from '../../common/auth.guard';
 import { OnEvent } from '@nestjs/event-emitter';
 import { getWebSocketCorsOptions } from '../../config/websocket-cors';
 
@@ -30,7 +31,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private activeUsers = new Map<string, string>(); // socketId -> userId
   private restrictedThreads = new Map<string, string>(); // socketId -> thread id for chat_rt tokens
 
-  constructor(private readonly chatService: ChatService) {}
+  constructor(private readonly chatService: ChatService, @Optional() private readonly authGuard?: JwtAuthGuard) {}
 
   async handleConnection(socket: Socket) {
     // M6/ER-11: identity must come from a verified JWT — previously any client
@@ -49,6 +50,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         } else if (!isAccessTokenPayload(payload)) {
           // R11 §5: refresh / QR / other non-access tokens never open a socket.
           throw new Error('not_an_access_token');
+        } else if (this.authGuard) {
+          // R11: an access token goes through the same JwtAuthGuard as REST
+          // (token_version, staff gate and device lock, impersonation session).
+          const user = await authenticateSocketToken(this.authGuard, token, socket.handshake.headers as Record<string, unknown>, String(socket.handshake.address || ''));
+          if (!user) throw new Error('auth_guard_refused');
+          userId = user.id || user.sub || userId;
         }
       } catch {
         userId = null;

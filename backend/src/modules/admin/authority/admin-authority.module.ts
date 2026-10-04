@@ -206,41 +206,6 @@ export class AdminAuthorityService {
     return { ok: true };
   }
 
-  // ===== IMPERSONATION =====
-  async impersonateUser(admin: any, targetUserId: string) {
-    const targetUser = (await this.userModel.findOne({ id: targetUserId }).lean()) as any;
-    if (!targetUser) throw new NotFoundException('Target user not found');
-
-    const payload = {
-      id: targetUser.id,
-      email: targetUser.email,
-      phone: targetUser.phone,
-      role: targetUser.role,
-      full_name: targetUser.full_name,
-      permissions: targetUser.permissions || [],
-      impersonator: {
-        id: admin.id,
-        email: admin.email,
-        full_name: admin.full_name,
-      }
-    };
-
-    const token = await this.jwtService.signAsync(payload);
-
-    await this.logAction(admin, 'impersonate_user', 'user', targetUserId, 'Technical Support troubleshooting session started', null, { target_role: targetUser.role });
-
-    return {
-      access_token: token,
-      user: {
-        id: targetUser.id,
-        email: targetUser.email,
-        phone: targetUser.phone,
-        role: targetUser.role,
-        full_name: targetUser.full_name,
-      }
-    };
-  }
-
   // ===== ACTIONS LOG =====
   async listActions(filter: { action?: string; admin_id?: string; target_type?: string; limit?: number }) {
     const q: any = {};
@@ -287,8 +252,6 @@ export class AdminAuthorityController {
   @Post('providers/:id/suspend') @RequirePermissions(Permission.USER_EDIT) susp(@Param('id') id: string, @Body() b: SuspDto, @CurrentUser() u: any) { return this.svc.suspendProvider(u, id, b.reason || ''); }
   @StepUp()
   @Post('providers/:id/unsuspend') @RequirePermissions(Permission.USER_EDIT) unsp(@Param('id') id: string, @CurrentUser() u: any) { return this.svc.unsuspendProvider(u, id); }
-  @StepUp()
-  @Post('users/:id/impersonate') @RequirePermissions(Permission.USER_IMPERSONATE) impersonate(@Param('id') targetUserId: string, @CurrentUser() admin: any) { return this.svc.impersonateUser(admin, targetUserId); }
 
   @Get('actions') log(@Query() q: any) { return this.svc.listActions({ action: q?.action, admin_id: q?.admin_id, target_type: q?.target_type, limit: q?.limit ? Number(q.limit) : undefined }); }
 }

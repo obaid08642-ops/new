@@ -1,4 +1,4 @@
-import { isAccessTokenPayload } from '../../common/auth.guard';
+import { isAccessTokenPayload, authenticateSocketToken, JwtAuthGuard } from '../../common/auth.guard';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Logger, Optional } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -130,6 +130,7 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
     private readonly chat: ChatService,
     private readonly livekit: LiveKitService,
     @Optional() private readonly redisStore?: RedisService,
+    @Optional() private readonly authGuard?: JwtAuthGuard,
   ) {}
 
   afterInit(server: Server) {
@@ -147,9 +148,13 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
     try {
       const token = client.handshake.auth?.token || client.handshake.query?.token as string;
       if (!token) { client.disconnect(); return; }
-      const payload = await this.jwt.verifyAsync(token, { secret: process.env.JWT_SECRET });
+      // R11: the same JwtAuthGuard as REST (token kind, token_version, staff
+      // gate and device lock, impersonation session) decides who connects.
+      const payload: any = this.authGuard
+        ? await authenticateSocketToken(this.authGuard, String(token), client.handshake.headers as Record<string, unknown>, String(client.handshake.address || ''))
+        : await this.jwt.verifyAsync(token, { secret: process.env.JWT_SECRET });
       // R11 §5: refresh / QR / chat_rt / other non-access tokens never open a socket.
-      if (!isAccessTokenPayload(payload)) { client.disconnect(); return; }
+      if (!payload || !isAccessTokenPayload(payload)) { client.disconnect(); return; }
       client.data.user = payload;
       client.data.connectedAt = Date.now();
 

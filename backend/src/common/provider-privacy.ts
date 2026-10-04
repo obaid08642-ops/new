@@ -8,8 +8,10 @@ import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nes
 import { Observable, map } from 'rxjs';
 
 /** Booking states (any domain) in which the provider has not accepted yet. */
+// PROVIDER_ASSIGNED: a nurse the patient picked (or who claimed an open
+// request) has not accepted yet; acceptance is CONFIRMED.
 export const PRE_ACCEPTANCE_STATES = new Set([
-  'NEW_REQUEST', 'PENDING', 'CREATED', 'BROADCASTING', 'PENDING_INSURANCE', 'WAITING_COPAY',
+  'NEW_REQUEST', 'PENDING', 'CREATED', 'BROADCASTING', 'PENDING_INSURANCE', 'WAITING_COPAY', 'PROVIDER_ASSIGNED',
 ]);
 
 const CONTACT_KEYS = [
