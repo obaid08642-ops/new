@@ -1,10 +1,18 @@
 "use client";
 
+import { useEffect } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { reportSegmentError } from "@/lib/error-report";
 
-export default function LocaleError({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
+export default function LocaleError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   const locale = useLocale();
   const t = useTranslations("RouteState");
+
+  // P15.5: every render crash is reported with the release before the
+  // fallback paints, so the fallback itself is never a silent hole.
+  useEffect(() => {
+    reportSegmentError(error, { segment: "locale", locale });
+  }, [error, locale]);
   return (
     <main className="main auth-wrap" style={{ background: "#FDFDFC", padding: "32px 16px" }}>
       <section className="auth-card" role="alert" aria-live="assertive" style={{ background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: "1px solid #E8EDEE", borderRadius: 20, padding: 32, maxWidth: 480, margin: "0 auto", display: "grid", gap: 16, boxShadow: "0 8px 24px rgba(30,51,46,.07)" }}>
@@ -17,7 +25,11 @@ export default function LocaleError({ reset }: { error: Error & { digest?: strin
         <div className="route-state-actions" style={{ gap: 8, marginTop: 8 }}>
           <button className="button button-primary" type="button" onClick={reset} style={{ background: "#5FD9B3", color: "#1E332E", borderRadius: 20, border: "none" }}>{t("retry")}</button>
           <a className="button button-secondary" href={`/${locale}`} style={{ background: "#1E332E", color: "#fff", borderRadius: 20 }}>{t("returnHome")}</a>
+          <a className="button button-secondary" href={`/${locale}/support`} style={{ background: "transparent", color: "#1E332E", borderRadius: 20, border: "1px solid #E8EDEE" }}>{t("contactSupport")}</a>
         </div>
+        {error.digest ? (
+          <p style={{ margin: 0, color: "#6B7C6E", fontSize: ".75rem" }}>ref: {error.digest}</p>
+        ) : null}
       </section>
     </main>
   );

@@ -593,6 +593,7 @@
     "returnHome": "العودة إلى البداية"
   },
   "RouteState": {
+    "contactSupport": "تواصل مع الدعم",
     "loadingCode": "جارٍ التحميل",
     "loadingTitle": "جارٍ تجهيز الصفحة",
     "loadingBody": "لم تُعرض أي بيانات بديلة أثناء انتظار الاستجابة المصرح بها.",

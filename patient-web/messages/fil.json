@@ -222,6 +222,7 @@
     "returnHome": "Bumalik sa home"
   },
   "RouteState": {
+    "contactSupport": "Makipag-ugnayan sa suporta",
     "loadingCode": "Nilo-load",
     "loadingTitle": "Inihahanda ang pahina",
     "loadingBody": "Walang alternatibong data na ipinapakita habang hinihintay ang awtorisadong tugon.",

@@ -375,3 +375,62 @@ $ # restored → 20 passed, tsc clean
   resubmission after interruption (scan form), and at-most-once replay keys in
   the outbox. Stated plainly: an interrupted upload re-sends whole, never
   duplicated — it does not resume mid-byte.
+
+---
+
+## 15.5 — Nothing crashes to a blank screen
+
+### What existed
+
+- `app/[locale]/error.tsx`: try-again + home, but NO contact-support link and
+  NO error reporting — crashes vanished silently.
+- No `app/global-error.tsx`: a root-layout crash meant a white screen.
+- Sentry configs with no `release`: events could not be tied to a deploy.
+
+### Changed files
+
+- new: `lib/sentry-release.ts` (+ test) — `getSentryRelease()`: CI SHA via
+  `NEXT_PUBLIC_SENTRY_RELEASE`, else `NEXT_PUBLIC_APP_VERSION`, else explicit
+  `patient-web-dev` (never empty — an empty release ungroups everything).
+- new: `lib/error-report.ts` (+ `error-report.test.ts`, 3 tests) —
+  `reportSegmentError(error, {segment, locale})`: `captureException` with the
+  release tag + segment context; returns the event id; never throws back into
+  the fallback UI. Tested with a mocked `@sentry/nextjs`.
+- `sentry.{client,server,edge}.config.ts`: `release: getSentryRelease()`.
+- `app/[locale]/error.tsx`: reports on mount, adds contact-support link
+  (`/{locale}/support`, `RouteState.contactSupport` in all 6 locales) and
+  shows the Next.js digest as `ref:` for support matching.
+- new: `app/global-error.tsx` — own `<html><body>`, bilingual hardcoded copy
+  (no provider exists above it by design), try-again + en/ar support links +
+  digest ref + reporting.
+- `tests/route-error.test.tsx` (4 tests): both fallbacks render actions (never
+  a white screen); source assertions pin the `reportSegmentError` wiring.
+- `.env.production.example`: documents `NEXT_PUBLIC_SENTRY_RELEASE`.
+
+### Real output
+
+```
+$ node node_modules/typescript/bin/tsc --noEmit; echo "tsc exit: $?"
+tsc exit: 0
+$ node node_modules/vitest/vitest.mjs run lib/sentry-release.test.ts \
+    lib/error-report.test.ts tests/route-error.test.tsx
+ Test Files  3 passed (3)
+      Tests  11 passed (11)
+```
+
+### Mutation proof (rule 6)
+
+```
+$ # release tag dropped from reportSegmentError
+ FAIL ... sends the error with the release tag and segment context
+      Tests  1 failed | 2 passed (3)
+$ # restored → 3 passed
+```
+
+### BLOCKED / DEFERRED
+
+- `BLOCKED: Sentry DSN is an owner secret` — the live-send part only. Wiring,
+  release injection, and tests are shipped; no event can actually leave the
+  device without the DSN, and source-map upload likewise needs the owner's
+  `SENTRY_AUTH_TOKEN` (documented in `.env.production.example`, never
+  committed).

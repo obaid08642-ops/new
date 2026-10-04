@@ -593,6 +593,7 @@
     "returnHome": "Return home"
   },
   "RouteState": {
+    "contactSupport": "Contact support",
     "loadingCode": "Loading",
     "loadingTitle": "Preparing the page",
     "loadingBody": "No fallback data is shown while the authorized response is pending.",
