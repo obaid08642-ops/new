@@ -16,6 +16,14 @@ export interface BreakerOptions {
  * hands the work function and the arguments to the shared action together, so a
  * cached breaker can never answer a later caller with the first caller's
  * closure.
+ *
+ * Fallback contract: the fallback runs as
+ * `fallback(...callerArgs, err)` — the caller's own arguments first, the
+ * failure last (this mirrors opossum, which invokes the registered function
+ * as `fn(...fireArgs, err)`; the leading per-call work function is stripped
+ * here). A fallback that needs the error MUST read it as its last parameter;
+ * reading it as the first parameter silently receives the caller's first
+ * argument instead (e.g. a payment body) and mistypes every failure.
  */
 export interface BreakerHandle<T> {
   fire(...args: any[]): Promise<T>;
@@ -64,6 +72,10 @@ export class CircuitBreakerService {
    * Call sites should still be *args-driven* (pass the payment id as an
    * argument, never capture it in a closure) so the work function stays
    * stateless and correct even when the breaker is bypassed entirely.
+   *
+   * The optional `fallback` runs as `fallback(...callerArgs, err)`: the
+   * caller's own arguments first, the failure last. A fallback that re-throws
+   * typed errors (timeouts, 503s) must read the error from its LAST parameter.
    */
   create<T>(
     name: string,
@@ -83,10 +95,13 @@ export class CircuitBreakerService {
   ): CircuitBreaker<any[], any> {
     const wrappedFallback = fallback
       ? (fn: unknown, ...rest: any[]): any => {
-          // opossum passes [fn, ...callerArgs, err]; callers only ever see
-          // [...their own args, err], which is the documented fallback contract.
+          // opossum invokes the registered function as fn(...fireArgs, err),
+          // where fireArgs[0] is the per-call work function. Strip the work
+          // function and forward (...callerArgs, err): dropping err here would
+          // hand the fallback the caller's first argument as "the error" and
+          // every typed failure (timeouts, 503s) would be mistyped downstream.
           const err = rest.pop();
-          return fallback(...rest);
+          return fallback(...rest, err);
         }
       : undefined;
 
@@ -160,6 +175,18 @@ export class CircuitBreakerService {
 
   getStats(name: string) {
     return this.breakers.get(name)?.stats;
+  }
+
+  /**
+   * Force a breaker closed (operational escape hatch and test seam). The
+   * instance is kept, so its counters and its place in the shared-state map
+   * survive; only the open/half-open state is cleared.
+   */
+  reset(name: string): boolean {
+    const breaker = this.breakers.get(name);
+    if (!breaker) return false;
+    breaker.close();
+    return true;
   }
 
   /**

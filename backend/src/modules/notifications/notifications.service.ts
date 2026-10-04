@@ -1,4 +1,4 @@
-import { BadGatewayException, BadRequestException, Inject, Injectable, Logger } from '@nestjs/common';
+import { BadGatewayException, BadRequestException, Inject, Injectable, Logger, Optional } from '@nestjs/common';
 import { I18nService } from '../i18n/i18n.service';
 import { Model } from 'mongoose';
 import { NotFoundException } from '@nestjs/common';
@@ -16,6 +16,7 @@ import { MailService } from '../mail/mail.module';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import axios from 'axios';
+import { CircuitBreakerService } from '../../common/circuit-breaker.service';
 
 /** Per-call HTTP timeout for outbound notification channels (ms). Env-overridable for tests. */
 const notifyTimeoutMs = () => Number(process.env.NOTIFY_TIMEOUT_MS) || 8000;
@@ -41,7 +42,27 @@ export class NotificationsService {
     private mail: MailService,
     @InjectQueue('notifications-delivery') private queue: Queue,
     private readonly i18n: I18nService,
+    @Optional() private readonly breakers?: CircuitBreakerService,
   ) {}
+
+  /**
+   * Run one outbound-channel call behind a timeout + shared circuit breaker.
+   *
+   * The work function is args-driven (the recipient travels as an argument)
+   * because the breaker is cached by name: a closure over the recipient would
+   * be the function a later recipient's call executes (Q81).
+   */
+  private channelCall<T>(
+    channel: string,
+    fn: (...args: any[]) => Promise<T>,
+    args: any[],
+    fallback: () => T | Promise<T>,
+  ): Promise<T> {
+    if (!this.breakers) return fn(...args);
+    return this.breakers
+      .create(`notify:${channel}`, fn, { timeout: notifyTimeoutMs() }, fallback)
+      .fire(...args);
+  }
 
   async create(data: {
     user_id?: string; role?: string;
@@ -180,7 +201,7 @@ export class NotificationsService {
               emailSent = true;
             } catch (e: any) { delivery.email = bump('email', false, e.message); }
           }
-          try { await this.sendWhatsApp(n, user.phone); delivery.whatsapp = bump('whatsapp', true); }
+          try { const sent = await this.sendWhatsApp(n, user.phone); delivery.whatsapp = bump('whatsapp', sent); }
           catch (e: any) { delivery.whatsapp = bump('whatsapp', false, e.message); }
         }
         if (user?.email && !emailSent) {
@@ -399,21 +420,37 @@ export class NotificationsService {
     }
   }
 
-  async sendWhatsApp(n: any, phone: string) {
+  /**
+   * Send over WhatsApp (Infobip) behind a timeout + circuit breaker.
+   *
+   * Returns true only when the provider actually accepted the message. It used
+   * to swallow every error, which made the delivery report claim WhatsApp had
+   * succeeded for a message that never left — the caller now sees the failure
+   * and its email/push fallback runs.
+   */
+  async sendWhatsApp(n: any, phone: string): Promise<boolean> {
     if (!process.env.INFOBIP_API_KEY) {
-      this.logger.debug(`WhatsApp queued to ${phone} for event: ${n.title_key}`);
-      return;
+      this.logger.debug(`WhatsApp not configured; skipped for ${phone} (event: ${n.title_key})`);
+      return false;
     }
-    try {
-      await axios.post(`https://${process.env.INFOBIP_URL}/whatsapp/1/message/template`, {
+    const url = `https://${process.env.INFOBIP_URL}/whatsapp/1/message/template`;
+    const post = async (message: any) => {
+      const res = await axios.post(url, {
         messages: [{
           from: process.env.INFOBIP_SENDER,
-          to: phone,
-          content: { templateName: n.title_key, templateData: { body: { placeholders: [n.body_key] } }, language: 'ar' }
+          to: message.phone,
+          content: { templateName: message.title_key, templateData: { body: { placeholders: [message.body_key] } }, language: 'ar' }
         }]
       }, { headers: { Authorization: `App ${process.env.INFOBIP_API_KEY}` }, timeout: notifyTimeoutMs() });
-    } catch(e) {
+      return res.status >= 200 && res.status < 300;
+    };
+    try {
+      return await this.channelCall('whatsapp:infobip', post, [{
+        phone, title_key: n.title_key, body_key: n.body_key,
+      }], () => false);
+    } catch (e: any) {
       this.logger.error('Failed to send WhatsApp', e.message);
+      return false;
     }
   }
 

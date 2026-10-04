@@ -111,8 +111,31 @@ describe('CircuitBreakerService (Q81 per-call binding)', () => {
     expect(breakers.getStatus('fb')).toBe('open');
   });
 
-  it('fire() binds the per-call function instead of dropping it', async () => {
+  it('hands the fallback the caller args first and the failure last', async () => {
+    // Regression: the wrapper once dropped the error, so a fallback reading
+    // its first parameter as "the error" received the caller's first argument
+    // (e.g. a payment body) and mistyped every failure downstream.
     const breakers = new CircuitBreakerService();
+    const seen: unknown[][] = [];
+    const typed = new Error('typed_timeout_marker');
+    const guarded = breakers.create(
+      'fb-err',
+      async () => {
+        throw typed;
+      },
+      { volumeThreshold: 1, errorThresholdPercentage: 1, resetTimeout: 10_000 },
+      (...args: unknown[]) => {
+        seen.push(args);
+        throw args[args.length - 1];
+      },
+    );
+
+    await expect(guarded.fire('pay_a')).rejects.toBe(typed);
+    // (callerArgs..., err): the caller's argument first, the failure last.
+    expect(seen).toEqual([['pay_a', typed]]);
+  });
+
+  it('fire() binds the per-call function instead of dropping it', async () => {    const breakers = new CircuitBreakerService();
     const urls: string[] = [];
 
     const refund = async (paymentId: string) => {

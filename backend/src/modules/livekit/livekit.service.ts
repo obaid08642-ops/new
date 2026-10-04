@@ -1,4 +1,5 @@
-import { BadRequestException, ForbiddenException, Injectable, Logger, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, Logger, NotFoundException, Optional, ServiceUnavailableException } from '@nestjs/common';
+import { CircuitBreakerService } from '../../common/circuit-breaker.service';
 import { AccessToken } from 'livekit-server-sdk';
 import { randomUUID } from 'crypto';
 import { InjectModel, InjectConnection } from '@nestjs/mongoose';
@@ -14,7 +15,29 @@ export class LiveKitService {
     @InjectModel('Appointment') private readonly appointments: Model<any>,
     @InjectConnection() private readonly conn: Connection,
     private readonly events: EventEmitter2,
+    @Optional() private readonly breakers?: CircuitBreakerService,
   ) {}
+
+  /**
+   * One LiveKit server call behind a timeout + shared circuit breaker.
+   *
+   * Args-driven (room + participant travel as arguments) because the breaker is
+   * cached by name: a closure over one room's state would be the work function
+   * a later room's call executes (Q81). An open circuit resolves through
+   * `fallback`, which is the existing degraded answer for that operation —
+   * callers keep working and the user still gets a usable response.
+   */
+  private livekitCall<T>(
+    op: string,
+    fn: (...args: any[]) => Promise<T>,
+    args: any[],
+    fallback: () => T | Promise<T>,
+  ): Promise<T> {
+    if (!this.breakers) return fn(...args);
+    return this.breakers
+      .create(`livekit:${op}`, fn, { timeout: this.serverTimeoutMs }, fallback)
+      .fire(...args);
+  }
 
   private get callSessions() { return this.conn.collection('callsessions'); }
 
@@ -382,10 +405,15 @@ export class LiveKitService {
   async getRoomParticipants(roomName: string) {
     const svc = this.roomService();
     if (!svc) return [];
-    const list = await this.withTimeout(
-      svc.listParticipants(roomName).catch(() => []),
-      this.serverTimeoutMs,
-    ).catch(() => []);
+    const list = await this.livekitCall(
+      'list_participants',
+      async (room: string) => this.withTimeout(
+        svc.listParticipants(room).catch(() => []),
+        this.serverTimeoutMs,
+      ).catch(() => [] as any),
+      [roomName],
+      () => [],
+    );
     return (list || []).map((p: any) => ({
       identity: p.identity,
       name: p.name,
@@ -398,16 +426,26 @@ export class LiveKitService {
   async muteParticipant(roomName: string, participantId: string, muted: boolean) {
     const svc = this.roomService();
     if (!svc) return { success: false, reason: 'livekit_not_configured' };
-    const p = await this.withTimeout(
-      svc.getParticipant(roomName, participantId).catch(() => null),
-      this.serverTimeoutMs,
-    ).catch(() => null);
+    const p = await this.livekitCall(
+      'get_participant',
+      async (room: string, id: string) => this.withTimeout(
+        svc.getParticipant(room, id).catch(() => null),
+        this.serverTimeoutMs,
+      ).catch(() => null),
+      [roomName, participantId],
+      () => null,
+    );
     if (!p) return { success: false, reason: 'participant_not_found' };
     for (const track of p.tracks || []) {
-      await this.withTimeout(
-        svc.mutePublishedTrack(roomName, participantId, track.sid, muted).catch(() => null),
-        this.serverTimeoutMs,
-      ).catch(() => null);
+      await this.livekitCall(
+        'mute_track',
+        async (room: string, id: string, sid: string, isMuted: boolean) => this.withTimeout(
+          svc.mutePublishedTrack(room, id, sid, isMuted).catch(() => null),
+          this.serverTimeoutMs,
+        ).catch(() => null),
+        [roomName, participantId, track.sid, muted],
+        () => null,
+      );
     }
     return { success: true };
   }
@@ -418,10 +456,15 @@ export class LiveKitService {
       const { NotFoundException } = await import('@nestjs/common');
       throw new NotFoundException('livekit_not_configured');
     }
-    await this.withTimeout(
-      svc.removeParticipant(roomName, participantId).catch(() => null),
-      this.serverTimeoutMs,
-    ).catch(() => null);
+    await this.livekitCall(
+      'remove_participant',
+      async (room: string, id: string) => this.withTimeout(
+        svc.removeParticipant(room, id).catch(() => null),
+        this.serverTimeoutMs,
+      ).catch(() => null),
+      [roomName, participantId],
+      () => null,
+    );
     return { success: true };
   }
 }

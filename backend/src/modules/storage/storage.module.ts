@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
-import { Module, Injectable, BadRequestException, NotFoundException, ForbiddenException, ServiceUnavailableException, Controller, Post, Get, Body, Param, UseGuards } from '@nestjs/common';
+import { Module, Injectable, BadRequestException, NotFoundException, ForbiddenException, ServiceUnavailableException, Controller, Post, Get, Body, Param, UseGuards, Optional } from '@nestjs/common';
 import { MongooseModule, InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as crypto from 'crypto';
@@ -9,6 +9,7 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { Logger } from '@nestjs/common';
 import { CurrentUser, Public, JwtAuthGuard, SelfService } from '../../common/auth.guard';
 import { UploadDto, UploadSuggestionImageDto } from './storage.dto';
+import { CircuitBreakerService } from '../../common/circuit-breaker.service';
 
 export enum StorageBackend { BASE64 = 'base64', S3 = 's3', CLOUDINARY = 'cloudinary', SUPABASE = 'supabase' }
 
@@ -67,6 +68,24 @@ class Base64Adapter implements StorageAdapter {
 
 /** Standalone Media/Storage Adapter for S3/R2 compatible storage — performs REAL uploads. */
 class S3R2Adapter implements StorageAdapter {
+  constructor(private readonly breakers?: CircuitBreakerService) {}
+
+  /**
+   * One object-store call behind a timeout + shared circuit breaker.
+   *
+   * Args-driven (the command travels as an argument) because the breaker is
+   * cached by name: a closure over one request's key would be the work function
+   * a later key's call executes (Q81). An open circuit fails the call fast;
+   * `put` therefore never writes a half-finished record — the caller aborts
+   * before persisting anything.
+   */
+  private send<T>(op: string, fn: (...args: any[]) => Promise<T>, args: any[]): Promise<T> {
+    if (!this.breakers) return fn(...args);
+    return this.breakers
+      .create(`storage:s3:${op}`, fn, { timeout: s3TimeoutMs() })
+      .fire(...args);
+  }
+
   private client(): any {
     const { S3Client } = require('@aws-sdk/client-s3');
     return new S3Client({
@@ -91,12 +110,14 @@ class S3R2Adapter implements StorageAdapter {
     const bucket = process.env.S3_BUCKET as string;
     const key = p.customKey || `${uuidv4()}-${p.original_name}`;
     const { PutObjectCommand } = require('@aws-sdk/client-s3');
-    await withTimeout(this.client().send(new PutObjectCommand({
-      Bucket: bucket,
-      Key: key,
-      Body: Buffer.from(p.data_base64, 'base64'),
-      ContentType: p.mime,
-    })), s3TimeoutMs());
+    await this.send('put', async (putArgs: { bucket: string; key: string; body: Buffer; mime: string }) =>
+      withTimeout(this.client().send(new PutObjectCommand({
+        Bucket: putArgs.bucket,
+        Key: putArgs.key,
+        Body: putArgs.body,
+        ContentType: putArgs.mime,
+      })), s3TimeoutMs()),
+      [{ bucket, key, body: Buffer.from(p.data_base64, 'base64'), mime: p.mime }]);
     const publicBase = process.env.S3_PUBLIC_BASE_URL || `${process.env.S3_ENDPOINT}/${bucket}`;
     return {
       backend: StorageBackend.S3,
@@ -115,10 +136,12 @@ class S3R2Adapter implements StorageAdapter {
   async delete(o: StorageObject) {
     if (o.backend === StorageBackend.S3 && o.external_key && S3R2Adapter.configured()) {
       const { DeleteObjectCommand } = require('@aws-sdk/client-s3');
-      await withTimeout(
-        this.client().send(new DeleteObjectCommand({ Bucket: process.env.S3_BUCKET, Key: o.external_key })),
-        Math.min(s3TimeoutMs(), 15000),
-      );
+      await this.send('delete', async (delArgs: { bucket?: string; key: string }) =>
+        withTimeout(
+          this.client().send(new DeleteObjectCommand({ Bucket: delArgs.bucket, Key: delArgs.key })),
+          Math.min(s3TimeoutMs(), 15000),
+        ),
+        [{ bucket: process.env.S3_BUCKET, key: o.external_key }]);
     }
   }
 }
@@ -133,8 +156,12 @@ export class StorageService {
    * S3/R2 when fully configured; otherwise the inline Base64 adapter so that
    * document flows (KYC, images) keep working in dev/staging without object storage.
    */
-  private adapter: StorageAdapter = S3R2Adapter.configured() ? new S3R2Adapter() : new Base64Adapter();
-  constructor(@InjectModel('StorageObject') private readonly model: Model<StorageObject>) {
+  private adapter: StorageAdapter;
+  constructor(
+    @InjectModel('StorageObject') private readonly model: Model<StorageObject>,
+    @Optional() private readonly breakers?: CircuitBreakerService,
+  ) {
+    this.adapter = S3R2Adapter.configured() ? new S3R2Adapter(this.breakers) : new Base64Adapter();
     if (!S3R2Adapter.configured()) {
       // eslint-disable-next-line no-console
       console.warn('S3 storage not configured (S3_BUCKET/S3_ENDPOINT/keys) — falling back to inline base64 storage');
