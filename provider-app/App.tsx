@@ -168,6 +168,7 @@ import { ProviderHome } from "./src/screens/shared/ProviderHome";
 import { LiveKitRoomProvider } from "./src/screens/shared/LiveKitRoomProvider";
 import { AppGate } from "./src/components/AppGate";
 import { ErrorBoundary, ScreenBoundary } from "./src/components/ErrorBoundary";
+import { DeviceGate } from "./src/deviceSupport/DeviceGate";
 import { initProviderSentry } from "./src/utils/sentry";
 
 initProviderSentry();
@@ -191,15 +192,19 @@ export default function App() {
     // SafeAreaProvider stays outside the boundary: the root fallback needs insets too.
     <SafeAreaProvider>
       <ErrorBoundary screenName="AppRoot">
-        <RootProvider>
-          <AppGate>
-            {/* P15.5: every screen below the root is individually recoverable, so one
-                broken screen cannot blank the whole app. */}
-            <ScreenBoundary name="AppNavigator">
-              <AppNavigator />
-            </ScreenBoundary>
-          </AppGate>
-        </RootProvider>
+        {/* P15.10: a device below Expo SDK 57's floor (iOS 16.4 / Android 7) is told so
+            explicitly and pointed at the website, instead of launching into a broken app. */}
+        <DeviceGate>
+          <RootProvider>
+            <AppGate>
+              {/* P15.5: every screen below the root is individually recoverable, so one
+                  broken screen cannot blank the whole app. */}
+              <ScreenBoundary name="AppNavigator">
+                <AppNavigator />
+              </ScreenBoundary>
+            </AppGate>
+          </RootProvider>
+        </DeviceGate>
       </ErrorBoundary>
     </SafeAreaProvider>
   );
