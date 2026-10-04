@@ -12,4 +12,13 @@ export class ExtractIntentDto {
   @IsOptional()
   @IsString()
   client_type?: string;
+
+  /** 13.R7: category/scope passthrough for scoped search (optional). */
+  @IsOptional()
+  @IsString()
+  category?: string;
+
+  @IsOptional()
+  @IsString()
+  scope?: string;
 }

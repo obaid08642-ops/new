@@ -21,6 +21,137 @@ export interface ExtractedSearchIntent {
   location_signal?: 'near_me';
   canonical_path: string;
   confidence: number;
+  /** 13.R7: echoed category/scope passthrough (never affects ranking). */
+  category_scope?: { category?: string; scope?: string };
+  /** 13.R7: normalized query + alias-resolved + transliterated variants. */
+  query_variants?: string[];
+}
+
+export interface SearchScopeOpts {
+  category?: string;
+  scope?: string;
+}
+
+/**
+ * 13.R7: query normalization — wraps shared normalizeSearchText (NFKD,
+ * lowercase, trim, Arabic diacritics/tatweel strip, alef/yeh/teh-marbuta
+ * folding) with the missing hamza folding: ؤ→و, ئ→ي, standalone ء dropped.
+ * Pure, locale-safe.
+ */
+export function normalizeQuery(raw: string): string {
+  const base = normalizeSearchText(raw ?? '');
+  return base
+    .replace(/ؤ/g, 'و')
+    .replace(/ئ/g, 'ي')
+    .replace(/ء/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
+ * 13.R7: small alias table (normalized variant → canonical normalized form).
+ * Canonicals are intentionally chosen from the already-detected medicine
+ * vocabulary below so aliases resolve into existing intent detection.
+ */
+export const SEARCH_ALIASES: Record<string, string> = {
+  // paracetamol family → detected canonicals
+  'بنادول': 'بانادول',
+  'ادول': 'بانادول',
+  'فيفادول': 'بانادول',
+  'ففادول': 'بانادول',
+  'باراسيتامول': 'بانادول',
+  'banadol': 'panadol',
+  'adol': 'panadol',
+  'fevadol': 'panadol',
+  'acetaminophen': 'paracetamol',
+  // ibuprofen family → detected canonical
+  'advil': 'brufen',
+  'ibuprofen': 'brufen',
+  'ايبوبروفين': 'بروفين',
+};
+
+function escapeRegExp(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/** 13.R7: phrase-aware alias resolution on normalized text (Arabic-safe boundaries). */
+export function applySearchAliases(normalized: string): string {
+  let out = ` ${normalized} `;
+  const keys = Object.keys(SEARCH_ALIASES).sort((a, b) => b.length - a.length);
+  for (const key of keys) {
+    const re = new RegExp(`(^|\\s)${escapeRegExp(key)}(?=\\s|$)`, 'g');
+    out = out.replace(re, `$1${SEARCH_ALIASES[key]}`);
+  }
+  return out.trim().replace(/\s+/g, ' ');
+}
+
+/**
+ * 13.R7: transliteration pairs for common latin↔arabic drug terms
+ * (normalized forms on both sides).
+ */
+export const TRANSLITERATION_PAIRS: Array<[string, string]> = [
+  ['panadol', 'بانادول'],
+  ['paracetamol', 'باراسيتامول'],
+  ['brufen', 'بروفين'],
+  ['amoxil', 'اموكسيل'],
+  ['augmentin', 'اوجمنتين'],
+  ['omeprazole', 'اوميبرازول'],
+  ['aspirin', 'اسبرين'],
+  ['insulin', 'انسولين'],
+];
+
+/** 13.R7: expand a normalized query with transliterated variants (no DB). */
+export function transliterateQuery(normalized: string): string[] {
+  const variants = new Set<string>();
+  if (normalized) variants.add(normalized);
+  for (const [latin, arabic] of TRANSLITERATION_PAIRS) {
+    if (normalized.includes(latin) && arabic) {
+      variants.add(normalized.split(latin).join(arabic));
+    }
+    if (normalized.includes(arabic)) {
+      variants.add(normalized.split(arabic).join(latin));
+    }
+  }
+  return Array.from(variants);
+}
+
+const KNOWN_CATEGORIES: Record<string, EntityType> = {
+  doctor: 'doctor',
+  medicine: 'medicine',
+  pharmacy: 'pharmacy',
+  hospital: 'hospital',
+  clinic: 'clinic',
+  lab: 'lab',
+  radiology: 'radiology',
+  nursing: 'nursing',
+  service: 'service',
+};
+
+const CATEGORY_LABEL_ALIASES: Record<string, EntityType> = {
+  'طبيب': 'doctor',
+  'دكتور': 'doctor',
+  'دواء': 'medicine',
+  'ادويه': 'medicine',
+  'صيدليه': 'pharmacy',
+  'صيدلية': 'pharmacy',
+  'مستشفي': 'hospital',
+  'مستشفى': 'hospital',
+  'عياده': 'clinic',
+  'عيادة': 'clinic',
+  'مختبر': 'lab',
+  'تحاليل': 'lab',
+  'اشعه': 'radiology',
+  'اشعة': 'radiology',
+  'تمريض': 'nursing',
+};
+
+/** 13.R7: resolve a caller-supplied category hint to a known entity (or undefined). */
+export function resolveSearchCategory(category?: string): EntityType | undefined {
+  if (!category) return undefined;
+  const norm = normalizeQuery(category).toLowerCase();
+  if (KNOWN_CATEGORIES[norm]) return KNOWN_CATEGORIES[norm];
+  if (CATEGORY_LABEL_ALIASES[norm]) return CATEGORY_LABEL_ALIASES[norm];
+  return undefined;
 }
 
 // Multilingual dictionaries for intent extraction
@@ -85,8 +216,11 @@ export class SearchIntentService {
     rawQuery: string,
     locale = 'ar',
     clientType = 'web',
+    scopeOpts?: SearchScopeOpts,
   ): Promise<ExtractedSearchIntent> {
-    const normalized = normalizeSearchText(rawQuery);
+    // 13.R7: normalize (diacritics/alef/hamza folding, case, trim) then aliases.
+    const normalized = applySearchAliases(normalizeQuery(rawQuery));
+    const queryVariants = transliterateQuery(normalized);
     let entityType: EntityType = 'service';
     let intentType: IntentType = 'discovery';
     let detectedSpecialty: string | undefined;
@@ -178,6 +312,27 @@ export class SearchIntentService {
       }
     }
 
+    // 8b. 13.R7: category scoping — a caller-supplied category hint scopes
+    // an otherwise-undetected query (default entity 'service'); a confident
+    // detection always wins. Ranking signals above are untouched.
+    const requestedCategory = resolveSearchCategory(scopeOpts?.category);
+    if (requestedCategory && entityType === 'service' && confidence <= 0.6) {
+      entityType = requestedCategory;
+      confidence = 0.6;
+      if (requestedCategory === 'medicine' && !detectedMode) {
+        detectedMode = 'delivery';
+      }
+    }
+    const categoryScope =
+      scopeOpts?.category || scopeOpts?.scope
+        ? {
+            ...(scopeOpts?.category
+              ? { category: requestedCategory ?? normalizeQuery(scopeOpts.category).slice(0, 64) }
+              : {}),
+            ...(scopeOpts?.scope ? { scope: scopeOpts.scope.trim().slice(0, 64) } : {}),
+          }
+        : undefined;
+
     // 9. Build Canonical Path
     const citySlug = resolvedLoc?.city?.code?.replace(/^sa-/, '').replace(/-city$/, '') || 'riyadh';
     let canonicalPath = `/${locale}`;
@@ -218,6 +373,8 @@ export class SearchIntentService {
       location_signal: locationSignal,
       canonical_path: canonicalPath,
       confidence,
+      category_scope: categoryScope,
+      query_variants: queryVariants,
     };
   }
 

@@ -11,7 +11,10 @@ export class SearchIntentController {
   @Public()
   @Post()
   async extractIntent(@Body() body: ExtractIntentDto): Promise<ExtractedSearchIntent> {
-    return this.intentService.extractIntent(body.query, body.locale || 'ar', body.client_type || 'web');
+    return this.intentService.extractIntent(body.query, body.locale || 'ar', body.client_type || 'web', {
+      category: body.category,
+      scope: body.scope,
+    });
   }
 
   /** R75: consume query analytics — zero/low-result queries drive P9 synonym/ranking work. */

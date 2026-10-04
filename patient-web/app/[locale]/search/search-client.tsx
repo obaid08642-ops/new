@@ -7,6 +7,8 @@ type Labels = { placeholder: string; empty: string; error: string; searching: st
 
 export function SearchClient({ locale, labels }: { locale: string; labels: Labels }) {
   const [query, setQuery] = useState("");
+  // 13.R7: category scope hint passed through to intent extraction.
+  const [category, setCategory] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [state, setState] = useState<"idle" | "loading" | "error">("idle");
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -24,7 +26,7 @@ export function SearchClient({ locale, labels }: { locale: string; labels: Label
           const intentRes = await fetch(`/api/search/intent`, {
             method: "POST",
             headers: { "content-type": "application/json" },
-            body: JSON.stringify({ query: q, locale }),
+            body: JSON.stringify({ query: q, locale, ...(category ? { category } : {}) }),
             cache: "no-store",
           });
           const intent = await intentRes.json().catch(() => null);
@@ -43,9 +45,25 @@ export function SearchClient({ locale, labels }: { locale: string; labels: Label
       }
     }, 350);
     return () => { if (timer.current) clearTimeout(timer.current); };
-  }, [query, locale]);
+  }, [query, locale, category]);
 
   return <div>
+    <select
+      value={category}
+      onChange={(event) => setCategory(event.target.value)}
+      aria-label="category"
+      style={{ marginBottom: 8, padding: "8px 12px", borderRadius: 12, border: "1px solid var(--border, #d6dbe3)", fontSize: 14 }}
+    >
+      <option value="">all</option>
+      <option value="doctor">doctor</option>
+      <option value="medicine">medicine</option>
+      <option value="pharmacy">pharmacy</option>
+      <option value="lab">lab</option>
+      <option value="radiology">radiology</option>
+      <option value="nursing">nursing</option>
+      <option value="clinic">clinic</option>
+      <option value="hospital">hospital</option>
+    </select>
     <input
       type="search"
       value={query}
