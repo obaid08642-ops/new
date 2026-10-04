@@ -34,4 +34,10 @@ describe('marking a booking paid (R11 §5)', () => {
     await svc.markPayment({ id: 'adm', role: 'admin' }, 'lab', 'b3', { status: 'paid', transaction_id: 'tx-1' });
     expect(model.updateOne).toHaveBeenCalled();
   });
+
+  it('a booking with no recorded payment method is not treated as cash (independent check)', async () => {
+    const { svc, model } = service({ id: 'b4', provider_account_id: 'lab-1' });
+    await expect(svc.markPayment(lab, 'lab', 'b4', { status: 'paid' })).rejects.toBeInstanceOf(ForbiddenException);
+    expect(model.updateOne).not.toHaveBeenCalled();
+  });
 });
