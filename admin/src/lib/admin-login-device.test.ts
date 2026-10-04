@@ -8,14 +8,15 @@ import verify2fa from '../pages/api/admin/auth/verify-2fa';
 const b64 = (o: object) => Buffer.from(JSON.stringify(o)).toString('base64url');
 const STAFF_TOKEN = `${b64({ alg: 'none' })}.${b64({ sub: 'adm-1', role: 'admin' })}.sig`;
 
-async function login(handler: (req: any, res: any) => Promise<unknown>, body: object, cookies: Record<string, string> = {}) {
+async function login(handler: (req: any, res: any) => Promise<unknown>, body: object, cookies: Record<string, string> = {}, authStatus = 200) {
   process.env.ADMIN_BACKEND_URL = 'http://backend.test';
   const calls: Array<{ url: string; headers: Record<string, string>; body: any }> = [];
   const realFetch = globalThis.fetch;
   globalThis.fetch = (async (url: string, init: any) => {
     calls.push({ url, headers: init?.headers || {}, body: init?.body ? JSON.parse(init.body) : null });
-    const payload = url.endsWith('/admin/devices/enroll') ? { ok: true } : { token: { accessToken: STAFF_TOKEN, refreshToken: 'r' } };
-    return new Response(JSON.stringify(payload), { status: 200, headers: { 'content-type': 'application/json' } });
+    const enroll = url.endsWith('/admin/devices/enroll');
+    const payload = enroll ? { ok: true } : authStatus === 200 ? { token: { accessToken: STAFF_TOKEN, refreshToken: 'r' } } : { code: 'passkey_invalid' };
+    return new Response(JSON.stringify(payload), { status: enroll ? 200 : authStatus, headers: { 'content-type': 'application/json' } });
   }) as typeof fetch;
   const out: { status?: number; headers: Record<string, any>; body?: any } = { headers: {} };
   const res = {
@@ -54,3 +55,12 @@ for (const [name, handler, body] of [
     assert.equal(calls.find((c) => c.url.endsWith('/admin/devices/enroll'))!.body.device_id, existing);
   });
 }
+
+test('a rejected passkey or 2FA code never enrolls a device or sets cookies', async () => {
+  for (const [handler, body] of [[passkeyVerify, { identifier: 'admin@nabd.test', response: { id: 'c1' } }], [verify2fa, { identifier: 'admin@nabd.test', code: '000000' }]] as const) {
+    const { out, calls } = await login(handler, body, {}, 401);
+    assert.equal(out.status, 401);
+    assert.equal(calls.some((c) => c.url.endsWith('/admin/devices/enroll')), false);
+    assert.equal(out.headers['set-cookie'], undefined);
+  }
+});

@@ -152,7 +152,11 @@ export class StepUpGuard implements CanActivate {
 
     const token = req.headers['x-step-up-token'];
     if (!token) throw new ForbiddenException('step_up_required');
-    const action = `${req.method}:${req.path}`;
+    // Decoded, like the admin client that signs the action: the BFF re-encodes
+    // each segment and Express keeps req.path encoded.
+    let path = String(req.path || '');
+    try { path = decodeURIComponent(path); } catch { /* keep the raw path */ }
+    const action = `${req.method}:${path}`;
     if (!(await this.stepUp.verify(user.id || user.sub, action, String(token)))) {
       throw new ForbiddenException('step_up_invalid');
     }
