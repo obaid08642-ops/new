@@ -1,7 +1,8 @@
 // @ts-nocheck
 import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
+import { apiFetch } from '../../src/utils/api';
 import { Colors, Spacing as SP, BorderRadius as R } from '../../src/theme';
 import { Icon as I } from '../../src/components/Icon';
 import { LocalizedText } from '../../src/components/LocalizedText';
@@ -20,27 +21,34 @@ const theme = {
   info: Colors.light.info,
 };
 
+type DoctorOrderItem = { service_id: string; name_ar?: string | null; name_en?: string | null };
+type DoctorOrder = { id: string; kind: 'lab' | 'radiology' | 'nursing'; items: DoctorOrderItem[]; notes?: string | null; status: string; createdAt?: string };
+
+/**
+ * WP-K: the patient's orders from their doctors (GET /patient/doctor-orders).
+ * Each ordered service opens its real booking screen. Before, this screen read
+ * a payload nothing ever sent and was never opened.
+ */
 export default function ActionableOrderScreen() {
   const router = useRouter();
-  const params = useLocalSearchParams();
-  const [loading, setLoading] = useState(false);
+  const [orders, setOrders] = useState<DoctorOrder[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  // Parse payload pushed from the consultation end
-  const payload = typeof params.payload === 'string' ? JSON.parse(params.payload) : {
-    erx: [],
-    labs: [],
-    radiology: [],
-    referral: null
-  };
+  const load = React.useCallback(() => {
+    setError(null);
+    setOrders(null);
+    apiFetch('/patient/doctor-orders')
+      .then((res: any) => setOrders(Array.isArray(res) ? res : Array.isArray(res?.data) ? res.data : []))
+      .catch((e: any) => setError(e?.message || 'تعذّر تحميل طلبات الطبيب'));
+  }, []);
+  React.useEffect(() => { load(); }, [load]);
 
-  const handleOrderMeds = () => {
-    router.push('/(tabs)/pharmacy');
+  const book = (order: DoctorOrder, item: DoctorOrderItem) => {
+    const name = item.name_ar || item.name_en || '';
+    if (order.kind === 'nursing') router.push({ pathname: '/nursing/service-details', params: { serviceId: item.service_id, title: name } } as any);
+    else router.push({ pathname: '/diagnostics/test-detail', params: { id: item.service_id, ...(order.kind === 'radiology' ? { type: 'radiology' } : {}) } } as any);
   };
-
-  const handleBookLabs = () => {
-    // M1-33: fixed broken route — /labs does not exist; labs live under /diagnostics
-    router.push('/diagnostics/search');
-  };
+  const kindLabel = (k: DoctorOrder['kind']) => (k === 'lab' ? 'تحاليل' : k === 'radiology' ? 'أشعة' : 'تمريض منزلي');
 
   return (
     <View style={styles.container}>
@@ -48,93 +56,40 @@ export default function ActionableOrderScreen() {
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
           <I name="arrow-right" size={24} color={theme.text} />
         </TouchableOpacity>
-        <LocalizedText style={styles.headerTitle}>أوامر طبية قابلة للتنفيذ</LocalizedText>
+        <LocalizedText style={styles.headerTitle}>طلبات طبيبك</LocalizedText>
         <View style={{ width: 40 }} />
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.alertBox}>
-          <I name="check-circle" size={24} color={theme.success} />
-          <View style={{ flex: 1 }}>
-            <LocalizedText style={styles.alertTitle}>انتهت الاستشارة بنجاح</LocalizedText>
-            <LocalizedText style={styles.alertSub}>قام الطبيب بإصدار الأوامر الطبية التالية. يمكنك تنفيذها الآن مباشرة عبر منصة نبض.</LocalizedText>
-          </View>
-        </View>
-
-        {/* E-Rx Section */}
-        {payload.erx && payload.erx.length > 0 ? (
+        {orders === null && !error ? <ActivityIndicator color={theme.primary} /> : null}
+        {error ? (
           <View style={styles.section}>
+            <LocalizedText style={styles.itemText}>{error}</LocalizedText>
+            <TouchableOpacity style={styles.actionBtn} onPress={load}><LocalizedText style={styles.actionBtnText}>إعادة المحاولة</LocalizedText></TouchableOpacity>
+          </View>
+        ) : null}
+        {orders && orders.length === 0 ? (
+          <View style={styles.section}><LocalizedText style={styles.itemSub}>لا توجد طلبات من طبيبك حالياً.</LocalizedText></View>
+        ) : null}
+        {(orders || []).map((order) => (
+          <View key={order.id} style={styles.section}>
             <View style={styles.sectionHeader}>
               <I name="document" size={20} color={theme.primary} />
-              <LocalizedText style={styles.sectionTitle}>الوصفة الطبية (E-Rx)</LocalizedText>
+              <LocalizedText style={styles.sectionTitle}>{kindLabel(order.kind)}</LocalizedText>
             </View>
-            {payload.erx.map((med: any, idx: number) => (
-              <View key={idx} style={styles.itemRow}>
-                <I name="disc" size={16} color={theme.primary} />
+            {order.notes ? <LocalizedText style={styles.itemSub}>{order.notes}</LocalizedText> : null}
+            {order.items.map((item) => (
+              <View key={item.service_id} style={styles.itemRow}>
                 <View style={{ flex: 1, marginRight: SP.sm }}>
-                  <LocalizedText style={styles.itemText}>{med.name}</LocalizedText>
-                  <LocalizedText style={styles.itemSub}>{med.dosage} - {med.frequency}</LocalizedText>
+                  <LocalizedText style={styles.itemText}>{item.name_ar || item.name_en || item.service_id}</LocalizedText>
                 </View>
+                <TouchableOpacity style={styles.actionBtn} onPress={() => book(order, item)}>
+                  <LocalizedText style={styles.actionBtnText}>احجز</LocalizedText>
+                </TouchableOpacity>
               </View>
             ))}
-            <TouchableOpacity style={styles.actionBtn} onPress={handleOrderMeds} disabled={loading}>
-              <I name="shopping_cart" size={20} color="#fff" />
-              <LocalizedText style={styles.actionBtnText}>اطلب الأدوية الآن (صيدلية نبض)</LocalizedText>
-            </TouchableOpacity>
           </View>
-        ) : (
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <I name="document" size={20} color={theme.textSub} />
-              <LocalizedText style={[styles.sectionTitle, { color: theme.textSub }]}>لا توجد أدوية موصوفة</LocalizedText>
-            </View>
-          </View>
-        )}
-
-        {/* Labs Section */}
-        {payload.labs && payload.labs.length > 0 ? (
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <I name="pulse" size={20} color={theme.warning} />
-              <LocalizedText style={styles.sectionTitle}>التحاليل الطبية (Labs)</LocalizedText>
-            </View>
-            {payload.labs.map((lab: any, idx: number) => (
-              <View key={idx} style={styles.itemRow}>
-                <I name="pulse" size={16} color={theme.warning} />
-                <View style={{ flex: 1, marginRight: SP.sm }}>
-                  <LocalizedText style={styles.itemText}>{lab.name}</LocalizedText>
-                </View>
-              </View>
-            ))}
-            <TouchableOpacity style={[styles.actionBtn, { backgroundColor: theme.warning }]} onPress={handleBookLabs} disabled={loading}>
-              <I name="home" size={20} color="#fff" />
-              <LocalizedText style={styles.actionBtnText}>حجز زيارة منزلية لسحب الدم</LocalizedText>
-            </TouchableOpacity>
-          </View>
-        ) : null}
-
-        {/* Radiology Section */}
-        {payload.radiology && payload.radiology.length > 0 ? (
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <I name="monitor" size={20} color={theme.info} />
-              <LocalizedText style={styles.sectionTitle}>طلب أشعة (Radiology)</LocalizedText>
-            </View>
-            {payload.radiology.map((rad: any, idx: number) => (
-              <View key={idx} style={styles.itemRow}>
-                <I name="monitor" size={16} color={theme.info} />
-                <View style={{ flex: 1, marginRight: SP.sm }}>
-                  <LocalizedText style={styles.itemText}>{rad.name}</LocalizedText>
-                </View>
-              </View>
-            ))}
-            <TouchableOpacity style={[styles.actionBtn, { backgroundColor: theme.info }]} onPress={() => router.push('/diagnostics/search')}>
-              <I name="location" size={20} color="#fff" />
-              <LocalizedText style={styles.actionBtnText}>استعراض مراكز الأشعة</LocalizedText>
-            </TouchableOpacity>
-          </View>
-        ) : null}
-
+        ))}
       </ScrollView>
     </View>
   );

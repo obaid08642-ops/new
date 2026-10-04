@@ -7,6 +7,7 @@ const patientReadRoutes = [
   new RegExp("^/labs/bookings/mine$", "i"),
   new RegExp("^/radiology/bookings/mine$", "i"),
   new RegExp("^/prescriptions/mine$"),
+  new RegExp("^/patient/doctor-orders$"),
   new RegExp("^/prescriptions/active$"),
   new RegExp(`^/prescriptions/${orderId}$`, "i"),
   new RegExp(`^/orders/${orderId}$`, "i"),

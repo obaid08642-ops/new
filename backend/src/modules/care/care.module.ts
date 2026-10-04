@@ -4,8 +4,9 @@ import { CareController, PublicSpecialtiesController } from './care.controller';
 import { AppointmentsController, AdminAppointmentsController } from './appointments.controller';
 import { CareService } from './care.service';
 import { AppointmentsService } from './appointments.service';
-import { DoctorReferralsController } from './doctor-referrals.controller';
-import { EncounterReferral, EncounterReferralSchema } from './schemas/encounter-referrals.schema';
+import { ProviderDoctorOrdersController, PatientDoctorOrdersController } from './doctor-orders.controller';
+import { DoctorOrdersService } from './doctor-orders.service';
+import { NotificationsModule } from '../notifications/notifications.module';
 import { DoctorProfileExtended, DoctorProfileExtendedSchema } from './schemas/doctor-profile-extended.schema';
 import { SlotService } from './slot.service';
 import { ProviderProfile, ProviderProfileSchema } from '../../schemas/provider-profile.schema';
@@ -27,18 +28,18 @@ import { ConsultationsCompatController } from './care-compat.controller';
     WorkflowEngineModule,
     InsuranceEngineModule,
     SlotLocksModule,
+    NotificationsModule,
     MongooseModule.forFeature([
       { name: ProviderProfile.name, schema: ProviderProfileSchema },
       { name: User.name, schema: UserSchema },
       { name: Appointment.name, schema: AppointmentSchema },
       { name: Facility.name, schema: FacilitySchema },
-      { name: EncounterReferral.name, schema: EncounterReferralSchema },
       { name: DoctorProfileExtended.name, schema: DoctorProfileExtendedSchema },
       { name: LeaveRequest.name, schema: LeaveRequestSchema },
     ]),
   ],
-  controllers: [CareController, PublicSpecialtiesController, AppointmentsController, AdminAppointmentsController, DoctorReferralsController, ConsultationsCompatController],
-  providers: [CareService, AppointmentsService, SlotService, { provide: 'AppointmentRepository', useClass: AppointmentRepository }, { provide: 'FacilityRepository', useClass: FacilityRepository }, { provide: 'ProviderProfileRepository', useClass: ProviderProfileRepository }, { provide: 'UserRepository', useClass: UserRepository }],
+  controllers: [CareController, PublicSpecialtiesController, AppointmentsController, AdminAppointmentsController, ProviderDoctorOrdersController, PatientDoctorOrdersController, ConsultationsCompatController],
+  providers: [CareService, AppointmentsService, SlotService, DoctorOrdersService, { provide: 'AppointmentRepository', useClass: AppointmentRepository }, { provide: 'FacilityRepository', useClass: FacilityRepository }, { provide: 'ProviderProfileRepository', useClass: ProviderProfileRepository }, { provide: 'UserRepository', useClass: UserRepository }],
   exports: [CareService, AppointmentsService, SlotService],
 })
 export class CareModule {}

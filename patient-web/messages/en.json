@@ -1492,5 +1492,14 @@
     "subtitle": "Your nursing visits and the status of each one.",
     "empty": "No nursing visits yet.",
     "visit": "Nursing visit"
+  },
+  "DoctorOrders": {
+    "title": "Orders from your doctor",
+    "empty": "There are no orders from your doctor right now.",
+    "unavailable": "Could not load your doctor's orders. Please try again.",
+    "book": "Book",
+    "kindLab": "Lab tests",
+    "kindRadiology": "Radiology",
+    "kindNursing": "Home nursing"
   }
 }

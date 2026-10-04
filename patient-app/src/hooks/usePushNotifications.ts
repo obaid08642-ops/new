@@ -70,6 +70,7 @@ export function translateBackendRoute(route: string): { pathname: string; params
     '/insurance/hub', '/returns/hub',
     '/loyalty/hub', '/loyalty/referrals', '/loyalty/challenges',
     '/health/family-hub', '/ai/symptom-timeline', '/emergency/tracking',
+    '/health/actionable-order',
   ]);
   if (VERBATIM_ROUTES.has(clean)) return { pathname: clean };
 

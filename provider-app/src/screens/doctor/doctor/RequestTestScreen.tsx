@@ -111,16 +111,18 @@ export function RequestTestScreen({ apt, onBack }:
  disabled={selected.length === 0}
  onPress={async () => { 
  try {
-      const patientId = apt?.patient_id;
-      if (!patientId) {
-        show(AR ? 'لا يمكن إرسال الطلب دون مريض مرتبط بالاستشارة' : 'Cannot request services without a linked patient', 'error');
+      // WP-K: a doctor order for the patient of this appointment (the patient
+      // is notified and books it), never a booking on the doctor's account.
+      const appointmentId = apt?.id || apt?.appointment_id;
+      if (!appointmentId) {
+        show(AR ? 'لا يمكن إرسال الطلب دون استشارة مرتبطة' : 'Cannot request services without a linked consultation', 'error');
         return;
       }
-      const endpoint = type === 'lab' ? '/labs/bookings' : type === 'radiology' ? '/radiology/bookings' : '/home-care/bookings';
-      await client.post(endpoint, {
-        items: selected,
-        notes: notes,
-        patient_id: patientId
+      await client.post('/provider/doctor-orders', {
+        appointment_id: String(appointmentId),
+        kind: type,
+        service_ids: selected,
+        ...(notes.trim() ? { notes: notes.trim() } : {}),
       });
  show(AR?`تم إرسال طلب ${selected.length} فحص `:`${selected.length} test(s) requested `,'success'); 
  onBack(); 

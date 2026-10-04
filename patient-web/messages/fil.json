@@ -1492,5 +1492,14 @@
     "subtitle": "Ang iyong mga nursing visit at ang status ng bawat isa.",
     "empty": "Wala pang nursing visit.",
     "visit": "Nursing visit"
+  },
+  "DoctorOrders": {
+    "title": "Mga order ng iyong doktor",
+    "empty": "Walang order mula sa iyong doktor sa ngayon.",
+    "unavailable": "Hindi ma-load ang mga order ng iyong doktor. Subukan ulit.",
+    "book": "Mag-book",
+    "kindLab": "Lab tests",
+    "kindRadiology": "Radiology",
+    "kindNursing": "Home nursing"
   }
 }

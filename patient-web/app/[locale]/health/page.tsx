@@ -15,6 +15,7 @@ import styles from "./health.module.css";
 type Props = { params: Promise<{ locale: string }> };
 const quickActions = [
   { key: "prescriptions", href: "prescriptions", icon: FileText, color: "#7A6BEA" },
+  { key: "doctorOrders", href: "health/actionable-order", icon: FileText, color: "#0F766E" },
   { key: "family", href: "family", icon: UsersRound, color: "#EC4899" },
   { key: "reminders", href: "reminders", icon: Bell, color: "#F0A526" },
   { key: "chat", href: "chat", icon: MessageCircle, color: "#23B5CE" },
@@ -30,12 +31,12 @@ const quickActions = [
   // F20: filtered below unless NEXT_PUBLIC_WEARABLES_ENABLED=true
 ] as const;
 const quickLabels: Record<string, Record<string, string>> = {
-  ar: { prescriptions: "وصفاتي", family: "العائلة", reminders: "تذكيراتي", chat: "محادثة", sleep: "النوم", chronicDiseases: "الحالات المزمنة", chronicMedications: "الأدوية المزمنة", trends: "الاتجاهات", vitalsHistory: "سجل المؤشرات", medications: "أدويتي", refills: "إعادة الصرف", conditions: "الحالات والحساسية" , wearables: "الأجهزة القابلة للارتداء"},
-  en: { prescriptions: "Prescriptions", family: "Family", reminders: "Reminders", chat: "Chat", sleep: "Sleep", chronicDiseases: "Chronic conditions", chronicMedications: "Chronic medicines", trends: "Trends", vitalsHistory: "Vitals history", medications: "My medications", refills: "Refills", conditions: "Conditions & allergies" , wearables: "Wearables"},
-  ur: { prescriptions: "نسخے", family: "خاندان", reminders: "یاددہانیاں", chat: "گفتگو", sleep: "نیند", chronicDiseases: "دائمی حالتیں", chronicMedications: "دائمی ادویات", trends: "رجحانات", vitalsHistory: "Vitals history", medications: "میری ادویات", refills: "دوا دوبارہ", conditions: "حالتیں اور الرجی" , wearables: "ویئرایبلز"},
-  hi: { prescriptions: "प्रिस्क्रिप्शन", family: "परिवार", reminders: "अनुस्मारक", chat: "चैट", sleep: "नींद", chronicDiseases: "दीर्घकालिक स्थितियाँ", chronicMedications: "दीर्घकालिक दवाएँ", trends: "रुझान", vitalsHistory: "Vitals history", medications: "मेरी दवाएँ", refills: "Refills", conditions: "Conditions & allergies" , wearables: "वियरेबल्स"},
-  bn: { prescriptions: "প্রেসক্রিপশন", family: "পরিবার", reminders: "রিমাইন্ডার", chat: "চ্যাট", sleep: "ঘুম", chronicDiseases: "দীর্ঘমেয়াদি অবস্থা", chronicMedications: "দীর্ঘমেয়াদি ওষুধ", trends: "প্রবণতা", vitalsHistory: "Vitals history", medications: "আমার ওষুধ", refills: "Refills", conditions: "Conditions & allergies" , wearables: "ওয়্যারেবল"},
-  fil: { prescriptions: "Reseta", family: "Pamilya", reminders: "Paalala", chat: "Chat", sleep: "Tulog", chronicDiseases: "Chronic conditions", chronicMedications: "Chronic medicines", trends: "Trends", vitalsHistory: "Vitals history", medications: "My medications", refills: "Refills", conditions: "Conditions & allergies" , wearables: "Wearables"},
+  ar: { doctorOrders: "طلبات طبيبك", prescriptions: "وصفاتي", family: "العائلة", reminders: "تذكيراتي", chat: "محادثة", sleep: "النوم", chronicDiseases: "الحالات المزمنة", chronicMedications: "الأدوية المزمنة", trends: "الاتجاهات", vitalsHistory: "سجل المؤشرات", medications: "أدويتي", refills: "إعادة الصرف", conditions: "الحالات والحساسية" , wearables: "الأجهزة القابلة للارتداء"},
+  en: { doctorOrders: "Doctor orders", prescriptions: "Prescriptions", family: "Family", reminders: "Reminders", chat: "Chat", sleep: "Sleep", chronicDiseases: "Chronic conditions", chronicMedications: "Chronic medicines", trends: "Trends", vitalsHistory: "Vitals history", medications: "My medications", refills: "Refills", conditions: "Conditions & allergies" , wearables: "Wearables"},
+  ur: { doctorOrders: "ڈاکٹر کے آرڈر", prescriptions: "نسخے", family: "خاندان", reminders: "یاددہانیاں", chat: "گفتگو", sleep: "نیند", chronicDiseases: "دائمی حالتیں", chronicMedications: "دائمی ادویات", trends: "رجحانات", vitalsHistory: "Vitals history", medications: "میری ادویات", refills: "دوا دوبارہ", conditions: "حالتیں اور الرجی" , wearables: "ویئرایبلز"},
+  hi: { doctorOrders: "डॉक्टर के ऑर्डर", prescriptions: "प्रिस्क्रिप्शन", family: "परिवार", reminders: "अनुस्मारक", chat: "चैट", sleep: "नींद", chronicDiseases: "दीर्घकालिक स्थितियाँ", chronicMedications: "दीर्घकालिक दवाएँ", trends: "रुझान", vitalsHistory: "Vitals history", medications: "मेरी दवाएँ", refills: "Refills", conditions: "Conditions & allergies" , wearables: "वियरेबल्स"},
+  bn: { doctorOrders: "ডাক্তারের অর্ডার", prescriptions: "প্রেসক্রিপশন", family: "পরিবার", reminders: "রিমাইন্ডার", chat: "চ্যাট", sleep: "ঘুম", chronicDiseases: "দীর্ঘমেয়াদি অবস্থা", chronicMedications: "দীর্ঘমেয়াদি ওষুধ", trends: "প্রবণতা", vitalsHistory: "Vitals history", medications: "আমার ওষুধ", refills: "Refills", conditions: "Conditions & allergies" , wearables: "ওয়্যারেবল"},
+  fil: { doctorOrders: "Order ng doktor", prescriptions: "Reseta", family: "Pamilya", reminders: "Paalala", chat: "Chat", sleep: "Tulog", chronicDiseases: "Chronic conditions", chronicMedications: "Chronic medicines", trends: "Trends", vitalsHistory: "Vitals history", medications: "My medications", refills: "Refills", conditions: "Conditions & allergies" , wearables: "Wearables"},
 };
 
 export default async function HealthPage({ params }: Props) {
