@@ -15,6 +15,7 @@ You IMPLEMENT the plan. A separate reviewer reviews and merges your work. You ne
 - Work ONLY on `fix/audit-2026-09`. Never push to `main`. Never force-push.
 - Start every session with: `git fetch origin && git checkout fix/audit-2026-09 && git pull --ff-only origin fix/audit-2026-09`
 - Never revert code from `[REVIEW-*]` commits.
+- The reviewer merges `[REVIEW-FIX]` commits into this branch. Run `git pull --ff-only origin fix/audit-2026-09` before you start AND before every push; never discard or rework a `[REVIEW-FIX]` change.
 
 ## Scope rules
 - One phase at a time. Do NOT start the next phase until the reviewer has APPROVED the current one (a REVIEW_P<n>.md with verdict APPROVED on main).
