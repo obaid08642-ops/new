@@ -1,0 +1,57 @@
+name: Accessibility (axe-core)
+
+on:
+  pull_request:
+    paths:
+      - 'patient-web/**'
+  push:
+    branches: [main, 'fix/**', 'plan/**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  a11y:
+    name: axe-core accessibility scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda
+        with:
+          version: 10.4.1
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: patient-web/pnpm-lock.yaml
+      - name: Install dependencies
+        working-directory: patient-web
+        run: corepack enable && pnpm install --frozen-lockfile
+      - name: Build
+        working-directory: patient-web
+        run: pnpm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+          NABD_API_BASE_URL: https://api.nabd.plus/api/v1
+          NEXT_PUBLIC_SITE_ORIGIN: http://localhost:3000
+      - name: Start server
+        working-directory: patient-web
+        run: |
+          cp -r .next/static .next/standalone/.next/static
+          [ -d public ] && cp -r public .next/standalone/public || true
+          (node .next/standalone/server.js &> /tmp/next.log &)
+          for i in $(seq 1 60); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/ar || true)
+            if [ "$code" = "200" ]; then echo "server ready after ${i}x2s"; exit 0; fi
+            sleep 2
+          done
+          echo "server not ready"; tail -100 /tmp/next.log; exit 1
+      - name: Install Playwright
+        run: npx --yes playwright@1.63.0 install --with-deps chromium
+      - name: Run accessibility tests
+        working-directory: patient-web
+        run: pnpm test:a11y
+        env:
+          PLAYWRIGHT_BASE_URL: http://localhost:3000

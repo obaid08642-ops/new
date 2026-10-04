@@ -117,7 +117,14 @@ export class AbusePreventionService {
    * Returns expiry info and whether redemption is allowed.
    */
   async checkLoyaltyPointsExpiry(userId: string): Promise<LoyaltyPointsCheckResult> {
-    const account: any = await this.loyaltyAccountsCol.findOne({ user_id: userId });
+    interface LoyaltyAccount {
+      user_id: string;
+      points?: number;
+      balance?: number;
+      last_activity_at?: Date | string;
+      updatedAt?: Date | string;
+    }
+    const account = await this.loyaltyAccountsCol.findOne<LoyaltyAccount>({ user_id: userId });
     if (!account) {
       return { allowed: true, reason: 'no_loyalty_account' };
     }
@@ -200,8 +207,14 @@ export class AbusePreventionService {
     if (loyaltyPoints > 0) appliedDiscounts.push({ type: 'loyalty', amount: loyaltyPoints });
 
     // Check existing discounts on this order
-    const order: any = await this.connection.collection('orders').findOne({ id: orderId });
-    const pharmacyOrder: any = await this.connection.collection('pharmacy_orders').findOne({ id: orderId });
+    interface OrderDiscount {
+      id: string;
+      coupon_discount?: number;
+      loyalty_points_used?: number;
+      loyalty_discount?: number;
+    }
+    const order = await this.connection.collection<OrderDiscount>('orders').findOne({ id: orderId });
+    const pharmacyOrder = await this.connection.collection<OrderDiscount>('pharmacy_orders').findOne({ id: orderId });
 
     const existingOrder = order || pharmacyOrder;
     if (existingOrder) {

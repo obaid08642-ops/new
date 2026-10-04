@@ -219,11 +219,15 @@ export class StockReservationService {
       const [success, message] = result;
 
       if (success === 1) {
-        const releasedItems = JSON.parse(message);
+        interface StockItem {
+          medicineId: string;
+          qty: number;
+        }
+        const releasedItems = JSON.parse(message) as StockItem[];
         this.logger.log(`Stock released: ${reservationId} for pharmacy ${pharmacyId}`);
         return {
           success: true,
-          releasedItems: releasedItems.map((i: any) => ({ ...i, pharmacyId })),
+          releasedItems: releasedItems.map(i => ({ ...i, pharmacyId })),
         };
       } else {
         return {
@@ -267,9 +271,13 @@ export class StockReservationService {
     // Delete reservation
     await this.redisService.del(reservationKey);
 
+    interface StockItem {
+      medicineId: string;
+      qty: number;
+    }
     return {
       success: true,
-      releasedItems: items.map((i: any) => ({ ...i, pharmacyId })),
+      releasedItems: (items as StockItem[]).map(i => ({ ...i, pharmacyId })),
     };
   }
 
