@@ -224,3 +224,109 @@ and registered.
   page swallows with `.catch(() => {})`. Behaviour under the new client is
   unchanged (403 is not a retryable status), so this task neither fixed nor
   worsened it.
+
+---
+
+## 15.5 — Nothing crashes to a blank screen (admin web)
+
+### Pages Router reality: there is no `error.tsx` here
+
+The contract names `error.tsx` / `global-error.tsx` per route segment. Those are
+an **App Router** convention and have no effect in this app, which is a Pages
+Router app (`admin/src/pages/`, no `app/` directory — verified by listing
+`admin/src`). The same isolation is provided the Pages Router way (per the Next.js
+Pages docs, `ErrorBoundary` in `_app` is the client-side mechanism):
+
+- `src/components/AdminErrorBoundary.tsx` — class boundary keyed on the current
+  top-level route segment (`_app.tsx` computes the key from `router.pathname`).
+  A crash renders `ErrorFallback` instead of a blank page; the boundary resets
+  on navigation so one broken area does not blank the whole admin. A second
+  consecutive catch (operator pressed "try again" and it crashed again) falls
+  back to `window.location.reload()`, because re-rendering alone cannot help.
+- `src/pages/_error.tsx` — the Pages Router root error page (SSR 500s and
+  production client crashes that reach the top of the tree), rendering the same
+  fallback with both required actions.
+- `src/components/ErrorFallback.tsx` — the single fallback UI with **"try
+  again"** (button, `data-testid="admin-error-retry"`) and **"contact support"**
+  (pre-filled `mailto:` carrying the error id, `data-testid="admin-error-support"`).
+- `AdminGuard` session-probe failure path: previously a non-401 probe failure set
+  `session` to null and the render returned `null` — a blank white screen with no
+  way out. It now renders `ErrorFallback` with retry (re-probes) and support.
+  401 behaviour is unchanged (redirect to `/login?returnTo=…`).
+
+### Sentry wiring (releases + source maps), DSN as owner secret
+
+- `src/lib/observability/error-reporter.ts` — `reportError()` attaches
+  `resolveRelease()` (`SENTRY_RELEASE` from CI, else `web-admin@<ADMIN_APP_VERSION>`,
+  else `web-admin@dev`) and the environment to every event; a bounded (50) ring
+  buffer keeps recent errors with stable ids so "contact support" works even with
+  no DSN. A broken transport can never replace the error being shown.
+- `sentry.client.config.ts` / `sentry.server.config.ts` / `instrumentation.ts`
+  follow the same convention as `patient-web` and `backend/src/instrument.ts`:
+  empty DSN means reporting disabled, never a crash, never a hard-coded DSN.
+- `next.config.ts` wraps with `withSentryConfig`, injecting the release name so
+  uploaded source maps match the filed events. No Replay integration on purpose:
+  an admin session replays patient/finance records.
+
+### Verify — run for real
+
+Command: `cd admin && npm test`
+
+```
+ ✓ src/lib/observability/__tests__/error-reporter.test.ts (11 tests) 48ms
+ ✓ src/components/__tests__/AdminErrorBoundary.test.tsx (7 tests) 325ms
+ (+ 15.1 suites unchanged)
+
+ Test Files  5 passed (5)
+      Tests  67 passed (67)
+```
+
+1. **Fallback, not a white screen** — `AdminErrorBoundary.test.tsx` renders a
+   component that really throws during render and asserts the fallback is in the
+   DOM, the body is non-empty, the thrown message is gone, both actions exist,
+   retry recovers once the cause is gone, and navigation resets the boundary.
+2. **Sentry receives it with the release** — the boundary test installs a test
+   transport and asserts the captured event carries `resolveRelease()` plus
+   `boundary`/`segment`/`componentStack`; `error-reporter.test.ts` asserts
+   release/env/buffer/no-DSN/broken-transport behaviour. The fallback shows the
+   captured `errorId` so the operator quotes the same id support sees.
+
+One test bug was found by the run itself, fixed in the test (not production):
+the retry test used a raw DOM `.click()`, which does not flush React state
+outside `act()` and left the fallback mounted. `fireEvent.click` is the correct
+idiom; same assertions, now green.
+
+### Mutation proof (break the production code, see red, restore)
+
+**Mutation A — boundary never enters the error state**
+(`getDerivedStateFromError` → `{ hasError: false }`):
+
+```
+   × replaces a thrown render error with the fallback instead of a blank page
+   × offers "try again" and "contact support" on the fallback
+   × sends the crash to the error transport with the release attached
+   × shows the captured error id on the fallback so support can match it
+   × recovers when the operator presses "try again" after the cause is gone
+   × resets on navigation so one broken area does not blank the whole admin
+      Tests  6 failed | 1 passed (7)
+```
+
+**Mutation B — transport receives an empty release**
+(`reportError`: `release` → `''` in the captured event):
+
+```
+   × 15.5 — error reporting > capture > attaches the release to the event the transport receives
+   × 15.5 — nothing crashes to a blank screen > sends the crash to the error transport with the release attached
+      Tests  2 failed | 16 passed (18)
+```
+
+Both restored; `npm test` back to `67 passed (67)`, `tsc --noEmit` exit 0,
+`npx --no-install next build` exit 0 (`✓ Compiled successfully in 8.6s`;
+route table still lists every `/api/admin/*` BFF route).
+
+### BLOCKED / DEFERRED
+
+- `BLOCKED: Sentry DSN is an owner secret` for the live send only — no event was
+  ever sent to real Sentry from here. Wiring, release injection, source-map
+  upload config and tests are all in this task.
+- DEFERRED-OUT-OF-SCOPE: none — everything touched is under `admin/`.
