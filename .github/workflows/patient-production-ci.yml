@@ -153,6 +153,7 @@ jobs:
     name: runtime contrast (rendered pages, both themes)
     runs-on: ubuntu-latest
     needs: [design-system]
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       # patient-web is a pnpm project (no package-lock.json), installed exactly like its own job.
@@ -188,6 +189,7 @@ jobs:
           echo "server did not come up" >&2
           exit 1
       - name: No new unreadable text (ratchet)
+        timeout-minutes: 15
         run: |
           PLAYWRIGHT_PATH="$RUNNER_TEMP/pw/node_modules/playwright" \
             node tools/design/runtime-contrast.mjs \

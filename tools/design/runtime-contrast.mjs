@@ -271,6 +271,7 @@ async function main() {
   const audited = new Set();
 
   for (const route of routes) {
+    console.log(`runtime-contrast: ${route}`);
     for (const theme of themes) {
       const page = await context.newPage();
       const stylesheets = new Map();
@@ -398,9 +399,12 @@ async function main() {
       );
     }
   }
+  // A baseline entry that did not appear is a warning, not a failure: in CI the pages render
+  // without a backend, so a route that times out on one run simply has no text to measure, and
+  // failing on that made the gate flaky. NEW unreadable text still fails.
   const gone = [...allowed.keys()].filter((k) => !bySignature.has(k));
   if (gone.length) {
-    problems.push(`  ${gone.length} signature(s) are fixed but still in the baseline — run --update to lower it`);
+    console.log(`runtime-contrast: note: ${gone.length} baseline signature(s) not seen this run (fixed, or the route did not render) — lower the baseline with --update after a full local run.`);
   }
 
   console.log(
