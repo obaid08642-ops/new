@@ -25,9 +25,13 @@ Read this first in a new reviewer session, together with `AGENTS.md`. It replace
 
 **Reviewer (this role)**
 - Tests everything live and never trusts claims.
-- Fixes small, low-risk defects with a regression test on a `review/*` branch → PR → merge commit into `main`.
-- Delegates larger defects to the agent in `REVIEW_REAUDIT_P1_P11.md` and `docs/review/QA_DEFECTS.md`, each with Verify criteria.
-- After every merge, merges `main` into `fix/audit-2026-09`. Never force-push; no other commits on that branch.
+- **Verifies every finding personally.** Sub-agent or helper results are leads, not verdicts: before a finding is reported to the owner or the agent, the reviewer reads the code and reproduces it (test or live run). Report only what was reproduced; mark anything else "not reproduced yet".
+- **Fixes small defects personally, in `main` code and in the agent's unmerged code alike** (owner decision 2026-10-04). Small means: local to a few files, the correct behaviour is unambiguous, and no schema, API contract, product or design decision is involved. Examples: a missing guard or filter, a wrong id passed, a missing translation key, a red test caused by a one-line bug.
+  - Defect in `main` code: `review/*` branch from `main` → PR → merge commit into `main`.
+  - Defect in agent code not yet in `main`: `review/fix-*` branch from the tip of `fix/audit-2026-09` → PR into `fix/audit-2026-09` → merge commit. Commit tag `[REVIEW-FIX] <Q/F-id> <summary>`, with a regression test that fails before the fix. Update the row in `REVIEW_P13.md` / `REVIEW_P14.md` and `QA_DEFECTS.md` to "fixed by reviewer, <sha>".
+- **Delegates only the larger defects** to the agent in `REVIEW_REAUDIT_P1_P11.md` and `docs/review/QA_DEFECTS.md`, each with Verify criteria.
+- After every merge into `main`, merges `main` into `fix/audit-2026-09`. Never force-push, never rewrite the agent's history, never revert agent commits; the only reviewer commits on that branch are these merges and `[REVIEW-FIX]` merges.
+- **Merging the agent branch into `main`**: once the reviewer's own fixes are in and every remaining row is PASS or an accepted BLOCKED, with the full gate, CI, live gate and native run green. Never merge red.
 
 **Agent**: works only on `fix/audit-2026-09` and follows `AGENTS.md`. Last agent commit: `6ca29c4` (2026-10-04). **The 152 unmerged agent commits were reviewed on 2026-10-04 (tip `bb97c87`), one nine-point row each: 3 PASS, 149 FAIL** (`REVIEW_P13.md`, `REVIEW_P14.md`). Phases 13 and 14: NOT APPROVED. Nothing merged into `main`. The agent's work list is **Round 10** in `REVIEW_REAUDIT_P1_P11.md`; new defects Q78–Q90 in `QA_DEFECTS.md`. Review copy for CI: draft PR #237 (`review/agent-tip-ci`, never merge). Native on the agent code: `review/maestro-agent-tip` (strict, workarounds off) and `review/maestro-agent-tip-q58` (only Q58 on).
 
