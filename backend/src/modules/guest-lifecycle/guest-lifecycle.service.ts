@@ -2,11 +2,21 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { PDPL_OWNED_COLLECTIONS } from '../users/pdpl.service';
+
+/** Session/token/preference rows that never justify keeping a guest; deleted with the guest. */
+const EPHEMERAL = new Set(['pushtokens', 'devices', 'refreshsessions', 'notifications', 'wishlists', 'addresses']);
+/** Records that keep a guest (anonymised, never deleted): PDPL's list minus the ephemeral rows, plus orders/invoices. */
+const LINKED: ReadonlyArray<{ collection: string; fields: string[] }> = [
+  ...PDPL_OWNED_COLLECTIONS.filter((c) => !EPHEMERAL.has(c.collection)),
+  { collection: 'orders', fields: ['patient_id', 'user_id'] },
+  { collection: 'invoices', fields: ['patient_id', 'user_id'] },
+];
 
 /**
  * Phase 21 — guest data lifecycle.
  *
- * Inactive guests with no orders are deleted after GUEST_LIFECYCLE_MONTHS
+ * Inactive guests with no linked records are deleted after GUEST_LIFECYCLE_MONTHS
  * (default 12). Guests WITH linked orders/invoices are anonymized in place
  * (identifiers stripped, row kept for legal records) — never hard-deleted —
  * following the same rule as PdplService's erasure path.
@@ -51,33 +61,59 @@ export class GuestLifecycleService {
     let deleted = 0;
     let anonymised = 0;
     const db: any = (this.users as any)?.db;
+    let failed = 0;
     for (const g of guests) {
       const gid = String((g as any)?.id || (g as any)?.user_id || '');
       if (!gid) continue;
-      let linked = 0;
       try {
-        const [o1, o2] = await Promise.all([
-          db.collection('orders').countDocuments({ patient_id: gid }),
-          db.collection('pharmacy_orders').countDocuments({ patient_account_id: gid }),
-        ]);
-        linked = (o1 || 0) + (o2 || 0);
-      } catch { linked = 1; } // fail closed: never delete when linkage is unknown
-      if (this.dryRun) {
-        this.logger.log(`guest-lifecycle dry-run: ${gid} would be ${linked ? 'anonymised' : 'deleted'}`);
-        continue;
-      }
-      if (!linked) {
-        await this.users.deleteOne({ id: gid });
-        deleted++;
-      } else {
-        await this.users.updateOne(
-          { id: gid },
-          { $set: { full_name: 'Deleted Guest', email: null, phone: null, active: false, deleted_at: new Date() }, $unset: { password_hash: 1 } },
-        );
-        anonymised++;
+        const linked = await this.linkedRecords(db, gid);
+        if (this.dryRun) {
+          this.logger.log(`guest-lifecycle dry-run: ${gid} would be ${linked ? 'anonymised' : 'deleted'}`);
+          continue;
+        }
+        await this.dropEphemeral(db, gid);
+        if (!linked) {
+          await this.users.deleteOne({ id: gid });
+          deleted++;
+        } else {
+          // Same erasure rule as PdplService: identifiers are $unset, never set to null
+          // (email/phone carry sparse unique indexes, which still index null).
+          await this.users.updateOne(
+            { id: gid },
+            {
+              $set: { full_name: 'Deleted Guest', active: false, deleted_at: new Date() },
+              $unset: { email: '', phone: '', password_hash: '', national_id: '', medical_record_number: '' },
+            },
+          );
+          anonymised++;
+        }
+      } catch (error: any) {
+        failed++;
+        this.logger.error(`guest-lifecycle: ${gid} skipped: ${error?.message || error}`);
       }
     }
-    this.logger.log(`guest-lifecycle: ${deleted} deleted, ${anonymised} anonymised, ${guests.length} candidates (cutoff ${cutoff.toISOString().slice(0, 10)}, dry=${this.dryRun})`);
-    return { ran: true, candidates: guests.length, deleted, anonymised, dryRun: this.dryRun };
+    this.logger.log(`guest-lifecycle: ${deleted} deleted, ${anonymised} anonymised, ${failed} failed, ${guests.length} candidates (cutoff ${cutoff.toISOString().slice(0, 10)}, dry=${this.dryRun})`);
+    return { ran: true, candidates: guests.length, deleted, anonymised, failed, dryRun: this.dryRun };
+  }
+
+  /** Records that keep the guest. Fails closed: an unreadable collection counts as linked. */
+  private async linkedRecords(db: any, gid: string): Promise<number> {
+    let total = 0;
+    for (const { collection, fields } of LINKED) {
+      try {
+        total += await db.collection(collection).countDocuments({ $or: fields.map((f) => ({ [f]: { $eq: gid } })) });
+      } catch {
+        return 1;
+      }
+      if (total) return total;
+    }
+    return total;
+  }
+
+  /** Sessions, tokens and preferences die with the guest in both paths. */
+  private async dropEphemeral(db: any, gid: string): Promise<void> {
+    for (const { collection, fields } of PDPL_OWNED_COLLECTIONS.filter((c) => EPHEMERAL.has(c.collection))) {
+      await db.collection(collection).deleteMany({ $or: fields.map((f) => ({ [f]: { $eq: gid } })) });
+    }
   }
 }
