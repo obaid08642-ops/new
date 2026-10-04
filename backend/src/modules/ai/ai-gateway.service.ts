@@ -196,7 +196,7 @@ export class AiGatewayService {
   private transportOverride: GatewayTransport | null = null;
   private callTimeoutMs = 30_000;
   private cooldownMs = 60_000;
-  private cacheTtlMs = 5 * 60_1000;
+  private cacheTtlMs = 5 * 60_000;
 
   constructor(@InjectConnection() private readonly conn: Connection) {
     if (process.env.GEMINI_API_KEY) {
@@ -372,8 +372,10 @@ export class AiGatewayService {
     const safeText = stripPii(rawText);
     const safeOpts: AiGenerateOptions = { ...opts, feature, prompt: safeText };
     const chainSig = chain.map((p) => p.key).join(',');
+    // Q82: an image (insurance card, prescription) is one patient's data — never cache it.
+    const cacheable = !opts.imageBase64;
     const ckey = this.cacheKeyFor(feature, safeText, !!opts.imageBase64, chainSig);
-    const hit = this.responseCache.get(ckey);
+    const hit = cacheable ? this.responseCache.get(ckey) : undefined;
     if (hit && Date.now() - hit.at < this.cacheTtlMs) {
       return { text: hit.text, provider: hit.provider, model: hit.model, elapsed_ms: 0, fell_back: false, cached: true };
     }
@@ -401,7 +403,7 @@ export class AiGatewayService {
         this.consumeTokens(p, estTokens + Math.ceil(text.length / 4));
         await this.recordUsage(p, feature, elapsed, true, fellBack);
         const model = this.modelFor(p, !!opts.imageBase64);
-        this.remember(ckey, { text, provider: p.key, model, at: Date.now() });
+        if (cacheable) this.remember(ckey, { text, provider: p.key, model, at: Date.now() });
         return { text, provider: p.key, model, elapsed_ms: elapsed, fell_back: fellBack };
       } catch (e: any) {
         const elapsed = Date.now() - start;
