@@ -6,6 +6,7 @@ import { Facility, FacilityDocument } from '../../schemas/facility.schema';
 import { ProviderType, ProviderStatus } from '../../common/enums';
 import { SlotService } from './slot.service';
 import { ProviderProfileRepository } from "./repositories/providerprofile.repository";
+import { isRamadan } from '../../common/riyadh-clock';
 import { UserRepository } from "./repositories/user.repository";
 import { FacilityRepository } from "./repositories/facility.repository";
 
@@ -524,14 +525,27 @@ function batchEntries(rows: any[], dow: number) {
   ]);
 }
 
-/** Mirrors SlotService.hoursFor: approved schedule slots, then per-mode schedule, then legacy working_hours. */
-function batchWindowsFor(plain: any, batch: AvailabilityBatch, dow: number, mode: string): { open: string; close: string }[] {
+/** Mirrors SlotService.hoursFor (15.9 precedence): special date > approved slots > Ramadan > per-mode > legacy working_hours. */
+function batchWindowsFor(plain: any, batch: AvailabilityBatch, dow: number, mode: string, dateStr?: string): { open: string; close: string }[] {
+  if (dateStr && Array.isArray(plain.special_hours)) {
+    const sp = plain.special_hours.find((s: any) => s && s.date === dateStr);
+    if (sp) {
+      if (sp.closed) return [];
+      if (HHMM_RE.test(sp.open || '') && HHMM_RE.test(sp.close || '')) {
+        return [{ open: sp.open, close: sp.close }];
+      }
+    }
+  }
   if (plain.account_id) {
     const rows = batch.schedByAccount.get(plain.account_id) || [];
     const approved = rows
       .filter((x) => x.day_of_week === dow && (x.service_type === mode || x.service_type === 'all') && HHMM_RE.test(x.start_time || '') && HHMM_RE.test(x.end_time || ''))
       .map((x) => ({ open: x.start_time, close: x.end_time }));
     if (approved.length) return approved;
+  }
+  if (dateStr && isRamadan(new Date(dateStr + 'T12:00:00Z'))) {
+    const ramadan = batchEntries(plain.ramadan_hours, dow);
+    if (ramadan.length) return ramadan;
   }
   const perMode = batchEntries(plain[`schedule_${mode}`], dow);
   if (perMode.length) return perMode;
@@ -555,7 +569,7 @@ function firstAvailableOnDay(plain: any, batch: AvailabilityBatch, dateStr: stri
   if (!mode) return null;
   if (!plain.consultation_modes.includes(mode)) return null;
   const dow = new Date(dateStr + 'T00:00:00Z').getUTCDay();
-  const windows = batchWindowsFor(plain, batch, dow, mode);
+  const windows = batchWindowsFor(plain, batch, dow, mode, dateStr);
   if (!windows.length) return null;
   const baseDate = new Date(dateStr + 'T00:00:00Z');
   const dayStart = new Date(baseDate.getTime());
