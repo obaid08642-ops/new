@@ -2,6 +2,10 @@ export function validateEnvironment(env: Record<string, unknown>) {
   const nodeEnv = String(env.NODE_ENV || 'development');
   if (nodeEnv !== 'production') return env;
 
+  // 14.14 — Redis roles: REDIS_URL stays the only REQUIRED var. Optional
+  // REDIS_QUEUE_URL / REDIS_CACHE_URL override per role and fall back to
+  // REDIS_URL (see common/redis-roles.ts `resolveRedisRoles`). Do NOT add
+  // them here as required until infra actually splits the deployments.
   const required = ['MONGO_URL', 'REDIS_URL', 'JWT_SECRET', 'ALLOWED_ORIGINS'];
   const missing = required.filter((name) => typeof env[name] !== 'string' || !String(env[name]).trim());
   if (missing.length) throw new Error(`FATAL: missing required production environment variables: ${missing.join(', ')}`);
