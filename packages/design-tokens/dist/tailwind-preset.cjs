@@ -115,6 +115,19 @@ const colors = {
     "dark": "#0B1B2B",
     "DEFAULT": "#FFFFFF"
   },
+  "action-primary-gradient-from": {
+    "light": "#E62337",
+    "dark": "#FF6B73",
+    "DEFAULT": "#E62337"
+  },
+  "action-primary-gradient-to": {
+    "light": "#D42A38",
+    "dark": "#FF6B73",
+    "DEFAULT": "#D42A38"
+  },
+  "action-fab-from": "#FF5A63",
+  "action-fab-to": "#D42A38",
+  "action-fab-fg": "#FFFFFF",
   "action-secondary-bg": {
     "light": "#FFFFFF",
     "dark": "#1A3148",
@@ -538,7 +551,10 @@ const boxShadow = {
   "raised": "0 16px 40px rgba(11,27,43,0.08)",
   "avatar": "0 8px 20px rgba(11,27,43,0.10)",
   "pin": "0 6px 12px rgba(212,42,56,0.35)",
-  "glass": "0 8px 32px rgba(11,27,43,0.10)"
+  "glass": "0 8px 32px rgba(11,27,43,0.10)",
+  "tabBar": "0 18px 40px rgba(11,27,43,0.14)",
+  "fab": "0 12px 26px rgba(212,42,56,0.38)",
+  "button": "0 10px 22px rgba(212,42,56,0.28)"
 };
 
 const fontFamily = {

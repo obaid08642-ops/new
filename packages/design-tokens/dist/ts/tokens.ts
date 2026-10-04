@@ -41,6 +41,15 @@ export interface Tokens {
       readonly primary: {
         readonly bg: string;
         readonly fg: string;
+        readonly gradient: {
+          readonly from: string;
+          readonly to: string;
+        };
+      };
+      readonly fab: {
+        readonly from: string;
+        readonly to: string;
+        readonly fg: string;
       };
       readonly secondary: {
         readonly bg: string;
@@ -384,6 +393,9 @@ export interface Tokens {
     readonly avatar: string;
     readonly pin: string;
     readonly glass: string;
+    readonly tabBar: string;
+    readonly fab: string;
+    readonly button: string;
   };
   readonly motion: {
     readonly duration: {
@@ -488,6 +500,15 @@ const lightTree: Tokens = {
     "action": {
       "primary": {
         "bg": "#D42A38",
+        "fg": "#FFFFFF",
+        "gradient": {
+          "from": "#E62337",
+          "to": "#D42A38",
+        },
+      },
+      "fab": {
+        "from": "#FF5A63",
+        "to": "#D42A38",
         "fg": "#FFFFFF",
       },
       "secondary": {
@@ -832,6 +853,9 @@ const lightTree: Tokens = {
     "avatar": "0 8px 20px rgba(11,27,43,0.10)",
     "pin": "0 6px 12px rgba(212,42,56,0.35)",
     "glass": "0 8px 32px rgba(11,27,43,0.10)",
+    "tabBar": "0 18px 40px rgba(11,27,43,0.14)",
+    "fab": "0 12px 26px rgba(212,42,56,0.38)",
+    "button": "0 10px 22px rgba(212,42,56,0.28)",
   },
   "motion": {
     "duration": {
@@ -937,6 +961,15 @@ const darkTree: Tokens = {
       "primary": {
         "bg": "#FF6B73",
         "fg": "#0B1B2B",
+        "gradient": {
+          "from": "#FF6B73",
+          "to": "#FF6B73",
+        },
+      },
+      "fab": {
+        "from": "#FF5A63",
+        "to": "#D42A38",
+        "fg": "#FFFFFF",
       },
       "secondary": {
         "bg": "#1A3148",
@@ -1280,6 +1313,9 @@ const darkTree: Tokens = {
     "avatar": "0 8px 20px rgba(0,0,0,0.40)",
     "pin": "0 6px 12px rgba(212,42,56,0.35)",
     "glass": "0 8px 32px rgba(0,0,0,0.30)",
+    "tabBar": "0 18px 40px rgba(11,27,43,0.14)",
+    "fab": "0 12px 26px rgba(212,42,56,0.38)",
+    "button": "0 10px 22px rgba(212,42,56,0.28)",
   },
   "motion": {
     "duration": {
@@ -1366,6 +1402,8 @@ const themedPaths: Readonly<Record<string, true>> = Object.freeze({
   "color.icon.onBrand": true,
   "color.action.primary.bg": true,
   "color.action.primary.fg": true,
+  "color.action.primary.gradient.from": true,
+  "color.action.primary.gradient.to": true,
   "color.action.secondary.bg": true,
   "color.action.secondary.fg": true,
   "color.action.selected.bg": true,
@@ -1480,6 +1518,11 @@ export const light: Readonly<Record<string, string | number>> = Object.freeze({
   "color.icon.favorite": "#D42A38",
   "color.action.primary.bg": "#D42A38",
   "color.action.primary.fg": "#FFFFFF",
+  "color.action.primary.gradient.from": "#E62337",
+  "color.action.primary.gradient.to": "#D42A38",
+  "color.action.fab.from": "#FF5A63",
+  "color.action.fab.to": "#D42A38",
+  "color.action.fab.fg": "#FFFFFF",
   "color.action.secondary.bg": "#FFFFFF",
   "color.action.secondary.fg": "#0B1B2B",
   "color.action.selected.bg": "#0B1B2B",
@@ -1659,6 +1702,9 @@ export const light: Readonly<Record<string, string | number>> = Object.freeze({
   "shadow.avatar": "0 8px 20px rgba(11,27,43,0.10)",
   "shadow.pin": "0 6px 12px rgba(212,42,56,0.35)",
   "shadow.glass": "0 8px 32px rgba(11,27,43,0.10)",
+  "shadow.tabBar": "0 18px 40px rgba(11,27,43,0.14)",
+  "shadow.fab": "0 12px 26px rgba(212,42,56,0.38)",
+  "shadow.button": "0 10px 22px rgba(212,42,56,0.28)",
   "motion.duration.enter": "200ms",
   "motion.duration.enterMax": "240ms",
   "motion.duration.press": "120ms",
@@ -1727,6 +1773,11 @@ export const dark: Readonly<Record<string, string | number>> = Object.freeze({
   "color.icon.favorite": "#D42A38",
   "color.action.primary.bg": "#FF6B73",
   "color.action.primary.fg": "#0B1B2B",
+  "color.action.primary.gradient.from": "#FF6B73",
+  "color.action.primary.gradient.to": "#FF6B73",
+  "color.action.fab.from": "#FF5A63",
+  "color.action.fab.to": "#D42A38",
+  "color.action.fab.fg": "#FFFFFF",
   "color.action.secondary.bg": "#1A3148",
   "color.action.secondary.fg": "#F5F5F7",
   "color.action.selected.bg": "#F5F5F7",
@@ -1906,6 +1957,9 @@ export const dark: Readonly<Record<string, string | number>> = Object.freeze({
   "shadow.avatar": "0 8px 20px rgba(0,0,0,0.40)",
   "shadow.pin": "0 6px 12px rgba(212,42,56,0.35)",
   "shadow.glass": "0 8px 32px rgba(0,0,0,0.30)",
+  "shadow.tabBar": "0 18px 40px rgba(11,27,43,0.14)",
+  "shadow.fab": "0 12px 26px rgba(212,42,56,0.38)",
+  "shadow.button": "0 10px 22px rgba(212,42,56,0.28)",
   "motion.duration.enter": "200ms",
   "motion.duration.enterMax": "240ms",
   "motion.duration.press": "120ms",

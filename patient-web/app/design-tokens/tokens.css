@@ -28,6 +28,11 @@
   --nabd-color-icon-favorite: #D42A38;
   --nabd-color-action-primary-bg: #D42A38;
   --nabd-color-action-primary-fg: #FFFFFF;
+  --nabd-color-action-primary-gradient-from: #E62337;
+  --nabd-color-action-primary-gradient-to: #D42A38;
+  --nabd-color-action-fab-from: #FF5A63;
+  --nabd-color-action-fab-to: #D42A38;
+  --nabd-color-action-fab-fg: #FFFFFF;
   --nabd-color-action-secondary-bg: #FFFFFF;
   --nabd-color-action-secondary-fg: #0B1B2B;
   --nabd-color-action-selected-bg: #0B1B2B;
@@ -207,6 +212,9 @@
   --nabd-shadow-avatar: 0 8px 20px rgba(11,27,43,0.10);
   --nabd-shadow-pin: 0 6px 12px rgba(212,42,56,0.35);
   --nabd-shadow-glass: 0 8px 32px rgba(11,27,43,0.10);
+  --nabd-shadow-tabBar: 0 18px 40px rgba(11,27,43,0.14);
+  --nabd-shadow-fab: 0 12px 26px rgba(212,42,56,0.38);
+  --nabd-shadow-button: 0 10px 22px rgba(212,42,56,0.28);
   --nabd-motion-duration-enter: 200ms;
   --nabd-motion-duration-enterMax: 240ms;
   --nabd-motion-duration-press: 120ms;
@@ -269,6 +277,8 @@
   --nabd-color-icon-onBrand: #0B1B2B;
   --nabd-color-action-primary-bg: #FF6B73;
   --nabd-color-action-primary-fg: #0B1B2B;
+  --nabd-color-action-primary-gradient-from: #FF6B73;
+  --nabd-color-action-primary-gradient-to: #FF6B73;
   --nabd-color-action-secondary-bg: #1A3148;
   --nabd-color-action-secondary-fg: #F5F5F7;
   --nabd-color-action-selected-bg: #F5F5F7;
