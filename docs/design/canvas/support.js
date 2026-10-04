@@ -91,7 +91,7 @@
       for (const item of node.querySelectorAll('style, link')) {
         const key = item.outerHTML;
         if (document.head.querySelector(`[data-dc-helmet="${CSS.escape(key.length > 200 ? key.slice(0, 200) : key)}"]`)) continue;
-        const copy = document.createElement(item.tagName);
+        const copy = document.createElement(item.localName);
         for (const a of Array.from(item.attributes)) copy.setAttribute(a.name, a.value);
         copy.textContent = item.textContent;
         copy.setAttribute('data-dc-helmet', key.length > 200 ? key.slice(0, 200) : key);
@@ -121,7 +121,9 @@
       mount(node.getAttribute('name'), host, props);
       return;
     }
-    const el = document.createElementNS(node.namespaceURI, node.tagName);
+    // localName: lowercase for HTML (tagName is upper-case, which would make an unknown element
+    // instead of a real <button>/<a>/<input>), camelCase kept for SVG (linearGradient)
+    const el = document.createElementNS(node.namespaceURI, node.localName);
     for (const a of Array.from(node.attributes)) {
       if (a.name.startsWith('hint-')) continue;
       const v = valueOf(a.value, scope);
