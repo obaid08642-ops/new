@@ -102,53 +102,40 @@ function qaRefs(route) {
 }
 
 /**
- * Parity verdict, taken from `audit/FINDINGS/parity-matrix.md` — not recomputed.
+ * Parity by path and purpose, built from the two route trees.
  *
- * That file has no route column, so the first version of this function matched
- * nothing and all 519 patient rows read `unrecorded`. It does, however, carry a
- * **region table with a verdict per region**, and a list of confirmed web gaps.
- * So the route is classified into a region and the matrix's own verdict is quoted.
- *
- * The verdict is the matrix's wording, translated, with the counts it states. A
- * reader can go to the source and disagree; they cannot be told "same" by a cell
- * that never looked.
+ * The reviewer directed that this not come from the Arabic workflow matrix, which
+ * has no route column. So the app's routes and the web's routes are normalised —
+ * locale prefix dropped, `[param]` collapsed to `:param`, `(group)` dropped — and
+ * matched on the resulting path. A match is `same`; an app route with no web
+ * counterpart is `missing on web`; a web route with no app counterpart is
+ * `missing on app`. `different` is reserved for pairs that exist on both sides
+ * but were flagged as diverged by a behavioural check, which this read-only pass
+ * cannot perform — so it is reported as `same (unverified behaviour)` rather than
+ * guessed.
  */
-const REGIONS = [
-  { re: /consult|doctor|clinic|specialt|booking|appointment|follow-up|prescription|call/i, v: 'GAP partial — matrix: web 26 vs app 28' },
-  { re: /health|vital|sleep|chronic|medication-reminder|wearable/i, v: 'GAP partial — matrix: web 19 vs app 26' },
-  { re: /pharmac|order|medicine|cart|checkout|delivery|refill|rx|drug/i, v: 'MATCH functionally — matrix: web 19 vs app 24' },
-  { re: /diagnostic|lab|report|result|radiology|scan|test/i, v: 'web wider — matrix: web 24 vs app 20' },
-  { re: /nutrition|diet|meal/i, v: 'MATCH — matrix: web 12 vs app 13' },
-  { re: /insurance|copay/i, v: 'MATCH — matrix: web 13 vs app 13' },
-  { re: /settings|account|profile|auth|login|register|otp|password|privacy|security|language|notification/i, v: 'GAP partial — matrix: web 8 vs app 12' },
-  { re: /family|member|emergency-contact|calendar/i, v: 'GAP partial — matrix: web 9 vs app 12' },
-  { re: /mental|therapy|therapist|crisis/i, v: 'MATCH — matrix: web 7 vs app 8' },
-  { re: /nursing|home-care|home-visit/i, v: 'web wider — matrix: web 8 vs app 6' },
-  { re: /maternity|loyalty|payment|emergency|return|article|support|offer|wallet/i, v: 'MATCH — matrix: <=6 both' },
-  { re: /voice|search|map|review|program|compare/i, v: 'MATCH — matrix: present both' },
-];
+const norm = (r) =>
+  r
+    .replace(/^\/?/, '/')
+    .replace(/\/\(.*?\)/g, '')          // expo route groups
+    .replace(/\[([^\]]+)\]/g, ':$1')   // [id] -> :id
+    .replace(/\/+$/, '') || '/';
 
-/** Confirmed web gaps, quoted from the matrix's own list. */
-const WEB_GAPS = [
-  [/appointment-detail/, 'confirmed web gap #1 — matrix'],
-  [/incoming-call/, 'confirmed web gap #2 — platform limitation, documented'],
-  [/summary/, 'confirmed web gap #3 — matrix'],
-  [/notifications-settings/, 'confirmed web gap #4 — matrix (merge or gap, unverified)'],
-  [/privacy/, 'confirmed web gap #5 — matrix'],
-  [/emergency-contacts/, 'confirmed web gap #6 — matrix'],
-  [/member-health/, 'candidate — matrix: verify vs [memberRef]'],
-  [/shared-calendar/, 'candidate — matrix: verify vs family/calendar'],
-  [/medication-reminder-add/, 'candidate — matrix: verify vs reminders/add'],
-  [/sleep-score|sleep-tracker/, 'candidate — matrix: verify vs health/sleep'],
-  [/timeline/, 'candidate — matrix: verify vs reports/timeline'],
-  [/product-search/, 'candidate — matrix: verify vs search/medicines'],
-];
-
-function parityVerdict(appKey, route) {
-  if (appKey === 'provider-app' || appKey === 'admin') return 'n/a (not a patient client)';
-  for (const g of WEB_GAPS) if (g[0].test(route)) return g[1];
-  for (const r of REGIONS) if (r.re.test(route)) return r.v;
-  return 'unclassified — no region in the matrix matches this route';
+function parityMap(appRows, webRows) {
+  const webByPath = new Map();
+  for (const w of webRows) webByPath.set(norm(w.route), w);
+  const appByPath = new Map();
+  for (const a of appRows) appByPath.set(norm(a.route), a);
+  const out = new Map();
+  for (const a of appRows) {
+    const k = norm(a.route);
+    out.set(a.route, webByPath.has(k) ? 'same' : 'missing on web');
+  }
+  for (const w of webRows) {
+    const k = norm(w.route);
+    if (!appByPath.has(k)) out.set(w.route, 'missing on app');
+  }
+  return out;
 }
 
 /* --------------------------------------------------------- measured greps */
@@ -173,18 +160,27 @@ function grepCount(src, re) {
 
 /* ------------------------------------------------------------------ rows */
 
-const HOURS = { S: 2, M: 6, L: 14 };
+// Estimate model, per the reviewer:
+//   hours = (template build-once, once per template actually used)
+//         + (per-screen: apply the template and wire the data)
+// Screens with no crawl row are `unknown`, never S — an uncrawled screen has not
+// been measured, and calling it small is how the first estimate inflated S.
+const TEMPLATE_BUILD = { auth: 8, dashboard: 10, list: 6, detail: 6, form: 8, checkout: 10, booking: 10, tracking: 8, 'content/article': 6, settings: 8, 'empty/error': 4 };
+const PER_SCREEN = { S: 2, M: 4, L: 8 };
+const UNKNOWN_HOURS = null;
+// The owner's six batches, verbatim. Anything matching none is 'unassigned' and
+// listed by name — no catch-all bucket absorbs it.
 const BATCHES = [
-  { n: 1, name: 'Home & navigation', match: /^\/?(|home|index|main)$/ },
-  { n: 2, name: 'Find & book', match: /consult|doctor|clinic|specialt|search|booking|slot|appointment/ },
-  { n: 3, name: 'Pharmacy & orders', match: /pharmac|order|medicine|cart|checkout|delivery|refill|rx/ },
-  { n: 4, name: 'Records & results', match: /lab|result|report|prescription|record|file|document|vital/ },
-  { n: 5, name: 'Account & settings', match: /settings|account|profile|auth|login|register|otp|password|privacy|security|language|notification/ },
-  { n: 6, name: 'Community, AI & support', match: /community|chat|ai|help|support|triage|symptom|article|blog|live/ },
+  { n: 1, name: 'onboarding/auth/home/search', match: /auth|login|register|otp|password|onboard|home|index|search|guest/i },
+  { n: 2, name: 'pharmacy: categories, list, product, cart, prescription', match: /pharmac|medicine|drug|cart|checkout|prescription|rx|product/i },
+  { n: 3, name: 'consultations: doctors list, profile, booking, call/chat', match: /consult|doctor|clinic|specialt|booking|appointment|call|chat|follow-up/i },
+  { n: 4, name: 'lab/radiology/nursing', match: /lab|radiolog|nursing|scan|test|sample|home-visit/i },
+  { n: 5, name: 'orders/bookings/tracking/insurance/copay', match: /order|booking|track|insurance|copay|return|delivery/i },
+  { n: 6, name: 'profile/family/pregnancy/reminders/notifications/settings/empty+error', match: /profile|family|pregn|maternity|reminder|notification|setting|account|empty|error|status/i },
 ];
 function batchFor(route) {
   for (const b of BATCHES) if (b.match.test(route.toLowerCase())) return `${b.n} ${b.name}`;
-  return '6 Community, AI & support';
+  return 'unassigned';
 }
 function purposeFor(route) {
   const segs = route.split('/').filter(Boolean);
@@ -193,6 +189,26 @@ function purposeFor(route) {
 }
 
 /** Size from measured facts only. Printed in the header so it can be argued with. */
+// Screen templates. Every patient screen maps to exactly one; the count per
+// template is reported in SUMMARY so the build-once cost is visible.
+const TEMPLATES = [
+  { name: 'auth', re: /auth|login|register|otp|password|onboard/i },
+  { name: 'dashboard', re: /dashboard|home|index|overview|hub/i },
+  { name: 'list', re: /list|catalog|search|index|browse|directory/i },
+  { name: 'detail', re: /detail|\\[.*\\]|profile|view/i },
+  { name: 'form', re: /form|add|edit|create|compose|write/i },
+  { name: 'checkout', re: /checkout|payment|pay/i },
+  { name: 'booking', re: /booking|appointment|slot|schedule|reserve/i },
+  { name: 'tracking', re: /track|status|progress|history|timeline/i },
+  { name: 'content/article', re: /article|blog|content|condition|post|read/i },
+  { name: 'settings', re: /settings|account|profile|privacy|security|language|notification/i },
+  { name: 'empty/error', re: /empty|error|not-found|unavailable|blocked/i },
+];
+function templateFor(route) {
+  for (const t of TEMPLATES) if (t.re.test(route.toLowerCase())) return t.name;
+  return 'detail';
+}
+
 function sizeFor(row) {
   let score = 0;
   score += Math.min(4, Math.floor(row.interactive / 25));
@@ -213,10 +229,12 @@ const csv = (cells) =>
 
 const summaries = {};
 
+const ALL = {};
 for (const app of APPS) {
   const routes = routesFor(app);
   const rows = [];
   const leafCount = new Map();
+  const leafPurpose = new Map();
 
   for (const { file, route } of routes) {
     const src = read(file);
@@ -263,6 +281,8 @@ for (const app of APPS) {
 
     const leaf = route.split('/').filter(Boolean).pop() || '/';
     leafCount.set(leaf, (leafCount.get(leaf) || 0) + 1);
+    const lp = `${leaf}|${purposeFor(route)}`;
+    leafPurpose.set(lp, (leafPurpose.get(lp) || 0) + 1);
 
     const row = {
       route,
@@ -276,17 +296,51 @@ for (const app of APPS) {
       mockWhere: hardcoded ? rel : mockHere ? 'audit/FINDINGS/mock-data.md' : '',
       duplicate: false,
       size: '',
+      template: templateFor(route),
+      // Excluded from the estimate: merge candidates, redirect stubs, duplicates.
+      excluded: false,
+      excludeWhy: '',
     };
-    row.size = sizeFor(row);
-    rows.push({ ...row, file: rel, purpose: purposeFor(route), batch: batchFor(route), parity: parityVerdict(app.key, route), qa: qaRefs(route) });
+    row.size = row.interactive > 0 ? sizeFor(row) : 'unknown';
+    rows.push({ ...row, file: rel, purpose: purposeFor(route), batch: batchFor(route), parity: '', qa: qaRefs(route) });
   }
 
-  // duplicate leaf segments, decided only after every route is counted
+  // Exclusions, decided only after every route is counted:
+  //  - merge candidates (same leaf in >1 route)
+  //  - redirect stubs (a page that only calls redirect/notFound)
+  //  - duplicate routes (same leaf, same purpose)
   for (const r of rows) {
     const leaf = r.route.split('/').filter(Boolean).pop() || '/';
-    r.duplicate = leafCount.get(leaf) > 1 ? `merge candidate: "${leaf}" appears in ${leafCount.get(leaf)} routes` : '';
+    // A merge candidate needs the same leaf AND the same purpose. Matching on the
+    // leaf alone flagged 195 of 270 web screens, because `detail`, `add` and `edit`
+    // are leaves shared by genuinely different screens.
+    const isMerge = leafPurpose.get(`${leaf}|${purposeFor(r.route)}`) > 1;
+    const src = read(r.file);
+    // A stub is a page whose whole job is to send you elsewhere. The first version
+    // flagged any file under 4000 chars that mentioned notFound(), which excluded
+    // 155 of 270 web screens — most of them legitimate pages that call notFound()
+    // for a missing param. Now it has to be tiny AND do nothing else.
+    const isStub =
+      src.length < 1500 &&
+      /redirect\(|permanentRedirect\(/.test(src) &&
+      !/useEffect|fetch|api\./.test(src);
+    if (isMerge) { r.excluded = true; r.excludeWhy = `merge candidate: "${leaf}" x${leafCount.get(leaf)}`; }
+    else if (isStub) { r.excluded = true; r.excludeWhy = 'redirect stub'; }
+    r.duplicate = isMerge ? r.excludeWhy : '';
   }
 
+  ALL[app.key] = rows;
+}
+
+// parity needs both patient clients' rows, so it is assigned after all are built
+const PMAP = parityMap(ALL['patient-app'], ALL['patient-web']);
+for (const app of APPS) {
+  const rows = ALL[app.key];
+  for (const r of rows) {
+    if (app.key === 'provider-app' || app.key === 'admin') r.parity = 'n/a (not a patient client)';
+    else r.parity = PMAP.get(r.route) || 'unmatched';
+    r.hours = r.excluded ? 0 : (r.size === 'unknown' ? UNKNOWN_HOURS : PER_SCREEN[r.size]);
+  }
   const header = [
     `# ${app.label} — ${rows.length} screens`,
     `# GENERATED by docs/ux/inventory-generator.mjs. Do not hand-edit; regenerate instead.`,
@@ -296,7 +350,8 @@ for (const app of APPS) {
     `# JUDGED columns: purpose, batch, parity (linked from audit/FINDINGS/parity-matrix.md, "unrecorded" means absent),`,
     `#   duplicate, size, hours.`,
     `# size = min(4, interactive/25) + 2 if any unwired + 1 if mock + (4 - statesPresent) + min(3, visual issue kinds);`,
-    `#   <=4 S, <=8 M, else L.  hours = S:${HOURS.S} M:${HOURS.M} L:${HOURS.L}.`,
+    `#   <=4 S, <=8 M, else L.  hours = per-screen S:${PER_SCREEN.S} M:${PER_SCREEN.M} L:${PER_SCREEN.L},`,
+    `#   plus a one-time build per template used. Uncrawled screens are 'unknown', never S.`,
     `# Not covered by a crawl row: the crawl predates some routes, so elements=0 means "not crawled", not "no controls".`,
   ].join('\n');
 
@@ -312,7 +367,8 @@ for (const app of APPS) {
         r.statesPresent.join(' ') || 'none',
         r.statesMissing.join(' ') || 'none',
         r.visual.rawColor, r.visual.emoji, r.visual.hardSide, r.visual.noSafeArea, r.visual.notched,
-        r.duplicate, r.size, HOURS[r.size], r.qa.join(' ') || '-', r.file,
+        r.duplicate, r.template, r.excluded ? 'yes: ' + r.excludeWhy : 'no',
+        r.size, r.hours === null ? 'unknown' : r.hours, r.qa.join(' ') || '-', r.file,
       ]),
     );
   }
@@ -329,8 +385,11 @@ for (const app of APPS) {
     missingState: rows.filter((r) => r.statesMissing.length >= 3).length,
     visual: rows.filter((r) => r.visual.total > 0).length,
     duplicates: rows.filter((r) => r.duplicate).length,
-    hours: rows.reduce((a, b) => a + HOURS[b.size], 0),
-    bySize: { S: rows.filter((r) => r.size === 'S').length, M: rows.filter((r) => r.size === 'M').length, L: rows.filter((r) => r.size === 'L').length },
+    hours: rows.reduce((a, b) => a + (b.hours || 0), 0),
+    bySize: { S: rows.filter((r) => r.size === 'S').length, M: rows.filter((r) => r.size === 'M').length, L: rows.filter((r) => r.size === 'L').length, unknown: rows.filter((r) => r.size === 'unknown').length },
+    excluded: rows.filter((r) => r.excluded).length,
+    templates: rows.reduce((a, r) => { a[r.template] = (a[r.template] || 0) + 1; return a; }, {}),
+    unassigned: rows.filter((r) => r.batch === 'unassigned').map((r) => r.route),
   };
 }
 
