@@ -101,7 +101,7 @@ export class HomeCareCompatController {
   @Public()
   @Get('providers/:id') async provider(@Param('id') id: string, @Query('serviceId') serviceId?: string) {
     const key = String(id);
-    const p = await this.profiles.findOne({ $or: [{ account_id: { $eq: key } }, { id: { $eq: key } }], type: { $in: NURSE_TYPES }, status: 'active', public_eligibility: true }).lean();
+    const p = await this.profiles.findOne({ $or: [{ account_id: { $eq: key } }, { id: { $eq: key } }], type: { $in: NURSE_TYPES }, status: 'active', public_eligibility: true, medical_review_status: 'approved' }).lean();
     if (!p) throw new NotFoundException('provider not found');
     const svc: any = typeof serviceId === 'string' && serviceId ? await this.services.findOne({ id: { $eq: serviceId } }).lean() : null;
     return this.nurseView(p, svc);
