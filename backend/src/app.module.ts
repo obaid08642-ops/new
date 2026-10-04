@@ -82,6 +82,7 @@ import { EventReliabilityModule } from './modules/event-reliability/event-reliab
 import { OperationsSafetyModule } from './modules/operations-safety/operations-safety.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { SlotLocksModule } from './modules/slot-locks/slot-locks.module';
+import { GuestLifecycleModule } from './modules/guest-lifecycle/guest-lifecycle.module';
 import { PushModule } from './modules/push/push.module';
 import { SecurityModule } from './modules/security/security.module';
 import { RealtimeSseModule } from './modules/realtime/realtime.sse';
@@ -109,7 +110,7 @@ import { JwtAuthGuard } from './common/auth.guard';
 import { AuditLogInterceptor } from './common/audit-log.interceptor';
 import { IdempotencyInterceptor } from './common/idempotency.interceptor';
 import { AdaptiveConcurrencyInterceptor } from './common/adaptive-concurrency.interceptor';
-import { CacheControlInterceptor } from './common/cache-control.interceptor';
+import { RouteCachePolicyInterceptor } from './common/cache/route-cache-policy.interceptor';
 
 import { MaternityModule } from './modules/maternity/maternity.module';
 import { NabdExtensionsModule } from './modules/nabd-extensions/nabd-extensions.module';
@@ -117,6 +118,7 @@ import { NutritionModule } from './modules/nutrition/nutrition.module';
 import { MentalHealthModule } from './modules/mental-health/mental-health.module';
 import { ReturnsModule } from './modules/returns/returns.module';
 import { AdminModule } from './modules/admin/admin.module';
+import { EngagementModule } from './modules/engagement/engagement.module';
 import { HospitalModule } from './modules/hospital/hospital.module';
 import { HomeModule } from './modules/home/home.module';
 import { SystemHealthModule } from './modules/system-health/system-health.module';
@@ -229,6 +231,7 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     MoyasarModule,
     FinanceEngineModule,
     SlotLocksModule,
+    GuestLifecycleModule, // Phase 21: inactive-guest lifecycle (opt-in via env)
     PushModule,
     SecurityModule,
     RealtimeSseModule,
@@ -259,6 +262,7 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     ArticlesModule,
     InsuranceEngineModule,
     AdminModule,
+    EngagementModule,
     CompatModule, // gap-fill endpoints from the screen↔API wiring audit — registered last
     AdminSpaModule, // admin console SPA REST surface (top-level paths, admin-role guarded)
     CatalogsModule, // unified central catalogs (insurance/labs/radiology/nursing) — single source
@@ -276,7 +280,7 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     { provide: APP_INTERCEPTOR, useClass: AuditLogInterceptor },
     { provide: APP_INTERCEPTOR, useClass: IdempotencyInterceptor },
     { provide: APP_INTERCEPTOR, useClass: AdaptiveConcurrencyInterceptor },
-    { provide: APP_INTERCEPTOR, useClass: CacheControlInterceptor },
+    { provide: APP_INTERCEPTOR, useClass: RouteCachePolicyInterceptor }, // 14.7 hardened successor of CacheControlInterceptor
   ],
 })
 export class AppModule implements NestModule {

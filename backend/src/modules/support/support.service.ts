@@ -125,7 +125,11 @@ export class SupportService {
   }
 
   async deleteFaq(id: string) {
-    await this.conn.collection('faqs').updateOne({ id: { $eq: id } }, { $set: { active: false } });
+    const res: any = await this.conn.collection('faqs').updateOne({ id: { $eq: id } }, { $set: { active: false } });
+    if (!res.modifiedCount && !(await this.conn.collection('faqs').findOne({ id: { $eq: id } }))) {
+      const { NotFoundException } = await import('@nestjs/common');
+      throw new NotFoundException('faq_not_found');
+    }
     return { ok: true };
   }
 

@@ -1,4 +1,62 @@
 {
+  "Errors": {
+    "AUTHENTICATION_REQUIRED": {
+      "message": "يجب تسجيل الدخول للمتابعة.",
+      "nextStep": "سجّل الدخول ثم حاول مرة أخرى."
+    },
+    "INSUFFICIENT_PERMISSION": {
+      "message": "ليس لديك صلاحية لتنفيذ هذا الإجراء.",
+      "nextStep": "تواصل مع الدعم إذا كنت تعتقد أن هذا خطأ."
+    },
+    "PRESCRIPTION_REQUIRED": {
+      "message": "هذا الصنف يتطلب وصفة طبية سارية.",
+      "nextStep": "ارفع الوصفة الطبية للمتابعة."
+    },
+    "NO_AVAILABILITY": {
+      "message": "لا يوجد توفر حالياً.",
+      "nextStep": "جرّب وقتاً أو تاريخاً آخر."
+    },
+    "SERVICE_UNAVAILABLE": {
+      "message": "هذه الخدمة غير متاحة مؤقتاً.",
+      "nextStep": "يرجى المحاولة مرة أخرى بعد قليل."
+    },
+    "PROVIDER_NOT_AVAILABLE": {
+      "message": "لا يوجد مقدم خدمة متاح لهذا الطلب.",
+      "nextStep": "حاول لاحقاً أو اختر مقدم خدمة آخر."
+    },
+    "PRODUCT_OUT_OF_STOCK": {
+      "message": "هذا المنتج غير متوفر حالياً.",
+      "nextStep": "جرّب بديلاً أو تحقق لاحقاً."
+    },
+    "PAYMENT_REQUIRED": {
+      "message": "يلزم الدفع لإتمام هذا الإجراء.",
+      "nextStep": "أكمل الدفع للمتابعة."
+    },
+    "INSURANCE_NOT_SUPPORTED": {
+      "message": "التأمين الخاص بك لا يغطي هذه الخدمة.",
+      "nextStep": "تابع بالدفع الذاتي أو تواصل مع شركة التأمين."
+    },
+    "LOCATION_NOT_SUPPORTED": {
+      "message": "لا نغطي هذا الموقع بعد.",
+      "nextStep": "جرّب عنواناً آخر أو اختر الاستلام."
+    },
+    "DUPLICATE_TRANSACTION": {
+      "message": "تم إرسال هذا الطلب مسبقاً.",
+      "nextStep": "تحقق من طلباتك قبل إعادة المحاولة."
+    },
+    "INVALID_INPUT": {
+      "message": "بعض البيانات تبدو غير صحيحة.",
+      "nextStep": "راجع الحقول المطلوبة وحاول مرة أخرى."
+    },
+    "RATE_LIMITED": {
+      "message": "محاولات كثيرة جداً. يرجى التمهل.",
+      "nextStep": "انتظر قليلاً ثم حاول مرة أخرى."
+    },
+    "UNKNOWN_ERROR": {
+      "message": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+      "nextStep": "إذا استمرت المشكلة، تواصل مع الدعم."
+    }
+  },
   "Shared": {
     "brand": "نبض بلس",
     "patientSignIn": "دخول المريض",

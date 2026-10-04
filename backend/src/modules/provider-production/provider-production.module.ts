@@ -282,6 +282,8 @@ export class ProviderProductionService {
 
   async putCrm(user: any, patientId: string, data: any) {
     assertProviderRole(user);
+    const patient: any = await this.conn.collection('users').findOne({ id: patientId });
+    if (!patient) throw new NotFoundException('patient_not_found');
     const clean = {
       tags: Array.isArray(data?.tags) ? data.tags.slice(0, 50).map((t: any) => String(t).slice(0, 60)) : [],
       notes: Array.isArray(data?.notes)

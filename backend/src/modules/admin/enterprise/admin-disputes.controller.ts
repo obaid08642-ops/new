@@ -1,4 +1,5 @@
 import { BadRequestException, Body, Controller, ConflictException, ForbiddenException, Get, NotFoundException, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { StepUp } from '../../../common/step-up.guard';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { JwtAuthGuard, Roles, CurrentUser, getEffectiveRoles } from '../../../common/auth.guard';
@@ -129,6 +130,7 @@ export class AdminDisputesController {
    * body: { decision: refund_full | refund_partial | reject | close_no_action, amount?, reason }
    * Money decisions REQUIRE a ≥10-char reason and execute a REAL refund to the original payment method.
    */
+  @StepUp()
   @Post(':id/resolve')
   @RequirePermissions(Permission.DISPUTES_RESOLVE)
   async resolve(@Param('id') id: string, @Body() b: ResolveDto, @CurrentUser() me: any) {

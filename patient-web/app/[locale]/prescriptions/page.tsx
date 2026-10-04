@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { extractPrescriptionSummaries } from "@/lib/api/prescriptions";
@@ -66,7 +67,12 @@ export default async function PrescriptionsPage({ params }: Props) {
       ) : (
         <section className={styles.grid} aria-label={t("title")}>
           {prescriptions.map((prescription) => (
-            <article className={styles.card} key={prescription.id}>
+            <Link
+              className={styles.card}
+              key={prescription.id}
+              href={`/${locale}/prescriptions/${prescription.id}`}
+              style={{ textDecoration: "none" }}
+            >
               <span className={styles.cardIcon}>
                 <FileText size={19} aria-hidden="true" />
               </span>
@@ -84,7 +90,7 @@ export default async function PrescriptionsPage({ params }: Props) {
                   </span>
                 ) : null}
               </div>
-            </article>
+            </Link>
           ))}
         </section>
       )}

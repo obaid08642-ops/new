@@ -12,7 +12,7 @@ export default function LiveChatConsolePage() {
     finally{setLoading(false);}
   },[]);
   useEffect(()=>{load(); const t=setInterval(load,15000); return()=>clearInterval(t);},[load]);
-  return (<><Head><title>الشات الحي | نبض</title></Head>
+  return (<><Head><title>الشات الحي | نبض بلس</title></Head>
   <div className="p-8 space-y-6">
    <h1 className="text-2xl font-black">الشات الحي — المحادثات النشطة</h1>
    <p className="text-sm text-slate-500">كل المحادثات بين المرضى والمزودين — تحديث كل 15 ثانية</p>

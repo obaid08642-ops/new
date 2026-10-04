@@ -124,11 +124,15 @@ export default async function PublicMedicineCatalogPage({ params, searchParams }
               </span>
               <ArrowUpLeft className={styles.openIcon} size={17} aria-hidden="true" />
             </span>
-            <strong className={styles.name}>{medicine.name}</strong>
+            <strong className={styles.name}>{medicine.name || t("untitled")}</strong>
             {medicine.active_ingredient ? <span className={styles.detail}>{medicine.active_ingredient}</span> : null}
             {medicine.form || medicine.strength ? <span className={styles.detail}>{[medicine.form, medicine.strength, medicine.package_size].filter(Boolean).join(" · ")}</span> : null}
             <div className={styles.cardPriceRow}>
-              <strong className={styles.cardPrice}>{medicine.price.toFixed(2)} {medicine.currency}</strong>
+              {typeof medicine.price === "number" && Number.isFinite(medicine.price) ? (
+                <strong className={styles.cardPrice}>{medicine.price.toFixed(2)} {medicine.currency || "SAR"}</strong>
+              ) : (
+                <strong className={styles.cardPrice}>{locale === "ar" ? "السعر غير متوفر" : "Price unavailable"}</strong>
+              )}
               {medicine.is_rx === true ? <span className={styles.prescription}><ShieldCheck size={13} aria-hidden="true" />{t("prescriptionRequired")}</span> : null}
             </div>
             <span className={styles.open}>{t("open")}<ArrowUpLeft size={14} aria-hidden="true" /></span>

@@ -104,7 +104,7 @@ return (
  </View>
  <View style={{ flex:1 }}>
  <Text style={{ fontSize:FS.xl, fontWeight:FW.bold, color:theme.text,
- textAlign:AR?'right':'left' }}>{AR?'مستشفى نبضة الطبي':'Nabdah Medical Hospital'}</Text>
+ textAlign:AR?'right':'left' }}>{AR?'مستشفى نبضة الطبي':'Nabd+ Medical Hospital'}</Text>
  <Text style={{ fontSize:FS.sm, color:theme.textSub }}>{AR?'مستشفى':'Hospital'}</Text>
  <NBadge label={AR?' حساب نشط':' Active'} variant="success" size="xs" style={{ marginTop:SP.xs }} />
  </View>

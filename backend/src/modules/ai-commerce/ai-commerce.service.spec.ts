@@ -52,18 +52,41 @@ describe('AiCommerceService', () => {
     },
   ];
 
+  const matchesMedFilter = (m: any, filter: any) => {
+    const ors = filter?.$or;
+    if (!ors) return true;
+    return ors.some((clause: any) => {
+      const [field, cond] = Object.entries<any>(clause)[0];
+      const vals = cond?.$in ?? (cond?.$eq !== undefined ? [cond.$eq] : []);
+      return vals.map(String).includes(String(m[field]));
+    });
+  };
+
+  const matchesDocFilter = (d: any, filter: any) => {
+    const ors = filter?.$or;
+    if (!ors) return true;
+    return ors.some((clause: any) => {
+      const [field, cond] = Object.entries<any>(clause)[0];
+      const vals = cond?.$in ?? (cond?.$eq !== undefined ? [cond.$eq] : []);
+      return vals.map(String).includes(String(d[field]));
+    });
+  };
+
   const mockConnection = {
     collection: jest.fn().mockImplementation((name: string) => {
       if (name === 'medicines') {
         return {
           countDocuments: jest.fn().mockResolvedValue(mockMedicines.length),
-          find: jest.fn().mockReturnValue({
+          find: jest.fn().mockImplementation((filter: any) => ({
+            // Batched checkout path: find($in filter).toArray().
+            toArray: jest.fn().mockResolvedValue(mockMedicines.filter((m) => matchesMedFilter(m, filter))),
+            // Product-feed path: find(filter).skip().limit().toArray().
             skip: jest.fn().mockReturnValue({
               limit: jest.fn().mockReturnValue({
                 toArray: jest.fn().mockResolvedValue(mockMedicines),
               }),
             }),
-          }),
+          })),
           findOne: jest.fn().mockImplementation(({ $or }) => {
             // Unwrap scalar equality the same way Mongo matches { $eq: v }.
             const scalar = (v: any) => (v && typeof v === 'object' && '$eq' in v ? v.$eq : v);
@@ -77,11 +100,14 @@ describe('AiCommerceService', () => {
       }
       if (name === 'provider_profiles') {
         return {
-          find: jest.fn().mockReturnValue({
+          find: jest.fn().mockImplementation((filter: any) => ({
+            // Batched checkout path: find($in filter).toArray().
+            toArray: jest.fn().mockResolvedValue(mockDoctors.filter((d) => matchesDocFilter(d, filter))),
+            // Service-feed path: find(filter).limit().toArray().
             limit: jest.fn().mockReturnValue({
               toArray: jest.fn().mockResolvedValue(mockDoctors),
             }),
-          }),
+          })),
           findOne: jest.fn().mockImplementation(({ $or }) => {
             const scalar = (v: any) => (v && typeof v === 'object' && '$eq' in v ? v.$eq : v);
             const val = scalar($or[0]?.id) || scalar($or[1]?.slug);

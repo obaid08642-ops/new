@@ -186,7 +186,7 @@ export default function InsuranceCompaniesPage() {
 
   return (
     <>
-      <Head><title>شركات التأمين | نبض</title></Head>
+      <Head><title>شركات التأمين | نبض بلس</title></Head>
       <div className="p-8 space-y-6">
         <div className="flex justify-between items-center">
           <div>

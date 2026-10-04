@@ -5,7 +5,8 @@ describe('CatalogsController specialties admin', () => {
   const make = () => {
     const col: any = {
       find: jest.fn().mockReturnValue({ sort: jest.fn().mockReturnValue({ limit: jest.fn().mockReturnValue({ toArray: jest.fn().mockResolvedValue([]) }) }) }),
-      updateOne: jest.fn().mockResolvedValue({}),
+      // A real updateOne reports the counts; the delete path 404s without them.
+      updateOne: jest.fn().mockResolvedValue({ modifiedCount: 1, matchedCount: 1 }),
     };
     const conn: any = { collection: jest.fn().mockReturnValue(col) };
     return { ctrl: new CatalogsController(conn), col };

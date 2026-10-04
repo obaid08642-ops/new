@@ -212,7 +212,7 @@ export const autoTranslations: Record<string, Record<LangCode, string>> = {
   "قيد المراجعة": { ar: "قيد المراجعة", en: "Under Review", ur: "زیر غور", hi: "समीक्षाधीन", bn: "পর্যালোচনার অধীনে", fil: "Under Review" },
   "دهون": { ar: "دهون", en: "Fats", ur: "چربی", hi: "वसा", bn: "চর্বি", fil: "Fats" },
   "بروتين": { ar: "بروتين", en: "Protein", ur: "پروٹین", hi: "प्रोटीन", bn: "প্রোটিন", fil: "Protein" },
-  "محفظة نبض": { ar: "محفظة نبض", en: "Nabdah Wallet", ur: "نبض والیٹ", hi: "नब्ज वॉलेट", bn: "নাবদাহ ওয়ালেট", fil: "Nabdah Wallet" },
+  "محفظة نبض بلس": { ar: "محفظة نبض بلس", en: "Nabd+ Wallet", ur: "نبض بلس والیٹ", hi: "नब्ज वॉलेट", bn: "নাবদাহ ওয়ালেট", fil: "Nabd+ Wallet" },
   "تأكيد الحجز": { ar: "تأكيد الحجز", en: "Confirm Booking", ur: "بکنگ की تصدیق", hi: "बुकिंग की पुष्टि", bn: "বুকিং নিশ্চিত করুন", fil: "Confirm Booking" },
   "العودة للصيدلية": { ar: "العودة للصيدلية", en: "Back to Pharmacy", ur: "فارمیسی پر واپس", hi: "फार्मेसी पर वापस", bn: "ফার্মেসিতে ফিরে যান", fil: "Back to Pharmacy" },
   "الكمية": { ar: "الكمية", en: "Quantity", ur: "مقدار", hi: "मात्रा", bn: "পরিমাণ", fil: "Quantity" },

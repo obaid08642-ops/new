@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { cdnImage, getPublicProduct, type PublicProduct } from "@/lib/api/public-products-server";
 import { JsonLd } from "@/components-next/json-ld";
@@ -84,6 +84,19 @@ export default async function PublicProductPage({ params }: Props) {
   const t = await getTranslations("PublicProduct");
   const fetchedProduct = await getPublicProduct(locale, slug);
   if (!fetchedProduct) notFound();
+  // R12: retired slugs 301 to the canonical slug instead of 404ing (proxy covers
+  // most cases; this is the render-path fallback when the proxy is bypassed).
+  try {
+    const requested = decodeURIComponent(slug);
+    if (
+      (typeof fetchedProduct.moved_from === "string" && fetchedProduct.moved_from) ||
+      (typeof fetchedProduct.slug === "string" && fetchedProduct.slug && fetchedProduct.slug !== requested && fetchedProduct.slug !== slug)
+    ) {
+      permanentRedirect(`/${locale}/p/${encodeURIComponent(fetchedProduct.slug)}`);
+    }
+  } catch {
+    /* decode edge → render the fetched product */
+  }
   const product: PublicProduct = fetchedProduct;
   const name = product.name || product.official_name || t("products");
   const canonical = localizedUrl(locale, `/p/${encodeURIComponent(product.slug)}`);
@@ -94,6 +107,13 @@ export default async function PublicProductPage({ params }: Props) {
     : null;
 
   const availabilityLabel = product.available ? t("available") : t("limited");
+
+  // Crash-sweep: backend price fields are cast without validation — never call
+  // .toFixed on a possibly-undefined/non-numeric value.
+  const price = typeof product.price === "number" && Number.isFinite(product.price) ? product.price : null;
+  const oldPrice = typeof product.old_price === "number" && Number.isFinite(product.old_price) ? product.old_price : null;
+  const currency = product.currency || "SAR";
+  const priceUnavailable = locale === "ar" ? "السعر غير متوفر" : "Price unavailable";
 
   const howTo = howToJsonLd(product);
   const jsonLd: Array<Record<string, unknown>> = [
@@ -119,41 +139,20 @@ export default async function PublicProductPage({ params }: Props) {
         product.form ? { "@type": "PropertyValue", name: "form", value: product.form } : null,
       ].filter(Boolean) as any,
       inLanguage: locale,
-      isAccessibleForFree: true,
-      isFamilyFriendly: true,
       speakable: speakable,
+      // R16: offers carries ONLY page-backed data (finite price, displayed
+      // currency, availability from product.available). No fabricated
+      // validity-window / shipping / return-policy fields.
       offers: {
         "@type": "Offer",
-        price: product.price,
-        priceCurrency: product.currency || "SAR",
+        price: price ?? undefined,
+        priceCurrency: currency,
         url: canonical,
         availability: product.available ? "https://schema.org/InStock" : "https://schema.org/LimitedAvailability",
-        itemCondition: "https://schema.org/NewCondition",
-        priceValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
         seller: {
           "@type": "Organization",
           name: "Nabd Plus",
           url: "https://nabd.plus",
-        },
-        shippingDetails: {
-          "@type": "OfferShippingDetails",
-          shippingRate: {
-            "@type": "MonetaryAmount",
-            value: "15.00",
-            currency: "SAR",
-          },
-          shippingDestination: {
-            "@type": "DefinedRegion",
-            addressCountry: "SA",
-          },
-        },
-        hasMerchantReturnPolicy: {
-          "@type": "MerchantReturnPolicy",
-          applicableCountry: "SA",
-          returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
-          merchantReturnDays: 7,
-          returnMethod: "https://schema.org/ReturnByMail",
-          returnFees: "https://schema.org/FreeReturn",
         },
       },
     },
@@ -240,9 +239,13 @@ export default async function PublicProductPage({ params }: Props) {
           <h1>{name}</h1>
           <div className={styles.priceCard}>
             <div className={styles.priceRow}>
-              <strong className={styles.price}>{product.price.toFixed(2)} {product.currency}</strong>
-              {product.old_price && product.old_price > product.price ? (
-                <s className={styles.oldPrice}>{product.old_price.toFixed(2)} {product.currency}</s>
+              {price !== null ? (
+                <strong className={styles.price}>{price.toFixed(2)} {currency}</strong>
+              ) : (
+                <strong className={styles.price}>{priceUnavailable}</strong>
+              )}
+              {oldPrice !== null && price !== null && oldPrice > price ? (
+                <s className={styles.oldPrice}>{oldPrice.toFixed(2)} {currency}</s>
               ) : null}
             </div>
             <p className={styles.subline}>{[product.form, product.strength, product.package_size].filter(Boolean).join(" · ")}</p>
@@ -250,20 +253,24 @@ export default async function PublicProductPage({ params }: Props) {
 
           {/* Add to Cart Actions */}
           <div className={styles.actionWrap}>
-            <ProductCartActions
-              locale={locale}
-              product={{
-                id: product.id,
-                name,
-                price: product.price,
-                rx: product.is_rx,
-                image: images[0] || null,
-                slug: product.slug,
-                activeIngredient: product.active_ingredient,
-                form: product.form,
-                strength: product.strength,
-              }}
-            />
+            {price !== null ? (
+              <ProductCartActions
+                locale={locale}
+                product={{
+                  id: product.id,
+                  name,
+                  price,
+                  rx: product.is_rx,
+                  image: images[0] || null,
+                  slug: product.slug,
+                  activeIngredient: product.active_ingredient,
+                  form: product.form,
+                  strength: product.strength,
+                }}
+              />
+            ) : (
+              <p role="status">{priceUnavailable}</p>
+            )}
           </div>
         </div>
       </section>

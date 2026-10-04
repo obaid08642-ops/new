@@ -8,3 +8,5 @@ emulator (`native_crawl.py`). `report.py` merges the shards into `NATIVE_REPORT.
 Test-build-only workarounds in `build_android.sh` are each tied to an open defect (Q58, Q62, Q63, Q67, Q68);
 remove them as the agent fixes those defects, so the run proves the real build.
 # native verification of Q71 (second cause) 2026-10-03
+
+- 2026-10-04: run on the agent tip bb97c87 with the Q58/Q62/Q67/Q68 workarounds off (STRICT).

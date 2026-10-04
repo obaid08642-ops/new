@@ -301,8 +301,19 @@ export class SeoSearchService {
       { ...this.publicProductFilter(), slug: decoded },
       { projection: { _id: 0 } },
     );
-    if (!med) throw new NotFoundException('product_not_found');
-    return resolveMedicinePublicDto(med, locale);
+    if (med) return resolveMedicinePublicDto(med, locale);
+    // R12: renamed slugs fall back to slug_history; the caller 301s via moved_from.
+    try {
+      const hist: any = await this.conn.collection('slug_history').findOne({ entity_type: 'medicine', old_slug: decoded });
+      if (hist?.new_slug) {
+        const moved: any = await this.conn.collection(CATALOG_COLLECTIONS.medicines).findOne(
+          { ...this.publicProductFilter(), $or: [{ slug: hist.new_slug }, { [`translations.${db}.slug`]: hist.new_slug }] },
+          { projection: { _id: 0 } },
+        );
+        if (moved) return { ...resolveMedicinePublicDto(moved, locale), moved_from: decoded };
+      }
+    } catch { /* history is best-effort */ }
+    throw new NotFoundException('product_not_found');
   }
 
   /** Strict per-locale public product DTO by internal id (legacy URL migration). */

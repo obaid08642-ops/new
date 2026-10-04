@@ -12,7 +12,7 @@ export default function LegalPoliciesPage() {
   const load = async () => {
     const [p, c] = await Promise.all([
       apiFetch('/legal/policies').catch(() => []),
-      apiFetch('/api/admin/admin/finance/commissions').catch(() => null),
+      apiFetch('/api/admin/admin/legal/commissions-policy').catch(() => null),
     ]);
     setPolicies(Array.isArray(p) ? p : []);
     setCommissions(c);
@@ -38,12 +38,12 @@ export default function LegalPoliciesPage() {
 
   const setPercent = async (type: string, value: number) => {
     const next = { ...commissions.service_types, [type]: { ...commissions.service_types[type], percent: value } };
-    await apiFetch('/api/admin/admin/finance/commissions', { method: 'PUT', body: JSON.stringify({ service_types: next }) }).catch(() => null);
+    await apiFetch('/api/admin/admin/legal/commissions-policy', { method: 'PUT', body: JSON.stringify({ service_types: next }) }).catch(() => null);
     load();
   };
 
   const setMinimum = async (value: number) => {
-    await apiFetch('/api/admin/admin/finance/commissions', { method: 'PUT', body: JSON.stringify({ payout_schedule: { ...commissions.payout_schedule, minimum_payout_sar: value } }) }).catch(() => null);
+    await apiFetch('/api/admin/admin/legal/commissions-policy', { method: 'PUT', body: JSON.stringify({ payout_schedule: { ...commissions.payout_schedule, minimum_payout_sar: value } }) }).catch(() => null);
     load();
   };
 

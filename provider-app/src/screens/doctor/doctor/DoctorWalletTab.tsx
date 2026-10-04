@@ -77,7 +77,7 @@ export function DoctorWalletTab({ onNavigate }: { onNavigate: (s: string) => voi
       <ScrollView contentContainerStyle={{ padding: SP.lg, gap: SP.md }}>
         <NStatCard label={AR ? 'الرصيد المتاح للسحب' : 'Available for Withdrawal'} value={`${wallet.available} SAR`} icon="wallet" />
         <NStatCard label={AR ? 'مبالغ معلقة التأمين' : 'Insurance Escrow'} value={`${wallet.escrow} SAR`} icon="shield" color={theme.warn} />
-        <NStatCard label={AR ? 'مستحقات المنصة / المديونية' : 'Nabdah Dues'} value={`${wallet.dues} SAR`} icon="info" color={theme.danger} />
+        <NStatCard label={AR ? 'مستحقات المنصة / المديونية' : 'Nabd+ Dues'} value={`${wallet.dues} SAR`} icon="info" color={theme.danger} />
         
         <NBtn label={AR ? 'طلب سحب رصيد' : 'Withdraw Funds'} icon="money" onPress={() => onNavigate('withdrawal_workflow')} style={{ marginTop: SP.md }} />
         <NBtn label={AR ? 'التقارير والإحصائيات' : 'Revenue Insights & Reports'} variant="outline" onPress={() => onNavigate('revenue_insights')} style={{ marginTop: SP.sm }} />

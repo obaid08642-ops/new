@@ -40,9 +40,19 @@ export class ProviderProfileService {
   }
 
   async updateProfile(user: any, patch: any) {
-    const allowed = ['display_name_ar', 'display_name_en', 'legal_name', 'description_ar', 'description_en', 'commercial_registration_number', 'tax_number', 'medical_license_number', 'facility_license_number', 'established_year', 'years_of_experience', 'website', 'social', 'address', 'geo', 'has_own_delivery', 'use_platform_delivery', 'delivery_fee', 'estimated_delivery_minutes', 'profile_image_id', 'cover_image_id', 'clinic_images', 'public_eligibility', 'enabled_modules', 'delivery_mode', 'max_delivery_radius_km', 'estimated_delivery_time', 'sub_specialties'];
+    const allowed = ['display_name_ar', 'display_name_en', 'legal_name', 'description_ar', 'description_en', 'commercial_registration_number', 'tax_number', 'medical_license_number', 'facility_license_number', 'established_year', 'years_of_experience', 'website', 'social', 'address', 'geo', 'has_own_delivery', 'use_platform_delivery', 'delivery_fee', 'estimated_delivery_minutes', 'profile_image_id', 'cover_image_id', 'clinic_images', 'public_eligibility', 'enabled_modules', 'delivery_mode', 'max_delivery_radius_km', 'estimated_delivery_time', 'sub_specialties', 'contact_phone', 'coverage_cities'];
     const set: any = {};
     for (const k of allowed) if (patch[k] !== undefined) set[k] = patch[k];
+    if (set.contact_phone !== undefined) {
+      if (typeof set.contact_phone !== 'string') throw new BadRequestException('invalid contact_phone');
+      const v = set.contact_phone.trim().slice(0, 32);
+      if (!v || /[.$]/.test(v)) throw new BadRequestException('invalid contact_phone');
+      set.contact_phone = v;
+    }
+    if (set.coverage_cities !== undefined) {
+      if (!Array.isArray(set.coverage_cities)) throw new BadRequestException('invalid coverage_cities');
+      set.coverage_cities = (set.coverage_cities as unknown[]).filter((c) => typeof c === 'string').map((c) => (c as string).trim()).filter((c) => c.length > 0 && c.length <= 64 && !/[.$]/.test(c)).slice(0, 64);
+    }
     if (set.enabled_modules) {
       const p = await this.profiles.findOne({ account_id: user.id });
       if (p && p.provider_type !== ProviderType.HOSPITAL && p.provider_type !== ProviderType.CLINIC) throw new BadRequestException('enabled_modules only allowed for hospitals/clinics');

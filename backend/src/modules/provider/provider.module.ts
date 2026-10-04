@@ -32,6 +32,8 @@ import { SchedulingEngineService } from './services/scheduling-engine.service';
 import { ProviderScoringService } from './services/provider-scoring.service';
 import { ProviderMatchingService } from './services/provider-matching.service';
 import { AssignmentStrategyService } from './services/assignment-strategy.service';
+import { StepUpService } from '../../common/step-up.guard';
+import { PasskeyCredential, PasskeyCredentialSchema } from '../auth/schemas/passkey-credential.schema';
 import { ProviderImageProcessorService } from './services/provider-image-processor.service';
 import { ProfileImageMetadataSchema } from '../../schemas/profile-image-metadata.schema';
 import { ImageProcessingJobSchema } from '../../schemas/image-processing-job.schema';
@@ -89,6 +91,8 @@ import { ProviderDrugIndexController } from './provider-drug-index.controller';
 @Module({
   imports: [
     MongooseModule.forFeature([
+      // F5: StepUpService verifies the override token against this model.
+      { name: PasskeyCredential.name, schema: PasskeyCredentialSchema },
       { name: 'ProviderAccount', schema: ProviderAccountSchema },
       { name: 'LeaveRequest', schema: LeaveRequestSchema },
       { name: 'ProviderSession', schema: ProviderSessionSchema },
@@ -164,6 +168,8 @@ import { ProviderDrugIndexController } from './provider-drug-index.controller';
     ProviderDrugIndexController
 ],
   providers: [
+    // F5: the provider-approval override verifies the step-up token itself.
+    StepUpService,
     ProviderImageProcessorService,
     ProviderAuthService,
     ProviderProfileService,

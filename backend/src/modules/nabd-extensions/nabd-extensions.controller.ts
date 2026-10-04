@@ -27,56 +27,6 @@ export class NabdExtensionsController {
     return this.svc.logActivity('notifications.read', user.id, undefined, { notificationId: id });
   }
 
-  @Get('wallet/balance')
-  async getWalletBalance(@CurrentUser() user: any) {
-    const balance = await this.svc.getWalletBalance(user.id, user.role !== UserRole.PATIENT ? 'provider' : 'patient');
-    return { balance };
-  }
-
-  @Roles(UserRole.ADMIN)
-  @Post('wallet/credit')
-  async creditWallet(@CurrentUser() user: any, @Body() body: CreditWalletDto) {
-    const ownerType = (user.role !== UserRole.PATIENT ? 'provider' : 'patient') as 'patient' | 'provider';
-    const res = await this.svc.processWalletTransaction({
-      ownerId: user.id,
-      ownerType,
-      amount: body.amount,
-      type: 'credit',
-      referenceType: body.referenceType || 'booking',
-      referenceId: body.referenceId || 'manual',
-      description: body.description || 'Manual Wallet Credit',
-    });
-    await this.svc.auditAdminWalletAdjustment(user, {
-      ownerId: user.id, ownerType,
-      amount: body.amount, type: 'credit',
-      referenceType: body.referenceType, referenceId: body.referenceId,
-      description: body.description,
-    });
-    return res;
-  }
-
-  @Roles(UserRole.ADMIN)
-  @Post('wallet/debit')
-  async debitWallet(@CurrentUser() user: any, @Body() body: DebitWalletDto) {
-    const ownerType = (user.role !== UserRole.PATIENT ? 'provider' : 'patient') as 'patient' | 'provider';
-    const res = await this.svc.processWalletTransaction({
-      ownerId: user.id,
-      ownerType,
-      amount: body.amount,
-      type: 'debit',
-      referenceType: body.referenceType || 'booking',
-      referenceId: body.referenceId || 'manual',
-      description: body.description || 'Manual Wallet Debit',
-    });
-    await this.svc.auditAdminWalletAdjustment(user, {
-      ownerId: user.id, ownerType,
-      amount: body.amount, type: 'debit',
-      referenceType: body.referenceType, referenceId: body.referenceId,
-      description: body.description,
-    });
-    return res;
-  }
-
   @SelfService()
   @Post('referral/code')
   async getReferralCode(@CurrentUser() user: any) {
@@ -126,17 +76,9 @@ export class NabdExtensionsController {
     return this.svc.enrollProgram(user.id, body.programType);
   }
 
-  @Get('medical/programs/active')
-  async getActivePrograms(@CurrentUser() user: any) {
-    return this.svc.getActivePrograms(user.id);
-  }
+  // R4: GET medical/programs/active removed (dup of medical-programs).
 
-  @SelfService()
-  @Post('medical/programs/complete-session')
-  async completeSession(@CurrentUser() user: any, @Body() body: CompleteSessionDto) {
-    if (!body.programType || !body.sessionId) throw new BadRequestException('programType and sessionId are required');
-    return this.svc.completeProgramSession(user.id, body.programType, body.sessionId);
-  }
+  // R4: POST medical/programs/complete-session removed (dup of medical-programs).
 
   // ==========================================
   // MODULE 3: PROVIDER PERFORMANCE & MATCHING

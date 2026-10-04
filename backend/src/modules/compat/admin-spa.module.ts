@@ -561,27 +561,7 @@ class AdminFinancialController extends AdminController {
 }
 
 /* ── commissions / refunds / coupons ─────────────────────────────────────── */
-@Controller('commissions')
-@UseGuards(JwtAuthGuard)
-@Roles(UserRole.ADMIN)
-class AdminCommissionsController extends AdminController {
-  @Get()
-  async list() {
-    const rows = await this.conn.collection('commissionrules').find({} as any).limit(200).toArray();
-    return rows.map((r: any) => ({ ...r, id: r.id || String(r._id) }));
-  }
-
-  @Put(':id')
-  async update(@Param('id') id: string, @CurrentUser() user: any, @Body() body: UpdateDto) {
-    if (body?.commission === undefined) throw new BadRequestException('قيمة العمولة مطلوبة');
-    const res = await this.conn.collection('commissionrules').updateOne(
-      byId(id) as any,
-      { $set: { commission: body.commission, updated_by: uid(user), updatedAt: now() } },
-    );
-    if (!res.matchedCount) throw new NotFoundException('قاعدة العمولة غير موجودة');
-    return { ok: true };
-  }
-}
+// R4: AdminCommissionsController deleted (dup of admin/governance)
 
 @Controller('refunds')
 @UseGuards(JwtAuthGuard)
@@ -1400,7 +1380,7 @@ class AdminNursingPortalController extends AdminController {
     AdminCmsController,
     AdminOrdersController,
     AdminFinancialController,
-    AdminCommissionsController,
+    // R4: AdminCommissionsController removed (dup of admin/governance)
     AdminRefundsController,
     AdminCouponsController,
     AdminLoyaltyController,

@@ -26,7 +26,7 @@ export default function OrderDetailPage() {
 
   return (
     <div className="p-8 max-w-5xl mx-auto space-y-6">
-      <Head><title>تفاصيل الطلب | نبض</title></Head>
+      <Head><title>تفاصيل الطلب | نبض بلس</title></Head>
       <button onClick={() => router.back()} className="text-teal-700 font-bold text-sm">→ عودة لمركز القيادة</button>
 
       {loading ? (

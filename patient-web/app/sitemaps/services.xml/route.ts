@@ -8,46 +8,78 @@ function esc(s: string) {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
+type GeoCity = { code?: string; name_ar?: string; name_en?: string };
+
+async function fetchJson(url: string, timeoutMs: number): Promise<any | null> {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, {
+      next: { revalidate: 21600 },
+      headers: { "User-Agent": "NabdPlus-Sitemap-Renderer/1.0" },
+      signal: ctrl.signal,
+    });
+    if (!res.ok) return null;
+    return await res.json().catch(() => null);
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/**
+ * Q33: the old generator crossed EVERY service id with EVERY city code
+ * (26 x 150 x locales) without checking availability, so ~13,500 sitemap
+ * URLs rendered a generic all-services list (or a 404). This generator
+ * emits only verified pairs: for each city it reads that city's own
+ * catalog feed and emits one URL per provider actually listed there.
+ * A city whose feed cannot be read contributes zero URLs (never a guess).
+ */
 export async function GET() {
   const backendUrl = process.env.NEXT_PUBLIC_API_URL || "https://api.nabd.plus";
-  let items: Array<{ service_id?: string; id?: string; slug?: string; lastmod?: string }> = [];
-  try {
-    const res = await fetch(`${backendUrl}/api/v1/public/ai-catalog/services`, {
-      next: { revalidate: 21600 },
-      headers: { "User-Agent": "NabdPlus-Sitemap-Renderer/1.0" },
-    });
-    if (res.ok) {
-      const data = await res.json();
-      items = data?.items || [];
+
+  const geoData = await fetchJson(`${backendUrl}/api/v1/locations/cities`, 10000);
+  const geoList: GeoCity[] = Array.isArray(geoData) ? geoData : geoData?.data || [];
+  // latin slug -> Arabic city name (the catalog filters on stored Arabic names).
+  const cities = geoList
+    .map((c) => ({
+      latin: String(c.code || "").replace(/^sa-/, "").toLowerCase(),
+      arabic: String(c.name_ar || ""),
+    }))
+    .filter((c) => c.latin && c.arabic && !c.latin.includes("-"))
+    .slice(0, 150);
+
+  const pairs: Array<{ sid: string; city: string }> = [];
+  const CONCURRENCY = 10;
+  for (let i = 0; i < cities.length; i += CONCURRENCY) {
+    const batch = cities.slice(i, i + CONCURRENCY);
+    const results = await Promise.all(
+      batch.map(async ({ latin, arabic }) => {
+        const feed = await fetchJson(
+          `${backendUrl}/api/v1/public/ai-catalog/services?city=${encodeURIComponent(arabic)}`,
+          10000,
+        );
+        const items: any[] = feed?.items || [];
+        const sids = new Set<string>();
+        for (const item of items) {
+          // Feed rows carry `id` (+ optional slug/service_id); the page
+          // resolves the same identifiers, so emit only what it can render.
+          const sid = item?.id || item?.slug || item?.service_id;
+          if (sid) sids.add(String(sid));
+        }
+        return { latin, sids: [...sids] };
+      }),
+    );
+    for (const { latin, sids } of results) {
+      for (const sid of sids) pairs.push({ sid, city: latin });
     }
-  } catch {
-    items = [];
   }
 
-  // Central GEO: live 150 cities, fallback 6
-  let cities = ["riyadh", "jeddah", "dammam", "makkah", "madinah", "khobar"];
-  try {
-    const geoRes = await fetch(`${backendUrl}/api/v1/locations/cities`, {
-      next: { revalidate: 21600 },
-      headers: { "User-Agent": "NabdPlus-Sitemap-Renderer/1.0" },
-    });
-    if (geoRes.ok) {
-      const geoData: any = await geoRes.json();
-      const geoList: any[] = Array.isArray(geoData) ? geoData : geoData?.data || [];
-      const live = geoList.map((c: any) => String(c.code || "").replace(/^sa-/, "").toLowerCase()).filter(Boolean).slice(0, 150);
-      if (live.length > 20) cities = live;
-    }
-  } catch { /* keep fallback */ }
-
   const urls = locales.flatMap((locale) =>
-    items.flatMap((item) => {
-      // Feed uses `id` (+optional slug); skip unidentifiable rows instead of emitting /undefined/.
-      const sid = item.service_id || item.slug || item.id;
-      if (!sid) return [];
-      return cities.map((city) => {
-        const loc = localizedUrl(locale, `/services/${encodeURIComponent(sid)}/${city}`);
-        return `  <url><loc>${esc(loc)}</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>`;
-      });
+    pairs.map(({ sid, city }) => {
+      const loc = localizedUrl(locale, `/services/${encodeURIComponent(sid)}/${city}`);
+      return `  <url><loc>${esc(loc)}</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>`;
     }),
   );
 

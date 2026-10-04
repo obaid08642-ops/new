@@ -12,7 +12,7 @@ export default function BroadcastMonitorPage() {
   },[]);
   useEffect(()=>{load(); const t=setInterval(load,15000); return()=>clearInterval(t);},[load]);
   const elapsed = (createdAt:string)=>{ const m=Math.floor((Date.now()- new Date(createdAt).getTime())/60000); return m<60? `${m} د` : `${Math.floor(m/60)} س ${m%60}د`; };
-  return (<><Head><title>مراقبة البث | نبض</title></Head>
+  return (<><Head><title>مراقبة البث | نبض بلس</title></Head>
   <div className="p-8 space-y-6">
    <div className="flex justify-between items-center"><h1 className="text-2xl font-black">مراقبة بث الصيدلية</h1><button onClick={()=>load()} className="text-sm text-teal-700 font-bold">تحديث</button></div>
    <p className="text-sm text-slate-500">كل بث: المستلمون، الردود، المهلة، التصعيد — تحديث كل 15 ثانية</p>

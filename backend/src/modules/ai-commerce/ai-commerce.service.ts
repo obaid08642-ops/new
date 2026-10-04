@@ -196,13 +196,64 @@ export class AiCommerceService {
     const medCol = this.connection.collection(CATALOG_COLLECTIONS.medicines);
     const docCol = this.connection.collection('provider_profiles');
 
+    // Batched lookup: single $in query per collection for all cart ids,
+    // then in-memory maps. Pricing/policy logic below is unchanged.
+    const medIds: string[] = [];
+    const medSkuNumbers: number[] = [];
+    const docIds: string[] = [];
+    for (const item of dto.items) {
+      const key = String(item.id);
+      if (item.type === 'medicine') {
+        if (!medIds.includes(key)) medIds.push(key);
+        // Same sku coercion as the former per-item filter: Number(id) || -1.
+        const sku = Number(key) || -1;
+        if (!medSkuNumbers.includes(sku)) medSkuNumbers.push(sku);
+      } else if (item.type === 'consultation') {
+        if (!docIds.includes(key)) docIds.push(key);
+      }
+    }
+
+    const [medDocs, docDocs] = await Promise.all([
+      medIds.length
+        ? medCol
+            .find({
+              $or: [
+                { id: { $in: medIds } },
+                { slug: { $in: medIds } },
+                { sku: { $in: medSkuNumbers } },
+              ],
+            })
+            .toArray()
+        : Promise.resolve([]),
+      docIds.length
+        ? docCol.find({ $or: [{ id: { $in: docIds } }, { slug: { $in: docIds } }] }).toArray()
+        : Promise.resolve([]),
+    ]);
+
+    const medById = new Map<string, any>();
+    const medBySlug = new Map<string, any>();
+    const medBySku = new Map<string, any>();
+    for (const med of medDocs) {
+      if (med.id !== undefined && !medById.has(String(med.id))) medById.set(String(med.id), med);
+      if (med.slug !== undefined && !medBySlug.has(String(med.slug))) medBySlug.set(String(med.slug), med);
+      if (med.sku !== undefined && med.sku !== null && !medBySku.has(String(med.sku)))
+        medBySku.set(String(med.sku), med);
+    }
+    const docById = new Map<string, any>();
+    const docBySlug = new Map<string, any>();
+    for (const doc of docDocs) {
+      if (doc.id !== undefined && !docById.has(String(doc.id))) docById.set(String(doc.id), doc);
+      if (doc.slug !== undefined && !docBySlug.has(String(doc.slug))) docBySlug.set(String(doc.slug), doc);
+    }
+    const resolveMed = (key: string) =>
+      medById.get(key) ?? medBySlug.get(key) ?? medBySku.get(key) ?? null;
+    const resolveDoc = (key: string) => docById.get(key) ?? docBySlug.get(key) ?? null;
+
     for (const item of dto.items) {
       if (item.type === 'medicine') {
-        // item.id is DTO-validated as a string; pin each branch with $eq so
-        // query operators can never be injected into the filter.
-        const med = await medCol.findOne({
-          $or: [{ id: { $eq: item.id } }, { slug: { $eq: item.id } }, { sku: Number(item.id) || -1 }],
-        });
+        // Same match keys as the former per-item findOne
+        // ({ id } | { slug } | { sku }), now resolved from the batch map.
+        const med = resolveMed(String(item.id));
         if (!med) throw new NotFoundException(`Medicine '${item.id}' not found`);
 
         const qty = Math.max(1, Number(item.quantity) || 1);
@@ -225,9 +276,8 @@ export class AiCommerceService {
           requires_prescription: Boolean(med.requires_prescription),
         });
       } else if (item.type === 'consultation') {
-        const doc = await docCol.findOne({
-          $or: [{ id: { $eq: item.id } }, { slug: { $eq: item.id } }],
-        });
+        // Same match keys as the former per-item findOne ({ id } | { slug }).
+        const doc = resolveDoc(String(item.id));
         if (!doc) throw new NotFoundException(`Doctor '${item.id}' not found`);
 
         const fee = 150.0;

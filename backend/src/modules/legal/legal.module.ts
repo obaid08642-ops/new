@@ -189,12 +189,13 @@ export class LegalController {
     return this.svc.upsertPolicy(adminId, key, body);
   }
 
-  @Get('admin/finance/commissions')
+  // R36: moved from admin/finance/commissions (dup of finance suite). Legal policy document.
+  @Get('admin/legal/commissions-policy')
   @UseGuards(JwtAuthGuard)
   @Roles(UserRole.ADMIN)
   commissions() { return this.svc.getCommissions(); }
 
-  @Put('admin/finance/commissions')
+  @Put('admin/legal/commissions-policy')
   @UseGuards(JwtAuthGuard)
   @Roles(UserRole.ADMIN)
   updateCommissions(@CurrentUser('id') adminId: string, @Body() body: UpdateCommissionsDto) {

@@ -58,7 +58,7 @@ export default function CommissionsPage() {
     try {
       const [s, c] = await Promise.all([
         apiFetch('/api/admin/admin/finance/ledger/summary').catch(() => null),
-        apiFetch('/api/admin/admin/finance/commissions').catch(() => ({ data: [] })),
+        apiFetch('/api/admin/admin/finance/ledger/commissions').catch(() => ({ data: [] })),
       ]);
       setSummary(s);
       setLegacy(c?.data || []);
@@ -76,7 +76,7 @@ export default function CommissionsPage() {
 
   return (
     <>
-      <Head><title>العمولات والأستاذ | نبض</title></Head>
+      <Head><title>العمولات والأستاذ | نبض بلس</title></Head>
         <div className="p-8 space-y-6">
           <div className="flex justify-end">
             <button onClick={load} className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm font-medium">تحديث </button>

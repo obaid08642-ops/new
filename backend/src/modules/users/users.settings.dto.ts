@@ -146,6 +146,14 @@ export class UpdateNotificationSettingsDto {
 
   @IsOptional()
   @IsBoolean()
+  appointments?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  orders?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
   offers?: boolean;
 
   @IsOptional()

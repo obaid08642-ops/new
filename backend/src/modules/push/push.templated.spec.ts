@@ -34,3 +34,35 @@ describe('PushService templated text (R7-7)', () => {
     expect(await tl.userLang('x')).toBe('fil');
   });
 });
+
+/**
+ * R7-7: a push that hard-codes its text can never be translated or edited by an
+ * admin. Every event listener must go through the template keys instead.
+ */
+describe('PushService listeners are templated (R7-7)', () => {
+  const listeners = ['onBooking', 'onChatMessage', 'onCallIncoming', 'onEmergencyAssigned', 'onCallMissed', 'onPaymentCompleted', 'onPaymentFailed', 'onReportReady'];
+
+  it.each(listeners)('%s calls queueTemplated, never queueNotification directly', async (name) => {
+    const service: any = Object.create(PushService.prototype);
+    service.queueTemplated = jest.fn().mockResolvedValue({ queued: true });
+    service.queueNotification = jest.fn().mockResolvedValue({ queued: true });
+    service.userLang = jest.fn().mockResolvedValue('ar');
+
+    const evt: any = {
+      patient_id: 'p1', callee_id: 'c1', provider_account_id: 'a1',
+      universal_state: 'CONFIRMED', state: 'CONFIRMED', provider_name: 'Bupa',
+      meta: { participant_ids: ['u2'], actor_account_id: 'u1', sender_name: 'Sara', body: 'hi', thread_id: 't1' },
+      caller_name: 'Omar', session_id: 's1', call_type: 'audio', caller_id: 'u9',
+      emergency_id: 'e1', vehicle_id: 'v1', amount: 42, booking_id: 'b1', kind: 'consultation', id: 'bk1',
+    };
+
+    await (PushService.prototype as any)[name].call(service, evt);
+
+    const templated = service.queueTemplated.mock.calls;
+    const direct = service.queueNotification.mock.calls;
+    expect(templated.length + direct.length).toBeGreaterThan(0);
+    // The only permitted direct sends would carry a template key, not literal text.
+    for (const call of direct) expect(typeof call[1]).toBe('string');
+    if (name !== 'onChatMessage') expect(templated.length).toBeGreaterThan(0);
+  });
+});

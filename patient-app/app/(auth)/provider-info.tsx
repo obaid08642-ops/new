@@ -51,7 +51,7 @@ export default function ProviderInfoScreen() {
         >
           تم تسجيل دخولك بحساب مرتبط بـ (مقدم خدمة/طبيب/عيادة). لإدارة مواعيدك،
           وطلبات المرضى، والخدمات الطبية، يرجى استخدام تطبيق مقدم الخدمة المخصص
-          (Nabdah Provider).
+          (Nabd+ Provider).
         </AppText>
 
         <View style={st.actions}>

@@ -1,5 +1,6 @@
 import { Injectable, CanActivate, ExecutionContext, HttpException, HttpStatus } from '@nestjs/common';
 import { RedisService } from '../../modules/redis/redis.service';
+import { ERROR_CODES } from '../errors';
 
 @Injectable()
 export class VelocityGuard implements CanActivate {
@@ -18,8 +19,8 @@ export class VelocityGuard implements CanActivate {
 
     if (!allowed) {
       throw new HttpException({
-        status: HttpStatus.TOO_MANY_REQUESTS,
-        error: 'Too many payment attempts. Please try again after 10 minutes. (Velocity Check Failed)',
+        code: ERROR_CODES.RATE_LIMITED,
+        message: 'Too many payment attempts. Please try again after 10 minutes. (Velocity Check Failed)',
       }, HttpStatus.TOO_MANY_REQUESTS);
     }
 

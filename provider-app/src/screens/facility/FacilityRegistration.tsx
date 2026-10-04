@@ -11,7 +11,7 @@ import {
 } from '../../components/ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Validate } from '../../security/Security';
-import { SP, R, FS, FW, DEGREES, RAD_SCANS , LANGS } from '../../constants';
+import { SP, R, FS, FW, DEGREES , LANGS } from '../../constants';
 
 import { I } from '../../components/icons';
 import { RegistrationSuccess } from '../shared/SharedScreens';

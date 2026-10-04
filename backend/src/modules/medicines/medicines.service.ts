@@ -13,7 +13,7 @@ import { AutoEntitySeoPipelineService } from '../events/auto-entity-seo-pipeline
 import { localizeMedicineStructured, DbLang, missingPublicMedicineTranslations, PUBLIC_CATALOG_LOCALES } from './med-i18n';
 import { ProductRankingService } from '../product-ranking/product-ranking.service';
 import { ManualBoostsService } from '../product-ranking/manual-boosts.service';
-import { escapeRegex } from '../../common/slug.util';
+import { buildSlug, escapeRegex } from '../../common/slug.util';
 
 @Injectable()
 export class MedicinesService {
@@ -46,6 +46,21 @@ export class MedicinesService {
   private get shortageReports() { return this.conn.collection('pharmacy_shortage_reports'); }
   private get notifications() { return this.conn.collection('notifications'); }
   private get priceHistory() { return this.conn.collection('medicine_price_history'); }
+  private get slugHistory() { return this.conn.collection('slug_history'); }
+
+  /** R12: persist old→new slug so a rename 301s instead of 404ing. Best-effort, never breaks writes. */
+  private async recordSlugHistory(entityId: string, oldSlug: unknown, newSlug: unknown): Promise<void> {
+    const from = typeof oldSlug === 'string' ? oldSlug.trim() : '';
+    const to = typeof newSlug === 'string' ? newSlug.trim() : '';
+    if (!entityId || !from || !to || from === to) return;
+    try {
+      await this.slugHistory.updateOne(
+        { entity_type: 'medicine', old_slug: from },
+        { $set: { entity_type: 'medicine', entity_id: String(entityId), old_slug: from, new_slug: to, at: new Date() } },
+        { upsert: true },
+      );
+    } catch { /* history must never break the write */ }
+  }
 
   private async refreshPublicProjection(medicine: any, actorId: string, reason: string) {
     const reviewedAt = medicine?.last_reviewed || medicine?.approved_at || medicine?.updatedAt || new Date();
@@ -987,14 +1002,42 @@ export class MedicinesService {
 
   // RULE: Manual entries from patient/doctor/pharmacy are operational immediately.
   // Admin async review later.
+  // R19: manual entries merge into the single-id doc (sku/source/barcode) — locale
+  // fields fold into translations, never a sibling per-language record.
   async createManualEntry(data: Partial<Medicine>, byUserId: string, byRole: string) {
+    const editable = this.pickEditable(data);
+    const incomingTranslations = this.normalizeTranslationsMap((data as any)?.translations);
+    const identity = this.identityFilterFor({ ...(data as any), ...editable });
+    if (identity) {
+      const existing: any = await this.model.findOne({ ...identity, is_deleted: { $ne: true } });
+      if (existing) {
+        const merged = this.mergeTranslations(existing.translations, incomingTranslations);
+        const m = await this.model.findOneAndUpdate(
+          { id: existing.id },
+          { $set: { translations: merged, updatedAt: new Date() } },
+          { new: true, projection: { _id: 0, __v: 0 } },
+        );
+        await this.invalidateCache();
+        return m;
+      }
+    }
+    const manualId = require('crypto').randomUUID();
+    // R12: new docs carry their canonical slug from birth (pre-save also covers Model.create).
+    if (!editable.slug) {
+      const manualName = (editable as any).name_ar || (editable as any).name_en || 'item';
+      try { (editable as any).slug = buildSlug(String(manualName), manualId); } catch { /* keep unset */ }
+    }
     const m = await this.model.create({
-      ...this.pickEditable(data),
+      ...editable,
+      id: (editable as any).id || manualId,
+      translations: incomingTranslations,
       verified: false,
       source: byRole,
       created_by_user_id: byUserId,
       created_by_role: byRole,
     });
+    // R12: create path records history (no-op when no prior slug) to keep the writer wired everywhere.
+    await this.recordSlugHistory((m as any).id, null, (m as any).slug);
     this.events.emit(EVENTS.MEDICINE_PENDING_REVIEW, { medicine_id: m.id, by_role: byRole });
     await this.invalidateCache();
     return m;
@@ -1016,7 +1059,7 @@ export class MedicinesService {
           approved_by: by,
           approved_at: reviewedAt,
           public_eligibility: true,
-          indexing_eligibility: false,
+          indexing_eligibility: true, // R9b: approved items must be publicly searchable
           medical_review_status: 'approved',
           last_reviewed: reviewedAt,
           provenance: 'admin_medicine_review',
@@ -1057,13 +1100,22 @@ export class MedicinesService {
 
   async update(id: string, data: Partial<Medicine>) {
     // If the image is being REPLACED, remove the old object from S3/R2
+    const oldDoc: any = await this.model.findOne({ id });
     if (data.image) {
-      const old: any = await this.model.findOne({ id });
-      if (old?.image && old.image !== data.image) {
-        this.events.emit('storage.delete_by_url', { url: old.image });
+      if (oldDoc?.image && oldDoc.image !== data.image) {
+        this.events.emit('storage.delete_by_url', { url: oldDoc.image });
       }
     }
+    // R12: renames recompute the canonical slug (findOneAndUpdate skips the schema pre-save hook).
+    const nextName = (data as any)?.name_ar || (data as any)?.name_en;
+    if (nextName && oldDoc && nextName !== (oldDoc.name_ar || oldDoc.name_en)) {
+      const oldSlug = oldDoc.slug;
+      const nextSlug = buildSlug(String(nextName), String(id));
+      if (nextSlug && nextSlug !== oldSlug) (data as any).slug = nextSlug;
+    }
     const m = await this.model.findOneAndUpdate({ id }, { $set: data }, { new: true, projection: { _id: 0, __v: 0 } });
+    // R12: record rename history for 301s (no-op when slug unchanged).
+    if ((data as any)?.slug) await this.recordSlugHistory(id, oldDoc?.slug, (data as any).slug);
     await this.invalidateCache();
     return m;
   }
@@ -1074,8 +1126,15 @@ export class MedicinesService {
 
   // ============ ADMIN CATALOG CRUD ============
   async createCatalog(data: any, byUserId: string) {
+    const catalogId = data?.id || require('crypto').randomUUID();
+    // R12: canonical slug from birth when the caller did not provide one.
+    if (!data?.slug) {
+      const catalogName = data?.name_ar || data?.name_en || 'item';
+      try { data = { ...data, slug: buildSlug(String(catalogName), String(catalogId)) }; } catch { /* keep as-is */ }
+    }
     const m = await this.model.create({
       ...data,
+      id: catalogId,
       verified: true,
       public_eligibility: false,
       indexing_eligibility: false,
@@ -1087,6 +1146,8 @@ export class MedicinesService {
       approved_by: byUserId,
       approved_at: new Date()
     });
+    // R12: wire the slug-history writer on the create path (no-op for brand-new slugs).
+    await this.recordSlugHistory((m as any).id, null, (m as any).slug);
     this.events.emit(EVENTS.MEDICINE_APPROVED, { medicine_id: m.id, by: byUserId });
     await this.invalidateCache();
     return m;
@@ -1192,10 +1253,28 @@ export class MedicinesService {
 
   /** Admin: clear the badge when stock normalizes. */
   async clearShortageBadge(medicineId: string, adminId: string) {
-    await this.model.updateOne(
-      { id: medicineId },
-      { $set: { availability_status: 'none', shortage_notes: null, updatedAt: new Date() } },
-    );
+    let res: any = null;
+    try {
+      res = await this.model.updateOne(
+        { id: medicineId },
+        { $set: { availability_status: 'none', shortage_notes: null, updatedAt: new Date() } },
+      );
+    } catch {
+      const { NotFoundException } = await import('@nestjs/common');
+      throw new NotFoundException('medicine_not_found');
+    }
+    if (!res?.modifiedCount) {
+      let exists: any = null;
+      try {
+        exists = await this.model.findOne({ id: medicineId });
+      } catch {
+        exists = null;
+      }
+      if (!exists) {
+        const { NotFoundException } = await import('@nestjs/common');
+        throw new NotFoundException('medicine_not_found');
+      }
+    }
     this.audit('medicine.shortage_badge_cleared', medicineId, adminId, 'admin', {});
     await this.invalidateCache();
     return { ok: true };
@@ -1358,6 +1437,10 @@ export class MedicinesService {
       try {
         const name_ar = String(r.name_ar || r['name ar'] || r['اسم عربي'] || '').trim();
         if (!name_ar) { failed.push({ row: r, error: 'missing name_ar' }); continue; }
+        // R19: stable identity is sku → source_product_id → barcode (never the display name).
+        const skuNum = Number(r.sku ?? r['sku']);
+        const srcNum = Number(r.source_product_id ?? r.sourceProductId ?? r['source_product_id'] ?? r.productId ?? r.product_id);
+        const barcodeStr = String(r.barcode ?? r['barcode'] ?? '').trim();
         const doc: any = {
           name_ar,
           name_en: String(r.name_en || r['name en'] || r['english name'] || '').trim() || undefined,
@@ -1369,6 +1452,11 @@ export class MedicinesService {
           description_en: r.description_en || undefined,
           requires_prescription: !!(r.requires_prescription === true || String(r.requires_prescription || '').toLowerCase() === 'true' || r['rx'] === '1'),
           image: r.image || undefined,
+          barcode: barcodeStr || undefined,
+          sku: Number.isFinite(skuNum) && String(r.sku ?? r['sku'] ?? '').trim() !== '' ? skuNum : undefined,
+          source_product_id: Number.isFinite(srcNum) && String(r.source_product_id ?? r.sourceProductId ?? r['source_product_id'] ?? r.productId ?? r.product_id ?? '').trim() !== '' ? srcNum : undefined,
+          // R19: locale payloads fold into the translations map of the single doc.
+          translations: this.normalizeTranslationsMap(r.translations),
           source: 'bulk_import',
           created_by_user_id: byUserId,
           created_by_role: byRole,
@@ -1381,12 +1469,25 @@ export class MedicinesService {
           approved_at: autoApprove ? new Date() : undefined,
           approved_by: autoApprove ? byUserId : undefined,
         };
-        // Upsert by name_ar to avoid duplicates
+        // R12: stamp the canonical slug on inserts (findOneAndUpdate skips pre-save).
+        if (!doc.slug) {
+          try { doc.slug = buildSlug(name_ar, String(r.sku ?? r.barcode ?? r.source_product_id ?? name_ar)); } catch { /* keep unset */ }
+        }
+        // R19: single-id upsert — sku → source_product_id → barcode; name_ar only as a last resort.
+        const identityFilter = this.identityFilterFor({ sku: doc.sku, source_product_id: doc.source_product_id, barcode: doc.barcode }) || { name_ar: doc.name_ar };
         const m = await this.model.findOneAndUpdate(
-          { name_ar: doc.name_ar },
+          identityFilter as any,
           { $setOnInsert: doc },
           { upsert: true, new: true, projection: { _id: 0, __v: 0 } },
         );
+        // R19: repeat imports merge locale maps into the same id instead of forking siblings.
+        if (doc.translations && Object.keys(doc.translations).length) {
+          const merged = this.mergeTranslations((m as any)?.translations, doc.translations);
+          await this.model.updateOne({ id: (m as any).id }, { $set: { translations: merged, updatedAt: new Date() } });
+          (m as any).translations = merged;
+        }
+        // R12: wire the slug-history writer on the import path (no-op when slug unchanged).
+        await this.recordSlugHistory((m as any)?.id, null, (m as any)?.slug || doc.slug);
         created.push(m);
         if (!autoApprove) this.events.emit(EVENTS.MEDICINE_PENDING_REVIEW, { medicine_id: m.id, by_role: byRole });
       } catch (e: any) {
@@ -1452,6 +1553,53 @@ export class MedicinesService {
       if (obj && obj[f] !== undefined) out[f] = obj[f];
     }
     return out;
+  }
+
+  /** R19: single-id identity — one doc per product keyed by sku → source_product_id → barcode. */
+  private identityFilterFor(input: any): Record<string, unknown> | null {
+    const skuRaw = input?.sku ?? input?.SKU ?? input?.['sku '];
+    const skuNum = typeof skuRaw === 'number' ? skuRaw : Number(String(skuRaw ?? '').trim());
+    if (Number.isFinite(skuNum) && String(skuRaw ?? '').trim() !== '') return { sku: skuNum };
+    const srcRaw = input?.source_product_id ?? input?.sourceProductId ?? input?.['source_product_id'];
+    const srcNum = typeof srcRaw === 'number' ? srcRaw : Number(String(srcRaw ?? '').trim());
+    if (Number.isFinite(srcNum) && String(srcRaw ?? '').trim() !== '') return { source_product_id: srcNum };
+    const code = String(input?.barcode ?? input?.['barcode'] ?? '').trim();
+    if (code) return { barcode: code };
+    return null;
+  }
+
+  /** R19: allowed per-locale translation keys merged into ONE doc (never a sibling per locale). */
+  private static readonly TRANSLATION_LOCALES = ['ur', 'hi', 'bn', 'fil', 'tl', 'en', 'ar'];
+
+  private normalizeTranslationsMap(input: unknown): Record<string, Record<string, string>> {
+    if (!input || typeof input !== 'object' || Array.isArray(input)) return {};
+    const out: Record<string, Record<string, string>> = {};
+    for (const [locale, map] of Object.entries(input as Record<string, unknown>)) {
+      if (!MedicinesService.TRANSLATION_LOCALES.includes(locale)) continue;
+      if (!map || typeof map !== 'object' || Array.isArray(map)) continue;
+      const clean: Record<string, string> = {};
+      for (const [k, v] of Object.entries(map as Record<string, unknown>)) {
+        if (typeof v !== 'string') continue;
+        const val = v.trim().slice(0, 5000);
+        if (val) clean[String(k).slice(0, 80)] = val;
+      }
+      if (Object.keys(clean).length) out[locale] = clean;
+    }
+    // Canonical Filipino key is `fil`; fold the legacy `tl` alias so fil vs tl never forks.
+    if (out.tl && !out.fil) out.fil = out.tl;
+    if (out.tl && out.fil) delete out.tl;
+    return out;
+  }
+
+  private mergeTranslations(
+    existing: unknown,
+    incoming: unknown,
+  ): Record<string, Record<string, string>> {
+    const base = this.normalizeTranslationsMap(existing);
+    const next = this.normalizeTranslationsMap(incoming);
+    const merged: Record<string, Record<string, string>> = { ...base };
+    for (const [locale, map] of Object.entries(next)) merged[locale] = { ...(merged[locale] || {}), ...map };
+    return merged;
   }
 
   private notifyAdmin(title: string, body: string, data: any) {
@@ -1565,6 +1713,13 @@ export class MedicinesService {
     } else if (r.type === 'new_item') {
       const data = { ...this.pickEditable(r.changes), ...overrides };
       const created = await this.createCatalog({ ...data, verified: true }, adminId);
+      // Q60: the admin just medically approved this item — publish it instead of
+      // leaving it as an invisible draft (createCatalog alone never grants indexability).
+      const approvedAt = new Date();
+      await this.model.updateOne(
+        { id: created.id },
+        { $set: { verified: true, public_eligibility: true, indexing_eligibility: true, medical_review_status: 'approved', last_reviewed: approvedAt, approved_by: adminId, approved_at: approvedAt, provenance: 'admin_change_request_approved', updatedAt: new Date() } },
+      );
       applied = { new_medicine_id: created.id };
     }
     // 'other' → informational; approval just acknowledges it.
@@ -1625,10 +1780,27 @@ export class MedicinesService {
   async adminCreateCatalog(body: any, adminId: string) {
     const clean = this.pickEditable(body);
     if (!clean.name_ar && !clean.name_en) throw new BadRequestException('name_ar أو name_en مطلوب');
+    // R19: admin creates merge into the single-id doc — same sku/barcode/source never forks a sibling.
+    const incomingTranslations = this.mergeTranslations({}, (body as any)?.translations);
+    const createIdentity = this.identityFilterFor({ ...(body as any), ...clean });
+    if (createIdentity) {
+      const dupe: any = await this.model.findOne({ ...createIdentity, is_deleted: { $ne: true } });
+      if (dupe) {
+        const merged = this.mergeTranslations(dupe.translations, incomingTranslations);
+        await this.model.updateOne({ id: dupe.id }, { $set: { translations: merged, updatedAt: new Date() } });
+        await this.invalidateCache();
+        return { ok: true, id: dupe.id, merged: true };
+      }
+    }
     const id = require('crypto').randomUUID();
+    // R12: canonical slug from birth when the caller did not provide one.
+    if (!(clean as any).slug) {
+      try { (clean as any).slug = buildSlug(String(clean.name_ar || clean.name_en || 'item'), id); } catch { /* keep unset */ }
+    }
     const doc = {
       id,
       ...clean,
+      translations: incomingTranslations,
       categories: clean.category ? [clean.category, ...(clean.sub_category ? [clean.sub_category] : [])] : [],
       images: Array.isArray(clean.images) ? clean.images : (clean.image ? [clean.image] : []),
       price: Number(clean.price) || 0,
@@ -1648,6 +1820,8 @@ export class MedicinesService {
       updatedAt: new Date(),
     };
     await this.model.create(doc as any);
+    // R12: wire the slug-history writer on the admin-create path (no-op for brand-new slugs).
+    await this.recordSlugHistory(id, null, (doc as any).slug);
     await this.priceHistory.insertOne({ id: `mph_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`, medicine_id: id, before_price: null, after_price: doc.price, reason: String(body?.reason || 'إنشاء صنف جديد'), changed_by: adminId, createdAt: new Date() });
     this.audit('medicine.admin_create', id, adminId, 'admin', { after: clean });
     await this.invalidateCache();
@@ -1671,11 +1845,15 @@ export class MedicinesService {
   async adminApproveCatalog(medicineId: string, approve: boolean, adminId: string) {
     const med: any = await this.model.findOne({ id: medicineId }, { _id: 0, __v: 0 }).lean();
     if (!med) throw new NotFoundException('الصنف غير موجود');
+    // Q60: the public catalog/search/detail filter requires indexing_eligibility:true,
+    // so medical approval must grant it here — otherwise an approved item stays 404.
+    const reviewedAt = new Date();
     await this.model.updateOne(
       { id: medicineId },
-      { $set: { medical_review_status: approve ? 'approved' : 'rejected', public_eligibility: !!approve, verified: approve ? true : med.verified, last_reviewed: new Date(), updated_by: adminId, updatedAt: new Date() } },
+      { $set: { medical_review_status: approve ? 'approved' : 'rejected', public_eligibility: !!approve, indexing_eligibility: !!approve, verified: approve ? true : med.verified, last_reviewed: reviewedAt, updated_by: adminId, updatedAt: new Date() } },
     );
     this.audit(approve ? 'medicine.admin_approved' : 'medicine.admin_rejected', medicineId, adminId, 'admin', {});
+    await this.refreshPublicProjection({ ...med, medical_review_status: approve ? 'approved' : 'rejected', public_eligibility: !!approve, indexing_eligibility: !!approve, last_reviewed: reviewedAt }, adminId, approve ? 'medicine_admin_approved' : 'medicine_admin_rejected');
     await this.invalidateCache();
     return { ok: true, id: medicineId, medical_review_status: approve ? 'approved' : 'rejected' };
   }
@@ -1720,6 +1898,20 @@ export class MedicinesService {
     };
   }
 
+  /** F8: does this admin hold the catalog approve permission (directly or via role)? */
+  private async holdsCatalogApprove(adminId: string): Promise<boolean> {
+    try {
+      const { resolveEffectivePermissions } = await import('../../common/effective-permissions');
+      const conn: any = (this.model as any).db;
+      const user: any = await conn?.collection?.('users')?.findOne({ id: adminId });
+      if (!user) return false;
+      const perms = await resolveEffectivePermissions(conn, user);
+      return perms.includes('catalog.approve');
+    } catch {
+      return false;
+    }
+  }
+
   async adminUpdateCatalog(medicineId: string, patch: any, adminId: string) {
     // getById returns a mongoose document: spreading it ({ ...med }) drops `id`, and the publication
     // refresh below then ran with an undefined id -> 404 to the admin after the edit was already saved.
@@ -1737,24 +1929,42 @@ export class MedicinesService {
       extra.availability_status = patch.availability_status;
     }
     if (patch?.image !== undefined) extra.image = patch.image;
+    // R12: renames recompute the canonical slug (updateOne skips the schema pre-save hook).
+    const adminNextName = clean.name_ar || clean.name_en;
+    if (adminNextName && adminNextName !== (med.name_ar || med.name_en)) {
+      const adminNextSlug = buildSlug(String(adminNextName), String(medicineId));
+      if (adminNextSlug && adminNextSlug !== med.slug) extra.slug = adminNextSlug;
+    }
+    // R19: locale edits merge into the SAME id's translations map (validated + tl→fil normalized).
+    const incomingAdminTranslations = this.normalizeTranslationsMap((patch as any)?.translations);
+    if (Object.keys(incomingAdminTranslations).length) {
+      extra.translations = this.mergeTranslations(med.translations, incomingAdminTranslations);
+    }
     if (Object.keys(clean).length === 0 && Object.keys(extra).length === 0) {
       throw new BadRequestException('patch must include at least one editable field');
     }
     const before: any = {};
     for (const f of Object.keys({ ...clean, ...extra })) before[f] = med[f] ?? null;
-    // Any public content change requires a fresh medical review. Availability-only
-    // changes still refresh the public projection but do not bypass this rule.
-    const requiresReapproval = med.public_eligibility === true
-      || med.indexing_eligibility === true
-      || med.medical_review_status === 'approved';
-    const governanceReset = requiresReapproval ? {
+    // F8/R9c: publishing an item by editing it requires the catalog APPROVE
+    // permission. An admin who only holds CATALOG_UPDATE/CATALOG_PRICE_WRITE
+    // sends the item back to medical review instead of publishing it.
+    // Price history + audit log are kept below in both cases.
+    const canPublish = await this.holdsCatalogApprove(adminId);
+    const wasPublic = med.public_eligibility === true || med.medical_review_status === 'approved';
+    const governanceReset = wasPublic && canPublish ? {
+      verified: true,
+      public_eligibility: true,
+      indexing_eligibility: true,
+      medical_review_status: 'approved',
+      last_reviewed: new Date(),
+      provenance: 'admin_direct_edit_published',
+    } : (wasPublic ? {
+      // Keep the item visible but flag it for a fresh medical review decision.
       verified: false,
-      public_eligibility: false,
-      indexing_eligibility: false,
       medical_review_status: 'pending',
       last_reviewed: null,
       provenance: 'admin_direct_edit_pending_review',
-    } : {};
+    } : {});
     await this.model.updateOne({ id: medicineId }, { $set: { ...clean, ...extra, ...governanceReset, updatedAt: new Date() } });
     if (clean.price !== undefined && Number(clean.price) !== Number(med.price || 0)) {
       await this.priceHistory.insertOne({ id: `mph_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`, medicine_id: medicineId, before_price: Number(med.price || 0), after_price: Number(clean.price), reason: String(patch.reason).trim(), changed_by: adminId, createdAt: new Date() });
@@ -1774,10 +1984,11 @@ export class MedicinesService {
     const merged = { ...med, ...after };
     const removed = collectImgs(med).filter(u => !collectImgs(merged).includes(u));
     for (const url of removed) this.events.emit('storage.delete_by_url', { url });
-    if (requiresReapproval) {
-      await this.refreshPublicProjection({ ...med, ...after, ...governanceReset }, adminId, 'medicine_admin_edit_reapproval');
-    }
-    this.audit('medicine.admin_direct_edit', medicineId, adminId, 'admin', { before, after, requires_reapproval: requiresReapproval, images_deleted: removed });
+    // R12: record rename history for 301s (no-op when slug unchanged).
+    if ((extra as any)?.slug) await this.recordSlugHistory(medicineId, med.slug, (extra as any).slug);
+    await this.refreshPublicProjection({ ...med, ...after, ...governanceReset }, adminId, 'medicine_admin_edit_published');
+    const requiresReapproval = wasPublic && !canPublish;
+    this.audit('medicine.admin_direct_edit', medicineId, adminId, 'admin', { before, after, requires_reapproval: requiresReapproval, catalog_approve: canPublish, images_deleted: removed });
     await this.invalidateCache();
     return { ok: true, updated: Object.keys({ ...clean, ...extra }), requires_reapproval: requiresReapproval };
   }

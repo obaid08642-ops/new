@@ -62,7 +62,7 @@ export default async function AppointmentSummaryPage({ params }: Props) {
               return <li key={i}>{String(r.name ?? r.medication ?? r.drug ?? "")} {typeof r.dose === "string" ? `— ${r.dose}` : ""}</li>;
             })}
           </ul>
-          <Link href={`/${locale}/prescriptions`} style={{ background: "#5FD9B3", color: "#1E332E", padding: "8px 14px", borderRadius: 20, border: "1px solid #E8EDEE", fontWeight: 700, textDecoration: "none" } as any}>{ar ? "وصفاتي" : "My prescriptions"}</Link>
+          <Link href={`/${locale}/consultations/prescription?appointmentId=${appointmentId}`} style={{ background: "#5FD9B3", color: "#1E332E", padding: "8px 14px", borderRadius: 20, border: "1px solid #E8EDEE", fontWeight: 700, textDecoration: "none" } as any}>{ar ? "وصفاتي" : "My prescriptions"}</Link>
         </section>
       ) : null}
       {!diagnosis && !notes && !prescription.length ? (
@@ -86,7 +86,7 @@ export default async function AppointmentSummaryPage({ params }: Props) {
           ) : null}
           <nav aria-label={ar ? "أوامر قابلة للتنفيذ" : "Actionable orders"} style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             {prescription.length > 0 ? (
-              <Link href={`/${locale}/pharmacy`}>{ar ? "اطلب الأدوية من الصيدلية" : "Order medicines from pharmacy"}</Link>
+              <Link href={`/${locale}/consultations/prescription?appointmentId=${appointmentId}`}>{ar ? "اطلب الأدوية من الصيدلية" : "Order medicines from pharmacy"}</Link>
             ) : null}
             <Link href={`/${locale}/diagnostics/labs`}>{ar ? "احجز التحاليل" : "Book tests"}</Link>
             <Link href={`/${locale}/consultations/post-call-rating?appointmentId=${appointmentId}`}>{ar ? "قيّم الاستشارة" : "Rate the consultation"}</Link>

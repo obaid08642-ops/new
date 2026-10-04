@@ -606,14 +606,66 @@ export class OrdersService {
   // Reorder — keep items, re-dispatch via geo
   async reorder(orderId: string, patient: any) {
     const o = await this.orderModel.findOne({ id: orderId, patient_id: patient.id });
-    if (!o) throw new NotFoundException();
-    await this.assertNotCanonicalPharmacyOrder(o);
-    return this.create(patient, {
-      items: o.items.map((it: any) => ({ medicine_id: it.medicine_id, qty: it.qty })),
-      delivery_address: o.delivery_address,
-      delivery_mode: o.delivery_mode,
-      payment_method: o.payment_method,
-    });
+    if (o) {
+      await this.assertNotCanonicalPharmacyOrder(o);
+      return this.create(patient, {
+        items: o.items.map((it: any) => ({ medicine_id: it.medicine_id, qty: it.qty })),
+        delivery_address: o.delivery_address,
+        delivery_mode: o.delivery_mode,
+        payment_method: o.payment_method,
+      });
+    }
+    // Q16: current governed orders live in `pharmacy_orders` — reorder them by
+    // opening a fresh patient draft with the previous order's items.
+    const governed: any = await this.conn.collection('pharmacy_orders').findOne({ id: orderId, patient_account_id: patient.id } as any);
+    if (!governed) throw new NotFoundException();
+    return this.createGovernedDraftFromPrevious(governed);
+  }
+
+  /**
+   * Q16: build a new `pharmacy_orders` draft in the exact shape the patient
+   * draft flow (PharmacyOrderService.create) persists: fresh ids, `draft`
+   * status, zeroed totals, and a `created` timeline entry. The draft stays
+   * inert until the patient submits it — same as an app-created draft.
+   */
+  private async createGovernedDraftFromPrevious(source: any, override?: { items?: any[]; delivery_address?: any; patient_notes?: string }) {
+    const { v4: uuidv4 } = require('uuid');
+    const srcItems = (override?.items && override.items.length ? override.items : source.items) || [];
+    const items = srcItems.map((it: any) => ({
+      id: uuidv4(),
+      raw_name: String(it.raw_name || it.name || it.name_ar || it.name_en || 'unknown').replace(/[<>]/g, '').trim() || 'unknown',
+      ...(it.name_ar ? { name_ar: it.name_ar } : {}),
+      ...(it.name_en ? { name_en: it.name_en } : {}),
+      ...(it.generic_name ? { generic_name: it.generic_name } : {}),
+      ...(it.dosage ? { dosage: it.dosage } : {}),
+      ...(it.form ? { form: it.form } : {}),
+      ...(it.frequency ? { frequency: it.frequency } : {}),
+      ...(it.duration ? { duration: it.duration } : {}),
+      qty: Math.max(1, Number(it.qty) || 1),
+      match_status: 'manual',
+      ...(it.matched_sku || it.sku || it.medicine_id ? { matched_sku: it.matched_sku || it.sku || it.medicine_id } : {}),
+      ...(it.unit_price !== undefined ? { unit_price: it.unit_price } : {}),
+      intake_source: 'manual',
+      ...(it.notes ? { notes: it.notes } : {}),
+    }));
+    const draft: any = {
+      id: uuidv4(),
+      patient_account_id: source.patient_account_id,
+      status: 'draft',
+      items,
+      delivery_address: override?.delivery_address || source.delivery_address || {},
+      ...(override?.patient_notes ?? source.patient_notes ? { patient_notes: override?.patient_notes ?? source.patient_notes } : {}),
+      ...(source.prescription_id ? { prescription_id: source.prescription_id } : {}),
+      payment_method: typeof source.payment_method === 'string' ? source.payment_method : 'cash',
+      fulfillment: source.fulfillment === 'pickup' ? 'pickup' : 'delivery',
+      payment_mode: source.payment_mode === 'insurance' ? 'insurance' : 'cash',
+      ...(source.insurance_policy_id ? { insurance_policy_id: source.insurance_policy_id } : {}),
+      ...(source.delivery_address_id ? { delivery_address_id: source.delivery_address_id } : {}),
+      totals: { subtotal: 0, delivery_fee: 0, total: 0, currency: 'SAR' },
+      timeline: [{ ts: new Date(), event: 'created' }],
+    };
+    await this.conn.collection('pharmacy_orders').insertOne(draft as any);
+    return draft;
   }
 
   /**
@@ -623,21 +675,45 @@ export class OrdersService {
    */
   async reorderPartial(orderId: string, patient: any, body: { items: any[]; delivery_address?: any; notes?: string }) {
     const o = await this.orderModel.findOne({ id: orderId, patient_id: patient.id });
-    if (!o) throw new NotFoundException();
-    await this.assertNotCanonicalPharmacyOrder(o);
+    if (o) {
+      await this.assertNotCanonicalPharmacyOrder(o);
+      if (!Array.isArray(body.items) || body.items.length === 0) throw new BadRequestException('items_required');
+      return this.create(patient, {
+        items: body.items.map((it: any) => ({
+          medicine_id: it.medicine_id,
+          qty: Math.max(1, parseInt(it.qty, 10) || 1),
+          name_ar: it.name_ar,
+          name_en: it.name_en,
+          price: it.price,
+        })),
+        delivery_address: body.delivery_address || o.delivery_address,
+        delivery_mode: o.delivery_mode,
+        payment_method: o.payment_method,
+        notes: body.notes,
+      });
+    }
+    // Q16: governed order — same custom-items flow, persisted as a fresh draft.
+    const governed: any = await this.conn.collection('pharmacy_orders').findOne({ id: orderId, patient_account_id: patient.id } as any);
+    if (!governed) throw new NotFoundException();
     if (!Array.isArray(body.items) || body.items.length === 0) throw new BadRequestException('items_required');
-    return this.create(patient, {
+    return this.createGovernedDraftFromPrevious(governed, {
       items: body.items.map((it: any) => ({
-        medicine_id: it.medicine_id,
-        qty: Math.max(1, parseInt(it.qty, 10) || 1),
+        raw_name: it.raw_name || it.name || it.name_ar || it.name_en,
         name_ar: it.name_ar,
         name_en: it.name_en,
-        price: it.price,
+        generic_name: it.generic_name,
+        dosage: it.dosage,
+        form: it.form,
+        frequency: it.frequency,
+        duration: it.duration,
+        qty: Math.max(1, parseInt(it.qty, 10) || 1),
+        sku: it.sku,
+        matched_sku: it.matched_sku || it.sku || it.medicine_id,
+        unit_price: it.unit_price ?? it.price,
+        notes: it.notes,
       })),
-      delivery_address: body.delivery_address || o.delivery_address,
-      delivery_mode: o.delivery_mode,
-      payment_method: o.payment_method,
-      notes: body.notes,
+      delivery_address: body.delivery_address || governed.delivery_address,
+      patient_notes: body.notes ?? governed.patient_notes,
     });
   }
 
@@ -754,37 +830,66 @@ export class OrdersService {
   async getTracking(id: string, user: any) {
     const qOrder = this.orderModel.findOne({ id });
     const order = typeof (qOrder as any)?.lean === 'function' ? await (qOrder as any).lean() : await qOrder;
-    if (!order) throw new NotFoundException();
-    const isOwner = order.patient_id === user?.id || order.pharmacy_id === user?.id;
-    if (!isOwner && !['admin', 'super_admin'].includes(user?.role)) {
+    if (order) {
+      const isOwner = order.patient_id === user?.id || order.pharmacy_id === user?.id;
+      if (!isOwner && !['admin', 'super_admin'].includes(user?.role)) {
+        throw new ForbiddenException();
+      }
+
+      let delivery = null;
+      if (order.delivery_id) {
+        const qDel = this.delModel.findOne({ id: order.delivery_id });
+        const del = typeof (qDel as any)?.lean === 'function' ? await (qDel as any).lean() : await qDel;
+        if (del) {
+          delivery = {
+            state: del.state,
+            eta_minutes: del.eta_minutes,
+            driver_id: del.driver_id,
+            location: del.current_location,
+          };
+        }
+      }
+
+      const pharmacy = order.pharmacy_id
+        ? await this.conn.collection('provider_profiles').findOne({ id: order.pharmacy_id }, { projection: { name_ar: 1, name_en: 1 } })
+        : null;
+      return {
+        order_id: order.id,
+        state: order.state,
+        updated_at: order.updatedAt,
+        delivery_mode: order.delivery_mode || 'DELIVERY',
+        total: order.total,
+        pharmacy_name: pharmacy?.name_ar || pharmacy?.name_en || null,
+        delivery,
+      };
+    }
+
+    // Q30: current governed orders live in `pharmacy_orders` — resolve them
+    // here and return the same timeline shape as legacy orders.
+    const governed: any = await this.conn.collection('pharmacy_orders').findOne({ id } as any);
+    if (!governed) throw new NotFoundException();
+    const isGovernedOwner = governed.patient_account_id === user?.id;
+    let allocation: any = null;
+    if (!isGovernedOwner && governed.selected_allocation_id) {
+      allocation = await this.conn.collection('pharmacy_allocations').findOne({ id: governed.selected_allocation_id } as any);
+    }
+    const isGovernedPharmacyParty = !!allocation && allocation.pharmacy_account_id === user?.id;
+    if (!isGovernedOwner && !isGovernedPharmacyParty && !['admin', 'super_admin'].includes(user?.role)) {
       throw new ForbiddenException();
     }
-
-    let delivery = null;
-    if (order.delivery_id) {
-      const qDel = this.delModel.findOne({ id: order.delivery_id });
-      const del = typeof (qDel as any)?.lean === 'function' ? await (qDel as any).lean() : await qDel;
-      if (del) {
-        delivery = {
-          state: del.state,
-          eta_minutes: del.eta_minutes,
-          driver_id: del.driver_id,
-          location: del.current_location,
-        };
-      }
-    }
-
-    const pharmacy = order.pharmacy_id
-      ? await this.conn.collection('provider_profiles').findOne({ id: order.pharmacy_id }, { projection: { name_ar: 1, name_en: 1 } })
+    const governedPharmacyId = allocation?.pharmacy_account_id || governed.pharmacy_id || null;
+    const governedPharmacy = governedPharmacyId
+      ? await this.conn.collection('provider_profiles').findOne({ id: governedPharmacyId }, { projection: { name_ar: 1, name_en: 1 } } as any)
       : null;
+    const governedDeliveryMethod = governed.delivery?.method || (governed.fulfillment === 'pickup' ? 'pickup' : 'delivery');
     return {
-      order_id: order.id,
-      state: order.state,
-      updated_at: order.updatedAt,
-      delivery_mode: order.delivery_mode || 'DELIVERY',
-      total: order.total,
-      pharmacy_name: pharmacy?.name_ar || pharmacy?.name_en || null,
-      delivery,
+      order_id: governed.id,
+      state: governed.status,
+      updated_at: governed.updatedAt,
+      delivery_mode: String(governedDeliveryMethod).toUpperCase() === 'PICKUP' ? 'PICKUP' : 'DELIVERY',
+      total: governed.totals?.total ?? governed.total_price ?? governed.total ?? 0,
+      pharmacy_name: governedPharmacy?.name_ar || governedPharmacy?.name_en || null,
+      delivery: null,
     };
   }
 

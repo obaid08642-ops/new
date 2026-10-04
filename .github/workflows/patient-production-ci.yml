@@ -72,6 +72,8 @@ jobs:
         run: npx tsc --noEmit
       - name: Run unit and contract tests
         run: npm test -- --runInBand
+      - name: Run boot security and journey suites (R8)
+        run: npx jest --config jest.boot.config.js --runInBand test/security test/journeys
       - name: Build
         run: npm run build
 
@@ -133,6 +135,11 @@ jobs:
         run: node tools/design/sync-client-tokens.mjs --check
       - name: No new off-palette colour in the mobile/admin clients (ratchet)
         run: node tools/design/client-token-sync.mjs
+      # C2, third leg: screens take visual primitives from packages/ui* only. The
+      # other two lints catch a hard-coded VALUE; this catches a hard-coded
+      # COMPONENT — a screen reaching past the design system for its own icons.
+      - name: No new direct visual-primitive import in any client (ratchet)
+        run: node tools/design/import-rule.mjs
       - name: Install compiler
         run: npm install --ignore-scripts --no-save typescript@5.9.3
       - name: Type check the generated TypeScript module
@@ -331,6 +338,10 @@ jobs:
           cache-dependency-path: patient-app/package-lock.json
       - name: Install frozen dependencies
         run: npm ci
+      # Q68: an SDK-mismatched native module crashes the app at launch without
+      # touching JS. Fail the build if any native package is misaligned.
+      - name: Verify native module alignment
+        run: npx expo install --check
       # patient-app imports the design system sources from ../packages (12.A6/A7);
       # their own dependencies must be present for tsc, jest and the export.
       - name: Install the shared design packages
@@ -368,6 +379,9 @@ jobs:
       - name: Install frozen dependencies
         # Expo 54 + jest-expo 52 has a legacy optional peer in the locked tree.
         run: npm ci --legacy-peer-deps
+      # Q68: see patient-app above.
+      - name: Verify native module alignment
+        run: npx expo install --check
       - name: Type check
         run: npx tsc --noEmit
       - name: Run tests

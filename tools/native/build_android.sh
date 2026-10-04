@@ -26,15 +26,18 @@ export EXPO_PUBLIC_APP_ENV=development
 export SENTRY_DISABLE_AUTO_UPLOAD=true
 # provider-app has no .npmrc and its test-only devDependency react-test-renderer@^19.2.8 conflicts with the
 # pinned react 19.2.3, so a plain `npm ci` fails (Q58). patient-app already sets legacy-peer-deps in .npmrc.
-npm ci --no-audit --no-fund --legacy-peer-deps
+# STRICT (agent-fix verification run): the Q58/Q62/Q67/Q68 workarounds below only REPORT, so the build
+# proves the agent's fixes. Set NATIVE_WORKAROUNDS=1 to restore the old test-build patches.
+WA="${NATIVE_WORKAROUNDS:-0}"
+if [ "$WA" = 1 ]; then npm ci --no-audit --no-fund --legacy-peer-deps; else npm ci --no-audit --no-fund; fi
 # Q62: libraries that still call jcenter(), removed in Gradle 9 (the Gradle of Expo 57 / RN 0.86); the
 # store build fails on them. Test build only: point them at mavenCentral() and list them as evidence.
 JC=$(grep -l "jcenter()" node_modules/*/android/build.gradle node_modules/@*/*/android/build.gradle 2>/dev/null || true)
 echo "jcenter() users: ${JC:-none}" | tee /tmp/native/jcenter_${APP}.txt
-[ -n "$JC" ] && sed -i 's/jcenter()/mavenCentral()/g' $JC
+[ -n "$JC" ] && [ "$WA" = 1 ] && sed -i 's/jcenter()/mavenCentral()/g' $JC
 # Q62: react-native-callkeep 3.1.x also uses androidx LocalBroadcastManager without declaring it.
 CK=node_modules/react-native-callkeep/android/build.gradle
-if [ -f "$CK" ] && ! grep -q localbroadcastmanager "$CK"; then
+if [ "$WA" = 1 ] && [ -f "$CK" ] && ! grep -q localbroadcastmanager "$CK"; then
   sed -i '0,/^dependencies *{/s//dependencies {\n    implementation "androidx.localbroadcastmanager:localbroadcastmanager:1.1.0"/' "$CK"
   echo "callkeep: added androidx.localbroadcastmanager (test build only)" | tee -a /tmp/native/jcenter_${APP}.txt
 fi
@@ -42,7 +45,7 @@ export NODE_ENV=production   # after the install: npm must not drop devDependenc
 # Q67: patient-app lists react-native-webrtc (org.jitsi:webrtc 124) next to @livekit/react-native-webrtc
 # (io.github.webrtc-sdk 144): duplicate org.webrtc classes stop the release build. No source file imports
 # react-native-webrtc, so the test build leaves it out.
-if [ -d node_modules/react-native-webrtc ] && [ -d node_modules/@livekit/react-native-webrtc ]; then
+if [ "$WA" = 1 ] && [ -d node_modules/react-native-webrtc ] && [ -d node_modules/@livekit/react-native-webrtc ]; then
   node -e 'const fs=require("fs");const p=JSON.parse(fs.readFileSync("package.json"));delete p.dependencies["react-native-webrtc"];fs.writeFileSync("package.json",JSON.stringify(p,null,2))'
   rm -rf node_modules/react-native-webrtc
   echo "react-native-webrtc removed for the test build (Q67)" | tee -a /tmp/native/jcenter_${APP}.txt
@@ -50,7 +53,7 @@ fi
 # Q68: provider-app pins expo-image-manipulator ~14.0.8 (SDK 54) on Expo 57; on Android the app crashes at
 # launch (NoClassDefFoundError expo.modules.kotlin.types.AnyTypeProvider). Test build: the SDK-57 version.
 node -e 'const b=require("expo/bundledNativeModules.json");const p=require("./package.json");for(const k of Object.keys(p.dependencies||{})){if(b[k]){let v;try{v=require(k+"/package.json").version}catch(e){continue}if(v.split(".")[0]!==b[k].replace(/[~^]/,"").split(".")[0])console.log(k+"@"+b[k])}}' > /tmp/native/sdk_mismatch_${APP}.txt
-if [ -s /tmp/native/sdk_mismatch_${APP}.txt ]; then
+if [ "$WA" = 1 ] && [ -s /tmp/native/sdk_mismatch_${APP}.txt ]; then
   echo "SDK version mismatches (Q68): $(tr '\n' ' ' < /tmp/native/sdk_mismatch_${APP}.txt)" | tee -a /tmp/native/jcenter_${APP}.txt
   # swap only those packages in place (npm install would re-resolve the tree and drop packages Metro needs, Q63)
   for spec in $(cat /tmp/native/sdk_mismatch_${APP}.txt); do

@@ -115,8 +115,114 @@ export const useLang = (): LangCtxType => {
 // TOAST
 // ═══════════════════════════════════════
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
-interface ToastCtxType { show: (msg: string, type?: ToastType, dur?: number) => void; }
+interface ToastCtxType {
+  show: (msg: string, type?: ToastType, dur?: number) => void;
+  /** 13.R5: resolve a backend `code` through the catalog and toast it. */
+  showCode: (code: string, lang?: Lang, type?: ToastType) => void;
+  /** 13.R5: extract backend code from any thrown value and toast catalog text. */
+  showBackendError: (err: unknown, lang?: Lang) => void;
+}
 const ToastCtx = createContext<ToastCtxType | null>(null);
+
+// ─── 13.R5 backend error catalog (mirrors backend/src/common/errors.i18n.json) ─
+// Toast never invents strings for covered codes; unknown/snake codes fall back
+// to UNKNOWN_ERROR while preserving the raw code for support.
+type CatalogEntry = { message: string; nextStep: string };
+export const BACKEND_ERROR_CATALOG: Record<string, { ar: CatalogEntry; en: CatalogEntry }> = {
+  AUTHENTICATION_REQUIRED: {
+    en: { message: 'You need to sign in to continue.', nextStep: 'Sign in and try again.' },
+    ar: { message: 'يجب تسجيل الدخول للمتابعة.', nextStep: 'سجّل الدخول ثم حاول مرة أخرى.' },
+  },
+  INSUFFICIENT_PERMISSION: {
+    en: { message: "You don't have permission to do this.", nextStep: 'Contact support if you think this is a mistake.' },
+    ar: { message: 'ليس لديك صلاحية لتنفيذ هذا الإجراء.', nextStep: 'تواصل مع الدعم إذا كنت تعتقد أن هذا خطأ.' },
+  },
+  PRESCRIPTION_REQUIRED: {
+    en: { message: 'This item needs a valid prescription.', nextStep: 'Upload your prescription to continue.' },
+    ar: { message: 'هذا الصنف يتطلب وصفة طبية سارية.', nextStep: 'ارفع الوصفة الطبية للمتابعة.' },
+  },
+  NO_AVAILABILITY: {
+    en: { message: 'No availability right now.', nextStep: 'Try another time or date.' },
+    ar: { message: 'لا يوجد توفر حالياً.', nextStep: 'جرّب وقتاً أو تاريخاً آخر.' },
+  },
+  SERVICE_UNAVAILABLE: {
+    en: { message: 'This service is temporarily unavailable.', nextStep: 'Please try again in a little while.' },
+    ar: { message: 'هذه الخدمة غير متاحة مؤقتاً.', nextStep: 'يرجى المحاولة مرة أخرى بعد قليل.' },
+  },
+  PROVIDER_NOT_AVAILABLE: {
+    en: { message: 'No provider is available for this request.', nextStep: 'Try again later or choose another provider.' },
+    ar: { message: 'لا يوجد مقدم خدمة متاح لهذا الطلب.', nextStep: 'حاول لاحقاً أو اختر مقدم خدمة آخر.' },
+  },
+  PRODUCT_OUT_OF_STOCK: {
+    en: { message: 'This product is out of stock.', nextStep: 'Try an alternative or check back later.' },
+    ar: { message: 'هذا المنتج غير متوفر حالياً.', nextStep: 'جرّب بديلاً أو تحقق لاحقاً.' },
+  },
+  PAYMENT_REQUIRED: {
+    en: { message: 'Payment is required to complete this.', nextStep: 'Complete the payment to continue.' },
+    ar: { message: 'يلزم الدفع لإتمام هذا الإجراء.', nextStep: 'أكمل الدفع للمتابعة.' },
+  },
+  INSURANCE_NOT_SUPPORTED: {
+    en: { message: "Your insurance doesn't cover this.", nextStep: 'Continue with self-payment or contact your insurer.' },
+    ar: { message: 'التأمين الخاص بك لا يغطي هذه الخدمة.', nextStep: 'تابع بالدفع الذاتي أو تواصل مع شركة التأمين.' },
+  },
+  LOCATION_NOT_SUPPORTED: {
+    en: { message: "We don't serve this location yet.", nextStep: 'Try another address or pickup instead.' },
+    ar: { message: 'لا نغطي هذا الموقع بعد.', nextStep: 'جرّب عنواناً آخر أو اختر الاستلام.' },
+  },
+  DUPLICATE_TRANSACTION: {
+    en: { message: 'This was already submitted.', nextStep: 'Check your orders before trying again.' },
+    ar: { message: 'تم إرسال هذا الطلب مسبقاً.', nextStep: 'تحقق من طلباتك قبل إعادة المحاولة.' },
+  },
+  INVALID_INPUT: {
+    en: { message: 'Some details look incorrect.', nextStep: 'Review the highlighted fields and try again.' },
+    ar: { message: 'بعض البيانات تبدو غير صحيحة.', nextStep: 'راجع الحقول المطلوبة وحاول مرة أخرى.' },
+  },
+  RATE_LIMITED: {
+    en: { message: 'Too many attempts. Please slow down.', nextStep: 'Wait a moment, then try again.' },
+    ar: { message: 'محاولات كثيرة جداً. يرجى التمهل.', nextStep: 'انتظر قليلاً ثم حاول مرة أخرى.' },
+  },
+  UNKNOWN_ERROR: {
+    en: { message: 'Something went wrong. Please try again.', nextStep: 'If it keeps happening, contact support.' },
+    ar: { message: 'حدث خطأ ما. يرجى المحاولة مرة أخرى.', nextStep: 'إذا استمرت المشكلة، تواصل مع الدعم.' },
+  },
+};
+
+export function normalizeToastBackendCode(raw: unknown): string | null {
+  if (typeof raw !== 'string') return null;
+  const trimmed = raw.trim();
+  if (!/^[A-Za-z0-9_.-]{1,80}$/.test(trimmed)) return null;
+  return trimmed.toUpperCase();
+}
+
+/** Pull a backend `code` out of normalized client errors, raw payloads, or messages. */
+export function extractToastBackendCode(input: unknown): string | null {
+  if (!input || typeof input !== 'object') {
+    return normalizeToastBackendCode(input);
+  }
+  const rec = input as Record<string, unknown>;
+  const direct = normalizeToastBackendCode(rec.code ?? rec.error_code);
+  if (direct) return direct;
+  const nested: unknown[] = [];
+  if (rec.response && typeof rec.response === 'object') {
+    nested.push((rec.response as Record<string, unknown>).data);
+  }
+  if (rec.data && typeof rec.data === 'object') nested.push(rec.data);
+  for (const n of nested) {
+    if (n && typeof n === 'object') {
+      const hit = normalizeToastBackendCode(
+        (n as Record<string, unknown>).code ?? (n as Record<string, unknown>).error_code,
+      );
+      if (hit) return hit;
+    }
+  }
+  return null;
+}
+
+export function resolveBackendErrorText(code: unknown, lang: Lang = 'ar'): CatalogEntry {
+  const normalized = normalizeToastBackendCode(code);
+  const table = BACKEND_ERROR_CATALOG[normalized ?? ''] ?? BACKEND_ERROR_CATALOG.UNKNOWN_ERROR;
+  return lang === 'en' ? table.en : table.ar;
+}
 
 function ToastItem({ msg, type, onDone }: { msg: string; type: ToastType; onDone: () => void }) {
  const y = useRef(new Animated.Value(-100)).current;
@@ -152,18 +258,26 @@ function ToastItem({ msg, type, onDone }: { msg: string; type: ToastType; onDone
 }
 
 export function ToastProvider({ children }: { children: ReactNode }) {
- const [item, setItem] = useState<{ msg:string; type:ToastType; id:number } | null>(null);
- const counter = useRef(0);
- const show = useCallback((msg: string, type: ToastType = 'success') => {
- counter.current++;
- setItem({ msg, type, id: counter.current });
- }, []);
- return (
- <ToastCtx.Provider value={{ show }}>
- {children}
- {item && <ToastItem key={item.id} msg={item.msg} type={item.type} onDone={() => setItem(null)} />}
- </ToastCtx.Provider>
- );
+  const [item, setItem] = useState<{ msg:string; type:ToastType; id:number } | null>(null);
+  const counter = useRef(0);
+  const show = useCallback((msg: string, type: ToastType = 'success') => {
+  counter.current++;
+  setItem({ msg, type, id: counter.current });
+  }, []);
+  const showCode = useCallback((code: string, lang: Lang = 'ar', type: ToastType = 'error') => {
+  const entry = resolveBackendErrorText(code, lang);
+  show(`${entry.message} ${entry.nextStep}`, type);
+  }, [show]);
+  const showBackendError = useCallback((err: unknown, lang: Lang = 'ar') => {
+  const code = extractToastBackendCode(err) ?? 'UNKNOWN_ERROR';
+  showCode(code, lang, 'error');
+  }, [showCode]);
+  return (
+  <ToastCtx.Provider value={{ show, showCode, showBackendError }}>
+  {children}
+  {item && <ToastItem key={item.id} msg={item.msg} type={item.type} onDone={() => setItem(null)} />}
+  </ToastCtx.Provider>
+  );
 }
 export const useToast = (): ToastCtxType => {
  const c = useContext(ToastCtx);
@@ -199,7 +313,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [appState, setAppState] = useState<AppStateStatusType>('checking');
   const { t, lang } = useLang();
-  const { show } = useToast();
+  const { showBackendError } = useToast();
 
   useEffect(() => { refreshSession(); }, []);
 
@@ -305,7 +419,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         body: JSON.stringify({ email: identifier, password, meta: { device_identifier: deviceId } })
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'فشل تسجيل الدخول');
+      if (!res.ok) {
+        // 13.R5: keep the backend code so the caller surfaces catalog text.
+        const code = extractToastBackendCode(data);
+        const err: { code?: string; message: string } = {
+          message: data.message || 'فشل تسجيل الدخول',
+        };
+        if (code) err.code = code;
+        throw err;
+      }
       
       await Tokens.save(data.access_token, data.refresh_token, data.session_id, data.provider_id, data.provider_type);
       const u = mapBackendResponseToUser(data);
@@ -316,6 +438,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { ok: true };
     } catch (e: any) {
       Audit.log('login_fail', false, { identifier });
+      // 13.R5: prefer catalog message + next step over raw backend strings.
+      const code = extractToastBackendCode(e);
+      if (code) {
+        const entry = resolveBackendErrorText(code, lang);
+        return { ok: false, err: `${entry.message} ${entry.nextStep}` };
+      }
       return { ok: false, err: e?.message || t('serverErr') };
     }
   };
@@ -340,7 +468,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { ok: false, err: 'يرجى تسجيل الدخول وإعداد البصمة أولاً' };
       }
       
-      const { success } = await LocalAuth.authenticateAsync({ promptMessage: 'Unlock Nabdah Plus' });
+      const { success } = await LocalAuth.authenticateAsync({ promptMessage: 'Unlock Nabd+ Plus' });
       if (!success) return { ok: false, err: 'فشل التحقق من البصمة' };
 
       const ok = await tryRefresh();
@@ -391,11 +519,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
  if (!res.ok) throw new Error('Toggle failed');
  const data = await res.json();
  updateUser({ isOnline: data.instant_available });
- } catch (err) {
- // Revert optimistic update on failure
- updateUser({ isOnline: !next });
- show('حدث خطأ في تحديث الحالة', 'error');
- }
+  } catch (err) {
+  // Revert optimistic update on failure
+  updateUser({ isOnline: !next });
+  // 13.R5: toast the backend catalog entry (message + next step).
+  showBackendError(err, lang);
+  }
  };
 
  return (

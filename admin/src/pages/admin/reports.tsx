@@ -90,7 +90,7 @@ export default function ReportsPage() {
 
   return (
     <>
-      <Head><title>التقارير | نبض</title></Head>
+      <Head><title>التقارير | نبض بلس</title></Head>
       <section dir="rtl" className="space-y-6 p-6 md:p-8">
         <header className="flex flex-wrap items-end justify-between gap-3">
           <div>
@@ -144,9 +144,11 @@ export default function ReportsPage() {
                     {rows.some((r) => r.net !== undefined) && <th className="p-2">الصافي</th>}
                     {rows.some((r) => r.total !== undefined) && <th className="p-2">المجموع</th>}
                     {rows.some((r) => r.copay !== undefined) && <th className="p-2">كوباي</th>}
-                  </tr></thead>
+                   </tr></thead>
                   <tbody>
-                    {rows.map((r, i) => (
+                    {rows.map((r, i) => {
+                      const detailHref = CONSOLES[tab]?.href;
+                      return (
                       <tr key={i} className="border-b">
                         {rows.some((x) => x.kind !== undefined || x.type !== undefined) && <td className="p-2">{r.kind || r.type || '—'}</td>}
                         <td className="p-2">{r.bucket || '—'}</td>
@@ -156,8 +158,10 @@ export default function ReportsPage() {
                         {rows.some((x) => x.net !== undefined) && <td className="p-2">{r.net ?? '—'}</td>}
                         {rows.some((x) => x.total !== undefined) && <td className="p-2">{r.total ?? '—'}</td>}
                         {rows.some((x) => x.copay !== undefined) && <td className="p-2">{r.copay ?? '—'}</td>}
+                        {detailHref && <td className="p-2"><a href={detailHref} className="text-teal-700 underline">التفاصيل</a></td>}
                       </tr>
-                    ))}
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>

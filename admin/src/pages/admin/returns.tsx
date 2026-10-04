@@ -63,7 +63,7 @@ export default function ReturnsAdminPage() {
 
   return (
     <>
-      <Head><title>طلبات الإرجاع والاسترداد | نبض</title></Head>
+      <Head><title>طلبات الإرجاع والاسترداد | نبض بلس</title></Head>
       <main className="space-y-5 p-4 sm:p-8">
         <header className="flex flex-wrap items-end justify-between gap-3">
           <div>

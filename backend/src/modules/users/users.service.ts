@@ -238,18 +238,63 @@ export class UsersService {
     return { channels, categories };
   }
 
+  /**
+   * Owner-decided flat→structured mapping (HANDOFF §5, do not re-ask):
+   * general→channels.push, appointments→categories.appointments,
+   * orders→categories.orders, medications→categories.health,
+   * doctorMessages→categories.chat, offers→categories.marketing.
+   * emergency is always on and locked; sound/vibration are device-local.
+   */
+  private static readonly NOTIFICATION_FLAT_MAP = {
+    general: 'channels.push',
+    appointments: 'categories.appointments',
+    orders: 'categories.orders',
+    medications: 'categories.health',
+    doctorMessages: 'categories.chat',
+    offers: 'categories.marketing',
+  } as const;
+
   private validateNotificationPatch(body: any) {
     if (!body || typeof body !== 'object' || Array.isArray(body)) throw new BadRequestException('invalid_notification_settings');
-    const allowedTopLevel = new Set(['channels', 'categories']);
+    // The app sends one flat switch at a time ({ [key]: boolean }); translate to
+    // the stored channels/categories shape BEFORE the strict allowlist below, so
+    // the same injection guards (no dots, no $, booleans only) cover both forms.
+    const normalized: any = {};
     for (const key of Object.keys(body)) {
-      if (!allowedTopLevel.has(key) || key.includes('.') || key.startsWith('$')) throw new BadRequestException('notification_setting_not_allowed');
+      if (key === 'channels' || key === 'categories') {
+        normalized[key] = body[key];
+        continue;
+      }
+      const mapped = (UsersService.NOTIFICATION_FLAT_MAP as any)[key];
+      if (mapped) {
+        const value = body[key];
+        if (typeof value !== 'boolean') throw new BadRequestException('notification_setting_not_allowed');
+        const [group, sub] = String(mapped).split('.');
+        normalized[group] = normalized[group] || {};
+        normalized[group][sub] = value;
+        continue;
+      }
+      if (key === 'emergency') {
+        // Emergency alerts are always on and locked: accepting `true` is a no-op,
+        // attempting `false` is refused rather than silently ignored.
+        if (body[key] === false) throw new BadRequestException('emergency_notifications_locked');
+        if (body[key] !== true && body[key] !== undefined) throw new BadRequestException('notification_setting_not_allowed');
+        continue;
+      }
+      if (key === 'sound' || key === 'vibration') continue; // device-local, nothing to persist
+      if (key.includes('.') || key.startsWith('$')) throw new BadRequestException('notification_setting_not_allowed');
+      throw new BadRequestException('notification_setting_not_allowed');
+    }
+    const allowedTopLevel = new Set(['channels', 'categories']);
+    for (const key of Object.keys(normalized)) {
+      if (!allowedTopLevel.has(key)) throw new BadRequestException('notification_setting_not_allowed');
     }
     const clean: any = {};
     const validateGroup = (name: 'channels' | 'categories', keys: readonly string[]) => {
-      if (body[name] === undefined) return;
-      if (!body[name] || typeof body[name] !== 'object' || Array.isArray(body[name])) throw new BadRequestException(`invalid_notification_${name}`);
+      if (normalized[name] === undefined) return;
+      if (!normalized[name] || typeof normalized[name] !== 'object' || Array.isArray(normalized[name])) throw new BadRequestException(`invalid_notification_${name}`);
       clean[name] = {};
-      for (const [key, value] of Object.entries(body[name])) {
+      for (const [key, value] of Object.entries(normalized[name])) {
         if (!keys.includes(key) || typeof value !== 'boolean' || key.includes('.') || key.startsWith('$')) {
           throw new BadRequestException('notification_setting_not_allowed');
         }
@@ -258,7 +303,16 @@ export class UsersService {
     };
     validateGroup('channels', UsersService.NOTIFICATION_CHANNELS);
     validateGroup('categories', UsersService.NOTIFICATION_CATEGORIES);
-    if (!clean.channels && !clean.categories) throw new BadRequestException('notification_settings_empty');
+    if (!clean.channels && !clean.categories) {
+      // Nothing persistable: either `{}` (existing behaviour — reject) or only
+      // device-local keys like sound/vibration, which the server correctly
+      // ignores. A legitimate device-only toggle must not 400.
+      const onlyDeviceLocal = Object.keys(body).every((k) =>
+        k === 'sound' || k === 'vibration' || (k === 'emergency' && body[k] === true),
+      );
+      if (onlyDeviceLocal) return null; // caller persists nothing; see updateNotificationSettings
+      throw new BadRequestException('notification_settings_empty');
+    }
     return clean;
   }
 
@@ -269,6 +323,7 @@ export class UsersService {
   async updateNotificationSettings(id: string, body: any) {
     const patch = this.validateNotificationPatch(body);
     const current = await this.getNotificationSettings(id);
+    if (!patch) return current; // device-local keys only (sound/vibration): nothing to persist
     const next = {
       channels: { ...current.channels, ...(patch.channels || {}) },
       categories: { ...current.categories, ...(patch.categories || {}) },
@@ -394,9 +449,11 @@ export class UsersService {
 
   async deleteUser(user_id: string, by: any) {
     if (user_id === by.id) throw new ForbiddenException('Cannot delete yourself');
+    // R2: 404 for an unknown target — never report success on a missing user.
+    const target: any = await this.userRepository.findOne({ id: user_id });
+    if (!target) throw new NotFoundException('user_not_found');
     // S5: user deletion is irreversible and sensitive — audit BEFORE deleting,
     // keeping only privacy-safe identifiers (hashed phone tail, role).
-    const target: any = await this.userRepository.findOne({ id: user_id });
     try {
       this.events?.emit('admin.user_deleted', {
         admin_id: by?.id,

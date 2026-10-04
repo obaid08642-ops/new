@@ -42,6 +42,19 @@ export interface StorageAdapter {
   delete(obj: StorageObject): Promise<void>;
 }
 
+/** Per-call timeout for S3/R2 object calls (ms). Env-overridable for tests. */
+const s3TimeoutMs = () => Number(process.env.S3_TIMEOUT_MS) || 30000;
+
+/** Rejects after ms so a hung object-store call fails fast (callers fail closed). */
+function withTimeout(p: Promise<any>, ms: number): Promise<any> {
+  let t: any;
+  const gate = new Promise<never>((_, rej) => {
+    t = setTimeout(() => rej(new Error('s3_timeout')), ms);
+    (t as any)?.unref?.();
+  });
+  return Promise.race([p, gate]).finally(() => clearTimeout(t)) as Promise<any>;
+}
+
 /** Default adapter — stores base64 inline. Identical interface as future S3/Cloudinary adapters. */
 class Base64Adapter implements StorageAdapter {
   async put(p: { mime: string; data_base64?: string; original_name: string; customKey?: string }) {
@@ -78,12 +91,12 @@ class S3R2Adapter implements StorageAdapter {
     const bucket = process.env.S3_BUCKET as string;
     const key = p.customKey || `${uuidv4()}-${p.original_name}`;
     const { PutObjectCommand } = require('@aws-sdk/client-s3');
-    await this.client().send(new PutObjectCommand({
+    await withTimeout(this.client().send(new PutObjectCommand({
       Bucket: bucket,
       Key: key,
       Body: Buffer.from(p.data_base64, 'base64'),
       ContentType: p.mime,
-    }));
+    })), s3TimeoutMs());
     const publicBase = process.env.S3_PUBLIC_BASE_URL || `${process.env.S3_ENDPOINT}/${bucket}`;
     return {
       backend: StorageBackend.S3,
@@ -102,7 +115,10 @@ class S3R2Adapter implements StorageAdapter {
   async delete(o: StorageObject) {
     if (o.backend === StorageBackend.S3 && o.external_key && S3R2Adapter.configured()) {
       const { DeleteObjectCommand } = require('@aws-sdk/client-s3');
-      await this.client().send(new DeleteObjectCommand({ Bucket: process.env.S3_BUCKET, Key: o.external_key }));
+      await withTimeout(
+        this.client().send(new DeleteObjectCommand({ Bucket: process.env.S3_BUCKET, Key: o.external_key })),
+        Math.min(s3TimeoutMs(), 15000),
+      );
     }
   }
 }
@@ -153,7 +169,10 @@ export class StorageService {
             api_key: process.env.CLOUDINARY_API_KEY,
             api_secret: process.env.CLOUDINARY_API_SECRET,
           });
-          await cloudinary.uploader.destroy(obj.external_key).catch(() => null);
+          await withTimeout(
+            cloudinary.uploader.destroy(obj.external_key).catch(() => null),
+            Math.min(s3TimeoutMs(), 15000),
+          );
           await this.model.updateOne({ _id: obj._id }, { $set: { deleted: true } });
           this.logger.log(`Deleted Cloudinary asset: ${obj.external_key}`);
         }
@@ -176,7 +195,10 @@ export class StorageService {
         },
         forcePathStyle: true,
       });
-      await client.send(new DeleteObjectCommand({ Bucket: process.env.S3_BUCKET, Key: key }));
+      await withTimeout(
+        client.send(new DeleteObjectCommand({ Bucket: process.env.S3_BUCKET, Key: key })),
+        Math.min(s3TimeoutMs(), 15000),
+      );
       await this.model.updateMany({ external_key: key }, { $set: { deleted: true } });
       this.logger.log(`Deleted object from storage: ${key}`);
     } catch (e: any) {
@@ -311,13 +333,13 @@ export class StorageService {
     const publicId = input.customKey
       ? `nabd/${input.customKey}`
       : `nabd/${input.owner_kind || 'user'}/${input.owner_account_id}/${crypto.randomUUID()}`;
-    const result = await cloudinary.uploader.upload(`data:${input.mime};base64,${input.data_base64}`, {
+    const result = await withTimeout(cloudinary.uploader.upload(`data:${input.mime};base64,${input.data_base64}`, {
       public_id: publicId,
       resource_type: 'image',
       type: 'authenticated',
       overwrite: !!input.customKey,
       invalidate: true, // purge CDN cached copies of the replaced image
-    });
+    }), s3TimeoutMs());
 
     // Full metadata object — the contract says never store only a URL
     const meta = {

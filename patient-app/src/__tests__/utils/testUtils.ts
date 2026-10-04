@@ -9,7 +9,7 @@ import type { AppConfig } from '../../core/config/ConfigManager';
 // ─────────────────────────────────────────────────────────────────────────────
 export const mockConfig: AppConfig = {
   appName:          'نبض بلس TEST',
-  appNameEn:        'Nabdah Plus TEST',
+  appNameEn:        'Nabd+ TEST',
   appVersion:       '1.0.0',
   buildNumber:      '1',
   bundleId:         'com.nabdahplus.test',

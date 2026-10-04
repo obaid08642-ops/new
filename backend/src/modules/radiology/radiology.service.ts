@@ -39,7 +39,12 @@ export class RadiologyOpsService {
   // ──────────────────────────────────────────────
   /** Bookings may live in either collection (legacy or center) — unify lookup. */
   private async findBooking(id: string, user?: any): Promise<any> {
-    const b = await this.bkgModel.findOne({ id });
+    let b: any = null;
+    try {
+      b = await this.bkgModel.findOne({ id });
+    } catch {
+      throw new NotFoundException();
+    }
     if (b) {
       if (user) {
         const isAdmin = user.role === 'admin' || user.role === 'super_admin';

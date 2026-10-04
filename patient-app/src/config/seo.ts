@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-// SEO & Structured Data helpers for Nabdah Plus
+// SEO & Structured Data helpers for Nabd+
 // Generates JSON-LD, Open Graph, and meta tags for web indexing.
 // ---------------------------------------------------------------------------
 
@@ -154,12 +154,12 @@ export function generateMedicalOrgSchema(): object {
   return {
     '@context': 'https://schema.org',
     '@type': 'MedicalOrganization',
-    name: 'Nabdah Plus',
+    name: 'Nabd+',
     alternateName: 'نبض بلس',
     url: WEB_BASE,
     logo: `${WEB_BASE}/logo.png`,
     description:
-      'Nabdah Plus is a comprehensive healthcare platform in Saudi Arabia offering doctor consultations, pharmacy delivery, lab tests, home nursing, and more.',
+      'Nabd+ is a comprehensive healthcare platform in Saudi Arabia offering doctor consultations, pharmacy delivery, lab tests, home nursing, and more.',
     address: {
       '@type': 'PostalAddress',
       addressCountry: 'SA',
@@ -195,7 +195,7 @@ export function generateOpenGraph(meta: OpenGraphMeta): Record<string, string> {
     'og:url': meta.url,
     'og:image': meta.image ?? `${WEB_BASE}/og-default.png`,
     'og:type': meta.type ?? 'website',
-    'og:site_name': 'Nabdah Plus',
+    'og:site_name': 'Nabd+',
     'og:locale': 'ar_SA',
     'twitter:card': 'summary_large_image',
     'twitter:site': '@nabdahplus',

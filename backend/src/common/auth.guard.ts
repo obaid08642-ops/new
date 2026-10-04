@@ -186,6 +186,17 @@ export class JwtAuthGuard implements CanActivate {
             }
             await this.adminIdle.touch(uid);
           }
+          // X4: bootstrap session (no passkey yet) may only call passkey
+          // enrollment and device endpoints. Every other admin route gets 403.
+          // Only enforced when ADMIN_PASSKEY_ENFORCED=true (production); the
+          // live gate and development use password+OTP without a passkey.
+          const isPasskeyEndpoint = /\/auth\/passkey\//.test(path) || /\/admin\/devices/.test(path);
+          if (!isPasskeyEndpoint && process.env.ADMIN_PASSKEY_ENFORCED === 'true') {
+            const hasPasskey = await this.connection.collection('passkey_credentials').findOne(
+              { user_id: uid },
+            ).catch(() => null);
+            if (!hasPasskey) throw new ForbiddenException('passkey_enrollment_required');
+          }
         }
       }
     } catch (e: any) {

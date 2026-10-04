@@ -35,6 +35,8 @@ export enum Permission {
   CATALOG_READ = 'catalog.read',
   CATALOG_CREATE = 'catalog.create',
   CATALOG_UPDATE = 'catalog.update',
+  // F8/R9c: only an admin holding this may publish a catalog item by editing it.
+  CATALOG_APPROVE = 'catalog.approve',
   CATALOG_PRICE_WRITE = 'catalog.price.write',
   CATALOG_IMPORT = 'catalog.import',
   CATALOG_DELETE_RESTORE = 'catalog.delete_restore',
@@ -106,6 +108,7 @@ export const PERMISSION_LABELS_AR: Record<string, string> = {
   [Permission.CATALOG_READ]: 'قراءة كتالوج الأدوية',
   [Permission.CATALOG_CREATE]: 'إنشاء صنف في الكتالوج',
   [Permission.CATALOG_UPDATE]: 'تعديل صنف في الكتالوج',
+  [Permission.CATALOG_APPROVE]: 'اعتماد (نشر) صنف في الكتالوج',
   [Permission.CATALOG_PRICE_WRITE]: 'تغيير سعر صنف',
   [Permission.CATALOG_IMPORT]: 'استيراد الكتالوج',
   [Permission.CATALOG_DELETE_RESTORE]: 'حذف أو استعادة صنف',
@@ -173,6 +176,9 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     Permission.OPS_QUEUES_MANAGE, Permission.OPS_CRONS_RUN,
     Permission.TRANSLATIONS_EDIT, Permission.SEO_CONTROL,
     Permission.CATALOG_READ, Permission.CATALOG_CREATE, Permission.CATALOG_UPDATE,
+    // F8: publishing a catalog item (by approving it, or by editing it) is a
+    // separate grant from editing one.
+    Permission.CATALOG_APPROVE,
     Permission.CATALOG_PRICE_WRITE, Permission.CATALOG_IMPORT,
     Permission.CATALOG_DELETE_RESTORE, Permission.CATALOG_SHORTAGE_DECIDE,
   ],

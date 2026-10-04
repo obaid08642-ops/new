@@ -305,6 +305,11 @@ export class PharmacyOfferService {
         .update(JSON.stringify({ offer_id: offer.id, offer_version: offer.version, totals: offer.totals }))
         .digest('hex'),
       approx_distance_km: approx,
+      // R4 location privacy: pre-acceptance patients see district/city ONLY.
+      // profile.geo (exact coordinates) is read above solely to compute the
+      // rounded distance server-side and is NEVER included in this payload.
+      pharmacy_district: typeof profile?.district === 'string' ? profile.district : null,
+      pharmacy_city: typeof profile?.city === 'string' ? profile.city : null,
       approx_delivery: { eta_minutes: 60, label_ar: 'خلال ساعة تقريباً', label_en: 'Approximately within 1 hour' },
       provider_note: typeof offer.provider_note === 'string' ? offer.provider_note : null,
     };

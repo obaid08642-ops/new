@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Patch, Put, UseGuards, Query, Headers, ForbiddenException, ServiceUnavailableException } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Patch, Put, UseGuards, Query, Headers, ForbiddenException, ServiceUnavailableException, Res } from '@nestjs/common';
 import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -100,23 +100,13 @@ export class ProviderPharmacyController {
   // =========================================================================
   // Legacy parent-order actions are intentionally disabled. They accepted client prices,
   // co-pays and state changes, bypassing the offer selection and payment/insurance gates.
-  @Post('orders/:id/accept')
-  acceptOrder() { throw new ServiceUnavailableException('legacy_order_acceptance_disabled_use_patient_selected_offer'); }
-
-  @Post('orders/:id/submit-basket')
-  submitBasket() { throw new ServiceUnavailableException('legacy_basket_submission_disabled_use_versioned_offer'); }
-
-  @Post('orders/:id/insurance')
-  evaluateInsurance() { throw new ServiceUnavailableException('legacy_insurance_evaluation_disabled_use_governed_insurance_decision'); }
-
   @Post('orders/:id/preparing')
   orderPreparing() { throw new ServiceUnavailableException('legacy_order_transition_disabled_use_selected_allocation'); }
 
   @Post('orders/:id/ready')
   orderReady() { throw new ServiceUnavailableException('legacy_order_transition_disabled_use_selected_allocation'); }
 
-  @Post('orders/:id/dispatch')
-  orderDispatch() { throw new ServiceUnavailableException('legacy_order_dispatch_disabled_delivery_proof_required'); }
+  // R4: accept/submit-basket/insurance/dispatch stubs removed (dup of pharmacy_ops).
 }
 
 // =========================================================================
@@ -171,6 +161,38 @@ export class AdminPharmacyController {
       col.countDocuments(filter),
     ]);
     return { items, total, page, limit };
+  }
+  // R3: CSV export of the SAME audit trail (same filters, no paging cap games —
+  // hard cap 5000 rows). Lives in this controller so no new controller +
+  // registration is needed. BOM first so Excel opens Arabic correctly; every
+  // cell quoted with inner quotes doubled (RFC 4180).
+  @Get('price-overrides.csv') async priceOverridesCsv(@Query() q: any, @Res() res: any) {
+    const col = (this.allocs as any).orders.db.collection('pharmacy_price_override_audit');
+    const filter: any = {};
+    if (q?.order_id) filter.order_id = String(q.order_id);
+    if (q?.offer_id) filter.offer_id = String(q.offer_id);
+    if (q?.pharmacy_account_id) filter.pharmacy_account_id = String(q.pharmacy_account_id);
+    if (q?.sku) filter.sku = String(q.sku);
+    if (q?.from || q?.to) {
+      filter.changed_at = {};
+      if (q.from) filter.changed_at.$gte = new Date(String(q.from));
+      if (q.to) filter.changed_at.$lte = new Date(String(q.to));
+    }
+    const rows: any[] = await col.find(filter).sort({ changed_at: -1 }).limit(5000).toArray();
+    const cols = ['changed_at', 'pharmacy_account_id', 'order_id', 'offer_id', 'sku', 'catalog_price', 'override_price', 'reason', 'changed_by'];
+    const esc = (v: any) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+    const lines = [cols.join(',')];
+    for (const r of rows) {
+      lines.push(cols.map((c) => {
+        let v: any = (r as any)[c];
+        if (c === 'changed_at' && v) v = new Date(v).toISOString();
+        return esc(v);
+      }).join(','));
+    }
+    const stamp = new Date().toISOString().slice(0, 10);
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="price-overrides-${stamp}.csv"`);
+    return res.send('\uFEFF' + lines.join('\r\n'));
   }
   @Post('expire-stale-allocations') expireStale() { return this.allocs.expireStale(); }
 }
@@ -271,11 +293,15 @@ export class PharmacyChatController {
   @Get('threads/:id/messages') msgs(@CurrentUser() u: any, @Param('id') id: string) { return this.chat.listMessages(u, id); }
   @Roles(UserRole.PHARMACY, UserRole.ADMIN)
   @Post('threads/:id/messages') post(@CurrentUser() u: any, @Param('id') id: string, @Body() b: PostDto) { return this.chat.postMessage(u, id, b); }
-  @Roles(UserRole.PHARMACY, UserRole.ADMIN)
+  // R2: patients decide on substitution proposals for their own orders.
+  // The service enforces t.patient_account_id === user.id, so opening the
+  // role is safe — without PATIENT here every accept/reject 403s at the guard
+  // before ownership is even checked, and the R2 flow cannot complete.
+  @Roles(UserRole.PHARMACY, UserRole.ADMIN, UserRole.PATIENT)
   @Post('threads/:id/accept-substitute/:msgId') accept(@CurrentUser() u: any, @Param('id') id: string, @Param('msgId') mid: string) { return this.chat.acceptSubstitute(u, id, mid); }
-  @Roles(UserRole.PHARMACY, UserRole.ADMIN)
+  @Roles(UserRole.PHARMACY, UserRole.ADMIN, UserRole.PATIENT)
   @Post('threads/:id/reject') reject(@CurrentUser() u: any, @Param('id') id: string) { return this.chat.rejectOrRemove(u, id, 'rejected'); }
-  @Roles(UserRole.PHARMACY, UserRole.ADMIN)
+  @Roles(UserRole.PHARMACY, UserRole.ADMIN, UserRole.PATIENT)
   @Post('threads/:id/remove-item') remove(@CurrentUser() u: any, @Param('id') id: string) { return this.chat.rejectOrRemove(u, id, 'removed'); }
 }
 

@@ -4,7 +4,7 @@ import { Connection } from 'mongoose';
 import { JwtAuthGuard } from '../../../../common/auth.guard';
 import { Roles, CurrentUser } from '../../../../common/auth.guard';
 import { UserRole } from '../../../../common/enums';
-import { SlaDto, AppVersionsDto } from './admin-config.dto';
+import { SlaDto, AppVersionsDto, DisputeConfigDto, OrdersConsoleConfigDto } from './admin-config.dto';
 
 const SLA_KEY = 'sla';
 const SLA_DEFAULTS = { consultationDuration: 15, callRingingDuration: 45, jwtExpiry: 24 };
@@ -63,7 +63,7 @@ export class AdminConfigController {
 
   @Put('dispute-config')
   @Roles(UserRole.ADMIN)
-  async updateDisputeConfig(@Body() body: any, @CurrentUser() admin: any) {
+  async updateDisputeConfig(@Body() body: DisputeConfigDto, @CurrentUser() admin: any) {
     const value: any = { ...DISPUTE_CONFIG_DEFAULTS };
     if (body?.max_refund_sar !== undefined) {
       const n = Number(body.max_refund_sar);
@@ -98,7 +98,7 @@ export class AdminConfigController {
 
   @Put('orders-console-config')
   @Roles(UserRole.ADMIN)
-  async updateOrdersConsoleConfig(@Body() body: any, @CurrentUser() admin: any) {
+  async updateOrdersConsoleConfig(@Body() body: OrdersConsoleConfigDto, @CurrentUser() admin: any) {
     const value: any = { ...ORDERS_CONSOLE_CONFIG_DEFAULTS };
     if (body?.compensation_max_sar !== undefined) {
       const n = Number(body.compensation_max_sar);

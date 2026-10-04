@@ -363,10 +363,29 @@ export class LiveKitService {
     }
   }
 
+  /** Per-call timeout for LiveKit server calls (ms). Env-overridable for tests. */
+  private get serverTimeoutMs() { return Number(process.env.LIVEKIT_TIMEOUT_MS) || 5000; }
+
+  /**
+   * Rejects after ms so a hung LiveKit server call fails fast into the
+   * existing fallbacks below (empty list / { success:false } / null-swallowing).
+   */
+  private withTimeout(p: Promise<any>, ms: number): Promise<any> {
+    let t: any;
+    const gate = new Promise<never>((_, rej) => {
+      t = setTimeout(() => rej(new Error('livekit_timeout')), ms);
+      (t as any)?.unref?.();
+    });
+    return Promise.race([p, gate]).finally(() => clearTimeout(t)) as Promise<any>;
+  }
+
   async getRoomParticipants(roomName: string) {
     const svc = this.roomService();
     if (!svc) return [];
-    const list = await svc.listParticipants(roomName).catch(() => []);
+    const list = await this.withTimeout(
+      svc.listParticipants(roomName).catch(() => []),
+      this.serverTimeoutMs,
+    ).catch(() => []);
     return (list || []).map((p: any) => ({
       identity: p.identity,
       name: p.name,
@@ -379,18 +398,30 @@ export class LiveKitService {
   async muteParticipant(roomName: string, participantId: string, muted: boolean) {
     const svc = this.roomService();
     if (!svc) return { success: false, reason: 'livekit_not_configured' };
-    const p = await svc.getParticipant(roomName, participantId).catch(() => null);
+    const p = await this.withTimeout(
+      svc.getParticipant(roomName, participantId).catch(() => null),
+      this.serverTimeoutMs,
+    ).catch(() => null);
     if (!p) return { success: false, reason: 'participant_not_found' };
     for (const track of p.tracks || []) {
-      await svc.mutePublishedTrack(roomName, participantId, track.sid, muted).catch(() => null);
+      await this.withTimeout(
+        svc.mutePublishedTrack(roomName, participantId, track.sid, muted).catch(() => null),
+        this.serverTimeoutMs,
+      ).catch(() => null);
     }
     return { success: true };
   }
 
   async removeParticipant(roomName: string, participantId: string) {
     const svc = this.roomService();
-    if (!svc) return { success: false, reason: 'livekit_not_configured' };
-    await svc.removeParticipant(roomName, participantId).catch(() => null);
+    if (!svc) {
+      const { NotFoundException } = await import('@nestjs/common');
+      throw new NotFoundException('livekit_not_configured');
+    }
+    await this.withTimeout(
+      svc.removeParticipant(roomName, participantId).catch(() => null),
+      this.serverTimeoutMs,
+    ).catch(() => null);
     return { success: true };
   }
 }

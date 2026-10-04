@@ -18,7 +18,8 @@ export function ProductGalleryModal({ name, images }: ProductGalleryModalProps) 
 
   return (
     <div className={styles.galleryWrapper}>
-      {/* Main Image Viewport with Zoom Button */}
+      {/* Main Image Viewport with Zoom Button — LCP hero: priority preloads it
+          (PDP page also emits <link rel="preload"> for images[0]). */}
       <div className={styles.mainMediaWrap}>
         {currentImage ? (
           <Image
@@ -28,6 +29,7 @@ export function ProductGalleryModal({ name, images }: ProductGalleryModalProps) 
             onClick={() => setIsZoomOpen(true)}
             fill
             priority
+            fetchPriority="high"
             sizes="(max-width: 640px) 100vw, 420px"
           />
         ) : (
@@ -60,7 +62,7 @@ export function ProductGalleryModal({ name, images }: ProductGalleryModalProps) 
               className={`${styles.thumbBtn} ${idx === activeIdx ? styles.thumbActive : ""}`}
               onClick={() => setActiveIdx(idx)}
             >
-              <Image src={img} alt={`صورة مصغرة ${idx + 1}`} className={styles.thumbImg} width={56} height={56} />
+              <Image src={img} alt={`صورة مصغرة ${idx + 1}`} className={styles.thumbImg} width={56} height={56} loading="lazy" sizes="56px" />
             </button>
           ))}
         </div>
@@ -81,7 +83,7 @@ export function ProductGalleryModal({ name, images }: ProductGalleryModalProps) 
 
             <div className={styles.zoomImgContainer}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={currentImage} alt={name} className={styles.zoomedImg} />
+              <img src={currentImage} alt={name} className={styles.zoomedImg} loading="lazy" decoding="async" />
             </div>
 
             {images.length > 1 && (

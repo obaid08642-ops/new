@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import client from './client';
-import { RAD_SCANS } from '../constants';
 
 export type CatalogEntry = { id: string; ar: string; en: string; fasting?: boolean; hours?: number };
 
@@ -30,11 +29,7 @@ export async function fetchCentralCatalog(): Promise<Record<string, CatalogEntry
         hours: Number(x.turnaround_hours || 0),
       };
     }
-  } catch { /* backend-only below (F22) */ }
-  for (const t of [...RAD_SCANS] as any[]) {
-    const id = String(t.id || '').toLowerCase();
-    if (id && !map[id]) map[id] = { id, ar: t.ar, en: t.en, fasting: t.fasting, hours: t.hours };
-  }
+  } catch { /* API-only: on failure the map stays empty (Q52) */ }
   cache = map;
   return map;
 }

@@ -249,7 +249,7 @@ function NursingHome({ onNav, jobs, refreshing, onRefresh, onTriggerAlarm }:{ on
  <IBg name="nursing" size={18} color={tokens.pink} bg={withAlpha(tokens.pink, 0.12)} />
  <View>
  <Text style={{fontSize:FS.sm,color:theme.textSub}}>{AR?'تمريض منزلي':'Home Nursing'}</Text>
- <Text style={{fontSize:FS.md,fontWeight:FW.bold,color:theme.text}}>{AR?'نبضة للتمريض':'Nabdah Nursing'}</Text>
+ <Text style={{fontSize:FS.md,fontWeight:FW.bold,color:theme.text}}>{AR?'نبضة للتمريض':'Nabd+ Nursing'}</Text>
  </View>
  </View>
  <View style={{flexDirection:'row',gap:SP.sm,alignItems:'center'}}>
@@ -1079,7 +1079,7 @@ return (
  <NCard style={{marginBottom:SP.xl,flexDirection:AR?'row-reverse':'row',gap:SP.lg,alignItems:'center'}}>
  <IBg name="nursing" size={22} color={tokens.pink} bg={withAlpha(tokens.pink, 0.12)} />
  <View style={{flex:1}}>
- <Text style={{fontSize:FS.xl,fontWeight:FW.bold,color:theme.text,textAlign:AR?'right':'left'}}>{AR?'نبضة للتمريض':'Nabdah Nursing'}</Text>
+ <Text style={{fontSize:FS.xl,fontWeight:FW.bold,color:theme.text,textAlign:AR?'right':'left'}}>{AR?'نبضة للتمريض':'Nabd+ Nursing'}</Text>
  <NBadge label={AR?'نشط':'Active'} variant="success" size="xs" style={{marginTop:SP.xs}} />
  </View>
  </NCard>

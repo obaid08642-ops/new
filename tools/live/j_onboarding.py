@@ -83,6 +83,35 @@ def register_pharmacy():
     return {'email': email, 'password': pw, 'token': tok, 'type': 'pharmacy', 'name': 'صيدلية الاختبار الحي'}
 
 
+# F4: approval only accepts a TYPED provider_documents row (the reviewer probe
+# showed three junk URL strings must not pass), so the journey uploads the real
+# KYC documents a genuine provider would upload before admin review.
+REQUIRED_DOCS = {
+    'pharmacy': ['commercial_registration', 'facility_license', 'iban_letter'],
+    # The onboarding API accepts the short form; provider_type stores 'laboratory'.
+    'lab': ['commercial_registration', 'facility_license', 'iban_letter'],
+    'laboratory': ['commercial_registration', 'facility_license', 'iban_letter'],
+    'radiology': ['commercial_registration', 'facility_license', 'iban_letter'],
+    'doctor': ['national_id', 'medical_license', 'professional_cv', 'iban_letter'],
+    'nursing': ['national_id', 'medical_license', 'iban_letter'],
+}
+
+_PNG = ('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmM'
+        'IQAAAABJRU5ErkJggg==')
+
+
+def upload_required_docs(prov):
+    """Upload every required KYC document with the provider's own token."""
+    c = provider_client(prov['token'])
+    for doc_type in REQUIRED_DOCS.get(prov.get('type', ''), []):
+        r = c.post('/provider/kyc/documents', {
+            'doc_type': doc_type,
+            'file': {'data_base64': _PNG, 'mime': 'image/png', 'original_name': f'{doc_type}.png'},
+        })
+        if not r.ok:
+            print(f'   ! kyc upload {doc_type} -> {r.status} {str(r.body)[:120]}')
+
+
 def admin_review(admin, prov):
     journey(f"onboarding: admin reviews the {prov['type']}")
     # The moderation list lives behind the admin controller (BFF 1:1 → /api/v1/admin/providers);
@@ -95,6 +124,7 @@ def admin_review(admin, prov):
         return None
     r = admin.get(f"/admin/admin/providers/{mine['id']}")
     step('provider detail opens', r.ok, r)
+    upload_required_docs(prov)
     r = admin.post(f"/admin/admin/providers/{mine['id']}/approve", {'reason': 'مستندات مكتملة', 'commission_cash': 10, 'commission_insurance': 8})
     step('approve with commissions', r.ok, r)
     r = admin.get('/admin/admin/providers?status=pending&limit=100')
@@ -189,7 +219,7 @@ def screen_payloads(ptype):
         if 'location' in (c.get('kinds') or {}):
             body['location'] = {'lat': 24.7, 'lng': 46.7}
         if c['url'].endswith('step2') and 'license_documents' in (c.get('kinds') or {}):
-            body['license_documents'] = []
+            body['license_documents'] = '__UPLOAD_DOCS__'
         out.append((c['url'], body, c['at']))
     return out
 
@@ -210,6 +240,9 @@ def register_type(ptype, overrides=None):
     for url, body, at in screen_payloads(ptype):
         sent = {k for c in _calls() if c['at'] == at for k in (c.get('kinds') or {})}
         body = {**body, **{k: v for k, v in (overrides or {}).items() if k in body or k in sent}}
+        # R1: approval requires license evidence — upload real files, not [].
+        if body.get('license_documents') == '__UPLOAD_DOCS__':
+            body['license_documents'] = [upload(c, n) for n in ('national_id.jpg', 'medical_license.jpg', 'professional_cv.pdf', 'iban_letter.jpg')]
         if url.endswith('step2') and 'license_documents' in body and not body['license_documents']:
             # The registration screens upload the licence files first and send their references
             # (the admin approval refuses a provider without its required documents).

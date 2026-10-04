@@ -1,13 +1,16 @@
 import { Injectable } from '@nestjs/common';
 
-type Lang = 'ar' | 'en' | 'ur';
+/** 13.R5: platform locale set — mirrors TEMPLATE_LANGS (notification-template.schema) and DbLang (med-i18n). */
+export type Lang = 'ar' | 'en' | 'ur' | 'hi' | 'bn' | 'tl';
+export const SUPPORTED_LANGS: Lang[] = ['ar', 'en', 'ur', 'hi', 'bn', 'tl'];
 const DEFAULT: Lang = 'ar';
 
 /**
  * Centralized i18n dictionary. Backend keys here are mirrored on each client.
  * RULE: every user-facing string must come from a key here.
+ * Values are partial: missing locales fall back to DEFAULT, then 'en' (see t()/all()).
  */
-export const DICTIONARY: Record<string, Record<Lang, string>> = {
+export const DICTIONARY: Record<string, Partial<Record<Lang, string>>> = {
   // ============ Core ============
   'app.name': { ar: 'نبض', en: 'Nabd', ur: 'نبض' },
   'app.tagline': { ar: 'صحتك بنبضة واحدة', en: 'Healthcare in one pulse', ur: 'ایک دھڑکن میں صحت' },
@@ -509,7 +512,6 @@ export const DICTIONARY: Record<string, Record<Lang, string>> = {
   'book.confirm_button': { ar: 'تأكيد الحجز', en: 'Confirm Booking', ur: 'تصدیق' },
   'book.success_title': { ar: 'تم تأكيد حجزك', en: 'Booking Confirmed', ur: 'تصدیق' },
   'book.success_sub': { ar: 'سيتم تذكيرك قبل الموعد', en: 'You will be reminded before the appointment', ur: 'یاد دہانی' },
-  'book.error_slot_taken': { ar: 'هذا الموعد محجوز للتو، اختر آخر', en: 'Slot just got booked, pick another', ur: 'سلاٹ مصروف' },
   'book.error_no_pricing': { ar: 'هذه الخدمة غير متوفرة لهذا الطبيب', en: 'Service not available for this doctor', ur: 'سروس دستیاب نہیں' },
 
   // Appointments list
@@ -686,7 +688,7 @@ export const DICTIONARY: Record<string, Record<Lang, string>> = {
   'hp.reports': { ar: 'تقاريري الطبية ({n})', en: 'My medical reports ({n})', ur: 'رپورٹیں ({n})' },
 
   // ============ Booking / pharmacy / cart ERROR CODES (translated) ============
-  'err.slot_taken': { ar: 'هذا الموعد محجوز للتو، يرجى اختيار وقت آخر', en: 'Slot just got booked, pick another time', ur: 'سلاٹ ابھی مصروف ہو گیا' },
+  'err.slot_taken': { ar: 'هذا الموعد محجوز للتو، يرجى اختيار وقت آخر', en: 'Slot just got booked, pick another time', ur: 'سلاٹ ابھی مصروف ہو گیا', hi: 'स्लॉट अभी बुक हो गया है, दूसरा समय चुनें', bn: 'স্লটটি এইমাত্র বুক হয়ে গেছে, অন্য সময় বেছে নিন', tl: 'Kakabook lang ng slot na ito, pumili ng ibang oras' },
   'err.slot_expired': { ar: 'انتهت صلاحية هذا الموعد', en: 'This slot has expired', ur: 'سلاٹ ختم' },
   'err.insurance_home_requires_doctor_request_or_preauth': { ar: 'يلزم رفع طلب طبيب أو موافقة تأمين للزيارة المنزلية', en: 'Upload doctor request or insurance preauth for home visit', ur: 'گھر کے لیے ڈاکٹر کا حوالہ یا پری آتھ ضروری' },
   'err.some_services_not_home_eligible': { ar: 'بعض الخدمات لا تدعم الزيارة المنزلية', en: 'Some services don\'t support home visits', ur: 'کچھ سروسز گھر کے لیے نہیں' },
@@ -700,6 +702,21 @@ export const DICTIONARY: Record<string, Record<Lang, string>> = {
   'err.unauthorized': { ar: 'انتهت الجلسة، يرجى تسجيل الدخول مجدداً', en: 'Session expired, please login again', ur: 'سیشن ختم' },
   'err.forbidden': { ar: 'لا تملك صلاحية لهذا الإجراء', en: 'You do not have permission', ur: 'اجازت نہیں' },
   'err.not_found': { ar: 'العنصر غير موجود', en: 'Item not found', ur: 'موجود نہیں' },
+
+  // ============ 13.R5 platform error codes (one key per R5_ERROR_CODES entry in common/errors.ts; key = 'err.' + code; ar/en mirror errors.i18n.json) ============
+  'err.AUTHENTICATION_REQUIRED': { ar: 'يجب تسجيل الدخول للمتابعة.', en: 'You need to sign in to continue.', ur: 'جاری رکھنے کے لیے سائن ان کریں۔', hi: 'जारी रखने के लिए साइन इन करें।', bn: 'চালিয়ে যেতে সাইন ইন করুন।', tl: 'Mag-sign in upang magpatuloy.' },
+  'err.INSUFFICIENT_PERMISSION': { ar: 'ليس لديك صلاحية لتنفيذ هذا الإجراء.', en: "You don't have permission to do this.", ur: 'آپ کو یہ کرنے کی اجازت نہیں ہے۔', hi: 'आपको यह करने की अनुमति नहीं है।', bn: 'এটি করার অনুমতি আপনার নেই।', tl: 'Wala kang pahintulot na gawin ito.' },
+  'err.PRESCRIPTION_REQUIRED': { ar: 'هذا الصنف يتطلب وصفة طبية سارية.', en: 'This item needs a valid prescription.', ur: 'اس آئٹم کے لیے درست نسخہ درکار ہے۔', hi: 'इस आइटम के लिए मान्य प्रिस्क्रिप्शन आवश्यक है।', bn: 'এই আইটেমের জন্য বৈধ প্রেসক্রিপশন প্রয়োজন।', tl: 'Ang item na ito ay nangangailangan ng valid na reseta.' },
+  'err.NO_AVAILABILITY': { ar: 'لا يوجد توفر حالياً.', en: 'No availability right now.', ur: 'فی الوقت کوئی دستیابی نہیں ہے۔', hi: 'अभी कोई उपलब्धता नहीं है।', bn: 'এখন কোনো উপলব্ধতা নেই।', tl: 'Walang available sa ngayon.' },
+  'err.SERVICE_UNAVAILABLE': { ar: 'هذه الخدمة غير متاحة مؤقتاً.', en: 'This service is temporarily unavailable.', ur: 'یہ سروس عارضی طور پر دستیاب نہیں ہے۔', hi: 'यह सेवा अस्थायी रूप से अनुपलब्ध है।', bn: 'এই পরিষেবাটি সাময়িকভাবে অনুপলব্ধ।', tl: 'Ang serbisyong ito ay pansamantalang hindi available.' },
+  'err.PROVIDER_NOT_AVAILABLE': { ar: 'لا يوجد مقدم خدمة متاح لهذا الطلب.', en: 'No provider is available for this request.', ur: 'اس درخواست کے لیے کوئی فراہم کنندہ دستیاب نہیں ہے۔', hi: 'इस अनुरोध के लिए कोई प्रदाता उपलब्ध नहीं है।', bn: 'এই অনুরোধের জন্য কোনো প্রদানকারী উপলব্ধ নেই।', tl: 'Walang provider na available para sa request na ito.' },
+  'err.PRODUCT_OUT_OF_STOCK': { ar: 'هذا المنتج غير متوفر حالياً.', en: 'This product is out of stock.', ur: 'یہ پروڈکٹ اسٹاک میں نہیں ہے۔', hi: 'यह उत्पाद स्टॉक में नहीं है।', bn: 'এই পণ্যটি স্টকে নেই।', tl: 'Ang produktong ito ay out of stock.' },
+  'err.PAYMENT_REQUIRED': { ar: 'يلزم الدفع لإتمام هذا الإجراء.', en: 'Payment is required to complete this.', ur: 'اسے مکمل کرنے کے لیے ادائیگی درکار ہے۔', hi: 'इसे पूरा करने के लिए भुगतान आवश्यक है।', bn: 'এটি সম্পূর্ণ করতে পেমেন্ট প্রয়োজন।', tl: 'Kailangan ng bayad upang makumpleto ito.' },
+  'err.INSURANCE_NOT_SUPPORTED': { ar: 'التأمين الخاص بك لا يغطي هذه الخدمة.', en: "Your insurance doesn't cover this.", ur: 'آپ کا انشورنس اس کا احاطہ نہیں کرتا۔', hi: 'आपका बीमा इसे कवर नहीं करता है।', bn: 'আপনার বীমা এটি কভার করে না।', tl: 'Hindi saklaw ng insurance mo ito.' },
+  'err.LOCATION_NOT_SUPPORTED': { ar: 'لا نغطي هذا الموقع بعد.', en: "We don't serve this location yet.", ur: 'ہم ابھی اس مقام پر سروس نہیں دیتے۔', hi: 'हम अभी इस स्थान पर सेवा नहीं देते हैं।', bn: 'আমরা এখনও এই এলাকায় সেবা দিই না।', tl: 'Hindi pa namin sineserbisyuhan ang lokasyong ito.' },
+  'err.DUPLICATE_TRANSACTION': { ar: 'تم إرسال هذا الطلب مسبقاً.', en: 'This was already submitted.', ur: 'یہ پہلے ہی جمع کرایا جا چکا ہے۔', hi: 'यह पहले ही सबमिट किया जा चुका है।', bn: 'এটি ইতিমধ্যে জমা দেওয়া হয়েছে।', tl: 'Naisumite na ito.' },
+  'err.INVALID_INPUT': { ar: 'بعض البيانات تبدو غير صحيحة.', en: 'Some details look incorrect.', ur: 'کچھ تفصیلات غلط معلوم ہوتی ہیں۔', hi: 'कुछ विवरण गलत लग रहे हैं।', bn: 'কিছু বিবরণ ভুল মনে হচ্ছে।', tl: 'May ilang detalyeng mukhang mali.' },
+  'err.RATE_LIMITED': { ar: 'محاولات كثيرة جداً. يرجى التمهل.', en: 'Too many attempts. Please slow down.', ur: 'بہت زیادہ کوششیں۔ براہ کرم آہستہ کریں۔', hi: 'बहुत अधिक प्रयास। कृपया धीमे करें।', bn: 'অনেক বেশি চেষ্টা। অনুগ্রহ করে ধীরে করুন।', tl: 'Masyadong maraming pagtatangka. Magdahan-dahan.' },
 
   // ============ Common action labels ============
   'act.confirm': { ar: 'تأكيد', en: 'Confirm', ur: 'تصدیق' },
@@ -733,18 +750,23 @@ export const DICTIONARY: Record<string, Record<Lang, string>> = {
   'push.admin.login.body': { ar: 'تسجيل دخول للحساب {email} من {ip}', en: 'Sign-in for {email} from {ip}', ur: '{email} کے لیے لاگ اِن' },
 };
 
+// 13.R5: 'book.error_slot_taken' retired as a duplicate of 'err.slot_taken'
+// (neither key had external callers; err.* kept as the canonical error
+// namespace). Alias preserved so any old caller still resolves.
+DICTIONARY['book.error_slot_taken'] = DICTIONARY['err.slot_taken'];
+
 @Injectable()
 export class I18nService {
   t(key: string, lang: Lang = DEFAULT, params?: Record<string, any>): string {
     const entry = DICTIONARY[key];
     if (!entry) return key;
-    let v = entry[lang] || entry[DEFAULT] || key;
+    let v = entry[lang] ?? entry[DEFAULT] ?? entry.en ?? key;
     if (params) for (const [k, val] of Object.entries(params)) v = v.replace(`{${k}}`, String(val));
     return v;
   }
   all(lang: Lang = DEFAULT) {
     const out: Record<string, string> = {};
-    for (const k of Object.keys(DICTIONARY)) out[k] = DICTIONARY[k][lang] || DICTIONARY[k][DEFAULT];
+    for (const k of Object.keys(DICTIONARY)) out[k] = DICTIONARY[k][lang] ?? DICTIONARY[k][DEFAULT] ?? DICTIONARY[k].en ?? k;
     return out;
   }
   raw() {

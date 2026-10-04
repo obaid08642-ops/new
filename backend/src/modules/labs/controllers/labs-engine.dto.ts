@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsDefined, IsNumber, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class RespondToBookingDto {
   @IsDefined()
@@ -34,6 +34,13 @@ export class UpdateCatalogDto {
   @IsDefined()
   @IsString()
   test_code: string;
+
+  // Q49: optional key into the canonical `lab_services` catalog (LabService.id).
+  // When set, the entry is validated against lab_services; when unset, the
+  // entry is matched by short_code === test_code on read.
+  @IsOptional()
+  @IsString()
+  service_id?: string;
 
   @IsDefined()
   @IsString()

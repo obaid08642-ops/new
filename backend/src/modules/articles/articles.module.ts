@@ -82,24 +82,32 @@ export class ArticlesService {
     });
   }
 
-  update(id: string, body: any) {
+  async update(id: string, body: any) {
     // R4-2: build $set from explicit allowlisted keys (no whole-object spread).
     const patch = Object.fromEntries(
       Object.entries(body || {}).filter(([key, value]) => ARTICLE_UPDATE_FIELDS.includes(key) && value !== undefined),
     );
-    return this.model.findOneAndUpdate({ id: { $eq: id } }, { $set: patch }, { new: true });
+    const doc = await this.model.findOneAndUpdate({ id: { $eq: id } }, { $set: patch }, { new: true });
+    if (!doc) throw new NotFoundException('article_not_found');
+    return doc;
   }
 
-  publish(id: string) {
-    return this.model.findOneAndUpdate({ id }, { $set: { status: 'PUBLISHED', published_at: new Date() } }, { new: true });
+  async publish(id: string) {
+    const doc = await this.model.findOneAndUpdate({ id }, { $set: { status: 'PUBLISHED', published_at: new Date() } }, { new: true });
+    if (!doc) throw new NotFoundException('article_not_found');
+    return doc;
   }
 
-  unpublish(id: string) {
-    return this.model.findOneAndUpdate({ id }, { $set: { status: 'DRAFT' } }, { new: true });
+  async unpublish(id: string) {
+    const doc = await this.model.findOneAndUpdate({ id }, { $set: { status: 'DRAFT' } }, { new: true });
+    if (!doc) throw new NotFoundException('article_not_found');
+    return doc;
   }
 
-  remove(id: string) {
-    return this.model.findOneAndUpdate({ id }, { $set: { is_deleted: true } }, { new: true });
+  async remove(id: string) {
+    const doc = await this.model.findOneAndUpdate({ id }, { $set: { is_deleted: true } }, { new: true });
+    if (!doc) throw new NotFoundException('article_not_found');
+    return doc;
   }
 
   adminList() {

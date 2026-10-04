@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { LabBooking } from '../schemas/lab-booking.schema';
 import { LabCatalog } from '../schemas/lab-catalog.schema';
+import { LabService } from '../../../schemas/lab.schema';
 import { Roles } from '../../../common/auth.guard';
 import { UserRole } from '../../../common/enums';
 import { RespondToBookingDto, CollectSampleDto, FinalizeTestDto, UpdateCatalogDto } from './labs-engine.dto';
@@ -12,7 +13,7 @@ import { BusinessRulesService } from '../../business-rules/business-rules.module
 // R4-2: explicit allowlist for lab catalog upserts (lab_id/test_code are the
 // key, never part of the $set).
 const LAB_CATALOG_UPDATE_FIELDS = [
-  'test_name_ar', 'test_name_en', 'in_lab_price', 'home_collection_price',
+  'service_id', 'test_name_ar', 'test_name_en', 'in_lab_price', 'home_collection_price',
   'accepts_insurance', 'reference_ranges',
 ];
 
@@ -22,6 +23,7 @@ export class LabsEngineController {
   constructor(
     @InjectModel('LabCenterBooking') private labBookingModel: Model<LabBooking>,
     @InjectModel('LabCatalog') private labCatalogModel: Model<LabCatalog>,
+    @InjectModel('LabService') private labServiceModel: Model<LabService>,
     @Optional() private readonly pricing?: BusinessRulesService,
   ) {}
 
@@ -113,18 +115,52 @@ export class LabsEngineController {
     };
   }
 
+  // Q49: the lab's per-lab price list. Each entry is keyed to the canonical
+  // `lab_services` catalog (service_id, else short_code === test_code) and
+  // carries this lab's override prices; `service` is null when the key
+  // matches no canonical record.
   @Get('catalog')
   async getCatalog(@Query('lab_id') labId: string) {
     if (!labId) throw new BadRequestException('lab_id is required');
-    return this.labCatalogModel.find({ lab_id: { $eq: labId } });
+    const entries: any[] = await this.labCatalogModel.find({ lab_id: { $eq: labId } }).lean();
+    const byId = new Map<string, any>();
+    const byCode = new Map<string, any>();
+    const ids = [...new Set(entries.map((e) => String(e.service_id || '')).filter(Boolean))];
+    const codes = [...new Set(entries.map((e) => String(e.test_code || '')).filter(Boolean))];
+    if (ids.length || codes.length) {
+      const services: any[] = await this.labServiceModel.find(
+        { $or: [...(ids.length ? [{ id: { $in: ids } }] : []), ...(codes.length ? [{ short_code: { $in: codes } }] : [])] },
+        { _id: 0, id: 1, name_ar: 1, name_en: 1, short_code: 1, category: 1, price: 1, active: 1 },
+      ).lean().catch(() => []);
+      for (const s of services) {
+        if (s.id && !byId.has(String(s.id))) byId.set(String(s.id), s);
+        if (s.short_code && !byCode.has(String(s.short_code))) byCode.set(String(s.short_code), s);
+      }
+    }
+    return entries.map((e) => {
+      const service = (e.service_id && byId.get(String(e.service_id)))
+        || (e.test_code && byCode.get(String(e.test_code)))
+        || null;
+      return { ...e, service, base_price: service ? service.price : null };
+    });
   }
 
   @Post('catalog')
   async updateCatalog(
     @Body() body: UpdateCatalogDto
   ) {
-    const { lab_id, test_code } = body || {};
+    const { lab_id, test_code, service_id } = body || {};
     if (!lab_id || !test_code) throw new BadRequestException('lab_id and test_code are required');
+
+    // Q49: a service_id key must resolve to a live `lab_services` record —
+    // otherwise the price list points at a test that does not exist.
+    if (service_id) {
+      const svc = await this.labServiceModel.findOne(
+        { id: { $eq: service_id }, is_deleted: { $ne: true } },
+        { _id: 0, id: 1 },
+      ).lean();
+      if (!svc) throw new BadRequestException('unknown_service_id');
+    }
 
     // R4-2: build $set from explicit allowlisted keys (no whole-object spread).
     const patch = Object.fromEntries(

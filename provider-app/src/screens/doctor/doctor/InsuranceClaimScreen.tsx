@@ -17,7 +17,7 @@ import { I, IBg } from '../../../components/icons';
 import { SP, R, FS, FW, API_BASE } from '../../../constants';
 import { buildHeaders, Vault, SK } from '../../../security/Security';
 import client from '../../../api/client';
-import { useServicesCatalog, getInsuranceCatalog, useSpecialtiesCatalog } from '../../../api/catalogs';
+import { useServicesCatalog, getInsuranceCatalog, useSpecialtiesCatalog, useInsuranceCatalog } from '../../../api/catalogs';
 import { VideoCallRoom } from '../../shared/VideoCallRoom';
 import { InsuranceRequestsScreen } from '../../shared/InsuranceRequestsScreen';
 import { WithdrawalWorkflow, MedicalJobsScreen, MedicalDrugIndexScreen, InsuranceConfigScreen, GlobalSystemSettings, ChatSystem, MediaConfigScreen } from '../../shared/SharedScreens';
@@ -40,7 +40,9 @@ export function InsuranceClaimScreen({ apt, onBack }: { apt: any; onBack: () => 
  const { lang } = useLang();
  const { show } = useToast();
  const AR = lang === 'ar';
- const [company, setCompany] = useState('');
+  const [company, setCompany] = useState('');
+  // Q51: the insurer list is the admin-managed catalog, never a hard-coded five.
+  const insurers = useInsuranceCatalog();
  const [plan, setPlan] = useState('');
  const [diagCode, setDiagCode] = useState('');
  const [policyNumber, setPolicyNumber] = useState(apt?.patient?.insurance?.policy_number || '');
@@ -71,7 +73,7 @@ export function InsuranceClaimScreen({ apt, onBack }: { apt: any; onBack: () => 
  </Text>
  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
  <View style={{ flexDirection: 'row', gap: SP.sm }}>
- {['Bupa','Tawuniya','MedGulf','Malath','AXA'].map(c => (
+ {insurers.map(x => (AR ? x.ar : x.en)).map(c => (
  <TouchableOpacity key={c} onPress={() => setCompany(c)}
  style={[styles.insChip, {
  backgroundColor: company === c ? theme.primary : theme.surface2,

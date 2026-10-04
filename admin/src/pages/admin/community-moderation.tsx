@@ -39,7 +39,7 @@ export default function CommunityModerationPage() {
 
   return (
     <>
-      <Head><title>إشراف المجتمع | نبض</title></Head>
+      <Head><title>إشراف المجتمع | نبض بلس</title></Head>
       <div className="p-8 space-y-6">
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-black text-slate-800">إشراف المجتمع — منشورات مبلغ عنها</h1>

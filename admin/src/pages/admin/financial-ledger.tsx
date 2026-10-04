@@ -57,8 +57,8 @@ export default function FinancialLedger() {
           setFinanceUnavailable(true);
         }
 
-        // Fetch Commissions
-        const commRes = await fetchWithAdminGuard(`/api/admin/admin/finance/commissions`);
+        // Fetch Commissions (R36 ledger endpoint — legacy /admin/finance/commissions was moved)
+        const commRes = await fetchWithAdminGuard(`/api/admin/admin/finance/ledger/commissions`);
         if (commRes.ok) {
           const data = await commRes.json();
           setCommissions(data.data || []);

@@ -14,11 +14,13 @@ import {
   ForbiddenException,
   HttpCode,
   Headers,
+  Optional,
   Req,
   Query,
   Res,
   UseInterceptors,
 } from '@nestjs/common';
+import { CircuitBreakerService } from '../../common/circuit-breaker.service';
 import type { Response } from 'express';
 import { RefundDto, CreateMoyasarPaymentDto } from './moyasar.dto';
 import { InjectModel, InjectConnection, MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
@@ -70,17 +72,45 @@ export class MoyasarService {
   private readonly logger = new Logger('MoyasarService');
   private readonly apiKey: string;
   private get baseUrl() { return moyasarBase(); }
+  /** Per-call HTTP timeout for Moyasar gateway calls (ms). Env-overridable for tests. */
+  private get httpTimeoutMs() { return Number(process.env.MOYASAR_TIMEOUT_MS) || 8000; }
 
   constructor(
     @InjectModel(MoyasarPayment.name)
     private readonly paymentModel: Model<MoyasarPaymentDocument>,
     @InjectConnection() private readonly conn: Connection,
     private readonly events: EventEmitter2,
+    @Optional() private readonly breakers?: CircuitBreakerService,
   ) {
     this.apiKey = process.env.MOYASAR_API_KEY || process.env.MOYASAR_SECRET_KEY || process.env.MOYASAR_SECRET || '';
     if (!this.apiKey) {
       this.logger.warn('MOYASAR_API_KEY not set — payment calls will run in sandbox mode');
     }
+  }
+
+  /** fetch with a hard timeout so hung gateway calls fail fast into the breaker/fallback. */
+  private async gatewayFetch(url: string, init?: RequestInit): Promise<globalThis.Response> {
+    const ms = this.httpTimeoutMs;
+    try {
+      return await fetch(url, { ...init, signal: AbortSignal.timeout(ms) });
+    } catch (e: any) {
+      if (e?.name === 'TimeoutError' || e?.name === 'AbortError') {
+        throw new BadRequestException('moyasar_gateway_timeout');
+      }
+      throw e;
+    }
+  }
+
+  /**
+   * Run a mutating gateway call behind the shared circuit breaker. The
+   * breaker function is args-driven (never a per-call closure) because
+   * breakers are cached by name and reused across calls.
+   */
+  private moyasarBreaker<T>(name: string, fn: (arg: any) => Promise<T>, openError: string) {
+    if (!this.breakers) return { fire: (arg: any) => fn(arg) };
+    return this.breakers.create(name, fn, { timeout: this.httpTimeoutMs }, () => {
+      throw new BadRequestException(openError);
+    });
   }
 
   /**
@@ -184,11 +214,16 @@ export class MoyasarService {
 
     if (this.apiKey) {
       try {
-        const resp = await fetch(`${this.baseUrl}/payments`, {
-          method: 'POST',
-          headers: this.authHeaders(),
-          body: JSON.stringify(requestBody),
-        });
+        const createBreaker = this.moyasarBreaker(
+          'moyasar:payments:create',
+          (b: any) => this.gatewayFetch(`${this.baseUrl}/payments`, {
+            method: 'POST',
+            headers: this.authHeaders(),
+            body: JSON.stringify(b),
+          }),
+          'moyasar_circuit_open',
+        );
+        const resp = await createBreaker.fire(requestBody);
         moyasarResponse = await resp.json();
         if (!resp.ok) {
           throw new BadRequestException(
@@ -241,9 +276,14 @@ export class MoyasarService {
     const isSandbox = !this.apiKey || moyasarId.startsWith('sandbox_');
     if (!isSandbox) {
       try {
-        const resp = await fetch(`${this.baseUrl}/payments/${encodeURIComponent(moyasarId)}`, {
-          headers: this.authHeaders(),
-        });
+        const syncBreaker = this.moyasarBreaker(
+          'moyasar:payments:sync',
+          (id: string) => this.gatewayFetch(`${this.baseUrl}/payments/${encodeURIComponent(id)}`, {
+            headers: this.authHeaders(),
+          }),
+          'moyasar_circuit_open',
+        );
+        const resp = await syncBreaker.fire(moyasarId);
         const data: any = await resp.json();
 
         const statusMap: Record<string, string> = {
@@ -302,11 +342,16 @@ export class MoyasarService {
 
     try {
       const amountHalalas = amount ? Math.round(amount * 100) : undefined;
-      const resp = await fetch(`${this.baseUrl}/payments/${encodeURIComponent(moyasarId)}/refunds`, {
-        method: 'POST',
-        headers: this.authHeaders(),
-        body: JSON.stringify(amountHalalas ? { amount: amountHalalas } : {}),
-      });
+      const refundBreaker = this.moyasarBreaker(
+        'moyasar:payments:refund',
+        (b: any) => this.gatewayFetch(`${this.baseUrl}/payments/${encodeURIComponent(moyasarId)}/refunds`, {
+          method: 'POST',
+          headers: this.authHeaders(),
+          body: JSON.stringify(b),
+        }),
+        'moyasar_circuit_open',
+      );
+      const resp = await refundBreaker.fire(amountHalalas ? { amount: amountHalalas } : {});
       const data: any = await resp.json();
       if (!resp.ok) throw new BadRequestException(data?.message || 'refund_failed');
 

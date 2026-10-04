@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { apiFetch } from '../../utils/api';
+import { useStepUp } from '../../hooks/useStepUp';
 import EmptyIcon from '../../components/EmptyIcon';
 import { dateLocale } from '../../utils/dates';
 
@@ -27,6 +28,8 @@ export default function PayoutApprovalPage() {
   const [error, setError] = useState<string | null>(null);
   const [rejectingId, setRejectingId] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState('');
+  // R23a: withdrawals execute is @StepUp-guarded — challenge then retry.
+  const stepUp = useStepUp();
 
   const fetchPayouts = async () => {
     try {
@@ -46,7 +49,10 @@ export default function PayoutApprovalPage() {
   const handleExecutePayout = async (id: string) => {
     if (!window.confirm('هل أنت متأكد من تنفيذ تحويل المستحقات المالية لهذا المزود؟ لا يمكن التراجع عن هذه العملية بعد التحويل.')) return;
     try {
-      await apiFetch(`/api/admin/admin/finance/withdrawals/${id}/execute`, { method: 'POST' });
+      const path = `/api/admin/admin/finance/withdrawals/${id}/execute`;
+      await stepUp.withStepUp(path, 'POST', 'تنفيذ التحويل المالي', (headers) =>
+        apiFetch(path, { method: 'POST', headers }),
+      );
       alert('تم اعتماد السحب وتحويل مستحقات المزود بنجاح');
       fetchPayouts();
     } catch (e: any) {
@@ -74,7 +80,7 @@ export default function PayoutApprovalPage() {
 
   return (
     <>
-      <Head><title>اعتمادات السحب المالي | نبض</title></Head>
+      <Head><title>اعتمادات السحب المالي | نبض بلس</title></Head>
         <div className="p-8 space-y-6">
           <div className="flex justify-between items-center">
             <p className="text-slate-500">مراجعة طلبات سحب الأرباح للأطباء والمنشآت والصيدليات — المصدران (قديم/جديد) مدمجان في طابور واحد.</p>
@@ -164,6 +170,7 @@ export default function PayoutApprovalPage() {
             </div>
           )}
         </div>
+      {stepUp.modal}
     </>
   );
 }

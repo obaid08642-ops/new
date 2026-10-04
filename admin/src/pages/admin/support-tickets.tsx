@@ -57,7 +57,7 @@ export default function SupportTicketsPage() {
 
   return (
     <>
-      <Head><title>تذاكر الدعم | نبض</title></Head>
+      <Head><title>تذاكر الدعم | نبض بلس</title></Head>
         <div className="p-8 space-y-6">
           <div className="flex items-center gap-2">
             {(['', 'OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'] as const).map((s) => (

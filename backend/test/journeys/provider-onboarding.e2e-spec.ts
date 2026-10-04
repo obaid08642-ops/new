@@ -38,6 +38,9 @@ import { ProviderProductionController } from '../../src/modules/provider-product
 import { ProviderProductionService } from '../../src/modules/provider-production/provider-production.module';
 import { TEST_JWT_SECRET, signToken, tokenFor } from '../security/harness';
 import { makeDb } from '../support/fake-db';
+import { REQUIRED_DOCS_BY_PROVIDER_TYPE } from '../../src/modules/provider/provider.enums';
+import { StepUpService } from '../../src/common/step-up.guard';
+import { PasskeyCredential } from '../../src/modules/auth/schemas/passkey-credential.schema';
 import request from 'supertest';
 
 jest.setTimeout(180_000);
@@ -45,13 +48,22 @@ jest.setTimeout(180_000);
 describe('Gate P2 provider onboarding journeys', () => {
   let app: INestApplication;
   const post = (url: string, token: string, body: any = {}) =>
-    request(app.getHttpServer()).post(url).set('Authorization', `Bearer ${token}`).send(body);
+    request(app.getHttpServer()).post(url).set('Authorization', `Bearer ${token}`).set('x-admin-device', 'test-device-0001').send(body);
   const get = (url: string, token: string) =>
-    request(app.getHttpServer()).get(url).set('Authorization', `Bearer ${token}`);
+    request(app.getHttpServer()).get(url).set('Authorization', `Bearer ${token}`).set('x-admin-device', 'test-device-0001');
+
+  // Shared with the journey bodies below so a test can seed typed KYC documents.
+  const db = makeDb();
 
   beforeAll(async () => {
     process.env.JWT_SECRET = TEST_JWT_SECRET;
-    const db = makeDb();
+    // R8: enroll the test admin device so admin calls pass the C2 device check.
+    const { createHash } = require('crypto');
+    await db.collection('admin_devices').create({
+      user_id: 'admin-1',
+      device_hash: createHash('sha256').update('test-device-0001').digest('hex'),
+      revoked: false,
+    });
     const repo = (name: string) => {
       const m = db.model(name);
       return { findOne: m.findOne, find: m.find, create: m.create, updateOne: m.updateOne, updateMany: m.updateMany, countDocuments: m.countDocuments, model: m };
@@ -86,6 +98,9 @@ describe('Gate P2 provider onboarding journeys', () => {
         { provide: 'ProviderRequestRepository', useValue: repo('provider_requests') },
         { provide: 'ProviderAvailabilityRepository', useValue: repo('provider_availability') },
         { provide: ProviderImageProcessorService, useValue: {} },
+        // F5: ProviderAdminService verifies the override step-up token itself.
+        { provide: StepUpService, useValue: { verify: jest.fn().mockResolvedValue(false) } },
+        { provide: getModelToken(PasskeyCredential.name), useValue: db.model('passkey_credentials') },
         { provide: JwtService, useValue: new JwtService({ secret: TEST_JWT_SECRET }) },
         { provide: EventBusService, useValue: { emit: () => Promise.resolve() } },
         { provide: EventEmitter2, useValue: { emit: () => ({}) } },
@@ -137,6 +152,20 @@ describe('Gate P2 provider onboarding journeys', () => {
 
       it('admin approve → login → me/kyc/availability = 200', async () => {
         // P2.1: account id === user id.
+        // F4/R1: approval requires one TYPED provider_documents row per required
+        // doc_type (URL strings do not count), and the privileged override now
+        // needs a WebAuthn step-up a test cannot produce. So seed the documents a
+        // real provider uploads and approve normally.
+        // The onboarding API accepts the short form; provider_type stores the
+        // enum value, so map 'lab' -> 'laboratory' before asking for the docs.
+        const typeKey = (leg as any).type === 'lab' ? 'laboratory' : (leg as any).type;
+        const required = REQUIRED_DOCS_BY_PROVIDER_TYPE[typeKey as any] || [];
+        for (const doc_type of required) {
+          await db.model('provider_documents').create({
+            id: `doc-${doc_type}-${userId}`, account_id: userId, user_id: userId,
+            doc_type, review_status: 'APPROVED',
+          });
+        }
         const ap = await post(`/api/v1/admin/providers/${userId}/approve`, admin, {});
         if (ap.status !== 201) console.log('APPROVE-BODY', ap.status, JSON.stringify(ap.body).slice(0, 300));
         expect([200, 201]).toContain(ap.status);

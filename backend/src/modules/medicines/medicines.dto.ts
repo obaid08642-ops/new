@@ -87,6 +87,13 @@ export class CatalogMedicineFieldsDto {
   @IsOptional() @IsArray() @IsString({ each: true }) precautions_ar?: string[];
   @IsOptional() @IsArray() @IsString({ each: true }) precautions_en?: string[];
   @IsOptional() @IsArray() @IsString({ each: true }) interactions?: string[];
+  // R10/R19: 6-locale translations map (ur/hi/bn/fil names editable from admin).
+  // R19: single-id — locale payloads merge into the SAME product id (validated here,
+  // normalized tl→fil in MedicinesService.mergeTranslations); never a sibling per locale.
+  // Allowed locale keys: ar/en/ur/hi/bn/fil (+ legacy tl folded to fil by the service).
+  @IsOptional() @IsObject() translations?: Record<string, Record<string, string>>;
+  @IsOptional() @IsNumber() @Min(0) sku?: number;
+  @IsOptional() @IsNumber() @Min(0) source_product_id?: number;
   // audit note (price history / change log)
   @IsOptional() @IsString() @MaxLength(500) reason?: string;
 }
@@ -247,6 +254,21 @@ export class ManualEntryDto {
   @IsOptional()
   @IsString()
   barcode?: string;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  sku?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  source_product_id?: number;
+
+  // R19: manual locale payloads merge into the single-id translations map (service-validated).
+  @IsOptional()
+  @IsObject()
+  translations?: Record<string, Record<string, string>>;
 
   @IsOptional()
   @IsNumber()

@@ -276,6 +276,79 @@ export class InsuranceFlowService {
     return { has_policy: !!(ins && (ins.company_id || ins.provider || ins.policy_number)), policy: ins };
   }
 
+  /**
+   * F2 — benefits-summary must return an ARRAY of per-service benefits, because
+   * InsuranceBenefitsView does `Array.isArray(res) ? res : []` and renders an
+   * empty list for anything else. Returning myPolicy's object here meant every
+   * policy holder silently saw "no benefits" with a 200.
+   *
+   * Every number below comes from a real record, nothing is invented:
+   * - services and their caps come from insurance_coverage_rules for the
+   *   networks of the patient's company (rules without a max_annual_limit are
+   *   skipped — the view divides by it, and a fabricated cap would be a lie);
+   * - usedAmount is the sum of the patient's approved/reimbursed claims for
+   *   that service (0 when nothing is recorded, which is the truth, not a
+   *   default);
+   * - coverage is 100 minus the rule's copay percent;
+   * - icon names are verified against patient-app Icon.tsx (stethoscope, pill,
+   *   flask, radiology-box-outline, heart).
+   * No policy, no linkable rules, or no capped rules → [] (the client's empty
+   * state), which is honest: there is nothing itemized to show.
+   */
+  async benefitsSummary(user: any) {
+    const { has_policy, policy } = await this.myPolicy(user);
+    if (!has_policy) return [];
+    const db: any = (this.patients as any)?.db;
+    if (!db) return [];
+    const companyId = String((policy as any)?.company_id || '');
+    let networkIds: string[] = [];
+    try {
+      if (companyId) {
+        const contracts: any[] = await db.collection('insurance_network_contracts')
+          .find({ company_id: { $eq: companyId } }, { projection: { network_id: 1 } }).toArray();
+        networkIds = [...new Set((contracts || []).map((c) => String(c?.network_id)).filter(Boolean))];
+      }
+    } catch { networkIds = []; }
+    if (!networkIds.length) return [];
+    let rules: any[] = [];
+    try {
+      rules = await db.collection('insurance_coverage_rules')
+        .find({ network_id: { $in: networkIds } }).toArray() || [];
+    } catch { rules = []; }
+    const capped = (rules || []).filter((r) => Number((r as any)?.max_annual_limit) > 0);
+    if (!capped.length) return [];
+    let claims: any[] = [];
+    try {
+      claims = await db.collection('insurance_claims').find({
+        patient_id: { $eq: String((user as any)?.id) },
+        status: { $in: ['approved', 'reimbursed'] },
+      }).toArray() || [];
+    } catch { claims = []; }
+    const usedByService: Record<string, number> = {};
+    for (const cl of claims) {
+      const s = String((cl as any)?.service || '');
+      if (!s) continue;
+      usedByService[s] = (usedByService[s] || 0) + (Number((cl as any)?.covered) || 0);
+    }
+    const ICONS: Record<string, string> = {
+      consultation: 'stethoscope', pharmacy: 'pill', lab: 'flask',
+      radiology: 'radiology-box-outline', nursing: 'heart',
+    };
+    return capped.map((r: any) => {
+      const service = String(r.service_type);
+      const annualLimit = Number(r.max_annual_limit);
+      const usedAmount = usedByService[service] || 0;
+      return {
+        service,
+        coverage: 100 - (Number(r.copay_percent) || 0),
+        annualLimit,
+        usedAmount,
+        remaining: Math.max(0, annualLimit - usedAmount),
+        icon: ICONS[service] || 'shield',
+      };
+    });
+  }
+
   private bookingModel(kind: string): { kind: string; model: Model<any> } {
     const value = String(kind || '').trim().toLowerCase();
     if (['pharmacy', 'order', 'orders'].includes(value)) return { kind: 'pharmacy', model: this.orders };
@@ -691,27 +764,14 @@ export class InsuranceFlowController {
   constructor(private readonly svc: InsuranceFlowService) {}
 
   // ---- patient ----
-  @Get('companies') companies() { return this.svc.companiesList(); }
+  // R4: GET companies removed (dup of insurance.module).
+  // F2: save-policy/my-policy/benefits-summary restored — clients call them.
   @SelfService()
   @Post('save-policy') savePolicy(@CurrentUser() u: any, @Body() b: SavePolicyDto) { return this.svc.savePolicy(u, b); }
+  @SelfService()
   @Get('my-policy') myPolicy(@CurrentUser() u: any) { return this.svc.myPolicy(u); }
-
-  @Get('coverage-check') async coverageCheck(@CurrentUser() u: any, @Query() q: any) {
-    const { has_policy, policy } = await this.svc.myPolicy(u);
-    return {
-      eligible: has_policy,
-      policy,
-      service_type: q?.service_type || 'consultation',
-      note_ar: has_policy
-        ? 'التغطية النهائية يحددها مزود الخدمة عند مراجعة الطلب'
-        : 'لا توجد وثيقة تأمين في ملفك — أضفها أولًا',
-    };
-  }
-
-  @Get('benefits-summary') async benefits(@CurrentUser() u: any) {
-    const { has_policy, policy } = await this.svc.myPolicy(u);
-    return { has_policy, policy, benefits: has_policy ? [{ key: 'manual_review', note_ar: 'تخضع الموافقة لمراجعة مزود الخدمة لوثيقتك' }] : [] };
-  }
+  @SelfService()
+  @Get('benefits-summary') benefitsSummary(@CurrentUser() u: any) { return this.svc.benefitsSummary(u); }
 
   @SelfService()
   @Post('requests') createRequest(@CurrentUser() u: any, @Body() b: CreateRequestDto) { return this.svc.createRequest(u, b); }

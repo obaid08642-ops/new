@@ -20,7 +20,6 @@ import {
   FileCheck2,
   Sparkles
 } from "lucide-react";
-import { SAUDI_INSURANCE_COMPANIES } from "@/lib/data/insurance-companies";
 import { useCentralInsurance } from "@/lib/data/use-central-insurance";
 import styles from "./checkout-flow.module.css";
 
@@ -56,7 +55,7 @@ export function CheckoutFlow({ locale }: Props) {
   const [orderConfirmed, setOrderConfirmed] = useState<any | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const INSURANCE_CATALOG = useCentralInsurance();
+  const { companies: INSURANCE_CATALOG, loading: INSURANCE_LOADING, error: INSURANCE_ERROR, reload: INSURANCE_RELOAD } = useCentralInsurance();
   const selectedInsCompany = INSURANCE_CATALOG.find(c => c.id === insuranceCompany) || INSURANCE_CATALOG[0];
 
   // HONEST PRICING (P0-03): cart subtotal is a catalog-price estimate only.
@@ -165,7 +164,7 @@ export function CheckoutFlow({ locale }: Props) {
             phone,
           },
           patient_notes: paymentMethod === "insurance"
-            ? `insurance:${selectedInsCompany.code || insuranceCompany}|policy:${policyNumber}|nid:${nationalId}|tier:${planTier}`
+            ? `insurance:${selectedInsCompany?.code || insuranceCompany}|policy:${policyNumber}|nid:${nationalId}|tier:${planTier}`
             : `cash:${paymentMethod}|name:${name}`,
           prescription_attachments: prescriptionRef ? [prescriptionRef] : [],
         }),
@@ -192,7 +191,7 @@ export function CheckoutFlow({ locale }: Props) {
         address: `${chosen.city || city} - ${district} ${street ? ` - ${street}` : ""}`,
         paymentMethod,
         insurancePending: paymentMethod === "insurance",
-        insuranceCompanyName: isAr ? selectedInsCompany.nameAr : selectedInsCompany.nameEn,
+        insuranceCompanyName: isAr ? selectedInsCompany?.nameAr : selectedInsCompany?.nameEn,
         items: [...items],
         date: new Date().toLocaleDateString(isAr ? "ar-SA" : "en-US", {
           weekday: "long",
@@ -507,12 +506,22 @@ export function CheckoutFlow({ locale }: Props) {
                     value={insuranceCompany} 
                     onChange={(e) => setInsuranceCompany(e.target.value)}
                   >
-                    {INSURANCE_CATALOG.map((company) => (
+                    {INSURANCE_LOADING && <option value="">{isAr ? "جاري التحميل…" : "Loading…"}</option>}
+                    {!INSURANCE_LOADING && INSURANCE_CATALOG.map((company) => (
                       <option key={company.id} value={company.id}>
                         {isAr ? company.nameAr : company.nameEn}
                       </option>
                     ))}
                   </select>
+                  {INSURANCE_ERROR && (
+                    <div style={{ fontSize: "0.8rem", color: "#B91C1C" }}>
+                      {isAr ? "تعذّر تحميل شركات التأمين. " : "Could not load insurers. "}
+                      <button type="button" onClick={INSURANCE_RELOAD} style={{ textDecoration: "underline" }}>{isAr ? "إعادة المحاولة" : "Retry"}</button>
+                    </div>
+                  )}
+                  {!INSURANCE_LOADING && !INSURANCE_ERROR && !INSURANCE_CATALOG.length && (
+                    <div style={{ fontSize: "0.8rem", color: "#B45309" }}>{isAr ? "لا توجد شركات تأمين متاحة حاليًا." : "No insurers available right now."}</div>
+                  )}
                 </div>
 
                 <div className={styles.formField}>
@@ -566,7 +575,7 @@ export function CheckoutFlow({ locale }: Props) {
                 <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                   <Sparkles size={18} color="#00876F" />
                   <span style={{ fontSize: "0.88rem", fontWeight: "700", color: "#1E332E", overflowWrap: "anywhere" }}>
-                    {isAr ? `التغطية عبر ${selectedInsCompany.nameAr}:` : `Coverage via ${selectedInsCompany.nameEn}:`}
+                    {selectedInsCompany ? (isAr ? `التغطية عبر ${selectedInsCompany.nameAr}:` : `Coverage via ${selectedInsCompany.nameEn}:`) : (isAr ? 'التغطية عبر التأمين:' : 'Coverage via insurance:')}
                   </span>
                 </div>
                 <div style={{ fontSize: "0.85rem", color: "#64748B" }}>

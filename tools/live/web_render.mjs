@@ -61,7 +61,33 @@ async function visit(p) {
   await page.close().catch(() => {});
   return res;
 }
+// B5: iPhone width render test — 390×844 viewport, check for horizontal overflow.
+async function visitMobile(p) {
+  const page = await ctx.newPage();
+  await page.setViewportSize({ width: 390, height: 844 });
+  const res = { page: p, status: 0, overflow: false, jsErrors: [] };
+  page.on('pageerror', (e) => res.jsErrors.push(String(e.message).slice(0, 160)));
+  try {
+    const resp = await page.goto(base + p, { waitUntil: 'load', timeout: 45000 });
+    await page.waitForTimeout(2000);
+    res.status = resp ? resp.status() : 0;
+    res.overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
+  } catch (e) { res.status = -1; res.jsErrors.push('navigation: ' + String(e.message).slice(0, 100)); }
+  await page.close().catch(() => {});
+  return res;
+}
+
 await openBrowser();
+// B5: run the mobile render test over every static page.
+const mobileResults = [];
+for (const p of staticPages) {
+  try { mobileResults.push(await visitMobile(p)); }
+  catch (e) { mobileResults.push({ page: p, status: -1, overflow: false, jsErrors: [String(e.message).slice(0, 80)] }); }
+}
+const mobileBroken = mobileResults.filter((r) => r.overflow || r.status >= 500 || r.status === -1);
+console.log(`mobile pages ${mobileResults.length}, overflow ${mobileBroken.length}`);
+for (const r of mobileBroken) console.log(`MOBILE ${r.status} ${r.page} overflow=${r.overflow} ${r.jsErrors.join(' | ').slice(0, 200)}`);
+
 for (let i = 0; i < staticPages.length; i++) {
   if (i && i % 25 === 0) await openBrowser(); // fresh browser every 25 pages (memory)
   let res;

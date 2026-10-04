@@ -124,7 +124,7 @@ export function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: 
  try {
 	const resIncoming = await client.get('/provider/jobs/queue?status=incoming&kind=consultation');
 	setRequests((resIncoming.data || []).map((x: any) => ({
-	id: x.id, kind: x.kind || 'consultation', patient: x.patient_name || (AR ? 'مريض نبض' : 'Nabdah Patient'),
+	id: x.id, kind: x.kind || 'consultation', patient: x.patient_name || (AR ? 'مريض نبض' : 'Nabd+ Patient'),
         age: x.age ?? null, type: x.service_type || 'video', price: x.total ?? x.price ?? 0,
         time: x.scheduled_at ? new Date(x.scheduled_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : (AR ? 'غير محدد' : 'Unscheduled'),
         avatar: '', complaint: x.title_ar || '', insurance: x.insurance_provider || 'Cash',
@@ -134,7 +134,7 @@ export function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: 
 
  const resToday = await client.get('/provider/jobs/queue?status=active');
  setTodayApts((resToday.data || []).map((x: any) => ({
- id: x.id, patient: x.patient_name || (AR ? 'مريض نبض' : 'Nabdah Patient'),
+ id: x.id, patient: x.patient_name || (AR ? 'مريض نبض' : 'Nabd+ Patient'),
      type: x.service_type || 'video', time: x.scheduled_at ? new Date(x.scheduled_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : (AR ? 'غير محدد' : 'Unscheduled'),
      status: x.status || 'confirmed', price: x.total ?? x.price ?? 0, insurance: x.insurance_provider || 'Cash',
      age: x.age ?? null, avatar: ''
@@ -276,7 +276,7 @@ export function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: 
  )}
 
  <View style={{ marginTop: SP.lg }}>
- <NSecHeader title={AR ? 'منصات نبض بلس' : 'Nabdah Modules'} />
+ <NSecHeader title={AR ? 'منصات نبض بلس' : 'Nabd+ Modules'} />
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, flexWrap: 'wrap' }}>
    <TouchableOpacity 
      onPress={() => onNavigate('medical_jobs')}

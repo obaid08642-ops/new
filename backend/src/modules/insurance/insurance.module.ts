@@ -8,9 +8,10 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { NABDAH_ACCESS_TOKEN_SECURITY_SCHEME } from '../../config/openapi.config';
-import { CreateCompanyDto, UpdateCompanyDto, OcrExtractDto, UploadPolicyDto, NphiesEligibilityDto, SavePolicyDto, SubmitClaimDto, CreateInsuranceNetworkDto, CreateCoverageRuleDto } from './insurance.dto';
+import { CreateCompanyDto, UpdateCompanyDto, OcrExtractDto, UploadPolicyDto, NphiesEligibilityDto, SubmitClaimDto, AttachInsuranceContractDto, CreateInsuranceNetworkDto, CreateCoverageRuleDto, InsuranceDecideDto } from './insurance.dto';
 import { InjectModel, InjectConnection, MongooseModule } from '@nestjs/mongoose';
 import { Model, Connection } from 'mongoose';
+import { RedisService } from '../redis/redis.service';
 import { Optional } from '@nestjs/common';
 import { RefundExecutor } from '../finance-engine/finance-engine.module';
 import { FinanceEngineModule } from '../finance-engine/finance-engine.module';
@@ -42,6 +43,7 @@ export class InsuranceService {
     @InjectModel('InsuranceClaim') private claimModel: Model<InsuranceClaimDocument>,
     private readonly ai: AiGatewayService,
     @Optional() @InjectConnection() private readonly conn?: Connection,
+    @Optional() private readonly redis?: RedisService,
     @Optional() private readonly refundExec?: RefundExecutor,
   ) {}
 
@@ -89,7 +91,10 @@ export class InsuranceService {
     const code = data.code?.toLowerCase();
     const existing = await this.companyModel.findOne({ code: { $eq: code } });
     if (existing) throw new BadRequestException('Company code already exists');
-    return this.companyModel.create({ ...data, code });
+    // R12: new companies are hidden (pending) until an admin approves them.
+    const created = await this.companyModel.create({ ...data, code, is_active: data.is_active ?? false, catalog_status: data.catalog_status || 'pending_review' });
+    await this.bustInsuranceCache();
+    return created;
   }
 
   /** Admin: all companies (incl. disabled) with their tier networks embedded. */
@@ -116,6 +121,29 @@ export class InsuranceService {
     if (!Object.keys(allowed).length) throw new BadRequestException('nothing_to_update');
     const res = await this.companyModel.findOneAndUpdate({ id: { $eq: id } }, { $set: allowed }, { new: true }).lean();
     if (!res) throw new NotFoundException('Company not found');
+    await this.bustInsuranceCache();
+    return res;
+  }
+
+  /** R12: bust public insurance catalog cache so edits apply immediately. */
+  private async bustInsuranceCache(): Promise<void> {
+    try {
+      const client: any = (this.redis as any)?.getClient?.();
+      if (!client) return;
+      const keys: string[] = await client.keys('http_cache:*insurance*').catch(() => []);
+      if (keys.length) await client.del(...keys).catch(() => null);
+    } catch { /* cache bust is best-effort */ }
+  }
+
+  /** R12: admin deactivate (soft-delete) or reactivate a company. */
+  async setCompanyActive(id: string, active: boolean): Promise<any> {
+    const res = await this.companyModel.findOneAndUpdate(
+      { id: { $eq: id } },
+      { $set: { is_active: active, catalog_status: active ? 'approved' : 'disabled', updatedAt: new Date() } },
+      { new: true },
+    ).lean();
+    if (!res) throw new NotFoundException('Company not found');
+    await this.bustInsuranceCache();
     return res;
   }
 
@@ -201,11 +229,36 @@ export class InsuranceService {
       }
     }
 
+    // The claim form stores whatever the patient typed (localized company name,
+    // network code), while a contract stores ids. Resolve both sides to ids so
+    // a real policy can actually match a real contract.
+    const eq = (a: any, b: any) => String(a ?? '').trim().toLowerCase() === String(b ?? '').trim().toLowerCase();
+    const companyAliases = new Set<string>();
+    const networkAliases = new Set<string>();
+    if (patientIns.company_id) companyAliases.add(String(patientIns.company_id).trim().toLowerCase());
+    if (patientIns.company_code) companyAliases.add(String(patientIns.company_code).trim().toLowerCase());
+    if (patientIns.provider) {
+      companyAliases.add(String(patientIns.provider).trim().toLowerCase());
+      const c: any = await this.companyModel?.findOne?.({ $or: [
+        { id: patientIns.provider }, { code: patientIns.provider },
+        { name_ar: patientIns.provider }, { name_en: patientIns.provider },
+      ] })?.lean?.() ?? null;
+      if (c) { companyAliases.add(String(c.id).toLowerCase()); companyAliases.add(String(c.code).toLowerCase()); }
+    }
+    if (patientIns.network) {
+      networkAliases.add(String(patientIns.network).trim().toLowerCase());
+      const n: any = await this.networkModel?.findOne?.({ $or: [
+        { id: patientIns.network }, { code: patientIns.network },
+        { name_ar: patientIns.network }, { name_en: patientIns.network },
+      ] })?.lean?.() ?? null;
+      if (n) networkAliases.add(String(n.id).toLowerCase());
+    }
+
     // Match patient insurance company & network code
-    const matchingContract = contracts.find(c => 
-      c.company_id.toLowerCase() === patientIns.provider.toLowerCase() &&
-      c.network_id.toLowerCase() === patientIns.network.toLowerCase() &&
-      (c.covered_classes.length === 0 || c.covered_classes.includes(patientIns.class))
+    const matchingContract = contracts.find(c =>
+      (companyAliases.has(String(c.company_id ?? '').toLowerCase()) || companyAliases.has(String((c as any).company_name_ar ?? '').toLowerCase()) || companyAliases.has(String((c as any).company_name_en ?? '').toLowerCase())) &&
+      (networkAliases.has(String(c.network_id ?? '').toLowerCase()) || networkAliases.has(String((c as any).network_name_ar ?? '').toLowerCase()) || networkAliases.has(String((c as any).network_name_en ?? '').toLowerCase())) &&
+      ((c.covered_classes || []).length === 0 || (c.covered_classes || []).includes(patientIns.class ?? patientIns.plan_class))
     );
 
     if (!matchingContract) {
@@ -354,31 +407,43 @@ Use null for any field not clearly visible. Do not guess.`;
     };
   }
 
-  async savePolicy(patientId: string, policyData: any) {
-    let patient = await this.patientModel.findOne({ user_id: { $eq: patientId } });
-    if (!patient) {
-      patient = await this.patientModel.create({ user_id: patientId });
-    }
-    patient.insurance = {
-      company_id: policyData.company_id || policyData.provider,
-      provider: policyData.provider,
-      policy_number: policyData.policy_number,
-      network: policyData.network,
-      class: policyData.class,
-      expiry_date: policyData.expiry_date,
-      member_name: policyData.member_name,
-      national_id: policyData.national_id,
-      verified: policyData.verified ?? false,
-      pdf_url: policyData.pdf_url,
-      ocr_extracted: policyData.ocr_extracted ?? false,
-      nphies_eligible: policyData.nphies_eligible ?? false,
-    };
-    await patient.save();
-    return { success: true, insurance: patient.insurance };
-  }
-
   /** LJ-02: a claim is filed against a real paid booking; the server sets the
    * status/date and ignores any client-supplied status or submitted_at. */
+  /** Attach (or replace) one insurance contract on a provider profile.
+   * `insurance_contracts` had no write path anywhere, so coverage-check could
+   * never return covered for a real provider. */
+  async attachContract(providerId: string, body: any) {
+    const company = await this.companyModel.findOne({ $or: [{ id: body.company_id }, { code: body.company_id }] }).lean();
+    if (!company) throw new NotFoundException('insurance_company_not_found');
+    const network = await this.networkModel.findOne({ $or: [{ id: body.network_id }, { code: body.network_id }] }).lean();
+    if (!network) throw new NotFoundException('insurance_network_not_found');
+
+    const contract = {
+      company_id: String((company as any).id),
+      company_name_ar: (company as any).name_ar,
+      company_name_en: (company as any).name_en,
+      network_id: String((network as any).id),
+      network_name_ar: (network as any).name_ar,
+      network_name_en: (network as any).name_en,
+      covered_classes: Array.isArray(body.covered_classes) ? body.covered_classes : [],
+      copay_percent: Number(body.copay_percent || 0),
+      copay_flat: Number(body.copay_flat || 0),
+    };
+
+    const prof = await this.providerModel.findOneAndUpdate(
+      { $or: [{ id: providerId }, { account_id: providerId }, { user_id: providerId }] },
+      { $pull: { insurance_contracts: { company_id: contract.company_id, network_id: contract.network_id } } },
+      { new: false },
+    ).lean();
+    if (!prof) throw new NotFoundException('provider_not_found');
+    const updated = await this.providerModel.updateOne(
+      { _id: (prof as any)._id },
+      { $push: { insurance_contracts: contract } },
+    );
+    if (!updated.matchedCount) throw new NotFoundException('provider_not_found');
+    return { ok: true, provider_id: (prof as any).id, contract };
+  }
+
   async submitClaim(patientId: string, claimData: any) {
     const bookingKind = String(claimData?.booking_kind || '').trim().toLowerCase();
     const bookingId = String(claimData?.booking_id || '').trim();
@@ -468,7 +533,7 @@ export class AdminInsuranceClaimsController {
 
   @Get() list(@Query('status') status?: string) { return this.svc.adminClaims(status); }
 
-  @Post(':id/decide') decide(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) {
+  @Post(':id/decide') decide(@CurrentUser() u: any, @Param('id') id: string, @Body() body: InsuranceDecideDto) {
     return this.svc.decideClaim(u, id, body?.approve === true, body?.note);
   }
 }
@@ -592,6 +657,20 @@ export class InsuranceController {
     return this.svc.updateCompany(id, allowed);
   }
 
+  /** R12: admin deactivate (soft-delete) a company — hidden from patients, kept for history. */
+  @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
+  @Delete('companies/:id')
+  deleteCompany(@Param('id') id: string) {
+    return this.svc.setCompanyActive(id, false);
+  }
+
+  /** R12: admin reactivate a disabled company. */
+  @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
+  @Post('companies/:id/reactivate')
+  reactivateCompany(@Param('id') id: string) {
+    return this.svc.setCompanyActive(id, true);
+  }
+
   /** Admin: delete a tier (network) from a company. */
   @Roles(UserRole.ADMIN)
   @Delete('companies/:companyId/networks/:networkId')
@@ -623,6 +702,9 @@ export class InsuranceController {
   @Post('networks/:networkId/rules')
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
   createRule(@Param('networkId') networkId: string, @Body() b: CreateCoverageRuleDto) {
+    // The admin form calls it service_type; coverage lookup reads both names.
+    if (!b?.service_key && b?.service_type) b.service_key = b.service_type;
+    if (!b?.service_type && b?.service_key) b.service_type = b.service_key;
     return this.svc.createRule(networkId, b);
   }
 
@@ -661,15 +743,21 @@ export class InsuranceController {
     return this.svc.nphiesEligibility(body.national_id, body.insurance_company_code, body.member_id);
   }
 
-  @SelfService()
-  @Post('save-policy')
-  savePolicy(@CurrentUser() u: any, @Body() body: SavePolicyDto) {
-    return this.svc.savePolicy(u.id, body);
+  // F2: POST save-policy is served by insurance-engine, which accepts every
+  // field the clients send. This strict duplicate rejected the app payload.
+
+  @Roles(UserRole.ADMIN)
+  @Post('providers/:providerId/insurance-contract')
+  attachContract(@Param('providerId') providerId: string, @Body() b: AttachInsuranceContractDto) {
+    return this.svc.attachContract(providerId, b);
   }
 
   @SelfService()
   @Post('claims/submit')
   submitClaim(@CurrentUser() u: any, @Body() body: SubmitClaimDto) {
+    // The claim form sends booking_kind; coverage rules are keyed by service_type.
+    if (!body?.service_type && body?.booking_kind) body.service_type = body.booking_kind;
+    if (!body?.service_type) throw new BadRequestException('service_type_or_booking_kind_required');
     return this.svc.submitClaim(u.id, body);
   }
 

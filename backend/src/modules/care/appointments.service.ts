@@ -20,6 +20,51 @@ const PLATFORM_FEES = {
 };
 
 /**
+ * Q37 — slot-listing buffer parity (listed-available implies bookable).
+ * create()/reschedule() pad the NEW appointment by 5 minutes and refuse when an
+ * existing blocking appointment satisfies:
+ *   existing.slot_start < paddedEnd && existing.slot_end > slotStart
+ * The slot-listing path must apply this IDENTICAL rule when it builds
+ * `available: true/false`; otherwise a slot (e.g. 16:30 with a 17:00 booking
+ * right after it) is listed available but POST /care/appointments 409s with
+ * slot_already_booked_or_conflicts_with_buffer.
+ * These pure helpers are the single definition of that rule for the listing
+ * path — create()/reschedule()/assertNoForeignSlotHold() (Q36) below are
+ * intentionally untouched.
+ */
+export const APPOINTMENT_SLOT_BUFFER_MINUTES = 5;
+
+/** Blocking statuses mirrored from create()'s overlap query (Q37 parity). */
+export const APPOINTMENT_LISTING_BLOCKING_STATUSES = [
+  APPT_STATES.PENDING,
+  APPT_STATES.CONFIRMED,
+  APPT_STATES.CHECKED_IN,
+  APPT_STATES.IN_PROGRESS,
+] as const;
+
+/** paddedEnd for a candidate slot — identical to create()'s `paddedEnd`. */
+export function slotPaddedEnd(slotStart: Date, durationMinutes = 30): Date {
+  return new Date(slotStart.getTime() + durationMinutes * 60_000 + APPOINTMENT_SLOT_BUFFER_MINUTES * 60_000);
+}
+
+/**
+ * Identical to create()'s overlap predicate: the candidate (plus its 5-min
+ * buffer) conflicts with an existing booking iff the booking starts before the
+ * candidate's padded end and ends after the candidate's start. Strict
+ * inequalities match the booking query exactly (a booking starting exactly at
+ * paddedEnd does NOT conflict).
+ */
+export function slotCandidateConflictsWithBooking(
+  candidateStart: Date,
+  candidateEnd: Date,
+  bookingStart: Date,
+  bookingEnd: Date,
+): boolean {
+  const paddedEnd = new Date(candidateEnd.getTime() + APPOINTMENT_SLOT_BUFFER_MINUTES * 60_000);
+  return bookingStart.getTime() < paddedEnd.getTime() && bookingEnd.getTime() > candidateStart.getTime();
+}
+
+/**
  * Appointment lifecycle service.
  * - State machine: PENDING → CONFIRMED → CHECKED_IN → IN_PROGRESS → COMPLETED
  * - Card payments: stay PENDING until payment.completed webhook confirms.
@@ -54,6 +99,77 @@ export class AppointmentsService {
     if (!me?.permissions?.includes('booking')) {
       throw new ForbiddenException('you do not have the booking permission for this member');
     }
+  }
+
+  /**
+   * Q36 — refuse booking a slot another patient actively holds.
+   * Matches holds on the same provider whose [slot_start, slot_end) range
+   * overlaps the requested appointment, with status 'held' and
+   * expires_at in the future (expired holds never block). Holds owned by
+   * the booker (or the on-behalf patient) are excluded so the holder can
+   * still book inside their own hold.
+   */
+  private async assertNoForeignSlotHold(
+    providerId: string,
+    slotStart: Date,
+    slotEnd: Date,
+    user: any,
+    patientId: string,
+  ): Promise<void> {
+    const now = new Date();
+    const selfIds = [user?.id, patientId].filter(Boolean);
+    let blocking: any = null;
+    try {
+      const model = (this.connection as any)?.model?.('SlotLock');
+      if (!model?.findOne) return;
+      const q = model.findOne({
+        provider_id: providerId,
+        status: 'held',
+        expires_at: { $gt: now },
+        slot_start: { $lt: slotEnd },
+        slot_end: { $gt: slotStart },
+        patient_id: { $nin: selfIds },
+      });
+      blocking = typeof q?.lean === 'function' ? await q.lean() : await q;
+    } catch (e) {
+      this.logger.warn(`slot-hold check unavailable, allowing booking to proceed: ${(e as any)?.message}`);
+      return;
+    }
+    if (blocking) throw new ConflictException('slot_held');
+  }
+
+  /**
+   * Q37 — slot-listing path: `available` for one candidate slot under the
+   * IDENTICAL 5-min buffer rule create() enforces, so listed-available implies
+   * bookable. Pure read over caller-supplied blocking bookings (no DB); the
+   * caller must pass bookings in create()'s blocking statuses.
+   */
+  isSlotListAvailable(
+    candidateStart: Date | string,
+    bookings: { slot_start: Date | string; slot_end: Date | string }[],
+    durationMinutes = 30,
+  ): boolean {
+    const start = new Date(candidateStart);
+    const end = new Date(start.getTime() + durationMinutes * 60_000);
+    return !bookings.some((b) =>
+      slotCandidateConflictsWithBooking(start, end, new Date(b.slot_start), new Date(b.slot_end)),
+    );
+  }
+
+  /**
+   * Q37 — batch version of the listing path: builds the `available` flag for
+   * each candidate slot with the same buffer rule as booking.
+   */
+  markSlotsAvailability(
+    candidates: { start: Date | string; durationMinutes?: number }[],
+    bookings: { slot_start: Date | string; slot_end: Date | string }[],
+    defaultDurationMinutes = 30,
+  ): { start: string; available: boolean }[] {
+    return candidates.map((c) => {
+      const start = new Date(c.start);
+      const dur = c.durationMinutes ?? defaultDurationMinutes;
+      return { start: start.toISOString(), available: this.isSlotListAvailable(start, bookings, dur) };
+    });
   }
 
   /** ===== Create ===== */
@@ -122,6 +238,15 @@ export class AppointmentsService {
     if (overlapping) {
       throw new ConflictException('slot_already_booked_or_conflicts_with_buffer');
     }
+
+    // Q36 — booking integrity vs slot holds: refuse when a DIFFERENT patient
+    // actively holds this provider+slot (status 'held', unexpired). The
+    // holder's own booking stays allowed (their lock is excluded below, or
+    // consumed via slot_lock_id). Pure read through the shared connection so
+    // no other module's contract changes; expired holds never match because
+    // the query requires expires_at > now. Lookup failures fail open (logged)
+    // — the overlap check + unique index above remain the hard backstop.
+    await this.assertNoForeignSlotHold(doctor.id, slotStart, slotEnd, user, patientId);
 
     // Optional slot hold (POST /slot-locks/reserve): validated before any
     // write so a mismatched/expired lock fails fast without side effects.

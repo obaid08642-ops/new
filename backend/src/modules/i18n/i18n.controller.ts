@@ -1,7 +1,7 @@
 import { JwtAuthGuard } from '../../common/auth.guard';
 import { UseGuards } from '@nestjs/common';
 import { Controller, Get, Query } from '@nestjs/common';
-import { I18nService } from './i18n.service';
+import { I18nService, Lang } from './i18n.service';
 import { Public } from '../../common/auth.guard';
 
 @UseGuards(JwtAuthGuard)
@@ -11,7 +11,7 @@ export class I18nController {
 
   @Public()
   @Get()
-  bundle(@Query('lang') lang: 'ar' | 'en' | 'ur') {
+  bundle(@Query('lang') lang: Lang) {
     return this.svc.all(lang || 'ar');
   }
 

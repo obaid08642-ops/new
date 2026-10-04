@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { StepUp } from '../../../common/step-up.guard';
 import { JwtAuthGuard, Roles, CurrentUser } from '../../../common/auth.guard';
 import { Permission, RequirePermissions } from '../../../common/permissions';
 import { UserRole } from '../../../common/enums';
@@ -32,6 +33,7 @@ export class AdminFinanceSuiteController {
     return this.svc.commissions({ from, to });
   }
 
+  @StepUp()
   @Post('commissions/config')
   @RequirePermissions(Permission.FINANCE_CONFIG_EDIT)
   updateConfig(@Body() b: UpdateConfigDto, @CurrentUser() me: any) {
@@ -50,12 +52,14 @@ export class AdminFinanceSuiteController {
     return this.svc.payoutQueue(status, parseInt(page, 10) || 1, parseInt(limit, 10) || 25);
   }
 
+  @StepUp()
   @Post('payouts/:id/approve')
   @RequirePermissions(Permission.FINANCE_PAYOUT_APPROVE)
   approvePayout(@Param('id') id: string, @Body() b: ApprovePayoutDto, @CurrentUser() me: any) {
     return this.svc.approvePayout(id, me, b?.reason, 'approve');
   }
 
+  @StepUp()
   @Post('payouts/:id/reject')
   @RequirePermissions(Permission.FINANCE_PAYOUT_APPROVE)
   rejectPayout(@Param('id') id: string, @Body() b: RejectPayoutDto, @CurrentUser() me: any) {

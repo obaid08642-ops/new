@@ -55,7 +55,7 @@ export default function ProviderAuditsPage() {
   return (
     <>
       <Head>
-        <title>مركز تدقيق تعديلات مقدمي الخدمة | نبض</title>
+        <title>مركز تدقيق تعديلات مقدمي الخدمة | نبض بلس</title>
       </Head>
       <div dir="rtl" className="p-8 max-w-6xl mx-auto space-y-6">
         <div>

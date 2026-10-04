@@ -31,7 +31,7 @@ export class MedicinesController {
       return this.svc.cursorPage(term, category, cursor || undefined, parseInt(limit || '30'));
     }
     if (page !== undefined) {
-      return this.svc.paginate(term, category, parseInt(page || '1'), parseInt(limit || '30'), true, sort || 'smart_ranking', pharmacyId);
+      return this.svc.paginate(term, category, parseInt(page || '1'), parseInt(limit || '30'), false, sort || 'smart_ranking', pharmacyId); // R9a: public must filter unapproved
     }
     return this.svc.list(term, category, false, limit ? parseInt(limit) : undefined, userId, sort || 'smart_ranking', pharmacyId);
   }
@@ -274,7 +274,7 @@ export class MedicinesController {
   /** P6.0: medical-review decision (approve surfaces the item publicly). */
   @Post('admin/catalog/:id/approve')
   @Roles(UserRole.ADMIN)
-  @RequirePermissions(Permission.CATALOG_UPDATE)
+  @RequirePermissions(Permission.CATALOG_APPROVE) // F8: publishing needs the approve permission
   adminApprove(@Param('id') id: string, @Body() body: AdminApproveCatalogDto, @CurrentUser('id') by: string) {
     return this.svc.adminApproveCatalog(id, body?.approve !== false, by);
   }

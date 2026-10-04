@@ -91,7 +91,7 @@ export default function PharmacyProcurementPage() {
 
   return (
     <>
-      <Head><title>طلبات توريد الصيدليات | نبض</title></Head>
+      <Head><title>طلبات توريد الصيدليات | نبض بلس</title></Head>
       <div className="p-8 space-y-6">
         <div className="flex justify-between items-center">
           <div>

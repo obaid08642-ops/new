@@ -6,6 +6,13 @@
 
 const STAGING = process.env.STAGING_BASE || 'https://staging.nabd.plus/api/v1';
 
+// These suites need a deployed environment that has the seeded race accounts
+// (+966500000091 and friends). Without STAGING_BASE they used to run against a
+// bare local DB and fail with a misleading HTML/401 error, so skip them loudly
+// instead of reporting a fake failure.
+const HAS_STAGING = Boolean(process.env.STAGING_BASE);
+const describeRace = HAS_STAGING ? describe : describe.skip;
+
 async function login(phone: string, password: string): Promise<string> {
   const r = await fetch(`${STAGING}/auth/login`, {
     method: 'POST',
@@ -17,7 +24,7 @@ async function login(phone: string, password: string): Promise<string> {
   return j.token.accessToken;
 }
 
-describe('Race: Slot Locking (50 concurrent same slot)', () => {
+describeRace('Race: Slot Locking (50 concurrent same slot)', () => {
   it('only one booking succeeds, rest get 409', async () => {
     const token = await login('+966500000091', 'Test1234!');
     const slotTs = Date.now() + 3600_000; // 1 hour from now
@@ -46,7 +53,7 @@ describe('Race: Slot Locking (50 concurrent same slot)', () => {
   }, 30000);
 });
 
-describe('Race: Inventory — last item (20 concurrent)', () => {
+describeRace('Race: Inventory — last item (20 concurrent)', () => {
   it('only one purchase succeeds, no negative stock', async () => {
     const token = await login('+966500000091', 'Test1234!');
     // Create 20 concurrent pharmacy orders for same SKU with qty 1
@@ -77,7 +84,7 @@ describe('Race: Inventory — last item (20 concurrent)', () => {
   }, 30000);
 });
 
-describe('Smart Collision Fallback', () => {
+describeRace('Smart Collision Fallback', () => {
   it('findAlternativeSlot returns next, prev, or null', async () => {
     // Unit-level check: verify the service method exists and handles fallback
     const { UnifiedBookingsService } = await import('../src/modules/unified-bookings/unified-bookings.service');

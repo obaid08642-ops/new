@@ -34,6 +34,27 @@
   ix('pharmacy_shortage_reports', { status: 1, createdAt: -1 });
   ix('pharmacy_shortage_reports', { id: 1 }, { unique: true, sparse: true });
 
+  // ── Pharmacy data-integrity guards (Q29) ──
+  // Previously these lived only in manual migration scripts
+  // (backend/scripts/migrations/20260827-*.js), so a fresh deploy had no
+  // duplicate guard and every idempotent upsert was a COLLSCAN. Mirrored in
+  // backend/src/modules/pharmacy/pharmacy-indexes.ts, which also ensures
+  // them at boot. createIndex is idempotent: re-running never duplicates
+  // and nothing here ever drops an index.
+  ix('domain_outbox', { aggregate_type: 1, aggregate_id: 1, event_type: 1, idempotency_key: 1 },
+    { name: 'domain_outbox_pharmacy_idempotency_unique', unique: true });
+  ix('pharmacy_broadcast_recipients', { broadcast_id: 1, pharmacy_account_id: 1 },
+    { name: 'pharmacy_broadcast_recipient_unique', unique: true });
+  ix('pharmacy_payment_intents', { order_id: 1, idempotency_key: 1 },
+    { name: 'payment_intent_order_idempotency_unique', unique: true });
+  ix('pharmacy_payment_intents', { intent_id: 1 },
+    { name: 'payment_intent_id_unique', unique: true });
+  ix('pharmacy_payment_evidence', { gateway: 1, gateway_payment_id: 1, webhook_event_id: 1 },
+    { name: 'payment_evidence_gateway_event_unique', unique: true });
+  // Non-unique by design (status is part of the key): quote lookup, not a guard.
+  ix('pharmacy_payment_evidence', { order_id: 1, selected_offer_id: 1, selected_offer_version: 1, quote_snapshot_hash: 1, status: 1 },
+    { name: 'payment_evidence_quote_lookup' });
+
   // ── Appointments / consultations ──
   ix('appointments', { patient_id: 1, scheduled_time: -1 });
   ix('appointments', { provider_id: 1, scheduled_time: -1 });

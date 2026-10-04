@@ -40,6 +40,36 @@ describe('Users notification/session contract bridge', () => {
     );
   });
 
+  it('maps the 9 flat UI switches to channels/categories per the owner mapping', async () => {
+    // Q38: the app sends one flat switch at a time; the server must persist it,
+    // not 400. Mapping (HANDOFF §5): general→channels.push,
+    // appointments/orders→categories.*, medications→health, doctorMessages→chat,
+    // offers→marketing.
+    const service = serviceFor({ channels: { push: true, email: false, sms: true }, categories: { marketing: false } });
+
+    await expect(service.updateNotificationSettings('patient-1', { appointments: false })).resolves.toMatchObject({
+      categories: expect.objectContaining({ appointments: false }),
+    });
+    await expect(service.updateNotificationSettings('patient-1', { general: false })).resolves.toMatchObject({
+      channels: expect.objectContaining({ push: false }),
+    });
+    await expect(service.updateNotificationSettings('patient-1', { doctorMessages: false })).resolves.toMatchObject({
+      categories: expect.objectContaining({ chat: false }),
+    });
+    await expect(service.updateNotificationSettings('patient-1', { offers: true })).resolves.toMatchObject({
+      categories: expect.objectContaining({ marketing: true }),
+    });
+  });
+
+  it('locks emergency on and treats device-local keys as a no-op success', async () => {
+    const service = serviceFor({ channels: { push: true, email: false, sms: true } });
+    await expect(service.updateNotificationSettings('patient-1', { emergency: false })).rejects.toThrow('emergency_notifications_locked');
+    // sound/vibration are device-local: accepted, nothing persisted, no write issued.
+    const before = service.patientRepository.updateOne.mock.calls.length;
+    await expect(service.updateNotificationSettings('patient-1', { sound: false })).resolves.toBeTruthy();
+    expect(service.patientRepository.updateOne.mock.calls.length).toBe(before);
+  });
+
   it('rejects unknown keys, NoSQL paths, and non-boolean values', async () => {
     const service = serviceFor();
     await expect(service.updateNotificationSettings('patient-1', { admin: true })).rejects.toThrow(BadRequestException);

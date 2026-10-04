@@ -58,16 +58,18 @@ import { B2BController } from './governance/b2b.controller';
 import { SystemConfigController, PublicSystemConfigController } from './governance/system-config.controller';
 // P5.3: merged from AdminNotificationCenterModule (notification-center/ → admin/)
 import { PushModule } from '../push/push.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 import {
   AdminNotificationCenterController,
   AdminNotificationCenterService,
 } from './notification-center/admin-notification-center.module';
+import { RecurringNotificationService } from './notification-center/recurring.service';
 // P5.3: merged from AdminWebCoreModule (web-core/ → admin/)
 import { FinanceEngineModule } from '../finance-engine/finance-engine.module';
 import { ProviderWithdrawalSchema } from '../provider-ops/provider-ops.module';
 import { AnalyticsController } from './web-core/controllers/analytics.controller';
 import { FinanceController } from './web-core/controllers/finance.controller';
-import { SystemHealthController } from './web-core/controllers/system-health.controller';
+// R4: web-core SystemHealthController removed (dup of system-health module).
 import { AdminConfigController } from './web-core/controllers/admin-config.controller';
 import { AdminGovernanceController as WebCoreGovernanceController } from './web-core/controllers/admin-governance.controller';
 import { AdminExtendedOperationsController } from './web-core/controllers/admin-extended-operations.controller';
@@ -91,6 +93,7 @@ import { AuditIngestController } from './admin-audit-ingest.controller';
     WorkflowEngineModule,
     FinanceEngineModule,
     PushModule,
+    NotificationsModule,
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: ProviderDelta.name, schema: ProviderDeltaSchema },
@@ -157,7 +160,6 @@ import { AuditIngestController } from './admin-audit-ingest.controller';
     // P5.3: merged from AdminWebCoreModule
     AnalyticsController,
     FinanceController,
-    SystemHealthController,
     AdminConfigController,
     WebCoreGovernanceController,
     AdminExtendedOperationsController,
@@ -178,10 +180,12 @@ import { AuditIngestController } from './admin-audit-ingest.controller';
     AdminGovernanceService,
     // P5.3: merged from AdminNotificationCenterModule
     AdminNotificationCenterService,
+    RecurringNotificationService,
   ],
   exports: [
     AdminAuthorityService,
     AdminNotificationCenterService,
+    RecurringNotificationService,
     AdminAuditService,
     OrdersConsoleService,
     FinanceSuiteService,

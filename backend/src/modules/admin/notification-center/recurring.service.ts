@@ -68,7 +68,11 @@ export class RecurringNotificationService {
 
   /** Toggle a rule on/off. */
   async toggleRule(id: string, enabled: boolean) {
-    await this.rules.updateOne({ id }, { $set: { enabled, updated_at: new Date() } });
+    const res = await this.rules.updateOne({ id }, { $set: { enabled, updated_at: new Date() } });
+    if ((res as any).modifiedCount === 0 && !(await this.rules.findOne({ id }))) {
+      const { NotFoundException } = await import('@nestjs/common');
+      throw new NotFoundException('recurring_rule_not_found');
+    }
     return { ok: true };
   }
 

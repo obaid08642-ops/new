@@ -1,18 +1,50 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { SeoService } from './seo.service';
+import { AutoEntitySeoPipelineService, PipelineEntityType } from '../events/auto-entity-seo-pipeline.service';
 
 /**
  * R24: push-based index updates on entity lifecycle changes.
  * Sitemap routes are time-revalidated; this listener pings IndexNow
  * the moment providers/entities change state (approve/reject/suspend,
  * catalog deltas) instead of waiting for the next crawl window.
+ *
+ * 13.R6: provider lifecycle propagation — every provider status change
+ * (approve/reject/suspend/reactivate/…) fans out to all four discovery
+ * surfaces via existing hooks only (no new infrastructure):
+ *  1. search  — SeoService.pingIndexNow (IndexNow push, doctor+facility).
+ *  2. sitemap — pipeline.invalidateCaches drops `seo:sitemap:xml` (+ slug keys).
+ *  3. cache   — same call drops `public:catalog:*` / `seo:resolve:*` / `seo:llms:txt`.
+ *  4. MCP     — same call drops `mcp:entities:cache`.
+ * Suspend/archive removes the provider from public reads (read-side gates in
+ * seo.service publicQuery / mcp.service filters / pipeline isEligible already
+ * exclude non-active); reactivate restores it on the next read once the stale
+ * keys are gone. Every step is best-effort: handlers never throw.
  */
 @Injectable()
 export class SeoIndexingListener {
   private readonly logger = new Logger(SeoIndexingListener.name);
 
-  constructor(private readonly seo: SeoService) {}
+  /**
+   * Provider-profile entity types of the SEO pipeline (all map to the
+   * `provider_profiles` / `facilities` source collections). The status-change
+   * payload carries no type, so every provider-ish type is invalidated —
+   * each call is a few fire-and-forget Redis DELs via an existing hook.
+   */
+  private static readonly PROVIDER_PIPELINE_TYPES: PipelineEntityType[] = [
+    'doctor',
+    'pharmacy',
+    'nursing',
+    'hospital',
+    'clinic',
+    'lab',
+    'radiology',
+  ];
+
+  constructor(
+    private readonly seo: SeoService,
+    private readonly pipeline: AutoEntitySeoPipelineService,
+  ) {}
 
   private async ping(type: string, id: string | undefined, event: string) {
     if (!id) return;
@@ -22,34 +54,64 @@ export class SeoIndexingListener {
     } catch { /* best-effort telemetry */ }
   }
 
+  /**
+   * 13.R6: fan a provider status change out to search + sitemap + cache + MCP.
+   * Returns silently when the payload carries no id (mirrors ping's contract).
+   */
+  private async propagate(p: { provider_id?: string; id?: string }, event: string) {
+    const pid = p?.provider_id || (p as any)?.id;
+    if (!pid) return;
+    await this.ping('doctor', pid, event);
+    await this.ping('facility', pid, event);
+    for (const t of SeoIndexingListener.PROVIDER_PIPELINE_TYPES) {
+      try {
+        await this.pipeline.invalidateCaches(t, String(pid));
+      } catch { /* best-effort invalidation */ }
+    }
+  }
+
   @OnEvent('provider.approved')
   async onApproved(p: { provider_id?: string }) {
-    await this.ping('doctor', p?.provider_id, 'provider.approved');
-    await this.ping('facility', p?.provider_id, 'provider.approved');
+    await this.propagate(p, 'provider.approved');
   }
 
   @OnEvent('provider.rejected')
   async onRejected(p: { provider_id?: string }) {
-    await this.ping('doctor', p?.provider_id, 'provider.rejected');
-    await this.ping('facility', p?.provider_id, 'provider.rejected');
+    await this.propagate(p, 'provider.rejected');
   }
 
   @OnEvent('provider.suspended')
   async onSuspended(p: { provider_id?: string }) {
-    await this.ping('doctor', p?.provider_id, 'provider.suspended');
-    await this.ping('facility', p?.provider_id, 'provider.suspended');
+    await this.propagate(p, 'provider.suspended');
+  }
+
+  /**
+   * 13.R6: reactivation restores the provider to search/sitemap/cache/MCP.
+   * NOTE (emit gap, forbidden-file follow-up): nothing emits these events yet —
+   * ProviderAdminService.reactivate
+   * (backend/src/modules/provider/services/provider-admin.service.ts:315-333)
+   * restores DB flags without EventEmitter2/EventBus/seoPipeline calls, and
+   * ProvidersService has no reactivate path at all. Handlers below are wired
+   * and spec-proven; the one-line emit belongs to the provider-module owner.
+   */
+  @OnEvent('provider.reactivated')
+  async onReactivated(p: { provider_id?: string }) {
+    await this.propagate(p, 'provider.reactivated');
+  }
+
+  @OnEvent('admin.provider_reactivated')
+  async onAdminReactivated(p: { provider_id?: string }) {
+    await this.propagate(p, 'admin.provider_reactivated');
   }
 
   @OnEvent('admin.provider_approved')
   async onAdminApproved(p: { provider_id?: string }) {
-    await this.ping('doctor', p?.provider_id, 'admin.provider_approved');
-    await this.ping('facility', p?.provider_id, 'admin.provider_approved');
+    await this.propagate(p, 'admin.provider_approved');
   }
 
   @OnEvent('admin.provider_rejected')
   async onAdminRejected(p: { provider_id?: string }) {
-    await this.ping('doctor', p?.provider_id, 'admin.provider_rejected');
-    await this.ping('facility', p?.provider_id, 'admin.provider_rejected');
+    await this.propagate(p, 'admin.provider_rejected');
   }
 
   @OnEvent('radiology.catalog_delta')

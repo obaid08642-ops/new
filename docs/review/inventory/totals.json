@@ -8,7 +8,15 @@
   "selects": 17,
   "links": 2,
   "forms": 0,
-  "api_calls": 394
+  "api_calls": 396,
+  "controls": 1178,
+  "controls_without_id": 1176,
+  "controls_without_id_breakdown": {
+   "button": 1051,
+   "field": 99,
+   "select": 17,
+   "toggle": 9
+  }
  },
  "provider-app": {
   "files": 165,
@@ -19,21 +27,37 @@
   "selects": 37,
   "links": 0,
   "forms": 0,
-  "api_calls": 401
+  "api_calls": 401,
+  "controls": 1522,
+  "controls_without_id": 1522,
+  "controls_without_id_breakdown": {
+   "button": 897,
+   "field": 488,
+   "toggle": 100,
+   "select": 37
+  }
  },
  "admin": {
   "files": 86,
   "files_with_ui": 61,
-  "buttons": 291,
-  "fields": 291,
-  "toggles": 18,
+  "buttons": 282,
+  "fields": 282,
+  "toggles": 17,
   "selects": 36,
-  "links": 38,
+  "links": 39,
   "forms": 18,
-  "api_calls": 269
+  "api_calls": 260,
+  "controls": 617,
+  "controls_without_id": 617,
+  "controls_without_id_breakdown": {
+   "button": 282,
+   "select": 36,
+   "field": 282,
+   "toggle": 17
+  }
  },
  "patient-web": {
-  "files": 642,
+  "files": 647,
   "files_with_ui": 318,
   "buttons": 228,
   "fields": 121,
@@ -41,6 +65,14 @@
   "selects": 29,
   "links": 472,
   "forms": 30,
-  "api_calls": 369
+  "api_calls": 371,
+  "controls": 396,
+  "controls_without_id": 396,
+  "controls_without_id_breakdown": {
+   "button": 228,
+   "field": 121,
+   "select": 29,
+   "toggle": 18
+  }
  }
 }

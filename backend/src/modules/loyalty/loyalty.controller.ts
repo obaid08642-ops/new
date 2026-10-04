@@ -6,6 +6,7 @@ import {
   Controller, Get, Post, Put, Patch, Delete, Body, Query, Param, Req,
 } from '@nestjs/common';
 import { LoyaltyService } from './loyalty.service';
+import { RewardDto, ChallengeDto, LoyaltyConfigDto } from './loyalty.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('loyalty')
@@ -76,20 +77,20 @@ export class AdminLoyaltyController {
 
   @Get('rewards') rewards() { return this.loyaltyService.adminListRewards(); }
   @StepUp()
-  @Post('rewards') createReward(@Body() body: any) { return this.loyaltyService.adminCreateReward(body); }
+  @Post('rewards') createReward(@Body() body: RewardDto) { return this.loyaltyService.adminCreateReward(body); }
   @StepUp()
-  @Patch('rewards/:id') updateReward(@Param('id') id: string, @Body() body: any) { return this.loyaltyService.adminUpdateReward(id, body); }
+  @Patch('rewards/:id') updateReward(@Param('id') id: string, @Body() body: RewardDto) { return this.loyaltyService.adminUpdateReward(id, body); }
   @StepUp()
   @Delete('rewards/:id') deleteReward(@Param('id') id: string) { return this.loyaltyService.adminDeleteReward(id); }
 
   @Get('challenges') challenges() { return this.loyaltyService.adminListChallenges(); }
   @StepUp()
-  @Post('challenges') createChallenge(@Body() body: any) { return this.loyaltyService.adminCreateChallenge(body); }
+  @Post('challenges') createChallenge(@Body() body: ChallengeDto) { return this.loyaltyService.adminCreateChallenge(body); }
   @StepUp()
-  @Patch('challenges/:id') updateChallenge(@Param('id') id: string, @Body() body: any) { return this.loyaltyService.adminUpdateChallenge(id, body); }
+  @Patch('challenges/:id') updateChallenge(@Param('id') id: string, @Body() body: ChallengeDto) { return this.loyaltyService.adminUpdateChallenge(id, body); }
   @StepUp()
   @Delete('challenges/:id') deleteChallenge(@Param('id') id: string) { return this.loyaltyService.adminDeleteChallenge(id); }
 
   @StepUp()
-  @Put('config') updateConfig(@CurrentUser() u: any, @Body() body: any) { return this.loyaltyService.adminUpdateConfig(body, u); }
+  @Put('config') updateConfig(@CurrentUser() u: any, @Body() body: LoyaltyConfigDto) { return this.loyaltyService.adminUpdateConfig(body, u); }
 }

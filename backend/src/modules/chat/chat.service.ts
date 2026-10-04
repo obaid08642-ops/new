@@ -48,24 +48,39 @@ export class ChatService {
       { model: 'HomeCareBooking', patient: ['patient_id', 'user_id'], provider: ['provider_id', 'provider_account_id', 'nurse_id'] },
       { model: 'Order', patient: ['patient_id', 'user_id'], provider: ['pharmacy_account_id', 'selected_pharmacy_account_id', 'pharmacy_id'] },
     ];
+    // Perf (rank 8): the per-model checks are independent — collect one probe
+    // per model and resolve them together below.
+    const probes: Array<Promise<boolean>> = [];
     for (const booking of bookings) {
-      try {
-        const model = this.getModel(booking.model);
-        const forward = await model.countDocuments({ $and: [
-          { $or: booking.patient.map((f) => ({ [f]: userA })) },
-          { $or: booking.provider.map((f) => ({ [f]: userB })) },
-        ] } as any);
-        if (forward > 0) return true;
-        const reverse = await model.countDocuments({ $and: [
-          { $or: booking.patient.map((f) => ({ [f]: userB })) },
-          { $or: booking.provider.map((f) => ({ [f]: userA })) },
-        ] } as any);
-        if (reverse > 0) return true;
-      } catch {
-        // model not registered in this context — skip
-      }
+      probes.push((async (): Promise<boolean> => {
+        try {
+          const model = this.getModel(booking.model);
+          // forward + reverse counts are independent — issue together so one
+          // slow collection does not block the other (was 2 sequential
+          // round-trips per model). A rejection marks this model as "no
+          // relationship", exactly like the sequential version's skip.
+          const [forward, reverse] = await Promise.all([
+            model.countDocuments({ $and: [
+              { $or: booking.patient.map((f) => ({ [f]: userA })) },
+              { $or: booking.provider.map((f) => ({ [f]: userB })) },
+            ] } as any),
+            model.countDocuments({ $and: [
+              { $or: booking.patient.map((f) => ({ [f]: userB })) },
+              { $or: booking.provider.map((f) => ({ [f]: userA })) },
+            ] } as any),
+          ]);
+          return forward > 0 || reverse > 0;
+        } catch {
+          // model not registered in this context — skip
+          return false;
+        }
+      })());
     }
-    return false;
+    // All models are independent — fan out at once instead of awaiting each
+    // model (up to 5) in turn. Result is the OR over models, identical to the
+    // sequential early-return version.
+    const results = await Promise.all(probes);
+    return results.some(Boolean);
   }
 
   async createGroupThread(creatorId: string, name: string, participantIds: string[]): Promise<ChatThread> {

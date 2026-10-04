@@ -17,7 +17,7 @@ import {
 import { I as Icon, IBg as IconBg, ProviderIcon } from '../../components/icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Validate } from '../../security/Security';
-import { SP, R, FS, FW, C, RAD_SCANS, LIMITS , LANGS } from '../../constants';
+import { SP, R, FS, FW, C, LIMITS , LANGS } from '../../constants';
 import { GeoPicker } from '../../components/GeoPicker';
 import { RegistrationSuccess } from '../shared/SharedScreens';
 import { LocationPickerModal } from '../../components/LocationPickerModal';
@@ -265,7 +265,7 @@ function LStep1({ data, update, onNext, onBack, step, total, bare = false, submi
       <NInput
         innerRef={nameArRef}
         label={AR ? 'اسم المركز بالعربي' : 'Center Name (Arabic)'}
-        placeholder={AR ? 'معمل نبضة للتحاليل الطبية' : 'Nabdah Medical Radiology'}
+        placeholder={AR ? 'معمل نبضة للتحاليل الطبية' : 'Nabd+ Medical Radiology'}
         value={data.nameAr} onChange={v => update({ nameAr: v })}
         icon="⊥" required error={errs.name} caps="words"
         returnKey="next" onSubmit={() => nameEnRef.current?.focus()}
@@ -273,7 +273,7 @@ function LStep1({ data, update, onNext, onBack, step, total, bare = false, submi
       <NInput
         innerRef={nameEnRef}
         label={AR ? 'اسم المركز بالإنجليزي' : 'Center Name (English)'}
-        placeholder="Nabdah Medical Radiology"
+        placeholder="Nabd+ Medical Radiology"
         value={data.nameEn} onChange={v => update({ nameEn: v })}
         caps="words"
         returnKey="next" onSubmit={() => mgrNameRef.current?.focus()}
@@ -1901,7 +1901,7 @@ function LStep8Signature({ data, update, onDone, onBack, step, total }: {
           <NCheckbox
             label={AR
               ? 'أوافق على شروط وأحكام نبضة بلس وسياسة الخصوصية، وأؤكد صحة جميع البيانات المدخلة.'
-              : 'I agree to Nabdah Plus Terms & Conditions and Privacy Policy, and confirm all data is accurate.'}
+              : 'I agree to Nabd+ Plus Terms & Conditions and Privacy Policy, and confirm all data is accurate.'}
             value={agreed} onChange={setAgreed}
           />
         </NCard>

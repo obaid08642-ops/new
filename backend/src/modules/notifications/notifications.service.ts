@@ -17,6 +17,19 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import axios from 'axios';
 
+/** Per-call HTTP timeout for outbound notification channels (ms). Env-overridable for tests. */
+const notifyTimeoutMs = () => Number(process.env.NOTIFY_TIMEOUT_MS) || 8000;
+
+/** Rejects after ms so a hung channel SDK/call fails fast into the per-channel fallback. */
+function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
+  let t: any;
+  const gate = new Promise<never>((_, rej) => {
+    t = setTimeout(() => rej(new Error('notify_channel_timeout')), ms);
+    (t as any)?.unref?.();
+  });
+  return Promise.race([p, gate]).finally(() => clearTimeout(t)) as Promise<T>;
+}
+
 @Injectable()
 export class NotificationsService {
   private logger = new Logger('Notifications');
@@ -193,7 +206,8 @@ export class NotificationsService {
   /** M6/ER-8: admin delivery analytics. */
   /** P6.x-7: template CRUD + preview + test-send. */
   async listTemplates() {
-    return this.templateModel.find({}).sort({ key: 1 }).lean();
+    // 14.15 hot-query guard: admin template list bounded + projected; expected index { key: 1 } on notification_templates (see backend/src/common/indexes/hot-path-indexes.md; DB work deferred).
+    return this.templateModel.find({}).select({ _id: 0, __v: 0 }).sort({ key: 1 }).limit(500).maxTimeMS(2000).lean();
   }
 
   async upsertTemplate(user: any, dto: { key: string; title?: any; body?: any; active?: boolean }) {
@@ -289,7 +303,8 @@ export class NotificationsService {
       // PushToken is the single source of truth (registered via /push/register
       // or /notifications/register-token). The old DeviceToken model never
       // existed as a schema — querying it threw MissingSchemaError.
-      const userTokens = await this.model.db.model('PushToken').find({ user_id: n.user_id, active: true }).lean();
+      // 14.15 hot-query guard: per-push token fan-out capped + projected; expected index { user_id: 1, active: 1 } on push_tokens (see backend/src/common/indexes/hot-path-indexes.md; DB work deferred).
+      const userTokens = await this.model.db.model('PushToken').find({ user_id: n.user_id, active: true }).select({ token: 1, provider: 1, _id: 0 }).limit(20).maxTimeMS(2000).lean();
       const tokens = userTokens.map((t: any) => ({ token: t.token, provider: t.provider })).filter((t: any) => t.token);
       const expoTokens = tokens.filter((t: any) => t.provider === 'expo' || t.token.startsWith('ExponentPushToken')).map((t: any) => t.token);
       const fcmTokens = tokens.filter((t: any) => t.provider === 'fcm' && !t.token.startsWith('ExponentPushToken')).map((t: any) => t.token);
@@ -328,11 +343,14 @@ export class NotificationsService {
       data: dataPayload,
     };
     if (tokens && tokens.length > 0) {
-      const res = await getMessaging().sendEachForMulticast({ tokens, ...payload });
+      const res = await withTimeout(
+        getMessaging().sendEachForMulticast({ tokens, ...payload }),
+        notifyTimeoutMs(),
+      );
       return res.successCount > 0;
     }
     if (topic) {
-      await getMessaging().send({ topic, ...payload });
+      await withTimeout(getMessaging().send({ topic, ...payload }), notifyTimeoutMs());
       return true;
     }
     return false;
@@ -349,6 +367,7 @@ export class NotificationsService {
       }));
       const res = await axios.post('https://exp.host/--/api/v2/push/send', messages, {
         headers: { 'Content-Type': 'application/json' },
+        timeout: notifyTimeoutMs(),
       });
       const receipts = Array.isArray(res.data?.data) ? res.data.data : [];
       return receipts.some((r: any) => r.status === 'ok');
@@ -392,7 +411,7 @@ export class NotificationsService {
           to: phone,
           content: { templateName: n.title_key, templateData: { body: { placeholders: [n.body_key] } }, language: 'ar' }
         }]
-      }, { headers: { Authorization: `App ${process.env.INFOBIP_API_KEY}` } });
+      }, { headers: { Authorization: `App ${process.env.INFOBIP_API_KEY}` }, timeout: notifyTimeoutMs() });
     } catch(e) {
       this.logger.error('Failed to send WhatsApp', e.message);
     }
@@ -1090,7 +1109,7 @@ export class NotificationsService {
       params: p?.payload?.amount != null ? { amount: p.payload.amount } : {},
       type: NotificationType.INFO,
       priority: NotificationPriority.HIGH,
-      action: { route: '/wallet/hub' },
+      action: { route: '/provider/earnings' },
     });
   }
   @OnEvent('finance.operation.rejected')
@@ -1117,7 +1136,7 @@ export class NotificationsService {
       body_key: 'notif.payment_received.body',
       params: p.amount != null ? { amount: p.amount } : {},
       type: NotificationType.INFO,
-      action: { route: '/wallet/hub' },
+      action: { route: '/orders' },
     });
   }
 }

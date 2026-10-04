@@ -5,6 +5,7 @@ module.exports = {
   ],
   testMatch: ['**/__tests__/**/*.test.[jt]s?(x)', '**/?(*.)+(spec|test).[jt]s?(x)'],
   moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/src/$1',
     '@react-native-async-storage/async-storage': '@react-native-async-storage/async-storage/jest/async-storage-mock',
 
     // ONE React, ONE react-native, for the whole module graph.
