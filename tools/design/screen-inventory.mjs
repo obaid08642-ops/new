@@ -900,7 +900,7 @@ function fieldGaps() {
 
 /* ------------------------------------------------------------- render */
 
-const esc = (s) => String(s).replace(/\|/g, '\\|');
+const esc = (s) => String(s).replace(/\\/g, '\\\\').replace(/\|/g, '\\|');
 
 function renderInventory(rows, meta) {
   const L = [];
