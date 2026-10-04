@@ -33,7 +33,7 @@ Read this first in a new reviewer session, together with `AGENTS.md`. It replace
 - After every merge into `main`, merges `main` into `fix/audit-2026-09`. Never force-push, never rewrite the agent's history, never revert agent commits; the only reviewer commits on that branch are these merges and `[REVIEW-FIX]` merges.
 - **Merging the agent branch into `main`**: once the reviewer's own fixes are in and every remaining row is PASS or an accepted BLOCKED, with the full gate, CI, live gate and native run green. Never merge red.
 
-**Agent**: works only on `fix/audit-2026-09` and follows `AGENTS.md`. Last agent commit: `6ca29c4` (2026-10-04). **The 152 unmerged agent commits were reviewed on 2026-10-04 (tip `bb97c87`), one nine-point row each: 3 PASS, 149 FAIL** (`REVIEW_P13.md`, `REVIEW_P14.md`). Phases 13 and 14: NOT APPROVED. Nothing merged into `main`. The agent's work list is **Round 10** in `REVIEW_REAUDIT_P1_P11.md`; new defects Q78–Q90 in `QA_DEFECTS.md`. Review copy for CI: draft PR #237 (`review/agent-tip-ci`, never merge). Native on the agent code: `review/maestro-agent-tip` (strict, workarounds off) and `review/maestro-agent-tip-q58` (only Q58 on).
+**Agent**: works only on `fix/audit-2026-09` and follows `AGENTS.md`. Last agent commit: `b274e6f` (2026-10-04 14:30). **The 152 unmerged agent commits were reviewed on 2026-10-04 (tip `bb97c87`), one nine-point row each: 3 PASS, 149 FAIL** (`REVIEW_P13.md`, `REVIEW_P14.md`). Round 2 (same day) re-checked every row personally: the defects of 43 rows were fixed by the reviewer (44 fix commits), and 87 rows plus 6 newer commits go back to the agent. Phases 13 and 14: NOT APPROVED. Nothing merged into `main`. The agent's work list is **Round 10** in `REVIEW_REAUDIT_P1_P11.md`; new defects Q78–Q90 in `QA_DEFECTS.md`. Review copy for CI: draft PR #237 (`review/agent-tip-ci`, never merge). Native on the agent code: `review/maestro-agent-tip` (strict, workarounds off) and `review/maestro-agent-tip-q58` (only Q58 on).
 
 **Owner**
 - Reports go to the owner in **Arabic** (Egyptian-friendly, plain).
@@ -74,10 +74,10 @@ PR bodies end with the Claude Code line and the session link.
 
 | Id | Problem | Status |
 |---|---|---|
-| Q62 | patient-app Android build fails (react-native-callkeep: `jcenter()` + missing androidx dependency) | open |
-| Q67 | patient-app build fails: two WebRTC libraries (`react-native-webrtc` is unused) | open |
-| Q68 | provider-app crashes at launch: `expo-image-manipulator ~14` on Expo 57 | open |
-| Q69 | every map screen crashes on Android: no Google Maps key in `app.json` | open |
+| Q62 | patient-app Android build fails (react-native-callkeep: `jcenter()` + missing androidx dependency) | fixed on the agent branch; proven by the strict build (run `37203970270`, workarounds off) |
+| Q67 | patient-app build fails: two WebRTC libraries (`react-native-webrtc` is unused) | fixed on the agent branch; proven by the strict build |
+| Q68 | provider-app crashes at launch: `expo-image-manipulator ~14` on Expo 57 | fixed on the agent branch at build level (strict build); launch proven by the 7 provider crawls of run `37196546443` |
+| Q69 | every map screen crashes on Android: no Google Maps key in `app.json` | **fixed by the reviewer** on the agent branch (`d47c599` patient, `0605147` provider): a "map unavailable" fallback without a key. The real key is the owner's |
 | Q71 | patient-app session token never saved on native: SecureStore key had `@` | **fixed by the reviewer, PR #229** |
 
 **Other critical**
@@ -98,6 +98,7 @@ PR bodies end with the Claude Code line and the session link.
 **Medium and low**: see `QA_DEFECTS.md`.
 
 **Fixed by the reviewer** (each with a test and a live re-check)
+- **Round 2 (2026-10-04):** 44 fix commits in the agent's unmerged code (35 in PR #240 → `1b12107`, 9 in PR #248) and Q78 + Q106 on `main` (PR #244, PR #249). Full list: `REVIEW_P13.md` section "Round 2"; ids Q100–Q106 in `QA_DEFECTS.md`;
 - Q2, Q10–Q14, Q17, Q20, Q32, Q35, Q40, Q71;
 - the icon font;
 - tooling: Q6, Q7, Q18, Q19, Q26, Q27;
@@ -145,6 +146,8 @@ PR bodies end with the Claude Code line and the session link.
    - optional: authorize the Cloudflare connector in claude.ai connector settings for read-only checks of DNS, WAF and rate-limit rules.
 4. The medicine catalog for QA: a staging copy, or the export file in the environment.
 5. A server or staging check of video calls (LiveKit and coturn on OVH).
+6. CI step `npx expo install --check` (added by the agent in `458c7b8` without approval): it fails on every Expo patch release. The reviewer proposes replacing it with a major-version alignment check. The owner decides; no CI change until then.
+7. The SMS sender id stays `Nabdah` (the brand fix `7edc44e` did not touch it); change it only if the owner wants the registered sender renamed.
 
 ## 7. Native E2E pipeline (built 2026-10-03)
 
@@ -185,7 +188,7 @@ All 13 jobs green: 6 patient shards and 7 provider types, every one signed in.
 
 ## 8. Reviewer next steps (in order)
 
-**Status 2026-10-04:** step 0 done for `bb97c87` (verdict above). Next: wait for the agent's Round 10 pushes, then repeat step 0 on every new commit (nine checks, gate, CI copy, live gate, native strict). Only when Round 10 is closed: merge to `main`, sync, tell the owner it is ready for staging.
+**Status 2026-10-04 (Round 2):** step 0 done for `bb97c87`, and every row re-checked personally under the new owner rule (no unconfirmed results; the reviewer fixes small defects). Reviewer fixes: PR #240 (merged, `1b12107`) and PR #248 into `fix/audit-2026-09`; PR #244 and PR #249 on `main`. The remaining work is large and belongs to the agent (Round 10 status block in `REVIEW_REAUDIT_P1_P11.md`, then Round 11). Next: wait for the agent's pushes and repeat the nine-point review on each new commit, with the full gate, CI copy, live gate and native strict run. Merge to `main` only when every row is PASS or an accepted BLOCKED.
 
 0. **Review the 152 unmerged agent commits first** (`git log origin/main..origin/fix/audit-2026-09 --no-merges`):
    - run the full `AGENTS.md` gate on the branch tip, and open a draft PR from a `review/*` copy so the whole CI runs;
