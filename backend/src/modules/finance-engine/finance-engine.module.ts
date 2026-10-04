@@ -1104,7 +1104,7 @@ export class AdminFinanceEngineController {
 
   /** Commission rules with overrides + effective dates + versioning (S11). */
   @StepUp()
-  @RequirePermissions(Permission.FINANCE_CONFIG_EDIT)
+  @RequirePermissions(Permission.FINANCE_PAYOUT_APPROVE)
   @Post('commission-rules')
   setCommissionRule(@CurrentUser() u: any, @Body() b: SetCommissionRuleDto) {
     return this.commissions.setRule(u.id, { ...b });
