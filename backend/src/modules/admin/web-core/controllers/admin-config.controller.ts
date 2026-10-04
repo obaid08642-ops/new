@@ -1,3 +1,5 @@
+import { Permission, RequirePermissions } from '../../../../common/permissions';
+import { StepUp } from '../../../../common/step-up.guard';
 import { Controller, Get, Put, Body, UseGuards, BadRequestException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -61,6 +63,8 @@ export class AdminConfigController {
     return { ...DISPUTE_CONFIG_DEFAULTS, ...(doc?.value || {}) };
   }
 
+  @StepUp()
+  @RequirePermissions(Permission.DISPUTES_RESOLVE)
   @Put('dispute-config')
   @Roles(UserRole.ADMIN)
   async updateDisputeConfig(@Body() body: DisputeConfigDto, @CurrentUser() admin: any) {

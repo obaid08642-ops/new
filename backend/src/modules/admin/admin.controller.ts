@@ -1,3 +1,4 @@
+import { Permission, RequirePermissions } from '../../common/permissions';
 import { StepUp } from '../../common/step-up.guard';
 import { Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards, BadRequestException, ForbiddenException, Optional, ServiceUnavailableException } from '@nestjs/common';
 import { InjectModel, InjectConnection } from '@nestjs/mongoose';
@@ -457,6 +458,7 @@ export class AdminController {
 
   /** Ban/deactivate a user account (blocks login via active=false). */
   @StepUp()
+  @RequirePermissions(Permission.USER_EDIT)
   @Post('users/:userId/ban')
   async banUser(@Param('userId') userId: string, @CurrentUser() by?: any) {
     // Users are addressed by uuid `id`; fall back to legacy Mongo `_id` (never throws).
@@ -481,6 +483,7 @@ export class AdminController {
 
   /** Lift a ban / reactivate an account. */
   @StepUp()
+  @RequirePermissions(Permission.USER_EDIT)
   @Post('users/:userId/unban')
   async unbanUser(@Param('userId') userId: string, @CurrentUser() by?: any) {
     // Users are addressed by uuid `id`; fall back to legacy Mongo `_id` (never throws).
@@ -514,6 +517,7 @@ export class AdminController {
    * Irreversible — the admin UI requires an explicit typed confirmation.
    */
   @StepUp()
+  @RequirePermissions(Permission.USER_EDIT)
   @Delete('users/:userId')
   async deleteUser(@Param('userId') userId: string, @CurrentUser() by?: any) {
     // Users are addressed by uuid `id`; fall back to legacy Mongo `_id` (never throws).

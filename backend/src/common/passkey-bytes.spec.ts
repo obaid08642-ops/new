@@ -26,6 +26,12 @@ describe('stored passkey public key bytes', () => {
     expect(Array.from(passkeyPublicKeyBytes(new Uint8Array(raw)))).toEqual(Array.from(raw));
   });
 
+  it('a Binary with spare capacity yields only its written bytes', () => {
+    const grown = new mongo.Binary();
+    grown.write(raw, 0);
+    expect(Array.from(passkeyPublicKeyBytes(grown))).toEqual(Array.from(raw));
+  });
+
   it('step-up verifies with the real key bytes from a lean (Binary) credential', async () => {
     const { verifyAuthenticationResponse } = require('@simplewebauthn/server');
     const cred = { user_id: 'adm', credential_id: 'c1', public_key: new mongo.Binary(raw), counter: 0, transports: [] };
