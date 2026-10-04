@@ -1,3 +1,4 @@
+import { findCopayTransaction } from '../../common/copay-transaction';
 /**
  * EPIC 1 — FINANCE & MARKETPLACE ENGINE
  * Enterprise-grade financial core for the Nabd marketplace:
@@ -596,6 +597,13 @@ export class RefundExecutor {
       paidTransaction = await this.conn.collection('transactions').findOne({ id: String(booking.transaction_id), status: { $in: ['paid', 'partially_refunded'] } } as any);
       viaParent = !!paidTransaction;
     }
+    // An insured booking's copay is paid on its insurance request (booking_kind
+    // 'insurance'), never on the booking: refund that card payment, capped at it.
+    let viaCopay = false;
+    if (!paidTransaction && !paidPayment && booking) {
+      paidTransaction = await findCopayTransaction(this.conn as never, booking, opts.booking_id);
+      viaCopay = !!paidTransaction;
+    }
     const originalMethod = String(paidTransaction?.method || booking?.payment_method || '').toLowerCase();
     const bookingState = String(booking?.status || '').toLowerCase();
     const cashLike = originalMethod === 'cash' || originalMethod === 'cod' || originalMethod === 'cash_on_delivery';
@@ -752,7 +760,11 @@ export class RefundExecutor {
     const coll = kindCollection[opts.booking_kind];
     if (coll) {
       const newStatus = paidTotal != null && amount < paidTotal - 0.001 ? 'partially_refunded' : 'refunded';
-      const set = { $set: { payment_status: newStatus, refund_status: 'REFUNDED', updatedAt: new Date() } };
+      // A copay refund returns only the patient's share of an insured booking:
+      // the booking's own payment status (insurer side) stays as it was.
+      const set = viaCopay
+        ? { $set: { refund_status: 'REFUNDED', updatedAt: new Date() } }
+        : { $set: { payment_status: newStatus, refund_status: 'REFUNDED', updatedAt: new Date() } };
       const res: any = await this.conn.collection(coll).updateOne({ id: opts.booking_id } as any, set);
       // Current pharmacy orders live in pharmacy_orders; `orders` is the legacy cart checkout.
       if (coll === 'orders' && !res?.matchedCount) await this.conn.collection('pharmacy_orders').updateOne({ id: opts.booking_id } as any, set);

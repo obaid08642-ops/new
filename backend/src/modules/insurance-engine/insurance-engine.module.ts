@@ -1,3 +1,4 @@
+import { copayRefundable, findCopayTransaction, gatewayPaymentIdOf } from '../../common/copay-transaction';
 /**
  * M3 — Insurance Engine (BR-2) + Unified Booking Quote (BR-1) + Financial Core.
  *
@@ -862,12 +863,15 @@ export class RefundService {
       ? await this.conn.collection('transactions').findOne({ id: { $eq: String(booking.transaction_id) }, status: 'paid' } as any)
       : null;
     // LabBooking keeps its price in `total` and defaults `total_price` to 0;
-    // radiology sets total_price. Take the first positive value.
+    // radiology sets total_price. Take the first positive value. The
+    // diagnostics parent charges every child's full price, whatever the
+    // payment method, so the child's full price is what was paid for it.
     const childPrice = [booking.total_price, booking.total, booking.price].map(Number).find((v) => v > 0) ?? 0;
-    const paid = parentTx ? Math.min(childPrice, Number(parentTx.amount || 0)) : Number(tx?.amount ?? mp?.amount ?? 0);
+    const copayTx: any = (!tx && !mp && !parentTx) ? await findCopayTransaction(this.conn, booking, bookingId) : null;
+    const paid = parentTx ? Math.min(childPrice, Number(parentTx.amount || 0)) : (copayTx ? copayRefundable(copayTx) : Number(tx?.amount ?? mp?.amount ?? 0));
     if (!(paid > 0)) throw new BadRequestException('booking_not_paid');
-    const payTx = tx || parentTx;
-    const paymentId = payTx?.gateway_payment_id || payTx?.moyasar_payment_id || payTx?.payment_id || mp?.moyasar_id || undefined;
+    const payTx = tx || parentTx || copayTx;
+    const paymentId = gatewayPaymentIdOf(payTx) || mp?.moyasar_id || undefined;
 
     const dup = await this.refunds.findOne({ booking_id: { $eq: bookingId }, patient_id: { $eq: String(user.id) }, state: { $ne: 'REJECTED' } });
     if (dup) return dup.toObject();
