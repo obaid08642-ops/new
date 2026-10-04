@@ -24,6 +24,7 @@ import { ThemeToggle } from "@/components-next/theme-toggle";
 import { THEME_INIT_SCRIPT } from "@/app/theme";
 import { ServiceWorkerRegister } from "@/components-next/service-worker-register";
 import { NetworkPolicy } from "@/components-next/network-policy";
+import { ToastViewport } from "@/components-next/network/toast-viewport";
 
 type Props = Readonly<{ children: React.ReactNode; params: Promise<{ locale: string }> }>;
 
@@ -108,6 +109,8 @@ export default async function LocaleLayout({ children, params }: Props) {
           </header>
           {hasAccessToken ? <PresenceBeacon /> : null}
           {children}
+          {/* P15.3: one toast surface for every optimistic rollback on every screen. */}
+          <ToastViewport />
           <footer style={{ borderTop: "1px solid #E8EDEE", marginTop: 48, padding: "24px 16px", background: "#FDFDFC" }}>
             <nav aria-label={t("brand")} style={{ display: "flex", flexWrap: "wrap", gap: "12px 24px", rowGap: 12, columnGap: 24 }}>
               <Link href={`/${typedLocale}/terms`} style={{ padding: "4px 0", whiteSpace: "nowrap" }}>{typedLocale === "ar" ? "الشروط" : "Terms"}</Link>

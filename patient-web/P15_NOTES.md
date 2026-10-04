@@ -174,3 +174,99 @@ real header-shaping path is now covered too.
 ### BLOCKED / DEFERRED
 
 - none for 15.1.
+
+---
+
+## 15.3 — Optimistic UI only where it is safe
+
+### Scope honesty: what patient-web actually has
+
+The plan lists cart add/remove/quantity, wishlist, reminders on/off, mark as
+read, likes as optimistic candidates. Grep of this codebase:
+
+- **Cart** (`lib/context/CartContext.tsx`): localStorage-only, zero `fetch` calls.
+  There is no server round trip, so there is nothing to be optimistic *about*
+  and nothing to roll back. No change; nothing invented.
+- **Wishlist** (`lib/api/wishlist-server.ts`, wishlist page): read-only server
+  loaders (`getPatientWishlist`), no toggle/mutation endpoint in patient-web.
+  No change.
+- **Mark as read / likes**: no write endpoint exists in patient-web. No change.
+- **Reminders on/off** (`notification-toggle.tsx`, PATCH
+  `/api/patient/users/me/notification-settings` with idempotency key) and
+  **mark dose taken** (`reminder-actions.tsx`, POST dose log with idempotency
+  key): real idempotent writes. **Migrated to optimistic with rollback.**
+
+So the migrated surface is exactly the two real safe writes. The previous code
+silently swallowed failures (toggle) or showed only a local alert; both now
+roll back and push an explaining toast.
+
+### Changed files
+
+- new: `lib/api/optimistic.ts` — `SAFE_OPTIMISTIC_KINDS`
+  (cart/wishlist/reminder/notification/like), `NEVER_OPTIMISTIC_KINDS`
+  (payment/booking/prescription/emergency), `pendingMode()`, and the single
+  `runOptimistic()` runner. A never-optimistic kind never calls `apply` or
+  `rollback`, on success or failure — the UI stays in "processing".
+- new: `lib/api/use-optimistic-action.ts` — React hook: `pending` for the
+  button, in-flight double-tap guard, catalog-resolved failure copy.
+- new: `lib/api/net/toast.ts` — 40-line observable toast store (node-testable).
+- new: `components-next/network/toast-viewport.tsx` — mounted once in
+  `app/[locale]/layout.tsx`; titles/messages arrive already localized.
+- migrated: `notification-toggle.tsx`, `reminder-actions.tsx` (logTaken only;
+  DELETE stays pessimistic with confirm).
+- `messages/*/Network.dismiss` added in all 6 locales (parity holds).
+- `reminders-ssr.test.ts`: added the repo-standard client-intl mock
+  (`vi.mock("next-intl", ...)` passthrough, same as `login-form.test.tsx`)
+  because `ReminderActions` now legitimately resolves copy through the provider
+  the layout supplies in production. **No assertion changed.**
+
+### Never-optimistic verification
+
+- `pharmacy-payment-client.tsx`: `paying` disables all method buttons and shows
+  "Redirecting…/جارٍ التحويل…" — nothing is marked paid before the server
+  confirms (success path is a redirect to the checkout URL).
+- `consultation-payment-action.tsx`: spinner + disabled buttons in flight, and
+  on-screen copy stating booking is not payment confirmation.
+- `pendingMode()` returns `"processing"` for all four never-kinds; the
+  static-markup tests assert both payment screens render idle/loading with zero
+  success markup.
+
+### Real output
+
+```
+$ node node_modules/typescript/bin/tsc --noEmit; echo "tsc exit: $?"
+tsc exit: 0
+$ node node_modules/vitest/vitest.mjs run lib/api/optimistic.test.ts tests/optimistic-ui.test.tsx
+ Test Files  2 passed (2)
+      Tests  37 passed (37)
+$ node node_modules/vitest/vitest.mjs run tests/reminders-design.test.ts \
+    tests/notification-settings-design.test.ts tests/notifications-design.test.ts \
+    tests/settings-design.test.ts "app/[locale]/reminders/reminders-ssr.test.ts" \
+    lib/api/optimistic.test.ts tests/optimistic-ui.test.tsx \
+    tests/translation-key-parity.test.ts lib/i18n/messages.test.ts
+ Test Files  9 passed (9)
+      Tests  56 passed (56)
+```
+
+### Mutation proof (rule 6)
+
+First attempt mutated `NEVER_OPTIMISTIC_KINDS` to `[]` and the tests *vanished*
+(21 passed) instead of failing — the test loops iterated the very constant
+being mutated. Fixed the test to iterate **literal kind lists**, then re-ran:
+
+```
+$ node node_modules/vitest/vitest.mjs run lib/api/optimistic.test.ts   # mutated
+ FAIL  ... payment: success commits without ever applying locally
+ FAIL  ... booking: success commits without ever applying locally
+ ...Failed Tests 12 ...
+$ # restored
+ Test Files  1 passed (1)
+      Tests  33 passed (33)
+```
+
+### BLOCKED / DEFERRED
+
+- Cart/wishlist/mark-as-read/likes optimistic UI: nothing to implement — no
+  server mutation exists for these in patient-web (localStorage-only cart,
+  read-only wishlist loaders). If the backend adds such endpoints, the
+  `runOptimistic` runner and kind lists already cover them.

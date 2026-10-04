@@ -58,6 +58,7 @@
     }
   },
   "Network": {
+    "dismiss": "Isara",
     "offline": "Mukhang offline ka.",
     "timeout": "Masyadong tumagal ang server na sumagot.",
     "serverError": "Pansamantalaang hindi available ang serbisyo.",
