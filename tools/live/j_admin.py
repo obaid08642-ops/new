@@ -36,11 +36,19 @@ def login():
     w = AdminWeb(ADMIN_WEB, 'admin')
     t0 = time.time()
     r = w.post('/api/admin/auth/login', {'identifier': EMAIL, 'password': PASSWORD})
-    step('credentials -> 202 requires_2fa', r.status == 202 and r.get('requires_2fa'), r)
-    code = mail_code(EMAIL, t0)
-    step('2FA code emailed to the admin', code, 'no mail')
-    r = w.post('/api/admin/auth/verify-2fa', {'identifier': EMAIL, 'code': code})
-    step('verify-2fa -> session', r.ok, r)
+    if r.status == 202 and r.get('requires_passkey'):
+        # C1: once the admin has a passkey (softkey.py enrolls it for step-up),
+        # login asks for it instead of an emailed code — the dashboard's passkey path.
+        import softkey
+        step('credentials -> 202 requires_passkey', True, r)
+        r = w.post('/api/admin/auth/passkey-verify', {'identifier': EMAIL, 'response': softkey.assertion(r.get('passkey_options'))})
+        step('passkey-verify -> session', r.ok, r)
+    else:
+        step('credentials -> 202 requires_2fa', r.status == 202 and r.get('requires_2fa'), r)
+        code = mail_code(EMAIL, t0)
+        step('2FA code emailed to the admin', code, 'no mail')
+        r = w.post('/api/admin/auth/verify-2fa', {'identifier': EMAIL, 'code': code})
+        step('verify-2fa -> session', r.ok, r)
     step('session cookie set (httpOnly)', any(c.name for c in w.jar), [c.name for c in w.jar])
     # BFF 1:1 → /api/v1/admin/command-center (the dashboard's aggregated snapshot).
     r = w.get('/admin/admin/command-center')

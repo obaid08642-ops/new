@@ -7,6 +7,7 @@ import { verifyAuthenticationResponse } from '@simplewebauthn/server';
 import type { AuthenticatorTransportFuture } from '@simplewebauthn/server';
 import { RedisService } from '../modules/redis/redis.service';
 import { PasskeyCredential } from '../modules/auth/schemas/passkey-credential.schema';
+import { passkeyPublicKeyBytes } from './passkey-bytes';
 
 export const STEP_UP_KEY = 'stepUp';
 export const StepUp = () => SetMetadata(STEP_UP_KEY, true);
@@ -106,7 +107,7 @@ export class StepUpService {
         requireUserVerification: true,
         credential: {
           id: cred.credential_id,
-          publicKey: new Uint8Array(cred.public_key),
+          publicKey: passkeyPublicKeyBytes(cred.public_key),
           counter: cred.counter || 0,
           transports: (cred.transports || []) as AuthenticatorTransportFuture[],
         },
