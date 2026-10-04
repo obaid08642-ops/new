@@ -72,6 +72,11 @@ export function funnelPct(stage: number, from: number): number | null {
   return from > 0 ? Math.round((stage / from) * 1000) / 10 : null;
 }
 
+/** R10: click-through rate — clicks ÷ searches, 1-decimal pct, null when no searches. */
+export function clickThroughRate(clicks: number, searches: number): number | null {
+  return funnelPct(clicks, searches);
+}
+
 // ── Service ───────────────────────────────────────────────────────────────
 
 @Injectable()
@@ -250,6 +255,62 @@ export class AnalyticsSuiteService {
       ]).toArray().catch(() => []),
     ]);
     return { top_queries: top, zero_result_opportunities: zeroResults };
+  }
+
+  /** R10: per-query searches → clicks → CTR (click events carry metadata.query of the originating search). */
+  async searchClickThrough(from: string, to: string) {
+    const { f, t } = this.range(from, to);
+    const events = this.conn.collection('analytics_events');
+    const [searches, clicks] = await Promise.all([
+      events.aggregate([
+        { $match: { event_type: 'search', createdAt: { $gte: f, $lte: t } } },
+        { $group: { _id: '$metadata.query', count: { $sum: 1 } } },
+        { $sort: { count: -1 } },
+        { $limit: 40 },
+      ]).toArray().catch(() => []),
+      events.aggregate([
+        { $match: { event_type: 'click', createdAt: { $gte: f, $lte: t }, 'metadata.query': { $exists: true, $ne: null } } },
+        { $group: { _id: '$metadata.query', count: { $sum: 1 } } },
+      ]).toArray().catch(() => []),
+    ]);
+    const clickMap = new Map((clicks as any[]).map((r) => [String(r._id), Number(r.count) || 0]));
+    const rows = (searches as any[])
+      .filter((r) => r._id != null)
+      .map((r) => {
+        const c = clickMap.get(String(r._id)) || 0;
+        return { query: r._id, searches: r.count, clicks: c, ctr_pct: clickThroughRate(c, r.count) };
+      });
+    const totalS = rows.reduce((a, r) => a + r.searches, 0);
+    const totalC = rows.reduce((a, r) => a + r.clicks, 0);
+    return {
+      range: { from, to },
+      overall: { searches: totalS, clicks: totalC, ctr_pct: clickThroughRate(totalC, totalS) },
+      rows,
+    };
+  }
+
+  /** R10: impressions/clicks/conversions grouped by ranking mode (metadata.ranking_mode, default 'default'). */
+  async rankingModes(from: string, to: string) {
+    const { f, t } = this.range(from, to);
+    const rows = await this.conn.collection('analytics_events').aggregate([
+      { $match: { event_type: { $in: ['search', 'click', 'booking_attempt', 'add_to_cart'] }, createdAt: { $gte: f, $lte: t } } },
+      { $group: {
+        _id: { $ifNull: ['$metadata.ranking_mode', 'default'] },
+        impressions: { $sum: { $cond: [{ $eq: ['$event_type', 'search'] }, 1, 0] } },
+        clicks: { $sum: { $cond: [{ $eq: ['$event_type', 'click'] }, 1, 0] } },
+        conversions: { $sum: { $cond: [{ $in: ['$event_type', ['booking_attempt', 'add_to_cart']] }, 1, 0] } },
+      } },
+      { $sort: { impressions: -1 } },
+    ]).toArray().catch(() => []);
+    return {
+      range: { from, to },
+      modes: (rows as any[]).map((r) => ({
+        mode: r._id || 'default',
+        impressions: r.impressions, clicks: r.clicks, conversions: r.conversions,
+        ctr_pct: clickThroughRate(r.clicks, r.impressions),
+        conversion_rate_pct: clickThroughRate(r.conversions, r.clicks),
+      })),
+    };
   }
 
   /** NPS distribution from the ratings collection. */

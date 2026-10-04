@@ -103,6 +103,18 @@ export class AdminAnalyticsSuiteController {
     return this.svc.searchAnalytics(from, to);
   }
 
+  @Get('search-click-through')
+  @RequirePermissions(Permission.ANALYTICS_READ)
+  searchClickThrough(@Query('from') from: string, @Query('to') to: string) {
+    return this.svc.searchClickThrough(from, to);
+  }
+
+  @Get('ranking-modes')
+  @RequirePermissions(Permission.ANALYTICS_READ)
+  rankingModes(@Query('from') from: string, @Query('to') to: string) {
+    return this.svc.rankingModes(from, to);
+  }
+
   @Get('nps')
   @RequirePermissions(Permission.ANALYTICS_READ)
   nps(@Query('from') from: string, @Query('to') to: string) {
