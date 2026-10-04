@@ -9,7 +9,7 @@
     "check": "node build.mjs --check",
     "contrast": "node ../../tools/design/contrast-check.ts",
     "type-scale": "node ../../tools/design/no-px-font-size.ts",
-    "test": "npm run check && npm run sync-web:check && npm run contrast && npm run contrast:seasonal && npm run type-scale && npm run no-emoji && npm run no-raw-color && npm run i18n-coverage && npm run sync-ui-components:check && npm run sync-client-tokens:check && npm run client-token-sync && npm run import-rule && npm run brand-controls && npm run og-image:check",
+    "test": "npm run check && npm run sync-web:check && npm run contrast && npm run contrast:seasonal && npm run type-scale && npm run no-emoji && npm run no-raw-color && npm run i18n-coverage && npm run sync-ui-components:check && npm run sync-client-tokens:check && npm run client-token-sync && npm run import-rule && npm run brand-controls && npm run og-image:check && npm run token-css-usage",
     "no-raw-color": "node ../../tools/design/no-raw-color.ts",
     "no-emoji": "node ../../tools/design/no-emoji-in-ui.ts",
     "sync-web": "node ../../tools/design/sync-token-css.mjs",
@@ -24,7 +24,8 @@
     "contrast:seasonal": "node ../../tools/design/run-seasonal-contrast.mjs",
     "brand-controls": "node ../../tools/design/brand-controls.mjs",
     "og-image": "node ../../tools/design/og-image.mjs",
-    "og-image:check": "node ../../tools/design/og-image.mjs --check"
+    "og-image:check": "node ../../tools/design/og-image.mjs --check",
+    "token-css-usage": "node ../../tools/design/token-css-usage.mjs"
   },
   "files": [
     "dist",
