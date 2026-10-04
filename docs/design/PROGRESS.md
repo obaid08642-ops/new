@@ -7,7 +7,7 @@
 >
 > Sources: `DESIGN_HANDOFF_FINAL.md`, `SPEC_PRODUCT_DOCTOR_DETAIL.md`, `DEVICE_STANDARD.md`, `canvas/`. How the folder works: `README.md`.
 
-_Last updated: 2026-10-04 (#259–#261 approved from the design side; #263 web shells and #264 components part 1 are in review; next step: components part 2)._
+_Last updated: 2026-10-04 (#259–#261 approved from the design side; #264 review fixes pushed with board side-by-side images; next step: side-by-side images for #263 and #261, then components part 2)._
 
 ## Snapshot
 
@@ -19,7 +19,7 @@ _Last updated: 2026-10-04 (#259–#261 approved from the design side; #263 web s
 | Foundation: Readex Pro on the web | **In review** ([#260](https://github.com/obaid08642-ops/new/pull/260)) | Self-hosted with `next/font/local`; on main the web had no font at all (CSP blocked Google) |
 | Foundation: native shells | **In review** ([#261](https://github.com/obaid08642-ops/new/pull/261), stacked on #259) | `Screen`, `AppHeader`, `StickyFooter`, `TabBar` in `packages/ui-native` |
 | Foundation: web shells | **In review** ([#263](https://github.com/obaid08642-ops/new/pull/263), stacked on #259) | `AppShell`, `StickyFooter` in `packages/ui`, mirrored into patient-web |
-| Foundation: shared components | **1 of 4 in review** ([#264](https://github.com/obaid08642-ops/new/pull/264)) | FIcon, SectionHeader, ServiceTile, ListItem |
+| Foundation: shared components | **1 of 4 in review** ([#264](https://github.com/obaid08642-ops/new/pull/264)) | FIcon, SectionHeader, ServiceTile, ListItem, Avatar, Rating; design review fixes pushed (`b0e4c17`) |
 | Foundation: lint gates | Not started | See `WIRING_REPORT.md` §1 for the measured gaps |
 | Screen batches 0–13 | Not started | 410 screens to design (104 more routes only redirect) |
 
@@ -89,6 +89,11 @@ _Last updated: 2026-10-04 (#259–#261 approved from the design side; #263 web s
   - `packages/ui/icons/fill.ts` is ported from `canvas/FIcon.dc.html` by `tools/design/extract-ficon.mjs` (78 glyphs, with the service map and tones).
   - New contract components `FIcon` and `SectionHeader`. `ServiceTile` (now takes a service name) and `ListItem` (now takes a `leading` FIcon) are restyled from the boards. The roster grows from 28 to 30.
   - The 12.A7 tile tests now follow the handoff (filled FIcon instead of the illustrated art); this is flagged in the PR.
+  - **Design review fixes** (commit `b0e4c17`, [comment](https://github.com/obaid08642-ops/new/pull/264#issuecomment-5984595476)):
+    - ServiceTile: the second card came from the gallery frame. Specimens now sit on the canvas, so the tile is one white card (radius 22, hairline, shadow).
+    - Avatar: there is no illustrated or cartoon variant. It shows a real photo (`src`), otherwise initials, otherwise the neutral user icon. The ring follows HomeApp, using the new `color.avatar.{bg,ring}` tokens.
+    - Rating: one filled star, the value and `(count)`, per the DoctorCard board. It renders nothing when there is no rating or the count is 0. Star tokens are `color.icon.ratingStar` and `ratingStarOnBrand`; 151 contrast checks pass.
+    - New `packages/ui/build-compare.mjs` writes board crop (left) vs real component (right) images to `docs/design/compare/`. **Every component PR from now on includes these images.**
 - **Fix pushed to #259 (`e33d728`), and merged into #261 and #263:** `packages/ui/dist/preview.html` embeds the token sheet and had gone stale. CI missed it because that job fails earlier on a missing module.
 
 ## Next (in this order)
@@ -102,11 +107,16 @@ The foundation comes before any screen (DEVICE_STANDARD §4, handoff §3). Each 
 3. ~~**Native shells**~~: PR #261 is in review.
 4. ~~**Web shells**~~: PR #263 is in review.
    - `globals.css` still has its own `--nabd-layout-max: 1180px` and an old `.shell` layout. Pages switch to `AppShell` batch by batch, and the old `.shell` rules are removed when the last page moves.
+4b. **Board side-by-side images for the shells (design review item 5)**, before components 2/4:
+   - #263: `StickyFooter` vs the Cart sticky bar, and the `AppShell` top bar vs the HomeWeb header. Copy `build-compare.mjs` to `design/shells-web`.
+   - #261: native `TabBar` (to the HomeApp spec above, with real fill icons) and `AppHeader` vs the HomeApp nav and the Settings header, rendered with react-native-web.
 5. **Shared components** (handoff §3), in both packages, through the existing contract (`packages/ui/components/contract.ts`):
    - ~~1/4: FIcon, SectionHeader, ServiceTile, ListItem/ListRow~~ (#264).
    - 2/4 (next, branch `design/components-controls`): Button (gradient primary and outline), IconButton, Segmented (track `#EAEAEF`), Toggle, Radio, Chip/StatusChip, SearchField (`Search`), Stepper.
    - 3/4: Card, DoctorCard, ProductCard, OfferCard, Timeline, ProgressRing.
-   - 4/4: EmptyState, ErrorState, OfflineState, and the web TabBar (`BottomTabBar`, restyled as the floating glass pill).
+   - 4/4: EmptyState, ErrorState, OfflineState, and the web TabBar (`BottomTabBar`).
+   - **TabBar (web and native), design review:** exactly as HomeApp. It is a floating glass bar; the active item is an ink pill with icon and label; the centre is a raised coral Consultations button. The grey dots in the #261/#263 screenshots are placeholders, so the shells get the real fill icons.
+   - Each component PR includes board-vs-component images from `node packages/ui/build-compare.mjs --boards docs/design/canvas` (it needs `canvas/support.js`, added in #256).
    - Whenever tokens change, re-run `node packages/ui/build-preview.mjs`.
 6. **Lint gates** still missing from `tools/design` (handoff §6, DEVICE_STANDARD §5): `no-left-right`, `no-100vh`, `no-rn-safeareaview`. They currently fail on:
    - `patient-app/app/room/[id].tsx` (`SafeAreaView` imported from `react-native`);
@@ -155,6 +165,8 @@ The foundation comes before any screen (DEVICE_STANDARD §4, handoff §3). Each 
 
 | Date | Branch | What happened | Tip |
 |---|---|---|---|
+| 2026-10-04 | `design/components-icons` | #264 design review fixes: one-card ServiceTile, Avatar without illustrated art, single-star Rating hidden without ratings, `build-compare.mjs` board side-by-side images. | PR [#264](https://github.com/obaid08642-ops/new/pull/264), tip `b0e4c17` |
+| 2026-10-04 | `claude/progress-md-workflow-vqhj8x` | Added `canvas/support.js` (board runtime) so boards open in a browser and can be compared with components. | PR [#256](https://github.com/obaid08642-ops/new/pull/256) |
 | 2026-10-04 | `claude/progress-md-workflow-vqhj8x` | Set up the workflow, imported the design sources, and generated the inventory and the wiring report. | PR [#256](https://github.com/obaid08642-ops/new/pull/256) |
 | 2026-10-04 | `design/components-icons` | Components 1/4 (FIcon, SectionHeader, ServiceTile, ListItem); preview regeneration fixed on #259, #261 and #263. | PR [#264](https://github.com/obaid08642-ops/new/pull/264), tip `59a960f` |
 | 2026-10-04 | `design/shells-web` | Web shells (`AppShell`, `StickyFooter`), `layout.maxContent` 1200, mirror and tests, 12 screenshots. | PR [#263](https://github.com/obaid08642-ops/new/pull/263), tip `c0b0090` |

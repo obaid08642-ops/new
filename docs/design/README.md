@@ -49,6 +49,8 @@ Its limits are written at the top of the script and in the report.
 
 The boards from `nabd-design-boards.zip` (2026-10-04) are in `canvas/`. How to read them is in handoff §0.
 
+The zip does not ship the `support.js` runtime the boards load, so `canvas/support.js` implements the parts they use (`x-dc`, `{{…}}`, `sc-for`, `sc-if`, `dc-import`, `helmet`). To open a board, serve the folder over HTTP (`cd docs/design/canvas && python3 -m http.server`), then go to e.g. `HomeApp.dc.html` or `HomeApp.dc.html?theme=dark`. `node packages/ui/build-compare.mjs --boards docs/design/canvas` uses it to cut board elements out and put them next to the real components (`docs/design/compare/`).
+
 | Batch 1 boards | Batch 2 boards (templates) |
 |---|---|
 | Main, Auth (Welcome, WelcomeDark, Login, LoginDark, Otp, Register), HomeApp, HomeAppDark, Search, SearchWeb, ServiceHub, Consult, ProductFull, ProductWeb, DoctorFull, AuthWeb, IconGallery; components FIcon, PIcon | PharmacyHub, Cart, PharmacyOffers, CheckoutV2, OrderTracking, Orders, RxUpload, Appointments, BookingConfirm, HealthHub, Family, Insurance, Account, Settings, Notifications, CareHub, States, HomeWeb |
