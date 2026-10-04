@@ -116,9 +116,6 @@ export class HomeCareCompatController {
     throw new ForbiddenException('booking_access_denied');
   }
 
-  @SelfService()
-  @Header('Deprecation', 'true')
-  @Header('Sunset', 'Sat, 01 Aug 2026 00:00:00 GMT')
   // R4: POST bookings removed (dup of patient-home-care).
 
   // R4: GET bookings/my removed (dup of patient-home-care).
