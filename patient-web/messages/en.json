@@ -1,4 +1,62 @@
 {
+  "Errors": {
+    "AUTHENTICATION_REQUIRED": {
+      "message": "You need to sign in to continue.",
+      "nextStep": "Sign in and try again."
+    },
+    "INSUFFICIENT_PERMISSION": {
+      "message": "You don't have permission to do this.",
+      "nextStep": "Contact support if you think this is a mistake."
+    },
+    "PRESCRIPTION_REQUIRED": {
+      "message": "This item needs a valid prescription.",
+      "nextStep": "Upload your prescription to continue."
+    },
+    "NO_AVAILABILITY": {
+      "message": "No availability right now.",
+      "nextStep": "Try another time or date."
+    },
+    "SERVICE_UNAVAILABLE": {
+      "message": "This service is temporarily unavailable.",
+      "nextStep": "Please try again in a little while."
+    },
+    "PROVIDER_NOT_AVAILABLE": {
+      "message": "No provider is available for this request.",
+      "nextStep": "Try again later or choose another provider."
+    },
+    "PRODUCT_OUT_OF_STOCK": {
+      "message": "This product is out of stock.",
+      "nextStep": "Try an alternative or check back later."
+    },
+    "PAYMENT_REQUIRED": {
+      "message": "Payment is required to complete this.",
+      "nextStep": "Complete the payment to continue."
+    },
+    "INSURANCE_NOT_SUPPORTED": {
+      "message": "Your insurance doesn't cover this.",
+      "nextStep": "Continue with self-payment or contact your insurer."
+    },
+    "LOCATION_NOT_SUPPORTED": {
+      "message": "We don't serve this location yet.",
+      "nextStep": "Try another address or pickup instead."
+    },
+    "DUPLICATE_TRANSACTION": {
+      "message": "This was already submitted.",
+      "nextStep": "Check your orders before trying again."
+    },
+    "INVALID_INPUT": {
+      "message": "Some details look incorrect.",
+      "nextStep": "Review the highlighted fields and try again."
+    },
+    "RATE_LIMITED": {
+      "message": "Too many attempts. Please slow down.",
+      "nextStep": "Wait a moment, then try again."
+    },
+    "UNKNOWN_ERROR": {
+      "message": "Something went wrong. Please try again.",
+      "nextStep": "If it keeps happening, contact support."
+    }
+  },
   "Shared": {
     "brand": "Nabd Plus",
     "patientSignIn": "Patient sign in",

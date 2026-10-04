@@ -1,4 +1,5 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
+import { backendCodeToAppError, extractBackendErrorPayload } from './ErrorHandler';
 
 // M1-ENV: backend URL is now environment-driven (dev/staging/prod) instead of hardcoded.
 // Set EXPO_PUBLIC_API_URL in .env — e.g. http://192.168.1.10:8002 for a local backend.
@@ -38,6 +39,18 @@ HttpClient.interceptors.response.use(
     }
     if (!error.response && error.request && !isSafeRead) {
       return Promise.reject(new OfflineMutationPendingError());
+    }
+    // 13.R5: surface backend `{code,message,nextStep}` as AppError so UI reads
+    // the catalog message + next step instead of raw Axios payloads.
+    const backend = extractBackendErrorPayload(error.response?.data ?? error);
+    if (backend) {
+      return Promise.reject(
+        backendCodeToAppError(backend.code, {
+          originalError: error,
+          details: backend.details,
+          nextStep: backend.nextStep,
+        }),
+      );
     }
     return Promise.reject(error);
   }
