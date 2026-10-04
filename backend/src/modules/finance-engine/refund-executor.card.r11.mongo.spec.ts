@@ -77,14 +77,18 @@ describe('RefundExecutor card refunds (R11 §5 lead 6)', () => {
   // booking, so the executor found no payment (original_payment_not_found).
   it('a copay paid on the insurance request is refunded to that card payment, capped at the copay', async () => {
     const db = conn.db!;
-    await db.collection('appointments').insertOne({ id: 'appt-ins', patient_id: 'pat-1', payment_method: 'insurance', total_price: 300 });
-    await db.collection('insuranceservicerequests').insertOne({ id: 'ir-9', booking_id: 'appt-ins', booking_kind: 'consultation' });
+    await db.collection('appointments').insertOne({ id: 'appt-ins', patient_id: 'pat-1', payment_method: 'insurance', payment_status: 'insurance_approved', total_price: 300 });
+    await db.collection('insuranceservicerequests').insertOne({ id: 'ir-9', booking_id: 'appt-ins', booking_kind: 'consultation', patient_id: 'pat-1' });
     await db.collection('transactions').insertOne({ id: 'tx-copay', booking_kind: 'insurance', booking_id: 'ir-9', patient_id: 'pat-1', status: 'paid', method: 'card', amount: 60, gateway: 'moyasar', gateway_intent_id: 'pay_copay', gateway_charge_id: 'pay_copay' });
     const exec = (id: string, amount: number) => executor.execute({ refund_id: id, booking_kind: 'consultation', booking_id: 'appt-ins', patient_id: 'pat-1', amount, reason: 'cannot attend', actor_id: 'adm' });
-    await expect(exec('rc0', 61)).rejects.toBeInstanceOf(BadRequestException);
+    await expect(exec('rc0', 61)).rejects.toThrow('refund_exceeds_paid');
     const out = await exec('rc1', 60);
     expect(out.method).toBe('gateway');
     expect(String(fetchMock.mock.calls[fetchMock.mock.calls.length - 1][0])).toContain('/payments/pay_copay/refund');
+    // Only the copay went back: the insured booking is not marked refunded.
+    const appt: any = await db.collection('appointments').findOne({ id: 'appt-ins' });
+    expect(appt.payment_status).toBe('insurance_approved');
+    expect(appt.refund_status).toBe('REFUNDED');
     await db.collection('insuranceservicerequests').deleteMany({});
   });
 });
