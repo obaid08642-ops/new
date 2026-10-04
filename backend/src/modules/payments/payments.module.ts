@@ -414,20 +414,37 @@ export class PaymentsService {
     // a sabotage vector (griefing patients' paid bookings). Providers escalate
     // to admin; patients use the approval flow (/refunds/request).
     if (user.role !== 'admin') throw new BadRequestException('not_authorized');
-    const t = await this.txns.findOne({ id: transactionId });
+    const t: any = await this.txns.findOne({ id: transactionId }).lean();
     if (!t) throw new NotFoundException();
     if (t.status !== 'paid' && t.status !== 'partially_refunded') throw new BadRequestException('cannot_refund');
-    const r = await this.adapter.refund(t.gateway_charge_id, amount);
-    if (!r.refunded) throw new BadRequestException('refund_failed');
-    const full = !amount || amount >= t.amount;
-    t.status = full ? 'refunded' : 'partially_refunded';
-    t.refunded_amount = (t.refunded_amount || 0) + (amount || t.amount);
-    t.refunded_at = new Date();
-    t.refund_reason = reason;
-    await t.save();
-    await this.modelFor(t.booking_kind).updateOne({ id: t.booking_id }, { $set: { payment_status: 'refunded' } });
-    this.realtime.emitToUser(t.patient_id, 'payment.updated', { transaction_id: t.id, status: t.status });
-    return t.toObject();
+    // R11 §5: reserve the amount atomically against what was paid, so partial
+    // refunds cannot add up past it and parallel clicks reach the gateway once.
+    const remaining = Math.round((Number(t.amount || 0) - Number(t.refunded_amount || 0)) * 100) / 100;
+    const value = amount ? Math.round(amount * 100) / 100 : remaining;
+    if (!(value > 0)) throw new BadRequestException('cannot_refund');
+    const reserved = await this.txns.updateOne(
+      { id: transactionId, status: { $in: ['paid', 'partially_refunded'] }, $expr: { $lte: [{ $add: [{ $ifNull: ['$refunded_amount', 0] }, value] }, Number(t.amount || 0) + 0.001] } },
+      { $inc: { refunded_amount: value } },
+    );
+    if (!reserved.modifiedCount) throw new BadRequestException('refund_exceeds_paid');
+    let r: { refunded: boolean };
+    try {
+      r = await this.adapter.refund(t.gateway_charge_id || t.gateway_intent_id, value);
+    } catch (err) {
+      await this.txns.updateOne({ id: transactionId }, { $inc: { refunded_amount: -value } });
+      throw err;
+    }
+    if (!r.refunded) {
+      await this.txns.updateOne({ id: transactionId }, { $inc: { refunded_amount: -value } });
+      throw new BadRequestException('refund_failed');
+    }
+    const after: any = await this.txns.findOne({ id: transactionId }).lean();
+    const full = Number(after?.refunded_amount || 0) >= Number(t.amount || 0) - 0.001;
+    const status = full ? 'refunded' : 'partially_refunded';
+    await this.txns.updateOne({ id: transactionId }, { $set: { status, refunded_at: new Date(), refund_reason: reason } });
+    await this.modelFor(t.booking_kind).updateOne({ id: t.booking_id }, { $set: { payment_status: full ? 'refunded' : 'partially_refunded' } });
+    this.realtime.emitToUser(t.patient_id, 'payment.updated', { transaction_id: t.id, status });
+    return { ...t, ...after, status };
   }
 
   /**

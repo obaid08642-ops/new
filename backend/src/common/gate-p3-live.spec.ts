@@ -76,13 +76,16 @@ describe('Gate P3 live: a refund without a gateway key fails closed', () => {
   // payment refunded without calling the gateway) is gone; refunds go through
   // PaymentsService and its adapter only.
   it('admin refund with no gateway configured: 503, and the transaction is NOT marked refunded', async () => {
-    const t: any = { id: 'tx1', status: 'paid', amount: 100, gateway_charge_id: 'pay_1', save: jest.fn() };
+    const t: any = { id: 'tx1', status: 'paid', amount: 100, refunded_amount: 0, gateway_charge_id: 'pay_1' };
     const svc: any = Object.create(PaymentsService.prototype);
-    svc.txns = { findOne: async () => t };
+    svc.txns = {
+      findOne: () => ({ lean: async () => t }),
+      updateOne: jest.fn(async (_q: any, u: any) => { if (u.$inc) t.refunded_amount += u.$inc.refunded_amount; if (u.$set) Object.assign(t, u.$set); return { modifiedCount: 1 }; }),
+    };
     svc.adapter = new DisabledGatewayAdapter();
     await expect(svc.refundPayment({ id: 'adm', role: 'admin' }, 'tx1', 50)).rejects.toBeInstanceOf(ServiceUnavailableException);
     expect(t.status).toBe('paid');
-    expect(t.save).not.toHaveBeenCalled();
+    expect(t.refunded_amount).toBe(0);
   });
 });
 
