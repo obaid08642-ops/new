@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { randomBytes } from 'crypto';
@@ -224,11 +224,24 @@ export class AiCommerceService {
                 { slug: { $in: medIds } },
                 { sku: { $in: medSkuNumbers } },
               ],
+              // Q106: only public, medically reviewed medicines can be sold here.
+              is_deleted: { $ne: true },
+              public_eligibility: true,
+              medical_review_status: 'approved',
             })
             .toArray()
         : Promise.resolve([]),
       docIds.length
-        ? docCol.find({ $or: [{ id: { $in: docIds } }, { slug: { $in: docIds } }] }).toArray()
+        ? docCol
+            .find({
+              $or: [{ id: { $in: docIds } }, { slug: { $in: docIds } }],
+              // Q106: only active, reviewed, public doctors.
+              type: 'doctor',
+              status: 'active',
+              public_eligibility: true,
+              medical_review_status: 'approved',
+            })
+            .toArray()
         : Promise.resolve([]),
     ]);
 
@@ -259,7 +272,9 @@ export class AiCommerceService {
         if (!med) throw new NotFoundException(`Medicine '${item.id}' not found`);
 
         const qty = Math.max(1, Number(item.quantity) || 1);
-        const unitPrice = Number(med.price) || 20.0;
+        // The record's own price; never an invented default.
+        const unitPrice = Number(med.price);
+        if (!Number.isFinite(unitPrice) || unitPrice <= 0) throw new UnprocessableEntityException(`price_unavailable: medicine '${item.id}'`);
         const lineTotal = Number((unitPrice * qty).toFixed(2));
         subtotal += lineTotal;
 
@@ -282,7 +297,9 @@ export class AiCommerceService {
         const doc = resolveDoc(String(item.id));
         if (!doc) throw new NotFoundException(`Doctor '${item.id}' not found`);
 
-        const fee = 150.0;
+        // The doctor's own clinic consultation price; never a flat default.
+        const fee = Number(doc.price_clinic);
+        if (!Number.isFinite(fee) || fee <= 0) throw new UnprocessableEntityException(`price_unavailable: doctor '${item.id}'`);
         subtotal += fee;
 
         validatedItems.push({

@@ -2,8 +2,58 @@
 
 **Verdict: NOT APPROVED. 18 commits, 0 PASS, 18 FAIL.** Phase 14 started without an APPROVED Phase 13 (see `REVIEW_P13.md`, also NOT APPROVED). The mandatory work list is **Round 10** in `REVIEW_REAUDIT_P1_P11.md`.
 
+**Round 2 (2026-10-04):** every row re-checked personally, see "Round 2" below: 5 fixed by the reviewer, 11 back to the agent, 2 with behaviour confirmed; plus six newer agent commits reviewed (all FAIL; `b274e6f` fixed by the reviewer). Still NOT APPROVED.
+
 - Code under review: agent tip `bb97c87`. Same method, gate, CI, live gate and native results as `REVIEW_P13.md` (read its first sections; they cover the whole tip).
 - Not one of the 18 commits has an `AGENT_PROGRESS.md` entry with Verify or gate output (check 9 fails on every row).
+
+## Round 2 — reviewer's personal re-check (2026-10-04, after PR #239)
+
+**Verdict unchanged: NOT APPROVED.** Method, fixes and results on the reviewer-fixed tip: `REVIEW_P13.md`, section "Round 2". Where the rows below disagree with this section, this section wins.
+
+### Tally (18 rows in this file)
+
+| personal re-check | rows |
+|---|---|
+| reproduced, fixed by the reviewer | 5 |
+| reproduced, back to the agent (Round 10) | 11 |
+| behaviour confirmed PASS (process FAIL stands) | 2 |
+
+### Six agent commits pushed after `bb97c87` (reviewed personally, nine-point)
+
+None has an `AGENT_PROGRESS.md` entry (check 9 FAIL on every row).
+
+| sha | task | verdict | evidence and next step |
+|---|---|---|---|
+| 82830cb | 14.12 | **FAIL** | The Express path is unchanged (live: CSP, HSTS, nosniff, X-Frame-Options and gzip present). The Fastify path needs `@fastify/compress` and `@fastify/helmet`, which are in neither `package.json` nor `node_modules`, so `USE_FASTIFY=true` fails at boot. No test of that path. → agent: add the dependencies with a boot test, or remove the Fastify switch. |
+| 4fddc77 | 14.20 | FAIL (process only) | Five one-line `sizes`/`loading` attributes; patient-web vitest green. No progress entry. |
+| 74800ef | 14.13 | FAIL (live n/p, process) | Presence through Redis is wired in `realtime.gateway`; spec 11/11. A live socket was not exercised. No progress entry. |
+| 16be643 | 14.8 | **FAIL** | `purge-bus.ts` has 0 importers; the message says "edge deferred" (AGENTS.md forbids deferring). → agent: wire it or `BLOCKED: <reason>`. |
+| 1a1af5a | 14.13 | FAIL (live n/p, process) | Bans write through Redis with a local fallback, wired in `bans.service` and SSE; specs pass. A live ban was not exercised (it needs step-up). |
+| b274e6f | 14.12 / 14.13 | **FAIL → fixed by the reviewer** | Media upload answered 500 under Express (live), and `media.contract.spec` was red. Fixed in `6f6b876` (**Q101**). The commit before it was pushed with tsc errors (its message admits it). |
+
+### Per-row personal re-check
+
+| sha | personal re-check | evidence (what I ran or read) and next step |
+|---|---|---|
+| 6ca29c4 | reproduced, agent | REPRODUCED — IdempotencyKeyInterceptor/outbox/killswitch 0 refs outside own files; probe isKilled(recommendations, absent flag)=true |
+| 59e0d6b | reproduced, agent | REPRODUCED — StorageService (storage.module.ts) has no strip/sharp |
+| 13f560c | reproduced, agent | REPRODUCED — diff: 4 query limits; push tokens .limit(20) unsorted |
+| b20ecd3 | reproduced, agent | REPRODUCED — resolveRedisRoles/SwrCache 0 callers |
+| cffbab5 | reproduced, agent | REPRODUCED — 0 refs; Nest DI probe "can't resolve dependencies of the LoadSheddingGuard (?)" |
+| 909fed4 | reproduced, agent | REPRODUCED — 0 refs; live x-request-id not echoed (only x-correlation-id) |
+| 5d1528c | reproduced, agent | REPRODUCED — @PublicCache 0 uses; live Cache-Control private,no-store on public /care/specialties |
+| 9537426 | reproduced, fixed by reviewer | REPRODUCED+FIXED(9559886) — real-Mongo E11000 + deletions |
+| dd2a5ab | reproduced, agent | REPRODUCED — cache-control.interceptor.ts / public-cache.decorator.ts no longer exist at tip |
+| 1c01b92 | reproduced, fixed by reviewer | REPRODUCED+FIXED(27a709a) — spec 2nd refund URL pay_aaaa |
+| 6f0a9a2 | confirmed PASS on behaviour (process FAIL stands) | code ok (17 @StepUp added); FAIL is process only (no progress entry, no 2xx-with-token test) |
+| bece53a | reproduced, fixed by reviewer | REPRODUCED+FIXED(049cd52) — no workflow file in diff; check-ignore templates ignored |
+| 6fa7fce | reproduced, fixed by reviewer | REPRODUCED + FIXED 17106d8 — "0101" -> query matches sku 101, map keyed String(sku) misses -> 404 (spec). Also found on main: price default 20 SAR + flat 150 fee -> Q106 fixed on main 05d65c6 |
+| a006d5a | reproduced, agent | REPRODUCED — diff: early returns removed, Promise.all of both counts |
+| 705f22c | reproduced, agent | REPRODUCED — Map.set => last profile wins |
+| afa42fd | reproduced, fixed by reviewer | REPRODUCED — lock missing 14 entries (same as Q58) -> fixed 9df7b9e |
+| a95be9a | reproduced, agent | REPRODUCED — English-only MEDICAL_DISCLAIMER; web uses its own t("disclaimer") |
+| f112045 | confirmed PASS on behaviour (process FAIL stands) | NOW PROVEN by native build: strict patient-app release build success (run 37196225499) and provider build (run 37196546443) bundle with this metro config |
 
 ## Deferred or unwired commits (AGENTS.md forbids deferring)
 

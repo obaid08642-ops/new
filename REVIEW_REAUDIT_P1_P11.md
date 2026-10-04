@@ -951,6 +951,26 @@ iOS: a smoke run of the core journeys before each store release.
 
 **Verdict:** Phase 13 **NOT APPROVED** (`REVIEW_P13.md`), Phase 14 **NOT APPROVED** (`REVIEW_P14.md`). 152 commits, **3 PASS, 149 FAIL**, each with a nine-point row and its evidence. Nothing is merged into `main`. **Do not start any new phase or task until every item below is closed.** Phase 12 stays frozen (owner): no new design work; do not revert its commits.
 
+### Status after the reviewer's own fixes (Round 2, 2026-10-04) — read this first
+
+The owner changed the rule after PR #239: the reviewer fixes the small defects in your code personally. Those fixes are merged into this branch as `[REVIEW-FIX]` commits (PR #240 → `1b12107`, PR #248). **Never revert or redo them.** Every row was re-checked personally; the result per sha is in `REVIEW_P13.md` / `REVIEW_P14.md`, section "Round 2".
+
+**Done by the reviewer — remove from your list:** A1 Q81 (`27a709a`, plus Q100 refund path) · A2 Q82 (`f9dfef6`) · A4 Q80 (`1695362`) · A5 Q87 (`d949b6d`; key rotation is the owner's) · A6 Q84 (`eb1026d`) · A7 Q83 (`089922e`; the Q89 part stays below) · A8 Q85 (`7388102`) · A10 guest lifecycle (`9559886`, `5546104`) · B11 Scenario 20 (`37f54f2`) · B12 patient-web parity (`66578b5`) · B14 CodeQL (`1f625c2`, `c35a221`, `422744b`; CodeQL green on PR #240) · B15 Q58 (`9df7b9e`; plain `npm ci` passes in the native strict run) · Q90 (`e717d1b`) · Q101 (`6f6b876`) · Q105 (`0ecba09`) · Q47/Q48 (`12163e1`) · Q69 (`d47c599`, `0605147`) · wishlist 404 and its allow-list entry (`4999f10`) · F8 bulk-approve (`af6cca1`) · R7 brand (`7edc44e`) · and the rows marked "fixed by reviewer" in the Round 2 tables.
+
+**Still yours, in this order (each is large: UI + API, a design decision, or money):**
+1. **Q79** registration creates no typed documents (A3). Large: every registration screen of 7 provider types must upload typed documents through the KYC API, and the journey's own upload must go. Verify: j_onboarding, j_nursing, j_ambulance, j_facility green with only screen payloads.
+2. **Q86 + Q104** payments (A9). Large (money, design): one payment path instead of `payments.module` + `MoyasarService`, one webhook receiver that authenticates Moyasar's `secret_token` field (Moyasar sends no HMAC header) and accepts the documented body. Do it together with Round 11 Q99.
+3. **Q102** the patient-web service booking modal fakes a booking. Wire the real booking API (or remove the modal), and fix the copay crash from `bdcdcb6`.
+4. **Q89 + R23** step-up on the remaining admin routes **and** the admin step-up UI, so the live harness and admins can pass it (j_loyalty).
+5. **F2** coverage-check: the app's add-policy screen must send network and class (or coverage must work without them). Verify: j_lab, j_radiology, j_consultation.
+6. **B13** `npx expo install --check`: waiting on the owner's decision (asked by the reviewer). Do not change CI until then.
+7. **Q103** demo seed data out of `backend/src`.
+8. **`31b1a1e`** second availability engine without the 5-minute buffer: one shared availability function (owner rule).
+9. **`82830cb`** Fastify path without its dependencies; **`16be643`** purge-bus unwired; then C17–C27 below, unchanged.
+10. D28 below, for every row marked "reproduced, agent" in the Round 2 tables. Notables: `d0b9ce9` (R83 clinic address is never sent by any screen), `7790744` (each report row needs its own filtered link, which means the target pages must accept a date filter), `973d08c` (insurer chips have no loading/empty/error state), `e64ec70` (an edit without approval keeps a medicine public), `9464055` (`/doctors/:id` 404 for real doctors), `/care/degrees` returns `[]`, `2ef3a3e` (engagement events 403, processor checks broken), `b4d1d98` (hard-coded facility names), `8e1e303` (testIDs), `a7596c8` (importer report).
+
+The A/B/C/D numbering below is kept for reference; where it disagrees with this block, this block wins.
+
 **Rules for this round (AGENTS.md, restated because they were broken):**
 - One item = one commit: `[R10-<n>] <id> <summary>`. Run the full gate before every push and paste the **real** output for each item in `AGENT_PROGRESS.md`. The gate on `bb97c87` was red (unit, patient-web, CI), so the branch was pushed red.
 - "Deferred", "wiring deferred", "follows", "out of scope" are not allowed. For each item: do it fully and wire it, or write `BLOCKED: <exact external reason>` in `AGENT_PROGRESS.md` and stop. The only external reasons the reviewer accepts are listed per item.
