@@ -42,7 +42,7 @@ export class AdminRecoveryController {
     const email = String(body?.email || '').trim().toLowerCase();
     if (!email) throw new BadRequestException('email_required');
     const u: any = await (this.auth as any).userModel.findOne({ email });
-    if (!u || (u.role !== UserRole.ADMIN && u.role !== UserRole.SUPER_ADMIN)) {
+    if (!u || u.active === false || (u.role !== UserRole.ADMIN && u.role !== UserRole.SUPER_ADMIN)) {
       // Same answer as a sent code: this endpoint must not reveal which emails
       // are registered admin accounts.
       return { ok: true, channel: 'email' };
@@ -63,7 +63,7 @@ export class AdminRecoveryController {
     if (!recCode) throw new ForbiddenException('recovery_code_required');
     // 1) Email OTP first — proves control of the mailbox. Alone it grants nothing.
     const u: any = await (this.auth as any).userModel.findOne({ email });
-    if (!u || (u.role !== UserRole.ADMIN && u.role !== UserRole.SUPER_ADMIN)) {
+    if (!u || u.active === false || (u.role !== UserRole.ADMIN && u.role !== UserRole.SUPER_ADMIN)) {
       throw new UnauthorizedException('Invalid credentials');
     }
     await this.auth.verifyOtp((this.auth as any).otpContact(u, email), emailCode);

@@ -58,4 +58,22 @@ describe('provider privacy before acceptance (R11 §5 lead 9)', () => {
     expect(out.patient_location).toBeUndefined();
     expect(out.address).toEqual({ district: 'Al Olaya', city: 'Riyadh' });
   });
+
+  // Second review: the tracking route returns its own shape (booking_id,
+  // hospital_lat/lng) that the interceptor does not recognise.
+  it('GET /nursing/visits/:id/tracking hides the destination from a nurse who has not accepted', async () => {
+    const visit = (state: string) => ({ id: 'v1', patient_id: 'pat-1', provider_id: 'n1', state, patient_location: { lat: 24.7, lng: 46.6 }, gps_tracking: {} });
+    const ctrl = Object.create(NursingController.prototype) as any;
+    let current = visit('PROVIDER_ASSIGNED');
+    ctrl.bkgModel = { findOne: async () => current };
+    const nurse = { id: 'n1', role: 'nurse' };
+    const before = await ctrl.getVisitTracking('v1', nurse);
+    expect(before.hospital_lat).toBeNull();
+    expect(before.hospital_lng).toBeNull();
+    current = visit('CONFIRMED');
+    const after = await ctrl.getVisitTracking('v1', nurse);
+    expect(after.hospital_lat).toBe(24.7);
+    current = visit('PROVIDER_ASSIGNED');
+    expect((await ctrl.getVisitTracking('v1', { id: 'pat-1', role: 'patient' })).hospital_lat).toBe(24.7);
+  });
 });

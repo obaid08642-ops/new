@@ -6,6 +6,7 @@ import { AiController } from './ai.controller';
 import { AiUserQuotaGuard } from './ai-user-quota.guard';
 import { NoGuestsGuard } from '../../common/auth.guard';
 import { InsuranceController } from '../insurance/insurance.module';
+import { ProcurementController } from '../pharmacy/controllers/procurement.controller';
 
 const PAID = ['voice', 'ocr', 'copilotSuggest', 'ocrTranslate', 'medicineImageSearch', 'barcodeLookup', 'analyzeMeal', 'generateExercisePlan', 'generateDietPlan'];
 
@@ -37,5 +38,10 @@ describe('AI routes: members only, per-user quota, copilot for doctors (R11 §5)
   it('insurance OCR (an LLM call) is members-only with the same quota (independent check)', () => {
     const guards = Reflect.getMetadata(GUARDS_METADATA, InsuranceController.prototype.ocrExtract) as unknown[];
     expect(guards).toEqual(expect.arrayContaining([NoGuestsGuard, AiUserQuotaGuard]));
+  });
+
+  it('pharmacy procurement analyze-file (an LLM call) is under the per-user AI quota (second review)', () => {
+    const guards = Reflect.getMetadata(GUARDS_METADATA, ProcurementController.prototype.analyzeFile) as unknown[];
+    expect(guards).toEqual(expect.arrayContaining([AiUserQuotaGuard]));
   });
 });

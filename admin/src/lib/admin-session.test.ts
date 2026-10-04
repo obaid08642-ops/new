@@ -55,3 +55,12 @@ test('the admin login refuses a patient account', async () => {
   assert.equal(r.statusCode, 403);
   assert.equal(r.cookies.length, 0);
 });
+
+// Second review: finance and support staff use the admin dashboard too; the
+// backend gates them (isPlatformStaffRole). Patients and providers do not.
+test('staffRoleOf admits every platform staff role and nothing else', async () => {
+  const { staffRoleOf } = await import('./admin-session');
+  for (const role of ['admin', 'super_admin', 'support_agent', 'finance']) assert.equal(staffRoleOf(jwt({ sub: 'x', role })), role);
+  for (const role of ['patient', 'doctor', 'pharmacy', 'hospital_admin']) assert.equal(staffRoleOf(jwt({ sub: 'x', role })), null);
+  assert.equal(staffRoleOf(jwt({ sub: 'x', role: 'finance', type: 'refresh' })), null);
+});

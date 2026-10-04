@@ -28,7 +28,9 @@ describe('ChatGateway token kinds and room membership (R11 §5)', () => {
   });
 
   it('an access token and a chat_rt token are accepted', async () => {
-    const gw = new ChatGateway({} as never);
+    // The access token goes through the REST guard (here one that accepts it).
+    const guard = { canActivate: jest.fn(async (ctx: any) => { ctx.switchToHttp().getRequest().user = { id: 'u1', role: 'patient' }; return true; }) };
+    const gw = new ChatGateway({} as never, guard as never);
     const a = socketWith(jwt.sign({ sub: 'u1', id: 'u1', role: 'patient' }, secret));
     await gw.handleConnection(a as never);
     expect(a.disconnect).not.toHaveBeenCalled();
