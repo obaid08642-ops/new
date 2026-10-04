@@ -18,7 +18,7 @@ import { PharmacyOfferService } from './services/pharmacy-offer.service';
 import { PharmacyInsuranceDecisionService } from './services/pharmacy-insurance-decision.service';
 import { PharmacyExpiryCommandService } from './services/pharmacy-expiry-command.service';
 import { PharmacyPaymentEvidenceService } from './services/pharmacy-payment-evidence.service';
-import { CreateDto, UpdateDto, CancelDto, PaymentIntentDto, CancelRejectedInsuranceDto, SelectOfferDto, AcceptFinalQuoteDto, RegisterCodDto, AcceptInsuranceDto, ItemActionDto, OutDto, DeliveredDto, InsuranceDecisionDto, CancelDto3, SetTrackingDto, RestockDto, SampleOrderDto, PreviewOfferDto, DraftOfferDto, RejectDto, PostDto, ReportDto, CreateDto2, MarkShortageDto, RejectDto5, SetCodPolicyDto } from './pharmacy.controllers.dto';
+import { CreateDto, UpdateDto, CancelDto, CancelRejectedInsuranceDto, SelectOfferDto, AcceptFinalQuoteDto, RegisterCodDto, AcceptInsuranceDto, ItemActionDto, OutDto, DeliveredDto, InsuranceDecisionDto, CancelDto3, SetTrackingDto, RestockDto, SampleOrderDto, PreviewOfferDto, DraftOfferDto, RejectDto, PostDto, ReportDto, CreateDto2, MarkShortageDto, RejectDto5, SetCodPolicyDto } from './pharmacy.controllers.dto';
 
 // =========================================================================
 //  PATIENT ENDPOINTS (/api/v2/patient/pharmacy/*)
@@ -27,7 +27,7 @@ import { CreateDto, UpdateDto, CancelDto, PaymentIntentDto, CancelRejectedInsura
 @UseGuards(JwtAuthGuard)
 @Roles(UserRole.PATIENT)
 export class PatientPharmacyController {
-  constructor(private orders: PharmacyOrderService, private offers: PharmacyOfferService, private insurance: PharmacyInsuranceDecisionService, private payments: PharmacyPaymentEvidenceService) {}
+  constructor(private orders: PharmacyOrderService, private offers: PharmacyOfferService, private insurance: PharmacyInsuranceDecisionService) {}
   // Order roots are state-changing: keys are mandatory (P0-01). The global
   // IdempotencyInterceptor then guarantees replay-safety (24h cache +
   // in-progress lock + body-hash mismatch guard). Mobile + web BFF already send keys.
@@ -37,7 +37,6 @@ export class PatientPharmacyController {
   @Patch('orders/:id') @RequireIdempotency() update(@CurrentUser() u: any, @Param('id') id: string, @Body() b: UpdateDto) { return this.orders.update(u, id, b); }
   @Post('orders/:id/submit') @RequireIdempotency() submit(@CurrentUser() u: any, @Param('id') id: string) { return this.orders.submit(u, id); }
   @Post('orders/:id/cancel') @RequireIdempotency() cancel(@CurrentUser() u: any, @Param('id') id: string, @Body() b: CancelDto) { return this.orders.cancel(u, id, b?.reason || ''); }
-  @Post('orders/:id/payment-intent') paymentIntent(@CurrentUser() u: any, @Param('id') id: string, @Body() b: PaymentIntentDto) { return this.payments.createPaymentIntent(u, id, b?.idempotency_key); }
   @Post('orders/:id/insurance-rejection/cancel') cancelRejectedInsurance(@CurrentUser() u: any, @Param('id') id: string, @Body() b: CancelRejectedInsuranceDto) { return this.insurance.cancelRejectedByPatient(u, id, b?.idempotency_key); }
   @Get('orders/:id/offers') listOffers(@CurrentUser() u: any, @Param('id') id: string) { return this.offers.listForPatient(u, id); }
   @Post('orders/:id/offers/:offerId/select') selectOffer(@CurrentUser() u: any, @Param('id') id: string, @Param('offerId') offerId: string, @Body() b: SelectOfferDto, @Headers('idempotency-key') idemHeader?: string) {
