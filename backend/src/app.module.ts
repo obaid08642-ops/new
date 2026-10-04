@@ -82,6 +82,7 @@ import { EventReliabilityModule } from './modules/event-reliability/event-reliab
 import { OperationsSafetyModule } from './modules/operations-safety/operations-safety.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { SlotLocksModule } from './modules/slot-locks/slot-locks.module';
+import { GuestLifecycleModule } from './modules/guest-lifecycle/guest-lifecycle.module';
 import { PushModule } from './modules/push/push.module';
 import { SecurityModule } from './modules/security/security.module';
 import { RealtimeSseModule } from './modules/realtime/realtime.sse';
@@ -230,6 +231,7 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     MoyasarModule,
     FinanceEngineModule,
     SlotLocksModule,
+    GuestLifecycleModule, // Phase 21: inactive-guest lifecycle (opt-in via env)
     PushModule,
     SecurityModule,
     RealtimeSseModule,
