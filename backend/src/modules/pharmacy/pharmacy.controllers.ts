@@ -261,11 +261,15 @@ export class PharmacyChatController {
   @Get('threads/:id/messages') msgs(@CurrentUser() u: any, @Param('id') id: string) { return this.chat.listMessages(u, id); }
   @Roles(UserRole.PHARMACY, UserRole.ADMIN)
   @Post('threads/:id/messages') post(@CurrentUser() u: any, @Param('id') id: string, @Body() b: PostDto) { return this.chat.postMessage(u, id, b); }
-  @Roles(UserRole.PHARMACY, UserRole.ADMIN)
+  // R2: patients decide on substitution proposals for their own orders.
+  // The service enforces t.patient_account_id === user.id, so opening the
+  // role is safe — without PATIENT here every accept/reject 403s at the guard
+  // before ownership is even checked, and the R2 flow cannot complete.
+  @Roles(UserRole.PHARMACY, UserRole.ADMIN, UserRole.PATIENT)
   @Post('threads/:id/accept-substitute/:msgId') accept(@CurrentUser() u: any, @Param('id') id: string, @Param('msgId') mid: string) { return this.chat.acceptSubstitute(u, id, mid); }
-  @Roles(UserRole.PHARMACY, UserRole.ADMIN)
+  @Roles(UserRole.PHARMACY, UserRole.ADMIN, UserRole.PATIENT)
   @Post('threads/:id/reject') reject(@CurrentUser() u: any, @Param('id') id: string) { return this.chat.rejectOrRemove(u, id, 'rejected'); }
-  @Roles(UserRole.PHARMACY, UserRole.ADMIN)
+  @Roles(UserRole.PHARMACY, UserRole.ADMIN, UserRole.PATIENT)
   @Post('threads/:id/remove-item') remove(@CurrentUser() u: any, @Param('id') id: string) { return this.chat.rejectOrRemove(u, id, 'removed'); }
 }
 
