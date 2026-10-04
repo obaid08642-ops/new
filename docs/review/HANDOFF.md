@@ -29,7 +29,7 @@ Read this first in a new reviewer session, together with `AGENTS.md`. It replace
 - Delegates larger defects to the agent in `REVIEW_REAUDIT_P1_P11.md` and `docs/review/QA_DEFECTS.md`, each with Verify criteria.
 - After every merge, merges `main` into `fix/audit-2026-09`. Never force-push; no other commits on that branch.
 
-**Agent**: works only on `fix/audit-2026-09` and follows `AGENTS.md`. Last agent commit: `6ca29c4` (2026-10-04). **152 agent commits are not in `main` and have not been reviewed** (Phases 12–14 waves, Q/R/X fixes, `[perf]`, `[sec]`, `[15.7]`, `[16.1]`, `[20]`, `[21]`). Only the gitleaks check ran on that branch. The native baseline (§7b) was built from `main`, so it did not test any of them.
+**Agent**: works only on `fix/audit-2026-09` and follows `AGENTS.md`. Last agent commit: `6ca29c4` (2026-10-04). **The 152 unmerged agent commits were reviewed on 2026-10-04 (tip `bb97c87`), one nine-point row each: 3 PASS, 149 FAIL** (`REVIEW_P13.md`, `REVIEW_P14.md`). Phases 13 and 14: NOT APPROVED. Nothing merged into `main`. The agent's work list is **Round 10** in `REVIEW_REAUDIT_P1_P11.md`; new defects Q78–Q90 in `QA_DEFECTS.md`. Review copy for CI: draft PR #237 (`review/agent-tip-ci`, never merge). Native on the agent code: `review/maestro-agent-tip` (strict, workarounds off) and `review/maestro-agent-tip-q58` (only Q58 on).
 
 **Owner**
 - Reports go to the owner in **Arabic** (Egyptian-friendly, plain).
@@ -180,6 +180,8 @@ All 13 jobs green: 6 patient shards and 7 provider types, every one signed in.
 - Provider depth is limited by the crawler (2 levels, 45 screens). Deeper provider flows are covered by the API journeys.
 
 ## 8. Reviewer next steps (in order)
+
+**Status 2026-10-04:** step 0 done for `bb97c87` (verdict above). Next: wait for the agent's Round 10 pushes, then repeat step 0 on every new commit (nine checks, gate, CI copy, live gate, native strict). Only when Round 10 is closed: merge to `main`, sync, tell the owner it is ready for staging.
 
 0. **Review the 152 unmerged agent commits first** (`git log origin/main..origin/fix/audit-2026-09 --no-merges`):
    - run the full `AGENTS.md` gate on the branch tip, and open a draft PR from a `review/*` copy so the whole CI runs;
