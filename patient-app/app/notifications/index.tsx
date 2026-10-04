@@ -10,6 +10,7 @@ import { AppText, Card, IconButton } from '../../src/components/ui';
 import { apiFetch } from '../../src/utils/api';
 import { useRequestSignal } from '../../src/hooks/useRequestSignal';
 import { useOptimisticMutation } from '../../src/hooks/useOptimisticMutation';
+import { outbox } from '../../src/services/offline/outbox';
 import { translateBackendRoute } from '../../src/hooks/usePushNotifications';
 import { dateLocale } from '@/utils/dates';
 
@@ -127,9 +128,13 @@ export default function NotificationsScreen() {
     locale: 'ar',
   });
 
+  // 15.4: with no connection the action goes into the outbox and is replayed in
+  // order on reconnect — it is a safe action, so queuing it loses nothing.
   const markAllRead = async () => {
     await markAllReadMutation.run(() =>
-      apiFetch('/notifications/read-all', { method: 'POST' }).then(() => undefined),
+      outbox
+        .submit({ kind: 'mark-read', method: 'POST', endpoint: '/notifications/read-all' })
+        .then(() => undefined),
     );
   };
 
@@ -137,7 +142,11 @@ export default function NotificationsScreen() {
     if (!n.read) {
       markingIdRef.current = n.id;
       void markOneReadMutation.run(() =>
-        apiFetch(`/notifications/${n.id}/read`, { method: 'POST' }).then(() => undefined),
+        outbox.submit({
+          kind: 'mark-read',
+          method: 'POST',
+          endpoint: `/notifications/${n.id}/read`,
+        }).then(() => undefined),
       ).finally(() => {
         markingIdRef.current = null;
       });
