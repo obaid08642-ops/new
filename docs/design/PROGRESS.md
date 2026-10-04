@@ -7,7 +7,7 @@
 >
 > Sources: `DESIGN_HANDOFF_FINAL.md`, `SPEC_PRODUCT_DOCTOR_DETAIL.md`, `DEVICE_STANDARD.md`, `canvas/`. How the folder works: `README.md`.
 
-_Last updated: 2026-10-04 (owner decisions recorded; next step: tokens on `design/tokens`)._
+_Last updated: 2026-10-04 (tokens PR #259 open for review; next step: Readex Pro on the web)._
 
 ## Snapshot
 
@@ -15,7 +15,8 @@ _Last updated: 2026-10-04 (owner decisions recorded; next step: tokens on `desig
 |---|---|---|
 | Workflow, inventory, wiring report | **Done** ([#256](https://github.com/obaid08642-ops/new/pull/256)) | `PROGRESS.md`, `SCREEN_INVENTORY.md`, `WIRING_REPORT.md`, `screen-status.json`, `tools/design/screen-inventory.mjs` |
 | Design sources in the repo | **Done** ([#256](https://github.com/obaid08642-ops/new/pull/256)) | Handoff, spec, device standard and 40 boards in `canvas/` |
-| Foundation: tokens, font, shells, shared components, lint gates | Not started | See `WIRING_REPORT.md` §1 for the measured gaps |
+| Foundation: tokens | **In review** ([#259](https://github.com/obaid08642-ops/new/pull/259)) | Service tones and service map; 97 contrast checks pass |
+| Foundation: font, shells, shared components, lint gates | Not started | See `WIRING_REPORT.md` §1 for the measured gaps |
 | Screen batches 0–13 | Not started | 410 screens to design (104 more routes only redirect) |
 
 ### Screens per batch (from `SCREEN_INVENTORY.md`; redirect-only routes excluded)
@@ -49,16 +50,21 @@ _Last updated: 2026-10-04 (owner decisions recorded; next step: tokens on `desig
 
 ## In progress
 
-Nothing.
+- **Tokens, PR [#259](https://github.com/obaid08642-ops/new/pull/259)** (branch `design/tokens`), waiting for review.
+  - Adds `color.service.<tone>` for the 10 tones from `FIcon.dc.html`, stored as `fg`/`bg` `{light, dark}` plus `solid {from, to}`.
+  - Points `color.service.<service>` at the handoff service map, and adds 6 services.
+  - Owner decision: the light glyph of coral, mint, amber, peach and teal is darkened slightly to reach 4.5:1.
+  - Before/after swatch screenshots are in `docs/design/screenshots/tokens/` on that branch.
+  - Also fixes the check that was red on main: the `OtpModal.test.tsx` `#000000` stub now uses `#0B1B2B` (separate commit).
+  - Not covered by screenshots: screen-level shots, because this environment has no installed apps and no backend.
 
 ## Next (in this order)
 
 The foundation comes before any screen (DEVICE_STANDARD §4, handoff §3). Each step is its own PR on its own `design/<step>` branch from `main`, with screenshots before and after.
 
-1. **Tokens** (`packages/design-tokens`):
-   - Add `color.service.<tone>.{fg,bg,fgDark,bgDark}` for the 10 tones, copied exactly from `canvas/FIcon.dc.html`.
-   - Check the canvas, card, text, action and coral values against handoff §1.
-   - Regenerate the token outputs with the repo's existing sync scripts (`tools/design/sync-token-css.mjs`, `sync-client-tokens.mjs`).
+1. ~~**Tokens**~~: PR #259 is in review.
+   - Canvas, card, text, secondary text, action and coral already match handoff §1.
+   - The primary-button gradient (`#E8384A → #D42A38`) and the segmented track (`#EAEAEF`) are added with their components (step 5), where the dark boards define them.
 2. **Font on patient-web:** replace Tajawal (`app/[locale]/layout.tsx`, `globals.css`) with Readex Pro, self-hosted through `next/font/local`, with Noto fallbacks for ur/hi/bn. patient-app already loads Readex Pro.
 3. **Native shells** (`packages/ui-native`): `Screen`, `AppHeader`, `StickyFooter`, `TabBar`, built on `react-native-safe-area-context`, as in DEVICE_STANDARD §1.
 4. **Web shells** (`packages/ui`): `AppShell` (using `100dvh`) and `StickyFooter`, as in DEVICE_STANDARD §1.
@@ -97,4 +103,5 @@ The foundation comes before any screen (DEVICE_STANDARD §4, handoff §3). Each 
 | Date | Branch | What happened | Tip |
 |---|---|---|---|
 | 2026-10-04 | `claude/progress-md-workflow-vqhj8x` | Set up the workflow, imported the design sources, and generated the inventory and the wiring report. | PR [#256](https://github.com/obaid08642-ops/new/pull/256) |
+| 2026-10-04 | `design/tokens` | Tokens step: service tones and service map, contrast pairs, regenerated outputs, before/after swatches. | PR [#259](https://github.com/obaid08642-ops/new/pull/259), tip `1a5a783` |
 | 2026-10-04 | `claude/progress-md-workflow-vqhj8x` | Recorded the owner decisions (branches, one call product, doctor fields, screens without a board, endpoints to hide). Imported the updated `DoctorFull` board. | PR [#256](https://github.com/obaid08642-ops/new/pull/256) |

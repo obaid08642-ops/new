@@ -826,8 +826,9 @@ function foundation() {
   } catch {
     svc = null;
   }
-  const toneOk = svc ? tones.filter((t) => svc[t] && ['fg', 'bg', 'fgDark', 'bgDark'].every((k) => svc[t][k])) : [];
-  rows.push(['Tokens: `color.service.<tone>.{fg,bg,fgDark,bgDark}` for 10 tones (§1 Icons)', toneOk.length === 10 ? 'DONE' : 'TODO', svc ? `${toneOk.length}/10 tones complete` : '`color.service` absent from packages/design-tokens/tokens.json']);
+  // the handoff's {fg,bg,fgDark,bgDark} is stored in this repo's {light,dark} form: fg/bg = { light, dark }
+  const toneOk = svc ? tones.filter((t) => svc[t] && ['fg', 'bg'].every((k) => svc[t][k]?.light && svc[t][k]?.dark)) : [];
+  rows.push(['Tokens: `color.service.<tone>.{fg,bg}` ({light,dark}) for 10 tones (§1 Icons)', toneOk.length === 10 ? 'DONE' : 'TODO', svc ? `${toneOk.length}/10 tones complete` : '`color.service` absent from packages/design-tokens/tokens.json']);
   const readexWeb = grepRepo(['patient-web/app'], /Readex/);
   const tajawal = grepRepo(['patient-web/app'], /Tajawal/);
   rows.push(['Font: Readex Pro self-hosted on patient-web (`next/font/local`)', readexWeb.length && !tajawal.length ? 'DONE' : 'TODO', `Readex refs: ${readexWeb.length}; Tajawal refs still in patient-web/app: ${tajawal.length}${tajawal.length ? ' (' + tajawal.slice(0, 3).join(', ') + ')' : ''}`]);
