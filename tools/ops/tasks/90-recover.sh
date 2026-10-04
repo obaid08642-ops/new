@@ -17,6 +17,16 @@ if [ -z "$st" ]; then
 elif [ "$st" != running ]; then
   echo "deploy: backend $st, starting it"; $DK start nabdah-backend >/dev/null
 fi
+# The rotate rollback recreated the backend from the :latest tag, which (before the pin step ran)
+# pointed at the staging build, not the image production was running (ad589b9f26e6). Put it back.
+PROD=ad589b9f26e6
+cur=$($DK inspect -f '{{.Image}}' nabdah-backend 2>/dev/null | cut -c8-19)
+echo "deploy: backend image now=$cur expected=$PROD"
+if [ -n "$cur" ] && [ "$cur" != "$PROD" ] && $DK image inspect $PROD >/dev/null 2>&1; then
+  $DK tag $PROD nabdah-prod-backend:latest
+  cd $D && $DK compose -f docker-compose.production.yml --env-file .env.production up -d --no-deps --no-build --force-recreate backend 2>&1 | mask | tail -3
+  echo "deploy: backend recreated from the production image $PROD"
+fi
 for i in $(seq 1 36); do h=$($DK inspect -f '{{.State.Health.Status}}' nabdah-backend 2>/dev/null); [ "$h" = healthy ] && break; sleep 5; done
 echo "deploy: backend health=$h"
 $NGX nginx -t >/dev/null 2>&1 && $NGX nginx -s reload && echo "deploy: nginx reloaded"
