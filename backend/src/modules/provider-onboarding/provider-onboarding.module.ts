@@ -134,10 +134,38 @@ export class ProviderOnboardingService {
     const lat = Number(body?.location?.lat), lng = Number(body?.location?.lng);
     if (Number.isFinite(lat) && Number.isFinite(lng) && (lat !== 0 || lng !== 0)) (profile as any).geo = { lat, lng };
     if (!(profile as any).provider_type) (profile as any).provider_type = profile.type;
+    if (Array.isArray(body?.documents) && body.documents.length) await this.recordDocuments(user, body.documents);
     this.snapshotStep(profile, 'step2', body);
     profile.onboarding_step = Math.max(profile.onboarding_step || 0, 2);
     await profile.save();
     return profile.toObject();
+  }
+
+  /**
+   * Q79: approval requires one typed provider_documents row per required
+   * doc_type (missingRequiredDocuments). Registration records them here from
+   * files this account uploaded. A pending or needs-replacement row of the same
+   * type is replaced; a reviewed one is kept and a new pending row is added.
+   */
+  private async recordDocuments(user: any, documents: Array<{ doc_type: string; file_id: string }>) {
+    const db: any = (this.providerModel as any).db;
+    const files = db.collection('storage_objects');
+    const rows = db.collection('provider_documents');
+    for (const d of documents) {
+      const file: any = await files.findOne({ id: { $eq: String(d.file_id) } }, { projection: { owner_account_id: 1 } });
+      if (!file) throw new BadRequestException(`document_file_not_found: ${d.doc_type}`);
+      if (String(file.owner_account_id) !== String(user.id)) throw new ForbiddenException('document_file_not_yours');
+    }
+    for (const d of documents) {
+      const now = new Date();
+      const replaced = await rows.updateOne(
+        { account_id: user.id, doc_type: d.doc_type, review_status: { $in: ['pending', 'needs_replacement'] } },
+        { $set: { storage_object_id: String(d.file_id), review_status: 'pending', updatedAt: now }, $unset: { reviewer_id: '', reviewer_note: '', reviewed_at: '' } },
+      );
+      if (!replaced.matchedCount) {
+        await rows.insertOne({ id: uuidv4(), account_id: user.id, doc_type: d.doc_type, storage_object_id: String(d.file_id), review_status: 'pending', createdAt: now, updatedAt: now });
+      }
+    }
   }
 
   /** Step 3: type-specific capabilities. */
