@@ -228,7 +228,7 @@ export default function PriceOverrideAuditPage() {
                         </span>
                       </td>
                       <td className="p-4 text-xs text-slate-600">
-                        <div>{row.reason || 'تحديث دوري من المورد'}</div>
+                        <div>{row.reason || '—'}</div>
                         <div className="text-slate-400 mt-0.5">{row.changed_by || 'النظام التلقائي'}</div>
                       </td>
                     </tr>
