@@ -176,8 +176,16 @@ export class LiveKitService {
     if (!appt) throw new NotFoundException('Appointment not found');
     // Dead appointments can never start a call (P0-14): unify both video
     // contracts on live states. The narrow token path already rejects these.
-    if (['CANCELLED', 'COMPLETED', 'RESCHEDULED', 'NO_SHOW'].includes(String(appt.status))) {
+    // R11 §5: only a live appointment (not PENDING, not dead) can start a call,
+    // and only from 15 minutes before its slot until 15 minutes after it ends.
+    if (!['CONFIRMED', 'CHECKED_IN', 'IN_PROGRESS'].includes(String(appt.status))) {
       throw new BadRequestException('appointment_not_active');
+    }
+    const slotStart = new Date(appt.slot_start).getTime();
+    const slotEnd = appt.slot_end ? new Date(appt.slot_end).getTime() : slotStart + Number(appt.duration_minutes || 30) * 60_000;
+    const now = Date.now();
+    if (!Number.isFinite(slotStart) || now < slotStart - 15 * 60_000 || now > slotEnd + 15 * 60_000) {
+      throw new BadRequestException('call_outside_appointment_window');
     }
     const patientId = String(appt.patient_id || appt.user_id || '');
     // doctor_user_id is the account id doctors authenticate with; profile ids
@@ -189,6 +197,14 @@ export class LiveKitService {
     const resolvedCallee = calleeId || ([patientId, providerId].find(id => id !== String(callerId)) || '');
     if (!resolvedCallee || ![patientId, providerId].includes(String(resolvedCallee)) || String(resolvedCallee) === String(callerId)) {
       throw new ForbiddenException('Callee is not an appointment participant');
+    }
+    // A repeated initiate (double tap, retry) reuses the open session: a new
+    // token for the same room, and no second incoming-call push.
+    const open: any = await this.callSessions.findOne({
+      appointment_id: bookingId, status: 'INITIATED', createdAt: { $gte: new Date(now - 2 * 60_000) },
+    } as any);
+    if (open?.room_name) {
+      return { room_name: open.room_name, token: await this.createToken(open.room_name, callerName), call_type: open.call_type || callType || 'video', session_id: open.id };
     }
     const roomName = `room-${randomUUID()}`;
     const token = await this.createToken(roomName, callerName);
