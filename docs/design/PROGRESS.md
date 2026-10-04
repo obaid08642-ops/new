@@ -13,8 +13,8 @@ _Last updated: 2026-10-04, by the session that set up this workflow (branch `cla
 
 | Area | State | Notes |
 |---|---|---|
-| Workflow, inventory, wiring report | **Done** (this PR) | `PROGRESS.md`, `SCREEN_INVENTORY.md`, `WIRING_REPORT.md`, `screen-status.json`, `tools/design/screen-inventory.mjs` |
-| Design sources in the repo | **Done** (this PR) | Handoff, spec, device standard and 40 boards in `canvas/` |
+| Workflow, inventory, wiring report | **Done** ([#256](https://github.com/obaid08642-ops/new/pull/256)) | `PROGRESS.md`, `SCREEN_INVENTORY.md`, `WIRING_REPORT.md`, `screen-status.json`, `tools/design/screen-inventory.mjs` |
+| Design sources in the repo | **Done** ([#256](https://github.com/obaid08642-ops/new/pull/256)) | Handoff, spec, device standard and 40 boards in `canvas/` |
 | Foundation: tokens, font, shells, shared components, lint gates | Not started | See `WIRING_REPORT.md` §1 for the measured gaps |
 | Screen batches 0–13 | Not started | 410 screens to design (104 more routes only redirect) |
 
@@ -39,7 +39,7 @@ _Last updated: 2026-10-04, by the session that set up this workflow (branch `cla
 
 ## Done
 
-- **Workflow and inventory** (PR link added once the PR is open) (branch `claude/progress-md-workflow-vqhj8x`)
+- **Workflow and inventory** — PR [#256](https://github.com/obaid08642-ops/new/pull/256) (branch `claude/progress-md-workflow-vqhj8x`)
   - Added the design sources to `docs/design/`: `DESIGN_HANDOFF_FINAL.md`, `SPEC_PRODUCT_DOCTOR_DETAIL.md`, `DEVICE_STANDARD.md`, and the 40 boards from `nabd-design-boards.zip` in `canvas/`.
   - Added `tools/design/screen-inventory.mjs`, which generates three files:
     - `SCREEN_INVENTORY.md`: 514 routes (244 app, 270 web), each with a template, closest board, batch and endpoints.
@@ -93,4 +93,4 @@ The foundation comes before any screen (DEVICE_STANDARD §4, handoff §3). Plan 
 
 | Date | Branch | What happened | Tip |
 |---|---|---|---|
-| 2026-10-04 | `claude/progress-md-workflow-vqhj8x` | Set up the workflow, imported the design sources, and generated the inventory and the wiring report. | see the PR |
+| 2026-10-04 | `claude/progress-md-workflow-vqhj8x` | Set up the workflow, imported the design sources, and generated the inventory and the wiring report. | PR [#256](https://github.com/obaid08642-ops/new/pull/256) |
