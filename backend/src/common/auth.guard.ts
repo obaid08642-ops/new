@@ -117,10 +117,26 @@ export async function authenticateSocketToken(guard: { canActivate(ctx: Executio
  * approved. Token expiry is not a revoke (the socket was authenticated at
  * connect), and a lookup error keeps the socket (unknown is not revoked).
  */
-export async function socketSessionRevoked(conn: { collection(name: string): any }, payload: any): Promise<boolean> {
+export async function socketSessionRevoked(conn: { collection(name: string): any }, payload: any, opts: { adminDeviceHash?: string } = {}): Promise<boolean> {
   const id = payload?.id || payload?.sub;
   if (!id) return false;
   try {
+    // Impersonation tokens carry no tv: the durable session decides (as
+    // ImpersonationSessionService.validate does on every request).
+    if (payload?.scope === 'impersonation') {
+      const sid = String(payload?.impersonation_session_id || '');
+      if (!sid) return true;
+      const session: any = await conn.collection('impersonation_sessions').findOne({ id: sid }, { projection: { status: 1, expiresAt: 1, impersonator_id: 1 } });
+      if (!session || session.status !== 'active') return true;
+      if (new Date(session.expiresAt).getTime() <= Date.now()) return true;
+      const actor: any = await conn.collection('users').findOne({ id: String(session.impersonator_id) }, { projection: { active: 1, suspended: 1 } });
+      if (!actor || actor.active === false || actor.suspended === true) return true;
+    }
+    // A staff socket stays tied to the enrolled device it connected from.
+    if (isPlatformStaffRole(payload?.role) && opts.adminDeviceHash) {
+      const dev: any = await conn.collection('admin_devices').findOne({ user_id: String(id), device_hash: opts.adminDeviceHash }, { projection: { revoked: 1 } });
+      if (!dev || dev.revoked === true) return true;
+    }
     if (payload?.scope === 'provider') {
       const acc: any = await conn.collection('provider_accounts').findOne({ id: String(id) }, { projection: { token_version: 1, status: 1 } });
       if (!acc) return true;
@@ -142,7 +158,7 @@ export async function revalidateOpenSockets(conn: { collection(name: string): an
   for (const socket of sockets) {
     const user = socket?.data?.user;
     if (!user) continue;
-    if (await socketSessionRevoked(conn, user)) { socket.disconnect(true); dropped += 1; }
+    if (await socketSessionRevoked(conn, user, { adminDeviceHash: socket?.data?.adminDeviceHash })) { socket.disconnect(true); dropped += 1; }
   }
   return dropped;
 }

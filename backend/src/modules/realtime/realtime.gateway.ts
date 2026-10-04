@@ -187,6 +187,9 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
       // R11 §5: refresh / QR / chat_rt / other non-access tokens never open a socket.
       if (!payload || !isAccessTokenPayload(payload)) { client.disconnect(); return; }
       client.data.user = payload;
+      // Staff sockets are re-checked against the enrolled device they connected from.
+      const devId = String((client.handshake.headers as Record<string, unknown>)?.['x-admin-device'] || '');
+      if (devId) client.data.adminDeviceHash = require('crypto').createHash('sha256').update(devId).digest('hex');
       client.data.connectedAt = Date.now();
 
       // Join personal and role rooms

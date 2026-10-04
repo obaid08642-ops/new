@@ -46,7 +46,7 @@ describe('socket auth fails closed and is re-checked (R11 second review)', () =>
     const store: Record<string, any> = {};
     const conn = { collection: (name: string) => ({ findOne: async (q: any) => {
       if (store.__throw) throw new Error('mongo blip');
-      return store[`${name}:${q.id}`] ?? null;
+      return store[`${name}:${q.id ?? q.user_id}`] ?? null;
     } }) };
     const build = () => {
       const [j, r, , c, l] = realtimeDeps();
@@ -86,5 +86,50 @@ describe('socket auth fails closed and is re-checked (R11 second review)', () =>
       expect(await gw.revalidateSockets()).toBe(0);
       expect(s1.disconnect).not.toHaveBeenCalled();
     });
+
+    // Fourth review: impersonation tokens carry no tv; the sweep must read the
+    // durable session (and the impersonator), and a staff socket its device.
+    it('drops an impersonation socket whose session ended or expired, or whose impersonator was disabled', async () => {
+      store['users:pat-1'] = { token_version: 0 };
+      store['users:agent-1'] = { active: true, role: 'support_agent' };
+      store['impersonation_sessions:s-ended'] = { status: 'ended', expiresAt: new Date(Date.now() + 60_000), impersonator_id: 'agent-1' };
+      store['impersonation_sessions:s-old'] = { status: 'active', expiresAt: new Date(Date.now() - 1000), impersonator_id: 'agent-1' };
+      store['impersonation_sessions:s-live'] = { status: 'active', expiresAt: new Date(Date.now() + 60_000), impersonator_id: 'agent-1' };
+      const imp = (sid: string) => sock(sid, { id: 'pat-1', role: 'patient', scope: 'impersonation', impersonation_session_id: sid });
+      const ended = imp('s-ended'); const old = imp('s-old'); const live = imp('s-live');
+      const gw = build();
+      (gw as any).server = { sockets: new Map([['a', ended], ['b', old], ['c', live]]) };
+      expect(await gw.revalidateSockets()).toBe(2);
+      expect(live.disconnect).not.toHaveBeenCalled();
+      store['users:agent-1'] = { active: false };
+      expect(await gw.revalidateSockets()).toBe(3);
+    });
+
+    it('drops a staff socket whose enrolled device was revoked', async () => {
+      store['users:adm'] = { token_version: 0 };
+      store['admin_devices:adm'] = { revoked: true };
+      const s1 = { id: 'a', data: { user: { id: 'adm', role: 'admin', tv: 0 }, adminDeviceHash: 'h1' }, disconnect: jest.fn() };
+      const gw = build();
+      (gw as any).server = { sockets: new Map([['a', s1]]) };
+      expect(await gw.revalidateSockets()).toBe(1);
+    });
+
+    it('two sweeps never run at once', async () => {
+      store['users:u1'] = { token_version: 0 };
+      const gw = build();
+      (gw as any).server = { sockets: new Map([['a', sock('a', { id: 'u1', role: 'patient', tv: 0 })]]) };
+      const first = gw.revalidateSockets();
+      expect(await gw.revalidateSockets()).toBe(0);
+      await first;
+      expect((gw as any).sweeping).toBe(false);
+    });
+  });
+
+  it('ChatGateway records the authenticated user on the socket for the re-check', async () => {
+    const guard = { canActivate: jest.fn(async (ctx: any) => { ctx.switchToHttp().getRequest().user = { id: 'u7', role: 'patient', tv: 0 }; return true; }) };
+    const gw = new ChatGateway({} as never, guard as never);
+    const s = { id: 'c1', handshake: { auth: { token: jwt.sign({ sub: 'u7', id: 'u7', role: 'patient' }, secret) }, headers: {} }, join: jest.fn(), disconnect: jest.fn(), rooms: new Set<string>() } as any;
+    await gw.handleConnection(s);
+    expect(s.data.user).toEqual(expect.objectContaining({ id: 'u7', tv: 0 }));
   });
 });
