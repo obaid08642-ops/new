@@ -241,6 +241,10 @@ export class LiveKitService {
         // (app reopened mid-call); the appointment must still be live.
         if (String(session.status) === 'ACTIVE') {
           if (!['CONFIRMED', 'CHECKED_IN', 'IN_PROGRESS'].includes(String(appt.status))) throw new BadRequestException('appointment_not_active');
+          // An overrunning call, not a stale session: at most 2 hours past the slot end.
+          const slotStart = new Date(appt.slot_start).getTime();
+          const slotEnd = appt.slot_end ? new Date(appt.slot_end).getTime() : slotStart + Number(appt.duration_minutes || 30) * 60_000;
+          if (!Number.isFinite(slotEnd) || Date.now() > slotEnd + 2 * 3600_000) throw new BadRequestException('call_outside_appointment_window');
         } else {
           this.assertLiveAppointmentWindow(appt);
         }

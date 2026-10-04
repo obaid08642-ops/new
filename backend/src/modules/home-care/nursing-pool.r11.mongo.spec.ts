@@ -100,4 +100,13 @@ describe('nursing pool claim and decline (R11 §5 lead 9)', () => {
     (bookings as any).findOne = orig;
     expect(((await bookings.findOne({ id: 'req-1' }).lean()) as any).provider_id).toBeNull();
   });
+
+  it('a booking assigned to the nurse is re-checked on the stored row before accepting', async () => {
+    await bookings.updateOne({ id: 'req-1' }, { $set: { provider_id: 'nurse-A', state: 'PROVIDER_ASSIGNED', payment_status: 'pending' } });
+    const orig = bookings.findOne.bind(bookings);
+    (bookings as any).findOne = (q: any, p?: any) => (p ? { lean: async () => ({ provider_id: 'nurse-A', state: 'PROVIDER_ASSIGNED', payment_method: 'card', payment_status: 'paid' }) } : orig(q));
+    await expect(controller.respond(nurseA, 'req-1', { accept: true } as never)).rejects.toThrow('card_payment_not_completed');
+    (bookings as any).findOne = orig;
+    expect(((await bookings.findOne({ id: 'req-1' }).lean()) as any).state).toBe('PROVIDER_ASSIGNED');
+  });
 });

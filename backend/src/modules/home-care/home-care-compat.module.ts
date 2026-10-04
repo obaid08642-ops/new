@@ -24,6 +24,9 @@ const ACTIVE_STATES = ['NEW_REQUEST', 'PROVIDER_ASSIGNED', 'CONFIRMED', 'ACCEPTE
 
 const NURSE_TYPES = ['home_care', 'nursing', 'nurse'];
 
+/** Accepting a home visit: a card visit must be paid; insurance goes through the coverage decision. */
+const PAYABLE = { $nor: [{ payment_method: 'insurance' }, { payment_method: 'card', payment_status: { $ne: 'paid' } }] };
+
 @UseInterceptors(ProviderPrivacyInterceptor)
 @Controller('home-care')
 @UseGuards(JwtAuthGuard)
@@ -187,11 +190,13 @@ export class HomeCareCompatController {
           return { ok: true, id, state: b.state, declined: true };
         }
         // The claim re-checks the payment rule, so a booking that changed after the read is not taken.
-        const payable = { $nor: [{ payment_method: 'insurance' }, { payment_method: 'card', payment_status: { $ne: 'paid' } }] };
-        const claimed = await this.bookings.updateOne({ ...open, ...payable }, { $set: { provider_id: u.id } });
+        const claimed = await this.bookings.updateOne({ ...open, ...PAYABLE }, { $set: { provider_id: u.id } });
         if (!claimed.modifiedCount) throw new ConflictException('booking_already_claimed');
       } else if (accept && b.provider_id !== u.id) {
         throw new ConflictException('booking_already_claimed');
+      } else if (accept && !(await this.bookings.countDocuments({ id: { $eq: id }, provider_id: u.id, ...PAYABLE }))) {
+        // A booking assigned to this nurse: re-check the payment rule on the stored row too.
+        throw new BadRequestException('card_payment_not_completed');
       }
     }
     // Accepting confirms the visit (as provider-jobs does): PROVIDER_ASSIGNED is

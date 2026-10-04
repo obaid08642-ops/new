@@ -79,9 +79,11 @@ describe('calls/initiate only around a live appointment (R11 §5)', () => {
     });
 
     it('an ACTIVE call can be rejoined after the window (app reopened mid-call), a new join cannot', async () => {
-      const late = { ...live, slot_start: minutes(-180), slot_end: minutes(-150) };
+      const late = { ...live, slot_start: minutes(-100), slot_end: minutes(-70) }; // 70 min past the end: outside the 15-min window, inside 2 h
       await expect(joinSvc({ status: 'ACTIVE' }, late).joinCall('call_1', 'pat-1', 'P')).resolves.toEqual(expect.objectContaining({ room_name: 'room-1' }));
       await expect(joinSvc({ status: 'ACTIVE' }, { ...late, status: 'CANCELLED' }).joinCall('call_1', 'pat-1', 'P')).rejects.toThrow('appointment_not_active');
+      // A stale ACTIVE session days later is refused (fourth review).
+      await expect(joinSvc({ status: 'ACTIVE' }, { ...live, slot_start: minutes(-3 * 24 * 60), slot_end: minutes(-3 * 24 * 60 + 30) }).joinCall('call_1', 'pat-1', 'P')).rejects.toThrow('call_outside_appointment_window');
     });
 
     it('refuses outside the appointment window', async () => {

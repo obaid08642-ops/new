@@ -99,14 +99,25 @@ describe('RefundService.request is bound to a real, owned, paid booking (Q96)', 
     await db.collection('labbookings').deleteMany({});
   });
 
-  // Third review: an insured lab child stores the full price in `total`, but
-  // the patient paid only the copay; refunding `total` paid back more.
-  it('an insured diagnostics child refunds the copay the patient paid, not the full price', async () => {
+  // Fourth review: the diagnostics parent charges full child prices whatever
+  // the payment method, so an insured child paid that way refunds its price;
+  // a copay paid on the insurance request is refundable for that amount.
+  it('an insured child paid through the diagnostics parent refunds its own price', async () => {
     const db = conn.db!;
-    await db.collection('labbookings').insertOne({ id: 'lab-3', patient_id: 'pat-A', total: 200, total_price: 0, payment_method: 'insurance', insurance_status: 'approved', insurance_copay: 40, payment_status: 'paid', transaction_id: 'tx-diag3', scheduled_date: inHours(48) });
-    await db.collection('transactions').insertOne({ id: 'tx-diag3', booking_kind: 'diagnostics', booking_id: 'diag-order-3', status: 'paid', amount: 90, gateway_payment_id: 'pay_diag3' });
+    await db.collection('labbookings').insertOne({ id: 'lab-3', patient_id: 'pat-A', total: 200, total_price: 0, payment_method: 'insurance', insurance_copay: 40, payment_status: 'paid', transaction_id: 'tx-diag3', scheduled_date: inHours(48) });
+    await db.collection('transactions').insertOne({ id: 'tx-diag3', booking_kind: 'diagnostics', booking_id: 'diag-order-3', status: 'paid', amount: 200, gateway_payment_id: 'pay_diag3' });
     const r = await service.request({ id: 'pat-A' }, { booking_kind: 'lab', booking_id: 'lab-3', reason: 'cannot attend' });
+    expect(r.amount_paid).toBe(200);
+    await db.collection('labbookings').deleteMany({});
+  });
+
+  it('a copay paid on the insurance request is refundable for the amount paid', async () => {
+    const db = conn.db!;
+    await db.collection('labbookings').insertOne({ id: 'lab-4', patient_id: 'pat-A', total: 200, payment_method: 'insurance', insurance_status: 'approved', insurance_copay: 40, insurance_request_id: 'ir-4', scheduled_date: inHours(48) });
+    await db.collection('transactions').insertOne({ id: 'tx-copay4', booking_kind: 'insurance', booking_id: 'ir-4', status: 'paid', amount: 40, gateway_payment_id: 'pay_copay4' });
+    const r = await service.request({ id: 'pat-A' }, { booking_kind: 'lab', booking_id: 'lab-4', reason: 'cannot attend' });
     expect(r.amount_paid).toBe(40);
+    expect(r.moyasar_payment_id).toBe('pay_copay4');
     await db.collection('labbookings').deleteMany({});
   });
 });

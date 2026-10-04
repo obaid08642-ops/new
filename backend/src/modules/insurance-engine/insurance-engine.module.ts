@@ -894,15 +894,21 @@ export class RefundService {
       ? await this.conn.collection('transactions').findOne({ id: { $eq: String(booking.transaction_id) }, status: 'paid' } as any)
       : null;
     // LabBooking keeps its price in `total` and defaults `total_price` to 0;
-    // radiology sets total_price. Take the first positive value.
-    // An insured child: the patient paid only the copay (insurance_copay), not the full price.
-    const insured = String(booking.payment_method || '') === 'insurance';
-    const childPrice = insured
-      ? Number(booking.insurance_copay ?? booking.copay_amount ?? 0)
-      : [booking.total_price, booking.total, booking.price].map(Number).find((v) => v > 0) ?? 0;
-    const paid = parentTx ? Math.min(childPrice, Number(parentTx.amount || 0)) : Number(tx?.amount ?? mp?.amount ?? 0);
+    // radiology sets total_price. Take the first positive value. The
+    // diagnostics parent charges every child's full price, whatever the
+    // payment method, so the child's full price is what was paid for it.
+    const childPrice = [booking.total_price, booking.total, booking.price].map(Number).find((v) => v > 0) ?? 0;
+    // An insured booking's copay is paid on its insurance request
+    // (booking_kind 'insurance', booking_id = insurance_request_id), never on the booking.
+    const copayTx: any = (!tx && !mp && !parentTx && booking.insurance_request_id)
+      ? await this.conn.collection('transactions').findOne(
+        { booking_kind: 'insurance', booking_id: { $eq: String(booking.insurance_request_id) }, status: 'paid' } as any,
+        { sort: { createdAt: -1 } } as any,
+      )
+      : null;
+    const paid = parentTx ? Math.min(childPrice, Number(parentTx.amount || 0)) : Number(tx?.amount ?? mp?.amount ?? copayTx?.amount ?? 0);
     if (!(paid > 0)) throw new BadRequestException('booking_not_paid');
-    const payTx = tx || parentTx;
+    const payTx = tx || parentTx || copayTx;
     const paymentId = payTx?.gateway_payment_id || payTx?.moyasar_payment_id || payTx?.payment_id || mp?.moyasar_id || undefined;
 
     const dup = await this.refunds.findOne({ booking_id: { $eq: bookingId }, patient_id: { $eq: String(user.id) }, state: { $ne: 'REJECTED' } });
