@@ -19,7 +19,8 @@ import { UserRole } from '../../common/enums';
 import { ProviderPrivacyInterceptor } from '../../common/provider-privacy';
 import { CreateBookingDto, RespondDto, AssignDto, CheckInDto, GpsDto, VisitReportDto, CreateCarePlanDto, SetAvailabilityDto, InventoryRequestDto, PostMessageDto, PostLegacyDto, ProviderSendDto } from './home-care-compat.dto';
 
-const ACTIVE_STATES = ['NEW_REQUEST', 'PROVIDER_ASSIGNED', 'ACCEPTED', 'EN_ROUTE', 'ARRIVED', 'CARE_STARTED'];
+// CONFIRMED / IN_TRANSIT / CARE_IN_PROGRESS: an accepted visit (respond -> CONFIRMED) stays in the dispatch list.
+const ACTIVE_STATES = ['NEW_REQUEST', 'PROVIDER_ASSIGNED', 'CONFIRMED', 'ACCEPTED', 'IN_TRANSIT', 'EN_ROUTE', 'ARRIVED', 'CARE_STARTED', 'CARE_IN_PROGRESS'];
 
 const NURSE_TYPES = ['home_care', 'nursing', 'nurse'];
 
@@ -148,7 +149,7 @@ export class HomeCareCompatController {
       ARRIVED: ['CONFIRMED', 'IN_TRANSIT', 'PROVIDER_ASSIGNED', 'ACCEPTED', 'EN_ROUTE'],
       CARE_IN_PROGRESS: ['ARRIVED'],
       COMPLETED: ['CARE_IN_PROGRESS', 'ARRIVED'],
-      CANCELLED: ['NEW_REQUEST', 'PROVIDER_ASSIGNED', 'ACCEPTED', 'EN_ROUTE', 'ARRIVED', 'CARE_IN_PROGRESS'],
+      CANCELLED: ['NEW_REQUEST', 'PROVIDER_ASSIGNED', 'CONFIRMED', 'ACCEPTED', 'IN_TRANSIT', 'EN_ROUTE', 'ARRIVED', 'CARE_IN_PROGRESS'],
     };
     if (!this.isAdmin(u) && allowed[newState] && !allowed[newState].includes(String(b.state))) {
       throw new BadRequestException('invalid_transition');
@@ -185,7 +186,9 @@ export class HomeCareCompatController {
           await this.bookings.updateOne(open, { $addToSet: { declined_by: u.id } });
           return { ok: true, id, state: b.state, declined: true };
         }
-        const claimed = await this.bookings.updateOne(open, { $set: { provider_id: u.id } });
+        // The claim re-checks the payment rule, so a booking that changed after the read is not taken.
+        const payable = { $nor: [{ payment_method: 'insurance' }, { payment_method: 'card', payment_status: { $ne: 'paid' } }] };
+        const claimed = await this.bookings.updateOne({ ...open, ...payable }, { $set: { provider_id: u.id } });
         if (!claimed.modifiedCount) throw new ConflictException('booking_already_claimed');
       } else if (accept && b.provider_id !== u.id) {
         throw new ConflictException('booking_already_claimed');

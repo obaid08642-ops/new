@@ -80,4 +80,24 @@ describe('nursing pool claim and decline (R11 §5 lead 9)', () => {
     expect(row.provider_id).toBeNull();
     expect(row.state).toBe('NEW_REQUEST');
   });
+
+  // Third review: a visit accepted here (CONFIRMED) left the dispatch "active"
+  // list and could no longer be cancelled by its nurse.
+  it('an accepted visit stays in the active list and its nurse can still cancel it', async () => {
+    await controller.respond(nurseA, 'req-1', { accept: true } as never);
+    const active = await controller.nursingQueue(nurseA, { status: 'active' });
+    expect(active.map((b: any) => b.id)).toContain('req-1');
+    await controller.respond(nurseA, 'req-1', { accept: false } as never);
+    expect(((await bookings.findOne({ id: 'req-1' }).lean()) as any).state).toBe('CANCELLED');
+  });
+
+  it('the claim itself re-checks payment (no window between the read and the claim)', async () => {
+    const orig = bookings.findOne.bind(bookings);
+    // The read sees a paid card booking; the stored row is unpaid by the time of the claim.
+    (bookings as any).findOne = (q: any, p?: any) => (p ? { lean: async () => ({ provider_id: null, state: 'NEW_REQUEST', payment_method: 'card', payment_status: 'paid' }) } : orig(q));
+    await bookings.updateOne({ id: 'req-1' }, { $set: { payment_status: 'pending' } });
+    await expect(controller.respond(nurseA, 'req-1', { accept: true } as never)).rejects.toBeInstanceOf(ConflictException);
+    (bookings as any).findOne = orig;
+    expect(((await bookings.findOne({ id: 'req-1' }).lean()) as any).provider_id).toBeNull();
+  });
 });
