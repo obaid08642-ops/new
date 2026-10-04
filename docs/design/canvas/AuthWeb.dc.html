@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>Login — desktop web</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Readex Pro',sans-serif}
+a{color:#C8202F}
+</style>
+</helmet>
+<div dir="rtl" style="width: 1440px; height: 900px; box-sizing: border-box; background: #F5F5F7; color: #0B1B2B; font-family: 'Readex Pro', sans-serif; display: grid; grid-template-columns: minmax(0, 1fr) 640px; padding: 16px; gap: 16px">
+<div style="display: flex; flex-direction: column; padding: 40px 96px; justify-content: space-between; gap: 22px">
+<div style="display: flex; align-items: center; gap: 10px">
+<svg width="34" height="34" viewBox="0 0 48 48" aria-hidden="true"><path d="M10 22a14 14 0 0 0 28 0" fill="none" stroke="#0B1B2B" stroke-width="5" stroke-linecap="round"></path><circle cx="24" cy="10" r="5" fill="#FF4B55"></circle></svg>
+<div style="font-size: 22px; font-weight: 700">نبض<span style="color: #FF4B55">+</span></div>
+</div>
+<div style="max-width: 440px; width: 100%; display: flex; flex-direction: column; gap: 22px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<h1 style="margin: 0; font-size: 36px; font-weight: 700">أهلًا بك في نبض<span style="color: #FF4B55">+</span></h1>
+<div style="font-size: 16px; color: #6E6E73">بالبريد الإلكتروني أو رقم الجوال وكلمة المرور</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<label style="font-size: 14px; font-weight: 500">البريد الإلكتروني أو رقم الجوال</label>
+<div style="height: 56px; border-radius: 18px; border: 2px solid #0B1B2B; background: #FFFFFF; box-shadow: 0 0 0 4px rgba(11,27,43,0.06); display: flex; align-items: center; padding: 0 16px">
+<input dir="ltr" placeholder="name@example.com" style="flex-grow: 1; border: 0; background: transparent; font-family: inherit; font-size: 16px; outline: none; text-align: right">
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; justify-content: space-between"><label style="font-size: 14px; font-weight: 500">كلمة المرور</label><a href="#" style="font-size: 13.5px; text-decoration: none; font-weight: 500">نسيت كلمة المرور؟</a></div>
+<div style="height: 56px; border-radius: 18px; border: 1px solid rgba(11,27,43,0.12); background: #FFFFFF; display: flex; align-items: center; padding: 0 16px">
+<input type="password" value="••••••••" style="flex-grow: 1; border: 0; background: transparent; font-family: inherit; font-size: 16px; outline: none">
+</div>
+</div>
+<button style="height: 56px; border-radius: 18px; border: 0; background: linear-gradient(180deg, #DE3644 0%, #D42A38 100%); box-shadow: 0 10px 22px rgba(212,42,56,0.28), inset 0 1px 0 rgba(255,255,255,0.25); color: #FFFFFF; font-family: inherit; font-size: 17px; font-weight: 700">تسجيل الدخول</button>
+<div style="display: flex; align-items: center; gap: 12px; color: #6E6E73; font-size: 13px"><div style="flex-grow: 1; height: 1px; background: #E5E5EA"></div>أو تابع عبر<div style="flex-grow: 1; height: 1px; background: #E5E5EA"></div></div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px">
+<button style="height: 52px; border-radius: 16px; border: 0; background: #0B1B2B; color: #FFFFFF; font-family: inherit; font-size: 14px; font-weight: 600">Apple</button>
+<button style="height: 52px; border-radius: 16px; border: 1px solid #E5E5EA; background: #FFFFFF; font-family: inherit; font-size: 14px; font-weight: 500; color: #0B1B2B">Google</button>
+<button style="height: 52px; border-radius: 16px; border: 1px solid #E5E5EA; background: #FFFFFF; font-family: inherit; font-size: 14px; font-weight: 500; color: #0B1B2B">X</button>
+<button style="height: 52px; border-radius: 16px; border: 1px solid #E5E5EA; background: #FFFFFF; font-family: inherit; font-size: 14px; font-weight: 500; color: #0B1B2B">Snapchat</button>
+</div>
+<div style="display: flex; justify-content: space-between; font-size: 14px"><span style="color: #6E6E73">ليس لديك حساب؟ <a href="#" style="text-decoration: none; font-weight: 600">إنشاء حساب</a></span><a href="#" style="color: #0B1B2B; text-decoration: none; font-weight: 500">المتابعة كضيف</a></div>
+<div style="font-size: 12.5px; color: #6E6E73">بالمتابعة أنت توافق على <a href="#">الشروط</a> و<a href="#">سياسة الخصوصية</a></div>
+</div>
+<div style="font-size: 13px; color: #6E6E73">العربية · English · اردو · हिन्दी · Filipino · বাংলা</div>
+</div>
+<div style="border-radius: 36px; background: linear-gradient(160deg, #FFFFFF 0%, #FFF3F4 55%, #FDEEE6 100%); border: 1px solid rgba(11,27,43,0.05); color: #0B1B2B; position: relative; overflow: hidden; padding: 56px; display: flex; flex-direction: column; justify-content: flex-end; gap: 22px">
+<div style="position: absolute; top: 96px; left: 90px; transform: rotate(-8deg); width: 148px; height: 148px; border-radius: 44px; background: linear-gradient(180deg, #FFFFFF 0%, #F7F8FA 100%); box-shadow: inset 0 1px 0 #FFFFFF, 0 24px 50px rgba(11,27,43,0.12); display: flex; align-items: center; justify-content: center"><dc-import name="PIcon" icon="pharmacy" look="bare" size="{{a}}" hint-size="96px,96px"></dc-import></div>
+<div style="position: absolute; top: 170px; right: 110px; transform: rotate(7deg); width: 168px; height: 168px; border-radius: 50px; background: linear-gradient(180deg, #FFFFFF 0%, #F7F8FA 100%); box-shadow: inset 0 1px 0 #FFFFFF, 0 24px 50px rgba(11,27,43,0.12); display: flex; align-items: center; justify-content: center"><dc-import name="PIcon" icon="consult" look="bare" size="{{b}}" hint-size="110px,110px"></dc-import></div>
+<div style="position: absolute; top: 330px; left: 170px; transform: rotate(-3deg); width: 132px; height: 132px; border-radius: 40px; background: linear-gradient(180deg, #FFFFFF 0%, #F7F8FA 100%); box-shadow: inset 0 1px 0 #FFFFFF, 0 24px 50px rgba(11,27,43,0.12); display: flex; align-items: center; justify-content: center"><dc-import name="PIcon" icon="lab" look="bare" size="{{c}}" hint-size="86px,86px"></dc-import></div>
+<div style="position: relative; font-size: 34px; line-height: 1.35; font-weight: 700">صحتك كلها<br>في مكان واحد</div>
+<div style="position: relative; display: flex; flex-direction: column; gap: 12px">
+<sc-for list="{{points}}" as="p" hint-placeholder-count="3">
+<div style="display: flex; align-items: center; gap: 12px; font-size: 15.5px"><span style="width: 28px; height: 28px; border-radius: 10px; background: #FFE3E5; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#D42A38" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l4 4 10-10"></path></svg></span>{{p}}</div>
+</sc-for>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+renderVals() {
+return { points: ['أدوية من صيدليات قريبة بأسعار حقيقية', 'أطباء بالفيديو أو في العيادة أو في البيت', 'تحاليل وأشعة وتمريض منزلي بتأمينك'], a: 96, b: 110, c: 86 };
+}
+}
+</script>
+</body>
+</html>

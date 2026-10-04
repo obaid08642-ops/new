@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>Language and theme</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Readex Pro',sans-serif}
+a{color:#C8202F}
+@keyframes ndRise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes ndDraw{from{stroke-dashoffset:100}to{stroke-dashoffset:0}}
+@keyframes ndPulse{0%{transform:scale(.6);opacity:.5}100%{transform:scale(1.8);opacity:0}}
+@keyframes ndBeat{0%,100%{transform:scale(1)}12%{transform:scale(1.3)}24%{transform:scale(1)}36%{transform:scale(1.15)}60%{transform:scale(1)}}
+@keyframes ndMove{0%{transform:translateX(0)}100%{transform:translateX(-60px)}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</helmet>
+<div dir="rtl" style="width: 390px; height: 1080px; box-sizing: border-box; position: relative; overflow: hidden; background: #F5F5F7; color: #0B1B2B; font-family: 'Readex Pro', sans-serif">
+<div style="padding: 54px 16px 40px; display: flex; flex-direction: column; gap: 16px">
+
+<div style="display: flex; align-items: center; gap: 10px"><button aria-label="رجوع" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid rgba(11,27,43,0.08); background: #FFFFFF; display: flex; align-items: center; justify-content: center; padding: 0; flex-shrink: 0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0B1B2B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></button><h1 style="margin: 0; flex-grow: 1; text-align: center; font-size: 19px; font-weight: 700">اللغة والمظهر</h1><div style="width: 44px; flex-shrink: 0"></div></div>
+<div style="display: flex; justify-content: space-between; align-items: baseline"><h2 style="margin: 0; font-size: 18px; font-weight: 700">المظهر</h2></div>
+<div role="radiogroup" style="display: flex; padding: 4px; border-radius: 16px; background: #EAEAEF">
+<sc-for list="{{theme}}" as="sg" hint-placeholder-count="3">
+<button role="radio" aria-checked="{{sg.on}}" onClick="{{sg.pick}}" style="flex-grow: 1; flex-basis: 0; height: 44px; padding: 0 14px; border-radius: 12px; border: 0; background: {{sg.bg}}; box-shadow: {{sg.shadow}}; color: #0B1B2B; font-family: inherit; font-size: 14.5px; font-weight: {{sg.w}}; white-space: nowrap; transition: background 200ms ease">{{sg.l}}</button>
+</sc-for>
+</div>
+<div style="font-size: 12.5px; color: #6E6E73">«تلقائي» يتبع إعداد جهازك.</div>
+<div style="display: flex; justify-content: space-between; align-items: baseline"><h2 style="margin: 0; font-size: 18px; font-weight: 700">اللغة</h2></div>
+<div style="border-radius: 24px; background: #FFFFFF; border: 1px solid rgba(11,27,43,0.06); overflow: hidden; display: flex; flex-direction: column"><sc-for list="{{langs}}" as="l" hint-placeholder-count="6">
+<button onClick="{{l.pick}}" style="height: 54px; border: 0; border-bottom: {{l.line}}; background: transparent; font-family: inherit; color: #0B1B2B; display: flex; align-items: center; gap: 10px; padding: 0 14px; text-align: start">
+<span style="flex-grow: 1; font-size: 15.5px; font-weight: {{l.w}}">{{l.n}}</span><span style="font-size: 12.5px; color: #6E6E73">{{l.e}}</span>
+<span style="width: 22px; height: 22px; border-radius: 11px; border: {{l.ring}}; box-sizing: border-box"></span></button>
+</sc-for></div>
+<div style="display: flex; justify-content: space-between; align-items: baseline"><h2 style="margin: 0; font-size: 18px; font-weight: 700">الإشعارات</h2></div>
+<div style="border-radius: 24px; background: #FFFFFF; border: 1px solid rgba(11,27,43,0.06); overflow: hidden"><div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-bottom: 1px solid #EFEFF2;"><span style="flex-grow: 1; font-size: 15px">حالة الطلبات والمواعيد</span><span role="switch" aria-checked="true" style="width: 50px; height: 30px; border-radius: 15px; background: #1F9D6E; padding: 3px; box-sizing: border-box; display: flex; justify-content: flex-start; flex-shrink: 0"><span style="width: 24px; height: 24px; border-radius: 12px; background: #FFFFFF; box-shadow: 0 2px 6px rgba(0,0,0,0.18)"></span></span></div><div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-bottom: 1px solid #EFEFF2;"><span style="flex-grow: 1; font-size: 15px">تذكير الأدوية</span><span role="switch" aria-checked="true" style="width: 50px; height: 30px; border-radius: 15px; background: #1F9D6E; padding: 3px; box-sizing: border-box; display: flex; justify-content: flex-start; flex-shrink: 0"><span style="width: 24px; height: 24px; border-radius: 12px; background: #FFFFFF; box-shadow: 0 2px 6px rgba(0,0,0,0.18)"></span></span></div><div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-bottom: 1px solid #EFEFF2;"><span style="flex-grow: 1; font-size: 15px">العروض</span><span role="switch" aria-checked="false" style="width: 50px; height: 30px; border-radius: 15px; background: #D8D8DE; padding: 3px; box-sizing: border-box; display: flex; justify-content: flex-end; flex-shrink: 0"><span style="width: 24px; height: 24px; border-radius: 12px; background: #FFFFFF; box-shadow: 0 2px 6px rgba(0,0,0,0.18)"></span></span></div><div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; "><span style="flex-grow: 1; font-size: 15px">النشرة الصحية</span><span role="switch" aria-checked="false" style="width: 50px; height: 30px; border-radius: 15px; background: #D8D8DE; padding: 3px; box-sizing: border-box; display: flex; justify-content: flex-end; flex-shrink: 0"><span style="width: 24px; height: 24px; border-radius: 12px; background: #FFFFFF; box-shadow: 0 2px 6px rgba(0,0,0,0.18)"></span></span></div></div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1080}}'>
+class Component extends DCLogic {
+constructor(props) { super(props); this.state = {}; }
+renderVals() {
+const s = this.state;
+const mkSeg = (labels, key) => labels.map((l, k) => ({ l, on: (this.state[key] || 0) === k, bg: (this.state[key] || 0) === k ? '#FFFFFF' : 'transparent', shadow: (this.state[key] || 0) === k ? '0 2px 6px rgba(11,27,43,0.10)' : 'none', w: (this.state[key] || 0) === k ? 700 : 500, pick: () => this.setState({ [key]: k }) }));
+const theme = mkSeg(['تلقائي','فاتح','غامق'], 'theme');
+const L = [['العربية','Arabic'],['English','English'],['اردو','Urdu'],['हिन्दी','Hindi'],['Filipino','Filipino'],['বাংলা','Bengali']];
+const langs = L.map((x, k) => ({ n: x[0], e: x[1], w: (s.lang||0) === k ? 700 : 400, ring: (s.lang||0) === k ? '7px solid #D42A38' : '2px solid #C7C7CC', line: k < 5 ? '1px solid #EFEFF2' : '0', pick: () => this.setState({ lang: k }) }));
+return { theme, langs };
+}
+}
+</script>
+</body>
+</html>

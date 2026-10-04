@@ -2,6 +2,12 @@
 
 Read this file fully at the start of EVERY session. These rules override any default behavior.
 
+## Design rebuild sessions (patient-app + patient-web redesign)
+For design-rebuild work (`docs/design/DESIGN_HANDOFF_FINAL.md`):
+- **Start every session** by reading `docs/design/PROGRESS.md`, `docs/design/SCREEN_INVENTORY.md` and `docs/design/WIRING_REPORT.md`, then continue from the "Next" section of `PROGRESS.md`.
+- **After every PR**, update `docs/design/PROGRESS.md` (done / in progress / next / blockers, with PR links). Follow the steps in `docs/design/README.md`.
+- **When context runs low:** commit, push, update `PROGRESS.md`, push again, and stop.
+
 ## Your role
 You IMPLEMENT the plan. A separate reviewer reviews and merges your work. You never merge.
 
