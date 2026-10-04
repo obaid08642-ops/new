@@ -19,9 +19,13 @@ import { UserRole } from '../../common/enums';
 import { ProviderPrivacyInterceptor } from '../../common/provider-privacy';
 import { CreateBookingDto, RespondDto, AssignDto, CheckInDto, GpsDto, VisitReportDto, CreateCarePlanDto, SetAvailabilityDto, InventoryRequestDto, PostMessageDto, PostLegacyDto, ProviderSendDto } from './home-care-compat.dto';
 
-const ACTIVE_STATES = ['NEW_REQUEST', 'PROVIDER_ASSIGNED', 'ACCEPTED', 'EN_ROUTE', 'ARRIVED', 'CARE_STARTED'];
+// CONFIRMED / IN_TRANSIT / CARE_IN_PROGRESS: an accepted visit (respond -> CONFIRMED) stays in the dispatch list.
+const ACTIVE_STATES = ['NEW_REQUEST', 'PROVIDER_ASSIGNED', 'CONFIRMED', 'ACCEPTED', 'IN_TRANSIT', 'EN_ROUTE', 'ARRIVED', 'CARE_STARTED', 'CARE_IN_PROGRESS'];
 
 const NURSE_TYPES = ['home_care', 'nursing', 'nurse'];
+
+/** Accepting a home visit: a card visit must be paid; insurance goes through the coverage decision. */
+const PAYABLE = { $nor: [{ payment_method: 'insurance' }, { payment_method: 'card', payment_status: { $ne: 'paid' } }] };
 
 @UseInterceptors(ProviderPrivacyInterceptor)
 @Controller('home-care')
@@ -148,16 +152,23 @@ export class HomeCareCompatController {
       ARRIVED: ['CONFIRMED', 'IN_TRANSIT', 'PROVIDER_ASSIGNED', 'ACCEPTED', 'EN_ROUTE'],
       CARE_IN_PROGRESS: ['ARRIVED'],
       COMPLETED: ['CARE_IN_PROGRESS', 'ARRIVED'],
-      CANCELLED: ['NEW_REQUEST', 'PROVIDER_ASSIGNED', 'ACCEPTED', 'EN_ROUTE', 'ARRIVED', 'CARE_IN_PROGRESS'],
+      CANCELLED: ['NEW_REQUEST', 'PROVIDER_ASSIGNED', 'CONFIRMED', 'ACCEPTED', 'IN_TRANSIT', 'EN_ROUTE', 'ARRIVED', 'CARE_IN_PROGRESS'],
     };
     if (!this.isAdmin(u) && allowed[newState] && !allowed[newState].includes(String(b.state))) {
       throw new BadRequestException('invalid_transition');
     }
-    b.state = newState;
-    b.state_history = [...(b.state_history || []), { state: newState, at: new Date(), by: u.id, ...extra.meta }];
+    // Conditional on the state that was read: a concurrent change (e.g. the
+    // atomic accept in respondAs) is never overwritten by a stale read.
+    const done = await this.bookings.updateOne(
+      { id: { $eq: id }, state: { $eq: String(b.state) } },
+      {
+        $set: { ...(extra.fields || {}), state: newState },
+        $push: { state_history: { state: newState, at: new Date(), by: u.id, ...extra.meta } },
+      },
+    );
+    if (!done.modifiedCount) throw new BadRequestException('invalid_transition');
     Object.assign(b, extra.fields || {});
-    b.markModified('state_history');
-    await b.save();
+    b.state = newState;
     // Fan out so the patient gets notified at every step of the visit
     try { this.emitter?.emit('homecare.booking_state_changed', { booking_id: id, patient_id: b.patient_id, state: newState, provider_id: b.provider_id }); } catch {}
     return { ok: true, id, state: newState };
@@ -185,10 +196,28 @@ export class HomeCareCompatController {
           await this.bookings.updateOne(open, { $addToSet: { declined_by: u.id } });
           return { ok: true, id, state: b.state, declined: true };
         }
-        const claimed = await this.bookings.updateOne(open, { $set: { provider_id: u.id } });
+        // The claim re-checks the payment rule, so a booking that changed after the read is not taken.
+        const claimed = await this.bookings.updateOne({ ...open, ...PAYABLE }, { $set: { provider_id: u.id } });
         if (!claimed.modifiedCount) throw new ConflictException('booking_already_claimed');
       } else if (accept && b.provider_id !== u.id) {
         throw new ConflictException('booking_already_claimed');
+      } else if (accept) {
+        // A booking assigned to this nurse: the accept is one conditional write
+        // on the stored row (state + payment rule), not a read then a save.
+        const now = new Date();
+        const done = await this.bookings.updateOne(
+          { id: { $eq: id }, provider_id: u.id, state: { $in: ['NEW_REQUEST', 'PROVIDER_ASSIGNED'] }, ...PAYABLE },
+          { $set: { state: 'CONFIRMED' }, $push: { state_history: { state: 'CONFIRMED', at: now, by: u.id, reason } } },
+        );
+        if (!done.modifiedCount) {
+          const cur: any = await this.bookings.findOne({ id: { $eq: id } }).lean();
+          if (cur?.payment_method === 'insurance') throw new BadRequestException('insurance_booking_requires_coverage_decision');
+          if (cur?.payment_method === 'card' && cur?.payment_status !== 'paid') throw new BadRequestException('card_payment_not_completed');
+          throw new BadRequestException('invalid_transition');
+        }
+        const row: any = await this.bookings.findOne({ id: { $eq: id } }, { patient_id: 1 }).lean();
+        try { this.emitter?.emit('homecare.booking_state_changed', { booking_id: id, patient_id: row?.patient_id, state: 'CONFIRMED', provider_id: u.id }); } catch {}
+        return { ok: true, id, state: 'CONFIRMED' };
       }
     }
     // Accepting confirms the visit (as provider-jobs does): PROVIDER_ASSIGNED is
