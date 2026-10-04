@@ -188,6 +188,17 @@ All 13 jobs green: 6 patient shards and 7 provider types, every one signed in.
    - Phases 13 and 14 started without a written APPROVED review of the phase before; record the verdict per phase (`REVIEW_P13.md`, `REVIEW_P14.md`);
    - check every Q/R/X fix commit against its Verify line in `QA_DEFECTS.md` / `REVIEW_REAUDIT_P1_P11.md`, live where the local stack allows;
    - only then merge to `main`, sync, and tell the owner it is ready to deploy to staging.
+   - **Per-commit checklist (owner requirement: check everything, trust nothing the agent wrote).** For every one of the 152 commits, record the result in `REVIEW_P13.md` / `REVIEW_P14.md` (one row per sha):
+     1. read the **whole diff**, line by line, not the message or `AGENT_PROGRESS.md`;
+     2. message vs diff: does the code do what the message and the plan task's "Do" say, completely? List anything claimed but missing, and anything changed that the task did not ask for;
+     3. wiring: is the new code actually called from a real route, screen or job? `grep` every new export for callers. A helper nobody calls is NOT done;
+     4. tests: do they assert the real behaviour (not mocks of the thing under test, not `expect(true)`)? Run them, and break the code on purpose once to see they fail;
+     5. live proof: exercise the behaviour on the local stack (`tools/live`) or in the native run, and paste the real output;
+     6. regressions: run the full gate plus the journeys touched by the files changed; compare with the previous results;
+     7. hygiene: no mock data, fallbacks, hard-coded lists, `any`, TODOs, skipped tests, secrets, leftover debug code, or a second copy of an existing function;
+     8. security and data: authorization on every new route, input validation (DTO rules), no PII in logs, no new public cache of private data;
+     9. any agent result in `AGENT_PROGRESS.md` that cannot be reproduced counts as false and is reported as a defect.
+     A commit passes only when all nine hold. Otherwise it goes back to the agent as a FAIL item with the evidence.
 1. Re-run `native-e2e` after each agent push. Remove a test-build workaround when its defect is fixed, and add every real new defect to `QA_DEFECTS.md` with evidence. Never count crawler artifacts as app defects.
 2. **Catalog audit §3** (`CATALOG_AUDIT.md`):
    - consumer map per catalog;
