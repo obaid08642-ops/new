@@ -1,0 +1,70 @@
+{
+  "patient-web": {
+    "screens": 270,
+    "crawled": 196,
+    "interactive": 421,
+    "unwired": 16,
+    "unnamed": 17,
+    "mock": 20,
+    "missingState": 104,
+    "visual": 161,
+    "duplicates": 67,
+    "hours": 608,
+    "bySize": {
+      "S": 253,
+      "M": 17,
+      "L": 0
+    }
+  },
+  "patient-app": {
+    "screens": 250,
+    "crawled": 182,
+    "interactive": 1087,
+    "unwired": 1,
+    "unnamed": 146,
+    "mock": 25,
+    "missingState": 81,
+    "visual": 232,
+    "duplicates": 57,
+    "hours": 836,
+    "bySize": {
+      "S": 166,
+      "M": 84,
+      "L": 0
+    }
+  },
+  "provider-app": {
+    "screens": 129,
+    "crawled": 114,
+    "interactive": 1459,
+    "unwired": 0,
+    "unnamed": 98,
+    "mock": 4,
+    "missingState": 21,
+    "visual": 114,
+    "duplicates": 6,
+    "hours": 354,
+    "bySize": {
+      "S": 105,
+      "M": 24,
+      "L": 0
+    }
+  },
+  "admin": {
+    "screens": 68,
+    "crawled": 57,
+    "interactive": 569,
+    "unwired": 2,
+    "unnamed": 85,
+    "mock": 4,
+    "missingState": 13,
+    "visual": 23,
+    "duplicates": 0,
+    "hours": 152,
+    "bySize": {
+      "S": 64,
+      "M": 4,
+      "L": 0
+    }
+  }
+}
