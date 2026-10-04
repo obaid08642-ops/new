@@ -1,3 +1,4 @@
+import { findCopayTransaction } from '../../common/copay-transaction';
 /**
  * EPIC 1 — FINANCE & MARKETPLACE ENGINE
  * Enterprise-grade financial core for the Nabd marketplace:
@@ -595,6 +596,11 @@ export class RefundExecutor {
     if (!paidTransaction && booking?.transaction_id) {
       paidTransaction = await this.conn.collection('transactions').findOne({ id: String(booking.transaction_id), status: { $in: ['paid', 'partially_refunded'] } } as any);
       viaParent = !!paidTransaction;
+    }
+    // An insured booking's copay is paid on its insurance request (booking_kind
+    // 'insurance'), never on the booking: refund that card payment, capped at it.
+    if (!paidTransaction && !paidPayment && booking) {
+      paidTransaction = await findCopayTransaction(this.conn as never, booking, opts.booking_id);
     }
     const originalMethod = String(paidTransaction?.method || booking?.payment_method || '').toLowerCase();
     const bookingState = String(booking?.status || '').toLowerCase();
