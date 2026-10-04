@@ -206,7 +206,8 @@ export class NotificationsService {
   /** M6/ER-8: admin delivery analytics. */
   /** P6.x-7: template CRUD + preview + test-send. */
   async listTemplates() {
-    return this.templateModel.find({}).sort({ key: 1 }).lean();
+    // 14.15 hot-query guard: admin template list bounded + projected; expected index { key: 1 } on notification_templates (see backend/src/common/indexes/hot-path-indexes.md; DB work deferred).
+    return this.templateModel.find({}).select({ _id: 0, __v: 0 }).sort({ key: 1 }).limit(500).maxTimeMS(2000).lean();
   }
 
   async upsertTemplate(user: any, dto: { key: string; title?: any; body?: any; active?: boolean }) {
@@ -302,7 +303,8 @@ export class NotificationsService {
       // PushToken is the single source of truth (registered via /push/register
       // or /notifications/register-token). The old DeviceToken model never
       // existed as a schema — querying it threw MissingSchemaError.
-      const userTokens = await this.model.db.model('PushToken').find({ user_id: n.user_id, active: true }).lean();
+      // 14.15 hot-query guard: per-push token fan-out capped + projected; expected index { user_id: 1, active: 1 } on push_tokens (see backend/src/common/indexes/hot-path-indexes.md; DB work deferred).
+      const userTokens = await this.model.db.model('PushToken').find({ user_id: n.user_id, active: true }).select({ token: 1, provider: 1, _id: 0 }).limit(20).maxTimeMS(2000).lean();
       const tokens = userTokens.map((t: any) => ({ token: t.token, provider: t.provider })).filter((t: any) => t.token);
       const expoTokens = tokens.filter((t: any) => t.provider === 'expo' || t.token.startsWith('ExponentPushToken')).map((t: any) => t.token);
       const fcmTokens = tokens.filter((t: any) => t.provider === 'fcm' && !t.token.startsWith('ExponentPushToken')).map((t: any) => t.token);

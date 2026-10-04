@@ -92,9 +92,10 @@ export class CatalogsController {
 
   private async insuranceCatalog() {
     // P5.1: DB-only (companies + networks); empty → 404, never static.
+    // 14.15 hot-query guard: bounded catalog fan-out (limit + projection + maxTimeMS); expected indexes — companies { is_active: 1, name_en: 1 }, networks { catalog_status: 1, company_id: 1 } (see backend/src/common/indexes/hot-path-indexes.md; DB work deferred).
     const [companies, networks] = await Promise.all([
-      this.conn.collection(CATALOG_COLLECTIONS.insurance_companies).find({ is_active: true }).sort({ name_en: 1 }).toArray().catch(() => []),
-      this.conn.collection('insurance_networks').find({ catalog_status: { $ne: 'retired' } }).toArray().catch(() => []),
+      this.conn.collection(CATALOG_COLLECTIONS.insurance_companies).find({ is_active: true }).project({ _id: 0 }).sort({ name_en: 1 }).limit(500).maxTimeMS(2000).toArray().catch(() => []),
+      this.conn.collection('insurance_networks').find({ catalog_status: { $ne: 'retired' } }).project({ _id: 0 }).limit(2000).maxTimeMS(2000).toArray().catch(() => []),
     ]);
     if (!companies.length) throw new NotFoundException('catalog_unavailable');
     const byCompany = new Map<string, any[]>();

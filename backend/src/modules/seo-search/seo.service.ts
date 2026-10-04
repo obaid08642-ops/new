@@ -35,7 +35,8 @@ export class SeoService {
     if (this.controlsCache && this.controlsCache.exp > now) return this.controlsCache.map;
     let rows: any[] = [];
     try {
-      rows = await this.conn.collection('seo_controls').find({}).toArray();
+      // 14.15 hot-query guard: tiny controls collection still bounded; no index needed (<100 docs, collection scan ok) (see backend/src/common/indexes/hot-path-indexes.md; DB work deferred).
+      rows = await this.conn.collection('seo_controls').find({}).project({ _id: 0 }).limit(100).maxTimeMS(2000).toArray();
     } catch {
       rows = []; // fail-open: no collection ⇒ everything stays indexable
     }
