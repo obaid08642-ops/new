@@ -1,4 +1,4 @@
-import { Module, Injectable, Controller, Post, Get, Body, Param, Logger, BadRequestException, BadGatewayException, NotFoundException, ServiceUnavailableException, UseGuards, UseInterceptors, Req, HttpCode, Headers } from '@nestjs/common';
+import { Module, Injectable, Controller, Post, Get, Body, Param, Logger, BadRequestException, BadGatewayException, NotFoundException, ServiceUnavailableException, UseGuards, UseInterceptors, Req, HttpCode, Headers, Optional } from '@nestjs/common';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -17,6 +17,7 @@ import { RealtimeService } from '../realtime/realtime.service';
 import { RealtimeModule } from '../realtime/realtime.module';
 import { FraudService } from '../finance-engine/finance-engine.module';
 import { IdempotencyInterceptor } from '../../common/idempotency.interceptor';
+import { CircuitBreakerService } from '../../common/circuit-breaker.service';
 import * as crypto from 'crypto';
 import { Request } from 'express';
 import { UserRole } from '../../common/enums';
@@ -30,96 +31,194 @@ import {
   selectGateway,
 } from './payment-gateway';
 
+/** Per-call timeout for payment-gateway HTTP calls (ms). Env-overridable for tests. */
+export const gatewayTimeoutMs = () => Number(process.env.PAYMENT_GATEWAY_TIMEOUT_MS) || 10000;
+
+/**
+ * Gateway HTTP call with a hard abort.
+ *
+ * The circuit breaker caps how long a call may *take*, but it cannot cancel the
+ * socket — without an abort signal a hung processor would keep the request open
+ * after the breaker had already given up on it.
+ */
+async function gatewayFetch(url: string, init?: RequestInit): Promise<Response> {
+  try {
+    return await fetch(url, { ...init, signal: AbortSignal.timeout(gatewayTimeoutMs()) });
+  } catch (e: any) {
+    if (e?.name === 'TimeoutError' || e?.name === 'AbortError') {
+      throw new ServiceUnavailableException('payment_gateway_timeout');
+    }
+    throw e;
+  }
+}
+
+/**
+ * Run one gateway operation behind a timeout + shared circuit breaker.
+ *
+ * `fn` must be args-driven and stateless: the breaker is cached by name, so a
+ * closure over per-request state would become the work function a *later*
+ * caller executes (Q81).
+ */
+async function gatewayCall<T>(
+  breakers: CircuitBreakerService | undefined,
+  provider: string,
+  op: string,
+  fn: (...args: any[]) => Promise<T>,
+  args: any[],
+  fallback: (...args: any[]) => T | Promise<T>,
+): Promise<T> {
+  if (!breakers) return fn(...args);
+  return breakers
+    .create(`payment:${provider}:${op}`, fn, { timeout: gatewayTimeoutMs() }, fallback)
+    .fire(...args);
+}
+
+/**
+ * Fallback for a failed / short-circuited payment gateway operation.
+ *
+ * opossum runs the fallback after ANY failed attempt, not only on an open
+ * circuit, so an already-typed reason (e.g. `payment_gateway_timeout`) is
+ * re-thrown as-is: the user-facing error then says what actually happened.
+ * Anything else (a raw upstream error, or the circuit being open) becomes the
+ * generic "payment temporarily unavailable".
+ */
+function gatewayUnavailable() {
+  return (...args: unknown[]) => {
+    // Breaker fallback contract: (...callerArgs, err) — the failure is the
+    // LAST argument. Reading it as the first parameter would receive the
+    // caller's request body instead of the error and mistype every failure.
+    const err = args[args.length - 1];
+    if (err instanceof ServiceUnavailableException || err instanceof BadGatewayException) throw err;
+    // opossum's own timeout ("Timed out after Nms") means the processor hung
+    // past the per-call budget: name it as a timeout so the user sees what
+    // happened instead of a generic "unavailable".
+    const msg = err instanceof Error ? err.message : String(err ?? '');
+    if (/timed out after/i.test(msg)) throw new ServiceUnavailableException('payment_gateway_timeout');
+    throw new BadGatewayException({ code: 'payment_gateway_unavailable', message: 'الدفع غير متاح حالياً' });
+  };
+}
+
 /**
  * F60 (plan item): one PaymentGateway contract, adapter chosen by
  * PAYMENT_PROVIDER. The adapter classes below are the real HTTP
  * implementations; payment-gateway.ts owns the contract and the selection.
  */
-class StripeAdapter implements PaymentGateway {
+export class StripeAdapter implements PaymentGateway {
   readonly name = 'stripe' as const;
   private base = 'https://api.stripe.com/v1';
+  constructor(private readonly breakers?: CircuitBreakerService) {}
   private headers() { return { Authorization: `Bearer ${process.env.STRIPE_SECRET_KEY}`, 'Content-Type': 'application/x-www-form-urlencoded' }; }
   async createIntent(o: CreateIntentRequest) {
+    // Args-driven: the body is built from the argument, never captured.
+    const build = async (body: URLSearchParams) => {
+      const r = await gatewayFetch(`${this.base}/payment_intents`, { method: 'POST', headers: this.headers(), body });
+      const j: any = await r.json();
+      if (!r.ok) throw new BadGatewayException(j.error?.message || 'stripe_intent_failed');
+      return { intent_id: j.id, client_secret: j.client_secret };
+    };
     const body = new URLSearchParams({ amount: String(Math.round(o.amount * 100)), currency: (o.currency || 'sar').toLowerCase(), description: o.description || 'Nabd booking', 'automatic_payment_methods[enabled]': 'true' });
-    const r = await fetch(`${this.base}/payment_intents`, { method: 'POST', headers: this.headers(), body });
-    const j: any = await r.json();
-    if (!r.ok) throw new BadGatewayException(j.error?.message || 'stripe_intent_failed');
-    return { intent_id: j.id, client_secret: j.client_secret };
+    return gatewayCall(this.breakers, this.name, 'create_intent', build, [body], gatewayUnavailable());
   }
   async verify(id: string) {
-    const r = await fetch(`${this.base}/payment_intents/${id}`, { headers: this.headers() });
-    const j: any = await r.json();
-    const map: any = { succeeded: 'paid', requires_payment_method: 'failed', canceled: 'cancelled', processing: 'pending' };
-    return { status: (map[j.status] || 'pending') as VerifyResult['status'], charge_id: j.latest_charge, raw: j };
+    const run = async (intentId: string) => {
+      const r = await gatewayFetch(`${this.base}/payment_intents/${intentId}`, { headers: this.headers() });
+      const j: any = await r.json();
+      const map: any = { succeeded: 'paid', requires_payment_method: 'failed', canceled: 'cancelled', processing: 'pending' };
+      return { status: (map[j.status] || 'pending') as VerifyResult['status'], charge_id: j.latest_charge, raw: j };
+    };
+    return gatewayCall(this.breakers, this.name, 'verify', run, [id], gatewayUnavailable());
   }
   async refund(chargeId: string, amount?: number) {
-    const body = new URLSearchParams({ charge: chargeId, ...(amount ? { amount: String(Math.round(amount * 100)) } : {}) });
-    const r = await fetch(`${this.base}/refunds`, { method: 'POST', headers: this.headers(), body });
-    const j: any = await r.json();
-    return { refunded: r.ok, raw: j };
+    const run = async (charge: string, amt?: number) => {
+      const body = new URLSearchParams({ charge, ...(amt ? { amount: String(Math.round(amt * 100)) } : {}) });
+      const r = await gatewayFetch(`${this.base}/refunds`, { method: 'POST', headers: this.headers(), body });
+      const j: any = await r.json();
+      return { refunded: r.ok, raw: j };
+    };
+    return gatewayCall(this.breakers, this.name, 'refund', run, [chargeId, amount], gatewayUnavailable());
   }
 }
 
-class TapAdapter implements PaymentGateway {
+export class TapAdapter implements PaymentGateway {
   readonly name = 'tap' as const;
   private base = 'https://api.tap.company/v2';
+  constructor(private readonly breakers?: CircuitBreakerService) {}
   private headers() { return { Authorization: `Bearer ${process.env.TAP_API_KEY}`, 'Content-Type': 'application/json' }; }
   async createIntent(o: CreateIntentRequest) {
-    const body = JSON.stringify({ amount: o.amount, currency: o.currency || 'SAR', description: o.description, source: { id: 'src_all' }, redirect: { url: process.env.PUBLIC_APP_URL || 'https://example.com/payment/return' } });
-    const r = await fetch(`${this.base}/charges`, { method: 'POST', headers: this.headers(), body });
-    const j: any = await r.json();
-    if (!r.ok) throw new BadGatewayException(j.errors?.[0]?.description || 'tap_intent_failed');
-    return { intent_id: j.id, checkout_url: j.transaction?.url };
+    const run = async (req: CreateIntentRequest) => {
+      const body = JSON.stringify({ amount: req.amount, currency: req.currency || 'SAR', description: req.description, source: { id: 'src_all' }, redirect: { url: process.env.PUBLIC_APP_URL || 'https://example.com/payment/return' } });
+      const r = await gatewayFetch(`${this.base}/charges`, { method: 'POST', headers: this.headers(), body });
+      const j: any = await r.json();
+      if (!r.ok) throw new BadGatewayException(j.errors?.[0]?.description || 'tap_intent_failed');
+      return { intent_id: j.id, checkout_url: j.transaction?.url };
+    };
+    return gatewayCall(this.breakers, this.name, 'create_intent', run, [o], gatewayUnavailable());
   }
   async verify(id: string) {
-    const r = await fetch(`${this.base}/charges/${id}`, { headers: this.headers() });
-    const j: any = await r.json();
-    const map: any = { CAPTURED: 'paid', INITIATED: 'pending', FAILED: 'failed', CANCELLED: 'cancelled' };
-    return { status: (map[j.status] || 'pending') as VerifyResult['status'], charge_id: j.id, raw: j };
+    const run = async (chargeId: string) => {
+      const r = await gatewayFetch(`${this.base}/charges/${chargeId}`, { headers: this.headers() });
+      const j: any = await r.json();
+      const map: any = { CAPTURED: 'paid', INITIATED: 'pending', FAILED: 'failed', CANCELLED: 'cancelled' };
+      return { status: (map[j.status] || 'pending') as VerifyResult['status'], charge_id: j.id, raw: j };
+    };
+    return gatewayCall(this.breakers, this.name, 'verify', run, [id], gatewayUnavailable());
   }
   async refund(id: string, amount?: number) {
-    const r = await fetch(`${this.base}/refunds`, { method: 'POST', headers: this.headers(), body: JSON.stringify({ charge_id: id, amount }) });
-    const j: any = await r.json();
-    return { refunded: r.ok, raw: j };
+    const run = async (chargeId: string, amt?: number) => {
+      const r = await gatewayFetch(`${this.base}/refunds`, { method: 'POST', headers: this.headers(), body: JSON.stringify({ charge_id: chargeId, amount: amt }) });
+      const j: any = await r.json();
+      return { refunded: r.ok, raw: j };
+    };
+    return gatewayCall(this.breakers, this.name, 'refund', run, [id, amount], gatewayUnavailable());
   }
 }
 
-class MoyasarAdapter implements PaymentGateway {
+export class MoyasarAdapter implements PaymentGateway {
   readonly name = 'moyasar' as const;
+  constructor(private readonly breakers?: CircuitBreakerService) {}
   private get base() { return moyasarBase(); }
   private headers() {
     const b = Buffer.from(`${process.env.MOYASAR_API_KEY}:`).toString('base64');
     return { Authorization: `Basic ${b}`, 'Content-Type': 'application/json' };
   }
   async createIntent(o: CreateIntentRequest) {
-    const body = JSON.stringify({ amount: Math.round(o.amount * 100), currency: o.currency || 'SAR', description: o.description, callback_url: process.env.PAYMENT_RESULT_URL || `${process.env.PUBLIC_APP_URL || ''}/payments/result` });
-    const r = await fetch(`${this.base}/payments`, { method: 'POST', headers: this.headers(), body });
-    const j: any = await r.json();
-    if (!r.ok) throw new BadGatewayException(j.message || 'moyasar_intent_failed');
-    return { intent_id: j.id, checkout_url: j.source?.transaction_url };
+    const run = async (req: CreateIntentRequest) => {
+      const body = JSON.stringify({ amount: Math.round(req.amount * 100), currency: req.currency || 'SAR', description: req.description, callback_url: process.env.PAYMENT_RESULT_URL || `${process.env.PUBLIC_APP_URL || ''}/payments/result` });
+      const r = await gatewayFetch(`${this.base}/payments`, { method: 'POST', headers: this.headers(), body });
+      const j: any = await r.json();
+      if (!r.ok) throw new BadGatewayException(j.message || 'moyasar_intent_failed');
+      return { intent_id: j.id, checkout_url: j.source?.transaction_url };
+    };
+    return gatewayCall(this.breakers, this.name, 'create_intent', run, [o], gatewayUnavailable());
   }
   async verify(id: string) {
-    const r = await fetch(`${this.base}/payments/${id}`, { headers: this.headers() });
-    const j: any = await r.json();
-    const map: any = { paid: 'paid', initiated: 'pending', failed: 'failed', authorized: 'pending' };
-    return { status: (map[j.status] || 'pending') as VerifyResult['status'], charge_id: j.id, raw: j };
+    const run = async (paymentId: string) => {
+      const r = await gatewayFetch(`${this.base}/payments/${paymentId}`, { headers: this.headers() });
+      const j: any = await r.json();
+      const map: any = { paid: 'paid', initiated: 'pending', failed: 'failed', authorized: 'pending' };
+      return { status: (map[j.status] || 'pending') as VerifyResult['status'], charge_id: j.id, raw: j };
+    };
+    return gatewayCall(this.breakers, this.name, 'verify', run, [id], gatewayUnavailable());
   }
   async refund(id: string, amount?: number) {
-    const body = JSON.stringify(amount ? { amount: Math.round(amount * 100) } : {});
-    const r = await fetch(`${this.base}/payments/${id}/refund`, { method: 'POST', headers: this.headers(), body });
-    const j: any = await r.json();
-    return { refunded: r.ok, raw: j };
+    const run = async (paymentId: string, amt?: number) => {
+      const body = JSON.stringify(amt ? { amount: Math.round(amt * 100) } : {});
+      const r = await gatewayFetch(`${this.base}/payments/${paymentId}/refund`, { method: 'POST', headers: this.headers(), body });
+      const j: any = await r.json();
+      return { refunded: r.ok, raw: j };
+    };
+    return gatewayCall(this.breakers, this.name, 'refund', run, [id, amount], gatewayUnavailable());
   }
 }
 
-const GATEWAY_FACTORIES: Partial<Record<PaymentProvider, () => PaymentGateway>> = {
-  stripe: () => new StripeAdapter(),
-  tap: () => new TapAdapter(),
-  moyasar: () => new MoyasarAdapter(),
+const GATEWAY_FACTORIES: Partial<Record<PaymentProvider, (breakers?: CircuitBreakerService) => PaymentGateway>> = {
+  stripe: (breakers) => new StripeAdapter(breakers),
+  tap: (breakers) => new TapAdapter(breakers),
+  moyasar: (breakers) => new MoyasarAdapter(breakers),
 };
 
-function selectAdapter(): PaymentGateway {
-  return selectGateway(GATEWAY_FACTORIES);
+function selectAdapter(breakers?: CircuitBreakerService): PaymentGateway {
+  return selectGateway(GATEWAY_FACTORIES, breakers);
 }
 
 const KIND_TO_MODEL: any = { pharmacy: 'Order', lab: 'LabBooking', radiology: 'RadiologyBooking', nursing: 'HomeCareBooking', consultation: Appointment.name, diagnostics: 'DiagnosticOrder' };
@@ -145,8 +244,9 @@ export class PaymentsService {
     private events: EventEmitter2,
     private realtime: RealtimeService,
     private readonly fraud: FraudService,
+    @Optional() private readonly breakers?: CircuitBreakerService,
   ) {
-    this.adapter = selectAdapter();
+    this.adapter = selectAdapter(this.breakers);
     if (this.adapter.name === 'disabled') {
       this.logger.warn('No payment gateway configured (no STRIPE_SECRET_KEY / TAP_API_KEY / MOYASAR_API_KEY) — payment endpoints will return 503 payment_gateway_not_configured');
     } else {

@@ -525,8 +525,11 @@ export class MedicinesService {
     sort = 'smart_ranking',
     pharmacyId?: string,
   ) {
-    const safeLimit = Math.min(Math.max(limit, 1), 100);
-    const safePage = Math.max(page, 1);
+    // 15.6: non-finite page/limit (e.g. ?page=abc → NaN) must never reach the
+    // driver as NaN (server error) nor come back as NaN page metadata —
+    // coerce to defaults, then clamp as before.
+    const safeLimit = Math.min(Math.max(Number.isFinite(limit) ? limit : 30, 1), 100);
+    const safePage = Math.max(Number.isFinite(page) ? page : 1, 1);
     const cacheKey = `med:page:governed-v2:${search || ''}:${category || ''}:${includeUnverified}:${safePage}:${safeLimit}:${sort}:${pharmacyId || 'global'}`;
     const cached = await this.redis.getJson<any>(cacheKey);
     if (cached) return cached;
@@ -583,7 +586,9 @@ export class MedicinesService {
    * Cursor encodes the last item's (name_ar, id); the next page continues after it.
    */
   async cursorPage(search: string | undefined, category: string | undefined, cursor: string | undefined, limit = 30) {
-    const safeLimit = Math.min(Math.max(limit, 1), 100);
+    // 15.6: same NaN guard as paginate() — ?limit=abc must degrade to the
+    // default page, never to a driver error or NaN metadata.
+    const safeLimit = Math.min(Math.max(Number.isFinite(limit) ? limit : 30, 1), 100);
     const q: any = this.publicCatalogFilter();
     if (search) Object.assign(q, this.buildQuery(search, category, false));
     else if (category) q.category = category;

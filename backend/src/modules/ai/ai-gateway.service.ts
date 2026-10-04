@@ -43,10 +43,11 @@
  *   - distributed quotas (in-memory limiter is per-process; a Redis counter
  *     is needed when running >1 replica)
  */
-import { BadGatewayException, BadRequestException, Injectable, Logger, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
+import { BadGatewayException, BadRequestException, Injectable, Logger, NotFoundException, Optional, ServiceUnavailableException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { CircuitBreakerService } from '../../common/circuit-breaker.service';
 
 export type AiProviderName =
   | 'gemini' | 'openai' | 'groq' | 'cerebras' | 'openrouter' | 'deepseek' | 'qwen' | 'replicate';
@@ -198,10 +199,54 @@ export class AiGatewayService {
   private cooldownMs = 60_000;
   private cacheTtlMs = 5 * 60_1000;
 
-  constructor(@InjectConnection() private readonly conn: Connection) {
+  constructor(
+    @InjectConnection() private readonly conn: Connection,
+    @Optional() private readonly breakers?: CircuitBreakerService,
+  ) {
     if (process.env.GEMINI_API_KEY) {
       this.genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     }
+  }
+
+  /**
+   * One provider attempt behind the shared circuit breaker, on top of the
+   * per-provider cooldown.
+   *
+   * The breaker is the hard bound (it stops calling a provider that keeps
+   * failing and fails the attempt immediately once open); the cooldown is the
+   * soft, quota-aware window. The fallback re-throws a transient error so the
+   * chain continues with the NEXT provider and the caller still gets a
+   * degraded-but-real answer.
+   *
+   * Args-driven: the provider travels as an argument because the breaker is
+   * cached by name, so a closure over one provider would become the work
+   * function a later provider's call executes (Q81).
+   */
+  private providerCall<T>(
+    provider: AiProviderName,
+    fn: (...args: any[]) => Promise<T>,
+    args: any[],
+  ): Promise<T> {
+    if (!this.breakers) return fn(...args);
+    return this.breakers
+      .create(
+        `ai:${provider}:generate`,
+        fn,
+        { timeout: this.callTimeoutMs },
+        (...args: unknown[]) => {
+          // Breaker fallback contract: (...callerArgs, err) — the failure is
+          // the LAST argument. Reading it as the first parameter would receive
+          // the provider config instead of the error.
+          const err = args[args.length - 1];
+          // opossum runs the fallback after ANY failed attempt, not only on an
+          // open circuit. A transient provider error must keep its own
+          // identity, otherwise isTransientError() below cannot classify it and
+          // the caller is told a circuit is open when it simply rate-limited.
+          if (err) throw err;
+          throw new BadGatewayException(`ai_provider_circuit_open:${provider}`);
+        },
+      )
+      .fire(...args);
   }
 
   // ── Test / tuning hooks (no-ops in production wiring) ─────────────────────
@@ -395,8 +440,13 @@ export class AiGatewayService {
         const controller = new AbortController();
         const transport = this.transportOverride || ((pp, oo, signal) =>
           pp.key === 'gemini' ? this.generateGemini(pp, oo) : this.generateOpenAiCompat(pp, oo, signal));
-        const text = await withTimeout(transport(p, safeOpts, controller.signal), this.callTimeoutMs)
-          .finally(() => controller.abort());
+        const text = await this.providerCall(
+          p.key,
+          async (pp: ProviderConfig, oo: any, signal: AbortSignal) =>
+            withTimeout(transport(pp, oo, signal), this.callTimeoutMs)
+              .finally(() => controller.abort()),
+          [p, safeOpts, controller.signal],
+        );
         const elapsed = Date.now() - start;
         this.consumeTokens(p, estTokens + Math.ceil(text.length / 4));
         await this.recordUsage(p, feature, elapsed, true, fellBack);

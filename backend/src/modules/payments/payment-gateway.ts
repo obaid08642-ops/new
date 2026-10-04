@@ -86,8 +86,16 @@ export function isProviderConfigured(provider: PaymentProvider): boolean {
  * working until they set the variable explicitly.
  */
 export function selectGateway(
-  factories: Partial<Record<PaymentProvider, () => PaymentGateway>>,
+  factories: Partial<Record<PaymentProvider, (context?: any) => PaymentGateway>>,
+  /**
+   * Optional dependency threaded into every factory. Adapters need it to put
+   * their gateway calls behind a timeout + circuit breaker; a test (or a caller
+   * that has no breakers) can omit it and the adapters then run unguarded.
+   */
+  context?: unknown,
 ): PaymentGateway {
+  const build = (factory: (context?: any) => PaymentGateway): PaymentGateway =>
+    context === undefined ? factory() : factory(context);
   const requested = (process.env.PAYMENT_PROVIDER || '').trim().toLowerCase();
 
   if (requested) {
@@ -109,13 +117,13 @@ export function selectGateway(
         `payment_provider_not_implemented: "${requested}" is configured (${REQUIRED_KEY[requested as PaymentProvider]} is set) but has no adapter`,
       );
     }
-    return factory();
+    return build(factory);
   }
 
   for (const provider of Object.keys(REQUIRED_KEY) as PaymentProvider[]) {
     if (isProviderConfigured(provider)) {
       const factory = factories[provider];
-      if (factory) return factory();
+      if (factory) return build(factory);
     }
   }
   return new DisabledGatewayAdapter();

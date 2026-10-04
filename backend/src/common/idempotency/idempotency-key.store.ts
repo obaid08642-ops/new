@@ -60,6 +60,28 @@ export class IdempotencyKeyStore {
     return this.redis.get(recordKey).then(parseCachedIdempotentResponse);
   }
 
+  /**
+   * Pre-shape records: `{ response }` persisted WITHOUT a `request_hash` by an
+   * older writer. They are scoped by the same user/method/path/key as current
+   * records, so replaying them is safe; treating them as a miss would
+   * re-execute the handler and double-apply the write. Returns undefined when
+   * there is no record or the record already carries a hash.
+   */
+  async findLegacyResponse(recordKey: string): Promise<{ found: boolean; response?: unknown }> {
+    const raw = await this.redis.get(recordKey);
+    if (!raw) return { found: false };
+    try {
+      const parsed: unknown = JSON.parse(raw);
+      if (typeof parsed !== 'object' || parsed === null) return { found: false };
+      const candidate = parsed as { request_hash?: unknown; response?: unknown };
+      if (typeof candidate.request_hash === 'string') return { found: false };
+      if (!('response' in candidate)) return { found: false };
+      return { found: true, response: candidate.response };
+    } catch {
+      return { found: false };
+    }
+  }
+
   async acquireLock(recordKey: string): Promise<boolean> {
     const acquired = await this.redis.set(
       lockKeyFor(recordKey),
