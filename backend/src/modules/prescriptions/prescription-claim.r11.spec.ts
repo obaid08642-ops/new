@@ -9,9 +9,15 @@ describe('claiming an unassigned prescription (R11 §5)', () => {
   function service(linked: { recipient?: string; selected?: string }) {
     const rx = { id: 'rx-1', state: 'UPLOADED_BY_PATIENT', pharmacy_id: undefined as string | undefined, save: jest.fn(), toObject: () => ({}) };
     const model = { findOne: jest.fn(async () => rx) };
-    const collections: Record<string, { findOne: jest.Mock }> = {
-      pharmacy_orders: { findOne: jest.fn(async () => ({ id: 'order-1', prescription_id: 'rx-1', selected_pharmacy_account_id: linked.selected })) },
-      pharmacy_broadcast_recipients: { findOne: jest.fn(async (q: { pharmacy_account_id: { $eq: string } }) => (q.pharmacy_account_id.$eq === linked.recipient ? { order_id: 'order-1' } : null)) },
+    // Independent check: the selected pharmacy is recorded on its allocation
+    // (pharmacy_allocations.pharmacy_account_id), not on the order, and a
+    // prescription may sit on several orders.
+    const orders = [{ id: 'order-0', prescription_id: 'rx-1' }, { id: 'order-1', prescription_id: 'rx-1' }];
+    const match = (q: any, row: any) => q.order_id.$in.includes(row.order_id) && q.pharmacy_account_id.$eq === row.pharmacy_account_id;
+    const collections: Record<string, any> = {
+      pharmacy_orders: { find: jest.fn(() => ({ limit: () => ({ toArray: async () => orders }) })) },
+      pharmacy_broadcast_recipients: { findOne: jest.fn(async (q: any) => (linked.recipient && match(q, { order_id: 'order-1', pharmacy_account_id: linked.recipient }) ? { order_id: 'order-1' } : null)) },
+      pharmacy_allocations: { findOne: jest.fn(async (q: any) => (linked.selected && match(q, { order_id: 'order-1', pharmacy_account_id: linked.selected }) ? { order_id: 'order-1' } : null)) },
     };
     const providers = { db: { collection: (n: string) => collections[n] } };
     const svc = new PrescriptionsService(model as never, {} as never, { emit: jest.fn() } as never, {} as never, providers as never);
