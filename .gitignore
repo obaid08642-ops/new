@@ -25,6 +25,7 @@ out/
 # Environment and secrets (all .env variants ignored repo-wide; only .env.example is committed)
 .env
 .env.*
+!.env*.example
 !.env.example
 .env*.local
 *.pem
