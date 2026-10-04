@@ -139,7 +139,8 @@ function promptText(prompt: string | any[]): string {
 }
 
 /** Tiny non-crypto hash for cache keys (FNV-1a). Collisions only cost a wrong cache hit window — TTL bounds the blast radius. */
-export function hashKey(s: string): string {
+export function hashKey(input: string): string {
+  const s = String(input);
   let h = 0x811c9dc5;
   for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);
@@ -157,7 +158,9 @@ export function hashKey(s: string): string {
 export function stripPii(text: string): string {
   if (!text) return text;
   let out = text;
-  out = out.replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, '[redacted-email]');
+  // Start only at the beginning of a run of e-mail characters: retrying from every position
+  // inside a long run made this quadratic (a 200k-char prompt blocked the event loop ~43 s).
+  out = out.replace(/(?<![A-Z0-9._%+-])[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, '[redacted-email]');
   out = out.replace(
     /(name|patient|full name|phone|mobile|tel|telephone|mrn|file no|national id|nid|iqama|id number|id no|\bid)\s*[:=]\s*[^\n,;]+/gi,
     '$1: [redacted]',
