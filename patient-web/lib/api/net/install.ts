@@ -3,6 +3,7 @@
 import { apiFetch } from "./client";
 import { browserIsOffline } from "./online";
 import { noteResponse } from "./last-sync";
+import { noteServerDate } from "./server-time";
 
 /**
  * P15.1 — how the ONE client reaches all ~170 existing `fetch(...)` call sites.
@@ -41,7 +42,15 @@ export function installNetworkPolicy(options: InstallOptions = {}): boolean {
     return apiFetch(input, init ?? {}, {
       fetchImpl: original as (url: string, requestInit: RequestInit) => Promise<Response>,
       isOffline,
-      onResponse: noteResponse,
+      onResponse: (response, attempt) => {
+        noteResponse(response, attempt);
+        // P15.9: every settled response re-anchors the server clock.
+        try {
+          noteServerDate(response.headers.get("date"));
+        } catch {
+          /* a header read must never break the response path */
+        }
+      },
     });
   };
 

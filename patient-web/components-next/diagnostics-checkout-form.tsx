@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { isPastSlot } from "@/lib/datetime";
 
 const TIMES = ["09:00", "10:30", "12:00", "14:00", "15:30", "17:00"];
 
@@ -69,7 +70,9 @@ export function DiagnosticsCheckoutForm({
       return;
     }
     const scheduled = new Date(`${day}T${time}:00`);
-    if (Number.isNaN(scheduled.getTime()) || scheduled.getTime() < Date.now()) {
+    // P15.9: answered against the server-anchored clock, so a device set ±1
+    // day cannot hide future slots or admit past ones.
+    if (isPastSlot(scheduled.getTime())) {
       setError(ar ? "الموعد في الماضي — اختر وقتاً لاحقاً" : "Time is in the past — choose a later time");
       return;
     }

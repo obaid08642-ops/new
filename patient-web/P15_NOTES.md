@@ -434,3 +434,57 @@ $ # restored → 3 passed
   device without the DSN, and source-map upload likewise needs the owner's
   `SENTRY_AUTH_TOKEN` (documented in `.env.production.example`, never
   committed).
+
+---
+
+## 15.9 — Clocks and time zones (patient-web display)
+
+### Changed files
+
+- new: `lib/api/net/server-time.ts` — `noteServerDate()` records
+  `offset = serverMs − deviceMs` from each response `Date` header;
+  `serverNowMs()` applies it, so a fixed device skew cancels out. Unanchored
+  (before the first response) it falls back to the device clock, documented.
+- `lib/api/net/install.ts`: every settled response re-anchors the clock.
+- new: `lib/datetime.ts` (+ `datetime.test.ts`, 11 tests) —
+  `PROVIDER_TIME_ZONE = "Asia/Riyadh"`, `resolveUserTimeZone()` (device zone,
+  UTC fallback), `formatServerInstant()` (never reads the device clock;
+  null on garbage), `formatInProviderZone()` (Riyadh pinned),
+  `isPastSlot()` (anchored guard, fail-closed on NaN).
+- `diagnostics-checkout-form.tsx`, `nursing-booking-form.tsx`: the "slot in
+  the past" guards now use `isPastSlot()` instead of `Date.now()` — the only
+  two client-side clock decisions with server-derived meaning found by grep.
+  (Server components already run on server time; chat IDs and idempotency
+  suffixes using `Date.now()` are uniqueness inputs, unaffected by skew.)
+
+### Real output
+
+```
+$ node node_modules/typescript/bin/tsc --noEmit; echo "tsc exit: $?"
+tsc exit: 0
+$ node node_modules/vitest/vitest.mjs run lib/datetime.test.ts
+ Test Files  1 passed (1)
+      Tests  11 passed (11)
+```
+
+Device clock is moved ±1 day with fake timers while server instants and the
+anchor stay fixed: formatting is identical, `serverNowMs()` returns true time,
+and the past-slot guard stays put while the naive `Date.now()` comparison is
+asserted to flip (proving the test can tell the difference).
+
+### Mutation proof (rule 6)
+
+```
+$ # serverNowMs ignores the anchor offset
+ FAIL ... cancels a +1 day device error
+ FAIL ... cancels a −1 day device error
+ FAIL ... keeps the past-slot guard stable while the naive check flips
+      Tests  3 failed | 8 passed (11)
+$ # restored → 11 passed
+```
+
+### BLOCKED / DEFERRED
+
+- `DEFERRED-OUT-OF-SCOPE: server-side enforcement of server time (OTP expiry,
+  slots, reminders) lives in backend/` — another agent's scope; patient-web
+  only displays and guards against its own clock.
