@@ -382,3 +382,140 @@ timer actually fires at the documented value. The other timeout assertions are i
   before any test body ran. Tests that assert on reporting override the factory.
 - Do not keep mutation backups in `/tmp` while agents run concurrently — a prior session had
   its backup overwritten by another agent's identical path. Use a worktree-local directory.
+
+---
+
+## Fix round (independent-reviewer findings F1–F3, 2026-10-05)
+
+Worktree `.../T/opencode/p15/prov` did not exist when the session started (only the `web`
+worktree was checked out), so it was created with
+`git worktree add .../T/opencode/p15/prov p15-prov`. The main checkout
+(`/Users/ahmedobaid/nabd-plus`, on `fix/audit-2026-09` with its own dirty tree) was never
+touched; `backend/` and the sibling `web` worktree were read only. No `git push`. Three new
+commits on top of `f14622a`, none amended:
+
+| Finding | Commit | Result |
+|---|---|---|
+| F1 DeviceGate cold-start | `f14622a` (pre-existing, verified here — no new commit needed) | FIXED |
+| F2 15.9 server-time + Asia/Riyadh | `0210cda` + `b65ad2f` (home-tab follow-up) | FIXED (Ramadan/holiday display DEFERRED, see below) |
+| F3 shared Sentry contract | `e8a68c4` | FIXED |
+
+### F1 — DeviceGate cold-start false rejection: FIXED (verified, already committed)
+
+`DeviceGate.tsx:60-71` already renders a neutral `ActivityIndicator` (`device-gate-loading`)
+while `detected === undefined` instead of falling through to
+`meetsMinimumOs(platform, undefined)` → false, and web passes through after resolving.
+The `F1 cold start` block in `deviceSupport.test.tsx` covers: unresolved → loading (iOS and
+web), resolved-below-floor → still rejects, resolved web → children. Revert-proof (guard
+forced false): `Tests: 2 failed, 13 passed` — the two loading-state tests go red; restored,
+suite green in the final full run.
+
+### F2 — 15.9 server-time anchor + Asia/Riyadh display: FIXED, one DEFERRED piece
+
+New `src/time/serverTime.ts` (same approach as `patient-web/lib/api/net/server-time.ts`,
+read as reference: `offset = serverMs - deviceMs` from the response `Date` header,
+`serverNowMs()` cancels ±1 day of device error, unanchored fallback documented).
+`src/api/client.ts` feeds every response `Date` header into `noteServerDate` — success
+(`client.ts`, `reportTransportOutcome(true)` site) and error responses alike — so ordinary
+traffic refreshes the anchor with no extra request. New `src/time/providerZone.ts`:
+`PROVIDER_TIME_ZONE = 'Asia/Riyadh'`, `formatServerInstant` /
+`formatInProviderZone` (never read the device clock/zone), and `isPastSlot(slotMs,
+nowMs = serverNowMs())`. Wired into two real renders that showed the same server instant
+in the device zone: `DoctorScheduleTab.tsx:78` and `DoctorHomeTab.tsx:129,138`
+(`x.scheduled_at`; falsy still renders the old fallback text via `??`, verified by the
+wiring test). New suites: `serverTime.test.ts`, `providerZone.test.ts`,
+`serverTimeAnchor.test.ts` (fake-adapter, proves the client itself anchors on 200 and on
+503, and that anchored traffic corrects a +1-day device clock), `scheduleWiring.test.js`
+(source-contract: the instants go through `formatInProviderZone`, no
+`scheduled_at).toLocale` remains; fails on revert).
+
+Dead-helper check: provider-app had **no** provider-zone helper at all (the dead one the
+review found was in patient-web, not here) — so nothing to delete; the new helpers are
+called from real renders, not dead on arrival.
+
+Mutation proofs (break → red → restore, all restored and green in the final run):
+
+```
+# providerZone forced to UTC:            Tests: 3 failed, 7 passed, 10 total
+# noteServerDate forced to never anchor: Tests: 8 failed, 3 passed, 11 total (2 suites)
+# client.ts anchor calls removed (x2):   Tests: 3 failed, 1 passed, 4 total
+# schedule wiring reverted (each file):  Tests: 3 failed / 1 failed (wiring suites red)
+```
+
+DEFERRED-OUT-OF-SCOPE (exact missing backend piece): Ramadan and holiday hours display.
+`backend/src/schemas/provider-availability.schema.ts` exposes only `working_hours`
+(`[{day,start,end}]`), `blocked_slots` (`[{start,end,reason?}]`) and `vacation_mode`
+(`{from,to,reason?}`) — there are **no** `ramadan_hours` / `holiday_hours` / dated-override
+fields anywhere under `backend/src/modules/provider`, `doctors`, `admin`, `scheduling` or
+`appointments` (grep for ramadan|holiday: no hits). The anchor + Riyadh formatting are
+implemented and tested; per-date Ramadan/holiday rendering needs those backend fields
+first. OTP expiry needs no client change: no screen computes an OTP deadline from the
+device clock (grep over `OtpModal.tsx`/`api/otp.ts`: zero `Date.now`/`getTime`), expiry is
+enforced server-side. Chat/message `createdAt` timestamps and `Security.isExpired` (JWT
+`exp` UX shortcut; server 401 remains the enforcer) still read the device clock —
+deliberately untouched, noted here, not part of this finding.
+
+### F3 — shared Sentry contract: FIXED, implemented exactly as specified
+
+`src/utils/sentry.ts`: `SENTRY_APP_ID = 'provider-app'`; format
+`` provider-app@{version}+{build} ``; dev builds append `+dev`; resolution reads env
+`SENTRY_RELEASE` first (verbatim, even in dev, so a pinned release matches the artifact it
+names), then the legacy Expo config value (version + iOS buildNumber / Android
+versionCode); nothing hardcoded to a shipped value (`0.0.0` is an unknown-version marker
+for a config-less runtime, documented as never-shipped). `app.config.js`
+`extra.sentryReleaseName` (stamped but never read at runtime — confirmed by grep) repointed
+from `` `${base.name}@${base.version}` `` to the contract format, and the stale
+`app@version+build` comments updated. `ErrorBoundary.test.tsx` expectations updated to the
+contract (old ones encoded the pre-fix `Name@version` behaviour) plus a new env-precedence
+test. Mutation proofs: wrong app id → `3 failed, 12 passed`; env branch dropped →
+`1 failed, 14 passed`; `+dev` dropped → `2 failed, 13 passed`; all restored.
+
+### Final state (this round)
+
+```
+$ node node_modules/jest/bin/jest.js --silent --runInBand
+Test Suites: 14 passed, 14 total
+Tests:       136 passed, 136 total
+Time:        82.586 s
+
+$ node node_modules/typescript/bin/tsc --noEmit
+TSC_EXIT=0
+```
+
+Before this round (committed notes): 10 suites / 107 tests. After: 14 suites / 136 tests
+(+29: 7 serverTime + 10 providerZone + 4 anchor + 4 wiring + 4 net-new/updated Sentry —
+ErrorBoundary suite grew 11 → 15 with the contract + env-precedence tests).
+
+Cold-cache note: the first full run in this fresh worktree showed the known pre-existing
+`OtpModal` cold-cache flake (`1 failed, 135 passed` — a jest timeout on first run, exactly
+the artifact documented in these notes as reproducing on unmodified baseline code; none of
+this round's files are in its path). Immediate re-run of that file: `5 passed`; warm full
+run above: 14/14 green. Untouched, unclaimed.
+
+### Final gap check — plan PHASE 15 lines 635–660 (15.1/15.5/15.9/15.10, provider-app only)
+
+- 15.1 one API client: met — timeouts 15/60/45 s, safe/idempotent-only retry with
+  backoff+jitter honouring `Retry-After`, `AbortSignal` cancellation (real screens pass
+  signals), offline detection, catalog-mapped errors; the three contract verifications have
+  tests (`client.resilience.test.ts`).
+- 15.5 no blank screens + Sentry: met in code — root + per-screen boundaries, Sentry with
+  the shared release contract + source-map wiring in `app.config.js`. Still BLOCKED (owner
+  side, unchanged): live event send and source-map upload need `EXPO_PUBLIC_SENTRY_DSN` /
+  `SENTRY_AUTH_TOKEN`; the ≥99.5% crash-free target is unmeasurable without production data
+  — no claim made.
+- 15.9 clocks/time zones: met except the DEFERRED Ramadan/holiday display above — anchor
+  from `Date` headers with ±1-day tests, Asia/Riyadh schedule display wired into the two
+  appointment renders, OTP expiry server-enforced (nothing client-side to fix).
+- 15.10 devices: met in code — documented floor (iOS 16.4+, Android 7+), gate message with
+  website route, F1 cold-start fix, web passthrough, farm matrix config. Still BLOCKED
+  (unchanged): the device-farm run itself — paid external service, no account; no report
+  exists and none is fabricated (`devicefarm/run.js --run` refuses without `gcloud`, which
+  is how the `BLOCKED: gcloud…` line gets into the passing test output).
+
+## BLOCKED (this round — additions to the standing list above)
+
+- BLOCKED: Ramadan/holiday provider hours have no backend fields to display
+  (`ProviderAvailability`: only `working_hours`/`blocked_slots`/`vacation_mode`). Needs a
+  backend schema + API change first; client anchor+formatting is ready.
+- BLOCKED (unchanged): Sentry live send / source-map upload (owner secrets); device-farm
+  run (paid service, no account); ≥99.5% crash-free target (needs production data).
