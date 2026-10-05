@@ -23,17 +23,36 @@ describe('15.5 — error reporting', () => {
   });
 
   describe('releases', () => {
-    it('prefers an explicit SENTRY_RELEASE (the git SHA CI sets)', () => {
-      expect(resolveRelease({ SENTRY_RELEASE: '9f2c1ab', NODE_ENV: 'production' })).toBe('9f2c1ab');
+    it('prefers an explicit SENTRY_RELEASE (the full contracted name CI sets)', () => {
+      expect(resolveRelease({ SENTRY_RELEASE: 'admin@1.2.3+9f2c1ab', NODE_ENV: 'production' })).toBe(
+        'admin@1.2.3+9f2c1ab',
+      );
     });
 
-    it('derives a version-only release from ADMIN_APP_VERSION when there is no SHA', () => {
-      expect(resolveRelease({ ADMIN_APP_VERSION: '0.1.0', NODE_ENV: 'production' })).toBe('web-admin@0.1.0');
+    it('F2 — implements the shared contract {appId}@{version}+{build} with appId admin', () => {
+      expect(
+        resolveRelease({ ADMIN_APP_VERSION: '1.2.3', SENTRY_BUILD: '9f2c1ab', NODE_ENV: 'production' }),
+      ).toBe('admin@1.2.3+9f2c1ab');
+    });
+
+    it('F2 — dev builds append +dev instead of colliding with production releases', () => {
+      expect(
+        resolveRelease({ ADMIN_APP_VERSION: '1.2.3', SENTRY_BUILD: '9f2c1ab', NODE_ENV: 'development' }),
+      ).toBe('admin@1.2.3+9f2c1ab+dev');
+    });
+
+    it('keeps the legacy ADMIN_APP_VERSION fallback and never hard-codes a release', () => {
+      expect(
+        resolveRelease({ ADMIN_APP_VERSION: '9.9.9', SENTRY_BUILD: 'deadbee', NODE_ENV: 'production' }),
+      ).toBe('admin@9.9.9+deadbee');
     });
 
     it('falls back to a distinguishable dev release rather than an empty string', () => {
-      expect(resolveRelease({ NODE_ENV: 'development' })).toBe('web-admin@dev');
-      expect(resolveRelease({ SENTRY_RELEASE: '   ' })).toBe('web-admin@dev');
+      const fallback = resolveRelease({ NODE_ENV: 'development' });
+      expect(fallback.startsWith('admin@')).toBe(true);
+      expect(fallback).toContain('+');
+      expect(fallback.endsWith('+dev')).toBe(true);
+      expect(resolveRelease({ SENTRY_RELEASE: '   ', NODE_ENV: 'development' })).toBe(fallback);
     });
 
     it('reads the environment the same way on client and server', () => {

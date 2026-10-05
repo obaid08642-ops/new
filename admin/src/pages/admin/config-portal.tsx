@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { fetchWithAdminGuard } from '@/utils/api';
 import { canSaveAppVersions, checkVersionFormat, effectiveAppEnforcement } from '@/lib/ops-control';
 
@@ -20,6 +20,13 @@ export default function ConfigPortal() {
   // `{ apps: {} }` and wipe the force-update config the apps enforce.
   const [appsLoaded, setAppsLoaded] = useState(false);
   const [appsError, setAppsError] = useState('');
+  // 15.2/F1: the in-flight PUT flag. `appsSaving` drives the button; the ref
+  // below is the synchronous twin — React state flushes after render, so two
+  // clicks in the same tick would both read `appsSaving === false` and PUT
+  // twice. The ref is set before the first PUT leaves, so the second click
+  // returns early even before the re-render disables the button.
+  const [appsSaving, setAppsSaving] = useState(false);
+  const appsSavingRef = useRef(false);
 
   const loadAppVersions = async () => {
     setAppsError('');
@@ -43,14 +50,20 @@ export default function ConfigPortal() {
 
   const saveAppVersions = async () => {
     setAppsMsg('');
-    if (!canSaveAppVersions(appsLoaded, false)) {
-      setAppsMsg('الحفظ معطّل: لم ينجح تحميل الإصدارات بعد.');
+    if (!canSaveAppVersions(appsLoaded, appsSavingRef.current)) {
+      // While a PUT is in flight the button is already disabled; a second
+      // click that still reaches here must not dispatch and must not clobber
+      // the pending state's message.
+      if (!appsLoaded) setAppsMsg('الحفظ معطّل: لم ينجح تحميل الإصدارات بعد.');
       return;
     }
+    appsSavingRef.current = true;
+    setAppsSaving(true);
     try {
       const res = await fetchWithAdminGuard('/api/admin/admin/config/app-versions', { method: 'PUT', body: JSON.stringify({ apps: appVersions }) });
       setAppsMsg(res.ok ? 'تم حفظ إصدارات التطبيقات' : 'فشل الحفظ');
     } catch { setAppsMsg('فشل الحفظ'); }
+    finally { appsSavingRef.current = false; setAppsSaving(false); }
   };
   // P6.x-14: platform pricing (surge + fee defaults, persisted server-side).
   const [surgeStart, setSurgeStart] = useState(18);
@@ -390,7 +403,7 @@ export default function ConfigPortal() {
                   {checkVersionFormat(appVersions[app]?.latest_version) === 'invalid' ? <p data-testid={`app-version-warn-${app}-latest`} className="mt-1 text-xs font-bold text-amber-700">تحذير: صيغة latest_version غير قياسية (المتوقع X.Y.Z مثل 1.6.0).</p> : null}
                 </div>
               ))}
-              <button onClick={() => void saveAppVersions()} disabled={!canSaveAppVersions(appsLoaded, false)} title={appsLoaded ? undefined : 'الحفظ معطّل حتى ينجح تحميل الإصدارات'} className="mt-2 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-6 rounded-lg disabled:opacity-50" data-testid="app-versions-save">حفظ الإصدارات</button>
+              <button onClick={() => void saveAppVersions()} disabled={!canSaveAppVersions(appsLoaded, appsSaving)} title={appsLoaded ? undefined : 'الحفظ معطّل حتى ينجح تحميل الإصدارات'} className="mt-2 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-6 rounded-lg disabled:opacity-50" data-testid="app-versions-save">حفظ الإصدارات</button>
               {appsMsg && <p className="mt-2 text-sm font-bold">{appsMsg}</p>}
             </div>
           </div>
