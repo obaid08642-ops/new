@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>Appointments</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Readex Pro',sans-serif}
+a{color:#C8202F}
+@keyframes ndRise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes ndDraw{from{stroke-dashoffset:100}to{stroke-dashoffset:0}}
+@keyframes ndPulse{0%{transform:scale(.6);opacity:.5}100%{transform:scale(1.8);opacity:0}}
+@keyframes ndBeat{0%,100%{transform:scale(1)}12%{transform:scale(1.3)}24%{transform:scale(1)}36%{transform:scale(1.15)}60%{transform:scale(1)}}
+@keyframes ndMove{0%{transform:translateX(0)}100%{transform:translateX(-60px)}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</helmet>
+<div dir="rtl" style="width: 390px; height: 960px; box-sizing: border-box; position: relative; overflow: hidden; background: #F5F5F7; color: #0B1B2B; font-family: 'Readex Pro', sans-serif">
+<div style="padding: 54px 16px 40px; display: flex; flex-direction: column; gap: 16px">
+
+<div style="display: flex; align-items: center; gap: 10px"><h1 style="margin: 0; flex-grow: 1; font-size: 26px; font-weight: 700; letter-spacing: -0.3px">مواعيدي</h1><button aria-label="حجز جديد" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid rgba(11,27,43,0.08); background: #FFFFFF; display: flex; align-items: center; justify-content: center; padding: 0; position: relative; flex-shrink: 0"><svg width="20" height="20" viewBox="0 0 256 256" aria-hidden="true" style="flex-shrink: 0"><path d="M208,32H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM184,136H136v48a8,8,0,0,1-16,0V136H72a8,8,0,0,1,0-16h48V72a8,8,0,0,1,16,0v48h48a8,8,0,0,1,0,16Z" fill="#0B1B2B"></path></svg></button></div>
+<div role="radiogroup" style="display: flex; padding: 4px; border-radius: 16px; background: #EAEAEF">
+<sc-for list="{{tab}}" as="sg" hint-placeholder-count="3">
+<button role="radio" aria-checked="{{sg.on}}" onClick="{{sg.pick}}" style="flex-grow: 1; flex-basis: 0; height: 38px; padding: 0 14px; border-radius: 12px; border: 0; background: {{sg.bg}}; box-shadow: {{sg.shadow}}; color: #0B1B2B; font-family: inherit; font-size: 13.5px; font-weight: {{sg.w}}; white-space: nowrap; transition: background 200ms ease">{{sg.l}}</button>
+</sc-for>
+</div>
+<sc-for list="{{appts}}" as="a" hint-placeholder-count="3">
+<div style="border-radius: 26px; background: #FFFFFF; border: 1px solid rgba(11,27,43,0.06); box-shadow: 0 6px 18px rgba(11,27,43,0.05); padding: 14px; display: flex; flex-direction: column; gap: 12px; animation: ndRise 420ms cubic-bezier(.22,1,.36,1) {{a.d}} both">
+<div style="display: flex; gap: 12px; align-items: center">
+<div style="width: 58px; height: 62px; border-radius: 18px; background: #FFE8EA; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.15; flex-shrink: 0"><span style="font-size: 20px; font-weight: 700; color: #B81E2B">[٢٦]</span><span style="font-size: 11px; color: #B81E2B">[الشهر]</span></div>
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 3px"><span style="font-size: 15.5px; font-weight: 700">{{a.title}}</span><span style="font-size: 12.5px; color: #6E6E73">[التخصص] · [الوقت]</span>
+<span style="align-self: flex-start; height: 24px; padding: 0 9px; border-radius: 12px; background: {{a.mb}}; color: {{a.mf}}; font-size: 11.5px; font-weight: 600; display: inline-flex; align-items: center">{{a.mode}}</span></div></div>
+<div style="display: flex; gap: 8px">
+<button style="flex-grow: 1; height: 46px; border-radius: 15px; border: 0; background: {{a.pb}}; color: {{a.pf}}; font-family: inherit; font-size: 14.5px; font-weight: 700">{{a.primary}}</button>
+<button style="height: 46px; padding: 0 16px; border-radius: 15px; border: 1.5px solid rgba(11,27,43,0.15); background: transparent; color: #0B1B2B; font-family: inherit; font-size: 14px; font-weight: 600">تعديل أو إلغاء</button></div>
+</div>
+</sc-for>
+
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":960}}'>
+class Component extends DCLogic {
+constructor(props) { super(props); this.state = {}; }
+renderVals() {
+const s = this.state;
+const mkSeg = (labels, key) => labels.map((l, k) => ({ l, on: (this.state[key] || 0) === k, bg: (this.state[key] || 0) === k ? '#FFFFFF' : 'transparent', shadow: (this.state[key] || 0) === k ? '0 2px 6px rgba(11,27,43,0.10)' : 'none', w: (this.state[key] || 0) === k ? 700 : 500, pick: () => this.setState({ [key]: k }) }));
+const tab = mkSeg(['القادمة','السابقة'], 'tab');
+const appts = [['د. [اسم الطبيب]','فيديو','#EFEAFF','#6A3FD1','ادخل غرفة الانتظار','linear-gradient(180deg, #E8384A 0%, #D42A38 100%)','#FFFFFF'],['د. [اسم الطبيب]','في العيادة','#E7ECFF','#2D4FD6','الاتجاهات','#0B1B2B','#FFFFFF'],['[فني التمريض]','زيارة منزلية','#E1F6EE','#0F8A68','تتبع الزيارة','#0B1B2B','#FFFFFF']].map((x, k) => ({ title: x[0], mode: x[1], mb: x[2], mf: x[3], primary: x[4], pb: x[5], pf: x[6], d: (k * 70) + 'ms' }));
+return { tab, appts };
+}
+}
+</script>
+</body>
+</html>
