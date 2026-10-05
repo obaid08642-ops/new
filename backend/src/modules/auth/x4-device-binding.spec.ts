@@ -129,3 +129,24 @@ describe('X4: devices are bound to a passkey assertion', () => {
     expect(auth.adminLoginAlert).toHaveBeenCalledWith(expect.objectContaining({ id: 'u1' }), true, expect.anything());
   });
 });
+
+// Live finding: AuthService declared `@Optional() adminDevices?: any`, so Nest
+// had no injection token and completePasskeyLogin never enrolled (or bound) the
+// device; only the BFF's generic enroll did.
+describe('X4: the passkey login can bind the device', () => {
+  it('AuthService receives AdminDeviceService from the module', async () => {
+    const module = await Test.createTestingModule({
+      providers: [
+        AuthService,
+        { provide: AdminDeviceService, useValue: { enroll: jest.fn() } },
+        { provide: 'UserRepository', useValue: {} },
+        { provide: 'PatientProfileRepository', useValue: {} },
+        { provide: JwtService, useValue: {} },
+        { provide: (require('@nestjs/event-emitter') as typeof import('@nestjs/event-emitter')).EventEmitter2, useValue: {} },
+        { provide: (require('../redis/redis.service') as typeof import('../redis/redis.service')).RedisService, useValue: {} },
+      ],
+    }).compile();
+    const auth = module.get(AuthService) as unknown as { adminDevices?: unknown };
+    expect(auth.adminDevices).toEqual({ enroll: expect.any(Function) });
+  });
+});
