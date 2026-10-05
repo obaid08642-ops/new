@@ -158,8 +158,8 @@ export default async function DoctorsSpecialtyCityNeighborhoodPage({ params }: P
               const docId = typeof d.id === "string" || typeof d.id === "number" ? d.id : `doc-${i}`;
               const docName = d.name_ar || d.name_en || d.name;
               return (
-              <article key={docId} className={styles.card} style={{ gap: 8, padding: 16, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.72)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>
-                <h3 className={styles.cardTitle} style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{docName}</h3>
+              <article key={docId} className={styles.card} style={{ gap: 8, padding: 16, borderRadius: 20, border: "1px solid var(--nabd-color-border-subtle)", background: "var(--nabd-color-glass-bg)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>
+                <h3 className={styles.cardTitle} style={{ color: "var(--nabd-color-text-primary)", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{docName}</h3>
                 <p className={styles.facilityMeta} style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{typeof d.specialty === "string" ? d.specialty : ""}</p>
                 {typeof d.rating === "number" && Number.isFinite(d.rating) ? (
                   <span className={styles.rating} style={{ overflowWrap: "anywhere" } as any}>
@@ -167,7 +167,7 @@ export default async function DoctorsSpecialtyCityNeighborhoodPage({ params }: P
                     {d.rating}
                   </span>
                 ) : null}
-                <Link href={`/${locale}/consultations/book/${encodeURIComponent(String(docId))}`} className={styles.primaryBtn} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "10px 16px", borderRadius: 20, border: "1px solid #E8EDEE", background: "#5FD9B3", color: "#1E332E", fontWeight: 760, overflowWrap: "anywhere" } as any}>
+                <Link href={`/${locale}/consultations/book/${encodeURIComponent(String(docId))}`} className={styles.primaryBtn} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "10px 16px", borderRadius: 20, border: "1px solid var(--nabd-color-border-subtle)", background: "var(--nabd-color-action-primary-bg)", color: "var(--nabd-color-text-primary)", fontWeight: 760, overflowWrap: "anywhere" } as any}>
                   {locale === "ar" ? "احجز استشارة" : "Book Consultation"}
                 </Link>
               </article>

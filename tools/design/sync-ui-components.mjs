@@ -54,6 +54,11 @@ const FILES = [
   { from: 'packages/ui/icons/names.ts', to: 'patient-web/components-next/ui-generated/icons/names.ts' },
   { from: 'packages/ui/icons/illustrations.ts', to: 'patient-web/components-next/ui-generated/icons/illustrations.ts' },
   { from: 'packages/ui/src/Icon.tsx', to: 'patient-web/components-next/ui-generated/src/Icon.tsx', useClient: true },
+  // DEVICE_STANDARD §1 web shells. AppShell holds the rail state, so it is a Client Component.
+  { from: 'packages/ui/shells/AppShell.tsx', to: 'patient-web/components-next/ui-generated/shells/AppShell.tsx', useClient: true },
+  { from: 'packages/ui/shells/StickyFooter.tsx', to: 'patient-web/components-next/ui-generated/shells/StickyFooter.tsx' },
+  { from: 'packages/ui/shells/index.ts', to: 'patient-web/components-next/ui-generated/shells/index.ts' },
+  { from: 'packages/ui/shells/shells.css', to: 'patient-web/components-next/ui-generated/shells/shells.css' },
 ];
 
 const banner = (from) => `// GENERATED FILE — DO NOT EDIT.
@@ -86,12 +91,16 @@ for (const file of FILES) {
   while (insertAt < lines.length && /^\s*(\/\/|@ts-|['"]use (client|server)|\/\*)/.test(lines[insertAt])) {
     insertAt++;
   }
-  const content = [
-    ...(file.useClient ? ['"use client";', ''] : []),
-    ...lines.slice(0, insertAt),
-    banner(file.from),
-    ...lines.slice(insertAt),
-  ].join('\n');
+  // CSS has no // comments: the same banner goes in a /* */ block, at the top.
+  const isCss = file.from.endsWith('.css');
+  const content = isCss
+    ? ['/*', ...banner(file.from).split('\n').map((l) => ' *' + l.replace(/^\/\//, '')), ' */', body].join('\n')
+    : [
+        ...(file.useClient ? ['"use client";', ''] : []),
+        ...lines.slice(0, insertAt),
+        banner(file.from),
+        ...lines.slice(insertAt),
+      ].join('\n');
 
   if (CHECK_ONLY) {
     const current = existsSync(out) ? readFileSync(out, 'utf8') : '';
