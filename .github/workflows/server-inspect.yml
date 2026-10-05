@@ -1,0 +1,73 @@
+name: server-ops
+# Owner-delegated server operations (2026-10-04). Every run uses the `production` environment,
+# so it waits for the owner's Approve click. tools/ops/RUN lists the task scripts to run, in order.
+# The repo is public: the full report is encrypted to tools/ops/report_pubkey.pub before upload,
+# and the log shows only short status lines (lines starting with a task tag, e.g. "x0:").
+on:
+  workflow_dispatch:
+  push:
+    branches: ['review/server-inspect']
+    paths: ['tools/ops/**', '.github/workflows/server-inspect.yml']
+concurrency: { group: server-ops, cancel-in-progress: false }
+jobs:
+  ops:
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: SSH setup
+        env:
+          H: ${{ secrets.DEPLOY_HOST }}
+          PORT: ${{ secrets.DEPLOY_PORT }}
+          K: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          PORT=${PORT:-22}
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          ssh-keyscan -p "$PORT" -T 15 "$H" > ~/.ssh/known_hosts 2>/dev/null
+          [ -s ~/.ssh/known_hosts ] || { echo "::error::server not reachable"; exit 1; }
+          printf '%s\n' "$K" > ~/.ssh/id_deploy && chmod 600 ~/.ssh/id_deploy
+      - name: Run tasks
+        env:
+          H: ${{ secrets.DEPLOY_HOST }}
+          U: ${{ secrets.DEPLOY_USER }}
+          PORT: ${{ secrets.DEPLOY_PORT }}
+        run: |
+          set +e   # a failing task must never stop the report from being saved
+          PORT=${PORT:-22}
+          : > report.txt
+          for t in $(grep -vE '^\s*(#|$)' tools/ops/RUN); do
+            f=tools/ops/tasks/$t.sh
+            [ -f "$f" ] || continue
+            echo "== task $t" | tee -a report.txt
+            timeout 420 ssh -p "$PORT" -o BatchMode=yes -o ServerAliveInterval=15 -o ConnectTimeout=20 -o StrictHostKeyChecking=yes -i ~/.ssh/id_deploy "$U@$H" 'bash -s' < "$f" >> report.txt 2>&1
+            echo "   exit=$?"
+          done
+          # public log: only the short status lines of mutating tasks
+          grep -E '^(x0|cleanup|deploy|rotate):' report.txt | sed -E 's/[0-9]{1,3}(\.[0-9]{1,3}){3}/<ip>/g' || true
+          echo "report lines: $(wc -l < report.txt)"
+          openssl rand -hex 32 > k.txt
+          openssl enc -aes-256-cbc -pbkdf2 -salt -in report.txt -out report.enc -pass file:k.txt
+          openssl pkeyutl -encrypt -pubin -inkey tools/ops/report_pubkey.pub -pkeyopt rsa_padding_mode:oaep -in k.txt -out k.enc
+          rm -f report.txt k.txt
+      - name: Cloudflare purge of api.nabd.plus (only when RUN lists cf-purge-api)
+        if: ${{ !cancelled() }}
+        env:
+          CF: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          Z: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+        run: |
+          grep -qE '^\s*cf-purge-api\s*$' tools/ops/RUN || { echo "skipped"; exit 0; }
+          curl -s -X POST -H "Authorization: Bearer $CF" -H 'Content-Type: application/json' \
+            "https://api.cloudflare.com/client/v4/zones/$Z/purge_cache" --data '{"hosts":["api.nabd.plus"]}' \
+            | jq -r '"cf-purge: success=\(.success) errors=\(.errors|map(.message)|join("; "))"'
+      - name: Cleanup key
+        if: ${{ always() }}
+        run: rm -f ~/.ssh/id_deploy
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: ops-report-encrypted
+          path: |
+            report.enc
+            k.enc
+          retention-days: 3
