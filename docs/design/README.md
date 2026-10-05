@@ -13,6 +13,7 @@ This folder holds everything a design-rebuild session needs: the design sources,
 
 - **After every PR:** update `PROGRESS.md` (Done / In progress / Next / Blockers, with the PR link), update `screen-status.json` for each screen the PR rebuilt, and re-run `node tools/design/screen-inventory.mjs` so the inventory and the wiring report match the code.
 - **When context runs low:** commit, push, update `PROGRESS.md` (say exactly where you stopped and what the next step is), push again, and stop.
+- **Every batch PR also carries the audit of `QUALITY_STANDARDS.md` §7:** element audit, mock/placeholder section, runtime check, 0 unresolved calls, Needs review entries, strict token-only colours with a lower `client-token-sync` baseline (state the number in the PR). Same PR, not a separate pass.
 - Real API data only. If a field does not exist, hide the element (handoff §1, spec rule). Never invent values, ratings, counts or prices.
 
 ## Files
