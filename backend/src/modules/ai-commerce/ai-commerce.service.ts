@@ -131,7 +131,7 @@ export class AiCommerceService {
     if (query.specialty) docFilter.specialty = query.specialty;
     if (query.city) docFilter.city = { $regex: escapeRegex(String(query.city)), $options: 'i' };
 
-    const facFilter: Record<string, unknown> = { is_active: { $ne: false }, public_eligibility: true, medical_review_status: 'approved', is_deleted: { $ne: true } };
+    const facFilter: Record<string, unknown> = { is_active: true, public_eligibility: true, medical_review_status: 'approved', is_deleted: { $ne: true } };
     if (query.city) facFilter.city = { $regex: escapeRegex(String(query.city)), $options: 'i' };
 
     const [doctors, facilities] = await Promise.all([
