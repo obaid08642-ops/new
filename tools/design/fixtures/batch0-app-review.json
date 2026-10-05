@@ -1,0 +1,22 @@
+{
+  "_note": "DESIGN-REVIEW FIXTURE for tools/design/render-native-screen.mjs --api fixture. It is NOT app data and is never imported by the app: it only lets a reviewer see the populated layout of the Search and Notifications screens next to their boards. Images made from it are named *-fixture-*. Times written as $ago:<n>m|h|d are resolved against the clock at render time.",
+  "/home/search": [
+    { "id": "m1", "type": "دواء", "typeEn": "Medicine", "name": "باراسيتامول 500 ملغ أقراص", "nameEn": "Paracetamol 500 mg tablets", "sub": "باراسيتامول · 20 قرصًا", "subEn": "Paracetamol · 20 tablets", "price": "12", "priceEn": "12" },
+    { "id": "m2", "type": "دواء", "typeEn": "Medicine", "name": "باراسيتامول شراب للأطفال", "nameEn": "Paracetamol syrup for children", "sub": "باراسيتامول · 100 مل", "subEn": "Paracetamol · 100 ml", "price": "18", "priceEn": "18" },
+    { "id": "m3", "type": "دواء", "typeEn": "Medicine", "name": "باراسيتامول فوار 1000 ملغ", "nameEn": "Paracetamol effervescent 1000 mg", "sub": "باراسيتامول · 10 أكياس", "subEn": "Paracetamol · 10 sachets", "price": "24", "priceEn": "24" },
+    { "id": "m4", "type": "دواء", "typeEn": "Medicine", "name": "باراسيتامول مع الكافيين", "nameEn": "Paracetamol with caffeine", "sub": "باراسيتامول", "subEn": "Paracetamol", "price": "21", "priceEn": "21" },
+    { "id": "d1", "type": "دكتور", "typeEn": "Doctor", "name": "د. سارة العتيبي", "nameEn": "Dr. Sara Al-Otaibi", "sub": "طب الأسرة", "subEn": "Family medicine", "price": "150", "priceEn": "150" },
+    { "id": "d2", "type": "دكتور", "typeEn": "Doctor", "name": "د. خالد الشمري", "nameEn": "Dr. Khalid Al-Shammari", "sub": "الباطنية", "subEn": "Internal medicine", "price": "200", "priceEn": "200" },
+    { "id": "l1", "type": "تحليل", "typeEn": "Lab", "name": "صورة دم كاملة", "nameEn": "Complete blood count", "sub": "CBC", "subEn": "CBC", "price": "60", "priceEn": "60" },
+    { "id": "r1", "type": "أشعة", "typeEn": "Radiology", "name": "أشعة سينية للصدر", "nameEn": "Chest X-ray", "sub": "الصدر", "subEn": "Chest", "price": "150", "priceEn": "150" },
+    { "id": "p1", "type": "باقة", "typeEn": "Package", "name": "باقة الفحص الشامل", "nameEn": "Full check-up package", "sub": "عرض نبض", "subEn": "Nabd offer", "price": "299", "priceEn": "299", "sponsored": true }
+  ],
+  "/notifications": [
+    { "id": "n1", "type": "order", "title": "طلبك في الطريق", "body": "صيدلية النور · يصل خلال 12 دقيقة", "createdAt": "$ago:5m", "read": false },
+    { "id": "n2", "type": "appointment", "title": "موعدك يبدأ بعد 15 دقيقة", "body": "د. سارة العتيبي · ادخل غرفة الانتظار", "createdAt": "$ago:20m", "read": false },
+    { "id": "n3", "type": "medication", "title": "تذكير دواء", "body": "بنادول · حبتان بعد الأكل", "createdAt": "$ago:40m", "read": true },
+    { "id": "n4", "type": "labs", "title": "نتيجة التحليل جاهزة", "body": "صورة دم كاملة · اضغط للعرض", "createdAt": "$ago:1d", "read": true },
+    { "id": "n5", "type": "alert", "title": "تمت موافقة التأمين", "body": "طلب رقم 2041 · نسبة التحمل 30 ر.س", "createdAt": "$ago:3d", "read": true },
+    { "id": "n6", "type": "promo", "title": "خصم على الفيتامينات", "body": "", "createdAt": "$ago:40d", "read": true }
+  ]
+}

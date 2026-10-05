@@ -27,7 +27,7 @@ function Root() {
   return (
     // dir: react-native-web resolves start/end from the writing direction of its context, the
     // counterpart of I18nManager.isRTL on a device running in Arabic.
-    <View nativeID="frame" dir="rtl" lang="ar" style={{ width: cfg.width, height: cfg.height, overflow: 'hidden' }}>
+    <View nativeID="frame" dir={cfg.dir || "rtl"} lang={cfg.lang || "ar"} style={{ width: cfg.width, height: cfg.height, overflow: 'hidden' }}>
       {/* the contexts directly: on the web SafeAreaProvider measures the browser (zero insets) */}
       <SafeAreaFrameContext.Provider value={metrics.frame}>
         <SafeAreaInsetsContext.Provider value={metrics.insets}>

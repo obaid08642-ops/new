@@ -2,7 +2,7 @@
   "note": "Hard-coded colours that predate the design system. Recorded once with --init. 12.A11 rebuilds the screens on tokens and each rebuilt file drops out. --update only ever LOWERS a count; it cannot raise one.",
   "totals": {
     "patient-web": 5907,
-    "patient-app": 2495,
+    "patient-app": 2432,
     "provider-app": 320,
     "admin": 215
   },
@@ -276,8 +276,6 @@
     "patient-web/components-next/vector-illustrations.tsx": 291,
     "patient-web/components-next/video-room-client.tsx": 11,
     "patient-app/app/(auth)/welcome.tsx": 2,
-    "patient-app/app/(onboarding)/index.tsx": 38,
-    "patient-app/app/(onboarding)/permissions.tsx": 5,
     "patient-app/app/(tabs)/consultations/index.tsx": 39,
     "patient-app/app/(tabs)/diagnostics.tsx": 37,
     "patient-app/app/(tabs)/health.tsx": 20,
@@ -374,7 +372,6 @@
     "patient-app/app/medicine/[slug].tsx": 3,
     "patient-app/app/mental-health/hub.tsx": 11,
     "patient-app/app/mental-health/mood-journal.tsx": 23,
-    "patient-app/app/notifications/index.tsx": 18,
     "patient-app/app/nursing/insurance-status.tsx": 1,
     "patient-app/app/nursing/live-tracking.tsx": 50,
     "patient-app/app/nursing/nurse-profile.tsx": 87,
@@ -420,7 +417,6 @@
     "patient-app/app/reviews/index.tsx": 13,
     "patient-app/app/room/[id].tsx": 12,
     "patient-app/app/s/[type]/[slug].tsx": 3,
-    "patient-app/app/search/index.tsx": 2,
     "patient-app/app/settings/data.tsx": 11,
     "patient-app/app/settings/feedback.tsx": 8,
     "patient-app/app/settings/help.tsx": 20,
