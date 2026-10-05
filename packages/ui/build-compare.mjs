@@ -61,7 +61,8 @@ const shellsCss = existsSync(join(HERE, 'shells/shells.css')) ? readFileSync(joi
  * xpath     the element to cut out of the board
  * themes    which themes to render (the board must accept `theme` for dark)
  * render    the component, with the board's text
- * frame     'canvas' (default) or 'card' (the component sits in a white card on the board)
+ * frame     'canvas' (default), 'card' (the component sits in a white card on the board) or
+ *           'surface' (a plain card-coloured background, for a control cut out of a card)
  * needs     component names that must exist in this build (else the entry is skipped)
  * viewport  page width for both sides (default 430; desktop boards use 1440)
  * inject    true: render(C, inner) also gets the board element's own children (HTML), so a
@@ -99,6 +100,88 @@ const COMPARISONS = [
     id: 'rating-doctorcard', board: 'Consult', xpath: "//span[contains(normalize-space(),'[N.N]')][1]", themes: ['light'], frame: 'coral',
     render: (C) => h(C.Rating, { value: 4.8, count: 128, surface: 'onBrand' }), needs: ['Rating'],
     note: 'board placeholders [N.N] ([العدد]); the component renders real numbers',
+  },
+  // ---- components 2/4: controls
+  {
+    id: 'button-primary', board: 'Cart', xpath: "//button[contains(@style,'#E8384A 0%')]", themes: ['light'],
+    render: (C) => h(C.Button, { label: 'اطلب عروض الصيدليات', variant: 'primary', size: 'lg', fullWidth: true }), needs: ['Button'],
+    note: 'Gradient top is #E62337, the board\'s #E8384A darkened to give the white label 4.5:1 (tokens, owner rule 2026-10-04).',
+  },
+  {
+    id: 'button-outline-md', board: 'RxUpload', xpath: "//button[normalize-space()='الصور']", themes: ['light'], frame: 'surface',
+    render: (C) => h(C.Button, { label: 'الصور', variant: 'outline', size: 'md', startIcon: 'image' }), needs: ['Button'],
+  },
+  {
+    id: 'button-outline-sm', board: 'Account', xpath: "//button[normalize-space()='تعديل']", themes: ['light'], frame: 'surface',
+    render: (C) => h(C.Button, { label: 'تعديل', variant: 'outline', size: 'sm' }), needs: ['Button'],
+  },
+  {
+    id: 'iconbutton-outlined', board: 'Settings', xpath: "//button[@aria-label='رجوع']", themes: ['light'],
+    render: (C) => h(C.IconButton, { name: 'caret-right', label: 'رجوع', variant: 'outlined' }), needs: ['IconButton'],
+    note: 'Glyph: Phosphor caret (the line set) for the board\'s stroked chevron.',
+  },
+  {
+    id: 'iconbutton-filter', board: 'Consult', xpath: "//button[@aria-label='تصفية']", themes: ['light'],
+    render: (C) => h(C.IconButton, { name: 'sliders', label: 'تصفية', variant: 'filled', shape: 'square', size: 'lg' }), needs: ['IconButton'],
+  },
+  {
+    id: 'segmented-md', board: 'Settings', xpath: "(//*[@role='radiogroup'])[1]", themes: ['light'],
+    render: (C) => h(C.Segmented, { label: 'المظهر', value: 'auto', options: [{ value: 'auto', label: 'تلقائي' }, { value: 'light', label: 'فاتح' }, { value: 'dark', label: 'غامق' }] }), needs: ['Segmented'],
+  },
+  {
+    id: 'segmented-sm', board: 'Orders', xpath: "(//*[@role='radiogroup'])[1]", themes: ['light'],
+    render: (C) => h(C.Segmented, { label: 'الطلبات', size: 'sm', value: 'now', options: [{ value: 'now', label: 'الحالية' }, { value: 'past', label: 'السابقة' }] }), needs: ['Segmented'],
+  },
+  {
+    id: 'toggle-on', board: 'Settings', xpath: "(//*[@role='switch'])[1]", themes: ['light'], frame: 'surface',
+    render: (C) => h(C.Toggle, { label: 'حالة الطلبات والمواعيد', value: true }), needs: ['Toggle'],
+  },
+  {
+    id: 'toggle-off', board: 'RxUpload', xpath: "(//*[@role='switch'])[1]", themes: ['light'], frame: 'surface',
+    render: (C) => h(C.Toggle, { label: 'استخدم تأميني', value: false }), needs: ['Toggle'],
+  },
+  {
+    id: 'radio', board: 'Settings', xpath: "//button[.//span[normalize-space()='العربية']]", themes: ['light'], frame: 'surface',
+    render: (C) => h(C.Radio, { label: 'العربية', meta: 'Arabic', selected: true, divider: true }), needs: ['Radio'],
+  },
+  {
+    id: 'radio-off', board: 'Settings', xpath: "//button[.//span[normalize-space()='English']]", themes: ['light'], frame: 'surface',
+    render: (C) => h(C.Radio, { label: 'English', meta: 'English', selected: false, divider: true }), needs: ['Radio'],
+  },
+  {
+    id: 'chip-selected', board: 'Search', xpath: "(//button[@role='tab'])[1]", themes: ['light'],
+    render: (C) => h(C.Chip, { label: 'الكل', count: '[N]', selected: true }), needs: ['Chip'],
+    note: 'Board placeholder [N]; the component shows a real count or none.',
+  },
+  {
+    id: 'chip', board: 'Search', xpath: "(//button[@role='tab'])[2]", themes: ['light'],
+    render: (C) => h(C.Chip, { label: 'أدوية', count: '[N]' }), needs: ['Chip'],
+  },
+  {
+    id: 'statuschip', board: 'Orders', xpath: "//span[normalize-space()='في الطريق']", themes: ['light'], frame: 'surface',
+    render: (C) => h(C.StatusChip, { label: 'في الطريق', tone: 'coral' }), needs: ['StatusChip'],
+    note: 'Ink is the tone\'s service fg (4.5:1 on its bg, checked) for the board\'s #B81E2B.',
+  },
+  {
+    id: 'statuschip-done', board: 'Orders', xpath: "//span[normalize-space()='تم التوصيل']", themes: ['light'], frame: 'surface',
+    render: (C) => h(C.StatusChip, { label: 'تم التوصيل', tone: 'mint' }), needs: ['StatusChip'],
+  },
+  {
+    id: 'search-filter', board: 'Consult', xpath: "//label[.//input[contains(@placeholder,'طبيب')]]/parent::div", themes: ['light'],
+    render: (C) => h(C.Search, { placeholder: 'ابحث عن طبيب أو تخصص…', onFilterPress: () => {}, filterLabel: 'تصفية' }), needs: ['Search'],
+  },
+  {
+    id: 'search-scan', board: 'PharmacyHub', xpath: "//label[.//input[contains(@placeholder,'المادة')]]", themes: ['light'],
+    render: (C) => h(C.Search, { placeholder: 'ابحث بالاسم أو المادة الفعالة…', onScanPress: () => {}, scanLabel: 'مسح الباركود' }), needs: ['Search'],
+  },
+  {
+    id: 'search-page', board: 'Search', xpath: "//label[.//input[@aria-label='بحث']]", themes: ['light'],
+    render: (C) => h(C.Search, { variant: 'page', value: 'باراسيتامول', label: 'بحث', onClear: () => {}, clearLabel: 'مسح', onScanPress: () => {}, scanLabel: 'ماسح الأدوية' }), needs: ['Search'],
+    note: 'The scan button uses the handoff barcode glyph for the board\'s stroked scan frame.',
+  },
+  {
+    id: 'stepper', board: 'Cart', xpath: "(//button[@aria-label='إنقاص'])[1]/parent::div", themes: ['light'], frame: 'surface',
+    render: (C) => h(C.Stepper, { value: 1, min: 0, label: 'الكمية', decrementLabel: 'إنقاص', incrementLabel: 'زيادة' }), needs: ['Stepper'],
   },
   {
     id: 'stickyfooter', board: 'Cart', xpath: "//button[contains(@style,'#E8384A 0%')]/parent::div", themes: ['light'], inject: true,
@@ -178,6 +261,8 @@ for (const c of COMPARISONS) {
     const frame =
       c.frame === 'card'
         ? `<div style="border-radius:24px;background:var(--nabd-color-bg-surface);border:1px solid var(--nabd-color-border-hairline);overflow:hidden">${body}</div>`
+        : c.frame === 'surface'
+          ? `<div style="background:var(--nabd-color-bg-surface)">${body}</div>`
         : c.frame === 'coral'
           ? `<div style="padding:10px 14px;border-radius:12px;background:linear-gradient(180deg,var(--nabd-color-action-fab-from),var(--nabd-color-action-fab-to))">${body}</div>`
           : body;
@@ -208,5 +293,8 @@ for (const c of COMPARISONS) {
 
 await browser.close();
 server.close();
-writeFileSync(join(OUT, 'README.md'), `# Board ↔ component comparisons\n\nGenerated by \`node packages/ui/build-compare.mjs\`. Left: the element cut out of the board (rendered by \`docs/design/canvas/support.js\`). Right: the real component with the same text, theme, width and direction.\n\n${done.map((f) => `- [${f}](${f})`).join('\n')}\n`);
+// keep the section tools/design/compare-native.mjs writes (the native shells)
+const readmePath = join(OUT, 'README.md');
+const nativeSection = existsSync(readmePath) ? (readFileSync(readmePath, 'utf8').match(/\n## Native shells[\s\S]*$/) || [''])[0] : '';
+writeFileSync(readmePath, `# Board ↔ component comparisons\n\nGenerated by \`node packages/ui/build-compare.mjs\`. Left: the element cut out of the board (rendered by \`docs/design/canvas/support.js\`). Right: the real component with the same text, theme, width and direction.\n\n${done.map((f) => `- [${f}](${f})`).join('\n')}\n${nativeSection}`);
 console.log(`build-compare: wrote ${done.length} comparison(s) to docs/design/compare/`);

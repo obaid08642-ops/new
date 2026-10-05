@@ -40,9 +40,14 @@ export type Size = 'sm' | 'md' | 'lg';
  */
 export const MIN_TOUCH = 44;
 
-/** Which fill/ink pair a control uses. `lime` is the acid accent, dark surfaces only. */
+/**
+ * Which fill/ink pair a control uses. `primary` is the handoff coral gradient
+ * (PrimaryButton), `outline` the 1.5px ink outline (OutlineButton). `lime` is the
+ * acid accent, dark surfaces only.
+ */
 export type Variant =
   | 'primary'
+  | 'outline'
   | 'secondary'
   | 'ghost'
   | 'danger'
@@ -87,13 +92,20 @@ export type TextAlign = 'start' | 'center' | 'end';
 
 /* ------------------------------------------------------------------- Button */
 
+/**
+ * The handoff buttons (canvas/Cart, CheckoutV2, Consult, HomeWeb …):
+ *   lg  56 tall, radius 18, 17/700 — the page CTA in a StickyFooter;
+ *   md  44 tall, radius 14, 14/600;
+ *   sm  40 tall, radius 14, 13.5/600 (still a 44 hit area).
+ */
 export interface ButtonProps extends StateProps, A11yProps {
   label: string;
   variant?: Variant;
   size?: Size;
   fullWidth?: boolean;
-  startIcon?: IconName;
-  endIcon?: IconName;
+  /** A filled glyph of the handoff set (icons/fill.ts, e.g. "image") wins over a line icon of the same name. */
+  startIcon?: IconName | FillIconName;
+  endIcon?: IconName | FillIconName;
 }
 
 /* --------------------------------------------------------------- IconButton */
@@ -103,9 +115,65 @@ export interface IconButtonProps extends StateProps, A11yProps {
   name: IconName;
   /** REQUIRED: an icon button has no visible text, so this cannot be optional. */
   label: string;
+  /** sm and md are 44×44 (canvas/Settings back button); lg is 52×52 (the filter square of Consult, PharmacyHub). */
   size?: Size;
-  variant?: 'plain' | 'outlined' | 'filled' | 'tinted';
+  /**
+   * `outlined` is the board header button: surface fill with a hairline ring.
+   * `filled` is the ink square/disc (Consult filter). `glass` sits over a photo
+   * (ProductFull). `plain` and `tinted` have no ring.
+   */
+  variant?: 'plain' | 'outlined' | 'filled' | 'tinted' | 'glass';
+  /** `circle` (default) or the rounded `square` of the board's filter button. */
+  shape?: 'circle' | 'square';
   tone?: Tone;
+}
+
+/* ---------------------------------------------------------------- controls */
+
+/**
+ * A segmented choice (handoff §3; canvas/Settings, Orders, CheckoutV2): a
+ * `control.segmentedTrack` track, the selected item a raised surface pill.
+ * md items are 44 tall, sm items 38 (with a 44 hit area).
+ */
+export interface SegmentedProps extends StateProps, A11yProps {
+  options: Option[];
+  value: string;
+  onChange?: OnChange<string>;
+  /** REQUIRED: the name of the group, e.g. "المظهر". */
+  label: string;
+  size?: 'sm' | 'md';
+}
+
+/** An on/off switch (canvas/Settings, Cart): 50×30, green when on, 44 hit area. */
+export interface ToggleProps extends StateProps, A11yProps {
+  value: boolean;
+  onChange?: OnChange<boolean>;
+  /** REQUIRED: what the switch turns on, e.g. "تذكير الأدوية". */
+  label: string;
+}
+
+/**
+ * One choice of a radio group, as a row (canvas/Settings language list): the
+ * label, an optional meta text, and the 22px ring (7px coral when selected).
+ * Put the rows inside an element with role="radiogroup" and a name.
+ */
+export interface RadioProps extends StateProps, A11yProps {
+  label: string;
+  /** Secondary text at the end of the row, e.g. the language's English name. */
+  meta?: string;
+  selected: boolean;
+  /** Called with `true` when the row is chosen. */
+  onChange?: OnChange<boolean>;
+}
+
+/**
+ * A status pill (canvas/Orders: "في الطريق", "تم التوصيل"): 26 tall, the tone's
+ * soft background with its ink. It states a real status from the API; it is not
+ * a button.
+ */
+export interface StatusChipProps extends A11yProps {
+  label: string;
+  tone: ServiceTone;
 }
 
 /* ------------------------------------------------------- inputs & pickers */
@@ -160,13 +228,26 @@ export interface OtpProps extends StateProps, A11yProps {
   onComplete?: (code: string) => void;
 }
 
+/**
+ * The search field (handoff SearchField). `inline` is the hub field (PharmacyHub,
+ * Consult: 52 tall, radius 18, hairline); `page` is the focused field of the
+ * Search screen (50 tall pill, 2px ink border and a soft ring). Both take the
+ * ink ring while focused.
+ */
 export interface SearchProps extends StateProps, A11yProps {
   value?: string;
   onChange?: OnChange<string>;
   placeholder?: string;
-  /** A second affordance inside the field, e.g. a filter button. */
+  variant?: 'inline' | 'page';
+  /** The ink filter square beside the field (Consult). */
   onFilterPress?: () => void;
   filterLabel?: string;
+  /** The clear button, shown while there is text. */
+  onClear?: () => void;
+  clearLabel?: string;
+  /** The barcode button inside the field (PharmacyHub, Search). */
+  onScanPress?: () => void;
+  scanLabel?: string;
 }
 
 export interface StepperProps extends StateProps, A11yProps {
@@ -176,7 +257,11 @@ export interface StepperProps extends StateProps, A11yProps {
   max?: number;
   step?: number;
   label?: string;
-  /** Decrement/increment are named so a screen reader hears "أضف"/"أنقص", not "-". */
+  /**
+   * Decrement/increment are named so a screen reader hears "أضف"/"أنقص", not "-".
+   * canvas/Cart: a 36 tall canvas-coloured pill with two 30px surface discs
+   * (each a 44 hit area) around the value.
+   */
   decrementLabel?: string;
   incrementLabel?: string;
   format?: (value: number) => string;
@@ -200,12 +285,15 @@ export interface SlotPickerProps extends StateProps, A11yProps {
 
 /* ------------------------------------------------------- chips, tags, cards */
 
+/**
+ * A filter chip (canvas/Search): 38 tall pill, surface with a subtle border, or
+ * ink when selected. For a status use <StatusChip>.
+ */
 export interface ChipProps extends StateProps, A11yProps {
   label: string;
-  tone?: Tone;
-  variant?: 'soft' | 'solid' | 'outline';
+  /** A real count next to the label, e.g. results in that category. */
+  count?: string | number;
   startIcon?: IconName;
-  onDismissLabel?: string;
   selected?: boolean;
 }
 
@@ -482,6 +570,10 @@ export interface ChartCardProps extends A11yProps {
 export interface ContractMap {
   Button: ButtonProps;
   IconButton: IconButtonProps;
+  Segmented: SegmentedProps;
+  Toggle: ToggleProps;
+  Radio: RadioProps;
+  StatusChip: StatusChipProps;
   Input: InputProps;
   Select: SelectProps;
   Otp: OtpProps;
@@ -551,7 +643,7 @@ export type NativeRequired = RequiredBy<'native'>;
 
 /** The names, for iteration in the gallery and the conformance check. */
 export const CONTRACT_NAMES = [
-  'Button', 'IconButton', 'Input', 'Select', 'Otp', 'Search', 'Stepper',
+  'Button', 'IconButton', 'Segmented', 'Toggle', 'Radio', 'StatusChip', 'Input', 'Select', 'Otp', 'Search', 'Stepper',
   'SlotPicker', 'Chip', 'Badge', 'Card', 'ListItem', 'ServiceTile', 'FIcon', 'SectionHeader', 'Avatar',
   'PriceTag', 'Rating', 'Tabs', 'NavBar', 'BottomTabBar', 'Sidebar',
   'MapPinCard', 'EmptyState', 'ErrorState', 'Toast', 'Modal', 'Skeleton',

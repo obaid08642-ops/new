@@ -237,6 +237,12 @@ export interface Tokens {
         readonly glyph: string;
       };
     };
+    readonly control: {
+      readonly segmentedTrack: string;
+      readonly switchOn: string;
+      readonly switchKnob: string;
+      readonly radioOff: string;
+    };
     readonly avatar: {
       readonly bg: string;
       readonly ring: string;
@@ -403,6 +409,8 @@ export interface Tokens {
     readonly tabBar: string;
     readonly fab: string;
     readonly button: string;
+    readonly segmented: string;
+    readonly knob: string;
   };
   readonly motion: {
     readonly duration: {
@@ -705,6 +713,12 @@ const lightTree: Tokens = {
         "glyph": "#A65A00",
       },
     },
+    "control": {
+      "segmentedTrack": "#EAEAEF",
+      "switchOn": "#1F9D6E",
+      "switchKnob": "#FFFFFF",
+      "radioOff": "#C7C7CC",
+    },
     "avatar": {
       "bg": "#FFE3E5",
       "ring": "#FF4B55",
@@ -870,7 +884,9 @@ const lightTree: Tokens = {
     "glass": "0 8px 32px rgba(11,27,43,0.10)",
     "tabBar": "0 18px 40px rgba(11,27,43,0.14)",
     "fab": "0 12px 26px rgba(212,42,56,0.38)",
-    "button": "0 10px 22px rgba(212,42,56,0.28)",
+    "button": "0 10px 22px rgba(212,42,56,0.28), inset 0 1px 0 rgba(255,255,255,0.25)",
+    "segmented": "0 2px 6px rgba(11,27,43,0.10)",
+    "knob": "0 2px 6px rgba(0,0,0,0.18)",
   },
   "motion": {
     "duration": {
@@ -1173,6 +1189,12 @@ const darkTree: Tokens = {
         "glyph": "#FFC56E",
       },
     },
+    "control": {
+      "segmentedTrack": "#1A3148",
+      "switchOn": "#1F9D6E",
+      "switchKnob": "#FFFFFF",
+      "radioOff": "rgba(255,255,255,0.28)",
+    },
     "avatar": {
       "bg": "#1A3148",
       "ring": "#FF4B55",
@@ -1338,7 +1360,9 @@ const darkTree: Tokens = {
     "glass": "0 8px 32px rgba(0,0,0,0.30)",
     "tabBar": "0 18px 40px rgba(11,27,43,0.14)",
     "fab": "0 12px 26px rgba(212,42,56,0.38)",
-    "button": "0 10px 22px rgba(212,42,56,0.28)",
+    "button": "0 10px 24px rgba(255,107,115,0.25)",
+    "segmented": "0 2px 6px rgba(11,27,43,0.12)",
+    "knob": "0 2px 6px rgba(0,0,0,0.18)",
   },
   "motion": {
     "duration": {
@@ -1495,6 +1519,8 @@ const themedPaths: Readonly<Record<string, true>> = Object.freeze({
   "color.service.insurance.glyph": true,
   "color.service.points.bg": true,
   "color.service.points.glyph": true,
+  "color.control.segmentedTrack": true,
+  "color.control.radioOff": true,
   "color.avatar.bg": true,
   "color.glass.bg": true,
   "color.glass.bgStrong": true,
@@ -1505,6 +1531,8 @@ const themedPaths: Readonly<Record<string, true>> = Object.freeze({
   "shadow.raised": true,
   "shadow.avatar": true,
   "shadow.glass": true,
+  "shadow.button": true,
+  "shadow.segmented": true,
   "a11y.focusRing.color": true,
 });
 
@@ -1642,6 +1670,10 @@ export const light: Readonly<Record<string, string | number>> = Object.freeze({
   "color.service.insurance.glyph": "#2D4FD6",
   "color.service.points.bg": "#FFF1DB",
   "color.service.points.glyph": "#A65A00",
+  "color.control.segmentedTrack": "#EAEAEF",
+  "color.control.switchOn": "#1F9D6E",
+  "color.control.switchKnob": "#FFFFFF",
+  "color.control.radioOff": "#C7C7CC",
   "color.avatar.bg": "#FFE3E5",
   "color.avatar.ring": "#FF4B55",
   "color.glass.bg": "rgba(255,255,255,0.78)",
@@ -1735,7 +1767,9 @@ export const light: Readonly<Record<string, string | number>> = Object.freeze({
   "shadow.glass": "0 8px 32px rgba(11,27,43,0.10)",
   "shadow.tabBar": "0 18px 40px rgba(11,27,43,0.14)",
   "shadow.fab": "0 12px 26px rgba(212,42,56,0.38)",
-  "shadow.button": "0 10px 22px rgba(212,42,56,0.28)",
+  "shadow.button": "0 10px 22px rgba(212,42,56,0.28), inset 0 1px 0 rgba(255,255,255,0.25)",
+  "shadow.segmented": "0 2px 6px rgba(11,27,43,0.10)",
+  "shadow.knob": "0 2px 6px rgba(0,0,0,0.18)",
   "motion.duration.enter": "200ms",
   "motion.duration.enterMax": "240ms",
   "motion.duration.press": "120ms",
@@ -1903,6 +1937,10 @@ export const dark: Readonly<Record<string, string | number>> = Object.freeze({
   "color.service.insurance.glyph": "#9DB0FF",
   "color.service.points.bg": "rgba(255,181,71,0.15)",
   "color.service.points.glyph": "#FFC56E",
+  "color.control.segmentedTrack": "#1A3148",
+  "color.control.switchOn": "#1F9D6E",
+  "color.control.switchKnob": "#FFFFFF",
+  "color.control.radioOff": "rgba(255,255,255,0.28)",
   "color.avatar.bg": "#1A3148",
   "color.avatar.ring": "#FF4B55",
   "color.glass.bg": "rgba(18,38,58,0.72)",
@@ -1996,7 +2034,9 @@ export const dark: Readonly<Record<string, string | number>> = Object.freeze({
   "shadow.glass": "0 8px 32px rgba(0,0,0,0.30)",
   "shadow.tabBar": "0 18px 40px rgba(11,27,43,0.14)",
   "shadow.fab": "0 12px 26px rgba(212,42,56,0.38)",
-  "shadow.button": "0 10px 22px rgba(212,42,56,0.28)",
+  "shadow.button": "0 10px 24px rgba(255,107,115,0.25)",
+  "shadow.segmented": "0 2px 6px rgba(11,27,43,0.12)",
+  "shadow.knob": "0 2px 6px rgba(0,0,0,0.18)",
   "motion.duration.enter": "200ms",
   "motion.duration.enterMax": "240ms",
   "motion.duration.press": "120ms",

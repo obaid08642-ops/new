@@ -13,6 +13,7 @@
 export { Icon, IllustratedIconView, Illustration, LINE_ICON_NAMES, ILLUSTRATED_ICONS, ILLUSTRATION_NAMES, ILLUSTRATION_META, ILLUSTRATIONS, ICON_TINT } from './Icon';
 export { Button, IconButton } from '../components/Button';
 export { Spinner } from '../components/Spinner';
+export { Segmented, Toggle, Radio, StatusChip } from '../components/Controls';
 export { Input, Select, Otp, Search, Stepper, SlotPicker } from '../components/Inputs';
 export {
   Avatar, Badge, BottomTabBar, Card, Chip, ListItem, MapPinCard, NavBar, PriceTag,

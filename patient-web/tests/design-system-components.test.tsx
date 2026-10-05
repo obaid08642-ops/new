@@ -5,8 +5,9 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
 import {
-  Avatar, Badge, Button, Card, Chip, EmptyState, ErrorState, FIcon, IconButton, ListItem, Rating,
-  SectionHeader, Select, ServiceTile, SERVICE_ICONS, SERVICE_TONES, Stepper, Tabs,
+  Avatar, Badge, Button, Card, Chip, EmptyState, ErrorState, FIcon, IconButton, ListItem, Radio, Rating,
+  Search, SectionHeader, Segmented, Select, ServiceTile, SERVICE_ICONS, SERVICE_TONES, StatusChip, Stepper, Tabs, Toggle,
+  FILL_ICON_PATHS,
 } from "@nabd/ui";
 import { CONTRACT_NAMES } from "@nabd/ui/components/contract";
 import { WEB_ONLY } from "@nabd/ui/components/contract";
@@ -30,14 +31,15 @@ import { SERVICE_TILES } from "@nabd/ui/components/fixtures";
 describe("12.A7 — the contract roster is honest", () => {
   it("lists every component exactly once", () => {
     expect(new Set(CONTRACT_NAMES).size).toBe(CONTRACT_NAMES.length);
-    expect(CONTRACT_NAMES.length).toBe(30); // 28 from §A7 + FIcon and SectionHeader (handoff §3)
+    // 28 from §A7 + FIcon, SectionHeader (handoff §3, components 1/4) + Segmented, Toggle, Radio, StatusChip (2/4)
+    expect(CONTRACT_NAMES.length).toBe(34);
   });
 
   it("every component named in the docs roster is in the contract", () => {
-    // §A7's list, transcribed, plus the handoff §3 additions (FIcon, SectionHeader).
+    // §A7's list, transcribed, plus the handoff §3 additions (FIcon, SectionHeader; Segmented, Toggle, Radio, StatusChip).
     // If the contract grows a component, this is where it has to be added, which is the point.
     const fromTheSpec = [
-      "Button", "IconButton", "Input", "Select", "Otp", "Search", "Stepper",
+      "Button", "IconButton", "Segmented", "Toggle", "Radio", "StatusChip", "Input", "Select", "Otp", "Search", "Stepper",
       "SlotPicker", "Chip", "Badge", "Card", "ListItem", "ServiceTile", "FIcon", "SectionHeader", "Avatar",
       "PriceTag", "Rating", "Tabs", "NavBar", "BottomTabBar", "Sidebar",
       "MapPinCard", "EmptyState", "ErrorState", "Toast", "Modal", "Skeleton",
@@ -258,10 +260,124 @@ describe("design review — ratings are real or absent, people are real or neutr
   });
 });
 
+describe("handoff §3 — controls (components 2/4) match the boards", () => {
+  it("PrimaryButton is the coral gradient with the button shadow; lg is the 56 / 18 page CTA", () => {
+    const html = markup(Button, { label: "متابعة", variant: "primary", size: "lg" });
+    expect(html).toContain("linear-gradient(180deg, var(--nabd-color-action-primary-gradient-from) 0%, var(--nabd-color-action-primary-gradient-to) 100%)");
+    expect(html).toContain("box-shadow:var(--nabd-shadow-button)");
+    expect(html).toContain("height:56px");
+    expect(html).toContain("border-radius:18px");
+  });
+
+  it("OutlineButton is 1.5px of ink on transparent; sm is 40 to look at and 44 to hit", () => {
+    const html = markup(Button, { label: "تعديل", variant: "outline", size: "sm" });
+    expect(html).toContain("border:1.5px solid var(--nabd-color-text-primary)");
+    expect(html).toContain("background:transparent");
+    expect(html).toContain("height:40px");
+    expect(html).toContain("calc((40px - var(--nabd-a11y-minTouchTarget)) / 2)");
+    // md and lg need no extender
+    expect(markup(Button, { label: "x", variant: "outline", size: "md" })).not.toContain("var(--nabd-a11y-minTouchTarget)) / 2");
+  });
+
+  it("a Button icon from the handoff fill set is drawn filled", () => {
+    const html = markup(Button, { label: "الصور", variant: "outline", startIcon: "image" });
+    expect(html).toContain(`d="${FILL_ICON_PATHS.image}"`);
+    expect(html).toContain('fill="currentColor"');
+  });
+
+  it("IconButton outlined is the board header button; lg square is the 52 / 18 filter", () => {
+    const back = markup(IconButton, { name: "caret-right", label: "رجوع", variant: "outlined" });
+    expect(back).toContain("background:var(--nabd-color-bg-surface)");
+    expect(back).toContain("border:1px solid var(--nabd-color-border-onGlass)");
+    expect(back).toContain("width:44px");
+    expect(back).toContain("min-height:var(--nabd-a11y-minTouchTarget)");
+    const filter = markup(IconButton, { name: "sliders", label: "تصفية", variant: "filled", shape: "square", size: "lg" });
+    expect(filter).toContain("width:52px");
+    expect(filter).toContain("border-radius:18px");
+    expect(filter).toContain("background:var(--nabd-color-action-selected-bg)");
+    expect(filter).toContain('data-icon="sliders"');
+  });
+
+  it("Segmented is a named radiogroup with one tab stop; the selected item is the raised surface pill", () => {
+    const html = markup(Segmented, {
+      label: "المظهر", value: "light",
+      options: [{ value: "auto", label: "تلقائي" }, { value: "light", label: "فاتح" }, { value: "dark", label: "غامق" }],
+    });
+    expect(html).toContain('role="radiogroup"');
+    expect(html).toContain('aria-label="المظهر"');
+    expect(html.match(/role="radio"/g)).toHaveLength(3);
+    expect(html.match(/aria-checked="true"/g)).toHaveLength(1);
+    expect(html.match(/tabindex="0"/g)).toHaveLength(1);
+    expect(html).toContain("background:var(--nabd-color-control-segmentedTrack)");
+    expect(html.match(/box-shadow:var\(--nabd-shadow-segmented\)/g)).toHaveLength(1);
+  });
+
+  it("a 38px segment still has a 44px target", () => {
+    const html = markup(Segmented, { label: "الطلبات", size: "sm", value: "a", options: [{ value: "a", label: "الحالية" }, { value: "b", label: "السابقة" }] });
+    expect(html).toContain("height:44px");
+    expect(html).toContain("margin-block:-3px");
+    expect(html).toContain("height:38px");
+  });
+
+  it("Toggle is a named switch: green when on, the strong border colour when off", () => {
+    const on = markup(Toggle, { label: "تذكير الأدوية", value: true });
+    expect(on).toContain('role="switch"');
+    expect(on).toContain('aria-checked="true"');
+    expect(on).toContain('aria-label="تذكير الأدوية"');
+    expect(on).toContain("background:var(--nabd-color-control-switchOn)");
+    const off = markup(Toggle, { label: "العروض", value: false });
+    expect(off).toContain('aria-checked="false"');
+    expect(off).toContain("background:var(--nabd-color-border-strong)");
+  });
+
+  it("Radio is a row with the 22px ring: 7px coral when chosen, 2px grey when not", () => {
+    const on = markup(Radio, { label: "العربية", meta: "Arabic", selected: true });
+    expect(on).toContain('role="radio"');
+    expect(on).toContain('aria-checked="true"');
+    expect(on).toContain("border:7px solid var(--nabd-color-action-primary-bg)");
+    expect(on).toContain(">Arabic<");
+    const off = markup(Radio, { label: "English", selected: false });
+    expect(off).toContain("border:2px solid var(--nabd-color-control-radioOff)");
+  });
+
+  it("StatusChip takes the tone's service colours; Chip is a pressed-state toggle with a real count", () => {
+    const status = markup(StatusChip, { label: "في الطريق", tone: "coral" });
+    expect(status).toContain("background:var(--nabd-color-service-coral-bg)");
+    expect(status).toContain("color:var(--nabd-color-service-coral-fg)");
+    const chip = markup(Chip, { label: "أدوية", count: 12, selected: true });
+    expect(chip).toContain('aria-pressed="true"');
+    expect(chip).toContain("background:var(--nabd-color-action-selected-bg)");
+    expect(chip).toContain(">12<");
+    expect(markup(Chip, { label: "أطباء" })).not.toContain("opacity:0.7");
+  });
+
+  it("SearchField: the page field is the focused pill; clear shows only with text; filter is the ink square", () => {
+    const page = markup(Search, { variant: "page", value: "باراسيتامول", label: "بحث", onClear: () => {}, clearLabel: "مسح" });
+    expect(page).toContain("border:2px solid var(--nabd-color-text-primary)");
+    expect(page).toContain("border-radius:25px");
+    expect(page).toContain('aria-label="مسح"');
+    expect(markup(Search, { variant: "page", value: "", label: "بحث", onClear: () => {}, clearLabel: "مسح" })).not.toContain('aria-label="مسح"');
+    const hub = markup(Search, { placeholder: "ابحث", onFilterPress: () => {}, filterLabel: "تصفية", onScanPress: () => {}, scanLabel: "مسح الباركود" });
+    expect(hub).toContain("border:1px solid var(--nabd-color-border-onGlass)");
+    expect(hub).toContain('aria-label="تصفية"');
+    expect(hub).toContain('aria-label="مسح الباركود"');
+    expect(hub).toContain(`d="${FILL_ICON_PATHS.barcode}"`);
+  });
+
+  it("Stepper is the Cart pill: named buttons, and the end of the range disables its button", () => {
+    const html = markup(Stepper, { value: 1, min: 1, max: 9, label: "الكمية", decrementLabel: "إنقاص", incrementLabel: "زيادة" });
+    expect(html).toContain('aria-label="الكمية"');
+    expect(html).toMatch(/<button[^>]*disabled=""[^>]*aria-label="إنقاص"/);
+    expect(html).not.toMatch(/<button[^>]*disabled=""[^>]*aria-label="زيادة"/);
+    expect(html).toContain("background:var(--nabd-color-bg-canvas)");
+    expect(html).toContain("width:30px");
+  });
+});
+
 describe("12.A7 — the gallery has every component", () => {
   it("build-preview renders a specimen for each contract component", () => {
     const src = readFileSync(resolve(process.cwd(), "../packages/ui/build-preview.mjs"), "utf8");
-    for (const name of ["Button", "IconButton", "Chip", "Badge", "Card", "ListItem", "ServiceTile", "FIcon", "SectionHeader", "Avatar", "PriceTag", "Rating", "Tabs", "NavBar", "BottomTabBar", "Sidebar", "MapPinCard", "EmptyState", "ErrorState", "Toast", "Modal", "Skeleton", "Input", "Select", "Otp", "Search", "Stepper", "SlotPicker"]) {
+    for (const name of ["Button", "IconButton", "Segmented", "Toggle", "Radio", "StatusChip", "Chip", "Badge", "Card", "ListItem", "ServiceTile", "FIcon", "SectionHeader", "Avatar", "PriceTag", "Rating", "Tabs", "NavBar", "BottomTabBar", "Sidebar", "MapPinCard", "EmptyState", "ErrorState", "Toast", "Modal", "Skeleton", "Input", "Select", "Otp", "Search", "Stepper", "SlotPicker"]) {
       expect(src, `${name} has no specimen in the gallery`).toContain(name);
     }
   });
