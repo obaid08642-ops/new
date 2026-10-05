@@ -387,7 +387,7 @@
   "pageErrors": [],
   "failed": [],
   "overlay": 0,
-  "textLen": 74
+  "textLen": 78
  },
  {
   "route": "/notifications/settings",
@@ -457,7 +457,7 @@
   "pageErrors": [],
   "failed": [],
   "overlay": 0,
-  "textLen": 311
+  "textLen": 179
  },
  {
   "route": "/notifications/settings",
@@ -484,7 +484,7 @@
   "pageErrors": [],
   "failed": [],
   "overlay": 0,
-  "textLen": 311
+  "textLen": 86
  },
  {
   "route": "/onboarding",

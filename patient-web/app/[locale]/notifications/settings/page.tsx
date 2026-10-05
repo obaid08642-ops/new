@@ -29,7 +29,7 @@ export default async function NotificationSettingsPage({ params }: Props) {
   const back = `/${locale}/notifications`;
   const failed = (
     <CoreShell locale={locale} title={s("title")} backHref={back} width="narrow">
-      <RetryErrorState title={t("unavailableTitle")} body={t("unavailable")} retryLabel={routeState("retry")} />
+      <RetryErrorState title={s("unavailableTitle")} body={s("unavailable")} retryLabel={routeState("retry")} />
     </CoreShell>
   );
   let response: Response;

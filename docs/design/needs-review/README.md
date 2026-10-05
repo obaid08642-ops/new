@@ -12,6 +12,7 @@ Each session writes its own file so parallel sessions never conflict:
 |---|---|
 | `batch-0-web.json` | the patient-web Batch 0 audit (explained in `../audit/batch-0-web.md`) |
 | `batch-0-app.json` | the patient-app Batch 0 audit (explained in `../audit/batch-0-app.md`) |
+| `batch-0-runtime.json` | the Batch 0 runtime check (`../audit/runtime-batch-0-web.md`, `../audit/runtime-batch-0-app.md`) |
 | `tooling.json` | the inventory tooling: findings of the mock scan and of the screens-with-no-API-calls review |
 
 Use `batch-<n>-<app>.json` for later batches. The per-screen element audits that explain each entry live in `../audit/` (`batch-0-web.md`, `batch-0-app.md`).

@@ -685,7 +685,8 @@
     "chEmail": "Email",
     "chSms": "Text messages",
     "saveFailed": "Couldn’t save the change. Try again.",
-    "unavailable": "Not available right now"
+    "unavailable": "Not available right now",
+    "unavailableTitle": "Couldn't load the settings"
   },
   "Articles": {
     "eyebrow": "Health library",

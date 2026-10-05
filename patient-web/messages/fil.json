@@ -685,7 +685,8 @@
     "chEmail": "Email",
     "chSms": "Mga text message",
     "saveFailed": "Hindi na-save ang pagbabago. Subukang muli.",
-    "unavailable": "Hindi available sa ngayon"
+    "unavailable": "Hindi available sa ngayon",
+    "unavailableTitle": "Hindi ma-load ang mga setting"
   },
   "Articles": {
     "eyebrow": "Library ng kalusugan",
