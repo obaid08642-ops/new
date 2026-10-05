@@ -24,6 +24,8 @@
 
 .nabd-button--primary {
   background: linear-gradient(180deg, var(--nabd-color-action-primary-gradient-from) 0%, var(--nabd-color-action-primary-gradient-to) 100%);
+  /* solid fallback under the gradient: what the colour checks and forced-colours see */
+  background-color: var(--nabd-color-action-primary-bg);
   color: var(--nabd-color-action-primary-fg);
   border: 0;
   box-shadow: var(--nabd-shadow-button);

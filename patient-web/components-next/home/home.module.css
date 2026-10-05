@@ -86,6 +86,8 @@
 .searchBtn {
   block-size: 42px; padding-inline: 20px; border: 0; border-radius: 21px; flex-shrink: 0; cursor: pointer;
   background: linear-gradient(180deg, var(--nabd-color-action-primary-gradient-from) 0%, var(--nabd-color-action-primary-gradient-to) 100%);
+  /* solid fallback under the gradient: what the colour checks and forced-colours see */
+  background-color: var(--nabd-color-action-primary-bg);
   color: var(--nabd-color-action-primary-fg); font-family: inherit; font-size: var(--nabd-font-size-body); font-weight: 700;
 }
 

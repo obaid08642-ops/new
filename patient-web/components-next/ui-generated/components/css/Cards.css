@@ -94,6 +94,8 @@
   padding-inline-start: 12px;
   padding-inline-end: 14px;
   background: linear-gradient(180deg, var(--nabd-color-action-primary-gradient-from) 0%, var(--nabd-color-action-primary-gradient-to) 100%);
+  /* solid fallback under the gradient: what the colour checks and forced-colours see */
+  background-color: var(--nabd-color-action-primary-bg);
   color: var(--nabd-color-action-primary-fg);
   display: flex;
   align-items: center;
