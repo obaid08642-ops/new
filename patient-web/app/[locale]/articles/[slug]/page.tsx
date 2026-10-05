@@ -118,9 +118,9 @@ export default async function ArticlePage({ params }: Props) {
           display: "grid",
           gap: 8,
           padding: 16,
-          border: "1px solid #E8EDEE",
+          border: "1px solid var(--nabd-color-border-subtle)",
           borderRadius: 20,
-          background: "rgba(255,255,255,0.85)",
+          background: "var(--nabd-color-glass-bg)",
         }}
       >
         {/* 13.R15: review badge reflects ONLY backend-returned fields. The public
@@ -135,9 +135,9 @@ export default async function ArticlePage({ params }: Props) {
             margin: 0,
             padding: "4px 12px",
             borderRadius: 9999,
-            border: "1px solid #E8EDEE",
-            background: "rgba(234,179,8,0.14)",
-            color: "#1E332E",
+            border: "1px solid var(--nabd-color-border-subtle)",
+            background: "var(--nabd-color-status-warning-bg)",
+            color: "var(--nabd-color-text-primary)",
             fontSize: 13,
             fontWeight: 700,
             width: "fit-content",
@@ -149,7 +149,7 @@ export default async function ArticlePage({ params }: Props) {
             ? "بانتظار المراجعة البشرية — تحقق مع الطبيب"
             : "Pending human review — verify with a clinician"}
         </p>
-        <dl style={{ display: "grid", gap: 4, margin: 0, fontSize: "0.85rem", color: "#1E332E" }}>
+        <dl style={{ display: "grid", gap: 4, margin: 0, fontSize: "0.85rem", color: "var(--nabd-color-text-primary)" }}>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             <dt style={{ fontWeight: 700 }}>{locale === "ar" ? "الكاتب:" : "Author:"}</dt>
             <dd style={{ margin: 0, overflowWrap: "anywhere" }}>

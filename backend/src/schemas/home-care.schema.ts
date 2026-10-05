@@ -86,6 +86,8 @@ export class HomeCareBooking extends Document {
   @Prop() provider_id?: string;
   @Prop() provider_name?: string;
   @Prop() provider_phone?: string;
+  /** Nurses who declined this open request (it stays open for the others). */
+  @Prop({ type: [String], default: undefined }) declined_by?: string[];
   
   @Prop() payment_method?: string;
   @Prop({ enum: ['none', 'pending', 'approved', 'rejected'], default: 'none' }) insurance_status: string;

@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { staffRoleOf } from '../../../../lib/admin-session';
 import { randomBytes } from 'node:crypto';
 
 function backendBase() {
@@ -31,6 +32,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const token = (payload as any)?.token?.accessToken || (payload as any)?.access_token || (payload as any)?.token;
     const refresh = (payload as any)?.token?.refreshToken || (payload as any)?.refresh_token;
     if (!token) return res.status(502).json({ code: 'backend_login_missing_access_token' });
+    // R11 §5: only staff accounts get an admin session.
+    if (!staffRoleOf(token)) return res.status(403).json({ code: 'admin_role_required' });
     const csrf = randomBytes(32).toString('base64url');
     // 7C-C2: enroll this browser's device id so the mandatory allow-list accepts it.
     let deviceId = req.cookies?.['admin_device'];
