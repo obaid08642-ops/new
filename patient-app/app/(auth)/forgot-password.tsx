@@ -3,33 +3,38 @@ import { View } from "react-native";
 import { router } from "expo-router";
 import { Button, Screen, StickyFooter } from "../../../packages/ui-native/src";
 import { apiFetch } from "../../src/utils/api";
-import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
-import { AuthAltLine, AuthBody, AuthFooter, AuthField, AuthTitle, AuthTopBar, useAuthUi } from '../../src/components/auth/AuthKit';
+import { AuthAltLine, AuthBody, AuthError, AuthFooter, AuthField, AuthTitle, AuthTopBar, useAuthUi } from '../../src/components/auth/AuthKit';
+import { isValidEmail } from '../../src/utils/login-credentials';
+import { serverMessage } from '../../src/utils/serverMessage';
 
 export default function ForgotPasswordScreen() {
   const { theme, tr } = useAuthUi();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleSend = async () => {
-    if (!email || !email.includes("@")) return;
+    const identifier = email.trim().toLowerCase();
+    if (!identifier) { setErrorMessage("auth.forgot.errEmpty"); return; }
+    if (!isValidEmail(identifier)) { setErrorMessage("auth.forgot.errInvalid"); return; }
+    setErrorMessage(null);
 
     setLoading(true);
     try {
       await apiFetch('/auth/send-otp', {
         method: 'POST',
-        body: JSON.stringify({ identifier: email }),
+        body: JSON.stringify({ identifier }),
       });
       setLoading(false);
       router.push({
         pathname: '/(auth)/otp',
         params: {
-          email: email,
+          email: identifier,
           mode: 'reset',
         },
       });
     } catch (err: any) {
-      showLocalizedAlert("خطأ", err.message || "فشل إرسال رمز التحقق");
+      setErrorMessage(serverMessage(err, "auth.forgot.sendFailed"));
       setLoading(false);
     }
   };
@@ -43,7 +48,7 @@ export default function ForgotPasswordScreen() {
         <StickyFooter theme={theme}>
           <AuthFooter>
             <Button
-              label={tr(loading ? 'لحظة…' : 'إرسال رمز التحقق')}
+              label={tr(loading ? 'common.pleaseWait' : 'auth.forgot.submit')}
               variant="primary"
               size="lg"
               fullWidth
@@ -52,17 +57,17 @@ export default function ForgotPasswordScreen() {
               onPress={handleSend}
               testID="forgot-submit"
             />
-            <AuthAltLine link="العودة لتسجيل الدخول" onPress={() => router.back()} />
+            <AuthAltLine link="auth.forgot.back" onPress={() => router.back()} />
           </AuthFooter>
         </StickyFooter>
       }
     >
       <AuthBody>
       <AuthTopBar onBack={() => router.back()} />
-      <AuthTitle title="نسيت كلمة المرور" sub="أدخل بريدك الإلكتروني وسنرسل لك رمز التحقق" />
+      <AuthTitle title="auth.forgot.title" sub="auth.forgot.sub" />
       <View style={{ marginTop: 22, gap: 12 }}>
         <AuthField
-          label="البريد الإلكتروني"
+          label="auth.email"
           placeholder="name@example.com"
           ltr
           keyboardType="email-address"
@@ -72,6 +77,7 @@ export default function ForgotPasswordScreen() {
           onChangeText={setEmail}
           testID="forgot-email"
         />
+        <AuthError message={errorMessage} />
       </View>
       </AuthBody>
     </Screen>

@@ -5,6 +5,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { availableSocialProviders } from '../../components/auth/AuthKit';
 import LoginScreen from '../../../app/(auth)/login';
+import { withStore } from '../utils/testStore';
 
 jest.mock('expo-router', () => ({ router: { push: jest.fn(), replace: jest.fn(), back: jest.fn() } }));
 jest.mock('../../../utils/api', () => ({ apiFetch: jest.fn(), storeAuthSession: jest.fn() }));
@@ -27,10 +28,10 @@ jest.mock('../../hooks/useSocialLogin', () => ({
 }));
 
 const metrics = { frame: { x: 0, y: 0, width: 390, height: 844 }, insets: { top: 47, bottom: 34, left: 0, right: 0 } };
-const ui = (
+const ui = withStore(
   <SafeAreaProvider initialMetrics={metrics}>
     <LoginScreen />
-  </SafeAreaProvider>
+  </SafeAreaProvider>,
 );
 
 describe('social providers gate (only providers the backend verifies, Q107)', () => {

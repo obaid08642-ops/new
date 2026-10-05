@@ -5,6 +5,7 @@ import { router } from 'expo-router';
 import { Button, Screen, StickyFooter } from '../../../packages/ui-native/src';
 import { apiFetch } from '../../src/utils/api';
 import { createRegistrationTransaction } from '../../src/services/auth/RegistrationTransaction';
+import { serverMessage } from '../../src/utils/serverMessage';
 
 import { LocalizedText } from '../../src/components/LocalizedText';
 import {
@@ -30,12 +31,12 @@ export default function RegisterScreen() {
 
   const validate = () => {
     setErrorMessage(null);
-    if (!form.name || form.name.length < 3) { setErrorMessage('الاسم مطلوب (3 أحرف على الأقل)'); return false; }
-    if (!form.phone || form.phone.length < 9) { setErrorMessage('رقم هاتف صحيح مطلوب'); return false; }
-    if (!form.email || !form.email.includes('@')) { setErrorMessage('البريد الإلكتروني مطلوب وصحيح'); return false; }
-    if (!form.password || form.password.length < 6) { setErrorMessage('كلمة المرور 6 أحرف على الأقل'); return false; }
-    if (form.password !== form.confirmPw) { setErrorMessage('كلمتا المرور غير متطابقتين'); return false; }
-    if (!agreed) { setErrorMessage('يرجى الموافقة على الشروط والأحكام أولاً'); return false; }
+    if (!form.name || form.name.length < 3) { setErrorMessage('auth.register.errName'); return false; }
+    if (!form.phone || form.phone.length < 9) { setErrorMessage('auth.register.errPhone'); return false; }
+    if (!form.email || !form.email.includes('@')) { setErrorMessage('auth.register.errEmail'); return false; }
+    if (!form.password || form.password.length < 6) { setErrorMessage('auth.err.passwordShort'); return false; }
+    if (form.password !== form.confirmPw) { setErrorMessage('auth.err.mismatch'); return false; }
+    if (!agreed) { setErrorMessage('auth.register.errAgree'); return false; }
     return true;
   };
 
@@ -64,7 +65,7 @@ export default function RegisterScreen() {
         },
       });
     } catch (err: any) {
-      setErrorMessage(err.message || 'فشل إرسال رمز التحقق');
+      setErrorMessage(serverMessage(err, 'auth.forgot.sendFailed'));
       setLoading(false);
     }
   };
@@ -78,7 +79,7 @@ export default function RegisterScreen() {
         <StickyFooter theme={theme}>
           <AuthFooter>
             <Button
-              label={tr(loading ? 'لحظة…' : 'إنشاء الحساب')}
+              label={tr(loading ? 'common.pleaseWait' : 'auth.createAccountSubmit')}
               variant="primary"
               size="lg"
               fullWidth
@@ -87,19 +88,19 @@ export default function RegisterScreen() {
               onPress={handleRegister}
               testID="register-submit"
             />
-            <AuthAltLine text="لديك حساب؟" link="تسجيل الدخول" onPress={() => router.push('/(auth)/login')} />
+            <AuthAltLine text="auth.haveAccount" link="auth.login" onPress={() => router.push('/(auth)/login')} />
           </AuthFooter>
         </StickyFooter>
       }
     >
       <AuthBody>
       <AuthTopBar onBack={() => router.back()} />
-      <AuthTitle title="إنشاء حساب" sub="دقيقة واحدة، وبعدها تطلب وتحجز بسهولة" />
+      <AuthTitle title="auth.createAccount" sub="auth.register.sub" />
 
       <View style={{ marginTop: 22, gap: 12 }}>
         <AuthField
-          label="الاسم الكامل"
-          placeholder="كما في الهوية"
+          label="auth.register.name"
+          placeholder="auth.register.namePlaceholder"
           autoComplete="name"
           textContentType="name"
           autoCapitalize="words"
@@ -108,9 +109,9 @@ export default function RegisterScreen() {
           testID="register-name"
         />
         <AuthField
-          label="البريد الإلكتروني"
+          label="auth.email"
           placeholder="name@example.com"
-          hint="نرسل عليه رمز التأكيد وفواتيرك"
+          hint="auth.register.emailHint"
           ltr
           keyboardType="email-address"
           autoComplete="email"
@@ -120,9 +121,9 @@ export default function RegisterScreen() {
           testID="register-email"
         />
         <AuthField
-          label="رقم الجوال"
-          placeholder="5X XXX XXXX"
-          hint="للتواصل بخصوص طلباتك فقط"
+          label="auth.register.phone"
+          placeholder="auth.register.phonePlaceholder"
+          hint="auth.register.phoneHint"
           prefix="+966"
           ltr
           keyboardType="phone-pad"
@@ -133,8 +134,8 @@ export default function RegisterScreen() {
           testID="register-phone"
         />
         <AuthField
-          label="كلمة المرور"
-          hint="٦ أحرف على الأقل"
+          label="auth.password"
+          hint="auth.passwordHint"
           secure
           autoComplete="new-password"
           textContentType="newPassword"
@@ -143,7 +144,7 @@ export default function RegisterScreen() {
           testID="register-password"
         />
         <AuthField
-          label="تأكيد كلمة المرور"
+          label="auth.confirmPassword"
           secure
           autoComplete="new-password"
           textContentType="newPassword"
@@ -151,12 +152,12 @@ export default function RegisterScreen() {
           onChangeText={(t: string) => setForm({ ...form, confirmPw: t })}
           testID="register-confirm"
         />
-        <AuthCheckbox checked={agreed} onToggle={() => setAgreed(!agreed)} label="أوافق على الشروط والأحكام وسياسة الخصوصية">
+        <AuthCheckbox checked={agreed} onToggle={() => setAgreed(!agreed)} label="auth.register.agree">
           <LocalizedText style={{ fontFamily: FONT.regular, fontSize: 13, lineHeight: 21, color: c.text.primary, textAlign: 'auto' }}>
-            {'أوافق على'}{' '}
-            <LocalizedText accessibilityRole="link" onPress={() => router.push('/(auth)/terms')} style={{ color: c.action.primary.bg, fontFamily: FONT.medium }}>الشروط والأحكام</LocalizedText>
-            {' '}{'و'}
-            <LocalizedText accessibilityRole="link" onPress={() => router.push('/(auth)/privacy')} style={{ color: c.action.primary.bg, fontFamily: FONT.medium }}>سياسة الخصوصية</LocalizedText>
+            {'auth.register.agreePrefix'}{' '}
+            <LocalizedText accessibilityRole="link" onPress={() => router.push('/(auth)/terms')} style={{ color: c.action.primary.bg, fontFamily: FONT.medium }}>{'auth.register.terms'}</LocalizedText>
+            {' '}{'auth.register.and'}
+            <LocalizedText accessibilityRole="link" onPress={() => router.push('/(auth)/privacy')} style={{ color: c.action.primary.bg, fontFamily: FONT.medium }}>{'auth.register.privacy'}</LocalizedText>
           </LocalizedText>
         </AuthCheckbox>
         <AuthError message={errorMessage} />
