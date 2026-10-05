@@ -6,20 +6,12 @@ import { jsonLdHtml } from '../lib/json-ld';
 
 /**
  * M6-SEO1 / ER-2: public landing page — was an admin-only redirect (M0).
- * Now a crawlable entry point with internal links to every entity directory,
- * deep-link CTA to the mobile apps, and full SEO/OG metadata.
+ * Q24: the public entity directories live on the website only; this host
+ * links there instead of serving its own copies.
  */
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://nabd.plus';
 
-const SECTIONS = [
-  { href:'/doctors', icon:'', title:'الأطباء', desc:'استشارات حضورية وأونلاين مع أطباء مرخصين في كل التخصصات' },
-  { href: '/medicines', icon: '', title: 'الأدوية والمنتجات', desc: 'قاعدة معرفة دوائية شاملة مع البدائل والتداخلات والأسعار' },
-  { href: '/facilities', icon: '', title: 'المنشآت الصحية', desc: 'مستشفيات وعيادات وصيدليات ومعامل ومراكز أشعة قريبة منك' },
-  { href: '/lab-services', icon: '', title: 'التحاليل المخبرية', desc: 'احجز تحاليلك من البيت أو المختبر وتابع نتائجك رقميًا' },
-  { href: '/home-care-services', icon: '', title: 'الرعاية المنزلية', desc: 'تمريض وعلاج طبيعي ورعاية منزلية حتى باب منزلك' },
-  { href: '/articles', icon: '', title: 'المقالات الصحية', desc: 'محتوى صحي موثوق: وقاية وتغذية وأمومة وصحة نفسية' },
-];
 
 export default function Home() {
   const jsonLd = {
@@ -67,13 +59,10 @@ export default function Home() {
           </section>
 
           <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {SECTIONS.map((s) => (
-              <Link key={s.href} href={s.href} className="bg-white rounded-2xl border border-slate-200 p-6 hover:border-teal-400 hover:shadow-md transition-all group">
-                <div className="text-3xl mb-3">{s.icon}</div>
-                <h2 className="font-bold text-lg text-slate-900 group-hover:text-teal-700">{s.title}</h2>
-                <p className="text-sm text-slate-500 mt-1 leading-6">{s.desc}</p>
-              </Link>
-            ))}
+            <a href={SITE} className="bg-white rounded-2xl border border-slate-200 p-6 hover:border-teal-400 hover:shadow-md transition-all group">
+              <h2 className="font-bold text-lg text-slate-900 group-hover:text-teal-700">دليل الأطباء والأدوية والمنشآت</h2>
+              <p className="text-sm text-slate-500 mt-1 leading-6">تصفّح الأطباء والأدوية والتحاليل والرعاية المنزلية والمقالات الصحية على موقع نبض.</p>
+            </a>
             <div id="download" className="bg-teal-700 rounded-2xl p-6 text-white flex flex-col justify-between">
               <div>
                 <EmptyIcon name="phone" size={36} color="#FFFFFF" className="mb-3" />

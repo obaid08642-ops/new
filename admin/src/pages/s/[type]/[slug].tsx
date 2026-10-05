@@ -17,13 +17,14 @@ import { jsonLdHtml } from '../../../lib/json-ld';
 const API_BASE = process.env.ADMIN_BACKEND_URL || '';
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://nabd.plus';
 
-const TYPE_AR: Record<string, { dir: string; label: string }> = {
-  medicine: { dir: '/medicines', label: 'الأدوية' },
-  doctor: { dir: '/doctors', label: 'الأطباء' },
-  'lab-service': { dir: '/lab-services', label: 'التحاليل' },
-  'home-care-service': { dir: '/home-care-services', label: 'الرعاية المنزلية' },
-  facility: { dir: '/facilities', label: 'المنشآت' },
-  article: { dir: '/articles', label: 'المقالات الصحية' },
+// Q24: the directory listings live on the website (SITE), not on this host.
+const TYPE_AR: Record<string, { label: string }> = {
+  medicine: { label: 'الأدوية' },
+  doctor: { label: 'الأطباء' },
+  'lab-service': { label: 'التحاليل' },
+  'home-care-service': { label: 'الرعاية المنزلية' },
+  facility: { label: 'المنشآت' },
+  article: { label: 'المقالات الصحية' },
 };
 
 interface Props { meta: any; type: string; }
@@ -58,7 +59,7 @@ export default function EntityPage({ meta, type }: Props) {
 
   const e = meta.entity || {};
   const name = e.name_ar || e.name_en || e.full_name || meta.title;
-  const t = TYPE_AR[type] || { dir: '/', label: '' };
+  const t = TYPE_AR[type] || { label: '' };
 
   return (
     <>
@@ -94,7 +95,7 @@ export default function EntityPage({ meta, type }: Props) {
           <nav className="max-w-4xl mx-auto px-6 pb-3 text-xs text-slate-400 flex gap-2">
             <Link href="/" className="hover:text-teal-700">الرئيسية</Link>
             <span>/</span>
-            <Link href={t.dir} className="hover:text-teal-700">{t.label}</Link>
+            <span>{t.label}</span>
             <span>/</span>
             <span className="text-slate-600">{name}</span>
           </nav>
