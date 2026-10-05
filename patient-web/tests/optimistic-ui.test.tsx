@@ -6,7 +6,8 @@ vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 
 import { ToastViewport } from "../components-next/network/toast-viewport";
 import { ConsultationPaymentAction } from "../components-next/consultation-payment-action";
-import { PharmacyPaymentClient } from "../components-next/pharmacy-payment-client";
+import { PharmacyPaymentClient, PharmacyPaymentMethods } from "../components-next/pharmacy-payment-client";
+import { pendingMode } from "../lib/api/optimistic";
 import { clearToasts, showToast } from "../lib/api/net/toast";
 
 /**
@@ -54,5 +55,35 @@ describe("P15.3 — payment never looks confirmed before the server confirms", (
     expect(html).toContain("Loading…");
     expect(html).not.toContain("Amount due");
     expect(html).not.toContain("Redirecting");
+  });
+});
+
+describe("F5 — the payment screen renders the pendingMode processing state", () => {
+  const methods = [{ id: "card" as const, kind: "online" as const }];
+
+  it("pins the contract: payment is processing, never optimistic", () => {
+    expect(pendingMode("payment")).toBe("processing");
+  });
+
+  it("idle methods show the amount with no processing marker", () => {
+    const html = renderToStaticMarkup(
+      <PharmacyPaymentMethods amount={42.5} methods={methods} paying={null} locale="en" onPay={() => {}} />,
+    );
+    expect(html).toContain("Amount due: 42.50 SAR");
+    expect(html).not.toContain("data-pending-mode");
+    expect(html).not.toContain("Redirecting");
+    expect(html).not.toContain("disabled");
+  });
+
+  it("in-flight payment renders processing: tapped method redirects, all buttons disabled, no success", () => {
+    // No charge is performed here — this asserts the UI state only.
+    const html = renderToStaticMarkup(
+      <PharmacyPaymentMethods amount={42.5} methods={methods} paying="card" locale="en" onPay={() => {}} />,
+    );
+    expect(html).toContain('data-pending-mode="processing"');
+    expect(html).toContain("Redirecting…");
+    expect(html).toContain("disabled");
+    expect(html).not.toContain("Paid");
+    expect(html).not.toContain("confirmed");
   });
 });

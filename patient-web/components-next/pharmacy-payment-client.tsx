@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { pendingMode } from "@/lib/api/optimistic";
 
 type Method = { id: "card" | "apple-pay" | "google-pay"; kind: "online" };
 
@@ -26,7 +27,7 @@ export function PharmacyPaymentClient({ orderId, locale }: { orderId: string; lo
   const [paymentStatus, setPaymentStatus] = useState("");
   const [amount, setAmount] = useState(0);
   const [methods, setMethods] = useState<Method[]>([]);
-  const [paying, setPaying] = useState<string | null>(null);
+  const [paying, setPaying] = useState<Method["id"] | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true); setError(null);
@@ -107,10 +108,49 @@ export function PharmacyPaymentClient({ orderId, locale }: { orderId: string; lo
     m === "card" ? (ar ? "بطاقة مدى/ائتمانية" : "Mada / Credit card") : m === "apple-pay" ? "Apple Pay" : "Google Pay";
 
   return (
-    <div>
+    <PharmacyPaymentMethods
+      amount={amount}
+      methods={methods}
+      paying={paying}
+      locale={locale}
+      onPay={(id) => void pay(id)}
+    />
+  );
+}
+
+/**
+ * F5 — the payment methods block, wired to the optimistic-UI contract.
+ *
+ * `pendingMode("payment")` is `"processing"` (never optimistic), and the
+ * in-flight state renders exactly that: the tapped method shows the
+ * redirect/processing copy while every method button is disabled, and the
+ * container carries `data-pending-mode="processing"` so the state is
+ * assertable without performing any charge. Split out as a pure view so the
+ * processing state is reachable in tests without driving the fetch flow.
+ */
+export function PharmacyPaymentMethods({
+  amount,
+  methods,
+  paying,
+  locale,
+  onPay,
+}: {
+  amount: number;
+  methods: Method[];
+  paying: Method["id"] | null;
+  locale: string;
+  onPay: (method: Method["id"]) => void;
+}) {
+  const ar = locale === "ar";
+  const mode = pendingMode("payment");
+  const methodLabel = (m: Method["id"]) =>
+    m === "card" ? (ar ? "بطاقة مدى/ائتمانية" : "Mada / Credit card") : m === "apple-pay" ? "Apple Pay" : "Google Pay";
+
+  return (
+    <div data-pending-mode={paying ? mode : undefined}>
       <p>{ar ? `المبلغ المستحق: ${amount.toFixed(2)} ر.س` : `Amount due: ${amount.toFixed(2)} SAR`}</p>
       {methods.map((m) => (
-        <button key={m.id} type="button" disabled={paying !== null} onClick={() => void pay(m.id)}>
+        <button key={m.id} type="button" disabled={paying !== null} onClick={() => onPay(m.id)}>
           {paying === m.id ? (ar ? "جارٍ التحويل…" : "Redirecting…") : methodLabel(m.id)}
         </button>
       ))}
